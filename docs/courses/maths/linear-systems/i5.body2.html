@@ -1,0 +1,886 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 46rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; max-width: 34rem; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  /* The circuit, with the grid of currents beside it on a laptop and under it on a phone. */
+  .board { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: flex-start; }
+  .scene { display: block; flex: 1 1 19rem; max-width: 26rem; width: 100%; min-width: 0; }
+  .scene:focus { outline: none; }
+  .scene:focus-visible { outline: 2px solid var(--k-accent); outline-offset: 2px; border-radius: 6px; }
+  .circ #art * { pointer-events: none; }
+  .circ .w { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .circ .pl { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .circ .ps { stroke: var(--k-ink); stroke-width: 5; }
+  .circ .rs { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .circ .jd { fill: var(--k-ink); }
+  .circ .jr { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  .circ .ch { fill: var(--k-ink); }
+  .circ .rt { fill: none; stroke: var(--k-accent2); stroke-opacity: .25; stroke-width: 10; stroke-linejoin: round; stroke-linecap: round; }
+  .circ .lv { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .circ .lc { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .circ .pm { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .circ .tg { font: 700 13px var(--k-font); fill: var(--k-accent2); }
+  .circ .tn { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .circ .tv { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .circ .ts, .circ .nm, .circ .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .circ .tr { fill: var(--k-fill1); fill-opacity: .35; stroke: var(--k-accent2); stroke-width: 2.5; }
+  .circ .hp { fill: none; stroke: var(--k-bg); stroke-opacity: 0; stroke-width: 34; pointer-events: stroke; touch-action: none; cursor: grab; }
+  .gridf .gl { stroke: var(--k-line); stroke-width: 1; }
+  .gridf .gf { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }
+  .gridf .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .gridf .at { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .gridf .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  /* Loop 1's line solid, loop 2's dashed. */
+  .gridf .l1 { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .gridf .l2 { stroke: var(--k-accent2); stroke-width: 2.5; stroke-dasharray: 8 6; fill: none; }
+  .gridf .dot { fill: var(--k-accent2); }
+  .gridf .xr { fill: none; stroke: var(--k-ink); stroke-width: 2; }
+  /* The two current dials, one under each battery's side. */
+  .dials { display: flex; flex-wrap: wrap; gap: 10px 18px; max-width: 40rem; }
+  .dial { flex: 1 1 14rem; min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px 8px; align-items: center; }
+  .dial .dh { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .dial .dn { color: var(--k-muted); font-weight: 600; }
+  .dial .dv { font-weight: 700; white-space: nowrap; }
+  .dial input[type="range"] { width: 100%; min-width: 0; height: 44px; margin: 0; accent-color: var(--k-accent2); }
+  .dial .k-btn { min-width: 44px; min-height: 44px; padding: 0 12px; font-size: 1.2rem; }
+  /* The working under the picture: one line per move, its name on the left. */
+  .work { position: relative; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 3px 12px; padding: 4px 0 4px 15px; line-height: 1.45; max-width: 40rem; }
+  .work .bar { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 2px; background: var(--k-accent2); }
+  .work .wl { color: var(--k-muted); font-size: .85rem; font-weight: 700; padding-top: .12rem; }
+  .work .wm { font-weight: 600; }
+  .work .pc { white-space: nowrap; }
+  .work .pc.ok { color: var(--k-accent2); font-weight: 700; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stack one to a row, each label whole. */
+  .row.picks { flex-direction: column; gap: 8px; }
+  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; font-size: 1.05rem; padding-inline: 10px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .pz.ask .fb:empty { min-height: 0; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead" id="lead">Two example batteries feed one load. Battery 1 is 12 V with 1 Ω inside it, battery 2 is 12 V with 2 Ω inside it, and the load is 2 Ω.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="board">
+      <svg class="scene circ" id="circ" viewBox="0 0 340 306" width="100%" role="img" tabindex="0" aria-label=""><g id="art"></g><g id="top"></g></svg>
+      <svg class="scene gridf" id="grid" viewBox="0 0 340 328" width="100%" role="img" aria-label="" hidden><g id="gart"></g></svg>
+    </div>
+    <div class="dials" id="dials">
+      <div class="dial"><div class="dh"><span class="dn" id="dn1"></span><span class="dv" id="dv1"></span></div><span id="dm1"></span><input type="range" id="rg1" min="-2" max="6" step="0.5" value="1" aria-label="I₁, battery 1's current, in amps"><span id="dp1"></span></div>
+      <div class="dial"><div class="dh"><span class="dn" id="dn2"></span><span class="dv" id="dv2"></span></div><span id="dm2"></span><input type="range" id="rg2" min="-2" max="6" step="0.5" value="1" aria-label="I₂, battery 2's current, in amps"><span id="dp2"></span></div>
+    </div>
+    <div class="replay" id="replay"></div>
+    <div class="work" id="work"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Drag a ring round its loop, or set the dials, to try any currents.</p>
+
+<script>
+  // ---------- numbers, written as the lesson writes them ----------
+  const r6 = (v) => Math.round(v * 1e6) / 1e6;
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const near = (a, b, t) => Math.abs(a - b) <= (t == null ? 1e-7 : t);
+  const mn = (s) => String(s).replace(/-/g, '−');
+  const fv = (v) => mn(String(r6(v)));
+  const fa = (v) => fv(Math.abs(v));
+  const par = (v) => (v < 0 ? '(' + fv(v) + ')' : fv(v));
+  const IN = ['', 'I₁', 'I₂', 'I₃'];
+  const LO = -2, HI = 6, STEP = 0.5;
+  const half = (v) => r6(K.clamp(Math.round(v / STEP) * STEP, LO, HI));
+
+  // ---------- the circuit's rule ----------
+  // Two batteries (voltage E, resistance r inside) feed one load R. I₁ and I₂ flow up through the batteries.
+  const CIR = (E1, r1, E2, r2, R) => ({ E1, r1, E2, r2, R });
+  const BASE = CIR(12, 1, 12, 2, 2), LOW = CIR(12, 1, 4, 2, 2), NEW = CIR(10, 1, 8, 1, 1);
+  const Eof = (C, k) => (k === 1 ? C.E1 : C.E2), rOf = (C, k) => (k === 1 ? C.r1 : C.r2);
+  const i3 = (I) => r6(I[0] + I[1]);   // the junction law: in equals out
+  // What each part adds as the walk passes it: the battery from − to +, then its own resistance and the
+  // load, each crossed along its arrow (a drop, current × resistance; a minus current makes it a rise).
+  const changes = (C, k, I) => [r6(Eof(C, k)), r6(-rOf(C, k) * I[k - 1]), r6(-C.R * i3(I))];
+  const walk = (C, k, I) => r6(changes(C, k, I).reduce((a, b) => a + b, 0));
+  const fits = (C, k, I) => near(walk(C, k, I), 0);
+  // Each loop's walk set to 0 and tidied to a·I₁ + b·I₂ = c.
+  const eqOf = (C, k) => (k === 1 ? { a: C.r1 + C.R, b: C.R, c: C.E1 } : { a: C.R, b: C.r2 + C.R, c: C.E2 });
+  function solve(C) {
+    const p = eqOf(C, 1), q = eqOf(C, 2), det = p.a * q.b - q.a * p.b;
+    return [r6((p.c * q.b - q.c * p.b) / det), r6((p.a * q.c - q.a * p.c) / det)];
+  }
+
+  // ---------- the working, built from the rule ----------
+  const co = (n, v) => (n === 1 ? '' : fv(n)) + v;
+  const eqT = (e) => co(e.a, 'I₁') + ' + ' + co(e.b, 'I₂') + ' = ' + fv(e.c);
+  const junT = (I) => 'I₃ = ' + fv(I[0]) + ' + ' + par(I[1]) + ' = ' + fv(i3(I)) + ' A';
+  const pairT = (I) => 'I₁ = ' + fv(I[0]) + ' A, I₂ = ' + fv(I[1]) + ' A';
+  // "12 − 1 × 3 − 2 × 4.5 = 12 − 3 − 9 = 0 ✓": a drop against a turned-round arrow is added.
+  function walkT(C, k, I, short) {
+    const ch = changes(C, k, I), cur = [I[k - 1], i3(I)], R = [rOf(C, k), C.R];
+    const sg = (n) => (ch[n + 1] > 0 ? ' + ' : ' − ');
+    const long = fv(ch[0]) + sg(0) + fv(R[0]) + ' × ' + fa(cur[0]) + sg(1) + fv(R[1]) + ' × ' + fa(cur[1]);
+    const mid = fv(ch[0]) + sg(0) + fa(ch[1]) + sg(1) + fa(ch[2]), tot = walk(C, k, I);
+    return (short ? mid : long + ' = ' + mid) + ' = ' + fv(tot) + (near(tot, 0) ? ' ✓' : ', not 0');
+  }
+  const symT = (C, k, swapped) => fv(Eof(C, k)) + ' − ' + fv(rOf(C, k)) + ' × ' + IN[k] + ' − ' + fv(C.R) + ' × ' + (swapped ? '(I₁ + I₂)' : 'I₃') + ' = 0';
+  // Elimination: double loop 1 so both loops hold the same amount of I₂, take loop 2 away, put I₁ back.
+  function solveRows(C, back) {
+    const p = eqOf(C, 1), q = eqOf(C, 2), m = q.b / p.b, P2 = { a: p.a * m, b: p.b * m, c: p.c * m };
+    const Ka = r6(P2.a - q.a), D = r6(P2.c - q.c), x = r6(D / Ka), y = solve(C)[1];
+    const rows = [{ l: 'Loop 1 × ' + fv(m), s: eqT(P2) },
+      { l: 'Take away', s: co(Ka, 'I₁') + ' = ' + fv(P2.c) + ' − ' + fv(q.c) + ' = ' + fv(D) + ', so I₁ = ' + fv(D) + ' ÷ ' + fv(Ka) + ' = ' + fv(x) + ' A' }];
+    if (back === 1) rows.push({ l: 'Put back', s: 'I₂ = ' + fv(p.c) + ' − ' + fv(p.a) + ' × ' + fv(x) + ' = ' + fv(p.c) + ' − ' + fv(p.a * x) + ' = ' + fv(y) + ' A' });
+    else {
+      const rest = r6(q.c - q.a * x);
+      rows.push({ l: 'Put back', s: fv(q.a) + ' × ' + fv(x) + ' + ' + co(q.b, 'I₂') + ' = ' + fv(q.c) + ', so ' + co(q.b, 'I₂') + ' = ' + fv(q.c) + ' − ' + fv(q.a * x) + ' = ' + fv(rest) + ' and I₂ = ' + fv(rest) + ' ÷ ' + fv(q.b) + ' = ' + fv(y) + ' A' });
+    }
+    return rows;
+  }
+
+  // ---------- where things go: three branches, two loops ----------
+  const X1 = 76, XM = 170, X2 = 264, YT = 56, YB = 250, H = 306;
+  const VB = YB - YT, HZ = XM - X1, LEN = 2 * VB + 2 * HZ;
+  // How far round its loop the walk passes the battery, its own resistance and the load.
+  const POS = [YB - 163, YB - 98, VB + HZ + (126 - YT)];
+  const xsOf = (k) => (k === 1 ? X1 : X2);
+  const loopD = (k) => 'M' + xsOf(k) + ' ' + YB + 'V' + YT + 'H' + XM + 'V' + YB + 'Z';
+  function ptAt(k, s) {
+    const x0 = xsOf(k);
+    s = K.clamp(s, 0, LEN);
+    if (s <= VB) return [x0, YB - s];
+    if (s <= VB + HZ) return [x0 + (XM - x0) * (s - VB) / HZ, YT];
+    if (s <= 2 * VB + HZ) return [XM, YT + (s - VB - HZ)];
+    return [XM + (x0 - XM) * (s - 2 * VB - HZ) / HZ, YB];
+  }
+  // The point of loop k nearest p, as a distance round the loop; the walk never jumps across its start.
+  function project(k, p, prev) {
+    const x0 = xsOf(k), segs = [[x0, YB, x0, YT, 0], [x0, YT, XM, YT, VB], [XM, YT, XM, YB, VB + HZ], [XM, YB, x0, YB, 2 * VB + HZ]];
+    let best = null;
+    segs.forEach((g) => {
+      const dx = g[2] - g[0], dy = g[3] - g[1], L2 = dx * dx + dy * dy;
+      const q = K.clamp(((p[0] - g[0]) * dx + (p[1] - g[1]) * dy) / L2, 0, 1);
+      const dd = Math.hypot(p[0] - (g[0] + q * dx), p[1] - (g[1] + q * dy));
+      if (!best || dd < best.d - 1e-9) best = { d: dd, s: g[4] + q * Math.sqrt(L2) };
+    });
+    let s = best.s;
+    if (s >= LEN - 1e-6 || s <= 1e-6) s = prev > LEN / 2 ? LEN : 0;
+    if (Math.abs(s - prev) > LEN / 2) s = prev > LEN / 2 ? LEN : 0;
+    return { s, d: best.d };
+  }
+  const runT = (C, k, I, s) => r6(changes(C, k, I).reduce((a, c, n) => a + (POS[n] <= s + 1e-9 ? c : 0), 0));
+
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+  const say = (str) => String(str).replace(/I([₁₂₃])/g, (m, d) => 'I ' + ('₁₂₃'.indexOf(d) + 1)).replace(/−/g, 'minus ').replace(/×/g, 'times').replace(/÷/g, 'divided by').replace(/✓/g, 'fits').replace(/Ω/g, 'ohms');
+
+  // ---------- timing: how far a part due at t0 has arrived, noting the timetable for the timing check ----------
+  let T = Infinity, latest = 0, earliest = Infinity;
+  function note(t0, dd) { if (t0 + dd > latest) latest = t0 + dd; if (t0 < earliest) earliest = t0; }
+  function arr(t0, dd) { if (t0 < 0) return 1; note(t0, dd); return K.arrive(T, t0, dd); }
+  function invEase(y) { let a = 0, b = 1; for (let n = 0; n < 30; n++) { const m = (a + b) / 2; if (K.ease(m) < y) a = m; else b = m; } return (a + b) / 2; }
+  // A ring walking once round its loop from t0, and when it passes each part.
+  function walker(t0, dur) {
+    note(t0, dur);
+    const q = T <= t0 ? 0 : T >= t0 + dur ? 1 : K.ease((T - t0) / dur);
+    return { s: LEN * q, pass: POS.map((p) => t0 + dur * invEase(p / LEN)), end: t0 + dur };
+  }
+  const stay = (s) => ({ s, pass: [-10, -10, -10], end: -10 });
+  const W2 = (st, a, b) => (st.s ? [stay(st.s[0]), stay(st.s[1])] : [a, b]);
+  // The dials' pair at time T: from `start`, each move [t0, dur, to] turns the dials in 0.5 A clicks.
+  function dialsAt(start, moves) {
+    let P = start, stop = false;
+    moves.forEach((m) => {
+      note(m[0], m[1]);
+      if (stop || T <= m[0]) { stop = true; return; }
+      const q = T >= m[0] + m[1] ? 1 : K.ease((T - m[0]) / m[1]);
+      P = [half(K.lerp(P[0], m[2][0], q)), half(K.lerp(P[1], m[2][1], q))];
+      if (q < 1) stop = true;
+    });
+    return P;
+  }
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const row = (l, s, a, prose) => ({ l, s, a, prose: !!prose });
+  const OPEN = (st) => st.res === 'right' || st.why;
+  const WRONG = (st) => st.res === 'wrong' && !st.why;
+  const triedRows = (st, d) => (WRONG(st) && d.tried && d.tried[st.pick] ? [row('Tried', d.tried[st.pick][0], arr(0.1, 0.3), d.tried[st.pick][1])] : []);
+  // A walk row: kept in place (unseen) from the start of a ring's walk and faded in once it is back at the
+  // start, so the working never jumps; a walk Dan drags all the way round adds its row there and then.
+  const walkRows = (C, I, W) => [1, 2].filter((k) => W[k - 1].end >= 0 || W[k - 1].s >= LEN - 1e-6)
+    .map((k) => row('Loop ' + k + ' walk', walkT(C, k, I), W[k - 1].end >= 0 ? arr(W[k - 1].end + 0.1, 0.3) : 1));
+  function base(C, extra) {
+    return Object.assign({ C, mode: 'num', I: [1, 1], labs: null, W: null, names: [1, 1], route: null, jr: 0, br: 0, grid: null, rows: [], drag: false, Eold: null }, extra);
+  }
+  // Which pair fits both loops: the right pair is worked through and ringed on the grid; a wrong one is walked.
+  function pairPlan(st, d) {
+    const C = d.C, o = OPEN(st), w = WRONG(st), pre = [row('Loop 1', eqT(eqOf(C, 1)), 1), row('Loop 2', eqT(eqOf(C, 2)), 1)];
+    if (!o && !w) return base(C, { mode: 'sym', W: [stay(0), stay(0)], rows: pre });
+    const I = o ? solve(C) : d.opts[st.pick], W = W2(st, walker(0.1, 1.2), walker(0.1, 1.2));
+    const grid = { lines: [1, 1], dot: I, ring: o ? arr(1.35, 0.3) : 0, key: o ? 'the pair that fits' : 'the pair tried' };
+    const checks = [row('Loop 1 walk', walkT(C, 1, I, true), arr(1.4, 0.3)), row('Loop 2 walk', walkT(C, 2, I, true), arr(1.55, 0.3))];
+    if (o) return base(C, { I, W, drag: true, grid, rows: pre.concat(solveRows(C, d.back).map((r, n) => Object.assign(r, { a: arr(0.4 + n * 0.15, 0.3) })), [row('Junction', junT(I), arr(0.85, 0.3))], checks) });
+    return base(C, { I, W, grid, rows: pre.concat([row('Tried', pairT(I), arr(0.15, 0.3))], checks) });
+  }
+  const FB = 2.5, FADE = 0.35;
+  const STEPS = [
+    { show: true, dials: true, name: 'Two batteries, one load', dur: 3.4,
+      text: 'Two example batteries feed one load. Each has a resistance of its own inside it, its *internal resistance*, drawn just beside it. Battery 1 and the load make loop 1, and battery 2 and the load make loop 2.',
+      plan: (st) => base(BASE, { I: st.I || [1, 1], route: [arr(0.5, 1.2), arr(1.9, 1.2)], names: [arr(1.5, 0.4), arr(3.0, 0.4)] }) },
+    { show: true, dials: true, name: 'Where currents meet', dur: 3.9,
+      text: 'The currents flowing into a junction add up to the currents flowing out. This is the *junction law*, so the load carries `I₃ = I₁ + I₂`. The bottom junction says the same again.',
+      plan: (st) => {
+        const I = st.I || dialsAt([1, 1], [[0.9, 1.0, [3, 1]], [2.1, 0.8, [3, 2]]]);
+        return base(BASE, { I, jr: arr(0.4, 0.4), br: arr(3.2, 0.4),
+          rows: [row('Junction', 'I₃ = I₁ + I₂', arr(0.5, 0.3)), row('Dials', junT(I), arr(0.65, 0.3)), row('Bottom', 'I₃ flows in and I₁ + I₂ flow out, the same equation again', arr(3.3, 0.3), true)] });
+      } },
+    { kind: 'cur', name: 'The load\'s current', opts: ['8.5 A', '1.5 A', '5 A'], want: 1,
+      task: 'The load carries 5 A, and battery 1 sends 3.5 A of it. What current does battery 2 send?',
+      hint: 'Not quite. What flows into the junction flows out.',
+      hints: ['Not quite. That adds the two, but the load\'s 5 A is already the total.', null, 'Not quite. 5 A is the load\'s whole current, and battery 1 sends 3.5 A of it.'],
+      tried: [['3.5 + 8.5 = 12 A, not 5 A'], null, ['3.5 + 5 = 8.5 A, not 5 A']],
+      why: 'The junction law says `I₃ = I₁ + I₂`, so `5 = 3.5 + I₂`. Take 3.5 from both sides, and `I₂ = 5 − 3.5 = 1.5 A`.',
+      plan: (st, d) => {
+        const o = OPEN(st);
+        return base(BASE, { I: [3.5, 1.5], labs: [{ v: 3.5 }, o ? { v: null, to: 1.5, at: 0.1 } : { v: null }, { v: 5 }], jr: 1,
+          rows: o ? [row('Junction', 'I₃ = I₁ + I₂', arr(0.3, 0.3)), row('So', '5 = 3.5 + I₂, so I₂ = 5 − 3.5 = 1.5 A', arr(0.45, 0.3))] : triedRows(st, d) });
+      } },
+    { show: true, dials: true, name: 'Walk the loop', dur: 4.0,
+      text: 'The ring walks once round loop 1, adding each change it passes. Crossing battery 1 from − to + adds 12 V, and crossing a resistance along its arrow takes away current × resistance. The *loop law* says the right currents bring the walk back to 0, but 1 A and 1 A leave 7 V.',
+      plan: (st) => {
+        const I = st.I || [1, 1], W = W2(st, walker(0.5, 3.0), stay(0));
+        return base(BASE, { I, W, drag: true, rows: walkRows(BASE, I, W) });
+      } },
+    { kind: 'walk', name: 'Walk it yourself', opts: ['23 V', '1 V', '0 V'], want: 1,
+      task: 'The dials are set to `I₁ = 3 A` and `I₂ = 1 A`. Walk loop 1 from its ring. Where does the total end?',
+      hint: 'Not quite. Add each change as the ring passes it.',
+      hints: ['Not quite. That adds the drops. Crossing a resistance along its arrow takes its drop away.', null, 'Not quite. Only currents that fit loop 1 bring its walk back to 0.'],
+      tried: [['12 + 1 × 3 + 2 × 4 = 23'], null, ['0 V would mean 3 A and 1 A fit loop 1', true]],
+      why: 'Battery 1 adds 12 V. Its 1 Ω takes away `1 × 3 = 3 V`. The load carries `3 + 1 = 4 A`, so it takes away `2 × 4 = 8 V`. That leaves `12 − 3 − 8 = 1 V`.',
+      plan: (st, d) => {
+        const o = OPEN(st), I = [3, 1], W = o ? W2(st, walker(0.1, 1.8), stay(0)) : [stay(0), stay(0)];
+        return base(BASE, { I, W, drag: o, rows: o ? [row('Junction', junT(I), arr(1.95, 0.3))].concat(walkRows(BASE, I, W)) : triedRows(st, d) });
+      } },
+    { show: true, name: 'Letters for the currents', dur: 4.1,
+      text: 'Now the ring walks loop 1 with letters for the currents. The right currents bring the walk back to 0, so the walk is an equation. Tidied, loop 1 says `3I₁ + 2I₂ = 12`.',
+      plan: (st) => {
+        const W = W2(st, walker(0.5, 2.6), stay(0));
+        return base(BASE, { mode: 'sym', W, drag: true,
+          rows: [row('Loop 1 walk', symT(BASE, 1, false), arr(3.2, 0.3)), row('Junction', 'I₃ = I₁ + I₂', arr(3.35, 0.3)), row('Swap in', symT(BASE, 1, true), arr(3.5, 0.3)), row('Tidy', eqT(eqOf(BASE, 1)), arr(3.65, 0.3))] });
+      } },
+    { kind: 'eq', name: 'Loop 2\'s equation', opts: ['4I₂ = 12', '2I₁ + 4I₂ = 12', '2I₁ + 2I₂ = 12'], want: 1,
+      task: 'Walk loop 2 the same way, from its ring. Which equation does it give?',
+      hint: 'Not quite. Walk battery 2, its own resistance, then the load.',
+      hints: ['Not quite. The load carries `I₃ = I₁ + I₂`, not `I₂` alone.', null, 'Not quite. Battery 2\'s own 2 Ω takes away `2 × I₂` as well.'],
+      tried: [['4I₂ = 12'], null, ['2I₁ + 2I₂ = 12']],
+      why: 'Crossing battery 2 from − to + adds 12. Its 2 Ω takes away `2 × I₂`, and the load takes away `2 × (I₁ + I₂)`. Back at the start that makes 0, so `12 − 2 × I₂ − 2 × (I₁ + I₂) = 0`, which tidies to `2I₁ + 4I₂ = 12`.',
+      plan: (st, d) => {
+        const o = OPEN(st), W = o ? W2(st, stay(LEN), walker(0.1, 1.6)) : [stay(LEN), stay(0)];
+        const pre = [row('Loop 1', eqT(eqOf(BASE, 1)), 1)];
+        return base(BASE, { mode: 'sym', W, drag: o, rows: pre.concat(o ? [row('Loop 2 walk', symT(BASE, 2, false), arr(1.75, 0.3)), row('Swap in', symT(BASE, 2, true), arr(1.9, 0.3)), row('Tidy', eqT(eqOf(BASE, 2)), arr(2.05, 0.3))] : triedRows(st, d)) });
+      } },
+    { show: true, dials: true, grid: true, name: 'Two lines', dur: 3.7,
+      text: 'Every pair of currents that brings loop 1 back to 0 lies on one straight line, and so does every pair for loop 2. The dot is the dials\' pair. Only where the lines cross do both walks end at 0.',
+      plan: (st) => {
+        const I = st.I || dialsAt([1, 1], [[0.6, 1.0, [4, 0]], [2.2, 0.8, [3, 1.5]]]), W = W2(st, stay(LEN), stay(LEN));
+        return base(BASE, { I, W, drag: true, grid: { lines: [arr(0.4, 0.4), arr(0.55, 0.4)], dot: I, ring: arr(3.1, 0.4), key: 'the dials\' pair' },
+          rows: [row('Loop 1', eqT(eqOf(BASE, 1)), arr(0.45, 0.3)), row('Loop 2', eqT(eqOf(BASE, 2)), arr(0.6, 0.3)), row('Loop 1 walk', walkT(BASE, 1, I, true), arr(1.7, 0.3)), row('Loop 2 walk', walkT(BASE, 2, I, true), arr(1.85, 0.3))] });
+      } },
+    { kind: 'pair', name: 'Both loops at once', C: BASE, back: 2, opts: [[4, 0], [3, 1.5], [2, 2]], want: 1,
+      task: 'Which pair of currents brings both loops back to 0?',
+      hint: 'Not quite. Find the pair that fits both loops.',
+      hints: ['Not quite. That fits loop 1 only. Loop 2 ends at 4 V.', null, 'Not quite. That fits loop 2 only. Loop 1 ends at 2 V.'],
+      why: 'Double loop 1 to get `6I₁ + 4I₂ = 24`, and take loop 2 away. That leaves `4I₁ = 12`, so `I₁ = 3 A`. Put it back into loop 2 and `I₂ = 1.5 A`. Both walks then end at 0.',
+      plan: pairPlan },
+    { show: true, dials: true, name: 'A minus current', dur: 3.7,
+      text: 'Swap battery 2 for an example 4 V one and solve again. `I₂` comes out at −1.5 A, which only means battery 2\'s current flows the other way, so its arrow turns round. Both walks still end at 0.',
+      plan: (st) => {
+        const swap = 0.65, C = (st.I || T >= swap + 0.15) ? LOW : BASE;
+        const I = st.I || dialsAt([3, 1.5], [[1.5, 1.2, [5, -1.5]]]), W = W2(st, stay(LEN), stay(LEN));
+        const sr = solveRows(LOW, 2).map((r, n) => Object.assign(r, { a: arr(1.2 + n * 0.15, 0.3) }));
+        return base(C, { I, W, drag: true, Eold: st.I ? null : { v: 12, at: swap },
+          rows: [row('Loop 1', eqT(eqOf(LOW, 1)), arr(0.9, 0.3)), row('Loop 2', eqT(eqOf(LOW, 2)), arr(1.05, 0.3))].concat(sr,
+            [row('Junction', junT(I), arr(2.8, 0.3)), row('Loop 1 walk', walkT(LOW, 1, I, true), arr(2.95, 0.3)), row('Loop 2 walk', walkT(LOW, 2, I, true), arr(3.1, 0.3))]) });
+      } },
+    { kind: 'pair', name: 'New batteries', C: NEW, back: 1, opts: [[5, 0], [4, 2], [2, 4]], want: 1,
+      task: 'Two new example batteries. Battery 1 is 10 V and battery 2 is 8 V, and each internal resistance and the load are 1 Ω. What are `I₁` and `I₂`?',
+      hint: 'Not quite. Find the pair that fits both loops.',
+      hints: ['Not quite. That fits loop 1 only. Loop 2 ends at 3 V.', null, 'Not quite. That swaps the two currents, so neither loop ends at 0.'],
+      why: 'Loop 1 walks to `10 − 1 × I₁ − 1 × (I₁ + I₂) = 0`, so `2I₁ + I₂ = 10`. Loop 2 gives `I₁ + 2I₂ = 8`. Double loop 1 and take loop 2 away, so `3I₁ = 12` and `I₁ = 4 A`. Put it back into loop 1, and `I₂ = 10 − 2 × 4 = 2 A`.',
+      plan: pairPlan },
+    { kind: 'cur', name: 'A minus at the junction', opts: ['5 A', '3 A', '4 A'], want: 1,
+      task: 'Last one. The dials are set to `I₁ = 4 A` and `I₂ = −1 A`. What current does the load carry?',
+      hint: 'Not quite. Use the junction law, minus and all.',
+      hints: ['Not quite. That drops the minus. Battery 2\'s 1 A flows the other way, so it takes away.', null, 'Not quite. Battery 2\'s current still counts, with its minus.'],
+      tried: [['I₃ = 4 + 1 = 5 A'], null, ['I₃ = 4 A, leaving out I₂', true]],
+      why: 'The junction law holds with a minus current too, so `I₃ = I₁ + I₂ = 4 + (−1) = 3 A`. Battery 2\'s arrow is turned round because its 1 A flows the other way.',
+      plan: (st, d) => {
+        const o = OPEN(st);
+        return base(BASE, { I: [4, -1], labs: [{ v: 4 }, { v: -1 }, o ? { v: null, to: 3, at: 0.1 } : { v: null }], jr: 1,
+          rows: o ? [row('Junction', 'I₃ = I₁ + I₂', arr(0.3, 0.3)), row('So', junT([4, -1]), arr(0.45, 0.3))] : triedRows(st, d) });
+      } },
+  ];
+  const FINISH = 'Draw an arrow for each current, and make the currents into each junction equal the currents out. Walk each loop back to 0 for one equation each, then solve the two together. A minus answer only means that current flows the other way.';
+  const SRC2 = 'https://openstax.org/books/university-physics-volume-2/pages/10-1-electromotive-force';
+  const SRC3 = 'https://openstax.org/books/college-physics-2e/pages/21-3-kirchhoffs-rules';
+  const SRC6 = 'https://openstax.org/books/physics/pages/19-1-ohms-law';
+  const labelOf = (d, k) => (d.kind === 'pair' ? pairT(d.opts[k]) : d.opts[k]);
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // I: the dials as Dan set them; s: where Dan dragged each ring (distance round its loop).
+  function blank() { return { pick: null, res: null, why: false, I: null, s: null }; }
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, motionEnd = 0, activeK = 1;
+  let REC = null;   // what the last paint drew, for the checks
+
+  // ---------- text with amber key terms and italic current letters (built with K.el, never innerHTML) ----------
+  const LET = /((?<![A-Za-z])I[₁₂₃])/;
+  function italics(parent, str, inSvg) {
+    String(str).split(LET).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // Maths that may wrap only between its pieces: "12 − 3" "− 9" "= 0".
+  function mathInto(node, str) {
+    String(str).split(/ (?=[=+−] )|(?<=,) /).forEach((pc, n) => {
+      if (n) node.appendChild(document.createTextNode(' '));
+      italics(node.appendChild(K.el('span', { class: 'pc' + (/✓$/.test(pc) ? ' ok' : '') })), pc, false);
+    });
+  }
+  // Short `maths` stays on one line; longer maths keeps its pieces whole; *a key term* is highlighted.
+  function write(node, str) {
+    node.textContent = '';
+    String(str).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { if (seg.length <= 16) italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); else mathInto(node, seg); return; }
+      const re = /\*([^*]+)\*/g;
+      let a0 = 0, mt;
+      while ((mt = re.exec(seg))) {
+        if (mt.index > a0) italics(node, seg.slice(a0, mt.index), false);
+        node.appendChild(K.el('span', { class: 'term' }, mt[1]));
+        a0 = mt.index + mt[0].length;
+      }
+      if (a0 < seg.length) italics(node, seg.slice(a0), false);
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  const curPlan = (i) => STEPS[i].plan(S[i], STEPS[i]);
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = k; st.res = null; st.s = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  // Check: a right answer is worked through on the drawing; a wrong one shows where it goes wrong.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.s = null;
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (!st.why) play(FB);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    st.why = !st.why;
+    if (st.why && st.res !== 'right') { st.s = null; play(FB); }
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i] = blank();
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // The dials: − and + turn a current by 0.5 A; the slider sets it anywhere from −2 A to 6 A.
+  function setI(k, v) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || !d.show || !d.dials) return;
+    const I = curPlan(i).I.slice();
+    I[k - 1] = half(v);
+    if (anim.playing() || waiting) { anim.pause(); waiting = false; }
+    T = Infinity; st.I = I;
+    K.refresh();
+  }
+  [1, 2].forEach((k) => {
+    write(el('dn' + k), '`I' + '₁₂'[k - 1] + '`, battery ' + k + '\'s current');
+    const lo = K.button({ label: '−', secondary: true, into: '#dm' + k, press: () => setI(k, curPlan(at()).I[k - 1] - STEP) });
+    const hi = K.button({ label: '+', secondary: true, into: '#dp' + k, press: () => setI(k, curPlan(at()).I[k - 1] + STEP) });
+    lo.el.setAttribute('aria-label', 'Lower I' + k + ' by 0.5 A');
+    hi.el.setAttribute('aria-label', 'Raise I' + k + ' by 0.5 A');
+    el('rg' + k).addEventListener('input', (ev) => setI(k, Number(ev.target.value)));
+  });
+
+  // One animation plays each demonstration and each puzzle's answer;
+  // with reduced motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  let waiting = false, waitDur = 0, seen = null, io = null;
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && T !== Infinity) { T = Infinity; paint(); } });
+  // A demonstration that opens a screen waits until its picture is at least half in view.
+  function play(dur, whenSeen) {
+    waiting = false;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    if (whenSeen && io && seen !== true) { waiting = true; waitDur = dur; anim.pause(); T = 0; return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing the circuit ----------
+  const svg = el('circ'), art = el('art'), hitG = el('top'), gsvg = el('grid'), gart = el('gart');
+  if (typeof IntersectionObserver === 'function') {
+    io = new IntersectionObserver((es) => {
+      seen = es[es.length - 1].intersectionRatio >= 0.45;
+      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }
+    }, { threshold: [0, 0.45, 1] });
+    io.observe(svg);
+  }
+  function txt(parent, x, y, str, cls, anchor, ital) {
+    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' });
+    if (ital) italics(t, str, true); else t.textContent = str;
+    return parent.appendChild(t);
+  }
+  const add = (n) => art.appendChild(n);
+  const tx = (x, y, s, cls, anchor, ital) => txt(art, x, y, s, cls, anchor, ital);
+  function chev(x, y, dir) {
+    const a = 5, b = 4.5;
+    const P = { u: [[x, y - a], [x - b, y + a], [x + b, y + a]], d: [[x, y + a], [x - b, y - a], [x + b, y - a]],
+      l: [[x - a, y], [x + a, y - b], [x + a, y + b]], r: [[x + a, y], [x - a, y - b], [x - a, y + b]] }[dir];
+    return add(K.svg('polygon', { class: 'ch', points: P.map((q) => q.join(',')).join(' ') }));
+  }
+  // A current's label: its value (a turned-round arrow shows the size), a letter, or "?" for the unknown.
+  function curOf(pl, k) {
+    if (pl.mode === 'sym') return { list: [{ t: IN[k], a: 1 }], dir: 1 };
+    const L = pl.labs ? pl.labs[k - 1] : { v: k === 3 ? i3(pl.I) : pl.I[k - 1] };
+    const lab = (v) => (v == null ? IN[k] + ' = ?' : v < 0 ? fa(v) + ' A' : IN[k] + ' = ' + fv(v) + ' A');
+    const sgn = (v) => (v == null || v > 0 ? 1 : v < 0 ? -1 : 0);
+    if (L.to == null) return { list: [{ t: lab(L.v), a: 1 }], dir: sgn(L.v) };
+    const a0 = 1 - arr(L.at, 0.15), a1 = arr(L.at + 0.15, 0.2);
+    return { list: [{ t: lab(L.v), a: a0 }, { t: lab(L.to), a: a1 }], dir: a1 > 0 ? sgn(L.to) : sgn(L.v) };
+  }
+  // Where each loop's walk writes the change a part adds: battery, its own resistance, the load.
+  const TAGP = [[[106, 163, 'start'], [88, 102, 'start'], [158, 148, 'end']], [[234, 163, 'end'], [252, 102, 'end'], [182, 148, 'start']]];
+  function tagText(pl, k, n) {
+    const C = pl.C;
+    if (pl.mode === 'sym') return ['+' + fv(Eof(C, k)), '−' + fv(rOf(C, k)) + ' × ' + IN[k], '−' + fv(C.R) + ' × I₃'][n];
+    const c = changes(C, k, pl.I)[n];
+    return c > 0 ? '+' + fv(c) + ' V' : c < 0 ? '−' + fa(c) + ' V' : '0 V';
+  }
+  function drawCircuit(pl) {
+    art.textContent = '';
+    const C = pl.C, W = pl.W;
+    // Each loop's route, traced on the first screen.
+    if (pl.route) [1, 2].forEach((k) => { const p = pl.route[k - 1]; if (p > 0.001) add(K.svg('path', { class: 'rt', d: loopD(k), 'stroke-dasharray': r2(p * LEN) + ' ' + (LEN + 10) })); });
+    const w = (dd) => add(K.svg('path', { class: 'w', d: dd }));
+    w('M' + X1 + ' ' + YT + 'H' + X2 + 'M' + X1 + ' ' + YB + 'H' + X2);
+    [X1, X2].forEach((x) => w('M' + x + ' ' + YT + 'V84M' + x + ' 112V158M' + x + ' 168V' + YB));
+    w('M' + XM + ' ' + YT + 'V104M' + XM + ' 148V' + YB);
+    [X1, X2].forEach((x) => {
+      add(K.svg('rect', { class: 'rs', x: x - 7, y: 84, width: 14, height: 28, rx: 1.5 }));
+      add(K.svg('line', { class: 'pl', x1: x - 13, y1: 158, x2: x + 13, y2: 158 }));
+      add(K.svg('line', { class: 'ps', x1: x - 7, y1: 168, x2: x + 7, y2: 168 }));
+    });
+    add(K.svg('rect', { class: 'rs', x: XM - 7, y: 104, width: 14, height: 44, rx: 1.5 }));
+    add(K.svg('circle', { class: 'jd', cx: XM, cy: YT, r: 3.5 }));
+    add(K.svg('circle', { class: 'jd', cx: XM, cy: YB, r: 3.5 }));
+    if (pl.jr > 0.01) K.fade(add(K.svg('circle', { class: 'jr', cx: XM, cy: YT, r: 11 })), pl.jr, 0);
+    if (pl.br > 0.01) K.fade(add(K.svg('circle', { class: 'jr', cx: XM, cy: YB, r: 11 })), pl.br, 0);
+
+    // The example values, each on its part; battery 2's voltage fades over when one screen swaps it.
+    const val = (x, y, s, anc, a) => { if (a > 0.01) K.fade(tx(x, y, s, 'lv', anc), a, 0); if (a >= 0.5 && y === 167 && x > XM) REC.E2 = s; };
+    val(58, 102, fv(C.r1) + ' Ω', 'end', 1); val(282, 102, fv(C.r2) + ' Ω', 'start', 1);
+    val(58, 167, fv(C.E1) + ' V', 'end', 1);
+    if (pl.Eold) { val(282, 167, fv(pl.Eold.v) + ' V', 'start', 1 - arr(pl.Eold.at, 0.15)); val(282, 167, fv(C.E2) + ' V', 'start', arr(pl.Eold.at + 0.15, 0.2)); }
+    else val(282, 167, fv(C.E2) + ' V', 'start', 1);
+    val(160, 120, fv(C.R) + ' Ω', 'end', 1);
+    tx(93, 154, '+', 'pm', 'start'); tx(88, 182, '−', 'pm', 'start');
+    tx(247, 154, '+', 'pm', 'end'); tx(252, 182, '−', 'pm', 'end');
+
+    // The current arrows: I₁ and I₂ up through their batteries and in to the top junction, I₃ down through the load.
+    const cur = [1, 2, 3].map((k) => curOf(pl, k));
+    if (cur[0].dir) { chev(X1, 72, cur[0].dir > 0 ? 'u' : 'd'); chev(123, YT, cur[0].dir > 0 ? 'r' : 'l'); }
+    if (cur[1].dir) { chev(X2, 72, cur[1].dir > 0 ? 'u' : 'd'); chev(217, YT, cur[1].dir > 0 ? 'l' : 'r'); }
+    if (cur[2].dir) chev(XM, 82, cur[2].dir > 0 ? 'd' : 'u');
+    const LP = [[123, 42, 'middle'], [217, 42, 'middle'], [180, 87, 'start']];
+    cur.forEach((c, n) => {
+      c.list.forEach((q) => { if (q.a > 0.01) K.fade(tx(LP[n][0], LP[n][1], q.t, 'lc', LP[n][2], true), q.a, 0); if (q.a >= 0.5) REC.labs[n] = q.t; });
+      REC.dirs[n] = c.dir;
+    });
+
+    // Each loop: its name, the changes its ring has passed, and the running total.
+    [1, 2].forEach((k) => {
+      const cx = k === 1 ? 123 : 217, na = pl.names[k - 1];
+      if (na > 0.01) K.fade(tx(cx, 200, 'loop ' + k, 'tn', 'middle'), na, 0);
+      if (!W) return;
+      const ws = W[k - 1], done = ws.s >= LEN - 1e-6;
+      POS.forEach((p, n) => {
+        if (ws.s < p - 1e-9) return;
+        const a = arr(ws.pass[n], 0.3), t = tagText(pl, k, n);
+        if (a > 0.01) K.fade(tx(TAGP[k - 1][n][0], TAGP[k - 1][n][1], t, 'tg', TAGP[k - 1][n][2], true), a, 0);
+        if (a >= 0.5) REC.tags[k - 1].push(t);
+      });
+      let v, state, a = 1;
+      if (pl.mode === 'sym') { if (!done) return; v = '= 0'; state = 'full loop'; a = arr(ws.end, 0.3); }
+      else {
+        const tot = runT(C, k, pl.I, ws.s);
+        v = fv(tot) + ' V' + (done && near(tot, 0) ? ' ✓' : '');
+        state = ws.s <= 1e-6 ? 'start' : done ? 'full loop' : 'so far';
+      }
+      if (a > 0.01) { K.fade(tx(cx, 218, v, 'tv', 'middle'), a, 0); K.fade(tx(cx, 235, state, 'ts', 'middle'), a, 0); }
+      if (a >= 0.5) { REC.totals[k - 1] = v; REC.states[k - 1] = state; }
+    });
+    // The rings, and the names of the three branches.
+    if (W) [1, 2].forEach((k) => { const p = ptAt(k, W[k - 1].s); add(K.svg('circle', { class: 'tr', cx: r2(p[0]), cy: r2(p[1]), r: 9 })); });
+    tx(X1, 272, 'battery 1', 'nm', 'middle'); tx(XM, 272, 'load', 'nm', 'middle'); tx(X2, 272, 'battery 2', 'nm', 'middle');
+    if (W) { add(K.svg('circle', { class: 'tr', cx: 16, cy: 292, r: 7 })); tx(30, 297, pl.drag ? 'tracer, drag it round its loop' : 'tracer', 'key', 'start'); }
+  }
+
+  // ---------- drawing the grid of currents ----------
+  const GX = 44, GY = 22, GW = 276, GH = 198, GY1 = GY + GH, GX1 = GX + GW;
+  const gx = (v) => GX + v / 6 * GW, gy = (v) => GY1 - v / 6 * GH;
+  const inBox = (P) => P[0] >= -1e-9 && P[0] <= 6 + 1e-9 && P[1] >= -1e-9 && P[1] <= 6 + 1e-9;
+  // The part of a·I₁ + b·I₂ = c that lies on the grid.
+  function clipEq(e) {
+    const pts = [];
+    [0, 6].forEach((x) => { if (Math.abs(e.b) > 1e-12) { const y = (e.c - e.a * x) / e.b; if (inBox([x, y])) pts.push([x, y]); } });
+    [0, 6].forEach((y) => { if (Math.abs(e.a) > 1e-12) { const x = (e.c - e.b * y) / e.a; if (inBox([x, y])) pts.push([x, y]); } });
+    if (pts.length < 2) return null;
+    pts.sort((p, q) => p[0] - q[0] || q[1] - p[1]);
+    return [pts[0], pts[pts.length - 1]];
+  }
+  function drawGridFig(pl) {
+    const g = pl.grid;
+    if (!g) { gsvg.setAttribute('hidden', ''); return; }
+    gsvg.removeAttribute('hidden');
+    gart.textContent = '';
+    const C = pl.C, ga = (n) => gart.appendChild(n), gt = (x, y, s, cls, anc, ital) => txt(gart, x, y, s, cls, anc, ital);
+    for (let v = 0; v <= 6; v++) {
+      ga(K.svg('line', { class: 'gl', x1: r2(gx(v)), y1: GY, x2: r2(gx(v)), y2: GY1 }));
+      ga(K.svg('line', { class: 'gl', x1: GX, y1: r2(gy(v)), x2: GX1, y2: r2(gy(v)) }));
+      gt(gx(v), GY1 + 17, String(v), 'tk', 'middle'); gt(GX - 7, gy(v) + 4.5, String(v), 'tk', 'end');
+    }
+    ga(K.svg('rect', { class: 'gf', x: GX, y: GY, width: GW, height: GH }));
+    gt(GX + GW / 2, 258, 'I₁, battery 1\'s current (A)', 'at', 'middle', true);
+    gt(4, 13, 'I₂, battery 2\'s current (A)', 'at', 'start', true);
+    const rec = { lines: [false, false], dot: g.dot.slice(), ring: false };
+    [1, 2].forEach((k) => {
+      const a = g.lines[k - 1], sg = clipEq(eqOf(C, k));
+      if (a <= 0.01 || !sg) return;
+      K.fade(ga(K.svg('line', { class: 'l' + k, x1: r2(gx(sg[0][0])), y1: r2(gy(sg[0][1])), x2: r2(gx(sg[1][0])), y2: r2(gy(sg[1][1])) })), a, 0);
+      rec.lines[k - 1] = a >= 0.5;
+    });
+    const P = solve(C);
+    if (g.ring > 0.01 && inBox(P)) { K.fade(ga(K.svg('circle', { class: 'xr', cx: r2(gx(P[0])), cy: r2(gy(P[1])), r: 13 })), g.ring, 0); rec.ring = g.ring >= 0.5; }
+    if (inBox(g.dot)) ga(K.svg('circle', { class: 'dot', cx: r2(gx(g.dot[0])), cy: r2(gy(g.dot[1])), r: 6 }));
+    // The key, inside the drawing, one row each for the lines, the dot and the ring.
+    ga(K.svg('line', { class: 'l1', x1: 8, y1: 276, x2: 32, y2: 276 })); gt(38, 281, 'loop 1 ends at 0', 'key', 'start');
+    ga(K.svg('line', { class: 'l2', x1: 176, y1: 276, x2: 200, y2: 276 })); gt(206, 281, 'loop 2 ends at 0', 'key', 'start');
+    ga(K.svg('circle', { class: 'dot', cx: 20, cy: 296, r: 5 })); gt(34, 301, g.key + (inBox(g.dot) ? '' : ', off the grid'), 'key', 'start');
+    if (g.ring > 0.01 && inBox(P)) { const kg = ga(K.svg('g')); kg.appendChild(K.svg('circle', { class: 'xr', cx: 20, cy: 315, r: 8 })); txt(kg, 34, 320, 'both end at 0', 'key', 'start'); K.fade(kg, g.ring, 0); }
+    REC.grid = rec;
+    gsvg.setAttribute('aria-label', say('A grid with I₁ across and I₂ up, each from 0 to 6 A. Loop 1\'s line, solid, holds every pair that brings loop 1 back to 0; loop 2\'s, dashed, every pair for loop 2.' +
+      (rec.ring ? ' A ring marks where they cross, at I₁ = ' + fv(P[0]) + ' A and I₂ = ' + fv(P[1]) + ' A.' : '') +
+      (inBox(g.dot) ? ' The dot, ' + g.key + ', is at I₁ = ' + fv(g.dot[0]) + ' A and I₂ = ' + fv(g.dot[1]) + ' A.' : ' The pair is off the grid.')));
+  }
+
+  function drawRows(list) {
+    const box = el('work');
+    box.textContent = '';
+    box.hidden = !list.length;
+    if (!list.length) return;
+    K.fade(box.appendChild(K.el('i', { class: 'bar', 'aria-hidden': 'true' })), list[0].a, 0);
+    list.forEach((r) => {
+      const l = box.appendChild(K.el('span', { class: 'wl' }, r.l)), m = box.appendChild(K.el('span', { class: 'wm' }));
+      if (r.prose) italics(m, r.s, false); else mathInto(m, r.s);
+      K.fade(l, r.a, 0); K.fade(m, r.a, 0);
+      if (r.a >= 0.5) REC.rows.push(r.l + ': ' + r.s);
+    });
+  }
+  function describe(pl) {
+    const C = pl.C;
+    let t = 'A circuit. Battery 1, on the left, is ' + fv(C.E1) + ' V with ' + fv(C.r1) + ' Ω inside. Battery 2, on the right, is ' + fv(C.E2) + ' V with ' + fv(C.r2) + ' Ω inside. The ' + fv(C.R) + ' Ω load in the middle is shared by loop 1 and loop 2.';
+    t += ' Currents: ' + REC.labs.map((s, n) => s + (REC.dirs[n] < 0 ? ', flowing the other way' : '')).join('; ') + '.';
+    [0, 1].forEach((n) => { if (REC.totals[n]) t += ' Loop ' + (n + 1) + ' walk: ' + REC.totals[n] + ', ' + REC.states[n] + '.'; });
+    return say(t);
+  }
+
+  // ---------- one paint draws the whole step at time T ----------
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], pl = d.plan(S[i], d);
+    REC = { labs: [], dirs: [], tags: [[], []], totals: ['', ''], states: ['', ''], rows: [], grid: null, E2: '', drag: pl.drag, W: pl.W ? pl.W.map((q) => q.s) : null };
+    drawCircuit(pl);
+    drawGridFig(pl);
+    drawRows(pl.rows);
+    [1, 2].forEach((k) => {
+      const v = pl.I[k - 1], rg = el('rg' + k);
+      el('dv' + k).textContent = fv(v) + ' A';
+      if (Number(rg.value) !== v) rg.value = String(v);
+    });
+    hitG.style.display = pl.drag ? '' : 'none';
+    svg.setAttribute('aria-label', describe(pl));
+    return pl;
+  }
+
+  // ---------- dragging a ring round its loop (or the arrow keys) ----------
+  [1, 2].forEach((k) => hitG.appendChild(K.svg('path', { class: 'hp', d: loopD(k), 'aria-hidden': 'true' })));
+  function toSvg(ev) {
+    const m = svg.getScreenCTM();
+    if (!m) return null;
+    const q = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse());
+    return [q.x, q.y];
+  }
+  function moveRing(k, s) {
+    const i = at(), st = S[i];
+    if (finished) return;
+    const pl = curPlan(i);
+    if (!pl.drag || !pl.W) return;
+    const cur = st.s ? st.s.slice() : pl.W.map((q) => q.s);
+    if (st.s && near(cur[k - 1], s, 1e-6)) return;
+    if (anim.playing() || waiting) { anim.pause(); waiting = false; }
+    T = Infinity; cur[k - 1] = s; st.s = cur; activeK = k;
+    K.refresh();
+  }
+  let dragId = null, dragK = 1;
+  hitG.addEventListener('pointerdown', (ev) => {
+    if (ev.button > 0) return;
+    const i = at(), pl = curPlan(i);
+    if (!pl.drag || !pl.W) return;
+    const p = toSvg(ev);
+    if (!p) return;
+    const s0 = S[i].s || pl.W.map((q) => q.s);
+    // The ring nearest the touch, or else the loop whose wire is nearest.
+    let k = null, best = Infinity;
+    [1, 2].forEach((kk) => { const q = ptAt(kk, s0[kk - 1]), dd = Math.hypot(q[0] - p[0], q[1] - p[1]); if (dd < 28 && dd < best) { best = dd; k = kk; } });
+    if (k == null) k = project(1, p, s0[0]).d <= project(2, p, s0[1]).d ? 1 : 2;
+    dragK = k; dragId = ev.pointerId;
+    try { ev.target.setPointerCapture(ev.pointerId); } catch (e) { /* the drag still follows inside the drawing */ }
+    ev.preventDefault();
+    moveRing(k, project(k, p, s0[k - 1]).s);
+  });
+  hitG.addEventListener('pointermove', (ev) => {
+    if (dragId !== ev.pointerId) return;
+    ev.preventDefault();
+    const p = toSvg(ev), st = S[at()];
+    if (!p || !st.s) return;
+    moveRing(dragK, project(dragK, p, st.s[dragK - 1]).s);
+  });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((e) => hitG.addEventListener(e, () => { dragId = null; }));
+  hitG.addEventListener('touchstart', (ev) => { if (ev.cancelable) ev.preventDefault(); }, { passive: false });
+  svg.addEventListener('keydown', (ev) => {
+    const dir = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[ev.key];
+    if (!dir) return;
+    const i = at(), pl = curPlan(i);
+    if (!pl.drag || !pl.W) return;
+    ev.preventDefault();
+    const s0 = S[i].s || pl.W.map((q) => q.s);
+    moveRing(activeK, K.clamp(s0[activeK - 1] + dir * LEN / 8, 0, LEN));
+  });
+
+  write(el('finish'), FINISH);
+  K.update((prm) => {
+    const i = Math.round(prm.step), d = STEPS[i];
+    if (!anim.playing() && !waiting) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { S[i] = blank(); play(d.dur, true); } else { waiting = false; anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const st = S[i], right = st.res === 'right';
+    el('pz').classList.toggle('ask', !d.show && !right && !st.why);
+    el('stepbox').hidden = finished;
+    el('lead').hidden = i !== 0 || finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+    el('dials').hidden = !(d.show && d.dials);
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const n = d.show ? 0 : d.opts.length;
+    el('picks').hidden = !n;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= n;
+      if (k >= n) return;
+      const lab = labelOf(d, k);
+      b.el.textContent = ''; italics(b.el.appendChild(K.el('span', {})), lab, false);
+      b.el.setAttribute('aria-label', say(lab));
+      b.el.setAttribute('aria-pressed', st.pick === k ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? 'Tap one of the answers.' : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const I_WALK = 3, I_TRY = 4, I_GRID = 7, I_PAIR = 8, I_MINUS = 9;
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const whySt = () => Object.assign(blank(), { why: true });
+  const wrongSt = (k) => Object.assign(blank(), { pick: k, res: 'wrong' });
+  const LATT = [];
+  for (let a = LO; a <= HI + 1e-9; a += STEP) for (let b = LO; b <= HI + 1e-9; b += STEP) LATT.push([r6(a), r6(b)]);
+  // A step painted in the state given (finished, or t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+
+  K.check('The sum of all currents entering a junction equals the sum leaving it: at every dial setting the load\'s arrow carries I₁ + I₂, drawn with its size and turned round when it is negative', () =>
+    LATT.every((I) => near(i3(I), I[0] + I[1])) && [[1, 1], [3, 2], [-1.5, 4], [2, -2], [-2, -2]].every((I) => {
+      const r = drawn(0, Object.assign(blank(), { I })), v = i3(I);
+      return r.labs[2] === (v < 0 ? fa(v) + ' A' : 'I₃ = ' + fv(v) + ' A') && r.dirs[2] === (v > 0 ? 1 : v < 0 ? -1 : 0);
+    }), { source: SRC3 });
+  K.check('The algebraic sum of changes in potential around any closed loop is zero: with the solved currents both walks end at 0 in all three circuits, and the grid and minus-current screens finish with both totals at 0 V', () =>
+    [BASE, LOW, NEW].every((C) => fits(C, 1, solve(C)) && fits(C, 2, solve(C))) &&
+    [I_GRID, I_MINUS].every((i) => { const r = drawn(i, blank()); return r.totals[0] === '0 V ✓' && r.totals[1] === '0 V ✓' && r.states.every((s) => s === 'full loop'); }), { source: SRC3 });
+  K.check('Each time a rule is applied an equation is produced, and as many independent equations as unknowns can be solved: several dial pairs bring each loop alone back to 0, but exactly one pair fits both, in all three circuits', () =>
+    [BASE, LOW, NEW].every((C) => {
+      const one = LATT.filter((I) => fits(C, 1, I)), two = LATT.filter((I) => fits(C, 2, I)), both = one.filter((I) => fits(C, 2, I)), P = solve(C);
+      return one.length >= 2 && two.length >= 2 && both.length === 1 && near(both[0][0], P[0]) && near(both[0][1], P[1]);
+    }), { source: SRC3 });
+  K.check('If a current\'s direction is assigned wrongly it comes out negative, no harm done: with battery 2 at 4 V, I₂ = −1.5 A, its arrow is drawn turned round with its size, 1.5 A, and both walks still end at 0', () => {
+    const P = solve(LOW), r = drawn(I_MINUS, blank());
+    return near(P[0], 5) && near(P[1], -1.5) && r.E2 === '4 V' && r.dirs[1] === -1 && r.labs[1] === '1.5 A' && r.dirs[0] === 1 && r.totals.every((t) => t === '0 V ✓');
+  }, { source: SRC3 });
+  K.check('Current through a conductor is proportional to the voltage drop across it: each drop is current × resistance, so doubling I₁ from 1 A to 2 A doubles battery 1\'s inside drop from 1 V to 2 V, and doubling both currents doubles the load\'s from 4 V to 8 V', () =>
+    near(changes(BASE, 1, [1, 1])[1], -1) && near(changes(BASE, 1, [2, 1])[1], -2) && near(changes(BASE, 1, [1, 1])[2], -4) && near(changes(BASE, 1, [2, 2])[2], -8), { source: SRC6 });
+  K.check('The terminal voltage decreases as the current increases, because of the drop across the internal resistance: battery 1\'s 12 − 1 × I₁ falls at every step up its dial', () => {
+    for (let a = LO; a < HI; a += STEP) if (!(BASE.E1 + changes(BASE, 1, [a + STEP, 0])[1] < BASE.E1 + changes(BASE, 1, [a, 0])[1])) return false;
+    return true;
+  }, { source: SRC2 });
+  K.check('Every worked line is right, by hand: 7 V and 6 V at 1 A and 1 A; 1 V at 3 A and 1 A; 4 V on loop 2 at 4 A and 0 A; 2 V on loop 1 at 2 A and 2 A; 3 V on loop 2 at 5 A and 0 A with the 10 V and 8 V batteries; the solves give 3 A and 1.5 A, 5 A and −1.5 A, and 4 A and 2 A; and 4 + (−1) = 3 A', () => {
+    const J = (rs) => rs.map((x) => x.l + ': ' + x.s).join(' | ');
+    return walkT(BASE, 1, [1, 1]) === '12 − 1 × 1 − 2 × 2 = 12 − 1 − 4 = 7, not 0' && walkT(BASE, 2, [1, 1], true) === '12 − 2 − 4 = 6, not 0' &&
+      walkT(BASE, 1, [3, 1]) === '12 − 1 × 3 − 2 × 4 = 12 − 3 − 8 = 1, not 0' && 12 + 1 * 3 + 2 * 4 === 23 &&
+      walkT(BASE, 2, [4, 0], true) === '12 − 0 − 8 = 4, not 0' && walkT(BASE, 1, [4, 0], true) === '12 − 4 − 8 = 0 ✓' &&
+      walkT(BASE, 1, [2, 2], true) === '12 − 2 − 8 = 2, not 0' && walkT(BASE, 2, [2, 2], true) === '12 − 4 − 8 = 0 ✓' &&
+      walkT(NEW, 2, [5, 0], true) === '8 − 0 − 5 = 3, not 0' && walkT(NEW, 1, [5, 0], true) === '10 − 5 − 5 = 0 ✓' &&
+      eqT(eqOf(BASE, 1)) === '3I₁ + 2I₂ = 12' && eqT(eqOf(BASE, 2)) === '2I₁ + 4I₂ = 12' && eqT(eqOf(NEW, 1)) === '2I₁ + I₂ = 10' && eqT(eqOf(NEW, 2)) === 'I₁ + 2I₂ = 8' &&
+      symT(BASE, 1, true) === '12 − 1 × I₁ − 2 × (I₁ + I₂) = 0' && symT(BASE, 2, true) === '12 − 2 × I₂ − 2 × (I₁ + I₂) = 0' &&
+      J(solveRows(BASE, 2)) === 'Loop 1 × 2: 6I₁ + 4I₂ = 24 | Take away: 4I₁ = 24 − 12 = 12, so I₁ = 12 ÷ 4 = 3 A | Put back: 2 × 3 + 4I₂ = 12, so 4I₂ = 12 − 6 = 6 and I₂ = 6 ÷ 4 = 1.5 A' &&
+      J(solveRows(LOW, 2)) === 'Loop 1 × 2: 6I₁ + 4I₂ = 24 | Take away: 4I₁ = 24 − 4 = 20, so I₁ = 20 ÷ 4 = 5 A | Put back: 2 × 5 + 4I₂ = 4, so 4I₂ = 4 − 10 = −6 and I₂ = −6 ÷ 4 = −1.5 A' &&
+      J(solveRows(NEW, 1)) === 'Loop 1 × 2: 4I₁ + 2I₂ = 20 | Take away: 3I₁ = 20 − 8 = 12, so I₁ = 12 ÷ 3 = 4 A | Put back: I₂ = 10 − 2 × 4 = 10 − 8 = 2 A' &&
+      junT([3, 1.5]) === 'I₃ = 3 + 1.5 = 4.5 A' && junT([5, -1.5]) === 'I₃ = 5 + (−1.5) = 3.5 A' && junT([4, -1]) === 'I₃ = 4 + (−1) = 3 A' &&
+      walkT(BASE, 1, [3, 1.5], true) === '12 − 3 − 9 = 0 ✓' && walkT(BASE, 2, [3, 1.5], true) === '12 − 3 − 9 = 0 ✓' &&
+      walkT(LOW, 2, [5, -1.5], true) === '4 + 3 − 7 = 0 ✓' && walkT(LOW, 1, [5, -1.5], true) === '12 − 5 − 7 = 0 ✓' && near(i3(solve(LOW)) * LOW.R, 7);
+  });
+  K.check('Every puzzle has three answers, one of them right, and a hint of its own for each wrong one; the right pair fits both loops and each wrong pair fails at least one', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      const ok = d.opts.length === 3 && d.want >= 0 && d.want < 3 && d.opts.every((o, k) => k === d.want || (!!d.hints[k] && d.hints[k] !== d.hint));
+      if (d.kind !== 'pair') return ok;
+      const P = solve(d.C);
+      return ok && d.opts.every((g, k) => { const both = fits(d.C, 1, g) && fits(d.C, 2, g); return k === d.want ? both && near(g[0], P[0]) && near(g[1], P[1]) : !both; });
+    }) && STEPS[2].opts[STEPS[2].want] === fv(5 - 3.5) + ' A' && STEPS[I_TRY].opts[STEPS[I_TRY].want] === fv(walk(BASE, 1, [3, 1])) + ' V' &&
+    STEPS[6].opts[STEPS[6].want] === eqT(eqOf(BASE, 2)) && STEPS[11].opts[STEPS[11].want] === fv(i3([4, -1])) + ' A');
+  K.check('The walk screen opens with the ring at loop 1\'s start and nothing added, then passes battery 1 (+12 V), its 1 Ω (−1 V) and the load (−4 V) to end at 7 V; a puzzle keeps its walk back until Check; the pair puzzle keeps its grid back, and a wrong pair is walked to show which loop it fails', () => {
+    const o = drawn(I_WALK, blank(), 0.4), e = drawn(I_WALK, blank());
+    const p = drawn(I_TRY, blank()), r = drawn(I_TRY, solvedSt(I_TRY));
+    const q = drawn(I_PAIR, blank()), w = drawn(I_PAIR, wrongSt(0));
+    return o.tags[0].length === 0 && o.totals[0] === '0 V' && o.states[0] === 'start' &&
+      e.tags[0].join() === '+12 V,−1 V,−4 V' && e.totals[0] === '7 V' && e.states[0] === 'full loop' &&
+      p.tags[0].length === 0 && p.totals[0] === '0 V' && !p.drag && r.totals[0] === '1 V' && r.tags[0].join() === '+12 V,−3 V,−8 V' && r.drag &&
+      !q.grid && q.labs[0] === 'I₁' && !!w.grid && !w.grid.ring && w.totals[0] === '0 V ✓' && w.totals[1] === '4 V';
+  });
+  K.check('On the grid screen the dot first reaches 4 A and 0 A, where loop 1 ends at 0 V but loop 2 at 4 V, then the crossing at 3 A and 1.5 A, where both end at 0 V and the ring appears', () => {
+    const m = drawn(I_GRID, blank(), 1.9), e = drawn(I_GRID, blank());
+    return m.grid.dot.join() === '4,0' && m.totals[0] === '0 V ✓' && m.totals[1] === '4 V' && !m.grid.ring &&
+      e.grid.dot.join() === '3,1.5' && e.grid.ring && e.grid.lines.every(Boolean) && e.totals.every((t) => t === '0 V ✓');
+  });
+  K.check('Every demonstration settles within its 3 to 5 s, none starting before the 0.35 s screen fade ends, and a puzzle\'s answer, Why? or wrong pick settles within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity; S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => (d.show ? timed(i, blank(), d.dur) && d.dur >= 3 && d.dur <= 5 && earliest >= FADE
+      : timed(i, solvedSt(i), FB) && timed(i, whySt(), FB) && d.opts.every((o, k) => k === d.want || timed(i, wrongSt(k), FB))));
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>
