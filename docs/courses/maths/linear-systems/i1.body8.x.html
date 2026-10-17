@@ -1,0 +1,1125 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  /* The readouts: under each rule, the pair put in; under both, the crossing worked out from the rules. */
+  .ro { border-left: 3px solid var(--k-accent2); padding: 4px 0 4px 12px; }
+  .ro p { margin: 0; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px 14px; }
+  .card .cl { display: flex; align-items: center; gap: 8px; font-size: .85rem; font-weight: 700; color: var(--k-muted); line-height: 1.4; }
+  .sw { display: inline-block; flex: 0 0 auto; width: 24px; height: 0; border-top: 3px solid var(--k-accent2); }
+  .sw.l2 { border-top: 3px dashed var(--k-accent2); }
+  .card .rule { font-weight: 700; line-height: 1.45; }
+  .card .rule.two { min-height: 2.9em; }
+  .card .wk, .cross { line-height: 1.45; min-height: 2.9em; }
+  .cross { margin-top: 8px; }
+  .pz.ask .card .wk, .pz.ask .cross { min-height: 0; }
+  .cross .lab { color: var(--k-muted); font-weight: 700; }
+  .pc { white-space: nowrap; }
+  .pc.end { font-weight: 700; color: var(--k-accent2); }
+  .pc.q { color: var(--k-muted); }
+  .pc.mu { color: var(--k-muted); font-weight: 400; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  .scene.grab { touch-action: none; }
+  /* The squared grid (tenths fade in as it zooms), its frame, axes and numbers. */
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .gt { stroke: var(--k-line); stroke-width: .7; }
+  .scene .gf { fill: none; stroke: var(--k-strong); stroke-width: 1; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .at { font: italic 600 14px var(--k-font); fill: var(--k-muted); }
+  /* Line 1 solid, line 2 dashed, both in ink; their dots; the crossing's ring. */
+  .scene .l1 { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .l2 { stroke: var(--k-accent2); stroke-width: 2.5; stroke-dasharray: 8 6; fill: none; }
+  .scene .d1 { fill: var(--k-accent2); }
+  .scene .d2 { fill: var(--k-accent2); }
+  .scene .xr { fill: none; stroke: var(--k-ink); stroke-width: 2; }
+  /* The test point, line 2's c and m handles, the halo when the point fits every rule. */
+  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .hd { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .halo { fill: var(--k-accent); fill-opacity: .16; stroke: var(--k-accent); stroke-opacity: .55; stroke-width: 1.5; }
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-opacity: .4; stroke-width: 1.5; }
+  .scene .gap { stroke: var(--k-muted); stroke-width: 1.6; stroke-linecap: round; }
+  .scene .oa { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; fill: none; }
+  .scene .oh { fill: var(--k-ink); }
+  /* Labels carry a halo of the page colour, so a line passing behind one never strikes through it. */
+  .scene .lab { font: 700 14px var(--k-font); fill: var(--k-ink); paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .lab.tl { fill: var(--k-accent); }
+  .scene .lab.mu { fill: var(--k-muted); font-weight: 600; }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .v { font-style: italic; }
+  .scene #art *, .scene #labs * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip.hit { cursor: crosshair; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .pz.ask .fb:empty { min-height: 0; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead" id="lead">A squared grid, 0 to 8 across and 0 to 14 up, with two straight lines and a test point. Every rule here is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="ro" id="ro">
+      <div class="cards" id="cards"></div>
+      <p class="cross" id="cross"></p>
+    </div>
+    <svg class="scene" id="scene" viewBox="0 0 340 392" width="100%" role="img" aria-label=""><defs><clipPath id="gclip"><rect x="34" y="26" width="192" height="336"></rect></clipPath></defs><g id="art"></g><g id="labs"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">A faint ring marks what you can drag. The test point snaps to tenths, c to whole numbers, m to tenths.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // view: the grid's window. l1, l2: line 1 (solid) and line 2 (dashed), each {m, c, f}, where f says
+  // how the rule is written: 'mc' y = mx + c, 'sum' x + y = c, 'k' ky = kmx + kc, 'diff' y − mx = c.
+  // P: the test point's start; pk: its moves in a demonstration ({p, at, tr, on: the line it runs along}).
+  // keys: line 2's moves; zoom: the grid zooming in; gx: where gap brackets stand; dots1, dots2: pairs
+  // marked on a line; tl: when each part of a demonstration arrives (seconds); drag: 'p' the test
+  // point, 'cm' line 2's c and m handles. A puzzle: opts, vals (each answer's value), want, task, why,
+  // a hint and each wrong answer's own hint; hide: what it keeps back until it is answered.
+  const PICK = 'Tap one of the answers.';
+  const FULL = { x0: 0, x1: 8, y0: 0, y1: 14 };
+  const ZOOM10 = { x0: 1, x1: 1.8, y0: 3, y1: 4.4 };
+  const ZOOM11 = { x0: 0.4, x1: 1.2, y0: 1.6, y1: 3 };
+  const MC = (m, c) => ({ m, c, f: 'mc' });
+  const SUM = (c) => ({ m: -1, c, f: 'sum' });
+  const L1 = MC(2, 1);
+  const MMAX = 4;          // the m handle turns line 2 no steeper than 4 up or down for each 1 along
+  const FB = 1.6;          // seconds a puzzle's drawing takes after an answer or Why?
+  const FADE = 0.35;
+  // When a puzzle's parts arrive after an answer or Why? (seconds).
+  const PZ = { l2: 0.1, P: 0.1, x: 0.3, lit: 0.5, work: 0.5, gaps: [0.5, 0.8] };
+  const STEPS = [
+    { show: true, name: 'One rule, many pairs', view: FULL, l1: L1, P: [3, 5], drag: 'p', dots1: [[0, 1], [1, 3], [2, 5]],
+      pk: [{ p: [3, 5] }, { p: [3, 7], at: 2.8, tr: 1.0 }], dur: 4.2, tl: { dots: [0.5, 0.9, 1.3], l1: 1.6, lit: 3.8 },
+      text: 'Put any x into `y = 2x + 1` to get its y, and that pair fits the rule: (0, 1), (1, 3), (2, 5) and endless more. Plotted, they make one straight line, line 1. The test point\'s readout ticks only when it sits on that line.' },
+    { kind: 'count', name: 'How many pairs?', view: FULL, l2: SUM(7), P: [3, 4], drag: 'p', hide: { l2: true },
+      opts: ['Just one, (3, 4)', 'Eight whole-number pairs', 'Endless pairs'], want: 'Endless pairs',
+      vals: { 'Just one, (3, 4)': 1, 'Eight whole-number pairs': 8, 'Endless pairs': Infinity },
+      task: 'How many pairs of numbers (x, y) fit the rule `x + y = 7`? Drag the test point to try some.',
+      why: 'Any two numbers that add to 7 fit, such as (3, 4), (2, 5) and (2.5, 4.5), and there are endless more. Plotted, they fill one straight line.',
+      hint: 'Not quite. Try more pairs that add to 7.',
+      hints: { 'Just one, (3, 4)': 'Not quite. (2, 5) fits too, as `2 + 5 = 7`.', 'Eight whole-number pairs': 'Not quite. Pairs that are not whole numbers fit too, `2.5 + 4.5 = 7`, and so do negative ones, `−1 + 8 = 7`.' } },
+    { show: true, name: 'A second rule', view: FULL, l1: L1, l2: SUM(7), P: [3, 7], drag: 'p', dots2: [[0, 7], [3, 4], [7, 0]], gx: [0, 1],
+      pk: [{ p: [3, 7] }, { p: [2, 5], at: 3.0, tr: 0.8, on: L1 }], dur: 4.2, tl: { l2: 0.5, dots: [0.8, 1.1, 1.4], gaps: [1.8, 2.2], x: 2.6, lit: 3.8 },
+      text: 'Line 2, dashed, holds every pair that fits `x + y = 7`, such as (0, 7), (3, 4) and (7, 0). At `x = 0` the lines are 6 apart, and each 1 along line 1 climbs 2 while line 2 drops 1, so the gap shuts by `2 − (−1) = 3` and they meet once, at the *crossing point* (2, 5). That pair fits both rules at once: it is the *solution* of these two *simultaneous equations*, which means true at the same time.' },
+    { kind: 'both', name: 'Fits both?', view: FULL, l1: L1, l2: SUM(7), hide: { x: true },
+      opts: ['(3, 7)', '(3, 4)', '(2, 5)'], want: '(2, 5)', vals: { '(3, 7)': [3, 7], '(3, 4)': [3, 4], '(2, 5)': [2, 5] },
+      task: 'Which pair makes `y = 2x + 1` and `x + y = 7` both true?',
+      why: 'The pair must fit both rules, and (2, 5) does: `2 × 2 + 1 = 5` and `2 + 5 = 7`. (3, 7) fits line 1 only, and (3, 4) fits line 2 only.',
+      hint: 'Not quite. The pair must fit both rules.',
+      hints: { '(3, 7)': 'Not quite. (3, 7) fits line 1, but `3 + 7 = 10`, not 7.', '(3, 4)': 'Not quite. (3, 4) fits line 2, but `2 × 3 + 1 = 7`, not 4.' } },
+    { show: true, name: 'Turn line 2', view: FULL, l1: L1, l2: MC(-1, 7), drag: 'cm', gx: [0, 1],
+      keys: [{ m: -1, c: 7 }, { m: 1, c: 7, at: 0.8, tr: 1.0 }, { m: 1.5, c: 7, at: 2.6, tr: 0.9 }], dur: 4.0,
+      text: 'Turn line 2 with its m handle and the crossing moves. At `y = x + 7` the lines meet at (6, 13). At `y = 1.5x + 7` the gap of 6 shuts by only 0.5 each 1 along, so they meet at `x = 12`, off the grid but still there.' },
+    { kind: 'off', name: 'Off the grid', view: FULL, l1: L1, l2: MC(1.8, 7), hide: { x: true },
+      opts: ['x = 30', 'x = 6', 'They never cross'], want: 'x = 30', vals: { 'x = 30': 30, 'x = 6': 6, 'They never cross': null },
+      task: 'Where do `y = 2x + 1` and `y = 1.8x + 7` cross?',
+      why: 'At `x = 0` line 2 is 6 above line 1, and line 1 climbs `2 − 1.8 = 0.2` more for each 1 along, so the gap shuts at `x = 6 ÷ 0.2 = 30`. There both rules give 61: `2 × 30 + 1 = 61` and `1.8 × 30 + 7 = 61`.',
+      hint: 'Not quite. Work out how fast the gap shuts.',
+      hints: { 'x = 6': 'Not quite. 6 is the gap at `x = 0`, and it shuts by only 0.2 each 1 along.', 'They never cross': 'Not quite. The m\'s differ, so the gap does shut, beyond the grid.' } },
+    { show: true, name: 'Same tilt', view: FULL, l1: L1, l2: MC(1.5, 7), drag: 'cm', gx: [1, 2.5, 3.5],
+      keys: [{ m: 1.5, c: 7 }, { m: 2, c: 7, at: 0.8, tr: 1.2 }], dur: 3.6, tl: { gaps: [2.4, 2.7, 3.0] },
+      text: 'Turn line 2 to the same tilt as line 1, `y = 2x + 7`. Now the gap stays 6 all the way along, so the lines are *parallel* and never cross. No pair fits both, so there is no solution.' },
+    { kind: 'par', name: 'Same m', view: FULL, l1: MC(3, 2), l2: MC(3, -4), gx: [2, 4], hide: { gaps: true },
+      opts: ['(3, 2)', 'No solution', 'Endless solutions'], want: 'No solution', vals: { '(3, 2)': [3, 2], 'No solution': 'none', 'Endless solutions': 'same' },
+      task: 'Solve `y = 3x + 2` and `y = 3x − 4` together.',
+      why: 'Both rules have `m = 3`, so the lines have the same tilt. At every x the first is `2 − (−4) = 6` above the second, so the gap never closes. The lines are parallel, and no pair fits both.',
+      hint: 'Not quite. Compare the two m\'s first.',
+      hints: { '(3, 2)': 'Not quite. 3 and 2 are the first rule\'s m and c, not a pair: `3 × 3 + 2 = 11`, not 2.', 'Endless solutions': 'Not quite. The m\'s match but the c\'s differ, so the lines run 6 apart and never meet.' } },
+    { show: true, name: 'Same line', view: FULL, l1: L1, l2: { m: 2, c: 1, f: 'k', k: 2 }, P: [5, 11], drag: 'pcm',
+      pk: [{ p: [5, 11] }, { p: [3, 7], at: 2.4, tr: 1.4, on: L1 }], dur: 4.0, tl: { l2: 0.5, half: 1.2, x: 1.2, P: 1.8, lit: 1.8 },
+      text: 'Here line 2 is `2y = 4x + 2`. Halve every term and it is `y = 2x + 1`, line 1 again, so the dashed line lies on top of the solid one. Every point on it fits both rules, so there are endless solutions.' },
+    { kind: 'same', name: 'Endless solutions', view: FULL, l1: L1,
+      opts: ['y = 2x + 3', 'y = x + 2', 'y − 2x = 1'], want: 'y − 2x = 1', vals: { 'y = 2x + 3': MC(2, 3), 'y = x + 2': MC(1, 2), 'y − 2x = 1': { m: 2, c: 1, f: 'diff' } },
+      task: 'Which rule, with `y = 2x + 1`, has endless solutions?',
+      why: 'Add `2x` to both sides of `y − 2x = 1` and it is `y = 2x + 1`, the same line, so every pair on it fits both. `y = 2x + 3` runs parallel, 2 above, and `y = x + 2` crosses line 1 once, at (1, 3).',
+      hint: 'Not quite. Write each rule as `y = mx + c` and compare.',
+      hints: { 'y = 2x + 3': 'Not quite. Same m but a different c, so that line runs parallel to line 1 and never meets it.', 'y = x + 2': 'Not quite. Its m is different, so it crosses line 1 just once, at (1, 3).' } },
+    { show: true, name: 'A reading', view: FULL, l1: L1, l2: SUM(5), zoom: { to: ZOOM10, at: 0.8, tr: 1.8 }, P: [1.3, 3.6], drag: 'p',
+      pk: [{ p: [1.3, 3.6] }, { p: [1.3, 3.7], at: 3.7, tr: 0.4 }], dur: 4.2, tl: { x: 2.6, P: 3.0 },
+      text: 'Here line 2 is `x + y = 5`, and the grid zooms in to tenths. The lines cross between the tenths, so the nearest the test point gets, (1.3, 3.7), fits line 2 but gives `2 × 1.3 + 1 = 3.6` on line 1. A reading from a graph is an *estimate*, so put it back into both rules to check; the readout\'s gap sum is exact, `x = 4/3`, and the next two lessons turn it into a method for any pair of equations.' },
+    { kind: 'read', name: 'Exact or estimate?', view: ZOOM11, l1: MC(3, 0), l2: SUM(3), R: [0.8, 2.2], hide: { x: true, work: true },
+      opts: ['Exact', 'An estimate', 'No solution'], want: 'An estimate', vals: { 'Exact': 'exact', 'An estimate': 'estimate', 'No solution': 'none' },
+      task: 'A graph of `y = 3x` and `x + y = 3` gives the reading (0.8, 2.2). What is that reading?',
+      why: 'Put it back into both rules. `0.8 + 2.2 = 3` is true, but `3 × 0.8 = 2.4`, not 2.2. It is a little out, so it is an estimate of the crossing, not the exact solution.',
+      hint: 'Not quite. Put the reading back into both rules.',
+      hints: { 'Exact': 'Not quite. Put it back: `3 × 0.8 = 2.4`, not 2.2, so it misses `y = 3x`.', 'No solution': 'Not quite. The m\'s differ, 3 and −1, so the lines do cross, just not at a tenth.' } },
+    { kind: 'both', name: 'Last one', view: FULL, l1: MC(4, -3), l2: MC(1, 6), hide: { x: true },
+      opts: ['(0, 6)', '(1, 7)', '(3, 9)'], want: '(3, 9)', vals: { '(0, 6)': [0, 6], '(1, 7)': [1, 7], '(3, 9)': [3, 9] },
+      task: 'Last one. Where do `y = 4x − 3` and `y = x + 6` cross?',
+      why: '(3, 9) fits both: `4 × 3 − 3 = 9` and `3 + 6 = 9`. (0, 6) and (1, 7) fit only `y = x + 6`.',
+      hint: 'Not quite. The pair must fit both rules.',
+      hints: { '(0, 6)': 'Not quite. (0, 6) is where line 2 crosses the y-axis, but `4 × 0 − 3 = −3`, not 6.', '(1, 7)': 'Not quite. (1, 7) fits `y = x + 6`, but `4 × 1 − 3 = 1`, not 7.' } },
+  ];
+  const FINISH = 'The pair that makes two equations true at once is the point where their lines cross. Different m\'s give one crossing, even off the grid. The same m with different c\'s gives parallel lines and no solution, and the same line gives endless solutions. A reading is an estimate until it fits both rules.';
+  // Sources the checks restate (the lesson's own).
+  const BITESIZE = 'https://www.bbc.co.uk/bitesize/articles/zhbnvj6';
+  const BITESIZE2 = 'https://www.bbc.co.uk/bitesize/guides/z9y9jty/revision/1';
+  const OPENSTAX = 'https://openstax.org/books/intermediate-algebra-2e/pages/4-1-solve-systems-of-linear-equations-with-two-variables';
+  // The grid's frame in the drawing: 8 by 14 squares of 24 units, numbers left and below, the key on the right.
+  const GX = 34, GY = 26, GW = 192, GH = 336, GX1 = GX + GW, GY1 = GY + GH, H = GY1 + 30;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+
+  // ---------- numbers and rules, written as the explanation writes them ----------
+  const near = (a, b) => Math.abs(a - b) < 1e-9;
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const round1 = (v) => Math.round(v * 10) / 10;
+  const neg = (v) => { v = r2(v); if (Math.abs(v) < 1e-12) v = 0; return v < 0 ? '−' + String(-v) : String(v); };
+  const br = (v) => (r2(v) < 0 ? '(' + neg(v) + ')' : neg(v));
+  const coord = (p) => '(' + neg(p[0]) + ', ' + neg(p[1]) + ')';
+  const exact = (v) => Math.abs(v * 100 - Math.round(v * 100)) < 1e-6;
+  const tenth = (v) => Math.abs(v * 10 - Math.round(v * 10)) < 1e-6;
+  const same = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((x, n) => Math.abs(x - b[n]) < 1e-9);
+  const inView = (v, p) => p[0] >= v.x0 - 1e-9 && p[0] <= v.x1 + 1e-9 && p[1] >= v.y0 - 1e-9 && p[1] <= v.y1 + 1e-9;
+  const plusC = (c) => (r2(c) < 0 ? ' − ' + neg(-c) : ' + ' + neg(c));
+  function tidyRHS(m, c) {                                               // 2x + 1, −x + 7, 3x, x + 3
+    const mx = Math.abs(m) < 1e-12 ? '' : near(m, 1) ? 'x' : near(m, -1) ? '−x' : neg(m) + 'x';
+    if (!mx) return neg(c);
+    return Math.abs(c) < 1e-12 ? mx : mx + plusC(c);
+  }
+  function ruleText(L) {
+    if (L.f === 'sum') return 'x + y = ' + neg(L.c);
+    if (L.f === 'k') return L.k + 'y = ' + tidyRHS(L.k * L.m, L.k * L.c);
+    if (L.f === 'diff') return 'y − ' + (near(L.m, 1) ? '' : neg(L.m)) + 'x = ' + neg(L.c);
+    return 'y = ' + tidyRHS(L.m, L.c);
+  }
+  // The rule as written, then as y = mx + c when it is written another way.
+  function ruleSteps(L) { const a = ruleText(L), b = 'y = ' + tidyRHS(L.m, L.c); return a === b ? [a] : [a, 'so ' + b]; }
+  const fits = (L, p) => Math.abs(L.m * p[0] + L.c - p[1]) < 1e-9;
+  function mulStr(m, x, c) {                                             // 2 × 3 + 1, 3 + 4, −3 + 7
+    const mx = near(m, 1) ? br(x) : near(m, -1) ? '−' + br(x) : neg(m) + ' × ' + br(x);
+    return Math.abs(c) < 1e-12 ? mx : mx + plusC(c);
+  }
+  // A pair put into a rule: the working, then ✓ when both sides agree, or ≠ and what the rule needs.
+  function working(L, p) {
+    const x = p[0], y = p[1], ok = fits(L, p);
+    if (L.f === 'sum') return [neg(x) + ' + ' + br(y), '= ' + neg(x + y), ok ? '✓' : '≠ ' + neg(L.c)];
+    if (L.f === 'k') {
+      const left = L.k + ' × ' + br(y) + ' = ' + neg(L.k * y), right = mulStr(L.k * L.m, x, L.k * L.c);
+      return ok ? [left, '= ' + right, '✓'] : [left, '≠ ' + neg(L.k * (L.m * x + L.c)) + ' = ' + right];
+    }
+    if (L.f === 'diff') return [br(y) + ' − ' + (near(L.m, 1) ? br(x) : neg(L.m) + ' × ' + br(x)), '= ' + neg(y - L.m * x), ok ? '✓' : '≠ ' + neg(L.c)];
+    return [mulStr(L.m, x, L.c), '= ' + neg(L.m * x + L.c), ok ? '✓' : '≠ ' + neg(y)];
+  }
+  // Where two lines meet: at x = 0 they are c₂ − c₁ apart, and each 1 along the gap changes by m₁ − m₂.
+  function crossing(A1, B1) {
+    const dm = A1.m - B1.m, dc = B1.c - A1.c;
+    if (Math.abs(dm) < 1e-9) return { kind: Math.abs(dc) < 1e-9 ? 'same' : 'none', gap: Math.abs(dc) };
+    const X = dc / dm;
+    return { kind: 'one', X, Y: A1.m * X + A1.c, dm, dc };
+  }
+  const gcd = (a, b) => (b ? gcd(b, a % b) : Math.abs(a));
+  function frac(n, d) { if (d < 0) { n = -n; d = -d; } const g = gcd(Math.round(Math.abs(n)), Math.round(d)) || 1; return neg(n / g) + (d / g === 1 ? '' : '/' + (d / g)); }
+  function crossPieces(A1, B1, v) {
+    const k = crossing(A1, B1);
+    if (k.kind === 'same') return ['same line:', 'the m\'s and c\'s match,', 'so every point on it fits both'];
+    if (k.kind === 'none') return ['none:', 'the m\'s match,', 'so the gap stays ' + neg(k.gap)];
+    const ex = exact(k.X) && exact(k.Y), inV = inView(v, [k.X, k.Y]), end = inV ? '' : ',';
+    const out = ['x = (' + neg(B1.c) + ' − ' + br(A1.c) + ') ÷ (' + neg(A1.m) + ' − ' + br(B1.m) + ')'];
+    // With whole-number m's and c's a crossing that is not a tidy decimal is still exact, as a fraction.
+    const whole = [A1.m, A1.c, B1.m, B1.c].every((n) => Number.isInteger(n));
+    if (!exact(k.X) && whole) {
+      out.push('= ' + neg(k.dc) + ' ÷ ' + br(k.dm) + ' = ' + frac(k.dc, k.dm) + ',', 'so (' + frac(k.dc, k.dm) + ', ' + frac(A1.m * k.dc + A1.c * k.dm, k.dm) + '),', 'about ' + coord([k.X, k.Y]) + end);
+    } else {
+      out.push('= ' + neg(k.dc) + ' ÷ ' + br(k.dm) + (exact(k.X) ? ' = ' : ' ≈ ') + neg(k.X) + ',', (ex ? 'so ' : 'so about ') + coord([k.X, k.Y]) + end);
+    }
+    if (!inV) out.push('off the grid');
+    return out;
+  }
+  const say = (s) => String(s).replace(/−/g, 'minus ').replace(/×/g, 'times').replace(/÷/g, 'divided by').replace(/≠/g, 'is not').replace(/✓/g, 'true');
+  const twoLine = (d) => [d.l1, d.l2].concat(d.kind === 'same' ? Object.keys(d.vals).map((k) => d.vals[k]) : []).some((L) => L && L.f !== 'mc');
+  const keyKinds = (d) => [d.l1 ? 'l1' : null, d.l2 || d.kind === 'same' ? 'l2' : null, d.l1 && (d.l2 || d.kind === 'same') ? 'x' : null,
+    d.P || d.R || d.kind === 'both' || d.kind === 'par' ? 'p' : null].filter(Boolean);
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // mc: line 2's handles where Dan has dragged them; P: the test point where he has dragged it.
+  function blank() { return { pick: null, res: null, why: false, mc: null, P: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;                                                        // what the last paint drew, for the checks
+  let OBS = { hard: [], segs: [] };                                      // what labels keep clear of
+  const canDrag = (d, st) => !!d.drag && !finished;
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[xymc](?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line with its letters italic; *a key term* is highlighted.
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, mt;
+      while ((mt = re.exec(seg))) {
+        if (mt.index > at0) node.appendChild(document.createTextNode(seg.slice(at0, mt.index)));
+        node.appendChild(K.el('span', { class: 'term' }, mt[1]));
+        at0 = mt.index + mt[0].length;
+      }
+      if (at0 < seg.length) node.appendChild(document.createTextNode(seg.slice(at0)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  // Up to three answers; a new choice after a wrong answer settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  // Check: a right answer draws what was asked and fills in the readouts; a wrong one shows its pair or line, and its hint.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (!st.why) play(FB);
+  } });
+  // Why?: draws the answer and puts the pairs into both rules, with a few words.
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    st.why = !st.why;
+    if (st.why && st.res !== 'right') play(FB);
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    S[at()].mc = null; S[at()].P = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and each puzzle's drawing; with reduced motion (and
+  // while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- timing: how far a part due at t0 has arrived, noting the timetable for the timing check ----------
+  let latest = 0, earliest = Infinity;
+  function note(t0, dd) { if (t0 + dd > latest) latest = t0 + dd; if (t0 < earliest) earliest = t0; }
+  function arr(t0, dd) { note(t0, dd); return K.arrive(T, t0, dd); }
+
+  // ---------- where things are now ----------
+  // The grid's window: on the readings screen it zooms in, keeping the crossing's neighbourhood in sight.
+  const viewEnd = (d) => (d.zoom ? d.zoom.to : d.view);
+  function viewNow(d) {
+    if (!d.zoom) return d.view;
+    const z = d.zoom;
+    note(z.at, z.tr);
+    const e = T === Infinity ? 1 : K.ease((T - z.at) / z.tr);
+    if (e >= 1) return z.to;
+    if (e <= 0) return d.view;
+    const a = d.view, b = z.to, wa = a.x1 - a.x0, ha = a.y1 - a.y0, wb = b.x1 - b.x0;
+    const Q = [(b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2], k = Math.pow(wb / wa, e), w = wa * k, h = ha * k;
+    const rx = K.lerp((Q[0] - a.x0) / wa, 0.5, e), ry = K.lerp((Q[1] - a.y0) / ha, 0.5, e);
+    return { x0: Q[0] - rx * w, x1: Q[0] - rx * w + w, y0: Q[1] - ry * h, y1: Q[1] - ry * h + h };
+  }
+  function mapper(v) {
+    const kx = GW / (v.x1 - v.x0), ky = GH / (v.y1 - v.y0);
+    return { v, kx, ky, px: (x) => GX + (x - v.x0) * kx, py: (y) => GY1 - (y - v.y0) * ky, inv: (X, Y) => [v.x0 + (X - GX) / kx, v.y0 + (GY1 - Y) / ky] };
+  }
+  // Line 2's slide from one rule to the next at time T; its numbers fade out before a move and back in
+  // once it lands, so no in-between value shows.
+  function phase(d) {
+    const keys = d.keys;
+    keys.forEach((k) => { if (k.at != null) note(k.at, k.tr + 0.4); });
+    let k = 0;
+    for (let j = 1; j < keys.length; j++) if (T >= keys[j].at) k = j;
+    const kk = keys[k], nx = keys[k + 1];
+    let m = kk.m, c = kk.c, la = 1, moving = false;
+    if (k > 0) {
+      const s = (T - kk.at) / kk.tr;
+      if (s < 1) { const e = K.ease(Math.max(0, s)); m = K.lerp(keys[k - 1].m, kk.m, e); c = K.lerp(keys[k - 1].c, kk.c, e); moving = true; la = 0; }
+      else la = K.arrive(T, kk.at + kk.tr, 0.4);
+    }
+    if (nx) la *= 1 - K.arrive(T, nx.at - 0.3, 0.3);
+    return { m, c, k, moving, la };
+  }
+  const keyNow = (d) => (d.keys ? { m: d.keys[d.keys.length - 1].m, c: d.keys[d.keys.length - 1].c } : { m: d.l2.m, c: d.l2.c });
+  function lineTwoNow(d, st) {
+    if (d.kind === 'same') {   // the rule picked, or the answer once it is open
+      const o = st.why || st.res === 'right' ? d.want : st.res === 'wrong' ? st.pick : null;
+      return o ? { L: d.vals[o], la: 1, moving: false } : null;
+    }
+    if (!d.l2) return null;
+    if (st.mc) return { L: MC(st.mc.m, st.mc.c), la: 1, moving: false };
+    if (d.keys) { const ph = phase(d); return { L: ph.k === 0 && !ph.moving ? d.l2 : MC(ph.m, ph.c), la: ph.la, moving: ph.moving }; }
+    return { L: d.l2, la: 1, moving: false };
+  }
+  // The test point in a demonstration: it moves in tenths, and along a line when told to.
+  function pPhase(d) {
+    const ks = d.pk;
+    if (!ks) return d.P;
+    ks.forEach((k) => { if (k.at != null) note(k.at, k.tr); });
+    if (T === Infinity) return ks[ks.length - 1].p;
+    let p = ks[0].p;
+    for (let j = 1; j < ks.length; j++) {
+      const k = ks[j];
+      if (T <= k.at) break;
+      const e = K.ease((T - k.at) / k.tr);
+      if (e >= 1) { p = k.p; continue; }
+      const x = round1(K.lerp(p[0], k.p[0], e));
+      p = [x, k.on ? round1(k.on.m * x + k.on.c) : round1(K.lerp(p[1], k.p[1], e))];
+      break;
+    }
+    return p;
+  }
+  const pEnd = (d) => (d.pk ? d.pk[d.pk.length - 1].p : d.P);
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), labs = el('labs'), ui = el('ui');
+  const add = (node) => art.appendChild(node);
+  const ln = (cls, x1, y1, x2, y2, into) => (into || art).appendChild(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+  function tx(x, y, s, cls, anchor, into) {
+    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' });
+    t.textContent = s;
+    return (into || art).appendChild(t);
+  }
+  // The squared grid: whole-number lines, tenth lines fading in as it zooms, its axes and numbers.
+  function drawGrid(d, M) {
+    const v = M.v, eps = 1e-9, fine = K.clamp((M.kx - 50) / 100, 0, 1);
+    if (fine > 0.02) {
+      const g = add(K.svg('g'));
+      K.fade(g, fine, 0);
+      for (let n = Math.ceil(v.x0 * 10 - eps); n <= Math.floor(v.x1 * 10 + eps); n++) if (n % 10) ln('gt', M.px(n / 10), GY, M.px(n / 10), GY1, g);
+      for (let n = Math.ceil(v.y0 * 10 - eps); n <= Math.floor(v.y1 * 10 + eps); n++) if (n % 10) ln('gt', GX, M.py(n / 10), GX1, M.py(n / 10), g);
+    }
+    for (let x = Math.ceil(v.x0 - eps); x <= v.x1 + eps; x++) ln('gl', M.px(x), GY, M.px(x), GY1);
+    for (let y = Math.ceil(v.y0 - eps); y <= v.y1 + eps; y++) ln('gl', GX, M.py(y), GX1, M.py(y));
+    add(K.svg('rect', { class: 'gf', x: GX, y: GY, width: GW, height: GH }));
+    if (v.x0 <= eps && v.x1 >= -eps) ln('ax', M.px(0), GY, M.px(0), GY1);
+    if (v.y0 <= eps && v.y1 >= -eps) ln('ax', GX, M.py(0), GX1, M.py(0));
+    OBS.hard.push({ x0: GX - 8, y0: GY - 22, x1: GX + 8, y1: GY - 4 });
+  }
+  // The numbers: whole numbers, or tenths once zoomed in; on the zooming screen they fade out before
+  // the zoom and the tenths fade in after it. A number or axis name that a ring at the grid's edge
+  // (a handle, the test point, the crossing) would run through is left out while the ring is there.
+  function drawTicks(d, M, rings) {
+    const v = M.v, eps = 1e-9, tenths = K.clamp((M.kx - 50) / 100, 0, 1) >= 1, z = d.zoom;
+    const clearX = (X) => !rings.some((r) => r.y + r.r > GY1 + 6 && Math.abs(X - r.x) < r.r + 14);
+    const clearY = (Y) => !rings.some((r) => r.x - r.r < GX - 3 && Math.abs(Y - r.y) < r.r + 9);
+    const clearAt = (X, Y) => !rings.some((r) => Math.hypot(r.x - X, r.y - Y) < r.r + 10);
+    if (clearAt(GX1 + 18, GY1 - 3)) tx(GX1 + 14, GY1 + 2, 'x', 'at', 'start');
+    if (clearAt(GX, GY - 14)) tx(GX, GY - 9, 'y', 'at', 'middle');
+    const aT = !z ? 1 : tenths ? arr(z.at + z.tr, 0.4) : 1 - arr(z.at - 0.3, 0.3);
+    if (aT <= 0) return;
+    const g = add(K.svg('g')), stp = tenths ? 0.1 : 1, dec = tenths ? 1 : 0;
+    K.fade(g, aT, 0);
+    for (let n = Math.ceil(v.x0 / stp - eps); n <= Math.floor(v.x1 / stp + eps); n++) { const X = M.px(n * stp); if (clearX(X)) tx(X, GY1 + 18, (n * stp).toFixed(dec), 'tk', 'middle', g); }
+    for (let n = Math.ceil(v.y0 / stp - eps); n <= Math.floor(v.y1 / stp + eps); n++) { const Y = M.py(n * stp); if (clearY(Y)) tx(GX - 6, Y + 4.5, (n * stp).toFixed(dec), 'tk', 'end', g); }
+  }
+  // The piece of a line inside the window, as numbers (a, b) and in drawing units (s); null when it misses.
+  function clipLine(M, L) {
+    const v = M.v;
+    let lo = v.x0, hi = v.x1;
+    if (Math.abs(L.m) > 1e-12) {
+      const xa = (v.y0 - L.c) / L.m, xb = (v.y1 - L.c) / L.m;
+      lo = Math.max(lo, Math.min(xa, xb)); hi = Math.min(hi, Math.max(xa, xb));
+    } else if (L.c < v.y0 - 1e-9 || L.c > v.y1 + 1e-9) return null;
+    if (hi - lo < 1e-9) return null;
+    const a = [lo, L.m * lo + L.c], b = [hi, L.m * hi + L.c];
+    return { a, b, s: [M.px(a[0]), M.py(a[1]), M.px(b[0]), M.py(b[1])] };
+  }
+  // A crossing beyond the grid: an arrow carrying line 1 on past the edge, towards where the lines meet.
+  function offArrow(M, L, CR, a, items, rings) {
+    const s = clipLine(M, L);
+    if (!s) return;
+    const toB = CR.X > s.b[0];
+    const E = toB ? [s.s[2], s.s[3]] : [s.s[0], s.s[1]], F = toB ? [s.s[0], s.s[1]] : [s.s[2], s.s[3]];
+    const L0 = Math.hypot(E[0] - F[0], E[1] - F[1]) || 1, ux = (E[0] - F[0]) / L0, uy = (E[1] - F[1]) / L0;
+    const tip = [E[0] + ux * 20, E[1] + uy * 20], st0 = [E[0] + ux * 4, E[1] + uy * 4];
+    if (tip[0] < 4 || tip[0] > 336 || tip[1] < 4 || tip[1] > H - 4) return;
+    if (tip[0] < GX || tip[1] > GY1) rings.push({ x: (st0[0] + tip[0]) / 2, y: (st0[1] + tip[1]) / 2, r: 12 });   // the numbers it passes give way
+    const hl = 8, hw = 4.5, bx = tip[0] - ux * hl, by = tip[1] - uy * hl, g = add(K.svg('g'));
+    ln('oa', st0[0], st0[1], bx + ux * 2, by + uy * 2, g);
+    g.appendChild(K.svg('path', { class: 'oh', d: 'M' + r2(tip[0]) + ' ' + r2(tip[1]) + ' L' + r2(bx - uy * hw) + ' ' + r2(by + ux * hw) + ' L' + r2(bx + uy * hw) + ' ' + r2(by - ux * hw) + ' Z' }));
+    K.fade(g, a, 0);
+    OBS.hard.push({ x0: Math.min(st0[0], tip[0]) - 2, y0: Math.min(st0[1], tip[1]) - 2, x1: Math.max(st0[0], tip[0]) + 2, y1: Math.max(st0[1], tip[1]) + 2 });
+    items.push(Object.assign(spots(tip[0], tip[1], [[12, 5, 'start'], [12, 14, 'start'], [-12, 5, 'end'], [0, -10, 'middle'], [12, 24, 'start']]),
+      { text: 'to the crossing', class: 'lab mu', a, B: { x0: 2, x1: 338, y0: 3, y1: GY1 - 2 } }));
+    if (a >= 0.5) REC.off = true;
+  }
+
+  // ---------- labels: clear of each other, the dots, the handles and the arrow; off the lines where they can be ----------
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    let w = 0;
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return s.length * 8.4;
+  }
+  function boxOf(x, y, w, anchor) {
+    const x0 = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2;
+    return { x0, y0: y - 11.5, x1: x0 + w, y1: y + 4 };
+  }
+  const meets = (a, b, pad) => a.x0 < b.x1 + pad && b.x0 < a.x1 + pad && a.y0 < b.y1 + pad && b.y0 < a.y1 + pad;
+  // Does a line segment pass through a box? (Liang-Barsky)
+  function segHits(s, b) {
+    let t0 = 0, t1 = 1;
+    const dx = s[2] - s[0], dy = s[3] - s[1];
+    const pq = [[-dx, s[0] - b.x0], [dx, b.x1 - s[0]], [-dy, s[1] - b.y0], [dy, b.y1 - s[1]]];
+    for (let k = 0; k < 4; k++) {
+      const p = pq[k][0], q = pq[k][1];
+      if (Math.abs(p) < 1e-12) { if (q < 0) return false; continue; }
+      const r = q / p;
+      if (p < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    }
+    return true;
+  }
+  // Each label tries spots round where it wants to be (or round each alternative, in order), pulled
+  // inside its bounds, and takes the one that hits nothing solid, crosses the fewest lines and moves least.
+  function placeLabels(items, hard, segs, B) {
+    const placed = [];
+    return items.map((it) => {
+      const w = tw(it.text, it.class), h = 15.5, g = 4;
+      const C = [[0, 0], [0, -(h + g)], [0, h + g], [w / 2 + 2 * g, 0], [-(w / 2 + 2 * g), 0], [w / 2 + g, -(h + g)], [-(w / 2 + g), -(h + g)], [w / 2 + g, h + g], [-(w / 2 + g), h + g],
+        [0, -2 * (h + g)], [0, 2 * (h + g)], [w + g, 0], [-(w + g), 0], [w + g, -(h + g)], [-(w + g), -(h + g)], [w + g, h + g], [-(w + g), h + g], [0, -3 * (h + g)], [0, 3 * (h + g)]];
+      let best = null, bestCost = Infinity;
+      const Bi = it.B || B;
+      (it.alts || [it]).forEach((al, ai) => C.forEach((c, k) => {
+        let b = boxOf(al.x + c[0], al.y + c[1], w, al.anchor);
+        const sx = b.x0 < Bi.x0 ? Bi.x0 - b.x0 : b.x1 > Bi.x1 ? Bi.x1 - b.x1 : 0, sy = b.y0 < Bi.y0 ? Bi.y0 - b.y0 : b.y1 > Bi.y1 ? Bi.y1 - b.y1 : 0;
+        b = { x0: b.x0 + sx, x1: b.x1 + sx, y0: b.y0 + sy, y1: b.y1 + sy };
+        let cost = Math.hypot(c[0] + sx, c[1] + sy) * 0.5 + k * 0.5 + ai * 8;
+        hard.forEach((o) => { if (meets(b, o, 3)) cost += 1000; });
+        placed.forEach((o) => { if (meets(b, o, 6)) cost += 1000; });
+        const wide = { x0: b.x0 - 2, y0: b.y0 - 2, x1: b.x1 + 2, y1: b.y1 + 2 };
+        segs.forEach((s) => { if (segHits(s.s, wide)) cost += s.c; });
+        if (cost < bestCost) { bestCost = cost; best = { b, x: al.x + c[0] + sx, y: al.y + c[1] + sy, anchor: al.anchor }; }
+      }));
+      placed.push(best.b);
+      return best;
+    });
+  }
+  const spots = (X, Y, list) => { const alts = list.map((o) => ({ x: X + o[0], y: Y + o[1], anchor: o[2] })); return Object.assign({}, alts[0], { alts }); };
+  const PT_AT = [[14, 5, 'start'], [-14, 5, 'end'], [0, -17, 'middle'], [0, 27, 'middle']];
+  const ON_AT = [[14, 22, 'start'], [-14, 22, 'end'], [14, -12, 'start'], [-14, -12, 'end'], [0, 42, 'middle'], [0, -32, 'middle']];
+  const DOT_AT = [[-11, 5, 'end'], [11, 5, 'start'], [0, -12, 'middle'], [0, 22, 'middle']];
+
+  // ---------- the readouts above the grid ----------
+  function pieces(node, list) {
+    list.forEach((pc, n) => {
+      const s = node.appendChild(K.el('span', { class: 'pc' + (pc.cls ? ' ' + pc.cls : '') }));
+      italics(s, pc.s, false);
+      K.fade(s, pc.a, 0);
+      if (n < list.length - 1) node.appendChild(document.createTextNode(' '));
+    });
+  }
+  function drawCards(d, cards, cross) {
+    const box = el('cards'), two = twoLine(d);
+    box.textContent = '';
+    cards.forEach((c) => {
+      const card = box.appendChild(K.el('div', { class: 'card' }));
+      K.fade(card.appendChild(K.el('p', { class: 'cl' }, K.el('i', { class: 'sw ' + c.cls, 'aria-hidden': 'true' }), c.name)), c.a, 0);
+      pieces(card.appendChild(K.el('p', { class: 'rule' + (two ? ' two' : '') })), c.rule);
+      pieces(card.appendChild(K.el('p', { class: 'wk' })), c.work);
+      REC.cards.push({ name: c.name, rule: c.rule.map((p) => p.s).join(' '), work: c.work.map((p) => p.s).join(' ') });
+    });
+    const x = el('cross');
+    x.textContent = '';
+    x.hidden = !cross;
+    if (cross) {
+      K.fade(x.appendChild(K.el('span', { class: 'lab' }, 'Crossing: ')), cross[0].a, 0);
+      pieces(x, cross);
+      REC.cross = cross[0].a >= 0.5 ? cross.map((p) => p.s).join(' ') : null;
+    }
+  }
+  function describe(d, v, La, Lb, CR, Q, lit, qKind) {
+    let s = 'A squared grid, x from ' + neg(v.x0) + ' to ' + neg(v.x1) + ' and y from ' + neg(v.y0) + ' to ' + neg(v.y1) + '.';
+    if (La) s += ' Line 1, solid: ' + say(ruleText(La)) + '.';
+    if (REC.L2) s += ' Line 2, dashed: ' + say(ruleText(REC.L2)) + '.';
+    if (CR && REC.L2 && CR.kind === 'same') s += ' The lines lie on top of each other.';
+    if (CR && REC.L2 && CR.kind === 'none') s += ' The lines are parallel.';
+    if (REC.ring) s += ' A ring marks where they cross.';
+    if (REC.off) s += ' They cross off the grid, where the arrow points.';
+    if (REC.Q) s += ' The ' + (qKind === 'r' ? 'reading' : qKind === 'pick' ? 'pair tried' : 'test point') + ' is at ' + say(coord(Q)) + (lit ? ', fitting ' + (Lb ? 'both rules.' : 'the rule.') : '.');
+    return s;
+  }
+
+  // ---------- the scene for a step (the animation calls this every frame) ----------
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    REC = { view: null, lines: [], l1seg: null, l2seg: null, L2: null, ring: null, off: false, Q: null, gaps: [], cards: [], cross: null, labels: [], hc: null, hm: null };
+    OBS = { hard: [], segs: [] };
+    const open = !!d.show || st.res === 'right' || st.why, ans = open || st.res === 'wrong';
+    const tl = d.tl || {};
+    const A = (t0, dd) => (t0 == null ? 1 : arr(t0, dd == null ? 0.4 : dd));
+    const pzO = (t0) => (open ? A(t0) : 0), pzA = (t0) => (ans ? A(t0) : 0);
+    const hid = (name) => !d.show && !!d.hide && !!d.hide[name];
+    const v = viewNow(d), M = mapper(v);
+    REC.view = v;
+    const items = [];
+    drawGrid(d, M);
+    const rings = [];
+    const clipG = add(K.svg('g', { 'clip-path': 'url(#gclip)' }));
+
+    // Line 1, solid; on the first screen it grows across after its three dots.
+    const La = d.l1 || null, a1 = d.show && tl.l1 != null ? A(tl.l1, 0.6) : 1;
+    if (La) {
+      const s = clipLine(M, La);
+      if (s && a1 > 0) {
+        const x2 = K.lerp(s.s[0], s.s[2], a1), y2 = K.lerp(s.s[1], s.s[3], a1);
+        ln('l1', s.s[0], s.s[1], x2, y2, clipG);
+        OBS.segs.push({ s: [s.s[0], s.s[1], x2, y2], c: 120 });
+        if (a1 >= 1) REC.l1seg = s.s;
+      }
+      REC.lines.push(La);
+    }
+    // Line 2, dashed: its rule now (moved by the demonstration's keys, or by Dan's handles).
+    const T2 = lineTwoNow(d, st), Lb = T2 ? T2.L : null, la = T2 ? T2.la : 1, moving = !!(T2 && T2.moving);
+    let a2 = 0;
+    if (Lb) {
+      a2 = d.show ? A(tl.l2, 0.6) : d.kind === 'same' ? pzA(PZ.l2) : hid('l2') ? pzO(PZ.l2) : 1;
+      const s = clipLine(M, Lb), grow = d.show && tl.l2 != null;
+      if (s && a2 > 0) {
+        const x2 = grow ? K.lerp(s.s[0], s.s[2], a2) : s.s[2], y2 = grow ? K.lerp(s.s[1], s.s[3], a2) : s.s[3];
+        const e = ln('l2', s.s[0], s.s[1], x2, y2, clipG);
+        if (!grow) K.fade(e, a2, 0);
+        OBS.segs.push({ s: [s.s[0], s.s[1], x2, y2], c: 120 });
+        if (a2 >= 1) REC.l2seg = s.s;
+      }
+      if (a2 >= 0.5) REC.L2 = Lb;
+      REC.lines.push(Lb);
+    }
+    const rules = [La, Lb].filter(Boolean);
+    const CR = La && Lb ? crossing(La, Lb) : null;
+
+    // Gap brackets: how far line 2 is from line 1 at a few x's.
+    if (La && Lb && d.gx) d.gx.forEach((x, j) => {
+      const y1 = La.m * x + La.c, y2 = Lb.m * x + Lb.c, g = y2 - y1;
+      const a = d.show ? A(tl.gaps ? tl.gaps[j] : null) * (moving ? 0 : la) * a2 : hid('gaps') ? pzO(PZ.gaps[j]) : 1;
+      if (Math.abs(g) < 1e-9 || a <= 0 || !inView(v, [x, y1]) || !inView(v, [x, y2])) return;
+      const X = M.px(x), Y1 = M.py(y1), Y2 = M.py(y2), gr = add(K.svg('g'));
+      ln('gap', X, Y1, X, Y2, gr); ln('gap', X - 5, Y1, X + 5, Y1, gr); ln('gap', X - 5, Y2, X + 5, Y2, gr);
+      K.fade(gr, a, 0);
+      OBS.segs.push({ s: [X, Y1, X, Y2], c: 300 });
+      items.push(Object.assign(spots(X, (Y1 + Y2) / 2, [[9, 5, 'start'], [-9, 5, 'end']]), { text: neg(Math.abs(g)), class: 'lab', a }));
+      if (a >= 0.5) REC.gaps.push({ x, g });
+    });
+    // Pairs marked on a line: named on line 1's first screen, plain on line 2's.
+    const dotsOf = (list, cls, named) => (list || []).forEach((p, j) => {
+      const a = d.show ? A(tl.dots ? tl.dots[j] : null) : 1;
+      if (a <= 0 || !inView(v, p)) return;
+      const X = M.px(p[0]), Y = M.py(p[1]);
+      K.fade(add(K.svg('circle', { class: cls, cx: r2(X), cy: r2(Y), r: 4.5 })), a, 0);
+      OBS.hard.push({ x0: X - 7, y0: Y - 7, x1: X + 7, y1: Y + 7 });
+      if (named) items.push(Object.assign(spots(X, Y, DOT_AT), { text: coord(p), class: 'lab', a }));
+    });
+    dotsOf(d.dots1, 'd1', true);
+    dotsOf(d.dots2, 'd2', false);
+
+    // The crossing: a ring where it is on the grid (it slides out under the grid's edge), an arrow when it is beyond.
+    if (CR && CR.kind === 'one') {
+      const aR = d.show ? A(tl.x) * a2 : hid('x') ? pzO(PZ.x) : a2;
+      const X = M.px(CR.X), Y = M.py(CR.Y), inV = inView(v, [CR.X, CR.Y]);
+      if (aR > 0 && X > GX - 12 && X < GX1 + 12 && Y > GY - 12 && Y < GY1 + 12) {
+        K.fade(clipG.appendChild(K.svg('circle', { class: 'xr', cx: r2(X), cy: r2(Y), r: 9 })), aR, 0);
+        rings.push({ x: X, y: Y, r: 9 });
+        if (inV) OBS.hard.push({ x0: X - 11, y0: Y - 11, x1: X + 11, y1: Y + 11 });
+        if (inV && aR >= 0.5) REC.ring = { x: X, y: Y, X: CR.X, Y: CR.Y };
+      }
+      if (!inV && aR * la > 0) offArrow(M, La, CR, aR * la, items, rings);
+    }
+    // Line 2's handles: the round c handle on the y-axis, the m handle 1 along it.
+    if (Lb && /cm/.test(d.drag || '') && !finished && a2 > 0 && v === d.view) {
+      const O = [M.px(0), M.py(Lb.c)], Tp = [M.px(1), M.py(Lb.c + Lb.m)], g = add(K.svg('g'));
+      [[Tp, 5.5], [O, 6.5]].forEach((h) => {
+        g.appendChild(K.svg('circle', { class: 'ring t', cx: r2(h[0][0]), cy: r2(h[0][1]), r: 11 }));
+        g.appendChild(K.svg('circle', { class: 'hd', cx: r2(h[0][0]), cy: r2(h[0][1]), r: h[1] }));
+        OBS.hard.push({ x0: h[0][0] - 11, y0: h[0][1] - 11, x1: h[0][0] + 11, y1: h[0][1] + 11 });
+        rings.push({ x: h[0][0], y: h[0][1], r: 11 });
+      });
+      K.fade(g, a2, 0);
+      items.push(Object.assign(spots(O[0], O[1], [[15, 5, 'start'], [13, -10, 'start'], [13, 21, 'start']]), { text: 'c', class: 'lab tl', a: a2 }));
+      items.push(Object.assign(spots(Tp[0], Tp[1], [[15, 5, 'start'], [-15, 5, 'end'], [0, -15, 'middle'], [0, 25, 'middle']]), { text: 'm', class: 'lab tl', a: a2 }));
+      if (a2 >= 0.5) { REC.hc = { x: O[0], y: O[1] }; REC.hm = { x: Tp[0], y: Tp[1] }; }
+    }
+    // The test point (or the reading, or the pair a puzzle tries): lit with a halo when it fits every rule.
+    let Q = null, aQ = 1, qDrag = false, qKind = 'p';
+    if (d.P) { Q = st.P || pPhase(d); aQ = d.show ? A(tl.P) : 1; qDrag = /p/.test(d.drag || '') && !finished; }
+    else if (d.R) { Q = d.R; qKind = 'r'; }
+    else if (d.kind === 'both' || d.kind === 'par') {
+      const o = st.why || st.res === 'right' ? d.want : st.res === 'wrong' ? st.pick : null;
+      if (o != null && Array.isArray(d.vals[o])) { Q = d.vals[o]; aQ = A(PZ.P); qKind = 'pick'; }
+    }
+    const lit = !!Q && rules.length > 0 && rules.every((L) => fits(L, Q));
+    if (Q && aQ > 0) {
+      const X = M.px(Q[0]), Y = M.py(Q[1]), cx = r2(X), cy = r2(Y);
+      const aL = lit ? aQ * (d.show ? A(tl.lit != null ? tl.lit : tl.P) : qKind === 'pick' ? A(PZ.lit) : 1) : 0;
+      if (qDrag) { K.fade(add(K.svg('circle', { class: 'ring', cx, cy, r: 11 })), aQ, 0); rings.push({ x: X, y: Y, r: 11 }); }
+      if (aL > 0) { K.fade(add(K.svg('circle', { class: 'halo', cx, cy, r: 12.5 })), aL, 0); rings.push({ x: X, y: Y, r: 12.5 }); }
+      K.fade(add(K.svg('circle', { class: 'pt', cx, cy, r: 6.5 })), aQ, 0);
+      OBS.hard.push({ x0: X - 10, y0: Y - 10, x1: X + 10, y1: Y + 10 });
+      items.push(Object.assign(spots(X, Y, PT_AT), { text: coord(Q), class: 'lab', a: aQ }));
+      if (aL > 0) items.push(Object.assign(spots(X, Y, ON_AT), { text: rules.length > 1 ? 'fits both' : 'fits', class: 'lab tl', a: aL }));
+      if (aQ >= 0.5) REC.Q = { p: Q, lit, x: X, y: Y };
+    }
+    drawTicks(d, M, rings);
+    // The key, inside the drawing on the right; each entry keeps its place and fades in with its part.
+    const kinds = keyKinds(d), KX = GX1 + 12;
+    const keyA = { l1: a1, l2: a2, x: !CR ? 0 : d.show ? A(tl.x) * a2 : hid('x') ? pzO(PZ.x) : a2, p: Q ? aQ : 0 };
+    kinds.forEach((kd, n) => {
+      const a = keyA[kd];
+      if (a <= 0) return;
+      const y = GY1 - 22 - 21 * (kinds.length - 1 - n), g = add(K.svg('g'));
+      if (kd === 'l1' || kd === 'l2') ln(kd, KX, y - 4, KX + 22, y - 4, g);
+      else g.appendChild(K.svg('circle', { class: kd === 'x' ? 'xr' : 'pt', cx: KX + 11, cy: y - 4, r: kd === 'x' ? 6 : 5 }));
+      const label = kd === 'l1' ? 'line 1' : kd === 'l2' ? (d.kind === 'count' ? 'its line' : 'line 2') : kd === 'x' ? 'crossing' : d.R ? 'reading' : d.P ? 'test point' : 'pair tried';
+      tx(KX + 28, y, label, 'key', 'start', g);
+      K.fade(g, a, 0);
+      OBS.hard.push({ x0: KX - 2, y0: y - 14, x1: KX + 30 + tw(label, 'key'), y1: y + 4 });
+    });
+    // Labels, placed clear of everything above.
+    const pos = placeLabels(items, OBS.hard, OBS.segs, { x0: GX + 2, x1: GX1 - 2, y0: GY + 2, y1: GY1 - 2 });
+    labs.textContent = '';
+    items.forEach((it, n) => {
+      if (it.a <= 0) return;
+      const t = labs.appendChild(K.svg('text', { class: it.class, x: r2(pos[n].x), y: r2(pos[n].y), 'text-anchor': pos[n].anchor || 'middle' }));
+      italics(t, it.text, true);
+      K.fade(t, it.a, 0);
+      if (it.a >= 0.5) REC.labels.push(it.text);
+    });
+
+    // The readouts: each rule with the pair put in (the test point, the reading, the pair tried, or
+    // the crossing when it is exact), and the crossing worked out from the two rules.
+    const fromCR = !Q && !!CR && CR.kind === 'one' && exact(CR.X) && exact(CR.Y) && (d.show || open || (d.kind === 'same' && ans));
+    const W = Q && (qKind !== 'r' || open) ? Q : fromCR ? [CR.X, CR.Y] : null;
+    const aW = !W ? 0 : Q ? (qKind === 'r' ? pzO(PZ.work) : aQ) : d.show ? A(tl.x) * a2 * la : d.kind === 'same' ? a2 : pzO(PZ.work);
+    const wk = (L, extra) => {
+      if (!W) return !d.show && !open && d.kind !== 'count' ? [{ s: '?', cls: 'q', a: 1 }] : [];
+      return working(L, W).map((s) => ({ s, cls: s === '✓' ? 'end' : '', a: aW * extra }));
+    };
+    const cards = [];
+    if (La) cards.push({ name: 'Line 1', cls: 'l1', a: 1, rule: ruleSteps(La).map((s, n) => ({ s, cls: n ? 'mu' : '', a: 1 })), work: wk(La, 1) });
+    if (Lb) {
+      const c2 = d.show ? A(tl.l2) : 1;
+      cards.push({ name: d.kind === 'count' ? 'The rule' : 'Line 2', cls: 'l2', a: c2,
+        rule: ruleSteps(Lb).map((s, n) => ({ s, cls: n ? 'mu' : '', a: c2 * la * (n && d.show && tl.half != null ? A(tl.half) : 1) })), work: wk(Lb, c2) });
+    } else if (d.kind === 'same') cards.push({ name: 'Line 2', cls: 'l2', a: 1, rule: [{ s: '?', cls: 'q', a: 1 }], work: [] });
+    let cross = null;
+    if (La && (Lb || d.kind === 'same')) {
+      const reveal = d.show || open || (d.kind === 'same' && ans);
+      if (!reveal || !Lb) cross = [{ s: '?', cls: 'q', a: 1 }];
+      else {
+        const a = d.show ? A(tl.x) * a2 * la : d.kind === 'same' ? a2 : pzO(PZ.x);
+        cross = crossPieces(La, Lb, v).map((s) => ({ s, cls: '', a }));
+      }
+    }
+    drawCards(d, cards, cross);
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    svg.setAttribute('aria-label', describe(d, v, La, Lb, CR, Q, lit, qKind));
+    placeGrips(d, st, Lb, Q && aQ >= 0.5 ? Q : null, M);
+  }
+
+  // ---------- dragging: the test point moves in tenths, c in whole numbers, m in tenths ----------
+  const HN = ['c', 'm', 'p'];
+  const hit = ui.appendChild(K.svg('rect', { class: 'grip hit', x: GX, y: GY, width: GW, height: GH, 'aria-hidden': 'true' }));
+  const grips = HN.map(() => ui.appendChild(K.svg('circle', { class: 'grip', cx: -100, cy: -100, r: 22, tabindex: -1, role: 'button', 'aria-label': 'Handle' })));
+  let LIVE = [], LIVE_P = false;
+  function placeGrips(d, st, Lb, Q, M) {
+    LIVE = [];
+    const can = canDrag(d, st);
+    const on = (n) => can && (n === 'p' ? !!d.P && /p/.test(d.drag || '') && !!Q : /cm/.test(d.drag || '') && !!Lb && M.v === d.view);
+    LIVE_P = on('p');
+    hit.style.display = LIVE_P ? '' : 'none';
+    svg.classList.toggle('grab', LIVE_P || on('c'));
+    const where = { c: Lb ? [0, Lb.c] : null, m: Lb ? [1, Lb.c + Lb.m] : null, p: Q };
+    grips.forEach((g, k) => {
+      const n = HN[k], live = on(n) && !!where[n];
+      g.style.display = live ? '' : 'none';
+      g.setAttribute('tabindex', live ? '0' : '-1');
+      if (!live) return;
+      const X = M.px(where[n][0]), Y = M.py(where[n][1]);
+      g.setAttribute('cx', r2(X)); g.setAttribute('cy', r2(Y));
+      g.setAttribute('aria-label', n === 'c' ? 'The c handle of line 2, c = ' + say(neg(Lb.c)) + '. Drag it up or down the y-axis, or use the arrow keys.'
+        : n === 'm' ? 'The m handle of line 2, m = ' + say(neg(Lb.m)) + '. Drag it up or down to turn the line, or use the arrow keys.'
+          : 'The test point at ' + say(coord(Q)) + '. Drag it, or move it with the arrow keys.');
+      LIVE.push({ n, x: X, y: Y });
+    });
+  }
+  // The lines the test point can cling to: those drawn once the step has finished moving.
+  function linesEnd(d, st) {
+    const out = [];
+    if (d.l1) out.push(d.l1);
+    if (d.l2 && !(d.hide && d.hide.l2 && !(st.res === 'right' || st.why))) out.push(st.mc ? MC(st.mc.m, st.mc.c) : d.keys ? MC(keyNow(d).m, keyNow(d).c) : d.l2);
+    return out;
+  }
+  // The test point snaps to tenths inside the grid; dropped within a few units of a line (or of a
+  // crossing that falls on tenths), it sits on it exactly.
+  function snapP(d, st, q, magnet) {
+    const v = viewEnd(d), M = mapper(v), tol = 7 / M.kx;
+    const p = [K.clamp(round1(q[0]), v.x0, v.x1), K.clamp(round1(q[1]), v.y0, v.y1)];
+    if (!magnet) return p;
+    const ls = linesEnd(d, st), cands = [];
+    if (ls.length === 2) { const k = crossing(ls[0], ls[1]); if (k.kind === 'one' && tenth(k.X) && tenth(k.Y) && inView(v, [k.X, k.Y])) cands.push({ p: [round1(k.X), round1(k.Y)], tol: tol * 1.4 }); }
+    ls.forEach((L) => { const y = L.m * p[0] + L.c; if (tenth(y) && y >= v.y0 - 1e-9 && y <= v.y1 + 1e-9) cands.push({ p: [p[0], round1(y)], tol }); });
+    let best = null, bd = Infinity;
+    cands.forEach((c) => { const dd = Math.hypot(c.p[0] - q[0], c.p[1] - q[1]); if (dd <= c.tol && dd < bd) { bd = dd; best = c.p; } });
+    return best || p;
+  }
+  // c moves only c, in whole numbers; m moves only m, in tenths; both keep the handles on the grid.
+  function moveHandle(n, q, cur, v) {
+    const o = { m: cur.m, c: cur.c };
+    if (n === 'c') o.c = K.clamp(Math.round(q[1]), Math.ceil(v.y0 - Math.min(0, o.m) - 1e-9), Math.floor(v.y1 - Math.max(0, o.m) + 1e-9));
+    else o.m = K.clamp(round1(q[1] - o.c), Math.max(-MMAX, v.y0 - o.c), Math.min(MMAX, v.y1 - o.c));
+    return o;
+  }
+  function setHandle(n, q, magnet) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!canDrag(d, st)) return;
+    if (n === 'p') {
+      const p = snapP(d, st, q, magnet !== false), old = st.P;
+      if (old && old[0] === p[0] && old[1] === p[1]) return;
+      st.P = p;
+    } else {
+      const o = moveHandle(n, q, st.mc || keyNow(d), d.view);
+      if (st.mc && o.m === st.mc.m && o.c === st.mc.c) return;
+      st.mc = o;
+    }
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    K.reveal(); K.refresh();
+  }
+  function svgPt(e) {
+    const mtx = svg.getScreenCTM();
+    if (!mtx) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(mtx.inverse());
+  }
+  const toXY = (q) => mapper(viewEnd(STEPS[at()])).inv(q.x, q.y);
+  let held = null;
+  function grab(e, n) {
+    held = { id: e.pointerId, n };
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on it */ }
+    e.preventDefault();
+  }
+  // A touch anywhere on the grid brings the test point there; a touch on a handle takes the nearest one.
+  hit.addEventListener('pointerdown', (e) => {
+    if (!LIVE_P) return;
+    const q = svgPt(e);
+    if (!q) return;
+    grab(e, 'p');
+    setHandle('p', toXY(q), true);
+  });
+  grips.forEach((g, k) => {
+    g.addEventListener('pointerdown', (e) => {
+      if (!canDrag(STEPS[at()], S[at()])) return;
+      const q = svgPt(e);
+      if (!q) return;
+      let best = null, bd = Infinity;
+      LIVE.forEach((h) => { const dd = Math.hypot(h.x - q.x, h.y - q.y); if (dd < bd) { bd = dd; best = h.n; } });
+      if (best) grab(e, best);
+    });
+    g.addEventListener('keydown', (e) => {
+      const d = STEPS[at()], st = S[at()], n = HN[k];
+      const by = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[e.key];
+      if (!canDrag(d, st) || !by) return;
+      e.preventDefault();
+      if (n === 'p') { const p = st.P || pEnd(d), s = e.shiftKey ? 1 : 0.1; setHandle('p', [p[0] + by[0] * s, p[1] + by[1] * s], false); return; }
+      if (!by[1]) return;
+      const cur = st.mc || keyNow(d);
+      setHandle(n, n === 'c' ? [0, cur.c + by[1]] : [1, cur.c + cur.m + by[1] * 0.1]);
+    });
+  });
+  [hit].concat(grips).forEach((g) => {
+    g.addEventListener('pointermove', (e) => {
+      if (!held || held.id !== e.pointerId) return;
+      e.preventDefault();
+      const q = svgPt(e);
+      if (q) setHandle(held.n, toXY(q), true);
+    });
+    const letGo = (e) => { if (held && held.id === e.pointerId) held = null; };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', letGo);
+  });
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.mc = null; st.P = null; play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('pz').classList.toggle('ask', !d.show && !right && !st.why);
+    el('stepbox').hidden = finished;
+    el('lead').hidden = i !== 0 || finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const withMc = (m, c) => Object.assign(blank(), { mc: { m, c } });
+  const withP = (p) => Object.assign(blank(), { P: p });
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  const shown = (i) => drawn(i, STEPS[i].show ? blank() : solvedSt(i));
+  // Before an answer a puzzle keeps back what it asks; after, it draws it.
+  function hides(d, g, open) {
+    const asks = g.cards.every((c) => c.work !== '?');
+    if (d.kind === 'count') return open ? !!g.L2 : !g.L2;
+    if (d.kind === 'both') return open ? !!g.ring && !!g.Q && g.Q.lit && asks : !g.ring && !g.Q && g.cross === '?' && g.cards.every((c) => c.work === '?');
+    if (d.kind === 'off') return open ? g.off && /off the grid$/.test(g.cross || '') && asks : !g.off && g.cross === '?';
+    if (d.kind === 'par') return open ? g.gaps.length === 2 && g.gaps.every((x) => near(Math.abs(x.g), 6)) && /^none/.test(g.cross || '') : !g.gaps.length && g.cross === '?';
+    if (d.kind === 'same') return open ? !!g.L2 && /^same line/.test(g.cross || '') : !g.L2 && g.cross === '?';
+    if (d.kind === 'read') return open ? !!g.ring && asks : !g.ring && g.cards.every((c) => c.work === '?');
+    return false;
+  }
+  // Each puzzle's answers, against its own rules: the right one worked out, each wrong one a real slip.
+  function answerOk(d) {
+    const v = d.vals;
+    if (d.kind === 'count') {
+      let whole = 0;
+      for (let x = 0; x <= 7; x++) if (fits(d.l2, [x, 7 - x])) whole++;
+      return d.want === 'Endless pairs' && whole === v['Eight whole-number pairs'] && fits(d.l2, [2.5, 4.5]) && fits(d.l2, [2, 5]) && fits(d.l2, [3, 4]);
+    }
+    if (d.kind === 'both') return fits(d.l1, v[d.want]) && fits(d.l2, v[d.want]) && d.opts.every((o) => o === d.want || !fits(d.l1, v[o]) || !fits(d.l2, v[o])) && d.opts.every((o) => coord(v[o]) === o);
+    if (d.kind === 'off') { const k = crossing(d.l1, d.l2); return k.kind === 'one' && near(k.X, v[d.want]) && 'x = ' + neg(k.X) === d.want && !inView(d.view, [k.X, k.Y]) && near(v['x = 6'], d.l2.c - d.l1.c); }
+    if (d.kind === 'par') { const k = crossing(d.l1, d.l2); return k.kind === 'none' && v[d.want] === k.kind && same(v['(3, 2)'], [d.l1.m, d.l1.c]) && !fits(d.l1, v['(3, 2)']); }
+    if (d.kind === 'same') {
+      const k = crossing(d.l1, v['y = x + 2']);
+      return d.opts.every((o) => ruleText(v[o]) === o) && crossing(d.l1, v[d.want]).kind === 'same' && crossing(d.l1, v['y = 2x + 3']).kind === 'none' && k.kind === 'one' && near(k.X, 1) && near(k.Y, 3);
+    }
+    if (d.kind === 'read') { const k = crossing(d.l1, d.l2); return !fits(d.l1, d.R) && fits(d.l2, d.R) && k.kind === 'one' && !(tenth(k.X) && tenth(k.Y)) && v[d.want] === 'estimate'; }
+    return false;
+  }
+
+  K.check('If the two lines cross, the coordinates of this intersection are the solutions to the simultaneous equations, and if the lines are parallel there is no solution: wherever a ring marks the crossing both rules give it the same y, a scan of every tenth finds only the crossing fitting both, the test point lights there and not on one line alone, and lines with the same m and different c show no crossing', () => {
+    const rings = STEPS.every((d, i) => {
+      const g = shown(i), r = g.ring;
+      if (!r) return true;
+      const M = mapper(g.view);
+      return g.lines.length === 2 && fits(g.lines[0], [r.X, r.Y]) && fits(g.lines[1], [r.X, r.Y]) && Math.abs(r.x - M.px(r.X)) < 1e-6 && Math.abs(r.y - M.py(r.Y)) < 1e-6;
+    });
+    const found = [];
+    for (let x = 0; x <= 80; x++) for (let y = 0; y <= 140; y++) { const p = [x / 10, y / 10]; if (fits(L1, p) && fits(SUM(7), p)) found.push(p); }
+    const i2 = idx('A second rule'), on = drawn(i2, withP([2, 5])), one = drawn(i2, withP([3, 7]));
+    const par = shown(idx('Same tilt')), parQ = shown(idx('Same m'));
+    return rings && found.length === 1 && same(found[0], [2, 5]) && !!on.Q && on.Q.lit && !!one.Q && !one.Q.lit &&
+      !par.ring && !par.off && /^none/.test(par.cross || '') && !parQ.ring && /^none/.test(parQ.cross || '');
+  }, { source: BITESIZE });
+  K.check('Equations that have more than one unknown can have an infinite number of solutions: every tenth along each line drawn fits its own rule, between and beyond the whole numbers, and the first puzzle takes endless pairs as its answer', () => {
+    const along = (L, x0, x1) => {
+      for (let n = Math.round(x0 * 10); n <= Math.round(x1 * 10); n++) { const x = n / 10, p = [x, L.m * x + L.c]; if (!fits(L, p) || working(L, p)[2] !== '✓') return false; }
+      return true;
+    };
+    return along(L1, 0, 6.5) && along(SUM(7), 0, 7) && along(MC(1.5, 7), 0, 4.6) && STEPS[idx('How many pairs?')].want === 'Endless pairs';
+  }, { source: BITESIZE2 });
+  K.check('When the two equations were really the same line, there were infinitely many solutions: halved, the rule on the same-line screen is line one\'s own rule and is drawn exactly on top of it, every tenth along it fits both rules, the crossing readout says same line, and the puzzle\'s rule that rearranges to line one is its answer', () => {
+    const i = idx('Same line'), L = STEPS[i].l2, g = shown(i);
+    let all = true;
+    for (let n = 0; n <= 65; n++) { const p = [n / 10, 2 * n / 10 + 1]; if (!fits(L1, p) || !fits(L, p) || working(L, p)[2] !== '✓') all = false; }
+    const j = idx('Endless solutions'), dj = STEPS[j], w = dj.vals[dj.want];
+    return near(L.m, L1.m) && near(L.c, L1.c) && ruleSteps(L)[1] === 'so y = 2x + 1' && !!g.l1seg && !!g.l2seg && g.l1seg.every((x, n) => Math.abs(x - g.l2seg[n]) < 1e-6) &&
+      all && /^same line/.test(g.cross || '') && near(w.m, L1.m) && near(w.c, L1.c) && /^same line/.test(drawn(j, solvedSt(j)).cross || '');
+  }, { source: OPENSTAX });
+  K.check('We are looking for the ordered pairs that make both equations true: each puzzle\'s right pair fits both rules, every wrong pair offered misses at least one, and a wrong pair shows a ≠ under the rule it misses and no halo', () =>
+    DO.filter((i) => STEPS[i].kind === 'both').every((i) => {
+      const d = STEPS[i];
+      return fits(d.l1, d.vals[d.want]) && fits(d.l2, d.vals[d.want]) && d.opts.every((o) => {
+        if (o === d.want) return true;
+        const g = drawn(i, wrongSt(i, o));
+        return !(fits(d.l1, d.vals[o]) && fits(d.l2, d.vals[o])) && g.cards.some((c) => /≠/.test(c.work)) && !!g.Q && !g.Q.lit;
+      });
+    }), { source: OPENSTAX });
+  K.check('Every worked row is right, by hand: 2 × 3 + 1 = 7, and 7 ≠ 5; 3 + 7 = 10; (2, 5) from 6 ÷ 3; (6, 13) at m = 1; (12, 25) from 6 ÷ 0.5; (30, 61) from 6 ÷ 0.2; a gap that stays 6; 2 × 7 = 14 = 4 × 3 + 2; (1, 3); 3.6 and 4.9 near 4 ÷ 3 = 4/3; 2.4, not 2.2; (3, 9) from 9 ÷ 3; and the call-out bills meet at 2 hours and £120', () => {
+    const W = (L, p) => working(L, p).join(' ');
+    const X = (a, b, v) => crossPieces(a, b, v || FULL).join(' ');
+    const k2 = { m: 2, c: 1, f: 'k', k: 2 }, bill = crossing(MC(30, 60), MC(50, 20));
+    return W(L1, [3, 7]) === '2 × 3 + 1 = 7 ✓' && W(L1, [3, 5]) === '2 × 3 + 1 = 7 ≠ 5' && W(SUM(7), [3, 7]) === '3 + 7 = 10 ≠ 7' && W(SUM(7), [2, 5]) === '2 + 5 = 7 ✓' &&
+      W(L1, [3, 4]) === '2 × 3 + 1 = 7 ≠ 4' && X(L1, SUM(7)) === 'x = (7 − 1) ÷ (2 − (−1)) = 6 ÷ 3 = 2, so (2, 5)' &&
+      X(L1, MC(1, 7)) === 'x = (7 − 1) ÷ (2 − 1) = 6 ÷ 1 = 6, so (6, 13)' && X(L1, MC(1.5, 7)) === 'x = (7 − 1) ÷ (2 − 1.5) = 6 ÷ 0.5 = 12, so (12, 25), off the grid' &&
+      X(L1, MC(1.8, 7)) === 'x = (7 − 1) ÷ (2 − 1.8) = 6 ÷ 0.2 = 30, so (30, 61), off the grid' && W(MC(1.8, 7), [30, 61]) === '1.8 × 30 + 7 = 61 ✓' &&
+      X(L1, MC(2, 7)) === 'none: the m\'s match, so the gap stays 6' && X(MC(3, 2), MC(3, -4)) === 'none: the m\'s match, so the gap stays 6' && W(MC(3, 2), [3, 2]) === '3 × 3 + 2 = 11 ≠ 2' &&
+      W(k2, [3, 7]) === '2 × 7 = 14 = 4 × 3 + 2 ✓' && X(L1, k2) === 'same line: the m\'s and c\'s match, so every point on it fits both' &&
+      X(L1, MC(1, 2)) === 'x = (2 − 1) ÷ (2 − 1) = 1 ÷ 1 = 1, so (1, 3)' && X(L1, SUM(5), ZOOM10) === 'x = (5 − 1) ÷ (2 − (−1)) = 4 ÷ 3 = 4/3, so (4/3, 11/3), about (1.33, 3.67)' &&
+      W(L1, [1.3, 3.7]) === '2 × 1.3 + 1 = 3.6 ≠ 3.7' && W(SUM(5), [1.3, 3.7]) === '1.3 + 3.7 = 5 ✓' && W(SUM(5), [1.3, 3.6]) === '1.3 + 3.6 = 4.9 ≠ 5' &&
+      W(MC(3, 0), [0.8, 2.2]) === '3 × 0.8 = 2.4 ≠ 2.2' && W(SUM(3), [0.8, 2.2]) === '0.8 + 2.2 = 3 ✓' &&
+      X(MC(4, -3), MC(1, 6)) === 'x = (6 − (−3)) ÷ (4 − 1) = 9 ÷ 3 = 3, so (3, 9)' && W(MC(4, -3), [0, 6]) === '4 × 0 − 3 = −3 ≠ 6' && W(MC(4, -3), [1, 7]) === '4 × 1 − 3 = 1 ≠ 7' && W(MC(1, 6), [3, 9]) === '3 + 6 = 9 ✓' &&
+      bill.kind === 'one' && near(bill.X, 2) && near(bill.Y, 120);
+  });
+  K.check('As line 2\'s tilt nears line 1\'s the crossing runs off the grid: with c = 7, m = −1, 1, 1.5, 1.8 and 1.9 put it at x = 2, 6, 12, 30 and 60, ringed on the grid only for the first two and pointed to by an arrow beyond, as is x = −12 at m = 2.5; m = 2 gives no crossing, and m = 2 with c = 1 the same line', () => {
+    const i = idx('Turn line 2'), ms = [-1, 1, 1.5, 1.8, 1.9];
+    const xs = ms.map((m) => crossing(L1, MC(m, 7)).X), gs = ms.map((m) => drawn(i, withMc(m, 7)));
+    return [2, 6, 12, 30, 60].every((x, n) => Math.abs(xs[n] - x) < 1e-6) && gs.map((g) => !!g.ring && !g.off).join() === 'true,true,false,false,false' &&
+      gs.slice(2).every((g) => g.off) && drawn(i, withMc(2.5, 7)).off && crossing(L1, MC(2, 7)).kind === 'none' && !drawn(i, withMc(2, 7)).ring && !drawn(i, withMc(2, 7)).off &&
+      crossing(L1, MC(2, 1)).kind === 'same' && /^same line/.test(drawn(i, withMc(2, 1)).cross || '');
+  });
+  K.check('A reading from the graph is an estimate: y = 2x + 1 and x + y = 5 cross at x = 4 ÷ 3, which no tenth hits, so no tenth in the zoomed grid fits both rules; the test point dropped on the crossing lands on (1.3, 3.7), which fits line 2 but gives 3.6 on line 1', () => {
+    const i = idx('A reading'), d = STEPS[i], v = d.zoom.to, g = shown(i);
+    let both = 0;
+    for (let x = Math.round(v.x0 * 10); x <= Math.round(v.x1 * 10); x++) for (let y = Math.round(v.y0 * 10); y <= Math.round(v.y1 * 10); y++) if (fits(L1, [x / 10, y / 10]) && fits(SUM(5), [x / 10, y / 10])) both++;
+    const p = snapP(d, blank(), [4 / 3, 11 / 3], true), k = crossing(L1, SUM(5));
+    return both === 0 && near(k.X, 4 / 3) && same(p, [1.3, 3.7]) && fits(SUM(5), p) && !fits(L1, p) && near(L1.m * 1.3 + L1.c, 3.6) &&
+      g.view === v && !!g.Q && same(g.Q.p, [1.3, 3.7]) && !g.Q.lit && !!g.ring;
+  });
+  K.check('Dragging: the test point snaps to tenths inside the grid and clings to a line or the crossing it is dropped near; the c handle slides along the y-axis in whole numbers and moves only c; the m handle, 1 along, turns line 2 in tenths and moves only m', () => {
+    const i2 = idx('A second rule'), d2 = STEPS[i2], i4 = idx('Turn line 2'), v = STEPS[i4].view, G = mapper(v);
+    const a = snapP(d2, blank(), [3.04, 4.47], false), b = snapP(d2, blank(), [2.06, 5.07], true), c = snapP(d2, blank(), [9, -2], false), e = snapP(d2, blank(), [5.53, 3.5], true);
+    const h1 = moveHandle('c', [0, 3.4], { m: 1.5, c: 7 }, v), h2 = moveHandle('m', [1, 8.94], { m: 1.5, c: 7 }, v), h3 = moveHandle('m', [1, 99], { m: 1.5, c: 7 }, v);
+    const g = drawn(i4, withMc(1.5, 3));
+    return same(a, [3, 4.5]) && same(b, [2, 5]) && same(c, [8, 0]) && same(e, [5.5, 3.5]) && h1.c === 3 && h1.m === 1.5 && near(h2.m, 1.9) && h2.c === 7 && h3.m === 4 &&
+      !!g.hc && !!g.hm && Math.abs(g.hc.x - G.px(0)) < 1e-6 && Math.abs(g.hc.y - G.py(3)) < 1e-6 && Math.abs(g.hm.x - G.px(1)) < 1e-6 && Math.abs(g.hm.y - G.py(4.5)) < 1e-6;
+  });
+  K.check('Before an answer a puzzle keeps back what it asks and its readouts read ?; a right answer or Why? draws it and fills them in; every answer offered is checked against the puzzle\'s own rules, and every wrong one has a hint of its own', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      return hides(d, drawn(i, blank()), false) && hides(d, drawn(i, solvedSt(i)), true) && hides(d, drawn(i, Object.assign(blank(), { why: true })), true) &&
+        answerOk(d) && d.opts.every((o) => o === d.want || (!!d.hints[o] && d.hints[o] !== d.hint));
+    }));
+  K.check('Every demonstration finishes arriving within its 3 to 5 s, none starting before the 0.35 s screen fade ends; a puzzle\'s drawing after an answer or Why? finishes within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity; S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => (d.show ? timed(i, blank(), d.dur) && d.dur >= 3 && d.dur <= 5 && earliest >= FADE
+      : timed(i, solvedSt(i), FB) && timed(i, Object.assign(blank(), { why: true }), FB) && d.opts.every((o) => o === d.want || timed(i, wrongSt(i, o), FB))));
+    T = keepT; paint();
+    return ok && FB <= 2.5;
+  });
+
+  K.ready();
+</script>
