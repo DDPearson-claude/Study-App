@@ -1,0 +1,886 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; touch-action: pan-y; }
+  /* The machine: a box, a funnel on top, a spout below, and a strip for each step of its rule. */
+  .scene .box { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .strip { fill: var(--k-bg); stroke: var(--k-line); stroke-width: 1; }
+  .scene .strip.lit { fill: var(--k-fill2); stroke: none; }
+  .scene .strip.red { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .band { fill: var(--k-fill2); }
+  .scene .op { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .lv { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .lv.sk { font: 600 13px var(--k-font); fill: var(--k-warn); }
+  .scene .look { font: 500 14px var(--k-font); fill: var(--k-ink); }
+  .scene .rt { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .pt { font: 500 13px var(--k-font); fill: var(--k-muted); }
+  .scene .nm { font: italic 700 19px var(--k-font); fill: var(--k-ink); }
+  .scene .nm.word { font: 700 15px var(--k-font); }
+  .scene .nt { font: 500 14px var(--k-font); fill: var(--k-muted); }
+  /* Tokens: a number going in is solid, the number coming out is outlined; a slip is red. */
+  .scene .pill.in { fill: var(--k-accent2); }
+  .scene .pill.in.bad { fill: var(--k-warn); }
+  .scene .tk { font: 700 15px var(--k-font); }
+  .scene .tk.in { fill: var(--k-on-accent2); }
+  .scene .pill.out { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .pill.out.bad { stroke: var(--k-warn); }
+  .scene .tk.out { fill: var(--k-accent2); }
+  .scene .tk.out.bad { fill: var(--k-warn); }
+  .scene .pill.q { fill: var(--k-bg); stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .tk.q { fill: var(--k-muted); }
+  /* The table and the graph. */
+  .scene .tline { stroke: var(--k-line); stroke-width: 1; }
+  .scene .tline.strong { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .th { font: 700 14px var(--k-font); fill: var(--k-muted); }
+  .scene .td { font: 500 15px var(--k-font); fill: var(--k-ink); }
+  .scene .frame { stroke: var(--k-line); stroke-width: 1; }
+  .scene .axis { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tic { stroke: var(--k-strong); stroke-width: 1; }
+  .scene .tlab { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .axt { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .fline { stroke: var(--k-accent2); stroke-width: 2; stroke-linecap: round; }
+  .scene .warnline { stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 5 4; }
+  .scene .tri { fill: none; stroke: var(--k-accent); stroke-width: 1.5; }
+  .scene .pl { font: 600 13px var(--k-font); fill: var(--k-accent2); }
+  .scene .pl.acc { fill: var(--k-accent); }
+  .scene .td.bad, .scene .op.bad, .scene .lv.bad, .scene .pl.bad { fill: var(--k-warn); }
+  .scene .dot { fill: var(--k-accent2); }
+  .scene .dot.bad { fill: var(--k-warn); }
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .ring.bad { stroke: var(--k-warn); }
+  .scene .v { font-style: italic; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A machine with its rule written inside, a table of each number in and out, and a graph of the pairs. The pump readings and the 2 Ω resistor are examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 364" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">One output for each input, as HELM defines a function. Each table row and dot is one pair.</p>
+
+<script>
+  // ---------- the machines ----------
+  // Numbers are written as the lesson writes them: a true minus sign, no trailing zeros.
+  const fmtN = (v) => { const r = Math.round(v * 1000) / 1000; return (r < 0 ? '−' : '') + String(Math.abs(r)); };
+  // kind 'steps': a rule in steps, each a strip that lights in turn. 'look': a log of readings the
+  // machine looks up (no formula). 'text': a rule said in words. x, y: each axis's range and ticks.
+  const M = {
+    f: { kind: 'steps', ops: ['× 3', '− 1'], fns: [(v) => 3 * v, (v) => v - 1], name: 'f',
+      x: [-3, 6.5, [-2, 0, 2, 4, 6]], y: [-8, 15.5, [-5, 0, 5, 10, 15]], head: ['in', 'out'], named: ['x', 'f(x)'],
+      inT: fmtN, outT: fmtN },
+    pump: { kind: 'look', look: [[1, 14], [2, 15], [3, 15], [4, 13]], name: 'pump log',
+      x: [0, 5, [1, 2, 3, 4]], y: [0, 17, [0, 5, 10, 15]], head: ['hour', 'A'], inT: fmtN, outT: (v) => fmtN(v) + ' A' },
+    sq: { kind: 'text', text: ['a number that', 'squares to make it'], many: (v) => [Math.sqrt(v), -Math.sqrt(v)],
+      x: [0, 21, [0, 5, 10, 15, 20]], y: [-6, 6, [-4, 0, 4]], head: ['in', 'out'], inT: fmtN, outT: fmtN },
+    k3: { kind: 'text', text: ['gives 3'], many: () => [3],
+      x: [-3, 6.5, [-2, 0, 2, 4, 6]], y: [-2, 5, [0, 2, 4]], head: ['in', 'out'], inT: fmtN, outT: fmtN },
+    S: { kind: 'steps', ops: ['× 0.16', '+ 4'], fns: [(v) => 0.16 * v, (v) => v + 4], name: 'S',
+      x: [0, 110, [0, 50, 100]], y: [0, 22, [0, 5, 10, 15, 20]], head: ['p (%)', 'S (mA)'],
+      inT: (v) => fmtN(v) + '%', outT: (v) => fmtN(v) + ' mA' },
+    P: { kind: 'steps', ops: ['square it', '× 2'], fns: [(v) => v * v, (v) => 2 * v], name: 'P', note: 'R = 2 Ω',
+      x: [0, 4.4, [0, 1, 2, 3, 4]], y: [0, 42, [0, 10, 20, 30, 40]], head: ['I (A)', 'P (W)'],
+      inT: (v) => fmtN(v) + ' A', outT: (v) => fmtN(v) + ' W' },
+  };
+  const fx = (m, v) => M[m].fns.reduce((a, fn) => fn(a), v);
+
+  // f(a + 1): the whole expression goes in. Its check at a = 2 is the input 3, which gives 8.
+  const AP1 = {
+    '3a + 2': { m: 'f', inp: 'a + 1', look: -1, lanes: [{ op: '× 3', val: '3a + 3' }, { op: '− 1', val: '3a + 2' }],
+      outs: [{ t: '3a + 2' }], rows: [{ a: 'a + 1', b: '3a + 2' }, { a: '3', b: '8' }], dots: [{ x: 3, y: 8, label: 'a = 2' }] },
+    '3a': { m: 'f', inp: 'a + 1', look: -1, slip: true, lanes: [{ op: '× 3', val: '3a + 1', bad: true }, { op: '− 1', val: '3a', bad: true }],
+      outs: [{ t: '3a', bad: true }], rows: [{ a: 'a + 1', b: '3a', bad: true }, { a: '3', b: '6', bad: true }], dots: [{ x: 3, y: 6, bad: true, label: 'a = 2' }] },
+    'fa + f': { m: 'f', inp: 'a + 1', look: -1, slip: true, lanes: [{ op: '× 3', skip: true }, { op: '− 1', skip: true }],
+      outs: [{ t: 'fa + f', bad: true }], rows: [{ a: 'a + 1', b: 'fa + f', bad: true }], dots: [] },
+  };
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // had: inputs already in the table at the start. demo: [input, start s, pace] runs that play on
+  // opening; tray: tokens Dan drags in himself. A 'run' puzzle feeds q in on Check (its slips are
+  // the machine run the wrong way); a 'judge' puzzle asks about the whole table.
+  const STEPS = [
+    { show: true, name: 'In, through, out', m: 'f', had: [], demo: [[5, 0.5, 1]], tray: [0, 1], dur: 3.5,
+      text: 'This machine\'s rule is `× 3`, then `− 1`. The *input* 5 becomes 15, then 14, and the *output* 14 drops out to land in the table and on the graph. Drag 0 and 1 in too.' },
+    { kind: 'run', name: 'Feed in 2', m: 'f', had: [5], q: 2, opts: ['5', '3', '6'], want: '5',
+      slips: { '3': { lanes: [{ op: '− 1', fn: (v) => v - 1 }, { op: '× 3', fn: (v) => 3 * v }] },
+        '6': { lanes: [{ op: '× 3', fn: (v) => 3 * v }, { op: '− 1', skip: true }] } },
+      task: 'Feed 2 into the same machine. What comes out?',
+      hint: 'Not quite. Do `× 3` first, then `− 1`.',
+      hints: { '3': 'Not quite. That takes 1 away first, but the rule does `× 3` first.', '6': 'Not quite. That stops after `× 3`. The `− 1` still has to happen.' },
+      why: '`2 × 3` makes 6, and `6 − 1` makes 5. The steps go in the order the rule says.' },
+    { show: true, name: 'f of 5', m: 'f', named: true, nameT: 0.5, had: [5, 2], demo: [[5, 1.0, 1]], flab: 3.5, dur: 4.0,
+      text: 'Call this machine `f`. Then `f(5)`, said "f of 5", is the output when 5 goes in, so `f(5) = 14`. The whole rule is written `f(x) = 3x − 1`, where `x` is any input.' },
+    { kind: 'run', name: 'A negative input', m: 'f', named: true, had: [5, 2], q: -2, opts: ['−7', '−5', '5'], want: '−7',
+      slips: { '−5': { lanes: [{ op: '× 3', fn: (v) => 3 * v }, { op: '− 1', fn: (v) => -(Math.abs(v) - 1) }] },
+        '5': { inShown: 2, lanes: [{ op: '× 3', fn: (v) => 3 * v }, { op: '− 1', fn: (v) => v - 1 }] } },
+      task: 'Drop in −2. What is `f(−2)`?',
+      hint: 'Not quite. Put all of −2 in, minus and all.',
+      hints: { '−5': 'Not quite. `3 × (−2)` is −6, and taking 1 away goes further below zero.', '5': 'Not quite. That drops the minus. The input is −2, so `3 × (−2)` is −6.' },
+      why: '`f(−2) = 3 × (−2) − 1`. That is `−6 − 1`, which makes −7.' },
+    { show: true, name: 'The dots line up', m: 'f', named: true, had: [5, 2, -2], demo: [[0, 0.4, 0.65], [1, 1.7, 0.65]], lineT: 3.4, triT: 3.9, tray: [0.5], dur: 4.3,
+      text: 'Each 1 added to the input adds 3 to the output, so the dots fall on one straight line with *gradient* 3. Drag in 0.5 and it lands on the same line, which is why the whole line is drawn.' },
+    { kind: 'run', name: 'Feed in a + 1', m: 'f', named: true, line: true, had: [5, 2, -2, 0, 1], sym: AP1, opts: ['3a + 2', '3a', 'fa + f'], want: '3a + 2',
+      task: 'Whatever goes in the bracket replaces `x`, all of it at once. Drop in `a + 1`. What is `f(a + 1)`?',
+      hint: 'Not quite. Multiply all of `a + 1` by 3, then take 1 away.',
+      hints: { '3a': 'Not quite. The 1 is multiplied by 3 too. Try `a = 2`, where the input 3 gives 8, not 6.', 'fa + f': 'Not quite. `f` is the machine\'s name, not a number. The bracket holds the input and does not mean times.' },
+      why: '`f(a + 1) = 3(a + 1) − 1`, which is `3a + 3 − 1`, so `3a + 2`. Try `a = 2`. The input is then 3, and `f(3) = 8`, which `3a + 2` makes too.' },
+    { show: true, name: 'No formula at all', m: 'pump', had: [], demo: [[1, 0.4, 0.8], [2, 1.9, 0.8]], tray: [3, 4], dur: 4.0,
+      text: 'A function needs no formula. This machine is a log of a pump\'s current, one reading for each hour, and it looks the hour up. Drag in hours 3 and 4.' },
+    { kind: 'judge', name: 'Is the log a function?', m: 'pump', had: [1, 2, 3, 4], opts: ['Yes', 'No, it has no formula', 'No, 15 A comes twice'], want: 'Yes',
+      marks: { 'No, it has no formula': { box: true }, 'No, 15 A comes twice': { rows: [1, 2] } },
+      task: 'Hours 2 and 3 both read 15 A. Is this log a function?',
+      hint: 'Not quite. Ask whether each hour has exactly one reading.',
+      hints: { 'No, it has no formula': 'Not quite. A function needs one output for each input, not a formula.', 'No, 15 A comes twice': 'Not quite. Two inputs may share an output. What a function cannot do is give one input two outputs.' },
+      why: 'Each hour has exactly one reading, so each input gives one output. Hours 2 and 3 sharing 15 A is fine, because they are two different inputs.' },
+    { show: true, name: 'Two outputs', m: 'sq', had: [], demo: [[16, 0.5, 1]], warnT: 3.2, dur: 3.6,
+      text: 'The rule "a number that squares to make it" gives 16 two outputs, 4 and −4. One input with two outputs is not a function. The square root, √, keeps only the 4, and that is a function.' },
+    { kind: 'judge', name: 'Always 3', m: 'k3', had: [-2, 1, 5], opts: ['Yes', 'No, it never changes', 'No, it has no x'], want: 'Yes',
+      marks: { 'No, it never changes': { outs: true }, 'No, it has no x': { box: true } },
+      task: 'This machine gives 3 whatever goes in. Is it a function?',
+      hint: 'Not quite. Ask whether each input gets exactly one output.',
+      hints: { 'No, it never changes': 'Not quite. The output need not change. Each input still gets exactly one output, 3.', 'No, it has no x': 'Not quite. A rule need not use its input. Each input still gets exactly one output.' },
+      why: 'Each input gives exactly one output, 3, so it is a function. Its dots sit in a flat row because every output is the same.' },
+    { kind: 'run', name: 'The 4 to 20 mA loop', m: 'S', had: [0, 100], q: 50, opts: ['12 mA', '8 mA', '10 mA'], want: '12 mA', lineOnRight: true,
+      slips: { '8 mA': { lanes: [{ op: '× 0.16', fn: (v) => 0.16 * v }, { op: '+ 4', skip: true }] },
+        '10 mA': { lanes: [{ op: '× 0.16', skip: true }, { op: '+ 4', skip: true }], out: 20 / 2, line0: true } },
+      task: 'A transmitter turns a reading `p`, in percent, into a current by `S(p) = 0.16p + 4`, so 0% sends 4 mA and 100% sends 20 mA. What is `S(50)`?',
+      hint: 'Not quite. Multiply 50 by 0.16, then add 4.',
+      hints: { '8 mA': 'Not quite. That stops after `× 0.16`. Add the 4 too.', '10 mA': 'Not quite. That is half of 20, but the scale starts at 4 mA, not 0.' },
+      why: '`S(50) = 0.16 × 50 + 4`. That is `8 + 4`, so 12 mA, halfway between 4 and 20 mA.' },
+    { kind: 'run', name: 'Power in a resistor', m: 'P', had: [1, 2], q: 3, opts: ['18 W', '36 W', '12 W'], want: '18 W',
+      slips: { '36 W': { lanes: [{ op: '× 2', fn: (v) => 2 * v }, { op: 'square it', fn: (v) => v * v }] },
+        '12 W': { lanes: [{ op: '× 2', fn: (v) => 2 * v }, { op: '× 2', fn: (v) => 2 * v }] } },
+      task: '`P(I) = I²R` gives the power `P` for a current `I`. With a 2 Ω resistor, what is `P(3)`?',
+      hint: 'Not quite. Square the current first, then multiply by 2.',
+      hints: { '36 W': 'Not quite. That multiplies by 2 before squaring. Only the current is squared.', '12 W': 'Not quite. Squaring 3 makes `3 × 3`, which is 9, not 6.' },
+      why: '`P(3) = 3² × 2`. `3²` is 9, and `9 × 2` makes 18 W.' },
+  ];
+  const FINISH = 'A function is a rule that gives exactly one output for each input, and `f(5)`, said "f of 5", is the output when 5 goes in. The machine, the table and the graph are three ways of showing one function.';
+  const PICK = 'Tap one of the answers.';
+  // The lesson's sources, each restated by the check that cites it.
+  const HELM = 'https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf';
+  const CE = 'https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters';
+  const CTRL = 'https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables';
+
+  // ---------- layout (viewBox units) ----------
+  const LX = 126, TRAY_Y = 22, TRAY_X = [32, 76], WAIT = { x: LX, y: TRAY_Y }, MOUTH = { x: LX, y: 50 };
+  const BOX = { x: 18, y: 58, w: 144, h: 88 }, OUT_Y = 172;
+  const TB = { x0: 180, x1: 334, mid: 254, c: [217, 294], head: 20, y0: 46, dy: 21 };
+  const PL = { x0: 44, x1: 326, y0: 214, y1: 340 };
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // pick, res, why: the puzzle. fed: tokens Dan dropped in (the last one is moving); demoDone: the
+  // demonstration has been overtaken by Dan's own drop; from: where he let go of it.
+  function blank() { return { pick: null, res: null, why: false, fed: [], demoDone: false, from: null }; }
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0, drag = null;
+  let REC = null;   // what the last paint drew, for the checks
+
+  // ---------- runs through a machine ----------
+  function rightRun(m, v) {
+    const mm = M[m], r = { m, inp: mm.inT(v), lanes: [], outs: [], rows: [], dots: [], look: -1 };
+    if (mm.kind === 'steps') {
+      let x = v;
+      mm.fns.forEach((fn, k) => { x = fn(x); r.lanes.push({ op: mm.ops[k], val: fmtN(x) }); });
+      r.outs.push({ t: mm.outT(x) }); r.rows.push({ a: fmtN(v), b: fmtN(x) }); r.dots.push({ x: v, y: x });
+    } else if (mm.kind === 'look') {
+      const k = mm.look.findIndex((p) => p[0] === v), y = mm.look[k][1];
+      r.look = k; r.outs.push({ t: mm.outT(y) }); r.rows.push({ a: fmtN(v), b: fmtN(y) }); r.dots.push({ x: v, y });
+    } else {
+      const ys = mm.many(v), two = ys.length > 1;
+      ys.forEach((y) => { r.outs.push({ t: mm.outT(y), bad: two }); r.rows.push({ a: fmtN(v), b: fmtN(y), bad: two }); r.dots.push({ x: v, y, bad: two }); });
+    }
+    return r;
+  }
+  // A slip: the machine run the wrong way. lanes: each strip as the slip ran it (a skip leaves it
+  // out); inShown: the input as the slip read it; out: an answer made without the machine.
+  function slipRun(m, v, s) {
+    const mm = M[m], ok = rightRun(m, v), x0 = s.inShown != null ? s.inShown : v;
+    const r = { m, inp: mm.inT(x0), inBad: s.inShown != null, lanes: [], outs: [], rows: [], dots: [], look: -1, slip: true, line0: !!s.line0 };
+    let x = x0;
+    s.lanes.forEach((L, k) => {
+      const opBad = L.op !== mm.ops[k];
+      if (L.skip) { r.lanes.push({ op: L.op, skip: true, opBad }); return; }
+      x = L.fn(x);
+      r.lanes.push({ op: L.op, val: fmtN(x), opBad, bad: r.inBad || fmtN(x) !== ok.lanes[k].val });
+    });
+    if (s.out != null) x = s.out;
+    r.outs.push({ t: mm.outT(x), bad: true }); r.rows.push({ a: fmtN(v), b: fmtN(x), bad: true }); r.dots.push({ x: v, y: x, bad: true });
+    return r;
+  }
+  function runFor(d, o) {
+    if (d.kind !== 'run') return null;
+    if (d.sym) return d.sym[o];
+    return o === d.want ? rightRun(d.m, d.q) : slipRun(d.m, d.q, d.slips[o]);
+  }
+  // A run's timetable: the token travels into the funnel, each strip lights in turn and leaves its
+  // value, the output drops out, then the row lands in the table and the dot on the graph.
+  function times(r, s, p) {
+    const nl = M[r.m].kind === 'steps' ? 2 : 1, on = [], vt = [];
+    for (let k = 0; k < nl; k++) { on.push(s + p * (0.7 + 0.5 * k)); vt.push(s + p * (0.85 + 0.5 * k)); }
+    const out = s + p * (0.7 + 0.5 * nl);
+    return { enter: s + p * 0.7, fadeTok: s + p * 0.5, on, vt, off: on.map((t, k) => (k + 1 < nl ? on[k + 1] : out + 0.2 * p)), out,
+      rows: r.rows.map((w, j) => out + p * (0.45 + 0.25 * j)), dots: r.dots.map((w, j) => out + p * (0.85 + 0.25 * j)) };
+  }
+  // The runs on a step now: its demonstration, Dan's drops, or the answer just checked.
+  function runsOf(d, st) {
+    const out = [];
+    if (d.show) {
+      (d.demo || []).forEach((q, k, all) => out.push({ r: rightRun(d.m, q[0]), s: st.demoDone ? -Infinity : q[1], p: q[2], from: WAIT,
+        appear: k ? all[k - 1][1] + 0.7 * all[k - 1][2] : null }));
+      st.fed.forEach((v, k) => { const last = k === st.fed.length - 1; out.push({ r: rightRun(d.m, v), s: last ? 0 : -Infinity, p: 1, from: (last && st.from) || WAIT, appear: null }); });
+    } else if (st.res === 'right' || st.res === 'wrong') {
+      const r = runFor(d, st.res === 'right' ? d.want : st.pick);
+      if (r) out.push({ r, s: 0.1, p: 0.75, from: WAIT, appear: null });
+    }
+    out.forEach((x) => { x.tm = times(x.r, x.s, x.p); });
+    out.forEach((x, k) => { x.gone = k + 1 < out.length ? out[k + 1].tm.enter : Infinity; });
+    return out;
+  }
+
+  // ---------- motion ----------
+  // How far a part due at t0 has arrived; the timetable is noted for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    if (t0 == null || t0 === -Infinity) return 1;
+    if (t0 === Infinity) return 0;
+    d = d == null ? 0.35 : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const vis = (t) => (t == null ? 1 : arr(t));
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[xafpSPIR]+(?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+  const say = (s) => String(s == null ? '' : s).replace(/f\((.+?)\)/g, 'f of $1').replace(/−/g, ' minus ').replace(/×/g, ' times ').replace(/²/g, ' squared')
+    .replace(/Ω/g, ' ohms').replace(/→/g, ' gives ').replace(/\+/g, ' plus ').replace(/=/g, ' equals ').replace(/\s+/g, ' ').trim();
+
+  // ---------- drawing helpers ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  function text(x, y, s, cls, anchor, maths) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    if (maths) italics(t, s, true); else t.textContent = s;
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 15 * 0.6;
+  }
+  // A token: solid going in, outlined coming out, dashed while it is still a question.
+  function pill(x, y, s, kind, a) {
+    const w = Math.max(34, tw(s, 'tk') + 18), h = 30;
+    part(a, 0, () => {
+      rect('pill ' + kind, x - w / 2, y - h / 2, w, h, h / 2);
+      text(x, y + 5, s, 'tk ' + kind, 'middle', true);
+    });
+  }
+  function plotOf(mm) {
+    const xr = mm.x, yr = mm.y;
+    return { sx: (v) => PL.x0 + (v - xr[0]) / (xr[1] - xr[0]) * (PL.x1 - PL.x0), sy: (v) => PL.y1 - (v - yr[0]) / (yr[1] - yr[0]) * (PL.y1 - PL.y0) };
+  }
+  // The names of the two columns (and axes): in and out, then x and f(x) once the machine is named f.
+  function heads(d, mm) {
+    if (d.m === 'f' && d.named) return { now: M.f.named, old: d.nameT != null ? M.f.head : null, a: d.nameT != null ? arr(d.nameT) : 1 };
+    return { now: mm.head, old: null, a: 1 };
+  }
+
+  // ---------- the table and the graph's pairs ----------
+  function trailOf(d, st, runs) {
+    const rows = [], dots = [];
+    (d.had || []).forEach((v) => { const r = rightRun(d.m, v); r.rows.forEach((w) => rows.push(Object.assign({ t: null }, w))); r.dots.forEach((w) => dots.push(Object.assign({ t: null }, w))); });
+    runs.forEach((x, g) => {
+      x.r.rows.forEach((w, j) => {
+        const t = x.tm.rows[j], same = !w.bad && rows.find((o) => !o.bad && o.a === w.a && o.b === w.b);
+        if (same) { same.g = g; same.hl = t; } else rows.push(Object.assign({ t, g, hl: t }, w));
+      });
+      x.r.dots.forEach((w, j) => {
+        const t = x.tm.dots[j], same = !w.bad && dots.find((o) => !o.bad && o.x === w.x && o.y === w.y);
+        if (same) { same.g = g; same.hl = t; if (w.label) same.label = w.label; } else dots.push(Object.assign({ t, g, hl: t }, w));
+      });
+    });
+    // The newest pair is marked, a band on its row and a ring round its dot, until the next lands.
+    [rows, dots].forEach((list) => {
+      const gs = Array.from(new Set(list.filter((o) => o.g != null).map((o) => o.g))).sort((a, b) => a - b);
+      const first = (g) => Math.min.apply(null, list.filter((o) => o.g === g).map((o) => o.hl));
+      list.forEach((o) => {
+        if (o.g == null) return;
+        const nx = gs.find((g) => g > o.g);
+        o.mark = arr(o.hl) * (nx == null ? 1 : 1 - arr(first(nx)));
+      });
+    });
+    // A puzzle about the whole table: a right answer lights each row in turn; a wrong one marks in red what it looked at.
+    if (d.kind === 'judge' && (st.res === 'right' || st.res === 'wrong')) {
+      const mk = st.res === 'right' ? null : (d.marks[st.pick] || {});
+      rows.forEach((o, k) => {
+        if (!mk) o.mark = arr(0.1 + 0.3 * k);
+        else if (mk.outs || (mk.rows && mk.rows.indexOf(k) >= 0)) o.redB = true;
+      });
+    }
+    return { rows, dots };
+  }
+
+  // ---------- the machine ----------
+  function drawMachine(d, st, mm, runs) {
+    const slipR = runs.find((x) => x.r.slip), sa = slipR ? arr(slipR.s, 0.3) : 0;
+    const jb = d.kind === 'judge' && st.res === 'wrong' && !!(d.marks[st.pick] || {}).box;
+    rect('box', BOX.x, BOX.y, BOX.w, BOX.h, 12);
+    add(K.svg('path', { class: 'box', d: 'M' + (LX - 24) + ' 42 H' + (LX + 24) + ' L' + (LX + 10) + ' 58 H' + (LX - 10) + ' Z' }));
+    rect('box', LX - 9, BOX.y + BOX.h, 18, 8, 2);
+    text(LX + 30, 55, 'in', 'pt', 'start');
+    text(76, OUT_Y + 5, 'out', 'pt', 'end');
+    if (mm.name) {
+      const a = d.m === 'f' ? (d.named ? vis(d.nameT) : 0) : 1, one = mm.name.length === 1;
+      part(a, 4, () => { text(BOX.x + 2, 52, mm.name, one ? 'nm' : 'nm word', 'start'); if (mm.note) text(BOX.x + 22, 52, mm.note, 'nt', 'start', true); });
+    }
+    const strip = (y, h, extra) => rect('strip' + (extra || ''), BOX.x + 8, y, BOX.w - 16, h, 8);
+    const litRect = (y, h, a) => { if (a > 0) { const r = strip(y, h, ' lit'); if (a < 1) r.style.opacity = a.toFixed(3); } };
+    const redLine = (y, h, a) => { if (a > 0) part(a, 0, () => strip(y, h, ' red')); };
+    if (mm.kind === 'steps') {
+      [[64, 34], [106, 34]].forEach((sh, k) => {
+        const y = sh[0], h = sh[1], ly = y + h / 2 + 6;
+        strip(y, h);
+        let lit = 0;
+        runs.forEach((x) => { const L = x.r.lanes[k]; if (L && !L.skip) lit += arr(x.tm.on[k], 0.2) - arr(x.tm.off[k], 0.2); });
+        litRect(y, h, K.clamp(lit, 0, 1));
+        const L = slipR ? slipR.r.lanes[k] : null, op = mm.ops[k], sop = L ? L.op : op;
+        if (L && (L.opBad || L.skip)) redLine(y, h, sa);
+        if (sop !== op) { part(1 - sa, 0, () => text(30, ly, op, 'op', 'start', true)); part(sa, 0, () => text(30, ly, sop, 'op bad', 'start', true)); }
+        else text(30, ly, op, 'op', 'start', true);
+        // what this step made on the last run, left in its strip
+        runs.forEach((x) => {
+          const V = x.r.lanes[k];
+          if (!V) return;
+          const a = arr(x.tm.vt[k], 0.3) * (1 - arr(x.gone, 0.3));
+          if (a <= 0) return;
+          part(a, 4, () => text(LX, ly, V.skip ? 'skipped' : V.val, V.skip ? 'lv sk' : 'lv' + (V.bad ? ' bad' : ''), 'middle', !V.skip));
+          if (a >= 0.5) REC.lanes.push({ k, t: V.skip ? 'skipped' : V.val, bad: !!(V.bad || V.skip) });
+        });
+      });
+    } else if (mm.kind === 'look') {
+      strip(64, 76);
+      mm.look.forEach((p, k) => {
+        const cy = 73.5 + 19 * k;
+        let a = 0;
+        runs.forEach((x) => { if (x.r.look === k) a += arr(x.tm.on[0], 0.2) * (1 - arr(x.gone, 0.3)); });
+        a = K.clamp(a, 0, 1);
+        if (a > 0) { const b = rect('band', BOX.x + 10, cy - 9, BOX.w - 20, 18, 4); if (a < 1) b.style.opacity = a.toFixed(3); }
+        if (a >= 0.5) REC.look = k;
+        text(34, cy + 5, fmtN(p[0]) + ' → ' + fmtN(p[1]) + ' A', 'look', 'start');
+      });
+      if (jb) redLine(64, 76, arr(0.1));
+    } else {
+      strip(64, 76);
+      let lit = 0;
+      runs.forEach((x) => { lit += arr(x.tm.on[0], 0.2) - arr(x.tm.off[0], 0.2); });
+      litRect(64, 76, K.clamp(lit, 0, 1));
+      const n = mm.text.length;
+      mm.text.forEach((s, k) => text(90, 107 + (k - (n - 1) / 2) * 20, s, 'rt', 'middle'));
+      if (jb) redLine(64, 76, arr(0.1));
+    }
+    if (jb) REC.marked = true;
+  }
+
+  // ---------- tokens: waiting, travelling in, dropping out ----------
+  function drawTokens(d, st, mm, runs) {
+    if (d.show && !finished) (d.tray || []).forEach((v, k) => {
+      if (st.fed.indexOf(v) >= 0) return;
+      const held = drag && drag.v === v;
+      pill(held ? drag.x : TRAY_X[k], held ? drag.y : TRAY_Y, mm.inT(v), 'in', 1);
+    });
+    if (!d.show && d.kind === 'run') {
+      const run = runs[0];
+      if (!run) { pill(WAIT.x, WAIT.y, d.sym ? d.sym[d.want].inp : mm.inT(d.q), 'in', 1); REC.q = true; }
+      const qa = run ? 1 - arr(run.tm.out, 0.3) : 1;
+      if (qa > 0) pill(LX, OUT_Y, '?', 'q', qa);
+    }
+    runs.forEach((x) => {
+      const tm = x.tm;
+      if (x.s !== -Infinity && T < tm.enter) {
+        const appear = x.appear != null ? arr(x.appear, 0.3) : 1;
+        const u = T < x.s ? 0 : K.ease((T - x.s) / (0.7 * x.p));
+        const a = appear * (1 - arr(tm.fadeTok, 0.2 * x.p));
+        if (a > 0) pill(K.lerp(x.from.x, MOUTH.x, u), K.lerp(x.from.y, MOUTH.y, u), x.r.inp, 'in' + (x.r.inBad ? ' bad' : ''), a);
+      }
+      x.r.outs.forEach((o, j) => {
+        const a = arr(tm.out, 0.3) * (1 - arr(x.gone, 0.3));
+        if (a <= 0) return;
+        const y = K.lerp(BOX.y + BOX.h + 4, OUT_Y, arr(tm.out, 0.4));
+        pill(x.r.outs.length === 2 ? LX + (j ? 22 : -22) : LX, y, o.t, 'out' + (o.bad ? ' bad' : ''), a);
+        if (a >= 0.5) REC.outs.push({ t: o.t, bad: !!o.bad });
+      });
+    });
+  }
+
+  // ---------- the table ----------
+  function drawTable(d, mm, tr) {
+    line('tline', TB.mid, 8, TB.mid, 180);
+    line('tline strong', TB.x0, 28, TB.x1, 28);
+    const h = heads(d, mm);
+    const head = (t) => { text(TB.c[0], TB.head, t[0], 'th', 'middle', true); text(TB.c[1], TB.head, t[1], 'th', 'middle', true); };
+    if (h.old && h.a < 1) part(1 - h.a, 0, () => head(h.old));
+    part(h.a, 0, () => head(h.now));
+    tr.rows.forEach((r, j) => {
+      const y = TB.y0 + TB.dy * j, a = vis(r.t), band = r.bad ? 0 : (r.mark || 0);
+      if (a <= 0) return;
+      part(a, 6, () => {
+        if (band > 0) { const b = rect('band', TB.x0 + 2, y - 15, TB.x1 - TB.x0 - 4, 20, 4); if (band < 1) b.style.opacity = band.toFixed(3); }
+        text(TB.c[0], y, r.a, 'td' + (r.bad ? ' bad' : ''), 'middle', true);
+        text(TB.c[1], y, r.b, 'td' + (r.bad || r.redB ? ' bad' : ''), 'middle', true);
+      });
+      if (r.redB) REC.marked = true;
+      if (a >= 0.5) REC.rows.push({ a: r.a, b: r.b, bad: !!r.bad, band: band >= 0.5 });
+    });
+  }
+
+  // ---------- the graph: input along the bottom, output up the side ----------
+  function drawGraph(d, st, mm, tr, runs) {
+    const P = plotOf(mm), xr = mm.x, yr = mm.y;
+    line('frame', PL.x0, PL.y0, PL.x0, PL.y1);
+    line('frame', PL.x0, PL.y1, PL.x1, PL.y1);
+    if (xr[0] < 0 && xr[1] > 0) line('axis', P.sx(0), PL.y0, P.sx(0), PL.y1);
+    if (yr[0] < 0 && yr[1] > 0) line('axis', PL.x0, P.sy(0), PL.x1, P.sy(0));
+    xr[2].forEach((v) => { line('tic', P.sx(v), PL.y1, P.sx(v), PL.y1 + 4); text(P.sx(v), PL.y1 + 17, fmtN(v), 'tlab'); });
+    yr[2].forEach((v) => { line('tic', PL.x0 - 4, P.sy(v), PL.x0, P.sy(v)); text(PL.x0 - 7, P.sy(v) + 4.5, fmtN(v), 'tlab', 'end'); });
+    const h = heads(d, mm);
+    const titles = (t) => { text(PL.x1 - 2, PL.y1 - 7, t[0], 'axt', 'end', true); text(6, PL.y0 - 10, t[1], 'axt', 'start', true); };
+    if (h.old && h.a < 1) part(1 - h.a, 0, () => titles(h.old));
+    part(h.a, 0, () => titles(h.now));
+    // f's whole line: every input has an output, so the line runs through all of them.
+    const fl = d.m === 'f' && (d.line || d.lineT != null) ? (d.line ? 1 : arr(d.lineT, 0.5)) : 0;
+    if (fl > 0) {
+      const m = fx('f', 1) - fx('f', 0), c = fx('f', 0);
+      const xa = Math.max(xr[0], (yr[0] - c) / m), xb = Math.min(xr[1], (yr[1] - c) / m), xe = K.lerp(xa, xb, fl);
+      line('fline', P.sx(xa), P.sy(fx('f', xa)), P.sx(xe), P.sy(fx('f', xe)));
+      if (fl >= 1) REC.line = { xa, ya: fx('f', xa), xb, yb: fx('f', xb) };
+      part(d.line ? 1 : arr(d.lineT + 0.3, 0.3), 0, () => text(240, 232, 'f(x) = 3x − 1', 'pl', 'end', true));
+    }
+    // One step along, three up: the gradient, from the rule.
+    if (d.triT != null) part(arr(d.triT), 0, () => {
+      const xA = P.sx(2), xB = P.sx(3), yA = P.sy(fx('f', 2)), yB = P.sy(fx('f', 3));
+      add(K.svg('path', { class: 'tri', d: 'M' + r3(xA) + ' ' + r3(yA) + ' H' + r3(xB) + ' V' + r3(yB) }));
+      text((xA + xB) / 2, yA + 16, '+1', 'pl acc');
+      text(xB + 8, (yA + yB) / 2 + 5, '+' + fmtN(fx('f', 3) - fx('f', 2)), 'pl acc', 'start');
+    });
+    const run = runs[0];
+    if (d.lineOnRight && st.res === 'right' && run) part(arr(run.tm.dots[0]), 0, () => {
+      line('fline', P.sx(0), P.sy(fx('S', 0)), P.sx(100), P.sy(fx('S', 100)));
+      text(232, 236, 'S(p) = 0.16p + 4', 'pl', 'end', true);
+    });
+    if (run && run.r.line0) part(arr(run.tm.dots[0]), 0, () => {
+      line('warnline', P.sx(0), P.sy(0), P.sx(100), P.sy(fx('S', 100)));
+      text(236, 282, 'from 0 mA', 'pl bad', 'start');
+    });
+    if (d.warnT != null) part(arr(d.warnT), 0, () => {
+      const xx = P.sx(16);
+      line('warnline', xx, P.sy(M.sq.many(16)[0]) + 9, xx, P.sy(M.sq.many(16)[1]) - 9);
+      text(xx - 9, 262, 'two outputs for 16', 'pl bad', 'end');
+    });
+    if (d.flab != null) part(arr(d.flab), 0, () => text(P.sx(5) - 14, P.sy(fx('f', 5)) - 2, 'f(5) = ' + fmtN(fx('f', 5)), 'pl', 'end', true));
+    tr.dots.forEach((p) => {
+      const a = vis(p.t);
+      if (a <= 0) return;
+      const cx = P.sx(p.x), cy = P.sy(p.y);
+      part(a, -10, () => add(K.svg('circle', { class: 'dot' + (p.bad ? ' bad' : ''), cx: r3(cx), cy: r3(cy), r: 5.5 })));
+      if ((p.mark || 0) > 0) { const c = add(K.svg('circle', { class: 'ring' + (p.bad ? ' bad' : ''), cx: r3(cx), cy: r3(cy), r: 9.5 })); if (p.mark < 1) c.style.opacity = p.mark.toFixed(3); }
+      if (p.label) part(a, 0, () => text(cx + 14, cy + 17, p.label, 'pl' + (p.bad ? ' bad' : ''), 'start', true));
+      if (a >= 0.5) REC.dots.push({ x: p.x, y: p.y, px: cx, py: cy, bad: !!p.bad });
+    });
+  }
+
+  function words(mm) {
+    const rule = mm.kind === 'steps' ? 'A machine whose rule is ' + mm.ops.join(', then ') : mm.kind === 'look' ? 'A machine that looks each hour up in a log of readings' : 'A machine whose rule is ' + mm.text.join(' ');
+    const out = REC.outs.length ? ' Out comes ' + REC.outs.map((o) => o.t).join(' and ') + '.' : REC.q ? ' What comes out is still a question.' : '';
+    const pairs = REC.rows.length ? ' The table and the graph hold ' + REC.rows.map((r) => r.a + ' gives ' + r.b + (r.bad ? ', a slip' : '')).join('; ') + '.' : ' The table and the graph are empty.';
+    return say(rule + '.' + out + pairs);
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], mm = M[d.m];
+    art.textContent = '';
+    into = null;
+    REC = { rows: [], dots: [], outs: [], lanes: [], q: false, line: null, look: -1, marked: false };
+    const runs = runsOf(d, st), tr = trailOf(d, st, runs);
+    drawMachine(d, st, mm, runs);
+    drawTable(d, mm, tr);
+    drawGraph(d, st, mm, tr, runs);
+    drawTokens(d, st, mm, runs);
+    svg.setAttribute('aria-label', words(mm));
+    placeGrips(d, st);
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Dan's tokens: drag one into the funnel (or tap it, or press Enter) and the machine runs it.
+  function feed(v, from) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.show || finished || st.fed.indexOf(v) >= 0) return;
+    st.demoDone = true; st.fed.push(v); st.from = from;
+    play(3.0);
+    K.reveal();
+  }
+  function svgPt(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    return { x: q.x, y: q.y };
+  }
+  const grips = [0, 1].map((k) => {
+    const g = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 48, height: 46, rx: 10, tabindex: -1, role: 'button' }));
+    g.style.display = 'none';
+    const trayV = () => { const d = STEPS[at()]; return d.show && d.tray && !finished ? d.tray[k] : null; };
+    g.addEventListener('pointerdown', (e) => {
+      const v = trayV(), p = svgPt(e);
+      if (v == null || !p || S[at()].fed.indexOf(v) >= 0) return;
+      drag = { v, id: e.pointerId, x0: p.x, y0: p.y, dx: TRAY_X[k] - p.x, dy: TRAY_Y - p.y, x: TRAY_X[k], y: TRAY_Y, moved: false };
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the token */ }
+      e.preventDefault();
+    });
+    g.addEventListener('pointermove', (e) => {
+      if (!drag || drag.id !== e.pointerId) return;
+      const p = svgPt(e);
+      if (!p) return;
+      drag.x = K.clamp(p.x + drag.dx, 20, 320); drag.y = K.clamp(p.y + drag.dy, 16, 348);
+      if (Math.hypot(p.x - drag.x0, p.y - drag.y0) > 6) drag.moved = true;
+      if (!anim.playing()) paint();
+    });
+    g.addEventListener('pointerup', (e) => {
+      if (!drag || drag.id !== e.pointerId) return;
+      const dd = drag; drag = null;
+      // a tap, or a drop below the tray, feeds it; a drag that goes nowhere puts it back
+      if (!dd.moved || dd.y > 36) feed(dd.v, { x: dd.x, y: dd.y }); else paint();
+    });
+    const cancel = (e) => { if (drag && drag.id === e.pointerId) { drag = null; paint(); } };
+    g.addEventListener('pointercancel', cancel);
+    g.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      const v = trayV();
+      if (v != null) feed(v, { x: TRAY_X[k], y: TRAY_Y });
+    });
+    return g;
+  });
+  function placeGrips(d, st) {
+    grips.forEach((g, k) => {
+      const v = d.show && !finished && d.tray ? d.tray[k] : null, on = v != null && st.fed.indexOf(v) < 0;
+      g.style.display = on ? '' : 'none';
+      g.setAttribute('tabindex', on ? '0' : '-1');
+      if (!on) return;
+      g.setAttribute('x', TRAY_X[k] - 24);
+      g.setAttribute('aria-label', 'Drop ' + say(M[d.m].inT(v)) + ' into the machine');
+    });
+  }
+
+  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong
+  // answer settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: a right answer runs the machine; a wrong one runs the slip that makes it, in red.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    play(2.5);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    st.fed = []; st.demoDone = false; drag = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; drag = null; enter('stepbox');
+      if (d.show) { st.fed = []; st.demoDone = false; play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      italics(b.el.appendChild(K.el('span')), opts[k], false);   // one span, so the button's gap does not split "3a + 2"
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const close = (a, b) => Math.abs(a - b) < 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const num = (s) => Number(String(s).replace(/−/g, '-'));
+  const isNumText = (s) => /^−?\d+(\.\d+)?$/.test(String(s));
+  // Reads 'a + 1', '3a + 2', '3a' at a value of a.
+  function lin(s, a) {
+    return String(s).replace(/\s/g, '').replace(/−/g, '-').replace(/-/g, '+-').split('+').filter(Boolean).reduce((t, term) => {
+      const m = /^(-?)(\d*\.?\d*)(a?)$/.exec(term);
+      if (!m) throw new Error('cannot read ' + term);
+      return t + (m[1] ? -1 : 1) * (m[2] === '' ? 1 : Number(m[2])) * (m[3] ? a : 1);
+    }, 0);
+  }
+  // A step's finished state: every token dropped in, or the puzzle answered.
+  const solvedSt = (i) => { const d = STEPS[i]; return d.show ? Object.assign(blank(), { fed: (d.tray || []).slice(), demoDone: true, from: WAIT }) : Object.assign(blank(), { pick: d.want, res: 'right' }); };
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T, keepDrag = drag;
+    S[i] = st; T = t == null ? Infinity : t; drag = null;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; drag = keepDrag; paint(); }
+  }
+  const hadRows = (d) => (d.had || []).reduce((n, v) => n + rightRun(d.m, v).rows.length, 0);
+
+  K.check('A function is a rule which operates on an input and produces a single output from that input: every machine shown as a function gives exactly one output for each input on every screen, and only the rule that gives 16 two outputs, 4 and −4, is shown as not a function', () => {
+    const one = STEPS.every((d, i) => {
+      if (d.m === 'sq') return true;
+      const g = drawn(i, solvedSt(i)), seen = {};
+      return g.rows.filter((r) => !r.bad).every((r) => { if (r.a in seen) return seen[r.a] === r.b; seen[r.a] = r.b; return true; });
+    });
+    const sq = drawn(STEPS.findIndex((d) => d.m === 'sq'), blank());
+    const outs = sq.rows.filter((r) => r.a === '16').map((r) => r.b).sort().join('|');
+    return one && outs === ['4', '−4'].sort().join('|') && sq.rows.every((r) => r.bad) &&
+      STEPS.filter((d) => d.show && d.m === 'sq').every((d) => /is not a function/.test(d.text)) && [-2, 0, 1, 5, 16].every((v) => M.k3.many(v).length === 1);
+  }, { source: HELM });
+  K.check('If there is a 12 mA signal from the DP cell, that is 50% DP: the 4 to 20 mA machine gives S(50) = 12 mA, the answer its puzzle accepts', () =>
+    close(fx('S', 50), 12) && STEPS[idx('The 4 to 20 mA loop')].want === '12 mA' && runFor(STEPS[idx('The 4 to 20 mA loop')], '12 mA').outs[0].t === '12 mA', { source: CE });
+  K.check('Each value is converted into its current with the linear equation y = mx + b: S(p) = 0.16p + 4 is one, with m = 0.16 mA per percent (16 mA spread over 100%) and b = 4 mA, so S(0) = 4, S(25) = 8 and S(100) = 20, each 1% adding the same 0.16 mA', () => {
+    const Sx = (p) => fx('S', p);
+    return close(Sx(0), 4) && close(Sx(100), 20) && close(Sx(25), 8) && close((Sx(100) - Sx(0)) / 100, 0.16) && [0, 10, 37, 50, 90].every((p) => close(Sx(p + 1) - Sx(p), 0.16));
+  }, { source: CTRL });
+  K.check('Every worked number is right: 5 makes 15 then 14; f(2) = 5 against the slips 3 (− 1 first) and 6 (stopped early); f(−2) = −7 against −5 and 5; f(0) = −1, f(1) = 2, f(0.5) = 0.5, each 1 added adding 3; f(a + 1) = 3a + 2 at every a tried, 8 at a = 2 against the slip 3a\'s 6; P(3) = 18 W against 36 W and 12 W; S(50) = 12 mA against 8 and 10', () => {
+    const f = (v) => fx('f', v), r5 = rightRun('f', 5);
+    const basics = r5.lanes[0].val === '15' && r5.lanes[1].val === '14' && f(5) === 14 && f(2) === 5 && (2 - 1) * 3 === 3 && 2 * 3 === 6 &&
+      f(-2) === -7 && -(6 - 1) === -5 && 3 * 2 - 1 === 5 && f(0) === -1 && f(1) === 2 && close(f(0.5), 0.5) && [-2, 0, 0.5, 1, 4].every((x) => close(f(x + 1) - f(x), 3));
+    const sym = [-3, -1, 0, 0.5, 2, 7].every((a) => close(lin('3a + 3', a), 3 * lin('a + 1', a)) && close(lin('3a + 2', a), f(lin('a + 1', a))) &&
+      close(lin('3a + 1', a), 3 * a + 1) && close(lin('3a', a), lin('3a + 1', a) - 1)) && lin('a + 1', 2) === 3 && f(3) === 8 && lin('3a + 2', 2) === 8 && lin('3a', 2) === 6 &&
+      AP1['3a + 2'].rows[1].a === '3' && AP1['3a + 2'].rows[1].b === fmtN(f(3)) && AP1['3a'].rows[1].b === fmtN(lin('3a', 2)) && AP1['3a'].dots[0].y === lin('3a', 2);
+    const trade = fx('P', 3) === 18 && (3 * 2) * (3 * 2) === 36 && 3 * 2 * 2 === 12 && close(fx('S', 50), 12) && close(0.16 * 50, 8) && 20 / 2 === 10;
+    const own = STEPS.filter((d) => d.kind === 'run').every((d) => d.opts.every((o) => { const r = runFor(d, o); return r.outs[0].t === o && (o === d.want) === !r.slip; }));
+    return basics && sym && trade && own;
+  });
+  K.check('Machine, table and graph are one object: on every screen each pair in the table has exactly one dot at its place on the graph, and f\'s line rises 3 for each 1 across, through f\'s rule', () =>
+    STEPS.every((d, i) => {
+      const g = drawn(i, solvedSt(i)), P = plotOf(M[d.m]);
+      const rows = g.rows.filter((r) => isNumText(r.a) && isNumText(r.b));
+      const each = rows.every((r) => g.dots.filter((p) => close(p.x, num(r.a)) && close(p.y, num(r.b)) && close(p.px, P.sx(p.x)) && close(p.py, P.sy(p.y))).length === 1);
+      const ln = !g.line || (close((g.line.yb - g.line.ya) / (g.line.xb - g.line.xa), 3) && close(g.line.ya, fx('f', g.line.xa)));
+      return each && g.dots.length === rows.length && ln;
+    }) && drawn(idx('The dots line up'), blank()).line != null);
+  K.check('Before Check nothing in a puzzle\'s picture gives its answer away: the output waits as a question mark and no new row or dot is drawn; a right answer adds the rule\'s own row and dot, and every wrong answer draws its own slip in red', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g0 = drawn(i, blank()), n = hadRows(d);
+      if (g0.rows.length !== n || g0.outs.length || g0.lanes.length || g0.rows.some((r) => r.band) || g0.marked) return false;
+      const wrongs = d.opts.filter((o) => o !== d.want);
+      if (d.kind === 'judge') {
+        const g1 = drawn(i, solvedSt(i));
+        return g1.rows.length === n && g1.rows.every((r) => r.band) && !g1.marked && wrongs.every((o) => drawn(i, wrongSt(i, o)).marked);
+      }
+      if (!g0.q) return false;
+      const g1 = drawn(i, solvedSt(i)), rr = runFor(d, d.want);
+      const okRight = g1.outs.length === 1 && g1.outs[0].t === d.want && !g1.outs[0].bad && g1.rows.length === n + rr.rows.length &&
+        g1.rows.slice(n).every((r, j) => r.a === rr.rows[j].a && r.b === rr.rows[j].b && !r.bad);
+      return okRight && wrongs.every((o) => {
+        const h = drawn(i, wrongSt(i, o));
+        return h.outs.length === 1 && h.outs[0].t === o && h.outs[0].bad && h.rows.length > n && h.rows.slice(n).every((r) => r.bad) &&
+          h.dots.filter((p) => p.bad).length === runFor(d, o).dots.length;
+      });
+    }));
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i), 2.5) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), 2.5));
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

@@ -1,0 +1,178 @@
+{
+  "iid": "i1",
+  "title": "The function machine",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is each number you drop in passing through the machine's steps and landing as one table row and one dot on the graph, one output for each input, when you drag it in.",
+    "title": "The machine and its trail",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens on a function machine. The machine is a box with its rule written inside, here × 3, then − 1. Drag a number token into its top and each step of the rule lights in turn, so 5 becomes 15 and then 14, and 14 drops out of the bottom. The pair, 5 in and 14 out, is written as a row in the table below and plotted as a dot on the graph beneath it, with the input along the bottom and the output up the side. The input x is the independent variable and the output f(x) the dependent variable. Feed in more numbers and the rows and dots build up, so the machine, the table and the graph are one function shown three ways. Each 1 added to the input adds 3 to the output, which is why the dots line up. Later screens show a machine with no formula, only a table of readings it looks up; a rule that would give two outputs for one input; a machine that gives 3 whatever goes in; and two machines from the trade, a 4 to 20 mA transmitter and P(I) = I²R. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick shows the slip that makes it.",
+    "ignores": "The puzzles' numbers, the pump readings and the 2 Ω resistor are example values. The graph shows only the inputs fed in, over a short range, but a rule such as 3x − 1 gives an output for every number, so its graph is the whole line through the dots. The pump log gives readings only for the hours it lists. The transmitter is drawn as a perfect straight line; a real one has a small calibration error. P(I) = I²R holds the resistance fixed, though a metal conductor's resistance rises as it warms.",
+    "numbers": [
+      {
+        "label": "The example machine's rule: × 3, then − 1",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Input 5 becomes 15 after × 3, in step 1",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "Then 15 − 1 = 14 drops out, in step 1",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Input 2 gives 5; slips 3 (− 1 first) and 6 (stopped early), in step 2",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "f(5) = 14, read f of 5, in step 3",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "f(−2) = −7; slips −5 and 5, in step 4",
+        "value": -7,
+        "kind": "computed"
+      },
+      {
+        "label": "Inputs 0, 1 and 0.5 give −1, 2 and 0.5, in step 5",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Each 1 added to the input adds 3: gradient 3, in step 5",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "f(a + 1) = 3a + 2; slips 3a and fa + f, in step 6",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Check at a = 2: input 3 gives 8; slip 3a gives 6, in step 6",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Example pump log, hours 1 to 4: 14, 15, 15, 13 A, in step 7",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Pump log is a function; slips no formula, shared 15 A, in step 8",
+        "value": 13,
+        "kind": "assumed"
+      },
+      {
+        "label": "Squares-to-make-it rule: 16 gives 4 and −4, in step 9",
+        "value": 16,
+        "kind": "assumed"
+      },
+      {
+        "label": "Always-3 machine is a function; slips never changes, no x, in step 10",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "4 to 20 mA loop: 0% sends 4 mA",
+        "value": 4,
+        "kind": "constant"
+      },
+      {
+        "label": "4 to 20 mA loop: 100% sends 20 mA",
+        "value": 20,
+        "kind": "constant"
+      },
+      {
+        "label": "S(p) = 0.16p + 4: 16 mA over 100%, mA per percent",
+        "value": 0.16,
+        "kind": "computed"
+      },
+      {
+        "label": "S(50) = 12 mA; slips 8 (no + 4) and 10, in step 11",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "12 mA from a DP cell is 50% pressure difference",
+        "value": 50,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Example resistor, ohms, in step 12",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "P(3) = 3² × 2 = 18 W; slips 36 W and 12 W, in step 12",
+        "value": 18,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: S(25) = 8 mA",
+        "value": 8,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A function is a machine with a rule inside. You put a number in, and the rule gives back exactly one number.[^2] Take the machine whose rule is × 3, then − 1. Drop in 5. The first step makes 15, the second makes 14, and 14 drops out. The number you put in is the [[input]] and the number that comes out is the [[output]]. A rule that gives exactly one output for each input is called a [[function]].[^2]\n\nTextbooks add that a function is given a name, often one letter such as f, and that f(5), read \"f of 5\", stands for the output when 5 goes in. So for this machine f(5) = 14. The bracket straight after a function's name holds the input. It does not mean f times 5, because f is the name of a machine, not a number. The whole rule is written f(x) = 3x − 1, where x stands for any input. The input x is called the independent variable, the one you choose, and the output f(x) the dependent variable, because it depends on x.[^3] Whatever goes in the bracket replaces x, all of it at once. So f(−2) = 3 × (−2) − 1 = −7, and f(a + 1) = 3(a + 1) − 1 = 3a + 2. Try a = 2 to check. The input is then 3, and f(3) = 8, which 3a + 2 also makes, while the slip 3a makes 6. Other letters name functions too. P(I) = I²R is the power P for a current I, so with a 2 Ω resistor P(3) = 18 W.\n\nEach input and its output make a pair. Written down, the pairs make a table, and plotted with the input along the bottom and the output up the side, they make dots on a graph. For f(x) = 3x − 1, each 1 added to the input adds 3 to the output, so the dots fall on one straight line with gradient 3. An input in between, such as 0.5, gives 0.5. It still gains 3 for each 1 across, so it lands on the same line too, and that is why the whole line is drawn. The machine, the table and the graph are three ways of showing one function.\n\nA function does not need a formula. A log of a pump's current, one reading for each hour, is a function, because each hour has one reading. Two hours can both read 15 A, because two inputs may share an output. A machine that gives 3 whatever goes in is a function for the same reason. What a function cannot do is give two outputs for one input. The rule \"a number that squares to make it\" gives both 4 and −4 for 16, so f(16) would not name one number, and that rule is not a function. The transmitter on a flow meter's pressure cell is a function too, with a pressure difference going in and a current coming out, 12 mA for 50% of its full pressure difference.[^1]\n\n**A function is a rule that gives exactly one output for each input,[^2] and f(5), read \"f of 5\", is the output when 5 goes in.**"
+  },
+  "analogy": {
+    "text": "Think of the circuit chart in a distribution board. Look up a circuit number and you read one description, such as kitchen sockets. Two circuits can both say lighting, but one circuit number does not lead to two different breakers. That is a function with no formula, a table you look up.",
+    "breaks": "A circuit chart is a short list of whole numbers with words for outputs. A function such as f(x) = 3x − 1 takes any number, fractions and negatives too, and works its output out by a rule, so its outputs can be plotted as a graph."
+  },
+  "practice": {
+    "text": "- Write out the rule with a bracket wherever x appears, so f( ) = 3( ) − 1.\n- Put the whole input into each bracket, a number or an expression such as a + 1.\n- Work it out in the order the rule says.\n- To check that a rule or a table is a function, ask of each input whether it gives exactly one output. A formula is not needed, and two inputs sharing an output is fine.\n\n**Rule of thumb:** Say f(5) aloud as \"f of 5\", the output when 5 goes in. The bracket straight after a function's name holds the input; it does not mean times.\n\n**Worked example:** A transmitter on a 4 to 20 mA loop turns a reading, as a percentage of full scale, into a current. Textbooks add that 0% sends 4 mA and 100% sends 20 mA. Instrument scaling uses a straight-line rule, y = mx + b,[^4] so call the function S, for signal, with S(p) = 0.16p + 4. The 16 mA between 4 and 20 is spread over 100%, which is 0.16 mA for each percent. For 25%, S(25) = 0.16 × 25 + 4 = 4 + 4 = 8 mA. Check the ends: S(0) = 4 and S(100) = 16 + 4 = 20.\n\n**Common mistakes**\n- Reading f(x) as f times x. f is the machine's name, so f(a + 1) is not fa + f.\n- Putting in only part of an expression, so f(a + 1) becomes 3a + 1 − 1 = 3a. The whole of a + 1 is multiplied, giving 3a + 2. Check with a = 2: 8, not 6.\n- Doing the steps out of order, so f(2) becomes (2 − 1) × 3 = 3 instead of 3 × 2 − 1 = 5.\n- Thinking a function must have a formula, or an output that changes. A table of readings and a machine that always gives 3 are both functions."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Square root scaling for differential pressure flowmeters - Control Engineering",
+      "url": "https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters",
+      "quote": "But the root of a number from 0-1 is larger: √0.5 = 0.707. So if there is a 12 mA signal from the DP cell, that’s 50% DP, but 71% flow rate."
+    },
+    {
+      "n": 2,
+      "title": "About the HELM Project",
+      "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf",
+      "quote": "A function is a rule which operates on an input and produces a single output from that input."
+    },
+    {
+      "n": 3,
+      "title": "About the HELM Project",
+      "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf",
+      "quote": "Note that it is the independent variable which is the input to the function and the dependent variable which is the output."
+    },
+    {
+      "n": 4,
+      "title": "Relating 4 to 20 mA Signals to Instrument Variables | Understanding Analog Instrumentation | Textbook",
+      "url": "https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables",
+      "quote": "Each real-world value must be converted into its analog current equivalent, then into a scaled integer value, and finally back into a real-world representation, all with the linear equation: y=mx+b."
+    }
+  ]
+}
