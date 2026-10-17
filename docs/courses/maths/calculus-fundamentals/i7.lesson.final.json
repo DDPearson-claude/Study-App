@@ -1,0 +1,324 @@
+{
+  "iid": "i7",
+  "title": "Integration, the reverse",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the curve sliding up and down, every point lifted by the same c, while its tangent at x = 2 keeps the same slope, 4, when you drag the slider for c.",
+    "title": "A family of curves",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens on a family of curves. Each graph shows a rule, y against x, with a tangent: a short straight line touching the curve at one point, whose slope a readout gives. The first screens put the power rule beside its reverse, as two arrows: forwards, x³ becomes 3x²; backwards, the two steps happen in turn, add one to the power, then divide by the new power, and then differentiating the answer brings back what you started with. Then the family itself: the curve y = x² + c with a slider for c. Adding c lifts every point of the curve by the same amount, so the whole curve slides up or down without changing its steepness anywhere. The tangent at x = 2 keeps a slope of 2 × 2 = 4, from the derivative 2x, while its height, 4 + c, changes. Faint copies show other members of the family, all the same shape. Then a capacitor's charge curves, q = 0.5t² + c coulombs for a current of t amps, with a known value marked as a point, 3 C at 0 s: the slider moves the curve until it passes through that point, at c = 3, and that curve then gives 11 C at 4 s. Then a boat's distance curves, s = t² + c metres for a speed of 2t metres per second, with its start, 10 m out from the quay at 0 s, marked. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick is shown going wrong on the graph, its curve missing the marked point or its slope not matching.",
+    "ignores": "Every rule is an example, chosen so the numbers come out exactly. A current that keeps rising steadily is not how a capacitor charges from a steady supply through a resistor; there the current is largest at the start and falls away as it fills. The boat moves in a straight line. Only a few members of the family are drawn, but c can be any number, fractions and minus numbers included. The rule here is for powers of x; other functions, such as the sine waves of a.c., have reverses of their own, not shown.",
+    "numbers": [
+      {
+        "label": "x³ differentiates to 3x² by the power rule, in step 1",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 2x² differentiates to 4x, in step 2",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 2 differentiates to 0, in step 2",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "x² integrates to x³ ÷ 3, in step 3",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "x³ integrates to x⁴ ÷ 4, in step 4",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip x⁴ ÷ 3 differentiates to 4x³ ÷ 3, in step 4",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Example rate 6x² + 4x + 5, in step 5",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "It integrates to 2x³ + 2x² + 5x, in step 5",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "The power −1, which is 1 ÷ x, in step 5",
+        "value": -1,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "At power −1, n + 1 = 0, in step 5",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Example rate 4x³ − 6x + 2, in step 6",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "It integrates to x⁴ − 3x² + 2x, in step 6",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip differentiating instead: 12x² − 6, in step 6",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip not dividing: 4x⁴ − 6x² + 2x, in step 6",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Family y = x² + c, tangent at x = 2, in step 7",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Tangent slope at x = 2: 2 × 2 = 4, in step 7",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Example member x² + 5, in step 7",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example member x² − 3, in step 7",
+        "value": -3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slider for c opens at 0, in step 7",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Example x³ + 4, in step 8",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Charge q = 0.5t² + c coulombs, in step 9",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Example known charge 3 C at 0 s, in step 9",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "0.5 × 0 + c = 3, so c = 3, in step 9",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Example time 4 s, in step 9",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Charge at 4 s: 0.5 × 16 = 8, plus 3, in step 9",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Charge at 4 s: 11 C, in step 9",
+        "value": 11,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip no c: 0 C at the start, in step 9",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Example 5 C at 2 s also gives c = 3, in step 9",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example boat speed 2t m/s, 10 m out from the quay at 0 s, in step 10",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Distance at 3 s: 9 + 10 = 19 m, in step 10",
+        "value": 19,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip no c: 9 m, in step 10",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 2t not integrated: 6 + 10 = 16 m, in step 10",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Example rate 6x² − 4x, y = 5 at x = 1, in step 11",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "2 − 2 + c = 5, so c = 5, in step 11",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip not dividing: 6x³ − 4x² + 3, in step 11",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Example current 3t² amps, 2 C at 1 s, in step 12",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "q = t³ + c; 1 + c = 2, so c = 1, in step 12",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Charge at 2 s: 8 + 1 = 9 C, in step 12",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 2 C taken as c: 8 + 2 = 10 C, in step 12",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip no c: 8 C, in step 12",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Examiners' report year",
+        "value": 2023,
+        "kind": "date",
+        "source": 2
+      },
+      {
+        "label": "Practice: example hoist speed 3t² + 2 m/s",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: example position 4 m at 1 s",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: 1 + 2 + c = 4, so c = 1",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: at 2 s, 8 + 4 + 1 = 13 m",
+        "value": 13,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "[[Integrating]] is differentiating run backwards: you are given a rate and asked for the rule it came from.[^3] You already know the forward direction. The power rule takes x³ to 3x², so the question \"whose derivative is 3x²?\" has the answer x³. To answer such questions without guessing, undo the power rule's two steps in the opposite order.[^4] Forwards, you bring the power to the front, then take one off the power. Backwards, you add one to the power, then divide by the new power,[^4] so xⁿ becomes xⁿ⁺¹ ÷ (n + 1). For x², add one to get x³, then divide by 3 to get x³ ÷ 3. Check it by differentiating: the power rule gives 3x² ÷ 3 = x², what you started with. The same happens for any power: differentiating xⁿ⁺¹ ÷ (n + 1) brings the n + 1 to the front and takes one off the power, giving (n + 1)xⁿ ÷ (n + 1) = xⁿ, so the two steps cancel. A number in front carries through and a sum is done term by term, because the power rule works that way forwards,[^5][^6] so 6x² + 4x + 5 becomes 6 × x³ ÷ 3 + 4 × x² ÷ 2 + 5x = 2x³ + 2x² + 5x. The plain 5 comes from 5x, whose slope is 5 everywhere. One power will not go: −1, which is 1 ÷ x, because adding one gives a power of 0 and you cannot divide by 0.[^1] A power below zero means ‘one over’; lesson 9 comes back to that.\n\nDifferentiating loses something, and you have to put it back. A plain number does not change as x changes, so its derivative is zero, and x² + 5, x² and x² − 3 all differentiate to the same 2x. On the picture, adding a number lifts every point of the curve by the same amount. Take any chord, as in lesson 1: both its ends are lifted by c, so its rise is unchanged, and so is its slope. That holds for chords however short, so the tangents keep their slopes too, and the curve slides up or down without its steepness changing anywhere: move the slider for c and the tangent at x = 2 keeps its slope of 4 while its height changes. So working back from 2x cannot tell you which of those curves you came from, and the full answer is the whole family, x² + c, where c stands for any number.[^7] That c is the [[constant of integration]]. The answer is written ∫ 2x dx = x² + c, the [[integral]] of 2x: the ∫ sign says integrate, and dx says x is the letter that changes. The constant is easy to get wrong: Scottish examiners reported in 2023 that many Advanced Higher candidates made basic errors in dealing with the constant of integration.[^2]\n\nTo pick one curve out of the family, you need one value you know: where the thing started, or where it was at some moment.[^8][^9] Remember the charge rule q = 0.5t² from Rates on the job, whose current was t amps? Run it backwards. Say a capacitor charges with a current that rises steadily, i = t amps after t seconds. Current is the rate charge flows, i = dq/dt, so the charge is the integral of the current: q = ∫ t dt = t² ÷ 2 + c = 0.5t² + c coulombs. Say it already held 3 C at 0 s. Put t = 0 in: 0.5 × 0 + c = 3, so c = 3 and q = 0.5t² + 3. At 4 s it holds 0.5 × 16 + 3 = 8 + 3 = 11 C. Leave the c out and q = 0.5t² says the capacitor held 0 C at the start, not the 3 C it did, and 8 C at 4 s, short by the same 3 C all the way along. Check both halves: differentiating 0.5t² + 3 gives t, the current, and at 0 s it gives 3 C, the start. The value you know need not be at the start: told instead that it held 5 C at 2 s, you would get 0.5 × 4 + c = 5, so c = 3 again, the same curve. **Integrating undoes differentiating:[^3] add one to the power, then divide by the new power, for any power but −1;[^4][^1] add + c, because a constant differentiates to zero;[^7] and fix c from a value you are given.[^8]**"
+  },
+  "analogy": {
+    "text": "Setting out a cable tray beside a ramp, the drawing gives you its fall, so much per metre. That tells you how much lower each point is than the one before, but not where the tray sits: the same fall fits a tray fixed at any height, each one the last slid up or down. One height you know, where it leaves the switch room, picks out the one tray. The fall is the derivative, the heights along the tray are the rule, and the known height fixes c.",
+    "breaks": "A tray's fall is the same all along, so its heights make a straight line and fall times distance gives them. On a curve the slope changes from point to point, which is why you need the reverse power rule instead."
+  },
+  "practice": {
+    "text": "- Work term by term. For each power of the letter, add one to the power, then divide by the new power, keeping any number in front. A plain number k becomes k times the letter.\n- Add + c once, at the end.\n- Put in the value you are given, the start or the value at some moment, and solve for c.\n- Write the rule out again with c as a number.\n- Check twice: differentiate your answer and you should get the rate back; put in the given moment and you should get the given value.\n\n**Rules of thumb:** integrating raises each power by one, differentiating lowers it by one. With no value given, c stays as c.\n\n**Worked example:** Say a hoist's rope runs at a speed v = 3t² + 2 metres per second after t seconds, and the hook is 4 m along at 1 s. Integrate term by term: s = 3 × t³ ÷ 3 + 2t + c = t³ + 2t + c. Put in t = 1: 1 + 2 + c = 4, so c = 1 and s = t³ + 2t + 1. At 2 s the hook is 8 + 4 + 1 = 13 m along. Check: ds/dt = 3t² + 2, the speed, and at 1 s, s = 1 + 2 + 1 = 4 m.\n\n**Common mistakes**\n- Leaving out the + c, or never finding it when a value is given.\n- Dividing by the old power: x³ to x⁴ ÷ 3, which differentiates to 4x³ ÷ 3, not x³.\n- Differentiating instead: lowering the power when you meant to raise it.\n- Taking a known value as c when it is not at zero: 2 C at 1 s does not make c = 2.\n- Using the rule on 1 ÷ x, the power −1 (a power below zero means ‘one over’; lesson 9 comes back to it), where it would divide by 0."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "https://mathweb.ucsd.edu/~ashenk/Section6_7.pdf",
+      "url": "https://mathweb.ucsd.edu/~ashenk/Section6_7.pdf",
+      "quote": "because we cannot set n = −1 in the fraction 1/(n + 1)."
+    },
+    {
+      "n": 2,
+      "title": "Advanced Higher Mathematics Course Report 2023",
+      "url": "https://www.sqa.org.uk/sqa/files_ccc/2023-ah-course-report-mathematics.pdf",
+      "quote": "Many candidates made basic errors in applying a formula approach, or in dealing with the constant of integration."
+    },
+    {
+      "n": 3,
+      "title": "Integrating simple algebraic expressions",
+      "url": "https://www.bbc.co.uk/bitesize/guides/zgxttfr/revision/1",
+      "quote": "Integration is the inverse of differentiation of algebraic and trigonometric expressions involving brackets and powers."
+    },
+    {
+      "n": 4,
+      "title": "APEX Antiderivatives and Indefinite Integration",
+      "url": "https://webwork.moravian.edu/apexcalc/sec_antider.html",
+      "quote": "To find the antiderivative, do the opposite things in the opposite order: first add (1) to the power, then second divide by the power."
+    },
+    {
+      "n": 5,
+      "title": "Differentiation Rules - math.uconn.edu",
+      "url": "https://www2.math.uconn.edu/ClassHomePages/Math1071/Textbook2/sec_Ch3Sec3.html",
+      "quote": "The derivative of the sum of a function (f) and a function (g) is the same as the sum of the derivative of (f) and the derivative of (g.)"
+    },
+    {
+      "n": 6,
+      "title": "Differentiation Rules - math.uconn.edu",
+      "url": "https://www2.math.uconn.edu/ClassHomePages/Math1071/Textbook2/sec_Ch3Sec3.html",
+      "quote": "The derivative of a constant (k) multiplied by a function (f) is the same as the constant multiplied by the derivative"
+    },
+    {
+      "n": 7,
+      "title": "Integrating simple algebraic expressions",
+      "url": "https://www.bbc.co.uk/bitesize/guides/zgxttfr/revision/1",
+      "quote": "The + c appears because when you differentiate a constant term, the answer is zero"
+    },
+    {
+      "n": 8,
+      "title": "Mathematics Written Examination Syllabus - GOV.UK",
+      "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus",
+      "quote": "Determines the constant of integration from given conditions."
+    },
+    {
+      "n": 9,
+      "title": "Higher Mathematics Course Specification",
+      "url": "https://www.sqa.org.uk/files_ccc/h-course-spec-mathematics.pdf",
+      "quote": "determining and using a function from a given rate of change and initial conditions"
+    }
+  ]
+}
