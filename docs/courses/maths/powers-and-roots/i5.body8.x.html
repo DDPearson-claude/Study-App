@@ -1,0 +1,1061 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; }
+  /* The place-value strip: a band of places, the point fixed between the units and the tenths. */
+  .scene .hd { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .hd.u { fill: var(--k-ink); }
+  .scene .tk { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ptag { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  .scene .band { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .unit { fill: var(--k-sunk); }
+  .scene .sep { stroke: var(--k-line); stroke-width: 1; }
+  .scene .xc { fill: none; stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .scene .ptl { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .pt { fill: var(--k-accent2); }
+  .scene .pfx { fill: none; stroke: var(--k-accent); stroke-width: 2.5; }
+  .scene .dg { font: 700 18px var(--k-font); fill: var(--k-ink); }
+  .scene .dg.ans { fill: var(--k-accent2); }
+  .scene .dg.bad { fill: var(--k-warn); }
+  .scene .zr { font: 400 18px var(--k-font); fill: var(--k-muted); }
+  .scene .zr.bad { fill: var(--k-warn); }
+  .scene .rl { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .rl.ans { fill: var(--k-accent2); }
+  .scene .rl.bad { fill: var(--k-warn); }
+  .scene .ln { stroke: var(--k-accent2); stroke-width: 1.8; }
+  .scene .lnh { fill: var(--k-accent2); }
+  .scene .ln.bad { stroke: var(--k-warn); }
+  .scene .lnh.bad { fill: var(--k-warn); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .wk { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .wk.mu { fill: var(--k-muted); }
+  .scene .wk.bad { fill: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 6rem; min-height: 48px; }
+  .row.mode .k-btn[aria-pressed="true"], .picks .k-btn[aria-pressed="true"] { border-color: var(--k-accent2); box-shadow: inset 0 0 0 2px var(--k-accent2); font-weight: 700; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .picks .k-btn { flex: 1 1 auto; min-width: 6rem; font-size: 1.05rem; min-height: 56px; white-space: nowrap; padding-inline: 8px; }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* The prefix table: one card for each prefix that is a multiple of 3, centi set apart. */
+  .ptab .pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.2rem, 1fr)); gap: 6px; margin-top: 6px; }
+  .ptab .pc { border: 1px solid var(--k-line); border-radius: 8px; padding: 6px 8px; background: var(--k-panel); white-space: nowrap; line-height: 1.4; }
+  .ptab .pc b { font-size: 1.1rem; margin-right: 4px; }
+  .ptab .src { margin-top: 6px; font-size: .85rem; color: var(--k-muted); }
+  .ptab .pn { margin-top: 8px; border: 1px dashed var(--k-strong); border-radius: 8px; padding: 6px 10px; line-height: 1.5; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A place-value strip: each column is headed by what a digit there is worth, and the decimal point is fixed. The currents, resistances, loads and capacitor are examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label="">
+      <g id="art"></g>
+    </svg>
+    <div class="row tune" id="tune"></div>
+    <div class="row mode" id="mode"></div>
+    <div class="replay" id="replay"></div>
+    <div class="ptab" id="ptab">
+      <p class="k-label">Prefixes, one for every third power</p>
+      <div class="pgrid" id="pgrid"></div>
+      <p class="pn" id="pnote"></p>
+      <p class="src">G, M, k, m, µ and c from the BIPM's list of SI prefixes; n and p from Fiore's lab manual.</p>
+    </div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Each power of ten slides every digit one place past the fixed point; every third place, other than the units, has a prefix.</p>
+
+<script>
+  // ---------- numbers, written the way the lesson writes them ----------
+  const SUPC = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+  const sup = (n) => String(n).split('').map((ch) => (ch === '-' ? '⁻' : SUPC[+ch])).join('');
+  const close = (a, b, tol) => Math.abs(a - b) <= (tol || 1e-9) * Math.max(Math.abs(a), Math.abs(b), 1e-300);
+  const tenTo = (n) => (n >= 0 ? Math.pow(10, n) : 1 / Math.pow(10, -n));
+  const num = (v) => Number(v.toPrecision(12));
+  const mul = (F, n) => num(F * tenTo(n));
+  const int = (n) => (n < 0 ? '−' + (-n) : String(n));
+  // A number as its own digits and the power of the first one: 0.0047 -> {sig: '47', top: -3}.
+  function dec(v) {
+    const m = /^(\d)\.(\d+)e([+-]\d+)$/.exec(Math.abs(v).toExponential(10));
+    return { sig: (m[1] + m[2]).replace(/0+$/, '') || '0', top: +m[3] };
+  }
+  // Written out in full: commas from 10,000, a 0 before the point below 1.
+  function plain(v) {
+    if (v < 0) return '−' + plain(-v);
+    if (v === 0) return '0';
+    const d = dec(v), low = d.top - d.sig.length + 1, hi = Math.max(d.top, 0), lo = Math.min(low, 0);
+    let ip = '', fp = '';
+    for (let p = hi; p >= lo; p--) {
+      const k = d.top - p, ch = k >= 0 && k < d.sig.length ? d.sig[k] : '0';
+      if (p >= 0) ip += ch; else fp += ch;
+    }
+    if (ip.length > 4) ip = ip.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return fp ? ip + '.' + fp : ip;
+  }
+  const fnum = (v) => plain(v).replace(/,/g, '');
+  const sci = (F, n) => fnum(F) + ' × 10' + sup(n);
+  const PRE = { 9: 'G', 6: 'M', 3: 'k', 0: '', '-3': 'm', '-6': 'µ', '-9': 'n', '-12': 'p' };
+  const eng = (v) => { const m = 3 * Math.floor(dec(v).top / 3); return { F: mul(v, -m), m }; };
+  const places = (k) => k + (k === 1 ? ' place' : ' places');
+  const pl = (r) => places(Math.abs(r)) + (r > 0 ? ' left' : ' right');
+  const slid = (r) => (r === 0 ? 'not slid' : 'slid ' + pl(r));
+  const U = (u) => (u ? ' ' + u : '');
+  // How far a wrong number's digits sit from the right one's.
+  function apart(vs, vr) {
+    const k = dec(vs).top - dec(vr).top;
+    return k === 0 ? 'the same place' : places(Math.abs(k)) + ' too far ' + (k > 0 ? 'left' : 'right');
+  }
+  const L = (t, o) => Object.assign({ t }, o || {});
+  const B = { bad: true };
+  // 10 to a power, and a front number times it, written out.
+  function slideLines(F, n) {
+    return [L('10' + sup(n) + ' = ' + (n < 0 ? '1 ÷ ' + plain(tenTo(-n)) + ' = ' : '') + plain(tenTo(n))),
+      L(sci(F, n) + ' = ' + fnum(F) + (n < 0 ? ' ÷ ' : ' × ') + plain(tenTo(Math.abs(n))) + ' = ' + plain(mul(F, n)))];
+  }
+  const slidLabel = (F, r, u) => sci(F, r) + U(u) + ' = ' + plain(mul(F, r)) + U(u) + ': ' + slid(r);
+
+  // ---------- reading an expression (pure, so the checks can test the lines) ----------
+  // + − × ÷, brackets, raised powers, commas in thousands, and a unit with its prefix (2 mA, 5 kΩ).
+  const PREV = { G: 9, M: 6, k: 3, m: -3, 'µ': -6, 'μ': -6, n: -9, p: -12 };
+  function val(s) {
+    const src = String(s).replace(/\s+/g, '');
+    let i = 0;
+    const peek = () => src[i];
+    function sum() {
+      let v = prod();
+      while (peek() === '+' || peek() === '−') { const op = src[i++]; const w = prod(); v = op === '+' ? v + w : v - w; }
+      return v;
+    }
+    function prod() {
+      let v = unary();
+      for (;;) {
+        const ch = peek();
+        if (ch === '×') { i++; v *= unary(); } else if (ch === '÷') { i++; v /= unary(); } else return v;
+      }
+    }
+    function unary() { if (peek() === '−') { i++; return -unary(); } return unit(powr()); }
+    function powr() {
+      const v = atom();
+      let neg = false, m = '';
+      if (src[i] === '⁻') { neg = true; i++; }
+      while (i < src.length && SUPC.indexOf(src[i]) >= 0) m += SUPC.indexOf(src[i++]);
+      if (neg && !m) throw new Error('a raised minus with no power in ' + s);
+      return m ? Math.pow(v, neg ? -m : +m) : v;
+    }
+    function unit(v) {
+      const m = /^([GMkmµμnp]?)([AVWΩΩF])/.exec(src.slice(i));
+      if (!m) return v;
+      i += m[0].length;
+      return m[1] ? v * tenTo(PREV[m[1]]) : v;
+    }
+    function atom() {
+      if (peek() === '(') { i++; const v = sum(); if (src[i] !== ')') throw new Error('no closing bracket in ' + s); i++; return v; }
+      const m = /^[0-9][0-9,]*(\.[0-9]+)?/.exec(src.slice(i));
+      if (m) { i += m[0].length; return +m[0].replace(/,/g, ''); }
+      throw new Error('cannot read ' + src.slice(i) + ' in ' + s);
+    }
+    const v = sum();
+    if (i !== src.length) throw new Error('left over in ' + s);
+    return v;
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s)
+    .replace(/⁻?[⁰¹²³⁴⁵⁶⁷⁸⁹ⁿ]+/g, (m) => ' to the power ' + m.split('').map((ch) => (ch === '⁻' ? 'minus ' : ch === 'ⁿ' ? 'n' : SUPC.indexOf(ch))).join('') + ' ')
+    .replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/=/g, ' equals ')
+    .replace(/−/g, ' minus ').replace(/\+/g, ' plus ').replace(/µ/g, 'micro ').replace(/Ω/g, ' ohms')
+    .replace(/\s+/g, ' ').trim();
+
+  // ---------- the strip: millions to ten-millionths, one place past each end drawn dashed when needed ----------
+  const PMAX = 6, PMIN = -7, XMAX = 7, XMIN = -8, CW = 20, PX = 170;
+  const cx = (p) => 160 - CW * p;   // the middle of the place worth 10 to the power p; the point is at x = 170
+  // The digits of v on the strip: its own digits, and zeros holding the empty places between them and the point.
+  function cellsOf(v) {
+    const d = dec(v), c = {}, low = d.top - d.sig.length + 1;
+    for (let k = 0; k < d.sig.length; k++) c[d.top - k] = { d: d.sig[k], z: false };
+    for (let p = 0; p < low; p++) c[p] = { d: '0', z: true };
+    for (let p = d.top + 1; p <= 0; p++) c[p] = { d: '0', z: true };
+    return c;
+  }
+  const readBack = (r) => num(Object.keys(r.cells).reduce((s, p) => s + (+r.cells[p]) * tenTo(+p), 0));
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // A row on the strip: v, its number before any slide; n, how many places it has slid (left is +);
+  // cls: fr (a front number), q (given), ans (the right answer, navy), bad (a wrong pick, red).
+  // Every row value, label and line of working is worked out from the numbers in each step.
+  const PICK = 'Tap one of the answers.';
+  function mulData(a, b, op, u, names) {
+    const [aF, ap, au] = a, [bF, bp, bu] = b, div = op === '÷';
+    const P = num(div ? aF / bF : aF * bF), pw = div ? ap - bp : ap + bp, vr = mul(P, pw), e = eng(vr);
+    const lab = (F, p, uu) => fnum(F) + ' ' + PRE[p] + uu + (p ? ' = ' + plain(mul(F, p)) + ' ' + uu : '');
+    const pq = (F, p, uu) => fnum(F) + ' ' + PRE[p] + uu;
+    return { aF, ap, au, bF, bp, bu, div, P, pw, vr, e, u, names,
+      q: [{ key: 'a', v: mul(aF, ap), cls: 'q', label: names[0] + ': ' + lab(aF, ap, au) },
+        { key: 'b', v: mul(bF, bp), cls: 'q', label: names[1] + ': ' + lab(bF, bp, bu) }],
+      final: names[2] + ': ' + sci(P, pw) + ' ' + u + ' = ' + fnum(e.F) + ' ' + PRE[e.m] + u,
+      lines: div
+        ? [L(fnum(aF) + ' ÷ ' + fnum(bF) + ' = ' + fnum(P) + ' and 10' + sup(ap) + ' ÷ 10' + sup(bp) + ' = 10' + sup(pw)),
+          L(pq(aF, ap, au) + ' ÷ ' + pq(bF, bp, bu) + ' = ' + sci(P, pw) + ' ' + u + ' = ' + fnum(e.F) + ' ' + PRE[e.m] + u)]
+        : [L(pq(aF, ap, au) + ' × ' + pq(bF, bp, bu) + ' = ' + sci(aF, ap) + ' × ' + sci(bF, bp)),
+          L(fnum(aF) + ' × ' + fnum(bF) + ' = ' + fnum(P) + ' and ' + int(ap) + ' + ' + int(bp) + ' = ' + int(pw)),
+          L(sci(P, pw) + ' ' + u + ' = ' + fnum(e.F) + ' ' + PRE[e.m] + u)] };
+  }
+  function addData(a, b, u) {
+    const [aF, ap] = a, [bF, bp] = b, uu = U(u), va = mul(aF, ap), vb = mul(bF, bp), vs = num(va + vb), sd = dec(vs);
+    const q = Math.min(ap, bp), A2 = mul(aF, ap - q), sF = mul(vs, -sd.top), ca = cellsOf(va), src = {};
+    for (let k = 0; k < sd.sig.length; k++) { const p = sd.top - k; src[p] = ca[p] && !ca[p].z ? 'a' : 'b'; }
+    return { aF, ap, bF, bp, va, vb, vs, sd, sF, src, uu,
+      q: [{ key: 'a', v: va, cls: 'q', label: sci(aF, ap) + uu + ' = ' + plain(va) + uu },
+        { key: 'b', v: vb, cls: 'q', label: sci(bF, bp) + uu + ' = ' + plain(vb) + uu }],
+      lines: [L(sci(aF, ap) + ' = ' + sci(A2, q)),
+        L(sci(A2, q) + ' + ' + sci(bF, bp) + ' = ' + sci(num(A2 + bF), q) + ' = ' + sci(sF, sd.top))] };
+  }
+
+  const STEPS = [
+    { show: true, kind: 'slide', live: true, name: 'Slide the digits', replay: 'Play again', F: 4.7, lo: -6, hi: 6, demo: [0, 3], init: { n: 3 },
+      slots: [['front', 0], ['num', 1]], nl: 2,
+      text: 'Each place is worth ten times the place on its right. Multiply by 10 and every digit moves one place left, while the point stays put. Three steps up make `4.7 × 10³` = 4700, and zeros hold the empty places.' },
+    (() => {
+      const F = 3.2, n = 4, v = mul(F, n), s1 = mul(F, n + 1), s2 = num(F * n), tries = {};
+      tries.right = { v: F, path: [n], label: slidLabel(F, n), lines: slideLines(F, n) };
+      tries[plain(s1)] = { v: F, path: [n + 1], label: sci(F, n + 1) + ' = ' + plain(s1) + ': ' + places(n + 1) + ', 1 too many', lines: [L(sci(F, n + 1) + ' = ' + plain(s1), B)] };
+      tries[plain(s2)] = { v: s2, path: [], label: fnum(F) + ' × ' + n + ' = ' + plain(s2) + ': no slide at all', lines: [L(fnum(F) + ' × ' + n + ' = ' + plain(s2), B)] };
+      return { kind: 'do', name: 'Write it out', slots: [['front', 0], ['try', 1]], slot: 'try', nl: 2,
+        q: [{ key: 'front', v: F, cls: 'fr', label: 'front number ' + fnum(F) }],
+        opts: [plain(v), plain(s1), plain(s2)], want: plain(v), tries,
+        task: 'What is `' + sci(F, n) + '` written out?',
+        why: 'The power 4 means four 10s multiplied, 10,000, so every digit of 3.2 slides four places left. The 3 lands in the ten-thousands place and zeros hold the empty places, 32,000.',
+        hint: 'Not quite. Slide every digit of 3.2 one place left for each 10.',
+        hints: { '320,000': 'Not quite. That writes 32 and adds four zeros, but the 2 uses up one of the four places.',
+          '12.8': 'Not quite. That is 3.2 × 4. The power counts 10s multiplied together.' } };
+    })(),
+    { show: true, kind: 'slide', name: 'Slide right', replay: 'Play again', F: 4.7, u: 'A', demo: [0, -3],
+      slots: [['front', 0], ['num', 1]], nl: 2,
+      text: 'Each step down divides by 10, as in lesson 2, so every digit moves one place right. Three steps down make `4.7 × 10⁻³` A = 0.0047 A, with zeros holding the places before the 4.' },
+    (() => {
+      const F = 4.7, n = -3, v = mul(F, n), tries = {}, w1 = mul(F, n + 1), w2 = mul(F, -n);
+      tries.right = { v: F, path: [n], label: sci(F, n) + ' A = ' + plain(v) + ' A: ' + pl(n), lines: slideLines(F, n) };
+      tries[int(n + 1)] = { v: F, path: [n + 1], label: sci(F, n + 1) + ' A = ' + plain(w1) + ' A: 1 place short', lines: [L(sci(F, n + 1) + ' = ' + plain(w1), B)] };
+      tries[int(-n)] = { v: F, path: [-n], label: sci(F, -n) + ' A = ' + plain(w2) + ' A: the wrong way', lines: [L(sci(F, -n) + ' = ' + plain(w2), B)] };
+      return { kind: 'do', name: 'Find the power', slots: [['front', 0], ['num', 0], ['try', 1]], slot: 'try', nl: 2,
+        q: [{ key: 'front', v: F, cls: 'fr', label: 'front number ' + fnum(F) }, { key: 'num', v, cls: 'q', label: 'the current: ' + plain(v) + ' A' }],
+        opts: [int(n + 1), int(n), int(-n)], want: int(n), tries, valOf: (o) => mul(F, val(o)),
+        task: 'A current is 0.0047 A, which is `4.7 × 10ⁿ` A. What is n?',
+        why: 'Count the places the 4 slides, from the units place to the thousandths place. That is three, and the number is less than 1, so the power is negative. n = −3, and 0.0047 A = `4.7 × 10⁻³` A.',
+        hint: 'Not quite. Count the places the 4 moves, not the zeros.',
+        hints: { '−2': 'Not quite. That counts the two zeros after the point. Count the places the 4 slides.',
+          '3': 'Not quite. 0.0047 is less than 1, so the digits slid right and the power is negative.' } };
+    })(),
+    { show: true, kind: 'front', live: true, name: 'Same number, many ways', replay: 'Play again', F: 4.7, n: -3, init: { k: 0 },
+      slots: [['front', 1], ['num', 0]], nl: 2,
+      text: 'Hold 0.0047 still and change only the front number. A front number 10 times bigger needs a power one smaller, so `47 × 10⁻⁴`, `4.7 × 10⁻³` and `0.47 × 10⁻²` are all 0.0047. *Standard form*, `A × 10ⁿ`, also called standard index form or scientific notation, keeps one figure, not 0, before the point.' },
+    (() => {
+      const F = 470, n = -5, v = mul(F, n), sd = dec(F).top, Fs = mul(F, -sd), ns = n + sd, tries = {};
+      const wrong = sci(Fs, n - sd), w2F = mul(Fs, 1), same = sci(w2F, ns - 1), wv = mul(Fs, n - sd);
+      tries.right = { moveQ: 'front', path: [-sd], label: 'front number ' + fnum(Fs) + ', with 10' + sup(ns) + ': standard form',
+        lines: [L(fnum(F) + ' ÷ ' + plain(tenTo(sd)) + ' = ' + fnum(Fs) + ' and ' + int(n) + ' + ' + sd + ' = ' + int(ns)), L(sci(Fs, ns) + ' = ' + plain(v))] };
+      tries[wrong] = { v: Fs, path: [n - sd], label: wrong + ' = ' + plain(wv) + ': ' + places(ns - (n - sd)) + ' too far',
+        lines: [L(wrong + ' = ' + plain(wv), B), L(plain(v) + ' ÷ ' + plain(wv) + ' = ' + plain(num(v / wv)), B)] };
+      tries[same] = { v: w2F, path: [ns - 1], label: same + ': same number, 2 figures in front', lines: [L(same + ' = ' + plain(v), { mu: true })] };
+      return { kind: 'do', name: 'Standard form', slots: [['front', 1], ['num', 0], ['try', 1]], slot: 'try', nl: 2, ext: true,
+        q: [{ key: 'front', v: F, cls: 'fr', label: 'front number ' + fnum(F) }, { key: 'num', v, cls: 'q', label: sci(F, n) + ' = ' + plain(v) }],
+        opts: [wrong, sci(Fs, ns), same], want: sci(Fs, ns), tries, sameValue: [same],
+        task: 'Write `' + sci(F, n) + '` in standard form.',
+        why: 'Make the front number 100 times smaller, 470 to 4.7, by sliding it two places right. To keep the same number the power must rise by two, from −5 to −3. So `470 × 10⁻⁵` = `4.7 × 10⁻³`, with one figure before the point.',
+        hint: 'Not quite. A smaller front number needs a bigger power.',
+        hints: { '4.7 × 10⁻⁷': 'Not quite. That moves the power the same way as the front number, which makes the number 10,000 times smaller.',
+          '47 × 10⁻⁴': 'Not quite. That is the same number, but standard form has one figure before the point, not two.' } };
+    })(),
+    { show: true, kind: 'eng', live: true, name: 'Engineering notation', replay: 'Play again', F: 4.7, u: 'A', lo: -6, hi: 3, init: { n: -3, mode: 'eng' },
+      slots: [['front', 1], ['num', 1]], nl: 2, tags: true, table: true,
+      text: 'In *engineering notation* the power is a multiple of 3, with 1 up to just under 1000 in front, so 1000 mA is 1 A, and that power has a *prefix*, boxed in teal on its place. Step down from 4.7 A and the digits slide every time, but the prefix changes only every third place, so 470 mA, 47 mA and 4.7 mA all use m.' },
+    (() => {
+      const v = 0.000047, u = 'F', e = eng(v), tries = {};
+      const o1 = fnum(mul(e.F, -1)) + ' ' + PRE[e.m] + u, o2 = fnum(e.F) + ' ' + PRE[e.m + 3] + u, ok = fnum(e.F) + ' ' + PRE[e.m] + u;
+      const w1 = mul(e.F, e.m - 1), w2 = mul(e.F, e.m + 3);
+      tries.right = { v: e.F, path: [e.m], label: ok + ' = ' + sci(e.F, e.m) + ' ' + u + ': ' + pl(e.m), lines: [L(ok + ' = ' + sci(e.F, e.m) + ' ' + u + ' = ' + plain(v) + ' ' + u)] };
+      tries[o1] = { v: mul(e.F, -1), path: [e.m], label: o1 + ' = ' + plain(w1) + ' ' + u + ': ' + apart(w1, v), lines: [L(o1 + ' = ' + sci(mul(e.F, -1), e.m) + ' ' + u + ' = ' + plain(w1) + ' ' + u, B)] };
+      tries[o2] = { v: e.F, path: [e.m + 3], label: o2 + ' = ' + plain(w2) + ' ' + u + ': ' + apart(w2, v), lines: [L(o2 + ' = ' + sci(e.F, e.m + 3) + ' ' + u + ' = ' + plain(w2) + ' ' + u, B)] };
+      return { kind: 'do', name: 'A prefix', slots: [['num', 0], ['try', 1]], slot: 'try', nl: 1, tags: true, table: true,
+        q: [{ key: 'num', v, cls: 'q', label: 'the capacitor: ' + plain(v) + ' ' + u }],
+        opts: [o1, o2, ok], want: ok, tries,
+        task: 'A capacitor is 0.000047 F. Which is the same value with a prefix?',
+        why: 'Slide 0.000047 to a front number from 1 up to 1000. That is 47, six places, and six places is `10⁻⁶`, a multiple of 3 whose prefix is micro, µ. So 0.000047 F = `47 × 10⁻⁶` F = 47 µF.',
+        hint: 'Not quite. Find the multiple of 3 that leaves 1 up to 1000 in front.',
+        hints: { '4.7 µF': 'Not quite. That is one place out, 0.0000047 F. Slide 47 six places, not 4.7.',
+          '47 mF': 'Not quite. Milli is `10⁻³`, so 47 mF is 0.047 F, a thousand times too big.' } };
+    })(),
+    { show: true, kind: 'mul', name: 'Multiplying with prefixes', replay: 'Play again', tags: true,
+      m: mulData([2, -3, 'A'], [5, 3, 'Ω'], '×', 'V', ['the current', 'the resistance', 'the voltage']),
+      slots: [['a', 0], ['b', 0], ['res', 1]], nl: 3,
+      text: 'By Ohm\'s law, V = I × R, so 2 mA through 5 kΩ makes a voltage of 2 mA × 5 kΩ. Multiply the front numbers, 2 × 5 = 10, and add the powers, −3 + 3 = 0. The m slides the digits three places right and the k slides them back, so it is `10 × 10⁰` V = 10 V.' },
+    (() => {
+      const m = mulData([4, -3, 'A'], [2.2, 3, 'Ω'], '×', 'V', ['the current', 'the resistance', 'the voltage']), tries = {};
+      const ok = fnum(m.e.F) + ' ' + PRE[m.e.m] + m.u, pm = m.ap * m.bp, o1 = sci(m.P, pm) + ' ' + m.u, o2 = plain(mul(m.P, m.bp)) + ' ' + m.u;
+      tries.right = { v: m.P, path: [m.ap, m.pw], label: m.final, lines: m.lines };
+      tries[o1] = { v: m.P, path: [pm], off: true, label: o1 + ': ' + places(Math.abs(pm)) + ' right, off the strip',
+        lines: [L(int(m.ap) + ' × ' + int(m.bp) + ' = ' + int(pm), B), L(o1 + ' = ' + plain(mul(m.P, pm)) + ' ' + m.u, B)] };
+      tries[o2] = { v: m.P, path: [m.bp], label: o2 + ': ' + m.bp + ' left for the ' + PRE[m.bp] + ', none for the ' + PRE[m.ap],
+        lines: [L(fnum(m.aF) + ' × ' + fnum(m.bF) + ' × 10' + sup(m.bp) + ' = ' + plain(mul(m.P, m.bp)), B)] };
+      return { kind: 'do', name: 'Your turn with prefixes', slots: [['a', 0], ['b', 0], ['res', 1]], slot: 'res', nl: 3, tags: true, ext: true,
+        q: m.q, opts: [ok, o1, o2], want: ok, tries,
+        task: '4 mA flows through 2.2 kΩ. What is the voltage, current × resistance?',
+        why: 'Multiply the front numbers, 4 × 2.2 = 8.8, and add the powers, −3 + 3 = 0. The m slides three places right and the k slides three back, so it is `8.8 × 10⁰` V = 8.8 V.',
+        hint: 'Not quite. Multiply the front numbers and add the powers.',
+        hints: { '8.8 × 10⁻⁹ V': 'Not quite. That multiplies the powers, −3 × 3 = −9. Multiplying numbers adds their powers.',
+          '8800 V': 'Not quite. That leaves out the m. 4 mA is 0.004 A, not 4 A.' } };
+    })(),
+    { show: true, kind: 'add', name: 'Adding needs matching powers', replay: 'Play again', tags: true, slipRow: true,
+      a: addData([4, 3], [5, 2], ''), slots: [['a', 0], ['b', 0], ['sum', 0], ['slip', 0]], nl: 3,
+      text: 'Only digits in the same place add, so the powers must match. `4 × 10³` is `40 × 10²`, and 40 hundreds and 5 hundreds make 45 hundreds, `4.5 × 10³` = 4500. Adding the powers gives `9 × 10⁵` = 900,000, far from 4500.' },
+    (() => {
+      const a = addData([3, 4], [2, 3], 'W'), tries = {}, u = a.uu;
+      const ok = sci(a.sF, a.sd.top) + u, o1 = sci(a.aF + a.bF, a.ap + a.bp) + u, o2 = sci(a.aF + a.bF, a.ap) + u;
+      const w1 = mul(a.aF + a.bF, a.ap + a.bp), w2 = mul(a.aF + a.bF, a.ap);
+      tries.right = { drop: true, v: a.vs, src: a.src, label: 'the total: ' + ok + ' = ' + plain(a.vs) + u,
+        lines: a.lines.concat([L(plain(a.va) + ' + ' + plain(a.vb) + ' = ' + plain(a.vs))]) };
+      tries[o1] = { v: w1, path: [], label: o1 + ' = ' + plain(w1) + u + ': powers added',
+        lines: [L(a.aF + ' + ' + a.bF + ' = ' + (a.aF + a.bF) + ' and ' + a.ap + ' + ' + a.bp + ' = ' + (a.ap + a.bp), B), L(sci(a.aF + a.bF, a.ap + a.bp) + ' = ' + plain(w1), B)] };
+      tries[o2] = { v: w2, path: [], label: o2 + ' = ' + plain(w2) + u + ': 2 in the wrong place',
+        lines: [L(sci(a.aF, a.ap) + ' + ' + sci(a.bF, a.ap) + ' = ' + sci(a.aF + a.bF, a.ap), B)] };
+      return { kind: 'do', mixed: true, name: 'Two loads', slots: [['a', 0], ['b', 0], ['sum', 0]], slot: 'sum', nl: 3, tags: true, ext: true,
+        q: a.q, opts: [o1, o2, ok], want: ok, tries,
+        task: 'Two loads, `3 × 10⁴` W and `2 × 10³` W, run together. What is the total?',
+        why: 'The powers must match before the front numbers add. `3 × 10⁴` is `30 × 10³`, so 30 thousand and 2 thousand make 32 thousand, `3.2 × 10⁴` W. That is 30,000 + 2000 = 32,000 W.',
+        hint: 'Not quite. Make the powers match, then add the front numbers.',
+        hints: { '5 × 10⁷ W': 'Not quite. That adds the powers. Only the front numbers add, and only once the powers match.',
+          '5 × 10⁴ W': 'Not quite. That adds 3 and 2 as if both were ten-thousands. The 2 is in the thousands place.' } };
+    })(),
+    (() => {
+      const m = mulData([9, 0, 'V'], [1.5, 6, 'Ω'], '÷', 'A', ['the supply', 'the resistance', 'the current']), tries = {};
+      const ok = fnum(m.e.F) + ' ' + PRE[m.e.m] + m.u, w1 = mul(m.P, m.bp), o1 = plain(w1) + ' ' + m.u, o2 = fnum(m.P) + ' ' + m.u;
+      tries.right = { v: m.P, path: [m.ap, m.pw], label: m.final, lines: m.lines };
+      tries[o1] = { v: m.P, path: [m.bp], label: o1 + ': ' + pl(m.bp) + ', the wrong way',
+        lines: [L(fnum(m.aF) + ' ÷ ' + fnum(m.bF) + ' × 10' + sup(m.bp) + ' = ' + plain(w1), B)] };
+      tries[o2] = { v: m.P, path: [], label: o2 + ': no slide, the ' + PRE[m.bp] + ' left out',
+        lines: [L(fnum(m.aF) + ' ' + m.au + ' ÷ ' + fnum(m.bF) + ' ' + m.bu + ' = ' + fnum(m.P) + ' ' + m.u, B)] };
+      return { kind: 'do', mixed: true, name: 'A current', slots: [['a', 0], ['b', 0], ['res', 1]], slot: 'res', nl: 2, tags: true,
+        q: m.q, opts: [o2, ok, o1], want: ok, tries,
+        task: 'A 9 V supply drives a current through 1.5 MΩ. By Ohm\'s law the current is voltage ÷ resistance: divide the front numbers and take the powers away. What is the current?',
+        why: 'Divide the front numbers, 9 ÷ 1.5 = 6, and take the powers away, 0 − 6 = −6, so `10⁰ ÷ 10⁶` = `10⁻⁶`. Dividing by the M slides the digits six places right, `6 × 10⁻⁶` A = 6 µA.',
+        hint: 'Not quite. Divide the front numbers and take the powers away.',
+        hints: { '6,000,000 A': 'Not quite. That multiplies by the million instead of dividing by it, as 9 ÷ 1.5 × 10⁶ does on a calculator.',
+          '6 A': 'Not quite. That leaves out the M. 1.5 MΩ is 1,500,000 Ω.' } };
+    })(),
+  ];
+  const FINISH = 'Multiplying by `10ⁿ` slides the digits n places, left when n is positive and right when it is negative, and the point stays put. Every third place, other than the units, has a prefix, so 0.0047 A is `4.7 × 10⁻³` A, or 4.7 mA.';
+  const PT = [['G', 'giga', 9], ['M', 'mega', 6], ['k', 'kilo', 3], ['m', 'milli', -3], ['µ', 'micro', -6], ['n', 'nano', -9], ['p', 'pico', -12]];
+  // Sources the checks restate (the lesson's own).
+  const SRC1 = 'https://en.wikipedia.org/wiki/Milli-';
+  const SRC2 = 'https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-7-rules-and-style-conventions-expressing-values';
+  const SRC3 = 'https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf';
+  const SRC4 = 'https://www.bbc.co.uk/bitesize/articles/zh4ny4j';
+  const SRC5 = 'https://www.bbc.co.uk/bitesize/articles/z93nsk7';
+  const SRC6 = 'https://www.bbc.co.uk/bitesize/articles/zrqr7v4';
+  const SRC7 = 'https://www.bipm.org/en/measurement-units/si-prefixes';
+  const SRC8 = 'https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/Laboratory_Manual_-_DC_Electrical_Circuit_Analysis_(Fiore)/01:_The_Electrical_Laboratory/1.3:_Scientific_and_Engineering_Notation';
+
+  const XL = 12, XR = 328, LH = 24, FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong' or 'empty' once checked), why: a puzzle's answer. Live screens: n, the
+  // power (first and engineering screens); k, the front number's slide (front-number screen); mode,
+  // eng or std; prev and prevMode, the setting before the last move (null: play the demonstration).
+  function blankFor(i) { return Object.assign({ pick: null, res: null, why: false, n: 0, k: 0, mode: 'eng', prev: null, prevMode: null }, STEPS[i].init || {}); }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map((d, i) => blankFor(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;                                                        // what the last paint drew, for the checks
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { el.appendChild(K.el('span', { class: 'nw' }, seg)); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Three answer buttons; each step fills in its own options. A new choice after a wrong answer
+  // settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one makes its slide on the strip, a wrong one draws its own slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(motionLen(i, st).latest);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  // The live screens: step the power, or the front number, one place at a time.
+  function stepPower(by) {
+    const i = at(), d = STEPS[i];
+    if (finished || !d.live || d.kind === 'front') return;
+    const st = S[i], v = K.clamp(st.n + by, d.lo, d.hi);
+    if (v === st.n) return;
+    Object.assign(st, { prev: st.n, prevMode: st.mode, n: v });
+    play(motionLen(i, st).latest);
+  }
+  function stepFront(by) {
+    const i = at(), d = STEPS[i];
+    if (finished || d.kind !== 'front') return;
+    const st = S[i], v = K.clamp(st.k + by, -1, 1);
+    if (v === st.k) return;
+    Object.assign(st, { prev: st.k, k: v });
+    play(motionLen(i, st).latest);
+  }
+  const downBtn = K.button({ label: 'Power down', secondary: true, into: '#tune', press: () => stepPower(-1) });
+  const upBtn = K.button({ label: 'Power up', secondary: true, into: '#tune', press: () => stepPower(1) });
+  const fDownBtn = K.button({ label: 'Front ÷ 10', secondary: true, into: '#tune', press: () => stepFront(-1) });
+  const fUpBtn = K.button({ label: 'Front × 10', secondary: true, into: '#tune', press: () => stepFront(1) });
+  function setMode(mode) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished) return;
+    if (d.kind === 'front') { if (mode === 'std' && st.k !== 0) { Object.assign(st, { prev: st.k, k: 0 }); play(motionLen(i, st).latest); } return; }
+    if (d.kind !== 'eng' || st.mode === mode) return;
+    Object.assign(st, { prev: st.n, prevMode: st.mode, mode });
+    play(motionLen(i, st).latest);
+  }
+  const stdBtn = K.button({ label: 'Standard form', secondary: true, into: '#mode', press: () => setMode('std') });
+  const engBtn = K.button({ label: 'Engineering', secondary: true, into: '#mode', press: () => setMode('eng') });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i] = blankFor(i);
+    play(motionLen(i, S[i]).latest);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blankFor(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer or a move; with reduced
+  // motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    motionEnd = dur + 0.05; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- timing ----------
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const vis = (t, d) => (t == null ? 1 : arr(t, d || 0.4));
+  // A slide from shift n0 through each segment [to, at, D]: one place every D seconds from 'at'.
+  function slideAt(n0, segs) {
+    let n = n0, out = null;
+    segs.forEach((sg) => {
+      const to = sg[0], t0 = sg[1], D = sg[2], k = Math.abs(to - n), dir = Math.sign(to - n);
+      for (let j = 0; j < k; j++) {
+        const a = arr(t0 + j * D, D);
+        if (out == null && a < 1) out = n + dir * K.ease(Math.max(0, a));
+        n += dir;
+      }
+    });
+    return out == null ? n : out;
+  }
+  // An answer's slide: from 0 through each target, quick enough to land within about 2 s.
+  function tryTimes(path, o) {
+    let prev = 0, total = 0;
+    path.forEach((to) => { total += Math.abs(to - prev); prev = to; });
+    const D = Math.min(0.4, 1.5 / Math.max(1, total)), segs = [];
+    let t = o + 0.45;
+    prev = 0;
+    path.forEach((to) => { const k = Math.abs(to - prev); if (k) { segs.push([to, t, D]); t += k * D + 0.15; } prev = to; });
+    return { segs, end: segs.length ? t - 0.15 : o + 0.45 };
+  }
+  function tryRow(key, v, path, cls, label, o) {
+    o = o || 0;
+    const tt = tryTimes(path, o), nEnd = path.length ? path[path.length - 1] : 0;
+    return { key, v, n: slideAt(0, tt.segs), nEnd, from: 0, cls, a: vis(o + 0.1, 0.35), la: vis(tt.end + 0.05, 0.35), label, end: tt.end };
+  }
+  // A sum: each of its digits falls from the row above that holds it, then the zeros fill in.
+  function dropRow(key, v, src, cls, label, o) {
+    o = o || 0;
+    const d = dec(v), drops = {};
+    for (let k = 0; k < d.sig.length; k++) drops[d.top - k] = { from: src[d.top - k], a: arr(o + 0.2 + 0.45 * k, 0.55) };
+    const tz = o + 0.2 + 0.45 * (d.sig.length - 1) + 0.55;
+    return { key, v, n: 0, cls, a: vis(o + 0.1, 0.35), drops, za: vis(tz, 0.4), la: vis(tz + 0.1, 0.35), label, end: tz };
+  }
+
+  // ---------- each step's rows and lines in its state ----------
+  function bSlide(d, st) {
+    const mv = st.prev != null, from = mv ? st.prev : d.demo[0], to = mv ? st.n : d.demo[1];
+    const tin = mv ? null : 0.4, act = mv ? 0 : 1.3, D = mv ? 0.5 : 0.75;
+    const n = slideAt(from, [[to, act, D]]), r = Math.round(n), end = act + Math.abs(to - from) * D;
+    return { hdr: vis(tin, 0.5),
+      rows: [{ key: 'front', v: d.F, cls: 'fr', a: vis(tin, 0.5), label: 'front number ' + fnum(d.F) },
+        { key: 'num', v: d.F, n, nEnd: to, from: 0, cls: 'ans', a: vis(tin == null ? null : tin + 0.45, 0.5), label: slidLabel(d.F, r, d.u) }],
+      work: slideLines(d.F, to).map((l, m) => ({ l, t: end + 0.1 + 0.25 * m })) };
+  }
+  function bFront(d, st) {
+    const mv = st.prev != null, tin = mv ? null : 0.4;
+    const segs = mv ? [[st.k, 0, 0.5]] : [[1, 1.0, 0.55], [-1, 2.0, 0.55], [0, 3.4, 0.55]];
+    const k = slideAt(mv ? st.prev : 0, segs), r = Math.round(k), end = mv ? 0.5 * Math.abs(st.k - st.prev) : 3.95;
+    const v = mul(d.F, d.n), kk = mv ? st.k : 0, Fk = mul(d.F, kk);
+    const work = [L(sci(Fk, d.n - kk) + ' = ' + plain(v))];
+    if (kk) work.push(L(fnum(d.F) + (kk > 0 ? ' × 10 = ' : ' ÷ 10 = ') + fnum(Fk) + ' and ' + int(d.n) + (kk > 0 ? ' − 1 = ' : ' + 1 = ') + int(d.n - kk)));
+    return { hdr: vis(tin, 0.5),
+      rows: [{ key: 'front', v: d.F, n: k, nEnd: kk, from: 0, cls: 'fr', a: vis(tin, 0.5),
+        label: 'front number ' + fnum(mul(d.F, r)) + ', with 10' + sup(d.n - r) + (r === 0 ? ': standard form' : '') },
+      { key: 'num', v, cls: 'q', a: vis(tin == null ? null : tin + 0.45, 0.5), label: 'the number, held at ' + plain(v) }],
+      work: work.map((l, m) => ({ l, t: end + 0.1 + 0.25 * m })) };
+  }
+  // Engineering notation keeps the power a multiple of 3: the front number slides 0, 1 or 2 places.
+  const fOf = (n, mode) => (mode === 'eng' ? n - 3 * Math.floor(n / 3) : 0);
+  function bEng(d, st) {
+    const mv = st.prev != null, tin = mv ? null : 0.4, u = d.u;
+    let n0 = 0, f0 = 0, nsegs = [], fsegs = [], end;
+    if (!mv) {
+      let f = 0;
+      [-1, -2, -3].forEach((to, j) => { const t = 1.1 + 0.95 * j, ft = fOf(to, 'eng'); nsegs.push([to, t, 0.8]); fsegs.push([ft, t, 0.8 / Math.max(1, Math.abs(ft - f))]); f = ft; });
+      end = 1.1 + 0.95 * 2 + 0.8;
+    } else {
+      n0 = st.prev; f0 = fOf(st.prev, st.prevMode || st.mode);
+      const f1 = fOf(st.n, st.mode), D = 0.6;
+      nsegs = [[st.n, 0, 0.55]]; fsegs = [[f1, 0, D / Math.max(1, Math.abs(f1 - f0))]];
+      end = Math.max(Math.abs(st.n - st.prev) * 0.55, f1 !== f0 ? D : 0);
+    }
+    const n = slideAt(n0, nsegs), f = slideAt(f0, fsegs), rn = Math.round(n);
+    const mode = mv ? st.mode : 'eng', nE = mv ? st.n : -3;
+    const mc = mode === 'eng' ? 3 * Math.floor(rn / 3) : rn, Fc = mul(d.F, rn - mc);
+    const mE = mode === 'eng' ? 3 * Math.floor(nE / 3) : nE, FE = mul(d.F, nE - mE), vE = mul(d.F, nE);
+    const work = mode === 'eng'
+      ? [L(plain(vE) + ' ' + u + ' = ' + sci(FE, mE) + ' ' + u + ' = ' + fnum(FE) + ' ' + PRE[mE] + u),
+        L(mE ? '1 ' + PRE[mE] + u + ' = 10' + sup(mE) + ' ' + u + ' = ' + plain(tenTo(mE)) + ' ' + u : '10⁰ = 1')]
+      : [L(plain(vE) + ' ' + u + ' = ' + sci(FE, mE) + ' ' + u), slideLines(1, mE)[0]];
+    return { hdr: vis(tin, 0.5),
+      rows: [{ key: 'front', v: d.F, n: f, nEnd: fOf(nE, mode), from: 0, cls: 'fr', a: vis(tin, 0.5),
+        label: mode === 'eng' ? sci(Fc, mc) + ' ' + u + (mc ? ' = ' + fnum(Fc) + ' ' + PRE[mc] + u : ', no prefix') : sci(Fc, mc) + ' ' + u + ', standard form' },
+      { key: 'num', v: d.F, n, nEnd: nE, from: 0, cls: 'ans', a: vis(tin == null ? null : tin + 0.45, 0.5), label: 'the current: ' + plain(mul(d.F, rn)) + ' ' + u,
+        pfx: mode === 'eng' ? mc : null, pfxA: K.clamp(1 - 2 * Math.abs(n - rn), 0, 1) }],
+      work: work.map((l, m) => ({ l, t: end + 0.1 + 0.25 * m })) };
+  }
+  function bMul(d) {
+    const m = d.m, t1 = 1.4, t2 = 2.6, D = 0.35;
+    const res = { key: 'res', v: m.P, n: slideAt(0, [[m.ap, t1, D], [m.pw, t2, D]]), nEnd: m.pw, from: 0, cls: 'ans', a: vis(1.0, 0.4) };
+    const r = Math.round(res.n), fin = T >= t2 + Math.abs(m.pw - m.ap) * D;
+    res.label = fin ? m.final : T >= t2 ? 'then × 10' + sup(m.bp) + ' for the ' + PRE[m.bp] + ': ' + places(Math.abs(m.pw - m.ap)) + (Math.sign(m.pw - m.ap) === -Math.sign(m.ap) ? ' back ' : ' ') + (m.pw > m.ap ? 'left' : 'right')
+      : T >= t1 ? 'then × 10' + sup(m.ap) + ' for the ' + PRE[m.ap] + ': ' + slid(r) : fnum(m.aF) + ' × ' + fnum(m.bF) + ' = ' + fnum(m.P) + ', not slid yet';
+    const q = m.q.map((x, k) => Object.assign({}, x, { a: vis(0.4 + 0.3 * k, 0.4) }));
+    const end = t2 + Math.abs(m.pw - m.ap) * D;
+    return { hdr: vis(0.4, 0.5), rows: q.concat([res]), work: m.lines.map((l, k) => ({ l, t: end + 0.1 + 0.2 * k })) };
+  }
+  function bAdd(d) {
+    const a = d.a, slipV = mul(a.aF + a.bF, a.ap + a.bp);
+    const q = a.q.map((x, k) => Object.assign({}, x, { a: vis(0.4 + 0.4 * k, 0.4) }));
+    const sum = dropRow('sum', a.vs, a.src, 'ans', sci(a.sF, a.sd.top) + ' = ' + plain(a.vs) + ': same places added', 1.2);
+    const slip = { key: 'slip', v: slipV, cls: 'bad', a: vis(3.0, 0.45), label: 'powers added: ' + sci(a.aF + a.bF, a.ap + a.bp) + ' = ' + plain(slipV) };
+    const work = a.lines.map((l, k) => ({ l, t: 2.9 + 0.25 * k })).concat([{ l: L(sci(a.aF + a.bF, a.ap + a.bp) + ' = ' + plain(slipV), B), t: 3.6 }]);
+    return { hdr: vis(0.4, 0.5), rows: q.concat([sum, slip]), work };
+  }
+  // A puzzle: its given rows, and once checked the right answer's slide or the wrong pick's own row.
+  function bDo(d, st) {
+    const rows = d.q.map((x) => Object.assign({}, x));
+    let work = [];
+    if ((st.res === 'right' || st.res === 'wrong') && st.pick != null) {
+      const right = st.res === 'right', s = right ? d.tries.right : d.tries[st.pick], cls = right ? 'ans' : 'bad';
+      let endT;
+      if (s.moveQ) {
+        const R = rows.find((x) => x.key === s.moveQ), tt = tryTimes(s.path, 0);
+        R.n = slideAt(0, tt.segs); R.nEnd = s.path[s.path.length - 1]; R.from = 0;
+        if (T >= tt.end) R.label = s.label;
+        R.cls = 'ans';
+        endT = tt.end;
+      } else {
+        const r = s.drop ? dropRow(d.slot, s.v, s.src, cls, s.label) : tryRow(d.slot, s.v, s.path || [], cls, s.label);
+        if (s.off) r.off = true;
+        rows.push(r);
+        endT = r.end;
+      }
+      work = s.lines.map((l, m) => ({ l, t: right ? endT + 0.1 + 0.2 * m : 0.25 + 0.25 * m }));
+    }
+    return { hdr: 1, rows, work };
+  }
+  function build(d, st) {
+    if (d.kind === 'slide') return bSlide(d, st);
+    if (d.kind === 'front') return bFront(d, st);
+    if (d.kind === 'eng') return bEng(d, st);
+    if (d.kind === 'mul') return bMul(d, st);
+    if (d.kind === 'add') return bAdd(d, st);
+    return bDo(d, st);
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' }, String(s)));
+  function head(x, y, dx, cls) {
+    const s = 7, w = 4, dir = dx < 0 ? -1 : 1;
+    add(K.svg('path', { class: cls, d: 'M' + r3(x) + ' ' + r3(y) + ' L' + r3(x - dir * s) + ' ' + r3(y - w) + ' L' + r3(x - dir * s) + ' ' + r3(y + w) + ' Z' }));
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 13 * 0.6;
+  }
+  const odd = (p) => ((PMAX - p) % 2 + 2) % 2 === 1;   // the column headings take two rows, alternately
+
+  function drawHeader(G, a, ext) {
+    part(a, 0, () => {
+      for (let p = PMAX; p >= PMIN; p--) {
+        const y = odd(p) ? 34 : 14;
+        text(cx(p), y, '10' + sup(p), 'hd' + (p === 0 ? ' u' : ''));
+        line('tk', cx(p), y + 4, cx(p), 44);
+      }
+    });
+    [XMAX, XMIN].forEach((p) => {
+      if (ext[p] > 0) part(Math.min(a, ext[p]), 0, () => { const y = odd(p) ? 34 : 14; text(cx(p), y, '10' + sup(p), 'hd'); line('tk', cx(p), y + 4, cx(p), 44); });
+    });
+    if (G.tags) part(a, 0, () => [6, 3, -3, -6].forEach((p) => { text(cx(p), 60, PRE[p], 'ptag'); REC.tags.push({ p, s: PRE[p] }); }));
+  }
+
+  function drawRow(R, y0, G) {
+    const yb = y0 + 19, base = yb + 22, c = R.cls, bad = c === 'bad', d = dec(R.v);
+    const nEnd = R.nEnd != null ? R.nEnd : R.n, fin = cellsOf(mul(R.v, nEnd));
+    const shown = {};
+    part(R.a, 0, () => {
+      rect('band', 30, yb, 280, 30, 3);
+      rect('unit', cx(0) - 9.5, yb + 0.5, 19, 29, 0);
+      for (let p = PMAX; p > PMIN; p--) if (p !== 0) line('sep', cx(p) + 10, yb + 5, cx(p) + 10, yb + 25);
+      [XMAX, XMIN].forEach((p) => { if (fin[p]) rect('xc', cx(p) - 10, yb, 20, 30, 0); });
+      line('ptl', PX, yb + 4, PX, yb + 26);
+      add(K.svg('circle', { class: 'pt', cx: PX, cy: base, r: 2.6 }));
+      if (R.pfx != null && R.pfxA > 0) part(R.pfxA, 0, () => rect('pfx', cx(R.pfx) - 9, yb + 2, 18, 26, 3));
+    });
+    if (R.a > 0) {
+      // the row's own digits, sliding (or falling from the row above)
+      for (let k = 0; k < d.sig.length; k++) {
+        const p = d.top - k + R.n, dr = R.drops && R.drops[d.top - k];
+        let a = R.a * K.clamp(p - (XMIN - 1), 0, 1) * K.clamp(XMAX + 1 - p, 0, 1), y = base;
+        if (dr) { y = K.lerp(dr.y0, base, K.ease(dr.a)); a = Math.min(a, K.clamp(dr.a * 3, 0, 1)); }
+        if (a > 0) part(a, 0, () => text(cx(p), y, d.sig[k], 'dg ' + c));
+        if (a >= 0.5 && Math.abs(p - Math.round(p)) < 1e-6 && (!dr || dr.a >= 1)) shown[Math.round(p)] = d.sig[k];
+      }
+      // zeros holding the empty places, fading in as the digits clear them and out as digits arrive
+      const lo = Math.floor(R.n + 1e-9), hi = Math.ceil(R.n - 1e-9), zl = cellsOf(mul(R.v, lo)), zh = cellsOf(mul(R.v, hi));
+      for (let p = XMAX; p >= XMIN; p--) {
+        const inL = !!(zl[p] && zl[p].z), inH = !!(zh[p] && zh[p].z);
+        if (!inL && !inH) continue;
+        let a = inL && inH ? 1 : K.clamp(1 - 2 * Math.abs(R.n - (inL ? lo : hi)), 0, 1);
+        a *= R.a * (R.za == null ? 1 : R.za);
+        if (a > 0) part(a, 0, () => text(cx(p), base, '0', 'zr' + (bad ? ' bad' : '')));
+        if (a >= 0.5) shown[p] = '0';
+      }
+      if (R.pfx != null && R.pfxA > 0) {
+        const low = d.top - d.sig.length + 1 + Math.round(R.n), za = R.a * R.pfxA;
+        for (let p = Math.min(low - 1, -1); p >= R.pfx; p--) {
+          part(za, 0, () => text(cx(p), base, '0', 'zr' + (bad ? ' bad' : '')));
+          if (za >= 0.5) shown[p] = '0';
+        }
+      }
+      // how far it has slid, an arrow under it from where its first digit started
+      if (G.lane[R.key] && R.from != null) {
+        const x1 = cx(d.top + R.from), x2 = Math.max(14, Math.min(336, cx(d.top + R.n)));
+        if (Math.abs(x2 - x1) > 3) part(R.a, 0, () => {
+          line('ln' + (bad ? ' bad' : ''), x1, yb + 34, x1, yb + 42);
+          line('ln' + (bad ? ' bad' : ''), x1, yb + 38, x2 - (x2 > x1 ? 3 : -3), yb + 38);
+          head(x2, yb + 38, x2 - x1, 'lnh' + (bad ? ' bad' : ''));
+        });
+      }
+    }
+    const la = R.a * (R.la == null ? 1 : R.la);
+    if (la > 0 && R.label) part(la, 0, () => text(XL, y0 + 13, R.label, 'rl ' + c, 'start'));
+    REC.rows.push({ key: R.key, cls: c, n: R.n, v: mul(R.v, Math.round(R.n)), cells: shown, label: la >= 0.5 ? R.label : null, off: !!R.off, pfx: R.pfx == null ? null : R.pfx });
+    return (R.label && la >= 0.5 ? say(R.label) : 'A row of the strip') + '.';
+  }
+
+  // ---------- the key, inside the drawing ----------
+  const KEYS = { pt: 'the point, fixed', z: 'a zero holding an empty place', bad: 'a wrong pick', x: 'a place past the strip', pfx: 'the prefix\'s place, under its letter' };
+  const keyItems = (d) => ['pt', 'z'].concat(!d.show || d.slipRow ? ['bad'] : []).concat(d.ext ? ['x'] : []).concat(d.kind === 'eng' ? ['pfx'] : []);
+  function keyLayout(ks) {
+    let x = XL, row = 0;
+    return ks.map((k) => {
+      const w = 26 + tw(KEYS[k], 'key');
+      if (x > XL && x + w > XR) { x = XL; row++; }
+      const it = { k, x, row };
+      x += w + 16;
+      return it;
+    });
+  }
+  function drawKey(G, a) {
+    part(a, 0, () => keyLayout(G.keys).forEach((it) => {
+      const yk = G.keyY + it.row * 22, x = it.x;
+      if (it.k === 'pt') { line('ptl', x + 9, yk - 9, x + 9, yk + 7); add(K.svg('circle', { class: 'pt', cx: x + 9, cy: yk + 4, r: 2.6 })); }
+      else if (it.k === 'z') text(x + 9, yk + 6, '0', 'zr');
+      else if (it.k === 'bad') text(x + 9, yk + 6, '7', 'dg bad');
+      else if (it.k === 'pfx') rect('pfx', x + 1, yk - 9, 16, 18, 3);
+      else rect('xc', x + 1, yk - 8, 16, 16, 0);
+      text(x + 26, yk + 5, KEYS[it.k], 'key', 'start');
+    }));
+  }
+
+  // ---------- each step's sizes ----------
+  const GEO = new Map();
+  function geo(i) {
+    if (GEO.has(i)) return GEO.get(i);
+    const d = STEPS[i], G = { tags: !!d.tags, ys: {}, lane: {} };
+    let y = d.tags ? 66 : 50;
+    d.slots.forEach((sl) => { G.ys[sl[0]] = y; G.lane[sl[0]] = !!sl[1]; y += sl[1] ? 68 : 56; });
+    G.keys = keyItems(d);
+    const rows = 1 + Math.max(...keyLayout(G.keys).map((it) => it.row));
+    G.keyY = y + 8; y += rows * 22 + 6;
+    G.workY = y; y += d.nl * LH + 8;
+    G.Hpx = Math.ceil(y);
+    GEO.set(i, G);
+    return G;
+  }
+  // A line of working.
+  function drawWork(l, yy, a) {
+    const cls = l.bad ? ' bad' : l.mu ? ' mu' : '';
+    part(a, 6, () => text(XL, yy, l.t, 'wk' + cls, 'start'));
+    if (a >= 0.5) REC.work.push(l);
+    return a >= 0.5 ? say(l.t) + (l.bad ? ', a slip.' : '.') : '';
+  }
+  // The whole picture for a step now; returns it in words.
+  function drawScene(i, d, st, G) {
+    REC = { rows: [], work: [], tags: [] };
+    const Bd = build(d, st), ext = {};
+    ext[XMAX] = 0; ext[XMIN] = 0;
+    Bd.rows.forEach((R) => {
+      if (R.n == null) R.n = 0;
+      if (R.a == null) R.a = 1;
+      const f = cellsOf(mul(R.v, R.nEnd != null ? R.nEnd : R.n));
+      [XMAX, XMIN].forEach((p) => { if (f[p]) ext[p] = Math.max(ext[p], R.a); });
+    });
+    drawHeader(G, Bd.hdr, ext);
+    const said = ['A place-value strip from millions to ten-millionths, each column headed by what a digit there is worth, the decimal point fixed between the units and the tenths.'];
+    Bd.rows.forEach((R) => {
+      if (R.drops) Object.keys(R.drops).forEach((p) => { R.drops[p].y0 = G.ys[R.drops[p].from] + 41; });
+      said.push(drawRow(R, G.ys[R.key], G));
+    });
+    drawKey(G, Bd.hdr);
+    Bd.work.forEach((w, m) => said.push(drawWork(w.l, G.workY + 18 + LH * m, vis(w.t, 0.35))));
+    return said.filter(Boolean).join(' ');
+  }
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], G = geo(i);
+    art.textContent = '';
+    into = null;
+    const open = !d.show && st.res !== 'right' && st.res !== 'wrong';
+    svg.setAttribute('viewBox', '0 0 340 ' + (open ? G.workY : G.Hpx));
+    svg.setAttribute('aria-label', drawScene(i, d, st, G));
+  }
+  // How long a step's motion takes in a state: the latest arrival, and the earliest start.
+  function motionLen(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity; latest = 0; earliest = Infinity;
+    try { paint(i); } finally { S[i] = keepS; T = keepT; }
+    return { latest, earliest };
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  PT.forEach((x) => el('pgrid').appendChild(K.el('div', { class: 'pc' }, K.el('b', null, x[0]), x[1], K.el('br', null), '10' + sup(x[2]))));
+  const PNOTE = 'c, centi, is `10⁻²`, as in cm. It is a prefix, but not a multiple of 3, so engineering notation leaves it out.';
+  write(el('pnote'), PNOTE);
+  K.update((pp) => {
+    const i = Math.round(pp.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { S[i] = blankFor(i); play(motionLen(i, S[i]).latest); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const sx = S[i], right = sx.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + (d.mixed ? ' · mixed' : '');
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    const pw = d.live && (d.kind === 'slide' || d.kind === 'eng'), fr = d.kind === 'front';
+    el('tune').hidden = finished || !(pw || fr);
+    downBtn.el.hidden = !pw; upBtn.el.hidden = !pw;
+    fDownBtn.el.hidden = !fr; fUpBtn.el.hidden = !fr;
+    downBtn.el.disabled = pw && sx.n <= d.lo;
+    upBtn.el.disabled = pw && sx.n >= d.hi;
+    fDownBtn.el.disabled = fr && sx.k <= -1;
+    fUpBtn.el.disabled = fr && sx.k >= 1;
+    el('mode').hidden = finished || !(fr || d.kind === 'eng');
+    engBtn.el.hidden = d.kind !== 'eng';
+    stdBtn.el.setAttribute('aria-pressed', (fr ? sx.k === 0 : sx.mode === 'std') ? 'true' : 'false');
+    engBtn.el.setAttribute('aria-pressed', sx.mode === 'eng' ? 'true' : 'false');
+    replayBtn.setLabel(d.replay || 'Play again');
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    el('ptab').hidden = !d.table;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((bt, k) => {
+      bt.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      bt.setLabel(opts[k]);
+      bt.el.setAttribute('aria-label', say(opts[k]));
+      bt.el.setAttribute('aria-pressed', sx.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : sx.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : sx.res === 'wrong' ? hintFor(i, sx) : sx.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !sx.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(sx.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const pickRight = (i, v) => isRight(i, Object.assign(blankFor(i), { pick: v }));
+  const solvedSt = (i) => Object.assign(blankFor(i), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blankFor(i), { pick: o, res: 'wrong' });
+  const liveSt = (i, o) => Object.assign(blankFor(i), o, { prev: o.n != null ? o.n : o.k, prevMode: o.mode || 'eng' });
+  const idx = (kind) => STEPS.findIndex((d) => d.kind === kind);
+  const rowOf = (g, key) => g.rows.find((r) => r.key === key);
+  // A line adds up: every part of each chain (chains joined by "and") is the same number.
+  function adds(l) {
+    return l.t.split(' and ').every((ch) => {
+      const parts = ch.split('=').map((x) => val(x));
+      return parts.length > 1 && parts.every((v) => close(v, parts[0], 1e-9));
+    });
+  }
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try {
+      paint(i);
+      return Object.assign({ texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) }, REC);
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // Every state worth looking at: each live setting, each demonstration, each answer.
+  function allStates() {
+    const out = [];
+    STEPS.forEach((d, i) => {
+      if (d.kind === 'slide' && d.live) for (let n = d.lo; n <= d.hi; n++) out.push([i, liveSt(i, { n })]);
+      else if (d.kind === 'front') [-1, 0, 1].forEach((k) => out.push([i, liveSt(i, { k })]));
+      else if (d.kind === 'eng') for (let n = d.lo; n <= d.hi; n++) ['eng', 'std'].forEach((mode) => out.push([i, liveSt(i, { n, mode })]));
+      if (d.show) out.push([i, blankFor(i)]);
+      else { out.push([i, blankFor(i)], [i, solvedSt(i)]); d.opts.filter((o) => o !== d.want).forEach((o) => out.push([i, wrongSt(i, o)])); }
+    });
+    return out;
+  }
+  const s0 = idx('slide'), s4 = idx('front'), s6 = idx('eng'), s8 = idx('mul');
+  const s9 = STEPS.findIndex((d) => d.name === 'Your turn with prefixes'), s5 = STEPS.findIndex((d) => d.name === 'Standard form');
+
+  K.check('So a negative power gives the reciprocal of the number, 1 over the number: on the first screen, at every power from −1 to −6, the strip reads 4.7 times 1 over that many 10s, and its line "10ⁿ = 1 ÷ …" adds up', () =>
+    [-1, -2, -3, -4, -5, -6].every((n) => {
+      const g = drawn(s0, liveSt(s0, { n })), r = rowOf(g, 'num');
+      return !!r && close(readBack(r), 4.7 * (1 / Math.pow(10, -n))) && g.work.length === 2 && adds(g.work[0]) && g.work[0].t.indexOf('1 ÷ ') > 0;
+    }), { source: SRC3 });
+  K.check('In standard form, numbers are recorded as a number between 1 and 10 multiplied by a power of ten: the Standard form view of the current at every power from −6 to 3, the front-number screen at 4.7 × 10⁻³, and the right answer to 470 × 10⁻⁵ each leave a front number from 1 up to 10 whose digits, slid by its power, are the number on the strip', () => {
+    for (let n = -6; n <= 3; n++) {
+      const g = drawn(s6, liveSt(s6, { n, mode: 'std' })), F = readBack(rowOf(g, 'front')), v = readBack(rowOf(g, 'num'));
+      if (!(F >= 1 && F < 10) || !close(mul(F, n), v)) return false;
+    }
+    const h = drawn(s4, liveSt(s4, { k: 0 })), F4 = readBack(rowOf(h, 'front'));
+    const q = drawn(s5, solvedSt(s5)), F5 = readBack(rowOf(q, 'front'));
+    return F4 >= 1 && F4 < 10 && close(mul(F4, -3), readBack(rowOf(h, 'num'))) && F5 >= 1 && F5 < 10 && close(mul(F5, -3), readBack(rowOf(q, 'num')));
+  }, { source: SRC4 });
+  K.check('Prefix symbols should be chosen so that numerical values are between 0.1 and 1000, and only prefixes for 10 raised to a multiple of 3 should be used: in Engineering notation, at every power from −6 to 3, the front number is from 1 up to 1000, its power is a multiple of 3 with that prefix (none at 10⁰), and front number × that power is the current on the strip', () => {
+    for (let n = -6; n <= 3; n++) {
+      const g = drawn(s6, liveSt(s6, { n, mode: 'eng' })), fr = rowOf(g, 'front'), F = readBack(fr), v = readBack(rowOf(g, 'num'));
+      const m = Math.round(Math.log10(v / F));
+      if (!(F >= 1 && F < 1000) || m % 3 !== 0 || !close(mul(F, m), v)) return false;
+      if (m !== 0 && !fr.label.endsWith(fnum(F) + ' ' + PRE[m] + 'A')) return false;
+      if (m === 0 && !/no prefix$/.test(fr.label)) return false;
+    }
+    return true;
+  }, { source: SRC2 });
+  K.check('Milli (symbol m) is a unit prefix denoting a factor of one thousandth (10⁻³): in Engineering notation at power −3 the current 0.0047 A reads 4.7 mA, and the line 1 mA = 10⁻³ A = 0.001 A adds up', () => {
+    const g = drawn(s6, liveSt(s6, { n: -3, mode: 'eng' })), fr = rowOf(g, 'front');
+    return close(readBack(rowOf(g, 'num')), 0.0047) && close(readBack(fr), 4.7) && fr.label.endsWith('4.7 mA') &&
+      g.work.some((l) => l.t === '1 mA = 10⁻³ A = 0.001 A' && adds(l)) && close(val('1 mA'), 0.001);
+  }, { source: SRC1 });
+  K.check('The base numbers are the same, so add the indices together (9³ × 9⁵ = 9⁸): 2 mA × 5 kΩ slides 3 places right for the m and 3 back for the k, landing on 10 × 10⁰ V = 10 V, and 4 mA × 2.2 kΩ lands on 8.8 V', () => {
+    const mid = rowOf(drawn(s8, blankFor(s8), 2.5), 'res'), g = rowOf(drawn(s8, blankFor(s8)), 'res'), h = rowOf(drawn(s9, solvedSt(s9)), 'res');
+    return close(val('9³ × 9⁵'), val('9⁸')) && mid.n === -3 && close(readBack(mid), 0.01) && g.n === 0 && close(readBack(g), 10) &&
+      g.label === 'the voltage: 10 × 10⁰ V = 10 V' && h.n === 0 && close(readBack(h), 8.8);
+  }, { source: SRC5 });
+  K.check('Any base to the power of zero equals 1: the first screen at power 0 shows 10⁰ = 1 and leaves 4.7 unslid, and 10 × 10⁰ V and 8.8 × 10⁰ V sit exactly where 10 and 8.8 sit', () => {
+    const g = drawn(s0, liveSt(s0, { n: 0 }));
+    return close(readBack(rowOf(g, 'num')), 4.7) && g.work[0].t === '10⁰ = 1' && close(val('10⁰'), 1) &&
+      close(val('10 × 10⁰'), 10) && close(val('8.8 × 10⁰'), 8.8);
+  }, { source: SRC6 });
+  K.check('giga G 10⁹, mega M 10⁶, kilo k 10³, centi c 10⁻², milli m 10⁻³, micro µ 10⁻⁶: the prefix table, the strip\'s tags and the reading of a prefixed unit give each of these its power, and the note gives centi 10⁻²', () =>
+    [['G', 9], ['M', 6], ['k', 3], ['m', -3], ['µ', -6]].every(([s, p]) => PRE[p] === s && PT.some((x) => x[0] === s && x[2] === p) && close(val('1 ' + s + 'A'), tenTo(p))) &&
+      PNOTE.indexOf('`10⁻²`') >= 0, { source: SRC7 });
+  K.check('For engineering notation the exponent is always a multiple of three, and E−9 = nano (n), E−12 = pico (p): every power in the prefix table is a multiple of 3, with n at 10⁻⁹ and p at 10⁻¹²', () =>
+    PT.every((x) => x[2] % 3 === 0) && PT.some((x) => x[0] === 'n' && x[2] === -9) && PT.some((x) => x[0] === 'p' && x[2] === -12) && close(val('1 nA'), 1e-9) && close(val('1 pF'), 1e-12), { source: SRC8 });
+  K.check('Each step up slides every digit exactly one place left: on the first screen the number at each power is 10 times the one at the power below, and the zeros only fill places between the digits and the point', () => {
+    for (let n = -6; n < 6; n++) {
+      const a = rowOf(drawn(s0, liveSt(s0, { n })), 'num'), b = rowOf(drawn(s0, liveSt(s0, { n: n + 1 })), 'num');
+      if (!close(readBack(b) / readBack(a), 10, 1e-9)) return false;
+      const ps = Object.keys(b.cells).map(Number), dig = ps.filter((p) => b.cells[p] !== '0');
+      const lo = Math.min(...dig, 0), hi = Math.max(...dig, 0);
+      if (ps.some((p) => p < lo || p > hi)) return false;
+    }
+    return true;
+  });
+  K.check('Every row drawn on every screen, in every state, reads back its own number from its digits, and every line of working adds up', () => {
+    const st = allStates();
+    let lines = 0;
+    const ok = st.every(([i, s]) => {
+      const g = drawn(i, s);
+      lines += g.work.length;
+      return g.rows.every((r) => r.off || close(readBack(r), r.v)) && g.work.every(adds);
+    });
+    return ok && lines > 80;
+  });
+  K.check('The prefix changes only at every third place: in Engineering notation from 10³ down to 10⁻⁶ the prefix runs k, then none three times, m three times, µ three times', () => {
+    const seq = [];
+    for (let n = 3; n >= -6; n--) { const fr = rowOf(drawn(s6, liveSt(s6, { n, mode: 'eng' })), 'front'); const m = /([kmµ])A$/.exec(fr.label); seq.push(m ? m[1] : '-'); }
+    return seq.join('') === 'k---mmmµµµ';
+  });
+  K.check('Each puzzle accepts only its right answer; the right answer\'s row lands on the number asked for; each wrong pick draws one row of its own in red, holding the number it names', () =>
+    DO.every((i) => {
+      const d = STEPS[i], vo = d.valOf || val, want = vo(d.want);
+      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || !d.opts.every((o) => pickRight(i, o) === (o === d.want))) return false;
+      const g = drawn(i, solvedSt(i));
+      if (g.rows.some((r) => r.cls === 'bad') || !g.rows.some((r) => close(r.v, want))) return false;
+      const g0 = drawn(i, blankFor(i));
+      if (g0.rows.length !== d.q.length || g0.work.length) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => {
+        const w = drawn(i, wrongSt(i, o)), bad = w.rows.filter((r) => r.cls === 'bad');
+        if (bad.length !== 1 || !close(bad[0].v, vo(o)) || !(bad[0].off || close(readBack(bad[0]), vo(o)))) return false;
+        return !close(vo(o), want) || (d.sameValue || []).indexOf(o) >= 0;
+      });
+    }));
+  K.check('Every demonstration has arrived within 5 s of its screen opening, nothing before the 0.35 s screen fade; every answer\'s motion, and every move on a live screen, within 3 s', () => {
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const m = motionLen(i, blankFor(i)); return m.latest <= 5 && m.earliest >= FADE; }
+      return motionLen(i, solvedSt(i)).latest <= 3 && d.opts.filter((o) => o !== d.want).every((o) => motionLen(i, wrongSt(i, o)).latest <= 3);
+    }) && motionLen(s0, Object.assign(blankFor(s0), { prev: 3, n: 4 })).latest <= 3 &&
+      motionLen(s4, Object.assign(blankFor(s4), { prev: 0, k: 1 })).latest <= 3 &&
+      motionLen(s6, Object.assign(blankFor(s6), { prev: -3, prevMode: 'eng', n: -4 })).latest <= 3 &&
+      motionLen(s6, Object.assign(blankFor(s6), { prev: -2, prevMode: 'eng', n: -2, mode: 'std' })).latest <= 3;
+    paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

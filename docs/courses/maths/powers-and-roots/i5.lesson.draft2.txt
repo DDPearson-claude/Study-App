@@ -1,0 +1,406 @@
+{
+  "iid": "i5",
+  "title": "Powers of ten and prefixes",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the digits of 4.7 sliding three places right past a fixed point to 0.0047, which is 4.7 × 10⁻³ A or 4.7 mA, when you step the power down to −3.",
+    "title": "Slide the digits",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on a place-value strip. Each column is one place, headed by what a digit there is worth, from millions on the left to ten-millionths on the right, and the decimal point is fixed between the units and the tenths. Under the strip the same number is written as a front number times a power of ten. On the first screen a stepper sets the power, n, from −6 to 6, opening at 0 with 4.7 on the strip. Each step up multiplies by 10, and multiplying by 10 makes every digit worth ten times as much, which is what the place on its left is worth, so every digit slides one place left and the point stays put. Three steps up give 4.7 × 10³ = 4700, with zeros holding the empty places. Screen 3 steps down: each step divides by 10, as in lesson 2, so the digits slide right, and 4.7 × 10⁻³ = 0.0047. Screen 5 holds the number at 0.0047 and slides only the front number: 47 × 10⁻⁴, 4.7 × 10⁻³ and 0.47 × 10⁻² are all 0.0047, because a front number 10 times bigger goes with a power one smaller. A Standard form switch snaps it to one figure before the point, 4.7 × 10⁻³. Screen 7 adds an Engineering notation switch, which snaps the power to a multiple of 3, with 1 up to 1000 in front, and shows the prefix for that power. Its stepper runs n from −6 to 3 in amps, opening at 0 on 4.7 A. Stepping down gives 470 mA, 47 mA and 4.7 mA, then 470 µA, 47 µA and 4.7 µA, and stepping up gives 47 A, 470 A and 4.7 kA, so the digits slide every step and the prefix changes only at every third step. 10⁰ has no prefix. A small table lists the prefixes: G 10⁹, M 10⁶, k 10³, m 10⁻³, µ 10⁻⁶, n 10⁻⁹ and p 10⁻¹², with centi, 10⁻², set apart as a prefix that is not a multiple of 3. Screen 9 multiplies with prefixes: 2 mA through 5 kΩ is 2 × 10⁻³ × 5 × 10³, the front numbers multiply to 10 and the powers add to 0, so 10 × 10⁰ = 10 V. Screen 11 adds: 4 × 10³ + 5 × 10², the first slid to 40 × 10², so the powers match, then 45 × 10² = 4.5 × 10³. Screen 11 also shows the slip of adding the powers: 9 × 10⁵ would be 900,000, far from 4500. Screens 1, 3, 5, 7, 9 and 11 show an idea, and screens 2, 4, 6, 8 and 10 ask you to try it: 3.2 × 10⁴ written out, the power for 0.0047 A, 470 × 10⁻⁵ in standard form, 0.000047 F with a prefix, and 4 mA through 2.2 kΩ. Screens 12 and 13 mix them: two loads of 3 × 10⁴ W and 2 × 10³ W added, and 9 V across 1.5 kΩ, where dividing takes the powers away, 10⁰ ÷ 10³ = 10⁻³. A puzzle offers three answers, and a wrong pick shows its slip in red on the strip beside the right one, so you can see how many places apart they are.",
+    "ignores": "The strip runs from millions to ten-millionths only; bigger and smaller numbers need more places and work the same way. The digits slide and the point stays fixed; moving the point the other way gives the same answer. Every number is exact here, while a measured value carries only the figures that were measured: 4700 written out does not show whether its zeros were measured, and 4.7 × 10³ shows two figures. Only the prefixes in the table are drawn; others exist, such as deci and hecto, and like centi they are not multiples of 3. The currents, resistances and voltages are examples.",
+    "numbers": [
+      {
+        "label": "Opening number on the strip, in step 1",
+        "value": 4.7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Opening power n, in step 1",
+        "value": 0,
+        "kind": "assumed"
+      },
+      {
+        "label": "Lowest power on the stepper, in step 1",
+        "value": -6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Highest power on the stepper, in step 1",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "4.7 × 10³, in step 1",
+        "value": 4700,
+        "kind": "computed"
+      },
+      {
+        "label": "Places slid for 10³, in step 1",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "3.2 × 10⁴, in step 2",
+        "value": 32000,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 32 with four zeros, in step 2",
+        "value": 320000,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 3.2 × 4, in step 2",
+        "value": 12.8,
+        "kind": "computed"
+      },
+      {
+        "label": "10⁴, in step 2",
+        "value": 10000,
+        "kind": "computed"
+      },
+      {
+        "label": "4.7 × 10⁻³, in step 3",
+        "value": 0.0047,
+        "kind": "computed"
+      },
+      {
+        "label": "Power for 0.0047 A, in step 4",
+        "value": -3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: zeros after the point counted, in step 4",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: sign lost, in step 4",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Front number 47 with 10⁻⁴, in step 5",
+        "value": 47,
+        "kind": "computed"
+      },
+      {
+        "label": "Front number 0.47 with 10⁻², in step 5",
+        "value": 0.47,
+        "kind": "computed"
+      },
+      {
+        "label": "Front number of 470 × 10⁻⁵, in step 6",
+        "value": 470,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slip: power moved the wrong way, 10⁻⁷, in step 6",
+        "value": -7,
+        "kind": "computed"
+      },
+      {
+        "label": "Lowest power on the stepper, in step 7",
+        "value": -6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Highest power on the stepper, in step 7",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Milli, m",
+        "value": 0.001,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Kilo, k",
+        "value": 1000,
+        "kind": "constant"
+      },
+      {
+        "label": "Mega, M",
+        "value": 1000000,
+        "kind": "constant"
+      },
+      {
+        "label": "Micro, µ",
+        "value": 1e-06,
+        "kind": "constant"
+      },
+      {
+        "label": "Giga, G",
+        "value": 1000000000,
+        "kind": "constant"
+      },
+      {
+        "label": "Nano, n",
+        "value": 1e-09,
+        "kind": "constant"
+      },
+      {
+        "label": "Pico, p",
+        "value": 1e-12,
+        "kind": "constant"
+      },
+      {
+        "label": "Centi, c",
+        "value": 0.01,
+        "kind": "constant"
+      },
+      {
+        "label": "NIST: smallest front number with a prefix",
+        "value": 0.1,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "NIST: front number below 1000",
+        "value": 1000,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Capacitor value 0.000047 F, in step 8",
+        "value": 4.7e-05,
+        "kind": "assumed"
+      },
+      {
+        "label": "In microfarads, in step 8",
+        "value": 47,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 4.7 µF, one place out, in step 8",
+        "value": 4.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Current in mA, in step 9",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Resistance in kΩ, in step 9",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Voltage 2 mA × 5 kΩ in V, in step 9",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Current in mA, in step 10",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Resistance in kΩ, in step 10",
+        "value": 2.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Voltage 4 mA × 2.2 kΩ in V, in step 10",
+        "value": 8.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: powers multiplied, −3 × 3, in step 10",
+        "value": -9,
+        "kind": "computed"
+      },
+      {
+        "label": "4 × 10³ + 5 × 10² = 4.5 × 10³, in step 11",
+        "value": 4500,
+        "kind": "computed"
+      },
+      {
+        "label": "Front number after matching, 40, in step 11",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Front numbers added, 45, in step 11",
+        "value": 45,
+        "kind": "computed"
+      },
+      {
+        "label": "Load 3 × 10⁴ W, in step 12",
+        "value": 30000,
+        "kind": "assumed"
+      },
+      {
+        "label": "Load 2 × 10³ W, in step 12",
+        "value": 2000,
+        "kind": "assumed"
+      },
+      {
+        "label": "Total 3.2 × 10⁴ W, in step 12",
+        "value": 32000,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 5 × 10⁷, powers added, in step 12",
+        "value": 50000000,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 5 × 10⁴, in step 12",
+        "value": 50000,
+        "kind": "computed"
+      },
+      {
+        "label": "Supply in V, in step 13",
+        "value": 9,
+        "kind": "assumed"
+      },
+      {
+        "label": "Resistance in kΩ, in step 13",
+        "value": 1.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Current 9 V ÷ 1.5 kΩ in mA, in step 13",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy: price in pounds",
+        "value": 4700,
+        "kind": "assumed"
+      },
+      {
+        "label": "Analogy breaks: £2m and 2 mΩ",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: 0.00047 A = 4.7 × 10⁻⁴ A",
+        "value": 0.00047,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: 470 × 10⁻⁶ A in µA",
+        "value": 470,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: coil resistance in kΩ",
+        "value": 4.7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: coil current in mA",
+        "value": 2.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: voltage in V",
+        "value": 11.75,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: 330 µF in F",
+        "value": 0.00033,
+        "kind": "computed"
+      },
+      {
+        "label": "Calculator: 9 ÷ 1.5 × 10 ^ 3 slip",
+        "value": 6000,
+        "kind": "computed"
+      },
+      {
+        "label": "Calculator: 9 ÷ 1.5 ×10ˣ 3",
+        "value": 0.006,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip in step 11: 9 × 10⁵, powers added",
+        "value": 900000,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 4.7 × 10⁻⁷ written out, in step 6",
+        "value": 4.7e-07,
+        "kind": "computed"
+      },
+      {
+        "label": "0.0047 ÷ 0.00000047, times smaller",
+        "value": 10000,
+        "kind": "computed"
+      },
+      {
+        "label": "Sum 30,000 + 2,000 in W, in step 12",
+        "value": 32000,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Multiplying by a power of ten slides the digits past a fixed decimal point, one place for each 10, and each power of ten that is a multiple of 3, other than 0, has a short name in front of the unit, so 0.0047 A is 4.7 × 10⁻³ A, or 4.7 mA. Start from place value. In 4.7 the 4 stands for four units and the 7 for seven tenths. Multiply by 10 and each digit is worth ten times as much, which is exactly what the place on its left is worth, so every digit slides one place left and the decimal point stays where it is. 10³ is three 10s multiplied, as in lesson 1, so 4.7 × 10³ slides the digits three places left, to 4700, and zeros hold the empty places. A negative power gives one over the number,[^10] so 10⁻³ is one over 1000, a thousandth, and 4.7 × 10⁻³ slides the digits three places right, to 0.0047.\n\nBecause the digits can slide either way, one number can be written many ways: 0.0047 is 47 × 10⁻⁴, 4.7 × 10⁻³ and 0.47 × 10⁻². Make the front number 10 times bigger and the power must drop by one to keep the same number, so a bigger front number goes with a smaller power. Move the power the same way as the front number and the number changes: 470 × 10⁻⁵ is 0.0047, but 4.7 × 10⁻⁷ is 0.00000047, ten thousand times smaller. [[Standard form]] settles on one of these: a number between 1 and 10 multiplied by a power of ten.[^1] Textbooks add that 1 is allowed and 10 is not, so 0.0047 is 4.7 × 10⁻³, and 47 × 10⁻⁴, with two figures before the point, is the same number but not standard form.\n\nIn electrical work the power is usually kept to a multiple of 3, because each of those other than 0 has a [[prefix]], a letter in front of the unit that stands for that power of ten. Milli, m, is a thousandth, 10⁻³,[^3] so 4.7 × 10⁻³ A is 4.7 mA. Textbooks add that kilo, k, is 10³, mega, M, is 10⁶ and micro, µ, is 10⁻⁶, and further out giga is 10⁹, nano 10⁻⁹ and pico 10⁻¹². NIST's guide to the SI recommends using only the prefixes for powers of ten that are multiples of 3, chosen so the number in front is between 0.1 and 1000.[^2] Textbooks call writing a number with the power a multiple of 3 and 1 up to 1000 in front [[engineering notation]]. So the prefix changes only at every third place: 4.7 mA, 47 mA, 470 mA, then 4.7 A. Centi, as in cm, is 10⁻²: a prefix, but not one engineering notation uses. A prefix is a power of ten, so lesson 1's laws work on it. Multiplying adds the powers:[^5] 2 mA × 5 kΩ is 2 × 10⁻³ × 5 × 10³ = 10 × 10⁰, and any base to the power of zero equals 1,[^9] so that is 10 V. Dividing takes the powers away: 9 V ÷ 1.5 kΩ is 9 ÷ 1.5 = 6 with 10⁰ ÷ 10³ = 10⁻³, so 6 × 10⁻³ A = 6 mA. Adding is different, because only the front numbers add, and only when the powers match: 3 × 10⁴ + 2 × 10³ = 30 × 10³ + 2 × 10³ = 32 × 10³ = 3.2 × 10⁴, which is 30,000 + 2,000 = 32,000. Adding the powers instead gives 5 × 10⁷, which is 50,000,000.\n\n**Multiplying by 10ⁿ slides the digits n places, left for a positive n and right for a negative one, and each power that is a multiple of 3, other than 0, has a prefix, so 0.0047 A = 4.7 × 10⁻³ A = 4.7 mA.[^3]**"
+  },
+  "analogy": {
+    "text": "On a price or a pay offer you may have seen £4,700 written as £4.7k. That is the same move: the k stands for 1000, so the digits slide three places and the k carries the difference, just as 4,700 Ω is 4.7 kΩ.",
+    "breaks": "In money, m often means a million, as in £2m. In units, small m is milli, a thousandth, and capital M is mega, a million, so 2 mΩ is two thousandths of an ohm and 2 MΩ is two million ohms. Units are strict about capitals where everyday writing is not."
+  },
+  "practice": {
+    "text": "To write a number in standard form:\n- Slide the digits until one figure other than zero sits before the point: 0.00047 becomes 4.7.\n- Count the places you slid. That count is the size of the power.\n- Make the power negative if the number is less than 1, and positive if it is 10 or more: 0.00047 = 4.7 × 10⁻⁴.\n\nTo give it a prefix:\n- Move the power down to the nearest multiple of 3, sliding the digits to match: 4.7 × 10⁻⁴ = 470 × 10⁻⁶.\n- Swap the power for its prefix: 470 × 10⁻⁶ A = 470 µA. A power of 0 needs no prefix.\n- Check by sliding back: a bigger front number must go with a smaller power.\n\n**Rule of thumb:** A number of 10 or more has a positive power, a number below 1 a negative power, and a number from 1 up to 10 has 10⁰. Kilo and milli cancel, 10³ × 10⁻³ = 10⁰ = 1, so milliamps times kilohms gives volts. Kilo times micro is milli, 10³ × 10⁻⁶ = 10⁻³.\n\n**On a calculator** (not from this lesson's sources): enter a number in standard form with the ×10ˣ key (EXP or EE on some calculators), which keeps it together as one number. 9 ÷ 1.5 ×10ˣ 3 gives 0.006. Typed as 9 ÷ 1.5 × 10 ^ 3, the calculator works out 9 ÷ 1.5 first and then multiplies by 1000, giving 6000. With ordinary keys, put brackets round the whole number: 9 ÷ (1.5 × 10 ^ 3).\n\n**Worked example:** Say a relay coil of 4.7 kΩ carries 2.5 mA. The voltage across it is V = I × R = 2.5 × 10⁻³ A × 4.7 × 10³ Ω. Multiply the front numbers, 2.5 × 4.7 = 11.75, and add the powers, −3 + 3 = 0, so V = 11.75 × 10⁰ V = 11.75 V. And a 330 µF capacitor? 330 × 10⁻⁶ F = 3.3 × 10⁻⁴ F = 0.00033 F.\n\n**Common mistakes**\n- Two figures before the point: 47 × 10⁻⁴ is the right number but not standard form; it is 4.7 × 10⁻³.\n- Moving the power the same way as the front number: 470 × 10⁻⁵ is 4.7 × 10⁻³, not 4.7 × 10⁻⁷. A smaller front number needs a bigger power.\n- Counting zeros instead of places: 0.0047 has two zeros after the point but is 4.7 × 10⁻³.\n- Adding the powers in a sum: 3 × 10⁴ + 2 × 10³ is 3.2 × 10⁴, not 5 × 10⁷.\n- Mixing up m and M: 1 mΩ is a thousandth of an ohm, 1 MΩ a million ohms. And kilo is a small k: kV, not KV."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    {
+      "n": 1,
+      "title": "What is standard index form in maths? - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zh4ny4j",
+      "quote": "In standard form, numbers are recorded as a number between 1 and 10 multiplied by a power of ten. This is also called standard index form or scientific notation"
+    },
+    {
+      "n": 2,
+      "title": "NIST Guide to the SI, Chapter 7: Rules and Style Conventions for Expressing Values of Quantities | NIST",
+      "url": "https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-7-rules-and-style-conventions-expressing-values",
+      "quote": "prefix symbols should be chosen in such a way that numerical values are between 0.1 and 1000, and that only prefix symbols that represent the number 10 raised to a power that is a multiple of 3 should be used."
+    },
+    {
+      "n": 3,
+      "title": "Milli- - Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Milli-",
+      "quote": "Milli (symbol m ) is a unit prefix in the metric system denoting a factor of one thousandth (10 −3 )."
+    },
+    {
+      "n": 5,
+      "title": "Laws of indices for multiplication and division - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/z93nsk7",
+      "quote": "The base numbers are the same (9), so add the indices together (3 + 5 = 8). 9³ x 9⁵ = 9⁸"
+    },
+    {
+      "n": 9,
+      "title": "Negative and fractional indices - GCSE Maths Revision - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zrqr7v4",
+      "quote": "Any base to the power of zero equals 1 and any base to the power of one is the base itself."
+    },
+    {
+      "n": 10,
+      "title": "Engineer cadets maths refresher — Solent University Warsash",
+      "url": "https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf",
+      "quote": "So a negative power gives the reciprocal of the number — that is, 1 over the number."
+    }
+  ],
+  "confidence": "settled",
+  "contested": null
+}
