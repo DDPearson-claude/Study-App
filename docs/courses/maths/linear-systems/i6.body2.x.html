@@ -1,0 +1,1362 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; }
+  .scene #art * { pointer-events: none; }
+  /* The counter above it all. */
+  .scene .cw { font: 400 14px var(--k-font); fill: var(--k-muted); }
+  .scene .cn { font: 700 26px var(--k-font); fill: var(--k-accent2); }
+  .scene .cl { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .cg { fill: var(--k-fill1); }
+  /* The rows: terms in columns, a stepper's setting, the add or take-away sign. */
+  .scene .eq { font: 700 18px var(--k-font); fill: var(--k-ink); }
+  .scene .eq.q { fill: var(--k-muted); }
+  .scene .eq.bad { fill: var(--k-warn); }
+  .scene .op { font: 700 22px var(--k-font); fill: var(--k-accent2); }
+  .scene .bdg { font: 700 17px var(--k-font); fill: var(--k-accent2); }
+  .scene .idx { font: 700 15px var(--k-font); fill: var(--k-accent); }
+  .scene .rule { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .rbox { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .slot { fill: none; stroke: var(--k-line); stroke-width: 1.5; }
+  .scene .hlb { fill: var(--k-hl); }
+  .scene .glow { fill: var(--k-fill1); }
+  .scene .lc { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .ld { font: 700 13px var(--k-font); fill: var(--k-warn); }
+  .scene .lm { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .how { font: 700 14px var(--k-font); fill: var(--k-accent); letter-spacing: .03em; }
+  .scene .pl { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .kl { font: 700 13px var(--k-font); fill: var(--k-accent); letter-spacing: .08em; }
+  .scene .st { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .st.bad { fill: var(--k-warn); }
+  .scene .ck { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .ck.bad { fill: var(--k-warn); }
+  /* The small circuit from lesson 5. */
+  .scene .wr { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .pp { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .ps { stroke: var(--k-ink); stroke-width: 5; }
+  .scene .rs { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .jd { fill: var(--k-ink); }
+  .scene .jr { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .ch { fill: var(--k-ink); }
+  .scene .rt { fill: none; stroke: var(--k-accent2); stroke-opacity: .25; stroke-width: 8; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .lv { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .ci { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tn { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  /* The small graph from Elimination. */
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .gf { fill: none; stroke: var(--k-strong); stroke-width: 1; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .at { font: italic 600 14px var(--k-font); fill: var(--k-muted); }
+  .scene .r1 { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .r2 { stroke: var(--k-accent2); stroke-width: 2.5; stroke-dasharray: 7 5; fill: none; }
+  .scene .ls { stroke: var(--k-accent2); stroke-width: 4; stroke-dasharray: 0.1 6.5; stroke-linecap: round; fill: none; }
+  .scene .xr { fill: none; stroke: var(--k-ink); stroke-width: 2; }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .keq { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .kst { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .kst.m { fill: var(--k-muted); }
+  /* The steppers and the switch, drawn on the picture beside the rows they change. */
+  .scene .sb { cursor: pointer; }
+  .scene .sb:focus { outline: none; }
+  .scene .sb:focus-visible .sbf { stroke: var(--k-accent); stroke-width: 3; }
+  .scene .sbf { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .sbt { font: 700 22px var(--k-font); fill: var(--k-ink); pointer-events: none; }
+  .scene .sw .sbt { font-size: 14px; }
+  .scene .sb.hot .sbf { fill: var(--k-fill1); stroke: var(--k-accent2); }
+  .scene .sb.off { cursor: default; }
+  .scene .sb.off .sbf { stroke: var(--k-line); }
+  .scene .sb.off .sbt { fill: var(--k-muted); }
+  .scene .sw.on .sbf { fill: var(--k-accent2); stroke: var(--k-accent2); }
+  .scene .sw.on .sbt { fill: var(--k-on-accent2); }
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; }
+  /* The working under the picture: one line per move, its name on the left. */
+  .work { position: relative; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 3px 12px; padding: 4px 0 4px 15px; line-height: 1.45; }
+  .work .bar { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 2px; background: var(--k-accent2); }
+  .work.keep { min-height: 6.2em; align-content: start; }
+  .work .wl { color: var(--k-muted); font-size: .85rem; font-weight: 700; padding-top: .12rem; }
+  .work .wm { font-weight: 600; }
+  .work .pc { white-space: nowrap; }
+  .work .pc.ok { color: var(--k-accent2); font-weight: 700; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stack one to a row, each label whole. */
+  .row.picks { flex-direction: column; gap: 8px; }
+  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; font-size: 1.1rem; padding-inline: 10px; white-space: nowrap; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .pz.ask .fb:empty { min-height: 0; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead" id="lead">Three example equations in x, y and z, stacked as rows, with a counter above of the unknowns and equations still in play.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 358" width="100%" role="img" aria-label="Three equations stacked as rows, with a counter above"><defs><clipPath id="gclip"><rect x="30" y="290" width="96" height="168"></rect></clipPath></defs><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="work" id="work"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Every equation is an example. On screens that show an idea, try the steppers and the switch yourself.</p>
+
+<script>
+  // ---------- numbers, written as the lesson writes them ----------
+  const r6 = (v) => Math.round(v * 1e6) / 1e6;
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const near = (a, b, t) => Math.abs(a - b) <= (t == null ? 1e-9 : t);
+  const num = (v) => { v = r6(v); return v < 0 ? '−' + String(-v) : String(v); };
+  // 2x, −y, + 3z, − 2I₃
+  function termT(k, L, first) {
+    const mag = Math.abs(k), body = mag === 1 ? L : num(mag) + L;
+    return first ? (k < 0 ? '−' : '') + body : (k < 0 ? ' − ' : ' + ') + body;
+  }
+  // 1 + 4 − 3
+  const valsT = (list) => list.map((v, n) => (n === 0 ? num(v) : v < 0 ? ' − ' + num(-v) : ' + ' + num(v))).join('');
+  const ALL3 = [0, 1, 2];
+  const LX = ['x', 'y', 'z'], LI = ['I₁', 'I₂', 'I₃'];
+  // A row is [x, y, z, right side]. Its equation leaves out the letters it has no term in.
+  function eqT(row, L, idx) {
+    const t = (idx || ALL3).filter((n) => row[n] !== 0);
+    return (t.length ? t.map((n, j) => termT(row[n], L[n], j === 0)).join('') : '0') + ' = ' + num(row[3]);
+  }
+  // A row's cells: one per letter, a 0 where it has no term in that letter, then its right side.
+  const cellsOf = (row, L, idx) => (idx || ALL3).map((n, j) => (row[n] === 0 ? (j ? '+ 0' : '0') : termT(row[n], L[n], j === 0).trim())).concat([num(row[3])]);
+  const rowStr = (row, L, idx) => { const c = cellsOf(row, L, idx); return c.slice(0, -1).join(' ') + ' = ' + c[c.length - 1]; };
+  const fits = (row, v) => near(ALL3.reduce((a, n) => a + (row[n] ? row[n] * v[n] : 0), 0), row[3], 1e-6);
+  // Answers put into a row: 1 + 4 − 3 = 2 ✓, or what the row needs.
+  function checkT(row, v) {
+    const vs = ALL3.filter((n) => row[n] !== 0).map((n) => r6(row[n] * v[n])), tot = r6(vs.reduce((a, b) => a + b, 0));
+    return valsT(vs) + ' = ' + num(tot) + (near(tot, row[3], 1e-6) ? ' ✓' : ', not ' + num(row[3]));
+  }
+
+  // ---------- the rule: scale two rows, add or take away, and see which letter cancels ----------
+  const scaleR = (row, k) => row.map((v) => v * k);
+  const MV = (p, q, kp, kq, op) => ({ p, q, kp, kq, op });
+  const sumRow = (A, B, op) => A.map((v, n) => v + (op === 'add' ? 1 : -1) * B[n]);
+  // The two rows of a pair at their steppers; a row tried in a puzzle replaces row p as written.
+  function partsOf(s, mv, tried) {
+    return [tried && tried.n === mv.p ? tried.row : scaleR(s.R[mv.p - 1], mv.kp), scaleR(s.R[mv.q - 1], mv.kq)];
+  }
+  const resOf = (s, mv, tried) => { const P2 = partsOf(s, mv, tried); return sumRow(P2[0], P2[1], mv.op); };
+  // For each letter: 'cancel' when its term is 0 in the sum. When no letter cancels (the slip), a letter
+  // whose matching terms add up instead is marked 'double'; beside a cancelled letter that is no slip.
+  function marksOf(A, B, U, idx) {
+    const m = idx.map((n) => (U[n] === 0 && (A[n] !== 0 || B[n] !== 0) ? 'cancel' : null)), any = m.some(Boolean);
+    return idx.map((n, j) => m[j] || (!any && A[n] !== 0 && Math.abs(A[n]) === Math.abs(B[n]) && Math.abs(U[n]) === 2 * Math.abs(A[n]) ? 'double' : null));
+  }
+  // A result row drops into the new stack when exactly one letter cancels.
+  function dropsMv(s, mv) {
+    if (!mv.op) return false;
+    const P2 = partsOf(s, mv), U = sumRow(P2[0], P2[1], mv.op), mk = marksOf(P2[0], P2[1], U, ALL3);
+    return mk.filter((m) => m === 'cancel').length === 1 && ALL3.some((n) => U[n] !== 0);
+  }
+  const mvLabel = (mv) => 'Row ' + mv.p + (mv.kp > 1 ? ' × ' + mv.kp : '') + (mv.op === 'add' ? ' + ' : ' − ') + 'row ' + mv.q + (mv.kq > 1 ? ' × ' + mv.kq : '');
+  // The counter: the letters still in play, and how many of the rows say something new.
+  function rankOf(rows) {
+    const M = rows.map((r) => r.slice());
+    let rk = 0;
+    for (let c = 0; c < 4 && rk < M.length; c++) {
+      let piv = -1;
+      for (let r = rk; r < M.length; r++) if (Math.abs(M[r][c]) > 1e-9) { piv = r; break; }
+      if (piv < 0) continue;
+      const tmp = M[rk]; M[rk] = M[piv]; M[piv] = tmp;
+      for (let r = 0; r < M.length; r++) if (r !== rk) { const f = M[r][c] / M[rk][c]; for (let k = 0; k < 4; k++) M[r][k] -= f * M[rk][k]; }
+      rk++;
+    }
+    return rk;
+  }
+  function countOf(rows, L) {
+    const used = ALL3.filter((n) => rows.some((r) => Math.abs(r[n]) > 1e-9));
+    return { u: used.length, e: rankOf(rows), L: used.map((n) => L[n]) };
+  }
+  const det3 = (m) => m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+  function solve3(R) {
+    const M = R.map((r) => r.slice(0, 3)), D = det3(M);
+    return ALL3.map((c) => r6(det3(M.map((r, i) => r.map((v, j) => (j === c ? R[i][3] : v)))) / D));
+  }
+
+  // ---------- the circuit from lesson 5: the junction law and the loop law round each loop ----------
+  const circRows = (C) => [[1, 1, -1, 0], [C.r1, 0, C.R, C.E1], [0, C.r2, C.R, C.E2]];
+  const C1 = { E1: 12, r1: 1, E2: 12, r2: 2, R: 2 }, C2 = { E1: 14, r1: 1, E2: 10, r2: 1, R: 1 };
+  // A loop's walk: the battery's voltage, less current × resistance across its own resistance and the load.
+  const loopEnd = (C, k, I) => (k === 1 ? C.E1 - C.r1 * I[0] - C.R * I[2] : C.E2 - C.r2 * I[1] - C.R * I[2]);
+
+  // ---------- the sets of three rows. m: the two removals (first, second); el: the elimination steppers;
+  // back: which new row (0 top, 1 bottom) the found letter goes back into; third: the row for the last letter.
+  const SYS = {
+    ex: { L: LX, R: [[1, 1, 1, 6], [2, -1, 1, 3], [1, 2, -1, 2]], m: [MV(1, 3, 1, 1, 'add'), MV(2, 3, 1, 1, 'add')], el: { k1: 3, k2: 1, op: 'take' }, back: 0, third: 1 },
+    ci: { L: LI, C: C1, R: circRows(C1), m: [MV(1, 3, 2, 1, 'add'), MV(1, 2, 2, 1, 'add')], el: { k1: 2, k2: 1, op: 'take' }, back: 0, third: 2 },
+    s9: { L: LX, R: [[1, 1, 1, 9], [1, 2, -1, 4], [3, -1, 2, 11]], m: [MV(1, 2, 1, 1, 'add'), MV(2, 3, 2, 1, 'add')], el: { k1: 1, k2: 1, op: 'take' }, back: 1, third: 1 },
+    pr: { L: LX, R: [[2, 1, 1, 7], [1, -1, 2, 5], [3, 1, -1, 2]], m: [MV(1, 2, 1, 1, 'add'), MV(2, 3, 1, 1, 'add')], el: { k1: 3, k2: 1, op: 'take' }, back: 0, third: 1 },
+    c2: { L: LI, C: C2, R: circRows(C2), m: [MV(1, 3, 1, 1, 'add'), MV(1, 2, 1, 1, 'add')], el: { k1: 2, k2: 1, op: 'take' }, back: 0, third: 2 },
+  };
+  // Each new row drops on top of the new stack, so the second removal sits above the first.
+  const stackOf = (s) => [resOf(s, s.m[1]), resOf(s, s.m[0])];
+  const keepOf = (top, bot) => ALL3.filter((n) => top[n] !== 0 || bot[n] !== 0);
+  function routeOf(s, set) {
+    const st2 = stackOf(s), top = st2[0], bot = st2[1], keep = keepOf(top, bot);
+    return { top, bot, keep, gone: ALL3.filter((n) => keep.indexOf(n) < 0)[0], U: sumRow(scaleR(top, set.k1), scaleR(bot, set.k2), set.op) };
+  }
+  function crossOf(top, bot, keep) {
+    const u = keep[0], v = keep[1], D = top[u] * bot[v] - bot[u] * top[v], P = [];
+    P[u] = r6((top[3] * bot[v] - bot[3] * top[v]) / D); P[v] = r6((top[u] * bot[3] - bot[u] * top[3]) / D);
+    return P;
+  }
+  const pairT = (P, keep) => '(' + num(P[keep[0]]) + ', ' + num(P[keep[1]]) + ')';
+  const unitOf = (s) => (s.C ? ' A' : '');
+  // The values found, put back into a row for the letter it still needs: 3 + y = 5, so y = 5 − 3 = 2.
+  function backT(row, L, vals, unk, unit) {
+    let left = '', first = true;
+    const known = [];
+    ALL3.forEach((n) => {
+      if (row[n] === 0) return;
+      if (n === unk) left += termT(row[n], L[n], first);
+      else { const v = r6(row[n] * vals[n]); known.push(v); left += first ? num(v) : v < 0 ? ' − ' + num(-v) : ' + ' + num(v); }
+      first = false;
+    });
+    const k = row[unk], rest = r6(row[3] - known.reduce((a, b) => a + b, 0)), res = r6(rest / k);
+    const diff = num(row[3]) + known.map((v) => (v < 0 ? ' + ' + num(-v) : ' − ' + num(v))).join('') + ' = ' + num(rest);
+    return left + ' = ' + num(row[3]) + ', so ' + (k === 1 ? L[unk] + ' = ' + diff + unit
+      : termT(k, L[unk], true) + ' = ' + diff + ' and ' + L[unk] + ' = ' + num(rest) + ' ÷ ' + (k < 0 ? '(' + num(k) + ')' : num(k)) + ' = ' + num(res) + unit);
+  }
+  const opWord = (op) => (op === 'add' ? 'Add' : 'Take away');
+  // The answer the step down reaches with these elimination settings.
+  function valsOf(s, set) {
+    const R0 = routeOf(s, set), U = R0.U, left = R0.keep.filter((n) => U[n] !== 0);
+    if (left.length !== 1) return null;
+    const a = left[0], b = R0.keep.filter((n) => n !== a)[0], v = [];
+    v[a] = r6(U[3] / U[a]);
+    const bRow = s.back === 0 ? R0.top : R0.bot, tr = s.R[s.third - 1];
+    v[b] = r6((bRow[3] - bRow[a] * v[a]) / bRow[b]);
+    v[R0.gone] = r6((tr[3] - tr[a] * v[a] - tr[b] * v[b]) / tr[R0.gone]);
+    return { v, a, b, bRow, tr, R0 };
+  }
+  // The working for the two new rows: the sum row, the letter left solved, then put back.
+  function workB(s, set, full) {
+    const R0 = routeOf(s, set), U = R0.U, L = s.L, unit = unitOf(s), out = [{ l: opWord(set.op), s: eqT(U, L, R0.keep) }], V = valsOf(s, set);
+    if (!V) {
+      const P = crossOf(R0.top, R0.bot, R0.keep);
+      out.push({ l: 'At ' + pairT(P, R0.keep), s: checkT(U, P) });
+      out.push({ l: 'So', s: 'both letters are still there', prose: true });
+      return out;
+    }
+    const k = U[V.a];
+    if (k !== 1) out.push({ l: 'Solve', s: L[V.a] + ' = ' + num(U[3]) + ' ÷ ' + (k < 0 ? '(' + num(k) + ')' : num(k)) + ' = ' + num(V.v[V.a]) + unit });
+    if (full >= 1) out.push({ l: 'Put back', s: backT(V.bRow, L, V.v, V.b, unit) });
+    if (full >= 2) out.push({ l: 'Row ' + s.third, s: backT(V.tr, L, V.v, R0.gone, unit) });
+    return out;
+  }
+  const removals = (s) => s.m.map((mv) => ({ l: mvLabel(mv), s: eqT(resOf(s, mv), s.L) }));
+  // The working for one removal: the result row, and whether a letter has gone.
+  function workA(s, mv) {
+    const P2 = partsOf(s, mv), U = sumRow(P2[0], P2[1], mv.op), mk = marksOf(P2[0], P2[1], U, ALL3), gone = ALL3.filter((n) => mk[n] === 'cancel');
+    return [{ l: opWord(mv.op), s: eqT(U, s.L) }, { l: 'So', s: gone.length === 1 ? s.L[gone[0]] + ' is gone' : 'no letter is gone', prose: true }];
+  }
+  function rhsWork(s, mv, rhs) {
+    const a = s.R[mv.p - 1][3] * mv.kp, b = s.R[mv.q - 1][3] * mv.kq, U = resOf(s, mv);
+    U[3] = rhs;
+    return [{ l: opWord(mv.op), s: eqT(U, s.L) }, { l: 'Right side', s: num(a) + ' + ' + num(b) + ' = ' + num(a + b) + ', not ' + num(a) + ' − ' + num(b) + ' = ' + num(a - b) }];
+  }
+  function triedWork(s, mv, tried) {
+    return [{ l: opWord(mv.op), s: eqT(resOf(s, mv, tried), s.L) },
+      { l: 'Row ' + tried.n + ' × ' + mv.kp, s: (mv.kp === 2 ? 'every term doubles, ' : 'every term times ' + mv.kp + ', ') + eqT(scaleR(s.R[tried.n - 1], mv.kp), s.L) }];
+  }
+  const trip = (s, v) => (s.C ? v.map((x) => num(x) + ' A').join(', ') : '(' + v.map(num).join(', ') + ')');
+  const ansT = (s, v) => s.L.map((L, n) => L + ' = ' + num(v[n]) + unitOf(s)).join(', ');
+  const mvWord = (s, mv) => { const U = resOf(s, mv), g = ALL3.filter((n) => U[n] === 0)[0], m0 = s.m[0]; return s.L[g] + ' from rows ' + mv.p + ' and ' + mv.q + (mv.p === m0.p && mv.q === m0.q ? ' again' : ''); };
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const AK = (t, o) => Object.assign({ at: t }, o);
+  const K0 = { k1: 1, k2: 1, k3: 1, op: null }, B0 = { k1: 1, k2: 1, op: null };
+  const PICK = 'Tap one of the answers.';
+  const FB = 2.5, FADE = 0.35, DROP = 0.5;
+  const STEPS = [
+    { show: true, kind: 'showA', name: 'Remove one letter', sys: 'ex', mv: 0, pairAt: 0.4, keys: [AK(-10, K0), AK(0.9, { op: 'add' })], fill: 1.1, cg: 0.25, drop: 2.9, rowsAt: 2.3, dur: 4.0,
+      text: 'Three equations in x, y and z are stacked as rows, so the counter reads 3 unknowns and 3 equations. Rows 1 and 3 hold `+z` and `−z`, so adding them cancels z. `2x + 3y = 8` drops into a new stack.' },
+    { kind: 'drop', name: 'Remove it again', sys: 'ex',
+      opts: ['x − 3y + 2z = 1', '3x + y = 5', '3x + y = 1'], want: '3x + y = 5',
+      vals: { 'x − 3y + 2z = 1': [1, -3, 2, 1], '3x + y = 5': [3, 1, 0, 5], '3x + y = 1': [3, 1, 0, 1] },
+      fx: { 'x − 3y + 2z = 1': { mv: MV(2, 3, 1, 1, 'take') }, '3x + y = 1': { mv: MV(2, 3, 1, 1, 'add'), rhs: 1 } },
+      task: 'Now remove z from rows 2 and 3. Which row drops into the new stack?',
+      why: 'Row 2 has `+z` and row 3 has `−z`, opposite signs, so add them. `2x + x = 3x`, `−y + 2y = y`, `z − z = 0` and `3 + 2 = 5`. Now both new rows hold only x and y, so the counter reads 2 and 2. In one study, on one problem, 76% of students misjudged the operations to use when eliminating.',
+      hint: 'Not quite. Look at the signs of the z terms.',
+      hints: { 'x − 3y + 2z = 1': 'Not quite. Taking away leaves `z − (−z) = 2z`, so z doubles. Opposite signs, so add.', '3x + y = 1': 'Not quite. Add the right sides too, `3 + 2`, not `3 − 2`.' } },
+    { show: true, kind: 'slide', name: 'Two and two', sys: 'ex', bkeys: [AK(-10, B0), AK(1.6, { k1: 2 }), AK(2.0, { k1: 3 }), AK(2.5, { op: 'take' })], fill: 2.8, cg: 0.3, lineAt: 3.7, full: 0, rowsAt: 3.5, rowG: 0.3, dur: 4.5,
+      text: 'Both new rows hold only x and y, so they slide into the picture from Elimination. Three times the top row, `9x + 3y = 15`, take away the bottom row, leaves `7x = 7`, so x = 1. Each removal takes away one unknown and one equation, which is *stepping down*.' },
+    { kind: 'back', name: 'Put them back', sys: 'ex',
+      opts: ['(1, 8, −3)', '(1, 2, 5)', '(1, 2, 3)'], want: '(1, 2, 3)', vals: { '(1, 8, −3)': [1, 8, -3], '(1, 2, 5)': [1, 2, 5], '(1, 2, 3)': [1, 2, 3] },
+      task: 'x = 1. Put it back into `3x + y = 5` for y, then x and y into row 1 for z. Which is (x, y, z)?',
+      why: '`3 + y = 5`, so y = 5 − 3 = 2. Then row 1 gives `1 + 2 + z = 6`, so z = 6 − 1 − 2 = 3. All three rows fit (1, 2, 3).',
+      hint: 'Not quite. Find y first, then z.',
+      hints: { '(1, 8, −3)': 'Not quite. `3 + y = 5` gives y = 5 − 3, not 5 + 3. (1, 8, −3) fits row 1 but not rows 2 and 3.', '(1, 2, 5)': 'Not quite. Row 1 holds y too, so `1 + 2 + z = 6`, not `1 + z = 6`.' } },
+    { show: true, kind: 'check', name: 'Check all three', sys: 'ex', checksAt: [0.6, 1.4, 2.2], rowsAt: 2.6, dur: 3.4,
+      text: 'Put (1, 2, 3) into all three rows, because a slip can fit one row and fail another. Row 3 gives `1 + 2 × 2 − 3 = 2`, and rows 1 and 2 fit as well.' },
+    { kind: 'which', name: 'The same letter', sys: 'ex',
+      opts: ['y from rows 1 and 2', 'z from rows 1 and 3 again', 'z from rows 2 and 3'], want: 'z from rows 2 and 3',
+      vals: { 'y from rows 1 and 2': MV(1, 2, 1, 1, 'add'), 'z from rows 1 and 3 again': MV(1, 3, 1, 1, 'add'), 'z from rows 2 and 3': MV(2, 3, 1, 1, 'add') },
+      task: 'Back to the start, with `2x + 3y = 8` from rows 1 and 3. Which second removal lets the new stack slide on?',
+      why: 'Take the same letter from a different pair. Rows 2 and 3 added give `3x + y = 5`, so both new rows hold x and y, 2 unknowns in 2 equations. Taking y from rows 1 and 2 instead gives `3x + 2z = 9`, and the two new rows would still hold x, y and z.',
+      hint: 'Not quite. Remove the same letter, from a different pair.',
+      hints: { 'y from rows 1 and 2': 'Not quite. That leaves `3x + 2z = 9`, so the new rows hold x, y and z, 3 unknowns in 2 equations.', 'z from rows 1 and 3 again': 'Not quite. That gives `2x + 3y = 8` again, the same fact twice, and row 2 is never used.' } },
+    { show: true, kind: 'showA', name: 'The circuit', sys: 'ci', mv: 0, pairAt: 1.5, keys: [AK(-10, K0), AK(1.9, { k1: 2 }), AK(2.3, { op: 'add' })], fill: 2.5, cg: 0.2, drop: 4.0, rowsAt: 3.3, glow: [0.4, 0.75, 1.1], routes: [0.75, 1.1], ring: 0.4, dur: 5.0,
+      text: 'Lesson 5\'s circuit again, with all three currents kept as unknowns. The junction law gives row 1, and the loop law round each loop gives rows 2 and 3. Row 1 at × 2 holds `−2I₃`, so adding row 3 removes I₃.' },
+    { kind: 'drop', name: 'Remove I₃ again', sys: 'ci',
+      opts: ['2I₁ + I₂ + I₃ = 12', '3I₁ + 2I₂ = 12', '2I₁ + I₂ = 12'], want: '3I₁ + 2I₂ = 12',
+      vals: { '2I₁ + I₂ + I₃ = 12': [2, 1, 1, 12], '3I₁ + 2I₂ = 12': [3, 2, 0, 12], '2I₁ + I₂ = 12': [2, 1, 0, 12] },
+      fx: { '2I₁ + I₂ + I₃ = 12': { mv: MV(1, 2, 1, 1, 'add') }, '2I₁ + I₂ = 12': { mv: MV(1, 2, 2, 1, 'add'), tried: { n: 1, row: [1, 1, -2, 0] } } },
+      task: 'Now remove I₃ from rows 1 and 2. Which row drops into the new stack?',
+      why: 'Row 1 at × 2 is `2I₁ + 2I₂ − 2I₃ = 0`, every term doubled. Add row 2, `I₁ + 2I₃ = 12`, and `−2I₃ + 2I₃ = 0`, leaving `3I₁ + 2I₂ = 12`. Both new rows now hold only I₁ and I₂.',
+      hint: 'Not quite. Make the I₃ terms opposites first.',
+      hints: { '2I₁ + I₂ + I₃ = 12': 'Not quite. At × 1, `−I₃ + 2I₃` leaves I₃. Scale row 1 by 2 first.', '2I₁ + I₂ = 12': 'Not quite. × 2 multiplies every term, so `I₁ + I₂` becomes `2I₁ + 2I₂`.' } },
+    { show: true, kind: 'slide', name: 'Solve the circuit', sys: 'ci', bkeys: [AK(-10, B0), AK(1.6, { k1: 2 }), AK(2.0, { op: 'take' })], fill: 2.2, cg: 0.25, lineAt: 3.0, full: 2, rowsAt: 2.9, rowG: 0.3, checksAt: [3.9, 4.1, 4.3], dur: 4.8,
+      text: 'Both new rows hold only I₁ and I₂, so they slide into the picture from Elimination. Twice the top row, take away the bottom row, leaves `4I₁ = 12`, so I₁ = 3 A. Putting it back gives I₂ = 1.5 A, and row 2 then gives I₃ = 4.5 A.' },
+    { kind: 'solve', name: 'Your turn', sys: 's9',
+      opts: ['(3, 3, 3)', '(2, 3, 4)', '(4, 3, 2)'], want: '(2, 3, 4)', vals: { '(3, 3, 3)': [3, 3, 3], '(2, 3, 4)': [2, 3, 4], '(4, 3, 2)': [4, 3, 2] },
+      task: 'Solve `x + y + z = 9`, `x + 2y − z = 4` and `3x − y + 2z = 11`. Which is (x, y, z)?',
+      why: 'Rows 1 and 2 added give `2x + 3y = 13`, and row 2 at × 2 added to row 3 gives `5x + 3y = 19`. Take away, and `3x = 6`, so x = 2. Then `4 + 3y = 13`, so y = 3, and row 1 gives z = 9 − 2 − 3 = 4.',
+      hint: 'Not quite. Remove z twice, then put back and check all three rows.',
+      hints: { '(3, 3, 3)': 'Not quite. (3, 3, 3) fits row 1, but row 2 gives `3 + 6 − 3 = 6`, not 4.', '(4, 3, 2)': 'Not quite. Answers go in order, x first. (4, 3, 2) gives `4 + 6 − 2 = 8` in row 2, not 4.' } },
+    { kind: 'solve', name: 'Another', sys: 'pr',
+      opts: ['x = 1, z = 3', '(1, −2, 3)', '(1, 2, 3)'], want: '(1, 2, 3)', vals: { 'x = 1, z = 3': { half: [0, 2], v: [1, 3] }, '(1, −2, 3)': [1, -2, 3], '(1, 2, 3)': [1, 2, 3] },
+      task: 'Solve `2x + y + z = 7`, `x − y + 2z = 5` and `3x + y − z = 2`. Which is (x, y, z)?',
+      why: 'y is `−y` in row 2 and `+y` in rows 1 and 3, so add row 2 to each. That gives `3x + 3z = 12` and `4x + z = 7`. Three times the second, take away the first, and `9x = 9`, so x = 1. Then z = 7 − 4 = 3, and row 1 gives y = 7 − 2 − 3 = 2.',
+      hint: 'Not quite. y is quickest to remove.',
+      hints: { 'x = 1, z = 3': 'Not quite. That is two of the three. Put them back into row 1 for y.', '(1, −2, 3)': 'Not quite. Mind the minus. Row 2 is `1 − y + 6 = 5`, so y = 2.' } },
+    { kind: 'solve', name: 'Last one', sys: 'c2',
+      opts: ['6 A, 2 A, 4 A', '5 A, 3 A, 9 A', '6 A, 2 A, 8 A'], want: '6 A, 2 A, 8 A', vals: { '6 A, 2 A, 4 A': [6, 2, 4], '5 A, 3 A, 9 A': [5, 3, 9], '6 A, 2 A, 8 A': [6, 2, 8] },
+      task: 'Last one, with the new batteries. Which currents I₁, I₂ and I₃ fit all three rows?',
+      why: 'Row 1 plus row 3 gives `I₁ + 2I₂ = 10`, and row 1 plus row 2 gives `2I₁ + I₂ = 14`. Twice that, take away the first, and `3I₁ = 18`, so I₁ = 6 A. Then I₂ = 14 − 12 = 2 A, and row 2 gives I₃ = 14 − 6 = 8 A. Bigger networks, with many loops, are solved with matrices, in the Matrices course.',
+      done: 'That\'s it. Bigger networks, with many loops, are solved with matrices, in the Matrices course.',
+      hint: 'Not quite. Remove I₃ twice, then put back.',
+      hints: { '6 A, 2 A, 4 A': 'Not quite. The junction says I₃ = I₁ + I₂, so I₃ = 6 + 2, not 6 − 2.', '5 A, 3 A, 9 A': 'Not quite. That fits loop 1, but loop 2 gives `3 + 9 = 12`, not 10.' } },
+  ];
+  const cv = (C) => 'Battery 1 is ' + num(C.E1) + ' V with ' + num(C.r1) + ' Ω inside it, battery 2 is ' + num(C.E2) + ' V with ' + num(C.r2) + ' Ω inside it, and the load is ' + num(C.R) + ' Ω.';
+  const LEADS = { 0: 'Three example equations in x, y and z, stacked as rows, with a counter above of the unknowns and equations still in play.',
+    6: 'Lesson 5\'s example circuit. ' + cv(C1), 11: 'New example values. ' + cv(C2) };
+  const FINISH = 'Remove the same letter from two different pairs of rows, so three equations in three unknowns step down to two in two, then one in one. Put the answers back for the third, and check all three rows. Bigger systems, such as networks with many loops, are solved with matrices, in the Matrices course.';
+  // Sources the checks restate (the lesson's own).
+  const SRC1 = 'https://eajournals.org/wp-content/uploads/Some-Common-Misconstructions-and-Misinterpretations-in-Basic-Algebra-.pdf';
+  const SRC2 = 'https://openstax.org/books/intermediate-algebra-2e/pages/4-4-solve-systems-of-equations-with-three-variables';
+  const SRC3 = 'https://openstax.org/books/intermediate-algebra-2e/pages/4-1-solve-systems-of-linear-equations-with-two-variables';
+  const SRC4 = 'https://openstax.org/books/college-physics-2e/pages/21-3-kirchhoffs-rules';
+  const SRC8 = 'https://www.bbc.co.uk/bitesize/articles/zmpyn9q';
+
+  // ---------- where things go: the counter on top; three rows, the sum row and the new stack;
+  // then, after the slide, the rows small at the top and the picture from Elimination below ----------
+  const XA = [192, 239, 286], EQA = 300, CA = 331, OPX = 146, FRX = 156, FRW = 182, IX = 9;
+  const SM = 40, SK = 76, SP = 112, SWA = 32, SWT = 102, SLX = 150, SLW = 188;
+  function geoA(ta) { const SY = 222 + ta; return { rows: [70 + ta, 118 + ta, 166 + ta], RULE: 194 + ta, SY, LABY: SY + 30, HEADY: SY + 58, SLOT: [SY + 84, SY + 116], H: SY + 136 }; }
+  const CYB = [58, 80, 102], ELY = [140, 188], RULEB = 214, SYB = 240, LABYB = 268;
+  const XB = [210, 268], EQB = 288, CB = 331, KX = 150;
+  const SQ = 12, GX = 30, GY = 290, GW = 8 * SQ, GH = 14 * SQ, GX1 = GX + GW, GY1 = GY + GH, HB = GY1 + 26;
+  const xC = (x) => 26 + 0.8 * (x - 146);
+  const px = (v) => GX + v * SQ, py = (v) => GY1 - v * SQ;
+  const LOOPD = ['M70 136V58H170V136Z', 'M270 136V58H170V136Z'];
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+  const say = (s) => String(s).replace(/−/g, 'minus ').replace(/×/g, 'times').replace(/÷/g, 'divided by').replace(/✓/g, 'true').replace(/₁/g, ' 1').replace(/₂/g, ' 2').replace(/₃/g, ' 3').replace(/Ω/g, ' ohms');
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // set: the steppers and switch as Dan has set them on a SHOW screen; from: before; press: the last button.
+  function blank() { return { pick: null, res: null, why: false, set: null, from: null, press: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;                                                        // what the last paint drew, for the checks
+  const canPlay = (d) => !!d.show && !finished;
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[xyz](?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line with its letters italic; *a key term* is highlighted.
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, mt;
+      while ((mt = re.exec(seg))) {
+        if (mt.index > at0) italics(node, seg.slice(at0, mt.index), false);
+        node.appendChild(K.el('span', { class: 'term' }, mt[1]));
+        at0 = mt.index + mt[0].length;
+      }
+      if (at0 < seg.length) italics(node, seg.slice(at0), false);
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (!st.why) play(FB);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    st.why = !st.why;
+    if (st.why && st.res !== 'right') play(FB);
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].set = null; S[i].from = null; S[i].press = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, each puzzle's answer and each turn of a stepper or the
+  // switch; with reduced motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && T !== Infinity) { T = Infinity; paint(); } });
+  // A demonstration that opens a screen waits until its picture is at least half in view.
+  let waiting = false, waitDur = 0, seen = null, io = null;
+  function play(dur, whenSeen) {
+    waiting = false;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    if (whenSeen && io && seen !== true) { waiting = true; waitDur = dur; anim.pause(); T = 0; return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- timing: how far a part due at t0 has arrived, noting the timetable for the timing check ----------
+  let latest = 0, earliest = Infinity;
+  function note(t0, dd) { if (t0 + dd > latest) latest = t0 + dd; if (t0 < earliest) earliest = t0; }
+  function arr(t0, dd) { note(t0, dd); return K.arrive(T, t0, dd); }
+  const arrOr = (t0, dd) => (t0 <= -5 ? 1 : arr(t0, dd));          // a part there from the start is simply there
+  // A change at tc: the old text fades out, then the new one fades in, so the two never overlap.
+  function xf(tc) {
+    if (tc === -Infinity || tc <= -5) return { o: 0, n: 1 };
+    return { o: 1 - arr(tc, 0.2), n: arr(tc + 0.2, 0.25) };
+  }
+  // A soft glow that rises and fades.
+  function pulse(t0, dd) { if (t0 == null) return 0; note(t0, dd); const q = (T - t0) / dd; return q > 0 && q < 1 ? Math.sin(Math.PI * q) : 0; }
+
+  // ---------- what a step shows now ----------
+  const strip = (k) => { const o = Object.assign({}, k); delete o.at; return o; };
+  const finalOf = (keys) => Object.assign({}, ...keys.map(strip));
+  function keysAt(keys) {
+    let j = 0;
+    for (let n = 1; n < keys.length; n++) if (keys[n].at <= T) j = n;
+    const now = Object.assign({}, ...keys.slice(0, j + 1).map(strip));
+    return { now, prev: j ? Object.assign({}, ...keys.slice(0, j).map(strip)) : now, tc: j ? keys[j].at : -Infinity };
+  }
+  const mvWith = (pair, set) => MV(pair.p, pair.q, set['k' + pair.p], set['k' + pair.q], set.op);
+  const setOfMv = (mv) => Object.assign({}, K0, { ['k' + mv.p]: mv.kp, ['k' + mv.q]: mv.kq, op: mv.op });
+  const cancelRow = (top, bot, set) => { if (!set.op) return null; const keep = keepOf(top, bot), U = sumRow(scaleR(top, set.k1), scaleR(bot, set.k2), set.op); return keep.filter((n) => U[n] !== 0).length === 1 ? U : null; };
+  const wk = (list, t0, g, dd) => list.map((r, n) => Object.assign({}, r, { at: t0 <= -5 ? -10 : t0 + n * g, dd }));
+  function hotKeys(P, keys, pre) {
+    keys.forEach((ky, n) => {
+      if (!n) return;
+      const before = Object.assign({}, ...keys.slice(0, n).map(strip));
+      [1, 2, 3].forEach((r) => { if (ky['k' + r] != null && ky['k' + r] !== before['k' + r]) P.hot.push({ id: pre + (ky['k' + r] > before['k' + r] ? 'p' : 'm') + r, at: ky.at }); });
+      if (ky.op && ky.op !== before.op) P.hot.push({ id: pre + (ky.op === 'add' ? 'add' : 'take'), at: ky.at });
+    });
+  }
+  // The plan for a step: what is there, and when each part arrives (seconds; −10 means from the start).
+  // A: the three rows (keys: steppers and switch, pair, a row tried) and the sum row; slots: the new stack
+  // (0 top, 1 bottom); B: the picture from Elimination; checks: answers put into all three rows.
+  function planOf(i, st) {
+    const d = STEPS[i], s = SYS[d.sys], st2 = stackOf(s);
+    const P = { s, u0: 0, slide: null, circ: s.C ? { routes: null, ring: null } : null, glow: null,
+      A: { keys: [AK(-10, K0)], pair: null, tried: null, sum: null, q: false }, slots: [null, null], old: [null, null],
+      B: null, checks: null, work: [], live: null, badState: false, hot: [] };
+    const open = !d.show && (st.res === 'right' || st.why), wrong = !d.show && st.res === 'wrong' && !st.why;
+    const sol = solve3(s.R);
+    if (d.kind === 'showA') {
+      const mv = s.m[d.mv];
+      P.live = 'A';
+      P.A.pair = { p: mv.p, q: mv.q, at: st.set ? -10 : d.pairAt };
+      if (st.set) {
+        const from = st.from || st.set, mN = mvWith(mv, st.set), mP = mvWith(mv, from), dn = dropsMv(s, mN), dp = dropsMv(s, mP);
+        P.A.keys = [AK(-10, from), AK(0, st.set)];
+        P.A.sum = { fill: -10, cg: 0, drop: dn ? 0.55 : null, slot: 1, setMode: true, prevAt: !dp && !!mP.op, prevMv: mP };
+        if (dp) P.old[1] = { row: resOf(s, mP), mv: mP, from: 0 };
+        if (dn) P.slots[1] = { row: resOf(s, mN), mv: mN, at: 0.55 + DROP, fade: false };
+        P.work = wk(workA(s, mN), 0.3, 0, 0.3);
+        if (s.C) P.circ = { routes: [-10, -10], ring: -10 };
+        if (st.press) P.hot.push({ id: st.press, at: 0 });
+      } else {
+        P.A.keys = d.keys;
+        P.A.sum = { fill: d.fill, cg: d.cg, drop: d.drop, slot: 1 };
+        P.slots[1] = { row: resOf(s, mv), mv, at: d.drop + DROP, fade: false };
+        P.work = wk(workA(s, mv), d.rowsAt, 0.3, 0.3);
+        if (s.C) { P.circ = { routes: d.routes, ring: d.ring }; P.glow = d.glow; }
+        hotKeys(P, d.keys, 'a');
+      }
+    } else if (d.kind === 'drop' || d.kind === 'which') {
+      P.slots[1] = { row: st2[1], mv: s.m[0], at: -10, fade: false };
+      if (d.kind === 'drop') { P.A.pair = { p: s.m[1].p, q: s.m[1].q, at: -10 }; P.A.q = true; }
+      if (open || wrong) {
+        const fx = open || d.kind === 'which' ? null : (d.fx && d.fx[st.pick]) || null;
+        const mv = open ? s.m[1] : d.kind === 'which' ? d.vals[st.pick] : fx.mv, goesIn = open || d.kind === 'which';
+        if (d.kind === 'which') P.A.pair = { p: mv.p, q: mv.q, at: 0.1 };
+        P.A.keys = [AK(-10, K0), AK(d.kind === 'which' ? 0.2 : 0.1, setOfMv(mv))];
+        P.A.sum = { fill: 0.4, cg: 0.15, drop: goesIn ? 1.3 : null, slot: 0, rhs: fx && fx.rhs != null ? fx.rhs : null };
+        if (fx && fx.tried) P.A.tried = { n: fx.tried.n, row: fx.tried.row, at: 0.1 };
+        if (goesIn) P.slots[0] = { row: resOf(s, mv), mv, at: 1.3 + DROP, fade: false };
+        P.badState = wrong;
+        P.work = wk(fx && fx.rhs != null ? rhsWork(s, mv, fx.rhs) : fx && fx.tried ? triedWork(s, mv, fx.tried) : workA(s, mv), 1.0, 0.2, 0.3);
+      }
+    } else if (d.kind === 'slide') {
+      P.slots[0] = { row: st2[0], mv: s.m[1], at: -10 }; P.slots[1] = { row: st2[1], mv: s.m[0], at: -10 };
+      P.live = 'B';
+      if (st.set) {
+        const from = st.from || st.set;
+        P.u0 = 1;
+        P.B = { keys: [AK(-10, from), AK(0, st.set)], fill: -10, cg: 0, lineAt: -10, ring: -10, cancel: [{ at: -10, row: cancelRow(st2[0], st2[1], from) }, { at: 0.2, row: cancelRow(st2[0], st2[1], st.set) }] };
+        P.work = wk(workB(s, st.set, d.full), 0.2, 0, 0.3);
+        if (d.checksAt) P.checks = { v: sol, at: [-10, -10, -10] };
+        if (st.press) P.hot.push({ id: st.press, at: 0 });
+      } else {
+        const fin = finalOf(d.bkeys);
+        P.slide = { at: 0.4, dur: 0.9 };
+        P.B = { keys: d.bkeys, fill: d.fill, cg: d.cg, lineAt: d.lineAt, ring: d.lineAt, cancel: [{ at: -10, row: null }, { at: d.lineAt, row: cancelRow(st2[0], st2[1], fin) }] };
+        P.work = wk(workB(s, fin, d.full), d.rowsAt, d.rowG, 0.4);
+        if (d.checksAt) P.checks = { v: sol, at: d.checksAt };
+        hotKeys(P, d.bkeys, 'b');
+      }
+    } else if (d.kind === 'back' || d.kind === 'check') {
+      P.u0 = 1;
+      P.slots[0] = { row: st2[0], mv: s.m[1], at: -10 }; P.slots[1] = { row: st2[1], mv: s.m[0], at: -10 };
+      const playing = d.kind === 'check' && !!st.set, from = playing ? st.from || st.set : s.el, now = playing ? st.set : s.el;
+      P.B = { keys: playing ? [AK(-10, from), AK(0, now)] : [AK(-10, s.el)], fill: -10, cg: 0, lineAt: -10, ring: null,
+        cancel: playing ? [{ at: -10, row: cancelRow(st2[0], st2[1], from) }, { at: 0.2, row: cancelRow(st2[0], st2[1], now) }] : [{ at: -10, row: cancelRow(st2[0], st2[1], s.el) }] };
+      if (d.kind === 'check') {
+        P.live = 'B'; P.B.ring = -10;
+        if (playing) { P.checks = { v: sol, at: [-10, -10, -10] }; P.work = wk(workB(s, now, 0), 0.2, 0, 0.3); if (st.press) P.hot.push({ id: st.press, at: 0 }); }
+        else { P.checks = { v: sol, at: d.checksAt }; P.work = wk([{ l: 'Answer', s: ansT(s, sol) }, { l: 'Count', s: '3 and 3, then 2 and 2, then 1 and 1', prose: true }], d.rowsAt, 0.3, 0.3); }
+      } else {
+        const given = workB(s, s.el, 0);
+        P.work = wk(given, -10, 0, 0.3);
+        if (open) { P.B.ring = 0.3; P.checks = { v: sol, at: [0.9, 1.1, 1.3] }; P.work = P.work.concat(wk(workB(s, s.el, 2).slice(given.length), 0.4, 0.3, 0.3)); }
+        else if (wrong) P.checks = { v: d.vals[st.pick], at: [0.2, 0.4, 0.6] };
+      }
+    } else {
+      // A puzzle with three new rows: the answer steps them down, slides and solves.
+      const half = wrong && !Array.isArray(d.vals[st.pick]);
+      if (open || half) {
+        P.slots[1] = { row: st2[1], mv: s.m[0], at: 0.05, fade: true };
+        P.slots[0] = { row: st2[0], mv: s.m[1], at: 0.25, fade: true };
+        P.slide = { at: 0.6, dur: 0.8 };
+        P.B = { keys: [AK(-10, s.el)], fill: 1.45, cg: 0.15, fillDd: 0.25, lineAt: 1.9, ring: 1.9, cancel: [{ at: -10, row: null }, { at: 1.9, row: cancelRow(st2[0], st2[1], s.el) }] };
+        const all = removals(s).concat(workB(s, s.el, half ? 1 : 2));
+        if (half) all.push({ l: 'Then', s: s.L[routeOf(s, s.el).gone] + ' is still to find', prose: true });
+        P.work = wk(all, 0.3, 0.2, 0.25);
+        if (!half) P.checks = { v: sol, at: [1.9, 2.0, 2.1], dd: 0.3 };
+      } else if (wrong) {
+        const v = d.vals[st.pick];
+        P.work = wk(s.R.map((r, n) => ({ l: 'In row ' + (n + 1), s: checkT(r, v) })), 0.2, 0.2, 0.3);
+      }
+    }
+    P.ev = eventsOf(P);
+    return P;
+  }
+  // The counter and the new stack's state at time t: the rows in play are the three rows, then the two
+  // new rows once both are in, then the elimination's one row once a letter cancels there.
+  function valueAt(P, t) {
+    const s = P.s, rows = [];
+    [0, 1].forEach((j) => { const q = P.slots[j], o = P.old[j]; if (q && t >= q.at) rows.push(q.row); else if (o && t < o.from + 0.2) rows.push(o.row); });
+    const canc = P.B && P.B.cancel ? P.B.cancel.filter((q) => q.at <= t).pop() : null;
+    let c;
+    if (canc && canc.row && rows.length === 2) c = countOf([canc.row], s.L);
+    else if (rows.length === 2) c = countOf(rows, s.L);
+    else c = countOf(s.R, s.L);
+    let text = rows.length === 0 ? 'empty' : 'one row so far';
+    if (rows.length === 2) { const k = countOf(rows, s.L); text = k.u === 2 && k.e === 2 ? 'ready to slide on' : 'cannot slide on'; }
+    return { c, text, key: c.u + '|' + c.e + '|' + c.L.join() + '|' + text };
+  }
+  function eventsOf(P) {
+    const times = [-10];
+    P.slots.forEach((q) => { if (q) times.push(q.at); });
+    P.old.forEach((q) => { if (q) times.push(q.from + 0.2); });
+    if (P.B && P.B.cancel) P.B.cancel.forEach((q) => times.push(q.at));
+    const ev = [];
+    Array.from(new Set(times)).sort((a, b) => a - b).forEach((t) => {
+      const v = valueAt(P, t), last = ev[ev.length - 1];
+      if (!last || last.key !== v.key) ev.push(Object.assign({ at: t }, v));
+    });
+    return ev;
+  }
+  function evNow(P) {
+    let j = 0;
+    for (let n = 1; n < P.ev.length; n++) if (P.ev[n].at <= T) j = n;
+    return { cur: P.ev[j], prev: j ? P.ev[j - 1] : null, tc: j ? P.ev[j].at : -Infinity };
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  if (typeof IntersectionObserver === 'function') {
+    io = new IntersectionObserver((es) => {
+      seen = es[es.length - 1].intersectionRatio >= 0.45;
+      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }
+    }, { threshold: [0, 0.45, 1] });
+    io.observe(svg);
+  }
+  const add = (node) => art.appendChild(node);
+  const ln = (cls, x1, y1, x2, y2, into) => (into || art).appendChild(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+  function tx(x, y, s, cls, anchor, into, size) {
+    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' });
+    if (size) t.setAttribute('style', 'font-size:' + r2(size) + 'px');
+    italics(t, s, true);
+    return (into || art).appendChild(t);
+  }
+  const opG = (o) => (o === 'add' ? '+' : o === 'take' ? '−' : '');
+  function chev(g, x, y, dir) {
+    const p = { r: [[-4, -5], [5, 0], [-4, 5]], l: [[4, -5], [-5, 0], [4, 5]], d: [[-5, -4], [0, 5], [5, -4]] }[dir];
+    g.appendChild(K.svg('path', { class: 'ch', d: 'M' + p.map((q) => r2(x + q[0]) + ' ' + r2(y + q[1])).join('L') + 'Z' }));
+  }
+
+  // The counter: unknowns and equations still in play, with the letters beside.
+  function drawCounter(ev) {
+    const n = ev.cur.c, p = ev.prev ? ev.prev.c : null;
+    const chg = !!p && ev.tc > -5 && (p.u !== n.u || p.e !== n.e || p.L.join() !== n.L.join()), c = chg ? xf(ev.tc) : { o: 0, n: 1 };
+    if (chg) {
+      const g = pulse(ev.tc, 0.6);
+      if (g > 0.01) [108, 274].forEach((x) => K.fade(add(K.svg('rect', { class: 'cg', x, y: 6, width: 24, height: 32, rx: 6 })), g * 0.7, 0));
+    }
+    tx(104, 30, 'unknowns', 'cw', 'end'); tx(270, 30, 'equations', 'cw', 'end');
+    const put = (x, y, now, old, cls) => {
+      const diff = chg && old !== now;
+      if (diff && c.o > 0.01) K.fade(tx(x, y, old, cls, 'start'), c.o, 0);
+      const a = diff ? c.n : 1;
+      if (a > 0.01) K.fade(tx(x, y, now, cls, 'start'), a, 0);
+    };
+    put(112, 32, String(n.u), p ? String(p.u) : '', 'cn');
+    put(138, 30, n.L.join(', '), p ? p.L.join(', ') : '', 'cl');
+    put(278, 32, String(n.e), p ? String(p.e) : '', 'cn');
+    const shown = chg && c.n < 0.5 ? p : n;
+    REC.count = { u: shown.u, e: shown.e, L: shown.L.join(', ') };
+  }
+
+  // The small circuit: battery 1, the load and battery 2, the three currents, and which row each law gives.
+  function drawCirc(s, a, P) {
+    if (a <= 0.01) return;
+    const C = s.C, g = add(K.svg('g')), put = (node) => g.appendChild(node), w = (dd) => put(K.svg('path', { class: 'wr', d: dd }));
+    if (P.circ.routes) P.circ.routes.forEach((t, k) => { const q = arrOr(t, 0.6); if (q > 0.001) put(K.svg('path', { class: 'rt', d: LOOPD[k], 'stroke-dasharray': r2(q * 356) + ' 400' })); });
+    w('M70 58H270M70 136H270');
+    [70, 270].forEach((x) => w('M' + x + ' 58V66M' + x + ' 84V97M' + x + ' 107V136'));
+    w('M170 58V82M170 114V136');
+    [70, 270].forEach((x) => {
+      put(K.svg('rect', { class: 'rs', x: x - 6, y: 66, width: 12, height: 18, rx: 1.5 }));
+      put(K.svg('line', { class: 'pp', x1: x - 12, y1: 97, x2: x + 12, y2: 97 }));
+      put(K.svg('line', { class: 'ps', x1: x - 6, y1: 107, x2: x + 6, y2: 107 }));
+    });
+    put(K.svg('rect', { class: 'rs', x: 164, y: 82, width: 12, height: 32, rx: 1.5 }));
+    put(K.svg('circle', { class: 'jd', cx: 170, cy: 58, r: 3.5 }));
+    put(K.svg('circle', { class: 'jd', cx: 170, cy: 136, r: 3.5 }));
+    if (P.circ.ring != null) { const q = arrOr(P.circ.ring, 0.4); if (q > 0.01) K.fade(put(K.svg('circle', { class: 'jr', cx: 170, cy: 58, r: 9 })), q, 0); }
+    const t = (x, y, str, cls, anc) => tx(x, y, str, cls, anc, g);
+    t(52, 80, num(C.r1) + ' Ω', 'lv', 'end'); t(52, 106, num(C.E1) + ' V', 'lv', 'end');
+    t(288, 80, num(C.r2) + ' Ω', 'lv', 'start'); t(288, 106, num(C.E2) + ' V', 'lv', 'start');
+    t(182, 104, num(C.R) + ' Ω', 'lv', 'start');
+    chev(g, 100, 58, 'r'); chev(g, 240, 58, 'l'); chev(g, 170, 70, 'd');
+    t(100, 50, 'I₁', 'ci', 'middle'); t(240, 50, 'I₂', 'ci', 'middle'); t(182, 76, 'I₃', 'ci', 'start');
+    t(170, 48, 'junction, row 1', 'tn', 'middle'); t(120, 128, 'loop 1, row 2', 'tn', 'middle'); t(220, 128, 'loop 2, row 3', 'tn', 'middle');
+    K.fade(g, a, 0);
+    if (a >= 0.5) REC.circ = true;
+  }
+
+  // The three rows: full size with their steppers, or small at the top once the new rows have slid on.
+  function drawRowsA(P, d, s, G, e, kA, chA) {
+    const L = s.L, now = kA.now, prev = kA.prev, fs = K.lerp(18, 14.4, e), pair = P.A.pair, fa = 1 - e;
+    const aPair = pair ? arrOr(pair.at, 0.3) * fa : 0;
+    for (let n = 0; n < 3; n++) {
+      const r = n + 1, yA = G.rows[n], y = K.lerp(yA + 6.5, CYB[n] + 5, e);
+      if (P.glow && fa > 0.01) { const g = pulse(P.glow[n], 1.0); if (g > 0.01) K.fade(add(K.svg('rect', { class: 'glow', x: 2, y: yA - 22, width: 336, height: 44, rx: 8 })), g * 0.6 * fa, 0); }
+      const inPair = !!pair && (r === pair.p || r === pair.q);
+      if (inPair && aPair > 0.01) K.fade(add(K.svg('rect', { class: 'rbox', x: FRX, y: yA - 18, width: FRW, height: 36, rx: 8 })), aPair, 0);
+      const kN = now['k' + r], kP = prev['k' + r], tr = P.A.tried && P.A.tried.n === r ? P.A.tried : null;
+      let cn, cp, cx, bad = null;
+      if (tr) {
+        cn = cellsOf(tr.row, L); cp = cellsOf(s.R[n], L); cx = xf(tr.at);
+        const pc = cellsOf(scaleR(s.R[n], kN), L);
+        bad = cn.map((c, m) => c !== pc[m]);
+        if (cx.n >= 0.5) REC.tried = true;
+      } else { cn = cellsOf(scaleR(s.R[n], kN), L); cp = cellsOf(scaleR(s.R[n], kP), L); cx = chA; }
+      cn.forEach((c, m) => {
+        const xA = m < 3 ? XA[m] : CA, x = K.lerp(xA, xC(xA), e), changed = c !== cp[m];
+        if (changed && cx.o > 0.01) K.fade(tx(x, y, cp[m], 'eq', 'end', null, fs), cx.o, 0);
+        const a = changed ? cx.n : 1;
+        if (a > 0.01) K.fade(tx(x, y, c, 'eq' + (bad && bad[m] ? ' bad' : ''), 'end', null, fs), a, 0);
+      });
+      tx(K.lerp(EQA, xC(EQA), e), y, '=', 'eq', 'middle', null, fs);
+      tx(IX, K.lerp(yA + 5.5, CYB[n] + 5, e), String(r), 'idx', 'middle', null, K.lerp(15, 13, e));
+      REC.rowsA[n] = cn.slice(0, 3).join(' ') + ' = ' + cn[3];
+      if (inPair && aPair > 0.01) {
+        if (kN !== kP && chA.o > 0.01) K.fade(tx(SK, yA + 6, '× ' + kP, 'bdg', 'middle'), chA.o * aPair, 0);
+        K.fade(tx(SK, yA + 6, '× ' + kN, 'bdg', 'middle'), (kN !== kP ? chA.n : 1) * aPair, 0);
+      }
+      if (pair && r === pair.q && fa > 0.01) {
+        const g1 = opG(now.op), g0 = opG(prev.op);
+        if (g0 && g0 !== g1 && chA.o > 0.01) K.fade(tx(OPX, yA + 7.5, g0, 'op', 'middle'), chA.o * fa, 0);
+        if (g1) K.fade(tx(OPX, yA + 7.5, g1, 'op', 'middle'), (g0 !== g1 ? chA.n : 1) * fa, 0);
+      }
+      // Once the answer is in, it is put into each row beside it.
+      if (P.checks && e > 0.01) {
+        const t = checkT(s.R[n], P.checks.v), a = arrOr(P.checks.at[n], P.checks.dd || 0.4) * e;
+        if (a > 0.01) K.fade(tx(186, CYB[n] + 5, t, 'ck' + (/ not /.test(t) ? ' bad' : ''), 'start'), a, 0);
+        if (a >= 0.5) REC.checks[n] = t;
+      }
+    }
+  }
+
+  // Under a sum row: which letter cancelled, or which doubled, or that none did.
+  function markLabels(mk, L, y0, a, show) {
+    if (a <= 0.01) return;
+    const list = ALL3.filter((n) => mk[n]);
+    if (!list.length) { K.fade(tx(244, y0, 'no letter cancels', show ? 'lm' : 'ld', 'middle'), a, 0); if (a >= 0.5) REC.marks.push('no letter cancels'); return; }
+    list.forEach((n, j) => {
+      const t = L[n] + (mk[n] === 'cancel' ? ' cancels' : ' doubles');
+      K.fade(tx(XA[n] - 16, y0 + j * 15, t, mk[n] === 'cancel' ? 'lc' : 'ld', 'middle'), a, 0);
+      if (a >= 0.5) REC.marks.push(t);
+    });
+  }
+  // The sum row of the pair: column by column, then (when one letter cancels) it drops into the new stack.
+  function drawSumA(P, d, s, G, e, kA, chA) {
+    const A = P.A, L = s.L, fa = 1 - e;
+    if (fa <= 0.01 || !A.pair) return;
+    const mv = mvWith(A.pair, kA.now);
+    if (!mv.op || !A.sum) { if (A.q) { K.fade(tx(244, G.SY + 7, '?', 'eq q', 'middle'), fa, 0); REC.q = true; } return; }
+    const sm = A.sum, P2 = partsOf(s, mv, A.tried), U = sumRow(P2[0], P2[1], mv.op);
+    if (sm.rhs != null) U[3] = sm.rhs;
+    const mk = marksOf(P2[0], P2[1], U, ALL3), cells = cellsOf(U, L);
+    let dy = 0, aOut = 1;
+    if (sm.drop != null) {
+      note(sm.drop, DROP);
+      const q = T === Infinity ? 1 : K.ease(K.clamp((T - sm.drop) / DROP, 0, 1));
+      if (q >= 1) { REC.dropped = true; return; }
+      dy = q * (G.SLOT[sm.slot] - G.SY); aOut = 1 - arr(sm.drop, 0.25);
+    }
+    const y = G.SY + 7 + dy, cx = sm.setMode ? chA : { o: 0, n: 1 };
+    if (sm.setMode && sm.prevAt && cx.o > 0.01) {
+      const pp = partsOf(s, sm.prevMv), Up = sumRow(pp[0], pp[1], sm.prevMv.op);
+      cellsOf(Up, L).forEach((c, m) => K.fade(tx(m < 3 ? XA[m] : CA, G.SY + 7, c, 'eq', 'end'), cx.o * fa, 0));
+      K.fade(tx(EQA, G.SY + 7, '=', 'eq', 'middle'), cx.o * fa, 0);
+      markLabels(marksOf(pp[0], pp[1], Up, ALL3), L, G.LABY, cx.o * fa * 0.99, d.show);
+    }
+    cells.forEach((c, m) => {
+      const aF = (sm.fill <= -5 ? 1 : arr(sm.fill + m * sm.cg, 0.3)) * cx.n * fa;
+      if (m === 3 && aF > 0.01) K.fade(tx(EQA, y, '=', 'eq', 'middle'), aF, 0);
+      if (aF <= 0.01) return;
+      if (m < 3 && mk[m] === 'cancel') K.fade(add(K.svg('rect', { class: 'hlb', x: XA[m] - 15, y: r2(y - 20), width: 19, height: 26, rx: 4 })), aF, 0);
+      const bad = (m < 3 && mk[m] === 'double') || (m === 3 && sm.rhs != null);
+      K.fade(tx(m < 3 ? XA[m] : CA, y, c, 'eq' + (bad ? ' bad' : ''), 'end'), aF, 0);
+    });
+    const aM = (sm.fill <= -5 ? 1 : arr(sm.fill + 4 * sm.cg, 0.3)) * cx.n * aOut * fa;
+    markLabels(mk, L, G.LABY, aM, d.show);
+    if (!d.show) { const aH = cx.n * aOut * fa; if (aH > 0.01) K.fade(tx(57, G.SY + 5, mv.op === 'add' ? 'add' : 'take away', 'how', 'middle'), aH, 0); }
+    if (aM >= 0.5) REC.sum = cells.slice(0, 3).join(' ') + ' = ' + cells[3];
+  }
+
+  // The new stack: two slots, the newest row on top, each labelled with the pair that made it.
+  function slotRow(row, mv, j, a, aL, G, s, e, keep, kB) {
+    const L = s.L, y = K.lerp(G.SLOT[j] + 6.5, ELY[j] + 6.5, e), cA = cellsOf(row, L);
+    let cB = null;
+    if (keep && kB && e > 0) cB = cellsOf(scaleR(row, kB.now['k' + (j + 1)]), L, keep);
+    for (let m = 0; m < 4; m++) {
+      const xA = m < 3 ? XA[m] : CA;
+      let xB = xA, tB = null, aG = 1;
+      if (cB) {
+        if (m === 3) { xB = CB; tB = cB[2]; }
+        else { const kk = keep.indexOf(m); if (kk < 0) aG = K.clamp(1 - 2 * e, 0, 1); else { xB = XB[kk]; tB = cB[kk]; } }
+      }
+      const x = K.lerp(xA, xB, e), aa = a * aG;
+      if (aa <= 0.01) continue;
+      if (m < 3 && row[m] === 0 && (1 - e) > 0.01) K.fade(add(K.svg('rect', { class: 'hlb', x: r2(x - 15), y: r2(y - 20), width: 19, height: 26, rx: 4 })), aa * (1 - e), 0);
+      if (tB != null && tB !== cA[m]) { if (1 - e > 0.01) K.fade(tx(x, y, cA[m], 'eq', 'end'), aa * (1 - e), 0); if (e > 0.01) K.fade(tx(x, y, tB, 'eq', 'end'), aa * e, 0); }
+      else K.fade(tx(x, y, cA[m], 'eq', 'end'), aa, 0);
+    }
+    K.fade(tx(K.lerp(EQA, EQB, e), y, '=', 'eq', 'middle'), a, 0);
+    if (aL * (1 - e) > 0.01) K.fade(tx(4, G.SLOT[j] + 5, mvLabel(mv).replace(/^R/, 'r'), 'pl', 'start'), aL * (1 - e), 0);
+  }
+  function drawSlots(P, d, s, G, e, kB, ev) {
+    const L = s.L, fa = 1 - e;
+    if (fa > 0.01) {
+      [0, 1].forEach((j) => K.fade(add(K.svg('rect', { class: 'slot', x: SLX, y: G.SLOT[j] - 16, width: SLW, height: 32, rx: 6 })), fa, 0));
+      K.fade(tx(4, G.HEADY, 'NEW STACK', 'kl', 'start'), fa, 0);
+      const chg = !!ev.prev && ev.tc > -5 && ev.prev.text !== ev.cur.text, c = chg ? xf(ev.tc) : { o: 0, n: 1 };
+      const cls = (v) => 'st' + (P.badState && v.text === 'cannot slide on' ? ' bad' : '');
+      if (chg && c.o > 0.01) K.fade(tx(336, G.HEADY, ev.prev.text, cls(ev.prev), 'end'), c.o * fa, 0);
+      if (c.n > 0.01) K.fade(tx(336, G.HEADY, ev.cur.text, cls(ev.cur), 'end'), c.n * fa, 0);
+      REC.state = chg && c.n < 0.5 ? ev.prev.text : ev.cur.text;
+    }
+    const keep = P.slots[0] && P.slots[1] ? keepOf(P.slots[0].row, P.slots[1].row) : null;
+    [0, 1].forEach((j) => {
+      const q = P.slots[j], o = P.old[j];
+      if (o && fa > 0.01) { const a = (1 - arr(o.from, 0.2)) * fa; if (a > 0.01) slotRow(o.row, o.mv, j, a, a, G, s, 0, null, null); }
+      if (!q) return;
+      let a;
+      if (q.at <= -5) a = 1;
+      else if (q.fade) a = arr(q.at, 0.3);
+      else { note(q.at, 0); a = T >= q.at ? 1 : 0; }
+      if (a <= 0.01) return;
+      const aL = q.at <= -5 ? 1 : q.fade ? a : arr(q.at, 0.2);
+      if (a >= 0.5) REC.slots[j] = rowStr(q.row, L);
+      if (e >= 1) return;
+      slotRow(q.row, q.mv, j, a, aL, G, s, e, keep, kB);
+    });
+  }
+
+  // ---------- lines on the graph (0 to 8 across, 0 to 14 up) ----------
+  function clipDir(x0, y0, dx, dy) {
+    let lo = -Infinity, hi = Infinity;
+    const ax = [[dx, x0, 0, 8], [dy, y0, 0, 14]];
+    for (let n = 0; n < 2; n++) {
+      const q = ax[n];
+      if (Math.abs(q[0]) < 1e-12) { if (q[1] < q[2] - 1e-9 || q[1] > q[3] + 1e-9) return null; continue; }
+      let a = (q[2] - q[1]) / q[0], b = (q[3] - q[1]) / q[0];
+      if (a > b) { const t = a; a = b; b = t; }
+      lo = Math.max(lo, a); hi = Math.min(hi, b);
+    }
+    if (!(hi - lo > 1e-9)) return null;
+    return [x0 + dx * lo, y0 + dy * lo, x0 + dx * hi, y0 + dy * hi];
+  }
+  const clipL = (Lr) => { const n2 = Lr.a * Lr.a + Lr.b * Lr.b; return clipDir(Lr.a * Lr.c / n2, Lr.b * Lr.c / n2, Lr.b, -Lr.a); };
+  function angOf(Lr) { let t = Math.atan2(-Lr.a, Lr.b); if (t <= -Math.PI / 2) t += Math.PI; if (t > Math.PI / 2) t -= Math.PI; return t; }
+  function lerpAng(t1, t2, q) { let dd = t2 - t1; while (dd > Math.PI / 2) dd -= Math.PI; while (dd <= -Math.PI / 2) dd += Math.PI; return t1 + dd * q; }
+  const stateOf = (U, L, keep) => (U[keep[1]] === 0 ? 'upright at ' + L[keep[0]] + ' = ' + num(U[3] / U[keep[0]]) : U[keep[0]] === 0 ? 'flat at ' + L[keep[1]] + ' = ' + num(U[3] / U[keep[1]]) : 'tilted');
+
+  // The picture from Elimination: the two new rows with steppers, the switch, the sum row and the graph.
+  function drawB(P, d, s, e, kB, chB) {
+    if (!P.B || e <= 0.001 || !P.slots[0] || !P.slots[1]) return;
+    const L = s.L, B = P.B, top = P.slots[0].row, bot = P.slots[1].row, keep = keepOf(top, bot), now = kB.now, prev = kB.prev;
+    const rN = [scaleR(top, now.k1), scaleR(bot, now.k2)], rP = [scaleR(top, prev.k1), scaleR(bot, prev.k2)];
+    [0, 1].forEach((j) => {
+      const y = ELY[j], kN = now['k' + (j + 1)], kP = prev['k' + (j + 1)];
+      if (kN !== kP && chB.o > 0.01) K.fade(tx(SK, y + 6, '× ' + kP, 'bdg', 'middle'), chB.o * e, 0);
+      K.fade(tx(SK, y + 6, '× ' + kN, 'bdg', 'middle'), (kN !== kP ? chB.n : 1) * e, 0);
+      if (e < 1) return;
+      const cn = cellsOf(rN[j], L, keep), cp = cellsOf(rP[j], L, keep);
+      cn.forEach((c, m) => {
+        const x = m < 2 ? XB[m] : CB, changed = c !== cp[m];
+        if (changed && chB.o > 0.01) K.fade(tx(x, y + 6.5, cp[m], 'eq', 'end'), chB.o, 0);
+        K.fade(tx(x, y + 6.5, c, 'eq', 'end'), changed ? chB.n : 1, 0);
+      });
+      tx(EQB, y + 6.5, '=', 'eq', 'middle');
+      REC.elim[j] = cn.slice(0, 2).join(' ') + ' = ' + cn[2];
+    });
+    const g1 = opG(now.op), g0 = opG(prev.op);
+    if (g0 && g0 !== g1 && chB.o > 0.01) K.fade(tx(OPX, ELY[1] + 7.5, g0, 'op', 'middle'), chB.o * e, 0);
+    if (g1) {
+      K.fade(tx(OPX, ELY[1] + 7.5, g1, 'op', 'middle'), (g0 !== g1 ? chB.n : 1) * e, 0);
+      K.fade(add(K.svg('rect', { class: 'rbox', x: FRX, y: ELY[1] - 18, width: FRW, height: 36, rx: 8 })), (g0 ? 1 : chB.n) * e, 0);
+    }
+    // The sum row: the two rows at their steppers, added or taken away.
+    const drawSum = B.fill != null && !!now.op, dd = B.fillDd || 0.3;
+    let U = null;
+    if (drawSum) {
+      U = sumRow(rN[0], rN[1], now.op);
+      const Up = prev.op ? sumRow(rP[0], rP[1], prev.op) : U, cn = cellsOf(U, L, keep), cp = cellsOf(Up, L, keep);
+      const late = kB.tc > B.fill, cx = late ? chB : { o: 0, n: 1 };
+      const mk = marksOf(rN[0], rN[1], U, keep), mkp = prev.op ? marksOf(rP[0], rP[1], Up, keep) : mk;
+      cn.forEach((c, m) => {
+        const aF = (B.fill <= -5 ? 1 : arr(B.fill + m * B.cg, dd)) * e, changed = late && c !== cp[m], x = m < 2 ? XB[m] : CB;
+        if (m === 2 && aF > 0.01) K.fade(tx(EQB, SYB + 7, '=', 'eq', 'middle'), aF, 0);
+        if (changed && cx.o > 0.01) K.fade(tx(x, SYB + 7, cp[m], 'eq' + (m < 2 && mkp[m] === 'double' ? ' bad' : ''), 'end'), aF * cx.o, 0);
+        const aN = aF * (changed ? cx.n : 1);
+        if (aN <= 0.01) return;
+        if (m < 2 && mk[m] === 'cancel') K.fade(add(K.svg('rect', { class: 'hlb', x: x - 15, y: SYB - 13, width: 19, height: 26, rx: 4 })), aN, 0);
+        K.fade(tx(x, SYB + 7, c, 'eq' + (m < 2 && mk[m] === 'double' ? ' bad' : ''), 'end'), aN, 0);
+        if (m === 2 && aN >= 0.5) REC.U = cn.slice(0, 2).join(' ') + ' = ' + cn[2];
+      });
+      const mA = (B.fill <= -5 ? 1 : arr(B.fill + 3 * B.cg, dd)) * e;
+      [0, 1].forEach((j) => {
+        const word = (m) => L[keep[j]] + (m === 'cancel' ? ' cancels' : ' doubles'), lx = XB[j] - 16;
+        const aOld = late && mkp[j] && mkp[j] !== mk[j] ? mA * (1 - arr(kB.tc, 0.2)) : 0;
+        if (aOld > 0.01) K.fade(tx(lx, LABYB, word(mkp[j]), mkp[j] === 'cancel' ? 'lc' : 'ld', 'middle'), aOld, 0);
+        if (!mk[j]) return;
+        const a = mA * (late && mk[j] !== mkp[j] ? arr(kB.tc + 0.45, 0.3) : 1);
+        if (a > 0.01) K.fade(tx(lx, LABYB, word(mk[j]), mk[j] === 'cancel' ? 'lc' : 'ld', 'middle'), a, 0);
+        if (a >= 0.5) REC.marks.push(word(mk[j]));
+      });
+      if (!d.show) K.fade(tx(57, SYB + 5, now.op === 'add' ? 'add' : 'take away', 'how', 'middle'), e, 0);
+    }
+    // The graph and its key, arriving once the rows have slid on.
+    const gA = K.clamp((e - 0.4) / 0.6, 0, 1);
+    if (gA <= 0.01) return;
+    const gg = add(K.svg('g')), gt = (x, y, str, cls, anc) => tx(x, y, str, cls, anc, gg);
+    for (let v = 0; v <= 8; v++) ln('gl', px(v), GY, px(v), GY1, gg);
+    for (let v = 0; v <= 14; v++) ln('gl', GX, py(v), GX1, py(v), gg);
+    gg.appendChild(K.svg('rect', { class: 'gf', x: GX, y: GY, width: GW, height: GH }));
+    ln('ax', px(0), GY, px(0), GY1, gg); ln('ax', GX, py(0), GX1, py(0), gg);
+    for (let v = 0; v <= 8; v += 2) gt(px(v), GY1 + 17, String(v), 'tk', 'middle');
+    for (let v = 0; v <= 14; v += 2) gt(GX - 6, py(v) + 4.5, String(v), 'tk', 'end');
+    gt(GX1 + 13, GY1 + 17, L[keep[0]], 'at', 'start');
+    gt(GX, GY - 8, L[keep[1]], 'at', 'middle');
+    const cl = gg.appendChild(K.svg('g', { 'clip-path': 'url(#gclip)' }));
+    const lineOf = (row) => ({ a: row[keep[0]], b: row[keep[1]], c: row[3] });
+    const segL = (cls, sg) => ln(cls, px(sg[0]), py(sg[1]), px(sg[2]), py(sg[3]), cl);
+    const s1 = clipL(lineOf(top)), s2 = clipL(lineOf(bot));
+    if (s1) segL('r1', s1);
+    if (s2) segL('r2', s2);
+    const X = crossOf(top, bot, keep), Pt = [X[keep[0]], X[keep[1]]];
+    let aL = 0;
+    if (drawSum && B.lineAt != null) {
+      const Lnow = lineOf(U), Lp = prev.op ? lineOf(sumRow(rP[0], rP[1], prev.op)) : Lnow;
+      aL = arrOr(B.lineAt, 0.5);
+      let qq = 1;
+      if (kB.tc > B.lineAt) { note(kB.tc, 0.8); qq = K.ease(K.clamp((T - kB.tc) / 0.8, 0, 1)); }
+      const th = lerpAng(angOf(Lp), angOf(Lnow), qq), sg = clipDir(Pt[0], Pt[1], Math.cos(th), Math.sin(th));
+      if (sg && aL > 0.01) K.fade(segL('ls', sg), aL, 0);
+      if (sg && aL * gA >= 0.5) { REC.line = sg; REC.lineState = stateOf(U, L, keep); }
+    }
+    let aR = 0;
+    if (B.ring != null) {
+      aR = arrOr(B.ring, 0.5);
+      if (aR > 0.01) K.fade(gg.appendChild(K.svg('circle', { class: 'xr', cx: r2(px(Pt[0])), cy: r2(py(Pt[1])), r: 6.5 })), aR, 0);
+      if (aR * gA >= 0.5) REC.ring = true;
+    }
+    // The key beside the graph: each line and its equation, and the crossing.
+    const KY = GY + 12, KT = KX + 28, late = kB.tc > (B.lineAt == null ? Infinity : B.lineAt);
+    const sw = (y, cls, a) => {
+      const g = gg.appendChild(K.svg('g'));
+      if (cls === 'xr') g.appendChild(K.svg('circle', { class: cls, cx: KX + 11, cy: y - 4, r: 6 }));
+      else g.appendChild(K.svg('line', { class: cls, x1: KX, y1: y - 4, x2: KX + 22, y2: y - 4 }));
+      K.fade(g, a, 0);
+    };
+    const keyEq = (y, nowS, beforeS, cls, aNow) => {
+      const diff = beforeS != null && beforeS !== nowS;
+      if (diff && chB.o > 0.01) K.fade(gt(KT, y, beforeS, cls, 'start'), chB.o * aNow, 0);
+      if (aNow * (diff ? chB.n : 1) > 0.01) K.fade(gt(KT, y, nowS, cls, 'start'), aNow * (diff ? chB.n : 1), 0);
+    };
+    sw(KY, 'r1', 1); gt(KT, KY, 'top row', 'key', 'start');
+    keyEq(KY + 16, eqT(rN[0], L, keep), eqT(rP[0], L, keep), 'keq', 1);
+    sw(KY + 38, 'r2', 1); gt(KT, KY + 38, 'bottom row', 'key', 'start');
+    keyEq(KY + 54, eqT(rN[1], L, keep), eqT(rP[1], L, keep), 'keq', 1);
+    sw(KY + 76, 'ls', 1); gt(KT, KY + 76, 'sum row', 'key', 'start');
+    if (drawSum && aL > 0.01) {
+      const Up = prev.op ? sumRow(rP[0], rP[1], prev.op) : U;
+      keyEq(KY + 92, eqT(U, L, keep), late ? eqT(Up, L, keep) : null, 'keq', aL);
+      const stN = stateOf(U, L, keep), stP = late ? stateOf(Up, L, keep) : null;
+      const diff = stP != null && stP !== stN;
+      if (diff && chB.o > 0.01) K.fade(gt(KT, KY + 108, stP, 'kst' + (stP === 'tilted' ? ' m' : ''), 'start'), chB.o * aL, 0);
+      K.fade(gt(KT, KY + 108, stN, 'kst' + (stN === 'tilted' ? ' m' : ''), 'start'), aL * (diff ? chB.n : 1), 0);
+    }
+    if (aR > 0.01) { sw(KY + 130, 'xr', aR); K.fade(gt(KT, KY + 130, 'crossing ' + pairT(X, keep), 'key', 'start'), aR, 0); }
+    K.fade(gg, gA, 0);
+  }
+
+  // ---------- the working under the picture ----------
+  const piecesOf = (r) => (r.prose ? r.s.split(' ') : String(r.s).split(/ (?==)|(?<=,) /));
+  function drawWork(list) {
+    const box = el('work');
+    box.textContent = '';
+    box.hidden = !list.length;
+    if (!list.length) return;
+    K.fade(box.appendChild(K.el('i', { class: 'bar', 'aria-hidden': 'true' })), list[0].a, 0);
+    list.forEach((r) => {
+      const l = box.appendChild(K.el('span', { class: 'wl' }, r.l)), m = box.appendChild(K.el('span', { class: 'wm' }));
+      piecesOf(r).forEach((pc, n) => {
+        if (n) m.appendChild(document.createTextNode(' '));
+        italics(m.appendChild(K.el('span', { class: 'pc' + (/✓$/.test(pc) ? ' ok' : '') })), pc, false);
+      });
+      K.fade(l, r.a, 0); K.fade(m, r.a, 0);
+      if (r.a >= 0.5) REC.rows.push({ l: r.l, s: r.s });
+    });
+  }
+
+  // ---------- the steppers and the switch: drawn once, shown on the screens that show an idea ----------
+  const BTN = {};
+  function mkBtn(id, w, glyph, label, sw, press) {
+    const g = ui.appendChild(K.svg('g', { class: 'sb' + (sw ? ' sw' : ''), role: 'button', tabindex: 0, 'aria-label': label }));
+    const hit = g.appendChild(K.svg('rect', { class: 'hit' })), face = g.appendChild(K.svg('rect', { class: 'sbf', rx: 10 })), t = g.appendChild(K.svg('text', { class: 'sbt', 'text-anchor': 'middle' }, glyph));
+    g.addEventListener('click', (ev) => { ev.preventDefault(); press(); });
+    g.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); press(); } });
+    BTN[id] = { g, sw, place(cx, cy) {
+      const hw = Math.max(48, w);
+      [[hit, cx - hw / 2, cy - 24, hw, 48], [face, cx - w / 2, cy - 20, w, 40]].forEach((q) => { q[0].setAttribute('x', r2(q[1])); q[0].setAttribute('y', r2(q[2])); q[0].setAttribute('width', q[3]); q[0].setAttribute('height', q[4]); });
+      t.setAttribute('x', r2(cx)); t.setAttribute('y', r2(cy + (sw ? 5 : 7.5)));
+    } };
+  }
+  [1, 2, 3].forEach((r) => {
+    mkBtn('am' + r, 36, '−', 'Row ' + r + ' stepper, one less', false, () => tapA(r, -1));
+    mkBtn('ap' + r, 36, '+', 'Row ' + r + ' stepper, one more', false, () => tapA(r, 1));
+  });
+  mkBtn('aadd', 56, 'add', 'Add the two rows', true, () => opA('add'));
+  mkBtn('atake', 76, 'take away', 'Take the lower row away', true, () => opA('take'));
+  [1, 2].forEach((r) => {
+    mkBtn('bm' + r, 36, '−', (r === 1 ? 'Top' : 'Bottom') + ' row stepper, one less', false, () => tapB(r, -1));
+    mkBtn('bp' + r, 36, '+', (r === 1 ? 'Top' : 'Bottom') + ' row stepper, one more', false, () => tapB(r, 1));
+  });
+  mkBtn('badd', 56, 'add', 'Add the two new rows', true, () => opB('add'));
+  mkBtn('btake', 76, 'take away', 'Take the bottom row away', true, () => opB('take'));
+  const curA = (i) => S[i].set || finalOf(STEPS[i].keys);
+  const curB = (i) => S[i].set || (STEPS[i].bkeys ? finalOf(STEPS[i].bkeys) : Object.assign({}, SYS[STEPS[i].sys].el));
+  function applySet(i, next, press) {
+    const st = S[i], d = STEPS[i];
+    st.from = d.kind === 'showA' ? curA(i) : curB(i); st.set = next; st.press = press;
+    play(d.kind === 'showA' ? 1.4 : 1.0);
+    K.refresh();
+  }
+  function tapA(r, dir) {
+    const i = at(), d = STEPS[i];
+    if (!canPlay(d) || d.kind !== 'showA') return;
+    const cur = curA(i), k = cur['k' + r], n = Math.min(5, Math.max(1, k + dir));
+    if (n === k) return;
+    applySet(i, Object.assign({}, cur, { ['k' + r]: n }), 'a' + (dir > 0 ? 'p' : 'm') + r);
+  }
+  function opA(op) {
+    const i = at(), d = STEPS[i];
+    if (!canPlay(d) || d.kind !== 'showA') return;
+    const cur = curA(i);
+    if (cur.op === op) return;
+    applySet(i, Object.assign({}, cur, { op }), 'a' + op);
+  }
+  function tapB(r, dir) {
+    const i = at(), d = STEPS[i];
+    if (!canPlay(d) || (d.kind !== 'slide' && d.kind !== 'check')) return;
+    const cur = curB(i), k = cur['k' + r], n = Math.min(5, Math.max(1, k + dir));
+    if (n === k) return;
+    applySet(i, Object.assign({}, cur, { ['k' + r]: n }), 'b' + (dir > 0 ? 'p' : 'm') + r);
+  }
+  function opB(op) {
+    const i = at(), d = STEPS[i];
+    if (!canPlay(d) || (d.kind !== 'slide' && d.kind !== 'check')) return;
+    const cur = curB(i);
+    if (cur.op === op) return;
+    applySet(i, Object.assign({}, cur, { op }), 'b' + op);
+  }
+  function buttons(P, d, G, u, e, kA, kB) {
+    const liveA = canPlay(d) && P.live === 'A' && e <= 0, liveB = canPlay(d) && P.live === 'B' && !!kB;
+    Object.keys(BTN).forEach((id) => {
+      const b = BTN[id], isA = id[0] === 'a';
+      let vis = false, op = 1, off = false, on = false;
+      if (isA && liveA) {
+        if (b.sw) { vis = true; b.place(id === 'aadd' ? SWA : SWT, G.SY); on = kA.now.op === id.slice(1); }
+        else { const r = +id[2]; vis = !!P.A.pair && (r === P.A.pair.p || r === P.A.pair.q); b.place(id[1] === 'm' ? SM : SP, G.rows[r - 1]); const k = kA.now['k' + r]; off = id[1] === 'm' ? k <= 1 : k >= 5; }
+      } else if (!isA && liveB) {
+        op = K.clamp((u - 0.85) / 0.15, 0, 1); vis = op > 0.01;
+        if (b.sw) { b.place(id === 'badd' ? SWA : SWT, SYB); on = kB.now.op === id.slice(1); }
+        else { const r = +id[2]; b.place(id[1] === 'm' ? SM : SP, ELY[r - 1]); const k = kB.now['k' + r]; off = id[1] === 'm' ? k <= 1 : k >= 5; }
+      }
+      b.g.style.display = vis ? '' : 'none';
+      b.g.style.opacity = vis && op < 1 ? op.toFixed(3) : '';
+      b.g.setAttribute('tabindex', vis ? '0' : '-1');
+      b.g.classList.toggle('off', off);
+      b.g.classList.toggle('on', on);
+      b.g.classList.toggle('hot', vis && T !== Infinity && P.hot.some((h) => h.id === id && T >= h.at - 0.12 && T <= h.at + 0.3));
+      b.g.setAttribute('aria-disabled', off ? 'true' : 'false');
+      if (b.sw) b.g.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+
+  // ---------- the scene for a step (the animation calls this every frame) ----------
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], s = SYS[d.sys], P = planOf(i, S[i]);
+    art.textContent = '';
+    REC = { count: null, state: '', rowsA: [], sum: null, marks: [], dropped: false, slots: [null, null], elim: [null, null], U: null, line: null, lineState: '', ring: false, checks: [], rows: [], u: 0, tried: false, circ: false, q: false };
+    let u = P.u0;
+    if (P.slide) { note(P.slide.at, P.slide.dur); u = T === Infinity ? 1 : K.clamp((T - P.slide.at) / P.slide.dur, 0, 1); }
+    const e = K.ease(u);
+    REC.u = u;
+    const G = geoA(s.C ? 112 : 0), kA = keysAt(P.A.keys), chA = xf(kA.tc), kB = P.B ? keysAt(P.B.keys) : null, chB = kB ? xf(kB.tc) : null;
+    drawCounter(evNow(P));
+    if (s.C) drawCirc(s, 1 - e, P);
+    drawRowsA(P, d, s, G, e, kA, chA);
+    // The rule under the rows steps aside while the new rows slide up past it.
+    const yR = e < 0.5 ? G.RULE : RULEB, aRule = P.slide ? (e < 0.5 ? K.clamp(1 - e / 0.15, 0, 1) : K.clamp((e - 0.85) / 0.15, 0, 1)) : 1;
+    if (aRule > 0.01) K.fade(ln('rule', 140, yR, 338, yR), aRule, 0);
+    drawSumA(P, d, s, G, e, kA, chA);
+    drawSlots(P, d, s, G, e, kB, evNow(P));
+    drawB(P, d, s, e, kB, chB);
+    drawWork(P.work.map((r) => Object.assign({}, r, { a: arrOr(r.at, r.dd) })));
+    buttons(P, d, G, u, e, kA, kB);
+    svg.setAttribute('viewBox', '0 0 340 ' + r2(K.lerp(G.H, HB, e)));
+    svg.setAttribute('aria-label', describe());
+  }
+  function describe() {
+    const c = REC.count;
+    let t = 'A counter reads unknowns ' + c.u + ', ' + c.L + ', and equations ' + c.e + '.';
+    if (REC.u < 1) {
+      t += (REC.circ ? ' Above the rows, the circuit: battery 1, the load and battery 2, with currents I₁, I₂ and I₃.' : '') + ' Three rows: ' + REC.rowsA.join('; ') + '.';
+      if (REC.sum) t += ' Sum row: ' + REC.sum + '.';
+      if (REC.marks.length) t += ' ' + REC.marks.join(', ') + '.';
+      const sl = REC.slots.filter(Boolean);
+      t += sl.length ? ' New stack: ' + sl.join('; ') + ', ' + REC.state + '.' : ' The new stack is empty.';
+    } else {
+      t += ' Rows 1 to 3, small: ' + REC.rowsA.join('; ') + '.';
+      const ck = REC.checks.filter(Boolean);
+      if (ck.length) t += ' Answers put in: ' + ck.join('; ') + '.';
+      t += ' The two new rows: ' + REC.elim.filter(Boolean).join('; ') + '.';
+      if (REC.U) t += ' Sum row: ' + REC.U + '.';
+      t += ' A graph 0 to 8 across and 0 to 14 up draws the top row solid and the bottom row dashed';
+      if (REC.line) t += ', and the sum row dotted, ' + REC.lineState;
+      if (REC.ring) t += ', with the crossing ringed';
+      t += '.';
+    }
+    return say(t);
+  }
+
+  write(el('finish'), FINISH);
+  K.update((prm) => {
+    const i = Math.round(prm.step), d = STEPS[i], st = S[i];
+    if (!anim.playing() && !waiting) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.set = null; st.from = null; st.press = null; play(d.dur, true); } else { waiting = false; anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('pz').classList.toggle('ask', !d.show && !right && !st.why);
+    el('stepbox').hidden = finished;
+    el('lead').hidden = !LEADS[i] || finished;
+    if (LEADS[i]) el('lead').textContent = LEADS[i];
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('work').classList.toggle('keep', !!d.show);
+    paint(i);
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = ''; italics(b.el.appendChild(K.el('span', { class: 'nw' })), opts[k], false);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? (d.done || 'That\'s it.') : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const whySt = () => Object.assign(blank(), { why: true });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const playSt = (set) => Object.assign(blank(), { set, from: set });
+  const PAIRS = [[1, 2], [1, 3], [2, 3]];
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+
+  K.check('We want the coefficients of one variable to be opposites, so that we can add the equations together and eliminate that variable: in all five sets of rows, for every pair at every stepper setting, opposite terms cancel when the rows are added and terms of the same sign when one is taken away; the other way round they add up, which is marked as doubling only when no letter cancels', () =>
+    Object.keys(SYS).every((key) => {
+      const s = SYS[key];
+      return PAIRS.every((pq) => {
+        for (let kp = 1; kp <= 5; kp++) for (let kq = 1; kq <= 5; kq++) for (const op of ['add', 'take']) {
+          const mv = MV(pq[0], pq[1], kp, kq, op), P2 = partsOf(s, mv), U = sumRow(P2[0], P2[1], op), mk = marksOf(P2[0], P2[1], U, ALL3), dbl = mk.indexOf('cancel') >= 0 ? null : 'double';
+          if (mk.indexOf('cancel') >= 0 && mk.indexOf('double') >= 0) return false;
+          for (let n = 0; n < 3; n++) {
+            const a = P2[0][n], b = P2[1][n];
+            let ok;
+            if (a !== 0 && a === -b) ok = op === 'add' ? U[n] === 0 && mk[n] === 'cancel' : Math.abs(U[n]) === 2 * Math.abs(a) && mk[n] === dbl;
+            else if (a !== 0 && a === b) ok = op === 'take' ? U[n] === 0 && mk[n] === 'cancel' : Math.abs(U[n]) === 2 * Math.abs(a) && mk[n] === dbl;
+            else if (a === 0 && b === 0) ok = U[n] === 0 && mk[n] === null;
+            else ok = U[n] !== 0 && mk[n] === null;
+            if (!ok) return false;
+          }
+        }
+        return true;
+      });
+    }), { source: SRC3 });
+  K.check('We start with two pairs of equations and in each pair we eliminate the same variable, which gives a system with only two variables that we know how to solve: in all five sets, the two removals take the same letter from two different pairs, the new rows hold the same two letters, and stepping down reaches the one answer that fits all three rows', () =>
+    Object.keys(SYS).every((key) => {
+      const s = SYS[key], m0 = s.m[0], m1 = s.m[1], R0 = routeOf(s, s.el), V = valsOf(s, s.el), sol = solve3(s.R);
+      const goneOf = (mv) => { const P2 = partsOf(s, mv), U = sumRow(P2[0], P2[1], mv.op); return ALL3.filter((n) => U[n] === 0 && (P2[0][n] !== 0 || P2[1][n] !== 0)).join(); };
+      return (m0.p !== m1.p || m0.q !== m1.q) && dropsMv(s, m0) && dropsMv(s, m1) && goneOf(m0) === goneOf(m1) && R0.keep.length === 2 &&
+        !!V && ALL3.every((n) => near(V.v[n], sol[n], 1e-9)) && s.R.every((r) => fits(r, sol));
+    }), { source: SRC2 });
+  K.check('If there are as many independent equations as unknowns, then the problem can be solved: the counter reads 3 and 3 for the three rows, 2 and 2 once both new rows are in, and 1 and 1 after elimination, in every set; a second removal of a different letter leaves unknowns 3 and equations 2, the same pair twice leaves unknowns 2 and equations 1, and then the stack cannot slide on', () => {
+    const counts = Object.keys(SYS).every((key) => {
+      const s = SYS[key], R0 = routeOf(s, s.el), a = countOf(s.R, s.L), b = countOf([R0.top, R0.bot], s.L), c = countOf([R0.U], s.L);
+      return a.u === 3 && a.e === 3 && b.u === 2 && b.e === 2 && c.u === 1 && c.e === 1;
+    });
+    const i = idx('The same letter'), g1 = drawn(i, wrongSt(i, 'y from rows 1 and 2')), g2 = drawn(i, wrongSt(i, 'z from rows 1 and 3 again')), g3 = drawn(i, solvedSt(i));
+    const g0 = drawn(0, blank()), gS = drawn(idx('Two and two'), blank());
+    return counts && g1.count.u === 3 && g1.count.e === 2 && g1.state === 'cannot slide on' && g2.count.u === 2 && g2.count.e === 1 && g2.state === 'cannot slide on' &&
+      g3.count.u === 2 && g3.count.e === 2 && g3.state === 'ready to slide on' && g0.count.u === 3 && g0.count.e === 3 && gS.count.u === 1 && gS.count.e === 1;
+  }, { source: SRC4 });
+  K.check('The sum of all currents entering a junction must equal the sum of all currents leaving it: row 1 of both circuits is I₁ + I₂ − I₃ = 0, and both answers keep it, 3 + 1.5 = 4.5 A and 6 + 2 = 8 A', () =>
+    ['ci', 'c2'].every((key) => { const s = SYS[key], v = solve3(s.R); return eqT(s.R[0], s.L) === 'I₁ + I₂ − I₃ = 0' && near(v[0] + v[1], v[2], 1e-9); }) &&
+    trip(SYS.ci, solve3(SYS.ci.R)) === '3 A, 1.5 A, 4.5 A' && trip(SYS.c2, solve3(SYS.c2.R)) === '6 A, 2 A, 8 A', { source: SRC4 });
+  K.check('The algebraic sum of changes in potential around any closed loop must be zero: rows 2 and 3 are each loop\'s walk set to 0 and tidied, 12 − 1 × I₁ − 2 × I₃ = 0 becoming I₁ + 2I₃ = 12 and 12 − 2 × I₂ − 2 × I₃ = 0 becoming 2I₂ + 2I₃ = 12, and both answers bring both loops back to 0', () =>
+    eqT(SYS.ci.R[1], LI) === 'I₁ + 2I₃ = 12' && eqT(SYS.ci.R[2], LI) === '2I₂ + 2I₃ = 12' && eqT(SYS.c2.R[1], LI) === 'I₁ + I₃ = 14' && eqT(SYS.c2.R[2], LI) === 'I₂ + I₃ = 10' &&
+    ['ci', 'c2'].every((key) => { const s = SYS[key], v = solve3(s.R); return near(loopEnd(s.C, 1, v), 0, 1e-9) && near(loopEnd(s.C, 2, v), 0, 1e-9); }), { source: SRC4 });
+  K.check('Sometimes equations need to be altered, by multiplying throughout, before a letter can be eliminated: each stepper multiplies every term of its row, the right side too, so the row stays true at the answer, while doubling only part of row 1, the slip on the circuit puzzle, gives a row that is false there', () =>
+    Object.keys(SYS).every((key) => { const s = SYS[key], v = solve3(s.R); return s.R.every((r) => [1, 2, 3, 4, 5].every((k) => { const q = scaleR(r, k); return q.every((x, n) => x === r[n] * k) && fits(q, v); })); }) &&
+    !fits(resOf(SYS.ci, MV(1, 2, 2, 1, 'add'), { n: 1, row: [1, 1, -2, 0] }), solve3(SYS.ci.R)) && fits(resOf(SYS.ci, MV(1, 2, 2, 1, 'add')), solve3(SYS.ci.R)), { source: SRC8 });
+  K.check('When eliminating a variable, 76% of students in one study misjudged the operations to be performed: the second screen\'s Why? says so, and there taking row 3 away from row 2 doubles z to 2z while adding cancels it', () => {
+    const i = idx('Remove it again'), g = drawn(i, wrongSt(i, 'x − 3y + 2z = 1'));
+    return /76%/.test(STEPS[i].why) && resOf(SYS.ex, MV(2, 3, 1, 1, 'take'))[2] === 2 && resOf(SYS.ex, MV(2, 3, 1, 1, 'add'))[2] === 0 && g.marks.join() === 'z doubles';
+  }, { source: SRC1 });
+  K.check('Every worked line is right, by hand: rows 1 and 3 give 2x + 3y = 8 and rows 2 and 3 give 3x + y = 5, so 7x = 7 and (1, 2, 3); the circuit gives 4I₁ = 12, so 3 A, 1.5 A and 4.5 A; 3x = 6 gives (2, 3, 4); the worked example\'s 9x = 9 gives (1, 2, 3); and the new batteries give 3I₁ = 18, so 6 A, 2 A and 8 A', () => {
+    const W = (key) => removals(SYS[key]).concat(workB(SYS[key], SYS[key].el, 2)).map((r) => r.l + ': ' + r.s).join(' | ');
+    return W('ex') === 'Row 1 + row 3: 2x + 3y = 8 | Row 2 + row 3: 3x + y = 5 | Take away: 7x = 7 | Solve: x = 7 ÷ 7 = 1 | Put back: 3 + y = 5, so y = 5 − 3 = 2 | Row 1: 1 + 2 + z = 6, so z = 6 − 1 − 2 = 3' &&
+      W('ci') === 'Row 1 × 2 + row 3: 2I₁ + 4I₂ = 12 | Row 1 × 2 + row 2: 3I₁ + 2I₂ = 12 | Take away: 4I₁ = 12 | Solve: I₁ = 12 ÷ 4 = 3 A | Put back: 9 + 2I₂ = 12, so 2I₂ = 12 − 9 = 3 and I₂ = 3 ÷ 2 = 1.5 A | Row 2: 3 + 2I₃ = 12, so 2I₃ = 12 − 3 = 9 and I₃ = 9 ÷ 2 = 4.5 A' &&
+      W('s9') === 'Row 1 + row 2: 2x + 3y = 13 | Row 2 × 2 + row 3: 5x + 3y = 19 | Take away: 3x = 6 | Solve: x = 6 ÷ 3 = 2 | Put back: 4 + 3y = 13, so 3y = 13 − 4 = 9 and y = 9 ÷ 3 = 3 | Row 1: 2 + 3 + z = 9, so z = 9 − 2 − 3 = 4' &&
+      W('pr') === 'Row 1 + row 2: 3x + 3z = 12 | Row 2 + row 3: 4x + z = 7 | Take away: 9x = 9 | Solve: x = 9 ÷ 9 = 1 | Put back: 4 + z = 7, so z = 7 − 4 = 3 | Row 1: 2 + y + 3 = 7, so y = 7 − 2 − 3 = 2' &&
+      W('c2') === 'Row 1 + row 3: I₁ + 2I₂ = 10 | Row 1 + row 2: 2I₁ + I₂ = 14 | Take away: 3I₁ = 18 | Solve: I₁ = 18 ÷ 3 = 6 A | Put back: 12 + I₂ = 14, so I₂ = 14 − 12 = 2 A | Row 2: 6 + I₃ = 14, so I₃ = 14 − 6 = 8 A' &&
+      checkT(SYS.ex.R[2], [1, 2, 3]) === '1 + 4 − 3 = 2 ✓' && checkT(SYS.ci.R[0], [3, 1.5, 4.5]) === '3 + 1.5 − 4.5 = 0 ✓' && checkT(SYS.ex.R[1], [1, 8, -3]) === '2 − 8 − 3 = −9, not 3' &&
+      checkT(SYS.s9.R[1], [3, 3, 3]) === '3 + 6 − 3 = 6, not 4' && checkT(SYS.c2.R[2], [5, 3, 9]) === '3 + 9 = 12, not 10' && checkT(SYS.pr.R[1], [1, 2, 3]) === '1 − 2 + 6 = 5 ✓' &&
+      eqT(resOf(SYS.ex, MV(1, 2, 1, 1, 'add')), LX) === '3x + 2z = 9' && eqT(resOf(SYS.ex, MV(2, 3, 1, 1, 'take')), LX) === 'x − 3y + 2z = 1' &&
+      rhsWork(SYS.ex, MV(2, 3, 1, 1, 'add'), 1).map((r) => r.s).join(' | ') === '3x + y = 1 | 3 + 2 = 5, not 3 − 2 = 1' &&
+      eqT(scaleR(SYS.ex.R[2], 1).map((v, n) => v + SYS.ex.R[1][n]), LX) === '3x + y = 5' && eqT(sumRow(scaleR([3, 1, 0, 5], 3), [2, 3, 0, 8], 'take'), LX) === '7x = 7';
+  });
+  K.check('Every puzzle\'s answers are checked against its own rows: the right one is the row the removal really drops, the removal that leaves 2 and 2, or the answer that fits all three rows; every wrong one keeps a letter, is false at the answer, stalls the stack or fails a row; and every wrong answer has a hint of its own', () =>
+    DO.every((i) => {
+      const d = STEPS[i], s = SYS[d.sys], sol = solve3(s.R);
+      const hintsOk = d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => o === d.want || (!!d.hints[o] && d.hints[o] !== d.hint));
+      return hintsOk && d.opts.every((o) => {
+        const v = d.vals[o], right = o === d.want;
+        if (d.kind === 'drop') return eqT(v, s.L) === o && (right ? v.join() === resOf(s, s.m[1]).join() && dropsMv(s, s.m[1]) : !fits(v, sol) || ALL3.every((n) => v[n] !== 0));
+        if (d.kind === 'which') { const c = countOf([resOf(s, v), resOf(s, s.m[0])], s.L); return mvWord(s, v) === o && dropsMv(s, v) && (right ? c.u === 2 && c.e === 2 : !(c.u === 2 && c.e === 2)); }
+        if (Array.isArray(v)) { const all = s.R.every((r) => fits(r, v)); return trip(s, v) === o && (right ? all && v.every((x, n) => near(x, sol[n], 1e-9)) : !all); }
+        if (v && v.half) return !right && o === v.half.map((n, j) => s.L[n] + ' = ' + num(v.v[j])).join(', ') && v.half.every((n, j) => near(v.v[j], sol[n], 1e-9));
+        return false;
+      });
+    }));
+  K.check('Before an answer a puzzle keeps its result back: no new row drops, no crossing is ringed and no rows are checked; a right answer or Why? drops the right row and brings the counter to 2 and 2, or slides the new rows into the picture from Elimination, rings the crossing and checks all three rows', () =>
+    DO.every((i) => {
+      const d = STEPS[i], s = SYS[d.sys], b = drawn(i, blank()), nb = b.checks.filter(Boolean).length;
+      const hidden = d.kind === 'back' ? !b.ring && !nb : !b.slots[0] && !b.ring && !nb && b.u === 0;
+      if (!hidden) return false;
+      return [solvedSt(i), whySt()].every((st) => {
+        const g = drawn(i, st), ok3 = g.checks.filter((c) => c && / ✓$/.test(c)).length === 3;
+        if (d.kind === 'drop' || d.kind === 'which') return g.slots[0] === rowStr(resOf(s, s.m[1]), s.L) && g.count.u === 2 && g.count.e === 2 && g.state === 'ready to slide on';
+        if (d.kind === 'back') return g.ring && ok3;
+        return g.u === 1 && g.ring && ok3 && g.count.u === 1 && g.count.e === 1 && !!g.line;
+      });
+    }));
+  K.check('A wrong pick shows its slip: taking away doubles z, a right side taken away ends the sum row in the wrong number, row 1 left at × 1 cancels nothing, row 1 scaled in part is drawn in red, a removal of a different letter or of the same pair stalls the stack, and a wrong answer is put into all three rows', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      return d.opts.every((o) => {
+        if (o === d.want) return true;
+        const g = drawn(i, wrongSt(i, o)), v = d.vals[o], fx = (d.fx && d.fx[o]) || {};
+        if (d.kind === 'drop') return !g.slots[0] && !!g.sum && (fx.tried ? g.tried && / = 12$/.test(g.sum) : fx.rhs != null ? / = 1$/.test(g.sum) : g.marks.some((m) => / doubles$|^no letter/.test(m)));
+        if (d.kind === 'which') return !!g.slots[0] && g.state === 'cannot slide on';
+        if (d.kind === 'back') return g.checks.filter(Boolean).some((c) => / not /.test(c)) && !g.ring;
+        if (v && v.half) return g.u === 1 && g.ring && g.checks.filter(Boolean).length === 0 && / still to find$/.test(g.rows[g.rows.length - 1].s);
+        return g.rows.filter((r) => /^In row/.test(r.l)).length === 3 && g.rows.some((r) => / not /.test(r.s)) && g.u === 0;
+      });
+    }));
+  K.check('The screens that show an idea end as described: 2x + 3y + 0 = 8 in the new stack with the counter still at 3 and 3; 7x = 7 standing upright at x = 1 through the crossing (1, 2) with the counter at 1 and 1; (1, 2, 3) checked in all three rows; and the circuit solved to 3 A, 1.5 A and 4.5 A. Playing with the steppers, row 1 at × 1 and row 3 at × 2 cancel nothing, and both at × 2 cancel z again', () => {
+    const g0 = drawn(0, blank()), g2 = drawn(idx('Two and two'), blank()), g4 = drawn(idx('Check all three'), blank()), g6 = drawn(idx('The circuit'), blank()), g8 = drawn(idx('Solve the circuit'), blank());
+    const p1 = drawn(0, playSt({ k1: 1, k2: 1, k3: 2, op: 'add' })), p2 = drawn(0, playSt({ k1: 2, k2: 1, k3: 2, op: 'add' }));
+    const m0 = drawn(0, blank(), 2.7).marks.join();
+    return m0 === 'z cancels' && g0.slots[1] === '2x + 3y + 0 = 8' && !g0.slots[0] && g0.count.u === 3 && g0.count.e === 3 && g0.state === 'one row so far' &&
+      g2.U === '7x + 0 = 7' && g2.lineState === 'upright at x = 1' && g2.ring && g2.count.u === 1 && g2.count.e === 1 &&
+      g4.checks.join(' | ') === '1 + 2 + 3 = 6 ✓ | 2 − 2 + 3 = 3 ✓ | 1 + 4 − 3 = 2 ✓' &&
+      g6.slots[1] === '2I₁ + 4I₂ + 0 = 12' && g6.circ &&
+      g8.checks.join(' | ') === '3 + 1.5 − 4.5 = 0 ✓ | 3 + 9 = 12 ✓ | 3 + 9 = 12 ✓' && g8.lineState === 'upright at I₁ = 3' &&
+      !p1.slots[1] && p1.marks.join() === 'no letter cancels' && p2.slots[1] === '4x + 6y + 0 = 16';
+  });
+  K.check('Every demonstration finishes arriving within its 3 to 5 s, none starting before the 0.35 s screen fade ends, and a puzzle\'s drawing after an answer or Why? finishes within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity; S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => (d.show ? timed(i, blank(), d.dur) && d.dur >= 3 && d.dur <= 5 && earliest >= FADE
+      : timed(i, solvedSt(i), FB) && timed(i, whySt(), FB) && d.opts.every((o) => o === d.want || timed(i, wrongSt(i, o), FB))));
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>
