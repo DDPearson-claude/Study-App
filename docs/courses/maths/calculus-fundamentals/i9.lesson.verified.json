@@ -1,0 +1,515 @@
+{
+  "iid": "i9",
+  "title": "Work from a pV diagram",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the bars under the falling pV curve, each a pressure times a change in volume, adding up to the rule's 20 kJ, when you slide the bars from 4 to 100.",
+    "title": "The work under a pV curve",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on the work a gas does as it pushes a piston. Each screen has a cylinder with its piston and, beside it, a pV diagram: pressure in kPa up the side, the gas's volume in m³ along the bottom. Moving the piston moves a dot along the diagram. The first screen holds the pressure steady at 200 kPa while the volume grows from 0.1 to 0.3 m³: the line is flat and the work is the rectangle under it, 200 × 0.2 = 40 kJ, because a kPa times a m³ is a kJ. Then the pressure falls as the gas expands, along pVⁿ = C: with n = 2, gas at 400 kPa in 0.1 m³ keeps p × V² at 4, so at 0.2 m³ it is down to 100 kPa. Bars stand under the curve, each as tall as the pressure at its middle and as wide as a change in volume, so each bar is a pressure times a change in volume, a little work. A slider sets how many bars share the stretch, from 4 to 100, and the running total goes 19.82, 19.95, then 20.00 kJ, the rule's (40 − 20) ÷ 1 = 20 kJ. The next screen works the exact area out: p = 4 × V⁻², the reverse power rule gives 4 × V⁻¹ ÷ (1 − 2), and 4 × V⁻¹ is pV at each end, 40 and 20, drawn as dashed rectangles from the corner of the axes, so the area is (20 − 40) ÷ (1 − 2) = 20 kJ. Then a screen has sliders for n, from 1.1 to 2, and the end volume, from 0.15 to 0.4 m³, with readouts for the 100 bars' total and the rule's value: they agree to 0.01 kJ at every setting. A switch runs it as a compression: the dot moves back along the same curve, every bar's width becomes minus, the bars are hatched and the total is −20 kJ. Another screen lays a rectangle with the same area and the same width over the curve: its height, 200 kPa, is the steady pressure that does the same work, the mean effective pressure for this one stroke. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick is shown going wrong on the diagram.",
+    "ignores": "The curves are drawn exactly from pVⁿ = C with example pressures, volumes and values of n; a real engine's indicator card is traced by an instrument and only roughly follows such a curve. The pressure is taken as the same all through the gas at each moment, as if the piston moved slowly, and piston friction and leaks are left out.",
+    "numbers": [
+      {
+        "label": "Example steady pressure 200 kPa, in step 1",
+        "value": 200,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example volumes 0.1 to 0.3 m³, in step 1",
+        "value": 0.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Work 200 × 0.2 = 40 kJ, in step 1",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 200 × 0.3 = 60 kJ, whole volume, in step 1",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "Example steady 300 kPa, 0.05 to 0.15 m³, in step 2",
+        "value": 300,
+        "kind": "assumed"
+      },
+      {
+        "label": "Work 300 × 0.1 = 30 kJ, in step 2",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip end volume: 300 × 0.15 = 45 kJ, in step 2",
+        "value": 45,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip start volume: 300 × 0.05 = 15 kJ, in step 2",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "Example start 400 kPa at 0.1 m³, in step 3",
+        "value": 400,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example n = 2, in step 3",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "C = 400 × 0.1² = 4, in step 3",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "End pressure 4 ÷ 0.2² = 100 kPa, in step 3",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Slider for bars opens at 4, in step 3",
+        "value": 4,
+        "kind": "control"
+      },
+      {
+        "label": "Slider for bars goes up to 100, in step 3",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "4 bars total 19.82 kJ, in step 3",
+        "value": 19.82,
+        "kind": "computed"
+      },
+      {
+        "label": "8 bars total 19.95 kJ, in step 3",
+        "value": 19.95,
+        "kind": "computed"
+      },
+      {
+        "label": "100 bars total 20.00 kJ, in step 3",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "One bar 0.1 to 0.15 m³, middle 0.125 m³, in step 4",
+        "value": 0.125,
+        "kind": "computed"
+      },
+      {
+        "label": "Pressure there 4 ÷ 0.125² = 256 kPa, in step 4",
+        "value": 256,
+        "kind": "computed"
+      },
+      {
+        "label": "Bar's work 256 × 0.05 = 12.8 kJ, in step 4",
+        "value": 12.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip volume not change: 256 × 0.125 = 32, in step 4",
+        "value": 32,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip pressure read as work: 256, in step 4",
+        "value": 256,
+        "kind": "computed"
+      },
+      {
+        "label": "Area rule 4 × V⁻¹ ÷ (1 − 2): 4 × 0.1⁻¹ = 40 = p₁V₁, in step 5",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "4 × 0.2⁻¹ = 20 = p₂V₂, in step 5",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Area (20 − 40) ÷ (1 − 2) = 20 kJ, in step 5",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Rule (40 − 20) ÷ (2 − 1) = 20 kJ, in step 6",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Slider for n from 1.1, in step 6",
+        "value": 1.1,
+        "kind": "control"
+      },
+      {
+        "label": "Slider for n up to 2, opening at 2, in step 6",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "End volume slider from 0.15 m³, in step 6",
+        "value": 0.15,
+        "kind": "control"
+      },
+      {
+        "label": "End volume slider up to 0.4 m³, in step 6",
+        "value": 0.4,
+        "kind": "control"
+      },
+      {
+        "label": "End volume opens at 0.2 m³, in step 6",
+        "value": 0.2,
+        "kind": "control"
+      },
+      {
+        "label": "100 bars and rule agree to 0.01 kJ, in step 6",
+        "value": 0.01,
+        "kind": "computed"
+      },
+      {
+        "label": "Example 800 kPa at 0.1 m³, n = 1.5, in step 7",
+        "value": 800,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example end volume 0.4 m³, in step 7",
+        "value": 0.4,
+        "kind": "assumed"
+      },
+      {
+        "label": "C = 800 × 0.1^1.5 = 25.30, in step 7",
+        "value": 25.3,
+        "kind": "computed"
+      },
+      {
+        "label": "0.4^1.5 = 0.253, in step 7",
+        "value": 0.253,
+        "kind": "computed"
+      },
+      {
+        "label": "End pressure C ÷ 0.4^1.5 = 25.30 ÷ 0.253 = 100 kPa, in step 7",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Work (80 − 40) ÷ 0.5 = 80 kJ, in step 7",
+        "value": 80,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip not dividing: 40 kJ, in step 7",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip dividing by n: 40 ÷ 1.5 = 26.7 kJ, in step 7",
+        "value": 26.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Compression 0.2 to 0.1 m³: (20 − 40) ÷ 1 = −20 kJ, in step 8",
+        "value": -20,
+        "kind": "computed"
+      },
+      {
+        "label": "Example squeeze 100 kPa, 0.4 m³ to 0.1 m³, in step 9",
+        "value": 0.4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Ends at 800 kPa, n = 1.5, in step 9",
+        "value": 800,
+        "kind": "computed"
+      },
+      {
+        "label": "Work (40 − 80) ÷ 0.5 = −80 kJ, in step 9",
+        "value": -80,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip counted as plus: 80 kJ, in step 9",
+        "value": 80,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip not dividing: −40 kJ, in step 9",
+        "value": -40,
+        "kind": "computed"
+      },
+      {
+        "label": "Mean effective pressure 20 ÷ 0.1 = 200 kPa, in step 10",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip average of ends (400 + 100) ÷ 2 = 250 kPa, in step 10",
+        "value": 250,
+        "kind": "computed"
+      },
+      {
+        "label": "Mean effective pressure 80 ÷ 0.3 = 267 kPa, in step 11",
+        "value": 267,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip dividing by end volume: 80 ÷ 0.4 = 200 kPa, in step 11",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip average of ends (800 + 100) ÷ 2 = 450 kPa, in step 11",
+        "value": 450,
+        "kind": "computed"
+      },
+      {
+        "label": "Example 2700 kPa at 0.02 m³, n = 1.5, in step 12",
+        "value": 2700,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example end 0.18 m³ at 100 kPa, in step 12",
+        "value": 0.18,
+        "kind": "assumed"
+      },
+      {
+        "label": "Work (54 − 18) ÷ 0.5 = 72 kJ, in step 12",
+        "value": 72,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip work-on-gas form: −72 kJ, in step 12",
+        "value": -72,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip dividing by n: 36 ÷ 1.5 = 24 kJ, in step 12",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Example steady 500 kPa, 0.02 to 0.06 m³, in step 13",
+        "value": 500,
+        "kind": "assumed"
+      },
+      {
+        "label": "Then pV² = C to 0.12 m³, in step 13",
+        "value": 0.12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Flat part 500 × 0.04 = 20 kJ, in step 13",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "C = 500 × 0.06² = 1.8, in step 13",
+        "value": 1.8,
+        "kind": "computed"
+      },
+      {
+        "label": "End pressure 1.8 ÷ 0.12² = 125 kPa, in step 13",
+        "value": 125,
+        "kind": "computed"
+      },
+      {
+        "label": "Curved part (30 − 15) ÷ 1 = 15 kJ, in step 13",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "Total 20 + 15 = 35 kJ, in step 13",
+        "value": 35,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip pV at the corner: 500 × 0.06 = 30, in step 13",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy: example 12 V battery",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: example 1000 kPa at 0.05 m³",
+        "value": 1000,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: example n = 1.3, end 0.2 m³",
+        "value": 1.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: C = 1000 × 0.05^1.3 = 20.35",
+        "value": 20.35,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: 0.2^1.3 = 0.1234",
+        "value": 0.1234,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: end pressure 164.9 kPa",
+        "value": 164.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: p₂V₂ = 33.0 kJ",
+        "value": 33,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: work (50 − 33.0) ÷ 0.3 = 56.7 kJ",
+        "value": 56.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: check bounds 24.7 kJ and 150 kJ",
+        "value": 24.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: mean effective pressure 56.7 ÷ 0.15 = 378 kPa",
+        "value": 378,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: 1 bar = 100 kPa",
+        "value": 100,
+        "kind": "constant",
+        "source": 14
+      }
+    ]
+  },
+  "explain": {
+    "text": "Gas pushing a piston does work, and on a graph of its pressure against its volume that work is the area under the curve.[^1] When the pressure falls as the gas expands, you add the area up in thin bars, as in the last lesson, and for a curve that follows pVⁿ = C the reverse rule gets it exactly in one line: (p₁V₁ − p₂V₂) ÷ (n − 1).\n\nStart with a steady pressure. Gas that expands against a piston pushes it through a distance, and a force moved through a distance is work.[^2] Pressure is force on each square metre, so gas at pressure p pushes a piston of area A with a force p × A.[^3] If the piston moves out a distance d, the gas's volume grows by A × d, its change in volume, ΔV. The work is p × A × d, which is p × ΔV: the piston's area drops out, so a wide cylinder and a narrow one follow the same rule. Draw pressure up the side and volume along the bottom, a [[pV diagram]], and a steady pressure is a flat line, with the work the rectangle under it, height p times width ΔV. In kPa and m³ the work comes out in kJ, because a pascal is a newton on each square metre, and newtons per square metre times cubic metres is newton metres, joules. Say 200 kPa pushes the volume from 0.1 to 0.3 m³: the work is 200 × 0.2 = 40 kJ. It is the change in volume that counts: 200 × 0.3 = 60 kJ would count the 0.1 m³ the gas filled before the piston moved. Usually, though, the pressure falls as the gas expands. One way to picture it: the same gas spread through more room presses less on each square metre. So no one rectangle fits. Cut the change in volume into thin bars, take each bar's pressure at its middle, multiply by its width, and add, the mid-ordinate rule from the last lesson. The MCA's second-engineer maths syllabus takes the curve as pVⁿ = C:[^4] pressure times volume to the power n stays the same number, C, and a process that follows it is called [[polytropic]].[^5] Say gas at 400 kPa fills 0.1 m³ and expands to 0.2 m³ with n = 2. Then C = 400 × 0.1² = 4, and at 0.2 m³ the pressure has fallen to 4 ÷ 0.2² = 100 kPa. Four bars give 19.82 kJ, eight give 19.95 kJ and a hundred give 20.00 kJ, settling on 20 kJ. That settled total is the integral of p over the change in volume, the area under the pV curve.[^1] The MCA's Applied Heat syllabus says the same, that the area of the pV diagram represents the work done,[^6] and it asks for the area of an indicator card by the mid-ordinate rule.[^7] An indicator card is a pV diagram traced from a running engine's cylinder (that description is not from this lesson's sources).\n\nNow the exact area. pVⁿ = C gives p = C ÷ Vⁿ, which is also written C × V⁻ⁿ, because a power below zero means one over: V⁻ⁿ is 1 ÷ Vⁿ. The reverse rule works for this power too: add one, giving 1 − n, and divide by it, so V⁻ⁿ integrates to V¹⁻ⁿ ÷ (1 − n). Check it by differentiating, as in the last two lessons: the power rule brings 1 − n to the front and takes one off the power, giving (1 − n) × V⁻ⁿ ÷ (1 − n) = V⁻ⁿ, what you started with. Put in the end volume, take away the start, and the work is C × (V₂¹⁻ⁿ − V₁¹⁻ⁿ) ÷ (1 − n). It tidies up. V¹⁻ⁿ is V ÷ Vⁿ, and C ÷ Vⁿ is the pressure at that volume, so C × V₂¹⁻ⁿ is just p₂V₂ and C × V₁¹⁻ⁿ is p₁V₁. That leaves (p₂V₂ − p₁V₁) ÷ (1 − n). Swapping the order of both subtractions turns the top and the bottom minus together, which leaves the value alone, and gives W = (p₁V₁ − p₂V₂) ÷ (n − 1), the area under pVⁿ = C that the same syllabus asks for.[^4] For the example, (400 × 0.1 − 100 × 0.2) ÷ (2 − 1) = (40 − 20) ÷ 1 = 20 kJ, the total the bars settle on. n = 1 will not go: the power would be −1, the one power the reverse rule cannot take, because it would divide by 0.[^8] That case needs logarithms, a later course (not from this lesson's sources).\n\nRun it backwards and the gas is squeezed, from 0.2 m³ at 100 kPa back to 0.1 m³ at 400 kPa. The curve is the same and still above the axis, but each bar's width, the change in volume, is now minus, so each pressure times change in volume is minus. The rule gives (100 × 0.2 − 400 × 0.1) ÷ 1 = −20 kJ. Work done by the gas is positive for expansion and negative for compression:[^9] the gas did −20 kJ, which means the piston did 20 kJ of work on it. Count the squeeze as plus 20 kJ and the gas, out and back to where it started, would have handed out 40 kJ from nothing. Some books give the work done on the gas instead, (p₂V₂ − p₁V₁) ÷ (n − 1),[^10] the same size with the sign turned round, so check which a question asks for. Last, a rectangle with the same area over the same change in volume has a height of area ÷ width, its area divided by its length along the volume axis, 20 kJ ÷ 0.1 m³ = 200 kPa: the steady pressure that would do the same work. This is the idea behind the [[mean effective pressure]], which the MCA's Applied Heat syllabus asks you to define[^11] and its General Engineering Science syllabus asks you to find from indicator card data.[^12] For an engine it is defined as the net work divided by the displacement volume,[^13] the volume the piston sweeps. It is not the average of the end pressures, 250 kPa, because the curve spends most of its width below 250 kPa. **The work a gas does is the area under its pV curve, pressure times change in volume added up bar by bar,[^1] and for pVⁿ = C that area is exactly (p₁V₁ − p₂V₂) ÷ (n − 1), positive as the gas expands and negative as it is squeezed.[^9]**"
+  },
+  "analogy": {
+    "text": "You know a volt is a joule per coulomb, so a steady 12 V battery that moves 2 C round a circuit gives it 12 × 2 = 24 J: a steady push times what is moved, like a steady pressure times a change in volume. Charge a capacitor and its voltage rises as the charge goes in, so no single voltage fits. Add it up in thin bars, each the voltage at that moment times a little charge, and the energy is the area under its voltage–charge graph, just as the gas's work is the area under its pV curve.",
+    "breaks": "A capacitor's voltage rises in a straight line as charge goes in, so its area is a triangle; a gas's pressure falls along a curve as it expands, so its area needs pVⁿ = C and the reverse rule. And the capacitor stores the energy, while an expanding gas hands its work on to the piston."
+  },
+  "practice": {
+    "text": "- Put pressures in kPa and volumes in m³, so the work comes out in kJ. 1 bar is 100 kPa,[^14] and 1000 litres is 1 m³ (a unit fact not taken from this lesson's sources).\n- Steady pressure: work = p × (V₂ − V₁), the pressure times the change in volume, not the volume.\n- Pressure falling along pVⁿ = C: find C = p₁ × V₁ⁿ from the start, then any other pressure as C ÷ Vⁿ, using your calculator's power key for n.\n- Then W = (p₁V₁ − p₂V₂) ÷ (n − 1), with 1 the start and 2 the end. Expansion gives plus, compression minus.\n- Only a trace, such as an indicator card? Split its width into equal strips, read its height at each strip's middle, add them and multiply by the strip width: the mid-ordinate rule.\n- Mean effective pressure = work ÷ (V₂ − V₁); for an engine, the net work ÷ the displacement volume, the volume the piston sweeps.[^13]\n\n**Rules of thumb:** when the pressure falls as the gas expands, the work lies between the end pressure × the change in volume and the start pressure × the change in volume. The rule fails at n = 1, where it would divide by 0.\n\n**Worked example:** Say gas at 1000 kPa fills 0.05 m³ and expands to 0.2 m³ with n = 1.3. C = 1000 × 0.05^1.3 = 20.35, and the end pressure is 20.35 ÷ 0.2^1.3 = 20.35 ÷ 0.1234 = 164.9 kPa, so p₂V₂ = 164.9 × 0.2 = 33.0 kJ, and p₁V₁ = 1000 × 0.05 = 50 kJ. The work is (50 − 33.0) ÷ 0.3 = 56.7 kJ. Check: it lies between 164.9 × 0.15 = 24.7 kJ and 1000 × 0.15 = 150 kJ. The mean effective pressure is 56.7 ÷ 0.15 = 378 kPa.\n\n**Where you will meet it:** an HN engineering maths unit applies integration to the work done by an expanding gas,[^15] and an engineering course's notes give the same form, (p₁V₁ − p₂V₂) ÷ (k − 1), for a gas that expands with no heat in or out, where n takes a value k set by the gas.[^16]\n\n**Common mistakes**\n- Taking p × V at one moment as the work: work needs a change in volume.\n- Multiplying by the end volume instead of the change in volume.\n- Dividing by n instead of n − 1, or not dividing at all.\n- Counting a compression's work as plus.\n- Mixing up work by the gas with work on the gas, which has the opposite sign.\n- Taking the mean effective pressure as the average of the end pressures, or dividing the work by the end volume."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "12.10: Work, Heat, and Internal Energy - Physics LibreTexts",
+      "url": "https://phys.libretexts.org/Courses/Georgia_State_University/GSU-TM-Physics_I_(2211)/12%3A_Temperature_and_Heat/12.10%3A_Work_Heat_and_Internal_Energy",
+      "quote": "The integral is interpreted graphically as the area under the pV curve"
+    },
+    {
+      "n": 2,
+      "title": "12.10: Work, Heat, and Internal Energy - Physics LibreTexts",
+      "url": "https://phys.libretexts.org/Courses/Georgia_State_University/GSU-TM-Physics_I_(2211)/12%3A_Temperature_and_Heat/12.10%3A_Work_Heat_and_Internal_Energy",
+      "quote": "If the gas expands against the piston, it exerts a force through a distance and does work on the piston."
+    },
+    {
+      "n": 3,
+      "title": "12.10: Work, Heat, and Internal Energy - Physics LibreTexts",
+      "url": "https://phys.libretexts.org/Courses/Georgia_State_University/GSU-TM-Physics_I_(2211)/12%3A_Temperature_and_Heat/12.10%3A_Work_Heat_and_Internal_Energy",
+      "quote": "Then the force on the piston due to the gas is pA, where A is the area of the face."
+    },
+    {
+      "n": 4,
+      "title": "Mathematics Written Examination Syllabus - GOV.UK",
+      "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus",
+      "quote": "Derives expressions for the area under the curve, given by pV n = C."
+    },
+    {
+      "n": 5,
+      "title": "Polytropic Processes",
+      "url": "https://engineering.purdue.edu/~wassgren/teaching/ME20000/NotesAndReading/Lec12_LectureNotes.pdf",
+      "quote": "A polytropic process is one in which pVn = constant, where n is a constant."
+    },
+    {
+      "n": 6,
+      "title": "Applied Heat Written Examination Syllabus - GOV.UK",
+      "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/applied-heat-written-examination-syllabus",
+      "quote": "Shows that the area of the pV diagram represents W.D. during the operation."
+    },
+    {
+      "n": 7,
+      "title": "Applied Heat Written Examination Syllabus - GOV.UK",
+      "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/applied-heat-written-examination-syllabus",
+      "quote": "Determines the area of an indicator card using the mid-ordinate rule."
+    },
+    {
+      "n": 8,
+      "title": "https://mathweb.ucsd.edu/~ashenk/Section6_7.pdf",
+      "url": "https://mathweb.ucsd.edu/~ashenk/Section6_7.pdf",
+      "quote": "because we cannot set n = −1 in the fraction 1/(n + 1)."
+    },
+    {
+      "n": 9,
+      "title": "12.10: Work, Heat, and Internal Energy - Physics LibreTexts",
+      "url": "https://phys.libretexts.org/Courses/Georgia_State_University/GSU-TM-Physics_I_(2211)/12%3A_Temperature_and_Heat/12.10%3A_Work_Heat_and_Internal_Energy",
+      "quote": "Work done by the gas is positive for expansion and negative for compression."
+    },
+    {
+      "n": 10,
+      "title": "Polytropic Process | Wolfram Formula Repository",
+      "url": "https://resources.wolframcloud.com/FormulaRepository/resources/Polytropic-Process",
+      "quote": "The work done on the system equals the final pressure times the final volume minus the initial pressure times the initial volume divided by the polytropic index minus 1."
+    },
+    {
+      "n": 11,
+      "title": "Applied Heat Written Examination Syllabus - GOV.UK",
+      "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/applied-heat-written-examination-syllabus",
+      "quote": "Defines mean effective pressure (m.e.p.)."
+    },
+    {
+      "n": 12,
+      "title": "General Engineering Science II Written Examination Syllabuses - GOV.UK",
+      "url": "https://www.gov.uk/government/publications/general-engineering-science-written-examination-syllabuses/general-engineering-science-ii-written-examination-syllabuses",
+      "quote": "Determine Mean Effective Pressure from indicator card data."
+    },
+    {
+      "n": 13,
+      "title": "IIT Kanpur thermodynamics notes, lecture 29",
+      "url": "https://home.iitk.ac.in/~gtm/thermodynamics/lecture29/29_3.htm",
+      "quote": "The mean effective pressure is defined as the net work divided by the displacement volume."
+    },
+    {
+      "n": 14,
+      "title": "NIST Guide to the SI, Chapter 5: Units Outside the SI | NIST",
+      "url": "https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-5-units-outside-si",
+      "quote": "1 bar = 0.1 MPa = 100 kPa"
+    },
+    {
+      "n": 15,
+      "title": "national unit specification: general information",
+      "url": "https://www.sqa.org.uk/sqa/files/hn/H7K134.pdf",
+      "quote": "Apply integration to solve problems in Engineering (area under a velocity time curve giving distance travelled, work done by an expanding gas, first and second moments of area, centroids, mean values, root mean square values, etc)"
+    },
+    {
+      "n": 16,
+      "title": "Microsoft PowerPoint - chap3-ext.ppt",
+      "url": "https://webspace.clarkson.edu/projects/fluidflow/public_html/kam/courses/2005/es340/chap3-ext.pdf",
+      "quote": "Work done during an adiabatic process: W12 = (p1V1 – p2V2)/(k-1)"
+    }
+  ]
+}

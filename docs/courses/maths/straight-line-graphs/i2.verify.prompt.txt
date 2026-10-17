@@ -1,0 +1,435 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Straight-line graphs you will actually use
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i2 "Distance and midpoint" — The step triangle between two points also gives their distance apart, by Pythagoras, and their midpoint, halfway along and halfway up. [skill]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i3 y = mx + c — Any line that is not vertical has a rule y = mx + c, with m its gradient and c where it crosses the y-axis.
+- i4 Finding the equation of a line — From two points, or a point and the gradient, get m, then put one point into y = mx + c and solve for c.
+- i5 Laws from readings — When readings plot as a straight line, its gradient and y-axis crossing are real quantities with units, like a resistor's ohms from volts against amps.
+- i6 Fitting a line to readings — When real readings scatter, lay one line through their middle, about as many above as below, and read the law from that line.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] 11.1 Distance and Midpoint Formulas; Circles - Intermediate Algebra | OpenStax — https://openstax.org/books/intermediate-algebra/pages/11-1-distance-and-midpoint-formulas-circles
+    "We will plot the points and create a right triangle much as we did when we found slope in Graphs and Functions ."
+[R2] 2.1 The Rectangular Coordinate Systems and Graphs - College Algebra | OpenStax — https://openstax.org/books/college-algebra/pages/2-1-the-rectangular-coordinate-systems-and-graphs
+    "Derived from the Pythagorean Theorem , the distance formula is used to find the distance between two points in the plane."
+[R3] Module 2 (M2) – Algebra - Coordinates and graphs - BBC Bitesize — https://www.bbc.co.uk/bitesize/articles/z4863qt
+    "To find the midpoint of a line between two sets of coordinates, find the average of the (x)-axis coordinates and the average of the (y)-axis coordinates"
+[R4] Module 3 (M3) - Algebra - Coordinates and graphs - BBC Bitesize — https://www.bbc.co.uk/bitesize/articles/zjbf9ty
+    "To find the gradient of a line joining two points, divide the difference in the y-coordinates by the difference in the x-coordinates"
+[R5] Module 3 (M3) - Algebra - Coordinates and graphs - BBC Bitesize — https://www.bbc.co.uk/bitesize/articles/zjbf9ty
+    "In the equation (y = mx + c), (m) is the gradient of the line. The gradient is a measure of how steep the line is"
+[R6] Determine the gradient of a straight line — https://www.bbc.co.uk/bitesize/guides/z8383k7/revision/3
+    "Vertical lines have a gradient which is undefined; equation x = a"
+[R7] 19.1 Ohm's law - Physics | OpenStax — https://openstax.org/books/physics/pages/19-1-ohms-law
+    "The units of resistance are volts per ampere, or V/A."
+[R8] 9.4 Ohm's Law - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/9-4-ohms-law
+    "A plot is made of the voltage versus the current, and the result is approximately linear. The slope of the line is the resistance, or the voltage divided by the current."
+Notes (claims, and the sources that support them):
+- To find the distance between two points on a grid, draw a right triangle as when finding slope, then use Pythagoras for the hypotenuse. [R1]
+- The distance formula is derived from the Pythagorean theorem and finds the distance between two points in the plane. [R2]
+- Each coordinate of the midpoint is the average of the matching coordinates of the two points. [R3]
+- To find the gradient of a line from two points, divide the difference in the y-coordinates by the difference in the x-coordinates. [R4]  (from an idea this one builds on)
+- In y = mx + c, m is the gradient, a measure of how steep the line is. [R5]  (from an idea this one builds on)
+- A vertical line has an undefined gradient and its equation takes the form x = a. [R6]  (from an idea this one builds on)
+- Ohm's law links voltage, current and resistance; the unit of resistance, the ohm, is one volt per ampere. [R7]  (whole topic)
+- A plot of voltage against current for an ohmic device is approximately a straight line whose slope is the resistance. [R8]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i2",
+ "title": "Distance and midpoint",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the step triangle's run and rise giving both the long side, √(run² + rise²), and the midpoint halfway along and halfway up, when you drag point A or B.",
+  "title": "Distance and midpoint",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens on the squared grid from Gradient from two points. Two points, A and B, sit on the grid, and either can be dragged. They snap to whole-number points so the sums stay easy. A square across and a square up are the same length, so the long side is a true length. Between them is the same step triangle, with the run arrow straight across and the rise arrow straight up or down, each labelled with its signed size. The long side of the triangle, from A straight to B, is labelled √(run² + rise²). A readout fills in d = √((x₂ − x₁)² + (y₂ − y₁)²) with the coordinates in brackets, then the two squares, then their total, then d. The run and the rise meet at a right angle, so the long side is the hypotenuse and Pythagoras gives its length. When a difference turns negative its square stays the same, because a negative times a negative is positive, so the distance does not change. A midpoint marker sits on the long side. Dashed lines run from it halfway along the run and halfway up the rise, and on down to the axes. It lands on the long side because the line climbs the same amount for each 1 along, so half the run gives half the rise. The dashed lines meet the axes where they meet the average of the two x's and the average of the two y's. A second readout fills in ((x₁ + x₂) ÷ 2, (y₁ + y₂) ÷ 2). When the distance is not a whole number it is shown to one decimal place. One screen is a ceiling plan drawn in metres both ways, with two lights on it. Some screens show an idea and the rest ask you to try it. A puzzle shows two points and three answers. A wrong pick gets a one-line hint naming its slip, and Why? draws the triangle and fills in the readout for those points.",
+  "ignores": "The points snap to whole numbers, but the rules work for any two points. Only the piece of line between A and B is drawn, because the distance and the midpoint belong to the two points, not to the whole line. The distance is the straight line from A to B, not a route along the gridlines, which a cable following walls would take. The ceiling plan's lights are example positions.",
+  "numbers": [
+   {
+    "label": "Example point A (1, 2), in step 1",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example point B (7, 10), in step 1",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Run 7 − 1, in step 1",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Rise 10 − 2, in step 1",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Squares 36 + 64, in step 1",
+    "value": 100,
+    "kind": "computed"
+   },
+   {
+    "label": "Distance √100, in step 1",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip run plus rise, 6 + 8, in step 1",
+    "value": 14,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle (2, 1) to (5, 5): √(9 + 16), in step 2",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip run plus rise, 3 + 4, in step 2",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip no square root, 25, in step 2",
+    "value": 25,
+    "kind": "computed"
+   },
+   {
+    "label": "B dragged to (−5, −6): run −5 − 1, in step 3",
+    "value": -6,
+    "kind": "computed"
+   },
+   {
+    "label": "B dragged to (−5, −6): rise −6 − 2, in step 3",
+    "value": -8,
+    "kind": "computed"
+   },
+   {
+    "label": "(−6)² in step 3",
+    "value": 36,
+    "kind": "computed"
+   },
+   {
+    "label": "(−8)² in step 3",
+    "value": 64,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle (−1, 4) to (5, −4): √(36 + 64), in step 4",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip without brackets, run 5 − 1 = 4, √80, in step 4",
+    "value": 8.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip run plus rise, 6 + 8, in step 4",
+    "value": 14,
+    "kind": "computed"
+   },
+   {
+    "label": "Midpoint of (1, 2) and (7, 10): x, in step 5",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Midpoint of (1, 2) and (7, 10): y, in step 5",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Half the run, 6 ÷ 2, in step 5",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Half the rise, 8 ÷ 2, in step 5",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle midpoint of (2, 3) and (8, 7): (5, 5), in step 6",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip halved differences, (3, 2), in step 6",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip added, not halved, (10, 10), in step 6",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Midpoint of (−3, 5) and (5, −1): x, in step 7",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Midpoint of (−3, 5) and (5, −1): y, in step 7",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle midpoint of (−4, −2) and (2, 6): x, in step 8",
+    "value": -1,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle midpoint of (−4, −2) and (2, 6): y, in step 8",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip halved differences, (3, 4), in step 8",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip minus lost on −4, (3, 2), in step 8",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Working back: B from A (1, 2), midpoint (4, 6), in step 9",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle: end (3, 6), midpoint (5, 2), other end x, in step 10",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle: other end y, (7, −2), in step 10",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip midpoint of end and midpoint, (4, 4), in step 10",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip the step only, (2, −4), in step 10",
+    "value": -4,
+    "kind": "computed"
+   },
+   {
+    "label": "Example light at (1, 2) metres on a plan, in step 11",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example light at (13, 7) metres on a plan, in step 11",
+    "value": 13,
+    "kind": "assumed"
+   },
+   {
+    "label": "Plan run 12 m, rise 5 m, in step 11",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Distance √169 in metres, in step 11",
+    "value": 13,
+    "kind": "computed"
+   },
+   {
+    "label": "Midpoint (7, 4.5) metres, y, in step 11",
+    "value": 4.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle midpoint of (1, 3) and (4, 9): x, in step 12",
+    "value": 2.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip halved differences, (1.5, 3), in step 12",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip added, not halved, (5, 12), in step 12",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle (−3, −1) to (2, 11): √(25 + 144), in step 13",
+    "value": 13,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip run plus rise, 5 + 12, in step 13",
+    "value": 17,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip no square root, 169, in step 13",
+    "value": 169,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example (−2, 7) to (4, −1): distance",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example midpoint (1, 3): y",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Tape analogy: wall from the 1.2 m mark",
+    "value": 1.2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Tape analogy: wall to the 4.8 m mark",
+    "value": 4.8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Tape analogy: middle (1.2 + 4.8) ÷ 2, in metres",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Tape analogy: gap 4.8 − 1.2, in metres",
+    "value": 3.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: larger difference, for the size check",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: run plus rise sizes, for the size check",
+    "value": 14,
+    "kind": "computed"
+   },
+   {
+    "label": "Working back example: end (2, 5), midpoint (5, 3)",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Working back example: other end (8, 1), x",
+    "value": 8,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "The step triangle between two points gives two more things besides the gradient. Its long side is the straight distance from one point to the other, and halfway along that side is their [[midpoint]]. To find the distance, plot the two points and draw the right triangle, much as you did for the gradient.[^1] The run and the rise meet at a right angle, so the long side is the hypotenuse, and Pythagoras gives its length, as in Geometry fundamentals. For A (1, 2) and B (7, 10), the run is 7 − 1 = 6 and the rise is 10 − 2 = 8. Square them, add, and take the square root: √(6² + 8²) = √(36 + 64) = √100 = 10. Adding the run and the rise, 6 + 8 = 14, goes round the two short sides instead, which is further than going straight. Stopping at 100 gives the distance squared, not the distance.\n\nWritten with the coordinates, that is the [[distance formula]], d = √((x₂ − x₁)² + (y₂ − y₁)²), which comes from Pythagoras.[^2] Here, unlike the gradient, the order of the points makes no difference. Drag B across both axes to (−5, −6) and the run becomes −5 − 1 = −6 and the rise −6 − 2 = −8. A negative times a negative is positive, so (−6)² = 36 and (−8)² = 64, the same squares as before, and the distance is still 10. Starting from B instead only turns each difference's sign round, and its square is the same. Brackets still matter: from (−1, 4) to (5, −4), the run is 5 − (−1) = 6, not 4. The distance is a real length only when a square across and a square up stand for the same length, as on a plan drawn in metres both ways. On a graph of volts against amps, the long side of the triangle is not a length at all.\n\nThe midpoint sits halfway along the run and halfway up the rise. From A (1, 2), half the run is 3 and half the rise is 4, so the midpoint is (1 + 3, 2 + 4) = (4, 6). That point is on the long side, because a straight line climbs the same amount for each 1 along, so half the run along gives half the rise up. The number halfway between two others is the same distance from each, and so is their average: (1 + 7) ÷ 2 = 4, which is 3 above 1 and 3 below 7. So each coordinate of the midpoint is the average of the matching coordinates of the two points:[^3] (1 + 7) ÷ 2 = 4 and (2 + 10) ÷ 2 = 6. Halving the run and the rise alone, (3, 4), gives only how far the midpoint is from A, not where it is. With negatives the average works the same way: (−3, 5) and (5, −1) give ((−3 + 5) ÷ 2, (5 + (−1)) ÷ 2) = (1, 2). To work back to a missing end, take the same step again: from A (1, 2) to the midpoint (4, 6) is 3 along and 4 up, so B is 3 along and 4 up from the midpoint, at (7, 10).\n\n**The distance between two points is √(run² + rise²), Pythagoras on the step triangle,[^2] and the midpoint is the average of the two x's and the average of the two y's.[^3]**"
+ },
+ "analogy": {
+  "text": "Finding the middle of a wall with a tape from the corner works like the midpoint. If the wall runs from the 1.2 m mark to the 4.8 m mark, the middle is at (1.2 + 4.8) ÷ 2 = 3 m, which is also 1.2 m plus half of the 3.6 m between them.",
+  "breaks": "A tape measures one way only. On a grid you average the x's and the y's separately, and the distance needs Pythagoras because across and up are at right angles."
+ },
+ "practice": {
+  "text": "- Sketch the two points and the step triangle between them.\n- Work out the run, x₂ − x₁, and the rise, y₂ − y₁, with brackets round any negative coordinate.\n- For the distance, square the run and the rise, add, then take the square root.\n- For the midpoint, add the two x's and halve, then add the two y's and halve.\n- To find a missing end, work out the step from the known end to the midpoint, then take the same step again from the midpoint.\n- Check the midpoint sits between the points on your sketch, and that the distance is no shorter than the larger difference and no longer than the two added.\n\n**Rule of thumb:** distance is subtract, square, add, square root. Midpoint is add and halve. Use the distance only when a square across and a square up are the same length, as on a plan in metres both ways.\n\n**Worked example:** (−2, 7) and (4, −1). The run is 4 − (−2) = 6 and the rise is −1 − 7 = −8. The distance is √(6² + (−8)²) = √(36 + 64) = √100 = 10, which sits between 8 and 6 + 8 = 14, so it passes the check. The midpoint is ((−2 + 4) ÷ 2, (7 + (−1)) ÷ 2) = (1, 3). From (−2, 7) to (1, 3) is 3 along and 4 down, half the run and half the rise, so that checks too.\n\n**Working back:** one end is (2, 5) and the midpoint is (5, 3). The step from the end to the midpoint is 3 along and 2 down. Take it again from the midpoint, and the other end is (8, 1).\n\n**Common mistakes**\n- Adding the run and the rise. That goes round two sides of the triangle, so it is too long.\n- Stopping before the square root. That is the distance squared.\n- Writing (−8)² as −64. A negative times a negative is positive, so it is 64.\n- Dropping the brackets, so 4 − (−2) becomes 2 instead of 6.\n- Halving the run and the rise for the midpoint. That is the step from one end to the middle, so add it on to that end.\n- Working back by finding the midpoint of the end and the midpoint. Take the same step again past the midpoint instead."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "11.1 Distance and Midpoint Formulas; Circles - Intermediate Algebra | OpenStax",
+   "url": "https://openstax.org/books/intermediate-algebra/pages/11-1-distance-and-midpoint-formulas-circles",
+   "quote": "We will plot the points and create a right triangle much as we did when we found slope in Graphs and Functions ."
+  },
+  {
+   "n": 2,
+   "title": "2.1 The Rectangular Coordinate Systems and Graphs - College Algebra | OpenStax",
+   "url": "https://openstax.org/books/college-algebra/pages/2-1-the-rectangular-coordinate-systems-and-graphs",
+   "quote": "Derived from the Pythagorean Theorem , the distance formula is used to find the distance between two points in the plane."
+  },
+  {
+   "n": 3,
+   "title": "Module 2 (M2) – Algebra - Coordinates and graphs - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/articles/z4863qt",
+   "quote": "To find the midpoint of a line between two sets of coordinates, find the average of the (x)-axis coordinates and the average of the (y)-axis coordinates"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

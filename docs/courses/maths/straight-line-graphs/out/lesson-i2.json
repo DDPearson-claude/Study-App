@@ -1,0 +1,500 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-17T09:24:38.766Z",
+ "startedAt": "2026-10-17T09:24:38.766Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i2",
+  "title": "Distance and midpoint",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the step triangle's run and rise giving both the long side, √(run² + rise²), and the midpoint halfway along and halfway up, when you drag point A or B.",
+   "title": "Distance and midpoint",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in thirteen small screens on the squared grid from Gradient from two points. Two points, A and B, sit on the grid, and either can be dragged. They snap to whole-number points so the sums stay easy. A square across and a square up are the same length, so the long side is a true length. Between them is the same step triangle, with the run arrow straight across and the rise arrow straight up or down, each labelled with its signed size. The long side of the triangle, from A straight to B, is labelled √(run² + rise²). A readout fills in d = √((x₂ − x₁)² + (y₂ − y₁)²) with the coordinates in brackets, then the two squares, then their total, then d. The run and the rise meet at a right angle, so the long side is the hypotenuse and Pythagoras gives its length. When a difference turns negative its square stays the same, because a negative times a negative is positive, so the distance does not change. A midpoint marker sits on the long side. Dashed lines run from it halfway along the run and halfway up the rise, and on down to the axes. It lands on the long side because the line climbs the same amount for each 1 along, so half the run gives half the rise. The dashed lines meet the axes where they meet the average of the two x's and the average of the two y's. A second readout fills in ((x₁ + x₂) ÷ 2, (y₁ + y₂) ÷ 2). When the distance is not a whole number it is shown to one decimal place. One screen is a ceiling plan drawn in metres both ways, with two lights on it. Some screens show an idea and the rest ask you to try it. A puzzle shows two points and three answers. A wrong pick gets a one-line hint naming its slip, and Why? draws the triangle and fills in the readout for those points.",
+   "ignores": "The points snap to whole numbers, but the rules work for any two points. Only the piece of line between A and B is drawn, because the distance and the midpoint belong to the two points, not to the whole line. The distance is the straight line from A to B, not a route along the gridlines, which a cable following walls would take. The ceiling plan's lights are example positions.",
+   "numbers": [
+    {
+     "label": "Example point A (1, 2), in step 1",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example point B (7, 10), in step 1",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Run 7 − 1, in step 1",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Rise 10 − 2, in step 1",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Squares 36 + 64, in step 1",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "Distance √100, in step 1",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip run plus rise, 6 + 8, in step 1",
+     "value": 14,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle (2, 1) to (5, 5): √(9 + 16), in step 2",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip run plus rise, 3 + 4, in step 2",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip no square root, 25, in step 2",
+     "value": 25,
+     "kind": "computed"
+    },
+    {
+     "label": "B dragged to (−5, −6): run −5 − 1, in step 3",
+     "value": -6,
+     "kind": "computed"
+    },
+    {
+     "label": "B dragged to (−5, −6): rise −6 − 2, in step 3",
+     "value": -8,
+     "kind": "computed"
+    },
+    {
+     "label": "(−6)² in step 3",
+     "value": 36,
+     "kind": "computed"
+    },
+    {
+     "label": "(−8)² in step 3",
+     "value": 64,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle (−1, 4) to (5, −4): √(36 + 64), in step 4",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip without brackets, run 5 − 1 = 4, √80, in step 4",
+     "value": 8.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip run plus rise, 6 + 8, in step 4",
+     "value": 14,
+     "kind": "computed"
+    },
+    {
+     "label": "Midpoint of (1, 2) and (7, 10): x, in step 5",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Midpoint of (1, 2) and (7, 10): y, in step 5",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Half the run, 6 ÷ 2, in step 5",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Half the rise, 8 ÷ 2, in step 5",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle midpoint of (2, 3) and (8, 7): (5, 5), in step 6",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip halved differences, (3, 2), in step 6",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip added, not halved, (10, 10), in step 6",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Midpoint of (−3, 5) and (5, −1): x, in step 7",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Midpoint of (−3, 5) and (5, −1): y, in step 7",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle midpoint of (−4, −2) and (2, 6): x, in step 8",
+     "value": -1,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle midpoint of (−4, −2) and (2, 6): y, in step 8",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip halved differences, (3, 4), in step 8",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip minus lost on −4, (3, 2), in step 8",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Working back: B from A (1, 2), midpoint (4, 6), in step 9",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle: end (3, 6), midpoint (5, 2), other end x, in step 10",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle: other end y, (7, −2), in step 10",
+     "value": -2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip midpoint of end and midpoint, (4, 4), in step 10",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip the step only, (2, −4), in step 10",
+     "value": -4,
+     "kind": "computed"
+    },
+    {
+     "label": "Example light at (1, 2) metres on a plan, in step 11",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example light at (13, 7) metres on a plan, in step 11",
+     "value": 13,
+     "kind": "assumed"
+    },
+    {
+     "label": "Plan run 12 m, rise 5 m, in step 11",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Distance √169 in metres, in step 11",
+     "value": 13,
+     "kind": "computed"
+    },
+    {
+     "label": "Midpoint (7, 4.5) metres, y, in step 11",
+     "value": 4.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle midpoint of (1, 3) and (4, 9): x, in step 12",
+     "value": 2.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip halved differences, (1.5, 3), in step 12",
+     "value": 1.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip added, not halved, (5, 12), in step 12",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle (−3, −1) to (2, 11): √(25 + 144), in step 13",
+     "value": 13,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip run plus rise, 5 + 12, in step 13",
+     "value": 17,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip no square root, 169, in step 13",
+     "value": 169,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example (−2, 7) to (4, −1): distance",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example midpoint (1, 3): y",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Tape analogy: wall from the 1.2 m mark",
+     "value": 1.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Tape analogy: wall to the 4.8 m mark",
+     "value": 4.8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Tape analogy: middle (1.2 + 4.8) ÷ 2, in metres",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Tape analogy: gap 4.8 − 1.2, in metres",
+     "value": 3.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: larger difference, for the size check",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: run plus rise sizes, for the size check",
+     "value": 14,
+     "kind": "computed"
+    },
+    {
+     "label": "Working back example: end (2, 5), midpoint (5, 3)",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Working back example: other end (8, 1), x",
+     "value": 8,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "The step triangle between two points gives two more things besides the gradient. Its long side is the straight distance from one point to the other, and halfway along that side is their [[midpoint]]. To find the distance, plot the two points and draw the right triangle, much as you did for the gradient.[^1] The run and the rise meet at a right angle, so the long side is the hypotenuse, and Pythagoras gives its length, as in Geometry fundamentals. For A (1, 2) and B (7, 10), the run is 7 − 1 = 6 and the rise is 10 − 2 = 8. Square them, add, and take the square root: √(6² + 8²) = √(36 + 64) = √100 = 10. Adding the run and the rise, 6 + 8 = 14, goes round the two short sides instead, which is further than going straight. Stopping at 100 gives the distance squared, not the distance.\n\nWritten with the coordinates, that is the [[distance formula]], d = √((x₂ − x₁)² + (y₂ − y₁)²), which comes from Pythagoras.[^2] Here, unlike the gradient, you need not even take the points in the same order both times. Drag B across both axes to (−5, −6) and the run becomes −5 − 1 = −6 and the rise −6 − 2 = −8. A negative times a negative is positive, so (−6)² = 36 and (−8)² = 64, the same squares as before, and the distance is still 10. Starting from B instead only turns each difference's sign round, and its square is the same. Brackets still matter: from (−1, 4) to (5, −4), the run is 5 − (−1) = 6, not 4. The distance is a real length only when both axes measure length in the same unit, as on a plan drawn in metres both ways. On a graph of volts against amps, the long side of the triangle is not a length at all.\n\nThe midpoint sits halfway along the run and halfway up the rise. From A (1, 2), half the run is 3 and half the rise is 4, so the midpoint is (1 + 3, 2 + 4) = (4, 6). That point is on the long side, because a straight line climbs the same amount for each 1 along, so half the run along gives half the rise up. The number halfway between two others is the same distance from each, and so is their average: (1 + 7) ÷ 2 = 4, which is 3 above 1 and 3 below 7. So each coordinate of the midpoint is the average of the matching coordinates of the two points:[^3] (1 + 7) ÷ 2 = 4 and (2 + 10) ÷ 2 = 6. Halving the run and the rise alone, (3, 4), gives only how far the midpoint is from A, not where it is. With negatives the average works the same way: (−3, 5) and (5, −1) give ((−3 + 5) ÷ 2, (5 + (−1)) ÷ 2) = (1, 2). To work back to a missing end, take the same step again: from A (1, 2) to the midpoint (4, 6) is 3 along and 4 up, so B is 3 along and 4 up from the midpoint, at (7, 10).\n\n**The distance between two points is √(run² + rise²), Pythagoras on the step triangle,[^2] and the midpoint is the average of the two x's and the average of the two y's.[^3]**"
+  },
+  "analogy": {
+   "text": "Finding the middle of a wall with a tape from the corner works like the midpoint. If the wall runs from the 1.2 m mark to the 4.8 m mark, the middle is at (1.2 + 4.8) ÷ 2 = 3 m, which is also 1.2 m plus half of the 3.6 m between them.",
+   "breaks": "A tape measures one way only. On a grid you average the x's and the y's separately, and the distance needs Pythagoras because across and up are at right angles."
+  },
+  "practice": {
+   "text": "- Sketch the two points and the step triangle between them.\n- Work out the run, x₂ − x₁, and the rise, y₂ − y₁, with brackets round any negative coordinate.\n- For the distance, square the run and the rise, add, then take the square root.\n- For the midpoint, add the two x's and halve, then add the two y's and halve.\n- To find a missing end, work out the step from the known end to the midpoint, then take the same step again from the midpoint.\n- Check the midpoint sits between the points on your sketch, and that the distance is no shorter than the larger difference and no longer than the two added, ignoring minus signs.\n\n**Rule of thumb:** distance is subtract, square, add, square root. Midpoint is add and halve. Use the distance only when both axes are lengths in the same unit, as on a plan in metres both ways.\n\n**Worked example:** (−2, 7) and (4, −1). The run is 4 − (−2) = 6 and the rise is −1 − 7 = −8. The distance is √(6² + (−8)²) = √(36 + 64) = √100 = 10, which sits between 8 and 6 + 8 = 14, so it passes the check. The midpoint is ((−2 + 4) ÷ 2, (7 + (−1)) ÷ 2) = (1, 3). From (−2, 7) to (1, 3) is 3 along and 4 down, half the run and half the rise, so that checks too.\n\n**Working back:** one end is (2, 5) and the midpoint is (5, 3). The step from the end to the midpoint is 3 along and 2 down. Take it again from the midpoint, and the other end is (8, 1).\n\n**Common mistakes**\n- Adding the run and the rise. That goes round two sides of the triangle, so it is too long.\n- Stopping before the square root. That is the distance squared.\n- Writing (−8)² as −64. A negative times a negative is positive, so it is 64.\n- Dropping the brackets, so 4 − (−2) becomes 2 instead of 6.\n- Halving the run and the rise for the midpoint. That is the step from one end to the middle, so add it on to that end.\n- Working back by finding the midpoint of the end and the midpoint. Take the same step again past the midpoint instead."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "11.1 Distance and Midpoint Formulas; Circles - Intermediate Algebra | OpenStax",
+    "url": "https://openstax.org/books/intermediate-algebra/pages/11-1-distance-and-midpoint-formulas-circles",
+    "quote": "We will plot the points and create a right triangle much as we did when we found slope in Graphs and Functions ."
+   },
+   {
+    "n": 2,
+    "title": "2.1 The Rectangular Coordinate Systems and Graphs - College Algebra | OpenStax",
+    "url": "https://openstax.org/books/college-algebra/pages/2-1-the-rectangular-coordinate-systems-and-graphs",
+    "quote": "Derived from the Pythagorean Theorem , the distance formula is used to find the distance between two points in the plane."
+   },
+   {
+    "n": 3,
+    "title": "Module 2 (M2) – Algebra - Coordinates and graphs - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/z4863qt",
+    "quote": "To find the midpoint of a line between two sets of coordinates, find the average of the (x)-axis coordinates and the average of the (y)-axis coordinates"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  /* The readout above the grid: the rule, which point gives which numbers, then the working. */\n  .ro { border-left: 3px solid var(--k-accent2); padding: 4px 0 4px 12px; }\n  .ro p { margin: 0; }\n  .ro .rule { font-weight: 700; line-height: 1.5; }\n  .ro .ronote { color: var(--k-muted); font-size: .9rem; line-height: 1.45; }\n  .ro .wk { line-height: 1.55; min-height: 3.1em; margin-top: 4px; }\n  .ro .wk .lab { color: var(--k-muted); font-weight: 700; }\n  .ro .pc { white-space: nowrap; }\n  .ro .pc.end { font-weight: 700; color: var(--k-accent2); }\n  .ro .pc.q { color: var(--k-muted); }\n  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }\n  .scene.grab { touch-action: none; }\n  /* The squared grid, its axes and their numbers. */\n  .scene .gl { stroke: var(--k-line); stroke-width: 1; }\n  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .at { font: 600 13px var(--k-font); fill: var(--k-muted); }\n  /* The long side, the step triangle (run and rise arrows, right-angle mark), the points. A second step is teal. */\n  .scene .ln { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; fill: none; }\n  .scene .tri { fill: var(--k-accent2); fill-opacity: .07; stroke: none; }\n  .scene .tri.teal { fill: var(--k-accent); }\n  .scene .sh { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; fill: none; }\n  .scene .sh.teal { stroke: var(--k-accent); }\n  .scene .hd { fill: var(--k-accent2); stroke: none; }\n  .scene .hd.teal { fill: var(--k-accent); }\n  .scene .ra { fill: none; stroke: var(--k-muted); stroke-width: 1.4; }\n  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  /* The midpoint: a teal dot, ticks halfway along the run and up the rise, dashed lines to the axes. */\n  .scene .mp { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .hk { stroke: var(--k-accent); stroke-width: 2.5; stroke-linecap: round; }\n  .scene .dsh { stroke: var(--k-accent); stroke-width: 1.6; stroke-dasharray: 5 4; fill: none; }\n  .scene .ft { font: 700 13px var(--k-font); fill: var(--k-accent); }\n  /* A faint ring marks a point that can be dragged. */\n  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-opacity: .4; stroke-width: 1.5; }\n  /* Labels carry a halo of the page colour, so a line passing behind one never strikes through it. */\n  .scene .lab { font: 700 14px var(--k-font); fill: var(--k-ink); paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }\n  .scene .lab.arw, .scene .lab.dl { fill: var(--k-accent2); }\n  .scene .lab.arw.teal, .scene .lab.mid { fill: var(--k-accent); }\n  .scene .v { font-style: italic; }\n  .scene #art *, .scene #labs * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }\n  .scene .grip:active { cursor: grabbing; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stay on one row, each label whole; longer ones stack one to a row. */\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  /* Before a puzzle is answered its working is one line and the empty feedback line takes no room. */\n  .pz.ask .ro .wk { min-height: 1.55em; }\n  .pz.ask .fb:empty { min-height: 0; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<p class=\"lead\">Points on a squared grid, the step triangle between them, its long side and its midpoint. The two ceiling lights are example positions.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div class=\"ro\" id=\"ro\">\n      <div id=\"rules\"></div>\n      <p class=\"ronote\" id=\"ronote\"></p>\n      <div id=\"rows\"></div>\n    </div>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 320\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"labs\"></g><g id=\"ui\"></g></svg>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">The distance is Pythagoras on the step triangle. The midpoint averages the x's and the y's.</p>\n\n<script>\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // view: the grid's window (squares of 1 both ways, so a square across and a square up are the same length).\n  // pts: A and B; on a working-back screen A and the midpoint M (B is found). focus: 'd' the distance,\n  // 'm' the midpoint, 'both', or 'back' (working back to a missing end). keys: on a SHOW step, the\n  // pairs of points it slides through, each starting its slide at `at`. drag: A and B can be dragged.\n  // A puzzle: opts, want, and each wrong option's slip, worked from the puzzle's own points, with its own hint.\n  const PICK = 'Tap one of the answers.';\n  const RULE_D = '`d = √((x₂ − x₁)² + (y₂ − y₁)²)`';\n  const RULE_M = '`M = ((x₁ + x₂) ÷ 2, (y₁ + y₂) ÷ 2)`';\n  const RULE_B = 'B is the same step on from M as M is from A.';\n  const NOTE = 'A gives `x₁` and `y₁`, and B gives `x₂` and `y₂`.';\n  const NOTE_B = 'A is the end you know, and M is the midpoint.';\n  const NOTE_L = 'The first light gives `x₁` and `y₁`, and the second gives `x₂` and `y₂`.';\n  const SQ = (x0, x1, y0, y1, hmax) => ({ x0, x1, y0, y1, xt: 'x', yt: 'y', u: '', hmax: hmax || 250 });\n  const PLAN = { x0: 0, x1: 14, y0: 0, y1: 8, xt: 'Across the ceiling (m)', yt: 'Along the ceiling (m)', u: ' m', hmax: 250 };\n  const AB = ['A', 'B'], AMB = ['A', 'M', 'B'];\n  const ab = (P) => [Math.abs(P[1][0] - P[0][0]), Math.abs(P[1][1] - P[0][1])];\n  const halves = (P) => [(P[1][0] - P[0][0]) / 2, (P[1][1] - P[0][1]) / 2];\n  const totals = (P) => [P[0][0] + P[1][0], P[0][1] + P[1][1]];\n  const HINT_D = 'Not quite. Square the run and the rise, add, then take the square root.';\n  const HINT_M = 'Not quite. Add the two x\\'s and halve, then add the two y\\'s and halve.';\n  const STEPS = [\n    { show: true, name: 'The long side', view: SQ(-1, 9, 0, 11), pts: [[1, 2], [7, 10]], names: AB, drag: true, focus: 'd', dur: 3.6,\n      text: 'The run and the rise meet at a right angle, so the long side from A to B is the hypotenuse, and Pythagoras gives its length, `d`. Square the run and the rise, add, then take the square root, `√(36 + 64) = √100 = 10`. Written with the coordinates, that is the *distance formula*, and it works wherever you drag A or B.' },\n    { kind: 'pick', name: 'Your turn', view: SQ(-1, 7, -1, 7), pts: [[2, 1], [5, 5]], names: AB, focus: 'd',\n      opts: ['5', '7', '25'], want: '5', slip: { '7': (P) => ab(P)[0] + ab(P)[1], '25': (P) => ab(P)[0] ** 2 + ab(P)[1] ** 2 },\n      task: 'How far apart are A and B?',\n      why: 'The run is `5 − 2 = 3` and the rise is `5 − 1 = 4`. So `d = √(3² + 4²) = √(9 + 16) = √25 = 5`.',\n      hint: HINT_D,\n      hints: { '7': 'Not quite. `3 + 4 = 7` goes round the two short sides, which is further than going straight.', '25': 'Not quite. 25 is the distance squared. Take its square root.' } },\n    { show: true, name: 'Across both axes', view: SQ(-6, 8, -7, 11, 300), names: AB, drag: true, focus: 'd', dur: 4.0,\n      keys: [{ pts: [[1, 2], [7, 10]] }, { pts: [[1, 2], [7, -6]], at: 1.0 }, { pts: [[1, 2], [-5, -6]], at: 2.6 }],\n      text: 'B drops below A, then passes to its left, so the rise and then the run turn negative. A negative times a negative is positive, so `(−6)² = 36` and `(−8)² = 64`, the same squares as before, and the distance is still 10. So, unlike the gradient, it does not matter which point you take first.' },\n    { kind: 'pick', name: 'Mind the brackets', view: SQ(-2, 6, -5, 5), pts: [[-1, 4], [5, -4]], names: AB, focus: 'd',\n      opts: ['10', '8.9', '14'], want: '10',\n      slip: { '8.9': (P) => Math.hypot(P[1][0] - Math.abs(P[0][0]), P[1][1] - P[0][1]), '14': (P) => ab(P)[0] + ab(P)[1] },\n      task: 'How far apart are A and B? Mind the negative coordinates.',\n      why: 'The run is `5 − (−1) = 6` and the rise is `−4 − 4 = −8`. So `d = √(6² + (−8)²) = √(36 + 64) = √100 = 10`.',\n      hint: 'Not quite. Put brackets round each negative coordinate, then square, add and take the square root.',\n      hints: { '8.9': 'Not quite. Without brackets, `5 − (−1)` became `5 − 1`. Taking away −1 adds 1, so the run is 6.', '14': 'Not quite. `6 + 8 = 14` goes round the two short sides. Square, add, then take the square root.' } },\n    { show: true, name: 'Halfway', view: SQ(-1, 9, 0, 11), pts: [[1, 2], [7, 10]], names: AB, drag: true, focus: 'm', dur: 3.0,\n      text: 'Half the run is 3 and half the rise is 4, so the *midpoint* is `(1 + 3, 2 + 4) = (4, 6)`. It sits on the long side, because half the run along gives half the rise up. Along, 4 is 3 on from 1 and 3 short of 7, so it is halfway, and halfway between two numbers is their average: `(1 + 7) ÷ 2 = 4`, and likewise `(2 + 10) ÷ 2 = 6`.' },\n    { kind: 'pick', name: 'Find the middle', view: SQ(0, 9, 0, 8), pts: [[2, 3], [8, 7]], names: AB, focus: 'm',\n      opts: ['(5, 5)', '(3, 2)', '(10, 10)'], want: '(5, 5)', slip: { '(3, 2)': halves, '(10, 10)': totals },\n      task: 'Find the midpoint of A and B.',\n      why: 'The average of the x\\'s is `(2 + 8) ÷ 2 = 5` and of the y\\'s `(3 + 7) ÷ 2 = 5`, so the midpoint is (5, 5). That is half the run, 3, along from A and half the rise, 2, up.',\n      hint: HINT_M,\n      hints: { '(3, 2)': 'Not quite. (3, 2) is half the run and half the rise, the step from A to the middle. Add it on to A.', '(10, 10)': 'Not quite. Those are the totals. Halve each one.' } },\n    { show: true, name: 'Negatives too', view: SQ(-4, 6, -2, 6), pts: [[-3, 5], [5, -1]], names: AB, drag: true, focus: 'm', dur: 3.0,\n      text: 'With negatives the average works the same way. `(−3 + 5) ÷ 2 = 1` and `(5 + (−1)) ÷ 2 = 2`, so the midpoint is (1, 2).' },\n    { kind: 'pick', name: 'Mind the signs', view: SQ(-5, 3, -3, 7), pts: [[-4, -2], [2, 6]], names: AB, focus: 'm',\n      opts: ['(−1, 2)', '(3, 4)', '(3, 2)'], want: '(−1, 2)',\n      slip: { '(3, 4)': halves, '(3, 2)': (P) => [(Math.abs(P[0][0]) + P[1][0]) / 2, (P[0][1] + P[1][1]) / 2] },\n      task: 'Find the midpoint of A and B. Mind the negative coordinates.',\n      why: '`(−4 + 2) ÷ 2 = −2 ÷ 2 = −1` and `(−2 + 6) ÷ 2 = 4 ÷ 2 = 2`, so the midpoint is (−1, 2).',\n      hint: HINT_M,\n      hints: { '(3, 4)': 'Not quite. (3, 4) is half the run and half the rise, the step from A to the middle. Add it on to A.', '(3, 2)': 'Not quite. The −4 lost its minus. `−4 + 2 = −2`, and half of that is −1.' } },\n    { show: true, name: 'Working back', view: SQ(-1, 9, 0, 11), pts: [[1, 2], [4, 6]], names: AMB, focus: 'back', dur: 3.8,\n      text: 'To find a missing end, take the same step again. From A to the midpoint M is a run of 3 and a rise of 4, so B is a run of 3 and a rise of 4 on from M, at (7, 10).' },\n    { kind: 'pick', name: 'The other end', view: SQ(0, 9, -3, 7), pts: [[3, 6], [5, 2]], names: AMB, focus: 'back',\n      opts: ['(7, −2)', '(4, 4)', '(2, −4)'], want: '(7, −2)',\n      slip: { '(4, 4)': (P) => [(P[0][0] + P[1][0]) / 2, (P[0][1] + P[1][1]) / 2], '(2, −4)': (P) => [P[1][0] - P[0][0], P[1][1] - P[0][1]] },\n      task: 'A is one end and M is the midpoint. Where is the other end, B?',\n      why: 'From A to M the run is `5 − 3 = 2` and the rise is `2 − 6 = −4`. Take the same step again from M, and B is at `(5 + 2, 2 + (−4)) = (7, −2)`.',\n      hint: 'Not quite. Find the step from A to M, then take it again from M.',\n      hints: { '(4, 4)': 'Not quite. (4, 4) is the midpoint of A and M. Take the step from A to M again, past M.', '(2, −4)': 'Not quite. (2, −4) is the step from A to M. Add it on to M.' } },\n    { show: true, name: 'A ceiling plan', view: PLAN, pts: [[1, 2], [13, 7]], names: ['Light', 'Light'], drag: true, focus: 'both', dur: 4.4, note: NOTE_L,\n      text: 'On a plan drawn in metres both ways, the long side is a real length, and the rise is a step up the plan, not a height. These two lights are `√(12² + 5²) = 13` m apart in a straight line, and their midpoint is (7, 4.5). On a graph of volts against amps, the long side would not be a length at all.' },\n    { kind: 'pick', name: 'Between the lines', view: SQ(-1, 6, 0, 10), pts: [[1, 3], [4, 9]], names: AB, focus: 'm',\n      opts: ['(2.5, 6)', '(1.5, 3)', '(5, 12)'], want: '(2.5, 6)', slip: { '(1.5, 3)': halves, '(5, 12)': totals },\n      task: 'Find the midpoint of A and B. It can land between the gridlines.',\n      why: '`(1 + 4) ÷ 2 = 5 ÷ 2 = 2.5` and `(3 + 9) ÷ 2 = 12 ÷ 2 = 6`, so the midpoint is (2.5, 6).',\n      hint: HINT_M,\n      hints: { '(1.5, 3)': 'Not quite. (1.5, 3) is half the run and half the rise. Add it on to A.', '(5, 12)': 'Not quite. Those are the totals. Halve each one.' } },\n    { kind: 'pick', name: 'Last one', view: SQ(-4, 3, -3, 12, 300), pts: [[-3, -1], [2, 11]], names: AB, focus: 'd', labA: [4, 24],\n      opts: ['13', '17', '169'], want: '13', slip: { '17': (P) => ab(P)[0] + ab(P)[1], '169': (P) => ab(P)[0] ** 2 + ab(P)[1] ** 2 },\n      task: 'Last one. How far apart are A and B? Mind A\\'s negative coordinates.',\n      why: 'The run is `2 − (−3) = 5` and the rise is `11 − (−1) = 12`. So `d = √(5² + 12²) = √(25 + 144) = √169 = 13`.',\n      hint: HINT_D,\n      hints: { '17': 'Not quite. `5 + 12 = 17` goes round the two short sides. Square, add, then take the square root.', '169': 'Not quite. 169 is the distance squared. Take its square root.' } },\n  ];\n  const FINISH = 'The distance between two points is `√(run² + rise²)`, Pythagoras on the step triangle, and the midpoint is the average of the two x\\'s and the average of the two y\\'s. To find a missing end, take the same step again past the midpoint.';\n  // Sources the checks restate (the lesson's own).\n  const PLOT = 'https://openstax.org/books/intermediate-algebra/pages/11-1-distance-and-midpoint-formulas-circles';\n  const PYTH = 'https://openstax.org/books/college-algebra/pages/2-1-the-rectangular-coordinate-systems-and-graphs';\n  const MID = 'https://www.bbc.co.uk/bitesize/articles/z4863qt';\n  // Margins round the grid (numbers left and below, axis names above and below).\n  const ML = 36, MR = 8, MT = 28, W = 340 - ML - MR;\n  const TR = 0.9;   // seconds a slide from one pair of points to the next takes\n  const FB = 2.4;   // seconds a puzzle's drawing takes after a right answer or Why?\n  const FADE = 0.35;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const el = (id) => document.getElementById(id);\n\n  // ---------- numbers, written as the explanation writes them ----------\n  const r2 = (v) => Math.round(v * 100) / 100;\n  const neg = (v) => { v = r2(v); return v < 0 ? '−' + Math.abs(v) : String(Math.abs(v) < 1e-12 ? 0 : v); };\n  const br = (v) => (v < 0 ? '(' + neg(v) + ')' : neg(v));\n  const sqT = (v) => (v < 0 ? '(' + neg(v) + ')²' : neg(v) + '²');\n  const coord = (p) => '(' + neg(p[0]) + ', ' + neg(p[1]) + ')';\n  const d1 = (v) => (Math.round(v * 10) / 10).toFixed(1);\n  const dist = (p, q) => Math.hypot(q[0] - p[0], q[1] - p[1]);\n  const midOf = (p, q) => [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];\n  // d as the explanation writes it: a whole number, or to one decimal place.\n  function dEnd(p, q, u) {\n    const dd = dist(p, q), whole = Math.abs(dd - Math.round(dd)) < 1e-9;\n    return (whole ? '= ' + neg(Math.round(dd)) : '≈ ' + d1(dd)) + u;\n  }\n  // The distance working, piece by piece: the rule filled in, the two squares, their values, the total, d.\n  function dWork(p, q, u) {\n    const run = q[0] - p[0], rise = q[1] - p[1];\n    return ['d = √((' + neg(q[0]) + ' − ' + br(p[0]) + ')² + (' + neg(q[1]) + ' − ' + br(p[1]) + ')²)',\n      '= √(' + sqT(run) + ' + ' + sqT(rise) + ')', '= √(' + neg(run * run) + ' + ' + neg(rise * rise) + ')',\n      '= √' + neg(run * run + rise * rise), dEnd(p, q, u)];\n  }\n  const dLabel = (p, q, u) => 'd = √(' + sqT(q[0] - p[0]) + ' + ' + sqT(q[1] - p[1]) + ') ' + dEnd(p, q, u);\n  // The midpoint working: the averages filled in, the totals, the point.\n  function mWork(p, q) {\n    const sx = p[0] + q[0], sy = p[1] + q[1];\n    return ['M = ((' + neg(p[0]) + ' + ' + br(q[0]) + ') ÷ 2, (' + neg(p[1]) + ' + ' + br(q[1]) + ') ÷ 2)', '= (' + neg(sx) + ' ÷ 2, ' + neg(sy) + ' ÷ 2)', '= ' + coord([sx / 2, sy / 2])];\n  }\n  // Working back: the step from A to M, then the same step on from M.\n  const stepWork = (a, m) => ['run ' + neg(m[0]) + ' − ' + br(a[0]) + ' = ' + neg(m[0] - a[0]) + ',', 'rise ' + neg(m[1]) + ' − ' + br(a[1]) + ' = ' + neg(m[1] - a[1])];\n  const bWork = (a, m) => ['B = (' + neg(m[0]) + ' + ' + br(m[0] - a[0]) + ', ' + neg(m[1]) + ' + ' + br(m[1] - a[1]) + ')', '= ' + coord([2 * m[0] - a[0], 2 * m[1] - a[1]])];\n  const say = (s) => String(s).replace(/−/g, 'minus ');\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // pts: on a SHOW screen, the points where Dan has dragged them (null until he drags).\n  function blank() { return { pick: null, res: null, why: false, pts: null }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  const finalPts = (d) => (d.keys ? d.keys[d.keys.length - 1].pts : d.pts);\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion\n  let motionEnd = 0;\n  let REC = null;                                                        // what the last paint drew, for the checks\n  let OBS = { hard: [], segs: [] };                                      // what labels keep clear of: boxes always, lines where they can\n\n  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------\n  const ITAL = /((?<![A-Za-z])[xyd][₁₂]?(?![A-Za-z]))/;\n  function italics(parent, s, inSvg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));\n    });\n  }\n  // `maths` stays on one line with its letters italic; *a key term* is highlighted.\n  function write(node, s) {\n    node.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at0 = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at0) node.appendChild(document.createTextNode(seg.slice(at0, m.index)));\n        node.appendChild(K.el('span', { class: 'term' }, m[1]));\n        at0 = m.index + m[0].length;\n      }\n      if (at0 < seg.length) node.appendChild(document.createTextNode(seg.slice(at0)));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = el('nav');\n  const at = () => stepper.get();\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  // Check: a right answer draws the triangle and fills in the working; a wrong one gets its hint.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    if (st.res === 'right' && !st.why) play(FB);\n  } });\n  // Why?: draws the triangle and fills in the working for these points, with a few words.\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    st.why = !st.why;\n    if (st.why && st.res !== 'right') play(FB);\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()];\n    if (!d.show || finished) return;\n    S[at()].pts = null;\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and each puzzle's drawing; with reduced motion (and\n  // while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = el('scene'), art = el('art'), labs = el('labs'), ui = el('ui');\n  const add = (node) => art.appendChild(node);\n  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function arr(t0, dd) {\n    if (t0 + dd > latest) latest = t0 + dd;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(T, t0, dd);\n  }\n  const ln = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));\n  function tx(x, y, s, cls, anchor) {\n    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' });\n    italics(t, s, true);\n    return add(t);\n  }\n  // A step's grid: squares U across and U up, the window's numbers to the left and below.\n  const GEO = new Map();\n  function geo(d) {\n    if (GEO.has(d)) return GEO.get(d);\n    const v = d.view, nx = v.x1 - v.x0, ny = v.y1 - v.y0;\n    const U = Math.min(28, W / nx, v.hmax / ny), gw = nx * U, gh = ny * U, gx = ML + (W - gw) / 2, gy = MT;\n    const G = { v, nx, ny, U, gw, gh, gx, gy, H: Math.ceil(gy + gh + 44), every: U < 22 ? 2 : 1,\n      px: (x) => gx + (x - v.x0) * U, py: (y) => gy + gh - (y - v.y0) * U };\n    GEO.set(d, G);\n    return G;\n  }\n  // The grid; feet: where the midpoint's dashed lines meet the number scales, whose value replaces the numbers it would cover.\n  function drawGrid(G, feet) {\n    const v = G.v, off = (val) => ((val % G.every) + G.every) % G.every !== 0;\n    const fa = feet ? feet.a : 0;\n    for (let i = 0; i <= G.nx; i++) ln('gl', G.gx + i * G.U, G.gy, G.gx + i * G.U, G.gy + G.gh);\n    for (let j = 0; j <= G.ny; j++) ln('gl', G.gx, G.gy + j * G.U, G.gx + G.gw, G.gy + j * G.U);\n    if (v.x0 <= 0 && v.x1 >= 0) { ln('ax', G.px(0), G.gy, G.px(0), G.gy + G.gh); OBS.segs.push({ s: [G.px(0), G.gy, G.px(0), G.gy + G.gh], c: 8 }); }\n    if (v.y0 <= 0 && v.y1 >= 0) { ln('ax', G.gx, G.py(0), G.gx + G.gw, G.py(0)); OBS.segs.push({ s: [G.gx, G.py(0), G.gx + G.gw, G.py(0)], c: 8 }); }\n    for (let i = 0; i <= G.nx; i++) {\n      const val = v.x0 + i;\n      if (off(val)) continue;\n      const hit = feet && Math.abs(G.px(val) - G.px(feet.x)) < (tw(neg(val), 'tk') + tw(neg(feet.x), 'ft')) / 2 + 4;\n      if (hit && fa >= 0.999) continue;\n      const t = tx(G.px(val), G.gy + G.gh + 19, neg(val), 'tk');\n      if (hit) K.fade(t, 1 - fa, 0);\n    }\n    for (let j = 0; j <= G.ny; j++) {\n      const val = v.y0 + j;\n      if (off(val)) continue;\n      const hit = feet && Math.abs(G.py(val) - G.py(feet.y)) < 15;\n      if (hit && fa >= 0.999) continue;\n      const t = tx(G.gx - 7, G.py(val) + 4.5, neg(val), 'tk', 'end');\n      if (hit) K.fade(t, 1 - fa, 0);\n    }\n    if (feet && fa > 0.001) {\n      K.fade(tx(G.px(feet.x), G.gy + G.gh + 19, neg(feet.x), 'ft'), fa, 0);\n      K.fade(tx(G.gx - 7, G.py(feet.y) + 4.5, neg(feet.y), 'ft', 'end'), fa, 0);\n    }\n    tx(G.gx + G.gw, G.gy + G.gh + 39, v.xt, 'at', 'end');\n    tx(G.gx, G.gy - 11, v.yt, 'at', 'start');\n    OBS.hard.push(boxOf(G.gx, G.gy - 11, tw(v.yt, 'at'), 'start'));\n  }\n  // An arrow: a shaft and a filled head with its tip at (x2, y2).\n  function arrow(x1, y1, x2, y2, cls) {\n    const L = Math.hypot(x2 - x1, y2 - y1);\n    if (L < 2) return null;\n    const ux = (x2 - x1) / L, uy = (y2 - y1) / L, hl = Math.min(10, L * 0.7), hw = 5.5, bx = x2 - ux * hl, by = y2 - uy * hl;\n    ln('sh' + cls, x1, y1, x2 - ux * hl * 0.6, y2 - uy * hl * 0.6);\n    add(K.svg('path', { class: 'hd' + cls, d: 'M' + r2(x2) + ' ' + r2(y2) + ' L' + r2(bx - uy * hw) + ' ' + r2(by + ux * hw) + ' L' + r2(bx + uy * hw) + ' ' + r2(by - ux * hw) + ' Z' }));\n    const hx = [x2, bx - uy * hw, bx + uy * hw], hy = [y2, by + ux * hw, by - ux * hw];\n    OBS.segs.push({ s: [x1, y1, x2, y2], c: 300 });\n    OBS.hard.push({ x0: Math.min(...hx) - 1, y0: Math.min(...hy) - 1, x1: Math.max(...hx) + 1, y1: Math.max(...hy) + 1 });\n    return [x1, y1, x2, y2];\n  }\n\n  // ---------- labels: clear of each other, the dots, the arrowheads and the numbers; off the lines where they can be ----------\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    let w = 0;\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return s.length * (cls === 'lab' ? 8.4 : 7.6);\n  }\n  function boxOf(x, y, w, anchor) {\n    const x0 = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2;\n    return { x0, y0: y - 11.5, x1: x0 + w, y1: y + 4 };\n  }\n  const meets = (a, b, pad) => a.x0 < b.x1 + pad && b.x0 < a.x1 + pad && a.y0 < b.y1 + pad && b.y0 < a.y1 + pad;\n  // Does a line segment pass through a box? (Liang-Barsky)\n  function segHits(s, b) {\n    let t0 = 0, t1 = 1;\n    const dx = s[2] - s[0], dy = s[3] - s[1];\n    const pq = [[-dx, s[0] - b.x0], [dx, b.x1 - s[0]], [-dy, s[1] - b.y0], [dy, b.y1 - s[1]]];\n    for (let k = 0; k < 4; k++) {\n      const p = pq[k][0], q = pq[k][1];\n      if (Math.abs(p) < 1e-12) { if (q < 0) return false; continue; }\n      const r = q / p;\n      if (p < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }\n    }\n    return true;\n  }\n  // Each label tries spots round where it wants to be (or round each of its alternatives, in order),\n  // pulled inside the bounds, and takes the one that hits nothing solid, crosses the fewest lines and moves least.\n  function placeLabels(items, hard, segs, B) {\n    const placed = [];\n    return items.map((it) => {\n      const w = tw(it.text, 'lab'), h = 15.5, g = 4;\n      const C = [[0, 0], [0, -(h + g)], [0, h + g], [w / 2 + 2 * g, 0], [-(w / 2 + 2 * g), 0], [w / 2 + g, -(h + g)], [-(w / 2 + g), -(h + g)], [w / 2 + g, h + g], [-(w / 2 + g), h + g],\n        [0, -2 * (h + g)], [0, 2 * (h + g)], [w + g, 0], [-(w + g), 0], [w + g, -(h + g)], [-(w + g), -(h + g)], [w + g, h + g], [-(w + g), h + g], [0, -3 * (h + g)], [0, 3 * (h + g)]];\n      let best = null, bestCost = Infinity;\n      (it.alts || [it]).forEach((al, ai) => C.forEach((c, k) => {\n        let b = boxOf(al.x + c[0], al.y + c[1], w, al.anchor);\n        const sx = b.x0 < B.x0 ? B.x0 - b.x0 : b.x1 > B.x1 ? B.x1 - b.x1 : 0, sy = b.y0 < B.y0 ? B.y0 - b.y0 : b.y1 > B.y1 ? B.y1 - b.y1 : 0;\n        b = { x0: b.x0 + sx, x1: b.x1 + sx, y0: b.y0 + sy, y1: b.y1 + sy };\n        let cost = Math.hypot(c[0] + sx, c[1] + sy) * 0.5 + k * 0.5 + ai * 8;\n        hard.forEach((o) => { if (meets(b, o, 3)) cost += 1000; });\n        placed.forEach((o) => { if (meets(b, o, 6)) cost += 1000; });\n        const wide = { x0: b.x0 - 2, y0: b.y0 - 2, x1: b.x1 + 2, y1: b.y1 + 2 };\n        segs.forEach((s) => { if (segHits(s.s, wide)) cost += s.c; });\n        if (cost < bestCost) { bestCost = cost; best = { b, x: al.x + c[0] + sx, y: al.y + c[1] + sy, anchor: al.anchor }; }\n      }));\n      placed.push(best.b);\n      return best;\n    });\n  }\n  // A point's label, beside it on the side away from its triangle, then the other sides in turn; first: the point starts its triangle.\n  function sideLabel(G, p, q, first) {\n    const x = G.px(p[0]), y = G.py(p[1]), run = first ? q[0] - p[0] : p[0] - q[0], rise = first ? q[1] - p[1] : p[1] - q[1];\n    const below = { x, y: y + 24, anchor: 'middle' }, above = { x, y: y - 14, anchor: 'middle' }, left = { x: x - 12, y: y + 5, anchor: 'end' }, right = { x: x + 12, y: y + 5, anchor: 'start' };\n    const sx = first ? -Math.sign(run) : Math.sign(run), sy = first ? -Math.sign(rise) : Math.sign(rise);   // away from the triangle\n    const side = sx < 0 ? [left, right] : [right, left], vert = sy < 0 ? [below, above] : [above, below];\n    const alts = first && sx !== 0 ? [side[0], vert[0], vert[1], side[1]] : [vert[0], side[0], side[1], vert[1]];\n    return Object.assign({}, alts[0], { alts });\n  }\n  // A spot pushed `off` from (x, y) along u, anchored on the side it leans.\n  function away(x, y, u, off) {\n    const L = Math.hypot(u[0], u[1]) || 1, ux = u[0] / L, uy = u[1] / L;\n    return { x: x + ux * off, y: y + uy * off + (uy > 0.35 ? 11 : uy < -0.35 ? -1 : 5), anchor: ux > 0.4 ? 'start' : ux < -0.4 ? 'end' : 'middle' };\n  }\n\n  // Where the points are now: Dan's, a SHOW step's slide at time T, or the step's own.\n  function phase(d) {\n    const keys = d.keys;\n    let k = 0;\n    for (let j = 1; j < keys.length; j++) if (T >= keys[j].at) k = j;\n    const kk = keys[k], nx = keys[k + 1];\n    let P = kk.pts, lin = 1, moving = false;\n    if (k > 0) {\n      const s = (T - kk.at) / TR;\n      if (s < 1) {\n        const e = K.ease(s);\n        P = keys[k - 1].pts.map((p, n) => [K.lerp(p[0], kk.pts[n][0], e), K.lerp(p[1], kk.pts[n][1], e)]);\n        moving = true; lin = 0;\n      } else lin = arr(kk.at + TR, 0.4);\n    }\n    // The numbers fade out before a slide and back in once the points land, so no in-between value shows.\n    const out = nx ? 1 - arr(nx.at - 0.3, 0.3) : 1;\n    return { P, k, moving, lin, out, la: moving ? 0 : lin * out };\n  }\n  // When each part starts (seconds; missing: drawn from the start) and k, how fast it all plays.\n  // tri: the step triangle; dl: the long side's label; rd, rm: the distance and midpoint rows; mid: the\n  // midpoint's construction; s1, s2: working back's two steps, r1, r2 their rows.\n  function timeline(d, st) {\n    if (d.show) {\n      if (st.pts || d.keys) return { k: 1 };\n      if (d.focus === 'd') return { k: 1, tri: 0.5, dl: 2.0, rd: 1.9 };\n      if (d.focus === 'm') return { k: 1, mid: 0.5, rm: 1.9 };\n      if (d.focus === 'both') return { k: 1, tri: 0.5, dl: 2.0, rd: 1.8, mid: 2.2, rm: 3.4 };\n      return { k: 1, s1: 0.5, r1: 1.4, s2: 1.8, r2: 3.0 };\n    }\n    if (d.focus === 'back') return { k: 0.6, s1: 0.1, r1: 0.6, s2: 0.9, r2: 1.6 };\n    return { k: 0.6, tri: 0.1, dl: 1.0, rd: 1.0, mid: 0.8, rm: 1.6 };\n  }\n  // The working rows above the grid.\n  function rowsNow(d, st, ph, P, open, tl, A, AT) {\n    if (!open) return [{ pieces: [{ s: d.focus === 'd' ? 'd = ?' : d.focus === 'm' ? 'M = ?' : 'B = ?', a: 1, cls: 'q' }] }];\n    const v = d.view, gap = d.focus === 'both' ? 0.25 : 0.3;\n    const pcs = (list, t0, bold) => list.map((s, n) => ({ s, a: A(AT(t0, gap * n), 0.4), cls: bold !== false && n === list.length - 1 ? 'end' : '' }));\n    if (d.keys && !st.pts) {\n      // The first pair keeps its row; the second row follows B as it lands on each new place.\n      const ks = d.keys, row = (j, a) => ({ lab: 'B ' + coord(ks[j].pts[1]), kind: 'd', p: ks[j].pts[0], q: ks[j].pts[1],\n        pieces: dWork(ks[j].pts[0], ks[j].pts[1], v.u).map((s, n, L) => ({ s, a, cls: n === L.length - 1 ? 'end' : '' })) });\n      const j = ph.moving ? ph.k - 1 : ph.k;\n      return [row(0, 1), j < 1 ? row(1, 0) : row(j, ph.moving ? 0 : ph.lin * ph.out)];\n    }\n    // A demonstration's working waits to fade in; till then a grey placeholder fills the readout, as in the puzzles.\n    const r0 = d.focus === 'back' ? tl.r1 : d.focus === 'm' ? tl.rm : tl.rd;\n    if (d.show && r0 != null && A(r0, 0.4) <= 0) return [{ pieces: [{ s: d.focus === 'm' ? 'M = ?' : d.focus === 'back' ? 'B = ?' : 'd = ?', a: 1 - A(r0 - 0.3, 0.3), cls: 'q' }] }];\n    if (d.focus === 'back') return [\n      { lab: 'A to M', kind: 's', p: P[0], q: P[1], pieces: pcs(stepWork(P[0], P[1]), tl.r1, false) },\n      { lab: 'Again from M', kind: 'b', p: P[0], q: P[1], pieces: pcs(bWork(P[0], P[1]), tl.r2) }];\n    const out = [];\n    if (d.focus !== 'm') out.push({ kind: 'd', p: P[0], q: P[1], pieces: pcs(dWork(P[0], P[1], v.u), tl.rd) });\n    if (d.focus !== 'd') out.push({ kind: 'm', p: P[0], q: P[1], pieces: pcs(mWork(P[0], P[1]), tl.rm) });\n    return out;\n  }\n  function drawRows(rows) {\n    const box = el('rows');\n    box.textContent = '';\n    rows.forEach((r) => {\n      const p = box.appendChild(K.el('p', { class: 'wk' }));\n      if (r.lab) K.fade(p.appendChild(K.el('span', { class: 'lab' }, r.lab + ': ')), r.pieces[0].a, 0);   // a heading arrives with its row\n      r.pieces.forEach((pc, n) => {\n        const s = p.appendChild(K.el('span', { class: 'pc ' + pc.cls }));\n        italics(s, pc.s, false);\n        K.fade(s, pc.a, 0);\n        if (n < r.pieces.length - 1) p.appendChild(document.createTextNode(' '));\n      });\n      REC.rows.push({ lab: r.lab || '', kind: r.kind || '', s: r.pieces.map((pc) => pc.s).join(' '), p: r.p, q: r.q });\n    });\n  }\n  function describe(d, P, open, showM) {\n    const back = d.focus === 'back';\n    const pts = P.map((p, n) => (back && n === 2 && !open ? null : d.names[n] + ' at ' + coord(p))).filter(Boolean);\n    let s = (d.view === PLAN ? 'A ceiling plan in metres' : 'A squared grid') + ', with ' + pts.join(', ') + '.';\n    if (open && !back) s += ' A run arrow of ' + neg(P[1][0] - P[0][0]) + ' and a rise arrow of ' + neg(P[1][1] - P[0][1]) + ' meet at a right angle, and the long side joins the two points.';\n    if (open && back) s += ' The step from A to M is taken again from M to reach B.';\n    if (showM) s += ' The midpoint M is at ' + coord(midOf(P[0], P[1])) + ', with dashed lines down and across to the numbers.';\n    return s;\n  }\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i], G = geo(d), v = d.view, back = d.focus === 'back';\n    art.textContent = '';\n    REC = { tris: [], rows: [], labels: [], mid: null, dash: null, feet: null, dlab: null, P: null };\n    OBS = { hard: [], segs: [] };\n    svg.setAttribute('viewBox', '0 0 340 ' + G.H);\n    const ph = d.keys && !st.pts ? phase(d) : { P: st.pts || d.pts, k: 0, moving: false, lin: 1, out: 1, la: 1 };\n    const tl = timeline(d, st), k = tl.k;\n    const A = (t0, dd) => (t0 == null ? 1 : arr(t0, dd * k));\n    const AT = (t0, off) => (t0 == null ? null : t0 + off * k);\n    const open = !!d.show || st.res === 'right' || st.why;\n    const P = back ? [ph.P[0], ph.P[1], [2 * ph.P[1][0] - ph.P[0][0], 2 * ph.P[1][1] - ph.P[0][1]]] : ph.P;\n    REC.P = P;\n    const xy = (p) => [G.px(p[0]), G.py(p[1])];\n    const moves = (n) => !!d.keys && !st.pts && d.keys.some((kk) => kk.pts[n][0] !== d.keys[0].pts[n][0] || kk.pts[n][1] !== d.keys[0].pts[n][1]);\n    const showD = d.focus === 'd' || d.focus === 'both', showM = (d.focus === 'm' || d.focus === 'both') && open;\n    const Mv = midOf(P[0], P[1]);\n    const aTick = showM ? A(tl.mid, 0.4) : 0, g1 = showM ? A(AT(tl.mid, 0.2), 0.8) : 0, aM = showM ? A(AT(tl.mid, 0.9), 0.4) : 0,\n      g2 = showM ? A(AT(tl.mid, 1.2), 0.8) : 0, aF = showM ? A(AT(tl.mid, 1.8), 0.4) * ph.la : 0;\n    drawGrid(G, showM ? { x: Mv[0], y: Mv[1], a: aF } : null);\n    if (showM && aF >= 0.5) REC.feet = { x: Mv[0], y: Mv[1] };\n\n    // The step triangles: A to B; on a working-back screen A to M, then the same step again from M (teal).\n    const tris = [];\n    if (open && !back) tris.push({ p: P[0], q: P[1], t: tl.tri, teal: false });\n    if (open && back) tris.push({ p: P[0], q: P[1], t: tl.s1, teal: false }, { p: P[1], q: P[2], t: tl.s2, teal: true });\n    tris.forEach((o) => Object.assign(o, { Ap: xy(o.p), Bp: xy(o.q), run: o.q[0] - o.p[0], rise: o.q[1] - o.p[1] }, { C: [G.px(o.q[0]), G.py(o.p[1])],\n      gRun: A(o.t, 0.6), gRise: A(AT(o.t, 0.6), 0.6), aRun: A(AT(o.t, 0.5), 0.4) * ph.la, aRise: A(AT(o.t, 1.1), 0.4) * ph.la, aRa: A(AT(o.t, 1.1), 0.4) }));\n    tris.forEach((o) => {\n      if (Math.abs(o.run) < 1e-9 || Math.abs(o.rise) < 1e-9) return;\n      const f = add(K.svg('path', { class: 'tri' + (o.teal ? ' teal' : ''), d: 'M' + r2(o.Ap[0]) + ' ' + r2(o.Ap[1]) + ' L' + r2(o.C[0]) + ' ' + r2(o.C[1]) + ' L' + r2(o.Bp[0]) + ' ' + r2(o.Bp[1]) + ' Z' }));\n      K.fade(f, Math.min(o.gRun, o.gRise), 0);\n    });\n    // The midpoint's dashed lines: from halfway along the run and halfway up the rise to M, then on to the number scales.\n    if (showM && tris[0]) {\n      const o = tris[0], Mp = xy(Mv), bottom = G.gy + G.gh, left = G.gx;\n      if (g1 > 0) {\n        if (Math.abs(o.rise) > 1e-9) ln('dsh', Mp[0], o.Ap[1], Mp[0], K.lerp(o.Ap[1], Mp[1], g1));\n        if (Math.abs(o.run) > 1e-9) ln('dsh', o.C[0], Mp[1], K.lerp(o.C[0], Mp[0], g1), Mp[1]);\n      }\n      const lo = Math.max(o.Ap[1], Mp[1]), lf = Math.min(o.C[0], Mp[0]), top = Math.min(o.Ap[1], Mp[1]), rt = Math.max(o.C[0], Mp[0]);\n      if (g2 > 0) { ln('dsh', Mp[0], lo, Mp[0], K.lerp(lo, bottom, g2)); ln('dsh', lf, Mp[1], K.lerp(lf, left, g2), Mp[1]); }\n      REC.dash = { vx: Mp[0], vTop: top, vBot: g2 >= 1 ? bottom : null, hy: Mp[1], hRight: rt, hLeft: g2 >= 1 ? left : null };\n      OBS.segs.push({ s: [Mp[0], top, Mp[0], bottom], c: 60 }, { s: [left, Mp[1], rt, Mp[1]], c: 60 });\n    }\n    // The long side (on a working-back screen A to M, then M on to B as the second step draws).\n    const sides = back ? [[P[0], P[1], 1]].concat(open ? [[P[1], P[2], A(tl.s2, 1.1)]] : []) : [[P[0], P[1], 1]];\n    sides.forEach(([p, q, g]) => {\n      if (g <= 0) return;\n      const a = xy(p), b = xy(q), e = [K.lerp(a[0], b[0], g), K.lerp(a[1], b[1], g)];\n      ln('ln', a[0], a[1], e[0], e[1]);\n      OBS.segs.push({ s: [a[0], a[1], e[0], e[1]], c: 120 });\n    });\n    // The run and rise arrows and the right-angle mark where they meet.\n    const items = [];\n    tris.forEach((o) => {\n      const cls = o.teal ? ' teal' : '', rec = { run: o.run, rise: o.rise, A: o.Ap, B: o.Bp, C: o.C, runSeg: null, riseSeg: null, runDir: 0, riseDir: 0, ra: false };\n      if (Math.abs(o.run) > 1e-9 && o.gRun > 0) {\n        const back9 = Math.abs(o.rise) < 1e-9 ? 9 : 0, dir = Math.sign(o.C[0] - o.Ap[0]);\n        const s = arrow(o.Ap[0], o.Ap[1], K.lerp(o.Ap[0], o.C[0], o.gRun) - dir * back9 * o.gRun, o.C[1], cls);\n        if (s) { rec.runSeg = s; rec.runDir = Math.sign(s[2] - s[0]); }\n      }\n      if (Math.abs(o.rise) > 1e-9 && o.gRise > 0) {\n        const dir = Math.sign(o.Bp[1] - o.C[1]), s = arrow(o.C[0], o.C[1], o.C[0], K.lerp(o.C[1], o.Bp[1], o.gRise) - dir * 9 * o.gRise, cls);\n        if (s) { rec.riseSeg = s; rec.riseDir = Math.sign(s[1] - s[3]); }\n      }\n      const sx = Math.sign(o.Ap[0] - o.C[0]), sy = Math.sign(o.Bp[1] - o.C[1]), q = 12;\n      if (sx && sy && Math.abs(o.Ap[0] - o.C[0]) >= 18 && Math.abs(o.Bp[1] - o.C[1]) >= 18) {\n        const m = add(K.svg('path', { class: 'ra', d: 'M' + r2(o.C[0] + sx * q) + ' ' + r2(o.C[1]) + ' L' + r2(o.C[0] + sx * q) + ' ' + r2(o.C[1] + sy * q) + ' L' + r2(o.C[0]) + ' ' + r2(o.C[1] + sy * q) }));\n        K.fade(m, o.aRa, 0);\n        OBS.hard.push({ x0: Math.min(o.C[0], o.C[0] + sx * q) - 1, y0: Math.min(o.C[1], o.C[1] + sy * q) - 1, x1: Math.max(o.C[0], o.C[0] + sx * q) + 1, y1: Math.max(o.C[1], o.C[1] + sy * q) + 1 });\n        rec.ra = o.aRa >= 0.5;\n      }\n      REC.tris.push(rec);\n    });\n    // Ticks halfway along the run and halfway up the rise.\n    if (showM && tris[0] && aTick > 0) {\n      const o = tris[0], Mp = xy(Mv);\n      if (Math.abs(o.run) > 1e-9) K.fade(ln('hk', Mp[0], o.Ap[1] - 6, Mp[0], o.Ap[1] + 6), aTick, 0);\n      if (Math.abs(o.rise) > 1e-9) K.fade(ln('hk', o.C[0] - 6, Mp[1], o.C[0] + 6, Mp[1]), aTick, 0);\n    }\n    // The points: A and B navy; a midpoint teal; on working back, B arrives with the second step.\n    const aB = back ? (open ? A(AT(tl.s2, 1.0), 0.4) : 0) : 1;\n    const dots = P.map((p, n) => ({ p, cls: back && n === 1 ? 'mp' : 'pt', a: back && n === 2 ? aB : 1, n }));\n    if (showM && !back) dots.push({ p: Mv, cls: 'mp', a: aM, n: 'M' });\n    dots.forEach((o) => {\n      if (o.a <= 0) return;\n      const [cx, cy] = xy(o.p);\n      if (d.drag && !finished && typeof o.n === 'number' && o.n < 2) add(K.svg('circle', { class: 'ring', cx: r2(cx), cy: r2(cy), r: 9.5 }));\n      K.fade(add(K.svg('circle', { class: o.cls, cx: r2(cx), cy: r2(cy), r: o.cls === 'mp' ? 6 : 6.5 })), o.a, 0);\n      OBS.hard.push({ x0: cx - 9, y0: cy - 9, x1: cx + 9, y1: cy + 9 });\n    });\n    if (showM && !back && aM >= 0.5) REC.mid = { v: Mv, px: xy(Mv) };\n    // Labels: each point's name and place, the midpoint's, each arrow's signed size, then the long side's.\n    const name = (n) => d.names[n] + ' ' + coord(P[n]);\n    if (!back) {\n      // labA: A's label set just below and to the right of its dot, clear of the numbers on the left.\n      const s0 = d.labA ? { x: G.px(P[0][0]) + d.labA[0], y: G.py(P[0][1]) + d.labA[1], anchor: 'start' } : sideLabel(G, P[0], P[1], true);\n      items.push(Object.assign(s0, { text: name(0), class: 'lab', a: moves(0) ? ph.la : 1 }));\n      items.push(Object.assign(sideLabel(G, P[1], P[0], false), { text: name(1), class: 'lab', a: moves(1) ? ph.la : 1 }));\n    } else {\n      const Mp = xy(P[1]);\n      items.push(Object.assign(sideLabel(G, P[0], P[1], true), { text: name(0), class: 'lab', a: 1 }));\n      items.push(Object.assign(away(Mp[0], Mp[1], [Mp[0] - (G.px(P[2][0]) + Mp[0]) / 2, Mp[1] - (G.py(P[0][1]) + Mp[1]) / 2], 12), { text: name(1), class: 'lab mid', a: 1 }));\n      if (aB > 0) items.push(Object.assign(sideLabel(G, P[2], P[1], false), { text: name(2), class: 'lab', a: aB }));\n    }\n    if (showM && !back && tris[0]) {\n      const Mp = xy(Mv), C = tris[0].C;\n      items.push(Object.assign(away(Mp[0], Mp[1], [Mp[0] - C[0], Mp[1] - C[1]], 12), { text: 'M ' + coord(Mv), class: 'lab mid', a: aM * ph.la }));\n    }\n    tris.forEach((o) => {\n      const cls = 'lab arw' + (o.teal ? ' teal' : ''), flat = Math.abs(o.rise) < 1e-9, up = Math.abs(o.run) < 1e-9;\n      items.push(up ? { x: o.Ap[0] - 12, y: o.Ap[1] + 5, anchor: 'end', text: 'run 0' + v.u, class: cls, a: o.aRun }\n        : { x: (o.Ap[0] + o.C[0]) / 2, y: o.C[1] + (o.rise >= 0 ? 20 : -9), anchor: 'middle', text: 'run ' + neg(o.run) + v.u, class: cls, a: o.aRun });\n      const rt = 'rise ' + neg(o.rise) + v.u;\n      items.push(flat ? { x: o.Bp[0] + (o.run > 0 ? 12 : -12), y: o.Bp[1] + 5, anchor: o.run > 0 ? 'start' : 'end', text: rt, class: cls, a: o.aRise }\n        : { x: o.C[0] + (o.run >= 0 ? 9 : -9), y: (o.C[1] + o.Bp[1]) / 2 + 5, anchor: o.run >= 0 ? 'start' : 'end', text: rt, class: cls, a: o.aRise });\n    });\n    if (showD) {\n      // The brief's quantity, on the long side: beside it, on the side away from the triangle.\n      const a = xy(P[0]), b = xy(P[1]), C = [b[0], a[1]];\n      let n = [-(b[1] - a[1]), b[0] - a[0]];\n      const m0 = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];\n      if (n[0] * (C[0] - m0[0]) + n[1] * (C[1] - m0[1]) > 0) n = [-n[0], -n[1]];\n      const fr = showM ? [0.27, 0.15, 0.38, 0.75, 0.86] : [0.5, 0.62, 0.38, 0.74, 0.26, 0.86, 0.14];\n      const alts = fr.map((f) => away(K.lerp(a[0], b[0], f), K.lerp(a[1], b[1], f), n, 10));\n      const txt = open ? dLabel(P[0], P[1], v.u) : 'd = ?', al = open ? A(tl.dl, 0.4) * ph.la : 1;\n      items.push(Object.assign({}, alts[0], { alts, text: txt, class: 'lab dl', a: al }));\n      if (al >= 0.5) REC.dlab = txt;\n    }\n    const pos = placeLabels(items, OBS.hard, OBS.segs, { x0: G.gx + 2, x1: 338, y0: 3, y1: G.gy + G.gh - 2 });\n    labs.textContent = '';\n    items.forEach((it, n) => {\n      const t = labs.appendChild(K.svg('text', { class: it.class, x: r2(pos[n].x), y: r2(pos[n].y), 'text-anchor': pos[n].anchor || 'middle' }));\n      italics(t, it.text, true);\n      K.fade(t, it.a, 0);\n      if (it.a >= 0.5) REC.labels.push(it.text);\n    });\n    drawRows(rowsNow(d, st, ph, P, open, tl, A, AT));\n    svg.setAttribute('aria-label', describe(d, P, open, showM));\n    placeGrips(d, P, G);\n  }\n\n  // ---------- dragging A and B ----------\n  const grips = [0, 1].map((n) => ui.appendChild(K.svg('circle', { class: 'grip', cx: -100, cy: -100, r: 22, tabindex: -1, role: 'button', 'aria-label': 'Point' })));\n  function placeGrips(d, P, G) {\n    const on = !!d.drag && !finished;\n    svg.classList.toggle('grab', on);\n    grips.forEach((g, n) => {\n      g.style.display = on ? '' : 'none';\n      g.setAttribute('tabindex', on ? '0' : '-1');\n      if (!on) return;\n      g.setAttribute('cx', r2(G.px(P[n][0]))); g.setAttribute('cy', r2(G.py(P[n][1])));\n      g.setAttribute('aria-label', d.names[n] + ' at ' + coord(P[n]) + '. Drag it, or move it with the arrow keys.');\n    });\n  }\n  // A dragged point lands on whole numbers inside the grid, never on the other point.\n  function setPoint(n, p) {\n    const i = at(), d = STEPS[i], st = S[i], v = d.view;\n    if (!d.drag || finished) return;\n    const base = (st.pts || (d.keys ? d.keys[phase(d).k].pts : d.pts)).map((q) => q.slice());\n    const x = K.clamp(Math.round(p[0]), v.x0, v.x1), y = K.clamp(Math.round(p[1]), v.y0, v.y1);\n    const other = base[1 - n];\n    if (other[0] === x && other[1] === y) return;\n    if (st.pts && base[n][0] === x && base[n][1] === y) return;\n    base[n] = [x, y];\n    if (anim.playing()) anim.pause();\n    T = Infinity; st.pts = base;\n    K.reveal(); K.refresh();\n  }\n  function dataAt(e) {\n    const m = svg.getScreenCTM();\n    if (!m) return null;\n    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()), G = geo(STEPS[at()]), v = G.v;\n    return [v.x0 + (q.x - G.gx) / G.U, v.y0 + (G.gy + G.gh - q.y) / G.U];\n  }\n  let held = null;\n  grips.forEach((g, n) => {\n    g.addEventListener('pointerdown', (e) => {\n      if (!STEPS[at()].drag || finished) return;\n      held = { id: e.pointerId, n };\n      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the handle */ }\n      e.preventDefault();\n    });\n    g.addEventListener('pointermove', (e) => {\n      if (!held || held.id !== e.pointerId || held.n !== n) return;\n      e.preventDefault();\n      const q = dataAt(e);\n      if (q) setPoint(n, q);\n    });\n    const letGo = (e) => { if (held && held.id === e.pointerId) held = null; };\n    g.addEventListener('pointerup', letGo);\n    g.addEventListener('pointercancel', letGo);\n    g.addEventListener('lostpointercapture', letGo);\n    g.addEventListener('keydown', (e) => {\n      const d = STEPS[at()], st = S[at()];\n      const by = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[e.key];\n      if (!d.drag || finished || !by) return;\n      e.preventDefault();\n      const p = (st.pts || finalPts(d))[n];\n      setPoint(n, [p[0] + by[0], p[1] + by[1]]);\n    });\n  });\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { st.pts = null; play(d.dur); } else { anim.pause(); T = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('pz').classList.toggle('ask', !d.show && !right && !st.why);\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    const rb = el('rules');\n    rb.textContent = '';\n    (d.focus === 'd' ? [RULE_D] : d.focus === 'm' ? [RULE_M] : d.focus === 'both' ? [RULE_D, RULE_M] : [RULE_B])\n      .forEach((r) => write(rb.appendChild(K.el('p', { class: 'rule' })), r));\n    write(el('ronote'), d.note || (d.focus === 'back' ? NOTE_B : NOTE));\n    paint(i);\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const nums = (s) => (String(s).replace(/−/g, '-').match(/-?\\d+(?:\\.\\d+)?/g) || []).map(Number);\n  const valueOf = (o) => { const m = nums(o); return m.length > 1 ? m : m[0]; };\n  const same = (a, b, tol) => {\n    const t = tol == null ? 1e-9 : tol;\n    return Array.isArray(a) ? Array.isArray(b) && a.length === b.length && a.every((x, n) => Math.abs(x - b[n]) <= t) : !Array.isArray(b) && Math.abs(a - b) <= t;\n  };\n  const tail = (s) => nums(s).slice(-1)[0];\n  const tailPair = (s) => nums(s).slice(-2);\n  // A puzzle's answer from its own points: the distance, the midpoint, or the end the same step past M.\n  function answerOf(d) {\n    const P = d.pts;\n    return d.focus === 'd' ? dist(P[0], P[1]) : d.focus === 'm' ? midOf(P[0], P[1]) : [2 * P[1][0] - P[0][0], 2 * P[1][1] - P[0][1]];\n  }\n  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t;\n    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }\n  }\n  const shown = (i) => drawn(i, STEPS[i].show ? blank() : solvedSt(i));\n  const accepts = (i) => { const d = STEPS[i], a = answerOf(d); return same(valueOf(d.want), a) && d.opts.every((o) => o === d.want || !same(valueOf(o), a, 0.05)); };\n\n  K.check('Plot the points and create a right triangle much as for the slope: on every screen the run arrow goes straight across from the first point, the rise arrow straight up or down to the second, and a right-angle mark sits where they meet', () =>\n    STEPS.every((d, i) => {\n      const g = shown(i);\n      return g.tris.length >= 1 && g.tris.every((r) => r.C[0] === r.B[0] && r.C[1] === r.A[1] &&\n        (r.run === 0 || (r.runSeg && r.runSeg[0] === r.A[0] && r.runSeg[1] === r.A[1] && r.runSeg[3] === r.A[1] && r.runDir === Math.sign(r.run))) &&\n        (r.rise === 0 || (r.riseSeg && r.riseSeg[0] === r.B[0] && r.riseSeg[2] === r.B[0] && r.riseDir === Math.sign(r.rise))) &&\n        (r.run === 0 || r.rise === 0 || r.ra) && Math.abs(Math.hypot(r.B[0] - r.A[0], r.B[1] - r.A[1]) ** 2 - ((r.C[0] - r.A[0]) ** 2 + (r.B[1] - r.C[1]) ** 2)) < 1e-6);\n    }), { source: PLOT });\n  K.check('Derived from the Pythagorean theorem, the distance formula finds the distance between two points: every distance row ends in the square root of the run squared plus the rise squared, the long side is labelled the same, and each distance puzzle accepts only that answer', () =>\n    STEPS.every((d, i) => {\n      if (d.focus !== 'd' && d.focus !== 'both') return true;\n      const g = shown(i), rows = g.rows.filter((r) => r.kind === 'd');\n      return rows.length >= 1 && rows.every((r) => same(tail(r.s), Math.round(dist(r.p, r.q) * 10) / 10)) && !!g.dlab && same(tail(g.dlab), tail(rows[rows.length - 1].s));\n    }) && DO.filter((i) => STEPS[i].focus === 'd').every(accepts), { source: PYTH });\n  K.check('To find the midpoint, find the average of the x-axis coordinates and the average of the y-axis coordinates: every midpoint row ends in that pair, the marker sits there, its dashed lines meet the number scales at the two averages, and each midpoint puzzle accepts only that answer', () =>\n    STEPS.every((d, i) => {\n      if (d.focus !== 'm' && d.focus !== 'both') return true;\n      const g = shown(i), r = g.rows.find((x) => x.kind === 'm');\n      if (!r || !g.mid || !g.feet) return false;\n      const m = midOf(r.p, r.q);\n      return same(tailPair(r.s), m) && same(g.mid.v, m) && same([g.feet.x, g.feet.y], m);\n    }) && DO.filter((i) => STEPS[i].focus === 'm').every(accepts), { source: MID });\n  K.check('Every worked row is right, by hand: √100 = 10 four times, √25 = 5, √169 = 13 twice, √73 ≈ 8.5 for B dragged to (4, 10), midpoints (4, 6), (5, 5), (1, 2), (−1, 2), (7, 4.5) and (2.5, 6), and B at (7, 10) and (7, −2) by working back', () => {\n    const table = [\n      ['The long side', ['d = √((7 − 1)² + (10 − 2)²) = √(6² + 8²) = √(36 + 64) = √100 = 10']],\n      ['Your turn', ['d = √((5 − 2)² + (5 − 1)²) = √(3² + 4²) = √(9 + 16) = √25 = 5']],\n      ['Across both axes', ['d = √((7 − 1)² + (10 − 2)²) = √(6² + 8²) = √(36 + 64) = √100 = 10', 'd = √((−5 − 1)² + (−6 − 2)²) = √((−6)² + (−8)²) = √(36 + 64) = √100 = 10']],\n      ['Mind the brackets', ['d = √((5 − (−1))² + (−4 − 4)²) = √(6² + (−8)²) = √(36 + 64) = √100 = 10']],\n      ['Halfway', ['M = ((1 + 7) ÷ 2, (2 + 10) ÷ 2) = (8 ÷ 2, 12 ÷ 2) = (4, 6)']],\n      ['Find the middle', ['M = ((2 + 8) ÷ 2, (3 + 7) ÷ 2) = (10 ÷ 2, 10 ÷ 2) = (5, 5)']],\n      ['Negatives too', ['M = ((−3 + 5) ÷ 2, (5 + (−1)) ÷ 2) = (2 ÷ 2, 4 ÷ 2) = (1, 2)']],\n      ['Mind the signs', ['M = ((−4 + 2) ÷ 2, (−2 + 6) ÷ 2) = (−2 ÷ 2, 4 ÷ 2) = (−1, 2)']],\n      ['Working back', ['run 4 − 1 = 3, rise 6 − 2 = 4', 'B = (4 + 3, 6 + 4) = (7, 10)']],\n      ['The other end', ['run 5 − 3 = 2, rise 2 − 6 = −4', 'B = (5 + 2, 2 + (−4)) = (7, −2)']],\n      ['A ceiling plan', ['d = √((13 − 1)² + (7 − 2)²) = √(12² + 5²) = √(144 + 25) = √169 = 13 m', 'M = ((1 + 13) ÷ 2, (2 + 7) ÷ 2) = (14 ÷ 2, 9 ÷ 2) = (7, 4.5)']],\n      ['Between the lines', ['M = ((1 + 4) ÷ 2, (3 + 9) ÷ 2) = (5 ÷ 2, 12 ÷ 2) = (2.5, 6)']],\n      ['Last one', ['d = √((2 − (−3))² + (11 − (−1))²) = √(5² + 12²) = √(25 + 144) = √169 = 13']],\n    ];\n    const rowsOk = table.every((r) => { const g = shown(idx(r[0])); return g.rows.length === r[1].length && g.rows.every((x, n) => x.s === r[1][n]); });\n    const dragged = drawn(idx('The long side'), Object.assign(blank(), { pts: [[1, 2], [4, 10]] })).rows[0].s === 'd = √((4 − 1)² + (10 − 2)²) = √(3² + 8²) = √(9 + 64) = √73 ≈ 8.5';\n    return rowsOk && dragged && dWork([-2, 7], [4, -1], '').join(' ') === 'd = √((4 − (−2))² + (−1 − 7)²) = √(6² + (−8)²) = √(36 + 64) = √100 = 10' &&\n      mWork([-2, 7], [4, -1]).join(' ') === 'M = ((−2 + 4) ÷ 2, (7 + (−1)) ÷ 2) = (2 ÷ 2, 6 ÷ 2) = (1, 3)';\n  });\n  K.check('A negative difference leaves its square, and so the distance, unchanged: with A at (1, 2), B at (7, 10), (7, −6) and (−5, −6) all give 36 + 64 = 100 and d = 10, and starting from B gives the same distance as starting from A', () => {\n    const i = idx('Across both axes'), early = drawn(i, blank(), 0.5).rows, mid = drawn(i, blank(), 2.4).rows, end = drawn(i, blank()).rows;\n    const ok = (r, lab) => !!r && r.lab === lab && /= √\\(36 \\+ 64\\) = √100 = 10$/.test(r.s);\n    const swap = [[[1, 2], [7, 10]], [[-1, 4], [5, -4]], [[-3, -1], [2, 11]], [[1, 2], [4, 10]]].every(([p, q]) => dWork(p, q, '').pop() === dWork(q, p, '').pop());\n    return ok(early[0], 'B (7, 10)') && ok(mid[1], 'B (7, −6)') && ok(end[1], 'B (−5, −6)') && /√\\(6² \\+ \\(−8\\)²\\)/.test(mid[1].s) && /√\\(\\(−6\\)² \\+ \\(−8\\)²\\)/.test(end[1].s) && swap;\n  });\n  K.check('The distance is never shorter than the larger difference nor longer than the two added: 8 ≤ 10 ≤ 14 for (−2, 7) and (4, −1), and the same on every distance screen', () => {\n    const fits = (p, q) => { const a = Math.abs(q[0] - p[0]), b = Math.abs(q[1] - p[1]), dd = dist(p, q); return Math.max(a, b) <= dd + 1e-9 && dd <= a + b + 1e-9; };\n    const we = dist([-2, 7], [4, -1]);\n    return same(we, 10) && 8 <= we && we <= 14 && STEPS.every((d, i) => shown(i).rows.filter((r) => r.kind === 'd').every((r) => fits(r.p, r.q)));\n  });\n  K.check('The midpoint lands on the long side, the same distance from each end, and its dashed lines cross the run and the rise at their halfway points and reach the number scales, wherever B is dragged on the first midpoint screen', () => {\n    const i = idx('Halfway'), G = geo(STEPS[i]);\n    for (let x = -1; x <= 9; x += 2) for (let y = 0; y <= 11; y += 3) {\n      const g = drawn(i, Object.assign(blank(), { pts: [[1, 2], [x, y]] })), r = g.tris[0], D = g.dash;\n      if (!r || !g.mid || !D) return false;\n      const M = g.mid.px;\n      const onSeg = Math.abs((M[0] - r.A[0]) * (r.B[1] - r.A[1]) - (M[1] - r.A[1]) * (r.B[0] - r.A[0])) < 1e-6 &&\n        Math.abs(Math.hypot(M[0] - r.A[0], M[1] - r.A[1]) - Math.hypot(M[0] - r.B[0], M[1] - r.B[1])) < 1e-6;\n      const halfway = Math.abs(D.vx - (r.A[0] + r.C[0]) / 2) < 1e-6 && Math.abs(D.hy - (r.C[1] + r.B[1]) / 2) < 1e-6;\n      const reach = D.vBot === G.gy + G.gh && D.hLeft === G.gx && D.vTop <= Math.min(r.A[1], M[1]) + 1e-6 && D.hRight >= Math.max(r.C[0], M[0]) - 1e-6;\n      if (!(onSeg && halfway && reach)) return false;\n    }\n    return true;\n  });\n  K.check('Working back takes the same step again: on both working-back screens the step from M to B equals the step from A to M, so M is the midpoint of A and B, and B is never the midpoint of A and M', () =>\n    STEPS.every((d, i) => {\n      if (d.focus !== 'back') return true;\n      const g = shown(i), a = g.P[0], m = g.P[1], b = g.P[2];\n      return same([m[0] - a[0], m[1] - a[1]], [b[0] - m[0], b[1] - m[1]]) && same(midOf(a, b), m) && !same(b, midOf(a, m)) &&\n        g.labels.indexOf('B ' + coord(b)) >= 0 && g.tris.length === 2 && g.tris[0].run === g.tris[1].run && g.tris[0].rise === g.tris[1].rise;\n    }));\n  K.check('Before an answer a puzzle draws no triangle and no marker, and its working reads ?; a right answer or Why? draws them and fills in the working; every wrong answer has a hint of its own', () =>\n    DO.every((i) => {\n      const d = STEPS[i], g0 = drawn(i, blank()), g1 = drawn(i, solvedSt(i)), g2 = drawn(i, Object.assign(blank(), { why: true }));\n      const before = g0.tris.length === 0 && !g0.mid && g0.rows.length === 1 && /\\?$/.test(g0.rows[0].s) &&\n        (d.focus !== 'back' || !g0.labels.some((t) => /^B /.test(t))) && (d.focus !== 'd' || g0.dlab === 'd = ?');\n      const after = (g) => g.tris.length >= 1 && g.rows.every((r) => !/\\?/.test(r.s)) && (d.focus !== 'm' || !!g.mid) && (d.focus !== 'd' || /^d = √/.test(g.dlab || ''));\n      return before && after(g1) && after(g2) && d.opts.every((o) => o === d.want || (d.hints[o] && d.hints[o] !== d.hint));\n    }));\n  K.check('Every wrong answer offered is a real slip worked from the puzzle\\'s own points: run plus rise, no square root, dropped brackets, halved differences, totals not halved, a lost minus, the midpoint of A and M, or the step alone', () =>\n    DO.every((i) => { const d = STEPS[i]; return d.opts.every((o) => o === d.want || (d.slip[o] && same(valueOf(o), d.slip[o](d.pts), 0.05))); }));\n  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; a puzzle\\'s drawing finishes within 2.5 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; earliest = Infinity; S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => (d.show ? timed(i, blank(), d.dur) && d.dur >= 2.8 && d.dur <= 4.5 && earliest >= FADE\n      : timed(i, solvedSt(i), FB) && timed(i, Object.assign(blank(), { why: true }), FB)));\n    T = keepT; paint();\n    return ok && FB <= 2.5;\n  });\n\n  K.ready();\n</script>",
+  "title": "Distance and midpoint",
+  "brief": "The one thing you should see is the step triangle's run and rise giving both the long side, √(run² + rise²), and the midpoint halfway along and halfway up, when you drag point A or B.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Plot the points and create a right triangle much as for the slope: on every screen the run arrow goes straight across from the first point, the rise arrow straight up or down to the second, and a right-angle mark sits where they meet",
+     "ok": true,
+     "source": "https://openstax.org/books/intermediate-algebra/pages/11-1-distance-and-midpoint-formulas-circles"
+    },
+    {
+     "label": "Derived from the Pythagorean theorem, the distance formula finds the distance between two points: every distance row ends in the square root of the run squared plus the rise squared, the long side is labelled the same, and each distance puzzle accepts only that answer",
+     "ok": true,
+     "source": "https://openstax.org/books/college-algebra/pages/2-1-the-rectangular-coordinate-systems-and-graphs"
+    },
+    {
+     "label": "To find the midpoint, find the average of the x-axis coordinates and the average of the y-axis coordinates: every midpoint row ends in that pair, the marker sits there, its dashed lines meet the number scales at the two averages, and each midpoint puzzle accepts only that answer",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/z4863qt"
+    },
+    {
+     "label": "Every worked row is right, by hand: √100 = 10 four times, √25 = 5, √169 = 13 twice, √73 ≈ 8.5 for B dragged to (4, 10), midpoints (4, 6), (5, 5), (1, 2), (−1, 2), (7, 4.5) and (2.5, 6), and B at (7, 10) and (7, −2) by working back",
+     "ok": true
+    },
+    {
+     "label": "A negative difference leaves its square, and so the distance, unchanged: with A at (1, 2), B at (7, 10), (7, −6) and (−5, −6) all give 36 + 64 = 100 and d = 10, and starting from B gives the same distance as starting from A",
+     "ok": true
+    },
+    {
+     "label": "The distance is never shorter than the larger difference nor longer than the two added: 8 ≤ 10 ≤ 14 for (−2, 7) and (4, −1), and the same on every distance screen",
+     "ok": true
+    },
+    {
+     "label": "The midpoint lands on the long side, the same distance from each end, and its dashed lines cross the run and the rise at their halfway points and reach the number scales, wherever B is dragged on the first midpoint screen",
+     "ok": true
+    },
+    {
+     "label": "Working back takes the same step again: on both working-back screens the step from M to B equals the step from A to M, so M is the midpoint of A and B, and B is never the midpoint of A and M",
+     "ok": true
+    },
+    {
+     "label": "Before an answer a puzzle draws no triangle and no marker, and its working reads ?; a right answer or Why? draws them and fills in the working; every wrong answer has a hint of its own",
+     "ok": true
+    },
+    {
+     "label": "Every wrong answer offered is a real slip worked from the puzzle's own points: run plus rise, no square root, dropped brackets, halved differences, totals not halved, a lost minus, the midpoint of A and M, or the step alone",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; a puzzle's drawing finishes within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "The long side",
+      "Your turn",
+      "Across both axes",
+      "Mind the brackets",
+      "Halfway",
+      "Find the middle",
+      "Negatives too",
+      "Mind the signs",
+      "Working back",
+      "The other end",
+      "A ceiling plan",
+      "Between the lines",
+      "Last one"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-17T09:24:38.766Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "'Unlike the gradient, the order makes no difference' contradicts i1, where either point gives the same gradient. And the formula uses coordinates, so it gives a true length when both axes measure length in one unit, whatever the grid spacing."
+   },
+   {
+    "path": "practice.text",
+    "problem": "With a signed rise like −8, 'the larger difference' and 'the two added' read as 6 and −2; the worked example uses sizes (8, 14), so say to ignore minus signs. The rule of thumb's same-length-squares condition is too narrow, as in the explanation."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

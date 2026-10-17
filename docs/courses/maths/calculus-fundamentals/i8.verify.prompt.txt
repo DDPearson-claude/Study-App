@@ -1,0 +1,560 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Calculus you will actually use
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i8 "Adding up: the definite integral" — Adding up bars under a rate graph gives the total, such as charge from current, and the reverse rule, F(b) − F(a), gets it exactly. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i9 Work from a pV diagram — The work a gas does is the area under its pV curve, which for pVⁿ = C is (p₁V₁ − p₂V₂) ÷ (n − 1).
+- i10 Mean and RMS values — Mean value is area ÷ length; RMS is the root of the squared graph's mean, which for a sine wave is its peak ÷ √2.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] 5.3 The Fundamental Theorem of Calculus - Calculus Volume 1 | OpenStax — https://openstax.org/books/calculus-volume-1/pages/5-3-the-fundamental-theorem-of-calculus
+    "After finding approximate areas by adding the areas of n rectangles, the application of this theorem is straightforward by comparison."
+[R2] 5.3 The Fundamental Theorem of Calculus - Calculus Volume 1 | OpenStax — https://openstax.org/books/calculus-volume-1/pages/5-3-the-fundamental-theorem-of-calculus
+    "if we can find an antiderivative for the integrand, then we can evaluate the definite integral by evaluating the antiderivative at the endpoints of the interval and subtracting."
+[R3] 5.4 Integration Formulas and the Net Change Theorem - Calculus Volume 1 | OpenStax — https://openstax.org/books/calculus-volume-1/pages/5-4-integration-formulas-and-the-net-change-theorem
+    "It says that when a quantity changes, the new value equals the initial value plus the integral of the rate of change of that quantity."
+[R4] 1.3: Charge and Current — https://eng.libretexts.org/@api/deki/pages/98378/pdf/1.3%253A%2bCharge%2band%2bCurrent.pdf
+    "can be determined by integrating the current function over the given time interval."
+[R5] 5.3 The Fundamental Theorem of Calculus - Calculus Volume 1 | OpenStax — https://openstax.org/books/calculus-volume-1/pages/5-3-the-fundamental-theorem-of-calculus
+    "The reason is that, according to the Fundamental Theorem of Calculus, Part 2, any antiderivative works."
+[R6] SYLLABUS, 18.01 FALL 2023 This is an outline of the topics we will study in the course. Part 1: Integrals — https://math.mit.edu/documents/18.01_syllabus.pdf
+    "Integrals: The meaning of integrals and setting up integrals. An integral describes a quantity as a sum of many small pieces."
+[R7] 5.2 The Definite Integral - Calculus Volume 1 | OpenStax — https://openstax.org/books/calculus-volume-1/pages/5-2-the-definite-integral
+    "When velocity is a constant, the area under the curve is just velocity times time."
+[R8] Students' understanding and application of the area under the curve concept in physics problems | Phys. Rev. ST Phys. Educ. Res. — https://journals.aps.org/prper/abstract/10.1103/PhysRevSTPER.7.010112
+    "Even when students could invoke the area under the curve concept, they did not necessarily understand the relationship between the process of accumulation and the area under a curve, so they failed to apply it to novel situations."
+[R9] Integrating simple algebraic expressions — https://www.bbc.co.uk/bitesize/guides/zgxttfr/revision/1
+    "Integration is the inverse of differentiation of algebraic and trigonometric expressions involving brackets and powers."
+[R10] Integrating simple algebraic expressions — https://www.bbc.co.uk/bitesize/guides/zgxttfr/revision/1
+    "The + c appears because when you differentiate a constant term, the answer is zero"
+[R11] APEX Antiderivatives and Indefinite Integration — https://webwork.moravian.edu/apexcalc/sec_antider.html
+    "To find the antiderivative, do the opposite things in the opposite order: first add (1) to the power, then second divide by the power."
+[R12] https://mathweb.ucsd.edu/~ashenk/Section6_7.pdf — https://mathweb.ucsd.edu/~ashenk/Section6_7.pdf
+    "because we cannot set n = −1 in the fraction 1/(n + 1)."
+[R13] Mathematics Written Examination Syllabus - GOV.UK — https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus
+    "Determines the constant of integration from given conditions."
+[R14] Higher Mathematics Course Specification — https://www.sqa.org.uk/files_ccc/h-course-spec-mathematics.pdf
+    "determining and using a function from a given rate of change and initial conditions"
+[R15] Advanced Higher Mathematics Course Report 2023 — https://www.sqa.org.uk/sqa/files_ccc/2023-ah-course-report-mathematics.pdf
+    "Many candidates made basic errors in applying a formula approach, or in dealing with the constant of integration."
+[R16] Mathematics Written Examination Syllabus - GOV.UK — https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus
+    "7.1 Discusses differential calculus and solves associated problems"
+[R17] Mathematics Written Examination Syllabus - GOV.UK — https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus
+    "8.1 Discusses integral calculus and solves associated problems"
+[R18] national unit specification: general information — https://www.sqa.org.uk/sqa/files/hn/H7K134.pdf
+    "the notional design length is 40 hours"
+[R19] national unit specification: general information — https://www.sqa.org.uk/sqa/files/hn/H7K134.pdf
+    "Outcome 2 (10 hours)"
+[R20] national unit specification: general information — https://www.sqa.org.uk/sqa/files/hn/H7K134.pdf
+    "Outcome 3 (8 hours)"
+[R21] 3.2 The Derivative as a Function - Calculus Volume 1 | OpenStax — https://openstax.org/books/calculus-volume-1/pages/3-2-the-derivative-as-a-function
+    "Use of the notation (called Leibniz notation) is quite common in engineering and physics."
+[R22] national unit specification: general information — https://www.sqa.org.uk/sqa/files/hn/H7K134.pdf
+    "Apply integration to solve problems in Engineering (area under a velocity time curve giving distance travelled, work done by an expanding gas, first and second moments of area, centroids, mean values, root mean square values, etc)"
+Notes (claims, and the sources that support them):
+- Adding the areas of rectangles under a rate graph approximates the total; the evaluation theorem then gets the exact area by evaluating an antiderivative at both ends and subtracting. [R1][R2]
+- When a quantity changes, its new value equals its initial value plus the integral of its rate of change. [R3]
+- Integrating the current function over a time interval gives the charge transferred in that interval. [R4]
+- By the evaluation theorem, any antiderivative of the integrand will do when evaluating a definite integral. [R5]
+- An integral describes a quantity as a sum of many small pieces (MIT 18.01). [R6]
+- The definite integral can be taught as the area under a curve or as an accumulation of a rate. [R7][R8]  [CONTESTED: Textbooks such as OpenStax define the definite integral by area under a curve, while physics-education researchers found students could say 'the integral equals the area' yet not link it to accumulation.]
+- Integration is the inverse of differentiation; add one to the power and divide by the new power. [R9][R10]  (from an idea this one builds on)
+- Because inverse operations do the opposite in the opposite order, the power rule for integrals adds 1 to the power, then divides by it. [R11]  (from an idea this one builds on)
+- The power rule for integrals cannot be used at n = −1 because it would divide by n + 1 = 0. [R12]  (from an idea this one builds on)
+- The constant c appears because differentiating a constant gives zero; it is fixed from given conditions such as initial values. [R10][R13][R14]  (from an idea this one builds on)
+- SQA examiners report that candidates make basic errors in dealing with the constant of integration. [R15]  (from an idea this one builds on)
+- Integration is the inverse of differentiation: the two halves of the course undo each other. [R9]  (whole topic)
+- The Maritime and Coastguard Agency's second-engineer maths syllabus has a differentiation section and an integration section, so both halves are on Dan's route. [R16][R17]  (whole topic)
+- An HN Engineering Mathematics 2 unit (SQA, 40 notional hours) gives 10 hours to differentiation and 8 hours to integration. [R18][R19][R20]  (whole topic)
+- Leibniz notation (dy/dx) is quite common in engineering and physics. [R21]  (whole topic)
+- The same HN unit applies integration to engineering problems such as work done by an expanding gas, mean values and root mean square values. [R22]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i8",
+ "title": "Adding up: the definite integral",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the slivers between bars and curve shrinking as the running total settles on 8 C, what t³ gives from 0 s to 2 s, when you slide the bars from 4 to 100.",
+  "title": "Bars that become an area",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in twelve small screens on bars under a rate graph. Each graph shows a rate against time, a current in amps or a speed in metres per second, drawn from a rule the screen names. Under it stand bars of equal width, each as tall as the rate at one moment, so each bar's area is a rate times a time: amps times seconds is coulombs of charge, and metres per second times seconds is metres. A running total adds the bars up. A slider sets how many bars share the same stretch of time, from 4 to 100, so the bars get thinner as their number grows. The first screen has a steady 3 A for 4 s, one rectangle, 3 × 4 = 12 C. Then the current i = 3t² amps from 0 s to 2 s. Each bar takes the current at its start, so on this rising curve every bar falls short of the curve by a thin sliver, and 4 bars give 5.25 C. More bars miss thinner slivers: 6.56 C at 8 bars, 7.88 C at 100, settling on 8 C. Beside it is the reverse rule from the last lesson: the charge is q = t³ + c, and its value at 2 s take away its value at 0 s, (8 + c) − (0 + c), is 8 C, the number the bars settle on. A later screen measures each bar's height at its middle instead: each bar's top then crosses the curve, poking above it on the bar's left half while the curve rises above it on the right half, and the two slivers nearly match, so 4 bars give 7.875 C. Where a current turns negative, flowing back, its graph dips below the axis; those bars hang below it, hatched, and count as minus in the total. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick is shown going wrong on the graph.",
+  "ignores": "The currents and speeds are example rules, chosen so the numbers come out exactly; a real current graph is usually measured, not given by a rule. A current rising as 3t² is not how a capacitor charges from a steady supply through a resistor, where the current is largest at the start and falls away. The reverse rule here is for powers of t; other rates, such as the sine waves of a.c., need reverses of their own, not shown.",
+  "numbers": [
+   {
+    "label": "Example steady current 3 A, in step 1",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example time 4 s, in step 1",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Charge 3 × 4 = 12 C, in step 1",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Example steady speed 5 m/s, in step 2",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example time 6 s, in step 2",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Distance 5 × 6 = 30 m, in step 2",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip height read alone: 5 m, in step 2",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip adding: 5 + 6 = 11 m, in step 2",
+    "value": 11,
+    "kind": "computed"
+   },
+   {
+    "label": "Example current rule i = 3t² amps, in step 3",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example stretch 0 s to 2 s, in step 3",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slider for bars opens at 4, in step 3",
+    "value": 4,
+    "kind": "control"
+   },
+   {
+    "label": "Slider for bars goes up to 100, in step 3",
+    "value": 100,
+    "kind": "control"
+   },
+   {
+    "label": "Bar width 2 ÷ 4 = 0.5 s, in step 3",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Bar heights at starts: 0 A, in step 3",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Bar heights at starts: 0.75 A, in step 3",
+    "value": 0.75,
+    "kind": "computed"
+   },
+   {
+    "label": "Bar heights at starts: 3 A, in step 3",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Bar heights at starts: 6.75 A, in step 3",
+    "value": 6.75,
+    "kind": "computed"
+   },
+   {
+    "label": "4 bars at their starts total 5.25 C, in step 3",
+    "value": 5.25,
+    "kind": "computed"
+   },
+   {
+    "label": "8 bars total 6.56 C, in step 3",
+    "value": 6.56,
+    "kind": "computed"
+   },
+   {
+    "label": "100 bars total 7.88 C, in step 3",
+    "value": 7.88,
+    "kind": "computed"
+   },
+   {
+    "label": "Settled total 8 C, in step 3",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Bar from 1 s to 1.5 s, 3 A high, in step 4",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Its charge 3 × 0.5 = 1.5 C, in step 4",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip adding: 3 + 0.5 = 3.5, in step 4",
+    "value": 3.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Charge rule q = t³ + c, power 3, in step 5",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "(8 + c) − (0 + c) = 8 C, in step 5",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Charge from 1 s to 2 s: 8 − 1 = 7 C, in step 6",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip no start taken away: 8 C, in step 6",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip ends in the current: 12 − 3 = 9, in step 6",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "Mid-heights at 0.25, 0.75, 1.25, 1.75 s, in step 7",
+    "value": 0.25,
+    "kind": "computed"
+   },
+   {
+    "label": "4 bars at mid-height total 7.875 C, in step 7",
+    "value": 7.875,
+    "kind": "computed"
+   },
+   {
+    "label": "Short of 8 C by 0.125 C, in step 7",
+    "value": 0.125,
+    "kind": "computed"
+   },
+   {
+    "label": "Example speed v = t² m/s, 0 s to 6 s, in step 8",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Three bars 2 s wide, middles 1, 3, 5 s, in step 8",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Mid-heights 1, 9, 25 m/s, in step 8",
+    "value": 25,
+    "kind": "computed"
+   },
+   {
+    "label": "Bars total 2 × (1 + 9 + 25) = 70 m, in step 8",
+    "value": 70,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip no width: 35 m, in step 8",
+    "value": 35,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip tallest bar times 6 s: 150 m, in step 8",
+    "value": 150,
+    "kind": "computed"
+   },
+   {
+    "label": "Exact by rule: 216 ÷ 3 = 72 m, in step 8",
+    "value": 72,
+    "kind": "computed"
+   },
+   {
+    "label": "Example current i = 4 − 2t amps, 0 to 3 s, in step 9",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Current turns negative after 2 s, in step 9",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Forwards 4 C, in step 9",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Back 1 C, in step 9",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Net 12 − 9 = 3 C, in step 9",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip back counted plus: 4 + 1 = 5 C, in step 9",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Example current i = 3 − t amps, 0 to 6 s, in step 10",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Net charge 18 − 18 = 0 C, in step 10",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip all counted plus: 9 C, in step 10",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip only the part above: 4.5 C, in step 10",
+    "value": 4.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Example speed v = 2t + 3 m/s, 1 s to 4 s, in step 11",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Distance 28 − 4 = 24 m, in step 11",
+    "value": 24,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip no start taken away: 28 m, in step 11",
+    "value": 28,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip ends in the speed: 11 − 5 = 6 m, in step 11",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Example current i = 2t − 4 amps, 0 to 5 s, in step 12",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Net charge 25 − 20 = 5 C, in step 12",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip all counted plus: 4 + 9 = 13 C, in step 12",
+    "value": 13,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip start minus end: −5 C, in step 12",
+    "value": -5,
+    "kind": "computed"
+   },
+   {
+    "label": "Last lesson's capacitor: 3 C at 0 s",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Its charge gained from 0 s to 4 s: 8 C",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Its charge at 4 s: 3 + 8 = 11 C",
+    "value": 11,
+    "kind": "computed"
+   },
+   {
+    "label": "Analogy: example logging every half hour, 0.5 h",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice: example current i = 8 − 2t amps",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice: example stretch 1 s to 3 s",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice: F(3) = 24 − 9 = 15",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice: F(1) = 8 − 1 = 7",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice: charge 15 − 7 = 8 C",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice: mid-height current at 2 s, 4 A",
+    "value": 4,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Adding up a rate over a stretch of time gives the total it delivers: current added up over time is charge, and speed added up over time is distance. You can add it up with bars, and the reverse rule from the last lesson gets the bars' exact total in one subtraction.\n\nWhen a speed holds steady, the distance is the speed times the time, the area of the rectangle under its flat graph.[^1] Any steady rate works the same way: a steady 3 A for 4 s moves 3 × 4 = 12 C, because an amp is a coulomb each second. When the rate changes, no single rectangle fits, so cut the time into narrow bars, take the rate as steady across each one, and add their amounts. That is what an integral is, a quantity described as a sum of many small pieces.[^2] Take a current that rises, i = 3t² amps, from 0 s to 2 s. Cut the 2 s into 4 bars, each 0.5 s wide, and give each bar the current at its start: 0, 0.75, 3 and 6.75 A. Each bar's charge is its current times 0.5 s, and together they make 5.25 C. That is short, because the current keeps rising across each bar while the bar's flat top does not, so each bar misses a thin sliver under the curve. Thinner bars miss thinner slivers: 8 bars give 6.56 C, 100 give 7.88 C, and the total settles on 8 C. Taking each bar's height at its middle gets close much sooner. The bar's top then crosses the curve: on the bar's left half it pokes above the curve, on its right half the curve rises above it, and the two slivers nearly cancel, so 4 bars give 7.875 C. On a straight line the two slivers are the same size, so mid-height bars give the exact total. Textbooks call this the [[mid-ordinate rule]], and it is one way to add up a graph you have only as readings.\n\nNow the reverse rule. Charge is what you get by integrating the current over the time,[^3] and the last lesson gives q = t³ + c. The charge that flows between 0 s and 2 s is the charge at the end take away the charge at the start: (8 + c) − (0 + c) = 8 C, the number the bars settle on. The c cancels, so any c will do.[^4] Here is why the two agree. Each thin bar is the current, how fast the charge grows, times a short time, so it is very nearly how much q rises across that bar. The rise across the first bar, plus the rise across the second, and so on, is the rise from start to end, because each bar picks up where the last left off. Thinner bars make each \"very nearly\" closer, so the bars' total settles on exactly that rise. So instead of adding bars, take the reverse rule's answer, call it F, put in the end time b and the start time a, and subtract: F(b) − F(a).[^5] Adding bars only approximates; the rule gets it at once.[^6] This is a [[definite integral]], an integral with two ends, written ∫₀² 3t² dt = 2³ − 0³ = 8, the small numbers on the ∫ being the start and end.\n\nA current can flow back. Say i = 4 − 2t amps from 0 s to 3 s: it flows forwards until 2 s, then turns negative. A negative current times a time is a negative amount, charge taken away, so bars below the axis count as minus: 4 C forwards, then 1 C back, 3 C in all. Count the 1 C back as plus and you get 5 C, more than ever arrived. The reverse rule does the minus for you: F(t) = 4t − t² is 12 − 9 = 3 at 3 s and 0 at 0 s, so 3 C. A definite integral gives the change, and the new value is the starting value plus the integral of the rate.[^7] The capacitor from the last lesson held 3 C at 0 s with a current of t amps. The reverse rule turns t into 0.5t², so ∫₀⁴ t dt = 0.5 × 16 − 0 = 8, and it held 3 + 8 = 11 C at 4 s, as you found there. You will hear that the integral is the area under the curve, and it is, counting area below the axis as minus. But physics-education researchers found that students who could say so did not necessarily connect the area with the adding up, so they could not use it on new problems.[^8] Under a current graph the area's units are amps times seconds, coulombs: a charge. **Bars under a rate graph add up the amount, rate × time, bar by bar; as they thin, their total settles on F(b) − F(a), the reverse rule's value at the end minus its value at the start,[^6][^5] with bars below the axis counting as minus.**"
+ },
+ "analogy": {
+  "text": "Remember the kWh meter from the first lesson? Log a workshop's load every half hour and take each reading as the load for that half hour: each reading is a bar, kW × 0.5 h of energy, and the day's bars add up to its kWh. Log every few minutes and the total closes in on what the meter says, its evening reading take away its morning one. The meter's reading plays F, and its difference is the exact total the bars are closing in on.",
+  "breaks": "The meter counts the real load as it happens, so a spike between two logged readings shows on the meter but not in the log, however close the readings. Under a smooth rule's graph nothing hides between the bars, so thinner bars close in on the exact total."
+ },
+ "practice": {
+  "text": "- Check the units first: the rate times the time should give the amount you want (amps × seconds = coulombs, metres per second × seconds = metres).\n- If you have the rate as a rule, integrate it term by term with the reverse rule. Leave out the c, because it cancels.\n- Put in the end time, then the start time, and take the second from the first: F(b) − F(a).\n- If you have only a graph or readings, split the time into equal strips, read the rate at the middle of each strip, add those readings and multiply by the strip width: the mid-ordinate rule.\n- Count parts below the axis as minus. That gives the net change. For the total either way, such as how far a boat went out and back, work out each part's size on its own and add the sizes.\n\n**Rules of thumb:** more, thinner strips get closer. On a straight stretch a mid-height strip is exact. The answer is the change, so to find where the amount ends up, add it to the starting value.[^7]\n\n**Worked example:** Say a current falls steadily, i = 8 − 2t amps, and you want the charge that flows from 1 s to 3 s. The reverse rule gives F(t) = 8t − t². At 3 s, F = 24 − 9 = 15; at 1 s, F = 8 − 1 = 7. The charge is 15 − 7 = 8 C. Check with one mid-height strip: at 2 s the current is 8 − 4 = 4 A, and 4 A × 2 s = 8 C, exact because the graph is straight.\n\n**Where you will meet it:** an HN engineering maths unit applies integration to the area under a velocity time curve, giving distance travelled.[^9]\n\n**Common mistakes**\n- Reading the height as the amount: a current at one moment is not a charge.\n- Adding the heights and forgetting to multiply by the width.\n- Forgetting to take away F(a) when the start is not at 0.\n- Putting the end times into the rate instead of its reverse rule.\n- Taking the end from the start, F(a) − F(b), which flips the sign.\n- Counting parts below the axis as plus when you want the net change."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "5.2 The Definite Integral - Calculus Volume 1 | OpenStax",
+   "url": "https://openstax.org/books/calculus-volume-1/pages/5-2-the-definite-integral",
+   "quote": "When velocity is a constant, the area under the curve is just velocity times time."
+  },
+  {
+   "n": 2,
+   "title": "SYLLABUS, 18.01 FALL 2023 This is an outline of the topics we will study in the course. Part 1: Integrals",
+   "url": "https://math.mit.edu/documents/18.01_syllabus.pdf",
+   "quote": "Integrals: The meaning of integrals and setting up integrals. An integral describes a quantity as a sum of many small pieces."
+  },
+  {
+   "n": 3,
+   "title": "1.3: Charge and Current",
+   "url": "https://eng.libretexts.org/@api/deki/pages/98378/pdf/1.3%253A%2bCharge%2band%2bCurrent.pdf",
+   "quote": "can be determined by integrating the current function over the given time interval."
+  },
+  {
+   "n": 4,
+   "title": "5.3 The Fundamental Theorem of Calculus - Calculus Volume 1 | OpenStax",
+   "url": "https://openstax.org/books/calculus-volume-1/pages/5-3-the-fundamental-theorem-of-calculus",
+   "quote": "The reason is that, according to the Fundamental Theorem of Calculus, Part 2, any antiderivative works."
+  },
+  {
+   "n": 5,
+   "title": "5.3 The Fundamental Theorem of Calculus - Calculus Volume 1 | OpenStax",
+   "url": "https://openstax.org/books/calculus-volume-1/pages/5-3-the-fundamental-theorem-of-calculus",
+   "quote": "if we can find an antiderivative for the integrand, then we can evaluate the definite integral by evaluating the antiderivative at the endpoints of the interval and subtracting."
+  },
+  {
+   "n": 6,
+   "title": "5.3 The Fundamental Theorem of Calculus - Calculus Volume 1 | OpenStax",
+   "url": "https://openstax.org/books/calculus-volume-1/pages/5-3-the-fundamental-theorem-of-calculus",
+   "quote": "After finding approximate areas by adding the areas of n rectangles, the application of this theorem is straightforward by comparison."
+  },
+  {
+   "n": 7,
+   "title": "5.4 Integration Formulas and the Net Change Theorem - Calculus Volume 1 | OpenStax",
+   "url": "https://openstax.org/books/calculus-volume-1/pages/5-4-integration-formulas-and-the-net-change-theorem",
+   "quote": "It says that when a quantity changes, the new value equals the initial value plus the integral of the rate of change of that quantity."
+  },
+  {
+   "n": 8,
+   "title": "Students' understanding and application of the area under the curve concept in physics problems | Phys. Rev. ST Phys. Educ. Res.",
+   "url": "https://journals.aps.org/prper/abstract/10.1103/PhysRevSTPER.7.010112",
+   "quote": "Even when students could invoke the area under the curve concept, they did not necessarily understand the relationship between the process of accumulation and the area under a curve, so they failed to apply it to novel situations."
+  },
+  {
+   "n": 9,
+   "title": "national unit specification: general information",
+   "url": "https://www.sqa.org.uk/sqa/files/hn/H7K134.pdf",
+   "quote": "Apply integration to solve problems in Engineering (area under a velocity time curve giving distance travelled, work done by an expanding gas, first and second moments of area, centroids, mean values, root mean square values, etc)"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

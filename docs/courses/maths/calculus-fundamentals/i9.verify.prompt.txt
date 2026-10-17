@@ -1,0 +1,602 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Calculus you will actually use
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i9 "Work from a pV diagram" — The work a gas does is the area under its pV curve, which for pVⁿ = C is (p₁V₁ − p₂V₂) ÷ (n − 1). [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i10 Mean and RMS values — Mean value is area ÷ length; RMS is the root of the squared graph's mean, which for a sine wave is its peak ÷ √2.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] 12.10: Work, Heat, and Internal Energy - Physics LibreTexts — https://phys.libretexts.org/Courses/Georgia_State_University/GSU-TM-Physics_I_(2211)/12%3A_Temperature_and_Heat/12.10%3A_Work_Heat_and_Internal_Energy
+    "The integral is interpreted graphically as the area under the pV curve"
+[R2] 12.10: Work, Heat, and Internal Energy - Physics LibreTexts — https://phys.libretexts.org/Courses/Georgia_State_University/GSU-TM-Physics_I_(2211)/12%3A_Temperature_and_Heat/12.10%3A_Work_Heat_and_Internal_Energy
+    "Work done by the gas is positive for expansion and negative for compression."
+[R3] Applied Heat Written Examination Syllabus - GOV.UK — https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/applied-heat-written-examination-syllabus
+    "Shows that the area of the pV diagram represents W.D. during the operation."
+[R4] Mathematics Written Examination Syllabus - GOV.UK — https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus
+    "Derives expressions for the area under the curve, given by pV n = C."
+[R5] Polytropic Processes — https://engineering.purdue.edu/~wassgren/teaching/ME20000/NotesAndReading/Lec12_LectureNotes.pdf
+    "A polytropic process is one in which pVn = constant, where n is a constant."
+[R6] Polytropic Process | Wolfram Formula Repository — https://resources.wolframcloud.com/FormulaRepository/resources/Polytropic-Process
+    "The work done on the system equals the final pressure times the final volume minus the initial pressure times the initial volume divided by the polytropic index minus 1."
+[R7] Microsoft PowerPoint - chap3-ext.ppt — https://webspace.clarkson.edu/projects/fluidflow/public_html/kam/courses/2005/es340/chap3-ext.pdf
+    "Work done during an adiabatic process: W12 = (p1V1 – p2V2)/(k-1)"
+[R8] Applied Heat Written Examination Syllabus - GOV.UK — https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/applied-heat-written-examination-syllabus
+    "Determines the area of an indicator card using the mid-ordinate rule."
+[R9] Integrating simple algebraic expressions — https://www.bbc.co.uk/bitesize/guides/zgxttfr/revision/1
+    "Integration is the inverse of differentiation of algebraic and trigonometric expressions involving brackets and powers."
+[R10] Integrating simple algebraic expressions — https://www.bbc.co.uk/bitesize/guides/zgxttfr/revision/1
+    "The + c appears because when you differentiate a constant term, the answer is zero"
+[R11] APEX Antiderivatives and Indefinite Integration — https://webwork.moravian.edu/apexcalc/sec_antider.html
+    "To find the antiderivative, do the opposite things in the opposite order: first add (1) to the power, then second divide by the power."
+[R12] https://mathweb.ucsd.edu/~ashenk/Section6_7.pdf — https://mathweb.ucsd.edu/~ashenk/Section6_7.pdf
+    "because we cannot set n = −1 in the fraction 1/(n + 1)."
+[R13] Mathematics Written Examination Syllabus - GOV.UK — https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus
+    "Determines the constant of integration from given conditions."
+[R14] Higher Mathematics Course Specification — https://www.sqa.org.uk/files_ccc/h-course-spec-mathematics.pdf
+    "determining and using a function from a given rate of change and initial conditions"
+[R15] Advanced Higher Mathematics Course Report 2023 — https://www.sqa.org.uk/sqa/files_ccc/2023-ah-course-report-mathematics.pdf
+    "Many candidates made basic errors in applying a formula approach, or in dealing with the constant of integration."
+[R16] 5.3 The Fundamental Theorem of Calculus - Calculus Volume 1 | OpenStax — https://openstax.org/books/calculus-volume-1/pages/5-3-the-fundamental-theorem-of-calculus
+    "After finding approximate areas by adding the areas of n rectangles, the application of this theorem is straightforward by comparison."
+[R17] 5.3 The Fundamental Theorem of Calculus - Calculus Volume 1 | OpenStax — https://openstax.org/books/calculus-volume-1/pages/5-3-the-fundamental-theorem-of-calculus
+    "if we can find an antiderivative for the integrand, then we can evaluate the definite integral by evaluating the antiderivative at the endpoints of the interval and subtracting."
+[R18] 5.4 Integration Formulas and the Net Change Theorem - Calculus Volume 1 | OpenStax — https://openstax.org/books/calculus-volume-1/pages/5-4-integration-formulas-and-the-net-change-theorem
+    "It says that when a quantity changes, the new value equals the initial value plus the integral of the rate of change of that quantity."
+[R19] 1.3: Charge and Current — https://eng.libretexts.org/@api/deki/pages/98378/pdf/1.3%253A%2bCharge%2band%2bCurrent.pdf
+    "can be determined by integrating the current function over the given time interval."
+[R20] 5.3 The Fundamental Theorem of Calculus - Calculus Volume 1 | OpenStax — https://openstax.org/books/calculus-volume-1/pages/5-3-the-fundamental-theorem-of-calculus
+    "The reason is that, according to the Fundamental Theorem of Calculus, Part 2, any antiderivative works."
+[R21] SYLLABUS, 18.01 FALL 2023 This is an outline of the topics we will study in the course. Part 1: Integrals — https://math.mit.edu/documents/18.01_syllabus.pdf
+    "Integrals: The meaning of integrals and setting up integrals. An integral describes a quantity as a sum of many small pieces."
+[R22] 5.2 The Definite Integral - Calculus Volume 1 | OpenStax — https://openstax.org/books/calculus-volume-1/pages/5-2-the-definite-integral
+    "When velocity is a constant, the area under the curve is just velocity times time."
+[R23] Students' understanding and application of the area under the curve concept in physics problems | Phys. Rev. ST Phys. Educ. Res. — https://journals.aps.org/prper/abstract/10.1103/PhysRevSTPER.7.010112
+    "Even when students could invoke the area under the curve concept, they did not necessarily understand the relationship between the process of accumulation and the area under a curve, so they failed to apply it to novel situations."
+[R24] Mathematics Written Examination Syllabus - GOV.UK — https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus
+    "7.1 Discusses differential calculus and solves associated problems"
+[R25] Mathematics Written Examination Syllabus - GOV.UK — https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus
+    "8.1 Discusses integral calculus and solves associated problems"
+[R26] national unit specification: general information — https://www.sqa.org.uk/sqa/files/hn/H7K134.pdf
+    "the notional design length is 40 hours"
+[R27] national unit specification: general information — https://www.sqa.org.uk/sqa/files/hn/H7K134.pdf
+    "Outcome 2 (10 hours)"
+[R28] national unit specification: general information — https://www.sqa.org.uk/sqa/files/hn/H7K134.pdf
+    "Outcome 3 (8 hours)"
+[R29] 3.2 The Derivative as a Function - Calculus Volume 1 | OpenStax — https://openstax.org/books/calculus-volume-1/pages/3-2-the-derivative-as-a-function
+    "Use of the notation (called Leibniz notation) is quite common in engineering and physics."
+[R30] national unit specification: general information — https://www.sqa.org.uk/sqa/files/hn/H7K134.pdf
+    "Apply integration to solve problems in Engineering (area under a velocity time curve giving distance travelled, work done by an expanding gas, first and second moments of area, centroids, mean values, root mean square values, etc)"
+Notes (claims, and the sources that support them):
+- The integral of p dV is the area under the pV curve, and the work done by the gas is positive for expansion and negative for compression. [R1][R2]
+- The MCA Applied Heat syllabus says the area of the pV diagram represents work done and asks for the area under the curve given by pVⁿ = C. [R3][R4]
+- A polytropic process is one in which pVⁿ = constant. [R5]
+- Work done on the system in a polytropic process is (p₂V₂ − p₁V₁) ÷ (n − 1); work by the gas has the opposite sign, (p₁V₁ − p₂V₂) ÷ (n − 1), the form given for an adiabatic process. [R6][R7]
+- The same syllabus asks for the area of an indicator card by the mid-ordinate rule. [R8]
+- Integration is the inverse of differentiation; add one to the power and divide by the new power. [R9][R10]  (from an idea this one builds on)
+- Because inverse operations do the opposite in the opposite order, the power rule for integrals adds 1 to the power, then divides by it. [R11]  (from an idea this one builds on)
+- The power rule for integrals cannot be used at n = −1 because it would divide by n + 1 = 0. [R12]  (from an idea this one builds on)
+- The constant c appears because differentiating a constant gives zero; it is fixed from given conditions such as initial values. [R10][R13][R14]  (from an idea this one builds on)
+- SQA examiners report that candidates make basic errors in dealing with the constant of integration. [R15]  (from an idea this one builds on)
+- Adding the areas of rectangles under a rate graph approximates the total; the evaluation theorem then gets the exact area by evaluating an antiderivative at both ends and subtracting. [R16][R17]  (from an idea this one builds on)
+- When a quantity changes, its new value equals its initial value plus the integral of its rate of change. [R18]  (from an idea this one builds on)
+- Integrating the current function over a time interval gives the charge transferred in that interval. [R19]  (from an idea this one builds on)
+- By the evaluation theorem, any antiderivative of the integrand will do when evaluating a definite integral. [R20]  (from an idea this one builds on)
+- An integral describes a quantity as a sum of many small pieces (MIT 18.01). [R21]  (from an idea this one builds on)
+- The definite integral can be taught as the area under a curve or as an accumulation of a rate. [R22][R23]  [CONTESTED: Textbooks such as OpenStax define the definite integral by area under a curve, while physics-education researchers found students could say 'the integral equals the area' yet not link it to accumulation.]  (from an idea this one builds on)
+- The MCA Applied Heat syllabus names the mid-ordinate rule, for finding the area of an indicator card. [R8]  (from an idea this one builds on)
+- Integration is the inverse of differentiation: the two halves of the course undo each other. [R9]  (whole topic)
+- The Maritime and Coastguard Agency's second-engineer maths syllabus has a differentiation section and an integration section, so both halves are on Dan's route. [R24][R25]  (whole topic)
+- An HN Engineering Mathematics 2 unit (SQA, 40 notional hours) gives 10 hours to differentiation and 8 hours to integration. [R26][R27][R28]  (whole topic)
+- Leibniz notation (dy/dx) is quite common in engineering and physics. [R29]  (whole topic)
+- The same HN unit applies integration to engineering problems such as work done by an expanding gas, mean values and root mean square values. [R30]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i9",
+ "title": "Work from a pV diagram",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the bars under the falling pV curve, each a pressure times a change in volume, adding up to the rule's 20 kJ, when you slide the bars from 4 to 100.",
+  "title": "The work under a pV curve",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in twelve small screens on the work a gas does as it pushes a piston. Each screen has a cylinder with its piston and, beside it, a pV diagram: pressure in kPa up the side, the gas's volume in m³ along the bottom. Moving the piston moves a dot along the diagram. The first screen holds the pressure steady at 200 kPa while the volume grows from 0.1 to 0.3 m³: the line is flat and the work is the rectangle under it, 200 × 0.2 = 40 kJ, because a kPa times a m³ is a kJ. Then the pressure falls as the gas expands, along pVⁿ = C: with n = 2, gas at 400 kPa in 0.1 m³ keeps p × V² at 4, so at 0.2 m³ it is down to 100 kPa. Bars stand under the curve, each as tall as the pressure at its middle and as wide as a change in volume, so each bar is a pressure times a change in volume, a little work. A slider sets how many bars share the stretch, from 4 to 100, and the running total goes 19.82, 19.95, then 20.00 kJ, the rule's (40 − 20) ÷ 1 = 20 kJ. A later screen has sliders for n, from 1.1 to 2, and the end volume, from 0.15 to 0.4 m³, with readouts for the 100 bars' total and the rule's value: they agree to 0.01 kJ at every setting. A switch runs it as a compression: the dot moves back along the same curve, every bar's width becomes minus, the bars are hatched and the total is −20 kJ. Another screen lays a rectangle with the same area and the same width over the curve: its height, 200 kPa, is the mean effective pressure. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick is shown going wrong on the diagram.",
+  "ignores": "The curves are drawn exactly from pVⁿ = C with example pressures, volumes and values of n; a real engine's indicator card is traced by an instrument and only roughly follows such a curve. The pressure is taken as the same all through the gas at each moment, as if the piston moved slowly, and piston friction and leaks are left out.",
+  "numbers": [
+   {
+    "label": "Example steady pressure 200 kPa, in step 1",
+    "value": 200,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example volumes 0.1 to 0.3 m³, in step 1",
+    "value": 0.3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Work 200 × 0.2 = 40 kJ, in step 1",
+    "value": 40,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip 200 × 0.3 = 60 kJ, whole volume, in step 1",
+    "value": 60,
+    "kind": "computed"
+   },
+   {
+    "label": "Example steady 300 kPa, 0.05 to 0.15 m³, in step 2",
+    "value": 300,
+    "kind": "assumed"
+   },
+   {
+    "label": "Work 300 × 0.1 = 30 kJ, in step 2",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip end volume: 300 × 0.15 = 45 kJ, in step 2",
+    "value": 45,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip start volume: 300 × 0.05 = 15 kJ, in step 2",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Example start 400 kPa at 0.1 m³, in step 3",
+    "value": 400,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example n = 2, in step 3",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "C = 400 × 0.1² = 4, in step 3",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "End pressure 4 ÷ 0.2² = 100 kPa, in step 3",
+    "value": 100,
+    "kind": "computed"
+   },
+   {
+    "label": "Slider for bars opens at 4, in step 3",
+    "value": 4,
+    "kind": "control"
+   },
+   {
+    "label": "Slider for bars goes up to 100, in step 3",
+    "value": 100,
+    "kind": "control"
+   },
+   {
+    "label": "4 bars total 19.82 kJ, in step 3",
+    "value": 19.82,
+    "kind": "computed"
+   },
+   {
+    "label": "8 bars total 19.95 kJ, in step 3",
+    "value": 19.95,
+    "kind": "computed"
+   },
+   {
+    "label": "100 bars total 20.00 kJ, in step 3",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "One bar 0.1 to 0.15 m³, middle 0.125 m³, in step 4",
+    "value": 0.125,
+    "kind": "computed"
+   },
+   {
+    "label": "Pressure there 4 ÷ 0.125² = 256 kPa, in step 4",
+    "value": 256,
+    "kind": "computed"
+   },
+   {
+    "label": "Bar's work 256 × 0.05 = 12.8 kJ, in step 4",
+    "value": 12.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip volume not change: 256 × 0.125 = 32, in step 4",
+    "value": 32,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip pressure read as work: 256, in step 4",
+    "value": 256,
+    "kind": "computed"
+   },
+   {
+    "label": "Rule (40 − 20) ÷ (2 − 1) = 20 kJ, in step 5",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Slider for n from 1.1, in step 5",
+    "value": 1.1,
+    "kind": "control"
+   },
+   {
+    "label": "Slider for n up to 2, opening at 2, in step 5",
+    "value": 2,
+    "kind": "control"
+   },
+   {
+    "label": "End volume slider from 0.15 m³, in step 5",
+    "value": 0.15,
+    "kind": "control"
+   },
+   {
+    "label": "End volume slider up to 0.4 m³, in step 5",
+    "value": 0.4,
+    "kind": "control"
+   },
+   {
+    "label": "End volume opens at 0.2 m³, in step 5",
+    "value": 0.2,
+    "kind": "control"
+   },
+   {
+    "label": "100 bars and rule agree to 0.01 kJ, in step 5",
+    "value": 0.01,
+    "kind": "computed"
+   },
+   {
+    "label": "Example 800 kPa at 0.1 m³, n = 1.5, in step 6",
+    "value": 800,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example end volume 0.4 m³, in step 6",
+    "value": 0.4,
+    "kind": "assumed"
+   },
+   {
+    "label": "C = 800 × 0.1^1.5 = 25.30, in step 6",
+    "value": 25.3,
+    "kind": "computed"
+   },
+   {
+    "label": "End pressure C ÷ 0.4^1.5 = 25.30 ÷ 0.253 = 100 kPa, in step 6",
+    "value": 100,
+    "kind": "computed"
+   },
+   {
+    "label": "Work (80 − 40) ÷ 0.5 = 80 kJ, in step 6",
+    "value": 80,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip not dividing: 40 kJ, in step 6",
+    "value": 40,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip dividing by n: 40 ÷ 1.5 = 26.7 kJ, in step 6",
+    "value": 26.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Compression 0.2 to 0.1 m³: (20 − 40) ÷ 1 = −20 kJ, in step 7",
+    "value": -20,
+    "kind": "computed"
+   },
+   {
+    "label": "Example squeeze 100 kPa, 0.4 m³ to 0.1 m³, in step 8",
+    "value": 0.4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Ends at 800 kPa, n = 1.5, in step 8",
+    "value": 800,
+    "kind": "computed"
+   },
+   {
+    "label": "Work (40 − 80) ÷ 0.5 = −80 kJ, in step 8",
+    "value": -80,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip counted as plus: 80 kJ, in step 8",
+    "value": 80,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip not dividing: −40 kJ, in step 8",
+    "value": -40,
+    "kind": "computed"
+   },
+   {
+    "label": "Mean effective pressure 20 ÷ 0.1 = 200 kPa, in step 9",
+    "value": 200,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip average of ends (400 + 100) ÷ 2 = 250 kPa, in step 9",
+    "value": 250,
+    "kind": "computed"
+   },
+   {
+    "label": "Mean effective pressure 80 ÷ 0.3 = 267 kPa, in step 10",
+    "value": 267,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip dividing by end volume: 80 ÷ 0.4 = 200 kPa, in step 10",
+    "value": 200,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip average of ends (800 + 100) ÷ 2 = 450 kPa, in step 10",
+    "value": 450,
+    "kind": "computed"
+   },
+   {
+    "label": "Example 2700 kPa at 0.02 m³, n = 1.5, in step 11",
+    "value": 2700,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example end 0.18 m³ at 100 kPa, in step 11",
+    "value": 0.18,
+    "kind": "assumed"
+   },
+   {
+    "label": "Work (54 − 18) ÷ 0.5 = 72 kJ, in step 11",
+    "value": 72,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip work-on-gas form: −72 kJ, in step 11",
+    "value": -72,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip dividing by n: 36 ÷ 1.5 = 24 kJ, in step 11",
+    "value": 24,
+    "kind": "computed"
+   },
+   {
+    "label": "Example steady 500 kPa, 0.02 to 0.06 m³, in step 12",
+    "value": 500,
+    "kind": "assumed"
+   },
+   {
+    "label": "Then pV² = C to 0.12 m³, in step 12",
+    "value": 0.12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Flat part 500 × 0.04 = 20 kJ, in step 12",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "End pressure 500 ÷ 4 = 125 kPa, in step 12",
+    "value": 125,
+    "kind": "computed"
+   },
+   {
+    "label": "Curved part (30 − 15) ÷ 1 = 15 kJ, in step 12",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Total 20 + 15 = 35 kJ, in step 12",
+    "value": 35,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip pV at the corner: 500 × 0.06 = 30, in step 12",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "Analogy: example 12 V battery",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice: example 1000 kPa at 0.05 m³",
+    "value": 1000,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice: example n = 1.3, end 0.2 m³",
+    "value": 1.3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice: C = 1000 × 0.05^1.3 = 20.35",
+    "value": 20.35,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice: 0.2^1.3 = 0.1234",
+    "value": 0.1234,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice: end pressure 164.9 kPa",
+    "value": 164.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice: p₂V₂ = 33.0 kJ",
+    "value": 33,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice: work (50 − 33.0) ÷ 0.3 = 56.7 kJ",
+    "value": 56.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice: check bounds 24.7 kJ and 150 kJ",
+    "value": 24.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice: mean effective pressure 56.7 ÷ 0.15 = 378 kPa",
+    "value": 378,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice: 1 bar = 100 kPa",
+    "value": 100,
+    "kind": "constant"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Gas pushing a piston does work, and on a graph of its pressure against its volume that work is the area under the curve.[^1] When the pressure falls as the gas expands, you add the area up in thin bars, as in the last lesson, and for a curve that follows pVⁿ = C the reverse rule gets it exactly in one line: (p₁V₁ − p₂V₂) ÷ (n − 1).\n\nStart with a steady pressure. Textbooks add that work is a force times the distance it moves, and that pressure is force on each square metre. So gas at pressure p pushes a piston of area A with a force p × A. If the piston moves out a distance d, the gas's volume grows by A × d, its change in volume, ΔV. The work is p × A × d, which is p × ΔV: the piston's area drops out, so a wide cylinder and a narrow one follow the same rule. Draw pressure up the side and volume along the bottom, a [[pV diagram]], and a steady pressure is a flat line, with the work the rectangle under it, height p times width ΔV. In kPa and m³ the work comes out in kJ, because a pascal is a newton on each square metre, and newtons per square metre times cubic metres is newton metres, joules. Say 200 kPa pushes the volume from 0.1 to 0.3 m³: the work is 200 × 0.2 = 40 kJ. It is the change in volume that counts: 200 × 0.3 = 60 kJ would count the 0.1 m³ the gas filled before the piston moved. In a real cylinder the pressure falls as the gas expands. One way to picture it: the same gas spread through more room presses less on each square metre. So no one rectangle fits. Cut the change in volume into thin bars, take each bar's pressure at its middle, multiply by its width, and add, the mid-ordinate rule from the last lesson. The MCA's second-engineer maths syllabus takes the curve as pVⁿ = C:[^2] pressure times volume to the power n stays the same number, C, and a process that follows it is called [[polytropic]].[^3] Say gas at 400 kPa fills 0.1 m³ and expands to 0.2 m³ with n = 2. Then C = 400 × 0.1² = 4, and at 0.2 m³ the pressure has fallen to 4 ÷ 0.2² = 100 kPa. Four bars give 19.82 kJ, eight give 19.95 kJ and a hundred give 20.00 kJ, settling on 20 kJ. That settled total is the integral of p over the change in volume, the area under the pV curve.[^1] The MCA's Applied Heat syllabus says the same, that the area of the pV diagram represents the work done,[^4] and it asks for the area of an indicator card by the mid-ordinate rule.[^5] Textbooks add that an indicator card is a pV diagram traced from a running engine's cylinder.\n\nNow the exact area. pVⁿ = C gives p = C ÷ Vⁿ, which is also written C × V⁻ⁿ, because a power below zero means one over: V⁻ⁿ is 1 ÷ Vⁿ. The reverse rule works for this power too: add one, giving 1 − n, and divide by it, so V⁻ⁿ integrates to V¹⁻ⁿ ÷ (1 − n). Check it by differentiating, as in the last two lessons: the power rule brings 1 − n to the front and takes one off the power, giving (1 − n) × V⁻ⁿ ÷ (1 − n) = V⁻ⁿ, what you started with. Put in the end volume, take away the start, and the work is C × (V₂¹⁻ⁿ − V₁¹⁻ⁿ) ÷ (1 − n). It tidies up. V¹⁻ⁿ is V ÷ Vⁿ, and C ÷ Vⁿ is the pressure at that volume, so C × V₂¹⁻ⁿ is just p₂V₂ and C × V₁¹⁻ⁿ is p₁V₁. That leaves (p₂V₂ − p₁V₁) ÷ (1 − n). Swapping the order of both subtractions turns the top and the bottom minus together, which leaves the value alone, and gives W = (p₁V₁ − p₂V₂) ÷ (n − 1), the area under pVⁿ = C that the same syllabus asks for.[^2] For the example, (400 × 0.1 − 100 × 0.2) ÷ (2 − 1) = (40 − 20) ÷ 1 = 20 kJ, the total the bars settle on. n = 1 will not go: the power would be −1, the one power the reverse rule cannot take, because it would divide by 0.[^6] Textbooks add that that case needs logarithms, a later course.\n\nRun it backwards and the gas is squeezed, from 0.2 m³ at 100 kPa back to 0.1 m³ at 400 kPa. The curve is the same and still above the axis, but each bar's width, the change in volume, is now minus, so each pressure times change in volume is minus. The rule gives (100 × 0.2 − 400 × 0.1) ÷ 1 = −20 kJ. Work done by the gas is positive for expansion and negative for compression:[^7] the gas did −20 kJ, which means the piston did 20 kJ of work on it. Count the squeeze as plus 20 kJ and the gas, out and back to where it started, would have handed out 40 kJ from nothing. Some books give the work done on the gas instead, (p₂V₂ − p₁V₁) ÷ (n − 1),[^8] the same size with the sign turned round, so check which a question asks for. Last, a rectangle with the same area over the same change in volume has a height of area ÷ width, its area divided by its length along the volume axis, 20 kJ ÷ 0.1 m³ = 200 kPa: the steady pressure that would do the same work. Textbooks add that this is called the [[mean effective pressure]]. It is not the average of the end pressures, 250 kPa, because the curve spends most of its width below 250 kPa. **The work a gas does is the area under its pV curve, pressure times change in volume added up bar by bar,[^1] and for pVⁿ = C that area is exactly (p₁V₁ − p₂V₂) ÷ (n − 1), positive as the gas expands and negative as it is squeezed.[^7]**"
+ },
+ "analogy": {
+  "text": "You know a volt is a joule per coulomb, so a steady 12 V battery that moves 2 C round a circuit gives it 12 × 2 = 24 J: a steady push times what is moved, like a steady pressure times a change in volume. Charge a capacitor and its voltage rises as the charge goes in, so no single voltage fits. Add it up in thin bars, each the voltage at that moment times a little charge, and the energy is the area under its voltage–charge graph, just as the gas's work is the area under its pV curve.",
+  "breaks": "A capacitor's voltage rises in a straight line as charge goes in, so its area is a triangle; a gas's pressure falls along a curve as it expands, so its area needs pVⁿ = C and the reverse rule. And the capacitor stores the energy, while an expanding gas hands its work on to the piston."
+ },
+ "practice": {
+  "text": "- Put pressures in kPa and volumes in m³, so the work comes out in kJ. Textbooks add that 1 bar is 100 kPa and 1000 litres is 1 m³.\n- Steady pressure: work = p × (V₂ − V₁), the pressure times the change in volume, not the volume.\n- Pressure falling along pVⁿ = C: find C = p₁ × V₁ⁿ from the start, then any other pressure as C ÷ Vⁿ, using your calculator's power key for n.\n- Then W = (p₁V₁ − p₂V₂) ÷ (n − 1), with 1 the start and 2 the end. Expansion gives plus, compression minus.\n- Only a trace, such as an indicator card? Split its width into equal strips, read the pressure at each strip's middle, add them and multiply by the strip width: the mid-ordinate rule.\n- Mean effective pressure = work ÷ (V₂ − V₁).\n\n**Rules of thumb:** when the pressure falls as the gas expands, the work lies between the end pressure × the change in volume and the start pressure × the change in volume. The rule fails at n = 1, where it would divide by 0.\n\n**Worked example:** Say gas at 1000 kPa fills 0.05 m³ and expands to 0.2 m³ with n = 1.3. C = 1000 × 0.05^1.3 = 20.35, and the end pressure is 20.35 ÷ 0.2^1.3 = 20.35 ÷ 0.1234 = 164.9 kPa, so p₂V₂ = 164.9 × 0.2 = 33.0 kJ, and p₁V₁ = 1000 × 0.05 = 50 kJ. The work is (50 − 33.0) ÷ 0.3 = 56.7 kJ. Check: it lies between 164.9 × 0.15 = 24.7 kJ and 1000 × 0.15 = 150 kJ. The mean effective pressure is 56.7 ÷ 0.15 = 378 kPa.\n\n**Where you will meet it:** an HN engineering maths unit applies integration to the work done by an expanding gas,[^9] and an engineering course's notes give the same form, (p₁V₁ − p₂V₂) ÷ (k − 1), for a gas that expands with no heat in or out, writing k for n.[^10]\n\n**Common mistakes**\n- Taking p × V at one moment as the work: work needs a change in volume.\n- Multiplying by the end volume instead of the change in volume.\n- Dividing by n instead of n − 1, or not dividing at all.\n- Counting a compression's work as plus.\n- Mixing up work by the gas with work on the gas, which has the opposite sign.\n- Taking the mean effective pressure as the average of the end pressures, or dividing the work by the end volume."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "12.10: Work, Heat, and Internal Energy - Physics LibreTexts",
+   "url": "https://phys.libretexts.org/Courses/Georgia_State_University/GSU-TM-Physics_I_(2211)/12%3A_Temperature_and_Heat/12.10%3A_Work_Heat_and_Internal_Energy",
+   "quote": "The integral is interpreted graphically as the area under the pV curve"
+  },
+  {
+   "n": 2,
+   "title": "Mathematics Written Examination Syllabus - GOV.UK",
+   "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus",
+   "quote": "Derives expressions for the area under the curve, given by pV n = C."
+  },
+  {
+   "n": 3,
+   "title": "Polytropic Processes",
+   "url": "https://engineering.purdue.edu/~wassgren/teaching/ME20000/NotesAndReading/Lec12_LectureNotes.pdf",
+   "quote": "A polytropic process is one in which pVn = constant, where n is a constant."
+  },
+  {
+   "n": 4,
+   "title": "Applied Heat Written Examination Syllabus - GOV.UK",
+   "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/applied-heat-written-examination-syllabus",
+   "quote": "Shows that the area of the pV diagram represents W.D. during the operation."
+  },
+  {
+   "n": 5,
+   "title": "Applied Heat Written Examination Syllabus - GOV.UK",
+   "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/applied-heat-written-examination-syllabus",
+   "quote": "Determines the area of an indicator card using the mid-ordinate rule."
+  },
+  {
+   "n": 6,
+   "title": "https://mathweb.ucsd.edu/~ashenk/Section6_7.pdf",
+   "url": "https://mathweb.ucsd.edu/~ashenk/Section6_7.pdf",
+   "quote": "because we cannot set n = −1 in the fraction 1/(n + 1)."
+  },
+  {
+   "n": 7,
+   "title": "12.10: Work, Heat, and Internal Energy - Physics LibreTexts",
+   "url": "https://phys.libretexts.org/Courses/Georgia_State_University/GSU-TM-Physics_I_(2211)/12%3A_Temperature_and_Heat/12.10%3A_Work_Heat_and_Internal_Energy",
+   "quote": "Work done by the gas is positive for expansion and negative for compression."
+  },
+  {
+   "n": 8,
+   "title": "Polytropic Process | Wolfram Formula Repository",
+   "url": "https://resources.wolframcloud.com/FormulaRepository/resources/Polytropic-Process",
+   "quote": "The work done on the system equals the final pressure times the final volume minus the initial pressure times the initial volume divided by the polytropic index minus 1."
+  },
+  {
+   "n": 9,
+   "title": "national unit specification: general information",
+   "url": "https://www.sqa.org.uk/sqa/files/hn/H7K134.pdf",
+   "quote": "Apply integration to solve problems in Engineering (area under a velocity time curve giving distance travelled, work done by an expanding gas, first and second moments of area, centroids, mean values, root mean square values, etc)"
+  },
+  {
+   "n": 10,
+   "title": "Microsoft PowerPoint - chap3-ext.ppt",
+   "url": "https://webspace.clarkson.edu/projects/fluidflow/public_html/kam/courses/2005/es340/chap3-ext.pdf",
+   "quote": "Work done during an adiabatic process: W12 = (p1V1 – p2V2)/(k-1)"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

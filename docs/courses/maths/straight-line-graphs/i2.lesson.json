@@ -1,0 +1,340 @@
+{
+  "iid": "i2",
+  "title": "Distance and midpoint",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the step triangle's run and rise giving both the long side, √(run² + rise²), and the midpoint halfway along and halfway up, when you drag point A or B.",
+    "title": "Distance and midpoint",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on the squared grid from Gradient from two points. Two points, A and B, sit on the grid, and either can be dragged. They snap to whole-number points so the sums stay easy. A square across and a square up are the same length, so the long side is a true length. Between them is the same step triangle, with the run arrow straight across and the rise arrow straight up or down, each labelled with its signed size. The long side of the triangle, from A straight to B, is labelled √(run² + rise²). A readout fills in d = √((x₂ − x₁)² + (y₂ − y₁)²) with the coordinates in brackets, then the two squares, then their total, then d. The run and the rise meet at a right angle, so the long side is the hypotenuse and Pythagoras gives its length. When a difference turns negative its square stays the same, because a negative times a negative is positive, so the distance does not change. A midpoint marker sits on the long side. Dashed lines run from it halfway along the run and halfway up the rise, and on down to the axes. It lands on the long side because the line climbs the same amount for each 1 along, so half the run gives half the rise. The dashed lines meet the axes where they meet the average of the two x's and the average of the two y's. A second readout fills in ((x₁ + x₂) ÷ 2, (y₁ + y₂) ÷ 2). When the distance is not a whole number it is shown to one decimal place. One screen is a ceiling plan drawn in metres both ways, with two lights on it. Some screens show an idea and the rest ask you to try it. A puzzle shows two points and three answers. A wrong pick gets a one-line hint naming its slip, and Why? draws the triangle and fills in the readout for those points.",
+    "ignores": "The points snap to whole numbers, but the rules work for any two points. Only the piece of line between A and B is drawn, because the distance and the midpoint belong to the two points, not to the whole line. The distance is the straight line from A to B, not a route along the gridlines, which a cable following walls would take. The ceiling plan's lights are example positions.",
+    "numbers": [
+      {
+        "label": "Example point A (1, 2), in step 1",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example point B (7, 10), in step 1",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Run 7 − 1, in step 1",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Rise 10 − 2, in step 1",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Squares 36 + 64, in step 1",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Distance √100, in step 1",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip run plus rise, 6 + 8, in step 1",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle (2, 1) to (5, 5): √(9 + 16), in step 2",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip run plus rise, 3 + 4, in step 2",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip no square root, 25, in step 2",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "B dragged to (−5, −6): run −5 − 1, in step 3",
+        "value": -6,
+        "kind": "computed"
+      },
+      {
+        "label": "B dragged to (−5, −6): rise −6 − 2, in step 3",
+        "value": -8,
+        "kind": "computed"
+      },
+      {
+        "label": "(−6)² in step 3",
+        "value": 36,
+        "kind": "computed"
+      },
+      {
+        "label": "(−8)² in step 3",
+        "value": 64,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle (−1, 4) to (5, −4): √(36 + 64), in step 4",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip without brackets, run 5 − 1 = 4, √80, in step 4",
+        "value": 8.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip run plus rise, 6 + 8, in step 4",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Midpoint of (1, 2) and (7, 10): x, in step 5",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Midpoint of (1, 2) and (7, 10): y, in step 5",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Half the run, 6 ÷ 2, in step 5",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Half the rise, 8 ÷ 2, in step 5",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle midpoint of (2, 3) and (8, 7): (5, 5), in step 6",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip halved differences, (3, 2), in step 6",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip added, not halved, (10, 10), in step 6",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Midpoint of (−3, 5) and (5, −1): x, in step 7",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Midpoint of (−3, 5) and (5, −1): y, in step 7",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle midpoint of (−4, −2) and (2, 6): x, in step 8",
+        "value": -1,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle midpoint of (−4, −2) and (2, 6): y, in step 8",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip halved differences, (3, 4), in step 8",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip minus lost on −4, (3, 2), in step 8",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Working back: B from A (1, 2), midpoint (4, 6), in step 9",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle: end (3, 6), midpoint (5, 2), other end x, in step 10",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle: other end y, (7, −2), in step 10",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip midpoint of end and midpoint, (4, 4), in step 10",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip the step only, (2, −4), in step 10",
+        "value": -4,
+        "kind": "computed"
+      },
+      {
+        "label": "Example light at (1, 2) metres on a plan, in step 11",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example light at (13, 7) metres on a plan, in step 11",
+        "value": 13,
+        "kind": "assumed"
+      },
+      {
+        "label": "Plan run 12 m, rise 5 m, in step 11",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Distance √169 in metres, in step 11",
+        "value": 13,
+        "kind": "computed"
+      },
+      {
+        "label": "Midpoint (7, 4.5) metres, y, in step 11",
+        "value": 4.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle midpoint of (1, 3) and (4, 9): x, in step 12",
+        "value": 2.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip halved differences, (1.5, 3), in step 12",
+        "value": 1.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip added, not halved, (5, 12), in step 12",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle (−3, −1) to (2, 11): √(25 + 144), in step 13",
+        "value": 13,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip run plus rise, 5 + 12, in step 13",
+        "value": 17,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip no square root, 169, in step 13",
+        "value": 169,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example (−2, 7) to (4, −1): distance",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example midpoint (1, 3): y",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Tape analogy: wall from the 1.2 m mark",
+        "value": 1.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Tape analogy: wall to the 4.8 m mark",
+        "value": 4.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Tape analogy: middle (1.2 + 4.8) ÷ 2, in metres",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Tape analogy: gap 4.8 − 1.2, in metres",
+        "value": 3.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: larger difference, for the size check",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: run plus rise sizes, for the size check",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Working back example: end (2, 5), midpoint (5, 3)",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Working back example: other end (8, 1), x",
+        "value": 8,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "The step triangle between two points gives two more things besides the gradient. Its long side is the straight distance from one point to the other, and halfway along that side is their [[midpoint]]. To find the distance, plot the two points and draw the right triangle, much as you did for the gradient.[^1] The run and the rise meet at a right angle, so the long side is the hypotenuse, and Pythagoras gives its length, as in Geometry fundamentals. For A (1, 2) and B (7, 10), the run is 7 − 1 = 6 and the rise is 10 − 2 = 8. Square them, add, and take the square root: √(6² + 8²) = √(36 + 64) = √100 = 10. Adding the run and the rise, 6 + 8 = 14, goes round the two short sides instead, which is further than going straight. Stopping at 100 gives the distance squared, not the distance.\n\nWritten with the coordinates, that is the [[distance formula]], d = √((x₂ − x₁)² + (y₂ − y₁)²), which comes from Pythagoras.[^2] Here, unlike the gradient, the order of the points makes no difference. Drag B across both axes to (−5, −6) and the run becomes −5 − 1 = −6 and the rise −6 − 2 = −8. A negative times a negative is positive, so (−6)² = 36 and (−8)² = 64, the same squares as before, and the distance is still 10. Starting from B instead only turns each difference's sign round, and its square is the same. Brackets still matter: from (−1, 4) to (5, −4), the run is 5 − (−1) = 6, not 4. The distance is a real length only when a square across and a square up stand for the same length, as on a plan drawn in metres both ways. On a graph of volts against amps, the long side of the triangle is not a length at all.\n\nThe midpoint sits halfway along the run and halfway up the rise. From A (1, 2), half the run is 3 and half the rise is 4, so the midpoint is (1 + 3, 2 + 4) = (4, 6). That point is on the long side, because a straight line climbs the same amount for each 1 along, so half the run along gives half the rise up. The number halfway between two others is the same distance from each, and so is their average: (1 + 7) ÷ 2 = 4, which is 3 above 1 and 3 below 7. So each coordinate of the midpoint is the average of the matching coordinates of the two points:[^3] (1 + 7) ÷ 2 = 4 and (2 + 10) ÷ 2 = 6. Halving the run and the rise alone, (3, 4), gives only how far the midpoint is from A, not where it is. With negatives the average works the same way: (−3, 5) and (5, −1) give ((−3 + 5) ÷ 2, (5 + (−1)) ÷ 2) = (1, 2). To work back to a missing end, take the same step again: from A (1, 2) to the midpoint (4, 6) is 3 along and 4 up, so B is 3 along and 4 up from the midpoint, at (7, 10).\n\n**The distance between two points is √(run² + rise²), Pythagoras on the step triangle,[^2] and the midpoint is the average of the two x's and the average of the two y's.[^3]**"
+  },
+  "analogy": {
+    "text": "Finding the middle of a wall with a tape from the corner works like the midpoint. If the wall runs from the 1.2 m mark to the 4.8 m mark, the middle is at (1.2 + 4.8) ÷ 2 = 3 m, which is also 1.2 m plus half of the 3.6 m between them.",
+    "breaks": "A tape measures one way only. On a grid you average the x's and the y's separately, and the distance needs Pythagoras because across and up are at right angles."
+  },
+  "practice": {
+    "text": "- Sketch the two points and the step triangle between them.\n- Work out the run, x₂ − x₁, and the rise, y₂ − y₁, with brackets round any negative coordinate.\n- For the distance, square the run and the rise, add, then take the square root.\n- For the midpoint, add the two x's and halve, then add the two y's and halve.\n- To find a missing end, work out the step from the known end to the midpoint, then take the same step again from the midpoint.\n- Check the midpoint sits between the points on your sketch, and that the distance is no shorter than the larger difference and no longer than the two added.\n\n**Rule of thumb:** distance is subtract, square, add, square root. Midpoint is add and halve. Use the distance only when a square across and a square up are the same length, as on a plan in metres both ways.\n\n**Worked example:** (−2, 7) and (4, −1). The run is 4 − (−2) = 6 and the rise is −1 − 7 = −8. The distance is √(6² + (−8)²) = √(36 + 64) = √100 = 10, which sits between 8 and 6 + 8 = 14, so it passes the check. The midpoint is ((−2 + 4) ÷ 2, (7 + (−1)) ÷ 2) = (1, 3). From (−2, 7) to (1, 3) is 3 along and 4 down, half the run and half the rise, so that checks too.\n\n**Working back:** one end is (2, 5) and the midpoint is (5, 3). The step from the end to the midpoint is 3 along and 2 down. Take it again from the midpoint, and the other end is (8, 1).\n\n**Common mistakes**\n- Adding the run and the rise. That goes round two sides of the triangle, so it is too long.\n- Stopping before the square root. That is the distance squared.\n- Writing (−8)² as −64. A negative times a negative is positive, so it is 64.\n- Dropping the brackets, so 4 − (−2) becomes 2 instead of 6.\n- Halving the run and the rise for the midpoint. That is the step from one end to the middle, so add it on to that end.\n- Working back by finding the midpoint of the end and the midpoint. Take the same step again past the midpoint instead."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    {
+      "n": 1,
+      "title": "11.1 Distance and Midpoint Formulas; Circles - Intermediate Algebra | OpenStax",
+      "url": "https://openstax.org/books/intermediate-algebra/pages/11-1-distance-and-midpoint-formulas-circles",
+      "quote": "We will plot the points and create a right triangle much as we did when we found slope in Graphs and Functions ."
+    },
+    {
+      "n": 2,
+      "title": "2.1 The Rectangular Coordinate Systems and Graphs - College Algebra | OpenStax",
+      "url": "https://openstax.org/books/college-algebra/pages/2-1-the-rectangular-coordinate-systems-and-graphs",
+      "quote": "Derived from the Pythagorean Theorem , the distance formula is used to find the distance between two points in the plane."
+    },
+    {
+      "n": 3,
+      "title": "Module 2 (M2) – Algebra - Coordinates and graphs - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/z4863qt",
+      "quote": "To find the midpoint of a line between two sets of coordinates, find the average of the (x)-axis coordinates and the average of the (y)-axis coordinates"
+    }
+  ],
+  "confidence": "settled",
+  "contested": null
+}

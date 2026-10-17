@@ -1,0 +1,379 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Straight-line graphs you will actually use
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i1 "Gradient from two points" — A line's gradient m is change in y ÷ change in x between any two of its points: the rise for each 1 along. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i2 Distance and midpoint — The step triangle between two points also gives their distance apart, by Pythagoras, and their midpoint, halfway along and halfway up.
+- i3 y = mx + c — Any line that is not vertical has a rule y = mx + c, with m its gradient and c where it crosses the y-axis.
+- i4 Finding the equation of a line — From two points, or a point and the gradient, get m, then put one point into y = mx + c and solve for c.
+- i5 Laws from readings — When readings plot as a straight line, its gradient and y-axis crossing are real quantities with units, like a resistor's ohms from volts against amps.
+- i6 Fitting a line to readings — When real readings scatter, lay one line through their middle, about as many above as below, and read the law from that line.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Module 3 (M3) - Algebra - Coordinates and graphs - BBC Bitesize — https://www.bbc.co.uk/bitesize/articles/zjbf9ty
+    "To find the gradient of a line joining two points, divide the difference in the y-coordinates by the difference in the x-coordinates"
+[R2] Module 3 (M3) - Algebra - Coordinates and graphs - BBC Bitesize — https://www.bbc.co.uk/bitesize/articles/zjbf9ty
+    "In the equation (y = mx + c), (m) is the gradient of the line. The gradient is a measure of how steep the line is"
+[R3] Determine the gradient of a straight line — https://www.bbc.co.uk/bitesize/guides/z8383k7/revision/3
+    "Vertical lines have a gradient which is undefined; equation x = a"
+[R4] 19.1 Ohm's law - Physics | OpenStax — https://openstax.org/books/physics/pages/19-1-ohms-law
+    "The units of resistance are volts per ampere, or V/A."
+[R5] 9.4 Ohm's Law - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/9-4-ohms-law
+    "A plot is made of the voltage versus the current, and the result is approximately linear. The slope of the line is the resistance, or the voltage divided by the current."
+Notes (claims, and the sources that support them):
+- To find the gradient of a line from two points, divide the difference in the y-coordinates by the difference in the x-coordinates. [R1]
+- In y = mx + c, m is the gradient, a measure of how steep the line is. [R2]
+- A vertical line has an undefined gradient and its equation takes the form x = a. [R3]
+- Ohm's law links voltage, current and resistance; the unit of resistance, the ohm, is one volt per ampere. [R4]  (whole topic)
+- A plot of voltage against current for an ohmic device is approximately a straight line whose slope is the resistance. [R5]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i1",
+ "title": "Gradient from two points",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the run and rise arrows changing size and direction while m = rise ÷ run fills in, staying the same along one line, when you drag point A or B.",
+  "title": "Gradient from two points",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens on a squared grid. Two points, A and B, sit on the grid with a straight line through them, and either can be dragged. They snap to whole-number points so the sums stay easy. Between them is a step triangle. Its run is an arrow straight across from A to the corner below or above B, labelled with its signed size, x₂ − x₁. Its rise is an arrow straight up or down from that corner to B, labelled y₂ − y₁. An arrow pointing right or up is positive and one pointing left or down is negative, because those are the ways the numbers grow and shrink on each axis. Above the grid a readout fills in m = (y₂ − y₁) ÷ (x₂ − x₁) with the two points' coordinates in brackets, then the rise ÷ the run, then m. When the rise and the run have the same sign m is positive, and when their signs differ m is negative. On one screen both points slide along their line, so the triangle grows and shrinks while m stays put, and a small step with a run of 1 shows a rise of m. Dragging B level with A makes the rise 0, so m is 0. Standing B straight above A makes the run 0, and the readout says it cannot divide by 0, so the gradient is undefined. Two screens give the axes units, amps across and volts up, or minutes across and litres up, and there the rise and run are read off the scales in those units. Some screens show an idea and the rest ask you to try it. A puzzle shows two points and three answers. A wrong pick gets a one-line hint naming its slip, and Why? draws the triangle and fills in the readout for those two points.",
+  "ignores": "The points snap to whole numbers, but a line's points need not be whole numbers, and the rule is the same. The grid shows a short piece of a line that carries on both ways. On the two units screens a square across and a square up stand for different amounts, so how steep the line looks depends on the scales, and m is read from the scale values, not by counting squares. The readings and the tank's figures are example values, chosen to sit exactly on a line.",
+  "numbers": [
+   {
+    "label": "Example point A (1, 3), in step 1",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example point B (4, 9), in step 1",
+    "value": 9,
+    "kind": "assumed"
+   },
+   {
+    "label": "Run 4 − 1, in step 1",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Rise 9 − 3, in step 1",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "m = 6 ÷ 3, in step 1",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Upside down, 3 ÷ 6, the wrong way, in step 1",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle (1, 2) to (3, 8): m = 6 ÷ 2, in step 2",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip upside down, 2 ÷ 6 = ⅓, in step 2",
+    "value": 0.33,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip rise only, 6, not divided by the run, in step 2",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Points slid to (2, 5) and (3, 7): run 1, rise 2, in step 3",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Points slid to (0, 1) and (5, 11): 10 ÷ 5 = 2, in step 3",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Same line, triangle (0, 1) to (2, 5): run 2, rise 4, in step 4",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Triangle (2, 5) to (5, 11): rise for a run of 3 at 2 per 1, in step 4",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip same rise as the first triangle, 4, in step 4",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip run up by 1 so rise up by 1, 5, in step 4",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Falling line A (1, 7), B (4, 1): rise 1 − 7, in step 5",
+    "value": -6,
+    "kind": "computed"
+   },
+   {
+    "label": "m = −6 ÷ 3, in step 5",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle (2, 9) to (5, 3): m = −6 ÷ 3, in step 6",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip minus lost, 2, in step 6",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip upside down, 3 ÷ −6, in step 6",
+    "value": -0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "(−1, −3) to (2, 3): rise 3 − (−3) = 6, run 3, m = 2, in step 7",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Starting from B: (−3 − 3) ÷ (−1 − 2) = −6 ÷ −3 = 2, in step 7",
+    "value": -6,
+    "kind": "computed"
+   },
+   {
+    "label": "Starting from B on the falling line: 6 ÷ −3 = −2, in step 7",
+    "value": -3,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle (−2, −5) to (1, 4): 9 ÷ 3, in step 8",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip without brackets, (4 − 5) ÷ (1 − 2), in step 8",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip mixed order, 9 ÷ (−2 − 1), in step 8",
+    "value": -3,
+    "kind": "computed"
+   },
+   {
+    "label": "Level line (1, 4) to (5, 4): 0 ÷ 4, in step 9",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Line straight up (3, 1) to (3, 6): rise 5 over a run of 0, in step 9",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle (4, −1) to (4, 6): rise 7 over a run of 0, undefined, in step 10",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip a level line's 0, in step 10",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Example reading 10 V at 2 A, in step 11",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example reading 25 V at 5 A, in step 11",
+    "value": 25,
+    "kind": "assumed"
+   },
+   {
+    "label": "Rise 25 − 10, in volts, in step 11",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Gradient 15 V ÷ 3 A, in volts per amp (ohms), in step 11",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Example tank 300 litres at 2 minutes, in step 12",
+    "value": 300,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example tank 500 litres at 6 minutes, in step 12",
+    "value": 500,
+    "kind": "assumed"
+   },
+   {
+    "label": "Gradient 200 litres ÷ 4 minutes, in litres per minute, in step 12",
+    "value": 50,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip upside down, 4 ÷ 200, minutes per litre, in step 12",
+    "value": 0.02,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip rise only, 200 litres, in step 12",
+    "value": 200,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle (−3, 4) to (3, −2): −6 ÷ 6, in step 13",
+    "value": -1,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip minus lost, 1, in step 13",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip without brackets, run 3 − 3 = 0, undefined, in step 13",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example (−2, 7) to (4, −5): −12 ÷ 6",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example the other way: 12 ÷ −6",
+    "value": 12,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A straight line's [[gradient]], m, is how much y changes for each 1 you go along. It is the change in y ÷ change in x you met as a rate, under its usual name. To find it from two points on the line, divide the difference in their y-coordinates by the difference in their x-coordinates.[^1] Picture a step triangle between the two points. Its [[run]] is the arrow straight across, x₂ − x₁, and its [[rise]] is the arrow up or down, y₂ − y₁. For A (1, 3) and B (4, 9), the run is 4 − 1 = 3 and the rise is 9 − 3 = 6, so m = 6 ÷ 3 = 2. The line climbs 2 for each 1 along. The other way up, 3 ÷ 6 = 0.5 would say it climbs half a step for each 1 along, but the triangle climbs 6 in 3 steps along, which is 2 for each. So the change in y goes on top.\n\nAny two points on the same line give the same m. A straight line climbs the same amount for each 1 along wherever you are on it, because if the climb changed from one step to the next, the line would bend. So a run of 3 is three steps of 1 with three equal climbs, and dividing the rise by 3 gives back the climb for one step. Slide A and B along the line to (2, 5) and (3, 7), and the triangle shrinks to a run of 1 and a rise of 2, which is m itself. The gradient is a measure of how steep the line is,[^2] since a bigger rise or fall for each 1 along makes a steeper line.\n\nThe arrows' directions give the sign. Going from A to B, the run is positive when B is to the right, and the rise is negative when B is lower. A negative divided by a positive is negative, so a line that falls from left to right has a negative gradient. For A (1, 7) and B (4, 1), m = (1 − 7) ÷ (4 − 1) = −6 ÷ 3 = −2. You can start from either point, as long as it comes first on top and on the bottom. Starting from B turns both arrows round, (7 − 1) ÷ (1 − 4) = 6 ÷ −3, which is still −2. Mixing the order turns only one arrow round and gives 2, the wrong sign. Put brackets round a negative coordinate, because taking away a negative adds. From (−1, −3) to (2, 3), m = (3 − (−3)) ÷ (2 − (−1)) = 6 ÷ 3 = 2. A level line has a rise of 0, and 0 divided by any run is 0, so its gradient is 0. A line straight up has a run of 0, and nothing can be divided by 0, so its gradient is undefined.[^3]\n\nOn a real graph the rise and run are read off the scales in the axes' units, so m is in y's unit per x's unit. For an ordinary resistor, a plot of voltage against current is approximately a straight line, and its slope is the resistance, the voltage divided by the current.[^4] Example readings of 10 V at 2 A and 25 V at 5 A give a rise of 15 V over a run of 3 A, so m = 5 V per A. Resistance is measured in volts per amp,[^5] the ohm, so that is 5 Ω. When the course's winding readings plot as a line, its gradient is how many ohms the resistance changes for each 1 °C. **A line's gradient m is the difference in the y-coordinates divided by the difference in the x-coordinates of any two points on it,[^1] taken in the same order, so it is the rise for each 1 along.**"
+ },
+ "analogy": {
+  "text": "Say a cable costs the same for every metre. Plot the cost against the length and you get a straight line, and its gradient is the price per metre. Take any two lengths, divide the difference in cost by the difference in length, and you get that same price per metre.",
+  "breaks": "A price only goes up as you buy more, so it never shows a falling line's negative gradient or a line straight up. If a full drum is cheaper per metre, the graph is no longer one straight line."
+ },
+ "practice": {
+  "text": "- Write the rule down first: m = (y₂ − y₁) ÷ (x₂ − x₁).\n- Pick which point comes first, and keep it first on top and on the bottom.\n- Put each coordinate in, in brackets.\n- Work out the rise and the run from the scale values, then divide.\n- When the axes have units, give m in y's unit per x's unit.\n- Check the sign against a sketch.\n\n**Rule of thumb:** y over x, rise over run. Uphill from left to right is positive, and downhill is negative.\n\n**Worked example:** (−2, 7) and (4, −5). m = (−5 − 7) ÷ (4 − (−2)) = −12 ÷ 6 = −2. Starting from the other point gives (7 − (−5)) ÷ (−2 − 4) = 12 ÷ −6 = −2, the same. The line falls from left to right, so a negative gradient fits.\n\n**Common mistakes**\n- Putting x on top. Check which quantity is up the side, as its change goes on top.\n- Losing the minus on a falling line. A sketch that falls from left to right needs a negative m.\n- Dropping the brackets, so 4 − (−2) becomes 4 − 2 = 2 instead of 6.\n- Mixing the order, so the top starts from one point and the bottom from the other. That flips the sign.\n- Counting squares instead of reading the scales. When a square across and a square up stand for different amounts, the count gives the wrong m.\n- Calling a line straight up 0. 0 belongs to a level line, whose rise is 0. A line straight up has a run of 0, so its gradient is undefined."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Module 3 (M3) - Algebra - Coordinates and graphs - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/articles/zjbf9ty",
+   "quote": "To find the gradient of a line joining two points, divide the difference in the y-coordinates by the difference in the x-coordinates"
+  },
+  {
+   "n": 2,
+   "title": "Module 3 (M3) - Algebra - Coordinates and graphs - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/articles/zjbf9ty",
+   "quote": "In the equation (y = mx + c), (m) is the gradient of the line. The gradient is a measure of how steep the line is"
+  },
+  {
+   "n": 3,
+   "title": "Determine the gradient of a straight line",
+   "url": "https://www.bbc.co.uk/bitesize/guides/z8383k7/revision/3",
+   "quote": "Vertical lines have a gradient which is undefined; equation x = a"
+  },
+  {
+   "n": 4,
+   "title": "9.4 Ohm's Law - University Physics Volume 2 | OpenStax",
+   "url": "https://openstax.org/books/university-physics-volume-2/pages/9-4-ohms-law",
+   "quote": "A plot is made of the voltage versus the current, and the result is approximately linear. The slope of the line is the resistance, or the voltage divided by the current."
+  },
+  {
+   "n": 5,
+   "title": "19.1 Ohm's law - Physics | OpenStax",
+   "url": "https://openstax.org/books/physics/pages/19-1-ohms-law",
+   "quote": "The units of resistance are volts per ampere, or V/A."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

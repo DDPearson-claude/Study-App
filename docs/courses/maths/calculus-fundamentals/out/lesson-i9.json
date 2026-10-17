@@ -1,0 +1,752 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-17T09:24:18.751Z",
+ "startedAt": "2026-10-17T09:24:18.751Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i9",
+  "title": "Work from a pV diagram",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the bars under the falling pV curve, each a pressure times a change in volume, adding up to the rule's 20 kJ, when you slide the bars from 4 to 100.",
+   "title": "The work under a pV curve",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in thirteen small screens on the work a gas does as it pushes a piston. Each screen has a cylinder with its piston and, beside it, a pV diagram: pressure in kPa up the side, the gas's volume in m³ along the bottom. Moving the piston moves a dot along the diagram. The first screen holds the pressure steady at 200 kPa while the volume grows from 0.1 to 0.3 m³: the line is flat and the work is the rectangle under it, 200 × 0.2 = 40 kJ, because a kPa times a m³ is a kJ. Then the pressure falls as the gas expands, along pVⁿ = C: with n = 2, gas at 400 kPa in 0.1 m³ keeps p × V² at 4, so at 0.2 m³ it is down to 100 kPa. Bars stand under the curve, each as tall as the pressure at its middle and as wide as a change in volume, so each bar is a pressure times a change in volume, a little work. A slider sets how many bars share the stretch, from 4 to 100, and the running total goes 19.82, 19.95, then 20.00 kJ, the rule's (40 − 20) ÷ 1 = 20 kJ. The next screen works the exact area out: p = 4 × V⁻², the reverse power rule gives 4 × V⁻¹ ÷ (1 − 2), and 4 × V⁻¹ is pV at each end, 40 and 20, drawn as dashed rectangles from the corner of the axes, so the area is (20 − 40) ÷ (1 − 2) = 20 kJ. Then a screen has sliders for n, from 1.1 to 2, and the end volume, from 0.15 to 0.4 m³, with readouts for the 100 bars' total and the rule's value: they agree to 0.01 kJ at every setting. A switch runs it as a compression: the dot moves back along the same curve, every bar's width becomes minus, the bars are hatched and the total is −20 kJ. Another screen lays a rectangle with the same area and the same width over the curve: its height, 200 kPa, is the steady pressure that does the same work, the mean effective pressure for this one stroke. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick is shown going wrong on the diagram.",
+   "ignores": "The curves are drawn exactly from pVⁿ = C with example pressures, volumes and values of n; a real engine's indicator card is traced by an instrument and only roughly follows such a curve. The pressure is taken as the same all through the gas at each moment, as if the piston moved slowly, and piston friction and leaks are left out.",
+   "numbers": [
+    {
+     "label": "Example steady pressure 200 kPa, in step 1",
+     "value": 200,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example volumes 0.1 to 0.3 m³, in step 1",
+     "value": 0.3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Work 200 × 0.2 = 40 kJ, in step 1",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 200 × 0.3 = 60 kJ, whole volume, in step 1",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Example steady 300 kPa, 0.05 to 0.15 m³, in step 2",
+     "value": 300,
+     "kind": "assumed"
+    },
+    {
+     "label": "Work 300 × 0.1 = 30 kJ, in step 2",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip end volume: 300 × 0.15 = 45 kJ, in step 2",
+     "value": 45,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip start volume: 300 × 0.05 = 15 kJ, in step 2",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Example start 400 kPa at 0.1 m³, in step 3",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example n = 2, in step 3",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "C = 400 × 0.1² = 4, in step 3",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "End pressure 4 ÷ 0.2² = 100 kPa, in step 3",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "Slider for bars opens at 4, in step 3",
+     "value": 4,
+     "kind": "control"
+    },
+    {
+     "label": "Slider for bars goes up to 100, in step 3",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "4 bars total 19.82 kJ, in step 3",
+     "value": 19.82,
+     "kind": "computed"
+    },
+    {
+     "label": "8 bars total 19.95 kJ, in step 3",
+     "value": 19.95,
+     "kind": "computed"
+    },
+    {
+     "label": "100 bars total 20.00 kJ, in step 3",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "One bar 0.1 to 0.15 m³, middle 0.125 m³, in step 4",
+     "value": 0.125,
+     "kind": "computed"
+    },
+    {
+     "label": "Pressure there 4 ÷ 0.125² = 256 kPa, in step 4",
+     "value": 256,
+     "kind": "computed"
+    },
+    {
+     "label": "Bar's work 256 × 0.05 = 12.8 kJ, in step 4",
+     "value": 12.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip volume not change: 256 × 0.125 = 32, in step 4",
+     "value": 32,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip pressure read as work: 256, in step 4",
+     "value": 256,
+     "kind": "computed"
+    },
+    {
+     "label": "Area rule 4 × V⁻¹ ÷ (1 − 2): 4 × 0.1⁻¹ = 40 = p₁V₁, in step 5",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "4 × 0.2⁻¹ = 20 = p₂V₂, in step 5",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Area (20 − 40) ÷ (1 − 2) = 20 kJ, in step 5",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Rule (40 − 20) ÷ (2 − 1) = 20 kJ, in step 6",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Slider for n from 1.1, in step 6",
+     "value": 1.1,
+     "kind": "control"
+    },
+    {
+     "label": "Slider for n up to 2, opening at 2, in step 6",
+     "value": 2,
+     "kind": "control"
+    },
+    {
+     "label": "End volume slider from 0.15 m³, in step 6",
+     "value": 0.15,
+     "kind": "control"
+    },
+    {
+     "label": "End volume slider up to 0.4 m³, in step 6",
+     "value": 0.4,
+     "kind": "control"
+    },
+    {
+     "label": "End volume opens at 0.2 m³, in step 6",
+     "value": 0.2,
+     "kind": "control"
+    },
+    {
+     "label": "100 bars and rule agree to 0.01 kJ, in step 6",
+     "value": 0.01,
+     "kind": "computed"
+    },
+    {
+     "label": "Example 800 kPa at 0.1 m³, n = 1.5, in step 7",
+     "value": 800,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example end volume 0.4 m³, in step 7",
+     "value": 0.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "C = 800 × 0.1^1.5 = 25.30, in step 7",
+     "value": 25.3,
+     "kind": "computed"
+    },
+    {
+     "label": "0.4^1.5 = 0.253, in step 7",
+     "value": 0.253,
+     "kind": "computed"
+    },
+    {
+     "label": "End pressure C ÷ 0.4^1.5 = 25.30 ÷ 0.253 = 100 kPa, in step 7",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "Work (80 − 40) ÷ 0.5 = 80 kJ, in step 7",
+     "value": 80,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip not dividing: 40 kJ, in step 7",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip dividing by n: 40 ÷ 1.5 = 26.7 kJ, in step 7",
+     "value": 26.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Compression 0.2 to 0.1 m³: (20 − 40) ÷ 1 = −20 kJ, in step 8",
+     "value": -20,
+     "kind": "computed"
+    },
+    {
+     "label": "Example squeeze 100 kPa, 0.4 m³ to 0.1 m³, in step 9",
+     "value": 0.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Ends at 800 kPa, n = 1.5, in step 9",
+     "value": 800,
+     "kind": "computed"
+    },
+    {
+     "label": "Work (40 − 80) ÷ 0.5 = −80 kJ, in step 9",
+     "value": -80,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip counted as plus: 80 kJ, in step 9",
+     "value": 80,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip not dividing: −40 kJ, in step 9",
+     "value": -40,
+     "kind": "computed"
+    },
+    {
+     "label": "Mean effective pressure 20 ÷ 0.1 = 200 kPa, in step 10",
+     "value": 200,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip average of ends (400 + 100) ÷ 2 = 250 kPa, in step 10",
+     "value": 250,
+     "kind": "computed"
+    },
+    {
+     "label": "Mean effective pressure 80 ÷ 0.3 = 267 kPa, in step 11",
+     "value": 267,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip dividing by end volume: 80 ÷ 0.4 = 200 kPa, in step 11",
+     "value": 200,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip average of ends (800 + 100) ÷ 2 = 450 kPa, in step 11",
+     "value": 450,
+     "kind": "computed"
+    },
+    {
+     "label": "Example 2700 kPa at 0.02 m³, n = 1.5, in step 12",
+     "value": 2700,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example end 0.18 m³ at 100 kPa, in step 12",
+     "value": 0.18,
+     "kind": "assumed"
+    },
+    {
+     "label": "Work (54 − 18) ÷ 0.5 = 72 kJ, in step 12",
+     "value": 72,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip work-on-gas form: −72 kJ, in step 12",
+     "value": -72,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip dividing by n: 36 ÷ 1.5 = 24 kJ, in step 12",
+     "value": 24,
+     "kind": "computed"
+    },
+    {
+     "label": "Example steady 500 kPa, 0.02 to 0.06 m³, in step 13",
+     "value": 500,
+     "kind": "assumed"
+    },
+    {
+     "label": "Then pV² = C to 0.12 m³, in step 13",
+     "value": 0.12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Flat part 500 × 0.04 = 20 kJ, in step 13",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "C = 500 × 0.06² = 1.8, in step 13",
+     "value": 1.8,
+     "kind": "computed"
+    },
+    {
+     "label": "End pressure 1.8 ÷ 0.12² = 125 kPa, in step 13",
+     "value": 125,
+     "kind": "computed"
+    },
+    {
+     "label": "Curved part (30 − 15) ÷ 1 = 15 kJ, in step 13",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Total 20 + 15 = 35 kJ, in step 13",
+     "value": 35,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip pV at the corner: 500 × 0.06 = 30, in step 13",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy: example 12 V battery",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice: example 1000 kPa at 0.05 m³",
+     "value": 1000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice: example n = 1.3, end 0.2 m³",
+     "value": 1.3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice: C = 1000 × 0.05^1.3 = 20.35",
+     "value": 20.35,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: 0.2^1.3 = 0.1234",
+     "value": 0.1234,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: end pressure 164.9 kPa",
+     "value": 164.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: p₂V₂ = 33.0 kJ",
+     "value": 33,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: work (50 − 33.0) ÷ 0.3 = 56.7 kJ",
+     "value": 56.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: check bounds 24.7 kJ and 150 kJ",
+     "value": 24.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: mean effective pressure 56.7 ÷ 0.15 = 378 kPa",
+     "value": 378,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: 1 bar = 100 kPa",
+     "value": 100,
+     "kind": "constant",
+     "source": 14
+    }
+   ]
+  },
+  "explain": {
+   "text": "Gas pushing a piston does work, and on a graph of its pressure against its volume that work is the area under the curve.[^1] When the pressure falls as the gas expands, you add the area up in thin bars, as in the last lesson, and for a curve that follows pVⁿ = C the reverse rule gets it exactly in one line: (p₁V₁ − p₂V₂) ÷ (n − 1).\n\nStart with a steady pressure. Gas that expands against a piston pushes it through a distance, and a force moved through a distance is work.[^2] Pressure is force on each square metre, so gas at pressure p pushes a piston of area A with a force p × A.[^3] If the piston moves out a distance d, the gas's volume grows by A × d, its change in volume, ΔV. The work is p × A × d, which is p × ΔV: the piston's area drops out, so a wide cylinder and a narrow one follow the same rule. Draw pressure up the side and volume along the bottom, a [[pV diagram]], and a steady pressure is a flat line, with the work the rectangle under it, height p times width ΔV. In kPa and m³ the work comes out in kJ, because a pascal is a newton on each square metre, and newtons per square metre times cubic metres is newton metres, joules. Say 200 kPa pushes the volume from 0.1 to 0.3 m³: the work is 200 × 0.2 = 40 kJ. It is the change in volume that counts: 200 × 0.3 = 60 kJ would count the 0.1 m³ the gas filled before the piston moved. Usually, though, the pressure falls as the gas expands. One way to picture it: the same gas spread through more room presses less on each square metre. So no one rectangle fits. Cut the change in volume into thin bars, take each bar's pressure at its middle, multiply by its width, and add, the mid-ordinate rule from the last lesson. The MCA's second-engineer maths syllabus takes the curve as pVⁿ = C:[^4] pressure times volume to the power n stays the same number, C, and a process that follows it is called [[polytropic]].[^5] Say gas at 400 kPa fills 0.1 m³ and expands to 0.2 m³ with n = 2. Then C = 400 × 0.1² = 4, and at 0.2 m³ the pressure has fallen to 4 ÷ 0.2² = 100 kPa. Four bars give 19.82 kJ, eight give 19.95 kJ and a hundred give 20.00 kJ, settling on 20 kJ. That settled total is the integral of p over the change in volume, the area under the pV curve.[^1] The MCA's Applied Heat syllabus says the same, that the area of the pV diagram represents the work done,[^6] and it asks for the area of an indicator card by the mid-ordinate rule.[^7] An indicator card is a pV diagram traced from a running engine's cylinder (that description is not from this lesson's sources).\n\nNow the exact area. pVⁿ = C gives p = C ÷ Vⁿ, which is also written C × V⁻ⁿ, because a power below zero means one over: V⁻ⁿ is 1 ÷ Vⁿ. The reverse rule works for this power too: add one, giving 1 − n, and divide by it, so V⁻ⁿ integrates to V¹⁻ⁿ ÷ (1 − n). Check it by differentiating, as in the last two lessons: the power rule brings 1 − n to the front and takes one off the power, giving (1 − n) × V⁻ⁿ ÷ (1 − n) = V⁻ⁿ, what you started with. Put in the end volume, take away the start, and the work is C × (V₂¹⁻ⁿ − V₁¹⁻ⁿ) ÷ (1 − n). It tidies up. V¹⁻ⁿ is V ÷ Vⁿ, and C ÷ Vⁿ is the pressure at that volume, so C × V₂¹⁻ⁿ is just p₂V₂ and C × V₁¹⁻ⁿ is p₁V₁. That leaves (p₂V₂ − p₁V₁) ÷ (1 − n). Swapping the order of both subtractions turns the top and the bottom minus together, which leaves the value alone, and gives W = (p₁V₁ − p₂V₂) ÷ (n − 1), the area under pVⁿ = C that the same syllabus asks for.[^4] For the example, (400 × 0.1 − 100 × 0.2) ÷ (2 − 1) = (40 − 20) ÷ 1 = 20 kJ, the total the bars settle on. n = 1 will not go: the power would be −1, the one power the reverse rule cannot take, because it would divide by 0.[^8] That case needs logarithms, a later course (not from this lesson's sources).\n\nRun it backwards and the gas is squeezed, from 0.2 m³ at 100 kPa back to 0.1 m³ at 400 kPa. The curve is the same and still above the axis, but each bar's width, the change in volume, is now minus, so each pressure times change in volume is minus. The rule gives (100 × 0.2 − 400 × 0.1) ÷ 1 = −20 kJ. Work done by the gas is positive for expansion and negative for compression:[^9] the gas did −20 kJ, which means the piston did 20 kJ of work on it. Count the squeeze as plus 20 kJ and the gas, out and back to where it started, would have handed out 40 kJ from nothing. Some books give the work done on the gas instead, (p₂V₂ − p₁V₁) ÷ (n − 1),[^10] the same size with the sign turned round, so check which a question asks for. Last, a rectangle with the same area over the same change in volume has a height of area ÷ width, its area divided by its length along the volume axis, 20 kJ ÷ 0.1 m³ = 200 kPa: the steady pressure that would do the same work. This is the idea behind the [[mean effective pressure]], which the MCA's Applied Heat syllabus asks you to define[^11] and its General Engineering Science syllabus asks you to find from indicator card data.[^12] For an engine it is defined as the net work divided by the displacement volume,[^13] the volume the piston sweeps. It is not the average of the end pressures, 250 kPa, because the curve spends most of its width below 250 kPa. **The work a gas does is the area under its pV curve, pressure times change in volume added up bar by bar,[^1] and for pVⁿ = C that area is exactly (p₁V₁ − p₂V₂) ÷ (n − 1), positive as the gas expands and negative as it is squeezed.[^9]**"
+  },
+  "analogy": {
+   "text": "You know a volt is a joule per coulomb, so a steady 12 V battery that moves 2 C round a circuit gives it 12 × 2 = 24 J: a steady push times what is moved, like a steady pressure times a change in volume. Charge a capacitor and its voltage rises as the charge goes in, so no single voltage fits. Add it up in thin bars, each the voltage at that moment times a little charge, and the energy is the area under its voltage–charge graph, just as the gas's work is the area under its pV curve.",
+   "breaks": "A capacitor's voltage rises in a straight line as charge goes in, so its area is a triangle; a gas's pressure falls along a curve as it expands, so its area needs pVⁿ = C and the reverse rule. And the capacitor stores the energy, while an expanding gas hands its work on to the piston."
+  },
+  "practice": {
+   "text": "- Put pressures in kPa and volumes in m³, so the work comes out in kJ. 1 bar is 100 kPa,[^14] and 1000 litres is 1 m³ (a unit fact not taken from this lesson's sources).\n- Steady pressure: work = p × (V₂ − V₁), the pressure times the change in volume, not the volume.\n- Pressure falling along pVⁿ = C: find C = p₁ × V₁ⁿ from the start, then any other pressure as C ÷ Vⁿ, using your calculator's power key for n.\n- Then W = (p₁V₁ − p₂V₂) ÷ (n − 1), with 1 the start and 2 the end. Expansion gives plus, compression minus.\n- Only a trace, such as an indicator card? Split its width into equal strips, read its height at each strip's middle, add them and multiply by the strip width: the mid-ordinate rule.\n- Mean effective pressure = work ÷ (V₂ − V₁); for an engine, the net work ÷ the displacement volume, the volume the piston sweeps.[^13]\n\n**Rules of thumb:** when the pressure falls as the gas expands, the work lies between the end pressure × the change in volume and the start pressure × the change in volume. The rule fails at n = 1, where it would divide by 0.\n\n**Worked example:** Say gas at 1000 kPa fills 0.05 m³ and expands to 0.2 m³ with n = 1.3. C = 1000 × 0.05^1.3 = 20.35, and the end pressure is 20.35 ÷ 0.2^1.3 = 20.35 ÷ 0.1234 = 164.9 kPa, so p₂V₂ = 164.9 × 0.2 = 33.0 kJ, and p₁V₁ = 1000 × 0.05 = 50 kJ. The work is (50 − 33.0) ÷ 0.3 = 56.7 kJ. Check: it lies between 164.9 × 0.15 = 24.7 kJ and 1000 × 0.15 = 150 kJ. The mean effective pressure is 56.7 ÷ 0.15 = 378 kPa.\n\n**Where you will meet it:** an HN engineering maths unit applies integration to the work done by an expanding gas,[^15] and an engineering course's notes give the same form, (p₁V₁ − p₂V₂) ÷ (k − 1), for a gas that expands with no heat in or out, where n takes a value k set by the gas.[^16]\n\n**Common mistakes**\n- Taking p × V at one moment as the work: work needs a change in volume.\n- Multiplying by the end volume instead of the change in volume.\n- Dividing by n instead of n − 1, or not dividing at all.\n- Counting a compression's work as plus.\n- Mixing up work by the gas with work on the gas, which has the opposite sign.\n- Taking the mean effective pressure as the average of the end pressures, or dividing the work by the end volume."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "12.10: Work, Heat, and Internal Energy - Physics LibreTexts",
+    "url": "https://phys.libretexts.org/Courses/Georgia_State_University/GSU-TM-Physics_I_(2211)/12%3A_Temperature_and_Heat/12.10%3A_Work_Heat_and_Internal_Energy",
+    "quote": "The integral is interpreted graphically as the area under the pV curve"
+   },
+   {
+    "n": 2,
+    "title": "12.10: Work, Heat, and Internal Energy - Physics LibreTexts",
+    "url": "https://phys.libretexts.org/Courses/Georgia_State_University/GSU-TM-Physics_I_(2211)/12%3A_Temperature_and_Heat/12.10%3A_Work_Heat_and_Internal_Energy",
+    "quote": "If the gas expands against the piston, it exerts a force through a distance and does work on the piston."
+   },
+   {
+    "n": 3,
+    "title": "12.10: Work, Heat, and Internal Energy - Physics LibreTexts",
+    "url": "https://phys.libretexts.org/Courses/Georgia_State_University/GSU-TM-Physics_I_(2211)/12%3A_Temperature_and_Heat/12.10%3A_Work_Heat_and_Internal_Energy",
+    "quote": "Then the force on the piston due to the gas is pA, where A is the area of the face."
+   },
+   {
+    "n": 4,
+    "title": "Mathematics Written Examination Syllabus - GOV.UK",
+    "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus",
+    "quote": "Derives expressions for the area under the curve, given by pV n = C."
+   },
+   {
+    "n": 5,
+    "title": "Polytropic Processes",
+    "url": "https://engineering.purdue.edu/~wassgren/teaching/ME20000/NotesAndReading/Lec12_LectureNotes.pdf",
+    "quote": "A polytropic process is one in which pVn = constant, where n is a constant."
+   },
+   {
+    "n": 6,
+    "title": "Applied Heat Written Examination Syllabus - GOV.UK",
+    "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/applied-heat-written-examination-syllabus",
+    "quote": "Shows that the area of the pV diagram represents W.D. during the operation."
+   },
+   {
+    "n": 7,
+    "title": "Applied Heat Written Examination Syllabus - GOV.UK",
+    "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/applied-heat-written-examination-syllabus",
+    "quote": "Determines the area of an indicator card using the mid-ordinate rule."
+   },
+   {
+    "n": 8,
+    "title": "https://mathweb.ucsd.edu/~ashenk/Section6_7.pdf",
+    "url": "https://mathweb.ucsd.edu/~ashenk/Section6_7.pdf",
+    "quote": "because we cannot set n = −1 in the fraction 1/(n + 1)."
+   },
+   {
+    "n": 9,
+    "title": "12.10: Work, Heat, and Internal Energy - Physics LibreTexts",
+    "url": "https://phys.libretexts.org/Courses/Georgia_State_University/GSU-TM-Physics_I_(2211)/12%3A_Temperature_and_Heat/12.10%3A_Work_Heat_and_Internal_Energy",
+    "quote": "Work done by the gas is positive for expansion and negative for compression."
+   },
+   {
+    "n": 10,
+    "title": "Polytropic Process | Wolfram Formula Repository",
+    "url": "https://resources.wolframcloud.com/FormulaRepository/resources/Polytropic-Process",
+    "quote": "The work done on the system equals the final pressure times the final volume minus the initial pressure times the initial volume divided by the polytropic index minus 1."
+   },
+   {
+    "n": 11,
+    "title": "Applied Heat Written Examination Syllabus - GOV.UK",
+    "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/applied-heat-written-examination-syllabus",
+    "quote": "Defines mean effective pressure (m.e.p.)."
+   },
+   {
+    "n": 12,
+    "title": "General Engineering Science II Written Examination Syllabuses - GOV.UK",
+    "url": "https://www.gov.uk/government/publications/general-engineering-science-written-examination-syllabuses/general-engineering-science-ii-written-examination-syllabuses",
+    "quote": "Determine Mean Effective Pressure from indicator card data."
+   },
+   {
+    "n": 13,
+    "title": "IIT Kanpur thermodynamics notes, lecture 29",
+    "url": "https://home.iitk.ac.in/~gtm/thermodynamics/lecture29/29_3.htm",
+    "quote": "The mean effective pressure is defined as the net work divided by the displacement volume."
+   },
+   {
+    "n": 14,
+    "title": "NIST Guide to the SI, Chapter 5: Units Outside the SI | NIST",
+    "url": "https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-5-units-outside-si",
+    "quote": "1 bar = 0.1 MPa = 100 kPa"
+   },
+   {
+    "n": 15,
+    "title": "national unit specification: general information",
+    "url": "https://www.sqa.org.uk/sqa/files/hn/H7K134.pdf",
+    "quote": "Apply integration to solve problems in Engineering (area under a velocity time curve giving distance travelled, work done by an expanding gas, first and second moments of area, centroids, mean values, root mean square values, etc)"
+   },
+   {
+    "n": 16,
+    "title": "Microsoft PowerPoint - chap3-ext.ppt",
+    "url": "https://webspace.clarkson.edu/projects/fluidflow/public_html/kam/courses/2005/es340/chap3-ext.pdf",
+    "quote": "Work done during an adiabatic process: W12 = (p1V1 – p2V2)/(k-1)"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .scene { display: block; width: 100%; max-width: 25rem; margin-inline: auto; }\n  .scene .grid { stroke: var(--k-line); stroke-width: 1; }\n  .scene .axis, .scene .mtick { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .tick, .scene .aname { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }\n  /* The cylinder: gas from the closed end to the piston, which sits right above its volume on the diagram. */\n  .scene .gas { fill: var(--k-fill3); }\n  .scene .mol { fill: var(--k-accent); }\n  .scene .cyl { fill: none; stroke: var(--k-strong); stroke-width: 2.5; stroke-linejoin: round; }\n  .scene .rod { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }\n  .scene .piston { fill: var(--k-accent2); }\n  .scene .gname { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  /* The pV curve, and the bars or area under it. */\n  .scene .curve { fill: none; stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .bar { fill: var(--k-fill1); }\n  .scene .bar.edge { stroke: var(--k-accent2); stroke-width: 1.2; }\n  .scene .bar.neg { fill: url(#hatch); }\n  .scene .bar.hi { stroke: var(--k-accent2); stroke-width: 3; }\n  .scene .bar.soft { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }\n  .scene .area { fill: var(--k-fill1); }\n  .scene .area.soft { fill: var(--k-sunk); }\n  .scene .area.neg { fill: url(#hatch); }\n  :root[data-theme=\"dark\"] .scene .area.soft, :root[data-theme=\"dark\"] .scene .bar.soft { fill: color-mix(in srgb, var(--k-strong) 40%, var(--k-sunk)); }\n  :root[data-theme=\"dark\"] .scene .area.soft { stroke: var(--k-strong); stroke-width: 1; }\n  .scene .pvbox { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 5 4; }\n  .scene .divide { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 3 3; }\n  .scene .area.bad { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }\n  .scene .mep { fill: var(--k-fill2); fill-opacity: .75; stroke: var(--k-amber-line); stroke-width: 2.5; }\n  .scene .mepedge { stroke: var(--k-amber-line); stroke-width: 2.5; }\n  .scene .hbg { fill: var(--k-fill1); }\n  .scene .hln { stroke: var(--k-accent2); stroke-width: 1.6; }\n  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .brk.bad { stroke: var(--k-warn); stroke-width: 2; }\n  .scene .lvl { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 5 4; }\n  .scene .pick { stroke: var(--k-muted); stroke-width: 2.5; stroke-dasharray: 6 4; }\n  .scene .lab { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .lab.soft { font-weight: 400; fill: var(--k-muted); }\n  .scene .lab.bad { fill: var(--k-warn); }\n  .scene .row { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .row.big { font-weight: 700; fill: var(--k-accent2); }\n  .scene .row.soft { font-weight: 400; }\n  .scene .row.bad { fill: var(--k-warn); }\n  .scene .v { font-style: italic; }\n  /* The key, inside the graph. */\n  .scene .sw { stroke: var(--k-strong); stroke-width: 1; }\n  .scene .sw.hatch { fill: url(#hatch); stroke: var(--k-accent2); }\n  .scene .keyt { font: 400 13px var(--k-font); fill: var(--k-ink); }\n  /* The running total of the work: plus along the top lane, minus along the lower one. */\n  .scene .track { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }\n  .scene .seg { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.2; }\n  .scene .seg.neg { fill: url(#hatch); }\n  .scene .net { stroke: var(--k-accent2); stroke-width: 3; }\n  .scene .goal { stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 5 4; }\n  .scene .pmark { stroke: var(--k-muted); stroke-width: 3; }\n  .scene .pmark.bad { stroke: var(--k-warn); }\n  .scene .gtitle { font: 600 13px var(--k-font); fill: var(--k-muted); }\n  .scene .gval { font: 700 16px var(--k-font); fill: var(--k-accent2); }\n  .scene .glab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .glab.soft { fill: var(--k-muted); }\n  .scene .glab.bad { fill: var(--k-warn); }\n  .scene #art * { pointer-events: none; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stay on one row, each label whole; longer ones stack one to a row. */\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why, .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">A cylinder of gas with its piston, lined up above the gas’s pV diagram: pressure up the side, volume along the bottom.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 460\" width=\"100%\" role=\"img\" aria-label=\"\">\n      <defs>\n        <pattern id=\"hatch\" patternUnits=\"userSpaceOnUse\" width=\"6\" height=\"6\" patternTransform=\"rotate(45)\">\n          <rect class=\"hbg\" x=\"0\" y=\"0\" width=\"6\" height=\"6\"></rect>\n          <line class=\"hln\" x1=\"1\" y1=\"0\" x2=\"1\" y2=\"6\"></line>\n        </pattern>\n      </defs>\n      <g id=\"art\"></g>\n    </svg>\n    <div class=\"k-controls\" id=\"cb1\" hidden></div>\n    <div class=\"k-controls\" id=\"cb2\" hidden></div>\n    <div class=\"k-controls\" id=\"cb3\" hidden></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Every curve is drawn from its rule with example values; every total is worked out from the curve drawn.</p>\n\n<script>\n  // ---------- numbers ----------\n  const tidy = (v) => { const r = +(+v).toPrecision(10); return Math.abs(r) < 1e-12 ? 0 : r; };\n  const fmtN = (v) => String(tidy(v)).replace('-', '−');\n  const dec = (v, d) => { const p = Math.pow(10, d); return fmtN(Math.round(tidy(v) * p) / p); };\n  const fix = (v, d) => { let s = (Math.round(tidy(v) * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d); if (/^-0(\\.0+)?$/.test(s)) s = s.slice(1); return s.replace('-', '−'); };\n  // A slope worked out from a rule: a chord 2 × 10⁻⁶ m³ wide, centred on V.\n  const HH = 1e-6;\n  const slope = (f, x) => (f(x + HH) - f(x - HH)) / (2 * HH);\n\n  // ---------- the rules ----------\n  // A gas going from volume V1 to V2 along pVⁿ = C, starting at pressure p1 (kPa, m³, so work in kJ).\n  // n = 0 is a steady pressure. The work is the area under the curve, (p₁V₁ − p₂V₂) ÷ (n − 1); at n = 1 there is none.\n  function proc(p1, V1, V2, n) {\n    const C = p1 * Math.pow(V1, n), f = (V) => C / Math.pow(V, n), p2 = tidy(f(V2));\n    const W = Math.abs(n - 1) < 1e-12 ? null : tidy((p1 * V1 - f(V2) * V2) / (n - 1));\n    return { p1, V1, V2, n, C, f, p2, W };\n  }\n  // The reverse power rule for p = C × V⁻ⁿ: C × V¹⁻ⁿ ÷ (1 − n), which has no answer at n = 1.\n  function revRule(pr) { const m = 1 - pr.n; return Math.abs(m) < 1e-12 ? null : (V) => pr.C * Math.pow(V, m) / m; }\n  const area = (pr, a, b) => { const F = revRule(pr); return tidy(F(b) - F(a)); };\n  // N bars of equal width from a to b, each as tall as the pressure at its middle (the mid-ordinate rule).\n  // Run backwards (b < a) every width is minus, so every bar's work is minus.\n  function barsOf(f, a, b, N) {\n    const w = (b - a) / N, out = [];\n    for (let k = 0; k < N; k++) { const v0 = a + k * w, h = f(v0 + w / 2); out.push({ v0, v1: v0 + w, h, amt: h * w }); }\n    return out;\n  }\n  const sumOf = (list) => tidy(list.reduce((s, q) => s + q.amt, 0));\n  const barSum = (f, a, b, N) => sumOf(barsOf(f, a, b, N));\n  const P = {\n    st200: proc(200, 0.1, 0.3, 0), st300: proc(300, 0.05, 0.15, 0),\n    sq: proc(400, 0.1, 0.2, 2), sqc: proc(100, 0.2, 0.1, 2),\n    e15: proc(800, 0.1, 0.4, 1.5), c15: proc(100, 0.4, 0.1, 1.5), big: proc(2700, 0.02, 0.18, 1.5),\n    flat: proc(500, 0.02, 0.06, 0), tail: proc(500, 0.06, 0.12, 2),\n  };\n  // The last puzzle's path: steady 500 kPa to 0.06 m³, then pV² = C.\n  const BOTH = { f: (V) => (V <= P.flat.V2 ? P.flat.f(V) : P.tail.f(V)), V1: 0.02, V2: 0.12, W: tidy(P.flat.W + P.tail.W) };\n\n  const SUBS = { '₁': ' 1', '₂': ' 2' };\n  const say = (s) => String(s == null ? '' : s).replace(/`/g, '').replace(/¹⁻ⁿ/g, ' to the power 1 minus n').replace(/⁻ⁿ/g, ' to the power minus n').replace(/⁻²/g, ' to the power minus 2').replace(/⁻¹/g, ' to the power minus 1').replace(/≈/g, ' is about ').replace(/¹·⁵/g, ' to the power 1.5').replace(/ⁿ/g, ' to the power n').replace(/²/g, ' squared')\n    .replace(/[₁₂]/g, (m) => SUBS[m]).replace(/÷/g, ' divided by ').replace(/×/g, ' times ').replace(/−/g, ' minus ').replace(/\\+/g, ' plus ').replace(/=/g, ' equals ')\n    .replace(/m³/g, 'cubic metres').replace(/\\s+/g, ' ').trim();\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  const AX = { yn: '`p`, pressure in kPa', xn: '`V`, volume in m³' };\n  const GG = (o) => Object.assign({}, AX, o);\n  const WG = (o) => Object.assign({ lab: 'Work done by the gas', unit: 'kJ', min: 0, max: 50, dec: 2 }, o);\n  const TXT = {\n    steady: 'Gas at a steady 200 kPa, an example, pushes a piston out, and its volume grows from 0.1 to 0.3 m³. Work is the push times the distance moved. The push is the pressure times the piston’s area, and that area times the distance is the volume swept, so the work is the pressure times the *change in volume*. On a *pV diagram*, pressure up the side and volume along the bottom, that is the rectangle under the flat line: 200 × 0.2 = 40 kJ. A kPa is a kN on each m², so a kPa times a m³ is a kN m, a kJ.',\n    bars: 'Usually the pressure falls as the gas expands: the same gas spread through more room presses less on each square metre. Here it follows `pV² = C`, an example. 400 kPa in 0.1 m³ makes `C` = 400 × 0.1² = 4, so at 0.2 m³ the pressure is 4 ÷ 0.2² = 100 kPa. No one rectangle fits, so cut the change in volume into bars, each as tall as the pressure at its middle: the *mid-ordinate rule*. Each bar is a pressure times a change in volume, a little work. Four bars give 19.82 kJ, eight 19.95 kJ and a hundred 20.00 kJ.',\n    derive: 'Where does an exact answer come from? Along `pV² = 4` the pressure is `4 ÷ V²`, also written `4 × V⁻²`, because a power below zero means one over. The reverse power rule adds one to the power, giving −1, and divides by it: `4 × V⁻¹ ÷ (1 − 2)`. Differentiate that and `4 × V⁻²` comes back, so it is right. And `4 × V⁻¹` is just `pV` at each end, 40 and 20, the dashed rectangles. Put in the end, take away the start: (20 − 40) ÷ (1 − 2) = 20 kJ, the bars’ total.',\n    rule: 'Any `n` goes the same way. `p = C × V⁻ⁿ`, the reverse power rule gives `C × V¹⁻ⁿ ÷ (1 − n)`, and `C × V¹⁻ⁿ` is `pV` at each end. Turn both subtractions round and the work is `(p₁V₁ − p₂V₂) ÷ (n − 1)`, with 1 the start and 2 the end. Here that is (40 − 20) ÷ (2 − 1) = 20 kJ, just where the bars settle. Slide `n` and the end volume: a hundred bars and the rule agree to 0.01 kJ every time. `n` = 1 is the one value the rule cannot take, as it would divide by 0.',\n    squeeze: 'Run it backwards and the piston squeezes the gas from 0.2 m³ at 100 kPa back to 0.1 m³ at 400 kPa. The curve is the same, still above the axis, but each bar’s width, the change in volume, is now minus, so each bar counts as minus: hatched. The rule, with 1 the start, gives (100 × 0.2 − 400 × 0.1) ÷ 1 = −20 kJ. Work done by the gas is positive for expansion and negative for compression: here the piston does 20 kJ of work on the gas. Flip the switch to run it either way.',\n    mep: 'Last, lay a rectangle over the curve with the same area and the same width. Its height is its area divided by its length along the volume axis: 20 kJ ÷ 0.1 m³ = 200 kPa, the steady pressure that would do the same work. That is the idea behind the *mean effective pressure*, which the marine syllabuses ask you to define and to find from an indicator card. It is not the average of the end pressures, 250 kPa: the curve spends most of its width below that.',\n  };\n  const two = barsOf(P.sq.f, 0.1, 0.2, 2);\n  const STEPS = [\n    { show: true, kind: 'steady', name: 'A steady push', pr: P.st200, g: GG({ who: 'A steady 200 kPa, from 0.1 to 0.3 m³', x: [0, 0.35, 0.1], y: [0, 250, 50] }),\n      gauge: WG({ max: 50, dec: 0 }), dur: 4.4, rows: 4, text: TXT.steady },\n    { name: 'A steady 300 kPa', pr: P.st300, g: GG({ who: 'A steady 300 kPa, from 0.05 to 0.15 m³', x: [0, 0.2, 0.05], y: [0, 400, 100] }),\n      gauge: WG({ max: 50 }), opts: ['endvol', 'right', 'startvol'],\n      task: 'Gas at a steady 300 kPa, an example, pushes the piston out from 0.05 m³ to 0.15 m³. How much work does it do?',\n      why: 'The work is the pressure times the change in volume: 0.15 − 0.05 = 0.1 m³, so 300 × 0.1 = 30 kJ, the rectangle under the flat line. 300 × 0.15 = 45 kJ counts the 0.05 m³ the gas filled before the piston moved. 300 × 0.05 = 15 kJ uses the start volume, not the change.',\n      hint: 'Not quite. Multiply the pressure by the change in volume.',\n      hints: { endvol: 'Not quite. 0.15 m³ is the whole volume. Use the change, 0.15 − 0.05.', startvol: 'Not quite. 0.05 m³ is where it starts. Use the change in volume.' },\n      pre: ['300 kPa, from 0.05 to 0.15 m³', 'Work = ?'], right: ['Change in volume: 0.15 − 0.05 = 0.1 m³', '300 × 0.1 = 30 kJ, the rectangle’s area'],\n      amounts: () => [P.st300.W],\n      o: {\n        endvol: { t: '45 kJ', v: tidy(300 * 0.15), rows: ['300 × 0.15 counts the whole volume', 'Only the change, 0.1 m³, is swept'] },\n        right: { t: '30 kJ', v: P.st300.W },\n        startvol: { t: '15 kJ', v: tidy(300 * 0.05), rows: ['300 × 0.05 uses the start volume', 'Use the change, 0.15 − 0.05'] },\n      },\n      scene: (s) => {\n        const pr = P.st300;\n        base(pr, s);\n        if (s.k === 'right') queue(s.a, [{ x: (X(pr.V1) + X(pr.V2)) / 2, y: Y(150) + 5, text: '300 × 0.1 = 30 kJ' }]);\n        if (s.k === 'endvol') { rectA(0, pr.V2, 300, 'area bad', s.a); queue(s.a, [{ x: X(0.01), y: Y(370), text: '300 × 0.15: the whole volume', cls: 'bad', anchor: 'start' }]); }\n        if (s.k === 'startvol') { rectA(0, pr.V1, 300, 'area bad', s.a); queue(s.a, [{ x: X(0.01), y: Y(370), text: '300 × 0.05: the start volume', cls: 'bad', anchor: 'start' }]); }\n      } },\n    { show: true, kind: 'bars', name: 'Bars under a curve', pr: P.sq, cid: 'bars', g: GG({ who: 'Pressure falling along `pV² = 4`', x: [0, 0.25, 0.05], y: [0, 500, 100] }),\n      gauge: WG({ max: 25 }), dur: 4.8, rows: 3, ctour: { v0: 4, log: true, legs: [{ to: 8, t: 1.9, len: 0.7 }, { to: 100, t: 3.0, len: 1.3 }] },\n      rowsAt: (n) => {\n        const tot = barSum(P.sq.f, 0.1, 0.2, n);\n        return [{ s: n + ' bars, each 0.1 ÷ ' + n + ' = ' + dec(0.1 / n, 4) + ' m³ wide', soft: true },\n          { s: 'Each: the pressure at its middle × its width', soft: true },\n          { s: n + ' bars: ' + fix(tot, 2) + ' kJ' + (n >= 100 ? ', settled on 20 kJ' : n === 4 ? '' : ', closing in on 20 kJ'), big: true }];\n      },\n      text: TXT.bars },\n    { name: 'One bar', pr: P.sq, g: GG({ who: '`pV² = 4`, cut into two bars', x: [0, 0.25, 0.05], y: [0, 500, 100] }),\n      gauge: WG({ max: 300 }), opts: ['vol', 'pres', 'right'],\n      task: 'Cut the stretch from 0.1 to 0.2 m³ into two bars. The first runs from 0.1 to 0.15 m³; its middle is at 0.125 m³, where the pressure is 4 ÷ 0.125² = 256 kPa. How much work does that bar stand for?',\n      why: 'A bar is a pressure times a change in volume: 256 kPa across 0.15 − 0.1 = 0.05 m³ gives 256 × 0.05 = 12.8 kJ, the bar’s area. 256 × 0.125 = 32 multiplies by where the middle is, a volume, not the bar’s width. 256 on its own is a pressure, not work.',\n      hint: 'Not quite. Multiply the pressure by the bar’s width.',\n      hints: { vol: 'Not quite. 0.125 m³ is where the middle is. Use the bar’s width, 0.05 m³.', pres: 'Not quite. 256 kPa is a pressure. Multiply it by the bar’s width.' },\n      pre: ['256 kPa at its middle, 0.05 m³ wide', 'Its work = ?'], right: ['256 kPa at its middle, 0.05 m³ wide', '256 × 0.05 = 12.8 kJ, the bar’s area'],\n      amounts: () => [two[0].amt],\n      o: {\n        vol: { t: '32 kJ', v: tidy(two[0].h * 0.125), rows: ['256 × 0.125 uses where the middle is', 'Use the bar’s width, 0.05 m³'] },\n        pres: { t: '256 kJ', v: tidy(two[0].h), rows: ['256 kPa is a pressure, not work', 'Multiply it by the width, 0.05 m³'] },\n        right: { t: '12.8 kJ', v: tidy(two[0].amt) },\n      },\n      scene: (s) => {\n        const pr = P.sq;\n        two.forEach((q, j) => drawBar(q, j === 0 ? 'hi' : 'soft', 1));\n        if (s.k === 'vol') rectA(0, 0.125, two[0].h, 'area bad', s.a);\n        curve(pr.f, pr.V1, pr.V2, '', 1);\n        dotAt(0.125, two[0].h, 1);\n        queue(1, [{ x: X(0.125) + 10, y: Y(two[0].h) - 8, text: '256 kPa', anchor: 'start' }]);\n        hbr(0.1, 0.15, 30, '0.05 m³', false, 1);\n        dotAt(pr.V2, pr.p2, 1); REC.dot = pr.V2; drawCyl(pr.V2);\n        if (s.k === 'vol') queue(s.a, [{ x: X(0.01), y: Y(450), text: '256 × 0.125: where the middle is', cls: 'bad', anchor: 'start' }]);\n        if (s.k === 'pres') { vbr(0.1, 0, two[0].h, '', true, s.a, 'left'); queue(s.a, [{ x: X(0.01), y: Y(450), text: '256 kPa: a pressure, not work', cls: 'bad', anchor: 'start' }]); }\n      } },\n    { show: true, kind: 'derive', name: 'Where the rule comes from', pr: P.sq, g: GG({ who: '`pV² = 4`: the exact area from 0.1 to 0.2 m³', x: [0, 0.25, 0.05], y: [0, 500, 100] }),\n      gauge: WG({ max: 25 }), dur: 4.6, rows: 5, text: TXT.derive },\n    { show: true, kind: 'rule', name: 'The rule', cid: 'rule', g: GG({ who: '`pVⁿ = C`, from 400 kPa at 0.1 m³', x: [0, 0.45, 0.1], y: [0, 500, 100] }),\n      gauge: WG({ lab: 'Work done by the gas, by 100 bars', max: 60 }), dur: 4.6, rows: 4,\n      vtour: { v0: 0.2, legs: [{ to: 0.4, t: 0.6, len: 1.6 }, { to: 0.2, t: 2.7, len: 1.3 }] }, text: TXT.rule },\n    { name: 'Using the rule', pr: P.e15, g: GG({ who: '`pV¹·⁵ = C`, from 0.1 to 0.4 m³', x: [0, 0.45, 0.1], y: [0, 1000, 250] }),\n      gauge: WG({ max: 100 }), opts: ['right', 'nodiv', 'ndiv'],\n      task: 'Gas at 800 kPa in 0.1 m³ expands to 0.4 m³ along `pV¹·⁵ = C`, an example. `C` = 800 × 0.1¹·⁵ = 25.30 and 0.4¹·⁵ = 0.253, so at the end the pressure is 25.30 ÷ 0.253 = 100 kPa. How much work does the gas do?',\n      why: 'Start: 800 × 0.1 = 80; end: 100 × 0.4 = 40. The rule divides their difference by n − 1: (80 − 40) ÷ (1.5 − 1) = 40 ÷ 0.5 = 80 kJ. 40 kJ stops before dividing; 40 ÷ 1.5 = 26.7 kJ divides by n instead of n − 1. Both are much less than the area under the curve.',\n      hint: 'Not quite. Divide `p₁V₁ − p₂V₂` by `n − 1`.',\n      hints: { nodiv: 'Not quite. 80 − 40 is the top line. Now divide it by n − 1.', ndiv: 'Not quite. Divide by n − 1, which is 0.5, not by n.' },\n      pre: ['Start: 800 kPa at 0.1 m³', 'End: 100 kPa at 0.4 m³', 'Work = ?'], right: ['`p₁V₁` = 80, `p₂V₂` = 40', '(80 − 40) ÷ (1.5 − 1) = 80 kJ'],\n      amounts: () => [P.e15.W],\n      o: {\n        right: { t: '80 kJ', v: P.e15.W },\n        nodiv: { t: '40 kJ', v: tidy(800 * 0.1 - P.e15.p2 * 0.4), rows: ['80 − 40 = 40, not yet divided', 'Divide by n − 1 = 0.5'] },\n        ndiv: { t: '26.7 kJ', v: (800 * 0.1 - P.e15.p2 * 0.4) / 1.5, rows: ['40 ÷ 1.5 divides by n', 'Divide by n − 1 = 0.5'] },\n      },\n      scene: (s) => {\n        const pr = P.e15;\n        base(pr, s);\n        if (s.wrong) { const h = s.ov / (pr.V2 - pr.V1); rectA(pr.V1, pr.V2, h, 'area bad', s.a); queue(s.a, [{ x: X(0.32), y: Y(h) - 8, text: 'only ' + s.ot + ' of area', cls: 'bad' }]); }\n      } },\n    { show: true, kind: 'squeeze', name: 'Run it backwards', cid: 'squeeze', g: GG({ who: '', x: [0, 0.25, 0.05], y: [0, 500, 100] }),\n      whoAt: (st) => (st.sq === false ? '`pV² = 4`, expanding from 0.1 to 0.2 m³' : '`pV² = 4`, squeezed from 0.2 to 0.1 m³'),\n      gauge: WG({ min: -25, max: 25, neg: true }), key: { items: [{ sw: 'hatch', text: 'counts as minus' }], x: X0(0.13, [0, 0.25]), v: 470 }, keyIf: (st) => st.sq !== false,\n      dur: 4.2, rows: 3, text: TXT.squeeze },\n    { name: 'A squeeze', pr: P.c15, g: GG({ who: '`pV¹·⁵ = C`, squeezed from 0.4 to 0.1 m³', x: [0, 0.45, 0.1], y: [0, 1000, 250] }),\n      gauge: WG({ min: -100, max: 100, neg: true }), key: { items: [{ sw: 'hatch', text: 'counts as minus' }], x: X0(0.2, [0, 0.45]), v: 950 }, keyIf: (st) => st.res === 'right',\n      opts: ['plus', 'right', 'nodiv'],\n      task: 'The piston squeezes gas at 100 kPa in 0.4 m³ down to 0.1 m³ along `pV¹·⁵ = C`, an example, and it ends at 800 kPa. How much work does the gas do?',\n      why: 'With 1 the start: 100 × 0.4 = 40 and 800 × 0.1 = 80, so the rule gives (40 − 80) ÷ (1.5 − 1) = −40 ÷ 0.5 = −80 kJ. The volume shrinks, so every bar’s width is minus and the gas’s work is minus: the piston does 80 kJ of work on it. 80 kJ counts the squeeze as plus; −40 kJ forgets to divide by n − 1.',\n      hint: 'Not quite. Put the start first: `(p₁V₁ − p₂V₂) ÷ (n − 1)`.',\n      hints: { plus: 'Not quite. The gas is squeezed, so its work is minus.', nodiv: 'Not quite. Divide by n − 1, which is 0.5.' },\n      pre: ['Start: 100 kPa at 0.4 m³', 'End: 800 kPa at 0.1 m³', 'Work = ?'], right: ['`p₁V₁` = 40, `p₂V₂` = 80', '(40 − 80) ÷ (1.5 − 1) = −80 kJ'],\n      amounts: () => [P.c15.W],\n      o: {\n        plus: { t: '80 kJ', v: -P.c15.W, rows: ['80 kJ counts the squeeze as plus', 'The volume shrinks: the work is minus'] },\n        right: { t: '−80 kJ', v: P.c15.W },\n        nodiv: { t: '−40 kJ', v: tidy(100 * 0.4 - P.c15.p2 * 0.1), rows: ['40 − 80 = −40, not yet divided', 'Divide by n − 1 = 0.5'] },\n      },\n      scene: (s) => {\n        const pr = P.c15;\n        base(pr, s);\n        if (s.k === 'plus') queue(s.a, [{ x: X(0.27), y: Y(620), text: 'squeezed, yet counted as plus', cls: 'bad' }]);\n        if (s.k === 'nodiv') { const h = Math.abs(s.ov) / (pr.V1 - pr.V2); rectA(pr.V2, pr.V1, h, 'area bad', s.a); queue(s.a, [{ x: X(0.32), y: Y(h) - 8, text: 'only 40 kJ of area', cls: 'bad' }]); }\n      } },\n    { show: true, kind: 'mep', name: 'Mean effective pressure', pr: P.sq, g: GG({ who: '`pV² = 4`, from 0.1 to 0.2 m³', x: [0, 0.25, 0.05], y: [0, 500, 100] }),\n      gauge: WG({ max: 25 }), dur: 4.6, rows: 3, text: TXT.mep },\n    { name: 'Its mean pressure', pr: P.e15, known: P.e15.W, g: GG({ who: '`pV¹·⁵ = C`: 80 kJ from 0.1 to 0.4 m³', x: [0, 0.45, 0.1], y: [0, 1000, 250] }),\n      gauge: WG({ max: 100 }), opts: ['avg', 'endv', 'right'],\n      task: 'The expansion from 800 kPa in 0.1 m³ to 100 kPa in 0.4 m³ did 80 kJ of work. What is its mean effective pressure?',\n      why: 'Spread the work over the change in volume, 0.4 − 0.1 = 0.3 m³: 80 ÷ 0.3 = 267 kPa, the height of a rectangle with the same area and the same width. (800 + 100) ÷ 2 = 450 kPa, the ends’ average, is too high: the curve drops fast and spends most of its width low. 80 ÷ 0.4 = 200 kPa spreads the work over the whole volume, not the change.',\n      hint: 'Not quite. Divide the work by the change in volume.',\n      hints: { avg: 'Not quite. The curve is not straight. Divide the work by the change in volume.', endv: 'Not quite. 0.4 m³ is the whole volume. Divide by the change, 0.3 m³.' },\n      pre: ['80 kJ across 0.1 to 0.4 m³', 'Mean effective pressure = ?'], right: ['Change in volume: 0.4 − 0.1 = 0.3 m³', '80 ÷ 0.3 = 267 kPa, the same area'],\n      o: {\n        avg: { t: '450 kPa', v: tidy((800 + P.e15.p2) / 2), rows: ['(800 + 100) ÷ 2 = 450, the ends’ average', 'Divide the work by the change in volume'] },\n        endv: { t: '200 kPa', v: tidy(P.e15.W / 0.4), rows: ['80 ÷ 0.4 spreads it over the whole volume', 'Divide by the change, 0.3 m³'] },\n        right: { t: '267 kPa', v: P.e15.W / (P.e15.V2 - P.e15.V1) },\n      },\n      scene: (s) => {\n        const pr = P.e15;\n        base(pr, s, { known: true });\n        if (s.k === 'right') { mepRect(pr.V1, pr.V2, s.ov, s.a); return; }\n        if (s.k === 'avg') { rectA(pr.V1, pr.V2, s.ov, 'area bad', s.a); queue(s.a, [{ x: X(0.3), y: Y(560), text: 'too much area', cls: 'bad' }]); }\n        if (s.k === 'endv') { rectA(0, pr.V2, s.ov, 'area bad', s.a); queue(s.a, [{ x: X(0.2), y: Y(s.ov) - 8, text: 'spread over 0.4 m³', cls: 'bad' }]); }\n        if (s.k) { REC.mark = s.ov; return; }\n        if (s.pk) {\n          const v = s.pv;\n          REC.mark = v;\n          part(s.pa, 0, () => AV.push(line('pick', X(pr.V1), Y(v), X(pr.V2), Y(v))));\n          queue(s.pa, [{ x: X(pr.V2) - 4, y: Y(v) - 10, text: s.pt, anchor: 'end', cls: 'soft' }]);\n        }\n      } },\n    { name: 'A big expansion', pr: P.big, g: GG({ who: '`pV¹·⁵ = C`, from 0.02 to 0.18 m³', x: [0, 0.2, 0.05], y: [0, 3000, 1000] }),\n      gauge: WG({ min: -80, max: 80, neg: true }), opts: ['right', 'ndiv', 'onform'],\n      task: 'Gas at 2700 kPa in 0.02 m³ expands along `pV¹·⁵ = C` to 0.18 m³, where it is at 100 kPa, an example. How much work does the gas do?',\n      why: 'Start: 2700 × 0.02 = 54; end: 100 × 0.18 = 18. The work done by the gas is (54 − 18) ÷ (1.5 − 1) = 36 ÷ 0.5 = 72 kJ, plus, as it expands. −72 kJ is the form some books give, (p₂V₂ − p₁V₁) ÷ (n − 1), the work done on the gas. 36 ÷ 1.5 = 24 kJ divides by n instead of n − 1.',\n      hint: 'Not quite. Use `(p₁V₁ − p₂V₂) ÷ (n − 1)`.',\n      hints: { onform: 'Not quite. That is the work done on the gas. It expands, so its own work is plus.', ndiv: 'Not quite. Divide by n − 1, which is 0.5, not by n.' },\n      pre: ['Start: 2700 kPa at 0.02 m³', 'End: 100 kPa at 0.18 m³', 'Work = ?'], right: ['`p₁V₁` = 54, `p₂V₂` = 18', '(54 − 18) ÷ (1.5 − 1) = 72 kJ'],\n      amounts: () => [P.big.W],\n      o: {\n        right: { t: '72 kJ', v: P.big.W },\n        ndiv: { t: '24 kJ', v: tidy((2700 * 0.02 - P.big.p2 * 0.18) / 1.5), rows: ['36 ÷ 1.5 divides by n', 'Divide by n − 1 = 0.5'] },\n        onform: { t: '−72 kJ', v: tidy((P.big.p2 * 0.18 - 2700 * 0.02) / (1.5 - 1)), rows: ['(18 − 54) ÷ 0.5 is the work on the gas', 'The gas expands: its work is plus'] },\n      },\n      scene: (s) => {\n        base(P.big, s);\n        if (s.k === 'onform') queue(s.a, [{ x: X(0.11), y: Y(2000), text: 'work on the gas: sign turned round', cls: 'bad' }]);\n        if (s.k === 'ndiv') queue(s.a, [{ x: X(0.11), y: Y(2000), text: '÷ 1.5, not ÷ (1.5 − 1)', cls: 'bad' }]);\n      } },\n    { name: 'Flat, then falling', pr: BOTH, g: GG({ who: 'A steady 500 kPa, then `pV² = C`', x: [0, 0.15, 0.05], y: [0, 600, 200] }),\n      gauge: WG({ max: 40 }), opts: ['curved', 'right', 'corner'],\n      task: 'Gas at a steady 500 kPa, an example, pushes the piston from 0.02 to 0.06 m³, then expands along `pV² = C` to 0.12 m³. How much work does it do in all?',\n      why: 'Add the two parts. The flat part is 500 × 0.04 = 20 kJ. On the curve, `C` = 500 × 0.06² = 1.8, so at 0.12 m³ the pressure is 1.8 ÷ 0.12² = 125 kPa, and the rule gives (500 × 0.06 − 125 × 0.12) ÷ (2 − 1) = (30 − 15) ÷ 1 = 15 kJ. In all, 20 + 15 = 35 kJ. 15 kJ leaves out the flat part; 500 × 0.06 = 30 is the pressure times the volume at the corner, not an area under the path.',\n      hint: 'Not quite. Work out the flat part and the curved part, then add them.',\n      hints: { curved: 'Not quite. The flat part does work too: 500 × 0.04.', corner: 'Not quite. 500 × 0.06 is a pressure times a volume. Add the two areas.' },\n      pre: ['Flat: 500 kPa from 0.02 to 0.06 m³', 'Then `pV² = C` to 0.12 m³', 'Work = ?'],\n      right: ['Flat part: 500 × 0.04 = 20 kJ', 'Curved part: (30 − 15) ÷ 1 = 15 kJ', '20 + 15 = 35 kJ'],\n      amounts: () => [P.flat.W, P.tail.W],\n      o: {\n        curved: { t: '15 kJ', v: P.tail.W, rows: ['15 kJ is the curved part alone', 'Add the flat part, 500 × 0.04'] },\n        right: { t: '35 kJ', v: BOTH.W },\n        corner: { t: '30 kJ', v: tidy(500 * 0.06), rows: ['500 × 0.06 is pressure times volume', 'Add the flat and the curved areas'] },\n      },\n      scene: (s) => {\n        base(BOTH, s);\n        part(1, 0, () => AV.push(line('divide', X(0.06), Y(0), X(0.06), Y(500))));\n        dotAt(0.06, 500, 1);\n        queue(1, [{ x: X(0.06) + 8, y: Y(500) - 10, text: 'corner', anchor: 'start', cls: 'soft' }]);\n        if (s.k === 'right') queue(s.a, [{ x: X(0.04), y: Y(250), text: '20 kJ' }, { x: X(0.085), y: Y(110), text: '15 kJ' }]);\n        if (s.k === 'curved') { areaOf(P.flat.f, 0.02, 0.06, 'bad', s.a); queue(s.a, [{ x: X(0.045), y: Y(560), text: 'left out', cls: 'bad' }]); }\n        if (s.k === 'corner') { rectA(0, 0.06, 500, 'area bad', s.a); queue(s.a, [{ x: X(0.002), y: Y(560), text: '500 × 0.06: not an area swept', cls: 'bad', anchor: 'start' }]); }\n      } },\n  ];\n  // Where a volume sits across the graph, before any graph is drawn (for a key's position).\n  function X0(v, xr) { return 52 + (v - xr[0]) / (xr[1] - xr[0]) * 266; }\n  STEPS.forEach((d) => { if (!d.show) d.rows = Math.max(d.pre.length, d.right.length, 1 + Math.max.apply(null, d.opts.filter((k) => k !== 'right').map((k) => d.o[k].rows.length))); });\n  const FINISH = 'The work a gas does is the area under its pV curve, pressure times change in volume added up bar by bar; for pVⁿ = C it is exactly (p₁V₁ − p₂V₂) ÷ (n − 1), plus as the gas expands and minus as it is squeezed.';\n  // The lesson's sources the checks restate.\n  const SRC = {\n    area: 'https://phys.libretexts.org/Courses/Georgia_State_University/GSU-TM-Physics_I_(2211)/12%3A_Temperature_and_Heat/12.10%3A_Work_Heat_and_Internal_Energy',\n    maths: 'https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus',\n    poly: 'https://engineering.purdue.edu/~wassgren/teaching/ME20000/NotesAndReading/Lec12_LectureNotes.pdf',\n    heat: 'https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/applied-heat-written-examination-syllabus',\n    power: 'https://mathweb.ucsd.edu/~ashenk/Section6_7.pdf',\n    on: 'https://resources.wolframcloud.com/FormulaRepository/resources/Polytropic-Process',\n  };\n  const FB = [1.3, 1.2];\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // c: the number of bars Dan has set; n, v: the power and end volume he has set; sq: the switch (squeeze or not).\n  function blank() { return { pick: null, res: null, why: false, c: null, n: null, v: null, sq: null }; }\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;   // T: seconds into the current motion\n  let REC = null, checking = false, lastB = 4, lastN = 2, lastV = 0.2, lastSq = true;\n\n  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------\n  const ITAL = /([pVnCW])/;\n  function italics(parent, s, inSvg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));\n    });\n  }\n  function write(el, s) {\n    el.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));\n        el.appendChild(K.el('span', { class: 'mark' }, m[1]));\n        at = m.index + m[0].length;\n      }\n      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));\n    });\n  }\n  const el = (id) => document.getElementById(id);\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = el('nav');\n  const at = () => stepper.get();\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n    play(FB[1]);\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === 'right' ? 'right' : 'wrong';\n    play(st.res === 'right' ? FB[0] : FB[1]);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()];\n    if (!d.show || finished) return;\n    const st = S[at()];\n    st.c = null; st.n = null; st.v = null;\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n  // The slider for the number of bars, the rule screen's two sliders, and the switch that runs it backwards: each on its own screen.\n  const BC = K.control({ id: 'bars', label: 'Bars from 0.1 to 0.2 m³', min: 4, max: 100, step: 1, value: 4, snap: [4, 8, 100], fmt: (v) => v + ' bars', into: '#cb1' });\n  const NC = K.control({ id: 'n', label: 'The power n in pVⁿ = C', min: 1.1, max: 2, step: 0.1, value: 2, snap: [1.1, 2], fmt: (v) => 'n = ' + dec(v, 1), into: '#cb2' });\n  const VC = K.control({ id: 'v2', label: 'End volume', min: 0.15, max: 0.4, step: 0.01, value: 0.2, snap: [0.2, 0.4], fmt: (v) => fix(v, 2) + ' m³', into: '#cb2' });\n  const TG = K.toggle({ id: 'squeeze', label: 'Run it as a compression', value: true, into: '#cb3' });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = el('scene'), art = el('art');\n  let into = null, AV = [], LQ = [], g = null;   // AV: lines and shapes labels keep clear of; LQ: labels waiting; g: the axes drawn\n  const add = (node) => (into || art).appendChild(node);\n  let latest = 0;\n  const note = (t) => { if (t > latest) latest = t; };\n  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0 + d); return K.arrive(T, t0, d); }\n  // Travel: 0 to 1 from t0 over len seconds, eased; the moment an eased travel reaches a fraction.\n  function sweep(t0, len) { note(t0 + len); return T === Infinity ? 1 : K.ease((T - t0) / len); }\n  function tAt(frac, t0, len) { let lo = 0, hi = 1; for (let j = 0; j < 30; j++) { const m = (lo + hi) / 2; if (K.ease(m) < frac) lo = m; else hi = m; } return t0 + len * (lo + hi) / 2; }\n  function part(a, rise, draw) {\n    if (a <= 0) return;\n    const grp = add(K.svg('g'));\n    K.fade(grp, a, rise);\n    const keep = into; into = grp; draw(); into = keep;\n  }\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));\n  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r }));\n  const path = (cls, dd) => add(K.svg('path', { class: cls, d: dd }));\n  const rect = (cls, x, y, w, h) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)) }));\n  // Text in the drawing: letters inside backticks are the rule's letters, set in italics.\n  function text(x, y, s, cls, anchor) {\n    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    String(s).split('`').forEach((seg, k) => { if (!seg) return; if (k % 2) italics(t, seg, true); else t.appendChild(document.createTextNode(seg)); });\n    return add(t);\n  }\n  // A line of text kept inside its room: shrunk (never under 12) when it would run past it.\n  function fit(t, room, size) {\n    try { const w = t.getComputedTextLength(); if (w > room) t.style.fontSize = Math.max(12, Math.floor(size * room / w * 10) / 10) + 'px'; } catch (e) { /* measured again next paint */ }\n  }\n  // Labels wait in LQ and are placed last (K.labels), clear of every line, shape and label drawn.\n  const queue = (a, items) => { items = items.filter((it) => it.text); if (a > 0 && items.length) LQ.push({ a, items }); };\n  function flushLabels() {\n    const list = LQ; LQ = [];\n    list.forEach((q) => part(q.a, 4, () => {\n      const ts = K.labels(into, q.items.map((it) => ({ x: r3(it.x), y: r3(it.y), text: it.text.replace(/`/g, ''), anchor: it.anchor || 'middle', class: 'lab' + (it.cls ? ' ' + it.cls : '') })), { avoid: AV });\n      ts.forEach((t, j) => {\n        const raw = String(q.items[j].text);\n        if (raw.indexOf('`') >= 0) { t.textContent = ''; raw.split('`').forEach((seg, k) => { if (!seg) return; if (k % 2) italics(t, seg, true); else t.appendChild(document.createTextNode(seg)); }); }\n        REC.labs.push(t.textContent); if (/\\bbad\\b/.test(t.getAttribute('class') || '')) REC.bad++; });\n    }));\n  }\n\n  // ---------- the cylinder and the pV diagram, sharing one volume scale ----------\n  const PL = 52, PR = 318, GH = 140, GT = 178, GB = GT + GH, ROW0 = GB + 60, CY0 = 106, CY1 = 146;\n  const X = (v) => PL + (v - g.x[0]) / (g.x[1] - g.x[0]) * (PR - PL);\n  const Y = (v) => GB - (v - g.y[0]) / (g.y[1] - g.y[0]) * GH;\n  // The gas: the same 14 molecules wherever the piston is, so more room spreads them out.\n  const GAS = [[0.15, 0.2], [0.42, 0.85], [0.7, 0.35], [0.92, 0.8], [0.28, 0.55], [0.55, 0.1], [0.83, 0.55], [0.06, 0.75], [0.62, 0.95], [0.35, 0.05], [0.49, 0.45], [0.97, 0.15], [0.2, 0.98], [0.76, 0.0]];\n  function drawCyl(V) {\n    const x0 = X(0), xp = X(V), mid = (CY0 + CY1) / 2;\n    REC.piston = V;\n    rect('gas', x0, CY0, xp - x0, CY1 - CY0);\n    GAS.forEach((q) => circle('mol', x0 + 5 + q[0] * Math.max(0, xp - x0 - 10), CY0 + 22 + q[1] * (CY1 - CY0 - 28), 2));\n    if (xp - x0 >= 36) text(x0 + 6, CY0 + 15, 'gas', 'gname', 'start');\n    AV.push(path('cyl', 'M' + (PR + 8) + ' ' + CY0 + ' H' + r3(x0) + ' V' + CY1 + ' H' + (PR + 8)));\n    AV.push(line('rod', xp + 9, mid, 334, mid));\n    AV.push(rect('piston', xp, CY0 + 2, 9, CY1 - CY0 - 4));\n  }\n  // Gridlines, the volume axis at zero pressure, the pressure axis on the left, numbers and names.\n  function frame() {\n    for (let j = 0, v = g.y[0]; v <= g.y[1] + 1e-9; j++, v = g.y[0] + j * g.y[2]) {\n      const y = Y(v);\n      if (v > g.y[0] + 1e-9) line('grid', PL, y, PR, y);\n      text(PL - 7, y + 4.5, fmtN(v), 'tick', 'end');\n    }\n    for (let j = 0, v = g.x[0]; v <= g.x[1] + 1e-9; j++, v = g.x[0] + j * g.x[2]) {\n      const x = X(v);\n      if (v > g.x[0] + 1e-9) line('grid', x, GT, x, GB);\n      line('mtick', x, GB, x, GB + 5);\n      text(x, GB + 17, fmtN(v), 'tick');\n    }\n    AV.push(line('axis', PL, GB, PR + 6, GB), line('axis', PL, GT - 6, PL, GB));\n    text(12, GT - 16, g.yn, 'aname', 'start');\n    text(PR + 8, GB + 35, g.xn, 'aname', 'end');\n  }\n  // A curve from one volume to another, cut where it leaves the graph.\n  function pathOf(f, lo, hi) {\n    if (lo > hi) { const s = lo; lo = hi; hi = s; }\n    const n = 160, y0 = g.y[0], y1 = g.y[1];\n    let s = '', on = false, px = null, pv = null;\n    for (let j = 0; j <= n; j++) {\n      const x = lo + (hi - lo) * j / n, v = f(x), inside = v >= y0 && v <= y1;\n      if (inside) {\n        if (!on && pv != null) { const e = pv < y0 ? y0 : y1, xe = px + (x - px) * (e - pv) / (v - pv); s += ' M' + r3(X(xe)) + ' ' + r3(Y(e)); on = true; }\n        s += (on ? ' L' : ' M') + r3(X(x)) + ' ' + r3(Y(v)); on = true;\n      } else if (on) { const e = v < y0 ? y0 : y1, xe = px + (x - px) * (e - pv) / (v - pv); s += ' L' + r3(X(xe)) + ' ' + r3(Y(e)); on = false; }\n      px = x; pv = v;\n    }\n    return s.trim();\n  }\n  function curve(f, lo, hi, cls, a) {\n    a = a == null ? 1 : a;\n    if (a <= 0) return;\n    const dd = pathOf(f, lo, hi);\n    if (dd) part(a, 0, () => AV.push(path('curve' + (cls ? ' ' + cls : ''), dd)));\n  }\n  // One bar: from the volume axis up to its pressure; hatched when its width, the change in volume, is minus.\n  function drawBar(q, cls, al) {\n    if (al <= 0) return;\n    const xa = X(Math.min(q.v0, q.v1)), w = Math.abs(X(q.v1) - X(q.v0)), neg = q.amt < 0;\n    const c = 'bar' + (neg ? ' neg' : '') + (w >= 5 ? ' edge' : '') + (cls ? ' ' + cls : '');\n    part(al, 0, () => rect(c, xa, Y(q.h), w, Y(0) - Y(q.h)));\n    if (neg) REC.hatched++;\n    REC.bars.push({ v0: q.v0, v1: q.v1, h: q.h, amt: q.amt, neg, cls: cls || '' });\n  }\n  // The area under a curve between two volumes: plain, neutral, hatched (minus) or a red outline.\n  function areaOf(f, a, b, cls, al) {\n    if (al <= 0) return;\n    const pts = K.linspace(a, b, 121);\n    const dd = 'M' + r3(X(a)) + ' ' + r3(Y(0)) + pts.map((v) => ' L' + r3(X(v)) + ' ' + r3(Y(Math.min(f(v), g.y[1])))).join('') + ' L' + r3(X(b)) + ' ' + r3(Y(0)) + ' Z';\n    const bad = /bad/.test(cls || '');\n    part(al, 0, () => { const p = path('area' + (cls ? ' ' + cls : ''), dd); if (bad) AV.push(p); });\n    if (bad) REC.bad++;\n    if (/neg/.test(cls || '')) REC.hatched++;\n  }\n  function rectA(x0, x1, h, cls, al) {\n    if (al <= 0) return;\n    const bad = /bad/.test(cls);\n    part(al, 0, () => { const r = rect(cls, X(Math.min(x0, x1)), Y(h), Math.abs(X(x1) - X(x0)), Y(0) - Y(h)); if (bad) AV.push(r); });\n    if (bad) REC.bad++;\n  }\n  // The rectangle with the same area and width as the area under the curve: its height is the mean effective pressure.\n  function mepRect(x0, x1, h, al) {\n    if (al <= 0 || h <= 1e-9) return;\n    part(al, 0, () => { rect('mep', X(x0), Y(h), X(x1) - X(x0), Y(0) - Y(h)); AV.push(line('mepedge', X(x0), Y(h), X(x1), Y(h))); });\n    REC.mep = { h: tidy(h), w: tidy(x1 - x0) };\n    queue(al, [{ x: (X(x0) + X(x1)) / 2, y: Y(h * 0.25) + 5, text: 'same area' }]);\n  }\n  function dotAt(x, y, a) {\n    if (a <= 0) return;\n    part(a, 0, () => AV.push(circle('pt', X(x), Y(y), 5)));\n  }\n  // A bracket beside a height (from v0 to v1 at volume x), its label on the side given.\n  function vbr(x, v0, v1, label, bad, a, side) {\n    if (a <= 0) return;\n    const right = side === 'right', px = X(x) + (right ? 6 : -6), y0 = Y(v0), y1 = Y(v1), tk = right ? -5 : 5;\n    part(a, 0, () => AV.push(path('brk' + (bad ? ' bad' : ''), 'M' + r3(px + tk) + ' ' + r3(y0) + ' H' + r3(px) + ' V' + r3(y1) + ' H' + r3(px + tk))));\n    if (label) queue(a, [{ x: px + (right ? 8 : -8), y: (y0 + y1) / 2 + 5, text: label, anchor: right ? 'start' : 'end', cls: bad ? 'bad' : '' }]);\n    if (bad) REC.bad++;\n  }\n  // A bracket along a stretch of volume, just above pressure v, its label above it.\n  function hbr(x0, x1, v, label, bad, a) {\n    if (a <= 0) return;\n    const y = Y(v), p0 = X(x0) + 2, p1 = X(x1) - 2;\n    part(a, 0, () => AV.push(path('brk' + (bad ? ' bad' : ''), 'M' + r3(p0) + ' ' + r3(y - 5) + ' V' + r3(y) + ' H' + r3(p1) + ' V' + r3(y - 5))));\n    if (label) queue(a, [{ x: (p0 + p1) / 2, y: y - 9, text: label, cls: bad ? 'bad' : '' }]);\n    if (bad) REC.bad++;\n  }\n  // The key, inside the graph.\n  function drawKey(k) {\n    k.items.forEach((it, j) => {\n      const y = Y(k.v) + 20 * j;\n      AV.push(rect('sw ' + it.sw, k.x, y - 10, 16, 11));\n      text(k.x + 22, y, it.text, 'keyt', 'start');\n    });\n  }\n  // A puzzle's path: the area under it (neutral until answered), the curve, its start and end, the piston at the end.\n  function base(pr, s, o) {\n    o = o || {};\n    const neg = pr.V2 < pr.V1;\n    areaOf(pr.f, pr.V1, pr.V2, o.known || s.k === 'right' ? (neg ? 'neg' : '') : 'soft', 1);\n    curve(pr.f, pr.V1, pr.V2, '', 1);\n    dotAt(pr.V1, pr.f(pr.V1), 1); dotAt(pr.V2, pr.f(pr.V2), 1);\n    queue(1, [{ x: X(pr.V1) + 10, y: Y(pr.f(pr.V1)) - 10, text: 'start', anchor: 'start', cls: 'soft' },\n      { x: X(pr.V2) + 8, y: Y(pr.f(pr.V2)) - 10, text: 'end', anchor: 'start', cls: 'soft' }]);\n    REC.dot = pr.V2; drawCyl(pr.V2);\n  }\n\n  // ---------- the running total of the work ----------\n  // Plus amounts run rightwards along the top lane; minus amounts run back along the lower lane,\n  // hatched. The tick marks where the total stands; the dashed line, the rule's answer.\n  const GL = 20, GR = 320, GY = 48;\n  function drawGauge(G, s) {\n    const GX = (v) => GL + (K.clamp(v, G.min, G.max) - G.min) / (G.max - G.min) * (GR - GL), lane = !!G.neg, bot = GY + (lane ? 34 : 20);\n    text(12, 36, G.lab, 'gtitle', 'start');\n    text(328, 36, s.value, 'gval', 'end');\n    REC.value = s.value;\n    AV.push(rect('track', GL, GY, GR - GL, 16));\n    if (lane) AV.push(rect('track', GL, GY + 19, GR - GL, 12));\n    let am = s.amounts || [];\n    if (am.length > 16) {   // many thin bars: one piece for each run of the same sign\n      const merged = [];\n      am.forEach((q) => { const last = merged[merged.length - 1]; if (last && (last.amt >= 0) === (q.amt >= 0)) last.amt += q.amt; else merged.push({ amt: q.amt, a: q.a }); });\n      am = merged;\n    }\n    let run = 0;\n    const segs = [];\n    am.forEach((q) => {\n      const from = run, to = run + q.amt;\n      run = to;\n      if (Math.abs(q.amt) < 1e-12) return;\n      const neg = q.amt < 0, lo = GX(Math.min(from, to)), hi = GX(Math.max(from, to));\n      part(q.a, 0, () => rect('seg' + (neg ? ' neg' : ''), lo, neg ? GY + 19 : GY, Math.max(0.6, hi - lo), neg ? 12 : 16));\n      segs.push({ from: tidy(from), to: tidy(to) });\n    });\n    REC.segs = segs;\n    REC.net = am.length ? tidy(run) : null;\n    if (am.length) { const x = GX(run); AV.push(line('net', x, GY - 5, x, bot - 2)); }\n    const below = [];\n    if (s.goal && s.goal[2] > 0) {\n      const x = GX(s.goal[0]);\n      part(s.goal[2], 0, () => AV.push(line('goal', x, GY - 6, x, bot)));\n      below.push([x, s.goal[1], 'glab', s.goal[2]]);\n      REC.goal = s.goal[0];\n    }\n    if (s.mark && s.mark[3] > 0) {\n      const x = GX(s.mark[0]);\n      part(s.mark[3], 0, () => AV.push(line('pmark' + (s.mark[2] ? ' bad' : ''), x, GY - 6, x, bot)));\n      below.push([x, s.mark[1], 'glab' + (s.mark[2] ? ' bad' : ' soft'), s.mark[3]]);\n      REC.mark = s.mark[0];\n    }\n    const z = GX(0);\n    if (!below.some((b) => Math.abs(b[0] - z) < 36)) below.push([z, '0', 'tick', 1]);\n    below.forEach((b) => {\n      const anc = b[0] < 70 ? 'start' : b[0] > 270 ? 'end' : 'middle';\n      part(b[3], 0, () => text(anc === 'start' ? Math.max(4, b[0] - 4) : anc === 'end' ? Math.min(336, b[0] + 4) : b[0], bot + 14, b[1], b[2], anc));\n    });\n  }\n\n  // ---------- the working under the drawing, one line each ----------\n  function drawRows(RW) {\n    RW.forEach((r, n) => {\n      const a = r.a != null ? r.a : r.t != null ? arr(r.t) : 1;\n      part(a, 4, () => fit(text(12, ROW0 + 26 * n, r.s, 'row' + (r.big ? ' big' : '') + (r.soft ? ' soft' : '') + (r.bad ? ' bad' : ''), 'start'), 316, 14));\n      if (a >= 0.5) REC.rows.push(r.s);\n      if (r.bad && a > 0) REC.bad++;\n    });\n  }\n\n  // ---------- motion along legs: the number of bars, or the end volume ----------\n  // x: where it is now; rx: the last place it reached (the working shows that); la: the working's fade.\n  function tourAt(tr) {\n    let x = tr.v0, rx = x, la = 1;\n    for (const Lg of tr.legs) {\n      if (T < Lg.t) break;\n      if (T < Lg.t + Lg.len) {\n        la = 1 - K.arrive(T, Lg.t, 0.3);\n        const e = K.ease((T - Lg.t) / Lg.len);\n        x = tr.log ? Math.exp(K.lerp(Math.log(x), Math.log(Lg.to), e)) : K.lerp(x, Lg.to, e);\n        break;\n      }\n      x = Lg.to; rx = x; la = arr(Lg.t + Lg.len, 0.5);\n    }\n    tr.legs.forEach((Lg) => note(Lg.t + Lg.len + 0.5));\n    return { x, rx, la };\n  }\n\n  // ---------- the SHOW screens ----------\n  // A steady 200 kPa: the piston moves out, the rectangle under the flat line grows behind the dot.\n  function drawSteady(d, st, RW) {\n    const pr = d.pr, V = K.lerp(pr.V1, pr.V2, sweep(0.3, 2.4)), done = tidy(pr.p1 * (V - pr.V1));\n    if (V - pr.V1 > 1e-9) rectA(pr.V1, V, pr.p1, 'area', 1);\n    curve(pr.f, pr.V1, pr.V2, '', 1);\n    queue(1, [{ x: X(pr.V2) - 4, y: Y(pr.p1) - 12, text: 'steady 200 kPa', anchor: 'end' }]);\n    queue(arr(2.8), [{ x: (X(pr.V1) + X(pr.V2)) / 2, y: Y(pr.p1 / 2) + 5, text: fmtN(pr.W) + ' kJ' }]);\n    dotAt(V, pr.p1, 1); REC.dot = V; drawCyl(V);\n    RW.push({ s: 'From 0.1 to 0.3 m³: a change of 0.2 m³', soft: true, t: 2.9 }, { s: 'Work: 200 × 0.2 = ' + fmtN(pr.W) + ' kJ', big: true, t: 3.3 },\n      { s: 'Not 200 × 0.3 = 60 kJ: the gas filled 0.1 m³', soft: true, t: 3.7 }, { s: 'before the piston moved', soft: true, t: 3.7 });\n    return { amounts: [{ amt: done, a: 1 }], value: fix(done, 0) + ' kJ' };\n  }\n  // pV² = 4: the piston moves out and four bars arrive as it passes them; then they thin to 8, then 100.\n  function drawThin(d, st, RW) {\n    const pr = d.pr, own = st.c != null, s = own ? { x: st.c, rx: st.c, la: 1 } : tourAt(d.ctour), N = Math.round(s.x), rn = Math.round(s.rx);\n    REC.n = N;\n    const V = own ? pr.V2 : K.lerp(pr.V1, pr.V2, sweep(0.2, 1.4)), list = barsOf(pr.f, pr.V1, pr.V2, N), got = [];\n    list.forEach((q, k) => { const a = own ? 1 : arr(tAt((k + 0.5) / N, 0.2, 1.4), 0.35); if (a > 0) { drawBar(q, '', a); got.push({ amt: q.amt, a }); } });\n    curve(pr.f, pr.V1, pr.V2, '', 1);\n    queue(1, [{ x: X(pr.V1) - 10, y: Y(pr.p1) + 5, text: '`pV² = 4`', anchor: 'end' }]);   // left of the start, where no bar stands\n    dotAt(V, pr.f(V), 1); REC.dot = V; drawCyl(V);\n    d.rowsAt(rn).forEach((r) => RW.push({ s: r.s, big: r.big, soft: r.soft, a: s.la }));\n    return { amounts: got, value: fix(sumOf(got), 2) + ' kJ', goal: [pr.W, 'settles on 20 kJ', 1] };\n  }\n  // pVⁿ = C from 400 kPa at 0.1 m³: 100 bars and the rule, at the power and end volume set.\n  function drawRule(d, st, RW) {\n    const own = st.v != null, s = own ? { x: st.v, rx: st.v, la: 1 } : tourAt(d.vtour), V2 = s.x, n = own ? st.n : 2;\n    const pr = proc(400, 0.1, V2, n), list = barsOf(pr.f, 0.1, V2, 100);\n    REC.n = n; REC.V2 = V2; REC.W = pr.W;\n    list.forEach((q) => drawBar(q, '', 1));\n    curve(pr.f, 0.1, V2, '', 1);\n    dotAt(0.1, 400, 1); dotAt(V2, pr.p2, 1); REC.dot = V2; drawCyl(V2);\n    queue(1, [{ x: X(0.1) + 10, y: Y(400) - 8, text: '1: start', anchor: 'start', cls: 'soft' }, { x: X(V2) + 8, y: Y(pr.p2) - 12, text: '2: end', anchor: 'start', cls: 'soft' }]);\n    const rp = proc(400, 0.1, s.rx, n), p2v2 = tidy(rp.p2 * rp.V2), pv4 = Math.round(p2v2 * 1e4) / 1e4, w4 = tidy((40 - pv4) / (n - 1));\n    const eq = (v, dd) => (Math.abs(v - Math.round(v * Math.pow(10, dd)) / Math.pow(10, dd)) < 1e-9 ? ' = ' : ' ≈ ') + dec(v, dd);\n    RW.push({ s: 'Start: `p₁V₁` = 400 × 0.1 = 40', soft: true, a: s.la },\n      { s: 'End: `p₂`' + eq(rp.p2, 1) + ' kPa, so `p₂V₂`' + eq(p2v2, 4), soft: true, a: s.la },\n      { s: 'Rule: (40 − ' + dec(pv4, 4) + ') ÷ (' + dec(n, 1) + ' − 1)' + eq(w4, 2) + ' kJ', big: true, a: s.la },\n      { s: '100 bars: ' + fix(barSum(rp.f, 0.1, rp.V2, 100), 2) + ' kJ, within 0.01 kJ', soft: true, a: s.la });\n    return { amounts: list.map((q) => ({ amt: q.amt, a: 1 })), value: fix(sumOf(list), 2) + ' kJ', goal: [pr.W, 'the rule', 1] };\n  }\n  // pV² = 4 run either way: eight bars arrive as the piston passes them, hatched when it squeezes.\n  function drawSqueeze(d, st, RW) {\n    const sq = st.sq !== false, pr = sq ? P.sqc : P.sq, V = K.lerp(pr.V1, pr.V2, sweep(0.3, 2.2));\n    REC.sq = sq;\n    const list = barsOf(pr.f, pr.V1, pr.V2, 8), got = [];\n    list.forEach((q, k) => { const a = arr(tAt((k + 0.5) / 8, 0.3, 2.2), 0.35); if (a > 0) { drawBar(q, '', a); got.push({ amt: q.amt, a }); } });\n    curve(pr.f, 0.1, 0.2, '', 1);\n    queue(1, [{ x: X(0.1) - 10, y: Y(400) + 5, text: '`pV² = 4`', anchor: 'end' }]);   // left of the curve, where no bar stands\n    dotAt(V, pr.f(V), 1); REC.dot = V; drawCyl(V);\n    RW.push({ s: 'Each bar’s width, the change in volume, is ' + (sq ? 'minus' : 'plus'), soft: true, t: 2.7 },\n      { s: 'Rule: (' + (sq ? '100 × 0.2 − 400 × 0.1' : '400 × 0.1 − 100 × 0.2') + ') ÷ 1 = ' + fmtN(pr.W) + ' kJ', big: true, t: 3.1 },\n      { s: sq ? 'The piston does 20 kJ of work on the gas' : 'The gas does 20 kJ of work on the piston', soft: true, t: 3.5 });\n    return { amounts: got, value: fix(sumOf(got), 2) + ' kJ', goal: [pr.W, 'rule: ' + fmtN(pr.W) + ' kJ', 1] };\n  }\n  // pV² = 4: the area grows behind the piston, then a rectangle of the same area and width rises to 200 kPa.\n  function drawMep(d, st, RW) {\n    const pr = d.pr, V = K.lerp(pr.V1, pr.V2, sweep(0.2, 1.4)), done = V - pr.V1 > 1e-9 ? area(pr, pr.V1, V) : 0;\n    if (V - pr.V1 > 1e-9) areaOf(pr.f, pr.V1, V, '', 1);\n    const H = tidy(pr.W / (pr.V2 - pr.V1)), h = H * sweep(1.9, 1.2), avg = tidy((pr.p1 + pr.p2) / 2);\n    if (h > 1e-6) { rect('mep', X(pr.V1), Y(h), X(pr.V2) - X(pr.V1), Y(0) - Y(h)); AV.push(line('mepedge', X(pr.V1), Y(h), X(pr.V2), Y(h))); REC.mep = { h: tidy(h), w: tidy(pr.V2 - pr.V1) }; }\n    curve(pr.f, pr.V1, pr.V2, '', 1);\n    const la = arr(3.4);\n    REC.avg = avg;\n    part(la, 0, () => AV.push(line('lvl', X(pr.V1), Y(avg), X(pr.V2), Y(avg))));\n    queue(la, [{ x: X(pr.V1) - 6, y: Y(avg) + 5, text: 'ends’ average', anchor: 'end', cls: 'soft' }]);\n    queue(arr(3.1), [{ x: X(pr.V2) + 6, y: Y(H) + 5, text: '200 kPa', anchor: 'start' }, { x: (X(pr.V1) + X(pr.V2)) / 2, y: Y(30) + 5, text: 'same area' }]);\n    dotAt(V, pr.f(V), 1); REC.dot = V; drawCyl(V);\n    RW.push({ s: 'Height: 20 kJ ÷ 0.1 m³ = ' + fmtN(H) + ' kPa', big: true, t: 3.2 }, { s: 'The mean effective pressure for this stroke', soft: true, t: 3.5 },\n      { s: 'Not (400 + 100) ÷ 2 = ' + fmtN(avg) + ' kPa, the ends’ average', soft: true, t: 3.8 });\n    return { amounts: [{ amt: done, a: 1 }], value: fix(done, 2) + ' kJ' };\n  }\n  // pV² = 4: the area grows behind the piston; then 4 × V⁻¹ at each end shows as pV, a dashed rectangle from the axes' corner.\n  function drawDerive(d, st, RW) {\n    const pr = d.pr, V = K.lerp(pr.V1, pr.V2, sweep(0.2, 1.4)), done = V - pr.V1 > 1e-9 ? area(pr, pr.V1, V) : 0;\n    if (V - pr.V1 > 1e-9) areaOf(pr.f, pr.V1, V, '', 1);\n    curve(pr.f, pr.V1, pr.V2, '', 1);\n    const ab = arr(3.3);\n    part(ab, 0, () => AV.push(path('pvbox', 'M' + r3(X(0)) + ' ' + r3(Y(pr.p1)) + ' H' + r3(X(pr.V1)) + ' V' + r3(Y(0)))));\n    part(ab, 0, () => AV.push(path('pvbox', 'M' + r3(X(0)) + ' ' + r3(Y(pr.p2)) + ' H' + r3(X(pr.V2)) + ' V' + r3(Y(0)))));\n    REC.pv = ab > 0 ? [tidy(pr.p1 * pr.V1), tidy(pr.p2 * pr.V2)] : null;\n    queue(ab, [{ x: X(pr.V1 / 2), y: Y(260), text: '`p₁V₁` = 40' }, { x: X(pr.V1 / 2), y: Y(pr.p2) - 8, text: '`p₂V₂` = 20' }]);\n    queue(1, [{ x: X(pr.V2) + 8, y: Y(pr.p2) - 12, text: '`pV² = 4`', anchor: 'start' }]);\n    dotAt(pr.V1, pr.p1, 1); dotAt(V, pr.f(V), 1); REC.dot = V; drawCyl(V);\n    RW.push({ s: '`p = 4 ÷ V² = 4 × V⁻²`: a minus power is one over', soft: true, t: 1.8 },\n      { s: 'Reverse rule: power −2 + 1, so `4 × V⁻¹ ÷ (1 − 2)`', soft: true, t: 2.3 },\n      { s: 'Check: differentiate it and `4 × V⁻²` comes back', soft: true, t: 2.8 },\n      { s: '`4 × V⁻¹` is `pV`: 40 at the start, 20 at the end', soft: true, t: 3.3 },\n      { s: 'Area: (20 − 40) ÷ (1 − 2) = ' + fmtN(tidy((pr.p2 * pr.V2 - pr.p1 * pr.V1) / (1 - pr.n))) + ' kJ', big: true, t: 3.8 });\n    return { amounts: [{ amt: done, a: 1 }], value: fix(done, 2) + ' kJ', goal: [pr.W, 'the bars’ 20 kJ', arr(3.8)] };\n  }\n  const DRAW = { steady: drawSteady, bars: drawThin, derive: drawDerive, rule: drawRule, squeeze: drawSqueeze, mep: drawMep };\n\n  // ---------- the puzzles ----------\n  // Before an answer is picked, the total reads ?; a pick marks its own value on the total; Check\n  // fills the total with the work that fits, or shows the slip in red on the diagram.\n  function puzzleRows(d, k, o, RW) {\n    if (!k) d.pre.forEach((s, n) => RW.push({ s, soft: n < d.pre.length - 1 }));\n    else if (k === 'right') d.right.forEach((s, n) => RW.push(n === 0 ? { s, soft: true } : { s, big: n === d.right.length - 1, t: 0.2 + 0.2 * n }));\n    else { RW.push({ s: d.pre[0], soft: true }); o.rows.forEach((s, n) => RW.push({ s, bad: true, soft: n === 1, t: 0.2 + 0.2 * n })); }\n  }\n  function drawPuzzle(d, st, RW) {\n    const k = st.res === 'right' ? 'right' : st.res === 'wrong' ? st.pick : null, pk = st.pick, a = arr(0.1), wrong = !!k && k !== 'right', pa = pk ? arr(0.05) : 0;\n    d.scene({ k, pk, a, wrong, pa, ov: k ? d.o[k].v : null, ot: k ? d.o[k].t : '', pv: pk ? d.o[pk].v : null, pt: pk ? d.o[pk].t : '' });\n    puzzleRows(d, k, k ? d.o[k] : null, RW);\n    if (d.known != null) {   // the work is given: the answer is drawn on the diagram, not on the total\n      if (wrong) REC.bad++;\n      return { amounts: [{ amt: d.known, a: 1 }], value: dec(d.known, 2) + ' kJ' };\n    }\n    if (k === 'right') {\n      const am = d.amounts();\n      return { amounts: am.map((v) => ({ amt: v, a })), value: dec(am.reduce((s, v) => s + v, 0), 2) + ' kJ' };\n    }\n    if (wrong) { REC.bad++; return { mark: [d.o[k].v, d.o[k].t, true, a], value: '?' }; }\n    if (pk) return { mark: [d.o[pk].v, d.o[pk].t, false, pa], value: '?' };\n    return { value: '?' };\n  }\n\n  // ---------- each step's picture ----------\n  function drawScene(d, st) {\n    g = d.g;\n    const RW = [];\n    REC = { rows: [], labs: [], bad: 0, bars: [], segs: [], net: null, goal: null, mark: null, value: null, hatched: 0, n: null, V2: null, W: null, sq: null, piston: null, dot: null, mep: null, avg: null };\n    AV = []; LQ = [];\n    const who = d.whoAt ? d.whoAt(st) : g.who;\n    fit(text(12, 18, who, 'tag', 'start'), 318, 15);\n    frame();\n    const gs = (d.kind ? DRAW[d.kind] : drawPuzzle)(d, st, RW);\n    drawGauge(d.gauge, gs || { value: '?' });\n    if (d.key && (!d.keyIf || d.keyIf(st))) drawKey(d.key);\n    drawRows(RW);\n    flushLabels();\n    return say(who) + '. A cylinder whose piston sits at ' + dec(REC.piston, 3) + ' cubic metres. ' + say(d.gauge.lab + ': ' + REC.value) + '. ' + REC.rows.map(say).join('. ');\n  }\n\n  // The scene for a step (the animation calls this every frame). Each screen's own controls follow the motion.\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    art.textContent = '';\n    into = null;\n    g = d.g;\n    svg.setAttribute('viewBox', '0 0 340 ' + Math.ceil(ROW0 + 26 * (d.rows - 1) + 16));\n    svg.setAttribute('aria-label', drawScene(d, st));\n    if (checking || i !== at()) return;\n    if (d.cid === 'bars') { const v = K.clamp(Math.round(REC.n), 4, 100); if (BC.get() !== v) BC.set(v, true); lastB = BC.get(); }\n    if (d.cid === 'rule') {\n      if (Math.abs(NC.get() - REC.n) > 1e-9) NC.set(REC.n, true);\n      if (Math.abs(VC.get() - REC.V2) > 1e-9) VC.set(REC.V2, true);\n      lastN = NC.get(); lastV = VC.get();\n    }\n    if (d.cid === 'squeeze') { if (TG.get() !== REC.sq) TG.set(REC.sq, true); lastSq = TG.get(); }\n  }\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { st.c = null; st.n = null; st.v = null; st.sq = d.cid === 'squeeze' ? true : null; play(d.dur); } else { anim.pause(); T = Infinity; }\n    } else if (!finished && d.cid === 'bars' && p.bars !== lastB) {\n      if (anim.playing()) anim.pause();\n      T = Infinity; st.c = p.bars; K.reveal();\n    } else if (!finished && d.cid === 'rule' && (p.n !== lastN || p.v2 !== lastV)) {\n      if (anim.playing()) anim.pause();\n      T = Infinity; st.n = p.n; st.v = p.v2; K.reveal();\n    } else if (!finished && d.cid === 'squeeze' && !!p.squeeze !== lastSq) {\n      st.sq = !!p.squeeze; lastSq = st.sq; K.reveal(); play(d.dur);\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    if (d.show) el('replay').after(task); else el('count').after(task);\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n    el('cb1').hidden = finished || d.cid !== 'bars';\n    el('cb2').hidden = finished || d.cid !== 'rule';\n    el('cb3').hidden = finished || d.cid !== 'squeeze';\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts, labs = opts.map((k) => d.o[k].t);\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', labs.some((o) => o.length > 6));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(labs[k]);\n      b.el.setAttribute('aria-label', say(labs[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That’s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Tap one of the answers.' : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const solvedSt = () => Object.assign(blank(), { pick: 'right', res: 'right' });\n  const wrongSt = (o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const pickSt = (o) => Object.assign(blank(), { pick: o });\n  const nAt = (n) => Object.assign(blank(), { c: n });\n  const ruleAt = (n, v) => Object.assign(blank(), { n, v });\n  const sqAt = (b) => Object.assign(blank(), { sq: b });\n  const close = (a, b, tol) => typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) <= (tol || 1e-9) * Math.max(1, Math.abs(a), Math.abs(b));\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const ALL = [P.st200, P.st300, P.sq, P.sqc, P.e15, P.c15, P.big, P.flat, P.tail];\n  // A step painted in the state given (finished, or t seconds into its motion): what it draws.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t; checking = true;\n    try {\n      paint(i);\n      return Object.assign({}, REC, { rows: REC.rows.slice(), labs: REC.labs.slice(), bars: REC.bars.slice(), segs: REC.segs.slice() });\n    } finally { S[i] = keepS; T = keepT; checking = false; paint(); }\n  }\n\n  K.check('The integral is interpreted as the area under the pV curve: on every screen with bars, each bar drawn is its pressure times its change in volume, the work total drawn is the sum of those bars, and with many thousands of bars that sum is the area under the curve', () => {\n    const cases = [[idx('Bars under a curve'), nAt(4)], [idx('Bars under a curve'), nAt(8)], [idx('Bars under a curve'), nAt(37)], [idx('Bars under a curve'), nAt(100)],\n      [idx('The rule'), blank()], [idx('The rule'), ruleAt(1.3, 0.35)], [idx('Run it backwards'), sqAt(true)], [idx('Run it backwards'), sqAt(false)]];\n    const drawnOk = cases.every((c) => {\n      const h = drawn(c[0], c[1]);\n      return h.bars.length > 0 && h.bars.every((q) => close(q.amt, q.h * (q.v1 - q.v0), 1e-12)) && close(h.net, h.bars.reduce((s, q) => s + q.amt, 0), 1e-9);\n    });\n    const areaOk = [P.sq, P.sqc, P.e15, P.c15, P.big, P.tail, P.st200].every((pr) => close(barSum(pr.f, pr.V1, pr.V2, 20000), area(pr, pr.V1, pr.V2), 1e-6));\n    return drawnOk && areaOk;\n  }, { source: SRC.area });\n  K.check('The area under the curve given by pVⁿ = C: the rule (p₁V₁ − p₂V₂) ÷ (n − 1) equals the reverse power rule’s area at every n from 1.1 to 2 and every end volume from 0.15 to 0.4 m³, and on the rule screen the 100 bars drawn agree with it to within 0.01 kJ', () => {\n    for (let a = 11; a <= 20; a++) {\n      for (let b = 15; b <= 40; b++) {\n        const pr = proc(400, 0.1, b / 100, a / 10);\n        if (!close(pr.W, area(pr, 0.1, b / 100), 1e-9) || !(Math.abs(barSum(pr.f, 0.1, b / 100, 100) - pr.W) < 0.01)) return false;\n      }\n    }\n    const i = idx('The rule');\n    // The working shown adds up by hand: (40 − p₂V₂ to 4 places) ÷ (n − 1) gives the answer shown, at every setting.\n    for (let a = 11; a <= 20; a++) for (let b = 15; b <= 40; b++) {\n      const rows = drawn(i, ruleAt(a / 10, b / 100)).rows, m = /\\((40) − ([\\d.]+)\\) ÷ \\(([\\d.]+) − 1\\) [=≈] (−?[\\d.]+) kJ/.exec(rows[2] || '');\n      if (!m || fix((40 - Number(m[2])) / (Number(m[3]) - 1), 2) !== fix(Number(m[4]), 2)) return false;\n    }\n    return [[1.1, 0.4], [1.1, 0.15], [2, 0.4], [1.5, 0.3], [2, 0.2]].every((q) => { const h = drawn(i, ruleAt(q[0], q[1])); return close(h.goal, proc(400, 0.1, q[1], q[0]).W) && Math.abs(h.net - h.goal) < 0.01; }) &&\n      drawn(i, blank()).value === '20.00 kJ' && drawn(i, blank()).goal === 20;\n  }, { source: SRC.maths });\n  K.check('A polytropic process is one in which pVⁿ is constant: along every curve drawn, pressure times volume to the power n stays at its C, and each end pressure the screens give follows from it (100, 400, 100, 800, 100 and 125 kPa)', () => {\n    const along = ALL.every((pr) => K.linspace(Math.min(pr.V1, pr.V2), Math.max(pr.V1, pr.V2), 25).every((V) => close(pr.f(V) * Math.pow(V, pr.n), pr.C, 1e-12)));\n    return along && close(P.sq.p2, 100) && close(P.sqc.p2, 400) && close(P.e15.p2, 100) && close(P.c15.p2, 800) && close(P.big.p2, 100) && close(P.tail.p2, 125) &&\n      close(proc(400, 0.1, 0.3, 1.5).f(0.3) * Math.pow(0.3, 1.5), 400 * Math.pow(0.1, 1.5), 1e-12);\n  }, { source: SRC.poly });\n  K.check('The area of the pV diagram represents the work done: on the steady screens the rectangle under the flat line, pressure times change in volume, is the total drawn, 200 × 0.2 = 40 kJ and 300 × 0.1 = 30 kJ', () =>\n    drawn(idx('A steady push'), blank()).net === 40 && drawn(idx('A steady 300 kPa'), solvedSt()).net === 30 && P.st200.W === 40 && P.st300.W === 30 &&\n    area(P.st200, 0.1, 0.3) === 40, { source: SRC.heat });\n  K.check('Determines the area of an indicator card using the mid-ordinate rule: each bar is read at its middle, and under pV² = 4 the totals drawn go 19.82 kJ for four bars, 19.95 kJ for eight and 20.00 kJ for a hundred, rising with every extra bar towards 20 kJ', () => {\n    const i = idx('Bars under a curve'), want = ['19.82', '19.95', '20.00'];\n    const shown = [4, 8, 100].every((n, j) => { const h = drawn(i, nAt(n)); return h.bars.length === n && h.bars.every((q) => close(q.h, P.sq.f((q.v0 + q.v1) / 2), 1e-12)) && fix(h.net, 2) === want[j] && h.goal === 20; });\n    let prev = -Infinity;\n    for (let n = 4; n <= 100; n++) { const v = barSum(P.sq.f, 0.1, 0.2, n); if (!(v > prev && v < 20)) return false; prev = v; }\n    return shown;\n  }, { source: SRC.heat });\n  K.check('We cannot set n = −1 in the fraction 1/(n + 1): the reverse power rule has no answer for the power −1, which pVⁿ = C gives at n = 1, so the n slider stops at 1.1; at every n it allows, V¹⁻ⁿ ÷ (1 − n), differentiated by its slope worked out from the rule, gives back V⁻ⁿ', () => {\n    const at1 = proc(400, 0.1, 0.2, 1);\n    const keep = NC.get(); NC.set(1, true); const lowest = NC.get(); NC.set(keep, true);\n    if (at1.W !== null || revRule(at1) !== null || !(lowest > 1)) return false;\n    for (let a = 11; a <= 20; a++) {\n      const n = a / 10, F = revRule({ C: 1, n });\n      if (!K.linspace(0.1, 0.4, 13).every((V) => close(slope(F, V), Math.pow(V, -n), 1e-6))) return false;\n    }\n    return true;\n  }, { source: SRC.power });\n  K.check('Work done by the gas is positive for expansion and negative for compression: the switch runs the same curve either way, every squeezing bar hatched with a minus width and running back along the lower lane, the total −20 kJ by the rule against +20 kJ; every expansion here gives plus and every squeeze minus', () => {\n    const i = idx('Run it backwards'), s = drawn(i, sqAt(true)), e = drawn(i, sqAt(false));\n    const sOk = s.bars.length === 8 && s.bars.every((q) => q.neg && q.v1 < q.v0 && q.amt < 0) && s.hatched === 8 && s.segs.every((g2) => g2.to < g2.from) && s.goal === -20 && s.net < 0;\n    const eOk = e.bars.length === 8 && e.bars.every((q) => !q.neg && q.amt > 0) && e.hatched === 0 && e.goal === 20 && close(e.net, -s.net, 1e-9);\n    const signs = ALL.every((pr) => Math.sign(pr.W) === Math.sign(pr.V2 - pr.V1)) && drawn(idx('A squeeze'), solvedSt()).net === -80 && drawn(idx('A squeeze'), solvedSt()).hatched > 0;\n    return sOk && eOk && signs;\n  }, { source: SRC.area });\n  K.check('The work done on the system equals the final pressure times the final volume minus the initial pressure times the initial volume, divided by n − 1: the big expansion’s −72 kJ answer is that form, the same size as the gas’s own 72 kJ with the sign turned round', () => {\n    const pr = P.big, on = tidy((pr.p2 * pr.V2 - pr.p1 * pr.V1) / (pr.n - 1));\n    return on === -72 && STEPS[idx('A big expansion')].o.onform.v === on && pr.W === -on;\n  }, { source: SRC.on });\n  K.check('A rectangle with the same area over the same change in volume has a height of its area divided by its length along the volume axis: 20 kJ ÷ 0.1 m³ = 200 kPa on the mean effective pressure screen, not the ends’ average of 250 kPa, and 80 kJ ÷ 0.3 m³ = 267 kPa in the puzzle after it', () => {\n    const m = drawn(idx('Mean effective pressure'), blank()), q = drawn(idx('Its mean pressure'), solvedSt());\n    return m.mep && m.mep.h === 200 && m.mep.w === 0.1 && close(m.mep.h * m.mep.w, P.sq.W) && m.avg === 250 && m.net === 20 &&\n      q.mep && close(q.mep.h * q.mep.w, P.e15.W) && q.mep.w === 0.3 && Math.round(q.mep.h) === 267;\n  });\n  K.check('The piston sits right above its volume on the diagram: on every screen, at every moment of each demonstration, the piston’s face is at the same volume as the moving dot', () =>\n    STEPS.every((d, i) => (d.show ? [0, 0.5, 1, 1.5, 2.2, 3, Infinity] : [Infinity]).every((t) => { const h = drawn(i, d.show ? blank() : solvedSt(), t); return typeof h.piston === 'number' && close(h.piston, h.dot, 1e-12); })) &&\n    close(drawn(idx('A steady push'), blank(), 0).piston, 0.1) && close(drawn(idx('A steady push'), blank()).piston, 0.3) && close(drawn(idx('Run it backwards'), sqAt(true)).piston, 0.1));\n  K.check('From the rules, by hand: 200 × 0.2 = 40 kJ (60 kJ the slip); 300 × 0.1 = 30 kJ (45 and 15 the slips); C = 400 × 0.1² = 4, 4 ÷ 0.2² = 100 kPa; the bar from 0.1 to 0.15 m³ is 256 kPa at 0.125 m³, 12.8 kJ (32 the slip); (40 − 20) ÷ 1 = 20 kJ; C = 25.30, 0.4¹·⁵ = 0.253, (80 − 40) ÷ 0.5 = 80 kJ (26.7 the slip); (20 − 40) ÷ 1 = −20 kJ; (40 − 80) ÷ 0.5 = −80 kJ; 200, 250, 267, 450 kPa; (54 − 18) ÷ 0.5 = 72 kJ, 36 ÷ 1.5 = 24; 20 + 15 = 35 kJ, C = 500 × 0.06² = 1.8 and 1.8 ÷ 0.12² = 125 kPa; on the derivation screen 4 × 0.1⁻¹ = 40, 4 × 0.2⁻¹ = 20 and (20 − 40) ÷ (1 − 2) = 20 kJ; and the screens’ words quote these values', () => {\n    const nums = P.st200.W === 40 && tidy(200 * 0.3) === 60 && P.st300.W === 30 && tidy(300 * 0.15) === 45 && tidy(300 * 0.05) === 15 &&\n      tidy(P.sq.C) === 4 && P.sq.p2 === 100 && tidy(two[0].h) === 256 && tidy((two[0].v0 + two[0].v1) / 2) === 0.125 && tidy(two[0].amt) === 12.8 && tidy(two[0].h * 0.125) === 32 &&\n      P.sq.W === 20 && dec(P.e15.C, 2) === '25.3' && dec(Math.pow(0.4, 1.5), 3) === '0.253' && P.e15.W === 80 && dec(40 / 1.5, 1) === '26.7' &&\n      P.sqc.W === -20 && P.c15.p2 === 800 && P.c15.W === -80 && tidy(P.sq.W / 0.1) === 200 && tidy((400 + 100) / 2) === 250 && Math.round(80 / 0.3) === 267 && tidy(80 / 0.4) === 200 &&\n      tidy((800 + 100) / 2) === 450 && tidy(P.big.p1 * P.big.V1) === 54 && tidy(P.big.p2 * P.big.V2) === 18 && P.big.W === 72 && tidy(36 / 1.5) === 24 &&\n      P.flat.W === 20 && tidy(P.tail.C) === 1.8 && tidy(1.8 / (0.12 * 0.12)) === 125 && P.tail.p2 === 125 && tidy(4 / 0.1) === 40 && tidy(4 / 0.2) === 20 && (() => { const h = drawn(idx('Where the rule comes from'), blank()); return h.pv && h.pv[0] === 40 && h.pv[1] === 20 && h.net === 20; })() && P.tail.W === 15 && BOTH.W === 35 && tidy(500 * 0.06) === 30 && tidy(P.tail.p1 * P.tail.V1) === 30 && tidy(P.tail.p2 * P.tail.V2) === 15;\n    const has = (name, key, bits) => { const v = STEPS[idx(name)][key]; return bits.every((b) => v.indexOf(b) >= 0); };\n    const words = has('A steady push', 'text', ['200 × 0.2 = 40 kJ']) && has('Where the rule comes from', 'text', ['4 × V⁻²', '4 × V⁻¹ ÷ (1 − 2)', '(20 − 40) ÷ (1 − 2) = 20 kJ']) && has('Bars under a curve', 'text', ['400 × 0.1² = 4', '4 ÷ 0.2² = 100 kPa', '19.82 kJ', '19.95 kJ', '20.00 kJ']) &&\n      has('The rule', 'text', ['(40 − 20) ÷ (2 − 1) = 20 kJ']) && has('Run it backwards', 'text', ['(100 × 0.2 − 400 × 0.1) ÷ 1 = −20 kJ']) && has('Mean effective pressure', 'text', ['20 kJ ÷ 0.1 m³ = 200 kPa', '250 kPa']) &&\n      has('A steady 300 kPa', 'why', ['300 × 0.1 = 30 kJ', '300 × 0.15 = 45 kJ', '300 × 0.05 = 15 kJ']) && has('One bar', 'why', ['256 × 0.05 = 12.8 kJ', '256 × 0.125 = 32']) &&\n      has('Using the rule', 'why', ['(80 − 40) ÷ (1.5 − 1) = 40 ÷ 0.5 = 80 kJ', '40 ÷ 1.5 = 26.7 kJ']) && has('A squeeze', 'why', ['(40 − 80) ÷ (1.5 − 1) = −40 ÷ 0.5 = −80 kJ']) &&\n      has('Its mean pressure', 'why', ['80 ÷ 0.3 = 267 kPa', '(800 + 100) ÷ 2 = 450 kPa', '80 ÷ 0.4 = 200 kPa']) && has('A big expansion', 'why', ['36 ÷ 0.5 = 72 kJ', '36 ÷ 1.5 = 24 kJ']) &&\n      has('Flat, then falling', 'why', ['500 × 0.04 = 20 kJ', '500 × 0.06² = 1.8', '1.8 ÷ 0.12² = 125 kPa', '(30 − 15) ÷ 1 = 15 kJ', '20 + 15 = 35 kJ']) &&\n      STEPS[idx('Bars under a curve')].rowsAt(4)[2].s === '4 bars: 19.82 kJ' && STEPS[idx('Bars under a curve')].rowsAt(100)[2].s === '100 bars: 20.00 kJ, settled on 20 kJ';\n    return nums && words;\n  });\n  K.check('Every puzzle offers three different answers and accepts only the right one; each answer’s number is the value its slip gives, rounded as shown', () => {\n    const want = {\n      'A steady 300 kPa': ['45 kJ', '30 kJ', '15 kJ'], 'One bar': ['32 kJ', '256 kJ', '12.8 kJ'], 'Using the rule': ['80 kJ', '40 kJ', '26.7 kJ'], 'A squeeze': ['80 kJ', '−80 kJ', '−40 kJ'],\n      'Its mean pressure': ['450 kPa', '200 kPa', '267 kPa'], 'A big expansion': ['72 kJ', '24 kJ', '−72 kJ'], 'Flat, then falling': ['15 kJ', '35 kJ', '30 kJ'],\n    };\n    const right = { 'A steady 300 kPa': 1, 'One bar': 2, 'Using the rule': 0, 'A squeeze': 1, 'Its mean pressure': 2, 'A big expansion': 0, 'Flat, then falling': 1 };\n    return DO.length === 7 && DO.every((i) => {\n      const d = STEPS[i], labs = d.opts.map((k) => d.o[k].t);\n      return labs.join('|') === want[d.name].join('|') && new Set(labs).size === 3 && d.opts.filter((k) => k === 'right').length === 1 && d.opts[right[d.name]] === 'right' &&\n        d.opts.every((k) => { const num = d.o[k].t.replace('−', '-').split(' ')[0], dp = (num.split('.')[1] || '').length; return Number(num) === Number(d.o[k].v.toFixed(dp)); });\n    });\n  });\n  K.check('Before Check no puzzle gives its verdict: nothing red, the working ends in a question mark and the total reads ? (or the work the question gives); a picked answer only marks its own value; a right answer fills in with nothing red; every wrong answer shows its slip in red', () =>\n    DO.every((i) => {\n      const d = STEPS[i], pre = drawn(i, blank()), ok = drawn(i, solvedSt()), shut = d.known != null ? dec(d.known, 2) + ' kJ' : '?';\n      const preOk = pre.bad === 0 && / \\?$/.test(pre.rows[pre.rows.length - 1]) && pre.value === shut && pre.mark == null && (d.known != null || pre.net == null);\n      const pickOk = d.opts.every((o) => { const h = drawn(i, pickSt(o)); return h.bad === 0 && h.value === shut && close(h.mark, d.o[o].v) && / \\?$/.test(h.rows[h.rows.length - 1]); });\n      const rightOk = ok.bad === 0 && (d.known != null ? ok.mep && close(ok.mep.h, d.o.right.v) : close(ok.net, d.o.right.v) && ok.mark == null);\n      return preOk && pickOk && rightOk && d.opts.filter((k) => k !== 'right').every((k) => { const h = drawn(i, wrongSt(k)); return h.bad > 0 && close(h.mark, d.o[k].v) && (d.known != null || h.net == null); });\n    }));\n  K.check('Every demonstration has finished arriving within 5 s of its screen opening, and every pick’s or answer’s motion within 1.3 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; checking = true;\n      S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; checking = false; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => (d.show ? timed(i, blank(), d.dur) && d.dur <= 5 && d.dur >= 3 && (d.cid !== 'squeeze' || timed(i, sqAt(false), d.dur))\n      : timed(i, solvedSt(), FB[0]) && d.opts.every((o) => timed(i, pickSt(o), FB[1]) && (o === 'right' || timed(i, wrongSt(o), FB[1])))));\n    T = keepT; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "The work under a pV curve",
+  "brief": "The one thing you should see is the bars under the falling pV curve, each a pressure times a change in volume, adding up to the rule's 20 kJ, when you slide the bars from 4 to 100.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The integral is interpreted as the area under the pV curve: on every screen with bars, each bar drawn is its pressure times its change in volume, the work total drawn is the sum of those bars, and with many thousands of bars that sum is the area under the curve",
+     "ok": true,
+     "source": "https://phys.libretexts.org/Courses/Georgia_State_University/GSU-TM-Physics_I_(2211)/12%3A_Temperature_and_Heat/12.10%3A_Work_Heat_and_Internal_Energy"
+    },
+    {
+     "label": "The area under the curve given by pVⁿ = C: the rule (p₁V₁ − p₂V₂) ÷ (n − 1) equals the reverse power rule’s area at every n from 1.1 to 2 and every end volume from 0.15 to 0.4 m³, and on the rule screen the 100 bars drawn agree with it to within 0.01 kJ",
+     "ok": true,
+     "source": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus"
+    },
+    {
+     "label": "A polytropic process is one in which pVⁿ is constant: along every curve drawn, pressure times volume to the power n stays at its C, and each end pressure the screens give follows from it (100, 400, 100, 800, 100 and 125 kPa)",
+     "ok": true,
+     "source": "https://engineering.purdue.edu/~wassgren/teaching/ME20000/NotesAndReading/Lec12_LectureNotes.pdf"
+    },
+    {
+     "label": "The area of the pV diagram represents the work done: on the steady screens the rectangle under the flat line, pressure times change in volume, is the total drawn, 200 × 0.2 = 40 kJ and 300 × 0.1 = 30 kJ",
+     "ok": true,
+     "source": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/applied-heat-written-examination-syllabus"
+    },
+    {
+     "label": "Determines the area of an indicator card using the mid-ordinate rule: each bar is read at its middle, and under pV² = 4 the totals drawn go 19.82 kJ for four bars, 19.95 kJ for eight and 20.00 kJ for a hundred, rising with every extra bar towards 20 kJ",
+     "ok": true,
+     "source": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/applied-heat-written-examination-syllabus"
+    },
+    {
+     "label": "We cannot set n = −1 in the fraction 1/(n + 1): the reverse power rule has no answer for the power −1, which pVⁿ = C gives at n = 1, so the n slider stops at 1.1; at every n it allows, V¹⁻ⁿ ÷ (1 − n), differentiated by its slope worked out from the rule, gives back V⁻ⁿ",
+     "ok": true,
+     "source": "https://mathweb.ucsd.edu/~ashenk/Section6_7.pdf"
+    },
+    {
+     "label": "Work done by the gas is positive for expansion and negative for compression: the switch runs the same curve either way, every squeezing bar hatched with a minus width and running back along the lower lane, the total −20 kJ by the rule against +20 kJ; every expansion here gives plus and every squeeze minus",
+     "ok": true,
+     "source": "https://phys.libretexts.org/Courses/Georgia_State_University/GSU-TM-Physics_I_(2211)/12%3A_Temperature_and_Heat/12.10%3A_Work_Heat_and_Internal_Energy"
+    },
+    {
+     "label": "The work done on the system equals the final pressure times the final volume minus the initial pressure times the initial volume, divided by n − 1: the big expansion’s −72 kJ answer is that form, the same size as the gas’s own 72 kJ with the sign turned round",
+     "ok": true,
+     "source": "https://resources.wolframcloud.com/FormulaRepository/resources/Polytropic-Process"
+    },
+    {
+     "label": "A rectangle with the same area over the same change in volume has a height of its area divided by its length along the volume axis: 20 kJ ÷ 0.1 m³ = 200 kPa on the mean effective pressure screen, not the ends’ average of 250 kPa, and 80 kJ ÷ 0.3 m³ = 267 kPa in the puzzle after it",
+     "ok": true
+    },
+    {
+     "label": "The piston sits right above its volume on the diagram: on every screen, at every moment of each demonstration, the piston’s face is at the same volume as the moving dot",
+     "ok": true
+    },
+    {
+     "label": "From the rules, by hand: 200 × 0.2 = 40 kJ (60 kJ the slip); 300 × 0.1 = 30 kJ (45 and 15 the slips); C = 400 × 0.1² = 4, 4 ÷ 0.2² = 100 kPa; the bar from 0.1 to 0.15 m³ is 256 kPa at 0.125 m³, 12.8 kJ (32 the slip); (40 − 20) ÷ 1 = 20 kJ; C = 25.30, 0.4¹·⁵ = 0.253, (80 − 40) ÷ 0.5 = 80 kJ (26.7 the slip); (20 − 40) ÷ 1 = −20 kJ; (40 − 80) ÷ 0.5 = −80 kJ; 200, 250, 267, 450 kPa; (54 − 18) ÷ 0.5 = 72 kJ, 36 ÷ 1.5 = 24; 20 + 15 = 35 kJ, C = 500 × 0.06² = 1.8 and 1.8 ÷ 0.12² = 125 kPa; on the derivation screen 4 × 0.1⁻¹ = 40, 4 × 0.2⁻¹ = 20 and (20 − 40) ÷ (1 − 2) = 20 kJ; and the screens’ words quote these values",
+     "ok": true
+    },
+    {
+     "label": "Every puzzle offers three different answers and accepts only the right one; each answer’s number is the value its slip gives, rounded as shown",
+     "ok": true
+    },
+    {
+     "label": "Before Check no puzzle gives its verdict: nothing red, the working ends in a question mark and the total reads ? (or the work the question gives); a picked answer only marks its own value; a right answer fills in with nothing red; every wrong answer shows its slip in red",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within 5 s of its screen opening, and every pick’s or answer’s motion within 1.3 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "bars",
+    "n",
+    "v2",
+    "squeeze"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "A steady push",
+      "A steady 300 kPa",
+      "Bars under a curve",
+      "One bar",
+      "Where the rule comes from",
+      "The rule",
+      "Using the rule",
+      "Run it backwards",
+      "A squeeze",
+      "Mean effective pressure",
+      "Its mean pressure",
+      "A big expansion",
+      "Flat, then falling"
+     ],
+     "value": 0
+    },
+    {
+     "id": "bars",
+     "kind": "control",
+     "label": "Bars from 0.1 to 0.2 m³",
+     "min": 4,
+     "max": 100,
+     "step": 1,
+     "log": false,
+     "value": 4,
+     "snap": [
+      4,
+      8,
+      100
+     ]
+    },
+    {
+     "id": "n",
+     "kind": "control",
+     "label": "The power n in pVⁿ = C",
+     "min": 1.1,
+     "max": 2,
+     "step": 0.1,
+     "log": false,
+     "value": 2,
+     "snap": [
+      1.1,
+      2
+     ]
+    },
+    {
+     "id": "v2",
+     "kind": "control",
+     "label": "End volume",
+     "min": 0.15,
+     "max": 0.4,
+     "step": 0.01,
+     "log": false,
+     "value": 0.2,
+     "snap": [
+      0.2,
+      0.4
+     ]
+    },
+    {
+     "id": "squeeze",
+     "kind": "toggle",
+     "label": "Run it as a compression",
+     "options": [
+      false,
+      true
+     ],
+     "value": true
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-17T09:24:18.751Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"In a real cylinder the pressure falls as the gas expands\" is too absolute (cylinders also expand at near-steady pressure, as the lesson's own steady stretches show), and the mean effective pressure is defined over an engine's whole cycle, not one expansion."
+   },
+   {
+    "path": "practice.text",
+    "problem": "An indicator card is a closed loop, so the mid-ordinate rule reads the card's height at each strip, not \"the pressure\"; an engine's mean effective pressure is the cycle's net work over the swept volume; and in the cited notes k is the adiabatic value of n, not just another letter."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Calls the 200 kPa height of a single expansion \"the mean effective pressure\" without qualification, though the term is defined over an engine's whole cycle; here it is the steady equivalent pressure for this one stroke."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

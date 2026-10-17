@@ -1,0 +1,443 @@
+{
+  "iid": "i8",
+  "title": "Adding up: the definite integral",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the slivers between bars and curve shrinking as the running total settles on 8 C, what t³ gives from 0 s to 2 s, when you slide the bars from 4 to 100.",
+    "title": "Bars that become an area",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens on bars under a rate graph. Each graph shows a rate against time, a current in amps or a speed in metres per second, drawn from a rule the screen names. Under it stand bars of equal width, each as tall as the rate at one moment, so each bar's area is a rate times a time: amps times seconds is coulombs of charge, and metres per second times seconds is metres. A running total adds the bars up. A slider sets how many bars share the same stretch of time, from 4 to 100, so the bars get thinner as their number grows. The first screen has a steady 3 A for 4 s, one rectangle, 3 × 4 = 12 C. Then the current i = 3t² amps from 0 s to 2 s. Each bar takes the current at its start, so on this rising curve every bar falls short of the curve by a thin sliver, and 4 bars give 5.25 C. More bars miss thinner slivers: 6.56 C at 8 bars, 7.88 C at 100, settling on 8 C. Beside it is the reverse rule from the last lesson: the charge is q = t³ + c, and its value at 2 s take away its value at 0 s, (8 + c) − (0 + c), is 8 C, the number the bars settle on, written ∫₀² 3t² dt. Steps climb its curve, each one bar's charge stacked on the last, so the bars' total is nearly the curve's whole rise. A later screen measures each bar's height at its middle instead: each bar's top then crosses the curve, poking above it on the bar's left half while the curve rises above it on the right half, and the two slivers nearly match, so 4 bars give 7.875 C. Where a current turns negative, flowing back, its graph dips below the axis; those bars hang below it, hatched, and count as minus in the total. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick is shown going wrong on the graph.",
+    "ignores": "The currents and speeds are example rules, chosen so the numbers come out exactly; a real current graph is usually measured, not given by a rule. A current rising as 3t² is not how a capacitor charges from a steady supply through a resistor, where the current is largest at the start and falls away. The reverse rule here is for powers of t; other rates, such as the sine waves of a.c., need reverses of their own, not shown.",
+    "numbers": [
+      {
+        "label": "Example steady current 3 A, in step 1",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example time 4 s, in step 1",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Charge 3 × 4 = 12 C, in step 1",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Example steady speed 5 m/s, in step 2",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example time 6 s, in step 2",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Distance 5 × 6 = 30 m, in step 2",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip height read alone: 5 m, in step 2",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip adding: 5 + 6 = 11 m, in step 2",
+        "value": 11,
+        "kind": "computed"
+      },
+      {
+        "label": "Example current rule i = 3t² amps, in step 3",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example stretch 0 s to 2 s, in step 3",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slider for bars opens at 4, in step 3",
+        "value": 4,
+        "kind": "control"
+      },
+      {
+        "label": "Slider for bars goes up to 100, in step 3",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Bar width 2 ÷ 4 = 0.5 s, in step 3",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Bar heights at starts: 0 A, in step 3",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Bar heights at starts: 0.75 A, in step 3",
+        "value": 0.75,
+        "kind": "computed"
+      },
+      {
+        "label": "Bar heights at starts: 3 A, in step 3",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Bar heights at starts: 6.75 A, in step 3",
+        "value": 6.75,
+        "kind": "computed"
+      },
+      {
+        "label": "4 bars at their starts total 5.25 C, in step 3",
+        "value": 5.25,
+        "kind": "computed"
+      },
+      {
+        "label": "8 bars total 6.56 C, in step 3",
+        "value": 6.56,
+        "kind": "computed"
+      },
+      {
+        "label": "100 bars total 7.88 C, in step 3",
+        "value": 7.88,
+        "kind": "computed"
+      },
+      {
+        "label": "Settled total 8 C, in step 3",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Bar from 1 s to 1.5 s, 3 A high, in step 4",
+        "value": 1.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Its charge 3 × 0.5 = 1.5 C, in step 4",
+        "value": 1.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip adding: 3 + 0.5 = 3.5, in step 4",
+        "value": 3.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Charge rule q = t³ + c, power 3, in step 5",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "(8 + c) − (0 + c) = 8 C, in step 5",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Staircase of 16 bars at their starts, in step 5",
+        "value": 16,
+        "kind": "control"
+      },
+      {
+        "label": "Charge from 1 s to 2 s: 8 − 1 = 7 C, in step 6",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip no start taken away: 8 C, in step 6",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip ends in the current: 12 − 3 = 9, in step 6",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Mid-heights at 0.25, 0.75, 1.25, 1.75 s, in step 7",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "4 bars at mid-height total 7.875 C, in step 7",
+        "value": 7.875,
+        "kind": "computed"
+      },
+      {
+        "label": "Short of 8 C by 0.125 C, in step 7",
+        "value": 0.125,
+        "kind": "computed"
+      },
+      {
+        "label": "Example speed v = t² m/s, 0 s to 6 s, in step 8",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Three bars 2 s wide, middles 1, 3, 5 s, in step 8",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Mid-heights 1, 9, 25 m/s, in step 8",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "Bars total 2 × (1 + 9 + 25) = 70 m, in step 8",
+        "value": 70,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip no width: 35 m, in step 8",
+        "value": 35,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip tallest bar times 6 s: 150 m, in step 8",
+        "value": 150,
+        "kind": "computed"
+      },
+      {
+        "label": "Exact by rule: 216 ÷ 3 = 72 m, in step 8",
+        "value": 72,
+        "kind": "computed"
+      },
+      {
+        "label": "Example current i = 4 − 2t amps, 0 to 3 s, in step 9",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Current turns negative after 2 s, in step 9",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Forwards 4 C, in step 9",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Back 1 C, in step 9",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Net 12 − 9 = 3 C, in step 9",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip back counted plus: 4 + 1 = 5 C, in step 9",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Example current i = 3 − t amps, 0 to 6 s, in step 10",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Net charge 18 − 18 = 0 C, in step 10",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip all counted plus: 9 C, in step 10",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip only the part above: 4.5 C, in step 10",
+        "value": 4.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Example speed v = 2t + 3 m/s, 1 s to 4 s, in step 11",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Distance 28 − 4 = 24 m, in step 11",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip no start taken away: 28 m, in step 11",
+        "value": 28,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip ends in the speed: 11 − 5 = 6 m, in step 11",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Example current i = 2t − 4 amps, 0 to 5 s, in step 12",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Net charge 25 − 20 = 5 C, in step 12",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip all counted plus: 4 + 9 = 13 C, in step 12",
+        "value": 13,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip start minus end: −5 C, in step 12",
+        "value": -5,
+        "kind": "computed"
+      },
+      {
+        "label": "Last lesson's capacitor: 3 C at 0 s",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Its charge gained from 0 s to 4 s: 8 C",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Its charge at 4 s: 3 + 8 = 11 C",
+        "value": 11,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy: example logging every half hour, 0.5 h",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: example current i = 8 − 2t amps",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: example stretch 1 s to 3 s",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: F(3) = 24 − 9 = 15",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: F(1) = 8 − 1 = 7",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: charge 15 − 7 = 8 C",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: mid-height current at 2 s, 4 A",
+        "value": 4,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Adding up a rate over a stretch of time gives the total it delivers: current added up over time is charge, and speed added up over time is distance. You can add it up with bars, and the reverse rule from the last lesson gets the bars' exact total in one subtraction.\n\nWhen a speed holds steady, the distance is the speed times the time, the area of the rectangle under its flat graph.[^1] Any steady rate works the same way: a steady 3 A for 4 s moves 3 × 4 = 12 C, because an amp is a coulomb each second. When the rate changes, no single rectangle fits, so cut the time into narrow bars, take the rate as steady across each one, and add their amounts. That is what an integral is, a quantity described as a sum of many small pieces.[^2] Take a current that rises, i = 3t² amps, from 0 s to 2 s. Cut the 2 s into 4 bars, each 0.5 s wide, and give each bar the current at its start: 0, 0.75, 3 and 6.75 A. Each bar's charge is its current times 0.5 s, and together they make 5.25 C. That is short, because the current keeps rising across each bar while the bar's flat top does not, so each bar misses a thin sliver under the curve. Thinner bars miss thinner slivers: 8 bars give 6.56 C, 100 give 7.88 C, and the total settles on 8 C. Taking each bar's height at its middle gets close much sooner. The bar's top then crosses the curve: on the bar's left half it pokes above the curve, on its right half the curve rises above it, and the two slivers nearly cancel, so 4 bars give 7.875 C. On a straight line the two slivers are the same size, so mid-height bars give the exact total. Your MCA papers call this the [[mid-ordinate rule]]: the Applied Heat syllabus uses it to find the area of an indicator card, an engine's pressure–volume graph.[^3]\n\nNow the reverse rule. Charge is what you get by integrating the current over the time,[^4] and the last lesson gives q = t³ + c. The charge that flows between 0 s and 2 s is the charge at the end take away the charge at the start: (8 + c) − (0 + c) = 8 C, the number the bars settle on. The c cancels, so any c will do.[^5] Here is why the two agree. Each thin bar is the current, how fast the charge grows, times a short time, so it is very nearly how much q rises across that bar. The rise across the first bar, plus the rise across the second, and so on, is the rise from start to end, because each bar picks up where the last left off. Thinner bars make each \"very nearly\" closer, so the bars' total settles on exactly that rise. So instead of adding bars, take the reverse rule's answer, call it F, put in the end time b and the start time a, and subtract: F(b) − F(a).[^6] Adding bars only approximates; the rule gets it at once.[^7] This is a [[definite integral]], an integral with two ends, written ∫₀² 3t² dt = 2³ − 0³ = 8, the small numbers on the ∫ being the start and end.\n\nA current can flow back. Say i = 4 − 2t amps from 0 s to 3 s: it flows forwards until 2 s, then turns negative. A negative current times a time is a negative amount, charge taken away, so bars below the axis count as minus: 4 C forwards, then 1 C back, 3 C in all. Count the 1 C back as plus and you get 5 C, more than ever arrived. The reverse rule does the minus for you: F(t) = 4t − t² is 12 − 9 = 3 at 3 s and 0 at 0 s, so 3 C. A definite integral gives the change, and the new value is the starting value plus the integral of the rate.[^8] The capacitor from the last lesson held 3 C at 0 s with a current of t amps. The reverse rule turns t into 0.5t², so ∫₀⁴ t dt = 0.5 × 16 − 0 = 8, and it held 3 + 8 = 11 C at 4 s, as you found there. You will hear that the integral is the area under the curve, and it is, counting area below the axis as minus. But physics-education researchers found that students who could say so did not necessarily connect the area with the adding up, so they could not use it on new problems.[^9] Under a current graph the area's units are amps times seconds, coulombs: a charge. **Bars under a rate graph add up the amount, rate × time, bar by bar; as they thin, their total settles on F(b) − F(a), the reverse rule's value at the end minus its value at the start,[^7][^6] with bars below the axis counting as minus.**"
+  },
+  "analogy": {
+    "text": "Remember the kWh meter from the first lesson? Log a workshop's load every half hour and take each reading as the load for that half hour: each reading is a bar, kW × 0.5 h of energy, and the day's bars add up to its kWh. Log every few minutes and the total closes in on what the meter says, its evening reading take away its morning one. The meter's reading plays F, and its difference is the exact total the bars are closing in on.",
+    "breaks": "The meter finds the day's total by measuring the energy as it flows, not from a rule. A rate given as a rule needs the reverse rule to find F; a log of readings has no rule to reverse, so adding up bars is all it allows."
+  },
+  "practice": {
+    "text": "- Check the units first: the rate times the time should give the amount you want (amps × seconds = coulombs, metres per second × seconds = metres).\n- If you have the rate as a rule, integrate it term by term with the reverse rule. Leave out the c, because it cancels.\n- Put in the end time, then the start time, and take the second from the first: F(b) − F(a).\n- If you have only a graph, split the time into equal strips, read the rate at the middle of each strip, add those readings and multiply by the strip width: the mid-ordinate rule.[^3]\n- Count parts below the axis as minus. That gives the net change. For the total either way, such as how far a boat went out and back, work out each part's size on its own and add the sizes.\n\n**Rules of thumb:** more, thinner strips get closer. On a straight stretch a mid-height strip is exact. The answer is the change, so to find where the amount ends up, add it to the starting value.[^8]\n\n**Worked example:** Say a current falls steadily, i = 8 − 2t amps, and you want the charge that flows from 1 s to 3 s. The reverse rule gives F(t) = 8t − t². At 3 s, F = 24 − 9 = 15; at 1 s, F = 8 − 1 = 7. The charge is 15 − 7 = 8 C. Check with one mid-height strip: at 2 s the current is 8 − 4 = 4 A, and 4 A × 2 s = 8 C, exact because the graph is straight.\n\n**Where you will meet it:** an HN engineering maths unit applies integration to the area under a velocity time curve, giving distance travelled.[^10]\n\n**Common mistakes**\n- Reading the height as the amount: a current at one moment is not a charge.\n- Adding the heights and forgetting to multiply by the width.\n- Forgetting to take away F(a) when the start is not at 0.\n- Putting the end times into the rate instead of its reverse rule.\n- Taking the end from the start, F(a) − F(b), which flips the sign.\n- Counting parts below the axis as plus when you want the net change."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "5.2 The Definite Integral - Calculus Volume 1 | OpenStax",
+      "url": "https://openstax.org/books/calculus-volume-1/pages/5-2-the-definite-integral",
+      "quote": "When velocity is a constant, the area under the curve is just velocity times time."
+    },
+    {
+      "n": 2,
+      "title": "SYLLABUS, 18.01 FALL 2023 This is an outline of the topics we will study in the course. Part 1: Integrals",
+      "url": "https://math.mit.edu/documents/18.01_syllabus.pdf",
+      "quote": "Integrals: The meaning of integrals and setting up integrals. An integral describes a quantity as a sum of many small pieces."
+    },
+    {
+      "n": 3,
+      "title": "Applied Heat Written Examination Syllabus - GOV.UK",
+      "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/applied-heat-written-examination-syllabus",
+      "quote": "Determines the area of an indicator card using the mid-ordinate rule."
+    },
+    {
+      "n": 4,
+      "title": "1.3: Charge and Current",
+      "url": "https://eng.libretexts.org/@api/deki/pages/98378/pdf/1.3%253A%2bCharge%2band%2bCurrent.pdf",
+      "quote": "can be determined by integrating the current function over the given time interval."
+    },
+    {
+      "n": 5,
+      "title": "5.3 The Fundamental Theorem of Calculus - Calculus Volume 1 | OpenStax",
+      "url": "https://openstax.org/books/calculus-volume-1/pages/5-3-the-fundamental-theorem-of-calculus",
+      "quote": "The reason is that, according to the Fundamental Theorem of Calculus, Part 2, any antiderivative works."
+    },
+    {
+      "n": 6,
+      "title": "5.3 The Fundamental Theorem of Calculus - Calculus Volume 1 | OpenStax",
+      "url": "https://openstax.org/books/calculus-volume-1/pages/5-3-the-fundamental-theorem-of-calculus",
+      "quote": "if we can find an antiderivative for the integrand, then we can evaluate the definite integral by evaluating the antiderivative at the endpoints of the interval and subtracting."
+    },
+    {
+      "n": 7,
+      "title": "5.3 The Fundamental Theorem of Calculus - Calculus Volume 1 | OpenStax",
+      "url": "https://openstax.org/books/calculus-volume-1/pages/5-3-the-fundamental-theorem-of-calculus",
+      "quote": "After finding approximate areas by adding the areas of n rectangles, the application of this theorem is straightforward by comparison."
+    },
+    {
+      "n": 8,
+      "title": "5.4 Integration Formulas and the Net Change Theorem - Calculus Volume 1 | OpenStax",
+      "url": "https://openstax.org/books/calculus-volume-1/pages/5-4-integration-formulas-and-the-net-change-theorem",
+      "quote": "It says that when a quantity changes, the new value equals the initial value plus the integral of the rate of change of that quantity."
+    },
+    {
+      "n": 9,
+      "title": "Students' understanding and application of the area under the curve concept in physics problems | Phys. Rev. ST Phys. Educ. Res.",
+      "url": "https://journals.aps.org/prper/abstract/10.1103/PhysRevSTPER.7.010112",
+      "quote": "Even when students could invoke the area under the curve concept, they did not necessarily understand the relationship between the process of accumulation and the area under a curve, so they failed to apply it to novel situations."
+    },
+    {
+      "n": 10,
+      "title": "national unit specification: general information",
+      "url": "https://www.sqa.org.uk/sqa/files/hn/H7K134.pdf",
+      "quote": "Apply integration to solve problems in Engineering (area under a velocity time curve giving distance travelled, work done by an expanding gas, first and second moments of area, centroids, mean values, root mean square values, etc)"
+    }
+  ]
+}

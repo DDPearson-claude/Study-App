@@ -1,0 +1,71 @@
+{
+  "iid": "i1",
+  "title": "Gradient from two points",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the run and rise arrows changing size and direction while m = rise ÷ run fills in, staying the same along one line, when you drag point A or B.",
+    "title": "Gradient from two points",
+    "controls": [
+      { "id": "step", "label": "Step", "min": 0, "max": 12, "step": 1, "value": 0, "unit": "" }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on a squared grid. Two points, A and B, sit on the grid with a straight line through them, and either can be dragged. They snap to whole-number points so the sums stay easy. Between them is a step triangle. Its run is an arrow straight across from A to the corner below or above B, labelled with its signed size, x₂ − x₁. Its rise is an arrow straight up or down from that corner to B, labelled y₂ − y₁. An arrow pointing right or up is positive and one pointing left or down is negative, because that is the direction the numbers grow on each axis. Above the grid a readout fills in m = (y₂ − y₁) ÷ (x₂ − x₁) with the two points' coordinates in brackets, then the rise ÷ the run, then m. On one screen both points slide along their line, so the triangle grows and shrinks while m stays put, and a small step with a run of 1 shows a rise of m. Dragging B level with A makes the rise 0, so m is 0. Standing B straight above A makes the run 0, and the readout says it cannot divide by 0. Two screens give the axes units, amps across and volts up, or minutes across and litres up. Some screens show an idea and the rest ask you to try it: a puzzle shows two points and three answers, and after Check the triangle and readout fill in, with a one-line hint for a wrong pick.",
+    "ignores": "The points snap to whole numbers, but a line's points need not be whole numbers and the rule is the same. The grid shows a short piece of a line that carries on both ways. The readings and the tank's figures are example values, chosen to sit exactly on a line.",
+    "numbers": [
+      { "label": "Example point A (1, 3), in step 1", "value": 1, "kind": "assumed" },
+      { "label": "Example point B (4, 9), in step 1", "value": 9, "kind": "assumed" },
+      { "label": "Run 4 − 1, in step 1", "value": 3, "kind": "computed" },
+      { "label": "Rise 9 − 3, in step 1", "value": 6, "kind": "computed" },
+      { "label": "m = 6 ÷ 3, in step 1", "value": 2, "kind": "computed" },
+      { "label": "Puzzle (1, 2) to (3, 8): m = 6 ÷ 2, in step 2", "value": 3, "kind": "computed" },
+      { "label": "Slip run over rise, 2 ÷ 6, in step 2", "value": 0.33, "kind": "computed" },
+      { "label": "Points slid to (2, 5) and (3, 7): run 1, rise 2, in step 3", "value": 2, "kind": "computed" },
+      { "label": "Points slid to (0, 1) and (5, 11): 10 ÷ 5, in step 3", "value": 10, "kind": "computed" },
+      { "label": "Same line, run 2 and rise 4, then a run of 3, in step 4", "value": 4, "kind": "assumed" },
+      { "label": "Rise for a run of 3 at 2 per 1, in step 4", "value": 6, "kind": "computed" },
+      { "label": "Falling line A (1, 7), B (4, 1): rise 1 − 7, in step 5", "value": -6, "kind": "computed" },
+      { "label": "m = −6 ÷ 3, in step 5", "value": -2, "kind": "computed" },
+      { "label": "Puzzle (2, 9) to (5, 3): m = −6 ÷ 3, in step 6", "value": -2, "kind": "computed" },
+      { "label": "Slip run over rise, 3 ÷ −6, in step 6", "value": -0.5, "kind": "computed" },
+      { "label": "(−1, −3) to (2, 3): rise 3 − (−3), in step 7", "value": 6, "kind": "computed" },
+      { "label": "Starting from B: 6 ÷ −3 is still −2, in step 7", "value": -3, "kind": "computed" },
+      { "label": "Puzzle (−2, −5) to (1, 4): 9 ÷ 3, in step 8", "value": 3, "kind": "computed" },
+      { "label": "Slip without brackets, (4 − 5) ÷ (1 − 2), in step 8", "value": 1, "kind": "computed" },
+      { "label": "Slip mixed order, 9 ÷ (−2 − 1), in step 8", "value": -3, "kind": "computed" },
+      { "label": "Level line (1, 4) to (5, 4): 0 ÷ 4, in step 9", "value": 0, "kind": "computed" },
+      { "label": "Line straight up (3, 1) to (3, 6): run 0, in step 9", "value": 5, "kind": "computed" },
+      { "label": "Puzzle (4, −1) to (4, 6): rise 7, run 0, in step 10", "value": 7, "kind": "computed" },
+      { "label": "Example reading 10 V at 2 A, in step 11", "value": 10, "kind": "assumed" },
+      { "label": "Example reading 25 V at 5 A, in step 11", "value": 25, "kind": "assumed" },
+      { "label": "Gradient 15 V ÷ 3 A, in volts per amp (ohms), in step 11", "value": 5, "kind": "computed" },
+      { "label": "Example tank 300 litres at 2 minutes, in step 12", "value": 300, "kind": "assumed" },
+      { "label": "Example tank 500 litres at 6 minutes, in step 12", "value": 500, "kind": "assumed" },
+      { "label": "Gradient 200 litres ÷ 4 minutes, in litres per minute, in step 12", "value": 50, "kind": "computed" },
+      { "label": "Slip run over rise, 4 ÷ 200, minutes per litre, in step 12", "value": 0.02, "kind": "computed" },
+      { "label": "Puzzle (−3, 4) to (3, −2): −6 ÷ 6, in step 13", "value": -1, "kind": "computed" },
+      { "label": "Worked example (−2, 7) to (4, −5): −12 ÷ 6", "value": -2, "kind": "computed" }
+    ]
+  },
+  "explain": {
+    "text": "A straight line's [[gradient]], m, is how much y changes for each 1 you go along. To find it from two points on the line, divide the difference in their y-coordinates by the difference in their x-coordinates.[^1] Picture a step triangle between the two points. Its [[run]] is the arrow straight across, x₂ − x₁, and its [[rise]] is the arrow up or down, y₂ − y₁. For A (1, 3) and B (4, 9), the run is 4 − 1 = 3 and the rise is 9 − 3 = 6, so m = 6 ÷ 3 = 2. The line climbs 2 for each 1 along.\n\nAny two points on the same line give the same m. A straight line climbs the same amount for each 1 along wherever you are on it. A run of 3 is three steps of 1, so its rise is three of those climbs, and dividing by 3 gives back the climb for one step. Slide A and B along the line to (2, 5) and (3, 7), and the triangle shrinks to a run of 1 and a rise of 2, which is m itself. The gradient is always a measure of how steep the line is.[^2]\n\nThe arrows' directions give the sign. Going from A to B, the run is positive when B is to the right, and the rise is negative when B is lower. So a line that falls from left to right has a negative gradient. For A (1, 7) and B (4, 1), m = (1 − 7) ÷ (4 − 1) = −6 ÷ 3 = −2. Put brackets round a negative coordinate, because taking away a negative adds. From (−1, −3) to (2, 3), m = (3 − (−3)) ÷ (2 − (−1)) = 6 ÷ 3 = 2. A level line has a rise of 0, so its gradient is 0. A line straight up has a run of 0, and nothing can be divided by 0, so its gradient is undefined.[^3]\n\nOn a real graph the rise and run carry the axes' units, so m is in y's unit per x's unit. For a resistor, a plot of voltage against current is approximately a straight line, and its slope is the resistance.[^5] Resistance is in volts per amp,[^4] so example readings of 10 V at 2 A and 25 V at 5 A give 15 V ÷ 3 A = 5 Ω. When the course's winding readings plot as a line, its gradient is how many ohms the resistance changes for each 1 °C.\n\n**A line's gradient m is the difference in the y-coordinates divided by the difference in the x-coordinates of any two points on it,[^1] so it is the rise for each 1 along.**"
+  },
+  "analogy": {
+    "text": "Say a cable costs the same for every metre. Plot the cost against the length and you get a straight line, and its gradient is the price per metre. Take any two lengths, divide the difference in cost by the difference in length, and you get that same price per metre.",
+    "breaks": "A price only goes up as you buy more, so it never shows a falling line's negative gradient or a line straight up. If a full drum is cheaper per metre, the graph is no longer one straight line."
+  },
+  "practice": {
+    "text": "- Write the rule down first: m = (y₂ − y₁) ÷ (x₂ − x₁).\n- Pick which point is first, and keep it first on top and on the bottom.\n- Put each coordinate in, in brackets.\n- Work out the rise and the run, then divide.\n- Check the sign against a sketch.\n\n**Rule of thumb:** y over x, rise over run.\n\n**Worked example:** (−2, 7) and (4, −5). m = (−5 − 7) ÷ (4 − (−2)) = −12 ÷ 6 = −2. The line falls from left to right, so a negative gradient fits.\n\n**Common mistakes**\n- Putting x on top, run over rise.\n- Losing the minus on a falling line.\n- Dropping the brackets, so 4 − (−2) becomes 4 − 2.\n- Mixing the order, top and bottom.\n- Calling a line straight up 0. Its run is 0, so its gradient is undefined."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    { "n": 1, "title": "Module 3 (M3) - Algebra - Coordinates and graphs - BBC Bitesize", "url": "https://www.bbc.co.uk/bitesize/articles/zjbf9ty", "quote": "To find the gradient of a line joining two points, divide the difference in the y-coordinates by the difference in the x-coordinates" },
+    { "n": 2, "title": "Module 3 (M3) - Algebra - Coordinates and graphs - BBC Bitesize", "url": "https://www.bbc.co.uk/bitesize/articles/zjbf9ty", "quote": "In the equation (y = mx + c), (m) is the gradient of the line. The gradient is a measure of how steep the line is" },
+    { "n": 3, "title": "Determine the gradient of a straight line", "url": "https://www.bbc.co.uk/bitesize/guides/z8383k7/revision/3", "quote": "Vertical lines have a gradient which is undefined; equation x = a" },
+    { "n": 4, "title": "19.1 Ohm's law - Physics | OpenStax", "url": "https://openstax.org/books/physics/pages/19-1-ohms-law", "quote": "The units of resistance are volts per ampere, or V/A." },
+    { "n": 5, "title": "9.4 Ohm's Law - University Physics Volume 2 | OpenStax", "url": "https://openstax.org/books/university-physics-volume-2/pages/9-4-ohms-law", "quote": "A plot is made of the voltage versus the current, and the result is approximately linear. The slope of the line is the resistance, or the voltage divided by the current." }
+  ],
+  "confidence": "settled",
+  "contested": null
+}

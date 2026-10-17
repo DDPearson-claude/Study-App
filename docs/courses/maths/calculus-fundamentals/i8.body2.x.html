@@ -1,0 +1,1034 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 25rem; margin-inline: auto; }
+  .scene .grid { stroke: var(--k-line); stroke-width: 1; }
+  .scene .axis, .scene .mtick { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tick, .scene .aname { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  /* The rate's graph, and the bars under it. */
+  .scene .curve { fill: none; stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .bar { fill: var(--k-fill1); }
+  .scene .bar.edge { stroke: var(--k-accent2); stroke-width: 1.2; }
+  .scene .bar.neg { fill: url(#hatch); }
+  .scene .bar.hi { stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .bar.soft { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .bar.ghost { fill: none; stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 5 4; }
+  .scene .bar.out { stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .sliver { fill: var(--k-fill2); }
+  .scene .sliver.extra { fill: var(--k-fill3); }
+  .scene .area { fill: var(--k-fill1); }
+  .scene .area.neg { fill: url(#hatch); }
+  .scene .area.bad { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }
+  .scene .hbg { fill: var(--k-fill1); }
+  .scene .hln { stroke: var(--k-accent2); stroke-width: 1.6; }
+  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .dot.bad { fill: var(--k-warn); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .drop { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 2 4; }
+  .scene .drop.bad { stroke: var(--k-warn); }
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .brk.bad { stroke: var(--k-warn); stroke-width: 2; }
+  .scene .lvl { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .lift { stroke: var(--k-accent); stroke-width: 3; }
+  .scene .lab { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.soft { font-weight: 400; fill: var(--k-muted); }
+  .scene .lab.bad { fill: var(--k-warn); }
+  .scene .row { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .row.big { font-weight: 700; fill: var(--k-accent2); }
+  .scene .row.soft { font-weight: 400; }
+  .scene .row.bad { fill: var(--k-warn); }
+  .scene .v { font-style: italic; }
+  /* The key, inside the graph. */
+  .scene .sw { stroke: var(--k-strong); stroke-width: 1; }
+  .scene .sw.sliver { fill: var(--k-fill2); }
+  .scene .sw.extra { fill: var(--k-fill3); }
+  .scene .sw.hatch { fill: url(#hatch); stroke: var(--k-accent2); }
+  .scene .keyt { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  /* The running total: the bars laid end to end, plus along the top lane, minus along the lower one. */
+  .scene .track { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }
+  .scene .seg { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.2; }
+  .scene .seg.neg { fill: url(#hatch); }
+  .scene .net { stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .goal { stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 5 4; }
+  .scene .pmark { stroke: var(--k-muted); stroke-width: 3; }
+  .scene .pmark.bad { stroke: var(--k-warn); }
+  .scene .gtitle { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .gval { font: 700 16px var(--k-font); fill: var(--k-accent2); }
+  .scene .glab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .glab.soft { fill: var(--k-muted); }
+  .scene .glab.bad { fill: var(--k-warn); }
+  .scene #art * { pointer-events: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A rate graph, current or speed against time, with bars standing under it; above it, the running total of the bars.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 420" width="100%" role="img" aria-label="">
+      <defs>
+        <pattern id="hatch" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+          <rect class="hbg" x="0" y="0" width="6" height="6"></rect>
+          <line class="hln" x1="1" y1="0" x2="1" y2="6"></line>
+        </pattern>
+      </defs>
+      <g id="art"></g>
+    </svg>
+    <div class="k-controls" id="cb1" hidden></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Every rule is an example; every total is worked out from the rule drawn.</p>
+
+<script>
+  // ---------- numbers ----------
+  const tidy = (v) => { const r = +(+v).toPrecision(10); return Math.abs(r) < 1e-12 ? 0 : r; };
+  const fmtN = (v) => String(tidy(v)).replace('-', '−');
+  const dec = (v, d) => { const p = Math.pow(10, d); return fmtN(Math.round(tidy(v) * p) / p); };
+  // The slope at t, from the rule: a chord 0.0002 wide centred on t, rounded to six places.
+  const HH = 1e-4;
+  const rate = (f, x) => tidy(Math.round((f(x + HH) - f(x - HH)) / (2 * HH) * 1e6) / 1e6);
+
+  // ---------- the rules ----------
+  // A rate is a list of terms [number in front, power]. Its reverse rule F comes from the last
+  // lesson's reverse power rule: k tⁿ becomes k tⁿ⁺¹ ÷ (n + 1).
+  const poly = (terms) => (x) => terms.reduce((s, q) => s + q[0] * (q[1] === 0 ? 1 : Math.pow(x, q[1])), 0);
+  function rev(k, n) { const m = n + 1; return m === 0 ? null : { k: k / m, n: m }; }
+  const integ = (terms) => poly(terms.map((q) => { const r = rev(q[0], q[1]); return [r.k, r.n]; }));
+  const plus = (f, c) => (x) => f(x) + c;
+  const rule = (terms) => ({ f: poly(terms), F: integ(terms), terms });
+  const R = {
+    amp3: rule([[3, 0]]), ms5: rule([[5, 0]]), sq3: rule([[3, 2]]), tsq: rule([[1, 2]]),
+    back: rule([[4, 0], [-2, 1]]), even: rule([[3, 0], [-1, 1]]), boat: rule([[2, 1], [3, 0]]), rev4: rule([[2, 1], [-4, 0]]),
+    cap: rule([[1, 1]]),
+  };
+  // The reverse rule's answer: F at the end take away F at the start.
+  const exact = (r, a, b) => tidy(r.F(b) - r.F(a));
+  // n bars of equal width from a to b, each as tall as the rate at its start (u = 0) or its middle (u = 0.5).
+  function barsOf(f, a, b, n, u) {
+    const w = (b - a) / n, out = [];
+    for (let k = 0; k < n; k++) { const t0 = a + k * w, h = f(t0 + u * w); out.push({ t0, t1: t0 + w, h, amt: h * w }); }
+    return out;
+  }
+  const sumOf = (list) => tidy(list.reduce((s, q) => s + q.amt, 0));
+  const barSum = (f, a, b, n, u) => sumOf(barsOf(f, a, b, n, u));
+
+  const say = (s) => String(s == null ? '' : s).replace(/`/g, '').replace(/÷/g, ' divided by ').replace(/×/g, ' times ').replace(/−/g, ' minus ')
+    .replace(/²/g, ' squared').replace(/³/g, ' cubed').replace(/\+/g, ' plus ').replace(/=/g, ' equals ').replace(/\s+/g, ' ').trim();
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const AI = { yn: '`i`, current in A', xn: '`t`, time in s' };
+  const AS = { yn: '`v`, speed in m/s', xn: '`t`, time in s' };
+  const AQ = { yn: '`q`, charge in C', xn: '`t`, time in s' };
+  const GG = (o, ax) => Object.assign({}, ax, o);
+  const RT = { lab: 'Running total of the bars', unit: 'C', min: 0, max: 10, dec: 2 };
+  const SQ = GG({ who: 'A rising current, `i = 3t²` amps', x: [0, 2, 0.5], y: [0, 12, 3] }, AI);
+  const TXT = {
+    steady: 'A current is a rate: how fast charge flows. One amp is one coulomb each second, so a steady 3 A moves 3 C every second, and in 4 s it moves 3 × 4 = 12 C. On a graph of current against time, that charge is the rectangle under the flat line, 3 A high and 4 s wide. Its area is amps times seconds, which is coulombs. The *running total* above adds it up, second by second.',
+    bars: 'Now the current rises, `i = 3t²` amps from 0 s to 2 s, an example. No single rectangle fits, so cut the time into bars of equal width and take the current as steady across each one, at its value at the bar’s start. Each bar is a current times a time, a charge, and the running total adds them up. Four bars 0.5 s wide stand 0, 0.75, 3 and 6.75 A high and give 5.25 C. That is short: the current keeps rising across each bar while its flat top does not, so each bar misses a thin sliver under the curve. Adding up many thin pieces like this is what an *integral* is. Slide the bars up to 100.',
+    rule: 'Now the reverse rule from the last lesson. The current `3t²` is how fast the charge grows, so the charge is `q = t³ + c`; call that rule F. The charge that flows is F at the end take away F at the start, written F(b) − F(a), with b the end and a the start. From 0 s to 2 s that is (8 + `c`) − (0 + `c`) = 8 C, the number the bars settle on, and the `c` cancels. The two agree because each thin bar is very nearly how much the charge rises across it, and the rises add up to the whole rise. This is a *definite integral*: an integral with two ends.',
+    mid: 'Taking each bar’s height at its middle gets close much sooner. Each top then crosses the curve: on the bar’s left half it pokes above the curve, and on its right half the curve rises above it. The extra and the missed slivers nearly cancel, so 4 bars give 7.875 C. On a straight line the two slivers are the same size, so mid-height bars give the exact total. Textbooks call this the *mid-ordinate rule*.',
+    back: 'A current can flow back. Take `i = 4 − 2t` amps from 0 s to 3 s: it flows forwards until 2 s, then turns negative, and its graph dips below the axis. A negative current times a time is charge taken away, so those bars hang below the axis, hatched, and count as minus: 4 C forwards, then 1 C back, 3 C in all. Count the 1 C back as plus and you get 5 C, more than ever arrived. The reverse rule does the minus for you: `4t − t²` is 12 − 9 = 3 at 3 s and 0 at 0 s.',
+  };
+  const sb4 = barsOf(R.sq3.f, 0, 2, 4, 0);
+  const STEPS = [
+    { show: true, kind: 'steady', name: 'A steady current', g: GG({ who: 'A steady current, `i` = 3 A, for 4 s', x: [0, 4, 1], y: [0, 4, 1] }, AI), r: R.amp3,
+      gauge: { lab: 'Charge so far', unit: 'C', min: 0, max: 16, dec: 2 }, dur: 4.2, rows: 2, text: TXT.steady },
+    { name: 'A steady speed', g: GG({ who: 'A steady speed, `v` = 5 m/s, for 6 s', x: [0, 6, 1], y: [0, 6, 1] }, AS),
+      gauge: { lab: 'Distance', unit: 'm', min: 0, max: 36, dec: 2 }, opts: ['height', 'right', 'add'],
+      task: 'A boat holds a steady 5 m/s for 6 s, an example. How far does it go?',
+      why: 'A steady speed times the time it lasts gives the distance: 5 m/s for 6 s is 5 × 6 = 30 m, the area of the rectangle under the flat graph. The height alone, 5, is a speed: how fast, not how far. Adding 5 + 6 adds metres per second to seconds, which gives nothing you can measure.',
+      hint: 'Not quite. Multiply the speed by the time.',
+      hints: { height: 'Not quite. 5 m/s is how fast it goes. Multiply it by the 6 s.', add: 'Not quite. Multiply the speed by the time; do not add them.' },
+      pre: ['5 m/s for 6 s', 'Distance = ?'], right: ['5 m/s for 6 s', '5 × 6 = 30 m, the rectangle’s area'],
+      amounts: () => [barSum(R.ms5.f, 0, 6, 1, 0)],
+      o: {
+        height: { t: '5 m', v: R.ms5.f(3), rows: ['5 is the speed: how fast, not how far', 'Multiply it by the time, 6 s'] },
+        right: { t: '30 m', v: barSum(R.ms5.f, 0, 6, 1, 0) },
+        add: { t: '11 m', v: 5 + 6, rows: ['5 + 6 adds a speed to a time', 'Multiply them: the rectangle’s area'] },
+      },
+      scene: (s) => {
+        if (s.k === 'right') rectA(0, 6, 5, 'area', s.a);
+        curve(R.ms5.f, '', 1);
+        queue(1, [{ x: X(6) - 4, y: Y(5) - 10, text: '`v` = 5 m/s', anchor: 'end' }]);
+        if (s.k === 'right') queue(s.a, [{ x: X(3), y: Y(2.5) + 5, text: '5 m/s × 6 s' }]);
+        if (s.k === 'height' || s.k === 'add') vbr(6, 0, 5, s.k === 'height' ? '5 m/s: a speed' : '5', true, s.a, 'left');
+        if (s.k === 'add') { hbr(0, 6, 0.6, '6 s', true, s.a); queue(s.a, [{ x: X(3), y: Y(3), text: '5 + 6 adds a speed to a time', cls: 'bad' }]); }
+      } },
+    { show: true, kind: 'bars', name: 'Thinner bars', g: SQ, r: R.sq3, a: 0, b: 2, cid: 'n', gauge: RT,
+      key: { items: [{ sw: 'sliver', text: 'missed slivers' }], x: 60, v: 11 }, dur: 4.6, rows: 3,
+      ctour: { v0: 4, log: true, legs: [{ to: 8, t: 0.9, len: 0.8 }, { to: 100, t: 2.4, len: 1.6 }] },
+      rowsAt: (n) => {
+        const list = barsOf(R.sq3.f, 0, 2, n, 0);
+        return [{ s: n + ' bars, each 2 ÷ ' + n + ' = ' + dec(2 / n, 3) + ' s wide', soft: true },
+          n === 4 ? { s: 'Heights at their starts: ' + list.map((q) => dec(q.h, 2)).join(', ') + ' A', soft: true } : { s: 'Thinner bars miss thinner slivers', soft: true },
+          { s: n === 4 ? 'Each bar misses a sliver: the total falls short' : n >= 100 ? 'The slivers have all but gone' : 'The total closes in on 8 C', big: true }];
+      },
+      text: TXT.bars },
+    { name: 'One bar', g: SQ, gauge: { lab: 'Charge in that bar', unit: 'C', min: 0, max: 4, dec: 2 }, opts: ['height', 'add', 'right'],
+      task: 'Each bar stands for a current times a time. The bar from 1 s to 1.5 s is 3 A high. How much charge does it stand for?',
+      why: 'A bar is a current held for a short time, so its charge is its height times its width: 3 A for 0.5 s is 3 × 0.5 = 1.5 C, the bar’s area. Its height alone, 3 A, is how fast charge flows at that moment, not how much has flowed. Adding 3 + 0.5 mixes amps and seconds.',
+      hint: 'Not quite. Multiply the bar’s height by its width.',
+      hints: { height: 'Not quite. 3 A is how fast the charge flows. Multiply it by the 0.5 s.', add: 'Not quite. Multiply the height by the width; do not add them.' },
+      pre: ['3 A high, 0.5 s wide', 'Its charge = ?'], right: ['3 A high, 0.5 s wide', '3 × 0.5 = 1.5 C, the bar’s area'],
+      amounts: () => [sb4[2].amt],
+      o: {
+        height: { t: '3 C', v: sb4[2].h, rows: ['3 A is how fast charge flows, not how much', 'Multiply it by the bar’s width, 0.5 s'] },
+        add: { t: '3.5 C', v: sb4[2].h + (sb4[2].t1 - sb4[2].t0), rows: ['3 + 0.5 adds amps to seconds', 'Multiply them: 3 A for 0.5 s'] },
+        right: { t: '1.5 C', v: sb4[2].amt },
+      },
+      scene: (s) => {
+        sb4.forEach((q, j) => drawBar(q, j === 2 ? 'hi' : 'soft', 1));
+        curve(R.sq3.f, '', 1);
+        vbr(1, 0, 3, '3 A', s.k === 'height' || s.k === 'add', 1, 'left');
+        hbr(1, 1.5, 0.9, '0.5 s', s.k === 'add', 1);
+        if (s.k === 'height') queue(s.a, [{ x: X(0.05), y: Y(10), text: '3 A is a current, not a charge', cls: 'bad', anchor: 'start' }]);
+        if (s.k === 'add') queue(s.a, [{ x: X(0.05), y: Y(10), text: '3 + 0.5 adds amps to seconds', cls: 'bad', anchor: 'start' }]);
+      } },
+    { show: true, kind: 'rule', name: 'The reverse rule', g: GG({ who: 'The reverse rule, F: `q = t³ + c` coulombs', x: [0, 2, 0.5], y: [0, 12, 3] }, AQ), r: R.sq3,
+      dur: 3.6, rows: 4, ctour: { v0: 0, legs: [{ to: 3, t: 1.2, len: 1.4 }] }, text: TXT.rule },
+    { name: 'From 1 s to 2 s', g: GG({ who: 'The current `i = 3t²` amps, from 1 s to 2 s', x: [0, 2, 0.5], y: [0, 12, 3] }, AI),
+      gauge: { lab: 'Charge from 1 s to 2 s', unit: 'C', min: 0, max: 10, dec: 2 }, opts: ['nostart', 'right', 'rate'],
+      task: 'The same current, `i = 3t²` amps, with the reverse rule `q = t³ + c`. How much charge flows from 1 s to 2 s?',
+      why: 'Put the end time, then the start time, into the reverse rule and subtract: F(2) − F(1) = 8 − 1 = 7 C. 8 C is the charge from 0 s, which counts the first second too. 12 − 3 = 9 puts the times into the current, `3t²`, instead of its reverse rule, `t³`.',
+      hint: 'Not quite. Put both times into `t³` and take the start from the end.',
+      hints: { nostart: 'Not quite. 8 C counts from 0 s. Take away F(1), the charge by 1 s.', rate: 'Not quite. 12 and 3 are currents. Put the times into `t³` instead.' },
+      pre: ['From 1 s to 2 s, under `3t²`', 'The charge = ?'], right: ['F = `t³`: F(2) = 8, F(1) = 1', 'F(2) − F(1) = 8 − 1 = 7 C'],
+      amounts: () => [exact(R.sq3, 1, 2)],
+      o: {
+        nostart: { t: '8 C', v: R.sq3.F(2), rows: ['8 C is F(2) alone: it counts from 0 s', 'Take away F(1), the charge by 1 s'] },
+        right: { t: '7 C', v: exact(R.sq3, 1, 2) },
+        rate: { t: '9 C', v: R.sq3.f(2) - R.sq3.f(1), rows: ['12 − 3 uses the current itself', 'Put the times into `t³`, not `3t²`'] },
+      },
+      scene: (s) => {
+        areaOf(R.sq3.f, 1, 2, '', 1);
+        if (s.k === 'nostart') { areaOf(R.sq3.f, 0, 1, 'bad', s.a); queue(s.a, [{ x: X(0.05), y: Y(9), text: '0 s to 1 s counted too', cls: 'bad', anchor: 'start' }]); }
+        curve(R.sq3.f, '', 1);
+        if (s.k === 'rate') {
+          guide(1, R.sq3.f(1), '3 A', s.a, true); guide(2, R.sq3.f(2), '12 A', s.a, true);
+          queue(s.a, [{ x: X(0.05), y: Y(9), text: '12 − 3 uses the current itself', cls: 'bad', anchor: 'start' }]);
+        }
+      } },
+    { show: true, kind: 'mid', name: 'Mid-height bars', g: SQ, r: R.sq3, a: 0, b: 2, gauge: Object.assign({}, RT, { dec: 3 }),
+      key: { items: [{ sw: 'extra', text: 'extra: above the curve' }, { sw: 'sliver', text: 'missed: under the curve' }], x: 60, v: 11 },
+      dur: 3.4, rows: 3, utour: { v0: 0, legs: [{ to: 0.5, t: 0.8, len: 1.8 }] },
+      rowsAt: (u) => {
+        if (u < 0.25) return [{ s: 'Heights read at the bars’ starts', soft: true }, { s: 'Each bar misses a sliver under the curve', soft: true }];
+        const list = barsOf(R.sq3.f, 0, 2, 4, 0.5);
+        return [{ s: 'Heights read at ' + list.map((q) => fmtN(q.t0 + 0.5 * (q.t1 - q.t0))).join(', ') + ' s', soft: true },
+          { s: 'Extra and missed slivers nearly cancel', soft: true },
+          { s: 'Short of 8 C by only ' + dec(exact(R.sq3, 0, 2) - sumOf(list), 3) + ' C', big: true }];
+      },
+      text: TXT.mid },
+    { name: 'Three mid-height bars', g: GG({ who: 'A speed, `v = t²` m/s, from 0 s to 6 s', x: [0, 6, 1], y: [0, 40, 10] }, AS),
+      gauge: { lab: 'Running total of the bars', unit: 'm', min: 0, max: 160, dec: 2 }, opts: ['nowidth', 'right', 'tall'],
+      goal: [exact(R.tsq, 0, 6), 'exact: 72 m'],
+      task: 'Three mid-height bars, each 2 s wide, stand under an example speed, `v = t²` m/s, from 0 s to 6 s. How far do the bars say the boat goes?',
+      why: 'Each bar is its mid-height times its width, 2 s, so the bars give 2 × (1 + 9 + 25) = 70 m. The reverse rule gives the exact distance, `t³ ÷ 3` at 6 s take away at 0 s, 216 ÷ 3 = 72 m, so three wide bars already land close. Adding the heights alone forgets the width; the tallest bar for all 6 s counts the boat at its later speed the whole way.',
+      hint: 'Not quite. Multiply each height by the bar’s width, then add.',
+      hints: { nowidth: 'Not quite. Those are speeds. Multiply each by the bar’s width, 2 s.', tall: 'Not quite. The boat is slower before 4 s. Add the three bars.' },
+      pre: ['Bars 2 s wide, middles at 1, 3, 5 s', 'Mid-heights 1, 9, 25 m/s', 'Distance = ?'],
+      right: ['Each bar: its height × 2 s', '2 × (1 + 9 + 25) = 70 m', 'Exact, by the reverse rule: 216 ÷ 3 = 72 m'],
+      amounts: () => barsOf(R.tsq.f, 0, 6, 3, 0.5).map((q) => q.amt),
+      o: {
+        nowidth: { t: '35 m', v: barsOf(R.tsq.f, 0, 6, 3, 0.5).reduce((s, q) => s + q.h, 0), rows: ['1 + 9 + 25 = 35 adds the heights alone', 'Each bar is 2 s wide: multiply by 2'] },
+        right: { t: '70 m', v: barSum(R.tsq.f, 0, 6, 3, 0.5) },
+        tall: { t: '150 m', v: R.tsq.f(5) * 6, rows: ['25 × 6 = 150 takes the tallest bar for 6 s', 'Add the three bars, each 2 s wide'] },
+      },
+      scene: (s) => {
+        const list = barsOf(R.tsq.f, 0, 6, 3, 0.5);
+        list.forEach((q) => drawBar(q, '', 1));
+        if (s.k === 'tall') { rectA(0, 6, 25, 'area bad', s.a); queue(s.a, [{ x: X(0.15), y: Y(25) - 10, text: '25 m/s for all 6 s', cls: 'bad', anchor: 'start' }]); }
+        curve(R.tsq.f, '', 1);
+        list.forEach((q) => { const m = (q.t0 + q.t1) / 2; dotAt(m, q.h, 1); queue(1, [{ x: X(m) - 8, y: Y(q.h) - 8, text: fmtN(q.h), anchor: 'end' }]); });
+        if (s.k === 'nowidth') queue(s.a, [{ x: X(0.15), y: Y(34), text: '1 + 9 + 25: heights, no width', cls: 'bad', anchor: 'start' }]);
+      } },
+    { show: true, kind: 'back', name: 'Below the axis', g: GG({ who: 'A current that turns back, `i = 4 − 2t` amps', x: [0, 3, 0.5], y: [-3, 5, 1] }, AI), r: R.back, a: 0, b: 3,
+      gauge: { lab: 'Running total of the bars', unit: 'C', min: 0, max: 5, dec: 2, neg: true }, key: { items: [{ sw: 'hatch', text: 'counts as minus' }], x: 60, v: -1.6 },
+      dur: 4.8, rows: 3, text: TXT.back },
+    { name: 'Back to nothing', g: GG({ who: 'The current `i = 3 − t` amps, from 0 s to 6 s', x: [0, 6, 1], y: [-4, 4, 2] }, AI),
+      gauge: { lab: 'Net charge', unit: 'C', min: 0, max: 10, dec: 2, neg: true }, key: { items: [{ sw: 'hatch', text: 'counts as minus' }], x: 60, v: -2.2 }, opts: ['right', 'allplus', 'above'],
+      task: 'An example current, `i = 3 − t` amps, flows forwards for 3 s, then back for 3 s. What is the net charge from 0 s to 6 s?',
+      why: 'The bars above the axis add 4.5 C and the bars below take 4.5 C away, so the net charge is 0 C: as much flowed back as flowed forwards. The reverse rule agrees: `3t − t² ÷ 2` is 18 − 18 = 0 at 6 s, and 0 at 0 s. 9 C counts the charge going back as plus; 4.5 C leaves it out.',
+      hint: 'Not quite. Count the bars below the axis as minus.',
+      hints: { allplus: 'Not quite. The charge going back counts as minus, not plus.', above: 'Not quite. The bars below the axis count too, as minus.' },
+      pre: ['Forwards for 3 s, then back for 3 s', 'Net charge = ?'], right: ['Forwards 4.5 C; back 4.5 C, as minus', 'Reverse rule `3t − t² ÷ 2`: 18 − 18 = 0 C'],
+      amounts: () => barsOf(R.even.f, 0, 6, 6, 0.5).map((q) => q.amt),
+      o: {
+        right: { t: '0 C', v: barSum(R.even.f, 0, 6, 6, 0.5) },
+        allplus: { t: '9 C', v: tidy(barsOf(R.even.f, 0, 6, 6, 0.5).reduce((s, q) => s + Math.abs(q.amt), 0)), rows: ['9 C counts the charge going back as plus', 'Bars below the axis count as minus'] },
+        above: { t: '4.5 C', v: tidy(barsOf(R.even.f, 0, 6, 6, 0.5).reduce((s, q) => s + Math.max(0, q.amt), 0)), rows: ['4.5 C leaves out the charge going back', 'Count the bars below as minus'] },
+      },
+      scene: (s) => {
+        const list = barsOf(R.even.f, 0, 6, 6, 0.5);
+        list.forEach((q) => drawBar(q, s.k === 'above' && q.h < 0 ? 'out' : '', 1));
+        if (s.k === 'allplus') list.filter((q) => q.h < 0).forEach((q) => drawBar(Object.assign({}, q, { h: -q.h, amt: -q.amt }), 'ghost', s.a));
+        curve(R.even.f, '', 1);
+        if (s.k === 'allplus') queue(s.a, [{ x: X(4.5), y: Y(3.3), text: 'back counted as plus', cls: 'bad' }]);
+        if (s.k === 'above') queue(s.a, [{ x: X(4.5), y: Y(-3.4), text: 'left out', cls: 'bad' }]);
+      } },
+    { name: 'From 1 s to 4 s', g: GG({ who: 'A speed, `v = 2t + 3` m/s, from 1 s to 4 s', x: [0, 4, 1], y: [0, 12, 3] }, AS),
+      gauge: { lab: 'Distance from 1 s to 4 s', unit: 'm', min: 0, max: 30, dec: 2 }, opts: ['nostart', 'rate', 'right'],
+      task: 'An example speed, `v = 2t + 3` m/s. How far does the boat go from 1 s to 4 s?',
+      why: 'Reverse the speed term by term: `2t + 3` becomes `t² + 3t`. At 4 s that is 16 + 12 = 28, and at 1 s it is 1 + 3 = 4, so the boat goes 28 − 4 = 24 m. 28 m is the distance from 0 s, which counts the first second too. 11 − 5 = 6 puts the times into the speed instead of its reverse rule.',
+      hint: 'Not quite. Reverse the speed, then take its start value from its end value.',
+      hints: { nostart: 'Not quite. 28 m counts from 0 s. Take away the rule’s value at 1 s.', rate: 'Not quite. 11 and 5 are speeds. Put the times into `t² + 3t`.' },
+      pre: ['From 1 s to 4 s, under `2t + 3`', 'Distance = ?'], right: ['Reverse rule: `t² + 3t`', 'At 4 s: 28; at 1 s: 4', '28 − 4 = 24 m'],
+      amounts: () => [exact(R.boat, 1, 4)],
+      o: {
+        nostart: { t: '28 m', v: R.boat.F(4), rows: ['28 m is the rule at 4 s alone, from 0 s', 'Take away its value at 1 s, 4'] },
+        rate: { t: '6 m', v: R.boat.f(4) - R.boat.f(1), rows: ['11 − 5 uses the speed itself', 'Put the times into `t² + 3t` instead'] },
+        right: { t: '24 m', v: exact(R.boat, 1, 4) },
+      },
+      scene: (s) => {
+        areaOf(R.boat.f, 1, 4, '', 1);
+        if (s.k === 'nostart') { areaOf(R.boat.f, 0, 1, 'bad', s.a); queue(s.a, [{ x: X(0.1), y: Y(10), text: '0 s to 1 s counted too', cls: 'bad', anchor: 'start' }]); }
+        curve(R.boat.f, '', 1);
+        if (s.k === 'rate') {
+          guide(1, R.boat.f(1), '5 m/s', s.a, true); guide(4, R.boat.f(4), '11 m/s', s.a, true);
+          queue(s.a, [{ x: X(0.1), y: Y(10.5), text: '11 − 5 uses the speed itself', cls: 'bad', anchor: 'start' }]);
+        }
+      } },
+    { name: 'Net charge, 0 s to 5 s', g: GG({ who: 'The current `i = 2t − 4` amps, from 0 s to 5 s', x: [0, 5, 1], y: [-6, 6, 2] }, AI),
+      gauge: { lab: 'Net charge', unit: 'C', min: -6, max: 14, dec: 2, neg: true }, key: { items: [{ sw: 'hatch', text: 'counts as minus' }], x: X0(2.4, [0, 5]), v: -3.5 }, opts: ['allplus', 'right', 'flip'],
+      task: 'An example current, `i = 2t − 4` amps, flows back until 2 s, then forwards. What is the net charge from 0 s to 5 s?',
+      why: 'The part below the axis, from 0 s to 2 s, is 4 C back; the part above, from 2 s to 5 s, is 9 C forwards; net, 9 − 4 = 5 C. The reverse rule does it at once: `t² − 4t` is 25 − 20 = 5 at 5 s and 0 at 0 s. 13 C counts the charge going back as plus. −5 C takes the end from the start, which flips the sign.',
+      hint: 'Not quite. Reverse the current, then take its start value from its end value.',
+      hints: { allplus: 'Not quite. The part below the axis counts as minus.', flip: 'Not quite. Take the start from the end, not the end from the start.' },
+      pre: ['Back until 2 s, then forwards', 'Net charge = ?'], right: ['Back 4 C, then forwards 9 C', 'Reverse rule `t² − 4t`: 25 − 20 = 5 C'],
+      amounts: () => [exact(R.rev4, 0, 2), exact(R.rev4, 2, 5)],
+      o: {
+        allplus: { t: '13 C', v: tidy(Math.abs(exact(R.rev4, 0, 2)) + exact(R.rev4, 2, 5)), rows: ['4 + 9 = 13 counts the 4 C back as plus', 'Below the axis counts as minus'] },
+        right: { t: '5 C', v: exact(R.rev4, 0, 5) },
+        flip: { t: '−5 C', v: tidy(R.rev4.F(0) - R.rev4.F(5)), rows: ['−5 C takes the end from the start', 'Do F at the end minus F at the start'] },
+      },
+      scene: (s) => {
+        areaOf(R.rev4.f, 0, 5, '', 1);
+        if (s.k === 'allplus') { areaOf((t) => -R.rev4.f(t), 0, 2, 'bad', s.a); queue(s.a, [{ x: X(1.2), y: Y(4.8), text: 'back counted as plus', cls: 'bad', anchor: 'start' }]); }
+        curve(R.rev4.f, '', 1);
+        if (s.k === 'flip') queue(s.a, [{ x: X(0.1), y: Y(5), text: 'start take away end: sign flipped', cls: 'bad', anchor: 'start' }]);
+      } },
+  ];
+  // Where a time sits across the graph, before any graph is drawn (for a key's position).
+  function X0(v, xr) { return 52 + (v - xr[0]) / (xr[1] - xr[0]) * 266; }
+  STEPS.forEach((d) => { if (!d.show) d.rows = Math.max(d.pre.length, d.right.length, 1 + Math.max.apply(null, d.opts.filter((k) => k !== 'right').map((k) => d.o[k].rows.length))); });
+  const FINISH = 'Bars under a rate graph add up rate × time, bar by bar; as they thin, their total settles on F(b) − F(a), the reverse rule at the end minus at the start, with bars below the axis counting as minus.';
+  // The lesson's sources the checks restate.
+  const SRC = {
+    area: 'https://openstax.org/books/calculus-volume-1/pages/5-2-the-definite-integral',
+    mit: 'https://math.mit.edu/documents/18.01_syllabus.pdf',
+    charge: 'https://eng.libretexts.org/@api/deki/pages/98378/pdf/1.3%253A%2bCharge%2band%2bCurrent.pdf',
+    ftc: 'https://openstax.org/books/calculus-volume-1/pages/5-3-the-fundamental-theorem-of-calculus',
+    net: 'https://openstax.org/books/calculus-volume-1/pages/5-4-integration-formulas-and-the-net-change-theorem',
+    hn: 'https://www.sqa.org.uk/sqa/files/hn/H7K134.pdf',
+  };
+  const FB = [1.3, 1.2];
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // c: where Dan has set the slider for the number of bars.
+  function blank() { return { pick: null, res: null, why: false, c: null }; }
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;   // T: seconds into the current motion
+  let REC = null, checking = false, lastCV = 4;
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z/])[tqvic](?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'mark' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+  const el = (id) => document.getElementById(id);
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+    play(FB[1]);
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === 'right' ? 'right' : 'wrong';
+    play(st.res === 'right' ? FB[0] : FB[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    S[at()].c = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  // The slider for the number of bars: shown on its own screen.
+  const NC = K.control({ id: 'n', label: 'Bars from 0 s to 2 s', min: 4, max: 100, step: 1, value: 4, snap: [4, 8, 100], fmt: (v) => v + ' bars', into: '#cb1' });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art');
+  let into = null, AV = [], LQ = [], g = null;   // AV: lines and shapes labels keep clear of; LQ: labels waiting; g: the axes drawn
+  const add = (node) => (into || art).appendChild(node);
+  let latest = 0;
+  const note = (t) => { if (t > latest) latest = t; };
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0 + d); return K.arrive(T, t0, d); }
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const grp = add(K.svg('g'));
+    K.fade(grp, a, rise);
+    const keep = into; into = grp; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r }));
+  const path = (cls, dd) => add(K.svg('path', { class: cls, d: dd }));
+  const rect = (cls, x, y, w, h) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)) }));
+  // Text in the drawing: letters inside backticks are the rule's letters, set in italics.
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    String(s).split('`').forEach((seg, k) => { if (!seg) return; if (k % 2) italics(t, seg, true); else t.appendChild(document.createTextNode(seg)); });
+    return add(t);
+  }
+  // A line of text kept inside its room: shrunk (never under 12) when it would run past it.
+  function fit(t, room, size) {
+    try { const w = t.getComputedTextLength(); if (w > room) t.style.fontSize = Math.max(12, Math.floor(size * room / w * 10) / 10) + 'px'; } catch (e) { /* measured again next paint */ }
+  }
+  // Labels wait in LQ and are placed last (K.labels), clear of every line, shape and label drawn.
+  const queue = (a, items) => { items = items.filter((it) => it.text); if (a > 0 && items.length) LQ.push({ a, items }); };
+  function flushLabels() {
+    const list = LQ; LQ = [];
+    list.forEach((q) => part(q.a, 4, () => {
+      const ts = K.labels(into, q.items.map((it) => ({ x: r3(it.x), y: r3(it.y), text: it.text.replace(/`/g, ''), anchor: it.anchor || 'middle', class: 'lab' + (it.cls ? ' ' + it.cls : '') })), { avoid: AV });
+      ts.forEach((t) => { REC.labs.push(t.textContent); if (/\bbad\b/.test(t.getAttribute('class') || '')) REC.bad++; });
+    }));
+  }
+
+  // ---------- the graph ----------
+  const PL = 52, PR = 318, GH = 150;
+  let GT = 136, GB = GT + GH, ROW0 = GB + 62;
+  const X = (v) => PL + (v - g.x[0]) / (g.x[1] - g.x[0]) * (PR - PL);
+  const Y = (v) => GB - (v - g.y[0]) / (g.y[1] - g.y[0]) * GH;
+  // Gridlines, the time axis at zero current, the rate's axis on the left, numbers and names.
+  function frame() {
+    for (let j = 0, v = g.y[0]; v <= g.y[1] + 1e-9; j++, v = g.y[0] + j * g.y[2]) {
+      const y = Y(v);
+      if (v > g.y[0] + 1e-9 && Math.abs(v) > 1e-9) line('grid', PL, y, PR, y);
+      text(PL - 7, y + 4.5, fmtN(v), 'tick', 'end');
+    }
+    const y0 = Y(Math.max(g.y[0], 0));
+    for (let j = 0, v = g.x[0]; v <= g.x[1] + 1e-9; j++, v = g.x[0] + j * g.x[2]) {
+      const x = X(v);
+      if (v > g.x[0] + 1e-9) line('grid', x, GT, x, GB);
+      line('mtick', x, y0, x, y0 + 5);
+      text(x, GB + 17, fmtN(v), 'tick');
+    }
+    if (g.y[0] < -1e-9) line('grid', PL, GB, PR, GB);
+    AV.push(line('axis', PL, y0, PR + 6, y0), line('axis', PL, GT - 6, PL, GB));
+    text(12, GT - 16, g.yn, 'aname', 'start');
+    text(PR + 8, GB + 35, g.xn, 'aname', 'end');
+  }
+  // A curve, cut where it leaves the graph.
+  function pathOf(f, lo, hi) {
+    lo = lo == null ? g.x[0] : lo; hi = hi == null ? g.x[1] : hi;
+    const n = 160, y0 = g.y[0], y1 = g.y[1];
+    let s = '', on = false, px = null, pv = null;
+    for (let j = 0; j <= n; j++) {
+      const x = lo + (hi - lo) * j / n, v = f(x), inside = v >= y0 && v <= y1;
+      if (inside) {
+        if (!on && pv != null) { const e = pv < y0 ? y0 : y1, xe = px + (x - px) * (e - pv) / (v - pv); s += ' M' + r3(X(xe)) + ' ' + r3(Y(e)); on = true; }
+        s += (on ? ' L' : ' M') + r3(X(x)) + ' ' + r3(Y(v)); on = true;
+      } else if (on) { const e = v < y0 ? y0 : y1, xe = px + (x - px) * (e - pv) / (v - pv); s += ' L' + r3(X(xe)) + ' ' + r3(Y(e)); on = false; }
+      px = x; pv = v;
+    }
+    return s.trim();
+  }
+  function curve(f, cls, a) {
+    a = a == null ? 1 : a;
+    if (a <= 0) return;
+    const dd = pathOf(f);
+    if (dd) part(a, 0, () => AV.push(path('curve' + (cls ? ' ' + cls : ''), dd)));
+  }
+  // One bar: from the time axis up (or down) to its height, hatched below the axis.
+  function drawBar(q, cls, al) {
+    if (al <= 0) return;
+    const x0 = X(q.t0), x1 = X(q.t1), y0 = Y(0), y1 = Y(q.h), w = x1 - x0, ghost = /ghost/.test(cls || ''), neg = q.h < 0 && !ghost;
+    const c = 'bar' + (neg ? ' neg' : '') + (w >= 5 ? ' edge' : '') + (cls ? ' ' + cls : '');
+    if (Math.abs(y1 - y0) > 0.01) part(al, 0, () => { const r = rect(c, x0, Math.min(y0, y1), w, Math.abs(y1 - y0)); if (ghost) AV.push(r); });
+    if (neg) REC.hatched++;
+    if (/ghost|out/.test(cls || '')) REC.bad++;
+    if (!ghost) REC.bars.push({ t0: q.t0, t1: q.t1, h: q.h, amt: q.amt, neg, cls: cls || '' });
+  }
+  // The slivers between a rising curve and the bars' flat tops: where a top pokes above the curve
+  // (extra) and where the curve rises above it (missed). Their sizes come from the reverse rule.
+  function slivers(r, list, u) {
+    let ex = '', mi = '', exA = 0, miA = 0;
+    const m = Math.max(2, Math.ceil(48 / list.length));
+    list.forEach((q) => {
+      const s = q.t0 + u * (q.t1 - q.t0), top = Y(q.h);
+      const seg = (t0, t1) => {
+        if (t1 - t0 < 1e-9) return '';
+        let dd = 'M' + r3(X(t0)) + ' ' + r3(top);
+        for (let j = 0; j <= m; j++) { const t = t0 + (t1 - t0) * j / m; dd += ' L' + r3(X(t)) + ' ' + r3(Y(r.f(t))); }
+        return dd + ' L' + r3(X(t1)) + ' ' + r3(top) + ' Z ';
+      };
+      ex += seg(q.t0, s); mi += seg(s, q.t1);
+      exA += q.h * (s - q.t0) - (r.F(s) - r.F(q.t0));
+      miA += (r.F(q.t1) - r.F(s)) - q.h * (q.t1 - s);
+    });
+    if (ex) path('sliver extra', ex.trim());
+    if (mi) path('sliver', mi.trim());
+    REC.sliv = { extra: tidy(exA), missed: tidy(miA) };
+  }
+  // The exact area between a rate and the time axis: plain above the axis, hatched below.
+  function areaOf(f, a, b, cls, al) {
+    if (al <= 0) return;
+    const pts = K.linspace(a, b, 121);
+    const shape = (fn) => 'M' + r3(X(a)) + ' ' + r3(Y(0)) + pts.map((t) => ' L' + r3(X(t)) + ' ' + r3(Y(fn(t)))).join('') + ' L' + r3(X(b)) + ' ' + r3(Y(0)) + ' Z';
+    if (cls === 'bad') { part(al, 0, () => AV.push(path('area bad', shape(f)))); REC.bad++; return; }
+    if (pts.some((t) => f(t) > 1e-9)) part(al, 0, () => path('area', shape((t) => Math.max(0, f(t)))));
+    if (pts.some((t) => f(t) < -1e-9)) part(al, 0, () => path('area neg', shape((t) => Math.min(0, f(t)))));
+  }
+  function rectA(x0, x1, h, cls, al) {
+    if (al <= 0) return;
+    const bad = /bad/.test(cls);
+    part(al, 0, () => { const r = rect(cls, X(x0), Math.min(Y(h), Y(0)), X(x1) - X(x0), Math.abs(Y(0) - Y(h))); if (bad) AV.push(r); });
+    if (bad) REC.bad++;
+  }
+  function dotAt(x, y, a, bad) {
+    if (a <= 0) return;
+    part(a, 0, () => AV.push(circle(bad ? 'dot bad' : 'pt', X(x), Y(y), 5)));
+  }
+  // A value read off the curve: a dotted line up from the time axis to a dot, and its label.
+  function guide(x, v, label, a, bad) {
+    if (a <= 0) return;
+    const px = X(x), py = Y(v), right = px > 230;
+    part(a, 0, () => { AV.push(line('drop' + (bad ? ' bad' : ''), px, Y(0), px, py + 7)); AV.push(circle(bad ? 'dot bad' : 'pt', px, py, 5.5)); });
+    if (label) queue(a, [{ x: px + (right ? -10 : 10), y: py - 10, text: label, anchor: right ? 'end' : 'start', cls: bad ? 'bad' : '' }]);
+    if (bad) REC.bad++;
+  }
+  // A bracket beside a height (from v0 to v1 at time x), its label on the side given.
+  function vbr(x, v0, v1, label, bad, a, side) {
+    if (a <= 0) return;
+    const right = side === 'right', px = X(x) + (right ? 6 : -6), y0 = Y(v0), y1 = Y(v1), tk = right ? -5 : 5;
+    part(a, 0, () => AV.push(path('brk' + (bad ? ' bad' : ''), 'M' + r3(px + tk) + ' ' + r3(y0) + ' H' + r3(px) + ' V' + r3(y1) + ' H' + r3(px + tk))));
+    if (label) queue(a, [{ x: px + (right ? 8 : -8), y: (y0 + y1) / 2 + 5, text: label, anchor: right ? 'start' : 'end', cls: bad ? 'bad' : '' }]);
+    if (bad) REC.bad++;
+  }
+  // A bracket along a stretch of time, just above height v, its label above it.
+  function hbr(x0, x1, v, label, bad, a) {
+    if (a <= 0) return;
+    const y = Y(v), p0 = X(x0) + 2, p1 = X(x1) - 2;
+    part(a, 0, () => AV.push(path('brk' + (bad ? ' bad' : ''), 'M' + r3(p0) + ' ' + r3(y - 5) + ' V' + r3(y) + ' H' + r3(p1) + ' V' + r3(y - 5))));
+    if (label) queue(a, [{ x: (p0 + p1) / 2, y: y - 8, text: label, cls: bad ? 'bad' : '' }]);
+    if (bad) REC.bad++;
+  }
+  // The key, inside the graph.
+  function drawKey(k) {
+    k.items.forEach((it, j) => {
+      const y = Y(k.v) + 20 * j;
+      AV.push(rect('sw ' + it.sw, k.x, y - 10, 16, 11));
+      text(k.x + 22, y, it.text, 'keyt', 'start');
+    });
+  }
+
+  // ---------- the running total: the bars laid end to end ----------
+  // Plus amounts run rightwards along the top lane; minus amounts run back along the lower lane,
+  // hatched. The tick marks where the total stands; the dashed line, the reverse rule's answer.
+  const GL = 20, GR = 320, GY = 56;
+  function drawGauge(G, s) {
+    const GX = (v) => GL + (K.clamp(v, G.min, G.max) - G.min) / (G.max - G.min) * (GR - GL), lane = !!G.neg, bot = GY + (lane ? 36 : 22);
+    text(12, 40, G.lab, 'gtitle', 'start');
+    text(328, 40, s.value, 'gval', 'end');
+    REC.value = s.value;
+    AV.push(rect('track', GL, GY, GR - GL, 16));
+    if (lane) AV.push(rect('track', GL, GY + 19, GR - GL, 12));
+    let am = s.amounts || [];
+    if (am.length > 16) {   // many thin bars: one piece for each run of the same sign
+      const merged = [];
+      am.forEach((q) => { const last = merged[merged.length - 1]; if (last && (last.amt >= 0) === (q.amt >= 0)) last.amt += q.amt; else merged.push({ amt: q.amt, a: q.a }); });
+      am = merged;
+    }
+    let run = 0;
+    const segs = [];
+    am.forEach((q) => {
+      const from = run, to = run + q.amt;
+      run = to;
+      if (Math.abs(q.amt) < 1e-12) return;
+      const neg = q.amt < 0, lo = GX(Math.min(from, to)), hi = GX(Math.max(from, to));
+      part(q.a, 0, () => rect('seg' + (neg ? ' neg' : ''), lo, neg ? GY + 19 : GY, Math.max(0.6, hi - lo), neg ? 12 : 16));
+      segs.push({ from: tidy(from), to: tidy(to) });
+    });
+    REC.segs = segs;
+    REC.net = am.length ? tidy(run) : null;
+    if (am.length) { const x = GX(run); AV.push(line('net', x, GY - 5, x, bot - 2)); }
+    const below = [];
+    if (s.goal && s.goal[2] > 0) {
+      const x = GX(s.goal[0]);
+      part(s.goal[2], 0, () => AV.push(line('goal', x, GY - 6, x, bot)));
+      below.push([x, s.goal[1], 'glab', s.goal[2]]);
+      REC.goal = s.goal[0];
+    }
+    if (s.mark && s.mark[3] > 0) {
+      const x = GX(s.mark[0]);
+      part(s.mark[3], 0, () => AV.push(line('pmark' + (s.mark[2] ? ' bad' : ''), x, GY - 6, x, bot)));
+      below.push([x, s.mark[1], 'glab' + (s.mark[2] ? ' bad' : ' soft'), s.mark[3]]);
+      REC.mark = s.mark[0];
+    }
+    const z = GX(0);
+    if (!below.some((b) => Math.abs(b[0] - z) < 36)) below.push([z, '0', 'tick', 1]);
+    below.forEach((b) => {
+      const anc = b[0] < 70 ? 'start' : b[0] > 270 ? 'end' : 'middle';
+      part(b[3], 0, () => text(anc === 'start' ? Math.max(4, b[0] - 4) : anc === 'end' ? Math.min(336, b[0] + 4) : b[0], bot + 14, b[1], b[2], anc));
+    });
+  }
+
+  // ---------- the working under the drawing, one line each ----------
+  function drawRows(RW) {
+    RW.forEach((r, n) => {
+      const a = r.a != null ? r.a : r.t != null ? arr(r.t) : 1;
+      part(a, 4, () => fit(text(12, ROW0 + 26 * n, r.s, 'row' + (r.big ? ' big' : '') + (r.soft ? ' soft' : '') + (r.bad ? ' bad' : ''), 'start'), 316, 15));
+      if (a >= 0.5) REC.rows.push(r.s);
+      if (r.bad && a > 0) REC.bad++;
+    });
+  }
+
+  // ---------- motion along legs: the number of bars, a number c, or where the heights are read ----------
+  // x: where it is now; rx: the last place it reached (the working shows that); la: the working's fade.
+  function tourAt(tr) {
+    let x = tr.v0, rx = x, la = 1;
+    for (const Lg of tr.legs) {
+      if (T < Lg.t) break;
+      if (T < Lg.t + Lg.len) {
+        la = 1 - K.arrive(T, Lg.t, 0.3);
+        const e = K.ease((T - Lg.t) / Lg.len);
+        x = tr.log ? Math.exp(K.lerp(Math.log(x), Math.log(Lg.to), e)) : K.lerp(x, Lg.to, e);
+        break;
+      }
+      x = Lg.to; rx = x; la = arr(Lg.t + Lg.len, 0.5);
+    }
+    tr.legs.forEach((Lg) => note(Lg.t + Lg.len + 0.5));
+    return { x, rx, la };
+  }
+
+  // ---------- the SHOW screens ----------
+  // A steady 3 A: one 3 C block for each second, arriving in turn, the running total adding them.
+  function drawSteady(d, st, RW) {
+    const got = [];
+    for (let k = 0; k < 4; k++) {
+      const a = arr(0.5 + 0.6 * k);
+      if (a <= 0) continue;
+      const q = { t0: k, t1: k + 1, h: d.r.f(k + 0.5), amt: d.r.f(k + 0.5) * 1 };
+      drawBar(q, '', a);
+      part(a, 0, () => text((X(k) + X(k + 1)) / 2, Y(q.h / 2) + 5, fmtN(q.amt) + ' C', 'lab'));
+      got.push({ amt: q.amt, a });
+    }
+    curve(d.r.f, '', 1);
+    queue(1, [{ x: X(4) - 4, y: Y(3) - 10, text: '`i` = 3 A', anchor: 'end' }]);
+    RW.push({ s: 'Each second: 3 A × 1 s = ' + fmtN(d.r.f(0) * 1) + ' C', soft: true, t: 3.0 }, { s: 'In 4 s: 3 × 4 = ' + fmtN(barSum(d.r.f, 0, 4, 4, 0)) + ' C', big: true, t: 3.4 });
+    return { amounts: got, value: fmtN(sumOf(got)) + ' C' };
+  }
+  // The rising current with n bars at their starts; the demonstration thins them from 4 to 100.
+  function drawThin(d, st, RW) {
+    const own = st.c != null, s = own ? { x: st.c, rx: st.c, la: 1 } : tourAt(d.ctour), n = Math.round(s.x), rn = Math.round(s.rx);
+    REC.n = n;
+    const list = barsOf(d.r.f, d.a, d.b, n, 0);
+    list.forEach((q) => drawBar(q, '', 1));
+    slivers(d.r, list, 0);
+    curve(d.r.f, '', 1);
+    d.rowsAt(rn).forEach((r) => RW.push({ s: r.s, big: r.big, soft: r.soft, a: s.la }));
+    return { amounts: list.map((q) => ({ amt: q.amt, a: 1 })), value: dec(sumOf(list), d.gauge.dec) + ' C', goal: [exact(d.r, d.a, d.b), 'settles on 8 C', 1] };
+  }
+  // The reverse rule's curve, lifted by c: its rise from 0 s to 2 s stays 8 C whatever c is.
+  function drawRule(d, st, RW) {
+    const s = tourAt(d.ctour), c = s.x, F = plus(d.r.F, c), bot = F(0), top = F(2), rc = Math.round(s.rx * 10) / 10;
+    REC.c = c; REC.rise = tidy(top - bot);
+    AV.push(line('lvl', X(0), Y(bot), X(2), Y(bot)));
+    AV.push(line('lift', X(2) - 1, Y(bot), X(2) - 1, Y(top)));
+    curve(F, '', 1);
+    dotAt(0, bot, 1); dotAt(2, top, 1);
+    queue(1, [{ x: X(0) + 12, y: Y(bot) - 12, text: 'F(0) = ' + fmtN(d.r.F(0)) + ' + `c`', anchor: 'start' },
+      { x: X(2) - 12, y: Y(top) + 5, text: 'F(2) = ' + fmtN(d.r.F(2)) + ' + `c`', anchor: 'end' },
+      { x: X(2) - 10, y: Y(bot + 1.6), text: 'rise: ' + fmtN(REC.rise) + ' C', anchor: 'end' }]);
+    RW.push({ s: 'At 2 s: F = ' + fmtN(d.r.F(2)) + ' + `c`', soft: true, t: 0.3 }, { s: 'At 0 s: F = ' + fmtN(d.r.F(0)) + ' + `c`', soft: true, t: 0.7 },
+      { s: 'F(2) − F(0) = (8 + `c`) − (0 + `c`) = ' + fmtN(exact(d.r, 0, 2)) + ' C', big: true, t: 2.8 },
+      { s: '`c` = ' + fmtN(rc) + ' here: ' + fmtN(d.r.F(2) + rc) + ' − ' + fmtN(d.r.F(0) + rc) + ' = ' + fmtN(tidy(d.r.F(2) + rc - d.r.F(0) - rc)) + ' C', soft: true, a: s.la });
+    return null;
+  }
+  // Four bars whose heights move from their starts to their middles.
+  function drawMid(d, st, RW) {
+    const s = tourAt(d.utour), u = s.x, list = barsOf(d.r.f, d.a, d.b, 4, u);
+    REC.u = u;
+    list.forEach((q) => drawBar(q, '', 1));
+    slivers(d.r, list, u);
+    curve(d.r.f, '', 1);
+    list.forEach((q) => part(1, 0, () => AV.push(circle('pt', X(q.t0 + u * (q.t1 - q.t0)), Y(q.h), 4))));
+    d.rowsAt(s.rx).forEach((r) => RW.push({ s: r.s, big: r.big, soft: r.soft, a: s.la }));
+    return { amounts: list.map((q) => ({ amt: q.amt, a: 1 })), value: dec(sumOf(list), d.gauge.dec) + ' C', goal: [exact(d.r, d.a, d.b), 'exact: 8 C', 1] };
+  }
+  // A current that turns back: six mid-height bars arrive in time order, the total following them.
+  function drawBack(d, st, RW) {
+    const list = barsOf(d.r.f, d.a, d.b, 6, 0.5), got = [];
+    list.forEach((q, k) => { const a = arr(0.4 + 0.42 * k); if (a > 0) { drawBar(q, '', a); got.push({ amt: q.amt, a }); } });
+    curve(d.r.f, '', 1);
+    const pos = tidy(list.filter((q) => q.amt > 0).reduce((s, q) => s + q.amt, 0)), neg = tidy(-list.filter((q) => q.amt < 0).reduce((s, q) => s + q.amt, 0));
+    RW.push({ s: 'Forwards to 2 s: ' + fmtN(pos) + ' C; back after it: ' + fmtN(neg) + ' C', soft: true, t: 3.3 },
+      { s: 'Below the axis counts as minus: ' + fmtN(pos) + ' − ' + fmtN(neg) + ' = ' + fmtN(sumOf(list)) + ' C', soft: true, t: 3.7 },
+      { s: 'Reverse rule `4t − t²`: 12 − 9 = ' + fmtN(exact(d.r, d.a, d.b)) + ' C', big: true, t: 4.1 });
+    return { amounts: got, value: got.length ? dec(sumOf(got), 2) + ' C' : '0 C', goal: [exact(d.r, d.a, d.b), 'reverse rule: 3 C', arr(3.1)] };
+  }
+  const DRAW = { steady: drawSteady, bars: drawThin, rule: drawRule, mid: drawMid, back: drawBack };
+
+  // ---------- the puzzles ----------
+  // Before an answer is picked, the total reads ?; a pick marks its own value on the total; Check
+  // fills the total with the bars or the area that fits, or shows the slip in red on the graph.
+  function puzzleRows(d, k, o, RW) {
+    if (!k) d.pre.forEach((s, n) => RW.push({ s, soft: n < d.pre.length - 1 }));
+    else if (k === 'right') d.right.forEach((s, n) => RW.push(n === 0 ? { s, soft: true } : { s, big: n === d.right.length - 1, t: 0.2 + 0.2 * n }));
+    else { RW.push({ s: d.pre[0], soft: true }); o.rows.forEach((s, n) => RW.push({ s, bad: true, soft: n === 1, t: 0.2 + 0.2 * n })); }
+  }
+  function drawPuzzle(d, st, RW) {
+    const k = st.res === 'right' ? 'right' : st.res === 'wrong' ? st.pick : null, pk = st.pick, a = arr(0.1), wrong = !!k && k !== 'right';
+    d.scene({ k, pk, a, wrong });
+    puzzleRows(d, k, k ? d.o[k] : null, RW);
+    if (k === 'right') {
+      const am = d.amounts();
+      return { amounts: am.map((v) => ({ amt: v, a })), value: dec(am.reduce((s, v) => s + v, 0), 3) + ' ' + d.gauge.unit, goal: d.goal ? [d.goal[0], d.goal[1], a] : null };
+    }
+    if (wrong) { REC.bad++; return { mark: [d.o[k].v, d.o[k].t, true, a], value: '?' }; }
+    if (pk) return { mark: [d.o[pk].v, d.o[pk].t, false, arr(0.05)], value: '?' };
+    return { value: '?' };
+  }
+
+  // ---------- each step's picture ----------
+  function layout(d) { g = d.g; GT = d.gauge ? 140 : 64; GB = GT + GH; ROW0 = GB + 62; }
+  function drawScene(d, st) {
+    layout(d);
+    const RW = [];
+    REC = { rows: [], labs: [], bad: 0, bars: [], segs: [], net: null, goal: null, mark: null, value: null, sliv: null, hatched: 0, n: null, c: null, u: null, rise: null };
+    AV = []; LQ = [];
+    fit(text(12, 18, g.who, 'tag', 'start'), 318, 15);
+    frame();
+    const gs = (d.kind ? DRAW[d.kind] : drawPuzzle)(d, st, RW);
+    if (d.gauge) drawGauge(d.gauge, gs || { value: '?' });
+    if (d.key) drawKey(d.key);
+    drawRows(RW);
+    flushLabels();
+    return say(g.who) + '. ' + (d.gauge ? say(d.gauge.lab + ': ' + REC.value) + '. ' : '') + REC.rows.map(say).join('. ');
+  }
+
+  // The scene for a step (the animation calls this every frame). The slider for the bars follows the motion.
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    layout(d);
+    svg.setAttribute('viewBox', '0 0 340 ' + Math.ceil(ROW0 + 26 * (d.rows - 1) + 16));
+    svg.setAttribute('aria-label', drawScene(d, st));
+    if (d.cid && !checking && i === at()) {
+      const v = K.clamp(Math.round(REC.n), 4, 100);
+      if (NC.get() !== v) NC.set(v, true);
+      lastCV = NC.get();
+    }
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.c = null; play(d.dur); } else { anim.pause(); T = Infinity; }
+    } else if (d.cid && !finished && p.n !== lastCV) {
+      if (anim.playing()) anim.pause();
+      T = Infinity; st.c = p.n; K.reveal();
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+    el('cb1').hidden = finished || d.cid !== 'n';
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts, labs = opts.map((k) => d.o[k].t);
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', labs.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(labs[k]);
+      b.el.textContent = '';
+      italics(b.el.appendChild(K.el('span', {})), labs[k], false);
+      b.el.setAttribute('aria-label', say(labs[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That’s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Tap one of the answers.' : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = () => Object.assign(blank(), { pick: 'right', res: 'right' });
+  const wrongSt = (o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const pickSt = (o) => Object.assign(blank(), { pick: o });
+  const nAt = (n) => Object.assign(blank(), { c: n });
+  const close = (a, b, tol) => typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) <= (tol || 1e-9) * Math.max(1, Math.abs(a), Math.abs(b));
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A step painted in the state given (finished, or t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t; checking = true;
+    try {
+      paint(i);
+      return Object.assign({}, REC, { rows: REC.rows.slice(), labs: REC.labs.slice(), bars: REC.bars.slice(), segs: REC.segs.slice() });
+    } finally { S[i] = keepS; T = keepT; checking = false; paint(); }
+  }
+
+  K.check('When the speed or current is constant, the area under its flat graph is just the rate times the time: on both steady screens, bars of any number add up to exactly that, and the running total drawn shows it', () => {
+    const ok = [1, 2, 3, 6, 12, 50].every((n) => close(barSum(R.ms5.f, 0, 6, n, 0), 5 * 6) && close(barSum(R.amp3.f, 0, 4, n, 0.5), 3 * 4));
+    return ok && close(drawn(idx('A steady current'), blank()).net, 12) && close(drawn(idx('A steady speed'), solvedSt()).net, 30);
+  }, { source: SRC.area });
+  K.check('An integral describes a quantity as a sum of many small pieces: on every screen with bars, each bar drawn stands for its height times its width, and the running total drawn is the sum of those pieces, those below the axis taken away', () => {
+    const cases = [[idx('A steady current'), blank()], [idx('Thinner bars'), nAt(4)], [idx('Thinner bars'), nAt(8)], [idx('Thinner bars'), nAt(100)], [idx('Mid-height bars'), blank()],
+      [idx('Below the axis'), blank()], [idx('Three mid-height bars'), solvedSt()], [idx('Back to nothing'), solvedSt()]];
+    return cases.every((c) => {
+      const h = drawn(c[0], c[1]);
+      return h.bars.length > 0 && h.bars.every((q) => close(q.amt, q.h * (q.t1 - q.t0), 1e-12)) && close(h.net, h.bars.reduce((s, q) => s + q.amt, 0), 1e-9);
+    });
+  }, { source: SRC.mit });
+  K.check('The charge can be determined by integrating the current over the time interval: under the rising current every extra bar raises the running total, which stays short of the reverse rule’s charge and closes in on it, as the bars screen draws', () => {
+    const target = exact(R.sq3, 0, 2);
+    let prev = -Infinity;
+    for (let n = 4; n <= 100; n++) { const v = barSum(R.sq3.f, 0, 2, n, 0); if (!(v > prev && v < target && target - v <= 24 / n + 1e-9)) return false; prev = v; }
+    const i = idx('Thinner bars');
+    return close(drawn(i, nAt(4)).net, 5.25) && close(drawn(i, nAt(8)).net, 6.5625) && close(drawn(i, nAt(100)).net, 7.8804) && target - barSum(R.sq3.f, 0, 2, 4000, 0) < 0.01;
+  }, { source: SRC.charge });
+  K.check('Any antiderivative works: with any number added to the reverse rule, its value at the end take away its value at the start is the same, so the rise drawn on the reverse-rule screen stays the same at every moment of its demonstration', () => {
+    const rules = [[R.sq3, 0, 2], [R.sq3, 1, 2], [R.tsq, 0, 6], [R.back, 0, 3], [R.even, 0, 6], [R.boat, 1, 4], [R.rev4, 0, 5]];
+    const ok = rules.every((q) => [-5, 0, 3, 7.5].every((c) => close(plus(q[0].F, c)(q[2]) - plus(q[0].F, c)(q[1]), exact(q[0], q[1], q[2]), 1e-9)));
+    const i = idx('The reverse rule');
+    return ok && [0, 1.5, 1.9, 2.3, 3.0, Infinity].every((t) => close(drawn(i, blank(), t).rise, 8, 1e-9)) && drawn(i, blank()).c === 3;
+  }, { source: SRC.ftc });
+  K.check('Evaluating the antiderivative at the ends of the interval and subtracting: every reverse rule here, differentiated by its slope worked out from the rule, gives back the rate it came from, and each answer the puzzles accept by the reverse rule is its value at the end take away its value at the start', () => {
+    const all = [R.amp3, R.ms5, R.sq3, R.tsq, R.back, R.even, R.boat, R.rev4, R.cap], TS = K.linspace(-2, 6, 33);
+    const inverse = all.every((r) => TS.every((t) => close(rate(r.F, t), r.f(t), 1e-6)));
+    const ans = [['From 1 s to 2 s', R.sq3, 1, 2], ['From 1 s to 4 s', R.boat, 1, 4], ['Net charge, 0 s to 5 s', R.rev4, 0, 5], ['Back to nothing', R.even, 0, 6]];
+    return inverse && ans.every((q) => close(STEPS[idx(q[0])].o.right.v, q[1].F(q[3]) - q[1].F(q[2]), 1e-9)) && close(drawn(idx('Below the axis'), blank()).goal, R.back.F(3) - R.back.F(0));
+  }, { source: SRC.ftc });
+  K.check('Adding the areas of rectangles only approximates, and the theorem is straightforward by comparison: bars at their starts under the rising current always fall short of the reverse rule’s answer, mid-height bars land far closer with the same number, and under a straight-line rate mid-height bars give it exactly', () => {
+    const ex = exact(R.sq3, 0, 2);
+    const rising = [4, 8, 16, 100].every((n) => { const L = barSum(R.sq3.f, 0, 2, n, 0), M = barSum(R.sq3.f, 0, 2, n, 0.5); return L < ex && Math.abs(ex - M) < (ex - L) / 10; });
+    const lines = [[R.back, 0, 3], [R.even, 0, 6], [R.boat, 1, 4], [R.rev4, 0, 5], [R.cap, 0, 4]].every((q) => [1, 2, 3, 6, 10].every((n) => close(barSum(q[0].f, q[1], q[2], n, 0.5), exact(q[0], q[1], q[2]), 1e-9)));
+    return rising && lines;
+  }, { source: SRC.ftc });
+  K.check('The new value equals the initial value plus the integral of the rate of change: the last lesson’s capacitor, holding a known charge at the start and fed a steadily rising current, ends with that charge plus what its current’s bars settle on', () =>
+    close(3 + exact(R.cap, 0, 4), 11) && close(exact(R.cap, 0, 4), 8) && close(barSum(R.cap.f, 0, 4, 5, 0.5), exact(R.cap, 0, 4), 1e-9), { source: SRC.net });
+  K.check('Integration applied to the area under a velocity time curve gives the distance travelled: on each speed screen the running total of the bars or of the area under the speed is the distance the puzzle accepts, in metres', () => {
+    const v = (name) => drawn(idx(name), solvedSt());
+    const a = v('A steady speed'), b = v('Three mid-height bars'), c = v('From 1 s to 4 s');
+    return close(a.net, 30) && close(b.net, 70) && close(b.goal, exact(R.tsq, 0, 6)) && close(c.net, exact(R.boat, 1, 4)) && [a, b, c].every((h) => / m$/.test(h.value));
+  }, { source: SRC.hn });
+  K.check('Bars below the axis hang under it, hatched, and count as minus: on every screen where the current turns back, each bar under the axis is hatched with a negative amount, runs back along the running total’s lower lane, and the total drawn takes it away', () => {
+    const cases = [drawn(idx('Below the axis'), blank()), drawn(idx('Back to nothing'), solvedSt())], last = drawn(idx('Net charge, 0 s to 5 s'), solvedSt());
+    return cases.every((h) => {
+      const negs = h.bars.filter((q) => q.h < 0);
+      return negs.length > 0 && negs.every((q) => q.neg && q.amt < 0) && h.hatched === negs.length && h.segs.filter((s) => s.to < s.from).length === negs.length &&
+        close(h.net, h.bars.reduce((s, q) => s + q.amt, 0), 1e-9);
+    }) && close(last.net, 5) && last.segs.length === 2 && last.segs[0].to < last.segs[0].from;
+  });
+  K.check('Thinner bars miss thinner slivers: on the bars screen the slivers drawn add up to exactly what the running total misses and shrink as the bars thin; mid-height bars draw an extra and a missed sliver in each bar that nearly cancel, 0.125 C apart', () => {
+    const i = idx('Thinner bars');
+    let last = Infinity;
+    const ok = [4, 5, 8, 13, 40, 100].every((n) => {
+      const h = drawn(i, nAt(n)), miss = h.sliv.missed, r = h.sliv.extra === 0 && close(miss, exact(R.sq3, 0, 2) - h.net, 1e-9) && miss < last && h.bars.length === n;
+      last = miss; return r;
+    });
+    const m = drawn(idx('Mid-height bars'), blank());
+    return ok && m.sliv.extra > 0 && m.sliv.missed > 0 && close(m.sliv.missed - m.sliv.extra, 0.125, 1e-9) && close(m.net, 7.875);
+  });
+  K.check('From the rules, by hand: 3 A for 4 s is 12 C and 5 m/s for 6 s is 30 m; 3t² from 0 s to 2 s has start heights 0, 0.75, 3 and 6.75 A, 5.25 C from 4 bars, 6.56 C from 8, 7.88 C from 100, 8 C exactly; the bar from 1 s to 1.5 s is 3 A × 0.5 s = 1.5 C; 8 − 1 = 7 C from 1 s to 2 s, 12 − 3 = 9 the slip; 4 mid-height bars give 7.875 C, 0.125 C short; t² from 0 s to 6 s gives mid-heights 1, 9, 25 and 70 m, 72 m exactly; 4 − 2t gives 4 C forwards, 1 C back, 3 C net; 3 − t gives 4.5 C each way, 0 C net; 2t + 3 gives 28 − 4 = 24 m, 11 − 5 = 6 the slip; 2t − 4 gives 4 C back, 9 C forwards, 5 C net; and the screens’ words quote these values', () => {
+    const mb = barsOf(R.tsq.f, 0, 6, 3, 0.5), bk = barsOf(R.back.f, 0, 3, 6, 0.5), ev = barsOf(R.even.f, 0, 6, 6, 0.5);
+    const pos = (L) => tidy(L.filter((q) => q.amt > 0).reduce((s, q) => s + q.amt, 0)), neg = (L) => tidy(L.filter((q) => q.amt < 0).reduce((s, q) => s + q.amt, 0));
+    const nums = barSum(R.amp3.f, 0, 4, 4, 0) === 12 && barSum(R.ms5.f, 0, 6, 1, 0) === 30 &&
+      sb4.map((q) => tidy(q.h)).join() === '0,0.75,3,6.75' && sumOf(sb4) === 5.25 && dec(barSum(R.sq3.f, 0, 2, 8, 0), 2) === '6.56' && dec(barSum(R.sq3.f, 0, 2, 100, 0), 2) === '7.88' && exact(R.sq3, 0, 2) === 8 &&
+      sb4[2].h === 3 && sb4[2].amt === 1.5 && exact(R.sq3, 1, 2) === 7 && R.sq3.F(2) === 8 && R.sq3.f(2) - R.sq3.f(1) === 9 &&
+      barSum(R.sq3.f, 0, 2, 4, 0.5) === 7.875 && tidy(8 - 7.875) === 0.125 &&
+      mb.map((q) => tidy(q.h)).join() === '1,9,25' && sumOf(mb) === 70 && exact(R.tsq, 0, 6) === 72 &&
+      pos(bk) === 4 && neg(bk) === -1 && sumOf(bk) === 3 && exact(R.back, 0, 3) === 3 &&
+      pos(ev) === 4.5 && neg(ev) === -4.5 && sumOf(ev) === 0 && exact(R.even, 0, 6) === 0 &&
+      exact(R.boat, 1, 4) === 24 && tidy(R.boat.F(4)) === 28 && tidy(R.boat.F(1)) === 4 && R.boat.f(4) - R.boat.f(1) === 6 &&
+      exact(R.rev4, 0, 5) === 5 && exact(R.rev4, 0, 2) === -4 && exact(R.rev4, 2, 5) === 9;
+    const has = (name, key, bits) => { const v = STEPS[idx(name)][key]; return bits.every((b) => v.indexOf(b) >= 0); };
+    const words = has('A steady current', 'text', ['3 × 4 = 12 C']) && has('Thinner bars', 'text', ['0, 0.75, 3 and 6.75 A', '5.25 C']) &&
+      has('The reverse rule', 'text', ['(8 + `c`) − (0 + `c`) = 8 C']) && has('Mid-height bars', 'text', ['7.875 C']) &&
+      has('Below the axis', 'text', ['4 C forwards, then 1 C back, 3 C in all', 'you get 5 C', '12 − 9 = 3']) &&
+      has('A steady speed', 'why', ['5 × 6 = 30 m']) && has('One bar', 'why', ['3 × 0.5 = 1.5 C']) && has('From 1 s to 2 s', 'why', ['8 − 1 = 7 C', '12 − 3 = 9']) &&
+      has('Three mid-height bars', 'why', ['2 × (1 + 9 + 25) = 70 m', '216 ÷ 3 = 72 m']) && has('Back to nothing', 'why', ['18 − 18 = 0']) &&
+      has('From 1 s to 4 s', 'why', ['28 − 4 = 24 m', '11 − 5 = 6']) && has('Net charge, 0 s to 5 s', 'why', ['25 − 20 = 5', '9 − 4 = 5 C']) &&
+      STEPS[idx('Thinner bars')].rowsAt(4)[1].s === 'Heights at their starts: 0, 0.75, 3, 6.75 A' && STEPS[idx('Thinner bars')].rowsAt(4)[0].s === '4 bars, each 2 ÷ 4 = 0.5 s wide' &&
+      STEPS[idx('Mid-height bars')].rowsAt(0.5)[0].s === 'Heights read at 0.25, 0.75, 1.25, 1.75 s' && STEPS[idx('Mid-height bars')].rowsAt(0.5)[2].s === 'Short of 8 C by only 0.125 C';
+    return nums && words;
+  });
+  K.check('Every puzzle offers three different answers and accepts only the right one; each answer’s number is the value its slip gives', () => {
+    const want = {
+      'A steady speed': ['5 m', '30 m', '11 m'], 'One bar': ['3 C', '3.5 C', '1.5 C'], 'From 1 s to 2 s': ['8 C', '7 C', '9 C'], 'Three mid-height bars': ['35 m', '70 m', '150 m'],
+      'Back to nothing': ['0 C', '9 C', '4.5 C'], 'From 1 s to 4 s': ['28 m', '6 m', '24 m'], 'Net charge, 0 s to 5 s': ['13 C', '5 C', '−5 C'],
+    };
+    const right = { 'A steady speed': 1, 'One bar': 2, 'From 1 s to 2 s': 1, 'Three mid-height bars': 1, 'Back to nothing': 0, 'From 1 s to 4 s': 2, 'Net charge, 0 s to 5 s': 1 };
+    return DO.length === 7 && DO.every((i) => {
+      const d = STEPS[i], labs = d.opts.map((k) => d.o[k].t);
+      return labs.join('|') === want[d.name].join('|') && new Set(labs).size === 3 && d.opts.filter((k) => k === 'right').length === 1 && d.opts[right[d.name]] === 'right' &&
+        d.opts.every((k) => close(Number(d.o[k].t.replace('−', '-').split(' ')[0]), d.o[k].v, 1e-9));
+    });
+  });
+  K.check('Before Check no puzzle gives its verdict: nothing red, the working ends in a question mark and the total reads ?; a picked answer only marks its own value on the total; a right answer fills the total with nothing red; every wrong answer shows its slip in red', () =>
+    DO.every((i) => {
+      const d = STEPS[i], pre = drawn(i, blank()), ok = drawn(i, solvedSt());
+      const preOk = pre.bad === 0 && / \?$/.test(pre.rows[pre.rows.length - 1]) && pre.value === '?' && pre.mark == null && pre.net == null;
+      const pickOk = d.opts.every((o) => { const h = drawn(i, pickSt(o)); return h.bad === 0 && h.value === '?' && close(h.mark, d.o[o].v) && h.net == null && / \?$/.test(h.rows[h.rows.length - 1]); });
+      const rightOk = ok.bad === 0 && close(ok.net, d.o.right.v) && ok.mark == null;
+      return preOk && pickOk && rightOk && d.opts.filter((k) => k !== 'right').every((k) => { const h = drawn(i, wrongSt(k)); return h.bad > 0 && close(h.mark, d.o[k].v) && h.net == null; });
+    }));
+  K.check('Every demonstration has finished arriving within 5 s of its screen opening, and every pick’s or answer’s motion within 1.3 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; checking = true;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; checking = false; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => (d.show ? timed(i, blank(), d.dur) && d.dur <= 5 && d.dur >= 3
+      : timed(i, solvedSt(), FB[0]) && d.opts.every((o) => timed(i, pickSt(o), FB[1]) && (o === 'right' || timed(i, wrongSt(o), FB[1])))));
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

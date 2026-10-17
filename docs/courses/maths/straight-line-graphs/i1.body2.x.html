@@ -1,0 +1,828 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  /* The readout above the grid: the rule, which point gives which numbers, then each triangle's working. */
+  .ro { border-left: 3px solid var(--k-accent2); padding: 4px 0 4px 12px; }
+  .ro p { margin: 0; }
+  .ro .rule { font-weight: 700; line-height: 1.5; }
+  .ro .ronote { color: var(--k-muted); font-size: .9rem; line-height: 1.45; }
+  .ro .wk { line-height: 1.55; min-height: 3.1em; margin-top: 4px; }
+  .ro .wk .lab { color: var(--k-muted); font-weight: 700; }
+  .ro .wk.teal .lab { color: var(--k-accent); }
+  .ro .pc { white-space: nowrap; }
+  .ro .pc.wrap { white-space: normal; }
+  .ro .pc.end { font-weight: 700; color: var(--k-accent2); }
+  .ro .pc.q { color: var(--k-muted); }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  .scene.grab { touch-action: none; }
+  /* The squared grid, its axes and their numbers. */
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .at { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  /* The line, the step triangle (run and rise arrows), the points. A second triangle is teal. */
+  .scene .ln { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .tri { fill: var(--k-accent2); fill-opacity: .07; stroke: none; }
+  .scene .tri.teal { fill: var(--k-accent); }
+  .scene .sh { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .sh.teal { stroke: var(--k-accent); }
+  .scene .hd { fill: var(--k-accent2); stroke: none; }
+  .scene .hd.teal { fill: var(--k-accent); }
+  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  /* Labels carry a halo of the page colour, so a line passing behind one never strikes through it. */
+  .scene .lab { font: 700 14px var(--k-font); fill: var(--k-ink); paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .lab.arw { fill: var(--k-accent2); }
+  .scene .lab.arw.teal { fill: var(--k-accent); }
+  .scene .v { font-style: italic; }
+  .scene #art *, .scene #labs * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead">Points on a squared grid, a straight line through them and a step triangle between them. The volt, amp, minute and litre readings are examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="ro" id="ro">
+      <p class="rule" id="rule"></p>
+      <p class="ronote" id="ronote"></p>
+      <div id="rows"></div>
+    </div>
+    <svg class="scene" id="scene" viewBox="0 0 340 320" width="100%" role="img" aria-label=""><g id="art"></g><g id="labs"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">m is the difference in y ÷ the difference in x, with the same point first in both.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // view: the grid's window; sx, sy are what one square across and one square up stand for.
+  // pts: the points (names: A and B, or none); tris: step triangles from point a to point b, each
+  // with t, when its arrows start to draw (none: drawn from the start). keys: on a SHOW step, the
+  // pairs of points it slides through, each starting its slide at `at`. drag: 'free' (whole-number
+  // points) or 'line' (along y = on[0]x + on[1]). A puzzle: opts, want, and each wrong option's
+  // slip, worked from the puzzle's own points, with its own hint.
+  const PICK = 'Tap one of the answers.';
+  const RULE = '`m = (y₂ − y₁) ÷ (x₂ − x₁)`';
+  const NOTE = 'A gives `x₁` and `y₁`, and B gives `x₂` and `y₂`.';
+  const SQ = (x0, x1, y0, y1) => ({ x0, x1, y0, y1, sx: 1, sy: 1, xt: 'x', yt: 'y', ux: '', uy: '', per: '', umax: 28 });
+  const VOLTS = { x0: 0, x1: 7, y0: 0, y1: 30, sx: 1, sy: 5, xt: 'Current (A)', yt: 'Voltage (V)', ux: ' A', uy: ' V', per: ' V per A', ohm: true, umax: 40 };
+  const TANK = { x0: 0, x1: 10, y0: 0, y1: 600, sx: 1, sy: 100, xt: 'Time (minutes)', yt: 'Water (litres)', ux: ' minutes', uy: ' litres', per: ' litres per minute', umax: 40 };
+  const AB = ['A', 'B'];
+  const STEPS = [
+    { show: true, name: 'Rise over run', view: SQ(-1, 7, 0, 10), pts: [[1, 3], [4, 9]], names: AB, drag: 'free',
+      tris: [{ a: 0, b: 1, t: 0.6 }], dur: 3.0,
+      text: 'A line\'s *gradient*, `m`, is how much it climbs for each 1 along. From A to B the *run* across is `4 − 1 = 3` and the *rise* up is `9 − 3 = 6`, so `m = 6 ÷ 3 = 2`. Drag A or B to try other points.' },
+    { kind: 'pick', name: 'Your turn', view: SQ(-1, 7, 0, 10), pts: [[1, 2], [3, 8]], names: AB, tris: [{ a: 0, b: 1 }],
+      opts: ['3', '⅓', '6'], want: '3', slip: { '⅓': (R) => R[0].run / R[0].rise, '6': (R) => R[0].rise },
+      task: 'Find the gradient of the line through A and B.',
+      why: 'From A to B the run is `3 − 1 = 2` and the rise is `8 − 2 = 6`. So `m = 6 ÷ 2 = 3`, and the line climbs 3 for each 1 along.',
+      hint: 'Not quite. Divide the rise by the run.',
+      hints: { '⅓': 'Not quite. That is the run over the rise. The change in y goes on top.', '6': 'Not quite. 6 is the rise alone. Divide it by the run, 2.' } },
+    { show: true, name: 'Same line, same m', view: SQ(-1, 6, 0, 12), names: AB, drag: 'line', on: [2, 1],
+      keys: [{ pts: [[1, 3], [4, 9]] }, { pts: [[2, 5], [3, 7]], at: 0.9 }, { pts: [[0, 1], [5, 11]], at: 2.9 }],
+      tris: [{ a: 0, b: 1 }], dur: 4.2,
+      text: 'Slide both points along the same line. The triangle grows and shrinks, but rise ÷ run stays 2. A run of 1 gives a rise of 2, which is `m` itself.' },
+    { kind: 'pick', name: 'A bigger step', view: SQ(-1, 6, 0, 12), pts: [[0, 1], [2, 5], [5, 11]], names: [null, null, null],
+      tris: [{ a: 0, b: 1, given: true, lab: 'Small triangle' }, { a: 1, b: 2, ask: true, lab: 'Big triangle' }],
+      note: 'Each triangle\'s left point gives `x₁` and `y₁`.',
+      opts: ['6', '4', '5'], want: '6', slip: { '4': (R) => R[0].rise, '5': (R) => R[0].rise + (R[1].run - R[0].run) },
+      task: 'The small triangle rises 4 for a run of 2. The big one, on the same line, has a run of 3. How far does it rise?',
+      why: 'The small triangle gives `m = 4 ÷ 2 = 2`, so the line climbs 2 for each 1 along. A run of 3 is three steps of 1, so it rises `3 × 2 = 6`, from 5 up to 11.',
+      hint: 'Not quite. Find the climb for each 1 along first.',
+      hints: { '4': 'Not quite. 4 is the small triangle\'s rise, for a run of only 2. A longer run rises further.', '5': 'Not quite. Each 1 along climbs 2, not 1, so the extra 1 along adds 2.' } },
+    { show: true, name: 'A falling line', view: SQ(-1, 7, 0, 10), pts: [[1, 7], [4, 1]], names: AB, drag: 'free',
+      tris: [{ a: 0, b: 1, t: 0.6 }], dur: 3.0,
+      text: 'The arrows\' directions give the sign. Here the run points right, 3, but the rise points down, `1 − 7 = −6`. A negative ÷ a positive is negative, so `m = −6 ÷ 3 = −2`, and the line falls from left to right.' },
+    { kind: 'pick', name: 'Downhill', view: SQ(-1, 7, 0, 10), pts: [[2, 9], [5, 3]], names: AB, tris: [{ a: 0, b: 1 }],
+      opts: ['−2', '2', '−0.5'], want: '−2', slip: { '2': (R) => -R[0].rise / R[0].run, '−0.5': (R) => R[0].run / R[0].rise },
+      task: 'This line falls from left to right. Find its gradient.',
+      why: 'From A to B the run is `5 − 2 = 3`, pointing right, and the rise is `3 − 9 = −6`, pointing down. So `m = −6 ÷ 3 = −2`.',
+      hint: 'Not quite. Divide the rise by the run, signs and all.',
+      hints: { '2': 'Not quite. The rise points down, so it is negative. Keep its minus.', '−0.5': 'Not quite. That is the run over the rise. The change in y goes on top.' } },
+    { show: true, name: 'Brackets, either way round', view: SQ(-4, 5, -5, 5), pts: [[-1, -3], [2, 3]], names: AB, drag: 'free',
+      tris: [{ a: 0, b: 1, t: 0.5, lab: 'From A' }, { a: 1, b: 0, t: 2.0, lab: 'From B', teal: true }], dur: 4.3,
+      note: 'Each row\'s first point gives `x₁` and `y₁`.',
+      text: 'Put brackets round a negative coordinate, because taking away a negative adds, so `3 − (−3) = 6`. Starting from B turns both arrows round, and `−6 ÷ −3` is still 2. Keep the same point first on top and on the bottom.' },
+    { kind: 'pick', name: 'Negative coordinates', view: SQ(-4, 4, -6, 6), pts: [[-2, -5], [1, 4]], names: AB, tris: [{ a: 0, b: 1 }],
+      opts: ['3', '1', '−3'], want: '3',
+      slip: { '1': (R, P) => (P[1][1] - Math.abs(P[0][1])) / (P[1][0] - Math.abs(P[0][0])), '−3': (R, P) => (P[1][1] - P[0][1]) / (P[0][0] - P[1][0]) },
+      task: 'Find the gradient. Mind the negative coordinates.',
+      why: 'With brackets, `m = (4 − (−5)) ÷ (1 − (−2)) = 9 ÷ 3 = 3`. The line climbs from left to right, so a positive `m` fits.',
+      hint: 'Not quite. Put brackets round each negative coordinate.',
+      hints: { '1': 'Not quite. Without brackets, `4 − (−5)` became `4 − 5`. Taking away −5 adds 5.', '−3': 'Not quite. The top started from B but the bottom from A. Keep the same point first in both.' } },
+    { show: true, name: 'Level and straight up', view: SQ(-1, 7, 0, 8), names: AB, drag: 'free', addRows: true,
+      keys: [{ pts: [[1, 4], [5, 4]], lab: 'Level line' }, { pts: [[3, 1], [3, 6]], at: 2.9, lab: 'Straight up' }],
+      tris: [{ a: 0, b: 1, t: 0.4 }], dur: 4.2,
+      text: 'A level line has a rise of 0, and `0 ÷ 4 = 0`, so its gradient is 0. Stand B straight above A and the run is 0 instead. Nothing can be divided by 0, so a line straight up has an undefined gradient.' },
+    { kind: 'pick', name: 'Straight up', view: SQ(-1, 7, -2, 8), pts: [[4, -1], [4, 6]], names: AB, tris: [{ a: 0, b: 1 }],
+      opts: ['undefined', '0', '7'], want: 'undefined', slip: { '0': (R) => R[0].run, '7': (R) => R[0].rise },
+      task: 'B stands straight above A. What is the gradient of this line?',
+      why: 'The rise is `6 − (−1) = 7`, but the run is `4 − 4 = 0`. Nothing can be divided by 0, so the gradient is undefined.',
+      hint: 'Not quite. Look at the run.',
+      hints: { '0': 'Not quite. 0 belongs to a level line, whose rise is 0. Here it is the run that is 0.', '7': 'Not quite. 7 is the rise alone, and it cannot be divided by a run of 0.' } },
+    { show: true, name: 'Read the scales', view: VOLTS, pts: [[2, 10], [5, 25]], names: [null, null],
+      tris: [{ a: 0, b: 1, t: 0.6 }], dur: 3.2, note: 'The first reading gives `x₁` and `y₁`.',
+      text: 'With units on the axes, read the rise and run off the scales. For an ordinary resistor, voltage against current makes a roughly straight line, and its gradient is the resistance. These example readings give `15 V ÷ 3 A = 5` volts per amp, which is 5 Ω.' },
+    { kind: 'pick', name: 'Filling a tank', view: TANK, pts: [[2, 300], [6, 500]], names: [null, null], tris: [{ a: 0, b: 1 }],
+      note: 'The first reading gives `x₁` and `y₁`.',
+      opts: ['50 litres per minute', '0.02 minutes per litre', '200 litres'], want: '50 litres per minute',
+      slip: { '0.02 minutes per litre': (R) => R[0].run / R[0].rise, '200 litres': (R) => R[0].rise },
+      task: 'Water runs into a tank. What is the gradient of this line, with its units?',
+      why: 'The run is `6 − 2 = 4` minutes and the rise is `500 − 300 = 200` litres. So `m = 200 ÷ 4 = 50` litres per minute, with litres on top because litres go up the side.',
+      hint: 'Not quite. Divide the rise by the run, units and all.',
+      hints: { '0.02 minutes per litre': 'Not quite. That is the run over the rise. Litres go up the side, so litres go on top.', '200 litres': 'Not quite. 200 litres is the rise alone. Divide it by the run, 4 minutes.' } },
+    { kind: 'pick', name: 'One last mix', view: SQ(-5, 5, -4, 6), pts: [[-3, 4], [3, -2]], names: AB, tris: [{ a: 0, b: 1 }],
+      opts: ['−1', '1', 'undefined'], want: '−1',
+      slip: { '1': (R) => -R[0].rise / R[0].run, 'undefined': (R, P) => (P[1][0] - Math.abs(P[0][0]) === 0 ? null : NaN) },
+      task: 'One last mix. Find the gradient of the line through A and B.',
+      why: '`m = (−2 − 4) ÷ (3 − (−3)) = −6 ÷ 6 = −1`. The line falls from left to right, so a negative `m` fits.',
+      hint: 'Not quite. Use the rule, with brackets round negatives.',
+      hints: { '1': 'Not quite. The line falls from left to right, so its gradient is negative. Keep the minus on the rise.', 'undefined': 'Not quite. Without brackets, `3 − 3` looks like 0. Taking away −3 adds 3, so the run is 6.' } },
+  ];
+  const FINISH = 'A line\'s gradient, `m`, is the rise ÷ the run between any two of its points, taken in the same order. It is the climb for each 1 along, negative for a falling line, 0 for a level one and undefined for a line straight up.';
+  // Sources the checks restate (the lesson's own).
+  const BITESIZE = 'https://www.bbc.co.uk/bitesize/articles/zjbf9ty';
+  const BITESIZE_V = 'https://www.bbc.co.uk/bitesize/guides/z8383k7/revision/3';
+  const OHM_SLOPE = 'https://openstax.org/books/university-physics-volume-2/pages/9-4-ohms-law';
+  const OHM_UNITS = 'https://openstax.org/books/physics/pages/19-1-ohms-law';
+  // Margins round the grid (numbers left and below, axis names above and below), its widest and tallest.
+  const ML = 36, MR = 8, MT = 28, W = 340 - ML - MR, HMAX = 250;
+  const TR = 0.9;   // seconds a slide from one pair of points to the next takes
+  const FB = 2.4;   // seconds a puzzle's triangle takes to draw after a right answer or Why?
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+
+  // ---------- numbers, written as the explanation writes them ----------
+  const neg = (v) => (v < 0 ? '−' + Math.abs(v) : String(Math.abs(v) < 1e-12 ? 0 : v));
+  const br = (v) => (v < 0 ? '(' + neg(v) + ')' : neg(v));
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const grad = (p, q) => (q[0] === p[0] ? null : (q[1] - p[1]) / (q[0] - p[0]));
+  // One triangle's working, piece by piece: the rule filled in, rise ÷ run, then m.
+  function working(v, p, q) {
+    const run = q[0] - p[0], rise = q[1] - p[1];
+    const out = ['m = (' + neg(q[1]) + ' − ' + br(p[1]) + ') ÷ (' + neg(q[0]) + ' − ' + br(p[0]) + ')', '= ' + neg(rise) + v.uy + ' ÷ ' + neg(run) + v.ux];
+    if (run === 0) { out[1] += ','; out.push('and you cannot divide by 0, so m is undefined'); return out; }
+    const m = r2(rise / run), exact = Math.abs(m - rise / run) < 1e-9;
+    out.push((exact ? '= ' : '≈ ') + neg(m) + v.per);
+    if (v.ohm) out.push('= ' + neg(m) + ' Ω');
+    return out;
+  }
+  const say = (s) => String(s).replace('⅓', 'one third').replace(/−/g, 'minus ');
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // pts: on a SHOW screen, the points where Dan has dragged them (null until he drags).
+  function blank() { return { pick: null, res: null, why: false, pts: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  const finalPts = (d) => (d.keys ? d.keys[d.keys.length - 1].pts : d.pts);
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;                                                        // what the last paint drew, for the checks
+  let OBS = { hard: [], segs: [] };                                      // what labels keep clear of: boxes always, lines where they can
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[xym][₁₂]?(?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line with its letters italic; *a key term* is highlighted.
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at0) node.appendChild(document.createTextNode(seg.slice(at0, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at0 = m.index + m[0].length;
+      }
+      if (at0 < seg.length) node.appendChild(document.createTextNode(seg.slice(at0)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // Check: a right answer draws the step triangle and fills in the working; a wrong one gets its hint.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right' && !st.why) play(FB);
+  } });
+  // Why?: draws the triangle and fills in the working for these two points, with a few words.
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    st.why = !st.why;
+    if (st.why && st.res !== 'right') play(FB);
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    S[at()].pts = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and each puzzle's triangle; with reduced motion (and
+  // while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), labs = el('labs'), ui = el('ui');
+  const add = (node) => art.appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, dd) {
+    if (t0 + dd > latest) latest = t0 + dd;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, dd);
+  }
+  const ln = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+  function tx(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' });
+    italics(t, s, true);
+    return add(t);
+  }
+  // A step's grid: squares U across, the window's numbers to the left and below.
+  const GEO = new Map();
+  function geo(d) {
+    if (GEO.has(d)) return GEO.get(d);
+    const v = d.view, nx = Math.round((v.x1 - v.x0) / v.sx), ny = Math.round((v.y1 - v.y0) / v.sy);
+    const U = Math.min(v.umax, W / nx, HMAX / ny), gw = nx * U, gh = ny * U, gx = ML + (W - gw) / 2, gy = MT;
+    const G = { v, nx, ny, U, gw, gh, gx, gy, H: Math.ceil(gy + gh + 44),
+      px: (x) => gx + (x - v.x0) / v.sx * U, py: (y) => gy + gh - (y - v.y0) / v.sy * U };
+    GEO.set(d, G);
+    return G;
+  }
+  function drawGrid(G) {
+    const v = G.v;
+    for (let i = 0; i <= G.nx; i++) ln('gl', G.gx + i * G.U, G.gy, G.gx + i * G.U, G.gy + G.gh);
+    for (let j = 0; j <= G.ny; j++) ln('gl', G.gx, G.gy + j * G.U, G.gx + G.gw, G.gy + j * G.U);
+    if (v.x0 <= 0 && v.x1 >= 0) { ln('ax', G.px(0), G.gy, G.px(0), G.gy + G.gh); OBS.segs.push({ s: [G.px(0), G.gy, G.px(0), G.gy + G.gh], c: 8 }); }
+    if (v.y0 <= 0 && v.y1 >= 0) { ln('ax', G.gx, G.py(0), G.gx + G.gw, G.py(0)); OBS.segs.push({ s: [G.gx, G.py(0), G.gx + G.gw, G.py(0)], c: 8 }); }
+    for (let i = 0; i <= G.nx; i++) tx(G.gx + i * G.U, G.gy + G.gh + 19, neg(v.x0 + i * v.sx), 'tk');
+    for (let j = 0; j <= G.ny; j++) tx(G.gx - 7, G.gy + G.gh - j * G.U + 4.5, neg(v.y0 + j * v.sy), 'tk', 'end');
+    tx(G.gx + G.gw, G.gy + G.gh + 39, v.xt, 'at', 'end');
+    tx(G.gx, G.gy - 11, v.yt, 'at', 'start');
+    OBS.hard.push(boxOf(G.gx, G.gy - 11, tw(v.yt, 'at'), 'start'));
+  }
+  // The whole line through two points (px), cut to the grid.
+  function clip(p, q, G) {
+    const dx = q[0] - p[0], dy = q[1] - p[1];
+    if (Math.abs(dx) < 1e-9 && Math.abs(dy) < 1e-9) return null;
+    let t0 = -Infinity, t1 = Infinity;
+    const lim = [[p[0], dx, G.gx, G.gx + G.gw], [p[1], dy, G.gy, G.gy + G.gh]];
+    for (let k = 0; k < 2; k++) {
+      const [o, dd, lo, hi] = lim[k];
+      if (Math.abs(dd) < 1e-9) { if (o < lo - 1e-6 || o > hi + 1e-6) return null; continue; }
+      const a = (lo - o) / dd, b = (hi - o) / dd;
+      t0 = Math.max(t0, Math.min(a, b)); t1 = Math.min(t1, Math.max(a, b));
+    }
+    if (!(t0 < t1)) return null;
+    return [p[0] + t0 * dx, p[1] + t0 * dy, p[0] + t1 * dx, p[1] + t1 * dy];
+  }
+  // An arrow: a shaft and a filled head with its tip at (x2, y2).
+  function arrow(x1, y1, x2, y2, cls) {
+    const L = Math.hypot(x2 - x1, y2 - y1);
+    if (L < 2) return [];
+    const ux = (x2 - x1) / L, uy = (y2 - y1) / L, hl = Math.min(10, L * 0.7), hw = 5.5, bx = x2 - ux * hl, by = y2 - uy * hl;
+    const s = ln('sh' + cls, x1, y1, x2 - ux * hl * 0.6, y2 - uy * hl * 0.6);
+    const h = add(K.svg('path', { class: 'hd' + cls, d: 'M' + r2(x2) + ' ' + r2(y2) + ' L' + r2(bx - uy * hw) + ' ' + r2(by + ux * hw) + ' L' + r2(bx + uy * hw) + ' ' + r2(by - ux * hw) + ' Z' }));
+    const hx = [x2, bx - uy * hw, bx + uy * hw], hy = [y2, by + ux * hw, by - ux * hw];
+    OBS.segs.push({ s: [x1, y1, x2, y2], c: 300 });
+    OBS.hard.push({ x0: Math.min(...hx) - 1, y0: Math.min(...hy) - 1, x1: Math.max(...hx) + 1, y1: Math.max(...hy) + 1 });
+    return [s, h];
+  }
+
+  // ---------- labels: clear of each other, the dots, the arrowheads and the numbers; off the lines where they can be ----------
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    let w = 0;
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return s.length * (cls === 'lab' ? 8.4 : 7.6);
+  }
+  function boxOf(x, y, w, anchor) {
+    const x0 = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2;
+    return { x0, y0: y - 11.5, x1: x0 + w, y1: y + 4 };
+  }
+  const meets = (a, b, pad) => a.x0 < b.x1 + pad && b.x0 < a.x1 + pad && a.y0 < b.y1 + pad && b.y0 < a.y1 + pad;
+  // Does a line segment pass through a box? (Liang-Barsky)
+  function segHits(s, b) {
+    let t0 = 0, t1 = 1;
+    const dx = s[2] - s[0], dy = s[3] - s[1];
+    const pq = [[-dx, s[0] - b.x0], [dx, b.x1 - s[0]], [-dy, s[1] - b.y0], [dy, b.y1 - s[1]]];
+    for (let k = 0; k < 4; k++) {
+      const p = pq[k][0], q = pq[k][1];
+      if (Math.abs(p) < 1e-12) { if (q < 0) return false; continue; }
+      const r = q / p;
+      if (p < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    }
+    return true;
+  }
+  // Each label tries spots round where it wants to be, pulled inside the bounds, and takes the one
+  // that hits nothing solid, crosses the fewest lines and moves least.
+  function placeLabels(items, hard, segs, B) {
+    const placed = [];
+    return items.map((it) => {
+      const w = tw(it.text, 'lab'), h = 15.5, g = 4;
+      const C = [[0, 0], [0, -(h + g)], [0, h + g], [w / 2 + 2 * g, 0], [-(w / 2 + 2 * g), 0], [w / 2 + g, -(h + g)], [-(w / 2 + g), -(h + g)], [w / 2 + g, h + g], [-(w / 2 + g), h + g],
+        [0, -2 * (h + g)], [0, 2 * (h + g)], [w + g, 0], [-(w + g), 0], [w + g, -(h + g)], [-(w + g), -(h + g)], [w + g, h + g], [-(w + g), h + g], [0, -3 * (h + g)], [0, 3 * (h + g)]];
+      let best = null, bestCost = Infinity;
+      C.forEach((c, k) => {
+        let b = boxOf(it.x + c[0], it.y + c[1], w, it.anchor);
+        const sx = b.x0 < B.x0 ? B.x0 - b.x0 : b.x1 > B.x1 ? B.x1 - b.x1 : 0, sy = b.y0 < B.y0 ? B.y0 - b.y0 : b.y1 > B.y1 ? B.y1 - b.y1 : 0;
+        b = { x0: b.x0 + sx, x1: b.x1 + sx, y0: b.y0 + sy, y1: b.y1 + sy };
+        let cost = Math.hypot(c[0] + sx, c[1] + sy) * 0.5 + k * 0.5;
+        hard.forEach((o) => { if (meets(b, o, 3)) cost += 1000; });
+        placed.forEach((o) => { if (meets(b, o, 6)) cost += 1000; });
+        const wide = { x0: b.x0 - 2, y0: b.y0 - 2, x1: b.x1 + 2, y1: b.y1 + 2 };
+        segs.forEach((s) => { if (segHits(s.s, wide)) cost += s.c; });
+        if (cost < bestCost) { bestCost = cost; best = { b, dx: c[0] + sx, dy: c[1] + sy }; }
+      });
+      placed.push(best.b);
+      return { x: it.x + best.dx, y: it.y + best.dy };
+    });
+  }
+
+  // Where the points are now: Dan's, a SHOW step's slide at time T, or the step's own.
+  function phase(d) {
+    const keys = d.keys;
+    let k = 0;
+    for (let j = 1; j < keys.length; j++) if (T >= keys[j].at) k = j;
+    const kk = keys[k], nx = keys[k + 1];
+    let P = kk.pts, lin = 1, moving = false;
+    if (k > 0) {
+      const s = (T - kk.at) / TR;
+      if (s < 1) {
+        const e = K.ease(s);
+        P = keys[k - 1].pts.map((p, n) => [K.lerp(p[0], kk.pts[n][0], e), K.lerp(p[1], kk.pts[n][1], e)]);
+        moving = true; lin = 0;
+      } else lin = arr(kk.at + TR, 0.4);
+    }
+    // The numbers fade out before a slide and back in once the points land, so no in-between value shows.
+    const out = nx ? 1 - arr(nx.at - 0.3, 0.3) : 1;
+    return { P, k, moving, lin, out, la: moving ? 0 : lin * out };
+  }
+  // A triangle's state: drawn at all (vis), when its arrows start (t, null: drawn from the start),
+  // and for the asked triangle whether its rise is shown (open) and from when (tl).
+  function triState(d, st, tr, ph) {
+    if (d.show) return { vis: true, t: st.pts || (d.keys && ph.k > 0) || tr.t == null ? null : tr.t };
+    if (tr.given) return { vis: true, t: null };
+    const open = st.res === 'right' || st.why;
+    if (tr.ask) return { vis: true, t: null, ask: true, open, tl: open ? 0.1 : null };
+    return open ? { vis: true, t: 0.1 } : { vis: false };
+  }
+  // A point's label, beside it on the side away from its triangle.
+  function pointLabelAt(G, P, n, d) {
+    const x = G.px(P[n][0]), y = G.py(P[n][1]);
+    const tr = d.tris.find((t) => t.a === n || t.b === n) || d.tris[0];
+    const run = P[tr.b][0] - P[tr.a][0], rise = P[tr.b][1] - P[tr.a][1];
+    if (tr.a === n) {
+      if (Math.abs(run) < 1e-9) return { x, y: y + (rise > 0 ? 24 : -14), anchor: 'middle' };
+      return { x: x - Math.sign(run) * 12, y: y + 5, anchor: run > 0 ? 'end' : 'start' };
+    }
+    if (Math.abs(rise) < 1e-9) return { x, y: y - 14, anchor: 'middle' };
+    return { x, y: rise > 0 ? y - 14 : y + 24, anchor: 'middle' };
+  }
+  // The working rows above the grid.
+  function pieces(v, p, q, at0, a) {
+    const w = working(v, p, q);
+    return w.map((s, n) => ({ s, a: (at0 == null ? 1 : arr(at0 + 0.3 * n, 0.4)) * a,
+      cls: n === w.length - 1 ? (/undefined/.test(s) ? 'end wrap' : 'end') : '' }));
+  }
+  function rowsNow(d, st, ph, P) {
+    const v = d.view;
+    if (d.keys && !st.pts) {
+      const tr = d.tris[0], ks = d.keys;
+      const rowOf = (j, at0, a) => ({ lab: ks[j].lab, p: ks[j].pts[tr.a], q: ks[j].pts[tr.b], pieces: pieces(v, ks[j].pts[tr.a], ks[j].pts[tr.b], at0, a) });
+      const t0 = ph.k === 0 && tr.t != null ? tr.t + 1.3 : null;
+      // Each pair keeps its row (the later one waits, its space kept), or one row changes with the pair.
+      if (d.addRows) return ks.map((k1, j) => (j === 0 ? rowOf(0, t0, 1) : rowOf(j, null, j < ph.k ? 1 : j === ph.k && !ph.moving ? ph.lin : 0)));
+      const j = ph.moving ? ph.k - 1 : ph.k;
+      return [rowOf(j, j === 0 ? t0 : null, ph.moving ? 0 : ph.lin * ph.out)];
+    }
+    const open = st.res === 'right' || st.why;
+    return d.tris.map((tr) => {
+      if (!d.show && !tr.given && !open) return { lab: tr.lab, teal: tr.teal, q: null, pieces: [{ s: tr.ask ? 'rise = ?' : 'm = ?', a: 1, cls: 'q' }] };
+      const s = triState(d, st, tr, ph), at0 = s.tl != null ? s.tl + 1.3 : s.t != null ? s.t + 1.3 : null;
+      return { lab: tr.lab, teal: tr.teal, p: P[tr.a], q: P[tr.b], pieces: pieces(v, P[tr.a], P[tr.b], at0, 1) };
+    });
+  }
+  function drawRows(rows) {
+    const box = el('rows');
+    box.textContent = '';
+    rows.forEach((r) => {
+      const p = box.appendChild(K.el('p', { class: 'wk' + (r.teal ? ' teal' : '') }));
+      if (r.lab) p.appendChild(K.el('span', { class: 'lab' }, r.lab + ': '));
+      r.pieces.forEach((pc, n) => {
+        const s = p.appendChild(K.el('span', { class: 'pc ' + pc.cls }));
+        italics(s, pc.s, false);
+        K.fade(s, pc.a, 0);
+        if (n < r.pieces.length - 1) p.appendChild(document.createTextNode(' '));
+      });
+      REC.rows.push({ lab: r.lab || '', s: r.pieces.map((pc) => pc.s).join(' '), p: r.p, q: r.q });
+    });
+  }
+  const coord = (p) => '(' + neg(r2(p[0])) + ', ' + neg(r2(p[1])) + ')';
+  function describe(d, P, tris) {
+    const v = d.view;
+    let s = (v.sx === 1 && v.sy === 1 ? 'A squared grid' : 'A grid with ' + v.xt + ' across and ' + v.yt + ' up') + ', with ' +
+      P.map((p, n) => (d.names[n] ? d.names[n] + ' at ' : 'a point at ') + coord(p)).join(' and ') + ' on one straight line.';
+    tris.forEach((o) => {
+      s += ' A run arrow of ' + neg(r2(o.run)) + ' points ' + (o.run > 0 ? 'right' : o.run < 0 ? 'left' : 'nowhere, as the run is 0') + ', then a rise arrow' +
+        (o.s.ask && !o.s.open ? ' climbs to the next point.' : ' of ' + neg(r2(o.rise)) + ' points ' + (o.rise > 0 ? 'up.' : o.rise < 0 ? 'down.' : 'nowhere, as the rise is 0.'));
+    });
+    return s;
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], G = geo(d), v = d.view;
+    art.textContent = '';
+    REC = { tris: [], rows: [], labels: [], line: null };
+    OBS = { hard: [], segs: [] };
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    drawGrid(G);
+    const ph = d.keys && !st.pts ? phase(d) : { P: st.pts || d.pts, k: 0, moving: false, lin: 1, out: 1, la: 1 };
+    const P = ph.P, avoid = [], items = [], xy = (p) => [G.px(p[0]), G.py(p[1])];
+    const tris = d.tris.map((tr) => {
+      const s = triState(d, st, tr, ph);
+      if (!s.vis) return null;
+      const t = s.t, p = P[tr.a], q = P[tr.b], A = xy(p), B = xy(q);
+      return { tr, s, A, B, C: [B[0], A[1]], run: q[0] - p[0], rise: q[1] - p[1],
+        gRun: t == null ? 1 : arr(t, 0.6), gRise: t == null ? 1 : arr(t + 0.6, 0.6),
+        aRun: (t == null ? 1 : arr(t + 0.5, 0.4)) * ph.la,
+        aRise: (s.tl != null ? arr(s.tl + 1.1, 0.4) : t == null ? 1 : arr(t + 1.1, 0.4)) * ph.la };
+    }).filter(Boolean);
+    // The triangles' faint fill, the line, then the arrows and the points on top.
+    tris.forEach((o) => {
+      if (Math.abs(o.run) < 1e-9 || Math.abs(o.rise) < 1e-9) return;
+      const f = add(K.svg('path', { class: 'tri' + (o.tr.teal ? ' teal' : ''), d: 'M' + r2(o.A[0]) + ' ' + r2(o.A[1]) + ' L' + r2(o.C[0]) + ' ' + r2(o.C[1]) + ' L' + r2(o.B[0]) + ' ' + r2(o.B[1]) + ' Z' }));
+      K.fade(f, Math.min(o.gRun, o.gRise), 0);
+    });
+    const c = clip(xy(P[0]), xy(P[P.length - 1]), G);
+    if (c) { avoid.push(ln('ln', c[0], c[1], c[2], c[3])); REC.line = c; OBS.segs.push({ s: c, c: 40 }); }
+    tris.forEach((o) => {
+      const cls = o.tr.teal ? ' teal' : '', rec = { run: o.run, rise: o.rise, runDir: 0, riseDir: 0 };
+      if (Math.abs(o.run) > 1e-9 && o.gRun > 0) {
+        const back = Math.abs(o.rise) < 1e-9 ? 9 : 0, dir = Math.sign(o.C[0] - o.A[0]);
+        const ex = K.lerp(o.A[0], o.C[0], o.gRun) - dir * back * o.gRun, parts = arrow(o.A[0], o.A[1], ex, o.C[1], cls);
+        if (parts.length) { avoid.push(...parts); rec.runDir = Math.sign(ex - o.A[0]); }
+      }
+      if (Math.abs(o.rise) > 1e-9 && o.gRise > 0) {
+        const dir = Math.sign(o.B[1] - o.C[1]), ey = K.lerp(o.C[1], o.B[1], o.gRise) - dir * 9 * o.gRise, parts = arrow(o.C[0], o.C[1], o.C[0], ey, cls);
+        if (parts.length) { avoid.push(...parts); rec.riseDir = Math.sign(o.C[1] - ey); }
+      }
+      REC.tris.push(rec);
+    });
+    P.forEach((p) => {
+      const cx = G.px(p[0]), cy = G.py(p[1]);
+      avoid.push(add(K.svg('circle', { class: 'pt', cx: r2(cx), cy: r2(cy), r: 6.5 })));
+      OBS.hard.push({ x0: cx - 9, y0: cy - 9, x1: cx + 9, y1: cy + 9 });
+    });
+    // Labels: each point's name and place, then each arrow's signed size.
+    P.forEach((p, n) => items.push(Object.assign(pointLabelAt(G, P, n, d), { text: (d.names[n] ? d.names[n] + ' ' : '') + coord(p), class: 'lab', a: ph.la })));
+    tris.forEach((o) => {
+      const cls = 'lab arw' + (o.tr.teal ? ' teal' : ''), flat = Math.abs(o.rise) < 1e-9, up = Math.abs(o.run) < 1e-9;
+      items.push(up ? { x: o.A[0] - 12, y: o.A[1] + 5, anchor: 'end', text: 'run 0' + v.ux, class: cls, a: o.aRun }
+        : { x: (o.A[0] + o.C[0]) / 2, y: o.C[1] + (o.rise >= 0 ? 20 : -9), anchor: 'middle', text: 'run ' + neg(r2(o.run)) + v.ux, class: cls, a: o.aRun });
+      const rt = o.s.ask && !o.s.open ? 'rise ?' : 'rise ' + neg(r2(o.rise)) + v.uy;
+      items.push(flat ? { x: o.B[0] + (o.run > 0 ? 12 : -12), y: o.B[1] + 5, anchor: o.run > 0 ? 'start' : 'end', text: rt, class: cls, a: o.aRise }
+        : { x: o.C[0] + (o.run >= 0 ? 9 : -9), y: (o.C[1] + o.B[1]) / 2 + 5, anchor: o.run >= 0 ? 'start' : 'end', text: rt, class: cls, a: o.s.ask && !o.s.open ? 1 : o.aRise });
+    });
+    const pos = placeLabels(items, OBS.hard, OBS.segs, { x0: G.gx + 2, x1: 338, y0: 3, y1: G.gy + G.gh - 2 });
+    labs.textContent = '';
+    items.forEach((it, n) => {
+      const t = labs.appendChild(K.svg('text', { class: it.class, x: r2(pos[n].x), y: r2(pos[n].y), 'text-anchor': it.anchor || 'middle' }, it.text));
+      K.fade(t, it.a, 0);
+      if (it.a >= 0.5) REC.labels.push(it.text);
+    });
+    drawRows(rowsNow(d, st, ph, P));
+    svg.setAttribute('aria-label', describe(d, P, tris));
+    placeGrips(d, P, G);
+  }
+
+  // ---------- dragging A and B ----------
+  const grips = [0, 1].map((n) => ui.appendChild(K.svg('circle', { class: 'grip', cx: -100, cy: -100, r: 22, tabindex: -1, role: 'button', 'aria-label': 'Point' })));
+  function placeGrips(d, P, G) {
+    const on = !!d.drag && !finished;
+    svg.classList.toggle('grab', on);
+    grips.forEach((g, n) => {
+      const show = on && n < P.length;
+      g.style.display = show ? '' : 'none';
+      g.setAttribute('tabindex', show ? '0' : '-1');
+      if (!show) return;
+      g.setAttribute('cx', r2(G.px(P[n][0]))); g.setAttribute('cy', r2(G.py(P[n][1])));
+      g.setAttribute('aria-label', 'Point ' + d.names[n] + ' at ' + coord(P[n]) + '. Drag it, or move it with the arrow keys.');
+    });
+  }
+  // A dragged point lands on whole numbers inside the grid (on the line, on the slide screen), never on the other point.
+  function setPoint(n, xy) {
+    const i = at(), d = STEPS[i], st = S[i], v = d.view;
+    if (!d.drag || finished) return;
+    const base = (st.pts || (d.keys ? d.keys[phase(d).k].pts : d.pts)).map((p) => p.slice());
+    let x = K.clamp(Math.round(xy[0]), v.x0, v.x1), y = K.clamp(Math.round(xy[1]), v.y0, v.y1);
+    if (d.drag === 'line') {
+      const m = d.on[0], c = d.on[1], lo = Math.ceil(Math.max(v.x0, (v.y0 - c) / m)), hi = Math.floor(Math.min(v.x1, (v.y1 - c) / m));
+      x = K.clamp(Math.round(xy[0]), lo, hi); y = m * x + c;
+    }
+    const other = base[1 - n];
+    if (other[0] === x && other[1] === y) return;
+    if (st.pts && base[n][0] === x && base[n][1] === y) return;
+    base[n] = [x, y];
+    if (anim.playing()) anim.pause();
+    T = Infinity; st.pts = base;
+    K.reveal(); K.refresh();
+  }
+  function dataAt(e) {
+    const m = svg.getScreenCTM();
+    if (!m) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()), G = geo(STEPS[at()]), v = G.v;
+    return [v.x0 + (q.x - G.gx) / G.U * v.sx, v.y0 + (G.gy + G.gh - q.y) / G.U * v.sy];
+  }
+  let held = null;
+  grips.forEach((g, n) => {
+    g.addEventListener('pointerdown', (e) => {
+      if (!STEPS[at()].drag || finished) return;
+      held = { id: e.pointerId, n };
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the handle */ }
+      e.preventDefault();
+    });
+    g.addEventListener('pointermove', (e) => {
+      if (!held || held.id !== e.pointerId || held.n !== n) return;
+      e.preventDefault();
+      const q = dataAt(e);
+      if (q) setPoint(n, q);
+    });
+    const letGo = (e) => { if (held && held.id === e.pointerId) held = null; };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', letGo);
+    g.addEventListener('keydown', (e) => {
+      const d = STEPS[at()], st = S[at()];
+      const by = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[e.key];
+      if (!d.drag || finished || !by) return;
+      e.preventDefault();
+      const p = (st.pts || finalPts(d))[n];
+      setPoint(n, d.drag === 'line' ? [p[0] + by[0] + by[1], 0] : [p[0] + by[0], p[1] + by[1]]);
+    });
+  });
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.pts = null; play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    write(el('rule'), RULE);
+    write(el('ronote'), d.note || NOTE);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const valueOf = (o) => (o === 'undefined' ? null : o === '⅓' ? 1 / 3 : parseFloat(String(o).replace('−', '-')));
+  const same = (a, b) => (a === null || b === null ? a === b : Math.abs(a - b) < 1e-9);
+  const runRise = (d, P) => d.tris.map((tr) => ({ run: P[tr.b][0] - P[tr.a][0], rise: P[tr.b][1] - P[tr.a][1] }));
+  // A puzzle's answer from its own points: rise ÷ run, or (the bigger step) the climb per 1 times the new run.
+  function answerOf(d) {
+    const R = runRise(d, d.pts);
+    if (d.tris[1] && d.tris[1].ask) return R[0].rise / R[0].run * R[1].run;
+    return R[0].run === 0 ? null : R[0].rise / R[0].run;
+  }
+  const lastNum = (s) => { const m = String(s).replace(/−/g, '-').match(/-?\d+(?:\.\d+)?/g); return m ? +m[m.length - 1] : NaN; };
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  const shown = (i) => drawn(i, STEPS[i].show ? blank() : solvedSt(i));
+
+  K.check('To find the gradient of a line joining two points, divide the difference in the y-coordinates by the difference in the x-coordinates: every row of working ends in its rise ÷ its run, and each puzzle accepts only that answer', () =>
+    STEPS.every((d, i) => shown(i).rows.every((r) => (r.q[0] === r.p[0] ? /undefined/.test(r.s) : Math.abs(lastNum(r.s) - grad(r.p, r.q)) < 0.006))) &&
+    DO.every((i) => { const d = STEPS[i], a = answerOf(d); return same(valueOf(d.want), a) && d.opts.every((o) => o === d.want || !same(valueOf(o), a)); }),
+    { source: BITESIZE });
+  K.check('Vertical lines have a gradient which is undefined: on the line straight up, and in the puzzle where B stands straight above A, the run is zero and the working ends in undefined instead of a number', () => {
+    const a = shown(idx('Level and straight up')), b = shown(idx('Straight up'));
+    return a.rows.length === 2 && !/undefined/.test(a.rows[0].s) && /undefined$/.test(a.rows[1].s) && a.tris[0].run === 0 &&
+      /undefined$/.test(b.rows[0].s) && b.tris[0].run === 0 && answerOf(STEPS[idx('Straight up')]) === null;
+  }, { source: BITESIZE_V });
+  K.check('The gradient is a measure of how steep the line is: with A held still, each step higher for B makes the drawn line steeper and its m bigger', () => {
+    let m0 = -Infinity, s0 = -Infinity;
+    for (let y = 4; y <= 10; y++) {
+      const g = drawn(0, Object.assign(blank(), { pts: [[1, 3], [4, y]] })), L = g.line, s = Math.abs((L[3] - L[1]) / (L[2] - L[0])), m = lastNum(g.rows[0].s);
+      if (!(s > s0 && m > m0)) return false;
+      s0 = s; m0 = m;
+    }
+    return true;
+  }, { source: BITESIZE });
+  K.check('The slope of the line is the resistance, or the voltage divided by the current: on the volts screen the gradient equals each reading\'s voltage divided by its current', () => {
+    const P = STEPS[idx('Read the scales')].pts, m = grad(P[0], P[1]);
+    return P.every((p) => same(p[1] / p[0], m));
+  }, { source: OHM_SLOPE });
+  K.check('The units of resistance are volts per ampere: the volts screen gives its gradient in V per A, then in ohms', () =>
+    / V per A = \d+ Ω$/.test(shown(idx('Read the scales')).rows[0].s) && /Ω/.test(STEPS[idx('Read the scales')].text), { source: OHM_UNITS });
+  K.check('Every worked number is right, row by row: 6 ÷ 3 = 2 (3 ÷ 6 = 0.5 the wrong way up), 6 ÷ 2 = 3, 2 ÷ 1 and 10 ÷ 5 = 2, 4 ÷ 2 and 6 ÷ 3 = 2 (3 × 2 = 6), −6 ÷ 3 = −2 twice, 6 ÷ 3 and −6 ÷ −3 = 2, 9 ÷ 3 = 3, 0 ÷ 4 = 0, 5 ÷ 0 and 7 ÷ 0 undefined, 15 V ÷ 3 A = 5 V per A, 200 litres ÷ 4 minutes = 50, −6 ÷ 6 = −1, and −12 ÷ 6 = 12 ÷ −6 = −2', () => {
+    const U0 = ', and you cannot divide by 0, so m is undefined';
+    const table = [
+      ['Rise over run', ['m = (9 − 3) ÷ (4 − 1) = 6 ÷ 3 = 2']],
+      ['Your turn', ['m = (8 − 2) ÷ (3 − 1) = 6 ÷ 2 = 3']],
+      ['Same line, same m', ['m = (11 − 1) ÷ (5 − 0) = 10 ÷ 5 = 2']],
+      ['A bigger step', ['m = (5 − 1) ÷ (2 − 0) = 4 ÷ 2 = 2', 'm = (11 − 5) ÷ (5 − 2) = 6 ÷ 3 = 2']],
+      ['A falling line', ['m = (1 − 7) ÷ (4 − 1) = −6 ÷ 3 = −2']],
+      ['Downhill', ['m = (3 − 9) ÷ (5 − 2) = −6 ÷ 3 = −2']],
+      ['Brackets, either way round', ['m = (3 − (−3)) ÷ (2 − (−1)) = 6 ÷ 3 = 2', 'm = (−3 − 3) ÷ (−1 − 2) = −6 ÷ −3 = 2']],
+      ['Negative coordinates', ['m = (4 − (−5)) ÷ (1 − (−2)) = 9 ÷ 3 = 3']],
+      ['Level and straight up', ['m = (4 − 4) ÷ (5 − 1) = 0 ÷ 4 = 0', 'm = (6 − 1) ÷ (3 − 3) = 5 ÷ 0' + U0]],
+      ['Straight up', ['m = (6 − (−1)) ÷ (4 − 4) = 7 ÷ 0' + U0]],
+      ['Read the scales', ['m = (25 − 10) ÷ (5 − 2) = 15 V ÷ 3 A = 5 V per A = 5 Ω']],
+      ['Filling a tank', ['m = (500 − 300) ÷ (6 − 2) = 200 litres ÷ 4 minutes = 50 litres per minute']],
+      ['One last mix', ['m = (−2 − 4) ÷ (3 − (−3)) = −6 ÷ 6 = −1']],
+    ];
+    const rowsOk = table.every((r) => { const g = shown(idx(r[0])); return g.rows.length === r[1].length && g.rows.every((x, n) => x.s === r[1][n]); });
+    const slid = drawn(idx('Same line, same m'), blank(), 2.4).rows[0].s === 'm = (7 − 5) ÷ (3 − 2) = 2 ÷ 1 = 2';
+    const plain = SQ(0, 1, 0, 1), we = working(plain, [-2, 7], [4, -5]).join(' '), back = working(plain, [4, -5], [-2, 7]).join(' ');
+    return rowsOk && slid && same(3 / 6, 0.5) && same(4 / 2 * 3, 6) &&
+      we === 'm = (−5 − 7) ÷ (4 − (−2)) = −12 ÷ 6 = −2' && back === 'm = (7 − (−5)) ÷ (−2 − 4) = 12 ÷ −6 = −2';
+  });
+  K.check('Any two points on one straight line give the same m: on the slide screen, every pair of whole-number points along its line gives 2', () => {
+    const i = idx('Same line, same m');
+    for (let a = 0; a <= 5; a++) for (let b = 0; b <= 5; b++) {
+      if (a === b) continue;
+      if (lastNum(drawn(i, Object.assign(blank(), { pts: [[a, 2 * a + 1], [b, 2 * b + 1]] })).rows[0].s) !== 2) return false;
+    }
+    return true;
+  });
+  K.check('The arrows give the sign: every run arrow points right exactly when its run is positive and every rise arrow up exactly when its rise is positive; starting from B turns both round but keeps m', () => {
+    const fits = (g) => g.tris.every((r) => (r.run === 0 ? r.runDir === 0 : r.runDir === Math.sign(r.run)) && (r.rise === 0 ? r.riseDir === 0 : r.riseDir === Math.sign(r.rise)));
+    const all = STEPS.every((d, i) => fits(shown(i))) && fits(drawn(0, Object.assign(blank(), { pts: [[4, 9], [1, 3]] }))) && fits(drawn(0, Object.assign(blank(), { pts: [[6, 2], [0, 8]] })));
+    const g = shown(idx('Brackets, either way round')), a = g.tris[0], b = g.tris[1];
+    return all && a.runDir === -b.runDir && a.riseDir === -b.riseDir && same(a.rise / a.run, b.rise / b.run);
+  });
+  K.check('Before an answer a puzzle draws no new triangle and its working reads ?; a right answer draws the triangle and fills in the working, and every wrong answer has a hint of its own', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g0 = drawn(i, blank()), g1 = drawn(i, solvedSt(i));
+      const before = g0.tris.length === d.tris.filter((t) => t.given || t.ask).length && g0.rows.some((r) => /\?/.test(r.s)) && g0.labels.indexOf('rise ' + neg(runRise(d, d.pts)[d.tris.length - 1].rise)) < 0;
+      const after = g1.tris.length === d.tris.length && g1.rows.every((r) => !/\?/.test(r.s));
+      return before && after && d.opts.every((o) => o === d.want || (d.hints[o] && d.hints[o] !== d.hint));
+    }));
+  K.check('Every wrong answer offered is a real slip, worked from the puzzle\'s own points: the run over the rise, the rise alone, a lost minus, dropped brackets or a mixed order', () =>
+    DO.every((i) => { const d = STEPS[i], R = runRise(d, d.pts); return d.opts.every((o) => o === d.want || (d.slip[o] && same(valueOf(o), d.slip[o](R, d.pts)))); }));
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; a puzzle\'s triangle draws within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity; S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => (d.show ? timed(i, blank(), d.dur) && d.dur >= 2.8 && d.dur <= 4.5 && earliest >= FADE
+      : timed(i, solvedSt(i), FB) && timed(i, Object.assign(blank(), { why: true }), FB)));
+    T = keepT; paint();
+    return ok && FB <= 2.5;
+  });
+
+  K.ready();
+</script>

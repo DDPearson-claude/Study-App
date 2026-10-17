@@ -1,0 +1,149 @@
+{
+ "title": "Straight-line graphs you will actually use",
+ "hook": "A motor winding's resistance, read at a few temperatures, plots roughly as a line. How do you turn those readings into a rule for other temperatures in that range, and what do its two numbers mean?",
+ "oneBreath": "Any straight line on a graph that is not vertical has a rule, y = mx + c, with just two numbers in it. The gradient m is how much y changes for each 1 along, found from any two points on the line, and c is the value of y where the line crosses the y-axis. Two points, or one point and a gradient, pin down one line and its rule, and the same two points also give their distance apart and their midpoint. On the job, readings that fall on or near a line become a law, where the gradient and the crossing are real quantities with units, such as a resistor's ohms.",
+ "ideas": [
+  {
+   "id": "i1",
+   "title": "Gradient from two points",
+   "oneLine": "A line's gradient m is change in y ÷ change in x between any two of its points: the rise for each 1 along.",
+   "deps": [],
+   "kind": "quantity"
+  },
+  {
+   "id": "i2",
+   "title": "Distance and midpoint",
+   "oneLine": "The step triangle between two points also gives their distance apart, by Pythagoras, and their midpoint, halfway along and halfway up.",
+   "deps": [
+    "i1"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i3",
+   "title": "y = mx + c",
+   "oneLine": "Any line that is not vertical has a rule y = mx + c, with m its gradient and c where it crosses the y-axis.",
+   "deps": [
+    "i1"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i4",
+   "title": "Finding the equation of a line",
+   "oneLine": "From two points, or a point and the gradient, get m, then put one point into y = mx + c and solve for c.",
+   "deps": [
+    "i1",
+    "i3"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i5",
+   "title": "Laws from readings",
+   "oneLine": "When readings plot as a straight line, its gradient and y-axis crossing are real quantities with units, like a resistor's ohms from volts against amps.",
+   "deps": [
+    "i3",
+    "i4"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i6",
+   "title": "Fitting a line to readings",
+   "oneLine": "When real readings scatter, lay one line through their middle, about as many above as below, and read the law from that line.",
+   "deps": [
+    "i4",
+    "i5"
+   ],
+   "kind": "skill"
+  }
+ ],
+ "calibration": [
+  {
+   "id": "c1",
+   "iid": "i1",
+   "q": "A line passes through the points (2, 3) and (2, 8). How steep is it, as a rise for each 1 along?",
+   "options": [
+    "0, because it is flat",
+    "It has no such number: it stands straight up",
+    "5"
+   ],
+   "answer": 1,
+   "why": "Both points have x = 2, so the line stands straight up. Its run is 0, and rise ÷ run would mean 5 ÷ 0, which has no answer. 0 is the steepness of a flat line, where the rise is 0, not the run."
+  },
+  {
+   "id": "c2",
+   "iid": "i3",
+   "q": "The line y = 2x − 6 is drawn on a grid. Where does it cross the x-axis, the one running across?",
+   "options": [
+    "(0, −6)",
+    "(−6, 0)",
+    "(2, 0)",
+    "(3, 0)"
+   ],
+   "answer": 3,
+   "why": "Everywhere on the x-axis y is 0, so 0 = 2x − 6, which gives x = 3: the point (3, 0). (0, −6) is where the line crosses the other axis, the y-axis running up the side."
+  }
+ ],
+ "query": "Straight-line graphs",
+ "level": "some",
+ "mode": "read",
+ "intake": {
+  "questions": [
+   {
+    "id": "q1",
+    "q": "What do you want from this course?",
+    "options": [
+     "To understand straight-line graphs and how to work with them",
+     "A quick refresher of the methods",
+     "Exam practice"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q2",
+    "q": "Where will you use it?",
+    "options": [
+     "On the job and in everyday life",
+     "For further study",
+     "Just curiosity"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q3",
+    "q": "How do you like to learn?",
+    "options": [
+     "Hands-on, with the why explained in full",
+     "Rules and worked examples only",
+     "Lots of practice questions"
+    ],
+    "multi": false,
+    "other": false
+   }
+  ],
+  "answers": {
+   "q1": {
+    "picked": [
+     "To understand straight-line graphs and how to work with them"
+    ],
+    "other": null
+   },
+   "q2": {
+    "picked": [
+     "On the job and in everyday life"
+    ],
+    "other": null
+   },
+   "q3": {
+    "picked": [
+     "Hands-on, with the why explained in full"
+    ],
+    "other": null
+   }
+  }
+ }
+}
