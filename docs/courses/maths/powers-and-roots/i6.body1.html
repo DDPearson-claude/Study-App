@@ -1,0 +1,926 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; }
+  /* The metre (a length, a square or a cube), its zoomed corner, and what fills them. */
+  .scene .face { fill: var(--k-panel); stroke: none; }
+  .scene .edge { fill: none; stroke: var(--k-ink); stroke-width: 1.5; stroke-linejoin: round; }
+  .scene .fill { fill: var(--k-fill1); }
+  .scene .lit { fill: var(--k-fill2); }
+  .scene .grid { fill: none; stroke: var(--k-strong); stroke-width: .8; }
+  .scene .box { fill: none; stroke: var(--k-accent); stroke-width: 1.5; }
+  .scene .lensbg { fill: var(--k-bg); stroke: none; }
+  .scene .lens { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linejoin: round; }
+  .scene .lensin { fill: none; stroke: var(--k-accent); stroke-width: 1.2; }
+  .scene .conn { stroke: var(--k-accent); stroke-width: 1.2; stroke-dasharray: 4 3; }
+  .scene .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .cable { fill: var(--k-fill3); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .dot { fill: var(--k-accent2); }
+  /* A slip is drawn in the warning colour. */
+  .scene .badf { fill: var(--k-warn); fill-opacity: .3; stroke: none; }
+  .scene .badl { fill: none; stroke: var(--k-warn); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .badc { fill: none; stroke: var(--k-warn); stroke-width: 2; }
+  .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .tl { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .sl { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .ky { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  .scene .ct { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .wk { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .ans { fill: var(--k-accent2); }
+  .scene .bad { fill: var(--k-warn); }
+  /* The two dials: power (1, 2, 3) and prefix (cm, mm). */
+  .dials { display: grid; gap: 8px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 6rem; min-height: 48px; }
+  .row.dial { flex-wrap: nowrap; align-items: center; gap: 8px; }
+  .dial .k-label { flex: 0 0 4.6rem; margin: 0; }
+  .row.dial .k-btn { flex: 1 1 0; min-width: 0; min-height: 44px; font-size: 1.05rem; white-space: nowrap; padding-inline: 4px; }
+  .dial .k-btn[aria-pressed="true"], .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stack one to a row, each label whole. */
+  .row.picks { flex-direction: column; flex-wrap: nowrap; gap: 8px; }
+  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; font-size: 1.1rem; white-space: nowrap; }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">One metre, drawn as a length, a square or a cube, and filled with centimetres or millimetres. The cables, loads, cylinder and busbar are examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 320" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="dials" id="dials">
+      <div class="row dial" id="dialP"><span class="k-label">Power</span></div>
+      <div class="row dial" id="dialU"><span class="k-label">Prefix</span></div>
+    </div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">A prefix and its unit make one symbol, so a power on the unit takes the prefix too.</p>
+
+<script>
+  // ---------- the rule (pure, so the checks can test it) ----------
+  // Centi and milli in metres (BIPM [2], Wikipedia [1]). A prefix and its unit make one symbol, so a
+  // power on the unit takes the prefix too: 1 u^p = (10^e m)^p = 10^(p·e) m^p, the indices added p
+  // times. Zoomed in, 1 m^p fills with n^p small units, n = 1 ÷ 10^e being the length factor, the
+  // count along each of its p directions.
+  const CENTI = 0.01, MILLI = 0.001;
+  const PRE = { cm: CENTI, mm: MILLI };
+  const UNITS = ['cm', 'mm'];
+  function expOf(u) { return Math.round(Math.log10(PRE[u])); }
+  function nOf(u) { return Math.round(1 / PRE[u]); }
+  function powOf(u, p) { let k = 0; for (let j = 0; j < p; j++) k += expOf(u); return k; }
+  function countOf(u, p) { return Math.pow(nOf(u), p); }
+  function mul(a, k) { return +(a * Math.pow(10, k)).toPrecision(12); }
+  const LC = 10;   // the zoomed corner draws 10 small units along each edge in full; the rest are counted
+
+  // ---------- numbers written the way the explanation writes them ----------
+  const SUP = { '-': '⁻', 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹' };
+  const SUPR = {};
+  Object.keys(SUP).forEach((k) => { SUPR[SUP[k]] = k; });
+  function sup(k) { return String(k).split('').map((c) => SUP[c]).join(''); }
+  function ten(k) { return '10' + sup(k); }
+  function sgn(k) { return String(k).replace('-', '−'); }
+  function uP(u, p) { return p === 1 ? u : u + sup(p); }
+  function grp(v) { const s = String(Math.round(v)); return Math.abs(v) >= 10000 ? s.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : s; }
+  function dec(v) { return String(+(+v).toPrecision(10)); }
+  function std(v) { const k = Math.floor(Math.log10(v) + 1e-9), a = +(v / Math.pow(10, k)).toPrecision(10); return (a === 1 ? '' : dec(a) + ' × ') + ten(k); }
+  function sci(a, k) { return dec(a) + ' × ' + ten(k); }
+  function big(c) { return c <= 1e6 ? grp(c) : std(c); }
+  // A label read back as a number (units dropped): '1.5 × 10⁻⁶ m²', '10⁻⁴ m²', '1,000,000 mm²'.
+  function valueOf(label) {
+    const s = String(label).split(' ').filter((w) => !/[a-zA-Z]/.test(w)).join(' ');
+    const pw = (t) => +t.split('').map((c) => SUPR[c]).join('');
+    let m = /^([\d.,]+) × 10([⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+)$/.exec(s);
+    if (m) return mul(+m[1].replace(/,/g, ''), pw(m[2]));
+    m = /^10([⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+)$/.exec(s);
+    if (m) return mul(1, pw(m[1]));
+    if (/^[\d.,]+$/.test(s)) return +s.replace(/,/g, '');
+    return NaN;
+  }
+
+  // The readout: the small unit as a power of ten, then the whole bracket raised to the dial's power.
+  // why: the working in full (side times side, the indices added, the units multiplied).
+  function unitLines(u, p, why) {
+    const e = expOf(u), k = powOf(u, p), L = ['1 ' + u + ' = ' + ten(e) + ' m'];
+    if (p === 1) return L;
+    const br = '(' + ten(e) + ' m)' + sup(p) + ' = ' + ten(k) + ' ' + uP('m', p);
+    if (!why) return L.concat(['1 ' + uP(u, p) + ' = ' + br]);
+    const rep = (s) => Array(p).fill(s);
+    return L.concat(['1 ' + uP(u, p) + ' = ' + rep(ten(e) + ' m').join(' × '), '= ' + br,
+      rep(sgn(e)).join(' add ') + ' makes ' + sgn(k) + ',', 'and ' + rep('m').join(' × ') + ' makes ' + uP('m', p)]);
+  }
+  // The count under the picture: how many small units fill the metre so far.
+  function countText(u, p, rr) {
+    const n = nOf(u), r = Math.max(1, Math.min(n, Math.floor(rr + 1e-9))), full = r >= n;
+    if (p === 1) return full ? n + ' ' + u + ' along 1 m' : r + ' of ' + n + ' ' + u;
+    const what = (p === 2 ? (r === 1 ? ' row' : ' rows') : (r === 1 ? ' layer' : ' layers')) + ' of ' + n + (p === 3 ? ' × ' + n : '');
+    return r + what + (full ? ' = ' + big(countOf(u, p)) + ' ' + uP(u, p) : '');
+  }
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // A SHOW step: end, the figure its demonstration ends on (p, the power dial; u, the prefix dial);
+  // live, the dials work there; why, the readout shows the working in full; lit, the first row is lit;
+  // extra, a cable's cross-section or a load on each mm² drawn in the zoomed corner; lines, fixed
+  // lines of working. A puzzle: fig, its figure (or bus, a busbar's cross-section); qLines, its working
+  // before an answer; opts, the answers offered, each with its value and, for a wrong one, its slip
+  // ('row': the length factor once; 'edges': doubled; 'depth' and 'layer': the wrong power; 'way':
+  // the wrong way) and the two red lines that say so; truth, the right value worked out from the rule;
+  // ansLines, the working a right answer adds; countAt, the count as the fill sweeps.
+  const PICK = 'Tap one of the answers.';
+  const pz = (o) => Object.assign({ show: false }, o);
+  const STEPS = [
+    (() => {
+      const u = 'cm', n = nOf(u);
+      return { show: true, name: 'A metre of centimetres', live: true, demo: 'grow', end: { p: 2, u },
+        text: n + ' cm fit along one metre, so the *length factor* is ' + n + ' and 1 cm = `' + ten(expOf(u)) + ' m`. Make it a square metre and the same ' + n +
+          ' cm runs along two sides, so it fills with ' + n + ' rows of ' + n + ', ' + big(countOf(u, 2)) + ' cm².' };
+    })(),
+    (() => {
+      const u = 'mm', p = 2, n = nOf(u), c = countOf(u, p), U = uP(u, p);
+      return pz({ name: 'Square millimetres', fig: { p, u },
+        task: 'How many square millimetres fill a square metre?',
+        qLines: ['Each side: 1 m = ' + n + ' ' + u],
+        opts: [
+          { label: n + ' ' + U, val: n, slip: 'row', says: [n + ' ' + U + ' is only the first row,', 'a strip 1 ' + u + ' wide, ' + (n - 1) + ' rows to go'] },
+          { label: big(c) + ' ' + U, val: c },
+          { label: 2 * n + ' ' + U, val: 2 * n, slip: 'edges', says: [n + ' + ' + n + ' = ' + 2 * n + ' counts two edges,', 'not ' + n + ' rows of ' + n] },
+        ],
+        truth: Math.pow(1 / MILLI, 2),
+        ansLines: ['1 m² = ' + n + ' × ' + n + ' = ' + std(c) + ' ' + U],
+        countAt: (rr) => countText(u, p, rr),
+        why: n + ' mm fit along each side, so the square fills with ' + n + ' rows of ' + n + ' small squares. ' + n + ' × ' + n + ' = ' + big(c) + ' mm², which is `' + std(c) + ' mm²`.',
+        hint: 'Not quite. Count the rows, then the squares in each row.',
+        hints: { [n + ' ' + U]: 'Not quite. ' + n + ' runs along one edge, so that fills only the first row.',
+          [2 * n + ' ' + U]: 'Not quite. The two edges are not added. Each of the ' + n + ' rows holds ' + n + '.' } });
+    })(),
+    (() => {
+      const u = 'mm', e = expOf(u), n = nOf(u);
+      return { show: true, name: 'Inside the power', live: true, why: true, lit: true, end: { p: 2, u },
+        text: 'A square millimetre is 1 mm by 1 mm, so it is `' + ten(e) + ' m × ' + ten(e) + ' m`. The powers add and m × m makes m², so 1 mm² = `(' + ten(e) + ' m)² = ' +
+          ten(powOf(u, 2)) + ' m²`. The lit first row is only ' + n + ' mm².' };
+    })(),
+    (() => {
+      const u = 'cm', p = 2, e = expOf(u), k = powOf(u, p), k3 = powOf(u, 3), n = nOf(u), U = uP('m', p);
+      return pz({ name: 'Centimetres squared', fig: { p, u },
+        task: '1 cm = `' + ten(e) + ' m`. What is 1 cm² in m²?',
+        qLines: ['1 cm = ' + ten(e) + ' m'],
+        opts: [
+          { label: ten(k) + ' ' + U, val: mul(1, k) },
+          { label: ten(e) + ' ' + U, val: mul(1, e), slip: 'row', says: [ten(e) + ' ' + U + ' is a whole row of ' + n + ' cm²,', 'the centi left outside the power'] },
+          { label: ten(k3) + ' ' + U, val: mul(1, k3), slip: 'depth', says: [ten(k3) + ' ' + U + ' is (' + ten(e) + ' m)³, a cube’s,', 'and a square has no third direction'] },
+        ],
+        truth: Math.pow(CENTI, 2),
+        ansLines: ['1 cm² = (' + ten(e) + ' m)² = ' + ten(k) + ' m²'],
+        countAt: (rr) => countText(u, p, rr),
+        why: '1 cm² is 1 cm by 1 cm, so it is `(' + ten(e) + ' m)²`. The powers add, ' + sgn(e) + ' add ' + sgn(e) + ' makes ' + sgn(k) + ', so 1 cm² = `' + ten(k) +
+          ' m²`. A square metre holds ' + n + ' rows of ' + n + ' of them.',
+        hint: 'Not quite. Square the whole bracket, prefix and all.',
+        hints: { [ten(e) + ' ' + U]: 'Not quite. That leaves the centi outside the square. Square the whole bracket, `(' + ten(e) + ' m)²`.',
+          [ten(k3) + ' ' + U]: 'Not quite. That cubes it. A square has two directions, so square it.' } });
+    })(),
+    (() => {
+      const u = 'cm', e = expOf(u), n = nOf(u);
+      return { show: true, name: 'A cubic metre', live: true, why: true, end: { p: 3, u },
+        text: 'A cube adds a third direction, depth. ' + n + ' cm runs along each of its three edges, so it holds ' + n + ' × ' + n + ' × ' + n + ' = ' + big(countOf(u, 3)) +
+          ' cm³, and 1 cm³ = `(' + ten(e) + ' m)³ = ' + ten(powOf(u, 3)) + ' m³`.' };
+    })(),
+    (() => {
+      const u = 'mm', p = 3, e = expOf(u), k = powOf(u, p), k2 = powOf(u, 2), n = nOf(u), U = uP('m', p);
+      return pz({ name: 'Cubic millimetres', fig: { p, u },
+        task: '1 mm = `' + ten(e) + ' m`. What is 1 mm³ in m³?',
+        qLines: ['1 mm = ' + ten(e) + ' m'],
+        opts: [
+          { label: ten(e) + ' ' + U, val: mul(1, e), slip: 'row', says: [ten(e) + ' ' + U + ' fits ' + n + ' in a cubic metre,', 'one row along one edge'] },
+          { label: ten(k2) + ' ' + U, val: mul(1, k2), slip: 'layer', says: [ten(k2) + ' ' + U + ' fits ' + std(n * n) + ' in a cubic metre,', 'one layer, 1 ' + u + ' thick'] },
+          { label: ten(k) + ' ' + U, val: mul(1, k) },
+        ],
+        truth: Math.pow(MILLI, 3),
+        ansLines: ['1 mm³ = (' + ten(e) + ' m)³ = ' + ten(k) + ' m³'],
+        countAt: (rr) => countText(u, p, rr),
+        why: '1 mm³ is `(' + ten(e) + ' m)³`, and ' + [e, e, e].map(sgn).join(' add ') + ' makes ' + sgn(k) + ', so 1 mm³ = `' + ten(k) + ' m³`. A cubic metre holds ' +
+          n + ' layers of ' + n + ' rows of ' + n + '.',
+        hint: 'Not quite. Cube the whole bracket, prefix and all.',
+        hints: { [ten(e) + ' ' + U]: 'Not quite. That uses the ' + n + ' once, one row along one edge. A cube has three directions.',
+          [ten(k2) + ' ' + U]: 'Not quite. That squares it, one layer. A cube has depth too.' } });
+    })(),
+    (() => {
+      const a = 2.5, u = 'mm', e = expOf(u), k = powOf(u, 2);
+      return { show: true, name: 'A cable', end: { p: 2, u }, extra: { kind: 'cable', a },
+        lines: ['1 mm² = (' + ten(e) + ' m)² = ' + ten(k) + ' m²', dec(a) + ' mm² = ' + sci(a, k) + ' m²'],
+        text: 'An example cable\'s cross-section is ' + dec(a) + ' mm², drawn here on the millimetre squares. Each mm² is `' + ten(k) + ' m²`, so ' + dec(a) + ' mm² = `' +
+          sci(a, k) + ' m²`.' };
+    })(),
+    (() => {
+      const a = 1.5, u = 'mm', e = expOf(u), k = powOf(u, 2), n = nOf(u);
+      return pz({ name: 'A thinner cable', fig: { p: 2, u }, extra: { kind: 'cable', a },
+        task: 'An example cable\'s cross-section is ' + dec(a) + ' mm². What is that in m²?',
+        qLines: ['1 mm = ' + ten(e) + ' m'],
+        opts: [
+          { label: sci(a, e) + ' m²', val: mul(a, e), slip: 'row', says: [sci(a, e) + ' m² is ' + grp(a * n) + ' mm²,', 'a strip along one edge'] },
+          { label: sci(a, k) + ' m²', val: mul(a, k) },
+          { label: sci(a, -k) + ' m²', val: mul(a, -k), slip: 'way', says: [sci(a, -k) + ' m² is over a million', 'of these whole square metres'] },
+        ],
+        truth: a * Math.pow(MILLI, 2),
+        ansLines: ['1 mm² = (' + ten(e) + ' m)² = ' + ten(k) + ' m²', dec(a) + ' mm² = ' + sci(a, k) + ' m²'],
+        countAt: (rr) => countText(u, 2, rr),
+        why: 'Each mm² is `(' + ten(e) + ' m)² = ' + ten(k) + ' m²`, so ' + dec(a) + ' mm² = `' + sci(a, k) + ' m²`, ' + dec(a) + ' millionths of a square metre.',
+        hint: 'Not quite. Each mm² is `(' + ten(e) + ' m)²`.',
+        hints: { [sci(a, e) + ' m²']: 'Not quite. That uses `' + ten(e) + '` once. A square millimetre is `(' + ten(e) + ' m)² = ' + ten(k) + ' m²`.',
+          [sci(a, -k) + ' m²']: 'Not quite. That is more than a million square metres. A mm² is a millionth of one.' } });
+    })(),
+    (() => {
+      const a = 1, u = 'mm', k = powOf(u, 2), c = countOf(u, 2);
+      return { show: true, name: 'Per square millimetre', end: { p: 2, u }, extra: { kind: 'load', a },
+        lines: ['1 mm² = ' + ten(k) + ' m²', a + ' N/mm² = ' + a + ' N ÷ ' + ten(k) + ' m²', '= ' + std(mul(a, -k)) + ' N/m², as ÷ ' + ten(k) + ' is × ' + ten(-k)],
+        text: 'An example load puts ' + a + ' N on every square millimetre. A square metre holds `' + std(c) + '` of them, each carrying ' + a + ' N, so ' + a + ' N/mm² = `' +
+          std(mul(a, -k)) + ' N/m²`. Dividing by a millionth multiplies by a million.' };
+    })(),
+    (() => {
+      const a = 200, u = 'mm', e = expOf(u), k = powOf(u, 2), n = nOf(u);
+      return pz({ name: 'A heavier load', fig: { p: 2, u }, extra: { kind: 'load', a },
+        task: 'An example load is ' + a + ' N/mm². What is that in N/m²?',
+        qLines: ['1 mm² = ' + ten(k) + ' m²'],
+        opts: [
+          { label: sci(a, -k) + ' N/m²', val: mul(a, -k) },
+          { label: sci(a, -e) + ' N/m²', val: mul(a, -e), slip: 'row', says: [sci(a, -e) + ' N is the load on', 'the first row of ' + n + ' mm² only'] },
+          { label: sci(a, k) + ' N/m²', val: mul(a, k), slip: 'way', says: [sci(a, k) + ' N on a whole square metre', 'is far less than one mm² carries'] },
+        ],
+        truth: a / Math.pow(MILLI, 2),
+        ansLines: [a + ' N/mm² = ' + a + ' N ÷ ' + ten(k) + ' m²', '= ' + sci(a, -k) + ' N/m²'],
+        countAt: (rr) => countText(u, 2, rr),
+        why: a + ' N/mm² is ' + a + ' N on each mm², and each mm² is `' + ten(k) + ' m²`. Dividing by a millionth multiplies by a million, so it is `' + sci(a, -k) + ' N/m²`.',
+        hint: 'Not quite. Per mm² divides by `' + ten(k) + ' m²`.',
+        hints: { [sci(a, -e) + ' N/m²']: 'Not quite. That uses the ' + n + ' once, the first row only. A square metre holds ' + n + ' rows.',
+          [sci(a, k) + ' N/m²']: 'Not quite. That goes the wrong way. Dividing by `' + ten(k) + '` multiplies by `' + ten(-k) + '`.' } });
+    })(),
+    (() => {
+      const a = 500, u = 'cm', e = expOf(u), k = powOf(u, 3), n = nOf(u), v = mul(a, k);
+      return pz({ name: 'A cylinder', fig: { p: 3, u },
+        task: 'An example cylinder holds ' + a + ' cm³. What is that in m³?',
+        qLines: ['1 cm = ' + ten(e) + ' m'],
+        opts: [
+          { label: dec(a / n) + ' m³', val: a / n, slip: 'row', says: [dec(a / n) + ' m³ divides by ' + n + ' once,', 'one row along one edge'] },
+          { label: dec(a / (n * n)) + ' m³', val: a / (n * n), slip: 'layer', says: [dec(a / (n * n)) + ' m³ divides by ' + n + ' × ' + n + ',', 'one layer, 1 ' + u + ' thick'] },
+          { label: std(v) + ' m³', val: v },
+        ],
+        truth: a * Math.pow(CENTI, 3),
+        ansLines: ['1 cm³ = (' + ten(e) + ' m)³ = ' + ten(k) + ' m³', a + ' cm³ = ' + a + ' × ' + ten(k) + ' = ' + std(v) + ' m³'],
+        countAt: (rr) => countText(u, 3, rr),
+        why: '1 cm³ = `(' + ten(e) + ' m)³ = ' + ten(k) + ' m³`, so ' + a + ' cm³ = `' + a + ' × ' + ten(k) + ' m³`, which is `' + std(v) + ' m³`.',
+        hint: 'Not quite. 1 cm³ is `(' + ten(e) + ' m)³`.',
+        hints: { [dec(a / n) + ' m³']: 'Not quite. That divides by ' + n + ' once. A cubic metre holds ' + n + ' × ' + n + ' × ' + n + ' cm³.',
+          [dec(a / (n * n)) + ' m³']: 'Not quite. That divides by ' + n + ' × ' + n + ', one layer. A cube has depth too.' } });
+    })(),
+    (() => {
+      const a = 0.0004, w = 40, t = 10, u = 'mm', e = expOf(u), k = powOf(u, 2), n = nOf(u), c = countOf(u, 2), v = mul(a, -k);
+      return pz({ name: 'A busbar', bus: { w, t, row: mul(a, -e) }, tag: 'A busbar’s cross-section, ' + dec(a) + ' m²',
+        task: 'An example busbar\'s cross-section is ' + dec(a) + ' m², ' + w + ' mm by ' + t + ' mm. What is that in mm²?',
+        qLines: ['1 m = ' + n + ' mm'],
+        opts: [
+          { label: dec(mul(a, -e)) + ' mm²', val: mul(a, -e), slip: 'row', says: [dec(mul(a, -e)) + ' mm² is less than half', 'of one small square'] },
+          { label: grp(v) + ' mm²', val: v },
+          { label: std(mul(a, k)) + ' mm²', val: mul(a, k), slip: 'way', says: [std(mul(a, k)) + ' mm² goes the wrong way,', 'far smaller than one small square'] },
+        ],
+        truth: a / Math.pow(MILLI, 2),
+        ansLines: ['1 m² = ' + n + ' × ' + n + ' = ' + std(c) + ' mm²', dec(a) + ' m² = ' + dec(a) + ' × ' + std(c) + ' = ' + grp(v) + ' mm²'],
+        countAt: (rr) => { const r = Math.max(1, Math.min(t, Math.floor(rr + 1e-9))); return r + (r === 1 ? ' row' : ' rows') + ' of ' + w + (r >= t ? ' = ' + w * t + ' mm²' : ''); },
+        why: '1 m² holds ' + n + ' × ' + n + ' = `' + std(c) + ' mm²`, so ' + dec(a) + ' m² = ' + dec(a) + ' × `' + std(c) + '` = ' + grp(v) + ' mm². The sides agree, ' +
+          w + ' mm × ' + t + ' mm = ' + w * t + ' mm².',
+        hint: 'Not quite. A square metre holds ' + n + ' × ' + n + ' mm².',
+        hints: { [dec(mul(a, -e)) + ' mm²']: 'Not quite. That multiplies by ' + n + ' once. A square metre holds ' + n + ' × ' + n + ' mm².',
+          [std(mul(a, k)) + ' mm²']: 'Not quite. That goes the wrong way. A smaller unit makes the number bigger.' } });
+    })(),
+  ];
+  STEPS.forEach((d) => { if (!d.show) d.want = d.opts.filter((o) => !o.slip)[0].label; });
+  const FINISH = 'A power on a unit takes its prefix with it, so an area conversion squares the length factor and a volume conversion cubes it. 1 mm² = `(' +
+    ten(expOf('mm')) + ' m)² = ' + ten(powOf('mm', 2)) + ' m²` and 1 cm³ = `(' + ten(expOf('cm')) + ' m)³ = ' + ten(powOf('cm', 3)) + ' m³`.';
+  // Sources the checks restate (the lesson's own).
+  const MILLI_SRC = 'https://en.wikipedia.org/wiki/Milli-';
+  const BIPM = 'https://www.bipm.org/en/measurement-units/si-prefixes';
+  const NIST = 'https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-6-rules-and-style-conventions-printing-and-using';
+  const BITE_IDX = 'https://www.bbc.co.uk/bitesize/articles/z93nsk7';
+  const BITE_AV = 'https://www.bbc.co.uk/bitesize/guides/z6qp2v4/revision/1';
+  const WARSASH = 'https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf';
+
+  // ---------- layout ----------
+  // The metre starts at X0, Y0: a length or square SQ long (the length BH tall), or a cube with a front
+  // face F across and D deep, up and to the right. Its zoomed corner sits at LX: LS across for the
+  // length and square, a block LF across and LD deep for the cube. The busbar starts at BX, BY, BC a mm.
+  const X0 = 62, Y0 = 64, SQ = 140, BH = 10, F = 112, D = 30;
+  const LX = 226, LS = 100, LF = 70, LD = 21;
+  const BX = 44, BY = 64, BC = 7;
+  const LINE = 24, FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // p, u, zoom: on a screen with dials, the setting Dan chose and that its zoom is playing (or done).
+  function blank() { return { pick: null, res: null, why: false, p: null, u: null, zoom: false }; }
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;
+  let REC = null;   // what the last paint drew, for the checks
+  const at = () => stepper.get();
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  // `maths` stays on one line; *a key term* is highlighted.
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { el.appendChild(K.el('span', { class: 'nw' }, seg)); return; }
+      const re = /\*([^*]+)\*/g;
+      let pos = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > pos) el.appendChild(document.createTextNode(seg.slice(pos, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        pos = m.index + m[0].length;
+      }
+      if (pos < seg.length) el.appendChild(document.createTextNode(seg.slice(pos)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  // The dials: a power from 1 to 3 and a prefix, cm or mm. Turning one zooms in again.
+  function dial(ch) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || !d.live) return;
+    const now = st.zoom ? { p: st.p, u: st.u } : d.end;
+    st.p = ch.p || now.p; st.u = ch.u || now.u; st.zoom = true;
+    play(zoomDur(d, st.p, st.u));
+  }
+  const pBtns = [1, 2, 3].map((p) => K.button({ label: String(p), secondary: true, into: '#dialP', press: () => dial({ p }) }));
+  const uBtns = UNITS.map((u) => K.button({ label: u, secondary: true, into: '#dialU', press: () => dial({ u }) }));
+  pBtns.forEach((b, k) => b.el.setAttribute('aria-label', 'Power ' + (k + 1)));
+  uBtns.forEach((b, k) => b.el.setAttribute('aria-label', 'Prefix ' + UNITS[k]));
+  function syncDials(v) {
+    pBtns.forEach((b, k) => b.el.setAttribute('aria-pressed', v.p === k + 1 ? 'true' : 'false'));
+    uBtns.forEach((b, k) => b.el.setAttribute('aria-pressed', v.u === UNITS[k] ? 'true' : 'false'));
+  }
+  // Up to three answer buttons; each puzzle fills in its own. A new choice after a wrong answer
+  // settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k].label; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: a right answer fills the metre; a wrong one draws its slip in red.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    play(lastArrival(() => puzzleView(d, st)).last);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Zoom again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    play(d.live && st.zoom ? zoomDur(d, st.p, st.u) : durOf(d));
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, each zoom and the motion after an answer; with reduced
+  // motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // When the last part of a picture arrives, and the first starts, timed from its motion's start.
+  function lastArrival(fn) {
+    const kT = T, kl = latest, ke = earliest;
+    T = Infinity; latest = 0; earliest = Infinity;
+    try { fn(); return { last: latest, first: earliest }; } finally { T = kT; latest = kl; earliest = ke; }
+  }
+  const DUR = new Map();
+  function durOf(d) { if (!DUR.has(d)) DUR.set(d, lastArrival(() => viewOf(d, blank())).last); return DUR.get(d); }
+  function zoomDur(d, p, u) { return lastArrival(() => zoomView(d, p, u, 0)).last; }
+  function part(a, rise, draw) {
+    if (!(a > 0)) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const poly = (cls, pts) => add(K.svg('polygon', { class: cls, points: pts.map((q) => r3(q[0]) + ',' + r3(q[1])).join(' ') }));
+  const circ = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r: r3(Math.max(0, r)) }));
+  const nb = (s) => String(s).replace(/ /g, ' ');
+  function text(x, y, s, cls, anchor) { return add(K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' }, nb(s))); }
+  // A bracket along a horizontal edge (above it or below it) with its name, and one down a left edge
+  // with its count and unit beside it.
+  function bracketH(a0, a1, y, up, label) {
+    const e = up ? y - 3 : y + 3, b = up ? y - 8 : y + 8;
+    add(K.svg('path', { class: 'brk', d: 'M' + r3(a0 + 1) + ' ' + e + ' V' + b + ' H' + r3(a1 - 1) + ' V' + e }));
+    text((a0 + a1) / 2, up ? y - 16 : y + 24, label, 'tl');
+  }
+  function bracketV(y0, y1, x, n, u) {
+    add(K.svg('path', { class: 'brk', d: 'M' + (x - 3) + ' ' + r3(y0 + 1) + ' H' + (x - 8) + ' V' + r3(y1 - 1) + ' H' + (x - 3) }));
+    const mid = (y0 + y1) / 2;
+    text(x - 13, mid - 2, String(n), 'tl', 'end');
+    text(x - 13, mid + 15, u, 'tl', 'end');
+  }
+  // The corner the zoom shows: 10 small units along each edge, at the metre's top right.
+  function cornerBox(p, u) {
+    const n = nOf(u);
+    if (p === 3) { const s = F * LC / n; return { x: X0 + F - s, y: Y0 + D, w: s, h: s }; }
+    const s = SQ * LC / n;
+    return { x: X0 + SQ - s, y: Y0, w: s, h: p === 1 ? BH : s };
+  }
+
+  // ---------- what the picture shows at a moment ----------
+  // p, u: the figure; a: the figure's arrival; z: the zoom (0 at the corner, 1 full size), zl its
+  // labels; lr: the corner's rows (or layers, or cells) filled, 0 to 10; rr: the metre's, 0 to n;
+  // grow: on screen 1, the rows the length has grown into a square; side: its side bracket; lit: the
+  // first row lit; extra: the cable or the load; key: a key line under the figure; count: the count
+  // line; lines: the working; slip: a wrong answer's slip.
+  function base(p, u, d) {
+    return { p, u, a: 1, z: 1, zl: 1, lr: 0, rr: 0, grow: null, side: 1, lit: 0, extra: null, key: null, count: null, lines: [], slip: null, bus: false,
+      tag: (d && d.tag) || ('1 ' + uP('m', p) + ', zoomed in with ' + u) };
+  }
+  function keyOf(x, a) {
+    return x.kind === 'cable' ? { kind: 'cable', s: 'The cable’s cross-section, ' + dec(x.a) + ' mm²', a } : { kind: 'dot', s: dec(x.a) + ' N on each mm²', a };
+  }
+  // A zoom from t0: the figure, the corner zooming out to full size, its rows filling, then the rest
+  // of the metre filling while the count runs, then the working.
+  function zoomView(d, p, u, t0) {
+    const v = base(p, u, d), n = nOf(u), x = d.extra;
+    v.a = arr(t0); v.z = arr(t0 + 0.4); v.zl = arr(t0 + 0.8);
+    if (x && x.kind === 'cable') {
+      v.extra = { kind: 'cable', a: x.a, g: arr(t0 + 1.0, 0.8), rows: 0 };
+      v.key = keyOf(x, arr(t0 + 1.4));
+      v.count = { s: countText(u, p, n), a: arr(t0 + 1.8) };
+    } else {
+      const lrA = arr(t0 + 1.0, 0.8), sw = arr(t0 + 1.8, 1.2);
+      v.rr = lrA < 1 ? LC * lrA : LC + (n - LC) * sw;
+      v.lr = Math.min(LC, v.rr);
+      v.count = { s: countText(u, p, v.rr), a: arr(t0 + 1.0) };
+      if (x && x.kind === 'load') { v.extra = { kind: 'load', a: x.a, g: 1, rows: v.lr }; v.key = keyOf(x, arr(t0 + 1.0)); }
+      if (d.lit && p === 2) { v.lit = arr(t0 + 1.4); v.key = { kind: 'lit', s: 'First row lit: ' + n + ' ' + uP(u, 2) + ', 1 ' + u + ' wide', a: v.lit }; }
+    }
+    v.lines = (d.lines || unitLines(u, p, d.why)).map((s, m) => ({ s, a: arr(t0 + 2.2 + 0.25 * m) }));
+    return v;
+  }
+  // Screen 1: the length fills with centimetres, then the power dial turns to 2 and the same row of
+  // 100 runs down a second side, the square growing one row at a time.
+  function growView(d) {
+    const u = d.end.u, n = nOf(u), tB = 2.8;
+    if (T < tB) {
+      const v = base(1, u, d);
+      v.a = arr(FADE); v.z = arr(FADE + 0.3); v.zl = arr(FADE + 0.6);
+      const lrA = arr(FADE + 0.8, 0.6), sw = arr(FADE + 1.4, 0.8);
+      v.rr = lrA < 1 ? LC * lrA : LC + (n - LC) * sw;
+      v.lr = Math.min(LC, v.rr);
+      v.count = { s: countText(u, 1, v.rr), a: arr(FADE + 0.8) };
+      v.lines = [{ s: unitLines(u, 1)[0], a: arr(FADE + 1.8) }];
+      return v;
+    }
+    const v = base(2, u, d), g = 1 + (n - 1) * arr(tB, 1.1);
+    v.grow = g; v.rr = g; v.lr = Math.min(LC, g); v.side = arr(tB + 1.0);
+    v.count = { s: countText(u, 2, g), a: 1 };
+    v.lines = unitLines(u, 2).map((s, m) => ({ s, a: m ? arr(tB + 0.9) : 1 }));
+    return v;
+  }
+  // A puzzle: the question still; a right answer fills the metre and adds its working; a wrong one
+  // draws its slip in red and says what it counted.
+  function puzzleView(d, st) {
+    const v = d.bus ? Object.assign(base(2, 'mm', d), { bus: true }) : base(d.fig.p, d.fig.u, d);
+    if (d.extra) { v.extra = Object.assign({ g: 1, rows: LC }, d.extra); v.key = keyOf(d.extra, 1); }
+    v.lines = d.qLines.map((s) => ({ s, a: 1 }));
+    if (st.res === 'right') {
+      const n = d.bus ? d.bus.t : nOf(d.fig.u);
+      if (d.bus) v.rr = n * arr(0.1, 1.0);
+      else {
+        const lrA = arr(0.1, 0.5), sw = arr(0.6, 0.9);
+        v.rr = lrA < 1 ? LC * lrA : LC + (n - LC) * sw;
+        v.lr = Math.min(LC, v.rr);
+      }
+      v.count = { s: d.countAt(v.rr), a: arr(0.2), ans: true };
+      d.ansLines.forEach((s, m) => v.lines.push({ s, a: arr(1.2 + 0.3 * m), cls: 'ans' }));
+    } else if (st.res === 'wrong' && st.pick != null) {
+      const o = d.opts.filter((q) => q.label === st.pick)[0];
+      if (!o) return v;
+      v.slip = { kind: o.slip, a: arr(0.1) };
+      v.count = { s: o.says[0], a: arr(0.3), bad: true };
+      v.lines.push({ s: o.says[1], a: arr(0.6), cls: 'bad' });
+    }
+    return v;
+  }
+  function viewOf(d, st) {
+    if (!d.show) return puzzleView(d, st);
+    if (d.live && st.zoom) return zoomView(d, st.p, st.u, 0);
+    if (d.demo === 'grow') return growView(d);
+    return zoomView(d, d.end.p, d.end.u, FADE);
+  }
+
+  // ---------- the picture ----------
+  // The metre: a length, a square or a cube, filled row by row (or layer by layer) from the top.
+  function drawFigure(v) {
+    const p = v.p, u = v.u, n = nOf(u), fr = K.clamp(v.rr / n, 0, 1), b = cornerBox(p, u);
+    REC.fill = fr; REC.rows = Math.floor(v.rr + 1e-9);
+    part(v.a, 0, () => {
+      if (p === 1) {
+        rect('face', X0, Y0, SQ, BH);
+        if (fr > 0) rect('fill', X0, Y0, SQ * fr, BH);
+        rect('edge', X0, Y0, SQ, BH);
+        bracketH(X0, X0 + SQ, Y0, true, '1 m = ' + n + ' ' + u);
+      } else if (p === 2) {
+        const h = v.grow != null ? Math.max(BH, SQ * v.grow / n) : SQ;
+        rect('face', X0, Y0, SQ, h);
+        if (fr > 0) rect('fill', X0, Y0, SQ, v.grow != null ? h : SQ * fr);
+        if (v.lit > 0) part(v.lit, 0, () => rect('lit', X0, Y0, SQ, Math.max(2.5, SQ / n)));
+        rect('edge', X0, Y0, SQ, h);
+        bracketH(X0, X0 + SQ, Y0, true, '1 m = ' + n + ' ' + u);
+      } else {
+        const fy = Y0 + D, top = [[X0, fy], [X0 + D, Y0], [X0 + D + F, Y0], [X0 + F, fy]], side = [[X0 + F, fy], [X0 + F + D, Y0], [X0 + F + D, Y0 + F], [X0 + F, fy + F]];
+        poly('face', top); poly('face', side); rect('face', X0, fy, F, F);
+        if (fr > 0) {
+          const fh = F * fr;
+          poly('fill', top); rect('fill', X0, fy, F, fh);
+          poly('fill', [[X0 + F, fy], [X0 + F + D, Y0], [X0 + F + D, Y0 + fh], [X0 + F, fy + fh]]);
+        }
+        poly('edge', [[X0, fy], [X0 + D, Y0], [X0 + D + F, Y0], [X0 + D + F, Y0 + F], [X0 + F, fy + F], [X0, fy + F]]);
+        line('edge', X0, fy, X0 + F, fy); line('edge', X0 + F, fy, X0 + F + D, Y0); line('edge', X0 + F, fy, X0 + F, fy + F);
+        bracketH(X0, X0 + F, fy + F, false, '1 m = ' + n + ' ' + u);
+        bracketV(fy, fy + F, X0, n, u);
+        text(X0 + F + D / 2 + 8, fy + F - D / 2 + 10, n + ' ' + u, 'tl', 'start');
+      }
+      rect('box', b.x, b.y, b.w, b.h);
+    });
+    if (p === 2) part(v.grow != null ? v.side : v.a, 0, () => bracketV(Y0, Y0 + SQ, X0, n, u));
+    if (v.slip) part(v.slip.a, 0, () => {
+      const k = v.slip.kind, fy = Y0 + D;
+      REC.slip = k;
+      if (p === 2 && k === 'row') { rect('badf', X0, Y0, SQ, Math.max(3, SQ / n)); line('badl', X0, Y0, X0 + SQ, Y0); }
+      if (p === 2 && k === 'edges') { line('badl', X0, Y0, X0 + SQ, Y0); line('badl', X0, Y0, X0, Y0 + SQ); }
+      if (p === 2 && k === 'way') rect('badl', X0, Y0, SQ, SQ);
+      if (p === 3 && k === 'row') line('badl', X0, fy, X0 + F, fy);
+      if (p === 3 && k === 'layer') { poly('badf', [[X0, fy], [X0 + D, Y0], [X0 + D + F, Y0], [X0 + F, fy]]); line('badl', X0, fy, X0 + F, fy); }
+    });
+  }
+  // The zoomed corner: it grows out of the corner box to full size, drawing its small units in full.
+  function drawLens(v) {
+    const p = v.p, u = v.u, z = v.z, c = LS / LC, b = cornerBox(p, u);
+    if (!(z > 0)) return;
+    const rows = p === 2 && v.grow != null ? K.clamp(v.grow, 1, LC) : LC;
+    const fw = p === 3 ? LF : LS, fy = p === 3 ? LD : 0, fh = p === 1 ? c : p === 2 ? rows * c : LF;
+    const s0 = b.w / fw, sc = K.lerp(s0, 1, z), tx = K.lerp(b.x, LX, z), ty = K.lerp(b.y - fy * s0, Y0, z);
+    part(z, 0, () => {
+      line('conn', b.x + b.w, b.y, tx, ty + fy * sc);
+      line('conn', b.x + b.w, b.y + b.h, tx, ty + (fy + fh) * sc);
+    });
+    const g = add(K.svg('g', { transform: 'translate(' + r3(tx) + ' ' + r3(ty) + ') scale(' + (+sc.toFixed(4)) + ')' }));
+    const keep = into; into = g;
+    try { lensBody(v, rows, c); } finally { into = keep; }
+    part(v.zl, 0, () => {
+      if (p === 3) bracketH(LX + LD, LX + LD + LF, Y0, true, LC + ' ' + u);
+      else bracketH(LX, LX + LS, Y0, true, LC + ' ' + u);
+      text(LX, Y0 + fy + fh + 18, 'zoomed corner', 'sl', 'start');
+    });
+    REC.lensEdge = LC; REC.lensFilled = v.lr;
+  }
+  function lensBody(v, rows, c) {
+    const p = v.p, lr = v.lr, x = v.extra, sl = v.slip ? v.slip.kind : null;
+    if (p === 1) {
+      rect('lensbg', 0, 0, LS, c);
+      if (lr > 0) rect('fill', 0, 0, c * lr, c);
+      for (let k = 1; k < LC; k++) line('grid', k * c, 0, k * c, c);
+      rect('lens', 0, 0, LS, c);
+      return;
+    }
+    if (p === 2) {
+      const h = rows * c;
+      rect('lensbg', 0, 0, LS, h);
+      if (lr > 0) rect('fill', 0, 0, LS, c * Math.min(lr, rows));
+      if (v.lit > 0) part(v.lit, 0, () => { rect('lit', 0, 0, LS, c); REC.lit = v.lit >= 0.5; });
+      if (sl === 'row' || sl === 'edges') part(v.slip.a, 0, () => rect('badf', 0, 0, LS, c));
+      for (let k = 1; k < rows; k++) line('grid', 0, k * c, LS, k * c);
+      for (let k = 1; k < LC; k++) line('grid', k * c, 0, k * c, h);
+      if (x && x.kind === 'load') {
+        for (let i = 0; i < Math.min(LC, Math.ceil(x.rows - 1e-9)); i++) {
+          part(K.clamp(x.rows - i, 0, 1), 0, () => { for (let j = 0; j < LC; j++) circ('dot', j * c + c / 2, i * c + c / 2, 2.2); });
+        }
+      }
+      if (x && x.kind === 'cable') {
+        const r = Math.sqrt(x.a / Math.PI) * c * Math.max(0.05, x.g);
+        part(x.g, 0, () => circ('cable', LS / 2, LS / 2, r));
+        REC.extraR = r / c;
+      }
+      if (sl === 'way' && x && x.kind === 'load') part(v.slip.a, 0, () => rect('badc', 0, 0, c, c));
+      rect('lens', 0, 0, LS, h);
+      return;
+    }
+    // the cube's corner: a block 10 small cubes along each edge, its three faces drawn
+    const q = LF / LC, dq = LD / LC;
+    const top = [[0, LD], [LD, 0], [LD + LF, 0], [LF, LD]];
+    poly('lensbg', top); poly('lensbg', [[LF, LD], [LF + LD, 0], [LF + LD, LF], [LF, LD + LF]]); rect('lensbg', 0, LD, LF, LF);
+    if (lr > 0) {
+      const h = q * lr;
+      poly('fill', top); rect('fill', 0, LD, LF, h); poly('fill', [[LF, LD], [LF + LD, 0], [LF + LD, h], [LF, LD + h]]);
+    }
+    if (sl === 'row' || sl === 'layer') part(v.slip.a, 0, () => {
+      rect('badf', 0, LD, LF, q);
+      if (sl === 'row') poly('badf', [[0, LD], [dq, LD - dq], [dq + LF, LD - dq], [LF, LD]]);
+      if (sl === 'layer') { poly('badf', top); poly('badf', [[LF, LD], [LF + LD, 0], [LF + LD, q], [LF, LD + q]]); }
+    });
+    for (let k = 1; k < LC; k++) {
+      line('grid', k * q, LD, k * q, LD + LF); line('grid', 0, LD + k * q, LF, LD + k * q);
+      line('grid', k * q, LD, k * q + LD, 0); line('grid', k * dq, LD - k * dq, k * dq + LF, LD - k * dq);
+      line('grid', LF + k * dq, LD - k * dq, LF + k * dq, LD - k * dq + LF); line('grid', LF, LD + k * q, LF + LD, k * q);
+    }
+    poly('lens', [[0, LD], [LD, 0], [LD + LF, 0], [LD + LF, LF], [LF, LD + LF], [0, LD + LF]]);
+    line('lensin', 0, LD, LF, LD); line('lensin', LF, LD, LF + LD, 0); line('lensin', LF, LD, LF, LD + LF);
+  }
+  // The busbar end on: its sides in millimetres, drawn as rows of millimetre squares.
+  function drawBus(v, d) {
+    const cols = d.bus.w, rows = d.bus.t, W = cols * BC, H = rows * BC, fr = K.clamp(v.rr / rows, 0, 1);
+    REC.fill = fr; REC.rows = Math.floor(v.rr + 1e-9);
+    part(v.a, 0, () => {
+      rect('face', BX, BY, W, H);
+      if (fr > 0) rect('fill', BX, BY, W, H * fr);
+      for (let k = 1; k < cols; k++) line('grid', BX + k * BC, BY, BX + k * BC, BY + H);
+      for (let k = 1; k < rows; k++) line('grid', BX, BY + k * BC, BX + W, BY + k * BC);
+      rect('edge', BX, BY, W, H);
+      bracketH(BX, BX + W, BY, true, cols + ' mm');
+      bracketV(BY, BY + H, BX, rows, 'mm');
+    });
+    if (v.slip) part(v.slip.a, 0, () => {
+      REC.slip = v.slip.kind;
+      if (v.slip.kind === 'row') rect('badf', BX, BY, BC, BC * d.bus.row);
+      rect('badc', BX, BY, BC, BC);
+    });
+  }
+  function drawKey(k, G) {
+    const y = G.keyY;
+    if (k.kind === 'lit') rect('lit', 12, y - 10, 16, 12);
+    if (k.kind === 'dot') circ('dot', 20, y - 4, 3);
+    if (k.kind === 'cable') circ('cable', 20, y - 4, 6);
+    text(34, y, k.s, 'ky', 'start');
+  }
+  // In words, for a screen reader.
+  function describe(v, d) {
+    const w = [];
+    if (v.bus) w.push('A busbar end on, ' + d.bus.w + ' mm by ' + d.bus.t + ' mm, drawn as ' + d.bus.t + ' rows of ' + d.bus.w + ' millimetre squares.');
+    else {
+      const n = nOf(v.u);
+      w.push(v.p === 1 ? 'One metre drawn as a length, ' + n + ' ' + v.u + ' along it.' : (v.p === 2 ? 'One square metre, ' : 'One cubic metre, ') + n + ' ' + v.u + ' along each edge.');
+      if (v.z >= 0.5) w.push('Its corner, zoomed in, draws ' + LC + ' ' + v.u + ' along each edge in full.');
+      if (v.extra && v.extra.kind === 'cable') w.push('A cable cross-section of ' + dec(v.extra.a) + ' square millimetres is drawn on the small squares.');
+      if (v.extra && v.extra.kind === 'load') w.push(dec(v.extra.a) + ' N rests on each square millimetre.');
+    }
+    if (v.slip && v.slip.a >= 0.5) w.push('In red, the slip.');
+    if (v.count && v.count.a >= 0.5) w.push(v.count.s + '.');
+    v.lines.forEach((l) => { if (l.a >= 0.5) w.push(l.s + '.'); });
+    return w.join(' ');
+  }
+  function render(v, d, G) {
+    REC = { fill: 0, rows: 0, lensEdge: 0, lensFilled: 0, slip: null, extraR: null, lit: false, count: null, lines: [] };
+    text(12, 20, v.tag, 'tag', 'start');
+    if (v.bus) drawBus(v, d); else { drawFigure(v); drawLens(v); }
+    if (v.key) part(v.key.a, 4, () => drawKey(v.key, G));
+    if (v.count) {
+      part(v.count.a, 4, () => text(12, G.countY, v.count.s, 'ct' + (v.count.bad ? ' bad' : v.count.ans ? ' ans' : ''), 'start'));
+      if (v.count.a >= 0.5) REC.count = v.count.s;
+    }
+    v.lines.forEach((l, m) => {
+      part(l.a, 4, () => text(12, G.workY + m * LINE, l.s, 'wk' + (l.cls ? ' ' + l.cls : ''), 'start'));
+      if (l.a >= 0.5) REC.lines.push({ s: l.s, cls: l.cls || '' });
+    });
+    return describe(v, d);
+  }
+  // Each step's height: room for its most lines of working.
+  const GEO = new Map();
+  function geo(d) {
+    if (GEO.has(d)) return GEO.get(d);
+    const lines = d.show ? (d.live ? (d.why ? 5 : 2) : d.lines.length) : d.qLines.length + Math.max(d.ansLines.length, 1);
+    const countY = d.bus ? 168 : 252, workY = countY + 28;
+    const G = { countY, workY, keyY: 228, H: workY + LINE * (lines - 1) + 14 };
+    GEO.set(d, G);
+    return G;
+  }
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], G = geo(d);
+    art.textContent = '';
+    into = null;
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    const v = viewOf(d, st);
+    svg.setAttribute('aria-label', render(v, d, G));
+    if (d.live) syncDials(v);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.zoom = false; st.p = null; st.u = null; play(durOf(d)); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('dials').hidden = !d.live;
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts.map((o) => o.label);
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const close = (a, b) => a === b || Math.abs(a - b) <= 1e-9 * Math.max(Math.abs(a), Math.abs(b));
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const LIVE0 = idx('A metre of centimetres'), INSIDE = idx('Inside the power'), CUBE = idx('A cubic metre'), LOAD1 = idx('Per square millimetre');
+  // A step painted in the state given, finished (or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = Object.assign(blank(), st || {}); T = t == null ? Infinity : t;
+    try {
+      paint(i);
+      return Object.assign({}, REC, { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent.replace(/ /g, ' ')) });
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  const has = (g, s) => g.texts.indexOf(s) >= 0;
+
+  K.check('Centi (c) is 10⁻² and milli (m) is 10⁻³ in the SI prefix table: the dial\'s cm and mm, so 100 cm or 1000 mm fit along the metre, and the readout writes 1 cm = 10⁻² m and 1 mm = 10⁻³ m', () =>
+    expOf('cm') === -2 && expOf('mm') === -3 && nOf('cm') === 100 && nOf('mm') === 1000 &&
+    UNITS.every((u) => { const g = drawn(LIVE0, { p: 1, u, zoom: true }); return has(g, '1 ' + u + ' = ' + ten(expOf(u)) + ' m') && has(g, '1 m = ' + nOf(u) + ' ' + u) && has(g, nOf(u) + ' ' + u + ' along 1 m'); }),
+  { source: BIPM });
+  K.check('Milli denotes a factor of one thousandth (10⁻³): with mm on the dial, 1000 mm run along each side of the square metre, so it fills with 1000 rows of 1000, and the first row lit is 1000 mm²', () => {
+    const g = drawn(INSIDE, { p: 2, u: 'mm', zoom: true });
+    return close(MILLI * 1000, 1) && has(g, '1 m = 1000 mm') && has(g, '1000 rows of 1000 = 1,000,000 mm²') && g.fill === 1 && g.lit && has(g, 'First row lit: 1000 mm², 1 mm wide');
+  }, { source: MILLI_SRC });
+  K.check('A prefix symbol attached to a unit symbol is a new inseparable symbol, which can be raised to a positive or negative power: for cm and mm at powers 1, 2 and 3 the readout raises the whole bracket, its power of ten is one over the zoom\'s count of small units, and per mm² makes 1 N/mm² = 10⁶ N/m²', () =>
+    UNITS.every((u) => [1, 2, 3].every((p) => {
+      const e = expOf(u), k = powOf(u, p);
+      if (!(k === p * e && close(Math.pow(PRE[u], p), mul(1, k)) && close(countOf(u, p) * mul(1, k), 1))) return false;
+      if (p === 1) return true;
+      const g = drawn(LIVE0, { p, u, zoom: true });
+      return has(g, '1 ' + uP(u, p) + ' = (' + ten(e) + ' m)' + sup(p) + ' = ' + ten(k) + ' ' + uP('m', p)) && g.count === countText(u, p, nOf(u));
+    })) && close(1 / Math.pow(MILLI, 2), 1e6) && has(drawn(LOAD1), '= 10⁶ N/m², as ÷ 10⁻⁶ is × 10⁶'), { source: NIST });
+  K.check('The base numbers are the same, so add the indices together (3 + 5 = 8): 10⁻³ m × 10⁻³ m makes 10⁻⁶ m² because −3 add −3 makes −6, and 10⁻² m three times makes 10⁻⁶ m³', () => {
+    const a = drawn(INSIDE, { p: 2, u: 'mm', zoom: true }), b = drawn(CUBE, { p: 3, u: 'cm', zoom: true });
+    return has(a, '1 mm² = 10⁻³ m × 10⁻³ m') && has(a, '= (10⁻³ m)² = 10⁻⁶ m²') && has(a, '−3 add −3 makes −6,') && has(a, 'and m × m makes m²') &&
+      has(b, '1 cm³ = 10⁻² m × 10⁻² m × 10⁻² m') && has(b, '−2 add −2 add −2 makes −6,') && has(b, 'and m × m × m makes m³') &&
+      close(MILLI * MILLI, 1e-6) && close(CENTI * CENTI * CENTI, 1e-6);
+  }, { source: BITE_IDX });
+  K.check('When converting between metric units of area and volume, the numbers you multiply or divide by are squared for area and cubed for volume: every puzzle\'s right answer is its value with the length factor squared or cubed, and a cubic metre fills with 100 × 100 × 100 cm³', () => {
+    const g = drawn(CUBE, { p: 3, u: 'cm', zoom: true });
+    return DO.every((i) => { const d = STEPS[i], o = d.opts.filter((q) => q.label === d.want)[0]; return close(o.val, d.truth); }) &&
+      has(g, '100 layers of 100 × 100 = 1,000,000 cm³') && g.fill === 1;
+  }, { source: BITE_AV });
+  K.check('A negative power gives the reciprocal of the number, 1 over the number: 10⁻⁶ is 1 over 10⁶, so dividing by 10⁻⁶ m² multiplies by 10⁶, making 1 N/mm² = 10⁶ N/m² and 200 N/mm² = 200 × 10⁶ N/m²', () => {
+    const d = STEPS[idx('A heavier load')];
+    return close(mul(1, -6), 1 / 1e6) && close(1 / mul(1, powOf('mm', 2)), 1e6) && d.want === '200 × 10⁶ N/m²' && close(d.truth, 2e8) && has(drawn(LOAD1), '1 N/mm² = 1 N ÷ 10⁻⁶ m²');
+  }, { source: WARSASH });
+  K.check('Each puzzle accepts only its right answer; every answer offered reads as the value it was worked out as, and each wrong one makes a different value from its own slip, the length factor used once or doubled, the wrong power or the wrong way', () =>
+    DO.every((i) => {
+      const d = STEPS[i], labels = d.opts.map((o) => o.label);
+      return d.opts.length === 3 && new Set(labels).size === 3 && d.opts.filter((o) => !o.slip).length === 1 &&
+        d.opts.every((o) => close(valueOf(o.label), o.val) && (o.label === d.want) === !o.slip &&
+          (!o.slip || (!close(o.val, d.truth) && o.says.length === 2 && !!d.hints[o.label])));
+    }) && [0, 1, 2].every((k) => DO.some((i) => STEPS[i].opts.findIndex((o) => !o.slip) === k)));
+  K.check('Before an answer nothing in a puzzle\'s picture gives it away: no fill, no count and no answer line', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank());
+      return g.fill === 0 && g.count == null && g.lines.every((l) => l.cls === '') && d.ansLines.every((s) => !has(g, s)) && !has(g, d.want);
+    }));
+  K.check('The zoom draws a corner in full and counts the rest: for cm and mm at powers 1, 2 and 3 the corner shows 10 small units along each edge, and when the zoom ends the fill covers the whole metre with its count; every right answer fills it too', () =>
+    UNITS.every((u) => [1, 2, 3].every((p) => {
+      const g = drawn(LIVE0, { p, u, zoom: true });
+      return g.lensEdge === 10 && g.lensFilled === 10 && g.fill === 1 && g.rows === nOf(u) && g.count === countText(u, p, nOf(u));
+    })) &&
+    DO.every((i) => { const d = STEPS[i], g = drawn(i, { pick: d.want, res: 'right' }); return g.fill === 1 && g.lines.filter((l) => l.cls === 'ans').length === d.ansLines.length; }));
+  K.check('The examples are drawn to scale: the 2.5 mm² and 1.5 mm² cables are circles of exactly that area on the millimetre squares, and the busbar is 40 by 10 millimetre squares, 400 mm², which is 0.0004 m²', () => {
+    const c1 = drawn(idx('A cable')), c2 = drawn(idx('A thinner cable')), b = STEPS[idx('A busbar')];
+    return close(Math.PI * c1.extraR * c1.extraR, 2.5) && close(Math.PI * c2.extraR * c2.extraR, 1.5) && b.bus.w * b.bus.t === 400 && close(b.truth, 400) && close(mul(0.0004, 6), 400);
+  });
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every dial\'s zoom within 4 s; every answer\'s motion, right or wrong, within 2.5 s', () =>
+    STEPS.every((d) => {
+      if (d.show) {
+        const r = lastArrival(() => viewOf(d, blank()));
+        const zooms = !d.live || [1, 2, 3].every((p) => UNITS.every((u) => zoomDur(d, p, u) <= 4));
+        return r.last <= 4.5 && r.first >= FADE && zooms;
+      }
+      return d.opts.every((o) => lastArrival(() => puzzleView(d, Object.assign(blank(), { pick: o.label, res: o.slip ? 'wrong' : 'right' }))).last <= 2.5);
+    }));
+
+  K.ready();
+</script>

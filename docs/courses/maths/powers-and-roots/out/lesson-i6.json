@@ -1,0 +1,558 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-17T21:24:24.369Z",
+ "startedAt": "2026-10-17T21:24:24.369Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i6",
+  "title": "Units with powers",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is a 1 m square filling with 1000 rows of 1000 small squares, so 1 mm² = (10⁻³ m)² = 10⁻⁶ m², when you zoom in with the prefix dial on mm.",
+   "title": "Zoom into the unit",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in twelve small screens on one picture: one metre, drawn as a length, a square or a cube. A power dial picks which, 1 for the length, 2 for the square metre and 3 for the cubic metre. A prefix dial picks the small unit, cm or mm, and Zoom fills the metre with that small unit, drawing a corner in full and counting the rest; with mm the corner's box on the metre is drawn larger, so you can see it. Under the picture a readout writes the small unit as a power of ten and raises the whole bracket to the dial's power. Screen 1 opens on the 1 m length with the prefix on cm, and Zoom fills it with 100 cm. Turning the power dial to 2 makes it a square metre, and the same 100 cm now runs along two sides, so it fills with 100 rows of 100 small squares, 10,000 cm². Screen 3 zooms in with mm: 1000 mm along each side, 1000 rows of 1000, with the first row lit to show that 1000 mm² is only a strip 1 mm wide along one edge, and the readout writes 10⁻³ m × 10⁻³ m = (10⁻³ m)² = 10⁻⁶ m², the numbers multiplied by adding their powers and m × m making m². Screen 5 turns the power dial to 3 with cm: 100 cm along each of three edges, 100 × 100 × 100 = 1,000,000 small cubes, and (10⁻² m)³ = 10⁻⁶ m³. Screen 7 puts a 2.5 mm² cable's cross-section on the readout: each mm² is 10⁻⁶ m², so 2.5 mm² = 2.5 × 10⁻⁶ m², the area a cable's resistance R = ρL/A needs, with ρ in Ω m and L in m. Screen 9 turns it round for a unit you divide by: a stress of 1 newton on every square millimetre, and zooming out to the square metre shows 10⁶ of them, each carrying 1 N, so 1 N/mm² = 10⁶ N/m², also written 10⁶ N m⁻², as dividing by m² is multiplying by m⁻². Screens 1, 3, 5, 7 and 9 show an idea, and screens 2, 4, 6, 8 and 10 ask you to try it: square millimetres in a square metre, 1 cm² in m², 1 mm³ in m³, a 1.5 mm² cable in m², and a 200 N/mm² stress in N/m². Screens 11 and 12 mix them: a 500 cm³ cylinder in m³, and a 0.0004 m² busbar in mm², whose 40 mm by 10 mm sides appear once it is right, so you can check it against them. A puzzle offers three answers. A wrong pick draws its own slip in red, so you can see where it slipped: the length factor used once or doubled, the wrong power, or the wrong way. The right answer fills the picture only once you Check it.",
+   "ignores": "A million small squares cannot all be drawn on a phone, so the zoom draws a corner in full and counts the rest. The units are exact by definition: 1 mm² is exactly 10⁻⁶ m². A measured cable or bar is never exactly its stated size, so a converted value is only as good as the measurement. The dial has only cm and mm, and every other prefix goes inside the power in the same way. The cable sizes, stresses, cylinder and busbar are examples.",
+   "numbers": [
+    {
+     "label": "One metre, the length drawn, in step 1",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Opening power on the power dial, in step 1",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Highest power on the dial, a cube, in step 1",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Centimetres along 1 m, in step 1",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "Square centimetres in 1 m², 100 × 100, in step 1",
+     "value": 10000,
+     "kind": "computed"
+    },
+    {
+     "label": "Square millimetres in 1 m², 1000 × 1000, in step 2",
+     "value": 1000000,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: length factor once, 1000 mm², in step 2",
+     "value": 1000,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 1000 doubled, 2000 mm², in step 2",
+     "value": 2000,
+     "kind": "computed"
+    },
+    {
+     "label": "Milli, m, in metres",
+     "value": 0.001,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Centi, c, in metres",
+     "value": 0.01,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "1 mm² in m², (10⁻³ m)², in step 3",
+     "value": 0.000001,
+     "kind": "computed"
+    },
+    {
+     "label": "Millimetres along each side of 1 m², in step 3",
+     "value": 1000,
+     "kind": "computed"
+    },
+    {
+     "label": "Power: −3 add −3, in step 3",
+     "value": -6,
+     "kind": "computed"
+    },
+    {
+     "label": "1 cm² in m², (10⁻² m)², in step 4",
+     "value": 0.0001,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: centi outside the power, 10⁻² m², in step 4",
+     "value": 0.01,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: cubed, 10⁻⁶ m², in step 4",
+     "value": 0.000001,
+     "kind": "computed"
+    },
+    {
+     "label": "Small cubes in 1 m³, 100 × 100 × 100, in step 5",
+     "value": 1000000,
+     "kind": "computed"
+    },
+    {
+     "label": "1 cm³ in m³, (10⁻² m)³, in step 5",
+     "value": 0.000001,
+     "kind": "computed"
+    },
+    {
+     "label": "1 mm³ in m³, (10⁻³ m)³, in step 6",
+     "value": 1e-9,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: length factor once, 10⁻³ m³, in step 6",
+     "value": 0.001,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: squared, 10⁻⁶ m³, in step 6",
+     "value": 0.000001,
+     "kind": "computed"
+    },
+    {
+     "label": "Cable cross-section in mm², in step 7",
+     "value": 2.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "2.5 mm² in m², in step 7",
+     "value": 0.0000025,
+     "kind": "computed"
+    },
+    {
+     "label": "Cable cross-section in mm², in step 8",
+     "value": 1.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "1.5 mm² in m², in step 8",
+     "value": 0.0000015,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: length factor once, 1.5 × 10⁻³ m², in step 8",
+     "value": 0.0015,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: wrong way, 1.5 × 10⁶ m², in step 8",
+     "value": 1500000,
+     "kind": "computed"
+    },
+    {
+     "label": "Load on each mm², in newtons, in step 9",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "1 N/mm² in N/m², in step 9",
+     "value": 1000000,
+     "kind": "computed"
+    },
+    {
+     "label": "Stress in N/mm², in step 10",
+     "value": 200,
+     "kind": "assumed"
+    },
+    {
+     "label": "200 N/mm² in N/m², 200 × 10⁶, in step 10",
+     "value": 200000000,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: length factor once, 200 × 10³ N/m², in step 10",
+     "value": 200000,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: wrong way, 200 × 10⁻⁶ N/m², in step 10",
+     "value": 0.0002,
+     "kind": "computed"
+    },
+    {
+     "label": "Cylinder volume in cm³, in step 11",
+     "value": 500,
+     "kind": "assumed"
+    },
+    {
+     "label": "500 cm³ in m³, 5 × 10⁻⁴, in step 11",
+     "value": 0.0005,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: length factor once, 5 m³, in step 11",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: squared, 0.05 m³, in step 11",
+     "value": 0.05,
+     "kind": "computed"
+    },
+    {
+     "label": "Busbar cross-section in m², in step 12",
+     "value": 0.0004,
+     "kind": "assumed"
+    },
+    {
+     "label": "0.0004 m² in mm², in step 12",
+     "value": 400,
+     "kind": "computed"
+    },
+    {
+     "label": "Busbar width in mm, in step 12",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Busbar thickness in mm, in step 12",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slip: length factor once, 0.4 mm², in step 12",
+     "value": 0.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: wrong way, 4 × 10⁻¹⁰ mm², in step 12",
+     "value": 4e-10,
+     "kind": "computed"
+    },
+    {
+     "label": "Mega, M, 1 N/mm² as 1 MPa",
+     "value": 1000000,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Analogy: tile side in cm",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Analogy: tiles along one metre",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy: tiles in a square metre",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: conductor cross-section in mm²",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice: 6 mm² in m²",
+     "value": 0.000006,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: oil sample in cm³",
+     "value": 250,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice: 250 cm³ in m³",
+     "value": 0.00025,
+     "kind": "computed"
+    },
+    {
+     "label": "1 cm³ in mm³, 10 × 10 × 10",
+     "value": 1000,
+     "kind": "computed"
+    },
+    {
+     "label": "1 cm² in mm², 10 × 10",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "1 mm³ in m³ as a power",
+     "value": -9,
+     "kind": "computed"
+    },
+    {
+     "label": "1 cm² in m² as a power",
+     "value": -4,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip strip: 1000 mm² is 1 mm by 1000 mm, in step 3",
+     "value": 1000,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A prefix and its unit make one symbol, so a power on the unit powers the prefix too: 1 mm is 10⁻³ m, so 1 mm² = (10⁻³ m)² = 10⁻⁶ m².[^3] Here is why. A square millimetre is a square 1 mm along each side, and its area is side times side, 1 mm × 1 mm. Each side is 10⁻³ m, a thousandth of a metre,[^1] so the area is 10⁻³ m × 10⁻³ m. Multiply the numbers and the units separately. The numbers are powers of the same base, so their indices add,[^4] and −3 add −3 makes −6, giving 10⁻⁶. The units multiply too, and m × m is m². So 1 mm² = 10⁻⁶ m², a millionth of a square metre.\n\nZoom into a square metre and you can count it. Along one side 1000 mm fit, so the [[length factor]], how many small units fit along one metre, is 1000. The square fills with 1000 rows of 1000 small squares, so 1 m² = 1,000,000 mm², which is 10⁶ mm². You met the same count for 1 cm² = 100 mm² in Geometry fundamentals, 10 rows of 10; the same count works for any prefix. The length factor counts in two directions, across and down, so an area conversion squares it, and a cube adds a third direction, depth, so a volume conversion cubes it.[^5] Centi is 10⁻²,[^2] so 1 cm³ = (10⁻² m)³ = 10⁻⁶ m³: 100 cm along each edge of a cubic metre, and 100 × 100 × 100 = 1,000,000 small cubes.\n\nTwo easy slips come from using the length factor only once. One says a square metre holds 1000 mm², when 1000 is only the count along one edge: 1000 mm² is the first row alone, a strip 1 mm wide, and 999 more rows are still to fill. The other reads cm² as a hundredth of a square metre, as if the centi sat outside the square. NIST's guide to the SI rules that out: the prefix and the unit are one inseparable symbol, and the power belongs to both.[^3] So 1 cm² is (10⁻² m)² = 10⁻⁴ m². The rule holds for a negative power too,[^3] which is how a unit you divide by is written, as dividing is multiplying by one over. A stress of 1 N/mm² is 1 newton on every square millimetre. Per mm² means dividing by 10⁻⁶ m². A negative power is one over,[^6] so 10⁻⁶ is one millionth, and dividing by a millionth multiplies by a million: 1 N/mm² = 10⁶ N/m². The zoom agrees: a square metre holds 10⁶ square millimetres, each carrying 1 N. In the same way N/m² can be written N m⁻², and m/s² as m s⁻².[^7] A newton per square metre is the pascal, Pa,[^8] so 1 N/mm² is 10⁶ Pa, and mega is 10⁶,[^2] so that is 1 MPa.\n\nNamed units are built the same way, as products of powers of other units: a newton is kg m s⁻², and a pascal is N/m², which works out as kg m⁻¹ s⁻².[^8] Powers on units are also why a formula wants its areas in m². Resistivity, ρ, is measured in ohm metres, Ω m,[^9] and a cable's resistance is its resistivity times its length divided by its cross-section area, R = ρL/A.[^10] With L in m and A in m², the units work out as Ω m × m ÷ m² = Ω, so a 2.5 mm² cable goes in as 2.5 × 10⁻⁶ m². Working the units through a formula like this is a unit check, and it catches slips: a density worked out as a mass divided by an area comes out in kg/m², when density is in kg/m³, so you would know something had gone wrong.[^11]\n\n**A power on a unit takes its prefix with it, so an area conversion squares the length factor and a volume conversion cubes it: 1 mm² = (10⁻³ m)² = 10⁻⁶ m² and 1 cm³ = (10⁻² m)³ = 10⁻⁶ m³.[^3][^5]**"
+  },
+  "analogy": {
+   "text": "Tiling a wall 1 m by 1 m with 10 cm square tiles, you fit 10 tiles along the bottom, but you buy 100, not 10, because there are 10 rows of 10. The 10 along one edge is the length factor, and the wall's area needs it twice.",
+   "breaks": "Real tiles leave grout gaps and get cut at the edges, so a tile count is rounded up, while 1 m² = 10,000 cm² is exact."
+  },
+  "practice": {
+   "text": "To convert a unit with a power:\n- Write the small unit as a power of ten times the metre: 1 mm = 10⁻³ m, 1 cm = 10⁻² m.\n- Put a bracket round the power of ten and the metre together, and raise the whole bracket to the unit's power: mm² = (10⁻³ m)².\n- Multiply the indices out: (10⁻³)² = 10⁻³ × 10⁻³ = 10⁻⁶, so mm² = 10⁻⁶ m².\n- Swap it into the value: 6 mm² = 6 × 10⁻⁶ m².\n- Check the direction: going to a bigger unit, the number in front gets smaller. For a unit you divide by, such as N/mm², it is the other way round, because each bigger unit holds more of the load.\n- Check the units: work them through the formula. In R = ρL/A, Ω m × m ÷ m² leaves Ω, the unit a resistance should have, only with A in m².[^10]\n\n**Rule of thumb:** area squares the length factor and volume cubes it.[^5] From mm: mm² to m² is × 10⁻⁶ and mm³ to m³ is × 10⁻⁹. From cm: cm² to m² is × 10⁻⁴ and cm³ to m³ is × 10⁻⁶. Between the two, 1 cm² = 100 mm² and 1 cm³ = 1000 mm³. A unit you divide by flips it: per mm² to per m² is × 10⁶. Per is a minus power, so N/m² is N m⁻² and m/s² is m s⁻².\n\n**Worked example:** Say R = ρL/A needs a 6 mm² conductor's cross-section in square metres, because ρ is in Ω m and the length in metres. 1 mm² = (10⁻³ m)² = 10⁻⁶ m², so 6 mm² = 6 × 10⁻⁶ m², which is 0.000006 m². The number got smaller because the square metre is the bigger unit. A 250 cm³ oil sample is 250 × (10⁻² m)³ = 250 × 10⁻⁶ m³ = 2.5 × 10⁻⁴ m³.\n\n**Common mistakes**\n- Using the length factor once for an area: a square metre holds 1,000,000 mm², not 1000.\n- Leaving the prefix outside the power: 1 cm² is 10⁻⁴ m², not 10⁻² m².\n- Squaring for a volume: 1 cm³ is 10⁻⁶ m³, not 10⁻⁴ m³.\n- Going the wrong way: 1.5 mm² is 1.5 × 10⁻⁶ m², not 1.5 × 10⁶ m². A smaller unit needs more of them."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Milli- - Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Milli-",
+    "quote": "Milli (symbol m ) is a unit prefix in the metric system denoting a factor of one thousandth (10 −3 )."
+   },
+   {
+    "n": 2,
+    "title": "SI prefixes - BIPM",
+    "url": "https://www.bipm.org/en/measurement-units/si-prefixes",
+    "quote": "giga | #### G | 10 9 * mega | #### M | 10 6 * kilo | #### k | 10 3 * hecto | #### h | 10 2 * deca | #### da | 10 1 * deci | #### d | 10 –1 * centi | #### c | 10 –2 * milli | #### m | 10 –3 * micro | #### µ | 10 –6"
+   },
+   {
+    "n": 3,
+    "title": "NIST Guide to the SI, Chapter 6: Rules and Style Conventions for Printing and Using Units | NIST",
+    "url": "https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-6-rules-and-style-conventions-printing-and-using",
+    "quote": "The grouping formed by a prefix symbol attached to a unit symbol constitutes a new inseparable symbol (forming a multiple or submultiple of the unit concerned) which can be raised to a positive or negative power"
+   },
+   {
+    "n": 4,
+    "title": "Laws of indices for multiplication and division - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/z93nsk7",
+    "quote": "The base numbers are the same (9), so add the indices together (3 + 5 = 8). 9³ x 9⁵ = 9⁸"
+   },
+   {
+    "n": 5,
+    "title": "Units of area and volume - Converting units of area and volume - 3rd level Maths Revision - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/guides/z6qp2v4/revision/1",
+    "quote": "When converting between metric units of area and volume, the numbers you have to multiply or divide by need to be squared for area and cubed for volume."
+   },
+   {
+    "n": 6,
+    "title": "Engineer cadets maths refresher — Solent University Warsash",
+    "url": "https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf",
+    "quote": "So a negative power gives the reciprocal of the number — that is, 1 over the number."
+   },
+   {
+    "n": 7,
+    "title": "NIST Guide to the SI, Chapter 6: Rules and Style Conventions for Printing and Using Units | NIST",
+    "url": "https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-6-rules-and-style-conventions-printing-and-using",
+    "quote": "Symbols for units formed from other units by division are indicated by means of a solidus (oblique stroke, / ) , a horizontal line, or negative exponents."
+   },
+   {
+    "n": 8,
+    "title": "A concise summary of the International System of Units, SI",
+    "url": "https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-concise-EN.pdf/2fda4656-e236-0fcb-3867-36ca74eea4e3",
+    "quote": "frequency hertz Hz s −1 force newton N kg m s −2 pressure, stress pascal Pa N/m 2 = kg m −1 s −2"
+   },
+   {
+    "n": 9,
+    "title": "9.3 Resistivity and Resistance - University Physics Volume 2 | OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-2/pages/9-3-resistivity-and-resistance",
+    "quote": "The unit of resistivity in SI units is the ohm-meter ."
+   },
+   {
+    "n": 10,
+    "title": "9.3 Resistivity and Resistance - University Physics Volume 2 | OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-2/pages/9-3-resistivity-and-resistance",
+    "quote": "The resistance of a cylindrical segment of a conductor is equal to the resistivity of the material times the length divided by the area"
+   },
+   {
+    "n": 11,
+    "title": "Dimensional Analysis – Isaac Science",
+    "url": "https://isaacscience.org/concepts/cp_dim_analysis",
+    "quote": "if you mistakenly divided a mass by an area to get density, the answer would be in kg/ m 2 . Given that we know density must be in kg/ m 3 we would spot the mistake."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; }\n  /* The metre (a length, a square or a cube), its zoomed corner, and what fills them. */\n  .scene .face { fill: var(--k-panel); stroke: none; }\n  .scene .edge { fill: none; stroke: var(--k-ink); stroke-width: 1.5; stroke-linejoin: round; }\n  .scene .fill { fill: var(--k-fill1); }\n  .scene .lit { fill: var(--k-fill3); stroke: var(--k-accent); stroke-width: 1.5; }\n  .scene .grid { fill: none; stroke: var(--k-strong); stroke-width: .8; }\n  .scene .box { fill: none; stroke: var(--k-accent); stroke-width: 1.5; }\n  .scene .lensbg { fill: var(--k-bg); stroke: none; }\n  .scene .lens { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linejoin: round; }\n  .scene .lensin { fill: none; stroke: var(--k-accent); stroke-width: 1.2; }\n  .scene .conn { stroke: var(--k-accent); stroke-width: 1.2; stroke-dasharray: 4 3; }\n  .scene .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .cable { fill: var(--k-fill3); stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene .dot { fill: var(--k-accent2); }\n  /* A slip is drawn in the warning colour. */\n  .scene .badf { fill: var(--k-warn); fill-opacity: .3; stroke: none; }\n  .scene .badl { fill: none; stroke: var(--k-warn); stroke-width: 3.5; stroke-linecap: round; }\n  .scene .badc { fill: none; stroke: var(--k-warn); stroke-width: 2; }\n  .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }\n  .scene .tl { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .scene .sl { font: 600 13px var(--k-font); fill: var(--k-accent); }\n  .scene .ky { font: 400 13px var(--k-font); fill: var(--k-ink); }\n  .scene .ct { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .scene .wk { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .ans { fill: var(--k-accent2); }\n  .scene .bad { fill: var(--k-warn); }\n  /* The two dials: power (1, 2, 3) and prefix (cm, mm). */\n  .dials { display: grid; gap: 8px; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 6rem; min-height: 48px; }\n  .row.dial { flex-wrap: nowrap; align-items: center; gap: 8px; }\n  .dial .k-label { flex: 0 0 4.6rem; margin: 0; }\n  .row.dial .k-btn { flex: 1 1 0; min-width: 0; min-height: 44px; font-size: 1.05rem; white-space: nowrap; padding-inline: 4px; }\n  .dial .k-btn[aria-pressed=\"true\"], .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stack one to a row, each label whole. */\n  .row.picks { flex-direction: column; flex-wrap: nowrap; gap: 8px; }\n  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; font-size: 1.1rem; white-space: nowrap; }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">One metre, drawn as a length, a square or a cube, and filled with centimetres or millimetres. The cables, stresses, cylinder and busbar are examples.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 320\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n    <div class=\"dials\" id=\"dials\">\n      <div class=\"row dial\" id=\"dialP\"><span class=\"k-label\">Power</span></div>\n      <div class=\"row dial\" id=\"dialU\"><span class=\"k-label\">Prefix</span></div>\n    </div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">A prefix and its unit make one symbol, so a power on the unit takes the prefix too.</p>\n\n<script>\n  // ---------- the rule (pure, so the checks can test it) ----------\n  // Centi and milli in metres (BIPM [2], Wikipedia [1]). A prefix and its unit make one symbol, so a\n  // power on the unit takes the prefix too: 1 u^p = (10^e m)^p = 10^(p·e) m^p, the indices added p\n  // times. Zoomed in, 1 m^p fills with n^p small units, n = 1 ÷ 10^e being the length factor, the\n  // count along each of its p directions.\n  const CENTI = 0.01, MILLI = 0.001;\n  const PRE = { cm: CENTI, mm: MILLI };\n  const UNITS = ['cm', 'mm'];\n  function expOf(u) { return Math.round(Math.log10(PRE[u])); }\n  function nOf(u) { return Math.round(1 / PRE[u]); }\n  function powOf(u, p) { let k = 0; for (let j = 0; j < p; j++) k += expOf(u); return k; }\n  function countOf(u, p) { return Math.pow(nOf(u), p); }\n  function mul(a, k) { return +(a * Math.pow(10, k)).toPrecision(12); }\n  const LC = 10;   // the zoomed corner draws 10 small units along each edge in full; the rest are counted\n\n  // ---------- numbers written the way the explanation writes them ----------\n  const SUP = { '-': '⁻', 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹' };\n  const SUPR = {};\n  Object.keys(SUP).forEach((k) => { SUPR[SUP[k]] = k; });\n  function sup(k) { return String(k).split('').map((c) => SUP[c]).join(''); }\n  function ten(k) { return '10' + sup(k); }\n  function sgn(k) { return String(k).replace('-', '−'); }\n  function uP(u, p) { return p === 1 ? u : u + sup(p); }\n  function grp(v) { const s = String(Math.round(v)); return Math.abs(v) >= 10000 ? s.replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',') : s; }\n  function dec(v) { return String(+(+v).toPrecision(10)); }\n  function std(v) { const k = Math.floor(Math.log10(v) + 1e-9), a = +(v / Math.pow(10, k)).toPrecision(10); return (a === 1 ? '' : dec(a) + ' × ') + ten(k); }\n  function sci(a, k) { return dec(a) + ' × ' + ten(k); }\n  function big(c) { return c <= 1e6 ? grp(c) : std(c); }\n  // A label read back as a number (units dropped): '1.5 × 10⁻⁶ m²', '10⁻⁴ m²', '1,000,000 mm²'.\n  function valueOf(label) {\n    const s = String(label).split(' ').filter((w) => !/[a-zA-Z]/.test(w)).join(' ');\n    const pw = (t) => +t.split('').map((c) => SUPR[c]).join('');\n    let m = /^([\\d.,]+) × 10([⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+)$/.exec(s);\n    if (m) return mul(+m[1].replace(/,/g, ''), pw(m[2]));\n    m = /^10([⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+)$/.exec(s);\n    if (m) return mul(1, pw(m[1]));\n    if (/^[\\d.,]+$/.test(s)) return +s.replace(/,/g, '');\n    return NaN;\n  }\n\n  // The readout: the small unit as a power of ten, then the whole bracket raised to the dial's power.\n  // why: the working in full (side times side, the indices added, the units multiplied).\n  function unitLines(u, p, why) {\n    const e = expOf(u), k = powOf(u, p), L = ['1 ' + u + ' = ' + ten(e) + ' m'];\n    if (p === 1) return L;\n    const br = '(' + ten(e) + ' m)' + sup(p) + ' = ' + ten(k) + ' ' + uP('m', p);\n    if (!why) return L.concat(['1 ' + uP(u, p) + ' = ' + br]);\n    const rep = (s) => Array(p).fill(s);\n    return L.concat(['1 ' + uP(u, p) + ' = ' + rep(ten(e) + ' m').join(' × '), '= ' + br,\n      rep(sgn(e)).join(' add ') + ' makes ' + sgn(k) + ',', 'and ' + rep('m').join(' × ') + ' makes ' + uP('m', p)]);\n  }\n  // The count under the picture: how many small units fill the metre so far.\n  function countText(u, p, rr) {\n    const n = nOf(u), r = Math.max(1, Math.min(n, Math.floor(rr + 1e-9))), full = r >= n;\n    if (p === 1) return full ? n + ' ' + u + ' along 1 m' : r + ' of ' + n + ' ' + u;\n    const what = (p === 2 ? (r === 1 ? ' row' : ' rows') : (r === 1 ? ' layer' : ' layers')) + ' of ' + n + (p === 3 ? ' × ' + n : '');\n    return r + what + (full ? ' = ' + big(countOf(u, p)) + ' ' + uP(u, p) : '');\n  }\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // A SHOW step: end, the figure its demonstration ends on (p, the power dial; u, the prefix dial);\n  // live, the dials work there; why, the readout shows the working in full; lit, the first row is lit;\n  // extra, a cable's cross-section or a load on each mm² drawn in the zoomed corner; lines, fixed\n  // lines of working. A puzzle: fig, its figure (or bus, a busbar's cross-section); qLines, its working\n  // before an answer; opts, the answers offered, each with its value and, for a wrong one, its slip\n  // ('row': the length factor once; 'edges': doubled; 'depth' and 'layer': the wrong power; 'way':\n  // the wrong way) and the two red lines that say so; truth, the right value worked out from the rule;\n  // ansLines, the working a right answer adds; countAt, the count as the fill sweeps.\n  const PICK = 'Tap one of the answers.';\n  const pz = (o) => Object.assign({ show: false }, o);\n  const STEPS = [\n    (() => {\n      const u = 'cm', n = nOf(u);\n      return { show: true, name: 'A metre of centimetres', live: true, demo: 'grow', end: { p: 2, u },\n        text: n + ' cm fit along one metre, so the *length factor* is ' + n + ' and `1 cm = ' + ten(expOf(u)) + ' m`. Make it a square metre and the same ' + n +\n          ' cm runs along two sides, so it fills with ' + n + ' rows of ' + n + ', ' + big(countOf(u, 2)) + ' cm².' };\n    })(),\n    (() => {\n      const u = 'mm', p = 2, n = nOf(u), c = countOf(u, p), U = uP(u, p);\n      return pz({ name: 'Square millimetres', fig: { p, u },\n        task: 'How many square millimetres fill a square metre?',\n        qLines: ['Each side: 1 m = ' + n + ' ' + u],\n        opts: [\n          { label: n + ' ' + U, val: n, slip: 'row', says: [n + ' ' + U + ' is only the first row,', 'a strip 1 ' + u + ' wide, ' + (n - 1) + ' rows to go'] },\n          { label: big(c) + ' ' + U, val: c },\n          { label: 2 * n + ' ' + U, val: 2 * n, slip: 'edges', says: [n + ' + ' + n + ' = ' + 2 * n + ' counts two edges,', 'not ' + n + ' rows of ' + n] },\n        ],\n        truth: Math.pow(1 / MILLI, 2),\n        ansLines: ['1 m² = ' + n + ' × ' + n + ' = ' + std(c) + ' ' + U],\n        countAt: (rr) => countText(u, p, rr),\n        why: n + ' mm fit along each side, so the square fills with ' + n + ' rows of ' + n + ' small squares. ' + n + ' × ' + n + ' = ' + big(c) + ' mm², which is `' + std(c) + ' mm²`.',\n        hint: 'Not quite. Count the rows, then the squares in each row.',\n        hints: { [n + ' ' + U]: 'Not quite. ' + n + ' runs along one edge, so that fills only the first row.',\n          [2 * n + ' ' + U]: 'Not quite. The two edges are not added. Each of the ' + n + ' rows holds ' + n + '.' } });\n    })(),\n    (() => {\n      const u = 'mm', e = expOf(u), n = nOf(u);\n      return { show: true, name: 'Inside the power', live: true, why: true, lit: true, end: { p: 2, u },\n        text: 'A square millimetre is 1 mm by 1 mm, so it is `' + ten(e) + ' m × ' + ten(e) + ' m`. The powers add and m × m makes m², so `1 mm² = (' + ten(e) + ' m)² = ' +\n          ten(powOf(u, 2)) + ' m²`. The lit first row is only ' + n + ' mm².' };\n    })(),\n    (() => {\n      const u = 'cm', p = 2, e = expOf(u), k = powOf(u, p), k3 = powOf(u, 3), n = nOf(u), U = uP('m', p);\n      return pz({ name: 'Centimetres squared', fig: { p, u },\n        task: '1 cm = `' + ten(e) + ' m`. What is 1 cm² in m²?',\n        qLines: ['1 cm = ' + ten(e) + ' m'],\n        opts: [\n          { label: ten(k) + ' ' + U, val: mul(1, k) },\n          { label: ten(e) + ' ' + U, val: mul(1, e), slip: 'row', says: [ten(e) + ' ' + U + ' is a whole row of ' + n + ' cm²,', 'the centi left outside the power'] },\n          { label: ten(k3) + ' ' + U, val: mul(1, k3), slip: 'depth', says: [ten(k3) + ' is ' + ten(e) + ' cubed, a cube’s,', 'and a square has no third direction'] },\n        ],\n        truth: Math.pow(CENTI, 2),\n        ansLines: ['1 cm² = (' + ten(e) + ' m)² = ' + ten(k) + ' m²'],\n        countAt: (rr) => countText(u, p, rr),\n        why: '1 cm² is 1 cm by 1 cm, so it is `(' + ten(e) + ' m)²`. The powers add, ' + sgn(e) + ' add ' + sgn(e) + ' makes ' + sgn(k) + ', so 1 cm² = `' + ten(k) +\n          ' m²`. A square metre holds ' + n + ' rows of ' + n + ' of them.',\n        hint: 'Not quite. Square the whole bracket, prefix and all.',\n        hints: { [ten(e) + ' ' + U]: 'Not quite. That leaves the centi outside the square. Square the whole bracket, `(' + ten(e) + ' m)²`.',\n          [ten(k3) + ' ' + U]: 'Not quite. That cubes it. A square has two directions, so square it.' } });\n    })(),\n    (() => {\n      const u = 'cm', e = expOf(u), n = nOf(u);\n      return { show: true, name: 'A cubic metre', live: true, why: true, end: { p: 3, u },\n        text: 'A cube adds a third direction, depth. ' + n + ' cm runs along each of its three edges, so it holds ' + n + ' × ' + n + ' × ' + n + ' = ' + big(countOf(u, 3)) +\n          ' cm³, and `1 cm³ = (' + ten(e) + ' m)³ = ' + ten(powOf(u, 3)) + ' m³`.' };\n    })(),\n    (() => {\n      const u = 'mm', p = 3, e = expOf(u), k = powOf(u, p), k2 = powOf(u, 2), n = nOf(u), U = uP('m', p);\n      return pz({ name: 'Cubic millimetres', fig: { p, u },\n        task: '1 mm = `' + ten(e) + ' m`. What is 1 mm³ in m³?',\n        qLines: ['1 mm = ' + ten(e) + ' m'],\n        opts: [\n          { label: ten(e) + ' ' + U, val: mul(1, e), slip: 'row', says: [ten(e) + ' ' + U + ' fits ' + n + ' in a cubic metre,', 'one row along one edge'] },\n          { label: ten(k2) + ' ' + U, val: mul(1, k2), slip: 'layer', says: [ten(k2) + ' ' + U + ' fits ' + std(n * n) + ' in a cubic metre,', 'one layer, 1 ' + u + ' thick'] },\n          { label: ten(k) + ' ' + U, val: mul(1, k) },\n        ],\n        truth: Math.pow(MILLI, 3),\n        ansLines: ['1 mm³ = (' + ten(e) + ' m)³ = ' + ten(k) + ' m³'],\n        countAt: (rr) => countText(u, p, rr),\n        why: '1 mm³ is `(' + ten(e) + ' m)³`, and ' + [e, e, e].map(sgn).join(' add ') + ' makes ' + sgn(k) + ', so 1 mm³ = `' + ten(k) + ' m³`. A cubic metre holds ' +\n          n + ' layers of ' + n + ' rows of ' + n + '.',\n        hint: 'Not quite. Cube the whole bracket, prefix and all.',\n        hints: { [ten(e) + ' ' + U]: 'Not quite. That uses the ' + n + ' once, one row along one edge. A cube has three directions.',\n          [ten(k2) + ' ' + U]: 'Not quite. That squares it, one layer. A cube has depth too.' } });\n    })(),\n    (() => {\n      const a = 2.5, u = 'mm', e = expOf(u), k = powOf(u, 2);\n      return { show: true, name: 'A cable', end: { p: 2, u }, extra: { kind: 'cable', a },\n        lines: ['1 mm² = (' + ten(e) + ' m)² = ' + ten(k) + ' m²', dec(a) + ' mm² = ' + sci(a, k) + ' m²'],\n        text: 'An example cable\\'s cross-section is ' + dec(a) + ' mm², drawn here on the millimetre squares. Its resistance is `R = ρL/A`, with the resistivity ρ in `Ω m` and the length L in m, so the area A must be in m². Each mm² is `' + ten(k) + ' m²`, so `' + dec(a) + ' mm² = ' +\n          sci(a, k) + ' m²`.' };\n    })(),\n    (() => {\n      const a = 1.5, u = 'mm', e = expOf(u), k = powOf(u, 2), n = nOf(u);\n      return pz({ name: 'A thinner cable', fig: { p: 2, u }, extra: { kind: 'cable', a },\n        task: 'An example cable\\'s cross-section is ' + dec(a) + ' mm². What is that in m², ready for `R = ρL/A`?',\n        qLines: ['1 mm = ' + ten(e) + ' m'],\n        opts: [\n          { label: sci(a, e) + ' m²', val: mul(a, e), slip: 'row', says: [sci(a, e) + ' m² is ' + grp(a * n) + ' mm²,', 'a strip along one edge'] },\n          { label: sci(a, k) + ' m²', val: mul(a, k) },\n          { label: sci(a, -k) + ' m²', val: mul(a, -k), slip: 'way', says: [sci(a, -k) + ' m² is over a million', 'of these whole square metres'] },\n        ],\n        truth: a * Math.pow(MILLI, 2),\n        ansLines: ['1 mm² = (' + ten(e) + ' m)² = ' + ten(k) + ' m²', dec(a) + ' mm² = ' + sci(a, k) + ' m²'],\n        countAt: (rr) => countText(u, 2, rr),\n        why: 'Each mm² is `(' + ten(e) + ' m)² = ' + ten(k) + ' m²`, so ' + dec(a) + ' mm² = `' + sci(a, k) + ' m²`, ' + dec(a) + ' millionths of a square metre.',\n        hint: 'Not quite. Each mm² is `(' + ten(e) + ' m)²`.',\n        hints: { [sci(a, e) + ' m²']: 'Not quite. That uses `' + ten(e) + '` once. A square millimetre is `(' + ten(e) + ' m)² = ' + ten(k) + ' m²`.',\n          [sci(a, -k) + ' m²']: 'Not quite. That is more than a million square metres. A mm² is a millionth of one.' } });\n    })(),\n    (() => {\n      const a = 1, u = 'mm', k = powOf(u, 2), c = countOf(u, 2);\n      return { show: true, name: 'Per square millimetre', end: { p: 2, u }, extra: { kind: 'load', a },\n        lines: ['1 mm² = ' + ten(k) + ' m²', a + ' N/mm² = ' + a + ' N ÷ ' + ten(k) + ' m²', '= ' + std(mul(a, -k)) + ' N/m², as ÷ ' + ten(k) + ' is × ' + ten(-k), '= ' + std(mul(a, -k)) + ' N m⁻², as ÷ m² is × m⁻²'],\n        text: 'Take an example stress of ' + a + ' N/mm², ' + a + ' N on every square millimetre. A square metre holds `' + std(c) + '` of them, each carrying ' + a + ' N, so `' + a + ' N/mm² = ' +\n          std(mul(a, -k)) + ' N/m²`, as dividing by a millionth multiplies by a million. Per is a minus power, so N/m² is also written `N m⁻²`.' };\n    })(),\n    (() => {\n      const a = 200, u = 'mm', e = expOf(u), k = powOf(u, 2), n = nOf(u);\n      return pz({ name: 'A bigger stress', fig: { p: 2, u }, extra: { kind: 'load', a },\n        task: 'An example stress is ' + a + ' N/mm², ' + a + ' N on every mm². What is that in N/m²?',\n        qLines: ['1 mm² = ' + ten(k) + ' m²'],\n        opts: [\n          { label: sci(a, -k) + ' N/m²', val: mul(a, -k) },\n          { label: sci(a, -e) + ' N/m²', val: mul(a, -e), slip: 'row', says: [sci(a, -e) + ' N is the load on', 'the first row of ' + n + ' mm² only'] },\n          { label: sci(a, k) + ' N/m²', val: mul(a, k), slip: 'way', says: [sci(a, k) + ' N on a whole square metre', 'is far less than one mm² carries'] },\n        ],\n        truth: a / Math.pow(MILLI, 2),\n        ansLines: [a + ' N/mm² = ' + a + ' N ÷ ' + ten(k) + ' m²', '= ' + sci(a, -k) + ' N/m²'],\n        countAt: (rr) => countText(u, 2, rr),\n        why: a + ' N/mm² is ' + a + ' N on each mm², and each mm² is `' + ten(k) + ' m²`. Dividing by a millionth multiplies by a million, so it is `' + sci(a, -k) + ' N/m²`.',\n        hint: 'Not quite. Per mm² divides by `' + ten(k) + ' m²`.',\n        hints: { [sci(a, -e) + ' N/m²']: 'Not quite. That uses the ' + n + ' once, the first row only. A square metre holds ' + n + ' rows.',\n          [sci(a, k) + ' N/m²']: 'Not quite. That goes the wrong way. Dividing by `' + ten(k) + '` multiplies by `' + ten(-k) + '`.' } });\n    })(),\n    (() => {\n      const a = 500, u = 'cm', e = expOf(u), k = powOf(u, 3), n = nOf(u), v = mul(a, k);\n      return pz({ name: 'A cylinder', fig: { p: 3, u },\n        task: 'An example cylinder holds ' + a + ' cm³. What is that in m³?',\n        qLines: ['1 cm = ' + ten(e) + ' m'],\n        opts: [\n          { label: dec(a / n) + ' m³', val: a / n, slip: 'row', says: [dec(a / n) + ' m³ divides by ' + n + ' once,', 'one row along one edge'] },\n          { label: dec(a / (n * n)) + ' m³', val: a / (n * n), slip: 'layer', says: [dec(a / (n * n)) + ' m³ divides by ' + n + ' × ' + n + ',', 'one layer, 1 ' + u + ' thick'] },\n          { label: std(v) + ' m³', val: v },\n        ],\n        truth: a * Math.pow(CENTI, 3),\n        ansLines: ['1 cm³ = (' + ten(e) + ' m)³ = ' + ten(k) + ' m³', a + ' cm³ = ' + a + ' × ' + ten(k) + ' = ' + std(v) + ' m³'],\n        countAt: (rr) => countText(u, 3, rr),\n        why: '1 cm³ = `(' + ten(e) + ' m)³ = ' + ten(k) + ' m³`, so ' + a + ' cm³ = `' + a + ' × ' + ten(k) + ' m³`, which is `' + std(v) + ' m³`.',\n        hint: 'Not quite. 1 cm³ is `(' + ten(e) + ' m)³`.',\n        hints: { [dec(a / n) + ' m³']: 'Not quite. That divides by ' + n + ' once. A cubic metre holds ' + n + ' × ' + n + ' × ' + n + ' cm³.',\n          [dec(a / (n * n)) + ' m³']: 'Not quite. That divides by ' + n + ' × ' + n + ', one layer. A cube has depth too.' } });\n    })(),\n    (() => {\n      const a = 0.0004, w = 40, t = 10, u = 'mm', e = expOf(u), k = powOf(u, 2), n = nOf(u), c = countOf(u, 2), v = mul(a, -k);\n      return pz({ name: 'A busbar', bus: { w, t, row: mul(a, -e) }, tag: 'A busbar’s cross-section, ' + dec(a) + ' m²',\n        task: 'An example busbar\\'s cross-section is ' + dec(a) + ' m². What is that in mm²?',\n        qLines: ['1 m = ' + n + ' mm'],\n        opts: [\n          { label: dec(mul(a, -e)) + ' mm²', val: mul(a, -e), slip: 'row', says: [dec(mul(a, -e)) + ' mm² is less than half', 'of one small square'] },\n          { label: grp(v) + ' mm²', val: v },\n          { label: std(mul(a, k)) + ' mm²', val: mul(a, k), slip: 'way', says: [std(mul(a, k)) + ' mm² goes the wrong way,', 'far smaller than one small square'] },\n        ],\n        truth: a / Math.pow(MILLI, 2),\n        ansLines: ['1 m² = ' + n + ' × ' + n + ' = ' + std(c) + ' mm²', dec(a) + ' m² = ' + dec(a) + ' × ' + std(c) + ' = ' + grp(v) + ' mm²'],\n        countAt: (rr) => { const r = Math.max(1, Math.min(t, Math.floor(rr + 1e-9))); return r + (r === 1 ? ' row' : ' rows') + ' of ' + w + (r >= t ? ' = ' + w * t + ' mm²' : ''); },\n        why: '1 m² holds ' + n + ' × ' + n + ' = `' + std(c) + ' mm²`, so ' + dec(a) + ' m² = ' + dec(a) + ' × `' + std(c) + '` = ' + grp(v) + ' mm². The sides agree, ' +\n          w + ' mm × ' + t + ' mm = ' + w * t + ' mm².',\n        hint: 'Not quite. A square metre holds ' + n + ' × ' + n + ' mm².',\n        hints: { [dec(mul(a, -e)) + ' mm²']: 'Not quite. That multiplies by ' + n + ' once. A square metre holds ' + n + ' × ' + n + ' mm².',\n          [std(mul(a, k)) + ' mm²']: 'Not quite. That goes the wrong way. A smaller unit makes the number bigger.' } });\n    })(),\n  ];\n  STEPS.forEach((d) => { if (!d.show) d.want = d.opts.filter((o) => !o.slip)[0].label; });\n  const FINISH = 'A power on a unit takes its prefix with it, so an area conversion squares the length factor and a volume conversion cubes it. 1 mm² = `(' +\n    ten(expOf('mm')) + ' m)² = ' + ten(powOf('mm', 2)) + ' m²` and 1 cm³ = `(' + ten(expOf('cm')) + ' m)³ = ' + ten(powOf('cm', 3)) + ' m³`.';\n  // Sources the checks restate (the lesson's own).\n  const MILLI_SRC = 'https://en.wikipedia.org/wiki/Milli-';\n  const BIPM = 'https://www.bipm.org/en/measurement-units/si-prefixes';\n  const NIST = 'https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-6-rules-and-style-conventions-printing-and-using';\n  const BITE_IDX = 'https://www.bbc.co.uk/bitesize/articles/z93nsk7';\n  const BITE_AV = 'https://www.bbc.co.uk/bitesize/guides/z6qp2v4/revision/1';\n  const WARSASH = 'https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf';\n\n  // ---------- layout ----------\n  // The metre starts at X0, Y0: a length or square SQ long (the length BH tall), or a cube with a front\n  // face F across and D deep, up and to the right. Its zoomed corner sits at LX: LS across for the\n  // length and square, a block LF across and LD deep for the cube. The busbar starts at BX, BY, BC a mm.\n  const X0 = 62, Y0 = 64, SQ = 140, BH = 10, F = 112, D = 30;\n  const LX = 226, LS = 100, LF = 70, LD = 21;\n  const BX = 44, BY = 64, BC = 7;\n  const LINE = 24, FADE = 0.35;\n  const OY = 80;     // the length alone is drawn this much lower, so it sits near its count\n  const MINB = 8;    // the corner's box is never smaller than this; when enlarged it says so\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // p, u, zoom: on a screen with dials, the setting Dan chose and that its zoom is playing (or done).\n  function blank() { return { pick: null, res: null, why: false, p: null, u: null, zoom: false }; }\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;\n  let REC = null;   // what the last paint drew, for the checks\n  const at = () => stepper.get();\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n\n  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------\n  // `maths` stays on one line; *a key term* is highlighted.\n  function write(el, s) {\n    el.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { el.appendChild(K.el('span', { class: 'nw' }, seg)); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let pos = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > pos) el.appendChild(document.createTextNode(seg.slice(pos, m.index)));\n        el.appendChild(K.el('span', { class: 'term' }, m[1]));\n        pos = m.index + m[0].length;\n      }\n      if (pos < seg.length) el.appendChild(document.createTextNode(seg.slice(pos)));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  // The dials: a power from 1 to 3 and a prefix, cm or mm. Turning one zooms in again.\n  function dial(ch) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || !d.live) return;\n    const now = st.zoom ? { p: st.p, u: st.u } : d.end;\n    st.p = ch.p || now.p; st.u = ch.u || now.u; st.zoom = true;\n    play(zoomDur(d, st.p, st.u));\n  }\n  const pBtns = [1, 2, 3].map((p) => K.button({ label: String(p), secondary: true, into: '#dialP', press: () => dial({ p }) }));\n  const uBtns = UNITS.map((u) => K.button({ label: u, secondary: true, into: '#dialU', press: () => dial({ u }) }));\n  pBtns.forEach((b, k) => b.el.setAttribute('aria-label', 'Power ' + (k + 1)));\n  uBtns.forEach((b, k) => b.el.setAttribute('aria-label', 'Prefix ' + UNITS[k]));\n  function syncDials(v) {\n    pBtns.forEach((b, k) => b.el.setAttribute('aria-pressed', v.p === k + 1 ? 'true' : 'false'));\n    uBtns.forEach((b, k) => b.el.setAttribute('aria-pressed', v.u === UNITS[k] ? 'true' : 'false'));\n  }\n  // Up to three answer buttons; each puzzle fills in its own. A new choice after a wrong answer\n  // settles the picture back to the question.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k].label; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  // Check: a right answer fills the metre; a wrong one draws its slip in red.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    play(lastArrival(() => puzzleView(d, st)).last);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Zoom again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()], st = S[at()];\n    if (!d.show || finished) return;\n    play(d.live && st.zoom ? zoomDur(d, st.p, st.u) : durOf(d));\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration, each zoom and the motion after an answer; with reduced\n  // motion (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = document.getElementById(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = document.getElementById('scene'), art = document.getElementById('art');\n  let into = null;\n  const add = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function arr(t0, d) {\n    d = d == null ? K.SOFT : d;\n    if (t0 + d > latest) latest = t0 + d;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(T, t0, d);\n  }\n  // When the last part of a picture arrives, and the first starts, timed from its motion's start.\n  function lastArrival(fn) {\n    const kT = T, kl = latest, ke = earliest;\n    T = Infinity; latest = 0; earliest = Infinity;\n    try { fn(); return { last: latest, first: earliest }; } finally { T = kT; latest = kl; earliest = ke; }\n  }\n  const DUR = new Map();\n  function durOf(d) { if (!DUR.has(d)) DUR.set(d, lastArrival(() => viewOf(d, blank())).last); return DUR.get(d); }\n  function zoomDur(d, p, u) { return lastArrival(() => zoomView(d, p, u, 0)).last; }\n  function part(a, rise, draw) {\n    if (!(a > 0)) return;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g; draw(); into = keep;\n  }\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const rect = (cls, x, y, w, h) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)) }));\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));\n  const poly = (cls, pts) => add(K.svg('polygon', { class: cls, points: pts.map((q) => r3(q[0]) + ',' + r3(q[1])).join(' ') }));\n  const circ = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r: r3(Math.max(0, r)) }));\n  const nb = (s) => String(s).replace(/ /g, ' ');\n  function text(x, y, s, cls, anchor) { return add(K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' }, nb(s))); }\n  // A bracket along a horizontal edge (above it or below it) with its name, and one down a left edge\n  // with its count and unit beside it.\n  function bracketH(a0, a1, y, up, label) {\n    const e = up ? y - 3 : y + 3, b = up ? y - 8 : y + 8;\n    add(K.svg('path', { class: 'brk', d: 'M' + r3(a0 + 1) + ' ' + e + ' V' + b + ' H' + r3(a1 - 1) + ' V' + e }));\n    text((a0 + a1) / 2, up ? y - 16 : y + 24, label, 'tl');\n  }\n  function bracketV(y0, y1, x, n, u) {\n    add(K.svg('path', { class: 'brk', d: 'M' + (x - 3) + ' ' + r3(y0 + 1) + ' H' + (x - 8) + ' V' + r3(y1 - 1) + ' H' + (x - 3) }));\n    const mid = (y0 + y1) / 2;\n    text(x - 13, mid - 2, String(n), 'tl', 'end');\n    text(x - 13, mid + 15, u, 'tl', 'end');\n  }\n  // The corner the zoom shows: 10 small units along each edge, at the metre's top right.\n  function cornerBox(p, u) {\n    const n = nOf(u);\n    if (p === 3) { const s0 = F * LC / n, s = Math.max(MINB, s0); return { x: X0 + F - s, y: Y0 + D, w: s, h: s, big: s0 < MINB }; }\n    const s0 = SQ * LC / n, s = Math.max(MINB, s0);\n    return { x: X0 + SQ - s, y: Y0, w: s, h: p === 1 ? BH : s, big: s0 < MINB };\n  }\n\n  // ---------- what the picture shows at a moment ----------\n  // p, u: the figure; a: the figure's arrival; z: the zoom (0 at the corner, 1 full size), zl its\n  // labels; lr: the corner's rows (or layers, or cells) filled, 0 to 10; rr: the metre's, 0 to n;\n  // grow: on screen 1, the rows the length has grown into a square; side: its side bracket; lit: the\n  // first row lit; extra: the cable or the load; key: a key line under the figure; count: the count\n  // line; lines: the working; slip: a wrong answer's slip.\n  function base(p, u, d) {\n    return { p, u, a: 1, z: 1, zl: 1, lr: 0, rr: 0, grow: null, side: 1, lit: 0, extra: null, key: null, count: null, lines: [], slip: null, bus: false, sides: 0, oy: 0,\n      tag: (d && d.tag) || ('1 ' + uP('m', p) + ', zoomed in with ' + u) };\n  }\n  function keyOf(x, a) {\n    return x.kind === 'cable' ? { kind: 'cable', s: 'The cable’s cross-section, ' + dec(x.a) + ' mm²', a } : { kind: 'dot', s: dec(x.a) + ' N on each mm²', a };\n  }\n  // A zoom from t0: the figure, the corner zooming out to full size, its rows filling, then the rest\n  // of the metre filling while the count runs, then the working.\n  function zoomView(d, p, u, t0) {\n    const v = base(p, u, d), n = nOf(u), x = d.extra;\n    if (p === 1) v.oy = OY;\n    v.a = arr(t0); v.z = arr(t0 + 0.4); v.zl = arr(t0 + 0.8);\n    if (x && x.kind === 'cable') {\n      v.extra = { kind: 'cable', a: x.a, g: arr(t0 + 1.0, 0.8), rows: 0 };\n      v.key = keyOf(x, arr(t0 + 1.4));\n    } else {\n      const lrA = arr(t0 + 1.0, 0.8), sw = arr(t0 + 1.8, 1.2);\n      v.rr = lrA < 1 ? LC * lrA : LC + (n - LC) * sw;\n      v.lr = Math.min(LC, v.rr);\n      v.count = { s: countText(u, p, v.rr), a: arr(t0 + 1.0) };\n      if (x && x.kind === 'load') { v.extra = { kind: 'load', a: x.a, g: 1, rows: v.lr }; v.key = keyOf(x, arr(t0 + 1.0)); }\n      if (d.lit && p === 2) { v.lit = arr(t0 + 1.4); v.key = { kind: 'lit', s: 'First row lit: ' + n + ' ' + uP(u, 2) + ', 1 ' + u + ' wide', a: v.lit }; }\n    }\n    v.lines = (d.lines || unitLines(u, p, d.why)).map((s, m) => ({ s, a: arr(t0 + 2.2 + 0.25 * m) }));\n    return v;\n  }\n  // Screen 1: the length fills with centimetres, then the power dial turns to 2 and the same row of\n  // 100 runs down a second side, the square growing one row at a time.\n  function growView(d) {\n    const u = d.end.u, n = nOf(u), tB = 2.8;\n    if (T < tB) {\n      const v = base(1, u, d);\n      v.oy = OY;\n      v.a = arr(FADE); v.z = arr(FADE + 0.3); v.zl = arr(FADE + 0.6);\n      const lrA = arr(FADE + 0.8, 0.6), sw = arr(FADE + 1.4, 0.8);\n      v.rr = lrA < 1 ? LC * lrA : LC + (n - LC) * sw;\n      v.lr = Math.min(LC, v.rr);\n      v.count = { s: countText(u, 1, v.rr), a: arr(FADE + 0.8) };\n      v.lines = [{ s: unitLines(u, 1)[0], a: arr(FADE + 1.8) }];\n      return v;\n    }\n    const v = base(2, u, d), g = 1 + (n - 1) * arr(tB, 1.1);\n    v.grow = g; v.rr = g; v.oy = OY * (1 - arr(tB, 0.6)); v.lr = Math.min(LC, g); v.side = arr(tB + 1.0);\n    v.count = { s: countText(u, 2, g), a: 1 };\n    v.lines = unitLines(u, 2).map((s, m) => ({ s, a: m ? arr(tB + 0.9) : 1 }));\n    return v;\n  }\n  // A puzzle: the question still; a right answer fills the metre and adds its working; a wrong one\n  // draws its slip in red and says what it counted.\n  function puzzleView(d, st) {\n    const v = d.bus ? Object.assign(base(2, 'mm', d), { bus: true }) : base(d.fig.p, d.fig.u, d);\n    if (d.extra) { v.extra = Object.assign({ g: 1, rows: LC }, d.extra); v.key = keyOf(d.extra, 1); }\n    v.lines = d.qLines.map((s) => ({ s, a: 1 }));\n    if (st.res === 'right') {\n      const n = d.bus ? d.bus.t : nOf(d.fig.u);\n      if (d.bus) { v.rr = n * arr(0.1, 1.0); v.sides = arr(0.1); }\n      else {\n        const lrA = arr(0.1, 0.5), sw = arr(0.6, 0.9);\n        v.rr = lrA < 1 ? LC * lrA : LC + (n - LC) * sw;\n        v.lr = Math.min(LC, v.rr);\n      }\n      v.count = { s: d.countAt(v.rr), a: arr(0.2), ans: true };\n      d.ansLines.forEach((s, m) => v.lines.push({ s, a: arr(1.2 + 0.3 * m), cls: 'ans' }));\n    } else if (st.res === 'wrong' && st.pick != null) {\n      const o = d.opts.filter((q) => q.label === st.pick)[0];\n      if (!o) return v;\n      v.slip = { kind: o.slip, a: arr(0.1) };\n      v.count = { s: o.says[0], a: arr(0.3), bad: true };\n      v.lines.push({ s: o.says[1], a: arr(0.6), cls: 'bad' });\n    }\n    return v;\n  }\n  function viewOf(d, st) {\n    if (!d.show) return puzzleView(d, st);\n    if (d.live && st.zoom) return zoomView(d, st.p, st.u, 0);\n    if (d.demo === 'grow') return growView(d);\n    return zoomView(d, d.end.p, d.end.u, FADE);\n  }\n\n  // ---------- the picture ----------\n  // The metre: a length, a square or a cube, filled row by row (or layer by layer) from the top.\n  function drawFigure(v) {\n    const p = v.p, u = v.u, n = nOf(u), fr = K.clamp(v.rr / n, 0, 1), b = cornerBox(p, u);\n    REC.fill = fr; REC.rows = Math.floor(v.rr + 1e-9);\n    part(v.a, 0, () => {\n      if (p === 1) {\n        rect('face', X0, Y0, SQ, BH);\n        if (fr > 0) rect('fill', X0, Y0, SQ * fr, BH);\n        rect('edge', X0, Y0, SQ, BH);\n        bracketH(X0, X0 + SQ, Y0, true, '1 m = ' + n + ' ' + u);\n      } else if (p === 2) {\n        const h = v.grow != null ? Math.max(BH, SQ * v.grow / n) : SQ;\n        rect('face', X0, Y0, SQ, h);\n        if (fr > 0) rect('fill', X0, Y0, SQ, v.grow != null ? h : SQ * fr);\n        if (v.lit > 0) part(v.lit, 0, () => rect('lit', X0, Y0, SQ, Math.max(2.5, SQ / n)));\n        rect('edge', X0, Y0, SQ, h);\n        bracketH(X0, X0 + SQ, Y0, true, '1 m = ' + n + ' ' + u);\n      } else {\n        const fy = Y0 + D, top = [[X0, fy], [X0 + D, Y0], [X0 + D + F, Y0], [X0 + F, fy]], side = [[X0 + F, fy], [X0 + F + D, Y0], [X0 + F + D, Y0 + F], [X0 + F, fy + F]];\n        poly('face', top); poly('face', side); rect('face', X0, fy, F, F);\n        if (fr > 0) {\n          const fh = F * fr;\n          poly('fill', top); rect('fill', X0, fy, F, fh);\n          poly('fill', [[X0 + F, fy], [X0 + F + D, Y0], [X0 + F + D, Y0 + fh], [X0 + F, fy + fh]]);\n        }\n        poly('edge', [[X0, fy], [X0 + D, Y0], [X0 + D + F, Y0], [X0 + D + F, Y0 + F], [X0 + F, fy + F], [X0, fy + F]]);\n        line('edge', X0, fy, X0 + F, fy); line('edge', X0 + F, fy, X0 + F + D, Y0); line('edge', X0 + F, fy, X0 + F, fy + F);\n        bracketH(X0, X0 + F, fy + F, false, '1 m = ' + n + ' ' + u);\n        bracketV(fy, fy + F, X0, n, u);\n        text(X0 + F + D / 2 + 8, fy + F - D / 2 + 10, n + ' ' + u, 'tl', 'start');\n      }\n      rect('box', b.x, b.y, b.w, b.h);\n      if (b.big) { text(b.x + b.w - 2, b.y + b.h + 16, 'drawn larger', 'sl', 'end'); REC.big = true; }\n    });\n    if (p === 2) part(v.grow != null ? v.side : v.a, 0, () => bracketV(Y0, Y0 + SQ, X0, n, u));\n    if (v.slip) part(v.slip.a, 0, () => {\n      const k = v.slip.kind, fy = Y0 + D;\n      REC.slip = k;\n      if (p === 2 && k === 'row') { rect('badf', X0, Y0, SQ, Math.max(3, SQ / n)); line('badl', X0, Y0, X0 + SQ, Y0); }\n      if (p === 2 && k === 'edges') { line('badl', X0, Y0, X0 + SQ, Y0); line('badl', X0, Y0, X0, Y0 + SQ); }\n      if (p === 2 && k === 'way') rect('badl', X0, Y0, SQ, SQ);\n      if (p === 3 && k === 'row') line('badl', X0, fy, X0 + F, fy);\n      if (p === 3 && k === 'layer') { poly('badf', [[X0, fy], [X0 + D, Y0], [X0 + D + F, Y0], [X0 + F, fy]]); line('badl', X0, fy, X0 + F, fy); }\n    });\n  }\n  // The zoomed corner: it grows out of the corner box to full size, drawing its small units in full.\n  function drawLens(v) {\n    const p = v.p, u = v.u, z = v.z, c = LS / LC, b = cornerBox(p, u);\n    if (!(z > 0)) return;\n    const rows = p === 2 && v.grow != null ? K.clamp(v.grow, 1, LC) : LC;\n    const fw = p === 3 ? LF : LS, fy = p === 3 ? LD : 0, fh = p === 1 ? c : p === 2 ? rows * c : LF;\n    const s0 = b.w / fw, sc = K.lerp(s0, 1, z), tx = K.lerp(b.x, LX, z), ty = K.lerp(b.y - fy * s0, Y0, z);\n    part(z, 0, () => {\n      line('conn', b.x + b.w, b.y, tx, ty + fy * sc);\n      line('conn', b.x + b.w, b.y + b.h, tx, ty + (fy + fh) * sc);\n    });\n    const g = add(K.svg('g', { transform: 'translate(' + r3(tx) + ' ' + r3(ty) + ') scale(' + (+sc.toFixed(4)) + ')' }));\n    const keep = into; into = g;\n    try { lensBody(v, rows, c); } finally { into = keep; }\n    part(v.zl, 0, () => {\n      if (p === 3) bracketH(LX + LD, LX + LD + LF, Y0, true, LC + ' ' + u);\n      else bracketH(LX, LX + LS, Y0, true, LC + ' ' + u);\n      text(LX, Y0 + fy + fh + 18, 'zoomed corner', 'sl', 'start');\n    });\n    REC.lensEdge = LC; REC.lensFilled = v.lr;\n  }\n  function lensBody(v, rows, c) {\n    const p = v.p, lr = v.lr, x = v.extra, sl = v.slip ? v.slip.kind : null;\n    if (p === 1) {\n      rect('lensbg', 0, 0, LS, c);\n      if (lr > 0) rect('fill', 0, 0, c * lr, c);\n      for (let k = 1; k < LC; k++) line('grid', k * c, 0, k * c, c);\n      rect('lens', 0, 0, LS, c);\n      return;\n    }\n    if (p === 2) {\n      const h = rows * c;\n      rect('lensbg', 0, 0, LS, h);\n      if (lr > 0) rect('fill', 0, 0, LS, c * Math.min(lr, rows));\n      if (v.lit > 0) part(v.lit, 0, () => { rect('lit', 0, 0, LS, c); REC.lit = v.lit >= 0.5; });\n      if (sl === 'row' || sl === 'edges') part(v.slip.a, 0, () => rect('badf', 0, 0, LS, c));\n      for (let k = 1; k < rows; k++) line('grid', 0, k * c, LS, k * c);\n      for (let k = 1; k < LC; k++) line('grid', k * c, 0, k * c, h);\n      if (x && x.kind === 'load') {\n        for (let i = 0; i < Math.min(LC, Math.ceil(x.rows - 1e-9)); i++) {\n          part(K.clamp(x.rows - i, 0, 1), 0, () => { for (let j = 0; j < LC; j++) circ('dot', j * c + c / 2, i * c + c / 2, 2.2); });\n        }\n      }\n      if (x && x.kind === 'cable') {\n        const r = Math.sqrt(x.a / Math.PI) * c * Math.max(0.05, x.g);\n        part(x.g, 0, () => circ('cable', LS / 2, LS / 2, r));\n        REC.extraR = r / c;\n      }\n      if (sl === 'way' && x && x.kind === 'load') part(v.slip.a, 0, () => rect('badc', 0, 0, c, c));\n      rect('lens', 0, 0, LS, h);\n      return;\n    }\n    // the cube's corner: a block 10 small cubes along each edge, its three faces drawn\n    const q = LF / LC, dq = LD / LC;\n    const top = [[0, LD], [LD, 0], [LD + LF, 0], [LF, LD]];\n    poly('lensbg', top); poly('lensbg', [[LF, LD], [LF + LD, 0], [LF + LD, LF], [LF, LD + LF]]); rect('lensbg', 0, LD, LF, LF);\n    if (lr > 0) {\n      const h = q * lr;\n      poly('fill', top); rect('fill', 0, LD, LF, h); poly('fill', [[LF, LD], [LF + LD, 0], [LF + LD, h], [LF, LD + h]]);\n    }\n    if (sl === 'row' || sl === 'layer') part(v.slip.a, 0, () => {\n      rect('badf', 0, LD, LF, q);\n      if (sl === 'row') poly('badf', [[0, LD], [dq, LD - dq], [dq + LF, LD - dq], [LF, LD]]);\n      if (sl === 'layer') { poly('badf', top); poly('badf', [[LF, LD], [LF + LD, 0], [LF + LD, q], [LF, LD + q]]); }\n    });\n    for (let k = 1; k < LC; k++) {\n      line('grid', k * q, LD, k * q, LD + LF); line('grid', 0, LD + k * q, LF, LD + k * q);\n      line('grid', k * q, LD, k * q + LD, 0); line('grid', k * dq, LD - k * dq, k * dq + LF, LD - k * dq);\n      line('grid', LF + k * dq, LD - k * dq, LF + k * dq, LD - k * dq + LF); line('grid', LF, LD + k * q, LF + LD, k * q);\n    }\n    poly('lens', [[0, LD], [LD, 0], [LD + LF, 0], [LD + LF, LF], [LF, LD + LF], [0, LD + LF]]);\n    line('lensin', 0, LD, LF, LD); line('lensin', LF, LD, LF + LD, 0); line('lensin', LF, LD, LF, LD + LF);\n  }\n  // The busbar end on: its sides in millimetres, drawn as rows of millimetre squares.\n  function drawBus(v, d) {\n    const cols = d.bus.w, rows = d.bus.t, W = cols * BC, H = rows * BC, fr = K.clamp(v.rr / rows, 0, 1);\n    REC.fill = fr; REC.rows = Math.floor(v.rr + 1e-9);\n    part(v.a, 0, () => {\n      rect('face', BX, BY, W, H);\n      if (fr > 0) rect('fill', BX, BY, W, H * fr);\n      rect('edge', BX, BY, W, H);\n    });\n    // Its sides in millimetre squares appear only with a right answer, so the puzzle tests the conversion.\n    REC.sides = v.sides >= 0.5;\n    part(v.sides, 0, () => {\n      for (let k = 1; k < cols; k++) line('grid', BX + k * BC, BY, BX + k * BC, BY + H);\n      for (let k = 1; k < rows; k++) line('grid', BX, BY + k * BC, BX + W, BY + k * BC);\n      rect('edge', BX, BY, W, H);\n      bracketH(BX, BX + W, BY, true, cols + ' mm');\n      bracketV(BY, BY + H, BX, rows, 'mm');\n    });\n    if (v.slip) part(v.slip.a, 0, () => {\n      REC.slip = v.slip.kind;\n      if (v.slip.kind === 'row') rect('badf', BX, BY, BC, BC * d.bus.row);\n      rect('badc', BX, BY, BC, BC);\n    });\n  }\n  function drawKey(k, G) {\n    const y = G.keyY;\n    if (k.kind === 'lit') rect('lit', 12, y - 10, 16, 12);\n    if (k.kind === 'dot') circ('dot', 20, y - 4, 3);\n    if (k.kind === 'cable') circ('cable', 20, y - 4, 6);\n    text(34, y, k.s, 'ky', 'start');\n  }\n  // In words, for a screen reader.\n  function describe(v, d) {\n    const w = [];\n    if (v.bus) w.push(v.sides >= 0.5 ? 'A busbar end on, ' + d.bus.w + ' mm by ' + d.bus.t + ' mm, drawn as ' + d.bus.t + ' rows of ' + d.bus.w + ' millimetre squares.' : 'A busbar end on, drawn to scale.');\n    else {\n      const n = nOf(v.u);\n      w.push(v.p === 1 ? 'One metre drawn as a length, ' + n + ' ' + v.u + ' along it.' : (v.p === 2 ? 'One square metre, ' : 'One cubic metre, ') + n + ' ' + v.u + ' along each edge.');\n      if (v.z >= 0.5) w.push('Its corner, zoomed in, draws ' + LC + ' ' + v.u + ' along each edge in full.');\n      if (v.extra && v.extra.kind === 'cable') w.push('A cable cross-section of ' + dec(v.extra.a) + ' square millimetres is drawn on the small squares.');\n      if (v.extra && v.extra.kind === 'load') w.push(dec(v.extra.a) + ' N rests on each square millimetre.');\n    }\n    if (v.slip && v.slip.a >= 0.5) w.push('In red, the slip.');\n    if (v.count && v.count.a >= 0.5) w.push(v.count.s + '.');\n    v.lines.forEach((l) => { if (l.a >= 0.5) w.push(l.s + '.'); });\n    return w.join(' ');\n  }\n  function render(v, d, G) {\n    REC = { fill: 0, rows: 0, lensEdge: 0, lensFilled: 0, slip: null, extraR: null, lit: false, count: null, lines: [] };\n    text(12, 20, v.tag, 'tag', 'start');\n    if (v.bus) drawBus(v, d);\n    else {\n      const keep = into;\n      if (v.oy) into = add(K.svg('g', { transform: 'translate(0 ' + r3(v.oy) + ')' }));\n      try { drawFigure(v); drawLens(v); } finally { into = keep; }\n    }\n    if (v.key) part(v.key.a, 4, () => drawKey(v.key, G));\n    if (v.count) {\n      part(v.count.a, 4, () => text(12, G.countY, v.count.s, 'ct' + (v.count.bad ? ' bad' : v.count.ans ? ' ans' : ''), 'start'));\n      if (v.count.a >= 0.5) REC.count = v.count.s;\n    }\n    v.lines.forEach((l, m) => {\n      part(l.a, 4, () => text(12, G.workY + m * LINE, l.s, 'wk' + (l.cls ? ' ' + l.cls : ''), 'start'));\n      if (l.a >= 0.5) REC.lines.push({ s: l.s, cls: l.cls || '' });\n    });\n    return describe(v, d);\n  }\n  // Each step's height: room for its most lines of working.\n  const GEO = new Map();\n  function geo(d) {\n    if (GEO.has(d)) return GEO.get(d);\n    const lines = d.show ? (d.live ? (d.why ? 5 : 2) : d.lines.length) : d.qLines.length + Math.max(d.ansLines.length, 1);\n    const countY = d.bus ? 168 : 252, workY = countY + 28;\n    const G = { countY, workY, keyY: 228, H: workY + LINE * (lines - 1) + 14 };\n    GEO.set(d, G);\n    return G;\n  }\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i], G = geo(d);\n    art.textContent = '';\n    into = null;\n    svg.setAttribute('viewBox', '0 0 340 ' + G.H);\n    const v = viewOf(d, st);\n    svg.setAttribute('aria-label', render(v, d, G));\n    if (d.live) syncDials(v);\n  }\n\n  const el = (id) => document.getElementById(id);\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { st.zoom = false; st.p = null; st.u = null; play(durOf(d)); } else { anim.pause(); T = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n\n    el('dials').hidden = !d.live;\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts.map((o) => o.label);\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const close = (a, b) => a === b || Math.abs(a - b) <= 1e-9 * Math.max(Math.abs(a), Math.abs(b));\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const LIVE0 = idx('A metre of centimetres'), INSIDE = idx('Inside the power'), CUBE = idx('A cubic metre'), LOAD1 = idx('Per square millimetre');\n  // A step painted in the state given, finished (or at t seconds into its motion): what it draws.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = Object.assign(blank(), st || {}); T = t == null ? Infinity : t;\n    try {\n      paint(i);\n      return Object.assign({}, REC, { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent.replace(/ /g, ' ')) });\n    } finally { S[i] = keepS; T = keepT; paint(); }\n  }\n  const has = (g, s) => g.texts.indexOf(s) >= 0;\n\n  K.check('Centi (c) is 10⁻² and milli (m) is 10⁻³ in the SI prefix table: the dial\\'s cm and mm, so 100 cm or 1000 mm fit along the metre, and the readout writes 1 cm = 10⁻² m and 1 mm = 10⁻³ m', () =>\n    expOf('cm') === -2 && expOf('mm') === -3 && nOf('cm') === 100 && nOf('mm') === 1000 &&\n    UNITS.every((u) => { const g = drawn(LIVE0, { p: 1, u, zoom: true }); return has(g, '1 ' + u + ' = ' + ten(expOf(u)) + ' m') && has(g, '1 m = ' + nOf(u) + ' ' + u) && has(g, nOf(u) + ' ' + u + ' along 1 m'); }),\n  { source: BIPM });\n  K.check('Milli denotes a factor of one thousandth (10⁻³): with mm on the dial, 1000 mm run along each side of the square metre, so it fills with 1000 rows of 1000, and the first row lit is 1000 mm²', () => {\n    const g = drawn(INSIDE, { p: 2, u: 'mm', zoom: true });\n    return close(MILLI * 1000, 1) && has(g, '1 m = 1000 mm') && has(g, '1000 rows of 1000 = 1,000,000 mm²') && g.fill === 1 && g.lit && has(g, 'First row lit: 1000 mm², 1 mm wide');\n  }, { source: MILLI_SRC });\n  K.check('A prefix symbol attached to a unit symbol is a new inseparable symbol, which can be raised to a positive or negative power: for cm and mm at powers 1, 2 and 3 the readout raises the whole bracket, its power of ten is one over the zoom\\'s count of small units, and per mm² makes 1 N/mm² = 10⁶ N/m²', () =>\n    UNITS.every((u) => [1, 2, 3].every((p) => {\n      const e = expOf(u), k = powOf(u, p);\n      if (!(k === p * e && close(Math.pow(PRE[u], p), mul(1, k)) && close(countOf(u, p) * mul(1, k), 1))) return false;\n      if (p === 1) return true;\n      const g = drawn(LIVE0, { p, u, zoom: true });\n      return has(g, '1 ' + uP(u, p) + ' = (' + ten(e) + ' m)' + sup(p) + ' = ' + ten(k) + ' ' + uP('m', p)) && g.count === countText(u, p, nOf(u));\n    })) && close(1 / Math.pow(MILLI, 2), 1e6) && has(drawn(LOAD1), '= 10⁶ N/m², as ÷ 10⁻⁶ is × 10⁶'), { source: NIST });\n  K.check('The base numbers are the same, so add the indices together (3 + 5 = 8): 10⁻³ m × 10⁻³ m makes 10⁻⁶ m² because −3 add −3 makes −6, and 10⁻² m three times makes 10⁻⁶ m³', () => {\n    const a = drawn(INSIDE, { p: 2, u: 'mm', zoom: true }), b = drawn(CUBE, { p: 3, u: 'cm', zoom: true });\n    return has(a, '1 mm² = 10⁻³ m × 10⁻³ m') && has(a, '= (10⁻³ m)² = 10⁻⁶ m²') && has(a, '−3 add −3 makes −6,') && has(a, 'and m × m makes m²') &&\n      has(b, '1 cm³ = 10⁻² m × 10⁻² m × 10⁻² m') && has(b, '−2 add −2 add −2 makes −6,') && has(b, 'and m × m × m makes m³') &&\n      close(MILLI * MILLI, 1e-6) && close(CENTI * CENTI * CENTI, 1e-6);\n  }, { source: BITE_IDX });\n  K.check('When converting between metric units of area and volume, the numbers you multiply or divide by are squared for area and cubed for volume: every puzzle\\'s right answer is its value with the length factor squared or cubed, and a cubic metre fills with 100 × 100 × 100 cm³', () => {\n    const g = drawn(CUBE, { p: 3, u: 'cm', zoom: true });\n    return DO.every((i) => { const d = STEPS[i], o = d.opts.filter((q) => q.label === d.want)[0]; return close(o.val, d.truth); }) &&\n      has(g, '100 layers of 100 × 100 = 1,000,000 cm³') && g.fill === 1;\n  }, { source: BITE_AV });\n  K.check('A negative power gives the reciprocal of the number, 1 over the number: 10⁻⁶ is 1 over 10⁶, so dividing by 10⁻⁶ m² multiplies by 10⁶, making 1 N/mm² = 10⁶ N/m² and 200 N/mm² = 200 × 10⁶ N/m²', () => {\n    const d = STEPS[idx('A bigger stress')];\n    return close(mul(1, -6), 1 / 1e6) && close(1 / mul(1, powOf('mm', 2)), 1e6) && d.want === '200 × 10⁶ N/m²' && close(d.truth, 2e8) && has(drawn(LOAD1), '1 N/mm² = 1 N ÷ 10⁻⁶ m²');\n  }, { source: WARSASH });\n  K.check('Each puzzle accepts only its right answer; every answer offered reads as the value it was worked out as, and each wrong one makes a different value from its own slip, the length factor used once or doubled, the wrong power or the wrong way', () =>\n    DO.every((i) => {\n      const d = STEPS[i], labels = d.opts.map((o) => o.label);\n      return d.opts.length === 3 && new Set(labels).size === 3 && d.opts.filter((o) => !o.slip).length === 1 &&\n        d.opts.every((o) => close(valueOf(o.label), o.val) && (o.label === d.want) === !o.slip &&\n          (!o.slip || (!close(o.val, d.truth) && o.says.length === 2 && !!d.hints[o.label])));\n    }) && [0, 1, 2].every((k) => DO.some((i) => STEPS[i].opts.findIndex((o) => !o.slip) === k)));\n  K.check('Before an answer nothing in a puzzle\\'s picture gives it away: no fill, no count and no answer line', () =>\n    DO.every((i) => {\n      const d = STEPS[i], g = drawn(i, blank());\n      return g.fill === 0 && g.count == null && g.lines.every((l) => l.cls === '') && d.ansLines.every((s) => !has(g, s)) && !has(g, d.want);\n    }));\n  K.check('The zoom draws a corner in full and counts the rest: for cm and mm at powers 1, 2 and 3 the corner shows 10 small units along each edge, and when the zoom ends the fill covers the whole metre with its count; every right answer fills it too', () =>\n    UNITS.every((u) => [1, 2, 3].every((p) => {\n      const g = drawn(LIVE0, { p, u, zoom: true });\n      return g.lensEdge === 10 && g.lensFilled === 10 && g.fill === 1 && g.rows === nOf(u) && g.count === countText(u, p, nOf(u));\n    })) &&\n    DO.every((i) => { const d = STEPS[i], g = drawn(i, { pick: d.want, res: 'right' }); return g.fill === 1 && g.lines.filter((l) => l.cls === 'ans').length === d.ansLines.length; }));\n  K.check('The examples are drawn to scale: the 2.5 mm² and 1.5 mm² cables are circles of exactly that area on the millimetre squares, and the busbar is 40 by 10 millimetre squares, 400 mm², which is 0.0004 m²', () => {\n    const c1 = drawn(idx('A cable')), c2 = drawn(idx('A thinner cable')), b = STEPS[idx('A busbar')];\n    return close(Math.PI * c1.extraR * c1.extraR, 2.5) && close(Math.PI * c2.extraR * c2.extraR, 1.5) && b.bus.w * b.bus.t === 400 && close(b.truth, 400) && close(mul(0.0004, 6), 400);\n  });\n  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every dial\\'s zoom within 4 s; every answer\\'s motion, right or wrong, within 2.5 s', () =>\n    STEPS.every((d) => {\n      if (d.show) {\n        const r = lastArrival(() => viewOf(d, blank()));\n        const zooms = !d.live || [1, 2, 3].every((p) => UNITS.every((u) => zoomDur(d, p, u) <= 4));\n        return r.last <= 4.5 && r.first >= FADE && zooms;\n      }\n      return d.opts.every((o) => lastArrival(() => puzzleView(d, Object.assign(blank(), { pick: o.label, res: o.slip ? 'wrong' : 'right' }))).last <= 2.5);\n    }));\n\n  K.ready();\n</script>",
+  "title": "Zoom into the unit",
+  "brief": "The one thing you should see is a 1 m square filling with 1000 rows of 1000 small squares, so 1 mm² = (10⁻³ m)² = 10⁻⁶ m², when you zoom in with the prefix dial on mm.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Centi (c) is 10⁻² and milli (m) is 10⁻³ in the SI prefix table: the dial's cm and mm, so 100 cm or 1000 mm fit along the metre, and the readout writes 1 cm = 10⁻² m and 1 mm = 10⁻³ m",
+     "ok": true,
+     "source": "https://www.bipm.org/en/measurement-units/si-prefixes"
+    },
+    {
+     "label": "Milli denotes a factor of one thousandth (10⁻³): with mm on the dial, 1000 mm run along each side of the square metre, so it fills with 1000 rows of 1000, and the first row lit is 1000 mm²",
+     "ok": true,
+     "source": "https://en.wikipedia.org/wiki/Milli-"
+    },
+    {
+     "label": "A prefix symbol attached to a unit symbol is a new inseparable symbol, which can be raised to a positive or negative power: for cm and mm at powers 1, 2 and 3 the readout raises the whole bracket, its power of ten is one over the zoom's count of small units, and per mm² makes 1 N/mm² = 10⁶ N/m²",
+     "ok": true,
+     "source": "https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-6-rules-and-style-conventions-printing-and-using"
+    },
+    {
+     "label": "The base numbers are the same, so add the indices together (3 + 5 = 8): 10⁻³ m × 10⁻³ m makes 10⁻⁶ m² because −3 add −3 makes −6, and 10⁻² m three times makes 10⁻⁶ m³",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/z93nsk7"
+    },
+    {
+     "label": "When converting between metric units of area and volume, the numbers you multiply or divide by are squared for area and cubed for volume: every puzzle's right answer is its value with the length factor squared or cubed, and a cubic metre fills with 100 × 100 × 100 cm³",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/guides/z6qp2v4/revision/1"
+    },
+    {
+     "label": "A negative power gives the reciprocal of the number, 1 over the number: 10⁻⁶ is 1 over 10⁶, so dividing by 10⁻⁶ m² multiplies by 10⁶, making 1 N/mm² = 10⁶ N/m² and 200 N/mm² = 200 × 10⁶ N/m²",
+     "ok": true,
+     "source": "https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf"
+    },
+    {
+     "label": "Each puzzle accepts only its right answer; every answer offered reads as the value it was worked out as, and each wrong one makes a different value from its own slip, the length factor used once or doubled, the wrong power or the wrong way",
+     "ok": true
+    },
+    {
+     "label": "Before an answer nothing in a puzzle's picture gives it away: no fill, no count and no answer line",
+     "ok": true
+    },
+    {
+     "label": "The zoom draws a corner in full and counts the rest: for cm and mm at powers 1, 2 and 3 the corner shows 10 small units along each edge, and when the zoom ends the fill covers the whole metre with its count; every right answer fills it too",
+     "ok": true
+    },
+    {
+     "label": "The examples are drawn to scale: the 2.5 mm² and 1.5 mm² cables are circles of exactly that area on the millimetre squares, and the busbar is 40 by 10 millimetre squares, 400 mm², which is 0.0004 m²",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every dial's zoom within 4 s; every answer's motion, right or wrong, within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "A metre of centimetres",
+      "Square millimetres",
+      "Inside the power",
+      "Centimetres squared",
+      "A cubic metre",
+      "Cubic millimetres",
+      "A cable",
+      "A thinner cable",
+      "Per square millimetre",
+      "A bigger stress",
+      "A cylinder",
+      "A busbar"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "1",
+    "2",
+    "3",
+    "cm",
+    "mm",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Zoom again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-17T21:24:24.369Z",
+  "applied": [
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "It says a wrong pick shows it used the length factor once or went the wrong way, but the listed slips also include the wrong power (squared for a volume, cubed for an area) and 1000 doubled, so the description misstates its own puzzles."
+   },
+   {
+    "path": "explain.text",
+    "problem": "\"the zoom does it for any prefix\" contradicts the ignores panel and the dial, which offer only cm and mm; the counting works for any prefix, but the zoom itself does not show them."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}
