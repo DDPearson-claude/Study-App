@@ -1,0 +1,1159 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  /* The working under the graph: what the screen is about in one line, then the rows as they fill in. */
+  .ro { border-left: 3px solid var(--k-accent2); padding: 4px 0 4px 12px; }
+  .ro p { margin: 0; }
+  .ro .rule { font-weight: 700; line-height: 1.5; }
+  .ro .wk { line-height: 1.55; min-height: 1.55em; margin-top: 4px; }
+  .ro .wk .lab { color: var(--k-muted); font-weight: 700; }
+  .ro .pc { white-space: nowrap; }
+  .ro .pc.end { font-weight: 700; color: var(--k-accent2); }
+  .ro .pc.q { color: var(--k-muted); }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  .scene.grab { touch-action: none; }
+  /* The graph: its grid, axes, scale numbers and axis names. */
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tk.mk { font-weight: 700; fill: var(--k-accent); }
+  .scene .at { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  /* The readings' line (navy), a second line (ink), the stretch carried past the readings (dashed), a wrong pick (red, dashed), guides (grey, dashed). */
+  .scene .ln { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .ln2 { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .dsh { stroke-dasharray: 7 6; stroke-linecap: butt; }
+  .scene .wrl { stroke: var(--k-warn); stroke-width: 2.4; stroke-dasharray: 7 5; fill: none; }
+  .scene .gd { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 5 4; fill: none; }
+  .scene .ghd { fill: var(--k-muted); stroke: none; }
+  /* The step triangle: its area, then the run and the rise as arrows. */
+  .scene .tri { fill: var(--k-accent2); fill-opacity: .08; stroke: none; }
+  .scene .tri2 { fill: var(--k-ink); fill-opacity: .06; stroke: none; }
+  .scene .sh { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .sh2 { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .hd { fill: var(--k-accent2); stroke: none; }
+  .scene .hd2 { fill: var(--k-ink); stroke: none; }
+  /* Readings (navy dots), a point read off the line (ink), the intercept (a ring with a centre), a wrong pick's point (red). */
+  .scene .rd { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .rd2 { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .wd { fill: var(--k-warn); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .pt { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .ptc { fill: var(--k-accent2); stroke: none; }
+  /* A faint ring marks whatever can be dragged. */
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-opacity: .4; stroke-width: 1.5; }
+  /* Labels carry a halo of the page colour, so a line passing behind one never strikes through it. */
+  .scene .lab { font: 700 14px var(--k-font); fill: var(--k-ink); paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .lab.nv { fill: var(--k-accent2); }
+  .scene .lab.tl { fill: var(--k-accent); }
+  .scene .lab.wt { fill: var(--k-warn); }
+  .scene .keyt { font: 600 13px var(--k-font); fill: var(--k-muted); paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .v { font-style: italic; }
+  .scene #art *, .scene #labs * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .tools, .replay { display: flex; flex-wrap: wrap; gap: 10px; }
+  .tools { justify-content: center; }
+  .replay { justify-content: flex-end; }
+  .tools .k-btn, .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .pz.ask .fb:empty { min-height: 0; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead">Graphs with units on both axes, where example readings lie on straight lines and a step triangle measures each line.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 346" width="100%" role="img" aria-label=""><g id="art"></g><g id="labs"></g><g id="ui"></g></svg>
+    <div class="tools" id="tools"></div>
+    <div class="ro" id="ro">
+      <p class="rule" id="rule"></p>
+      <div id="rows"></div>
+    </div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Made-up example readings that sit exactly on their lines; a faint ring marks what you can drag.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // kind 'tri': readings on a line, a step triangle, and (with back/icpt) the line carried back to the upright axis;
+  // 'use': a law read both ways with guides; 'two': two lines, a triangle on each; 'swap': a resistor's readings with
+  // the axes swapped. tl: when each part of a demonstration arrives (seconds). A puzzle: its options and what each
+  // stands for (vals), the right answer worked from the puzzle's own readings (right), each wrong option's slip, and its own hint.
+  const W1 = { m: 0.04, c: 10 };                                      // the first winding: R = 0.04T + 10
+  const UW = { xu: '°C', yu: 'Ω', xv: 'T', yv: 'R', xn: 'Temperature _T_ (°C)', yn: 'Resistance _R_ (Ω)', yd: 1 };
+  const WIND = { x1: 120, y1: 16, xt: 20, yt: 2 };
+  const W2V = { x1: 70, y1: 7, xt: 10, yt: 1 };
+  const HEAD_G = 'Gradient = rise ÷ run, in _R_\'s unit per _T_\'s unit';
+  const HEAD_C = 'The intercept _c_ is the value of _R_ where the line meets the _R_ axis, at 0 °C';
+  const HEAD_U = 'Law: `_R_ = 0.04_T_ + 10`, read up then across, or across then down';
+  const HEAD_H = 'Height is where a line sits; steepness is its gradient';
+  const HEAD_X = 'Gradient = rise ÷ run, in the up axis\'s unit per the along axis\'s unit';
+  const PICK = 'Tap one of the answers.';
+  const MINRUN = 20;
+  const near = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1e-9 : tol);
+  const lf = (L) => (x) => L.m * x + L.c;
+  const TRI = (d) => { const f = lf(d.L), a = d.tri[0], b = d.tri[1]; return { a, b, f, run: b - a, rise: f(b) - f(a) }; };
+  const cOf = (d) => { const f = lf(d.L), x0 = d.rx[0]; return f(x0) - d.L.m * x0; };
+  const perU = (u, up) => (up ? u.yu + ' per ' + u.xu : u.xu + ' per ' + u.yu);
+  const lawOf = (d) => { const t = TRI(d), a = t.rise / t.run; return [a, t.f(d.rx[0]) - a * d.rx[0]]; };
+  function higherSteeper(d) {
+    const P = d.lines[0], Q = d.lines[1], xs = K.linspace(0, d.view.x1, 21);
+    const hi = xs.every((x) => lf(P)(x) > lf(Q)(x)) ? P.n : xs.every((x) => lf(Q)(x) > lf(P)(x)) ? Q.n : '?';
+    return [hi, P.m > Q.m ? P.n : Q.n];
+  }
+
+  const STEPS = [
+    { show: true, kind: 'tri', name: 'Gradient with units', view: WIND, u: UW, L: W1, rx: [20, 40, 60, 80], lo: 20, hi: 80,
+      tri0: [20, 60], tri: [20, 80], stretch: true, dotLab: true, glab: true, rowsOf: ['run', 'rise', 'grad', 'soFar'], drag: ['move', 'tip'], dur: 3.6,
+      tl: { dots: 0.4, dstep: 0.1, line: 0.4, grow: true, run: 0.5, rise: 0.8, glab: 1.2, r0: 0.9, r1: 1.2, r2: 1.5, r3: 1.9, stretch: 2.8 },
+      head: HEAD_G,
+      text: 'An example motor winding\'s readings lie on a straight line, and the line\'s rule, which gives _R_ from _T_, is a *law* for the winding. A step triangle on it runs 40 °C and rises 1.6 Ω, so the *gradient* is `1.6 Ω ÷ 40 °C = 0.04 Ω per °C`. Stretched to a 60 °C run it rises 2.4 Ω, and the gradient is still 0.04 Ω per °C.' },
+    { kind: 'tri', name: 'Read a gradient', view: W2V, u: UW, L: { m: 0.02, c: 5 }, rx: [10, 50], tri: [10, 50], dotLab: true, post: { tri: true },
+      rowsOf: ['run', 'rise', 'grad'], ask: { lab: 'Gradient', s: '?' }, head: HEAD_G, optKind: 'unit',
+      task: 'Another example winding reads 5.2 Ω at 10 °C and 6.0 Ω at 50 °C. What is its gradient?',
+      opts: ['50 °C per Ω', '0.02 Ω per °C', '0.12 Ω per °C'], want: '0.02 Ω per °C',
+      vals: { '50 °C per Ω': [50, '°C per Ω'], '0.02 Ω per °C': [0.02, 'Ω per °C'], '0.12 Ω per °C': [0.12, 'Ω per °C'] },
+      right: (d) => { const t = TRI(d); return [t.rise / t.run, perU(d.u, true)]; },
+      slip: { '50 °C per Ω': (d, v) => { const t = TRI(d); return near(v[0], t.run / t.rise) && v[1] === perU(d.u, false); },
+        '0.12 Ω per °C': (d, v) => { const x = d.rx[1]; return near(v[0], lf(d.L)(x) / x) && v[1] === perU(d.u, true); } },
+      wrongDraw: { '0.12 Ω per °C': (d) => { const x = d.rx[1], y = lf(d.L)(x); return { seg: [[0, 0], [x, y]], text: fy(d.u, y) + ' Ω ÷ ' + fx(d.u, x) + ' °C' }; } },
+      hint: 'Not quite. Divide the rise between the readings by the run between them.',
+      hints: { '50 °C per Ω': 'Not quite. That is run ÷ rise, upside down. The gradient is rise ÷ run, in Ω per °C.',
+        '0.12 Ω per °C': 'Not quite. `6.0 Ω ÷ 50 °C` measures from the origin, which this line misses. Use the rise between the two readings.' },
+      why: 'The run is `50 − 10 = 40 °C` and the rise is `6.0 − 5.2 = 0.8 Ω`. Rise ÷ run is `0.8 Ω ÷ 40 °C = 0.02 Ω per °C`.' },
+    { show: true, kind: 'tri', name: 'R at 0 °C', view: WIND, u: UW, L: W1, rx: [20, 40, 60, 80], lo: 0, hi: 80, tri: [0, 20], back: true, icpt: true,
+      iName: '_R_ at 0 °C', rowsOf: ['c', 'law', 'slip'], drag: ['tip'], dur: 4.2,
+      tl: { dots: 0.4, dstep: 0, line: 0.4, back: 0.6, run: 1.4, rise: 1.8, icpt: 2.2, r0: 2.6, r1: 3.0, r2: 3.4 },
+      head: HEAD_C,
+      text: 'Carry the line back 20 °C past the first reading, dashed, to where _T_ is 0: at 0.04 Ω per °C it falls `0.04 × 20 = 0.8 Ω`. There the `0.04_T_` part is 0, so the *intercept* _c_ is _R_ at 0 °C: `10.8 − 0.8 = 10.0 Ω`. Each reading includes that 10 Ω, so one reading ÷ its temperature is not the gradient.' },
+    { kind: 'tri', name: 'Find R at 0 °C', view: W2V, u: UW, L: { m: 0.02, c: 5 }, rx: [10, 50], dotLab: true, post: { back: true, icpt: true },
+      iName: '_R_ at 0 °C', rowsOf: ['c', 'law'], ask: { lab: '_R_ at 0 °C', s: '?' }, head: HEAD_C, optKind: 'unit',
+      task: 'That winding gains 0.02 Ω per °C and reads 5.2 Ω at 10 °C. What is _R_ at 0 °C?',
+      opts: ['5.2 Ω', '5.4 Ω', '5.0 Ω'], want: '5.0 Ω',
+      vals: { '5.2 Ω': [5.2, 'Ω'], '5.4 Ω': [5.4, 'Ω'], '5.0 Ω': [5, 'Ω'] },
+      right: (d) => [cOf(d), d.u.yu],
+      slip: { '5.2 Ω': (d, v) => near(v[0], lf(d.L)(d.rx[0])) && v[1] === d.u.yu, '5.4 Ω': (d, v) => near(v[0], lf(d.L)(d.rx[0]) + d.L.m * d.rx[0]) && v[1] === d.u.yu },
+      wrongDraw: { '5.2 Ω': (d) => { const x = d.rx[0], y = lf(d.L)(x); return { flat: [x, y], text: fy(d.u, y) + ' Ω is _R_ at ' + fx(d.u, x) + ' °C' }; } },
+      hint: 'Not quite. Carry the line back from the reading at 10 °C to 0 °C.',
+      hints: { '5.2 Ω': 'Not quite. 5.2 Ω is _R_ at 10 °C. Carry the line back 10 °C: `5.2 − 0.02 × 10`.',
+        '5.4 Ω': 'Not quite. That adds the 0.2 Ω. Going back from 10 °C to 0 °C the line falls, so take it away: `5.2 − 0.2`.' },
+      why: 'Carry the line back 10 °C from the reading at 10 °C. It falls `0.02 × 10 = 0.2 Ω`, so _R_ at 0 °C is `5.2 − 0.2 = 5.0 Ω`, and the law is `_R_ = 0.02_T_ + 5`.' },
+    { show: true, kind: 'use', name: 'Both ways', view: WIND, u: UW, L: W1, rx: [20, 40, 60, 80], back: true, fwd: true, fw: 50, bk: 12.8, drag: ['pt'], dur: 4.0,
+      tl: { dots: 0.4, dstep: 0, line: 0.4, g1: 0.9, r0: 1.7, g2: 2.2, r1: 3.0 },
+      head: HEAD_U,
+      text: 'A law works both ways. At 50 °C it gives `_R_ = 0.04 × 50 + 10 = 12.0 Ω`. A reading of 12.8 Ω means `12.8 − 10 = 0.04_T_`, so _T_ is 70 °C.' },
+    { kind: 'use', name: 'How hot is it?', view: WIND, u: UW, L: W1, rx: [20, 40, 60, 80], back: true, fwd: true, bk: 13.6, ask: { lab: '_T_', s: '?' }, head: HEAD_U, optKind: 'unit',
+      task: 'The first winding\'s law is `_R_ = 0.04_T_ + 10`. It reads 13.6 Ω. How hot is it?',
+      opts: ['340 °C', '90 °C', '10.544 Ω'], want: '90 °C',
+      vals: { '340 °C': [340, '°C'], '90 °C': [90, '°C'], '10.544 Ω': [10.544, 'Ω'] },
+      right: (d) => [(d.bk - d.L.c) / d.L.m, d.u.xu],
+      slip: { '340 °C': (d, v) => near(v[0], d.bk / d.L.m) && v[1] === d.u.xu, '10.544 Ω': (d, v) => near(v[0], d.L.m * d.bk + d.L.c) && v[1] === d.u.yu },
+      hint: 'Not quite. Put the reading in for _R_ and solve for _T_.',
+      hints: { '340 °C': 'Not quite. Take the 10 away first: `13.6 − 10 = 0.04_T_`.',
+        '10.544 Ω': 'Not quite. 13.6 Ω is the reading, so it goes in for _R_, not _T_: `13.6 = 0.04_T_ + 10`.' },
+      why: 'Put the reading in for _R_: `13.6 = 0.04_T_ + 10`. Take the 10 away: `3.6 = 0.04_T_`, so `_T_ = 3.6 ÷ 0.04 = 90 °C`. That is past the last reading, so it trusts the line to stay straight up there.' },
+    { show: true, kind: 'two', name: 'Higher is not steeper', view: { x1: 100, y1: 16, xt: 20, yt: 2 }, u: UW,
+      lines: [{ n: 'A', m: 0.02, c: 12 }, { n: 'B', m: 0.05, c: 8 }], a: 10, run: 40, amax: 30, drag: ['move', 'move2'], dur: 4.0,
+      tl: { l0: 0.4, n0: 1.0, l1: 1.1, n1: 1.7, run: 1.9, rise: 2.3, r0: 2.4, r1: 2.9, r2: 3.4 },
+      head: HEAD_H, rowsFn: rowsHigher,
+      text: 'Height and steepness are different things. Example winding A sits above B everywhere from 0 to 100 °C, yet B gains 0.05 Ω per °C, 2.5 times as fast as A.' },
+    { kind: 'two', name: 'Which is which?', view: { x1: 100, y1: 20, xt: 20, yt: 4 }, u: UW,
+      lines: [{ n: 'C', m: 0.03, c: 15 }, { n: 'D', m: 0.06, c: 9 }], a: 10, run: 40, ask: { lab: 'Higher, steeper', s: '?' }, head: HEAD_H, rowsFn: rowsWhich, optKind: 'names',
+      task: 'Two more example windings, C and D. Which sits higher, and which gains resistance faster as it warms?',
+      opts: ['C higher, C steeper', 'C higher, D steeper', 'D higher, D steeper'], want: 'C higher, D steeper',
+      vals: { 'C higher, C steeper': ['C', 'C'], 'C higher, D steeper': ['C', 'D'], 'D higher, D steeper': ['D', 'D'] },
+      right: (d) => higherSteeper(d),
+      slip: { 'C higher, C steeper': (d, v) => v[0] === higherSteeper(d)[0] && v[1] === v[0], 'D higher, D steeper': (d, v) => v[1] === higherSteeper(d)[1] && v[0] === v[1] },
+      hint: 'Not quite. Height is where a line sits; steepness is how fast it climbs.',
+      hints: { 'C higher, C steeper': 'Not quite. C sits higher, but D\'s line climbs more for each degree: 0.06 Ω per °C against 0.03.',
+        'D higher, D steeper': 'Not quite. D climbs faster, but C sits above it everywhere from 0 to 100 °C: 18 Ω against 15 Ω at 100 °C.' },
+      why: 'C sits higher: it reads 18 Ω at 100 °C to D\'s 15 Ω, and stays above D all the way along. D is steeper: it gains 0.06 Ω per °C, C only 0.03. Height and steepness are different things.' },
+    { show: true, kind: 'swap', name: 'Swap the axes', IV: [[0.5, 6], [2, 24]], view: { x1: 4, y1: 40, xt: 1, yt: 10 }, v0: null, v1: { x1: 40, y1: 4, xt: 10, yt: 1 },
+      u0: { xu: 'A', yu: 'V', xn: 'Current _I_ (A)', yn: 'Voltage _V_ (V)' }, u1: { xu: 'V', yu: 'A', xn: 'Voltage _V_ (V)', yn: 'Current _I_ (A)' }, dur: 3.4,
+      tl: { dots: 0.4, dstep: 0.3, line: 1.0, run: 1.6, rise: 2.0, r0: 1.7, r1: 2.0, r2: 2.3 },
+      head: HEAD_X,
+      text: 'Plot an example resistor\'s voltage up the side against its current along, and the gradient is its resistance: `18 V ÷ 1.5 A = 12 V per A`, which is 12 Ω. Press Swap the axes and the gradient flips to amps per volt, which is not the resistance, so read the axis labels before you name a gradient.' },
+    { kind: 'tri', name: 'Current up the side', view: { x1: 40, y1: 2, xt: 10, yt: 0.5 }, u: { xu: 'V', yu: 'A', xv: 'V', yv: 'I', xn: 'Voltage _V_ (V)', yn: 'Current _I_ (A)' },
+      L: { m: 0.05, c: 0 }, rx: [10, 30], tri: [10, 30], dotLab: true, post: { tri: true }, rowsOf: ['run', 'rise', 'grad', 'res'], ask: { lab: 'Resistance', s: '?' }, head: HEAD_X, optKind: 'unit',
+      task: 'Here an example resistor\'s current is up the side and its voltage along. What is its resistance?',
+      opts: ['0.05 A per V', '0.05 Ω', '20 Ω'], want: '20 Ω',
+      vals: { '0.05 A per V': [0.05, 'A per V'], '0.05 Ω': [0.05, 'Ω'], '20 Ω': [20, 'Ω'] },
+      right: (d) => { const t = TRI(d); return [t.run / t.rise, 'Ω']; },
+      slip: { '0.05 A per V': (d, v) => { const t = TRI(d); return near(v[0], t.rise / t.run) && v[1] === perU(d.u, true); },
+        '0.05 Ω': (d, v) => { const t = TRI(d); return near(v[0], t.rise / t.run) && v[1] === 'Ω'; } },
+      hint: 'Not quite. Resistance is volts per amp. Read the axis labels first.',
+      hints: { '0.05 A per V': 'Not quite. That is the gradient, in amps per volt. The resistance is volts per amp, so here it is the run ÷ the rise.',
+        '0.05 Ω': 'Not quite. With current up the side the gradient is in amps per volt, not ohms. The resistance is volts per amp.' },
+      why: 'The run is `30 − 10 = 20 V` and the rise is `1.5 − 0.5 = 1 A`, so the gradient is `1 A ÷ 20 V = 0.05 A per V`. Resistance is volts per amp: `20 V ÷ 1 A = 20 Ω`.' },
+    { kind: 'tri', name: 'A spring', view: { x1: 20, y1: 40, xt: 4, yt: 10 }, u: { xu: 'mm', yu: 'N', xv: 'x', yv: 'F', xn: 'Extension (mm)', yn: 'Force (N)' },
+      L: { m: 2.5, c: 0 }, rx: [4, 12], tri: [4, 12], dotLab: true, post: { tri: true }, rowsOf: ['run', 'rise', 'grad'], ask: { lab: 'Gradient', s: '?' }, head: HEAD_X, optKind: 'unit',
+      task: 'An example spring, with force up the side and extension along. What is the gradient?',
+      opts: ['2.5 N per mm', '0.4 mm per N', '2.5 mm per N'], want: '2.5 N per mm',
+      vals: { '2.5 N per mm': [2.5, 'N per mm'], '0.4 mm per N': [0.4, 'mm per N'], '2.5 mm per N': [2.5, 'mm per N'] },
+      right: (d) => { const t = TRI(d); return [t.rise / t.run, perU(d.u, true)]; },
+      slip: { '0.4 mm per N': (d, v) => { const t = TRI(d); return near(v[0], t.run / t.rise) && v[1] === perU(d.u, false); },
+        '2.5 mm per N': (d, v) => { const t = TRI(d); return near(v[0], t.rise / t.run) && v[1] === perU(d.u, false); } },
+      hint: 'Not quite. Divide the rise by the run, units and all.',
+      hints: { '0.4 mm per N': 'Not quite. That is run ÷ rise, upside down. The gradient is rise ÷ run.',
+        '2.5 mm per N': 'Not quite. The number is right, but a gradient\'s unit is the up axis\'s unit per the along axis\'s unit.' },
+      why: 'The run is `12 − 4 = 8 mm` and the rise is `30 − 10 = 20 N`. Rise ÷ run is `20 N ÷ 8 mm = 2.5 N per mm`, the force for each millimetre of stretch. That gradient is the spring\'s *spring constant*, 2.5 N per mm.' },
+    { kind: 'tri', name: 'A lifting machine', view: { x1: 500, y1: 60, xt: 100, yt: 10 }, u: { xu: 'N', yu: 'N', xv: 'W', yv: 'E', xn: 'Load _W_ (N)', yn: 'Effort _E_ (N)' },
+      L: { m: 0.12, c: 10 }, rx: [100, 300], tri: [100, 300], dotLab: true, post: { tri: true, back: true, icpt: true }, iName: '_E_ at no load', cLab: '_b_ = _E_ at no load',
+      gLab: 'Gradient _a_', gu: 'N of effort per N of load', rowsOf: ['run', 'rise', 'grad', 'c', 'law'], ask: { lab: 'Law', s: '_E_ = ?' }, optKind: 'law',
+      head: 'Law: `_E_ = _aW_ + _b_`, with _a_ the gradient and _b_ the intercept',
+      task: 'Last one. An example lifting machine needs 22 N of effort to lift 100 N, and 46 N to lift 300 N. What is its law?',
+      opts: ['E = 0.12W + 22', 'E = 0.12W', 'E = 0.12W + 10'], want: 'E = 0.12W + 10',
+      vals: { 'E = 0.12W + 22': [0.12, 22], 'E = 0.12W': [0.12, 0], 'E = 0.12W + 10': [0.12, 10] },
+      right: (d) => lawOf(d),
+      slip: { 'E = 0.12W + 22': (d, v) => near(v[0], lawOf(d)[0]) && near(v[1], lf(d.L)(d.rx[0])), 'E = 0.12W': (d, v) => near(v[0], lawOf(d)[0]) && v[1] === 0 },
+      wrongDraw: { 'E = 0.12W + 22': (d) => ({ line: { m: 0.12, c: 22 }, text: '_E_ = 0.12_W_ + 22' }), 'E = 0.12W': (d) => ({ line: { m: 0.12, c: 0 }, text: '_E_ = 0.12_W_' }) },
+      hint: 'Not quite. Get the gradient from the step triangle, then carry the line back to no load.',
+      hints: { 'E = 0.12W + 22': 'Not quite. 22 N is the effort at 100 N of load, not at no load. Carry the line back to 0 N.',
+        'E = 0.12W': 'Not quite. That law needs only 12 N of effort at 100 N, not 22 N. The line misses the origin.' },
+      why: 'The run is `300 − 100 = 200 N` of load and the rise `46 − 22 = 24 N` of effort, so `_a_ = 24 ÷ 200 = 0.12`. Carry the line back to no load: `_b_ = 22 − 0.12 × 100 = 10 N`. So `_E_ = 0.12_W_ + 10`, and 10 N is the effort with no load on.' },
+  ];
+  STEPS[8].v0 = STEPS[8].view;
+  const FINISH = 'A straight-line law\'s *gradient* is how fast _y_ changes with _x_, in _y_\'s unit per _x_\'s unit, and its *intercept* is the value of _y_ when _x_ is 0, in _y_\'s unit.';
+  // Sources the checks restate (the lesson's own).
+  const SRC_RES = 'https://openstax.org/books/university-physics-volume-2/pages/9-3-resistivity-and-resistance';
+  const SRC_M3 = 'https://www.bbc.co.uk/bitesize/articles/zjbf9ty';
+  const SRC_HELM = 'https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf';
+  const SRC_OHM = 'https://openstax.org/books/university-physics-volume-2/pages/9-4-ohms-law';
+  const SRC_OHMU = 'https://openstax.org/books/physics/pages/19-1-ohms-law';
+  const SRC_HOOKE = 'https://www.bbc.co.uk/bitesize/articles/zqt6b7h';
+  // Margins round the graph (scale numbers left and below, axis names above and below).
+  const ML = 44, MR = 10, MT = 30, MB = 46, PW = 340 - ML - MR, PH0 = 270;
+  const FB = 2.1;     // seconds a puzzle's drawing takes after a right answer or Why?
+  const FADE = 0.35;
+  const GAP = 0.2;    // seconds between the pieces of one row of working
+  // When a puzzle's parts arrive after a right answer or Why? (seconds).
+  const PZ = { back: 0.1, run: 0.3, rise: 0.6, icpt: 0.8, g: 0.2, r0: 0.4, r1: 0.7, r2: 1.0, r3: 1.3, r4: 1.6 };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+
+  // ---------- numbers, written as the explanation writes them ----------
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const MINUS = (s) => String(s).replace(/^-/, '−');
+  function trim(v) { const r = Math.round(v * 1000) / 1000; return MINUS(Math.abs(r) < 1e-12 ? 0 : r); }
+  function fixed(v, dp) { return MINUS((Math.abs(v) < 0.5 * Math.pow(10, -dp) ? 0 : v).toFixed(dp)); }
+  function gfmt(g) { const r = Math.round(g * 1000) / 1000; return { s: trim(g), exact: Math.abs(g - r) < 1e-9 }; }
+  const gs = (m) => gfmt(m).s;
+  function fx(u, v) { return u.xd != null ? fixed(v, u.xd) : trim(v); }
+  function fy(u, v) { return u.yd != null ? fixed(v, u.yd) : trim(v); }
+  function lawStr(u, m, c) { return '_' + u.yv + '_ = ' + gs(m) + '_' + u.xv + '_' + (Math.abs(c) < 1e-9 ? '' : (c < 0 ? ' − ' : ' + ') + trim(Math.abs(c))); }
+  const strip = (s) => String(s).replace(/[_*`]/g, '');
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // dr: where Dan has dragged the triangle or the point; o: which way round the axes are (swap step: 0 voltage up, 1 current up); pressed: Swap used.
+  function blank() { return { pick: null, res: null, why: false, dr: null, o: 0, pressed: false }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  function startDr(d) { return d.kind === 'tri' ? { a: d.tri[0], b: d.tri[1] } : d.kind === 'use' ? { t: d.fw } : d.kind === 'two' ? { a: d.a } : null; }
+  const canDrag = (d) => !!d.show && !!d.drag && !finished;
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;                                                        // what the last paint drew, for the checks
+  let OBS = { hard: [], segs: [] };                                      // what labels keep clear of
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  function inline(parent, s, inSvg) {
+    String(s).split(/(\*[^*]+\*|_[^_]+_)/).forEach((p) => {
+      if (!p) return;
+      if (p.length > 2 && p[0] === '*' && p[p.length - 1] === '*') parent.appendChild(inSvg ? K.svg('tspan', {}, p.slice(1, -1)) : K.el('span', { class: 'term' }, p.slice(1, -1)));
+      else if (p.length > 2 && p[0] === '_' && p[p.length - 1] === '_') parent.appendChild(inSvg ? K.svg('tspan', { class: 'v' }, p.slice(1, -1)) : K.el('span', { class: 'v' }, p.slice(1, -1)));
+      else parent.appendChild(document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line; *a key term* is highlighted; _x_ is an italic letter.
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) inline(node.appendChild(K.el('span', { class: 'nw' })), seg, false);
+      else inline(node, seg, false);
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // Check: a right answer draws the working; a wrong one gets its own hint (and its slip drawn, where it can be).
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right' && !st.why) play(FB);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    st.why = !st.why;
+    if (st.why && st.res !== 'right') play(FB);
+  } });
+  const swapBtn = K.button({ label: 'Swap the axes', secondary: true, into: '#tools', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.kind !== 'swap' || finished) return;
+    st.o = 1 - st.o; st.pressed = true;
+    play(1.6);
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    st.dr = null; st.pressed = false; st.o = 0;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and each puzzle's drawing; with reduced motion (and
+  // while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), labs = el('labs'), ui = el('ui');
+  const add = (node) => art.appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, dd) {
+    if (t0 + dd > latest) latest = t0 + dd;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, dd);
+  }
+  const ln = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+  function tx(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' });
+    inline(t, s, true);
+    return add(t);
+  }
+  // A step's graph: both axes from 0, the scale numbers left and below.
+  const GEO = new Map();
+  function geo(v) {
+    if (GEO.has(v)) return GEO.get(v);
+    const PH = PH0, G = { v, PH, H: MT + PH + MB,
+      px: (x) => ML + x / v.x1 * PW, py: (y) => MT + PH - y / v.y1 * PH,
+      inv: (X, Y) => [(X - ML) / PW * v.x1, (MT + PH - Y) / PH * v.y1] };
+    GEO.set(v, G);
+    return G;
+  }
+  function drawGrid(G) {
+    const v = G.v, nx = Math.round(v.x1 / v.xt), ny = Math.round(v.y1 / v.yt);
+    for (let k = 0; k <= nx; k++) ln('gl', G.px(k * v.xt), MT, G.px(k * v.xt), MT + G.PH);
+    for (let k = 0; k <= ny; k++) ln('gl', ML, G.py(k * v.yt), ML + PW, G.py(k * v.yt));
+    ln('ax', ML, MT, ML, MT + G.PH); ln('ax', ML, MT + G.PH, ML + PW, MT + G.PH);
+    OBS.segs.push({ s: [ML, MT, ML, MT + G.PH], c: 8 }, { s: [ML, MT + G.PH, ML + PW, MT + G.PH], c: 8 });
+  }
+  // The scale numbers and axis names (a: how far they have faded in); marks: values read off the line, in teal on the scale.
+  function drawTicks(G, u, a, marks) {
+    const v = G.v, mk = marks || [], nx = Math.round(v.x1 / v.xt), ny = Math.round(v.y1 / v.yt);
+    OBS.hard.push(boxOf(8, MT - 12, tw(strip(u.yn), 'at'), 'start'));
+    if (a <= 0.01) return;
+    for (let k = 0; k <= nx; k++) {
+      const x = k * v.xt, X = G.px(x);
+      let h = 0;
+      mk.forEach((m) => { if (m.axis === 'x' && Math.abs(G.px(m.v) - X) < 13) h = Math.max(h, m.a); });
+      if (a * (1 - h) > 0.01) K.fade(tx(Math.min(X, 337 - tw(trim(x), 'tk') / 2), MT + G.PH + 19, trim(x), 'tk'), a * (1 - h), 0);   // the last number kept inside the drawing
+    }
+    for (let k = 0; k <= ny; k++) {
+      const y = k * v.yt, Y = G.py(y);
+      let h = 0;
+      mk.forEach((m) => { if (m.axis === 'y' && Math.abs(G.py(m.v) - Y) < 14) h = Math.max(h, m.a); });
+      if (a * (1 - h) > 0.01) K.fade(tx(ML - 7, Y + 4.5, trim(y), 'tk', 'end'), a * (1 - h), 0);
+    }
+    K.fade(tx(8, MT - 12, u.yn, 'at', 'start'), a, 0);
+    K.fade(tx(ML + PW, MT + G.PH + 38, u.xn, 'at', 'end'), a, 0);
+    mk.forEach((m) => {
+      if (m.a <= 0.01) return;
+      K.fade(m.axis === 'x' ? tx(Math.min(G.px(m.v), 337 - tw(m.text, 'tk mk') / 2), MT + G.PH + 19, m.text, 'tk mk') : tx(ML - 7, G.py(m.v) + 4.5, m.text, 'tk mk', 'end'), m.a, 0);
+      REC.marks.push(m.text);
+    });
+  }
+  // The key inside the drawing for the dashed stretch of line.
+  function drawKey(a) {
+    if (a <= 0.01) return;
+    const y = MT + 16, x0 = ML + 8, t = 'line carried past the readings';
+    K.fade(ln('ln dsh', x0, y - 4.5, x0 + 24, y - 4.5), a, 0);
+    K.fade(tx(x0 + 30, y, t, 'keyt', 'start'), a, 0);
+    OBS.hard.push({ x0: x0 - 2, y0: y - 14, x1: x0 + 30 + tw(t, 'keyt') + 2, y1: y + 5 });
+    if (a >= 0.5) REC.key = true;
+  }
+  // An arrow: a shaft and a filled head with its tip at (x2, y2).
+  function arrow(x1, y1, x2, y2, sfx, a) {
+    const L = Math.hypot(x2 - x1, y2 - y1);
+    if (L < 2) return null;
+    const ux = (x2 - x1) / L, uy = (y2 - y1) / L, hl = Math.min(10, L * 0.7), hw = 5.5, bx = x2 - ux * hl, by = y2 - uy * hl;
+    K.fade(ln('sh' + sfx, x1, y1, x2 - ux * hl * 0.6, y2 - uy * hl * 0.6), a, 0);
+    K.fade(add(K.svg('path', { class: 'hd' + sfx, d: 'M' + r2(x2) + ' ' + r2(y2) + ' L' + r2(bx - uy * hw) + ' ' + r2(by + ux * hw) + ' L' + r2(bx + uy * hw) + ' ' + r2(by - ux * hw) + ' Z' })), a, 0);
+    const hx = [x2, bx - uy * hw, bx + uy * hw], hy = [y2, by + ux * hw, by - ux * hw];
+    OBS.segs.push({ s: [x1, y1, x2, y2], c: 300 });
+    OBS.hard.push({ x0: Math.min(...hx) - 1, y0: Math.min(...hy) - 1, x1: Math.max(...hx) + 1, y1: Math.max(...hy) + 1 });
+    return [x1, y1, x2, y2];
+  }
+  // The step triangle on a line: the run across from O to the corner Cn, then the rise up to Tp on the line.
+  const RISE_AT = [[9, 5, 'start'], [9, 13, 'start'], [9, -3, 'start'], [-9, 5, 'end']];
+  function drawTri(ctx, o) {
+    const G = o.G || ctx.G, sfx = o.k ? '2' : '', sa = o.sa == null ? 1 : o.sa, la = o.la == null ? 1 : o.la;
+    const O = [G.px(o.xa), G.py(o.f(o.xa))], Cn = [G.px(o.xb), G.py(o.f(o.xa))], Tp = [G.px(o.xb), G.py(o.f(o.xb))];
+    if (o.gRun > 0 && o.gRise > 0 && sa > 0) K.fade(add(K.svg('path', { class: 'tri' + sfx, d: 'M' + r2(O[0]) + ' ' + r2(O[1]) + ' L' + r2(Cn[0]) + ' ' + r2(Cn[1]) + ' L' + r2(Tp[0]) + ' ' + r2(Tp[1]) + ' Z' })), Math.min(o.gRun, o.gRise) * sa, 0);
+    if (o.gRun > 0 && sa > 0) arrow(O[0], O[1], K.lerp(O[0], Cn[0], o.gRun), O[1], sfx, sa);
+    const h = Cn[1] - Tp[1], stop = Math.min(7, Math.max(0, h * 0.3));
+    if (o.gRise > 0 && sa > 0 && h > 1) arrow(Cn[0], Cn[1], Cn[0], K.lerp(Cn[1], Tp[1] + stop, o.gRise), sfx, sa);
+    const lc = 'lab ' + (o.k ? 'tl' : 'nv'), mx = (O[0] + Cn[0]) / 2, mid = (Cn[1] + Tp[1]) / 2;
+    ctx.items.push({ x: mx, y: O[1] + 19, anchor: 'middle', alts: [{ x: mx, y: O[1] + 19, anchor: 'middle' }, { x: mx, y: O[1] + 38, anchor: 'middle' }], text: o.runT, class: lc, a: o.gRun * la });
+    ctx.items.push(Object.assign(spots(Cn[0], mid, RISE_AT), { text: o.riseT, class: lc, a: o.gRise * la }));
+    if (o.glabT) ctx.items.push({ x: mx, y: O[1] + 38, anchor: 'middle', alts: [{ x: mx, y: O[1] + 38, anchor: 'middle' }, { x: mx, y: O[1] + 57, anchor: 'middle' }], text: o.glabT, class: 'lab nv', a: o.ga * la });
+    return { O, Cn, Tp };
+  }
+  // A guide read off the line: along pts[0] -> pts[1] (on the line) -> pts[2] (on the other axis), g of the way.
+  function guide(G, pts, g) {
+    if (g <= 0) return null;
+    const P = pts.map((p) => [G.px(p[0]), G.py(p[1])]), L1 = Math.hypot(P[1][0] - P[0][0], P[1][1] - P[0][1]), L2 = Math.hypot(P[2][0] - P[1][0], P[2][1] - P[1][1]), tot = L1 + L2, s = g * tot;
+    const part = (a, b, fr) => {
+      const e = [K.lerp(a[0], b[0], fr), K.lerp(a[1], b[1], fr)];
+      if (Math.hypot(e[0] - a[0], e[1] - a[1]) > 0.5) { ln('gd', a[0], a[1], e[0], e[1]); OBS.segs.push({ s: [a[0], a[1], e[0], e[1]], c: 120 }); }
+      return e;
+    };
+    if (L1 > 0.5) part(P[0], P[1], Math.min(1, s / L1));
+    if (s < L1 - 1e-9) return null;
+    if (L2 > 0.5) {
+      const fr = Math.min(1, (s - L1) / L2), hl = 8, hw = 4.5, ux = (P[2][0] - P[1][0]) / L2, uy = (P[2][1] - P[1][1]) / L2;
+      if (fr >= 1 && L2 > hl + 2) {
+        part(P[1], [P[2][0] - ux * hl * 0.6, P[2][1] - uy * hl * 0.6], 1);
+        const bx = P[2][0] - ux * hl, by = P[2][1] - uy * hl;
+        add(K.svg('path', { class: 'ghd', d: 'M' + r2(P[2][0]) + ' ' + r2(P[2][1]) + ' L' + r2(bx - uy * hw) + ' ' + r2(by + ux * hw) + ' L' + r2(bx + uy * hw) + ' ' + r2(by - ux * hw) + ' Z' }));
+      } else part(P[1], P[2], fr);
+    }
+    const da = g >= 1 ? 1 : K.clamp((s - L1) / Math.max(10, 0.15 * tot), 0, 1);
+    K.fade(add(K.svg('circle', { class: 'rd2', cx: r2(P[1][0]), cy: r2(P[1][1]), r: 5 })), da, 0);
+    OBS.hard.push({ x0: P[1][0] - 8, y0: P[1][1] - 8, x1: P[1][0] + 8, y1: P[1][1] + 8 });
+    return P[1];
+  }
+
+  // ---------- labels: clear of each other, the dots, the arrowheads and the key; off the lines where they can be ----------
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    let w = 0;
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return s.length * (cls === 'lab' ? 8.4 : 7.6);
+  }
+  function boxOf(x, y, w, anchor) {
+    const x0 = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2;
+    return { x0, y0: y - 11.5, x1: x0 + w, y1: y + 4 };
+  }
+  const meets = (a, b, pad) => a.x0 < b.x1 + pad && b.x0 < a.x1 + pad && a.y0 < b.y1 + pad && b.y0 < a.y1 + pad;
+  // Does a line segment pass through a box? (Liang-Barsky)
+  function segHits(s, b) {
+    let t0 = 0, t1 = 1;
+    const dx = s[2] - s[0], dy = s[3] - s[1];
+    const pq = [[-dx, s[0] - b.x0], [dx, b.x1 - s[0]], [-dy, s[1] - b.y0], [dy, b.y1 - s[1]]];
+    for (let k = 0; k < 4; k++) {
+      const p = pq[k][0], q = pq[k][1];
+      if (Math.abs(p) < 1e-12) { if (q < 0) return false; continue; }
+      const r = q / p;
+      if (p < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    }
+    return true;
+  }
+  // Each label tries spots round where it wants to be (or round each of its alternatives, in order),
+  // pulled inside the bounds, and takes the one that hits nothing solid, crosses the fewest lines and moves least.
+  function placeLabels(items, hard, segs, B) {
+    const placed = [];
+    return items.map((it) => {
+      const w = tw(strip(it.text), 'lab'), h = 15.5, g = 4;
+      const C = [[0, 0], [0, -(h + g)], [0, h + g], [w / 2 + 2 * g, 0], [-(w / 2 + 2 * g), 0], [w / 2 + g, -(h + g)], [-(w / 2 + g), -(h + g)], [w / 2 + g, h + g], [-(w / 2 + g), h + g],
+        [0, -2 * (h + g)], [0, 2 * (h + g)], [w + g, 0], [-(w + g), 0], [w + g, -(h + g)], [-(w + g), -(h + g)], [w + g, h + g], [-(w + g), h + g], [0, -3 * (h + g)], [0, 3 * (h + g)]];
+      let best = null, bestCost = Infinity;
+      (it.alts || [it]).forEach((al, ai) => C.forEach((c, k) => {
+        let b = boxOf(al.x + c[0], al.y + c[1], w, al.anchor);
+        const sx = b.x0 < B.x0 ? B.x0 - b.x0 : b.x1 > B.x1 ? B.x1 - b.x1 : 0, sy = b.y0 < B.y0 ? B.y0 - b.y0 : b.y1 > B.y1 ? B.y1 - b.y1 : 0;
+        b = { x0: b.x0 + sx, x1: b.x1 + sx, y0: b.y0 + sy, y1: b.y1 + sy };
+        let cost = Math.hypot(c[0] + sx, c[1] + sy) * 0.5 + k * 0.5 + ai * 8;
+        hard.forEach((o) => { if (meets(b, o, 3)) cost += 1000; });
+        placed.forEach((o) => { if (meets(b, o, 6)) cost += 1000; });
+        const wide = { x0: b.x0 - 2, y0: b.y0 - 2, x1: b.x1 + 2, y1: b.y1 + 2 };
+        segs.forEach((s) => { if (segHits(s.s, wide)) cost += s.c; });
+        if (cost < bestCost) { bestCost = cost; best = { b, x: al.x + c[0] + sx, y: al.y + c[1] + sy, anchor: al.anchor }; }
+      }));
+      placed.push(best.b);
+      return best;
+    });
+  }
+  const spots = (X, Y, list) => { const alts = list.map((o) => ({ x: X + o[0], y: Y + o[1], anchor: o[2] })); return Object.assign({}, alts[0], { alts }); };
+  const DOT_AT = [[-12, -10, 'end'], [0, -16, 'middle'], [12, -10, 'start'], [-12, 20, 'end'], [12, 20, 'start']];
+  const IC_AT = [[12, 22, 'start'], [12, 41, 'start'], [12, -12, 'start'], [12, 60, 'start']];
+  // A spot pushed `off` from (x, y) along u, anchored on the side it leans.
+  function away(x, y, u, off) {
+    const L = Math.hypot(u[0], u[1]) || 1, ux = u[0] / L, uy = u[1] / L;
+    return { x: x + ux * off, y: y + uy * off + (uy > 0.35 ? 11 : uy < -0.35 ? -1 : 5), anchor: ux > 0.4 ? 'start' : ux < -0.4 ? 'end' : 'middle' };
+  }
+  // Spots beside a drawn line at fractions along it, on either side.
+  function along(s, fr) {
+    const dx = s[2] - s[0], dy = s[3] - s[1], L = Math.hypot(dx, dy) || 1;
+    let n = [dy / L, -dx / L];
+    if (n[1] > 0) n = [-n[0], -n[1]];
+    const alts = [];
+    fr.forEach((f) => [1, -1].forEach((sg) => alts.push(away(s[0] + dx * f, s[1] + dy * f, [n[0] * sg, n[1] * sg], 10))));
+    return Object.assign({}, alts[0], { alts });
+  }
+
+  // ---------- the readings: their line (solid between the first and last), dashed where it is carried past them ----------
+  function drawReadings(ctx, f, back, fwd) {
+    const { d, tl, A, G, items } = ctx, u = d.u, rx = d.rx, x0 = rx[0], xN = rx[rx.length - 1], v = G.v;
+    const lg = d.show && tl.grow ? A(tl.line, 0.6) : 1, la = d.show && !tl.grow ? A(tl.line) : 1;
+    if (lg > 0 && la > 0) {
+      const xe = K.lerp(x0, xN, lg), s = [G.px(x0), G.py(f(x0)), G.px(xe), G.py(f(xe))];
+      K.fade(ln('ln', s[0], s[1], s[2], s[3]), la, 0); OBS.segs.push({ s, c: 120 });
+      if (lg >= 1 && la >= 0.5) REC.lines.push({ x0, x1: xN, y0: f(x0), y1: f(xN), dash: false });
+    }
+    let ka = 0;
+    if (back) {
+      let g = 1, al = 1;
+      if (d.show) { if (tl.back != null) g = A(tl.back, 0.9); else al = la; } else if (!d.back) g = A(PZ.back, 0.6);
+      if (g > 0 && al > 0) {
+        const xe = K.lerp(x0, 0, g), s = [G.px(x0), G.py(f(x0)), G.px(xe), G.py(f(xe))];
+        K.fade(ln('ln dsh', s[0], s[1], s[2], s[3]), al, 0); OBS.segs.push({ s, c: 120 });
+        if (g >= 1 && al >= 0.5) REC.lines.push({ x0: 0, x1: x0, y0: f(0), y1: f(x0), dash: true });
+        ka = Math.max(ka, al * K.clamp(g * 2, 0, 1));
+      }
+    }
+    if (fwd && la > 0) {
+      const s = [G.px(xN), G.py(f(xN)), G.px(v.x1), G.py(f(v.x1))];
+      K.fade(ln('ln dsh', s[0], s[1], s[2], s[3]), la, 0); OBS.segs.push({ s, c: 120 });
+      if (la >= 0.5) REC.lines.push({ x0: xN, x1: v.x1, y0: f(xN), y1: f(v.x1), dash: true });
+      ka = Math.max(ka, la);
+    }
+    drawKey(ka);
+    rx.forEach((x, k) => {
+      const a = d.show ? A(tl.dots + k * (tl.dstep || 0)) : 1;
+      if (a <= 0.01) return;
+      const X = G.px(x), Y = G.py(f(x));
+      K.fade(add(K.svg('circle', { class: 'rd', cx: r2(X), cy: r2(Y), r: 5.5 })), a, 0);
+      OBS.hard.push({ x0: X - 8, y0: Y - 8, x1: X + 8, y1: Y + 8 });
+      if (a >= 0.5) REC.dots.push({ x, y: f(x), X, Y });
+      if (d.dotLab) items.push(Object.assign(spots(X, Y, DOT_AT), { text: fy(u, f(x)) + ' ' + u.yu, class: 'lab', a }));
+    });
+  }
+  // A wrong pick, drawn where it can be: from the origin, flat across to the axis, or a whole line; red and dashed.
+  function drawWrong(ctx, w) {
+    const G = ctx.G, v = G.v;
+    let s;
+    if (w.seg) s = [G.px(w.seg[0][0]), G.py(w.seg[0][1]), G.px(w.seg[1][0]), G.py(w.seg[1][1])];
+    else if (w.flat) {
+      s = [G.px(w.flat[0]), G.py(w.flat[1]), G.px(0), G.py(w.flat[1])];
+      add(K.svg('circle', { class: 'wd', cx: r2(s[2]), cy: r2(s[3]), r: 5.5 }));
+      OBS.hard.push({ x0: s[2] - 8, y0: s[3] - 8, x1: s[2] + 8, y1: s[3] + 8 });
+    } else {
+      const xm = w.line.m > 0 ? Math.min(v.x1, (v.y1 - w.line.c) / w.line.m) : v.x1;
+      s = [G.px(0), G.py(w.line.c), G.px(xm), G.py(w.line.m * xm + w.line.c)];
+    }
+    ln('wrl', s[0], s[1], s[2], s[3]); OBS.segs.push({ s, c: 120 });
+    ctx.items.push(Object.assign(along(s, [0.5, 0.7, 0.3, 0.85]), { text: w.text, class: 'lab wt', a: 1 }));
+    REC.wrong = { s, text: strip(w.text) };
+  }
+
+  // ---------- the scenes ----------
+  const PAINT = {};
+  PAINT.tri = function (ctx) {
+    const { d, st, open, demo, tl, A, G } = ctx, u = d.u, f = lf(d.L), post = d.post || {};
+    const showBack = !!d.back || (!!post.back && open), showIcpt = !!d.icpt || (!!post.icpt && open), showTri = !!d.tri && (!!d.show || (!!post.tri && open));
+    drawGrid(G); drawTicks(G, u, 1);
+    drawReadings(ctx, f, showBack, false);
+    if (showTri) {
+      const cur = st.dr || { a: d.tri[0], b: d.tri[1] };
+      let a = cur.a, b = cur.b, bs = b, dip = 1;
+      if (d.stretch && demo) {
+        // The triangle stretches along the line; its labels fade out and back with the new run and rise.
+        const p = A(tl.stretch, 0.8);
+        b = K.lerp(d.tri0[1], d.tri[1], p); bs = p < 0.5 ? d.tri0[1] : d.tri[1]; dip = p <= 0 || p >= 1 ? 1 : Math.abs(1 - 2 * p);
+      }
+      const gRun = A(tl.run, 0.5), gRise = A(tl.rise, 0.5), run = bs - a, rise = f(bs) - f(a), gg = gfmt(rise / run);
+      const pts = drawTri(ctx, { xa: a, xb: b, f, gRun, gRise, k: 0, la: dip, runT: 'run ' + fx(u, run) + ' ' + u.xu, riseT: 'rise ' + fy(u, rise) + ' ' + u.yu,
+        glabT: d.glab ? 'gradient ' + gg.s + ' ' + perU(u, true) : null, ga: A(tl.glab) });
+      if (gRun >= 1 && gRise >= 1 && dip >= 1) REC.tris.push({ xa: a, xb: b, ya: f(a), yb: f(b), run: b - a, rise: f(b) - f(a), m: d.L.m, c: d.L.c, O: pts.O, Cn: pts.Cn, Tp: pts.Tp });
+      ctx.tri = { a, b: bs, dip };
+      ctx.gripAt = [{ n: 'move', X: pts.O[0], Y: pts.O[1], a: Math.min(gRun, gRise) }, { n: 'tip', X: pts.Tp[0], Y: pts.Tp[1], a: Math.min(gRun, gRise) }].filter((g) => !d.drag || d.drag.indexOf(g.n) >= 0);   // screen 3's left corner is pinned at 0 °C
+    }
+    if (showIcpt) {
+      // Where the carried-back line meets the upright axis: a ring with a centre, labelled with what it means.
+      const c = cOf(d), X = G.px(0), Y = G.py(c), ai = A(tl.icpt);
+      if (ai > 0.01) {
+        K.fade(add(K.svg('circle', { class: 'pt', cx: r2(X), cy: r2(Y), r: 7 })), ai, 0);
+        K.fade(add(K.svg('circle', { class: 'ptc', cx: r2(X), cy: r2(Y), r: 2.6 })), ai, 0);
+        OBS.hard.push({ x0: X - 10, y0: Y - 10, x1: X + 10, y1: Y + 10 });
+        const text = d.iName + ': ' + fy(u, c) + ' ' + u.yu;
+        ctx.items.unshift(Object.assign(spots(X, Y, IC_AT), { text, class: 'lab nv', a: A(tl.icpt + 0.2) }));
+        if (ai >= 0.5) REC.icpt = { X, Y, c, text: strip(text) };
+      }
+    }
+    if (!d.show && st.res === 'wrong' && d.wrongDraw && d.wrongDraw[st.pick]) drawWrong(ctx, d.wrongDraw[st.pick](d));
+    ctx.rows = open ? rowsTri(ctx, f) : [ctx.ask()];
+  };
+  function rowsTri(ctx, f) {
+    const { d, tl } = ctx, u = d.u, out = [];
+    d.rowsOf.forEach((kind, k) => {
+      const t0 = tl['r' + k], tri = ctx.tri, mul = tri ? tri.dip : 1;
+      if (kind === 'run') out.push(ctx.row('Run', [fx(u, tri.b) + ' − ' + fx(u, tri.a) + ' = ' + fx(u, tri.b - tri.a) + ' ' + u.xu], t0, mul));
+      else if (kind === 'rise') out.push(ctx.row('Rise', [fy(u, f(tri.b)) + ' − ' + fy(u, f(tri.a)) + ' = ' + fy(u, f(tri.b) - f(tri.a)) + ' ' + u.yu], t0, mul));
+      else if (kind === 'grad') {
+        const run = tri.b - tri.a, rise = f(tri.b) - f(tri.a), g = rise / run, G = gfmt(g);
+        REC.grads.push({ rise, run, g });
+        out.push(ctx.row(d.gLab || 'Gradient', [fy(u, rise) + ' ' + u.yu + ' ÷ ' + fx(u, run) + ' ' + u.xu, (G.exact ? '= ' : '≈ ') + G.s + ' ' + (d.gu || perU(u, true))], t0, mul, true));
+      } else if (kind === 'soFar') out.push(ctx.row('Law so far', ['_' + u.yv + '_ = ' + gs(d.L.m) + '_' + u.xv + '_ + _c_'], t0));
+      else if (kind === 'res') {
+        const run = tri.b - tri.a, rise = f(tri.b) - f(tri.a);
+        out.push(ctx.row('Resistance', [fx(u, run) + ' ' + u.xu + ' ÷ ' + fy(u, rise) + ' ' + u.yu, '= ' + trim(run / rise) + ' Ω'], t0, 1, true));
+      } else if (kind === 'c') {
+        const x0 = d.rx[0], c = cOf(d);
+        out.push(ctx.row(d.cLab || '_c_ = ' + d.iName, [fy(u, f(x0)) + ' − ' + gs(d.L.m) + ' × ' + fx(u, x0) + ' = ' + fy(u, c) + ' ' + u.yu], t0, 1, true));
+      } else if (kind === 'law') out.push(ctx.row('Law', [lawStr(u, d.L.m, cOf(d))], t0, 1, true));
+      else if (kind === 'slip') {
+        const xs = [d.rx[0], d.rx[d.rx.length - 1]];
+        out.push(ctx.row('One reading ÷ its _' + u.xv + '_', xs.map((x) => fy(u, f(x)) + ' ÷ ' + fx(u, x) + ' = ' + trim(f(x) / x) + ',').concat(['not the gradient']), t0));
+      }
+    });
+    return out;
+  }
+  // The law used both ways: up from a temperature to the line and across, or across from a reading and down.
+  PAINT.use = function (ctx) {
+    const { d, st, open, tl, A, G } = ctx, u = d.u, f = lf(d.L), m = d.L.m, c = d.L.c;
+    const gl = [];
+    if (d.show) {
+      if (st.dr) gl.push({ kind: 'fw', x: st.dr.t, g: 1, a0: 1, a1: 1 });
+      else {
+        gl.push({ kind: 'fw', x: d.fw, g: A(tl.g1, 1.0), a0: A(tl.g1), a1: A(tl.g1 + 1.0) });
+        gl.push({ kind: 'bk', y: d.bk, g: A(tl.g2, 1.0), a0: A(tl.g2), a1: A(tl.g2 + 1.0) });
+      }
+    } else gl.push({ kind: 'bk', y: d.bk, g: open ? A(PZ.g, 1.0) : 0, a0: 1, a1: open ? A(PZ.g + 1.0) : 0 });
+    const marks = [];
+    gl.forEach((q) => {
+      if (q.kind === 'fw') { q.y = f(q.x); q.pts = [[q.x, 0], [q.x, q.y], [0, q.y]]; marks.push({ axis: 'x', v: q.x, a: q.a0, text: fx(u, q.x) }, { axis: 'y', v: q.y, a: q.a1, text: fy(u, q.y) }); }
+      else { q.x = (q.y - c) / m; q.pts = [[0, q.y], [q.x, q.y], [q.x, 0]]; marks.push({ axis: 'y', v: q.y, a: q.a0, text: fy(u, q.y) }, { axis: 'x', v: q.x, a: q.a1, text: fx(u, q.x) }); }
+    });
+    drawGrid(G); drawTicks(G, u, 1, marks);
+    drawReadings(ctx, f, true, true);
+    gl.forEach((q, k) => {
+      if (q.g <= 0) {
+        if (d.show) return;
+        // Before an answer: the reading comes in from the scale, a short teal arrow.
+        const Y = G.py(q.y);
+        ln('gd', ML, Y, ML + 16, Y);
+        add(K.svg('path', { class: 'ghd', d: 'M' + r2(ML + 24) + ' ' + r2(Y) + ' L' + r2(ML + 16) + ' ' + r2(Y - 4.5) + ' L' + r2(ML + 16) + ' ' + r2(Y + 4.5) + ' Z' }));
+        OBS.segs.push({ s: [ML, Y, ML + 24, Y], c: 120 });
+        return;
+      }
+      const corner = guide(G, q.pts, q.g);
+      if (q.g >= 1) REC.guides.push({ kind: q.kind, x: q.x, y: q.y });
+      if (k === 0 && d.show && corner) ctx.gripAt = [{ n: 'pt', X: corner[0], Y: corner[1], a: q.g >= 1 ? 1 : 0 }];
+    });
+    const fw = (x, t0) => ctx.row('At ' + fx(u, x) + ' ' + u.xu, ['_' + u.yv + '_ = ' + gs(m) + ' × ' + fx(u, x) + ' + ' + trim(c), '= ' + fy(u, f(x)) + ' ' + u.yu], t0, 1, true);
+    const bk = (y, t0) => ctx.row('Reading ' + fy(u, y) + ' ' + u.yu, [fy(u, y) + ' − ' + trim(c) + ' = ' + gs(m) + '_' + u.xv + '_,', 'so _' + u.xv + '_ = ' + fy(u, y - c) + ' ÷ ' + gs(m), '= ' + fx(u, (y - c) / m) + ' ' + u.xu], t0, 1, true);
+    if (d.show) ctx.rows = st.dr ? [fw(st.dr.t), bk(f(st.dr.t))] : [fw(d.fw, tl.r0), bk(d.bk, tl.r1)];
+    else ctx.rows = open ? [bk(d.bk, PZ.r0)] : [ctx.ask()];
+  };
+  // Two windings: a line and a step triangle each, the same run on both.
+  PAINT.two = function (ctx) {
+    const { d, st, open, tl, A, G, items } = ctx, v = d.view, all = !!d.show || open, a0 = st.dr ? st.dr.a : d.a;
+    drawGrid(G); drawTicks(G, d.u, 1);
+    ctx.gripAt = [];
+    d.lines.forEach((L, k) => {
+      const f = lf(L), g = d.show ? A(tl['l' + k], 0.6) : 1;
+      if (g > 0) {
+        const s = [G.px(0), G.py(f(0)), G.px(v.x1 * g), G.py(f(v.x1 * g))];
+        ln(k ? 'ln2' : 'ln', s[0], s[1], s[2], s[3]); OBS.segs.push({ s, c: 120 });
+        if (g >= 1) REC.lines.push({ x0: 0, x1: v.x1, y0: f(0), y1: f(v.x1), dash: false, n: L.n });
+      }
+      const xs = k ? [0.8, 0.9, 0.65] : [0.2, 0.1, 0.35], alts = [];
+      xs.forEach((fr) => { const X = G.px(v.x1 * fr), Y = G.py(f(v.x1 * fr)); alts.push({ x: X, y: k ? Y + 22 : Y - 12, anchor: 'middle' }); });
+      xs.forEach((fr) => { const X = G.px(v.x1 * fr), Y = G.py(f(v.x1 * fr)); alts.push({ x: X, y: k ? Y - 12 : Y + 22, anchor: 'middle' }); });
+      items.push(Object.assign({}, alts[0], { alts, text: all ? L.n + ': ' + lawStr(d.u, L.m, L.c) : L.n, class: 'lab ' + (k ? 'tl' : 'nv'), a: d.show ? A(tl['n' + k]) : 1 }));
+      if (all) {
+        const gRun = A(tl.run, 0.5), gRise = A(tl.rise, 0.5), b = a0 + d.run;
+        const pts = drawTri(ctx, { xa: a0, xb: b, f, gRun, gRise, k, la: 1, runT: 'run ' + d.run + ' ' + d.u.xu, riseT: 'rise ' + fixed(f(b) - f(a0), 1) + ' ' + d.u.yu });
+        if (gRun >= 1 && gRise >= 1) REC.tris.push({ xa: a0, xb: b, ya: f(a0), yb: f(b), run: b - a0, rise: f(b) - f(a0), m: L.m, c: L.c, O: pts.O, Cn: pts.Cn, Tp: pts.Tp });
+        ctx.gripAt.push({ n: k ? 'move2' : 'move', X: pts.O[0], Y: pts.O[1], a: Math.min(gRun, gRise) });
+      }
+    });
+    ctx.rows = all ? d.rowsFn(ctx) : [ctx.ask()];
+  };
+  function rowsHigher(ctx) {
+    const d = ctx.d, P = d.lines[0], Q = d.lines[1], X = d.view.x1, tl = ctx.tl;
+    return [
+      ctx.row('Same run, ' + d.run + ' °C', [P.n + ' rises ' + fixed(P.m * d.run, 1) + ' Ω,', Q.n + ' rises ' + fixed(Q.m * d.run, 1) + ' Ω'], tl.r0),
+      ctx.row(null, [Q.n + ' climbs ' + gs(Q.m) + ' ÷ ' + gs(P.m), '= ' + trim(Q.m / P.m) + ' times as fast as ' + P.n], tl.r1, 1, true),
+      ctx.row('Yet ' + P.n + ' sits higher', [trim(lf(P)(X)) + ' Ω against ' + trim(lf(Q)(X)) + ' Ω at ' + X + ' °C'], tl.r2),
+    ];
+  }
+  function rowsWhich(ctx) {
+    const d = ctx.d, P = d.lines[0], Q = d.lines[1], X = d.view.x1, tl = ctx.tl;
+    return [
+      ctx.row(P.n, [lawStr(d.u, P.m, P.c) + ',', gs(P.m) + ' Ω per °C'], tl.r0),
+      ctx.row(Q.n, [lawStr(d.u, Q.m, Q.c) + ',', gs(Q.m) + ' Ω per °C'], tl.r1),
+      ctx.row('At ' + X + ' °C', [P.n + ' reads ' + trim(lf(P)(X)) + ' Ω,', Q.n + ' ' + trim(lf(Q)(X)) + ' Ω'], tl.r2),
+    ];
+  }
+  // A resistor's readings: voltage up the side at rest; Swap the axes moves every reading to its swapped place.
+  PAINT.swap = function (ctx) {
+    const { d, st, demo, tl, A, items } = ctx, G0 = geo(d.v0), G1 = geo(d.v1), PH = G0.PH, IV = d.IV;
+    const sw = !demo, from = sw ? 1 - st.o : 0, to = sw ? st.o : 0;   // the demonstration never swaps; the button does
+    const out = sw ? 1 - A(0, 0.3) : 1, move = sw ? A(0.3, 0.8) : 0, inn = sw ? A(1.1, 0.4) : 1;
+    const e = K.lerp(from, to, move), early = sw && T < 0.7, oc = early ? from : to, ph = early ? out : inn;
+    const P = (I, V) => [ML + K.lerp(I / d.v0.x1, V / d.v1.x1, e) * PW, MT + PH - K.lerp(V / d.v0.y1, I / d.v1.y1, e) * PH];
+    drawGrid(G0);
+    drawTicks(G0, d.u0, K.clamp(1 - 2 * e, 0, 1)); drawTicks(G1, d.u1, K.clamp(2 * e - 1, 0, 1));
+    const lg = A(tl.line, 0.5);
+    if (lg > 0) {
+      const p0 = P(IV[0][0], IV[0][1]), p1 = P(K.lerp(IV[0][0], IV[1][0], lg), K.lerp(IV[0][1], IV[1][1], lg));
+      ln('ln', p0[0], p0[1], p1[0], p1[1]); OBS.segs.push({ s: [p0[0], p0[1], p1[0], p1[1]], c: 120 });
+    }
+    IV.forEach((q, k) => {
+      const a = A(tl.dots + k * tl.dstep);
+      if (a <= 0.01) return;
+      const p = P(q[0], q[1]);
+      K.fade(add(K.svg('circle', { class: 'rd', cx: r2(p[0]), cy: r2(p[1]), r: 5.5 })), a, 0);
+      OBS.hard.push({ x0: p[0] - 8, y0: p[1] - 8, x1: p[0] + 8, y1: p[1] + 8 });
+      if (a >= 0.5) REC.dots.push({ I: q[0], V: q[1], X: p[0], Y: p[1] });
+      items.push(Object.assign(spots(p[0], p[1], DOT_AT), { text: oc ? trim(q[1]) + ' V, ' + trim(q[0]) + ' A' : trim(q[0]) + ' A, ' + trim(q[1]) + ' V', class: 'lab', a: a * ph }));
+    });
+    // The step triangle in whichever way round the axes are; it fades out while they swap.
+    const Go = oc ? G1 : G0, uo = oc ? d.u1 : d.u0, disp = (q) => (oc ? [q[1], q[0]] : [q[0], q[1]]);
+    const pa = disp(IV[0]), pb = disp(IV[1]), mo = (pb[1] - pa[1]) / (pb[0] - pa[0]), fo = (x) => pa[1] + mo * (x - pa[0]);
+    const gRun = A(tl.run, 0.5), gRise = A(tl.rise, 0.5), run = pb[0] - pa[0], rise = pb[1] - pa[1];
+    const pts = drawTri(ctx, { G: Go, xa: pa[0], xb: pb[0], f: fo, gRun, gRise, k: 0, la: ph, sa: ph, runT: 'run ' + trim(run) + ' ' + uo.xu, riseT: 'rise ' + trim(rise) + ' ' + uo.yu });
+    if (gRun >= 1 && gRise >= 1 && ph >= 1 && (move <= 0 || move >= 1)) REC.tris.push({ xa: pa[0], xb: pb[0], ya: pa[1], yb: pb[1], run, rise, m: mo, c: fo(0), O: pts.O, Cn: pts.Cn, Tp: pts.Tp });
+    REC.o = e;
+    const g = rise / run, gg = gfmt(g);
+    REC.grads.push({ rise, run, g, o: oc });
+    ctx.rows = [
+      ctx.row('Run', [trim(pb[0]) + ' − ' + trim(pa[0]) + ' = ' + trim(run) + ' ' + uo.xu], tl.r0, ph),
+      ctx.row('Rise', [trim(pb[1]) + ' − ' + trim(pa[1]) + ' = ' + trim(rise) + ' ' + uo.yu], tl.r1, ph),
+      ctx.row('Gradient', [trim(rise) + ' ' + uo.yu + ' ÷ ' + trim(run) + ' ' + uo.xu, (gg.exact ? '= ' : '≈ ') + gg.s + ' ' + uo.yu + ' per ' + uo.xu + ',', oc ? 'not the resistance' : 'which is ' + trim(g) + ' Ω'], tl.r2, ph, true),
+    ];
+  };
+
+  function drawRows(rows) {
+    const box = el('rows');
+    box.textContent = '';
+    rows.forEach((r) => {
+      const p = box.appendChild(K.el('p', { class: 'wk' }));
+      if (r.lab) { const h = p.appendChild(K.el('span', { class: 'lab' })); inline(h, r.lab + ': ', false); K.fade(h, r.pieces.length ? r.pieces[0].a : 1, 0); }   // a heading arrives with its row
+      r.pieces.forEach((pc, n) => {
+        const s = p.appendChild(K.el('span', { class: 'pc ' + (pc.cls || '') }));
+        inline(s, pc.s, false);
+        K.fade(s, pc.a, 0);
+        if (n < r.pieces.length - 1) p.appendChild(document.createTextNode(' '));
+      });
+      REC.rows.push(strip((r.lab ? r.lab + ': ' : '') + r.pieces.map((pc) => pc.s).join(' ')));
+    });
+  }
+  function describe(ctx) {
+    const d = ctx.d;
+    let s = d.kind === 'swap' ? 'A graph of ' + (REC.o < 0.5 ? 'voltage up the side against current along.' : 'current up the side against voltage along.')
+      : 'A graph of ' + strip(d.u.yn) + ' up the side against ' + strip(d.u.xn) + ' along.';
+    if (REC.dots.length) s += ' ' + REC.dots.length + ' example readings lie on a straight line.';
+    if (d.kind === 'two') s += ' Two straight lines, ' + d.lines.map((L) => L.n).join(' and ') + '.';
+    if (REC.tris.length) s += ' A step triangle sits on ' + (REC.tris.length > 1 ? 'each line' : 'the line') + ', its run along and its rise up.';
+    if (REC.icpt) s += ' The line, carried back, meets the upright axis at a ring: ' + REC.icpt.text + '.';
+    if (REC.guides.length) s += ' Guides read the line from one axis across to the other.';
+    if (REC.wrong) s += ' The answer picked is drawn dashed: ' + REC.wrong.text + '.';
+    return s;
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], G = geo(d.view);
+    art.textContent = '';
+    REC = { tris: [], grads: [], rows: [], labels: [], dots: [], lines: [], icpt: null, wrong: null, guides: [], marks: [], key: false, o: null };
+    OBS = { hard: [], segs: [] };
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    const open = !!d.show || st.res === 'right' || st.why;
+    const demo = !!d.show && !st.dr && !st.pressed;
+    const tl = demo ? d.tl : d.show ? {} : PZ;
+    const A = (t0, dd) => (t0 == null || isNaN(t0) ? 1 : arr(t0, dd == null ? 0.4 : dd));
+    const ctx = { d, st, open, demo, tl, A, G, items: [], rows: [], gripAt: null, tri: null };
+    ctx.row = (lab, list, t0, mul, end) => ({ lab, pieces: list.map((s, n) => ({ s, a: A(t0 == null ? null : t0 + GAP * n) * (mul == null ? 1 : mul), cls: end && n === list.length - 1 ? 'end' : '' })) });
+    ctx.ask = () => ({ lab: d.ask.lab, pieces: [{ s: d.ask.s, a: 1, cls: 'q' }] });
+    PAINT[d.kind](ctx);
+    // A faint ring round whatever can be dragged.
+    if (canDrag(d)) (ctx.gripAt || []).forEach((h) => {
+      if (h.a <= 0.01) return;
+      K.fade(add(K.svg('circle', { class: 'ring', cx: r2(h.X), cy: r2(h.Y), r: 13 })), h.a, 0);
+      OBS.hard.push({ x0: h.X - 11, y0: h.Y - 11, x1: h.X + 11, y1: h.Y + 11 });
+    });
+    const pos = placeLabels(ctx.items, OBS.hard, OBS.segs, { x0: ML + 2, x1: 338, y0: 3, y1: MT + G.PH - 2 });
+    labs.textContent = '';
+    ctx.items.forEach((it, n) => {
+      const t = labs.appendChild(K.svg('text', { class: it.class, x: r2(pos[n].x), y: r2(pos[n].y), 'text-anchor': pos[n].anchor || 'middle' }));
+      inline(t, it.text, true);
+      K.fade(t, it.a, 0);
+      if (it.a >= 0.5) REC.labels.push(strip(it.text));
+    });
+    drawRows(ctx.rows);
+    svg.setAttribute('aria-label', describe(ctx));
+    placeGrips(ctx);
+  }
+
+  // ---------- dragging: the triangle's left corner slides it along, its top corner stretches it; a point slides along the line ----------
+  const GRIP_TEXT = {
+    move: 'The step triangle\'s left corner. Drag it along the line, or use the arrow keys.',
+    move2: 'The step triangle\'s left corner. Drag it along the line, or use the arrow keys.',
+    tip: 'The step triangle\'s top corner. Drag it to stretch the triangle, or use the arrow keys.',
+    pt: 'A point on the line. Drag it along, or use the arrow keys.',
+  };
+  const grips = [0, 1].map(() => ui.appendChild(K.svg('circle', { class: 'grip', cx: -100, cy: -100, r: 22, tabindex: -1, role: 'button', 'aria-label': 'Handle' })));
+  let LIVE = [];
+  function placeGrips(ctx) {
+    LIVE = [];
+    const list = canDrag(ctx.d) ? (ctx.gripAt || []).filter((h) => h.a >= 0.5) : [];
+    svg.classList.toggle('grab', list.length > 0);
+    grips.forEach((g, k) => {
+      const h = list[k];
+      g.style.display = h ? '' : 'none';
+      g.setAttribute('tabindex', h ? '0' : '-1');
+      if (!h) return;
+      g.setAttribute('cx', r2(h.X)); g.setAttribute('cy', r2(h.Y));
+      g.setAttribute('data-n', h.n);
+      g.setAttribute('aria-label', GRIP_TEXT[h.n]);
+      LIVE.push({ n: h.n, x: h.X, y: h.Y });
+    });
+  }
+  // Where a handle lands: on the nearest 10 along, the triangle kept on the readings and at least 20 wide.
+  function setHandle(n, X) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!canDrag(d) || !isFinite(X)) return;
+    const cur = st.dr || startDr(d), o = Object.assign({}, cur), sn = (x) => Math.round(x / 10) * 10;
+    if (d.kind === 'tri') {
+      const w = cur.b - cur.a;
+      if (n === 'move') { o.a = K.clamp(sn(X), d.lo, d.hi - w); o.b = o.a + w; } else o.b = K.clamp(sn(X), cur.a + MINRUN, d.hi);
+    } else if (d.kind === 'use') o.t = K.clamp(sn(X), 0, d.view.x1);
+    else if (d.kind === 'two') o.a = K.clamp(sn(X), 0, d.amax);
+    if (st.dr && Object.keys(o).every((k) => o[k] === st.dr[k])) return;
+    st.dr = o;
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    K.reveal(); K.refresh();
+  }
+  function svgPt(e) {
+    const mtx = svg.getScreenCTM();
+    if (!mtx) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(mtx.inverse());
+  }
+  let held = null;
+  grips.forEach((g) => {
+    g.addEventListener('pointerdown', (e) => {
+      if (!canDrag(STEPS[at()])) return;
+      const q = svgPt(e);
+      if (!q) return;
+      // The nearest live handle to the touch takes it (the two corners can sit close together).
+      let best = null, bd = Infinity;
+      LIVE.forEach((h) => { const dd = Math.hypot(h.x - q.x, h.y - q.y); if (dd < bd) { bd = dd; best = h.n; } });
+      if (!best) return;
+      held = { id: e.pointerId, n: best };
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the handle */ }
+      e.preventDefault();
+    });
+    g.addEventListener('pointermove', (e) => {
+      if (!held || held.id !== e.pointerId) return;
+      e.preventDefault();
+      const q = svgPt(e);
+      if (q) setHandle(held.n, geo(STEPS[at()].view).inv(q.x, q.y)[0]);
+    });
+    const letGo = (e) => { if (held && held.id === e.pointerId) held = null; };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', letGo);
+    g.addEventListener('keydown', (e) => {
+      const d = STEPS[at()], st = S[at()], n = g.getAttribute('data-n');
+      const by = { ArrowRight: 10, ArrowUp: 10, ArrowLeft: -10, ArrowDown: -10 }[e.key];
+      if (!canDrag(d) || !by || !n) return;
+      e.preventDefault();
+      const cur = st.dr || startDr(d);
+      setHandle(n, (n === 'tip' ? cur.b : n === 'pt' ? cur.t : cur.a) + by);
+    });
+  });
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.dr = null; st.pressed = false; st.o = 0; play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('pz').classList.toggle('ask', !d.show && !right && !st.why);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    write(el('rule'), d.head);
+    paint(i);
+
+    el('tools').hidden = d.kind !== 'swap';
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-label', opts[k].replace(/−/g, 'minus '));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const withDr = (i, o) => Object.assign(blank(), { dr: Object.assign(startDr(STEPS[i]), o) });
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  const shown = (i) => drawn(i, STEPS[i].show ? blank() : solvedSt(i));
+  const I0 = idx('Gradient with units'), I2 = idx('R at 0 °C'), I3 = idx('Find R at 0 °C'), I4 = idx('Both ways'), I6 = idx('Higher is not steeper'),
+    I7 = idx('Which is which?'), I8 = idx('Swap the axes'), I10 = idx('A spring'), I11 = idx('A lifting machine');
+  const swapped0 = () => drawn(I8, Object.assign(blank(), { o: 0, pressed: true }));
+  const swapped1 = () => drawn(I8, Object.assign(blank(), { o: 1, pressed: true }));
+
+  K.check('Wherever the measuring triangle sits on the winding\'s line and however far it is stretched, its run in °C and its rise in Ω change together and the gradient stays 0.04 Ω per °C', () => {
+    let ok = true, n = 0;
+    for (let a = 20; a <= 60; a += 10) for (let b = a + 20; b <= 80; b += 10) {
+      const g = drawn(I0, withDr(I0, { a, b })), t = g.tris[0], run = b - a, rise = (0.04 * run).toFixed(1);
+      ok = ok && !!t && t.xa === a && t.xb === b && near(t.rise, 0.04 * run) && g.labels.indexOf('run ' + run + ' °C') >= 0 &&
+        g.labels.indexOf('rise ' + rise + ' Ω') >= 0 && g.labels.indexOf('gradient 0.04 Ω per °C') >= 0 &&
+        g.rows[2] === 'Gradient: ' + rise + ' Ω ÷ ' + run + ' °C = 0.04 Ω per °C';
+      n++;
+    }
+    const s = drawn(I2, withDr(I2, { a: 0, b: 50 })).tris[0];
+    return ok && n === 15 && !!s && near(s.rise / s.run, 0.04, 1e-12);
+  });
+  K.check('To find the gradient of a line joining two points, divide the difference in the y-coordinates by the difference in the x-coordinates: every step triangle drawn runs between two points on its line, its run is their difference along and its rise their difference up, and each gradient row divides that rise by that run', () => {
+    const gsAll = STEPS.map((d, i) => shown(i)).concat([drawn(I0, withDr(I0, { a: 30, b: 70 })), drawn(I2, withDr(I2, { a: 0, b: 60 })), swapped0(), drawn(I6, withDr(I6, { a: 30 })), swapped1()]);
+    const tris = [].concat(...gsAll.map((g) => g.tris)), grads = [].concat(...gsAll.map((g) => g.grads));
+    const triOk = (t) => t.run > 0 && near(t.run, t.xb - t.xa) && near(t.rise, t.yb - t.ya) && near(t.ya, t.m * t.xa + t.c) && near(t.yb, t.m * t.xb + t.c) &&
+      near(t.Cn[1], t.O[1]) && near(t.Cn[0], t.Tp[0]) && t.Tp[1] < t.O[1];
+    return tris.length >= 12 && tris.every(triOk) && grads.length >= 7 && grads.every((g) => g.run > 0 && near(g.g, g.rise / g.run, 1e-12));
+  }, { source: SRC_M3 });
+  K.check('The y coordinate at the point where the line crosses the y axis is called the intercept, and in y = mx + c, c is the intercept: on every screen that finds it, the ring labelled with that value sits where the line, carried back, crosses the upright axis, and the law is written with it as c', () => [I2, I3, I11].every((i) => {
+    const d = STEPS[i], g = shown(i), G = geo(d.view), c = d.L.c, u = d.u;
+    return !!g.icpt && near(g.icpt.X, G.px(0)) && near(g.icpt.Y, G.py(c), 1e-6) && near(g.icpt.c, c) &&
+      g.labels.indexOf(strip(d.iName) + ': ' + fy(u, c) + ' ' + u.yu) >= 0 &&
+      g.lines.some((l) => l.dash && l.x0 === 0 && near(l.y0, c)) && g.rows.indexOf('Law: ' + strip(lawStr(u, d.L.m, c))) >= 0;
+  }), { source: SRC_M3 });
+  K.check('In many materials the dependence of resistance on temperature is approximately linear and can be modelled using a linear equation: every example winding reading drawn sits on its winding\'s straight line, which runs solid from the first reading to the last', () => STEPS.every((d, i) => {
+    if (d.u !== UW || !d.rx) return true;
+    const g = shown(i), G = geo(d.view), f = lf(d.L), x0 = d.rx[0], xN = d.rx[d.rx.length - 1];
+    return g.dots.length === d.rx.length && g.dots.every((p) => near(p.y, f(p.x)) && near(p.Y, G.py(f(p.x)), 1e-6) && near(p.X, G.px(p.x), 1e-6)) &&
+      g.lines.some((l) => !l.dash && l.x0 === x0 && l.x1 === xN);
+  }), { source: SRC_RES });
+  K.check('A plot of the voltage versus the current is approximately linear, and the slope of the line is the resistance, the voltage divided by the current: with voltage up the side, each example reading\'s voltage divided by its current equals the gradient, in volts per amp', () => {
+    const d = STEPS[I8], g = swapped0();
+    return g.grads.length === 1 && g.grads[0].o === 0 && d.IV.every((q) => near(q[1] / q[0], g.grads[0].g)) && / V per A,/.test(g.rows[2]);
+  }, { source: SRC_OHM });
+  K.check('The units of resistance are volts per ampere: the gradient is named as the resistance only with volts up the side; with the axes swapped it is in amps per volt, and the working says it is not the resistance', () => {
+    const a = swapped0(), b = swapped1(), r = shown(I8);
+    return /= \d+(\.\d+)? V per A, which is \d+(\.\d+)? Ω$/.test(a.rows[2]) && /A per V, not the resistance$/.test(b.rows[2]) && b.grads[0].o === 1 && r.rows[2] === a.rows[2] && near(a.grads[0].g * b.grads[0].g, 1);
+  }, { source: SRC_OHMU });
+  K.check('The gradient of the graph of force (y-axis) and extension (x-axis) is numerically equal to the spring constant: on the spring screen force is up the side, extension along, and the gradient comes out in newtons per millimetre', () => {
+    const d = STEPS[I10], g = shown(I10), f = lf(d.L), a = d.rx[0], b = d.rx[1];
+    return /^Force/.test(d.u.yn) && /^Extension/.test(d.u.xn) && g.tris.length === 1 && g.grads.length === 1 && near(g.grads[0].g, (f(b) - f(a)) / (b - a)) && / N per mm$/.test(g.rows[2]) && /spring constant/.test(d.why);
+  }, { source: SRC_HOOKE });
+  K.check('In the linear function f(x) = ax + b, a is the gradient and b is the vertical intercept: on the lifting machine screen a is the step triangle\'s rise over its run, b is where the line meets the effort axis, and the law is written with both', () => {
+    const d = STEPS[I11], g = shown(I11), t = g.tris[0];
+    return !!t && !!g.icpt && g.grads.length === 1 && near(g.grads[0].g, t.rise / t.run) && near(g.icpt.c, d.L.c) && g.rows.indexOf('Law: ' + strip(lawStr(d.u, g.grads[0].g, g.icpt.c))) >= 0;
+  }, { source: SRC_HELM });
+  K.check('Every worked row is right, by hand: 2.4 Ω ÷ 60 °C = 0.04 Ω per °C, 10.8 − 0.04 × 20 = 10.0 Ω, 12.8 Ω means 70 °C, 18 V ÷ 1.5 A = 12 Ω, 1.5 A ÷ 18 V ≈ 0.083 A per V, and every puzzle\'s working', () => {
+    const TABLE = [
+      ['Gradient with units', ['Run: 80 − 20 = 60 °C', 'Rise: 13.2 − 10.8 = 2.4 Ω', 'Gradient: 2.4 Ω ÷ 60 °C = 0.04 Ω per °C', 'Law so far: R = 0.04T + c']],
+      ['Read a gradient', ['Run: 50 − 10 = 40 °C', 'Rise: 6.0 − 5.2 = 0.8 Ω', 'Gradient: 0.8 Ω ÷ 40 °C = 0.02 Ω per °C']],
+      ['R at 0 °C', ['c = R at 0 °C: 10.8 − 0.04 × 20 = 10.0 Ω', 'Law: R = 0.04T + 10', 'One reading ÷ its T: 10.8 ÷ 20 = 0.54, 13.2 ÷ 80 = 0.165, not the gradient']],
+      ['Find R at 0 °C', ['c = R at 0 °C: 5.2 − 0.02 × 10 = 5.0 Ω', 'Law: R = 0.02T + 5']],
+      ['Both ways', ['At 50 °C: R = 0.04 × 50 + 10 = 12.0 Ω', 'Reading 12.8 Ω: 12.8 − 10 = 0.04T, so T = 2.8 ÷ 0.04 = 70 °C']],
+      ['How hot is it?', ['Reading 13.6 Ω: 13.6 − 10 = 0.04T, so T = 3.6 ÷ 0.04 = 90 °C']],
+      ['Higher is not steeper', ['Same run, 40 °C: A rises 0.8 Ω, B rises 2.0 Ω', 'B climbs 0.05 ÷ 0.02 = 2.5 times as fast as A', 'Yet A sits higher: 14 Ω against 13 Ω at 100 °C']],
+      ['Which is which?', ['C: R = 0.03T + 15, 0.03 Ω per °C', 'D: R = 0.06T + 9, 0.06 Ω per °C', 'At 100 °C: C reads 18 Ω, D 15 Ω']],
+      ['Swap the axes', ['Run: 2 − 0.5 = 1.5 A', 'Rise: 24 − 6 = 18 V', 'Gradient: 18 V ÷ 1.5 A = 12 V per A, which is 12 Ω']],
+      ['Current up the side', ['Run: 30 − 10 = 20 V', 'Rise: 1.5 − 0.5 = 1 A', 'Gradient: 1 A ÷ 20 V = 0.05 A per V', 'Resistance: 20 V ÷ 1 A = 20 Ω']],
+      ['A spring', ['Run: 12 − 4 = 8 mm', 'Rise: 30 − 10 = 20 N', 'Gradient: 20 N ÷ 8 mm = 2.5 N per mm']],
+      ['A lifting machine', ['Run: 300 − 100 = 200 N', 'Rise: 46 − 22 = 24 N', 'Gradient a: 24 N ÷ 200 N = 0.12 N of effort per N of load', 'b = E at no load: 22 − 0.12 × 100 = 10 N', 'Law: E = 0.12W + 10']],
+    ];
+    const ok = TABLE.length === STEPS.length && TABLE.every((r) => { const g = shown(idx(r[0])); return g.rows.length === r[1].length && g.rows.every((s, n) => s === r[1][n]); });
+    const mid = drawn(I0, blank(), 2.5).rows.join(' | '), back = swapped1().rows.join(' | '), dr = drawn(I4, withDr(I4, { t: 30 })).rows.join(' | ');
+    return ok && mid === 'Run: 60 − 20 = 40 °C | Rise: 12.4 − 10.8 = 1.6 Ω | Gradient: 1.6 Ω ÷ 40 °C = 0.04 Ω per °C | Law so far: R = 0.04T + c' &&
+      back === 'Run: 24 − 6 = 18 V | Rise: 2 − 0.5 = 1.5 A | Gradient: 1.5 A ÷ 18 V ≈ 0.083 A per V, not the resistance' &&
+      dr === 'At 30 °C: R = 0.04 × 30 + 10 = 11.2 Ω | Reading 11.2 Ω: 11.2 − 10 = 0.04T, so T = 1.2 ÷ 0.04 = 30 °C';
+  });
+  K.check('Before an answer a puzzle keeps back its working, triangles, intercept and guides; a right answer or Why? draws them; each wrong pick has a hint of its own, and a slip that can be drawn is drawn dashed', () => DO.every((i) => {
+    const d = STEPS[i], post = d.post || {}, g0 = drawn(i, blank()), g1 = drawn(i, solvedSt(i)), g2 = drawn(i, Object.assign(blank(), { why: true }));
+    const kept = g0.tris.length === 0 && !g0.icpt && g0.guides.length === 0 && g0.rows.length === 1 && /\?$/.test(g0.rows[0]);
+    const opens = [g1, g2].every((g) => g.rows.length >= 1 && g.rows.every((r) => r.indexOf('?') < 0) &&
+      (post.tri || d.kind === 'two' ? g.tris.length >= 1 : true) && (post.icpt ? !!g.icpt : true) && (d.kind === 'use' ? g.guides.length === 1 : true));
+    const wrongs = d.opts.every((o) => o === d.want || (!!d.hints[o] && d.hints[o] !== d.hint &&
+      (!(d.wrongDraw && d.wrongDraw[o]) || !!drawn(i, Object.assign(blank(), { pick: o, res: 'wrong' })).wrong)));
+    return kept && opens && wrongs;
+  }));
+  K.check('Every answer offered is written from its own numbers; the right one is worked from the puzzle\'s own readings, and each wrong one is a real slip: run over rise, one reading divided by its own x, a reading taken as the intercept, the step back added instead of taken away, the reading put in for the wrong letter, the intercept not taken away, height taken for steepness, the gradient named as the resistance, or the units turned round', () => DO.every((i) => {
+    const d = STEPS[i], R = d.right(d);
+    const eq = (a, b) => a.length === b.length && a.every((x, k) => (typeof x === 'number' ? near(x, b[k]) : x === b[k]));
+    const text = (o) => {
+      const v = d.vals[o];
+      if (d.optKind === 'names') return o === v[0] + ' higher, ' + v[1] + ' steeper';
+      if (d.optKind === 'law') return o === strip(lawStr(d.u, v[0], v[1]));
+      return o.endsWith(' ' + v[1]) && near(parseFloat(o.replace('−', '-')), v[0]);
+    };
+    return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every(text) && eq(d.vals[d.want], R) &&
+      d.opts.every((o) => o === d.want || (!eq(d.vals[o], R) && !!d.slip[o] && d.slip[o](d, d.vals[o])));
+  }));
+  K.check('Height and steepness are different things: A sits above B, and C above D, all the way along their graphs, yet over the same run the lower line\'s triangle rises further, wherever the triangles are dragged', () => {
+    const ok = [I6, I7].every((i) => {
+      const d = STEPS[i], P = d.lines[0], Q = d.lines[1], g = shown(i);
+      return K.linspace(0, d.view.x1, 21).every((x) => lf(P)(x) > lf(Q)(x)) && Q.m > P.m && g.tris.length === 2 && near(g.tris[0].run, g.tris[1].run) && g.tris[1].rise > g.tris[0].rise;
+    });
+    return ok && [0, 10, 20, 30].every((a) => { const g = drawn(I6, withDr(I6, { a })); return g.tris.length === 2 && g.tris.every((t) => t.xa === a && near(t.run, 40)); });
+  });
+  K.check('The demonstration rests with voltage up the side; pressing Swap the axes carries each reading from its place with current along to its place with voltage along, and turns the gradient upside down, from volts per amp to amps per volt', () => {
+    const d = STEPS[I8], PH = geo(d.v0).PH;
+    const placed = (g, o) => g.dots.length === 2 && g.dots.every((p) => {
+      const n = o ? [p.V / d.v1.x1, p.I / d.v1.y1] : [p.I / d.v0.x1, p.V / d.v0.y1];
+      return near(p.X, ML + n[0] * PW, 1e-6) && near(p.Y, MT + PH - n[1] * PH, 1e-6);
+    });
+    const before = drawn(I8, blank(), 2.0), rest = shown(I8), mid = drawn(I8, Object.assign(blank(), { o: 1, pressed: true }), 0.7), after = swapped1(), back = swapped0();
+    return placed(before, 0) && placed(rest, 0) && placed(after, 1) && placed(back, 0) && mid.dots.length === 2 && !placed(mid, 0) && !placed(mid, 1) &&
+      rest.tris.length === 1 && after.tris.length === 1 && back.tris.length === 1 && near(after.grads[0].g * back.grads[0].g, 1);
+  });
+  K.check('The line is solid only between the first and last readings; carried back towards 0, or on past the readings, it is dashed, and a key in the drawing says what the dashes mean', () => STEPS.every((d, i) => {
+    if (!d.rx) return true;
+    const g = shown(i), x0 = d.rx[0], xN = d.rx[d.rx.length - 1], solid = g.lines.filter((l) => !l.dash), dash = g.lines.filter((l) => l.dash);
+    return solid.length === 1 && solid[0].x0 === x0 && solid[0].x1 === xN && dash.every((l) => l.x1 <= x0 + 1e-9 || l.x0 >= xN - 1e-9) && (dash.length === 0 || g.key);
+  }));
+  K.check('Read both ways, the law\'s guides land where its rule says: up from 50 °C and across to 12.0 Ω, across from 12.8 Ω and down to 70 °C, and across from 13.6 Ω and down to 90 °C', () => {
+    const g4 = shown(I4), g5 = shown(idx('How hot is it?'));
+    return g4.guides.length === 2 && near(g4.guides[0].y, 12) && near(g4.guides[1].x, 70) && g4.marks.indexOf('12.0') >= 0 && g4.marks.indexOf('70') >= 0 &&
+      g5.guides.length === 1 && near(g5.guides[0].x, 90) && g5.marks.indexOf('90') >= 0;
+  });
+  K.check('Every demonstration has finished arriving within its 2.8 to 5 s, none starting before the 0.35 s screen fade ends; a puzzle\'s drawing finishes within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity; S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => (d.show ? timed(i, blank(), d.dur) && d.dur >= 2.8 && d.dur <= 5 && earliest >= FADE
+      : timed(i, solvedSt(i), FB) && timed(i, Object.assign(blank(), { why: true }), FB)));
+    T = keepT; paint();
+    return ok && FB <= 2.5;
+  });
+
+  K.ready();
+</script>
