@@ -1,0 +1,366 @@
+{
+  "iid": "i3",
+  "title": "Roots and surds",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the unit squares filling a square exactly at areas 1, 4, 9, 16 and 25, where its side is whole, and its side a surd such as √3 between, when you drag the area.",
+    "title": "A square and its side",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on a square and its side. A square is drawn on a grid of unit squares, with its area written inside it and its side written along one edge. The side is the square root of the area, because a square's area is its side times itself, as in lesson 1, where 3² = 3 × 3 = 9. On the first screen you drag the square's corner to set the area from 1 to 25 in whole units, starting at 9. At 1, 4, 9, 16 and 25 the unit squares fill it exactly and the side reads a whole number. Between them the side reads as a surd, such as √3, with its decimal rounded to two places, ≈ 1.73, in smaller type beside it. Screen 3 draws a 2 by 2 square of four unit squares and cuts each one along a diagonal, so the four cuts make a tilted square in the middle. The tilted square keeps half of each unit square, half of 4, so its area is 2 and its side, one unit square's diagonal, is √2. Screen 5 switches to a cube built from unit cubes. Its volume is the edge used three times, so dragging the volume from 1 to 125 reads the edge as the cube root, whole at 1, 8, 27, 64 and 125. Screen 7 shows the square of area 48 with a Split button. Pressing it tiles the square into 16 small squares of area 3, 4 along each side, so each small side is √3 and the whole side is 4√3. A second button, 8 × 6, tries 8 small squares of area 6 instead, and they cannot be set out as a square. Screen 9 sets squares of area 9 and 16 beside a square of area 25, the 3, 4, 5 squares of Pythagoras from Geometry fundamentals. Their sides, 3 and 4, laid end to end make 7, against the 25 square's side of 5. A square of side 7 is drawn round them, and it holds the 9, the 16 and two 3 by 4 strips of 12, which is 49. Screen 11 shows the square of side 6 and, beside it, −6 × −6 = 36, so x² = 36 has two answers while the side, √36, is 6. Screens 1, 3, 5, 7, 9 and 11 show an idea, screens 2, 4, 6, 8 and 10 ask you to try it, and screens 12 and 13 mix them. A puzzle offers three answers, and a wrong pick draws its square beside the right one, or squares it back, so the two can be seen to differ.",
+    "ignores": "The square is drawn smaller as its area grows so it fits on the screen; the numbers written on it are exact. A decimal beside a surd is rounded to two places, and the surd is the exact value. The drag moves in whole units of area, but a square can have any area, and its side is still the root. Only positive areas and volumes are drawn, because a side cannot be negative. A negative number still squares to a positive one, as screen 11 says, and a negative number has a cube root, ∛(−8) = −2, that a drawn cube cannot show. Units are left off most screens. The puzzles' numbers are examples.",
+    "numbers": [
+      {
+        "label": "Opening area of the square, in step 1",
+        "value": 9,
+        "kind": "assumed"
+      },
+      {
+        "label": "Side of the area-9 square, 3 × 3 = 9, in step 1",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Smallest area on the drag, in step 1",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Largest area on the drag, in step 1",
+        "value": 25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Whole sides: 2 × 2 = 4, in step 1",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Whole sides: 4 × 4 = 16, in step 1",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "√3 rounded to two places",
+        "value": 1.73,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "√36 = 6, in step 2",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: half of 36, in step 2",
+        "value": 18,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 36 × 36, in step 2",
+        "value": 1296,
+        "kind": "computed"
+      },
+      {
+        "label": "Half a unit square, in step 3",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Square on the diagonal: 4 × ½, in step 3",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "1.73 × 1.73, not 3",
+        "value": 2.9929,
+        "kind": "computed"
+      },
+      {
+        "label": "Exact side √7 m of a 7 m² square, in step 4",
+        "value": 7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slip: √7 rounded, 2.65 m, in step 4",
+        "value": 2.65,
+        "kind": "computed"
+      },
+      {
+        "label": "2.65 × 2.65, not 7, in step 4",
+        "value": 7.0225,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: half of 7 m², 3.5 m, in step 4",
+        "value": 3.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Cube of volume 8: 2 × 2 × 2, in step 5",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Edge of the volume-8 cube, in step 5",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Largest volume on the drag, 5 × 5 × 5, in step 5",
+        "value": 125,
+        "kind": "computed"
+      },
+      {
+        "label": "Whole edges: 3 × 3 × 3 = 27, in step 5",
+        "value": 27,
+        "kind": "computed"
+      },
+      {
+        "label": "∛64 = 4, as 4 × 4 × 4 = 64, in step 6",
+        "value": 64,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: √64 = 8, in step 6",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 64 ÷ 3, in step 6",
+        "value": 21.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Area of the big square, in step 7",
+        "value": 48,
+        "kind": "assumed"
+      },
+      {
+        "label": "Small squares of area 3 in it, 48 ÷ 3, in step 7",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Small squares along each side, 4√3, in step 7",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Try 8 small squares of area 6, in step 7",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "√12 = 2√3, as 12 = 4 × 3, in step 8",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slip 4√3, which squares to 48, in step 8",
+        "value": 48,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 6√2, which squares to 72, in step 8",
+        "value": 72,
+        "kind": "computed"
+      },
+      {
+        "label": "Squares of 9 and 16 make 25, side 5, in step 9",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Sides laid end to end, 3 + 4, in step 9",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Square of side 7: 9 + 16 + 12 + 12, in step 9",
+        "value": 49,
+        "kind": "computed"
+      },
+      {
+        "label": "√(9 × 4) = 3 × 2 = √36",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "√(36 + 64) = √100, in step 10",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 6 + 8, in step 10",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: the area itself, 100, in step 10",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "x² = 36 also at x = −6, in step 11",
+        "value": -6,
+        "kind": "computed"
+      },
+      {
+        "label": "x² = 48 gives 4√3 or −4√3; slip 24, in step 12",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Plate of 50 cm², side 5√2 cm, in step 13",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slip √25 + √25 = 10 cm, in step 13",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: half of 50, 25 cm, in step 13",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "Negative number's cube root: ∛(−8)",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy: a 1 m run, assumed",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Analogy: 3 × 0.33 m",
+        "value": 0.99,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy: short by 10 mm",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: a 75 cm² plate",
+        "value": 75,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: 5√3 ≈ 8.66 cm",
+        "value": 8.66,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example check: 8.66²",
+        "value": 74.9956,
+        "kind": "computed"
+      },
+      {
+        "label": "Square numbers in practice, up to 10 × 10",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Square numbers in practice: 9 × 9",
+        "value": 81,
+        "kind": "computed"
+      },
+      {
+        "label": "Square numbers in practice: 7 × 7",
+        "value": 49,
+        "kind": "computed"
+      },
+      {
+        "label": "Bracket check: (3 × 2)² = 9 × 4",
+        "value": 36,
+        "kind": "computed"
+      },
+      {
+        "label": "Tilted square in a 2 by 2 square, half of 4, in step 3",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Calculator: √3 = 1.7320508…",
+        "value": 1.7320508,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A square root is the side of a square of that area. A square of area 9 m² has sides of 3 m, because 3 × 3 = 9, so √9 = 3. When the area is not a whole number times itself, the side is still a real length, and writing it with the root sign, as √3 m, keeps it exact instead of rounded.\n\nStart from lesson 1: 3² is two 3s multiplied, and a square with sides of 3 holds 3 × 3 = 9 unit squares. The square root asks the same question backwards: given the area, what side made it? The root sign writes that side exactly.[^2] Areas such as 1, 4, 9, 16 and 25, each a whole number times itself, are [[square number]]s, and their roots are whole. Between them the side still exists. Take a 2 by 2 square of four unit squares and cut each one along a diagonal, so the cuts make a tilted square in the middle. The tilted square keeps half of each unit square, so its area is half of 4, which is 2, and its side, one unit square's diagonal, is √2. A calculator gives √3 as 1.73 to two places, but 1.73 × 1.73 = 2.9929, not 3, so the decimal is close but not exact.[^1] √2 and √3 are irrational: no fraction of whole numbers equals them exactly,[^3] and the decimals of an irrational number never end and never repeat, so no decimal is exactly right either.[^4] Writing the side as √3 m is exact, and an expression with a root sign in it like this is a [[surd]].[^5] The same works in three directions: a cube of volume 8 has edges of 2, because 2 × 2 × 2 = 8, so the [[cube root]] of 8, ∛8, is 2.\n\nA surd can often be made simpler by taking out a square-number factor. 48 = 16 × 3, so a square of area 48 can be cut into 16 small squares of area 3, set 4 by 4. Each small square has a side of √3, and four of them line each edge, so √48 = 4√3. Squaring checks it: a bracket powers every factor (lesson 1), so (4√3)² = 4² × (√3)² = 16 × 3 = 48. Only a square-number factor comes out of a square root, because only a square number of equal small squares, 4, 9, 16 and so on, can be set out as a square: 48 = 8 × 6 would need 8 small squares, and 8 cannot make a square. A root splits over multiplying for the same reason: (3 × 2)² = 3² × 2² = 9 × 4, so √(9 × 4) = 3 × 2 = 6, and √36 = 6 agrees. It does not split over adding. Squares of area 9 and 16, the 3, 4, 5 squares of Pythagoras from Geometry fundamentals, have sides 3 and 4, but together they make 25, and a square of area 25 has side 5, not 7. A square of side 3 + 4 = 7 has area 49, because it holds the 9 and the 16 and two 3 by 4 strips of 12 as well. Last, −6 × −6 = 36 too, so x² = 36 has two answers, 6 and −6. Every positive number has two square roots,[^6] and the root sign is agreed to mean the positive one, the side: √36 = 6.[^7] Lesson 4 writes a root as a power, and Quadratics and polynomials solves equations like x² = 36 in full.\n\n**A square root is the side of a square of that area, and leaving it as a surd, such as √3 m, keeps it exact where a decimal such as 1.73 m is rounded.[^2][^1]**"
+  },
+  "analogy": {
+    "text": "Marking out a third of a 1 m run, you would not write 0.33 m and then step it out three times, because 3 × 0.33 = 0.99 m and you finish 10 mm short. You keep it as a third and round once, when you measure. A surd works the same way: keep √3 through the working and round once, at the end.",
+    "breaks": "A third can be written exactly as a fraction of two whole numbers. √3 cannot be written exactly as any fraction or decimal,[^3][^4] so it is kept with its root sign; lesson 4 gives a second exact way, as a power."
+  },
+  "practice": {
+    "text": "- Is the number a square number (1, 4, 9, 16, 25, 36, 49, 64, 81, 100)? Then its square root is whole.\n- If not, find the biggest square number that divides it: try 4, 9, 16, 25 and so on.\n- Split it: √48 = √16 × √3 = 4√3.\n- Keep the surd through the working and round only at the end.\n- Check by squaring: (4√3)² = 16 × 3 = 48.\n- Do not split a root over a plus or a minus: add or take away first, then take the root.\n- Solving x² = 36? Write both answers, 6 and −6.\n\n**Rule of thumb:** Only a square factor comes out from under a square root.\n\n**On a calculator** (not from this lesson's sources): √ then 3 gives 1.7320508…, still rounded, because the display runs out of room. The cube root key, ∛, is often a second function.\n\n**Worked example:** A square plate has an area of 75 cm², so its side is √75 cm. 75 = 25 × 3, and 25 is a square number, so √75 = √25 × √3 = 5√3 cm, which is exact. Round only now: 5 × 1.7320508 ≈ 8.66 cm. Check: 8.66² = 74.9956, close to 75.\n\n**Common mistakes**\n- Halving instead of taking the root: √36 is 6, not 18.\n- Rounding early: 1.73 m for √3 m is close, not exact, and squaring it back gives 2.9929, not 3.[^1]\n- Taking out a factor that is not square, or forgetting to root it: √12 is 2√3, not 4√3, which squares to 48.\n- Splitting a sum: √(9 + 16) is 5, not 3 + 4 = 7.\n- Forgetting the negative answer: x² = 36 gives x = 6 or x = −6, though √36 itself is 6."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Surds - Higher - Surds - Higher - Edexcel - GCSE Maths Revision - Edexcel - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/guides/zg6vcj6/revision/1",
+      "quote": "A decimal answer, such as 1.73 (2 decimal places), is not exact."
+    },
+    {
+      "n": 2,
+      "title": "8.1.2: Side Lengths and Areas - Mathematics LibreTexts",
+      "url": "https://math.libretexts.org/Bookshelves/PreAlgebra/Pre-Algebra_II_(Illustrative_Mathematics_-_Grade_8)/08%3A_Pythagorean_Theorem_and_Irrational_Numbers/8.00%3A_New_Page/8.1.2%3A_Side_Lengths_and_Areas",
+      "quote": "But we want to be able to talk about its exact length. In order to write “the side length of a square whose area is 73 square units,” we use the square root symbol."
+    },
+    {
+      "n": 3,
+      "title": "Surds – National 5 Maths – Free Study Resources",
+      "url": "https://www.maths.scot/nat5/surds",
+      "quote": "A surd is a number that cannot be simplified to remove a root sign. Surds are examples of irrational numbers. An irrational number cannot be written as a fraction with integer numerator and denominator."
+    },
+    {
+      "n": 4,
+      "title": "Surds - Higher - Surds - Higher - Edexcel - GCSE Maths Revision - Edexcel - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/guides/zg6vcj6/revision/1",
+      "quote": "Surds are used to write irrational numbers precisely – because the decimals of irrational numbers do not terminate or recur, they cannot be written exactly in decimal form."
+    },
+    {
+      "n": 5,
+      "title": "Surds - Higher - Surds - Higher - Edexcel - GCSE Maths Revision - Edexcel - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/guides/zg6vcj6/revision/1",
+      "quote": "A surd is an expression that includes a square root, cube root or other root symbol."
+    },
+    {
+      "n": 6,
+      "title": "HELM workbook 1 - Basic Algebra",
+      "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Algebra.pdf",
+      "quote": "There are always two square roots of a non-zero positive number"
+    },
+    {
+      "n": 7,
+      "title": "Power and roots - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zpk62v4",
+      "quote": "The symbol (\\sqrt{}) means square root, so: (\\sqrt{36}) means 'the square root of ({36})'. (\\sqrt{36} = 6)"
+    }
+  ]
+}

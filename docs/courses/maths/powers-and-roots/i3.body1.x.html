@@ -1,0 +1,1157 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; }
+  /* Unit squares are shaded; a part of a unit square (a piece) has the second shading. */
+  .scene .bgl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .unit { fill: var(--k-fill1); }
+  .scene .piece { fill: var(--k-fill3); }
+  .scene .whole { fill: var(--k-bg); }
+  .scene .gl { stroke: var(--k-accent2); stroke-width: 1; stroke-opacity: .5; }
+  .scene .edge { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; }
+  .scene .tile { fill: none; stroke: var(--k-accent2); stroke-width: 1.6; }
+  .scene .kedge { fill: none; stroke: var(--k-accent2); stroke-width: 1; }
+  .scene .cut { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .slip { fill: none; stroke: var(--k-warn); stroke-width: 2; }
+  .scene .shT { fill: var(--k-ink); fill-opacity: .06; }
+  .scene .shR { fill: var(--k-ink); fill-opacity: .14; }
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .brk.nv { stroke: var(--k-accent2); }
+  .scene .brk.bad { stroke: var(--k-warn); }
+  .scene .axis { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .tick { stroke: var(--k-muted); stroke-width: 1; }
+  .scene .dot { fill: var(--k-accent2); }
+  .scene .handle { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .scene .tag { font: 700 17px var(--k-font); fill: var(--k-accent2); }
+  .scene .lab { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.bad { fill: var(--k-warn); }
+  .scene .big { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  .scene .sm { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .ru { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .sl { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .sl.bad { fill: var(--k-warn); }
+  .scene .ap { font-weight: 400; font-size: 13px; fill: var(--k-muted); }
+  .scene .te { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .tw { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .te.mu, .scene .tw.mu { fill: var(--k-muted); }
+  .scene .te.bad, .scene .tw.bad { fill: var(--k-warn); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .v { font-style: italic; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .row.tune .k-btn { flex: 1 1 8rem; min-height: 48px; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .replay .k-btn[aria-pressed="true"], .picks .k-btn[aria-pressed="true"] { border-color: var(--k-accent2); box-shadow: inset 0 0 0 2px var(--k-accent2); font-weight: 700; }
+  /* The answers stay on one row, each label whole; long answers stack. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-wrap: wrap; }
+  .picks.long .k-btn { flex: 1 1 100%; }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A square drawn on a grid of unit squares, with its area inside it and its side along one edge, and later a cube of unit cubes. The areas and volumes tried are examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label="">
+      <g id="art"></g>
+    </svg>
+    <div class="row tune" id="tune"></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">A square's side times itself gives its area, so the side is the square root of the area.</p>
+
+<script>
+  // ---------- numbers, roots and how they are written ----------
+  const SQ = (n) => Number.isInteger(n) && n >= 0 && Math.pow(Math.round(Math.sqrt(n)), 2) === n;
+  const CU = (n) => Number.isInteger(n) && n >= 0 && Math.pow(Math.round(Math.cbrt(n)), 3) === n;
+  const isPow = (n, k) => (k === 3 ? CU(n) : SQ(n));
+  const rootOf = (n, k) => (k === 3 ? Math.cbrt(n) : Math.sqrt(n));
+  // A fixed number of places (1.73, 4.80), and a number with its trailing zeros dropped (7.0225, 23.04).
+  const fix = (v, d) => (v < 0 ? '−' : '') + Math.abs(v).toFixed(d);
+  const trim = (v, d) => (v < 0 ? '−' : '') + String(Number(Math.abs(v).toFixed(d)));
+  const fmtInt = (v) => (v < 0 ? '−' + (-v) : String(v));
+  // A side or edge as the lesson writes it: whole where the root is whole, otherwise a surd.
+  const rootText = (n, k) => (isPow(n, k) ? String(Math.round(rootOf(n, k))) : (k === 3 ? '∛' : '√') + n);
+  // The first screens' lines of working, worked out from the area (k = 2) or the volume (k = 3).
+  function liveWork(n, k) {
+    const r = rootOf(n, k), sym = k === 3 ? '∛' : '√', times = (x) => Array(k).fill(x).join(' × ');
+    if (isPow(n, k)) return [{ e: times(String(Math.round(r))), w: String(n) }, { e: sym + n, w: String(Math.round(r)) }];
+    const d = fix(r, 2), back = trim(Math.pow(+d, k), 2 * k);
+    return [{ e: times(sym + n), w: String(n) }, { e: k === 3 ? d + '³' : d + ' × ' + d, w: back, not: String(n), mu: true }];
+  }
+  // What fills the square (k = 2) or cube (k = 3): whole unit squares or cubes, and the rest in pieces.
+  function fillOf(n, k) { const w = Math.floor(rootOf(n, k) + 1e-9), whole = Math.pow(w, k); return { w, whole, pieces: n - whole }; }
+  function areaLine(n, k) {
+    const f = fillOf(n, k), thing = k === 3 ? 'cube' : 'square', W = k === 3 ? 'Volume ' : 'Area ';
+    if (!f.pieces) return W + n + ': ' + (n === 1 ? 'one unit ' + thing + ' fills' : n + ' unit ' + thing + 's fill') + ' it exactly';
+    return W + n + ': ' + f.whole + ' whole ' + thing + (f.whole === 1 ? '' : 's') + ', ' + f.pieces + ' in pieces';
+  }
+
+  // ---------- reading an expression (pure, so the checks can test it) ----------
+  // +, −, ×, ÷, brackets, a minus in front, ½, ² and ³, √ and ∛ (each taking what follows it),
+  // a number written before a root (4√3), commas in thousands and a unit of length at the end.
+  function val(s) {
+    const src = String(s).replace(/\s+/g, '').replace(/(cm|m)²?$/, '');
+    let i = 0;
+    const peek = () => src[i];
+    function sum() {
+      let v = prod();
+      while (peek() === '+' || peek() === '−') { const op = src[i++]; const w = prod(); v = op === '+' ? v + w : v - w; }
+      return v;
+    }
+    function prod() {
+      let v = unary();
+      for (;;) {
+        const c = peek();
+        if (c === '×') { i++; v *= unary(); } else if (c === '÷') { i++; v /= unary(); } else if (c != null && /[0-9(√∛½]/.test(c)) v *= root(); else return v;
+      }
+    }
+    function unary() { if (peek() === '−') { i++; return -unary(); } return root(); }
+    function root() {
+      if (peek() === '√') { i++; return Math.sqrt(root()); }
+      if (peek() === '∛') { i++; return Math.cbrt(root()); }
+      return powr();
+    }
+    function powr() { const v = atom(); if (src[i] === '²') { i++; return v * v; } if (src[i] === '³') { i++; return v * v * v; } return v; }
+    function atom() {
+      const c = peek();
+      if (c === '(') { i++; const v = sum(); if (src[i] !== ')') throw new Error('no closing bracket in ' + s); i++; return v; }
+      if (c === '½') { i++; return 0.5; }
+      const m = /^[0-9][0-9,]*(\.[0-9]+)?/.exec(src.slice(i));
+      if (m) { i += m[0].length; return +m[0].replace(/,/g, ''); }
+      throw new Error('cannot read ' + src.slice(i));
+    }
+    const v = sum();
+    if (i !== src.length) throw new Error('left over in ' + s);
+    return v;
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s)
+    .replace(/√/g, ' root ').replace(/∛/g, ' cube root of ').replace(/²/g, ' squared').replace(/³/g, ' cubed').replace(/½/g, ' a half')
+    .replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/≈/g, ' about ').replace(/=/g, ' equals ').replace(/−/g, ' minus ').replace(/\+/g, ' plus ')
+    .replace(/\s+/g, ' ').trim();
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])x(?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line with its letters italic; *a key term* is highlighted.
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // p: the picture. A puzzle: opts, the answers offered; want, the right one; target and pow, what
+  // the right answer gives when squared (pow 2) or cubed (pow 3) back; right, the lines a right
+  // answer adds; wrong, each wrong answer's own lines (and slip, a square drawn at its size).
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, name: 'A square and its side', p: { kind: 'grow' }, key: ['unit', 'piece'],
+      text: 'A square of area 9 has sides of 3, because 3 × 3 = 9, so its *square root*, `√9`, is 3. Drag the corner. Between 1, 4, 9, 16 and 25 the side is still a real length, written exactly as a *surd* such as `√7`.' },
+    { name: 'The side of 36', q: '√36', p: { kind: 'sq', A: 36, u: 30, gridAfter: true, side: '6' }, key: ['unit'],
+      opts: ['18', '6', '1296'], want: '6', target: 36, pow: 2,
+      right: [{ e: '6 × 6', w: '36' }, { e: '√36', w: '6' }],
+      wrong: { '18': { lines: [{ e: '18 × 18', w: '324', not: '36', bad: true }] }, '1296': { lines: [{ e: '36 × 36', w: '1296', bad: true }] } },
+      task: 'A square has an area of 36. How long is its side, `√36`?',
+      why: 'The side times itself gives the area, and 6 × 6 = 36, so `√36 = 6`. Squaring 6 back gives 36, which checks it.',
+      hint: 'Not quite. Which number times itself makes 36?',
+      hints: { '18': 'Not quite. That halves 36, but 18 × 18 = 324. Which number times itself makes 36?',
+        '1296': 'Not quite. That is 36 × 36, squaring 36 instead of finding its root.' } },
+    { show: true, name: 'A square on the diagonal', p: { kind: 'diag', tl: [3.6, 3.9, 4.2] }, key: ['kept', 'cut'],
+      work: [{ e: '4 × ½', w: '2' }, { e: '√2 × √2', w: '2' }, { e: '1.41 × 1.41', w: '1.9881', not: '2', mu: true }],
+      text: "Cut four unit squares along their diagonals, and the cuts make a tilted square. It keeps half of each one, half of 4, so its area is 2. Its side, one square's diagonal, is `√2`." },
+    { name: 'An exact side', q: 'A square of 7 m²', p: { kind: 'sq', A: 7, unit: ' m', n: 4, u: 44, grid: true, pieces: true, side: '√7 m' }, key: ['unit', 'piece'],
+      opts: ['2.65 m', '3.5 m', '√7 m'], want: '√7 m', target: 7, pow: 2,
+      right: [{ e: '√7 × √7', w: '7' }, { e: '2.65 × 2.65', w: '7.0225', not: '7', mu: true }],
+      wrong: { '2.65 m': { slip: 2.65, lines: [{ e: '2.65 × 2.65', w: '7.0225', not: '7', bad: true }] },
+        '3.5 m': { slip: 3.5, lines: [{ e: '7 ÷ 2', w: '3.5', bad: true }, { e: '3.5 × 3.5', w: '12.25', not: '7', bad: true }] } },
+      task: 'A square has an area of 7 m². Which writes its side exactly?',
+      why: '`√7` m times itself is exactly 7 m². 2.65 m is `√7` rounded to two places, close but not exact, since 2.65 × 2.65 = 7.0225.',
+      hint: 'Not quite. Which one, times itself, gives exactly 7?',
+      hints: { '2.65 m': 'Close, but rounded. 2.65 × 2.65 = 7.0225, not 7, so it is not exact.',
+        '3.5 m': 'Not quite. That halves 7, and 3.5 × 3.5 = 12.25.' } },
+    { show: true, name: 'A cube and its edge', p: { kind: 'cube', live: true }, key: ['cube', { k: 'piece', text: 'part of a unit cube' }],
+      text: "A cube's volume is its edge used three times, so a cube of volume 8 has edges of 2, as 2 × 2 × 2 = 8. The edge is the *cube root*, `∛8 = 2`. Drag the corner from 1 up to 125." },
+    { name: 'The edge of 64', q: '∛64', p: { kind: 'cube', V: 64, side: '4' }, key: ['cube'],
+      opts: ['4', '8', '21.3'], want: '4', target: 64, pow: 3,
+      right: [{ e: '4 × 4 × 4', w: '64' }, { e: '∛64', w: '4' }],
+      wrong: { '8': { lines: [{ e: '8 × 8', w: '64', mu: true }, { e: '8 × 8 × 8', w: '512', not: '64', bad: true }] },
+        '21.3': { lines: [{ e: '64 ÷ 3', w: '21.3', approx: 1, bad: true }] } },
+      task: 'A cube has a volume of 64. How long is its edge, `∛64`?',
+      why: '4 × 4 × 4 = 64, so `∛64 = 4`. A cube root uses the edge three times, not twice.',
+      hint: 'Not quite. Which number, used three times, multiplies to 64?',
+      hints: { '8': 'Not quite. 8 × 8 = 64, so 8 is the square root. A cube uses its edge three times, and 8 × 8 × 8 = 512.',
+        '21.3': 'Not quite. That is 64 ÷ 3, a third of 64. Which number used three times makes 64?' } },
+    { show: true, name: 'Splitting a square', p: { kind: 'split' }, key: ['tile'],
+      text: 'A square of area 48 splits into 16 small squares of area 3, 4 along each side. Each small side is `√3`, so the whole side is `4√3`. Try 8 × 6, and the 8 squares will not make a square.' },
+    { name: 'A square factor comes out', q: '√12', p: { kind: 'sq', A: 12, u: 46, tile: 3, per: 2, side: '2√3', tside: '√3' }, key: ['tile'],
+      opts: ['4√3', '2√3', '6√2'], want: '2√3', target: 12, pow: 2,
+      right: [{ e: '4 × 3', w: '12' }, { e: '√12', w: '√4 × √3 = 2√3' }],
+      wrong: { '4√3': { lines: [{ e: '4√3 × 4√3', w: '16 × 3 = 48', not: '12', bad: true }] },
+        '6√2': { lines: [{ e: '6√2 × 6√2', w: '36 × 2 = 72', not: '12', bad: true }] } },
+      task: 'Write `√12` as simply as possible.',
+      why: '12 is 4 × 3, and 4 is a square number, so the square splits into 4 squares of area 3, 2 along each side. So `√12 = √4 × √3 = 2√3`.',
+      hint: 'Not quite. Find the square number in 12, then take its root.',
+      hints: { '4√3': 'Not quite. The 4 comes out as its root, 2. `4√3` squares to 16 × 3 = 48.',
+        '6√2': 'Not quite. 6 is not a square number, so it cannot come out. `6√2` squares to 36 × 2 = 72.' } },
+    { show: true, name: 'A root of a sum', p: { kind: 'sum', a: 3, b: 4, c: 5, u: 23, ext: 7, w: 13, tl: [4.0, 4.3] }, key: ['unit', 'strip'],
+      work: [{ e: '√(9 + 16)', w: '√25 = 5' }, { e: '7 × 7', w: '9 + 16 + 12 + 12 = 49' }],
+      text: 'Squares of 9 and 16 make 25 together, so `√(9 + 16)` is 5. Their sides end to end make 3 + 4 = 7, and a square of side 7 holds 49. So a root does not split over a plus.' },
+    { name: 'Add first', q: '√(36 + 64)', p: { kind: 'sum', a: 6, b: 8, u: 21, ext: 10, w: 14, side: '10' }, key: ['unit'],
+      opts: ['14', '100', '10'], want: '10', target: 100, pow: 2,
+      right: [{ e: '36 + 64', w: '100' }, { e: '10 × 10', w: '100' }],
+      wrong: { '14': { split: true, lines: [{ e: '6 + 8', w: '14', bad: true }, { e: '14 × 14', w: '196', not: '100', bad: true }] },
+        '100': { lines: [{ e: '100 × 100', w: '10,000', not: '100', bad: true }] } },
+      task: 'What is `√(36 + 64)`?',
+      why: 'Add first, 36 + 64 = 100, then take the root, `√100 = 10`, as 10 × 10 = 100. Splitting it as 6 + 8 = 14 would give a square of 196.',
+      hint: 'Not quite. Add first, then take the root.',
+      hints: { '14': 'Not quite. That splits the root over the plus. 14 × 14 = 196, not 100.',
+        '100': 'Not quite. 100 is the area. The root is its side.' } },
+    { show: true, name: 'Two answers', p: { kind: 'pm', n: 36, u: 20, lo: -7, hi: 7, tl: [3.9, 4.2] }, key: ['unit', { k: 'dot', text: 'a number whose square is 36' }],
+      work: [{ e: '√36', w: '6' }, { t: 'x² = 36 has two answers, 6 and −6' }],
+      text: 'A side is never negative, so `√36` means 6. But −6 × −6 is also 36, so `x² = 36` has two answers, `x = 6` or `x = −6`.' },
+    { name: 'Both answers', mixed: true, q: 'x² = 48', p: { kind: 'pm', n: 48, u: 17, lo: -8, hi: 8, side: '4√3' }, key: [{ k: 'dot', text: 'a number whose square is 48' }],
+      opts: ['4√3 or −4√3', '24', '4√3'], want: '4√3 or −4√3', target: 48, pow: 2, both: true,
+      right: [{ e: '48', w: '16 × 3' }, { e: '√48', w: '√16 × √3 = 4√3' }],
+      wrong: { '24': { lines: [{ e: '48 ÷ 2', w: '24', bad: true }, { e: '24 × 24', w: '576', not: '48', bad: true }] },
+        '4√3': { lines: [{ e: '−4√3 × −4√3', w: '16 × 3 = 48', mu: true }] } },
+      task: 'Solve `x² = 48`.',
+      why: '48 = 16 × 3, so `√48 = 4√3`. A negative times a negative is positive, so `−4√3` squared is 48 as well, and both answers count.',
+      hint: 'Not quite. Find `√48`, then think about negatives.',
+      hints: { '24': 'Not quite. That halves 48, and 24 × 24 = 576.',
+        '4√3': 'Nearly. `4√3` works, but so does `−4√3`, since a negative times a negative is positive.' } },
+    { name: 'A square plate', mixed: true, q: 'A plate of 50 cm²', p: { kind: 'sq', A: 50, unit: ' cm', u: 26, tile: 2, per: 5, side: '5√2 cm', tside: '√2' }, key: ['tile'],
+      opts: ['10 cm', '5√2 cm', '25 cm'], want: '5√2 cm', target: 50, pow: 2,
+      right: [{ e: '25 × 2', w: '50' }, { e: '√50', w: '√25 × √2 = 5√2' }],
+      wrong: { '10 cm': { lines: [{ e: '√25 + √25', w: '10', bad: true }, { e: '10 × 10', w: '100', not: '50', bad: true }] },
+        '25 cm': { lines: [{ e: '50 ÷ 2', w: '25', bad: true }, { e: '25 × 25', w: '625', not: '50', bad: true }] } },
+      task: 'A square plate has an area of 50 cm². What is its side, exactly?',
+      why: '50 is 25 × 2, and 25 is a square number, so the plate splits into 25 squares of area 2, 5 along each side. So `√50 = √25 × √2 = 5√2` cm.',
+      hint: 'Not quite. Find the square number in 50.',
+      hints: { '10 cm': 'Not quite. 50 = 25 + 25 is a sum, and a root does not split over a plus. 10 × 10 = 100.',
+        '25 cm': 'Not quite. That halves 50, and 25 × 25 = 625.' } },
+  ];
+  const FINISH = 'A square root is the side of a square of that area. When the area is not a square number, the side is a surd such as `√3`, exact where a decimal is rounded. Only a square factor comes out from under the root, and a root does not split over a plus.';
+  // The splitting screen's lines, for each way of splitting 48.
+  const SPLIT16 = [{ e: '48 ÷ 3', w: '16' }, { e: '√48', w: '√16 × √3 = 4√3' }];
+  const SPLIT8 = [{ e: '48 ÷ 6', w: '8' }, { t: 'The 8 make a 2 by 4 rectangle' }];
+  // Sources the checks restate (the lesson's own): Bitesize ([1] and [3]) and LibreTexts ([2]).
+  const SRC1 = 'https://www.bbc.co.uk/bitesize/guides/zg6vcj6/revision/1';
+  const SRC2 = 'https://math.libretexts.org/Bookshelves/PreAlgebra/Pre-Algebra_II_(Illustrative_Mathematics_-_Grade_8)/08%3A_Pythagorean_Theorem_and_Irrational_Numbers/8.00%3A_New_Page/8.1.2%3A_Side_Lengths_and_Areas';
+  const XL = 12, XR = 328, LH = 26, FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // a: the first screen's area; v: the cube screen's volume; prev: the value before a Smaller or
+  // Larger press (null when none, or after a drag); mode: how the square of 48 is split (16 or 8).
+  function blank() { return { pick: null, res: null, why: false, a: 9, v: 8, prev: null, mode: 16 }; }
+  const isLive = (d) => d.p.kind === 'grow' || (d.p.kind === 'cube' && !!d.p.live);
+  const liveKey = (d) => (d.p.kind === 'grow' ? 'a' : 'v');
+  const liveMax = (d) => (d.p.kind === 'grow' ? 25 : 125);
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;                                                        // what the last paint drew, for the checks
+  const GRIP = {};                                                       // where each draggable picture sits
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Three answer buttons; each step fills in its own options. A new choice after a wrong answer
+  // settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one makes its move on the picture, a wrong one draws its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(motionLen(i, st).latest);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  // The square's area or the cube's volume: a drag sets it at once, a button press grows or shrinks
+  // the picture by one unit.
+  function setLive(v, how) {
+    const i = at(), d = STEPS[i];
+    if (finished || !isLive(d)) return;
+    const st = S[i], k = liveKey(d);
+    v = K.clamp(Math.round(v), 1, liveMax(d));
+    if (v === st[k] && (how === 'button' || T === Infinity)) return;
+    if (how === 'button') { st.prev = st[k]; st[k] = v; play(motionLen(i, st).latest); return; }
+    st.prev = null; st[k] = v;
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    K.reveal(); K.refresh();
+  }
+  const downBtn = K.button({ label: 'Smaller', secondary: true, into: '#tune', press: () => { const d = STEPS[at()]; if (isLive(d)) setLive(S[at()][liveKey(d)] - 1, 'button'); } });
+  const upBtn = K.button({ label: 'Larger', secondary: true, into: '#tune', press: () => { const d = STEPS[at()]; if (isLive(d)) setLive(S[at()][liveKey(d)] + 1, 'button'); } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].prev = null;
+    play(motionLen(i, S[i]).latest);
+  } });
+  // The square of 48: split into 16 squares of 3 (it plays when the screen opens), or try 8 of 6.
+  function setMode(m) {
+    const i = at(), d = STEPS[i];
+    if (finished || d.p.kind !== 'split') return;
+    S[i].mode = m;
+    play(motionLen(i, S[i]).latest);
+  }
+  const m16Btn = K.button({ label: '16 × 3', secondary: true, into: '#replay', press: () => setMode(16) });
+  const m8Btn = K.button({ label: '8 × 6', secondary: true, into: '#replay', press: () => setMode(8) });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer or a press; with reduced
+  // motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    motionEnd = dur + 0.05; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const vis = (t, d) => (t == null ? 1 : arr(t, d));
+  // A part of a demonstration, due at t seconds after the screen opens (there at once otherwise).
+  const I = (C, t, d) => (C.demo ? arr(t, d) : 1);
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const poly = (cls, pts) => add(K.svg('path', { class: cls, d: 'M' + pts.map((q) => r3(q[0]) + ' ' + r3(q[1])).join(' L') + ' Z' }));
+  const dot = (x, y) => add(K.svg('circle', { class: 'dot', cx: r3(x), cy: r3(y), r: 6 }));
+  function text(x, y, s, cls, anchor, math) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    if (math) italics(t, s, true); else t.textContent = s;
+    return add(t);
+  }
+  // A side's label, with its rounded decimal beside it in smaller type.
+  function sideLabel(x, y, main, approx) {
+    const t = K.svg('text', { class: 'sl', x: r3(x), y: r3(y), 'text-anchor': 'middle' });
+    t.appendChild(document.createTextNode(main));
+    if (approx) t.appendChild(K.svg('tspan', { class: 'ap' }, ' ≈ ' + approx));
+    return add(t);
+  }
+  // A bracket along a length, with end stops.
+  function bracket(x1, x2, y, c) {
+    add(K.svg('path', { class: 'brk' + (c ? ' ' + c : ''), d: 'M' + r3(x1) + ' ' + r3(y - 5) + ' V' + r3(y + 5) + ' M' + r3(x1) + ' ' + r3(y) + ' H' + r3(x2) + ' M' + r3(x2) + ' ' + r3(y - 5) + ' V' + r3(y + 5) }));
+  }
+  const handle = (x, y) => add(K.svg('circle', { class: 'handle', cx: r3(x), cy: r3(y), r: 9 }));
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 16 * 0.6;
+  }
+  // A side label's centre, kept inside the drawing.
+  function clampX(cx, main, approx) {
+    const w = tw(main, 'sl') + (approx ? tw(' ≈ ' + approx, 'ru') : 0);
+    return K.clamp(cx, XL + w / 2, XR - w / 2);
+  }
+  // A square of side s (units) standing on (GX, GB): its whole unit squares shaded, the strip of
+  // pieces along two edges in the second shading, and the unit lines inside it. Rows arrive in turn.
+  function squareRows(GX, GB, u, s, alphaOf) {
+    const w = Math.floor(s + 1e-9), rows = Math.max(1, Math.ceil(s - 1e-9));
+    for (let j = 0; j < rows; j++) {
+      const top = Math.min(j + 1, s), y = GB - top * u, hh = (top - j) * u;
+      part(alphaOf(j), 4, () => {
+        if (j < w) { rect('unit', GX, y, w * u, hh); if (s - w > 1e-9) rect('piece', GX + w * u, y, (s - w) * u, hh); }
+        else rect('piece', GX, y, s * u, hh);
+        for (let k = 1; k < s - 1e-9; k++) line('gl', GX + k * u, GB - j * u, GX + k * u, y);
+        if (j > 0) line('gl', GX, GB - j * u, GX + s * u, GB - j * u);
+      });
+    }
+    return rows;
+  }
+
+  // ---------- the pictures ----------
+  const PAN = {};
+  // The first screen: a square on a 5 by 5 grid of unit squares, its corner dragged to set the area.
+  // Opening, its rows of unit squares arrive one by one, then its edge, area and side.
+  const growEnd = (a) => 0.6 + 0.3 * Math.max(1, Math.ceil(Math.sqrt(a) - 1e-9));
+  PAN.grow = {
+    h: () => 290,
+    draw(p, y0, C) {
+      const st = C.st, u = 40, N = 5, GX = 60, GT = y0 + 32, GB = GT + N * u, a = st.a;
+      const s1 = Math.sqrt(a), s0 = st.prev != null ? Math.sqrt(st.prev) : s1;
+      const sd = C.act != null ? K.lerp(s0, s1, arr(C.act, 0.6)) : s1;
+      GRIP.grow = { x0: GX, y0: GB, u, box: [GX - 14, GT - 14, N * u + 34, N * u + 26] };
+      part(I(C, 0.4, 0.5), 0, () => text(XL, y0 + 20, areaLine(a, 2), 'sm', 'start'));
+      part(I(C, 0.4, 0.5), 0, () => {
+        for (let k = 0; k <= N; k++) { line('bgl', GX + k * u, GT, GX + k * u, GB); line('bgl', GX, GB - k * u, GX + N * u, GB - k * u); }
+        for (let k = 1; k <= N; k++) text(GX + k * u, GB + 17, String(k), 'ru', 'middle');
+      });
+      squareRows(GX, GB, u, sd, (j) => I(C, 0.6 + 0.3 * j, 0.5));
+      const te = growEnd(a);
+      part(I(C, te, 0.5), 0, () => rect('edge', GX, GB - sd * u, sd * u, sd * u));
+      const f = fillOf(a, 2), side = rootText(a, 2), approx = SQ(a) ? null : fix(s1, 2);
+      part(I(C, te + 0.2, 0.5), 0, () => { text(GX + sd * u / 2, GB - sd * u / 2 + 6, String(a), 'big', 'middle'); handle(GX + sd * u, GB - sd * u); });
+      part(I(C, te + 0.4, 0.5), 0, () => { bracket(GX, GX + sd * u, GB + 28, ''); sideLabel(clampX(GX + sd * u / 2, 'side ' + side, approx), GB + 50, 'side ' + side, approx); });
+      Object.assign(REC, { tag: areaLine(a, 2), side, approx, sideLen: sd, whole: f.whole, pieces: f.pieces });
+      return 'A square of area ' + a + ' on a grid of unit squares. ' + areaLine(a, 2) + '. Its side is ' + say(side) + (approx ? ', about ' + approx : '') + '.';
+    },
+  };
+  // A cube of unit cubes, drawn with its front face square on and its top and right side going back.
+  // Opening, it builds up in layers; its front-top corner is dragged to set the volume.
+  const CU_U = 30, DXU = 12, DYU = -8;
+  PAN.cube = {
+    h: () => 280,
+    draw(p, y0, C, d) {
+      const u = CU_U, FX = 56, FB = y0 + 222, live = !!p.live, st = C.st;
+      const V = live ? st.v : p.V, e1 = Math.cbrt(V), e0 = live && st.prev != null ? Math.cbrt(st.prev) : e1;
+      const e = live && C.act != null ? K.lerp(e0, e1, arr(C.act, 0.6)) : e1;
+      const h = live && C.demo ? e * arr(1.0, 1.6) : e;
+      const P = (x, y, z) => [FX + x * u + z * DXU, FB - y * u + z * DYU];
+      if (live) GRIP.cube = { x0: FX, y0: FB, u, box: [FX - 14, FB - 5 * u + 5 * DYU - 14, 5 * u + 5 * DXU + 28, 5 * u - 5 * DYU + 28] };
+      const tag = live ? areaLine(V, 3) : d.q;
+      part(I(C, 0.4, 0.5), 0, () => text(XL, y0 + 20, tag, live ? 'sm' : 'tag', 'start', true));
+      const ga = live ? 1 : C.right ? arr(0.1, 0.8) : 0;
+      part(live ? I(C, 0.5, 0.5) : ga, 0, () => { for (let k = 1; k <= (live ? 5 : Math.round(e1)); k++) text(FX + k * u, FB + 17, String(k), 'ru', 'middle'); });
+      const f = fillOf(V, 3), w = Math.floor(e + 1e-9), whole = Math.abs(e - Math.round(e)) < 1e-9;
+      if (h > 0.02) part(live ? I(C, 0.9, 0.5) : 1, 0, () => {
+        const right = [P(e, 0, 0), P(e, h, 0), P(e, h, e), P(e, 0, e)], top = [P(0, h, 0), P(e, h, 0), P(e, h, e), P(0, h, e)], fill = whole ? 'unit' : 'piece';
+        poly(fill, right); poly('shR', right); poly(fill, top); poly('shT', top);
+        rect('piece', FX, FB - h * u, e * u, h * u);
+        const wh = Math.min(w, h);
+        if (w > 0 && wh > 0) rect('unit', FX, FB - wh * u, w * u, wh * u);
+        part(ga, 0, () => {
+          for (let k = 1; k < e - 1e-9; k++) {
+            line('gl', ...P(k, 0, 0), ...P(k, h, 0)); line('gl', ...P(k, h, 0), ...P(k, h, e)); line('gl', ...P(0, h, k), ...P(e, h, k)); line('gl', ...P(e, 0, k), ...P(e, h, k));
+            if (k < h - 1e-9) { line('gl', ...P(0, k, 0), ...P(e, k, 0)); line('gl', ...P(e, k, 0), ...P(e, k, e)); }
+          }
+        });
+        poly('edge', [P(0, 0, 0), P(e, 0, 0), P(e, 0, e), P(e, h, e), P(0, h, e), P(0, h, 0)]);
+        line('edge', ...P(0, h, 0), ...P(e, h, 0)); line('edge', ...P(e, h, 0), ...P(e, 0, 0)); line('edge', ...P(e, h, 0), ...P(e, h, e));
+      });
+      const la = live ? I(C, 2.7, 0.5) : 1;
+      part(la, 0, () => { text(FX + e * u / 2, FB - h * u / 2 + 6, String(V), 'big', 'middle'); if (live) handle(...P(e, e, 0)); });
+      let side;
+      if (live) {
+        side = rootText(V, 3);
+        const approx = CU(V) ? null : fix(e1, 2);
+        part(I(C, 2.9, 0.5), 0, () => { bracket(FX, FX + e * u, FB + 28, ''); sideLabel(clampX(FX + e * u / 2, 'edge ' + side, approx), FB + 50, 'edge ' + side, approx); });
+        REC.approx = approx;
+      } else {
+        bracket(FX, FX + e * u, FB + 28, '');
+        const sa = C.right ? arr(0.8, 0.4) : 0;
+        part(1 - sa, 0, () => text(FX + e * u / 2, FB + 50, 'edge ?', 'sl', 'middle'));
+        part(sa, 0, () => text(FX + e * u / 2, FB + 50, 'edge ' + p.side, 'sl', 'middle'));
+        side = sa >= 0.5 ? p.side : '?';
+      }
+      Object.assign(REC, { tag, side, sideLen: e, whole: f.whole, pieces: f.pieces, cells: ga >= 0.5 ? f.whole : 0 });
+      return 'A cube of volume ' + V + ' built from unit cubes. ' + (live ? areaLine(V, 3) + '. ' : '') + 'Its edge is ' + (side === '?' ? 'to find.' : say(side) + '.');
+    },
+  };
+  // Four unit squares, each cut along a diagonal; the cuts make a tilted square that keeps half of each.
+  const CELLS = [[0, 0], [1, 0], [1, 1], [0, 1]];
+  const CORN = [[[0, 0], [1, 0], [0, 1]], [[2, 0], [2, 1], [1, 0]], [[2, 2], [1, 2], [2, 1]], [[0, 2], [0, 1], [1, 2]]];
+  const TILT = [[1, 0], [2, 1], [1, 2], [0, 1]];
+  const shoelace = (pts) => Math.abs(pts.reduce((s, q, k) => { const r = pts[(k + 1) % pts.length]; return s + q[0] * r[1] - r[0] * q[1]; }, 0)) / 2;
+  PAN.diag = {
+    h: () => 32 + 140 + 46,
+    draw(p, y0, C) {
+      const u = 70, GX = 100, GB = y0 + 32 + 2 * u, X = (x) => GX + x * u, Y = (y) => GB - y * u, Pt = (q) => [X(q[0]), Y(q[1])];
+      part(I(C, 0.4, 0.5), 0, () => text(XL, y0 + 20, 'Four unit squares', 'tag', 'start'));
+      CELLS.forEach((c, k) => part(I(C, 0.5 + 0.2 * k, 0.5), 4, () => rect('unit', X(c[0]), Y(c[1] + 1), u, u)));
+      // the corners outside the cuts lose their shading
+      part(I(C, 2.4, 0.6), 0, () => CORN.forEach((t) => poly('whole', t.map(Pt))));
+      CELLS.forEach((c, k) => part(I(C, 0.5 + 0.2 * k, 0.5), 0, () => rect('tile', X(c[0]), Y(c[1] + 1), u, u)));
+      part(I(C, 1.2, 0.5), 0, () => { bracket(X(0), X(1), GB + 14, ''); text(X(0.5), GB + 34, '1', 'sl', 'middle'); });
+      // four cuts, each along one unit square's diagonal, drawn from one end to the other
+      let cuts = 0;
+      TILT.forEach((q0, k) => {
+        const q = I(C, 1.4 + 0.25 * k, 0.5), a = Pt(q0), b = Pt(TILT[(k + 1) % 4]);
+        if (q <= 0) return;
+        line('cut', a[0], a[1], K.lerp(a[0], b[0], q), K.lerp(a[1], b[1], q));
+        if (q >= 0.5) cuts++;
+      });
+      const ha = I(C, 2.8, 0.5);
+      part(ha, 0, () => [[2 / 3, 2 / 3], [4 / 3, 2 / 3], [4 / 3, 4 / 3], [2 / 3, 4 / 3]].forEach((c) => text(X(c[0]), Y(c[1]) + 5, '½', 'sm', 'middle')));
+      const ta = I(C, 3.2, 0.5);
+      part(ta, 0, () => { poly('edge', TILT.map(Pt)); text(X(1.75), Y(0.25) + 5, '√2', 'sl', 'middle'); });
+      const kept = CORN.reduce((s, t) => s + (1 - shoelace(t)), 0);
+      Object.assign(REC, { tag: 'Four unit squares', cuts, halves: ha >= 0.5 ? 4 : 0, kept, tiltArea: shoelace(TILT), tiltSide: Math.hypot(TILT[1][0] - TILT[0][0], TILT[1][1] - TILT[0][1]), side: ta >= 0.5 ? '√2' : null });
+      return 'Four unit squares in a 2 by 2 square, each cut along a diagonal.' + (ta >= 0.5 ? ' The cuts make a tilted square that keeps half of each one, area 2, with side root 2.' : '');
+    },
+  };
+  // A puzzle's square: its area inside it, its side to find; a right answer shows its unit squares
+  // or splits it into small squares, and a slip is drawn as its own square from the same corner.
+  PAN.sq = {
+    geo(p) { const s = Math.sqrt(p.A), ext = Math.max(p.n || 0, s), top = p.tile ? 56 : 32; return { s, ext, top, u: p.u, GX: Math.round((340 - ext * p.u) / 2) }; },
+    h(p) { const G = PAN.sq.geo(p); return Math.ceil(G.top + G.ext * G.u + 58); },
+    draw(p, y0, C, d) {
+      const G = PAN.sq.geo(p), u = G.u, s = G.s, GX = G.GX, GT = y0 + G.top, GB = GT + G.ext * u;
+      const wrong = C.wrong ? d.wrong[C.wrong] : null, unit2 = p.unit ? p.unit + '²' : '';
+      text(XL, y0 + 20, d.q, 'tag', 'start', true);
+      const words = ['A square of area ' + p.A + unit2 + '.'];
+      if (p.grid) {
+        const n = Math.ceil(G.ext - 1e-9);
+        for (let k = 0; k <= n; k++) { line('bgl', GX + k * u, GB - n * u, GX + k * u, GB); line('bgl', GX, GB - k * u, GX + n * u, GB - k * u); }
+        for (let k = 1; k <= n; k++) text(GX + k * u, GB + 17, String(k), 'ru', 'middle');
+      }
+      if (p.pieces) squareRows(GX, GB, u, s, () => 1);
+      else rect('unit', GX, GB - s * u, s * u, s * u);
+      let cells = 0, tiles = 0, per = 0;
+      if (p.gridAfter) {
+        const n = Math.round(s);
+        for (let j = 0; j < n; j++) {
+          const a = C.right ? arr(0.1 + 0.15 * j, 0.4) : 0;
+          part(a, 0, () => {
+            for (let k = 1; k < n; k++) line('gl', GX + k * u, GB - j * u, GX + k * u, GB - (j + 1) * u);
+            if (j > 0) line('gl', GX, GB - j * u, GX + s * u, GB - j * u);
+          });
+          if (a >= 0.5) cells += n;
+        }
+        part(C.right ? arr(0.9, 0.4) : 0, 0, () => { for (let k = 1; k <= n; k++) text(GX + k * u, GB + 17, String(k), 'ru', 'middle'); });
+        if (cells) words.push('It holds ' + cells + ' unit squares, ' + n + ' along each side.');
+      }
+      const center = String(p.A) + unit2;
+      if (p.tile) {
+        const t = s / p.per;
+        let nv = 0, nh = 0;
+        for (let k = 1; k < p.per; k++) {
+          const av = C.right ? arr(0.1 + 0.12 * k, 0.4) : 0, ah = C.right ? arr(0.45 + 0.12 * k, 0.4) : 0;
+          part(av, 0, () => line('tile', GX + k * t * u, GB, GX + k * t * u, GB - s * u));
+          part(ah, 0, () => line('tile', GX, GB - k * t * u, GX + s * u, GB - k * t * u));
+          if (av >= 0.5) nv++;
+          if (ah >= 0.5) nh++;
+        }
+        const la = C.right ? arr(0.9, 0.4) : 0;
+        part(la, 0, () => { for (let j = 0; j < p.per; j++) for (let i = 0; i < p.per; i++) text(GX + (i + 0.5) * t * u, GB - (j + 0.5) * t * u + 5, String(p.tile), 'sm', 'middle'); });
+        part(C.right ? arr(1.1, 0.4) : 0, 0, () => { bracket(GX, GX + t * u, GT - 8, ''); text(GX + t * u / 2, GT - 16, p.tside, 'sl', 'middle'); });
+        if (la >= 0.5) { tiles = (nv + 1) * (nh + 1); per = nv + 1; words.push('It splits into ' + tiles + ' small squares of area ' + p.tile + ', ' + per + ' along each side.'); }
+        part(1 - la, 0, () => text(GX + s * u / 2, GB - s * u / 2 + 6, center, 'big', 'middle'));
+      } else text(GX + s * u / 2, GB - s * u / 2 + 6, center, 'big', 'middle');
+      rect('edge', GX, GB - s * u, s * u, s * u);
+      if (wrong && wrong.slip) {
+        const ss = wrong.slip, a = arr(0.1, 0.5);
+        part(a, 0, () => { rect('slip', GX, GB - ss * u, ss * u, ss * u); text(GX + ss * u + 4, GB - ss * u + 4, C.wrong, 'lab bad', 'start'); });
+        if (a >= 0.5) { REC.slips.push(ss); words.push('Drawn from the same corner, a square of side ' + say(C.wrong) + ', the slip.'); }
+      }
+      bracket(GX, GX + s * u, GB + 28, '');
+      const sa = C.right ? arr(0.9, 0.4) : 0;
+      part(1 - sa, 0, () => text(GX + s * u / 2, GB + 50, 'side ?', 'sl', 'middle'));
+      part(sa, 0, () => text(GX + s * u / 2, GB + 50, 'side ' + p.side, 'sl', 'middle'));
+      Object.assign(REC, { tag: d.q, side: sa >= 0.5 ? p.side : '?', sideLen: s, cells, tiles, per });
+      words.push(sa >= 0.5 ? 'Its side is ' + say(p.side) + '.' : 'Its side is to find.');
+      return words.join(' ');
+    },
+  };
+  // The square of area 48, split into 16 squares of area 3 (4 along each side), or tried as 8
+  // squares of area 6, which lie as 2 rows of 4 beside the square's outline.
+  PAN.split = {
+    h: () => Math.ceil(56 + Math.sqrt(48) * 26 + 46),
+    draw(p, y0, C) {
+      const u = 26, A = 48, s = Math.sqrt(A), GX = 40, GT = y0 + 56, GB = GT + s * u, mode = C.st.mode;
+      part(I(C, 0.4, 0.5), 0, () => text(XL, y0 + 20, 'Area 48', 'tag', 'start'));
+      REC.tag = 'Area 48'; REC.sideLen = s;
+      if (mode === 16) {
+        const per = 4, t = s / per;
+        part(I(C, 0.4, 0.5), 4, () => rect('unit', GX, GB - s * u, s * u, s * u));
+        let nv = 0, nh = 0;
+        for (let k = 1; k < per; k++) {
+          const av = I(C, 1.2 + 0.2 * k, 0.4), ah = I(C, 1.9 + 0.2 * k, 0.4);
+          part(av, 0, () => line('tile', GX + k * t * u, GB, GX + k * t * u, GB - s * u));
+          part(ah, 0, () => line('tile', GX, GB - k * t * u, GX + s * u, GB - k * t * u));
+          if (av >= 0.5) nv++;
+          if (ah >= 0.5) nh++;
+        }
+        part(I(C, 0.4, 0.5), 0, () => rect('edge', GX, GB - s * u, s * u, s * u));
+        const la = I(C, 2.8, 0.5), ba = I(C, 3.2, 0.5);
+        part(Math.min(I(C, 0.6, 0.5), 1 - la), 0, () => text(GX + s * u / 2, GB - s * u / 2 + 6, '48', 'big', 'middle'));
+        part(la, 0, () => { for (let j = 0; j < per; j++) for (let i = 0; i < per; i++) text(GX + (i + 0.5) * t * u, GB - (j + 0.5) * t * u + 5, '3', 'sm', 'middle'); });
+        part(ba, 0, () => { bracket(GX, GX + t * u, GT - 8, ''); text(GX + t * u / 2, GT - 16, '√3', 'sl', 'middle'); });
+        part(I(C, 0.6, 0.5), 0, () => bracket(GX, GX + s * u, GB + 14, ''));
+        part(Math.min(I(C, 0.6, 0.5), 1 - ba), 0, () => text(GX + s * u / 2, GB + 34, 'side √48', 'sl', 'middle'));
+        part(ba, 0, () => text(GX + s * u / 2, GB + 34, 'side 4√3', 'sl', 'middle'));
+        const tiles = la >= 0.5 ? (nv + 1) * (nh + 1) : 1;
+        Object.assign(REC, { tiles, per: nv + 1, cols: nv + 1, rows: nh + 1, tileArea: A / tiles, tileSide: Math.sqrt(A / tiles), side: ba >= 0.5 ? '4√3' : '√48' });
+        return 'A square of area 48' + (la >= 0.5 ? ', split into ' + tiles + ' small squares of area 3, ' + (nv + 1) + ' along each side. Each small side is root 3, so the whole side is 4 root 3.' : '.');
+      }
+      const t = Math.sqrt(6), fa = 1 - arr(0.1, 0.4);
+      part(fa, 0, () => rect('unit', GX, GB - s * u, s * u, s * u));
+      part(fa, 0, () => text(GX + s * u / 2, GB - s * u / 2 + 6, '48', 'big', 'middle'));
+      let n = 0;
+      for (let k = 0; k < 8; k++) {
+        const i = k % 4, j = Math.floor(k / 4), a = arr(0.4 + 0.25 * k, 0.5);
+        part(a, 4, () => {
+          rect('unit', GX + i * t * u, GB - (j + 1) * t * u, t * u, t * u);
+          rect('tile', GX + i * t * u, GB - (j + 1) * t * u, t * u, t * u);
+          text(GX + (i + 0.5) * t * u, GB - (j + 0.5) * t * u + 5, '6', 'sm', 'middle');
+        });
+        if (a >= 0.5) n++;
+      }
+      rect('edge', GX, GB - s * u, s * u, s * u);
+      bracket(GX, GX + s * u, GB + 14, '');
+      text(GX + s * u / 2, GB + 34, 'side √48', 'sl', 'middle');
+      Object.assign(REC, { tiles: n, per: 0, cols: Math.min(n, 4), rows: Math.ceil(n / 4), tileArea: 6, tileSide: t, side: '√48' });
+      return 'The outline of the square of area 48, and ' + n + ' small squares of area 6 laid in rows of 4 from its corner: a rectangle 2 squares high, not a square.';
+    },
+  };
+  // Squares side by side. On the SHOW screen, 9 and 16 beside 25; then the 16 rises to the corner of
+  // a square of side 7, which also holds two 3 by 4 strips. On the puzzle, 36 and 64, and a right
+  // answer draws the square of their total area from the far corner.
+  PAN.sum = {
+    h: (p) => Math.ceil(32 + p.ext * p.u + (p.c ? 46 : 76)),
+    draw(p, y0, C, d) {
+      const u = p.u, GX = Math.round((340 - p.w * u) / 2), GB = y0 + 32 + p.ext * u, X = (x) => GX + x * u, Y = (y) => GB - y * u, a = p.a, b = p.b;
+      const sq = (x, y, n, al, lab) => part(al, 4, () => {
+        rect('unit', X(x), Y(y + n), n * u, n * u);
+        for (let k = 1; k < n; k++) { line('gl', X(x + k), Y(y), X(x + k), Y(y + n)); line('gl', X(x), Y(y + k), X(x + n), Y(y + k)); }
+        rect('edge', X(x), Y(y + n), n * u, n * u);
+        text(X(x + n / 2), Y(y + n / 2) + 6, lab, 'big', 'middle');
+      });
+      const tag = d.show ? 'Squares of ' + a * a + ', ' + b * b + ' and ' + p.c * p.c : d.q;
+      part(I(C, 0.4, 0.5), 0, () => text(XL, y0 + 20, tag, 'tag', 'start', true));
+      REC.tag = tag;
+      if (d.show) {
+        const c = p.c, rise = a * I(C, 2.2, 0.8);
+        sq(0, 0, a, I(C, 0.4, 0.5), String(a * a));
+        sq(a, rise, b, I(C, 0.8, 0.5), String(b * b));
+        sq(a + b + 1, 0, c, I(C, 1.2, 0.5), String(c * c));
+        part(I(C, 1.7, 0.5), 0, () => {
+          bracket(X(0), X(a + b), GB + 14, ''); text(X((a + b) / 2), GB + 34, a + ' + ' + b + ' = ' + (a + b), 'sl', 'middle');
+          bracket(X(a + b + 1), X(a + b + 1 + c), GB + 14, ''); text(X(a + b + 1 + c / 2), GB + 34, String(c), 'sl', 'middle');
+        });
+        const sa = I(C, 3.6, 0.5);
+        part(sa, 4, () => {
+          rect('piece', X(a), Y(a), b * u, a * u); rect('tile', X(a), Y(a), b * u, a * u); text(X(a + b / 2), Y(a / 2) + 6, String(a * b), 'big', 'middle');
+          rect('piece', X(0), Y(a + b), a * u, b * u); rect('tile', X(0), Y(a + b), a * u, b * u); text(X(a / 2), Y(a + b / 2) + 6, String(a * b), 'big', 'middle');
+        });
+        const oa = I(C, 3.2, 0.5);
+        part(oa, 0, () => rect('edge', X(0), Y(a + b), (a + b) * u, (a + b) * u));
+        const done = sa >= 0.5 && oa >= 0.5 && Math.abs(rise - a) < 1e-9;
+        Object.assign(REC, { parts: done ? [a * a, b * b, a * b, a * b] : [], big: a + b, c });
+        return 'Squares of ' + a * a + ' and ' + b * b + ', with sides ' + a + ' and ' + b + ' end to end making ' + (a + b) + ', beside a square of ' + c * c + ' with side ' + c + '.' +
+          (done ? ' A square of side ' + (a + b) + ' is drawn round the first two: it holds them and two strips of ' + a * b + '.' : '');
+      }
+      sq(0, 0, a, 1, String(a * a));
+      sq(a, 0, b, 1, String(b * b));
+      bracket(X(0), X(a), GB + 14, ''); text(X(a / 2), GB + 34, String(a), 'sl', 'middle');
+      bracket(X(a), X(a + b), GB + 14, ''); text(X(a + b / 2), GB + 34, String(b), 'sl', 'middle');
+      const r = Math.sqrt(a * a + b * b), x0 = a + b - r;
+      let side = '?';
+      const words = ['Squares of ' + a * a + ' and ' + b * b + ' side by side, with sides ' + a + ' and ' + b + '.'];
+      if (C.right) {
+        const oa = arr(0.1, 0.5), la = arr(0.4, 0.4);
+        part(oa, 0, () => rect('edge', X(x0), Y(r), r * u, r * u));
+        part(la, 0, () => {
+          text(X(x0 + r / 2), Y(r - 1) + 5, 'area ' + (a * a + b * b), 'lab', 'middle');
+          bracket(X(x0), X(a + b), GB + 48, 'nv'); text(X(x0 + r / 2), GB + 68, 'side ' + r, 'sl', 'middle');
+        });
+        if (la >= 0.5) { side = String(r); words.push('Over them, the square of area ' + (a * a + b * b) + ', side ' + r + '.'); }
+      }
+      if (C.wrong && d.wrong[C.wrong].split) {
+        const wa = arr(0.1, 0.5);
+        part(wa, 0, () => { bracket(X(0), X(a + b), GB + 48, 'bad'); text(X((a + b) / 2), GB + 68, a + ' + ' + b + ' = ' + (a + b), 'sl bad', 'middle'); });
+        if (wa >= 0.5) { REC.slips.push(a + b); words.push('Under them, the slip: ' + a + ' plus ' + b + ' equals ' + (a + b) + '.'); }
+      }
+      REC.side = side;
+      return words.join(' ');
+    },
+  };
+  // A square beside a number line: its side is the root, and the number line shows both numbers
+  // that square to its area. On the SHOW screen a dot travels from the root to its negative.
+  PAN.pm = {
+    h: (p) => Math.ceil(32 + Math.sqrt(p.n) * p.u + 120),
+    draw(p, y0, C, d) {
+      const u = p.u, s = Math.sqrt(p.n), GX = Math.round((340 - s * u) / 2), GT = y0 + 32, GB = GT + s * u;
+      const NY = GB + 82, NX0 = 30, NX1 = 310, X = (v) => NX0 + (v - p.lo) / (p.hi - p.lo) * (NX1 - NX0), show = !!d.show;
+      const tag = show ? 'x² = ' + p.n : d.q;
+      part(I(C, 0.4, 0.5), 0, () => text(XL, y0 + 20, tag, 'tag', 'start', true));
+      part(I(C, 0.4, 0.5), 4, () => {
+        rect('unit', GX, GB - s * u, s * u, s * u);
+        if (SQ(p.n)) for (let k = 1; k < s; k++) { line('gl', GX + k * u, GB, GX + k * u, GB - s * u); line('gl', GX, GB - k * u, GX + s * u, GB - k * u); }
+        rect('edge', GX, GB - s * u, s * u, s * u);
+        text(GX + s * u / 2, GB - s * u / 2 + 6, String(p.n), 'big', 'middle');
+      });
+      const sideT = show ? String(s) : p.side;
+      part(I(C, 0.9, 0.5), 0, () => bracket(GX, GX + s * u, GB + 14, ''));
+      const sa = show ? I(C, 0.9, 0.5) : C.right ? arr(0.9, 0.4) : 0;
+      if (!show) part(1 - sa, 0, () => text(GX + s * u / 2, GB + 34, 'side ?', 'sl', 'middle'));
+      part(sa, 0, () => text(GX + s * u / 2, GB + 34, 'side ' + sideT, 'sl', 'middle'));
+      part(I(C, 1.4, 0.5), 0, () => {
+        line('axis', NX0 - 8, NY, NX1 + 8, NY);
+        for (let v = p.lo; v <= p.hi; v++) { line('tick', X(v), NY - 5, X(v), NY + 5); if (v % 2 === 0) text(X(v), NY + 22, fmtInt(v), 'ru', 'middle'); }
+      });
+      const posLab = show ? s + ' × ' + s + ' = ' + p.n : p.side, negLab = show ? '−' + s + ' × −' + s + ' = ' + p.n : '−' + p.side;
+      const pa = show ? I(C, 1.9, 0.5) : (C.right || C.wrong === '4√3') ? arr(0.1, 0.4) : 0;
+      const q = show ? I(C, 2.4, 1.0) : C.right ? arr(0.4, 0.8) : 0;
+      const na = show ? I(C, 3.4, 0.5) : C.right ? arr(1.2, 0.4) : 0;
+      part(pa, 0, () => { dot(X(s), NY); text(Math.min(X(s) + 8, XR), NY - 16, posLab, 'lab', 'end', true); });
+      if (q > 0) dot(K.lerp(X(s), X(-s), q), NY - Math.sin(Math.PI * q) * 44);
+      part(na, 0, () => text(Math.max(X(-s) - 8, XL), NY - 16, negLab, 'lab', 'start', true));
+      if (pa >= 0.5) REC.dots.push(s);
+      if (q >= 1 - 1e-9) REC.dots.push(-s);
+      Object.assign(REC, { tag, side: sa >= 0.5 ? sideT : '?', sideLen: s });
+      return 'A square of area ' + p.n + ', its side ' + (sa >= 0.5 ? say(sideT) : 'to find') + '. Below, a number line from ' + say(fmtInt(p.lo)) + ' to ' + p.hi +
+        (REC.dots.length ? ', with a dot at ' + REC.dots.map((v) => (v < 0 ? 'minus ' : '') + say(show ? String(Math.abs(v)) : p.side)).join(' and at ') + ', each squaring to ' + p.n + '.' : '.');
+    },
+  };
+
+  // A line of working: the expression on the left, what it makes on the right ("not ..." for a near miss).
+  function drawWork(r, y, a) {
+    const c = r.bad ? ' bad' : r.mu ? ' mu' : '';
+    part(a, 6, () => {
+      if (r.t) { text(XL, y, r.t, 'tw' + c, 'start', true); return; }
+      text(XL, y, r.e + (r.approx != null ? ' ≈' : ' ='), 'te' + c, 'start', true);
+      text(XR, y, r.w + (r.not != null ? ', not ' + r.not : ''), 'tw' + c, 'end', true);
+    });
+    if (a >= 0.5) REC.work.push(r);
+    if (a < 0.5) return '';
+    return r.t ? say(r.t) + '.' : say(r.e) + (r.approx != null ? ' is about ' : ' equals ') + say(r.w) + (r.not != null ? ', not ' + say(r.not) : '') + (r.bad ? ', a slip.' : '.');
+  }
+  // The key, inside the drawing.
+  const KEYS = {
+    unit: { sw: 'cell', text: 'one unit square' }, piece: { sw: 'piece', text: 'part of a unit square' }, cube: { sw: 'cube', text: 'one unit cube' },
+    tile: { sw: 'tile', text: 'one small square' }, strip: { sw: 'piece', text: 'a 3 by 4 strip' }, kept: { sw: 'cell', text: 'the half each one keeps' },
+    cut: { sw: 'cut', text: 'a cut along a diagonal' }, dot: { sw: 'dot', text: 'a number' },
+  };
+  const keyItems = (d) => d.key.map((k) => (typeof k === 'string' ? { sw: KEYS[k].sw, text: KEYS[k].text } : { sw: KEYS[k.k].sw, text: k.text || KEYS[k.k].text }));
+  function keyLayout(ks) {
+    let x = XL, row = 0;
+    return ks.map((k) => {
+      const w = 24 + tw(k.text, 'key');
+      if (x > XL && x + w > XR) { x = XL; row++; }
+      const it = Object.assign({ x, row }, k);
+      x += w + 18;
+      return it;
+    });
+  }
+  function swatch(sw, x, y) {
+    if (sw === 'cell') { rect('unit', x + 2, y - 7, 13, 13); rect('kedge', x + 2, y - 7, 13, 13); }
+    else if (sw === 'piece') { rect('piece', x + 2, y - 7, 13, 13); rect('kedge', x + 2, y - 7, 13, 13); }
+    else if (sw === 'tile') { rect('unit', x + 1, y - 8, 15, 15); rect('tile', x + 1, y - 8, 15, 15); }
+    else if (sw === 'cut') line('cut', x + 2, y + 5, x + 16, y - 8);
+    else if (sw === 'dot') add(K.svg('circle', { class: 'dot', cx: x + 9, cy: y - 1, r: 5 }));
+    else {
+      const top = [[x + 1, y - 4], [x + 11, y - 4], [x + 16, y - 8], [x + 6, y - 8]], right = [[x + 11, y - 4], [x + 16, y - 8], [x + 16, y + 2], [x + 11, y + 6]];
+      poly('unit', top); poly('shT', top); poly('unit', right); poly('shR', right);
+      rect('unit', x + 1, y - 4, 10, 10);
+      poly('kedge', [[x + 1, y + 6], [x + 11, y + 6], [x + 16, y + 2], [x + 16, y - 8], [x + 6, y - 8], [x + 1, y - 4]]);
+      line('kedge', x + 1, y - 4, x + 11, y - 4); line('kedge', x + 11, y - 4, x + 11, y + 6); line('kedge', x + 11, y - 4, x + 16, y - 8);
+    }
+  }
+  function drawKey(d, G) {
+    keyLayout(keyItems(d)).forEach((it) => {
+      const y = G.keyY + it.row * 22;
+      swatch(it.sw, it.x, y);
+      text(it.x + 24, y + 5, it.text, 'key', 'start', false);
+    });
+  }
+
+  // ---------- each step's sizes and timetable ----------
+  const GEO = new Map();
+  function geo(i) {
+    if (GEO.has(i)) return GEO.get(i);
+    const d = STEPS[i], G = { py: 4 };
+    let y = 4 + PAN[d.p.kind].h(d.p);
+    const rows = 1 + Math.max(0, ...keyLayout(keyItems(d)).map((it) => it.row));
+    G.keyY = y + 12; y += 4 + rows * 22;
+    G.workY = y;
+    const n = d.show ? (d.work ? d.work.length : 2) : Math.max(d.right.length, ...Object.keys(d.wrong).map((o) => d.wrong[o].lines.length));
+    y += n ? n * LH + 8 : 0;
+    G.H = Math.ceil(y + 4);
+    GEO.set(i, G);
+    return G;
+  }
+  // When a right answer's lines arrive, once its move on the picture has ended.
+  const rtOf = (p) => ({ sq: p.tile ? 1.4 : p.gridAfter ? 1.2 : 1.0, cube: 1.1, sum: 0.8, pm: 1.6 }[p.kind]);
+  // A step's state as the pictures read it: demo (a SHOW screen's timetable runs), act (when a
+  // Smaller or Larger press starts its change), right and wrong (a checked answer).
+  function ctxOf(d, st) {
+    if (d.show) {
+      if (isLive(d)) return st.prev != null ? { demo: false, act: 0, st } : { demo: true, act: null, st };
+      return { demo: d.p.kind !== 'split' || st.mode === 16, st };
+    }
+    return { demo: false, right: st.res === 'right', wrong: st.res === 'wrong' && st.pick != null ? st.pick : null, st };
+  }
+  // The lines of working a step shows in a state, each with when it arrives (null: there already).
+  function workOf(d, st, C) {
+    const p = d.p, timed = (ts, rs) => rs.map((r, m) => ({ r, t: ts[m] }));
+    if (d.show) {
+      if (isLive(d)) {
+        const k = p.kind === 'grow' ? 2 : 3, n = k === 2 ? st.a : st.v, rs = liveWork(n, k);
+        if (C.act != null) return rs.map((r) => ({ r, t: 0.45 }));
+        const te = k === 2 ? growEnd(n) + 0.8 : 3.3;
+        return timed([te, te + 0.3], rs);
+      }
+      if (p.kind === 'split') return st.mode === 8 ? timed([2.7, 3.0], SPLIT8) : timed([3.6, 3.9], SPLIT16);
+      return timed(p.tl, d.work);
+    }
+    const rt = rtOf(p);
+    if (C.right) return d.right.map((r, m) => ({ r, t: rt + 0.3 * m }));
+    if (C.wrong) return d.wrong[C.wrong].lines.map((r, m) => ({ r, t: 0.25 + 0.3 * m }));
+    return [];
+  }
+  // The whole picture for a step now; returns it in words.
+  function drawScene(i, d, st, G) {
+    REC = { tag: null, side: null, approx: null, sideLen: null, whole: null, pieces: null, cells: 0, tiles: 0, per: 0, cols: 0, rows: 0, halves: 0, parts: [], dots: [], slips: [], work: [] };
+    const C = ctxOf(d, st), said = [];
+    said.push(PAN[d.p.kind].draw(d.p, G.py, C, d));
+    drawKey(d, G);
+    workOf(d, st, C).forEach((l, m) => said.push(drawWork(l.r, G.workY + 20 + LH * m, vis(l.t, 0.4))));
+    return said.filter(Boolean).join(' ');
+  }
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], G = geo(i);
+    art.textContent = '';
+    into = null;
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    svg.setAttribute('aria-label', drawScene(i, d, st, G));
+  }
+  // How long a step's motion takes in a state: the latest arrival, and the earliest start.
+  function motionLen(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity; latest = 0; earliest = Infinity;
+    try { paint(i); } finally { S[i] = keepS; T = keepT; }
+    return { latest, earliest };
+  }
+
+  // ---------- dragging the square's or the cube's corner ----------
+  const ui = svg.appendChild(K.svg('g'));
+  const grip = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1, role: 'slider', 'aria-orientation': 'horizontal' }));
+  grip.style.display = 'none';
+  function placeGrip(i) {
+    const d = STEPS[i], on = !finished && isLive(d), g = GRIP[d.p.kind];
+    grip.style.display = on && g ? '' : 'none';
+    grip.setAttribute('tabindex', on && g ? '0' : '-1');
+    if (!on || !g) return;
+    const b = g.box, k = liveKey(d), v = S[i][k];
+    grip.setAttribute('x', b[0]); grip.setAttribute('y', b[1]); grip.setAttribute('width', b[2]); grip.setAttribute('height', b[3]);
+    grip.setAttribute('aria-label', k === 'a' ? 'Area of the square' : 'Volume of the cube');
+    grip.setAttribute('aria-valuemin', 1); grip.setAttribute('aria-valuemax', liveMax(d)); grip.setAttribute('aria-valuenow', v);
+    grip.setAttribute('aria-valuetext', (k === 'a' ? 'area ' : 'volume ') + v);
+  }
+  // The pointer sets the corner: the side (or edge) is how far it is from the fixed corner, and the
+  // value lands on whole units, snapping to a whole side near one.
+  function dragTo(e) {
+    const i = at(), d = STEPS[i], g = GRIP[d.p.kind], ctm = svg.getScreenCTM();
+    if (!g || !ctm || !isLive(d)) return;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    const s = K.clamp(Math.max(q.x - g.x0, g.y0 - q.y) / g.u, 1, 5), r = Math.round(s);
+    if (d.p.kind === 'grow') setLive(Math.abs(s - r) < 0.15 ? r * r : Math.round(s * s), 'drag');
+    else setLive(Math.abs(s - r) < 0.08 ? r * r * r : Math.round(s * s * s), 'drag');
+  }
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!isLive(STEPS[at()]) || finished) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the picture */ }
+    e.preventDefault();
+    dragTo(e);
+  });
+  grip.addEventListener('pointermove', (e) => { if (held === e.pointerId) dragTo(e); });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    const d = STEPS[at()];
+    if (!isLive(d) || finished) return;
+    const now = S[at()][liveKey(d)], by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+    if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault();
+    setLive(e.key === 'Home' ? 1 : e.key === 'End' ? liveMax(d) : now + by, 'drag');
+  });
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((pp) => {
+    const i = Math.round(pp.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.prev = null; if (d.p.kind === 'split') st.mode = 16; play(motionLen(i, st).latest); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + (d.mixed ? ' · mixed' : '');
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+    placeGrip(i);
+
+    const live = isLive(d);
+    el('tune').hidden = finished || !live;
+    if (live) { const k = liveKey(d); downBtn.el.disabled = st[k] <= 1; upBtn.el.disabled = st[k] >= liveMax(d); }
+    const split = d.p.kind === 'split';
+    replayBtn.el.hidden = !d.show || split || REDUCE;
+    m16Btn.el.hidden = !split; m8Btn.el.hidden = !split;
+    m16Btn.el.setAttribute('aria-pressed', split && st.mode === 16 ? 'true' : 'false');
+    m8Btn.el.setAttribute('aria-pressed', split && st.mode === 8 ? 'true' : 'false');
+    el('replay').hidden = replayBtn.el.hidden && !split;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      italics(b.el.appendChild(K.el('span')), opts[k], false);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? "That's it." : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const close = (a, b) => Math.abs(a - b) < 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const I_CUBE = idx('A cube and its edge'), I_DIAG = idx('A square on the diagonal'), I_SPLIT = idx('Splitting a square'), I_SUM = idx('A root of a sum');
+  const I_PM = idx('Two answers'), I_X48 = idx('Both answers'), I_7 = idx('An exact side');
+  const liveSt = (a) => Object.assign(blank(), { a });
+  const cubeSt = (v) => Object.assign(blank(), { v });
+  const splitSt = (m) => Object.assign(blank(), { mode: m });
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try {
+      paint(i);
+      return Object.assign({ texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) }, REC);
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // A line of working adds up: each part after = equals the expression (to the places shown when
+  // it is rounded), and a "not" value differs from it.
+  const adds = (r) => {
+    if (r.t) return true;
+    const v = val(r.e);
+    const ok = r.w.split('=').every((q) => (r.approx != null ? Math.abs(val(q) - v) <= 0.5 * Math.pow(10, -r.approx) + 1e-12 : close(val(q), v)));
+    return ok && (r.not == null || !close(val(r.not), v));
+  };
+  const optVals = (o) => o.split(' or ').map((x) => val(x));
+
+  K.check('A decimal answer, such as 1.73 (2 decimal places), is not exact: at area 3 the side is written √3 with ≈ 1.73 beside it, and squaring 1.73 back gives 2.9929, not 3', () => {
+    const g = drawn(0, liveSt(3));
+    return g.side === '√3' && g.approx === '1.73' && close(val('1.73 × 1.73'), 2.9929) && !close(2.9929, 3) &&
+      g.work.some((r) => r.e === '1.73 × 1.73' && r.w === '2.9929' && r.not === '3');
+  }, { source: SRC1 });
+  K.check('To write the side length of a square whose area is not a whole number times itself, we use the square root symbol: at every area from 1 to 25 the side is drawn √area long and written √area, or as the whole number at 1, 4, 9, 16 and 25', () => {
+    for (let a = 1; a <= 25; a++) {
+      const g = drawn(0, liveSt(a));
+      if (!close(g.sideLen, Math.sqrt(a)) || g.side !== (SQ(a) ? String(Math.sqrt(a)) : '√' + a)) return false;
+    }
+    return [1, 4, 9, 16, 25].every(SQ) && [2, 3, 5, 24].every((a) => !SQ(a));
+  }, { source: SRC2 });
+  K.check('A surd is an expression that includes a square root, cube root or other root symbol: on every screen, each side or edge that is not a whole number is written with √ or ∛, and each whole one without', () => {
+    const ok = (lab, len) => (Math.abs(len - Math.round(len)) < 1e-9 ? /^[0-9]+( c?m)?$/.test(lab) : /[√∛]/.test(lab));
+    for (let a = 1; a <= 25; a++) { const g = drawn(0, liveSt(a)); if (!ok(g.side, Math.sqrt(a))) return false; }
+    for (let v = 1; v <= 125; v++) { const g = drawn(I_CUBE, cubeSt(v)); if (!ok(g.side, Math.cbrt(v))) return false; }
+    const sp = drawn(I_SPLIT, splitSt(16)), dg = drawn(I_DIAG, blank());
+    return ok(sp.side, Math.sqrt(48)) && ok(dg.side, Math.SQRT2) && DO.every((i) => { const g = drawn(i, solvedSt(i)); return ok(g.side, val(g.side)); });
+  }, { source: SRC1 });
+  K.check('At areas 1, 4, 9, 16 and 25 the unit squares fill the square exactly; at every other area some of it is in pieces, and the whole squares and the pieces add up to the area', () => {
+    for (let a = 1; a <= 25; a++) {
+      const g = drawn(0, liveSt(a)), w = Math.floor(Math.sqrt(a) + 1e-9);
+      if (g.whole + g.pieces !== a || g.whole !== w * w || (g.pieces === 0) !== SQ(a)) return false;
+    }
+    return true;
+  });
+  K.check("A cube's edge is the cube root of its volume: at every volume from 1 to 125 the edge drawn, used three times, gives the volume, and the unit cubes fill it exactly only at 1, 8, 27, 64 and 125", () => {
+    const full = [];
+    for (let v = 1; v <= 125; v++) {
+      const g = drawn(I_CUBE, cubeSt(v));
+      if (!close(Math.pow(g.sideLen, 3), v) || g.whole + g.pieces !== v) return false;
+      if (g.pieces === 0) full.push(v);
+    }
+    return full.join() === '1,8,27,64,125';
+  });
+  K.check("The tilted square keeps half of each of the 4 unit squares, so its area is 4 × ½ = 2, and its side, one unit square's diagonal, is √2", () => {
+    const g = drawn(I_DIAG, blank());
+    return g.halves === 4 && g.cuts === 4 && close(g.kept, 2) && close(g.tiltArea, 2) && close(g.tiltSide, Math.SQRT2) && g.side === '√2';
+  });
+  K.check('The square of area 48 splits into 16 squares of area 3, 4 along each side, so its side √48 is 4√3; 8 squares of area 6 make the same area but lie as 2 rows of 4, not a square', () => {
+    const a = drawn(I_SPLIT, splitSt(16)), b = drawn(I_SPLIT, splitSt(8));
+    return a.tiles === 16 && a.per === 4 && a.rows === 4 && close(a.tiles * a.tileArea, 48) && a.side === '4√3' && close(val('4√3'), Math.sqrt(48)) && close(a.per * a.tileSide, a.sideLen) &&
+      b.tiles === 8 && b.cols === 4 && b.rows === 2 && close(b.cols * b.tileSide * b.rows * b.tileSide, 48) && b.cols !== b.rows;
+  });
+  K.check('Squares of 9 and 16 make 25, whose side is 5, while their sides end to end make 3 + 4 = 7; the square of side 7 holds 9 + 16 + 12 + 12 = 49', () => {
+    const g = drawn(I_SUM, blank()), p = STEPS[I_SUM].p;
+    return g.parts.join() === '9,16,12,12' && g.parts.reduce((x, y) => x + y, 0) === g.big * g.big && g.big === 7 && close(Math.sqrt(p.a * p.a + p.b * p.b), p.c) && p.a + p.b !== p.c;
+  });
+  K.check('x² = 36 has two answers, 6 and −6, both on the number line, while the side √36 is 6; x² = 48 is solved by 4√3 and −4√3, and the pick 4√3 alone shows only one', () => {
+    const g = drawn(I_PM, blank()), h = drawn(I_X48, solvedSt(I_X48)), w = drawn(I_X48, wrongSt(I_X48, '4√3'));
+    return g.dots.length === 2 && g.dots.every((v) => close(v * v, 36)) && g.dots[0] === -g.dots[1] && g.side === '6' &&
+      h.dots.length === 2 && h.dots.every((v) => close(v * v, 48)) && close(h.dots[0], val('4√3')) && w.dots.length === 1;
+  });
+  K.check('Every line of working on every screen adds up, at every area from 1 to 25 and every volume from 1 to 125 too, and each "not" value differs', () => {
+    const all = [];
+    STEPS.forEach((d) => { if (d.work) all.push(...d.work); if (!d.show) { all.push(...d.right); Object.keys(d.wrong).forEach((o) => all.push(...d.wrong[o].lines)); } });
+    all.push(...SPLIT16, ...SPLIT8);
+    for (let a = 1; a <= 25; a++) all.push(...liveWork(a, 2));
+    for (let v = 1; v <= 125; v++) all.push(...liveWork(v, 3));
+    return all.length > 300 && all.every(adds);
+  });
+  K.check('Each puzzle accepts only its right answer: squared or cubed back, the right answer gives the area or volume and every wrong one does not; before an answer the side reads ?, after it the right side, and a slip of a length is drawn at that length', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || !d.opts.every((o) => pickRight(i, o) === (o === d.want))) return false;
+      if (Object.keys(d.wrong).length !== 2 || !Object.keys(d.wrong).every((o) => d.opts.indexOf(o) >= 0 && o !== d.want)) return false;
+      const good = (o) => { const vs = optVals(o); return vs.length === (d.both ? 2 : 1) && vs.every((v) => close(Math.pow(v, d.pow), d.target)) && new Set(vs.map((v) => v.toFixed(9))).size === vs.length; };
+      if (!d.opts.every((o) => good(o) === (o === d.want))) return false;
+      const g = drawn(i, solvedSt(i)), b = drawn(i, blank());
+      if (g.side !== d.p.side || b.side !== '?' || g.tag !== d.q || b.slips.length) return false;
+      return Object.keys(d.wrong).every((o) => { const w = d.wrong[o], h = drawn(i, wrongSt(i, o)); return !w.slip || (h.slips.length === 1 && close(h.slips[0], val(o))); });
+    }) && drawn(I_7, wrongSt(I_7, '3.5 m')).slips[0] === 3.5);
+  K.check('Every demonstration has arrived within 5 s of its screen opening, nothing starting before the 0.35 s screen fade ends; every answer and press within 3 s, and the 8 × 6 try within 3.5 s', () => {
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const m = motionLen(i, blank()); return m.latest <= 5 && m.earliest >= FADE; }
+      return motionLen(i, solvedSt(i)).latest <= 3 && d.opts.filter((o) => o !== d.want).every((o) => motionLen(i, wrongSt(i, o)).latest <= 3);
+    }) && motionLen(0, Object.assign(liveSt(10), { prev: 9 })).latest <= 3 && motionLen(I_CUBE, Object.assign(cubeSt(9), { prev: 8 })).latest <= 3 &&
+      motionLen(I_SPLIT, splitSt(8)).latest <= 3.5;
+    paint();
+    return ok;
+  });
+
+  K.ready();
+</script>
