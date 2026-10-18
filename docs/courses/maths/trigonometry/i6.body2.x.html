@@ -1,0 +1,1417 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  .ctl { display: grid; gap: 12px; }
+  /* The circle and its arm, the graph and its wave. */
+  .scene .edge { fill: none; stroke: var(--k-muted); stroke-width: 1.6; }
+  .scene .axis, .scene .tick { stroke: var(--k-muted); stroke-width: 1.3; }
+  .scene .arm { stroke: var(--k-ink); stroke-width: 4; stroke-linecap: round; }
+  .scene .armA { stroke: var(--k-cat1); stroke-width: 4; stroke-linecap: round; }
+  .scene .armB { stroke: var(--k-cat2); stroke-width: 4; stroke-linecap: round; }
+  .scene .armM { stroke: var(--k-muted); stroke-width: 2; stroke-linecap: round; }
+  .scene .armBad { stroke: var(--k-warn); stroke-width: 3; stroke-dasharray: 7 5; stroke-linecap: round; }
+  .scene .tipdot { fill: var(--k-ink); }
+  .scene .trace { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .traceA { fill: none; stroke: var(--k-cat1); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .traceB { fill: none; stroke: var(--k-cat2); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .traceX { fill: none; stroke: var(--k-accent); stroke-width: 2.6; stroke-dasharray: 8 6; }
+  .scene .slip { fill: none; stroke: var(--k-warn); stroke-width: 2.2; stroke-dasharray: 7 5; }
+  .scene .cline { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .scene .pen { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .penA { fill: var(--k-cat1); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .penB { fill: var(--k-cat2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .penX { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .shadow { stroke: var(--k-accent); stroke-width: 4; stroke-linecap: round; }
+  .scene .shadowBad { stroke: var(--k-warn); stroke-width: 4; stroke-linecap: round; }
+  .scene .drop { stroke: var(--k-ink); stroke-width: 1.6; stroke-dasharray: 4 3; }
+  .scene .lvl { stroke: var(--k-amber-line); stroke-width: 2.5; }
+  .scene .xdot { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .ask { fill: none; stroke: var(--k-amber-line); stroke-width: 2.5; }
+  .scene .askband { stroke: var(--k-amber-line); stroke-width: 2.5; stroke-dasharray: 5 4; }
+  .scene .badring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .gap { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 3 4; }
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.4; }
+  .scene .head { fill: var(--k-ink); }
+  .scene .headT { fill: var(--k-accent2); }
+  .scene .arc { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 1.6; }
+  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .pill { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .lbg { fill: var(--k-bg); stroke: none; }
+  .scene .hlbg { fill: var(--k-hl); stroke: none; }
+  .scene .pv { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .al { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .al.bad { fill: var(--k-warn); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .te { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .te.bad { fill: var(--k-warn); }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .after { font-size: 1.08rem; line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Lesson 3's turning arm on a circle, its tip's height carried across and drawn against time as a wave, then the slope's graph and mixed puzzles.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="ctl" id="ctl"></div>
+    <p class="after" id="after" hidden></p>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap" hidden></p>
+
+<script>
+  const el = (id) => document.getElementById(id);
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const PI = Math.PI, TAU = 2 * Math.PI, DEG = 180 / Math.PI, RAD = Math.PI / 180;
+  const sinD = (a) => Math.sin(a * RAD), cosD = (a) => Math.cos(a * RAD);
+  const neg = (s) => String(s).replace(/^-/, '−');
+  // v rounded to dp places with trailing zeros dropped: 0.5, 2.618, 20.
+  function trim(v, dp) {
+    const f = Math.pow(10, dp);
+    let s = (Math.round(v * f) / f).toFixed(dp);
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    if (s === '-0') s = '0';
+    return neg(s);
+  }
+  // v to exactly dp places: 314.16, 3.46.
+  function fix(v, dp) {
+    const f = Math.pow(10, dp);
+    let s = (Math.round(v * f) / f).toFixed(dp);
+    if (/^-0(\.0*)?$/.test(s)) s = s.slice(1);
+    return neg(s);
+  }
+  // Three significant figures, as the lesson writes its times: 1.67, 8.33, 13.1, 20.
+  function sig3(v) {
+    const a = Math.abs(v);
+    if (!(a > 1e-12)) return '0';
+    return trim(v, K.clamp(2 - Math.floor(Math.log10(a) + 1e-12), 0, 3));
+  }
+  const msS = (sec) => sig3(sec * 1000) + ' ms';
+  const timeS = (sec) => (sec < 0.1 - 1e-12 ? msS(sec) : trim(sec, 2) + ' s');
+  const hS = (v) => trim(v, 2);
+  const PIN = { 45: 'π/4', 90: 'π/2', 135: '3π/4', 180: 'π', 225: '5π/4', 270: '3π/2', 315: '7π/4', 360: '2π' };
+  const QN = ['', '¼', '½', '¾', '1'];
+  const pE = (C, r, a) => [C[0] + r * Math.cos(a), C[1] - r * Math.sin(a)];
+  const lenOf = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]);
+  const periodRow = (f) => 'period = 1 ÷ ' + f + ' = ' + (1 / f < 0.1 - 1e-12 ? trim(1 / f, 4) + ' s = ' + msS(1 / f) : trim(1 / f, 2) + ' s');
+
+  // The lesson's example values, and the answers each puzzle offers (worked out here, never typed in).
+  const o1 = [trim(sinD(180), 3), trim(cosD(180), 3), trim(sinD(90), 3)];        // height, across shadow, quarter-turn height
+  const L4 = 4, A4 = 30;
+  const o3 = [fix(L4 * cosD(A4), 2), trim(L4 * sinD(A4), 2), trim(sinD(A4), 2)];
+  const P6 = 10, P6s = P6 / 1000, F6 = 1 / P6s;                                    // a wave that repeats every 10 ms
+  const o5 = [trim(P6, 0) + ' Hz', trim(P6s, 2) + ' Hz', trim(F6, 0) + ' Hz'];
+  const E8 = 10, W8 = 100 * PI, F8 = W8 / TAU;                                     // v = 10 sin(100πt)
+  const o7 = [trim(F8, 0) + ' Hz', fix(W8, 1) + ' Hz', trim(W8 / PI, 0) + ' Hz'];
+  const o9 = ['A slid right ¼ period', 'A slid left ¼ period', 'A, twice as tall'];
+  const E11 = 10, F11 = 50, W11 = TAU * F11, H11 = 5, H12 = -8.3;                  // 10 sin(100πt) and its level lines
+  const s12 = Math.asin(H12 / E11), D12 = 180 - s12 * DEG;                          // −0.979, and degrees mode's 236.1
+  const o11 = [fix(s12 / W11 * 1000, 1) + ' ms', fix(D12 / W11 * 1000, 1) + ' ms', msS((PI - s12) / W11)];
+  const V14 = 325, F14 = 50, W14 = TAU * F14;                                      // a 325 V peak at 50 Hz
+  const o13 = [V14 + ' sin(' + F14 + 't)', V14 + ' sin(' + fix(W14, 1) + 't)', V14 + ' sin(' + trim(W14 / PI, 0) + 't)'];
+  const A15 = 20;                                                                   // v = 20 sin(ωt + π/2)
+  const o14 = [trim(A15 * Math.sin(PI / 2), 3), trim(A15 * Math.sin(0), 3), trim(Math.sin(PI / 2), 3)];
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: the picture; vh: its height; dur: a demonstration's length; live: what Dan can drag;
+  // sliders: the controls shown under the picture. A puzzle has opts, want, a hint for each wrong
+  // answer, why, rows of working (right, and wrong[answer] in red) and secret: what the picture must
+  // not show before an answer.
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, name: 'The arm draws a wave', pic: 'turn1', vh: 210, dur: 4.0, live: ['tip'],
+      text: 'Here is lesson 3\'s arm again, length 1, pointing right. Set it turning anticlockwise at a steady speed. A dashed line carries its tip\'s height across to a graph, and a pen there draws that height as time goes on. The arm turns steadily, so its angle grows in step with time, and the graph is `sin θ` drawn against time. It rises to 1 at a quarter turn, is back at 0 at a half turn, falls to −1 at three quarters and is 0 again at a full turn. Drag the tip, or pause it to read the height.',
+      after: 'One turn draws one whole wave, and then the shape starts over. This is the *sine wave*.' },
+    { kind: 'pick', name: 'A half turn', pic: 'half',
+      opts: o1, want: o1[0], secret: ['sin 180° = ' + o1[0]],
+      task: 'The arm is frozen at a half turn, pointing left. Where is the trace?',
+      why: 'The trace follows the tip\'s height, the sine. At a half turn the tip sits on the across axis, so its height is `sin 180° = 0`. The −1 is its across shadow, `cos 180°`, which this trace does not draw.',
+      hint: 'Not quite. The trace draws the tip\'s height.',
+      hints: { [o1[1]]: 'Not quite. −1 is the across shadow. The trace draws the height.',
+        [o1[2]]: 'Not quite. 1 is the height at a quarter turn, with the arm straight up.' },
+      right: ['height = sin 180° = ' + o1[0], 'the tip sits on the across axis'],
+      wrong: { [o1[1]]: 'cos 180° = ' + o1[1] + ' is the across shadow', [o1[2]]: 'height ' + o1[2] + ' is at a quarter turn, 90°' } },
+    { show: true, name: 'A longer arm', pic: 'amp', vh: 234, dur: 4.2, live: ['tip'], sliders: ['E'],
+      text: 'Now make the arm 10 long. An arm of length E is lesson 3\'s picture drawn E times bigger, so its tip\'s height is `E sin θ`. Turning once, it draws the same wave ten times as tall, up to 10 at a quarter turn and down to −10 at three quarters. The wave\'s highest point is the arm\'s length, its *amplitude*. Slide the arm\'s length and watch the wave grow and shrink with it.',
+      after: 'The length sets how tall the wave is, and nothing else. One turn still draws one wave.' },
+    { kind: 'pick', name: 'An arm of 4 at 30°', pic: 'arm4',
+      opts: o3, want: o3[1], secret: [L4 + ' × ' + o3[2] + ' = ' + o3[1]],
+      task: 'An arm of length 4 is frozen at 30°. How high is its tip?',
+      why: 'The height is the length times the sine: `4 × sin 30° = 4 × 0.5 = 2`. The 3.46 is `4 × cos 30°`, the across shadow, and 0.5 is `sin 30°` alone, the height of an arm of length 1.',
+      hint: 'Not quite. Multiply the length by the sine.',
+      hints: { [o3[0]]: 'Not quite. That uses cos, the across shadow. The height uses sin.',
+        [o3[2]]: 'Not quite. That is sin 30° alone. Multiply by the arm\'s length.' },
+      right: ['height = ' + L4 + ' × sin ' + A4 + '°', '= ' + L4 + ' × ' + o3[2] + ' = ' + o3[1]],
+      wrong: { [o3[0]]: L4 + ' × cos ' + A4 + '° = ' + o3[0] + ' is the across shadow', [o3[2]]: 'sin ' + A4 + '° = ' + o3[2] + ' leaves out the length ' + L4 } },
+    { show: true, name: 'Turns a second', pic: 'freq', vh: 234, dur: 4.0, live: ['tip'], sliders: ['f'],
+      text: 'Now turn the arm 2 times a second. Each turn draws one whole wave, so two waves fill each second of the graph. The turns a second are the waves a second, the *frequency*, counted in hertz (Hz). UK supplies are declared at 50 Hz, so the axis is then relabelled for 50 Hz. A turn now takes `1 ÷ 50 = 0.02 s`, 20 ms, and the time one wave takes is the *period*. Slide the turns a second and watch the period change.',
+      after: 'Period and frequency are each other\'s flip: period = 1 ÷ frequency, and frequency = 1 ÷ period.' },
+    { kind: 'pick', name: 'Every 10 ms', pic: 'p10',
+      opts: o5, want: o5[2], secret: ['1 ÷ ' + trim(P6s, 2) + ' = ' + trim(F6, 0)],
+      task: 'A wave repeats every 10 ms. What is its frequency?',
+      why: '10 ms is 0.01 s, so `1 ÷ 0.01 = 100` waves fit in a second: 100 Hz. The 0.01 is the period itself, the time one wave takes, and 10 counts milliseconds, not waves.',
+      hint: 'Not quite. Frequency = 1 ÷ period, with the period in seconds.',
+      hints: { [o5[1]]: 'Not quite. 0.01 s is the period. The frequency is 1 ÷ period.',
+        [o5[0]]: 'Not quite. 10 is milliseconds. Count the waves in a whole second.' },
+      right: [P6 + ' ms = ' + trim(P6s, 2) + ' s', 'f = 1 ÷ ' + trim(P6s, 2) + ' = ' + o5[2]],
+      wrong: { [o5[1]]: trim(P6s, 2) + ' s is the period, not the frequency', [o5[0]]: P6 + ' counts milliseconds, not waves' } },
+    { show: true, name: 'Radians a second', pic: 'omega', vh: 282, dur: 4.2, live: ['tip'], sliders: ['f'],
+      text: 'Radians count the same turning in radius-lengths, as in lesson 5: one turn, 360°, is 2π radians. So f turns a second is 2πf radians a second, the arm\'s *angular speed*, ω. After t seconds the arm has turned ωt radians from pointing right, so its height is `E sin(ωt) = E sin(2πft)`. At 50 Hz, `ω = 2π × 50 = 314.16` rad/s. Because ωt is in radians, the calculator goes in radian mode. Slide the turns a second and watch ω follow.',
+      after: 'From ω back to f, divide by 2π. From f to the period, work out 1 ÷ f.' },
+    { kind: 'pick', name: 'Read the frequency', pic: 'f100pi',
+      opts: o7, want: o7[0], secret: ['100π ÷ 2π = ' + trim(F8, 0)],
+      task: 'A wave is v = 10 sin(100πt). What is its frequency?',
+      why: 'The number in front of t is ω, here 100π radians a second. Each turn is 2π radians, so `f = 100π ÷ 2π = 50` turns a second, 50 Hz. 314.2 is ω itself, and 100 forgets the 2 in 2π.',
+      hint: 'Not quite. The number in front of t is ω. Divide it by 2π.',
+      hints: { [o7[1]]: 'Not quite. 100π = 314.2 is ω, in radians a second. Divide by 2π.',
+        [o7[2]]: 'Not quite. 100π is 2π × 50. The 2 belongs to the 2π.' },
+      right: ['ω = 100π rad/s, and ω = 2πf', 'f = 100π ÷ 2π = ' + o7[0]],
+      wrong: { [o7[1]]: '100π = ' + fix(W8, 1) + ' is ω, radians a second', [o7[2]]: trim(W8 / PI, 0) + ' forgets the 2 in 2π' } },
+    { show: true, name: 'A head start', pic: 'phase', vh: 282, dur: 4.3, live: ['tip'], sliders: ['phi', 'across'],
+      text: 'Now add a second arm. Arm A starts pointing right, as before. Arm B starts a quarter turn on, at π/2 or 90°, and both turn together. B is already at the top at t = 0, so it reaches every height a quarter turn sooner. Its wave is A\'s slid left by a quarter period, 5 ms at 50 Hz. The start angle is the wave\'s *phase*, φ, and B\'s wave is `E sin(ωt + φ)`. Flip the switch to trace A\'s across shadow: it draws exactly B\'s wave, the *cosine* wave.',
+      after: 'So `E sin(ωt + π/2) = E cos ωt`. The cosine wave is the sine wave started a quarter turn early.' },
+    { kind: 'pick', name: 'Wave B', pic: 'ab',
+      opts: o9, want: o9[1], secret: ['slid left'],
+      task: 'Wave A comes from an arm started pointing right. Arm B starts π/2 further on. What is wave B?',
+      why: 'B is always a quarter turn ahead of A, so it reaches every height a quarter period sooner: its wave is A\'s slid left. It starts at the top, where A only gets after a quarter turn. Both arms are the same length, so the waves are just as tall.',
+      hint: 'Not quite. B is a quarter turn ahead of A.',
+      hints: { [o9[0]]: 'Not quite. B is ahead, so it gets to each height sooner, earlier in time.',
+        [o9[2]]: 'Not quite. B\'s arm is as long as A\'s, so its wave is just as tall.' },
+      right: ['B starts at the top, ¼ turn ahead', 'so B is A slid left ¼ period'],
+      wrong: { [o9[0]]: 'slid right, B would start at the bottom', [o9[2]]: 'both arms are the same length' } },
+    { show: true, name: 'A level line', pic: 'level', vh: 330, dur: 4.5, live: ['level'],
+      text: 'Take the wave `10 sin(100πt)` and draw a level line at 5. It lies between the peaks, so it meets each wave twice, as lesson 3\'s level line met the circle twice. The height is 5 when `sin(100πt) = 5 ÷ 10 = 0.5`. In radian mode `sin⁻¹ 0.5 = 0.524`, and the other angle with the same sine is `π − 0.524 = 2.618`. The arm\'s angle is ωt, so each time is the angle ÷ ω, 1.67 ms and 8.33 ms. Drag the level line up and down.',
+      after: 'Each later wave adds one period, 20 ms, to both times.' },
+    { kind: 'pick', name: 'A line at −8.3', pic: 'low',
+      opts: o11, want: o11[2], secret: [o11[2]],
+      task: 'Move the line to −8.3. When does the wave 10 sin(100πt) first reach it?',
+      why: '`sin⁻¹(−0.83) = −0.979`, which would be a time before the start if divided straight away. The arm first reaches that height past the half turn, at `π + 0.979 = 4.121` radians, and `4.121 ÷ 314.16 = 13.1` ms. The other angle, `2π − 0.979 = 5.304`, gives 16.9 ms.',
+      hint: 'Not quite. Find the angle between 0 and 2π first, in radians.',
+      hints: { [o11[0]]: 'Not quite. A negative time is before the wave starts. Bring the angle into 0 to 2π first.',
+        [o11[1]]: 'Not quite. That is degrees mode. ωt is in radians.' },
+      right: ['sin(100πt) = ' + trim(H12, 1) + ' ÷ ' + E11 + ' = ' + trim(H12 / E11, 3), 'sin⁻¹(' + trim(H12 / E11, 3) + ') = ' + trim(s12, 3),
+        'π + ' + trim(-s12, 3) + ' = ' + trim(PI - s12, 3), trim(PI - s12, 3) + ' ÷ ' + fix(W11, 2) + ' = ' + o11[2]],
+      wrong: { [o11[0]]: [trim(s12, 3) + ' ÷ ' + fix(W11, 2) + ' = ' + o11[0], 'a time before the wave starts'],
+        [o11[1]]: ['degrees mode gives ' + fix(D12, 1) + ', not radians', fix(D12, 1) + ' ÷ ' + fix(W11, 2) + ' = ' + o11[1]] } },
+    { show: true, name: 'The slope\'s graph', pic: 'tan', vh: 282, dur: 4.5, live: ['tip'],
+      text: 'Now trace the arm\'s slope instead of its height, `tan θ = sin θ ÷ cos θ` from Round the circle, against the angle. It is 0 at 0° and 1 at 45°, then climbs without limit as the arm nears straight up, so the graph is cut off at 4 and −4. At 90° and 270° the across shadow is 0, so the slope has no value there. Half a turn on, the arm points the opposite way: both shadows change sign, and their ratio stays the same. So tan repeats every half turn. Drag the tip.',
+      after: 'So the tan graph is the same climbing curve again and again, one for each half turn, with a gap at 90° and 270°.' },
+    { kind: 'pick', name: 'A 50 Hz supply', pic: 'supply',
+      opts: o13, want: o13[1], secret: [o13[1]],
+      task: 'A supply peaks at 325 V at 50 Hz. Which is its wave?',
+      why: 'The number in front of t is ω, the radians a second: `ω = 2π × 50 = 314.2` rad/s, so `v = 325 sin(314.2t)`. With 50 there, the arm would turn only `50 ÷ 2π = 7.96` times a second, and 100 leaves out the π in 100π.',
+      hint: 'Not quite. The number in front of t is ω = 2πf.',
+      hints: { [o13[0]]: 'Not quite. 50 is turns a second. The bracket needs radians a second, ω = 2πf.',
+        [o13[2]]: 'Not quite. 2π × 50 is 100π, not 100: the π is left out.' },
+      right: ['ω = 2π × ' + F14 + ' = ' + fix(W14, 1) + ' rad/s', 'v = ' + o13[1]],
+      wrong: { [o13[0]]: [F14 + ' ÷ 2π = ' + fix(F14 / TAU, 2) + ' turns a second, not ' + F14], [o13[2]]: [trim(W14 / PI, 0) + ' leaves out the π: 100π = ' + fix(W14, 1)] } },
+    { kind: 'pick', name: 'Where it starts', pic: 'start',
+      opts: o14, want: o14[0], secret: [A15 + ' × 1 = ' + o14[0]],
+      task: 'A wave is v = 20 sin(ωt + π/2). At t = 0, what is v?',
+      why: 'At t = 0 the bracket is just π/2, so the arm starts a quarter turn on, straight up, and `v = 20 sin(π/2) = 20 × 1 = 20`. 0 leaves out the phase, and 1 is `sin(π/2)` without the length 20.',
+      hint: 'Not quite. Put t = 0 into the bracket first.',
+      hints: { [o14[1]]: 'Not quite. That leaves out the + π/2. The arm starts a quarter turn on.',
+        [o14[2]]: 'Not quite. sin(π/2) = 1, then multiply by the length 20.' },
+      right: ['at t = 0: ' + A15 + ' sin(π/2)', '= ' + A15 + ' × 1 = ' + o14[0]],
+      wrong: { [o14[1]]: [A15 + ' sin 0 = 0 leaves out the π/2'], [o14[2]]: ['sin(π/2) = 1 leaves out the length ' + A15] } },
+  ];
+  // The rows of working start under the picture; a puzzle's picture is as tall as the rows it shows now.
+  const CX = 62, CY = 112, RM = 46, GX0 = 150, GX1 = 322, BOT = 177, TTL = 193, ROW0 = 222;
+  STEPS.forEach((d) => {
+    if (d.show) return;
+    d.ry = ROW0;
+    const mw = Math.max.apply(null, d.opts.filter((o) => o !== d.want).map((o) => [].concat(d.wrong[o]).length));
+    d.vh = d.ry + 24 * (d.right.length + mw - 1) + 12;
+  });
+  function vhOf(d, st) {
+    if (d.show) return d.vh;
+    const n = (ansOf(st) ? d.right.length : 0) + (wrongOf(st) ? [].concat(d.wrong[st.pick]).length : 0);
+    return n ? d.ry + 24 * (n - 1) + 12 : d.ry - 12;
+  }
+  const FINISH = 'A steadily turning arm\'s height against time is the sine wave `E sin(2πft)`: E is the arm\'s length, its *amplitude*, f its turns a second, the *frequency*, and `2πf` its angular speed ω in radians a second. A start angle slides the wave left, and a quarter turn\'s head start makes the cosine wave.';
+  const CAPS = { turn1: 'The arm is 1 long, so its tip\'s height is sin θ, carried level across to the graph.',
+    half: 'The arm is frozen at a half turn.', amp: 'The arm\'s length is the wave\'s amplitude, its highest point.',
+    arm4: 'An arm of length 4, frozen at 30°.', freq: 'Each turn draws one wave, so the turns a second are the waves a second.',
+    p10: 'One wave, one turn of the arm.', omega: 'One turn is 2π radians, so f turns a second is 2πf radians a second.',
+    f100pi: 'The number in front of t is ω, in radians a second.', phase: 'Arm B starts a quarter turn ahead of arm A, and both turn together.',
+    ab: 'Two arms of the same length, B started π/2 further round.', level: 'Example figures: the wave 10 sin(100πt) and a level line at 5.',
+    low: 'The same wave, with the level line at −8.3.', tan: 'The slope is sin θ ÷ cos θ, cut off at 4 and −4.',
+    supply: 'Example figures: a 325 V peak at 50 Hz.', start: 'At t = 0 the bracket holds only the start angle, π/2.' };
+  // Sources the checks restate (the lesson's own).
+  const SRC = { leg: 'https://www.legislation.gov.uk/uksi/2002/2665/regulation/27/made',
+    openstax: 'https://openstax.org/books/precalculus-2e/pages/5-2-unit-circle-sine-and-cosine-functions',
+    second: 'https://eng.libretexts.org/Workbench/Introduction_to_Circuit_Analysis/08%3A_AC_Signal_Fundamentals/8.07%3A_Summary',
+    unsw: 'https://www.animations.physics.unsw.edu.au/jw/AC.html',
+    cycles: 'https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/AC_Electrical_Circuit_Analysis:_A_Practical_Approach_(Fiore)/01:_Fundamentals/1.2:_Sinusoidal_Waveforms',
+    radians: 'https://static.bigideasmath.com/protected/content/pe/hsim/int_math3_pe_08_02.pdf',
+    wave: 'https://www.electronics-tutorials.ws/accircuits/ac-waveform.html' };
+  const FADE = 0.35, ANS = 1.8;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { chunks(seg).forEach((c, m) => { if (m) node.appendChild(document.createTextNode(' ')); node.appendChild(K.el('span', { class: 'nw' }, c)); }); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) node.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) node.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+  // A formula kept whole where it is short; a long one may wrap before an = sign, or before another
+  // sign once a piece is long enough, so nothing runs off a phone at the largest text size.
+  function chunks(s) {
+    if (s.length <= 18) return [s];
+    const out = [];
+    let cur = '';
+    s.split(' ').forEach((t) => {
+      const eq = t === '=', op = /^[÷×+−]$/.test(t);
+      if (cur && (eq || (op && cur.length >= 14))) { out.push(cur); cur = t; } else cur = cur ? cur + ' ' + t : t;
+    });
+    if (cur) out.push(cur);
+    return out;
+  }
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong', 'empty'), why: a puzzle's answer. tau: the time Dan set by dragging the
+  // arm's tip (in turns); h: the level line he dragged; E, f, phi, across: the sliders and switch he set.
+  // null means "as the demonstration has it".
+  function blank() { return { pick: null, res: null, why: false, tau: null, h: null, E: null, f: null, phi: null, across: null }; }
+  const stOf = (o) => Object.assign(blank(), o);
+  const resetLive = (st) => { st.tau = null; st.h = null; };
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  const ansOf = (st) => st.res === 'right' || !!st.why;
+  const wrongOf = (st) => st.res === 'wrong' && st.pick != null;
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, MODE = 'demo', motionEnd = 0, paused = false;
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play('answer', ANS);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+    if (st.why && st.res !== 'right') play('answer', ANS);
+  } });
+  // One button plays the demonstration, pauses it to read the height, and plays it on or again.
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    if (anim.playing() && T < motionEnd) { anim.pause(); paused = true; return; }
+    if (paused && T < motionEnd) { paused = false; anim.play(); return; }
+    resetLive(st);
+    play('demo', d.dur);
+  } });
+  let replayText = 'Play again';
+  function replayLabel() {
+    const s = anim.playing() && T < motionEnd ? 'Pause' : paused && T < motionEnd ? 'Play' : 'Play again';
+    if (s !== replayText) { replayText = s; replayBtn.setLabel(s); }
+  }
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  // The sliders and the switch, shown only on the screens that use them.
+  const ctl = {
+    E: K.control({ id: 'E', label: 'Arm length', min: 1, max: 10, step: 1, value: 10, into: '#ctl' }),
+    f: K.control({ id: 'f', label: 'Turns a second', min: 1, max: 50, step: 1, log: true, value: 50, unit: 'Hz', snap: [2, 50], into: '#ctl' }),
+    phi: K.control({ id: 'phi', label: 'Start angle of arm B', min: 0, max: 360, step: 15, value: 90, unit: '°', snap: [90], into: '#ctl' }),
+    across: K.toggle({ id: 'across', label: 'Trace A\'s across shadow', value: false, into: '#ctl' }),
+  };
+  const SL = ['E', 'f', 'phi', 'across'];
+  const shown = { E: ctl.E.get(), f: ctl.f.get(), phi: ctl.phi.get(), across: ctl.across.get() };
+  // A control set to what the picture shows (quietly: this is not Dan moving it).
+  function syncCtl(id, v) {
+    const c = ctl[id];
+    if (c.get() !== v) c.set(v, true);
+    shown[id] = c.get();
+  }
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion (and
+  // while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && !paused && T !== Infinity) { T = Infinity; paint(); } });
+  // A demonstration waits until most of its picture is in view, so on a phone it does not play out
+  // while Dan is still reading the words above it.
+  let seen = true, waiting = false, waitDur = 0;
+  if (typeof IntersectionObserver === 'function') {
+    seen = false;
+    new IntersectionObserver((es) => {
+      const e = es[es.length - 1];
+      seen = e.isIntersecting && (e.intersectionRatio >= 0.6 || e.intersectionRect.height >= 0.6 * (window.innerHeight || 1));
+      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }
+    }, { threshold: [0, 0.3, 0.6, 0.8, 1] }).observe(el('scene'));
+  }
+  function play(mode, dur) {
+    MODE = mode; waiting = false; paused = false;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    if (mode === 'demo' && !seen) { waiting = true; waitDur = dur; T = 0; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null, REC = null, VH = 300;
+  const VOID = K.svg('g');
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const when = (m, t, d) => (MODE === m ? arr(t, d) : 1);
+  // A steady motion from 0 to 1 between t0 and t0 + d of the demonstration (the arm turns at a steady
+  // speed, so no easing), 1 when it is not playing.
+  function lin(t0, d) {
+    if (MODE !== 'demo') return 1;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.clamp((T - t0) / d, 0, 1);
+  }
+  // A part fades in at arrival a. A part not yet arrived is still laid out (off the page), so the
+  // labels placed around it never jump when it arrives.
+  function part(a, rise, draw) {
+    const shown = a > 0;
+    const g = shown ? add(K.svg('g')) : VOID;
+    if (shown) K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; if (!shown) VOID.textContent = ''; }
+  }
+  const R = (v) => Math.round(v * 100) / 100;
+  const pt = (q) => R(q[0]) + ' ' + R(q[1]);
+  const poly = (ps, close) => 'M' + ps.map(pt).join(' L') + (close ? ' Z' : '');
+  // Lines and paths, noted (with half their width) so labels keep off them.
+  function lineP(cls, p, q, pad) {
+    add(K.svg('line', { class: cls, x1: R(p[0]), y1: R(p[1]), x2: R(q[0]), y2: R(q[1]) }));
+    if (pad != null) REC.segs.push({ p, q, pad });
+  }
+  function pathP(cls, ps, pad) {
+    add(K.svg('path', { class: cls, d: poly(ps, false) }));
+    if (pad != null) for (let k = 1; k < ps.length; k++) REC.segs.push({ p: ps[k - 1], q: ps[k], pad });
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: R(x), y: R(y), width: R(Math.max(0, w)), height: R(Math.max(0, h)), rx: rx || 0 }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: R(x), y: R(y), 'text-anchor': anchor || 'middle' }, s));
+  function dot(p, cls, r) {
+    add(K.svg('circle', { class: cls || 'tipdot', cx: R(p[0]), cy: R(p[1]), r: r || 4 }));
+    REC.segs.push({ p, q: p, pad: (r || 4) + 1 });
+  }
+  function ringAt(p, cls, r) {
+    add(K.svg('circle', { class: cls, cx: R(p[0]), cy: R(p[1]), r }));
+    REC.segs.push({ p, q: p, pad: r + 2 });
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 8;
+  }
+  // A label at a fixed place (axis ticks and titles), its box noted so placed labels keep clear.
+  function fixedLab(x, y, s, cls, anchor, a) {
+    const w = tw(s, cls), x0 = anchor === 'end' ? x - w : anchor === 'start' ? x : x - w / 2, aa = a == null ? 1 : a;
+    REC.boxes.push({ x: x0, y: y - 11, w, h: 14 });
+    if (aa > 0) part(aa, 0, () => text(x, y, s, cls, anchor || 'middle'));
+    return aa >= 0.5;
+  }
+  // A readout pill on the top row, against the left or the right edge.
+  function pill(key, s, y, a, left) {
+    const w = tw(s, 'pv') + 14, h = 21, cx = left ? 3 + w / 2 : 337 - w / 2, aa = a == null ? 1 : a;
+    REC.boxes.push({ x: cx - w / 2, y: y - h / 2, w, h });
+    if (aa >= 0.5) REC.pills[key] = s;
+    if (aa > 0) part(aa, 0, () => { rect('pill', cx - w / 2, y - h / 2, w, h, 10); text(cx, y + 5, s, 'pv'); });
+  }
+  // An arrowhead with its tip at p, pointing along the unit direction u.
+  function arrowHead(p, u, cls) {
+    const s = 8, w = 4, b = [p[0] - u[0] * s, p[1] - u[1] * s], n = [-u[1], u[0]];
+    add(K.svg('path', { class: cls || 'head', d: poly([p, [b[0] + n[0] * w, b[1] + n[1] * w], [b[0] - n[0] * w, b[1] - n[1] * w]], true) }));
+    REC.segs.push({ p: b, q: p, pad: 5 });
+  }
+
+  // ---------- labels placed clear of everything drawn ----------
+  function segHits(p, q, b) {
+    let t0 = 0, t1 = 1;
+    const dx = q[0] - p[0], dy = q[1] - p[1];
+    const clip = (pp, qq) => {
+      if (pp === 0) return qq >= 0;
+      const r = qq / pp;
+      if (pp < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+      return true;
+    };
+    return clip(-dx, p[0] - b.x) && clip(dx, b.x + b.w - p[0]) && clip(-dy, p[1] - b.y) && clip(dy, b.y + b.h - p[1]) && t0 <= t1;
+  }
+  // Is a box clear of the edges, the floor, the labels placed so far, the handles and the lines?
+  function fits(b) {
+    if (b.x < 3 || b.x + b.w > 337 || b.y < 2 || b.y + b.h > Math.min(VH, REC.floor) - 2) return false;
+    if (REC.boxes.some((o) => o.x < b.x + b.w + 7 && b.x < o.x + o.w + 7 && o.y < b.y + b.h + 2 && b.y < o.y + o.h + 2)) return false;
+    if (REC.handles.some((hd) => Math.hypot(K.clamp(hd.x, b.x, b.x + b.w) - hd.x, K.clamp(hd.y, b.y, b.y + b.h) - hd.y) < 14)) return false;
+    return !REC.segs.some((g) => segHits(g.p, g.q, { x: b.x - g.pad - 1.5, y: b.y - g.pad - 1.5, w: b.w + 2 * g.pad + 3, h: b.h + 2 * g.pad + 3 }));
+  }
+  // A label at the first candidate clear of everything; none when there is no room.
+  function plainLab(s, cls, candsOf, a, inside) {
+    const w = tw(s, cls), h = 14, cands = candsOf(w, h);
+    const c = cands.find((q) => { const b = { x: q[0] - w / 2, y: q[1] - h / 2, w, h }; return (!inside || inside(b)) && fits(b); }) || null;
+    if (!c) return null;
+    const aa = a == null ? 1 : a;
+    REC.boxes.push({ x: c[0] - w / 2, y: c[1] - h / 2, w, h });
+    if (aa >= 0.5) REC.labs.push(s);
+    if (aa > 0) part(aa, 0, () => text(c[0], c[1] + 5, s, cls));
+    return c;
+  }
+  // A label beside a segment, on the side away from a point when it can.
+  function segLab(p, q, s, away, a, cls) {
+    cls = cls || 'al';
+    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1;
+    let n = [-dy / L, dx / L];
+    if (away) { const m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2]; if ((away[0] - m[0]) * n[0] + (away[1] - m[1]) * n[1] > 0) n = [-n[0], -n[1]]; }
+    return plainLab(s, cls, (w, h) => {
+      const out = [];
+      [n, [-n[0], -n[1]]].forEach((nn) => [0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.8, 0.1, 0.9].forEach((f) => [6, 14, 24, 34].forEach((e) => {
+        const d = e + Math.abs(nn[0]) * w / 2 + Math.abs(nn[1]) * h / 2;
+        out.push([p[0] + dx * f + nn[0] * d, p[1] + dy * f + nn[1] * d]);
+      })));
+      return out;
+    }, a);
+  }
+  // A label beside a point in direction dir (degrees, anticlockwise from pointing right) when it can.
+  function cornerLab(V, s, dir, a, cls) {
+    return plainLab(s, cls || 'al', (w, h) => {
+      const out = [];
+      [0, 25, -25, 50, -50, 80, -80, 115, -115, 150, -150, 180].forEach((dt) => [10, 18, 28].forEach((e) => {
+        const u = [cosD(dir + dt), -sinD(dir + dt)], d = e + Math.abs(u[0]) * w / 2 + Math.abs(u[1]) * h / 2;
+        out.push([V[0] + u[0] * d, V[1] + u[1] * d]);
+      }));
+      return out;
+    }, a);
+  }
+  // An angle's arc at corner V from a0 to a1 (degrees, anticlockwise), its label inside the wedge
+  // beyond the arc, left off when the wedge has no room for it.
+  function inWedgeAt(V, a0, a1, pad) {
+    return (b) => [[b.x, b.y], [b.x + b.w, b.y], [b.x, b.y + b.h], [b.x + b.w, b.y + b.h]].every((q) => {
+      const dx = q[0] - V[0], dy = V[1] - q[1], r = Math.hypot(dx, dy);
+      if (r < pad + 1) return false;
+      let p = Math.atan2(dy, dx) / RAD;
+      while (p < a0) p += 360;
+      while (p >= a0 + 360) p -= 360;
+      const m = Math.asin(Math.min(1, pad / r)) / RAD;
+      return p >= a0 + m && p <= a1 - m;
+    });
+  }
+  function arcPathAt(V, a0, a1, r) {
+    const p0 = [V[0] + r * cosD(a0), V[1] - r * sinD(a0)], p1 = [V[0] + r * cosD(a1), V[1] - r * sinD(a1)];
+    return 'M' + pt(p0) + ' A' + r + ' ' + r + ' 0 ' + (a1 - a0 > 180 ? 1 : 0) + ' 0 ' + pt(p1);
+  }
+  function arcAt(V, a0, a1, ra, a, cls) {
+    if (!(a1 - a0 > 0.5)) return;
+    const aa = a == null ? 1 : a, n = Math.max(2, Math.ceil((a1 - a0) / 8));
+    for (let k = 0; k < n; k++) {
+      const t0 = a0 + (a1 - a0) * k / n, t1 = a0 + (a1 - a0) * (k + 1) / n;
+      REC.segs.push({ p: [V[0] + ra * cosD(t0), V[1] - ra * sinD(t0)], q: [V[0] + ra * cosD(t1), V[1] - ra * sinD(t1)], pad: 1 });
+    }
+    if (aa > 0) part(aa, 0, () => add(K.svg('path', { class: cls || 'arc', d: arcPathAt(V, a0, a1, ra) })));
+  }
+  function wedgeLab(V, a0, a1, s, a, ra, maxD, cls) {
+    if (!(a1 - a0 > 0.5) || !s) return null;
+    cls = cls || 'al';
+    const w = tw(s, cls), span = a1 - a0, cands = [], top = maxD || 230;
+    for (let dd = ra + Math.hypot(w / 2, 7) + 4; dd < top; dd += 3) [0.5, 0.36, 0.64, 0.24, 0.76].forEach((f) => { const t = a0 + span * f; cands.push([V[0] + cosD(t) * dd, V[1] - sinD(t) * dd]); });
+    return plainLab(s, cls, () => cands, a, inWedgeAt(V, a0, a1, 3));
+  }
+  // ---------- rows of working under the picture ----------
+  function drawRows(y0, rows) {
+    rows.forEach((r, m) => {
+      const y = y0 + 24 * m, w = tw(r.s, 'te');
+      REC.boxes.push({ x: 12, y: y - 11, w, h: 14 });
+      if (r.a > 0) part(r.a, 4, () => { if (r.hl) rect('hlbg', 7, y - 15, w + 10, 21, 4); text(12, y, r.s, 'te' + (r.bad ? ' bad' : ''), 'start'); });
+    });
+    REC.rows = rows.filter((r) => r.a >= 0.5).map((r) => ({ s: r.s, bad: !!r.bad }));
+  }
+  function puzzleRows(d, st, y0) {
+    const an = (t) => when('answer', t), list = [], ok = ansOf(st);
+    if (ok) d.right.forEach((s, m) => list.push({ s, a: an(0.3 + 0.15 * m) }));
+    if (wrongOf(st)) [].concat(d.wrong[st.pick]).forEach((s, m) => list.push({ s, a: an((ok ? 0.3 + 0.15 * d.right.length : 0.3) + 0.15 * m), bad: true }));
+    drawRows(y0, list);
+  }
+
+  // ---------- the circle and its arm, the graph and its wave ----------
+  // The circle on the left and the graph on the right share one height scale, so the dashed carry line
+  // runs level from the arm's tip to the pen. o: E (the arm's length), ymax (the graph's top value),
+  // cmax (the circle's scale, when it differs), turns (the time the graph spans, in turns of the arm),
+  // tmode ('turns', 'time', 'deg' or 'none'), f (turns a second, for 'time'), talpha, unit, yname, tname.
+  function frame(o) {
+    const kc = RM / (o.cmax || o.ymax), kg = RM / o.ymax, turns = o.turns;
+    const m = { kc, kg, turns, C: [CX, CY], ymax: o.ymax,
+      gx: (t) => GX0 + (GX1 - GX0) * t / turns, gy: (v) => CY - v * kg,
+      tOf: (x) => (x - GX0) / (GX1 - GX0) * turns, vOf: (y) => (CY - y) / kg };
+    REC.map = m; REC.pivot = m.C;
+    lineP('axis', [CX - RM - 7, CY], [CX + RM + 7, CY], 1);
+    lineP('axis', [CX, CY - RM - 6], [CX, CY + RM + 6], 1);
+    if (o.E) edge(m.C, o.E * kc);
+    lineP('axis', [GX0, CY], [GX1 + 5, CY], 1);
+    lineP('axis', [GX0, CY - RM - 6], [GX0, CY + RM + 6], 1);
+    const yv = trim(o.ymax, 2) + (o.unit || '');
+    lineP('tick', [GX0 - 4, CY - RM], [GX0, CY - RM], 1);
+    lineP('tick', [GX0 - 4, CY + RM], [GX0, CY + RM], 1);
+    fixedLab(GX0 - 6, CY - RM - 7, yv, 'tk', 'end');
+    fixedLab(GX0 - 6, CY + RM + 17, '−' + yv, 'tk', 'end');
+    fixedLab(GX0 - 6, 44, o.yname || 'height', 'tk', 'end');
+    REC.tlabs = [];
+    const ta = o.talpha == null ? 1 : o.talpha;
+    const tick = (x) => lineP('tick', [x, CY - 3], [x, CY + 3], 1);
+    if (o.tmode === 'turns') for (let j = 1; j <= 4 * turns; j++) { const x = m.gx(j / 4); tick(x); tickLab(x, turns === 1 ? QN[j] : trim(j / 4, 2), ta); }
+    else if (o.tmode === 'deg') for (let j = 1; j <= 4; j++) { const x = m.gx(j / 4); tick(x); tickLab(x, 90 * j + '°', ta); }
+    else if (o.tmode === 'time') for (let j = 1; j <= 2 * turns; j++) { const x = m.gx(j / 2); tick(x); if (j % 2 === 0) tickLab(x, timeS(j / 2 / o.f), ta); }
+    fixedLab(337, TTL, o.tname || 'time', 'tk', 'end');
+    return m;
+  }
+  function tickLab(x, s, a) {
+    const w = tw(s, 'tk'), cx = Math.min(x, 337 - w / 2);
+    fixedLab(cx, BOT, s, 'tk', 'middle', a);
+    if (a >= 0.5) REC.tlabs.push(s);
+  }
+  // The circle's edge, noted so labels keep off it.
+  function edge(C, r) {
+    add(K.svg('circle', { class: 'edge', cx: R(C[0]), cy: R(C[1]), r: R(r) }));
+    const n = 64;
+    for (let k = 0; k < n; k++) REC.segs.push({ p: pE(C, r, TAU * k / n), q: pE(C, r, TAU * (k + 1) / n), pad: 1 });
+  }
+  // An arm of length E started at phi, turned tau turns: its tip, and the pen that draws its height
+  // (or, with fn 'cos', its across shadow) against time; the trace drawn from 0 up to `upto` turns.
+  function armTrace(m, a) {
+    const E = a.E, phi = a.phi || 0, cos = a.fn === 'cos';
+    const val = (t) => E * (cos ? Math.cos(TAU * t + phi) : Math.sin(TAU * t + phi));
+    const th = TAU * a.tau + phi, r = E * m.kc;
+    const tip = [CX + r * Math.cos(th), CY - r * Math.sin(th)];
+    const v = val(a.tau), pen = [m.gx(a.tau), m.gy(v)];
+    const out = { tip, pen, v, th, pts: [], val };
+    const upto = a.upto == null ? a.tau : a.upto;
+    if (a.trace !== false && upto > 1e-9) {
+      const n = Math.max(2, Math.round(240 * upto / m.turns));
+      for (let j = 0; j <= n; j++) { const t = upto * j / n; out.pts.push([m.gx(t), m.gy(val(t))]); }
+      part(a.ta == null ? 1 : a.ta, 0, () => pathP(a.cls || 'trace', out.pts, 1.5));
+    }
+    return out;
+  }
+  const drawCarry = (w) => lineP('cline', w.tip, w.pen, 1);
+  function drawArm(m, w, cls) { lineP(cls || 'arm', m.C, w.tip, 2); dot(w.tip, 'tipdot', 3.5); }
+  const drawPen = (w, cls) => dot(w.pen, cls || 'pen', 4.5);
+  function tipHandle(w, phi, max, tau) { REC.handles.push({ id: 'tip', x: w.tip[0], y: w.tip[1] }); REC.range = [0, max]; REC.tipPhi = phi; REC.tau = tau; }
+  // A bracket along the top of the graph from time t0 to t1 (in turns), with an arrowhead at t1 when
+  // asked, and its label over it.
+  function topBracket(m, t0, t1, s, aB, aL, head) {
+    const y = CY - RM - 9, x0 = m.gx(Math.min(t0, t1)), x1 = m.gx(Math.max(t0, t1));
+    part(aB, 0, () => {
+      pathP('brk', [[x0, y + 4], [x0, y], [x1, y], [x1, y + 4]], 1);
+      if (head && x1 - x0 >= 14) arrowHead([m.gx(t1), y], [t1 < t0 ? -1 : 1, 0]);
+    });
+    const mid = (x0 + x1) / 2;
+    return plainLab(s, 'al', () => [0, 8, 16, 24, 32, 44, 56, 70, 86, 100, -8, -16, -24].map((dx) => [mid + dx, y - 11]), aL);
+  }
+  // Where a level line at height h crosses a wave of amplitude E: the arm's angles in one turn, and
+  // the times (in turns) within the graph.
+  function crossings(h, E, turns) {
+    const x = h / E;
+    if (Math.abs(x) > 1 + 1e-12) return { s: null, angs: [], ts: [] };
+    const xc = K.clamp(x, -1, 1), s = Math.asin(xc);
+    let angs;
+    if (Math.abs(xc) >= 1 - 1e-12) angs = [xc > 0 ? PI / 2 : 3 * PI / 2];
+    else if (s >= 0) angs = [s, PI - s];
+    else angs = [PI - s, TAU + s];
+    const ts = [];
+    for (let n = 0; n <= turns; n++) angs.forEach((a) => { const t = a / TAU + n; if (t <= turns + 1e-9) ts.push(t); });
+    ts.sort((p, q) => p - q);
+    return { s, angs, ts };
+  }
+  // The level line across the circle and the graph, its crossings dotted on both, and a guide from the
+  // first one or two down to the foot of the graph, where their times go.
+  function levelDraw(m, h, aL, aD, only1) {
+    const E = m.ymax, y = m.gy(h), cr = crossings(h, E, m.turns), r = E * m.kc;
+    part(aL, 0, () => lineP('lvl', [8, y], [GX1 + 5, y], 2));
+    const first = cr.ts.slice(0, only1 || cr.angs.length < 2 ? 1 : 2);
+    part(aD, 0, () => {
+      cr.angs.forEach((a) => { const p = pE(m.C, r, a); lineP('armM', m.C, p, 1.5); dot(p, 'xdot', 3.5); });
+      first.forEach((t) => lineP('gap', [m.gx(t), y + 6], [m.gx(t), CY + RM + 4], 1));
+      cr.ts.forEach((t) => dot([m.gx(t), y], 'xdot', 4));
+    });
+    return { h, y, ts: cr.ts, angs: cr.angs, first, labs: [] };
+  }
+  function levelLabs(m, L, aL, aT, only) {
+    plainLab('level ' + trim(L.h, 1), 'al', (w) => {
+      const out = [];
+      [0, 20, 40, 60, 80, 100, 120, 140].forEach((dx) => [-11, 13, -18, 20].forEach((dy) => out.push([GX1 - w / 2 - dx, L.y + dy])));
+      return out;
+    }, aL);
+    L.first.forEach((t, k) => {
+      const s = only != null ? only : msS(t / F11), x = m.gx(t);
+      const c = plainLab(s, 'al', (w) => {
+        const out = [];
+        [172, 191].forEach((y) => [w / 2 + 3, 0, -w / 2 - 3, w / 2 + 14, -w / 2 - 14, w / 2 + 26, -w / 2 - 26, w / 2 + 40, -w / 2 - 40].forEach((dx) => out.push([x + dx, y])));
+        return out;
+      }, aT);
+      if (c && aT >= 0.5) L.labs.push(s);
+    });
+  }
+  function levelRows(h) {
+    const x = h / E11, xs = trim(x, 3), Ws = fix(W11, 2), r = ['sin(100πt) = ' + trim(h, 1) + ' ÷ ' + E11 + ' = ' + xs];
+    const tRow = (a) => trim(a, 3) + ' ÷ ' + Ws + ' = ' + msS(a / W11);
+    const s = Math.asin(K.clamp(x, -1, 1));
+    if (Math.abs(x) >= 1 - 1e-12) {
+      const a = x > 0 ? PI / 2 : 3 * PI / 2;
+      r.push('sin⁻¹' + (x < 0 ? '(' + xs + ')' : ' ' + xs) + ' = ' + trim(s, 3) + (x < 0 ? ', so ' + trim(a, 3) : '') + ': one angle');
+      r.push(tRow(a));
+    } else if (s >= 0) {
+      r.push('sin⁻¹ ' + xs + ' = ' + trim(s, 3) + ', π − ' + trim(s, 3) + ' = ' + trim(PI - s, 3));
+      r.push(tRow(s), tRow(PI - s));
+    } else {
+      r.push('sin⁻¹(' + xs + ') = ' + trim(s, 3));
+      r.push('π + ' + trim(-s, 3) + ' = ' + trim(PI - s, 3) + ', 2π − ' + trim(-s, 3) + ' = ' + trim(TAU + s, 3));
+      r.push(tRow(PI - s), tRow(TAU + s));
+    }
+    return r;
+  }
+
+  // ---------- each step's picture ----------
+  const PIC = {
+    turn1(d, st) {
+      const tau = st.tau != null ? st.tau : lin(0.5, 3.4);
+      const m = frame({ E: 1, ymax: 1, turns: 1, tmode: 'turns', tname: 'time, in turns' });
+      const w = armTrace(m, { E: 1, tau });
+      drawCarry(w); drawArm(m, w); drawPen(w);
+      tipHandle(w, 0, 1, tau);
+      pill('h', 'height ' + hS(w.v), 14);
+      REC.w = w;
+      return 'Lesson 3\'s arm, length 1, turned ' + trim(tau * 360, 0) + '° anticlockwise from pointing right. Its tip\'s height, ' + hS(w.v) + ', is carried level across to a graph of height against time, where a pen has drawn the wave so far.';
+    },
+    half(d, st) {
+      const an = ansOf(st), bad = wrongOf(st) ? st.pick : null, a = when('answer', 0.3);
+      const m = frame({ E: 1, ymax: 1, turns: 1, tmode: 'turns', tname: 'time, in turns' });
+      const w = armTrace(m, { E: 1, tau: 0.5, trace: an, ta: a });
+      const x = m.gx(0.5);
+      if (!an) lineP('askband', [x, CY - RM], [x, CY + RM], 2);
+      if (an) part(a, 0, () => drawCarry(w));
+      drawArm(m, w);
+      if (an) part(a, 0, () => drawPen(w));
+      if (bad) part(a, 0, () => ringAt([x, m.gy(bad === o1[1] ? -1 : 1)], 'badring', 7));
+      pill('h', 'height ' + (an ? o1[0] : '?'), 14);
+      puzzleRows(d, st, ROW0);
+      return 'Lesson 3\'s arm, length 1, frozen at a half turn, pointing left.' + (an ? ' The trace there is at 0, on the time axis.' : ' The graph marks the half turn, where the trace is asked for.');
+    },
+    amp(d, st) {
+      const E = st.E != null ? st.E : 10;
+      syncCtl('E', E);
+      const tau = st.tau != null ? st.tau : lin(0.5, 2.8);
+      const m = frame({ E, ymax: 10, turns: 1, tmode: 'turns', tname: 'time, in turns' });
+      const w = armTrace(m, { E, tau });
+      const aB = when('demo', 3.3), peak = tau >= 0.25 - 1e-9, x = m.gx(0.25), yt = m.gy(E);
+      if (peak) part(aB, 0, () => lineP('brk', [x, CY], [x, yt], 1));
+      drawCarry(w); drawArm(m, w); drawPen(w);
+      tipHandle(w, 0, 1, tau);
+      pill('h', 'height ' + hS(w.v), 14);
+      REC.ampLab = null;
+      if (peak) {
+        const s = 'amplitude ' + trim(E, 0);
+        const c = plainLab(s, 'al', (lw) => [[x, yt - 12], [x + 10, yt - 12], [x + 20, yt - 12], [x + 30, yt - 12], [x + lw / 2 + 8, (CY + yt) / 2], [x + lw / 2 + 8, yt - 4], [x - lw / 2 - 8, (CY + yt) / 2], [x + 40, yt - 14]], aB);
+        if (c && aB >= 0.5) REC.ampLab = s;
+      }
+      drawRows(ROW0, [{ s: 'height = ' + trim(E, 0) + ' sin θ, from ' + trim(E, 0) + ' to −' + trim(E, 0), a: when('demo', 3.5) }]);
+      REC.w = w;
+      return 'An arm of length ' + trim(E, 0) + ' turned ' + trim(tau * 360, 0) + '°. Over one turn its wave runs up to ' + trim(E, 0) + ' and down to −' + trim(E, 0) + ': its amplitude is the arm\'s length.';
+    },
+    arm4(d, st) {
+      const an = ansOf(st), bad = wrongOf(st) ? st.pick : null, a = when('answer', 0.3);
+      const m = frame({ E: L4, ymax: L4, turns: 1, tmode: 'turns', tname: 'time, in turns' });
+      const w = armTrace(m, { E: L4, tau: A4 / 360, trace: an, ta: a });
+      const foot = [w.tip[0], CY];
+      arcAt(m.C, 0, A4, 18);
+      lineP('drop', w.tip, foot, 1);
+      if (bad === o3[0]) part(a, 0, () => lineP('shadowBad', m.C, foot, 2));
+      if (an) part(a, 0, () => drawCarry(w));
+      drawArm(m, w);
+      if (an) part(a, 0, () => drawPen(w));
+      wedgeLab(m.C, 0, A4, A4 + '°', 1, 18, 120);
+      segLab(m.C, w.tip, trim(L4, 0), foot, 1);
+      segLab(w.tip, foot, an ? o3[1] : '?', m.C, 1);
+      if (bad === o3[0]) segLab(m.C, foot, o3[0], w.tip, a, 'al bad');
+      pill('h', 'height ' + (an ? o3[1] : '?'), 14);
+      puzzleRows(d, st, ROW0);
+      return 'An arm of length 4 frozen at 30°, with a dashed drop from its tip to the across axis marking its height' + (an ? ', 2.' : ', which is asked for.');
+    },
+    freq(d, st) {
+      // Dan's setting, or the demonstration's 2 turns a second, relabelled for 50 Hz at 3.3 s.
+      let f = 50, ta = 1;
+      if (st.f != null) f = st.f;
+      else if (MODE === 'demo' && T < 3.3) { f = 2; ta = 1 - arr(3.0, 0.3); }
+      else ta = when('demo', 3.35);
+      syncCtl('f', f);
+      const tau = st.tau != null ? st.tau : 2 * lin(0.5, 2.4);
+      const m = frame({ E: 1, ymax: 1, turns: 2, tmode: 'time', f, talpha: ta, tname: 'time' });
+      const w = armTrace(m, { E: 1, tau });
+      drawCarry(w); drawArm(m, w); drawPen(w);
+      tipHandle(w, 0, 2, tau);
+      REC.period = null;
+      if (tau >= 1 - 1e-9) {
+        const aB = when('demo', 1.7), aL = Math.min(aB, ta), s = 'period ' + timeS(1 / f);
+        if (topBracket(m, 0, 1, s, aB, aL, false) && aL >= 0.5) REC.period = s;
+      }
+      drawRows(ROW0, [{ s: periodRow(f), a: Math.min(when('demo', 1.8), ta) }]);
+      REC.w = w;
+      return 'The arm turning ' + f + ' times a second. Two whole waves fill ' + timeS(2 / f) + ' of the graph, and each wave, one turn, takes ' + timeS(1 / f) + ', the period.';
+    },
+    p10(d, st) {
+      const an = ansOf(st), a = when('answer', 0.3);
+      const m = frame({ E: 1, ymax: 1, turns: 2, tmode: 'time', f: F6, tname: 'time' });
+      const w = armTrace(m, { E: 1, tau: 2 });
+      drawCarry(w); drawArm(m, w); drawPen(w);
+      topBracket(m, 0, 1, 'one wave: ' + P6 + ' ms', 1, 1, false);
+      if (an) pill('f', 'f = ' + o5[2], 14, a, true);
+      puzzleRows(d, st, ROW0);
+      return 'A wave that repeats every 10 ms: two waves across 20 ms, one turn of the arm each.';
+    },
+    omega(d, st) {
+      const f = st.f != null ? st.f : 50;
+      syncCtl('f', f);
+      const tau = st.tau != null ? st.tau : 2 * lin(0.5, 2.6);
+      const m = frame({ E: 1, ymax: 1, turns: 2, tmode: 'time', f, tname: 'time t' });
+      const w = armTrace(m, { E: 1, tau });
+      const aR = when('demo', 0.9);
+      part(aR, 0, () => add(K.svg('circle', { class: 'ring', cx: CX, cy: CY, r: RM + 6 })));
+      for (let k = 0; k < 48; k++) REC.segs.push({ p: pE(m.C, RM + 6, TAU * k / 48), q: pE(m.C, RM + 6, TAU * (k + 1) / 48), pad: 1 });
+      drawCarry(w); drawArm(m, w); drawPen(w);
+      tipHandle(w, 0, 2, tau);
+      pill('w', 'ω = 2πf = ' + fix(TAU * f, 2) + ' rad/s', 14, when('demo', 0.5), true);
+      REC.ringLab = null;
+      const rs = '1 turn = 2π';
+      if (plainLab(rs, 'al', (lw) => [[Math.max(CX, 4 + lw / 2), 177], [Math.max(CX, 4 + lw / 2), 181]], aR) && aR >= 0.5) REC.ringLab = rs;
+      segLab(m.C, w.tip, 'E = 1', null, 1);
+      drawRows(ROW0, ['1 turn = 2π radians, so ω = 2πf', 'after t seconds the arm is at ωt', 'height = E sin(ωt) = E sin(2πft)']
+        .map((s, k) => ({ s, a: when('demo', 3.1 + 0.2 * k) })));
+      REC.w = w;
+      return 'The arm turning ' + f + ' times a second, ω = ' + fix(TAU * f, 2) + ' radians a second. A ring round the circle marks one turn as 2π radians.';
+    },
+    f100pi(d, st) {
+      const an = ansOf(st), a = when('answer', 0.3);
+      const m = frame({ E: E8, ymax: E8, turns: 2, tmode: an ? 'time' : 'none', f: F8, talpha: a, tname: 'time t', yname: 'v' });
+      const w = armTrace(m, { E: E8, tau: 2 });
+      drawCarry(w); drawArm(m, w); drawPen(w);
+      pill('eq', 'v = 10 sin(100πt)', 14, 1, true);
+      if (an) topBracket(m, 0, 1, 'period ' + timeS(1 / F8), a, a, false);
+      puzzleRows(d, st, ROW0);
+      return 'The wave v = 10 sin(100πt), two turns of an arm of length 10.' + (an ? ' Each wave takes 20 ms.' : '');
+    },
+    phase(d, st) {
+      const deg = st.phi != null ? st.phi : 90, across = st.across != null ? !!st.across : false;
+      syncCtl('phi', deg); syncCtl('across', across);
+      const phi = deg * RAD, W = TAU * 50;
+      const tau = st.tau != null ? st.tau : 2 * lin(0.5, 2.6);
+      const m = frame({ E: 1, ymax: 1, turns: 2, tmode: 'time', f: 50, tname: 'time' });
+      const B = armTrace(m, { E: 1, phi, tau, cls: 'traceB' });
+      const A = armTrace(m, { E: 1, tau, fn: across ? 'cos' : 'sin', cls: across ? 'traceX' : 'traceA' });
+      const a0 = ((A.th * DEG) % 360 + 360) % 360;
+      if (deg > 0 && deg < 360) arcAt(m.C, a0, a0 + deg, 15);
+      if (across) lineP('shadow', m.C, [A.tip[0], CY], 2);
+      drawCarry(B); if (!across) drawCarry(A);
+      drawArm(m, A, 'armA'); drawArm(m, B, 'armB');
+      drawPen(A, across ? 'penX' : 'penA'); drawPen(B, 'penB');
+      tipHandle(B, phi, 2, tau);
+      REC.shift = null;
+      if (!across && deg > 0) {
+        const sh = deg / 360, tB = ((0.25 - sh) % 1 + 1) % 1, tA = tB + sh;
+        if (tau >= tA - 1e-9) {
+          const aS = when('demo', 3.1), s = 'slid left ' + timeS(phi / W);
+          if (topBracket(m, tA, tB, s, aS, aS, true) && aS >= 0.5) REC.shift = s;
+        }
+      }
+      if (deg > 0 && deg < 360) wedgeLab(m.C, a0, a0 + deg, 'φ', 1, 15, 44);
+      cornerLab(A.tip, 'A', a0, 1); cornerLab(B.tip, 'B', a0 + deg, 1);
+      cornerLab(A.pen, across ? 'A across' : 'A', 0, 1); cornerLab(B.pen, 'B', 0, 1);
+      const rows = [];
+      if (deg === 0) rows.push('start angle 0: B is the same wave as A');
+      else rows.push('start angle ' + deg + '° = ' + (PIN[deg] ? PIN[deg] + ' = ' : '') + trim(phi, 3) + ' radians');
+      if (deg > 0) rows.push('slid left ' + trim(phi, 3) + ' ÷ ' + fix(W, 2) + ' = ' + timeS(phi / W));
+      if (across) rows.push(deg === 90 ? 'A\'s across shadow E cos ωt is B\'s wave' : 'A\'s across shadow traces E cos ωt');
+      drawRows(ROW0, rows.map((s, k) => ({ s, a: when('demo', 3.2 + 0.2 * k) })));
+      REC.ab = { A, B };
+      return 'Arm A starts pointing right and arm B ' + deg + '° further round; both turn together, 50 times a second. ' +
+        (across ? 'The graph traces A\'s across shadow and B\'s height.' : deg > 0 ? 'B\'s wave is A\'s slid left by ' + timeS(phi / W) + '.' : 'The two waves are the same.');
+    },
+    ab(d, st) {
+      const an = ansOf(st), bad = wrongOf(st) ? st.pick : null, a = when('answer', 0.3);
+      const m = frame({ E: 1, ymax: 1, turns: 2, tmode: 'none', tname: 'time' });
+      const B = armTrace(m, { E: 1, phi: PI / 2, tau: 0, upto: 2, cls: 'traceB', trace: an, ta: a });
+      const A = armTrace(m, { E: 1, tau: 0, upto: 2, cls: 'traceA' });
+      const slip = bad === o9[0] ? armTrace(m, { E: 1, phi: -PI / 2, tau: 0, upto: 2, cls: 'slip', ta: a }) : null;
+      arcAt(m.C, 0, 90, 15);
+      drawCarry(A); drawCarry(B);
+      drawArm(m, A, 'armA'); drawArm(m, B, 'armB');
+      drawPen(A, 'penA'); drawPen(B, 'penB');
+      if (an) topBracket(m, 1.25, 1, 'slid left ¼ period', a, a, true);
+      wedgeLab(m.C, 0, 90, 'π/2', 1, 15, 44);
+      cornerLab(A.tip, 'A', 0, 1); cornerLab(B.tip, 'B', 90, 1);
+      cornerLab([m.gx(0.75), m.gy(-1)], 'A', -90, 1);
+      if (an) cornerLab([m.gx(0.5), m.gy(-1)], 'B', -90, a);
+      if (slip) cornerLab([m.gx(1), m.gy(-1)], 'slid right', -90, a, 'al bad');
+      puzzleRows(d, st, ROW0);
+      return 'Arm A starts pointing right and arm B a quarter turn further on, both the same length. Wave A is drawn' + (an ? ', and wave B, slid left a quarter period.' : '.');
+    },
+    level(d, st) {
+      const h = st.h != null ? st.h : H11;
+      const tau = 2 * lin(0.5, 2.2);
+      const m = frame({ E: E11, ymax: E11, turns: 2, tmode: 'time', f: F11, tname: 'time' });
+      const w = armTrace(m, { E: E11, tau });
+      const aL = when('demo', 2.6), aD = when('demo', 2.9), aT = when('demo', 3.1);
+      const L = levelDraw(m, h, aL, aD, false);
+      drawCarry(w); drawArm(m, w); drawPen(w);
+      part(aL, 0, () => dot([12, L.y], 'knob', 7));
+      REC.handles.push({ id: 'level', x: 12, y: L.y }); REC.h = h;
+      levelLabs(m, L, aL, aT, null);
+      drawRows(ROW0, levelRows(h).map((s, k) => ({ s, a: when('demo', 3.0 + 0.2 * k) })));
+      REC.lvl = L;
+      return 'The wave 10 sin(100πt) over 40 ms, and a level line at ' + trim(h, 1) + ' meeting it ' + L.ts.length + ' times, twice in each wave between the peaks.';
+    },
+    low(d, st) {
+      const an = ansOf(st), a = when('answer', 0.3);
+      const m = frame({ E: E11, ymax: E11, turns: 2, tmode: 'time', f: F11, tname: 'time' });
+      armTrace(m, { E: E11, tau: 0, upto: 2 });
+      const L = levelDraw(m, H12, 1, 1, true), t1 = L.ts[0], p1 = [m.gx(t1), L.y];
+      if (!an) ringAt(p1, 'ask', 9);
+      if (an) part(a, 0, () => { const q = pE(m.C, E11 * m.kc, TAU * t1); lineP('arm', m.C, q, 2); dot(q, 'tipdot', 3.5); });
+      const s1 = an ? msS(t1 / F11) : '?';
+      levelLabs(m, L, 1, 1, s1);
+      L.first1 = L.labs[0] || null;
+      puzzleRows(d, st, ROW0);
+      REC.lvl = L;
+      return 'The wave 10 sin(100πt) and a level line at −8.3. Its first crossing is ' + (an ? 'at 13.1 ms.' : 'ringed and asked about.');
+    },
+    tan(d, st) {
+      const tau = st.tau != null ? st.tau : lin(0.5, 3.0);
+      const m = frame({ E: 1, cmax: 1, ymax: 4, turns: 1, tmode: 'deg', yname: 'tan θ', tname: 'angle θ' });
+      const th = TAU * tau, c = Math.cos(th), s = Math.sin(th), tip = [CX + RM * c, CY - RM * s], foot = [tip[0], CY];
+      const tanv = Math.abs(c) < 1e-9 ? null : s / c;
+      const gaps = [];
+      [0.25, 0.75].forEach((g) => {
+        if (tau < g - 1e-9) return;
+        const ag = when('demo', 0.5 + 3.0 * g), x = m.gx(g);
+        part(ag, 0, () => lineP('gap', [x, CY - RM], [x, CY + RM], 1));
+        gaps.push({ x, ag });
+      });
+      // tan θ against the angle, cut off at 4 and −4, with small arrows where it carries on
+      const AT = Math.atan(4), ranges = [[0, AT], [PI - AT, PI + AT], [TAU - AT, TAU]], pts = [];
+      ranges.forEach((rg, j) => {
+        const r0 = rg[0], r1 = rg[1], e = Math.min(r1, th);
+        if (e <= r0 + 1e-9) return;
+        const n = Math.max(2, Math.ceil((e - r0) / RAD)), ps = [];
+        for (let q = 0; q <= n; q++) { const t = r0 + (e - r0) * q / n; ps.push([m.gx(t / TAU), m.gy(Math.tan(t))]); }
+        pathP('trace', ps, 1.5);
+        pts.push(ps);
+        if (j < 2 && th >= r1 - 1e-9) arrowHead([m.gx(r1 / TAU), m.gy(4) - 1], [0, -1], 'headT');
+        if (j > 0) arrowHead([m.gx(r0 / TAU), m.gy(-4) + 1], [0, 1], 'headT');
+      });
+      lineP('shadow', m.C, foot, 2); lineP('drop', tip, foot, 1);
+      lineP('arm', m.C, tip, 2); dot(tip, 'tipdot', 3.5);
+      if (tanv != null && Math.abs(tanv) <= 4 + 1e-9) dot([m.gx(tau), m.gy(tanv)], 'pen', 4.5);
+      REC.handles.push({ id: 'tip', x: tip[0], y: tip[1] }); REC.range = [0, 1]; REC.tipPhi = 0; REC.tau = tau;
+      const nv = gaps.map((g) => plainLab('no value', 'tk', () => [[g.x, CY - RM - 16], [g.x + 6, CY - RM - 16], [g.x - 6, CY - RM - 16]], g.ag));
+      const deg = tau * 360;
+      pill('h', tanv == null ? 'tan ' + trim(deg, 1) + '°: no value' : 'tan ' + trim(deg, 1) + '° = ' + trim(tanv, 3), 14);
+      drawRows(ROW0, ['tan θ = sin θ ÷ cos θ', 'tan 45° = ' + fix(sinD(45), 3) + ' ÷ ' + fix(cosD(45), 3) + ' = ' + trim(sinD(45) / cosD(45), 3), 'half a turn on: both flip sign, same tan']
+        .map((r, k) => ({ s: r, a: when('demo', 3.6 + 0.15 * k) })));
+      REC.tanw = { pts, nv: nv.filter((x) => !!x).length };
+      return 'The arm turned ' + trim(deg, 0) + '°, with its across shadow and height. The graph traces its slope, tan θ, against the angle, cut off at 4 and −4, with no value at 90° and 270°.';
+    },
+    supply(d, st) {
+      const an = ansOf(st), bad = wrongOf(st) ? st.pick : null, a = when('answer', 0.3);
+      const m = frame({ E: V14, ymax: V14, turns: 2, tmode: 'time', f: F14, yname: 'v', unit: ' V', tname: 'time t' });
+      const w = armTrace(m, { E: V14, tau: 2 });
+      let slip = null;
+      if (bad === o13[0] || bad === o13[2]) {
+        const ws = bad === o13[0] ? F14 : 2 * F14, ps = [];
+        for (let j = 0; j <= 120; j++) { const t = 2 * j / 120; ps.push([m.gx(t), m.gy(V14 * Math.sin(ws * t / F14))]); }
+        part(a, 0, () => pathP('slip', ps, 1.5));
+        slip = { ps, s: 'sin(' + ws + 't)' };
+      }
+      drawCarry(w); drawArm(m, w); drawPen(w);
+      pill('eq', an ? 'v = ' + o13[1] : 'peak ' + V14 + ' V at ' + F14 + ' Hz', 14, an ? a : 1, true);
+      if (slip) cornerLab(slip.ps[slip.ps.length - 1], slip.s, 180, a, 'al bad');
+      puzzleRows(d, st, ROW0);
+      return 'A supply wave peaking at 325 V, 50 waves a second, two waves across 40 ms.' + (an ? ' Its wave is v = 325 sin(314.2t).' : '');
+    },
+    start(d, st) {
+      const an = ansOf(st), bad = wrongOf(st) ? st.pick : null, a = when('answer', 0.3);
+      const m = frame({ E: A15, ymax: A15, turns: 1, tmode: 'none', yname: 'v', tname: 'time t' });
+      pill('eq', 'v = ' + A15 + ' sin(ωt + π/2)', 14, 1, true);
+      if (an) {
+        const w = armTrace(m, { E: A15, phi: PI / 2, tau: 0, upto: 1, ta: a });
+        arcAt(m.C, 0, 90, 16, a);
+        part(a, 0, () => { drawCarry(w); drawArm(m, w); drawPen(w); });
+        wedgeLab(m.C, 0, 90, 'π/2', a, 16, 44);
+      }
+      if (bad === o14[1]) {
+        const q = [CX + A15 * m.kc, CY];
+        part(a, 0, () => lineP('armBad', m.C, q, 2));
+        segLab(m.C, q, 'start 0', [CX, CY - 40], a, 'al bad');
+      }
+      pill('v0', 'at t = 0, v = ' + (an ? o14[0] : '?'), 14);
+      puzzleRows(d, st, ROW0);
+      return 'The wave v = 20 sin(ωt + π/2).' + (an ? ' At t = 0 the arm points straight up, a quarter turn on, and v = 20.' : ' Where its arm starts is asked about.');
+    },
+  };
+
+  // ---------- the handles: Dan drags the arm's tip round (time on the graph), or the level line ----------
+  const GRIPS = { tip: 'The arm\'s turn, and the time on the graph', level: 'The height of the level line' };
+  const grips = {};
+  Object.keys(GRIPS).forEach((id) => {
+    const g = ui.appendChild(K.svg('circle', { class: 'grip', cx: -60, cy: -60, r: 22, tabindex: -1, role: 'slider', 'aria-orientation': id === 'level' ? 'vertical' : 'horizontal', 'aria-label': GRIPS[id] }));
+    g.style.display = 'none';
+    grips[id] = g;
+  });
+  // A time kept to whole degrees of turn, landing exactly on each quarter turn.
+  function quantTip(v) {
+    const rg = REC.range, s = 1 / 360;
+    v = K.clamp(Math.round(K.clamp(v, rg[0], rg[1]) / s) * s, rg[0], rg[1]);
+    for (let q = 0; q <= rg[1] * 4 + 1e-9; q++) if (Math.abs(v - q / 4) < 0.006) v = q / 4;
+    return v;
+  }
+  // The pointer's angle round the centre, taken on the turn nearest the arm's present time, so the
+  // arm can be dragged on round past where it started.
+  function tipAt(q) {
+    const P = REC.pivot, a = Math.atan2(P[1] - q.y, q.x - P[0]);
+    let t = (a - (REC.tipPhi || 0)) / TAU;
+    t -= Math.round(t - (REC.tau || 0));
+    return quantTip(t);
+  }
+  function quantLevel(v) {
+    v = K.clamp(Math.round(v * 10) / 10, -E11, E11);
+    [H11, H12].forEach((q) => { if (Math.abs(v - q) <= 0.15) v = q; });
+    return v;
+  }
+  const levelAt = (q) => quantLevel(REC.map.vOf(q.y));
+  const liveOn = (id) => !finished && (STEPS[at()].live || []).indexOf(id) >= 0 && !!REC && REC.handles.some((h) => h.id === id);
+  const gripVal = (id) => (id === 'tip' ? (REC.tau || 0) : (REC.h || 0));
+  function placeGrips(d) {
+    Object.keys(grips).forEach((id) => {
+      const g = grips[id], h = REC.handles.filter((q) => q.id === id)[0], on = !finished && !!h && (d.live || []).indexOf(id) >= 0;
+      g.style.display = on ? '' : 'none';
+      g.setAttribute('tabindex', on ? '0' : '-1');
+      if (!on) return;
+      g.setAttribute('cx', R(h.x)); g.setAttribute('cy', R(h.y));
+      const v = gripVal(id);
+      if (id === 'tip') {
+        g.setAttribute('aria-valuemin', 0); g.setAttribute('aria-valuemax', R(REC.range[1] * 360));
+        g.setAttribute('aria-valuenow', Math.round(v * 360)); g.setAttribute('aria-valuetext', Math.round(v * 360) + ' degrees turned');
+      } else {
+        g.setAttribute('aria-valuemin', -E11); g.setAttribute('aria-valuemax', E11);
+        g.setAttribute('aria-valuenow', v); g.setAttribute('aria-valuetext', 'level ' + trim(v, 1));
+      }
+    });
+  }
+  function setLive(ch) {
+    const st = S[at()];
+    if (Object.keys(ch).every((k) => st[k] === ch[k]) && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    waiting = false; paused = false; T = Infinity;
+    Object.assign(st, ch);
+    K.reveal(); K.refresh();
+  }
+  function setGrip(id, v) {
+    if (id === 'tip') setLive({ tau: quantTip(v) });
+    else setLive({ h: quantLevel(v) });
+  }
+  function svgPoint(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+  }
+  const dragTo = (id, q) => (id === 'tip' ? setLive({ tau: tipAt(q) }) : setLive({ h: levelAt(q) }));
+  Object.keys(grips).forEach((id) => {
+    const g = grips[id];
+    let held = null;
+    g.addEventListener('pointerdown', (e) => {
+      if (!liveOn(id)) return;
+      held = e.pointerId;
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the handle */ }
+      e.preventDefault();
+      const q = svgPoint(e); if (q) dragTo(id, q);
+    });
+    g.addEventListener('pointermove', (e) => { if (held !== e.pointerId || !liveOn(id)) return; const q = svgPoint(e); if (q) dragTo(id, q); });
+    const letGo = (e) => { if (held === e.pointerId) held = null; };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', () => { held = null; });
+    g.addEventListener('keydown', (e) => {
+      if (!liveOn(id)) return;
+      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+      if (by == null) return;
+      e.preventDefault();
+      setGrip(id, gripVal(id) + by * (id === 'tip' ? 1 / 72 : 0.5));
+    });
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    REC = { segs: [], handles: [], boxes: [], labs: [], rows: [], pills: {}, tlabs: [], floor: ROW0 - 16, map: null, pivot: [CX, CY], range: [0, 1], tipPhi: 0, tau: null, h: null };
+    VH = vhOf(d, st);
+    svg.setAttribute('viewBox', '0 0 340 ' + VH);
+    svg.setAttribute('aria-label', PIC[d.pic](d, st) || '');
+    placeGrips(d);
+    if (i === at()) replayLabel();
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing() && !waiting && !paused) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; paused = false; enter('stepbox');
+      SL.forEach((id) => { shown[id] = p[id]; });
+      if (d.show) { resetLive(st); play('demo', d.dur); }
+      else { waiting = false; anim.pause(); T = Infinity; MODE = 'answer'; }
+    } else {
+      // A slider or the switch moved on this screen: the picture follows it at once.
+      let moved = false;
+      SL.forEach((id) => {
+        if (p[id] === shown[id]) return;
+        shown[id] = p[id];
+        if (d.show && (d.sliders || []).indexOf(id) >= 0) { st[id] = p[id]; moved = true; }
+      });
+      if (moved) { if (anim.playing()) anim.pause(); waiting = false; paused = false; T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    const after = el('after');
+    after.hidden = !d.show || !d.after;
+    write(after, d.show && d.after ? d.after : '');
+    const cap = el('cap'), cs = CAPS[d.pic] || '';
+    write(cap, cs); cap.hidden = finished || !cs;
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    let anyCtl = false;
+    SL.forEach((id) => {
+      const on = !finished && !!d.show && (d.sliders || []).indexOf(id) >= 0;
+      ctl[id].el.hidden = !on;
+      if (on) anyCtl = true;
+    });
+    el('ctl').hidden = !anyCtl;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (pic) => STEPS.findIndex((d) => d.pic === pic);
+  // Step i painted in state st (motion m, at time tAt, finished if none), fn reading what it drew
+  // before the page is put back.
+  function withState(i, st, m, fn, tAt) {
+    const keepS = S[i], keepT = T, keepM = MODE;
+    S[i] = st; T = tAt == null ? Infinity : tAt; MODE = m || (STEPS[i].show ? 'demo' : 'answer');
+    latest = 0; earliest = Infinity;
+    try { paint(i); return fn(); } finally { S[i] = keepS; T = keepT; MODE = keepM; paint(); }
+  }
+  const drawn = (i, st, m) => withState(i, st, m, () => ({ texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent), rec: REC }));
+  const solvedSt = (i) => stOf({ pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => stOf({ pick: o, res: 'wrong' });
+  const fail = (msg) => { throw new Error(msg); };
+  const TT = (n, mx) => { const a = []; for (let j = 0; j <= n; j++) a.push(mx * j / n); return a; };
+  // Every state a step can be seen in.
+  function statesOf(i) {
+    const d = STEPS[i], out = [];
+    const push = (o) => out.push([stOf(o), 'demo']);
+    if (d.show) {
+      out.push([blank(), 'demo']);
+      if (d.pic === 'turn1') TT(48, 1).forEach((tau) => push({ tau }));
+      else if (d.pic === 'amp') for (let E = 1; E <= 10; E++) [null, 0.1, 0.3, 0.5, 0.75, 0.9].forEach((tau) => push({ E, tau }));
+      else if (d.pic === 'freq' || d.pic === 'omega') { [1, 2, 3, 4, 5, 7, 9, 10, 11, 13, 20, 33, 50].forEach((f) => [null, 0.6, 1.3].forEach((tau) => push({ f, tau }))); TT(16, 2).forEach((tau) => push({ tau })); }
+      else if (d.pic === 'phase') for (let deg = 0; deg <= 360; deg += 15) [false, true].forEach((across) => [null, 0.6].forEach((tau) => push({ phi: deg, across, tau })));
+      else if (d.pic === 'level') { for (let k = -100; k <= 100; k += 5) push({ h: k / 10 }); [H12, 0.1, -0.1, 9.9, -9.9].forEach((h) => push({ h })); }
+      else if (d.pic === 'tan') TT(72, 1).forEach((tau) => push({ tau }));
+    } else {
+      out.push([blank(), 'answer'], [solvedSt(i), 'answer'], [stOf({ why: true }), 'answer']);
+      d.opts.filter((o) => o !== d.want).forEach((o) => out.push([wrongSt(i, o), 'answer'], [stOf({ pick: o, res: 'wrong', why: true }), 'answer']));
+    }
+    return out;
+  }
+  // What crowds the labels in the picture now: labels over labels or handles, or off the edge.
+  function crowding() {
+    const bad = [], boxes = [];
+    art.querySelectorAll('text').forEach((t) => {
+      let b = null;
+      try { b = t.getBBox(); } catch (e) { b = null; }
+      if (!b || !(b.width > 0) || !(b.height > 0)) return;
+      const sh = b.height * 0.2;
+      boxes.push({ s: t.textContent, x: b.x, y: b.y + sh, w: b.width, h: b.height - 2 * sh });
+    });
+    boxes.forEach((a, m) => {
+      if (a.x < 1 || a.x + a.w > 339 || a.y < 0 || a.y + a.h > VH) bad.push('"' + a.s + '" off the edge');
+      boxes.slice(m + 1).forEach((b) => {
+        const ix = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x), iy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+        if (ix > 1 && iy > 1) bad.push('"' + a.s + '" on "' + b.s + '"');
+      });
+      REC.handles.forEach((h) => { const nx = K.clamp(h.x, a.x, a.x + a.w), ny = K.clamp(h.y, a.y, a.y + a.h); if (Math.hypot(nx - h.x, ny - h.y) < 11) bad.push('"' + a.s + '" on a handle'); });
+    });
+    return bad;
+  }
+
+  K.check('Because we have sinusoidal variation in time, the vertical component (magnitude times the sine of the angle it makes with the x axis) gives v(t): at every moment of the first screen\'s turn, and at every arm length on the third, the pen sits level with the arm\'s tip at the arm\'s length times the sine of its angle, and every drawn point of the wave is that height at its time', () => {
+    const i1 = idx('turn1'), i3 = idx('amp');
+    TT(48, 1).forEach((tau) => {
+      const rec = drawn(i1, stOf({ tau }), 'demo').rec, w = rec.w;
+      if (Math.abs(w.pen[1] - w.tip[1]) > 1e-9 || !K.near(rec.map.vOf(w.pen[1]), Math.sin(TAU * tau), 1e-9)) fail('pen not level with the tip at ' + tau + ' turns');
+    });
+    for (let E = 1; E <= 10; E++) {
+      const rec = drawn(i3, stOf({ E, tau: 0.6 }), 'demo').rec, w = rec.w;
+      if (Math.abs(w.pen[1] - w.tip[1]) > 1e-9 || !K.near(rec.map.vOf(w.pen[1]), E * Math.sin(TAU * 0.6), 1e-9)) fail('pen not level at length ' + E);
+      if (!w.pts.every((q) => K.near(rec.map.vOf(q[1]), E * Math.sin(TAU * rec.map.tOf(q[0])), 1e-9))) fail('trace off the rule at length ' + E);
+    }
+    return true;
+  }, { source: SRC.unsw });
+  K.check('The length of the second hand represents the height or amplitude of the sine wave: at every arm length from 1 to 10 the arm is drawn that long on the circle, the wave over one turn reaches exactly that height and sinks to minus it, and the label on its peak reads amplitude and that length', () => {
+    const i = idx('amp');
+    for (let E = 1; E <= 10; E++) {
+      const rec = drawn(i, stOf({ E }), 'demo').rec, w = rec.w, vs = w.pts.map((q) => rec.map.vOf(q[1]));
+      if (!K.near(lenOf(w.tip, rec.map.C) / rec.map.kc, E, 1e-9) || !K.near(Math.max.apply(null, vs), E, 1e-9) || !K.near(Math.min.apply(null, vs), -E, 1e-9)) fail('wave height wrong at length ' + E);
+      if (rec.ampLab !== 'amplitude ' + E) fail('amplitude label at length ' + E + ': ' + rec.ampLab);
+    }
+    return true;
+  }, { source: SRC.second });
+  K.check('The frequency indicates how many cycles exist in one second: at every setting from 1 to 50 turns a second each drawn wave is one turn of the arm, the time axis marks the end of the first and second turns at 1 ÷ f and 2 ÷ f seconds, so f waves fill one second, and the period bracket over the first wave reads 1 ÷ f', () => {
+    const i = idx('freq');
+    [1, 2, 3, 4, 5, 7, 10, 11, 20, 33, 50].forEach((f) => {
+      const rec = drawn(i, stOf({ f }), 'demo').rec, w = rec.w;
+      let ups = 0;
+      for (let k = 1; k < w.pts.length; k++) if (rec.map.vOf(w.pts[k - 1][1]) < -1e-9 && rec.map.vOf(w.pts[k][1]) >= -1e-9) ups++;
+      if (ups !== 1 || rec.tlabs.join() !== [timeS(1 / f), timeS(2 / f)].join() || rec.period !== 'period ' + timeS(1 / f)) fail('at ' + f + ' turns a second: ' + rec.tlabs.join() + ', ' + rec.period);
+    });
+    const two = drawn(i, stOf({ f: 2 }), 'demo').rec;
+    return two.tlabs[1] === '1 s' && two.period === 'period 0.5 s';
+  }, { source: SRC.cycles });
+  K.check('Low voltage supplies shall be 50 hertz: relabelled for 50 hertz, the time axis marks each turn at 20 ms and 40 ms, the period bracket reads 20 ms and the row works out 1 ÷ 50 = 0.02 s = 20 ms', () => {
+    const rec = drawn(idx('freq'), blank(), 'demo').rec;
+    return rec.tlabs.join() === '20 ms,40 ms' && rec.period === 'period 20 ms' && rec.rows.length === 1 && rec.rows[0].s === 'period = 1 ÷ 50 = 0.02 s = 20 ms';
+  }, { source: SRC.leg });
+  K.check('360° = 2π radians: one turn is marked 2π, so f turns a second is 2πf radians a second, and the ω pill reads 2π × 50 = 314.16 rad/s at 50 Hz and 2π times the turns a second at every other setting', () => {
+    const i = idx('omega');
+    [1, 2, 7, 13, 50].forEach((f) => { const rec = drawn(i, stOf({ f }), 'demo').rec; if (rec.pills.w !== 'ω = 2πf = ' + fix(TAU * f, 2) + ' rad/s') fail('ω at ' + f + ': ' + rec.pills.w); });
+    const rec = drawn(i, blank(), 'demo').rec;
+    return rec.pills.w === 'ω = 2πf = 314.16 rad/s' && rec.ringLab === '1 turn = 2π' && K.near(TAU * 50, 314.159265, 1e-6);
+  }, { source: SRC.radians });
+  K.check('A(t) = Amax sin(ωt) = Amax sin(2πft): at 50 Hz every drawn point of the wave, read off the graph at its time t in seconds, equals sin(2π × 50 × t), and the arm points right again at the end of each turn, 20 ms and 40 ms', () => {
+    const i = idx('omega'), rec = drawn(i, blank(), 'demo').rec, w = rec.w;
+    if (!w.pts.length || !w.pts.every((q) => K.near(rec.map.vOf(q[1]), Math.sin(TAU * 50 * (rec.map.tOf(q[0]) / 50)), 1e-9))) fail('trace off the rule');
+    return [1, 2].every((tau) => { const r = drawn(i, stOf({ tau }), 'demo').rec.w; return K.near(r.tip[1], CY, 1e-9) && r.tip[0] > CX; }) && rec.tlabs.join() === '20 ms,40 ms';
+  }, { source: SRC.wave });
+  K.check('The terminal side of the angle intersects the circle at the point (x, y), which is equivalent to (cos t, sin t): at every start angle and time, arm B\'s tip is drawn at (cos θ, sin θ) times its length, its pen draws the sine, the switch traces arm A\'s across shadow, the cosine, and at a start angle of 90° that trace lies exactly on wave B', () => {
+    const i = idx('phase');
+    for (let deg = 0; deg <= 360; deg += 45) [0, 0.3, 0.8, 1.55].forEach((tau) => {
+      const rec = drawn(i, stOf({ phi: deg, tau, across: true }), 'demo').rec, m = rec.map, A = rec.ab.A, B = rec.ab.B, th = TAU * tau + deg * RAD;
+      if (!K.near((B.tip[0] - CX) / m.kc, Math.cos(th), 1e-9) || !K.near((CY - B.tip[1]) / m.kc, Math.sin(th), 1e-9)) fail('tip B at ' + deg + '°, ' + tau);
+      if (!K.near(m.vOf(A.pen[1]), Math.cos(TAU * tau), 1e-9) || !K.near(m.vOf(B.pen[1]), Math.sin(th), 1e-9)) fail('pens at ' + deg + '°, ' + tau);
+    });
+    const x = drawn(i, stOf({ across: true }), 'demo').rec.ab;
+    return x.A.pts.length > 200 && x.A.pts.length === x.B.pts.length && x.A.pts.every((q, j) => K.near(q[1], x.B.pts[j][1], 1e-9));
+  }, { source: SRC.openstax });
+  K.check('A start angle φ slides the whole wave left by φ ÷ ω: at every start angle from 0° to 360°, wave B at each drawn time is wave A a time φ ÷ ω later, the bracket from B\'s first peak to A\'s reads that slide, and at 90° it is a quarter period, 5 ms at 50 Hz', () => {
+    const i = idx('phase'), W = TAU * 50;
+    for (let deg = 0; deg <= 360; deg += 15) {
+      const rec = drawn(i, stOf({ phi: deg }), 'demo').rec, m = rec.map, A = rec.ab.A, B = rec.ab.B, sh = deg / 360;
+      if (!B.pts.every((q) => K.near(m.vOf(q[1]), A.val(m.tOf(q[0]) + sh), 1e-9))) fail('wave B is not A slid at ' + deg + '°');
+      if (deg > 0 && rec.shift !== 'slid left ' + timeS(deg * RAD / W)) fail('slide label at ' + deg + '°: ' + rec.shift);
+    }
+    return drawn(i, blank(), 'demo').rec.shift === 'slid left 5 ms' && timeS(PI / 2 / W) === '5 ms';
+  });
+  K.check('A level line between the peaks meets each wave twice: at every height from −10 to 10 each dot lies on the drawn wave and the line; at 5 the first two are at 1.67 ms and 8.33 ms (0.524 and 2.618 radians ÷ 314.16), and the wave first reaches −8.3 at 13.1 ms (π + 0.979 = 4.121 radians), with 16.9 ms next', () => {
+    const i = idx('level');
+    for (let k = -100; k <= 100; k += 5) {
+      const h = k / 10, L = drawn(i, stOf({ h }), 'demo').rec.lvl;
+      if (!L.ts.every((t) => K.near(E11 * Math.sin(TAU * t), h, 1e-9))) fail('a dot off the wave at ' + h);
+      if (Math.abs(h) < 10 && L.ts.filter((t) => t < 1 - 1e-9).length !== 2) fail('not twice in the first wave at ' + h);
+      if (L.labs.length !== L.first.length) fail('crossing times not all labelled at ' + h + ': ' + L.labs.join());
+    }
+    const L5 = drawn(i, blank(), 'demo').rec.lvl, lo = drawn(idx('low'), solvedSt(idx('low')), 'answer').rec.lvl;
+    return L5.labs.join() === '1.67 ms,8.33 ms' && lo.first1 === '13.1 ms' && msS(lo.ts[1] / F11) === '16.9 ms';
+  });
+  K.check('The slope tan θ = sin θ ÷ cos θ: the trace is sin θ ÷ cos θ at every drawn angle, cut off at 4 and −4; it is 0 at 0° and 1 at 45°, has no value at 90° and 270°, where the across shadow is 0, and repeats every half turn', () => {
+    const i = idx('tan'), rec = drawn(i, blank(), 'demo').rec, m = rec.map;
+    rec.tanw.pts.forEach((ps) => ps.forEach((q) => {
+      const t = m.tOf(q[0]) * TAU, v = m.vOf(q[1]);
+      if (Math.abs(v) > 4 + 1e-9 || !K.near(v, Math.sin(t) / Math.cos(t), 1e-6) || Math.abs(Math.cos(t)) < 1e-6) fail('trace wrong at ' + t * DEG + '°');
+    }));
+    if (rec.tanw.pts.length !== 3 || rec.tanw.nv !== 2) fail('three pieces and two gaps expected');
+    for (let a = 5; a < 180; a += 10) if (a !== 90 && !K.near(Math.tan((a + 180) * RAD), Math.tan(a * RAD), 1e-9)) fail('no repeat at ' + a);
+    const p0 = drawn(i, stOf({ tau: 0 }), 'demo').rec.pills.h, p45 = drawn(i, stOf({ tau: 0.125 }), 'demo').rec.pills.h, p90 = drawn(i, stOf({ tau: 0.25 }), 'demo').rec.pills.h;
+    return p0 === 'tan 0° = 0' && p45 === 'tan 45° = 1' && p90 === 'tan 90°: no value';
+  });
+  K.check('Every worked number matches the lesson: sin 180° = 0 with slips −1 and 1; 4 × sin 30° = 2 with slips 3.46 and 0.5; 1 ÷ 0.01 = 100 Hz with slips 0.01 and 10; 1 ÷ 50 = 0.02 s, 20 ms; ω = 2π × 50 = 314.16; π = 3.14159; 100π ÷ 2π = 50 Hz with slips 314.2 and 100; π/2 = 1.571 and 5 ms; 0.5, 0.524, 2.618, 1.67 ms and 8.33 ms; −0.979, 4.121, 13.1 ms with slips −3.1 ms and 236.1 giving 751.5 ms, then 5.304 and 16.9 ms; tan 45° = 1; 325 sin(314.2t) with slips 50t and 100t, and 7.96; 20 sin(π/2) = 20 with slips 0 and 1', () => {
+    const same = (a, b) => a.length === b.length && a.every((v, k) => v === b[k]);
+    const s11 = Math.asin(H11 / E11);
+    return same(o1, ['0', '−1', '1']) && same(o3, ['3.46', '2', '0.5']) && same(o5, ['10 Hz', '0.01 Hz', '100 Hz']) &&
+      same(o7, ['50 Hz', '314.2 Hz', '100 Hz']) && same(o11, ['−3.1 ms', '751.5 ms', '13.1 ms']) &&
+      same(o13, ['325 sin(50t)', '325 sin(314.2t)', '325 sin(100t)']) && same(o14, ['20', '0', '1']) &&
+      timeS(1 / 50) === '20 ms' && trim(1 / 50, 2) === '0.02' && fix(W11, 2) === '314.16' && fix(PI, 5) === '3.14159' &&
+      trim(PI / 2, 3) === '1.571' && timeS(PI / 2 / W11) === '5 ms' && trim(H11 / E11, 3) === '0.5' &&
+      trim(s11, 3) === '0.524' && trim(PI - s11, 3) === '2.618' && msS(s11 / W11) === '1.67 ms' && msS((PI - s11) / W11) === '8.33 ms' &&
+      trim(s12, 3) === '−0.979' && trim(PI - s12, 3) === '4.121' && trim(TAU + s12, 3) === '5.304' && msS((TAU + s12) / W11) === '16.9 ms' &&
+      fix(D12, 1) === '236.1' && trim(Math.tan(PI / 4), 3) === '1' && fix(F14 / TAU, 2) === '7.96';
+  });
+  K.check('Each puzzle accepts only its right answer, every wrong answer has its own hint and its own red row of working, the answer appears once it is given, and before an answer nothing in the picture gives it away', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts.indexOf(d.want) < 0 || !d.opts.every((o) => isRight(i, stOf({ pick: o })) === (o === d.want))) fail('options wrong on step ' + (i + 1));
+      const wrongs = d.opts.filter((o) => o !== d.want);
+      if (!wrongs.every((o) => d.hints[o] && d.wrong[o] && wrongs.every((p) => p === o || d.hints[p] !== d.hints[o]))) fail('hints missing on step ' + (i + 1));
+      const b = drawn(i, blank(), 'answer'), s = drawn(i, solvedSt(i), 'answer');
+      if (b.rec.rows.length || d.secret.some((x) => b.texts.some((t) => t.indexOf(x) >= 0))) fail('answer shown early on step ' + (i + 1));
+      if (!(s.rec.rows.length === d.right.length && s.rec.rows.every((r) => !r.bad)) || !d.secret.every((x) => s.texts.some((t) => t.indexOf(x) >= 0))) fail('answer not drawn on step ' + (i + 1));
+      return wrongs.every((o) => { const r = drawn(i, wrongSt(i, o), 'answer').rec.rows, w = [].concat(d.wrong[o]); return r.length === w.length && r.every((x, k) => x.bad && x.s === w[k]); });
+    }));
+  K.check('No label sits on another label or a handle, or runs off the picture, on any screen in any state: puzzles answered right, wrong or with Why? open, the arm dragged to every time, every arm length, turns a second, start angle and switch setting, and the level line at every height', () =>
+    STEPS.every((d, i) => statesOf(i).every((s) => withState(i, s[0], s[1], () => { const bad = crowding(); if (bad.length) fail('step ' + (i + 1) + ' ' + JSON.stringify({ tau: s[0].tau, E: s[0].E, f: s[0].f, phi: s[0].phi, across: s[0].across, h: s[0].h, pick: s[0].pick, why: s[0].why }) + ': ' + bad[0]); return true; }))));
+  K.check('Every demonstration has finished within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; each answer and Why? has settled within 1.8 s', () =>
+    STEPS.every((d, i) => {
+      const timed = (st, m) => withState(i, st, m, () => [latest, earliest]);
+      if (d.show) {
+        const t = timed(blank(), 'demo');
+        if (!(t[0] <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && t[1] >= FADE)) fail('step ' + (i + 1) + ' runs ' + t[0] + ' s from ' + t[1]);
+        return true;
+      }
+      return statesOf(i).every((s) => timed(s[0], s[1])[0] <= ANS + 1e-9);
+    }));
+
+  K.ready();
+</script>
