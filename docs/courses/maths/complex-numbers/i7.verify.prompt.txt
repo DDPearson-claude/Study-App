@@ -1,0 +1,599 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Complex numbers, from j to AC circuits
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i7 "Impedance: Z = R + jX" — Impedance R + jX is resistance plus reactance, the opposition to AC of a coil (+j) or a capacitor (−j), all in ohms. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i8 Ohm's law with j: series and parallel — V = IZ with complex impedances, combined in series and parallel by your DC rules, gives each current's size and its angle from the voltage.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] 15.3 RLC Series Circuits with AC - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/15-3-rlc-series-circuits-with-ac
+    "Its unit is the ohm, and it is the ac analog to resistance in a dc circuit, which measures the combined effect of resistance, capacitive reactance, and inductive reactance"
+[R2] 3-1 Sinusoidal steady-state analysis Phasor ... — Rose-Hulman Institute of Technology — https://www.rose-hulman.edu/class/ee/HTML/ECE204/PDFs/phasors.pdf
+    "The algebraic relationship between a phasor voltage and a phasor current is a generalization of resistance and is termed an element's impedance. The unit of impedance is the ohm."
+[R3] "Modular Electronics Learning (ModEL) project" — Tony R. Kuphaldt, ModEL project — https://ibiblio.org/kuphaldt/socratic/model/mod_rxz.pdf
+    "Since resistive impedance has a phase angle of zero degrees its vector points to the right, while inductive impedance with its 90 o phase angle points up and capacitive impedance with its −90 o phase angle points down."
+[R4] "Modular Electronics Learning (ModEL) project" — Tony R. Kuphaldt, ModEL project — https://ibiblio.org/kuphaldt/socratic/model/mod_rxz.pdf
+    "When expressing frequency in Hertz rather than radians per second, it is more common to see reactance computed as XL = 2πfL."
+[R5] Just a Resistor, just a capacitor, or just an inductor — Boston University — http://physics.bu.edu/~duffy/semester2/c20_AC.html
+    "where X C = 1/ωC is the effective resistance of the capacitor and is known as the capacitive reactance ."
+[R6] Just a Resistor, just a capacitor, or just an inductor — Boston University — http://physics.bu.edu/~duffy/semester2/c20_AC.html
+    "The peak current is proportional to both the angular frequency and the inductance."
+[R7] 23.11 Reactance, Inductive and Capacitive - College Physics 2e | OpenStax — https://openstax.org/books/college-physics-2e/pages/23-11-reactance-inductive-and-capacitive
+    "At very high frequencies, the capacitor’s reactance tends to zero—it has a negligible reactance and does not impede the current (it acts like a simple wire)."
+[R8] 32.1: Complex Numbers - Chemistry LibreTexts — https://chem.libretexts.org/Bookshelves/Physical_and_Theoretical_Chemistry_Textbook_Maps/Physical_Chemistry_(LibreTexts)/32%3A_Math_Chapters/32.01%3A_Complex_Numbers
+    "Note that if a number is multiplied by –1, the corresponding vector is turned through 180 degrees."
+[R9] Complex rotation (video) | Circuit analysis — Khan Academy — https://www.khanacademy.org/science/electrical-engineering/ee-circuit-analysis-topic/ee-ac-analysis/v/ee-complex-rotation
+    "Multiplying a real or complex number by the imaginary unit j corresponds to a rotation by +90 degrees."
+[R10] 7_1.dvi — mathcentre — https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_1.pdf
+    "We start by introducing a symbol to stand for the square root of −1. Conventionally this symbol is j. That is j = √ −1. It follows that j ² = −1"
+[R11] Complex Numbers for Engineers: Magnitude, Phase, and the Complex Plane | DSP Foundations | DSPRelated.com — https://www.dsprelated.com/foundations/complex-numbers.php
+    "Engineers use j instead of i because i already means electric current."
+[R12] complex addition, multiplication, rotation, and rect polar ... — UC Davis — https://www.ece.ucdavis.edu/~bbaas/281/notes/Handout.complex.arith.pdf
+    "real + j imag (common in EE) real + i imag (common in math) i = j = sqrt(–1)."
+[R13] Two Challenging Concepts in Mathematics Education: Subject-Specific Thoughts on the Complex Unit and Angles — Scimath — https://www.scimath.net/download/two-challenging-concepts-in-mathematics-education-subject-specific-thoughts-on-the-complex-unit-and-11251.pdf
+    "we consider this approach unjustifiable, as it leads to fundamental misconceptions concerning complex numbers and real numbers."
+[R14] Numeracy, Maths and Statistics - Academic Skills Kit — Newcastle University — https://www.mas.ncl.ac.uk/ask/numeracy-maths-statistics/core-mathematics/pure-maths/algebra/modulus-and-argument.html
+    "An Argand diagram has a horizontal axis, referred to as the real axis, and a vertical axis, referred to as the imaginary axis."
+[R15] 10.2 — University of Sheffield — https://sheffield.ac.uk/media/31975/download?attachment
+    "We conclude from this that addition (and hence subtraction) of complex numbers is essentially equivalent to addition (subtraction) of two-dimensional vectors."
+[R16] 10.2 — University of Sheffield — https://sheffield.ac.uk/media/31975/download?attachment
+    "We conclude that addition and subtraction are most easily carried out in Cartesian form whereas multiplication and division are most easily carried out in polar form."
+[R17] Complex Numbers & Phasors in Polar and Rectangular Form — Electronics Tutorials — https://www.electronics-tutorials.ws/accircuits/complex-numbers.html
+    "Such as: Z = 6 + j0 (for a pure Resistance) or Z = 0 + j4 (for a pure Reactance) on the complex plane."
+[R18] 7.4 The polar form — mathcentre — https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_4.pdf
+    "The distance of the point (a, b) from the origin is called the modulus, or magnitude of the complex number and has the symbol r. Alternatively, r is written as |z|. The modulus is never negative."
+[R19] 7.4 The polar form — mathcentre — https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_4.pdf
+    "The angle between the positive x axis and a line joining (a, b) to the origin is called the argument of the complex number."
+[R20] 7.4 The polar form — mathcentre — https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_4.pdf
+    "When the modulus and argument of a complex number, z, are known we write the complex number as z = r∠θ."
+[R21] 7.4 The polar form — mathcentre — https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_4.pdf
+    "but care must be taken when using a calculator to find an inverse tangent that the solution obtained is in the correct quadrant."
+[R22] Week 4 – Complex Numbers — University of Oxford, Mathematical Institute — https://www.maths.ox.ac.uk/system/files/attachments/complex.pdf
+    "x = r cos θ and y = r sin θ"
+[R23] 10.2 — University of Sheffield — https://sheffield.ac.uk/media/31975/download?attachment
+    "We normally consider θ measured in radians to lie in the interval −π < θ ≤ π although any value θ + 2kπ for integer k will be equivalent to θ."
+[R24] J7GK Engineering Mathematics 1 — SQA — https://www.sqa.org.uk/sqa/files_ccc/j7gk-46-engineering-mathematics-1.pdf
+    "Demonstrate the representation of complex numbers in Cartesian and polar form (noting the domain of principal argument"
+[R25] 4 AC Circuits Phasors, Impedance and Transformers — University of Tennessee, Knoxville — https://web.eecs.utk.edu/~mjr/ECE202/Labs/Lab%204.pdf
+    "A phasor is a complex number that represents the magnitude and phase of a voltage or a current."
+[R26] Marine Electro-Technology Written Examination Syllabus — GOV.UK — https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/marine-electro-technology-written-examination-syllabus
+    "Resolves phasor quantities into active, and reactive components"
+[R27] The National Grid and mains electricity - OCR Gateway — BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zcfm8mn/revision/3
+    "The mains supply in the UK is an alternating current (ac) voltage at a frequency of 50 hertz (Hz) and a voltage of 230 volts (V)."
+[R28] http://www.legislation.gov.uk/id/uksi/2002/2665 — https://www.legislation.gov.uk/uksi/2002/2665/regulation/27/data.html
+    "the frequency declared pursuant to paragraph (1) shall be 50 hertz and the voltage declared in respect of a low voltage supply shall be 230 volts"
+[R29] Power Factor Improvement Methods | EEEGUIDE — https://www.eeeguide.com/power-factor-improvement
+    "The capacitor draws a leading current and partly or completely neutralizes the lagging reactive component of load current."
+[R30] 7.3: Power Triangle - Engineering LibreTexts — https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/AC_Electrical_Circuit_Analysis%3A_A_Practical_Approach_(Fiore)/07%3A_AC_Power/7.3%3A_Power_Triangle
+    "By adding the capacitor, the two reactive currents cancel"
+[R31] 7.3: Power Triangle - Engineering LibreTexts — https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/AC_Electrical_Circuit_Analysis%3A_A_Practical_Approach_(Fiore)/07%3A_AC_Power/7.3%3A_Power_Triangle
+    "power factor correction is used to lower current demand while keeping load power constant."
+Notes (claims, and the sources that support them):
+- Impedance is measured in ohms and is the AC analogue of resistance, combining the effects of resistance, capacitive reactance and inductive reactance. [R1][R2]
+- On the impedance plane, resistance points right, inductive impedance (90 degrees) points up and capacitive impedance (minus 90 degrees) points down. [R3]
+- Inductive reactance is X_L = 2 pi f L when frequency f is in hertz, and capacitive reactance is X_C = 1/(omega C). [R4][R5]
+- The peak current in an inductor is proportional to the angular frequency, while a capacitor’s reactance tends to zero at very high frequencies. [R6][R7]
+- Multiplying a number by minus one turns its arrow through 180 degrees, a half turn. [R8]  (from an idea this one builds on)
+- Multiplying a real or complex number by j rotates it by plus 90 degrees, and j squared is minus one. [R9][R10]  (from an idea this one builds on)
+- Engineers use the symbol j for this number because i is already used for current. [R11]  (from an idea this one builds on)
+- The same number is written i in maths and j in electrical engineering. [R12]  (from an idea this one builds on)
+- Introducing j as the square root of minus one is contested: mathcentre starts from j = √−1 and gets j² = −1 from it, while one paper on teaching calls that start unjustifiable because it leads to misconceptions. [R10][R13]  [CONTESTED: mathcentre defines j as √−1 and derives j² = −1; the Scimath teaching paper argues against defining it as √−1.]  (from an idea this one builds on)
+- A complex number is drawn on a plane with a horizontal real axis and a vertical imaginary axis. [R14]  (from an idea this one builds on)
+- Adding complex numbers is essentially the same as adding two-dimensional vectors. [R15]  (from an idea this one builds on)
+- Addition is most easily done in Cartesian form, multiplication and division in polar form, so you choose the form that suits the sum. [R16]  (from an idea this one builds on)
+- On the complex plane, an impedance on the real axis such as 6 + j0 is a pure resistance, and one on the j axis such as 0 + j4 a pure reactance. [R17]  (from an idea this one builds on)
+- The modulus is the distance of the point (a, b) from the origin, and it is never negative. [R18]  (from an idea this one builds on)
+- The argument is the angle between the positive real axis and the line from the origin to the point. [R19]  (from an idea this one builds on)
+- A complex number with modulus r and argument theta is written r angle theta. [R20]  (from an idea this one builds on)
+- When finding the angle with an inverse tangent, check the quadrant, because a calculator’s answer may not be in the correct one. [R21]  (from an idea this one builds on)
+- Going back from length and angle: the across part is r cos theta and the up part is r sin theta. [R22]  (from an idea this one builds on)
+- The argument is normally taken in the interval minus pi (not included) to pi, that is more than −180° and up to 180°, though adding any whole number of turns gives the same direction; HN units call this the principal argument. [R23][R24]  (from an idea this one builds on)
+- A phasor is a complex number that represents the magnitude and phase of a voltage or a current; the marine syllabus resolves phasors into their two components. [R25][R26]  (from an idea this one builds on)
+- The mains supply in the UK is alternating current at 50 hertz and 230 volts; UK regulations declare a low voltage supply as 50 hertz and 230 volts between phase and neutral, unless otherwise agreed. [R27][R28]  (whole topic)
+- Impedance, like resistance, is measured in ohms. [R2]  (whole topic)
+- Engineers write j for the square root of minus one because i already stands for electric current. [R11]  (whole topic)
+- Adding a capacitor in parallel with a lagging inductive load draws a leading current that partly or completely neutralises the load’s lagging reactive current, so the supply current falls. [R29][R30][R31]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i7",
+ "title": "Impedance: Z = R + jX",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the coil's arrow growing upwards and the capacitor's shrinking, swinging Z from below the real axis to above it, when you raise the frequency.",
+  "title": "The impedance builder",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens on the complex plane from the earlier lessons, real across and j up, with every length in ohms. The builder lays three arrows tip to tail from 0: the resistor's R along the real axis, then the coil's +jX_L straight up from its tip, then the capacitor's −jX_C straight down from there. The arrow from 0 to the last tip, drawn bold, is the impedance Z = R + j(X_L − X_C), with its angle φ drawn as an arc from the positive real axis. Readouts give Z in parts and as a length and an angle, and cos φ, the power factor. On some screens four sliders set the resistance R (0 to 20 Ω), the coil's inductance L (0 to 40 mH), the capacitor's capacitance C (100 to 1000 µF) and the frequency f (20 to 150 Hz). The coil's reactance is X_L = 2πfL and the capacitor's is X_C = 1 ÷ (2πfC), with L in henries and C in farads, so raising f lengthens the coil's arrow in step with f and shortens the capacitor's. A small wave panel, a sketch, shows a coil's current and its voltage as two waves a quarter cycle apart, the voltage peaking first, because a coil's voltage follows how fast its current changes. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, a wrong pick gets a one-line hint naming its slip, and Why? redraws the arrows for it.",
+  "ignores": "The parts are ideal. A real coil's winding also has some resistance, which belongs in R, and a real capacitor wastes a little energy, so real parts sit slightly off straight up and straight down. The sliders move in small steps and readouts are rounded, so the frequency where the coil and capacitor cancel is shown as near a value. The two waves in the wave panel are drawn the same height to show their timing, not their sizes. Only parts in series are built here; parts side by side come in the next lesson.",
+  "numbers": [
+   {
+    "label": "Resistor's angle, in degrees",
+    "value": 0,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Coil's angle, a quarter turn up, in degrees",
+    "value": 90,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Capacitor's angle, a quarter turn down, in degrees",
+    "value": -90,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Resistance slider, lowest, in ohms",
+    "value": 0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Resistance slider, highest, in ohms",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Inductance slider, lowest, in millihenries",
+    "value": 0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Inductance slider, highest, in millihenries",
+    "value": 40,
+    "kind": "assumed"
+   },
+   {
+    "label": "Capacitance slider, lowest, in microfarads",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Capacitance slider, highest, in microfarads",
+    "value": 1000,
+    "kind": "assumed"
+   },
+   {
+    "label": "Frequency slider, lowest, in hertz",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Frequency slider, highest, in hertz",
+    "value": 150,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example resistor, in ohms, in step 0",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example coil's reactance, in ohms, in step 0",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example capacitor's reactance, in ohms, in step 0",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle capacitor's reactance X_C, in ohms, in step 1",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle answer −j10: j part, in ohms, in step 1",
+    "value": -10,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip +j10: j part, in ohms, in step 1",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil voltage ahead of current, a quarter cycle, in degrees, in step 2",
+    "value": 90,
+    "kind": "constant"
+   },
+   {
+    "label": "UK mains frequency, in hertz, in step 4",
+    "value": 50,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Coil's inductance L opening setting, in millihenries, in step 4",
+    "value": 19.1,
+    "kind": "control"
+   },
+   {
+    "label": "Capacitor's capacitance C opening setting, in microfarads, in step 4",
+    "value": 318,
+    "kind": "control"
+   },
+   {
+    "label": "Resistance R opening setting, in ohms, in step 4",
+    "value": 8,
+    "kind": "control"
+   },
+   {
+    "label": "X_L = 2π × 50 × 0.0191, in ohms, in step 4",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "X_C = 1 ÷ (2π × 50 × 0.000318), in ohms, in step 4",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Doubled frequency, in hertz, in step 5",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle answer X_L at 100 Hz, in ohms, in step 5",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle answer X_C at 100 Hz, in ohms, in step 5",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip X_C doubled too, in ohms, in step 5",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip X_L halved, in ohms, in step 5",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "8 + j6: 8 squared, in step 6",
+    "value": 64,
+    "kind": "computed"
+   },
+   {
+    "label": "8 + j6: 6 squared, in step 6",
+    "value": 36,
+    "kind": "computed"
+   },
+   {
+    "label": "64 + 36, in step 6",
+    "value": 100,
+    "kind": "computed"
+   },
+   {
+    "label": "Length of 8 + j6, √100, in ohms, in step 6",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Angle of 8 + j6, tan⁻¹(6 ÷ 8), in degrees, in step 6",
+    "value": 36.87,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip sizes added, 8 + 6, in ohms, in step 7",
+    "value": 14,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip sizes taken away, 8 − 6, in ohms, in step 7",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Power factor cos 36.87°, in step 8",
+    "value": 0.8,
+    "kind": "computed"
+   },
+   {
+    "label": "j part 6 − 10, in ohms, in step 8",
+    "value": -4,
+    "kind": "computed"
+   },
+   {
+    "label": "Length of 8 − j4, √80, in ohms, in step 8",
+    "value": 8.94,
+    "kind": "computed"
+   },
+   {
+    "label": "8 squared + 4 squared, in step 8",
+    "value": 80,
+    "kind": "computed"
+   },
+   {
+    "label": "Angle of 8 − j4, tan⁻¹(−4 ÷ 8), in degrees, in step 8",
+    "value": -26.57,
+    "kind": "computed"
+   },
+   {
+    "label": "Power factor cos(−26.57°), in step 8",
+    "value": 0.89,
+    "kind": "computed"
+   },
+   {
+    "label": "Frequency where X_L = X_C, near, in hertz, in step 8",
+    "value": 65,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip capacitor added upwards, 6 + 10, in ohms, in step 9",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip all sizes added, 8 + 6 + 10, in ohms, in step 9",
+    "value": 24,
+    "kind": "computed"
+   },
+   {
+    "label": "R = 10 cos 36.87°, in ohms, in step 10",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "X = 10 sin 36.87°, in ohms, in step 10",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle Z = 5∠−53.13°: length, in ohms, in step 11",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle Z = 5∠−53.13°: angle, in degrees, in step 11",
+    "value": -53.13,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle answer R = 5 cos(−53.13°), in ohms, in step 11",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle answer X = 5 sin(−53.13°), in ohms, in step 11",
+    "value": -4,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle resistor, in ohms, in step 12",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle coil's reactance at 50 Hz, in ohms, in step 12",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Coil's reactance at 100 Hz, 2 × 4, in ohms, in step 12",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle answer length √(36 + 64), in ohms, in step 12",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle answer angle tan⁻¹(8 ÷ 6), in degrees, in step 12",
+    "value": 53.13,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip coil left at 4 Ω: length √52, in ohms, in step 12",
+    "value": 7.21,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip coil left at 4 Ω: angle, in degrees, in step 12",
+    "value": 33.69,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip coil halved to 2 Ω: length √40, in ohms, in step 12",
+    "value": 6.32,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip coil halved to 2 Ω: angle, in degrees, in step 12",
+    "value": 18.43,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice resistor, in ohms",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice coil's inductance, in millihenries",
+    "value": 50.9,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice X_L = 2π × 50 × 0.0509, in ohms",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice 12 squared + 16 squared, 144 + 256",
+    "value": 400,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice length of 12 + j16, √400, in ohms",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice angle tan⁻¹(16 ÷ 12), in degrees",
+    "value": 53.13,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice power factor cos 53.13°",
+    "value": 0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Millihenries in a henry",
+    "value": 1000,
+    "kind": "constant"
+   },
+   {
+    "label": "Microfarads in a farad",
+    "value": 1000000,
+    "kind": "constant"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A resistor, a coil and a capacitor each hold back an alternating current, and each one's opposition is counted in ohms. The difference is direction: on the complex plane the resistor's opposition lies along the real axis, the coil's points straight up and the capacitor's points straight down.[^1] Laid tip to tail, they make one complex number, Z = R + jX, called the [[impedance]]: the AC version of resistance, still in ohms.[^3][^4]\n\nWhy the quarter turns? A resistor's voltage rises and falls in step with its current, so its opposition has no j part: 8 Ω is 8 + j0.[^5] A coil is different. Remember from Calculus fundamentals that a coil's voltage follows how fast its current changes, v = L di/dt. The current wave changes fastest as it crosses zero and stops changing for an instant at its peak. So the coil's voltage is biggest as the current crosses zero, and zero as the current peaks: its wave is the current's wave a quarter cycle earlier. Draw each wave as its turning arrow from Trigonometry. The arrows turn anticlockwise, so the voltage's arrow, a quarter cycle ahead, is the current's arrow turned a quarter turn anticlockwise and stretched. The first lesson showed that a quarter turn anticlockwise is multiplying by j. So the coil turns its current into its voltage by multiplying by j and by its size in ohms, X_L, and its opposition points up: +jX_L. A capacitor is the other way round. Its current follows how fast its voltage changes, i = C dv/dt, so its current peaks a quarter cycle before its voltage. Its voltage's arrow is the current's arrow turned a quarter turn back, clockwise, which is multiplying by −j, so its opposition points down: −jX_C. The size, X_L or X_C in ohms, is called [[reactance]]. A calculator's sum gives only that size; you put on the +j or −j from the kind of part.\n\nThe sizes depend on the frequency f. Double f and the current wave climbs twice as steeply, so a coil's voltage doubles for the same current: its reactance is X_L = 2πfL, growing in step with f.[^6] For a capacitor, a voltage wave twice as steep drives twice the current, so its opposition halves: X_C = 1 ÷ (2πfC),[^7] using ω = 2πf from Trigonometry, with L in henries and C in farads. At 50 Hz, the UK mains frequency,[^2] a 19.1 mH coil has X_L = 2π × 50 × 0.0191 = 6.0 Ω, and a 318 µF capacitor has X_C = 1 ÷ (2π × 50 × 0.000318) = 10.0 Ω. At 100 Hz they become 12.0 Ω and 5.0 Ω. At very high frequencies a capacitor's reactance tends to zero, and it barely holds back the current at all.[^8]\n\nWith no coil or capacitor, X is 0 and Z is just R, your DC resistance. In series the parts still add, as resistors in series do, but now as arrows, tip to tail as in the adding lesson: Z = R + jX_L − jX_C = R + j(X_L − X_C). An 8 Ω resistor with that 6 Ω coil gives Z = 8 + j6. In polar form its length is √(8² + 6²) = √100 = 10 and its angle is tan⁻¹(6 ÷ 8) = 36.87°, so Z = 10∠36.87°. That is 10 Ω, not 8 + 6 = 14 Ω, because the coil's 6 Ω stands at a quarter turn to the 8. The right-angled triangle of R, X and Z is called the [[impedance triangle]]. Add the 10 Ω capacitor and Z = 8 + j(6 − 10) = 8 − j4, which is 8.94∠−26.57°: the capacitor's arrow is longer, so Z dips below the real axis. Raise f and the coil's arrow grows while the capacitor's shrinks; near 65 Hz they cancel, and Z is the 8 Ω resistor alone. Textbooks add that Z's angle φ is the angle between the voltage across the parts and the current through them, so cos φ is the power factor from Trigonometry: cos 36.87° = 0.8. The next lesson shows why. Z is not a phasor, because a phasor stands for a voltage or a current;[^9] Z is a fixed opposition that does not turn with the wave. These are ideal parts: a real coil's winding adds a little resistance to R. **Impedance is resistance with an angle, all in ohms: the resistor's part lies along the real axis, the coil's points up and the capacitor's points down, and in series they add tip to tail.[^3][^1]**"
+ },
+ "analogy": {
+  "text": "Think of the power triangle from Trigonometry. A load's true power in kW is the side along the bottom, its reactive power in kVAr stands at a quarter turn to it, and the apparent power in kVA is the long side, so 8 kW with 6 kVAr is 10 kVA, not 14. The impedance triangle has the same shape: R along the bottom, X up or down, Z the long side, and the same angle φ.",
+  "breaks": "The power triangle counts power, which grows as more current flows, while the impedance triangle counts ohms, which stay the same whatever the current. The two share their shape and their angle φ, not their sizes."
+ },
+ "practice": {
+  "text": "- Work out each reactance at the working frequency: X_L = 2πfL and X_C = 1 ÷ (2πfC). Put L in henries (mH ÷ 1000) and C in farads (µF ÷ 1000000).\n- Give each part its direction: the resistor R, the coil +jX_L, the capacitor −jX_C.\n- In series, add them: Z = R + j(X_L − X_C).\n- For polar form, sketch it, then length √(R² + X²) and angle tan⁻¹(X ÷ R).\n- Read the angle: positive means the coil wins and Z points up; negative means the capacitor wins and Z points down. Its cosine is the power factor.\n\n**Rule of thumb:** Coil up, capacitor down. Raise the frequency and the coil's arrow grows while the capacitor's shrinks.\n\n**Rule of thumb:** Sizes at a quarter turn combine by Pythagoras, not by adding: 8 Ω with a 6 Ω coil is 10 Ω.\n\n**Worked example:** Model a coil on 50 Hz as 12 Ω of winding resistance in series with 50.9 mH. X_L = 2π × 50 × 0.0509 = 16.0 Ω, so Z = 12 + j16. Its length is √(144 + 256) = √400 = 20 Ω and its angle tan⁻¹(16 ÷ 12) = 53.13°, so Z = 20∠53.13°, pointing up because the coil wins. The power factor is cos 53.13° = 0.6.\n\n**Common mistakes**\n- Writing a reactance without its direction. A 10 Ω capacitor is −j10, not 10 or +j10.\n- Adding the sizes. 8 Ω with a 6 Ω coil is 10 Ω, not 14 Ω, nor 8 − 6 = 2 Ω.\n- Adding the capacitor's reactance to the coil's instead of taking it away. 8 + j6 − j10 is 8 − j4.\n- Using mH or µF straight in the formula. Turn them into henries and farads first.\n- Thinking both reactances grow with frequency. The coil's grows; the capacitor's shrinks."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "\"Modular Electronics Learning (ModEL) project\" — Tony R. Kuphaldt, ModEL project",
+   "url": "https://ibiblio.org/kuphaldt/socratic/model/mod_rxz.pdf",
+   "quote": "Since resistive impedance has a phase angle of zero degrees its vector points to the right, while inductive impedance with its 90 o phase angle points up and capacitive impedance with its −90 o phase angle points down."
+  },
+  {
+   "n": 2,
+   "title": "The National Grid and mains electricity - OCR Gateway — BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/guides/zcfm8mn/revision/3",
+   "quote": "The mains supply in the UK is an alternating current (ac) voltage at a frequency of 50 hertz (Hz) and a voltage of 230 volts (V)."
+  },
+  {
+   "n": 3,
+   "title": "15.3 RLC Series Circuits with AC - University Physics Volume 2 | OpenStax",
+   "url": "https://openstax.org/books/university-physics-volume-2/pages/15-3-rlc-series-circuits-with-ac",
+   "quote": "Its unit is the ohm, and it is the ac analog to resistance in a dc circuit, which measures the combined effect of resistance, capacitive reactance, and inductive reactance"
+  },
+  {
+   "n": 4,
+   "title": "3-1 Sinusoidal steady-state analysis Phasor ... — Rose-Hulman Institute of Technology",
+   "url": "https://www.rose-hulman.edu/class/ee/HTML/ECE204/PDFs/phasors.pdf",
+   "quote": "The algebraic relationship between a phasor voltage and a phasor current is a generalization of resistance and is termed an element's impedance. The unit of impedance is the ohm."
+  },
+  {
+   "n": 5,
+   "title": "Complex Numbers & Phasors in Polar and Rectangular Form — Electronics Tutorials",
+   "url": "https://www.electronics-tutorials.ws/accircuits/complex-numbers.html",
+   "quote": "Such as: Z = 6 + j0 (for a pure Resistance) or Z = 0 + j4 (for a pure Reactance) on the complex plane."
+  },
+  {
+   "n": 6,
+   "title": "\"Modular Electronics Learning (ModEL) project\" — Tony R. Kuphaldt, ModEL project",
+   "url": "https://ibiblio.org/kuphaldt/socratic/model/mod_rxz.pdf",
+   "quote": "When expressing frequency in Hertz rather than radians per second, it is more common to see reactance computed as XL = 2πfL."
+  },
+  {
+   "n": 7,
+   "title": "Just a Resistor, just a capacitor, or just an inductor — Boston University",
+   "url": "http://physics.bu.edu/~duffy/semester2/c20_AC.html",
+   "quote": "where X C = 1/ωC is the effective resistance of the capacitor and is known as the capacitive reactance ."
+  },
+  {
+   "n": 8,
+   "title": "23.11 Reactance, Inductive and Capacitive - College Physics 2e | OpenStax",
+   "url": "https://openstax.org/books/college-physics-2e/pages/23-11-reactance-inductive-and-capacitive",
+   "quote": "At very high frequencies, the capacitor’s reactance tends to zero—it has a negligible reactance and does not impede the current (it acts like a simple wire)."
+  },
+  {
+   "n": 9,
+   "title": "4 AC Circuits Phasors, Impedance and Transformers — University of Tennessee, Knoxville",
+   "url": "https://web.eecs.utk.edu/~mjr/ECE202/Labs/Lab%204.pdf",
+   "quote": "A phasor is a complex number that represents the magnitude and phase of a voltage or a current."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

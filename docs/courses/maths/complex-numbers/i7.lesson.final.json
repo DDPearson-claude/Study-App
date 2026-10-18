@@ -1,0 +1,469 @@
+{
+  "iid": "i7",
+  "title": "Impedance: Z = R + jX",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the coil's arrow growing upwards and the capacitor's shrinking, swinging Z from below the real axis to above it, when you raise the frequency.",
+    "title": "The impedance builder",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on the complex plane from the earlier lessons, real across and j up, with every length in ohms. The builder lays three arrows tip to tail from 0: the resistor's R along the real axis, then the coil's +jX_L straight up from its tip, then the capacitor's −jX_C straight down from there. The arrow from 0 to the last tip, drawn bold, is the impedance Z = R + j(X_L − X_C), with its angle φ drawn as an arc from the positive real axis. Readouts give Z in parts and as a length and an angle, and cos φ, the power factor. On some screens four sliders set the resistance R (0 to 20 Ω), the coil's inductance L (0 to 40 mH), the capacitor's capacitance C (100 to 1000 µF) and the frequency f (20 to 150 Hz). The coil's reactance is X_L = 2πfL and the capacitor's is X_C = 1 ÷ (2πfC), with L in henries and C in farads, so raising f lengthens the coil's arrow in step with f and shortens the capacitor's. A small wave panel, a sketch, shows a coil's current and its voltage as two waves a quarter cycle apart, the voltage peaking first, because a coil's voltage follows how fast its current changes. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, a wrong pick gets a one-line hint naming its slip, and Why? redraws the arrows for it.",
+    "ignores": "The parts are ideal. A real coil's winding also has some resistance, which belongs in R, and a real capacitor wastes a little energy, so real parts sit slightly off straight up and straight down. The sliders move in small steps and readouts are rounded, so the frequency where the coil and capacitor cancel is shown as near a value. The two waves in the wave panel are drawn the same height to show their timing, not their sizes. Only parts in series are built here; parts side by side come in the next lesson.",
+    "numbers": [
+      {
+        "label": "Resistor's angle, in degrees",
+        "value": 0,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Coil's angle, a quarter turn up, in degrees",
+        "value": 90,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Capacitor's angle, a quarter turn down, in degrees",
+        "value": -90,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Resistance slider, lowest, in ohms",
+        "value": 0,
+        "kind": "assumed"
+      },
+      {
+        "label": "Resistance slider, highest, in ohms",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Inductance slider, lowest, in millihenries",
+        "value": 0,
+        "kind": "assumed"
+      },
+      {
+        "label": "Inductance slider, highest, in millihenries",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitance slider, lowest, in microfarads",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitance slider, highest, in microfarads",
+        "value": 1000,
+        "kind": "assumed"
+      },
+      {
+        "label": "Frequency slider, lowest, in hertz",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Frequency slider, highest, in hertz",
+        "value": 150,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example resistor, in ohms, in step 0",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example coil's reactance, in ohms, in step 0",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example capacitor's reactance, in ohms, in step 0",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle capacitor's reactance X_C, in ohms, in step 1",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle answer −j10: j part, in ohms, in step 1",
+        "value": -10,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip +j10: j part, in ohms, in step 1",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Coil voltage ahead of current, a quarter cycle, in degrees, in step 2",
+        "value": 90,
+        "kind": "constant"
+      },
+      {
+        "label": "UK mains frequency, in hertz, in step 4",
+        "value": 50,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Coil's inductance L opening setting, in millihenries, in step 4",
+        "value": 19.1,
+        "kind": "control"
+      },
+      {
+        "label": "Capacitor's capacitance C opening setting, in microfarads, in step 4",
+        "value": 318,
+        "kind": "control"
+      },
+      {
+        "label": "Resistance R opening setting, in ohms, in step 4",
+        "value": 8,
+        "kind": "control"
+      },
+      {
+        "label": "X_L = 2π × 50 × 0.0191, in ohms, in step 4",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "X_C = 1 ÷ (2π × 50 × 0.000318), in ohms, in step 4",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Doubled frequency, in hertz, in step 5",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle answer X_L at 100 Hz, in ohms, in step 5",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle answer X_C at 100 Hz, in ohms, in step 5",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip X_C doubled too, in ohms, in step 5",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip X_L halved, in ohms, in step 5",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "8 + j6: 8 squared, in step 6",
+        "value": 64,
+        "kind": "computed"
+      },
+      {
+        "label": "8 + j6: 6 squared, in step 6",
+        "value": 36,
+        "kind": "computed"
+      },
+      {
+        "label": "64 + 36, in step 6",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Length of 8 + j6, √100, in ohms, in step 6",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle of 8 + j6, tan⁻¹(6 ÷ 8), in degrees, in step 6",
+        "value": 36.87,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip sizes added, 8 + 6, in ohms, in step 7",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip sizes taken away, 8 − 6, in ohms, in step 7",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Power factor cos 36.87°, in step 8",
+        "value": 0.8,
+        "kind": "computed"
+      },
+      {
+        "label": "j part 6 − 10, in ohms, in step 8",
+        "value": -4,
+        "kind": "computed"
+      },
+      {
+        "label": "Length of 8 − j4, √80, in ohms, in step 8",
+        "value": 8.94,
+        "kind": "computed"
+      },
+      {
+        "label": "8 squared + 4 squared, in step 8",
+        "value": 80,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle of 8 − j4, tan⁻¹(−4 ÷ 8), in degrees, in step 8",
+        "value": -26.57,
+        "kind": "computed"
+      },
+      {
+        "label": "Power factor cos(−26.57°), in step 8",
+        "value": 0.89,
+        "kind": "computed"
+      },
+      {
+        "label": "Frequency where X_L = X_C, near, in hertz, in step 8",
+        "value": 65,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip capacitor added upwards, 6 + 10, in ohms, in step 9",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip all sizes added, 8 + 6 + 10, in ohms, in step 9",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "R = 10 cos 36.87°, in ohms, in step 10",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "X = 10 sin 36.87°, in ohms, in step 10",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle Z = 5∠−53.13°: length, in ohms, in step 11",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle Z = 5∠−53.13°: angle, in degrees, in step 11",
+        "value": -53.13,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle answer R = 5 cos(−53.13°), in ohms, in step 11",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle answer X = 5 sin(−53.13°), in ohms, in step 11",
+        "value": -4,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle resistor, in ohms, in step 12",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle coil's reactance at 50 Hz, in ohms, in step 12",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Coil's reactance at 100 Hz, 2 × 4, in ohms, in step 12",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle answer length √(36 + 64), in ohms, in step 12",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle answer angle tan⁻¹(8 ÷ 6), in degrees, in step 12",
+        "value": 53.13,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip coil left at 4 Ω: length √52, in ohms, in step 12",
+        "value": 7.21,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip coil left at 4 Ω: angle, in degrees, in step 12",
+        "value": 33.69,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip coil halved to 2 Ω: length √40, in ohms, in step 12",
+        "value": 6.32,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip coil halved to 2 Ω: angle, in degrees, in step 12",
+        "value": 18.43,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice resistor, in ohms",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice coil's inductance, in millihenries",
+        "value": 50.9,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice X_L = 2π × 50 × 0.0509, in ohms",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice 12 squared + 16 squared, 144 + 256",
+        "value": 400,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice length of 12 + j16, √400, in ohms",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice angle tan⁻¹(16 ÷ 12), in degrees",
+        "value": 53.13,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice power factor cos 53.13°",
+        "value": 0.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Most ships' supply frequency, in hertz, in practice",
+        "value": 60,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Ship coil for 6 Ω, L = 6 ÷ (2π × 60), in millihenries, in practice",
+        "value": 15.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Millihenries in a henry",
+        "value": 1000,
+        "kind": "constant"
+      },
+      {
+        "label": "Microfarads in a farad",
+        "value": 1000000,
+        "kind": "constant"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A resistor, a coil and a capacitor each hold back an alternating current, and each one's opposition is counted in ohms. The difference is direction: on the complex plane the resistor's opposition lies along the real axis, the coil's points straight up and the capacitor's points straight down.[^1] Laid tip to tail, they make one complex number, Z = R + jX, called the [[impedance]]: the AC version of resistance, still in ohms.[^4][^5]\n\nWhy the quarter turns? A resistor's voltage rises and falls in step with its current, so its opposition has no j part: 8 Ω is 8 + j0.[^6] A coil is different. Remember from Calculus fundamentals that a coil's voltage follows how fast its current changes, v = L di/dt. The current wave changes fastest as it crosses zero and stops changing for an instant at its peak. So the coil's voltage is biggest as the current crosses zero, and zero as the current peaks: its wave is the current's wave a quarter cycle earlier. Draw each wave as its turning arrow from Trigonometry. The arrows turn anticlockwise, so the voltage's arrow, a quarter cycle ahead, is the current's arrow turned a quarter turn anticlockwise and stretched. The first lesson showed that a quarter turn anticlockwise is multiplying by j. So the coil turns its current into its voltage by multiplying by j and by its size in ohms, X_L, and its opposition points up: +jX_L. A capacitor is the other way round. Its current follows how fast its voltage changes, i = C dv/dt, so its current peaks a quarter cycle before its voltage. Its voltage's arrow is the current's arrow turned a quarter turn back, clockwise, which is multiplying by −j, so its opposition points down: −jX_C. The size, X_L or X_C in ohms, is called [[reactance]]. A calculator's sum gives only that size; you put on the +j or −j from the kind of part.\n\nThe sizes depend on the frequency f. Double f and the current wave climbs twice as steeply, so a coil's voltage doubles for the same current: its reactance is X_L = 2πfL, growing in step with f.[^7] For a capacitor, a voltage wave twice as steep drives twice the current, so its opposition halves: X_C = 1 ÷ (2πfC),[^8] using ω = 2πf from Trigonometry, with L in henries and C in farads. At 50 Hz, the UK mains frequency,[^2] a 19.1 mH coil has X_L = 2π × 50 × 0.0191 = 6.0 Ω, and a 318 µF capacitor has X_C = 1 ÷ (2π × 50 × 0.000318) = 10.0 Ω. At 100 Hz they become 12.0 Ω and 5.0 Ω. At very high frequencies a capacitor's reactance tends to zero, and it barely holds back the current at all.[^9]\n\nWith no coil or capacitor, X is 0 and Z is just R, your DC resistance. In series the parts still add, as resistors in series do, but now as arrows, tip to tail as in the adding lesson: Z = R + jX_L − jX_C = R + j(X_L − X_C). An 8 Ω resistor with that 6 Ω coil gives Z = 8 + j6. In polar form its length is √(8² + 6²) = √100 = 10 and its angle is tan⁻¹(6 ÷ 8) = 36.87°, so Z = 10∠36.87°. That is 10 Ω, not 8 + 6 = 14 Ω, because the coil's 6 Ω stands at a quarter turn to the 8. The right-angled triangle of R, X and Z is called the [[impedance triangle]]. Add the 10 Ω capacitor and Z = 8 + j(6 − 10) = 8 − j4, which is 8.94∠−26.57°: the capacitor's arrow is longer, so Z dips below the real axis. Raise f and the coil's arrow grows while the capacitor's shrinks; near 65 Hz they cancel, and Z is the 8 Ω resistor alone. One power-systems text, a secondary source, notes that Z's angle φ is also the angle between the voltage across the parts and the current through them,[^10] so cos φ is the power factor from Trigonometry: cos 36.87° = 0.8. The next lesson shows why. Z is not a phasor, because a phasor stands for a voltage or a current;[^11] Z is a fixed opposition that does not turn with the wave. These are ideal parts: a real coil's winding adds a little resistance to R. **Impedance is resistance with an angle, all in ohms: the resistor's part lies along the real axis, the coil's points up and the capacitor's points down, and in series they add tip to tail.[^4][^1]**"
+  },
+  "analogy": {
+    "text": "Think of the power triangle from Trigonometry. A load's true power in kW is the side along the bottom, its reactive power in kVAr stands at a quarter turn to it, and the apparent power in kVA is the long side, so 8 kW with 6 kVAr is 10 kVA, not 14. The impedance triangle has the same shape: R along the bottom, X up or down, Z the long side, and the same angle φ.",
+    "breaks": "The power triangle counts power, which grows as more current flows, while the impedance triangle counts ohms, which stay the same whatever the current. The shapes match for a reason you can work out: true power is P = I²R and reactive power is Q = I²X, so the power triangle is the impedance triangle with every side multiplied by I². That is why the two share their angle φ but not their sizes."
+  },
+  "practice": {
+    "text": "- Work out each reactance at the working frequency: X_L = 2πfL and X_C = 1 ÷ (2πfC). Put L in henries (mH ÷ 1000) and C in farads (µF ÷ 1000000).\n- Give each part its direction: the resistor R, the coil +jX_L, the capacitor −jX_C.\n- In series, add them: Z = R + j(X_L − X_C).\n- For polar form, sketch it, then length √(R² + X²) and angle tan⁻¹(X ÷ R).\n- Read the angle: positive means the coil wins and Z points up; negative means the capacitor wins and Z points down. Its cosine is the power factor.\n\n**Rule of thumb:** Coil up, capacitor down. Raise the frequency and the coil's arrow grows while the capacitor's shrinks.\n\n**Rule of thumb:** Sizes at a quarter turn combine by Pythagoras, not by adding: 8 Ω with a 6 Ω coil is 10 Ω.\n\n**Worked example:** Model a coil on 50 Hz as 12 Ω of winding resistance in series with 50.9 mH. X_L = 2π × 50 × 0.0509 = 16.0 Ω, so Z = 12 + j16. Its length is √(144 + 256) = √400 = 20 Ω and its angle tan⁻¹(16 ÷ 12) = 53.13°, so Z = 20∠53.13°, pointing up because the coil wins. The power factor is cos 53.13° = 0.6. On a ship the supply is different: MIT's notes say most ships at sea run at 60 Hz,[^3] so a coil of 6 Ω there takes L = 6 ÷ (2π × 60) = 0.0159 H, or 15.9 mH, not the 19.1 mH it takes on 50 Hz mains.\n\n**Common mistakes**\n- Writing a reactance without its direction. A 10 Ω capacitor is −j10, not 10 or +j10.\n- Adding the sizes. 8 Ω with a 6 Ω coil is 10 Ω, not 14 Ω, nor 8 − 6 = 2 Ω.\n- Adding the capacitor's reactance to the coil's instead of taking it away. 8 + j6 − j10 is 8 − j4.\n- Using mH or µF straight in the formula. Turn them into henries and farads first.\n- Thinking both reactances grow with frequency. The coil's grows; the capacitor's shrinks."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "\"Modular Electronics Learning (ModEL) project\" — Tony R. Kuphaldt, ModEL project",
+      "url": "https://ibiblio.org/kuphaldt/socratic/model/mod_rxz.pdf",
+      "quote": "Since resistive impedance has a phase angle of zero degrees its vector points to the right, while inductive impedance with its 90 o phase angle points up and capacitive impedance with its −90 o phase angle points down."
+    },
+    {
+      "n": 2,
+      "title": "The National Grid and mains electricity - OCR Gateway — BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/guides/zcfm8mn/revision/3",
+      "quote": "The mains supply in the UK is an alternating current (ac) voltage at a frequency of 50 hertz (Hz) and a voltage of 230 volts (V)."
+    },
+    {
+      "n": 3,
+      "title": "6.061 Class Notes, Chapter 2: AC Power Flow in Linear Networks — MIT OpenCourseWare",
+      "url": "https://ocw.mit.edu/courses/6-061-introduction-to-electric-power-systems-spring-2011/9cf8de165233601f547b284cee5c2131_MIT6_061S11_ch2.pdf",
+      "quote": "In North America, most ships at sea and eastern Japan that frequency is 60 Hz."
+    },
+    {
+      "n": 4,
+      "title": "15.3 RLC Series Circuits with AC - University Physics Volume 2 | OpenStax",
+      "url": "https://openstax.org/books/university-physics-volume-2/pages/15-3-rlc-series-circuits-with-ac",
+      "quote": "Its unit is the ohm, and it is the ac analog to resistance in a dc circuit, which measures the combined effect of resistance, capacitive reactance, and inductive reactance"
+    },
+    {
+      "n": 5,
+      "title": "3-1 Sinusoidal steady-state analysis Phasor ... — Rose-Hulman Institute of Technology",
+      "url": "https://www.rose-hulman.edu/class/ee/HTML/ECE204/PDFs/phasors.pdf",
+      "quote": "The algebraic relationship between a phasor voltage and a phasor current is a generalization of resistance and is termed an element's impedance. The unit of impedance is the ohm."
+    },
+    {
+      "n": 6,
+      "title": "Complex Numbers & Phasors in Polar and Rectangular Form — Electronics Tutorials",
+      "url": "https://www.electronics-tutorials.ws/accircuits/complex-numbers.html",
+      "quote": "Such as: Z = 6 + j0 (for a pure Resistance) or Z = 0 + j4 (for a pure Reactance) on the complex plane."
+    },
+    {
+      "n": 7,
+      "title": "\"Modular Electronics Learning (ModEL) project\" — Tony R. Kuphaldt, ModEL project",
+      "url": "https://ibiblio.org/kuphaldt/socratic/model/mod_rxz.pdf",
+      "quote": "When expressing frequency in Hertz rather than radians per second, it is more common to see reactance computed as XL = 2πfL."
+    },
+    {
+      "n": 8,
+      "title": "Just a Resistor, just a capacitor, or just an inductor — Boston University",
+      "url": "http://physics.bu.edu/~duffy/semester2/c20_AC.html",
+      "quote": "where X C = 1/ωC is the effective resistance of the capacitor and is known as the capacitive reactance ."
+    },
+    {
+      "n": 9,
+      "title": "23.11 Reactance, Inductive and Capacitive - College Physics 2e | OpenStax",
+      "url": "https://openstax.org/books/college-physics-2e/pages/23-11-reactance-inductive-and-capacitive",
+      "quote": "At very high frequencies, the capacitor’s reactance tends to zero—it has a negligible reactance and does not impede the current (it acts like a simple wire)."
+    },
+    {
+      "n": 10,
+      "title": "2.6: Phasors - Engineering LibreTexts",
+      "url": "https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electro-Optics/Introduction_to_Electric_Power_Systems_(Kirtley)/02%3A_AC_power_flow_in_linear_networks/2.06%3A_Phasors",
+      "quote": "Note that the phase angle between voltage and current is the same as the phase angle of the impedance."
+    },
+    {
+      "n": 11,
+      "title": "4 AC Circuits Phasors, Impedance and Transformers — University of Tennessee, Knoxville",
+      "url": "https://web.eecs.utk.edu/~mjr/ECE202/Labs/Lab%204.pdf",
+      "quote": "A phasor is a complex number that represents the magnitude and phase of a voltage or a current."
+    }
+  ]
+}
