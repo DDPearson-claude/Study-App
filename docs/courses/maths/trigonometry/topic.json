@@ -1,0 +1,170 @@
+{
+ "title": "Trigonometry, from triangles to waves",
+ "hook": "A UK three-phase supply gives 230 V between each line and neutral. Why does a meter across two of the lines read about 400 V, not 460 V?",
+ "oneBreath": "In right-angled triangles with the same angle, the sides keep the same proportions however big the triangle is, so an angle fixes three ratios, sine, cosine and tangent, that find a missing side or angle, from the travel between conduit bends to the push along a slope. Carry the triangle round a circle on a turning arm and the ratios work for any angle, solve triangles with no right angle, and measure turning in radius-lengths, called radians. Plot the arm's height against time and you have the sine wave of an AC supply, two waves of one frequency add like arrows, and, for pure sine waves, power factor turns out to be the cosine of the angle between voltage and current.",
+ "ideas": [
+  {
+   "id": "i1",
+   "title": "Sides in proportion: sin, cos and tan",
+   "oneLine": "In right-angled triangles with the same angle the sides keep fixed ratios, sine, cosine and tangent, so the angle and one side give any other.",
+   "deps": [],
+   "kind": "quantity"
+  },
+  {
+   "id": "i2",
+   "title": "Finding angles, and splitting a force",
+   "oneLine": "The inverse key sin⁻¹, read \"inverse sine\", turns two sides back into an angle, and a force splits into parts F cos θ and F sin θ.",
+   "deps": [
+    "i1"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i3",
+   "title": "Round the circle: any angle",
+   "oneLine": "A turning arm of length 1 has its tip at (cos θ, sin θ), so sine and cosine, sometimes negative, work for every angle.",
+   "deps": [
+    "i1",
+    "i2"
+   ],
+   "kind": "concept"
+  },
+  {
+   "id": "i4",
+   "title": "Triangles without a right angle",
+   "oneLine": "The cosine rule, Pythagoras with a correction −2ab cos C, and the sine rule solve triangles that have no right angle.",
+   "deps": [
+    "i1",
+    "i3"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i5",
+   "title": "Radians: angle as arc over radius",
+   "oneLine": "A radian is the angle whose arc is one radius long, on any circle, so a whole turn, 360°, is 2π radians.",
+   "deps": [
+    "i3"
+   ],
+   "kind": "concept"
+  },
+  {
+   "id": "i6",
+   "title": "From circle to wave",
+   "oneLine": "A steadily turning arm's height against time draws the sine wave E sin(2πft): E is the arm's length, f its turns a second.",
+   "deps": [
+    "i3",
+    "i5"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i7",
+   "title": "Adding waves with phasors",
+   "oneLine": "Two waves of one frequency add by putting their turning arrows, called phasors, tip to tail: the arrow from start to finish is the sum.",
+   "deps": [
+    "i2",
+    "i4",
+    "i6"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i8",
+   "title": "Power factor as a cosine",
+   "oneLine": "Power factor, true power in watts over apparent power in volt-amps, is the cosine of the angle between voltage and current.",
+   "deps": [
+    "i1",
+    "i6",
+    "i7"
+   ],
+   "kind": "quantity"
+  }
+ ],
+ "calibration": [
+  {
+   "id": "c1",
+   "iid": "i1",
+   "q": "A ramp climbs at 20°. You rebuild it at 40°, over the same length of floor. How much higher does its top end up?",
+   "options": [
+    "Exactly twice as high",
+    "More than twice as high",
+    "Less than twice as high"
+   ],
+   "answer": 1,
+   "why": "Height over floor length grows faster than the angle: at 20° it is about 0.36, at 40° about 0.84, more than double. Exactly twice assumes height grows in step with the angle; less than twice is true along a fixed slope length, not a fixed floor."
+  },
+  {
+   "id": "c2",
+   "iid": "i3",
+   "q": "On a big wheel, a seat starts level with the hub and turns up and over the top. How many times in one turn is it exactly halfway from hub height to the top?",
+   "options": [
+    "Twice",
+    "Once",
+    "Four times"
+   ],
+   "answer": 0,
+   "why": "It passes that height once climbing and once coming down the other side, at the same height either side of the top. Once forgets the way down, and four times counts the points halfway below the hub, which are a different height."
+  }
+ ],
+ "query": "Trigonometry",
+ "level": "some",
+ "mode": "read",
+ "intake": {
+  "questions": [
+   {
+    "id": "q1",
+    "q": "What do you want from this course?",
+    "options": [
+     "To understand trigonometry and how to work with it",
+     "A quick refresher of the methods",
+     "Exam practice"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q2",
+    "q": "Where will you use it?",
+    "options": [
+     "On the job and in everyday life",
+     "For further study",
+     "Just curiosity"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q3",
+    "q": "How do you like to learn?",
+    "options": [
+     "Hands-on, with the why explained in full",
+     "Rules and worked examples only",
+     "Lots of practice questions"
+    ],
+    "multi": false,
+    "other": false
+   }
+  ],
+  "answers": {
+   "q1": {
+    "picked": [
+     "To understand trigonometry and how to work with it"
+    ],
+    "other": null
+   },
+   "q2": {
+    "picked": [
+     "On the job and in everyday life"
+    ],
+    "other": null
+   },
+   "q3": {
+    "picked": [
+     "Hands-on, with the why explained in full"
+    ],
+    "other": null
+   }
+  }
+ }
+}

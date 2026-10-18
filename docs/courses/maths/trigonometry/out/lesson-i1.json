@@ -1,0 +1,585 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-18T08:21:39.972Z",
+ "startedAt": "2026-10-18T08:21:39.972Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i1",
+  "title": "Sides in proportion: sin, cos and tan",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is every side growing while opposite ÷ hypotenuse, adjacent ÷ hypotenuse and opposite ÷ adjacent stay put, when you drag the size handle, and all three changing when you drag the angle.",
+   "title": "The growing triangle",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in thirteen small screens on one right-angled triangle, the growing triangle. Its right angle is at the bottom right and the angle in use, θ (the Greek letter theta), is at the bottom left. A size handle sits on the far corner and an angle handle on the top corner. Small labels name the sides from θ: the hypotenuse is the longest side, across from the right angle; the opposite side is across from θ; the adjacent side is the other one, next to θ. Each side shows its length, and three readouts show opposite ÷ hypotenuse, adjacent ÷ hypotenuse and opposite ÷ adjacent to three decimal places. Dragging the size handle enlarges the triangle, and a small scale label shows how many times bigger than the opening triangle it is, × 2 when the hypotenuse goes from 10 cm to 20 cm. Every side is multiplied by that same number, so the readouts stay put. Dragging the angle handle changes the shape, so they change. A switch moves θ to the top corner, and the opposite and adjacent labels swap, while the hypotenuse stays the same. A full turn is 360° and a right angle is a quarter of it. The angles in a triangle make 180°, and the right angle takes 90°, so the other two share 90°, which makes them complementary, and are each less than 90°, which is called acute: with θ at 30°, the top corner is 60°. An angle between 90° and 180° is obtuse, and a right-angled triangle has none. Growing the triangle keeps its three angles, 90°, θ and 180° − 90° − θ, so it stays the same shape. Later screens name the three ratios sin θ, cos θ and tan θ, with SOH CAH TOA spelled out letter by letter, show a calculator's sin key in degrees mode and in another mode, radians, which a later lesson teaches, and turn the triangle into a conduit offset: the offset depth is the opposite side, the distance between the bends is the hypotenuse, and a readout shows the multiplier 1 ÷ sin θ; the screen says this rule comes from the electrical trade and is near enough rather than exact, as it ignores the curve of each bend. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, a wrong pick gets a one-line hint naming its slip, and Why? draws the triangle for it.",
+   "ignores": "The lengths are example values in centimetres or millimetres, and the readouts are rounded to three decimal places. The angle handle stays between 10° and 80°, as in a right-angled triangle both other angles are less than 90°. The conduit is drawn with sharp corners where a real bend is a curve.",
+   "numbers": [
+    {
+     "label": "Example angle θ at the bottom corner, in degrees, in step 1",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "A right angle, in degrees, in step 1",
+     "value": 90,
+     "kind": "constant"
+    },
+    {
+     "label": "The angles of a triangle add up to, in degrees, in step 1",
+     "value": 180,
+     "kind": "constant"
+    },
+    {
+     "label": "Top corner 180 − 90 − 30, in degrees, in step 1",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Smallest angle on the handle, in degrees",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Largest angle on the handle, in degrees",
+     "value": 80,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example hypotenuse, in cm, in step 3",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Its opposite side at 30°, in cm, in step 3",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Enlarged hypotenuse, in cm, in step 3",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Scale label 20 ÷ 10, in step 3",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Its opposite side at 30°, in cm, in step 3",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Opposite ÷ hypotenuse at 30°, 5 ÷ 10 and 10 ÷ 20, in step 3",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Example angle turned to, in degrees, in step 3",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Opposite ÷ hypotenuse at 40°, in step 3",
+     "value": 0.643,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle bigger hypotenuse at 30°, in cm, in step 4",
+     "value": 26,
+     "kind": "assumed"
+    },
+    {
+     "label": "Its opposite side, 26 × 0.5, in cm, in step 4",
+     "value": 13,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip adding 16 to the 5, in cm, in step 4",
+     "value": 21,
+     "kind": "computed"
+    },
+    {
+     "label": "Adjacent ÷ hypotenuse at 30°, in step 5",
+     "value": 0.866,
+     "kind": "computed"
+    },
+    {
+     "label": "Opposite ÷ adjacent at 30°, in step 5",
+     "value": 0.577,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle opposite side, in cm, in step 6",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Puzzle adjacent side, in cm, in step 6",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "sin θ = 6 ÷ 10, in step 6",
+     "value": 0.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 8 ÷ 10, the cosine, in step 6",
+     "value": 0.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 6 ÷ 8, the tangent, in step 6",
+     "value": 0.75,
+     "kind": "computed"
+    },
+    {
+     "label": "sin 30° on a calculator in degrees mode, in step 7",
+     "value": 0.5,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "sin 30 in radians mode, in step 7",
+     "value": -0.988,
+     "kind": "computed"
+    },
+    {
+     "label": "sin 60°, in step 8",
+     "value": 0.866,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 2 × sin 30°, in step 8",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip sin 60 in radians mode, in step 8",
+     "value": -0.305,
+     "kind": "computed"
+    },
+    {
+     "label": "Example offset depth, in mm, in step 9",
+     "value": 150,
+     "kind": "assumed"
+    },
+    {
+     "label": "Distance between bends, 150 ÷ 0.5, in mm, in step 9",
+     "value": 300,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 150 × 0.5, in mm, in step 9",
+     "value": 75,
+     "kind": "computed"
+    },
+    {
+     "label": "Multiplier at 30°",
+     "value": 2,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Bend angle, in degrees, in step 9",
+     "value": 45,
+     "kind": "assumed"
+    },
+    {
+     "label": "sin 45°",
+     "value": 0.7071,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Multiplier at 45°",
+     "value": 1.414,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Puzzle offset depth, in mm, in step 10",
+     "value": 200,
+     "kind": "assumed"
+    },
+    {
+     "label": "Distance between bends, 200 ÷ 0.7071, in mm, in step 10",
+     "value": 283,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 200 × 0.7071, in mm, in step 10",
+     "value": 141,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 200 × 2.0, the 30° multiplier, in mm, in step 10",
+     "value": 400,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle hypotenuse, in m, in step 11",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "cos 40°, in step 11",
+     "value": 0.766,
+     "kind": "computed"
+    },
+    {
+     "label": "Adjacent 5 × cos 40°, in m, in step 11",
+     "value": 3.83,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 5 × sin 40°, in m, in step 11",
+     "value": 3.21,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 5 ÷ cos 40°, in m, in step 11",
+     "value": 6.53,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle adjacent side, in mm, in step 12",
+     "value": 900,
+     "kind": "assumed"
+    },
+    {
+     "label": "Opposite 900 × tan 30°, in mm, in step 12",
+     "value": 520,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 900 × sin 30°, in mm, in step 12",
+     "value": 450,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 900 ÷ tan 30°, in mm, in step 12",
+     "value": 1559,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle short sides, in mm, in step 13",
+     "value": 300,
+     "kind": "assumed"
+    },
+    {
+     "label": "Second short side, in mm, in step 13",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "Hypotenuse by Pythagoras, in mm, in step 13",
+     "value": 500,
+     "kind": "computed"
+    },
+    {
+     "label": "Phase to neutral voltage, in volts",
+     "value": 230,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Three-phase supply, in volts",
+     "value": 400,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Worked example offset depth, in mm",
+     "value": 120,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example distance between bends, in mm",
+     "value": 240,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example slip 120 × 0.5, in mm",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "A full turn, in degrees, in step 1",
+     "value": 360,
+     "kind": "constant",
+     "source": 9
+    },
+    {
+     "label": "tan 30° to four places, in step 12",
+     "value": 0.5774,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "In right-angled triangles with the same angle, the sides keep the same proportions however big the triangle is. Here is why. Two such triangles share the right angle, 90°, and the angle you are using, θ (the Greek letter theta). A triangle's angles make 180°, so their third angles match too, and triangles with the same three angles are the same shape. The big one is the small one enlarged, with every side multiplied by the same number, and as in Proportional reasoning, multiplying both parts of a ratio by the same number leaves it unchanged. So one side divided by another gives the same answer in both.[^3] A full turn is 360°,[^9] and a right angle is a quarter of it. An angle between 90° and 180° is obtuse,[^10] so a right-angled triangle has none: its other two angles share 90°, which makes them complementary,[^11] and each is under 90°, or acute. Name the sides from θ: the hypotenuse is across from the right angle, the opposite side is across from θ, and the adjacent side is the other one, next to θ. In the growing triangle θ is 30°. With a hypotenuse of 10 cm the opposite side is 5 cm, and enlarged to 20 cm it is 10 cm, so opposite ÷ hypotenuse is 0.5 both times.\n\nThe angle is what changes the ratio. Turn θ from 30° to 40° and the hypotenuse tips up, so more of its length goes into the height, and opposite ÷ hypotenuse grows to 0.643. Each angle has its own three ratios. Opposite ÷ hypotenuse is the [[sine]] of θ, written sin θ. Adjacent ÷ hypotenuse is its [[cosine]], cos θ, and opposite ÷ adjacent is its [[tangent]], tan θ.[^4] Their first letters make SOH CAH TOA, one way to remember which is which: Sine is Opposite ÷ Hypotenuse, Cosine is Adjacent ÷ Hypotenuse, and Tangent is Opposite ÷ Adjacent. A scientific calculator holds these numbers, and for angles in degrees it should be in degrees mode.[^5] sin 30° = 0.5 is one number that belongs to 30°,[^1] not sin times 30. sin 60° is 0.866, not twice sin 30°. In a right-angled triangle the opposite side is shorter than the hypotenuse, so sin θ is less than 1 there, and sin 60° = 1, twice sin 30°, would make the opposite side as long as the hypotenuse. The sine does not grow in step with the angle. In another mode, radians, which a later lesson teaches, the same keys give sin 30 = −0.988.\n\nSo the angle and one side give any other side. Pick the ratio that holds the side you know and the side you want, then rearrange. With θ at 30° and a hypotenuse of 10 cm, the opposite side is 10 × sin 30° = 5 cm. When the hypotenuse is the side you want, it is on the bottom of sin θ = opposite ÷ hypotenuse. Multiply both sides by the hypotenuse and divide both by sin θ, and you have hypotenuse = opposite ÷ sin θ. A conduit offset is this triangle, with the offset depth as the opposite side and the distance between the bends as the hypotenuse.[^6] A 150 mm offset with 30° bends needs 150 ÷ 0.5 = 300 mm between bends. Dividing by sin θ is multiplying by 1 ÷ sin θ, which is the multiplier: 2.0 at 30° and 1.414 at 45°.[^1] Multiplying by sin θ instead gives 150 × 0.5 = 75 mm, shorter than the offset, and the hypotenuse is the longest side. The method is an approximation, because it does not account for the arc of the bend.[^7] In a right-angled triangle, a question with two sides and an angle is one for trigonometry.[^8] With two sides and no angle, Pythagoras, from Geometry fundamentals, finds the third.\n\nThe course's puzzle, a supply described as 230 V single-phase and 400 V three-phase,[^2] ends in a triangle with a known angle, and these ratios are what turn that angle into a side. **In right-angled triangles with the same angle, each side divided by another gives the same answer however big the triangle is,[^3] so the angle fixes sin θ, cos θ and tan θ, and the angle and one side give any other side.**"
+  },
+  "analogy": {
+   "text": "A drawing at 1:50 keeps every length in proportion, so a wall twice as long on paper is twice as long on site. A right-angled triangle with a 30° angle is one shape drawn at any scale: its opposite side is half its hypotenuse whether it is drawn 10 cm long or built 10 m long.",
+   "breaks": "A drawing's scale compares the drawing with the real thing, while a trig ratio compares two sides of the same triangle. And sin, cos and tan as side ratios need a right angle, because only a right-angled triangle has a hypotenuse; a later lesson gives the rules for other triangles."
+  },
+  "practice": {
+   "text": "- Mark the right angle and the angle you are using, θ.\n- Name the sides from θ: the hypotenuse across from the right angle, the opposite across from θ, the adjacent next to θ.\n- Pick the ratio that holds the side you know and the side you want (SOH CAH TOA).\n- Write it as an equation. If the side you want is on top, multiply; if it is on the bottom, divide.\n- For angles in degrees, set the calculator to degrees mode,[^5] then work it out.\n- Check against the drawing: no side is longer than the hypotenuse.\n\n**Rule of thumb:** The hypotenuse is the longest side, so finding it means dividing by a number less than 1, and the answer comes out bigger than the side you started with.\n\n**Worked example:** A 120 mm offset with 30° bends. The offset depth is the opposite side and the distance between bends is the hypotenuse.[^6] sin 30° = opposite ÷ hypotenuse, so hypotenuse = 120 ÷ 0.5 = 240 mm, near enough, as the method ignores the arc of the bend.[^7] The multiplier gives the same, 120 × 2.0 = 240 mm.[^1] 240 mm is longer than 120 mm, as a hypotenuse must be.\n\n**Common mistakes**\n- Multiplying where you should divide. 120 × 0.5 = 60 mm is shorter than the offset, so it cannot be the distance between bends.\n- Using 2.0 at 45° or 1.414 at 30°. Work it out as 1 ÷ sin θ.[^1]\n- A calculator in the wrong mode. If sin 30 shows −0.988, it is not in degrees.[^5]\n- Treating sin as a multiplication. sin 60° is 0.866, not 2 × sin 30°.\n- Naming the sides from the wrong angle. Opposite and adjacent swap when θ moves to the other corner."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Conduit Bending Multiplier Chart: Complete Reference Guide",
+    "url": "https://conduitbending.com/insights/conduit-bending-multiplier",
+    "quote": "That cosecant value is the multiplier. For 30 degrees, sin(30) = 0.5, so the cosecant = 1/0.5 = 2.0. For 45 degrees, sin(45) = 0.7071, so the cosecant = 1/0.7071 = 1.414."
+   },
+   {
+    "n": 2,
+    "title": "Low voltage",
+    "url": "https://www.designingbuildings.co.uk/wiki/Low%20voltage",
+    "quote": "Low voltage is a term used to describe 400 V three-phase and 230 V single-phase supplies."
+   },
+   {
+    "n": 3,
+    "title": "Introduction to trigonometry for right-angled triangles - KS3 Maths - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zyjtfdm",
+    "quote": "For similar right-angled triangles, the hypotenuse , opposite and adjacent sides stay in the same proportion . For example, the adjacent side divided by the hypotenuse will give the same answer no matter how much the triangle is enlarged."
+   },
+   {
+    "n": 4,
+    "title": "7.2 Right Triangle Trigonometry - Algebra and Trigonometry | OpenStax",
+    "url": "https://openstax.org/books/algebra-and-trigonometry/pages/7-2-right-triangle-trigonometry",
+    "quote": "sine as the ratio of the opposite side to the hypotenuse. 2. Find the cosine as the ratio of the adjacent side to the hypotenuse. 3. Find the tangent as the ratio of the opposite side to the adjacent side."
+   },
+   {
+    "n": 5,
+    "title": "What is right-angled trigonometry? - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zck7rmn",
+    "quote": "Scientific calculators need to be used for trigonometry and should be in degrees mode."
+   },
+   {
+    "n": 6,
+    "title": "Conduit Bending Multiplier Chart: Complete Reference Guide",
+    "url": "https://conduitbending.com/insights/conduit-bending-multiplier",
+    "quote": "When you bend an offset, the conduit forms a right triangle. The offset depth is the vertical side (opposite), the distance between bends is the diagonal (hypotenuse), and the horizontal run is the adjacent side."
+   },
+   {
+    "n": 7,
+    "title": "Conduit Bending Multiplier Chart: Complete Reference Guide",
+    "url": "https://conduitbending.com/insights/conduit-bending-multiplier",
+    "quote": "This method is an approximation because it doesn't account for the arc of the bend itself"
+   },
+   {
+    "n": 8,
+    "title": "Introduction to trigonometry for right-angled triangles - KS3 Maths - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zyjtfdm",
+    "quote": "When the question involves two sides and an angle in a right-angled triangle, trigonometry is used."
+   },
+   {
+    "n": 9,
+    "title": "Drawing and measuring angles - KS3 Maths - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/z4dw239",
+    "quote": "Angles are based on parts of a full turn, which is 360°."
+   },
+   {
+    "n": 10,
+    "title": "Drawing and measuring angles - KS3 Maths - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/z4dw239",
+    "quote": "An obtuse angle is between 90° and 180°."
+   },
+   {
+    "n": 11,
+    "title": "Find angles in a right angle - Finding angles between lines - 3rd level Maths Revision - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/guides/zr3q96f/revision/1",
+    "quote": "Angles that add together to make a right angle are called complementary angles."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }\n  /* The triangle: a filled face, its three sides, the right-angle mark and the angle arcs. */\n  .scene .face { fill: var(--k-fill1); stroke: none; }\n  .scene .side { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; fill: none; }\n  .scene .side.hl { stroke: var(--k-amber-line); stroke-width: 5; }\n  .scene .side.bad { stroke: var(--k-warn); stroke-width: 5; }\n  .scene .ghost { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }\n  .scene .mk, .scene .arc { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .run { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }\n  .scene .hypline { stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene .pipe { fill: none; stroke: var(--k-accent2); stroke-width: 8; stroke-linejoin: miter; stroke-linecap: butt; }\n  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .sn { font: 600 13px var(--k-font); fill: var(--k-accent); }\n  .scene .sv { font: 700 15px var(--k-font); fill: var(--k-ink); }\n  .scene .sn.bad, .scene .sv.bad { fill: var(--k-warn); }\n  .scene .al { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .gl { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .tag { font: 700 16px var(--k-font); fill: var(--k-accent2); }\n  .scene .te { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .te.bad { fill: var(--k-warn); }\n  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  /* The calculator: a body, a display and six keys; a pressed key lights for a moment. */\n  .scene .cbody { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .cdisp { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }\n  .scene .ckey { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .cpress { fill: var(--k-accent2); fill-opacity: .22; stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .ckl { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .cin { font: 500 15px var(--k-font); fill: var(--k-ink); }\n  .scene .ctag { font: 700 13px var(--k-font); fill: var(--k-accent); }\n  .scene .cout { font: 700 20px var(--k-font); fill: var(--k-ink); }\n  .scene .cout.bad { fill: var(--k-warn); }\n  .scene .cml { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene #art * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }\n  .scene .grip:active { cursor: grabbing; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  /* The three ratio readouts under the triangle. */\n  .ratios { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 8px; max-width: 22rem; margin-inline: auto; }\n  .ratio { background: var(--k-panel); border: 1px solid var(--k-line); border-radius: var(--k-r); padding: 8px 10px; }\n  .ratio.hl { border-color: var(--k-amber-line); box-shadow: inset 0 0 0 1px var(--k-amber-line); }\n  .ratio .rn { display: block; font-weight: 700; color: var(--k-accent2); }\n  .ratio .rs { display: block; font-size: .8rem; line-height: 1.3; color: var(--k-muted); }\n  .ratio .rv { display: block; font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--k-ink); margin-top: 2px; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The switch on the first screen is the thing to try: first, widest, in the accent colour. */\n  .replay .k-btn.try { order: -1; flex: 1 1 auto; border-color: var(--k-accent2); color: var(--k-accent2); font-weight: 700; }\n  .replay .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  /* The answers stay on one row, each label whole; longer ones stack one to a row. */\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">Grow a right-angled triangle and watch which numbers stay put.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 200\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <div class=\"ratios\" id=\"ratios\" hidden></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Lengths are examples. Each ratio is one side of the drawn triangle divided by another, and the angle alone sets it.</p>\n\n<script>\n  const el = (id) => document.getElementById(id);\n  // ---------- numbers (pure, so the checks can test them) ----------\n  const RAD = Math.PI / 180;\n  const sinD = (a) => Math.sin(a * RAD), cosD = (a) => Math.cos(a * RAD), tanD = (a) => Math.tan(a * RAD);\n  const neg = (s) => String(s).replace(/^-/, '−');\n  // v rounded to dp places with trailing zeros dropped: 0.5, 8.7, 13, −0.988.\n  function trim(v, dp) {\n    const f = Math.pow(10, dp);\n    let s = (Math.round(v * f) / f).toFixed(dp);\n    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\\.$/, '');\n    if (s === '-0') s = '0';\n    return neg(s);\n  }\n  const r3 = (v) => neg((Math.round(v * 1000) / 1000).toFixed(3));                    // a readout: 0.500\n  const mult = (v) => { const s = trim(v, 3); return s.indexOf('.') < 0 ? s + '.0' : s; };   // 2.0, 1.414\n  const thou = (v) => String(Math.round(v)).replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',');\n  const cm = (v) => trim(v, 1) + ' cm', mm = (v) => trim(v, 0) + ' mm', mtr = (v) => trim(v, 2) + ' m';\n  // A right-angled triangle from its angle θ (degrees) and hypotenuse: the side across from θ and the one beside it.\n  const sidesOf = (th, hyp) => ({ hyp, opp: hyp * sinD(th), adj: hyp * cosD(th) });\n  // The sides named from θ, at the bottom left or moved to the top corner.\n  const namesOf = (flip) => (flip ? { hyp: 'hypotenuse', up: 'adjacent', base: 'opposite' } : { hyp: 'hypotenuse', up: 'opposite', base: 'adjacent' });\n\n  // The lesson's example values.\n  const TH0 = 30, H0 = 10, H1 = 20, TH1 = 40, LO = 10, HI = 80;   // the growing triangle: degrees, cm\n  const HB = 26;                                                   // the bigger hypotenuse puzzle, cm\n  const S5 = { opp: 6, adj: 8 };                                   // the sin θ puzzle's sides, cm\n  const D8 = 150, D9 = 200;                                        // offset depths, mm\n  const H10 = 5, TH10 = 40, A11 = 900, TH11 = 30, P12 = [300, 400];\n  const H5 = Math.hypot(S5.opp, S5.adj), H12 = Math.hypot(P12[0], P12[1]);\n  const TOP0 = 180 - 90 - TH0;                                     // the top corner when θ is 30°\n  const small0 = sidesOf(TH0, H0);                                 // the 10 cm triangle at 30°\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // pic: which picture draws the step. vh: the picture's height. A SHOW step's dur is how long its\n  // demonstration runs; a puzzle has opts (its answers), want, a hint for each wrong one, why, and\n  // its rows of working: right (after a right answer or Why?) and wrong[answer] (in red).\n  const PICK = 'Tap one of the answers.';\n  const o3 = [cm(HB * sinD(TH0)), cm(small0.opp + (HB - H0)), cm(small0.opp)];\n  const o5 = [trim(S5.adj / H5, 3), trim(S5.opp / S5.adj, 3), trim(S5.opp / H5, 3)];\n  const o7 = [trim(2 * sinD(30), 3), trim(sinD(60), 3), trim(Math.sin(60), 3)];\n  const o9 = [mm(D9 * sinD(45)), mm(D9 / sinD(30)), mm(D9 / sinD(45))];\n  const o10 = [mtr(H10 * cosD(TH10)), mtr(H10 * sinD(TH10)), mtr(H10 / cosD(TH10))];\n  const o11 = [mm(A11 * sinD(TH11)), mm(A11 * tanD(TH11)), mm(A11 / tanD(TH11))];\n  const STEPS = [\n    { show: true, name: 'Name the sides', pic: 'name', vh: 162, dur: 3.9,\n      text: 'A right-angled triangle. Its square corner is a quarter of a full turn of 360°: the *right angle*, 90°. The angle we work from, `θ` (the Greek letter theta), is at the bottom left, here 30°. A triangle\\'s angles make 180°, so the top corner is `180° − 90° − 30° = 60°`. Those two corners share 90°, so they are *complementary*, and each is under 90°, or *acute*. An *obtuse* angle, between 90° and 180°, has no room here. Name the sides from `θ`: the *hypotenuse* is across from the right angle and is the longest; the *opposite* is across from `θ`; the *adjacent* is next to `θ`.' },\n    { kind: 'pick', name: 'Opposite from the top', pic: 'name', vh: 162,\n      opts: ['The upright side', 'The bottom side', 'The sloping side'], want: 'The bottom side',\n      side: { 'The upright side': 'up', 'The bottom side': 'base', 'The sloping side': 'hyp' },\n      task: 'Now `θ` is the top corner, 60°. Which side is opposite `θ`?',\n      why: 'Opposite means across from `θ`, the one side that does not touch it. With `θ` at the top corner that is the bottom side. The upright side, next to `θ`, becomes the adjacent, and the hypotenuse stays the same.',\n      hint: 'Not quite. The opposite side is the one that does not touch `θ`.',\n      hints: { 'The upright side': 'Not quite. The upright side touches `θ` now, so it is the adjacent side.',\n        'The sloping side': 'Not quite. The sloping side is across from the right angle, so it is the hypotenuse wherever `θ` is.' } },\n    { show: true, name: 'The growing triangle', pic: 'grow', vh: 296, dur: 4.4, live: ['size', 'angle'],\n      text: 'Drag the bottom right corner to grow the triangle. Any right-angled triangle with this `θ` has the same three angles, as its third is `180° − 90° − θ`, so it is this shape enlarged. Every side is multiplied by the same number, so each side divided by another stays put. With a 10 cm hypotenuse the opposite side is 5 cm. At 20 cm, × 2, it is 10 cm, and opposite ÷ hypotenuse is 0.5 both times. Now drag the top corner to turn `θ`. The shape changes, so all three change. At 40° more of the hypotenuse goes into the height, and opposite ÷ hypotenuse grows to 0.643.' },\n    { kind: 'pick', name: 'Bigger, same angle', pic: 'big', vh: 222, rowY: 186,\n      opts: o3, want: o3[0],\n      task: 'The dashed triangle, at 30° with a 10 cm hypotenuse, has a 5 cm opposite side. This one has the same angle and a 26 cm hypotenuse. How long is its opposite side?',\n      why: 'Same angle, so the third angle is also `180° − 90° − 30° = 60°`. The same three angles make the same shape, enlarged, so opposite ÷ hypotenuse is still 0.5. The opposite side is half the hypotenuse, `26 × 0.5 = 13` cm.',\n      hint: 'Not quite. At 30° opposite ÷ hypotenuse is 0.5 at any size.',\n      hints: { [o3[1]]: 'Not quite. That adds the hypotenuse\\'s extra 16 cm to the 5 cm. Growing multiplies every side, it does not add.',\n        [o3[2]]: 'Not quite. The ratio stays put, not the side. The opposite side grows with the hypotenuse.' },\n      right: [HB + ' × sin 30° = ' + HB + ' × ' + trim(sinD(TH0), 3) + ' = ' + cm(HB * sinD(TH0))],\n      wrong: { [o3[1]]: trim(small0.opp + HB - H0, 1) + ' ÷ ' + HB + ' = ' + trim((small0.opp + HB - H0) / HB, 3) + ', not ' + trim(sinD(TH0), 3),\n        [o3[2]]: trim(small0.opp, 1) + ' ÷ ' + HB + ' = ' + trim(small0.opp / HB, 3) + ', not ' + trim(sinD(TH0), 3) } },\n    { show: true, name: 'Three names', pic: 'names', vh: 248, dur: 4.3, live: ['angle'],\n      text: 'Each angle has its own three ratios, so each gets a name. Opposite ÷ hypotenuse is the *sine* of `θ`, written `sin θ`. Adjacent ÷ hypotenuse is its *cosine*, `cos θ`, and opposite ÷ adjacent is its *tangent*, `tan θ`. At 30° they are 0.5, 0.866 and 0.577. Their first letters make *SOH CAH TOA*: Sine is Opposite ÷ Hypotenuse, Cosine is Adjacent ÷ Hypotenuse, Tangent is Opposite ÷ Adjacent. Drag the top corner and all three change together.' },\n    { kind: 'pick', name: 'Which is sin θ?', pic: 'sin', vh: 226, rowY: 190,\n      opts: o5, want: o5[2],\n      task: 'This triangle\\'s sides are 6 cm opposite `θ`, 8 cm adjacent and a 10 cm hypotenuse. What is `sin θ`?',\n      why: 'SOH: Sine is Opposite ÷ Hypotenuse, so `sin θ` is `6 ÷ 10 = 0.6`. The adjacent side, 8 cm, belongs to `cos θ` and `tan θ`.',\n      hint: 'Not quite. `sin θ` is opposite ÷ hypotenuse.',\n      hints: { [o5[0]]: 'Not quite. `8 ÷ 10` uses the adjacent side, so it is `cos θ`. Sine uses the opposite.',\n        [o5[1]]: 'Not quite. `6 ÷ 8` is opposite ÷ adjacent, which is `tan θ`. Sine divides by the hypotenuse.' },\n      right: ['sin θ = ' + S5.opp + ' ÷ ' + H5 + ' = ' + o5[2]],\n      wrong: { [o5[0]]: S5.adj + ' ÷ ' + H5 + ' = ' + o5[0] + ' is cos θ', [o5[1]]: S5.opp + ' ÷ ' + S5.adj + ' = ' + o5[1] + ' is tan θ' } },\n    { show: true, name: 'The sin key', pic: 'calc', vh: 204, dur: 4.2,\n      text: 'A scientific calculator holds these numbers. For angles in degrees it should be in *degrees mode*. Then sin 30 gives 0.5, one number that belongs to 30°, not sin times 30. It is the opposite ÷ hypotenuse of the 30° triangle. In another mode, *radians*, which a later lesson teaches, the same keys give −0.988.' },\n    { kind: 'pick', name: 'sin 60', pic: 'calc60', vh: 252, rowY: 216,\n      opts: o7, want: o7[1],\n      task: 'The calculator is in degrees mode. What does it give for sin 60?',\n      why: 'In degrees mode sin 60 gives 0.866, the opposite ÷ hypotenuse of the 60° triangle. It is not twice sin 30°: `sin 60° = 1` would make the opposite side as long as the hypotenuse, which no right-angled triangle has.',\n      hint: 'Not quite. In degrees mode the sin key gives the 60° triangle\\'s opposite ÷ hypotenuse.',\n      hints: { [o7[0]]: 'Not quite. sin 60° is not twice sin 30°. The sine does not grow in step with the angle.',\n        [o7[2]]: 'Not quite. That is sin 60 in radians mode. For degrees, set the calculator to degrees mode.' },\n      right: ['In degrees mode sin 60 = ' + o7[1]],\n      wrong: { [o7[0]]: '2 × sin 30° = 2 × ' + trim(sinD(30), 3) + ' = ' + o7[0], [o7[2]]: 'sin 60 in radians mode = ' + o7[2] } },\n    { show: true, name: 'A conduit offset', pic: 'offset', vh: 226, dur: 4.3, rowY: 164,\n      text: 'Bend an offset in a conduit and it makes roughly this triangle. This rule comes from the electrical trade, not a maths syllabus, and it is near enough rather than exact, as it ignores the curve of each bend. The *offset depth* is the opposite side, and the distance between the two bends is the hypotenuse. A 150 mm offset with 30° bends needs `150 ÷ 0.5 = 300` mm between bends. Dividing by `sin θ` is multiplying by `1 ÷ sin θ`, the *multiplier*. It is 2.0 at 30° and 1.414 at 45°. Multiplying by `sin θ` instead gives 75 mm, shorter than the offset, so it cannot be the hypotenuse.' },\n    { kind: 'pick', name: 'A 45° offset', pic: 'offset45', vh: 226, rowY: 164,\n      opts: o9, want: o9[2],\n      task: 'A 200 mm offset with 45° bends, where sin 45° = 0.7071. How far apart are the bends?',\n      why: 'The offset depth is the opposite side and the distance between bends is the hypotenuse, so the distance is `200 ÷ sin 45°`, `200 ÷ 0.7071 = 283` mm, near enough, as the rule ignores the curve of the bends. The multiplier gives the same, `200 × 1.414 = 283` mm.',\n      hint: 'Not quite. The distance between bends is the hypotenuse, so divide the offset depth by `sin 45°`.',\n      hints: { [o9[0]]: 'Not quite. That multiplies by `sin 45°`, and 141 mm is shorter than the offset. The hypotenuse is the longest side, so divide.',\n        [o9[1]]: 'Not quite. 2.0 is the multiplier for 30° bends. At 45° it is `1 ÷ 0.7071 = 1.414`.' },\n      right: [D9 + ' ÷ sin 45° = ' + D9 + ' ÷ ' + trim(sinD(45), 4) + ' = ' + o9[2], D9 + ' × ' + mult(1 / sinD(45)) + ' = ' + mm(D9 * (1 / sinD(45)))],\n      wrong: { [o9[0]]: D9 + ' × ' + trim(sinD(45), 4) + ' = ' + o9[0] + ', too short', [o9[1]]: D9 + ' × ' + mult(1 / sinD(30)) + ' = ' + o9[1] + ', the 30° multiplier' } },\n    { kind: 'pick', name: 'Find the adjacent', pic: 'cos', vh: 242, rowY: 206,\n      opts: o10, want: o10[0],\n      task: 'A right-angled triangle has a 5 m hypotenuse and `θ = 40°`, where sin 40° = 0.643 and cos 40° = 0.766. How long is the adjacent side?',\n      why: 'CAH: Cosine is Adjacent ÷ Hypotenuse, and `cos θ` = adjacent ÷ hypotenuse holds the side you know and the side you want. The adjacent is on top, so multiply, `5 × 0.766 = 3.83` m.',\n      hint: 'Not quite. Pick the ratio that holds the hypotenuse and the adjacent side.',\n      hints: { [o10[1]]: 'Not quite. `sin 40°` pairs the opposite side with the hypotenuse. The adjacent side goes with `cos`.',\n        [o10[2]]: 'Not quite. That is longer than the 5 m hypotenuse. The adjacent is on top in `cos θ` = adjacent ÷ hypotenuse, so multiply.' },\n      right: [H10 + ' × cos 40° = ' + H10 + ' × ' + trim(cosD(TH10), 3) + ' = ' + o10[0]],\n      wrong: { [o10[1]]: H10 + ' × sin 40° = ' + o10[1] + ', the opposite', [o10[2]]: H10 + ' ÷ cos 40° = ' + o10[2] + ', over ' + H10 + ' m' } },\n    { kind: 'pick', name: 'Find the opposite', pic: 'tan', vh: 230, rowY: 194,\n      opts: o11, want: o11[1],\n      task: '`θ = 30°` and the adjacent side is 900 mm, where sin 30° = 0.5 and tan 30° = 0.5774. How long is the opposite side?',\n      why: 'TOA: Tangent is Opposite ÷ Adjacent, and `tan θ` = opposite ÷ adjacent holds both sides you have. The opposite is on top, so multiply, `900 × 0.5774 = 520` mm.',\n      hint: 'Not quite. Pick the ratio that holds the opposite and the adjacent sides.',\n      hints: { [o11[0]]: 'Not quite. `sin 30°` pairs the opposite with the hypotenuse, and 900 mm is the adjacent side. Opposite and adjacent go with `tan`.',\n        [o11[2]]: 'Not quite. The opposite is on top in `tan θ` = opposite ÷ adjacent, so multiply by `tan 30°`.' },\n      right: [A11 + ' × tan 30° = ' + A11 + ' × ' + trim(tanD(TH11), 4) + ' = ' + o11[1]],\n      wrong: { [o11[0]]: A11 + ' × sin 30° = ' + o11[0], [o11[2]]: A11 + ' ÷ tan 30° = ' + o11[2] } },\n    { kind: 'pick', name: 'Two sides, no angle', pic: 'pyth', vh: 212, rowY: 176,\n      opts: ['sin θ', 'cos θ', 'Pythagoras'], want: 'Pythagoras',\n      task: 'A right-angled triangle has short sides of 300 mm and 400 mm, and no angle is given. What finds its hypotenuse?',\n      why: 'Trigonometry is for two sides and an angle. With two sides and no angle, Pythagoras finds the third. `300² + 400² = ' + thou(P12[0] * P12[0]) + ' + ' + thou(P12[1] * P12[1]) + ' = ' + thou(P12[0] * P12[0] + P12[1] * P12[1]) + '`, which is `500²`, so the hypotenuse is ' + mm(H12) + '.',\n      hint: 'Not quite. Sine and cosine need an angle.',\n      hints: { 'sin θ': 'Not quite. `sin θ` needs the angle, and no angle is given. Two sides and no angle is a job for Pythagoras.',\n        'cos θ': 'Not quite. `cos θ` needs the angle too, and none is given. With two sides and no angle, use Pythagoras.' },\n      right: ['300² + 400² = ' + thou(P12[0] * P12[0] + P12[1] * P12[1]) + ' = ' + trim(H12, 0) + '²'],\n      wrong: { 'sin θ': 'sin θ needs θ, and no angle is given', 'cos θ': 'cos θ needs θ, and none is given' } },\n  ];\n  const FINISH = 'In right-angled triangles with the same angle, each side divided by another gives the same answer however big the triangle is. So the angle fixes `sin θ`, `cos θ` and `tan θ`, and the angle and one side give any other side.';\n  // Sources the checks restate (the lesson's own).\n  const CONDUIT = 'https://conduitbending.com/insights/conduit-bending-multiplier';\n  const BITESIZE = 'https://www.bbc.co.uk/bitesize/articles/zyjtfdm';\n  const OPENSTAX = 'https://openstax.org/books/algebra-and-trigonometry/pages/7-2-right-triangle-trigonometry';\n  const DEGREES = 'https://www.bbc.co.uk/bitesize/articles/zck7rmn';\n  const FADE = 0.35, FLIP = 1.4, ANS = 1.8, LH = 17;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------\n  function write(node, s) {\n    node.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { node.appendChild(K.el('span', { class: 'nw' }, seg)); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at) node.appendChild(document.createTextNode(seg.slice(at, m.index)));\n        node.appendChild(K.el('span', { class: 'term' }, m[1]));\n        at = m.index + m[0].length;\n      }\n      if (at < seg.length) node.appendChild(document.createTextNode(seg.slice(at)));\n    });\n  }\n\n  // ---------- each step's state ----------\n  // pick, res ('right', 'wrong', 'empty'), why: a puzzle's answer; h, th: the triangle Dan has set by\n  // its handles (null until he drags); flip: θ moved to the top corner; bend, from: the offset's angle.\n  function blank() { return { pick: null, res: null, why: false, h: null, th: null, flip: false, bend: 30, from: 30 }; }\n  const stOf = (o) => Object.assign(blank(), o);\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  const ansOf = (st) => st.res === 'right' || !!st.why;\n  const wrongOf = (st) => st.res === 'wrong' && st.pick != null;\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, MODE = 'demo', motionEnd = 0;\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = el('nav');\n  const at = () => stepper.get();\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play('answer', ANS);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const d = STEPS[at()];\n    if (d.show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n    if (st.why && st.res !== 'right') play('answer', ANS);\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()], st = S[at()];\n    if (!d.show || finished) return;\n    st.h = null; st.th = null; st.flip = false; st.bend = 30; st.from = 30;\n    play('demo', d.dur);\n  } });\n  const flipBtn = K.button({ label: 'Move θ to the top corner', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()], st = S[at()];\n    if (finished || d.pic !== 'name' || !d.show) return;\n    st.flip = !st.flip;\n    play('flip', FLIP);\n  } });\n  flipBtn.el.classList.add('try');\n  const bendBtns = [30, 45].map((b) => K.button({ label: b + '° bends', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()], st = S[at()];\n    if (finished || d.pic !== 'offset' || st.bend === b) return;\n    st.from = bendNow(st).th; st.bend = b;\n    play('bend', FLIP);\n  } }));\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer, a switch or a bend; with\n  // reduced motion (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && T !== Infinity) { T = Infinity; paint(); } });\n  // A demonstration waits until most of its picture is in view, so on a phone it does not play out\n  // while Dan is still reading the words above it.\n  let seen = true, waiting = false, waitDur = 0;\n  if (typeof IntersectionObserver === 'function') {\n    seen = false;\n    new IntersectionObserver((es) => {\n      const e = es[es.length - 1];\n      seen = e.isIntersecting && (e.intersectionRatio >= 0.6 || e.intersectionRect.height >= 0.6 * (window.innerHeight || 1));\n      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }\n    }, { threshold: [0, 0.3, 0.6, 0.8, 1] }).observe(el('scene'));\n  }\n  function play(mode, dur) {\n    MODE = mode; waiting = false;\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    if (mode === 'demo' && !seen) { waiting = true; waitDur = dur; T = 0; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = el('scene'), art = el('art'), ui = el('ui');\n  let into = null, REC = null, TILES = null;\n  const add = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function arr(t0, d) {\n    d = d == null ? K.SOFT : d;\n    if (t0 + d > latest) latest = t0 + d;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(T, t0, d);\n  }\n  // A part of one motion ('demo', 'flip', 'bend' or 'answer'): arriving if that motion is the one playing.\n  const when = (m, t, d) => (MODE === m ? arr(t, d) : 1);\n  function part(a, rise, draw) {\n    if (!(a > 0)) return;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g;\n    try { draw(); } finally { into = keep; }\n  }\n  const R = (v) => Math.round(v * 100) / 100;\n  const pt = (q) => R(q[0]) + ' ' + R(q[1]);\n  const poly = (ps, close) => 'M' + ps.map(pt).join(' L') + (close ? ' Z' : '');\n  // Lines and paths, noted (with half their width) so the checks can keep labels off them.\n  function lineP(cls, p, q, pad) {\n    add(K.svg('line', { class: cls, x1: R(p[0]), y1: R(p[1]), x2: R(q[0]), y2: R(q[1]) }));\n    if (pad != null) REC.segs.push({ p, q, pad });\n  }\n  function pathP(cls, ps, pad, close) {\n    add(K.svg('path', { class: cls, d: poly(ps, close) }));\n    if (pad != null) for (let k = 1; k < ps.length; k++) REC.segs.push({ p: ps[k - 1], q: ps[k], pad });\n  }\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: R(x), y: R(y), width: R(Math.max(0, w)), height: R(Math.max(0, h)), rx: rx || 0 }));\n  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: R(x), y: R(y), 'text-anchor': anchor || 'middle' }, s));\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 8;\n  }\n  const tag = (x, y, s, anchor) => text(x, y, s, 'tag', anchor);\n  function keyDash(x, y, label) {\n    add(K.svg('line', { class: 'ghost', x1: x, y1: y - 5, x2: x + 24, y2: y - 5 }));\n    text(x + 30, y, label, 'key', 'start');\n  }\n\n  // ---------- the triangle ----------\n  // θ at A, the bottom left; the right angle at B, the bottom right; C, the top corner, above B.\n  function triPts(f) {\n    const r = f.th * RAD, H = f.hyp * f.k;\n    const A = [f.ax, f.ay], B = [f.ax + H * Math.cos(r), f.ay], C = [f.ax + H * Math.cos(r), f.ay - H * Math.sin(r)];\n    return { A, B, C, H, th: f.th, k: f.k, base: B[0] - A[0], up: B[1] - C[1], seg: { base: [A, B], up: [B, C], hyp: [A, C] } };\n  }\n  // Is a label's box inside the triangle, clear of its sides (pad from the hypotenuse) and the mark?\n  function insideTri(P, mk, pad) {\n    const c = Math.cos(P.th * RAD), s = Math.sin(P.th * RAD), A = P.A;\n    return (b) => {\n      if (b.y + b.h > A[1] - 3 || b.x + b.w > P.B[0] - 3 || b.x < A[0] + 2) return false;\n      const cs = [[b.x, b.y], [b.x + b.w, b.y], [b.x, b.y + b.h], [b.x + b.w, b.y + b.h]];\n      if (!cs.every((q) => c * (q[1] - A[1]) + s * (q[0] - A[0]) >= pad)) return false;\n      return !(b.x + b.w > P.B[0] - mk - 3 && b.y + b.h > A[1] - mk - 3);\n    };\n  }\n  // A corner's label: along the bisector of its two sides (unit vectors u, v), beyond its arc, as near\n  // as it fits inside, and clear of any dashed upright at avoidX. Its centre, or null when there is no room.\n  function wedgeSpot(P, u, v, w, h, r0, inside, avoidX) {\n    let bx = u[0] + v[0], by = u[1] + v[1];\n    const n = Math.hypot(bx, by); bx /= n; by /= n;\n    for (let d = r0 + Math.hypot(w / 2, h / 2) + 2; d < 230; d += 2) {\n      const cx = P[0] + bx * d, cy = P[1] + by * d, box = { x: cx - w / 2, y: cy - h / 2, w, h };\n      if (inside(box) && !avoidX.some((x) => x > box.x - 3 && x < box.x + w + 3)) return [cx, cy];\n    }\n    return null;\n  }\n  function arcD(P, u, v, r) {\n    const sweep = u[0] * v[1] - u[1] * v[0] > 0 ? 1 : 0;\n    return 'M' + pt([P[0] + u[0] * r, P[1] + u[1] * r]) + ' A' + R(r) + ' ' + R(r) + ' 0 0 ' + sweep + ' ' + pt([P[0] + v[0] * r, P[1] + v[1] * r]);\n  }\n  function corner(P, u, v, ra, w, inside, avoidX) {\n    const aa = w.arcA == null ? 1 : w.arcA, la = w.a == null ? 1 : w.a;\n    if (ra > 3) part(aa, 0, () => add(K.svg('path', { class: 'arc', d: arcD(P, u, v, ra) })));\n    if (!w.s || !(la > 0)) return;\n    const c = wedgeSpot(P, u, v, tw(w.s, 'al'), 14, Math.max(ra, w.r0 || 0), inside, avoidX);\n    if (c) part(la, 0, () => text(c[0], c[1] + 5, w.s, 'al'));\n  }\n  // Each side's label (its name over its length): under the base, right of the upright, and outside\n  // the hypotenuse with its nearest corner 10 units off the line.\n  function sideLabels(P, lab) {\n    const A = P.A, B = P.B, C = P.C, th = P.th * RAD;\n    ['base', 'up', 'hyp'].forEach((k) => {\n      const L = lab[k];\n      if (!L) return;\n      const a = L.a == null ? 1 : L.a, bad = L.bad ? ' bad' : '', lines = [];\n      if (L.name) lines.push({ s: L.name, cls: 'sn' + bad });\n      if (L.val) lines.push({ s: L.val, cls: 'sv' + bad });\n      if (!lines.length || !(a > 0)) return;\n      if (a >= 0.5) REC.lab[k] = lines.map((l) => l.s).join(' ');\n      const w = Math.max.apply(null, lines.map((l) => tw(l.s, l.cls))), h = lines.length * LH;\n      let cx, cy;\n      if (k === 'base') { cx = K.clamp((A[0] + B[0]) / 2, w / 2 + 4, 336 - w / 2); cy = A[1] + 12 + h / 2; }\n      else if (k === 'up') { cx = B[0] + 16 + w / 2; cy = (B[1] + C[1]) / 2; }\n      else {\n        const nx = -Math.sin(th), ny = -Math.cos(th), dd = 10 + Math.abs(nx) * w / 2 + Math.abs(ny) * h / 2;\n        cx = K.clamp((A[0] + C[0]) / 2 + nx * dd, w / 2 + 3, 337 - w / 2); cy = (A[1] + C[1]) / 2 + ny * dd;\n      }\n      part(a, 0, () => lines.forEach((l, m) => text(cx, cy - h / 2 + 13 + m * LH, l.s, l.cls)));\n    });\n  }\n  // o: face (its arrival), ghost {hyp, a, lab} (the dashed 10 cm triangle), glow {side: {a, c}},\n  // wedge {A | B | C: {s, a, arcA}}, ra, lab {side: {name, val, a, bad}}, handles ['size', 'angle'].\n  function tri(f, o) {\n    const P = triPts(f), A = P.A, B = P.B, C = P.C, c = Math.cos(f.th * RAD), s = Math.sin(f.th * RAD);\n    REC.tri = P;\n    const mk = Math.min(12, P.base / 3, P.up / 3);\n    part(o.face == null ? 1 : o.face, 0, () => {\n      add(K.svg('path', { class: 'face', d: poly([A, B, C], true) }));\n      ['base', 'up', 'hyp'].forEach((k) => lineP('side', P.seg[k][0], P.seg[k][1], 1.5));\n      pathP('mk', [[B[0] - mk, B[1]], [B[0] - mk, B[1] - mk], [B[0], B[1] - mk]], 1);\n    });\n    const avoid = [];\n    if (o.ghost && o.ghost.a > 0) {\n      const g = triPts(Object.assign({}, f, { hyp: o.ghost.hyp }));\n      avoid.push(g.B[0]);\n      part(o.ghost.a, 0, () => {\n        add(K.svg('path', { class: 'ghost', d: poly([g.A, g.B, g.C], true) }));\n        REC.segs.push({ p: g.B, q: g.C, pad: 1 });\n        if (o.ghost.lab) text(g.B[0] + 6, (g.B[1] + g.C[1]) / 2 + 5, o.ghost.lab, 'gl', 'start');\n      });\n      REC.ghost = g;\n    }\n    const glow = o.glow || {};\n    ['base', 'up', 'hyp'].forEach((k) => { const gl = glow[k]; if (gl && gl.a > 0.001) part(gl.a, 0, () => lineP('side ' + gl.c, P.seg[k][0], P.seg[k][1], 2.5)); });\n    const W = o.wedge || {}, inside = insideTri(P, mk, o.pad || 3);\n    if (W.A) corner(A, [1, 0], [c, -s], Math.min(o.ra || 24, P.base * 0.35, P.up * 0.35), W.A, inside, avoid);\n    if (W.C) corner(C, [0, 1], [-c, s], Math.min(o.ra || 24, P.up * 0.35, P.base * 0.6), W.C, inside, avoid);\n    if (W.B) corner(B, [-1, 0], [0, -1], 0, Object.assign({ r0: mk * Math.SQRT2 }, W.B), inside, avoid);\n    sideLabels(P, o.lab || {});\n    (o.handles || []).forEach((hd) => {\n      const q = hd === 'size' ? B : C;\n      add(K.svg('circle', { class: 'knob', cx: R(q[0]), cy: R(q[1]), r: 10 }));\n      REC.handles.push({ id: hd, x: q[0], y: q[1] });\n    });\n    return P;\n  }\n\n  // ---------- the conduit offset: the pipe runs along the hypotenuse between its two bends ----------\n  function conduit(f, o) {\n    const th = f.th * RAD, D = f.d * f.kc, run = D / Math.tan(th);\n    const A = [f.ax, f.ay], B = [f.ax + run, f.ay], C = [f.ax + run, f.ay - D];\n    const P = { A, B, C, th: f.th, k: f.kc, base: run, up: D, H: Math.hypot(run, D), seg: { base: [A, B], up: [B, C], hyp: [A, C] } };\n    REC.tri = P; REC.conduit = { d: f.d, th: f.th };\n    const mk = Math.min(12, run / 3, D / 3);\n    lineP('run', A, B, 1); lineP('run', B, C, 1);\n    pathP('mk', [[B[0] - mk, B[1]], [B[0] - mk, B[1] - mk], [B[0], B[1] - mk]], 1);\n    const pa = o.pipe == null ? 1 : o.pipe;\n    if (pa < 1) part(1 - pa, 0, () => lineP('hypline', A, C, 1));\n    const ends = [[8, A[1]], A, C, [332, C[1]]];\n    part(pa, 0, () => pathP('pipe', ends, 4.5));\n    corner(A, [1, 0], [Math.cos(th), -Math.sin(th)], Math.min(24, run * 0.35, D * 0.35), { s: 'θ' }, insideTri(P, mk, 8), []);\n    sideLabels(P, o.lab || {});\n    return P;\n  }\n\n  // ---------- the calculator: a display (what was keyed, its mode, the answer) and six keys ----------\n  function calcBox(x, y, w, o) {\n    const H = 164, a = o.a == null ? 1 : o.a, kw = (w - 36) / 3, kh = 26;\n    const keys = [['sin', 'cos', 'tan'], [o.digits[0], o.digits[1], '=']], rec = { mode: o.mode, entry: '', result: null };\n    part(a, 0, () => {\n      rect('cbody', x, y, w, H, 12);\n      rect('cdisp', x + 10, y + 10, w - 20, 62, 6);\n      text(x + w - 18, y + 30, o.tag, 'ctag', 'end');\n      keys.forEach((row, r) => row.forEach((k, c) => {\n        const kx = x + 10 + c * (kw + 8), ky = y + 86 + r * (kh + 10), pa = (o.press || {})[r + ':' + c] || 0;\n        rect('ckey', kx, ky, kw, kh, 6);\n        if (pa > 0.001) part(pa, 0, () => rect('cpress', kx, ky, kw, kh, 6));\n        text(kx + kw / 2, ky + 18, k, 'ckl');\n      }));\n      text(x + w / 2, y + H + 20, o.mode, 'cml');\n    });\n    // What was keyed, as one label: each key's characters fade in as it is pressed.\n    const pieces = ['sin', '\\u00A0' + o.digits[0], o.digits[1]], ent = o.entry || [];\n    if (ent.some((e) => e > 0)) part(a, 0, () => {\n      const t = add(K.svg('text', { class: 'cin', x: R(x + 18), y: R(y + 30), 'text-anchor': 'start' }));\n      pieces.forEach((s, k) => t.appendChild(K.svg('tspan', { 'fill-opacity': K.clamp(ent[k] || 0, 0, 1) }, s)));\n    });\n    pieces.forEach((s, k) => { if ((ent[k] || 0) >= 0.5) rec.entry += (k === 1 ? ' ' : '') + s.replace('\\u00A0', ''); });\n    if (o.result && o.result.a > 0) {\n      part(o.result.a * a, 0, () => text(x + w - 18, y + 62, o.result.s, 'cout' + (o.result.bad ? ' bad' : ''), 'end'));\n      if (o.result.a >= 0.5) rec.result = o.result.s;\n    }\n    REC.calcs.push(rec);\n  }\n\n  // ---------- rows of working under a picture ----------\n  function drawRows(y0, rows) {\n    rows.forEach((r, m) => { if (r.a > 0) part(r.a, 4, () => text(12, y0 + 26 * m, r.s, 'te' + (r.bad ? ' bad' : ''), 'start')); });\n    REC.rows = rows.filter((r) => r.a >= 0.5).map((r) => ({ s: r.s, bad: !!r.bad }));\n  }\n  // A puzzle's rows: its working after a right answer or Why?, and a wrong answer's own working in red.\n  function puzzleRows(d, st) {\n    const an = (t) => when('answer', t), list = [], ok = ansOf(st);\n    if (ok) d.right.forEach((s, m) => list.push({ s, a: an(0.5 + 0.25 * m) }));\n    if (wrongOf(st)) list.push({ s: d.wrong[st.pick], a: an(ok ? 0.5 + 0.25 * d.right.length : 0.3), bad: true });\n    drawRows(d.rowY, list);\n  }\n  const ratioTiles = (sd, named) => [\n    { rn: named ? 'sin θ' : '', rs: 'opposite ÷ hypotenuse', rv: r3(sd.opp / sd.hyp) },\n    { rn: named ? 'cos θ' : '', rs: 'adjacent ÷ hypotenuse', rv: r3(sd.adj / sd.hyp) },\n    { rn: named ? 'tan θ' : '', rs: 'opposite ÷ adjacent', rv: r3(sd.opp / sd.adj) },\n  ];\n\n  // The growing triangle now: Dan's setting, else the demonstration's (10 cm growing to 20, then 30° turning to 40°).\n  function growNow(st) {\n    const h = st.h != null ? st.h : H0 + (H1 - H0) * when('demo', 0.9, 1.5);\n    const th = st.th != null ? st.th : TH0 + (TH1 - TH0) * when('demo', 2.8, 1.4);\n    return { h, th, hD: Math.round(h * 10) / 10, tD: Math.round(th) };\n  }\n  function bendNow(st) {\n    const th = K.lerp(st.from, st.bend, when('bend', 0.1, 1.0));\n    return { th, tD: Math.round(th) };\n  }\n\n  // ---------- each step's picture; each returns it in words ----------\n  const PIC = {\n    name(d, st) {\n      const fl = d.show ? !!st.flip : true, nm = namesOf(fl), dm = (t) => when('demo', t), fp = (t) => when('flip', t);\n      const o = { ra: 30, wedge: {}, lab: {}, glow: {} };\n      o.wedge.B = { s: '90°', a: dm(0.5) };\n      o.wedge.A = { s: fl ? TH0 + '°' : 'θ = ' + TH0 + '°', a: dm(1.0) * fp(0.1), arcA: dm(1.0) };\n      o.wedge.C = { s: fl ? 'θ' : TOP0 + '°', a: dm(1.5) * fp(0.1), arcA: dm(1.5) };\n      let said = 'A right-angled triangle with its right angle at the bottom right, 90 degrees. Theta, ' + (fl ? TOP0 : TH0) + ' degrees, is at the ' + (fl ? 'top corner' : 'bottom left') + '.';\n      if (d.show) {\n        o.lab.hyp = { name: nm.hyp, a: dm(2.1) };\n        o.lab.up = { name: nm.up, a: dm(2.6) * fp(0.4) };\n        o.lab.base = { name: nm.base, a: dm(3.1) * fp(0.7) };\n        said += ' The sloping side is the hypotenuse, the upright side the ' + nm.up + ', the bottom side the ' + nm.base + '.';\n      } else {\n        const an = (t) => when('answer', t);\n        if (ansOf(st)) {\n          o.lab.base = { name: 'opposite', a: an(0.1) }; o.lab.up = { name: 'adjacent', a: an(0.4) }; o.lab.hyp = { name: 'hypotenuse', a: an(0.7) };\n          o.glow.base = { a: an(0.1), c: 'hl' };\n          said += ' The bottom side is the opposite, the upright side the adjacent, the sloping side the hypotenuse.';\n        } else if (wrongOf(st)) {\n          const k = d.side[st.pick];\n          o.glow[k] = { a: an(0.1), c: 'bad' }; o.lab[k] = { name: nm[k], a: an(0.1), bad: true };\n          said += ' Marked in red: that side is the ' + nm[k] + '.';\n        }\n      }\n      tri({ th: TH0, hyp: H0, k: 19, ax: 40, ay: 122 }, o);\n      return said;\n    },\n    grow(d, st) {\n      const v = growNow(st), sd = sidesOf(v.tD, v.hD), ga = K.clamp((v.h - H0) / 0.6, 0, 1);\n      tag(12, 20, 'θ = ' + v.tD + '°', 'start');\n      tag(328, 20, 'size × ' + trim(v.hD / H0, 2), 'end');\n      tri({ th: v.th, hyp: v.h, k: 9, ax: 82, ay: 220 }, {\n        wedge: { A: { s: 'θ' } }, ghost: { hyp: H0, a: ga },\n        lab: { hyp: { name: 'hypotenuse', val: cm(sd.hyp) }, up: { name: 'opposite', val: cm(sd.opp) }, base: { name: 'adjacent', val: cm(sd.adj) } },\n        handles: ['size', 'angle'] });\n      if (ga > 0) part(ga, 0, () => keyDash(12, d.vh - 10, 'the 10 cm triangle, the same angle'));\n      TILES = ratioTiles(sd, false);\n      return 'A right-angled triangle with theta ' + v.tD + ' degrees and a ' + trim(sd.hyp, 1) + ' centimetre hypotenuse, size times ' + trim(v.hD / H0, 2) +\n        '. Opposite divided by hypotenuse is ' + r3(sd.opp / sd.hyp) + '. Handles on the bottom right corner (size) and the top corner (angle).';\n    },\n    big(d, st) {\n      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), sd = sidesOf(TH0, HB);\n      tag(12, 20, 'θ = ' + TH0 + '°', 'start');\n      keyDash(194, 20, 'the 10 cm triangle');\n      tri({ th: TH0, hyp: HB, k: 7, ax: 50, ay: 130 }, {\n        wedge: { A: { s: 'θ' } }, ghost: { hyp: H0, a: 1, lab: cm(small0.opp) },\n        glow: ok ? { up: { a: an(0.3), c: 'hl' } } : w ? { up: { a: an(0.1), c: 'bad' } } : {},\n        lab: { hyp: { name: 'hypotenuse', val: cm(HB) }, up: { name: 'opposite', val: ok ? cm(sd.opp) : '?', a: ok ? an(0.1) : 1 }, base: { name: 'adjacent' } } });\n      puzzleRows(d, st);\n      return 'A right-angled triangle at 30 degrees with a 26 centimetre hypotenuse; inside it, dashed, the 10 centimetre triangle with its 5 centimetre opposite side. The big opposite side is ' + (ok ? cm(sd.opp) : 'unknown') + '.';\n    },\n    names(d, st) {\n      const th = st.th != null ? st.th : TH0, tD = Math.round(th), sd = sidesOf(tD, H0), dm = (t, u) => when('demo', t, u);\n      const pulse = (t) => dm(t, 0.4) - dm(t + 0.9, 0.4), ps = pulse(0.6), pc = pulse(1.7), pt3 = pulse(2.8);\n      tag(12, 20, 'θ = ' + tD + '°', 'start');\n      tri({ th, hyp: H0, k: 15, ax: 80, ay: 192 }, {\n        wedge: { A: { s: 'θ' } },\n        glow: { up: { a: Math.max(ps, pt3), c: 'hl' }, hyp: { a: Math.max(ps, pc), c: 'hl' }, base: { a: Math.max(pc, pt3), c: 'hl' } },\n        lab: { hyp: { name: 'hypotenuse', val: cm(sd.hyp) }, up: { name: 'opposite', val: cm(sd.opp) }, base: { name: 'adjacent', val: cm(sd.adj) } },\n        handles: ['angle'] });\n      const tl = ratioTiles(sd, true);\n      [ps, pc, pt3].forEach((p, k) => { tl[k].na = dm([0.6, 1.7, 2.8][k]); tl[k].hl = p > 0.5; });\n      TILES = tl;\n      return 'A right-angled triangle with theta ' + tD + ' degrees and a 10 centimetre hypotenuse. Sine theta is ' + tl[0].rv + ', cosine theta ' + tl[1].rv + ', tangent theta ' + tl[2].rv + '. A handle on the top corner turns theta.';\n    },\n    sin(d, st) {\n      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t);\n      tri({ th: Math.atan2(S5.opp, S5.adj) / RAD, hyp: H5, k: 17, ax: 70, ay: 118 }, {\n        wedge: { A: { s: 'θ' } },\n        glow: ok ? { up: { a: an(0.3), c: 'hl' }, hyp: { a: an(0.3), c: 'hl' } } : w ? { base: { a: an(0.1), c: 'bad' } } : {},\n        lab: { hyp: { name: 'hypotenuse', val: cm(H5) }, up: { name: 'opposite', val: cm(S5.opp) }, base: { name: 'adjacent', val: cm(S5.adj) } } });\n      puzzleRows(d, st);\n      return 'A right-angled triangle: 6 centimetres opposite theta, 8 centimetres adjacent, a 10 centimetre hypotenuse.' + (ok ? ' The opposite side and the hypotenuse are marked.' : '');\n    },\n    calc(d, st) {\n      const dm = (t, u) => when('demo', t, u), kp = (t) => dm(t, 0.2) - dm(t + 0.3, 0.25);\n      const deg = trim(sinD(TH0), 3), rad = trim(Math.sin(TH0), 3);\n      calcBox(14, 8, 146, { tag: 'DEG', mode: 'Degrees mode', digits: ['3', '0'], press: { '0:0': kp(0.8), '1:0': kp(1.1), '1:1': kp(1.4), '1:2': kp(1.7) },\n        entry: [dm(0.8), dm(1.1), dm(1.4)], result: { s: deg, a: dm(1.9) } });\n      calcBox(180, 8, 146, { tag: 'RAD', mode: 'Radians mode', digits: ['3', '0'], press: { '0:0': kp(2.3), '1:0': kp(2.6), '1:1': kp(2.9), '1:2': kp(3.2) },\n        entry: [dm(2.3), dm(2.6), dm(2.9)], result: { s: rad, a: dm(3.4), bad: true } });\n      return 'Two calculators keyed sin 30. In degrees mode it gives ' + deg + '. In radians mode it gives ' + rad + '.';\n    },\n    calc60(d, st) {\n      const ok = ansOf(st), an = (t) => when('answer', t);\n      calcBox(8, 6, 128, { tag: 'DEG', mode: 'Degrees mode', digits: ['6', '0'], entry: [1, 1, 1], result: ok ? { s: trim(sinD(60), 3), a: an(0.1) } : { s: '?', a: 1 } });\n      tri({ th: 60, hyp: H0, k: 13, ax: 192, ay: 160 }, {\n        wedge: { A: { s: '60°' } },\n        glow: ok ? { up: { a: an(0.3), c: 'hl' }, hyp: { a: an(0.3), c: 'hl' } } : {},\n        lab: { hyp: { name: 'hypotenuse' }, up: { name: 'opposite' }, base: { name: 'adjacent' } } });\n      puzzleRows(d, st);\n      return 'A calculator in degrees mode keyed sin 60, showing ' + (ok ? trim(sinD(60), 3) : 'a question mark') + ', beside a right-angled triangle at 60 degrees.';\n    },\n    offset(d, st) {\n      const b = bendNow(st), tD = b.tD, s = sinD(tD), dist = D8 / s, dm = (t) => when('demo', t);\n      tag(12, 20, 'θ = ' + tD + '°', 'start');\n      conduit({ th: b.th, d: D8, kc: 0.55, ax: 56, ay: 132 }, { pipe: dm(0.6),\n        lab: { up: { name: 'offset depth', val: mm(D8), a: dm(1.4) }, hyp: { name: 'between bends', val: mm(dist), a: dm(1.9) } } });\n      drawRows(d.rowY, [\n        { s: D8 + ' ÷ sin ' + tD + '° = ' + D8 + ' ÷ ' + trim(s, 4) + ' = ' + mm(dist), a: dm(2.5) },\n        { s: D8 + ' × multiplier ' + mult(1 / s) + ' = ' + mm(D8 * (1 / s)), a: dm(3.0) },\n        { s: 'Slip: ' + D8 + ' × ' + trim(s, 4) + ' = ' + mm(D8 * s) + ', too short', a: dm(3.5), bad: true },\n      ]);\n      TILES = [{ rn: 'sin θ', rs: 'opposite ÷ hypotenuse', rv: trim(s, 4) }, { rn: 'multiplier', rs: '1 ÷ sin θ', rv: mult(1 / s) }];\n      return 'A conduit offset with ' + tD + ' degree bends: a ' + D8 + ' millimetre offset depth, the upright side, and ' + mm(dist) + ' between the bends along the diagonal.';\n    },\n    offset45(d, st) {\n      const ok = ansOf(st), an = (t) => when('answer', t), dist = D9 / sinD(45);\n      tag(12, 20, 'θ = 45°', 'start');\n      conduit({ th: 45, d: D9, kc: 0.42, ax: 70, ay: 132 }, {\n        lab: { up: { name: 'offset depth', val: mm(D9) }, hyp: { name: 'between bends', val: ok ? mm(dist) : '?', a: ok ? an(0.1) : 1 } } });\n      puzzleRows(d, st);\n      return 'A conduit offset with 45 degree bends and a 200 millimetre offset depth; the distance between the bends is ' + (ok ? mm(dist) : 'unknown') + '.';\n    },\n    cos(d, st) {\n      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), sd = sidesOf(TH10, H10);\n      tag(12, 20, 'θ = ' + TH10 + '°', 'start');\n      const bad = w ? (st.pick === d.opts[1] ? 'up' : 'base') : null, glow = {};\n      if (ok) { glow.base = { a: an(0.3), c: 'hl' }; glow.hyp = { a: an(0.3), c: 'hl' }; } else if (bad) glow[bad] = { a: an(0.1), c: 'bad' };\n      tri({ th: TH10, hyp: H10, k: 30, ax: 70, ay: 134 }, { wedge: { A: { s: 'θ' } }, glow,\n        lab: { hyp: { name: 'hypotenuse', val: mtr(H10) }, base: { name: 'adjacent', val: ok ? mtr(sd.adj) : '?', a: ok ? an(0.1) : 1 }, up: { name: 'opposite' } } });\n      puzzleRows(d, st);\n      return 'A right-angled triangle at 40 degrees with a 5 metre hypotenuse; the adjacent side is ' + (ok ? mtr(sd.adj) : 'unknown') + '.';\n    },\n    tan(d, st) {\n      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), sd = sidesOf(TH11, A11 / cosD(TH11));\n      tag(12, 20, 'θ = ' + TH11 + '°', 'start');\n      const glow = ok ? { up: { a: an(0.3), c: 'hl' }, base: { a: an(0.3), c: 'hl' } } : w ? { up: { a: an(0.1), c: 'bad' } } : {};\n      tri({ th: TH11, hyp: sd.hyp, k: 0.19, ax: 60, ay: 122 }, { wedge: { A: { s: 'θ' } }, glow,\n        lab: { hyp: { name: 'hypotenuse' }, base: { name: 'adjacent', val: mm(sd.adj) }, up: { name: 'opposite', val: ok ? mm(sd.opp) : '?', a: ok ? an(0.1) : 1 } } });\n      puzzleRows(d, st);\n      return 'A right-angled triangle at 30 degrees with a 900 millimetre adjacent side; the opposite side is ' + (ok ? mm(sd.opp) : 'unknown') + '.';\n    },\n    pyth(d, st) {\n      const ok = ansOf(st), an = (t) => when('answer', t);\n      tri({ th: Math.atan2(P12[0], P12[1]) / RAD, hyp: H12, k: 0.36, ax: 70, ay: 120 }, {\n        glow: ok ? { hyp: { a: an(0.3), c: 'hl' } } : {},\n        lab: { base: { val: mm(P12[1]) }, up: { val: mm(P12[0]) }, hyp: { name: 'hypotenuse', val: ok ? mm(H12) : '?', a: ok ? an(0.1) : 1 } } });\n      puzzleRows(d, st);\n      return 'A right-angled triangle with short sides of 300 and 400 millimetres and no angle given; the hypotenuse is ' + (ok ? mm(H12) : 'unknown') + '.';\n    },\n  };\n\n  // ---------- the handles: Dan drags the corners themselves ----------\n  const grips = {};\n  ['size', 'angle'].forEach((id) => {\n    const g = ui.appendChild(K.svg('circle', { class: 'grip', cx: -60, cy: -60, r: 22, tabindex: -1, role: 'slider', 'aria-orientation': 'horizontal',\n      'aria-label': id === 'size' ? 'Size: the hypotenuse in centimetres' : 'The angle θ in degrees' }));\n    g.style.display = 'none';\n    grips[id] = g;\n  });\n  const liveOn = (id) => !finished && (STEPS[at()].live || []).indexOf(id) >= 0;\n  function placeGrips(d) {\n    ['size', 'angle'].forEach((id) => {\n      const g = grips[id], h = REC.handles.filter((q) => q.id === id)[0], on = !finished && !!h && (d.live || []).indexOf(id) >= 0;\n      g.style.display = on ? '' : 'none';\n      g.setAttribute('tabindex', on ? '0' : '-1');\n      if (!on) return;\n      g.setAttribute('cx', R(h.x)); g.setAttribute('cy', R(h.y));\n      const st = S[at()], v = liveNow(at(), st);\n      g.setAttribute('aria-valuemin', id === 'size' ? H0 : LO); g.setAttribute('aria-valuemax', id === 'size' ? H1 : HI);\n      g.setAttribute('aria-valuenow', id === 'size' ? v.h : v.th);\n      g.setAttribute('aria-valuetext', id === 'size' ? 'hypotenuse ' + v.h + ' cm' : 'θ = ' + v.th + '°');\n    });\n  }\n  // The live triangle as shown now, in whole centimetres and degrees.\n  function liveNow(i, st) {\n    const d = STEPS[i];\n    if (d.pic === 'grow') { const v = growNow(st); return { h: Math.round(v.h), th: v.tD }; }\n    return { h: H0, th: st.th != null ? st.th : TH0 };\n  }\n  function setLive(h, th) {\n    const i = at(), st = S[i];\n    h = K.clamp(Math.round(h), H0, H1); th = K.clamp(Math.round(th), LO, HI);\n    if (STEPS[i].pic === 'grow' && st.h === h && st.th === th && T === Infinity) return;\n    if (STEPS[i].pic !== 'grow' && st.th === th && T === Infinity) return;\n    if (anim.playing()) anim.pause();\n    T = Infinity;\n    if (STEPS[i].pic === 'grow') st.h = h;\n    st.th = th;\n    K.reveal(); K.refresh();\n  }\n  function svgPoint(e) {\n    const ctm = svg.getScreenCTM();\n    if (!ctm) return null;\n    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());\n  }\n  function dragTo(id, q) {\n    const i = at(), st = S[i], v = liveNow(i, st), P = REC.tri;\n    if (!P) return;\n    if (id === 'size') setLive((q.x - P.A[0]) / (Math.cos(P.th * RAD) * P.k), v.th);\n    else setLive(v.h, Math.atan2(P.A[1] - q.y, q.x - P.A[0]) / RAD);\n  }\n  Object.keys(grips).forEach((id) => {\n    const g = grips[id];\n    let held = null;\n    g.addEventListener('pointerdown', (e) => {\n      if (!liveOn(id)) return;\n      held = e.pointerId;\n      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the handle */ }\n      e.preventDefault();\n      const q = svgPoint(e); if (q) dragTo(id, q);\n    });\n    g.addEventListener('pointermove', (e) => { if (held !== e.pointerId || !liveOn(id)) return; const q = svgPoint(e); if (q) dragTo(id, q); });\n    const letGo = (e) => { if (held === e.pointerId) held = null; };\n    g.addEventListener('pointerup', letGo);\n    g.addEventListener('pointercancel', letGo);\n    g.addEventListener('lostpointercapture', () => { held = null; });\n    g.addEventListener('keydown', (e) => {\n      if (!liveOn(id)) return;\n      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];\n      if (by == null) return;\n      e.preventDefault();\n      const v = liveNow(at(), S[at()]);\n      if (id === 'size') setLive(v.h + by, v.th); else setLive(v.h, v.th + by);\n    });\n  });\n\n  // ---------- the readouts ----------\n  const tileEls = [0, 1, 2].map(() => {\n    const t = K.el('div', { class: 'ratio' }), rn = K.el('span', { class: 'rn' }), rs = K.el('span', { class: 'rs' }), rv = K.el('span', { class: 'rv' });\n    t.appendChild(rn); t.appendChild(rs); t.appendChild(rv);\n    el('ratios').appendChild(t);\n    return { t, rn, rs, rv };\n  });\n  function applyTiles() {\n    const list = TILES;\n    el('ratios').hidden = !list;\n    REC.tiles = (list || []).map((it) => ({ rn: it.rn || '', rs: it.rs, rv: it.rv }));\n    tileEls.forEach((E, k) => {\n      const it = list && list[k];\n      E.t.hidden = !it;\n      if (!it) return;\n      E.rn.textContent = it.rn || ''; E.rn.hidden = !it.rn;\n      K.fade(E.rn, it.na == null ? 1 : it.na, 0);\n      E.rs.textContent = it.rs; E.rv.textContent = it.rv;\n      E.t.classList.toggle('hl', !!it.hl);\n    });\n  }\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    art.textContent = '';\n    into = null;\n    REC = { segs: [], handles: [], lab: {}, rows: [], tiles: [], tri: null, ghost: null, conduit: null, calcs: [] };\n    TILES = null;\n    svg.setAttribute('viewBox', '0 0 340 ' + d.vh);\n    svg.setAttribute('aria-label', PIC[d.pic](d, st) || '');\n    if (!d.show && !ansOf(st) && st.res !== 'wrong') {\n      let b = null;\n      try { b = art.getBBox(); } catch (e) { b = null; }\n      if (b && b.height > 0) svg.setAttribute('viewBox', '0 0 340 ' + Math.min(d.vh, Math.ceil(b.y + b.height + 10)));\n    }\n    applyTiles();\n    placeGrips(d);\n  }\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing() && !waiting) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { st.h = null; st.th = null; st.flip = false; st.bend = 30; st.from = 30; play('demo', d.dur); }\n      else { waiting = false; anim.pause(); T = Infinity; MODE = 'answer'; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    flipBtn.el.hidden = !(d.show && d.pic === 'name');\n    flipBtn.setLabel(st.flip ? 'Move θ back' : 'Move θ to the top corner');\n    bendBtns.forEach((b, k) => { b.el.hidden = d.pic !== 'offset'; b.el.setAttribute('aria-pressed', st.bend === [30, 45][k] ? 'true' : 'false'); });\n    el('replay').hidden = replayBtn.el.hidden && flipBtn.el.hidden && d.pic !== 'offset';\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const idx = (pic) => STEPS.findIndex((d) => d.pic === pic);\n  // Step i painted finished in state st (motion m), fn reading what it drew before the page is put back.\n  function withState(i, st, m, fn) {\n    const keepS = S[i], keepT = T, keepM = MODE;\n    S[i] = st; T = Infinity; MODE = m || (STEPS[i].show ? 'demo' : 'answer');\n    latest = 0; earliest = Infinity;\n    try { paint(i); return fn(); } finally { S[i] = keepS; T = keepT; MODE = keepM; paint(); }\n  }\n  const drawn = (i, st, m) => withState(i, st, m, () => ({ texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent), rec: REC }));\n  const solvedSt = (i) => stOf({ pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => stOf({ pick: o, res: 'wrong' });\n  // Every state a step can be seen in.\n  function statesOf(i) {\n    const d = STEPS[i], out = [];\n    if (d.show) {\n      out.push([blank(), 'demo']);\n      if (d.pic === 'name') out.push([stOf({ flip: true }), 'flip']);\n      if (d.pic === 'grow') [H0, 15, H1].forEach((h) => [LO, 22, TH0, 45, 62, HI].forEach((th) => out.push([stOf({ h, th }), 'demo'])));\n      if (d.pic === 'names') [LO, 20, 45, 63, HI].forEach((th) => out.push([stOf({ th }), 'demo']));\n      if (d.pic === 'offset') out.push([stOf({ bend: 45, from: 45 }), 'bend']);\n    } else {\n      out.push([blank(), 'answer'], [solvedSt(i), 'answer'], [stOf({ why: true }), 'answer']);\n      d.opts.filter((o) => o !== d.want).forEach((o) => out.push([wrongSt(i, o), 'answer'], [stOf({ pick: o, res: 'wrong', why: true }), 'answer']));\n    }\n    return out;\n  }\n  // Does the segment p-q cross the box?\n  function segHits(p, q, b) {\n    let t0 = 0, t1 = 1;\n    const dx = q[0] - p[0], dy = q[1] - p[1];\n    const clip = (pp, qq) => {\n      if (pp === 0) return qq >= 0;\n      const r = qq / pp;\n      if (pp < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }\n      return true;\n    };\n    return clip(-dx, p[0] - b.x) && clip(dx, b.x + b.w - p[0]) && clip(-dy, p[1] - b.y) && clip(dy, b.y + b.h - p[1]) && t0 <= t1;\n  }\n  // What crowds the labels in the picture now: labels over labels, lines or handles, or off the edge.\n  function crowding(i) {\n    const d = STEPS[i], bad = [], boxes = [];\n    art.querySelectorAll('text').forEach((t) => {\n      let b = null;\n      try { b = t.getBBox(); } catch (e) { b = null; }\n      if (!b || !(b.width > 0) || !(b.height > 0)) return;\n      const sh = b.height * 0.2;\n      boxes.push({ s: t.textContent, x: b.x, y: b.y + sh, w: b.width, h: b.height - 2 * sh });\n    });\n    boxes.forEach((a, m) => {\n      if (a.x < 1 || a.x + a.w > 339 || a.y < 0 || a.y + a.h > d.vh) bad.push('\"' + a.s + '\" off the edge');\n      boxes.slice(m + 1).forEach((b) => {\n        const ix = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x), iy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);\n        if (ix > 1 && iy > 1) bad.push('\"' + a.s + '\" on \"' + b.s + '\"');\n      });\n      REC.handles.forEach((h) => { const nx = K.clamp(h.x, a.x, a.x + a.w), ny = K.clamp(h.y, a.y, a.y + a.h); if (Math.hypot(nx - h.x, ny - h.y) < 12) bad.push('\"' + a.s + '\" on a handle'); });\n      REC.segs.forEach((g) => { if (segHits(g.p, g.q, { x: a.x - g.pad, y: a.y - g.pad, w: a.w + 2 * g.pad, h: a.h + 2 * g.pad })) bad.push('\"' + a.s + '\" crossed by a line'); });\n    });\n    return bad;\n  }\n\n  K.check('For similar right-angled triangles the hypotenuse, opposite and adjacent sides stay in the same proportion: on the growing triangle each readout, one drawn side divided by another, gives the same answer at every size the handle reaches, and turning the angle changes all three', () => {\n    const i = idx('grow');\n    const look = (h, th) => withState(i, stOf({ h, th }), 'demo', () => ({ rv: REC.tiles.map((t) => t.rv), P: REC.tri }));\n    const at30 = look(H0, TH0).rv;\n    return [LO, 25, TH0, TH1, 55, HI].every((th) => {\n      const first = look(H0, th).rv;\n      for (let h = H0; h <= H1; h++) {\n        const g = look(h, th), P = g.P;\n        if (g.rv.join() !== first.join()) return false;\n        if (g.rv[0] !== r3(P.up / P.H) || g.rv[1] !== r3(P.base / P.H) || g.rv[2] !== r3(P.up / P.base)) return false;\n      }\n      return th === TH0 || first.every((v, k) => v !== at30[k]);\n    });\n  }, { source: BITESIZE });\n  K.check('Sine is the ratio of the opposite side to the hypotenuse, cosine the adjacent side to the hypotenuse, and tangent the opposite side to the adjacent side: the named readouts are worked out from the drawn sides just so at every angle the handle reaches, and the sin θ puzzle accepts only opposite ÷ hypotenuse', () => {\n    const i = idx('names');\n    for (let th = LO; th <= HI; th += 5) {\n      const g = withState(i, stOf({ th }), 'demo', () => ({ t: REC.tiles, P: REC.tri })), t = g.t, P = g.P;\n      if (!(t[0].rn === 'sin θ' && t[1].rn === 'cos θ' && t[2].rn === 'tan θ')) return false;\n      if (t[0].rv !== r3(P.up / P.H) || t[1].rv !== r3(P.base / P.H) || t[2].rv !== r3(P.up / P.base)) return false;\n      if (t[0].rv !== r3(sinD(th)) || t[1].rv !== r3(cosD(th)) || t[2].rv !== r3(tanD(th))) return false;\n    }\n    const k = idx('sin'), d = STEPS[k];\n    return d.want === trim(S5.opp / H5, 3) && d.opts.every((o) => isRight(k, stOf({ pick: o })) === (o === trim(S5.opp / H5, 3)));\n  }, { source: OPENSTAX });\n  K.check('For 30 degrees, sin(30) = 0.5, so the multiplier 1/0.5 = 2.0; for 45 degrees, sin(45) = 0.7071, so 1/0.7071 = 1.414: the offset screen\\'s readouts show exactly these, worked out as 1 ÷ sin θ', () => {\n    const i = idx('offset');\n    const t30 = drawn(i, stOf({ bend: 30, from: 30 }), 'bend').rec.tiles, t45 = drawn(i, stOf({ bend: 45, from: 45 }), 'bend').rec.tiles;\n    return t30[0].rv === '0.5' && t30[1].rv === '2.0' && t45[0].rv === '0.7071' && t45[1].rv === '1.414' &&\n      t30[1].rv === mult(1 / sinD(30)) && t45[1].rv === mult(1 / sinD(45));\n  }, { source: CONDUIT });\n  K.check('When you bend an offset the conduit forms a right triangle, the offset depth the vertical side (opposite) and the distance between bends the diagonal (hypotenuse): on both offset screens the depth is marked on the upright side, the distance on the diagonal the conduit runs along, and the distance is the depth ÷ sin θ', () => {\n    const cases = [[idx('offset'), stOf({ bend: 30, from: 30 }), 'bend', D8, 30], [idx('offset'), stOf({ bend: 45, from: 45 }), 'bend', D8, 45], [idx('offset45'), solvedSt(idx('offset45')), 'answer', D9, 45]];\n    return cases.every((c) => {\n      const g = drawn(c[0], c[1], c[2]), P = g.rec.tri, lab = g.rec.lab;\n      return lab.up === 'offset depth ' + mm(c[3]) && lab.hyp === 'between bends ' + mm(c[3] / sinD(c[4])) &&\n        K.near(P.up / P.k, c[3], 1e-6) && K.near(P.H / P.k, c[3] / sinD(c[4]), 1e-6) && K.near(P.B[0], P.C[0], 1e-9);\n    });\n  }, { source: CONDUIT });\n  K.check('Scientific calculators should be in degrees mode for trigonometry: the degrees-mode calculator gives the opposite ÷ hypotenuse of the triangle with that angle, on the sin key screen and in the puzzle after it, and the radians-mode one gives a different number', () => {\n    const c = drawn(idx('calc'), blank(), 'demo').rec.calcs, g = drawn(idx('calc60'), solvedSt(idx('calc60')), 'answer'), P = g.rec.tri;\n    return c.length === 2 && c[0].mode === 'Degrees mode' && c[0].entry === 'sin 30' && c[0].result === trim(small0.opp / small0.hyp, 3) &&\n      c[1].mode === 'Radians mode' && c[1].result === trim(Math.sin(30), 3) && c[1].result !== c[0].result &&\n      g.rec.calcs[0].entry === 'sin 60' && g.rec.calcs[0].result === trim(P.up / P.H, 3) && g.rec.calcs[0].result === STEPS[idx('calc60')].want;\n  }, { source: DEGREES });\n  K.check('When the question involves two sides and an angle in a right-angled triangle, trigonometry is used: each puzzle that gives an angle and a side is answered with sin, cos or tan, and the one with two sides and no angle by Pythagoras', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.pic === 'name') return true;\n      const g = drawn(i, solvedSt(i), 'answer'), rows = g.rec.rows.map((r) => r.s).join(' ');\n      if (d.pic === 'pyth') return d.want === 'Pythagoras' && /²/.test(rows) && !/sin|cos|tan/.test(rows) && g.texts.every((s) => s.indexOf('°') < 0);\n      return /sin|cos|tan/.test(rows) || /÷/.test(rows);\n    }), { source: BITESIZE });\n  K.check('The angles of a triangle make 180° and the right angle takes 90°, so the 30° triangle\\'s top corner is 180 − 90 − 30 = 60°; every angle the handle reaches leaves both other corners under 90°, and moving θ to the top corner swaps the opposite and adjacent names while the hypotenuse stays', () => {\n    const a = drawn(0, blank(), 'demo'), b = drawn(0, stOf({ flip: true }), 'flip');\n    let acute = true;\n    for (let th = LO; th <= HI; th++) if (!(th < 90 && 180 - 90 - th < 90 && 180 - 90 - th > 0)) acute = false;\n    return TOP0 === 60 && acute && ['90°', 'θ = 30°', '60°'].every((s) => a.texts.indexOf(s) >= 0) && ['90°', '30°', 'θ'].every((s) => b.texts.indexOf(s) >= 0) &&\n      a.rec.lab.up === 'opposite' && a.rec.lab.base === 'adjacent' && b.rec.lab.up === 'adjacent' && b.rec.lab.base === 'opposite' &&\n      a.rec.lab.hyp === 'hypotenuse' && b.rec.lab.hyp === 'hypotenuse';\n  });\n  K.check('Every worked number matches the lesson: 5 and 10 cm with 0.5 both times, 0.643 at 40°; 13, 21 and 5 cm; 0.866 and 0.577; 0.6, 0.8 and 0.75; 0.5 and −0.988; 0.866, 1 and −0.305; 300 and 75 mm; 283, 141 and 400 mm; 3.83, 3.21 and 6.53 m; 520 (900 × 0.5774), 450 and 1559 mm; 500 mm', () => {\n    const gi = idx('grow'), g10 = drawn(gi, stOf({ h: 10, th: 30 }), 'demo').rec, g20 = drawn(gi, stOf({ h: 20, th: 30 }), 'demo').rec, g40 = drawn(gi, stOf({ h: 20, th: 40 }), 'demo').rec;\n    const nm = drawn(idx('names'), blank(), 'demo').rec.tiles, cl = drawn(idx('calc'), blank(), 'demo').rec.calcs, of = drawn(idx('offset'), blank(), 'demo').rec.rows.map((r) => r.s).join(' ');\n    const same = (a, b) => a.length === b.length && a.every((v, k) => v === b[k]);\n    return g10.lab.up === 'opposite 5 cm' && g20.lab.up === 'opposite 10 cm' && g10.tiles[0].rv === '0.500' && g20.tiles[0].rv === '0.500' && g40.tiles[0].rv === '0.643' &&\n      same(o3, ['13 cm', '21 cm', '5 cm']) && nm[1].rv === '0.866' && nm[2].rv === '0.577' && same(o5, ['0.8', '0.75', '0.6']) &&\n      cl[0].result === '0.5' && cl[1].result === '−0.988' && same(o7, ['1', '0.866', '−0.305']) && trim(tanD(30), 4) === '0.5774' &&\n      / 300 mm/.test(of) && / 75 mm/.test(of) && same(o9, ['141 mm', '400 mm', '283 mm']) && same(o10, ['3.83 m', '3.21 m', '6.53 m']) &&\n      same(o11, ['450 mm', '520 mm', '1559 mm']) && mm(H12) === '500 mm' && trim(cosD(40), 3) === '0.766';\n  });\n  K.check('Each puzzle accepts only its right answer, every wrong answer has its own hint and its own red row of working, and before an answer nothing in the picture shows the answer', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || !d.opts.every((o) => isRight(i, stOf({ pick: o })) === (o === d.want))) return false;\n      const wrongs = d.opts.filter((o) => o !== d.want);\n      if (!wrongs.every((o) => d.hints[o] && wrongs.every((p) => p === o || d.hints[p] !== d.hints[o]))) return false;\n      const b = drawn(i, blank(), 'answer'), s = drawn(i, solvedSt(i), 'answer');\n      if (d.pic === 'name') {\n        if (Object.keys(b.rec.lab).length) return false;\n        if (s.rec.lab.base !== 'opposite') return false;\n        return wrongs.every((o) => { const r = drawn(i, wrongSt(i, o), 'answer').rec.lab, k = d.side[o]; return Object.keys(r).length === 1 && r[k] === namesOf(true)[k]; });\n      }\n      const ansText = d.pic === 'pyth' ? mm(H12) : d.want;\n      if (b.rec.rows.length || b.texts.some((t) => t.indexOf(ansText) >= 0)) return false;\n      if (!(s.rec.rows.length === d.right.length && s.rec.rows.every((r) => !r.bad) && s.texts.join(' ').indexOf(ansText) >= 0)) return false;\n      return wrongs.every((o) => { const r = drawn(i, wrongSt(i, o), 'answer').rec.rows; return r.length === 1 && r[0].bad && r[0].s === d.wrong[o]; });\n    }));\n  K.check('Every triangle is drawn to scale with a square right angle: its drawn sides are its labelled lengths times one scale, the size handle sits on the far corner and the angle handle on the top corner, and the size label is the hypotenuse ÷ 10 cm', () => {\n    const gi = idx('grow'), ok1 = [[10, 30], [14, 55], [20, 10], [20, 80]].every((c) => {\n      const g = drawn(gi, stOf({ h: c[0], th: c[1] }), 'demo'), P = g.rec.tri, hs = g.rec.handles, sd = sidesOf(c[1], c[0]);\n      return K.near(P.base / P.k, sd.adj, 1e-6) && K.near(P.up / P.k, sd.opp, 1e-6) && K.near(P.A[1], P.B[1], 1e-9) && K.near(P.B[0], P.C[0], 1e-9) &&\n        g.rec.lab.hyp === 'hypotenuse ' + cm(c[0]) && g.rec.lab.up === 'opposite ' + cm(sd.opp) && g.rec.lab.base === 'adjacent ' + cm(sd.adj) &&\n        hs.some((h) => h.id === 'size' && h.x === P.B[0] && h.y === P.B[1]) && hs.some((h) => h.id === 'angle' && h.x === P.C[0] && h.y === P.C[1]) &&\n        g.texts.indexOf('size × ' + trim(c[0] / H0, 2)) >= 0;\n    });\n    const ok2 = DO.every((i) => {\n      const g = drawn(i, solvedSt(i), 'answer'), P = g.rec.tri, L = g.rec.lab;\n      if (!P || STEPS[i].pic === 'offset45') return true;\n      const num = (s) => { const m = /(−?[\\d.]+) (cm|mm|m)$/.exec(s || ''); return m ? +m[1].replace('−', '-') : null; };\n      const sides = { base: P.base / P.k, up: P.up / P.k, hyp: P.H / P.k };\n      return ['base', 'up', 'hyp'].every((k) => { const v = num(L[k]); return v == null || Math.abs(v - sides[k]) <= 0.051 * Math.max(1, sides[k] / 10); });\n    });\n    return ok1 && ok2 && drawn(gi, stOf({ h: 20, th: 30 }), 'demo').texts.indexOf('size × 2') >= 0;\n  });\n  K.check('No label sits on another label, a line or a handle, or runs off the picture, on any screen in any state: puzzles answered right, wrong or with Why? open, the triangle at its smallest and largest sizes and angles, θ moved, the 45° offset', () =>\n    STEPS.every((d, i) => statesOf(i).every((s) => withState(i, s[0], s[1], () => crowding(i).length === 0))));\n  K.check('Every demonstration has finished within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; each answer, Why?, switch and bend has settled within 1.8 s', () =>\n    STEPS.every((d, i) => {\n      const timed = (st, m) => withState(i, st, m, () => [latest, earliest]);\n      if (d.show) {\n        const t = timed(blank(), 'demo');\n        if (!(t[0] <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && t[1] >= FADE)) return false;\n        if (d.pic === 'name' && timed(stOf({ flip: true }), 'flip')[0] > FLIP + 1e-9) return false;\n        if (d.pic === 'offset' && timed(stOf({ bend: 45, from: 30 }), 'bend')[0] > FLIP + 1e-9) return false;\n        return true;\n      }\n      return statesOf(i).every((s) => timed(s[0], s[1])[0] <= ANS + 1e-9);\n    }));\n\n  K.ready();\n</script>",
+  "title": "The growing triangle",
+  "brief": "The one thing you should see is every side growing while opposite ÷ hypotenuse, adjacent ÷ hypotenuse and opposite ÷ adjacent stay put, when you drag the size handle, and all three changing when you drag the angle.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "For similar right-angled triangles the hypotenuse, opposite and adjacent sides stay in the same proportion: on the growing triangle each readout, one drawn side divided by another, gives the same answer at every size the handle reaches, and turning the angle changes all three",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/zyjtfdm"
+    },
+    {
+     "label": "Sine is the ratio of the opposite side to the hypotenuse, cosine the adjacent side to the hypotenuse, and tangent the opposite side to the adjacent side: the named readouts are worked out from the drawn sides just so at every angle the handle reaches, and the sin θ puzzle accepts only opposite ÷ hypotenuse",
+     "ok": true,
+     "source": "https://openstax.org/books/algebra-and-trigonometry/pages/7-2-right-triangle-trigonometry"
+    },
+    {
+     "label": "For 30 degrees, sin(30) = 0.5, so the multiplier 1/0.5 = 2.0; for 45 degrees, sin(45) = 0.7071, so 1/0.7071 = 1.414: the offset screen's readouts show exactly these, worked out as 1 ÷ sin θ",
+     "ok": true,
+     "source": "https://conduitbending.com/insights/conduit-bending-multiplier"
+    },
+    {
+     "label": "When you bend an offset the conduit forms a right triangle, the offset depth the vertical side (opposite) and the distance between bends the diagonal (hypotenuse): on both offset screens the depth is marked on the upright side, the distance on the diagonal the conduit runs along, and the distance is the depth ÷ sin θ",
+     "ok": true,
+     "source": "https://conduitbending.com/insights/conduit-bending-multiplier"
+    },
+    {
+     "label": "Scientific calculators should be in degrees mode for trigonometry: the degrees-mode calculator gives the opposite ÷ hypotenuse of the triangle with that angle, on the sin key screen and in the puzzle after it, and the radians-mode one gives a different number",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/zck7rmn"
+    },
+    {
+     "label": "When the question involves two sides and an angle in a right-angled triangle, trigonometry is used: each puzzle that gives an angle and a side is answered with sin, cos or tan, and the one with two sides and no angle by Pythagoras",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/zyjtfdm"
+    },
+    {
+     "label": "The angles of a triangle make 180° and the right angle takes 90°, so the 30° triangle's top corner is 180 − 90 − 30 = 60°; every angle the handle reaches leaves both other corners under 90°, and moving θ to the top corner swaps the opposite and adjacent names while the hypotenuse stays",
+     "ok": true
+    },
+    {
+     "label": "Every worked number matches the lesson: 5 and 10 cm with 0.5 both times, 0.643 at 40°; 13, 21 and 5 cm; 0.866 and 0.577; 0.6, 0.8 and 0.75; 0.5 and −0.988; 0.866, 1 and −0.305; 300 and 75 mm; 283, 141 and 400 mm; 3.83, 3.21 and 6.53 m; 520 (900 × 0.5774), 450 and 1559 mm; 500 mm",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle accepts only its right answer, every wrong answer has its own hint and its own red row of working, and before an answer nothing in the picture shows the answer",
+     "ok": true
+    },
+    {
+     "label": "Every triangle is drawn to scale with a square right angle: its drawn sides are its labelled lengths times one scale, the size handle sits on the far corner and the angle handle on the top corner, and the size label is the hypotenuse ÷ 10 cm",
+     "ok": true
+    },
+    {
+     "label": "No label sits on another label, a line or a handle, or runs off the picture, on any screen in any state: puzzles answered right, wrong or with Why? open, the triangle at its smallest and largest sizes and angles, θ moved, the 45° offset",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; each answer, Why?, switch and bend has settled within 1.8 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "Name the sides",
+      "Opposite from the top",
+      "The growing triangle",
+      "Bigger, same angle",
+      "Three names",
+      "Which is sin θ?",
+      "The sin key",
+      "sin 60",
+      "A conduit offset",
+      "A 45° offset",
+      "Find the adjacent",
+      "Find the opposite",
+      "Two sides, no angle"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Move θ to the top corner",
+    "30° bends",
+    "45° bends",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-18T08:21:39.972Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"Trigonometry is for a question with two sides and an angle\" drops the source's \"in a right-angled triangle\" and is false after i3 to i8; \"should be in degrees mode\" stops holding once radians (i5, i6) are used."
+   },
+   {
+    "path": "practice.text",
+    "problem": "The worked example gives 240 mm between bends as exact, though the explanation and its source call the multiplier method an approximation that ignores the arc; the degrees-mode step also needs \"for angles in degrees\" to stay true after radians."
+   }
+  ],
+  "notes": [
+   {
+    "path": "interactive.numbers",
+    "problem": "The number \"Phase to neutral voltage, 230 V\" cites source 2, whose quote says \"230 V single-phase\", not phase to neutral (that wording is the ESQCR regulation, not among this lesson's sources); the label is frozen, so recorded for review."
+   }
+  ]
+ },
+ "error": null,
+ "flags": {}
+}
