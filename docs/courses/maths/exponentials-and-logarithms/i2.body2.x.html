@@ -1,0 +1,1171 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .pz sup, .caption sup { font-size: .72em; line-height: 0; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  /* Lines: the main thing in navy, a comparison dashed and muted, the smooth curve behind the
+     staircase in teal, a slip dashed in the warning colour, the tangent in amber. */
+  .scene .axis, .scene .tickm { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .st-main { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .st-cmp { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 6 4; }
+  .scene .st-faint { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linecap: round; }
+  .scene .st-slip { fill: none; stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 5 4; }
+  .scene .st-tan { fill: none; stroke: var(--k-amber-line); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .guide { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 3 4; }
+  .scene .d-main { fill: var(--k-accent2); }
+  .scene .d-cmp { fill: var(--k-muted); }
+  .scene .d-slip { fill: var(--k-warn); }
+  .scene .ring { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .ring.bad { stroke: var(--k-warn); }
+  .scene .pill { fill: var(--k-fill2); }
+  .scene .rowbox { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .nl { stroke: var(--k-strong); stroke-width: 2; }
+  .scene .etick { stroke: var(--k-accent); stroke-width: 2.5; }
+  .scene .bar { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene text { font-family: var(--k-font); }
+  .scene .tk, .scene .an, .scene .key { font-size: 13px; fill: var(--k-muted); }
+  .scene .ml { font-size: 13px; font-weight: 700; fill: var(--k-ink); }
+  .scene .ml.cmp { fill: var(--k-muted); }
+  .scene .ml.slip { fill: var(--k-warn); }
+  .scene .pt, .scene .sn { font-size: 13px; font-weight: 600; fill: var(--k-ink); }
+  .scene .q { font-size: 17px; font-weight: 700; fill: var(--k-accent2); }
+  .scene .stop, .scene .tc { font-size: 14px; font-weight: 600; fill: var(--k-ink); }
+  .scene .el { font-size: 13px; font-weight: 700; fill: var(--k-accent); }
+  .scene .kl { font-size: 15px; font-weight: 700; fill: var(--k-accent2); }
+  .scene .ro { font-size: 15px; font-weight: 700; fill: var(--k-ink); }
+  /* A label over lines keeps a halo of the page colour. */
+  .scene .h { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .v { font-style: italic; }
+  /* The sliders drawn in the picture: a track, ticks, and a knob. */
+  .scene .track { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-strong); stroke-width: 2; }
+  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead" id="lead">A pot of money grows on a graph, time along the bottom. Every pot, rate, voltage and time here is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="partsk" hidden></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap"></p>
+
+<script>
+  // ---------- the rules ----------
+  // A year's growth at rate r (as a decimal) paid in n equal parts: each part multiplies the pot by
+  // 1 + r/n, so after j parts a start A is A × (1 + r/n)^j. At 100% (r = 1) the year's total is
+  // (1 + 1/n)^n, which settles on e. Growth that never pauses at rate k gives A × e^(kt).
+  const PARTS = [1, 2, 4, 12, 365, 8760];
+  const PNAME = ['1 part', '2 parts', '4 parts', '12 parts', '365 parts', '8,760 parts'];
+  const total = (n) => Math.pow(1 + 1 / n, n);
+  const potAt = (A, r, n, j) => A * Math.pow(1 + r / n, j);
+  const cont = (A, k, t) => A * Math.exp(k * t);
+  // The slope of eˣ, measured as the slope of a tiny chord either side of x (not assumed).
+  const slopeAt = (x) => (Math.exp(x + 1e-4) - Math.exp(x - 1e-4)) / 2e-4;
+  // Sources the checks restate (the lesson's own).
+  const SRC_E = 'https://www.mathwords.com/e/euler_number.htm';
+  const SRC_LIM = 'https://www.math.toronto.edu/mathnet/plain/answers/answers_12.html';
+  const SRC_RATE = 'https://openstax.org/books/calculus-volume-1/pages/6-8-exponential-growth-and-decay';
+
+  // ---------- numbers ----------
+  // fx: exactly dp decimals; fv: at most dp, trailing zeros dropped. Commas, a true minus sign.
+  function fx(v, dp) {
+    const f = Math.pow(10, dp);
+    let r = Math.round(v * f) / f;
+    if (r === 0) r = 0;
+    const p = Math.abs(r).toFixed(dp).split('.');
+    p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (r < 0 ? '−' : '') + p.join('.');
+  }
+  function fv(v, dp) {
+    if (dp == null) dp = 2;
+    const s = fx(v, dp);
+    return dp > 0 ? s.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '') : s;
+  }
+  // Pounds: whole pounds plain, otherwise pence shown (£261.30).
+  const money = (v) => '£' + (Math.round(v * 100) % 100 === 0 ? fx(v, 0) : fx(v, 2));
+  // A year's total or factor: as written in the lesson, 2, 2.25, then four decimals (2.6130).
+  const ftot = (v) => (Math.abs(v * 100 - Math.round(v * 100)) < 1e-9 ? fv(v, 2) : fx(v, 4));
+  const volts = (v) => fv(v, 0) + ' V';
+  const p4 = (j) => potAt(100, 1, 4, j);
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // graph: time along the bottom (tmax, ticks tt) and the value up the side (ymin..ymax, ticks yt).
+  // items: what the graph draws. k: 'stair' (n parts a year at rate r from A, by the rule), 'steps'
+  // (a slip's own staircase), 'curve' (A × e^(kk t)), 'seg' (a straight line), 'mark' (a value
+  // written at a point), 'rise' (a pill beside a rise), 'pill' (a factor between ticks), 'q' (the
+  // time asked about). at: when it arrives (seconds after the screen opens, or after Check); dur: a
+  // line drawn by a pen over that long. when: 'right' (after a right answer) or the wrong answer
+  // whose slip it draws. parts: the parts slider and its table; rate: the rate slider and its bars;
+  // tracker: the slope tracker. A puzzle: opts, the answers offered; val, the value each one gives;
+  // ans, the words that would give the answer away before Check; fmt, how its answers are written.
+  const PICK = 'Tap one of the answers.';
+  const Y1 = (o) => Object.assign({ tmax: 1, tt: [[0, '0'], [0.5, '½'], [1, '1 year']], yname: 'pounds', pre: '£', h: 160 }, o);
+  const STEPS = [
+    { show: true, name: 'One part or two', dur: 4.0,
+      graph: Y1({ ymax: 250, yt: [0, 100, 200] }),
+      key: [['cmp', '1 part'], ['main', '2 parts']],
+      items: [
+        { k: 'stair', A: 100, r: 1, n: 1, to: 1, cls: 'cmp', at: 0.4, dur: 1.0 },
+        { k: 'mark', t: 1, v: 200, text: money(100 * 2), cls: 'cmp', pos: 'r', dy: 6, at: 1.5 },
+        { k: 'stair', A: 100, r: 1, n: 2, to: 1, cls: 'main', at: 1.8, dur: 1.2 },
+        { k: 'rise', t: 0.5, v0: 100, v1: 150, text: '+' + money(100 * 0.5), at: 2.45 },
+        { k: 'rise', t: 1, v0: 150, v1: 225, text: '+' + money(150 * 0.5) + ', 50% of ' + money(150), at: 3.05 },
+        { k: 'mark', t: 1, v: 225, text: money(100 * 1.5 * 1.5), pos: 'r', dy: -3, at: 3.2 },
+      ],
+      text: 'Say £100 grows 100% over a year. Paid as one part at the year\'s end, it doubles to £200. Now pay it in two halves of 50%. The first half takes £100 to £150. The second half\'s 50% is taken of £150, not £100, so it adds £75 and ends at £225. Splitting helps because each part\'s growth starts earning straight away.' },
+    { kind: 'pick', name: 'Four quarters',
+      graph: Y1({ ymax: 250, yt: [0, 100, 200] }),
+      key: [['main', '4 parts']],
+      items: [
+        { k: 'stair', A: 100, r: 1, n: 4, to: 0.25, cls: 'main' },
+        { k: 'rise', t: 0.25, v0: p4(0), v1: p4(1), text: '+' + money(p4(1) - p4(0)) },
+        { k: 'q', t: 1 },
+        { k: 'stair', A: 100, r: 1, n: 4, from: 0.25, to: 1, cls: 'main', when: 'right', at: 0.1, dur: 1.0 },
+        { k: 'rise', t: 1, v0: p4(3), v1: p4(4), text: '+' + money(p4(4) - p4(3)), when: 'right', at: 1.05 },
+        { k: 'mark', t: 1, v: p4(4), text: money(p4(4)), pos: 'r', when: 'right', at: 1.2 },
+        { k: 'steps', ts: [0.25, 0.5, 0.75, 1], vs: [125, 150, 175, 200], cls: 'slip', when: '£200', at: 0.3, dur: 0.6 },
+        { k: 'mark', t: 1, v: 200, text: '£200', cls: 'slip', pos: 'r', when: '£200', at: 0.6 },
+        { k: 'steps', ts: [0, 0.25, 0.5, 0.75, 1], vs: [100, 200, 400, 800, 1600], cls: 'slip', when: '£1,600', at: 0.4, dur: 0.6 },
+        { k: 'mark', t: 1, v: 1600, text: '£1,600', cls: 'slip', pos: 'r', when: '£1,600', at: 0.6 },
+      ],
+      slipMax: { '£1,600': 1800 },
+      opts: ['£200', '£244.14', '£1,600'], want: '£244.14', ans: '£244.14', fmt: money,
+      val: { '£200': 100 + 4 * 25, '£244.14': 100 * Math.pow(1.25, 4), '£1,600': 100 * Math.pow(2, 4) },
+      task: 'Now pay the year\'s 100% as four quarters of 25%. Each quarter\'s 25% is taken of the pot by then. What is the pot at the year\'s end?',
+      why: 'Each quarter multiplies the pot by `1 + 1/4 = 1.25`, so the year gives `100 × 1.25⁴` ≈ £244.14. The rises grow, from £25 at first to £48.83 at the end, because each one is 25% of a bigger pot.',
+      hint: 'Not quite. Each quarter multiplies the pot by 1.25.',
+      hints: { '£200': 'Not quite. That adds 25% of the first £100 four times. Each quarter\'s 25% is taken of the pot by then.',
+        '£1,600': 'Not quite. That doubles the pot each quarter. A quarter adds 25%, so it multiplies by 1.25.' } },
+    { show: true, name: 'More and more parts', dur: 4.2, parts: { hi: 4, def: 4, demo: true },
+      graph: Y1({ ymax: 320, yt: [0, 100, 200, 300] }),
+      key: [['main', 'paid in parts'], ['faint', 'never pausing, 100 × eᵗ']],
+      text: 'Split the year into `n` equal parts and each part multiplies the pot by `1 + 1/n`. There are `n` of them, so the year multiplies it by `(1 + 1/n)ⁿ`. More parts make smaller, more frequent steps, and the staircase hugs the smooth curve behind it. The year\'s total grows by less each time and settles near 2.718. That fixed number is called *e*. It is a constant like π, about 2.71828, a number to work with, not a letter you choose. Slide the number of parts.' },
+    { kind: 'pick', name: 'Every hour', whyAfter: true, parts: { hi: 5, def: 4, lock: 5 },
+      graph: Y1({ ymax: 320, yt: [0, 100, 200, 300] }),
+      key: [['main', 'paid in parts'], ['faint', 'never pausing, 100 × eᵗ']],
+      items: [
+        { k: 'mark', t: 1, v: 300, text: '£300', cls: 'slip', pos: 'r', dy: -4, dot: 'dot', when: 'About £300', at: 0.3 },
+      ],
+      opts: ['Without limit', 'About £300', '£271.81'], want: '£271.81', ans: '£271.81', fmt: money,
+      val: { '£271.81': 100 * total(8760), 'About £300': 300 },
+      task: 'A year has 8,760 hours. Guess before you step there. What does £100 reach when its 100% is paid in 8,760 parts?',
+      why: 'Going from 365 parts to 8,760 adds only about 36p, from £271.46 to £271.81. Each extra split adds interest on ever smaller slices of interest, so the total settles. The year\'s total, 2.7181, is now close to e, about 2.71828.',
+      hint: 'Not quite. Look at how little each step along the table adds.',
+      hints: { 'About £300': 'Not quite. Each split adds less than the one before, so the total creeps up rather than reaching £300.',
+        'Without limit': 'Not quite. Each extra split adds interest on ever smaller slices of interest, so the total settles.' } },
+    { show: true, name: 'Never pausing', dur: 3.6,
+      graph: { tmax: 2, tt: [[0, '0'], [0.5, '½'], [1, '1'], [2, '2 years']], yname: 'times the start', ymax: 8, yt: [0, 2, 4, 6, 8], h: 170 },
+      key: [['main', 'never pausing, eᵗ']],
+      items: [
+        { k: 'curve', A: 1, kk: 1, to: 2, cls: 'main', at: 0.4, dur: 1.9 },
+        { k: 'mark', t: 0.5, v: Math.exp(0.5), text: 'e^0.5 ≈ ' + fx(Math.exp(0.5), 4), pos: 'br', dot: 'ring', at: 0.95 },
+        { k: 'mark', t: 1, v: Math.E, text: 'e ≈ ' + fx(Math.E, 3), pos: 'br', dot: 'ring', at: 1.4 },
+        { k: 'mark', t: 2, v: Math.exp(2), text: 'e² ≈ ' + fx(Math.exp(2), 3), pos: 'r', dot: 'ring', at: 2.35 },
+      ],
+      text: 'Growth that never pauses is the smooth curve the staircases hug. At 100% a year it makes the pot e times bigger each year, so after `t` years it is `eᵗ` times the start. You work it on the calculator\'s eˣ key. Half a year gives `e^0.5 ≈ 1.6487`, so £100 becomes about £164.87. Two years give `e² ≈ 7.389`.' },
+    { kind: 'pick', name: 'Two years',
+      graph: { tmax: 2, tt: [[0, '0'], [1, '1'], [2, '2 years']], yname: 'pounds', pre: '£', ymax: 800, yt: [0, 200, 400, 600, 800], h: 170 },
+      key: [['main', 'never pausing, 100 × eᵗ']],
+      items: [
+        { k: 'curve', A: 100, kk: 1, to: 1, cls: 'main' },
+        { k: 'mark', t: 0, v: 100, text: '£100', pos: 'br', dot: 'dot' },
+        { k: 'q', t: 2 },
+        { k: 'curve', A: 100, kk: 1, from: 1, to: 2, cls: 'main', when: 'right', at: 0.1, dur: 0.9 },
+        { k: 'mark', t: 2, v: 100 * Math.exp(2), text: money(100 * Math.exp(2)), pos: 'r', dot: 'ring', when: 'right', at: 1.0 },
+        { k: 'steps', ts: [0, 1, 2], vs: [100, 200, 400], cls: 'slip', when: '£400', at: 0.3, dur: 0.6 },
+        { k: 'mark', t: 2, v: 400, text: '£400', cls: 'slip', pos: 'r', when: '£400', at: 0.6 },
+        { k: 'mark', t: 2, v: 100 * 2 * Math.E, text: money(100 * 2 * Math.E), cls: 'slip', pos: 'r', dot: 'dot', when: '£543.66', at: 0.3 },
+      ],
+      opts: ['£400', '£738.91', '£543.66'], want: '£738.91', ans: '£738.91', fmt: money,
+      val: { '£400': 100 * 2 * 2, '£738.91': 100 * Math.exp(2), '£543.66': 100 * 2 * Math.E },
+      task: '£100 grows 100% a year, never pausing. What is it after 2 years?',
+      why: 'Each year multiplies the pot by e, so 2 years multiply it by `e × e = e²` ≈ 7.389. That makes `100 × e²` ≈ £738.91.',
+      hint: 'Not quite. Each year multiplies the pot by e.',
+      hints: { '£400': 'Not quite. That doubles once a year, paid as one part. Never pausing makes it e times bigger each year.',
+        '£543.66': 'Not quite. That is 100 × 2 × e. The 2 years go in the power, 100 × e².' } },
+    { show: true, name: 'A smaller rate', dur: 3.4, rate: true,
+      text: 'A smaller rate works the same way. Say 5% a year is split into 100 parts. Each part adds 0.05%, exactly what each part adds when 100% is split into 2,000 parts. And 100 of those 2,000 parts is a twentieth of that year. So a year at 5% is a twentieth of a year at 100%, and the pot grows `e^0.05 ≈ 1.0513` times. Slide the *growth rate*. Whatever it is, the splits settle on `eᵏ`, with the rate `k` written as a decimal.' },
+    { kind: 'pick', name: 'The factor at 5%',
+      graph: { tmax: 1, tt: [[0, '0'], [1, '1 year']], yname: 'times the start', ymax: 1.2, yt: [0, 0.5, 1], h: 150 },
+      key: [['main', 'never pausing, e^(0.05t)', 'right']],
+      items: [
+        { k: 'mark', t: 0, v: 1, dot: 'dot' },
+        { k: 'q', t: 1 },
+        { k: 'curve', A: 1, kk: 0.05, to: 1, cls: 'main', when: 'right', at: 0.1, dur: 0.8 },
+        { k: 'mark', t: 1, v: Math.exp(0.05), text: fx(Math.exp(0.05), 4), pos: 'r', dot: 'ring', when: 'right', at: 0.9 },
+        { k: 'mark', t: 1, v: 0.05, text: '0.05', cls: 'slip', pos: 'r', dot: 'dot', when: '× 0.05', at: 0.3 },
+        { k: 'steps', ts: [0, 1], vs: [1, 1.05], cls: 'slip', when: '× 1.05', at: 0.3, dur: 0.6 },
+        { k: 'mark', t: 1, v: 1.05, text: '1.05', cls: 'slip', pos: 'r', when: '× 1.05', at: 0.6 },
+      ],
+      opts: ['× 1.0513', '× 0.05', '× 1.05'], want: '× 1.0513', ans: '1.0513', fmt: (v) => fv(v, 4),
+      val: { '× 1.0513': Math.exp(0.05), '× 0.05': 0.05, '× 1.05': 1 + 0.05 },
+      task: 'At 5% a year, never pausing, a pot is `e^(0.05t)` times the start after `t` years. What does each year multiply it by?',
+      why: 'One year puts `t = 1` in the power, so each year multiplies the pot by `e^0.05 ≈ 1.0513`. The rate, 0.05, is not the factor. And 1.0513 is a little more than the 1.05 that paying once gives, because the growth earns as it goes.',
+      hint: 'Not quite. Put t = 1 in the power.',
+      hints: { '× 0.05': 'Not quite. 0.05 is the rate, not the factor. Multiplying by 0.05 would leave a twentieth of the pot.',
+        '× 1.05': 'Not quite. That is 5% paid once. Never pausing earns as it goes, so it gives a little more.' } },
+    { show: true, name: 'A minus in the power', dur: 3.8,
+      graph: { tmax: 3, tt: [[0, '0'], [1, '1'], [2, '2'], [3, '3']], tname: 'units of time', yname: 'share left', ymax: 1.1, yt: [0, 0.5, 1], h: 160, pills: true },
+      key: [['main', 'e^(−t)']],
+      items: [
+        { k: 'curve', A: 1, kk: -1, to: 3, cls: 'main', at: 0.4, dur: 2.4 },
+        { k: 'mark', t: 1, v: Math.exp(-1), text: fx(Math.exp(-1), 3), pos: 'ar', dot: 'ring', at: 1.3 },
+        { k: 'mark', t: 2, v: Math.exp(-2), text: fx(Math.exp(-2), 3), pos: 'ar', dot: 'ring', at: 1.9 },
+        { k: 'mark', t: 3, v: Math.exp(-3), text: fx(Math.exp(-3), 3), pos: 'r', dot: 'ring', at: 2.85 },
+        { k: 'pill', t0: 0, t1: 1, text: '× ' + fx(Math.exp(-1), 3), at: 1.4 },
+        { k: 'pill', t0: 1, t1: 2, text: '× ' + fx(Math.exp(-2) / Math.exp(-1), 3), at: 2.0 },
+        { k: 'pill', t0: 2, t1: 3, text: '× ' + fx(Math.exp(-3) / Math.exp(-2), 3), at: 2.9 },
+      ],
+      text: 'Put a minus in the power and it is decay. `e^(−t)` starts at 1 and falls to 0.368 of the start after one unit of time, 0.135 after two and 0.050 after three. Each equal step multiplies by the same 0.368, as in the last lesson. The next lesson\'s capacitor follows a curve of this kind.' },
+    { kind: 'pick', name: 'The capacitor',
+      graph: { tmax: 10, tt: [[0, '0'], [5, '5'], [10, '10 s']], yname: 'volts', ymax: 450, yt: [0, 100, 200, 300, 400], h: 160 },
+      key: [['main', '400 e^(−0.1t) volts', 'right']],
+      items: [
+        { k: 'mark', t: 0, v: 400, text: '400 V', pos: 'ar', dot: 'dot' },
+        { k: 'q', t: 10 },
+        { k: 'curve', A: 400, kk: -0.1, to: 10, cls: 'main', when: 'right', at: 0.1, dur: 1.0 },
+        { k: 'mark', t: 10, v: 400 * Math.exp(-1), text: volts(400 * Math.exp(-1)), pos: 'r', dot: 'ring', when: 'right', at: 1.1 },
+        { k: 'seg', t0: 0, v0: 400, t1: 10, v1: 0, cls: 'slip', when: '0 V', at: 0.3, dur: 0.6 },
+        { k: 'mark', t: 10, v: 0, text: '0 V', cls: 'slip', pos: 'ar', dot: 'dot', when: '0 V', at: 0.6 },
+        { k: 'curve', A: 400, kk: 0.1, to: 10, cls: 'slip', when: '1,087 V', at: 0.4, dur: 0.6 },
+        { k: 'mark', t: 10, v: 400 * Math.E, text: volts(400 * Math.E), cls: 'slip', pos: 'r', dot: 'dot', when: '1,087 V', at: 0.6 },
+      ],
+      slipMax: { '1,087 V': 1200 },
+      opts: ['0 V', '1,087 V', '147 V'], want: '147 V', ans: '147 V', fmt: volts,
+      val: { '0 V': 400 - 40 * 10, '1,087 V': 400 * Math.E, '147 V': 400 * Math.exp(-1) },
+      task: 'A capacitor\'s voltage is `400 e^(−0.1t)` volts, `t` seconds after it starts to fall. What is it after 10 seconds?',
+      why: 'The power is `−0.1 × 10 = −1`, and `e^(−1) ≈ 0.368`. So the voltage is `400 × e^(−1)` ≈ 147 V, a little over a third of the start.',
+      hint: 'Not quite. Work out the power first, −0.1 × 10.',
+      hints: { '0 V': 'Not quite. That falls in a straight line, 40 V each second. Decay takes the same share each step, so it never reaches 0 V.',
+        '1,087 V': 'Not quite. That drops the minus, 400 × e, which is a rise. The power is −1.' } },
+    { kind: 'pick', name: 'Three ways',
+      graph: { tmax: 3, tt: [[0, '0'], [1, '1'], [2, '2'], [3, '3 years']], yname: 'times the start', ymin: 1, ymax: 1.4, yt: [1, 1.1, 1.2, 1.3, 1.4], h: 160 },
+      key: [['main', 'never pausing, e^(0.1t)', 'right']],
+      items: [
+        { k: 'mark', t: 0, v: 1, dot: 'dot' },
+        { k: 'q', t: 3 },
+        { k: 'curve', A: 1, kk: 0.1, to: 3, cls: 'main', when: 'right', at: 0.1, dur: 0.9 },
+        { k: 'mark', t: 3, v: Math.exp(0.3), text: fv(Math.exp(0.3), 3), pos: 'r', dot: 'ring', when: 'right', at: 1.0 },
+        { k: 'seg', t0: 0, v0: 1, t1: 3, v1: 1 + 3 * 0.1, cls: 'slip', when: '× 1.3', at: 0.3, dur: 0.6 },
+        { k: 'mark', t: 3, v: 1 + 3 * 0.1, text: fv(1 + 3 * 0.1, 3), cls: 'slip', pos: 'r', dot: 'dot', when: '× 1.3', at: 0.6 },
+        { k: 'steps', ts: [0, 1, 2, 3], vs: [1, 1.1, 1.21, 1.331], cls: 'slip', when: '× 1.331', at: 0.3, dur: 0.6 },
+        { k: 'mark', t: 3, v: Math.pow(1.1, 3), text: fv(Math.pow(1.1, 3), 3), cls: 'slip', pos: 'r', when: '× 1.331', at: 0.6 },
+      ],
+      opts: ['× 1.35', '× 1.331', '× 1.3'], want: '× 1.35', ans: '1.35', fmt: (v) => fv(v, 3),
+      val: { '× 1.35': Math.exp(0.1 * 3), '× 1.331': Math.pow(1.1, 3), '× 1.3': 1 + 3 * 0.1 },
+      task: 'A pot grows 10% a year for 3 years, never pausing. What is it multiplied by?',
+      why: 'Multiply the rate by the time, `0.1 × 3 = 0.3`, and press eˣ to get `e^0.3 ≈ 1.35`. That is just above `1.1³ = 1.331`, paid once a year, which is above `1 + 3 × 0.1 = 1.3`, adding 10% of the start three times.',
+      hint: 'Not quite. Press eˣ on 0.1 × 3.',
+      hints: { '× 1.3': 'Not quite. That adds 10% of the start each year. Each year\'s growth is of a bigger pot, and never pausing earns as it goes.',
+        '× 1.331': 'Not quite. That is 10% paid once a year. Never pausing earns as it goes, so it gives a little more.' } },
+    { kind: 'pick', name: 'At 6% for a year',
+      graph: { tmax: 1, tt: [[0, '0'], [1, '1 year']], yname: 'pounds', pre: '£', ymax: 1200, yt: [0, 500, 1000], h: 150 },
+      key: [['main', 'never pausing, 1,000 × e^(0.06t)', 'right']],
+      items: [
+        { k: 'mark', t: 0, v: 1000, dot: 'dot' },
+        { k: 'q', t: 1 },
+        { k: 'curve', A: 1000, kk: 0.06, to: 1, cls: 'main', when: 'right', at: 0.1, dur: 0.8 },
+        { k: 'mark', t: 1, v: 1000 * Math.exp(0.06), text: money(1000 * Math.exp(0.06)), pos: 'r', dot: 'ring', when: 'right', at: 0.9 },
+        { k: 'steps', ts: [0, 1], vs: [1000, 1060], cls: 'slip', when: '£1,060', at: 0.3, dur: 0.6 },
+        { k: 'mark', t: 1, v: 1060, text: '£1,060', cls: 'slip', pos: 'r', when: '£1,060', at: 0.6 },
+        { k: 'mark', t: 1, v: 1000 * Math.E * 0.06, text: money(1000 * Math.E * 0.06), cls: 'slip', pos: 'r', dot: 'dot', when: '£163.10', at: 0.3 },
+      ],
+      opts: ['£1,060', '£163.10', '£1,061.84'], want: '£1,061.84', ans: '£1,061.84', fmt: money,
+      val: { '£1,060': 1000 * 1.06, '£163.10': 1000 * Math.E * 0.06, '£1,061.84': 1000 * Math.exp(0.06) },
+      task: '£1,000 grows at 6% a year, never pausing. What is it worth after one year?',
+      why: 'The rate times the time is `0.06 × 1 = 0.06`, so it reaches `1,000 × e^0.06` ≈ £1,061.84. Paid monthly it would be `1,000 × 1.005¹²` ≈ £1,061.68, and paid once £1,060. At a small rate, never pausing adds only a little.',
+      hint: 'Not quite. Press eˣ on 0.06, then multiply by 1,000.',
+      hints: { '£163.10': 'Not quite. That multiplies e by 0.06. Press eˣ on 0.06 instead, then multiply by 1,000.',
+        '£1,060': 'Not quite. That is 6% paid once. Never pausing earns as it goes, so it gives a little more.' } },
+    { show: true, name: 'Slope equals height', dur: 3.2, tracker: true,
+      graph: { tmax: 2, tt: [[0, '0'], [1, '1'], [2, '2']], tname: 'x', yname: 'height', ymax: 8, yt: [0, 2, 4, 6, 8], h: 160 },
+      key: [['main', 'eˣ'], ['tan', 'tangent at the point']],
+      items: [{ k: 'curve', A: 1, kk: 1, to: 2, cls: 'main' }],
+      text: 'One look ahead, for later. Here is `eˣ` on the slope tracker from Calculus fundamentals. At every point its slope equals its height, 1 at `x = 0` and about 2.718 at `x = 1`. That is growth whose rate is proportional to its current value. The Derivatives course takes it further, and nothing in this course depends on it. Slide the point along the curve.' },
+  ];
+  const FINISH = 'Growth that never pauses multiplies by e, about 2.718, over a period at a 100% rate. At growth rate `k` it gives `eᵏᵗ` times the start after time `t`, with a minus in the power for decay.';
+  const CAPTION = 'A year\'s 100% split into `n` parts multiplies the pot by `(1 + 1/n)ⁿ`, which settles on e ≈ 2.71828.';
+  const FADE = 0.35;
+  const FB = [2.2, 1.2];   // how long the motion after a right and a wrong answer plays
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- geometry ----------
+  const GX0 = 54, PX0 = 62, PX1 = 258;            // the value axis, time 0, the last time
+  const CX0 = 30, CW = 56;                        // the six stops of the parts slider
+  const NL0 = 30, NL1 = 310, NLV0 = 2, NLV1 = 2.8; // the number line of the year's totals
+  const RX0 = 112, RX1 = 318;                     // the rate slider, 1% to 100%
+  const XX0 = 100, XX1 = 318;                     // the point slider, x from 0 to 2
+  const BARW = 316;                               // a bar for growth that never pauses
+  const DT = [0.4, 1.1, 1.8, 2.5, 3.2];           // the parts demonstration: 1, 2, 4, 12, 365 parts
+  const RT = [0.5, 1.1, 1.7, 2.3];                // the rate rows arriving
+  const MPOS = { r: [7, 4.5, 'start'], br: [8, 17, 'start'], ar: [7, -8, 'start'] };
+  const cxp = (j) => CX0 + CW * j;
+  const nx = (v) => NL0 + ((v - NLV0) / (NLV1 - NLV0)) * (NL1 - NL0);
+  const rX = (v) => RX0 + ((v - 1) / 99) * (RX1 - RX0);
+  const xX = (v) => XX0 + (v / 2) * (XX1 - XX0);
+
+  // As a screen reader says it.
+  const SUP = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9', 'ˣ': 'x', 'ᵗ': 't', 'ᵏ': 'k', 'ⁿ': 'n' };
+  const say = (s) => String(s == null ? '' : s)
+    .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹ˣᵗᵏⁿ]+/g, (m) => (m === '²' ? ' squared' : ' to the power ' + m.split('').map((c) => SUP[c]).join(' ')))
+    .replace(/\^\(([^)]*)\)/g, ' to the power $1').replace(/\^/g, ' to the power ')
+    .replace(/≈/g, ' is about ').replace(/×/g, ' times ').replace(/−/g, 'minus ').replace(/\+/g, ' plus ').replace(/=/g, ' equals ')
+    .replace(/½/g, 'half').replace(/\s+/g, ' ').trim();
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // n: the parts slider's stop (null: the screen's own); from: where it stood when a right answer
+  // ran it on; rate, x: the rate and point sliders (null until moved).
+  function blank() { return { pick: null, res: null, why: false, n: null, from: null, rate: null, x: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, lastParts = 0, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;                                                                    // what the last paint drew, for the checks
+  // The parts slider: the highest stop open now, and where it stands.
+  const pTop = (d, st) => (d.parts.lock != null && st.res !== 'right' ? d.parts.lock - 1 : d.parts.hi);
+  const pIdx = (d, st) => K.clamp(st.n != null ? st.n : d.parts.def, 0, pTop(d, st));
+  const rateOf = (st) => (st.rate != null ? st.rate : 5);
+
+  // ---------- text with amber key terms, italic letters and raised powers (K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[tknx](?![A-Za-z])|[ˣᵗᵏⁿ])/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  const POW = /\^(\([^)]*\)|[0-9.−]+[a-z]?)/;
+  function maths(parent, s) {
+    let rest = String(s), m;
+    while ((m = POW.exec(rest))) {
+      if (m.index) italics(parent, rest.slice(0, m.index), false);
+      const pw = m[1].charAt(0) === '(' ? m[1].slice(1, -1) : m[1];
+      italics(parent.appendChild(K.el('sup')), pw, false);
+      rest = rest.slice(m.index + m[0].length);
+    }
+    if (rest) italics(parent, rest, false);
+  }
+  // `maths` stays on one line; *a key term* is highlighted.
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { maths(el.appendChild(K.el('span', { class: 'nw' })), seg); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at0) el.appendChild(document.createTextNode(seg.slice(at0, m.index)));
+        el.appendChild(K.el('span', { class: 'mark' }, m[1]));
+        at0 = m.index + m[0].length;
+      }
+      if (at0 < seg.length) el.appendChild(document.createTextNode(seg.slice(at0)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  // The lesson's parts control; Dan moves it by the slider drawn in the picture, which keeps it in step.
+  const partsCtl = K.stepper({ id: 'parts', label: 'Parts the year is split into', steps: PNAME, value: 0, compact: true, into: '#partsk' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+  function syncParts(i) {
+    const j = pIdx(STEPS[i], S[i]);
+    if (partsCtl.get() !== j) partsCtl.set(j, true);
+    lastParts = j;
+  }
+
+  // Up to three answer buttons; each step fills in its own. A new choice after a wrong answer
+  // settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one runs the picture on, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    const from = d.parts ? pIdx(d, st) : null;
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right' && d.parts && d.parts.lock != null) {
+      st.from = from; st.n = d.parts.lock;
+      partsCtl.set(st.n, true); lastParts = st.n;
+    }
+    play(st.res === 'right' ? FB[0] : FB[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.show || finished) return;
+    st.n = null; st.rate = null; st.x = null;
+    if (d.parts) syncParts(i);
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  function part(a, rise, draw) {
+    if (a <= 0) return null;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+    return g;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const dot = (cls, x, y, r) => add(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r: r || 4 }));
+  function text(x, y, s, cls, anchor, ital) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    if (ital) italics(t, s, true); else t.textContent = String(s);
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));
+    t.textContent = String(s);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 7.6;
+  }
+  // A label as near as it can sit to centre c, kept inside lo..hi.
+  function textC(c, y, s, cls, lo, hi, ital) { const w = tw(s, cls); return text(K.clamp(c - w / 2, lo, hi - w), y, s, cls, 'start', ital); }
+  // Tick values about a fifth of the way up at a time, in 1, 2, 2.5 or 5 times a power of ten.
+  function niceTicks(max) {
+    const raw = max / 5, mag = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / mag;
+    const step = (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * mag, out = [];
+    for (let j = 0; j * step <= max + 1e-9; j++) out.push(j * step);
+    return out;
+  }
+
+  // ---------- each step's sizes ----------
+  const GEO = new Map();
+  function geo(d) {
+    if (GEO.has(d)) return GEO.get(d);
+    const G = {};
+    let y = 4;
+    if (d.rate) { G.rate = { ty: y + 34, head: y + 66, rows: [y + 92, y + 132, y + 172, y + 212] }; y += 232; }
+    if (d.graph) {
+      const gc = d.graph;
+      G.top = y + 26; G.bot = G.top + gc.h; G.tickY = G.bot + 18;
+      G.pillY = gc.pills ? G.bot + 26 : null;
+      G.nameY = gc.pills ? G.bot + 62 : G.bot + 36;
+      y = (gc.tname ? G.nameY : gc.pills ? G.bot + 46 : G.tickY) + 8;
+    }
+    if (d.parts) { G.p = { title: y + 14, ty: y + 36, stop: y + 64, tot: y + 86, totT: y + 106, nlT: y + 132, nl: y + 154, nlTk: y + 172 }; y += 180; }
+    if (d.tracker) { G.trk = { ty: y + 30, ro: y + 70 }; y += 80; }
+    if (d.key && d.key.length) { G.keyY = y + 14; G.keyRows = keyLayout(d.key).length; y += 20 * G.keyRows + 6; }
+    G.H = Math.ceil(y + 4);
+    GEO.set(d, G);
+    return G;
+  }
+
+  // ---------- the graph ----------
+  // The value scale: fixed, easing out to fit a slip that runs off the top.
+  function yScale(d, st) {
+    const gc = d.graph, lo = gc.ymin || 0, s0 = gc.ymax;
+    let s1 = s0;
+    if (!d.show && st.res === 'wrong' && d.slipMax && d.slipMax[st.pick]) s1 = d.slipMax[st.pick];
+    const p = s1 === s0 ? 1 : arr(0.1, 0.6);
+    return { lo, now: s0 + (s1 - s0) * p, s0, s1, p };
+  }
+  const slipFor = (d, pick) => (d.items || []).some((it) => it.when === pick);
+  // How far an item has arrived: {a: how solid, p: how far its pen has drawn}, or null.
+  function itemVis(d, st, it) {
+    const pen = !!it.dur;
+    const timed = (t0) => (pen ? { a: arr(t0, it.dur) > 0 ? 1 : 0, p: arr(t0, it.dur) } : { a: arr(t0), p: 1 });
+    if (d.show) return it.at == null ? { a: 1, p: 1 } : timed(it.at);
+    const right = st.res === 'right';
+    if (it.k === 'q') {
+      const gone = right || (st.res === 'wrong' && slipFor(d, st.pick));
+      return gone ? { a: 1 - arr(0.1, 0.3), p: 1 } : { a: 1, p: 1 };
+    }
+    if (!it.when) return { a: 1, p: 1 };
+    if (it.when === 'right') return right ? timed(it.at != null ? it.at : 0.1) : null;
+    return st.res === 'wrong' && st.pick === it.when ? timed(it.at != null ? it.at : 0.3) : null;
+  }
+  // A line's points as far as its pen has reached (p from 0 to 1), with what it is, for the checks.
+  function lineOf(it, p) {
+    const L = { k: it.k, cls: it.cls || 'main', pts: [], said: '' };
+    if (it.k === 'stair') {
+      const from = it.from || 0, to = from + (it.to - from) * p, n = it.n;
+      const vAt = (j) => potAt(it.A, it.r, n, j);
+      Object.assign(L, { n, A: it.A, r: it.r, from, to });
+      if ((to - from) * n > 800) {
+        // Steps far narrower than a pixel: the rule sampled every half unit across.
+        L.sampled = true;
+        for (let s = 0; s <= 500; s++) { const t = from + ((to - from) * s) / 500; L.pts.push([t, vAt(Math.floor(t * n + 1e-9))]); }
+      } else {
+        let j = Math.floor(from * n + 1e-9);
+        L.pts.push([from, vAt(j)]);
+        for (let b = j + 1; b / n <= to + 1e-9; b++) { L.pts.push([b / n, vAt(b - 1)], [b / n, vAt(b)]); j = b; }
+        if (L.pts[L.pts.length - 1][0] < to - 1e-9) L.pts.push([to, vAt(j)]);
+      }
+      L.said = 'A staircase of ' + PNAMEOF(n) + ' a year.';
+    } else if (it.k === 'steps') {
+      const t0 = it.ts[0], tEnd = t0 + (it.ts[it.ts.length - 1] - t0) * p;
+      L.pts.push([t0, it.vs[0]]);
+      for (let m = 1; m < it.ts.length && it.ts[m] <= tEnd + 1e-9; m++) L.pts.push([it.ts[m], it.vs[m - 1]], [it.ts[m], it.vs[m]]);
+      if (L.pts[L.pts.length - 1][0] < tEnd - 1e-9) L.pts.push([tEnd, L.pts[L.pts.length - 1][1]]);
+      L.said = 'In red, a staircase.';
+    } else if (it.k === 'curve') {
+      const from = it.from || 0, to = from + (it.to - from) * p;
+      Object.assign(L, { A: it.A, kk: it.kk, t0: from, t1: to, fn: (t) => cont(it.A, it.kk, t) });
+      for (let s = 0; s <= 64; s++) { const t = from + ((to - from) * s) / 64; L.pts.push([t, L.fn(t)]); }
+      L.said = (L.cls === 'slip' ? 'In red, a curve' : L.cls === 'faint' ? 'A smooth curve behind' : 'A smooth curve') + '.';
+    } else if (it.k === 'seg') {
+      L.pts.push([it.t0, it.v0], [it.t0 + (it.t1 - it.t0) * p, it.v0 + (it.v1 - it.v0) * p]);
+      L.said = 'In red, a straight line.';
+    }
+    return L;
+  }
+  function PNAMEOF(n) { const j = PARTS.indexOf(n); return j >= 0 ? PNAME[j] : n + ' parts'; }
+  function drawItem(d, st, it, X, Y, G, said) {
+    const vis = it.alpha != null ? { a: it.alpha, p: 1 } : itemVis(d, st, it);
+    if (!vis || vis.a <= 0) return;
+    const cls = it.cls || 'main';
+    if (it.k === 'q') {
+      part(vis.a, 0, () => { line('guide', X(it.t), G.bot, X(it.t), G.top + 18); text(X(it.t), G.top + 12, '?', 'q h', 'middle'); });
+      said.push('A question mark at the time asked about.');
+      return;
+    }
+    if (it.k === 'rise') {
+      part(vis.a, 0, () => {
+        const w = tw(it.text, 'pt') + 12, xr = X(it.t) - 6, yc = Math.min((Y(it.v0) + Y(it.v1)) / 2, Y(it.v0) - 12);
+        rect('pill', xr - w, yc - 8, w, 16, 8);
+        text(xr - w / 2, yc + 4.5, it.text, 'pt', 'middle');
+      });
+      said.push('A rise of ' + say(it.text) + '.');
+      return;
+    }
+    if (it.k === 'pill') {
+      part(vis.a, 0, () => {
+        const c = (X(it.t0) + X(it.t1)) / 2, w = tw(it.text, 'pt') + 12;
+        rect('pill', c - w / 2, G.pillY, w, 18, 9);
+        text(c, G.pillY + 13, it.text, 'pt', 'middle');
+      });
+      said.push('From ' + it.t0 + ' to ' + it.t1 + ', ' + say(it.text) + '.');
+      return;
+    }
+    if (it.k === 'mark') {
+      part(vis.a, 0, () => {
+        const x = X(it.t), y = Y(it.v);
+        if (it.dot === 'ring') dot('ring' + (cls === 'slip' ? ' bad' : ''), x, y, 5);
+        else if (it.dot) dot('d-' + cls, x, y, 4.5);
+        if (it.text) {
+          const P = MPOS[it.pos || 'r'];
+          text(x + P[0], y + P[1] + (it.dy || 0), it.text, 'ml h' + (cls === 'main' ? '' : ' ' + cls), P[2], true);
+        }
+      });
+      if (it.text) { REC.marks.push({ t: it.t, v: it.v, text: it.text, cls }); said.push((cls === 'slip' ? 'In red, ' : '') + say(it.text) + '.'); }
+      return;
+    }
+    // a line: a staircase, a curve or a straight line, drawn as far as its pen has reached
+    if (vis.p <= 0) return;
+    const L = lineOf(it, vis.p);
+    if (L.pts.length < 2) return;
+    part(vis.a, 0, () => add(K.svg('path', { class: 'st-' + cls, d: 'M' + L.pts.map((q) => r3(X(q[0])) + ' ' + r3(Y(q[1]))).join(' L') })));
+    (it.k === 'curve' ? REC.curves : REC.stairs).push(L);
+    said.push(L.said);
+  }
+  function drawGraph(d, st, G, ps) {
+    const gc = d.graph, sc = yScale(d, st), lo = sc.lo;
+    const X = (t) => PX0 + (t / gc.tmax) * (PX1 - PX0);
+    const Y = (v) => G.bot - ((v - lo) / (sc.now - lo)) * gc.h;
+    REC.scale = { lo, hi: sc.now, bot: G.bot, h: gc.h };
+    // the value axis: its ticks (a new set fades in while the scale changes) and name
+    const sets = sc.s0 === sc.s1 ? [[gc.yt, 1]] : [[gc.yt, 1 - Math.min(1, sc.p * 2)], [niceTicks(sc.s1), Math.max(0, sc.p * 2 - 1)]];
+    sets.forEach((set) => part(set[1], 0, () => set[0].forEach((v) => {
+      if (v > sc.now * 1.0001 || v < lo - 1e-9) return;
+      line('tickm', GX0 - 5, Y(v), GX0, Y(v));
+      text(GX0 - 7, Y(v) + 4.5, (gc.pre || '') + fv(v), 'tk', 'end');
+    })));
+    text(6, G.top - 12, gc.yname, 'an', 'start');
+    line('axis', GX0, G.top, GX0, G.bot);
+    line('axis', GX0, G.bot, PX1 + 4, G.bot);
+    gc.tt.forEach((tk) => { line('tickm', X(tk[0]), G.bot, X(tk[0]), G.bot + 5); textC(X(tk[0]), G.tickY, tk[1], 'tk', 2, 338); });
+    if (gc.tname) text((GX0 + PX1) / 2, G.nameY, gc.tname, 'an', 'middle', true);
+    const said = ['A graph, ' + (gc.tname || 'time') + ' along the bottom and ' + gc.yname + ' up the side.'];
+    const list = (ps ? partsItems(ps) : []).concat(d.items || []);
+    list.forEach((it) => drawItem(d, st, it, X, Y, G, said));
+    if (d.tracker) said.push(drawTracker(d, st, G, X, Y));
+    return said.join(' ');
+  }
+
+  // ---------- the parts slider, its table and the totals on a line ----------
+  // Which staircases are drawn (two while one fades into the next), where the knob stands, and
+  // which of the table's totals are filled in.
+  function partsState(d, st) {
+    const P = d.parts, right = st.res === 'right';
+    const out = { stairs: [], labels: [], pos: 0, cells: [], qa: 0 };
+    if (d.show && P.demo && st.n == null) {
+      // The demonstration: 1, 2, 4, 12 then 365 parts, each staircase fading into the next.
+      const ain = DT.map((t0) => arr(t0, 0.35));
+      for (let j = 0; j < DT.length; j++) {
+        const a = ain[j] * (j < DT.length - 1 ? 1 - ain[j + 1] : 1);
+        if (a > 0) out.stairs.push({ j, a });
+        const la = j < DT.length - 1 ? Math.min(arr(DT[j] + 0.2, 0.3), 1 - arr(DT[j + 1], 0.2)) : arr(DT[j] + 0.2, 0.3);
+        if (la > 0) out.labels.push({ j, a: la });
+        out.cells[j] = arr(DT[j] + 0.15, 0.45);
+      }
+      out.pos = DT.slice(1).reduce((s, t0) => s + arr(t0, 0.5), 0);
+      return out;
+    }
+    const filled = P.lock != null ? P.lock - 1 : P.hi;
+    if (right && P.lock != null && st.n === P.lock && st.from != null) {
+      // A right answer steps on to every hour.
+      const g = arr(0.1, 0.5), x = arr(0.3, 0.35), lo = 1 - arr(0.3, 0.2), ln = arr(0.5, 0.3);
+      out.pos = st.from + (P.lock - st.from) * g;
+      if (st.from !== P.lock) {
+        if (1 - x > 0) out.stairs.push({ j: st.from, a: 1 - x });
+        if (lo > 0) out.labels.push({ j: st.from, a: lo });
+      }
+      if (x > 0) out.stairs.push({ j: P.lock, a: x });
+      if (ln > 0) out.labels.push({ j: P.lock, a: ln });
+    } else {
+      const e = pIdx(d, st);
+      out.pos = e; out.stairs.push({ j: e, a: 1 }); out.labels.push({ j: e, a: 1 });
+    }
+    for (let j = 0; j <= filled; j++) out.cells[j] = 1;
+    if (P.lock != null) {
+      if (right) out.cells[P.lock] = arr(0.5, 0.4);
+      out.qa = right ? 1 - arr(0.1, 0.3) : 1;
+    }
+    return out;
+  }
+  function partsItems(ps) {
+    const out = [{ k: 'curve', A: 100, kk: 1, to: 1, cls: 'faint' }];
+    ps.stairs.forEach((s) => out.push({ k: 'stair', A: 100, r: 1, n: PARTS[s.j], to: 1, cls: 'main', alpha: s.a }));
+    ps.labels.forEach((s) => out.push({ k: 'mark', t: 1, v: 100 * total(PARTS[s.j]), text: money(100 * total(PARTS[s.j])), pos: 'r', alpha: s.a }));
+    return out;
+  }
+  function drawPartsTable(d, st, G, ps) {
+    const g = G.p, sel = Math.round(ps.pos);
+    text(12, g.title, 'Parts the year is split into', 'an', 'start');
+    line('track', cxp(0), g.ty, cxp(5), g.ty);
+    for (let j = 0; j < 6; j++) line('tick', cxp(j), g.ty - 6, cxp(j), g.ty + 6);
+    rect('rowbox', cxp(ps.pos) - 26, g.stop - 17, 52, g.tot - g.stop + 25, 8);
+    add(K.svg('circle', { class: 'knob', cx: r3(cxp(ps.pos)), cy: g.ty, r: 10 }));
+    const rec = { pos: ps.pos, cells: [] };
+    REC.parts = rec;
+    for (let j = 0; j < 6; j++) {
+      text(cxp(j), g.stop, fv(PARTS[j], 0), 'stop', 'middle');
+      const a = ps.cells[j] || 0;
+      if (a > 0) { part(a, 4, () => text(cxp(j), g.tot, ftot(total(PARTS[j])), 'tc', 'middle')); rec.cells.push(j); }
+    }
+    if (ps.qa > 0) part(ps.qa, 0, () => text(cxp(d.parts.lock), g.tot, '?', 'q', 'middle'));
+    text(12, g.totT, 'Year\'s total, times the start', 'an', 'start');
+    text(12, g.nlT, 'The year\'s totals on a line', 'an', 'start');
+    line('nl', NL0, g.nl, NL1, g.nl);
+    [2, 2.5].forEach((v) => { line('tickm', nx(v), g.nl, nx(v), g.nl + 5); text(nx(v), g.nlTk, fv(v), 'tk', 'middle'); });
+    line('etick', nx(Math.E), g.nl - 9, nx(Math.E), g.nl + 9);
+    text(nx(Math.E) + 6, g.nl - 13, 'e ≈ ' + fx(Math.E, 3), 'el', 'end');
+    for (let j = 0; j < 6; j++) {
+      const a = ps.cells[j] || 0;
+      if (a > 0) part(a, 0, () => dot(j === sel ? 'ring' : 'd-main', nx(total(PARTS[j])), g.nl, j === sel ? 5 : 4));
+    }
+    return 'A slider for the parts the year is split into, at ' + PNAME[sel] + '. The year\'s totals so far: ' +
+      rec.cells.map((j) => PNAME[j] + ', ' + ftot(total(PARTS[j]))).join('; ') + '. On a line they crowd towards e, about 2.718.';
+  }
+
+  // ---------- the rate slider and its bars ----------
+  function rateRows(k) {
+    return [
+      { name: '1 part', f: 1 + k },
+      { name: '12 parts', f: Math.pow(1 + k / 12, 12) },
+      { name: '365 parts', f: Math.pow(1 + k / 365, 365) },
+      { name: 'never pausing, e^' + fv(k, 2), f: Math.exp(k) },
+    ];
+  }
+  function drawRate(d, st, G) {
+    const g = G.rate, v = rateOf(st), k = v / 100, rows = rateRows(k), top = Math.exp(k) - 1;
+    text(10, g.ty + 5, 'Growth rate', 'sn', 'start');
+    line('track', RX0, g.ty, RX1, g.ty);
+    [1, 25, 50, 75, 100].forEach((u) => line('tick', rX(u), g.ty - 6, rX(u), g.ty + 6));
+    const kx = rX(v), lab = v + '% a year', w = tw(lab, 'kl');
+    add(K.svg('circle', { class: 'knob', cx: r3(kx), cy: g.ty, r: 10 }));
+    text(K.clamp(kx, RX0 - 20 + w / 2, 334 - w / 2), g.ty - 15, lab, 'kl', 'middle');
+    text(12, g.head, 'Each bar is the year\'s growth on top of the start', 'an', 'start');
+    const rec = { k, rows: [] };
+    REC.rate = rec;
+    const demo = d.show && st.rate == null;
+    rows.forEach((r, m) => {
+      const y = g.rows[m], a = demo ? arr(RT[m]) : 1, gr = demo ? arr(RT[m] + 0.1, 0.6) : 1;
+      const bw = (BARW * (r.f - 1)) / top;
+      rec.rows.push({ name: r.name, f: r.f, w: bw, text: ftot(r.f) });
+      if (a <= 0) return;
+      part(a, 0, () => {
+        text(12, y, r.name, 'sn', 'start', true);
+        text(328, y, ftot(r.f), 'tc', 'end');
+        if (bw * gr > 0.5) rect('bar', 12, y + 7, bw * gr, 14, 2);
+      });
+    });
+    return 'A growth rate slider at ' + v + ' percent a year. The year\'s total paid in 1, 12 and 365 parts, and never pausing: ' + rows.map((r) => ftot(r.f)).join(', ') + '.';
+  }
+
+  // ---------- the slope tracker ----------
+  // The demonstration glides the point from x = 0 to x = 1 in whole hundredths, so its label and its readouts always describe the same point.
+  function trkX(d, st) { return st.x != null ? st.x : d.show ? Math.round(arr(0.6, 2.0) * 100) / 100 : 1; }
+  function drawTracker(d, st, G, X, Y) {
+    const g = G.trk, x0 = trkX(d, st), h0 = Math.exp(x0), s = slopeAt(x0), ymax = d.graph.ymax;
+    REC.trk = { x: x0, h: h0, s, ht: fx(h0, 3), sTxt: fx(s, 3) };
+    const xa = Math.max(x0 - 0.6, 0, x0 - h0 / s), xb = Math.min(x0 + 0.6, 2.05, x0 + (ymax - h0) / s);
+    line('st-tan', X(xa), Y(h0 + s * (xa - x0)), X(xb), Y(h0 + s * (xb - x0)));
+    dot('ring', X(x0), Y(h0), 5.5);
+    text(10, g.ty + 5, 'The point', 'sn', 'start');
+    line('track', XX0, g.ty, XX1, g.ty);
+    [0, 0.5, 1, 1.5, 2].forEach((u) => line('tick', xX(u), g.ty - 6, xX(u), g.ty + 6));
+    const kx = xX(x0), lab = 'x = ' + fv(x0, 2), w = tw(lab, 'kl');
+    add(K.svg('circle', { class: 'knob', cx: r3(kx), cy: g.ty, r: 10 }));
+    text(K.clamp(kx, XX0 - 20 + w / 2, 334 - w / 2), g.ty - 15, lab, 'kl', 'middle', true);
+    text(12, g.ro, 'Height: ' + fx(h0, 3), 'ro', 'start');
+    text(184, g.ro, 'Slope: ' + fx(s, 3), 'ro', 'start');
+    return 'A point on the curve at x equals ' + fv(x0, 2) + '. Its height is ' + fx(h0, 3) + ' and the slope of the tangent there is ' + fx(s, 3) + '.';
+  }
+
+  // ---------- the sliders drawn in the picture ----------
+  const GRIP = [
+    { name: 'Parts the year is split into', on: (d) => !!d.parts, y: (G) => G.p.ty, x0: cxp(0), x1: cxp(5),
+      val: (x) => Math.round((x - CX0) / CW), set: setParts, now: (d, st) => pIdx(d, st), min: 0, max: (d, st) => pTop(d, st), step: 1,
+      text: (v) => PNAME[K.clamp(Math.round(v), 0, 5)] },
+    { name: 'Growth rate', on: (d) => !!d.rate, y: (G) => G.rate.ty, x0: RX0, x1: RX1,
+      val: (x) => 1 + ((x - RX0) / (RX1 - RX0)) * 99, set: setRate, now: (d, st) => rateOf(st), min: 1, max: () => 100, step: 1,
+      text: (v) => Math.round(v) + '% a year' },
+    { name: 'The point on the curve', on: (d) => !!d.tracker, y: (G) => G.trk.ty, x0: XX0, x1: XX1,
+      val: (x) => ((x - XX0) / (XX1 - XX0)) * 2, set: setX, now: (d, st) => trkX(d, st), min: 0, max: () => 2, step: 0.05,
+      text: (v) => 'x = ' + fv(v, 2) },
+  ];
+  function svgX(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()).x;
+  }
+  const grips = GRIP.map((s) => {
+    const gr = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1, role: 'slider', 'aria-label': s.name, 'aria-orientation': 'horizontal' }));
+    gr.style.display = 'none';
+    let held = null;
+    const live = () => !finished && s.on(STEPS[at()]);
+    gr.addEventListener('pointerdown', (e) => {
+      if (!live()) return;
+      held = e.pointerId;
+      try { gr.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the band */ }
+      e.preventDefault();
+      const x = svgX(e);
+      if (x != null) s.set(s.val(x));
+    });
+    gr.addEventListener('pointermove', (e) => {
+      if (held !== e.pointerId || !live()) return;
+      const x = svgX(e);
+      if (x != null) s.set(s.val(x));
+    });
+    const letGo = (e) => { if (held === e.pointerId) held = null; };
+    gr.addEventListener('pointerup', letGo);
+    gr.addEventListener('pointercancel', letGo);
+    gr.addEventListener('lostpointercapture', () => { held = null; });
+    gr.addEventListener('keydown', (e) => {
+      if (!live()) return;
+      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+      if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+      e.preventDefault();
+      const d = STEPS[at()], st = S[at()];
+      s.set(e.key === 'Home' ? s.min : e.key === 'End' ? s.max(d, st) : s.now(d, st) + by * s.step);
+    });
+    return gr;
+  });
+  function moveTo(fn) {
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    fn();
+    K.reveal(); K.refresh();
+  }
+  function setParts(v) {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.parts) return;
+    const j = K.clamp(Math.round(v), 0, pTop(d, st));
+    if (st.n === j && st.from == null && T === Infinity) return;
+    moveTo(() => { st.n = j; st.from = null; if (partsCtl.get() !== j) partsCtl.set(j, true); lastParts = j; });
+  }
+  function setRate(v) {
+    const st = S[at()], r = K.clamp(Math.round(v), 1, 100);
+    if (st.rate === r && T === Infinity) return;
+    moveTo(() => { st.rate = r; });
+  }
+  function setX(v) {
+    const st = S[at()], x = Number(K.clamp(Math.round(v / 0.05) * 0.05, 0, 2).toFixed(2));
+    if (st.x === x && T === Infinity) return;
+    moveTo(() => { st.x = x; });
+  }
+  function placeGrips(d, G, st) {
+    GRIP.forEach((s, m) => {
+      const gr = grips[m], on = s.on(d) && !finished;
+      gr.style.display = on ? '' : 'none';
+      gr.setAttribute('tabindex', on ? '0' : '-1');
+      if (!on) return;
+      const ty = s.y(G), v = s.now(d, st);
+      gr.setAttribute('x', s.x0 - 22); gr.setAttribute('width', s.x1 - s.x0 + 44);
+      gr.setAttribute('y', ty - 24); gr.setAttribute('height', 44);
+      gr.setAttribute('aria-valuemin', s.min); gr.setAttribute('aria-valuemax', s.max(d, st)); gr.setAttribute('aria-valuenow', Number(v.toFixed(2)));
+      gr.setAttribute('aria-valuetext', s.text(v));
+    });
+  }
+
+  // ---------- the key, inside the drawing ----------
+  function keyLayout(items) {
+    const rows = [[]];
+    let x = 12;
+    items.forEach((it) => {
+      const w = 22 + tw(it[1], 'key');
+      if (x + w > 330 && rows[rows.length - 1].length) { rows.push([]); x = 12; }
+      rows[rows.length - 1].push([x, it]);
+      x += w + 16;
+    });
+    return rows;
+  }
+  function drawKey(d, st, G) {
+    const right = st.res === 'right';
+    keyLayout(d.key).forEach((row, ri) => row.forEach((e) => {
+      const x = e[0], it = e[1], y = G.keyY + ri * 20, a = it[2] === 'right' ? (right ? arr(0.1) : 0) : 1;
+      part(a, 0, () => { line('st-' + it[0], x, y, x + 16, y); text(x + 22, y + 4.5, it[1], 'key', 'start', true); });
+    }));
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], G = geo(d);
+    art.textContent = '';
+    into = null;
+    REC = { stairs: [], curves: [], marks: [], parts: null, rate: null, trk: null, scale: null };
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    const ps = d.parts ? partsState(d, st) : null;
+    const said = [];
+    if (d.rate) said.push(drawRate(d, st, G));
+    if (d.graph) said.push(drawGraph(d, st, G, ps));
+    if (ps) said.push(drawPartsTable(d, st, G, ps));
+    if (G.keyY != null) drawKey(d, st, G);
+    placeGrips(d, G, st);
+    svg.setAttribute('aria-label', said.filter(Boolean).join(' '));
+  }
+
+  // The model the lesson reads: the year's total and the pot for the parts setting.
+  K.model((p) => {
+    const n = PARTS[K.clamp(Math.round(p.parts), 0, PARTS.length - 1)], f = total(n);
+    return { yearTotal: f, potEnd: 100 * f };
+  });
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  write(el('cap'), CAPTION);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i], pj = Math.round(p.parts);
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.n = null; st.rate = null; st.x = null; }
+      if (d.parts) syncParts(i);
+      if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }
+    } else if (d.parts && pj !== lastParts) {
+      // the parts control moved from outside the picture: the slider follows it
+      const j = K.clamp(pj, 0, pTop(d, st));
+      st.n = j; st.from = null; lastParts = j;
+      if (partsCtl.get() !== j) partsCtl.set(j, true);
+      anim.pause(); T = Infinity;
+    }
+    if (!d.parts) lastParts = pj;
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('lead').hidden = i !== 0 || finished;
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      italics(b.el.appendChild(K.el('span')), opts[k], false);   // one span, so the button's gap does not split "× 1.05"
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    const whyOk = !d.whyAfter || right || st.res === 'wrong';   // on the guess-first screen, Why? waits for Check
+    whyBtn.el.hidden = !whyOk;
+    why.hidden = d.show || !st.why || !whyOk;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const PICKS = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = (i) => {
+    const d = STEPS[i], st = Object.assign(blank(), { pick: d.want, res: 'right' });
+    if (d.parts && d.parts.lock != null) { st.from = d.parts.def; st.n = d.parts.lock; }
+    return st;
+  };
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const close = (a, b, tol) => Math.abs(a - b) <= (tol != null ? tol : 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)));
+  // Every finished picture the lesson can show: each screen opened, each puzzle solved and each
+  // slip shown, the parts screens at every stop, the rate and the point at many settings.
+  function states() {
+    const out = [];
+    STEPS.forEach((d, i) => {
+      out.push([i, blank()]);
+      if (d.parts) for (let j = 0; j <= d.parts.hi; j++) out.push([i, Object.assign(blank(), { n: j })]);
+      if (d.rate) [1, 2, 5, 10, 25, 50, 75, 100].forEach((v) => out.push([i, Object.assign(blank(), { rate: v })]));
+      if (d.tracker) [0, 0.25, 0.5, 1, 1.5, 2].forEach((v) => out.push([i, Object.assign(blank(), { x: v })]));
+      if (!d.show) { out.push([i, solvedSt(i)]); d.opts.filter((o) => o !== d.want).forEach((o) => out.push([i, wrongSt(i, o)])); }
+      if (d.parts && d.parts.lock != null) for (let j = 0; j <= d.parts.hi; j++) out.push([i, Object.assign(solvedSt(i), { n: j, from: null })]);
+    });
+    return out;
+  }
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try {
+      paint(i);
+      return { texts: Array.from(art.querySelectorAll('text')).map((q) => q.textContent), rec: REC };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  let ALL = null;
+  const all = () => ALL || (ALL = states().map((x) => ({ i: x[0], st: x[1], g: drawn(x[0], x[1]) })));
+  // A staircase drawn by the rule: its treads are the pot after j parts, A × (1 + r/n)^j, in order,
+  // and each rise is bigger than the one before.
+  function stairOk(L) {
+    if (L.k !== 'stair') return true;
+    const vAt = (j) => potAt(L.A, L.r, L.n, j);
+    if (L.sampled) return L.pts.every((q) => close(q[1], vAt(Math.floor(q[0] * L.n + 1e-9))));
+    const vals = [];
+    L.pts.forEach((q) => { if (!vals.length || !close(vals[vals.length - 1], q[1])) vals.push(q[1]); });
+    const j0 = Math.floor(L.from * L.n + 1e-9);
+    return vals.every((v, m) => close(v, vAt(j0 + m))) && vals.every((v, m) => m < 2 || v - vals[m - 1] > vals[m - 1] - vals[m - 2]);
+  }
+
+  K.check('e is a fixed constant like π and always equals approximately 2.71828: the e on this page is 2.71828 to five decimals, the number line marks it as e ≈ 2.718, and 8,760 parts come within 0.0002 of it', () =>
+    fx(Math.E, 5) === '2.71828' && Math.abs(total(8760) - Math.E) < 2e-4 &&
+      all().every(({ g }) => !g.rec.parts || g.texts.indexOf('e ≈ 2.718') >= 0), { source: SRC_E });
+  K.check('Under simple interest alone the money doubles during the period, and under continually compounding interest it is multiplied by e: paid as one part the pot ends the year at twice its start, and every never-pausing curve at the full rate ends each year at e times where it began', () => {
+    const one = drawn(idx('One part or two'), blank()).rec.stairs.find((L) => L.n === 1);
+    return total(1) === 2 && !!one && close(one.pts[one.pts.length - 1][1], 2 * one.pts[0][1]) &&
+      all().every(({ g }) => g.rec.curves.filter((c) => c.kk === 1 && c.t1 - c.t0 >= 1 - 1e-9).every((c) => close(c.fn(c.t0 + 1) / c.fn(c.t0), Math.E)));
+  }, { source: SRC_LIM });
+  K.check('The rate of growth is proportional to the current function value: on the slope tracker, at every point tried, the slope measured on eˣ equals its height, and both read the same', () => {
+    const i = idx('Slope equals height');
+    return [0, 0.35, 0.5, 1, 1.5, 1.95, 2].every((x) => {
+      const r = drawn(i, Object.assign(blank(), { x })).rec.trk;
+      return !!r && close(r.s, r.h, 1e-6 * r.h) && r.ht === r.sTxt;
+    }) && fx(Math.exp(0), 3) === '1.000' && fx(Math.E, 3) === '2.718' && fx(Math.exp(2), 3) === '7.389';
+  }, { source: SRC_RATE });
+  K.check('Every staircase follows its rule: after j of the year\'s n parts the pot is 100 × (1 + 1/n)ʲ, each rise is bigger than the one before, and with more parts the year\'s end comes closer to the smooth curve', () => {
+    const okAll = all().every(({ g }) => g.rec.stairs.every(stairOk));
+    const i = idx('More and more parts');
+    let gap = Infinity;
+    for (let j = 0; j <= 4; j++) {
+      const L = drawn(i, Object.assign(blank(), { n: j })).rec.stairs.find((x) => x.n === PARTS[j]);
+      if (!L) return false;
+      const gp = 100 * Math.E - L.pts[L.pts.length - 1][1];
+      if (!(gp > 0 && gp < gap)) return false;
+      gap = gp;
+    }
+    return okAll;
+  });
+  K.check('The year\'s total grows with every extra split, by less each time, and stays below e: the table writes it as 2, 2.25, 2.4414, 2.6130, 2.7146 and 2.7181, and the model returns it, with the pot, at every setting of the parts', () => {
+    const v = PARTS.map(total);
+    const grows = v.every((x, j) => j === 0 || x > v[j - 1]) && v.every((x, j) => j < 2 || x - v[j - 1] < v[j - 1] - v[j - 2]) && v.every((x) => x < Math.E);
+    const model = PARTS.every((n, j) => { const o = K.at({ parts: j }); return close(o.yearTotal, total(n)) && close(o.potEnd, 100 * total(n)); });
+    return grows && v.map(ftot).join(' ') === '2 2.25 2.4414 2.6130 2.7146 2.7181' && model;
+  });
+  K.check('Every number follows its rule: £200, £150, £75 and £225; £244.14 (slips £200 and £1,600); £261.30, £271.46 and £271.81, 36p more than 365 parts; 1.6487, £164.87 and 7.389; £738.91 (slips £400 and £543.66); 1.05, 1.0512 and 1.0513 at 5%, and 2,000 parts; 0.368, 0.135 and 0.050; 147 V (slips 0 V and 1,087 V); 1.35 (slips 1.331 and 1.3); £1,061.84 and £1,061.68 (slips £1,060 and £163.10); and each answer offered is the value its own working gives', () => {
+    const ok = money(100 * 2) === '£200' && money(100 * 1.5) === '£150' && money(150 * 0.5) === '£75' && money(100 * 1.5 * 1.5) === '£225' &&
+      money(p4(4)) === '£244.14' && money(p4(1) - p4(0)) === '£25' && money(p4(4) - p4(3)) === '£48.83' && money(100 + 4 * 25) === '£200' && money(100 * Math.pow(2, 4)) === '£1,600' &&
+      money(100 * total(12)) === '£261.30' && money(100 * total(365)) === '£271.46' && money(100 * total(8760)) === '£271.81' &&
+      Math.round((100 * total(8760) - 100 * total(365)) * 100) === 36 &&
+      fx(Math.exp(0.5), 4) === '1.6487' && money(100 * Math.exp(0.5)) === '£164.87' && fx(Math.exp(2), 3) === '7.389' &&
+      money(100 * Math.exp(2)) === '£738.91' && money(100 * 2 * Math.E) === '£543.66' && money(100 * 2 * 2) === '£400' &&
+      ftot(1 + 0.05) === '1.05' && ftot(Math.pow(1 + 0.05 / 12, 12)) === '1.0512' && ftot(Math.pow(1 + 0.05 / 365, 365)) === '1.0513' && ftot(Math.exp(0.05)) === '1.0513' &&
+      close(0.05 / 100, 1 / 2000) && fv(100 * 20, 0) === '2,000' &&
+      fx(Math.exp(-1), 3) === '0.368' && fx(Math.exp(-2), 3) === '0.135' && fx(Math.exp(-3), 3) === '0.050' &&
+      volts(400 * Math.exp(-1)) === '147 V' && volts(400 - 40 * 10) === '0 V' && volts(400 * Math.E) === '1,087 V' &&
+      fv(Math.exp(0.3), 3) === '1.35' && fv(Math.pow(1.1, 3), 3) === '1.331' && fv(1 + 3 * 0.1, 3) === '1.3' &&
+      money(1000 * Math.exp(0.06)) === '£1,061.84' && money(1000 * Math.pow(1.005, 12)) === '£1,061.68' && money(1000 * 1.06) === '£1,060' && money(1000 * Math.E * 0.06) === '£163.10';
+    const labelled = PICKS.every((i) => { const d = STEPS[i]; return Object.keys(d.val).every((o) => d.opts.indexOf(o) >= 0 && d.fmt(d.val[o]) === o.replace(/^About /, '').replace(/^× /, '')); });
+    return ok && labelled;
+  });
+  K.check('A smaller rate settles the same way: at every rate from 1% to 100%, 1, 12 and 365 parts give totals that rise towards eᵏ without passing it, and every bar is drawn to one scale', () => {
+    const i = idx('A smaller rate');
+    return [1, 2, 5, 10, 25, 50, 75, 100].every((v) => {
+      const r = drawn(i, Object.assign(blank(), { rate: v })).rec.rate, k = v / 100;
+      return r.rows.length === 4 && close(r.rows[3].f, Math.exp(k)) &&
+        r.rows.every((row, m) => (m === 0 || row.f > r.rows[m - 1].f) && row.f <= Math.exp(k) + 1e-12 && close(row.w, (BARW * (row.f - 1)) / (Math.exp(k) - 1), 1e-6));
+    });
+  });
+  K.check('With a minus in the power each equal step multiplies by the same 0.368: the marks at 1, 2 and 3 read 0.368, 0.135 and 0.050, each e^(−1) times the one before', () => {
+    const g = drawn(idx('A minus in the power'), blank()), m = g.rec.marks;
+    return m.length === 3 && m.every((x, j) => close(x.v, Math.exp(-(j + 1))) && (j === 0 || close(x.v / m[j - 1].v, Math.exp(-1)))) &&
+      m.map((x) => x.text).join(' ') === '0.368 0.135 0.050' && g.texts.filter((s) => s === '× 0.368').length === 3;
+  });
+  K.check('Before an answer, nothing in a puzzle\'s picture gives it away, and a right answer shows it', () =>
+    PICKS.every((i) => { const d = STEPS[i]; return drawn(i, blank()).texts.indexOf(d.ans) < 0 && drawn(i, solvedSt(i)).texts.indexOf(d.ans) >= 0; }));
+  K.check('Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own', () =>
+    PICKS.every((i) => {
+      const d = STEPS[i];
+      return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)) &&
+        d.opts.every((o) => o === d.want || !!(d.hints && d.hints[o]));
+    }));
+  K.check('Every demonstration has finished arriving within its time (at most 4.5 s), none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i), FB[0]) && FB[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB[1]) && FB[1] <= 2.5);
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

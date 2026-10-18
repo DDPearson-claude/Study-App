@@ -1,0 +1,98 @@
+{
+  "iid": "i2",
+  "title": "The number e",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the year's total settling on 2.718 while the staircase hugs a smooth curve, when you split the year's 100% growth into more and more parts.",
+    "title": "Split the year",
+    "controls": [
+      { "id": "parts", "label": "Parts the year is split into", "options": ["1 part", "2 parts", "4 parts", "12 parts", "365 parts", "8,760 parts"], "value": 0 }
+    ],
+    "outputs": [
+      { "id": "yearTotal", "label": "Year's total, times the start", "unit": "×", "decimals": 4 },
+      { "id": "potEnd", "label": "Pot at the year's end", "unit": "£", "decimals": 2 }
+    ],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on one graph: time in years along the bottom and a pot of money up the side, starting at £100 and growing 100% over a year. The year is split into equal parts, and at the end of each part the pot gains 100% ÷ the number of parts of what is in it by then, so it climbs as a staircase: flat while it waits, then a rise. Each rise is bigger than the last, because each one is a share of a bigger pot. With n parts, each part multiplies the pot by 1 + 1/n, and there are n of them, so the year multiplies it by (1 + 1/n)ⁿ, the A × bˣ of the last lesson with b = 1 + 1/n. The stepper sets n to 1, 2, 4, 12, 365 or 8,760 (every hour). The more parts, the smaller and more frequent the steps, and the staircase hugs a smooth curve drawn faintly behind it. A small table beside the graph fills in the year's total at each setting, 2, 2.25, 2.4414, 2.6130, 2.7146 and 2.7181, so the gaps between rows shrink and the total settles near 2.718, the number e. The smooth curve is growth that never pauses, eᵗ times the start after t years, where e ≈ 2.71828 and t is the time in years. Screen by screen: 1 shows 1 part (£200) and 2 parts (£150, then £225), with the second half's £75 marked as 50% of £150. 2 asks for the pot after 4 quarters of 25%. 3 frees the stepper to 12 and 365 parts and names e. 4 asks you to guess the hourly total before you step to 8,760. 5 stretches the time axis to 2 years and lays the smooth curve eᵗ alone, with its readings on the eˣ key at half a year and at 2 years. 6 asks for £100 after 2 years of 100% growth that never pauses. 7 adds a rate slider (1% to 100%, opening at 5%) and fills the table for 5% split into 1, 12 and 365 parts, settling on e^0.05, with the line 5% in 100 parts = 100% in 2,000 parts, and 100 of 2,000 parts is a twentieth of that year. 8 asks for the growth factor per year of e^(0.05t). 9 turns the power negative: e^(−t), falling from 1 to 0.368, 0.135 and 0.050 at 1, 2 and 3, each equal step multiplying by the same 0.368. 10 asks what 400 e^(−0.1t) volts is after 10 seconds. 11 and 12 mix it all: 10% a year for 3 years three ways, and £1,000 at 6% a year never pausing. 13 puts eˣ on the slope tracker from Calculus fundamentals, with readouts of the height and the tangent's slope at the dragged point, which read the same. A puzzle offers three answers, and a wrong pick gets a one-line hint showing where it goes wrong.",
+    "ignores": "The pots, the rates, the voltages and the times are example values. The staircase's flat treads are the waits between payments, so the smooth curve behind it is the rule eᵗ, not a balance you would see between payments. Real interest is paid in whole pennies at set times, so money is never truly paid with no pauses at all; growth that never pauses is the limit the payments approach. Things made of whole pieces, such as cells or the charges on a capacitor, change one piece at a time too, so a smooth eᵏᵗ fits them well while there are very many pieces and less well when only a few are left.",
+    "numbers": [
+      { "label": "Example pot at the start, in pounds, in steps 1 to 6", "value": 100, "kind": "assumed" },
+      { "label": "Example growth over one year, in %, in steps 1 to 6", "value": 100, "kind": "assumed" },
+      { "label": "Stepper's opening setting, parts in the year", "value": 1, "kind": "control" },
+      { "label": "Pot with 1 part, 100 × 2, in pounds, in step 1", "value": 200, "kind": "computed" },
+      { "label": "Pot after the first of 2 parts, in pounds, in step 1", "value": 150, "kind": "computed" },
+      { "label": "Second half's gain, 50% of £150, in pounds, in step 1", "value": 75, "kind": "computed" },
+      { "label": "Pot with 2 parts, 100 × 1.5², in pounds, in step 1", "value": 225, "kind": "computed" },
+      { "label": "Year's total with 2 parts, times the start", "value": 2.25, "kind": "computed" },
+      { "label": "Pot with 4 parts, 100 × 1.25⁴, in pounds, in step 2", "value": 244.14, "kind": "computed" },
+      { "label": "Year's total with 4 parts, times the start", "value": 2.4414, "kind": "computed" },
+      { "label": "Slip: four 25% rises of the first £100, in pounds, step 2", "value": 200, "kind": "computed" },
+      { "label": "Slip: doubling each quarter, 100 × 2⁴, in pounds, step 2", "value": 1600, "kind": "computed" },
+      { "label": "Year's total with 12 parts, times the start", "value": 2.613, "kind": "computed" },
+      { "label": "Pot with 12 parts, in pounds, in step 3", "value": 261.3, "kind": "computed" },
+      { "label": "Year's total with 365 parts, times the start", "value": 2.7146, "kind": "computed" },
+      { "label": "Pot with 365 parts, in pounds, in step 3", "value": 271.46, "kind": "computed" },
+      { "label": "Year's total with 8,760 parts, times the start", "value": 2.7181, "kind": "computed" },
+      { "label": "Pot with 8,760 parts, in pounds, in step 4", "value": 271.81, "kind": "computed" },
+      { "label": "Gain from 365 to 8,760 parts, in pence, in step 4", "value": 36, "kind": "computed" },
+      { "label": "Slip: a guess of about £300, rises kept coming, step 4", "value": 300, "kind": "assumed" },
+      { "label": "e, the number the total settles on", "value": 2.71828, "kind": "constant", "source": 2 },
+      { "label": "e^0.5, half a year never pausing, in step 5", "value": 1.6487, "kind": "computed" },
+      { "label": "Pot after half a year, in pounds, in step 5", "value": 164.87, "kind": "computed" },
+      { "label": "e², two years never pausing, in steps 5 and 6", "value": 7.389, "kind": "computed" },
+      { "label": "Pot after 2 years, 100 × e², in pounds, in step 6", "value": 738.91, "kind": "computed" },
+      { "label": "Slip: 100 × 2 × e, in pounds, in step 6", "value": 543.66, "kind": "computed" },
+      { "label": "Slip: doubling once a year for 2 years, in pounds, step 6", "value": 400, "kind": "computed" },
+      { "label": "Rate slider's opening value, in % a year, in step 7", "value": 5, "kind": "control" },
+      { "label": "5% paid once, factor for the year, in steps 7 and 8", "value": 1.05, "kind": "computed" },
+      { "label": "5% paid in 12 parts, factor for the year, in step 7", "value": 1.0512, "kind": "computed" },
+      { "label": "5% paid in 365 parts, factor for the year, in step 7", "value": 1.0513, "kind": "computed" },
+      { "label": "Example split of 5%, parts, in step 7", "value": 100, "kind": "assumed" },
+      { "label": "Matching split of 100%, 100 × 20 parts, in step 7", "value": 2000, "kind": "computed" },
+      { "label": "e^0.05, factor per year at 5%, in steps 7 and 8", "value": 1.0513, "kind": "computed" },
+      { "label": "Slip: the rate 0.05 taken as the factor, in step 8", "value": 0.05, "kind": "computed" },
+      { "label": "e^(−1), share left after one unit of time, step 9", "value": 0.368, "kind": "computed" },
+      { "label": "e^(−2), share left after two units, in step 9", "value": 0.135, "kind": "computed" },
+      { "label": "e^(−3), share left after three units, in step 9", "value": 0.05, "kind": "computed" },
+      { "label": "Example start voltage, in volts, in step 10", "value": 400, "kind": "assumed" },
+      { "label": "Example rate in the power, per second, in step 10", "value": 0.1, "kind": "assumed" },
+      { "label": "Example time, in seconds, in step 10", "value": 10, "kind": "assumed" },
+      { "label": "400 × e^(−1), in volts, in step 10", "value": 147, "kind": "computed" },
+      { "label": "Slip: 400 V falling in a straight line to 0, step 10", "value": 0, "kind": "computed" },
+      { "label": "Slip: minus dropped, 400 × e, in volts, in step 10", "value": 1087, "kind": "computed" },
+      { "label": "Example rate, in % a year, in step 11", "value": 10, "kind": "assumed" },
+      { "label": "Example time, in years, in step 11", "value": 3, "kind": "assumed" },
+      { "label": "e^0.3, never pausing for 3 years, in step 11", "value": 1.35, "kind": "computed" },
+      { "label": "Slip: 1.1³, paid once a year, in step 11", "value": 1.331, "kind": "computed" },
+      { "label": "Slip: 1 + 3 × 0.1, adding 10% three times, step 11", "value": 1.3, "kind": "computed" },
+      { "label": "Example pot, in pounds, in step 12", "value": 1000, "kind": "assumed" },
+      { "label": "Example rate, in % a year, in step 12", "value": 6, "kind": "assumed" },
+      { "label": "1,000 × e^0.06, in pounds, in step 12", "value": 1061.84, "kind": "computed" },
+      { "label": "Paid monthly, 1,000 × 1.005¹², in pounds, in step 12", "value": 1061.68, "kind": "computed" },
+      { "label": "Slip: paid once, 1,000 × 1.06, in pounds, in step 12", "value": 1060, "kind": "computed" },
+      { "label": "Slip: 1,000 × e × 0.06, in pounds, in step 12", "value": 163.1, "kind": "computed" },
+      { "label": "Height and slope of eˣ at x = 0, in step 13", "value": 1, "kind": "computed" },
+      { "label": "Height and slope of eˣ at x = 1, in step 13", "value": 2.718, "kind": "computed" },
+      { "label": "Height and slope of eˣ at x = 2, in step 13", "value": 7.389, "kind": "computed" }
+    ]
+  },
+  "explain": {
+    "text": "In the last lesson growth came in equal steps, multiplying by the same factor each time. Now make the steps smaller and more frequent until the growth never pauses. A year's growth split into more and more parts does not run away: its total settles on one fixed number, about 2.718, called [[e]], and growth that never pauses is written with e as its base.\n\nSay £100 grows 100% over a year. Paid as one step, it doubles to £200: under simple interest alone the money doubles.[^1] Now pay it in two halves of 50%. The first half takes £100 to £150, and the second half's 50% is taken of £150, not £100, so it adds £75 and ends at £225. Splitting helps because each part's growth starts earning straight away. Each part multiplies the pot by 1 + 1/n, where n is the number of parts, and there are n of them, so the year multiplies it by (1 + 1/n)ⁿ. Four quarters of 25% give 100 × 1.25⁴ ≈ £244.14, twelve months about £261.30, 365 days about £271.46 and 8,760 hours about £271.81. More parts help less and less: going from 365 parts to 8,760 adds only 36p, because each extra split adds interest on ever smaller slices of interest. So the total settles, and under continually compounding interest the money is multiplied by e.[^1] e is a fixed constant like π, about 2.71828,[^2] a number to work with, not a letter you choose. Textbooks add that its decimals run on without repeating, as π's do.\n\nAt 100% a year, growth that never pauses makes the pot e times bigger each year, so after t years it is eᵗ times the start, worked on the calculator's eˣ key: e² ≈ 7.389, so £100 becomes about £738.91 in two years. A smaller rate works the same way. Say 5% a year is split into 100 parts. Each part adds 0.05%, exactly what each part adds when 100% is split into 2,000 parts, and 100 of those 2,000 parts is a twentieth of that year. So a year at 5% is a twentieth of a year at 100%, and the pot grows e^(1/20) = e^0.05 ≈ 1.0513 times. At a [[growth rate]] k, written as a decimal per unit of time, growth that never pauses gives eᵏᵗ times the start after time t. The rate is not the growth factor: the factor for each unit of time is eᵏ, here 1.0513, a little more than the 1.05 that paying once gives, because the growth earns as it goes. Put a minus in the power and it is decay: e^(−t) leaves 0.368 of the start after one unit of time, 0.135 after two and 0.050 after three, the same factor on every equal step, as in the last lesson. The next lesson's capacitor follows a curve of this kind.\n\nOne look ahead, for later: on the slope tracker from Calculus fundamentals, textbooks add that the slope of eˣ equals its height at every point, 1 at x = 0 and about 2.718 at x = 1. That is growth where the rate of growth is proportional to the current value,[^3] and the Derivatives course takes it further; nothing in this course depends on it. **Growth that never pauses multiplies by e, about 2.718, over a period at a 100% rate,[^1] and at growth rate k it gives eᵏᵗ times the start after time t, with a minus in the power for decay.**"
+  },
+  "analogy": {
+    "text": "Run trunking round a curved wall in straight lengths, each end touching the wall. Two lengths cut the curve badly, four less so, and twelve hug it. The total length of trunking grows with each extra cut, by less each time, and settles on the wall's own length. The year's staircase does the same: more and smaller steps hug the smooth curve, and the total settles on e.",
+    "breaks": "The trunking's extra length comes from geometry, each straight length being shorter than the bit of curve it spans, while the extra growth comes from growth earning growth. And the wall is there before you cut anything, while the smooth curve is the rule eᵗ itself, which only the steps approach."
+  },
+  "practice": {
+    "text": "- Check the growth really is treated as never pausing: a formula with e in it, or a question that says continuously.\n- Write the rate as a decimal per unit of time: 5% a year is k = 0.05, and a fall is a minus, k = −0.05.\n- Multiply the rate by the time, in the same units: k × t.\n- Press eˣ on that number, then multiply by the start.\n- Check the size: growth should come out a little above paying once, (1 + k)ᵗ, and decay below the start but above zero.\n\n**Rule of thumb:** For a small rate, eᵏ is just over 1 + k: e^0.05 ≈ 1.0513 against 1.05. And e¹ ≈ 2.718 is a quick check that you have pressed the eˣ key.\n\n**Worked example:** Say £2,000 grows at 4% a year, never pausing, for 5 years. k × t = 0.04 × 5 = 0.2, and e^0.2 ≈ 1.2214, so it reaches 2,000 × 1.2214 ≈ £2,442.81. Paid once a year it would be 2,000 × 1.04⁵ ≈ £2,433.31, a little less, as it should be.\n\n**Common mistakes**\n- Taking the rate as the factor: the factor per year is e^0.04 ≈ 1.0408, not 0.04.\n- Typing the rate as a whole number: e^(4 × 5) = e²⁰ is about 485 million, so 4% must go in as 0.04.\n- Multiplying e by k × t instead of raising it: 2,000 × 2.718 × 0.2 ≈ £1,087.31, less than you started with.\n- Dropping the minus for decay, which turns a fall into a rise."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    { "n": 1, "title": "Answers and Explanations -- The Number $e$ as a Limit", "url": "https://www.math.toronto.edu/mathnet/plain/answers/answers_12.html", "quote": "Under simple interest alone, the money will double during that period. Under continually compounding interest, it will be multiplied by e." },
+    { "n": 2, "title": "Euler Number (e) — Definition, Formula & Examples", "url": "https://www.mathwords.com/e/euler_number.htm", "quote": "e is a fixed constant like π . It always equals approximately 2.71828 and cannot be assigned a different value." },
+    { "n": 3, "title": "6.8 Exponential Growth and Decay - Calculus Volume 1 | OpenStax", "url": "https://openstax.org/books/calculus-volume-1/pages/6-8-exponential-growth-and-decay", "quote": "That is, the rate of growth is proportional to the current function value." }
+  ],
+  "confidence": "settled",
+  "contested": null
+}

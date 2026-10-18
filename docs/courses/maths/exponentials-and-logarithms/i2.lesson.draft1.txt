@@ -1,0 +1,43 @@
+{
+  "iid": "i2",
+  "title": "The number e",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the year's total settling on 2.718 while the staircase hugs a smooth curve when you split the year's 100% growth into more and more parts.",
+    "title": "Split the year",
+    "controls": [
+      { "id": "parts", "label": "Parts the year is split into", "options": ["1 part", "2 parts", "4 parts", "12 parts", "365 parts", "8,760 parts"], "value": 0 }
+    ],
+    "outputs": [
+      { "id": "yearTotal", "label": "Year's total, × the start", "unit": "", "decimals": 4 }
+    ],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on one graph: a year along the bottom and a pot of £100 up the side, growing 100% over the year. The year is split into equal parts, and each part adds 100% ÷ the number of parts of what is in the pot, so the pot climbs as a staircase. The more parts, the finer the staircase, and it hugs a smooth curve. A table fills in the year's total, (1 + 1/n)ⁿ times the start, where n is the number of parts. The last screen puts the smooth curve on the slope tracker from Calculus fundamentals.",
+    "ignores": "The pot and the 100% are example values. Real interest is paid in whole pennies and at set times.",
+    "numbers": [
+      { "label": "Example pot, in pounds", "value": 100, "kind": "assumed" },
+      { "label": "Example growth over the year, in %", "value": 100, "kind": "assumed" },
+      { "label": "Year's total with 1 part, × start", "value": 2, "kind": "computed" },
+      { "label": "Year's total with 2 parts, × start", "value": 2.25, "kind": "computed" },
+      { "label": "Year's total with 4 parts, × start", "value": 2.4414, "kind": "computed" },
+      { "label": "Year's total with 12 parts, × start", "value": 2.613, "kind": "computed" },
+      { "label": "Year's total with 365 parts, × start", "value": 2.7146, "kind": "computed" },
+      { "label": "e, to five decimal places", "value": 2.71828, "kind": "constant", "source": 2 }
+    ]
+  },
+  "explain": {
+    "text": "Split a year's growth into more and more parts, each paid on what is already there, and the year's total does not run away: it settles on a fixed number, about 2.718, called [[e]]. Growth that never pauses between steps is written with e.\n\nSay £100 grows 100% in a year. Paid once, it doubles to £200. Paid in two halves of 50%, it becomes £150 and then £225. Paid in 12 months it reaches about £261.30, and paid daily about £271.46. Under continually compounding interest the money is multiplied by e.[^1] e is a fixed constant like π, about 2.71828.[^2]\n\nAt rate k, growth that never pauses gives eᵏᵗ after time t. A minus in the power gives decay. **Growth that never pauses between steps multiplies by e each year at 100%, and by eᵏᵗ at rate k.[^1]**"
+  },
+  "analogy": null,
+  "practice": {
+    "text": "- Write the rate as a decimal: 5% is 0.05.\n- Multiply by the time.\n- Press eˣ and multiply by the start.\n\n**Worked example:** £2,000 at 4% for 5 years, never pausing: 2,000 × e^0.2 ≈ £2,442.81.\n\n**Common mistakes**\n- Using 0.05 as the factor.\n- Forgetting the minus for decay."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    { "n": 1, "title": "Answers and Explanations -- The Number $e$ as a Limit", "url": "https://www.math.toronto.edu/mathnet/plain/answers/answers_12.html", "quote": "Under simple interest alone, the money will double during that period. Under continually compounding interest, it will be multiplied by e." },
+    { "n": 2, "title": "Euler Number (e) — Definition, Formula & Examples", "url": "https://www.mathwords.com/e/euler_number.htm", "quote": "e is a fixed constant like π . It always equals approximately 2.71828 and cannot be assigned a different value." }
+  ],
+  "confidence": "settled",
+  "contested": null
+}
