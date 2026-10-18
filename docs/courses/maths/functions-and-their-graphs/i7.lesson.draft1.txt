@@ -1,0 +1,132 @@
+{
+ "iid": "i7",
+ "title": "One machine feeding another",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the number on the join between the two machines change, and a different output drop out, when you flip the switch that swaps their order.",
+  "title": "Two machines in a chain",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens on chaining two functions. Two machines sit in a row, each a box with its rule written inside. You drag an input into the first box, and its output rides along the join to the second box, with the middle value shown on the join. The second box's output drops out at the end. A switch swaps the two boxes. The opening chain is g, add 4, then f, double: 3 becomes 7 on the join and 14 comes out. Swapped, 3 is doubled to 6 and then 4 is added, giving 10. The rule above the boxes rewrites as f(g(x)) or g(f(x)), worked from the inside bracket out. Then the flow meter: the first box turns a 4 to 20 mA signal into a fraction of full pressure difference, d(I) = (I − 4) ÷ 16, and the second takes its square root to give the fraction of full flow, Q(d) = √d. 12 mA gives 0.5 on the join and 0.707 out, 71% flow. A third box adds a second square root, and 12 mA then reads 84%. A screen chains 'take 4, then square root', where an input of 2 gives −2 on the join and the root answers 'no value'. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick shows the slip that makes it.",
+  "ignores": "The machines work instantly and exactly. The flow meter is drawn as its ideal rule. Only ordinary (real) numbers are used.",
+  "numbers": [
+   {
+    "label": "Example machine g adds 4, step 0",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example machine f doubles, step 0",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Input 3: 7 on the join, 14 out, step 0",
+    "value": 14,
+    "kind": "computed"
+   },
+   {
+    "label": "Input 5 gives 18; slips 14, 9, step 1",
+    "value": 18,
+    "kind": "computed"
+   },
+   {
+    "label": "Swapped, input 3: 6 on the join, 10 out, step 2",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Lesson 1's machine swapped: 5 − 1 = 4, × 3 = 12, step 3",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "f(g(2)) = 12; slips 8, 6, step 5",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "4 to 20 mA loop: 0% sends 4 mA",
+    "value": 4,
+    "kind": "constant"
+   },
+   {
+    "label": "4 to 20 mA loop: 100% sends 20 mA",
+    "value": 20,
+    "kind": "constant"
+   },
+   {
+    "label": "d(12) = (12 − 4) ÷ 16 = 0.5, step 6",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "√0.5 = 0.707: 50% pressure difference is 71% flow",
+    "value": 0.707,
+    "kind": "constant",
+    "source": 3
+   },
+   {
+    "label": "Two roots at 12 mA read 84%, step 8",
+    "value": 84,
+    "kind": "computed"
+   },
+   {
+    "label": "Take 4 then root: input 2 gives −2, step 10",
+    "value": -2,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Two functions can be joined so that the output of one becomes the input of the next.[^1] Swap their order and the same input always gives a different output.\n\nTake g, which adds 4, and f, which doubles. Put 3 into g and 7 comes out, and 7 goes into f, so 14 drops out. Swapped, 3 is doubled to 6 and then 4 is added, giving 10. Textbooks write the first chain as f(g(x)) and work from the inside out, so f(g(3)) = 14. A chain like this is a [[composite function]].[^4]\n\nThe flow meter is a chain. The controller turns the mA into a fraction of full pressure difference, and then takes the square root to get the fraction of full flow, because the pressure difference goes as the square of the flow.[^2] At 12 mA that is 0.5 and then 0.707, so 71% flow.[^3] Two roots would read 84%.\n\n**In f(g(x)), g goes first and its output feeds f, so order matters.**[^1]"
+ },
+ "analogy": {
+  "text": "Think of stripping a cable and then crimping a lug on. The stripped end is what the crimper works on. Crimp first and you crimp onto the insulation.",
+  "breaks": "A wrong-order crimp is a failure, while a swapped chain still gives a number."
+ },
+ "practice": {
+  "text": "- Work out the inside machine first.\n- Put its output into the outside machine.\n\n**Worked example:** f(x) = 2x and g(x) = x + 4. f(g(2)) = f(6) = 12.\n\n**Mistakes to watch for**\n- Doing the outside machine first: g(f(2)) = 8.\n- Taking the root twice on a flow meter."
+ },
+ "say": null,
+ "checks": [],
+ "sources": [
+  {
+   "n": 1,
+   "title": "3.4 Composition of Functions - College Algebra 2e | OpenStax",
+   "url": "https://openstax.org/books/college-algebra-2e/pages/3-4-composition-of-functions",
+   "quote": "The process of combining functions so that the output of one function becomes the input of another is known as a composition of functions"
+  },
+  {
+   "n": 2,
+   "title": "Square root scaling for differential pressure flowmeters - Control Engineering",
+   "url": "https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters",
+   "quote": "Regardless of the type of obstruction (orifice plate, Venturi or Pitot tube, etc), the DP is proportional to the square of the flow. Therefore the system must scale flow from the square root of the DP."
+  },
+  {
+   "n": 3,
+   "title": "Square root scaling for differential pressure flowmeters - Control Engineering",
+   "url": "https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters",
+   "quote": "But the root of a number from 0-1 is larger: √0.5 = 0.707. So if there is a 12 mA signal from the DP cell, that’s 50% DP, but 71% flow rate."
+  },
+  {
+   "n": 4,
+   "title": "national unit specification: general information",
+   "url": "https://www.sqa.org.uk/sqa/files/hn/H7K033.pdf",
+   "quote": "Determine the inverse functions of a range of functions  Graph functions and their inverse functions  Introduce composite functions (again this may be done in terms of set theory)  Derive and evaluate a number of composite functions"
+  }
+ ],
+ "confidence": "settled",
+ "contested": null,
+ "format": "steps"
+}

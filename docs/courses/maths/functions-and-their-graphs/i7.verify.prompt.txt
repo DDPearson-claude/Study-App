@@ -1,0 +1,371 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Functions and graphs you will actually use
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i7 "One machine feeding another" — In a chain of two functions, written f(g(x)), the output of g becomes the input of f, and swapping the order usually changes the answer. [skill]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i8 Undoing a machine — An inverse function, read "f inverse", undoes a function that never gives two inputs the same output, running its steps backwards in reverse order.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] 3.4 Composition of Functions - College Algebra 2e | OpenStax — https://openstax.org/books/college-algebra-2e/pages/3-4-composition-of-functions
+    "The process of combining functions so that the output of one function becomes the input of another is known as a composition of functions"
+[R2] Square root scaling for differential pressure flowmeters - Control Engineering — https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters
+    "Regardless of the type of obstruction (orifice plate, Venturi or Pitot tube, etc), the DP is proportional to the square of the flow. Therefore the system must scale flow from the square root of the DP."
+[R3] Square root scaling for differential pressure flowmeters - Control Engineering — https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters
+    "But the root of a number from 0-1 is larger: √0.5 = 0.707. So if there is a 12 mA signal from the DP cell, that’s 50% DP, but 71% flow rate."
+[R4] national unit specification: general information — https://www.sqa.org.uk/sqa/files/hn/H7K033.pdf
+    "Determine the inverse functions of a range of functions  Graph functions and their inverse functions  Introduce composite functions (again this may be done in terms of set theory)  Derive and evaluate a number of composite functions"
+[R5] About the HELM Project — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf
+    "A function is a rule which operates on an input and produces a single output from that input."
+[R6] Relating 4 to 20 mA Signals to Instrument Variables | Understanding Analog Instrumentation | Textbook — https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables
+    "Each real-world value must be converted into its analog current equivalent, then into a scaled integer value, and finally back into a real-world representation, all with the linear equation: y=mx+b."
+[R7] About the HELM Project — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf
+    "Note that it is the independent variable which is the input to the function and the dependent variable which is the output."
+[R8] About the HELM Project — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf
+    "The set of values of the function for a given domain, that is, the set of _y_ values, is called the range"
+[R9] Ch. 3 Key Concepts - College Algebra | OpenStax — https://openstax.org/books/college-algebra/pages/3-key-concepts
+    "The domain of a function includes all real input values that would not cause us to attempt an undefined mathematical operation, such as dividing by zero or taking the square root of a negative number."
+[R10] 3.7 Rational Functions - Precalculus 2e | OpenStax — https://openstax.org/books/precalculus-2e/pages/3-7-rational-functions
+    "which is a vertical line that the graph approaches but never crosses"
+[R11] 3.7 Rational Functions - Precalculus 2e | OpenStax — https://openstax.org/books/precalculus-2e/pages/3-7-rational-functions
+    "a horizontal line that the graph approaches as the input increases or decreases without bound"
+[R12] Definition of Poles 1. Rational Functions — https://ocw.mit.edu/courses/18-03sc-differential-equations-fall-2011/f27e6e56fcce3f8683efa52d546c6005_MIT18_03SCF11_s31_1text.pdf
+    "For a rational function in reduced form the poles are the values of s where the denominator is equal to zero; or, in other words, the points where the rational function is not defined."
+Notes (claims, and the sources that support them):
+- In a composition of functions the output of one function becomes the input of another. [R1]
+- For differential-pressure flow, a signal that is 50% pressure difference at 12 mA goes through a square root to become 71% flow: one function's output feeds the next. [R2][R3]
+- The SQA HN Engineering Mathematics unit includes deriving and evaluating composite functions. [R4]
+- A function is a rule that operates on an input and produces a single output from that input. [R5]  (from an idea this one builds on)
+- Instrument scaling uses a straight-line rule, y = mx + b, that turns each input value into one output value. [R6]  (from an idea this one builds on)
+- The input to a function is the independent variable and the output is the dependent variable. [R7]  (from an idea this one builds on)
+- A function's domain is the set of values allowed for the input, and its range is the set of values the function takes as output. [R8][R9]  (from an idea this one builds on)
+- The domain includes the real inputs that would not cause an undefined operation, such as dividing by zero or taking the square root of a negative number. [R9]  (from an idea this one builds on)
+- A 12 mA signal on a 4 to 20 mA loop from a differential-pressure cell is 50% pressure difference but 71% flow, because the square root of 0.5 is 0.707. [R3]  (from an idea this one builds on)
+- The SQA HN Engineering Mathematics unit expects learners to identify the domain, range and asymptotes of a given function. [R4]  (from an idea this one builds on)
+- i4: a vertical asymptote is a vertical line that a graph approaches but never crosses, as y = 1/x does with x = 0. [R10]  (from an idea this one builds on)
+- i4: a horizontal asymptote is a horizontal line that a graph approaches as the input increases or decreases without bound, as y = 1/x does with y = 0. [R11]  (from an idea this one builds on)
+- i4: the poles of a rational function are the inputs where its denominator is zero, the points where it is not defined, such as 0 for 1/x. [R12]  (from an idea this one builds on)
+- The 4 to 20 mA loop is a 0 to 100 percent scale, and its straight-line conversion is y = mx + b. [R6]  (whole topic)
+- A 12 mA signal from a differential-pressure cell is 50% pressure difference but 71% flow rate. [R3]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i7",
+ "title": "One machine feeding another",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the number on the join between the two machines change, and a different output drop out, when you flip the switch that swaps their order.",
+  "title": "Two machines in a chain",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens on chaining two functions. Two machines sit in a row, each a box with its rule written inside, joined by a short pipe. Drag an input into the first box: its output rides along the join, where the middle value is shown, into the second box, and the second box's output drops out at the end. A switch swaps the two boxes, and the rule above them rewrites between f(g(x)) and g(f(x)). The opening chain is g, add 4, then f, double: 3 becomes 7 on the join and 14 comes out. Swapped, 3 is doubled to 6 on the join and then 4 is added, giving 10. The two answers differ by 4 because a 4 added first goes through the doubler too and becomes 8, while a 4 added last stays 4. f(g(x)) is said 'f of g of x' and is worked from the inside bracket out, so g goes first. Lesson 1's machine, × 3 then − 1, comes back as two boxes: 5 gives 15 on the join and 14 out, and swapped it gives 4 and then 12. Then the flow meter from lessons 3 and 4. The first box is the controller's straight-line rule d(I) = (I − 4) ÷ 16, which takes off the 4 mA at the bottom of the loop and divides by the 16 mA span to give the fraction of full pressure difference. The second box is Q(d) = √d, the fraction of full flow, because the pressure difference goes as the square of the flow. 12 mA gives 0.5 on the join and 0.707 out, 71% flow, and 8 mA gives 0.25 and then 0.5, 50% flow. A third box then adds a second square root by mistake: 12 mA reads 0.841, 84%, and 8 mA reads 71%. A screen chains 'take 4, then square root': an input of 2 puts −2 on the join and the root box answers 'no value', so the chain takes only inputs of 4 and up. Swapped, the root comes first and refuses every negative input instead, such as −4. The last puzzle chains g(x) = x − 3 and f(x) = x², and f(g(5)) = 4 is lesson 5's point (5, 4) on the square slid 3 right. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick shows the slip that makes it, such as working the outside machine first, stopping at the join, squaring instead of rooting, or taking the root twice.",
+  "ignores": "The boxes pass one number at a time, a step at a time; a real controller works on its signal all the time. The machines are exact: real transmitters and meters carry small errors, and the flow meter is drawn as its ideal square-law rule. Flow is shown as a fraction of full flow; turning it into litres a minute would be one more box in the chain, multiplying by the meter's full-scale flow. Some installations take the square root in the transmitter instead of the controller, which is the same chain with that box in a different place, still with one root. The add 4, double, take 3 and take 4 machines and the 8 and 16 mA readings are example values. Only ordinary (real) numbers are used.",
+  "numbers": [
+   {
+    "label": "Example machine g adds 4, step 0",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example machine f doubles, × 2, step 0",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example input, step 0",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "3 + 4 = 7 on the join, step 0",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "7 doubled: 14 drops out, step 0",
+    "value": 14,
+    "kind": "computed"
+   },
+   {
+    "label": "Input 5: 9 on the join, 18 out; slips 14, 9, step 1",
+    "value": 18,
+    "kind": "computed"
+   },
+   {
+    "label": "Swapped, input 3: 6 on the join, step 2",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Swapped, 6 + 4 = 10 drops out, step 2",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "The 4 added first is doubled to 8, step 2",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Lesson 1's machine, input 5: 15 on the join, 14 out, step 3",
+    "value": 14,
+    "kind": "computed"
+   },
+   {
+    "label": "Swapped: 5 − 1 = 4, then × 3 = 12; slips 14, 4, step 3",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "f(g(3)) = f(7) = 14 and g(f(3)) = g(6) = 10, step 4",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "f(g(2)) = f(6) = 12; slips 8, 6, step 5",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "g(f(2)) = g(4) = 8, the order swapped",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "4 to 20 mA loop: 0% sends 4 mA",
+    "value": 4,
+    "kind": "constant"
+   },
+   {
+    "label": "4 to 20 mA loop: 100% sends 20 mA",
+    "value": 20,
+    "kind": "constant"
+   },
+   {
+    "label": "Span of the loop, 20 − 4 mA",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "Example signal, mA, step 6",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "d(12) = 8 ÷ 16 = 0.5 on the join, step 6",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "√0.5 = 0.707: 50% pressure difference is 71% flow",
+    "value": 0.707,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Flow at 12 mA, percent of full, step 6",
+    "value": 71,
+    "kind": "computed"
+   },
+   {
+    "label": "Example signal, mA, step 7",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "d(8) = 4 ÷ 16 = 0.25 on the join, step 7",
+    "value": 0.25,
+    "kind": "computed"
+   },
+   {
+    "label": "√0.25 = 0.5: 50% flow; slips 25%, 6%, step 7",
+    "value": 50,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, squared: 0.25 × 0.25 = 0.0625, about 6%",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Second root at 12 mA: √0.707 = 0.841, step 8",
+    "value": 0.841,
+    "kind": "computed"
+   },
+   {
+    "label": "Two roots at 12 mA read 84%, step 8",
+    "value": 84,
+    "kind": "computed"
+   },
+   {
+    "label": "Two roots at 8 mA: √0.5 reads 71%; slips 50%, 25%, step 9",
+    "value": 71,
+    "kind": "computed"
+   },
+   {
+    "label": "Take 4 then root: input 2 gives −2 on the join, step 10",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "Take 4 then root takes inputs of 4 and up, step 10",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Swapped, root first, refuses −4; 1 gives −3, step 11",
+    "value": -4,
+    "kind": "computed"
+   },
+   {
+    "label": "g(x) = x − 3: example take 3, step 12",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "f(g(5)) = (5 − 3)² = 4; slips 22, 2, step 12",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "g(f(5)) = 25 − 3 = 22, the order swapped",
+    "value": 22,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: loop reading, mA",
+    "value": 16,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example: d(16) = 12 ÷ 16 = 0.75",
+    "value": 0.75,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: √0.75 = 0.866, about 87% flow",
+    "value": 0.866,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A chain of two functions feeds the output of the first machine straight in as the input of the second.[^2] The order you join them in matters, because the second machine works on whatever the first one hands it. Swap them round and the same input usually gives a different output.\n\nTake g, which adds 4, and f, which doubles. Put 3 into g and 7 comes out. That 7 is f's input, so 14 drops out. Swap them and 3 is doubled to 6 first, then 4 is added, giving 10. The machines are the same, so the difference comes from the 4. Added first, it goes through the doubler too and becomes 8; added last, it stays 4. That is the 4 between 14 and 10. Two machines that both only add, or both only multiply, give the same either way, so a swap usually changes the answer, but not always. Textbooks write the first chain as f(g(x)), said \"f of g of x\". As with any bracket, the inside is worked first: g(x) is found, then fed into f. So f(g(3)) = f(7) = 14, while g(f(3)) = g(6) = 10. Textbooks add that UK books often shorten f(g(x)) to fg(x), with g still going first. A function built from a chain like this is called a [[composite function]], and the SQA HN engineering maths unit includes working them out.[^3]\n\nThe flow meter from lessons 3 and 4 is a chain of two machines. The controller's first machine turns the loop's mA into a fraction of full pressure difference with a straight-line rule,[^4] d(I) = (I − 4) ÷ 16: take off the 4 mA at the bottom of the loop, then divide by the 16 mA span. The pressure difference goes as the square of the flow, so the second machine takes the square root to give the fraction of full flow,[^5] Q(d) = √d. At 12 mA, d(12) = 8 ÷ 16 = 0.5 on the join, and Q(0.5) = 0.707 comes out: 50% pressure difference, but 71% flow.[^1] Suppose a fault put a second square root in the chain. Then 0.707 would go in and 0.841 come out, so the controller would show 84% for a 71% flow. Each machine belongs in the chain once. Lesson 8 shows why d is lesson 2's rule run backwards.\n\nEach machine must also take what the one before hands it. Lesson 4's square root has no value for a negative input,[^6] so in the chain \"take 4, then square root\" an input of 2 puts −2 on the join and the chain gives no value. It takes only inputs of 4 and up. Lesson 5's slides were chains as well: x² + 3 is \"square, then add 3\", and (x − 3)² is \"take 3, then square\". **In a chain f(g(x)), g's output becomes f's input,[^2] so the order you join them in decides what comes out, and swapping it usually changes the answer.**"
+ },
+ "analogy": {
+  "text": "Think of stripping a cable and then crimping a lug onto it. The crimper works on whatever the stripper hands it, a bared end, so the first job's output is the second job's input. Swap the order and the crimper is handed a different input, the insulated end, and you get a different result.",
+  "breaks": "A crimp onto insulation is a failed joint, while a swapped chain of functions still gives a proper number, just a different one. And unlike the jobs on a cable, some pairs of machines, such as two that only add, give the same result in either order."
+ },
+ "practice": {
+  "text": "- Find the inside machine. In f(g(x)) it is g, so g goes first.\n- Put the input into g and write down the middle value.\n- Check the outside machine takes that value: no square root of a negative number, no dividing by zero.\n- Put the middle value into f. What comes out is f(g(x)).\n- If the order is in doubt, run one number through both ways. Different answers mean the order matters for this pair.\n\n**Rule of thumb:** Inside first, as with any bracket. The machine written nearest the x works first.\n\n**Worked example:** A flow loop reads 16 mA. First machine: d(16) = (16 − 4) ÷ 16 = 12 ÷ 16 = 0.75, so 75% of full pressure difference. Second machine: Q(0.75) = √0.75 = 0.866, so about 87% of full flow. Check: 0.866 × 0.866 comes back to 0.75, near enough, so the root is right.\n\n**Mistakes to watch for**\n- Working the outside machine first. With f(x) = 2x and g(x) = x + 4, f(g(2)) = 12, but doubling first gives g(f(2)) = 8.\n- Stopping at the join. The middle value, 0.5 at 12 mA, is the pressure difference, not the flow.\n- Taking the root twice. At 12 mA the flow is 71%, but a second root would read 84%.\n- Feeding a machine a value it refuses. \"Take 4, then square root\" has no value at 2."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Square root scaling for differential pressure flowmeters - Control Engineering",
+   "url": "https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters",
+   "quote": "But the root of a number from 0-1 is larger: √0.5 = 0.707. So if there is a 12 mA signal from the DP cell, that’s 50% DP, but 71% flow rate."
+  },
+  {
+   "n": 2,
+   "title": "3.4 Composition of Functions - College Algebra 2e | OpenStax",
+   "url": "https://openstax.org/books/college-algebra-2e/pages/3-4-composition-of-functions",
+   "quote": "The process of combining functions so that the output of one function becomes the input of another is known as a composition of functions"
+  },
+  {
+   "n": 3,
+   "title": "national unit specification: general information",
+   "url": "https://www.sqa.org.uk/sqa/files/hn/H7K033.pdf",
+   "quote": "Determine the inverse functions of a range of functions  Graph functions and their inverse functions  Introduce composite functions (again this may be done in terms of set theory)  Derive and evaluate a number of composite functions"
+  },
+  {
+   "n": 4,
+   "title": "Relating 4 to 20 mA Signals to Instrument Variables | Understanding Analog Instrumentation | Textbook",
+   "url": "https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables",
+   "quote": "Each real-world value must be converted into its analog current equivalent, then into a scaled integer value, and finally back into a real-world representation, all with the linear equation: y=mx+b."
+  },
+  {
+   "n": 5,
+   "title": "Square root scaling for differential pressure flowmeters - Control Engineering",
+   "url": "https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters",
+   "quote": "Regardless of the type of obstruction (orifice plate, Venturi or Pitot tube, etc), the DP is proportional to the square of the flow. Therefore the system must scale flow from the square root of the DP."
+  },
+  {
+   "n": 6,
+   "title": "Ch. 3 Key Concepts - College Algebra | OpenStax",
+   "url": "https://openstax.org/books/college-algebra/pages/3-key-concepts",
+   "quote": "The domain of a function includes all real input values that would not cause us to attempt an undefined mathematical operation, such as dividing by zero or taking the square root of a negative number."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

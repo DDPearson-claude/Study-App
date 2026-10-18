@@ -1,0 +1,282 @@
+{
+  "iid": "i7",
+  "title": "One machine feeding another",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the number on the join between the two machines change, and a different output drop out, when you flip the switch that swaps their order.",
+    "title": "Two machines in a chain",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on chaining two functions. Two machines sit in a row, each a box with its rule written inside, joined by a short pipe. Drag an input into the first box: its output rides along the join, where the middle value is shown, into the second box, and the second box's output drops out at the end. A switch swaps the two boxes, and the rule above them rewrites between f(g(x)) and g(f(x)). The opening chain is g, add 4, then f, double: 3 becomes 7 on the join and 14 comes out. Swapped, 3 is doubled to 6 on the join and then 4 is added, giving 10. The two answers differ by 4 because a 4 added first goes through the doubler too and becomes 8, while a 4 added last stays 4. f(g(x)) is said 'f of g of x' and is worked from the inside bracket out, so g goes first. Lesson 1's machine, × 3 then − 1, comes back as two boxes: 5 gives 15 on the join and 14 out, and swapped it gives 4 and then 12. Then the flow meter from lessons 3 and 4. The first box is the controller's straight-line rule d(I) = (I − 4) ÷ 16, which takes off the 4 mA at the bottom of the loop and divides by the 16 mA span to give the fraction of full pressure difference. The second box is Q(d) = √d, the fraction of full flow, because the pressure difference goes as the square of the flow. 12 mA gives 0.5 on the join and 0.707 out, 71% flow, and 8 mA gives 0.25 and then 0.5, 50% flow. A third box then adds a second square root, as when the transmitter and the controller both take it, though it belongs in one or the other but not both: 12 mA reads 0.841, 84%, and 8 mA reads 71%. A screen chains 'take 4, then square root': an input of 2 puts −2 on the join and the root box answers 'no value', so the chain takes only inputs of 4 and up. Swapped, the root comes first and refuses every negative input instead, such as −4. The last puzzle chains g(x) = x − 3 and f(x) = x², and f(g(5)) = 4 is lesson 5's point (5, 4) on the square slid 3 right: lesson 5's shifts were chains all along. UK books also write f(g(x)) as fg(x), with g still first. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick shows the slip that makes it, such as working the outside machine first, stopping at the join, squaring instead of rooting, or taking the root twice.",
+    "ignores": "The boxes pass one number at a time, a step at a time; a real controller works on its signal all the time. The machines are exact: real transmitters and meters carry small errors, and the flow meter is drawn as its ideal square-law rule. Flow is shown as a fraction of full flow; turning it into litres a minute would be one more box in the chain, multiplying by the meter's full-scale flow. Some installations take the square root in the transmitter instead of the controller, which is the same chain with that box in a different place, still with one root. The add 4, double, take 3 and take 4 machines and the 8 and 16 mA readings are example values. Only ordinary (real) numbers are used.",
+    "numbers": [
+      {
+        "label": "Example machine g adds 4, step 0",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example machine f doubles, × 2, step 0",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example input, step 0",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "3 + 4 = 7 on the join, step 0",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "7 doubled: 14 drops out, step 0",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Input 5: 9 on the join, 18 out; slips 14, 9, step 1",
+        "value": 18,
+        "kind": "computed"
+      },
+      {
+        "label": "Swapped, input 3: 6 on the join, step 2",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Swapped, 6 + 4 = 10 drops out, step 2",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "The 4 added first is doubled to 8, step 2",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Lesson 1's machine, input 5: 15 on the join, 14 out, step 3",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Swapped: 5 − 1 = 4, then × 3 = 12; slips 14, 4, step 3",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "f(g(3)) = f(7) = 14 and g(f(3)) = g(6) = 10, step 4",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "f(g(2)) = f(6) = 12; slips 8, 6, step 5",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "g(f(2)) = g(4) = 8, the order swapped",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "4 to 20 mA loop: 0% sends 4 mA",
+        "value": 4,
+        "kind": "constant"
+      },
+      {
+        "label": "4 to 20 mA loop: 100% sends 20 mA",
+        "value": 20,
+        "kind": "constant"
+      },
+      {
+        "label": "Span of the loop, 20 − 4 mA",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Example signal, mA, step 6",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "d(12) = 8 ÷ 16 = 0.5 on the join, step 6",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "√0.5 = 0.707: 50% pressure difference is 71% flow",
+        "value": 0.707,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Flow at 12 mA, percent of full, step 6",
+        "value": 71,
+        "kind": "computed"
+      },
+      {
+        "label": "Example signal, mA, step 7",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "d(8) = 4 ÷ 16 = 0.25 on the join, step 7",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "√0.25 = 0.5: 50% flow; slips 25%, 6%, step 7",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, squared: 0.25 × 0.25 = 0.0625, about 6%",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Second root at 12 mA: √0.707 = 0.841, step 8",
+        "value": 0.841,
+        "kind": "computed"
+      },
+      {
+        "label": "Two roots at 12 mA read 84%, step 8",
+        "value": 84,
+        "kind": "computed"
+      },
+      {
+        "label": "Two roots at 8 mA: √0.5 reads 71%; slips 50%, 25%, step 9",
+        "value": 71,
+        "kind": "computed"
+      },
+      {
+        "label": "Take 4 then root: input 2 gives −2 on the join, step 10",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Take 4 then root takes inputs of 4 and up, step 10",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Swapped, root first, refuses −4; 1 gives −3, step 11",
+        "value": -4,
+        "kind": "computed"
+      },
+      {
+        "label": "Root first, input 2: √2 = 1.41 on the join, −2.59 out",
+        "value": -2.59,
+        "kind": "computed"
+      },
+      {
+        "label": "g(x) = x − 3: example take 3, step 12",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "f(g(5)) = (5 − 3)² = 4; slips 22, 2, step 12",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "g(f(5)) = 25 − 3 = 22, the order swapped",
+        "value": 22,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: loop reading, mA",
+        "value": 16,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: d(16) = 12 ÷ 16 = 0.75",
+        "value": 0.75,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: √0.75 = 0.866, about 87% flow",
+        "value": 0.866,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A chain of two functions feeds the output of the first machine straight in as the input of the second.[^2] The order you join them in matters, because the second machine works on whatever the first one hands it. Swap them round and the same input usually gives a different output.\n\nTake g, which adds 4, and f, which doubles. Put 3 into g and 7 comes out. That 7 is f's input, so 14 drops out. Swap them and 3 is doubled to 6 first, then 4 is added, giving 10. The machines are the same, so the difference comes from the 4. Added first, it goes through the doubler too and becomes 8; added last, it stays 4. That is the 4 between 14 and 10. Two machines that both only add, or both only multiply, give the same either way, so a swap usually changes the answer, but not always. Textbooks write the first chain as f(g(x)), said \"f of g of x\". As with any bracket, the inside is worked first: g(x) is found, then fed into f. So f(g(3)) = f(7) = 14, while g(f(3)) = g(6) = 10. UK books often write it fg(x): g(x) is still found first, then put into f.[^7] A function built from a chain like this is called a [[composite function]], and the SQA HN engineering maths unit includes working them out.[^3]\n\nThe flow meter from lessons 3 and 4 is a chain of two machines. The controller's first machine turns the loop's mA into a fraction of full pressure difference with a straight-line rule,[^4] d(I) = (I − 4) ÷ 16: take off the 4 mA at the bottom of the loop, then divide by the 16 mA span. The pressure difference goes as the square of the flow, so the second machine takes the square root to give the fraction of full flow,[^5] Q(d) = √d. At 12 mA, d(12) = 8 ÷ 16 = 0.5 on the join, and Q(0.5) = 0.707 comes out: 50% pressure difference, but 71% flow.[^1] The square root is taken in the transmitter or in the controller, but not both.[^8] If both take it, 0.707 goes into a second root and 0.841 comes out, so the controller shows 84% for a 71% flow. Each machine belongs in the chain once. Lesson 8 shows why d is lesson 2's rule run backwards, giving a fraction instead of a percentage.\n\nEach machine must also take what the one before hands it. Lesson 4's square root has no value for a negative input,[^6] so in the chain \"take 4, then square root\" an input of 2 puts −2 on the join and the chain gives no value. It takes only inputs of 4 and up. Lesson 5's slides were chains as well: x² + 3 is \"square, then add 3\", and (x − 3)² is \"take 3, then square\". **In a chain f(g(x)), g's output becomes f's input,[^2] so the order you join them in decides what comes out, and swapping it usually changes the answer.**"
+  },
+  "analogy": {
+    "text": "Think of stripping a cable and then crimping a lug onto it. The crimper works on whatever the stripper hands it, a bared end, so the first job's output is the second job's input. Swap the order and the crimper is handed a different input, the insulated end, and you get a different result.",
+    "breaks": "A crimp onto insulation is a failed joint, while a swapped chain of functions usually still gives a number, just a different one. But a swap can also change whether there is an answer at all: \"take 4, then square root\" has no value at 2, while with the root first 2 gives −2.59. And some pairs of machines, such as two that only add, give the same result in either order, as some jobs on a cable can be done either way round."
+  },
+  "practice": {
+    "text": "- Find the inside machine. In f(g(x)) it is g, so g goes first.\n- Put the input into g and write down the middle value.\n- Check the outside machine takes that value: no square root of a negative number, no dividing by zero.\n- Put the middle value into f. What comes out is f(g(x)).\n- If the order is in doubt, run one number through both ways. Different answers mean the order matters for this pair.\n\n**Rule of thumb:** Inside first, as with any bracket. The machine written nearest the x works first.\n\n**Worked example:** A flow loop reads 16 mA. First machine: d(16) = (16 − 4) ÷ 16 = 12 ÷ 16 = 0.75, so 75% of full pressure difference. Second machine: Q(0.75) = √0.75 = 0.866, so about 87% of full flow. Check: 0.866 × 0.866 comes back to 0.75, near enough, so the root is right.\n\n**Mistakes to watch for**\n- Working the outside machine first. With f(x) = 2x and g(x) = x + 4, f(g(2)) = 12, but doubling first gives g(f(2)) = 8.\n- Stopping at the join. The middle value, 0.5 at 12 mA, is the pressure difference, not the flow.\n- Taking the root twice. At 12 mA the flow is 71%, but a second root would read 84%.\n- Feeding a machine a value it refuses. \"Take 4, then square root\" has no value at 2."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Square root scaling for differential pressure flowmeters - Control Engineering",
+      "url": "https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters",
+      "quote": "But the root of a number from 0-1 is larger: √0.5 = 0.707. So if there is a 12 mA signal from the DP cell, that’s 50% DP, but 71% flow rate."
+    },
+    {
+      "n": 2,
+      "title": "3.4 Composition of Functions - College Algebra 2e | OpenStax",
+      "url": "https://openstax.org/books/college-algebra-2e/pages/3-4-composition-of-functions",
+      "quote": "The process of combining functions so that the output of one function becomes the input of another is known as a composition of functions"
+    },
+    {
+      "n": 3,
+      "title": "national unit specification: general information",
+      "url": "https://www.sqa.org.uk/sqa/files/hn/H7K033.pdf",
+      "quote": "Determine the inverse functions of a range of functions  Graph functions and their inverse functions  Introduce composite functions (again this may be done in terms of set theory)  Derive and evaluate a number of composite functions"
+    },
+    {
+      "n": 4,
+      "title": "Relating 4 to 20 mA Signals to Instrument Variables | Understanding Analog Instrumentation | Textbook",
+      "url": "https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables",
+      "quote": "Each real-world value must be converted into its analog current equivalent, then into a scaled integer value, and finally back into a real-world representation, all with the linear equation: y=mx+b."
+    },
+    {
+      "n": 5,
+      "title": "Square root scaling for differential pressure flowmeters - Control Engineering",
+      "url": "https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters",
+      "quote": "Regardless of the type of obstruction (orifice plate, Venturi or Pitot tube, etc), the DP is proportional to the square of the flow. Therefore the system must scale flow from the square root of the DP."
+    },
+    {
+      "n": 6,
+      "title": "Ch. 3 Key Concepts - College Algebra | OpenStax",
+      "url": "https://openstax.org/books/college-algebra/pages/3-key-concepts",
+      "quote": "The domain of a function includes all real input values that would not cause us to attempt an undefined mathematical operation, such as dividing by zero or taking the square root of a negative number."
+    },
+    {
+      "n": 7,
+      "title": "Higher – Functions – GCSE Maths Revision – BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zvd3wsg",
+      "quote": "𝑓𝑔(𝑥) is calculated by finding 𝑔(𝑥) first, and then substituting this into the function 𝑓."
+    },
+    {
+      "n": 8,
+      "title": "Square root scaling for differential pressure flowmeters - Control Engineering",
+      "url": "https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters",
+      "quote": "The square root for DP-based flow can be taken either in the transmitter or in the controller (but not both)."
+    }
+  ]
+}

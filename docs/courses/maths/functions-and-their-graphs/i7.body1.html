@@ -1,0 +1,875 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; touch-action: pan-y; }
+  /* Pipes join the boxes; each box is a machine with its name and rule inside. */
+  .scene .pipe { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .box { fill: var(--k-panel); stroke: var(--k-accent2); }
+  .scene .box.bad { stroke: var(--k-warn); }
+  .scene .bname { font: italic 600 15px var(--k-font); fill: var(--k-accent); }
+  .scene .brule { font: 700 18px var(--k-font); fill: var(--k-ink); }
+  .scene .brule.two { font-size: 16px; }
+  .scene .bname.bad, .scene .brule.bad { fill: var(--k-warn); }
+  /* A number on its way through, or resting at the input, on a join or at the output. */
+  .scene .pill { fill: var(--k-accent2); stroke: none; }
+  .scene .pill.bad { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 2; }
+  .scene .ptext { font: 700 15px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .ptext.sm { font-size: 14px; }
+  .scene .ptext.bad { fill: var(--k-warn); }
+  .scene .hole { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .qtext { font: 700 15px var(--k-font); fill: var(--k-muted); }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .tag { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .tag.bad { fill: var(--k-warn); }
+  .scene .top { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  .scene .top.bad { fill: var(--k-warn); }
+  .scene .cap { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .cap.bad { fill: var(--k-warn); }
+  .scene .wk { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .wk.bad { fill: var(--k-warn); }
+  .scene .wk.dim { fill: var(--k-muted); }
+  .scene .v { font-style: italic; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Machines in a row, each a box with its rule written inside, joined by short pipes. Every input tried is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 260" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Each box works on whatever the box before it hands over, so the order decides what drops out.</p>
+
+<script>
+  // ---------- the machines: each box's name, its rule as written inside it, and what it does ----------
+  // A square root has no value for a negative input, so it answers NaN, drawn as "no value".
+  const root = (v) => (v < 0 ? NaN : Math.sqrt(v));
+  const M = {
+    g4: { name: 'g', rule: ['+ 4'], fn: (v) => v + 4, w: (a) => a + ' + 4', say: 'add 4' },
+    f2: { name: 'f', rule: ['× 2'], fn: (v) => 2 * v, w: (a) => a + ' × 2', say: 'double' },
+    m3: { name: '', rule: ['× 3'], fn: (v) => 3 * v, w: (a) => a + ' × 3', say: 'times 3' },
+    s1: { name: '', rule: ['− 1'], fn: (v) => v - 1, w: (a) => a + ' − 1', say: 'take away 1' },
+    d: { name: 'd', rule: ['− 4', '÷ 16'], fn: (v) => (v - 4) / 16, w: (a) => '(' + a + ' − 4) ÷ 16', say: 'take away 4, then divide by 16' },
+    Q: { name: 'Q', rule: ['√'], fn: root, w: (a) => '√' + a, say: 'square root' },
+    // the fault: the same square root a second time
+    Q2: { name: 'Q', rule: ['√'], fn: root, w: (a) => '√' + a, bad: true, extra: 'extra', say: 'a second square root, by mistake' },
+    // the slip: squaring instead of taking the root
+    sq: { name: 'Q', rule: ['squared'], fn: (v) => v * v, w: (a) => a + '²', bad: true, say: 'squared, by mistake' },
+    t4: { name: '', rule: ['− 4'], fn: (v) => v - 4, w: (a) => a + ' − 4', say: 'take away 4' },
+    rt: { name: '', rule: ['√'], fn: root, w: (a) => '√' + a, say: 'square root' },
+    g3: { name: 'g', rule: ['− 3'], fn: (v) => v - 3, w: (a) => a + ' − 3', say: 'take away 3' },
+    fs: { name: 'f', rule: ['squared'], fn: (v) => v * v, w: (a) => a + '²', say: 'square' },
+  };
+  // The line above the boxes, for each order: in words before the notation is taught, then in it.
+  const WORDS = { 'g4,f2': 'g first, then f', 'f2,g4': 'f first, then g', 'm3,s1': '× 3 first, then − 1', 's1,m3': '− 1 first, then × 3',
+    't4,rt': 'take 4, then √', 'rt,t4': '√ first, then take 4' };
+  const MATHS = { 'g4,f2': 'f(g(x))', 'f2,g4': 'g(f(x))', 'g3,fs': 'f(g(x))', 'fs,g3': 'g(f(x))', 'd,Q': 'Q(d(I))', 'd,sq': 'Q(d(I))', 'd,Q,Q2': 'Q(Q(d(I)))' };
+
+  // Numbers as the explanation writes them: three significant figures (0.707, 0.841, 0.0625).
+  function F(v) {
+    if (typeof v !== 'number' || !Number.isFinite(v)) return 'no value';
+    const r = Number(v.toPrecision(3));
+    return (r < 0 ? '−' : '') + String(Math.abs(r));
+  }
+  const pct = (v) => Math.round(100 * v) + '%';
+  const arg = (v) => (v < 0 ? '(' + F(v) + ')' : F(v));
+  const num = (s) => Number(String(s).replace('−', '-').replace('%', ''));
+  // Every value along a chain: the input, then what each box makes of the one before.
+  function chain(keys, x) {
+    const v = [x];
+    keys.forEach((k, j) => v.push(Number.isFinite(v[j]) ? M[k].fn(v[j]) : NaN));
+    return v;
+  }
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // ms: the boxes in order; x: the input; demoFrom: the order a demonstration starts in before it
+  // swaps; swap: a switch to swap the order; work: lines of working ({k}: what box k did; or a line
+  // of its own, `ord` the order it belongs to, `at` 'end' or 'end+' after the run).
+  // A puzzle: opts, the answers; slips: what each wrong one did (to: the order or box it used,
+  // bad: drawn as a slip, stop: the box it stopped after, x: the input it tried, keep: no motion).
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, name: 'Two machines', ms: ['g4', 'f2'], x: 3, words: true, tag: 'in', work: [{ k: 0 }, { k: 1 }],
+      text: 'Machine `g` adds 4 and machine `f` doubles. Put 3 into `g` and 7 comes out onto the *join*, so `f` is handed 7 and 14 drops out. Drag the 3 down through them to run it yourself.' },
+    { kind: 'pick', name: 'Your turn', ms: ['g4', 'f2'], x: 5, words: true, tag: 'in',
+      task: 'The same two machines, and 5 goes in. What drops out?',
+      opts: ['18', '14', '9'], want: '18',
+      slips: { '14': { to: ['f2', 'g4'], bad: true }, '9': { stop: 1 } },
+      why: '`g` adds 4 to 5, so 9 sits on the join. `f` doubles that 9, so 18 drops out.',
+      hint: 'Not quite. Run 5 through `g` first, then `f`.',
+      hints: { '14': 'Not quite. That doubles first. `g` is the first machine, so the 4 is added first.', '9': 'Not quite. 9 is on the join. `f` still has to double it.' } },
+    { show: true, name: 'Swap them', ms: ['f2', 'g4'], demoFrom: ['g4', 'f2'], x: 3, words: true, tag: 'in', swap: true,
+      work: [{ ord: 'g4,f2', s: (x) => 'g first: (' + F(x) + ' + 4) × 2 = ' + F(M.f2.fn(x)) + ' + ' + F(M.f2.fn(4)) + ' = ' + F(M.f2.fn(M.g4.fn(x))) },
+        { ord: 'f2,g4', at: 'end', s: (x) => 'f first: ' + F(x) + ' × 2 + 4 = ' + F(M.f2.fn(x)) + ' + 4 = ' + F(M.g4.fn(M.f2.fn(x))) }],
+      text: 'Swap them and `f` doubles first, so 3 becomes 6 on the join and 10 drops out. Added first, the 4 was doubled to 8. Added last, it stays 4.' },
+    { kind: 'pick', name: 'Lesson 1\'s machine', ms: ['m3', 's1'], swapTo: ['s1', 'm3'], prior: true, x: 5, words: true, tag: 'in',
+      task: 'Lesson 1\'s machine, × 3 then − 1, turns 5 into 14. Swap the two boxes round. What drops out now?',
+      opts: ['14', '12', '4'], want: '12',
+      slips: { '14': { keep: true, ring: 'out' }, '4': { stop: 1 } },
+      why: 'Swapped, `5 − 1 = 4` goes onto the join, and × 3 turns it into 12. In the first order `5 × 3 = 15` sat on the join and 14 came out.',
+      hint: 'Not quite. Swapped, the − 1 works first.',
+      hints: { '14': 'Not quite. 14 is what the first order gives. Swapped, the − 1 works first.', '4': 'Not quite. 4 is on the join. × 3 still works on it.' } },
+    { show: true, name: 'f of g of x', ms: ['g4', 'f2'], x: 3, tag: 'x', swap: true,
+      work: [{ ord: 'g4,f2', at: 'end', s: (x) => 'f(g(' + F(x) + ')) = f(' + F(M.g4.fn(x)) + ') = ' + F(M.f2.fn(M.g4.fn(x))) },
+        { ord: 'f2,g4', at: 'end+', s: (x) => 'g(f(' + F(x) + ')) = g(' + F(M.f2.fn(x)) + ') = ' + F(M.g4.fn(M.f2.fn(x))) }],
+      text: 'Textbooks write this chain as `f(g(x))`, said ‘f of g of x’, and call it a *composite function*. As with any bracket, the inside is worked first, so `g` goes first. Swapped, it is `g(f(x))`.' },
+    { kind: 'pick', name: 'Inside first', ms: ['g4', 'f2'], x: 2, tag: 'x',
+      task: 'Work out `f(g(2))`.',
+      opts: ['8', '12', '6'], want: '12',
+      slips: { '8': { to: ['f2', 'g4'], bad: true }, '6': { stop: 1 } },
+      why: 'The inside bracket is `g(2) = 2 + 4 = 6`, which sits on the join. Then `f(6) = 12` drops out. Doubling first would be `g(f(2)) = 8`.',
+      hint: 'Not quite. Work the inside bracket first.',
+      hints: { '8': 'Not quite. That works `f` first, which is `g(f(2))`. The inside bracket goes first.', '6': 'Not quite. 6 is `g(2)`, on the join. `f` still doubles it.' } },
+    { show: true, name: 'The flow meter', ms: ['d', 'Q'], x: 12, unit: 'mA', tag: 'I', cap: true, work: [{ k: 0 }, { k: 1 }],
+      text: 'The flow meter is a chain too. `d` takes off the 4 mA at the bottom of the loop and divides by the 16 mA span, so 12 mA puts 0.5 on the join. Flow goes as the square root of that, so `Q` gives 0.707, which is 71% of full flow.' },
+    { kind: 'pick', name: '8 mA', ms: ['d', 'Q'], x: 8, unit: 'mA', tag: 'I', cap: true, ask: 'pct',
+      task: 'The loop reads 8 mA. What flow drops out, as a percentage of full flow?',
+      opts: ['25%', '50%', '6%'], want: '50%',
+      slips: { '25%': { stop: 1 }, '6%': { to: ['d', 'sq'] } },
+      why: '`d(8) = (8 − 4) ÷ 16 = 0.25` goes onto the join. Then `Q(0.25) = √0.25 = 0.5`, so the flow is 50% of full.',
+      hint: 'Not quite. Run 8 mA through `d`, then take the root.',
+      hints: { '25%': 'Not quite. 0.25 is on the join, the pressure difference. `Q` still takes its square root.', '6%': 'Not quite. That squares 0.25. `Q` takes the square root.' } },
+    { show: true, name: 'A root too many', ms: ['d', 'Q', 'Q2'], x: 12, unit: 'mA', tag: 'I', cap: true, work: [{ k: 0 }, { k: 1 }, { k: 2 }],
+      text: 'Suppose a fault put a second square root in the chain. Then 0.707 goes in again and 0.841 comes out. The controller would show 84% for a 71% flow.' },
+    { kind: 'pick', name: 'Two roots at 8 mA', ms: ['d', 'Q', 'Q2'], x: 8, unit: 'mA', tag: 'I', cap: true, ask: 'pct',
+      task: 'With the extra root still in, the loop reads 8 mA. What does the controller show?',
+      opts: ['50%', '25%', '71%'], want: '71%',
+      slips: { '50%': { stop: 2 }, '25%': { stop: 1 } },
+      why: '`d(8) = 0.25`, and `Q(0.25) = 0.5`, the true flow of 50%. The extra root turns that 0.5 into `√0.5 = 0.707`, so the controller shows 71%.',
+      hint: 'Not quite. Run 8 mA through all three boxes.',
+      hints: { '50%': 'Not quite. 50% is the true flow, on the second join. The extra root works on it again.', '25%': 'Not quite. 0.25 is the pressure difference, on the first join. Two roots still follow.' } },
+    { show: true, name: 'No value', ms: ['t4', 'rt'], x: 2, words: true, tag: 'in',
+      work: [{ k: 0 }, { k: 1 }, { at: 'end+', s: () => F(4) + ' − 4 = ' + F(M.t4.fn(4)) + ', and √' + F(M.t4.fn(4)) + ' = ' + F(root(M.t4.fn(4))) }],
+      text: 'Each machine must take what it is handed. Take 4, then square root, puts −2 on the join for an input of 2, and a negative number has no square root. So this chain takes only inputs of 4 and up.' },
+    { kind: 'pick', name: 'Root first', ms: ['rt', 't4'], x: null, words: true, tag: 'in', ask: 'input',
+      task: 'Swap them so the square root comes first. Which input now gets no value?',
+      opts: ['2', '−4', '1'], want: '−4',
+      slips: { '2': { x: 2 }, '1': { x: 1 } },
+      why: 'With the root first, every negative input is refused, such as −4. An input of 2 passes the root as 1.41 and comes out as −2.59, and 1 comes out as −3.',
+      hint: 'Not quite. Which input can the square root not take?',
+      hints: { '2': 'Not quite. Root first, √2 = 1.41 goes onto the join, and −2.59 comes out.', '1': 'Not quite. √1 = 1, and 1 − 4 = −3 is a proper number. Only the root refuses, and only negatives.' } },
+    { kind: 'pick', name: 'Square, slid', ms: ['g3', 'fs'], x: 5, tag: 'x',
+      task: 'Here `g` takes 3 and `f` squares. Work out `f(g(5))`.',
+      opts: ['22', '2', '4'], want: '4',
+      slips: { '22': { to: ['fs', 'g3'], bad: true }, '2': { stop: 1 } },
+      why: '`g(5) = 5 − 3 = 2` sits on the join, and `f(2) = 2² = 4` drops out. That is lesson 5\'s point (5, 4) on the square slid 3 right.',
+      hint: 'Not quite. Work the inside bracket, `g(5)`, first.',
+      hints: { '22': 'Not quite. That squares first, which is `g(f(5))`. The inside bracket goes first.', '2': 'Not quite. 2 is `g(5)`, on the join. `f` still squares it.' } },
+  ];
+  const FINISH = 'In a chain `f(g(x))`, the output of `g` becomes the input of `f`, so the order you join them in decides what comes out. Swapping it usually changes the answer, and each machine must take what it is handed.';
+  // Sources the checks restate (the lesson's own).
+  const CE = 'https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters';
+  const OPENSTAX = 'https://openstax.org/books/college-algebra-2e/pages/3-4-composition-of-functions';
+  const CONTROL = 'https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables';
+  const DOMAIN = 'https://openstax.org/books/college-algebra/pages/3-key-concepts';
+
+  // ---------- the picture's frame ----------
+  // The rule line, the input on its pipe, the boxes, the output under the last box, its caption,
+  // then the lines of working. ARC: how far boxes rise and dip to pass each other in a swap.
+  const TOPY = 22, INY = 52, BY = 80, BH = 68, PY = BY + BH / 2, OUTY = 180, PH = 28, CAPY = 212, ARC = 26, HOLE = 40;
+  // The run: each move takes SEG s, a box works for DW s, a number rests on a join for JP s.
+  // Demonstrations play a little slower, answers a little faster. Swaps take SWD or SWA s.
+  const SEG = 0.34, DW = 0.14, JP = 0.22, SWD = 1.0, SWA = 0.7, DEMO = 1.25, DEMO3 = 1.15, ANS = 0.9, ANS3 = 0.8;
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const same = (a, b) => a.join() === b.join();
+  const flip = (a) => a.slice().reverse();
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // u: where Dan has dragged the number along the pipes (null: the demonstration's own);
+  // sw, mode: how many times he has swapped the boxes, and whether the last motion was a swap.
+  function blank() { return { pick: null, res: null, why: false, u: null, sw: 0, mode: 'demo' }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;                                                        // what the last paint drew, for the checks
+  let curPath = null, curM = 0, curU = 0;                                // the run on screen, for the drag
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[fgxdQI](?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line with its letters italic; *a key term* is highlighted.
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s).replace(/√/g, ' the square root of ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ')
+    .replace(/²/g, ' squared').replace(/−/g, ' minus ').replace(/\+/g, ' plus ').replace(/=/g, ' equals ').replace(/%/g, ' percent')
+    .replace(/\bmA\b/g, 'milliamps').replace(/\s+/g, ' ').trim();
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong
+  // answer settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one runs the chain to it, a wrong one plays its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(endOf(i, st));
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.show || finished) return;
+    st.u = null; st.sw = 0; st.mode = 'demo';
+    play(endOf(i, st));
+  } });
+  // The switch: the boxes swap places and the input runs through the new order.
+  const swapBtn = K.button({ label: 'Swap the order', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.show || !d.swap || finished) return;
+    st.sw++; st.mode = 'swap'; st.u = null;
+    K.reveal();
+    play(endOf(i, st));
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- timing: what has arrived by T, noting the timetable for the timing check ----------
+  let latest = 0, earliest = Infinity;
+  function note(t0, t1) { if (t1 > latest) latest = t1; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { note(t0, t0 + d); return K.arrive(T, t0, d); }
+  function prog(t0, d) { note(t0, t0 + d); return K.ease(K.clamp((T - t0) / d, 0, 1)); }
+  // How long a picture takes to settle: paint it finished and read the timetable.
+  function endOf(i, st) {
+    const keepT = T;
+    T = Infinity; latest = 0; earliest = Infinity;
+    try { paint(i, st); } finally { T = keepT; }
+    return latest;
+  }
+  // The run through m boxes: into each box, out to the join (or the output), with a pause between.
+  // u counts the stops on the way: 0 the input, 1 inside the first box, 2 the first join, and so on.
+  function plan(m, scale) {
+    const segs = [];
+    let t = 0;
+    for (let k = 0; k < m; k++) {
+      segs.push([t, t + SEG * scale, 2 * k, 2 * k + 1]); t += (SEG + DW) * scale;
+      segs.push([t, t + SEG * scale, 2 * k + 1, 2 * k + 2]); t += SEG * scale;
+      if (k < m - 1) t += JP * scale;
+    }
+    return { segs, end: t };
+  }
+  function uAt(pl, t) {
+    if (!(t > 0) || !pl.segs.length) return 0;
+    for (const s of pl.segs) {
+      if (t < s[0]) return s[2];
+      if (t <= s[1]) return s[2] + (s[3] - s[2]) * K.ease((t - s[0]) / (s[1] - s[0]));
+    }
+    return pl.segs[pl.segs.length - 1][3];
+  }
+
+  // ---------- what each picture is ----------
+  // from/to: the order of the boxes before and after a swap; prior: the from order's run is shown
+  // finished at first; swapAt, runAt: when the swap and the run start; stop: the boxes the run
+  // passes; ring: a stop marked as a slip.
+  function timed(v) {
+    if (!same(v.from, v.to)) { v.swapAt = 0.1; v.runAt = 0.15 + v.sw; } else v.runAt = 0.1;
+    return v;
+  }
+  function viewOf(i, st) {
+    const d = STEPS[i], n = d.ms.length;
+    if (d.show) {
+      if (st.mode === 'swap' && d.swap) {
+        const to = st.sw % 2 ? flip(d.ms) : d.ms;
+        return { from: flip(to), to, x: d.x, prior: true, swapAt: 0.1, runAt: 0.15 + SWD, scale: DEMO, sw: SWD, all: true };
+      }
+      const from = d.demoFrom || d.ms, moving = !same(from, d.ms);
+      return { from, to: d.ms, x: d.x, prior: moving, swapAt: moving ? 0.5 : null, runAt: moving ? 0.55 + SWD : 0.5, scale: n === 3 ? DEMO3 : DEMO, sw: SWD };
+    }
+    const base = { from: d.ms, to: d.ms, x: d.x, prior: !!d.prior, swapAt: null, runAt: null, scale: n === 3 ? ANS3 : ANS, sw: SWA };
+    if (st.res === 'right') return timed(Object.assign({}, base, { to: d.swapTo || d.ms, x: d.ask === 'input' ? num(d.want) : d.x }));
+    if (st.res === 'wrong' && st.pick != null && d.slips[st.pick]) {
+      const s = d.slips[st.pick];
+      const v = Object.assign({}, base, { to: s.to || (s.keep ? d.ms : d.swapTo || d.ms), x: s.x != null ? s.x : d.x, bad: !!s.bad, stop: s.stop || null });
+      if (s.keep) return Object.assign(v, { ring: s.ring, ringAt: 0.1 });
+      timed(v);
+      if (s.stop) v.ring = 'j' + (s.stop - 1);
+      if (d.ask === 'input') v.ring = 'out';
+      return v;
+    }
+    return base;
+  }
+  const topText = (d, keys) => { const k = keys.join(); return (d.words ? WORDS[k] : MATHS[k]) || WORDS[k] || MATHS[k] || ''; };
+  const inText = (d, x) => F(x) + (d.unit ? ' ' + d.unit : '');
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 15 * 0.6;
+  }
+  function text(parent, x, y, s, cls, anchor, alpha) {
+    if (alpha != null && alpha <= 0.001) return null;
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    if (alpha != null && alpha < 1) t.setAttribute('opacity', r3(alpha));
+    italics(t, s, true);
+    return parent.appendChild(t);
+  }
+  const group = (alpha) => art.appendChild(K.svg('g', alpha < 1 ? { opacity: r3(alpha) } : {}));
+  const pillW = (s, sm) => Math.max(HOLE, Math.ceil(tw(s, 'ptext' + sm)) + (sm ? 14 : 18));
+  // A number in its pill; returns its width.
+  function pill(cx, cy, s, cls, sm, alpha) {
+    const w = pillW(s, sm);
+    if (alpha <= 0.001) return w;
+    const g = group(alpha);
+    g.appendChild(K.svg('rect', { class: 'pill' + cls, x: r3(cx - w / 2), y: r3(cy - PH / 2), width: w, height: PH, rx: PH / 2 }));
+    text(g, cx, cy + 5, s, 'ptext' + cls + sm, 'middle');
+    return w;
+  }
+  // An empty place a number has not reached yet (a question mark while a puzzle waits).
+  function hole(cx, cy, s, alpha) {
+    if (alpha <= 0.001) return;
+    const g = group(alpha);
+    g.appendChild(K.svg('rect', { class: 'hole', x: r3(cx - HOLE / 2), y: r3(cy - PH / 2), width: HOLE, height: PH, rx: PH / 2 }));
+    if (s) text(g, cx, cy + 5, s, 'qtext', 'middle');
+  }
+  // A machine: its box, its name and its rule; it outlines more boldly while it works.
+  function box(key, x, y, alpha, busy, isBad, G) {
+    if (alpha <= 0.001) return;
+    const mc = M[key], b = isBad ? ' bad' : '', g = group(alpha), mid = x + G.W / 2, two = mc.rule.length > 1;
+    g.appendChild(K.svg('rect', { class: 'box' + b, x: r3(x), y: r3(y), width: G.W, height: BH, rx: 10, style: 'stroke-width:' + r3(2 + 1.6 * busy) + 'px' }));
+    if (mc.name) {
+      text(g, mid, y + 21, mc.name, 'bname' + b, 'middle');
+      mc.rule.forEach((s, k) => text(g, mid, y + (two ? 42 + 18 * k : 50), s, 'brule' + (two ? ' two' : '') + b, 'middle'));
+    } else mc.rule.forEach((s, k) => text(g, mid, y + (two ? 30 + 20 * k : BH / 2 + 7), s, 'brule' + (two ? ' two' : '') + b, 'middle'));
+    if (mc.extra) text(g, mid, y - 8, mc.extra, 'tag bad', 'middle');
+  }
+  const pipe = (x, y, w, h) => art.appendChild(K.svg('rect', { class: 'pipe', x: r3(x), y: r3(y), width: r3(w), height: r3(h), rx: 3 }));
+
+  // ---------- each step's sizes: boxes as wide as their widest rule, all the same ----------
+  const GEO = new Map();
+  function keysOf(d) {
+    const out = [];
+    [d.ms, d.demoFrom || [], d.swapTo || []].concat(Object.keys(d.slips || {}).map((o) => d.slips[o].to || []))
+      .forEach((a) => a.forEach((k) => { if (out.indexOf(k) < 0) out.push(k); }));
+    return out;
+  }
+  function geo(d) {
+    if (GEO.has(d)) return GEO.get(d);
+    const n = d.ms.length;
+    let w = 0;
+    keysOf(d).forEach((k) => {
+      M[k].rule.forEach((r) => { w = Math.max(w, tw(r, 'brule' + (M[k].rule.length > 1 ? ' two' : ''))); });
+      if (M[k].name) w = Math.max(w, tw(M[k].name, 'bname'));
+    });
+    const W = Math.max(n === 2 ? 96 : 64, Math.ceil(w + 24)), Gap = n === 2 ? 72 : 56;
+    const x0 = (340 - n * W - (n - 1) * Gap) / 2, slots = [];
+    for (let k = 0; k < n; k++) slots.push(x0 + k * (W + Gap));
+    const lines = d.show ? (d.work || []).length : 0;
+    const w0 = d.cap ? CAPY + 30 : OUTY + PH / 2 + 28;
+    const H = lines ? w0 + 26 * (lines - 1) + 10 : d.cap ? CAPY + 10 : OUTY + PH / 2 + 8;
+    const G = { n, W, Gap, slots, w0, H, out: n === 3 ? 34 : 44 };
+    GEO.set(d, G);
+    return G;
+  }
+  // The pipe the number follows: down into the first box, along each join, out of the last box.
+  function pathOf(G) {
+    const n = G.n, cx = (k) => G.slots[k] + G.W / 2, jx = (k) => G.slots[k] + G.W + G.Gap / 2;
+    const P = [[cx(0), INY]];
+    for (let k = 0; k < n; k++) { P.push([cx(k), PY]); P.push(k < n - 1 ? [jx(k), PY] : [cx(n - 1), OUTY]); }
+    return P;
+  }
+  function posAt(P, u) {
+    const k = Math.max(0, Math.min(P.length - 2, Math.floor(u))), f = K.clamp(u - k, 0, 1);
+    return [K.lerp(P[k][0], P[k + 1][0], f), K.lerp(P[k][1], P[k + 1][1], f)];
+  }
+
+  // The whole picture for a step now; returns it in words.
+  function drawScene(i, st, G) {
+    const d = STEPS[i], V = viewOf(i, st), n = G.n, PT = pathOf(G), sm = n === 3 ? ' sm' : '';
+    const cx = (k) => G.slots[k] + G.W / 2;
+    REC = { stamps: {}, prior: {}, cap: null, rings: [], work: [], top: '', order: V.to.join() };
+    const vals = V.x == null ? null : chain(V.to, V.x);
+    // how far the run goes: to its stop, or to the box that answers "no value"
+    let m = 0;
+    if (vals && V.runAt != null) {
+      m = V.stop || n;
+      for (let k = 0; k < m; k++) if (!Number.isFinite(vals[k + 1])) { m = k + 1; break; }
+    }
+    const pl = plan(m, V.scale);
+    if (m) note(V.runAt, V.runAt + pl.end);
+    const scrub = !!d.show && st.u != null && m > 0;
+    const u = !m ? 0 : scrub ? K.clamp(st.u, 0, 2 * m) : uAt(pl, T - V.runAt);
+    const leave = (k) => V.runAt + pl.segs[2 * k + 1][1];   // when the number comes out of box k
+    const sig = V.swapAt == null ? 1 : prog(V.swapAt, V.sw);
+    const pa = !V.prior ? 0 : V.swapAt != null ? 1 - arr(V.swapAt - 0.05, 0.3) : V.runAt != null ? 1 - arr(V.runAt - 0.05, 0.3) : 1;
+    const pv = V.prior && V.x != null ? chain(V.from, V.x) : null;
+    const bad = (key) => !!(M[key].bad || V.bad);
+    const badTo = (k) => { for (let j = 0; j < k; j++) if (bad(V.to[j])) return true; return false; };
+    const ord = (sig >= 0.5 ? V.to : V.from).join();
+    curPath = PT; curM = m; curU = u;
+
+    // the rule line, rewriting as the boxes swap
+    const tf = topText(d, V.from), tt = topText(d, V.to);
+    if (tf === tt) text(art, 170, TOPY, tt, 'top' + (V.bad ? ' bad' : ''), 'middle');
+    else {
+      const a = K.clamp((sig - 0.25) / 0.5, 0, 1);
+      text(art, 170, TOPY, tf, 'top', 'middle', 1 - a);
+      text(art, 170, TOPY, tt, 'top' + (V.bad ? ' bad' : ''), 'middle', a);
+    }
+    REC.top = sig >= 0.5 ? tt : tf;
+
+    // the pipes: in, between the boxes, out
+    pipe(cx(0) - 6, INY + PH / 2 - 4, 12, BY - (INY + PH / 2) + 6);
+    for (let k = 0; k < n - 1; k++) pipe(G.slots[k] + G.W - 2, PY - 6, G.Gap + 4, 12);
+    pipe(cx(n - 1) - 6, BY + BH - 2, 12, OUTY - PH / 2 - (BY + BH) + 6);
+
+    // the number on its way (under the boxes, so it goes inside them)
+    const atRest = Math.abs(u / 2 - Math.round(u / 2)) < 1e-6;
+    if (m && !atRest) {
+      const p = posAt(PT, u), j = Math.min(m, Math.floor((u + 1) / 2) ), v = vals[j];
+      const b = j > 0 && (badTo(j) || !Number.isFinite(v));
+      pill(p[0], p[1], j === 0 ? inText(d, V.x) : F(v), b ? ' bad' : '', sm, 1);
+    }
+
+    // the boxes: in place, passing each other in a swap, or one turning into another
+    V.to.forEach((key, j) => {
+      const i0 = V.from.indexOf(key), busy = m > j ? Math.max(0, 1 - Math.abs(u - (2 * j + 1)) / 0.5) : 0;
+      if (i0 < 0) { box(key, G.slots[j], BY, sig, busy, bad(key), G); return; }
+      const dir = j > i0 ? -1 : j < i0 ? 1 : 0;
+      box(key, K.lerp(G.slots[i0], G.slots[j], sig), BY + dir * ARC * Math.sin(Math.PI * sig), 1, busy, bad(key), G);
+    });
+    V.from.forEach((key, j) => { if (V.to.indexOf(key) < 0) box(key, G.slots[j], BY, 1 - sig, 0, !!M[key].bad, G); });
+
+    // the input, the joins and the output
+    const holeTxt = !d.show && st.res == null ? '?' : '';
+    const wAt = {};
+    if (V.x == null) { hole(cx(0), INY, holeTxt, 1); wAt.in = HOLE; }
+    else { wAt.in = pill(cx(0), INY, inText(d, V.x), '', sm, 1); REC.stamps.in = { text: F(V.x), v: V.x }; }
+    text(art, cx(0) + wAt.in / 2 + 6, INY + 5, d.tag, 'tag', 'start');
+    for (let k = 0; k < n; k++) {
+      const q = 2 * k + 2, name = k < n - 1 ? 'j' + k : 'out', p = PT[q];
+      const cur = m > k && u >= q - 1e-6;
+      let holeA = 1 - Math.max(cur ? 1 : 0, pv ? pa : 0);
+      if (m > k && !cur) holeA *= 1 - K.clamp((u - (q - 0.7)) / 0.7, 0, 1);
+      hole(p[0], p[1], holeTxt, holeA);
+      if (pv && pa > 0.001) {
+        const s = F(pv[k + 1]);
+        wAt[name] = pill(p[0], p[1], s, Number.isFinite(pv[k + 1]) ? '' : ' bad', sm, pa);
+        if (pa >= 0.5) REC.prior[name] = { text: s, v: pv[k + 1] };
+      }
+      if (cur) {
+        const v = vals[k + 1], b = badTo(k + 1) || !Number.isFinite(v), s = F(v);
+        wAt[name] = pill(p[0], p[1], s, b ? ' bad' : '', sm, 1);
+        REC.stamps[name] = { text: s, v, bad: b };
+      }
+      if (k < n - 1) text(art, p[0], PY - 22, 'join', 'tag', 'middle');
+    }
+    text(art, cx(n - 1) - G.out - 6, OUTY + 5, 'out', 'tag', 'end');
+
+    // a slip's stop, ringed
+    if (V.ring && wAt[V.ring]) {
+      const a = V.ringAt != null ? arr(V.ringAt, 0.35) : m ? arr(leave(m - 1), 0.35) : 1;
+      const q = V.ring === 'in' ? 0 : V.ring === 'out' ? 2 * n : 2 * Number(V.ring.slice(1)) + 2, p = PT[q], w = wAt[V.ring] + 8;
+      if (a > 0.001) {
+        const g = group(a);
+        g.appendChild(K.svg('rect', { class: 'ring', x: r3(p[0] - w / 2), y: r3(p[1] - PH / 2 - 4), width: w, height: PH + 8, rx: PH / 2 + 4 }));
+        if (a >= 0.5) REC.rings.push(V.ring);
+      }
+    }
+    // the flow, as a share of full flow
+    if (d.cap && m === n && u >= 2 * n - 1e-6 && Number.isFinite(vals[n])) {
+      const anyBad = badTo(n), s = anyBad ? 'reads ' + pct(vals[n]) : pct(vals[n]) + ' of full flow';
+      const a = scrub ? 1 : arr(leave(n - 1), 0.35), w = tw(s, 'cap');
+      text(art, K.clamp(cx(n - 1), 8 + w / 2, 332 - w / 2), CAPY, s, 'cap' + (anyBad ? ' bad' : ''), 'middle', a);
+      if (a >= 0.5) REC.cap = s;
+    }
+    // the working, each line as its number arrives
+    if (d.show && d.work) d.work.forEach((wk, j) => {
+      let s, b = false, a;
+      if (wk.k != null) {
+        if (!(m > wk.k)) return;
+        const v0 = vals[wk.k], v1 = vals[wk.k + 1];
+        s = M[V.to[wk.k]].w(arg(v0)) + (Number.isFinite(v1) ? ' = ' + F(v1) : ' has no value');
+        b = badTo(wk.k + 1) || !Number.isFinite(v1);
+        a = scrub ? (u >= 2 * wk.k + 2 - 1e-6 ? 1 : 0) : arr(leave(wk.k), 0.4);
+      } else {
+        s = wk.s(V.x);
+        a = wk.at == null || V.all ? 1 : scrub ? (u >= 2 * m - 1e-6 ? 1 : 0) : arr(V.runAt + pl.end + (wk.at === 'end+' ? 0.45 : 0), 0.4);
+      }
+      const dim = !b && wk.ord && wk.ord !== ord;
+      text(art, 12, G.w0 + 26 * j, s, 'wk' + (b ? ' bad' : dim ? ' dim' : ''), 'start', a);
+      if (a >= 0.5) REC.work.push({ s, bad: b, dim: !!dim });
+    });
+    placeGrips(d);
+
+    // in words
+    const said = ['Machines in a row: ' + V.to.map((k) => M[k].say).join(', then ') + '.'];
+    said.push(V.x == null ? 'The input is still to be chosen.' : say(inText(d, V.x)) + ' goes in.');
+    Object.keys(REC.stamps).forEach((k) => { if (k[0] === 'j') said.push('On join ' + (Number(k.slice(1)) + 1) + ', ' + say(REC.stamps[k].text) + '.'); });
+    if (REC.stamps.out) said.push('Out comes ' + say(REC.stamps.out.text) + (REC.cap ? ', ' + say(REC.cap) : '') + '.');
+    else if (REC.prior.out) said.push('The first order gave ' + say(REC.prior.out.text) + '.');
+    return said.join(' ');
+  }
+
+  // ---------- the drag: Dan pulls the number along the pipes himself ----------
+  const gripIn = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 26, 'aria-hidden': 'true' }));
+  const gripTok = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 26, tabindex: -1, role: 'slider', 'aria-label': 'The number in the chain', 'aria-orientation': 'horizontal' }));
+  function placeGrips(d) {
+    const on = !!d.show && !finished && curM > 0 && !!curPath;
+    [gripIn, gripTok].forEach((g) => { g.style.display = on ? '' : 'none'; });
+    gripTok.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    const p = posAt(curPath, curU);
+    gripIn.setAttribute('cx', r3(curPath[0][0])); gripIn.setAttribute('cy', r3(curPath[0][1]));
+    gripTok.setAttribute('cx', r3(p[0])); gripTok.setAttribute('cy', r3(p[1]));
+    gripTok.setAttribute('aria-valuemin', 0); gripTok.setAttribute('aria-valuemax', 2 * curM); gripTok.setAttribute('aria-valuenow', r3(curU));
+    const stop = Math.round(curU);
+    gripTok.setAttribute('aria-valuetext', stop === 0 ? 'At the input' : stop >= 2 * curM ? 'Out of the last box' : stop % 2 ? 'Inside box ' + ((stop + 1) / 2) : 'On join ' + (stop / 2));
+  }
+  const dragging = () => !finished && !!STEPS[at()].show && curM > 0;
+  function setU(v) {
+    const st = S[at()];
+    v = K.clamp(v, 0, 2 * curM);
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    st.u = v;
+    K.reveal(); K.refresh();
+  }
+  // The nearest point on the pipes to the pointer, as a stop count.
+  function uFrom(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm || !curPath) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    let best = 0, bd = Infinity;
+    for (let k = 0; k < 2 * curM; k++) {
+      const a = curPath[k], b = curPath[k + 1], dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy || 1;
+      const t = K.clamp(((q.x - a[0]) * dx + (q.y - a[1]) * dy) / L2, 0, 1);
+      const ex = q.x - (a[0] + t * dx), ey = q.y - (a[1] + t * dy), dd = ex * ex + ey * ey;
+      if (dd < bd) { bd = dd; best = k + t; }
+    }
+    return best;
+  }
+  let held = null;
+  function grab(e, fromStart) {
+    if (!dragging()) return;
+    held = e.pointerId;
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the grip */ }
+    e.preventDefault();
+    setU(fromStart ? 0 : curU);
+  }
+  gripIn.addEventListener('pointerdown', (e) => grab(e, true));
+  gripTok.addEventListener('pointerdown', (e) => grab(e, false));
+  [gripIn, gripTok].forEach((g) => {
+    g.addEventListener('pointermove', (e) => {
+      if (held !== e.pointerId || !dragging()) return;
+      const v = uFrom(e);
+      if (v != null) setU(v);
+    });
+    const letGo = (e) => { if (held === e.pointerId) held = null; };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', () => { held = null; });
+  });
+  gripTok.addEventListener('keydown', (e) => {
+    if (!dragging()) return;
+    const by = { ArrowUp: -1, ArrowLeft: -1, ArrowDown: 1, ArrowRight: 1 }[e.key];
+    if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault();
+    setU(e.key === 'Home' ? 0 : e.key === 'End' ? 2 * curM : by > 0 ? Math.floor(curU + 1e-6) + 1 : Math.ceil(curU - 1e-6) - 1);
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i, st) {
+    if (i == null) i = at();
+    if (st == null) st = S[i];
+    const G = geo(STEPS[i]);
+    art.textContent = '';
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    svg.setAttribute('aria-label', drawScene(i, st, G));
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.u = null; st.sw = 0; st.mode = 'demo'; play(endOf(i, st)); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    swapBtn.el.hidden = !d.show || !d.swap;
+    el('replay').hidden = replayBtn.el.hidden && swapBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      italics(b.el.appendChild(K.el('span')), opts[k], false);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const swappedSt = () => Object.assign(blank(), { mode: 'swap', sw: 1 });
+  const out = (keys, x) => { const v = chain(keys, x); return v[v.length - 1]; };
+  const mid = (keys, x) => chain(keys, x)[1];
+  const C = (v, s) => F(v) === s;
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepT = T;
+    T = t == null ? Infinity : t;
+    try {
+      paint(i, st);
+      return Object.assign({ texts: Array.from(art.querySelectorAll('text')).map((nd) => nd.textContent) }, REC);
+    } finally { T = keepT; paint(); }
+  }
+  // The answer a drawn puzzle picture gives: the ringed stop, or what drops out.
+  function answerOf(i, g) {
+    const d = STEPS[i], spot = g.rings[0] || 'out', s = g.stamps[spot] || g.prior[spot];
+    if (!s) return null;
+    return d.ask === 'pct' ? pct(s.v) : s.text;
+  }
+
+  K.check('The process of combining functions so that the output of one function becomes the input of another: on every screen and after every answer, each number drawn on a join or at the output is what its box makes of the number before it', () =>
+    STEPS.every((d, i) => {
+      const sts = d.show ? [blank()].concat(d.swap ? [swappedSt()] : []) : [solvedSt(i)].concat(d.opts.filter((o) => o !== d.want).map((o) => wrongSt(i, o)));
+      return sts.every((st) => {
+        const V = viewOf(i, st), g = drawn(i, st), v = chain(V.to, V.x), n = V.to.length;
+        const keys = Object.keys(g.stamps).filter((k) => k !== 'in');
+        if (V.runAt != null && !keys.length) return false;
+        return keys.every((k) => {
+          const pos = k === 'out' ? n : Number(k.slice(1)) + 1, before = v[pos - 1];
+          const made = Number.isFinite(before) ? M[V.to[pos - 1]].fn(before) : NaN;
+          return g.stamps[k].text === F(made) && (pos === 1 ? before === V.x : g.stamps['j' + (pos - 2)] != null);
+        });
+      });
+    }), { source: OPENSTAX });
+  K.check('√0.5 = 0.707, so a 12 mA signal from the DP cell is 50% DP but 71% flow rate: the flow meter screen puts 0.5 on the join for 12 mA and 0.707, 71% of full flow, drops out', () => {
+    const g = drawn(idx('The flow meter'), blank());
+    return K.near(Math.sqrt(0.5), 0.70711, 1e-5) && g.stamps.in.text === '12' && g.texts.indexOf('12 mA') >= 0 && g.stamps.j0.text === '0.5' &&
+      g.stamps.out.text === '0.707' && g.cap === '71% of full flow';
+  }, { source: CE });
+  K.check('The DP is proportional to the square of the flow, so the system scales flow from the square root of the DP: squaring what Q gives brings back the pressure difference at every reading from 4 to 20 mA, while squaring instead of rooting gives 0.0625 at 8 mA, not 0.5', () =>
+    K.linspace(4, 20, 33).every((I) => { const dd = M.d.fn(I), q = M.Q.fn(dd); return K.near(q * q, dd, 1e-12) && q >= dd - 1e-12; }) &&
+      K.near(out(['d', 'sq'], 8), 0.0625, 1e-12) && K.near(out(['d', 'Q'], 8), 0.5, 1e-12), { source: CE });
+  K.check('Each value is converted with the linear equation y = mx + b: d(I) = (I − 4) ÷ 16 is a straight line, 0 at the 4 mA bottom of the loop and 1 at 20 mA across the 16 mA span, rising the same 1/16 for every 1 mA', () =>
+    K.near(M.d.fn(4), 0, 1e-12) && K.near(M.d.fn(20), 1, 1e-12) && 20 - 4 === 16 &&
+      K.linspace(4, 19, 16).every((I) => K.near(M.d.fn(I + 1) - M.d.fn(I), 1 / 16, 1e-12)), { source: CONTROL });
+  K.check('The domain leaves out any input that would mean taking the square root of a negative number: take 4 then square root gives no value for every input tried below 4 and a value from 4 up, while root first refuses every negative input and takes 0, 1 and 2', () => {
+    const g = drawn(idx('No value'), blank());
+    return [-6, -1, 0, 1, 2, 3, 3.9].every((x) => !Number.isFinite(out(['t4', 'rt'], x))) && [4, 4.5, 5, 8, 20].every((x) => Number.isFinite(out(['t4', 'rt'], x))) &&
+      [-4, -1, -0.5].every((x) => !Number.isFinite(mid(['rt', 't4'], x))) && [0, 1, 2].every((x) => Number.isFinite(out(['rt', 't4'], x))) &&
+      g.stamps.j0.text === '−2' && g.stamps.out.text === 'no value' && g.stamps.out.bad;
+  }, { source: DOMAIN });
+  K.check('Every worked number is right (7 and 14 from 3; 9 and 18 from 5, 14 doubling first; 6 and 10 swapped; 15 and 14, swapped 4 and 12; f(g(2)) = 12, g(f(2)) = 8; 0.5, 0.707, 71% at 12 mA; 0.25, 0.5, 50% at 8 mA, 0.0625 squared; two roots 84% and 71%; −2 then no value; root first −4 refused, 1 gives −3, 2 gives 1.41 then −2.59; 2 and 4 from 5, 22 squaring first; 16 mA gives 0.75 and 0.866, 87%), and every line of working drawn says so', () => {
+    const w = (name, st) => drawn(idx(name), st || blank()).work.map((r) => r.s);
+    const w0 = w('Two machines'), w2 = w('Swap them'), w4 = w('f of g of x'), w6 = w('The flow meter'), w8 = w('A root too many'), w10 = w('No value');
+    return C(mid(['g4', 'f2'], 3), '7') && C(out(['g4', 'f2'], 3), '14') && C(mid(['g4', 'f2'], 5), '9') && C(out(['g4', 'f2'], 5), '18') && C(out(['f2', 'g4'], 5), '14') &&
+      C(mid(['f2', 'g4'], 3), '6') && C(out(['f2', 'g4'], 3), '10') && C(mid(['m3', 's1'], 5), '15') && C(out(['m3', 's1'], 5), '14') && C(mid(['s1', 'm3'], 5), '4') && C(out(['s1', 'm3'], 5), '12') &&
+      C(out(['g4', 'f2'], 2), '12') && C(mid(['g4', 'f2'], 2), '6') && C(out(['f2', 'g4'], 2), '8') &&
+      C(mid(['d', 'Q'], 12), '0.5') && C(out(['d', 'Q'], 12), '0.707') && pct(out(['d', 'Q'], 12)) === '71%' &&
+      C(mid(['d', 'Q'], 8), '0.25') && C(out(['d', 'Q'], 8), '0.5') && pct(out(['d', 'Q'], 8)) === '50%' && C(out(['d', 'sq'], 8), '0.0625') && pct(out(['d', 'sq'], 8)) === '6%' &&
+      C(out(['d', 'Q', 'Q2'], 12), '0.841') && pct(out(['d', 'Q', 'Q2'], 12)) === '84%' && pct(out(['d', 'Q', 'Q2'], 8)) === '71%' &&
+      C(mid(['t4', 'rt'], 2), '−2') && F(out(['t4', 'rt'], 2)) === 'no value' && F(mid(['rt', 't4'], -4)) === 'no value' && C(out(['rt', 't4'], 1), '−3') &&
+      C(mid(['rt', 't4'], 2), '1.41') && C(out(['rt', 't4'], 2), '−2.59') && C(mid(['g3', 'fs'], 5), '2') && C(out(['g3', 'fs'], 5), '4') && C(out(['fs', 'g3'], 5), '22') &&
+      C(mid(['d', 'Q'], 16), '0.75') && C(out(['d', 'Q'], 16), '0.866') && pct(out(['d', 'Q'], 16)) === '87%' &&
+      w0.join('|') === '3 + 4 = 7|7 × 2 = 14' && w2.join('|') === 'g first: (3 + 4) × 2 = 6 + 8 = 14|f first: 3 × 2 + 4 = 6 + 4 = 10' &&
+      w4.join('|') === 'f(g(3)) = f(7) = 14|g(f(3)) = g(6) = 10' && w6.join('|') === '(12 − 4) ÷ 16 = 0.5|√0.5 = 0.707' &&
+      w8.join('|') === '(12 − 4) ÷ 16 = 0.5|√0.5 = 0.707|√0.707 = 0.841' && w10.join('|') === '2 − 4 = −2|√(−2) has no value|4 − 4 = 0, and √0 = 0';
+  });
+  K.check('A swap usually changes the answer, but not always: from 3, add 4 then double gives 14 and double then add 4 gives 10, the 4 added first being doubled to 8; the switch redraws the rule line, f(g(x)) to g(f(x)); two machines that both only add, or both only multiply, agree either way', () => {
+    const add3 = (v) => v + 3, x5 = (v) => 5 * v;
+    const s2 = drawn(idx('Swap them'), blank()), s4 = drawn(idx('f of g of x'), blank()), s4b = drawn(idx('f of g of x'), swappedSt());
+    return out(['g4', 'f2'], 3) === 14 && out(['f2', 'g4'], 3) === 10 && out(['g4', 'f2'], 3) - out(['f2', 'g4'], 3) === M.f2.fn(4) - 4 &&
+      [-3, 0, 1, 2.5, 7].every((x) => add3(M.g4.fn(x)) === M.g4.fn(add3(x)) && x5(M.f2.fn(x)) === M.f2.fn(x5(x)) && out(['g4', 'f2'], x) !== out(['f2', 'g4'], x)) &&
+      s2.stamps.j0.text === '6' && s2.stamps.out.text === '10' && s2.top === 'f first, then g' &&
+      s4.top === 'f(g(x))' && s4.stamps.out.text === '14' && s4b.top === 'g(f(x))' && s4b.stamps.j0.text === '6' && s4b.stamps.out.text === '10';
+  });
+  K.check('Each puzzle accepts only its own answer, and after each wrong pick the picture shows the slip making exactly that answer: the outside machine first, stopping at the join, squaring instead of rooting, the first order\'s answer, or an input the root takes', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (!d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want))) return false;
+      if (d.ask === 'input') {
+        const g = drawn(i, solvedSt(i));
+        if (!(g.stamps.in.text === d.want && g.stamps.j0 && g.stamps.j0.text === 'no value')) return false;
+        return d.opts.filter((o) => o !== d.want).every((o) => {
+          const h = drawn(i, wrongSt(i, o));
+          return h.stamps.in.text === o && h.stamps.out && h.stamps.out.text !== 'no value' && h.rings[0] === 'out';
+        });
+      }
+      if (answerOf(i, drawn(i, solvedSt(i))) !== d.want) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => answerOf(i, drawn(i, wrongSt(i, o))) === o);
+    }));
+  K.check('Before an answer, nothing in a puzzle\'s picture gives it away: the joins and the output wait as question marks, or show only the first order\'s run', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank());
+      return Object.keys(g.stamps).every((k) => k === 'in') && g.texts.indexOf(d.want) < 0 && g.cap == null && g.rings.length === 0;
+    }));
+  K.check('Every demonstration has settled within 4.6 s of its screen opening, none starting before the 0.35 s screen fade ends, and every swap within 4 s; every answer\'s motion, right or wrong, within 3 s', () => {
+    const ok = STEPS.every((d, i) => {
+      if (d.show) {
+        const e = endOf(i, blank()), s = earliest;
+        return e <= 4.6 && e >= 3 && s >= FADE && (!d.swap || endOf(i, swappedSt()) <= 4);
+      }
+      return endOf(i, solvedSt(i)) <= 3 && d.opts.filter((o) => o !== d.want).every((o) => endOf(i, wrongSt(i, o)) <= 3);
+    });
+    paint();
+    return ok;
+  });
+
+  K.ready();
+</script>
