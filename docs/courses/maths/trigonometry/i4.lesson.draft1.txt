@@ -1,0 +1,529 @@
+{
+  "iid": "i4",
+  "title": "Triangles without a right angle",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the correction bar, −2ab cos C, taking away below 90°, empty at 90° and adding past it, when you open and close the hinge.",
+    "title": "The hinge",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in fourteen small screens. Most use one picture, the hinge: two straight arms joined at a corner, arm a 3 long and arm b 4 long, in any unit, with the angle C between them, which you open and close by dragging the free end of arm a. The third side, c, is drawn between the two free ends, with its length read out. Each side is named with the small letter of the corner opposite it. Beside the hinge stand three bars on one scale. The first is a² + b², 25, and it stays put because the arms do not change. The second is the correction, −2ab cos C, which is 24 × cos C taken away: it hangs below the zero line, dashed, while C is under 90°, is empty at 90°, and stands above the line past 90°, because there the cosine is negative and taking away a negative adds. The third is c², the first bar plus the correction, and it matches the square of the drawn side at every angle. A readout gives cos C to three decimal places with its sign. At 90° a small square marks the right angle and a label says Pythagoras. Screen 1 shows the hinge at 90°, where c is 5, then sweeps it between 60° and 120°, so you see c fall below Pythagoras' 5 and rise above it. Screen 2 asks which is c at 120°: 6.08, 5 or 3.61. Screen 3 builds the rule: arm b lies along the across axis from the corner, arm a is lesson 3's turning arm scaled up to length a, its tip at (a cos C, a sin C), and dashed lines mark the gap to the end of arm b, b − a cos C across and a sin C up; the working then reduces to c² = a² + b² − 2ab cos C. Screen 4 asks for c² at 60°: 13, 19 (the 2 dropped) or 0.5 (25 − 24 worked first, then multiplied by 0.5). Screen 5 opens the hinge to 110° and on to 180°, where the arms lie flat and c = 7, then closes it to 0°, where they fold together and c = 1. Screen 6 asks for c at 110°: 5.76, 4.10 (the cosine's minus sign lost) or 1.56 (sin 110° used). Screen 7 runs the rule backwards with three sides, 3, 4 and 6: cos C = (9 + 16 − 36) ÷ 24 = −0.458, so C = 117.3°, and the hinge swings to that angle. Screen 8 asks for the angle opposite the side of 7 in a triangle with sides 5, 7 and 8: 60°, 120° (the subtraction the wrong way round) or 38.2° (the angle opposite the side of 5). Screen 9 drops a height from corner B square onto side AC and finds it twice, as c sin A and as a sin C, which gives the sine rule. Screen 10 asks for side b when A = 40°, B = 60° and a = 5: 6.74, 3.71 (the sines upside down) or 7.5 (the angles divided instead of their sines). Screens 11 and 12 use a second picture, the swing arm: a base line from corner A, a side b of 8 at a fixed angle A of 30° up to corner C, and from C an arm a whose length you set with a slider. It swings round C, and every point where its end meets the base line becomes a corner B, with its triangle drawn and its angle B labelled. On screen 11 the height from C to the base line is 4, so an arm of 3 falls short; at 5 it lands twice, B = 53.1° or 126.9°; at 8 and longer the second landing falls behind A, and one triangle is left. Screen 12 sets a = 6 and asks which angles B fit: 41.8° and 138.2°, 41.8° only, or 41.8° and 318.2°. Screens 13 and 14 are mixed. Two ships sail from one port, 48 and 40 nautical miles, on courses 113° apart: are they 73.5, 62.5 (Pythagoras) or 49.0 (the cosine's sign lost) nautical miles apart? Then a stretch puzzle on an engine: the crankshaft centre, the crankpin and the piston pin make a triangle, with a crank of 50 mm, a connecting rod of 200 mm and the crank turned 40° from the cylinder's centre line. Is the rod's angle to the centre line 9.2°, 9.2° or 170.8°, or no angle at all, the slip of putting each side over the wrong angle, where sin⁻¹ shows an error? Each puzzle offers three answers; a wrong pick gets a one-line hint naming its slip, and Why? draws the answer on the picture.",
+    "ignores": "The arms are drawn as lines meeting at a single point, so a real hinge's thickness and pivot are left out. Lengths are example figures, in no particular unit unless a screen names one. Readouts are rounded, cosines and sines to three decimal places, sides to two and angles to one, while the working keeps every figure. At 0° and 180° the hinge has gone flat and there is no triangle, but the rule still gives the gap between the free ends, the arms' difference or their sum.",
+    "numbers": [
+      {
+        "label": "Arm a, in step 1",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Arm b, in step 1",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "A right angle, in degrees",
+        "value": 90,
+        "kind": "constant"
+      },
+      {
+        "label": "Third side c at 90°, in step 1",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "a² + b² = 9 + 16, in step 1",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "2ab = 2 × 3 × 4",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Narrowest sweep angle, in degrees, in step 1",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Widest sweep angle, in degrees, in step 1",
+        "value": 120,
+        "kind": "assumed"
+      },
+      {
+        "label": "c at 120°, in step 2",
+        "value": 6.08,
+        "kind": "computed"
+      },
+      {
+        "label": "c² at 120°, in step 2",
+        "value": 37,
+        "kind": "computed"
+      },
+      {
+        "label": "c at 60°, in step 2",
+        "value": 3.61,
+        "kind": "computed"
+      },
+      {
+        "label": "cos 60°, in step 4",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "c² at 60°, 25 − 24 × 0.5, in step 4",
+        "value": 13,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, the 2 dropped, 25 − 12 × 0.5, in step 4",
+        "value": 19,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, half of 2ab, in step 4",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, (25 − 24) × 0.5, in step 4",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Hinge angle, in degrees, in step 5",
+        "value": 110,
+        "kind": "assumed"
+      },
+      {
+        "label": "cos 110°, in step 5",
+        "value": -0.342,
+        "kind": "computed"
+      },
+      {
+        "label": "Correction at 110°, −24 × cos 110°, in step 5",
+        "value": 8.21,
+        "kind": "computed"
+      },
+      {
+        "label": "c² at 110°, in step 5",
+        "value": 33.21,
+        "kind": "computed"
+      },
+      {
+        "label": "c at 110°, in step 5",
+        "value": 5.76,
+        "kind": "computed"
+      },
+      {
+        "label": "Hinge laid flat, in degrees, in step 5",
+        "value": 180,
+        "kind": "constant"
+      },
+      {
+        "label": "Hinge folded shut, in degrees, in step 5",
+        "value": 0,
+        "kind": "constant"
+      },
+      {
+        "label": "c laid flat, 3 + 4, in step 5",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "c folded shut, 4 − 3, in step 5",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, sign lost at 110°, c, in step 6",
+        "value": 4.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, sin 110° used, c, in step 6",
+        "value": 1.56,
+        "kind": "computed"
+      },
+      {
+        "label": "sin 110°, in step 6",
+        "value": 0.94,
+        "kind": "computed"
+      },
+      {
+        "label": "Third side for the angle, in step 7",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "a², in step 7",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "b², in step 7",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "c² = 6², in step 7",
+        "value": 36,
+        "kind": "computed"
+      },
+      {
+        "label": "cos C = (9 + 16 − 36) ÷ 24, in step 7",
+        "value": -0.458,
+        "kind": "computed"
+      },
+      {
+        "label": "C = cos⁻¹(−0.458), in degrees, in step 7",
+        "value": 117.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle side, in step 8",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle side opposite the angle, in step 8",
+        "value": 7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle side, in step 8",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Angle opposite 7, in degrees, in step 8",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, subtraction reversed, in degrees, in step 8",
+        "value": 120,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, angle opposite 5, in degrees, in step 8",
+        "value": 38.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle A, in degrees, in step 10",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Angle B, in degrees, in step 10",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Side a, in step 10",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Side b = 5 × sin 60° ÷ sin 40°, in step 10",
+        "value": 6.74,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, sines upside down, in step 10",
+        "value": 3.71,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, 5 × 60 ÷ 40, in step 10",
+        "value": 7.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Swing-arm angle A, in degrees, in step 11",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Swing-arm side b, in step 11",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Height from C, 8 × sin 30°, in step 11",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Short arm, in step 11",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Arm that lands twice, in step 11",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "sin B = 8 × 0.5 ÷ 5, in step 11",
+        "value": 0.8,
+        "kind": "computed"
+      },
+      {
+        "label": "First B, in degrees, in step 11",
+        "value": 53.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Second B, 180 − 53.1, in degrees, in step 11",
+        "value": 126.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle arm a, in step 12",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "sin B = 4 ÷ 6, in step 12",
+        "value": 0.667,
+        "kind": "computed"
+      },
+      {
+        "label": "First B, in degrees, in step 12",
+        "value": 41.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Second B, in degrees, in step 12",
+        "value": 138.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, 360 − 41.8, in degrees, in step 12",
+        "value": 318.2,
+        "kind": "computed"
+      },
+      {
+        "label": "First ship's distance, nautical miles, in step 13",
+        "value": 48,
+        "kind": "assumed"
+      },
+      {
+        "label": "Second ship's distance, nautical miles, in step 13",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Angle between courses, in degrees, in step 13",
+        "value": 113,
+        "kind": "assumed"
+      },
+      {
+        "label": "Distance apart, nautical miles, in step 13",
+        "value": 73.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, Pythagoras, nautical miles, in step 13",
+        "value": 62.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, sign lost, nautical miles, in step 13",
+        "value": 49.0,
+        "kind": "computed"
+      },
+      {
+        "label": "Crank, in mm, in step 14",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Connecting rod, in mm, in step 14",
+        "value": 200,
+        "kind": "assumed"
+      },
+      {
+        "label": "Crank angle from the centre line, in degrees, in step 14",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Rod's angle to the centre line, in degrees, in step 14",
+        "value": 9.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, second angle 180 − 9.2, in degrees, in step 14",
+        "value": 170.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example sides, in m",
+        "value": 7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example side, in m",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example angle, in degrees",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "7² + 10²",
+        "value": 149,
+        "kind": "computed"
+      },
+      {
+        "label": "49 = 7²",
+        "value": 49,
+        "kind": "computed"
+      },
+      {
+        "label": "100 = 10²",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "2 × 7 × 10",
+        "value": 140,
+        "kind": "computed"
+      },
+      {
+        "label": "cos 50°",
+        "value": 0.643,
+        "kind": "computed"
+      },
+      {
+        "label": "140 × cos 50°",
+        "value": 89.99,
+        "kind": "computed"
+      },
+      {
+        "label": "c², worked example",
+        "value": 59.01,
+        "kind": "computed"
+      },
+      {
+        "label": "c, worked example, in m",
+        "value": 7.68,
+        "kind": "computed"
+      },
+      {
+        "label": "sin A, worked example",
+        "value": 0.698,
+        "kind": "computed"
+      },
+      {
+        "label": "A, worked example, in degrees",
+        "value": 44.3,
+        "kind": "computed"
+      },
+      {
+        "label": "180 − 44.3, in degrees",
+        "value": 135.7,
+        "kind": "computed"
+      },
+      {
+        "label": "135.7 + 50, in degrees",
+        "value": 185.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Third angle, in degrees",
+        "value": 85.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Largest cosine",
+        "value": 1,
+        "kind": "constant"
+      },
+      {
+        "label": "Smallest cosine",
+        "value": -1,
+        "kind": "constant"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Sine, cosine and tangent, as lesson 1 built them, need a right angle. Most triangles have none: two ships on different courses, an engine's crank and its connecting rod. Two rules solve them. The cosine rule is Pythagoras with a correction for the angle, and the sine rule says that each side divided by the sine of the angle opposite it gives the same number all round the triangle.\n\nPicture two straight arms joined at a hinge, a long and b long, with the angle C between them. Name each side with the small letter of the corner opposite it, so the third side, joining the arms' free ends, is c. At 90° Pythagoras gives c² = a² + b². Close the hinge and the free ends come together, so c is shorter; open it and they move apart, so c is longer. To find by how much, lay arm b along the across axis from the hinge, so its free end is at (b, 0). Arm a is then lesson 3's turning arm. That arm was 1 long with its tip at (cos C, sin C),[^16] and an arm a long is the same shape scaled up, so its tip is at (a cos C, a sin C). The gap between the free ends is b − a cos C across and a sin C up, and Pythagoras on that gap gives c² = (b − a cos C)² + (a sin C)². Multiplied out, that is b² − 2ab cos C + a² cos² C + a² sin² C. Lesson 3's cos² C + sin² C = 1 turns the last two terms into a², which leaves c² = a² + b² − 2ab cos C. This is the [[cosine rule]]: the square of a side is the sum of the squares of the other two, minus twice their product and the cosine of the angle between them.[^1] It is Pythagoras with something extra, so it works for all triangles.[^2]\n\nThe correction, −2ab cos C, is where the angle comes in. At 90° the cosine is 0, so the correction vanishes and the rule is Pythagoras. Below 90° the cosine is positive, so the correction takes away. Past 90° the arm's tip has swung left of the hinge, so the cosine is negative,[^17] taking away a negative adds, and c comes out longer than Pythagoras gives. With arms 3 and 4, a² + b² = 25 and 2ab = 24. At 60°, cos 60° = 0.5, so c² = 25 − 24 × 0.5 = 13 and c = 3.61. At 110°, cos 110° = −0.342, so c² = 25 + 8.21 = 33.21 and c = 5.76. The rule finds a side from two sides and the angle between them, or an angle from all three sides.[^3] For the angle, rearrange it to cos C = (a² + b² − c²) ÷ 2ab, with c the side opposite the angle you want, and press cos⁻¹. Each angle from 0° to 180° has a cosine of its own, so cos⁻¹ gives the one angle that fits, acute or obtuse.\n\nThe sine rule comes from dropping a height. In a triangle ABC, drop a line from B square onto side AC. It makes two right-angled triangles, and lesson 1's sine gives the height twice: c sin A from one and a sin C from the other. So c sin A = a sin C, and dividing both sides by sin A sin C gives a ÷ sin A = c ÷ sin C. If A is past 90° the height lands outside the triangle, beyond A, where the angle is 180° − A, and lesson 3 showed sin (180° − A) = sin A, so nothing changes. A height from another corner brings in b the same way, so a ÷ sin A = b ÷ sin B = c ÷ sin C. This is the [[sine rule]]: each side over the sine of the angle opposite it. Use it for a side from another side and two angles, or for an angle from two sides and an angle that is not between them.[^4] For an angle there is a catch. Lesson 3 showed that θ and 180° − θ share a sine, so sin⁻¹ gives one angle, and 180° minus it may fit as well. It fits only if the triangle's angles still come to less than 180°, leaving room for the third.[^5] Two triangles from the same facts are called the [[ambiguous case]]. **The cosine rule, c² = a² + b² − 2ab cos C,[^1] is Pythagoras with a correction that takes away below 90° and adds past it; the sine rule pairs each side with the sine of the angle opposite it, and when it finds an angle, 180° minus that angle may fit too.[^5]**"
+  },
+  "analogy": {
+    "text": "Open two leaves of a folding rule to a right angle and the gap between their tips is Pythagoras on the two leaves. Close them and the gap shrinks below that; open them wider and it grows past it, until, laid flat, the gap is the two leaves end to end. The cosine rule gives the gap at every opening, with the correction as the amount the gap's square falls short of Pythagoras or runs over it.",
+    "breaks": "A folding rule's leaves have thickness and their pivot sits a little in from the ends, so the tips' gap only comes near the rule's value, which is for straight lines meeting at a point. And the rule's leaves show nothing of the sine rule or its two possible triangles."
+  },
+  "practice": {
+    "text": "- Decide which rule from what you know. Two sides and the angle between them, or all three sides: the cosine rule.[^3] Two angles and a side, or two sides and an angle not between them: the sine rule.[^4] A right angle in the triangle: lesson 1's sine, cosine and tangent, or Pythagoras, are all you need.\n- Label the corners A, B and C, and each side with the small letter of the corner opposite it.\n- Set the calculator to degrees mode.[^12]\n- Cosine rule for a side: work out a² + b², then 2ab cos C with the cosine's sign, take the second from the first, then take the square root.\n- Cosine rule for an angle: cos C = (a² + b² − c²) ÷ 2ab, where c is the side opposite the angle you want, then cos⁻¹.\n- Sine rule for an angle: sin⁻¹ gives one angle. Check 180° minus it too, which fits only if the angles still leave room under 180°.[^5]\n- Keep each unrounded answer in the calculator for the next step, and round at the end.\n- Check: the longest side faces the largest angle.\n\n**Rule of thumb:** At 90° the cosine rule is Pythagoras. Wider than 90°, the third side is longer than Pythagoras gives; narrower, shorter.\n\n**Worked example:** Say two sides of 7 m and 10 m meet at 50°. c² = 49 + 100 − 2 × 7 × 10 × cos 50° = 149 − 140 × 0.643 = 149 − 89.99 = 59.01, so c = 7.68 m. Now the angle A opposite the 7 m side, by the sine rule, with c kept unrounded: sin A = 7 × sin 50° ÷ 7.68 = 0.698, so A = 44.3°. Its partner, 180° − 44.3° = 135.7°, would make 135.7° + 50° = 185.7°, past 180°, so it does not fit. The third angle is 180° − 50° − 44.3° = 85.7°.\n\n**Common mistakes**\n- Using sine, cosine, tangent or Pythagoras on a triangle with no right angle. Pythagoras on arms of 3 and 4 gives 5 at any opening; at 60° the third side is 3.61.\n- Dropping the 2: 25 − 12 × 0.5 = 19, not 13.\n- Taking away before multiplying: (25 − 24) × 0.5 = 0.5. Multiply 2ab by the cosine first, then take it away.\n- Losing the cosine's minus sign past 90°. cos 110° is −0.342, so the correction adds.\n- Using sin C where the rule has cos C.\n- An error from cos⁻¹ means the number was above 1 or below −1, which no cosine can be. Check that the side taken away is the one opposite the angle.\n- Stopping at the sine rule's first angle when 180° minus it fits too."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    {
+      "n": 1,
+      "title": "8.2 Non-right Triangles: Law of Cosines - Precalculus 2e | OpenStax",
+      "url": "https://openstax.org/books/precalculus-2e/pages/8-2-non-right-triangles-law-of-cosines",
+      "quote": "the square of any side of a triangle is equal to the sum of the squares of the other two sides minus twice the product of the other two sides and the cosine of the included angle."
+    },
+    {
+      "n": 2,
+      "title": "The Law of Cosines",
+      "url": "https://www.mathsisfun.com/algebra/trig-cosine-law.html",
+      "quote": "it helps to know it's the Pythagoras Theorem with something extra so it works for all triangles"
+    },
+    {
+      "n": 3,
+      "title": "What is the cosine rule? - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/z3stdnb",
+      "quote": "The cosine rule is a formula used to find a missing side or angle in a triangle when two sides and included angle , or all the lengths of all three sides, are known."
+    },
+    {
+      "n": 4,
+      "title": "Trigonometric skills - National 5 Maths - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/topics/zt7wb82",
+      "quote": "The sine rule can find a side from another side and two angles or an angle from two sides and a non-included angle."
+    },
+    {
+      "n": 5,
+      "title": "Higher – How to use the sine rule - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/z9dm46f",
+      "quote": "The second answer is found by subtracting the first answer from 180°. If the angles in the triangle do not exceed the angle sum of a triangle, 180°, the second answer can exist."
+    },
+    {
+      "n": 12,
+      "title": "What is right-angled trigonometry? - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zck7rmn",
+      "quote": "Scientific calculators need to be used for trigonometry and should be in degrees mode."
+    },
+    {
+      "n": 16,
+      "title": "5.2 Unit Circle: Sine and Cosine Functions - Precalculus 2e | OpenStax",
+      "url": "https://openstax.org/books/precalculus-2e/pages/5-2-unit-circle-sine-and-cosine-functions",
+      "quote": "The terminal side of the angle intersects the circle at the point (x,y), which is equivalent to (cos t, sin t)."
+    },
+    {
+      "n": 17,
+      "title": "Trigonometric skills - National 5 Maths - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/topics/zt7wb82",
+      "quote": "Sine, cosine and tangent all have different positive or negative values depending on what quadrant they are in."
+    }
+  ],
+  "confidence": "settled",
+  "contested": null
+}

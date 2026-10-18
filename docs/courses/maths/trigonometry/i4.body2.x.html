@@ -1,0 +1,1269 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  /* Arms, sides and lines. */
+  .scene .arm { stroke: var(--k-ink); stroke-width: 5; stroke-linecap: round; }
+  .scene .rod { stroke: var(--k-ink); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .tri { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .scene .sidec { stroke: var(--k-accent2); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .base { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .axis { stroke: var(--k-muted); stroke-width: 1.4; }
+  .scene .cline { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 8 5; }
+  .scene .guide { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 4 3; }
+  .scene .ghost { stroke: var(--k-muted); stroke-width: 2.5; stroke-dasharray: 6 4; }
+  .scene .swing { fill: none; stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 3 4; }
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.4; }
+  .scene .mk, .scene .arc { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .arc.bad { stroke: var(--k-warn); stroke-width: 2; }
+  .scene .face1 { fill: var(--k-fill1); stroke: none; }
+  .scene .face3 { fill: var(--k-fill3); stroke: none; }
+  /* The three bars on one scale. */
+  .scene .zero { stroke: var(--k-ink); stroke-width: 1.4; }
+  .scene .bar1 { fill: var(--k-fill3); stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .barc { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 2; }
+  .scene .barc.neg { stroke-dasharray: 5 3; }
+  .scene .bar2 { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 2; }
+  /* The scale for arm a on the swing-arm screen. */
+  .scene .track { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }
+  .scene .tfill { stroke: var(--k-accent2); stroke-width: 4; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .pin { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .dot { fill: var(--k-ink); }
+  .scene .dot.c { fill: var(--k-accent2); }
+  .scene .dot.muted { fill: var(--k-muted); }
+  .scene .badring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .pill { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .lbg { fill: var(--k-bg); stroke: none; }
+  .scene .hlbg { fill: var(--k-hl); stroke: none; }
+  .scene .pv { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .al { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .al.bad, .scene .te.bad { fill: var(--k-warn); }
+  .scene .cl { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  .scene .sn { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .nm { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tk { font: 500 13px var(--k-font); fill: var(--k-muted); }
+  .scene .te { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .after { font-size: 1.08rem; line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A hinge of two straight arms, 3 and 4 long, with three bars under it for the square of the third side.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <p class="after" id="after" hidden></p>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap" hidden></p>
+
+<script>
+  const el = (id) => document.getElementById(id);
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const RAD = Math.PI / 180;
+  const sinD = (a) => Math.sin(a * RAD), cosD = (a) => Math.cos(a * RAD);
+  const asinD = (v) => Math.asin(Math.max(-1, Math.min(1, v))) / RAD, acosD = (v) => Math.acos(Math.max(-1, Math.min(1, v))) / RAD;
+  const neg = (s) => String(s).replace(/^-/, '−');
+  // v rounded to dp places with trailing zeros dropped: 0.5, 0.342, 30.
+  function trim(v, dp) {
+    const f = Math.pow(10, dp);
+    let s = (Math.round(v * f) / f).toFixed(dp);
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    if (s === '-0') s = '0';
+    return neg(s);
+  }
+  // v to exactly dp places, so it sits beside answers of the same length: 4.10, 0.940, 49.0.
+  function fix(v, dp) {
+    const f = Math.pow(10, dp);
+    let s = (Math.round(v * f) / f).toFixed(dp);
+    if (/^-0(\.0*)?$/.test(s)) s = s.slice(1);
+    return neg(s);
+  }
+  const v3 = (v) => trim(v, 3), hS = (v) => trim(v, 2), angS = (v) => trim(v, 1) + '°';
+  const f1 = (v) => fix(v, 1), f2 = (v) => fix(v, 2), f3 = (v) => fix(v, 3);
+  const dirAng = (P, Q) => Math.atan2(P[1] - Q[1], Q[0] - P[0]) / RAD;   // the direction of Q seen from P, anticlockwise from pointing right
+
+  // The hinge's rule: arms a = 3 and b = 4, c² = a² + b² − 2ab cos C.
+  const HA = 3, HB = 4, SUM = HA * HA + HB * HB, TWO = 2 * HA * HB;
+  const corr = (th) => -TWO * cosD(th);
+  const csq = (th) => SUM + corr(th);
+  const cLen = (th) => Math.sqrt(Math.max(0, csq(th)));
+  const corrS = (th) => { const v = corr(th); return Math.abs(v) < 0.005 ? '0' : (v > 0 ? '+' : '−') + hS(Math.abs(v)); };
+
+  // The lesson's example values.
+  const P1 = 120, P3 = 60, P5 = 110, S3 = 6;
+  const CB = acosD((HA * HA + HB * HB - S3 * S3) / TWO);
+  const cosRow = 'cos C = (' + HA * HA + ' + ' + HB * HB + ' − ' + S3 * S3 + ') ÷ ' + TWO + ' = ' + v3(cosD(CB));
+  const angRow = 'C = cos⁻¹(' + v3(cosD(CB)) + ') = ' + angS(CB);
+  // A triangle with a = 5, b = 8 and c = 7: C is opposite the 7, A opposite the 5.
+  const Ta = 5, Tb = 8, Tc = 7;
+  const C7 = acosD((Ta * Ta + Tb * Tb - Tc * Tc) / (2 * Ta * Tb)), C7bad = acosD((Tc * Tc - Ta * Ta - Tb * Tb) / (2 * Ta * Tb)), A7 = acosD((Tb * Tb + Tc * Tc - Ta * Ta) / (2 * Tb * Tc));
+  const sq7 = Ta * Ta + ' + ' + Tb * Tb + ' − ' + Tc * Tc, den7 = 2 * Ta * Tb;
+  // The sine rule: A = 40°, B = 60°, a = 5.
+  const SA = 40, SB = 60, Sa = 5, Sb = Sa * sinD(SB) / sinD(SA), Sc = Sa * sinD(180 - SA - SB) / sinD(SA);
+  // The swing arm: b = 8 at A = 30° puts C a height 8 sin 30° = 4 above the base line.
+  const WA = 30, WB = 8, WH = WB * sinD(WA), W5 = 5, W6 = 6;
+  // Two ships, and the engine.
+  const Sh1 = 48, Sh2 = 40, ShA = 113, shSq = Sh1 * Sh1 + Sh2 * Sh2, shK = 2 * Sh1 * Sh2 * cosD(ShA), shipD = Math.sqrt(shSq - shK);
+  const Kc = 50, Kr = 200, KA = 40, Ksin = Kc * sinD(KA) / Kr, Kth = asinD(Ksin), KthR = Math.round(Kth * 10) / 10;
+
+  // Where the swinging arm lands on the base line, in units from A, and the angles B there.
+  function landings(al) {
+    if (al < WH - 1e-9) return { short: true };
+    const touch = Math.abs(al - WH) < 1e-9, dx = touch ? 0 : Math.sqrt(al * al - WH * WH), second = WB * cosD(WA) - dx, b1 = asinD(WH / al);
+    return { short: false, touch, dx, second, two: !touch && second > 1e-9, atA: !touch && Math.abs(second) <= 1e-9, behind: !touch && second < -1e-9,
+      B1: b1, B2: 180 - Math.round(b1 * 10) / 10 };
+  }
+  const B6 = asinD(WH / W6), B6r = Math.round(B6 * 10) / 10;
+
+  // The answers each puzzle offers.
+  const o1 = [hS(cLen(P3)), hS(cLen(P1)), hS(cLen(90))];
+  const o3 = [hS(csq(P3)), hS(SUM - (TWO / 2) * cosD(P3)), hS((SUM - TWO) * cosD(P3))];
+  const o5 = [f2(Math.sqrt(SUM + TWO * cosD(P5))), f2(Math.sqrt(SUM - TWO * sinD(P5))), f2(cLen(P5))];
+  const o7 = [angS(C7bad), angS(C7), angS(A7)];
+  const o9 = [hS(Sb), hS(Sa * sinD(SA) / sinD(SB)), hS(Sa * SB / SA)];
+  const o11 = [angS(B6) + ' only', angS(B6) + ' and ' + angS(180 - B6r), angS(B6) + ' and ' + angS(360 - B6r)];
+  const o12 = [f1(Math.sqrt(shSq)), f1(Math.sqrt(shSq + shK)), f1(shipD)];
+  const o13 = [angS(Kth) + ' only', angS(Kth) + ' or ' + angS(180 - KthR), 'no such triangle'];
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: the picture; vh: its height; dur: a demonstration's length; live: what Dan can drag.
+  // A puzzle has opts, want, a hint for each wrong answer, why, rows of working (right, and wrong[answer]
+  // in red) and secret: what the picture must not show before an answer.
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, name: 'The hinge', pic: 'hinge90', vh: 300, dur: 3.6, live: ['hinge'],
+      text: 'Two straight arms are joined at a hinge. Arm `a` is 3 long, arm `b` is 4 long, and `C` is the angle between them. The third side, `c`, joins their free ends. Each side takes the small letter of the corner opposite it. At 90° Pythagoras gives `c² = 9 + 16 = 25`, so `c = 5`. Close the hinge and the free ends come together, so `c` is shorter. Open it and they move apart, so `c` is longer. Drag the end of arm `a`.',
+      after: 'The bars share one scale. The first, `a² + b²`, is 25 at every angle. The second is the correction, which takes away below 90°, is empty at 90° and adds past it. The third, `c²`, is the first two together.' },
+    { kind: 'pick', name: 'c at 120°', pic: 'p120', vh: 372,
+      opts: o1, want: o1[1], secret: [o1[1], hS(csq(P1))],
+      task: 'The hinge opens to 120°. How long is `c` now?',
+      why: 'Past 90° the free ends are further apart than at a right angle, so `c` is longer than Pythagoras\' 5. The bars show by how much. The correction adds 12, so `c² = 25 + 12 = 37` and `c = 6.08`.',
+      hint: 'Not quite. Opening the hinge moves the free ends apart.',
+      hints: { [o1[0]]: 'Not quite. 3.61 is `c` at 60°, with the hinge closed in. At 120° it is opened out.',
+        [o1[2]]: 'Not quite. 5 is `c` at 90°, where Pythagoras holds. At 120° the hinge is wider.' },
+      right: ['c² = 25 + ' + hS(corr(P1)) + ' = ' + hS(csq(P1)), 'c = √' + hS(csq(P1)) + ' = ' + o1[1]],
+      wrong: { [o1[0]]: o1[0] + ' is c at 60°, closed in', [o1[2]]: o1[2] + ' is c at 90° only' } },
+    { show: true, name: 'Building the rule', pic: 'derive', vh: 298, dur: 4.4, live: ['hinge'],
+      text: 'Where does the correction come from? Lay arm `b` along the across axis from the hinge, so its free end is at `(b, 0)`. Arm `a` is lesson 3\'s turning arm made `a` times longer, so its tip is at `(a cos C, a sin C)`. The gap between the free ends is `b − a cos C` across and `a sin C` up, so Pythagoras on that gap gives `c²`. Multiply it out, and lesson 3\'s `cos² C + sin² C = 1` turns the last two terms into `a²`. Drag the end of arm `a`.',
+      after: 'That leaves the *cosine rule*, `c² = a² + b² − 2ab cos C`. It is Pythagoras with a correction, `−2ab cos C`, so it works for every triangle.' },
+    { kind: 'pick', name: 'c² at 60°', pic: 'p60', vh: 372,
+      opts: o3, want: o3[0], secret: [o3[0], o1[0]],
+      task: 'The hinge closes to 60°, where `cos 60° = 0.5`. What is `c²`?',
+      why: 'Here `a² + b² = 25` and `2ab = 2 × 3 × 4 = 24`. So `c² = 25 − 24 × 0.5 = 25 − 12 = 13`, multiplying before taking away. That makes `c = 3.61`, shorter than Pythagoras\' 5.',
+      hint: 'Not quite. Use `c² = a² + b² − 2ab cos C`.',
+      hints: { [o3[1]]: 'Not quite. `2ab` is 2 × 3 × 4 = 24. The 2 has gone missing.',
+        [o3[2]]: 'Not quite. Multiply first, `24 × 0.5 = 12`, then take it from 25.' },
+      right: ['c² = 25 − 24 × 0.5 = 25 − 12 = ' + o3[0], 'c = √' + o3[0] + ' = ' + o1[0]],
+      wrong: { [o3[1]]: '25 − 12 × 0.5 = ' + o3[1] + ' drops the 2', [o3[2]]: '(25 − 24) × 0.5 = ' + o3[2] + ' takes away first' } },
+    { show: true, name: 'Flat and folded', pic: 'flat', vh: 350, dur: 4.4, live: ['hinge'],
+      text: 'Past 90° the tip of arm `a` swings left of the hinge, so `cos C` turns negative. At 110°, `cos 110° = −0.342`. The correction takes away `24 × cos C`, and taking away a negative adds, so its bar stands above the line and `c` is longer than Pythagoras gives. Laid flat at 180°, the arms make one straight line and `c = 3 + 4 = 7`. Folded shut at 0°, they lie together and `c = 4 − 3 = 1`. Drag the end of arm `a`.',
+      after: 'At 0° and 180° there is no triangle left, but the rule still gives the gap between the free ends.' },
+    { kind: 'pick', name: 'c at 110°', pic: 'p110', vh: 372,
+      opts: o5, want: o5[2], secret: [o5[2], hS(csq(P5)), hS(corr(P5))],
+      task: 'The hinge opens to 110°, where `cos 110° = −0.342`. How long is `c`?',
+      why: '`c² = 25 − 24 × (−0.342)`. Taking away a negative adds, so `c² = 25 + 8.21 = 33.21` and `c = 5.76`. That is longer than Pythagoras\' 5, because the hinge is past 90°.',
+      hint: 'Not quite. Keep the cosine\'s sign.',
+      hints: { [o5[0]]: 'Not quite. `cos 110°` is negative, so the correction adds. The minus sign got lost.',
+        [o5[1]]: 'Not quite. That uses `sin 110° = 0.940`. The cosine rule needs the cosine.' },
+      right: ['c² = 25 − 24 × (' + v3(cosD(P5)) + ') = 25 + ' + hS(corr(P5)), '= ' + hS(csq(P5)) + ', so c = ' + o5[2]],
+      wrong: { [o5[0]]: '25 − ' + hS(corr(P5)) + ' = ' + hS(SUM - corr(P5)) + ' lost the minus sign',
+        [o5[1]]: '25 − 24 × ' + f3(sinD(P5)) + ' = ' + hS(SUM - TWO * sinD(P5)) + ' used sin 110°' } },
+    { show: true, name: 'Back to the angle', pic: 'back', vh: 350, dur: 3.4,
+      text: 'The rule also runs backwards, from three sides to an angle. Rearrange it to `cos C = (a² + b² − c²) ÷ 2ab`, with `c` the side opposite the angle you want, and press `cos⁻¹`. With arms 3 and 4 and a third side of 6, `cos C = (9 + 16 − 36) ÷ 24 = −0.458`, so `C = 117.3°`. Each angle from 0° to 180° has a cosine of its own, so `cos⁻¹` gives the one angle that fits, acute or obtuse.' },
+    { kind: 'pick', name: 'Sides 5, 8 and 7', pic: 'p578', vh: 294,
+      opts: o7, want: o7[1], secret: [o7[1]],
+      task: 'A triangle has sides 5, 8 and 7. What is the angle `C`, opposite the side of 7?',
+      why: '`C` sits between the sides of 5 and 8, so `cos C = (5² + 8² − 7²) ÷ (2 × 5 × 8) = (25 + 64 − 49) ÷ 80 = 0.5`, and `cos⁻¹ 0.5 = 60°`. The side opposite the angle you want is the one taken away.',
+      hint: 'Not quite. Take away the square of the side opposite `C`.',
+      hints: { [o7[0]]: 'Not quite. The subtraction is the wrong way round. It is `25 + 64 − 49`, not `49 − 25 − 64`.',
+        [o7[2]]: 'Not quite. 38.2° is the angle opposite the 5. Take away the square of the side opposite `C`, the 7.' },
+      right: ['cos C = (' + sq7 + ') ÷ ' + den7 + ' = ' + v3((Ta * Ta + Tb * Tb - Tc * Tc) / den7), 'C = cos⁻¹ ' + v3((Ta * Ta + Tb * Tb - Tc * Tc) / den7) + ' = ' + o7[1]],
+      wrong: { [o7[0]]: '(' + Tc * Tc + ' − ' + Ta * Ta + ' − ' + Tb * Tb + ') ÷ ' + den7 + ' = ' + v3((Tc * Tc - Ta * Ta - Tb * Tb) / den7) + ' gives ' + o7[0],
+        [o7[2]]: o7[2] + ' is the angle A, opposite the 5' } },
+    { show: true, name: 'A height, twice', pic: 'height', vh: 316, dur: 4.2,
+      text: 'Now a second rule. In a triangle `ABC`, drop a line from `B` square onto side `AC`. It makes two right-angled triangles, and lesson 1\'s sine gives the height, `h`, twice. In the left one `h = c sin A`, and in the right one `h = a sin C`. So `c sin A = a sin C`, and dividing both sides by `sin A sin C` gives `a ÷ sin A = c ÷ sin C`. A height from another corner brings in `b` the same way.',
+      after: 'This is the *sine rule*, `a ÷ sin A = b ÷ sin B = c ÷ sin C`. Each side over the sine of the angle opposite it gives the same number all round the triangle.' },
+    { kind: 'pick', name: 'Side b', pic: 'p4060', vh: 310,
+      opts: o9, want: o9[0], secret: [o9[0]],
+      task: 'In triangle `ABC`, `A = 40°`, `B = 60°` and `a = 5`. How long is `b`?',
+      why: 'Pair each side with the angle opposite it, `b ÷ sin 60° = 5 ÷ sin 40°`. So `b = 5 × sin 60° ÷ sin 40° = 6.74`. Side `b` faces the bigger angle, so it is the longer of the two.',
+      hint: 'Not quite. Each side goes over the sine of the angle opposite it.',
+      hints: { [o9[1]]: 'Not quite. The sines are upside down. `b` goes with `sin 60°`, so `sin 60°` goes on top.',
+        [o9[2]]: 'Not quite. Divide the sines of the angles, not the angles themselves.' },
+      right: ['b ÷ sin 60° = 5 ÷ sin 40°', 'b = 5 × sin 60° ÷ sin 40° = ' + o9[0]],
+      wrong: { [o9[1]]: '5 × sin 40° ÷ sin 60° = ' + o9[1] + ', upside down', [o9[2]]: '5 × 60 ÷ 40 = ' + o9[2] + ' uses the angles' } },
+    { show: true, name: 'The swing arm', pic: 'swing', vh: 322, dur: 4.0, live: ['arm'],
+      text: 'Finding an angle with the sine rule has a catch. Here side `b = 8` rises at 30° from corner `A` to corner `C`, 4 above the base line. From `C` an arm `a` swings round, and wherever its end meets the base line is a corner `B`. An arm of 3 falls short. At 5 it lands twice, since `sin B = 8 × 0.5 ÷ 5 = 0.8` gives `B = 53.1°`, and `180° − 53.1° = 126.9°` shares that sine. At 8 or longer the second landing is at `A` or behind it, so one triangle is left. Drag the knob along the scale for arm `a`.',
+      after: 'When the same facts fit two triangles, it is called the *ambiguous case*. The second angle fits only if the angles still come to less than 180°.' },
+    { kind: 'pick', name: 'An arm of 6', pic: 'p6', vh: 286,
+      opts: o11, want: o11[1], secret: [angS(180 - B6r)],
+      task: 'Now the arm is 6, so `sin B = 4 ÷ 6 = 0.667`. Which angles `B` fit?',
+      why: '`sin⁻¹ 0.667 = 41.8°`, and `180° − 41.8° = 138.2°` has the same sine. With `A = 30°`, `30° + 138.2° = 168.2°` still leaves room for a third angle. The arm is longer than the height, 4, and shorter than 8, so it lands twice and both triangles fit.',
+      hint: 'Not quite. Look at where the arm can land.',
+      hints: { [o11[0]]: 'Not quite. The calculator gives one angle, but an arm of 6 lands twice on the base line.',
+        [o11[2]]: 'Not quite. A triangle\'s angles are all under 180°. The partner angle is `180° − 41.8°`.' },
+      right: ['B = ' + angS(B6) + ' or 180° − ' + angS(B6) + ' = ' + angS(180 - B6r), '30° + ' + angS(180 - B6r) + ' = ' + angS(210 - B6r) + ', room for C'],
+      wrong: { [o11[0]]: 'an arm of 6 lands twice: ' + angS(180 - B6r) + ' fits too', [o11[2]]: angS(360 - B6r) + ' is over 180°: no triangle' } },
+    { kind: 'pick', name: 'Two ships', pic: 'ships', vh: 296,
+      opts: o12, want: o12[2], secret: [o12[2]],
+      task: 'Two ships sail from one port, 48 and 40 nautical miles, on courses 113° apart. How far apart are they, in nautical miles?',
+      why: 'Two sides and the angle between them call for the cosine rule, `d² = 48² + 40² − 3840 × cos 113°`. `cos 113°` is negative, so the correction adds, `d² = 3904 + 1500.41 = 5404.41`, and `d = 73.5`.',
+      hint: 'Not quite. Use the cosine rule with the 113° between the courses.',
+      hints: { [o12[0]]: 'Not quite. That is Pythagoras, true only at 90°. Here the courses are 113° apart.',
+        [o12[1]]: 'Not quite. `cos 113°` is negative, so the correction adds.' },
+      right: ['d² = 48² + 40² − ' + 2 * Sh1 * Sh2 + ' × cos 113°', '= ' + shSq + ' + ' + hS(-shK) + ', so d = ' + o12[2]],
+      wrong: { [o12[0]]: '√(48² + 40²) = ' + o12[0] + ' is Pythagoras', [o12[1]]: shSq + ' − ' + hS(-shK) + ' lost the minus sign' } },
+    { kind: 'pick', name: 'The engine', pic: 'crank', vh: 232,
+      opts: o13, want: o13[0], secret: [angS(Kth)],
+      task: 'In an engine, the crankshaft centre, the crankpin and the piston pin make a triangle. The crank is 50 mm, the connecting rod 200 mm, and the crank is turned 40° from the cylinder\'s centre line. What is the rod\'s angle `θ` to the centre line?',
+      why: 'Pair each side with the angle opposite it. The rod, 200, faces the 40°, and the crank, 50, faces `θ`. So `sin θ = 50 × sin 40° ÷ 200 = 0.161`, and `sin⁻¹` gives 9.2°. `180° − 9.2° = 170.8°` shares the sine, but `170.8° + 40°` is over 180°, so only 9.2° fits.',
+      hint: 'Not quite. Each side goes over the sine of the angle opposite it.',
+      hints: { [o13[1]]: 'Not quite. Check the partner. `170.8° + 40°` is more than 180°, leaving no room for a third angle.',
+        [o13[2]]: 'Not quite. Each side goes over the angle opposite it. The 50 mm crank faces `θ`, and the rod faces the 40°.' },
+      right: ['sin θ = 50 × sin 40° ÷ 200 = ' + v3(Ksin), 'θ = ' + angS(Kth) + ', as ' + angS(180 - KthR) + ' + 40° is over 180°'],
+      wrong: { [o13[1]]: angS(180 - KthR) + ' + 40° = ' + angS(220 - KthR) + ', over 180°', [o13[2]]: '200 × sin 40° ÷ 50 = ' + v3(Kr * sinD(KA) / Kc) + ': sides swapped' } },
+  ];
+  const FINISH = 'The *cosine rule*, `c² = a² + b² − 2ab cos C`, is Pythagoras with a correction that takes away below 90° and adds past it. The *sine rule* pairs each side with the sine of the angle opposite it, and when it finds an angle, 180° minus that angle may fit too.';
+  const CAP_H = 'The bars share one scale, so c² is always a² + b² and the correction together.';
+  const CAP_T = 'Drawn to scale. Each side takes the small letter of the corner opposite it.';
+  const CAP_W = 'Side b = 8 at A = 30° puts C 4 above the base line, since 8 × sin 30° = 4.';
+  const CAPS = { hinge90: CAP_H, p120: CAP_H, p60: CAP_H, flat: CAP_H, p110: CAP_H, back: CAP_H,
+    derive: 'Arm a is lesson 3\'s turning arm made a times longer, so its tip is at (a cos C, a sin C).',
+    height: 'The height from B makes two right-angled triangles, so lesson 1\'s sine gives it twice.',
+    p578: CAP_T, p4060: CAP_T, swing: CAP_W, p6: CAP_W,
+    ships: 'Distances in nautical miles, drawn to scale.', crank: 'Lengths in millimetres, drawn to scale.' };
+  // Sources the checks restate (the lesson's own).
+  const SRC = {
+    circle: 'https://openstax.org/books/precalculus-2e/pages/5-2-unit-circle-sine-and-cosine-functions',
+    cosrule: 'https://openstax.org/books/precalculus-2e/pages/8-2-non-right-triangles-law-of-cosines',
+    extra: 'https://www.mathsisfun.com/algebra/trig-cosine-law.html',
+    signs: 'https://www.bbc.co.uk/bitesize/topics/zt7wb82',
+    cosuse: 'https://www.bbc.co.uk/bitesize/articles/z3stdnb',
+    second: 'https://www.bbc.co.uk/bitesize/articles/z9dm46f',
+  };
+  const FADE = 0.35, ANS = 1.8;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { chunks(seg).forEach((c, m) => { if (m) node.appendChild(document.createTextNode(' ')); node.appendChild(K.el('span', { class: 'nw' }, c)); }); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) node.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) node.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // A formula kept whole where it is short; a long one may wrap before an = sign, or before another
+  // sign once a piece is long enough, so nothing runs off a phone at the largest text size.
+  function chunks(s) {
+    if (s.length <= 18) return [s];
+    const out = [];
+    let cur = '';
+    s.split(' ').forEach((t) => {
+      const eq = t === '=', op = /^[÷×+−]$/.test(t);
+      if (cur && (eq || (op && cur.length >= 14))) { out.push(cur); cur = t; } else cur = cur ? cur + ' ' + t : t;
+    });
+    if (cur) out.push(cur);
+    return out;
+  }
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong', 'empty'), why: a puzzle's answer. th: the hinge angle Dan set by dragging
+  // the end of arm a; al: the swing arm's length he set (null until he drags).
+  function blank() { return { pick: null, res: null, why: false, th: null, al: null }; }
+  const stOf = (o) => Object.assign(blank(), o);
+  const resetLive = (st) => { st.th = null; st.al = null; };
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  const ansOf = (st) => st.res === 'right' || !!st.why;
+  const wrongOf = (st) => st.res === 'wrong' && st.pick != null;
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, MODE = 'demo', motionEnd = 0;
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play('answer', ANS);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+    if (st.why && st.res !== 'right') play('answer', ANS);
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    resetLive(st);
+    play('demo', d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion (and
+  // while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && T !== Infinity) { T = Infinity; paint(); } });
+  // A demonstration waits until most of its picture is in view, so on a phone it does not play out
+  // while Dan is still reading the words above it.
+  let seen = true, waiting = false, waitDur = 0;
+  if (typeof IntersectionObserver === 'function') {
+    seen = false;
+    new IntersectionObserver((es) => {
+      const e = es[es.length - 1];
+      seen = e.isIntersecting && (e.intersectionRatio >= 0.6 || e.intersectionRect.height >= 0.6 * (window.innerHeight || 1));
+      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }
+    }, { threshold: [0, 0.3, 0.6, 0.8, 1] }).observe(el('scene'));
+  }
+  function play(mode, dur) {
+    MODE = mode; waiting = false;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    if (mode === 'demo' && !seen) { waiting = true; waitDur = dur; T = 0; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null, REC = null, VH = 300;
+  const VOID = K.svg('g');
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const when = (m, t, d) => (MODE === m ? arr(t, d) : 1);
+  // A motion from 0 to 1 between t0 and t0 + d of the demonstration (eased), 1 when it is not playing.
+  function mv(t0, d) {
+    if (MODE !== 'demo') return 1;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.ease(K.clamp((T - t0) / d, 0, 1));
+  }
+  const moving = () => MODE === 'demo' && T !== Infinity;
+  // A part fades in at arrival a. A part not yet arrived is still laid out (off the page), so the
+  // labels placed around it never jump when it arrives.
+  function part(a, rise, draw) {
+    const shown = a > 0;
+    const g = shown ? add(K.svg('g')) : VOID;
+    if (shown) K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; if (!shown) VOID.textContent = ''; }
+  }
+  const R = (v) => Math.round(v * 100) / 100;
+  const pt = (q) => R(q[0]) + ' ' + R(q[1]);
+  const poly = (ps, close) => 'M' + ps.map(pt).join(' L') + (close ? ' Z' : '');
+  // Lines and paths, noted (with half their width) so labels keep off them.
+  function lineP(cls, p, q, pad) {
+    add(K.svg('line', { class: cls, x1: R(p[0]), y1: R(p[1]), x2: R(q[0]), y2: R(q[1]) }));
+    if (pad != null) REC.segs.push({ p, q, pad });
+  }
+  function pathP(cls, ps, pad) {
+    add(K.svg('path', { class: cls, d: poly(ps, false) }));
+    if (pad != null) for (let k = 1; k < ps.length; k++) REC.segs.push({ p: ps[k - 1], q: ps[k], pad });
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: R(x), y: R(y), width: R(Math.max(0, w)), height: R(Math.max(0, h)), rx: rx || 0 }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: R(x), y: R(y), 'text-anchor': anchor || 'middle' }, s));
+  const dot = (p, cls, r) => add(K.svg('circle', { class: cls || 'dot', cx: R(p[0]), cy: R(p[1]), r: r || 4 }));
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 8;
+  }
+  const FS = { cl: 14, al: 14, pv: 14, te: 14, key: 13, nm: 13, sn: 13, tk: 13 };
+  function boxOf(x, y, s, cls, anchor) {
+    const w = tw(s, cls), f = FS[cls.split(' ')[0]] || 14;
+    return { x: anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2, y: y - 0.78 * f, w, h: f };
+  }
+  // A label at a fixed place (a bar's value, a name under a bar, a tick).
+  function fixedLab(x, y, s, cls, anchor, a) {
+    const aa = a == null ? 1 : a;
+    REC.boxes.push(boxOf(x, y, s, cls, anchor || 'middle'));
+    if (aa >= 0.5) REC.labs.push(s);
+    if (aa > 0) part(aa, 0, () => text(x, y, s, cls, anchor || 'middle'));
+  }
+  // A readout pill against the right edge.
+  function pillR(key, s, y, a) {
+    const w = tw(s, 'pv') + 14, h = 21, cx = 334 - w / 2, aa = a == null ? 1 : a;
+    REC.boxes.push({ x: cx - w / 2, y: y - h / 2, w, h });
+    if (aa >= 0.5) REC.pills[key] = s;
+    if (aa > 0) part(aa, 0, () => { rect('pill', cx - w / 2, y - h / 2, w, h, 10); text(cx, y + 5, s, 'pv'); });
+  }
+
+  // ---------- labels placed clear of everything drawn ----------
+  function segHits(p, q, b) {
+    let t0 = 0, t1 = 1;
+    const dx = q[0] - p[0], dy = q[1] - p[1];
+    const clip = (pp, qq) => {
+      if (pp === 0) return qq >= 0;
+      const r = qq / pp;
+      if (pp < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+      return true;
+    };
+    return clip(-dx, p[0] - b.x) && clip(dx, b.x + b.w - p[0]) && clip(-dy, p[1] - b.y) && clip(dy, b.y + b.h - p[1]) && t0 <= t1;
+  }
+  // Is a box clear of the edges, the floor, the labels placed so far, the handles and the lines? Soft
+  // lines (axes, dashed guides) may be covered by a label on a backing when nothing else fits.
+  function fits(b, pill, strict) {
+    if (b.x < 3 || b.x + b.w > 337 || b.y < 2 || b.y + b.h > Math.min(VH, REC.floor) - 2) return false;
+    if (REC.boxes.some((o) => o.x < b.x + b.w + 3 && b.x < o.x + o.w + 3 && o.y < b.y + b.h + 2 && b.y < o.y + o.h + 2)) return false;
+    if (REC.handles.some((hd) => Math.hypot(K.clamp(hd.x, b.x, b.x + b.w) - hd.x, K.clamp(hd.y, b.y, b.y + b.h) - hd.y) < 14)) return false;
+    const hit = (g) => segHits(g.p, g.q, { x: b.x - g.pad - 1.5, y: b.y - g.pad - 1.5, w: b.w + 2 * g.pad + 3, h: b.h + 2 * g.pad + 3 });
+    if (REC.segs.some(hit)) return false;
+    if (strict && !pill && REC.soft.some(hit)) return false;
+    return true;
+  }
+  // A plain label at the first candidate clear of every line; failing that, at the first one clear of
+  // the hard lines, on a small backing of the page colour over a soft one. None when there is no room.
+  function plainLab(s, cls, candsOf, a, inside) {
+    const w = tw(s, cls), h = 14, cands = candsOf(w, h);
+    const ok = (c, strict) => { const b = { x: c[0] - w / 2, y: c[1] - h / 2, w, h }; return (!inside || inside(b)) && fits(b, !strict, strict); };
+    let c = cands.find((q) => ok(q, true)) || null, back = false;
+    if (!c) { c = cands.find((q) => ok(q, false)) || null; back = !!c; }
+    if (!c) return null;
+    const aa = a == null ? 1 : a;
+    REC.boxes.push({ x: c[0] - w / 2 - (back ? 3 : 0), y: c[1] - h / 2, w: w + (back ? 6 : 0), h });
+    if (aa >= 0.5) REC.labs.push(s);
+    if (aa > 0) part(aa, 0, () => { if (back) rect('lbg', c[0] - w / 2 - 3, c[1] - h / 2 - 1, w + 6, h + 2, 4); text(c[0], c[1] + 5, s, cls); });
+    return c;
+  }
+  // A label beside a segment, on the side away from a point when it can.
+  function segLab(p, q, s, away, a, cls, onLine) {
+    cls = cls || 'al';
+    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1;
+    let n = [-dy / L, dx / L];
+    if (away) { const m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2]; if ((away[0] - m[0]) * n[0] + (away[1] - m[1]) * n[1] > 0) n = [-n[0], -n[1]]; }
+    return plainLab(s, cls, (w, h) => {
+      const out = [];
+      [n, [-n[0], -n[1]]].forEach((nn) => [0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.8, 0.1, 0.9].forEach((f) => [6, 14, 24, 34].forEach((e) => {
+        const d = e + Math.abs(nn[0]) * w / 2 + Math.abs(nn[1]) * h / 2;
+        out.push([p[0] + dx * f + nn[0] * d, p[1] + dy * f + nn[1] * d]);
+      })));
+      if (onLine) [0.5, 0.6, 0.4, 0.7].forEach((f) => out.push([p[0] + dx * f, p[1] + dy * f]));
+      return out;
+    }, a);
+  }
+  // A corner's name, beside the corner in direction dir (degrees, anticlockwise from pointing right) when it can.
+  function cornerLab(V, s, dir, a, cls) {
+    return plainLab(s, cls || 'cl', (w, h) => {
+      const out = [];
+      [0, 25, -25, 50, -50, 80, -80, 115, -115, 150, -150, 180].forEach((dt) => [10, 18, 28].forEach((e) => {
+        const u = [cosD(dir + dt), -sinD(dir + dt)], d = e + Math.abs(u[0]) * w / 2 + Math.abs(u[1]) * h / 2;
+        out.push([V[0] + u[0] * d, V[1] + u[1] * d]);
+      }));
+      return out;
+    }, a);
+  }
+  // An angle's arc at corner V from direction a0 to a1 (anticlockwise, a1 > a0), its label inside the
+  // wedge beyond the arc, left off when the wedge is too narrow for it.
+  function inWedgeAt(V, a0, a1, pad) {
+    return (b) => [[b.x, b.y], [b.x + b.w, b.y], [b.x, b.y + b.h], [b.x + b.w, b.y + b.h]].every((q) => {
+      const dx = q[0] - V[0], dy = V[1] - q[1], r = Math.hypot(dx, dy);
+      if (r < pad + 1) return false;
+      let p = Math.atan2(dy, dx) / RAD;
+      while (p < a0) p += 360;
+      while (p >= a0 + 360) p -= 360;
+      const m = Math.asin(Math.min(1, pad / r)) / RAD;
+      return p >= a0 + m && p <= a1 - m;
+    });
+  }
+  function arcPathAt(V, a0, a1, r) {
+    const p0 = [V[0] + r * cosD(a0), V[1] - r * sinD(a0)], p1 = [V[0] + r * cosD(a1), V[1] - r * sinD(a1)];
+    return 'M' + pt(p0) + ' A' + r + ' ' + r + ' 0 ' + (a1 - a0 > 180 ? 1 : 0) + ' 0 ' + pt(p1);
+  }
+  function arcAt(V, a0, a1, ra, a, cls) {
+    if (!(a1 - a0 > 0.5)) return;
+    const aa = a == null ? 1 : a, n = Math.max(2, Math.ceil((a1 - a0) / 8));
+    for (let k = 0; k < n; k++) {
+      const t0 = a0 + (a1 - a0) * k / n, t1 = a0 + (a1 - a0) * (k + 1) / n;
+      REC.segs.push({ p: [V[0] + ra * cosD(t0), V[1] - ra * sinD(t0)], q: [V[0] + ra * cosD(t1), V[1] - ra * sinD(t1)], pad: 1 });
+    }
+    if (aa > 0) part(aa, 0, () => add(K.svg('path', { class: cls || 'arc', d: arcPathAt(V, a0, a1, ra) })));
+  }
+  function wedgeLabAt(V, a0, a1, s, a, ra, cls) {
+    if (!(a1 - a0 > 0.5) || !s) return null;
+    cls = cls || 'al';
+    const w = tw(s, cls), span = a1 - a0, cands = [];
+    for (let dd = ra + Math.hypot(w / 2, 7) + 4; dd < 230; dd += 3) [0.5, 0.36, 0.64, 0.24, 0.76].forEach((f) => { const t = a0 + span * f; cands.push([V[0] + cosD(t) * dd, V[1] - sinD(t) * dd]); });
+    return plainLab(s, cls, () => cands, a, inWedgeAt(V, a0, a1, 3));
+  }
+  // A right angle's square at V between unit directions u1 and u2.
+  function square(V, u1, u2, a, s) {
+    s = s || 10;
+    const p1 = [V[0] + u1[0] * s, V[1] + u1[1] * s], p3 = [V[0] + u2[0] * s, V[1] + u2[1] * s], p2 = [p1[0] + u2[0] * s, p1[1] + u2[1] * s];
+    part(a == null ? 1 : a, 0, () => pathP('mk', [p1, p2, p3], 1));
+  }
+  // A red ring round a point a wrong answer names.
+  function ringAt(p, a) {
+    REC.boxes.push({ x: p[0] - 11, y: p[1] - 11, w: 22, h: 22 });
+    if (a > 0) part(a, 0, () => add(K.svg('circle', { class: 'badring', cx: R(p[0]), cy: R(p[1]), r: 9 })));
+  }
+  // ---------- rows of working under the picture ----------
+  function drawRows(y0, rows) {
+    rows.forEach((r, m) => {
+      const y = y0 + 24 * m;
+      REC.boxes.push(boxOf(12, y, r.s, 'te', 'start'));
+      if (r.a > 0) part(r.a, 4, () => { if (r.hl) rect('hlbg', 7, y - 15, tw(r.s, 'te') + 10, 21, 4); text(12, y, r.s, 'te' + (r.bad ? ' bad' : ''), 'start'); });
+    });
+    REC.rows = rows.filter((r) => r.a >= 0.5).map((r) => ({ s: r.s, bad: !!r.bad }));
+  }
+  function puzzleRows(d, st, y0) {
+    const an = (t) => when('answer', t), list = [], ok = ansOf(st);
+    if (ok) d.right.forEach((s, m) => list.push({ s, a: an(0.5 + 0.25 * m) }));
+    if (wrongOf(st)) list.push({ s: d.wrong[st.pick], a: an(ok ? 0.5 + 0.25 * d.right.length : 0.3), bad: true });
+    drawRows(y0, list);
+  }
+
+  // ---------- the hinge: corner C, arm b along to A, arm a turned C anticlockwise to B ----------
+  const HC = [126, 106], HU = 26, HEND = [HC[0] + HB * HU, HC[1]];
+  const hTip = (th) => [HC[0] + HA * HU * cosD(th), HC[1] - HA * HU * sinD(th)];
+  // The bars: one zero line, one scale (KB units of height per unit of value).
+  const Y0 = 214, KB = 1.3, BX = [72, 170, 268], BW = 50, NY = 284;
+  // o: handle (Dan can drag the end of arm a), hide (c and the last two bars wait for the answer), ansA (their arrival).
+  function hingeScene(th, o) {
+    REC.floor = 134; REC.pivot = HC; REC.range = [0, 180]; REC.th = th;
+    const C = HC, B = hTip(th), E = HEND, mvg = moving();
+    REC.hinge = { th, B, E, C };
+    pillR('ang', 'C = ' + angS(th), 18);
+    pillR('cos', 'cos C = ' + v3(cosD(th)), 44);
+    part(1, 0, () => { lineP('arm', C, E, 2.5); lineP('arm', C, B, 2.5); });
+    const sq = Math.abs(th - 90) < 0.05;
+    REC.square = sq;
+    if (sq) square(C, [1, 0], [0, -1], 1, 11); else arcAt(C, 0, th, 18, 1);
+    part(1, 0, () => {
+      lineP('sidec', B, E, 2);
+      dot(C, 'pin', 5); dot(E, 'dot', 4);
+      dot(B, o.handle ? 'knob' : 'dot', o.handle ? 9 : 4.5);
+    });
+    if (o.handle) REC.handles.push({ id: 'hinge', x: B[0], y: B[1] });
+    // Pythagoras, at a right angle (fading as the hinge moves off it).
+    const pa = mvg ? K.clamp(1 - Math.abs(th - 90) / 2.5, 0, 1) : (sq ? 1 : 0);
+    const shown = !o.hide || (o.ansA || 0) > 0;
+    segLab(B, E, shown ? 'c = ' + hS(cLen(th)) : 'c = ?', C, o.hide && shown ? o.ansA : 1);
+    REC.pythag = false;
+    if (pa > 0) REC.pythag = !!plainLab('Pythagoras', 'sn', () => [[C[0] - 50, C[1] - 16], [C[0] - 50, C[1] - 34], [C[0] - 54, C[1] + 16]], pa) && pa >= 0.5;
+    cornerLab(C, 'C', 235, 1);
+    cornerLab(B, 'B', th, 1);
+    cornerLab(E, 'A', 0, 1);
+    segLab(C, B, 'a = ' + HA, E, 1);
+    segLab(C, E, 'b = ' + HB, B, 1);
+  }
+  function barRect(cls, x, v, a) {
+    const h = v * KB;
+    if (Math.abs(h) < 0.4) return;
+    part(a, 0, () => rect(cls, x - BW / 2, h > 0 ? Y0 - h : Y0, BW, Math.abs(h), 2));
+  }
+  function barsScene(th, o) {
+    const cv = corr(th), c2 = csq(th), hide = !!o.hide, sa = hide ? (o.ansA || 0) : 1;
+    REC.bars = { sumh: SUM * KB, corrh: cv * KB, c2h: c2 * KB, corr: cv, neg: cv < -0.005, shown: sa >= 0.5, corrLab: null };
+    barRect('bar1', BX[0], SUM, 1);
+    barRect('barc' + (cv < 0 ? ' neg' : ''), BX[1], cv, sa);
+    barRect('bar2', BX[2], c2, sa);
+    part(1, 0, () => lineP('zero', [36, Y0], [322, Y0], 1));
+    fixedLab(30, Y0 + 5, '0', 'key', 'end', 1);
+    fixedLab(BX[0], Y0 - SUM * KB - 6, hS(SUM), 'pv', 'middle', 1);
+    const cl = corrS(th), cy = cv > 0.005 ? Y0 - cv * KB - 6 : cv < -0.005 ? Y0 - cv * KB + 16 : Y0 - 7;
+    if (hide && !(sa > 0)) { fixedLab(BX[1], Y0 - 7, '?', 'pv', 'middle', 1); fixedLab(BX[2], Y0 - 7, '?', 'pv', 'middle', 1); }
+    else {
+      fixedLab(BX[1], cy, cl, 'pv', 'middle', sa);
+      fixedLab(BX[2], Y0 - c2 * KB - 6, hS(c2), 'pv', 'middle', sa);
+      if (sa >= 0.5) REC.bars.corrLab = cl;
+    }
+    // The key for the dashed bar, while the correction takes away.
+    const ka = cv < -0.005 ? (moving() ? K.clamp(-cv / 2, 0, 1) : 1) * sa : 0;
+    REC.key = ka >= 0.5;
+    REC.boxes.push({ x: 232, y: 230, w: 98, h: 16 });
+    if (ka > 0) part(ka, 0, () => { rect('barc neg', 236, 232, 18, 11, 0); text(259, 242, 'taken away', 'key', 'start'); });
+    [[BX[0], 'a² + b²'], [BX[1], '−2ab cos C'], [219, '='], [BX[2], 'c²']].forEach((n) => fixedLab(n[0], NY, n[1], 'nm', 'middle', 1));
+  }
+  const describeH = (th, hide) => 'Two arms, 3 and 4 long, joined at a hinge opened to ' + angS(th).replace('°', ' degrees') +
+    (hide ? ', with the third side c drawn between their ends. Under it a bar shows a squared plus b squared, 25.' :
+      ', with the third side c, ' + hS(cLen(th)) + ' long, between their ends. Under it three bars on one scale: a squared plus b squared, 25; the correction, ' +
+      corrS(th) + '; and c squared, ' + hS(csq(th)) + '.');
+
+  // ---------- the rule built on axes: arm b along the across axis, arm a's tip at (a cos C, a sin C) ----------
+  const DC = [104, 150], DU = 32, DEND = [DC[0] + HB * DU, DC[1]];
+  const dTip = (th) => [DC[0] + HA * DU * cosD(th), DC[1] - HA * DU * sinD(th)];
+  function deriveScene(th, g, k) {
+    REC.floor = 198; REC.pivot = DC; REC.range = [20, 150]; REC.th = th;
+    const C = DC, B = dTip(th), E = DEND, F = [B[0], C[1]], yb = C[1] + 12;
+    REC.der = { th, B, E, C, F };
+    part(1, 0, () => add(K.svg('line', { class: 'axis', x1: 14, y1: C[1], x2: 330, y2: C[1] })));
+    REC.soft.push({ p: [14, C[1]], q: [330, C[1]], pad: 1 });
+    fixedLab(330, C[1] - 8, 'across', 'key', 'end', 1);
+    part(1, 0, () => { lineP('arm', C, E, 2.5); lineP('arm', C, B, 2.5); });
+    arcAt(C, 0, th, 22, 1);
+    part(g, 0, () => add(K.svg('line', { class: 'guide', x1: R(F[0]), y1: R(F[1]), x2: R(B[0]), y2: R(B[1]) })));
+    REC.soft.push({ p: F, q: B, pad: 1 });
+    part(g, 0, () => pathP('brk', [[F[0], yb - 5], [F[0], yb], [E[0], yb], [E[0], yb - 5]], 1));
+    part(1, 0, () => { lineP('sidec', B, E, 2); dot(C, 'pin', 5); dot(E, 'dot', 4); dot(B, 'knob', 9); });
+    REC.handles.push({ id: 'hinge', x: B[0], y: B[1] });
+    wedgeLabAt(C, 0, th, 'C', 1, 22);
+    cornerLab(B, '(a cos C, a sin C)', 90, k, 'al');
+    cornerLab(E, '(b, 0)', 60, k, 'al');
+    plainLab('b − a cos C', 'al', () => { const m = (F[0] + E[0]) / 2; return [[m, yb + 14], [m + 20, yb + 14], [m - 20, yb + 14], [m, yb + 30]]; }, g);
+    segLab(F, B, 'a sin C', E, g, 'al', true);
+    segLab(C, B, 'a', E, 1);
+    segLab(B, E, 'c', C, 1);
+  }
+
+  // ---------- the swing arm: b = 8 from A at 30° up to C, and an arm a swinging round C ----------
+  const WAv = [52, 168], WSU = 17, BY = 168;
+  const WCv = [WAv[0] + WB * WSU * cosD(WA), BY - WB * WSU * sinD(WA)], WFv = [WCv[0], BY];
+  const TY = 238, TX0 = 92, TX1 = 316, AMIN = 2, AMAX = 9;
+  const trackX = (al) => TX0 + (al - AMIN) / (AMAX - AMIN) * (TX1 - TX0);
+  function swingRows(al) {
+    const L = landings(al), aS = trim(al, 1);
+    if (L.short) return ['a = ' + aS + ' falls short of the height, ' + hS(WH)];
+    if (L.touch) return ['a = ' + aS + ' just reaches: B = 90°'];
+    const r1 = 'sin B = ' + hS(WB) + ' × ' + v3(sinD(WA)) + ' ÷ ' + aS + ' = ' + v3(WH / al);
+    if (L.two) return [r1, 'B = ' + angS(L.B1) + ' or 180° − ' + angS(L.B1) + ' = ' + angS(L.B2)];
+    return [r1, 'B = ' + angS(L.B1) + '; the other lands ' + (L.atA ? 'on A itself' : 'behind A')];
+  }
+  function swingArc(V, r, a0, a1, a) {
+    if (!(a1 - a0 > 0.2) || r < 1) return;
+    const n = Math.max(2, Math.ceil((a1 - a0) / 8));
+    for (let k = 0; k < n; k++) {
+      const t0 = a0 + (a1 - a0) * k / n, t1 = a0 + (a1 - a0) * (k + 1) / n;
+      REC.segs.push({ p: [V[0] + r * cosD(t0), V[1] - r * sinD(t0)], q: [V[0] + r * cosD(t1), V[1] - r * sinD(t1)], pad: 1 });
+    }
+    if (a > 0) part(a, 0, () => add(K.svg('path', { class: 'swing', d: arcPathAt(V, a0, a1, r) })));
+  }
+  function angLabB(V, a0, a1, s, a) {
+    return wedgeLabAt(V, a0, a1, s, a, 16) || plainLab(s, 'al', () => [[V[0], BY + 34], [V[0] + 26, BY + 34], [V[0] - 26, BY + 34], [V[0] + 44, BY + 34], [V[0] - 44, BY + 34]], a);
+  }
+  function trackScene(al) {
+    const x = trackX(al);
+    part(1, 0, () => {
+      lineP('track', [TX0, TY], [TX1, TY], 2);
+      for (let k = AMIN; k <= AMAX; k++) add(K.svg('line', { class: 'tick', x1: R(trackX(k)), y1: TY + 6, x2: R(trackX(k)), y2: TY + 11 }));
+      if (x > TX0 + 0.5) add(K.svg('line', { class: 'tfill', x1: TX0, y1: TY, x2: R(x), y2: TY }));
+      dot([x, TY], 'knob', 10);
+    });
+    REC.handles.push({ id: 'arm', x, y: TY });
+    fixedLab(14, TY + 5, 'arm a', 'nm', 'start', 1);
+    for (let k = AMIN; k <= AMAX; k++) fixedLab(trackX(k), TY + 27, String(k), 'tk', 'middle', 1);
+  }
+  // o: floor, track (the scale for arm a), second (arrival of the second landing), arc (of the swing's path), ring.
+  function swingScene(al, o) {
+    REC.floor = o.floor;
+    const A = WAv, C = WCv, F = WFv, L = landings(al), Rr = al * WSU, s2 = o.second == null ? 1 : o.second, aa = o.arc == null ? 1 : o.arc;
+    const Sw = REC.swing = { al, L, B1: null, B2: null, two: false, behind: false, end: null };
+    part(1, 0, () => { lineP('base', [14, BY], [330, BY], 1); lineP('arm', A, C, 2.5); });
+    part(1, 0, () => add(K.svg('line', { class: 'guide', x1: R(C[0]), y1: R(C[1]), x2: R(F[0]), y2: R(F[1]) })));
+    REC.soft.push({ p: C, q: F, pad: 1 });
+    arcAt(A, 0, WA, 26, 1);
+    let B1 = null, B2 = null;
+    if (L.short) {
+      const end = [C[0], C[1] + Rr];
+      Sw.end = end;
+      swingArc(C, Rr, 180, 360, aa);
+      part(1, 0, () => { lineP('arm', C, end, 2.5); dot(end, 'dot', 4.5); });
+    } else {
+      const dd = L.dx * WSU;
+      B1 = [F[0] + dd, BY]; B2 = [F[0] - dd, BY];
+      Sw.B1 = B1;
+      swingArc(C, Rr, 360 - L.B1, 360, aa);
+      if (!L.touch) swingArc(C, Rr, 180, 180 + L.B1, aa);
+      if (L.touch) square(B1, [-1, 0], [0, -1], 1); else arcAt(B1, 180 - L.B1, 180, 16, 1);
+      part(1, 0, () => { lineP('arm', C, B1, 2.5); dot(B1, 'dot', 4.5); });
+      if (L.two) {
+        Sw.B2 = B2; Sw.two = s2 >= 0.5;
+        arcAt(B2, L.B1, 180, 16, s2);
+        part(s2, 0, () => { lineP('arm', C, B2, 2.5); dot(B2, 'dot', 4.5); });
+      } else if (!L.touch) {
+        Sw.B2 = B2; Sw.behind = true;
+        part(1, 0, () => { lineP('ghost', C, B2, 1.5); dot(B2, 'dot muted', 4); });
+      }
+    }
+    part(1, 0, () => { dot(A, 'dot', 4); dot(C, 'dot', 4); });
+    if (o.ring && B2) ringAt(B2, o.ring);
+    if (o.track) trackScene(al);
+    cornerLab(A, 'A', 135, 1);
+    cornerLab(C, 'C', 90, 1);
+    segLab(A, C, 'b = ' + WB, F, 1);
+    wedgeLabAt(A, 0, WA, angS(WA), 1, 26);
+    const hm = (C[1] + BY) / 2;
+    plainLab(hS(WH), 'al', () => [[C[0] - 11, hm], [C[0] + 11, hm], [C[0] - 11, hm + 16], [C[0] + 11, hm + 16], [C[0] - 11, hm - 16], [C[0] + 11, hm - 16], [C[0], hm]], 1);
+    const aLab = 'a = ' + trim(al, 1);
+    if (L.short) segLab(C, Sw.end, aLab, A, 1); else segLab(C, B1, aLab, A, 1);
+    if (B1) {
+      cornerLab(B1, 'B', 270, 1);
+      if (L.two) cornerLab(B2, 'B', 270, s2);
+      Sw.lab1 = angLabB(B1, 180 - L.B1, 180, L.touch ? '90°' : angS(L.B1), 1) ? (L.touch ? '90°' : angS(L.B1)) : null;
+      if (L.two) Sw.lab2 = angLabB(B2, L.B1, 180, angS(L.B2), s2) ? angS(L.B2) : null;
+    }
+    const ends = L.short ? [[C[0] + Rr, C[1]], [C[0], C[1] + Rr]] : [[C[0] + Rr, C[1]], [C[0] - Rr, C[1]]];
+    plainLab('swing of a', 'key', (w, h) => {
+      const out = [];
+      ends.forEach((e) => [[-w / 2 - 6, -12], [w / 2 + 6, -12], [0, -14], [-w / 2 - 6, 12], [w / 2 + 6, 12], [-w / 2 - 6, -28], [0, 16]].forEach((q) => out.push([e[0] + q[0], e[1] + q[1]])));
+      return out;
+    }, aa);
+  }
+  const describeW = (al) => 'Side b, 8 long, rises at 30 degrees from corner A to corner C, 4 above a base line. From C an arm a, ' + trim(al, 1) + ' long, swings round. ' + swingRows(al).join('. ') + '.';
+
+  // ---------- other triangles ----------
+  const TA = [40, 190], TBv = [122, 52], TC = [300, 190], TH = [122, 190];
+  const Q7C = [50, 196], Q7A = [50 + Tb * 30, 196], Q7B = [50 + Ta * 30 * cosD(C7), 196 - Ta * 30 * sinD(C7)];
+  const SU = 32, S4A = [45, 206], S4B = [45 + Sc * SU, 206], S4C = [45 + Sb * SU * cosD(SA), 206 - Sb * SU * sinD(SA)];
+  const SHU = 3.5, SHP = [150, 192], SHS1 = [150 + Sh1 * SHU, 192], SHS2 = [150 + Sh2 * SHU * cosD(ShA), 192 - Sh2 * SHU * sinD(ShA)];
+  const KSC = 1.15, KO = [36, 108];
+  const KP = [KO[0] + Kc * KSC * cosD(KA), KO[1] - Kc * KSC * sinD(KA)];
+  const KQ = [KO[0] + (Kc * cosD(KA) + Math.sqrt(Kr * Kr - Math.pow(Kc * sinD(KA), 2))) * KSC, KO[1]];
+  const triLines = (A, B, C) => part(1, 0, () => { lineP('tri', A, B, 1.5); lineP('tri', B, C, 1.5); lineP('tri', C, A, 1.5); dot(A); dot(B); dot(C); });
+
+  // ---------- each step's picture; each returns it in words ----------
+  const hingePuzzle = (th) => (d, st) => {
+    const ok = ansOf(st), an = (t) => when('answer', t), aA = ok ? an(0.3) : 0;
+    hingeScene(th, { hide: true, ansA: aA });
+    barsScene(th, { hide: true, ansA: aA });
+    puzzleRows(d, st, 314);
+    return describeH(th, !ok);
+  };
+  const PIC = {
+    hinge90(d, st) {
+      const th = st.th != null ? st.th : 90 - 30 * mv(0.9, 0.8) + 60 * mv(2.1, 1.4);
+      hingeScene(th, { handle: true });
+      barsScene(th, {});
+      drawRows(314, []);
+      return describeH(th);
+    },
+    p120: hingePuzzle(P1),
+    derive(d, st) {
+      const dm = (t) => when('demo', t), th = st.th != null ? st.th : 20 + 40 * mv(0.6, 1.2);
+      deriveScene(th, dm(1.9), dm(2.2));
+      drawRows(216, [{ s: 'c² = (b − a cos C)² + (a sin C)²', a: dm(2.5) },
+        { s: '= b² − 2ab cos C + a² cos² C + a² sin² C', a: dm(2.9) },
+        { s: '= b² − 2ab cos C + a²(cos² C + sin² C)', a: dm(3.3) },
+        { s: 'c² = a² + b² − 2ab cos C', a: dm(3.7), hl: true }]);
+      return 'Arm b lies along the across axis from the hinge, its end at (b, 0). Arm a is turned ' + angS(th).replace('°', ' degrees') +
+        ', its tip at (a cos C, a sin C). A dashed line marks the gap up, a sin C, and a bracket the gap across, b minus a cos C. The working ends at c squared equals a squared plus b squared minus 2ab cos C.';
+    },
+    p60: hingePuzzle(P3),
+    flat(d, st) {
+      const dm = (t) => when('demo', t), th = st.th != null ? st.th : 90 + 20 * mv(0.5, 0.6) + 70 * mv(1.5, 0.8) - 180 * mv(2.6, 1.1);
+      hingeScene(th, { handle: true });
+      barsScene(th, {});
+      drawRows(314, [{ s: '180°: c = ' + HA + ' + ' + HB + ' = ' + hS(cLen(180)), a: dm(2.3) }, { s: '0°: c = ' + HB + ' − ' + HA + ' = ' + hS(cLen(0)), a: dm(3.7) }]);
+      return describeH(th) + ' Laid flat at 180 degrees c is 7; folded shut at 0 degrees c is 1.';
+    },
+    p110: hingePuzzle(P5),
+    back(d, st) {
+      const dm = (t) => when('demo', t), th = 90 + (CB - 90) * mv(2.0, 1.2);
+      hingeScene(th, {});
+      barsScene(th, {});
+      drawRows(314, [{ s: cosRow, a: dm(0.6) }, { s: angRow, a: dm(1.4) }]);
+      return describeH(th) + ' ' + cosRow + '. ' + angRow + '.';
+    },
+    p578(d, st) {
+      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), wA = w && st.pick === o7[2];
+      REC.floor = 220;
+      const A = Q7A, B = Q7B, C = Q7C, aA = dirAng(A, B);
+      triLines(A, B, C);
+      arcAt(C, 0, C7, 24, 1);
+      if (wA) arcAt(A, aA, 180, 24, an(0.1), 'arc bad');
+      REC.tri = { A, B, C };
+      cornerLab(C, 'C', 225, 1); cornerLab(A, 'A', -45, 1); cornerLab(B, 'B', 90, 1);
+      if (ok) wedgeLabAt(C, 0, C7, o7[1], an(0.3), 24); else wedgeLabAt(C, 0, C7, '?', 1, 24);
+      if (wA) wedgeLabAt(A, aA, 180, o7[2], an(0.1), 24, 'al bad');
+      segLab(C, B, 'a = ' + Ta, A, 1); segLab(C, A, 'b = ' + Tb, B, 1); segLab(A, B, 'c = ' + Tc, C, 1);
+      puzzleRows(d, st, 236);
+      return 'A triangle drawn to scale with sides a = 5, b = 8 and c = 7. The angle C, between the sides of 5 and 8, opposite the 7, is ' + (ok ? '60 degrees.' : 'asked for.');
+    },
+    height(d, st) {
+      const dm = (t) => when('demo', t), g = mv(0.5, 0.8);
+      REC.floor = 222;
+      const A = TA, B = TBv, C = TC, H = TH, Hp = [B[0], B[1] + (H[1] - B[1]) * g];
+      part(dm(1.6), 0, () => add(K.svg('path', { class: 'face1', d: poly([A, B, H], true) })));
+      part(dm(2.2), 0, () => add(K.svg('path', { class: 'face3', d: poly([C, B, H], true) })));
+      triLines(A, B, C);
+      arcAt(A, 0, dirAng(A, B), 24, 1);
+      arcAt(C, dirAng(C, B), 180, 24, 1);
+      if (g > 0.01) part(1, 0, () => add(K.svg('line', { class: 'guide', x1: R(B[0]), y1: R(B[1]), x2: R(Hp[0]), y2: R(Hp[1]) })));
+      REC.segs.push({ p: B, q: Hp, pad: 1 });
+      square(H, [-1, 0], [0, -1], dm(1.3));
+      REC.tri = { A, B, C, H: Hp };
+      cornerLab(A, 'A', 200, 1); cornerLab(B, 'B', 90, 1); cornerLab(C, 'C', -20, 1);
+      segLab(A, B, 'c', C, 1); segLab(B, C, 'a', A, 1); segLab(C, A, 'b', B, 1);
+      plainLab('h', 'al', () => { const m = (B[1] + H[1]) / 2; return [[B[0] + 12, m], [B[0] + 12, m + 20], [B[0] + 12, m - 20], [B[0] - 12, m]]; }, dm(1.3));
+      drawRows(234, [{ s: 'left triangle: h = c sin A', a: dm(1.6) }, { s: 'right triangle: h = a sin C', a: dm(2.2) },
+        { s: 'so c sin A = a sin C', a: dm(2.8) }, { s: 'a ÷ sin A = c ÷ sin C', a: dm(3.4), hl: true }]);
+      return 'A triangle ABC with a height h dropped from B square onto side AC, making two right-angled triangles. In the left one h = c sin A, in the right one h = a sin C, so a divided by sin A equals c divided by sin C.';
+    },
+    p4060(d, st) {
+      const ok = ansOf(st), an = (t) => when('answer', t);
+      REC.floor = 236;
+      const A = S4A, B = S4B, C = S4C;
+      triLines(A, B, C);
+      arcAt(A, 0, SA, 24, 1); arcAt(B, 180 - SB, 180, 24, 1);
+      REC.tri = { A, B, C };
+      cornerLab(A, 'A', 200, 1); cornerLab(B, 'B', -20, 1); cornerLab(C, 'C', 90, 1);
+      wedgeLabAt(A, 0, SA, angS(SA), 1, 24); wedgeLabAt(B, 180 - SB, 180, angS(SB), 1, 24);
+      segLab(B, C, 'a = ' + Sa, A, 1);
+      segLab(A, C, ok ? 'b = ' + o9[0] : 'b = ?', B, ok ? an(0.3) : 1);
+      puzzleRows(d, st, 252);
+      return 'A triangle ABC drawn to scale with angle A 40 degrees, angle B 60 degrees and side a, opposite A, 5 long. Side b, opposite B, is ' + (ok ? '6.74 long.' : 'asked for.');
+    },
+    swing(d, st) {
+      const al = st.al != null ? st.al : 3 + 6 * mv(0.8, 1.6) - 4 * mv(2.8, 1.0);
+      swingScene(al, { floor: 222, track: true });
+      drawRows(290, swingRows(al).map((s) => ({ s, a: 1 })));
+      return describeW(al);
+    },
+    p6(d, st) {
+      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), s2 = ok ? an(0.3) : 0;
+      swingScene(W6, { floor: 212, second: s2, arc: s2, ring: w && st.pick === o11[0] ? an(0.1) : 0 });
+      puzzleRows(d, st, 228);
+      return 'Side b, 8 long, rises at 30 degrees from A to C, 4 above the base line. An arm a, 6 long, lands on the base line at B, where the angle is 41.8 degrees.' + (ok ? ' It lands a second time where the angle B is 138.2 degrees.' : ' Does it land anywhere else?');
+    },
+    ships(d, st) {
+      const ok = ansOf(st), an = (t) => when('answer', t);
+      REC.floor = 222;
+      const P = SHP, S1 = SHS1, S2 = SHS2;
+      part(1, 0, () => { lineP('tri', P, S1, 1.5); lineP('tri', P, S2, 1.5); lineP('sidec', S1, S2, 2); dot(P, 'pin', 5); dot(S1, 'dot c', 5); dot(S2, 'dot c', 5); });
+      arcAt(P, 0, ShA, 24, 1);
+      cornerLab(P, 'port', 270, 1, 'sn');
+      wedgeLabAt(P, 0, ShA, angS(ShA), 1, 24);
+      segLab(P, S1, String(Sh1), S2, 1); segLab(P, S2, String(Sh2), S1, 1);
+      segLab(S1, S2, ok ? 'd = ' + o12[2] : 'd = ?', P, ok ? an(0.3) : 1);
+      puzzleRows(d, st, 238);
+      return 'Two courses from a port, 48 and 40 nautical miles long, 113 degrees apart, drawn to scale. The distance d between the ships is ' + (ok ? '73.5 nautical miles.' : 'asked for.');
+    },
+    crank(d, st) {
+      const ok = ansOf(st), an = (t) => when('answer', t);
+      REC.floor = 156;
+      const O = KO, P = KP, Q = KQ, qa = dirAng(Q, P);
+      part(1, 0, () => add(K.svg('line', { class: 'cline', x1: 16, y1: O[1], x2: 330, y2: O[1] })));
+      REC.segs.push({ p: [16, O[1]], q: [330, O[1]], pad: 1 });
+      part(1, 0, () => { lineP('arm', O, P, 2.5); lineP('rod', P, Q, 2); dot(O, 'pin', 5); dot(P, 'dot', 4.5); dot(Q, 'dot', 4.5); });
+      arcAt(O, 0, KA, 24, 1); arcAt(Q, qa, 180, 100, 1);
+      cornerLab(O, 'crankshaft', 290, 1, 'sn'); cornerLab(P, 'crankpin', 90, 1, 'sn'); cornerLab(Q, 'piston pin', 250, 1, 'sn');
+      wedgeLabAt(O, 0, KA, angS(KA), 1, 24);
+      wedgeLabAt(Q, qa, 180, ok ? 'θ = ' + angS(Kth) : 'θ = ?', ok ? an(0.3) : 1, 100);
+      segLab(O, P, Kc + ' mm', Q, 1); segLab(P, Q, Kr + ' mm', O, 1);
+      plainLab('centre line', 'key', () => [[190, O[1] + 16], [230, O[1] + 16], [150, O[1] + 16], [190, O[1] + 32], [120, O[1] + 16]], 1);
+      puzzleRows(d, st, 176);
+      return 'An engine drawn to scale: a crank 50 mm long from the crankshaft centre, turned 40 degrees from the centre line, and a connecting rod 200 mm long down to the piston pin on the centre line. The rod\'s angle theta to the centre line is ' + (ok ? '9.2 degrees.' : 'asked for.');
+    },
+  };
+
+  // ---------- the handles: Dan drags the end of arm a round the hinge, or the knob along arm a's scale ----------
+  const GRIPS = { hinge: 'The angle C at the hinge, in degrees', arm: 'The length of arm a' };
+  const grips = {};
+  Object.keys(GRIPS).forEach((id) => {
+    const g = ui.appendChild(K.svg('circle', { class: 'grip', cx: -60, cy: -60, r: 22, tabindex: -1, role: 'slider', 'aria-orientation': 'horizontal', 'aria-label': GRIPS[id] }));
+    g.style.display = 'none';
+    grips[id] = g;
+  });
+  function hingeAt(q) {
+    const P = REC.pivot, rg = REC.range;
+    let a = Math.atan2(P[1] - q.y, q.x - P[0]) / RAD;
+    if (a < 0) a = a > -90 ? 0 : 180;
+    return Math.round(K.clamp(a, rg[0], rg[1]));
+  }
+  function armAt(q) {
+    let v = Math.round(K.clamp(AMIN + (q.x - TX0) / (TX1 - TX0) * (AMAX - AMIN), AMIN, AMAX) * 10) / 10;
+    [3, 4, 5, 6, 8].forEach((s) => { if (Math.abs(v - s) <= 0.15) v = s; });
+    return v;
+  }
+  const liveOn = (id) => !finished && (STEPS[at()].live || []).indexOf(id) >= 0 && !!REC && REC.handles.some((h) => h.id === id);
+  function gripVal(id) { return id === 'hinge' ? Math.round(REC.th || 0) : (REC.swing ? REC.swing.al : 5); }
+  function placeGrips(d) {
+    Object.keys(grips).forEach((id) => {
+      const g = grips[id], h = REC.handles.filter((q) => q.id === id)[0], on = !finished && !!h && (d.live || []).indexOf(id) >= 0;
+      g.style.display = on ? '' : 'none';
+      g.setAttribute('tabindex', on ? '0' : '-1');
+      if (!on) return;
+      g.setAttribute('cx', R(h.x)); g.setAttribute('cy', R(h.y));
+      const v = gripVal(id);
+      g.setAttribute('aria-valuemin', id === 'hinge' ? REC.range[0] : AMIN); g.setAttribute('aria-valuemax', id === 'hinge' ? REC.range[1] : AMAX);
+      g.setAttribute('aria-valuenow', v); g.setAttribute('aria-valuetext', id === 'hinge' ? v + '°' : 'a = ' + trim(v, 1));
+    });
+  }
+  function setLive(ch) {
+    const st = S[at()];
+    if (Object.keys(ch).every((k) => st[k] === ch[k]) && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    waiting = false; T = Infinity;
+    Object.assign(st, ch);
+    K.reveal(); K.refresh();
+  }
+  function setGrip(id, v) {
+    if (id === 'hinge') setLive({ th: Math.round(K.clamp(v, REC.range[0], REC.range[1])) });
+    else setLive({ al: Math.round(K.clamp(v, AMIN, AMAX) * 10) / 10 });
+  }
+  function svgPoint(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+  }
+  const dragTo = (id, q) => setGrip(id, id === 'hinge' ? hingeAt(q) : armAt(q));
+  Object.keys(grips).forEach((id) => {
+    const g = grips[id];
+    let held = null;
+    g.addEventListener('pointerdown', (e) => {
+      if (!liveOn(id)) return;
+      held = e.pointerId;
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the handle */ }
+      e.preventDefault();
+      const q = svgPoint(e); if (q) dragTo(id, q);
+    });
+    g.addEventListener('pointermove', (e) => { if (held !== e.pointerId || !liveOn(id)) return; const q = svgPoint(e); if (q) dragTo(id, q); });
+    const letGo = (e) => { if (held === e.pointerId) held = null; };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', () => { held = null; });
+    g.addEventListener('keydown', (e) => {
+      if (!liveOn(id)) return;
+      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+      if (by == null) return;
+      e.preventDefault();
+      setGrip(id, gripVal(id) + by * (id === 'hinge' ? 1 : 0.1));
+    });
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    REC = { segs: [], soft: [], handles: [], boxes: [], labs: [], rows: [], pills: {}, floor: 1000, pivot: null, range: [0, 180], th: null, key: false };
+    VH = d.vh;
+    svg.setAttribute('viewBox', '0 0 340 ' + d.vh);
+    svg.setAttribute('aria-label', PIC[d.pic](d, st) || '');
+    if (!d.show && !ansOf(st) && st.res !== 'wrong') {
+      let b = null;
+      try { b = art.getBBox(); } catch (e) { b = null; }
+      if (b && b.height > 0) svg.setAttribute('viewBox', '0 0 340 ' + Math.min(d.vh, Math.ceil(b.y + b.height + 10)));
+    }
+    placeGrips(d);
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing() && !waiting) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { resetLive(st); play('demo', d.dur); }
+      else { waiting = false; anim.pause(); T = Infinity; MODE = 'answer'; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    const after = el('after');
+    after.hidden = !d.show || !d.after;
+    write(after, d.show && d.after ? d.after : '');
+    const cap = el('cap'), cs = CAPS[d.pic] || '';
+    cap.textContent = cs; cap.hidden = finished || !cs;
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (pic) => STEPS.findIndex((d) => d.pic === pic);
+  // Step i painted in state st (motion m, at time tAt, finished if none), fn reading what it drew
+  // before the page is put back.
+  function withState(i, st, m, fn, tAt) {
+    const keepS = S[i], keepT = T, keepM = MODE;
+    S[i] = st; T = tAt == null ? Infinity : tAt; MODE = m || (STEPS[i].show ? 'demo' : 'answer');
+    latest = 0; earliest = Infinity;
+    try { paint(i); return fn(); } finally { S[i] = keepS; T = keepT; MODE = keepM; paint(); }
+  }
+  const drawn = (i, st, m) => withState(i, st, m, () => ({ texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent), rec: REC }));
+  const solvedSt = (i) => stOf({ pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => stOf({ pick: o, res: 'wrong' });
+  const fail = (msg) => { throw new Error(msg); };
+  const HANG = [], DANG = [], ALS = [];
+  for (let a = 0; a <= 180; a += 5) HANG.push(a);
+  [1, 89, 91, 179, 60, 110, 117, 120].forEach((a) => HANG.push(a));
+  for (let a = 20; a <= 150; a += 5) DANG.push(a);
+  [21, 89, 91, 149].forEach((a) => DANG.push(a));
+  for (let k = 20; k <= 90; k++) ALS.push(k / 10);
+  // Every state a step can be seen in.
+  function statesOf(i) {
+    const d = STEPS[i], out = [];
+    if (d.show) {
+      out.push([blank(), 'demo']);
+      if ((d.live || []).indexOf('hinge') >= 0) (d.pic === 'derive' ? DANG : HANG).forEach((th) => out.push([stOf({ th }), 'demo']));
+      if ((d.live || []).indexOf('arm') >= 0) ALS.forEach((al) => out.push([stOf({ al }), 'demo']));
+    } else {
+      out.push([blank(), 'answer'], [solvedSt(i), 'answer'], [stOf({ why: true }), 'answer']);
+      d.opts.filter((o) => o !== d.want).forEach((o) => out.push([wrongSt(i, o), 'answer'], [stOf({ pick: o, res: 'wrong', why: true }), 'answer']));
+    }
+    return out;
+  }
+  // What crowds the labels in the picture now: labels over labels or handles, or off the edge.
+  function crowding() {
+    const bad = [], boxes = [];
+    art.querySelectorAll('text').forEach((t) => {
+      let b = null;
+      try { b = t.getBBox(); } catch (e) { b = null; }
+      if (!b || !(b.width > 0) || !(b.height > 0)) return;
+      const sh = b.height * 0.2;
+      boxes.push({ s: t.textContent, x: b.x, y: b.y + sh, w: b.width, h: b.height - 2 * sh });
+    });
+    boxes.forEach((a, m) => {
+      if (a.x < 1 || a.x + a.w > 339 || a.y < 0 || a.y + a.h > VH) bad.push('"' + a.s + '" off the edge');
+      boxes.slice(m + 1).forEach((b) => {
+        const ix = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x), iy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+        if (ix > 1 && iy > 1) bad.push('"' + a.s + '" on "' + b.s + '"');
+      });
+      REC.handles.forEach((h) => { const nx = K.clamp(h.x, a.x, a.x + a.w), ny = K.clamp(h.y, a.y, a.y + a.h); if (Math.hypot(nx - h.x, ny - h.y) < 11) bad.push('"' + a.s + '" on a handle'); });
+    });
+    return bad;
+  }
+  const lenOf = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]);
+
+  K.check('The square of any side of a triangle is equal to the sum of the squares of the other two sides minus twice the product of the other two sides and the cosine of the included angle: at every whole angle of the hinge from 0° to 180°, the third side measured off the drawing, squared, is 9 + 16 − 24 cos C, the c² bar stands exactly that high on the bars\' scale, it is the first bar and the correction together, and the side\'s label and the bar\'s label agree', () => {
+    const i = idx('hinge90');
+    for (let th = 0; th <= 180; th++) {
+      const r = drawn(i, stOf({ th }), 'demo').rec, h = r.hinge, b = r.bars, c = lenOf(h.B, h.E) / HU;
+      if (!K.near(c * c, HA * HA + HB * HB - 2 * HA * HB * cosD(th), 1e-9)) fail('side wrong at ' + th);
+      if (!K.near(b.c2h / KB, c * c, 1e-9) || !K.near(b.sumh / KB + b.corrh / KB, b.c2h / KB, 1e-9) || !K.near(b.sumh / KB, 25, 1e-12)) fail('bars wrong at ' + th);
+      if (r.labs.indexOf('c = ' + hS(c)) < 0 || r.labs.indexOf(hS(c * c)) < 0 || r.pills.ang !== 'C = ' + angS(th)) fail('labels wrong at ' + th);
+    }
+    return true;
+  }, { source: SRC.cosrule });
+  K.check('It helps to know it\'s the Pythagoras Theorem with something extra so it works for all triangles: at 90° the hinge shows a right-angle square and the label Pythagoras, the correction is 0 and c = 5, and at every other whole angle from 0° to 180° the correction is not zero and neither the square nor the label is shown', () => {
+    const i = idx('hinge90'), r = drawn(i, stOf({ th: 90 }), 'demo').rec;
+    if (!(r.square && r.pythag && r.labs.indexOf('c = 5') >= 0 && r.bars.corrLab === '0' && Math.abs(r.bars.corr) < 1e-9)) return false;
+    for (let th = 0; th <= 180; th++) {
+      if (th === 90) continue;
+      const q = drawn(i, stOf({ th }), 'demo').rec;
+      if (q.square || q.pythag || Math.abs(q.bars.corr) < 0.4 || q.bars.corrLab === '0') fail('Pythagoras shown at ' + th);
+    }
+    return true;
+  }, { source: SRC.extra });
+  K.check('Sine, cosine and tangent all have different positive or negative values depending on what quadrant they are in: at every whole angle, the cos C readout is negative exactly when the tip of arm a is left of the hinge, past 90°, and then the correction bar stands above the zero line, solid; below 90° the readout is positive and the bar hangs below the line, dashed, with its key', () => {
+    const i = idx('hinge90');
+    for (let th = 0; th <= 180; th++) {
+      if (th === 90) continue;
+      const r = drawn(i, stOf({ th }), 'demo').rec, past = th > 90;
+      if ((r.hinge.B[0] < r.hinge.C[0] - 1e-9) !== past || (r.pills.cos.indexOf('−') >= 0) !== past) fail('readout sign wrong at ' + th);
+      if ((r.bars.corrh > 0) !== past || r.bars.neg !== !past || r.key !== !past) fail('correction bar wrong at ' + th);
+    }
+    return true;
+  }, { source: SRC.signs });
+  K.check('The terminal side of the angle intersects the circle at the point (x, y), which is equivalent to (cos t, sin t): on the screen that builds the rule, arm a is lesson 3\'s arm made 3 times longer, so at every angle it can be dragged to, its tip measured off the drawing is 3 cos C across and 3 sin C up from the hinge, and the dashed gap to the end of arm b is 4 − 3 cos C across and 3 sin C up', () => {
+    const i = idx('derive');
+    for (let th = 20; th <= 150; th++) {
+      const g = drawn(i, stOf({ th }), 'demo').rec.der;
+      if (!K.near((g.B[0] - g.C[0]) / DU, HA * cosD(th), 1e-9) || !K.near((g.C[1] - g.B[1]) / DU, HA * sinD(th), 1e-9)) fail('tip wrong at ' + th);
+      if (!K.near((g.E[0] - g.F[0]) / DU, HB - HA * cosD(th), 1e-9) || !K.near((g.F[1] - g.B[1]) / DU, HA * sinD(th), 1e-9)) fail('gap wrong at ' + th);
+      if (!K.near(Math.pow(lenOf(g.B, g.E) / DU, 2), csq(th), 1e-9)) fail('c wrong at ' + th);
+    }
+    const r = drawn(i, blank(), 'demo').rec;
+    return ['(a cos C, a sin C)', '(b, 0)', 'a sin C', 'b − a cos C'].every((s) => r.labs.indexOf(s) >= 0) && r.rows.length === 4 && r.rows[3].s === 'c² = a² + b² − 2ab cos C';
+  }, { source: SRC.circle });
+  K.check('The cosine rule is a formula used to find a missing side or angle in a triangle when two sides and included angle, or all the lengths of all three sides, are known: from sides 3, 4 and 6 it gives cos C = −0.458 and C = 117.3°, and the hinge opened to that angle draws a third side of exactly 6; from two sides and the angle between them it gives the side, 3.61 at 60°', () => {
+    const r = drawn(idx('back'), blank(), 'demo').rec, h = r.hinge;
+    return K.near(h.th, CB, 1e-9) && K.near(lenOf(h.B, h.E) / HU, S3, 1e-9) && r.rows.length === 2 && r.rows[0].s === 'cos C = (9 + 16 − 36) ÷ 24 = −0.458' &&
+      r.rows[1].s === 'C = cos⁻¹(−0.458) = 117.3°' && r.labs.indexOf('c = 6') >= 0 && hS(cLen(60)) === '3.61';
+  }, { source: SRC.cosuse });
+  K.check('The sine rule can find a side from another side and two angles or an angle from two sides and a non-included angle: in the drawn triangle with A = 40°, B = 60° and a = 5, side b measured off the drawing is 5 × sin 60° ÷ sin 40° = 6.74, and on the swing arm, with b = 8, A = 30° and an arm a of 5, the angle drawn at the first landing is 53.1°', () => {
+    const t = drawn(idx('p4060'), solvedSt(idx('p4060')), 'answer').rec.tri;
+    const a = lenOf(t.B, t.C) / SU, b = lenOf(t.A, t.C) / SU, A = dirAng(t.A, t.C), B = 180 - dirAng(t.B, t.C);
+    if (!(K.near(a, 5, 1e-9) && K.near(A, 40, 1e-9) && K.near(B, 60, 1e-9) && hS(b) === '6.74' && K.near(b / sinD(B), a / sinD(A), 1e-9))) return false;
+    const sw = drawn(idx('swing'), stOf({ al: 5 }), 'demo').rec.swing, ang = 180 - dirAng(sw.B1, WCv);
+    return K.near(lenOf(sw.B1, WCv) / WSU, 5, 1e-9) && angS(ang) === '53.1°' && sw.lab1 === '53.1°';
+  }, { source: SRC.signs });
+  K.check('The second answer is found by subtracting the first answer from 180°; if the angles in the triangle do not exceed the angle sum of a triangle, 180°, the second answer can exist: at every arm length from 2 to 9 on the swing-arm screen, a second triangle is drawn exactly when 30° plus 180° minus the first angle B is under 180°, its angle B is 180° minus the first, both landings lie on the base line exactly the arm\'s length from C, and an arm shorter than the height, 4, lands nowhere', () => {
+    const i = idx('swing');
+    ALS.forEach((al) => {
+      if (Math.abs(al - 8) < 0.05 || Math.abs(al - 4) < 0.05) return;
+      const sw = drawn(i, stOf({ al }), 'demo').rec.swing;
+      if (al < 4) { if (!sw.L.short || sw.B1) fail('a landing at ' + al); return; }
+      const b1 = 180 - dirAng(sw.B1, WCv), expect = WA + 180 - b1 < 180;
+      if (sw.two !== expect) fail('second triangle wrong at ' + al);
+      if (!K.near(lenOf(sw.B1, WCv), al * WSU, 1e-9) || !K.near(sw.B1[1], BY, 1e-9)) fail('first landing off at ' + al);
+      if (sw.two && (!K.near(lenOf(sw.B2, WCv), al * WSU, 1e-9) || !K.near(180 - dirAng(sw.B2, WCv), 180 - b1, 1e-9) || !K.near(sw.B2[1], BY, 1e-9))) fail('second landing off at ' + al);
+      if (!expect && !sw.behind) fail('the far landing not shown behind A at ' + al);
+    });
+    const s5 = drawn(i, stOf({ al: 5 }), 'demo').rec.swing;
+    return s5.two && s5.lab2 === '126.9°';
+  }, { source: SRC.second });
+  K.check('A height dropped from B is found twice: on the height screen, the drawn height, measured off the drawing, equals c sin A and a sin C, with c, a and the angles A and C measured off the same drawing, so a ÷ sin A = c ÷ sin C there too', () => {
+    const r = drawn(idx('height'), blank(), 'demo').rec, t = r.tri;
+    const h = t.H[1] - t.B[1], c = lenOf(t.A, t.B), a = lenOf(t.B, t.C), A = dirAng(t.A, t.B), C = 180 - dirAng(t.C, t.B);
+    return K.near(h, c * sinD(A), 1e-9) && K.near(h, a * sinD(C), 1e-9) && K.near(a / sinD(A), c / sinD(C), 1e-9) && r.rows.length === 4 && r.rows[3].s === 'a ÷ sin A = c ÷ sin C';
+  });
+  K.check('Every worked number matches the lesson: c = 5 at 90°; 6.08 and 37 at 120°; 3.61 and 13 at 60°, with slips 19 and 0.5; cos 110° = −0.342, a correction of 8.21, c² = 33.21 and c = 5.76, with slips 4.10 and 1.56; 7 laid flat and 1 folded; −0.458 and 117.3° from 3, 4 and 6; 60°, 120° and 38.2° from 5, 8 and 7; 6.74, 3.71 and 7.5; a height of 4, 0.8, 53.1° and 126.9°; 0.667, 41.8°, 138.2° and 318.2°; 73.5, 62.5 and 49.0 nautical miles; 0.161, 9.2° and 170.8°', () => {
+    const same = (a, b) => a.length === b.length && a.every((v, k) => v === b[k]);
+    const L5 = landings(W5);
+    return hS(cLen(90)) === '5' && same(o1, ['3.61', '6.08', '5']) && hS(csq(P1)) === '37' && same(o3, ['13', '19', '0.5']) &&
+      v3(cosD(P5)) === '−0.342' && hS(corr(P5)) === '8.21' && hS(csq(P5)) === '33.21' && same(o5, ['4.10', '1.56', '5.76']) && f3(sinD(P5)) === '0.940' &&
+      hS(cLen(180)) === '7' && hS(cLen(0)) === '1' && cosRow === 'cos C = (9 + 16 − 36) ÷ 24 = −0.458' && angS(CB) === '117.3°' && hS(cLen(CB)) === '6' &&
+      same(o7, ['120°', '60°', '38.2°']) && same(o9, ['6.74', '3.71', '7.5']) && hS(WH) === '4' && v3(WH / W5) === '0.8' && angS(L5.B1) === '53.1°' && angS(L5.B2) === '126.9°' && L5.two &&
+      v3(WH / W6) === '0.667' && same(o11, ['41.8° only', '41.8° and 138.2°', '41.8° and 318.2°']) && landings(W6).two && landings(3).short && landings(8).atA && landings(8.5).behind &&
+      same(o12, ['62.5', '49.0', '73.5']) && String(shSq) === '3904' && hS(-shK) === '1500.41' && hS(shSq - shK) === '5404.41' &&
+      v3(Ksin) === '0.161' && same(o13, ['9.2° only', '9.2° or 170.8°', 'no such triangle']) && Kc * sinD(KA) / Kr < 1 && Kr * sinD(KA) / Kc > 1;
+  });
+  K.check('Each puzzle accepts only its right answer, every wrong answer has its own hint and its own red row of working, the answer appears once it is given, and before an answer nothing in the picture gives it away', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts.indexOf(d.want) < 0 || !d.opts.every((o) => isRight(i, stOf({ pick: o })) === (o === d.want))) fail('options wrong on step ' + (i + 1));
+      const wrongs = d.opts.filter((o) => o !== d.want);
+      if (!wrongs.every((o) => d.hints[o] && d.wrong[o] && wrongs.every((p) => p === o || d.hints[p] !== d.hints[o]))) fail('hints missing on step ' + (i + 1));
+      const b = drawn(i, blank(), 'answer'), s = drawn(i, solvedSt(i), 'answer');
+      if (b.rec.rows.length || d.secret.some((x) => b.texts.some((t) => t.indexOf(x) >= 0))) fail('answer shown early on step ' + (i + 1));
+      if (!(s.rec.rows.length === d.right.length && s.rec.rows.every((r) => !r.bad)) || !d.secret.every((x) => s.texts.some((t) => t.indexOf(x) >= 0))) fail('answer not drawn on step ' + (i + 1));
+      return wrongs.every((o) => { const r = drawn(i, wrongSt(i, o), 'answer').rec.rows; return r.length === 1 && r[0].bad && r[0].s === d.wrong[o]; });
+    }));
+  K.check('No label sits on another label or a handle, or runs off the picture, on any screen in any state: puzzles answered right, wrong or with Why? open, the hinge dragged to every angle, the arm set to every length', () =>
+    STEPS.every((d, i) => statesOf(i).every((s) => withState(i, s[0], s[1], () => { const bad = crowding(); if (bad.length) fail('step ' + (i + 1) + ' ' + JSON.stringify({ th: s[0].th, al: s[0].al, pick: s[0].pick, why: s[0].why }) + ': ' + bad[0]); return true; }))));
+  K.check('Every demonstration has finished within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; each answer and Why? has settled within 1.8 s', () =>
+    STEPS.every((d, i) => {
+      const timed = (st, m) => withState(i, st, m, () => [latest, earliest]);
+      if (d.show) {
+        const t = timed(blank(), 'demo');
+        if (!(t[0] <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && t[1] >= FADE)) fail('step ' + (i + 1) + ' runs ' + t[0] + ' s from ' + t[1]);
+        return true;
+      }
+      return statesOf(i).every((s) => timed(s[0], s[1])[0] <= ANS + 1e-9);
+    }));
+
+  K.ready();
+</script>

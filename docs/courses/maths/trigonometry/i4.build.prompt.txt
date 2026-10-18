@@ -1,0 +1,435 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Trigonometry, from triangles to waves
+Idea: Triangles without a right angle (The cosine rule, Pythagoras with a correction −2ab cos C, and the sine rule solve triangles that have no right angle.)
+Kind: skill
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the correction bar, −2ab cos C, taking away below 90°, empty at 90° and adding past it, when you open and close the hinge.
+Title (the app shows it above the frame, so do not repeat it): The hinge
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in fourteen small screens. Most use one picture, the hinge: two straight arms joined at a corner, arm a 3 long and arm b 4 long, in any unit, with the angle C between them, which you open and close by dragging the free end of arm a. The third side, c, is drawn between the two free ends, with its length read out. Each side is named with the small letter of the corner opposite it. Under the hinge stand three bars on one scale. The first is a² + b², 25, and it stays put because the arms do not change. The second is the correction, −2ab cos C, which is 24 × cos C taken away: it hangs below the zero line, dashed, while C is under 90°, is empty at 90°, and stands above the line past 90°, because there the cosine is negative and taking away a negative adds. The third is c², the first bar plus the correction, and it matches the square of the drawn side at every angle. A readout gives cos C to three decimal places with its sign. At 90° a small square marks the right angle and a label says Pythagoras. Screen 1 shows the hinge at 90°, where c is 5, then sweeps it between 60° and 120°, so you see c fall below Pythagoras' 5 and rise above it. Screen 2 asks which is c at 120°: 6.08, 5 or 3.61. Screen 3 builds the rule: arm b lies along the across axis from the corner, arm a is lesson 3's turning arm scaled up to length a, its tip at (a cos C, a sin C), and dashed lines mark the gap to the end of arm b, labelled b − a cos C across and a sin C up; the working then appears one line at a time below the picture, ending at c² = a² + b² − 2ab cos C. Screen 4 asks for c² at 60°: 13, 19 (the 2 dropped) or 0.5 (25 − 24 worked first, then multiplied by 0.5). Screen 5 opens the hinge to 110° and on to 180°, where the arms lie flat and c = 7, then closes it to 0°, where they fold together and c = 1. Screen 6 asks for c at 110°: 5.76, 4.10 (the cosine's minus sign lost) or 1.56 (sin 110° used). Screen 7 runs the rule backwards with three sides, 3, 4 and 6: cos C = (9 + 16 − 36) ÷ 24 = −0.458, so C = 117.3°, and the hinge swings to that angle. Screen 8 asks for the angle opposite the side of 7 in a triangle with sides 5, 7 and 8: 60°, 120° (the subtraction the wrong way round) or 38.2° (the angle opposite the side of 5). Screen 9 drops a height from corner B square onto side AC and finds it twice, as c sin A and as a sin C, which gives the sine rule. Screen 10 asks for side b when A = 40°, B = 60° and a = 5: 6.74, 3.71 (the sines upside down) or 7.5 (the angles divided instead of their sines). Screens 11 and 12 use a second picture, the swing arm: a base line from corner A, a side b of 8 at a fixed angle A of 30° up to corner C, and from C an arm a whose length you set with a slider. It swings round C, and every point where its end meets the base line becomes a corner B, with its triangle drawn and its angle B labelled. On screen 11 the height from C to the base line is 4, so an arm of 3 falls short; at 5 it lands twice, B = 53.1° or 126.9°; at 8 the second landing reaches A itself, and longer it falls behind A, so either way one triangle is left. Screen 12 sets a = 6 and asks which angles B fit: 41.8° and 138.2°, 41.8° only, or 41.8° and 318.2°. Screens 13 and 14 are mixed. Two ships sail from one port, 48 and 40 nautical miles, on courses 113° apart: are they 73.5, 62.5 (Pythagoras) or 49.0 (the cosine's sign lost) nautical miles apart? Then a stretch puzzle on an engine: the crankshaft centre, the crankpin and the piston pin make a triangle, with a crank of 50 mm, a connecting rod of 200 mm and the crank turned 40° from the cylinder's centre line. Is the rod's angle to the centre line 9.2° only, 9.2° or 170.8°, or no such triangle, the slip of putting each side over the wrong angle, where sin⁻¹ shows an error? Each puzzle offers three answers; a wrong pick gets a one-line hint naming its slip, and Why? draws the answer on the picture.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The arms are drawn as lines meeting at a single point, so a real hinge's thickness and pivot are left out. Lengths are example figures, in no particular unit unless a screen names one. Readouts are rounded, cosines and sines to three decimal places, sides to two and angles to one, while the working keeps every figure. At 0° and 180° the hinge has gone flat and there is no triangle, but the rule still gives the gap between the free ends, the arms' difference or their sum.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 13 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Arm a, in step 1: 3 (assumed)
+- Arm b, in step 1: 4 (assumed)
+- A right angle, in degrees: 90 (constant)
+- Third side c at 90°, in step 1: 5 (computed)
+- a² + b² = 9 + 16, in step 1: 25 (computed)
+- 2ab = 2 × 3 × 4: 24 (computed)
+- Narrowest sweep angle, in degrees, in step 1: 60 (assumed)
+- Widest sweep angle, in degrees, in step 1: 120 (assumed)
+- c at 120°, in step 2: 6.08 (computed)
+- c² at 120°, in step 2: 37 (computed)
+- c at 60°, in step 2: 3.61 (computed)
+- cos 60°, in step 4: 0.5 (computed)
+- c² at 60°, 25 − 24 × 0.5, in step 4: 13 (computed)
+- Slip, the 2 dropped, 25 − 12 × 0.5, in step 4: 19 (computed)
+- Slip, half of 2ab, in step 4: 12 (computed)
+- Slip, (25 − 24) × 0.5, in step 4: 0.5 (computed)
+- Hinge angle, in degrees, in step 5: 110 (assumed)
+- cos 110°, in step 5: -0.342 (computed)
+- Correction at 110°, −24 × cos 110°, in step 5: 8.21 (computed)
+- c² at 110°, in step 5: 33.21 (computed)
+- c at 110°, in step 5: 5.76 (computed)
+- Hinge laid flat, in degrees, in step 5: 180 (constant)
+- Hinge folded shut, in degrees, in step 5: 0 (constant)
+- c laid flat, 3 + 4, in step 5: 7 (computed)
+- c folded shut, 4 − 3, in step 5: 1 (computed)
+- Slip, sign lost at 110°, c, in step 6: 4.1 (computed)
+- Slip, sin 110° used, c, in step 6: 1.56 (computed)
+- sin 110°, in step 6: 0.94 (computed)
+- Third side for the angle, in step 7: 6 (assumed)
+- a², in step 7: 9 (computed)
+- b², in step 7: 16 (computed)
+- c² = 6², in step 7: 36 (computed)
+- cos C = (9 + 16 − 36) ÷ 24, in step 7: -0.458 (computed)
+- C = cos⁻¹(−0.458), in degrees, in step 7: 117.3 (computed)
+- Puzzle side, in step 8: 5 (assumed)
+- Puzzle side opposite the angle, in step 8: 7 (assumed)
+- Puzzle side, in step 8: 8 (assumed)
+- Angle opposite 7, in degrees, in step 8: 60 (computed)
+- Slip, subtraction reversed, in degrees, in step 8: 120 (computed)
+- Slip, angle opposite 5, in degrees, in step 8: 38.2 (computed)
+- Angle A, in degrees, in step 10: 40 (assumed)
+- Angle B, in degrees, in step 10: 60 (assumed)
+- Side a, in step 10: 5 (assumed)
+- Side b = 5 × sin 60° ÷ sin 40°, in step 10: 6.74 (computed)
+- Slip, sines upside down, in step 10: 3.71 (computed)
+- Slip, 5 × 60 ÷ 40, in step 10: 7.5 (computed)
+- Swing-arm angle A, in degrees, in step 11: 30 (assumed)
+- Swing-arm side b, in step 11: 8 (assumed)
+- Height from C, 8 × sin 30°, in step 11: 4 (computed)
+- Short arm, in step 11: 3 (assumed)
+- Arm that lands twice, in step 11: 5 (assumed)
+- sin B = 8 × 0.5 ÷ 5, in step 11: 0.8 (computed)
+- First B, in degrees, in step 11: 53.1 (computed)
+- Second B, 180 − 53.1, in degrees, in step 11: 126.9 (computed)
+- Puzzle arm a, in step 12: 6 (assumed)
+- sin B = 4 ÷ 6, in step 12: 0.667 (computed)
+- First B, in degrees, in step 12: 41.8 (computed)
+- Second B, in degrees, in step 12: 138.2 (computed)
+- Slip, 360 − 41.8, in degrees, in step 12: 318.2 (computed)
+- First ship's distance, nautical miles, in step 13: 48 (assumed)
+- Second ship's distance, nautical miles, in step 13: 40 (assumed)
+- Angle between courses, in degrees, in step 13: 113 (assumed)
+- Distance apart, nautical miles, in step 13: 73.5 (computed)
+- Slip, Pythagoras, nautical miles, in step 13: 62.5 (computed)
+- Slip, sign lost, nautical miles, in step 13: 49 (computed)
+- Crank, in mm, in step 14: 50 (assumed)
+- Connecting rod, in mm, in step 14: 200 (assumed)
+- Crank angle from the centre line, in degrees, in step 14: 40 (assumed)
+- Rod's angle to the centre line, in degrees, in step 14: 9.2 (computed)
+- Slip, second angle 180 − 9.2, in degrees, in step 14: 170.8 (computed)
+- Worked example sides, in m: 7 (assumed)
+- Worked example side, in m: 10 (assumed)
+- Worked example angle, in degrees: 50 (assumed)
+- 7² + 10²: 149 (computed)
+- 49 = 7²: 49 (computed)
+- 100 = 10²: 100 (computed)
+- 2 × 7 × 10: 140 (computed)
+- cos 50°: 0.643 (computed)
+- 140 × cos 50°: 89.99 (computed)
+- c², worked example: 59.01 (computed)
+- c, worked example, in m: 7.68 (computed)
+- sin A, worked example: 0.698 (computed)
+- A, worked example, in degrees: 44.3 (computed)
+- 180 − 44.3, in degrees: 135.7 (computed)
+- 135.7 + 50, in degrees: 185.7 (computed)
+- Third angle, in degrees: 85.7 (computed)
+- Largest cosine: 1 (constant)
+- Smallest cosine: -1 (constant)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+Sine, cosine and tangent, as lesson 1 built them, need a right angle. Plenty of real triangles have none: two ships on different courses, an engine's crank and its connecting rod. Two rules solve them. The cosine rule is Pythagoras with a correction for the angle, and the sine rule says that each side divided by the sine of the angle opposite it gives the same number all round the triangle.
+
+Picture two straight arms joined at a hinge, a long and b long, with the angle C between them. Name each side with the small letter of the corner opposite it, so the third side, joining the arms' free ends, is c. At 90° Pythagoras gives c² = a² + b². Close the hinge and the free ends come together, so c is shorter than at 90°; open it and they move apart, so c is longer. To find by how much, lay arm b along the across axis from the hinge, so its free end is at (b, 0). Arm a is then lesson 3's turning arm. That arm was 1 long with its tip at (cos C, sin C), and an arm a long is the same shape scaled up, so its tip is at (a cos C, a sin C). The gap between the free ends is b − a cos C across and a sin C up, and Pythagoras on that gap gives c² = (b − a cos C)² + (a sin C)². Multiplied out, that is b² − 2ab cos C + a² cos² C + a² sin² C. Lesson 3's cos² C + sin² C = 1 turns the last two terms into a², which leaves c² = a² + b² − 2ab cos C. This is the cosine rule: the square of a side is the s…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] 5.2 Unit Circle: Sine and Cosine Functions - Precalculus 2e | OpenStax (https://openstax.org/books/precalculus-2e/pages/5-2-unit-circle-sine-and-cosine-functions): "The terminal side of the angle intersects the circle at the point (x,y), which is equivalent to (cos t, sin t)."
+[2] 8.2 Non-right Triangles: Law of Cosines - Precalculus 2e | OpenStax (https://openstax.org/books/precalculus-2e/pages/8-2-non-right-triangles-law-of-cosines): "the square of any side of a triangle is equal to the sum of the squares of the other two sides minus twice the product of the other two sides and the cosine of the included angle."
+[3] The Law of Cosines (https://www.mathsisfun.com/algebra/trig-cosine-law.html): "it helps to know it's the Pythagoras Theorem with something extra so it works for all triangles"
+[4] Trigonometric skills - National 5 Maths - BBC Bitesize (https://www.bbc.co.uk/bitesize/topics/zt7wb82): "Sine, cosine and tangent all have different positive or negative values depending on what quadrant they are in."
+[5] What is the cosine rule? - BBC Bitesize (https://www.bbc.co.uk/bitesize/articles/z3stdnb): "The cosine rule is a formula used to find a missing side or angle in a triangle when two sides and included angle , or all the lengths of all three sides, are known."
+[6] Trigonometric skills - National 5 Maths - BBC Bitesize (https://www.bbc.co.uk/bitesize/topics/zt7wb82): "The sine rule can find a side from another side and two angles or an angle from two sides and a non-included angle."
+[7] Higher – How to use the sine rule - BBC Bitesize (https://www.bbc.co.uk/bitesize/articles/z9dm46f): "The second answer is found by subtracting the first answer from 180°. If the angles in the triangle do not exceed the angle sum of a triangle, 180°, the second answer can exist."
+[8] What is right-angled trigonometry? - BBC Bitesize (https://www.bbc.co.uk/bitesize/articles/zck7rmn): "Scientific calculators need to be used for trigonometry and should be in degrees mode."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.
