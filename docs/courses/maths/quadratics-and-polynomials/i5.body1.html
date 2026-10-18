@@ -1,0 +1,1039 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; touch-action: pan-y; }
+  .scene .axis { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .frame { stroke: var(--k-line); stroke-width: 1; }
+  .scene .tick { stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  /* The axis x = −b ÷ 2a: dashed. The spread out to each root: amber arrows. */
+  .scene .sym { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .arrow { stroke: var(--k-amber-line); stroke-width: 3; stroke-linecap: round; fill: none; }
+  .scene .head { fill: var(--k-amber-line); }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .track { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }
+  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .tag { font: 700 16px var(--k-font); fill: var(--k-accent2); }
+  .scene .rd { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .st { font: 400 14px var(--k-font); fill: var(--k-ink); }
+  .scene .pt { font: 600 13px var(--k-font); fill: var(--k-ink); paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .al { font: 700 13px var(--k-font); fill: var(--k-ink); paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .an { font: 400 13px var(--k-font); fill: var(--k-muted); paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .xl { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .te { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .tw { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .note { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .bad { fill: var(--k-warn); }
+  .scene .v { font-style: italic; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stack one to a row, each label whole. */
+  .row.picks { flex-direction: column; gap: 8px; }
+  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; font-size: 1.15rem; white-space: nowrap; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Short screens: some show an idea, the rest set a puzzle to Check.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">A sketch from each screen's own rule; each arrow is √(b² − 4ac) ÷ 2a long.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // q: the quadratic [a, b, c], a x² + b x + c. win: the graph's window [x0, x1, y0, y1].
+  // demo: what a SHOW screen plays ('centre' grows the arrows out from the axis, 'derive' writes the
+  // formula with letters, 'formula' works one rule through it). sliders: handles drawn in the picture
+  // (a, b, c), and the curve itself drags c; moves: [t0, t1, c] glides c on its own first.
+  // A puzzle: kind 'roots' (a pair of roots, or none), 'disc' (the number b² − 4ac), 'count' (how
+  // many roots), 'which' (which rule of qs has none) or 'slip' (which line of a working slipped).
+  // o: its options, each a named slip worked out from the rule ('R' is the right one): 'flip' turns
+  // the signs, 'noaxis' measures the spread from 0, 'half' puts only the root over 2a, 'abs' drops
+  // the minus under the root, 'axis' gives the centre alone; for 'disc', 'sign' loses the sign of
+  // −4ac and 'both' squares −b to a minus too. tips: what each wrong pick's hint adds.
+  const PICK = 'Tap one of the answers.';
+  const W1 = [-7.5, 1.5, -10, 16];
+  const range = (lo, hi) => { const r = []; for (let v = lo; v <= hi; v++) r.push(v); return r; };
+  const SL_LIFT = [{ key: 'c', vals: range(0, 12), every: 3 }];
+  const SL_ALL = [{ key: 'a', vals: [-3, -2, -1, 1, 2, 3], every: 1 }, { key: 'b', vals: range(-8, 8), every: 4 }, { key: 'c', vals: range(-12, 12), every: 6 }];
+  const STEPS = [
+    { show: true, name: 'Centre and spread', q: [1, 6, 2], win: W1, demo: 'centre', dur: 4.2,
+      text: 'This is `y = x² + 6x + 2` from lesson 4. The dashed line is its *axis*, lesson 4\'s line of symmetry, at `x = −3`. Two equal arrows reach from it to the roots, about 2.65 each way.' },
+    { name: 'Roots from the arrows', q: [1, 6, 5], win: W1, kind: 'roots', pre: true, o: ['noaxis', 'flip', 'R'],
+      task: 'The axis of `y = x² + 6x + 5` is at `x = −3`, and each arrow is 2 long. What are the roots of `x² + 6x + 5 = 0`?',
+      why: 'The roots sit the same distance either side of the axis, so they are `−3 + 2` and `−3 − 2`, which are −1 and −5. Put back into the rule, `1 − 6 + 5 = 0` and `25 − 30 + 5 = 0`.',
+      tips: { flip: 'Start at the axis, −3, and go 2 each way.', noaxis: 'The arrows start at the axis, −3, not at 0.' } },
+    { show: true, name: 'The formula', q: [1, 6, 2], win: W1, demo: 'derive', letters: true, noRd: true, gb: 182, dur: 4.5,
+      text: 'Complete the square on `ax² + bx + c = 0` with letters, as lesson 4 did with numbers. Each line follows from the one above. The last line is the *quadratic formula*, a centre `−b ÷ 2a` with a spread either side.' },
+    { name: 'Spot the slip', q: [1, 6, 5], win: [-9, 1, -6, 12], kind: 'slip', noRd: true, gb: 202,
+      task: 'This working for `x² + 6x + 5 = 0` gives −4 and −8, and neither makes it 0. Which line slipped?',
+      why: 'Line 2 put only the square root over 2. The whole top goes over `2a`, so `x = (−6 ± 4) ÷ 2`, which is −1 or −5, and `1 − 6 + 5 = 0`.' },
+    { show: true, name: 'Use the formula', q: [1, 6, 2], win: W1, demo: 'formula', dur: 4.2,
+      text: 'Put `a = 1`, `b = 6` and `c = 2` into the formula. The number under the root, `b² − 4ac`, is 28, and it is called the *discriminant*. So `x` is `−3 ± √7`, the two roots lesson 4 found.' },
+    { name: 'The number under the root', q: [2, -4, -6], win: [-2.5, 4.5, -10, 10], kind: 'disc', o: ['R', 'sign', 'both'],
+      task: 'What is `b² − 4ac` for `2x² − 4x − 6 = 0`?',
+      why: 'Here `a = 2`, `b = −4` and `c = −6`. `b²` is `(−4)²`, which is 16, and `−4ac` is `−4 × 2 × (−6)`, which is 48. So `b² − 4ac` is `16 + 48 = 64`, and the roots are `(4 ± 8) ÷ 4`, which are 3 and −1.',
+      tips: { sign: 'Mind the sign of `−4ac`. Two minuses make a plus.', both: 'A minus squared is a plus, so `(−4)²` is 16.' } },
+    { show: true, name: 'Lift the curve', q: [1, 6, 2], win: W1, sliders: SL_LIFT, moves: [[1.4, 2.5, 9], [2.7, 3.4, 12], [3.6, 4.4, 2]], dur: 4.5,
+      text: 'Drag the curve up, or slide `c`. As it lifts, `b² − 4ac`, which is `36 − 4c` here, falls and the arrows shrink. At 0 they meet in one *repeated root*, and below 0 the curve misses the x-axis, so there are no real roots.' },
+    { name: 'Below zero', q: [1, 2, 5], win: [-4.5, 2.5, -4, 14], kind: 'roots', o: ['abs', 'axis', 'R'],
+      task: 'What are the roots of `x² + 2x + 5 = 0`?',
+      why: '`b² − 4ac` is `4 − 20 = −16`, which is below 0. No number on the number line squares to a negative, so there are no real roots, and the curve\'s lowest point, `(−1, 4)`, sits above the x-axis.',
+      tips: { abs: 'Work out `b² − 4ac` first, and keep its sign.', axis: 'That is the axis. Work out `b² − 4ac` first.' } },
+    { show: true, name: 'Set a, b and c', q: [-1, 4, 10], win: [-10, 10, -30, 30], sliders: SL_ALL, moves: [[1.4, 2.6, -6], [2.9, 4.3, 10]], dur: 4.5,
+      text: 'Now set `a`, `b` and `c` yourself. With a minus in front of `x²` the U turns upside down, yet the axis is still at `−b ÷ 2a`, here 2. The two arrows are still equal, about 3.74 each way.' },
+    { name: 'How many roots?', q: [4, -12, 9], win: [-1, 4, -3, 10], kind: 'count', o: ['two', 'one', 'none'],
+      task: 'How many roots has `4x² − 12x + 9 = 0`?',
+      why: '`b² − 4ac` is `144 − 144 = 0`, so the arrows have no length. The two roots meet at the axis, `x = 12 ÷ 8 = 1.5`, where the curve just touches the x-axis.',
+      tips: { two: 'Work out `b² − 4ac` first.', none: '`b² − 4ac` is `{D}`, which is not below 0.' } },
+    { name: 'Mixed: it factorises', q: [1, -7, 10], win: [-0.5, 7.5, -4, 10], kind: 'roots', o: ['flip', 'R', 'half'],
+      task: 'What are the roots of `x² − 7x + 10 = 0`?',
+      why: 'It factorises, since 2 and 5 multiply to 10 and add to 7, so it is `(x − 2)(x − 5) = 0`. The formula agrees. `b² − 4ac` is `49 − 40 = 9`, so `x = (7 ± 3) ÷ 2`, which is 5 or 2.',
+      tips: { flip: 'Mind the sign. Here `−b` is 7.', half: 'Put the whole top over `2a`.' } },
+    { name: 'Mixed: two decimal places', q: [3, 5, -1], win: [-3, 1.5, -5, 8], kind: 'roots', o: ['R', 'half', 'flip'],
+      task: 'What are the roots of `3x² + 5x − 1 = 0`, to two decimal places?',
+      why: 'No whole-number pair works here, so the formula is the quick way. `b² − 4ac` is `25 + 12 = 37`, and `√37` is about 6.08, so `x = (−5 ± 6.08) ÷ 6`, about 0.18 or −1.85.',
+      tips: { half: 'Put the whole top over `2a`, which is 6.', flip: 'Mind the sign. Here `−b` is −5.' } },
+    { name: 'Mixed: which has none?', qs: [[1, -4, 3], [1, -4, 4], [1, -4, 5]], win: [-0.5, 4.5, -2, 8], kind: 'which',
+      task: 'Which of these has no real roots?',
+      why: 'All three have `b² = 16`. For `x² − 4x + 5`, `b² − 4ac` is `16 − 20 = −4`, so there are no real roots. Its roots are *complex numbers*, numbers off the number line, which the Complex numbers course takes up.' },
+  ];
+  const FINISH = 'The formula `x = (−b ± √(b² − 4ac)) ÷ 2a` is a centre, `−b ÷ 2a`, with a spread either side. Work out `b² − 4ac` first. Above 0 there are two roots, at 0 one repeated root, and below 0 no real roots.';
+  // Sources the checks restate (the lesson's own).
+  const BITESIZE = 'https://www.bbc.co.uk/bitesize/guides/z3hb97h/revision/2';
+  const MATHWORLD = 'https://mathworld.wolfram.com/CompletingtheSquare.html';
+  const BRILLIANT = 'https://brilliant.org/wiki/quadratic-discriminant';
+  // The picture: the rule at TAGY, the readout of b² − 4ac at RDY, the graph from GT down to each
+  // screen's gb (222 unless set), its key 40 below, lines of working 70 below, then the handles.
+  const TAGY = 22, RDY = 46, GT = 62, WSTEP = 24, SX0 = 84, SX1 = 320, SSTEP = 46;
+  const FADE = 0.35;
+  const KI = { a: 0, b: 1, c: 2 };
+  const SLNAME = { a: 'the number in front of x squared', b: 'the number in front of x', c: 'the plain number' };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- the rule (pure, so the checks can test it) ----------
+  const close = (a, b) => Math.abs(a - b) < 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));
+  const fmtN = (v) => { let r = Math.round(v * 100) / 100; if (Math.abs(r) < 1e-12) r = 0; return (r < 0 ? '−' : '') + String(Math.abs(r)).replace(/^\d+/, (n) => n.replace(/\B(?=(\d{3})+$)/g, ',')); };
+  const round2 = (v) => { const r = Math.round(v * 100) / 100; return Math.abs(r) < 1e-12 ? 0 : r; };
+  const paren = (v) => (v < 0 ? '(' + fmtN(v) + ')' : fmtN(v));
+  const poly = (q, x) => q[0] * x * x + q[1] * x + q[2];
+  const disc = (q) => q[1] * q[1] - 4 * q[0] * q[2];
+  const centre = (q) => -q[1] / (2 * q[0]);
+  const zeroD = (D) => Math.abs(D) < 1e-9;
+  // The spread: how far each root sits from the axis, √(b² − 4ac) ÷ 2a in size; null with no real roots.
+  const spread = (q) => { const D = disc(q); return zeroD(D) ? 0 : D < 0 ? null : Math.sqrt(D) / (2 * Math.abs(q[0])); };
+  // The formula's roots, + first then −; one when b² − 4ac is 0, none when it is below 0.
+  function rootsOf(q) {
+    const D = disc(q);
+    if (zeroD(D)) return [centre(q)];
+    if (D < 0) return [];
+    const r = Math.sqrt(D);
+    return [(-q[1] + r) / (2 * q[0]), (-q[1] - r) / (2 * q[0])];
+  }
+  const countKey = (q) => { const D = disc(q); return zeroD(D) ? 'one' : D > 0 ? 'two' : 'none'; };
+  const COUNT = { two: 'two roots', one: 'one repeated root', none: 'no real roots' };
+  const countWord = (q) => COUNT[countKey(q)];
+  function polyText(q) {
+    const t = [[q[0], 'x²'], [q[1], 'x'], [q[2], '']].filter((p) => p[0] !== 0);
+    if (!t.length) return '0';
+    return t.map((p, k) => {
+      const a = Math.abs(p[0]), body = p[1] ? (a === 1 ? p[1] : fmtN(a) + p[1]) : fmtN(a);
+      return (k === 0 ? (p[0] < 0 ? '−' : '') : p[0] < 0 ? ' − ' : ' + ') + body;
+    }).join('');
+  }
+  const bracket = (h) => (h === 0 ? 'x' : '(x ' + (h > 0 ? '+ ' : '− ') + fmtN(Math.abs(h)) + ')');
+  // b² − 4ac as the lesson writes it: 36 − 8 = 28, 16 + 48 = 64.
+  function discParts(q) { const B = q[1] * q[1], F = 4 * q[0] * q[2]; return fmtN(B) + (F < 0 ? ' + ' : ' − ') + fmtN(Math.abs(F)); }
+  const discText = (q) => discParts(q) + ' = ' + fmtN(disc(q));
+  // The rule's value at x, term by term: 1 + 6 + 5 = 12.
+  function ruleText(q, x) {
+    const t = [q[0] * x * x, q[1] * x, q[2]].filter((v) => !close(v, 0));
+    if (!t.length) return '0';
+    if (t.length === 1) return fmtN(t[0]);
+    let s = fmtN(t[0]);
+    for (let k = 1; k < t.length; k++) s += (t[k] < 0 ? ' − ' : ' + ') + fmtN(Math.abs(t[k]));
+    return s + ' = ' + fmtN(t.reduce((a, b) => a + b, 0));
+  }
+  // An answer worked out from the rule, right ('R') or by a named slip.
+  function slipOf(q, s) {
+    const D = disc(q), a2 = 2 * q[0], r = Math.sqrt(Math.abs(D));
+    if (s === 'R') return D < 0 && !zeroD(D) ? 'none' : rootsOf(q);
+    if (s === 'flip') return rootsOf(q).map((v) => -v);
+    if (s === 'noaxis') return [r / a2, -r / a2];
+    if (s === 'half') return [-q[1] + r / a2, -q[1] - r / a2];
+    if (s === 'abs') return [(-q[1] + r) / a2, (-q[1] - r) / a2];
+    return [centre(q)];   // 'axis'
+  }
+  const optRoots = (v) => (v === 'none' ? 'No real roots' : v.length === 1 ? 'Just ' + fmtN(v[0]) : fmtN(v[0]) + ' and ' + fmtN(v[1]));
+  function discSlip(q, s) { const B = q[1] * q[1], F = 4 * q[0] * q[2]; return s === 'R' ? B - F : s === 'sign' ? B + F : -B + F; }
+  STEPS.forEach((d) => {
+    if (d.show) return;
+    if (d.kind === 'roots') { d.val = d.o.map((s) => slipOf(d.q, s)); d.opts = d.val.map(optRoots); d.right = d.o.indexOf('R'); }
+    else if (d.kind === 'disc') { d.val = d.o.map((s) => discSlip(d.q, s)); d.opts = d.val.map(fmtN); d.right = d.o.indexOf('R'); }
+    else if (d.kind === 'count') { d.val = d.o; d.opts = d.o.map((k) => COUNT[k].charAt(0).toUpperCase() + COUNT[k].slice(1)); d.right = d.o.indexOf(countKey(d.q)); }
+    else if (d.kind === 'which') { d.val = d.qs; d.opts = d.qs.map(polyText); d.right = d.qs.findIndex((q) => countKey(q) === 'none'); d.q = d.qs[d.right]; }
+    else { d.opts = ['Line 1', 'Line 2', 'Line 3']; d.right = 1; }   // 'slip': line 2 is where the slip goes in
+    d.want = d.opts[d.right];
+  });
+
+  // ---------- lines of working ----------
+  const putBack = (q, x, wrong) => ({ l: 'x = ' + fmtN(x), r: ruleText(q, x) + (wrong ? ', not 0' : ''), bad: !!wrong });
+  function fixLine(q) {
+    const rs = rootsOf(q);
+    return { l: 'x = (' + fmtN(-q[1]) + ' ± ' + fmtN(Math.sqrt(disc(q))) + ') ÷ ' + fmtN(2 * q[0]) + ' = ' + fmtN(rs[0]) + ' or ' + fmtN(rs[1]) };
+  }
+  function centreLine(q) { const rs = rootsOf(q); return { l: 'x = ' + fmtN(centre(q)) + ' ± ' + fmtN(spread(q)), r: 'about ' + fmtN(rs[0]) + ' and ' + fmtN(rs[1]) }; }
+  const DERIVE = [
+    { l: 'ax² + bx + c = 0' },
+    { l: 'a(x + b ÷ 2a)² + c − b² ÷ 4a = 0' },
+    { l: '(x + b ÷ 2a)² = (b² − 4ac) ÷ 4a²' },
+    { l: 'x + b ÷ 2a = ±√(b² − 4ac) ÷ 2a' },
+    { l: 'x = (−b ± √(b² − 4ac)) ÷ 2a' },
+    { l: 'centre −b ÷ 2a, spread √(b² − 4ac) ÷ 2a', small: true },
+  ];
+  // √n as k√m, with m having no square factor.
+  function surd(n) { for (let f = Math.floor(Math.sqrt(n)); f > 1; f--) if (n % (f * f) === 0) return [f, n / (f * f)]; return [1, n]; }
+  function formulaLines(q) {
+    const D = disc(q), sk = surd(D), k = sk[0], m = sk[1], a2 = 2 * q[0], rs = rootsOf(q);
+    const root = m === 1 ? fmtN(k) : (k === 1 ? '' : fmtN(k)) + '√' + fmtN(m);
+    let x = 'x = (' + fmtN(-q[1]) + ' ± ' + root + ') ÷ ' + fmtN(a2);
+    if (m > 1 && q[1] % a2 === 0 && k % a2 === 0) { const kk = k / a2; x += ' = ' + fmtN(-q[1] / a2) + ' ± ' + (kk === 1 ? '' : fmtN(kk)) + '√' + fmtN(m); }
+    return [
+      { l: 'a = ' + fmtN(q[0]) + ', b = ' + fmtN(q[1]) + ', c = ' + fmtN(q[2]) },
+      { l: '√' + fmtN(D) + (k > 1 && m > 1 ? ' = √' + fmtN(k * k) + ' × √' + fmtN(m) + ' = ' + root : ''), note: 'about ' + fmtN(Math.sqrt(D)) },
+      { l: x },
+      { l: 'x is about ' + fmtN(rs[0]) + ' or ' + fmtN(rs[1]) },
+    ];
+  }
+  // y = x² + bx + c with b even: x² + bx + c = 0 is (x + b ÷ 2)² = (b ÷ 2)² − c, and b² − 4ac is 4 times that.
+  function liftLine(q) { const h = q[1] / 2, r = h * h - q[2]; return { l: bracket(h) + '² = ' + fmtN(r), r: fmtN(disc(q)) + ' = 4 × ' + paren(r) }; }
+  function slipLines(q) {
+    const D = disc(q), a2 = 2 * q[0], v = slipOf(q, 'half');
+    return [
+      { n: '1', l: 'b² − 4ac = ' + discText(q) },
+      { n: '2', l: 'x = ' + fmtN(-q[1]) + ' ± √' + fmtN(D) + ' ÷ ' + fmtN(a2) },
+      { n: '3', l: 'x = ' + fmtN(-q[1]) + ' ± ' + fmtN(Math.sqrt(D) / a2) + ' = ' + fmtN(v[0]) + ' or ' + fmtN(v[1]) },
+    ];
+  }
+  function discLines(q) {
+    return [{ l: 'b² = ' + paren(q[1]) + '² = ' + fmtN(q[1] * q[1]) }, { l: '−4ac = −4 × ' + paren(q[0]) + ' × ' + paren(q[2]) + ' = ' + fmtN(-4 * q[0] * q[2]) }, fixLine(q)];
+  }
+  function discSlipLine(q, s) {
+    const B = q[1] * q[1], M = -4 * q[0] * q[2];
+    if (s === 'sign') return { l: fmtN(B) + ' − ' + fmtN(M) + ' = ' + fmtN(B - M), note: '−4ac is ' + (M > 0 ? '+' : '') + fmtN(M), bad: true };
+    return { l: '−' + fmtN(B) + ' − ' + fmtN(M) + ' = ' + fmtN(-B - M), note: paren(q[1]) + '² is ' + fmtN(B), bad: true };
+  }
+  function rootLines(d, q) {
+    const rs = rootsOf(q), D = disc(q), sq = Math.sqrt(Math.max(0, D));
+    if (!rs.length) { const up = q[0] > 0; return [{ l: (up ? 'lowest' : 'highest') + ' point (' + fmtN(centre(q)) + ', ' + fmtN(poly(q, centre(q))) + ')', r: (up ? 'above' : 'below') + ' the x-axis' }]; }
+    if (d.pre) return [{ l: 'x = ' + fmtN(centre(q)) + ' ± ' + fmtN(spread(q)) + ' = ' + fmtN(rs[0]) + ' or ' + fmtN(rs[1]) }, putBack(q, rs[0]), putBack(q, rs[1])];
+    if (Number.isInteger(sq) && rs.every((r) => close(r, Math.round(r)))) return [fixLine(q), putBack(q, Math.round(rs[0])), putBack(q, Math.round(rs[1]))];
+    return [{ l: '√' + fmtN(D) + ' is about ' + fmtN(sq) }, { l: 'x = (' + fmtN(-q[1]) + ' ± ' + fmtN(sq) + ') ÷ ' + fmtN(2 * q[0]) }, { l: 'x is about ' + fmtN(rs[0]) + ' or ' + fmtN(rs[1]) }];
+  }
+  // The working a screen shows in a state (qs: the whole a, b and c on a screen with handles).
+  function linesOf(d, st, qs) {
+    const q = qs || d.q;
+    if (d.show) {
+      if (d.demo === 'centre') return [centreLine(q)];
+      if (d.demo === 'derive') return DERIVE;
+      if (d.demo === 'formula') return formulaLines(q);
+      if (d.sliders && d.sliders.length === 1) return [liftLine(q)];
+      return [];
+    }
+    const right = st.res === 'right', k = st.res === 'wrong' && st.pick != null ? d.opts.indexOf(st.pick) : -1;
+    if (d.kind === 'slip') {
+      const L = slipLines(q), bad = putBack(q, slipOf(q, 'half')[0], true);
+      return right ? [L[0], Object.assign({}, L[1], { bad: true, note: 'slipped' }), L[2], bad, fixLine(q), putBack(q, rootsOf(q)[0])] : [L[0], L[1], L[2], bad];
+    }
+    if (right) {
+      if (d.kind === 'disc') return discLines(q);
+      if (d.kind === 'count') return [{ l: 'x = ' + fmtN(-q[1]) + ' ÷ ' + fmtN(2 * q[0]) + ' = ' + fmtN(centre(q)), r: 'touches the x-axis' }];
+      if (d.kind === 'which') return d.qs.map((p) => ({ l: polyText(p), note: discText(p) + ', ' + countWord(p) }));
+      return rootLines(d, q);
+    }
+    if (k < 0) return [];
+    if (d.kind === 'roots') { const v = d.val[k]; return v === 'none' ? [] : v.map((x) => putBack(q, round2(x), true)); }
+    if (d.kind === 'disc') return [discSlipLine(q, d.o[k])];
+    if (d.kind === 'which') { const p = d.qs[k]; return [{ l: polyText(p), note: discText(p) + ', ' + countWord(p) }]; }
+    return [];
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s).replace(/²/g, ' squared').replace(/√/g, ' root ').replace(/÷/g, ' divided by ').replace(/±/g, ' plus or minus ').replace(/\+/g, ' plus ')
+    .replace(/×/g, ' times ').replace(/=/g, ' equals ').replace(/−/g, ' minus ').replace(/\s+/g, ' ').trim();
+
+  // ---------- each step's state ----------
+  // pick, res, why: a puzzle's answer, 'right', 'wrong' or 'empty' once checked, and the Why? note.
+  // p: Dan's whole a, b and c on a screen with handles (null until he moves one), pv: as drawn, easing there.
+  function blank() { return { pick: null, res: null, why: false, p: null, pv: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  function hintFor(i, st) {
+    const d = STEPS[i], k = d.opts.indexOf(st.pick), q = d.q;
+    if (k < 0) return 'Not quite.';
+    if (d.kind === 'roots') {
+      const v = d.val[k];
+      if (v === 'none') return 'Not quite. `b² − 4ac` is `' + discText(q) + '`, which is not below 0.';
+      const x = round2(v.find((r) => Math.abs(poly(q, round2(r))) > 1e-9));
+      return 'Not quite. At `x = ' + fmtN(x) + '` the rule gives `' + ruleText(q, x) + '`, not 0. ' + d.tips[d.o[k]];
+    }
+    if (d.kind === 'which') { const p = d.qs[k]; return 'Not quite. Its `b² − 4ac` is `' + discText(p) + '`, so it has ' + countWord(p) + '.'; }
+    if (d.kind === 'slip') {
+      const D = disc(q), v = slipOf(q, 'half');
+      return k === 0 ? 'Not quite. `' + discParts(q) + '` is ' + fmtN(D) + ', so line 1 is right.'
+        : 'Not quite. `' + fmtN(-q[1]) + ' ± ' + fmtN(Math.sqrt(D) / (2 * q[0])) + '` is ' + fmtN(v[0]) + ' or ' + fmtN(v[1]) + ', so line 3 follows from line 2.';
+    }
+    return 'Not quite. ' + d.tips[d.o[k]].replace('{D}', discText(q));
+  }
+  const fbOf = () => [2.4, 1.4];   // how long the motion after a right and a wrong answer plays
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the motion
+  let motionEnd = 0;
+  let REC = null;   // what the last paint drew, for the checks
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[abcx]+(?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line with its letters italic; *a key term* is highlighted.
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Three answer buttons; each step fills in its own. A new choice after a wrong answer settles the
+  // picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: a right answer draws the curve, its axis, arrows and roots; a wrong one puts its numbers back in.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    const f = fbOf();
+    play(st.res === 'right' ? f[0] : f[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    Object.assign(S[at()], { p: null, pv: null });
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, the motion after an answer and the curve easing to
+  // Dan's setting; with reduced motion (and while the self-test looks) all open finished.
+  const toward = (a, b, s) => (a < b ? Math.min(b, a + s) : Math.max(b, a - s));
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    const st = S[at()];
+    let busy = T < motionEnd;
+    if (st.p && st.pv) {
+      st.pv[0] = st.p[0];
+      [1, 2].forEach((j) => { if (st.pv[j] !== st.p[j]) { st.pv[j] = toward(st.pv[j], st.p[j], dt * 24); if (st.pv[j] !== st.p[j]) busy = true; } });
+    }
+    paint();
+    return busy;
+  } });
+  function settle(st) { if (st.p) st.pv = st.p.slice(); }
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; settle(S[at()]); paint(); }
+  });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function kick() {
+    if (REDUCE || testing()) { settle(S[at()]); return; }
+    if (!anim.playing()) { motionEnd = 0; anim.play(); }
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const vis = (t) => arr(t);
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r }));
+  const tri = (tip, base, y, half) => add(K.svg('path', { class: 'head', d: 'M' + r3(tip) + ' ' + r3(y) + ' L' + r3(base) + ' ' + r3(y - half) + ' L' + r3(base) + ' ' + r3(y + half) + ' Z' }));
+  const nb = (s) => String(s).replace(/ /g, ' ');
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    italics(t, nb(s), true);
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, nb(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 15 * 0.6;
+  }
+  const xOf = (g, w) => (x) => g.x0 + (x - w[0]) / (w[1] - w[0]) * (g.x1 - g.x0);
+  const yOf = (g, w) => (y) => g.b - (y - w[2]) / (w[3] - w[2]) * (g.b - g.t);
+  // The curve over the window, cut where it leaves the top or bottom.
+  function curvePath(f, w, grow, X, Y) {
+    const n = 120, hi = w[0] + (w[1] - w[0]) * grow, out = [], inY = (y) => y >= w[2] && y <= w[3], pt = (x, y) => r3(X(x)) + ' ' + r3(Y(y));
+    let prev = null, open = false;
+    for (let k = 0; k <= n; k++) {
+      const x = w[0] + (hi - w[0]) * k / n, y = f(x);
+      if (prev && inY(prev[1]) !== inY(y)) {
+        const was = inY(prev[1]), edge = was ? (y > w[3] ? w[3] : w[2]) : (prev[1] > w[3] ? w[3] : w[2]), t = (edge - prev[1]) / (y - prev[1]);
+        out.push((was ? 'L' : 'M') + pt(prev[0] + (x - prev[0]) * t, edge));
+        open = !was;
+      }
+      if (inY(y)) { out.push((open ? 'L' : 'M') + pt(x, y)); open = true; } else open = false;
+      prev = [x, y];
+    }
+    return out.join(' ');
+  }
+  const niceStep = (span, n) => [1, 2, 5, 10, 20].find((s) => span / s <= n) || 50;
+  function axes(g, w, X, Y, ticks) {
+    line('frame', g.x0, g.b, g.x1, g.b); line('frame', g.x0, g.t, g.x0, g.b);
+    if (ticks) {
+      const sx = niceStep(w[1] - w[0], 8), sy = niceStep(w[3] - w[2], 6);
+      for (let v = Math.ceil(w[0] / sx - 1e-9) * sx; v <= w[1] + 1e-9; v += sx) { line('tick', X(v), g.b, X(v), g.b + 4); text(X(v), g.b + 17, fmtN(v), 'tk'); }
+      for (let v = Math.ceil(w[2] / sy - 1e-9) * sy; v <= w[3] + 1e-9; v += sy) { line('tick', g.x0 - 4, Y(v), g.x0, Y(v)); text(g.x0 - 7, Y(v) + 4.5, fmtN(v), 'tk', 'end'); }
+    }
+    if (w[2] <= 0 && w[3] >= 0) { line('axis', g.x0, Y(0), g.x1, Y(0)); text(g.x1 - 2, Y(0) - 6, 'x', 'an', 'end'); }
+  }
+  // Each step's picture: how tall it is, and where its parts sit.
+  function layout(d) {
+    const gb = d.gb || 222, keyY = gb + 40, wy = gb + 70, n = d.rows || 0;
+    const sy = (n ? wy + WSTEP * (n - 1) : keyY) + 40;
+    const H = d.sliders ? sy + SSTEP * (d.sliders.length - 1) + 32 : n ? wy + WSTEP * (n - 1) + 12 : keyY + 14;
+    return { gb, keyY, wy, sy, H };
+  }
+
+  // ---------- which a, b and c a screen draws ----------
+  // On a screen with handles: c gliding on its own (moves) until Dan sets them, then his values.
+  function glideQ(d) {
+    const q = d.q.slice();
+    (d.moves || []).forEach((m) => { const p = arr(m[0], m[1] - m[0]); q[2] = q[2] + (m[2] - q[2]) * p; });
+    return q;
+  }
+  function paramsOf(d, st) {
+    if (!d.sliders) return { qv: d.q, qs: d.q };
+    if (!st.p) { const qv = glideQ(d); return { qv, qs: [qv[0], Math.round(qv[1]), Math.round(qv[2])] }; }
+    return { qv: st.pv || st.p, qs: st.p };
+  }
+  function qPair(d, st) {
+    if (d.kind === 'which') {
+      const k = st.res === 'right' ? d.right : st.res === 'wrong' && st.pick != null ? d.opts.indexOf(st.pick) : -1;
+      return k < 0 ? null : { qv: d.qs[k], qs: d.qs[k] };
+    }
+    return paramsOf(d, st);
+  }
+
+  // ---------- a screen's timetable in its state ----------
+  // a0: the rule, the axes and the key; curve and grow: the curve arriving and drawn left to right;
+  // axisA: the dashed axis; arrA, arrE: the arrows arriving and growing out from it; rootsA: the
+  // roots; labA: the arrows' lengths; rdA, rdVal: the readout of b² − 4ac and whether it shows its
+  // value; lines: each line of working; rings, ringA: a wrong pick's numbers on the x-axis.
+  function graphTL(d, st) {
+    const tl = { a0: 1, curve: 1, grow: 1, axisA: 1, arrA: 1, arrE: 1, rootsA: 1, labA: 1, rdA: 1, rdVal: true, lines: [], rings: null, ringA: 0 };
+    if (d.show) {
+      tl.a0 = vis(FADE);
+      if (d.demo === 'centre') Object.assign(tl, { curve: vis(0.75), grow: arr(0.75, 0.8), axisA: vis(1.7), arrA: vis(2.2), arrE: arr(2.2, 1.0), rootsA: vis(3.0), labA: vis(3.0), rdA: vis(3.3), lines: [vis(3.6)] });
+      else if (d.demo === 'derive') Object.assign(tl, { curve: vis(0.6), grow: arr(0.6, 0.6), axisA: vis(0.9), arrA: vis(0.9), arrE: arr(0.9, 0.6), rootsA: vis(1.3), labA: vis(0.9), lines: [vis(1.4), vis(1.9), vis(2.4), vis(2.9), vis(3.4), vis(3.8)] });
+      else if (d.demo === 'formula') Object.assign(tl, { curve: vis(0.75), grow: arr(0.75, 0.8), lines: [vis(1.0), vis(1.9), vis(2.5), vis(3.6)], rdA: vis(1.4), axisA: vis(2.5), arrA: vis(2.8), arrE: arr(2.8, 0.7), rootsA: vis(3.3), labA: vis(3.3) });
+      else { const a1 = vis(1.0); Object.assign(tl, { curve: vis(0.75), grow: arr(0.75, 0.8), axisA: a1, arrA: a1, rootsA: a1, labA: a1, rdA: tl.a0, lines: [a1] }); }
+      return tl;
+    }
+    Object.assign(tl, { curve: 0, grow: 0, axisA: 0, arrA: 0, arrE: 0, rootsA: 0, labA: 0, rdA: 0, rdVal: false });
+    if (d.pre) Object.assign(tl, { axisA: 1, arrA: 1, arrE: 1, labA: 1 });
+    if (d.kind === 'slip') Object.assign(tl, { curve: 1, grow: 1, rings: slipOf(d.q, 'half'), ringA: 1, lines: [1, 1, 1, 1] });
+    if (st.res === 'right') {
+      Object.assign(tl, { rdVal: true, rdA: vis(0.3), rootsA: vis(1.2) });
+      if (d.kind === 'slip') tl.ringA = 1 - vis(0.1);
+      else Object.assign(tl, { curve: vis(0.1), grow: arr(0.1, 0.8) });
+      if (!d.pre) Object.assign(tl, { axisA: vis(0.6), arrA: vis(0.8), arrE: arr(0.8, 0.6), labA: vis(1.2) });
+      tl.lines = d.kind === 'slip' ? [1, 1, 1, 1, vis(1.2), vis(1.5)] : [vis(1.2), vis(1.5), vis(1.8)];
+    } else if (st.res === 'wrong' && st.pick != null) {
+      const k = d.opts.indexOf(st.pick);
+      if (d.kind === 'roots' && d.val[k] !== 'none') { tl.rings = d.val[k].map(round2); tl.ringA = vis(0.1); }
+      if (d.kind === 'which') Object.assign(tl, { curve: vis(0.1), grow: arr(0.1, 0.6), rdVal: true, rdA: vis(0.2), axisA: vis(0.3), arrA: vis(0.4), arrE: arr(0.4, 0.5), rootsA: vis(0.7), labA: vis(0.7) });
+      if (d.kind !== 'slip') tl.lines = [vis(0.1), vis(0.4)];
+    }
+    return tl;
+  }
+
+  // The axis, the two arrows out to the roots, and the roots.
+  function drawSpread(d, P, tl, g, X, Y, said) {
+    const qv = P.qv, qs = P.qs, up = qv[0] > 0, h = centre(qv), Y0 = Y(0), D = disc(qv), Ds = disc(qs);
+    const real = D > 0 || zeroD(D), s = !real ? null : zeroD(D) ? 0 : Math.sqrt(D) / (2 * Math.abs(qv[0]));
+    const lab = d.letters ? 'x = −b ÷ 2a' : 'x = ' + fmtN(centre(qs));
+    if (tl.axisA > 0) part(tl.axisA, 0, () => {
+      const lw = tw(lab, 'pt'), lx = K.clamp(X(h), g.x0 + lw / 2 + 2, g.x1 - lw / 2 - 2);
+      if (up) { line('sym', X(h), g.t + 18, X(h), g.b); text(lx, g.t + 12, lab, 'pt'); }
+      else { line('sym', X(h), g.t, X(h), g.b - 18); text(lx, g.b - 6, lab, 'pt'); }
+    });
+    if (tl.axisA >= 0.5) { REC.axis = { x: h, label: lab }; said.push('The dashed axis is at ' + say(lab) + '.'); }
+    if (!real) { if (tl.axisA >= 0.5) said.push('The curve never reaches the x-axis, so there are no real roots.'); return; }
+    // the arrows, growing out from the axis along the x-axis
+    const e = tl.arrE;
+    if (tl.arrA > 0 && s > 0) part(tl.arrA, 0, () => [-1, 1].forEach((sg) => {
+      const x1 = X(h), x2 = X(h + sg * s * e), len = Math.abs(x2 - x1);
+      if (len < 0.5) return;
+      if (len > 18) { const tip = x2 - sg * 6, base = tip - sg * 9; line('arrow', x1, Y0, base + sg, Y0); tri(tip, base, Y0, 5); }
+      else line('arrow', x1, Y0, x2, Y0);
+    }));
+    if (tl.arrA >= 0.5) { REC.arrows = { from: h, ends: [h - s * e, h + s * e] }; if (s > 0) said.push('Two equal arrows reach out from the axis to the roots.'); }
+    // each arrow's length, on the arrow
+    if (!d.letters && tl.labA > 0 && s > 0 && Ds > 0) {
+      const sl = fmtN(Math.sqrt(Ds) / (2 * Math.abs(qs[0]))), len = Math.abs(X(h + s) - X(h)), a = Math.min(tl.labA, tl.arrA);
+      if (len >= tw(sl, 'al') + 12) {
+        part(a, 0, () => [-1, 1].forEach((sg) => text((X(h) + X(h + sg * s)) / 2, up ? Y0 - 10 : Y0 + 21, sl, 'al')));
+        if (a >= 0.5) { REC.arrowLabel = sl; said.push('Each arrow is ' + say(sl) + ' long.'); }
+      }
+    }
+    // the roots
+    if (tl.rootsA > 0) {
+      const rs = s > 0 ? [h - s, h + s] : [h];
+      const txt = s > 0 && Ds > 0 && !zeroD(Ds) ? rootsOf(qs).slice().sort((p, q) => p - q).map(fmtN) : s === 0 && zeroD(Ds) ? [fmtN(centre(qs))] : null;
+      part(tl.rootsA, 0, () => {
+        rs.forEach((r) => circle('dot', X(r), Y0, 5));
+        if (!txt || d.letters) return;
+        const ly = up ? Y0 + 18 : Y0 - 9;
+        if (rs.length === 1) { text(X(rs[0]) + 8, ly, txt[0], 'pt', 'start'); return; }
+        const wl = tw(txt[0], 'pt'), wr = tw(txt[1], 'pt'), xl = X(rs[0]), xr = X(rs[1]);
+        if (xl - 8 - wl >= g.x0 + 2) text(xl - 8, ly, txt[0], 'pt', 'end'); else text(xl + 8, ly, txt[0], 'pt', 'start');
+        if (xr + 8 + wr <= g.x1 - 2) text(xr + 8, ly, txt[1], 'pt', 'start'); else text(xr - 8, ly, txt[1], 'pt', 'end');
+      });
+      if (tl.rootsA >= 0.5) {
+        REC.roots = rs; REC.rootLabels = txt;
+        if (txt && !d.letters) said.push(txt.length === 1 ? 'One repeated root, at ' + say(txt[0]) + '.' : 'The roots are at ' + say(txt[0]) + ' and ' + say(txt[1]) + '.');
+      }
+    }
+  }
+
+  function drawKey(y, a) {
+    part(a, 0, () => {
+      let kx = 12;
+      line('sym', kx, y - 4.5, kx + 20, y - 4.5); text(kx + 26, y, 'axis', 'key', 'start'); kx += 26 + tw('axis', 'key') + 18;
+      line('arrow', kx, y - 4.5, kx + 12, y - 4.5); tri(kx + 21, kx + 12, y - 4.5, 5);
+      text(kx + 27, y, 'spread to each root', 'key', 'start'); kx += 27 + tw('spread to each root', 'key') + 18;
+      circle('dot', kx + 5, y - 4.5, 5); text(kx + 15, y, 'root', 'key', 'start');
+    });
+  }
+
+  function drawLines(rows, alphas, y0, said) {
+    rows.forEach((ln, k) => {
+      const a = alphas && alphas[k] != null ? alphas[k] : 1, y = y0 + WSTEP * k, cls = ln.bad ? ' bad' : '';
+      part(a, 6, () => {
+        let lx = 12;
+        if (ln.n) { text(12, y, ln.n, 'tk', 'start'); lx = 30; }
+        if (ln.l) text(lx, y, ln.l, (ln.small ? 'note' : 'te') + cls, 'start');
+        if (ln.r) text(328, y, ln.r, 'tw' + cls, 'end');
+        if (ln.note) text(328, y, ln.note, 'note' + cls, 'end');
+      });
+      if (a >= 0.5) { REC.work.push(ln); said.push(say([ln.n ? 'Line ' + ln.n : '', ln.l, ln.r, ln.note].filter(Boolean).join(', ')) + '.'); }
+    });
+  }
+
+  // The handles: a track for each of a, b and c, drawn in the picture.
+  const slX = (sl, v) => SX0 + Math.max(0, sl.vals.indexOf(v)) / (sl.vals.length - 1) * (SX1 - SX0);
+  const slXc = (sl, v) => (sl.key === 'a' ? slX(sl, v) : SX0 + (v - sl.vals[0]) / (sl.vals[sl.vals.length - 1] - sl.vals[0]) * (SX1 - SX0));
+  const slFrom = (sl, px) => sl.vals[Math.round(K.clamp((px - SX0) / (SX1 - SX0), 0, 1) * (sl.vals.length - 1))];
+  const nearest = (vals, v) => vals.reduce((b, x) => (Math.abs(x - v) < Math.abs(b - v) ? x : b), vals[0]);
+  function drawSliders(d, P, L, a, said) {
+    d.sliders.forEach((sl, k) => {
+      const y = L.sy + k * SSTEP, j = KI[sl.key], v = P.qs[j], vd = P.qv[j];
+      part(a, 0, () => {
+        line('track', SX0, y, SX1, y);
+        sl.vals.forEach((val) => { const x = slX(sl, val), major = val % sl.every === 0; line('tick', x, y - (major ? 6 : 3), x, y + (major ? 6 : 3)); if (major) text(x, y + 23, fmtN(val), 'tk'); });
+        text(12, y + 5, sl.key + ' = ' + fmtN(v), 'xl', 'start');
+        circle('knob', slXc(sl, vd), y, 9);
+      });
+      said.push('The ' + sl.key + ' handle is at ' + say(fmtN(v)) + '.');
+    });
+  }
+
+  function drawScreen(d, st, L) {
+    const tl = graphTL(d, st), w = d.win, g = { x0: 46, x1: 326, t: GT, b: L.gb }, X = xOf(g, w), Y = yOf(g, w), said = [];
+    const P = qPair(d, st);
+    REC.g = g; REC.w = w; REC.p = P ? P.qs : null; REC.qv = P ? P.qv : null;
+    // the rule
+    const tag = d.letters ? 'y = ax² + bx + c' : P ? 'y = ' + polyText(P.qs) : 'y = x² − 4x + c';
+    part(tl.a0, 4, () => text(12, TAGY, tag, 'tag', 'start'));
+    REC.tag = tag; said.push(say(tag) + '.');
+    // the readout of b² − 4ac, and what it says
+    if (!d.noRd) {
+      const ask = 'b² − 4ac = ?', val = P ? 'b² − 4ac = ' + discText(P.qs) : ask, word = P ? countWord(P.qs) : '';
+      if (d.show) {
+        const a = Math.min(tl.a0, tl.rdA);
+        part(a, 0, () => { text(12, RDY, val, 'rd', 'start'); text(328, RDY, word, 'st', 'end'); });
+        if (a >= 0.5) { REC.readout = val; REC.status = word; }
+      } else {
+        const on = tl.rdVal && P ? tl.rdA : 0;
+        part(tl.a0 * (1 - on), 0, () => text(12, RDY, ask, 'rd', 'start'));
+        if (on > 0) part(on, 0, () => { text(12, RDY, val, 'rd', 'start'); text(328, RDY, word, 'st', 'end'); });
+        REC.readout = on >= 0.5 ? val : ask; REC.status = on >= 0.5 ? word : null;
+      }
+      if (REC.readout) said.push(say(REC.readout) + (REC.status ? ', ' + REC.status : '') + '.');
+    }
+    part(tl.a0, 0, () => axes(g, w, X, Y, !d.letters));
+    if (P && tl.curve > 0) part(tl.curve, 0, () => {
+      const p = curvePath((x) => poly(P.qv, x), w, tl.grow, X, Y);
+      if (p) add(K.svg('path', { class: 'curve', d: p }));
+    });
+    if (P && tl.curve >= 0.5) { REC.curve = true; REC.grow = tl.grow; said.push('The curve of the rule is drawn.'); }
+    if (P) drawSpread(d, P, tl, g, X, Y, said);
+    // a wrong pick's numbers on the x-axis, in red
+    if (tl.rings && tl.ringA > 0) {
+      const Y0 = Y(0), shown = tl.rings.filter((v) => v >= w[0] && v <= w[1]);
+      part(tl.ringA, 0, () => shown.forEach((v) => { circle('ring', X(v), Y0, 8); text(X(v), d.kind === 'slip' ? Y0 - 14 : Y0 + 24, fmtN(v), 'pt bad'); }));
+      if (tl.ringA >= 0.5) { REC.rings = tl.rings; said.push('The picked numbers are ringed in red on the x-axis.'); }
+    }
+    drawKey(L.keyY, tl.a0);
+    drawLines(linesOf(d, st, P ? P.qs : null), tl.lines, L.wy, said);
+    if (d.sliders) drawSliders(d, P, L, tl.a0, said);
+    return said.join(' ');
+  }
+
+  // ---------- grips: the handles for a, b and c, and the curve itself ----------
+  function toSvg(e) {
+    const ctm = svg.getScreenCTM();
+    return ctm ? new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()) : null;
+  }
+  const handling = () => !finished && !!STEPS[at()].show && !!STEPS[at()].sliders;
+  // Dan's whole value for a, b or c: it settles the demonstration and eases the curve there.
+  function setParam(key, v) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!handling()) return;
+    const sl = d.sliders.find((x) => x.key === key);
+    if (!sl) return;
+    v = nearest(sl.vals, v);
+    const P = paramsOf(d, st);
+    if (st.p && st.p[KI[key]] === v && T === Infinity) return;
+    st.pv = P.qv.slice();
+    st.p = (st.p || P.qs).slice();
+    st.p[KI[key]] = v;
+    st.pv[0] = st.p[0];
+    T = Infinity;
+    K.reveal(); kick(); K.refresh();
+  }
+  const sGrips = [0, 1, 2].map((k) => {
+    const gr = ui.appendChild(K.svg('rect', { class: 'grip', x: SX0 - 22, y: 0, width: SX1 - SX0 + 44, height: 44, tabindex: -1, role: 'slider', 'aria-orientation': 'horizontal' }));
+    gr.style.display = 'none';
+    let held = null;
+    const slOf = () => (handling() ? STEPS[at()].sliders[k] : null);
+    gr.addEventListener('pointerdown', (e) => {
+      const sl = slOf(); if (!sl) return;
+      held = e.pointerId;
+      try { gr.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the band */ }
+      e.preventDefault();
+      const q = toSvg(e); if (q) setParam(sl.key, slFrom(sl, q.x));
+    });
+    gr.addEventListener('pointermove', (e) => { const sl = slOf(); if (held !== e.pointerId || !sl) return; const q = toSvg(e); if (q) setParam(sl.key, slFrom(sl, q.x)); });
+    const go = (e) => { if (held === e.pointerId) held = null; };
+    gr.addEventListener('pointerup', go);
+    gr.addEventListener('pointercancel', go);
+    gr.addEventListener('lostpointercapture', () => { held = null; });
+    gr.addEventListener('keydown', (e) => {
+      const sl = slOf(); if (!sl || !REC.p) return;
+      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+      if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+      e.preventDefault();
+      const n = sl.vals.length, cur = Math.max(0, sl.vals.indexOf(REC.p[KI[sl.key]]));
+      setParam(sl.key, sl.vals[e.key === 'Home' ? 0 : e.key === 'End' ? n - 1 : K.clamp(cur + by, 0, n - 1)]);
+    });
+    return gr;
+  });
+  // The curve: drag it up or down and c follows, in whole steps.
+  const cGrip = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 44, height: 44, tabindex: -1, role: 'slider', 'aria-orientation': 'vertical', 'aria-label': 'The curve: drag it up or down to change c, the plain number' }));
+  cGrip.style.display = 'none';
+  const yVal = (py) => { const g = REC.g, w = REC.w; return w[2] + (g.b - py) / (g.b - g.t) * (w[3] - w[2]); };
+  let cHeld = null;
+  cGrip.addEventListener('pointerdown', (e) => {
+    if (!handling() || !REC.g || !REC.p) return;
+    const q = toSvg(e); if (!q) return;
+    cHeld = { id: e.pointerId, y0: yVal(q.y), c0: REC.p[2] };
+    try { cGrip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the curve */ }
+    e.preventDefault();
+    K.reveal();
+  });
+  cGrip.addEventListener('pointermove', (e) => {
+    if (!cHeld || cHeld.id !== e.pointerId || !handling()) return;
+    const q = toSvg(e); if (!q) return;
+    setParam('c', Math.round(cHeld.c0 + yVal(q.y) - cHeld.y0));
+  });
+  const cGo = (e) => { if (cHeld && cHeld.id === e.pointerId) cHeld = null; };
+  cGrip.addEventListener('pointerup', cGo);
+  cGrip.addEventListener('pointercancel', cGo);
+  cGrip.addEventListener('lostpointercapture', () => { cHeld = null; });
+  cGrip.addEventListener('keydown', (e) => {
+    if (!handling() || !REC.p) return;
+    const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+    if (by == null) return;
+    e.preventDefault();
+    setParam('c', REC.p[2] + by);
+  });
+  function placeGrips(d, L) {
+    const on = handling() && !!REC.p;
+    sGrips.forEach((gr, k) => {
+      const sl = on ? d.sliders[k] : null;
+      gr.style.display = sl ? '' : 'none'; gr.setAttribute('tabindex', sl ? '0' : '-1');
+      if (!sl) return;
+      const v = REC.p[KI[sl.key]];
+      gr.setAttribute('y', L.sy + k * SSTEP - 22);
+      gr.setAttribute('aria-label', sl.key + ', ' + SLNAME[sl.key]);
+      gr.setAttribute('aria-valuemin', sl.vals[0]); gr.setAttribute('aria-valuemax', sl.vals[sl.vals.length - 1]);
+      gr.setAttribute('aria-valuenow', v); gr.setAttribute('aria-valuetext', sl.key + ' = ' + fmtN(v));
+    });
+    cGrip.style.display = on ? '' : 'none'; cGrip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    const g = REC.g, X = xOf(g, REC.w), Y = yOf(g, REC.w), h = centre(REC.qv), W = 150, H = 100;
+    const cx = K.clamp(X(h), g.x0 + W / 2, g.x1 - W / 2), cy = K.clamp(Y(poly(REC.qv, h)), g.t + H / 2, g.b - H / 2);
+    cGrip.setAttribute('x', r3(cx - W / 2)); cGrip.setAttribute('y', r3(cy - H / 2)); cGrip.setAttribute('width', W); cGrip.setAttribute('height', H);
+    const sl = d.sliders.find((x) => x.key === 'c');
+    cGrip.setAttribute('aria-valuemin', sl.vals[0]); cGrip.setAttribute('aria-valuemax', sl.vals[sl.vals.length - 1]);
+    cGrip.setAttribute('aria-valuenow', REC.p[2]); cGrip.setAttribute('aria-valuetext', 'c = ' + fmtN(REC.p[2]));
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], L = layout(d);
+    art.textContent = '';
+    into = null;
+    REC = { tag: '', readout: null, status: null, curve: false, grow: 0, axis: null, arrows: null, arrowLabel: null, roots: null, rootLabels: null, rings: null, work: [], p: null, qv: null, g: null, w: null };
+    svg.setAttribute('viewBox', '0 0 340 ' + L.H);
+    svg.setAttribute('aria-label', drawScreen(d, st, L));
+    placeGrips(d, L);
+  }
+  // Each step's tallest working, so its picture keeps one height whatever Dan picks.
+  STEPS.forEach((d) => {
+    const sts = [blank()];
+    if (!d.show) d.opts.forEach((o) => sts.push(Object.assign(blank(), { pick: o, res: o === d.want ? 'right' : 'wrong' })));
+    d.rows = Math.max.apply(null, sts.map((st) => linesOf(d, st, null).length));
+  });
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) { T = Infinity; settle(st); }   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { Object.assign(st, { p: null, pv: null }); play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      italics(b.el.appendChild(K.el('span')), opts[k], false);   // one span, so the button's gap does not split "x² − 4x + 3"
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const withP = (p) => Object.assign(blank(), { p: p.slice(), pv: p.slice() });
+  const LIFT = STEPS.findIndex((d) => d.sliders && d.sliders.length === 1);
+  const HANDLES = STEPS.findIndex((d) => d.sliders && d.sliders.length === 3);
+  const HSET = [];
+  [-3, -1, 1, 2].forEach((a) => [-8, 0, 4].forEach((b) => [-12, -4, 0, 10, 12].forEach((c) => HSET.push([a, b, c]))));
+  HSET.push([-1, 4, -4], [1, 6, 9], [1, 8, -12], [-1, -8, 12]);
+  const XS = K.linspace(-10, 10, 41);
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try {
+      paint(i);
+      const rec = REC;
+      rec.texts = Array.from(art.querySelectorAll('text')).map((n) => n.textContent.replace(/ /g, ' '));
+      return rec;
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // Every screen finished, the lift screen at every c and the handles at the settings tried.
+  function cases() {
+    const out = [];
+    STEPS.forEach((d, i) => {
+      if (i === LIFT) for (let c = 0; c <= 12; c++) out.push([i, withP([1, 6, c]), [1, 6, c]]);
+      else if (i === HANDLES) HSET.forEach((p) => out.push([i, withP(p), p]));
+      else if (d.show) out.push([i, blank(), d.q]);
+      else out.push([i, solvedSt(i), d.kind === 'which' ? d.qs[d.right] : d.q]);
+    });
+    return out;
+  }
+  const rel = (x) => 1e-9 * Math.max(1, Math.abs(x));
+
+  K.check('The quadratic formula for ax^2 + bx + c = 0 is x = (−b ± √(b^2 − 4ac)) ÷ 2a: on every screen, and at every a, b and c tried on the handles, each root it gives makes the rule 0, and the roots drawn are exactly those', () =>
+    cases().every((cs) => {
+      const q = cs[2], rs = rootsOf(q), g = drawn(cs[0], cs[1]), size = Math.max(1, Math.abs(q[0]), Math.abs(q[1]), Math.abs(q[2]));
+      if (!rs.every((r) => Math.abs(poly(q, r)) < 1e-9 * size * Math.max(1, r * r))) return false;
+      const dr = g.roots || [];
+      return dr.length === rs.length && dr.every((r) => rs.some((x) => Math.abs(x - r) < rel(x)));
+    }), { source: BITESIZE });
+  K.check('Completing the square converts ax^2 + bx + c to a(x + b/(2a))^2 + (c − b^2/(4a)): for every screen\'s rule and every a, b and c tried on the handles, the two agree at every x tried, and at each root the bracket squared is (b^2 − 4ac)/(4a^2)', () =>
+    cases().every((cs) => {
+      const q = cs[2], a = q[0], b = q[1], c = q[2], f = (x) => a * Math.pow(x + b / (2 * a), 2) + (c - b * b / (4 * a));
+      return XS.every((x) => Math.abs(f(x) - poly(q, x)) < 1e-9 * Math.max(1, Math.abs(poly(q, x)))) &&
+        rootsOf(q).every((r) => Math.abs(Math.pow(r + b / (2 * a), 2) - disc(q) / (4 * a * a)) < 1e-9 * Math.max(1, disc(q)));
+    }), { source: MATHWORLD });
+  K.check('The discriminant distinguishes two distinct real roots, one repeated real root, or non-real complex roots only: on every screen and setting tried, the picture draws two roots and two equal arrows when b² − 4ac is above zero, one root and arrows of no length at zero, and no roots or arrows below zero, and the readout says which', () =>
+    cases().every((cs) => {
+      const i = cs[0], q = cs[2], g = drawn(i, cs[1]), D = disc(q), n = (g.roots || []).length;
+      const words = STEPS[i].noRd || g.status === countWord(q);
+      if (zeroD(D)) return n === 1 && !!g.arrows && g.arrows.ends[0] === g.arrows.ends[1] && words;
+      if (D > 0) return n === 2 && !!g.arrows && g.arrows.ends[1] > g.arrows.ends[0] && words;
+      return n === 0 && !g.arrows && words && (STEPS[i].noRd || g.status === 'no real roots');
+    }), { source: BRILLIANT });
+  K.check('Both arrows start on the dashed axis at x = −b ÷ 2a and are equal, each √(b² − 4ac) ÷ 2a long (its size when a is negative), so the axis sits halfway between the roots, which average to −b ÷ 2a', () =>
+    cases().every((cs) => {
+      const q = cs[2], g = drawn(cs[0], cs[1]), h = -q[1] / (2 * q[0]), rs = rootsOf(q);
+      if (!g.axis || Math.abs(g.axis.x - h) > rel(h)) return false;
+      if (!rs.length) return !g.arrows;
+      const s = Math.sqrt(Math.max(0, disc(q))) / (2 * Math.abs(q[0]));
+      return Math.abs(g.arrows.from - h) <= rel(h) && Math.abs(h - g.arrows.ends[0] - s) <= rel(s) && Math.abs(g.arrows.ends[1] - h - s) <= rel(s) &&
+        Math.abs((rs[0] + rs[rs.length - 1]) / 2 - h) <= rel(h);
+    }));
+  K.check('On y = x² + 6x + c, raising c from 0 to 12 takes the readout 36 − 4c down by 4 each step, from 36 to −12; the arrows shrink every step, meet at x = −3 when c is 9, where the readout is 0, and from c = 10 there are none and it says no real roots', () => {
+    let last = Infinity;
+    for (let c = 0; c <= 12; c++) {
+      const g = drawn(LIFT, withP([1, 6, c])), D = 36 - 4 * c;
+      if (g.readout !== 'b² − 4ac = 36 − ' + fmtN(4 * c) + ' = ' + fmtN(D) || g.tag !== 'y = ' + polyText([1, 6, c])) return false;
+      const len = g.arrows ? g.arrows.ends[1] - g.arrows.ends[0] : null;
+      if (c < 9 && !(len > 0 && len < last && Math.abs(len - Math.sqrt(D)) < 1e-9)) return false;
+      if (c === 9 && !(len === 0 && g.roots && g.roots.length === 1 && close(g.roots[0], -3) && g.status === 'one repeated root')) return false;
+      if (c > 9 && !(len === null && !g.roots && g.status === 'no real roots')) return false;
+      if (len) last = len;
+    }
+    return true;
+  });
+  K.check('Every puzzle accepts only its right answer, worked out from its rule; each wrong pick of roots, put back into the rule, does not give 0 while the right ones do, and each hint quotes the rule\'s own value there', () =>
+    DO.every((i) => {
+      const d = STEPS[i], q = d.q;
+      if (!(d.opts.length === 3 && new Set(d.opts).size === 3 && d.opts.every((o, k) => pickRight(i, o) === (k === d.right)))) return false;
+      if (d.kind === 'roots') return d.val.every((v, k) => {
+        if (k === d.right) return v === 'none' ? disc(q) < 0 : v.every((r) => Math.abs(poly(q, r)) < 1e-9);
+        if (v === 'none') return disc(q) >= 0;
+        return v.every((r) => Math.abs(poly(q, round2(r))) > 0.01) && hintFor(i, wrongSt(i, d.opts[k])).indexOf(ruleText(q, round2(v[0]))) >= 0;
+      });
+      if (d.kind === 'disc') return d.val.every((v, k) => (k === d.right) === close(v, disc(q)));
+      if (d.kind === 'count') return d.val[d.right] === countKey(q);
+      if (d.kind === 'which') return d.qs.every((p, k) => (k === d.right) === (countKey(p) === 'none'));
+      const bad = slipOf(q, 'half');
+      return bad.every((r) => Math.abs(poly(q, r)) > 0.01) && rootsOf(q).every((r) => Math.abs(poly(q, r)) < 1e-9) && slipLines(q)[0].l === 'b² − 4ac = ' + discText(q);
+    }));
+  K.check('The worked numbers: 36 − 8 = 28 with arrows of 2.65 to −0.35 and −5.65; 36 − 20 = 16 with arrows of 2 to −1 and −5, where 1 and 5 give 12 and 60 and the slip\'s −4 and −8 give −3 and 21; √28 = 2√7, about 5.29; 16 + 48 = 64, not −32 or −64; 36 − 4c from 36 to −12; 4 − 20 = −16; 16 + 40 = 56 with arrows of 3.74; 144 − 144 = 0 at 1.5; 49 − 40 = 9; 25 + 12 = 37 with roots 0.18 and −1.85; and the practice check −32.95 + 22.96 + 10 = 0.01 at x = 5.74', () => {
+    const q1 = [1, 6, 2], q2 = [1, 6, 5], qd = [2, -4, -6], qn = [1, 2, 5], qh = [-1, 4, 10], qr = [4, -12, 9], qf = [1, -7, 10], qt = [3, 5, -1];
+    const sorted = (q) => rootsOf(q).slice().sort((a, b) => a - b).map(fmtN).join(' ');
+    const fl = formulaLines(q1), sl = slipLines(q2), ll = liftLine(q1);
+    const listed = [
+      [discText(q1), '36 − 8 = 28'], [fmtN(spread(q1)), '2.65'], [sorted(q1), '−5.65 −0.35'], [fmtN(centre(q1)), '−3'], [centreLine(q1).r, 'about −0.35 and −5.65'],
+      [discText(q2), '36 − 20 = 16'], [fmtN(spread(q2)), '2'], [sorted(q2), '−5 −1'], [STEPS[1].opts.join(' | '), '2 and −2 | 1 and 5 | −1 and −5'],
+      [ruleText(q2, 1), '1 + 6 + 5 = 12'], [ruleText(q2, 5), '25 + 30 + 5 = 60'], [ruleText(q2, -5), '25 − 30 + 5 = 0'],
+      [sl[1].l, 'x = −6 ± √16 ÷ 2'], [sl[2].l, 'x = −6 ± 2 = −4 or −8'], [ruleText(q2, -4), '16 − 24 + 5 = −3'], [ruleText(q2, -8), '64 − 48 + 5 = 21'], [fixLine(q2).l, 'x = (−6 ± 4) ÷ 2 = −1 or −5'],
+      [fl[1].l, '√28 = √4 × √7 = 2√7'], [fl[1].note, 'about 5.29'], [fl[2].l, 'x = (−6 ± 2√7) ÷ 2 = −3 ± √7'], [fl[3].l, 'x is about −0.35 or −5.65'],
+      [discText(qd), '16 + 48 = 64'], [STEPS[5].opts.join(' '), '64 −32 −64'], [discLines(qd).map((x) => x.l).join(' | '), 'b² = (−4)² = 16 | −4ac = −4 × 2 × (−6) = 48 | x = (4 ± 8) ÷ 4 = 3 or −1'], [ruleText(qd, 3), '18 − 12 − 6 = 0'],
+      [discText([1, 6, 0]), '36 − 0 = 36'], [sorted([1, 6, 0]), '−6 0'], [discText([1, 6, 8]), '36 − 32 = 4'], [sorted([1, 6, 8]), '−4 −2'], [discText([1, 6, 9]), '36 − 36 = 0'], [discText([1, 6, 11]), '36 − 44 = −8'], [discText([1, 6, 12]), '36 − 48 = −12'],
+      [ll.l + ' | ' + ll.r, '(x + 3)² = 7 | 28 = 4 × 7'], [liftLine([1, 6, 11]).r, '−8 = 4 × (−2)'],
+      [discText(qn), '4 − 20 = −16'], [STEPS[7].opts.join(' | '), '1 and −3 | Just −1 | No real roots'], [ruleText(qn, 1), '1 + 2 + 5 = 8'], [ruleText(qn, -3), '9 − 6 + 5 = 8'], [ruleText(qn, -1), '1 − 2 + 5 = 4'],
+      [discText(qh), '16 + 40 = 56'], [fmtN(Math.sqrt(56)), '7.48'], [fmtN(spread(qh)), '3.74'], [sorted(qh), '−1.74 5.74'], [fmtN(centre(qh)), '2'],
+      [discText(qr), '144 − 144 = 0'], [fmtN(centre(qr)), '1.5'],
+      [discText(qf), '49 − 40 = 9'], [STEPS[10].opts.join(' | '), '−5 and −2 | 5 and 2 | 8.5 and 5.5'], [ruleText(qf, -2), '4 + 14 + 10 = 28'],
+      [discText(qt), '25 + 12 = 37'], [fmtN(Math.sqrt(37)), '6.08'], [STEPS[11].opts.join(' | '), '0.18 and −1.85 | −3.99 and −6.01 | −0.18 and 1.85'],
+      [discText([1, -4, 5]), '16 − 20 = −4'], [discText([1, -4, 3]), '16 − 12 = 4'], [discText([1, -4, 4]), '16 − 16 = 0'],
+      [ruleText(qh, 5.74), '−32.95 + 22.96 + 10 = 0.01'], [fmtN(-4 * -1 * -2), '−8'],
+    ];
+    // The screens' own words quote the same numbers.
+    const said = [
+      [STEPS[0].text, ['x = ' + fmtN(centre(q1)), fmtN(spread(q1))]], [STEPS[1].why, [ruleText(q2, -1), ruleText(q2, -5)]], [STEPS[3].why, [ruleText(q2, -1), '(−6 ± 4) ÷ 2']],
+      [STEPS[4].text, [fmtN(disc(q1))]], [STEPS[5].why, [discText(qd), '(4 ± 8) ÷ 4']], [STEPS[7].why, [discText(qn), '(' + fmtN(centre(qn)) + ', ' + fmtN(poly(qn, centre(qn))) + ')']],
+      [STEPS[8].text, [fmtN(spread(qh))]], [STEPS[9].why, [discText(qr), '12 ÷ 8 = ' + fmtN(centre(qr))]], [STEPS[10].why, [discText(qf), '(7 ± 3) ÷ 2']],
+      [STEPS[11].why, [discText(qt), fmtN(Math.sqrt(37)), fmtN(rootsOf(qt)[0]), fmtN(rootsOf(qt)[1])]], [STEPS[12].why, [discText([1, -4, 5])]],
+    ];
+    return listed.every((r) => r[0] === r[1]) && said.every((r) => r[1].every((s) => r[0].indexOf(s) >= 0));
+  });
+  K.check('Before Check a puzzle hides the curve, the roots and b² − 4ac; after a right answer the curve is drawn whole with its axis, arrows and roots, and a wrong pick puts its own numbers back into the rule, in red', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank()), h = drawn(i, solvedSt(i)), rq = d.kind === 'which' ? d.qs[d.right] : d.q, n = rootsOf(rq).length;
+      if (g.roots || (d.kind !== 'slip' && g.curve) || (!d.noRd && g.readout !== 'b² − 4ac = ?')) return false;
+      if (!(h.curve && h.grow === 1 && h.axis && (n ? h.roots && h.roots.length === n : !h.roots))) return false;
+      if (!d.noRd && h.readout !== 'b² − 4ac = ' + discText(rq)) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => {
+        const w = drawn(i, wrongSt(i, o));
+        if (d.kind === 'count' || d.kind === 'slip') return !w.roots;
+        if (d.kind === 'which') return w.work.length === 1 && w.curve;
+        return w.work.length >= 1 && w.work.every((ln) => ln.bad) && !w.curve && !w.roots;
+      });
+    }));
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const f = fbOf();
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i), f[0]) && f[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), f[1]) && f[1] <= 2.5);
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>
