@@ -1,0 +1,72 @@
+{
+  "scores": {
+    "lands": 5,
+    "why": 5,
+    "cause": 5,
+    "trade": 4,
+    "honest": 4,
+    "pleasure": 4
+  },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Screen 3, 'Four quarters' (text), the '(resistance)' and '(reactance)' axis names on every screen, and explain.text ('Textbooks add that...')",
+      "what": "The claim that the real part is the resistance and the j part the reactance, so 6 + j0 is a pure resistance and 0 + j4 a pure reactance, has no citation anywhere: not on screen 3, not in the caption, and not in the sources list. research-notes.md already holds the exact quotes (Electronics Tutorials: 'Z = 6 + j0 (for a pure Resistance) or Z = 0 + j4 (for a pure Reactance) on the complex plane'; HMC: the real part of impedance is called resistance and the imaginary part reactance). Add one of them as a source and cite it on screen 3 and in the caption."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 1, 'The complex plane' (text), and the caption under the frame",
+      "what": "No screen gives the name his college syllabus uses, 'Argand diagram'. The brief's lesson 2 row opens with it, and SQA asks for 'all four quadrants of an Argand diagram'. Yet the caption uses 'Argand diagram' and 'two-dimensional vectors' without explaining either. Screen 1 should add 'also called an Argand diagram', which source 2 (Newcastle) already supports."
+    },
+    {
+      "severity": "fix",
+      "where": "All 13 screens (the link exists only in explain.text, which a steps lesson does not show)",
+      "what": "The brief promised a link back to Trigonometry lesson 7: adding phasors by their floor and wall parts was this all along. No screen makes that link, so the lesson never connects to the phasor sums he already does by hand. One sentence on screen 5 'Tip to tail' or screen 11 'Either order' would carry it."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 11, 'Either order' (text and the Take away switch)",
+      "what": "Straight after 'so the order does not matter', the text says 'try Take away too'. That can suggest taking away ignores order as well, and in Take away mode the picture quietly drops the other-order arrow without saying why. Add half a sentence saying that taking away does depend on order: (5 + j3) − (2 + j1) = 3 + j2, but (2 + j1) − (5 + j3) = −3 − j2."
+    },
+    {
+      "severity": "polish",
+      "where": "Show screens 1, 3, 5, 9 and 11 at 360 px (text above the picture)",
+      "what": "Seven to eleven lines of text sit above the plane. On screen 1 at 360 px the plane starts about 620 px down the frame, and on 'Tip to tail' and 'Taking away' it starts lower still. So most of the 3.5 to 4.5 s demonstration has played before the picture scrolls into view. 'Play again' recovers it, but shorter show text, or the picture placed first, would let the motion be seen as it plays."
+    },
+    {
+      "severity": "polish",
+      "where": "Puzzle screens before Check (screen 13 end state at 360 px and 1280 px)",
+      "what": "Before Check, the drawing keeps room for up to three more lines of working. This leaves an empty band roughly 150 px tall between the question line and the answers, which looks like something failed to load. Reserve less room, or put a faint line there saying the working appears after Check."
+    },
+    {
+      "severity": "polish",
+      "where": "analogy.breaks (cable route), shown only in the dossier",
+      "what": "'The cable along the route is every leg added up, 7 m here' is only right if each run and each rise is its own straight run (3 + 1 + 1 + 2). Read as two slanted legs, it comes to √10 + √5 ≈ 5.4 m. Say 'every run and rise added up, 3 + 1 + 1 + 2 = 7 m'. The comparison also never appears on a lesson screen. One line on screen 7 'Lengths do not add' (7 m of cable, 5 m in a straight line) would tie that screen to his trade."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3, 'Four quarters' (text)",
+      "what": "'reactance' is highlighted as a key term but never explained in plain words, and the brief leaves teaching it to lesson 7. Add a short pointer such as 'which lesson 7 explains', so the term is not left unexplained."
+    },
+    {
+      "severity": "polish",
+      "where": "explain.text ('the Vectors course has more on them')",
+      "what": "The pointer to the Vectors course does not say where that course is. It is in the Advanced maths folder (docs/shelves-maths.json), so name the folder. Also, steps screens never show explain.text, so Dan only sees this pointer in the dossier."
+    },
+    {
+      "severity": "polish",
+      "where": "Sum screens, arrow colours (screens 5 to 13)",
+      "what": "The brief asked for the second arrow in dashed ink. The build uses keyed blue and orange instead (cat1 and cat2), which the kit allows. But on a wrong answer, the slid arrow and finish turn red (warn) right beside the orange second arrow. These two hues are close, so the slip mostly reads through its label. Check that pair in dark mode, or draw the second arrow in ink as the brief asked."
+    },
+    {
+      "severity": "polish",
+      "where": "Bottom-left corner of the plane (screens 1, 2 and 13 at 360 px)",
+      "what": "The lowest j tick ('−j4', '−j2') and the leftmost real tick ('−3', '−4') nearly touch in the corner. They are legible and do not overlap, but they are cramped. Leaving out the corner j tick, or nudging it up, would clear them."
+    },
+    {
+      "severity": "polish",
+      "where": "Drag grips on screens 5, 9 and 11 (aria attributes)",
+      "what": "The grips' aria-valuemin (−4) and aria-valuemax (7) do not match the plane's range (−5 to 8 across, −6 to 5 up). Their aria-valuenow gives only the real part. The aria-valuetext already says the whole number, so either drop the min and max or make them match."
+    }
+  ]
+}

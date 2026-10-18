@@ -1,0 +1,995 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .gap { display: block; height: .55em; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  /* Every label carries a thin halo of the page colour, so a line passing behind it never hides it. */
+  .scene text { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  /* The plane: a faint grid at whole steps, the two axes, their numbers and their names. */
+  .scene .gr { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 2; }
+  .scene .tn { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tn0 { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .an { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  /* Arrows: one number on its own, the first and second of a sum, the sum itself (bold); a slid copy is dashed. */
+  .scene .shaft { fill: none; stroke-width: 3.5; stroke-linecap: round; }
+  .scene .shaft.num { stroke: var(--k-accent2); }
+  .scene .head.num { fill: var(--k-accent2); }
+  .scene .shaft.a { stroke: var(--k-cat1); }
+  .scene .head.a { fill: var(--k-cat1); }
+  .scene .shaft.b { stroke: var(--k-cat2); }
+  .scene .head.b { fill: var(--k-cat2); }
+  .scene .shaft.sum { stroke: var(--k-ink); stroke-width: 5; }
+  .scene .head.sum { fill: var(--k-ink); }
+  .scene .shaft.slid { stroke-dasharray: 7 5; stroke-linecap: butt; }
+  .scene .shaft.slidk { stroke: var(--k-muted); stroke-width: 2.5; stroke-dasharray: 7 5; stroke-linecap: butt; }
+  .scene .shaft.ghost { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 3 4; stroke-linecap: butt; }
+  .scene .head.ghost { fill: var(--k-muted); }
+  .scene .shaft.bad { stroke: var(--k-warn); }
+  .scene .head.bad { fill: var(--k-warn); }
+  .scene .shaft.over { stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 5 4; stroke-linecap: butt; }
+  .scene .tick { stroke: var(--k-warn); stroke-width: 2.5; }
+  /* Each arrow's real part laid along the real axis, and its j part up the j axis. */
+  .scene .bar { stroke-width: 7; stroke-opacity: .5; stroke-linecap: butt; }
+  .scene .bar.a { stroke: var(--k-cat1); }
+  .scene .bar.b { stroke: var(--k-cat2); }
+  .scene .bar.bad { stroke: var(--k-warn); }
+  /* One number's two parts: across along the real axis, then up. */
+  .scene .leg { stroke-width: 4; stroke-linecap: round; fill: none; }
+  .scene .leg.re { stroke: var(--k-amber-line); }
+  .scene .leg.im { stroke: var(--k-accent); }
+  .scene .leg.bad { stroke: var(--k-warn); }
+  .scene .dot { fill: var(--k-accent2); }
+  .scene .dot.bad { fill: var(--k-warn); }
+  .scene .dot.old { fill: var(--k-muted); }
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .trace { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .thead { fill: var(--k-muted); }
+  .scene .tl { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .tl.bad { fill: var(--k-warn); }
+  .scene .tl.old { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .al { font: 600 14px var(--k-font); fill: var(--k-accent); }
+  .scene .te { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .tw { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .te.bad, .scene .tw.bad { fill: var(--k-warn); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .v { font-style: italic; }
+  .scene .knob { stroke: var(--k-bg); stroke-width: 2.5; }
+  .scene .knob.a { fill: var(--k-cat1); }
+  .scene .knob.b { fill: var(--k-cat2); }
+  .scene #art *, .scene #lab * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .sw .k-btn { min-height: 48px; font-size: 1.05rem; }
+  .sw .k-btn[aria-pressed="true"], .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row when short; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">The coordinate plane with its axes renamed, real across and j up, and complex numbers drawn on it as arrows from 0.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g><g id="lab"></g><g id="ui"></g></svg>
+    <div class="row sw" id="sw"></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Adding works like two-dimensional vectors (Sheffield); times −1 turns an arrow 180° (LibreTexts); axes as in an Argand diagram (Newcastle).</p>
+
+<script>
+  // ---------- numbers: a complex number is [real part, j part] ----------
+  const Z = (re, im) => [re, im || 0];
+  const O = Z(0), NEG = Z(-1);
+  const plus = (a, b) => [a[0] + b[0], a[1] + b[1]];
+  const times = (a, b) => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]];
+  const neg = (a) => times(NEG, a);   // turned half round
+  const minus = (a, b) => plus(a, neg(b));
+  const scale = (z, p) => [z[0] * p, z[1] * p];
+  const tidy = (v) => (Math.abs(v) < 1e-9 ? 0 : Math.round(v * 1e6) / 1e6);
+  const size = (z) => Math.hypot(z[0], z[1]);
+  // The direction an arrow points, anticlockwise from the real axis, in degrees (0 up to 360).
+  const turnOf = (z) => { const a = tidy(Math.atan2(z[1], z[0]) * 180 / Math.PI); return a < 0 ? a + 360 : a; };
+  const same = (a, b) => !!a && !!b && Math.abs(a[0] - b[0]) < 1e-6 && Math.abs(a[1] - b[1]) < 1e-6;
+  const num = (v) => { v = tidy(v); return (v < 0 ? '−' : '') + Math.abs(v); };
+  // As the explanation writes it: 3 + j2, −2 − j3, 6 + j0 (full), or short: 8, 0, j10.
+  function name(z, full) {
+    const re = tidy(z[0]), im = tidy(z[1]);
+    if (!full && !im) return num(re);
+    if (!full && !re) return (im < 0 ? '−' : '') + 'j' + Math.abs(im);
+    return num(re) + (im < 0 ? ' − ' : ' + ') + 'j' + Math.abs(im);
+  }
+  const paren = (z) => '(' + name(z, true) + ')';
+  const sumText = (x, y) => num(x) + ' + ' + (tidy(y) < 0 ? '(' + num(y) + ')' : num(y));
+  const dirWords = (z) => { const re = tidy(z[0]), im = tidy(z[1]); return (re < 0 ? num(-re) + ' left' : num(re) + ' across') + ', ' + (im < 0 ? num(-im) + ' down' : num(im) + ' up'); };
+  const jTick = (w) => (w < 0 ? '−' : '') + 'j' + Math.abs(w);
+  const rot = (z, deg) => { const r = size(z), a = (turnOf(z) + deg) * Math.PI / 180; return [r * Math.cos(a), r * Math.sin(a)]; };
+  const HALF = turnOf(NEG);   // 180°: the turn that times −1 makes
+
+  // Sources the checks restate (the lesson's own).
+  const LIBRE = 'https://chem.libretexts.org/Bookshelves/Physical_and_Theoretical_Chemistry_Textbook_Maps/Physical_Chemistry_(LibreTexts)/32%3A_Math_Chapters/32.01%3A_Complex_Numbers';
+  const NCL = 'https://www.mas.ncl.ac.uk/ask/numeracy-maths-statistics/core-mathematics/pure-maths/algebra/modulus-and-argument.html';
+  const SHEF = 'https://sheffield.ac.uk/media/31975/download?attachment';
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: 'plane' (numbers placed across then up), 'read' (which number is this dot or arrow?), 'sum' (two
+  // arrows laid tip to tail). a, b: the first and second numbers; sub: taking away; drag: both tips can be
+  // dragged; sw: an Add / Take away switch; other: the other order too; lengths: the lengths compared.
+  // A puzzle's mvs give each answer what it lays on the first arrow's tip (t), a misread first number (a),
+  // the half turn (turn), or every part lumped into one number (lump); its label is where that lands.
+  const RKEY = [{ sw: 'leg re', label: 'real part, across' }, { sw: 'leg im', label: 'j part, up' }];
+  const SKEY = [{ sw: 'shaft a', label: 'first' }, { sw: 'shaft b', label: 'second' }, { sw: 'shaft slidk', label: 'slid' }, { sw: 'shaft sum', label: 'sum' }];
+  const DRAGV = { lo: -5, hi: 8, blo: -6, bhi: 5 };
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, name: 'The complex plane', pic: 'plane', dots: true, key: RKEY, lines: 2, dur: 4.0,
+      nums: [{ z: Z(3, 2), t: 0.5 }, { z: Z(-2, -3), t: 2.3 }],
+      text: 'A complex number has two parts, a real part and a `j` part, so it needs two directions. Keep the number line across for the real part, and give the `j` part its own line through 0, straight up, with `j1` one step up and `−j2` two steps down. This is the coordinate plane with its axes renamed, called the *complex plane*.\n`3 + j2` sits 3 across and 2 up. `−2 − j3` sits 2 to the left and 3 down. Read each number as the arrow from 0 to its dot.' },
+    { name: 'Read a dot', pic: 'read', as: 'dot', z: Z(-2, 3), key: RKEY, lines: 1,
+      mvs: [Z(-3, 2), Z(-2, 3), Z(2, 3)], ok: 1,
+      task: 'Which number does this dot mark?',
+      hint: 'Not quite. Count across from 0 first, then up.',
+      hints: { 0: 'Not quite. That swaps the parts. The real part is how far across, and the dot is 2 to the left, not 3.', 2: 'Not quite. The dot is to the left of 0, so its real part is negative.' },
+      why: 'Across first. The dot is 2 to the left of 0, so its real part is `−2`. Then up. It is 3 up, so its `j` part is 3. The dot marks `−2 + j3`.' },
+    { show: true, name: 'Four quarters', pic: 'plane', key: RKEY, lines: 3, dur: 4.2,
+      old: [Z(3, 2), Z(-2, 3), Z(-2, -3)],
+      nums: [{ z: Z(4, -3), t: 0.4 }, { z: Z(6, 0), t: 1.9, full: true, w: 'pure resistance' }, { z: Z(0, 4), t: 3.0, full: true, w: 'pure reactance' }],
+      text: 'The two axes cut the plane into four quarters, and complex numbers sit in all of them. `4 − j3` is in the bottom right, 4 across and 3 down. A number with no `j` part lies on the real axis, like `6 + j0`, and one with no real part lies on the `j` axis, like `0 + j4`.\nLater lessons use this plane for a circuit\'s opposition to AC, which is measured in ohms. There the real part is the *resistance* and the `j` part the *reactance*, which is why the axes carry those names in brackets. So `6 + j0` is a pure resistance, and `0 + j4` a pure reactance.' },
+    { name: 'Read an arrow', pic: 'read', as: 'arrow', z: Z(3, -2), key: RKEY, lines: 1,
+      mvs: [Z(3, 2), Z(2, -3), Z(3, -2)], ok: 2,
+      task: 'Which number does this arrow show?',
+      hint: 'Not quite. Read across first, then up or down.',
+      hints: { 0: 'Not quite. The arrow ends below the real axis, so its `j` part is negative.', 1: 'Not quite. That swaps the parts. The arrow ends 3 across, so the real part is 3.' },
+      why: 'The arrow ends 3 across, so the real part is 3, and 2 down, so the `j` part is `−2`. It shows `3 − j2`.' },
+    { show: true, name: 'Tip to tail', pic: 'sum', drag: true, view: DRAGV, a: Z(3, 1), b: Z(1, 2), key: SKEY, lines: 3, dur: 3.6,
+      text: 'Add `(3 + j1) + (1 + j2)`. Slide the second arrow, without turning or stretching it, until its tail sits on the first arrow\'s tip. It still means 1 across and 2 up. Going up does not change how far across you are, so the across parts add on their own, `3 + 1 = 4`, and the up parts add on their own, `1 + 2 = 3`. The bold arrow from 0 to the finish is the sum, `4 + j3`. Lumping every number together, `3 + 1 + 1 + 2 = 7`, would lose which way it points.\nDrag either tip, in any quarter, and watch the parts add along the axes.' },
+    { name: '(2 + j3) + (4 − j1)', pic: 'sum', a: Z(2, 3), b: Z(4, -1), key: SKEY, lines: 3,
+      mvs: [{ t: Z(4, -1) }, { lump: true }, { t: Z(4, 1) }], ok: 0,
+      task: 'Work out `(2 + j3) + (4 − j1)`. After Check, the second arrow slides onto the first to show your answer.',
+      hint: 'Not quite. Add the real parts, then the `j` parts.',
+      hints: { 1: 'Not quite. That lumps every part into one number. Keep real with real and `j` with `j`.', 2: 'Not quite. The `j` part of `4 − j1` is `−1`, so the `j` parts make `3 + (−1)`.' },
+      why: 'Real parts: `2 + 4 = 6`. The `j` parts: `3 + (−1) = 2`. So the sum is `6 + j2`. Laid on the first arrow\'s tip, the second arrow finishes 6 across and 2 up.' },
+    { show: true, name: 'Lengths do not add', pic: 'sum', lengths: true, a: Z(4, 0), b: Z(0, 3), key: SKEY, lines: 3, dur: 4.3,
+      text: 'The sum adds the parts, not the lengths. Take `4 + j0`, an arrow 4 long, and `0 + j3`, an arrow 3 long. Their lengths add to `4 + 3 = 7`. But the sum `4 + j3` runs straight from 0 to the finish, and by Pythagoras it is only `√(4² + 3²) = 5` long. Lengths add only when the arrows point the same way.' },
+    { name: '(−3 + j2) + (1 − j4)', pic: 'sum', a: Z(-3, 2), b: Z(1, -4), key: SKEY, lines: 3,
+      mvs: [{ t: Z(-1, -4) }, { t: Z(1, -4) }, { t: Z(1, 4) }], ok: 1,
+      task: 'Work out `(−3 + j2) + (1 − j4)`.',
+      hint: 'Not quite. Add the real parts, then the `j` parts, keeping each sign.',
+      hints: { 0: 'Not quite. The real parts are `−3 + 1`. Adding 1 moves right, to `−2`.', 2: 'Not quite. The `j` part of `1 − j4` is `−4`, so the `j` parts make `2 + (−4)`.' },
+      why: 'Real parts: `−3 + 1 = −2`. The `j` parts: `2 + (−4) = −2`. The sum is `−2 − j2`, in the bottom left quarter.' },
+    { show: true, name: 'Taking away', pic: 'sum', drag: true, sw: true, sub: true, view: DRAGV, a: Z(5, 3), b: Z(2, 1), key: SKEY, lines: 4, dur: 4.5,
+      text: 'Taking away is adding the opposite. Multiplying by `−1` turns an arrow through 180°, the same length pointing the other way, so `−(2 + j1)` is `−2 − j1`. Both parts change sign. Then add as before. `(5 + j3) − (2 + j1)` is `(5 + j3) + (−2 − j1)`, which makes `3 + j2`, real from real and `j` from `j`.\nSwitch between Add and Take away, and drag either tip.' },
+    { name: '(4 + j1) − (1 − j3)', pic: 'sum', sub: true, a: Z(4, 1), b: Z(1, -3), key: SKEY, lines: 4,
+      mvs: [{ t: Z(-1, -3), e: 'First sign changed only' }, { turn: true }, { t: Z(1, -3), e: 'No half turn' }], ok: 1,
+      task: 'Work out `(4 + j1) − (1 − j3)`.',
+      hint: 'Not quite. Turn the second number half round, then add.',
+      hints: { 0: 'Not quite. Taking away changes the sign of both parts, so `−(1 − j3)` is `−1 + j3`.', 2: 'Not quite. That adds the second number. Turn it half round first.' },
+      why: 'Turn the second number half round. `−(1 − j3) = −1 + j3`. Then add. Real parts: `4 + (−1) = 3`. The `j` parts: `1 + 3 = 4`. The answer is `3 + j4`.' },
+    { show: true, name: 'Either order', pic: 'sum', drag: true, sw: true, other: true, view: DRAGV, a: Z(-3, 2), b: Z(4, -5), key: SKEY, lines: 4, dur: 4.4,
+      text: 'Lay the arrows the other way round, the first on the second one\'s tip, and you finish at the same point. `(−3 + j2) + (4 − j5)` and `(4 − j5) + (−3 + j2)` both make `1 − j3`, so the order does not matter.\nNow drag either tip into any quarter, and try Take away too. Real with real and `j` with `j`, every time.' },
+    { name: '(−2 + j5) + (2 − j5)', pic: 'sum', a: Z(-2, 5), b: Z(2, -5), key: SKEY, lines: 3,
+      mvs: [{ a: Z(2, 5), t: Z(2, -5) }, { t: Z(2, 5) }, { t: Z(2, -5) }], ok: 2,
+      task: 'Work out `(−2 + j5) + (2 − j5)`.',
+      hint: 'Not quite. Add the real parts, then the `j` parts, keeping each sign.',
+      hints: { 0: 'Not quite. The real part of `−2 + j5` is `−2`, so the real parts make `−2 + 2`.', 1: 'Not quite. The `j` part of `2 − j5` is `−5`, so the `j` parts make `5 + (−5)`.' },
+      why: 'Real parts: `−2 + 2 = 0`. The `j` parts: `5 + (−5) = 0`. The second arrow points exactly the opposite way to the first, so laid on its tip it leads straight back to 0. The sum is 0.' },
+    { name: 'w = (5 + j1) − (2 + j3)', pic: 'sum', sub: true, q: 'w = (5 + j1) − (2 + j3)', a: Z(5, 1), b: Z(2, 3), key: SKEY, lines: 4,
+      mvs: [{ turn: true }, { t: Z(2, 3), e: 'No half turn' }, { t: Z(-2, 3), e: 'First sign changed only' }], ok: 0,
+      task: 'Work out `w = (5 + j1) − (2 + j3)`.',
+      hint: 'Not quite. Turn the second number half round, then add.',
+      hints: { 1: 'Not quite. That adds the two numbers. To take away, turn the second half round first.', 2: 'Not quite. Taking away changes the sign of both parts, so the `j` parts make `1 + (−3)`.' },
+      why: 'Turn the second number half round. `−(2 + j3) = −2 − j3`. Then real parts: `5 + (−2) = 3`, and the `j` parts: `1 + (−3) = −2`. So `w = 3 − j2`.' },
+  ];
+  const FINISH = 'To add complex numbers, add the real parts together and the `j` parts together, which lays their arrows tip to tail. To take away, turn the second arrow half round, then add.';
+  const GROW = 0.5, TURN = 0.8, SLIDE = 0.75, SUMD = 0.45, OTHER = 0.75, OVER = 0.6;
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // pick (an answer's index), res ('right', 'wrong' or 'empty'), why; A, B: the tips Dan set (null: the
+  // step's own); sub: Take away on (null: the step's own); mode: 'demo', 'quick' (after the switch) or 'static'.
+  function blank() { return { pick: null, res: null, why: false, A: null, B: null, sub: null, mode: 'demo' }; }
+  const hintFor = (d, st) => (d.hints && d.hints[st.pick]) || d.hint;
+  const shownIdx = (d, st) => (st.why || st.res === 'right' ? d.ok : st.res === 'wrong' ? st.pick : null);
+  const subOf = (d, st) => (st.sub != null ? st.sub : !!d.sub);
+  const tipsOf = (d, st) => ({ A: st.A || d.a, B: st.B || d.b });
+  const laidOf = (d, m) => (m.turn ? neg(d.b) : m.t);
+  const lumpOf = (d) => d.a[0] + d.a[1] + d.b[0] + d.b[1];
+  const lumpText = (d) => [d.a[0], d.a[1], d.b[0], d.b[1]].map((v, k) => (k && v < 0 ? '(' + num(v) + ')' : num(v))).join(' + ');
+  function optZ(d, k) {
+    const m = d.mvs[k];
+    if (d.pic === 'read') return m;
+    if (m.lump) return Z(lumpOf(d));
+    return plus(m.a || d.a, laidOf(d, m));
+  }
+  STEPS.forEach((d) => { if (d.mvs) d.opts = d.mvs.map((m, k) => name(optZ(d, k))); });
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;
+  let REC = null, NOLAB = false, AV = [], KN = {};
+
+  // ---------- text: maths in `backticks` stays on one line; *key terms* highlighted ----------
+  const ITAL = /(\bw\b)/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('\n').forEach((para, n) => { if (n) el.appendChild(K.el('span', { class: 'gap' })); writeLine(el, para); });
+  }
+  function writeLine(el, s) {
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s).replace(/√/g, ' the square root of ').replace(/²/g, ' squared').replace(/°/g, ' degrees')
+    .replace(/=/g, ' equals ').replace(/\+/g, ' plus ').replace(/−/g, ' minus ').replace(/\s+/g, ' ').trim();
+
+  // ---------- controls ----------
+  const el = (id) => document.getElementById(id);
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const cur = () => stepper.get();
+  function motionLen(i, st) {
+    const keepS = S[i], keepT = T, keepN = NOLAB;
+    S[i] = st; T = Infinity; latest = 0; NOLAB = true;
+    try { paint(i); } finally { S[i] = keepS; T = keepT; NOLAB = keepN; }
+    return Math.max(0.3, latest);
+  }
+
+  // Up to three answers; a new choice after a wrong one settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = k; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  // Check: marks the answer, then lays its arrows: the right one, or what the slip does.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.ok ? 'right' : 'wrong';
+    st.why = false;
+    play(motionLen(i, st));
+  } });
+  // Why?: the reason in words, and the right answer's arrows laid again.
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    st.why = !st.why;
+    if (st.why) play(motionLen(i, st)); else { anim.pause(); T = Infinity; }
+  } });
+  // Add or Take away: the second arrow is laid on as it is, or turned half round first.
+  const swBtns = [false, true].map((sub) => K.button({ label: sub ? 'Take away' : 'Add', secondary: true, into: '#sw', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (finished || !d.sw || subOf(d, st) === sub) return;
+    const tp = tipsOf(d, st);
+    st.A = tp.A;
+    st.B = fits(d, tp.A, tp.B, sub) ? tp.B : nearestFit(d, tp.B, 'B', tp, sub);
+    st.sub = sub; st.mode = 'quick';
+    play(motionLen(i, st));
+  } }));
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = cur(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].mode = 'demo';
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, cur() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = cur();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer or a switch; with reduced
+  // motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), lab = el('lab'), ui = el('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived, noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 >= 0) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; } }
+  function arr(t0, d) { d = d == null ? 0.4 : d; note(t0, d); return K.arrive(T, t0, d); }
+  function prog(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }
+  // A timetable entry: false, not shown; null, there from the start; a time, arriving then.
+  const vis = (t) => (t === false ? 0 : t == null ? 1 : arr(t));
+  const after = (t, d) => (t === false ? false : t == null ? null : t + d);
+  const grow = (t0, d) => (t0 === false ? 0 : t0 == null ? 1 : K.ease(prog(t0, d)));
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rad = (a) => a * Math.PI / 180;
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, x, y, r) => add(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r }));
+  function text(x, y, s, cls, anchor, maths) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    if (maths) italics(t, s, true); else t.textContent = s;
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 7;
+  }
+  // An arrow with a solid head at (x1, y1).
+  function arrowPx(x0, y0, x1, y1, cls, hmax) {
+    const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy);
+    if (L < 1) return;
+    const ux = dx / L, uy = dy / L, h = Math.min(hmax || 11, L * 0.55), w = h * 0.5, bx = x1 - ux * h, by = y1 - uy * h;
+    if (L - h > 0.5) AV.push(line('shaft ' + cls, x0, y0, bx + ux, by + uy));
+    AV.push(add(K.svg('polygon', { class: 'head ' + cls, points: [x1, y1, bx - uy * w, by + ux * w, bx + uy * w, by - ux * w].map(r3).join(' ') })));
+  }
+
+  // ---------- the plane's sizes ----------
+  const X = (V, x) => V.ox + x * V.u, Y = (V, y) => V.oy - y * V.u;
+  const arrowZ = (V, from, to, cls, hmax) => arrowPx(X(V, from[0]), Y(V, from[1]), X(V, to[0]), Y(V, to[1]), cls, hmax);
+  const LEFT = 30, TOPB = 24, BOTB = 24, UMAX = 32, HMAX = 270, WAV = 302, NAMEW = 112;
+  const overOf = (A, B) => { const R = plus(A, B); return scale(R, (size(A) + size(B)) / size(R)); };
+  // Every point a step draws, in any state, so its plane shows them all with a step to spare.
+  function pointsOf(d) {
+    if (d.pic === 'plane') return d.nums.map((n) => n.z).concat(d.old || []);
+    if (d.pic === 'read') return [d.z].concat(d.mvs);
+    const out = [d.a, d.b];
+    if (!d.sub || d.sw) out.push(plus(d.a, d.b));
+    if (d.sub || d.sw) out.push(neg(d.b), minus(d.a, d.b));
+    (d.mvs || []).forEach((m, k) => { out.push(optZ(d, k)); if (!m.lump) out.push(m.a || d.a, laidOf(d, m)); });
+    if (d.lengths) out.push(overOf(d.a, d.b));
+    return out;
+  }
+  function boundsOf(d) {
+    const pts = [O].concat(pointsOf(d)), xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    return { lo: Math.floor(Math.min(...xs) + 1e-9) - 1, hi: Math.ceil(Math.max(...xs) - 1e-9) + 1,
+      blo: Math.min(-2, Math.floor(Math.min(...ys) + 1e-9) - 1), bhi: Math.ceil(Math.max(...ys) - 1e-9) + 1 };
+  }
+  const GEO = new Map();
+  function geo(d) {
+    if (GEO.has(d)) return GEO.get(d);
+    const b = d.view || boundsOf(d);
+    const u = Math.min(UMAX, WAV / (b.hi - b.lo), HMAX / (b.bhi - b.blo));
+    const W = (b.hi - b.lo) * u, H = (b.bhi - b.blo) * u;
+    const outside = 340 - LEFT - 4 - W - 10 >= NAMEW;   // room for the real axis's name beyond its end
+    const gx = outside ? LEFT + 4 : Math.round((340 - LEFT - W) / 2) + LEFT;
+    const V = { lo: b.lo, hi: b.hi, blo: b.blo, bhi: b.bhi, u, gx, gy: TOPB, gw: W, gh: H, ox: gx - b.lo * u, oy: TOPB + b.bhi * u, outside };
+    let y = TOPB + H + BOTB;
+    const keyY = d.key ? y + 12 : null;   // the key right under the plane, the working below it
+    if (keyY != null) y += 22;
+    const workY = y;
+    y += 28 * d.lines + 2;
+    const G = { V, workY, keyY, H: Math.ceil(y + 4) };
+    GEO.set(d, G);
+    return G;
+  }
+
+  // The plane: grid, axes, numbers along the edges, and the axes' names.
+  function plane(V) {
+    const x0 = V.gx, x1 = V.gx + V.gw, y0 = V.gy, y1 = V.gy + V.gh;
+    for (let v = V.lo; v <= V.hi; v++) line('gr', X(V, v), y0, X(V, v), y1);
+    for (let w = V.blo; w <= V.bhi; w++) line('gr', x0, Y(V, w), x1, Y(V, w));
+    line('ax', x0, V.oy, x1, V.oy);
+    line('ax', V.ox, y0, V.ox, y1);
+    const k = V.u < 20 ? 2 : 1;
+    for (let v = V.lo; v <= V.hi; v++) if (v % k === 0) text(X(V, v), y1 + 17, num(v), v ? 'tn' : 'tn0');
+    for (let w = V.blo; w <= V.bhi; w++) if (w && w % k === 0) text(x0 - 5, Y(V, w) + 4.5, jTick(w), 'tn', 'end');
+    const jw = tw('j (reactance)', 'an');
+    if (V.ox + 6 + jw <= 336) text(V.ox + 6, y0 - 8, 'j (reactance)', 'an', 'start');
+    else text(V.ox - 6, y0 - 8, 'j (reactance)', 'an', 'end');
+    if (V.outside) text(x1 + 6, V.oy + 4.5, 'real (resistance)', 'an', 'start');
+    else { text(x1 - 3, V.oy + 19, 'real', 'an', 'end'); text(x1 - 3, V.oy + 33, '(resistance)', 'an', 'end'); }
+  }
+  // A number's two parts from 0: across along the real axis, then up.
+  function legs(V, z, tA, tU, bad) {
+    const re = tidy(z[0]), im = tidy(z[1]), pA = re ? grow(tA, 0.45) : 0, pU = im ? grow(tU, 0.45) : 0;
+    if (pA > 0) AV.push(line('leg ' + (bad ? 'bad' : 're'), X(V, 0), V.oy, X(V, re * pA), V.oy));
+    if (pU > 0) AV.push(line('leg ' + (bad ? 'bad' : 'im'), X(V, re), V.oy, X(V, re), Y(V, im * pU)));
+  }
+  // One part of an arrow laid along an axis (c = 0, the real axis; c = 1, the j axis), lifted off it by off.
+  function bar(V, c, f, to, off, cls) {
+    if (Math.abs(to - f) < 1e-9) return;
+    if (c === 0) line('bar ' + cls, X(V, f), V.oy - off, X(V, to), V.oy - off);
+    else line('bar ' + cls, V.ox + off, Y(V, f), V.ox + off, Y(V, to));
+  }
+  // The turn so far, traced round 0, with a small head showing its way.
+  function trace(V, a0, turned, R) {
+    if (Math.abs(turned) < 0.5) return;
+    const n = Math.max(2, Math.ceil(Math.abs(turned) / 4)), pts = [];
+    for (let k = 0; k <= n; k++) { const a = a0 + turned * k / n; pts.push(r3(V.ox + R * Math.cos(rad(a))) + ' ' + r3(V.oy - R * Math.sin(rad(a)))); }
+    AV.push(add(K.svg('path', { class: 'trace', d: 'M' + pts.join(' L') })));
+    if (Math.abs(turned) < 20) return;
+    const ae = a0 + turned, ex = V.ox + R * Math.cos(rad(ae)), ey = V.oy - R * Math.sin(rad(ae));
+    const tx = -Math.sin(rad(ae)), ty = -Math.cos(rad(ae)), bx = ex - tx * 7, by = ey - ty * 7;
+    AV.push(add(K.svg('polygon', { class: 'thead', points: [ex, ey, bx - ty * 3.5, by + tx * 3.5, bx + ty * 3.5, by - tx * 3.5].map(r3).join(' ') })));
+  }
+
+  // ---------- the pictures ----------
+  // Numbers placed on the plane: across, then up, then the arrow from 0 to the dot.
+  function drawPlane(d, st, G, W, LB, said) {
+    const V = G.V;
+    plane(V);
+    (d.old || []).forEach((z) => {
+      AV.push(circle('dot old', X(V, z[0]), Y(V, z[1]), 4.5));
+      LB.push({ z, dir: null, text: name(z), cls: 'tl old', a: 1 });
+    });
+    d.nums.forEach((n) => {
+      const z = n.z, re = tidy(z[0]) !== 0, im = tidy(z[1]) !== 0;
+      // dots: the numbers' dots and names are there from the start, and the parts and arrows arrive.
+      const tA = n.t, tU = re ? n.t + 0.5 : n.t, tR = im ? tU + 0.5 : tU, a = vis(tR), ad = d.dots ? 1 : a;
+      legs(V, z, tA, tU, false);
+      part(a, 0, () => arrowZ(V, O, z, 'num'));
+      part(ad, 0, () => AV.push(circle('dot', X(V, z[0]), Y(V, z[1]), 5)));
+      if (ad >= 1) REC.dots.push({ z, x: X(V, z[0]), y: Y(V, z[1]) });
+      LB.unshift({ z, dir: turnOf(z), text: name(z, n.full), cls: 'tl', a: ad });
+      W.push({ e: name(z, n.full), w: n.w || dirWords(z), t: tR });
+      if (a >= 1) said.push(name(z, n.full) + ' sits ' + dirWords(z) + '.');
+    });
+    said.unshift('The complex plane: real across, j up.');
+  }
+
+  // Which number is this? The answer's parts are laid from 0, across then up, to where it lands.
+  function drawRead(d, st, G, W, LB, said) {
+    const V = G.V, z = d.z, k = shownIdx(d, st);
+    plane(V);
+    if (d.as === 'arrow') arrowZ(V, O, z, 'num');
+    else AV.push(circle('dot', X(V, z[0]), Y(V, z[1]), 6));
+    said.push(d.as === 'arrow' ? 'An arrow from 0 to a point on the plane.' : 'A dot on the plane.');
+    if (k == null) return;
+    const o = d.mvs[k], bad = k !== d.ok, tR = 1.0;
+    legs(V, o, 0.1, tidy(o[0]) ? 0.55 : 0.1, bad);
+    const a = vis(tR);
+    part(a, 0, () => {
+      if (d.as === 'dot' || bad) arrowZ(V, O, o, bad ? 'bad' : 'num');
+      AV.push(circle('dot' + (bad ? ' bad' : ''), X(V, o[0]), Y(V, o[1]), 5));
+      if (!bad) AV.push(circle('ring', X(V, z[0]), Y(V, z[1]), 10));
+    });
+    LB.push({ z: o, dir: turnOf(o), text: name(o), cls: 'tl' + (bad ? ' bad' : ''), a });
+    W.push({ e: name(o), w: dirWords(o), t: tR, bad });
+    if (a >= 1) { REC.shown = o; said.push(name(o) + ' sits ' + dirWords(o) + '.'); }
+  }
+
+  // When each motion of a sum starts: false, never; null, already done.
+  function sched(d, st, m) {
+    const no = false;
+    if (!d.show) {
+      const base = { tA: null, tB: null, tTurn: no, tCopy: no, tSlide: no, tSum: no, tOther: no, tOver: no, tBarsA: no, tBarsT: no };
+      if (!m || m.lump) return base;
+      if (m.turn) { const tSlide = 0.1 + TURN + 0.1; return Object.assign(base, { tTurn: 0.1, tSlide, tSum: tSlide + SLIDE + 0.1, tBarsA: 0.1, tBarsT: 0.1 + TURN }); }
+      return Object.assign(base, { tCopy: 0.1, tSlide: 0.55, tSum: 0.55 + SLIDE + 0.1, tBarsA: 0.1, tBarsT: 0.1 });
+    }
+    const sub = subOf(d, st), mode = st.mode || 'demo';
+    if (mode === 'static') {
+      return { tA: null, tB: null, tTurn: sub ? null : no, tCopy: no, tSlide: null, tSum: null, tOther: d.other && !sub ? null : no,
+        tOver: d.lengths ? null : no, tBarsA: null, tBarsT: null };
+    }
+    const q = mode === 'quick';
+    const tA = q ? null : 0.4, tB = q ? null : 1.0;
+    const tTurn = sub ? (q ? 0.1 : 1.7) : no;
+    const tSlide = sub ? tTurn + TURN + 0.15 : (q ? 0.1 : 1.7);
+    const tSum = tSlide + SLIDE + 0.15;
+    return { tA, tB, tTurn, tCopy: no, tSlide, tSum, tOther: d.other && !sub ? tSum + SUMD + 0.15 : no, tOver: d.lengths ? tSum + SUMD + 0.2 : no,
+      tBarsA: after(tA, GROW), tBarsT: sub ? after(tTurn, TURN) : after(tB, GROW) };
+  }
+
+  // Two arrows from 0; the second (turned half round first, to take away) slides onto the first one's tip,
+  // its real part and j part riding along the axes; the bold arrow from 0 to the finish is the sum.
+  function drawSum(d, st, G, W, LB, said) {
+    const V = G.V;
+    plane(V);
+    const tp = tipsOf(d, st), A = tp.A, B = tp.B, sub = subOf(d, st);
+    const k = d.show ? null : shownIdx(d, st), m = k == null ? null : d.mvs[k];
+    const wrong = !!m && k !== d.ok, bad = wrong ? ' bad' : '';
+    const sc = sched(d, st, m);
+    let a = A, t = null, turn = false;
+    if (d.show) { t = sub ? neg(B) : B; turn = sub; }
+    else if (m && !m.lump) { a = m.a || A; t = laidOf(d, m); turn = !!m.turn; }
+    const misread = !same(a, A), R = t ? plus(a, t) : null;
+    const pA = grow(sc.tA, GROW), pB = grow(sc.tB, GROW), pTurn = turn ? grow(sc.tTurn, TURN) : 0;
+    const pSlide = t ? grow(sc.tSlide, SLIDE) : 0, pSum = R ? grow(sc.tSum, SUMD) : 0;
+    const pOther = d.other && !sub && t ? grow(sc.tOther, OTHER) : 0;
+    REC.A = A; REC.B = B; REC.t = t;
+    LB.push({ z: A, dir: turnOf(A), text: name(A, true), cls: 'tl', a: vis(after(sc.tA, GROW)) });
+    LB.push({ z: B, dir: turnOf(B), text: name(B, true), cls: 'tl', a: vis(after(sc.tB, GROW)) });
+    if (R) LB.push({ z: R, dir: size(R) > 1e-9 ? turnOf(R) : null, text: d.show ? name(R, true) : d.opts[k], cls: 'tl' + bad, a: vis(after(sc.tSum, SUMD)) });
+
+    // The parts on the axes: the first arrow's from 0, the second's following on from there as it slides.
+    if (t && !d.lengths) {
+      const aA = vis(sc.tBarsA), aT = vis(sc.tBarsT), s = scale(a, pSlide);
+      [0, 1].forEach((c) => {
+        const off = tidy(a[c]) && tidy(t[c]) ? (a[c] * t[c] > 0 ? 8 * (1 - pSlide) : 8) : 0;
+        part(aA, 0, () => bar(V, c, 0, a[c], 0, misread ? 'bad' : 'a'));
+        part(aT, 0, () => bar(V, c, s[c], s[c] + t[c], off, wrong ? 'bad' : 'b'));
+        if (aA >= 1) REC.bars.push({ who: 'a', c, from: 0, to: a[c] });
+        if (aT >= 1) REC.bars.push({ who: 't', c, from: s[c], to: s[c] + t[c] });
+      });
+    }
+    // Times −1: the second arrow swings half round about 0, and the turned arrow is left there as it slides off.
+    if (turn) {
+      if (pTurn > 0) trace(V, turnOf(B), HALF * pTurn, 22);
+      const am = rad(turnOf(B) + HALF / 2), ag = vis(sc.tSlide);
+      LB.push({ pt: [V.ox + 38 * Math.cos(am), V.oy - 38 * Math.sin(am) + 5], text: num(HALF) + '°', cls: 'al', a: vis(after(sc.tTurn, TURN)) });
+      part(ag, 0, () => arrowZ(V, O, t, 'ghost', 9));
+      LB.push({ z: t, dir: turnOf(t), text: name(t, true), cls: 'tl old', a: ag });
+    }
+    if (pB > 0) arrowZ(V, O, scale(B, pB), 'b');
+    // The laid arrow: turning at home, or appearing there, then sliding onto the first arrow's tip.
+    if (t) {
+      const alpha = turn ? (pTurn > 0 ? 1 : 0) : d.show ? (pSlide > 0 ? 1 : 0) : vis(sc.tCopy);
+      if (alpha > 0) {
+        let from, tip;
+        if (turn && pSlide <= 0) { from = O; tip = pTurn >= 1 ? t : rot(B, HALF * pTurn); REC.turnTip = tip; }
+        else { from = scale(a, pSlide); tip = plus(from, t); }
+        part(alpha, 0, () => arrowZ(V, from, tip, 'b slid' + bad));
+        if (pSlide >= 1) { REC.slidFrom = from; REC.slidTo = tip; }
+      }
+    }
+    if (pA > 0) arrowZ(V, O, scale(A, pA), 'a');
+    if (misread) {
+      const am = vis(0.1);
+      part(am, 0, () => arrowZ(V, O, a, 'bad'));
+      LB.push({ z: a, dir: turnOf(a), text: name(a, true), cls: 'tl bad', a: am });
+    }
+    if (pOther > 0) { const f = scale(B, pOther), to = plus(f, A); arrowZ(V, f, to, 'a slid'); REC.otherFrom = f; REC.otherTo = to; }
+    if (R && pSum > 0) {
+      if (size(R) > 1e-9) arrowZ(V, O, scale(R, pSum), 'sum' + bad, 14);
+      else part(pSum, 0, () => AV.push(circle('ring', V.ox, V.oy, 9)));
+      if (pSum >= 1) REC.R = R;
+    }
+    // A slip: every part lumped into one number, which lands on the real axis.
+    if (m && m.lump) {
+      const Lp = lumpOf(d), end = Z(Lp), p = grow(0.1, 0.6), ad = vis(0.7);
+      if (p > 0) arrowZ(V, O, scale(end, p), 'sum bad', 14);
+      part(ad, 0, () => AV.push(circle('dot bad', X(V, Lp), V.oy, 5)));
+      LB.push({ pt: [X(V, Lp), V.oy - 13], text: name(end), cls: 'tl bad', a: ad });
+      if (p >= 1) REC.R = end;
+    }
+    // The lengths: the sum's own, and how far the two lengths added would reach along it.
+    if (d.lengths && R) {
+      const added = size(A) + size(B), over = overOf(A, B), p = grow(sc.tOver, OVER), ao = vis(after(sc.tOver, OVER));
+      if (p > 0) { const e = plus(R, scale(plus(over, neg(R)), p)); AV.push(line('shaft over', X(V, R[0]), Y(V, R[1]), X(V, e[0]), Y(V, e[1]))); }
+      const nx = -R[1] / size(R), ny = R[0] / size(R), ox = X(V, over[0]), oy = Y(V, over[1]);
+      part(ao, 0, () => AV.push(line('tick', ox - nx * 7, oy + ny * 7, ox + nx * 7, oy - ny * 7)));
+      LB.push({ z: over, dir: turnOf(R), text: num(added), cls: 'tl bad', a: ao });
+      const mx = X(V, R[0] / 2) + nx * 16, my = Y(V, R[1] / 2) - ny * 16 + 5;
+      LB.push({ pt: [mx, my], anchor: nx < 0 ? 'end' : 'start', text: num(size(R)) + ' long', cls: 'tl', a: vis(after(sc.tSum, SUMD)) });
+      REC.len = { sum: size(R), added, sumPx: [X(V, R[0]), Y(V, R[1])], overPx: [ox, oy] };
+    }
+    // The tips Dan can drag.
+    if (d.drag) {
+      const ka = vis(after(sc.tA, GROW)), kb = vis(after(sc.tB, GROW));
+      part(ka, 0, () => AV.push(circle('knob a', X(V, A[0]), Y(V, A[1]), 7)));
+      part(kb, 0, () => AV.push(circle('knob b', X(V, B[0]), Y(V, B[1]), 7)));
+      KN = { A: [X(V, A[0]), Y(V, A[1])], B: [X(V, B[0]), Y(V, B[1])] };
+    }
+
+    // The working: the question, the half turn, then real with real and j with j.
+    const qE = d.q || paren(A) + (sub ? ' − ' : ' + ') + paren(B), tq = after(sc.tSum, SUMD);
+    if (m && m.lump) {
+      W.push({ e: qE, w: d.opts[k], t: null, tw: 0.7, bad: true });
+      W.push({ e: 'All lumped: ' + lumpText(d), w: num(lumpOf(d)), t: 0.7, bad: true });
+    } else {
+      W.push({ e: qE, w: R ? (d.show ? name(R, true) : d.opts[k]) : '', t: null, tw: tq, bad: wrong });
+      if (t) {
+        const rA = d.show ? a : d.a, rT = d.show ? t : laidOf(d, d.mvs[d.ok]);
+        if (turn || (m && m.e)) W.push({ e: m && m.e ? m.e : 'Half turn, ' + num(HALF) + '°: −' + paren(B), w: name(t, true), t: turn ? after(sc.tTurn, TURN) : sc.tCopy, bad: wrong && !same(t, rT) });
+        if (d.lengths) {
+          W.push({ e: 'Length of the sum: √(' + num(R[0]) + '² + ' + num(R[1]) + '²)', w: num(size(R)), t: tq });
+          W.push({ e: 'Lengths added: ' + num(size(A)) + ' + ' + num(size(B)), w: num(size(A) + size(B)), t: after(sc.tOver, OVER), bad: true });
+        } else {
+          const re = 'Real parts (across): ' + sumText(a[0], t[0]), im = 'j parts (up): ' + sumText(a[1], t[1]);
+          W.push({ e: re, w: num(R[0]), t: tq, bad: wrong && re !== 'Real parts (across): ' + sumText(rA[0], rT[0]) });
+          W.push({ e: im, w: num(R[1]), t: tq, bad: wrong && im !== 'j parts (up): ' + sumText(rA[1], rT[1]) });
+        }
+        if (d.other && !sub) W.push({ e: paren(B) + ' + ' + paren(A), w: name(plus(B, A), true), t: after(sc.tOther, OTHER) });
+      }
+    }
+    said.push('The plane, real across and j up. First arrow to ' + say(name(A, true)) + ', second arrow to ' + say(name(B, true)) + '.');
+    if (REC.R) said.push((d.show ? 'Laid tip to tail they finish at ' : 'This answer lands on ') + say(name(REC.R, true)) + '.');
+  }
+  const PICS = { plane: drawPlane, read: drawRead, sum: drawSum };
+
+  // A line of working: the expression on the left, what it makes on the right.
+  function drawWork(r, m, G, said) {
+    const y = G.workY + 20 + 28 * m, a = vis(r.t), aw = r.tw === undefined ? a : vis(r.tw), bad = r.bad ? ' bad' : '';
+    part(a, 6, () => text(12, y, r.e, 'te' + (r.tw === undefined ? bad : ''), 'start', true));
+    if (r.w) part(aw, 6, () => text(328, y, r.w, 'tw' + bad, 'end', true));
+    if (a >= 0.5) { REC.work.push(r); said.push(say(r.e) + (r.w && aw >= 0.5 ? ': ' + say(r.w) : '') + '.'); }
+  }
+  // The key, inside the drawing.
+  function drawKey(items, y) {
+    let x = 12;
+    items.forEach((it) => {
+      line(it.sw, x, y - 4, x + 24, y - 4);
+      x += 30;
+      text(x, y + 1, it.label, 'key', 'start');
+      x += tw(it.label, 'key') + 16;
+    });
+  }
+  // Labels sit just beyond what they name, moved by K.labels clear of the arrows, dots and other words.
+  // A tip's label starts beside it, on the side the arrow points to, or above or below it (for a steep
+  // arrow, or where the side would run past the grid): always inside the grid, clear of the edge numbers.
+  function labelAt(V, it) {
+    if (it.pt) return { x: it.pt[0], y: it.pt[1], anchor: it.anchor || 'middle' };
+    const px = X(V, it.z[0]), py = Y(V, it.z[1]), w = tw(it.text, it.cls);
+    const gl = V.gx + 3, gr = V.gx + V.gw - 3, gt = V.gy + 3, gb = V.gy + V.gh - 3;
+    const dir = it.dir == null ? 0 : it.dir, c = Math.cos(rad(dir)), s = Math.sin(rad(dir));
+    const right = c >= -0.05, sy = py + 5 - s * 7;
+    const side = right ? { x: px + 12, y: sy, anchor: 'start' } : { x: px - 12, y: sy, anchor: 'end' };
+    const sideOk = right ? px + 12 + w <= gr : px - 12 - w >= gl;
+    const up = s >= 0, vy = up ? py - 12 : py + 22;
+    const vertOk = up ? vy - 13 >= gt : vy + 4 <= gb;
+    const vert = { x: K.clamp(px, gl + w / 2, gr - w / 2), y: vy, anchor: 'middle' };
+    if (vertOk && (Math.abs(s) >= 0.6 || !sideOk)) return vert;
+    if (sideOk) return side;
+    if (vertOk) return vert;
+    const otherOk = right ? px - 12 - w >= gl : px + 12 + w <= gr;
+    return otherOk ? (right ? { x: px - 12, y: sy, anchor: 'end' } : { x: px + 12, y: sy, anchor: 'start' }) : side;
+  }
+  function placeLabels(V, LB) {
+    const items = LB.filter((it) => it.a > 0 && it.text);
+    REC.labels = items.map((it) => it.text);
+    if (NOLAB) { lab.textContent = ''; return; }
+    const ts = K.labels(lab, items.map((it) => Object.assign({ text: it.text, class: it.cls }, labelAt(V, it))), { avoid: AV });
+    ts.forEach((tEl, n) => { if (items[n].a < 1) K.fade(tEl, items[n].a, 0); });
+  }
+  function drawScene(d, st, G, mine) {
+    REC = { work: [], dots: [], bars: [], labels: [], R: null, t: null, A: null, B: null, slidFrom: null, slidTo: null, turnTip: null, otherFrom: null, otherTo: null, shown: null, len: null };
+    AV = []; KN = {};
+    const W = [], LB = [], said = [];
+    PICS[d.pic](d, st, G, W, LB, said);
+    W.forEach((r, m) => drawWork(r, m, G, said));
+    if (G.keyY != null) drawKey(d.key, G.keyY);
+    placeLabels(G.V, LB);
+    if (mine) placeGrips(st, d);
+    return said.filter(Boolean).join(' ');
+  }
+  function paint(i) {
+    if (i == null) i = cur();
+    const d = STEPS[i], G = geo(d);
+    art.textContent = '';
+    into = null;
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    svg.setAttribute('aria-label', drawScene(d, S[i], G, i === cur()));
+  }
+
+  // ---------- the tips: Dan drags them to whole steps ----------
+  // Every arrow stays on the plane, a step inside its edge so each label has room: both tips, the finish,
+  // and (taking away) the turned arrow.
+  function fits(d, A, B, sub) {
+    const V = geo(d).V, inV = (p) => p[0] >= V.lo + 1 - 1e-9 && p[0] <= V.hi - 1 + 1e-9 && p[1] >= V.blo + 1 - 1e-9 && p[1] <= V.bhi - 1 + 1e-9;
+    return inV(A) && inV(B) && inV(sub ? minus(A, B) : plus(A, B)) && (!sub || inV(neg(B)));
+  }
+  // The whole-step point nearest where the pointer is, among those where everything still fits.
+  function nearestFit(d, raw, w, tp, sub) {
+    const V = geo(d).V;
+    let best = null, bd = Infinity;
+    for (let x = V.lo; x <= V.hi; x++) for (let y = V.blo; y <= V.bhi; y++) {
+      const z = Z(x, y), A = w === 'A' ? z : tp.A, B = w === 'B' ? z : tp.B;
+      if (!fits(d, A, B, sub)) continue;
+      const dd = Math.hypot(x - raw[0], y - raw[1]);
+      if (dd < bd - 1e-9) { bd = dd; best = z; }
+    }
+    return best;
+  }
+  const grips = ['A', 'B'].map((w) => {
+    const g = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 22, tabindex: -1, role: 'slider',
+      'aria-label': w === 'A' ? 'Tip of the first arrow' : 'Tip of the second arrow', 'aria-valuemin': -4, 'aria-valuemax': 7 }));
+    g.style.display = 'none';
+    return g;
+  });
+  function placeGrips(st, d) {
+    const on = !!KN.A && !finished;
+    grips.forEach((g, n) => {
+      const w = n ? 'B' : 'A';
+      g.style.display = on ? '' : 'none';
+      g.setAttribute('tabindex', on ? '0' : '-1');
+      if (!on) return;
+      const z = tipsOf(d, st)[w];
+      g.setAttribute('cx', r3(KN[w][0])); g.setAttribute('cy', r3(KN[w][1]));
+      g.setAttribute('aria-valuenow', tidy(z[0]));
+      g.setAttribute('aria-valuetext', say(name(z, true)));
+    });
+  }
+  const dragOn = () => !finished && !!STEPS[cur()].drag;
+  function unitsFrom(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()), V = geo(STEPS[cur()]).V;
+    return [(q.x - V.ox) / V.u, (V.oy - q.y) / V.u];
+  }
+  function moveTip(w, raw) {
+    const i = cur(), d = STEPS[i], st = S[i], tp = tipsOf(d, st), sub = subOf(d, st);
+    const z = nearestFit(d, raw, w, tp, sub);
+    if (!z) return;
+    if (same(z, tp[w]) && st.mode === 'static' && !anim.playing()) return;
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    st.A = w === 'A' ? z : tp.A; st.B = w === 'B' ? z : tp.B;
+    st.mode = 'static';
+    K.reveal(); K.refresh();
+  }
+  let held = null;
+  grips.forEach((g, n) => {
+    const w = n ? 'B' : 'A';
+    g.addEventListener('pointerdown', (e) => {
+      if (!dragOn()) return;
+      held = { w, id: e.pointerId };
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the tip */ }
+      e.preventDefault();
+    });
+    g.addEventListener('pointermove', (e) => {
+      if (!held || held.id !== e.pointerId || held.w !== w || !dragOn()) return;
+      const q = unitsFrom(e);
+      if (q) moveTip(w, q);
+    });
+    const letGo = (e) => { if (held && held.id === e.pointerId) held = null; };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', () => { held = null; });
+    g.addEventListener('keydown', (e) => {
+      if (!dragOn()) return;
+      const by = { ArrowUp: [0, 1], ArrowDown: [0, -1], ArrowRight: [1, 0], ArrowLeft: [-1, 0] }[e.key];
+      if (!by) return;
+      e.preventDefault();
+      const d = STEPS[cur()];
+      moveTip(w, plus(tipsOf(d, S[cur()])[w], by));
+    });
+  });
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { S[i] = blank(); play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const st = S[i], right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    const sub = subOf(d, st);
+    el('sw').hidden = !d.sw;
+    swBtns.forEach((b, k) => b.el.setAttribute('aria-pressed', (k === 1) === sub ? 'true' : 'false'));
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 5));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === k ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(d, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const idx = (nm) => STEPS.findIndex((d) => d.name === nm);
+  const DOS = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solved = (i, k) => Object.assign(blank(), { pick: k, res: k === STEPS[i].ok ? 'right' : 'wrong' });
+  const withTips = (A, B, sub) => Object.assign(blank(), { A, B, sub, mode: 'static' });
+  const PAIRS = [[Z(3, 1), Z(1, 2)], [Z(-3, 2), Z(4, -5)], [Z(5, 3), Z(2, 1)], [Z(-4, -3), Z(2, -1)], [Z(0, 4), Z(-2, 0)],
+    [Z(6, -2), Z(-5, 5)], [Z(-1, 1), Z(-1, 1)], [Z(2, -4), Z(3, 4)], [Z(-5, 5), Z(5, -5)]];
+  // A step painted in the state given (finished, or t seconds into its motion), without labels: what it drew.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t; NOLAB = true;
+    try {
+      paint(i);
+      return Object.assign({ texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) }, REC);
+    } finally { S[i] = keepS; T = keepT; }
+  }
+  // Each check paints what it needs, then puts the page back as it was.
+  function chk(label, fn, opts) {
+    K.check(label, () => { const keepT = T; try { return fn(); } finally { NOLAB = false; T = keepT; paint(); } }, opts);
+  }
+
+  chk('If a number is multiplied by −1, its arrow is turned through 180 degrees: on Taking away the second arrow 2 + j1 swings half round about 0 at full length, lands on −2 − j1 with both parts changed in sign, then slides onto the first arrow\'s tip', () => {
+    const i = idx('Taking away'), d = STEPS[i], st = Object.assign(blank(), { mode: 'demo' }), sc = sched(d, st, null);
+    const rel = (p) => ((turnOf(p) - turnOf(d.b)) % 360 + 360) % 360;
+    const mids = [0.3, 0.6, 0.9].map((f) => drawn(i, st, sc.tTurn + TURN * f).turnTip);
+    const atEnd = drawn(i, st, sc.tTurn + TURN + 0.05).turnTip, fin = drawn(i, st);
+    const swing = mids.every((p) => !!p && Math.abs(size(p) - size(d.b)) < 1e-6) && rel(mids[0]) > 0 && rel(mids[1]) > rel(mids[0]) && rel(mids[2]) > rel(mids[1]) && rel(mids[2]) < 180;
+    return HALF === 180 && swing && same(atEnd, Z(-2, -1)) && same(neg(d.b), Z(-2, -1)) && same(fin.slidFrom, d.a) && same(fin.slidTo, Z(3, 2)) && same(fin.R, Z(3, 2)) &&
+      fin.work.some((r) => r.e === 'Half turn, 180°: −(2 + j1)' && r.w === '−2 − j1');
+  }, { source: LIBRE });
+  chk('Addition (and hence subtraction) of complex numbers is addition (subtraction) of two-dimensional vectors: for every pair of tips tried on the drag screens, adding and taking away, the second arrow slid onto the first one\'s tip ends where real with real and j with j land, its parts follow on along the axes to there, and the bold arrow runs from 0 to the same point', () =>
+    ['Tip to tail', 'Taking away', 'Either order'].every((nm) => {
+      const i = idx(nm), d = STEPS[i];
+      return PAIRS.every(([A, B]) => [false, true].every((sub) => {
+        if ((sub && !d.sw) || !fits(d, A, B, sub)) return true;
+        const g = drawn(i, withTips(A, B, sub)), want = sub ? minus(A, B) : plus(A, B), bt = (c) => g.bars.find((b) => b.who === 't' && b.c === c);
+        return same(g.slidFrom, A) && same(g.slidTo, want) && same(g.R, want) && same(g.t, sub ? neg(B) : B) &&
+          [0, 1].every((c) => !!bt(c) && Math.abs(bt(c).from - A[c]) < 1e-9 && Math.abs(bt(c).to - want[c]) < 1e-9) &&
+          g.work.some((r) => r.e.indexOf('Real parts') === 0 && r.w === num(want[0])) && g.work.some((r) => r.e.indexOf('j parts') === 0 && r.w === num(want[1]));
+      }));
+    }), { source: SHEF });
+  chk('An Argand diagram has a horizontal axis, the real axis, and a vertical axis, the imaginary axis: the axes are named real and j, and every dot sits its real part across and its j part up', () => {
+    const i = idx('The complex plane'), g = drawn(i, blank()), V = geo(STEPS[i]).V, all = g.texts.join(' ');
+    const at = (p) => Math.abs(p.x - (V.ox + p.z[0] * V.u)) < 1e-6 && Math.abs(p.y - (V.oy - p.z[1] * V.u)) < 1e-6;
+    return all.indexOf('real') >= 0 && all.indexOf('(resistance)') >= 0 && g.texts.indexOf('j (reactance)') >= 0 && g.dots.length === 2 && g.dots.every(at) &&
+      g.work.some((r) => r.e === '3 + j2' && r.w === '3 across, 2 up') && g.work.some((r) => r.e === '−2 − j3' && r.w === '2 left, 3 down');
+  }, { source: NCL });
+  chk('All four quarters: 3 + j2 sits top right and −2 − j3 bottom left of 0; 4 − j3 sits bottom right, 6 + j0 on the real axis and 0 + j4 on the j axis', () => {
+    const i0 = idx('The complex plane'), g0 = drawn(i0, blank()), V0 = geo(STEPS[i0]).V;
+    const i2 = idx('Four quarters'), g2 = drawn(i2, blank()), V2 = geo(STEPS[i2]).V;
+    const find = (g, z) => g.dots.find((p) => same(p.z, z));
+    const tr = find(g0, Z(3, 2)), bl = find(g0, Z(-2, -3)), br = find(g2, Z(4, -3)), r = find(g2, Z(6, 0)), jx = find(g2, Z(0, 4));
+    return !!tr && tr.x > V0.ox && tr.y < V0.oy && !!bl && bl.x < V0.ox && bl.y > V0.oy && !!br && br.x > V2.ox && br.y > V2.oy &&
+      !!r && Math.abs(r.y - V2.oy) < 1e-9 && r.x > V2.ox && !!jx && Math.abs(jx.x - V2.ox) < 1e-9 && jx.y < V2.oy &&
+      g2.work.some((w) => w.e === '6 + j0' && w.w === 'pure resistance') && g2.work.some((w) => w.e === '0 + j4' && w.w === 'pure reactance');
+  });
+  chk('Known answers worked by hand: (3 + j1) + (1 + j2) = 4 + j3, and lumped 3 + 1 + 1 + 2 = 7; (2 + j3) + (4 − j1) = 6 + j2, not 8; (−3 + j2) + (1 − j4) = −2 − j2; (5 + j3) − (2 + j1) = 3 + j2; (4 + j1) − (1 − j3) = 3 + j4; (−2 + j5) + (2 − j5) = 0; (5 + j1) − (2 + j3) = 3 − j2; (−3 + j2) + (4 − j5) = 1 − j3', () => {
+    const pairs = [[plus(Z(3, 1), Z(1, 2)), Z(4, 3)], [plus(Z(2, 3), Z(4, -1)), Z(6, 2)], [plus(Z(-3, 2), Z(1, -4)), Z(-2, -2)], [minus(Z(5, 3), Z(2, 1)), Z(3, 2)],
+      [minus(Z(4, 1), Z(1, -3)), Z(3, 4)], [plus(Z(-2, 5), Z(2, -5)), O], [minus(Z(5, 1), Z(2, 3)), Z(3, -2)], [plus(Z(-3, 2), Z(4, -5)), Z(1, -3)], [neg(Z(2, 1)), Z(-2, -1)]];
+    const s5 = STEPS[idx('(2 + j3) + (4 − j1)')];
+    return pairs.every((p) => same(p[0], p[1])) && 3 + 1 + 1 + 2 === 7 && lumpOf(s5) === 8 && lumpText(s5) === '2 + 3 + 4 + (−1)' &&
+      name(Z(4, 3)) === '4 + j3' && name(Z(6, 0), true) === '6 + j0' && name(Z(0, 4), true) === '0 + j4' && name(Z(0, 10)) === 'j10' && name(O) === '0' && name(Z(-2, -1)) === '−2 − j1';
+  });
+  chk('Each puzzle takes only its right answer: every answer is named for where its arrows land, and each wrong one lands somewhere else', () =>
+    DOS.every((i) => {
+      const d = STEPS[i], correct = d.pic === 'read' ? d.z : d.sub ? minus(d.a, d.b) : plus(d.a, d.b);
+      return d.opts.length === 3 && new Set(d.opts).size === 3 && d.opts.every((o, k) => {
+        const g = drawn(i, solved(i, k)), end = d.pic === 'read' ? g.shown : g.R;
+        return !!end && o === name(end) && same(end, correct) === (k === d.ok);
+      });
+    }));
+  chk('The order does not matter: laid the other way round, the first arrow on the second one\'s tip, (4 − j5) + (−3 + j2) finishes on 1 − j3 like (−3 + j2) + (4 − j5), and so does every pair of tips tried', () => {
+    const i = idx('Either order'), d = STEPS[i], g = drawn(i, blank());
+    return same(g.otherFrom, d.b) && same(g.otherTo, Z(1, -3)) && same(g.R, Z(1, -3)) &&
+      PAIRS.every(([A, B]) => { if (!fits(d, A, B, false)) return true; const h = drawn(i, withTips(A, B, false)); return same(h.otherTo, h.R) && same(h.R, plus(B, A)); });
+  });
+  chk('The tips snap to whole steps and stop where every arrow still fits on the plane: a drag to 2.4 across and 1.6 down lands on 2 − j2, one far past the right edge stops at 6 + j0, and taking away keeps the turned arrow and the finish on the plane too', () => {
+    const i = idx('Tip to tail'), d = STEPS[i], j = idx('Taking away'), e = STEPS[j];
+    const a1 = nearestFit(d, [2.4, -1.6], 'A', { A: d.a, B: d.b }, false), a2 = nearestFit(d, [9.3, 0.2], 'A', { A: d.a, B: d.b }, false);
+    const b1 = nearestFit(e, [-6, 0.4], 'B', { A: e.a, B: e.b }, true);
+    let all = true;
+    for (let x = -5; x <= 7; x++) for (let y = -5; y <= 5; y++) {
+      const z = nearestFit(e, [x + 0.3, y - 0.2], 'B', { A: e.a, B: e.b }, true);
+      if (!z || !fits(e, e.a, z, true) || z[0] !== Math.round(z[0]) || z[1] !== Math.round(z[1])) all = false;
+    }
+    return same(a1, Z(2, -2)) && same(a2, Z(6, 0)) && same(b1, Z(-2, 0)) && all;
+  });
+  chk('Before an answer, a puzzle\'s picture shows only the question: its dot or arrows, no sum, no slid arrow and no parts, with one line of working at most', () =>
+    DOS.every((i) => { const g = drawn(i, blank()); return g.R == null && g.slidTo == null && g.shown == null && g.bars.length === 0 && g.work.length <= 1 && g.work.every((r) => !r.w); }));
+  chk('Every demonstration finishes within 4.6 s of its screen opening, none starting before the 0.35 s screen fade ends; a switch between Add and Take away, and every answer\'s motion, right or wrong, within 3 s', () => {
+    const timed = (i, st) => { const keepS = S[i]; T = Infinity; latest = 0; earliest = Infinity; S[i] = st; NOLAB = true; try { paint(i); } finally { S[i] = keepS; } return { latest, earliest }; };
+    return STEPS.every((d, i) => {
+      if (d.show) {
+        const r = timed(i, blank());
+        if (!(r.latest <= d.dur + 1e-9 && d.dur <= 4.6 && d.dur >= 3 && r.earliest >= FADE)) return false;
+        return !d.sw || [false, true].every((sub) => timed(i, Object.assign(blank(), { mode: 'quick', sub })).latest <= 3 + 1e-9);
+      }
+      return d.opts.every((o, k) => timed(i, solved(i, k)).latest <= 3 + 1e-9);
+    });
+  });
+  chk('From outside the rule: taking away undoes adding, (1 − j3) − (4 − j5) = −3 + j2; and on Lengths do not add the sum 4 + j3 is drawn 5 steps long, as the 3-4-5 right triangle says, while the red mark sits 7 steps out, the two lengths added', () => {
+    const i = idx('Lengths do not add'), g = drawn(i, blank()), V = geo(STEPS[i]).V;
+    const L5 = Math.hypot(g.len.sumPx[0] - V.ox, g.len.sumPx[1] - V.oy) / V.u, L7 = Math.hypot(g.len.overPx[0] - V.ox, g.len.overPx[1] - V.oy) / V.u;
+    return same(minus(Z(1, -3), Z(4, -5)), Z(-3, 2)) && same(plus(Z(-3, 2), Z(4, -5)), Z(1, -3)) && 3 * 3 + 4 * 4 === 5 * 5 &&
+      Math.abs(L5 - 5) < 1e-6 && Math.abs(L7 - 7) < 1e-6 && g.work.some((r) => r.w === '5') && g.work.some((r) => r.w === '7' && r.bad);
+  });
+
+  K.ready();
+</script>
