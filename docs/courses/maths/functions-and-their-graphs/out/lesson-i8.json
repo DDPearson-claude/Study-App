@@ -1,0 +1,557 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-18T01:42:05.797Z",
+ "startedAt": "2026-10-18T01:42:05.797Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i8",
+  "title": "Undoing a machine",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the first machine's output passing into its facing machine, whose steps light up backwards in reverse order, and the number you started with coming out, when you drag an input through.",
+   "title": "The machine and its mirror",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in fourteen small screens on undoing a function. A machine sits on the left and its undoing machine faces it on the right, each a box with its steps written inside in order, joined by a short pipe. Drag an input into the first box: its steps light up one by one and its output rides along the pipe into the second box, whose steps light up from the last back to the first, and the number you started with drops out. Each step in the second box is the opposite of one in the first, and they are in reverse order, because each step in the first box worked on what the step before it handed over, so the last step done must be the first undone. Screen 1 (step 0) is lesson 1's machine, × 3 then − 1: 5 gives 15 and then 14, and the facing machine, + 1 then ÷ 3, turns 14 into 15 and then 5. Screen 2 (step 1) asks what went in when 8 came out: 3, with the slips 9 (stopped after + 1) and 23 (ran the first machine again). Screen 3 (step 2) is lesson 7's 'add 4, then double': 3 gives 7 and 14; halve then take 4 gives 7 and 3, while a faint wrong box that undoes in the same order, take 4 then halve, gives 10 and 5. Screen 4 (step 3) leaves the facing box blank and asks you to build it: add 4, then double, gave 20, so which undoing order brings back the start? ÷ 2 then − 4 runs 20 to 10 and then 6, while the slip − 4 then ÷ 2 gives 16 and then 8. Screen 5 (step 4) names the facing machine f⁻¹(x), read 'f inverse', with the −1 shown as part of the name, and joins the two boxes as lesson 7's chain f⁻¹(f(x)), which gives back x. Screen 6 (step 5) asks f⁻¹(10) for f(x) = 2x: 5, with the slips 0.05 (1 ÷ f(10), reading the −1 as a power) and 20 (doubled instead). Screen 7 (step 6) is the 4 to 20 mA loop's rule from lesson 2, S(p) = 0.16p + 4, a box of × 0.16 then + 4, which takes 50% to 12 mA; its facing box, − 4 then ÷ 0.16, takes 12 mA to 8 and then 50%. Here 0.16 is the 16 mA span of the loop shared over 100%. Screen 8 (step 7) asks the percent for 16 mA: 75, with the slips 100 (forgot to take off the 4 mA) and 96 (same order: 100, then 96). Screen 9 (step 8) is the square machine: 3 and −3 both give 9, and both 9s go into the root box, which hands back 3 both times, so −3 does not come back; a level line on a small graph cuts the square twice at 9. Screen 10 (step 9) asks what comes out when −3 goes through the square and then the root: 3, with the slips −3 (assumed the root undoes it) and 9 (stopped at the square). Screen 11 (step 10) closes a lock on the square's input slot that takes only 0 and up: −3 is kept out, and now each output comes from one input and the root gives back every start. Flow, as a fraction of full, runs from 0 to 1 and never goes below 0, so the flow meter's square law is locked already: a flow of 0.707 goes in, 0.5 pressure difference comes out, and the root gives back 0.707, 71% flow. Screen 12 (step 11), a mixed puzzle: a heater on P(I) = I²R with an example 16 Ω makes an example 3600 W; undo ÷ 16 then √ to get 225 and then 15 A, with the slips 3.75 (root first: 60, then 3.75) and 225 (stopped before the root). Screen 13 (step 12), a mixed puzzle: which machine can be undone with no lock, the cube or the square? The cube, with the slip 'the square' (2 and −2 both give 4) and 'neither'; the cube's 2 and −2 give 8 and −8, two different outputs, and its level line cuts once, as in lesson 3. Screen 14 (step 13), the closing screen, plots f(x) = 3x − 1 and its inverse on one grid: f takes 5 to 14, so f⁻¹ takes 14 back to 5, and a graph plots input across and output up, so the point (5, 14) on f appears as (14, 5) on f⁻¹. Every point swaps its two numbers like this, so the two graphs are mirror images in the dashed line y = x. The point on f can be dragged, whole x from 2 to 5, to see another pair swap. A last line names the exponential and the logarithm as the next inverse pair, for Exponentials and logarithms. Some screens show an idea and the rest ask you to try it: a puzzle offers two or three answers, and a wrong pick slides or fades the facing steps into the slip's and runs the number through them to the answer it makes.",
+   "ignores": "The machines pass one number at a time and are exact; real transmitters and controllers carry small errors and work on their signal all the time. The flow meter is drawn as its ideal square law, with flow and pressure difference as fractions of full. The current in P = I²R is taken as a size, 0 and up, since the formula gives the same power either way round. Only ordinary (real) numbers are used: a root of a negative number belongs to Complex numbers. The add 4 and double machines, the 8, 12 and 16 mA readings, the 16 Ω heater and its 3600 W are example values.",
+   "numbers": [
+    {
+     "label": "Lesson 1's machine: × 3, step 0",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Lesson 1's machine: then − 1, step 0",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example input, step 0",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "5 × 3 = 15, step 0",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "15 − 1 = 14 drops out, step 0",
+     "value": 14,
+     "kind": "computed"
+    },
+    {
+     "label": "Back: 14 + 1 = 15, then ÷ 3 = 5",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Example output, step 1",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "8 + 1 = 9, ÷ 3 = 3; slips 9, 23, step 1",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: ran forwards again, 8 × 3 − 1",
+     "value": 23,
+     "kind": "computed"
+    },
+    {
+     "label": "Example machine: add 4, step 2",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example machine: then double, × 2, step 2",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "3 + 4 = 7, step 2",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "7 doubled: 14 drops out, step 2",
+     "value": 14,
+     "kind": "computed"
+    },
+    {
+     "label": "Same order slip: 14 − 4 = 10, step 2",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Same order slip: 10 halved gives 5, step 2",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Example output, step 3",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "20 halved = 10, take 4 = 6, step 3",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Same order slip: 20 − 4 = 16, then 8",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Same order slip: 20 − 4, step 3",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Example f(x) = 2x: input asked, f⁻¹(10), step 5",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "f⁻¹(10) = 10 ÷ 2 = 5, step 5",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 1 ÷ f(10) = 1 ÷ 20 = 0.05",
+     "value": 0.05,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: doubled instead, 20, step 5",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "4 to 20 mA loop: 0% sends 4 mA",
+     "value": 4,
+     "kind": "constant"
+    },
+    {
+     "label": "4 to 20 mA loop: 100% sends 20 mA",
+     "value": 20,
+     "kind": "constant"
+    },
+    {
+     "label": "Span of the loop, 20 − 4 mA",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "S(p) = 0.16p + 4: mA per percent, 16 ÷ 100",
+     "value": 0.16,
+     "kind": "computed"
+    },
+    {
+     "label": "Full scale, percent",
+     "value": 100,
+     "kind": "constant"
+    },
+    {
+     "label": "Example signal, mA, step 6",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "12 − 4 = 8, step 6",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "8 ÷ 0.16 = 50%, step 6",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "Example signal, mA, step 7",
+     "value": 16,
+     "kind": "assumed"
+    },
+    {
+     "label": "16 − 4 = 12, step 7",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "12 ÷ 0.16 = 75%; slips 100, 96, step 7",
+     "value": 75,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: forgot the 4 mA, 16 ÷ 0.16",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: same order, 100 − 4",
+     "value": 96,
+     "kind": "computed"
+    },
+    {
+     "label": "Square: 3 squared is 9, step 8",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Square: −3 squared is 9 too, step 8",
+     "value": -3,
+     "kind": "assumed"
+    },
+    {
+     "label": "−3 squared then rooted gives 3, step 9",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Lock: inputs 0 and up, step 10",
+     "value": 0,
+     "kind": "assumed"
+    },
+    {
+     "label": "Flow fractions run 0 to 1, full flow",
+     "value": 1,
+     "kind": "constant"
+    },
+    {
+     "label": "Pressure difference fraction at 12 mA, step 10",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "√0.5 = 0.707: 50% pressure difference is 71% flow",
+     "value": 0.707,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Flow at 12 mA, percent of full",
+     "value": 71,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Example heater resistance, Ω, step 11",
+     "value": 16,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example heater power, W, step 11",
+     "value": 3600,
+     "kind": "assumed"
+    },
+    {
+     "label": "3600 ÷ 16 = 225, step 11",
+     "value": 225,
+     "kind": "computed"
+    },
+    {
+     "label": "√225 = 15 A; slips 3.75, 225, step 11",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: root first, √3600 = 60",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: root first, 60 ÷ 16 = 3.75",
+     "value": 3.75,
+     "kind": "computed"
+    },
+    {
+     "label": "Cube: 2 gives 8, step 12",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Cube: −2 gives −8, step 12",
+     "value": -8,
+     "kind": "computed"
+    },
+    {
+     "label": "Square: 2 and −2 both give 4, step 12",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Example input 2 and −2, step 12",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Point on f: (5, 14), step 13",
+     "value": 14,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: loop reading, mA",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: 8 − 4 = 4",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: 4 ÷ 0.16 = 25%",
+     "value": 25,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "An inverse function is a function's undoing machine: feed it what came out, and it hands back what went in. It does the opposite of each step, in reverse order. That works only for a function that never gives two inputs the same output.\n\nTake lesson 1's machine, × 3 then − 1. Put in 5: × 3 gives 15, then − 1 gives 14. To get back, undo the last step first. + 1 turns 14 into 15, and ÷ 3 turns 15 into 5. So the inverse of multiplying by 3 and subtracting 1 is adding 1 and then dividing by 3.[^2] The order matters because each step worked on what the step before handed it, as in lesson 7's chains. Take \"add 4, then double\": 3 becomes 7, then 14. Halve and then take 4, and 14 goes back to 7 and then 3. Take 4 and then halve, and 14 gives 10 and then 5, the wrong start. The 4 went in before the doubling, so it has to come off after the halving. Textbooks call the undoing machine the [[inverse function]], write it f⁻¹(x) and read it \"f inverse\". They add that the −1 is part of the name, not a power, so f⁻¹(x) is not 1 ÷ f(x).[^8] Feeding f's output straight into f⁻¹ is a chain, f⁻¹(f(x)), and it gives back x.\n\nSome machines cannot be undone. The square sends 3 and −3 to the same 9. The root machine gets only the 9, nothing in it says which went in, and it hands back 3, the positive root. Only one-to-one functions have an inverse,[^3] and a level line that cuts a graph twice shows two inputs giving the same output.[^4] The way round it is a lock: take only inputs of 0 and up, and each output comes from one input again, so the root undoes the square every time. Rearranging P = I²R into I = √(P ÷ R), as you did in Solving equations, is exactly this, ÷ R and then the root, with the current taken as a size, 0 and up. Drawn on one grid, f takes 5 to 14, so f⁻¹ takes 14 back to 5, and a graph plots input across and output up, so (5, 14) on f becomes (14, 5) on f⁻¹. Every point swaps its two numbers like this, so the graph of f⁻¹ is the graph of f mirrored in the line y = x. The SQA HN engineering maths unit asks you to find inverse functions and to graph them.[^5]\n\nWhen the controller takes the square root, as it can instead of the transmitter, it runs two of this course's machines backwards. It undoes the loop's straight line,[^6] S(p) = 0.16p + 4, as take 4 then ÷ 0.16, so 12 mA gives 8 and then 50% pressure difference. Flow fractions run from 0 to 1, so the square law is already locked, and the root undoes it: 50% pressure difference is 71% flow.[^7][^1] **An inverse function, f⁻¹, does the opposite of each step in reverse order and hands back the input, and only a function that never gives two inputs the same output has one.[^3]**"
+  },
+  "analogy": {
+   "text": "Think of a junction box. You fit the cover, then drive in the screws. To get back inside you take the screws out first, then lift the cover: the last thing done is the first undone, just as the inverse undoes the last step first.",
+   "breaks": "Every step of fitting a cover can be reversed, but some number machines cannot be undone as they stand. The square sends 3 and −3 to the same 9, and nothing in the 9 says which went in, so it needs its inputs locked to 0 and up before the root can undo it."
+  },
+  "practice": {
+   "text": "- Write the machine's steps in order. For S(p) = 0.16p + 4 that is × 0.16, then + 4.\n- Check it never gives two inputs the same output. If it can, as a square can, lock its inputs first, such as to 0 and up.\n- Write the opposite of each step, in reverse order. For S that is − 4, then ÷ 0.16.\n- Check by running your answer forwards through the first machine. It should give the number you started from.\n\n**Rule of thumb:** Last on, first off. The step done last is undone first.\n\n**Worked example:** A loop reads 8 mA. Undo S: 8 − 4 = 4, then 4 ÷ 0.16 = 25, so the reading is 25% of full scale. Check forwards: 0.16 × 25 + 4 = 8 mA.\n\n**Mistakes to watch for**\n- Undoing in the same order. For \"add 4, then double\", 14 gives 5 that way, but halving first gives back the true 3.\n- Reading f⁻¹(x) as 1 ÷ f(x). For f(x) = 2x, f⁻¹(10) is 5, not 0.05.\n- Forgetting the 4 mA at the bottom of the loop. 16 mA is 75%, not 100%.\n- Undoing a square without the lock. −3 squared is 9, and the root gives back 3, not −3."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Square root scaling for differential pressure flowmeters - Control Engineering",
+    "url": "https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters",
+    "quote": "But the root of a number from 0-1 is larger: √0.5 = 0.707. So if there is a 12 mA signal from the DP cell, that’s 50% DP, but 71% flow rate."
+   },
+   {
+    "n": 2,
+    "title": "Higher – Functions – GCSE Maths Revision – BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zvd3wsg",
+    "quote": "For example, for a function that multiplies by 3 and subtracts one , the inverse function is add one and then divide by 3 ."
+   },
+   {
+    "n": 3,
+    "title": "About the HELM Project",
+    "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf",
+    "quote": "Not all functions possess an inverse function. In fact, only one-to-one functions do so."
+   },
+   {
+    "n": 4,
+    "title": "About the HELM Project",
+    "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf",
+    "quote": "We see that a horizontal line drawn on the graph cuts it more than once. This means that two (or more) different inputs have yielded the same output and so the function is many-to-one."
+   },
+   {
+    "n": 5,
+    "title": "national unit specification: general information",
+    "url": "https://www.sqa.org.uk/sqa/files/hn/H7K033.pdf",
+    "quote": "Determine the inverse functions of a range of functions  Graph functions and their inverse functions  Introduce composite functions (again this may be done in terms of set theory)  Derive and evaluate a number of composite functions"
+   },
+   {
+    "n": 6,
+    "title": "Relating 4 to 20 mA Signals to Instrument Variables | Understanding Analog Instrumentation | Textbook",
+    "url": "https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables",
+    "quote": "Each real-world value must be converted into its analog current equivalent, then into a scaled integer value, and finally back into a real-world representation, all with the linear equation: y=mx+b."
+   },
+   {
+    "n": 7,
+    "title": "Square root scaling for differential pressure flowmeters - Control Engineering",
+    "url": "https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters",
+    "quote": "Regardless of the type of obstruction (orifice plate, Venturi or Pitot tube, etc), the DP is proportional to the square of the flow. Therefore the system must scale flow from the square root of the DP."
+   },
+   {
+    "n": 8,
+    "title": "About the HELM Project",
+    "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf",
+    "quote": "Do not confuse the ‘ _−_ 1’ with an index, or power. Here the superscript is used purely as the notation for the inverse function."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; touch-action: pan-y; }\n  /* Each machine is a box with its steps inside; a pipe joins the two along the bottom. */\n  .scene .pipe { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .patch { fill: var(--k-sunk); stroke: none; }\n  .scene .chev { fill: var(--k-muted); }\n  .scene .frame { fill: var(--k-panel); stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .frame.bad { stroke: var(--k-warn); }\n  .scene .stage { fill: var(--k-sunk); stroke: var(--k-strong); }\n  .scene .stage.bad { stroke: var(--k-warn); }\n  .scene .glow { fill: var(--k-fill1); }\n  .scene .srule { font: 700 17px var(--k-font); fill: var(--k-ink); }\n  .scene .srule.bad { fill: var(--k-warn); }\n  .scene .name { font: italic 600 15px var(--k-font); fill: var(--k-accent); }\n  .scene .lock { fill: var(--k-accent2); }\n  /* A number on its way through, or resting between steps. */\n  .scene .pill { fill: var(--k-accent2); stroke: none; }\n  .scene .pill.bad { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 2; }\n  .scene .ptext { font: 700 15px var(--k-font); fill: var(--k-on-accent2); }\n  .scene .ptext.bad { fill: var(--k-warn); }\n  /* A number the screen gives you is outlined, so the filled copy leaving it reads as on its way. */\n  .scene .pill.src { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .ptext.src { fill: var(--k-accent2); }\n  .scene .hole { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.5; stroke-dasharray: 4 3; }\n  .scene .qtext { font: 700 15px var(--k-font); fill: var(--k-muted); }\n  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }\n  .scene .tag { font: 600 13px var(--k-font); fill: var(--k-accent); }\n  .scene .tag.bad { fill: var(--k-warn); }\n  .scene .top { font: 700 17px var(--k-font); fill: var(--k-ink); }\n  .scene .wk { font: 600 15px var(--k-font); fill: var(--k-ink); }\n  /* Graphs. */\n  .scene .axis { stroke: var(--k-strong); stroke-width: 1.5; fill: none; }\n  .scene .curve { stroke: var(--k-accent2); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .curve.two { stroke: var(--k-accent); }\n  .scene .level { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 6 4; fill: none; }\n  .scene .guide { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 3; fill: none; }\n  .scene .dot { fill: var(--k-accent2); }\n  .scene .dot.two { fill: var(--k-accent); }\n  .scene .cring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }\n  .scene .tick { font: 600 13px var(--k-font); fill: var(--k-muted); }\n  .scene .gtitle { font: 700 15px var(--k-font); fill: var(--k-ink); }\n  .scene .pt { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .cap { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .cap.bad { fill: var(--k-warn); }\n  .scene .v { font-style: italic; }\n  .scene #art * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }\n  .scene .grip:active { cursor: grabbing; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stay on one row, each label whole. */\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">A machine on the left faces its undoing machine on the right, each a box with its steps inside, joined by a pipe. Every number put in is an example.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 260\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">The undoing machine does the opposite of each step in reverse order, so the last step done is undone first.</p>\n\n<script>\n  // ---------- the steps a machine can do: what is written inside the step, and what it does ----------\n  const root = (v) => (v < 0 ? NaN : Math.sqrt(v));\n  const M = {\n    m3: { rule: '× 3', fn: (v) => 3 * v, say: 'multiply by 3' },\n    s1: { rule: '− 1', fn: (v) => v - 1, say: 'take away 1' },\n    a1: { rule: '+ 1', fn: (v) => v + 1, say: 'add 1' },\n    d3: { rule: '÷ 3', fn: (v) => v / 3, say: 'divide by 3' },\n    a4: { rule: '+ 4', fn: (v) => v + 4, say: 'add 4' },\n    t2: { rule: '× 2', fn: (v) => 2 * v, say: 'double' },\n    h2: { rule: '÷ 2', fn: (v) => v / 2, say: 'halve' },\n    s4: { rule: '− 4', fn: (v) => v - 4, say: 'take away 4' },\n    m16: { rule: '× 0.16', fn: (v) => 0.16 * v, say: 'multiply by 0.16' },\n    d16: { rule: '÷ 0.16', fn: (v) => v / 0.16, say: 'divide by 0.16' },\n    sq: { rule: 'squared', fn: (v) => v * v, say: 'square' },\n    rt: { rule: '√', fn: root, say: 'take the square root' },\n    x16: { rule: '× 16', fn: (v) => 16 * v, say: 'multiply by 16' },\n    q16: { rule: '÷ 16', fn: (v) => v / 16, say: 'divide by 16' },\n    // the slips: 1 ÷ f(x) for f(x) = 2x, and the − 4 left out\n    rec: { rule: '1 ÷ f(x)', fn: (v) => 1 / M.t2.fn(v), say: 'one divided by f of x' },\n    skip: { rule: 'skipped', fn: (v) => v, say: 'the take away 4, skipped' },\n  };\n\n  // Numbers as the explanation writes them: three significant figures (0.707, 0.05, 2.5).\n  function F(v) {\n    if (typeof v !== 'number' || !Number.isFinite(v)) return 'no value';\n    const r = Number(v.toPrecision(3));\n    return (r < 0 ? '−' : '') + String(Math.abs(r));\n  }\n  const flip = (a) => a.slice().reverse();\n  const same = (a, b) => a.join() === b.join();\n  // Every value along a run of steps, and the last one.\n  function steps(keys, x) { const v = [x]; keys.forEach((k, j) => v.push(Number.isFinite(v[j]) ? M[k].fn(v[j]) : NaN)); return v; }\n  const run = (keys, x) => { const v = steps(keys, x); return v[v.length - 1]; };\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  // L: the first machine's steps, top to bottom. R: the facing machine's steps, top to bottom, each\n  // beside the step it undoes; the number climbs through them from the bottom. x: the number put in;\n  // out: the number given on the pipe between the machines; runs: several starts in turn (refused:\n  // stopped by the lock); swap: the facing steps in the same order as the first machine's, for the\n  // switch. A puzzle's slips: R, the facing machine the slip used (drawn as a slip); stop: how many\n  // steps it ran before stopping; ring: the place marked as the slip's answer.\n  const PICK = 'Tap one of the answers.';\n  const STEPS = [\n    { show: true, name: 'A machine and its mirror', L: ['m3', 's1'], R: ['d3', 'a1'], x: 5, names: ['machine', 'undoing'],\n      text: 'Lesson 1\\'s machine, × 3 then − 1, turns 5 into 15 and then 14. Facing it, the undoing machine works from the bottom up, so + 1 turns 14 back into 15 and ÷ 3 gives back 5. Drag the 5 through to run it yourself.' },\n    { kind: 'pick', name: 'What went in?', L: ['m3', 's1'], R: ['d3', 'a1'], out: 8, ask: 'in', names: ['machine', 'undoing'],\n      task: '8 came out of × 3 then − 1. What went in?',\n      opts: ['3', '9', '23'], want: '3',\n      slips: { '9': { stop: 1 }, '23': { R: ['s1', 'm3'] } },\n      why: 'Undo the last step first. + 1 turns 8 into 9, and ÷ 3 turns 9 into 3. Check it forwards, 3 × 3 = 9 and 9 − 1 = 8.',\n      hint: 'Not quite. Run 8 up through the undoing machine.',\n      hints: { '9': 'Not quite. 9 is halfway. The ÷ 3 still has to undo the × 3.', '23': 'Not quite. That runs × 3 then − 1 again. Undo them instead, + 1 and then ÷ 3.' } },\n    { show: true, name: 'Last on, first off', L: ['a4', 't2'], R: ['s4', 'h2'], x: 3, swap: ['h2', 's4'], names: ['machine', 'undoing'],\n      text: 'Lesson 7\\'s add 4, then double, turns 3 into 7 and then 14. Halving first, then taking 4, brings back 3, because the 4 went in before the doubling. Try undoing in the same order and see what comes back.' },\n    { kind: 'pick', name: 'Your turn', L: ['a4', 't2'], R: ['s4', 'h2'], out: 20, ask: 'in', build: true, names: ['machine', 'undoing'],\n      task: 'Add 4, then double, and 20 came out. Build the undoing machine: which order brings back what went in?',\n      opts: ['÷ 2 then − 4', '− 4 then ÷ 2'], want: '÷ 2 then − 4',\n      slips: { '− 4 then ÷ 2': { R: ['h2', 's4'] } },\n      right: 'That\\'s it. Halve first, then take 4, and 6 comes back.',\n      why: 'The doubling came last, so halve first, 20 ÷ 2 = 10. Then take 4, 10 − 4 = 6. Check it forwards, 6 + 4 = 10 and 10 doubled is 20.',\n      hint: 'Not quite. Undo the doubling first.',\n      hints: { '− 4 then ÷ 2': 'Not quite. That undoes in the same order, 20 − 4 = 16 and then 8. The doubling came last, so halve first.' } },\n    { show: true, name: 'f inverse', L: ['m3', 's1'], R: ['d3', 'a1'], x: 5, names: ['f', 'f⁻¹'], top: 'f⁻¹(f(x)) = x', tags: { in: 'x', out: 'f(x)', back: 'f⁻¹(f(x))' },\n      text: 'Textbooks call the undoing machine the *inverse function*, write it `f⁻¹(x)` and read it ‘f inverse’. The −1 is part of its name, not a power. Fed straight from `f`, it makes the chain `f⁻¹(f(x))`, which hands back `x`.' },\n    { kind: 'pick', name: 'Not a power', L: ['t2'], R: ['h2'], out: 10, ask: 'back', names: ['f', 'f⁻¹'], tags: { in: 'x', out: 'f(x)', back: 'f⁻¹(10)' },\n      task: 'Here `f(x) = 2x`. Work out `f⁻¹(10)`.',\n      opts: ['5', '0.05', '20'], want: '5',\n      slips: { '0.05': { R: ['rec'] }, '20': { R: ['t2'] } },\n      why: '`f` doubles, so `f⁻¹` halves, and `f⁻¹(10) = 10 ÷ 2 = 5`. Check it forwards, `f(5) = 10`.',\n      hint: 'Not quite. Undo the doubling.',\n      hints: { '0.05': 'Not quite. That is 1 ÷ f(10), reading the −1 as a power. The −1 is part of the name.', '20': 'Not quite. That doubles again. f⁻¹ undoes the doubling.' } },\n    { show: true, name: 'mA back to percent', L: ['m16', 'a4'], R: ['d16', 's4'], x: 50, names: ['S', 'S⁻¹'], units: { in: '%', out: ' mA', back: '%' }, tags: { in: 'p', out: 'S(p)', back: 'p' },\n      text: 'Lesson 2\\'s loop rule, `S(p) = 0.16p + 4`, is × 0.16 then + 4, and the 0.16 is the 16 mA span shared over 100%. It takes 50% to 12 mA. Undoing it, − 4 gives 8 and ÷ 0.16 gives back 50%.' },\n    { kind: 'pick', name: '16 mA', L: ['m16', 'a4'], R: ['d16', 's4'], out: 16, ask: 'in', names: ['S', 'S⁻¹'], units: { in: '%', out: ' mA', back: '%' }, tags: { in: 'p', out: 'S(p)', back: 'p' },\n      ans: (v) => F(v) + '%',\n      task: 'The loop reads 16 mA. What percentage of full scale is that?',\n      opts: ['75%', '100%', '96%'], want: '75%',\n      slips: { '100%': { R: ['d16', 'skip'] }, '96%': { R: ['s4', 'd16'] } },\n      why: 'Take off the 4 mA first, 16 − 4 = 12. Then 12 ÷ 0.16 = 75, so 75% of full scale. Check it forwards, 0.16 × 75 + 4 = 16 mA.',\n      hint: 'Not quite. Undo the + 4 first.',\n      hints: { '100%': 'Not quite. That forgets the 4 mA at the bottom of the loop. Take it off first.', '96%': 'Not quite. That undoes in the same order, 16 ÷ 0.16 = 100 and then 96. Take off the 4 mA first.' } },\n    { show: true, name: 'Two starts, one 9', L: ['sq'], R: ['rt'], runs: [{ x: 3 }, { x: -3 }], names: ['square', 'root'], graph: true,\n      text: 'The square sends 3 and −3 to the same 9. The root machine gets only the 9, so it hands back 3 both times, and −3 never comes back. A level line at 9 cuts the square\\'s graph twice, once for each start.' },\n    { kind: 'pick', name: 'Square, then root', L: ['sq'], R: ['rt'], x: -3, ask: 'back', names: ['square', 'root'],\n      task: '−3 goes into the square, and what comes out goes into the root. What comes back?',\n      opts: ['3', '−3', '9'], want: '3',\n      slips: { '−3': { ring: 'in' }, '9': { stop: 1 } },\n      right: 'That\\'s it. The root hands back 3, not the −3 that went in.',\n      why: '−3 squared is 9. The root gets only that 9 and hands back its positive root, 3. Nothing in the 9 says a minus went in.',\n      hint: 'Not quite. Run −3 through both machines.',\n      hints: { '−3': 'Not quite. The root gets only the 9, and nothing in it says −3 went in. It hands back 3.', '9': 'Not quite. 9 is what the square makes. The root still works on it.' } },\n    { show: true, name: 'The lock', L: ['sq'], R: ['rt'], runs: [{ x: -3, refused: true }, { x: Math.SQRT1_2 }], names: ['square', 'root'], lock: 'close', flow: true,\n      text: 'Lock the square\\'s input to 0 and up, and each output comes from one input again, so the root gives back every start. A flow meter is locked already: flow, as a fraction of full, runs from 0 to 1 and never goes below 0. So a flow of 0.707 squares to 0.5 pressure difference, and the root gives back 0.707, 71% flow.' },\n    { kind: 'pick', name: 'The heater', L: ['sq', 'x16'], R: ['rt', 'q16'], out: 3600, ask: 'in', lock: true, names: ['P', 'P⁻¹'], units: { in: ' A', out: ' W', back: ' A' }, tags: { in: 'I', out: 'P', back: 'I' },\n      ans: (v) => F(v) + ' A',\n      task: 'An example 16 Ω heater makes 3600 W. Its machine squares the current, then multiplies by 16. What current is flowing?',\n      opts: ['15 A', '3.75 A', '225 A'], want: '15 A',\n      slips: { '3.75 A': { R: ['q16', 'rt'] }, '225 A': { stop: 1 } },\n      right: 'That\\'s it. ÷ 4, then the root, is the power formula rearranged for the current.',\n      why: 'The × 16 came last, so undo it first, 3600 ÷ 16 = 225. Then the root, √225 = 15 A. The lock keeps the current 0 and up, so the root undoes the square.',\n      hint: 'Not quite. Undo the × 16 first.',\n      hints: { '3.75 A': 'Not quite. That takes the root first, √3600 = 60, and then 60 ÷ 16. The × 16 came last, so undo it first.', '225 A': 'Not quite. 225 is halfway. The root still has to undo the square.' } },\n    { kind: 'pick', name: 'Square or cube?', mode: 'pair',\n      task: 'Which machine can be undone with no lock?',\n      opts: ['Cube', 'Square', 'Neither'], want: 'Cube',\n      right: 'That\\'s it. The cube never gives two inputs the same output.',\n      why: 'The cube sends 2 to 8 and −2 to −8, two different outputs, so each output comes from one input. Each of its level lines cuts once, as in lesson 3. The square sends 2 and −2 to the same 4.',\n      hint: 'Not quite. Look for two inputs giving the same output.',\n      hints: { Square: 'Not quite. The square sends 2 and −2 to the same 4, so it needs a lock.', Neither: 'Not quite. The cube sends 2 to 8 and −2 to −8. Each output comes from one input.' } },\n    { show: true, name: 'The mirror', mode: 'mirror',\n      text: 'On one grid, `f(x) = 3x − 1` takes 5 to 14, so `f⁻¹` takes 14 back to 5, and a graph plots input across and output up, so (5, 14) on `f` becomes (14, 5) on `f⁻¹`. Every point swaps its two numbers like this, so the two graphs are mirror images in the dashed line `y = x`, as the exponential and the logarithm will be in Exponentials and logarithms. Drag the point along `f` to see another pair swap.' },\n  ];\n  const FINISH = 'An inverse function, `f⁻¹`, does the opposite of each step in reverse order and hands back the input. Only a function that never gives two inputs the same output has one.';\n  // Sources the checks restate (the lesson's own).\n  const CE = 'https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters';\n  const BITESIZE = 'https://www.bbc.co.uk/bitesize/articles/zvd3wsg';\n  const HELM = 'https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf';\n  const SQA = 'https://www.sqa.org.uk/sqa/files/hn/H7K033.pdf';\n  const CONTROL = 'https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables';\n\n  // ---------- the picture's frame ----------\n  // CXL, CXR: the two machines' middles. Each machine is a frame FW wide holding its steps, each SW\n  // by SH, with GAP between them where the number rests. PH: a number's pill.\n  const CXL = 90, CXR = 250, MID = 170, FW = 116, SW = 92, SH = 34, GAP = 40, PH = 28, HOLE = 40;\n  // The run: each move takes 0.12 s plus its length at 320 units a second; a step works for DW s,\n  // a number rests between steps for JP s. CHG: a new start swapping into the input. REF, TURN:\n  // a refused number reaching the lock, then turning away. Demonstrations play at DEMO, two starts\n  // at DEMO2, answers at ANS.\n  const DW = 0.1, JP = 0.16, CHG = 0.3, REF = 0.45, TURN = 0.6, SWAPD = 0.7, DEMO = 1, DEMO2 = 0.7, ANS = 0.9;\n  const FADE = 0.35;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // u: where Dan has dragged the number (the mirror screen: the point's x); sw, mode: how many times\n  // he has pressed the same-order switch, and whether the last motion came from it.\n  function blank() { return { pick: null, res: null, why: false, u: null, sw: 0, mode: 'demo' }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion\n  let motionEnd = 0;\n  let REC = null;                                                        // what the last paint drew, for the checks\n  let drag = null;                                                       // the run on screen, for the drag\n\n  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------\n  const ITAL = /((?<![A-Za-z])[fxpSPIy](?![A-Za-z]))/;\n  function italics(parent, s, inSvg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));\n    });\n  }\n  // `maths` stays on one line with its letters italic; *a key term* is highlighted.\n  function write(el, s) {\n    el.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));\n        el.appendChild(K.el('span', { class: 'term' }, m[1]));\n        at = m.index + m[0].length;\n      }\n      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));\n    });\n  }\n  // As a screen reader says it.\n  const say = (s) => String(s == null ? '' : s).replace(/⁻¹/g, ' inverse').replace(/√/g, ' the square root of ').replace(/×/g, ' times ')\n    .replace(/÷/g, ' divided by ').replace(/−/g, ' minus ').replace(/\\+/g, ' plus ').replace(/=/g, ' equals ').replace(/%/g, ' percent')\n    .replace(/\\bmA\\b/g, 'milliamps').replace(/(\\d) A\\b/g, '$1 amps').replace(/(\\d) W\\b/g, '$1 watts').replace(/\\s+/g, ' ').trim();\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = document.getElementById('nav');\n  const at = () => stepper.get();\n\n  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong\n  // answer settles the picture back to the question.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  // Check: marks the answer; a right one runs the machines to it, a wrong one plays its slip.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(endOf(i, st));\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.show || finished) return;\n    st.u = null; st.sw = 0; st.mode = 'demo';\n    play(endOf(i, st));\n  } });\n  // The switch: the facing machine's steps swap into the same order as the first machine's (or\n  // back), and 14 climbs through them again.\n  const swapBtn = K.button({ label: 'Undo in the same order', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.show || !d.swap || finished) return;\n    st.sw++; st.mode = 'swap'; st.u = null;\n    K.reveal();\n    play(endOf(i, st));\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = document.getElementById(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- timing: what has arrived by T, noting the timetable for the timing check ----------\n  let latest = 0, earliest = Infinity;\n  function note(t0, t1) { if (t1 > latest) latest = t1; if (t0 < earliest) earliest = t0; }\n  function arr(t0, d) { note(t0, t0 + d); return K.arrive(T, t0, d); }\n  function prog(t0, d) { note(t0, t0 + d); return K.ease(K.clamp((T - t0) / d, 0, 1)); }\n  // How long a picture takes to settle: paint it finished and read the timetable.\n  function endOf(i, st) {\n    const keepT = T;\n    T = Infinity; latest = 0; earliest = Infinity;\n    try { paint(i, st); } finally { T = keepT; }\n    return latest;\n  }\n\n  // ---------- the machines' geometry ----------\n  // Stops along the pipe: 0 the input, then inside each step and the rest after it, down the first\n  // machine, along the pipe (2n), up the facing machine, and back out at the top (4n).\n  function stopName(n, s) {\n    if (s === 0) return 'in';\n    if (s === 2 * n) return 'out';\n    if (s === 4 * n) return 'back';\n    if (s < 2 * n) return 'lg' + (s / 2 - 1);\n    return 'rg' + (n - 2 - ((s - 2 * n) / 2 - 1));\n  }\n  function stopOf(n, name) {\n    if (name === 'in') return 0;\n    if (name === 'out') return 2 * n;\n    if (name === 'back') return 4 * n;\n    const k = Number(name.slice(2));\n    return name[0] === 'l' ? 2 * k + 2 : 2 * n + 2 * (n - 2 - k) + 2;\n  }\n  const GEO = new Map();\n  function geo(d) {\n    if (GEO.has(d)) return GEO.get(d);\n    let G;\n    if (d.mode === 'pair') G = { mode: 'pair', H: 228 };\n    else if (d.mode === 'mirror') G = { mode: 'mirror', H: 330 };\n    else {\n      const n = d.L.length, y0 = d.top ? 28 : 0, INY = y0 + 20, FY = y0 + (d.lock ? 90 : 62);\n      const sy = (k) => FY + 12 + k * (SH + GAP);\n      const FB = sy(n - 1) + SH + 12, yB = FB + 34;\n      let H = yB + PH / 2 + 12;\n      const gy = d.graph ? H : null;\n      if (d.graph) H += 136;\n      const fy = d.flow ? H + 12 : null;\n      if (d.flow) H = fy + 34;\n      G = { mode: 'machine', n, y0, INY, FY, sy, FB, yB, H, gy, fy, LOCKY: FY - 16 };\n      G.P = pathOf(G);\n    }\n    GEO.set(d, G);\n    return G;\n  }\n  // Each stop's place, and the pipe between stops as a bent line with its length.\n  function pathOf(G) {\n    const n = G.n, st = [], via = [];\n    const add = (p, v) => { st.push(p); via.push(v || []); };\n    add([CXL, G.INY]);\n    for (let k = 0; k < n; k++) {\n      add([CXL, G.sy(k) + SH / 2]);\n      if (k < n - 1) add([CXL, G.sy(k) + SH + GAP / 2]); else add([MID, G.yB], [[CXL, G.yB]]);\n    }\n    for (let i = 0; i < n; i++) {\n      const r = n - 1 - i;\n      add([CXR, G.sy(r) + SH / 2], i === 0 ? [[CXR, G.yB]] : []);\n      if (r > 0) add([CXR, G.sy(r) - GAP / 2]); else add([CXR, G.INY]);\n    }\n    const segs = [];\n    for (let s = 0; s < st.length - 1; s++) {\n      const pts = [st[s]].concat(via[s + 1], [st[s + 1]]), cum = [0];\n      let L = 0;\n      for (let j = 1; j < pts.length; j++) { L += Math.hypot(pts[j][0] - pts[j - 1][0], pts[j][1] - pts[j - 1][1]); cum.push(L); }\n      segs.push({ pts, cum, L });\n    }\n    return { st, segs };\n  }\n  function posAt(P, u) {\n    const s = Math.max(0, Math.min(P.segs.length - 1, Math.floor(u))), f = K.clamp(u - s, 0, 1), g = P.segs[s], dd = f * g.L;\n    for (let j = 1; j < g.pts.length; j++) {\n      if (dd <= g.cum[j] + 1e-9) {\n        const a = g.pts[j - 1], b = g.pts[j], t = (dd - g.cum[j - 1]) / ((g.cum[j] - g.cum[j - 1]) || 1);\n        return [K.lerp(a[0], b[0], t), K.lerp(a[1], b[1], t)];\n      }\n    }\n    return g.pts[g.pts.length - 1];\n  }\n  // The timetable of a run from stop a to stop b.\n  function plan(P, a, b, scale) {\n    const segs = [];\n    let t = 0;\n    for (let s = a; s < b; s++) {\n      const d = (0.12 + P.segs[s].L / 320) * scale;\n      segs.push([t, t + d, s, s + 1]); t += d;\n      if (s + 1 < b) t += ((s + 1) % 2 ? DW : JP) * scale;\n    }\n    return { segs, end: t };\n  }\n  function uAt(pl, a, t) {\n    if (!(t > 0) || !pl.segs.length) return a;\n    for (const s of pl.segs) {\n      if (t < s[0]) return s[2];\n      if (t <= s[1]) return s[2] + (s[3] - s[2]) * K.ease((t - s[0]) / (s[1] - s[0]));\n    }\n    return pl.segs[pl.segs.length - 1][3];\n  }\n  function reachT(r, s) {\n    if (s === r.from) return r.t0;\n    const g = r.pl.segs.find((x) => x[3] === s);\n    return r.t0 + (g ? g[1] : r.pl.end);\n  }\n  // The values at each stop: from the input down and back up, or from the number given on the pipe.\n  function valsOf(keys, x, out, n) {\n    const v = new Array(keys.length + 1).fill(null);\n    let c0 = 0;\n    if (x != null) v[0] = x; else { v[n] = out; c0 = n; }\n    for (let c = c0; c < keys.length; c++) v[c + 1] = Number.isFinite(v[c]) ? M[keys[c]].fn(v[c]) : NaN;\n    return v;\n  }\n\n  // ---------- what each machine picture is ----------\n  // R: the facing machine's steps; bad: they are a slip; runs: each start in turn ({x, out, from,\n  // to, refused, prior}); start: when the first run begins; lockAt: when the lock closes; Rfrom,\n  // swapAt: the facing steps before a swap, and when it starts; ring: the slip's answer, marked;\n  // fillIn: the answer drops into the empty input; scrub: Dan is dragging the last run.\n  function viewOf(i, st) {\n    const d = STEPS[i], n = d.L.length;\n    if (d.show) {\n      const odd = !!d.swap && st.sw % 2 === 1, R = odd ? d.swap : d.R;\n      const starts = d.runs || [{ x: d.x }];\n      const runs = starts.map((r) => ({ x: r.x, out: null, from: 0, to: 4 * n, refused: !!r.refused }));\n      if (st.u != null) return { R, bad: odd, runs, start: 0, scale: DEMO, scrub: true };\n      if (st.mode === 'swap' && d.swap) {\n        return { R, bad: odd, Rfrom: odd ? d.R : d.swap, swapAt: 0.1, start: 0.15 + SWAPD, scale: DEMO,\n          runs: [{ x: d.x, out: null, from: 2 * n, to: 4 * n, prior: true }] };\n      }\n      return { R, bad: false, runs, start: d.lock === 'close' ? 0.9 : 0.45, lockAt: d.lock === 'close' ? 0.4 : null, scale: d.runs ? DEMO2 : DEMO };\n    }\n    const from = d.out != null ? 2 * n : 0;\n    const mk = (to) => ({ x: d.x != null ? d.x : null, out: d.out != null ? d.out : null, from, to });\n    const base = { R: d.R, bad: false, start: 0.1, scale: ANS, runs: [mk(from)] };\n    // a machine Dan builds: its blank steps fill in before the number runs\n    const built = d.build && (st.res === 'right' || st.res === 'wrong') ? { fillR: 0.1, start: 0.55 } : {};\n    if (st.res === 'right') return Object.assign(base, built, { runs: [mk(4 * n)], fillIn: d.out != null });\n    if (st.res === 'wrong' && st.pick != null && d.slips[st.pick]) {\n      const s = d.slips[st.pick], r = mk(s.stop ? from + 2 * s.stop : 4 * n);\n      const v = Object.assign(base, built, { runs: [r] });\n      // a slip's facing steps slide (or fade) out of the right ones before the number runs\n      if (s.R) { v.R = s.R; v.bad = true; if (!d.build) { v.Rfrom = d.R; v.swapAt = 0.05; v.start = 0.1 + SWAPD; } }\n      v.ring = s.ring || stopName(n, r.to);\n      return v;\n    }\n    return base;\n  }\n  // When each run starts and ends.\n  function sched(V, G) {\n    let t = V.start || 0;\n    V.runs.forEach((r, k) => {\n      if (k > 0) t += CHG;\n      r.t0 = t;\n      if (r.refused) {\n        r.u1 = (G.LOCKY - 6 - PH / 2 - G.INY) / G.P.segs[0].L;\n        r.pl = { segs: [[0, REF, 0, r.u1]], end: REF };\n        t += REF + TURN;\n      } else {\n        r.pl = plan(G.P, r.from, r.to, V.scale);\n        t += r.pl.end;\n      }\n      if (r.to > r.from || r.refused) note(r.t0, r.t0 + r.pl.end);\n    });\n    V.end = t;\n  }\n\n  // ---------- drawing ----------\n  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 15 * 0.6;\n  }\n  function text(parent, x, y, s, cls, anchor, alpha) {\n    if (alpha != null && alpha <= 0.001) return null;\n    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    if (alpha != null && alpha < 1) t.setAttribute('opacity', r3(alpha));\n    italics(t, s, true);\n    return parent.appendChild(t);\n  }\n  const group = (alpha) => art.appendChild(K.svg('g', alpha < 1 ? { opacity: r3(alpha) } : {}));\n  const pillW = (s) => Math.max(HOLE, Math.ceil(tw(s, 'ptext')) + 18);\n  // A number in its pill; returns its width.\n  function pill(cx, cy, s, cls, alpha) {\n    const w = pillW(s);\n    if (alpha <= 0.001) return w;\n    const g = group(alpha);\n    g.appendChild(K.svg('rect', { class: 'pill' + cls, x: r3(cx - w / 2), y: r3(cy - PH / 2), width: w, height: PH, rx: PH / 2 }));\n    text(g, cx, cy + 5, s, 'ptext' + cls, 'middle');\n    return w;\n  }\n  // An empty place a number has not reached yet (a question mark where a puzzle asks).\n  function hole(cx, cy, s, alpha) {\n    if (alpha <= 0.001) return;\n    const g = group(alpha);\n    g.appendChild(K.svg('rect', { class: 'hole', x: r3(cx - HOLE / 2), y: r3(cy - PH / 2), width: HOLE, height: PH, rx: PH / 2 }));\n    if (s) text(g, cx, cy + 5, s, 'qtext', 'middle');\n  }\n  const rect = (cls, x, y, w, h, rx, extra) => art.appendChild(K.svg('rect', Object.assign({ class: cls, x: r3(x), y: r3(y), width: r3(w), height: r3(h), rx: rx || 0 }, extra || {})));\n  const line = (cls, x1, y1, x2, y2, alpha) => {\n    if (alpha != null && alpha <= 0.001) return null;\n    const l = K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) });\n    if (alpha != null && alpha < 1) l.setAttribute('opacity', r3(alpha));\n    return art.appendChild(l);\n  };\n  const polyline = (cls, pts, alpha) => {\n    if (pts.length < 2 || (alpha != null && alpha <= 0.001)) return null;\n    const p = K.svg('polyline', { class: cls, points: pts.map((q) => r3(q[0]) + ',' + r3(q[1])).join(' ') });\n    if (alpha != null && alpha < 1) p.setAttribute('opacity', r3(alpha));\n    return art.appendChild(p);\n  };\n  const circle = (cls, cx, cy, r, alpha) => {\n    if (alpha != null && alpha <= 0.001) return null;\n    const c = K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r });\n    if (alpha != null && alpha < 1) c.setAttribute('opacity', r3(alpha));\n    return art.appendChild(c);\n  };\n  const isWord = (s) => /[a-z]{2}/.test(s);\n\n  // The machine picture for a step now; returns it in words.\n  function drawMachine(i, st, G) {\n    const d = STEPS[i], V = viewOf(i, st), n = G.n, P = G.P;\n    const tg = Object.assign({ in: 'in', out: 'out', back: 'back' }, d.tags || {});\n    const keys = d.L.concat(flip(V.R));\n    REC = { mode: 'machine', stamps: {}, rings: [], kept: null, dots: [], level: null, flow: null, lock: false, notes: [], keys: keys.join(), R: V.R.join() };\n    sched(V, G);\n    const scrub = !!V.scrub, last = V.runs.length - 1;\n    let j = 0;\n    V.runs.forEach((r, k) => { if (k > 0 && (scrub || T >= r.t0 - CHG)) j = k; });\n    const cur = V.runs[j], prev = j > 0 ? V.runs[j - 1] : null;\n    const vals = valsOf(keys, cur.x, cur.out, n);\n    const u = cur.refused ? uAt(cur.pl, 0, T - cur.t0) : scrub && j === last ? K.clamp(st.u, cur.from, cur.to) : uAt(cur.pl, cur.from, T - cur.t0);\n    const chg = !prev ? 1 : scrub ? 1 : arr(cur.t0 - CHG, CHG);\n    const unit = (w) => ((d.units || {})[w] || '');\n    const where = (s) => (s === 0 ? 'in' : s === 2 * n ? 'out' : s === 4 * n ? 'back' : '');\n    const txt = (s, v) => F(v) + unit(where(s));\n    const rec = (name, s, v, o) => { REC.stamps[name] = Object.assign({ text: txt(s, v), v, s }, o || {}); };\n    drag = { P, from: cur.from, to: cur.to, u, on: false };\n\n    // the rule line\n    if (d.top) text(art, MID, 20, d.top, 'top', 'middle');\n    // the pipes: in, along the bottom, and back out; patches hide the joins' inner edges\n    const pTop = G.INY + PH / 2 - 4;\n    rect('pipe', CXL - 6, pTop, 12, G.FY - pTop + 2, 0);\n    rect('pipe', CXR - 6, pTop, 12, G.FY - pTop + 2, 0);\n    rect('pipe', CXL - 6, G.FB - 2, 12, G.yB - 6 - G.FB + 2, 0);\n    rect('pipe', CXR - 6, G.FB - 2, 12, G.yB - 6 - G.FB + 2, 0);\n    rect('pipe', CXL - 6, G.yB - 6, CXR - CXL + 12, 12, 0);\n    rect('patch', CXL - 5.25, G.yB - 6.75, 10.5, 12, 0);\n    rect('patch', CXR - 5.25, G.yB - 6.75, 10.5, 12, 0);\n    // which way the number flows: down out of the first machine, up into the facing one\n    const cy = (G.FB + G.yB - 6) / 2;\n    art.appendChild(K.svg('path', { class: 'chev', d: 'M' + (CXL - 4) + ' ' + (cy - 3) + 'L' + (CXL + 4) + ' ' + (cy - 3) + 'L' + CXL + ' ' + (cy + 3) + 'Z' }));\n    art.appendChild(K.svg('path', { class: 'chev', d: 'M' + (CXR - 4) + ' ' + (cy + 3) + 'L' + (CXR + 4) + ' ' + (cy + 3) + 'L' + CXR + ' ' + (cy - 3) + 'Z' }));\n\n    // the lock on the input: a bar that slides across the pipe, letting in only 0 and up\n    if (d.lock) {\n      const c = V.lockAt != null ? prog(V.lockAt, 0.45) : 1;\n      rect('lock', CXL - 15 - (1 - c) * 44, G.LOCKY - 4, 30, 8, 3);\n      text(art, CXL - 22, G.LOCKY + 5, '0 and up', 'tag', 'end', V.lockAt != null ? arr(V.lockAt + 0.45, 0.35) : 1);\n      REC.lock = c >= 0.5;\n    }\n\n    // the two machines' frames; a slip's frame turns red halfway through its steps changing\n    const sig = V.Rfrom ? prog(V.swapAt, SWAPD) : 1, turn = V.fillR != null ? arr(V.fillR, 0.35) : sig;\n    const badR = V.bad && turn >= 0.5;\n    rect('frame', CXL - FW / 2, G.FY, FW, G.FB - G.FY, 12);\n    rect('frame' + (badR ? ' bad' : ''), CXR - FW / 2, G.FY, FW, G.FB - G.FY, 12);\n\n    // the number on its way (under the steps, so it goes inside them)\n    const rest = Math.abs(u / 2 - Math.round(u / 2)) < 1e-6;\n    if (cur.refused) {\n      if (j === 0 || !scrub) {\n        const done = u >= cur.u1 - 1e-3, a = done ? 1 - arr(cur.t0 + REF + 0.4, 0.35) : 1;\n        if (u > 1e-6 && a > 0.001) { const p = posAt(P, u); pill(p[0], p[1], txt(0, cur.x), done ? ' bad' : '', a); }\n      }\n    } else if (!rest && cur.to > cur.from) {\n      const p = posAt(P, u), c = Math.min(cur.to / 2, Math.floor((u + 1) / 2));\n      pill(p[0], p[1], txt(2 * c, vals[c]), V.bad && c > n ? ' bad' : '', 1);\n    }\n\n    // the steps: the first machine's top to bottom, the facing one's beside the steps they undo\n    const busyAt = (s) => (!cur.refused && s > cur.from && s < cur.to ? Math.max(0, 1 - Math.abs(u - s) / 0.5) : 0);\n    const stage = (cx, y, busy, bad) => {\n      rect('stage' + (bad ? ' bad' : ''), cx - SW / 2, y, SW, SH, 8, { style: 'stroke-width:' + r3(1.5 + 1.5 * busy) + 'px' });\n      if (busy > 0.01) rect('glow', cx - SW / 2 + 2, y + 2, SW - 4, SH - 4, 6, { opacity: r3(0.9 * busy) });\n    };\n    d.L.forEach((key, k) => {\n      stage(CXL, G.sy(k), busyAt(2 * k + 1), false);\n      text(art, CXL, G.sy(k) + SH / 2 + 6, M[key].rule, 'srule', 'middle');\n    });\n    V.R.forEach((key, r) => stage(CXR, G.sy(r), busyAt(2 * n + 2 * (n - 1 - r) + 1), badR));\n    const blankR = !!d.build && !d.show && st.res == null;\n    V.R.forEach((key, r) => {\n      const r0 = V.Rfrom ? V.Rfrom.indexOf(key) : r, y1 = G.sy(r) + SH / 2 + 6;\n      // a machine still to build shows its steps blank; once answered they fill in\n      if (blankR) { text(art, CXR, y1, '?', 'qtext', 'middle'); return; }\n      if (V.fillR != null) {\n        text(art, CXR, y1, '?', 'qtext', 'middle', 1 - turn);\n        text(art, CXR, y1, M[key].rule, 'srule' + (badR ? ' bad' : ''), 'middle', turn);\n        return;\n      }\n      // a step with no place in the old order fades out of the old step there\n      if (r0 < 0 && sig < 1) {\n        const old = V.Rfrom[r];\n        if (old && V.R.indexOf(old) < 0) text(art, CXR, y1, M[old].rule, 'srule', 'middle', K.clamp(1 - 2 * sig, 0, 1));\n        text(art, CXR, y1, M[key].rule, 'srule' + (badR ? ' bad' : ''), 'middle', K.clamp(2 * sig - 1, 0, 1));\n        return;\n      }\n      if (r0 === r || sig >= 1) { text(art, CXR, y1, M[key].rule, 'srule' + (badR ? ' bad' : ''), 'middle'); return; }\n      const y0 = G.sy(r0) + SH / 2 + 6, dir = r > r0 ? 1 : -1;\n      text(art, CXR + dir * 22 * Math.sin(Math.PI * sig), K.lerp(y0, y1, sig), M[key].rule, 'srule' + (V.bad && sig >= 0.5 ? ' bad' : ''), 'middle');\n    });\n    // the machines' names, under their outer corners\n    const nm = d.names || ['', ''];\n    if (nm[0]) text(art, 12, G.FB + 18, nm[0], isWord(nm[0]) ? 'tag' : 'name', 'start');\n    if (nm[1]) text(art, 328, G.FB + 18, nm[1], isWord(nm[1]) ? 'tag' : 'name', 'end');\n\n    // the input, the rests between steps, the pipe and the way back out\n    const ask = !d.show && st.res == null;\n    const holeQ = (s) => ask && ((s === 0 && d.ask === 'in') || (s === 4 * n && (d.ask === 'in' || d.ask === 'back')));\n    const wAt = {};\n    const oldVals = V.Rfrom && d.show ? valsOf(d.L.concat(flip(V.Rfrom)), cur.x, null, n) : null;\n    const oldA = V.Rfrom ? 1 - arr(V.swapAt - 0.05, 0.3) : 0;\n    const prevVals = prev && !prev.refused ? valsOf(keys, prev.x, prev.out, n) : null;\n    const missNote = (v, x, a) => {\n      if (a <= 0.001) return;\n      text(art, CXR + 12, G.INY + PH / 2 + 16, 'not ' + F(x), 'tag bad', 'start', a);\n      if (a >= 0.5) REC.notes.push('not ' + F(x));\n    };\n    for (let s = 0; s <= 4 * n; s += 2) {\n      const name = stopName(n, s), p = P.st[s], c = s / 2;\n      let cover = 0;\n      if (s === cur.from && vals[c] != null && Number.isFinite(vals[c])) {\n        // the number the screen gives, or the start put in\n        const given = s === 0 || cur.out != null;\n        if (s === 0 && prev && chg < 1) pill(p[0], p[1], txt(0, prev.x), ' src', 1 - chg);\n        const a = s === 0 && prev ? chg : 1;\n        wAt[name] = pill(p[0], p[1], txt(s, vals[c]), given ? ' src' : '', a);\n        if (a >= 0.5) rec(name, s, vals[c], { src: given });\n        cover = 1;\n      } else if (cur.prior && s < cur.from && vals[c] != null) {\n        // the first machine's run, already done; its input stays the start the screen gives\n        wAt[name] = pill(p[0], p[1], txt(s, vals[c]), s === 0 ? ' src' : '', 1);\n        rec(name, s, vals[c], { src: s === 0 });\n        cover = 1;\n      } else if (!cur.refused && s > cur.from && s <= cur.to && u >= s - 1e-6) {\n        const v = vals[c], b = V.bad && c > n, miss = s === 4 * n && cur.x != null && !K.near(v, cur.x, 1e-9);\n        wAt[name] = pill(p[0], p[1], txt(s, v), b || miss ? ' bad' : '', 1);\n        rec(name, s, v, { bad: b || miss });\n        if (miss) missNote(v, cur.x, scrub ? 1 : arr(reachT(cur, s), 0.35));\n        cover = 1;\n      }\n      // what the last start, or the facing steps before the swap, left here, fading\n      if (!cover && prevVals && chg < 1 && s > 0 && s <= prev.to && vals[c] !== undefined) {\n        const v = prevVals[c], miss = s === 4 * n && !K.near(v, prev.x, 1e-9);\n        pill(p[0], p[1], txt(s, v), miss ? ' bad' : '', 1 - chg);\n        if (miss) missNote(v, prev.x, 1 - chg);\n        cover = 1 - chg;\n      }\n      if (!cover && oldVals && s > 2 * n && oldA > 0.001) {\n        const v = oldVals[c], b = !V.bad, miss = s === 4 * n && !K.near(v, cur.x, 1e-9);\n        pill(p[0], p[1], txt(s, v), b || miss ? ' bad' : '', oldA);\n        if (miss) missNote(v, cur.x, oldA);\n        cover = oldA;\n      }\n      // the answer drops into the empty input\n      if (s === 0 && !cover && V.fillIn) {\n        const a = arr(cur.t0 + cur.pl.end + 0.05, 0.35), v = vals[2 * n];\n        if (a > 0.001) wAt.in = pill(p[0], p[1], txt(0, v), '', a);\n        if (a >= 0.5) rec('in', 0, v, { fill: true });\n        cover = a;\n      }\n      let holeA = 1 - cover;\n      if (!cur.refused && s > cur.from && s <= cur.to && !(u >= s - 1e-6)) holeA *= 1 - K.clamp((u - (s - 0.7)) / 0.7, 0, 1);\n      hole(p[0], p[1], holeQ(s) ? '?' : '', holeA);\n      if (!wAt[name]) wAt[name] = HOLE;\n    }\n    // what each place is: in, out and back\n    text(art, CXL + wAt.in / 2 + 6, G.INY + 5, tg.in, 'tag', 'start');\n    text(art, MID, G.yB - 20, tg.out, 'tag', 'middle');\n    text(art, CXR - wAt.back / 2 - 6, G.INY + 5, tg.back, 'tag', 'end');\n\n    // a start the lock keeps out\n    V.runs.forEach((r, k) => {\n      if (!r.refused) return;\n      const a = k < j || scrub ? 1 : k === j ? arr(r.t0 + REF + 0.1, 0.35) : 0;\n      text(art, CXL + 22, G.LOCKY + 5, F(r.x) + ' kept out', 'tag bad', 'start', a);\n      if (a >= 0.5) REC.kept = F(r.x);\n    });\n\n    // a slip's answer, ringed\n    if (V.ring) {\n      const s = stopOf(n, V.ring), p = P.st[s], w = (wAt[V.ring] || HOLE) + 8;\n      const a = arr(cur.t0 + cur.pl.end, 0.35);\n      if (a > 0.001) {\n        const g = group(a);\n        g.appendChild(K.svg('rect', { class: 'ring', x: r3(p[0] - w / 2), y: r3(p[1] - PH / 2 - 4), width: w, height: PH + 8, rx: PH / 2 + 4 }));\n        if (a >= 0.5) REC.rings.push(V.ring);\n      }\n    }\n\n    // the square's graph: each start lands on it at 9, and the level line at 9 cuts it twice\n    if (d.graph) {\n      const gx0 = 40, gw = 260, gyT = G.gy + 10, gh = 100;\n      const X = (v) => gx0 + (v + 4) / 8 * gw, Y = (v) => gyT + gh - v / 16 * gh;\n      line('axis', gx0, Y(0), gx0 + gw, Y(0));\n      line('axis', X(0), Y(0), X(0), gyT);\n      polyline('curve', K.linspace(-4, 4, 81).map((x) => [X(x), Y(x * x)]));\n      text(art, gx0 + gw + 6, Y(0) + 5, 'in', 'tag', 'start');\n      text(art, X(0) + 6, gyT + 8, 'out', 'tag', 'start');\n      const runsDone = V.runs.map((r, k) => (k < j ? 1 : k > j ? 0 : scrub ? (u >= 2 * n - 1e-6 ? 1 : 0) : u >= 2 * n - 1e-6 ? arr(reachT(r, 2 * n), 0.35) : 0));\n      V.runs.forEach((r, k) => {\n        const a = runsDone[k];\n        line('axis', X(r.x), Y(0) - 4, X(r.x), Y(0) + 4);\n        text(art, X(r.x), Y(0) + 17, F(r.x), 'tick', 'middle');\n        if (a <= 0.001) return;\n        line('guide', X(r.x), Y(r.x * r.x) + 6, X(r.x), Y(0) - 5, a);\n        circle('dot', X(r.x), Y(r.x * r.x), 5, a);\n        if (a >= 0.5) REC.dots.push([r.x, r.x * r.x]);\n      });\n      const la = runsDone[runsDone.length - 1];\n      line('level', gx0, Y(9), gx0 + gw, Y(9), la);\n      text(art, X(0) + 8, Y(9) - 6, 'level line', 'tag', 'start', la);\n      text(art, X(0) - 6, Y(9) + 15, '9', 'tick', 'end', la);\n      if (la >= 0.5) REC.level = 9;\n    }\n    // the flow meter, locked already\n    if (d.flow) {\n      const a = scrub ? 1 : arr(V.end + 0.05, 0.4);\n      const l1 = 'Flow, as a fraction of full, runs 0 to 1', l2 = '√0.5 = 0.707, so 71% of full flow';\n      text(art, 12, G.fy, l1, 'tag', 'start', a);\n      text(art, 12, G.fy + 24, l2, 'wk', 'start', a);\n      if (a >= 0.5) REC.flow = [l1, l2];\n    }\n    drag.on = !!d.show && !finished && !cur.refused && cur.to > cur.from;\n    drag.u = u;\n\n    // in words\n    const said = ['A machine that does ' + d.L.map((k) => M[k].say).join(', then ') + ' faces a machine that does ' + flip(V.R).map((k) => M[k].say).join(', then ') + ', working from the bottom up.'];\n    if (REC.lock) said.push('A lock on the input lets in only 0 and up.');\n    if (REC.kept) said.push(say(REC.kept) + ' is kept out.');\n    if (REC.stamps.in) said.push(say(REC.stamps.in.text) + ' goes in.');\n    if (REC.stamps.out) said.push(say(REC.stamps.out.text) + ' comes out of the first machine.');\n    if (REC.stamps.back) said.push(say(REC.stamps.back.text) + ' comes back' + (REC.notes.length ? ', ' + say(REC.notes[REC.notes.length - 1]) : '') + '.');\n    else said.push('What comes back is still to find.');\n    if (REC.level) said.push('On the graph, the level line at 9 cuts the square twice.');\n    if (REC.flow) said.push(say(REC.flow[1]) + '.');\n    return said.join(' ');\n  }\n\n  // Two small graphs, the square and the cube, with their level lines once a puzzle is checked.\n  function drawPair(i, st) {\n    REC = { mode: 'pair', levels: false, rings: [], dots: [], caps: [] };\n    const shown = st.res === 'right' || st.res === 'wrong';\n    const a = shown ? arr(0.1, 0.4) : 0, ac = shown ? arr(0.45, 0.4) : 0;\n    const ringOn = st.res === 'wrong' ? ({ Square: 'square', Neither: 'cube' })[st.pick] : null;\n    const ra = ringOn ? arr(0.8, 0.35) : 0;\n    const specs = [\n      { key: 'square', x0: 12, fn: (x) => x * x, yr: [-1, 7], levels: [4], dots: [[-2, 4], [2, 4]], up: [], caps: ['−2 and 2 give 4', 'line cuts twice'] },\n      { key: 'cube', x0: 180, fn: (x) => x * x * x, yr: [-10, 10], levels: [8, -8], dots: [[2, 8], [-2, -8]], up: [-2], caps: ['2 → 8, −2 → −8', 'lines cut once'] },\n    ];\n    const W = 148, y0 = 30, h = 140;\n    specs.forEach((g) => {\n      const X = (v) => g.x0 + (v + 2.5) / 5 * W, Y = (v) => y0 + h - (v - g.yr[0]) / (g.yr[1] - g.yr[0]) * h;\n      text(art, g.x0 + W / 2, 18, g.key, 'gtitle', 'middle');\n      line('axis', g.x0, Y(0), g.x0 + W, Y(0));\n      line('axis', X(0), Y(g.yr[1]), X(0), Y(g.yr[0]));\n      const pts = K.linspace(-2.5, 2.5, 101).map((x) => [x, g.fn(x)]).filter((q) => q[1] >= g.yr[0] && q[1] <= g.yr[1]).map((q) => [X(q[0]), Y(q[1])]);\n      polyline('curve', pts);\n      [-2, 2].forEach((x) => {\n        line('axis', X(x), Y(0) - 4, X(x), Y(0) + 4);\n        text(art, X(x), g.up.indexOf(x) >= 0 ? Y(0) - 8 : Y(0) + 17, F(x), 'tick', 'middle');\n      });\n      g.levels.forEach((L) => {\n        line('level', g.x0, Y(L), g.x0 + W, Y(L), a);\n        text(art, L > 0 ? X(0) - 5 : X(0) + 5, L > 0 ? Y(L) - 5 : Y(L) + 15, F(L), 'tick', L > 0 ? 'end' : 'start', a);\n      });\n      g.dots.forEach((q) => {\n        line('guide', X(q[0]), Y(q[1]) + (q[1] > 0 ? 6 : -6), X(q[0]), Y(0) + (q[1] > 0 ? -5 : 5), a);\n        circle('dot', X(q[0]), Y(q[1]), 5, a);\n        if (a >= 0.5) REC.dots.push([g.key, q[0], q[1]]);\n        if (ringOn === g.key) { circle('cring', X(q[0]), Y(q[1]), 10, ra); }\n      });\n      if (ringOn === g.key && ra >= 0.5) REC.rings.push(g.key);\n      g.caps.forEach((s, k) => text(art, g.x0 + W / 2, 198 + 18 * k, s, 'cap' + (ringOn === g.key ? ' bad' : ''), 'middle', ac));\n      if (ac >= 0.5) REC.caps.push(g.caps.join(' '));\n    });\n    REC.levels = a >= 0.5;\n    return 'Two graphs. The square, with inputs from −2.5 to 2.5, and the cube.' + (REC.levels ? ' A level line at 4 cuts the square twice, at −2 and 2. Level lines at 8 and −8 each cut the cube once.' : ' The puzzle is still to answer.');\n  }\n\n  // f(x) = 3x − 1 and its inverse on one grid; a point swaps its two numbers across y = x.\n  const fF = (x) => 3 * x - 1, fI = (x) => (x + 1) / 3;\n  const MX = (v) => 36 + v * 19.2, MY = (v) => 302 - v * 19.2;\n  function drawMirror(i, st) {\n    const a = st.u != null ? st.u : 5, A = [a, fF(a)], B = [fF(a), a];\n    REC = { mode: 'mirror', A, B, inv: false, texts: [] };\n    // axes and ticks\n    line('axis', MX(0), MY(0), MX(15), MY(0));\n    line('axis', MX(0), MY(0), MX(0), MY(15));\n    [0, 5, 10, 15].forEach((v) => {\n      line('axis', MX(v), MY(0), MX(v), MY(0) + 5);\n      text(art, MX(v), MY(0) + 17, String(v), 'tick', 'middle');\n      if (v > 0) { line('axis', MX(0) - 5, MY(v), MX(0), MY(v)); text(art, MX(0) - 8, MY(v) + 5, String(v), 'tick', 'end'); }\n    });\n    text(art, MX(15) + 6, MY(0) - 4, 'x', 'tick v', 'start');\n    text(art, MX(0) + 8, MY(15) + 10, 'y', 'tick v', 'start');\n    // the mirror, f, and f⁻¹ growing in\n    line('level', MX(0), MY(0), MX(15), MY(15));\n    line('curve', MX(1 / 3), MY(0), MX(16 / 3), MY(15));\n    const g = st.u != null ? 1 : prog(1.5, 0.5);\n    if (g > 0.001) polyline('curve two', K.linspace(0, 15 * g, 31).map((x) => [MX(x), MY(fI(x))]));\n    REC.inv = g >= 0.999;\n    // the key, inside the drawing\n    const ka = st.u != null ? 1 : arr(1.8, 0.25);\n    line('curve', 46, 34, 66, 34); text(art, 72, 39, 'f', 'pt', 'start');\n    line('curve two', 46, 56, 66, 56, ka); text(art, 72, 61, 'f⁻¹', 'pt', 'start', ka);\n    line('level', 46, 78, 66, 78); text(art, 72, 83, 'y = x', 'pt', 'start');\n    // the point on f, its copy crossing the mirror, and where it lands on f⁻¹\n    const aA = st.u != null ? 1 : arr(0.4, 0.35), tr = st.u != null ? 1 : prog(0.7, 0.75), aB = st.u != null ? 1 : arr(1.4, 0.3);\n    const pA = [MX(A[0]), MY(A[1])], pB = [MX(B[0]), MY(B[1])];\n    circle('dot', pA[0], pA[1], 5.5, aA);\n    text(art, pA[0] + 10, pA[1] + 2, '(' + F(A[0]) + ', ' + F(A[1]) + ')', 'pt', 'start', aA);\n    if (tr > 0.001) {\n      const q = [K.lerp(pA[0], pB[0], tr), K.lerp(pA[1], pB[1], tr)];\n      line('guide', pA[0] + 5, pA[1] + 5, q[0], q[1]);\n      if (tr < 0.999) circle('dot two', q[0], q[1], 5.5);\n    }\n    circle('dot two', pB[0], pB[1], 5.5, aB);\n    text(art, pB[0], pB[1] + 22, '(' + F(B[0]) + ', ' + F(B[1]) + ')', 'pt', 'middle', aB);\n    if (aA >= 0.5) REC.texts.push('(' + F(A[0]) + ', ' + F(A[1]) + ')');\n    if (aB >= 0.5) REC.texts.push('(' + F(B[0]) + ', ' + F(B[1]) + ')');\n    drag = { mirror: true, on: !finished, pA };\n    return 'A grid from 0 to 15 on both axes. The line f, y equals 3 x minus 1, its inverse f inverse, and the dashed mirror line y equals x. The point (' + F(A[0]) + ', ' + F(A[1]) + ') on f lands on (' + F(B[0]) + ', ' + F(B[1]) + ') on f inverse.';\n  }\n\n  // ---------- the drag: Dan pulls the number along the pipes, or the point along f ----------\n  const gripIn = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 26, 'aria-hidden': 'true' }));\n  const gripTok = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 26, tabindex: -1, role: 'slider', 'aria-label': 'The number in the machines', 'aria-orientation': 'vertical' }));\n  function placeGrips(d) {\n    const on = !!d.show && !finished && !!drag && drag.on;\n    gripIn.style.display = on && !drag.mirror ? '' : 'none';\n    gripTok.style.display = on ? '' : 'none';\n    gripTok.setAttribute('tabindex', on ? '0' : '-1');\n    if (!on) return;\n    if (drag.mirror) {\n      gripTok.setAttribute('cx', r3(drag.pA[0])); gripTok.setAttribute('cy', r3(drag.pA[1]));\n      gripTok.setAttribute('aria-label', 'The point on f');\n      const a = S[at()].u != null ? S[at()].u : 5;\n      gripTok.setAttribute('aria-valuemin', 2); gripTok.setAttribute('aria-valuemax', 5); gripTok.setAttribute('aria-valuenow', a);\n      gripTok.setAttribute('aria-valuetext', 'x is ' + a + ', y is ' + fF(a));\n      return;\n    }\n    const p = posAt(drag.P, drag.u);\n    gripTok.setAttribute('aria-label', 'The number in the machines');\n    gripIn.setAttribute('cx', r3(drag.P.st[0][0])); gripIn.setAttribute('cy', r3(drag.P.st[0][1]));\n    gripTok.setAttribute('cx', r3(p[0])); gripTok.setAttribute('cy', r3(p[1]));\n    gripTok.setAttribute('aria-valuemin', drag.from); gripTok.setAttribute('aria-valuemax', drag.to); gripTok.setAttribute('aria-valuenow', r3(drag.u));\n    const n = (drag.P.st.length - 1) / 4, s = Math.round(drag.u);\n    gripTok.setAttribute('aria-valuetext', s === 0 ? 'At the input' : s === 2 * n ? 'On the pipe between the machines' : s === 4 * n ? 'Back out of the facing machine' : s % 2 ? 'Inside a step' : 'Between two steps');\n  }\n  const dragging = () => !finished && !!STEPS[at()].show && !!drag && drag.on;\n  function setU(v) {\n    const st = S[at()];\n    if (anim.playing()) anim.pause();\n    T = Infinity;\n    st.u = drag.mirror ? K.clamp(Math.round(v), 2, 5) : K.clamp(v, drag.from, drag.to);\n    K.reveal(); K.refresh();\n  }\n  // The nearest point on the pipes (in stops), or the nearest whole x on f, to the pointer.\n  function uFrom(e) {\n    const ctm = svg.getScreenCTM();\n    if (!ctm || !drag) return null;\n    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());\n    if (drag.mirror) {\n      const p0 = [MX(0), MY(fF(0))], dv = [MX(1) - MX(0), MY(fF(1)) - MY(fF(0))];\n      return ((q.x - p0[0]) * dv[0] + (q.y - p0[1]) * dv[1]) / (dv[0] * dv[0] + dv[1] * dv[1]);\n    }\n    let best = drag.from, bd = Infinity;\n    for (let s = drag.from; s < drag.to; s++) {\n      const g = drag.P.segs[s];\n      for (let k = 1; k < g.pts.length; k++) {\n        const a = g.pts[k - 1], b = g.pts[k], dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy || 1;\n        const t = K.clamp(((q.x - a[0]) * dx + (q.y - a[1]) * dy) / L2, 0, 1);\n        const ex = q.x - (a[0] + t * dx), ey = q.y - (a[1] + t * dy), dd = ex * ex + ey * ey;\n        if (dd < bd) { bd = dd; best = s + (g.cum[k - 1] + t * (g.cum[k] - g.cum[k - 1])) / (g.L || 1); }\n      }\n    }\n    return best;\n  }\n  let held = null;\n  function grab(e, fromStart) {\n    if (!dragging()) return;\n    held = e.pointerId;\n    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the grip */ }\n    e.preventDefault();\n    if (drag.mirror) { const v = uFrom(e); setU(v == null ? 5 : v); return; }\n    setU(fromStart ? drag.from : drag.u);\n  }\n  gripIn.addEventListener('pointerdown', (e) => grab(e, true));\n  gripTok.addEventListener('pointerdown', (e) => grab(e, false));\n  [gripIn, gripTok].forEach((g) => {\n    g.addEventListener('pointermove', (e) => {\n      if (held !== e.pointerId || !dragging()) return;\n      const v = uFrom(e);\n      if (v != null) setU(v);\n    });\n    const letGo = (e) => { if (held === e.pointerId) held = null; };\n    g.addEventListener('pointerup', letGo);\n    g.addEventListener('pointercancel', letGo);\n    g.addEventListener('lostpointercapture', () => { held = null; });\n  });\n  gripTok.addEventListener('keydown', (e) => {\n    if (!dragging()) return;\n    const by = { ArrowUp: -1, ArrowLeft: -1, ArrowDown: 1, ArrowRight: 1 }[e.key];\n    if (by == null && e.key !== 'Home' && e.key !== 'End') return;\n    e.preventDefault();\n    if (drag.mirror) {\n      const a = S[at()].u != null ? S[at()].u : 5;\n      setU(e.key === 'Home' ? 2 : e.key === 'End' ? 5 : a + (e.key === 'ArrowUp' || e.key === 'ArrowRight' ? 1 : -1));\n      return;\n    }\n    setU(e.key === 'Home' ? drag.from : e.key === 'End' ? drag.to : by > 0 ? Math.floor(drag.u + 1e-6) + 1 : Math.ceil(drag.u - 1e-6) - 1);\n  });\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i, st) {\n    if (i == null) i = at();\n    if (st == null) st = S[i];\n    const d = STEPS[i], G = geo(d);\n    art.textContent = '';\n    drag = null;\n    svg.setAttribute('viewBox', '0 0 340 ' + G.H);\n    const said = G.mode === 'pair' ? drawPair(i, st) : G.mode === 'mirror' ? drawMirror(i, st) : drawMachine(i, st, G);\n    svg.setAttribute('aria-label', said);\n    placeGrips(d);\n  }\n\n  const el = (id) => document.getElementById(id);\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { st.u = null; st.sw = 0; st.mode = 'demo'; play(endOf(i, st)); } else { anim.pause(); T = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    swapBtn.el.hidden = !d.show || !d.swap;\n    swapBtn.setLabel(st.sw % 2 ? 'Undo in reverse order' : 'Undo in the same order');\n    el('replay').hidden = replayBtn.el.hidden && swapBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.textContent = '';\n      italics(b.el.appendChild(K.el('span')), opts[k], false);\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? d.right || 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const MACH = STEPS.map((d, i) => i).filter((i) => !STEPS[i].mode);\n  const DO = MACH.filter((i) => !STEPS[i].show);\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const swappedSt = () => Object.assign(blank(), { mode: 'swap', sw: 1 });\n  const C = (v, s) => F(v) === s;\n  const keysOf = (d) => d.L.concat(flip(d.R));\n  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.\n  function drawn(i, st, t) {\n    const keepT = T;\n    T = t == null ? Infinity : t;\n    try {\n      paint(i, st);\n      return Object.assign({ texts: Array.from(art.querySelectorAll('text')).map((nd) => nd.textContent) }, REC);\n    } finally { T = keepT; paint(); }\n  }\n  // The answer a drawn puzzle picture gives: the ringed place, or what comes back.\n  function answerOf(i, g) {\n    const d = STEPS[i], spot = g.rings[0] || 'back', s = g.stamps[spot];\n    if (!s) return null;\n    if (d.build) return flip(g.R.split(',')).map((k) => M[k].rule).join(' then ');\n    return d.ans ? d.ans(s.v) : F(s.v);\n  }\n  // How many times a level line at L cuts a graph (sign changes on a fine grid that misses the roots).\n  function cuts(fn, L, a, b) {\n    let c = 0;\n    const xs = K.linspace(a + 0.00037, b - 0.00041, 4001);\n    for (let k = 1; k < xs.length; k++) if ((fn(xs[k - 1]) - L) * (fn(xs[k]) - L) < 0) c++;\n    return c;\n  }\n\n  K.check('For a function that multiplies by 3 and subtracts one, the inverse function is add one and then divide by 3: the first screen\\'s facing machine runs + 1 then ÷ 3, turns 14 into 15 and then 5, and hands back every start tried from −6 to 10', () => {\n    const d = STEPS[0], g = drawn(0, blank());\n    return same(d.L, ['m3', 's1']) && same(flip(d.R), ['a1', 'd3']) && g.stamps.in.text === '5' && g.stamps.lg0.text === '15' && g.stamps.out.text === '14' &&\n      g.stamps.rg0.text === '15' && g.stamps.back.text === '5' && !g.stamps.back.bad && K.linspace(-6, 10, 33).every((x) => K.near(run(keysOf(d), x), x, 1e-9));\n  }, { source: BITESIZE });\n  K.check('Not all functions possess an inverse function; only one-to-one functions do: the square sends 3 and −3 to the same 9 and the root hands back 3 both times, while with the lock (0 and up) −3 is kept out and every start tried from 0 to 10 comes back', () => {\n    const g8 = drawn(idx('Two starts, one 9'), blank()), g10 = drawn(idx('The lock'), blank());\n    return M.sq.fn(3) === 9 && M.sq.fn(-3) === 9 && M.rt.fn(9) === 3 && g8.stamps.in.text === '−3' && g8.stamps.out.text === '9' && g8.stamps.back.text === '3' &&\n      g8.stamps.back.bad && g8.notes.indexOf('not −3') >= 0 && g10.lock && g10.kept === '−3' && g10.stamps.in.text === '0.707' && g10.stamps.out.text === '0.5' && g10.stamps.back.text === '0.707' && !g10.stamps.back.bad &&\n      K.linspace(0, 10, 41).every((x) => K.near(M.rt.fn(M.sq.fn(x)), x, 1e-9)) && [-0.5, -1, -3].every((x) => !K.near(M.rt.fn(M.sq.fn(x)), x, 1e-9));\n  }, { source: HELM });\n  K.check('A horizontal line drawn on the graph that cuts it more than once means two different inputs have yielded the same output: the level line at 9 cuts the square twice, at −3 and 3, the one at 4 twice, at −2 and 2, while the cube\\'s level lines at 8 and −8 cut it once each', () => {\n    const g8 = drawn(idx('Two starts, one 9'), blank()), gp = drawn(idx('Square or cube?'), solvedSt(idx('Square or cube?')));\n    const sq = (x) => x * x, cu = (x) => x * x * x;\n    return cuts(sq, 9, -4, 4) === 2 && cuts(sq, 4, -2.5, 2.5) === 2 && cuts(cu, 8, -2.5, 2.5) === 1 && cuts(cu, -8, -2.5, 2.5) === 1 &&\n      g8.level === 9 && g8.dots.length === 2 && g8.dots.every((q) => q[1] === 9) && g8.dots.map((q) => q[0]).sort().join() === '-3,3' &&\n      gp.levels && gp.dots.filter((q) => q[0] === 'square').every((q) => q[2] === 4) && gp.dots.filter((q) => q[0] === 'cube').map((q) => q[2]).sort().join() === '-8,8';\n  }, { source: HELM });\n  K.check('√0.5 = 0.707, so a 12 mA signal from the DP cell is 50% DP but 71% flow rate: the lock screen runs a flow of 0.707 to 0.5 and back to 0.707, and its flow meter line reads √0.5 = 0.707, so 71% of full flow', () => {\n    const g = drawn(idx('The lock'), blank());\n    return g.stamps.in.text === '0.707' && g.stamps.out.text === '0.5' && g.stamps.back.text === '0.707' && K.near(Math.sqrt(0.5), 0.70711, 1e-5) && Math.round(100 * Math.sqrt(0.5)) === 71 && K.near((12 - 4) / 16, 0.5, 1e-12) &&\n      !!g.flow && g.flow[1] === '√' + F(0.5) + ' = ' + F(Math.sqrt(0.5)) + ', so ' + Math.round(100 * Math.sqrt(0.5)) + '% of full flow';\n  }, { source: CE });\n  K.check('The DP is proportional to the square of the flow, so the system must scale flow from the square root of the DP: for every flow from 0 to 1 of full, the root of its square gives the flow back', () =>\n    K.linspace(0, 1, 41).every((q) => q >= 0 && K.near(M.rt.fn(M.sq.fn(q)), q, 1e-12)), { source: CE });\n  K.check('Each real-world value is converted with the linear equation y = mx + b: S(p) = 0.16p + 4 sends 0% to 4 mA and 100% to 20 mA, its 16 mA span over 100% is 0.16 mA per percent, and its undoing machine takes 12 mA to 50%, 16 mA to 75% and every reading from 4 to 20 mA back to its percentage', () => {\n    const S6 = STEPS[idx('mA back to percent')], undo = flip(S6.R);\n    return K.near(run(S6.L, 0), 4, 1e-12) && K.near(run(S6.L, 100), 20, 1e-12) && K.near((20 - 4) / 100, 0.16, 1e-12) &&\n      K.near(run(undo, 12), 50, 1e-9) && K.near(run(undo, 16), 75, 1e-9) && K.near(run(undo, 8), 25, 1e-9) &&\n      K.linspace(4, 20, 17).every((I) => K.near(run(S6.L, run(undo, I)), I, 1e-9)) &&\n      K.linspace(0, 90, 10).every((p) => K.near(run(S6.L, p + 10) - run(S6.L, p), 1.6, 1e-9));\n  }, { source: CONTROL });\n  K.check('Do not confuse the −1 with an index, or power: for f(x) = 2x, f⁻¹ halves, so f⁻¹(10) = 5, while reading the −1 as a power gives 1 ÷ f(10) = 0.05, the slip the Not a power puzzle shows', () => {\n    const i = idx('Not a power'), d = STEPS[i];\n    return K.near(run(d.R, 10), 5, 1e-12) && K.near(run(d.L, 5), 10, 1e-12) && K.near(M.rec.fn(10), 1 / 20, 1e-12) &&\n      answerOf(i, drawn(i, solvedSt(i))) === '5' && answerOf(i, drawn(i, wrongSt(i, '0.05'))) === '0.05';\n  }, { source: HELM });\n  K.check('Graph functions and their inverse functions: the closing screen plots f(x) = 3x − 1 and its inverse on one grid, (5, 14) on f lands on (14, 5) on the inverse, and every point tried on f, its two numbers swapped, lies on the inverse', () => {\n    const g = drawn(STEPS.length - 1, blank()), g2 = drawn(STEPS.length - 1, Object.assign(blank(), { u: 2 }));\n    return g.A.join() === '5,14' && g.B.join() === '14,5' && g.inv && g.texts.indexOf('(5, 14)') >= 0 && g.texts.indexOf('(14, 5)') >= 0 &&\n      g2.A.join() === '2,5' && g2.B.join() === '5,2' && K.linspace(0.5, 5, 10).every((x) => K.near(fI(fF(x)), x, 1e-12) && K.near(fF(fI(x)), x, 1e-12));\n  }, { source: SQA });\n  K.check('On every machine screen, and after every answer, each number drawn is what its step makes of the number before it, the first machine working top to bottom and the facing one bottom to top; an answer dropped into the input runs forwards to the number given', () =>\n    MACH.every((i) => {\n      const d = STEPS[i], n = d.L.length;\n      const sts = d.show ? [blank()].concat(d.swap ? [swappedSt()] : []) : [blank(), solvedSt(i)].concat(d.opts.filter((o) => o !== d.want).map((o) => wrongSt(i, o)));\n      return sts.every((st) => {\n        const V = viewOf(i, st), g = drawn(i, st), keys = d.L.concat(flip(V.R)), by = {};\n        Object.keys(g.stamps).forEach((k) => { if (!g.stamps[k].fill) by[g.stamps[k].s] = g.stamps[k]; });\n        const lastRun = V.runs[V.runs.length - 1];\n        if (lastRun.to > lastRun.from && !Object.keys(g.stamps).some((k) => !g.stamps[k].src)) return false;\n        const fill = g.stamps.in && g.stamps.in.fill ? g.stamps.in : null;\n        if (fill && !(g.stamps.out && K.near(run(d.L, fill.v), g.stamps.out.v, 1e-9))) return false;\n        return Object.keys(by).every((s) => {\n          const r = by[s], c = r.s / 2;\n          if (r.src) return true;\n          const before = by[r.s - 2];\n          return !!before && K.near(r.v, M[keys[c - 1]].fn(before.v), 1e-9) && r.text === F(r.v) + ((d.units || {})[r.s === 2 * n ? 'out' : r.s === 4 * n ? 'back' : r.s === 0 ? 'in' : ''] || '');\n        });\n      });\n    }));\n  K.check('Each step in a facing machine is the opposite of the one beside it: run through it, the number between its steps matches the first machine\\'s at the same height and the start comes back, on screens 1, 3, 5 and 7; undone in the same order, 14 gives 10 and then 5, not 3', () => {\n    const ok = [0, 2, 4, 6].every((i) => {\n      const d = STEPS[i], g = drawn(i, blank());\n      return d.L.every((k, j) => M[d.R[j]].fn(M[k].fn(7)) === 7 || K.near(M[d.R[j]].fn(M[k].fn(7)), 7, 1e-9)) &&\n        (d.L.length < 2 || K.near(g.stamps.lg0.v, g.stamps.rg0.v, 1e-9)) && K.near(g.stamps.back.v, d.x, 1e-9) && !g.stamps.back.bad;\n    });\n    const s2 = drawn(idx('Last on, first off'), swappedSt());\n    return ok && s2.stamps.rg0.text === '10' && s2.stamps.back.text === '5' && s2.stamps.back.bad && s2.stamps.lg0.text === '7' && s2.notes.indexOf('not 3') >= 0;\n  });\n  K.check('Each puzzle accepts only its own answer, and after each wrong pick the picture shows the slip making exactly that answer: stopping halfway, running the machine forwards again, undoing in the same order, reading −1 as a power, forgetting the 4 mA, or taking the root first', () => {\n    const pi = idx('Square or cube?');\n    return DO.concat([pi]).every((i) => {\n      const d = STEPS[i];\n      if (!d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want))) return false;\n      if (d.mode === 'pair') {\n        const r = drawn(i, solvedSt(i)), w1 = drawn(i, wrongSt(i, 'Square')), w2 = drawn(i, wrongSt(i, 'Neither'));\n        return r.levels && r.rings.length === 0 && w1.rings.join() === 'square' && w2.rings.join() === 'cube';\n      }\n      if (answerOf(i, drawn(i, solvedSt(i))) !== d.want) return false;\n      return d.opts.filter((o) => o !== d.want).every((o) => answerOf(i, drawn(i, wrongSt(i, o))) === o);\n    });\n  });\n  K.check('Before an answer, nothing in a puzzle\\'s picture gives it away: only the number given is drawn, the places still to fill wait empty or as question marks, and no level line shows', () =>\n    DO.concat([idx('Square or cube?')]).every((i) => {\n      const d = STEPS[i], g = drawn(i, blank());\n      if (d.mode === 'pair') return !g.levels && g.dots.length === 0 && g.caps.length === 0;\n      return Object.keys(g.stamps).every((k) => g.stamps[k].src) && Object.keys(g.stamps).length === 1 && g.texts.indexOf(d.want) < 0 && g.rings.length === 0;\n    }));\n  K.check('Every demonstration has settled within 4.6 s of its screen opening (the closing mirror within 2.5 s), none starting before the 0.35 s screen fade ends, and the same-order switch within 4 s; every answer\\'s motion, right or wrong, within 3 s', () => {\n    const ok = STEPS.every((d, i) => {\n      if (d.show) {\n        const e = endOf(i, blank()), s = earliest;\n        return e <= 4.6 && e >= (d.mode === 'mirror' ? 2 : 3) && s >= FADE && (!d.swap || endOf(i, swappedSt()) <= 4);\n      }\n      return endOf(i, solvedSt(i)) <= 3 && d.opts.filter((o) => o !== d.want).every((o) => endOf(i, wrongSt(i, o)) <= 3);\n    });\n    paint();\n    return ok;\n  });\n  K.check('Every worked number is right (5 → 15 → 14 and back; 8 → 9 → 3, 23 forwards; 3 → 7 → 14 and back, 10 and 5 the same order; 20 → 10 → 6, 16 and 8 the same order; 10 ÷ 2 = 5, 1 ÷ f(10) = 0.05, 20 doubled; 50% → 8 → 12 mA and back; 16 mA → 12 → 75%, 100% without the 4 mA, 96% the same order; 3 and −3 → 9 → 3; 3600 W → 225 → 15 A, root first 60 then 3.75; 2³ = 8, (−2)³ = −8, 2² = (−2)² = 4; 8 mA → 4 → 25%)', () =>\n    C(M.m3.fn(5), '15') && C(run(['m3', 's1'], 5), '14') && C(M.a1.fn(14), '15') && C(run(['a1', 'd3'], 14), '5') &&\n    C(M.a1.fn(8), '9') && C(run(['a1', 'd3'], 8), '3') && C(run(['m3', 's1'], 8), '23') &&\n    C(M.a4.fn(3), '7') && C(run(['a4', 't2'], 3), '14') && C(run(['h2', 's4'], 14), '3') && C(M.s4.fn(14), '10') && C(run(['s4', 'h2'], 14), '5') &&\n    C(run(['h2', 's4'], 20), '6') && C(M.s4.fn(20), '16') && C(run(['s4', 'h2'], 20), '8') &&\n    C(M.h2.fn(10), '5') && C(M.rec.fn(10), '0.05') && C(M.t2.fn(10), '20') &&\n    C(M.m16.fn(50), '8') && C(run(['m16', 'a4'], 50), '12') && C(M.s4.fn(12), '8') && C(run(['s4', 'd16'], 12), '50') &&\n    C(M.s4.fn(16), '12') && C(run(['s4', 'd16'], 16), '75') && C(M.d16.fn(16), '100') && C(run(['d16', 's4'], 16), '96') &&\n    C(M.sq.fn(3), '9') && C(M.sq.fn(-3), '9') && C(run(['sq', 'rt'], -3), '3') &&\n    C(M.q16.fn(3600), '225') && C(run(['q16', 'rt'], 3600), '15') && C(M.rt.fn(3600), '60') && C(run(['rt', 'q16'], 3600), '3.75') && C(run(['sq', 'x16'], 15), '3600') &&\n    C(2 * 2 * 2, '8') && C(-2 * -2 * -2, '−8') && C(2 * 2, '4') && C(-2 * -2, '4') && C(fF(5), '14') && C(fI(14), '5') &&\n    C(M.s4.fn(8), '4') && C(run(['s4', 'd16'], 8), '25'));\n\n  K.ready();\n</script>",
+  "title": "The machine and its mirror",
+  "brief": "The one thing you should see is the first machine's output passing into its facing machine, whose steps light up backwards in reverse order, and the number you started with coming out, when you drag an input through.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "For a function that multiplies by 3 and subtracts one, the inverse function is add one and then divide by 3: the first screen's facing machine runs + 1 then ÷ 3, turns 14 into 15 and then 5, and hands back every start tried from −6 to 10",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/zvd3wsg"
+    },
+    {
+     "label": "Not all functions possess an inverse function; only one-to-one functions do: the square sends 3 and −3 to the same 9 and the root hands back 3 both times, while with the lock (0 and up) −3 is kept out and every start tried from 0 to 10 comes back",
+     "ok": true,
+     "source": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf"
+    },
+    {
+     "label": "A horizontal line drawn on the graph that cuts it more than once means two different inputs have yielded the same output: the level line at 9 cuts the square twice, at −3 and 3, the one at 4 twice, at −2 and 2, while the cube's level lines at 8 and −8 cut it once each",
+     "ok": true,
+     "source": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf"
+    },
+    {
+     "label": "√0.5 = 0.707, so a 12 mA signal from the DP cell is 50% DP but 71% flow rate: the lock screen runs a flow of 0.707 to 0.5 and back to 0.707, and its flow meter line reads √0.5 = 0.707, so 71% of full flow",
+     "ok": true,
+     "source": "https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters"
+    },
+    {
+     "label": "The DP is proportional to the square of the flow, so the system must scale flow from the square root of the DP: for every flow from 0 to 1 of full, the root of its square gives the flow back",
+     "ok": true,
+     "source": "https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters"
+    },
+    {
+     "label": "Each real-world value is converted with the linear equation y = mx + b: S(p) = 0.16p + 4 sends 0% to 4 mA and 100% to 20 mA, its 16 mA span over 100% is 0.16 mA per percent, and its undoing machine takes 12 mA to 50%, 16 mA to 75% and every reading from 4 to 20 mA back to its percentage",
+     "ok": true,
+     "source": "https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables"
+    },
+    {
+     "label": "Do not confuse the −1 with an index, or power: for f(x) = 2x, f⁻¹ halves, so f⁻¹(10) = 5, while reading the −1 as a power gives 1 ÷ f(10) = 0.05, the slip the Not a power puzzle shows",
+     "ok": true,
+     "source": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf"
+    },
+    {
+     "label": "Graph functions and their inverse functions: the closing screen plots f(x) = 3x − 1 and its inverse on one grid, (5, 14) on f lands on (14, 5) on the inverse, and every point tried on f, its two numbers swapped, lies on the inverse",
+     "ok": true,
+     "source": "https://www.sqa.org.uk/sqa/files/hn/H7K033.pdf"
+    },
+    {
+     "label": "On every machine screen, and after every answer, each number drawn is what its step makes of the number before it, the first machine working top to bottom and the facing one bottom to top; an answer dropped into the input runs forwards to the number given",
+     "ok": true
+    },
+    {
+     "label": "Each step in a facing machine is the opposite of the one beside it: run through it, the number between its steps matches the first machine's at the same height and the start comes back, on screens 1, 3, 5 and 7; undone in the same order, 14 gives 10 and then 5, not 3",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle accepts only its own answer, and after each wrong pick the picture shows the slip making exactly that answer: stopping halfway, running the machine forwards again, undoing in the same order, reading −1 as a power, forgetting the 4 mA, or taking the root first",
+     "ok": true
+    },
+    {
+     "label": "Before an answer, nothing in a puzzle's picture gives it away: only the number given is drawn, the places still to fill wait empty or as question marks, and no level line shows",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has settled within 4.6 s of its screen opening (the closing mirror within 2.5 s), none starting before the 0.35 s screen fade ends, and the same-order switch within 4 s; every answer's motion, right or wrong, within 3 s",
+     "ok": true
+    },
+    {
+     "label": "Every worked number is right (5 → 15 → 14 and back; 8 → 9 → 3, 23 forwards; 3 → 7 → 14 and back, 10 and 5 the same order; 20 → 10 → 6, 16 and 8 the same order; 10 ÷ 2 = 5, 1 ÷ f(10) = 0.05, 20 doubled; 50% → 8 → 12 mA and back; 16 mA → 12 → 75%, 100% without the 4 mA, 96% the same order; 3 and −3 → 9 → 3; 3600 W → 225 → 15 A, root first 60 then 3.75; 2³ = 8, (−2)³ = −8, 2² = (−2)² = 4; 8 mA → 4 → 25%)",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "steps": [
+      "A machine and its mirror",
+      "What went in?",
+      "Last on, first off",
+      "Your turn",
+      "f inverse",
+      "Not a power",
+      "mA back to percent",
+      "16 mA",
+      "Two starts, one 9",
+      "Square, then root",
+      "The lock",
+      "The heater",
+      "Square or cube?",
+      "The mirror"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Undo in the same order",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-18T01:42:05.797Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"The flow meter's controller runs both machines backwards\" is stated as always true, but the square root can be taken in the transmitter instead of the controller (lesson 7), and then the controller undoes only the straight line."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

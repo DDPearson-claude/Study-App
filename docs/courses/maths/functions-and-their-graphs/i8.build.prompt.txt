@@ -1,0 +1,407 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Functions and graphs you will actually use
+Idea: Undoing a machine (An inverse function, read "f inverse", undoes a function that never gives two inputs the same output, running its steps backwards in reverse order.)
+Kind: skill
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the first machine's output passing into its facing machine, whose steps light up backwards in reverse order, and the number you started with coming out, when you drag an input through.
+Title (the app shows it above the frame, so do not repeat it): The machine and its mirror
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in fourteen small screens on undoing a function. A machine sits on the left and its undoing machine faces it on the right, each a box with its steps written inside in order, joined by a short pipe. Drag an input into the first box: its steps light up one by one and its output rides along the pipe into the second box, whose steps light up from the last back to the first, and the number you started with drops out. Each step in the second box is the opposite of one in the first, and they are in reverse order, because each step in the first box worked on what the step before it handed over, so the last step done must be the first undone. Screen 1 (step 0) is lesson 1's machine, × 3 then − 1: 5 gives 15 and then 14, and the facing machine, + 1 then ÷ 3, turns 14 into 15 and then 5. Screen 2 (step 1) asks what went in when 8 came out: 3, with the slips 9 (stopped after + 1) and 23 (ran the first machine again). Screen 3 (step 2) is lesson 7's 'add 4, then double': 3 gives 7 and 14; halve then take 4 gives 7 and 3, while a faint wrong box that undoes in the same order, take 4 then halve, gives 10 and 5. Screen 4 (step 3) asks what went in when 20 came out: 6, with the slips 8 (same order: 16, then 8) and 48 (ran it forwards again). Screen 5 (step 4) names the facing machine f⁻¹(x), read 'f inverse', with the −1 shown as part of the name, and joins the two boxes as lesson 7's chain f⁻¹(f(x)), which gives back x. Screen 6 (step 5) asks f⁻¹(10) for f(x) = 2x: 5, with the slips 0.05 (1 ÷ f(10), reading the −1 as a power) and 20 (doubled instead). Screen 7 (step 6) is the 4 to 20 mA loop's rule from lesson 2, S(p) = 0.16p + 4, a box of × 0.16 then + 4, which takes 50% to 12 mA; its facing box, − 4 then ÷ 0.16, takes 12 mA to 8 and then 50%. Here 0.16 is the 16 mA span of the loop shared over 100%. Screen 8 (step 7) asks the percent for 16 mA: 75, with the slips 100 (forgot to take off the 4 mA) and 96 (same order: 100, then 96). Screen 9 (step 8) is the square machine: 3 and −3 both give 9, and both 9s go into the root box, which hands back 3 both times, so −3 does not come back; a level line on a small graph cuts the square twice at 9. Screen 10 (step 9) asks what comes out when −3 goes through the square and then the root: 3, with the slips −3 (assumed the root undoes it) and 9 (stopped at the square). Screen 11 (step 10) closes a lock on the square's input slot that takes only 0 and up: now each output comes from one input and the root gives back every start. The flow meter's square law is shown locked already, flow fractions from 0 to 1, and 0.5 pressure difference gives back 0.707, 71% flow. Screen 12 (step 11), a mixed puzzle: a heater on P(I) = I²R with an example 4 Ω makes an example 100 W; undo ÷ 4 then √ to get 25 and then 5 A, with the slips 2.5 (root first: 10, then 2.5) and 25 (stopped before the root). Screen 13 (step 12), a mixed puzzle: which machine can be undone with no lock, the cube or the square? The cube, with the slip 'the square' (2 and −2 both give 4) and 'neither'; the cube's 2 and −2 give 8 and −8, two different outputs, and its level line cuts once, as in lesson 3. Screen 14 (step 13), the closing screen, plots f(x) = 3x − 1 and its inverse on one grid: the point (5, 14) on f appears as (14, 5) on f⁻¹, every point swaps its two numbers, so the two graphs are mirror images in the dashed line y = x. A last line names the exponential and the logarithm as the next inverse pair, for Exponentials and logarithms. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick shows the slip that makes it.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The machines pass one number at a time and are exact; real transmitters and controllers carry small errors and work on their signal all the time. The flow meter is drawn as its ideal square law, with flow and pressure difference as fractions of full. The current in P = I²R is taken as a size, 0 and up, since the formula gives the same power either way round. Only ordinary (real) numbers are used: a root of a negative number belongs to Complex numbers. The add 4 and double machines, the 8, 12 and 16 mA readings, the 4 Ω heater and its 100 W are example values.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 13 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Lesson 1's machine: × 3, step 0: 3 (assumed)
+- Lesson 1's machine: then − 1, step 0: 1 (assumed)
+- Example input, step 0: 5 (assumed)
+- 5 × 3 = 15, step 0: 15 (computed)
+- 15 − 1 = 14 drops out, step 0: 14 (computed)
+- Back: 14 + 1 = 15, then ÷ 3 = 5: 5 (computed)
+- Example output, step 1: 8 (assumed)
+- 8 + 1 = 9, ÷ 3 = 3; slips 9, 23, step 1: 3 (computed)
+- Slip: ran forwards again, 8 × 3 − 1: 23 (computed)
+- Example machine: add 4, step 2: 4 (assumed)
+- Example machine: then double, × 2, step 2: 2 (assumed)
+- 3 + 4 = 7, step 2: 7 (computed)
+- 7 doubled: 14 drops out, step 2: 14 (computed)
+- Same order slip: 14 − 4 = 10, step 2: 10 (computed)
+- Same order slip: 10 halved gives 5, step 2: 5 (computed)
+- Example output, step 3: 20 (assumed)
+- 20 halved = 10, take 4 = 6, step 3: 6 (computed)
+- Same order slip: 20 − 4 = 16, then 8: 8 (computed)
+- Same order slip: 20 − 4, step 3: 16 (computed)
+- Slip: ran forwards, (20 + 4) × 2 = 48: 48 (computed)
+- Example f(x) = 2x: input asked, f⁻¹(10), step 5: 10 (assumed)
+- f⁻¹(10) = 10 ÷ 2 = 5, step 5: 5 (computed)
+- Slip: 1 ÷ f(10) = 1 ÷ 20 = 0.05: 0.05 (computed)
+- Slip: doubled instead, 20, step 5: 20 (computed)
+- 4 to 20 mA loop: 0% sends 4 mA: 4 (constant)
+- 4 to 20 mA loop: 100% sends 20 mA: 20 (constant)
+- Span of the loop, 20 − 4 mA: 16 (computed)
+- S(p) = 0.16p + 4: mA per percent, 16 ÷ 100: 0.16 (computed)
+- Full scale, percent: 100 (constant)
+- Example signal, mA, step 6: 12 (assumed)
+- 12 − 4 = 8, step 6: 8 (computed)
+- 8 ÷ 0.16 = 50%, step 6: 50 (computed)
+- Example signal, mA, step 7: 16 (assumed)
+- 16 − 4 = 12, step 7: 12 (computed)
+- 12 ÷ 0.16 = 75%; slips 100, 96, step 7: 75 (computed)
+- Slip: forgot the 4 mA, 16 ÷ 0.16: 100 (computed)
+- Slip: same order, 100 − 4: 96 (computed)
+- Square: 3 squared is 9, step 8: 9 (computed)
+- Square: −3 squared is 9 too, step 8: -3 (assumed)
+- −3 squared then rooted gives 3, step 9: 3 (computed)
+- Lock: inputs 0 and up, step 10: 0 (assumed)
+- Flow fractions run 0 to 1, full flow: 1 (constant)
+- Pressure difference fraction at 12 mA, step 10: 0.5 (computed)
+- √0.5 = 0.707: 50% pressure difference is 71% flow: 0.707 (constant, source [1])
+- Flow at 12 mA, percent of full: 71 (constant, source [1])
+- Example heater resistance, Ω, step 11: 4 (assumed)
+- Example heater power, W, step 11: 100 (assumed)
+- 100 ÷ 4 = 25, step 11: 25 (computed)
+- √25 = 5 A; slips 2.5, 25, step 11: 5 (computed)
+- Slip: root first, √100 = 10: 10 (computed)
+- Slip: root first, 10 ÷ 4 = 2.5: 2.5 (computed)
+- Cube: 2 gives 8, step 12: 8 (computed)
+- Cube: −2 gives −8, step 12: -8 (computed)
+- Square: 2 and −2 both give 4, step 12: 4 (computed)
+- Example input 2 and −2, step 12: 2 (assumed)
+- Point on f: (5, 14), step 13: 14 (computed)
+- Worked example: loop reading, mA: 8 (assumed)
+- Worked example: 8 − 4 = 4: 4 (computed)
+- Worked example: 4 ÷ 0.16 = 25%: 25 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+An inverse function is a function's undoing machine: feed it what came out, and it hands back what went in. It does the opposite of each step, in reverse order. That works only for a function that never gives two inputs the same output.
+
+Take lesson 1's machine, × 3 then − 1. Put in 5: × 3 gives 15, then − 1 gives 14. To get back, undo the last step first. + 1 turns 14 into 15, and ÷ 3 turns 15 into 5. So the inverse of multiplying by 3 and subtracting 1 is adding 1 and then dividing by 3. The order matters because each step worked on what the step before handed it, as in lesson 7's chains. Take "add 4, then double": 3 becomes 7, then 14. Halve and then take 4, and 14 goes back to 7 and then 3. Take 4 and then halve, and 14 gives 10 and then 5, the wrong start. The 4 went in before the doubling, so it has to come off after the halving. Textbooks call the undoing machine the inverse function, write it f⁻¹(x) and read it "f inverse". They add that the −1 is part of the name, not a power, so f⁻¹(x) is not 1 ÷ f(x). Feeding f's output straight into f⁻¹ is a chain, f⁻¹(f(x)), and it gives back x.
+
+Some machines cannot be undone. The square sends 3 and −3 to the same 9. The root machine gets only the 9, nothing in it says which went in, and it hands back 3, the positive root. Only one-to-one functions have an inverse, and a level line that cuts a graph twice shows two inputs giving …
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Square root scaling for differential pressure flowmeters - Control Engineering (https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters): "But the root of a number from 0-1 is larger: √0.5 = 0.707. So if there is a 12 mA signal from the DP cell, that’s 50% DP, but 71% flow rate."
+[2] Higher – Functions – GCSE Maths Revision – BBC Bitesize (https://www.bbc.co.uk/bitesize/articles/zvd3wsg): "For example, for a function that multiplies by 3 and subtracts one , the inverse function is add one and then divide by 3 ."
+[3] About the HELM Project (https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf): "Not all functions possess an inverse function. In fact, only one-to-one functions do so."
+[4] About the HELM Project (https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf): "We see that a horizontal line drawn on the graph cuts it more than once. This means that two (or more) different inputs have yielded the same output and so the function is many-to-one."
+[5] national unit specification: general information (https://www.sqa.org.uk/sqa/files/hn/H7K033.pdf): "Determine the inverse functions of a range of functions  Graph functions and their inverse functions  Introduce composite functions (again this may be done in terms of set theory)  Derive and evaluate a number of composite functions"
+[6] Relating 4 to 20 mA Signals to Instrument Variables | Understanding Analog Instrumentation | Textbook (https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables): "Each real-world value must be converted into its analog current equivalent, then into a scaled integer value, and finally back into a real-world representation, all with the linear equation: y=mx+b."
+[7] Square root scaling for differential pressure flowmeters - Control Engineering (https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters): "Regardless of the type of obstruction (orifice plate, Venturi or Pitot tube, etc), the DP is proportional to the square of the flow. Therefore the system must scale flow from the square root of the DP."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

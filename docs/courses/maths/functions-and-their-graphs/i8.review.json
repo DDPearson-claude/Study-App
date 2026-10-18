@@ -1,0 +1,52 @@
+{
+  "scores": {
+    "lands": 4,
+    "why": 4,
+    "cause": 5,
+    "trade": 4,
+    "honest": 4,
+    "pleasure": 4
+  },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Screen 14 (The mirror), and explain.text paragraph 3",
+      "what": "The screen says every point 'swaps its two numbers' but never says why: f takes 5 to 14, so f⁻¹ takes 14 back to 5, and a graph plots input across and output up, so (14, 5) is on f⁻¹. Without that clause the mirror in y = x is a bare claim. The explain also credits it to 'Textbooks add' with no source (the SQA quote [^5] only says 'Graph functions and their inverse functions'). Add the one-clause reason on screen and in the explain, and drop 'Textbooks add' so it reads as derived from the swap."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 5 (f inverse), the 'Not a power' puzzle's 0.05 hint, and explain.text paragraph 2",
+      "what": "'The −1 is part of its name, not a power' has no source in the lesson, yet HELM's 'Do not confuse the ‘−1’ with an index, or power. Here the superscript is used purely as the notation for the inverse function.' is saved in research-notes 6.10 (and the brief cites it). Add it to sources and footnote the explain sentence."
+    },
+    {
+      "severity": "polish",
+      "where": "DO screens 2, 4, 6, 8 and 12",
+      "what": "Every puzzle draws the facing machine's steps already in place, so Dan only reads them bottom-up and never builds an undoing machine himself, though the practice list's main step is 'Write the opposite of each step, in reverse order'. Leave the facing box blank on one puzzle (for example 'Your turn') and have him pick the undo order ('÷ 2 then − 4' or '− 4 then ÷ 2') before the number runs."
+    },
+    {
+      "severity": "polish",
+      "where": "Puzzles 2, 4, 6, 8, 12: wrong pick, on Check",
+      "what": "For a slip that uses another facing machine (23, 8, 48, 0.05, 20, 100%, 96%, 2.5 A), viewOf swaps the facing steps and turns the frame red in one frame with no transition (no Rfrom/swapAt). The same-order switch on screen 3 slides its steps over 0.7 s, so give the slip swap the same slide and the frame won't pop."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 11 (The lock), flow-meter lines and step text",
+      "what": "The flow meter is only a caption under the picture, and the locked machine never runs a flow (it runs 3). '0.707 in, 0.5 out, 0.707 back' as the second start would show the lock working on the trade case. 'Locked to 0 to 1 of full' and 'flow runs from 0 to 1 of full' also read awkwardly; try 'flow, as a fraction of full, runs from 0 to 1 and never goes below 0'."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 12 (The heater)",
+      "what": "4 Ω and 100 W means 5 A at 20 V, an odd heater for an electrician, and the screen itself doesn't say these are example figures (the lead says only numbers 'put in' are examples, and 100 W comes out). 16 Ω and 3600 W keeps every number clean (÷ 16 = 225, √225 = 15 A at 240 V; root first gives 60 ÷ 16 = 3.75 A), or add 'an example' to the task."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 14 (The mirror), the point on f",
+      "what": "The point on f can be dragged (whole x from 2 to 5), but nothing on screen says so, unlike screen 1's 'Drag the 5 through'. Add 'Drag the point along f to see another pair swap' or drop the grip."
+    },
+    {
+      "severity": "polish",
+      "where": "analogy.breaks",
+      "what": "'Some number machines cannot be undone at all' clashes with the next clause, where the square is undone once its inputs are locked. Say 'cannot be undone as they stand'."
+    }
+  ]
+}

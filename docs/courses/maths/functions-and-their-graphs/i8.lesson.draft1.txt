@@ -1,0 +1,45 @@
+{
+ "iid": "i8",
+ "title": "Undoing a machine",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the output of the first machine going into its facing machine and the number you started with coming back out, when you drag an input through.",
+  "title": "The machine and its mirror",
+  "controls": [ { "id": "step", "label": "Step", "min": 0, "max": 11, "step": 1, "value": 0, "unit": "" } ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in twelve small screens on undoing a function. A machine sits on the left and its undoing machine faces it on the right, each a box showing its steps. Drag an input into the first box: its output passes into the second, whose steps run backwards in reverse order, and the starting number comes out. The opening machine is lesson 1's, × 3 then − 1: 5 gives 15 and then 14, and the facing machine, + 1 then ÷ 3, turns 14 into 15 and then 5. Then the 4 to 20 mA loop's rule, S(p) = 0.16p + 4, undone as − 4 then ÷ 0.16: 12 mA gives 8 and then 50%. Then the square machine: 3 and −3 both give 9, the root machine hands back only 3, and a lock keeps the inputs to 0 and up. The last screen draws f and its inverse on one grid as mirror images in the line y = x. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick shows the slip that makes it.",
+  "ignores": "The machines pass one number at a time and are exact; real transmitters carry small errors. The 12 mA reading is an example value.",
+  "numbers": [
+   { "label": "Example machine: × 3 then − 1, step 0", "value": 3, "kind": "assumed" },
+   { "label": "Example input, step 0", "value": 5, "kind": "assumed" },
+   { "label": "5 × 3 = 15, step 0", "value": 15, "kind": "computed" },
+   { "label": "15 − 1 = 14 drops out, step 0", "value": 14, "kind": "computed" },
+   { "label": "4 to 20 mA loop: 0% sends 4 mA", "value": 4, "kind": "constant" },
+   { "label": "4 to 20 mA loop: 100% sends 20 mA", "value": 20, "kind": "constant" },
+   { "label": "mA per percent, 16 ÷ 100", "value": 0.16, "kind": "computed" },
+   { "label": "Example signal, mA", "value": 12, "kind": "assumed" },
+   { "label": "12 − 4 = 8, step 4", "value": 8, "kind": "computed" },
+   { "label": "8 ÷ 0.16 = 50%", "value": 50, "kind": "computed" },
+   { "label": "Square: 3 and −3 both give 9", "value": 9, "kind": "computed" }
+  ]
+ },
+ "explain": {
+  "text": "An inverse function undoes a function: put in what came out and it gives back what went in. It always works by doing the opposite steps in reverse order.\n\nTake lesson 1's machine, × 3 then − 1. Put in 5 and you get 14. The inverse adds 1 and then divides by 3,[^1] so 14 becomes 15 and then 5. This is written f⁻¹(x), the [[inverse function]].\n\nThe square cannot be undone, because 3 and −3 both give 9. Only one-to-one functions have an inverse.[^2] On the 4 to 20 mA loop, the controller undoes S(p) = 0.16p + 4 to turn 12 mA back into 50%. **An inverse function runs a function backwards, and only a one-to-one function has one.[^2]**"
+ },
+ "analogy": {
+  "text": "Think of putting on socks and then shoes. To undo it you take the shoes off first, then the socks.",
+  "breaks": "Dressing is not a number machine."
+ },
+ "practice": {
+  "text": "- Write the steps in order.\n- Undo the last step first.\n\n**Worked example:** 12 mA: 12 − 4 = 8, 8 ÷ 0.16 = 50%."
+ },
+ "say": null,
+ "checks": [],
+ "sources": [
+  { "n": 1, "title": "Higher – Functions – GCSE Maths Revision – BBC Bitesize", "url": "https://www.bbc.co.uk/bitesize/articles/zvd3wsg", "quote": "For example, for a function that multiplies by 3 and subtracts one , the inverse function is add one and then divide by 3 ." },
+  { "n": 2, "title": "About the HELM Project", "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf", "quote": "Not all functions possess an inverse function. In fact, only one-to-one functions do so." }
+ ],
+ "confidence": "settled",
+ "contested": null,
+ "format": "steps"
+}

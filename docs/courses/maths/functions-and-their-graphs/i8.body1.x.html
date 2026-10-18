@@ -1,0 +1,1186 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; touch-action: pan-y; }
+  /* Each machine is a box with its steps inside; a pipe joins the two along the bottom. */
+  .scene .pipe { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .patch { fill: var(--k-sunk); stroke: none; }
+  .scene .chev { fill: var(--k-muted); }
+  .scene .frame { fill: var(--k-panel); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .frame.bad { stroke: var(--k-warn); }
+  .scene .stage { fill: var(--k-sunk); stroke: var(--k-strong); }
+  .scene .stage.bad { stroke: var(--k-warn); }
+  .scene .glow { fill: var(--k-fill1); }
+  .scene .srule { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  .scene .srule.bad { fill: var(--k-warn); }
+  .scene .name { font: italic 600 15px var(--k-font); fill: var(--k-accent); }
+  .scene .lock { fill: var(--k-accent2); }
+  /* A number on its way through, or resting between steps. */
+  .scene .pill { fill: var(--k-accent2); stroke: none; }
+  .scene .pill.bad { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 2; }
+  .scene .ptext { font: 700 15px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .ptext.bad { fill: var(--k-warn); }
+  /* A number the screen gives you is outlined, so the filled copy leaving it reads as on its way. */
+  .scene .pill.src { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .ptext.src { fill: var(--k-accent2); }
+  .scene .hole { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .qtext { font: 700 15px var(--k-font); fill: var(--k-muted); }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .tag { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .tag.bad { fill: var(--k-warn); }
+  .scene .top { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  .scene .wk { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  /* Graphs. */
+  .scene .axis { stroke: var(--k-strong); stroke-width: 1.5; fill: none; }
+  .scene .curve { stroke: var(--k-accent2); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .curve.two { stroke: var(--k-accent); }
+  .scene .level { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 6 4; fill: none; }
+  .scene .guide { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 3; fill: none; }
+  .scene .dot { fill: var(--k-accent2); }
+  .scene .dot.two { fill: var(--k-accent); }
+  .scene .cring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .tick { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .gtitle { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .pt { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .cap { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .cap.bad { fill: var(--k-warn); }
+  .scene .v { font-style: italic; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A machine on the left faces its undoing machine on the right, each a box with its steps inside, joined by a pipe. Every number put in is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 260" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">The undoing machine does the opposite of each step in reverse order, so the last step done is undone first.</p>
+
+<script>
+  // ---------- the steps a machine can do: what is written inside the step, and what it does ----------
+  const root = (v) => (v < 0 ? NaN : Math.sqrt(v));
+  const M = {
+    m3: { rule: '× 3', fn: (v) => 3 * v, say: 'multiply by 3' },
+    s1: { rule: '− 1', fn: (v) => v - 1, say: 'take away 1' },
+    a1: { rule: '+ 1', fn: (v) => v + 1, say: 'add 1' },
+    d3: { rule: '÷ 3', fn: (v) => v / 3, say: 'divide by 3' },
+    a4: { rule: '+ 4', fn: (v) => v + 4, say: 'add 4' },
+    t2: { rule: '× 2', fn: (v) => 2 * v, say: 'double' },
+    h2: { rule: '÷ 2', fn: (v) => v / 2, say: 'halve' },
+    s4: { rule: '− 4', fn: (v) => v - 4, say: 'take away 4' },
+    m16: { rule: '× 0.16', fn: (v) => 0.16 * v, say: 'multiply by 0.16' },
+    d16: { rule: '÷ 0.16', fn: (v) => v / 0.16, say: 'divide by 0.16' },
+    sq: { rule: 'squared', fn: (v) => v * v, say: 'square' },
+    rt: { rule: '√', fn: root, say: 'take the square root' },
+    m4: { rule: '× 4', fn: (v) => 4 * v, say: 'multiply by 4' },
+    d4: { rule: '÷ 4', fn: (v) => v / 4, say: 'divide by 4' },
+    // the slips: 1 ÷ f(x) for f(x) = 2x, and the − 4 left out
+    rec: { rule: '1 ÷ f(x)', fn: (v) => 1 / M.t2.fn(v), say: 'one divided by f of x' },
+    skip: { rule: 'skipped', fn: (v) => v, say: 'the take away 4, skipped' },
+  };
+
+  // Numbers as the explanation writes them: three significant figures (0.707, 0.05, 2.5).
+  function F(v) {
+    if (typeof v !== 'number' || !Number.isFinite(v)) return 'no value';
+    const r = Number(v.toPrecision(3));
+    return (r < 0 ? '−' : '') + String(Math.abs(r));
+  }
+  const flip = (a) => a.slice().reverse();
+  const same = (a, b) => a.join() === b.join();
+  // Every value along a run of steps, and the last one.
+  function steps(keys, x) { const v = [x]; keys.forEach((k, j) => v.push(Number.isFinite(v[j]) ? M[k].fn(v[j]) : NaN)); return v; }
+  const run = (keys, x) => { const v = steps(keys, x); return v[v.length - 1]; };
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // L: the first machine's steps, top to bottom. R: the facing machine's steps, top to bottom, each
+  // beside the step it undoes; the number climbs through them from the bottom. x: the number put in;
+  // out: the number given on the pipe between the machines; runs: several starts in turn (refused:
+  // stopped by the lock); swap: the facing steps in the same order as the first machine's, for the
+  // switch. A puzzle's slips: R, the facing machine the slip used (drawn as a slip); stop: how many
+  // steps it ran before stopping; ring: the place marked as the slip's answer.
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, name: 'A machine and its mirror', L: ['m3', 's1'], R: ['d3', 'a1'], x: 5, names: ['machine', 'undoing'],
+      text: 'Lesson 1\'s machine, × 3 then − 1, turns 5 into 15 and then 14. Facing it, the undoing machine works from the bottom up, so + 1 turns 14 back into 15 and ÷ 3 gives back 5. Drag the 5 through to run it yourself.' },
+    { kind: 'pick', name: 'What went in?', L: ['m3', 's1'], R: ['d3', 'a1'], out: 8, ask: 'in', names: ['machine', 'undoing'],
+      task: '8 came out of × 3 then − 1. What went in?',
+      opts: ['3', '9', '23'], want: '3',
+      slips: { '9': { stop: 1 }, '23': { R: ['s1', 'm3'] } },
+      why: 'Undo the last step first. + 1 turns 8 into 9, and ÷ 3 turns 9 into 3. Check it forwards, 3 × 3 = 9 and 9 − 1 = 8.',
+      hint: 'Not quite. Run 8 up through the undoing machine.',
+      hints: { '9': 'Not quite. 9 is halfway. The ÷ 3 still has to undo the × 3.', '23': 'Not quite. That runs × 3 then − 1 again. Undo them instead, + 1 and then ÷ 3.' } },
+    { show: true, name: 'Last on, first off', L: ['a4', 't2'], R: ['s4', 'h2'], x: 3, swap: ['h2', 's4'], names: ['machine', 'undoing'],
+      text: 'Lesson 7\'s add 4, then double, turns 3 into 7 and then 14. Halving first, then taking 4, brings back 3, because the 4 went in before the doubling. Try undoing in the same order and see what comes back.' },
+    { kind: 'pick', name: 'Your turn', L: ['a4', 't2'], R: ['s4', 'h2'], out: 20, ask: 'in', names: ['machine', 'undoing'],
+      task: 'Add 4, then double, and 20 came out. What went in?',
+      opts: ['6', '8', '48'], want: '6',
+      slips: { '8': { R: ['h2', 's4'] }, '48': { R: ['t2', 'a4'] } },
+      why: 'The doubling came last, so halve first, 20 ÷ 2 = 10. Then take 4, 10 − 4 = 6. Check it forwards, 6 + 4 = 10 and 10 doubled is 20.',
+      hint: 'Not quite. Undo the doubling first.',
+      hints: { '8': 'Not quite. That undoes in the same order, 20 − 4 = 16 and then 8. The doubling came last, so halve first.', '48': 'Not quite. That runs add 4, then double, again. Undo it instead, halve and then take 4.' } },
+    { show: true, name: 'f inverse', L: ['m3', 's1'], R: ['d3', 'a1'], x: 5, names: ['f', 'f⁻¹'], top: 'f⁻¹(f(x)) = x', tags: { in: 'x', out: 'f(x)', back: 'f⁻¹(f(x))' },
+      text: 'Textbooks call the undoing machine the *inverse function*, write it `f⁻¹(x)` and read it ‘f inverse’. The −1 is part of its name, not a power. Fed straight from `f`, it makes the chain `f⁻¹(f(x))`, which hands back `x`.' },
+    { kind: 'pick', name: 'Not a power', L: ['t2'], R: ['h2'], out: 10, ask: 'back', names: ['f', 'f⁻¹'], tags: { in: 'x', out: 'f(x)', back: 'f⁻¹(10)' },
+      task: 'Here `f(x) = 2x`. Work out `f⁻¹(10)`.',
+      opts: ['5', '0.05', '20'], want: '5',
+      slips: { '0.05': { R: ['rec'] }, '20': { R: ['t2'] } },
+      why: '`f` doubles, so `f⁻¹` halves, and `f⁻¹(10) = 10 ÷ 2 = 5`. Check it forwards, `f(5) = 10`.',
+      hint: 'Not quite. Undo the doubling.',
+      hints: { '0.05': 'Not quite. That is 1 ÷ f(10), reading the −1 as a power. The −1 is part of the name.', '20': 'Not quite. That doubles again. f⁻¹ undoes the doubling.' } },
+    { show: true, name: 'mA back to percent', L: ['m16', 'a4'], R: ['d16', 's4'], x: 50, names: ['S', 'S⁻¹'], units: { in: '%', out: ' mA', back: '%' }, tags: { in: 'p', out: 'S(p)', back: 'p' },
+      text: 'Lesson 2\'s loop rule, `S(p) = 0.16p + 4`, is × 0.16 then + 4, and the 0.16 is the 16 mA span shared over 100%. It takes 50% to 12 mA. Undoing it, − 4 gives 8 and ÷ 0.16 gives back 50%.' },
+    { kind: 'pick', name: '16 mA', L: ['m16', 'a4'], R: ['d16', 's4'], out: 16, ask: 'in', names: ['S', 'S⁻¹'], units: { in: '%', out: ' mA', back: '%' }, tags: { in: 'p', out: 'S(p)', back: 'p' },
+      ans: (v) => F(v) + '%',
+      task: 'The loop reads 16 mA. What percentage of full scale is that?',
+      opts: ['75%', '100%', '96%'], want: '75%',
+      slips: { '100%': { R: ['d16', 'skip'] }, '96%': { R: ['s4', 'd16'] } },
+      why: 'Take off the 4 mA first, 16 − 4 = 12. Then 12 ÷ 0.16 = 75, so 75% of full scale. Check it forwards, 0.16 × 75 + 4 = 16 mA.',
+      hint: 'Not quite. Undo the + 4 first.',
+      hints: { '100%': 'Not quite. That forgets the 4 mA at the bottom of the loop. Take it off first.', '96%': 'Not quite. That undoes in the same order, 16 ÷ 0.16 = 100 and then 96. Take off the 4 mA first.' } },
+    { show: true, name: 'Two starts, one 9', L: ['sq'], R: ['rt'], runs: [{ x: 3 }, { x: -3 }], names: ['square', 'root'], graph: true,
+      text: 'The square sends 3 and −3 to the same 9. The root machine gets only the 9, so it hands back 3 both times, and −3 never comes back. A level line at 9 cuts the square\'s graph twice, once for each start.' },
+    { kind: 'pick', name: 'Square, then root', L: ['sq'], R: ['rt'], x: -3, ask: 'back', names: ['square', 'root'],
+      task: '−3 goes into the square, and what comes out goes into the root. What comes back?',
+      opts: ['3', '−3', '9'], want: '3',
+      slips: { '−3': { ring: 'in' }, '9': { stop: 1 } },
+      right: 'That\'s it. The root hands back 3, not the −3 that went in.',
+      why: '−3 squared is 9. The root gets only that 9 and hands back its positive root, 3. Nothing in the 9 says a minus went in.',
+      hint: 'Not quite. Run −3 through both machines.',
+      hints: { '−3': 'Not quite. The root gets only the 9, and nothing in it says −3 went in. It hands back 3.', '9': 'Not quite. 9 is what the square makes. The root still works on it.' } },
+    { show: true, name: 'The lock', L: ['sq'], R: ['rt'], runs: [{ x: -3, refused: true }, { x: 3 }], names: ['square', 'root'], lock: 'close', flow: true,
+      text: 'Lock the square\'s input to 0 and up, and each output comes from one input again, so the root gives back every start. The flow meter is locked already, because flow runs from 0 to 1 of full. So 0.5 pressure difference gives back 0.707, 71% flow.' },
+    { kind: 'pick', name: 'The heater', L: ['sq', 'm4'], R: ['rt', 'd4'], out: 100, ask: 'in', lock: true, names: ['P', 'P⁻¹'], units: { in: ' A', out: ' W', back: ' A' }, tags: { in: 'I', out: 'P', back: 'I' },
+      ans: (v) => F(v) + ' A',
+      task: 'A 4 Ω heater makes 100 W. Its machine squares the current, then multiplies by 4. What current is flowing?',
+      opts: ['5 A', '2.5 A', '25 A'], want: '5 A',
+      slips: { '2.5 A': { R: ['d4', 'rt'] }, '25 A': { stop: 1 } },
+      right: 'That\'s it. ÷ 4, then the root, is the power formula rearranged for the current.',
+      why: 'The × 4 came last, so undo it first, 100 ÷ 4 = 25. Then the root, √25 = 5 A. The lock keeps the current 0 and up, so the root undoes the square.',
+      hint: 'Not quite. Undo the × 4 first.',
+      hints: { '2.5 A': 'Not quite. That takes the root first, √100 = 10, and then 10 ÷ 4. The × 4 came last, so undo it first.', '25 A': 'Not quite. 25 is halfway. The root still has to undo the square.' } },
+    { kind: 'pick', name: 'Square or cube?', mode: 'pair',
+      task: 'Which machine can be undone with no lock?',
+      opts: ['Cube', 'Square', 'Neither'], want: 'Cube',
+      right: 'That\'s it. The cube never gives two inputs the same output.',
+      why: 'The cube sends 2 to 8 and −2 to −8, two different outputs, so each output comes from one input. Each of its level lines cuts once, as in lesson 3. The square sends 2 and −2 to the same 4.',
+      hint: 'Not quite. Look for two inputs giving the same output.',
+      hints: { Square: 'Not quite. The square sends 2 and −2 to the same 4, so it needs a lock.', Neither: 'Not quite. The cube sends 2 to 8 and −2 to −8. Each output comes from one input.' } },
+    { show: true, name: 'The mirror', mode: 'mirror',
+      text: 'Drawn on one grid, every point of `f(x) = 3x − 1` swaps its two numbers to land on `f⁻¹`, so (5, 14) becomes (14, 5). That makes the two graphs mirror images in the dashed line `y = x`. The exponential and the logarithm are the next such pair, in Exponentials and logarithms.' },
+  ];
+  const FINISH = 'An inverse function, `f⁻¹`, does the opposite of each step in reverse order and hands back the input. Only a function that never gives two inputs the same output has one.';
+  // Sources the checks restate (the lesson's own).
+  const CE = 'https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters';
+  const BITESIZE = 'https://www.bbc.co.uk/bitesize/articles/zvd3wsg';
+  const HELM = 'https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf';
+  const SQA = 'https://www.sqa.org.uk/sqa/files/hn/H7K033.pdf';
+  const CONTROL = 'https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables';
+
+  // ---------- the picture's frame ----------
+  // CXL, CXR: the two machines' middles. Each machine is a frame FW wide holding its steps, each SW
+  // by SH, with GAP between them where the number rests. PH: a number's pill.
+  const CXL = 90, CXR = 250, MID = 170, FW = 116, SW = 92, SH = 34, GAP = 40, PH = 28, HOLE = 40;
+  // The run: each move takes 0.12 s plus its length at 320 units a second; a step works for DW s,
+  // a number rests between steps for JP s. CHG: a new start swapping into the input. REF, TURN:
+  // a refused number reaching the lock, then turning away. Demonstrations play at DEMO, two starts
+  // at DEMO2, answers at ANS.
+  const DW = 0.1, JP = 0.16, CHG = 0.3, REF = 0.45, TURN = 0.6, SWAPD = 0.7, DEMO = 1, DEMO2 = 0.7, ANS = 0.9;
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // u: where Dan has dragged the number (the mirror screen: the point's x); sw, mode: how many times
+  // he has pressed the same-order switch, and whether the last motion came from it.
+  function blank() { return { pick: null, res: null, why: false, u: null, sw: 0, mode: 'demo' }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;                                                        // what the last paint drew, for the checks
+  let drag = null;                                                       // the run on screen, for the drag
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[fxpSPIy](?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line with its letters italic; *a key term* is highlighted.
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s).replace(/⁻¹/g, ' inverse').replace(/√/g, ' the square root of ').replace(/×/g, ' times ')
+    .replace(/÷/g, ' divided by ').replace(/−/g, ' minus ').replace(/\+/g, ' plus ').replace(/=/g, ' equals ').replace(/%/g, ' percent')
+    .replace(/\bmA\b/g, 'milliamps').replace(/(\d) A\b/g, '$1 amps').replace(/(\d) W\b/g, '$1 watts').replace(/\s+/g, ' ').trim();
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong
+  // answer settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one runs the machines to it, a wrong one plays its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(endOf(i, st));
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.show || finished) return;
+    st.u = null; st.sw = 0; st.mode = 'demo';
+    play(endOf(i, st));
+  } });
+  // The switch: the facing machine's steps swap into the same order as the first machine's (or
+  // back), and 14 climbs through them again.
+  const swapBtn = K.button({ label: 'Undo in the same order', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.show || !d.swap || finished) return;
+    st.sw++; st.mode = 'swap'; st.u = null;
+    K.reveal();
+    play(endOf(i, st));
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- timing: what has arrived by T, noting the timetable for the timing check ----------
+  let latest = 0, earliest = Infinity;
+  function note(t0, t1) { if (t1 > latest) latest = t1; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { note(t0, t0 + d); return K.arrive(T, t0, d); }
+  function prog(t0, d) { note(t0, t0 + d); return K.ease(K.clamp((T - t0) / d, 0, 1)); }
+  // How long a picture takes to settle: paint it finished and read the timetable.
+  function endOf(i, st) {
+    const keepT = T;
+    T = Infinity; latest = 0; earliest = Infinity;
+    try { paint(i, st); } finally { T = keepT; }
+    return latest;
+  }
+
+  // ---------- the machines' geometry ----------
+  // Stops along the pipe: 0 the input, then inside each step and the rest after it, down the first
+  // machine, along the pipe (2n), up the facing machine, and back out at the top (4n).
+  function stopName(n, s) {
+    if (s === 0) return 'in';
+    if (s === 2 * n) return 'out';
+    if (s === 4 * n) return 'back';
+    if (s < 2 * n) return 'lg' + (s / 2 - 1);
+    return 'rg' + (n - 2 - ((s - 2 * n) / 2 - 1));
+  }
+  function stopOf(n, name) {
+    if (name === 'in') return 0;
+    if (name === 'out') return 2 * n;
+    if (name === 'back') return 4 * n;
+    const k = Number(name.slice(2));
+    return name[0] === 'l' ? 2 * k + 2 : 2 * n + 2 * (n - 2 - k) + 2;
+  }
+  const GEO = new Map();
+  function geo(d) {
+    if (GEO.has(d)) return GEO.get(d);
+    let G;
+    if (d.mode === 'pair') G = { mode: 'pair', H: 228 };
+    else if (d.mode === 'mirror') G = { mode: 'mirror', H: 330 };
+    else {
+      const n = d.L.length, y0 = d.top ? 28 : 0, INY = y0 + 20, FY = y0 + (d.lock ? 90 : 62);
+      const sy = (k) => FY + 12 + k * (SH + GAP);
+      const FB = sy(n - 1) + SH + 12, yB = FB + 34;
+      let H = yB + PH / 2 + 12;
+      const gy = d.graph ? H : null;
+      if (d.graph) H += 136;
+      const fy = d.flow ? H + 12 : null;
+      if (d.flow) H = fy + 34;
+      G = { mode: 'machine', n, y0, INY, FY, sy, FB, yB, H, gy, fy, LOCKY: FY - 16 };
+      G.P = pathOf(G);
+    }
+    GEO.set(d, G);
+    return G;
+  }
+  // Each stop's place, and the pipe between stops as a bent line with its length.
+  function pathOf(G) {
+    const n = G.n, st = [], via = [];
+    const add = (p, v) => { st.push(p); via.push(v || []); };
+    add([CXL, G.INY]);
+    for (let k = 0; k < n; k++) {
+      add([CXL, G.sy(k) + SH / 2]);
+      if (k < n - 1) add([CXL, G.sy(k) + SH + GAP / 2]); else add([MID, G.yB], [[CXL, G.yB]]);
+    }
+    for (let i = 0; i < n; i++) {
+      const r = n - 1 - i;
+      add([CXR, G.sy(r) + SH / 2], i === 0 ? [[CXR, G.yB]] : []);
+      if (r > 0) add([CXR, G.sy(r) - GAP / 2]); else add([CXR, G.INY]);
+    }
+    const segs = [];
+    for (let s = 0; s < st.length - 1; s++) {
+      const pts = [st[s]].concat(via[s + 1], [st[s + 1]]), cum = [0];
+      let L = 0;
+      for (let j = 1; j < pts.length; j++) { L += Math.hypot(pts[j][0] - pts[j - 1][0], pts[j][1] - pts[j - 1][1]); cum.push(L); }
+      segs.push({ pts, cum, L });
+    }
+    return { st, segs };
+  }
+  function posAt(P, u) {
+    const s = Math.max(0, Math.min(P.segs.length - 1, Math.floor(u))), f = K.clamp(u - s, 0, 1), g = P.segs[s], dd = f * g.L;
+    for (let j = 1; j < g.pts.length; j++) {
+      if (dd <= g.cum[j] + 1e-9) {
+        const a = g.pts[j - 1], b = g.pts[j], t = (dd - g.cum[j - 1]) / ((g.cum[j] - g.cum[j - 1]) || 1);
+        return [K.lerp(a[0], b[0], t), K.lerp(a[1], b[1], t)];
+      }
+    }
+    return g.pts[g.pts.length - 1];
+  }
+  // The timetable of a run from stop a to stop b.
+  function plan(P, a, b, scale) {
+    const segs = [];
+    let t = 0;
+    for (let s = a; s < b; s++) {
+      const d = (0.12 + P.segs[s].L / 320) * scale;
+      segs.push([t, t + d, s, s + 1]); t += d;
+      if (s + 1 < b) t += ((s + 1) % 2 ? DW : JP) * scale;
+    }
+    return { segs, end: t };
+  }
+  function uAt(pl, a, t) {
+    if (!(t > 0) || !pl.segs.length) return a;
+    for (const s of pl.segs) {
+      if (t < s[0]) return s[2];
+      if (t <= s[1]) return s[2] + (s[3] - s[2]) * K.ease((t - s[0]) / (s[1] - s[0]));
+    }
+    return pl.segs[pl.segs.length - 1][3];
+  }
+  function reachT(r, s) {
+    if (s === r.from) return r.t0;
+    const g = r.pl.segs.find((x) => x[3] === s);
+    return r.t0 + (g ? g[1] : r.pl.end);
+  }
+  // The values at each stop: from the input down and back up, or from the number given on the pipe.
+  function valsOf(keys, x, out, n) {
+    const v = new Array(keys.length + 1).fill(null);
+    let c0 = 0;
+    if (x != null) v[0] = x; else { v[n] = out; c0 = n; }
+    for (let c = c0; c < keys.length; c++) v[c + 1] = Number.isFinite(v[c]) ? M[keys[c]].fn(v[c]) : NaN;
+    return v;
+  }
+
+  // ---------- what each machine picture is ----------
+  // R: the facing machine's steps; bad: they are a slip; runs: each start in turn ({x, out, from,
+  // to, refused, prior}); start: when the first run begins; lockAt: when the lock closes; Rfrom,
+  // swapAt: the facing steps before a swap, and when it starts; ring: the slip's answer, marked;
+  // fillIn: the answer drops into the empty input; scrub: Dan is dragging the last run.
+  function viewOf(i, st) {
+    const d = STEPS[i], n = d.L.length;
+    if (d.show) {
+      const odd = !!d.swap && st.sw % 2 === 1, R = odd ? d.swap : d.R;
+      const starts = d.runs || [{ x: d.x }];
+      const runs = starts.map((r) => ({ x: r.x, out: null, from: 0, to: 4 * n, refused: !!r.refused }));
+      if (st.u != null) return { R, bad: odd, runs, start: 0, scale: DEMO, scrub: true };
+      if (st.mode === 'swap' && d.swap) {
+        return { R, bad: odd, Rfrom: odd ? d.R : d.swap, swapAt: 0.1, start: 0.15 + SWAPD, scale: DEMO,
+          runs: [{ x: d.x, out: null, from: 2 * n, to: 4 * n, prior: true }] };
+      }
+      return { R, bad: false, runs, start: d.lock === 'close' ? 0.9 : 0.45, lockAt: d.lock === 'close' ? 0.4 : null, scale: d.runs ? DEMO2 : DEMO };
+    }
+    const from = d.out != null ? 2 * n : 0;
+    const mk = (to) => ({ x: d.x != null ? d.x : null, out: d.out != null ? d.out : null, from, to });
+    const base = { R: d.R, bad: false, start: 0.1, scale: ANS, runs: [mk(from)] };
+    if (st.res === 'right') return Object.assign(base, { runs: [mk(4 * n)], fillIn: d.out != null });
+    if (st.res === 'wrong' && st.pick != null && d.slips[st.pick]) {
+      const s = d.slips[st.pick], r = mk(s.stop ? from + 2 * s.stop : 4 * n);
+      const v = Object.assign(base, { runs: [r] });
+      if (s.R) { v.R = s.R; v.bad = true; }
+      v.ring = s.ring || stopName(n, r.to);
+      return v;
+    }
+    return base;
+  }
+  // When each run starts and ends.
+  function sched(V, G) {
+    let t = V.start || 0;
+    V.runs.forEach((r, k) => {
+      if (k > 0) t += CHG;
+      r.t0 = t;
+      if (r.refused) {
+        r.u1 = (G.LOCKY - 6 - PH / 2 - G.INY) / G.P.segs[0].L;
+        r.pl = { segs: [[0, REF, 0, r.u1]], end: REF };
+        t += REF + TURN;
+      } else {
+        r.pl = plan(G.P, r.from, r.to, V.scale);
+        t += r.pl.end;
+      }
+      if (r.to > r.from || r.refused) note(r.t0, r.t0 + r.pl.end);
+    });
+    V.end = t;
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 15 * 0.6;
+  }
+  function text(parent, x, y, s, cls, anchor, alpha) {
+    if (alpha != null && alpha <= 0.001) return null;
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    if (alpha != null && alpha < 1) t.setAttribute('opacity', r3(alpha));
+    italics(t, s, true);
+    return parent.appendChild(t);
+  }
+  const group = (alpha) => art.appendChild(K.svg('g', alpha < 1 ? { opacity: r3(alpha) } : {}));
+  const pillW = (s) => Math.max(HOLE, Math.ceil(tw(s, 'ptext')) + 18);
+  // A number in its pill; returns its width.
+  function pill(cx, cy, s, cls, alpha) {
+    const w = pillW(s);
+    if (alpha <= 0.001) return w;
+    const g = group(alpha);
+    g.appendChild(K.svg('rect', { class: 'pill' + cls, x: r3(cx - w / 2), y: r3(cy - PH / 2), width: w, height: PH, rx: PH / 2 }));
+    text(g, cx, cy + 5, s, 'ptext' + cls, 'middle');
+    return w;
+  }
+  // An empty place a number has not reached yet (a question mark where a puzzle asks).
+  function hole(cx, cy, s, alpha) {
+    if (alpha <= 0.001) return;
+    const g = group(alpha);
+    g.appendChild(K.svg('rect', { class: 'hole', x: r3(cx - HOLE / 2), y: r3(cy - PH / 2), width: HOLE, height: PH, rx: PH / 2 }));
+    if (s) text(g, cx, cy + 5, s, 'qtext', 'middle');
+  }
+  const rect = (cls, x, y, w, h, rx, extra) => art.appendChild(K.svg('rect', Object.assign({ class: cls, x: r3(x), y: r3(y), width: r3(w), height: r3(h), rx: rx || 0 }, extra || {})));
+  const line = (cls, x1, y1, x2, y2, alpha) => {
+    if (alpha != null && alpha <= 0.001) return null;
+    const l = K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) });
+    if (alpha != null && alpha < 1) l.setAttribute('opacity', r3(alpha));
+    return art.appendChild(l);
+  };
+  const polyline = (cls, pts, alpha) => {
+    if (pts.length < 2 || (alpha != null && alpha <= 0.001)) return null;
+    const p = K.svg('polyline', { class: cls, points: pts.map((q) => r3(q[0]) + ',' + r3(q[1])).join(' ') });
+    if (alpha != null && alpha < 1) p.setAttribute('opacity', r3(alpha));
+    return art.appendChild(p);
+  };
+  const circle = (cls, cx, cy, r, alpha) => {
+    if (alpha != null && alpha <= 0.001) return null;
+    const c = K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r });
+    if (alpha != null && alpha < 1) c.setAttribute('opacity', r3(alpha));
+    return art.appendChild(c);
+  };
+  const isWord = (s) => /[a-z]{2}/.test(s);
+
+  // The machine picture for a step now; returns it in words.
+  function drawMachine(i, st, G) {
+    const d = STEPS[i], V = viewOf(i, st), n = G.n, P = G.P;
+    const tg = Object.assign({ in: 'in', out: 'out', back: 'back' }, d.tags || {});
+    const keys = d.L.concat(flip(V.R));
+    REC = { mode: 'machine', stamps: {}, rings: [], kept: null, dots: [], level: null, flow: null, lock: false, notes: [], keys: keys.join(), R: V.R.join() };
+    sched(V, G);
+    const scrub = !!V.scrub, last = V.runs.length - 1;
+    let j = 0;
+    V.runs.forEach((r, k) => { if (k > 0 && (scrub || T >= r.t0 - CHG)) j = k; });
+    const cur = V.runs[j], prev = j > 0 ? V.runs[j - 1] : null;
+    const vals = valsOf(keys, cur.x, cur.out, n);
+    const u = cur.refused ? uAt(cur.pl, 0, T - cur.t0) : scrub && j === last ? K.clamp(st.u, cur.from, cur.to) : uAt(cur.pl, cur.from, T - cur.t0);
+    const chg = !prev ? 1 : scrub ? 1 : arr(cur.t0 - CHG, CHG);
+    const unit = (w) => ((d.units || {})[w] || '');
+    const where = (s) => (s === 0 ? 'in' : s === 2 * n ? 'out' : s === 4 * n ? 'back' : '');
+    const txt = (s, v) => F(v) + unit(where(s));
+    const rec = (name, s, v, o) => { REC.stamps[name] = Object.assign({ text: txt(s, v), v, s }, o || {}); };
+    drag = { P, from: cur.from, to: cur.to, u, on: false };
+
+    // the rule line
+    if (d.top) text(art, MID, 20, d.top, 'top', 'middle');
+    // the pipes: in, along the bottom, and back out; patches hide the joins' inner edges
+    const pTop = G.INY + PH / 2 - 4;
+    rect('pipe', CXL - 6, pTop, 12, G.FY - pTop + 2, 0);
+    rect('pipe', CXR - 6, pTop, 12, G.FY - pTop + 2, 0);
+    rect('pipe', CXL - 6, G.FB - 2, 12, G.yB - 6 - G.FB + 2, 0);
+    rect('pipe', CXR - 6, G.FB - 2, 12, G.yB - 6 - G.FB + 2, 0);
+    rect('pipe', CXL - 6, G.yB - 6, CXR - CXL + 12, 12, 0);
+    rect('patch', CXL - 5.25, G.yB - 6.75, 10.5, 12, 0);
+    rect('patch', CXR - 5.25, G.yB - 6.75, 10.5, 12, 0);
+    // which way the number flows: down out of the first machine, up into the facing one
+    const cy = (G.FB + G.yB - 6) / 2;
+    art.appendChild(K.svg('path', { class: 'chev', d: 'M' + (CXL - 4) + ' ' + (cy - 3) + 'L' + (CXL + 4) + ' ' + (cy - 3) + 'L' + CXL + ' ' + (cy + 3) + 'Z' }));
+    art.appendChild(K.svg('path', { class: 'chev', d: 'M' + (CXR - 4) + ' ' + (cy + 3) + 'L' + (CXR + 4) + ' ' + (cy + 3) + 'L' + CXR + ' ' + (cy - 3) + 'Z' }));
+
+    // the lock on the input: a bar that slides across the pipe, letting in only 0 and up
+    if (d.lock) {
+      const c = V.lockAt != null ? prog(V.lockAt, 0.45) : 1;
+      rect('lock', CXL - 15 - (1 - c) * 44, G.LOCKY - 4, 30, 8, 3);
+      text(art, CXL - 22, G.LOCKY + 5, '0 and up', 'tag', 'end', V.lockAt != null ? arr(V.lockAt + 0.45, 0.35) : 1);
+      REC.lock = c >= 0.5;
+    }
+
+    // the two machines' frames
+    rect('frame', CXL - FW / 2, G.FY, FW, G.FB - G.FY, 12);
+    rect('frame' + (V.bad && (!V.Rfrom || prog(V.swapAt, SWAPD) >= 0.5) ? ' bad' : ''), CXR - FW / 2, G.FY, FW, G.FB - G.FY, 12);
+
+    // the number on its way (under the steps, so it goes inside them)
+    const rest = Math.abs(u / 2 - Math.round(u / 2)) < 1e-6;
+    if (cur.refused) {
+      if (j === 0 || !scrub) {
+        const done = u >= cur.u1 - 1e-3, a = done ? 1 - arr(cur.t0 + REF + 0.4, 0.35) : 1;
+        if (u > 1e-6 && a > 0.001) { const p = posAt(P, u); pill(p[0], p[1], txt(0, cur.x), done ? ' bad' : '', a); }
+      }
+    } else if (!rest && cur.to > cur.from) {
+      const p = posAt(P, u), c = Math.min(cur.to / 2, Math.floor((u + 1) / 2));
+      pill(p[0], p[1], txt(2 * c, vals[c]), V.bad && c > n ? ' bad' : '', 1);
+    }
+
+    // the steps: the first machine's top to bottom, the facing one's beside the steps they undo
+    const busyAt = (s) => (!cur.refused && s > cur.from && s < cur.to ? Math.max(0, 1 - Math.abs(u - s) / 0.5) : 0);
+    const stage = (cx, y, busy, bad) => {
+      rect('stage' + (bad ? ' bad' : ''), cx - SW / 2, y, SW, SH, 8, { style: 'stroke-width:' + r3(1.5 + 1.5 * busy) + 'px' });
+      if (busy > 0.01) rect('glow', cx - SW / 2 + 2, y + 2, SW - 4, SH - 4, 6, { opacity: r3(0.9 * busy) });
+    };
+    d.L.forEach((key, k) => {
+      stage(CXL, G.sy(k), busyAt(2 * k + 1), false);
+      text(art, CXL, G.sy(k) + SH / 2 + 6, M[key].rule, 'srule', 'middle');
+    });
+    const sig = V.Rfrom ? prog(V.swapAt, SWAPD) : 1;
+    V.R.forEach((key, r) => stage(CXR, G.sy(r), busyAt(2 * n + 2 * (n - 1 - r) + 1), V.bad && sig >= 0.5));
+    V.R.forEach((key, r) => {
+      const r0 = V.Rfrom ? V.Rfrom.indexOf(key) : r, y1 = G.sy(r) + SH / 2 + 6;
+      if (r0 < 0 || r0 === r || sig >= 1) { text(art, CXR, y1, M[key].rule, 'srule' + (V.bad && sig >= 0.5 ? ' bad' : ''), 'middle'); return; }
+      const y0 = G.sy(r0) + SH / 2 + 6, dir = r > r0 ? 1 : -1;
+      text(art, CXR + dir * 22 * Math.sin(Math.PI * sig), K.lerp(y0, y1, sig), M[key].rule, 'srule' + (V.bad && sig >= 0.5 ? ' bad' : ''), 'middle');
+    });
+    // the machines' names, under their outer corners
+    const nm = d.names || ['', ''];
+    if (nm[0]) text(art, 12, G.FB + 18, nm[0], isWord(nm[0]) ? 'tag' : 'name', 'start');
+    if (nm[1]) text(art, 328, G.FB + 18, nm[1], isWord(nm[1]) ? 'tag' : 'name', 'end');
+
+    // the input, the rests between steps, the pipe and the way back out
+    const ask = !d.show && st.res == null;
+    const holeQ = (s) => ask && ((s === 0 && d.ask === 'in') || (s === 4 * n && (d.ask === 'in' || d.ask === 'back')));
+    const wAt = {};
+    const oldVals = V.Rfrom ? valsOf(d.L.concat(flip(V.Rfrom)), cur.x, null, n) : null;
+    const oldA = V.Rfrom ? 1 - arr(V.swapAt - 0.05, 0.3) : 0;
+    const prevVals = prev && !prev.refused ? valsOf(keys, prev.x, prev.out, n) : null;
+    const missNote = (v, x, a) => {
+      if (a <= 0.001) return;
+      text(art, CXR + 12, G.INY + PH / 2 + 16, 'not ' + F(x), 'tag bad', 'start', a);
+      if (a >= 0.5) REC.notes.push('not ' + F(x));
+    };
+    for (let s = 0; s <= 4 * n; s += 2) {
+      const name = stopName(n, s), p = P.st[s], c = s / 2;
+      let cover = 0;
+      if (s === cur.from && vals[c] != null && Number.isFinite(vals[c])) {
+        // the number the screen gives, or the start put in
+        const given = s === 0 || cur.out != null;
+        if (s === 0 && prev && chg < 1) pill(p[0], p[1], txt(0, prev.x), ' src', 1 - chg);
+        const a = s === 0 && prev ? chg : 1;
+        wAt[name] = pill(p[0], p[1], txt(s, vals[c]), given ? ' src' : '', a);
+        if (a >= 0.5) rec(name, s, vals[c], { src: given });
+        cover = 1;
+      } else if (cur.prior && s < cur.from && vals[c] != null) {
+        wAt[name] = pill(p[0], p[1], txt(s, vals[c]), '', 1);
+        rec(name, s, vals[c]);
+        cover = 1;
+      } else if (!cur.refused && s > cur.from && s <= cur.to && u >= s - 1e-6) {
+        const v = vals[c], b = V.bad && c > n, miss = s === 4 * n && cur.x != null && !K.near(v, cur.x, 1e-9);
+        wAt[name] = pill(p[0], p[1], txt(s, v), b || miss ? ' bad' : '', 1);
+        rec(name, s, v, { bad: b || miss });
+        if (miss) missNote(v, cur.x, scrub ? 1 : arr(reachT(cur, s), 0.35));
+        cover = 1;
+      }
+      // what the last start, or the facing steps before the swap, left here, fading
+      if (!cover && prevVals && chg < 1 && s > 0 && s <= prev.to && vals[c] !== undefined) {
+        const v = prevVals[c], miss = s === 4 * n && !K.near(v, prev.x, 1e-9);
+        pill(p[0], p[1], txt(s, v), miss ? ' bad' : '', 1 - chg);
+        if (miss) missNote(v, prev.x, 1 - chg);
+        cover = 1 - chg;
+      }
+      if (!cover && oldVals && s > 2 * n && oldA > 0.001) {
+        const v = oldVals[c], b = !V.bad, miss = s === 4 * n && !K.near(v, cur.x, 1e-9);
+        pill(p[0], p[1], txt(s, v), b || miss ? ' bad' : '', oldA);
+        if (miss) missNote(v, cur.x, oldA);
+        cover = oldA;
+      }
+      // the answer drops into the empty input
+      if (s === 0 && !cover && V.fillIn) {
+        const a = arr(cur.t0 + cur.pl.end + 0.05, 0.35), v = vals[2 * n];
+        if (a > 0.001) wAt.in = pill(p[0], p[1], txt(0, v), '', a);
+        if (a >= 0.5) rec('in', 0, v, { fill: true });
+        cover = a;
+      }
+      let holeA = 1 - cover;
+      if (!cur.refused && s > cur.from && s <= cur.to && !(u >= s - 1e-6)) holeA *= 1 - K.clamp((u - (s - 0.7)) / 0.7, 0, 1);
+      hole(p[0], p[1], holeQ(s) ? '?' : '', holeA);
+      if (!wAt[name]) wAt[name] = HOLE;
+    }
+    // what each place is: in, out and back
+    text(art, CXL + wAt.in / 2 + 6, G.INY + 5, tg.in, 'tag', 'start');
+    text(art, MID, G.yB - 20, tg.out, 'tag', 'middle');
+    text(art, CXR - wAt.back / 2 - 6, G.INY + 5, tg.back, 'tag', 'end');
+
+    // a start the lock keeps out
+    V.runs.forEach((r, k) => {
+      if (!r.refused) return;
+      const a = k < j || scrub ? 1 : k === j ? arr(r.t0 + REF + 0.1, 0.35) : 0;
+      text(art, CXL + 22, G.LOCKY + 5, F(r.x) + ' kept out', 'tag bad', 'start', a);
+      if (a >= 0.5) REC.kept = F(r.x);
+    });
+
+    // a slip's answer, ringed
+    if (V.ring) {
+      const s = stopOf(n, V.ring), p = P.st[s], w = (wAt[V.ring] || HOLE) + 8;
+      const a = arr(cur.t0 + cur.pl.end, 0.35);
+      if (a > 0.001) {
+        const g = group(a);
+        g.appendChild(K.svg('rect', { class: 'ring', x: r3(p[0] - w / 2), y: r3(p[1] - PH / 2 - 4), width: w, height: PH + 8, rx: PH / 2 + 4 }));
+        if (a >= 0.5) REC.rings.push(V.ring);
+      }
+    }
+
+    // the square's graph: each start lands on it at 9, and the level line at 9 cuts it twice
+    if (d.graph) {
+      const gx0 = 40, gw = 260, gyT = G.gy + 10, gh = 100;
+      const X = (v) => gx0 + (v + 4) / 8 * gw, Y = (v) => gyT + gh - v / 16 * gh;
+      line('axis', gx0, Y(0), gx0 + gw, Y(0));
+      line('axis', X(0), Y(0), X(0), gyT);
+      polyline('curve', K.linspace(-4, 4, 81).map((x) => [X(x), Y(x * x)]));
+      text(art, gx0 + gw + 6, Y(0) + 5, 'in', 'tag', 'start');
+      text(art, X(0) + 6, gyT + 8, 'out', 'tag', 'start');
+      const runsDone = V.runs.map((r, k) => (k < j ? 1 : k > j ? 0 : scrub ? (u >= 2 * n - 1e-6 ? 1 : 0) : u >= 2 * n - 1e-6 ? arr(reachT(r, 2 * n), 0.35) : 0));
+      V.runs.forEach((r, k) => {
+        const a = runsDone[k];
+        line('axis', X(r.x), Y(0) - 4, X(r.x), Y(0) + 4);
+        text(art, X(r.x), Y(0) + 17, F(r.x), 'tick', 'middle');
+        if (a <= 0.001) return;
+        line('guide', X(r.x), Y(r.x * r.x) + 6, X(r.x), Y(0) - 5, a);
+        circle('dot', X(r.x), Y(r.x * r.x), 5, a);
+        if (a >= 0.5) REC.dots.push([r.x, r.x * r.x]);
+      });
+      const la = runsDone[runsDone.length - 1];
+      line('level', gx0, Y(9), gx0 + gw, Y(9), la);
+      text(art, X(0) + 8, Y(9) - 6, 'level line', 'tag', 'start', la);
+      text(art, X(0) - 6, Y(9) + 15, '9', 'tick', 'end', la);
+      if (la >= 0.5) REC.level = 9;
+    }
+    // the flow meter, locked already
+    if (d.flow) {
+      const a = scrub ? 1 : arr(V.end + 0.05, 0.4);
+      const l1 = 'Flow meter, locked to 0 to 1 of full', l2 = '√0.5 = 0.707, so 71% of full flow';
+      text(art, 12, G.fy, l1, 'tag', 'start', a);
+      text(art, 12, G.fy + 24, l2, 'wk', 'start', a);
+      if (a >= 0.5) REC.flow = [l1, l2];
+    }
+    drag.on = !!d.show && !finished && !cur.refused && cur.to > cur.from;
+    drag.u = u;
+
+    // in words
+    const said = ['A machine that does ' + d.L.map((k) => M[k].say).join(', then ') + ' faces a machine that does ' + flip(V.R).map((k) => M[k].say).join(', then ') + ', working from the bottom up.'];
+    if (REC.lock) said.push('A lock on the input lets in only 0 and up.');
+    if (REC.kept) said.push(say(REC.kept) + ' is kept out.');
+    if (REC.stamps.in) said.push(say(REC.stamps.in.text) + ' goes in.');
+    if (REC.stamps.out) said.push(say(REC.stamps.out.text) + ' comes out of the first machine.');
+    if (REC.stamps.back) said.push(say(REC.stamps.back.text) + ' comes back' + (REC.notes.length ? ', ' + say(REC.notes[REC.notes.length - 1]) : '') + '.');
+    else said.push('What comes back is still to find.');
+    if (REC.level) said.push('On the graph, the level line at 9 cuts the square twice.');
+    if (REC.flow) said.push(say(REC.flow[1]) + '.');
+    return said.join(' ');
+  }
+
+  // Two small graphs, the square and the cube, with their level lines once a puzzle is checked.
+  function drawPair(i, st) {
+    REC = { mode: 'pair', levels: false, rings: [], dots: [], caps: [] };
+    const shown = st.res === 'right' || st.res === 'wrong';
+    const a = shown ? arr(0.1, 0.4) : 0, ac = shown ? arr(0.45, 0.4) : 0;
+    const ringOn = st.res === 'wrong' ? ({ Square: 'square', Neither: 'cube' })[st.pick] : null;
+    const ra = ringOn ? arr(0.8, 0.35) : 0;
+    const specs = [
+      { key: 'square', x0: 12, fn: (x) => x * x, yr: [-1, 7], levels: [4], dots: [[-2, 4], [2, 4]], up: [], caps: ['−2 and 2 give 4', 'line cuts twice'] },
+      { key: 'cube', x0: 180, fn: (x) => x * x * x, yr: [-10, 10], levels: [8, -8], dots: [[2, 8], [-2, -8]], up: [-2], caps: ['2 → 8, −2 → −8', 'lines cut once'] },
+    ];
+    const W = 148, y0 = 30, h = 140;
+    specs.forEach((g) => {
+      const X = (v) => g.x0 + (v + 2.5) / 5 * W, Y = (v) => y0 + h - (v - g.yr[0]) / (g.yr[1] - g.yr[0]) * h;
+      text(art, g.x0 + W / 2, 18, g.key, 'gtitle', 'middle');
+      line('axis', g.x0, Y(0), g.x0 + W, Y(0));
+      line('axis', X(0), Y(g.yr[1]), X(0), Y(g.yr[0]));
+      const pts = K.linspace(-2.5, 2.5, 101).map((x) => [x, g.fn(x)]).filter((q) => q[1] >= g.yr[0] && q[1] <= g.yr[1]).map((q) => [X(q[0]), Y(q[1])]);
+      polyline('curve', pts);
+      [-2, 2].forEach((x) => {
+        line('axis', X(x), Y(0) - 4, X(x), Y(0) + 4);
+        text(art, X(x), g.up.indexOf(x) >= 0 ? Y(0) - 8 : Y(0) + 17, F(x), 'tick', 'middle');
+      });
+      g.levels.forEach((L) => {
+        line('level', g.x0, Y(L), g.x0 + W, Y(L), a);
+        text(art, L > 0 ? X(0) - 5 : X(0) + 5, L > 0 ? Y(L) - 5 : Y(L) + 15, F(L), 'tick', L > 0 ? 'end' : 'start', a);
+      });
+      g.dots.forEach((q) => {
+        line('guide', X(q[0]), Y(q[1]) + (q[1] > 0 ? 6 : -6), X(q[0]), Y(0) + (q[1] > 0 ? -5 : 5), a);
+        circle('dot', X(q[0]), Y(q[1]), 5, a);
+        if (a >= 0.5) REC.dots.push([g.key, q[0], q[1]]);
+        if (ringOn === g.key) { circle('cring', X(q[0]), Y(q[1]), 10, ra); }
+      });
+      if (ringOn === g.key && ra >= 0.5) REC.rings.push(g.key);
+      g.caps.forEach((s, k) => text(art, g.x0 + W / 2, 198 + 18 * k, s, 'cap' + (ringOn === g.key ? ' bad' : ''), 'middle', ac));
+      if (ac >= 0.5) REC.caps.push(g.caps.join(' '));
+    });
+    REC.levels = a >= 0.5;
+    return 'Two graphs. The square, with inputs from −2.5 to 2.5, and the cube.' + (REC.levels ? ' A level line at 4 cuts the square twice, at −2 and 2. Level lines at 8 and −8 each cut the cube once.' : ' The puzzle is still to answer.');
+  }
+
+  // f(x) = 3x − 1 and its inverse on one grid; a point swaps its two numbers across y = x.
+  const fF = (x) => 3 * x - 1, fI = (x) => (x + 1) / 3;
+  const MX = (v) => 36 + v * 19.2, MY = (v) => 302 - v * 19.2;
+  function drawMirror(i, st) {
+    const a = st.u != null ? st.u : 5, A = [a, fF(a)], B = [fF(a), a];
+    REC = { mode: 'mirror', A, B, inv: false, texts: [] };
+    // axes and ticks
+    line('axis', MX(0), MY(0), MX(15), MY(0));
+    line('axis', MX(0), MY(0), MX(0), MY(15));
+    [0, 5, 10, 15].forEach((v) => {
+      line('axis', MX(v), MY(0), MX(v), MY(0) + 5);
+      text(art, MX(v), MY(0) + 17, String(v), 'tick', 'middle');
+      if (v > 0) { line('axis', MX(0) - 5, MY(v), MX(0), MY(v)); text(art, MX(0) - 8, MY(v) + 5, String(v), 'tick', 'end'); }
+    });
+    text(art, MX(15) + 6, MY(0) - 4, 'x', 'tick v', 'start');
+    text(art, MX(0) + 8, MY(15) + 10, 'y', 'tick v', 'start');
+    // the mirror, f, and f⁻¹ growing in
+    line('level', MX(0), MY(0), MX(15), MY(15));
+    line('curve', MX(1 / 3), MY(0), MX(16 / 3), MY(15));
+    const g = st.u != null ? 1 : prog(2.5, 1.1);
+    if (g > 0.001) polyline('curve two', K.linspace(0, 15 * g, 31).map((x) => [MX(x), MY(fI(x))]));
+    REC.inv = g >= 0.999;
+    // the key, inside the drawing
+    const ka = st.u != null ? 1 : arr(3.6, 0.35);
+    line('curve', 46, 34, 66, 34); text(art, 72, 39, 'f', 'pt', 'start');
+    line('curve two', 46, 56, 66, 56, ka); text(art, 72, 61, 'f⁻¹', 'pt', 'start', ka);
+    line('level', 46, 78, 66, 78); text(art, 72, 83, 'y = x', 'pt', 'start');
+    // the point on f, its copy crossing the mirror, and where it lands on f⁻¹
+    const aA = st.u != null ? 1 : arr(0.45, 0.4), tr = st.u != null ? 1 : prog(1.0, 1.3), aB = st.u != null ? 1 : arr(2.3, 0.35);
+    const pA = [MX(A[0]), MY(A[1])], pB = [MX(B[0]), MY(B[1])];
+    circle('dot', pA[0], pA[1], 5.5, aA);
+    text(art, pA[0] + 10, pA[1] + 2, '(' + F(A[0]) + ', ' + F(A[1]) + ')', 'pt', 'start', aA);
+    if (tr > 0.001) {
+      const q = [K.lerp(pA[0], pB[0], tr), K.lerp(pA[1], pB[1], tr)];
+      line('guide', pA[0] + 5, pA[1] + 5, q[0], q[1]);
+      if (tr < 0.999) circle('dot two', q[0], q[1], 5.5);
+    }
+    circle('dot two', pB[0], pB[1], 5.5, aB);
+    text(art, pB[0], pB[1] + 22, '(' + F(B[0]) + ', ' + F(B[1]) + ')', 'pt', 'middle', aB);
+    if (aA >= 0.5) REC.texts.push('(' + F(A[0]) + ', ' + F(A[1]) + ')');
+    if (aB >= 0.5) REC.texts.push('(' + F(B[0]) + ', ' + F(B[1]) + ')');
+    drag = { mirror: true, on: !finished, pA };
+    return 'A grid from 0 to 15 on both axes. The line f, y equals 3 x minus 1, its inverse f inverse, and the dashed mirror line y equals x. The point (' + F(A[0]) + ', ' + F(A[1]) + ') on f lands on (' + F(B[0]) + ', ' + F(B[1]) + ') on f inverse.';
+  }
+
+  // ---------- the drag: Dan pulls the number along the pipes, or the point along f ----------
+  const gripIn = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 26, 'aria-hidden': 'true' }));
+  const gripTok = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 26, tabindex: -1, role: 'slider', 'aria-label': 'The number in the machines', 'aria-orientation': 'vertical' }));
+  function placeGrips(d) {
+    const on = !!d.show && !finished && !!drag && drag.on;
+    gripIn.style.display = on && !drag.mirror ? '' : 'none';
+    gripTok.style.display = on ? '' : 'none';
+    gripTok.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    if (drag.mirror) {
+      gripTok.setAttribute('cx', r3(drag.pA[0])); gripTok.setAttribute('cy', r3(drag.pA[1]));
+      gripTok.setAttribute('aria-label', 'The point on f');
+      const a = S[at()].u != null ? S[at()].u : 5;
+      gripTok.setAttribute('aria-valuemin', 2); gripTok.setAttribute('aria-valuemax', 5); gripTok.setAttribute('aria-valuenow', a);
+      gripTok.setAttribute('aria-valuetext', 'x is ' + a + ', y is ' + fF(a));
+      return;
+    }
+    const p = posAt(drag.P, drag.u);
+    gripTok.setAttribute('aria-label', 'The number in the machines');
+    gripIn.setAttribute('cx', r3(drag.P.st[0][0])); gripIn.setAttribute('cy', r3(drag.P.st[0][1]));
+    gripTok.setAttribute('cx', r3(p[0])); gripTok.setAttribute('cy', r3(p[1]));
+    gripTok.setAttribute('aria-valuemin', drag.from); gripTok.setAttribute('aria-valuemax', drag.to); gripTok.setAttribute('aria-valuenow', r3(drag.u));
+    const n = (drag.P.st.length - 1) / 4, s = Math.round(drag.u);
+    gripTok.setAttribute('aria-valuetext', s === 0 ? 'At the input' : s === 2 * n ? 'On the pipe between the machines' : s === 4 * n ? 'Back out of the facing machine' : s % 2 ? 'Inside a step' : 'Between two steps');
+  }
+  const dragging = () => !finished && !!STEPS[at()].show && !!drag && drag.on;
+  function setU(v) {
+    const st = S[at()];
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    st.u = drag.mirror ? K.clamp(Math.round(v), 2, 5) : K.clamp(v, drag.from, drag.to);
+    K.reveal(); K.refresh();
+  }
+  // The nearest point on the pipes (in stops), or the nearest whole x on f, to the pointer.
+  function uFrom(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm || !drag) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    if (drag.mirror) {
+      const p0 = [MX(0), MY(fF(0))], dv = [MX(1) - MX(0), MY(fF(1)) - MY(fF(0))];
+      return ((q.x - p0[0]) * dv[0] + (q.y - p0[1]) * dv[1]) / (dv[0] * dv[0] + dv[1] * dv[1]);
+    }
+    let best = drag.from, bd = Infinity;
+    for (let s = drag.from; s < drag.to; s++) {
+      const g = drag.P.segs[s];
+      for (let k = 1; k < g.pts.length; k++) {
+        const a = g.pts[k - 1], b = g.pts[k], dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy || 1;
+        const t = K.clamp(((q.x - a[0]) * dx + (q.y - a[1]) * dy) / L2, 0, 1);
+        const ex = q.x - (a[0] + t * dx), ey = q.y - (a[1] + t * dy), dd = ex * ex + ey * ey;
+        if (dd < bd) { bd = dd; best = s + (g.cum[k - 1] + t * (g.cum[k] - g.cum[k - 1])) / (g.L || 1); }
+      }
+    }
+    return best;
+  }
+  let held = null;
+  function grab(e, fromStart) {
+    if (!dragging()) return;
+    held = e.pointerId;
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the grip */ }
+    e.preventDefault();
+    if (drag.mirror) { const v = uFrom(e); setU(v == null ? 5 : v); return; }
+    setU(fromStart ? drag.from : drag.u);
+  }
+  gripIn.addEventListener('pointerdown', (e) => grab(e, true));
+  gripTok.addEventListener('pointerdown', (e) => grab(e, false));
+  [gripIn, gripTok].forEach((g) => {
+    g.addEventListener('pointermove', (e) => {
+      if (held !== e.pointerId || !dragging()) return;
+      const v = uFrom(e);
+      if (v != null) setU(v);
+    });
+    const letGo = (e) => { if (held === e.pointerId) held = null; };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', () => { held = null; });
+  });
+  gripTok.addEventListener('keydown', (e) => {
+    if (!dragging()) return;
+    const by = { ArrowUp: -1, ArrowLeft: -1, ArrowDown: 1, ArrowRight: 1 }[e.key];
+    if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault();
+    if (drag.mirror) {
+      const a = S[at()].u != null ? S[at()].u : 5;
+      setU(e.key === 'Home' ? 2 : e.key === 'End' ? 5 : a + (e.key === 'ArrowUp' || e.key === 'ArrowRight' ? 1 : -1));
+      return;
+    }
+    setU(e.key === 'Home' ? drag.from : e.key === 'End' ? drag.to : by > 0 ? Math.floor(drag.u + 1e-6) + 1 : Math.ceil(drag.u - 1e-6) - 1);
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i, st) {
+    if (i == null) i = at();
+    if (st == null) st = S[i];
+    const d = STEPS[i], G = geo(d);
+    art.textContent = '';
+    drag = null;
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    const said = G.mode === 'pair' ? drawPair(i, st) : G.mode === 'mirror' ? drawMirror(i, st) : drawMachine(i, st, G);
+    svg.setAttribute('aria-label', said);
+    placeGrips(d);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.u = null; st.sw = 0; st.mode = 'demo'; play(endOf(i, st)); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    swapBtn.el.hidden = !d.show || !d.swap;
+    swapBtn.setLabel(st.sw % 2 ? 'Undo in reverse order' : 'Undo in the same order');
+    el('replay').hidden = replayBtn.el.hidden && swapBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      italics(b.el.appendChild(K.el('span')), opts[k], false);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? d.right || 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const MACH = STEPS.map((d, i) => i).filter((i) => !STEPS[i].mode);
+  const DO = MACH.filter((i) => !STEPS[i].show);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const swappedSt = () => Object.assign(blank(), { mode: 'swap', sw: 1 });
+  const C = (v, s) => F(v) === s;
+  const keysOf = (d) => d.L.concat(flip(d.R));
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepT = T;
+    T = t == null ? Infinity : t;
+    try {
+      paint(i, st);
+      return Object.assign({ texts: Array.from(art.querySelectorAll('text')).map((nd) => nd.textContent) }, REC);
+    } finally { T = keepT; paint(); }
+  }
+  // The answer a drawn puzzle picture gives: the ringed place, or what comes back.
+  function answerOf(i, g) {
+    const d = STEPS[i], spot = g.rings[0] || 'back', s = g.stamps[spot];
+    if (!s) return null;
+    return d.ans ? d.ans(s.v) : F(s.v);
+  }
+  // How many times a level line at L cuts a graph (sign changes on a fine grid that misses the roots).
+  function cuts(fn, L, a, b) {
+    let c = 0;
+    const xs = K.linspace(a + 0.00037, b - 0.00041, 4001);
+    for (let k = 1; k < xs.length; k++) if ((fn(xs[k - 1]) - L) * (fn(xs[k]) - L) < 0) c++;
+    return c;
+  }
+
+  K.check('For a function that multiplies by 3 and subtracts one, the inverse function is add one and then divide by 3: the first screen\'s facing machine runs + 1 then ÷ 3, turns 14 into 15 and then 5, and hands back every start tried from −6 to 10', () => {
+    const d = STEPS[0], g = drawn(0, blank());
+    return same(d.L, ['m3', 's1']) && same(flip(d.R), ['a1', 'd3']) && g.stamps.in.text === '5' && g.stamps.lg0.text === '15' && g.stamps.out.text === '14' &&
+      g.stamps.rg0.text === '15' && g.stamps.back.text === '5' && !g.stamps.back.bad && K.linspace(-6, 10, 33).every((x) => K.near(run(keysOf(d), x), x, 1e-9));
+  }, { source: BITESIZE });
+  K.check('Not all functions possess an inverse function; only one-to-one functions do: the square sends 3 and −3 to the same 9 and the root hands back 3 both times, while with the lock (0 and up) −3 is kept out and every start tried from 0 to 10 comes back', () => {
+    const g8 = drawn(idx('Two starts, one 9'), blank()), g10 = drawn(idx('The lock'), blank());
+    return M.sq.fn(3) === 9 && M.sq.fn(-3) === 9 && M.rt.fn(9) === 3 && g8.stamps.in.text === '−3' && g8.stamps.out.text === '9' && g8.stamps.back.text === '3' &&
+      g8.stamps.back.bad && g8.notes.indexOf('not −3') >= 0 && g10.lock && g10.kept === '−3' && g10.stamps.in.text === '3' && g10.stamps.back.text === '3' && !g10.stamps.back.bad &&
+      K.linspace(0, 10, 41).every((x) => K.near(M.rt.fn(M.sq.fn(x)), x, 1e-9)) && [-0.5, -1, -3].every((x) => !K.near(M.rt.fn(M.sq.fn(x)), x, 1e-9));
+  }, { source: HELM });
+  K.check('A horizontal line drawn on the graph that cuts it more than once means two different inputs have yielded the same output: the level line at 9 cuts the square twice, at −3 and 3, the one at 4 twice, at −2 and 2, while the cube\'s level lines at 8 and −8 cut it once each', () => {
+    const g8 = drawn(idx('Two starts, one 9'), blank()), gp = drawn(idx('Square or cube?'), solvedSt(idx('Square or cube?')));
+    const sq = (x) => x * x, cu = (x) => x * x * x;
+    return cuts(sq, 9, -4, 4) === 2 && cuts(sq, 4, -2.5, 2.5) === 2 && cuts(cu, 8, -2.5, 2.5) === 1 && cuts(cu, -8, -2.5, 2.5) === 1 &&
+      g8.level === 9 && g8.dots.length === 2 && g8.dots.every((q) => q[1] === 9) && g8.dots.map((q) => q[0]).sort().join() === '-3,3' &&
+      gp.levels && gp.dots.filter((q) => q[0] === 'square').every((q) => q[2] === 4) && gp.dots.filter((q) => q[0] === 'cube').map((q) => q[2]).sort().join() === '-8,8';
+  }, { source: HELM });
+  K.check('√0.5 = 0.707, so a 12 mA signal from the DP cell is 50% DP but 71% flow rate: the lock screen\'s flow meter line reads √0.5 = 0.707, so 71% of full flow', () => {
+    const g = drawn(idx('The lock'), blank());
+    return K.near(Math.sqrt(0.5), 0.70711, 1e-5) && Math.round(100 * Math.sqrt(0.5)) === 71 && K.near((12 - 4) / 16, 0.5, 1e-12) &&
+      !!g.flow && g.flow[1] === '√' + F(0.5) + ' = ' + F(Math.sqrt(0.5)) + ', so ' + Math.round(100 * Math.sqrt(0.5)) + '% of full flow';
+  }, { source: CE });
+  K.check('The DP is proportional to the square of the flow, so the system must scale flow from the square root of the DP: for every flow from 0 to 1 of full, the root of its square gives the flow back', () =>
+    K.linspace(0, 1, 41).every((q) => q >= 0 && K.near(M.rt.fn(M.sq.fn(q)), q, 1e-12)), { source: CE });
+  K.check('Each real-world value is converted with the linear equation y = mx + b: S(p) = 0.16p + 4 sends 0% to 4 mA and 100% to 20 mA, its 16 mA span over 100% is 0.16 mA per percent, and its undoing machine takes 12 mA to 50%, 16 mA to 75% and every reading from 4 to 20 mA back to its percentage', () => {
+    const S6 = STEPS[idx('mA back to percent')], undo = flip(S6.R);
+    return K.near(run(S6.L, 0), 4, 1e-12) && K.near(run(S6.L, 100), 20, 1e-12) && K.near((20 - 4) / 100, 0.16, 1e-12) &&
+      K.near(run(undo, 12), 50, 1e-9) && K.near(run(undo, 16), 75, 1e-9) && K.near(run(undo, 8), 25, 1e-9) &&
+      K.linspace(4, 20, 17).every((I) => K.near(run(S6.L, run(undo, I)), I, 1e-9)) &&
+      K.linspace(0, 90, 10).every((p) => K.near(run(S6.L, p + 10) - run(S6.L, p), 1.6, 1e-9));
+  }, { source: CONTROL });
+  K.check('Graph functions and their inverse functions: the closing screen plots f(x) = 3x − 1 and its inverse on one grid, (5, 14) on f lands on (14, 5) on the inverse, and every point tried on f, its two numbers swapped, lies on the inverse', () => {
+    const g = drawn(STEPS.length - 1, blank()), g2 = drawn(STEPS.length - 1, Object.assign(blank(), { u: 2 }));
+    return g.A.join() === '5,14' && g.B.join() === '14,5' && g.inv && g.texts.indexOf('(5, 14)') >= 0 && g.texts.indexOf('(14, 5)') >= 0 &&
+      g2.A.join() === '2,5' && g2.B.join() === '5,2' && K.linspace(0.5, 5, 10).every((x) => K.near(fI(fF(x)), x, 1e-12) && K.near(fF(fI(x)), x, 1e-12));
+  }, { source: SQA });
+  K.check('On every machine screen, and after every answer, each number drawn is what its step makes of the number before it, the first machine working top to bottom and the facing one bottom to top; an answer dropped into the input runs forwards to the number given', () =>
+    MACH.every((i) => {
+      const d = STEPS[i], n = d.L.length;
+      const sts = d.show ? [blank()].concat(d.swap ? [swappedSt()] : []) : [blank(), solvedSt(i)].concat(d.opts.filter((o) => o !== d.want).map((o) => wrongSt(i, o)));
+      return sts.every((st) => {
+        const V = viewOf(i, st), g = drawn(i, st), keys = d.L.concat(flip(V.R)), by = {};
+        Object.keys(g.stamps).forEach((k) => { if (!g.stamps[k].fill) by[g.stamps[k].s] = g.stamps[k]; });
+        const lastRun = V.runs[V.runs.length - 1];
+        if (lastRun.to > lastRun.from && !Object.keys(g.stamps).some((k) => !g.stamps[k].src)) return false;
+        const fill = g.stamps.in && g.stamps.in.fill ? g.stamps.in : null;
+        if (fill && !(g.stamps.out && K.near(run(d.L, fill.v), g.stamps.out.v, 1e-9))) return false;
+        return Object.keys(by).every((s) => {
+          const r = by[s], c = r.s / 2;
+          if (r.src) return true;
+          const before = by[r.s - 2];
+          return !!before && K.near(r.v, M[keys[c - 1]].fn(before.v), 1e-9) && r.text === F(r.v) + ((d.units || {})[r.s === 2 * n ? 'out' : r.s === 4 * n ? 'back' : r.s === 0 ? 'in' : ''] || '');
+        });
+      });
+    }));
+  K.check('Each step in a facing machine is the opposite of the one beside it: run through it, the number between its steps matches the first machine\'s at the same height and the start comes back, on screens 1, 3, 5 and 7; undone in the same order, 14 gives 10 and then 5, not 3', () => {
+    const ok = [0, 2, 4, 6].every((i) => {
+      const d = STEPS[i], g = drawn(i, blank());
+      return d.L.every((k, j) => M[d.R[j]].fn(M[k].fn(7)) === 7 || K.near(M[d.R[j]].fn(M[k].fn(7)), 7, 1e-9)) &&
+        (d.L.length < 2 || K.near(g.stamps.lg0.v, g.stamps.rg0.v, 1e-9)) && K.near(g.stamps.back.v, d.x, 1e-9) && !g.stamps.back.bad;
+    });
+    const s2 = drawn(idx('Last on, first off'), swappedSt());
+    return ok && s2.stamps.rg0.text === '10' && s2.stamps.back.text === '5' && s2.stamps.back.bad && s2.stamps.lg0.text === '7' && s2.notes.indexOf('not 3') >= 0;
+  });
+  K.check('Each puzzle accepts only its own answer, and after each wrong pick the picture shows the slip making exactly that answer: stopping halfway, running the machine forwards again, undoing in the same order, reading −1 as a power, forgetting the 4 mA, or taking the root first', () => {
+    const pi = idx('Square or cube?');
+    return DO.concat([pi]).every((i) => {
+      const d = STEPS[i];
+      if (!d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want))) return false;
+      if (d.mode === 'pair') {
+        const r = drawn(i, solvedSt(i)), w1 = drawn(i, wrongSt(i, 'Square')), w2 = drawn(i, wrongSt(i, 'Neither'));
+        return r.levels && r.rings.length === 0 && w1.rings.join() === 'square' && w2.rings.join() === 'cube';
+      }
+      if (answerOf(i, drawn(i, solvedSt(i))) !== d.want) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => answerOf(i, drawn(i, wrongSt(i, o))) === o);
+    });
+  });
+  K.check('Before an answer, nothing in a puzzle\'s picture gives it away: only the number given is drawn, the places still to fill wait empty or as question marks, and no level line shows', () =>
+    DO.concat([idx('Square or cube?')]).every((i) => {
+      const d = STEPS[i], g = drawn(i, blank());
+      if (d.mode === 'pair') return !g.levels && g.dots.length === 0 && g.caps.length === 0;
+      return Object.keys(g.stamps).every((k) => g.stamps[k].src) && Object.keys(g.stamps).length === 1 && g.texts.indexOf(d.want) < 0 && g.rings.length === 0;
+    }));
+  K.check('Every demonstration has settled within 4.6 s of its screen opening, none starting before the 0.35 s screen fade ends, and the same-order switch within 4 s; every answer\'s motion, right or wrong, within 3 s', () => {
+    const ok = STEPS.every((d, i) => {
+      if (d.show) {
+        const e = endOf(i, blank()), s = earliest;
+        return e <= 4.6 && e >= 3 && s >= FADE && (!d.swap || endOf(i, swappedSt()) <= 4);
+      }
+      return endOf(i, solvedSt(i)) <= 3 && d.opts.filter((o) => o !== d.want).every((o) => endOf(i, wrongSt(i, o)) <= 3);
+    });
+    paint();
+    return ok;
+  });
+  K.check('Every worked number is right (5 → 15 → 14 and back; 8 → 9 → 3, 23 forwards; 3 → 7 → 14 and back, 10 and 5 the same order; 20 → 10 → 6, 16 and 8 the same order, 48 forwards; 10 ÷ 2 = 5, 1 ÷ f(10) = 0.05, 20 doubled; 50% → 8 → 12 mA and back; 16 mA → 12 → 75%, 100% without the 4 mA, 96% the same order; 3 and −3 → 9 → 3; 100 W → 25 → 5 A, root first 10 then 2.5; 2³ = 8, (−2)³ = −8, 2² = (−2)² = 4; 8 mA → 4 → 25%)', () =>
+    C(M.m3.fn(5), '15') && C(run(['m3', 's1'], 5), '14') && C(M.a1.fn(14), '15') && C(run(['a1', 'd3'], 14), '5') &&
+    C(M.a1.fn(8), '9') && C(run(['a1', 'd3'], 8), '3') && C(run(['m3', 's1'], 8), '23') &&
+    C(M.a4.fn(3), '7') && C(run(['a4', 't2'], 3), '14') && C(run(['h2', 's4'], 14), '3') && C(M.s4.fn(14), '10') && C(run(['s4', 'h2'], 14), '5') &&
+    C(run(['h2', 's4'], 20), '6') && C(M.s4.fn(20), '16') && C(run(['s4', 'h2'], 20), '8') && C(run(['a4', 't2'], 20), '48') &&
+    C(M.h2.fn(10), '5') && C(M.rec.fn(10), '0.05') && C(M.t2.fn(10), '20') &&
+    C(M.m16.fn(50), '8') && C(run(['m16', 'a4'], 50), '12') && C(M.s4.fn(12), '8') && C(run(['s4', 'd16'], 12), '50') &&
+    C(M.s4.fn(16), '12') && C(run(['s4', 'd16'], 16), '75') && C(M.d16.fn(16), '100') && C(run(['d16', 's4'], 16), '96') &&
+    C(M.sq.fn(3), '9') && C(M.sq.fn(-3), '9') && C(run(['sq', 'rt'], -3), '3') &&
+    C(M.d4.fn(100), '25') && C(run(['d4', 'rt'], 100), '5') && C(M.rt.fn(100), '10') && C(run(['rt', 'd4'], 100), '2.5') && C(run(['sq', 'm4'], 5), '100') &&
+    C(2 * 2 * 2, '8') && C(-2 * -2 * -2, '−8') && C(2 * 2, '4') && C(-2 * -2, '4') && C(fF(5), '14') && C(fI(14), '5') &&
+    C(M.s4.fn(8), '4') && C(run(['s4', 'd16'], 8), '25'));
+
+  K.ready();
+</script>

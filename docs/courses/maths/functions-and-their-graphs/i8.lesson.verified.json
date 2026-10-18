@@ -1,0 +1,383 @@
+{
+  "iid": "i8",
+  "title": "Undoing a machine",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the first machine's output passing into its facing machine, whose steps light up backwards in reverse order, and the number you started with coming out, when you drag an input through.",
+    "title": "The machine and its mirror",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in fourteen small screens on undoing a function. A machine sits on the left and its undoing machine faces it on the right, each a box with its steps written inside in order, joined by a short pipe. Drag an input into the first box: its steps light up one by one and its output rides along the pipe into the second box, whose steps light up from the last back to the first, and the number you started with drops out. Each step in the second box is the opposite of one in the first, and they are in reverse order, because each step in the first box worked on what the step before it handed over, so the last step done must be the first undone. Screen 1 (step 0) is lesson 1's machine, × 3 then − 1: 5 gives 15 and then 14, and the facing machine, + 1 then ÷ 3, turns 14 into 15 and then 5. Screen 2 (step 1) asks what went in when 8 came out: 3, with the slips 9 (stopped after + 1) and 23 (ran the first machine again). Screen 3 (step 2) is lesson 7's 'add 4, then double': 3 gives 7 and 14; halve then take 4 gives 7 and 3, while a faint wrong box that undoes in the same order, take 4 then halve, gives 10 and 5. Screen 4 (step 3) leaves the facing box blank and asks you to build it: add 4, then double, gave 20, so which undoing order brings back the start? ÷ 2 then − 4 runs 20 to 10 and then 6, while the slip − 4 then ÷ 2 gives 16 and then 8. Screen 5 (step 4) names the facing machine f⁻¹(x), read 'f inverse', with the −1 shown as part of the name, and joins the two boxes as lesson 7's chain f⁻¹(f(x)), which gives back x. Screen 6 (step 5) asks f⁻¹(10) for f(x) = 2x: 5, with the slips 0.05 (1 ÷ f(10), reading the −1 as a power) and 20 (doubled instead). Screen 7 (step 6) is the 4 to 20 mA loop's rule from lesson 2, S(p) = 0.16p + 4, a box of × 0.16 then + 4, which takes 50% to 12 mA; its facing box, − 4 then ÷ 0.16, takes 12 mA to 8 and then 50%. Here 0.16 is the 16 mA span of the loop shared over 100%. Screen 8 (step 7) asks the percent for 16 mA: 75, with the slips 100 (forgot to take off the 4 mA) and 96 (same order: 100, then 96). Screen 9 (step 8) is the square machine: 3 and −3 both give 9, and both 9s go into the root box, which hands back 3 both times, so −3 does not come back; a level line on a small graph cuts the square twice at 9. Screen 10 (step 9) asks what comes out when −3 goes through the square and then the root: 3, with the slips −3 (assumed the root undoes it) and 9 (stopped at the square). Screen 11 (step 10) closes a lock on the square's input slot that takes only 0 and up: −3 is kept out, and now each output comes from one input and the root gives back every start. Flow, as a fraction of full, runs from 0 to 1 and never goes below 0, so the flow meter's square law is locked already: a flow of 0.707 goes in, 0.5 pressure difference comes out, and the root gives back 0.707, 71% flow. Screen 12 (step 11), a mixed puzzle: a heater on P(I) = I²R with an example 16 Ω makes an example 3600 W; undo ÷ 16 then √ to get 225 and then 15 A, with the slips 3.75 (root first: 60, then 3.75) and 225 (stopped before the root). Screen 13 (step 12), a mixed puzzle: which machine can be undone with no lock, the cube or the square? The cube, with the slip 'the square' (2 and −2 both give 4) and 'neither'; the cube's 2 and −2 give 8 and −8, two different outputs, and its level line cuts once, as in lesson 3. Screen 14 (step 13), the closing screen, plots f(x) = 3x − 1 and its inverse on one grid: f takes 5 to 14, so f⁻¹ takes 14 back to 5, and a graph plots input across and output up, so the point (5, 14) on f appears as (14, 5) on f⁻¹. Every point swaps its two numbers like this, so the two graphs are mirror images in the dashed line y = x. The point on f can be dragged, whole x from 2 to 5, to see another pair swap. A last line names the exponential and the logarithm as the next inverse pair, for Exponentials and logarithms. Some screens show an idea and the rest ask you to try it: a puzzle offers two or three answers, and a wrong pick slides or fades the facing steps into the slip's and runs the number through them to the answer it makes.",
+    "ignores": "The machines pass one number at a time and are exact; real transmitters and controllers carry small errors and work on their signal all the time. The flow meter is drawn as its ideal square law, with flow and pressure difference as fractions of full. The current in P = I²R is taken as a size, 0 and up, since the formula gives the same power either way round. Only ordinary (real) numbers are used: a root of a negative number belongs to Complex numbers. The add 4 and double machines, the 8, 12 and 16 mA readings, the 16 Ω heater and its 3600 W are example values.",
+    "numbers": [
+      {
+        "label": "Lesson 1's machine: × 3, step 0",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Lesson 1's machine: then − 1, step 0",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example input, step 0",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "5 × 3 = 15, step 0",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "15 − 1 = 14 drops out, step 0",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Back: 14 + 1 = 15, then ÷ 3 = 5",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Example output, step 1",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "8 + 1 = 9, ÷ 3 = 3; slips 9, 23, step 1",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: ran forwards again, 8 × 3 − 1",
+        "value": 23,
+        "kind": "computed"
+      },
+      {
+        "label": "Example machine: add 4, step 2",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example machine: then double, × 2, step 2",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "3 + 4 = 7, step 2",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "7 doubled: 14 drops out, step 2",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Same order slip: 14 − 4 = 10, step 2",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Same order slip: 10 halved gives 5, step 2",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Example output, step 3",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "20 halved = 10, take 4 = 6, step 3",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Same order slip: 20 − 4 = 16, then 8",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Same order slip: 20 − 4, step 3",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Example f(x) = 2x: input asked, f⁻¹(10), step 5",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "f⁻¹(10) = 10 ÷ 2 = 5, step 5",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 1 ÷ f(10) = 1 ÷ 20 = 0.05",
+        "value": 0.05,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: doubled instead, 20, step 5",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "4 to 20 mA loop: 0% sends 4 mA",
+        "value": 4,
+        "kind": "constant"
+      },
+      {
+        "label": "4 to 20 mA loop: 100% sends 20 mA",
+        "value": 20,
+        "kind": "constant"
+      },
+      {
+        "label": "Span of the loop, 20 − 4 mA",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "S(p) = 0.16p + 4: mA per percent, 16 ÷ 100",
+        "value": 0.16,
+        "kind": "computed"
+      },
+      {
+        "label": "Full scale, percent",
+        "value": 100,
+        "kind": "constant"
+      },
+      {
+        "label": "Example signal, mA, step 6",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "12 − 4 = 8, step 6",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "8 ÷ 0.16 = 50%, step 6",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "Example signal, mA, step 7",
+        "value": 16,
+        "kind": "assumed"
+      },
+      {
+        "label": "16 − 4 = 12, step 7",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "12 ÷ 0.16 = 75%; slips 100, 96, step 7",
+        "value": 75,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: forgot the 4 mA, 16 ÷ 0.16",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: same order, 100 − 4",
+        "value": 96,
+        "kind": "computed"
+      },
+      {
+        "label": "Square: 3 squared is 9, step 8",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Square: −3 squared is 9 too, step 8",
+        "value": -3,
+        "kind": "assumed"
+      },
+      {
+        "label": "−3 squared then rooted gives 3, step 9",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Lock: inputs 0 and up, step 10",
+        "value": 0,
+        "kind": "assumed"
+      },
+      {
+        "label": "Flow fractions run 0 to 1, full flow",
+        "value": 1,
+        "kind": "constant"
+      },
+      {
+        "label": "Pressure difference fraction at 12 mA, step 10",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "√0.5 = 0.707: 50% pressure difference is 71% flow",
+        "value": 0.707,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Flow at 12 mA, percent of full",
+        "value": 71,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Example heater resistance, Ω, step 11",
+        "value": 16,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example heater power, W, step 11",
+        "value": 3600,
+        "kind": "assumed"
+      },
+      {
+        "label": "3600 ÷ 16 = 225, step 11",
+        "value": 225,
+        "kind": "computed"
+      },
+      {
+        "label": "√225 = 15 A; slips 3.75, 225, step 11",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: root first, √3600 = 60",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: root first, 60 ÷ 16 = 3.75",
+        "value": 3.75,
+        "kind": "computed"
+      },
+      {
+        "label": "Cube: 2 gives 8, step 12",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Cube: −2 gives −8, step 12",
+        "value": -8,
+        "kind": "computed"
+      },
+      {
+        "label": "Square: 2 and −2 both give 4, step 12",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Example input 2 and −2, step 12",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Point on f: (5, 14), step 13",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: loop reading, mA",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: 8 − 4 = 4",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: 4 ÷ 0.16 = 25%",
+        "value": 25,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "An inverse function is a function's undoing machine: feed it what came out, and it hands back what went in. It does the opposite of each step, in reverse order. That works only for a function that never gives two inputs the same output.\n\nTake lesson 1's machine, × 3 then − 1. Put in 5: × 3 gives 15, then − 1 gives 14. To get back, undo the last step first. + 1 turns 14 into 15, and ÷ 3 turns 15 into 5. So the inverse of multiplying by 3 and subtracting 1 is adding 1 and then dividing by 3.[^2] The order matters because each step worked on what the step before handed it, as in lesson 7's chains. Take \"add 4, then double\": 3 becomes 7, then 14. Halve and then take 4, and 14 goes back to 7 and then 3. Take 4 and then halve, and 14 gives 10 and then 5, the wrong start. The 4 went in before the doubling, so it has to come off after the halving. Textbooks call the undoing machine the [[inverse function]], write it f⁻¹(x) and read it \"f inverse\". They add that the −1 is part of the name, not a power, so f⁻¹(x) is not 1 ÷ f(x).[^8] Feeding f's output straight into f⁻¹ is a chain, f⁻¹(f(x)), and it gives back x.\n\nSome machines cannot be undone. The square sends 3 and −3 to the same 9. The root machine gets only the 9, nothing in it says which went in, and it hands back 3, the positive root. Only one-to-one functions have an inverse,[^3] and a level line that cuts a graph twice shows two inputs giving the same output.[^4] The way round it is a lock: take only inputs of 0 and up, and each output comes from one input again, so the root undoes the square every time. Rearranging P = I²R into I = √(P ÷ R), as you did in Solving equations, is exactly this, ÷ R and then the root, with the current taken as a size, 0 and up. Drawn on one grid, f takes 5 to 14, so f⁻¹ takes 14 back to 5, and a graph plots input across and output up, so (5, 14) on f becomes (14, 5) on f⁻¹. Every point swaps its two numbers like this, so the graph of f⁻¹ is the graph of f mirrored in the line y = x. The SQA HN engineering maths unit asks you to find inverse functions and to graph them.[^5]\n\nWhen the controller takes the square root, as it can instead of the transmitter, it runs two of this course's machines backwards. It undoes the loop's straight line,[^6] S(p) = 0.16p + 4, as take 4 then ÷ 0.16, so 12 mA gives 8 and then 50% pressure difference. Flow fractions run from 0 to 1, so the square law is already locked, and the root undoes it: 50% pressure difference is 71% flow.[^7][^1] **An inverse function, f⁻¹, does the opposite of each step in reverse order and hands back the input, and only a function that never gives two inputs the same output has one.[^3]**"
+  },
+  "analogy": {
+    "text": "Think of a junction box. You fit the cover, then drive in the screws. To get back inside you take the screws out first, then lift the cover: the last thing done is the first undone, just as the inverse undoes the last step first.",
+    "breaks": "Every step of fitting a cover can be reversed, but some number machines cannot be undone as they stand. The square sends 3 and −3 to the same 9, and nothing in the 9 says which went in, so it needs its inputs locked to 0 and up before the root can undo it."
+  },
+  "practice": {
+    "text": "- Write the machine's steps in order. For S(p) = 0.16p + 4 that is × 0.16, then + 4.\n- Check it never gives two inputs the same output. If it can, as a square can, lock its inputs first, such as to 0 and up.\n- Write the opposite of each step, in reverse order. For S that is − 4, then ÷ 0.16.\n- Check by running your answer forwards through the first machine. It should give the number you started from.\n\n**Rule of thumb:** Last on, first off. The step done last is undone first.\n\n**Worked example:** A loop reads 8 mA. Undo S: 8 − 4 = 4, then 4 ÷ 0.16 = 25, so the reading is 25% of full scale. Check forwards: 0.16 × 25 + 4 = 8 mA.\n\n**Mistakes to watch for**\n- Undoing in the same order. For \"add 4, then double\", 14 gives 5 that way, but halving first gives back the true 3.\n- Reading f⁻¹(x) as 1 ÷ f(x). For f(x) = 2x, f⁻¹(10) is 5, not 0.05.\n- Forgetting the 4 mA at the bottom of the loop. 16 mA is 75%, not 100%.\n- Undoing a square without the lock. −3 squared is 9, and the root gives back 3, not −3."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Square root scaling for differential pressure flowmeters - Control Engineering",
+      "url": "https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters",
+      "quote": "But the root of a number from 0-1 is larger: √0.5 = 0.707. So if there is a 12 mA signal from the DP cell, that’s 50% DP, but 71% flow rate."
+    },
+    {
+      "n": 2,
+      "title": "Higher – Functions – GCSE Maths Revision – BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zvd3wsg",
+      "quote": "For example, for a function that multiplies by 3 and subtracts one , the inverse function is add one and then divide by 3 ."
+    },
+    {
+      "n": 3,
+      "title": "About the HELM Project",
+      "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf",
+      "quote": "Not all functions possess an inverse function. In fact, only one-to-one functions do so."
+    },
+    {
+      "n": 4,
+      "title": "About the HELM Project",
+      "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf",
+      "quote": "We see that a horizontal line drawn on the graph cuts it more than once. This means that two (or more) different inputs have yielded the same output and so the function is many-to-one."
+    },
+    {
+      "n": 5,
+      "title": "national unit specification: general information",
+      "url": "https://www.sqa.org.uk/sqa/files/hn/H7K033.pdf",
+      "quote": "Determine the inverse functions of a range of functions  Graph functions and their inverse functions  Introduce composite functions (again this may be done in terms of set theory)  Derive and evaluate a number of composite functions"
+    },
+    {
+      "n": 6,
+      "title": "Relating 4 to 20 mA Signals to Instrument Variables | Understanding Analog Instrumentation | Textbook",
+      "url": "https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables",
+      "quote": "Each real-world value must be converted into its analog current equivalent, then into a scaled integer value, and finally back into a real-world representation, all with the linear equation: y=mx+b."
+    },
+    {
+      "n": 7,
+      "title": "Square root scaling for differential pressure flowmeters - Control Engineering",
+      "url": "https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters",
+      "quote": "Regardless of the type of obstruction (orifice plate, Venturi or Pitot tube, etc), the DP is proportional to the square of the flow. Therefore the system must scale flow from the square root of the DP."
+    },
+    {
+      "n": 8,
+      "title": "About the HELM Project",
+      "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf",
+      "quote": "Do not confuse the ‘ _−_ 1’ with an index, or power. Here the superscript is used purely as the notation for the inverse function."
+    }
+  ]
+}
