@@ -5,7 +5,10 @@
 // started course's row says where Dan is ("Lesson 3 of 6"). Above the shelves: the look-up field,
 // the course he left open (its tone, cover and lesson) and the puzzles in the box (none: no row);
 // shelves with nothing built fold under one line, and so do a folder's planned courses (open when
-// nothing in it is built), each fold kept as he left it. The old Ready-made courses page opens
+// nothing in it is built), each fold kept as he left it. Typing in the look-up field replaces the
+// page with matching lessons (then courses), a count line and, for nothing, a plain note; a lesson
+// row opens its lesson (ready) or its course (coming soon); the words stay while he browses and
+// comes back; clearing brings the page back. The old Ready-made courses page opens
 // the home; the Book tab opens the dossiers, ending with "In your own words" and the Map.
 // Screenshots: tests/out/shelves/.
 import { spawnSync } from 'node:child_process';
@@ -49,6 +52,8 @@ for (const tid of Object.keys(SEED.topics)) base['topics/' + tid] = SEED.topics[
 const UID = 'u_stubuser0000000000000000';
 const MADE = { ...base, 'topics/how-tides-work-ab12': { ...SEED.topics['how-tides-work-ab12'], readyMade: { shelf: 'maths', course: 'fractions' } } };
 for (const [tid, v] of Object.entries(SEED.progress)) MADE[`data/users/${UID}/profile/progress/${tid}`] = v;
+// Tides' third lesson is built; the rest are not (so they are coming soon).
+MADE['topics/how-tides-work-ab12/lessons/i3'] = { status: 'ready', updatedAt: '2026-10-01T08:00:00.000Z', lesson: { iid: 'i3', title: 'Two bulges, not one' }, interactive: null, note: 'No interactive.' };
 MADE[`data/users/${UID}/profile/cards/how-tides-work-ab12`] = { cards: { i1_c1: CARD('i1_c1', '2099-01-01'), i1_c2: CARD('i1_c2', '2099-01-02') } };
 
 let app = await open({ ...MADE, 'shelves/maths': SHELF, 'shelves/science': LATER });
@@ -114,6 +119,42 @@ ok(await page.locator('.shelf-fold').evaluate((d) => d.open), 'a folder with not
 await page.evaluate(() => U.go('#/shelf/maths/nope'));
 await page.waitForSelector('.v-empty');
 ok(/not in Maths any more/.test(await page.locator('.v-empty').innerText()), 'an unknown folder says so');
+// Look up: every typed word in a lesson's title or one line; titles first.
+await page.evaluate(() => U.go('#/'));
+await page.waitForSelector('.lib-home .shelf-card');
+await page.fill('#lib-look', 'BULGES');
+await page.waitForSelector('.lib-results:not([hidden]) .shelf-course');
+ok(await page.locator('.lib-body').evaluate((b) => b.hidden), 'the results take the page\'s place');
+const hits = await page.locator('.lib-hits .shelf-title').allTextContents();
+ok(hits[0] === 'Two bulges, not one' && hits[1] === 'Earth turns under the bulges', 'titles that match, case-insensitive, in course order (' + hits.join(' | ') + ')');
+ok((await page.locator('.lib-count').textContent()) === hits.length + ' lessons', 'a count line (' + await page.locator('.lib-count').textContent() + ')');
+await page.waitForFunction(() => /ready to browse/.test((document.querySelector('.lib-hits li:first-child .shelf-ready') || {}).textContent || ''));
+ok((await page.locator('.lib-hits li').first().locator('.shelf-ready').textContent()) === 'How tides work · lesson 3 · ready to browse', 'a built lesson is ready to browse');
+ok((await page.locator('.lib-hits li').first().locator('a').getAttribute('href')) === '#/t/how-tides-work-ab12/i3', 'and opens the lesson');
+await page.waitForFunction(() => /coming soon/.test((document.querySelector('.lib-hits li:nth-child(2) .shelf-meta') || {}).textContent || ''));
+ok((await page.locator('.lib-hits li').nth(1).locator('a').getAttribute('href')) === '#/t/how-tides-work-ab12', 'one not built yet says coming soon and opens its course');
+await page.fill('#lib-look', 'pull distance');
+await page.waitForFunction(() => /Gravity weakens with distance/.test((document.querySelector('.lib-hits') || {}).textContent || ''));
+ok((await page.locator('.lib-hits .shelf-title').allTextContents()).join(' | ') === 'Gravity weakens with distance', 'every word must appear, in the title or the one line');
+await page.fill('#lib-look', 'tides');
+await page.waitForSelector('.lib-hits.is-courses');
+ok((await page.locator('.lib-hits.is-courses .shelf-title').textContent()) === 'How tides work', 'courses match by title and blurb, after the lessons');
+ok(/ · 1 course$/.test(await page.locator('.lib-count').textContent()), 'counted (' + await page.locator('.lib-count').textContent() + ')');
+await page.screenshot({ path: join(SHOTS, 'lookup-360.png') });
+await page.fill('#lib-look', 'zebra crossing');
+await page.waitForSelector('.lib-none');
+ok((await page.locator('.lib-none').textContent()) === 'Nothing called that yet. Try a word from the lesson\'s title.', 'nothing found says so plainly');
+// The words stay while he browses and comes back.
+await page.fill('#lib-look', 'bulges');
+await page.waitForSelector('.lib-hits .shelf-course');
+await page.locator('.lib-hits a').nth(1).click();
+await page.waitForFunction(() => location.hash === '#/t/how-tides-work-ab12');
+await page.evaluate(() => U.go('#/'));
+await page.waitForSelector('.lib-hits .shelf-course');
+ok((await page.inputValue('#lib-look')) === 'bulges', 'back on the home, his words and their results are still there');
+await page.click('.lib-look-clear');
+ok(!(await page.locator('.lib-body').evaluate((b) => b.hidden)) && (await page.locator('.lib-results').evaluate((r) => r.hidden)) && (await page.inputValue('#lib-look')) === '', 'clearing brings the page back');
+ok((await page.evaluate(() => document.activeElement && document.activeElement.id)) === 'lib-look', 'with the field ready to type in');
 // The old Ready-made courses page opens the home.
 await page.evaluate(() => U.go('#/library/courses'));
 await page.waitForFunction(() => location.hash === '#/' && !!document.querySelector('.lib-home'));

@@ -1761,6 +1761,15 @@ a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
 .lib-look-ico svg { width: 20px; height: 20px; }
 .lib-look-input.input { min-height: 52px; padding: 12px 16px 12px 46px; box-shadow: none; }
 .lib-look-input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+.lib-look-input.input { padding-right: 56px; }
+.lib-look-clear { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 12px; background: var(--sunk); color: var(--heading); cursor: pointer; }
+.lib-look-clear svg { width: 20px; height: 20px; }
+/* The results, in place of the page below the field: a --mono count line, lesson rows (the
+   shelf-course shape in the course's tone), then course rows. */
+.lib-count { margin: -8px 0 0; font: 500 .8125rem/1.4 var(--mono); color: var(--muted); }
+.lib-results { display: grid; gap: 10px; }
+.lib-hits.is-courses { margin-top: 6px; }
+.shelf-course[data-tone] .shelf-ico { background: var(--acc-tint); color: var(--acc-ink); }
 /* Left open and the puzzle box: two .today-rows. The course left open carries its tone band and
    cover; the box's tile is teal (a label), never amber: nothing is due. Side by side from 900 px. */
 .lib-rows { display: grid; gap: 12px; }
@@ -2674,7 +2683,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-18-8676df6";
+U.BUILD = "2026-10-18-6f5f23a";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -17733,7 +17742,7 @@ U.interactive = (function () {
 // ---- src/js/77-library.js ----
 // The Library, the home (#/): ready-made courses only (Dan, 18 Oct: "material and content I can
 // dive into when I feel like learning something new or brushing up"). Top to bottom: the look-up
-// field, one row for the course he left open, one row for the puzzles in the box, then the shelves
+// field (typing replaces the page below it with the lessons and courses that match), one row for the course he left open, one row for the puzzles in the box, then the shelves
 // as 76-shelves.js draws them, the shelves with nothing built yet folded under one line. Nothing on
 // it is due or counts down, and a row with nothing to say is not drawn. It also queues the course
 // pictures (35-art.js) and, once he has a course, asks once whether he wants them (below the
@@ -17811,13 +17820,81 @@ U.interactive = (function () {
     return plural(f.length, 'folder') + ' · ' + plural(b, 'course') + ' built' + (all.length > b ? ' · ' + (all.length - b) + ' to come' : '');
   }
 
+  // ---------- look up ----------
+  // Plain matching: case-insensitive, every typed word must appear in the title or the one line;
+  // titles first, then one lines, each in shelf order. Built courses only (a shelf course with a
+  // tid), read from the topic docs the home already watches.
+  var lookText = '';            // the field's words, kept while he browses the results and comes back
+  var lessonLive = {};          // tid/iid -> true (ready to browse) | false (coming soon), for the visit
+  function wordsOf(q) { return String(q || '').toLowerCase().split(/\s+/).filter(Boolean); }
+  function hasAll(text, ws) { text = String(text || '').toLowerCase(); return ws.every(function (w) { return text.indexOf(w) >= 0; }); }
+  // -> {lessons: [{t, idea, k, course, inTitle}], courses: [{t, course, blurb}]}
+  function lookUp(q, shelves, topics) {
+    var ws = wordsOf(q), lessons = [], found = [], seen = {};
+    if (!ws.length) return { lessons: lessons, courses: found };
+    var byId = {};
+    (topics || []).forEach(function (t) { if (t && t.id) byId[t.id] = t; });
+    SH.order(shelves || []).forEach(function (s) {
+      SH.allCourses(s).forEach(function (c) {
+        var tid = SH.built(c), t = tid && byId[tid];
+        if (!t || seen[tid] || t.status !== 'ready') return;
+        seen[tid] = true;
+        var course = V.asTitle(t.title || SH.str(c.title)), blurb = SH.str(c.blurb) || String(t.hook || '');
+        if (hasAll(course + ' ' + SH.str(c.title) + ' ' + blurb, ws)) found.push({ t: t, course: course, blurb: blurb, inTitle: hasAll(course + ' ' + SH.str(c.title), ws) });
+        (Array.isArray(t.ideas) ? t.ideas : []).forEach(function (idea, k) {
+          if (!idea || !idea.id) return;
+          var title = String(idea.title || ''), one = String(idea.oneLine || '');
+          if (hasAll(title + ' ' + one, ws)) lessons.push({ t: t, idea: idea, k: k, course: course, inTitle: hasAll(title, ws) });
+        });
+      });
+    });
+    function titlesFirst(list) { return list.filter(function (x) { return x.inTitle; }).concat(list.filter(function (x) { return !x.inTitle; })); }
+    return { lessons: titlesFirst(lessons), courses: titlesFirst(found) };
+  }
+  // A lesson row: the course's tone, the lesson's number, its title and one line, and where it is.
+  // Whether it is ready to browse is read from its lesson doc (the first rows only); one not built
+  // yet opens its course page.
+  function lessonHit(h, check) {
+    var key = h.t.id + '/' + h.idea.id, title = h.course, n = h.k + 1;
+    var meta = U.h('span', { class: 'shelf-meta' }, title + ' · lesson ' + n);
+    var row = U.h('a', { class: 'shelf-course', 'data-tone': V.toneOf(title, h.t), href: '#/t/' + enc(h.t.id) + '/' + enc(h.idea.id) },
+      U.h('span', { class: 'shelf-n', 'aria-hidden': 'true' }, String(n)),
+      U.h('span', { class: 'shelf-body' },
+        U.h('span', { class: 'shelf-title' }, String(h.idea.title || '')),
+        h.idea.oneLine ? U.h('span', { class: 'shelf-blurb' }, String(h.idea.oneLine)) : null,
+        meta),
+      U.icon('arrow', 'shelf-go'));
+    function say(live) {
+      meta.textContent = title + ' · lesson ' + n + ' · ' + (live ? 'ready to browse' : 'coming soon');
+      meta.className = live ? 'shelf-ready' : 'shelf-meta';
+      if (!live) row.setAttribute('href', '#/t/' + enc(h.t.id));
+    }
+    if (key in lessonLive) say(lessonLive[key]);
+    else if (check) U.store.lesson.get(h.t.id, h.idea.id).then(function (d) { lessonLive[key] = U.store.lesson.state(d) === 'ready'; say(lessonLive[key]); }, function () { /* says nothing more */ });
+    return U.h('li', null, row);
+  }
+  function courseHit(h) {
+    var n = Array.isArray(h.t.ideas) ? h.t.ideas.length : 0;
+    return U.h('li', null, U.h('a', { class: 'shelf-course', 'data-tone': V.toneOf(h.course, h.t), href: '#/t/' + enc(h.t.id) },
+      U.h('span', { class: 'shelf-ico', 'aria-hidden': 'true' }, U.icon('folder')),
+      U.h('span', { class: 'shelf-body' },
+        U.h('span', { class: 'shelf-title' }, h.course),
+        h.blurb ? U.h('span', { class: 'shelf-blurb' }, h.blurb) : null,
+        U.h('span', { class: 'shelf-meta' }, 'Course · ' + plural(n, 'lesson'))),
+      U.icon('arrow', 'shelf-go')));
+  }
+  var CHECK = 12;   // lesson docs read per look-up, for "ready to browse" or "coming soon"
+
   U.routes.add('#/', function (params, ctx) {
     var eyebrow = U.h('p', { class: 'eyebrow' }, V.greeting());
-    // Look up (77-library.js, phase 3 makes it search): the one search in the app.
+    // Look up: the one search in the app.
     var look = U.h('input', { class: 'input ask-input lib-look-input', id: 'lib-look', type: 'search', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', enterkeyhint: 'search', maxlength: '80', placeholder: 'Look up a lesson: power factor, cosine rule…' });
+    var clear = U.h('button', { class: 'lib-look-clear', type: 'button', 'aria-label': 'Clear the look-up', hidden: true }, U.icon('close'));
     var lookBox = U.h('div', { class: 'lib-look', role: 'search' },
       U.h('label', { class: 'visually-hidden', for: 'lib-look' }, 'Look up a lesson'),
-      U.h('span', { class: 'lib-look-ico', 'aria-hidden': 'true' }, U.icon('search')), look);
+      U.h('span', { class: 'lib-look-ico', 'aria-hidden': 'true' }, U.icon('search')), look, clear);
+    var countLine = U.h('p', { class: 'lib-count', role: 'status', hidden: true });
+    var results = U.h('section', { class: 'lib-results', 'aria-label': 'Look-up results', hidden: true });
     var openBox = U.h('div', { class: 'lib-row-open' }), boxBox = U.h('div', { class: 'lib-row-box' });
     var rows = U.h('div', { class: 'lib-rows', hidden: true }, openBox, boxBox);
     var liveBox = U.h('div', { class: 'lib-live' });
@@ -17830,7 +17907,7 @@ U.interactive = (function () {
       artBox);
     ctx.view.appendChild(U.h('div', { class: 'lib-page lib-home' },
       U.h('header', { class: 'page-head' }, eyebrow, U.h('h1', null, 'Your library')),
-      lookBox, page));
+      lookBox, countLine, results, page));
 
     // Hello by first name when the runtime knows it.
     if (U.rt.user && U.rt.user.me) {
@@ -17865,6 +17942,33 @@ U.interactive = (function () {
       Promise.resolve().then(function () { return U.review.box(); }).then(function (b) { if (ctx.alive()) { box = b; paintRows(); } }, function (e) { console.warn('box', e); });
     }
 
+    // --- look up: results in place of the page below the field; cleared, the page comes back ---
+    function search() {
+      var q = look.value.replace(/\s+/g, ' ').trim();
+      lookText = look.value;
+      clear.hidden = !look.value;
+      if (!q) { results.hidden = true; U.clear(results); countLine.textContent = ''; countLine.hidden = true; page.hidden = false; return; }
+      page.hidden = true; results.hidden = false; countLine.hidden = false;
+      if (!shelves || !topics) { countLine.textContent = 'Looking…'; return; }   // drawn again when they arrive
+      var r = lookUp(q, shelves, topics);
+      U.clear(results);
+      if (!r.lessons.length && !r.courses.length) {
+        countLine.textContent = '0 lessons';
+        results.appendChild(U.h('p', { class: 'muted lib-none' }, 'Nothing called that yet. Try a word from the lesson\'s title.'));
+        return;
+      }
+      countLine.textContent = [r.lessons.length || !r.courses.length ? plural(r.lessons.length, 'lesson') : null, r.courses.length ? plural(r.courses.length, 'course') : null].filter(Boolean).join(' · ');
+      if (r.lessons.length) results.appendChild(U.h('ol', { class: 'shelf-courses lib-hits' }, r.lessons.map(function (h, i) { return lessonHit(h, i < CHECK); })));
+      if (r.courses.length) results.appendChild(U.h('ul', { class: 'shelf-courses lib-hits is-courses' }, r.courses.map(courseHit)));
+    }
+    look.addEventListener('input', search);
+    look.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && look.value) { e.preventDefault(); look.value = ''; search(); }
+      if (e.key === 'Enter') { e.preventDefault(); try { look.blur(); } catch (x) { /* fine */ } }   // the keyboard goes; the results stay
+    });
+    clear.addEventListener('click', function () { look.value = ''; search(); look.focus(); });
+    if (lookText) { look.value = lookText; search(); }
+
     // Course pictures: the ones still to draw are queued; the question is asked once.
     // invite: null (none shown) | 'asking' (the card is up) | 'answered' (his answer, said back).
     var invite = null, hasCourse = false;
@@ -17895,6 +17999,7 @@ U.interactive = (function () {
       hasCourse = list.some(function (t) { return t && t.status === 'ready'; });
       if (U.art) { U.art.want(list); paintInvite(); }
       paintRows();
+      if (look.value.trim()) search();
     }, function () { /* the shelves still show; the rows and pictures wait for the next visit */ });
 
     // The shelves, live. A watch that stops once they are shown keeps them and says so above them
@@ -17923,6 +18028,7 @@ U.interactive = (function () {
       shelves = list || [];
       paintShelves();
       paintRows();
+      if (look.value.trim()) search();
     }, function (e, info) {
       if (!ctx.alive()) return;
       if (shown) { if (!info || !info.retrying) U.clear(liveBox).appendChild(V.liveError('Your shelves', e)); return; }
