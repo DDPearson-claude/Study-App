@@ -1,0 +1,33 @@
+{
+  "draft": "i7.lesson.draft1.txt",
+  "validator": "draft 1 passes validate.mjs with no problems, soft points or warnings. The faults below are the critic's, not the validator's.",
+  "keep": [
+    "The idea is named in one line up front and the rule is in words: tip to tail, the arrow from start to finish is the sum, its length the peak and its angle the phase.",
+    "The causal step is given, not asserted: B's tail on A's tip puts B's tip B's height above A's tip, so the sum arrow's height is the two heights added at every instant (UNSW [2]); equal speeds keep the angle between the arrows fixed, so the chain turns rigidly and the sum is one steady arrow, hence one sine wave of the same frequency [1].",
+    "The interactive brief shows the cause (heights stacking on a pause), not only the effect.",
+    "Adding by floor and wall shadows reuses lesson 2's split (sine up, cosine across [11]); 10 at 0° plus 6 at 60° gives a clean 14, and the cosine rule from lesson 4 checks it with the 120° inside the triangle [21].",
+    "The brief's catches each have a DO screen with its own wrong answer: sizes added (7, 8, 460 V), the cosine rule with the outside angle (4), B's own angle or the bare ratio for the phase, mixed frequencies (the speed switch puzzle), the wall shadow's sign dropped (13 A leading).",
+    "Three-phase √3 is shown from the triangle (2 × 230 × sin 60°), sourced to MTU [5], the regulations [31], Designing Buildings [7] and Electrical PE Review [6], and linked to screen 4's 4√3.",
+    "Peak against rms is taught as texts differing [8][9], with the rule to keep one convention per diagram; the look-ahead to Complex numbers is in the last Why? and the practice."
+  ],
+  "faults": [
+    { "fault": "false absolute", "where": "explain, paragraph 1", "text": "'Two waves of the same frequency, added instant by instant, make a third wave of that same frequency' fails when the two arrows are equal and opposite: the sum is zero, no wave at all.", "fix": "Add 'unless they cancel exactly' and give the cancelling case a mixed puzzle (8 sin ωt + 8 sin(ωt + 180°))." },
+    { "fault": "screen count does not add up", "where": "whatAmILookingAt", "text": "The step control runs 0 to 13, fourteen screens, but 'Screens 12 to 14 are mixed' lists only two puzzles, so screen 14 is undefined for the builder.", "fix": "Add a third mixed puzzle (the cancelling pair) and name each mixed screen by number, with the currents puzzle last so its Why? carries the Complex numbers look-ahead." },
+    { "fault": "wording beyond the source", "where": "practice, rule of thumb; explain, paragraph 4", "text": "'sold as 400 V' and '398 V ... That is why 400 V three-phase goes with 230 V' overstate [7], which only says low voltage 'is a term used to describe 400 V three-phase and 230 V single-phase supplies'.", "fix": "'about 400 V, the figure low-voltage supplies are described by alongside 230 V single-phase [7]'." },
+    { "fault": "rms not said where it is used", "where": "explain, paragraph 4", "text": "The three-phase triangle uses 230 V, an rms value, while the rest of the lesson draws peaks; explain never says so, so the reader may mix the two, the very slip the practice warns against.", "fix": "Say 230 V is an rms value [33], so the three-phase triangle is drawn at rms, and at peak every side is √2 times longer with the same √3." },
+    { "fault": "paraphrase beyond the quote", "where": "explain, paragraph 4", "text": "'UNSW's Physclips draws phasor diagrams at either' is an inference; the quote says rms diagrams have the same shape as those drawn using amplitudes, scaled by 0.71.", "fix": "Say exactly that." },
+    { "fault": "picture order", "where": "whatAmILookingAt, screen 3", "text": "Screen 3 writes the sum wave as 14 sin(ωt + 21.8°) before screen 5 works out the 21.8°.", "fix": "Screen 3 gives the length and the peak; screen 5 adds the angle and writes the wave out." },
+    { "fault": "label error in numbers", "where": "numbers", "text": "'A's floor shadow, 10 cos 0°' is listed as 0; the 0 is A's wall shadow, 10 sin 0°.", "fix": "Relabel." },
+    { "fault": "three-phase card scale", "where": "whatAmILookingAt, screen 8", "text": "Arrow sliders run 1 to 10, but the three-phase arrows are 230 long; the builder needs to know the card has its own scale.", "fix": "Say the card is drawn to its own scale, in volts." }
+  ],
+  "shape": {
+    "idea in one line up front": "yes",
+    "rule in words": "yes, bold takeaway",
+    "worked example with real numbers": "yes, 10 + 6 at 60° = 14 at 21.8° in explain; 100 V + 50 V at 30° in practice",
+    "misconception shown failing": "yes, 16 not 14; 460 V not 398 V",
+    "analogy from his trade with where it breaks": "yes, two winch ropes on a shackle; breaks: ropes stand still and are real pulls, phasors turn and only their heights are the waves",
+    "put it into practice": "yes: steps, rule of thumb, worked example, mistakes",
+    "recap he could say back": "yes"
+  },
+  "verdict": "rewrite as draft 2 with the eight fixes above"
+}

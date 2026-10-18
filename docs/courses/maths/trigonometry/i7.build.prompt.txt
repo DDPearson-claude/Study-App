@@ -1,0 +1,436 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Trigonometry, from triangles to waves
+Idea: Adding waves with phasors (Two waves of one frequency add by putting their turning arrows, called phasors, tip to tail: the arrow from start to finish is the sum.)
+Kind: skill
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the bold sum arrow's height always equal to the two arrows' heights stacked, so its wave is the two waves added, when you pause the two arrows turning together.
+Title (the app shows it above the frame, so do not repeat it): Two arrows, one sum
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in fourteen small screens, most on one picture, two arrows and their sum. At the top, arrow A (solid ink) and arrow B (dashed ink) turn anticlockwise together at one steady speed, as lesson 6's arm did. B is drawn with its tail on A's tip, tip to tail, and a bold arrow runs from the centre to B's tip: the sum arrow. Below, three waves are traced against time from the arrows' heights: A's wave, B's wave and the bold sum wave. The rule is lesson 6's: each wave's height at any instant is its arrow's height, length × sin of its angle. Because B starts on A's tip, B's tip is B's height above A's tip, so the sum arrow's height is always A's height plus B's height. A pause button freezes the picture, and two bars, A's height and B's height, stack beside the wave graph to the sum's height. On screens that show an idea, sliders set each arrow's length (1 to 10) and starting angle (−180° to 180°); a shadows switch splits each arrow into its floor shadow and wall shadow, as in Finding angles, with the sums of the shadows read out; a speed switch makes B turn twice as fast as A. Screen 1 starts A 3 long pointing right and B 4 long a quarter turn on: they make a right-angled triangle, so the sum arrow is √(3² + 4²) = 5 long at tan⁻¹(4 ÷ 3) = 53.1°, and the sum wave peaks at 5. Screen 2 asks for that peak: 5, 7 (the lengths added) or 1 (one taken from the other). Screen 3 sets A to 10 at 0° and B to 6 at 60° with the shadows switch on: B's floor shadow is 6 cos 60° = 3 and its wall shadow 6 sin 60° = 5.196, the floor shadows add to 13 and the wall shadows to 5.196, so the sum is √(13² + 5.196²) = 14 long, and its wave peaks at 14, not 16. Screen 4 asks the length of 4 at 0° plus 4 at 60°: 6.93 (floor 4 + 2 = 6, wall 3.464, √48), 8 (the lengths added) or 4 (the cosine rule with 60° where the triangle's angle is 120°). Screen 5 marks the sum's angle, tan⁻¹(5.196 ÷ 13) = 21.8°, between A's and B's, writes the sum wave as 14 sin(ωt + 21.8°), and checks the length by the cosine rule: inside the tip-to-tail triangle the angle at B's tail is 180° − 60° = 120°, and 10² + 6² − 2 × 10 × 6 × cos 120° = 196 = 14². Screen 6 asks the angle of 4 at 0° plus 4 at 60°: 30° (tan⁻¹(3.464 ÷ 6)), 60° (B's own angle) or 0.577 (the ratio, with tan⁻¹ left out). Screen 7 takes B away from A: B's arrow turns half a turn, to 240°, and is added, giving floor 10 − 3 = 7, wall −5.196 and a difference 8.72 long at −36.6°. Screen 8 is the three-phase card, drawn to its own scale in volts: three arrows L1, L2 and L3, each 230 V long and a third of a turn, 120°, apart, drawn at the rms value, 230 V, as a label says; at peak each would be 325.3 V and the line arrow 563.4 V, the same shape √2 times bigger. A meter across L1 and L2 reads L1 − L2, so L2 turns half a turn and is added to L1: floor 230 + 115 = 345, wall 199.2, a line arrow 398.4 long, 30° ahead of L1. A line down the middle of that triangle halves it into two right-angled triangles with 60° at the centre, so the line voltage is 2 × 230 × sin 60° = 230 × √3. It is screen 4's answer, 6.93 = 4 × √3, drawn bigger. Screen 9 asks what the meter reads: 398 V, 460 V (230 + 230) or 230 V (one phase's arrow). Screen 10 turns the speed switch on: the angle between A and B now keeps changing, so the tip-to-tail triangle changes shape, the sum arrow stretches and shrinks as it turns, and the sum wave is no longer one clean sine wave. Screen 11 asks what the sum arrow does with B turning twice as fast: keeps changing length, so the sum is no single sine wave; keeps its length and turns one and a half times as fast; or stays as it was. Screens 12, 13 and 14 are mixed. Screen 12: a three-phase supply has 440 V between lines; is each phase-to-neutral voltage 254 V (440 ÷ √3), 220 V (halved) or 762 V (440 × √3)? Screen 13: 8 sin ωt plus 8 sin(ωt + 180°); is the sum's peak 0 (the arrows point opposite ways, so B's tip comes back to the centre and the waves cancel), 16 (the lengths added) or 11.3 (√(8² + 8²), as if a quarter turn apart)? Screen 14: two branch currents, 12 A peak in step with the supply and 5 A peak a quarter turn behind it, join: is the supply current 13 A peak lagging by 22.6°, 17 A (the sizes added), or 13 A leading by 22.6° (the minus sign of the wall shadow dropped)? Each puzzle offers three answers; a wrong pick gets a one-line hint naming its slip, and Why? draws the answer on the picture. The last Why? adds that the floor shadow and wall shadow of an arrow are what Complex numbers writes as one number.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The arrows turn far more slowly than a real 50 Hz supply, which turns fifty times a second, so you can watch the heights stack. The waves are perfect sine waves; real supply voltages are close to this shape but not exactly it. The three-phase card draws three exactly equal arrows exactly 120° apart; a real supply's phases are very close to that but not exact. Arrow lengths, angles and currents in the puzzles are example figures, and readouts are rounded while the working keeps every figure.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 13 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Number of screens: 14 (assumed)
+- Slider for arrow length, smallest: 1 (assumed)
+- Slider for arrow length, largest: 10 (assumed)
+- Start angle slider's ends, in degrees: -180 (assumed)
+- Start angle slider's top end, in degrees: 180 (assumed)
+- Speed switch: B's speed as a multiple of A's: 2 (assumed)
+- Arrow A length, in step 1: 3 (assumed)
+- Arrow B length, in step 1: 4 (assumed)
+- A quarter turn, in degrees: 90 (constant)
+- Sum length √(3² + 4²), in step 1: 5 (computed)
+- Sum angle tan⁻¹(4 ÷ 3), in degrees, in step 1: 53.1 (computed)
+- Slip, lengths added 3 + 4, in step 2: 7 (computed)
+- Slip, 4 − 3, in step 2: 1 (computed)
+- Arrow A length, in step 3: 10 (assumed)
+- Arrow B length, in step 3: 6 (assumed)
+- Arrow B angle, in degrees, in step 3: 60 (assumed)
+- B's floor shadow 6 cos 60°, in step 3: 3 (computed)
+- B's wall shadow 6 sin 60°, in step 3: 5.196 (computed)
+- Floor shadows added 10 + 3, in step 3: 13 (computed)
+- Sum length √(13² + 5.196²), in step 3: 14 (computed)
+- Slip, lengths added 10 + 6, in step 3: 16 (computed)
+- Puzzle arrow lengths, in step 4: 4 (assumed)
+- B's floor shadow 4 cos 60°, in step 4: 2 (computed)
+- Floor shadows 4 + 2, in step 4: 6 (computed)
+- B's wall shadow 4 sin 60°, in step 4: 3.464 (computed)
+- 6² + 3.464², in step 4: 48 (computed)
+- Sum length √48, in step 4: 6.93 (computed)
+- Slip, lengths added 4 + 4, in step 4: 8 (computed)
+- Angle inside the tip-to-tail triangle, in degrees: 120 (computed)
+- A half turn, in degrees: 180 (constant)
+- Sum angle tan⁻¹(5.196 ÷ 13), in degrees, in step 5: 21.8 (computed)
+- Cosine rule 10² + 6² − 120 cos 120°, in step 5: 196 (computed)
+- A's wall shadow 10 sin 0°, in step 3: 0 (computed)
+- Sum angle tan⁻¹(3.464 ÷ 6), in degrees, in step 6: 30 (computed)
+- Slip, ratio 3.464 ÷ 6 without tan⁻¹, in step 6: 0.577 (computed)
+- B turned half a turn, in degrees, in step 7: 240 (computed)
+- Difference floor 10 − 3, in step 7: 7 (computed)
+- Difference wall shadow, in step 7: -5.196 (computed)
+- Difference length √(7² + 5.196²), in step 7: 8.72 (computed)
+- Difference angle tan⁻¹(−5.196 ÷ 7), in degrees, in step 7: -36.6 (computed)
+- Phases of a three-phase supply: 3 (constant, source [1])
+- Angle between phases, in degrees: 120 (constant, source [1])
+- UK phase-to-neutral voltage, rms, in V: 230 (constant, source [2])
+- L2 turned half a turn: floor 230 cos 60°, in V: 115 (computed)
+- Line arrow floor 230 + 115, in V: 345 (computed)
+- Line arrow wall 230 sin 60°, in V: 199.2 (computed)
+- Line voltage 230 × √3, in V, in step 8: 398.4 (computed)
+- Line voltage, rounded, in V, in step 9: 398 (computed)
+- Shift of line voltage from phase voltage, in degrees: 30 (computed)
+- √3: 1.732 (constant)
+- Slip, 230 + 230, in V, in step 9: 460 (computed)
+- UK three-phase nominal voltage, in V: 400 (constant, source [3])
+- Example line voltage, in V, in step 12: 440 (assumed)
+- Phase voltage 440 ÷ √3, in V, in step 12: 254 (computed)
+- Slip, 440 halved, in V, in step 12: 220 (computed)
+- Slip, 440 × √3, in V, in step 12: 762 (computed)
+- Branch current in step, peak, in A, in step 13: 12 (assumed)
+- Branch current a quarter turn behind, peak, in A: 5 (assumed)
+- Supply current √(12² + 5²), in A, in step 13: 13 (computed)
+- Lag tan⁻¹(5 ÷ 12), in degrees, in step 13: 22.6 (computed)
+- Slip, 12 + 5, in A, in step 13: 17 (computed)
+- UK supply frequency, in hertz: 50 (constant, source [2])
+- rms scale factor 1 ÷ √2: 0.71 (constant, source [4])
+- Worked example voltage A, peak, in V: 100 (assumed)
+- Worked example voltage B, peak, in V: 50 (assumed)
+- Worked example B's angle, in degrees: 30 (assumed)
+- B's floor shadow 50 cos 30°, in V: 43.3 (computed)
+- B's wall shadow 50 sin 30°, in V: 25 (computed)
+- Floor shadows 100 + 43.3, in V: 143.3 (computed)
+- Sum length √(143.3² + 25²), in V: 145.5 (computed)
+- Sum angle tan⁻¹(25 ÷ 143.3), in degrees: 9.9 (computed)
+- Angle inside the triangle 180° − 30°, in degrees: 150 (computed)
+- Analogy rope pull A, in kN: 10 (assumed)
+- Analogy rope pull B, in kN: 6 (assumed)
+- Analogy combined pull, in kN: 14 (computed)
+- Puzzle arrow lengths, in step 13: 8 (assumed)
+- Sum peak, arrows half a turn apart, in step 13: 0 (computed)
+- Slip, lengths added 8 + 8, in step 13: 16 (computed)
+- Slip, √(8² + 8²), in step 13: 11.3 (computed)
+- √2: 1.414 (constant)
+- Phase peak 230 × √2, in V: 325.3 (computed)
+- Line peak 325.3 × √3, in V: 563.4 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+Two waves of the same frequency, added instant by instant, make a third wave of that same frequency (unless they cancel exactly), and you can find it without drawing a single wave. Draw each wave's turning arrow, lay the second arrow's tail on the first arrow's tip, and the arrow from the start of the first to the tip of the second is the sum's arrow: its length is the sum's peak and its angle is the sum's phase.
+
+Remember From circle to wave: a wave's height at any instant is the height of its turning arrow's tip. Lay arrow B's tail on arrow A's tip, and B's tip sits B's height above A's tip, so the end of the chain is at A's height plus B's height. The sum arrow, from the centre to that end, therefore has the two heights added at every instant: the sum of the up parts of the separate arrows is the up part of the sum arrow. Both arrows turn at the same speed, so the angle between them never changes, and the chain turns as one rigid shape, like a bent bar spun about one end. The sum arrow keeps its length and turns at the same speed, so its height traces a sine wave of the same frequency, which is why phasors are good for summing sine waves of one frequency. Textbooks call each turning arrow a phasor and draw it frozen at the instant t = 0, because the whole picture just turns from there.
+
+To measure the sum arrow, split each arrow as you split a force in Finding angles: the c…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] CHAPTER 2 (https://pages.mtu.edu/~avsergue/EET2233/Lectures/CHAPTER2.pdf): "3-phase systems consist of 3 equal in magnitude voltages and 120 degrees out of phase relative to each other."
+[2] The Electricity Safety, Quality and Continuity Regulations 2002 (https://www.legislation.gov.uk/uksi/2002/2665/regulation/27/made): "shall be 50 hertz and the voltage declared in respect of a low voltage supply shall be 230 volts between the phase and neutral conductors at the supply terminals."
+[3] Low voltage (https://www.designingbuildings.co.uk/wiki/Low%20voltage): "Low voltage is a term used to describe 400 V three-phase and 230 V single-phase supplies."
+[4] AC circuits, alternating current electricity (https://www.animations.physics.unsw.edu.au/jw/AC.html): "Phasor diagrams in RMS have the same shape as those drawn using amplitudes, but everything is scaled by a factor of 0.71 = 1/√2.)"
+[5] AC circuits, alternating current electricity (https://www.animations.physics.unsw.edu.au/jw/AC.html): "So v(t), the sum of the y projections of the component phasors, is just the y projection of the sum of the component phasors."
+[6] Phasor Diagrams and Phasor Algebra used in AC Circuits (https://www.electronics-tutorials.ws/accircuits/phasors.html): "One good use of phasors is for the summing of sinusoids of the same frequency."
+[7] Physics Tutorial - Forces in 2D - Addition of Forces - Resolution of Forces (https://www.physicsclassroom.com/tutorial/forces-in-2d/addition-of-forces/resolution-of-forces): "A quick sketch of the situation reveals that to determine the vertical component of force, the sine function can be used and to determine the horizontal component of force, the cosine function can be used."
+[8] 8.2 Non-right Triangles: Law of Cosines - Precalculus 2e | OpenStax (https://openstax.org/books/precalculus-2e/pages/8-2-non-right-triangles-law-of-cosines): "the square of any side of a triangle is equal to the sum of the squares of the other two sides minus twice the product of the other two sides and the cosine of the included angle."
+[9] Root mean square (r.m.s.) voltages and currents - Revise: Monitoring and measuring a.c. - Higher Physics Revision - BBC… (https://www.bbc.co.uk/bitesize/guides/zqq77ty/revision/4): "the mains voltage in the UK can vary between 216 and 253 volts. These are r.m.s. values."
+[10] Square Root 3 and Three Phase Power – Where Does it Come From – Electrical PE Review (https://www.electricalpereview.com/square-root-three-3-electrical): "the square root three is a magnitude multiplier that accompanies a 30 degree phase shift between line voltages and their respective phase voltages for a wye system"
+[11] Phasor Diagrams and Phasor Algebra used in AC Circuits (https://www.electronics-tutorials.ws/accircuits/phasors.html): "Sinusoids of different frequencies cannot be represented on the same phasor diagram due to the different speed of the vectors."
+[12] Phasor Diagrams and Phasor Algebra used in AC Circuits (https://www.electronics-tutorials.ws/accircuits/phasors.html): "the main difference between the two is that a vectors magnitude is the “peak value” of the sinusoid, while a phasors complex magnitude is the “rms value” of the sinusoid."
+[13] Marine Electro-technology Written Examination Syllabus - GOV.UK (https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/marine-electro-technology-written-examination-syllabus): "Explains the term phasor quantity. 20. Explains how phasors may be used to represent sinusoidal quantities. 21. Solves graphical problems involving addition and subtraction of ac voltages and currents using phasor method."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

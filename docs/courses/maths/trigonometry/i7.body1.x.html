@@ -1,0 +1,1390 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  .ctl { display: grid; gap: 12px; }
+  /* The turning arrows, their waves, the stacked heights, the three-phase card. */
+  .scene .axis, .scene .tick { stroke: var(--k-muted); stroke-width: 1.3; }
+  .scene .arA { stroke: var(--k-ink); stroke-width: 3; }
+  .scene .arB { stroke: var(--k-ink); stroke-width: 2.6; stroke-dasharray: 6 4; }
+  .scene .arS { stroke: var(--k-accent2); stroke-width: 4.5; }
+  .scene .arG { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 4 4; }
+  .scene .arBad { stroke: var(--k-warn); stroke-width: 2.6; stroke-dasharray: 7 5; }
+  .scene .hdA { fill: var(--k-ink); }
+  .scene .hdS { fill: var(--k-accent2); }
+  .scene .hdG { fill: var(--k-muted); }
+  .scene .hdBad { fill: var(--k-warn); }
+  .scene .wA { fill: none; stroke: var(--k-ink); stroke-width: 1.8; stroke-linejoin: round; }
+  .scene .wB { fill: none; stroke: var(--k-ink); stroke-width: 1.8; stroke-dasharray: 6 4; }
+  .scene .wS { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .slip { fill: none; stroke: var(--k-warn); stroke-width: 2.2; stroke-dasharray: 7 5; }
+  .scene .penA { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .penB { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .penS { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .barA { fill: var(--k-ink); }
+  .scene .barB { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.5; stroke-dasharray: 3 2; }
+  .scene .stk { stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .cline { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .scene .sh { stroke: var(--k-accent); stroke-width: 4; stroke-linecap: round; }
+  .scene .shB { stroke: var(--k-accent); stroke-width: 4; stroke-dasharray: 5 4; }
+  .scene .half { stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 5 4; }
+  .scene .mlead { stroke: var(--k-ink); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .meter { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.8; }
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.4; }
+  .scene .arc { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .tipring { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .pill { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .hlbg { fill: var(--k-hl); stroke: none; }
+  .scene .pv { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .al { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .al.bad { fill: var(--k-warn); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .te { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .te.bad { fill: var(--k-warn); }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .after { font-size: 1.08rem; line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Two turning arrows laid tip to tail with their bold sum arrow, the waves their heights draw against time, a three-phase card, then mixed puzzles.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="ctl" id="ctl"></div>
+    <p class="after" id="after" hidden></p>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap" hidden></p>
+
+<script>
+  const el = (id) => document.getElementById(id);
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const PI = Math.PI, TAU = 2 * Math.PI, DEG = 180 / Math.PI, RAD = Math.PI / 180;
+  const sinD = (a) => Math.sin(a * RAD), cosD = (a) => Math.cos(a * RAD);
+  const SQ2 = Math.SQRT2, SQ3 = Math.sqrt(3);
+  const neg = (s) => String(s).replace(/^-/, '−');
+  // v rounded to dp places with trailing zeros dropped: 5.196, 14, 0.5.
+  function trim(v, dp) {
+    const f = Math.pow(10, dp);
+    let s = (Math.round(v * f) / f).toFixed(dp);
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    if (s === '-0') s = '0';
+    return neg(s);
+  }
+  const hS = (v) => trim(v, 2);
+  // "+ 3" or "− 3": a shadow added on, keeping its sign.
+  const pm = (v, dp) => (v < 0 && trim(-v, dp) !== '0' ? '− ' + trim(-v, dp) : '+ ' + trim(Math.abs(v), dp));
+  const norm = (x) => ((((x + 180) % 360) + 360) % 360) - 180;
+  const lenOf = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]);
+  const vec = (L, deg) => [L * cosD(deg), L * sinD(deg)];
+  // The scale's top value: the smallest of 5, 10, 15, 20 that holds every arrow and wave.
+  const niceMax = (v) => Math.max(5, 5 * Math.ceil(v / 5 - 1e-9));
+  // Two arrows (lengths a, b at start angles pa, pb in degrees): their floor and wall shadows and the sum's.
+  function sumOf(a, pa, b, pb) {
+    const fa = a * cosD(pa), wa = a * sinD(pa), fb = b * cosD(pb), wb = b * sinD(pb);
+    const F = fa + fb, W = wa + wb, L = Math.hypot(F, W);
+    return { fa, wa, fb, wb, F, W, L, phi: L > 1e-9 ? Math.atan2(W, F) * DEG : 0 };
+  }
+  // A demonstration turns the arrows on past one turn to the moment the sum arrow points straight up.
+  const endTau = (s) => (s.L > 1e-9 ? 1 + ((((90 - s.phi) % 360) + 360) % 360) / 360 : 1);
+  function angRow(s, dp) {
+    const N = (v) => trim(v, dp);
+    if (s.L < 1e-9) return 'the arrows cancel: no angle';
+    if (Math.abs(s.F) < 1e-9) return 'angle = ' + trim(s.phi, 1) + '°, straight ' + (s.W > 0 ? 'up' : 'down');
+    const base = 'tan⁻¹(' + N(s.W) + ' ÷ ' + N(s.F) + ')';
+    if (s.F > 0) return 'angle = ' + base + ' = ' + trim(s.phi, 1) + '°';
+    return 'angle = ' + base + (s.phi > 0 ? ' + 180°' : ' − 180°') + ' = ' + trim(s.phi, 1) + '°';
+  }
+  const lenRow = (s, dp, name) => (name || 'sum') + ' = √(' + trim(Math.abs(s.F), dp) + '² + ' + trim(Math.abs(s.W), dp) + '²) = ' + trim(s.L, 2);
+
+  // The lesson's example values, and the answers each puzzle offers (worked out here, never typed in).
+  const P1 = sumOf(3, 0, 4, 90);                                                    // 5 at 53.1°
+  const o1 = [trim(3 + 4, 0), trim(P1.L, 2), trim(4 - 3, 0)];
+  const S3 = sumOf(10, 0, 6, 60);                                                   // 14 at 21.8°
+  const P3 = sumOf(4, 0, 4, 60);                                                    // 6.93 at 30°
+  const o3 = [trim(4 + 4, 0), trim(Math.sqrt(4 * 4 + 4 * 4 - 2 * 4 * 4 * cosD(60)), 2), trim(P3.L, 2)];
+  const o5 = [trim(P3.phi, 1) + '°', trim(60, 0) + '°', trim(P3.W / P3.F, 3)];
+  const SUB = sumOf(10, 0, 6, 240);                                                 // A − B: 8.72 at −36.6°
+  const VP = 230, LINE = sumOf(VP, 0, VP, -120 + 180);                              // L1 plus L2 turned half a turn
+  const o8 = [trim(VP + VP, 0) + ' V', trim(VP, 0) + ' V', trim(LINE.L, 0) + ' V'];
+  const LEN2 = [trim(Math.abs(4 - 3), 2), trim(3 + 4, 2)];                          // the sum's shortest and longest, B twice as fast
+  const o10 = ['Same length, 1½ × as fast', 'Keeps changing length', 'Stays as it was'];
+  const VL = 440, o11 = [trim(VL / SQ3, 0) + ' V', trim(VL / 2, 0) + ' V', trim(VL * SQ3, 0) + ' V'];
+  const P12 = sumOf(8, 0, 8, 180), o12 = [trim(8 + 8, 0), trim(Math.hypot(8, 8), 1), trim(P12.L, 2)];
+  const P13 = sumOf(12, 0, 5, -90), lag = trim(-P13.phi, 1) + '°';
+  const o13 = [trim(P13.L, 0) + ' A lagging ' + lag, trim(12 + 5, 0) + ' A', trim(P13.L, 0) + ' A leading ' + lag];
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, name: 'Two arrows, one sum', pic: 'sum1', dur: 4.2, rows: 2, live: true, sliders: ['lenA', 'lenB', 'angB'],
+      text: "Here are two turning arrows, like lesson 6's arm. Arrow A is 3 long and points right; arrow B is 4 long and starts a quarter turn on. B's tail sits on A's tip, *tip to tail*, and a bold arrow runs from the centre to B's tip: the *sum arrow*. B's tip is B's height above A's tip, so the sum arrow's height is always A's height plus B's height, and the two bars beside the graph stack them. Both arrows turn at one speed, so the shape turns as one piece. Pause it, or drag A's tip.",
+      after: "Here A and B make a right-angled triangle, so the sum arrow is `√(3² + 4²) = 5` long and its wave peaks at 5. A turning arrow like these is called a *phasor*." },
+    { kind: 'pick', name: "The sum's peak", pic: 'peak5', opts: o1, want: o1[1], secret: ["sum's peak " + o1[1]],
+      task: 'A is 3 long pointing right, and B is 4 long a quarter turn on. How high does the sum wave peak?',
+      why: "A and B are at right angles, so the sum arrow is the long side of a right-angled triangle: `√(3² + 4²) = √25 = 5`. The sum wave's peak is the sum arrow's length. 7 adds the lengths, which works only when the arrows point the same way, and 1 takes one from the other, which works only when they point opposite ways.",
+      hint: "Not quite. The peak is the sum arrow's length.",
+      hints: { [o1[0]]: 'Not quite. 3 + 4 needs the arrows pointing the same way. These are a quarter turn apart.',
+        [o1[2]]: 'Not quite. 4 − 3 needs the arrows pointing opposite ways.' },
+      right: ['sum = √(3² + 4²) = √' + trim(3 * 3 + 4 * 4, 0) + ' = ' + o1[1], 'the sum wave peaks at its length, ' + o1[1]],
+      wrong: { [o1[0]]: ['3 + 4 = ' + o1[0] + ' needs them pointing one way'], [o1[2]]: ['4 − 3 = ' + o1[2] + ' needs them opposite ways'] } },
+    { show: true, name: 'Floor and wall shadows', pic: 'shadows', dur: 4.2, rows: 3, live: true, sliders: ['lenB', 'angB', 'parts'],
+      text: "Now A is 10 long, pointing right, and B is 6 long at 60°. To measure the sum, split each arrow as in Finding angles: its *floor shadow* is its length × cos of its angle, and its *wall shadow* its length × sin. B's are `6 cos 60° = 3` and `6 sin 60° = 5.196`; A lies on the floor, so its wall shadow is 0. Floor shadows add along the floor, to 13, and wall shadows up the wall, to 5.196. Pythagoras then gives the sum, `√(13² + 5.196²) = 14`. Slide B and watch the shadows follow.",
+      after: 'So the sum wave peaks at 14, not 16. A and B reach their peaks at different moments, so their heights never top out together.' },
+    { kind: 'pick', name: '4 plus 4 at 60°', pic: 'q693', opts: o3, want: o3[2], secret: ['sum ' + o3[2]],
+      task: 'A is 4 long pointing right, and B is 4 long at 60°, tip to tail. How long is the sum arrow?',
+      why: "Split B: floor `4 cos 60° = 2`, wall `4 sin 60° = 3.464`. The floor shadows add to `4 + 2 = 6` and the wall shadows to 3.464, so the sum is `√(6² + 3.464²) = √48 = 6.93`. 8 adds the lengths as if the arrows lay in a line. 4 uses the cosine rule with 60°, but inside the tip-to-tail triangle the angle is `180° − 60° = 120°`.",
+      hint: 'Not quite. Split B into its floor and wall shadows.',
+      hints: { [o3[0]]: 'Not quite. 4 + 4 needs the arrows in a line. Split B into floor and wall shadows.',
+        [o3[1]]: 'Not quite. Inside the tip-to-tail triangle the angle is 120°, not 60°.' },
+      right: ['floor 4 ' + pm(P3.fb, 3) + ' = ' + trim(P3.F, 3), 'wall 0 ' + pm(P3.wb, 3) + ' = ' + trim(P3.W, 3),
+        'sum = √(' + trim(P3.F, 3) + '² + ' + trim(P3.W, 3) + '²) = √' + trim(P3.L * P3.L, 1) + ' = ' + o3[2]],
+      wrong: { [o3[0]]: ['4 + 4 = ' + o3[0] + ' only if A and B lie in a line'], [o3[1]]: ['the cosine rule with 60° gives ' + o3[1], 'inside the triangle the angle is 120°'] } },
+    { show: true, name: "The sum's angle", pic: 'angle', dur: 4.2, rows: 4, live: true, sliders: ['angA', 'angB'],
+      text: "The sum arrow points between A and B, at `tan⁻¹(5.196 ÷ 13) = 21.8°`, so the sum wave is `14 sin(ωt + 21.8°)`. An arrow further round anticlockwise *leads*, and one behind *lags*: the sum leads A by 21.8°. The cosine rule from Triangles without a right angle checks the length. Inside the tip-to-tail triangle the angle at B's tail is `180° − 60° = 120°`, and `10² + 6² − 2 × 10 × 6 × cos 120° = 196 = 14²`. Slide either start angle and watch the triangle change.",
+      after: 'Use the angle inside the triangle, 180° minus the angle between the arrows, never the angle between them.' },
+    { kind: 'pick', name: 'Its angle', pic: 'q30', opts: o5, want: o5[0], secret: ['angle ' + o5[0]],
+      task: 'The same arrows: A 4 long pointing right, B 4 long at 60°. At what angle does the sum arrow point?',
+      why: "The sum's floor shadow is 6 and its wall shadow 3.464, so its angle is `tan⁻¹(3.464 ÷ 6) = 30°`, halfway between A and B because they are the same length. 60° is B's own angle, and 0.577 is `3.464 ÷ 6`, the tan of the angle, before taking tan⁻¹.",
+      hint: 'Not quite. Use tan⁻¹(wall ÷ floor) of the sum.',
+      hints: { [o5[1]]: "Not quite. 60° is B's own angle. The sum lies between A and B.",
+        [o5[2]]: 'Not quite. 0.577 is the ratio. Take tan⁻¹ of it to get the angle.' },
+      right: ['wall ÷ floor = ' + trim(P3.W, 3) + ' ÷ ' + trim(P3.F, 3) + ' = ' + o5[2], 'angle = tan⁻¹(' + o5[2] + ') = ' + o5[0]],
+      wrong: { [o5[1]]: [o5[1] + " is B's own angle, not the sum's"], [o5[2]]: [o5[2] + ' is the tan of the angle', 'the angle needs tan⁻¹'] } },
+    { show: true, name: 'Taking a wave away', pic: 'minus', dur: 3.6, rows: 3, live: true, sliders: ['sub'],
+      text: "To take B away from A, turn B's arrow half a turn and add it. An arrow half a turn on has every height with its sign changed, so its wave is B's wave upside down. Here B turns from 60° to 240°. The floor shadows give `10 − 3 = 7` and the wall shadows `0 − 5.196 = −5.196`, so A − B is `√(7² + 5.196²) = 8.72` long, at `tan⁻¹(−5.196 ÷ 7) = −36.6°`, below the floor. Switch it off to add B instead.",
+      after: 'Taking a wave away is adding its arrow turned half a turn.' },
+    { show: true, name: 'Three phases', pic: 'three', dur: 4.4, rows: 4, sliders: ['peak'],
+      text: "A three-phase supply has three voltages, L1, L2 and L3, equal in size and 120° apart. In the UK each is 230 V rms between phase and neutral, so this card is drawn at rms. A meter across L1 and L2 reads L1 − L2, so turn L2 half a turn and add it to L1. The floor shadows give `230 + 115 = 345` and the wall shadows 199.2, so the *line voltage* is 398.4 V, 30° ahead of L1. A line down the middle halves the triangle into two right-angled triangles, with 60° each side of it at L1's tip, so the line voltage is `2 × 230 × sin 60° = 230 × √3`: screen 4's `6.93 = 4 × √3`, drawn bigger.",
+      after: 'Drawn at peak, each phase is 325.3 V and the line 563.4 V: the same shape, √2 times bigger. Keep to one or the other on a diagram.' },
+    { kind: 'pick', name: 'The meter', pic: 'meter', opts: o8, want: o8[2], secret: ['meter reads ' + o8[2]],
+      task: 'A meter across L1 and L2 reads the arrow joining their tips. Each phase is 230 V, and they are 120° apart. What does it read?',
+      why: "The meter reads L1 − L2. Turn L2 half a turn and add it to L1: floor `230 + 115 = 345`, wall 199.2, so `√(345² + 199.2²) = 398` V, which is `230 × √3`. 460 V adds the two sizes, which happens only when the phases are half a turn apart, and 230 V is one phase's own arrow, measured to neutral.",
+      hint: 'Not quite. Turn L2 half a turn and add it to L1.',
+      hints: { [o8[0]]: 'Not quite. The phases are 120° apart, so their sizes do not simply add.',
+        [o8[1]]: 'Not quite. 230 V is one phase to neutral. The meter is across two lines.' },
+      right: ['L1 − L2: floor ' + VP + ' ' + pm(LINE.fb, 1) + ' = ' + trim(LINE.F, 1), 'wall 0 ' + pm(LINE.wb, 1) + ' = ' + trim(LINE.W, 1),
+        '√(' + trim(LINE.F, 1) + '² + ' + trim(LINE.W, 1) + '²) = ' + o8[2]],
+      wrong: { [o8[0]]: [VP + ' + ' + VP + ' = ' + trim(VP + VP, 0) + ' adds the sizes', 'L1 and L2 are 120° apart, not 180°'], [o8[1]]: [VP + ' V is L1 to neutral, not L1 to L2'] } },
+    { show: true, name: 'Twice as fast', pic: 'fast', dur: 4.4, rows: 2, live: true, sliders: ['fast'],
+      text: "Phasors work only for waves of one frequency. Here B turns twice for each turn of A. Now the angle between them keeps changing, so the tip-to-tail triangle changes shape: the sum arrow stretches and shrinks as it turns, and its wave is no longer one clean sine wave. The heights still stack at every moment, but no single steady arrow stands for the sum. Switch B back to A's speed and the shape holds.",
+      after: 'Waves of different frequencies cannot share one phasor diagram, because their arrows turn at different speeds.' },
+    { kind: 'pick', name: 'B twice as fast', pic: 'q2x', opts: o10, want: o10[1], secret: ["sum's length " + LEN2[0] + ' to ' + LEN2[1]],
+      task: 'B now turns twice for each turn of A. What does the sum arrow do?',
+      why: 'B gains a whole turn on A every turn, so the angle between them keeps changing. The tip-to-tail triangle changes shape, and the sum arrow runs from `4 − 3 = 1` to `3 + 4 = 7` long. Its wave repeats, but it is not one sine wave, so no single phasor stands for it.',
+      hint: 'Not quite. Watch the angle between A and B.',
+      hints: { [o10[0]]: 'Not quite. The angle between A and B keeps changing, so the triangle does too.',
+        [o10[2]]: 'Not quite. B now gains on A, so the triangle cannot keep its shape.' },
+      right: ['the angle between A and B keeps changing', 'so the sum runs from ' + LEN2[0] + ' to ' + LEN2[1] + ' long'],
+      wrong: { [o10[0]]: ['a steady length needs a steady angle'], [o10[2]]: ['B turning faster changes the angle'] } },
+    { kind: 'pick', name: '440 V between lines', pic: 'q440', opts: o11, want: o11[0], secret: ['each phase ' + o11[0]],
+      task: 'A three-phase supply has 440 V between lines. What is each phase-to-neutral voltage?',
+      why: 'Line voltage is phase voltage × √3, so phase voltage is line voltage ÷ √3: `440 ÷ 1.732 = 254` V. Halving treats the phases as half a turn apart, and `440 × √3 = 762` goes the wrong way, from phase to line.',
+      hint: 'Not quite. Line voltage = phase voltage × √3.',
+      hints: { [o11[1]]: 'Not quite. The phases are 120° apart, not in a line. Divide by √3.',
+        [o11[2]]: 'Not quite. × √3 takes a phase voltage up to a line voltage. Go back down.' },
+      right: ['line = phase × √3', 'phase = ' + VL + ' ÷ √3 = ' + o11[0]],
+      wrong: { [o11[1]]: [VL + ' ÷ 2 = ' + o11[1] + ' halves it', 'but the phases are 120° apart'], [o11[2]]: [VL + ' × √3 = ' + o11[2] + ' goes from phase to line'] } },
+    { kind: 'pick', name: 'Opposite arrows', pic: 'cancel', opts: o12, want: o12[2], secret: ["sum's peak " + o12[2]],
+      task: 'What is the peak of `8 sin ωt + 8 sin(ωt + 180°)`?',
+      why: 'B starts half a turn on from A, so laid tip to tail it points straight back, and its tip returns to the centre. The sum arrow has no length, so the waves cancel at every instant: the sum is 0. 16 adds the lengths, as if they pointed the same way, and 11.3 is `√(8² + 8²)`, as if they were a quarter turn apart.',
+      hint: "Not quite. Lay B on A's tip and see where it ends.",
+      hints: { [o12[0]]: 'Not quite. 8 + 8 needs the arrows pointing the same way. These point opposite ways.',
+        [o12[1]]: 'Not quite. √(8² + 8²) is for a quarter turn apart. These are half a turn apart.' },
+      right: ['floor 8 ' + pm(P12.fb, 3) + ' = ' + trim(P12.F, 3) + ', wall 0 ' + pm(P12.wb, 3) + ' = ' + trim(P12.W, 3), "sum's peak " + o12[2] + ': the waves cancel'],
+      wrong: { [o12[0]]: ['8 + 8 = ' + o12[0] + ' needs them pointing one way'], [o12[1]]: ['√(8² + 8²) = ' + o12[1] + ': a quarter turn apart'] } },
+    { kind: 'pick', name: 'Two currents', pic: 'current', opts: o13, want: o13[0], secret: ['supply ' + trim(P13.L, 0) + ' A, ' + lag + ' behind'],
+      task: 'Two branch currents join: 12 A peak in step with the supply, and 5 A peak a quarter turn behind it. What is the supply current?',
+      why: "Lay the 5 A arrow, a quarter turn behind and so pointing down, on the tip of the 12 A arrow. The floor shadows give 12 and the wall shadows `0 − 5 = −5`, so the sum is `√(12² + 5²) = 13` A at `tan⁻¹(−5 ÷ 12) = −22.6°`: below the floor, lagging. 17 A adds the sizes, and leading drops the minus sign of the wall shadow. Complex numbers, the next course, writes an arrow's floor shadow and wall shadow as one number, so adding phasors becomes adding numbers.",
+      hint: 'Not quite. Split each current into floor and wall shadows.',
+      hints: { [o13[1]]: 'Not quite. The currents are a quarter turn apart, so use Pythagoras, not +.',
+        [o13[2]]: 'Not quite. The wall shadow is −5, below the floor, so the sum is behind.' },
+      right: ['floor 12 ' + pm(P13.fb, 3) + ' = ' + trim(P13.F, 3) + ', wall 0 ' + pm(P13.wb, 3) + ' = ' + trim(P13.W, 3),
+        'sum = √(12² + 5²) = ' + trim(P13.L, 0) + ' A', 'tan⁻¹(' + trim(P13.W, 3) + ' ÷ ' + trim(P13.F, 3) + ') = ' + trim(P13.phi, 1) + '°: lagging'],
+      wrong: { [o13[1]]: ['12 + 5 = ' + trim(12 + 5, 0) + ' needs the two in step'], [o13[2]]: ['wall −5 puts the sum below the floor'] } },
+  ];
+  // Where things sit. The arrows' picture on top; the wave graph, when there is one, below it.
+  const PCX = 112, PCY = 72, RP = 56;                         // the arrows' centre, and the radius for the scale's top value
+  const GX0 = 36, GX1 = 268, GCY = 200, GH = 42, TURNS = 2;   // the wave graph: two turns of arrow A
+  const SBA = 280, SBB = 290, SBW = 8;                        // the two stacked bars beside the graph
+  const TKY = 258, TTL = 273, PILLY = 142, PILLP = 146;
+  const RY = { sum1: 300, peak5: 300, shadows: 300, q693: 180, angle: 180, q30: 180, minus: 300, three: 284, meter: 284, fast: 300, q2x: 300, q440: 284, cancel: 300, current: 180 };
+  STEPS.forEach((d) => { d.ry = RY[d.pic]; });
+  function vhOf(d, st) {
+    if (d.show) return d.ry + 24 * (d.rows - 1) + 12;
+    const n = (ansOf(st) ? d.right.length : 0) + (wrongOf(st) ? [].concat(d.wrong[st.pick]).length : 0);
+    return n ? d.ry + 24 * (n - 1) + 12 : d.ry - 12;
+  }
+  const FINISH = "Two waves of one frequency add by laying their turning arrows, their *phasors*, tip to tail: the arrow from start to finish is the sum, its length the sum's peak and its angle its phase, and its height is always the two heights stacked. Floor and wall shadows measure it, and an arrow turned half a turn takes its wave away.";
+  const CAPS = { sum1: "Example arrows: A 3 long, B 4 long a quarter turn on. Each height is length × sin of its angle.",
+    peak5: 'The same arrows frozen at the start, with the waves of A and B.',
+    shadows: 'Example arrows: A 10 long, B 6 long at 60°. Floor shadow = length × cos; wall shadow = length × sin.',
+    q693: 'Two arrows 4 long, 60° apart, laid tip to tail.', angle: 'The cosine rule takes the angle inside the triangle, 180° minus the angle between the arrows.',
+    q30: 'The same two arrows, 4 long and 60° apart.', minus: 'Taking B away is adding B turned half a turn.',
+    three: 'UK phases: 230 V rms between phase and neutral (Electricity Safety, Quality and Continuity Regulations 2002).',
+    meter: 'Three 230 V phases, 120° apart, drawn at rms.', fast: 'Example arrows: A 3 long, B 4 long. The switch makes B turn twice for each turn of A.',
+    q2x: 'The same arrows, B turning twice for each turn of A.', q440: 'Example figure: 440 V between lines, the phases 120° apart.',
+    cancel: 'Two waves of peak 8, half a turn apart.', current: 'Example currents: 12 A in step, 5 A a quarter turn behind.' };
+  // Sources the checks restate (the lesson's own).
+  const SRC = { unsw: 'https://www.animations.physics.unsw.edu.au/jw/AC.html',
+    tut: 'https://www.electronics-tutorials.ws/accircuits/phasors.html',
+    forces: 'https://www.physicsclassroom.com/tutorial/forces-in-2d/addition-of-forces/resolution-of-forces',
+    cos: 'https://openstax.org/books/precalculus-2e/pages/8-2-non-right-triangles-law-of-cosines',
+    mtu: 'https://pages.mtu.edu/~avsergue/EET2233/Lectures/CHAPTER2.pdf',
+    leg: 'https://www.legislation.gov.uk/uksi/2002/2665/regulation/27/made',
+    sqrt3: 'https://www.electricalpereview.com/square-root-three-3-electrical',
+    lv: 'https://www.designingbuildings.co.uk/wiki/Low%20voltage' };
+  const FADE = 0.35, ANS = 1.8;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { chunks(seg).forEach((c, m) => { if (m) node.appendChild(document.createTextNode(' ')); node.appendChild(K.el('span', { class: 'nw' }, c)); }); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) node.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) node.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+  // A formula kept whole where it is short; a long one may wrap before an = sign, or before another
+  // sign once a piece is long enough, so nothing runs off a phone at the largest text size.
+  function chunks(s) {
+    if (s.length <= 18) return [s];
+    const out = [];
+    let cur = '';
+    s.split(' ').forEach((t) => {
+      const eq = t === '=', op = /^[÷×+−]$/.test(t);
+      if (cur && (eq || (op && cur.length >= 14))) { out.push(cur); cur = t; } else cur = cur ? cur + ' ' + t : t;
+    });
+    if (cur) out.push(cur);
+    return out;
+  }
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong', 'empty'), why: a puzzle's answer. tau: the moment Dan set by dragging
+  // A's tip (in turns of A); the sliders and switches he set. null means "as the demonstration has it".
+  function blank() { return { pick: null, res: null, why: false, tau: null, lenA: null, lenB: null, angA: null, angB: null, parts: null, sub: null, peak: null, fast: null }; }
+  const stOf = (o) => Object.assign(blank(), o);
+  const resetLive = (st) => { st.tau = null; };
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  const ansOf = (st) => st.res === 'right' || !!st.why;
+  const wrongOf = (st) => st.res === 'wrong' && st.pick != null;
+  const DEF = { sum1: { lenA: 3, lenB: 4, angB: 90 }, shadows: { lenB: 6, angB: 60, parts: true }, angle: { angA: 0, angB: 60 },
+    minus: { sub: true }, three: { peak: false }, fast: { fast: true } };
+  const val = (st, pic, id) => (st[id] != null ? st[id] : DEF[pic][id]);
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, MODE = 'demo', motionEnd = 0, paused = false;
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play('answer', ANS);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+    if (st.why && st.res !== 'right') play('answer', ANS);
+  } });
+  // One button plays the demonstration, pauses it to read the heights, and plays it on or again.
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    if (anim.playing() && T < motionEnd) { anim.pause(); paused = true; return; }
+    if (paused && T < motionEnd) { paused = false; anim.play(); return; }
+    resetLive(st);
+    play('demo', d.dur);
+  } });
+  let replayText = 'Play again';
+  function replayLabel() {
+    const s = anim.playing() && T < motionEnd ? 'Pause' : paused && T < motionEnd ? 'Play' : 'Play again';
+    if (s !== replayText) { replayText = s; replayBtn.setLabel(s); }
+  }
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  // The sliders and switches, shown only on the screens that use them.
+  const ctl = {
+    lenA: K.control({ id: 'lenA', label: "A's length", min: 1, max: 10, step: 1, value: 3, into: '#ctl' }),
+    lenB: K.control({ id: 'lenB', label: "B's length", min: 1, max: 10, step: 1, value: 4, into: '#ctl' }),
+    angA: K.control({ id: 'angA', label: "A's start angle", min: -180, max: 180, step: 15, value: 0, unit: '°', into: '#ctl' }),
+    angB: K.control({ id: 'angB', label: "B's start angle", min: -180, max: 180, step: 15, value: 90, unit: '°', into: '#ctl' }),
+    parts: K.toggle({ id: 'parts', label: 'Floor and wall shadows', value: true, into: '#ctl' }),
+    sub: K.toggle({ id: 'sub', label: 'Take B away', value: true, into: '#ctl' }),
+    peak: K.toggle({ id: 'peak', label: 'Draw at peak values', value: false, into: '#ctl' }),
+    fast: K.toggle({ id: 'fast', label: 'B turns twice as fast', value: true, into: '#ctl' }),
+  };
+  const SL = Object.keys(ctl);
+  const shown = {};
+  SL.forEach((id) => { shown[id] = ctl[id].get(); });
+  // A control set to what the picture shows (quietly: this is not Dan moving it).
+  function syncCtl(id, v) {
+    const c = ctl[id];
+    if (c.get() !== v) c.set(v, true);
+    shown[id] = c.get();
+  }
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion (and
+  // while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && !paused && T !== Infinity) { T = Infinity; paint(); } });
+  // A demonstration waits until most of its picture is in view, so on a phone it does not play out
+  // while Dan is still reading the words above it.
+  let seen = true, waiting = false, waitDur = 0;
+  if (typeof IntersectionObserver === 'function') {
+    seen = false;
+    new IntersectionObserver((es) => {
+      const e = es[es.length - 1];
+      seen = e.isIntersecting && (e.intersectionRatio >= 0.6 || e.intersectionRect.height >= 0.6 * (window.innerHeight || 1));
+      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }
+    }, { threshold: [0, 0.3, 0.6, 0.8, 1] }).observe(el('scene'));
+  }
+  function play(mode, dur) {
+    MODE = mode; waiting = false; paused = false;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    if (mode === 'demo' && !seen) { waiting = true; waitDur = dur; T = 0; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null, REC = null, VH = 300;
+  const VOID = K.svg('g');
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const when = (m, t, d) => (MODE === m ? arr(t, d) : 1);
+  // A steady motion from 0 to 1 between t0 and t0 + d of the demonstration (the arrows turn at a
+  // steady speed), 1 when it is not playing.
+  function lin(t0, d) {
+    if (MODE !== 'demo') return 1;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.clamp((T - t0) / d, 0, 1);
+  }
+  // A part fades in at arrival a. A part not yet arrived is still laid out (off the page), so the
+  // labels placed around it never jump when it arrives.
+  function part(a, rise, draw) {
+    const vis = a > 0;
+    const g = vis ? add(K.svg('g')) : VOID;
+    if (vis) K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; if (!vis) VOID.textContent = ''; }
+  }
+  const R = (v) => Math.round(v * 100) / 100;
+  const pt = (q) => R(q[0]) + ' ' + R(q[1]);
+  const poly = (ps, close) => 'M' + ps.map(pt).join(' L') + (close ? ' Z' : '');
+  // Lines and paths, noted (with half their width) so labels keep off them.
+  function lineP(cls, p, q, pad) {
+    add(K.svg('line', { class: cls, x1: R(p[0]), y1: R(p[1]), x2: R(q[0]), y2: R(q[1]) }));
+    if (pad != null) REC.segs.push({ p, q, pad });
+  }
+  function pathP(cls, ps, pad) {
+    add(K.svg('path', { class: cls, d: poly(ps, false) }));
+    if (pad != null) for (let k = 1; k < ps.length; k++) REC.segs.push({ p: ps[k - 1], q: ps[k], pad });
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: R(x), y: R(y), width: R(Math.max(0, w)), height: R(Math.max(0, h)), rx: rx || 0 }));
+  // A bar from y0 to y1, its outline noted so labels keep off it.
+  function boxRect(cls, x, y0, y1, w) {
+    const y = Math.min(y0, y1), h = Math.abs(y1 - y0);
+    if (h < 0.3) return;
+    rect(cls, x, y, w, h, 0);
+    [[[x, y], [x + w, y]], [[x, y + h], [x + w, y + h]], [[x, y], [x, y + h]], [[x + w, y], [x + w, y + h]]].forEach((s) => REC.segs.push({ p: s[0], q: s[1], pad: 1 }));
+  }
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: R(x), y: R(y), 'text-anchor': anchor || 'middle' }, s));
+  function dot(p, cls, r) {
+    add(K.svg('circle', { class: cls, cx: R(p[0]), cy: R(p[1]), r: r || 4 }));
+    REC.segs.push({ p, q: p, pad: (r || 4) + 1 });
+  }
+  function ringAt(p, cls, r) {
+    add(K.svg('circle', { class: cls, cx: R(p[0]), cy: R(p[1]), r }));
+    REC.segs.push({ p, q: p, pad: r + 2 });
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 8;
+  }
+  // A label at a fixed place (axis ticks and titles, the key), its box noted so placed labels keep clear.
+  function fixedLab(x, y, s, cls, anchor, a) {
+    const w = tw(s, cls), x0 = anchor === 'end' ? x - w : anchor === 'start' ? x : x - w / 2, aa = a == null ? 1 : a;
+    REC.boxes.push({ x: x0, y: y - 11, w, h: 14 });
+    if (aa > 0) part(aa, 0, () => text(x, y, s, cls, anchor || 'middle'));
+    return aa >= 0.5;
+  }
+  // A readout pill against the left or the right edge.
+  function pill(key, s, y, a, left) {
+    const w = tw(s, 'pv') + 14, h = 21, cx = left ? 3 + w / 2 : 337 - w / 2, aa = a == null ? 1 : a;
+    REC.boxes.push({ x: cx - w / 2, y: y - h / 2, w, h });
+    if (aa >= 0.5) REC.pills[key] = s;
+    if (aa > 0) part(aa, 0, () => { rect('pill', cx - w / 2, y - h / 2, w, h, 10); text(cx, y + 5, s, 'pv'); });
+  }
+  // An arrowhead with its tip at p, pointing along the unit direction u.
+  function head(p, u, cls, s, w) {
+    const b = [p[0] - u[0] * s, p[1] - u[1] * s], n = [-u[1], u[0]];
+    add(K.svg('path', { class: cls, d: poly([p, [b[0] + n[0] * w, b[1] + n[1] * w], [b[0] - n[0] * w, b[1] - n[1] * w]], true) }));
+    REC.segs.push({ p: b, q: p, pad: w });
+  }
+  // An arrow from p to q; the bold sum arrow has a bigger head.
+  function arrow(p, q, cls, hcls, big) {
+    const L = lenOf(p, q);
+    if (!(L > 0.5)) return false;
+    const u = [(q[0] - p[0]) / L, (q[1] - p[1]) / L], s = big ? 11 : 8, w = big ? 5.5 : 4;
+    if (L > s + 3) { lineP(cls, p, [q[0] - u[0] * (s - 1), q[1] - u[1] * (s - 1)], big ? 2.5 : 1.8); head(q, u, hcls, s, w); }
+    else lineP(cls, p, q, big ? 2.5 : 1.8);
+    return true;
+  }
+  // A small square marking a right angle at V between two directions (degrees, anticlockwise).
+  function rightMark(V, d1, d2, s) {
+    const u1 = [cosD(d1), -sinD(d1)], u2 = [cosD(d2), -sinD(d2)];
+    const a = [V[0] + u1[0] * s, V[1] + u1[1] * s], c = [V[0] + u2[0] * s, V[1] + u2[1] * s], b = [a[0] + u2[0] * s, a[1] + u2[1] * s];
+    pathP('brk', [a, b, c], 1);
+  }
+
+  // ---------- labels placed clear of everything drawn ----------
+  function segHits(p, q, b) {
+    let t0 = 0, t1 = 1;
+    const dx = q[0] - p[0], dy = q[1] - p[1];
+    const clip = (pp, qq) => {
+      if (pp === 0) return qq >= 0;
+      const r = qq / pp;
+      if (pp < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+      return true;
+    };
+    return clip(-dx, p[0] - b.x) && clip(dx, b.x + b.w - p[0]) && clip(-dy, p[1] - b.y) && clip(dy, b.y + b.h - p[1]) && t0 <= t1;
+  }
+  // Is a box clear of the edges, the floor, the labels placed so far, the handles and the lines?
+  function fits(b) {
+    if (b.x < 3 || b.x + b.w > 337 || b.y < 2 || b.y + b.h > Math.min(VH, REC.floor) - 2) return false;
+    if (REC.boxes.some((o) => o.x < b.x + b.w + 7 && b.x < o.x + o.w + 7 && o.y < b.y + b.h + 2 && b.y < o.y + o.h + 2)) return false;
+    if (REC.handles.some((hd) => Math.hypot(K.clamp(hd.x, b.x, b.x + b.w) - hd.x, K.clamp(hd.y, b.y, b.y + b.h) - hd.y) < 14)) return false;
+    return !REC.segs.some((g) => segHits(g.p, g.q, { x: b.x - g.pad - 1.5, y: b.y - g.pad - 1.5, w: b.w + 2 * g.pad + 3, h: b.h + 2 * g.pad + 3 }));
+  }
+  // A label at the first candidate clear of everything; none when there is no room.
+  function plainLab(s, cls, candsOf, a, inside) {
+    const w = tw(s, cls), h = 14, cands = candsOf(w, h);
+    const c = cands.find((q) => { const b = { x: q[0] - w / 2, y: q[1] - h / 2, w, h }; return (!inside || inside(b)) && fits(b); }) || null;
+    if (!c) return null;
+    const aa = a == null ? 1 : a;
+    REC.boxes.push({ x: c[0] - w / 2, y: c[1] - h / 2, w, h });
+    if (aa >= 0.5) REC.labs.push(s);
+    if (aa > 0) part(aa, 0, () => text(c[0], c[1] + 5, s, cls));
+    return c;
+  }
+  // A label beside a segment, on the side away from a point when it can.
+  function segLab(p, q, s, away, a, cls) {
+    cls = cls || 'al';
+    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1;
+    let n = [-dy / L, dx / L];
+    if (away) { const m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2]; if ((away[0] - m[0]) * n[0] + (away[1] - m[1]) * n[1] > 0) n = [-n[0], -n[1]]; }
+    return plainLab(s, cls, (w, h) => {
+      const out = [];
+      [n, [-n[0], -n[1]]].forEach((nn) => [0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.8, 0.1, 0.9].forEach((f) => [6, 14, 24, 34].forEach((e) => {
+        const d = e + Math.abs(nn[0]) * w / 2 + Math.abs(nn[1]) * h / 2;
+        out.push([p[0] + dx * f + nn[0] * d, p[1] + dy * f + nn[1] * d]);
+      })));
+      return out;
+    }, a);
+  }
+  // A label beside a point in direction dir (degrees, anticlockwise from pointing right) when it can.
+  function cornerLab(V, s, dir, a, cls) {
+    return plainLab(s, cls || 'al', (w, h) => {
+      const out = [];
+      [0, 25, -25, 50, -50, 80, -80, 115, -115, 150, -150, 180].forEach((dt) => [10, 18, 28].forEach((e) => {
+        const u = [cosD(dir + dt), -sinD(dir + dt)], d = e + Math.abs(u[0]) * w / 2 + Math.abs(u[1]) * h / 2;
+        out.push([V[0] + u[0] * d, V[1] + u[1] * d]);
+      }));
+      return out;
+    }, a);
+  }
+  // An angle's arc at corner V from a0 to a1 (degrees, anticlockwise), its label inside the wedge
+  // beyond the arc, left off when the wedge has no room for it.
+  function inWedgeAt(V, a0, a1, pad) {
+    return (b) => [[b.x, b.y], [b.x + b.w, b.y], [b.x, b.y + b.h], [b.x + b.w, b.y + b.h]].every((q) => {
+      const dx = q[0] - V[0], dy = V[1] - q[1], r = Math.hypot(dx, dy);
+      if (r < pad + 1) return false;
+      let p = Math.atan2(dy, dx) / RAD;
+      while (p < a0) p += 360;
+      while (p >= a0 + 360) p -= 360;
+      const m = Math.asin(Math.min(1, pad / r)) / RAD;
+      return p >= a0 + m && p <= a1 - m;
+    });
+  }
+  function arcPathAt(V, a0, a1, r) {
+    const p0 = [V[0] + r * cosD(a0), V[1] - r * sinD(a0)], p1 = [V[0] + r * cosD(a1), V[1] - r * sinD(a1)];
+    return 'M' + pt(p0) + ' A' + r + ' ' + r + ' 0 ' + (a1 - a0 > 180 ? 1 : 0) + ' 0 ' + pt(p1);
+  }
+  function arcAt(V, a0, a1, ra, a, cls) {
+    if (!(a1 - a0 > 0.5)) return;
+    const aa = a == null ? 1 : a, n = Math.max(2, Math.ceil((a1 - a0) / 8));
+    for (let k = 0; k < n; k++) {
+      const t0 = a0 + (a1 - a0) * k / n, t1 = a0 + (a1 - a0) * (k + 1) / n;
+      REC.segs.push({ p: [V[0] + ra * cosD(t0), V[1] - ra * sinD(t0)], q: [V[0] + ra * cosD(t1), V[1] - ra * sinD(t1)], pad: 1 });
+    }
+    if (aa > 0) part(aa, 0, () => add(K.svg('path', { class: cls || 'arc', d: arcPathAt(V, a0, a1, ra) })));
+  }
+  function wedgeLab(V, a0, a1, s, a, ra, maxD, cls) {
+    if (!(a1 - a0 > 0.5) || !s) return null;
+    cls = cls || 'al';
+    const w = tw(s, cls), span = a1 - a0, cands = [], top = maxD || 230;
+    for (let dd = ra + Math.hypot(w / 2, 7) + 4; dd < top; dd += 3) [0.5, 0.36, 0.64, 0.24, 0.76].forEach((f) => { const t = a0 + span * f; cands.push([V[0] + cosD(t) * dd, V[1] - sinD(t) * dd]); });
+    return plainLab(s, cls, () => cands, a, inWedgeAt(V, a0, a1, 3));
+  }
+  // ---------- rows of working under the picture ----------
+  function drawRows(y0, rows) {
+    rows.forEach((r, m) => {
+      const y = y0 + 24 * m, w = tw(r.s, 'te');
+      REC.boxes.push({ x: 12, y: y - 11, w, h: 14 });
+      if (r.a > 0) part(r.a, 4, () => { if (r.hl) rect('hlbg', 7, y - 15, w + 10, 21, 4); text(12, y, r.s, 'te' + (r.bad ? ' bad' : ''), 'start'); });
+    });
+    REC.rows = rows.filter((r) => r.a >= 0.5).map((r) => ({ s: r.s, bad: !!r.bad }));
+  }
+  function puzzleRows(d, st, y0) {
+    const an = (t) => when('answer', t), list = [], ok = ansOf(st);
+    if (ok) d.right.forEach((s, m) => list.push({ s, a: an(0.3 + 0.15 * m) }));
+    if (wrongOf(st)) [].concat(d.wrong[st.pick]).forEach((s, m) => list.push({ s, a: an((ok ? 0.3 + 0.15 * d.right.length : 0.3) + 0.15 * m), bad: true }));
+    drawRows(y0, list);
+  }
+
+  // ---------- the arrows, their waves and the stacked heights ----------
+  // The arrows' picture: a floor and a wall line through the centre, RP px standing for ymax.
+  function phasor(ymax) {
+    const kp = RP / ymax, C = [PCX, PCY];
+    const m = { kp, C, ymax, P: (v) => [C[0] + v[0] * kp, C[1] - v[1] * kp] };
+    lineP('axis', [C[0] - RP - 2, C[1]], [C[0] + RP + 2, C[1]], 1);
+    lineP('axis', [C[0], C[1] - RP - 2], [C[0], C[1] + RP + 2], 1);
+    REC.map = m; REC.pivot = C;
+    return m;
+  }
+  // The wave graph under it, height against time over two turns of arrow A, to the same top value.
+  function graph(m) {
+    m.gx = (t) => GX0 + (GX1 - GX0) * t / TURNS;
+    m.gy = (v) => GCY - v * GH / m.ymax;
+    m.tOf = (x) => (x - GX0) / (GX1 - GX0) * TURNS;
+    m.vOf = (y) => (GCY - y) * m.ymax / GH;
+    lineP('axis', [GX0, GCY], [GX1 + 4, GCY], 1);
+    lineP('axis', [GX0, GCY - GH - 4], [GX0, GCY + GH + 4], 1);
+    lineP('tick', [GX0 - 4, GCY - GH], [GX0, GCY - GH], 1);
+    lineP('tick', [GX0 - 4, GCY + GH], [GX0, GCY + GH], 1);
+    const yv = trim(m.ymax, 1);
+    fixedLab(GX0 - 6, GCY - GH + 5, yv, 'tk', 'end');
+    fixedLab(GX0 - 6, GCY + GH + 5, '−' + yv, 'tk', 'end');
+    fixedLab(4, PILLY + 5, 'height', 'tk', 'start');
+    ['½', '1', '1½', '2'].forEach((s, j) => {
+      const x = m.gx((j + 1) / 2);
+      lineP('tick', [x, GCY - 3], [x, GCY + 3], 1);
+      fixedLab(Math.min(x, 337 - tw(s, 'tk') / 2), TKY, s, 'tk', 'middle');
+    });
+    fixedLab(337, TTL, 'time, in turns of A', 'tk', 'end');
+    return m;
+  }
+  const KEYW = [['arA', 'arrow A'], ['arB', 'arrow B'], ['arS', 'sum']];
+  function key(list) {
+    list.forEach((k, j) => {
+      const y = 16 + 18 * j;
+      lineP(k[0], [212, y - 4], [234, y - 4], 1);
+      fixedLab(240, y + 1, k[1], 'tk', 'start');
+    });
+  }
+  // The arrows at a moment tau (turns of A): A at pa, B at pb, B turning kb times as fast.
+  function chainAt(o, tau) {
+    const thA = TAU * tau + o.pa * RAD, thB = TAU * tau * (o.kb || 1) + o.pb * RAD;
+    const A = [o.a * Math.cos(thA), o.a * Math.sin(thA)], B = [o.b * Math.cos(thB), o.b * Math.sin(thB)];
+    return { thA, thB, A, B, S: [A[0] + B[0], A[1] + B[1]] };
+  }
+  // A from the centre, B tip to tail on A, and the bold sum arrow from the centre to B's tip.
+  function drawChain(m, ch, sa) {
+    const pA = m.P(ch.A), pS = m.P(ch.S);
+    part(sa == null ? 1 : sa, 0, () => arrow(m.C, pS, 'arS', 'hdS', true));
+    arrow(m.C, pA, 'arA', 'hdA');
+    arrow(pA, pS, 'arB', 'hdA');
+    return { pA, pS };
+  }
+  function chainLabs(m, pp, la, lb, ls, as) {
+    segLab(m.C, pp.pA, la, pp.pS, 1);
+    segLab(pp.pA, pp.pS, lb, m.C, 1);
+    if (ls && lenOf(m.C, pp.pS) > 4) segLab(m.C, pp.pS, ls, pp.pA, as == null ? 1 : as);
+  }
+  function tipHandle(p, pa, tau, max) {
+    ringAt(p, 'tipring', 8);
+    REC.handles.push({ id: 'tip', x: p[0], y: p[1] });
+    REC.tipPhi = pa * RAD; REC.tau = tau; REC.range = [0, max];
+  }
+  // Each wave's height is its arrow's length × sin of its angle; the sum wave is the two added.
+  // Traced from 0 up to `upto` turns of A.
+  function waveSet(m, o, tau, opt) {
+    opt = opt || {};
+    const kb = o.kb || 1;
+    const fA = (t) => o.a * Math.sin(TAU * t + o.pa * RAD), fB = (t) => o.b * Math.sin(TAU * t * kb + o.pb * RAD), fS = (t) => fA(t) + fB(t);
+    const upto = opt.upto == null ? tau : opt.upto, out = { fA, fB, fS, pts: { A: [], B: [], S: [] } };
+    const tr = (k, fn, cls, a) => {
+      if (upto <= 1e-9) return;
+      const n = Math.max(2, Math.round(180 * upto / TURNS)), ps = [];
+      for (let j = 0; j <= n; j++) { const t = upto * j / n; ps.push([m.gx(t), m.gy(fn(t))]); }
+      out.pts[k] = ps;
+      part(a == null ? 1 : a, 0, () => pathP(cls, ps, 1.5));
+    };
+    tr('A', fA, 'wA'); tr('B', fB, 'wB');
+    if (opt.sum !== false) tr('S', fS, 'wS', opt.sa);
+    out.hA = fA(tau); out.hB = fB(tau); out.hS = fS(tau);
+    return out;
+  }
+  // The pens at the moment tau, and beside the graph A's bar with B's bar stacked on its end: the
+  // stack ends level with the sum's pen.
+  function stackDraw(m, W, tau, nameB, nameS) {
+    const y0 = m.gy(0), y1 = m.gy(W.hA), y2 = m.gy(W.hA + W.hB), x = m.gx(tau);
+    if (SBA - 5 - (x + 6) > 4) lineP('cline', [x + 6, y2], [SBA - 5, y2], 1);
+    boxRect('barA', SBA, y0, y1, SBW);
+    boxRect('barB', SBB, y1, y2, SBW);
+    lineP('stk', [SBA - 4, y2], [SBB + SBW + 4, y2], 2);
+    dot([x, m.gy(W.hB)], 'penB', 4); dot([x, y1], 'penA', 4); dot([x, y2], 'penS', 4.5);
+    pill('stack', 'A ' + hS(W.hA) + ' + ' + nameB + ' ' + hS(W.hB) + ' = ' + (nameS ? nameS + ' ' : '') + hS(W.hA + W.hB), PILLY, 1, false);
+    REC.stack = { x, y1, y2 };
+  }
+  function penLabs(m, W, tau, names) {
+    const x = m.gx(tau);
+    cornerLab([x, m.gy(W.hA + W.hB)], names[2], 0, 1);
+    cornerLab([x, m.gy(W.hA)], names[0], 0, 1);
+    cornerLab([x, m.gy(W.hB)], names[1], 0, 1);
+  }
+  const waveLab = (m, t, v, s, a, cls) => cornerLab([m.gx(t), m.gy(v)], s, v >= 0 ? 90 : -90, a, cls);
+  function slipWave(m, fn, a) {
+    const ps = [];
+    for (let j = 0; j <= 180; j++) { const t = TURNS * j / 180; ps.push([m.gx(t), m.gy(fn(t))]); }
+    part(a, 0, () => pathP('slip', ps, 1.5));
+  }
+  function legP(cls, p, q) { if (lenOf(p, q) > 0.5) lineP(cls, p, q, 2.5); }
+  function legLab(p, q, v, away, a) { if (lenOf(p, q) >= 12) segLab(p, q, trim(v, 3), away, a); }
+  // The three-phase card: drawn to its own scale in volts, s px a volt.
+  function card(C, s, V) {
+    const m = { kp: s, C, P: (v) => [C[0] + v[0] * s, C[1] - v[1] * s] };
+    lineP('axis', [C[0] - 0.6 * V * s, C[1]], [C[0] + 1.6 * V * s, C[1]], 1);
+    REC.map = m; REC.pivot = C;
+    return m;
+  }
+  // The two puzzles on 4 at 0° plus 4 at 60°: its length, or its angle.
+  function fourFour(d, st, ask) {
+    const an = ansOf(st), bad = wrongOf(st) ? st.pick : null, a = when('answer', 0.3);
+    const o = { a: 4, b: 4, pa: 0, pb: 60 }, m = phasor(8);
+    key(KEYW);
+    pill('ans', ask === 'len' ? 'sum ' + (an ? o3[2] : '?') : 'angle ' + (an ? o5[0] : '?'), PILLP, 1, false);
+    const ch = chainAt(o, 0), pA = m.P(ch.A), pS = m.P(ch.S), c2 = m.P([ch.S[0], ch.A[1]]);
+    arcAt(pA, 0, 60, 13, 1);
+    if (ask === 'ang') arcAt(m.C, 0, P3.phi, 24, 1);
+    if (an && ask === 'len') part(a, 0, () => { legP('shB', pA, c2); legP('shB', c2, pS); });
+    const pp = drawChain(m, ch);
+    let q = null;
+    if (bad && ask === 'len') { q = m.P(vec(Number(bad), P3.phi)); part(a, 0, () => arrow(m.C, q, 'arBad', 'hdBad')); }
+    if (bad === o5[1]) { q = m.P(vec(7, 60)); part(a, 0, () => lineP('arBad', m.C, q, 1.5)); }
+    wedgeLab(pA, 0, 60, '60°', 1, 13, 70);
+    if (ask === 'ang') wedgeLab(m.C, 0, P3.phi, an ? o5[0] : '?', 1, 24, 150);
+    chainLabs(m, pp, 'A 4', 'B 4', 'sum', 1);
+    if (an && ask === 'len') { legLab(pA, c2, ch.B[0], pS, a); legLab(c2, pS, ch.B[1], pA, a); }
+    if (q && bad !== o5[2]) segLab(m.C, q, bad, null, a, 'al bad');
+    puzzleRows(d, st, d.ry);
+    return 'Arrow A, 4 long, pointing right, and arrow B, 4 long at 60°, laid tip to tail, with the bold sum arrow from the centre to B\'s tip.' +
+      (an ? (ask === 'len' ? ' Its floor shadow is 6 and its wall shadow 3.464, so it is 6.93 long.' : ' It points at 30°.') : '');
+  }
+
+  // ---------- each step's picture ----------
+  const PIC = {
+    sum1(d, st) {
+      const a = val(st, 'sum1', 'lenA'), b = val(st, 'sum1', 'lenB'), pb = val(st, 'sum1', 'angB');
+      syncCtl('lenA', a); syncCtl('lenB', b); syncCtl('angB', pb);
+      const o = { a, b, pa: 0, pb }, s = sumOf(a, 0, b, pb), m = graph(phasor(niceMax(Math.max(a, b, s.L))));
+      const tau = st.tau != null ? st.tau : endTau(s) * lin(0.4, 3.0);
+      key(KEYW);
+      const W = waveSet(m, o, tau);
+      stackDraw(m, W, tau, 'B', 'sum');
+      const ch = chainAt(o, tau), pp = drawChain(m, ch);
+      tipHandle(pp.pA, 0, tau, TURNS);
+      chainLabs(m, pp, 'A ' + a, 'B ' + b, 'sum ' + trim(s.L, 2), 1);
+      penLabs(m, W, tau, ['A', 'B', 'sum']);
+      drawRows(d.ry, [lenRow(s, 2), angRow(s, 2)].map((r, k) => ({ s: r, a: when('demo', 3.4 + 0.2 * k) })));
+      REC.w = { o, s, tau, W, pA: pp.pA, pS: pp.pS };
+      return 'Arrow A, ' + a + ' long, and arrow B, ' + b + ' long, laid tip to tail and turned ' + trim(tau * 360, 0) + '° together. The sum arrow is ' + trim(s.L, 2) +
+        " long, and the bars stack A's height, " + hS(W.hA) + ", and B's, " + hS(W.hB) + ", to the sum's, " + hS(W.hS) + '.';
+    },
+    peak5(d, st) {
+      const an = ansOf(st), bad = wrongOf(st) ? st.pick : null, a = when('answer', 0.3);
+      const o = { a: 3, b: 4, pa: 0, pb: 90 }, m = graph(phasor(8));
+      key(KEYW);
+      pill('ans', "sum's peak " + (an ? o1[1] : '?'), PILLY, 1, false);
+      const W = waveSet(m, o, 0, { upto: TURNS, sum: an, sa: a });
+      const k = bad ? Number(bad) : 0, fBad = bad ? (t) => k * Math.sin(TAU * t + P1.phi * RAD) : null;
+      if (fBad) slipWave(m, fBad, a);
+      const ch = chainAt(o, 0), pp = drawChain(m, ch);
+      rightMark(pp.pA, 90, 180, 6);
+      chainLabs(m, pp, 'A 3', 'B 4', 'sum', 1);
+      const tp = endTau(P1);
+      waveLab(m, 0.25, W.fA(0.25), 'A', 1);
+      waveLab(m, 1, W.fB(1), 'B', 1);
+      if (an) waveLab(m, tp, W.fS(tp), 'sum', a);
+      if (fBad) waveLab(m, tp - 1, fBad(tp - 1), bad, a, 'al bad');
+      puzzleRows(d, st, d.ry);
+      return 'Arrow A, 3 long, pointing right, and arrow B, 4 long, a quarter turn on, laid tip to tail at the start, with the waves of A and B over two turns' +
+        (an ? ' and the sum wave, peaking at 5.' : '; the sum wave\'s peak is asked about.');
+    },
+    shadows(d, st) {
+      const a = 10, b = val(st, 'shadows', 'lenB'), pb = val(st, 'shadows', 'angB'), parts = !!val(st, 'shadows', 'parts');
+      syncCtl('lenB', b); syncCtl('angB', pb); syncCtl('parts', parts);
+      const o = { a, b, pa: 0, pb }, s = sumOf(a, 0, b, pb), m = graph(phasor(niceMax(Math.max(a, b, s.L))));
+      const tau = st.tau != null ? st.tau : lin(0.4, 2.6);
+      key(parts ? KEYW.concat([['sh', 'shadows']]) : KEYW);
+      const W = waveSet(m, o, tau);
+      stackDraw(m, W, tau, 'B', 'sum');
+      const ch = chainAt(o, tau), fa = ch.A[0], wa = ch.A[1], fb = ch.B[0], wb = ch.B[1];
+      const pA0 = m.P(ch.A), pS0 = m.P(ch.S), c1 = m.P([fa, 0]), c2 = m.P([fa + fb, wa]), aS = when('demo', 3.0);
+      if (parts) part(aS, 0, () => { legP('sh', m.C, c1); legP('sh', c1, pA0); legP('shB', pA0, c2); legP('shB', c2, pS0); });
+      const pp = drawChain(m, ch);
+      tipHandle(pp.pA, 0, tau, TURNS);
+      chainLabs(m, pp, 'A ' + a, 'B ' + b, 'sum ' + trim(s.L, 2), 1);
+      if (parts) { legLab(m.C, c1, fa, pp.pA, aS); legLab(c1, pp.pA, wa, m.C, aS); legLab(pp.pA, c2, fb, pp.pS, aS); legLab(c2, pp.pS, wb, pp.pA, aS); }
+      penLabs(m, W, tau, ['A', 'B', 'sum']);
+      const N = (v) => trim(v, 3), F = fa + fb, Wl = wa + wb, L = Math.hypot(F, Wl);
+      const rows = ['floor ' + N(fa) + ' ' + pm(fb, 3) + ' = ' + N(F), 'wall ' + N(wa) + ' ' + pm(wb, 3) + ' = ' + N(Wl),
+        'sum = √(' + N(Math.abs(F)) + '² + ' + N(Math.abs(Wl)) + '²) = ' + trim(L, 2) + (L < a + b - 0.005 ? ', not ' + trim(a + b, 2) : '')];
+      drawRows(d.ry, rows.map((r, k) => ({ s: r, a: when('demo', 3.2 + 0.2 * k) })));
+      REC.w = { o, s, tau, W, pA: pp.pA, pS: pp.pS, legs: { c1, c2 } };
+      return 'Arrow A, 10 long, and arrow B, ' + b + ' long at ' + neg(pb) + '°, laid tip to tail and turned ' + trim(tau * 360, 0) + '°.' +
+        (parts ? ' Each is split into its floor shadow and its wall shadow: the floor shadows add to ' + N(F) + ' and the wall shadows to ' + N(Wl) + '.' : '') +
+        ' The sum arrow is ' + trim(s.L, 2) + ' long.';
+    },
+    q693(d, st) { return fourFour(d, st, 'len'); },
+    angle(d, st) {
+      const a = 10, b = 6, pa = val(st, 'angle', 'angA'), pb = val(st, 'angle', 'angB');
+      syncCtl('angA', pa); syncCtl('angB', pb);
+      const o = { a, b, pa, pb }, s = sumOf(a, pa, b, pb), m = phasor(niceMax(Math.max(a, b, s.L)));
+      const tau = st.tau != null ? st.tau : lin(0.4, 2.4);
+      key(KEYW);
+      const ch = chainAt(o, tau), pp = drawChain(m, ch);
+      tipHandle(pp.pA, pa, tau, 1);
+      const degA = ch.thA * DEG, rel = s.L > 1e-9 ? norm(s.phi - pa) : 0, between = norm(pb - pa), inside = 180 - Math.abs(between);
+      const back = degA + 180, dB = norm(ch.thB * DEG - back), aW = when('demo', 2.8), aI = when('demo', 3.0);
+      const w0 = degA + Math.min(0, rel), w1 = degA + Math.max(0, rel), i0 = back + Math.min(0, dB), i1 = back + Math.max(0, dB);
+      arcAt(m.C, w0, w1, 16, aW);
+      arcAt(pp.pA, i0, i1, 13, aI);
+      wedgeLab(m.C, w0, w1, trim(Math.abs(rel), 1) + '°', aW, 16, 150);
+      wedgeLab(pp.pA, i0, i1, trim(inside, 1) + '°', aI, 13, 100);
+      chainLabs(m, pp, 'A ' + a, 'B ' + b, 'sum ' + trim(s.L, 2), 1);
+      const ph = s.phi, phs = Math.abs(ph) < 0.05 ? '' : (ph > 0 ? ' + ' : ' − ') + trim(Math.abs(ph), 1) + '°';
+      const rows = ['sum = ' + trim(s.L, 2) + ' sin(ωt' + phs + ')', 'inside angle = 180° − ' + trim(Math.abs(between), 1) + '° = ' + trim(inside, 1) + '°',
+        a + '² + ' + b + '² − 2 × ' + a + ' × ' + b + ' × cos ' + trim(inside, 1) + '°', '= ' + trim(a * a + b * b - 2 * a * b * cosD(inside), 1) + ' = ' + trim(s.L, 2) + '²'];
+      drawRows(d.ry, rows.map((r, k) => ({ s: r, a: when('demo', 3.0 + 0.2 * k) })));
+      REC.w = { o, s, tau, pA: pp.pA, pS: pp.pS };
+      return 'Arrow A, 10 long, starting at ' + neg(pa) + '°, and arrow B, 6 long, starting at ' + neg(pb) + '°, laid tip to tail. The sum arrow is ' + trim(s.L, 2) +
+        ' long, ' + trim(Math.abs(rel), 1) + '° ' + (rel >= 0 ? 'ahead of' : 'behind') + ' A; the angle inside the triangle at B\'s tail is ' + trim(inside, 1) + '°.';
+    },
+    q30(d, st) { return fourFour(d, st, 'ang'); },
+    minus(d, st) {
+      const a = 10, b = 6, sub = !!val(st, 'minus', 'sub');
+      syncCtl('sub', sub);
+      const u = sub ? K.ease(lin(0.5, 1.6)) : 0, pb = 60 + 180 * u, o = { a, b, pa: 0, pb }, m = graph(phasor(15));
+      const fin = sumOf(a, 0, b, sub ? 240 : 60), tau = st.tau != null ? st.tau : 0, aE = when('demo', 2.2);
+      key(KEYW);
+      const W = waveSet(m, o, tau, { upto: TURNS });
+      stackDraw(m, W, tau, sub ? 'B turned' : 'B', sub ? '' : 'sum');
+      const ch = chainAt(o, tau), pA = m.P(ch.A);
+      let ghost = null, d0 = 0, d1 = 0;
+      if (sub) {
+        const g0 = chainAt({ a, b, pa: 0, pb: 60 }, tau);
+        ghost = m.P(g0.S); d0 = g0.thB * DEG; d1 = ch.thB * DEG;
+        arrow(pA, ghost, 'arG', 'hdG');
+        arcAt(pA, d0, d1, 12, 1);
+      }
+      const pp = drawChain(m, ch);
+      tipHandle(pp.pA, 0, tau, TURNS);
+      if (sub) wedgeLab(pA, d0, d1, '½ turn', aE, 12, 90);
+      segLab(m.C, pp.pA, 'A ' + a, pp.pS, 1);
+      segLab(pp.pA, pp.pS, sub ? 'B turned' : 'B ' + b, m.C, 1);
+      if (ghost) segLab(pA, ghost, 'B', m.C, 1);
+      segLab(m.C, pp.pS, (sub ? 'A − B ' : 'sum ') + trim(fin.L, 2), pp.pA, sub ? aE : 1);
+      penLabs(m, W, tau, sub ? ['A', 'B turned', 'A − B'] : ['A', 'B', 'sum']);
+      const N = (v) => trim(v, 3);
+      const rows = ['floor ' + N(fin.fa) + ' ' + pm(fin.fb, 3) + ' = ' + N(fin.F) + ', wall ' + N(fin.wa) + ' ' + pm(fin.wb, 3) + ' = ' + N(fin.W),
+        lenRow(fin, 3, sub ? 'A − B' : 'sum'), angRow(fin, 3)];
+      drawRows(d.ry, rows.map((r, k) => ({ s: r, a: when('demo', 2.4 + 0.2 * k) })));
+      REC.w = { o, tau, W, pA: pp.pA, pS: pp.pS };
+      return sub ? 'Arrow A, 10 long, and arrow B turned half a turn, from 60° to 240°, laid on its tip. The arrow from the centre is A − B, ' + trim(fin.L, 2) + ' long at ' + trim(fin.phi, 1) + '°, and its wave is A\'s wave minus B\'s.'
+        : 'Arrow A, 10 long, and arrow B, 6 long at 60°, laid tip to tail. The sum arrow is 14 long.';
+    },
+    three(d, st) {
+      const pk = !!val(st, 'three', 'peak');
+      syncCtl('peak', pk);
+      const V = pk ? VP * SQ2 : VP, m = card([88, 134], 0.4, V), C = m.C;
+      pill('note', pk ? 'at peak: ' + VP + ' × √2 = ' + trim(V, 1) + ' V' : 'drawn at rms, ' + VP + ' V', 252, when('demo', 0.4), false);
+      const L1 = [V, 0], L2 = vec(V, -120), L3 = vec(V, 120), tip = [L1[0] - L2[0], L1[1] - L2[1]];
+      const p1 = m.P(L1), p2 = m.P(L2), p3 = m.P(L3), ptp = m.P(tip), mid = m.P([tip[0] / 2, tip[1] / 2]);
+      const a1 = when('demo', 0.4), a2 = when('demo', 0.6), a3 = when('demo', 0.8), aT = when('demo', 1.3), aN = when('demo', 2.5), aL = when('demo', 2.6), aH = when('demo', 3.0);
+      const u = K.ease(lin(1.5, 1.0)), dirn = -120 + 180 * u, tail = [V * u, 0], tipT = [tail[0] + V * cosD(dirn), V * sinD(dirn)];
+      arcAt(C, -120, 0, 14, a2);
+      arcAt(C, 0, 30, 26, aL);
+      part(aH, 0, () => { lineP('half', p1, mid, 1); rightMark(mid, 210, 300, 6); });
+      arcAt(p1, 60, 120, 16, aH);
+      arcAt(p1, 120, 180, 22, aH);
+      part(a1, 0, () => arrow(C, p1, 'arA', 'hdA'));
+      part(a2, 0, () => arrow(C, p2, 'arA', 'hdA'));
+      part(a3, 0, () => arrow(C, p3, 'arA', 'hdA'));
+      part(aL, 0, () => arrow(C, ptp, 'arS', 'hdS', true));
+      part(aT, 0, () => arrow(m.P(tail), m.P(tipT), 'arB', 'hdA'));
+      const vs = trim(V, 1) + ' V';
+      wedgeLab(C, 0, 30, '30°', aL, 26, 150);
+      wedgeLab(C, -120, 0, '120°', a2, 14, 70);
+      wedgeLab(p1, 60, 120, '60°', aH, 16, 70);
+      wedgeLab(p1, 120, 180, '60°', aH, 22, 70);
+      segLab(C, ptp, 'line ' + trim(V * SQ3, 1) + ' V', p1, aL);
+      segLab(C, p1, 'L1 ' + vs, ptp, a1);
+      segLab(C, p2, 'L2 ' + vs, p1, a2);
+      segLab(C, p3, 'L3 ' + vs, p1, a3);
+      segLab(m.P(tail), m.P(tipT), 'L2 turned', C, aN);
+      const N1 = (v) => trim(v, 1), hx = V * cosD(60), hy = V * sinD(60);
+      const rows = ['floor ' + N1(V) + ' + ' + N1(hx) + ' = ' + N1(V + hx), 'wall 0 + ' + N1(hy) + ' = ' + N1(hy),
+        'line = 2 × ' + N1(V) + ' × sin 60° = ' + N1(V) + ' × √3', '= ' + N1(V * SQ3) + ' V, ' + (pk ? 'at peak' : 'about ' + trim(Math.round(V * SQ3 / 100) * 100, 0) + ' V')];
+      drawRows(d.ry, rows.map((r, k) => ({ s: r, a: when('demo', 3.1 + 0.2 * k) })));
+      REC.w = { C, p1, p2, p3, pt: ptp };
+      return 'Three phase arrows, L1, L2 and L3, each ' + vs + ' and 120° apart. L2 turned half a turn is laid on L1\'s tip, and the line arrow from the centre to its tip is ' + N1(V * SQ3) +
+        ' V, 30° ahead of L1. A line from L1\'s tip to the middle of the line arrow splits the triangle into two right-angled triangles with 60° at L1\'s tip.';
+    },
+    meter(d, st) {
+      const an = ansOf(st), a = when('answer', 0.3), m = card([96, 128], 0.5, VP), C = m.C;
+      pill('ans', 'meter reads ' + (an ? o8[2] : '?'), 252, 1, false);
+      const L1 = [VP, 0], L2 = vec(VP, -120), L3 = vec(VP, 120), p1 = m.P(L1), p2 = m.P(L2), p3 = m.P(L3), ptp = m.P([VP - L2[0], -L2[1]]);
+      const M = [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2], L = lenOf(p1, p2), u = [(p1[0] - p2[0]) / L, (p1[1] - p2[1]) / L];
+      arcAt(C, -120, 0, 14, 1);
+      lineP('mlead', p2, [M[0] - u[0] * 12, M[1] - u[1] * 12], 1);
+      lineP('mlead', [M[0] + u[0] * 12, M[1] + u[1] * 12], p1, 1);
+      add(K.svg('circle', { class: 'meter', cx: R(M[0]), cy: R(M[1]), r: 11 }));
+      REC.segs.push({ p: M, q: M, pad: 13 });
+      part(an ? a : 0, 0, () => { arrow(p1, ptp, 'arB', 'hdA'); arrow(C, ptp, 'arS', 'hdS', true); });
+      arrow(C, p1, 'arA', 'hdA'); arrow(C, p2, 'arA', 'hdA'); arrow(C, p3, 'arA', 'hdA');
+      fixedLab(M[0], M[1] + 5, 'V', 'al', 'middle');
+      wedgeLab(C, -120, 0, '120°', 1, 14, 70);
+      segLab(C, p1, 'L1 ' + VP + ' V', p3, 1);
+      segLab(C, p2, 'L2 ' + VP + ' V', p1, 1);
+      segLab(C, p3, 'L3 ' + VP + ' V', p1, 1);
+      cornerLab(M, 'meter', Math.atan2(C[1] - M[1], M[0] - C[0]) * DEG, 1);
+      if (an) { segLab(p1, ptp, 'L2 turned', C, a); segLab(C, ptp, 'L1 − L2', p1, a); }
+      puzzleRows(d, st, d.ry);
+      return 'Three phase arrows, each 230 V and 120° apart, with a meter joined across the tips of L1 and L2.' + (an ? ' L2 turned half a turn and laid on L1\'s tip gives L1 − L2, 398 V.' : '');
+    },
+    fast(d, st) {
+      const f = !!val(st, 'fast', 'fast');
+      syncCtl('fast', f);
+      const o = { a: 3, b: 4, pa: 0, pb: 90, kb: f ? 2 : 1 }, m = graph(phasor(niceMax(3 + 4)));
+      const tau = st.tau != null ? st.tau : TURNS * lin(0.4, 3.2);
+      key(KEYW);
+      const W = waveSet(m, o, tau);
+      stackDraw(m, W, tau, 'B', 'sum');
+      const ch = chainAt(o, tau), pp = drawChain(m, ch), L = Math.hypot(ch.S[0], ch.S[1]);
+      tipHandle(pp.pA, 0, tau, TURNS);
+      chainLabs(m, pp, 'A 3', 'B 4', 'sum ' + trim(L, 2), 1);
+      penLabs(m, W, tau, ['A', 'B', 'sum']);
+      const s0 = sumOf(3, 0, 4, 90);
+      const rows = f ? ['the angle between A and B keeps changing', 'so the sum runs from ' + LEN2[0] + ' to ' + LEN2[1] + ' long']
+        : ['the angle between A and B stays ' + trim(90, 0) + '°', 'so the sum keeps one length, ' + trim(s0.L, 2)];
+      drawRows(d.ry, rows.map((r, k) => ({ s: r, a: when('demo', 3.6 + 0.2 * k) })));
+      REC.w = { o, tau, W, pA: pp.pA, pS: pp.pS };
+      return 'Arrow A, 3 long, and arrow B, 4 long, laid tip to tail, with B turning ' + (f ? 'twice for each turn of A' : 'at A\'s speed') + '. The sum arrow is ' + trim(L, 2) + ' long at this moment' +
+        (f ? ', and its length keeps changing.' : ', and keeps that length.');
+    },
+    q2x(d, st) {
+      const an = ansOf(st), a = when('answer', 0.3);
+      const o = { a: 3, b: 4, pa: 0, pb: 90, kb: 2 }, m = graph(phasor(niceMax(3 + 4)));
+      key(KEYW);
+      pill('ans', "sum's length " + (an ? LEN2[0] + ' to ' + LEN2[1] : '?'), PILLY, 1, false);
+      const W = waveSet(m, o, 0, { upto: TURNS, sum: an, sa: a });
+      const ch = chainAt(o, 0.125), pp = drawChain(m, ch);
+      chainLabs(m, pp, 'A 3', 'B 4', 'sum', 1);
+      waveLab(m, 0.25, W.fA(0.25), 'A', 1);
+      waveLab(m, 0.5, W.fB(0.5), 'B', 1);
+      if (an) waveLab(m, 0.75, W.fS(0.75), 'sum', a);
+      puzzleRows(d, st, d.ry);
+      return 'Arrow A, 3 long, and arrow B, 4 long, with B turning twice for each turn of A, shown an eighth of a turn in. The waves of A and B are drawn' +
+        (an ? ', and the sum wave, which is not one sine wave.' : '.');
+    },
+    q440(d, st) {
+      const an = ansOf(st), Vp = VL / SQ3, m = card([96, 128], 0.45, Vp), C = m.C;
+      pill('ans', 'each phase ' + (an ? o11[0] : '?'), 252, 1, false);
+      const p1 = m.P([Vp, 0]), p2 = m.P(vec(Vp, -120)), p3 = m.P(vec(Vp, 120));
+      arcAt(C, -120, 0, 14, 1);
+      arrow(p2, p1, 'arS', 'hdS', true);
+      arrow(C, p1, 'arA', 'hdA'); arrow(C, p2, 'arA', 'hdA'); arrow(C, p3, 'arA', 'hdA');
+      wedgeLab(C, -120, 0, '120°', 1, 14, 70);
+      segLab(p2, p1, 'line ' + VL + ' V', C, 1);
+      segLab(C, p1, 'L1', p3, 1); segLab(C, p2, 'L2', p1, 1); segLab(C, p3, 'L3', p1, 1);
+      puzzleRows(d, st, d.ry);
+      return 'Three equal phase arrows, 120° apart, with the line arrow, 440 V, joining the tips of L2 and L1.' + (an ? ' Each phase is 254 V.' : '');
+    },
+    cancel(d, st) {
+      const an = ansOf(st), bad = wrongOf(st) ? st.pick : null, a = when('answer', 0.3);
+      const o = { a: 8, b: 8, pa: 0, pb: 180 }, m = graph(phasor(16));
+      key(KEYW);
+      pill('ans', "sum's peak " + (an ? o12[2] : '?'), PILLY, 1, false);
+      const W = waveSet(m, o, 0, { upto: TURNS, sum: an, sa: a });
+      const fBad = bad === o12[0] ? (t) => 16 * Math.sin(TAU * t) : bad === o12[1] ? (t) => Math.hypot(8, 8) * Math.sin(TAU * t + PI / 4) : null;
+      if (fBad) slipWave(m, fBad, a);
+      const ch = chainAt(o, 0), pp = drawChain(m, ch, 0);
+      if (an) part(a, 0, () => dot(m.C, 'penS', 5));
+      segLab(m.C, pp.pA, 'A 8', [m.C[0], m.C[1] + 20], 1);
+      segLab(pp.pA, pp.pS, 'B 8', [m.C[0], m.C[1] - 20], 1);
+      waveLab(m, 0.25, W.fA(0.25), 'A', 1);
+      waveLab(m, 0.75, W.fB(0.75), 'B', 1);
+      if (an) cornerLab([m.gx(1), m.gy(0)], 'sum', 90, a);
+      if (fBad) { const tp = bad === o12[0] ? 1.25 : 1.125; waveLab(m, tp, fBad(tp), bad, a, 'al bad'); }
+      puzzleRows(d, st, d.ry);
+      return 'Arrow A, 8 long, pointing right, and arrow B, 8 long, half a turn on, laid on A\'s tip so it points straight back to the centre. The waves of A and B are mirror images' +
+        (an ? ', and the sum wave is flat at 0.' : '.');
+    },
+    current(d, st) {
+      const an = ansOf(st), bad = wrongOf(st) ? st.pick : null, a = when('answer', 0.3);
+      const o = { a: 12, b: 5, pa: 0, pb: -90 }, m = phasor(15);
+      key(KEYW);
+      pill('ans', 'supply ' + (an ? trim(P13.L, 0) + ' A, ' + lag + ' behind' : '?'), PILLP, 1, false);
+      const ch = chainAt(o, 0), pp = drawChain(m, ch);
+      rightMark(pp.pA, 180, 270, 6);
+      arcAt(m.C, P13.phi, 0, 22, an ? a : 0);
+      let q = null;
+      if (bad === o13[2]) { q = m.P([P13.F, -P13.W]); part(a, 0, () => arrow(m.C, q, 'arBad', 'hdBad')); }
+      if (an) wedgeLab(m.C, P13.phi, 0, lag, a, 22, 150);
+      chainLabs(m, pp, '12 A', '5 A', 'sum', 1);
+      if (q) segLab(m.C, q, 'leading', pp.pS, a, 'al bad');
+      puzzleRows(d, st, d.ry);
+      return 'Arrow A, 12 A, pointing right, and arrow B, 5 A, a quarter turn behind and so pointing down, laid on A\'s tip, with the bold sum arrow' + (an ? ', 13 A at 22.6° below A.' : '.');
+    },
+  };
+
+  // ---------- the handle: Dan drags A's tip round, which moves the moment on the graph ----------
+  const grip = ui.appendChild(K.svg('circle', { class: 'grip', cx: -60, cy: -60, r: 22, tabindex: -1, role: 'slider', 'aria-orientation': 'horizontal', 'aria-label': "Arrow A's turn, and the moment on the graph" }));
+  grip.style.display = 'none';
+  // A moment kept to whole degrees of A's turn, landing exactly on each quarter turn.
+  function quantTip(v) {
+    const rg = REC.range, s = 1 / 360;
+    v = K.clamp(Math.round(K.clamp(v, rg[0], rg[1]) / s) * s, rg[0], rg[1]);
+    for (let q = 0; q <= rg[1] * 4 + 1e-9; q++) if (Math.abs(v - q / 4) < 0.006) v = q / 4;
+    return v;
+  }
+  // The pointer's angle round the centre, taken on the turn nearest the present moment, so A can be
+  // dragged on round past where it started.
+  function tipAt(q) {
+    const P = REC.pivot, a = Math.atan2(P[1] - q.y, q.x - P[0]);
+    let t = (a - (REC.tipPhi || 0)) / TAU;
+    t -= Math.round(t - (REC.tau || 0));
+    return quantTip(t);
+  }
+  const liveOn = () => !finished && !!STEPS[at()].live && !!REC && REC.handles.some((h) => h.id === 'tip');
+  function placeGrip(d) {
+    const h = REC.handles.filter((q) => q.id === 'tip')[0], on = !finished && !!h && !!d.live;
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    grip.setAttribute('cx', R(h.x)); grip.setAttribute('cy', R(h.y));
+    const v = REC.tau || 0;
+    grip.setAttribute('aria-valuemin', 0); grip.setAttribute('aria-valuemax', R(REC.range[1] * 360));
+    grip.setAttribute('aria-valuenow', Math.round(v * 360)); grip.setAttribute('aria-valuetext', Math.round(v * 360) + ' degrees turned');
+  }
+  function setLive(ch) {
+    const st = S[at()];
+    if (Object.keys(ch).every((k) => st[k] === ch[k]) && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    waiting = false; paused = false; T = Infinity;
+    Object.assign(st, ch);
+    K.reveal(); K.refresh();
+  }
+  function svgPoint(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+  }
+  (() => {
+    let held = null;
+    grip.addEventListener('pointerdown', (e) => {
+      if (!liveOn()) return;
+      held = e.pointerId;
+      try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the handle */ }
+      e.preventDefault();
+      const q = svgPoint(e); if (q) setLive({ tau: tipAt(q) });
+    });
+    grip.addEventListener('pointermove', (e) => { if (held !== e.pointerId || !liveOn()) return; const q = svgPoint(e); if (q) setLive({ tau: tipAt(q) }); });
+    const letGo = (e) => { if (held === e.pointerId) held = null; };
+    grip.addEventListener('pointerup', letGo);
+    grip.addEventListener('pointercancel', letGo);
+    grip.addEventListener('lostpointercapture', () => { held = null; });
+    grip.addEventListener('keydown', (e) => {
+      if (!liveOn()) return;
+      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+      if (by == null) return;
+      e.preventDefault();
+      setLive({ tau: quantTip((REC.tau || 0) + by / 72) });
+    });
+  })();
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    REC = { segs: [], handles: [], boxes: [], labs: [], rows: [], pills: {}, floor: d.ry - 16, map: null, pivot: [PCX, PCY], range: [0, TURNS], tipPhi: 0, tau: null };
+    VH = vhOf(d, st);
+    svg.setAttribute('viewBox', '0 0 340 ' + VH);
+    svg.setAttribute('aria-label', PIC[d.pic](d, st) || '');
+    placeGrip(d);
+    if (i === at()) replayLabel();
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing() && !waiting && !paused) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; paused = false; enter('stepbox');
+      SL.forEach((id) => { shown[id] = p[id]; });
+      if (d.show) { resetLive(st); play('demo', d.dur); }
+      else { waiting = false; anim.pause(); T = Infinity; MODE = 'answer'; }
+    } else {
+      // A slider or a switch moved on this screen: the picture follows it at once.
+      let moved = false;
+      SL.forEach((id) => {
+        if (p[id] === shown[id]) return;
+        shown[id] = p[id];
+        if (d.show && (d.sliders || []).indexOf(id) >= 0) { st[id] = p[id]; moved = true; }
+      });
+      if (moved) { if (anim.playing()) anim.pause(); waiting = false; paused = false; T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    const after = el('after');
+    after.hidden = !d.show || !d.after;
+    write(after, d.show && d.after ? d.after : '');
+    const cap = el('cap'), cs = CAPS[d.pic] || '';
+    write(cap, cs); cap.hidden = finished || !cs;
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    let anyCtl = false;
+    SL.forEach((id) => {
+      const on = !finished && !!d.show && (d.sliders || []).indexOf(id) >= 0;
+      ctl[id].el.hidden = !on;
+      if (on) anyCtl = true;
+    });
+    el('ctl').hidden = !anyCtl;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (pic) => STEPS.findIndex((d) => d.pic === pic);
+  // Step i painted in state st (motion m, at time tAt, finished if none), fn reading what it drew
+  // before the page is put back.
+  function withState(i, st, m, fn, tAt) {
+    const keepS = S[i], keepT = T, keepM = MODE;
+    S[i] = st; T = tAt == null ? Infinity : tAt; MODE = m || (STEPS[i].show ? 'demo' : 'answer');
+    latest = 0; earliest = Infinity;
+    try { paint(i); return fn(); } finally { S[i] = keepS; T = keepT; MODE = keepM; paint(); }
+  }
+  const drawn = (i, st, m) => withState(i, st, m, () => ({ texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent), rec: REC }));
+  const solvedSt = (i) => stOf({ pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => stOf({ pick: o, res: 'wrong' });
+  const fail = (msg) => { throw new Error(msg); };
+  const TT = (n, mx) => { const a = []; for (let j = 0; j <= n; j++) a.push(mx * j / n); return a; };
+  const angAt = (C, p) => Math.atan2(C[1] - p[1], p[0] - C[0]) * DEG;
+  // Every state a step can be seen in.
+  function statesOf(i) {
+    const d = STEPS[i], out = [];
+    const push = (o) => out.push([stOf(o), 'demo']);
+    if (d.show) {
+      out.push([blank(), 'demo']);
+      if (d.pic === 'sum1') { [1, 3, 10].forEach((lenA) => [1, 10].forEach((lenB) => [-180, -45, 90, 165].forEach((angB) => [null, 0.6].forEach((tau) => push({ lenA, lenB, angB, tau }))))); TT(16, 2).forEach((tau) => push({ tau })); }
+      else if (d.pic === 'shadows') [1, 6, 10].forEach((lenB) => [-180, -90, 0, 60, 135].forEach((angB) => [true, false].forEach((parts) => [null, 0.4].forEach((tau) => push({ lenB, angB, parts, tau })))));
+      else if (d.pic === 'angle') [-180, -90, 0, 45, 135].forEach((angA) => [-180, -60, 60, 165].forEach((angB) => [null, 0.5].forEach((tau) => push({ angA, angB, tau }))));
+      else if (d.pic === 'minus') [true, false].forEach((sub) => [null, 0.3, 0.8, 1.5].forEach((tau) => push({ sub, tau })));
+      else if (d.pic === 'three') push({ peak: true });
+      else if (d.pic === 'fast') [true, false].forEach((fast) => TT(12, 2).forEach((tau) => push({ fast, tau })));
+    } else {
+      out.push([blank(), 'answer'], [solvedSt(i), 'answer'], [stOf({ why: true }), 'answer']);
+      d.opts.filter((o) => o !== d.want).forEach((o) => out.push([wrongSt(i, o), 'answer'], [stOf({ pick: o, res: 'wrong', why: true }), 'answer']));
+    }
+    return out;
+  }
+  // What crowds the labels in the picture now: labels over labels or handles, or off the edge.
+  function crowding() {
+    const bad = [], boxes = [];
+    art.querySelectorAll('text').forEach((t) => {
+      let b = null;
+      try { b = t.getBBox(); } catch (e) { b = null; }
+      if (!b || !(b.width > 0) || !(b.height > 0)) return;
+      const sh = b.height * 0.2;
+      boxes.push({ s: t.textContent, x: b.x, y: b.y + sh, w: b.width, h: b.height - 2 * sh });
+    });
+    boxes.forEach((a, m) => {
+      if (a.x < 1 || a.x + a.w > 339 || a.y < 0 || a.y + a.h > VH) bad.push('"' + a.s + '" off the edge');
+      boxes.slice(m + 1).forEach((b) => {
+        const ix = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x), iy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+        if (ix > 1 && iy > 1) bad.push('"' + a.s + '" on "' + b.s + '"');
+      });
+      REC.handles.forEach((h) => { const nx = K.clamp(h.x, a.x, a.x + a.w), ny = K.clamp(h.y, a.y, a.y + a.h); if (Math.hypot(nx - h.x, ny - h.y) < 11) bad.push('"' + a.s + '" on a handle'); });
+    });
+    return bad;
+  }
+
+  K.check('So v(t), the sum of the y projections of the component phasors, is just the y projection of the sum of the component phasors: on the first screen, at every length, start angle and moment, the sum arrow\'s tip is drawn at A\'s height plus B\'s height, the two stacked bars end level with the sum\'s pen, and every drawn point of the sum wave is A\'s wave plus B\'s wave', () => {
+    const i = idx('sum1');
+    [[3, 4, 90], [3, 4, -45], [1, 10, 180], [10, 1, 0], [7, 5, 135], [10, 10, -180]].forEach((c) => [null, 0, 0.3, 0.77, 1.4, 1.95].forEach((tau) => {
+      const rec = drawn(i, stOf({ lenA: c[0], lenB: c[1], angB: c[2], tau }), 'demo').rec, w = rec.w, m = rec.map, t = w.tau;
+      const hA = c[0] * Math.sin(TAU * t), hB = c[1] * Math.sin(TAU * t + c[2] * RAD);
+      if (!K.near((m.C[1] - w.pA[1]) / m.kp, hA, 1e-9) || !K.near((m.C[1] - w.pS[1]) / m.kp, hA + hB, 1e-9)) fail('sum tip not at the two heights added: ' + c + ' at ' + t);
+      if (!K.near(m.vOf(rec.stack.y1), hA, 1e-9) || !K.near(m.vOf(rec.stack.y2), hA + hB, 1e-9)) fail('bars do not stack: ' + c + ' at ' + t);
+      const P = w.W.pts;
+      if (!P.S.every((q, j) => K.near(m.vOf(q[1]), m.vOf(P.A[j][1]) + m.vOf(P.B[j][1]), 1e-9))) fail('sum wave is not A + B: ' + c);
+    }));
+    return true;
+  }, { source: SRC.unsw });
+  K.check('One good use of phasors is for the summing of sinusoids of the same frequency: turning at one speed, the sum arrow keeps one length at every moment, √(floor² + wall²) of the shadows added, and its wave is one sine wave of that length and the same frequency, started at the sum\'s angle', () => {
+    const i = idx('sum1');
+    [[3, 4, 90], [10, 6, 60], [5, 9, -135], [2, 2, 180]].forEach((c) => {
+      const s = sumOf(c[0], 0, c[1], c[2]);
+      [0.1, 0.45, 0.9, 1.3, 1.9].forEach((tau) => {
+        const rec = drawn(i, stOf({ lenA: c[0], lenB: c[1], angB: c[2], tau }), 'demo').rec, w = rec.w, m = rec.map;
+        if (!K.near(lenOf(w.pS, m.C) / m.kp, s.L, 1e-9)) fail('sum length changes: ' + c + ' at ' + tau);
+        if (!w.W.pts.S.every((q) => K.near(m.vOf(q[1]), s.L * Math.sin(TAU * m.tOf(q[0]) + s.phi * RAD), 1e-9))) fail('sum wave not one sine wave: ' + c);
+      });
+    });
+    return trim(sumOf(3, 0, 4, 90).L, 2) === '5';
+  }, { source: SRC.tut });
+  K.check('To determine the vertical component of force the sine function can be used, and the horizontal component the cosine: with the shadows switch on, at every length and start angle of B and every moment, each arrow\'s floor shadow is drawn its length × cos of its angle and its wall shadow its length × sin, B\'s starting at A\'s tip; at the start B\'s are 6 cos 60° = 3 and 6 sin 60° = 5.196, and the rows add them to 13 and 5.196', () => {
+    const i = idx('shadows');
+    [1, 6, 10].forEach((lenB) => [-180, -90, 0, 60, 135].forEach((angB) => [null, 0.2, 0.65].forEach((tau) => {
+      const rec = drawn(i, stOf({ lenB, angB, tau, parts: true }), 'demo').rec, w = rec.w, m = rec.map, g = w.legs, t = w.tau;
+      const thA = TAU * t, thB = TAU * t + angB * RAD;
+      const ok = K.near((g.c1[0] - m.C[0]) / m.kp, 10 * Math.cos(thA), 1e-9) && K.near((g.c1[1] - w.pA[1]) / m.kp, 10 * Math.sin(thA), 1e-9) &&
+        K.near((g.c2[0] - w.pA[0]) / m.kp, lenB * Math.cos(thB), 1e-9) && K.near((g.c2[1] - w.pS[1]) / m.kp, lenB * Math.sin(thB), 1e-9) && Math.abs(g.c2[1] - w.pA[1]) < 1e-9;
+      if (!ok) fail('shadows off for B ' + lenB + ' at ' + angB + '°, ' + t);
+    })));
+    const r = drawn(i, blank(), 'demo').rec.rows.map((x) => x.s);
+    return r[0] === 'floor 10 + 3 = 13' && r[1] === 'wall 0 + 5.196 = 5.196' && r[2] === 'sum = √(13² + 5.196²) = 14, not 16';
+  }, { source: SRC.forces });
+  K.check('The square of any side of a triangle is equal to the sum of the squares of the other two sides minus twice the product of the other two sides and the cosine of the included angle: at every pair of start angles the drawn sum arrow\'s length squared is 10² + 6² − 2 × 10 × 6 × cos of the angle inside the tip-to-tail triangle, 180° minus the angle between the arrows, and at the start the rows give 120° and 196 = 14²', () => {
+    const i = idx('angle');
+    for (let pa = -180; pa <= 180; pa += 90) for (let pb = -180; pb <= 180; pb += 30) {
+      const rec = drawn(i, stOf({ angA: pa, angB: pb }), 'demo').rec, w = rec.w, m = rec.map;
+      const inside = 180 - Math.abs(norm(pb - pa)), L = lenOf(w.pS, m.C) / m.kp;
+      if (!K.near(L * L, 100 + 36 - 120 * cosD(inside), 1e-6)) fail('cosine rule fails at ' + pa + '°, ' + pb + '°');
+    }
+    const r = drawn(i, blank(), 'demo').rec.rows.map((x) => x.s);
+    return r[0] === 'sum = 14 sin(ωt + 21.8°)' && r[1] === 'inside angle = 180° − 60° = 120°' && r[2] === '10² + 6² − 2 × 10 × 6 × cos 120°' && r[3] === '= 196 = 14²';
+  }, { source: SRC.cos });
+  K.check('Taking a wave away is adding its arrow turned half a turn: B turned to 240° has every height with its sign changed, and A − B is drawn 8.72 long at −36.6°, from floor 10 − 3 = 7 and wall 0 − 5.196 = −5.196; switched off, the sum is 14 long', () => {
+    const i = idx('minus'), on = drawn(i, blank(), 'demo').rec, off = drawn(i, stOf({ sub: false }), 'demo').rec, m = on.map, w = on.w;
+    if (!w.W.pts.B.length || !w.W.pts.B.every((q) => K.near(m.vOf(q[1]), -6 * Math.sin(TAU * m.tOf(q[0]) + 60 * RAD), 1e-9))) fail('B turned is not B upside down');
+    const L = lenOf(w.pS, m.C) / m.kp;
+    return K.near(L, Math.sqrt(76), 1e-9) && trim(L, 2) === '8.72' && trim(angAt(m.C, w.pS), 1) === '−36.6' && on.rows[0].s === 'floor 10 − 3 = 7, wall 0 − 5.196 = −5.196' &&
+      K.near(lenOf(off.w.pS, off.map.C) / off.map.kp, 14, 1e-9);
+  });
+  K.check('3-phase systems consist of 3 equal in magnitude voltages and 120 degrees out of phase relative to each other: on the card, at rms and at peak, the three phase arrows are drawn the same length and a third of a turn, 120°, apart', () =>
+    [false, true].every((peak) => {
+      const w = drawn(idx('three'), stOf({ peak }), 'demo').rec.w, C = w.C, len = (p) => lenOf(p, C);
+      return K.near(len(w.p1), len(w.p2), 1e-9) && K.near(len(w.p2), len(w.p3), 1e-9) && K.near(Math.abs(norm(angAt(C, w.p1) - angAt(C, w.p2))), 120, 1e-9) &&
+        K.near(Math.abs(norm(angAt(C, w.p3) - angAt(C, w.p1))), 120, 1e-9);
+    }), { source: SRC.mtu });
+  K.check('The voltage declared in respect of a low voltage supply shall be 230 volts between the phase and neutral conductors: the card draws each phase arrow 230 V long, its label says so, and its rows start from 230', () => {
+    const rec = drawn(idx('three'), blank(), 'demo').rec;
+    return rec.pills.note === 'drawn at rms, 230 V' && rec.rows[0].s === 'floor 230 + 115 = 345' && K.near(lenOf(rec.w.p1, rec.w.C) / rec.map.kp, 230, 1e-9);
+  }, { source: SRC.leg });
+  K.check('The square root three is a magnitude multiplier that accompanies a 30 degree phase shift between line voltages and their respective phase voltages: L1 plus L2 turned half a turn is drawn √3 times a phase arrow long, 30° ahead of L1, and the rows give 2 × 230 × sin 60° = 230 × √3 = 398.4 V', () => {
+    const rec = drawn(idx('three'), blank(), 'demo').rec, w = rec.w, C = w.C;
+    return K.near(lenOf(w.pt, C) / rec.map.kp, 230 * SQ3, 1e-9) && K.near(angAt(C, w.pt), 30, 1e-9) && K.near(2 * 230 * sinD(60), 230 * SQ3, 1e-9) &&
+      rec.rows[2].s === 'line = 2 × 230 × sin 60° = 230 × √3' && rec.rows[3].s.indexOf('= 398.4 V') === 0;
+  }, { source: SRC.sqrt3 });
+  K.check('Low voltage is a term used to describe 400 V three-phase and 230 V single-phase supplies: the card\'s line voltage, 230 × √3 = 398.4 V, is read as about 400 V', () =>
+    drawn(idx('three'), blank(), 'demo').rec.rows[3].s === '= 398.4 V, about 400 V', { source: SRC.lv });
+  K.check('Phasor diagrams in RMS have the same shape as those drawn using amplitudes, but everything is scaled by a factor of 0.71 = 1/√2: switched to peak, every arrow of the card is drawn √2 times longer in the same direction, a phase reads 325.3 V and the line 563.4 V, and 1 ÷ √2 = 0.71', () => {
+    const a = drawn(idx('three'), blank(), 'demo').rec, b = drawn(idx('three'), stOf({ peak: true }), 'demo').rec, C = a.w.C;
+    const same = ['p1', 'p2', 'p3', 'pt'].every((k) => K.near(b.w[k][0] - C[0], SQ2 * (a.w[k][0] - C[0]), 1e-9) && K.near(b.w[k][1] - C[1], SQ2 * (a.w[k][1] - C[1]), 1e-9));
+    return same && b.pills.note === 'at peak: 230 × √2 = 325.3 V' && b.rows[3].s === '= 563.4 V, at peak' && trim(1 / SQ2, 2) === '0.71';
+  }, { source: SRC.unsw });
+  K.check('Sinusoids of different frequencies cannot be represented on the same phasor diagram due to the different speed of the vectors: with B turning twice as fast, the angle between the arrows keeps changing and the drawn sum arrow runs from 1 to 7 long over one turn of A; switched back, it stays 5 long', () => {
+    const i = idx('fast'), Ls = [], L1s = [];
+    TT(24, 1).forEach((tau) => {
+      const r = drawn(i, stOf({ tau }), 'demo').rec; Ls.push(lenOf(r.w.pS, r.map.C) / r.map.kp);
+      const v = drawn(i, stOf({ tau, fast: false }), 'demo').rec; L1s.push(lenOf(v.w.pS, v.map.C) / v.map.kp);
+    });
+    return K.near(Math.min.apply(null, Ls), 1, 1e-9) && K.near(Math.max.apply(null, Ls), 7, 1e-9) && L1s.every((L) => K.near(L, 5, 1e-9));
+  }, { source: SRC.tut });
+  K.check('Every worked number matches the lesson: 5 at 53.1° with slips 7 and 1; 6 cos 60° = 3, 6 sin 60° = 5.196, 13 and 14 at 21.8°; 4 + 2 = 6, 3.464, √48 = 6.93 with slips 8 and 4; 30° with slips 60° and 0.577; 120° and 196; 7, −5.196 and 8.72 at −36.6°; 115, 345, 199.2 and 398.4 V at 30°, 325.3 V and 563.4 V; 398 V with slips 460 V and 230 V; 1 to 7; 254 V with slips 220 V and 762 V; 0 with slips 16 and 11.3; 13 A at 22.6° with slip 17 A; √3 = 1.732, 1 ÷ √2 = 0.71, 4 × √3 = 6.93', () => {
+    const same = (a, b) => a.length === b.length && a.every((v, k) => v === b[k]);
+    return same(o1, ['7', '5', '1']) && trim(P1.phi, 1) === '53.1' && trim(S3.fb, 3) === '3' && trim(S3.wb, 3) === '5.196' && trim(S3.F, 3) === '13' && trim(S3.L, 2) === '14' && trim(S3.phi, 1) === '21.8' &&
+      same(o3, ['8', '4', '6.93']) && trim(P3.F, 3) === '6' && trim(P3.W, 3) === '3.464' && trim(P3.L * P3.L, 1) === '48' && same(o5, ['30°', '60°', '0.577']) &&
+      trim(180 - 60, 0) === '120' && trim(100 + 36 - 120 * cosD(120), 1) === '196' &&
+      trim(SUB.F, 3) === '7' && trim(SUB.W, 3) === '−5.196' && trim(SUB.L, 2) === '8.72' && trim(SUB.phi, 1) === '−36.6' &&
+      trim(LINE.fb, 1) === '115' && trim(LINE.F, 1) === '345' && trim(LINE.W, 1) === '199.2' && trim(LINE.L, 1) === '398.4' && trim(LINE.phi, 1) === '30' &&
+      trim(VP * SQ2, 1) === '325.3' && trim(LINE.L * SQ2, 1) === '563.4' && same(o8, ['460 V', '230 V', '398 V']) && same(LEN2, ['1', '7']) &&
+      same(o11, ['254 V', '220 V', '762 V']) && same(o12, ['16', '11.3', '0']) && same(o13, ['13 A lagging 22.6°', '17 A', '13 A leading 22.6°']) &&
+      trim(SQ3, 3) === '1.732' && trim(1 / SQ2, 2) === '0.71' && trim(4 * SQ3, 2) === '6.93';
+  });
+  K.check('Each puzzle accepts only its right answer, every wrong answer has its own hint and its own red row of working, the answer appears once it is given, and before an answer nothing in the picture gives it away', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts.indexOf(d.want) < 0 || !d.opts.every((o) => isRight(i, stOf({ pick: o })) === (o === d.want))) fail('options wrong on step ' + (i + 1));
+      const wrongs = d.opts.filter((o) => o !== d.want);
+      if (!wrongs.every((o) => d.hints[o] && d.wrong[o] && wrongs.every((p) => p === o || d.hints[p] !== d.hints[o]))) fail('hints missing on step ' + (i + 1));
+      const b = drawn(i, blank(), 'answer'), s = drawn(i, solvedSt(i), 'answer');
+      if (b.rec.rows.length || d.secret.some((x) => b.texts.some((t) => t.indexOf(x) >= 0))) fail('answer shown early on step ' + (i + 1));
+      if (!(s.rec.rows.length === d.right.length && s.rec.rows.every((r) => !r.bad)) || !d.secret.every((x) => s.texts.some((t) => t.indexOf(x) >= 0))) fail('answer not drawn on step ' + (i + 1));
+      return wrongs.every((o) => { const r = drawn(i, wrongSt(i, o), 'answer').rec.rows, w = [].concat(d.wrong[o]); return r.length === w.length && r.every((x, k) => x.bad && x.s === w[k]); });
+    }));
+  K.check('No label sits on another label or a handle, or runs off the picture, on any screen in any state: puzzles answered right, wrong or with Why? open, A dragged to every moment, every length, start angle and switch setting', () =>
+    STEPS.every((d, i) => statesOf(i).every((s) => withState(i, s[0], s[1], () => {
+      const bad = crowding();
+      if (bad.length) fail('step ' + (i + 1) + ' ' + JSON.stringify({ tau: s[0].tau, lenA: s[0].lenA, lenB: s[0].lenB, angA: s[0].angA, angB: s[0].angB, parts: s[0].parts, sub: s[0].sub, peak: s[0].peak, fast: s[0].fast, pick: s[0].pick, why: s[0].why }) + ': ' + bad[0]);
+      return true;
+    }))));
+  K.check('Every demonstration has finished within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; each answer and Why? has settled within 1.8 s', () =>
+    STEPS.every((d, i) => {
+      const timed = (st, m) => withState(i, st, m, () => [latest, earliest]);
+      if (d.show) {
+        const t = timed(blank(), 'demo');
+        if (!(t[0] <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && t[1] >= FADE)) fail('step ' + (i + 1) + ' runs ' + t[0] + ' s from ' + t[1]);
+        return true;
+      }
+      return statesOf(i).every((s) => timed(s[0], s[1])[0] <= ANS + 1e-9);
+    }));
+
+  K.ready();
+</script>
