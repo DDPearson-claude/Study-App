@@ -1,0 +1,603 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Complex numbers, from j to AC circuits
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i5 "Polar form: length and angle" — Convert a + jb to length and angle, r∠θ, with Pythagoras and tan⁻¹, checking the quarter on a sketch, and back with cos and sin. [skill]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i6 Multiplying and dividing in polar form — In length-and-angle form, multiply by multiplying the lengths and adding the angles, and divide by dividing the lengths and taking the angles away.
+- i7 Impedance: Z = R + jX — Impedance R + jX is resistance plus reactance, the opposition to AC of a coil (+j) or a capacitor (−j), all in ohms.
+- i8 Ohm's law with j: series and parallel — V = IZ with complex impedances, combined in series and parallel by your DC rules, gives each current's size and its angle from the voltage.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] 7.4 The polar form — mathcentre — https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_4.pdf
+    "The distance of the point (a, b) from the origin is called the modulus, or magnitude of the complex number and has the symbol r. Alternatively, r is written as |z|. The modulus is never negative."
+[R2] 7.4 The polar form — mathcentre — https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_4.pdf
+    "The angle between the positive x axis and a line joining (a, b) to the origin is called the argument of the complex number."
+[R3] 7.4 The polar form — mathcentre — https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_4.pdf
+    "When the modulus and argument of a complex number, z, are known we write the complex number as z = r∠θ."
+[R4] 7.4 The polar form — mathcentre — https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_4.pdf
+    "but care must be taken when using a calculator to find an inverse tangent that the solution obtained is in the correct quadrant."
+[R5] Week 4 – Complex Numbers — University of Oxford, Mathematical Institute — https://www.maths.ox.ac.uk/system/files/attachments/complex.pdf
+    "x = r cos θ and y = r sin θ"
+[R6] Numeracy, Maths and Statistics - Academic Skills Kit — Newcastle University — https://www.mas.ncl.ac.uk/ask/numeracy-maths-statistics/core-mathematics/pure-maths/algebra/modulus-and-argument.html
+    "An Argand diagram has a horizontal axis, referred to as the real axis, and a vertical axis, referred to as the imaginary axis."
+[R7] 10.2 — University of Sheffield — https://sheffield.ac.uk/media/31975/download?attachment
+    "We conclude from this that addition (and hence subtraction) of complex numbers is essentially equivalent to addition (subtraction) of two-dimensional vectors."
+[R8] 10.2 — University of Sheffield — https://sheffield.ac.uk/media/31975/download?attachment
+    "We conclude that addition and subtraction are most easily carried out in Cartesian form whereas multiplication and division are most easily carried out in polar form."
+[R9] Complex Numbers & Phasors in Polar and Rectangular Form — Electronics Tutorials — https://www.electronics-tutorials.ws/accircuits/complex-numbers.html
+    "Such as: Z = 6 + j0 (for a pure Resistance) or Z = 0 + j4 (for a pure Reactance) on the complex plane."
+[R10] The National Grid and mains electricity - OCR Gateway — BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zcfm8mn/revision/3
+    "The mains supply in the UK is an alternating current (ac) voltage at a frequency of 50 hertz (Hz) and a voltage of 230 volts (V)."
+[R11] http://www.legislation.gov.uk/id/uksi/2002/2665 — https://www.legislation.gov.uk/uksi/2002/2665/regulation/27/data.html
+    "the frequency declared pursuant to paragraph (1) shall be 50 hertz and the voltage declared in respect of a low voltage supply shall be 230 volts"
+[R12] 3-1 Sinusoidal steady-state analysis Phasor ... — Rose-Hulman Institute of Technology — https://www.rose-hulman.edu/class/ee/HTML/ECE204/PDFs/phasors.pdf
+    "The algebraic relationship between a phasor voltage and a phasor current is a generalization of resistance and is termed an element's impedance. The unit of impedance is the ohm."
+[R13] Complex Numbers for Engineers: Magnitude, Phase, and the Complex Plane | DSP Foundations | DSPRelated.com — https://www.dsprelated.com/foundations/complex-numbers.php
+    "Engineers use j instead of i because i already means electric current."
+[R14] Power Factor Improvement Methods | EEEGUIDE — https://www.eeeguide.com/power-factor-improvement
+    "The capacitor draws a leading current and partly or completely neutralizes the lagging reactive component of load current."
+[R15] 7.3: Power Triangle - Engineering LibreTexts — https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/AC_Electrical_Circuit_Analysis%3A_A_Practical_Approach_(Fiore)/07%3A_AC_Power/7.3%3A_Power_Triangle
+    "By adding the capacitor, the two reactive currents cancel"
+[R16] 7.3: Power Triangle - Engineering LibreTexts — https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/AC_Electrical_Circuit_Analysis%3A_A_Practical_Approach_(Fiore)/07%3A_AC_Power/7.3%3A_Power_Triangle
+    "power factor correction is used to lower current demand while keeping load power constant."
+Notes (claims, and the sources that support them):
+- The modulus is the distance of the point (a, b) from the origin, and it is never negative. [R1]
+- The argument is the angle between the positive real axis and the line from the origin to the point. [R2]
+- A complex number with modulus r and argument theta is written r angle theta. [R3]
+- When finding the angle with an inverse tangent, check the quadrant, because a calculator’s answer may not be in the correct one. [R4]
+- Going back from length and angle: the across part is r cos theta and the up part is r sin theta. [R5]
+- A complex number is drawn on a plane with a horizontal real axis and a vertical imaginary axis. [R6]  (from an idea this one builds on)
+- Adding complex numbers is essentially the same as adding two-dimensional vectors. [R7]  (from an idea this one builds on)
+- Addition is most easily done in Cartesian form, multiplication and division in polar form, so you choose the form that suits the sum. [R8]  (from an idea this one builds on)
+- On the complex plane, an impedance on the real axis such as 6 + j0 is a pure resistance, and one on the j axis such as 0 + j4 a pure reactance. [R9]  (from an idea this one builds on)
+- The mains supply in the UK is alternating current at 50 hertz and 230 volts; UK regulations declare a low voltage supply as 50 hertz and 230 volts between phase and neutral, unless otherwise agreed. [R10][R11]  (whole topic)
+- Impedance, like resistance, is measured in ohms. [R12]  (whole topic)
+- Engineers write j for the square root of minus one because i already stands for electric current. [R13]  (whole topic)
+- Adding a capacitor in parallel with a lagging inductive load draws a leading current that partly or completely neutralises the load’s lagging reactive current, so the supply current falls. [R14][R15][R16]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i5",
+ "title": "Polar form: length and angle",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the dashed calculator arrow, tan⁻¹(b ÷ a), pointing exactly opposite the real arrow, and the 180° arc that fixes it, when you drag the tip into a left-hand quarter.",
+  "title": "One arrow, two names",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens on the complex plane from the earlier lessons, real across and j up. An arrow runs from 0 to a tip you can drag into any quarter, and two readouts name it two ways: a + jb, its parts, and r∠θ, its length and angle. Under the arrow, its across part and its up part are drawn faintly as the two short sides of a right-angled triangle, with the arrow as the longest side, so by Pythagoras its length is r = √(a² + b²). The angle θ is an arc from the positive real axis round to the arrow, anticlockwise counting as positive. A dashed ghost arrow points where a calculator's tan⁻¹(b ÷ a) says, and it carries the number b ÷ a. The calculator sees only that number, which is the same for an arrow and for that arrow turned half round, as you see when you drag the tip half a turn round and the number stays put, and it always answers with an angle between −90° and 90°, pointing into the right-hand half. So in the right-hand quarters the ghost lies on the arrow, and in the left-hand quarters it points exactly the opposite way, with a second arc of 180° drawn to turn it back onto the arrow. A reverse switch runs it the other way: set r and θ, and the arrow's shadows on the two axes read a = r cos θ across and b = r sin θ up, as with Trigonometry's arrow and its shadows. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, a wrong pick gets a one-line hint naming its slip, and Why? replays the arrow, the triangle and the ghost for it.",
+  "ignores": "The tip snaps to whole steps so the parts can be counted, but a and b can be any numbers, and the rules work the same for them; only 0 itself has length 0 and no angle at all. Lengths and angles are rounded to two decimal places, so converting back can be out in the last place. Angles are in degrees; calculators and college texts also use radians, where 180° is π, and the rules are the same. A later lesson meets a third way of writing r∠θ, which names the same arrow.",
+  "numbers": [
+   {
+    "label": "Example 3 + j4: real part, in step 0",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example 3 + j4: j part, in step 0",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "3 squared, in step 0",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "4 squared, in step 0",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "9 + 16, in step 0",
+    "value": 25,
+    "kind": "computed"
+   },
+   {
+    "label": "Length of 3 + j4, √25, in step 0",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Angle of 3 + j4, tan⁻¹(4 ÷ 3), in degrees, in step 0",
+    "value": 53.13,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip (j4)² for 4², in step 0",
+    "value": -16,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip 9 − 16 under the root, in step 0",
+    "value": -7,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle 6 − j8: real part, in step 1",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle 6 − j8: j part, in step 1",
+    "value": -8,
+    "kind": "assumed"
+   },
+   {
+    "label": "6 squared, in step 1",
+    "value": 36,
+    "kind": "computed"
+   },
+   {
+    "label": "(−8) squared, in step 1",
+    "value": 64,
+    "kind": "computed"
+   },
+   {
+    "label": "36 + 64, in step 1",
+    "value": 100,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle answer: length of 6 − j8, in step 1",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip j squared: 36 − 64 under the root, in step 1",
+    "value": -28,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip parts added as lengths, 6 + 8, in step 1",
+    "value": 14,
+    "kind": "computed"
+   },
+   {
+    "label": "tan θ for 3 + j4, 4 ÷ 3, in step 2",
+    "value": 1.33,
+    "kind": "computed"
+   },
+   {
+    "label": "Calculator tan⁻¹ answers from, in degrees",
+    "value": -90,
+    "kind": "constant"
+   },
+   {
+    "label": "Calculator tan⁻¹ answers up to, in degrees",
+    "value": 90,
+    "kind": "constant"
+   },
+   {
+    "label": "Puzzle 4 + j3: real part, in step 3",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle 4 + j3: j part, in step 3",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle answer tan⁻¹(3 ÷ 4), in degrees, in step 3",
+    "value": 36.87,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip upside down, tan⁻¹(4 ÷ 3), in degrees, in step 3",
+    "value": 53.13,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip tan⁻¹ left off, 3 ÷ 4, in step 3",
+    "value": 0.75,
+    "kind": "computed"
+   },
+   {
+    "label": "Example −3 − j4: real part, in step 4",
+    "value": -3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example −3 − j4: j part, in step 4",
+    "value": -4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Half a turn, in degrees",
+    "value": 180,
+    "kind": "constant"
+   },
+   {
+    "label": "Ghost for −3 − j4, tan⁻¹(−4 ÷ −3), in step 4",
+    "value": 53.13,
+    "kind": "computed"
+   },
+   {
+    "label": "Angle of −3 − j4, 53.13 − 180, in step 4",
+    "value": -126.87,
+    "kind": "computed"
+   },
+   {
+    "label": "Ghost for −3 + j4, tan⁻¹(4 ÷ −3), in step 4",
+    "value": -53.13,
+    "kind": "computed"
+   },
+   {
+    "label": "Angle of −3 + j4, −53.13 + 180, in step 4",
+    "value": 126.87,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle −1 − j1: real part and j part, in step 5",
+    "value": -1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Length of −1 − j1, √2, in step 5",
+    "value": 1.414,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle answer: angle of −1 − j1, in step 5",
+    "value": -135,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip calculator's ghost, tan⁻¹(1), in step 5",
+    "value": 45,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip 180 added instead, angle of −1 + j1, in step 5",
+    "value": 135,
+    "kind": "computed"
+   },
+   {
+    "label": "A whole turn, in degrees",
+    "value": 360,
+    "kind": "constant"
+   },
+   {
+    "label": "−135 + 360, the same arrow, in step 6",
+    "value": 225,
+    "kind": "computed"
+   },
+   {
+    "label": "−126.87 + 360, the same arrow as −3 − j4",
+    "value": 233.13,
+    "kind": "computed"
+   },
+   {
+    "label": "Usual range of angles, from (not included), in degrees",
+    "value": -180,
+    "kind": "constant"
+   },
+   {
+    "label": "Puzzle 5∠270°: length, in step 7",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle 5∠270°: angle, in degrees, in step 7",
+    "value": 270,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle answer 270 − 360, in degrees, in step 7",
+    "value": -90,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip straight up instead, in degrees, in step 7",
+    "value": 90,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip three quarter turns clockwise, in degrees, in step 7",
+    "value": -270,
+    "kind": "computed"
+   },
+   {
+    "label": "Example 10∠30°: length, in step 8",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example 10∠30°: angle, in degrees, in step 8",
+    "value": 30,
+    "kind": "assumed"
+   },
+   {
+    "label": "cos 30°, in step 8",
+    "value": 0.866,
+    "kind": "computed"
+   },
+   {
+    "label": "sin 30°, in step 8",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Across part 10 × 0.866, in step 8",
+    "value": 8.66,
+    "kind": "computed"
+   },
+   {
+    "label": "Up part 10 × 0.5, in step 8",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Example 10∠150°: angle, in degrees, in step 8",
+    "value": 150,
+    "kind": "assumed"
+   },
+   {
+    "label": "Across part of 10∠150°, in step 8",
+    "value": -8.66,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle 4∠120°: length, in step 9",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle 4∠120°: angle, in degrees, in step 9",
+    "value": 120,
+    "kind": "assumed"
+   },
+   {
+    "label": "cos 120°, in step 9",
+    "value": -0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle answer across part, 4 cos 120°, in step 9",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle answer up part, 4 sin 120°, in step 9",
+    "value": 3.464,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip cos's minus dropped: across part, in step 9",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Example −j5: real part, in step 10",
+    "value": 0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example −j5: j part, in step 10",
+    "value": -5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Angle of −j5, straight down, in degrees, in step 10",
+    "value": -90,
+    "kind": "computed"
+   },
+   {
+    "label": "Example −4 on the real axis, in step 10",
+    "value": -4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Angle of −4, straight left, in degrees, in step 10",
+    "value": 180,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle −2 + j1: real part, in step 11",
+    "value": -2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle −2 + j1: j part, in step 11",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle answer length √5, in step 11",
+    "value": 2.236,
+    "kind": "computed"
+   },
+   {
+    "label": "Ghost tan⁻¹(1 ÷ −2), in degrees, in step 11",
+    "value": -26.57,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle answer angle −26.57 + 180, in step 11",
+    "value": 153.43,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip j squared, length √3, in step 11",
+    "value": 1.732,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle 10∠−36.87°: angle, in degrees, in step 12",
+    "value": -36.87,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle answer across part, 10 cos(−36.87°), in step 12",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle answer up part, 10 sin(−36.87°), in step 12",
+    "value": -6,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip cos and sin swapped: across part, in step 12",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example −4 − j3: real part, in practice",
+    "value": -4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example −4 − j3: j part, in practice",
+    "value": -3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example ghost tan⁻¹(0.75), in degrees, in practice",
+    "value": 36.87,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example angle 36.87 − 180, in practice",
+    "value": -143.13,
+    "kind": "computed"
+   },
+   {
+    "label": "tan⁻¹(4 ÷ 3) in radians, in practice",
+    "value": 0.93,
+    "kind": "computed"
+   },
+   {
+    "label": "Analogy: 3 km east, 4 km north, distance in km",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Analogy: bearing clockwise from north, tan⁻¹(3 ÷ 4)",
+    "value": 36.87,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Read a complex number as an arrow from 0, as in the earlier lessons. There are two ways to say where an arrow goes. You can give its parts, across and up, as a + jb. Or you can give how long it is and which way it points: its length r and its angle θ, written r∠θ. Both name the same arrow. Adding is easiest with the parts, and multiplying and dividing are easiest with the length and the angle,[^1] which is why the next lesson needs this one, and why later lessons write AC currents this way.\n\nTake 3 + j4: 3 across and 4 up. The across part, the up part and the arrow make a right-angled triangle, with the arrow as the longest side, so Pythagoras gives its length: √(3² + 4²) = √(9 + 16) = √25 = 5. That is the 5 you met in the conjugate lesson. The up side is 4 long, the size of the j part, so square 4, not j4. (j4)² is −16, and √(9 − 16) = √−7 is not a length at all. The length is the distance of the tip from 0. It is called the [[modulus]], or magnitude, and it is never negative.[^2] For any arrow, r = √(a² + b²).\n\nThe angle is measured from the positive real axis round to the arrow,[^3] anticlockwise counting as positive, and it is called the [[argument]]. In the triangle the up side is opposite the angle and the across side is next to it, so tan θ = 4 ÷ 3, and θ = tan⁻¹(4 ÷ 3) = 53.13°. So 3 + j4 = 5∠53.13°, which is [[polar form]].[^4] Now take −3 − j4, the same arrow turned half round. Its b ÷ a is −4 ÷ −3, which is 4 ÷ 3 again, so the calculator says 53.13° again: the picture's dashed ghost arrow, pointing up and right. The calculator sees only that one number, and the two minus signs have cancelled before it looks, so it cannot tell the two arrows apart. It always answers with an angle between −90° and 90°, pointing into the right-hand half of the plane. So whenever a is negative and the arrow points into a left-hand quarter, the calculator's answer points exactly the wrong way, half a turn out, and turning it 180° fixes it. −3 − j4 points down, so take 180° away: 53.13° − 180° = −126.87°. For −3 + j4 the calculator says −53.13°, which is the direction of 3 − j4, again the arrow turned half round. This arrow points up, so add 180°: 126.87°. That is why you sketch the arrow first and check that the angle lands in the same quarter.[^5] Adding or taking away 360°, a whole turn, leaves an arrow pointing the same way, so −126.87° and 233.13° name the same arrow. Textbooks add that the usual choice is an angle more than −180° and up to 180°, which college texts call the principal argument.\n\nGoing back is easier. The across part is the arrow's shadow on the real axis and the up part its shadow on the j axis, as with Trigonometry's arrow and its shadows, so a = r cos θ and b = r sin θ.[^6] So r∠θ = r cos θ + j r sin θ, which books also write r(cos θ + j sin θ). 10∠30° is 10 × 0.866 = 8.66 across and 10 × 0.5 = 5 up, so it is 8.66 + j5. No fix is needed this way round, because cos and sin come out negative by themselves in the quarters where the shadow points left or down, as you saw on Trigonometry's circle: 10∠150° is −8.66 + j5. **Find the length with Pythagoras and the angle with tan⁻¹(b ÷ a), check the angle against a sketch and turn it 180° when the arrow points left;[^5] go back with a = r cos θ and b = r sin θ.[^6]**"
+ },
+ "analogy": {
+  "text": "A navigator can give a ship's position from a buoy two ways: 3 km east and 4 km north, or 5 km away on a bearing of 036.87°. It is the same spot, named by parts or by a distance and a direction, as 3 + j4 and 5∠53.13° name the same arrow. The distance comes from Pythagoras and the direction from tan⁻¹, just as here.",
+  "breaks": "A bearing is measured clockwise from north, but the angle here is measured anticlockwise from the positive real axis, which points east, so the same direction is 53.13° here, not 36.87°. Bearings also run from 0° to 360°, where this course's angles run from just above −180° to 180°."
+ },
+ "practice": {
+  "text": "- Sketch the arrow first: which quarter does its tip land in?\n- Find the length: r = √(a² + b²). Square the sizes of the parts, never the j.\n- Set the calculator to degrees and work out tan⁻¹(b ÷ a).\n- Check it against the sketch. If a is negative, the answer points the wrong way: add 180° when the arrow points up, take 180° away when it points down.\n- If the arrow lies on an axis, read the angle off the sketch: 0° right, 90° up, 180° left, −90° down. tan⁻¹ of anything ÷ 0 gives an error.\n- Write the answer as r∠θ, then check it by going back: r cos θ and r sin θ should give a and b.\n\n**Rule of thumb:** Top right is 0° to 90°, top left 90° to 180°, bottom left −90° to −180°, bottom right 0° to −90°. If your angle does not point into the quarter you sketched, it is wrong.\n\n**Rule of thumb:** 360° is a whole turn, so adding or taking it away changes nothing. Use it to bring an angle into the usual range: 5∠270° is 5∠−90°.\n\n**Worked example:** −4 − j3. The sketch puts it 4 left and 3 down, in the bottom left. Length: √(16 + 9) = √25 = 5. Calculator: tan⁻¹(−3 ÷ −4) = tan⁻¹(0.75) = 36.87°, which points top right, the wrong way. The arrow points down, so take 180° away: 36.87° − 180° = −143.13°. So −4 − j3 = 5∠−143.13°. Check: 5 cos(−143.13°) = −4 and 5 sin(−143.13°) = −3.\n\n**Common mistakes**\n- Squaring the j. √(3² + (j4)²) = √(9 − 16) is no length. The length of 3 + j4 is √(9 + 16) = 5.\n- Trusting the calculator in a left-hand quarter. −1 − j1 is not 1.414∠45°, which is 1 + j1; it is 1.414∠−135°.\n- Leaving an angle outside the usual range, such as 270°. Take 360° away: −90°.\n- Swapping cos and sin. The across part goes with cos, the up part with sin: 10∠−36.87° is 8 − j6, not 6 − j8.\n- Writing a negative length. The [[modulus]] is never negative;[^2] point the angle the other way instead.\n- A calculator in radians. tan⁻¹(4 ÷ 3) then shows 0.93, not 53.13."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "10.2 — University of Sheffield",
+   "url": "https://sheffield.ac.uk/media/31975/download?attachment",
+   "quote": "We conclude that addition and subtraction are most easily carried out in Cartesian form whereas multiplication and division are most easily carried out in polar form."
+  },
+  {
+   "n": 2,
+   "title": "7.4 The polar form — mathcentre",
+   "url": "https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_4.pdf",
+   "quote": "The distance of the point (a, b) from the origin is called the modulus, or magnitude of the complex number and has the symbol r. Alternatively, r is written as |z|. The modulus is never negative."
+  },
+  {
+   "n": 3,
+   "title": "7.4 The polar form — mathcentre",
+   "url": "https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_4.pdf",
+   "quote": "The angle between the positive x axis and a line joining (a, b) to the origin is called the argument of the complex number."
+  },
+  {
+   "n": 4,
+   "title": "7.4 The polar form — mathcentre",
+   "url": "https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_4.pdf",
+   "quote": "When the modulus and argument of a complex number, z, are known we write the complex number as z = r∠θ."
+  },
+  {
+   "n": 5,
+   "title": "7.4 The polar form — mathcentre",
+   "url": "https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_4.pdf",
+   "quote": "but care must be taken when using a calculator to find an inverse tangent that the solution obtained is in the correct quadrant."
+  },
+  {
+   "n": 6,
+   "title": "Week 4 – Complex Numbers — University of Oxford, Mathematical Institute",
+   "url": "https://www.maths.ox.ac.uk/system/files/attachments/complex.pdf",
+   "quote": "x = r cos θ and y = r sin θ"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

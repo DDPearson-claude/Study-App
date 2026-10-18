@@ -1,0 +1,951 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .gap { display: block; height: .55em; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  /* The arrow's two names, side by side: its parts, and its length and angle. */
+  .names { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 8px; max-width: 26rem; margin-inline: auto; }
+  .nm { border: 1px solid var(--k-line); border-radius: var(--k-r); background: var(--k-panel); padding: 6px 12px; }
+  .nm .nl { display: block; font-size: .85rem; color: var(--k-muted); }
+  .nm b { display: block; font-size: 1.05rem; white-space: nowrap; color: var(--k-ink); }
+  .nm b.fade { animation: name-in .4s ease-out both; }
+  @keyframes name-in { from { opacity: 0; } to { opacity: 1; } }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  /* Every label carries a thin halo of the page colour, so a line passing behind it never hides it. */
+  .scene text { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .gr { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 2; }
+  .scene .tn { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tn0 { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .an { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  /* Arrows: the number solid, a second one in its own colour, an earlier one muted, a slip in red; the calculator's ghost dashed. */
+  .scene .shaft { fill: none; stroke-width: 3.5; stroke-linecap: round; }
+  .scene .shaft.a { stroke: var(--k-cat1); }
+  .scene .head.a { fill: var(--k-cat1); }
+  .scene .shaft.two { stroke: var(--k-cat2); }
+  .scene .head.two { fill: var(--k-cat2); }
+  .scene .shaft.old { stroke: var(--k-muted); }
+  .scene .head.old { fill: var(--k-muted); }
+  .scene .shaft.bad { stroke: var(--k-warn); }
+  .scene .head.bad { fill: var(--k-warn); }
+  .scene .shaft.g { stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 7 5; stroke-linecap: butt; }
+  .scene .head.g { fill: var(--k-ink); }
+  /* The triangle's two short sides, and the shadows on the axes: the parts. */
+  .scene .side { stroke: var(--k-accent); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .side.bad { stroke: var(--k-warn); }
+  .scene .ra { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .shd { stroke: var(--k-accent); stroke-width: 6; stroke-linecap: butt; }
+  .scene .shd.bad { stroke: var(--k-warn); }
+  .scene .guide { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 2 4; }
+  /* Angles: θ from the real axis; the half-turn fix in amber. */
+  .scene .tharc { fill: none; stroke: var(--k-accent); stroke-width: 2; }
+  .scene .thhead { fill: var(--k-accent); }
+  .scene .tharc.bad { stroke: var(--k-warn); }
+  .scene .thhead.bad { fill: var(--k-warn); }
+  .scene .fxarc { fill: none; stroke: var(--k-amber-line); stroke-width: 2.5; }
+  .scene .fxhead { fill: var(--k-amber-line); }
+  .scene .halfp { fill: var(--k-accent); fill-opacity: .08; }
+  .scene .tl { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .tl.bad { fill: var(--k-warn); }
+  .scene .tl.old { font: 400 14px var(--k-font); fill: var(--k-muted); }
+  .scene .al { font: 600 14px var(--k-font); fill: var(--k-accent); }
+  .scene .al.bad { fill: var(--k-warn); }
+  .scene .fl { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .gl { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .sl { font: 600 14px var(--k-font); fill: var(--k-accent); }
+  .scene .sl.bad { fill: var(--k-warn); }
+  .scene .te { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .tw { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .te.bad, .scene .tw.bad { fill: var(--k-warn); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .knob { fill: var(--k-cat1); stroke: var(--k-bg); stroke-width: 2.5; }
+  .scene #art *, .scene #lab * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  #free > * + * { margin-top: 10px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row when short; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing .nm b.fade { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, .nm b.fade { animation: none; }
+  }
+</style>
+
+<p class="lead">The complex plane, real across and j up, with an example arrow 3 + j4 named two ways: by its parts, a + jb, and by its length and angle, r∠θ.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="names" id="names">
+      <div class="nm"><span class="nl">Parts, a + jb</span><b id="nA">?</b></div>
+      <div class="nm"><span class="nl">Length and angle, r∠θ</span><b id="nP">?</b></div>
+    </div>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g><g id="lab"></g><g id="ui"></g></svg>
+    <div id="free" hidden><div id="tog"></div><div id="rbox"></div></div>
+    <div class="replay" id="replay"></div>
+    <p class="task show" id="more" hidden></p>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Modulus and argument as mathcentre defines them; a = r cos θ and b = r sin θ (Oxford).</p>
+
+<script>
+  // ---------- numbers: a complex number is [a, b], its real part across and its j part up ----------
+  const Z = (a, b) => [a, b || 0];
+  const O = Z(0);
+  const rad = (v) => v * Math.PI / 180, dgr = (v) => v * 180 / Math.PI;
+  const len = (z) => Math.hypot(z[0], z[1]);   // Pythagoras: r = √(a² + b²)
+  const P = (r, th) => [r * Math.cos(rad(th)), r * Math.sin(rad(th))];   // going back: a = r cos θ, b = r sin θ
+  const cl = (v) => (Math.abs(v) < 1e-9 ? 0 : v);
+  const HALF = 180, WHOLE = 2 * HALF, QUARTER = HALF / 2;   // half a turn, a whole turn, straight up
+  // The calculator sees only the one number b ÷ a (none on the j axis, where a is 0) and answers between −90° and 90°.
+  const ratio = (z) => (cl(z[0]) === 0 ? null : z[1] / z[0]);
+  const calc = (z) => { const q = ratio(z); return q == null ? null : dgr(Math.atan(q)); };
+  // The fix: in the right-hand half keep it; with a negative, turn it half round, adding 180° when the arrow
+  // points up (or straight left) and taking 180° away when it points down.
+  function fixBy(z) { const a = cl(z[0]), b = cl(z[1]); return a >= 0 ? 0 : b < 0 ? -HALF : HALF; }
+  // The angle θ, anticlockwise from the positive real axis; on the j axis it is read off the sketch.
+  function angle(z) { const a = cl(z[0]), b = cl(z[1]); if (!a) return b > 0 ? QUARTER : b < 0 ? -QUARTER : null; return calc(z) + fixBy(z); }
+  const dirOf = (z) => dgr(Math.atan2(z[1], z[0]));
+  const atan2d = dirOf;
+  // Rounding as the explanation does: lengths and parts to at most three places, angles to two.
+  const rnd = (v, dp) => { const k = Math.pow(10, dp), r = Math.round(v * k) / k; return Math.abs(r) < 1e-12 ? 0 : r; };
+  const fmtN = (v, dp) => { const r = rnd(v, dp); return (r < 0 ? '−' : '') + Math.abs(r); };
+  const n3 = (v) => fmtN(v, 3), n2 = (v) => fmtN(v, 2), dg = (v) => n2(v) + '°';
+  const par = (v) => (rnd(v, 3) < 0 ? '(' + n3(v) + ')' : n3(v));
+  const ofAng = (th) => (rnd(th, 2) < 0 ? '(' + dg(th) + ')' : ' ' + dg(th));   // cos 30°, cos(−36.87°)
+  function name(z) {
+    const a = rnd(z[0], 3), b = rnd(z[1], 3), jb = 'j' + n3(Math.abs(b));
+    if (!b) return n3(a);
+    if (!a) return (b < 0 ? '−' : '') + jb;
+    return n3(a) + (b < 0 ? ' − ' : ' + ') + jb;
+  }
+  const pname = (r, th) => n3(r) + '∠' + dg(th);
+  const polOf = (z) => pname(len(z), angle(z));
+  const jsq = (z) => z[0] * z[0] - z[1] * z[1];   // the slip of squaring the j too: j × j = −1 turns + b² into − b²
+  const same = (p, q, tol) => !!p && !!q && Math.abs(p[0] - q[0]) < (tol || 1e-6) && Math.abs(p[1] - q[1]) < (tol || 1e-6);
+  const near = (a, b, tol) => a != null && b != null && Math.abs(a - b) <= (tol || 1e-9);
+
+  // Sources the checks restate (the lesson's own).
+  const MC = 'https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_4.pdf';
+  const OXF = 'https://www.maths.ox.ac.uk/system/files/attachments/complex.pdf';
+
+  // ---------- lines of working, built from the rule ----------
+  const sqRow = (z) => ({ e: par(z[0]) + '² + ' + par(z[1]) + '² = ' + n3(z[0] * z[0]) + ' + ' + n3(z[1] * z[1]), w: n3(z[0] * z[0] + z[1] * z[1]) });
+  const lenRow = (z) => ({ e: 'Length, √' + n3(z[0] * z[0] + z[1] * z[1]), w: n3(len(z)) });
+  const lenRow2 = (z) => ({ e: 'Length, √(' + n3(z[0] * z[0]) + ' + ' + n3(z[1] * z[1]) + ')', w: n3(len(z)) });
+  const tanRow = (z) => ({ e: 'tan θ = ' + n3(z[1]) + ' ÷ ' + n3(z[0]), w: n2(z[1] / z[0]) });
+  const atanRow = (z) => ({ e: 'θ = tan⁻¹(' + n3(z[1]) + ' ÷ ' + n3(z[0]) + ')', w: dg(calc(z)) });
+  const calcRow = (z) => (ratio(z) == null ? { e: 'On the j axis, b ÷ a has', w: 'no value' } : { e: 'Calculator: tan⁻¹(' + n3(z[1]) + ' ÷ ' + n3(z[0]) + ')', w: dg(calc(z)) });
+  function fixRow(z) {
+    const a = cl(z[0]), b = cl(z[1]), g = calc(z), t = angle(z);
+    if (!a) return { e: b > 0 ? 'Straight up, off the sketch' : 'Straight down, off the sketch', w: dg(t) };
+    if (a > 0) return { e: 'Points right: no fix needed', w: dg(t) };
+    if (b < 0) return { e: 'Points down: ' + dg(g) + ' − ' + dg(HALF), w: dg(t) };
+    return { e: (b > 0 ? 'Points up: ' : 'Points left: ') + dg(g) + ' + ' + dg(HALF), w: dg(t) };
+  }
+  const cosRow = (r, th) => ({ e: 'a = ' + n3(r) + ' cos' + ofAng(th) + ' = ' + n3(r) + ' × ' + par(Math.cos(rad(th))), w: n3(r * Math.cos(rad(th))) });
+  const sinRow = (r, th) => ({ e: 'b = ' + n3(r) + ' sin' + ofAng(th) + ' = ' + n3(r) + ' × ' + par(Math.sin(rad(th))), w: n3(r * Math.sin(rad(th))) });
+  // Going back with a slip: cos and sin swapped, or cos's minus dropped.
+  const swapP = (r, th) => Z(r * Math.sin(rad(th)), r * Math.cos(rad(th)));
+  const cosDropped = (r, th) => Z(Math.abs(r * Math.cos(rad(th))), r * Math.sin(rad(th)));
+  const swapRows = (r, th) => [{ e: 'a = ' + n3(r) + ' sin' + ofAng(th) + ', swapped', w: n3(r * Math.sin(rad(th))) },
+    { e: 'b = ' + n3(r) + ' cos' + ofAng(th) + ', swapped', w: n3(r * Math.cos(rad(th))) }];
+
+  // ---------- what a screen draws: a list of parts, each arriving at t (null: there from the start) ----------
+  const A = (z, t, o) => Object.assign({ k: 'arrow', z, t, cls: 'a' }, o);
+  const TRI = (z, t, o) => Object.assign({ k: 'tri', z, t }, o);
+  const RL = (z, t) => ({ k: 'rlab', z, t });
+  const TH = (v, t, o) => Object.assign({ k: 'theta', deg: v, t }, o);
+  const GH = (z, t) => ({ k: 'ghost', z, t });
+  const FX = (z, t, o) => Object.assign({ k: 'fix', z, t }, o);
+  const SH = (z, t, o) => Object.assign({ k: 'shadow', z, t }, o);
+  const RW = (r, t, o) => Object.assign({ k: 'row', e: r.e, w: r.w, t }, o);
+  const HF = (t) => ({ k: 'half', t });
+  const wrong = (o) => Object.assign({ bad: true }, o);
+  const KA = { sw: 'shaft a', label: 'the arrow' }, KG = { sw: 'shaft g', label: 'calculator\'s tan⁻¹' };
+  const TVIEW = { lo: -5, hi: 5, blo: -5, bhi: 5 }, RVIEW = { lo: -10, hi: 10, blo: -10, bhi: 10 };
+  const ZMAX = 4, RMAX = 10;
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const z34 = Z(3, 4), z68 = Z(6, -8), z43 = Z(4, 3), zm34 = Z(-3, -4), zm11 = Z(-1, -1), zm21 = Z(-2, 1), zj5 = Z(0, -5), zm4 = Z(-4, 0);
+  const G270 = 270, G120 = 120, G37 = -36.87;   // the puzzles' given angles
+  const p270 = P(5, G270), p120 = P(4, G120), p30 = P(10, 30), p150 = P(10, 150), pm37 = P(10, G37);
+  const up11 = Z(-1, 1);   // −1 + j1, where 135° points
+  const STEPS = [
+    { show: true, name: 'The length', view: { lo: -1, hi: 5, blo: -1, bhi: 5 }, dur: 3.0, lines: 2,
+      card0: { a: name(z34), p: polOf(z34) },
+      ops: [A(z34, null), TRI(z34, 0.5), RW(sqRow(z34), 1.4), RW(lenRow(z34), 2.0), RL(z34, 2.0)],
+      text: 'Take `3 + j4`, which is 3 across and 4 up. The across part, the up part and the arrow make a right-angled triangle, with the arrow as the longest side.',
+      more: 'So Pythagoras gives its length, `√(3² + 4²) = √25 = 5`. The up side is 4 long, the size of the j part, so square 4 and not `j4`. `(j4)²` is −16, and `√(9 − 16) = √−7` is not a length at all. The length is called the modulus, and it is never negative.' },
+    { name: 'Length of 6 − j8', view: { lo: -1, hi: 8, blo: -9, bhi: 1 }, lines: 2,
+      card0: { a: name(z68), p: '?' }, base: [A(z68, null)],
+      opts: [n3(Math.abs(z68[0]) + Math.abs(z68[1])), n3(len(z68)), '√' + n3(jsq(z68))], ok: 1, truth: n3(Math.hypot(6, -8)),
+      mvs: [
+        [TRI(z68, 0.1, wrong()), RW({ e: 'Two sides walked round, ' + n3(Math.abs(z68[0])) + ' + ' + n3(Math.abs(z68[1])), w: n3(Math.abs(z68[0]) + Math.abs(z68[1])) }, 0.9, wrong())],
+        [TRI(z68, 0.1), RW(sqRow(z68), 0.9), RW(lenRow(z68), 1.5, { card: { p: polOf(z68) } }), RL(z68, 1.5)],
+        [TRI(z68, 0.1, wrong()), RW({ e: par(z68[0]) + '² + (' + name(Z(0, z68[1])) + ')² = ' + n3(z68[0] * z68[0]) + ' − ' + n3(z68[1] * z68[1]), w: n3(jsq(z68)) }, 0.9, wrong()),
+          RW({ e: 'The square root of ' + n3(jsq(z68)) + ' is', w: 'no length' }, 1.5, wrong())],
+      ],
+      task: 'How long is the arrow `6 − j8`?',
+      hint: 'Not quite. Square the sizes of the two parts, add them, then take the square root.',
+      hints: { 0: 'Not quite. `6 + 8` walks round two sides of the triangle. The arrow cuts straight across, so it is shorter.', 2: 'Not quite. That squares the j too. Square the size of the j part, 8, so the sum is `36 + 64`.' },
+      why: 'The arrow goes 6 across and 8 down, so the triangle\'s short sides are 6 and 8 long. Pythagoras gives `√(36 + 64) = √100 = 10`. The length is never negative, whichever way the arrow points.' },
+    { show: true, name: 'The angle', view: { lo: -5, hi: 5, blo: -2, bhi: 5 }, dur: 3.6, lines: 2, key: [KA, KG],
+      card0: { a: name(z34), p: polOf(z34) },
+      ops: [A(z34, null), TRI(z34, 0.5), TH(angle(z34), 1.3), RW(tanRow(z34), 1.5), RW(atanRow(z34), 2.1), HF(2.7), GH(z34, 2.7)],
+      text: 'The angle θ is measured from the positive real axis round to the arrow, anticlockwise counting as positive. It is called the argument. In the triangle the up side, 4, is opposite θ, and the across side, 3, is next to it.',
+      more: 'So `tan θ = 4 ÷ 3`, and `θ = tan⁻¹(4 ÷ 3) = 53.13°`. That makes `3 + j4 = 5∠53.13°`, which is polar form. The dashed ghost is where a calculator\'s tan⁻¹ points. It always answers with an angle between −90° and 90°, into the right-hand half, so here it lies on the arrow.' },
+    { name: 'Angle of 4 + j3', view: { lo: -1, hi: 5, blo: -1, bhi: 5 }, lines: 2, key: [KA, KG],
+      card0: { a: name(z43), p: '?' }, base: [A(z43, null)],
+      opts: [dg(dgr(Math.atan(z43[0] / z43[1]))), n2(z43[1] / z43[0]), dg(calc(z43))], ok: 2, truth: dg(atan2d(z43)),
+      mvs: [
+        [A(Z(z43[1], z43[0]), 0.1, wrong()), TH(dirOf(Z(z43[1], z43[0])), 0.6, wrong()),
+          RW({ e: 'tan⁻¹(' + n3(z43[0]) + ' ÷ ' + n3(z43[1]) + '), across ÷ up', w: dg(dgr(Math.atan(z43[0] / z43[1]))) }, 0.6, wrong())],
+        [RW({ e: 'tan θ = ' + n3(z43[1]) + ' ÷ ' + n3(z43[0]) + ', tan⁻¹ left off', w: n2(z43[1] / z43[0]) }, 0.1, wrong()),
+          A(P(len(z43), z43[1] / z43[0]), 0.5, wrong({ nm: dg(z43[1] / z43[0]) }))],
+        [TRI(z43, 0.1), TH(angle(z43), 0.9), RW(tanRow(z43), 0.9), RW(atanRow(z43), 1.5, { card: { p: polOf(z43) } }), GH(z43, 1.9)],
+      ],
+      task: 'What angle does `4 + j3` make with the positive real axis?',
+      hint: 'Not quite. Opposite θ is the up part, so take tan⁻¹ of up ÷ across.',
+      hints: { 0: 'Not quite. That is `tan⁻¹(4 ÷ 3)`, across ÷ up, the angle of `3 + j4`. Opposite θ is the up part, 3.', 1: 'Not quite. 0.75 is tan θ, and θ is tan⁻¹ of it.' },
+      why: 'The up side, 3, is opposite θ, and the across side, 4, is next to it. So `tan θ = 3 ÷ 4 = 0.75`, and `θ = tan⁻¹(0.75) = 36.87°`. The arrow points into the top right, where the calculator\'s answer is the right one.' },
+    { show: true, free: 'tip', name: 'Half a turn out', z: zm34, view: TVIEW, dur: 3.6, lines: 2, key: [KA, KG],
+      card0: { a: name(z34), p: polOf(z34) },
+      ops: [HF(null), A(z34, null, { cls: 'old' }), GH(zm34, null), A(zm34, 0.5, { knob: true, card: { a: name(zm34), p: '?' } }),
+        RW(calcRow(zm34), 1.1), FX(zm34, 1.7), TH(angle(zm34), 2.5), RW(fixRow(zm34), 2.5, { card: { p: polOf(zm34) } })],
+      text: 'Now take `−3 − j4`, the same arrow turned half round. Its `b ÷ a` is `−4 ÷ −3`, which is `4 ÷ 3` again, so the calculator says 53.13° again. The ghost points up and right, exactly the wrong way.',
+      more: 'The two minus signs cancel before the calculator looks, so it cannot tell the two arrows apart. Whenever a is negative the ghost is half a turn out. This arrow points down, so take 180° away, `53.13° − 180° = −126.87°`. For `−3 + j4` the calculator says −53.13°, and that arrow points up, so add 180° to make 126.87°.\nDrag the tip into any quarter, or turn on Reverse to set r and θ.' },
+    { name: 'Angle of −1 − j1', view: { lo: -2, hi: 2, blo: -2, bhi: 2 }, lines: 2, key: [KA, KG],
+      card0: { a: name(zm11), p: '?' }, base: [A(zm11, null)],
+      opts: [dg(angle(zm11)), dg(calc(zm11)), dg(angle(up11))], ok: 0, truth: dg(atan2d(zm11)),
+      mvs: [
+        [TRI(zm11, 0.1), GH(zm11, 0.1), RW(calcRow(zm11), 0.1), FX(zm11, 0.9), TH(angle(zm11), 1.7), RW(fixRow(zm11), 1.7, { card: { p: polOf(zm11) } })],
+        [GH(zm11, 0.1), RW(calcRow(zm11), 0.1), A(P(len(zm11), calc(zm11)), 0.6, wrong()), TH(calc(zm11), 0.6, wrong()),
+          RW({ e: dg(calc(zm11)) + ' points up and right, to', w: name(P(len(zm11), calc(zm11))) }, 1.1, wrong())],
+        [A(P(len(zm11), angle(up11)), 0.1, wrong()), TH(angle(up11), 0.1, wrong()),
+          RW({ e: dg(angle(up11)) + ' points up and left, to', w: name(P(len(zm11), angle(up11))) }, 0.7, wrong())],
+      ],
+      task: 'What is the angle of `−1 − j1`?',
+      hint: 'Not quite. Sketch it first. The tip is left and down, so turn the calculator\'s answer half round.',
+      hints: { 1: 'Not quite. 45° is the calculator\'s `tan⁻¹(1)`. It points to `1 + j1`, top right, the wrong way.', 2: 'Not quite. 135° points up and left, to `−1 + j1`. This arrow points down, so take 180° away.' },
+      why: '`b ÷ a = −1 ÷ −1 = 1`, and the calculator says `tan⁻¹(1) = 45°`, pointing top right. The arrow points down and left, so take 180° away, `45° − 180° = −135°`. Its length is `√(1 + 1) = √2 = 1.414`, so `−1 − j1 = 1.414∠−135°`.' },
+    { show: true, name: 'A whole turn', view: { lo: -2, hi: 2, blo: -2, bhi: 2 }, dur: 3.5, lines: 2,
+      card0: { a: name(zm11), p: polOf(zm11) },
+      ops: [A(zm11, null), TH(angle(zm11), 0.5), TH(angle(zm11) + WHOLE, 1.3, { R: 44, dur: 1.0 }),
+        RW({ e: dg(angle(zm11)) + ' + ' + dg(WHOLE), w: dg(angle(zm11) + WHOLE) }, 2.4),
+        RW({ e: 'Usual range: more than ' + dg(-HALF) + ', up to ' + dg(HALF), w: '' }, 3.0)],
+      text: 'A whole turn, 360°, brings an arrow back to where it started. So adding or taking away 360° names the same arrow.',
+      more: '`−135°` and `−135° + 360° = 225°` both point to `−1 − j1`. In the same way, −126.87° and 233.13° both point to `−3 − j4`. Textbooks usually choose an angle more than −180° and up to 180°, which college texts call the principal argument.' },
+    { name: '5∠270° in range', view: { lo: -6, hi: 6, blo: -6, bhi: 6 }, lines: 2,
+      card0: { a: '?', p: pname(5, G270) }, base: [A(p270, null, { nm: pname(5, G270) }), TH(G270, null)],
+      opts: [pname(5, QUARTER), pname(5, G270 - WHOLE), pname(5, -G270)], ok: 1, truth: pname(5, atan2d(p270)),
+      mvs: [
+        [A(P(5, QUARTER), 0.1, wrong({ nm: pname(5, QUARTER) })), TH(QUARTER, 0.1, wrong({ R: 44 })),
+          RW({ e: dg(QUARTER) + ' points straight up, to', w: name(P(5, QUARTER)) }, 0.7, wrong())],
+        [TH(G270 - WHOLE, 0.1, { R: 44 }), RW({ e: dg(G270) + ' − ' + dg(WHOLE), w: dg(G270 - WHOLE) }, 0.7),
+          RW({ e: 'Straight down, the same arrow', w: name(p270) }, 1.1, { card: { a: name(p270), p: pname(5, G270 - WHOLE) } })],
+        [TH(-G270, 0.1, wrong({ R: 44, dur: 0.9 })), A(P(5, -G270), 1.0, wrong({ nm: pname(5, -G270) })),
+          RW({ e: dg(-G270) + ' ends straight up, at', w: name(P(5, -G270)) }, 1.0, wrong())],
+      ],
+      task: 'Write `5∠270°` with its angle in the usual range, more than −180° and up to 180°.',
+      hint: 'Not quite. Take a whole turn, 360°, away from 270°.',
+      hints: { 0: 'Not quite. 90° points straight up, but 270° anticlockwise ends straight down.', 2: 'Not quite. −270° is three quarter turns clockwise, which ends straight up.' },
+      why: '270° is three quarter turns anticlockwise, which ends pointing straight down. Taking away a whole turn leaves it pointing the same way, `270° − 360° = −90°`. So `5∠270° = 5∠−90°`, which is `−j5`.' },
+    { show: true, free: 'polar', name: 'Going back', pol: [10, 30], view: RVIEW, dur: 4.2, lines: 3,
+      card0: { a: name(p30), p: pname(10, 30) },
+      ops: [A(p30, null, { nm: pname(10, 30) }), TH(30, null), SH(p30, 0.5), RW(cosRow(10, 30), 1.3), RW(sinRow(10, 30), 1.9),
+        A(p150, 2.5, { cls: 'two', nm: pname(10, 150) }), SH(p150, 3.0, { only: 'a' }), RW(cosRow(10, 150), 3.4, { card: { a: name(p150), p: pname(10, 150) } })],
+      text: 'Going back is easier. The across part is the arrow\'s shadow on the real axis, and the up part is its shadow on the j axis. So `a = r cos θ` and `b = r sin θ`.',
+      more: '`10∠30°` is `10 × 0.866 = 8.66` across and `10 × 0.5 = 5` up, so it is `8.66 + j5`. No fix is needed this way round. cos and sin come out negative by themselves where a shadow points left or down, so `10∠150°` is `−8.66 + j5`.\nSet r and θ with the sliders, or turn off Reverse to drag the tip.' },
+    { name: '4∠120° as parts', view: { lo: -5, hi: 5, blo: -3, bhi: 5 }, lines: 2,
+      card0: { a: '?', p: pname(4, G120) }, base: [A(p120, null, { nm: pname(4, G120) }), TH(G120, null)],
+      opts: [name(cosDropped(4, G120)), name(p120), name(swapP(4, G120))], ok: 1, truth: name([4 * Math.cos(2 * Math.PI / 3), 4 * Math.sin(2 * Math.PI / 3)]),
+      mvs: [
+        [A(cosDropped(4, G120), 0.1, wrong()), SH(cosDropped(4, G120), 0.6, wrong()),
+          RW({ e: 'a = 4 × ' + n3(Math.abs(Math.cos(rad(G120)))) + ', minus dropped', w: n3(cosDropped(4, G120)[0]) }, 1.0, wrong())],
+        [SH(p120, 0.1), RW(cosRow(4, G120), 0.9), RW(sinRow(4, G120), 1.5, { card: { a: name(p120) } })],
+        [A(swapP(4, G120), 0.1, wrong()), SH(swapP(4, G120), 0.6, wrong()), RW(swapRows(4, G120)[0], 1.0, wrong()), RW(swapRows(4, G120)[1], 1.4, wrong())],
+      ],
+      task: 'Write `4∠120°` as parts, `a + jb`.',
+      hint: 'Not quite. The across part is r cos θ, and the up part is r sin θ.',
+      hints: { 0: 'Not quite. cos 120° is −0.5, so the across part is `4 × (−0.5) = −2`. The arrow points left.', 2: 'Not quite. That swaps cos and sin. The across part goes with cos.' },
+      why: 'The across part is `4 cos 120° = 4 × (−0.5) = −2`, and the up part is `4 sin 120° = 3.464`. So `4∠120° = −2 + j3.464`. The minus comes out by itself, because the arrow\'s shadow on the real axis points left.' },
+    { show: true, name: 'On the axes', view: { lo: -5, hi: 5, blo: -6, bhi: 3 }, dur: 4.0, lines: 2, key: [KA, KG],
+      card0: { a: name(zj5), p: polOf(zj5) },
+      ops: [A(zj5, null), TH(angle(zj5), 0.5), RW({ e: name(zj5) + ' points straight down, a is 0', w: polOf(zj5) }, 0.9),
+        A(zm4, 1.5, { card: { a: name(zm4), p: '?' } }), GH(zm4, 2.0), FX(zm4, 2.5), TH(angle(zm4), 2.9),
+        RW({ e: name(zm4) + ' points left: ' + dg(calc(zm4)) + ' + ' + dg(HALF), w: polOf(zm4) }, 3.3, { card: { p: polOf(zm4) } })],
+      text: 'An arrow along an axis needs no tan⁻¹ at all. Read its angle off the sketch: 0° right, 90° up, 180° left and −90° down.',
+      more: '`−j5` points straight down, so it is `5∠−90°`. Its a is 0, so `b ÷ a` has no value, and a calculator\'s tan⁻¹ gives an error. `−4` points straight left. Its `b ÷ a` is 0, so the ghost points right, at 0°, and turning it half round gives `4∠180°`.' },
+    { name: '−2 + j1 in polar form', view: { lo: -3, hi: 3, blo: -2, bhi: 2 }, lines: 3, key: [KA, KG],
+      card0: { a: name(zm21), p: '?' }, base: [A(zm21, null)],
+      opts: [pname(len(zm21), calc(zm21)), pname(len(zm21), angle(zm21)), pname(Math.sqrt(jsq(zm21)), angle(zm21))], ok: 1, truth: pname(Math.hypot(-2, 1), atan2d(zm21)),
+      mvs: [
+        [GH(zm21, 0.1), RW(lenRow2(zm21), 0.1), RW(calcRow(zm21), 0.6), A(P(len(zm21), calc(zm21)), 0.6, wrong()),
+          RW({ e: dg(calc(zm21)) + ' points down and right, to', w: name(P(len(zm21), calc(zm21))) }, 1.1, wrong())],
+        [TRI(zm21, 0.1), RW(lenRow2(zm21), 0.5), GH(zm21, 0.7), RW(calcRow(zm21), 0.7), FX(zm21, 1.2), TH(angle(zm21), 1.8),
+          RW(fixRow(zm21), 1.8, { card: { p: polOf(zm21) } })],
+        [TRI(zm21, 0.1, wrong()), RW({ e: '√(' + n3(zm21[0] * zm21[0]) + ' + (' + name(Z(0, zm21[1])) + ')²) = √(' + n3(zm21[0] * zm21[0]) + ' − ' + n3(zm21[1] * zm21[1]) + ')', w: n3(Math.sqrt(jsq(zm21))) }, 0.9, wrong()),
+          A(P(Math.sqrt(jsq(zm21)), angle(zm21)), 1.5, wrong({ nm: 'r = ' + n3(Math.sqrt(jsq(zm21))) }))],
+      ],
+      task: 'Write `−2 + j1` in polar form, r∠θ.',
+      hint: 'Not quite. Find the length with Pythagoras, then sketch it and check the calculator\'s angle.',
+      hints: { 0: 'Not quite. −26.57° is the calculator\'s answer, pointing down and right. The arrow points up and left, so add 180°.', 2: 'Not quite. That squares the j. The length is `√(4 + 1) = √5 = 2.236`.' },
+      why: 'The length is `√(2² + 1²) = √5 = 2.236`. The calculator says `tan⁻¹(1 ÷ −2) = −26.57°`, which points down and right. The arrow points up and left, so add 180°, `−26.57° + 180° = 153.43°`. So `−2 + j1 = 2.236∠153.43°`.' },
+    { name: '10∠−36.87° as parts', view: { lo: -7, hi: 9, blo: -7, bhi: 9 }, lines: 2,
+      card0: { a: '?', p: pname(10, G37) }, base: [A(pm37, null, { nm: pname(10, G37) }), TH(G37, null)],
+      opts: [name(swapP(10, G37)), name(P(10, -G37)), name(pm37)], ok: 2, truth: name([10 * Math.cos(G37 * Math.PI / 180), 10 * Math.sin(G37 * Math.PI / 180)]),
+      mvs: [
+        [A(swapP(10, G37), 0.1, wrong()), SH(swapP(10, G37), 0.6, wrong()), RW(swapRows(10, G37)[0], 1.0, wrong()), RW(swapRows(10, G37)[1], 1.4, wrong())],
+        [A(P(10, -G37), 0.1, wrong()), SH(P(10, -G37), 0.6, wrong()),
+          RW({ e: 'b = 10 sin' + ofAng(-G37) + ', minus dropped', w: n3(10 * Math.sin(rad(-G37))) }, 1.0, wrong())],
+        [SH(pm37, 0.1), RW(cosRow(10, G37), 0.9), RW(sinRow(10, G37), 1.5, { card: { a: name(pm37) } })],
+      ],
+      task: 'Write `10∠−36.87°` as parts, `a + jb`.',
+      hint: 'Not quite. The across part is r cos θ, and the up part is r sin θ.',
+      hints: { 0: 'Not quite. That swaps cos and sin. The across part goes with cos, the up part with sin.', 1: 'Not quite. sin(−36.87°) is negative, so the up part is −6. The arrow points down.' },
+      why: 'The across part is `10 cos(−36.87°) = 10 × 0.8 = 8`, and the up part is `10 sin(−36.87°) = 10 × (−0.6) = −6`. So `10∠−36.87°` is `8 − j6`. The angle is below the real axis, so the up part comes out negative by itself.' },
+  ];
+  const FINISH = 'Find the length with Pythagoras and the angle with tan⁻¹(b ÷ a). Check the angle against a sketch, and turn it 180° when the arrow points left. Go back with a = r cos θ and b = r sin θ.';
+  const DUR = { arrow: 0.5, tri: 0.8, rlab: 0.4, theta: 0.6, ghost: 0.5, fix: 0.8, shadow: 0.8, row: 0.4, half: 0.4 };
+  const LAYER = { half: 0, tri: 1, shadow: 1, theta: 2, fix: 2, arrow: 4, ghost: 5, rlab: 6, row: 7 };
+  const durOf = (it) => it.dur || DUR[it.k];
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- the free screens: drag the tip (whole steps, never 0), or set r and θ ----------
+  function snapTip(raw) {
+    let x = K.clamp(Math.round(raw[0]), -ZMAX, ZMAX), y = K.clamp(Math.round(raw[1]), -ZMAX, ZMAX);
+    if (!x && !y) { if (Math.abs(raw[0]) >= Math.abs(raw[1])) x = raw[0] < 0 ? -1 : 1; else y = raw[1] < 0 ? -1 : 1; }
+    return Z(cl(x), cl(y));
+  }
+  const toPol = (z) => [K.clamp(Math.round(len(z)), 1, RMAX), Math.round(angle(z))];
+  const toTip = (r, th) => snapTip(P(r, th));
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong' or 'empty'), why; on a free screen: mode ('demo' or 'static'), rev (setting r and θ), Z, R, TH.
+  function blank(d) {
+    const st = { pick: null, res: null, why: false, mode: 'demo', rev: false, Z: null, R: RMAX, TH: 30 };
+    if (d && d.free) {
+      st.rev = d.free === 'polar';
+      if (d.pol) { st.R = d.pol[0]; st.TH = d.pol[1]; st.Z = toTip(st.R, st.TH); } else { st.Z = d.z.slice(); const q = toPol(st.Z); st.R = q[0]; st.TH = q[1]; }
+    }
+    return st;
+  }
+  const hintFor = (d, st) => (d.hints && d.hints[st.pick]) || d.hint;
+  const shownIdx = (d, st) => (st.why || st.res === 'right' ? d.ok : st.res === 'wrong' ? st.pick : null);
+  const modeOf = (d, st) => (d.free ? (st.rev ? 'polar' : 'tip') : 'fixed');
+  let S = STEPS.map((d) => blank(d));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;
+  let REC = null, NOLAB = false, AV = [], KN = null, seen = null;
+
+  function freeItems(st) {
+    if (st.rev) {
+      const r = st.R, th = st.TH, z = P(r, th), pn = pname(r, th);
+      return [A(z, null, { nm: pn, card: { a: name(z), p: pn } }), TH(th, null), SH(z, null), RW(cosRow(r, th), null), RW(sinRow(r, th), null)];
+    }
+    const z = st.Z, out = [HF(null), A(z, null, { knob: true, card: { a: name(z), p: polOf(z) } }), TH(angle(z), null)];
+    if (ratio(z) != null) out.push(GH(z, null));
+    if (fixBy(z)) out.push(FX(z, null));
+    return out.concat([RW(calcRow(z), null), RW(fixRow(z), null)]);
+  }
+  function itemsOf(d, st) {
+    if (d.show) return d.free && st.mode === 'static' ? freeItems(st) : d.ops;
+    const k = shownIdx(d, st);
+    return k == null ? d.base : d.base.concat(d.mvs[k]);
+  }
+
+  // ---------- text: maths in `backticks` stays on one line ----------
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('\n').forEach((para, n) => {
+      if (n) el.appendChild(K.el('span', { class: 'gap' }));
+      para.split('`').forEach((seg, k) => { if (seg) el.appendChild(k % 2 ? K.el('span', { class: 'nw' }, seg) : document.createTextNode(seg)); });
+    });
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s).replace(/tan⁻¹/g, 'tan inverse ').replace(/√/g, ' the square root of ').replace(/²/g, ' squared').replace(/°/g, ' degrees')
+    .replace(/∠/g, ' at an angle of ').replace(/θ/g, ' theta ').replace(/÷/g, ' divided by ').replace(/=/g, ' equals ').replace(/\+/g, ' plus ').replace(/−/g, ' minus ')
+    .replace(/×/g, ' times ').replace(/\s+/g, ' ').trim();
+
+  // ---------- controls ----------
+  const el = (id) => document.getElementById(id);
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const cur = () => stepper.get();
+  // The reverse switch and its two sliders, shown on the free screens.
+  const revCtl = K.toggle({ id: 'rev', label: 'Reverse: set r and θ', value: false, into: '#tog' });
+  const rCtl = K.control({ id: 'r', label: 'Length r', min: 1, max: RMAX, step: 1, value: RMAX, fmt: (v) => n3(v), into: '#rbox' });
+  const thCtl = K.control({ id: 'th', label: 'Angle θ', min: -HALF, max: HALF, step: 1, value: 30, fmt: (v) => dg(v), into: '#rbox' });
+  const ctlNow = () => ({ rev: revCtl.get(), r: rCtl.get(), th: thCtl.get() });
+  function syncCtls(st) { revCtl.set(!!st.rev, true); rCtl.set(st.R, true); thCtl.set(st.TH, true); seen = ctlNow(); }
+  function motionLen(i, st) {
+    const keepS = S[i], keepT = T, keepN = NOLAB;
+    S[i] = st; T = Infinity; latest = 0; NOLAB = true;
+    try { paint(i); } finally { S[i] = keepS; T = keepT; NOLAB = keepN; }
+    return Math.max(0.3, latest);
+  }
+  // Up to three answers; a new choice after a wrong one settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = k; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  // Check: marks the answer, then builds it: the right one, or what the slip does.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.ok ? 'right' : 'wrong';
+    st.why = false;
+    play(motionLen(i, st));
+  } });
+  // Why?: the reason in words, and the arrow, the triangle and the ghost built again for the right answer.
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    st.why = !st.why;
+    if (st.why) play(motionLen(i, st)); else { anim.pause(); T = Infinity; }
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = cur(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i] = blank(d);
+    if (d.free) syncCtls(S[i]);
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, cur() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = cur();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d) => blank(d)); finished = false; lastStep = -1;
+    stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion (and
+  // while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), lab = el('lab'), ui = el('ui');
+  let into = null, root = art;
+  const add = (node) => (into || root).appendChild(node);
+  // How far a part due at t0 has arrived, noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 >= 0) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; } }
+  function arr(t0, d) { d = d == null ? 0.4 : d; note(t0, d); return K.arrive(T, t0, d); }
+  function prog(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }
+  const vis = (t) => (t === false ? 0 : t == null ? 1 : arr(t));
+  const after = (t, d) => (t === false ? false : t == null ? null : t + d);
+  const grow = (t0, d) => (t0 === false ? 0 : t0 == null ? 1 : K.ease(prog(t0, d)));
+  const done = (t, d) => (t === false ? false : t == null ? true : T >= t + d);   // arrived, without noting it
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, x, y, r) => add(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r }));
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    t.textContent = s;
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 7.5;
+  }
+  // An arrow with a solid head at (x1, y1).
+  function arrowPx(x0, y0, x1, y1, cls, hmax) {
+    const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy);
+    if (L < 1) return;
+    const ux = dx / L, uy = dy / L, h = Math.min(hmax || 11, L * 0.55), w = h * 0.5, bx = x1 - ux * h, by = y1 - uy * h;
+    if (L - h > 0.5) AV.push(line('shaft ' + cls, x0, y0, bx + ux, by + uy));
+    AV.push(add(K.svg('polygon', { class: 'head ' + cls, points: [x1, y1, bx - uy * w, by + ux * w, bx + uy * w, by - ux * w].map(r3).join(' ') })));
+  }
+
+  // ---------- the plane's sizes ----------
+  const X = (V, x) => V.ox + x * V.u, Y = (V, y) => V.oy - y * V.u;
+  const arrowZ = (V, from, to, cls, hmax) => arrowPx(X(V, from[0]), Y(V, from[1]), X(V, to[0]), Y(V, to[1]), cls, hmax);
+  const pp = (V, a, R) => [V.ox + R * Math.cos(rad(a)), V.oy - R * Math.sin(rad(a))];   // R px from 0 at angle a
+  const LEFT = 30, TOPB = 26, BOTB = 24, UMAX = 50, WAV = 302, HMAX = 250, NAMEW = 34;
+  // The key's items, wrapped into rows (widths estimated, so the layout is the same everywhere).
+  const keyW = (it) => 30 + it.label.length * 7.4 + 16;
+  function keyLayout(items) {
+    let x = 12, row = 0;
+    return items.map((it) => { const w = keyW(it); if (x > 12 && x + w - 16 > 330) { row++; x = 12; } const at = { it, x, row }; x += w; return at; });
+  }
+  const keyRows = (items) => keyLayout(items).reduce((r, a) => Math.max(r, a.row + 1), 0);
+  const keyOf = (d, mode) => (mode === 'tip' ? [KA, KG] : mode === 'polar' ? null : d.key || null);
+  const GEO = new Map();
+  function geo(d, mode) {
+    const id = d.name + '|' + mode;
+    if (GEO.has(id)) return GEO.get(id);
+    const b = mode === 'tip' ? TVIEW : mode === 'polar' ? RVIEW : d.view;
+    const u = Math.min(UMAX, WAV / (b.hi - b.lo), HMAX / (b.bhi - b.blo));
+    const W = (b.hi - b.lo) * u, H = (b.bhi - b.blo) * u;
+    const outside = 340 - LEFT - 4 - W - 10 >= NAMEW;   // room for the real axis's name beyond its end
+    const gx = LEFT + Math.max(4, Math.round((340 - LEFT - W - (outside ? NAMEW + 10 : 0)) / 2));
+    const V = { lo: b.lo, hi: b.hi, blo: b.blo, bhi: b.bhi, u, gx, gy: TOPB, gw: W, gh: H, ox: gx - b.lo * u, oy: TOPB + b.bhi * u, outside };
+    const key = keyOf(d, mode), rows = key ? keyRows(key) : 0;
+    let y = TOPB + H + BOTB;
+    const G = { V, key, keyY: rows ? y + 12 : null };
+    y += rows * 20 + (rows ? 4 : 0);
+    G.workY = y;
+    y += 28 * (d.lines || 0) + 2;
+    G.H = Math.ceil(y + 4);
+    GEO.set(id, G);
+    return G;
+  }
+
+  // The plane: grid, axes, numbers along the edges, and the axes' names.
+  const jn = (w) => (w < 0 ? '−' : '') + 'j' + Math.abs(w);
+  function plane(V) {
+    const x0 = V.gx, x1 = V.gx + V.gw, y0 = V.gy, y1 = V.gy + V.gh;
+    for (let v = V.lo; v <= V.hi; v++) line('gr', X(V, v), y0, X(V, v), y1);
+    for (let w = V.blo; w <= V.bhi; w++) line('gr', x0, Y(V, w), x1, Y(V, w));
+    AV.push(line('ax', x0, V.oy, x1, V.oy));
+    AV.push(line('ax', V.ox, y0, V.ox, y1));
+    const k = V.u < 14 ? 5 : V.u < 22 ? 2 : 1;
+    for (let v = V.lo; v <= V.hi; v++) if (v % k === 0) text(X(V, v), y1 + 17, n3(v), v ? 'tn' : 'tn0');
+    for (let w = V.blo; w <= V.bhi; w++) if (w && w % k === 0 && w !== V.blo) text(x0 - 5, Y(V, w) + 4.5, jn(w), 'tn', 'end');
+    text(V.ox + 7, y0 - 8, 'j', 'an', 'start');
+    if (V.outside) text(x1 + 6, V.oy + 4.5, 'real', 'an', 'start');
+    else text(x1 - 3, V.oy + 18, 'real', 'an', 'end');
+  }
+  // An arc round 0, R px out, from angle a0 turning by sweep (anticlockwise positive), with a small head showing its way.
+  function arc(V, a0, sweep, R, cls, hcls) {
+    if (Math.abs(sweep) < 0.3) return;
+    const n = Math.max(2, Math.ceil(Math.abs(sweep) / 4)), pts = [];
+    for (let k = 0; k <= n; k++) { const q = pp(V, a0 + sweep * k / n, R); pts.push(r3(q[0]) + ' ' + r3(q[1])); }
+    AV.push(add(K.svg('path', { class: cls, d: 'M' + pts.join(' L') })));
+    if (Math.abs(rad(sweep)) * R < 16) return;
+    const ae = a0 + sweep, sg = sweep > 0 ? 1 : -1, e = pp(V, ae, R);
+    const tx = -Math.sin(rad(ae)) * sg, ty = -Math.cos(rad(ae)) * sg, bx = e[0] - tx * 7, by = e[1] - ty * 7;
+    AV.push(add(K.svg('polygon', { class: hcls, points: [e[0], e[1], bx - ty * 3.5, by + tx * 3.5, bx + ty * 3.5, by - tx * 3.5].map(r3).join(' ') })));
+  }
+
+  // ---------- each part of a screen ----------
+  function drawItem(G, it, LB, W, said) {
+    const V = G.V, D = durOf(it), bad = it.bad ? ' bad' : '';
+    if (it.bad && grow(it.t, D) > 0) REC.bad++;
+    if (it.k === 'half') {
+      const a = vis(it.t);
+      part(a, 0, () => add(K.svg('rect', { class: 'halfp', x: r3(V.ox), y: V.gy, width: r3(V.gx + V.gw - V.ox), height: r3(V.gh) })));
+      LB.push({ pt: [V.gx + V.gw - 4, V.gy + 17], anchor: 'end', text: 'tan⁻¹ points here', cls: 'key', a, pri: 7 });
+      if (a >= 1) { REC.half = true; said.push('The right-hand half is shaded: a calculator\'s tan⁻¹ only ever points there.'); }
+    } else if (it.k === 'arrow') {
+      const p = grow(it.t, D), aL = vis(after(it.t, D)), cls = it.bad ? 'bad' : it.cls;
+      if (p > 0) arrowZ(V, O, [it.z[0] * p, it.z[1] * p], cls);
+      if (p >= 1) REC.arrows.push({ z: it.z, cls });
+      if (it.knob && p >= 1) REC.knob = it.z;
+      const lb = it.nm === false ? null : it.nm || name(it.z);
+      if (lb) LB.push({ z: it.z, dir: dirOf(it.z), text: lb, cls: 'tl' + (it.bad ? ' bad' : it.cls === 'old' ? ' old' : ''), a: aL, pri: 0 });
+      if (aL >= 1) said.push((it.bad ? 'In red, an arrow to ' : 'An arrow from 0 to ') + say(lb || name(it.z)) + '.');
+    } else if (it.k === 'tri') {
+      const z = it.z, a = z[0], b = z[1], p1 = grow(it.t, 0.4), p2 = grow(after(it.t, 0.4), 0.4);
+      if (p1 > 0 && Math.abs(a) * V.u * p1 > 1) AV.push(line('side' + bad, X(V, 0), Y(V, 0), X(V, a * p1), Y(V, 0)));
+      if (p2 > 0 && Math.abs(b) * V.u * p2 > 1) AV.push(line('side' + bad, X(V, a), Y(V, 0), X(V, a), Y(V, b * p2)));
+      if (p2 >= 1 && Math.abs(a) * V.u > 16 && Math.abs(b) * V.u > 16) {
+        const cx = X(V, a), cy = Y(V, 0), dx = a > 0 ? -8 : 8, dy = b > 0 ? -8 : 8;
+        add(K.svg('path', { class: 'ra', d: 'M' + r3(cx + dx) + ' ' + r3(cy) + ' L' + r3(cx + dx) + ' ' + r3(cy + dy) + ' L' + r3(cx) + ' ' + r3(cy + dy) }));
+      }
+      if (p2 >= 1) REC.tri = [Math.abs(a), Math.abs(b)];
+      if (cl(a)) LB.push({ pt: [X(V, a / 2), Y(V, 0) + (b > 0 ? 18 : -8)], text: n3(Math.abs(a)), cls: 'sl' + bad, a: vis(after(it.t, 0.4)), pri: 4 });
+      if (cl(b)) LB.push({ pt: [X(V, a) + (a >= 0 ? 8 : -8), Y(V, b / 2) + 5], anchor: a >= 0 ? 'start' : 'end', text: n3(Math.abs(b)), cls: 'sl' + bad, a: vis(after(it.t, 0.8)), pri: 4 });
+      if (p2 >= 1) said.push('Its across part and up part are the short sides of a right-angled triangle, ' + n3(Math.abs(a)) + ' and ' + n3(Math.abs(b)) + ' long.');
+    } else if (it.k === 'rlab') {
+      const z = it.z, a = vis(it.t), phi = rad(dirOf(z)), s = -z[0] * z[1] > 0 ? -1 : 1;
+      LB.push({ pt: [X(V, z[0] / 2) - s * Math.sin(phi) * 16, Y(V, z[1] / 2) - s * Math.cos(phi) * 16 + 5], text: 'r = ' + n3(len(z)), cls: 'tl', a, pri: 5 });
+      if (a >= 1) REC.rl = len(z);
+    } else if (it.k === 'theta') {
+      if (it.deg == null) return;
+      const R = it.R || 24, p = grow(it.t, D), aL = vis(after(it.t, D));
+      if (p > 0) arc(V, 0, it.deg * p, R, 'tharc' + bad, 'thhead' + bad);
+      if (p >= 1) REC.thetas.push(it.deg);
+      if (Math.abs(it.deg) >= 14) { const q = pp(V, it.deg / 2, R + 15); LB.push({ pt: [q[0], q[1] + 5], text: dg(it.deg), cls: 'al' + bad, a: aL, pri: 1 }); }
+      if (aL >= 1) said.push('An arc marks the angle ' + say(dg(it.deg)) + ' from the positive real axis.');
+    } else if (it.k === 'ghost') {
+      const g = calc(it.z);
+      if (g == null) { REC.noGhost = true; return; }
+      const r = len(it.z), tip = P(r, g), p = grow(it.t, D), aL = vis(after(it.t, D));
+      if (p > 0) arrowZ(V, O, [tip[0] * p, tip[1] * p], 'g', 9);
+      if (p >= 1) { REC.ghost = g; REC.ghostTip = tip; }
+      const c = Math.cos(rad(g)), s = Math.sin(rad(g));
+      LB.push({ pt: [X(V, tip[0] * 0.6) + s * 16, Y(V, tip[1] * 0.6) + c * 16 + 5], text: 'b ÷ a = ' + n2(ratio(it.z)), cls: 'gl', a: aL, pri: 3 });
+      if (aL >= 1) said.push('The calculator\'s dashed ghost, tan inverse of ' + say(n2(ratio(it.z))) + ', points at ' + say(dg(g)) + '.');
+    } else if (it.k === 'fix') {
+      const g = calc(it.z), by = it.by != null ? it.by : fixBy(it.z);
+      if (g == null || !by) return;
+      const R = it.R || 56, p = grow(it.t, D), aL = vis(after(it.t, D));
+      if (p > 0) arc(V, g, by * p, R, 'fxarc' + bad, 'fxhead');
+      if (p >= 1) REC.fix = { from: g, by };
+      const q = pp(V, g + by / 2, R + 15);
+      LB.push({ pt: [q[0], q[1] + 5], text: (by > 0 ? '+' : '−') + dg(Math.abs(by)), cls: 'fl', a: aL, pri: 2 });
+      if (aL >= 1) said.push('Turning the ghost ' + say(dg(Math.abs(by))) + (by > 0 ? ' anticlockwise' : ' clockwise') + ' brings it onto the arrow.');
+    } else if (it.k === 'shadow') {
+      const z = it.z, a = z[0], b = z[1], onlyA = it.only === 'a', p1 = grow(it.t, 0.4), p2 = grow(after(it.t, 0.4), 0.4), aL = vis(after(it.t, D));
+      if (p1 > 0) {
+        if (Math.abs(b) * V.u > 2) AV.push(line('guide', X(V, a), Y(V, b), X(V, a), Y(V, b * (1 - p1))));
+        if (!onlyA && Math.abs(a) * V.u > 2) AV.push(line('guide', X(V, a), Y(V, b), X(V, a * (1 - p1)), Y(V, b)));
+      }
+      if (p2 > 0) {
+        if (Math.abs(a) * V.u * p2 > 1) AV.push(line('shd' + bad, X(V, 0), Y(V, 0), X(V, a * p2), Y(V, 0)));
+        if (!onlyA && Math.abs(b) * V.u * p2 > 1) AV.push(line('shd' + bad, X(V, 0), Y(V, 0), X(V, 0), Y(V, b * p2)));
+      }
+      if (p2 >= 1) REC.shadows.push({ z: it.z, a, b: onlyA ? null : b });
+      LB.push({ pt: [X(V, a / 2), Y(V, 0) + (b >= 0 ? 19 : -9)], text: 'a = ' + n3(a), cls: 'sl' + bad, a: aL, pri: 4 });
+      if (!onlyA) LB.push({ pt: [X(V, 0) + (a >= 0 ? -9 : 9), Y(V, b / 2) + 5], anchor: a >= 0 ? 'end' : 'start', text: 'b = ' + n3(b), cls: 'sl' + bad, a: aL, pri: 4 });
+      if (aL >= 1) said.push('Its shadow on the real axis is ' + say(n3(a)) + (onlyA ? '' : ' and its shadow on the j axis is ' + say(n3(b))) + '.');
+    } else if (it.k === 'row') W.push(it);
+  }
+  // A line of working: the expression on the left, what it makes on the right.
+  function drawWork(r, m, G, said) {
+    const y = G.workY + 20 + 28 * m, a = vis(r.t), bad = r.bad ? ' bad' : '';
+    part(a, 6, () => { text(12, y, r.e, 'te' + bad, 'start'); if (r.w) text(328, y, r.w, 'tw' + bad, 'end'); });
+    if (a >= 0.5) { REC.work.push(r); said.push(say(r.e) + (r.w ? ': ' + say(r.w) : '') + '.'); }
+  }
+  function drawKey(items, y) {
+    keyLayout(items).forEach(({ it, x, row }) => {
+      const yy = y + row * 20;
+      line(it.sw, x, yy - 4, x + 24, yy - 4);
+      text(x + 30, yy + 1, it.label, 'key', 'start');
+    });
+  }
+  // Labels sit just beyond what they name, moved by K.labels clear of the arrows and other words; an
+  // arrow's name always inside the grid.
+  function labelAt(V, it) {
+    if (it.pt) return { x: it.pt[0], y: it.pt[1], anchor: it.anchor || 'middle' };
+    const px = X(V, it.z[0]), py = Y(V, it.z[1]), w = tw(it.text, it.cls);
+    const gl = V.gx + 3, gr = V.gx + V.gw - 3, gt = V.gy + 3, gb = V.gy + V.gh - 3;
+    const dir = it.dir == null ? 0 : it.dir, c = Math.cos(rad(dir)), s = Math.sin(rad(dir));
+    const right = c >= -0.05, sy = py + 5 - s * 7;
+    const side = right ? { x: px + 12, y: sy, anchor: 'start' } : { x: px - 12, y: sy, anchor: 'end' };
+    const sideOk = right ? px + 12 + w <= gr : px - 12 - w >= gl;
+    const up = s >= 0, vy = up ? py - 12 : py + 22;
+    const vertOk = up ? vy - 13 >= gt : vy + 4 <= gb;
+    const vert = { x: K.clamp(px, gl + w / 2, gr - w / 2), y: vy, anchor: 'middle' };
+    if (vertOk && (Math.abs(s) >= 0.6 || !sideOk)) return vert;
+    if (sideOk) return side;
+    if (vertOk) return vert;
+    const otherOk = right ? px - 12 - w >= gl : px + 12 + w <= gr;
+    return otherOk ? (right ? { x: px - 12, y: sy, anchor: 'end' } : { x: px + 12, y: sy, anchor: 'start' }) : side;
+  }
+  function placeLabels(V, LB) {
+    const items = LB.filter((it) => it.a > 0 && it.text).sort((p, q) => (p.pri || 0) - (q.pri || 0));
+    REC.labels = items.map((it) => it.text);
+    if (NOLAB) { lab.textContent = ''; return; }
+    const ts = K.labels(lab, items.map((it) => Object.assign({ text: it.text, class: it.cls }, labelAt(V, it))), { avoid: AV });
+    ts.forEach((tEl, n) => { if (items[n].a < 1) K.fade(tEl, items[n].a, 0); });
+  }
+  // The two names above the plane; a name that changes fades in.
+  function setCards(c) {
+    [['nA', c.a], ['nP', c.p]].forEach(([id, v]) => {
+      const e = el(id);
+      v = v == null ? '?' : String(v);
+      if (e.textContent === v) return;
+      e.textContent = v;
+      if (!REDUCE && !testing()) { e.classList.remove('fade'); void e.offsetWidth; e.classList.add('fade'); }
+    });
+  }
+
+  function paint(i) {
+    if (i == null) i = cur();
+    const d = STEPS[i], st = S[i], mode = modeOf(d, st), G = geo(d, mode), V = G.V;
+    REC = { work: [], labels: [], arrows: [], thetas: [], ghost: null, ghostTip: null, noGhost: false, fix: null, tri: null, shadows: [], half: false,
+      bad: 0, rl: null, knob: null, card: Object.assign({}, d.card0) };
+    AV = []; KN = null; into = null; root = art;
+    art.textContent = '';
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    const items = itemsOf(d, st), LB = [], W = [], said = ['The complex plane, real across and j up.'];
+    plane(V);
+    items.map((it, n) => ({ it, n })).sort((p, q) => (LAYER[p.it.k] - LAYER[q.it.k]) || (p.n - q.n)).forEach(({ it }) => drawItem(G, it, LB, W, said));
+    items.forEach((it) => { if (it.card && done(it.t, durOf(it))) Object.assign(REC.card, it.card); });
+    W.forEach((r, m) => drawWork(r, m, G, said));
+    if (!d.show && shownIdx(d, st) == null) text(12, G.workY + 20, 'The working appears here after Check.', 'key', 'start');
+    if (G.key) drawKey(G.key, G.keyY);
+    if (REC.knob && mode === 'tip') { AV.push(circle('knob', X(V, REC.knob[0]), Y(V, REC.knob[1]), 7)); KN = [X(V, REC.knob[0]), Y(V, REC.knob[1])]; }
+    placeLabels(V, LB);
+    placeGrip(i === cur() ? d : null, st);
+    said.push('Its two names: ' + say(REC.card.a) + ', and ' + say(REC.card.p) + '.');
+    svg.setAttribute('aria-label', said.join(' '));
+    if (!NOLAB) setCards(REC.card);
+  }
+
+  // ---------- the drag: the tip snaps to whole steps, anywhere but 0 ----------
+  const grip = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 22, tabindex: -1, role: 'slider',
+    'aria-label': 'Tip of the arrow; arrow keys move it across and up' }));
+  grip.style.display = 'none';
+  function placeGrip(d, st) {
+    const on = !!d && !!d.free && !st.rev && !!KN && !finished;
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    grip.setAttribute('cx', r3(KN[0])); grip.setAttribute('cy', r3(KN[1]));
+    grip.setAttribute('aria-valuemin', -ZMAX); grip.setAttribute('aria-valuemax', ZMAX);
+    grip.setAttribute('aria-valuenow', rnd(st.Z[0], 3));
+    grip.setAttribute('aria-valuetext', say(name(st.Z)));
+  }
+  const dragOn = () => !finished && !!STEPS[cur()].free && !S[cur()].rev;
+  function unitsFrom(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()), V = geo(STEPS[cur()], 'tip').V;
+    return [(q.x - V.ox) / V.u, (V.oy - q.y) / V.u];
+  }
+  function moveTip(raw) {
+    const i = cur(), st = S[i], z = snapTip(raw);
+    if (same(z, st.Z) && st.mode === 'static' && !anim.playing()) return;
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    st.Z = z; st.mode = 'static';
+    const q = toPol(z); st.R = q[0]; st.TH = q[1];
+    rCtl.set(st.R, true); thCtl.set(st.TH, true); seen = ctlNow();
+    K.reveal(); K.refresh();
+  }
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!dragOn()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the tip */ }
+    e.preventDefault();
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !dragOn()) return;
+    const q = unitsFrom(e);
+    if (q) moveTip(q);
+  });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    if (!dragOn()) return;
+    const by = { ArrowUp: [0, 1], ArrowDown: [0, -1], ArrowRight: [1, 0], ArrowLeft: [-1, 0] }[e.key];
+    if (!by) return;
+    e.preventDefault();
+    const z = S[cur()].Z;
+    moveTip([z[0] + by[0], z[1] + by[1]]);
+  });
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { S[i] = blank(d); play(d.dur); } else { anim.pause(); T = Infinity; }
+      if (d.free) syncCtls(S[i]);
+    } else if (d.free && seen) {
+      // The reverse switch swaps how the arrow is set, keeping it as near the same arrow as whole steps allow.
+      const now = ctlNow(), st = S[i];
+      if (now.rev !== seen.rev) {
+        if (anim.playing()) anim.pause();
+        T = Infinity;
+        if (now.rev) { const q = toPol(st.Z); st.R = q[0]; st.TH = q[1]; } else st.Z = toTip(st.R, st.TH);
+        st.rev = now.rev; st.mode = 'static';
+        rCtl.set(st.R, true); thCtl.set(st.TH, true);
+      } else if (now.r !== seen.r || now.th !== seen.th) {
+        st.R = now.r; st.TH = now.th;
+        if (st.rev) { if (anim.playing()) anim.pause(); T = Infinity; st.mode = 'static'; }
+      }
+      seen = ctlNow();
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const st = S[i], right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('more').hidden = !(d.show && d.more);   // a SHOW screen's rest of the words, under its picture
+    write(el('more'), d.show && d.more ? d.more : '');
+    el('free').hidden = !d.free;
+    el('rbox').hidden = !(d.free && st.rev);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 5));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === k ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(d, st) : st.res === 'empty' ? 'Tap one of the answers.' : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const idx = (nm) => STEPS.findIndex((d) => d.name === nm);
+  const DOS = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const I4 = idx('Half a turn out'), I8 = idx('Going back');
+  const solved = (i, k) => Object.assign(blank(STEPS[i]), { pick: k, res: k === STEPS[i].ok ? 'right' : 'wrong' });
+  const tipState = (z) => Object.assign(blank(STEPS[I4]), { mode: 'static', rev: false, Z: z });
+  const polState = (r, th) => Object.assign(blank(STEPS[I8]), { mode: 'static', rev: true, R: r, TH: th });
+  // A step painted in the state given (finished, or t seconds in), without labels: what it drew.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t; NOLAB = true;
+    try { paint(i); return Object.assign({}, REC); } finally { S[i] = keepS; T = keepT; }
+  }
+  // Each check paints what it needs, then puts the page back as it was.
+  function chk(label, fn, opts) {
+    K.check(label, () => { const keepT = T; try { return fn(); } finally { NOLAB = false; T = keepT; paint(); } }, opts);
+  }
+  const tips = [];
+  for (let a = -ZMAX; a <= ZMAX; a++) for (let b = -ZMAX; b <= ZMAX; b++) if (a || b) tips.push(Z(a, b));
+
+  chk('The distance of the point from the origin is called the modulus, and the modulus is never negative: for every whole-step tip on the drag screen, the arrow drawn ends at the tip, and the length in its r∠θ name is the distance of the tip from the origin, more than none', () =>
+    tips.every((z) => {
+      const g = drawn(I4, tipState(z)), r = Math.sqrt(z[0] * z[0] + z[1] * z[1]);
+      return g.arrows.some((x) => same(x.z, z)) && g.card.p.split('∠')[0] === n3(r) && r > 0;
+    }), { source: MC });
+  chk('Care must be taken when using a calculator to find an inverse tangent that the solution obtained is in the correct quadrant: for every whole-step tip, the dashed ghost (the calculator\'s answer) lies along the arrow in the right-hand quarters, points exactly the opposite way in the left-hand quarters, where a half turn is drawn to bring it onto the arrow, is absent on the j axis, and the angle named always points into the tip\'s own quarter', () =>
+    tips.every((z) => {
+      const g = drawn(I4, tipState(z)), want = atan2d(z), th = g.thetas.length ? g.thetas[g.thetas.length - 1] : null;
+      if (!near(th, want, 1e-9) || g.card.p !== pname(len(z), want)) return false;
+      if (!z[0]) return g.ghost == null && g.noGhost && !g.fix;
+      if (z[0] > 0) return near(g.ghost, want, 1e-9) && !g.fix && same(g.ghostTip, z);
+      return !!g.ghostTip && same(g.ghostTip, Z(-z[0], -z[1])) && !!g.fix && Math.abs(g.fix.by) === HALF && near(g.ghost + g.fix.by, want, 1e-9);
+    }), { source: MC });
+  chk('x = r cos θ and y = r sin θ: with the reverse switch on, for every length and every whole-degree angle tried, the arrow ends r cos θ across and r sin θ up, its shadows on the two axes end level with its tip, and the parts named are those two', () => {
+    for (const r of [1, 4, 7, RMAX]) for (let th = -HALF; th <= HALF; th += 15) {
+      const g = drawn(I8, polState(r, th)), z = [r * Math.cos(th * Math.PI / 180), r * Math.sin(th * Math.PI / 180)], s = g.shadows[0];
+      if (!(g.arrows.some((x) => same(x.z, z)) && !!s && near(s.a, z[0]) && near(s.b, z[1]) && g.card.a === name(z) && g.card.p === pname(r, th))) return false;
+    }
+    return true;
+  }, { source: OXF });
+  chk('Known answers worked by hand: 3 + j4 = 5∠53.13°; 6 − j8 is 10 long (14 with the sides added, √−28 with the j squared); 4 + j3 is at 36.87°; for −3 − j4 the calculator says 53.13° and the angle is −126.87°, and the drag screen opens drawing just that; for −3 + j4, −53.13° and 126.87°; −1 − j1 = 1.414∠−135°, and −135° + 360° = 225°; −126.87° + 360° = 233.13°; 5∠270° = 5∠−90° = −j5; 10∠30° = 8.66 + j5 and 10∠150° = −8.66 + j5; 4∠120° = −2 + j3.464; −j5 = 5∠−90° and −4 = 4∠180°; −2 + j1 = 2.236∠153.43°, its ghost at −26.57°; 10∠−36.87° = 8 − j6; −4 − j3 = 5∠−143.13°, which goes back to −4 − j3', () => {
+    const g4 = drawn(I4, blank(STEPS[I4]));
+    const eq = [[polOf(Z(3, 4)), '5∠53.13°'], [n3(len(Z(6, -8))), '10'], [n3(6 + 8), '14'], [n3(jsq(Z(6, -8))), '−28'], [n2(4 / 3), '1.33'], [dg(calc(Z(4, 3))), '36.87°'],
+      [dg(calc(Z(-3, -4))), '53.13°'], [dg(angle(Z(-3, -4))), '−126.87°'], [dg(calc(Z(-3, 4))), '−53.13°'], [dg(angle(Z(-3, 4))), '126.87°'],
+      [polOf(Z(-1, -1)), '1.414∠−135°'], [dg(angle(Z(-1, -1)) + WHOLE), '225°'], [dg(angle(Z(-3, -4)) + WHOLE), '233.13°'],
+      [pname(5, G270 - WHOLE), '5∠−90°'], [name(P(5, G270)), '−j5'], [name(P(10, 30)), '8.66 + j5'], [name(P(10, 150)), '−8.66 + j5'], [n3(Math.cos(rad(30))), '0.866'],
+      [name(P(4, G120)), '−2 + j3.464'], [polOf(Z(0, -5)), '5∠−90°'], [polOf(Z(-4, 0)), '4∠180°'], [polOf(Z(-2, 1)), '2.236∠153.43°'], [dg(calc(Z(-2, 1))), '−26.57°'],
+      [n3(Math.sqrt(jsq(Z(-2, 1)))), '1.732'], [name(P(10, G37)), '8 − j6'], [polOf(Z(-4, -3)), '5∠−143.13°'], [name(P(5, -143.13)), '−4 − j3']];
+    return eq.every((q) => q[0] === q[1]) && near(g4.ghost, dgr(Math.atan(4 / 3)), 1e-9) && !!g4.fix && g4.fix.by === -HALF &&
+      g4.thetas.some((v) => near(v, dgr(Math.atan(4 / 3)) - HALF, 1e-9)) && g4.arrows.some((x) => same(x.z, Z(-3, -4))) && g4.arrows.some((x) => same(x.z, Z(3, 4)));
+  });
+  chk('Each puzzle takes only its right answer: every answer is worked out from the lesson\'s rule or from its named slip, the right one matches an independent working (atan2, or cos and sin of the angle in radians), and only it fills in the unknown name; each wrong one is drawn as what its slip makes, marked as a mistake', () =>
+    DOS.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts[d.ok] !== d.truth) return false;
+      return d.opts.every((o, k) => {
+        const g = drawn(i, solved(i, k)), full = g.card.a.indexOf('?') < 0 && g.card.p.indexOf('?') < 0, pp2 = g.card.p.split('∠');
+        if (k !== d.ok) return !full && g.bad > 0 && o !== d.truth;
+        return full && g.bad === 0 && (o === g.card.a || o === g.card.p || o === pp2[0] || o === pp2[1]);
+      });
+    }));
+  chk('Before an answer, a puzzle shows only its question: its one arrow and what is given, the unknown name as a question mark, no working, no ghost, no fix and nothing marked as a mistake', () =>
+    DOS.every((i) => {
+      const g = drawn(i, blank(STEPS[i]));
+      return g.work.length === 0 && g.bad === 0 && (g.card.a === '?' || g.card.p === '?') && g.arrows.length === 1 && !g.fix && g.ghost == null && g.shadows.length === 0;
+    }));
+  chk('Every demonstration finishes within 4.6 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 3 s', () => {
+    const timed = (i, st) => { const keepS = S[i]; T = Infinity; latest = 0; earliest = Infinity; S[i] = st; NOLAB = true; try { paint(i); } finally { S[i] = keepS; } return { latest, earliest }; };
+    return STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(d)); return r.latest <= d.dur + 1e-9 && d.dur <= 4.6 && d.dur >= 3 && r.earliest >= FADE; }
+      return d.opts.every((o, k) => timed(i, solved(i, k)).latest <= 3 + 1e-9);
+    });
+  });
+  chk('From outside the rule: the lesson\'s fix agrees with the two-argument arctangent (atan2) at every whole-step point from −5 to 5; a navigator 3 km east and 4 km north of a buoy is 5 km away on a bearing of 036.87°, which is 90° − 53.13°; and tan⁻¹(4 ÷ 3) is 0.93 in radians', () => {
+    for (let a = -5; a <= 5; a++) for (let b = -5; b <= 5; b++) { if ((a || b) && !near(angle(Z(a, b)), dgr(Math.atan2(b, a)), 1e-9)) return false; }
+    return Math.hypot(3, 4) === 5 && n2(dgr(Math.atan(3 / 4))) === '36.87' && near(QUARTER - dgr(Math.atan(4 / 3)), dgr(Math.atan(3 / 4)), 1e-9) && n2(Math.atan(4 / 3)) === '0.93';
+  });
+
+  K.ready();
+</script>

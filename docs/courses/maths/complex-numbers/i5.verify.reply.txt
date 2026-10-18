@@ -1,0 +1,38 @@
+{
+ "issues": [
+  {
+   "path": "practice.text",
+   "severity": "fix",
+   "problem": "Swapping cos and sin for 10∠−36.87° gives across 10 sin(−36.87°) = −6 and up 10 cos(−36.87°) = 8, so the slip is −6 + j8, not 6 − j8 (which is 10∠−53.13°).",
+   "now": "- Sketch the arrow first: which quarter does its tip land in?\n- Find the length: r = √(a² + b²). Square the sizes of the parts, never the j.\n- Set the calculator to degrees and work out tan⁻¹(b ÷ a).\n- Check it against the sketch. If a is negative, the answer points the wrong way: add 180° when the arrow points up, take 180° away when it points down.\n- If the arrow lies on an axis, read the angle off the sketch: 0° right, 90° up, 180° left, −90° down. tan⁻¹ of anything ÷ 0 gives an error.\n- Write the answer as r∠θ, then check it by going back: r cos θ and r sin θ should give a and b.\n\n**Rule of thumb:** Top right is 0° to 90°, top left 90° to 180°, bottom left −90° to −180°, bottom right 0° to −90°. If your angle does not point into the quarter you sketched, it is wrong.\n\n**Rule of thumb:** 360° is a whole turn, so adding or taking it away changes nothing. Use it to bring an angle into the usual range: 5∠270° is 5∠−90°.\n\n**Worked example:** −4 − j3. The sketch puts it 4 left and 3 down, in the bottom left. Length: √(16 + 9) = √25 = 5. Calculator: tan⁻¹(−3 ÷ −4) = tan⁻¹(0.75) = 36.87°, which points top right, the wrong way. The arrow points down, so take 180° away: 36.87° − 180° = −143.13°. So −4 − j3 = 5∠−143.13°. Check: 5 cos(−143.13°) = −4 and 5 sin(−143.13°) = −3.\n\n**Common mistakes**\n- Squaring the j. √(3² + (j4)²) = √(9 − 16) is no length. The length of 3 + j4 is √(9 + 16) = 5.\n- Trusting the calculator in a left-hand quarter. −1 − j1 is not 1.414∠45°, which is 1 + j1; it is 1.414∠−135°.\n- Leaving an angle outside the usual range, such as 270°. Take 360° away: −90°.\n- Swapping cos and sin. The across part goes with cos, the up part with sin: 10∠−36.87° is 8 − j6, not −6 + j8.\n- Writing a negative length. The [[modulus]] is never negative;[^2] point the angle the other way instead.\n- A calculator in radians. tan⁻¹(4 ÷ 3) then shows 0.93, not 53.13."
+  },
+  {
+   "path": "interactive.ignores",
+   "severity": "fix",
+   "problem": "It says lengths are rounded to two decimal places, but the lesson shows 1.414, 2.236 and 3.464; and no later lesson in this course (i6 to i8) meets a third way of writing r∠θ.",
+   "now": "The tip snaps to whole steps so the parts can be counted, but a and b can be any numbers, and the rules work the same for them; only 0 itself has length 0 and no angle at all. Angles are rounded to two decimal places and lengths and parts to at most three, so converting back can be out in the last place. Angles are in degrees; calculators and college texts also use radians, where 180° is π, and the rules are the same. College texts also meet a third way of writing r∠θ, which names the same arrow; this course does not need it."
+  },
+  {
+   "path": "analogy.breaks",
+   "severity": "fix",
+   "problem": "\"This course's angles run from just above −180° to 180°\" is too absolute: this lesson itself names 5∠270° and 233.13°, and adding angles in the next lesson can go past 180°; the range is the usual choice.",
+   "now": "A bearing is measured clockwise from north, but the angle here is measured anticlockwise from the positive real axis, which points east, so the same direction is 53.13° here, not 36.87°. Bearings also run from 0° to 360°, where this course usually gives angles from just above −180° to 180°."
+  },
+  {
+   "path": "interactive.whatAmILookingAt",
+   "severity": "fix",
+   "problem": "The tip snaps to whole steps and can sit on the j axis, where a is 0 and b ÷ a has no value, so the ghost cannot carry that number or lie anywhere there.",
+   "now": "A short lesson in thirteen small screens on the complex plane from the earlier lessons, real across and j up. An arrow runs from 0 to a tip you can drag into any quarter, and two readouts name it two ways: a + jb, its parts, and r∠θ, its length and angle. Under the arrow, its across part and its up part are drawn faintly as the two short sides of a right-angled triangle, with the arrow as the longest side, so by Pythagoras its length is r = √(a² + b²). The angle θ is an arc from the positive real axis round to the arrow, anticlockwise counting as positive. A dashed ghost arrow points where a calculator's tan⁻¹(b ÷ a) says, and it carries the number b ÷ a (on the j axis, where a is 0, there is no such number and no ghost). The calculator sees only that number, which is the same for an arrow and for that arrow turned half round, as you see when you drag the tip half a turn round and the number stays put, and it always answers with an angle between −90° and 90°, pointing into the right-hand half. So in the right-hand quarters the ghost lies on the arrow, and in the left-hand quarters it points exactly the opposite way, with a second arc of 180° drawn to turn it back onto the arrow. A reverse switch runs it the other way: set r and θ, and the arrow's shadows on the two axes read a = r cos θ across and b = r sin θ up, as with Trigonometry's arrow and its shadows. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, a wrong pick gets a one-line hint naming its slip, and Why? replays the arrow, the triangle and the ghost for it."
+  },
+  {
+   "path": "interactive.numbers",
+   "severity": "note",
+   "problem": "Step 12 slip \"cos and sin swapped: across part\" is 6, but swapping them for 10∠−36.87° gives 10 sin(−36.87°) = −6 across (and 8 up); the slip answer should be −6 + j8."
+  },
+  {
+   "path": "explain.text",
+   "severity": "note",
+   "problem": "\"The calculator\" here means its tan⁻¹ key; many scientific calculators also have a rectangular-to-polar (Pol) function that gives the angle in the right quarter directly. True as written in context, but could be said once."
+  }
+ ]
+}
