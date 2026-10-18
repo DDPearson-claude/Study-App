@@ -1611,8 +1611,8 @@ async function relearnFails() {
     await shot(app, 'relearn-fails-1-failed');
     // Back to the topic: idea 1 is still done, so the header offers idea 2 (no "Continue" of a round that never began).
     await err.getByRole('link', { name: 'Back to the topic' }).click();
-    await page.locator('.tp-cta').waitFor();
-    ok((await page.locator('.tp-cta').textContent()).startsWith('Start: Gravity'), 'the topic offers the next idea: ' + await page.locator('.tp-cta').textContent());
+    await page.locator('.pnode.is-current .pnode-btn').waitFor();
+    ok((await page.locator('.pnode.is-current .pnode-title').textContent()).startsWith('Gravity') && (await page.locator('.pnode.is-current .pnode-btn').textContent()) === 'Start this idea', 'the topic offers the next idea: ' + await page.locator('.pnode.is-current').textContent());
     // Opening idea 1 again tries the rewrite again and says so; the old lesson never shows.
     const n0 = ctl.writes.length;
     await go('#/t/pendulums/i1');
@@ -1642,7 +1642,7 @@ async function relearnFails() {
     p = await idea();
     ok(p.round === 1 && p.relearn === true && p.relearnNote === note, 'a failed Rebuild keeps the request open, with his note: ' + JSON.stringify(p));
     await go('#/t/pendulums');
-    await page.locator('.tp-cta').waitFor();
+    await page.locator('.pnode.is-current .pnode-btn').waitFor();
     ctl.failing = false;
     const n1 = ctl.writes.length;
     await go('#/t/pendulums/i1');

@@ -30,7 +30,10 @@
   U.routes.add('#/t/:tid', function (params, ctx) {
     var tid = params.tid;
     var topic = null, loaded = false, failure = null, progress = { ideas: {} }, deleting = false;
-    var ui = { reveal: null, pick: null, line: 0, retrying: false, researching: false, scrolled: false, slow: false, focus: null, mode: null, lib: false };
+    var ui = { reveal: null, pick: null, line: 0, retrying: false, researching: false, scrolled: false, slow: false, focus: null, mode: null, lib: false,
+      back: null, backAsked: false,   // a ready-made course's folder ({href, label}), read once from its shelf
+      picFor: null, pic: null,        // the current lesson's first drawing (its guide doc), read once per lesson
+      box: null };                    // this course's puzzles in the box (U.review.box), read once
     var slowTimer = setTimeout(function () { if (!loaded && ctx.alive()) { ui.slow = true; schedule(); } }, 8000);
     var lib = { key: null, groups: null, checked: null, seq: 0 };
     var dossier = null;   // the course's dossier index (75-dossier.js), for the option's link
@@ -363,8 +366,10 @@
       // small words. A ready-made course's build checks them (topic.overviewChecked, set by
       // tools/course/assemble.mjs from a fresh reader's check), and then the note says so.
       var checked = !!topic.overviewChecked;
+      wantBack(); wantPic(s); wantBox();
+      var mine = ui.box ? ui.box.courses.filter(function (c) { return c.tid === tid; })[0] : null;
       return [
-        ['head', sig(topic.title, topic.query, topic.hook, !!topic.oneBreath, checked, topic.hue, ui.mode || V.modeOf(topic), s.current && s.current.id, s.current && s.current.title, s.index, s.started, s.allDone, next), function () { return head(s, next); }, 'top'],
+        ['head', sig(topic.title, topic.query, topic.hook, !!topic.oneBreath, checked, topic.hue, ui.mode || V.modeOf(topic), s.current && s.current.id, s.current && s.current.title, s.index, s.started, s.allDone, next, ui.back), function () { return head(s, next); }, 'top'],
         topic.oneBreath ? ['breath', sig(topic.oneBreath, hookIs, checked), function () {
           return U.h('section', { class: 'callout remember tp-breath', 'aria-label': 'In one breath' },
             U.h('p', { class: 'eyebrow' }, 'In one breath'),
@@ -374,7 +379,7 @@
               : (hookIs ? 'This summary and the ' + hookIs + ' above are' : 'This summary is') + ' Claude\'s overview from what it already knows, not checked against sources.'));
         }] : null,
         ['warm', sig(topic.calibration, cal, progress.calibrationSkipped, ui.reveal, ui.pick, s.done > 0 || s.started), warmup],
-        ['path', sig(ideaState, cal, topic.calibration, progress.lastIdea, busy), function () {
+        ['path', sig(ideaState, cal, topic.calibration, progress.lastIdea, busy, ui.pic && ui.pic.iid), function () {
           var prog = (s.done > 0 || s.started) ? U.h('div', { class: 'tp-progress' },
             U.h('div', { class: 'row' },
               s.allDone ? U.h('span', { class: 'done-note' }, U.icon('tick'), 'All ' + s.total + ' ideas done')
@@ -385,6 +390,8 @@
             prog,
             U.h('ol', { class: 'path' }, ideas.map(function (idea, i) { return pathNode(idea, i, ideas, s, busy[i]); })));
         }],
+        // Puzzles from this course, once it has cards in the box: flip through just these.
+        mine ? ['box', sig(mine), function () { return boxRow(mine, ideas); }] : null,
         U.tutor && U.tutor.open ? ['ask', 'ask', function () {
           return U.h('button', { class: 'btn secondary wide tp-ask', type: 'button', 'data-key': 'ask', on: { click: function () { U.tutor.open({ topic: topic, tid: tid }); } } }, U.icon('chat'), 'Ask Claude about this topic');
         }, 'rail'] : null,
@@ -398,18 +405,15 @@
     }
 
     function head(s, next) {
-      // The next step, right at the top: no scrolling past the warm-up to find it.
-      var cta = s.current && !s.allDone
-        ? U.h('a', { class: 'btn tp-cta', 'data-key': 'cta', href: '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(s.current.id) },
-          U.h('span', { class: 'tp-cta-text' }, (s.started ? 'Continue: ' : 'Start: ') + s.current.title), U.icon('arrow'))
-        : null;
-      var note = cta ? V.lessonNote(next, s.index + 1, s.started, 'tp-next-note') : null;
+      // The way in is the current lesson's own button on the path (Dan, 18 Oct: the Library home
+      // design), so the header only says whether that lesson is being prepared or ready.
+      var note = s.current && !s.allDone ? V.lessonNote(next, s.index + 1, s.started, 'tp-next-note') : null;
       // On a laptop the cover sits beside the title (above the rail), not across the page, so
       // the path starts on the first screen.
-      // A ready-made course is reached from its shelf (the Library's shelves), so back goes there.
+      // A ready-made course is reached from its folder (the Library's shelves), so back goes there.
       var shelfId = topic.readyMade && topic.readyMade.shelf;
       return U.h('header', { class: 'tp-head' },
-        U.validId(shelfId) ? V.back('#/shelf/' + encodeURIComponent(shelfId), 'Ready-made courses') : V.back('#/', 'Your library'),
+        ui.back ? V.back(ui.back.href, ui.back.label) : U.validId(shelfId) ? V.back('#/shelf/' + encodeURIComponent(shelfId), 'The shelf') : V.back('#/', 'Your library'),
         U.h('div', { class: 'tp-split' },
           U.h('div', { class: 'tp-banner' }, V.cover(topic)),
           U.h('div', { class: 'tp-split-main' },
@@ -418,7 +422,53 @@
             topic.hook ? U.inline(U.h('p', { class: 'tp-hook' }), topic.hook) : null,
             // No summary to say it under (older plans): the question says it itself.
             topic.hook && !topic.oneBreath ? U.h('p', { class: 'tp-overview-note' }, topic.overviewChecked ? 'Checked against the course\'s sources when it was built.' : 'Claude\'s overview from what it already knows, not checked against sources.') : null,
-            cta, note)));
+            note)));
+    }
+    // The folder a ready-made course sits in, from its shelf (one read): back goes there, by name.
+    function wantBack() {
+      var rm = topic.readyMade, sid = rm && rm.shelf;
+      if (ui.backAsked || !U.validId(sid) || !U.shelves) return;
+      ui.backAsked = true;
+      U.store.shelves.get(sid).then(function (shelf) {
+        var f = U.shelves.folders(shelf).filter(function (f) { return U.shelves.courses(f).some(function (c) { return c.tid === tid || (rm.course && c.id === rm.course); }); })[0];
+        if (!f || !ctx.alive()) return;
+        ui.back = { href: '#/shelf/' + encodeURIComponent(sid) + '/' + encodeURIComponent(f.id), label: U.shelves.str(f.title) };
+        schedule();
+      }, function () { /* back still goes to the shelf */ });
+    }
+    // The current lesson's first drawing: the first show page's picture in its guide doc (written by
+    // the build tools), shown as an image, never as markup. No guide doc, no picture.
+    function wantPic(s) {
+      var iid = s.current && !s.allDone ? s.current.id : null;
+      if (iid === ui.picFor) return;
+      ui.picFor = iid; ui.pic = null;
+      if (!iid || !U.store.guide) return;
+      U.store.guide.get(tid, iid).then(function (g) {
+        if (!ctx.alive() || ui.picFor !== iid) return;
+        var page = (g && Array.isArray(g.pages) ? g.pages : []).filter(function (p) { return p && p.kind === 'show' && typeof p.svg === 'string' && /^<svg[\s>]/.test(p.svg); })[0];
+        if (!page) return;
+        // Sized by its viewBox: the width and height the build drew it at are taken off its root.
+        var markup = page.svg.replace(/^<svg\b[^>]*>/, function (open) { return open.replace(/\s(width|height)="[^"]*"/g, ''); });
+        ui.pic = { iid: iid, src: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(markup) };
+        schedule();
+      }, function () { /* the path stays as text */ });
+    }
+    function wantBox() {
+      if (ui.box || ui.boxAsked || !U.review || typeof U.review.box !== 'function') return;
+      ui.boxAsked = true;
+      Promise.resolve().then(function () { return U.review.box(); }).then(function (b) { if (ctx.alive() && b) { ui.box = b; schedule(); } }, function () { /* no row */ });
+    }
+    // "8 puzzles from lessons 1 to 3 · flip through", in the course's tone, opening a review of
+    // this course's puzzles only.
+    function boxRow(mine, ideas) {
+      var nums = mine.ideas.map(function (iid) { return ideas.map(function (i) { return i.id; }).indexOf(iid) + 1; }).filter(function (n) { return n > 0; }).sort(function (a, b) { return a - b; });
+      var from = !nums.length ? '' : nums[0] === nums[nums.length - 1] ? ' from lesson ' + nums[0] : ' from lessons ' + nums[0] + ' to ' + nums[nums.length - 1];
+      return U.h('a', { class: 'today-row tp-box', 'data-tone': V.toneOf(topic.title, topic), href: '#/review?topic=' + encodeURIComponent(tid) },
+        U.h('span', { class: 'today-ico', 'aria-hidden': 'true' }, U.icon('puzzle')),
+        U.h('span', { class: 'today-text' },
+          U.h('strong', null, (mine.n === 1 ? '1 puzzle' : mine.n + ' puzzles') + from),
+          U.h('span', { class: 'muted small' }, 'Flip through, when you like')),
+        U.icon('arrow', 'today-go'));
     }
 
     // ---------- the cover picture (35-art.js) ----------
@@ -473,7 +523,8 @@
               : preparing ? U.h('span', { class: 'pnode-prep' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Being prepared…') : null,
             mayKnow(idea, st) && !done ? U.h('span', { class: 'pnode-known' }, 'You may already know this') : null,
             deps.length ? U.h('span', { class: 'pnode-deps' }, 'Builds on ' + deps.map(function (t) { return '“' + t + '”'; }).join(' and ')) : null,
-            current ? U.h('span', { class: 'btn small pnode-btn' }, s.started ? 'Continue' : 'Start this idea', U.icon('arrow')) : null)));
+            current && ui.pic && ui.pic.iid === idea.id ? U.h('span', { class: 'pnode-pic', 'aria-hidden': 'true' }, U.h('img', { src: ui.pic.src, alt: '', decoding: 'async' })) : null,
+            current ? U.h('span', { class: 'btn small pnode-btn' }, s.started ? 'Continue' : topic.readyMade ? 'Start this lesson' : 'Start this idea', U.icon('arrow')) : null)));
     }
 
     // Known from the plan, from progress, or from a right warm-up answer about this idea.

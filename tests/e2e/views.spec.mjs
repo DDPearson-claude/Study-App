@@ -62,7 +62,7 @@ function seedDb(opts = {}) {
 }
 
 // Stand-ins for modules other engineers own, installed before the app script runs.
-function installFakes({ review, tutor, gen, bands, due, minutes, intake }) {
+function installFakes({ review, tutor, gen, bands, due, minutes, intake, box }) {
   window.U = window.U || {};
   window.__calls = { tutor: [], gen: [] };
   if (review) {
@@ -73,6 +73,7 @@ function installFakes({ review, tutor, gen, bands, due, minutes, intake }) {
       refreshBadge: () => { const b = document.getElementById('today-badge'); if (b) { b.hidden = !due; b.textContent = String(due); } },
       ideaBands: async () => bands,
     };
+    if (box) U.review.box = async () => box;   // what is in the box (the real one: 60-today.js)
   }
   if (tutor) U.tutor = { open: (ctx) => { window.__calls.tutor.push({ tid: ctx.tid, title: ctx.topic && ctx.topic.title }); } };
   if (gen) {
@@ -866,7 +867,7 @@ await test('topic: back from a lesson brings the next idea into view; the header
   await app.page.waitForTimeout(300);
   const inView = await app.page.evaluate(() => { const r = document.querySelector('.pnode.is-current').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; });
   eq(inView, true, 'current idea on screen');
-  assert((await text(app, '.tp-cta')).startsWith('Continue: Two bulges'), 'header says Continue with the idea');
+  assert((await text(app, '.pnode.is-current .pnode-title')).startsWith('Two bulges') && (await text(app, '.pnode.is-current .pnode-btn')) === 'Continue', 'the idea he is on says Continue');
   await shot(app, 'topic-from-lesson-360-light', { full: false });
 });
 
@@ -968,6 +969,37 @@ await test('ux2: the laptop layout on a narrow screen says its tabs are icons on
   assert(!/icons only/.test(await text(app, '.set-layout-note')), 'no such note for the phone layout');
 });
 
+// ---------- the Library home design: the topic page (docs/design/library-home/, section 4) ----------
+await test('library home: the topic page shows the lesson he is on with its first drawing, no top button, back to its folder, and its puzzles', async () => {
+  const PIC = '<svg viewBox="0 0 200 100" width="200" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="100" fill="#ccddee"/></svg>';
+  for (const [w, dark] of [[360, false], [1280, true]]) {
+    const db = seedDb({ extra: { 'topics/how-tides-work-ab12/guide/i3': { v: 1, iid: 'i3', pages: [{ kind: 'example', task: 'How many?', answer: '2', why: 'Two bulges.', svg: PIC }, { kind: 'show', text: 'Two bulges.', svg: PIC, alt: 'Two bulges' }] } } });
+    db['topics/how-tides-work-ab12'] = { ...db['topics/how-tides-work-ab12'], readyMade: { shelf: 'maths', course: 'tides' } };
+    const app = await open({ width: w, dark, db, hash: '#/t/how-tides-work-ab12', fakes: { box: { size: 3, courses: [{ tid: 'how-tides-work-ab12', n: 3, ideas: ['i2', 'i1'] }] } } });
+    await app.page.waitForSelector('.pnode.is-current .pnode-pic img');
+    eq(await count(app, '.tp-cta'), 0, 'no Start or Continue button at the top');
+    eq(await text(app, '.pnode.is-current .pnode-btn'), 'Continue', 'the lesson\'s own button is the way in');
+    const pic = await app.page.$eval('.pnode.is-current .pnode-pic img', (i) => ({ src: i.getAttribute('src'), w: i.getBoundingClientRect().width, h: i.getBoundingClientRect().height, alt: i.getAttribute('alt') }));
+    assert(/^<svg viewBox="0 0 200 100" xmlns=/.test(decodeURIComponent(pic.src).replace(/^data:image\/svg\+xml;charset=utf-8,/, '')), 'the first show page\'s drawing, as an image, its own width and height taken off');
+    assert(pic.h > 80 && Math.abs(pic.w / pic.h - 2) < 0.05, 'sized by its viewBox ' + JSON.stringify({ w: pic.w, h: pic.h }));
+    eq(await count(app, '.pnode-pic'), 1, 'only on the lesson he is on');
+    await app.page.waitForSelector('.tp-box');
+    eq(await text(app, '.tp-box strong'), '3 puzzles from lessons 1 to 2', 'this course\'s puzzles, from which lessons');
+    eq(await app.page.getAttribute('.tp-box', 'href'), '#/review?topic=how-tides-work-ab12', 'opening a review of just these');
+    const at = await app.page.evaluate(() => ({ path: document.querySelector('.tp-path-sec').getBoundingClientRect().bottom, box: document.querySelector('.tp-box').getBoundingClientRect().top }));
+    assert(at.box >= at.path, 'after the path ' + JSON.stringify(at));
+    await app.page.waitForFunction(() => /Foundational maths/.test((document.querySelector('.tp-head .backlink') || {}).textContent || ''));
+    eq(await app.page.getAttribute('.tp-head .backlink', 'href'), '#/shelf/maths/foundations', 'back goes to its folder, by name');
+    await app.page.locator('.pnode.is-current').scrollIntoViewIfNeeded();
+    await shot(app, `topic-library-${tag(w, dark)}`, { full: false });
+  }
+  // Nothing from this course in the box and no guide doc: no row and no picture.
+  const app = await open({ db: seedDb(), hash: '#/t/how-tides-work-ab12', fakes: { box: { size: 2, courses: [{ tid: 'index-funds-cd34', n: 2, ideas: ['a1'] }] } } });
+  await app.page.waitForSelector('.pnode.is-current .pnode-btn');
+  await app.page.waitForTimeout(600);
+  eq(await count(app, '.tp-box, .pnode-pic'), 0, 'no row, no picture');
+});
+
 // ---------- whole lessons: say whether the next one is being prepared or ready ----------
 // A lesson opens only when it is whole, so the topic page tells Dan whether the next
 // idea's lesson is still being prepared or ready (from its doc, and this page's own work on it).
@@ -986,7 +1018,7 @@ await test('whole lessons: the topic page says whether the next idea is being pr
     await app.page.waitForSelector('.pnode.is-current');
     await app.page.waitForSelector('.tp-next-note');
     eq(await text(app, '.tp-next-note'), 'Idea 3 is being prepared…', 'header: being prepared (writing)');
-    assert((await text(app, '.tp-cta')).startsWith('Start: Two bulges'), 'the header still offers it');
+    assert((await text(app, '.pnode.is-current .pnode-title')).startsWith('Two bulges'), 'the path still offers it');
     eq(await text(app, '.pnode.is-current .pnode-prep'), 'Being prepared…', 'the path marks it');
     await app.seed(TIDES_I3, busyDoc('building'));
     await app.page.waitForTimeout(250);
