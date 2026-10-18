@@ -107,7 +107,7 @@ if (cmd === 'docs') {
   }
 
   // The lesson docs, whole: ready, with the checked lesson and the tested interactive (or the note).
-  const summary = [], missing = [];
+  const summary = [], missing = [], formats = {};
   ids.forEach((iid) => {
     const idea = topic.ideas.find((i) => i.id === iid);
     const vf = join(dir, iid + '.lesson.verified.json'), ff = join(dir, iid + '.lesson.final.json');
@@ -118,6 +118,11 @@ if (cmd === 'docs') {
     const hard = U.validate.hard((v && v.problems) || []);
     if (hard.length) { problems.push(iid + ': ' + hard.join(' | ')); return; }
     if (lesson.mode !== mode) { problems.push(iid + ': lesson.mode is ' + lesson.mode + ', the course is ' + mode + ' (run finalise)'); return; }
+    // A steps lesson that lost its format plays as a long reading lesson (Trigonometry 3-8 and Linear
+    // systems 5-6, 18 Oct): a lesson with a still guide (only steps lessons get one) must say so, and
+    // a course's lessons are all steps or none (checked after the loop).
+    if (lesson.format !== 'steps' && existsSync(join(dir, iid + '.guide.json'))) { problems.push(iid + ': it has a still guide (a steps lesson) but lesson.format is not "steps", so the app would play it as a reading lesson; set it in ' + (existsSync(vf) ? vf : ff)); return; }
+    formats[iid] = lesson.format === 'steps' ? 'steps' : 'reading';
     const vr = existsSync(join(dir, iid + '.verify.result.json')) ? read(join(dir, iid + '.verify.result.json')) : null;
     const verified = vr
       ? { status: vr.status || 'done', at: vr.at || now, applied: vr.applied || [], notes: vr.notes || [] }
@@ -180,6 +185,8 @@ if (cmd === 'docs') {
   writeFileSync(join(out, 'topic.json'), JSON.stringify(topicDoc, null, 1) + '\n');
   manifest.unshift({ collection: 'topics', doc_id: tid, file: join(out, 'topic.json') });
   writeFileSync(join(out, 'manifest.json'), JSON.stringify({ tid, docs: manifest }, null, 2) + '\n');
+  const kinds = Object.keys(formats).reduce((m, k) => { (m[formats[k]] = m[formats[k]] || []).push(k); return m; }, {});
+  if (kinds.steps && kinds.reading) problems.push('mixed lesson formats: steps ' + kinds.steps.join(', ') + '; reading ' + kinds.reading.join(', ') + ' (a course is all steps lessons or none: RUNBOOK section 0, item 3)');
   console.log(JSON.stringify({ ok: problems.length === 0, tid, problems, missing, docs: manifest.length, lessons: summary }, null, 2));
   process.exit(problems.length ? 1 : 0);
 }

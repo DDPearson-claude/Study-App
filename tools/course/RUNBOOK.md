@@ -56,6 +56,10 @@ with him before planning. It is cheap; building the wrong course is not.
      animated) and DO screens (a puzzle with Check, a one-line hint when wrong, Why?, Continue),
      alternating so he is shown and then does it, ending with two or three mixed puzzles. About 12
      screens. Minimal writing: short whole sentences, no colons chaining clauses.
+     Every lesson of such a course must carry `format: 'steps'`: without it the app plays the lesson as
+     a long reading lesson (Trigonometry 3-8 and Linear systems 5-6 shipped that way until 18 Oct).
+     `assemble.mjs docs` refuses a lesson with a still guide but no steps format, and a course that mixes
+     the two.
    - **Partly** (calculus, probability, vectors): steps lessons whose SHOW screens carry a little
      more explanation, up to a short paragraph.
    - **No** (how things work, science mechanisms, history, AI): reading lessons with a mechanism
