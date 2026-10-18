@@ -1,0 +1,1343 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  /* Triangles: a filled face, sides, the right-angle mark and angle arcs. */
+  .scene .face { fill: var(--k-fill1); stroke: none; }
+  .scene .side { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; fill: none; }
+  .scene .side.hl { stroke: var(--k-amber-line); stroke-width: 5; }
+  .scene .side.bad { stroke: var(--k-warn); stroke-width: 5; }
+  .scene .ghost { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .mk, .scene .arc { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .arc.bad { stroke: var(--k-warn); }
+  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .sn { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .sv { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .sn.bad, .scene .sv.bad, .scene .al.bad, .scene .gl.bad { fill: var(--k-warn); }
+  .scene .al { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .gl { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tag { font: 700 16px var(--k-font); fill: var(--k-accent2); }
+  .scene .te { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .te.bad { fill: var(--k-warn); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  /* The calculator: a body, a display (what was keyed, DEG, the answer) and four keys. */
+  .scene .cbody { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .cdisp { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }
+  .scene .ckey { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .cpress { fill: var(--k-accent2); fill-opacity: .22; stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .ckl { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .cin { font: 500 15px var(--k-font); fill: var(--k-ink); }
+  .scene .ctag { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .cout { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .cout.bad { fill: var(--k-warn); }
+  /* The sin and sin⁻¹ arrows between an angle and a ratio. */
+  .scene .sbox { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .sw { stroke: var(--k-muted); stroke-width: 1.8; }
+  .scene .sw-head { fill: var(--k-muted); }
+  .scene .swi { stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .swi-head { fill: var(--k-accent2); }
+  /* The graph of y = 0.5x. */
+  .scene .axis { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .tick { stroke: var(--k-ink); stroke-width: 1.2; }
+  .scene .gline { stroke: var(--k-accent2); stroke-width: 1.5; }
+  /* The floor, the wall, the slope; the force arrow and its two shadows. */
+  .scene .band { fill: var(--k-sunk); }
+  .scene .wallf { stroke: var(--k-strong); stroke-width: 2; }
+  .scene .ground { fill: var(--k-sunk); }
+  .scene .surf { stroke: var(--k-strong); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .baseln { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .upr { stroke: var(--k-line); stroke-width: 1.5; }
+  .scene .block { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .shad { stroke: var(--k-muted); stroke-width: 7; stroke-linecap: butt; }
+  .scene .shad.hl { stroke: var(--k-amber-line); }
+  .scene .shad.bad { stroke: var(--k-warn); }
+  .scene .force { stroke: var(--k-accent2); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .force-head { fill: var(--k-accent2); }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  /* Tiles under the picture: the three inverse keys, or θ and F worked back from the shadows. */
+  .ratios { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 8px; max-width: 22rem; margin-inline: auto; }
+  .ratio { background: var(--k-panel); border: 1px solid var(--k-line); border-radius: var(--k-r); padding: 8px 10px; }
+  .ratio.hl { border-color: var(--k-amber-line); box-shadow: inset 0 0 0 1px var(--k-amber-line); }
+  .ratio .rn { display: block; font-weight: 700; color: var(--k-accent2); }
+  .ratio .rs { display: block; font-size: .8rem; line-height: 1.3; color: var(--k-muted); }
+  .ratio .rv { display: block; font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--k-ink); margin-top: 2px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .replay .k-btn.try { order: -1; flex: 1 1 auto; border-color: var(--k-accent2); color: var(--k-accent2); font-weight: 700; }
+  .replay .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A right-angled triangle and a calculator, then a force arrow standing in the corner of a floor and a wall, with its shadow on each.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 200" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="ratios" id="ratios" hidden></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">The floor shadow is the arrow's length times cos θ, and the wall shadow its length times sin θ.</p>
+
+<script>
+  const el = (id) => document.getElementById(id);
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const RAD = Math.PI / 180;
+  const sinD = (a) => Math.sin(a * RAD), cosD = (a) => Math.cos(a * RAD), tanD = (a) => Math.tan(a * RAD);
+  const asinD = (v) => Math.asin(v) / RAD, acosD = (v) => Math.acos(v) / RAD, atanD = (v) => Math.atan(v) / RAD;
+  const neg = (s) => String(s).replace(/^-/, '−');
+  // v rounded to dp places with trailing zeros dropped: 0.5, 1.67, 30.
+  function trim(v, dp) {
+    const f = Math.pow(10, dp);
+    let s = (Math.round(v * f) / f).toFixed(dp);
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    if (s === '-0') s = '0';
+    return neg(s);
+  }
+  // v rounded to exactly dp places: 86.6, 50.0, 13.4957.
+  function fix(v, dp) {
+    const f = Math.pow(10, dp);
+    let s = (Math.round(v * f) / f).toFixed(dp);
+    if (/^-0(\.0+)?$/.test(s)) s = s.slice(1);
+    return neg(s);
+  }
+  const deg1 = (v) => fix(v, 1) + '°', deg0 = (v) => trim(v, 0) + '°', newt = (v) => fix(v, 1) + ' N';
+  const cm = (v) => trim(v, 1) + ' cm', mm = (v) => trim(v, 0) + ' mm', mtr = (v) => trim(v, 2) + ' m';
+  const mult = (v) => { const s = trim(v, 3); return s.indexOf('.') < 0 ? s + '.0' : s; };   // 2.0, 1.414
+
+  // The lesson's example values.
+  const D1 = 150, B1 = 300;                      // lesson 1's offset: depth and distance between bends, mm
+  const P2 = { opp: 6, hyp: 10 };                // puzzle, cm
+  const M3 = 0.5;                                // the line y = 0.5x
+  const P4 = { rise: 1, run: 2.5 };              // the tray, m
+  const F9 = 100, TH9 = 30;                      // the arrow: N, degrees above the floor
+  const F10 = 200, TH10 = 40;                    // the rope
+  const W11 = 500, AL11 = 20, AMAX = 40;         // the block on the slope; the tilt handle's range
+  const W12 = 600, AL12 = 25;
+  const S13 = { floor: 90, wall: 40 };           // two shadows, N
+  const P14 = { rise: 1.2, run: 5, W: 600 };     // the crate's slope, m; its weight, N
+  const AL14 = atanD(P14.rise / P14.run), AL14S = fix(AL14, 4) + '…';
+  const SMIN = 5, SMAX = 100;                    // run backwards, each shadow stays within these, N
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: the picture; vh: its height; dur: a demonstration's length; live: what Dan can drag.
+  // A puzzle has opts, want, a hint for each wrong answer, why, and rows of working: right (after a
+  // right answer or Why?) and wrong[answer] (in red).
+  const PICK = 'Tap one of the answers.';
+  const s2 = P2.opp / P2.hyp, r4 = P4.rise / P4.run, s45 = sinD(45), r14 = P14.rise / P14.run;
+  const o1 = [trim(1 / s2, 2), deg1(asinD(s2)), deg1(acosD(s2))];
+  const o3 = [deg1(asinD(r4)), deg1(acosD(r4)), deg1(atanD(r4))];
+  const o5 = [trim(cosD(60), 3), trim(sinD(60), 3), trim(cosD(45), 4)];
+  const o7 = [trim(asinD(+trim(s45, 4)), 0) + '°', trim(1 / s45, 3), 'Error'];
+  const o9 = [newt(F10 * sinD(TH10)), newt(F10 / cosD(TH10)), newt(F10 * cosD(TH10))];
+  const o11 = [newt(W12 * sinD(AL12)), newt(W12 * cosD(AL12)), newt(W12 * tanD(AL12))];
+  const o12 = [deg1(atanD(S13.floor / S13.wall)), deg1(atanD(S13.wall / S13.floor)), deg1(asinD(S13.wall / S13.floor))];
+  const o13 = [newt(P14.W * sinD(13)), newt(P14.W * r14), newt(P14.W * sinD(AL14))];
+  const STEPS = [
+    { show: true, name: 'Back to the angle', pic: 'inv', vh: 244, dur: 4.4,
+      text: 'Lesson 1 went from an angle to a side. Now run it backwards, from two sides to the angle. The 150 mm offset had 300 mm between its bends. The depth is the opposite side and the distance between bends is the hypotenuse, so `sin θ = 150 ÷ 300 = 0.5`. Which angle has a sine of 0.5? The calculator\'s `sin⁻¹` key, read *inverse sine*, answers that. `sin⁻¹ 0.5 = 30°`. An inverse takes the output and does the opposite to get back to the input. sin turns 30° into 0.5, and `sin⁻¹` turns 0.5 back into 30°.' },
+    { kind: 'pick', name: 'Opposite and hypotenuse', pic: 'inv6', vh: 216, rowY: 152,
+      opts: o1, want: o1[1],
+      task: 'A right-angled triangle has 6 cm opposite `θ` and a 10 cm hypotenuse. What is `θ`?',
+      why: 'Opposite and hypotenuse make the sine, so `sin θ = 6 ÷ 10 = 0.6`. The inverse sine undoes it, `sin⁻¹ 0.6 = 36.9°`. In degrees mode the calculator gives this from `sin⁻¹(6 ÷ 10)`.',
+      hint: 'Not quite. Opposite ÷ hypotenuse is `sin θ`, and `sin⁻¹` turns it back into the angle.',
+      hints: { [o1[0]]: 'Not quite. `1 ÷ 0.6 = 1.67` is one over the ratio, a number. `sin⁻¹` undoes sin and gives an angle.',
+        [o1[2]]: 'Not quite. `cos⁻¹ 0.6` treats 6 ÷ 10 as adjacent ÷ hypotenuse. That gives the top corner\'s angle, not `θ`.' },
+      right: ['sin θ = ' + P2.opp + ' ÷ ' + P2.hyp + ' = ' + trim(s2, 3), 'θ = sin⁻¹ ' + trim(s2, 3) + ' = ' + o1[1]],
+      wrong: { [o1[0]]: '1 ÷ ' + trim(s2, 3) + ' = ' + o1[0] + ', a number, not an angle', [o1[2]]: 'cos⁻¹ ' + trim(s2, 3) + ' = ' + o1[2] + ', the top corner' } },
+    { show: true, name: 'Which key, and a slope', pic: 'keys', vh: 250, dur: 4.4,
+      text: 'Choose the key from the two sides you have, as you chose the ratio in lesson 1. Opposite and hypotenuse take `sin⁻¹`. Adjacent and hypotenuse take `cos⁻¹`. Opposite and adjacent take `tan⁻¹`. A slope is the last kind. Its gradient is rise ÷ run, as in Straight-line graphs. The rise is opposite the slope\'s angle and the run is next to it, so the gradient is `tan θ`. The line `y = 0.5x`, drawn with the same scale on both axes, climbs at `tan⁻¹ 0.5 = 26.6°`.' },
+    { kind: 'pick', name: 'A tray\'s slope', pic: 'tray', vh: 238, rowY: 172,
+      opts: o3, want: o3[2],
+      task: 'A cable tray rises 1 m over a 2.5 m run. At what angle does it climb?',
+      why: 'The rise is opposite the angle and the run is next to it, so they make the tangent. `tan θ = 1 ÷ 2.5 = 0.4`, and `tan⁻¹ 0.4 = 21.8°`.',
+      hint: 'Not quite. The rise is opposite the angle and the run is next to it.',
+      hints: { [o3[0]]: 'Not quite. `sin⁻¹ 0.4` needs the hypotenuse, and 2.5 m is the run along the bottom. Opposite and adjacent take `tan⁻¹`.',
+        [o3[1]]: 'Not quite. `cos⁻¹ 0.4` treats the run as the hypotenuse. Rise ÷ run is opposite ÷ adjacent, so use `tan⁻¹`.' },
+      right: ['tan θ = ' + P4.rise + ' ÷ ' + P4.run + ' = ' + trim(r4, 3), 'θ = tan⁻¹ ' + trim(r4, 3) + ' = ' + o3[2]],
+      wrong: { [o3[0]]: 'sin⁻¹ ' + trim(r4, 3) + ' = ' + o3[0] + ', but 2.5 m is the run', [o3[1]]: 'cos⁻¹ ' + trim(r4, 3) + ' = ' + o3[1] + ', but 2.5 m is the run' } },
+    { show: true, name: 'Two exact triangles', pic: 'exact', vh: 284, dur: 4.4,
+      text: 'Two triangles give exact ratios with no calculator. Cut a square with sides of 1 from corner to corner. Each half has two sides of 1, a 45° angle and, by Pythagoras, a hypotenuse of `√2`. So `sin 45° = 1/√2`, which is 0.7071. Now cut an equilateral triangle with sides of 2 down the middle. Its 60° top angle splits into two of 30°, and its base into two of 1, so the height is `√(4 − 1) = √3`. So `sin 30° = 1/2` and `cos 30° = √3/2`, which is 0.866.' },
+    { kind: 'pick', name: 'cos 60°', pic: 'eq60', vh: 258, rowY: 222,
+      opts: o5, want: o5[0],
+      task: 'Use the half equilateral triangle. What is `cos 60°`?',
+      why: 'At the 60° corner the side next to it is the base, 1, and the hypotenuse is 2. So `cos 60° = 1/2 = 0.5`. It is the same as `sin 30°`, as sin and cos swap between 30° and 60°.',
+      hint: 'Not quite. Cosine is adjacent ÷ hypotenuse.',
+      hints: { [o5[1]]: 'Not quite. `√3` is opposite the 60° corner, so `√3/2 = 0.866` is `sin 60°`. Cosine takes the side next to the angle.',
+        [o5[2]]: 'Not quite. 0.7071 is `cos 45°`, from the half square. This triangle\'s sides are 1, `√3` and 2.' },
+      right: ['cos 60° = 1 ÷ 2 = ' + o5[0]],
+      wrong: { [o5[1]]: '√3 ÷ 2 = ' + o5[1] + ' is sin 60°', [o5[2]]: '1 ÷ √2 = ' + o5[2] + ' is cos 45°' } },
+    { show: true, name: 'An angle or a number', pic: 'cosec', vh: 286, dur: 4.4,
+      text: 'On sin, cos and tan, ⁻¹ means undo. In Powers and roots `2⁻¹` meant `1 ÷ 2`, so it is worth saying twice. `sin⁻¹ 0.5` is an angle, 30°. `1 ÷ sin 30°` is a number, 2.0. One over a ratio has a name of its own. `1 ÷ sin θ` is the *cosecant*, written `cosec θ`, and it is lesson 1\'s conduit multiplier. Textbooks add the secant, `sec θ = 1 ÷ cos θ`, and the cotangent, `cot θ = 1 ÷ tan θ`.' },
+    { kind: 'pick', name: 'The 45° multiplier', pic: 'mult45', vh: 222, rowY: 184,
+      opts: o7, want: o7[1],
+      task: 'The conduit multiplier for 45° bends is `1 ÷ sin 45°`, and `sin 45° = 0.7071`. What does it come to?',
+      why: 'One over a ratio is a plain division, not an inverse key. `1 ÷ 0.7071 = 1.414`, the cosecant of 45°. The half square shows it too, hypotenuse ÷ opposite `= √2 ÷ 1`.',
+      hint: 'Not quite. One over `sin 45°` is a division, not the `sin⁻¹` key.',
+      hints: { [o7[0]]: 'Not quite. `sin⁻¹ 0.7071` undoes sin and gives the angle back, 45°. The multiplier is one over the ratio, a number.',
+        [o7[2]]: 'Not quite. That keys `sin⁻¹ 45`. No sine is more than 1, so the calculator shows an error.' },
+      right: ['1 ÷ sin 45° = 1 ÷ ' + trim(s45, 4) + ' = ' + o7[1]],
+      wrong: { [o7[0]]: 'sin⁻¹ ' + trim(s45, 4) + ' = ' + o7[0] + ', an angle', [o7[2]]: 'sin⁻¹ 45 gives an error' } },
+    { show: true, name: 'The arrow and its shadows', pic: 'arrow', vh: 286, dur: 4.4, live: ['tip', 'floor', 'wall'],
+      text: 'A force has a size and a direction, so it is drawn as an arrow. Its length is the size and its tilt the direction. This 100 N arrow stands at 30° above the floor. Its shadows on the floor and on the wall are the short sides of a right-angled triangle, with the arrow as the hypotenuse. The floor shadow is next to `θ`, so it is `F cos θ`, 86.6 N. The wall shadow is opposite `θ`, so it is `F sin θ`, 50.0 N. These two parts are the force\'s *components*. Drag the tip to turn the arrow, or run it backwards.' },
+    { kind: 'pick', name: 'A rope pull', pic: 'rope', vh: 262, rowY: 224,
+      opts: o9, want: o9[2],
+      task: 'A rope pulls with 200 N at 40° above the floor. How hard does it pull along the floor?',
+      why: 'Along the floor is the floor shadow, the side next to `θ`. So it is `F cos θ`, `200 × cos 40° = 200 × 0.766 = 153.2 N`.',
+      hint: 'Not quite. Along the floor is the side next to `θ`.',
+      hints: { [o9[0]]: 'Not quite. `200 × sin 40°` is the wall shadow, the part up from the floor. Along the floor takes cos.',
+        [o9[1]]: 'Not quite. That is more than the 200 N arrow. A shadow is never longer than its arrow, so multiply by `cos 40°`.' },
+      right: [F10 + ' × cos 40° = ' + F10 + ' × ' + trim(cosD(TH10), 3) + ' = ' + o9[2]],
+      wrong: { [o9[0]]: F10 + ' × sin 40° = ' + o9[0] + ', the wall shadow', [o9[1]]: F10 + ' ÷ cos 40° = ' + o9[1] + ', longer than F' } },
+    { show: true, name: 'On a slope', pic: 'slope', vh: 252, dur: 4.4, live: ['tilt'],
+      text: 'Tilt the floor into a slope at angle `α` (alpha), and the same split works along the slope and square to it. A block\'s weight `W` still points straight down. Tilting the floor by `α` tilts the line square to it by `α` as well, so the weight is `α` away from that line. Its part into the slope is next to `α`, so it is `W cos α`. Its part down the slope is opposite, `W sin α`. For 500 N on 20°, that is 469.8 N and 171.0 N. Drag the top of the slope to tilt it.' },
+    { kind: 'pick', name: 'Down the slope', pic: 'slope25', vh: 254, rowY: 216,
+      opts: o11, want: o11[0],
+      task: 'A 600 N weight rests on a 25° slope. How hard does it pull down the slope?',
+      why: 'Down the slope is the side opposite `α`, so it is `W sin α`, `600 × sin 25° = 600 × 0.4226 = 253.6 N`. Into the slope is the side next to `α`, `W cos α`.',
+      hint: 'Not quite. Down the slope is opposite `α`.',
+      hints: { [o11[1]]: 'Not quite. `600 × cos 25°` is the part pressing into the slope, next to `α`. Down the slope is opposite, so take sin.',
+        [o11[2]]: 'Not quite. tan is opposite ÷ adjacent, a ratio of two sides. A part of `W` is `W` times sin or cos.' },
+      right: [W12 + ' × sin 25° = ' + W12 + ' × ' + trim(sinD(AL12), 4) + ' = ' + o11[0]],
+      wrong: { [o11[1]]: W12 + ' × cos 25° = ' + o11[1] + ', into the slope', [o11[2]]: W12 + ' × tan 25° = ' + o11[2] + ', not a part of W' } },
+    { kind: 'pick', name: 'Shadows back to the angle', pic: 'back40', vh: 258, rowY: 194,
+      opts: o12, want: o12[1],
+      task: 'A force\'s floor shadow is 90 N and its wall shadow is 40 N. At what angle above the floor does it act?',
+      why: 'The wall shadow is opposite `θ` and the floor shadow is next to it. So wall ÷ floor is `tan θ`, and `θ = tan⁻¹(40 ÷ 90) = 24.0°`.',
+      hint: 'Not quite. Wall ÷ floor is opposite ÷ adjacent.',
+      hints: { [o12[0]]: 'Not quite. `tan⁻¹(90 ÷ 40)` puts the floor shadow on top. That gives the angle from the wall, not from the floor.',
+        [o12[2]]: 'Not quite. `sin⁻¹` needs the hypotenuse, and 90 N is the floor shadow, not the arrow. Opposite and adjacent take `tan⁻¹`.' },
+      right: ['tan θ = ' + S13.wall + ' ÷ ' + S13.floor, 'θ = tan⁻¹(' + S13.wall + ' ÷ ' + S13.floor + ') = ' + o12[1]],
+      wrong: { [o12[0]]: 'tan⁻¹(' + S13.floor + ' ÷ ' + S13.wall + ') = ' + o12[0] + ', from the wall', [o12[2]]: 'sin⁻¹(' + S13.wall + ' ÷ ' + S13.floor + ') = ' + o12[2] + ', 90 N is not F' } },
+    { kind: 'pick', name: 'Keep the whole angle', pic: 'crate', vh: 290, rowY: 226,
+      opts: o13, want: o13[2],
+      task: 'A slope rises 1.2 m over a 5 m run, and a 600 N crate rests on it. How hard does the crate\'s weight pull down the slope?',
+      why: 'First the angle, from the rise and the run, `α = tan⁻¹(1.2 ÷ 5) = 13.4957…°`. Keep it whole in the calculator. Down the slope is `W sin α`, `600 × sin 13.4957…° = 140.0 N`.',
+      hint: 'Not quite. Find `α` with `tan⁻¹`, keep every figure, then take `W sin α`.',
+      hints: { [o13[0]]: 'Not quite. That rounds the angle to 13° first. Keep the whole angle in the calculator for the second step.',
+        [o13[1]]: 'Not quite. `600 × 0.24` uses `tan α`, rise ÷ run, in place of `sin α`. Find `α` first, then take its sine.' },
+      right: ['α = tan⁻¹(' + P14.rise + ' ÷ ' + P14.run + ') = ' + AL14S + '°', P14.W + ' × sin ' + AL14S + '° = ' + o13[2]],
+      wrong: { [o13[0]]: P14.W + ' × sin 13° = ' + o13[0] + ', rounded first', [o13[1]]: P14.W + ' × ' + trim(r14, 2) + ' = ' + o13[1] + ', tan for sin' } },
+  ];
+  const FINISH = '`sin⁻¹`, `cos⁻¹` and `tan⁻¹` undo sin, cos and tan, turning two sides back into an angle. A force `F` at `θ` above the floor splits into `F cos θ` along the floor and `F sin θ` up the wall.';
+  // Sources the checks restate (the lesson's own).
+  const CONDUIT = 'https://conduitbending.com/insights/conduit-bending-multiplier';
+  const PHYS = 'https://www.physicsclassroom.com/tutorial/forces-in-2d/addition-of-forces/resolution-of-forces';
+  const INVERSE = 'https://www.bbc.co.uk/bitesize/articles/zk6b9ty';
+  const OPENSTAX = 'https://openstax.org/books/algebra-and-trigonometry/pages/7-2-right-triangle-trigonometry';
+  const SYLLABUS = 'https://www.gov.uk/government/publications/general-engineering-science-written-examination-syllabuses/general-engineering-science-i-written-examination-syllabuses';
+  const DEGREES = 'https://www.bbc.co.uk/bitesize/articles/zck7rmn';
+  const FADE = 0.35, FLIP = 1.4, ANS = 1.8, LH = 17;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { node.appendChild(K.el('span', { class: 'nw' }, seg)); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) node.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) node.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong', 'empty'), why: a puzzle's answer. th: the arrow's angle Dan set (null
+  // until he drags); back, fl, wa: run backwards, the two shadows he set; al: the slope he set.
+  function blank() { return { pick: null, res: null, why: false, th: null, back: false, fl: null, wa: null, al: null }; }
+  const stOf = (o) => Object.assign(blank(), o);
+  const resetLive = (st) => { st.th = null; st.back = false; st.fl = null; st.wa = null; st.al = null; };
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  const ansOf = (st) => st.res === 'right' || !!st.why;
+  const wrongOf = (st) => st.res === 'wrong' && st.pick != null;
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, MODE = 'demo', motionEnd = 0;
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play('answer', ANS);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+    if (st.why && st.res !== 'right') play('answer', ANS);
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    resetLive(st);
+    play('demo', d.dur);
+  } });
+  // Run it backwards: the shadows take the handles and the arrow swings to fit them.
+  const runBtn = K.button({ label: 'Run it backwards', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (finished || d.pic !== 'arrow') return;
+    if (!st.back) { const th = arrowTh(st); st.fl = F9 * cosD(th); st.wa = F9 * sinD(th); st.back = true; }
+    else { st.th = K.clamp(Math.round(Math.atan2(st.wa, st.fl) / RAD), 0, 90); st.back = false; }
+    K.reveal();
+    play('flip', FLIP);
+  } });
+  runBtn.el.classList.add('try');
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer or the switch; with
+  // reduced motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && T !== Infinity) { T = Infinity; paint(); } });
+  // A demonstration waits until most of its picture is in view, so on a phone it does not play out
+  // while Dan is still reading the words above it.
+  let seen = true, waiting = false, waitDur = 0;
+  if (typeof IntersectionObserver === 'function') {
+    seen = false;
+    new IntersectionObserver((es) => {
+      const e = es[es.length - 1];
+      seen = e.isIntersecting && (e.intersectionRatio >= 0.6 || e.intersectionRect.height >= 0.6 * (window.innerHeight || 1));
+      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }
+    }, { threshold: [0, 0.3, 0.6, 0.8, 1] }).observe(el('scene'));
+  }
+  function play(mode, dur) {
+    MODE = mode; waiting = false;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    if (mode === 'demo' && !seen) { waiting = true; waitDur = dur; T = 0; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null, REC = null, TILES = null, VH = 200;
+  const VOID = K.svg('g');
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A part of one motion ('demo', 'flip' or 'answer'): arriving if that motion is the one playing.
+  const when = (m, t, d) => (MODE === m ? arr(t, d) : 1);
+  // A part fades in at arrival a. A part not yet arrived is still laid out (off the page), so the
+  // labels placed around it never jump when it arrives.
+  function part(a, rise, draw) {
+    const shown = a > 0;
+    const g = shown ? add(K.svg('g')) : VOID;
+    if (shown) K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; if (!shown) VOID.textContent = ''; }
+  }
+  const R = (v) => Math.round(v * 100) / 100;
+  const pt = (q) => R(q[0]) + ' ' + R(q[1]);
+  const poly = (ps, close) => 'M' + ps.map(pt).join(' L') + (close ? ' Z' : '');
+  const mv = (p, d, s) => [p[0] + d[0] * s, p[1] + d[1] * s];
+  const midOf = (p, q) => [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
+  // Lines and paths, noted (with half their width) so labels keep off them.
+  function lineP(cls, p, q, pad) {
+    add(K.svg('line', { class: cls, x1: R(p[0]), y1: R(p[1]), x2: R(q[0]), y2: R(q[1]) }));
+    if (pad != null) REC.segs.push({ p, q, pad });
+  }
+  function pathP(cls, ps, pad, close) {
+    add(K.svg('path', { class: cls, d: poly(ps, close) }));
+    if (pad != null) {
+      for (let k = 1; k < ps.length; k++) REC.segs.push({ p: ps[k - 1], q: ps[k], pad });
+      if (close) REC.segs.push({ p: ps[ps.length - 1], q: ps[0], pad });
+    }
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: R(x), y: R(y), width: R(Math.max(0, w)), height: R(Math.max(0, h)), rx: rx || 0 }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: R(x), y: R(y), 'text-anchor': anchor || 'middle' }, s));
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 8;
+  }
+  const FS = { sn: 13, sv: 15, al: 14, gl: 13, tag: 16, te: 14, key: 13 };
+  function boxOf(x, y, s, cls, anchor) {
+    const w = tw(s, cls), f = FS[cls.split(' ')[0]] || 14;
+    return { x: anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2, y: y - 0.78 * f, w, h: f };
+  }
+  // A single label at a fixed place (a tag, an axis letter, a caption under a calculator).
+  function tagAt(x, y, s, anchor, a, cls) {
+    cls = cls || 'tag';
+    REC.boxes.push(boxOf(x, y, s, cls, anchor));
+    if (a == null || a >= 0.5) REC.tags.push(s);
+    part(a == null ? 1 : a, 0, () => text(x, y, s, cls, anchor));
+  }
+  function keyDash(x, y, label, a) {
+    part(a == null ? 1 : a, 0, () => { add(K.svg('line', { class: 'ghost', x1: x, y1: y - 5, x2: x + 24, y2: y - 5 })); text(x + 30, y, label, 'key', 'start'); });
+    REC.segs.push({ p: [x, y - 5], q: [x + 24, y - 5], pad: 1 });
+    REC.boxes.push(boxOf(x + 30, y, label, 'key', 'start'));
+  }
+  // An arrow from p to q: a shaft and a filled head, noted for the label checks.
+  function arrowLine(p, q, cls) {
+    const L = Math.hypot(q[0] - p[0], q[1] - p[1]);
+    if (L < 0.5) return;
+    const u = [(q[0] - p[0]) / L, (q[1] - p[1]) / L], n = [-u[1], u[0]], hl = Math.min(13, L * 0.6), hw = hl * 0.48;
+    const b = mv(q, u, -hl), h1 = mv(b, n, hw), h2 = mv(b, n, -hw);
+    if (L > hl + 0.5) lineP(cls, p, b, 2);
+    add(K.svg('path', { class: cls + '-head', d: poly([q, h1, h2], true) }));
+    REC.segs.push({ p: q, q: h1, pad: 1 }, { p: q, q: h2, pad: 1 }, { p: h1, q: h2, pad: 1 });
+  }
+
+  // ---------- labels placed clear of everything drawn ----------
+  // Does the segment p-q cross the box?
+  function segHits(p, q, b) {
+    let t0 = 0, t1 = 1;
+    const dx = q[0] - p[0], dy = q[1] - p[1];
+    const clip = (pp, qq) => {
+      if (pp === 0) return qq >= 0;
+      const r = qq / pp;
+      if (pp < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+      return true;
+    };
+    return clip(-dx, p[0] - b.x) && clip(dx, b.x + b.w - p[0]) && clip(-dy, p[1] - b.y) && clip(dy, b.y + b.h - p[1]) && t0 <= t1;
+  }
+  // The first candidate centre where a w × h label is clear of the edges, other labels, handles and lines.
+  function freeSpot(w, h, cands) {
+    for (let k = 0; k < cands.length; k++) {
+      const c = cands[k], b = { x: c[0] - w / 2, y: c[1] - h / 2, w, h };
+      if (b.x < 3 || b.x + b.w > 337 || b.y < 2 || b.y + b.h > VH - 2) continue;
+      if (REC.boxes.some((o) => o.x < b.x + b.w + 3 && b.x < o.x + o.w + 3 && o.y < b.y + b.h + 2 && b.y < o.y + o.h + 2)) continue;
+      if (REC.handles.some((hd) => Math.hypot(K.clamp(hd.x, b.x, b.x + b.w) - hd.x, K.clamp(hd.y, b.y, b.y + b.h) - hd.y) < 14)) continue;
+      if (REC.segs.some((g) => segHits(g.p, g.q, { x: b.x - g.pad - 1.5, y: b.y - g.pad - 1.5, w: b.w + 2 * g.pad + 3, h: b.h + 2 * g.pad + 3 }))) continue;
+      return c;
+    }
+    return cands[0];
+  }
+  // Candidate centres around some points, in some directions, nearest first.
+  function around(pts, dirs, w, h, extras) {
+    const out = [];
+    (extras || [0, 10, 22, 38, 56]).forEach((e) => pts.forEach((p) => dirs.forEach((d) => {
+      const n = Math.hypot(d[0], d[1]) || 1, dx = d[0] / n, dy = d[1] / n;
+      out.push(mv(p, [dx, dy], 8 + Math.abs(dx) * w / 2 + Math.abs(dy) * h / 2 + e));
+    })));
+    return out;
+  }
+  // A label's lines: a name over a value, or one line s.
+  function linesOf(L) {
+    const bad = L.bad ? ' bad' : '';
+    if (L.s) return [{ s: L.s, cls: (L.cls || 'gl') + bad }];
+    const out = [];
+    if (L.name) out.push({ s: L.name, cls: 'sn' + bad });
+    if (L.val) out.push({ s: L.val, cls: 'sv' + bad });
+    return out;
+  }
+  function putLines(cx, cy, lines, a, key) {
+    const w = Math.max.apply(null, lines.map((l) => tw(l.s, l.cls))), h = lines.length * LH;
+    REC.boxes.push({ x: cx - w / 2, y: cy - h / 2, w, h });
+    if (key && a >= 0.5) REC.lab[key] = lines.map((l) => l.s).join(' ');
+    if (a > 0) part(a, 0, () => lines.forEach((l, m) => text(cx, cy - h / 2 + 13 + m * LH, l.s, l.cls)));
+  }
+  function placeLines(key, L, candsOf) {
+    const lines = linesOf(L);
+    if (!lines.length) return;
+    const w = Math.max.apply(null, lines.map((l) => tw(l.s, l.cls))), h = lines.length * LH;
+    const c = freeSpot(w, h, candsOf(w, h));
+    putLines(c[0], c[1], lines, L.a == null ? 1 : L.a, key);
+  }
+  // Is a box inside the triangle a-b-c, at least pad from each side?
+  function insideTriFn(a, b, c, pad) {
+    const edges = [[a, b, c], [b, c, a], [c, a, b]].map((e) => {
+      const p = e[0], q = e[1], r = e[2], dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1;
+      const sd = (x, y) => ((x - p[0]) * dy - (y - p[1]) * dx) / L;
+      const sg = Math.sign(sd(r[0], r[1])) || 1;
+      return (x, y) => sg * sd(x, y);
+    });
+    return (bx) => [[bx.x, bx.y], [bx.x + bx.w, bx.y], [bx.x, bx.y + bx.h], [bx.x + bx.w, bx.y + bx.h]].every((q) => edges.every((e) => e(q[0], q[1]) >= pad));
+  }
+
+  // ---------- the triangle (lesson 1's): θ at A, the bottom left; the right angle at B; C above B ----------
+  function triPts(f) {
+    const r = f.th * RAD, H = f.hyp * f.k;
+    const A = [f.ax, f.ay], B = [f.ax + H * Math.cos(r), f.ay], C = [f.ax + H * Math.cos(r), f.ay - H * Math.sin(r)];
+    return { A, B, C, H, th: f.th, k: f.k, base: B[0] - A[0], up: B[1] - C[1], seg: { base: [A, B], up: [B, C], hyp: [A, C] } };
+  }
+  function insideTri(P, mk, pad) {
+    const c = Math.cos(P.th * RAD), s = Math.sin(P.th * RAD), A = P.A;
+    return (b) => {
+      if (b.y + b.h > A[1] - 3 || b.x + b.w > P.B[0] - 3 || b.x < A[0] + 2) return false;
+      const cs = [[b.x, b.y], [b.x + b.w, b.y], [b.x, b.y + b.h], [b.x + b.w, b.y + b.h]];
+      if (!cs.every((q) => c * (q[1] - A[1]) + s * (q[0] - A[0]) >= pad)) return false;
+      return !(b.x + b.w > P.B[0] - mk - 3 && b.y + b.h > A[1] - mk - 3);
+    };
+  }
+  // A corner's label: along the bisector of its two sides (unit vectors u, v), beyond its arc, as near
+  // as it fits inside, clear of the lines and labels already there. Its centre, or null when there is no room.
+  // Is a box clear of every line drawn and every label placed so far?
+  function clearOf(b) {
+    if (REC.boxes.some((o) => o.x < b.x + b.w + 2 && b.x < o.x + o.w + 2 && o.y < b.y + b.h + 1 && b.y < o.y + o.h + 1)) return false;
+    return !REC.segs.some((g) => segHits(g.p, g.q, { x: b.x - g.pad - 1, y: b.y - g.pad - 1, w: b.w + 2 * g.pad + 2, h: b.h + 2 * g.pad + 2 }));
+  }
+  function wedgeSpot(P, u, v, w, h, r0, inside, avoidX) {
+    let bx = u[0] + v[0], by = u[1] + v[1];
+    const n = Math.hypot(bx, by);
+    if (!(n > 1e-6)) return null;
+    bx /= n; by /= n;
+    for (let d = r0 + Math.hypot(w / 2, h / 2) + 2; d < 230; d += 2) {
+      const cx = P[0] + bx * d, cy = P[1] + by * d, box = { x: cx - w / 2, y: cy - h / 2, w, h };
+      if (inside(box) && !avoidX.some((x) => x > box.x - 3 && x < box.x + w + 3) && clearOf(box)) return [cx, cy];
+    }
+    return null;
+  }
+  function arcD(P, u, v, r) {
+    const sweep = u[0] * v[1] - u[1] * v[0] > 0 ? 1 : 0;
+    return 'M' + pt([P[0] + u[0] * r, P[1] + u[1] * r]) + ' A' + R(r) + ' ' + R(r) + ' 0 0 ' + sweep + ' ' + pt([P[0] + v[0] * r, P[1] + v[1] * r]);
+  }
+  function corner(P, u, v, ra, w, inside, avoidX) {
+    if (!w) return;
+    const aa = w.arcA == null ? 1 : w.arcA;
+    if (ra > 3 && aa > 0) part(aa, 0, () => add(K.svg('path', { class: 'arc' + (w.bad ? ' bad' : ''), d: arcD(P, u, v, ra) })));
+    const labs = w.labs || (w.s ? [{ s: w.s, a: w.a, bad: w.bad }] : []);
+    labs.forEach((L) => {
+      const la = L.a == null ? 1 : L.a, cls = 'al' + (L.bad ? ' bad' : '');
+      if (!L.s) return;
+      const lw = tw(L.s, cls), c = wedgeSpot(P, u, v, lw, 14, Math.max(ra, w.r0 || 0), inside, avoidX || []);
+      if (!c) return;
+      REC.boxes.push({ x: c[0] - lw / 2, y: c[1] - 7, w: lw, h: 14 });
+      if (la >= 0.5) REC.wedges.push(L.s);
+      if (la > 0) part(la, 0, () => text(c[0], c[1] + 5, L.s, cls));
+    });
+  }
+  // Each side's label (its name over its length): under the base, right of the upright (at a fraction
+  // `at` of its height), and outside the hypotenuse with its nearest corner 10 units off the line.
+  function sideLabels(P, lab) {
+    const A = P.A, B = P.B, C = P.C, th = P.th * RAD;
+    ['base', 'up', 'hyp'].forEach((k) => {
+      const L = lab[k];
+      if (!L) return;
+      const lines = linesOf(L);
+      if (!lines.length) return;
+      const w = Math.max.apply(null, lines.map((l) => tw(l.s, l.cls))), h = lines.length * LH;
+      let cx, cy;
+      if (k === 'base') { cx = K.clamp((A[0] + B[0]) / 2, w / 2 + 4, 336 - w / 2); cy = A[1] + 12 + h / 2; }
+      else if (k === 'up') { cx = B[0] + 16 + w / 2; cy = B[1] + (C[1] - B[1]) * (L.at == null ? 0.5 : L.at); }
+      else {
+        const nx = -Math.sin(th), ny = -Math.cos(th), dd = 10 + Math.abs(nx) * w / 2 + Math.abs(ny) * h / 2;
+        cx = K.clamp((A[0] + C[0]) / 2 + nx * dd, w / 2 + 3, 337 - w / 2); cy = (A[1] + C[1]) / 2 + ny * dd;
+      }
+      putLines(cx, cy, lines, L.a == null ? 1 : L.a, k);
+    });
+  }
+  // o: face (its arrival), glow {side: {a, c}}, wedge {A | C: {s, a, bad}}, ra, lab {side: {name, val, a, bad, at}}.
+  function tri(f, o) {
+    const P = triPts(f), A = P.A, B = P.B, C = P.C, c = Math.cos(f.th * RAD), s = Math.sin(f.th * RAD);
+    REC.tri = P;
+    const mk = Math.min(12, P.base / 3, P.up / 3);
+    part(o.face == null ? 1 : o.face, 0, () => {
+      add(K.svg('path', { class: 'face', d: poly([A, B, C], true) }));
+      ['base', 'up', 'hyp'].forEach((k) => lineP('side', P.seg[k][0], P.seg[k][1], 1.5));
+      pathP('mk', [[B[0] - mk, B[1]], [B[0] - mk, B[1] - mk], [B[0], B[1] - mk]], 1);
+    });
+    const glow = o.glow || {};
+    ['base', 'up', 'hyp'].forEach((k) => {
+      const gl = glow[k];
+      if (!gl || !(gl.a > 0.001)) return;
+      if (gl.a >= 0.5) REC.glowOn.push(k);
+      part(gl.a, 0, () => add(K.svg('line', { class: 'side ' + gl.c, x1: R(P.seg[k][0][0]), y1: R(P.seg[k][0][1]), x2: R(P.seg[k][1][0]), y2: R(P.seg[k][1][1]) })));
+    });
+    const W = o.wedge || {}, inside = insideTri(P, mk, o.pad || 3);
+    if (W.A) corner(A, [1, 0], [c, -s], Math.min(o.ra || 24, P.base * 0.35, P.up * 0.35), W.A, inside, []);
+    if (W.C) corner(C, [0, 1], [-c, s], Math.min(o.ra || 24, P.up * 0.35, P.base * 0.6), W.C, inside, []);
+    sideLabels(P, o.lab || {});
+    return P;
+  }
+
+  // ---------- the calculator: a display (what was keyed, DEG, the answer) and four keys ----------
+  const INVKEYS = [['sin⁻¹', 'cos⁻¹'], ['tan⁻¹', '=']];
+  function calcBox(x, y, w, o) {
+    const a = o.a == null ? 1 : o.a, kw = (w - 28) / 2, kh = 26, rec = { tag: 'DEG', entry: '', result: null };
+    part(a, 0, () => {
+      rect('cbody', x, y, w, 140, 12);
+      rect('cdisp', x + 10, y + 10, w - 20, 50, 6);
+      text(x + 18, y + 52, 'DEG', 'ctag', 'start');
+      o.keys.forEach((row, r) => row.forEach((k, c) => {
+        const kx = x + 10 + c * (kw + 8), ky = y + 70 + r * 34, pa = (o.press || {})[r + ':' + c] || 0;
+        rect('ckey', kx, ky, kw, kh, 6);
+        if (pa > 0.001) part(pa, 0, () => rect('cpress', kx, ky, kw, kh, 6));
+        text(kx + kw / 2, ky + 18, k, 'ckl');
+      }));
+    });
+    // What was keyed, as one label: each key's characters fade in as it is pressed.
+    const ent = o.entry || [];
+    if (ent.some((e) => e.a > 0)) part(a, 0, () => {
+      const t = add(K.svg('text', { class: 'cin', x: R(x + 18), y: R(y + 30), 'text-anchor': 'start' }));
+      ent.forEach((e) => t.appendChild(K.svg('tspan', { 'fill-opacity': K.clamp(e.a, 0, 1) }, e.s.replace(/ /g, ' '))));
+    });
+    ent.forEach((e) => { if (e.a >= 0.5) rec.entry += e.s; });
+    if (o.result && o.result.a > 0) {
+      part(o.result.a * a, 0, () => text(x + w - 18, y + 52, o.result.s, 'cout' + (o.result.bad ? ' bad' : ''), 'end'));
+      if (o.result.a >= 0.5) rec.result = o.result.s;
+    }
+    REC.calcs.push(rec);
+  }
+
+  // ---------- an angle and a ratio, with sin one way and sin⁻¹ back ----------
+  function swapPic(y0, ang, ratio, a, ka, kb) {
+    part(a, 0, () => { rect('sbox', 24, y0, 80, 30, 8); rect('sbox', 236, y0, 80, 30, 8); });
+    tagAt(64, y0 + 21, ang, 'middle', a); tagAt(276, y0 + 21, ratio, 'middle', a);
+    tagAt(64, y0 + 50, 'an angle', 'middle', a, 'key'); tagAt(276, y0 + 50, 'a ratio', 'middle', a, 'key');
+    part(ka, 0, () => arrowLine([108, y0 + 8], [232, y0 + 8], 'sw'));
+    tagAt(170, y0 + 2, 'sin', 'middle', ka, 'key');
+    part(kb, 0, () => arrowLine([232, y0 + 22], [108, y0 + 22], 'swi'));
+    tagAt(170, y0 + 41, 'sin⁻¹', 'middle', kb, 'gl');
+    REC.swap = { fwd: { from: ang, to: ratio, key: 'sin', a: ka }, back: { from: ratio, to: ang, key: 'sin⁻¹', a: kb } };
+  }
+
+  // ---------- rows of working under a picture ----------
+  function drawRows(y0, rows) {
+    rows.forEach((r, m) => {
+      REC.boxes.push(boxOf(12, y0 + 26 * m, r.s, 'te', 'start'));
+      if (r.a > 0) part(r.a, 4, () => text(12, y0 + 26 * m, r.s, 'te' + (r.bad ? ' bad' : ''), 'start'));
+    });
+    REC.rows = rows.filter((r) => r.a >= 0.5).map((r) => ({ s: r.s, bad: !!r.bad }));
+  }
+  function puzzleRows(d, st) {
+    const an = (t) => when('answer', t), list = [], ok = ansOf(st);
+    if (ok) d.right.forEach((s, m) => list.push({ s, a: an(0.5 + 0.25 * m) }));
+    if (wrongOf(st)) list.push({ s: d.wrong[st.pick], a: an(ok ? 0.5 + 0.25 * d.right.length : 0.3), bad: true });
+    drawRows(d.rowY, list);
+  }
+
+  // ---------- the arrow and its shadows: a floor, a wall, and a force arrow from the corner ----------
+  // f: {O (the corner), k (units per newton), top (the wall's top), end (the floor's end)}.
+  // s: {F, th} turned by its tip, or {fl, wa} run backwards from the two shadows.
+  const ARR8 = { O: [74, 230], k: 2, top: 28, end: 330 };
+  const ARR9 = { O: [74, 152], k: 0.75, top: 28, end: 330 };
+  const ARR13 = { O: [74, 122], k: 1.6, top: 28, end: 330 };
+  function arrowScene(f, s, o) {
+    const O = f.O, k = f.k, A1 = (v) => (v == null ? 1 : v);
+    let fl, wa, F, th;
+    if (s.fl != null) { fl = s.fl; wa = s.wa; F = Math.hypot(fl, wa); th = Math.atan2(wa, fl) / RAD; }
+    else { F = s.F; th = s.th; fl = F * cosD(th); wa = F * sinD(th); }
+    const T = [O[0] + fl * k, O[1] - wa * k], foot = [T[0], O[1]], side = [O[0], T[1]];
+    REC.arr = { O, k, F, th, fl, wa, T, floorPx: fl * k, wallPx: wa * k };
+    keyDash(96, 16, 'light, straight down and across', A1(o.room));
+    part(A1(o.room), 0, () => {
+      rect('band', O[0] - 8, f.top, 8, O[1] + 8 - f.top);
+      rect('band', O[0], O[1], f.end - O[0], 8);
+      lineP('wallf', [O[0], f.top], O, 1);
+      lineP('wallf', O, [f.end, O[1]], 1);
+    });
+    part(A1(o.face), 0, () => {
+      if (fl * k > 1 && wa * k > 1) add(K.svg('path', { class: 'face', d: poly([O, foot, T], true) }));
+      if (wa * k > 0.5) lineP('ghost', T, foot, 1);
+      if (fl * k > 0.5) lineP('ghost', T, side, 1);
+      const mk = Math.min(10, fl * k / 3, wa * k / 3);
+      if (mk > 4) pathP('mk', [[foot[0] - mk, foot[1]], [foot[0] - mk, foot[1] - mk], [foot[0], foot[1] - mk]], 1);
+      lineP('shad', [O[0], O[1] - 3.5], [T[0], O[1] - 3.5], 4);
+      lineP('shad', [O[0] + 3.5, O[1]], [O[0] + 3.5, T[1]], 4);
+    });
+    const glow = o.glow || {};
+    if (glow.floor && glow.floor.a > 0.001) part(glow.floor.a, 0, () => add(K.svg('line', { class: 'shad ' + glow.floor.c, x1: R(O[0]), y1: R(O[1] - 3.5), x2: R(T[0]), y2: R(O[1] - 3.5) })));
+    if (glow.wall && glow.wall.a > 0.001) part(glow.wall.a, 0, () => add(K.svg('line', { class: 'shad ' + glow.wall.c, x1: R(O[0] + 3.5), y1: R(O[1]), x2: R(O[0] + 3.5), y2: R(T[1]) })));
+    REC.arrGlow = Object.keys(glow).filter((g) => glow[g] && glow[g].a >= 0.5).map((g) => g + ':' + glow[g].c).sort();
+    part(A1(o.arrow), 0, () => arrowLine(O, T, 'force'));
+    const v = [cosD(th), -sinD(th)];
+    if (o.wedge) corner(O, [1, 0], v, Math.min(26, fl * k * 0.45, F * k * 0.4), o.wedge, insideTriFn(O, foot, T, 8), []);
+    if (o.wedgeWall) corner(O, [0, -1], v, Math.min(26, wa * k * 0.45, F * k * 0.4), o.wedgeWall, insideTriFn(O, side, T, 8), []);
+    (o.handles || []).forEach((id) => {
+      const q = id === 'tip' ? T : id === 'floor' ? foot : side;
+      part(A1(o.room), 0, () => add(K.svg('circle', { class: 'knob', cx: R(q[0]), cy: R(q[1]), r: 10 })));
+      REC.handles.push({ id, x: q[0], y: q[1] });
+    });
+    (o.tags || []).forEach((t, m) => tagAt(330, 40 + 22 * m, t, 'end', A1(o.tagA)));
+    const lab = o.lab || {}, nUL = [-sinD(th), -cosD(th)], mid = midOf(O, T);
+    if (lab.floor) placeLines('floor', lab.floor, (w, h) => {
+      const x = K.clamp(O[0] + fl * k / 2, w / 2 + 4, 336 - w / 2), y = O[1] + 15 + h / 2;
+      return [[x, y], [x + 34, y], [x - 34, y], [x + 68, y], [x - 68, y]].map((c) => [K.clamp(c[0], w / 2 + 4, 336 - w / 2), c[1]]);
+    });
+    if (lab.wall) placeLines('wall', lab.wall, (w, h) => {
+      const x = O[0] - 16 - w / 2, lo = f.top + h / 2 + 2, hi = O[1] - 6 - h / 2, y = K.clamp(O[1] - wa * k / 2, lo, hi);
+      return [[x, y], [x, y - 24], [x, y + 24], [x, y - 48], [x, y + 48]].map((c) => [c[0], K.clamp(c[1], lo, hi)]);
+    });
+    if (lab.F) placeLines('F', lab.F, (w, h) => around([T, mid], [nUL, [nUL[0] + v[0], nUL[1] + v[1]], v, [-nUL[0], -nUL[1]]], w, h));
+    return REC.arr;
+  }
+
+  // ---------- the block on a slope: its weight straight down, split along the slope and square to it ----------
+  // f: {C (where the block touches), al (degrees), W (newtons), kw (units per newton), a, b (slope
+  // either side of C), bw, bh (the block)}.
+  function slopeScene(f, o) {
+    const al = f.al, ca = cosD(al), sa = sinD(al), C = f.C, A1 = (v) => (v == null ? 1 : v);
+    const u = [ca, -sa], nOut = [-sa, -ca], nIn = [sa, ca], dn = [-ca, sa];
+    const P0 = mv(C, u, -f.a), P1 = mv(C, u, f.b), Q = [P1[0], P0[1]];
+    const G = mv(C, nOut, f.bh / 2), Wc = f.W * ca, Ws = f.W * sa;
+    const M = mv(G, nIn, Wc * f.kw), E = mv(G, dn, Ws * f.kw), T = [G[0], G[1] + f.W * f.kw];
+    REC.slope = { C, al, P0, P1, Q, G, M, E, T, kw: f.kw, W: f.W };
+    part(A1(o.room), 0, () => {
+      if (P0[1] - P1[1] > 0.5) add(K.svg('path', { class: 'ground', d: poly([P0, P1, Q], true) }));
+      rect('band', P0[0], P0[1], Q[0] - P0[0], 6);
+      lineP('baseln', P0, Q, 1);
+      if (P0[1] - P1[1] > 1) lineP('upr', Q, P1, 1);
+      lineP('surf', P0, P1, 1.5);
+      const K0 = mv(C, u, -f.bw / 2), K1 = mv(C, u, f.bw / 2);
+      pathP('block', [K0, K1, mv(K1, nOut, f.bh), mv(K0, nOut, f.bh)], 1, true);
+    });
+    part(A1(o.parts), 0, () => {
+      if (Wc * f.kw > 1 && Ws * f.kw > 1) add(K.svg('path', { class: 'face', d: poly([G, M, T], true) }));
+      if (Ws * f.kw > 0.5) lineP('ghost', T, M, 1);
+      if (Ws * f.kw > 0.5 && Wc * f.kw > 0.5) lineP('ghost', T, E, 1);
+      const mk = Math.min(9, Wc * f.kw / 3, Ws * f.kw / 3);
+      if (mk > 4) { const a1 = mv(M, nIn, -mk); pathP('mk', [a1, mv(a1, dn, mk), mv(M, dn, mk)], 1); }
+      lineP('shad', G, M, 4);
+      lineP('shad', G, E, 4);
+    });
+    const glow = o.glow || {};
+    if (glow.into && glow.into.a > 0.001) part(glow.into.a, 0, () => add(K.svg('line', { class: 'shad ' + glow.into.c, x1: R(G[0]), y1: R(G[1]), x2: R(M[0]), y2: R(M[1]) })));
+    if (glow.down && glow.down.a > 0.001) part(glow.down.a, 0, () => add(K.svg('line', { class: 'shad ' + glow.down.c, x1: R(G[0]), y1: R(G[1]), x2: R(E[0]), y2: R(E[1]) })));
+    REC.slopeGlow = Object.keys(glow).filter((g) => glow[g] && glow[g].a >= 0.5).map((g) => g + ':' + glow[g].c).sort();
+    part(A1(o.weight), 0, () => arrowLine(G, T, 'force'));
+    if (o.wedge != null) {
+      const wa = o.wedge;
+      corner(G, nIn, [0, 1], Math.min(22, Wc * f.kw * 0.35), { s: 'α', a: wa, arcA: wa }, insideTriFn(G, M, T, 6), []);
+      corner(P0, [1, 0], u, Math.min(30, f.a * 0.3), { s: 'α', a: wa, arcA: wa }, insideTriFn(P0, Q, P1, 4), []);
+    }
+    (o.handles || []).forEach((id) => {
+      part(A1(o.room), 0, () => add(K.svg('circle', { class: 'knob', cx: R(P1[0]), cy: R(P1[1]), r: 10 })));
+      REC.handles.push({ id, x: P1[0], y: P1[1] });
+    });
+    const lab = o.lab || {};
+    if (lab.run) placeLines('run', lab.run, (w, h) => [-40, 0, -80].map((dx) => [(P0[0] + Q[0]) / 2 + dx, P0[1] + 12 + h / 2]));
+    if (lab.rise) placeLines('rise', lab.rise, (w, h) => [[Q[0] + 14 + w / 2, (Q[1] + P1[1]) / 2]]);
+    if (lab.W) placeLines('W', lab.W, (w, h) => [[T[0], T[1] + 8 + h / 2], [T[0] + w / 2 + 14, T[1]], [T[0] - w / 2 - 14, T[1]],
+      [T[0] + w / 2 + 14, T[1] - 20], [T[0] - w / 2 - 14, T[1] - 20], [T[0], T[1] + 24 + h / 2]]);
+    if (lab.into) placeLines('into', lab.into, (w, h) => around([midOf(G, M), M, mv(G, nIn, Wc * f.kw * 0.25)], [u, [u[0] + nIn[0], u[1] + nIn[1]], nIn], w, h));
+    if (lab.down) placeLines('down', lab.down, (w, h) => around([midOf(G, E), E, G], [nOut, [nOut[0] + dn[0], nOut[1] + dn[1]], dn, [0, -1]], w, h));
+    return REC.slope;
+  }
+
+  // The arrow's angle now: Dan's, else the demonstration's (lying on the floor, then turning up to 30°).
+  const arrowTh = (st) => (st.th != null ? st.th : TH9 * when('demo', 1.8, 1.6));
+  const slopeAl = (st) => (st.al != null ? st.al : AL11 * when('demo', 1.6, 1.6));
+
+  // ---------- each step's picture; each returns it in words ----------
+  const PIC = {
+    inv(d, st) {
+      const dm = (t, u) => when('demo', t, u), kp = (t) => dm(t, 0.2) - dm(t + 0.3, 0.25), th = asinD(D1 / B1);
+      tri({ th, hyp: B1, k: 0.4, ax: 16, ay: 118 }, { face: dm(0.4), ra: 22,
+        wedge: { A: { s: 'θ', a: dm(0.4) } },
+        lab: { up: { name: 'opposite', val: mm(D1), a: dm(0.8) }, hyp: { name: 'hypotenuse', val: mm(B1), a: dm(1.1) }, base: { name: 'adjacent', a: dm(1.3) } } });
+      drawRows(166, [{ s: 'sin θ = ' + D1 + ' ÷ ' + B1 + ' = ' + trim(D1 / B1, 3), a: dm(1.6) }]);
+      calcBox(200, 8, 132, { a: dm(0.4), keys: INVKEYS, press: { '0:0': kp(2.0), '1:1': kp(2.6) },
+        entry: [{ s: 'sin⁻¹', a: dm(2.0) }, { s: ' ' + trim(D1 / B1, 3), a: dm(2.3) }], result: { s: trim(th, 0), a: dm(2.8) } });
+      swapPic(182, deg0(th), trim(D1 / B1, 3), dm(3.0), dm(3.2), dm(3.5));
+      return 'A right-angled triangle with theta at the bottom left: 150 millimetres opposite theta and a 300 millimetre hypotenuse, so sine theta is 0.5. A calculator in degrees mode keyed inverse sine 0.5 shows 30. Below, sin takes 30 degrees to 0.5, and an arrow labelled inverse sine runs from the ratio 0.5 back to the angle, 30 degrees.';
+    },
+    inv6(d, st) {
+      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), th = asinD(s2);
+      const wc = w && st.pick === d.opts[2], wn = w && st.pick === d.opts[0];
+      tri({ th, hyp: P2.hyp, k: 12, ax: 16, ay: 110 }, { ra: 22,
+        wedge: { A: { s: ok ? deg1(th) : 'θ', a: ok ? an(0.3) : 1 }, C: wc ? { s: deg1(acosD(s2)), bad: true, a: an(0.1), arcA: an(0.1) } : null },
+        glow: ok ? { up: { a: an(0.3), c: 'hl' }, hyp: { a: an(0.3), c: 'hl' } } : {},
+        lab: { up: { name: 'opposite', val: cm(P2.opp) }, hyp: { name: 'hypotenuse', val: cm(P2.hyp) }, base: { name: 'adjacent' } } });
+      const ent = ok ? 'sin⁻¹(6 ÷ 10)' : wc ? 'cos⁻¹(6 ÷ 10)' : wn ? '1 ÷ ' + trim(s2, 3) : '';
+      const res = ok ? fix(th, 1) : wc ? fix(acosD(s2), 1) : wn ? trim(1 / s2, 2) : '?';
+      calcBox(200, 8, 132, { keys: INVKEYS, entry: ent ? [{ s: ent, a: an(0.1) }] : [], result: ent ? { s: res, a: an(0.3), bad: !ok } : { s: res, a: 1 } });
+      puzzleRows(d, st);
+      return 'A right-angled triangle: 6 centimetres opposite theta and a 10 centimetre hypotenuse, beside a calculator in degrees mode. Theta is ' + (ok ? deg1(th).replace('°', ' degrees') : 'unknown') + '.';
+    },
+    keys(d, st) {
+      const dm = (t, u) => when('demo', t, u), pulse = (t) => dm(t, 0.35) - dm(t + 0.7, 0.35);
+      const ps = pulse(0.9), pc = pulse(1.7), pt3 = dm(2.5, 0.35), O = [40, 196], sc = 80, th = atanD(M3), ga = dm(0.4);
+      part(ga, 0, () => {
+        lineP('axis', O, [300, 196], 1); lineP('axis', O, [40, 76], 1);
+        for (let k = 1; k <= 6; k++) add(K.svg('line', { class: 'tick', x1: 40 + 40 * k, y1: 196, x2: 40 + 40 * k, y2: 201 }));
+        for (let k = 1; k <= 3; k++) add(K.svg('line', { class: 'tick', x1: 35, y1: 196 - 40 * k, x2: 40, y2: 196 - 40 * k }));
+        lineP('gline', O, [40 + 2.8 * sc, 196 - 2.8 * M3 * sc], 1);
+      });
+      REC.graph = { xTick: 40, yTick: 40, O, sc, end: [40 + 2.8 * sc, 196 - 2.8 * M3 * sc] };
+      tagAt(310, 200, 'x', 'middle', ga, 'key'); tagAt(40, 66, 'y', 'middle', ga, 'key'); tagAt(270, 92, 'y = 0.5x', 'start', ga, 'gl');
+      tri({ th, hyp: Math.hypot(2, 2 * M3), k: sc, ax: O[0], ay: O[1] }, { face: dm(0.6), ra: 30,
+        wedge: { A: { s: 'θ', a: dm(0.6) } },
+        glow: { up: { a: Math.max(ps, pt3), c: 'hl' }, hyp: { a: Math.max(ps, pc), c: 'hl' }, base: { a: Math.max(pc, pt3), c: 'hl' } },
+        lab: { base: { name: 'adjacent', val: 'run', a: dm(0.6) }, up: { name: 'opposite', val: 'rise', a: dm(0.6) }, hyp: { name: 'hypotenuse', a: dm(0.6) } } });
+      tagAt(12, 22, 'rise ÷ run = ' + trim(M3, 3), 'start', dm(3.0));
+      tagAt(12, 46, 'θ = tan⁻¹ ' + trim(M3, 3) + ' = ' + deg1(th), 'start', dm(3.4));
+      TILES = [
+        { rn: 'sin⁻¹', rs: 'opposite and hypotenuse', a: dm(0.9), hl: ps > 0.5 },
+        { rn: 'cos⁻¹', rs: 'adjacent and hypotenuse', a: dm(1.7), hl: pc > 0.5 },
+        { rn: 'tan⁻¹', rs: 'opposite and adjacent', a: dm(2.5), hl: pt3 > 0.5 } ];
+      return 'The line y = 0.5x on axes with the same scale, and under it a right-angled triangle: the run along the bottom is the adjacent side, the rise the opposite side. Rise divided by run is 0.5, and theta is inverse tan of 0.5, 26.6 degrees.';
+    },
+    tray(d, st) {
+      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), th = atanD(r4);
+      tri({ th, hyp: Math.hypot(P4.rise, P4.run), k: 80, ax: 30, ay: 116 }, { ra: 30,
+        wedge: { A: { s: ok ? deg1(th) : 'θ', a: ok ? an(0.3) : 1 } },
+        glow: ok ? { up: { a: an(0.3), c: 'hl' }, base: { a: an(0.3), c: 'hl' } } : w ? { base: { a: an(0.1), c: 'bad' } } : {},
+        lab: { base: { name: 'run', val: mtr(P4.run) }, up: { name: 'rise', val: mtr(P4.rise) }, hyp: { name: 'the tray' } } });
+      puzzleRows(d, st);
+      return 'A cable tray rising 1 metre over a 2.5 metre run, drawn as a right-angled triangle. Its angle is ' + (ok ? deg1(th).replace('°', ' degrees') : 'unknown') + '.';
+    },
+    exact(d, st) {
+      const dm = (t, u) => when('demo', t, u), h3 = 75 * Math.sqrt(3);
+      part(dm(0.4), 0, () => pathP('ghost', [[14, 150], [14, 60], [104, 60]], 1));
+      tri({ th: 45, hyp: Math.SQRT2, k: 90, ax: 14, ay: 150 }, { face: dm(0.8), ra: 22,
+        wedge: { A: { s: '45°', a: dm(1.2) } },
+        lab: { base: { val: '1', a: dm(1.2) }, up: { val: '1', a: dm(1.2) }, hyp: { val: '√2', a: dm(1.2) } } });
+      part(dm(2.0), 0, () => pathP('ghost', [[225, 150 - h3], [300, 150], [225, 150]], 1));
+      tri({ th: 60, hyp: 2, k: 75, ax: 150, ay: 150 }, { face: dm(2.4), ra: 22,
+        wedge: { A: { s: '60°', a: dm(2.8) }, C: { s: '30°', a: dm(2.8) } },
+        lab: { base: { val: '1', a: dm(2.8) }, up: { val: '√3', a: dm(2.8), at: 0.2 }, hyp: { val: '2', a: dm(2.8) } } });
+      drawRows(194, [
+        { s: 'sin 45° = 1/√2 = ' + trim(s45, 4), a: dm(1.6) },
+        { s: 'height = √(4 − 1) = √3 = ' + trim(Math.sqrt(3), 3), a: dm(3.2) },
+        { s: 'sin 30° = 1/2 = ' + trim(sinD(30), 3), a: dm(3.5) },
+        { s: 'cos 30° = √3/2 = ' + trim(cosD(30), 3), a: dm(3.8, 0.5) } ]);
+      return 'Left: half of a square with sides of 1, cut corner to corner, with a 45 degree angle and a hypotenuse of root 2. Right: half of an equilateral triangle with sides of 2, cut down the middle, with angles of 60 and 30 degrees, a base of 1 and a height of root 3.';
+    },
+    eq60(d, st) {
+      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), bad = w && st.pick === d.opts[1];
+      tri({ th: 60, hyp: 2, k: 60, ax: 110, ay: 150 }, { ra: 22,
+        wedge: { A: { s: '60°' } },
+        glow: ok ? { base: { a: an(0.3), c: 'hl' }, hyp: { a: an(0.3), c: 'hl' } } : bad ? { up: { a: an(0.1), c: 'bad' } } : {},
+        lab: { base: { name: 'adjacent', val: '1' }, up: { name: 'opposite', val: '√3' }, hyp: { name: 'hypotenuse', val: '2' } } });
+      puzzleRows(d, st);
+      return 'Half an equilateral triangle: a 60 degree corner with the base of 1 next to it, the height root 3 opposite it, and a hypotenuse of 2.';
+    },
+    cosec(d, st) {
+      const dm = (t, u) => when('demo', t, u), kp = (t) => dm(t, 0.2) - dm(t + 0.3, 0.25);
+      calcBox(12, 8, 150, { a: dm(0.4), keys: INVKEYS, press: { '0:0': kp(0.8), '1:1': kp(1.4) },
+        entry: [{ s: 'sin⁻¹', a: dm(0.8) }, { s: ' 0.5', a: dm(1.1) }], result: { s: trim(asinD(0.5), 0), a: dm(1.6) } });
+      calcBox(178, 8, 150, { a: dm(0.4), keys: [['1', '÷'], ['sin', '=']], press: { '0:0': kp(2.0), '0:1': kp(2.2), '1:0': kp(2.4), '1:1': kp(2.8) },
+        entry: [{ s: '1', a: dm(2.0) }, { s: ' ÷', a: dm(2.2) }, { s: ' sin', a: dm(2.4) }, { s: ' 30', a: dm(2.6) }], result: { s: trim(1 / sinD(30), 3), a: dm(3.0) } });
+      tagAt(87, 170, 'sin⁻¹ 0.5 = ' + deg0(asinD(0.5)), 'middle', dm(1.8), 'te'); tagAt(87, 190, 'an angle', 'middle', dm(1.8), 'key');
+      tagAt(253, 170, '1 ÷ sin 30° = ' + mult(1 / sinD(30)), 'middle', dm(3.2), 'te'); tagAt(253, 190, 'a number', 'middle', dm(3.2), 'key');
+      drawRows(222, [
+        { s: 'cosec θ = 1 ÷ sin θ, the cosecant', a: dm(3.5, 0.5) },
+        { s: 'sec θ = 1 ÷ cos θ, the secant', a: dm(3.7, 0.5) },
+        { s: 'cot θ = 1 ÷ tan θ, the cotangent', a: dm(3.9, 0.45) } ]);
+      return 'Two calculators in degrees mode. One keyed inverse sine 0.5 shows 30, an angle. The other keyed 1 divided by sine 30 shows 2, a number. Below: cosec, sec and cot are 1 divided by sin, cos and tan.';
+    },
+    mult45(d, st) {
+      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), p = st.pick;
+      let ent = '', res = { s: '?', a: 1 };
+      if (ok) { ent = '1 ÷ sin 45'; res = { s: trim(1 / s45, 3), a: an(0.3) }; }
+      else if (w && p === d.opts[0]) { ent = 'sin⁻¹ ' + trim(s45, 4); res = { s: trim(asinD(+trim(s45, 4)), 0), a: an(0.3), bad: true }; }
+      else if (w && p === d.opts[2]) { ent = 'sin⁻¹ 45'; res = { s: 'Error', a: an(0.3), bad: true }; }
+      calcBox(12, 8, 136, { keys: [['sin⁻¹', 'sin'], ['÷', '=']], entry: ent ? [{ s: ent, a: an(0.1) }] : [], result: res });
+      tri({ th: 45, hyp: Math.SQRT2, k: 66, ax: 194, ay: 132 }, { ra: 22,
+        wedge: { A: { s: '45°' } },
+        glow: ok ? { up: { a: an(0.3), c: 'hl' }, hyp: { a: an(0.3), c: 'hl' } } : {},
+        lab: { base: { val: '1' }, up: { name: 'opposite', val: '1' }, hyp: { name: 'hypotenuse', val: '√2' } } });
+      puzzleRows(d, st);
+      return 'A calculator in degrees mode beside the half square: a 45 degree angle, 1 opposite it and a hypotenuse of root 2. The calculator shows ' + (ok ? trim(1 / s45, 3) : 'a question mark') + '.';
+    },
+    arrow(d, st) {
+      const dm = (t, u) => when('demo', t, u), fp = (t) => when('flip', t, 0.6), back = !!st.back;
+      const s = back ? { fl: st.fl, wa: st.wa } : { F: F9, th: arrowTh(st) };
+      const fl = back ? s.fl : F9 * cosD(s.th), wa = back ? s.wa : F9 * sinD(s.th);
+      const A = arrowScene(ARR8, s, { room: dm(0.4), arrow: dm(0.8), face: dm(1.3), tagA: dm(0.8),
+        wedge: { s: 'θ', a: dm(3.5), arcA: dm(3.5) },
+        lab: { floor: { name: 'F cos θ', val: newt(fl), a: dm(1.3) }, wall: { name: 'F sin θ', val: newt(wa), a: dm(1.3) }, F: { s: 'F', cls: 'tag', a: dm(0.8) } },
+        handles: back ? ['floor', 'wall'] : ['tip'],
+        tags: back ? [] : ['θ = ' + deg0(s.th), 'F = ' + trim(F9, 0) + ' N'] });
+      if (back) TILES = [
+        { rn: 'θ = tan⁻¹(wall ÷ floor)', rs: 'tan⁻¹(' + fix(wa, 1) + ' ÷ ' + fix(fl, 1) + ')', rv: deg1(A.th), a: fp(0.1) },
+        { rn: 'F = √(floor² + wall²)', rs: '√(' + fix(fl, 1) + '² + ' + fix(wa, 1) + '²)', rv: newt(A.F), a: fp(0.3) } ];
+      return 'A force arrow F of ' + newt(A.F).replace(' N', ' newtons') + ' from the corner of a floor and a wall, at ' + deg1(A.th).replace('°', ' degrees') + ' above the floor. Its floor shadow, F cos theta, is ' + newt(fl).replace(' N', ' newtons') + '; its wall shadow, F sin theta, ' + newt(wa).replace(' N', ' newtons') + '. ' +
+        (back ? 'Handles on the ends of the two shadows.' : 'A handle on the arrow\'s tip turns it.');
+    },
+    rope(d, st) {
+      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), ws = w && st.pick === d.opts[0];
+      const fl = F10 * cosD(TH10), wa = F10 * sinD(TH10);
+      arrowScene(ARR9, { F: F10, th: TH10 }, { wedge: { s: 'θ' },
+        glow: ok ? { floor: { a: an(0.3), c: 'hl' } } : ws ? { wall: { a: an(0.1), c: 'bad' } } : {},
+        lab: { floor: { name: 'F cos θ', val: ok ? newt(fl) : '?', a: ok ? an(0.1) : 1 }, wall: { name: 'F sin θ', val: ws ? newt(wa) : null, bad: ws }, F: { s: 'F', cls: 'tag' } },
+        tags: ['θ = ' + TH10 + '°', 'F = ' + F10 + ' N'] });
+      puzzleRows(d, st);
+      return 'A 200 newton rope pull drawn as an arrow at 40 degrees above the floor, with its floor and wall shadows. The floor shadow is ' + (ok ? newt(fl).replace(' N', ' newtons') : 'unknown') + '.';
+    },
+    slope(d, st) {
+      const dm = (t, u) => when('demo', t, u), al = slopeAl(st);
+      tagAt(12, 22, 'α = ' + deg0(al), 'start', dm(1.2));
+      const s = slopeScene({ C: [196, 104], al, W: W11, kw: 0.22, a: 186, b: 132, bw: 44, bh: 30 }, { room: dm(0.4), weight: dm(0.8), parts: dm(1.2), wedge: dm(3.4),
+        lab: { W: { s: 'W = ' + W11 + ' N', a: dm(0.8) }, into: { name: 'W cos α', val: newt(W11 * cosD(al)), a: dm(1.2) }, down: { name: 'W sin α', val: newt(W11 * sinD(al)), a: dm(1.2) } },
+        handles: ['tilt'] });
+      return 'A block on a slope at ' + deg0(s.al).replace('°', ' degrees') + ', its 500 newton weight drawn straight down. Its part into the slope, W cos alpha, is ' + newt(W11 * cosD(al)).replace(' N', ' newtons') + '; its part down the slope, W sin alpha, ' + newt(W11 * sinD(al)).replace(' N', ' newtons') + '. A handle on the top of the slope tilts it.';
+    },
+    slope25(d, st) {
+      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), wc = w && st.pick === d.opts[1];
+      tagAt(12, 22, 'α = ' + AL12 + '°', 'start', 1);
+      slopeScene({ C: [190, 92], al: AL12, W: W12, kw: 0.16, a: 176, b: 126, bw: 44, bh: 30 }, { wedge: 1,
+        glow: ok ? { down: { a: an(0.3), c: 'hl' } } : wc ? { into: { a: an(0.1), c: 'bad' } } : {},
+        lab: { W: { s: 'W = ' + W12 + ' N' }, into: { name: 'W cos α', val: wc ? o11[1] : null, bad: wc }, down: { name: 'W sin α', val: ok ? o11[0] : '?', a: ok ? an(0.1) : 1 } } });
+      puzzleRows(d, st);
+      return 'A 600 newton weight on a 25 degree slope, split into a part into the slope and a part down it. The part down the slope is ' + (ok ? o11[0].replace(' N', ' newtons') : 'unknown') + '.';
+    },
+    back40(d, st) {
+      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), wt = w && st.pick === d.opts[0], wsn = w && st.pick === d.opts[2];
+      arrowScene(ARR13, { fl: S13.floor, wa: S13.wall }, {
+        wedge: { s: ok ? o12[1] : 'θ', a: ok ? an(0.3) : 1 },
+        wedgeWall: wt ? { s: o12[0], bad: true, a: an(0.1), arcA: an(0.1) } : null,
+        glow: ok ? { floor: { a: an(0.3), c: 'hl' }, wall: { a: an(0.3), c: 'hl' } } : wsn ? { floor: { a: an(0.1), c: 'bad' } } : {},
+        lab: { floor: { name: 'F cos θ', val: S13.floor + ' N' }, wall: { name: 'F sin θ', val: S13.wall + ' N' }, F: { s: 'F', cls: 'tag' } } });
+      puzzleRows(d, st);
+      return 'A force arrow from the corner of a floor and a wall, with a 90 newton floor shadow and a 40 newton wall shadow. Its angle above the floor is ' + (ok ? o12[1].replace('°', ' degrees') : 'unknown') + '.';
+    },
+    crate(d, st) {
+      const ok = ansOf(st), an = (t) => when('answer', t);
+      slopeScene({ C: [178, 100], al: AL14, W: P14.W, kw: 0.16, a: 160, b: 92, bw: 44, bh: 30 }, { wedge: 1,
+        glow: ok ? { down: { a: an(0.3), c: 'hl' } } : {},
+        lab: { run: { name: 'run', val: mtr(P14.run) }, rise: { name: 'rise', val: mtr(P14.rise) }, W: { s: 'W = ' + P14.W + ' N' },
+          into: { name: 'W cos α' }, down: { name: 'W sin α', val: ok ? o13[2] : '?', a: ok ? an(0.1) : 1 } } });
+      puzzleRows(d, st);
+      return 'A 600 newton crate on a slope that rises 1.2 metres over a 5 metre run, its weight split into a part into the slope and a part down it. The part down the slope is ' + (ok ? o13[2].replace(' N', ' newtons') : 'unknown') + '.';
+    },
+  };
+
+  // ---------- the handles: Dan drags the arrow's tip, the shadows' ends, or the top of the slope ----------
+  const GRIPS = { tip: 'The angle θ above the floor, in degrees', floor: 'The floor shadow, in newtons', wall: 'The wall shadow, in newtons', tilt: 'The slope\'s angle α, in degrees' };
+  const RANGE = { tip: [0, 90], floor: [SMIN, SMAX], wall: [SMIN, SMAX], tilt: [0, AMAX] };
+  const grips = {};
+  Object.keys(GRIPS).forEach((id) => {
+    const g = ui.appendChild(K.svg('circle', { class: 'grip', cx: -60, cy: -60, r: 22, tabindex: -1, role: 'slider', 'aria-orientation': 'horizontal', 'aria-label': GRIPS[id] }));
+    g.style.display = 'none';
+    grips[id] = g;
+  });
+  const tipAngle = (O, q) => K.clamp(Math.round(Math.atan2(O[1] - q.y, q.x - O[0]) / RAD), 0, 90);
+  const tiltAngle = (C, q) => K.clamp(Math.round(Math.atan2(C[1] - q.y, q.x - C[0]) / RAD), 0, AMAX);
+  const shadowOf = (v) => K.clamp(Math.round(v), SMIN, SMAX);
+  const liveOn = (id) => !finished && (STEPS[at()].live || []).indexOf(id) >= 0 && !!REC && REC.handles.some((h) => h.id === id);
+  function gripVal(id) {
+    if (id === 'tip') return Math.round(REC.arr.th);
+    if (id === 'floor') return Math.round(REC.arr.fl);
+    if (id === 'wall') return Math.round(REC.arr.wa);
+    return Math.round(REC.slope.al);
+  }
+  function placeGrips(d) {
+    Object.keys(grips).forEach((id) => {
+      const g = grips[id], h = REC.handles.filter((q) => q.id === id)[0], on = !finished && !!h && (d.live || []).indexOf(id) >= 0;
+      g.style.display = on ? '' : 'none';
+      g.setAttribute('tabindex', on ? '0' : '-1');
+      if (!on) return;
+      g.setAttribute('cx', R(h.x)); g.setAttribute('cy', R(h.y));
+      const v = gripVal(id), unit = id === 'floor' || id === 'wall' ? ' N' : '°';
+      g.setAttribute('aria-valuemin', RANGE[id][0]); g.setAttribute('aria-valuemax', RANGE[id][1]);
+      g.setAttribute('aria-valuenow', v); g.setAttribute('aria-valuetext', v + unit);
+    });
+  }
+  function setLive(ch) {
+    const st = S[at()];
+    if (Object.keys(ch).every((k) => st[k] === ch[k]) && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    waiting = false; T = Infinity;
+    Object.assign(st, ch);
+    K.reveal(); K.refresh();
+  }
+  function setGrip(id, v) {
+    if (id === 'tip') setLive({ th: K.clamp(Math.round(v), 0, 90) });
+    else if (id === 'floor') setLive({ fl: shadowOf(v) });
+    else if (id === 'wall') setLive({ wa: shadowOf(v) });
+    else setLive({ al: K.clamp(Math.round(v), 0, AMAX) });
+  }
+  function svgPoint(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+  }
+  function dragTo(id, q) {
+    if (id === 'tip' && REC.arr) setGrip('tip', tipAngle(REC.arr.O, q));
+    else if (id === 'floor' && REC.arr) setGrip('floor', (q.x - REC.arr.O[0]) / REC.arr.k);
+    else if (id === 'wall' && REC.arr) setGrip('wall', (REC.arr.O[1] - q.y) / REC.arr.k);
+    else if (id === 'tilt' && REC.slope) setGrip('tilt', tiltAngle(REC.slope.C, q));
+  }
+  Object.keys(grips).forEach((id) => {
+    const g = grips[id];
+    let held = null;
+    g.addEventListener('pointerdown', (e) => {
+      if (!liveOn(id)) return;
+      held = e.pointerId;
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the handle */ }
+      e.preventDefault();
+      const q = svgPoint(e); if (q) dragTo(id, q);
+    });
+    g.addEventListener('pointermove', (e) => { if (held !== e.pointerId || !liveOn(id)) return; const q = svgPoint(e); if (q) dragTo(id, q); });
+    const letGo = (e) => { if (held === e.pointerId) held = null; };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', () => { held = null; });
+    g.addEventListener('keydown', (e) => {
+      if (!liveOn(id)) return;
+      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+      if (by == null) return;
+      e.preventDefault();
+      setGrip(id, gripVal(id) + by);
+    });
+  });
+
+  // ---------- the tiles ----------
+  const tileEls = [0, 1, 2].map(() => {
+    const t = K.el('div', { class: 'ratio' }), rn = K.el('span', { class: 'rn' }), rs = K.el('span', { class: 'rs' }), rv = K.el('span', { class: 'rv' });
+    t.appendChild(rn); t.appendChild(rs); t.appendChild(rv);
+    el('ratios').appendChild(t);
+    return { t, rn, rs, rv };
+  });
+  function applyTiles() {
+    const list = TILES;
+    el('ratios').hidden = !list;
+    REC.tiles = (list || []).map((it) => ({ rn: it.rn || '', rs: it.rs || '', rv: it.rv || '', hl: !!it.hl }));
+    tileEls.forEach((E, k) => {
+      const it = list && list[k];
+      E.t.hidden = !it;
+      if (!it) return;
+      E.rn.textContent = it.rn || ''; E.rs.textContent = it.rs || ''; E.rv.textContent = it.rv || '';
+      E.rv.hidden = !it.rv;
+      K.fade(E.t, it.a == null ? 1 : it.a, 0);
+      E.t.classList.toggle('hl', !!it.hl);
+    });
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    REC = { segs: [], handles: [], lab: {}, rows: [], tiles: [], boxes: [], tags: [], wedges: [], calcs: [], glowOn: [], arrGlow: [], slopeGlow: [], tri: null, arr: null, slope: null, swap: null, graph: null };
+    TILES = null; VH = d.vh;
+    svg.setAttribute('viewBox', '0 0 340 ' + d.vh);
+    svg.setAttribute('aria-label', PIC[d.pic](d, st) || '');
+    if (!d.show && !ansOf(st) && st.res !== 'wrong') {
+      let b = null;
+      try { b = art.getBBox(); } catch (e) { b = null; }
+      if (b && b.height > 0) svg.setAttribute('viewBox', '0 0 340 ' + Math.min(d.vh, Math.ceil(b.y + b.height + 10)));
+    }
+    applyTiles();
+    placeGrips(d);
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing() && !waiting) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { resetLive(st); play('demo', d.dur); }
+      else { waiting = false; anim.pause(); T = Infinity; MODE = 'answer'; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    runBtn.el.hidden = d.pic !== 'arrow';
+    runBtn.setLabel(st.back ? 'Run it forwards' : 'Run it backwards');
+    runBtn.el.setAttribute('aria-pressed', st.back ? 'true' : 'false');
+    el('replay').hidden = replayBtn.el.hidden && runBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (pic) => STEPS.findIndex((d) => d.pic === pic);
+  // Step i painted in state st (motion m, at time tAt, finished if none), fn reading what it drew
+  // before the page is put back.
+  function withState(i, st, m, fn, tAt) {
+    const keepS = S[i], keepT = T, keepM = MODE;
+    S[i] = st; T = tAt == null ? Infinity : tAt; MODE = m || (STEPS[i].show ? 'demo' : 'answer');
+    latest = 0; earliest = Infinity;
+    try { paint(i); return fn(); } finally { S[i] = keepS; T = keepT; MODE = keepM; paint(); }
+  }
+  const drawn = (i, st, m) => withState(i, st, m, () => ({ texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent), rec: REC }));
+  const solvedSt = (i) => stOf({ pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => stOf({ pick: o, res: 'wrong' });
+  const BACKS = [];
+  [SMIN, 30, 60, F9 * cosD(TH9), SMAX].forEach((fl) => [SMIN, 30, F9 * sinD(TH9), SMAX].forEach((wa) => BACKS.push([fl, wa])));
+  // Every state a step can be seen in.
+  function statesOf(i) {
+    const d = STEPS[i], out = [];
+    if (d.show) {
+      out.push([blank(), 'demo']);
+      if (d.pic === 'arrow') {
+        [0, 1, 5, 10, 30, 45, 60, 75, 85, 89, 90].forEach((th) => out.push([stOf({ th }), 'demo']));
+        BACKS.forEach((b) => out.push([stOf({ back: true, fl: b[0], wa: b[1] }), 'flip']));
+      }
+      if (d.pic === 'slope') [0, 1, 5, 10, 15, 20, 25, 30, 35, 39, 40].forEach((al) => out.push([stOf({ al }), 'demo']));
+    } else {
+      out.push([blank(), 'answer'], [solvedSt(i), 'answer'], [stOf({ why: true }), 'answer']);
+      d.opts.filter((o) => o !== d.want).forEach((o) => out.push([wrongSt(i, o), 'answer'], [stOf({ pick: o, res: 'wrong', why: true }), 'answer']));
+    }
+    return out;
+  }
+  // What crowds the labels in the picture now: labels over labels, lines or handles, or off the edge.
+  function crowding(i) {
+    const bad = [], boxes = [];
+    art.querySelectorAll('text').forEach((t) => {
+      let b = null;
+      try { b = t.getBBox(); } catch (e) { b = null; }
+      if (!b || !(b.width > 0) || !(b.height > 0)) return;
+      const sh = b.height * 0.2;
+      boxes.push({ s: t.textContent, x: b.x, y: b.y + sh, w: b.width, h: b.height - 2 * sh, calc: /^c/.test(t.getAttribute('class') || '') });
+    });
+    boxes.forEach((a, m) => {
+      if (a.x < 1 || a.x + a.w > 339 || a.y < 0 || a.y + a.h > STEPS[i].vh) bad.push('"' + a.s + '" off the edge');
+      boxes.slice(m + 1).forEach((b) => {
+        const ix = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x), iy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+        if (ix > 1 && iy > 1) bad.push('"' + a.s + '" on "' + b.s + '"');
+      });
+      if (a.calc) return;
+      REC.handles.forEach((h) => { const nx = K.clamp(h.x, a.x, a.x + a.w), ny = K.clamp(h.y, a.y, a.y + a.h); if (Math.hypot(nx - h.x, ny - h.y) < 12) bad.push('"' + a.s + '" on a handle'); });
+      REC.segs.forEach((g) => { if (segHits(g.p, g.q, { x: a.x - g.pad, y: a.y - g.pad, w: a.w + 2 * g.pad, h: a.h + 2 * g.pad })) bad.push('"' + a.s + '" crossed by a line'); });
+    });
+    return bad;
+  }
+
+  K.check('An inverse function takes the output and does the opposite to get back to the input: on the first screen sin takes 30° to 0.5, the calculator keys sin⁻¹ of the drawn 150 ÷ 300 = 0.5 and gives back 30, the angle the triangle is drawn at, and sin⁻¹ undoes sin at every whole angle from 0° to 90°', () => {
+    for (let a = 0; a <= 90; a++) if (!K.near(asinD(sinD(a)), a, 1e-6)) return false;
+    const g = drawn(0, blank(), 'demo'), c = g.rec.calcs[0], P = g.rec.tri, sw = g.rec.swap;
+    return c.entry === 'sin⁻¹ 0.5' && c.result === '30' && K.near(P.up / P.H, D1 / B1, 1e-9) && K.near(asinD(P.up / P.H), +c.result, 1e-9) && K.near(P.th, +c.result, 1e-9) &&
+      sw.fwd.from === '30°' && sw.fwd.to === '0.5' && sw.fwd.key === 'sin' && sw.back.from === '0.5' && sw.back.to === '30°' && sw.back.key === 'sin⁻¹' &&
+      g.texts.indexOf('sin θ = 150 ÷ 300 = 0.5') >= 0;
+  }, { source: INVERSE });
+  K.check('When you bend an offset the conduit forms a right triangle, the offset depth the vertical (opposite) side and the distance between bends the diagonal (hypotenuse): the first screen marks 150 mm on the upright opposite side and 300 mm on the diagonal hypotenuse, drawn to one scale with a square corner', () => {
+    const g = drawn(0, blank(), 'demo'), P = g.rec.tri, L = g.rec.lab;
+    return L.up === 'opposite 150 mm' && L.hyp === 'hypotenuse 300 mm' && K.near(P.up / P.k, D1, 1e-6) && K.near(P.H / P.k, B1, 1e-6) &&
+      K.near(P.B[0], P.C[0], 1e-9) && K.near(P.A[1], P.B[1], 1e-9);
+  }, { source: CONDUIT });
+  K.check('Sine is the ratio of the opposite side to the hypotenuse, cosine the adjacent side to the hypotenuse, and tangent the opposite side to the adjacent side: on the keys screen sin⁻¹, cos⁻¹ and tan⁻¹ each light exactly that pair of sides, and every angle puzzle\'s answer is the inverse of that ratio of its drawn sides', () => {
+    const i = idx('keys');
+    const lit = (t) => withState(i, blank(), 'demo', () => REC.glowOn.slice().sort().join() + '|' + REC.tiles.filter((x) => x.hl).map((x) => x.rn).join(), t);
+    if (lit(1.25) !== 'hyp,up|sin⁻¹' || lit(2.05) !== 'base,hyp|cos⁻¹' || lit(Infinity) !== 'base,up|tan⁻¹') return false;
+    const p1 = drawn(idx('inv6'), solvedSt(idx('inv6')), 'answer').rec.tri, p3 = drawn(idx('tray'), solvedSt(idx('tray')), 'answer').rec.tri;
+    const p5 = drawn(idx('eq60'), solvedSt(idx('eq60')), 'answer').rec.tri, a12 = drawn(idx('back40'), solvedSt(idx('back40')), 'answer').rec.arr;
+    return STEPS[idx('inv6')].want === deg1(asinD(p1.up / p1.H)) && STEPS[idx('tray')].want === deg1(atanD(p3.up / p3.base)) &&
+      STEPS[idx('eq60')].want === trim(p5.base / p5.H, 3) && STEPS[idx('back40')].want === deg1(atanD(a12.wallPx / a12.floorPx));
+  }, { source: OPENSTAX });
+  K.check('Scientific calculators should be in degrees mode for trigonometry: every calculator drawn, on every screen and in every answer state, is marked DEG, and its inverse key gives degrees, sin⁻¹ 0.5 = 30 where radians would give 0.524', () => {
+    const all = [];
+    ['inv', 'inv6', 'cosec', 'mult45'].forEach((pic) => { const i = idx(pic); statesOf(i).forEach((s) => withState(i, s[0], s[1], () => REC.calcs.forEach((c) => all.push(c)))); });
+    const c0 = drawn(0, blank(), 'demo').rec.calcs[0], c1 = drawn(idx('inv6'), solvedSt(idx('inv6')), 'answer').rec.calcs[0];
+    return all.length >= 10 && all.every((c) => c.tag === 'DEG') && c0.result === trim(asinD(0.5), 0) && trim(Math.asin(0.5), 3) === '0.524' && c0.result !== '0.524' &&
+      c1.result === fix(asinD(s2), 1);
+  }, { source: DEGREES });
+  K.check('For 30 degrees sin(30) = 0.5, so the cosecant is 1/0.5 = 2.0; for 45 degrees sin(45) = 0.7071, so the cosecant is 1/0.7071 = 1.414: the calculators show 1 ÷ sin 30 = 2 and 1 ÷ sin 45 = 1.414, worked out as one over sin, beside sin⁻¹ 0.5 = 30, an angle', () => {
+    const g = drawn(idx('cosec'), blank(), 'demo'), c = g.rec.calcs, m = drawn(idx('mult45'), solvedSt(idx('mult45')), 'answer').rec.calcs[0];
+    return c[0].entry === 'sin⁻¹ 0.5' && c[0].result === '30' && c[1].entry === '1 ÷ sin 30' && c[1].result === trim(1 / sinD(30), 3) && c[1].result === '2' &&
+      g.texts.indexOf('1 ÷ sin 30° = 2.0') >= 0 && g.texts.indexOf('sin⁻¹ 0.5 = 30°') >= 0 && trim(sinD(30), 3) === '0.5' && trim(s45, 4) === '0.7071' &&
+      m.entry === '1 ÷ sin 45' && m.result === '1.414' && m.result === trim(1 / s45, 3);
+  }, { source: CONDUIT });
+  K.check('A 100 N force at 30 degrees has Fx = 100 N • cos 30° = 86.6 N and Fy = 100 N • sin 30° = 50.0 N: the arrow screen opens at 100 N and 30° with exactly these on its floor and wall shadows, each measured off the drawn arrow', () => {
+    const r = drawn(idx('arrow'), blank(), 'demo').rec, A = r.arr;
+    return A.F === F9 && K.near(A.th, TH9, 1e-9) && r.lab.floor === 'F cos θ 86.6 N' && r.lab.wall === 'F sin θ 50.0 N' &&
+      K.near((A.T[0] - A.O[0]) / A.k, 86.6025, 1e-3) && K.near((A.O[1] - A.T[1]) / A.k, 50, 1e-9) && r.tags.indexOf('θ = 30°') >= 0 && r.tags.indexOf('F = 100 N') >= 0;
+  }, { source: PHYS });
+  K.check('To find the vertical component of a force the sine function can be used, and for the horizontal component the cosine: at every whole angle from 0° to 90° the wall shadow is the drawn arrow\'s height and reads F sin θ, the floor shadow its width and reads F cos θ, and turning the arrow up shortens the floor shadow and lengthens the wall shadow while the arrow keeps its length', () => {
+    const i = idx('arrow');
+    let prev = null;
+    for (let th = 0; th <= 90; th++) {
+      const r = drawn(i, stOf({ th }), 'demo').rec, A = r.arr;
+      if (!K.near(A.floorPx, A.T[0] - A.O[0], 1e-9) || !K.near(A.wallPx, A.O[1] - A.T[1], 1e-9)) return false;
+      if (!K.near(Math.hypot(A.floorPx, A.wallPx), F9 * A.k, 1e-6)) return false;
+      if (r.lab.floor !== 'F cos θ ' + newt(F9 * cosD(th)) || r.lab.wall !== 'F sin θ ' + newt(F9 * sinD(th))) return false;
+      if (prev && !(A.floorPx < prev.floorPx && A.wallPx > prev.wallPx)) return false;
+      prev = A;
+    }
+    return true;
+  }, { source: PHYS });
+  K.check('Resolve forces in horizontal and vertical components restricted to the first quadrant: dragging the arrow\'s tip anywhere turns it no further than 0° or 90°, so neither shadow is ever negative, and run backwards each shadow stays between 5 N and 100 N', () => {
+    const O = ARR8.O, angs = [];
+    for (let x = -100; x <= 400; x += 25) for (let y = -60; y <= 330; y += 25) angs.push(tipAngle(O, { x, y }));
+    const sh = [-50, 0, 3, 50, 99.6, 140].map(shadowOf);
+    return angs.every((a) => a >= 0 && a <= 90 && F9 * cosD(a) >= -1e-9 && F9 * sinD(a) >= 0) && angs.indexOf(0) >= 0 && angs.indexOf(90) >= 0 &&
+      sh.every((v) => v >= SMIN && v <= SMAX);
+  }, { source: SYLLABUS });
+  K.check('Run backwards, the shadows give the arrow back: for every pair of shadows, the arrow is drawn from the corner to the point they mark, with the handles on the shadows\' ends, θ reads tan⁻¹(wall ÷ floor) and F reads √(floor² + wall²); switching from 100 N at 30° gives back 30.0° and 100.0 N', () => {
+    const i = idx('arrow');
+    const ok = BACKS.every((b) => {
+      const r = drawn(i, stOf({ back: true, fl: b[0], wa: b[1] }), 'flip').rec, A = r.arr, tl = r.tiles, hs = r.handles;
+      return K.near(A.T[0] - A.O[0], b[0] * A.k, 1e-9) && K.near(A.O[1] - A.T[1], b[1] * A.k, 1e-9) &&
+        tl[0].rv === deg1(atanD(b[1] / b[0])) && tl[1].rv === newt(Math.hypot(b[0], b[1])) &&
+        r.lab.floor === 'F cos θ ' + newt(b[0]) && r.lab.wall === 'F sin θ ' + newt(b[1]) &&
+        hs.some((h) => h.id === 'floor' && h.x === A.T[0] && h.y === A.O[1]) && hs.some((h) => h.id === 'wall' && h.x === A.O[0] && h.y === A.T[1]);
+    });
+    const r = drawn(i, stOf({ back: true, fl: F9 * cosD(TH9), wa: F9 * sinD(TH9) }), 'flip').rec;
+    return ok && r.tiles[0].rv === '30.0°' && r.tiles[1].rv === '100.0 N' && r.tiles[0].rs === 'tan⁻¹(50.0 ÷ 86.6)';
+  });
+  K.check('On the slope the weight W points straight down and its parts lie along the slope and square to it: at every whole tilt from 0° to 40° the part down the slope is W sin α and the part into it W cos α, both measured off the drawing, the weight is α away from the line square to the slope, and 500 N on 20° gives 171.0 N and 469.8 N', () => {
+    const i = idx('slope');
+    for (let al = 0; al <= AMAX; al++) {
+      const r = drawn(i, stOf({ al }), 'demo').rec, s = r.slope;
+      const down = Math.hypot(s.E[0] - s.G[0], s.E[1] - s.G[1]) / s.kw, iv = [s.M[0] - s.G[0], s.M[1] - s.G[1]], into = Math.hypot(iv[0], iv[1]) / s.kw;
+      const sv = [s.P1[0] - s.P0[0], s.P1[1] - s.P0[1]], ev = [s.E[0] - s.G[0], s.E[1] - s.G[1]];
+      if (!K.near(down, W11 * sinD(al), 1e-6) || !K.near(into, W11 * cosD(al), 1e-6)) return false;
+      if (!K.near(sv[0] * iv[0] + sv[1] * iv[1], 0, 1e-6) || !K.near(sv[0] * ev[1] - sv[1] * ev[0], 0, 1e-6)) return false;
+      if (!K.near(s.T[0], s.G[0], 1e-9) || !K.near(Math.acos(K.clamp(iv[1] / Math.hypot(iv[0], iv[1]), -1, 1)) / RAD, al, 1e-6)) return false;
+      if (!K.near(Math.atan2(s.P0[1] - s.P1[1], s.P1[0] - s.P0[0]) / RAD, al, 1e-6)) return false;
+      if (r.lab.down !== 'W sin α ' + newt(W11 * sinD(al)) || r.lab.into !== 'W cos α ' + newt(W11 * cosD(al))) return false;
+    }
+    const r = drawn(i, blank(), 'demo').rec;
+    return r.lab.down === 'W sin α 171.0 N' && r.lab.into === 'W cos α 469.8 N' && r.tags.indexOf('α = 20°') >= 0;
+  });
+  K.check('The line y = 0.5x is drawn with the same scale on both axes: the ticks on both axes are the same distance apart, the line climbs 0.5 for each 1 across, the triangle under it has rise ÷ run = 0.5 measured off the drawing, and its angle is tan⁻¹ 0.5 = 26.6°', () => {
+    const g = drawn(idx('keys'), blank(), 'demo'), G = g.rec.graph, P = g.rec.tri;
+    return G.xTick === G.yTick && K.near((G.O[1] - G.end[1]) / (G.end[0] - G.O[0]), M3, 1e-9) && K.near(P.up / P.base, M3, 1e-9) &&
+      K.near(P.A[0], G.O[0], 1e-9) && K.near(P.A[1], G.O[1], 1e-9) && g.texts.indexOf('θ = tan⁻¹ 0.5 = 26.6°') >= 0 && deg1(atanD(P.up / P.base)) === '26.6°';
+  });
+  K.check('Every worked number matches the lesson: 0.5 and 30°; 36.9°, 1.67 and 53.1°; 26.6°; 21.8°, 23.6° and 66.4°; 0.7071, 1.732, 0.5 and 0.866; 0.5, 0.866 and 0.7071; 2.0; 1.414 and 45°; 86.6 N and 50.0 N; 153.2, 128.6 and 261.1 N; 171.0 and 469.8 N; 253.6, 543.8 and 279.8 N; 24.0°, 66.0° and 26.4°; 13.4957…°, 140.0, 135.0 and 144.0 N', () => {
+    const same = (a, b) => a.length === b.length && a.every((v, k) => v === b[k]);
+    const t0 = drawn(0, blank(), 'demo'), t4 = drawn(idx('exact'), blank(), 'demo').texts, t6 = drawn(idx('cosec'), blank(), 'demo').texts;
+    const t8 = drawn(idx('arrow'), blank(), 'demo').rec, t10 = drawn(idx('slope'), blank(), 'demo').rec;
+    return t0.texts.indexOf('sin θ = 150 ÷ 300 = 0.5') >= 0 && t0.rec.calcs[0].result === '30' &&
+      same(o1, ['1.67', '36.9°', '53.1°']) && same(o3, ['23.6°', '66.4°', '21.8°']) &&
+      ['sin 45° = 1/√2 = 0.7071', 'height = √(4 − 1) = √3 = 1.732', 'sin 30° = 1/2 = 0.5', 'cos 30° = √3/2 = 0.866'].every((s) => t4.indexOf(s) >= 0) &&
+      same(o5, ['0.5', '0.866', '0.7071']) && t6.indexOf('1 ÷ sin 30° = 2.0') >= 0 && same(o7, ['45°', '1.414', 'Error']) &&
+      t8.lab.floor === 'F cos θ 86.6 N' && t8.lab.wall === 'F sin θ 50.0 N' && same(o9, ['128.6 N', '261.1 N', '153.2 N']) &&
+      t10.lab.down === 'W sin α 171.0 N' && t10.lab.into === 'W cos α 469.8 N' && same(o11, ['253.6 N', '543.8 N', '279.8 N']) &&
+      same(o12, ['66.0°', '24.0°', '26.4°']) && same(o13, ['135.0 N', '144.0 N', '140.0 N']) && AL14S === '13.4957…' && trim(cosD(TH10), 3) === '0.766' && trim(sinD(AL12), 4) === '0.4226';
+  });
+  K.check('Each puzzle accepts only its right answer, every wrong answer has its own hint and its own red row of working, and before an answer nothing in the picture shows the answer', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || !d.opts.every((o) => isRight(i, stOf({ pick: o })) === (o === d.want))) return false;
+      const wrongs = d.opts.filter((o) => o !== d.want);
+      if (!wrongs.every((o) => d.hints[o] && d.wrong[o] && wrongs.every((p) => p === o || d.hints[p] !== d.hints[o]))) return false;
+      const b = drawn(i, blank(), 'answer'), s = drawn(i, solvedSt(i), 'answer');
+      if (b.rec.rows.length || b.texts.some((t) => t.indexOf(d.want) >= 0) || b.rec.calcs.some((c) => d.want.indexOf(c.result) === 0 && c.result !== '?')) return false;
+      if (!(s.rec.rows.length === d.right.length && s.rec.rows.every((r) => !r.bad) && s.texts.join(' ').indexOf(d.want) >= 0)) return false;
+      return wrongs.every((o) => { const r = drawn(i, wrongSt(i, o), 'answer').rec.rows; return r.length === 1 && r[0].bad && r[0].s === d.wrong[o]; });
+    }));
+  K.check('No label sits on another label, a line or a handle, or runs off the picture, on any screen in any state: puzzles answered right, wrong or with Why? open, the arrow at every angle and run backwards at its smallest and largest shadows, the slope at every tilt', () =>
+    STEPS.every((d, i) => statesOf(i).every((s) => withState(i, s[0], s[1], () => crowding(i).length === 0))));
+  K.check('Every demonstration has finished within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; each answer, Why? and switch has settled within 1.8 s', () =>
+    STEPS.every((d, i) => {
+      const timed = (st, m) => withState(i, st, m, () => [latest, earliest]);
+      if (d.show) {
+        const t = timed(blank(), 'demo');
+        if (!(t[0] <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && t[1] >= FADE)) return false;
+        if (d.pic === 'arrow' && timed(stOf({ back: true, fl: 86.6, wa: 50 }), 'flip')[0] > FLIP + 1e-9) return false;
+        return true;
+      }
+      return statesOf(i).every((s) => timed(s[0], s[1])[0] <= ANS + 1e-9);
+    }));
+
+  K.ready();
+</script>

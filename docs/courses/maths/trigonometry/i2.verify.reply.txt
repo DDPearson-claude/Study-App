@@ -1,0 +1,16 @@
+{
+ "issues": [
+  {
+   "path": "practice.text",
+   "problem": "\"Divide the two sides, then press the inverse key\" does not work as written on common natural-display calculators, where sin⁻¹ opens a bracket that needs the ratio inside it; keying sin⁻¹(6 ÷ 10) works on any of them.",
+   "severity": "fix",
+   "now": "- To find an angle, mark the right angle and θ, and name the two sides you know from θ.\n- Choose the key from those two sides: opposite and hypotenuse take sin⁻¹, adjacent and hypotenuse cos⁻¹, opposite and adjacent tan⁻¹.\n- Key in the inverse key with the two sides divided inside it, such as sin⁻¹(6 ÷ 10), with the calculator in degrees mode.[^8]\n- To split a force, measure θ from the floor, or from the slope. The part along that line is F cos θ, and the part square to it is F sin θ.[^6]\n- Check: neither part is longer than F, and √(floor² + wall²) gives F back.\n\n**Rule of thumb:** Want an angle, use an inverse key. Want a side, use plain sin, cos or tan and rearrange.\n\n**Worked example:** A winch rope pulls a skid with an example 800 N at 15° above the floor. Along the floor: 800 × cos 15° = 772.7 N. Up from the floor: 800 × sin 15° = 207.1 N. As a check, run it backwards: tan⁻¹(207.1 ÷ 772.7) = 15.0°, and √(772.7² + 207.1²) = 800 N.\n\n**Common mistakes**\n- Reading sin⁻¹ as one over sin. sin⁻¹ 0.6 is an angle, 36.9°, while 1 ÷ 0.6 is 1.67, a number. One over sin is the cosecant, the conduit multiplier.[^1]\n- The wrong inverse key. With opposite 6 and hypotenuse 10, cos⁻¹ 0.6 gives 53.1°, the triangle's other angle.\n- Measuring θ from the wall. Then cos and sin swap: F cos θ is always the part along the line θ is measured from.\n- Rounding in the middle. Rounding 13.4957° to 13° turns a 140.0 N answer into 135.0 N.\n- Keying in a side or an angle where a ratio belongs, such as sin⁻¹ 45. No sine is more than 1, so the calculator shows an error: divide the two sides first."
+  },
+  {
+   "path": "interactive.ignores",
+   "problem": "Says answers are rounded to one decimal place, but the lesson also shows 1.67, 0.7071, 1.414, 0.866, 24° and 66°, and 13.4957° deliberately unrounded, so the blanket rule is not true of its own figures.",
+   "severity": "fix",
+   "now": "The forces, weights, lengths and angles are example figures chosen so the working shows clearly; only the 100 N at 30° is a source's own example. Most answers are rounded to one decimal place, while the working keeps every figure. The arrow turns only from 0° to 90°, as angles past 90° are a later lesson. The block on the slope is drawn with its weight alone, with no friction or other force, because the screen only splits the weight into parts; it does not say whether the block slides."
+  }
+ ]
+}
