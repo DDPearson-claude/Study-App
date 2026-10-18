@@ -308,7 +308,17 @@ U.setTitle = function (text) {
   try { document.title = (text ? String(text).replace(/\s+/g, ' ').trim().slice(0, 80) + ' · ' : '') + 'My University'; } catch (e) { /* fine */ }
 };
 U._route = function () {
-  var hash = U.currentHash();
+  var full = U.currentHash();
+  // A query after the route (#/review?topic=…) is the screen's to read as ctx.query: plain names,
+  // and only values that pass U.validId. The route is the part before it.
+  var qi = full.indexOf('?'), hash = qi >= 0 ? full.slice(0, qi) : full, query = {};
+  if (qi >= 0) full.slice(qi + 1).split('&').forEach(function (kv) {
+    var k = kv.split('=')[0], v = kv.slice(k.length + 1);
+    try { v = decodeURIComponent(v); } catch (e) { v = ''; }
+    if (/^[a-z]+$/.test(k) && U.validId(v)) query[k] = v;
+  });
+  // Where Dan came from (U._from), for a screen that goes back there (the review's close).
+  if (full !== U._at) { U._from = U._at || null; U._at = full; }
   // Find the route and decode its params before touching the screen: a malformed %-escape
   // (or any other bad address) goes home instead of leaving a blank view.
   var r = null, params = {}, bad = false;
@@ -334,7 +344,7 @@ U._route = function () {
   U.setTab(r.opts.tab || null);
   U.setTitle(typeof r.opts.title === 'string' ? r.opts.title : '');
   if (bad) { U.notHere(view); window.scrollTo(0, 0); U._focusScreen(view, seq, prevFocus); return; }
-  var ctx = { view: view, hash: hash, alive: function () { return seq === U._routeSeq; } };
+  var ctx = { view: view, hash: hash, query: query, alive: function () { return seq === U._routeSeq; } };
   try {
     var out = r.handler(params, ctx);
     if (out && typeof out.then === 'function') out.then(function (c) { if (typeof c === 'function') { if (ctx.alive()) U._cleanup = c; else c(); } }, function (e) { U.fail(view, e); });

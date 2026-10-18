@@ -1372,10 +1372,13 @@ U.review.addFromLesson(tid, iid, lesson, outcome, {round?, at?}) -> Promise<[car
 U.review.mendCards(force?) -> Promise<[{tid, iid}]>   never rejects; at most once a minute after a clean run
 U.review.queue({cap, light, extra}) -> Promise<[card]>;  dueCount() -> Promise<n>;  refreshBadge();  setBadge(n)
 U.review.ideaBands() -> Promise<{tid:{iid: band}}>;  slipping() -> Promise<[{tid, iid, lapses, last}]>
-U.review.outlook() -> Promise<{size, done, cards, minutes, head, lead, next}>   size = dueCount (same read); minutes = Today's
-    "About N minutes" for that session (per card type; 0 when nothing waits), which Learn's reviews row shows too;
-    head, lead, next = Today's words
-    when nothing is waiting ("Done for today", ..., "Next up: 5 cards tomorrow." or ''); next counts cards the daily limit held back.
+U.review.outlook() -> Promise<{size, done, cards, minutes, head, lead, next}>   size = dueCount (same read); minutes = the
+    time for that session (per card type; 0 when nothing waits); head, lead, next = Today's words
+    when nothing is waiting ("Done for today", ..., "Next up: 5 puzzles tomorrow." or ''); next counts what the daily limit held back.
+U.review.box() -> Promise<{size, courses: [{tid, n, ideas: [iid]}]}>   the puzzles in the box: every card ready to flip through
+    now (due today or before; the word "due" is never shown), by course, most first. The Library's puzzle row, a course
+    page's "Puzzles from this course" and Today's By course read it.
+U.review.queue({..., topic}) and #/review?topic=<tid> (and #/review/more?topic=): that course's puzzles only.
     Today and a review with nothing to show (#/review, #/review/more) draw the same words (clearBox in 60-today.js)
 ```
 Views and app services
@@ -1556,16 +1559,12 @@ topics started here are not source-checked); "Not connected." with the steps to 
   goal sentence's number has gone under the bar (or off the screen), so the instruction never
   shows twice at once, and it comes in under Check (in the docked bar, beside it), so Check
   never moves.
-- Returning Learn with `#view` at least 900 px wide puts the reviews row (320-380 px) beside its
-  compact ask; with nothing waiting, a quiet line in Today's words from `U.review.outlook()` (done
-  for today or nothing to review, and when cards come back). One column hides the quiet line, and
-  the reviews row is as wide as its words there, so its arrow stays by its label. First-run Learn
-  goes two columns (the welcome beside the full ask) only when `#view` is at least 58rem wide (the
-  ask keeps 35rem, so the breakpoint follows the text size). The ask box fits its height to its
-  text or placeholder whenever its width, its placeholder or the text size changes; while Claude
-  plans it shows the whole question, and wherever the form itself is under 36rem wide (a phone,
-  or the ask's column on a narrower laptop; `.ask-form` is a size container named `ask-form`)
-  "Planning…" takes its own row under it, so the box never grows tall beside the button.
+- The Library's home (`#/`, screen `library`, up to `--wide` on a laptop): the look-up field runs
+  the full width; under it the left-open row and the puzzle row stack on a phone and sit side by
+  side (two equal columns) when `#view` is at least 900 px wide; the shelf cards go two a row from
+  608 px, as on a shelf page. The puzzle row alone is as wide as its words. Look-up results take
+  the page's place under the field, in one column. (Learn's layout rules stay in 70-views.css
+  while its unhooked screen does.)
 - The topic page's ready state has regions `top` (header), `main` (in one breath, warm-up, path),
   `rail` (Ask Claude, the dossier option, Sources) and `end` (Delete) in `71-topic.js`. They stack in that order;
   when `#view` is at least 900 px wide, main and rail sit side by side (rail 300-360 px). The
@@ -1603,9 +1602,9 @@ as comment cards. Two parts, both additive (no screen's markup or behaviour was 
   topic)` (70-learn.js) picks one from a course's hue, or from its title when there is no topic. The
   shelves (`76-shelves.js`) give every shelf, folder and course card `data-tone`: a 5 px band at its left
   edge, the icon tile and the course's number in the tint and ink; a course not built yet wears it
-  faintly; a built course takes its topic's own hue once that is read. The Library's doors are blue
-  (Dossiers) and orange (Ready-made courses); a Map card carries a band along its top like a dossier
-  tile. Meaning colours are untouched: teal labels, green finished, amber due, red warnings, ink controls.
+  faintly; a built course takes its topic's own hue once that is read. (The Library's two doors,
+  blue and orange, went with the two-door page on 18 Oct.) A Map card carries a band along its top
+  like a dossier tile. Meaning colours are untouched: teal labels, green finished, amber due, red warnings, ink controls.
 - **Learn in colour** (Dan, 14 Oct: "more colour on the learn screen"): `V.toneOf` now picks the
   tone whose own hue is nearest the course's hue (blue 220, violet 258, orange 28, teal 188, pink 325,
   indigo 238), so a card's band agrees with the cover beside it. On Learn the continue card wears a
@@ -1614,6 +1613,28 @@ as comment cards. Two parts, both additive (no screen's markup or behaviour was 
   tone their course would take, and the welcome's three steps take blue, orange and teal. The
   generated covers mix their hue a little stronger everywhere (`.cover .cv-*`, 70-views.css). Bars
   and buttons stay ink; finished stays green.
+- **The Library is the home** (Dan, 18 Oct: ready-made courses only, "material and content I can
+  dive into when I feel like learning something new or brushing up"; the design and its mockups:
+  `docs/design/library-home/`; built from `docs/HANDOFF-build-library-home.md`). Tabs are Library,
+  Today and Book; nothing is due, nothing counts down, Today has no badge. The home (77-library.js):
+  the greeting, "Your library", the look-up field (styled as the ask box was: 2 px `--edge`, radius
+  16 px, a search icon), the left-open row (a `.today-row` with the course's tone band, its 48 px
+  cover, "LEFT OPEN · COURSE" in the tone's ink, the lesson, "lesson n of m" in `--mono`), the
+  puzzle row (a `.today-row` with a teal tile, never amber), then the shelves; a row with nothing to
+  say is not drawn. Shelves with nothing built fold under one `.lib-fold` line, as cards that open
+  nothing (grey tile, "On the way · about n courses"); a folder's planned courses fold under "n more
+  coming" (open when nothing in it is built; each fold kept as he left it). Look-up: every built
+  course's lesson titles and one lines and the courses' titles and blurbs; case-insensitive, every
+  typed word in the title or the one line, titles first; lesson rows in the shelf-course shape, then
+  course rows, a `--mono` count line, "Nothing called that yet…" when none; a lesson row's "ready to
+  browse" or "coming soon" is read from its lesson doc (the first twelve rows). The topic page: the
+  current node of "Your path" shows the lesson's first drawing (its guide's first `show` picture, as
+  an image on a white well like the dossier's plates, its own width and height taken off so its
+  viewBox sizes it), the header's Start/Continue button is gone (the node's own button is the way
+  in), back goes to the course's folder by name, and "n puzzles from lessons a to b" follows the
+  path once the course has puzzles in the box. Today is the puzzle box: "n puzzles in the box",
+  where they come from, Flip through, By course with Just these, Light day ("Just 5 puzzles, then
+  stop"), This week; Today and a review call cards "puzzles" and never say "due".
 - **The dossier** (design 3, "the field guide", chosen on 10 Oct; `docs/design/dossier-field-guide/`)
   took the same look in place of its field journal (cloth covers, tape, stamps, ring stains,
   hand-lettered fonts, Literata, its own ink palette for the plates): tiles in the token names
@@ -1647,7 +1668,7 @@ as comment cards. Two parts, both additive (no screen's markup or behaviour was 
     knows what he has just done. A typed reply is his own question (saved to progress.questions like
     any he types there); a chip is not, even when it waited in the box because a reply was still
     coming (sent unedited it is still a chip; edited, it is his).
-  - Learn (70-learn.js): "Claude's notes" under Continue: for each idea he has said back in its
+  - Learn (70-learn.js, unhooked since 18 Oct, so not shown): "Claude's notes" under Continue: for each idea he has said back in its
     current round (say entries whose `round` is the idea's `round`; a Learn it again starts afresh),
     Claude's latest words on it (the follow-up question when he was not there yet, else what he
     nailed), newest first, at most three, each opening its lesson. Its link says "Have another go"

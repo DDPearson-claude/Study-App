@@ -14,9 +14,10 @@
 //   U.review.outlook() -> Promise<{size, done, cards, minutes, head, lead, next}>   dueCount, cards
 //       reviewed today, cards in all, Today's time for today's session ("About 5 minutes", from each
 //       card's type; 0 when nothing is waiting), and Today's words when nothing is waiting ("Done for
-//       today", its lead, "Next up: 2 cards tomorrow." or ''), for Learn's reviews row and quiet line
-//   U.review.box() -> Promise<{size, courses: [{tid, n, ideas: [iid]}]}>   what is in the box: every
-//       card that can come back, due or not, and by course (most first), for the Library's puzzle row
+//       today", its lead, "Next up: 2 puzzles tomorrow." or '')
+//   U.review.box() -> Promise<{size, courses: [{tid, n, ideas: [iid]}]}>   what is in the box: the
+//       puzzles ready to flip through now (due today or before, never called "due"), and by course
+//       (most first), for the Library's puzzle row, a course's puzzles and Today's By course
 //   U.review.refreshBadge()                    re-reads what the box holds (the Today tab carries no
 //       badge since the Library became the home, 18 Oct: nothing counts down; #today-badge, if a
 //       page still has one, is filled)
@@ -26,7 +27,10 @@
 //   Ideas read, not studied ("Just teach me": progress readRound is the idea's round) have no
 //   cards, and any left from an earlier round are never counted anywhere (loadCards).
 //
-// Routes: '#/today' (tab), '#/review' and '#/review/more' (focus mode, one card per screen).
+// Routes: '#/today' (tab), '#/review' and '#/review/more' (focus mode, one card per screen); either
+// review with ?topic=<tid> takes that course's puzzles only, and closes back to where it was opened.
+// Today is the puzzle box (Dan, 18 Oct: the Library home design): it counts the puzzles in the box
+// and never says "due"; the cards are "puzzles" in every word Today and a review say.
 // Cards live one doc per topic at data/users/{uid}/profile/cards/{tid} as {cards:{[id]: Card}}.
 // Card fields beyond the contract: learnedAt (last time the lesson was completed; lapses before it
 // no longer count towards "Learn it again") and retired (a card that cannot be used: its interactive
@@ -191,6 +195,7 @@
         if (!hist(c).some(function (e) { return dayOf(e.at) === day; })) held++;
         return false;
       }).sort(byPriority(day));
+      if (opts.topic) due = due.filter(function (c) { return c.tid === opts.topic; });
       var cap = capOf(prefs, opts), done = reviewedOn(d.cards, day) + held;
       var size = Math.min(due.length, opts.extra ? cap : Math.max(0, cap - done));
       return { data: d, day: day, prefs: prefs, due: due, cap: cap, done: done, size: size, queue: interleave(due.slice(0, size)) };
@@ -445,6 +450,24 @@
     });
   }
 
+  // The puzzles in the box by course, the course with most first: [{tid, n, ideas: [iid]}].
+  function boxOf(cards) {
+    var by = {}, courses = [];
+    cards.forEach(function (c) {
+      if (!by[c.tid]) courses.push(by[c.tid] = { tid: c.tid, n: 0, ideas: [] });
+      by[c.tid].n++;
+      if (by[c.tid].ideas.indexOf(c.iid) < 0) by[c.tid].ideas.push(c.iid);
+    });
+    courses.sort(function (a, b) { return b.n - a.n; });
+    return { size: cards.length, courses: courses };
+  }
+  // " from lessons 1 to 3", " from lesson 2", or '' (lessons by their place in the course).
+  function fromLessons(topics, tid, iids) {
+    var ideas = ((topics[tid] && topics[tid].ideas) || []).map(function (i) { return i.id; });
+    var n = iids.map(function (iid) { return ideas.indexOf(iid) + 1; }).filter(function (k) { return k > 0; }).sort(function (a, b) { return a - b; });
+    return !n.length ? '' : n[0] === n[n.length - 1] ? ' from lesson ' + n[0] : ' from lessons ' + n[0] + ' to ' + n[n.length - 1];
+  }
+  function andList(list) { return list.length <= 1 ? list.join('') : list.slice(0, -1).join(', ') + ' and ' + list[list.length - 1]; }
   function setBadge(n) {
     var b = document.getElementById('today-badge');
     if (!b) return n;
@@ -458,21 +481,9 @@
     mendCards: mendCards,
     queue: function (opts) { return plan(opts).then(function (p) { return p.queue; }); },
     dueCount: function () { return planShared().then(function (p) { return p.size; }); },
-    box: function () {
-      return planShared().then(function (p) {
-        var by = {}, courses = [];
-        p.data.cards.forEach(function (c) {
-          if (c.retired) return;
-          if (!by[c.tid]) courses.push(by[c.tid] = { tid: c.tid, n: 0, ideas: [] });
-          by[c.tid].n++;
-          if (by[c.tid].ideas.indexOf(c.iid) < 0) by[c.tid].ideas.push(c.iid);
-        });
-        courses.sort(function (a, b) { return b.n - a.n; });
-        return { size: courses.reduce(function (n, c) { return n + c.n; }, 0), courses: courses };
-      });
-    },
-    // For Learn, from the same read as dueCount: Today's time for the session (so the two screens
-    // never disagree) and, when nothing is waiting, Today's words.
+    box: function () { return planShared().then(function (p) { return boxOf(p.due); }); },
+    // From the same read as dueCount: Today's time for the session and, when nothing is waiting,
+    // Today's words.
     outlook: function () {
       return planShared().then(function (p) { var w = clearWords(p); return { size: p.size, done: p.done, cards: p.data.cards.length, minutes: p.size ? minutesFor(p.queue) : 0, head: w.head, lead: w.lead, next: w.next }; });
     },
@@ -519,19 +530,18 @@
     var upcoming = p.data.cards.filter(function (c) { return !c.retired && c.s && c.s.due > p.day; });
     var nextDay = held ? U.addDays(p.day, 1) : upcoming.reduce(function (m, c) { return !m || c.s.due < m ? c.s.due : m; }, null);
     var nextN = Math.min(held + upcoming.filter(function (c) { return c.s.due === nextDay; }).length, capOf(Object.assign({}, p.prefs, { lightDay: '' }), {}));
-    return nextDay ? 'Next up: ' + plural(nextN, 'card') + ' ' + whenDay(nextDay, p.day) + '.' : '';
+    return nextDay ? 'Next up: ' + plural(nextN, 'puzzle') + ' ' + whenDay(nextDay, p.day) + '.' : '';
   }
-  // The words for a day with nothing waiting: one set, for Today, a review with nothing to show
-  // and Learn's quiet line.
+  // The words for a day with nothing waiting: one set, for Today and a review with nothing to show.
   function clearWords(p) {
-    var w = p.done > 0 ? ['Done for today', 'You reviewed ' + plural(p.done, 'card') + ' today. That is what keeps it all fresh.']
-      : !p.data.cards.length ? ['Nothing to review yet', 'When you finish a lesson, the questions you answered come back the next day, so they stick.']
-      : ['Nothing to review today', 'Everything you have learned is holding up for now.'];
+    var w = p.done > 0 ? ['Done for today', 'You flipped through ' + plural(p.done, 'puzzle') + ' today. That is what keeps it all fresh.']
+      : !p.data.cards.length ? ['Nothing in the box yet', 'Finish a lesson and its puzzles come here.']
+      : ['Nothing in the box today', 'Everything you have learned is holding up for now.'];
     return { head: w[0], lead: w[1], next: nextUp(p) };
   }
   // Nothing waiting, on Today and in a review with nothing to show: those words, and any cards the
   // daily limit held back, offered without hurry. `first` is the main way on.
-  function clearBox(p, first) {
+  function clearBox(p, first, topic) {
     var w = clearWords(p), more = p.due.length;
     var box = h('section', { class: 'td-clear' });
     if (p.done > 0) box.appendChild(h('div', { class: 'td-done-mark', 'aria-hidden': 'true' }, U.icon('tick')));
@@ -539,9 +549,9 @@
     box.appendChild(h('p', { class: 'td-lead' }, w.lead));
     if (w.next) box.appendChild(h('p', { class: 'muted td-next' }, w.next));
     var actions = h('div', { class: 'td-actions' }, first);
-    if (more > 0) actions.appendChild(h('a', { class: 'btn wide secondary', href: '#/review/more' }, 'Review ' + Math.min(MORE, more) + ' more'));
+    if (more > 0) actions.appendChild(h('a', { class: 'btn wide secondary', href: '#/review/more' + (topic ? '?topic=' + encodeURIComponent(topic) : '') }, 'Flip through ' + Math.min(MORE, more) + ' more'));
     box.appendChild(actions);
-    if (more > 0) box.appendChild(h('p', { class: 'muted small td-more-note' }, plural(more, 'more card is', 'more cards are') + ' due. There is no rush: they wait for you.'));
+    if (more > 0) box.appendChild(h('p', { class: 'muted small td-more-note' }, plural(more, 'more puzzle is', 'more puzzles are') + ' in the box. There is no rush: they keep.'));
     return box;
   }
   function whenDay(day, today) {
@@ -654,7 +664,7 @@
     function draw(p) {
       U.clear(root);
       root.appendChild(h('p', { class: 'eyebrow td-date' }, longDate(p.day)));
-      if (p.size > 0) drawDue(p);
+      if (p.size > 0) drawBox(p);
       else { drawClear(p); drawNotes(p); }
       U.append(root, relearnBlock(slipping, topics));
       root.appendChild(weekStrip(p.data.profile.days, p.day, p.data.cards));
@@ -684,30 +694,32 @@
         setTimeout(function () { U.review.refreshBadge(); }, 400);
       });
       return h('label', { class: 'td-light' },
-        h('span', { class: 'td-light-text' }, h('strong', null, 'Light day'), h('span', { class: 'muted small', id: 'td-light-note' }, lasting ? 'Light days are on in settings: ' + LIGHT_CAP + ' cards a day, the most overdue first.' : 'Just ' + LIGHT_CAP + ' cards today, the most overdue first.')),
+        h('span', { class: 'td-light-text' }, h('strong', null, 'Light day'), h('span', { class: 'muted small', id: 'td-light-note' }, lasting ? 'Light days are on in settings: just ' + LIGHT_CAP + ' puzzles a day, then stop.' : 'Just ' + LIGHT_CAP + ' puzzles, then stop.')),
         light);
     }
 
-    function drawDue(p) {
-      var names = uniq(p.queue.map(function (c) { return c.tid; })).map(function (tid) { return topicTitle(topics, tid); });
-      var count = h('span', { class: 'td-count-n' }), minutes = h('span');
-      var start = h('button', { class: 'btn wide td-start', type: 'button', on: { click: function () { U.go('#/review'); } } }, 'Start review', U.icon('arrow'));
-      var countWord = h('span', { class: 'td-count-word' });
-      function update(q) {
-        count.textContent = String(q.size);
-        countWord.textContent = q.size === 1 ? 'card to revisit' : 'cards to revisit';
-        minutes.textContent = 'About ' + plural(minutesFor(q.queue), 'minute');
+    // The box: how many puzzles are in it and from where, Flip through, then By course (when
+    // there are two or more), each with "Just these". The Light day switch bounds a batch.
+    function drawBox(p) {
+      var box = boxOf(p.due);
+      var names = box.courses.map(function (c) { return topicTitle(topics, c.tid); });
+      root.appendChild(h('h1', { class: 'td-title' }, plural(box.size, 'puzzle') + ' in the box'));
+      root.appendChild(h('p', { class: 'td-lead' }, (names.length ? 'From ' + andList(names) + '. ' : '') + 'Flip through a few, or leave them. They keep, and come back round when a second look would help.'));
+      var start = h('button', { class: 'btn wide td-start', type: 'button', on: { click: function () { U.go('#/review'); } } }, 'Flip through', U.icon('arrow'));
+      root.appendChild(h('section', { class: 'td-plan', 'aria-label': 'The puzzle box' }, start));
+      if (box.courses.length > 1) {
+        root.appendChild(h('section', { class: 'td-by', 'aria-labelledby': 'td-by-h' },
+          h('h2', { class: 'eyebrow', id: 'td-by-h' }, 'By course'),
+          h('ul', { class: 'td-by-list' }, box.courses.map(function (c) {
+            var t = topics[c.tid], tone = U.views && U.views.toneOf ? U.views.toneOf(topicTitle(topics, c.tid), t) : null;
+            return h('li', { class: 'td-by-row', 'data-tone': tone },
+              h('span', { class: 'td-by-text' }, h('strong', null, topicTitle(topics, c.tid)), h('span', { class: 'muted small' }, plural(c.n, 'puzzle') + fromLessons(topics, c.tid, c.ideas))),
+              h('a', { class: 'btn secondary small td-by-go', href: '#/review?topic=' + encodeURIComponent(c.tid), 'aria-label': 'Just these: ' + topicTitle(topics, c.tid) }, 'Just these'));
+          }))));
       }
-      root.appendChild(h('h1', { class: 'td-title' }, 'Today\'s review'));
-      root.appendChild(h('p', { class: 'td-lead' }, 'A few things you learned are ready to come back. Remembering them now is what makes them stick.'));
-      root.appendChild(h('section', { class: 'card td-plan', 'aria-label': 'Today\'s plan' },
-        h('p', { class: 'td-count' }, count, ' ', countWord),
-        h('p', { class: 'td-meta muted' }, minutes, names.length ? ' · from ' + names.slice(0, 3).join(', ') + (names.length > 3 ? ' and more' : '') : ''),
-        // A light day can leave nothing for today (Dan has already reviewed 5 or more): then the
-        // screen says so, as after a session, instead of "0 cards to revisit".
-        lightRow(p, function (q) { if (q.size > 0) update(q); else redraw(q); }),
-        start));
-      update(p);
+      // A light day can leave nothing for today (Dan has already flipped through 5 or more): then
+      // the screen says so, as after a session.
+      root.appendChild(lightRow(p, function (q) { if (q.size <= 0) redraw(q); }));
     }
 
     // Claude's notes on today's review (D4), once the session is done: for each idea reviewed today,
@@ -732,7 +744,7 @@
     }
 
     function drawClear(p) {
-      var box = clearBox(p, h('a', { class: 'btn wide', href: '#/' }, 'Learn something new'));
+      var box = clearBox(p, h('a', { class: 'btn wide', href: '#/' }, 'Browse your library'));
       // When today's light day is what holds those cards back, its switch stays here to undo it.
       if (p.due.length > 0 && !p.prefs.light && lightToday(p.prefs)) box.appendChild(lightRow(p, redraw));
       root.appendChild(box);
@@ -746,7 +758,12 @@
       var fill = h('i', { style: { width: '0%' } });
       var bar = h('div', { class: 'bar rv-bar', role: 'progressbar', 'aria-label': 'Review progress', 'aria-valuemin': '0', 'aria-valuemax': '0', 'aria-valuenow': '0' }, fill);
       var count = h('span', { class: 'rv-count' });
-      var close = h('button', { class: 'icon-btn rv-close', type: 'button', 'aria-label': 'Close review', on: { click: function () { U.go('#/today'); } } }, U.icon('close'));
+      // ?topic=<tid>: that course's puzzles only. Its close goes back where it was opened from
+      // (Today, or the course page), and so do the buttons that end it.
+      var topic = ctx.query && ctx.query.topic || null;
+      var from = U._from && /^#\/(today|t\/[^/?]+)$/.test(U._from) ? U._from : '#/today';
+      var backLabel = from === '#/today' ? 'Back to Today' : 'Back to the course';
+      var close = h('button', { class: 'icon-btn rv-close', type: 'button', 'aria-label': 'Close review', on: { click: function () { U.go(from); } } }, U.icon('close'));
       var where = h('p', { class: 'rv-where' });
       var stage = h('div', { class: 'rv-stage' }, h('div', { class: 'skeleton', style: { height: '220px' } }));
       root.append(h('div', { class: 'rv-top' }, close, bar, count), where, stage);
@@ -754,7 +771,7 @@
 
       var S = { plan: null, queue: [], i: 0, topics: {}, results: [], saves: [], ms: 0, el: null, logged: false };
 
-      plan(extra ? { extra: true, cap: MORE } : {}).then(function (p) {
+      plan(Object.assign(extra ? { extra: true, cap: MORE } : {}, topic ? { topic: topic } : {})).then(function (p) {
         S.plan = p;
         S.queue = p.queue;
         return topicsFor(uniq(p.queue.map(function (c) { return c.tid; })));
@@ -861,7 +878,7 @@
       function empty(p) {
         fill.style.width = '100%';
         count.textContent = '';
-        var box = clearBox(p, h('a', { class: 'btn wide', href: '#/today' }, 'Back to Today'));
+        var box = clearBox(p, h('a', { class: 'btn wide', href: from }, backLabel), topic);
         box.classList.add('rv-empty');
         U.clear(stage).appendChild(box);
       }
@@ -898,7 +915,7 @@
         U.clear(stage).appendChild(h('section', { class: 'rv-done' },
           h('div', { class: 'td-done-mark', 'aria-hidden': 'true' }, U.icon('tick')),
           h('h1', { tabindex: '-1' }, 'Review done'),
-          h('p', { class: 'td-lead' }, n ? 'You went through ' + plural(n, 'card') + ' in about ' + plural(mins, 'minute') + '.' : 'Nothing was reviewed this time.'),
+          h('p', { class: 'td-lead' }, n ? 'You flipped through ' + plural(n, 'puzzle') + ' in about ' + plural(mins, 'minute') + '.' : 'Nothing was flipped through this time.'),
           n ? h('dl', { class: 'rv-stats' },
             h('div', null, h('dt', null, 'Remembered'), h('dd', null, String(kept))),
             h('div', null, h('dt', null, 'Back tomorrow'), h('dd', null, String(again.length)))) : null,
@@ -907,8 +924,8 @@
             h('p', { class: 'rv-back-count' }, backCount(again.length, back.length)), h('ul', null, back)) : null,
           relearnBlock(slipping, S.topics),
           h('div', { class: 'td-actions' },
-            h('a', { class: 'btn wide', href: '#/today' }, 'Done'),
-            h('a', { class: 'btn wide secondary', href: '#/' }, 'Learn something new'))));
+            h('a', { class: 'btn wide', href: from }, 'Done'),
+            h('a', { class: 'btn wide secondary', href: '#/' }, 'Browse your library'))));
         // No pop-up cheer here: the page's own tick already says it, and the cheer covered the heading.
         var h1 = stage.querySelector('.rv-done h1');
         if (h1) try { h1.focus({ preventScroll: true }); } catch (e) { /* fine */ }

@@ -505,10 +505,10 @@ const settle = (app) => app.page.evaluate(() => new Promise((r) => requestAnimat
 await test('ux3b: Today and a review with nothing to show say the same words, and count what the daily limit held back', async () => {
   for (const [name, db, head, sub] of [
     // The limit (15) is used up and 5 are still due: they wait for tomorrow (2 more come back in two days).
-    ['limit used up', withCards(seedDb(), { due: 5, later: 2, doneToday: 15 }), 'Done for today', /^Next up: 5 cards tomorrow\.$/],
-    ['done for today', withCards(seedDb(), { later: 2, doneToday: 3 }), 'Done for today', /^Next up: 2 cards on \S+\.$/],
-    ['nothing due', withCards(seedDb(), { later: 2 }), 'Nothing to review today', /^Next up: 2 cards on \S+\.$/],
-    ['no cards yet', seedDb(), 'Nothing to review yet', /^When you finish a lesson, the questions you answered come back the next day, so they stick\.$/],
+    ['limit used up', withCards(seedDb(), { due: 5, later: 2, doneToday: 15 }), 'Done for today', /^Next up: 5 puzzles tomorrow\.$/],
+    ['done for today', withCards(seedDb(), { later: 2, doneToday: 3 }), 'Done for today', /^Next up: 2 puzzles on \S+\.$/],
+    ['nothing ready', withCards(seedDb(), { later: 2 }), 'Nothing in the box today', /^Next up: 2 puzzles on \S+\.$/],
+    ['no cards yet', seedDb(), 'Nothing in the box yet', /^Finish a lesson and its puzzles come here\.$/],
   ]) {
     const app = await open(1366, 768, { db });
     const words = (sel) => app.page.evaluate((box) => {
@@ -519,7 +519,7 @@ await test('ux3b: Today and a review with nothing to show say the same words, an
     const today = await words('.td-clear');
     eq(today.head, head, `${name}: Today's heading`);
     assert(sub.test(today.next || today.lead), `${name}: Today says "${today.next || today.lead}"`);
-    if (name === 'limit used up') assert(/^5 more cards are due/.test(today.more), 'Today still offers the 5 waiting, without hurry: ' + today.more);
+    if (name === 'limit used up') assert(/^5 more puzzles are in the box/.test(today.more), 'Today still offers the 5 waiting, without hurry: ' + today.more);
     // The focus-mode review with nothing to show (an old link, Back after a session) says the same,
     // never a third wording; with the limit used up, #/review/more still has the 5 waiting.
     for (const hash of name === 'limit used up' ? ['#/review'] : ['#/review', '#/review/more']) {
@@ -528,7 +528,7 @@ await test('ux3b: Today and a review with nothing to show say the same words, an
       await noSideways(app, `${name}: ${hash}`);
     }
     if (name !== 'limit used up') continue;
-    // Side by side on a laptop, "Back to Today" and "Review 5 more" keep one line at every text size.
+    // Side by side on a laptop, "Back to Today" and "Flip through 5 more" keep one line at every text size.
     for (const size of ['m', 'xl']) {
       await app.page.evaluate((v) => U.settings.apply(Object.assign({}, U.settings.prefs, { size: v })), size);
       await settle(app);
@@ -741,7 +741,7 @@ await test('d4: the note byline at Large and Extra large keeps one row; a long c
   }
 });
 
-await test('d4: Today\'s notes come after the session (none above Start review), in the first paint; nothing below them moves', async () => {
+await test('d4: Today\'s notes come after the session (none above Flip through), in the first paint; nothing below them moves', async () => {
   const said = (db) => withProgress(db, 'how-tides-work-ab12', { ...SEED.progress['how-tides-work-ab12'], ideas: { ...SEED.progress['how-tides-work-ab12'].ideas, i1: { stage: 'done', round: 0, say: { k: { ...SAID } } } } });
   // Due: the cards are still to be recalled, so no note gives their answers away.
   {

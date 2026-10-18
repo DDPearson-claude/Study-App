@@ -10,6 +10,22 @@ Version 9 (published 7 Oct 2026, commit e935fae): "Just teach me" courses, the i
 "Put it into practice", and dossiers without test questions.
 Version 10: course pictures through Dan's Hugging Face connector (Claude MCP, Z-Image Turbo).
 
+The Library home (built 18 Oct 2026, phases 1 to 5 of docs/HANDOFF-build-library-home.md; not yet
+published): tabs Library, Today, Book; the home with look-up, the course left open, the puzzle box
+and the shelves (planned shelves and courses folded away); a picture on the lesson he is on and
+the course's puzzles on its page; Today as the puzzle box with By course and Just these;
+#/review?topic=. Learn's screen is unhooked, not deleted (V.learnScreen).
+
+## The Library home: still open
+- Phase 6 (puzzles as review cards from each finished steps lesson's guide examples) waits for
+  Dan's yes. Until then ready-made courses make no cards, so the puzzle row, a course's puzzles
+  and Today's box show only what study-mode topics left.
+- Deleting Learn's unhooked code (the ask box, intake, planning states, the welcome) and its
+  CSS waits for Dan to confirm (docs/HANDOFF-redesign.md section 4).
+- Look-up reads up to twelve lesson docs per search to say "ready to browse" or "coming soon". If
+  that is slow, assemble.mjs could add `lessons: [{id, title, oneLine, live}]` to each shelf course.
+- Today no longer shows "About n minutes" for the batch.
+
 ## Measure first
 1. Eval round 3 with the three-judge panel on fresh topics with live research (tools/eval/
    RUNNER.md, now with the verify-lesson step a2). Compare with run 2's overall 3.13; the two

@@ -54,30 +54,30 @@ test('with nothing waiting, the words say when cards come back, counting what th
   // The checker's case: limit 15 used up, 5 still due, 2 due in two days. The 5 wait for tomorrow.
   let w = await words(deck({ due: 5, doneToday: 15, at: { 2: 2 } }));
   assert.equal(w.head, 'Done for today');
-  assert.equal(w.lead, 'You reviewed 15 cards today. That is what keeps it all fresh.');
-  assert.equal(w.next, 'Next up: 5 cards tomorrow.');
+  assert.equal(w.lead, 'You flipped through 15 puzzles today. That is what keeps it all fresh.');
+  assert.equal(w.next, 'Next up: 5 puzzles tomorrow.');
   // With cards due tomorrow as well, they come back together.
-  assert.equal((await words(deck({ due: 5, doneToday: 15, at: { 1: 3, 2: 2 } }))).next, 'Next up: 8 cards tomorrow.');
+  assert.equal((await words(deck({ due: 5, doneToday: 15, at: { 1: 3, 2: 2 } }))).next, 'Next up: 8 puzzles tomorrow.');
   // Tomorrow's review holds its usual limit, not more.
-  assert.equal((await words(deck({ due: 20, doneToday: 15 }))).next, 'Next up: 15 cards tomorrow.');
+  assert.equal((await words(deck({ due: 20, doneToday: 15 }))).next, 'Next up: 15 puzzles tomorrow.');
   // A light day is for today only: 5 reviewed, 8 still due; tomorrow's limit is the usual 15.
   w = await words(deck({ due: 8, doneToday: 5 }), { lightDay: U.today() });
   assert.equal(w.head, 'Done for today');
-  assert.equal(w.next, 'Next up: 8 cards tomorrow.');
+  assert.equal(w.next, 'Next up: 8 puzzles tomorrow.');
   // Light days kept on in settings: tomorrow holds 5 too.
-  assert.equal((await words(deck({ due: 8, doneToday: 5 }), { light: true })).next, 'Next up: 5 cards tomorrow.');
+  assert.equal((await words(deck({ due: 8, doneToday: 5 }), { light: true })).next, 'Next up: 5 puzzles tomorrow.');
   // Nothing held back: the soonest day cards come back.
   w = await words(deck({ doneToday: 3, at: { 1: 2, 3: 4 } }));
   assert.equal(w.head, 'Done for today');
-  assert.equal(w.next, 'Next up: 2 cards tomorrow.');
-  assert.match((await words(deck({ at: { 2: 2 } }))).next, /^Next up: 2 cards on \S+\.$/);
+  assert.equal(w.next, 'Next up: 2 puzzles tomorrow.');
+  assert.match((await words(deck({ at: { 2: 2 } }))).next, /^Next up: 2 puzzles on \S+\.$/);
 });
 
-test('Today and Learn share one set of calm words', async () => {
+test('Today and a review share one set of calm words', async () => {
   let w = await words([]);
-  assert.deepEqual({ ...w }, { head: 'Nothing to review yet', lead: 'When you finish a lesson, the questions you answered come back the next day, so they stick.', next: '' });
+  assert.deepEqual({ ...w }, { head: 'Nothing in the box yet', lead: 'Finish a lesson and its puzzles come here.', next: '' });
   w = await words(deck({ at: { 5: 1 } }));
-  assert.equal(w.head, 'Nothing to review today');
+  assert.equal(w.head, 'Nothing in the box today');
   assert.equal(w.lead, 'Everything you have learned is holding up for now.');
-  assert.match(w.next, /^Next up: 1 card on /);
+  assert.match(w.next, /^Next up: 1 puzzle on /);
 });

@@ -143,8 +143,9 @@ async function runSession({ width, theme, full }) {
   await page.waitForTimeout(300);
 
   const todayText = await page.locator('.td').innerText();
-  check(/7\s+cards to revisit/.test(todayText), `${tag}: Today shows 7 cards due (got "${todayText.split('\n').slice(0, 4).join(' | ')}")`);
-  check(/About \d+ minutes?/.test(todayText), `${tag}: Today estimates minutes`);
+  check(/7 puzzles in the box/.test(todayText), `${tag}: Today counts 7 puzzles in the box (got "${todayText.split('\n').slice(0, 4).join(' | ')}")`);
+  check(!/\b(over)?due\b/i.test(todayText), `${tag}: and never says "due"`);
+  check(await page.locator('.td-by-row').count() === 2 && await page.locator('.td-by-row a[href="#/review?topic=tA"]').innerText() === 'Just these', `${tag}: By course, a row each with Just these`);
   check(/How sound travels/.test(todayText) && /Sourdough bread/.test(todayText), `${tag}: Today names both topics`);
   // The Today tab carries no badge (the Library became the home, 18 Oct): the count is Today's own.
   const badge = await page.evaluate(async () => ({ n: await U.review.refreshBadge(), el: !!document.getElementById('today-badge') }));
@@ -156,7 +157,7 @@ async function runSession({ width, theme, full }) {
     // Light day trims the session to 5 and remembers it; then switch back.
     await page.locator('.td-light').click();
     await page.waitForTimeout(400);
-    check(/5\s+cards to revisit/.test(await page.locator('.td-plan').innerText()), `${tag}: light day shows 5`);
+    check(await page.evaluate(() => U.review.dueCount()) === 5 && /Just 5 puzzles, then stop/.test(await page.locator('.td-light').innerText()), `${tag}: light day: just 5 puzzles, then stop`);
     await shot('01-today-lightday');
     await page.waitForTimeout(300);
     const prefs = (await app.stub())[P('profile')].prefs;
@@ -164,7 +165,7 @@ async function runSession({ width, theme, full }) {
     check(prefs.lightDay === today && !prefs.light, `${tag}: light day saved for today only (lightDay ${prefs.lightDay})`);
     await page.locator('.td-light').click();
     await page.waitForTimeout(400);
-    check(/7\s+cards to revisit/.test(await page.locator('.td-plan').innerText()), `${tag}: light day off shows 7 again`);
+    check(await page.evaluate(() => U.review.dueCount()) === 7, `${tag}: light day off: all 7 again`);
 
     const q = await page.evaluate(async () => (await U.review.queue()).map((c) => ({ tid: c.tid, iid: c.iid, id: c.id })));
     check(q.length === 7, `${tag}: queue holds the 7 due cards (not the future one)`);
@@ -318,7 +319,7 @@ async function runSession({ width, theme, full }) {
   check(seen.length === 6 && !seen.includes('tA/i1_c9'), `${tag}: session showed 6 cards and skipped the stale target (${seen.join(', ')})`);
   check(['choice', 'order', 'estimate', 'target', 'recall'].every((t) => seen.some((k) => (TYPE[k] || SPECS[k].type) === t)), `${tag}: every card type appeared`);
   const summary = await page.locator('.rv-done').innerText();
-  check(/Review done/.test(summary) && /6 cards/.test(summary), `${tag}: summary says 6 cards`);
+  check(/Review done/.test(summary) && /6 puzzles/.test(summary), `${tag}: summary says 6 puzzles`);
   check(/Remembered\s*4/i.test(summary) && /Back tomorrow\s*2/i.test(summary), `${tag}: summary counts remembered and back tomorrow`);
   check(/2 cards, from 2 ideas:/.test(summary), `${tag}: summary says how the cards coming back map to ideas`);
   const widths = await page.evaluate(() => [...document.querySelectorAll('.rv-done > .rv-stats, .rv-done > .rv-back, .rv-done > .td-relearn, .rv-done > .td-actions')].map((e) => Math.round(e.getBoundingClientRect().width)));
@@ -357,7 +358,7 @@ async function runSession({ width, theme, full }) {
   await page.locator('.rv-done a[href="#/today"]').click();
   await page.waitForSelector('.td-clear');
   const clear = await page.locator('.td').innerText();
-  check(/Done for today/.test(clear) && /reviewed 6 cards/.test(clear), `${tag}: Today says done for today`);
+  check(/Done for today/.test(clear) && /flipped through 6 puzzles/.test(clear), `${tag}: Today says done for today`);
   check(/Learn it again/.test(clear), `${tag}: Today lists the idea to learn again`);
   check(await page.locator('.td-day.today.on').count() === 1, `${tag}: this week marks today as studied`);
   await shot('21-today-done');
@@ -478,7 +479,7 @@ async function extras(app, tag) {
     location.hash = '#/review';
   });
   await page.waitForSelector('.rv-empty');
-  check(/Nothing to review/.test(await page.locator('.rv-empty').innerText()), `${tag}: review with nothing due says so`);
+  check(/Nothing in the box/.test(await page.locator('.rv-empty').innerText()), `${tag}: review with nothing due says so`);
   await page.evaluate(() => { location.hash = '#/today'; });
   await page.waitForSelector('.td-clear');
   await app.shot(`review-${tag}-32-today-empty`);
@@ -578,7 +579,7 @@ async function targetNotReady() {
   await page.goto(app.url('#/today'));
   await page.evaluate(setup, 'light');
   await page.waitForSelector('.td-plan');
-  check(/5\s+cards to revisit/.test(await page.locator('.td-plan').innerText()), `${tag}: Today first counts all 5 due cards`);
+  check(/5 puzzles in the box/.test(await page.locator('.td').innerText()), `${tag}: Today first counts all 5 puzzles in the box`);
   await page.locator('.td-start').click();
   await page.waitForSelector('.rv-stage > .qc');
   check(await page.locator('.rv-stage > .qc-type-choice').count() === 1, `${tag}: the session shows the choice card`);
@@ -586,7 +587,7 @@ async function targetNotReady() {
   await page.locator('.qc-primary').click();
   await page.locator('.qc-continue').click();
   await page.waitForSelector('.rv-done', { timeout: 15000 });
-  check(/1 card/.test(await page.locator('.rv-done .td-lead').innerText()), `${tag}: only the choice card was reviewed`);
+  check(/1 puzzle\b/.test(await page.locator('.rv-done .td-lead').innerText()), `${tag}: only the choice card was reviewed`);
   await page.waitForTimeout(300);
   const cards = (await app.stub())[P('profile/cards/tA')].cards;
   for (const id of ['i2_c3', 'i3_c3', 'i5_c3']) {
@@ -599,7 +600,7 @@ async function targetNotReady() {
   await page.locator('.rv-done a[href="#/today"]').click();
   await page.waitForSelector('.td-clear, .td-plan');
   const after = await page.locator('.td').innerText();
-  check(/Done for today/.test(after) && !/to revisit/.test(after), `${tag}: Today no longer counts the cards no session can show (${after.split('\n').slice(0, 3).join(' | ')})`);
+  check(/Done for today/.test(after) && !/^\d+ puzzles? in the box/m.test(after), `${tag}: Today no longer counts the cards no session can show (${after.split('\n').slice(0, 3).join(' | ')})`);
   check(app.errors.length === 0, `${tag}: no page errors ${app.errors.join(' | ')}`);
   await app.close();
 }
@@ -633,7 +634,7 @@ async function pendingRecall() {
   await page.waitForSelector('.td-clear, .td-plan');
   await page.waitForTimeout(300);
   const today = await page.locator('.td').innerText();
-  check(/Done for today/.test(today) && /reviewed 1 card today/.test(today) && !/to revisit/.test(today),
+  check(/Done for today/.test(today) && /flipped through 1 puzzle today/.test(today) && !/^\d+ puzzles? in the box/m.test(today),
     `${tag}: Today does not offer the card being saved (${today.split('\n').slice(0, 3).join(' | ')})`);
   check(await badgeOf(page) === 0, `${tag}: the badge does not count it (${await badgeOf(page)})`);
   check((await page.evaluate(() => U.review.queue())).length === 0, `${tag}: a new session would not show it again`);
@@ -688,7 +689,7 @@ async function pendingRace() {
   await page.waitForSelector('.td-clear, .td-plan');
   await page.waitForTimeout(300);
   const today = await page.locator('.td').innerText();
-  check(/Done for today/.test(today) && /reviewed 1 card today/.test(today) && !/to revisit/.test(today),
+  check(/Done for today/.test(today) && /flipped through 1 puzzle today/.test(today) && !/^\d+ puzzles? in the box/m.test(today),
     `${tag}: Today does not offer the card just saved (${today.split('\n').slice(0, 3).join(' | ')})`);
   check(await badgeOf(page) === 0 && await page.evaluate(() => U.review.dueCount()) === 0, `${tag}: the badge and a new session agree`);
   check(app.errors.length === 0, `${tag}: no page errors ${app.errors.join(' | ')}`);
@@ -696,7 +697,7 @@ async function pendingRace() {
 }
 
 // #31 Light day turned on after 6 reviews (cap 5) with 8 more due: "Done for today" with
-// "Review 5 more", not "0 cards to revisit"; the switch stays to undo it; #/review says the limit
+// "Flip through 5 more", not "0 puzzles in the box"; the switch stays to undo it; #/review says the limit
 // is reached instead of "holding up".
 async function lightAfterReviews() {
   const tag = 'audit #31';
@@ -713,13 +714,13 @@ async function lightAfterReviews() {
   await page.goto(app.url('#/today'));
   await page.evaluate(setup, 'light');
   await page.waitForSelector('.td-plan');
-  check(/8\s+cards to revisit/.test(await page.locator('.td-plan').innerText()), `${tag}: 8 cards to revisit before`);
+  check(/8 puzzles in the box/.test(await page.locator('.td').innerText()), `${tag}: 8 puzzles in the box before`);
   await page.locator('.td-light').click();
   const clear = await page.waitForSelector('.td-clear', { timeout: 3000 }).catch(() => null);
   const text = await page.locator('.td').innerText();
-  check(!!clear && /Done for today/.test(text) && /reviewed 6 cards today/.test(text) && !/0\s+cards to revisit/.test(text),
-    `${tag}: Light day says done for today, not "0 cards to revisit" (${text.split('\n').slice(0, 4).join(' | ')})`);
-  check(await page.locator('.td-clear a[href="#/review/more"]').innerText().catch(() => '') === 'Review 5 more' && /8 more cards are due/.test(text), `${tag}: offers Review 5 more`);
+  check(!!clear && /Done for today/.test(text) && /flipped through 6 puzzles today/.test(text) && !/^0 puzzles in the box/m.test(text),
+    `${tag}: Light day says done for today, not "0 puzzles in the box" (${text.split('\n').slice(0, 4).join(' | ')})`);
+  check(await page.locator('.td-clear a[href="#/review/more"]').innerText().catch(() => '') === 'Flip through 5 more' && /8 more puzzles are in the box/.test(text), `${tag}: offers Flip through 5 more`);
   check(await page.locator('.td-clear .td-light .switch:checked').count() === 1, `${tag}: the Light day switch stays, on, to undo it`);
   check(await page.evaluate(() => !!document.activeElement && document.activeElement.matches('.td-light .switch')), `${tag}: focus stays on the switch`);
   await page.waitForTimeout(600);
@@ -728,16 +729,16 @@ async function lightAfterReviews() {
   // Undo: back to the plan with the normal cap.
   await page.locator('.td-light').click();
   await page.waitForSelector('.td-plan', { timeout: 3000 }).catch(() => null);
-  check(/8\s+cards to revisit/.test(await page.locator('.td').innerText()), `${tag}: turning it off brings the 8 cards back`);
-  check(await page.evaluate(() => !!document.activeElement && document.activeElement.matches('.td-plan .td-light .switch')), `${tag}: focus follows to the plan's switch`);
+  check(/8 puzzles in the box/.test(await page.locator('.td').innerText()), `${tag}: turning it off brings the 8 back`);
+  check(await page.evaluate(() => !!document.activeElement && document.activeElement.matches('.td .td-light .switch')), `${tag}: focus follows to the Light day switch`);
   // On again, then the review route itself.
   await page.locator('.td-light').click();
   await page.waitForSelector('.td-clear', { timeout: 3000 }).catch(() => null);
   await page.goto(app.url('#/review'));
   await page.waitForSelector('.rv-empty');
   const empty = await page.locator('.rv-empty').innerText();
-  check(/Done for today/.test(empty) && /8 more cards are due/.test(empty) && !/holding up/.test(empty), `${tag}: #/review says it is done for today, with Today's words, and the cards still due (${empty.replace(/\n/g, ' | ')})`);
-  check(await page.locator('.rv-empty a[href="#/review/more"]').count() === 1, `${tag}: #/review offers Review 5 more`);
+  check(/Done for today/.test(empty) && /8 more puzzles are in the box/.test(empty) && !/holding up/.test(empty), `${tag}: #/review says it is done for today, with Today's words, and the cards still due (${empty.replace(/\n/g, ' | ')})`);
+  check(await page.locator('.rv-empty a[href="#/review/more"]').count() === 1, `${tag}: #/review offers Flip through 5 more`);
   await page.locator('.rv-empty a[href="#/review/more"]').click();
   await page.waitForSelector('.rv-stage > .qc');
   check(/1 of 5/.test(await page.locator('.rv-count').innerText()), `${tag}: Review 5 more starts a batch of 5`);
@@ -791,8 +792,44 @@ async function readIdeas() {
   check(await badgeOf(page) === 5, `${tag}: and so does the badge`);
   const q = await page.evaluate(async () => (await U.review.queue({ extra: true, cap: 50 })).map((c) => c.tid + '/' + c.iid));
   check(!q.includes('tA/i1'), `${tag}: a review never shows its cards (${q})`);
-  check(/\b5\b/.test(await page.locator('.td-plan').innerText()), `${tag}: Today's plan says 5`);
+  check(/^5 puzzles in the box$/m.test(await page.locator('.td').innerText()), `${tag}: Today says 5 puzzles in the box`);
   await page.screenshot({ path: join(ROOT, 'tests', 'out', 'review-v9-read-ideas.png') });
+  check(app.errors.length === 0, `${tag}: no page errors ${app.errors.join(' | ')}`);
+  await app.close();
+}
+
+// The Library home design (18 Oct): #/review?topic=<tid> flips through that course's puzzles only,
+// and the close goes back to where it was opened from.
+async function courseOnly() {
+  const tag = 'one course';
+  console.log(`\n== ${tag}`);
+  const app = await openApp({ file: OUT, width: 360, height: 707, config: { db: seedDb() } });
+  const { page } = app;
+  await page.goto(app.url('#/today'));
+  await page.evaluate(setup, 'light');
+  await page.waitForSelector('.td-by-row');
+  const box = await page.evaluate(() => U.review.box());
+  const tB = box.courses.find((c) => c.tid === 'tB');
+  check(box.size === 7 && tB && tB.n > 0 && tB.n < 7, `${tag}: the box counts what is ready now, by course (${JSON.stringify(box)})`);
+  await page.locator('.td-by-row a[href="#/review?topic=tB"]').click();
+  await page.waitForSelector('.rv-stage > .qc');
+  check(await page.locator('.rv-count').innerText() === '1 of ' + tB.n, `${tag}: Just these: that course only (${await page.locator('.rv-count').innerText()})`);
+  check(/Sourdough/.test(await page.locator('.rv-where').innerText()), `${tag}: from its course`);
+  await page.locator('.rv-close').click();
+  await page.waitForFunction(() => location.hash === '#/today');
+  check(true, `${tag}: the close goes back to Today, where it was opened`);
+  // Opened from a course page, it closes back there.
+  await page.evaluate(() => { U.routes.add('#/t/:tid', (p, ctx) => { ctx.view.appendChild(U.h('h1', { id: 'fake-topic' }, 'Course ' + p.tid)); }, {}); U.go('#/t/tA'); });
+  await page.waitForSelector('#fake-topic');
+  await page.evaluate(() => U.go('#/review?topic=tA'));
+  await page.waitForSelector('.rv-stage > .qc');
+  check(!/Sourdough/.test(await page.locator('.rv-where').innerText()), `${tag}: tA's puzzles only`);
+  await page.locator('.rv-close').click();
+  await page.waitForFunction(() => location.hash === '#/t/tA');
+  check(true, `${tag}: and closes back to the course`);
+  // A bad topic in the address is ignored, never an error.
+  await page.evaluate(() => U.go('#/review?topic=..%2F'));
+  await page.waitForSelector('.rv-stage > .qc, .rv-empty');
   check(app.errors.length === 0, `${tag}: no page errors ${app.errors.join(' | ')}`);
   await app.close();
 }
@@ -811,6 +848,7 @@ try {
     await whereWraps();
   }
   if (!process.env.ONLY || process.env.ONLY === 'v9') await readIdeas();
+  if (!process.env.ONLY || process.env.ONLY === 'course') await courseOnly();
 } catch (e) {
   failures.push('crashed: ' + (e.stack || e));
   console.error(e);

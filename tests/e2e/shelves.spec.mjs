@@ -34,7 +34,7 @@ const SHELF = {
 // A shelf with nothing built yet: folded away on the home.
 const LATER = { v: 1, title: 'Science and technology', order: 2, blurb: 'Physics, astronomy and how things work.', folders: [
   { id: 'physics', title: 'Physics', courses: [{ id: 'forces', title: 'Forces', tid: null }, { id: 'waves', title: 'Waves', tid: null }] }] };
-// Two puzzles in the box from tides' first lesson.
+// Two puzzles in the box from tides' first lesson (ready now), and one that comes back later.
 const CARD = (id, due) => ({ id, tid: 'how-tides-work-ab12', iid: 'i1', type: 'choice', createdAt: '2026-10-01T08:00:00.000Z', learnedAt: '2026-10-01T08:00:00.000Z',
   spec: { id: id.split('_')[1], type: 'choice', q: 'How many high tides do most coasts get in a day?', options: ['One', 'Two'], answer: 1, why: 'Two bulges.' },
   s: { due, stability: 3, difficulty: 5, reps: 1, lapses: 0, last: '2026-10-01' }, hist: [{ at: '2026-10-01T08:00:00.000Z', grade: 3, ok: true }] });
@@ -54,7 +54,7 @@ const MADE = { ...base, 'topics/how-tides-work-ab12': { ...SEED.topics['how-tide
 for (const [tid, v] of Object.entries(SEED.progress)) MADE[`data/users/${UID}/profile/progress/${tid}`] = v;
 // Tides' third lesson is built; the rest are not (so they are coming soon).
 MADE['topics/how-tides-work-ab12/lessons/i3'] = { status: 'ready', updatedAt: '2026-10-01T08:00:00.000Z', lesson: { iid: 'i3', title: 'Two bulges, not one' }, interactive: null, note: 'No interactive.' };
-MADE[`data/users/${UID}/profile/cards/how-tides-work-ab12`] = { cards: { i1_c1: CARD('i1_c1', '2099-01-01'), i1_c2: CARD('i1_c2', '2099-01-02') } };
+MADE[`data/users/${UID}/profile/cards/how-tides-work-ab12`] = { cards: { i1_c1: CARD('i1_c1', '2026-10-02'), i1_c2: CARD('i1_c2', '2026-10-03'), i1_c3: CARD('i1_c3', '2099-01-01') } };
 
 let app = await open({ ...MADE, 'shelves/maths': SHELF, 'shelves/science': LATER });
 const { page } = app;
