@@ -1,0 +1,305 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Quadratics, parabolas and higher powers
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i3 "Solving by factorising" — A product is zero only if a factor is zero, so (x − 2)(x − 5) = 0 gives x = 2 or 5. [skill]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i4 Completing the square — Add the missing corner and x² + 6x + 2 becomes (x + 3)² − 7, a form that shows its lowest value at once.
+- i5 The quadratic formula — Completing the square with letters gives x = (−b ± √(b² − 4ac)) ÷ 2a, the answers to any quadratic equation that has them.
+- i6 The parabola from its rule — Three clues in the rule sketch a quadratic's U-shaped graph: a's sign gives which way up, c the y-crossing, the roots the x-crossings.
+- i7 Quadratics at work — A thrown ball's height, a load's power against current and a loaded beam's bending rise and fall as quadratics, peaking halfway between two zeros.
+- i8 Higher powers — If putting x = a into a polynomial, a sum of whole-number powers of x, gives 0, then (x − a) is one of its factors.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Quadratic equations - Solving quadratic equations - Edexcel - GCSE Maths Revision - Edexcel - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/z3hb97h/revision/1
+    "If the product of two numbers is zero then one or both of the numbers must also be equal to zero. Therefore if ab = 0, then a = 0 and/or b = 0"
+[R2] How to factorise an expression - GCSE Maths Revision - BBC Bitesize — https://www.bbc.co.uk/bitesize/articles/zdtdh4j
+    "To factorise the quadratic 𝑥² + 𝑏𝑥 + 𝑐, the sum of the two numbers in the brackets must be 𝑏, and the product must be 𝑐."
+[R3] 3.2 Quadratic Functions - Precalculus | OpenStax — https://openstax.org/books/precalculus/pages/3-2-quadratic-functions
+    "The graph of a quadratic function is a U-shaped curve called a parabola ."
+Notes (claims, and the sources that support them):
+- If two numbers multiply to zero, at least one of them is zero: if ab = 0 then a = 0 and/or b = 0. [R1]
+- To factorise x² + bx + c into two brackets, the two numbers must add to b and multiply to c. [R2]  (from an idea this one builds on)
+- A quadratic's graph is a U-shaped curve called a parabola. [R3]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i3",
+ "title": "Solving by factorising",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the product bar reaching zero only where the x − 2 bar or the x − 5 bar does, which is where the dot meets the axis, when you slide the pointer along x.",
+  "title": "Two brackets and their product",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens on solving a quadratic equation from its two brackets. A pointer sits on a number line for x, and you slide it in steps of 0.5. Above it are three bars: the value of the first bracket, the value of the second bracket, and their product, each rising from a zero line when it is above zero and hanging below when it is below zero. One pointer feeds both brackets, because both hold the same x. Below the bars, a dot rides the curve of the quadratic, a sketch drawn from its rule: the dot's height is the product, so the dot sits on the x-axis exactly when the product bar is at zero. On the first screen the brackets are x − 2 and x − 5 and x runs from −1 to 8. Each later screen sets its own brackets and its own stretch of x, such as x + 2 and x + 5, or x and x − 6, or x + 3 and x − 3. On screen 5 a switch changes the equation from = 0 to = 10, and a line at height 10 crosses the graph, so you can see where the product is 10 and read off both bars there. On screen 11 both bars are x − 3, so they reach zero together and the curve only touches the axis. Some screens show an idea and the rest ask you to pick one answer from three. A wrong pick puts its numbers back into the equation and shows what they make, next to what the equation needs.",
+  "ignores": "The curve is drawn only over the stretch of x on screen; a parabola carries on rising either side for ever. The product bar is drawn to its own scale, smaller than the bracket bars, so only its sign and its zero can be compared with them, not its length. The pointer moves in steps of 0.5, so it lands exactly on these roots only because they were chosen to be whole numbers; a root between steps would be passed over, with the product changing sign on either side of it. Every quadratic here was chosen to factorise with whole numbers. Many do not, and lessons 4 and 5 find their roots another way, where they have them.",
+  "numbers": [
+   {
+    "label": "Pointer range on screen 1, x from −1",
+    "value": -1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Pointer range on screen 1, x up to 8",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Pointer step size",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Pointer opens at x = 3: bars 1 and −2, product −2, in step 1",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Product at the ends of screen 1's range: −3 × −6 and 6 × 3, in step 1",
+    "value": 18,
+    "kind": "computed"
+   },
+   {
+    "label": "At x = 2: bars 0 and −3, product 0, in step 1",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "At x = 5: bars 3 and 0, product 0, in step 1",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick −2 or −5: at −2, −4 × −7 = 28, in step 2",
+    "value": 28,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick 10: 8 × 5 = 40, in step 2",
+    "value": 40,
+    "kind": "computed"
+   },
+   {
+    "label": "(x + 2)(x + 5) = 0 gives −2 or −5, in step 4",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick 2 or 5: at 2, 4 × 7 = 28, in step 4",
+    "value": 28,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick −7: −5 × −2 = 10, in step 4",
+    "value": -7,
+    "kind": "computed"
+   },
+   {
+    "label": "With = 10, product 10 at x = 0 (bars −2, −5) and x = 7 (bars 5, 2), in step 5",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip x − 2 = 10 gives x = 12, where the product is 10 × 7 = 70, in step 5",
+    "value": 70,
+    "kind": "computed"
+   },
+   {
+    "label": "x² − 7x + 10 = 10, so x² − 7x = 0 = x(x − 7), in step 5",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "x² − 5x = 6 becomes x² − 5x − 6 = (x − 6)(x + 1) = 0, so 6 or −1, in step 6",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Checks: 36 − 30 = 6 and 1 + 5 = 6, in step 6",
+    "value": 36,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick 6 or 11: at 11, 121 − 55 = 66, in step 6",
+    "value": 66,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick −6 or 1: at 1, 1 − 5 = −4, in step 6",
+    "value": -4,
+    "kind": "computed"
+   },
+   {
+    "label": "x² = 6x: dividing by x leaves 6 only; x(x − 6) = 0 gives 0 or 6, in step 7",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "x² = 4x gives 0 or 4, in step 8",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick −4 or 4: at −4, x² is 16 but 4x is −16, in step 8",
+    "value": -16,
+    "kind": "computed"
+   },
+   {
+    "label": "x² = 9: (x + 3)(x − 3) = 0 gives 3 or −3, in step 9",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "3x² = 48: divide by 3, x² = 16, (x + 4)(x − 4) = 0, in step 10",
+    "value": 48,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick 16 or −16: 3 × 256 = 768, in step 10",
+    "value": 768,
+    "kind": "computed"
+   },
+   {
+    "label": "x² − 6x + 9 = (x − 3)² = 0 gives 3 only, in step 11",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "x² + x − 12 = (x + 4)(x − 3) = 0 gives −4 or 3, in step 12",
+    "value": -12,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick 4 or −3: at 4, 16 + 4 − 12 = 8, in step 12",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "x(x + 9) = −20: x² + 9x + 20 = (x + 4)(x + 5) = 0, so −4 or −5, in step 13",
+    "value": -20,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick −20 or −29: at −20, −20 × −11 = 220, in step 13",
+    "value": 220,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick 4 or 5: at 4, 4 × 13 = 52, in step 13",
+    "value": 52,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice: 12x² − 240x + 900 = 0 divides by 12 to (x − 5)(x − 15) = 0",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice checks: 300 − 1,200 + 900 = 0 and 2,700 − 3,600 + 900 = 0",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice: at 15 cm the cuts meet, 30 − 2 × 15 = 0",
+    "value": 15,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Factorising pays off when a quadratic is set equal to zero. It turns the quadratic into two brackets multiplied together, and if the product of two numbers is zero then one or both of them must be zero.[^1] So each bracket can be set to zero on its own, and (x − 2)(x − 5) = 0 gives x = 2 or x = 5.\n\nHere is why a zero product needs a zero factor. Say a × b = 0 and a is not zero. Then you can divide both sides by a, as in Solving equations, and b = 0 ÷ a, which is 0. So if one factor is not zero, the other must be. On the picture, one pointer feeds both brackets, because both hold the same x. At x = 3 the bars read 1 and −2, and the product is −2. At x = 2 the x − 2 bar is 0, so the product is 0 even though the other bar reads −3, and at x = 5 it is the x − 5 bar's turn. Values of x that make an equation true are its [[root]]s, so this equation has two roots, 2 and 5. Each bracket is zero at the number that cancels it, so the root has the opposite sign to the number in its bracket: x + 2 is zero at x = −2, and (x + 2)(x + 5) = 0 gives x = −2 or x = −5. The dot rides the graph of y = (x − 2)(x − 5), a U-shaped curve called a [[parabola]].[^2] Its height is the product, and on the axis the height is zero, so the dot meets the axis exactly at the two roots.\n\nThe rule needs a zero on one side. If (x − 2)(x − 5) = 10, the product is 10 at x = 0, where the brackets are −2 and −5, and at x = 7, where they are 5 and 2, so neither bracket is 10. Two numbers can multiply to 10 in endlessly many ways, so a 10 says nothing about either bracket alone, and x − 2 = 10 gives x = 12, where the product is 10 × 7 = 70. Move the 10 across first: x² − 7x + 10 = 10, so x² − 7x = 0, which is x(x − 7) = 0, and x = 0 or x = 7. Dividing both sides by x is safe only when x cannot be 0, and x = 0 is exactly the root it throws away: x² = 6x divided by x leaves x = 6 alone, but taking 6x across gives x(x − 6) = 0, so x = 0 or x = 6. Dividing by a number such as 3 is fine, since 3 is never 0, so 3x² = 48 becomes x² = 16.\n\nAn equation such as x² = 9 has two roots, because a negative number times itself is positive too. x² = 9 becomes x² − 9 = 0, the difference of two squares from lesson 2, so (x + 3)(x − 3) = 0 and x = 3 or x = −3, written x = ±3. A perfect square set to zero has one root: x² − 6x + 9 = (x − 3)² = 0 only at x = 3, where both brackets are zero together. The square of any number on the number line is never below zero, so that parabola reaches the axis at 3 and turns back up without crossing. The brackets themselves are not the answer: (x + 4)(x − 3) is x² + x − 12 factorised, and the roots of x² + x − 12 = 0 are −4 and 3. Put each root back to check it, because a slip in the brackets gives roots that fail. Lessons 4 and 5 deal with quadratics that have no whole-number pair.\n\n**If a product is zero, at least one of its factors is zero,[^1] so get zero on one side, factorise, and set each bracket to zero: (x − 2)(x − 5) = 0 gives x = 2 or x = 5.**"
+ },
+ "analogy": {
+  "text": "Think of two switches in series feeding a lamp, with the supply on and the lamp sound. The lamp is dark only if at least one switch is open, just as a product is zero only if at least one bracket is zero. So to find every way the lamp goes dark you test each switch on its own, as you set each bracket to zero on its own.",
+  "breaks": "A switch is only open or closed, and a lamp only on or off, but a bracket can take any value and two brackets that are not zero can multiply to any number, positive or negative. The circuit copies only the zero rule, not the multiplying."
+ },
+ "practice": {
+  "text": "- Get zero on one side by moving every term across, because the rule only splits a product that equals zero.\n- Take out any common factor, x included, rather than dividing by x, so no root is lost.\n- Factorise what is left into two brackets, as in lesson 2.\n- Set each bracket to zero and solve each small equation.\n- Put each root back into the original equation and check it makes both sides equal.\n\n**Rule of thumb:** A root has the opposite sign to the number in its bracket, so x + 5 gives −5. A square gives two roots of opposite sign, so x² = 16 gives ±4. A bracket that appears twice gives one root.\n\n**Worked example:** In Calculus fundamentals, the open box cut from a 30 cm square sheet had slope 12x² − 240x + 900, where x is the side of each corner square in centimetres. The slope is zero when 12x² − 240x + 900 = 0. Every term divides by 12, which is never 0, so x² − 20x + 75 = 0. The pair must multiply to 75 and add to −20, so −5 and −15, giving (x − 5)(x − 15) = 0 and x = 5 or x = 15. Both check: 12 × 25 − 240 × 5 + 900 = 300 − 1,200 + 900 = 0, and 12 × 225 − 240 × 15 + 900 = 2,700 − 3,600 + 900 = 0. At 15 cm the cuts meet in the middle, since 30 − 2 × 15 = 0, so there is no box, and 5 cm is the cut that course found.\n\n**Common mistakes**\n- Splitting a product that is not zero, so x(x + 9) = −20 becomes x = −20 or x + 9 = −20. At x = −20 that makes 220. Take −20 across: x² + 9x + 20 = (x + 4)(x + 5) = 0, so x = −4 or x = −5.\n- Dividing by x, so x² = 6x gives only x = 6. x = 0 works too, since 0 = 0.\n- Taking one square root, so x² = 9 gives only x = 3. (−3)² is 9 as well.\n- Keeping the bracket's sign, so (x + 2)(x + 5) = 0 gives 2 and 5. At x = 2 that makes 4 × 7 = 28.\n- Stopping at the brackets. (x + 4)(x − 3) is the factorised form; the roots are −4 and 3."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Quadratic equations - Solving quadratic equations - Edexcel - GCSE Maths Revision - Edexcel - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/guides/z3hb97h/revision/1",
+   "quote": "If the product of two numbers is zero then one or both of the numbers must also be equal to zero. Therefore if ab = 0, then a = 0 and/or b = 0"
+  },
+  {
+   "n": 2,
+   "title": "3.2 Quadratic Functions - Precalculus | OpenStax",
+   "url": "https://openstax.org/books/precalculus/pages/3-2-quadratic-functions",
+   "quote": "The graph of a quadratic function is a U-shaped curve called a parabola ."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

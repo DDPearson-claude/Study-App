@@ -1,0 +1,82 @@
+{
+  "scores": {
+    "lands": 4,
+    "why": 3,
+    "cause": 3,
+    "trade": 5,
+    "honest": 5,
+    "pleasure": 4
+  },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Screen 1 text and every puzzle's Why? note",
+      "what": "In a steps lesson the frame is all Dan sees, and it only asserts the zero-product rule ('If two numbers multiply to zero, one of them must be zero'). The one-line reason in explain.text ('if a is not zero, divide both sides by a, so b = 0 ÷ a = 0') never appears on screen, so the central why is skipped. Add it as a sentence on screen 1 or as its own SHOW screen."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 5 ('Equal to 10') text",
+      "what": "'Move the 10 across first, so x² − 7x = 0' skips the expansion. Moving the 10 gives (x − 2)(x − 5) − 10 = 0, and reaching x² − 7x = 0 needs (x − 2)(x − 5) = x² − 7x + 10 first. explain.text has this step, the screen does not. Write 'Expand: x² − 7x + 10 = 10, so x² − 7x = 0'."
+    },
+    {
+      "severity": "fix",
+      "where": "Product bar (bar() and geo() sP scale), screens 1 and 11",
+      "what": "The product bar is scaled to the largest product at the ends of the range (18 on screen 1, 16 on screen 11), so between the roots it is at most 4.5 svg px tall. At x = 2.5 or 4.5 on screen 1 it is about 2.5 px and hard to tell from the zero mark. On screen 11 at x = 2.5 and 3.5 the product 0.25 is under the 1.5 px threshold and gets the same flat zero mark as x = 3, while its label reads 0.25. The bar then looks zero where no bracket is zero, the opposite of the one thing the picture must show. Draw the flat mark only when the shown product is exactly 0, and give every non-zero product a minimum visible height (about 5 px) or use a signed square-root scale."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 2 (roots defined) and screen 9 ('Two square roots')",
+      "what": "The brief promised that a root of an equation is introduced as 'a different job from a square root'. Dan has just finished Powers and roots, where root means √, and the lesson never says this. Screen 9's name 'Two square roots' beside 'x² = 9 has two roots' blurs the two senses further. Add one clause on screen 2."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3 text ('a U-shaped curve called a *parabola*') and explain.text [^2]",
+      "what": "Parabola is highlighted in amber as a new key term with its own source, but Functions and their graphs lesson 3 already named the U a parabola. Refer back to it ('the parabola from Functions and their graphs') instead of teaching it again."
+    },
+    {
+      "severity": "polish",
+      "where": "Lead line and SHOW screens 1, 3, 5, 7, 9, 11",
+      "what": "Nothing on screen tells Dan he can drag the pointer himself. The lead says only 'the pointer moves in steps of 0.5', and the knob has no grab cue, so the demonstrations play like a video. Add 'Slide the pointer' to the lead or to screen 1."
+    },
+    {
+      "severity": "polish",
+      "where": "Wrong-answer motion on screens 2, 4, 6, 8, 10, 13",
+      "what": "Most wrong picks put back a value outside the screen's stretch of x: 10 and −2 on screen 2, 2 on screen 4, 11 on screen 6, −4 on screen 8, 16 on screen 10, and −20 and 4 on screen 13. For these the pointer and bars stay at the opening x, while the red working line names a different x. The picture does not show the failure, and the bars contradict the line beside them. Widen the stretch where possible, or say the value is off the picture."
+    },
+    {
+      "severity": "polish",
+      "where": "Whole lesson (brief: 'Every lesson has a spot the slip screen')",
+      "what": "Slips appear as demonstrations (screen 5's x = 12 and screen 7's dividing by x) and as distractors, but no DO screen shows a worked wrong solution and asks Dan to find the slip, as the brief promised. Screen 5 or 7 could become one."
+    },
+    {
+      "severity": "polish",
+      "where": "Practice worked example vs the frame",
+      "what": "The brief lists the Calculus fundamentals payoff (12x² − 240x + 900 = 0 divides to (x − 5)(x − 15) = 0) for this lesson, but it is only in practice.text, which the steps frame does not show. A final mixed puzzle or SHOW screen would carry it. I checked its numbers by hand: 300 − 1,200 + 900 = 0 and 2,700 − 3,600 + 900 = 0. They match Calculus lesson 6's 30 cm box and its 5 cm cut."
+    },
+    {
+      "severity": "polish",
+      "where": "Practice worked example, first sentence",
+      "what": "'The open box ... had slope 12x² − 240x + 900': it is the box's volume, V = 4x³ − 120x² + 900x, that has this slope (dV/dx), not the box. Say 'its volume's slope'."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 1 text",
+      "what": "'one of them must be zero' differs from the source ('one or both'), the FINISH line ('at least one') and screen 11, where both brackets are zero together. Say 'at least one of them'."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 10 task ('Solve 3x² = 48. Dividing by 3 leaves x² = 16.')",
+      "what": "The task does the lesson's new step, dividing by a number is safe, for him. The puzzle is left testing only that 16 has two square roots, which is Powers and roots ground. Let him divide."
+    },
+    {
+      "severity": "polish",
+      "where": "Bar labels on screens 7, 8, 10, 13",
+      "what": "When a bracket is just x, its bar label reads 'x = 2' or 'x = −1', the same as the pointer label and the working line. On screen 10 two identical 'x = 2' bars sit side by side, so it is easy to lose which label is which."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 8 and screen 10 wrong pick that misses a root",
+      "what": "The missed root's line ('x² is 0, 4x is 0, also true') is drawn in warning red although the line itself is true. Red means a mistake, so ink or amber would fit a 'you missed this one' line better."
+    }
+  ]
+}
