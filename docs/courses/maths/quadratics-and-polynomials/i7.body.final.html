@@ -1,0 +1,1089 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  /* Which job is on: Ball, Supply or Beam. */
+  /* Plain labels, not a switch: the steps move from job to job themselves. */
+  .jobs { display: flex; flex-wrap: wrap; gap: 14px; }
+  .jobs span { font-size: .9rem; line-height: 1.6; color: var(--k-muted); }
+  .jobs span.on { color: var(--k-ink); font-weight: 700; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; touch-action: pan-y; }
+  .scene text { font-family: var(--k-font); }
+  /* Every label in the drawing keeps a thin rim of page colour, so a curve passing under it never cuts its letters. */
+  .scene .h { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .tk { font-size: 13px; fill: var(--k-muted); }
+  .scene .ttl { font-size: 13px; font-weight: 700; fill: var(--k-muted); }
+  .scene .ll { font-size: 15px; font-weight: 700; }
+  .scene .s1 { fill: var(--k-accent2); }
+  .scene .s2 { fill: var(--k-accent); }
+  .scene .s3 { fill: var(--k-ink); }
+  .scene .lb { font-size: 13px; fill: var(--k-ink); }
+  .scene .lbm { font-size: 13px; fill: var(--k-muted); }
+  .scene .mk { font-size: 13px; font-weight: 700; fill: var(--k-ink); }
+  .scene .rl { font-size: 13px; fill: var(--k-muted); }
+  .scene .rv, .scene .wk { font-size: 14px; font-weight: 600; fill: var(--k-ink); }
+  .scene .xl { font-size: 14px; font-weight: 700; fill: var(--k-accent2); }
+  .scene .bad { fill: var(--k-warn); }
+  .scene .v { font-style: italic; }
+  .scene .axis { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .grid { stroke: var(--k-line); stroke-width: 1; }
+  /* The straight-line part (navy), the squared part (teal) and the gap between them (amber). */
+  .scene .c1, .scene .c2, .scene .c3 { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .c1 { stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .c2 { stroke: var(--k-accent); stroke-width: 2.5; }
+  .scene .c3 { stroke: var(--k-amber-line); stroke-width: 3; }
+  .scene .dash { stroke-dasharray: 6 5; }
+  .scene .area { fill: var(--k-fill2); stroke: none; }
+  .scene .gapl { fill: none; stroke: var(--k-amber-line); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .guide { fill: none; stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .scene .dot { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .dot1 { fill: var(--k-accent2); }
+  .scene .dot2 { fill: var(--k-accent); }
+  .scene .ring { fill: none; stroke: var(--k-ink); stroke-width: 2; }
+  .scene .ring.bad { stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .ground { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .pier { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .water { fill: var(--k-accent); fill-opacity: .3; stroke: none; }
+  .scene .ball { fill: var(--k-ink); }
+  .scene .ghost { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 3 3; }
+  .scene .arw1 { stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .arw2 { stroke: var(--k-accent); stroke-width: 2.5; }
+  .scene .arwm { stroke: var(--k-muted); stroke-width: 2.5; }
+  .scene .hd1 { fill: var(--k-accent2); }
+  .scene .hd2 { fill: var(--k-accent); }
+  .scene .hdm { fill: var(--k-muted); }
+  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }
+  .scene .case { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .cell { stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .cell.thick { stroke-width: 6; }
+  .scene .rbox { fill: var(--k-bg); stroke: var(--k-accent); stroke-width: 2.5; }
+  .scene .lbox { fill: var(--k-bg); stroke: var(--k-amber-line); stroke-width: 2.5; }
+  .scene .qd { fill: var(--k-accent2); }
+  .scene .beam { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .load { fill: var(--k-fill3); stroke: none; }
+  .scene .loadx { fill: var(--k-accent); fill-opacity: .35; stroke: none; }
+  .scene .sup { fill: none; stroke: var(--k-ink); stroke-width: 1.5; stroke-linejoin: round; }
+  .scene .track { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-strong); stroke-width: 2; }
+  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .barL { fill: var(--k-amber-line); }
+  .scene .barI { fill: var(--k-accent); }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: pan-y; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Three jobs that share one curve. Example figures throughout.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <div class="jobs" id="jobs" aria-hidden="true"><span>Ball</span><span>Supply</span><span>Beam</span></div>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 420" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Each graph is its job's straight-line part, its squared part and the gap between them.</p>
+
+<script>
+  // ---------- the three jobs: each rule is a straight-line part minus a squared part ----------
+  // h = h0 + vt − (g ÷ 2)t² for a ball thrown straight up; P = EI − rI² for a battery of voltage E with
+  // r inside it; M = (wL ÷ 2)x − (w ÷ 2)x² for a beam of span L on two simple supports carrying w on
+  // every metre. Written c + ax − bx²: c + ax is the straight-line part, bx² the squared part.
+  const GRAV = 9.8;   // gravity, roughly, in m/s²; half of it, 4.9, is the ball's squared-part number
+  const PIC = {
+    ball:    { job: 'ball', v: 19.6, h0: 0, x0: 0, x1: 4.4, s1: 4, xt: [0, 1, 2, 3, 4], ym: 100, yt: [0, 20, 40, 60, 80, 100], step: 0.1 },
+    deck:    { job: 'ball', v: 4.9, h0: 9.8, x0: -1.2, x1: 2.2, xt: [-1, 0, 1, 2], ym: 25, yt: [0, 10, 20], deck: true },
+    supply:  { job: 'supply', E: 12, r: 0.5, x0: 0, x1: 24, xt: [0, 4, 8, 12, 16, 20, 24], ym: 300, yt: [0, 100, 200, 300], step: 1 },
+    supply2: { job: 'supply', E: 24, r: 1.5, x0: 0, x1: 16, xt: [0, 4, 8, 12, 16], ym: 400, yt: [0, 100, 200, 300, 400] },
+    beam:    { job: 'beam', w: 2, L: 6, x0: 0, x1: 6, xt: [0, 1, 2, 3, 4, 5, 6], ym: 40, yt: [0, 10, 20, 30, 40], step: 0.5 },
+    beam2:   { job: 'beam', w: 3, L: 4, x0: 0, x1: 4, xt: [0, 1, 2, 3, 4], ym: 25, yt: [0, 10, 20] },
+  };
+  const JOB = {
+    ball: { name: 'Ball', xv: 't', yv: 'h', xu: 's', yu: 'm', yTitle: 'metres', xname: 'time', slider: 'Time',
+      rows: ['no gravity', 'gravity\'s pull', '`h`, the gap'], said: ['where it would be with no gravity', 'gravity\'s pull'], roots: ['throw', 'lands'] },
+    supply: { name: 'Supply', xv: 'I', yv: 'P', xu: 'A', yu: 'W', yTitle: 'watts', xname: 'current', slider: 'Current',
+      rows: ['battery makes', 'lost inside', '`P`, the gap'], said: ['the power the battery makes', 'the power lost inside it'], roots: ['nothing connected', 'short circuit'] },
+    beam: { name: 'Beam', xv: 'x', yv: 'M', xu: 'm', yu: 'kN·m', yTitle: 'kN·m', xname: 'distance along the beam', slider: 'Point along the beam',
+      rows: ['support\'s turn', 'load\'s turn', '`M`, the gap'], said: ['the support\'s turning effect', 'the load\'s turning effect'], roots: ['support', 'support'] },
+  };
+  const pBall = PIC.ball, pDeck = PIC.deck, pSup = PIC.supply, pSup2 = PIC.supply2, pBeam = PIC.beam, pBeam2 = PIC.beam2;
+  function coef(P) {
+    if (P.job === 'ball') return { c: P.h0, a: P.v, b: GRAV / 2 };
+    if (P.job === 'supply') return { c: 0, a: P.E, b: P.r };
+    return { c: 0, a: P.w * P.L / 2, b: P.w / 2 };
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const n = (v) => { const r = r3(v); return (r < 0 ? '−' : '') + String(Math.abs(r)); };
+  const stOf = (P, x) => { const k = coef(P); return k.c + k.a * x; };
+  const qOf = (P, x) => coef(P).b * x * x;
+  const gapOf = (P, x) => stOf(P, x) - qOf(P, x);
+  function rootsOf(P) { const k = coef(P), s = Math.sqrt(k.a * k.a + 4 * k.b * k.c); return [r3((k.a - s) / (2 * k.b)), r3((k.a + s) / (2 * k.b))]; }
+  const topOf = (P) => { const k = coef(P); return r3(k.a / (2 * k.b)); };
+  const lineOf = (P) => { const k = coef(P); return (k.c ? n(k.c) + ' + ' : '') + (k.a === 1 ? '' : n(k.a)) + JOB[P.job].xv; };
+  const sqOf = (P) => { const k = coef(P); return (k.b === 1 ? '' : n(k.b)) + JOB[P.job].xv + '²'; };
+  // As drawn and written: each part to 2 decimal places (to the centimetre for the ball), the gap their difference.
+  const d2 = (v) => Math.round(v * 100) / 100;
+  function parts(P, x) { const S = d2(stOf(P, x)), Q = d2(qOf(P, x)); return { S, Q, G: d2(S - Q) }; }
+  const sEnd = (P) => (P.s1 != null ? P.s1 : P.x1);   // where the slider stops (the ball's axis runs on past it)
+  const uy = (P) => JOB[P.job].yu, ux = (P) => JOB[P.job].xu;
+  function rowS(P, x) { const k = coef(P); return (k.c ? n(k.c) + ' + ' : '') + (k.a === 1 ? '' : n(k.a) + ' × ') + n(x) + ' = ' + n(parts(P, x).S) + ' ' + uy(P); }
+  function rowQ(P, x) { const k = coef(P); return (k.b === 1 ? '' : n(k.b) + ' × ') + n(x) + '² = ' + n(parts(P, x).Q) + ' ' + uy(P); }
+  function rowG(P, x) { const p = parts(P, x); return n(p.S) + ' − ' + n(p.Q) + ' = ' + n(p.G) + ' ' + uy(P); }
+  const atRow = (P, x) => 'At ' + n(x) + ' ' + ux(P) + ': ' + rowG(P, x);
+  const eq = (P) => '`' + lineOf(P) + ' = ' + sqOf(P) + '`';
+  const rule = (P) => '`' + JOB[P.job].yv + ' = ' + lineOf(P) + ' − ' + sqOf(P) + '`';
+
+  // Worked values the screens need, each from the rules above.
+  const R_BALL = rootsOf(pBall), R_DECK = rootsOf(pDeck), R_SUP = rootsOf(pSup), R_SUP2 = rootsOf(pSup2);
+  const I_BEST = topOf(pSup), V_LOAD = pSup.E - pSup.r * I_BEST, R_LOAD = V_LOAD / I_BEST, R_TWICE = 2 * R_LOAD, I_TWICE = pSup.E / (pSup.r + R_TWICE);
+  const deckDiv = (() => { const k = coef(pDeck), A = k.a / k.b, C = k.c / k.b; return '`t² − ' + (A === 1 ? '' : n(A)) + 't − ' + n(C) + ' = 0`'; })();
+  const allOn = (P, x) => 2 * stOf(P, x) - qOf(P, x);   // one support taking the whole load
+  const unsq = (P, x) => stOf(P, x) - coef(P).b * x;      // the squared part with its x left unsquared
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: which job and figures. A SHOW step's glide moves the job's input over time [from s, to s,
+  // from value, to value]; roots, peak and bar are when those marks arrive; work, extra lines of
+  // working [text, when]. slide: Dan can drag the input himself. A puzzle: q, the lines of working
+  // shown with the question; given, the marks shown from the start; reveal, what a right answer
+  // lights; pts, the point on the graph each answer names; right, the working a right answer adds;
+  // ow, the working each wrong answer puts back into the rule.
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, name: 'Thrown up', pic: 'ball', slide: true, dur: 4.0, glide: [[0.4, 2.2, 1, 4], [2.5, 3.8, 4, 1]],
+      text: 'A ball is thrown straight up at 19.6 m/s. With no gravity it would rise `19.6t` metres in `t` seconds, its *straight-line part*, but gravity pulls it `4.9t²` below that line, its *squared part*. Its height `h` is the gap between the two, so slide the time and watch it open and close.' },
+    { kind: 'pick', name: 'When it lands', pic: 'ball', given: [], reveal: ['curve', 'roots'],
+      task: 'When does the ball land back on the ground?',
+      q: ['It lands when `h` = 0, where ' + eq(pBall)],
+      opts: ['4 s', '2 s', '0.25 s'], want: '4 s',
+      pts: { '4 s': [R_BALL[1], 0], '2 s': [2, gapOf(pBall, 2)], '0.25 s': [0.25, gapOf(pBall, 0.25)] },
+      right: [atRow(pBall, R_BALL[1]) + ', back on the ground'],
+      ow: { '2 s': atRow(pBall, 2) + ', its top', '0.25 s': atRow(pBall, 0.25) + ', still rising' },
+      hint: 'Not quite. It lands where the two parts are equal again.',
+      hints: { '2 s': 'Not quite. At 2 s the ball is at its top, 19.6 m up.', '0.25 s': 'Not quite. That divides the wrong way, 4.9 ÷ 19.6.' },
+      why: 'It lands when the gap closes, where `19.6t = 4.9t²`. Taking out `4.9t` gives `4.9t(4 − t) = 0`, so 0 s, the throw, or 4 s, the landing.' },
+    { show: true, name: 'Roots and top', pic: 'ball', dur: 4.0, glide: [[1.8, 2.8, 1, 2]], roots: 0.4, peak: 2.9,
+      work: [[eq(pBall) + ' when `' + n(coef(pBall).b) + 't(' + n(R_BALL[1]) + ' − t) = 0`', 0.9], ['Roots 0 s and ' + n(R_BALL[1]) + ' s, so the top is at ' + n(topOf(pBall)) + ' s', 1.5]],
+      text: 'The gap closes where the two parts are equal, `19.6t = 4.9t²`, which is `4.9t(4 − t) = 0`. So it is zero at 0 s, the throw, and 4 s, the landing, the two *roots*. The top sits halfway, at 2 s, `39.2 − 19.6 = 19.6` m, the same digits as the speed only because of the speed chosen.' },
+    { kind: 'pick', name: 'Off the deck', pic: 'deck', given: [], reveal: ['curve', 'roots'],
+      task: 'Now a ball is thrown up at 4.9 m/s from a deck 9.8 m above the water, example figures. When does it hit the water?',
+      q: [rule(pDeck) + ', its straight-line part starting at 9.8, drawn dashed before the throw', 'Water when ' + eq(pDeck), 'Divide by ' + n(coef(pDeck).b) + ': ' + deckDiv],
+      opts: ['2 s', '−1 s', '1 s'], want: '2 s',
+      pts: { '2 s': [R_DECK[1], 0], '−1 s': [R_DECK[0], 0], '1 s': [1, gapOf(pDeck, 1)] },
+      right: ['`(t − ' + n(R_DECK[1]) + ')(t + ' + n(-R_DECK[0]) + ')` = 0, so ' + n(R_DECK[1]) + ' s or ' + n(R_DECK[0]) + ' s', n(R_DECK[0]) + ' s is before the throw, so ' + n(R_DECK[1]) + ' s'],
+      ow: { '−1 s': atRow(pDeck, R_DECK[0]) + ', before the throw', '1 s': atRow(pDeck, 1) + ', deck height' },
+      hint: 'Not quite. Find where the two parts are equal, and keep a time after the throw.',
+      hints: { '−1 s': 'Not quite. −1 s makes the rule zero, but it is before the throw.', '1 s': 'Not quite. At 1 s the ball is back level with the deck, 9.8 m up.' },
+      why: 'Set the parts equal, `9.8 + 4.9t = 4.9t²`, and divide by 4.9 to get `t² − t − 2 = 0`. That is `(t − 2)(t + 1) = 0`, so 2 s or −1 s, and −1 s is before the throw.' },
+    { show: true, name: 'A battery and a load', pic: 'supply', slide: true, dur: 4.2, glide: [[1.4, 2.8, 4, 24], [3.0, 4.1, 24, 4]], roots: 0.4,
+      work: [['Short circuit: `E ÷ r` = ' + n(pSup.E) + ' ÷ ' + n(pSup.r) + ' = ' + n(pSup.E / pSup.r) + ' A', 0.9]],
+      text: 'A 12 V battery with 0.5 Ω inside it makes `12I` watts at a current `I`, its straight-line part, and burns `0.5I²` of that inside, its squared part. The load gets the gap, `P`. Each load lets through its own current, so sliding the current is choosing the load: the gap closes at 0 A, nothing connected, and at `12 ÷ 0.5 = 24` A, a short circuit.' },
+    { kind: 'pick', name: 'The best current', pic: 'supply', given: ['roots'], reveal: ['curve', 'peak'],
+      task: 'What current gives the load the most power?',
+      q: ['`P` is 0 at 0 A and at ' + n(R_SUP[1]) + ' A'],
+      opts: ['12 A', '24 A', '6 A'], want: '12 A',
+      pts: { '12 A': [I_BEST, gapOf(pSup, I_BEST)], '24 A': [R_SUP[1], 0], '6 A': [6, gapOf(pSup, 6)] },
+      right: ['Halfway: (0 + ' + n(R_SUP[1]) + ') ÷ 2 = ' + n(I_BEST) + ' A', atRow(pSup, I_BEST)],
+      ow: { '24 A': atRow(pSup, R_SUP[1]) + ', all lost inside', '6 A': atRow(pSup, 6) },
+      hint: 'Not quite. The most power sits halfway between the roots.',
+      hints: { '24 A': 'Not quite. 24 A is the short circuit, where the load gets 288 − 288 = 0 W.', '6 A': 'Not quite. 6 A gives the load 72 − 18 = 54 W. Try halfway between the roots.' },
+      why: 'The gap is zero at 0 A and 24 A, and a parabola is the same either side of its middle. So the most power is halfway, at 12 A, where the load gets `144 − 72 = 72` W.' },
+    { show: true, name: 'The most power', pic: 'supply', dur: 4.0, glide: [[0.4, 1.6, 4, 12]], peak: 1.8, bar: 3.2,
+      work: [['Load\'s volts: ' + n(pSup.E) + ' − ' + n(pSup.r) + ' × ' + n(I_BEST) + ' = ' + n(V_LOAD) + ' V', 2.3], ['Load: ' + n(V_LOAD) + ' ÷ ' + n(I_BEST) + ' = ' + n(R_LOAD) + ' Ω, the same as `r`', 2.8]],
+      text: 'The most power sits halfway between the roots, at 12 A, where the load gets `144 − 72 = 72` W. The load then has 6 V across it, so its resistance is `6 ÷ 12 = 0.5` Ω, the same as the battery\'s `r`. This is *maximum power transfer*, and half of the 144 W made is lost inside.' },
+    { kind: 'pick', name: 'Double the load', pic: 'supply', loadR: R_TWICE, given: ['curve', 'roots', 'peak'], reveal: ['point'],
+      task: 'At 12 A the load is 0.5 Ω. Double it to 1 Ω. What power does the load get now?',
+      q: ['Before: 72 W at 12 A, with 0.5 Ω in the load'],
+      opts: ['64 W', '144 W', '72 W'], want: '64 W',
+      pts: { '64 W': [I_TWICE, gapOf(pSup, I_TWICE)], '144 W': [I_BEST, I_BEST * I_BEST * R_TWICE], '72 W': [I_BEST, gapOf(pSup, I_BEST)] },
+      right: ['In series, ' + n(pSup.r) + ' + ' + n(R_TWICE) + ' = ' + n(pSup.r + R_TWICE) + ' Ω, so ' + n(pSup.E) + ' ÷ ' + n(pSup.r + R_TWICE) + ' = ' + n(I_TWICE) + ' A', 'Load: ' + n(I_TWICE) + '² × ' + n(R_TWICE) + ' = ' + n(I_TWICE * I_TWICE * R_TWICE) + ' W'],
+      ow: { '144 W': n(I_BEST) + '² × ' + n(R_TWICE) + ' = ' + n(I_BEST * I_BEST * R_TWICE) + ' W if ' + n(I_BEST) + ' A still flowed, all the battery makes at ' + n(I_BEST) + ' A',
+        '72 W': 'Current: ' + n(pSup.E) + ' ÷ (' + n(pSup.r) + ' + ' + n(R_TWICE) + ') = ' + n(I_TWICE) + ' A, not ' + n(I_BEST) + ' A' },
+      hint: 'Not quite. Work out the new current first.',
+      hints: { '144 W': 'Not quite. That keeps 12 A flowing, which would hand the load all 144 W the battery makes there. More resistance lets less current through.', '72 W': 'Not quite. The current changes with the load, to 12 ÷ (0.5 + 1) = 8 A.' },
+      why: 'The load and the battery\'s 0.5 Ω are in series, 1.5 Ω in all, so the current falls to `12 ÷ 1.5 = 8` A and the load gets `8² × 1 = 64` W, which is also `96 − 32` on the curve at 8 A. That is less power, but 64 W of the 96 W made, about two-thirds, where at 12 A it was half: power traded for less lost.' },
+    { show: true, name: 'A loaded beam', pic: 'beam', slide: true, dur: 4.2, glide: [[1.4, 2.6, 1, 6], [2.9, 4.0, 6, 1]], roots: 0.4,
+      work: [[eq(pBeam) + ' at 0 m and ' + n(pBeam.L) + ' m, the supports', 0.9]],
+      text: 'A 6 m beam on two simple supports carries 2 kN on every metre, so each support pushes up 6 kN. Taking turning effects about a point `x` metres along, and counting only what lies to its left, so not the right support\'s grey push, the left push turns the beam `6x` kN·m one way, and the `2x` kN of load on those metres, acting at their middle, turns it `2x × x ÷ 2 = x²` the other. The *bending moment* `M` is the gap, so drag the point and watch it close at both supports.' },
+    { kind: 'pick', name: 'Largest moment', pic: 'beam', given: ['roots'], reveal: ['curve', 'peak'],
+      task: 'What is the largest bending moment in the beam?',
+      q: ['`M` is 0 at both supports, 0 m and ' + n(pBeam.L) + ' m'],
+      opts: ['9 kN·m', '18 kN·m', '27 kN·m'], want: '9 kN·m',
+      pts: { '9 kN·m': [topOf(pBeam), gapOf(pBeam, topOf(pBeam))], '18 kN·m': [3, stOf(pBeam, 3)], '27 kN·m': [3, allOn(pBeam, 3)] },
+      right: ['Halfway, at ' + n(topOf(pBeam)) + ' m: ' + rowG(pBeam, topOf(pBeam)), '`wL²/8` = ' + n(pBeam.w) + ' × ' + n(pBeam.L) + '² ÷ 8 = ' + n(pBeam.w * pBeam.L * pBeam.L / 8) + ' kN·m'],
+      ow: { '18 kN·m': rowS(pBeam, 3) + ' leaves out the ' + n(qOf(pBeam, 3)), '27 kN·m': n(2 * coef(pBeam).a) + ' × 3 − ' + n(qOf(pBeam, 3)) + ' = ' + n(allOn(pBeam, 3)) + ' kN·m if one support held ' + n(pBeam.w * pBeam.L) + ' kN' },
+      hint: 'Not quite. The largest moment sits halfway between the supports.',
+      hints: { '18 kN·m': 'Not quite. 18 kN·m leaves out the squared part, the load\'s own turn of 9 kN·m.', '27 kN·m': 'Not quite. Each support holds half of the 12 kN, 6 kN, not all of it.' },
+      why: 'The bending moment is zero at both supports, 0 m and 6 m, so it is largest halfway, at 3 m. There `M = 18 − 9 = 9` kN·m, matching `wL²/8 = 2 × 6² ÷ 8 = 9`.' },
+    { kind: 'pick', name: 'Spot the slip', pic: 'deck', given: [], reveal: ['curve', 'peak'],
+      task: 'Here is a worked answer for when the deck ball reaches its top. Which line slips?',
+      q: ['Line 1: water when ' + eq(pDeck) + ', so ' + n(R_DECK[1]) + ' s or ' + n(R_DECK[0]) + ' s', 'Line 2: ' + n(R_DECK[0]) + ' s is before the throw, so the top is halfway from 0 to ' + n(R_DECK[1]) + ' s', 'Line 3: (0 + ' + n(R_DECK[1]) + ') ÷ 2 = ' + n(R_DECK[1] / 2) + ' s'],
+      opts: ['Line 1', 'Line 2', 'Line 3'], want: 'Line 2',
+      pts: { 'Line 2': [topOf(pDeck), gapOf(pDeck, topOf(pDeck))], 'Line 1': [R_DECK[1], 0], 'Line 3': [1, gapOf(pDeck, 1)] },
+      right: ['The top is halfway between the roots: (' + n(R_DECK[0]) + ' + ' + n(R_DECK[1]) + ') ÷ 2 = ' + n(topOf(pDeck)) + ' s'],
+      ow: { 'Line 1': atRow(pDeck, R_DECK[1]) + ', the water, and ' + n(R_DECK[0]) + ' s makes it zero too', 'Line 3': atRow(pDeck, 1) + ', only deck height' },
+      hint: 'Not quite. Look for the line whose idea is wrong, not its sums.',
+      hints: { 'Line 1': 'Not quite. Both 2 s and −1 s make the rule zero, so Line 1 is right.', 'Line 3': 'Not quite. Line 3 adds up, and at 1 s the ball is only back at deck height. The slip comes before it.' },
+      why: 'The top is halfway between the rule\'s two roots, −1 s and 2 s, so at `(−1 + 2) ÷ 2 = 0.5` s, even though −1 s is thrown away as a time. Line 2 goes halfway from the throw to the water, which only works when they are at the same height.' },
+    { kind: 'pick', name: 'A bigger supply', pic: 'supply2', given: [], reveal: ['curve', 'roots', 'peak'],
+      task: 'A 24 V supply has 1.5 Ω inside it, example figures. What is its best current, and what power does the load get there?',
+      q: [rule(pSup2)],
+      opts: ['8 A, 96 W', '8 A, 192 W', '16 A, 384 W'], want: '8 A, 96 W',
+      pts: { '8 A, 96 W': [topOf(pSup2), gapOf(pSup2, topOf(pSup2))], '8 A, 192 W': [8, stOf(pSup2, 8)], '16 A, 384 W': [R_SUP2[1], stOf(pSup2, R_SUP2[1])] },
+      right: ['Roots 0 A and ' + n(pSup2.E) + ' ÷ ' + n(pSup2.r) + ' = ' + n(pSup2.E / pSup2.r) + ' A', 'Halfway, at ' + n(topOf(pSup2)) + ' A: ' + rowG(pSup2, topOf(pSup2))],
+      ow: { '8 A, 192 W': rowS(pSup2, 8) + ', but ' + n(qOf(pSup2, 8)) + ' W is lost inside', '16 A, 384 W': atRow(pSup2, R_SUP2[1]) + ', the short circuit' },
+      hint: 'Not quite. Find the roots, then go halfway.',
+      hints: { '8 A, 192 W': 'Not quite. 192 W leaves out the squared part, the 96 W lost inside.', '16 A, 384 W': 'Not quite. 16 A is the short circuit, where all 384 W is lost inside.' },
+      why: 'The load gets nothing at 0 A and at the short circuit, `24 ÷ 1.5 = 16` A. Halfway is 8 A, where it gets `192 − 96 = 96` W.' },
+    { kind: 'pick', name: 'A shorter beam', pic: 'beam2', given: [], reveal: ['curve', 'roots', 'peak'],
+      task: 'A 4 m beam on two simple supports carries 3 kN on every metre, example figures. What is its largest bending moment?',
+      q: ['Each support holds ' + n(pBeam2.w * pBeam2.L / 2) + ' kN, so ' + rule(pBeam2)],
+      opts: ['6 kN·m', '12 kN·m', '9 kN·m'], want: '6 kN·m',
+      pts: { '6 kN·m': [topOf(pBeam2), gapOf(pBeam2, topOf(pBeam2))], '12 kN·m': [2, stOf(pBeam2, 2)], '9 kN·m': [2, unsq(pBeam2, 2)] },
+      right: ['Roots 0 m and ' + n(pBeam2.L) + ' m, so halfway at ' + n(topOf(pBeam2)) + ' m', atRow(pBeam2, topOf(pBeam2))],
+      ow: { '12 kN·m': rowS(pBeam2, 2) + ' leaves out the ' + n(qOf(pBeam2, 2)), '9 kN·m': n(coef(pBeam2).a) + ' × 2 − ' + n(coef(pBeam2).b) + ' × 2 = ' + n(unsq(pBeam2, 2)) + ' kN·m, with the 2 not squared' },
+      hint: 'Not quite. Find where `M` is zero, then go halfway.',
+      hints: { '12 kN·m': 'Not quite. 12 kN·m leaves out the squared part, 1.5 × 2² = 6 kN·m.', '9 kN·m': 'Not quite. That forgets to square the 2: the squared part is 1.5 × 2² = 6 kN·m.' },
+      why: 'Each support holds half of the 12 kN, 6 kN, so `M = 6x − 1.5x²`. That is zero at 0 m and 4 m, so it is largest at 2 m, `12 − 6 = 6` kN·m, matching `3 × 4² ÷ 8 = 6`.' },
+  ];
+  const FINISH = 'Take a squared part from a straight-line part and you get an upside-down U. It is zero where the two parts are equal, and highest halfway between those roots, like 19.6 m at 2 s, 72 W at 12 A and 9 kN·m at 3 m.';
+  // The lesson's sources, each cited only by a check that restates its quote.
+  const SRC = {
+    1: 'https://www.mathwords.com/p/projectile_motion.htm',
+    2: 'https://calcsteel.com/blog/bending-moment',
+    3: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC13512147',
+    4: 'https://web.mit.edu/course/other/emech/admin/OldFiles/dontindex-build/full-text/emechbk_3.pdf',
+    5: 'https://en.wikipedia.org/wiki/Projectile_motion',
+    7: 'https://openstax.org/books/physics/pages/5-3-projectile-motion',
+  };
+  const FADE = 0.35;
+  const FB = [2.0, 0.8];   // how long the motion after a right and a wrong answer plays
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // x: on a slider screen, the input Dan has set (null until he moves it).
+  function blank() { return { pick: null, res: null, why: false, x: null }; }
+  const isRight = (i, pick) => pick != null && pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;
+  let REC = null, QUICK = false;
+
+  // ---------- text: amber key terms, and `maths` whose letters are italic (built with K.el, never innerHTML) ----------
+  function italicsHtml(parent, s) { s.split(/([A-Za-z])/).forEach((p, j) => { if (p) parent.appendChild(j % 2 ? K.el('span', { class: 'v' }, p) : document.createTextNode(p)); }); }
+  function write(box, s) {
+    box.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italicsHtml(box.appendChild(K.el('span', { class: seg.length <= 14 ? 'nw' : 'mx' })), seg); return; }
+      const re = /\*([^*]+)\*/g;
+      let from = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > from) box.appendChild(document.createTextNode(seg.slice(from, m.index)));
+        box.appendChild(K.el('span', { class: 'term' }, m[1]));
+        from = m.index + m[0].length;
+      }
+      if (from < seg.length) box.appendChild(document.createTextNode(seg.slice(from)));
+    });
+  }
+  const plain = (s) => String(s).replace(/`/g, '');
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st.pick) ? 'right' : 'wrong';
+    play(st.res === 'right' ? FB[0] : FB[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    S[at()].x = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The battery's current keeps flowing round its loop, at a speed that follows the current.
+  let phase = 0, FLOW = null;
+  const flowing = (d) => !!d.show && PIC[d.pic].job === 'supply' && !finished && !REDUCE && !testing();
+  const flow = K.anim({ button: false, label: 'Current', step: (dt) => {
+    if (!flowing(STEPS[at()]) || !FLOW) return false;
+    phase = (phase + dt * 2.5 * FLOW.I) % 100000;
+    placeDots();
+    return true;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing helpers ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null, DYN = [];
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  // A timetable entry: false, not shown; null, there from the start; a time, arriving then.
+  const vis = (t) => (t === false ? 0 : t == null ? 1 : arr(t));
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A glide [from s, to s, from value, to value, ...]: the value now, eased.
+  function glide(segs) {
+    let v = segs[0][2];
+    for (const g of segs) {
+      note(g[0], g[1] - g[0]);
+      if (T >= g[1]) v = g[3];
+      else { if (T > g[0]) v = K.lerp(g[2], g[3], K.ease((T - g[0]) / (g[1] - g[0]))); break; }
+    }
+    return v;
+  }
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const shape = (tag, attrs) => add(K.svg(tag, attrs));
+  const line = (cls, x1, y1, x2, y2) => shape('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) });
+  const rect = (cls, x, y, w, h, rx) => shape('rect', { class: cls, x: r2(x), y: r2(y), width: r2(Math.max(0, w)), height: r2(Math.max(0, h)), rx: rx || 0 });
+  const circ = (cls, cx, cy, r) => shape('circle', { class: cls, cx: r2(cx), cy: r2(cy), r: r });
+  const path = (cls, d) => shape('path', { class: cls, d: d });
+  const poly = (cls, pts) => shape('polygon', { class: cls, points: pts.map(r2).join(' ') });
+  // `maths` with its letters italic, the rest plain.
+  function fillText(t, s) {
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (!(k % 2)) { t.appendChild(document.createTextNode(seg)); return; }
+      seg.split(/([A-Za-z])/).forEach((p, j) => { if (p) t.appendChild(j % 2 ? K.svg('tspan', { class: 'v' }, p) : document.createTextNode(p)); });
+    });
+  }
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: 'h ' + cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' });
+    fillText(t, s);
+    return add(t);
+  }
+  // Labels that move or arrive are placed last, clear of each other and of the curves (K.labels).
+  function lab(items) { const g = add(K.svg('g')); DYN.push({ g, items }); }
+  function flushLabels() {
+    DYN.forEach(({ g, items }) => {
+      if (QUICK) {
+        items.forEach((it) => { const t = g.appendChild(K.svg('text', { class: it.class, x: r2(it.x), y: r2(it.y), 'text-anchor': it.anchor || 'middle' })); fillText(t, it.text); });
+        return;
+      }
+      const ts = K.labels(g, items.map((it) => ({ x: r2(it.x), y: r2(it.y), text: plain(it.text), anchor: it.anchor || 'middle', class: it.class })), { avoid: '#art .av' });
+      ts.forEach((t, m) => { if (String(items[m].text).indexOf('`') >= 0) { t.textContent = ''; fillText(t, items[m].text); } });
+    });
+    DYN = [];
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));
+    fillText(t, s);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return plain(s).length * 7.8;
+  }
+  // A line of working broken into lines that fit, each `maths` piece kept whole.
+  function wrap(s, max, cls) {
+    const toks = [];
+    let cur = '', inM = false;
+    for (const ch of String(s)) {
+      if (ch === '`') inM = !inM;
+      if (ch === ' ' && !inM) { if (cur) toks.push(cur); cur = ''; } else cur += ch;
+    }
+    if (cur) toks.push(cur);
+    const out = [];
+    let ln = '';
+    toks.forEach((tk) => { const next = ln ? ln + ' ' + tk : tk; if (ln && tw(next, cls) > max) { out.push(ln); ln = tk; } else ln = next; });
+    if (ln) out.push(ln);
+    return out;
+  }
+  function arrowUp(x, y1, y2, cls, hd) { line(cls, x, y1, x, y2 + 8); poly(hd, [x - 5, y2 + 9, x + 5, y2 + 9, x, y2]); }
+  function along(pts, s) {
+    for (let k = 1; k < pts.length; k++) {
+      const a = pts[k - 1], b = pts[k], l = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      if (s <= l) return [a[0] + (b[0] - a[0]) * s / l, a[1] + (b[1] - a[1]) * s / l];
+      s -= l;
+    }
+    return pts[pts.length - 1];
+  }
+
+  // ---------- each step's sizes ----------
+  const LAY = new Map(), ROWH = 22, LINEH = 19, WRAPW = 318;
+  const rowsHeight = (list) => list.reduce((h, r) => h + (r.part != null ? ROWH : wrap(r.text, WRAPW, 'wk').length * LINEH + 3), 0);
+  function layout(d) {
+    if (LAY.has(d)) return LAY.get(d);
+    const P = PIC[d.pic], job = P.job, L = { PL: 40 };
+    let y = 4;
+    if (job === 'supply') { L.panel = y; y += 106; }
+    if (job === 'beam') { L.panel = y; y += 114; }
+    L.title = y + 13; L.PT = y + 24; L.PH = job === 'ball' ? 180 : 150; L.PB = L.PT + L.PH;
+    L.PR = job === 'ball' ? 254 : 322;
+    y = L.PB + 24;
+    if (d.slide && job !== 'beam') { L.track = y + 10; L.knobY = y + 38; y += 46; }
+    L.rows = y + 4;
+    let h;
+    if (d.show) h = rowsHeight(planRows(d));
+    else {
+      h = rowsHeight(d.q.map((s) => ({ text: s })));
+      h += Math.max(rowsHeight(d.right.map((s) => ({ text: s }))), ...d.opts.filter((o) => o !== d.want).map((o) => rowsHeight([{ text: d.ow[o] }])));
+    }
+    y = L.rows + h;
+    if (d.bar != null) { L.bar = y + 6; y += 70; }
+    L.H = Math.ceil(y + 8);
+    L.X = (v) => L.PL + (v - P.x0) / (P.x1 - P.x0) * (L.PR - L.PL);
+    L.Y = (v) => L.PB - v / P.ym * L.PH;
+    LAY.set(d, L);
+    return L;
+  }
+  const planRows = (d) => [0, 1, 2].map((k) => ({ part: k })).concat((d.work || []).map((w) => ({ text: w[0], t: w[1] })));
+
+  // What a step shows in its state, and when (null: from the start; false: not shown; a time: arriving then).
+  function plan(d, st) {
+    const P = PIC[d.pic], pl = { curve: false, roots: false, peak: false, bar: false, ring: null, point: null, rows: [], ballGlide: null, launch: false, beamX: null };
+    if (d.show) {
+      pl.curve = null;
+      pl.roots = d.roots != null ? d.roots : false;
+      pl.peak = d.peak != null ? d.peak : false;
+      pl.bar = d.bar != null ? d.bar : false;
+      pl.rows = planRows(d);
+      return pl;
+    }
+    const given = d.given || [], rev = d.reveal || [], right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;
+    const when = (key, t) => (given.indexOf(key) >= 0 ? null : right && rev.indexOf(key) >= 0 ? t : false);
+    pl.curve = when('curve', 0.1); pl.roots = when('roots', 0.5); pl.peak = when('peak', 0.7);
+    pl.rows = d.q.map((s) => ({ text: s, t: null }));
+    if (right) {
+      d.right.forEach((s, m) => pl.rows.push({ text: s, t: 0.6 + 0.4 * m }));
+      if (rev.indexOf('point') >= 0) { const q = d.pts[d.want]; pl.point = { x: q[0], y: q[1], t: 0.6 }; }
+      if (P.job === 'beam') pl.beamX = { x: d.pts[d.want][0], t: 0.6 };
+    } else if (wrong) {
+      const q = d.pts[st.pick];
+      pl.ring = { x: q[0], y: q[1], t: 0.1 };
+      pl.rows.push({ text: d.ow[st.pick], bad: true, t: 0.1 });
+    }
+    if (P.job === 'ball') {
+      const to = right ? d.pts[d.want][0] : wrong ? d.pts[st.pick][0] : 0;
+      if (to > 0) pl.ballGlide = [[right ? 0.2 : 0.1, right ? 1.4 : 0.7, 0, to]];
+      pl.launch = !right && !wrong;
+    }
+    return pl;
+  }
+  // A slider value on its step.
+  function snap(P, v) { const s = P.step || 0.1; return r3(P.x0 + Math.round((v - P.x0) / s) * s); }
+  function inputNow(d, st) {
+    const P = PIC[d.pic];
+    if (!d.show) return null;
+    if (d.slide && st.x != null) return st.x;
+    return snap(P, glide(d.glide));
+  }
+
+  // ---------- the battery and its load ----------
+  function drawCircuit(d, P, L, I) {
+    const y0 = L.panel, yT = y0 + 40, yB = y0 + 86;
+    text(42, y0 + 14, 'battery', 'lbm', 'start');
+    rect('case', 38, yT - 20, 132, 40, 8);
+    path('wire', 'M64 ' + yT + 'H24V' + yB + 'H316V' + yT + 'H74');
+    line('cell', 64, yT - 13, 64, yT + 13);
+    line('cell thick', 74, yT - 7, 74, yT + 7);
+    rect('rbox', 104, yT - 8, 40, 16, 2);
+    rect('lbox', 196, yB - 8, 48, 16, 2);
+    text(69, yT + 36, n(P.E) + ' V', 'lb');
+    text(124, yT + 36, n(P.r) + ' Ω', 'lb');
+    text(220, yB - 16, d.loadR ? 'load, ' + n(d.loadR) + ' Ω' : 'load', 'lb');
+    FLOW = null;
+    if (I == null) return;
+    // the current: dots round the loop, out of the long plate, through the load and back through r
+    const pts = [[64, yT], [24, yT], [24, yB], [316, yB], [316, yT], [74, yT]];
+    let LL = 0;
+    for (let k = 1; k < pts.length; k++) LL += Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]);
+    const dots = [];
+    for (let j = 0; j < 28; j++) dots.push(circ('qd', 0, 0, 2.8));
+    FLOW = { pts, LL, dots, I };
+    placeDots();
+  }
+  function placeDots() {
+    if (!FLOW) return;
+    const F = FLOW;
+    F.dots.forEach((c, j) => { const p = along(F.pts, ((phase + j * F.LL / F.dots.length) % F.LL + F.LL) % F.LL); c.setAttribute('cx', r2(p[0])); c.setAttribute('cy', r2(p[1])); });
+  }
+
+  // ---------- the beam on its two supports ----------
+  function drawBeam(d, P, L, xv, pl) {
+    const X = L.X, y0 = L.panel, by = y0 + 50, xa = X(0), xb = X(P.L), push = P.w * P.L / 2;
+    rect('load', xa, by - 16, xb - xa, 14);
+    rect('beam', xa, by, xb - xa, 8, 1);
+    [xa, xb].forEach((sx) => poly('sup', [sx, by + 8, sx - 9, by + 22, sx + 9, by + 22]));
+    REC.supports = 2;
+    arrowUp(xa, by + 58, by + 25, 'arw1 av', 'hd1');
+    arrowUp(xb, by + 58, by + 25, 'arwm av', 'hdm');
+    text(xb, by - 22, n(P.w) + ' kN on every metre', 'lbm', 'end');
+    text(xa + 9, by + 52, n(push) + ' kN', 'lb', 'start');
+    text(xb - 9, by + 52, n(push) + ' kN', 'lbm', 'end');
+    let x = null, a = 1;
+    if (d.show) x = xv; else if (pl.beamX) { x = pl.beamX.x; a = vis(pl.beamX.t); }
+    if (x == null || a <= 0) return;
+    part(a, 0, () => {
+      if (x > 0) {
+        // the load on those x metres, acting at their middle
+        rect('loadx av', xa, by - 16, X(x) - xa, 14);
+        const ax = X(x / 2);
+        line('arw2 av', ax, by - 34, ax, by - 9);
+        poly('hd2', [ax - 5, by - 10, ax + 5, by - 10, ax, by - 1]);
+        lab([{ x: ax, y: by - 38, text: n(P.w * x) + ' kN', class: 'h lb' }]);
+      }
+      line('guide av', X(x), by + 14, X(x), L.PB);
+      circ('knob av', X(x), by + 4, 9);
+      lab([{ x: X(x), y: by + 38, text: '`x` = ' + n(x) + ' m', class: 'h xl' }]);
+      REC.beamX = x;
+    });
+  }
+
+  // ---------- the graph: the two parts, the gap between them and the gap stood up from the axis ----------
+  function drawGraph(d, P, L, xv, pl) {
+    const X = L.X, Y = L.Y, J = JOB[P.job], R = rootsOf(P), top = topOf(P);
+    P.yt.forEach((v) => { if (v) line('grid', L.PL, Y(v), L.PR, Y(v)); text(L.PL - 6, Y(v) + 4.5, n(v), 'tk', 'end'); });
+    text(6, L.title, J.yTitle, 'ttl', 'start');
+    P.xt.forEach((v, m) => text(X(v), L.PB + 17, n(v) + (m === P.xt.length - 1 ? ' ' + J.xu : ''), 'tk'));
+    line('axis', L.PL, L.PT - 4, L.PL, L.PB);
+    line('axis', L.PL, L.PB, L.PR, L.PB);
+    const seg = (fn, a, b, N) => { let s = ''; for (let j = 0; j <= N; j++) { const x = a + (b - a) * j / N; s += (j ? 'L' : 'M') + r2(X(x)) + ' ' + r2(Y(fn(x))); } return s; };
+    const lo = P.deck ? 0 : P.x0, g0 = Math.max(lo, R[0]), g1 = Math.min(P.x1, R[1]);
+    const gfn = (x) => gapOf(P, x), aC = vis(pl.curve);
+    part(aC, 0, () => path('area', seg(gfn, g0, g1, 48) + 'L' + r2(X(g1)) + ' ' + r2(Y(0)) + 'L' + r2(X(g0)) + ' ' + r2(Y(0)) + 'Z'));
+    // The rule before 0 s is the rule carried backwards, not the ball: dashed.
+    if (P.deck) { path('c2 dash av', seg((x) => qOf(P, x), P.x0, 0, 16)); path('c1 dash av', seg((x) => stOf(P, x), P.x0, 0, 1)); }
+    path('c2 av', seg((x) => qOf(P, x), lo, P.x1, 48));
+    path('c1 av', seg((x) => stOf(P, x), lo, P.x1, 1));
+    part(aC, 0, () => {
+      if (P.deck) path('c3 dash av', seg(gfn, R[0], 0, 16));
+      path('c3 av', seg(gfn, g0, g1, 48));
+      REC.curve = true; REC.dashed = !!P.deck;
+      REC.samples = K.linspace(g0, g1, 9).map((x) => [x, gfn(x)]);
+    });
+    const xl = P.x0 + 0.72 * (P.x1 - P.x0);
+    lab([{ x: X(xl) - 8, y: Y(stOf(P, xl)) - 9, text: '`' + lineOf(P) + '`', anchor: 'end', class: 'h ll s1' },
+      { x: X(xl) + 8, y: Y(qOf(P, xl)) + 19, text: '`' + sqOf(P) + '`', anchor: 'start', class: 'h ll s2' }]);
+    // The gap's letter names the upside-down U where no key row does (the puzzles); on a slider screen the
+    // amber row under the graph names it, and the moving gap marks would run through a letter inside it.
+    if (xv == null) part(aC, 0, () => lab([{ x: X((top + g0) / 2), y: Y(gapOf(P, top) * 0.45) + 5, text: '`' + J.yv + '`', class: 'h ll s3' }]));
+    // the roots: where the two parts are equal, so the gap is zero
+    part(vis(pl.roots), 0, () => {
+      const names = P.deck ? ['before the throw', 'water'] : J.roots, span = P.x1 - P.x0, items = [];
+      R.forEach((r, m) => {
+        const s = stOf(P, r), f = (r - P.x0) / span;
+        if (s > 0.01 * P.ym) { circ('ring av', X(r), Y(s), 6); line('guide av', X(r), Y(s) + 6, X(r), Y(0) - 5); }
+        circ('dot av', X(r), Y(0), 5);
+        items.push({ x: X(r) + (f < 0.15 ? 6 : f > 0.85 ? -6 : 0), y: Y(0) - 12, text: names[m], anchor: f < 0.15 ? 'start' : f > 0.85 ? 'end' : 'middle', class: 'h mk' });
+      });
+      lab(items);
+      REC.roots = R.slice();
+    });
+    // the top: halfway between the roots
+    part(vis(pl.peak), 0, () => {
+      const p = parts(P, top);
+      line('guide av', X(top), Y(p.G) + 6, X(top), Y(0));
+      circ('dot av', X(top), Y(gapOf(P, top)), 5);
+      lab([{ x: X(top), y: Y(p.G) - 12, text: P.deck ? 'top at ' + n(top) + ' s' : n(p.G) + ' ' + J.yu + ' at ' + n(top) + ' ' + J.xu, class: 'h mk' }]);
+      REC.peak = { x: top, y: gapOf(P, top) };
+    });
+    // the input Dan sets: the gap between the parts there, and the same gap stood up from the axis
+    if (xv != null) {
+      const p = parts(P, xv), x = X(xv);
+      if (p.S - p.Q > 1e-9) {
+        path('gapl av', 'M' + r2(x + 5) + ' ' + r2(Y(p.Q)) + 'V' + r2(Y(p.S)));
+        path('gapl av', 'M' + r2(x - 5) + ' ' + r2(Y(0)) + 'V' + r2(Y(p.G)));
+      }
+      circ('dot dot2 av', x + 5, Y(p.Q), 4);
+      circ('dot dot1 av', x + 5, Y(p.S), 4);
+      circ('dot av', x - 5, Y(p.G), 4.5);
+      if (!(REC.peak && Math.abs(xv - top) < 1e-9)) lab([{ x: x + 12, y: Y((p.S + p.Q) / 2) + 5, text: n(p.G) + ' ' + J.yu, anchor: 'start', class: 'h mk' }]);
+      REC.gap = { x: xv, lo: p.Q, hi: p.S, bar: p.G, pxGap: Y(p.Q) - Y(p.S), pxBar: Y(0) - Y(p.G) };
+    }
+    if (pl.ring) part(vis(pl.ring.t), 0, () => { circ('ring bad av', X(pl.ring.x), Y(pl.ring.y), 8); REC.ring = { x: pl.ring.x, y: pl.ring.y }; });
+    if (pl.point) part(vis(pl.point.t), 0, () => {
+      const q = pl.point;
+      line('guide av', X(q.x), Y(q.y) + 6, X(q.x), Y(0));
+      circ('dot av', X(q.x), Y(q.y), 5);
+      lab([{ x: X(q.x), y: Y(q.y) - 12, text: n(q.y) + ' ' + J.yu + ' at ' + n(q.x) + ' ' + J.xu, class: 'h mk' }]);
+      REC.point = { x: q.x, y: q.y };
+    });
+    // the slider under the graph (the beam's point is dragged along the beam itself)
+    if (d.slide && L.track != null) {
+      line('track', X(P.x0), L.track, X(sEnd(P)), L.track);
+      P.xt.forEach((v) => line('tick', X(v), L.track - 6, X(v), L.track + 6));
+      const kx = X(xv), s = '`' + J.xv + '` = ' + n(xv) + ' ' + J.xu, w = tw(s, 'xl');
+      circ('knob', kx, L.track, 10);
+      text(K.clamp(kx, 8 + w / 2, 332 - w / 2), L.knobY, s, 'xl');
+    }
+  }
+
+  // ---------- the ball itself, beside the graph on the same heights ----------
+  function drawColumn(d, P, L, t, pl) {
+    const Y = L.Y, BX = P.deck ? 310 : 300;
+    if (P.deck) {
+      rect('water', 262, Y(0), 76, 7);
+      rect('pier', 262, Y(P.h0), 40, Y(0) - Y(P.h0));
+      text(282, Y(P.h0) - 7, 'deck', 'lbm');
+      text(300, L.PB + 21, 'water', 'lbm');
+    } else {
+      line('ground', 262, Y(0), 338, Y(0));
+      text(300, L.PB + 17, 'ground', 'lbm');
+    }
+    const p = parts(P, t), yb = Y(Math.max(0, p.G));
+    REC.ball = Math.max(0, p.G);
+    if (d.show && t > 0) {
+      const ys = Y(p.S);
+      // where it would be with no gravity, and gravity's pull down from there to the ball
+      if (p.Q / P.ym * L.PH > 3) circ('ghost av', BX, ys - 7, 7);
+      if (yb - ys > 34) { line('arw2 av', BX, ys + 2, BX, yb - 22); poly('hd2', [BX - 5, yb - 23, BX + 5, yb - 23, BX, yb - 15]); }
+      line('guide av', L.X(t) + 6, yb, BX - 10, yb);
+    }
+    circ('ball av', BX, yb - 7, 7);
+    if (pl.launch) {
+      line('arw1 av', BX, yb - 17, BX, yb - 40);
+      poly('hd1', [BX - 5, yb - 39, BX + 5, yb - 39, BX, yb - 47]);
+      lab([{ x: BX - 10, y: yb - 26, text: n(P.v) + ' m/s', anchor: 'end', class: 'h lb' }]);
+    }
+  }
+
+  // ---------- lines of working: the two parts and the gap, then the working ----------
+  function drawRows(P, L, xv, pl) {
+    let y = L.rows + 15;
+    const J = JOB[P.job];
+    pl.rows.forEach((r) => {
+      if (r.part != null) {
+        const val = [rowS, rowQ, rowG][r.part](P, xv), yy = y;
+        line(['c1', 'c2', 'c3'][r.part], 8, yy - 5, 24, yy - 5);
+        text(30, yy, J.rows[r.part], 'rl', 'start');
+        text(332, yy, val, 'rv', 'end');
+        REC.rows.push({ text: val, bad: false });
+        y += ROWH;
+        return;
+      }
+      const lines = wrap(r.text, WRAPW, 'wk'), a = vis(r.t), yy = y;
+      part(a, 4, () => lines.forEach((ln, m) => text(10, yy + m * LINEH, ln, 'wk' + (r.bad ? ' bad' : ''), 'start')));
+      if (a >= 0.5) REC.rows.push({ text: r.text, bad: !!r.bad });
+      y += lines.length * LINEH + 3;
+    });
+  }
+  // The battery's power at its peak, split into the load's share and what is lost inside.
+  function drawBar(P, L, pl) {
+    part(vis(pl.bar), 4, () => {
+      const p = parts(P, topOf(P)), x0 = 20, W = 300, y = L.bar, wl = W * p.G / p.S;
+      text(170, y + 12, n(p.S) + ' W made by the battery', 'lb');
+      path('brk', 'M' + x0 + ' ' + (y + 24) + 'V' + (y + 18) + 'H' + (x0 + W) + 'V' + (y + 24));
+      rect('barL', x0, y + 27, wl, 16);
+      rect('barI', x0 + wl, y + 27, W - wl, 16);
+      text(x0 + wl / 2, y + 60, n(p.G) + ' W to the load', 'lb');
+      text(x0 + wl + (W - wl) / 2, y + 60, n(p.Q) + ' W lost inside', 'lb');
+      REC.bar = { made: p.S, load: p.G, inside: p.Q };
+    });
+  }
+  function describe(d, P, xv) {
+    const J = JOB[P.job];
+    let s = J.name + '. A graph against ' + J.xname + ' of ' + lineOf(P) + ', ' + J.said[0] + ', and ' + sqOf(P) + ', ' + J.said[1] + '.';
+    if (REC.curve) s += ' The gap between them, drawn up from the axis, makes an upside-down U.';
+    if (xv != null) s += ' At ' + n(xv) + ' ' + J.xu + ' the gap is ' + n(parts(P, xv).G) + ' ' + J.yu + '.';
+    return s;
+  }
+
+  // The whole picture for a step now (the animations call this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], P = PIC[d.pic], L = layout(d), pl = plan(d, st);
+    art.textContent = '';
+    into = null; DYN = []; FLOW = null;
+    svg.setAttribute('viewBox', '0 0 340 ' + L.H);
+    REC = { curve: false, dashed: false, samples: null, roots: null, peak: null, gap: null, ring: null, point: null, rows: [], ball: null, beamX: null, bar: null, supports: 0, texts: [] };
+    const xv = inputNow(d, st);
+    if (P.job === 'supply') drawCircuit(d, P, L, xv);
+    if (P.job === 'beam') drawBeam(d, P, L, xv, pl);
+    drawGraph(d, P, L, xv, pl);
+    if (P.job === 'ball') drawColumn(d, P, L, d.show ? xv : pl.ballGlide ? glide(pl.ballGlide) : 0, pl);
+    drawRows(P, L, xv, pl);
+    if (d.bar != null) drawBar(P, L, pl);
+    flushLabels();
+    if (i === at()) placeGrip(d, L, xv);
+    REC.texts = Array.from(art.querySelectorAll('text')).map((t) => t.textContent);
+    svg.setAttribute('aria-label', describe(d, P, xv));
+  }
+
+  // ---------- Dan sets the input himself: drag along the graph (or the beam) ----------
+  const grip = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1, role: 'slider', 'aria-orientation': 'horizontal' }));
+  grip.style.display = 'none';
+  let GL = null;
+  function placeGrip(d, L, xv) {
+    const on = !!d.slide && !finished, P = PIC[d.pic];
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    GL = on ? L : null;
+    if (!on) return;
+    const top = P.job === 'beam' ? L.panel + 30 : L.PT, bot = P.job === 'beam' ? L.PB + 4 : L.track + 22;
+    grip.setAttribute('x', L.PL - 16); grip.setAttribute('width', L.PR - L.PL + 32);
+    grip.setAttribute('y', top); grip.setAttribute('height', bot - top);
+    grip.setAttribute('aria-label', JOB[P.job].slider);
+    grip.setAttribute('aria-valuemin', P.x0); grip.setAttribute('aria-valuemax', sEnd(P)); grip.setAttribute('aria-valuenow', xv);
+    grip.setAttribute('aria-valuetext', n(xv) + ' ' + JOB[P.job].xu);
+  }
+  const sliding = () => !finished && !!STEPS[at()].slide && !!GL;
+  function setX(v) {
+    const i = at(), d = STEPS[i], st = S[i], P = PIC[d.pic];
+    v = snap(P, K.clamp(v, P.x0, sEnd(P)));
+    if (st.x === v && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    st.x = v;
+    K.reveal(); K.refresh();
+  }
+  function xFrom(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm || !GL) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()), P = PIC[STEPS[at()].pic];
+    return P.x0 + (q.x - GL.PL) / (GL.PR - GL.PL) * (P.x1 - P.x0);
+  }
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!sliding()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the graph */ }
+    const v = xFrom(e);
+    if (v != null) setX(v);
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !sliding()) return;
+    const v = xFrom(e);
+    if (v != null) setX(v);
+  });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    if (!sliding()) return;
+    const d = STEPS[at()], P = PIC[d.pic], now = inputNow(d, S[at()]);
+    const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+    if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault();
+    setX(e.key === 'Home' ? P.x0 : e.key === 'End' ? sEnd(P) : now + by * (P.step || 0.1));
+  });
+
+  const byId = (id) => document.getElementById(id);
+  write(byId('finish'), FINISH);
+  const pills = Array.from(byId('jobs').children);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i], P = PIC[d.pic];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.x = null; play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    byId('stepbox').hidden = finished;
+    byId('done').hidden = !finished;
+    byId('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + JOB[P.job].name;
+    pills.forEach((s, k) => s.classList.toggle('on', ['ball', 'supply', 'beam'][k] === P.job));
+    const task = byId('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+    if (flowing(d)) { if (!flow.playing()) flow.play(); } else if (flow.playing()) flow.pause();
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    byId('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    byId('picks').hidden = !opts.length;
+    byId('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    byId('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = byId('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+    const why = byId('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const near = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)) : tol);
+  // A step painted in the state given (finished, or t seconds into its motion): what it drew.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T, keepQ = QUICK;
+    S[i] = st; T = t == null ? Infinity : t; QUICK = true;
+    try {
+      latest = 0; earliest = Infinity;
+      paint(i);
+      REC.latest = latest; REC.earliest = earliest;
+      return REC;
+    } finally { S[i] = keepS; T = keepT; paint(); QUICK = keepQ; }
+  }
+  // Each check ends by drawing the screen on show properly again.
+  function check(label, fn, o) { K.check(label, () => { try { return fn(); } finally { QUICK = false; paint(); } }, o); }
+  // Sums in a line of working: a − b = c, a × b = c, a ÷ b = c, brackets and squares.
+  function evalNum(src0) {
+    const src = src0.replace(/\s+/g, '');
+    let i = 0;
+    function expr() { let v = term(); while (src[i] === '+' || src[i] === '−') { const op = src[i++]; const t = term(); v = op === '+' ? v + t : v - t; } return v; }
+    function term() { let v = pow(); while (src[i] === '×' || src[i] === '÷') { const op = src[i++]; const t = pow(); v = op === '×' ? v * t : v / t; } return v; }
+    function pow() { let v = unary(); while (src[i] === '²') { i++; v *= v; } return v; }
+    function unary() {
+      if (src[i] === '−') { i++; return -unary(); }
+      if (src[i] === '(') { i++; const v = expr(); if (src[i] !== ')') throw new Error('no closing bracket'); i++; return v; }
+      const m = /^\d+(?:\.\d+)?/.exec(src.slice(i));
+      if (!m) throw new Error('no number at ' + src.slice(i));
+      i += m[0].length;
+      return +m[0];
+    }
+    const v = expr();
+    if (i !== src.length) throw new Error('left over ' + src.slice(i));
+    return v;
+  }
+  const NUMCH = /[0-9.\s+−×÷()²]/;
+  function leftOf(p) {
+    let j = p.length;
+    while (j > 0 && NUMCH.test(p[j - 1])) j--;
+    while (j < p.length && p[j] === ' ') j++;
+    const e = p.slice(j).trim();
+    if (!e || !/^(\d|\(|−\d)/.test(e)) return null;
+    if (j > 0 && !/[\s:]/.test(p[j - 1])) return null;
+    return e;
+  }
+  function rightOf(p) {
+    let j = 0;
+    while (j < p.length && NUMCH.test(p[j])) j++;
+    const e = p.slice(0, j).trim();
+    if (!e || !/^(\d|\(|−\d)/.test(e)) return null;
+    const dec = Math.max(0, ...(e.match(/\.\d+/g) || []).map((x) => x.length - 1));
+    return { e, tol: 0.5 * Math.pow(10, -dec) + 1e-9 };
+  }
+  function sums(t) {
+    const ps = plain(t).split(' = ');
+    for (let k = 0; k + 1 < ps.length; k++) {
+      const a = leftOf(ps[k]), b = rightOf(ps[k + 1]);
+      if (a == null || b == null) continue;
+      let va, vb;
+      try { va = evalNum(a); vb = evalNum(b.e); } catch (e) { return false; }
+      if (!(Math.abs(va - vb) <= b.tol)) return false;
+    }
+    return true;
+  }
+
+  check('The coefficient 4.9 comes from ½ × 9.8, since gravity accelerates objects at approximately 9.8 m/s²: on both ball screens the squared part is 4.9t², and at every time on the slider the ball, its two parts and the gap drawn follow h = 19.6t − 4.9t² (14.7 m at 1 s), to the centimetre shown', () => {
+    if (!(near(GRAV / 2, 4.9) && near(coef(pBall).b, 4.9) && near(coef(pDeck).b, 4.9) && sqOf(pBall) === '4.9t²' && lineOf(pBall) === '19.6t' && sqOf(pDeck) === '4.9t²')) return false;
+    const i = idx('Thrown up');
+    for (let k = 0; k <= 40; k++) {
+      const t = k / 10, g = drawn(i, Object.assign(blank(), { x: snap(pBall, t) }));
+      if (!g.gap || !near(g.gap.lo, 4.9 * t * t, 5e-3) || !near(g.gap.hi, 19.6 * t, 5e-3) || !near(g.gap.bar, 19.6 * t - 4.9 * t * t, 1e-2) || !near(g.ball, g.gap.bar, 1e-9)) return false;
+    }
+    const p = parts(pBall, 1);
+    return near(p.S, 19.6) && near(p.Q, 4.9) && near(p.G, 14.7);
+  }, { source: SRC[1] });
+  check('The maximum height in a parabola sits in the middle of its roots: on every job the top drawn is halfway between the two roots drawn, where the straight-line part and the squared part are equal, and no setting gives a bigger gap', () => {
+    let tops = 0;
+    const ok = STEPS.every((d, i) => {
+      const P = PIC[d.pic], g = drawn(i, d.show ? blank() : solvedSt(i)), R = rootsOf(P);
+      if (!R.every((r) => near(stOf(P, r), qOf(P, r), 1e-6))) return false;
+      if (g.roots && !(near(g.roots[0], R[0]) && near(g.roots[1], R[1]))) return false;
+      if (!g.peak) return true;
+      tops++;
+      const mid = (R[0] + R[1]) / 2;
+      return near(g.peak.x, mid, 1e-9) && near(g.peak.y, gapOf(P, mid), 1e-9) && K.linspace(R[0], R[1], 61).every((x) => gapOf(P, x) <= g.peak.y + 1e-9);
+    });
+    return ok && tops >= 6;
+  }, { source: SRC[5] });
+  check('The output power is a concave parabola in the current, vanishing at the no-load point (I = 0) and the short-circuit point (I = E ÷ r): for both supplies the load gets 0 W at 0 A and at E ÷ r, 24 A and 16 A, more than 0 W between, and each step up in current adds less than the one before', () =>
+    near(pSup.E / pSup.r, 24) && near(pSup2.E / pSup2.r, 16) && [pSup, pSup2].every((P) => {
+      const sc = P.E / P.r, R = rootsOf(P), f = (I) => gapOf(P, I), pts = K.linspace(0, sc, 49);
+      return near(f(0), 0) && near(f(sc), 0, 1e-9) && near(R[0], 0) && near(R[1], sc, 1e-9) &&
+        pts.slice(1, -1).every((I) => f(I) > 0) && pts.slice(1, -1).every((I, m) => f(pts[m]) + f(pts[m + 2]) < 2 * f(I));
+    }), { source: SRC[3] });
+  check('The most power reaches the load when its resistance is exactly the internal resistance r, at the optimal current E ÷ (2r): 12 ÷ (2 × 0.5) = 12 A, where the load has 12 − 0.5 × 12 = 6 V across it and 6 ÷ 12 = 0.5 Ω, and 24 ÷ (2 × 1.5) = 8 A; doubling the load to 1 Ω gives 8 A and only 64 W', () => {
+    const g = drawn(idx('The most power'), blank());
+    return near(I_BEST, pSup.E / (2 * pSup.r)) && near(I_BEST, 12) && near(V_LOAD, 6) && near(R_LOAD, pSup.r) &&
+      near(topOf(pSup2), pSup2.E / (2 * pSup2.r)) && near(topOf(pSup2), 8) &&
+      g.rows.some((r) => plain(r.text).indexOf('6 ÷ 12 = 0.5 Ω') >= 0) && !!g.bar && near(g.bar.load, g.bar.inside) && near(g.bar.made, 144) &&
+      near(R_TWICE, 1) && near(I_TWICE, 8) && near(I_TWICE * I_TWICE * R_TWICE, 64) && near(gapOf(pSup, I_TWICE), 64) && gapOf(pSup, I_TWICE) < gapOf(pSup, I_BEST);
+  }, { source: SRC[3] });
+  check('From a uniformly distributed load w the maximum bending moment is M = w·L²/8, and the peak lands at midspan: 2 × 6² ÷ 8 = 9 kN·m at 3 m and 3 × 4² ÷ 8 = 6 kN·m at 2 m, the largest M drawn on each beam', () =>
+    [['beam', 'Largest moment'], ['beam2', 'A shorter beam']].every((pair) => {
+      const P = PIC[pair[0]], i = idx(pair[1]), g = drawn(i, solvedSt(i)), M8 = P.w * P.L * P.L / 8;
+      return !!g.peak && near(g.peak.x, P.L / 2) && near(g.peak.y, M8) && K.linspace(0, P.L, 49).every((x) => gapOf(P, x) <= M8 + 1e-9);
+    }) && near(pBeam.w * pBeam.L * pBeam.L / 8, 9) && near(pBeam2.w * pBeam2.L * pBeam2.L / 8, 6), { source: SRC[2] });
+  check('The bending moment must vanish at the ends of the beam, since there they are simply supported: on both beams M is zero at each support, the roots drawn sit on the supports, and the beam is drawn resting on a support at each end', () => {
+    const g = drawn(idx('A loaded beam'), blank());
+    return [pBeam, pBeam2].every((P) => near(gapOf(P, 0), 0) && near(gapOf(P, P.L), 0, 1e-9) && near(rootsOf(P)[0], 0) && near(rootsOf(P)[1], P.L)) &&
+      !!g.roots && near(g.roots[0], 0) && near(g.roots[1], pBeam.L) && g.supports === 2;
+  }, { source: SRC[4] });
+  check('The negative value of time implies an event before the start of motion, so we discard it: the deck rule has a negative root, drawn dashed before the throw, and it is never accepted as when the ball hits the water', () => {
+    const i = idx('Off the deck'), d = STEPS[i], R = rootsOf(pDeck), g = drawn(i, solvedSt(i));
+    const neg = d.opts.filter((o) => d.pts[o][0] < 0);
+    return R[0] < 0 && R[1] > 0 && near(gapOf(pDeck, R[0]), 0, 1e-9) && g.dashed && g.curve && neg.length === 1 && neg[0] !== d.want &&
+      near(d.pts[neg[0]][0], R[0]) && near(d.pts[d.want][0], R[1]) && !isRight(i, neg[0]);
+  }, { source: SRC[7] });
+  check('The lesson\'s numbers follow from the rules: 19.6, 4.9 and 14.7 m at 1 s; 39.2 − 19.6 = 19.6 m at 2 s; 48 − 8 = 40 W at 4 A; 144 − 72 = 72 W at 12 A; 6 − 1 = 5 kN·m at 1 m; 18 − 9 = 9 kN·m at 3 m; the deck ball\'s roots 2 s and −1 s and top at 0.5 s; 96 W at 8 A on the 24 V supply; 6 kN·m at 2 m on the 4 m beam; and the wrong picks\' 4.59 m, 0 W at 24 A, 54 W at 6 A, 27 kN·m and 9 kN·m', () => {
+    const list = [['ball', 1, 19.6, 4.9, 14.7], ['ball', 2, 39.2, 19.6, 19.6], ['supply', 4, 48, 8, 40], ['supply', 12, 144, 72, 72], ['beam', 1, 6, 1, 5], ['beam', 3, 18, 9, 9],
+      ['supply2', 8, 192, 96, 96], ['beam2', 2, 12, 6, 6], ['supply', 24, 288, 288, 0], ['supply', 6, 72, 18, 54], ['deck', 1, 14.7, 4.9, 9.8], ['supply2', 16, 384, 384, 0]];
+    return list.every((r) => { const p = parts(PIC[r[0]], r[1]); return near(p.S, r[2]) && near(p.Q, r[3]) && near(p.G, r[4]); }) &&
+      near(R_DECK[0], -1) && near(R_DECK[1], 2) && near(topOf(pDeck), 0.5) && near(parts(pBall, 0.25).G, 4.59) &&
+      near(allOn(pBeam, 3), 27) && near(unsq(pBeam2, 2), 9) && near(R_BALL[1], 4) && near(R_SUP[1], 24) && near(R_SUP2[1], 16);
+  });
+  check('Every puzzle accepts only its right answer; before Check its picture shows no answer (no curve it asks about, no answer mark and no answer working); after a right answer the curve and its marks arrive where the rule puts them; and every wrong pick is ringed in red where its own numbers put it, with a red line of working', () =>
+    DO.every((i) => {
+      const d = STEPS[i], P = PIC[d.pic], given = d.given || [], rev = d.reveal, w = d.pts[d.want];
+      if (!d.opts.every((o) => isRight(i, o) === (o === d.want))) return false;
+      const b = drawn(i, blank());
+      if (b.curve !== (given.indexOf('curve') >= 0) || b.ring || b.point || b.beamX != null) return false;
+      if ((rev.indexOf('peak') >= 0 && b.peak) || (rev.indexOf('roots') >= 0 && b.roots)) return false;
+      if (b.rows.some((r) => d.right.indexOf(r.text) >= 0)) return false;
+      const s = drawn(i, solvedSt(i));
+      if (!s.curve || !d.right.every((r) => s.rows.some((x) => x.text === r && !x.bad))) return false;
+      if (rev.indexOf('peak') >= 0 && !(s.peak && near(s.peak.x, w[0]) && near(s.peak.y, w[1]))) return false;
+      if (rev.indexOf('roots') >= 0 && !s.roots) return false;
+      if (rev.indexOf('roots') >= 0 && rev.indexOf('peak') < 0 && !(s.roots.some((r) => near(r, w[0])) && near(w[1], 0))) return false;
+      if (rev.indexOf('point') >= 0 && !(s.point && near(s.point.x, w[0]) && near(s.point.y, gapOf(P, w[0])))) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => {
+        const g = drawn(i, wrongSt(i, o)), q = d.pts[o], last = g.rows[g.rows.length - 1];
+        return !!g.ring && near(g.ring.x, q[0]) && near(g.ring.y, q[1]) && !(near(q[0], w[0]) && near(q[1], w[1])) && !!last && last.bad && last.text === d.ow[o];
+      });
+    }));
+  check('Every line of working on every screen adds up (each a − b = c, a × b = c and a ÷ b = c in it is true), and at every setting of the time, the current and the point the rows show the rule\'s own two parts and their gap, with the amber gap between the parts drawn the same length as the amber gap stood up from the axis', () => {
+    const rowsOk = (rows) => rows.every((r) => sums(r.text));
+    for (let i = 0; i < STEPS.length; i++) {
+      const d = STEPS[i];
+      const states = d.show ? [blank()] : [blank(), solvedSt(i)].concat(d.opts.filter((o) => o !== d.want).map((o) => wrongSt(i, o)));
+      if (!states.every((st) => rowsOk(drawn(i, st).rows))) return false;
+      if (!d.show || !d.slide) continue;
+      const P = PIC[d.pic];
+      for (let x = P.x0; x <= sEnd(P) + 1e-9; x += P.step) {
+        const v = snap(P, x), g = drawn(i, Object.assign(blank(), { x: v })), p = parts(P, v);
+        if (!rowsOk(g.rows) || g.rows.length < 3 || g.rows[0].text !== rowS(P, v) || g.rows[1].text !== rowQ(P, v) || g.rows[2].text !== rowG(P, v)) return false;
+        if (!g.gap || !near(g.gap.pxGap, g.gap.pxBar, 1e-6) || !near(p.G, p.S - p.Q, 1e-9) || Math.abs(p.G - gapOf(P, v)) > 1e-2) return false;
+      }
+    }
+    return true;
+  });
+  check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () =>
+    STEPS.every((d, i) => {
+      if (d.show) { const g = drawn(i, blank()); return g.latest <= d.dur + 1e-9 && d.dur >= 3 && d.dur <= 4.5 && g.earliest >= FADE; }
+      const g = drawn(i, solvedSt(i));
+      return g.latest <= FB[0] + 1e-9 && FB[0] <= 2.5 && FB[1] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).latest <= FB[1] + 1e-9);
+    }));
+
+  K.ready();
+</script>

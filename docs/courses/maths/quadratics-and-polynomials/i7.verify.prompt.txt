@@ -1,0 +1,666 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Quadratics, parabolas and higher powers
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i7 "Quadratics at work" — A thrown ball's height, a load's power against current and a loaded beam's bending rise and fall as quadratics, peaking halfway between two zeros. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i8 Higher powers — If putting x = a into a polynomial, a sum of whole-number powers of x, gives 0, then (x − a) is one of its factors.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Projectile Motion Formulas: h = ½gt², Range = v²sin(2θ)/g — https://www.mathwords.com/p/projectile_motion.htm
+    "The coefficient −4.9 comes from ½ × (−9.8), since gravity accelerates objects at approximately 9.8 m/s²."
+[R2] Gravity measurements and the Standards Laboratory. — https://nvlpubs.nist.gov/nistpubs/Legacy/TN/nbstechnicalnote491.pdf
+    "The term "standard gravity", e.g. 9.80665 m/s , is in reality an arbitrarily defined acceleration adopted to define units such as the pound-force and kilogram-force."
+[R3] Projectile motion - Wikipedia — https://en.wikipedia.org/wiki/Projectile_motion
+    "This matches the formula found above (the time of flight) as the maximum height (in a parabola) sits in the middle of its roots."
+[R4] Finite-Time Thermodynamics of Battery Discharging: Power–Efficiency Trade-Off and Optimization — https://pmc.ncbi.nlm.nih.gov/articles/PMC13512147
+    "Equation (3) shows that the output power is a concave parabola as a function of efficiency η, vanishing at the no-load point (η=1,I=0) and the short-circuit point (η=0,I=ε/r)."
+[R5] Finite-Time Thermodynamics of Battery Discharging: Power–Efficiency Trade-Off and Optimization — https://pmc.ncbi.nlm.nih.gov/articles/PMC13512147
+    "It is attained when the load resistance is exactly the internal resistance r, with the corresponding optimal current being I^(★)=ε/(2r)."
+[R6] Internal Forces and Moments — https://web.mit.edu/course/other/emech/admin/OldFiles/dontindex-build/full-text/emechbk_3.pdf
+    "Now, for our particular situation, we must have the bending moment vanish at the ends of the beam since there they are simply supported"
+[R7] Bending Moment in a Simply Supported Beam — CalcSteel — https://calcsteel.com/blog/bending-moment
+    "the maximum bending moment from a central point load P is M = P·L/4 , and from a uniformly distributed load w it is M = w·L²/8 . In both cases the peak lands at midspan."
+[R8] Quadratic equations - Solving quadratic equations - Edexcel - GCSE Maths Revision - Edexcel - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/z3hb97h/revision/1
+    "If the product of two numbers is zero then one or both of the numbers must also be equal to zero. Therefore if ab = 0, then a = 0 and/or b = 0"
+[R9] Solving by quadratic formula - Higher - Solving quadratic equations - Edexcel - GCSE Maths Revision - Edexcel - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/z3hb97h/revision/2
+    "Key fact The quadratic formula for a quadratic equation in the form of ax^2 + bx + c = 0 is x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}"
+[R10] Completing the Square -- from Wolfram MathWorld — https://mathworld.wolfram.com/CompletingtheSquare.html
+    "In modern notation, it converts a quadratic polynomial of the form ax^2+bx+c to the form * a(x+b/(2a))^2+(c-(b^2)/(4a)),"
+[R11] Quadratic Discriminant | Brilliant Math & Science Wiki — https://brilliant.org/wiki/quadratic-discriminant
+    "By computing the discriminant, it is possible to distinguish whether the quadratic polynomial has two distinct real roots, one repeated real root, or non-real complex roots only."
+[R12] National 5 Mathematics Course Report 2023 — https://www.sqa.org.uk/sqa//files_ccc/2023-n5-course-report-mathematics.pdf
+    "the expected responses are: — b − ac > 2 4 0 : ‘two real and distinct roots’ — b − ac = 2 4 0 : ‘one repeated real root’ or ‘two equal real roots’ — b − ac < 2 4 0 : ‘no real roots’"
+[R13] 5.3 Projectile Motion - Physics | OpenStax — https://openstax.org/books/physics/pages/5-3-projectile-motion
+    "Rearranging terms gives a quadratic equation in This expression is a quadratic equation of the form , where the constants are a = 4.90, b = –14.3, and c = –20.0. Its solutions are given by the quadratic formula"
+[R14] 5.3 Projectile Motion - Physics | OpenStax — https://openstax.org/books/physics/pages/5-3-projectile-motion
+    "This equation yields two solutions t = 3.96 and t = –1.03. You may verify these solutions as an exercise. The time is t = 3.96 s or –1.03 s. The negative value of time implies an event before the start of motion, so we discard it."
+[R15] Quadratic Graph Information - MathBitsNotebook(A2) — https://mathbitsnotebook.com/Algebra2/Quadratics/QDGraphInfo.html
+    "If the sign of the leading coefficient, _a_ , is positive ( _a_ > 0 ), the parabola opens upward."
+[R16] Finding roots by factorising - Solving quadratic equations - Edexcel - GCSE Maths Revision - Edexcel - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/z3hb97h/revision/5
+    "The graph of the quadratic equation (y = ax^2 + bx + c) crosses the y-axis at the point ((0, c))."
+[R17] 3.2 Quadratic Functions - Precalculus | OpenStax — https://openstax.org/books/precalculus/pages/3-2-quadratic-functions
+    "The graph of a quadratic function is a U-shaped curve called a parabola ."
+[R18] The turning point and line of symmetry - Higher - Solving quadratic equations - Edexcel - GCSE Maths Revision - Edexcel - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/z3hb97h/revision/6
+    "The coordinates of the turning point and the equation of the line of symmetry can be found by writing the quadratic expression in completed square form."
+Notes (claims, and the sources that support them):
+- In metres and seconds a thrown object's height is h(t) = −4.9t² + v₀t + h₀, where −4.9 is half of gravity's roughly 9.8 m/s². [R1]
+- Standard gravity, 9.80665 m/s², is an arbitrarily defined value used to define force units, not the gravity at one particular place. [R2]
+- The thrown object's maximum height sits in the middle of the two times at which its height is zero. [R3]
+- A battery's output power vanishes at no load (I = 0) and at short circuit (I = ε/r), and peaks when the load resistance equals the internal resistance r. [R4][R5]
+- At maximum power the current is ε/(2r), half the short-circuit current ε/r. [R5][R4]
+- A simply supported beam's bending moment must be zero at its two supported ends. [R6]
+- For a simply supported beam with a uniformly distributed load w over span L, the maximum bending moment is wL²/8, and the peak lands at midspan. [R7]
+- If two numbers multiply to zero, at least one of them is zero: if ab = 0 then a = 0 and/or b = 0. [R8]  (from an idea this one builds on)
+- The quadratic formula for ax² + bx + c = 0 is x = (−b ± √(b² − 4ac)) ÷ 2a. [R9]  (from an idea this one builds on)
+- Completing the square with letters turns ax² + bx + c into a(x + b/2a)² + (c − b²/4a). [R10]  (from an idea this one builds on)
+- The discriminant b² − 4ac distinguishes two distinct real roots, one repeated real root, or only non-real complex roots. [R11]  (from an idea this one builds on)
+- The SQA National 5 2023 course report gives the expected words for the nature of the roots: two real and distinct roots, one repeated real root or two equal real roots, no real roots. [R12]  (from an idea this one builds on)
+- OpenStax Physics solves a firework shell's time of flight from the quadratic 4.90t² − 14.3t − 20.0 = 0, with a = 4.90, b = −14.3 and c = −20.0, by the quadratic formula. [R13]  (from an idea this one builds on)
+- OpenStax gives its two solutions as t = 3.96 s and −1.03 s and discards the negative time as an event before the start of motion. [R14]  (from an idea this one builds on)
+- If a > 0 the parabola opens upward; if a < 0 it opens downward. [R15]  (from an idea this one builds on)
+- The y-intercept of any parabola y = ax² + bx + c is the point (0, c). [R16]  (from an idea this one builds on)
+- A parabola's graph is a U-shaped curve, and the quadratic's turning point can be read from its completed-square form. [R17][R18]  (from an idea this one builds on)
+- The maximum height of a parabola sits in the middle of its two roots. [R3]  (from an idea this one builds on)
+- A quadratic's graph is a U-shaped curve called a parabola. [R17]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i7",
+ "title": "Quadratics at work",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the gap between each job's straight-line part and its squared part closing to zero where they are equal and widest halfway between, when you move that job's slider.",
+  "title": "One curve, three jobs",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens on three jobs that share one curve. A switch at the top picks the job: Ball, Supply or Beam. Each job shows the thing itself above a graph against its input. The graph draws the job's straight-line part as a straight line and its squared part as a curve that climbs ever faster, and marks the gap between them at the slider; the same gap is drawn up from the axis as an upside-down U, the parabola, with its two roots and its peak marked, and readouts for the two parts and the gap. Ball: a ball thrown straight up at 19.6 m/s, an example speed, with a time slider from 0 to 4 s in steps of 0.1 s, opening at 1 s. The straight-line part, 19.6t metres, is how high it would be after t seconds with no gravity. The squared part, 4.9t² metres, is how far gravity has pulled it below that, 4.9 being half of gravity's roughly 9.8 m/s². The height h = 19.6t − 4.9t² is the gap: at 1 s, 19.6 − 4.9 = 14.7 m. Supply: a 12 V battery with 0.5 Ω inside it, example figures, feeding a load, with a current dial from 0 to 24 A in steps of 1 A, opening at 4 A. The straight-line part, EI = 12I watts, is the power the battery makes, E being its voltage with nothing connected and I the current. The squared part, I²r = 0.5I² watts, is the power its internal resistance r burns, because r drops I × r volts while passing I amps. The load's power P = 12I − 0.5I² is the gap: at 4 A, 48 − 8 = 40 W. Beam: a 6 m beam resting on two simple supports, which let it turn, and carrying 2 kN on every metre, example figures, with a point you drag along it from 0 to 6 m in steps of 0.5 m, opening at 1 m. The load is spread evenly, so each support holds half the 12 kN, 6 kN. The straight-line part, 6x kN·m, is the turning effect about the point of that 6 kN push from the left support, x metres away. The squared part, x² kN·m, is the turning effect the other way of the 2x kN of load on those x metres, which acts as if at their middle, x ÷ 2 from the point: 2x × x ÷ 2. The bending moment M = 6x − x² is the gap: at 1 m, 6 − 1 = 5 kN·m. Screens: 1 opens on Ball and lets you drag the time slider; 2 asks when the ball lands; 3 lights the roots, 0 s and 4 s, where 19.6t = 4.9t², which is 4.9t(4 − t) = 0, and the peak halfway, at 2 s, 39.2 − 19.6 = 19.6 m (the same digits as the launch speed only because of the speed chosen); 4 shows a ball thrown up at 4.9 m/s from a deck 9.8 m above the water, h = 9.8 + 4.9t − 4.9t², whose straight-line part starts at 9.8, with the rule drawn dashed before 0 s, and asks when it hits the water: 9.8 + 4.9t = 4.9t² is t² − t − 2 = 0, (t − 2)(t + 1) = 0, so 2 s or −1 s, and −1 s is before the throw; 5 switches to Supply and lets you turn the dial, lighting the roots 0 A, nothing connected, and 24 A, a short circuit, E ÷ r = 12 ÷ 0.5; 6 asks what current gives the load the most power; 7 lights the peak halfway, 12 A, 144 − 72 = 72 W, with the load's voltage 12 − 0.5 × 12 = 6 V and its resistance 6 ÷ 12 = 0.5 Ω, equal to r, and a bar splitting the battery's 144 W into 72 W in the load and 72 W inside; 8 asks what happens to the load's power when its resistance is doubled from 0.5 Ω to 1 Ω: the current becomes 12 ÷ (0.5 + 1) = 8 A and the power 8² × 1 = 64 W; 9 switches to Beam and lets you drag the point, lighting the roots at the two supports, 0 m and 6 m, where 6x = x²; 10 asks where the largest bending moment is and how big: at 3 m, 18 − 9 = 9 kN·m, matching wL²/8 = 2 × 6² ÷ 8; 11 asks when the deck ball reaches its top: halfway between −1 s and 2 s, at 0.5 s; 12 asks the best current and its power for a 24 V supply with 1.5 Ω inside, P = 24I − 1.5I², roots 0 A and 16 A, peak at 8 A, 192 − 96 = 96 W; 13 asks the largest bending moment of a 4 m beam carrying 3 kN on every metre, M = 6x − 1.5x², roots 0 and 4 m, peak at 2 m, 12 − 6 = 6 kN·m. Some screens show an idea and the rest ask you to pick one answer from three. A wrong pick puts its numbers back into the rule and shows where it fails: on 2, 2 s is the peak and 0.25 s divides the wrong way; on 4, −1 s is before the throw; on 6, 24 A gives the load nothing (288 − 288 = 0 W) and 6 A gives 72 − 18 = 54 W; on 8, 144 W assumes the current stays at 12 A; on 10, 18 kN·m leaves out the squared part and 27 kN·m takes one support to hold all 12 kN; on 11, 1 s is halfway between the throw and the landing, but at 1 s the ball is back at deck height, 9.8 m; on 12, 192 W leaves out the squared part and 16 A is the short circuit, where all 384 W is lost inside; on 13, 12 kN·m leaves out the squared part and 18 kN·m takes one support to hold all 12 kN. In every job the roots are where the straight-line part and the squared part are equal, and the peak sits halfway between them because a parabola is the same either side of its line of symmetry.",
+  "ignores": "The ball moves straight up and down, and the air's drag is left out. A ball thrown at an angle needs its launch split into an up part and an across part, which takes sine and cosine, in Trigonometry. 9.8 m/s² is a rounded value, and gravity differs slightly from place to place. The dashed curve before 0 s on screen 4 is the rule carried backwards, not the ball. The battery's E and r are held fixed, though a real battery's change with its charge, temperature and age, and the wires' resistance is left out. The beam rests on two simple supports that let it turn, carries only the even load, and its own weight is counted as part of that load; a load at a single point gives straight-line pieces, not a parabola. The picture shows the bending moment, not how far the beam sags, which follows a different rule. The sliders move in steps so the readouts land on readable numbers.",
+  "numbers": [
+   {
+    "label": "Screens in the lesson",
+    "value": 13,
+    "kind": "assumed"
+   },
+   {
+    "label": "Ball's launch speed, say",
+    "value": 19.6,
+    "unit": "m/s",
+    "kind": "assumed"
+   },
+   {
+    "label": "Gravity, roughly, m/s²",
+    "value": 9.8,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Half of gravity, the 4.9 in 4.9t²",
+    "value": 4.9,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Time slider runs from, s",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Time slider runs up to, s",
+    "value": 4,
+    "kind": "control"
+   },
+   {
+    "label": "Time slider steps, s",
+    "value": 0.1,
+    "kind": "control"
+   },
+   {
+    "label": "Time slider opens at, s",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "At 1 s: straight-line part, m",
+    "value": 19.6,
+    "kind": "computed"
+   },
+   {
+    "label": "At 1 s: squared part, m",
+    "value": 4.9,
+    "kind": "computed"
+   },
+   {
+    "label": "At 1 s: height, m",
+    "value": 14.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Ball lands at, s",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Ball's peak, halfway, s",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "At 2 s: straight-line part, m",
+    "value": 39.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Peak height 39.2 − 19.6, m",
+    "value": 19.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 wrong pick: 4.9 ÷ 19.6, s",
+    "value": 0.25,
+    "kind": "computed"
+   },
+   {
+    "label": "Deck height above the water, say, m",
+    "value": 9.8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Deck ball's launch speed, say, m/s",
+    "value": 4.9,
+    "kind": "assumed"
+   },
+   {
+    "label": "Deck ball hits the water at, s",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Deck rule's other root, discarded, s",
+    "value": -1,
+    "kind": "computed"
+   },
+   {
+    "label": "Deck rule t² − t − 2: plain number",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "Deck ball's top, halfway between −1 and 2, s",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 wrong pick, halfway between 0 and 2, s",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Battery's voltage E, say, V",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Internal resistance r, say, Ω",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Current dial runs from, A",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Current dial runs up to, A",
+    "value": 24,
+    "kind": "control"
+   },
+   {
+    "label": "Current dial steps, A",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Current dial opens at, A",
+    "value": 4,
+    "kind": "control"
+   },
+   {
+    "label": "At 4 A: power the battery makes, W",
+    "value": 48,
+    "kind": "computed"
+   },
+   {
+    "label": "At 4 A: power burnt inside, W",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "At 4 A: load's power, W",
+    "value": 40,
+    "kind": "computed"
+   },
+   {
+    "label": "Short-circuit current E ÷ r, A",
+    "value": 24,
+    "kind": "computed"
+   },
+   {
+    "label": "Best current, halfway, A",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "At 12 A: power the battery makes, W",
+    "value": 144,
+    "kind": "computed"
+   },
+   {
+    "label": "At 12 A: power burnt inside, W",
+    "value": 72,
+    "kind": "computed"
+   },
+   {
+    "label": "At 12 A: load's power, W",
+    "value": 72,
+    "kind": "computed"
+   },
+   {
+    "label": "At 12 A: load's voltage, V",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "At 12 A: load's resistance, Ω",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 wrong pick: at 24 A, battery makes, W",
+    "value": 288,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 wrong pick: at 6 A, burnt inside, W",
+    "value": 18,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 wrong pick: at 6 A, load's power, W",
+    "value": 54,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8: load doubled to, Ω",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8: total resistance 0.5 + 1, Ω",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8: current 12 ÷ 1.5, A",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8: load's power 8² × 1, W",
+    "value": 64,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 wrong pick: power doubled, W",
+    "value": 144,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 supply's voltage, say, V",
+    "value": 24,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 internal resistance, say, Ω",
+    "value": 1.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 short-circuit current 24 ÷ 1.5, A",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 best current, A",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 at 8 A: power made, W",
+    "value": 192,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 at 8 A: burnt inside, W",
+    "value": 96,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 at 8 A: load's power, W",
+    "value": 96,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 at 16 A: all lost inside, W",
+    "value": 384,
+    "kind": "computed"
+   },
+   {
+    "label": "Beam's span, say, m",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Beam's load, say, kN per metre",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Beam's whole load, kN",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Each support's push, kN",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Point drags from, m",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Point drags up to, m",
+    "value": 6,
+    "kind": "control"
+   },
+   {
+    "label": "Point moves in steps of, m",
+    "value": 0.5,
+    "kind": "control"
+   },
+   {
+    "label": "Point opens at, m",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "At 1 m: straight-line part, kN·m",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "At 1 m: squared part, kN·m",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "At 1 m: bending moment, kN·m",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Largest bending moment at, m",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "At 3 m: straight-line part, kN·m",
+    "value": 18,
+    "kind": "computed"
+   },
+   {
+    "label": "At 3 m: squared part, kN·m",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "Largest bending moment, kN·m",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "wL²/8 = 2 × 36 ÷ 8, kN·m",
+    "value": 9,
+    "kind": "computed",
+    "source": 2
+   },
+   {
+    "label": "Screen 10 wrong pick: one support holds all, kN·m",
+    "value": 27,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 beam's span, say, m",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 beam's load, say, kN per metre",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 squared part's number, 3 ÷ 2",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 largest bending moment at, m",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 at 2 m: straight-line part, kN·m",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 largest bending moment, kN·m",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 wrong pick: one support holds all, kN·m",
+    "value": 18,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example beam's span, say, m",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example beam's load, say, kN per metre",
+    "value": 1.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example squared part's number, 1.5 ÷ 2",
+    "value": 0.75,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example largest bending moment at, m",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example at 4 m: straight-line part, kN·m",
+    "value": 24,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example largest bending moment, kN·m",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example wL²/8 = 1.5 × 64 ÷ 8",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Hatch seal, from lesson 2, m",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Long side plus short side, half the seal, m",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Best hatch side, halfway, m",
+    "value": 2.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Best hatch opening, m²",
+    "value": 6.25,
+    "kind": "computed"
+   },
+   {
+    "label": "Lesson 2 hatch: 2 m by 3 m, m²",
+    "value": 6,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A thrown ball's height, the power a battery gives a load and the bending moment in a beam carrying an even load all follow one pattern: a straight-line part minus a squared part. That difference is a quadratic, so its graph is an upside-down U. It is zero where the two parts are equal, and highest halfway between those two roots.\n\nTake a ball thrown straight up at 19.6 m/s, an example speed. With no gravity it would rise in step with time, 19.6t metres after t seconds. That is the straight-line part. Gravity adds about 9.8 m/s of downward speed every second, so after t seconds it has added 9.8t. Its average downward speed over that time is halfway from 0 to 9.8t, which is 4.9t, and 4.9t for t seconds pulls the ball 4.9t² metres below the line. That 4.9 is half of gravity's roughly 9.8 m/s².[^1] The fall is squared because two things grow with time together, the downward speed and the time it has had to act. So h = 19.6t − 4.9t². Now say a 12 V battery has 0.5 Ω inside it, example figures. Its voltage with nothing connected, E = 12 V, drives a current I and makes EI = 12I watts, the straight-line part. Its internal resistance r drops I × r volts while passing I amps, so it burns I²r = 0.5I² watts inside, the I²R heat of lesson 6. The load gets what is left, P = 12I − 0.5I², and again two things grow together, the current and the volts it loses inside. Textbooks add that a beam's [[bending moment]] at a point is the turning effect, force times distance, of everything on one side of it, which tries to bend the beam there. It is measured in newton metres, like a torque setting, here in kilonewton metres, kN·m. Say a 6 m beam rests on two simple supports, which let it turn, and carries 2 kN on every metre, 12 kN in all. The load is spread evenly, so each support pushes up half of it, 6 kN. At a point x metres from the left support, that push turns with a lever arm of x, giving 6x kN·m. The 2x kN of load on those x metres acts as if at their middle, x ÷ 2 away, and turns the other way with 2x × x ÷ 2 = x² kN·m. So M = 6x − x², with the load and its lever arm both growing with x.\n\nThe roots are where the two parts are equal, so the gap is zero. 19.6t = 4.9t² at 0 s, the throw, and 4 s, the landing. 12I = 0.5I² at 0 A, nothing connected, and 24 A, a short circuit, E ÷ r.[^3] 6x = x² at 0 m and 6 m, the two simple supports, where the bending moment must be zero.[^4] A parabola is the same either side of its line of symmetry, so its peak sits in the middle of its roots:[^5] 19.6 m at 2 s, 72 W at 12 A, and 9 kN·m at 3 m. That 9 kN·m matches wL²/8 at midspan,[^2] with w the load on each metre and L the span: 2 × 6² ÷ 8 = 9. The middle of the roots is also why the battery's best current is exactly half its short-circuit current, E ÷ 2r:[^6] the peak sits halfway between 0 and E ÷ r. At 12 A the load has 12 − 0.5 × 12 = 6 V across it, so its resistance is 6 ÷ 12 = 0.5 Ω, the same as r, which is the condition for the most power to reach the load,[^6] called [[maximum power transfer]].\n\nRead every root and peak in its job's terms. A ball thrown up at 4.9 m/s from a deck 9.8 m above the water has h = 9.8 + 4.9t − 4.9t², zero at 2 s and at −1 s. A negative time is before the throw, so you discard it,[^7] and the ball hits the water at 2 s. The load's power is a parabola in the current, not in the load's resistance: P = I²R grows in step with R only while the current stays the same. Double this load to 1 Ω and the current falls to 12 ÷ (0.5 + 1) = 8 A, so the power falls to 8² × 1 = 64 W. And the most power is not the most efficient: at 12 A the battery's own 0.5 Ω burns 72 W too, so only half of the 144 W it makes reaches the load. Each job here is a teaching model, the ball without air, the battery with E and r fixed and the beam with only an even load, so real curves differ from these most where those effects are large, and a ball thrown at an angle needs Trigonometry. **Take a squared part from a straight-line part and you get an upside-down U, zero where the two parts are equal and, when it has two such roots, highest halfway between them.**[^5]"
+ },
+ "analogy": {
+  "text": "Remember the deck hatch with 10 m of seal round its edge? One long side plus one short side is half the seal, 5 m. Make one side x metres and the other is 5 − x, so the opening is x(5 − x) = 5x − x², a straight-line part minus a squared part. It is zero at x = 0 and x = 5 m, where the hatch has no width, and largest halfway, a 2.5 m square of 6.25 m², a little more than the 2 m by 3 m hatch's 6 m².",
+  "breaks": "The hatch's two roots are both shapes you can get close to, a hatch ever thinner, while the deck ball's root at −1 s describes nothing and is thrown away. And at the hatch's peak nothing is lost, while at the battery's peak half the power it makes heats the battery itself."
+ },
+ "practice": {
+  "text": "- Work out a battery's short-circuit current on paper, never by shorting its terminals: the current can be large enough to burn wiring or damage the battery.\n- Name the input (time, current, distance along) and write the straight-line part and the squared part, each in the job's units.\n- Set the two parts equal and solve: take the input out as a common factor, or use the formula from lesson 5.\n- Keep only the roots the job can have. A time before the start is thrown away.\n- The peak is halfway between the rule's two roots, even when one of them is thrown away. Put that input back into the rule for its size, and say it in the job's units.\n- Check the peak another way: x = −b ÷ 2a, or, with the derivative from Calculus fundamentals, where the rule's slope is zero.\n\n**Rule of thumb:** For a battery, maximum power transfer comes at half the short-circuit current, E ÷ 2r, when the load's resistance equals r.[^6] For a beam on two supports with an even load, the largest bending moment is wL²/8, at midspan.[^2]\n\n**Worked example:** Say a beam rests on two supports 8 m apart and carries 1.5 kN on every metre. The whole load is 12 kN, so each support pushes up 6 kN. At x metres from one support, M = 6x − 1.5x × x ÷ 2 = 6x − 0.75x². It is zero where 6x = 0.75x², at 0 m and 8 m, the supports. Halfway is 4 m, where M = 24 − 12 = 12 kN·m. Check: wL²/8 = 1.5 × 64 ÷ 8 = 12 kN·m.\n\n**Common mistakes**\n- Keeping a root the job cannot have, such as a negative time.\n- Putting the peak halfway between the start and the end when they are at different heights. The deck ball peaks at 0.5 s, halfway between its roots −1 s and 2 s, not at 1 s.\n- Leaving out the squared part. A 24 V battery with 1.5 Ω inside makes 192 W at 8 A, but the load gets 192 − 96 = 96 W.\n- Expecting P = I²R to grow with R when the current changes too. Doubling the load from 0.5 Ω to 1 Ω on the 12 V battery takes it from 72 W to 64 W.\n- Taking the most power to the load as the most efficient. At the peak, half the power the battery makes is lost inside it."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Projectile Motion Formulas: h = ½gt², Range = v²sin(2θ)/g",
+   "url": "https://www.mathwords.com/p/projectile_motion.htm",
+   "quote": "The coefficient −4.9 comes from ½ × (−9.8), since gravity accelerates objects at approximately 9.8 m/s²."
+  },
+  {
+   "n": 2,
+   "title": "Bending Moment in a Simply Supported Beam — CalcSteel",
+   "url": "https://calcsteel.com/blog/bending-moment",
+   "quote": "the maximum bending moment from a central point load P is M = P·L/4 , and from a uniformly distributed load w it is M = w·L²/8 . In both cases the peak lands at midspan."
+  },
+  {
+   "n": 3,
+   "title": "Finite-Time Thermodynamics of Battery Discharging: Power–Efficiency Trade-Off and Optimization",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13512147",
+   "quote": "Equation (3) shows that the output power is a concave parabola as a function of efficiency η, vanishing at the no-load point (η=1,I=0) and the short-circuit point (η=0,I=ε/r)."
+  },
+  {
+   "n": 4,
+   "title": "Internal Forces and Moments",
+   "url": "https://web.mit.edu/course/other/emech/admin/OldFiles/dontindex-build/full-text/emechbk_3.pdf",
+   "quote": "Now, for our particular situation, we must have the bending moment vanish at the ends of the beam since there they are simply supported"
+  },
+  {
+   "n": 5,
+   "title": "Projectile motion - Wikipedia",
+   "url": "https://en.wikipedia.org/wiki/Projectile_motion",
+   "quote": "This matches the formula found above (the time of flight) as the maximum height (in a parabola) sits in the middle of its roots."
+  },
+  {
+   "n": 6,
+   "title": "Finite-Time Thermodynamics of Battery Discharging: Power–Efficiency Trade-Off and Optimization",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13512147",
+   "quote": "It is attained when the load resistance is exactly the internal resistance r, with the corresponding optimal current being I^(★)=ε/(2r)."
+  },
+  {
+   "n": 7,
+   "title": "5.3 Projectile Motion - Physics | OpenStax",
+   "url": "https://openstax.org/books/physics/pages/5-3-projectile-motion",
+   "quote": "This equation yields two solutions t = 3.96 and t = –1.03. You may verify these solutions as an exercise. The time is t = 3.96 s or –1.03 s. The negative value of time implies an event before the start of motion, so we discard it."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

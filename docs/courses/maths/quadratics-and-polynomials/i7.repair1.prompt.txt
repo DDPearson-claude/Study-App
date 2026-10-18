@@ -1,0 +1,371 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Quadratics, parabolas and higher powers
+Idea: Quadratics at work (A thrown ball's height, a load's power against current and a loaded beam's bending rise and fall as quadratics, peaking halfway between two zeros.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the gap between each job's straight-line part and its squared part closing to zero where they are equal and widest halfway between, when you move that job's slider.
+Title (the app shows it above the frame, so do not repeat it): One curve, three jobs
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in thirteen small screens on three jobs that share one curve. A switch at the top picks the job: Ball, Supply or Beam. Each job shows the thing itself above a graph against its input. The graph draws the job's straight-line part as a straight line and its squared part as a curve that climbs ever faster, and marks the gap between them at the slider; the same gap is drawn up from the axis as an upside-down U, the parabola, with its two roots and its peak marked, and readouts for the two parts and the gap. Ball: a ball thrown straight up at 19.6 m/s, an example speed, with a time slider from 0 to 4 s in steps of 0.1 s, opening at 1 s. The straight-line part, 19.6t metres, is how high it would be after t seconds with no gravity. The squared part, 4.9t² metres, is how far gravity has pulled it below that, 4.9 being half of gravity's roughly 9.8 m/s². The height h = 19.6t − 4.9t² is the gap: at 1 s, 19.6 − 4.9 = 14.7 m. Supply: a 12 V battery with 0.5 Ω inside it, example figures, feeding a load, with a current dial from 0 to 24 A in steps of 1 A, opening at 4 A. The straight-line part, EI = 12I watts, is the power the battery makes, E being its voltage with nothing connected and I the current. The squared part, I²r = 0.5I² watts, is the power its internal resistance r burns, because r drops I × r volts while passing I amps. The load's power P = 12I − 0.5I² is the gap: at 4 A, 48 − 8 = 40 W. Beam: a 6 m beam resting on two simple supports, which let it turn, and carrying 2 kN on every metre, example figures, with a point you drag along it from 0 to 6 m in steps of 0.5 m, opening at 1 m. The load is spread evenly, so each support holds half the 12 kN, 6 kN. The straight-line part, 6x kN·m, is the turning effect about the point of that 6 kN push from the left support, x metres away. The squared part, x² kN·m, is the turning effect the other way of the 2x kN of load on those x metres, which acts as if at their middle, x ÷ 2 from the point: 2x × x ÷ 2. The bending moment M = 6x − x² is the gap: at 1 m, 6 − 1 = 5 kN·m. Screens: 1 opens on Ball and lets you drag the time slider; 2 asks when the ball lands; 3 lights the roots, 0 s and 4 s, where 19.6t = 4.9t², which is 4.9t(4 − t) = 0, and the peak halfway, at 2 s, 39.2 − 19.6 = 19.6 m (the same digits as the launch speed only because of the speed chosen); 4 shows a ball thrown up at 4.9 m/s from a deck 9.8 m above the water, h = 9.8 + 4.9t − 4.9t², whose straight-line part starts at 9.8, with the rule drawn dashed before 0 s, and asks when it hits the water: 9.8 + 4.9t = 4.9t² is t² − t − 2 = 0, (t − 2)(t + 1) = 0, so 2 s or −1 s, and −1 s is before the throw; 5 switches to Supply and lets you turn the dial, lighting the roots 0 A, nothing connected, and 24 A, a short circuit, E ÷ r = 12 ÷ 0.5; 6 asks what current gives the load the most power; 7 lights the peak halfway, 12 A, 144 − 72 = 72 W, with the load's voltage 12 − 0.5 × 12 = 6 V and its resistance 6 ÷ 12 = 0.5 Ω, equal to r, and a bar splitting the battery's 144 W into 72 W in the load and 72 W inside; 8 asks what happens to the load's power when its resistance is doubled from 0.5 Ω to 1 Ω: the current becomes 12 ÷ (0.5 + 1) = 8 A and the power 8² × 1 = 64 W; 9 switches to Beam and lets you drag the point, lighting the roots at the two supports, 0 m and 6 m, where 6x = x²; 10 asks where the largest bending moment is and how big: at 3 m, 18 − 9 = 9 kN·m, matching wL²/8 = 2 × 6² ÷ 8; 11 asks when the deck ball reaches its top: halfway between −1 s and 2 s, at 0.5 s; 12 asks the best current and its power for a 24 V supply with 1.5 Ω inside, P = 24I − 1.5I², roots 0 A and 16 A, peak at 8 A, 192 − 96 = 96 W; 13 asks the largest bending moment of a 4 m beam carrying 3 kN on every metre, M = 6x − 1.5x², roots 0 and 4 m, peak at 2 m, 12 − 6 = 6 kN·m. Some screens show an idea and the rest ask you to pick one answer from three. A wrong pick puts its numbers back into the rule and shows where it fails: on 2, 2 s is the peak and 0.25 s divides the wrong way; on 4, −1 s is before the throw; on 6, 24 A gives the load nothing (288 − 288 = 0 W) and 6 A gives 72 − 18 = 54 W; on 8, 144 W assumes the current stays at 12 A; on 10, 18 kN·m leaves out the squared part and 27 kN·m takes one support to hold all 12 kN; on 11, 1 s is halfway between the throw and the landing, but at 1 s the ball is back at deck height, 9.8 m; on 12, 192 W leaves out the squared part and 16 A is the short circuit, where all 384 W is lost inside; on 13, 12 kN·m leaves out the squared part and 18 kN·m takes one support to hold all 12 kN. In every job the roots are where the straight-line part and the squared part are equal, and the peak sits halfway between them because a parabola is the same either side of its line of symmetry.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The ball moves straight up and down, and the air's drag is left out. A ball thrown at an angle needs its launch split into an up part and an across part, which takes sine and cosine, in Trigonometry. 9.8 m/s² is a rounded value, and gravity differs slightly from place to place. The dashed curve before 0 s on screen 4 is the rule carried backwards, not the ball. The battery's E and r are held fixed, though a real battery's change with its charge, temperature and age, and the wires' resistance is left out. The beam rests on two simple supports that let it turn, carries only the even load, and its own weight is counted as part of that load; a load at a single point gives straight-line pieces, not a parabola. The picture shows the bending moment, not how far the beam sags, which follows a different rule. The sliders move in steps so the readouts land on readable numbers.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 12 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screens in the lesson: 13 (assumed)
+- Ball's launch speed, say: 19.6 (assumed)
+- Gravity, roughly, m/s²: 9.8 (constant, source [1])
+- Half of gravity, the 4.9 in 4.9t²: 4.9 (constant, source [1])
+- Time slider runs from, s: 0 (control)
+- Time slider runs up to, s: 4 (control)
+- Time slider steps, s: 0.1 (control)
+- Time slider opens at, s: 1 (control)
+- At 1 s: straight-line part, m: 19.6 (computed)
+- At 1 s: squared part, m: 4.9 (computed)
+- At 1 s: height, m: 14.7 (computed)
+- Ball lands at, s: 4 (computed)
+- Ball's peak, halfway, s: 2 (computed)
+- At 2 s: straight-line part, m: 39.2 (computed)
+- Peak height 39.2 − 19.6, m: 19.6 (computed)
+- Screen 2 wrong pick: 4.9 ÷ 19.6, s: 0.25 (computed)
+- Deck height above the water, say, m: 9.8 (assumed)
+- Deck ball's launch speed, say, m/s: 4.9 (assumed)
+- Deck ball hits the water at, s: 2 (computed)
+- Deck rule's other root, discarded, s: -1 (computed)
+- Deck rule t² − t − 2: plain number: -2 (computed)
+- Deck ball's top, halfway between −1 and 2, s: 0.5 (computed)
+- Screen 11 wrong pick, halfway between 0 and 2, s: 1 (computed)
+- Battery's voltage E, say, V: 12 (assumed)
+- Internal resistance r, say, Ω: 0.5 (assumed)
+- Current dial runs from, A: 0 (control)
+- Current dial runs up to, A: 24 (control)
+- Current dial steps, A: 1 (control)
+- Current dial opens at, A: 4 (control)
+- At 4 A: power the battery makes, W: 48 (computed)
+- At 4 A: power burnt inside, W: 8 (computed)
+- At 4 A: load's power, W: 40 (computed)
+- Short-circuit current E ÷ r, A: 24 (computed)
+- Best current, halfway, A: 12 (computed)
+- At 12 A: power the battery makes, W: 144 (computed)
+- At 12 A: power burnt inside, W: 72 (computed)
+- At 12 A: load's power, W: 72 (computed)
+- At 12 A: load's voltage, V: 6 (computed)
+- At 12 A: load's resistance, Ω: 0.5 (computed)
+- Screen 6 wrong pick: at 24 A, battery makes, W: 288 (computed)
+- Screen 6 wrong pick: at 6 A, burnt inside, W: 18 (computed)
+- Screen 6 wrong pick: at 6 A, load's power, W: 54 (computed)
+- Screen 8: load doubled to, Ω: 1 (assumed)
+- Screen 8: total resistance 0.5 + 1, Ω: 1.5 (computed)
+- Screen 8: current 12 ÷ 1.5, A: 8 (computed)
+- Screen 8: load's power 8² × 1, W: 64 (computed)
+- Screen 8 wrong pick: power doubled, W: 144 (computed)
+- Screen 12 supply's voltage, say, V: 24 (assumed)
+- Screen 12 internal resistance, say, Ω: 1.5 (assumed)
+- Screen 12 short-circuit current 24 ÷ 1.5, A: 16 (computed)
+- Screen 12 best current, A: 8 (computed)
+- Screen 12 at 8 A: power made, W: 192 (computed)
+- Screen 12 at 8 A: burnt inside, W: 96 (computed)
+- Screen 12 at 8 A: load's power, W: 96 (computed)
+- Screen 12 at 16 A: all lost inside, W: 384 (computed)
+- Beam's span, say, m: 6 (assumed)
+- Beam's load, say, kN per metre: 2 (assumed)
+- Beam's whole load, kN: 12 (computed)
+- Each support's push, kN: 6 (computed)
+- Point drags from, m: 0 (control)
+- Point drags up to, m: 6 (control)
+- Point moves in steps of, m: 0.5 (control)
+- Point opens at, m: 1 (control)
+- At 1 m: straight-line part, kN·m: 6 (computed)
+- At 1 m: squared part, kN·m: 1 (computed)
+- At 1 m: bending moment, kN·m: 5 (computed)
+- Largest bending moment at, m: 3 (computed)
+- At 3 m: straight-line part, kN·m: 18 (computed)
+- At 3 m: squared part, kN·m: 9 (computed)
+- Largest bending moment, kN·m: 9 (computed)
+- wL²/8 = 2 × 36 ÷ 8, kN·m: 9 (computed, source [2])
+- Screen 10 wrong pick: one support holds all, kN·m: 27 (computed)
+- Screen 13 beam's span, say, m: 4 (assumed)
+- Screen 13 beam's load, say, kN per metre: 3 (assumed)
+- Screen 13 squared part's number, 3 ÷ 2: 1.5 (computed)
+- Screen 13 largest bending moment at, m: 2 (computed)
+- Screen 13 at 2 m: straight-line part, kN·m: 12 (computed)
+- Screen 13 largest bending moment, kN·m: 6 (computed)
+- Screen 13 wrong pick: one support holds all, kN·m: 18 (computed)
+- Worked example beam's span, say, m: 8 (assumed)
+- Worked example beam's load, say, kN per metre: 1.5 (assumed)
+- Worked example squared part's number, 1.5 ÷ 2: 0.75 (computed)
+- Worked example largest bending moment at, m: 4 (computed)
+- Worked example at 4 m: straight-line part, kN·m: 24 (computed)
+- Worked example largest bending moment, kN·m: 12 (computed)
+- Worked example wL²/8 = 1.5 × 64 ÷ 8: 12 (computed)
+- Hatch seal, from lesson 2, m: 10 (assumed)
+- Long side plus short side, half the seal, m: 5 (computed)
+- Best hatch side, halfway, m: 2.5 (computed)
+- Best hatch opening, m²: 6.25 (computed)
+- Lesson 2 hatch: 2 m by 3 m, m²: 6 (computed)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Text cut off: SVG text "h" has a line through it (<path.gapl>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at the opening state, in the dark theme) [at 340 px wide]
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Projectile Motion Formulas: h = ½gt², Range = v²sin(2θ)/g (https://www.mathwords.com/p/projectile_motion.htm): "The coefficient −4.9 comes from ½ × (−9.8), since gravity accelerates objects at approximately 9.8 m/s²."
+[2] Bending Moment in a Simply Supported Beam — CalcSteel (https://calcsteel.com/blog/bending-moment): "the maximum bending moment from a central point load P is M = P·L/4 , and from a uniformly distributed load w it is M = w·L²/8 . In both cases the peak lands at midspan."
+[3] Finite-Time Thermodynamics of Battery Discharging: Power–Efficiency Trade-Off and Optimization (https://pmc.ncbi.nlm.nih.gov/articles/PMC13512147): "Equation (3) shows that the output power is a concave parabola as a function of efficiency η, vanishing at the no-load point (η=1,I=0) and the short-circuit point (η=0,I=ε/r)."
+[4] Internal Forces and Moments (https://web.mit.edu/course/other/emech/admin/OldFiles/dontindex-build/full-text/emechbk_3.pdf): "Now, for our particular situation, we must have the bending moment vanish at the ends of the beam since there they are simply supported"
+[5] Projectile motion - Wikipedia (https://en.wikipedia.org/wiki/Projectile_motion): "This matches the formula found above (the time of flight) as the maximum height (in a parabola) sits in the middle of its roots."
+[6] Finite-Time Thermodynamics of Battery Discharging: Power–Efficiency Trade-Off and Optimization (https://pmc.ncbi.nlm.nih.gov/articles/PMC13512147): "It is attained when the load resistance is exactly the internal resistance r, with the corresponding optimal current being I^(★)=ε/(2r)."
+[7] 5.3 Projectile Motion - Physics | OpenStax (https://openstax.org/books/physics/pages/5-3-projectile-motion): "This equation yields two solutions t = 3.96 and t = –1.03. You may verify these solutions as an exercise. The time is t = 3.96 s or –1.03 s. The negative value of time implies an event before the start of motion, so we discard it."
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (/home/user/Study-App/build/maths/quadratics-and-polynomials/i7.body1.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.
