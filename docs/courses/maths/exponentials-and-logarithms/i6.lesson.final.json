@@ -1,0 +1,539 @@
+{
+  "iid": "i6",
+  "title": "Solving exponential equations",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the undoing machine's time landing exactly under the point where the level line crosses the curve, when you drag the level line to a new target voltage.",
+    "title": "Read the time back",
+    "controls": [
+      {
+        "id": "level",
+        "label": "Level line, target voltage",
+        "min": 5,
+        "max": 395,
+        "step": 5,
+        "value": 75,
+        "unit": "V"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "share",
+        "label": "e^(−t/47) = target ÷ 400",
+        "unit": "",
+        "decimals": 4
+      },
+      {
+        "id": "lnShare",
+        "label": "ln of target ÷ 400",
+        "unit": "",
+        "decimals": 3
+      },
+      {
+        "id": "time",
+        "label": "Time to reach the level",
+        "unit": "s",
+        "decimals": 1
+      }
+    ],
+    "whatAmILookingAt": "A short lesson in fourteen small screens on one picture. A graph shows a capacitor discharging: time along the bottom from 0 to 240 s, voltage up the side from 0 to 400 V, and the curve v = 400 e^(−t/47). It is lesson 3's ideal capacitor, 470 µF through 100 kΩ, so RC = 47 s, this time charged to 400 V. A level line runs across the graph at the target voltage you set, and where it crosses the curve a dot drops a thin line to the time axis. Under the graph sits one row of boxes, t at the left and v at the right, each showing the number it hands on. Above the row, between the boxes, are the forward steps with arrows running right, the formula run forwards: ÷ (−47), then eˣ, then × 400. Below it, each under the step it reverses, are the undoing machine's steps with arrows running left, so read from the right they go ÷ 400, then ln, then × (−47), giving t. The row is the same on a phone and on a laptop, and ln is set in a typewriter face so its l is not read as a capital I. The rule: each step of the undoing machine is the opposite of one forward step, in reverse order, last first, which is the machine's tidy order. Taking ln first would also work on 400 e^(−t/47), by lesson 5's product law, ln 75 = ln 400 − t/47, but not on a sum such as the cooling card's 20 + 70 e^(−t/10). ln undoes eˣ because by the power law ln(eᵏ) = k × ln e, and ln e = 1. So the target ÷ 400 is e^(−t/47) standing alone, its ln is −t ÷ 47, and × (−47) gives the time, which sits exactly under the crossing. Screen by screen: 1 brings the level line down to 75 V; by eye it crosses near 80 s, read in a small pill just above the time axis, and the forward machine shows a question mark where t goes. 2 asks which step the undoing machine does first: ÷ 400, not ln (ln first works only by way of the product law, a detour from the machine's steps) or × (−47) (that undoes the first forward step, so it comes last). 3 runs the undoing machine on 75 V: 0.1875, then −1.674, then 78.7 s, landing under the crossing, and notes that a trade page reports IEC 60831 requires discharge to below 75 V within 3 minutes, and that the standard is for power capacitor banks, so a worked-out time proves nothing: prove it dead with a tester. 4 asks the time to 200 V: 32.6 s, not 23.5 s (a straight line at the starting pace) or −32.6 s (the minus dropped). 5 writes the same steps in symbols, each done to both sides: 75 = 400 e^(−t/47), 0.1875 = e^(−t/47), ln 0.1875 = −t/47, t = −47 × ln 0.1875 ≈ 78.7 s. 6 asks which line follows from 0.1875 = e^(−t/47): ln 0.1875 = −t/47, not 0.1875 = −t/47 (ln taken on one side only) or log 0.1875 = −t/47 (log is base 10, and log of e^(−t/47) is 0.434 × (−t/47)). 7 solves 2ˣ = 20 by taking log of both sides: x log 2 = log 20, so x = 1.301 ÷ 0.301 ≈ 4.32, checked by 2^4.32 ≈ 20; any log works if you keep the log of the base, so ln would do as well, ln 20 ÷ ln 2 ≈ 4.32, and ln is the tidy one for e because ln e = 1. 8 asks how long 5% a year takes to double, 1.05ˣ = 2: 14.2 years, which the rule of 72 checks (72 ÷ 5 = 14.4), not 0.280 (log(2 ÷ 1.05)) or 20 years (5% of the first amount added each year). 9 switches to the cooling card: lesson 3's part at 90 °C in a 20 °C room, τ = 10 minutes, T = 20 + 70 e^(−t/10), on axes of 0 to 50 minutes and 0 to 100 °C with the room's 20 °C dashed; its forward machine ends in + 20, and its undoing machine starts with − 20, then ÷ 70, ln and × (−10); a level line at 30 °C gives 10, 0.143, −1.946 and 19.5 minutes. 10 asks the first step for T = 30 °C: take 20 from both sides, not take ln of both sides (ln of 20 + 70 e^(−t/10) is the log of a sum, which no law splits) or divide both sides by 70 (the 70 multiplied before the 20 was added, so it comes off second). 11 shows lesson 4's power ruler, now with 0.5, 0.2 and 0.1 left of 1 and its left end open towards 0, for an unknown inside a log: log x = 1.5 means x = 10^1.5 ≈ 31.6, and log x + log(x + 3) = 1 becomes x(x + 3) = 10, then x² + 3x − 10 = 0 by taking 10 from both sides, so (x + 5)(x − 2) = 0, giving 2 or −5; the ruler has no mark for −5, since no power of 10 is negative, so only 2 is a solution, and log 2 + log 5 = 1 checks it. 12 asks for log x + log(x − 3) = 1: x = 5 only, not 5 and −2 (−2 needs the log of a negative number, and no power of 10 is negative) or 3.30 (x(x − 3) = 1, the 10¹ forgotten when the log form is turned into the power form). 13 and 14 mix it all: lesson 1's capacitor, 400 V halving every 10 s, reaches 30 V at 37.4 s (t ÷ 10 = (−1.125) ÷ (−0.301) ≈ 3.74), not 3.7 s (the number of halvings, 3.74, with the 10 s left off) or 133.3 s (400 ÷ 30 = 13.3 counted as halvings); and with the level line at 30 V on the main curve, checking once a minute, it crosses 30 V at 121.7 s, so it is first below 30 V at the 3-minute check, not 2 minutes (at 120 s it still reads 31.1 V) or 1 minute (log used in place of ln: −47 × log 0.075 ≈ 52.9 s). A puzzle offers its three answers, and a wrong pick gets a one-line hint showing where it goes wrong.",
+    "ignores": "The capacitor is an ideal one, as in lesson 3: a real one also leaks a little charge through itself. The voltage never quite reaches zero, so a level line at 0 V would never cross, and the slider stops at 5 V. The curve is read by eye, so the crossing gives only about two figures; the machine's figure is the answer, and the line is a check on it. The logs on screen are rounded, so each time is good to the decimal place shown. The cooling card uses lesson 3's law of cooling, which fits a hot part only roughly.",
+    "numbers": [
+      {
+        "label": "Level line's opening setting, in volts",
+        "value": 75,
+        "kind": "control"
+      },
+      {
+        "label": "Level line's lowest setting, in volts",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Level line's highest setting, in volts",
+        "value": 395,
+        "kind": "control"
+      },
+      {
+        "label": "Level line's step, in volts",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Starting voltage, in volts",
+        "value": 400,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitance, from lesson 3, in µF",
+        "value": 470,
+        "kind": "assumed"
+      },
+      {
+        "label": "Resistance, from lesson 3, in kΩ",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Time constant RC, in seconds",
+        "value": 47,
+        "kind": "computed"
+      },
+      {
+        "label": "Time axis, right-hand end, in seconds",
+        "value": 240,
+        "kind": "assumed"
+      },
+      {
+        "label": "Time axis marks, five time constants, in seconds",
+        "value": 235,
+        "kind": "computed"
+      },
+      {
+        "label": "Two time constants, in seconds",
+        "value": 94,
+        "kind": "computed"
+      },
+      {
+        "label": "Three time constants, in seconds",
+        "value": 141,
+        "kind": "computed"
+      },
+      {
+        "label": "Four time constants, in seconds",
+        "value": 188,
+        "kind": "computed"
+      },
+      {
+        "label": "ln e",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Time read by eye at 75 V, in seconds",
+        "value": 80,
+        "kind": "computed"
+      },
+      {
+        "label": "75 ÷ 400",
+        "value": 0.1875,
+        "kind": "computed"
+      },
+      {
+        "label": "ln 0.1875",
+        "value": -1.674,
+        "kind": "computed"
+      },
+      {
+        "label": "Time to 75 V, −47 × ln 0.1875, in seconds",
+        "value": 78.7,
+        "kind": "computed"
+      },
+      {
+        "label": "IEC 60831 discharge limit, as a trade page reports it, in volts",
+        "value": 75,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "IEC 60831 discharge time, as a trade page reports it, in minutes",
+        "value": 3,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Example target, screen 4, in volts",
+        "value": 200,
+        "kind": "assumed"
+      },
+      {
+        "label": "Time to 200 V, 47 × ln 2, in seconds",
+        "value": 32.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: starting pace to 200 V, in seconds",
+        "value": 23.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: minus dropped, in seconds",
+        "value": -32.6,
+        "kind": "computed"
+      },
+      {
+        "label": "log e",
+        "value": 0.434,
+        "kind": "computed"
+      },
+      {
+        "label": "Example base, screen 7",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example target, screen 7",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "log 20",
+        "value": 1.301,
+        "kind": "computed"
+      },
+      {
+        "label": "log 2",
+        "value": 0.301,
+        "kind": "computed"
+      },
+      {
+        "label": "Power of 2 that makes 20",
+        "value": 4.32,
+        "kind": "computed"
+      },
+      {
+        "label": "Example growth, in % a year, screen 8",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Growth factor for 5% a year",
+        "value": 1.05,
+        "kind": "computed"
+      },
+      {
+        "label": "log 1.05",
+        "value": 0.0212,
+        "kind": "computed"
+      },
+      {
+        "label": "Doubling time at 5% a year, in years",
+        "value": 14.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: log(2 ÷ 1.05), screen 8",
+        "value": 0.28,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 5% of the first amount a year, in years",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Cooling part's start, from lesson 3, in °C",
+        "value": 90,
+        "kind": "assumed"
+      },
+      {
+        "label": "Room temperature, from lesson 3, in °C",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Cooling time constant, from lesson 3, in minutes",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Starting gap, 90 − 20, in °C",
+        "value": 70,
+        "kind": "computed"
+      },
+      {
+        "label": "Cooling time axis, right-hand end, in minutes",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Temperature axis, top, in °C",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Cooling target, in °C",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Gap at the target, 30 − 20, in °C",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "10 ÷ 70",
+        "value": 0.143,
+        "kind": "computed"
+      },
+      {
+        "label": "ln(10 ÷ 70)",
+        "value": -1.946,
+        "kind": "computed"
+      },
+      {
+        "label": "Time to 30 °C, in minutes",
+        "value": 19.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Part after 20 minutes, from lesson 3, in °C",
+        "value": 29.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Example log, screen 11",
+        "value": 1.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "10 to the power 1.5",
+        "value": 31.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Example shift inside the log, screen 11",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Right-hand side, screen 11",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "10 to the power 1",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Root kept, screen 11",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Root thrown out, screen 11",
+        "value": -5,
+        "kind": "computed"
+      },
+      {
+        "label": "Root kept, screen 12",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Root thrown out, screen 12",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: x(x − 3) = 1, screen 12",
+        "value": 3.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Lesson 1's halving time, in seconds",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Lesson 1's target, in volts",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Halving factor",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "30 ÷ 400",
+        "value": 0.075,
+        "kind": "computed"
+      },
+      {
+        "label": "Halvings to 30 V",
+        "value": 3.74,
+        "kind": "computed"
+      },
+      {
+        "label": "Time to 30 V, halving every 10 s, in seconds",
+        "value": 37.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: halvings with the 10 s left off",
+        "value": 3.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 400 ÷ 30 as halvings, in seconds",
+        "value": 133.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Lesson 1's bracketing times, in seconds",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Lesson 1's bracketing times, upper, in seconds",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Main curve's time to 30 V, in seconds",
+        "value": 121.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: −47 × log 0.075, in seconds",
+        "value": 52.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: first check after 52.9 s, in minutes",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "First once-a-minute check below 30 V, in minutes",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: the 2-minute check, in minutes",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Two minutes, in seconds",
+        "value": 120,
+        "kind": "computed"
+      },
+      {
+        "label": "Main curve at 120 s, in volts",
+        "value": 31.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Seconds in a minute",
+        "value": 60,
+        "kind": "constant"
+      },
+      {
+        "label": "ln 2",
+        "value": 0.693,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: starting voltage, in volts",
+        "value": 600,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: RC, in seconds",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: 75 ÷ 600",
+        "value": 0.125,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: ln 0.125",
+        "value": -2.079,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: time to 75 V, in seconds",
+        "value": 104,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: check, in volts",
+        "value": 75,
+        "kind": "computed"
+      },
+      {
+        "label": "Rule of 72's number",
+        "value": 72,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Rule of 72's doubling time at 5% a year, 72 ÷ 5, in years",
+        "value": 14.4,
+        "kind": "computed"
+      },
+      {
+        "label": "log 0.075",
+        "value": -1.125,
+        "kind": "computed"
+      },
+      {
+        "label": "log 0.5",
+        "value": -0.301,
+        "kind": "computed"
+      },
+      {
+        "label": "Power ruler's marks left of 1",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Power ruler's marks left of 1, next",
+        "value": 0.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Power ruler's left-hand major mark",
+        "value": 0.1,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "To find an unknown power, undo the formula's other steps, last first, until the power stands alone, then take the log of both sides. The log undoes the power and brings the unknown down to where ordinary rearranging can reach it. It is how you find how long a capacitor takes to fall to a safe voltage.\n\nSay lesson 3's capacitor, 470 µF through 100 kΩ, so RC = 47 s, is charged to 400 V. Its rule, v = 400 e^(−t/47), is a machine: take the time t, divide by −47, put it through eˣ, then multiply by 400. Lesson 3 ran it forwards, from a time to a voltage. Now the voltage is known and the time is not: when is it down to 75 V? Run the machine backwards, last step first, as you undid machines in Functions and their graphs. The × 400 was done last, so it comes off first: 75 ÷ 400 = 0.1875, so e^(−t/47) = 0.1875, and the power stands alone. Next, undo eˣ with ln. By the power law, ln(eᵏ) = k × ln e, and ln e = 1, so ln(eᵏ) = k: ln takes the e away and leaves its power. ln 0.1875 ≈ −1.674, so −t/47 ≈ −1.674. Last, undo the ÷ (−47) by multiplying by −47: t ≈ 78.7 s. In symbols each step is done to both sides, as in Solving equations: 75 = 400 e^(−t/47), then 0.1875 = e^(−t/47), then ln 0.1875 = −t/47, then t = −47 × ln 0.1875. Once the exponential is alone, you take the log of both sides.[^2] A trade page reports that the IEC 60831 standard requires discharge to below 75 V within 3 minutes,[^1] and 78.7 s is inside that, though the standard is for power capacitor banks and a worked-out time proves nothing: prove it dead with a tester before you touch it.\n\nLast step first is the undoing machine's tidy order, because each step worked on what the step before handed it, so the step done last sits outside. For a product, ln first also works, by lesson 5's product law: ln 75 = ln 400 − t/47 gives the same 78.7 s. A sum is what forces the order. Lesson 3's part, at 90 °C in a 20 °C room with τ = 10 minutes, follows T = 20 + 70 e^(−t/10). When is it at 30 °C? This machine's last step is + 20, so it comes off first: 30 − 20 = 10, then ÷ 70 gives 0.143, ln gives −1.946, and × (−10) gives about 19.5 minutes, just before lesson 3's 29.5 °C at 20 minutes. Take ln straight away and you meet ln(20 + 70 e^(−t/10)), the log of a sum, which no log law splits, so the power stays stuck inside. The same steps work in any base, with the power law bringing the unknown down. Lesson 1's capacitor, 400 V halving every 10 seconds, is 400 × 0.5^(t/10). For 30 V, divide by 400: 0.5^(t/10) = 0.075. Take log of both sides, and by the power law (t ÷ 10) × log 0.5 = log 0.075, so t ÷ 10 = (−1.125) ÷ (−0.301) ≈ 3.74 halvings, two negatives making a positive, and t ≈ 37.4 s, between the 30 and 40 seconds lesson 1 found. When the two sides cannot be written as powers of one base, taking the log of each side is the way in.[^3]\n\nWhen the unknown sits inside a log instead, turn the log form into the power form, as in lesson 4: log x = 1.5 means x = 10^1.5 ≈ 31.6. Two logs added are first joined by the product law, so log x + log(x + 3) = 1 becomes x(x + 3) = 10, a quadratic: x² + 3x − 10 = 0, which factorises to (x + 5)(x − 2) = 0, giving 2 or −5. Put each back: −5 would need the log of a negative number, and no power of 10 is negative, so log(−5) does not exist and only x = 2 is a solution. Check: log 2 + log 5 = log 10 = 1. Textbooks call an equation with the unknown in a power an [[exponential equation]], and one with the unknown inside a log a [[logarithmic equation]]. **Get the power alone by undoing the other steps, last first; then take the log of both sides,[^2] and the power law brings the unknown down where you can rearrange for it.**"
+  },
+  "analogy": {
+    "text": "Take apart a termination you made. The cover went on last, so it comes off first, and the conductor that went into the terminal first comes out last. Pull at the conductor with the cover still on and you get nowhere, just as ln cannot get past the + 20 in 20 + 70 e^(−t/10) while it still sits outside the power: the log of a sum does not split.",
+    "breaks": "A termination's parts come off whole. Here each undo is the exact opposite of one step, and last first is the tidy order rather than the only one: ln first still works on 400 e^(−t/47), by lesson 5's product law, and it is a sum that truly forces the order. And no power of e is zero or negative, so a target of 0 V, or of the room's temperature, has no time at all."
+  },
+  "practice": {
+    "text": "- Safe way first: a time from the rule tells you how long to wait, never that a capacitor is safe. Prove it dead with a tester before you touch it.\n- Write the rule as a machine and note the order of its steps.\n- Undo the steps outside the power, last first, until the power stands alone: take away what was added, then divide by what multiplied.\n- Take the log of both sides, the same log on each: ln when the base is e, ln or log for any other base.\n- Bring the unknown down with the power law, then rearrange for it.\n- Check: put the answer back into the rule, see that it fits the graph, and answer the question asked, in whole minutes or as a root a log can take.\n\n**Rule of thumb:** for a discharge, t = −RC × ln(v ÷ V), where V is the starting voltage and v the target. Halving takes RC × ln 2 ≈ 0.693 RC. For growth of r% a year, the rule of 72 gives the doubling time roughly as 72 ÷ r,[^4] so 5% a year doubles in about 72 ÷ 5 = 14.4 years, against the exact 14.2. Keep the calculator's full figures until the last step.\n\n**Worked example:** Say a capacitor at 600 V discharges with RC = 50 s. How long until it is below 75 V? 75 = 600 e^(−t/50). Divide both sides by 600: e^(−t/50) = 0.125. Take ln of both sides: −t/50 = ln 0.125 ≈ −2.079. Multiply both sides by −50: t ≈ 104 s. Check: 600 × e^(−104/50) ≈ 75.0 V. That is inside the 3 minutes a trade page reports for IEC 60831.[^1]\n\n**Common mistakes**\n- Taking logs before the power is alone: ln(20 + 70 e^(−t/10)) does not split. Take the 20 away first.\n- Taking ln of one side only, or log of one side and ln of the other.\n- Undoing e with log: log(eᵏ) is k × 0.434, not k.\n- Dropping a minus: a time after the switch is positive.\n- Reading how many times smaller as how many halvings: 400 ÷ 30 = 13.3, but 30 V is only 3.74 halvings away.\n- Rounding a waiting time down: at 2 minutes the main capacitor still reads 31.1 V.\n- Keeping a root that needs the log of a negative number: put each root back in.\n- Forgetting the base when turning a log back into a power: log(x(x − 3)) = 1 means x(x − 3) = 10, not 1."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Capacitor bank discharge methods – Voltage Disturbance",
+      "url": "https://voltage-disturbance.com/power-quality/capacitor-bank-discharge-methods",
+      "quote": "IEC 60831 standard requires discharge to <75V within 3 minutes to prevent accidental injury by residual voltage."
+    },
+    {
+      "n": 2,
+      "title": "10.6: Solve Exponential and Logarithmic Equations - Mathematics LibreTexts",
+      "url": "https://math.libretexts.org/Bookshelves/Algebra/Intermediate_Algebra_1e_(OpenStax)/10%3A_Exponential_and_Logarithmic_Functions/10.06%3A_Solve_Exponential_and_Logarithmic_Equations",
+      "quote": "Since the exponential is isolated, take the logarithm of both sides."
+    },
+    {
+      "n": 3,
+      "title": "6.6 Exponential and Logarithmic Equations - College Algebra | OpenStax",
+      "url": "https://openstax.org/books/college-algebra/pages/6-6-exponential-and-logarithmic-equations",
+      "quote": "Sometimes the terms of an exponential equation cannot be rewritten with a common base. In these cases, we solve by taking the logarithm of each side."
+    },
+    {
+      "n": 4,
+      "title": "Intuition and exponential growth: bias and the roles of parameterization and complexity - PMC",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8386158/",
+      "quote": "They might want to apply the rule of 72 to convert growth rates into doubling times (divide 72 by the growth rate in percent to obtain the approximate doubling time). Educators could teach this heuristic."
+    }
+  ]
+}

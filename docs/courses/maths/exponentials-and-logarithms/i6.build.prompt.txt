@@ -1,0 +1,428 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Exponentials and logarithms
+Idea: Solving exponential equations (To find an unknown power, get the power term alone, take logs of both sides and bring the unknown down, as in finding a capacitor's discharge time.)
+Kind: skill
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the undoing machine's time landing exactly under the point where the level line crosses the curve, when you drag the level line to a new target voltage.
+Title (the app shows it above the frame, so do not repeat it): Read the time back
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in fourteen small screens on one picture. A graph shows a capacitor discharging: time along the bottom from 0 to 240 s, voltage up the side from 0 to 400 V, and the curve v = 400 e^(−t/47). It is lesson 3's ideal capacitor, 470 µF through 100 kΩ, so RC = 47 s, charged to 400 V. A level line runs across the graph at the target voltage you set, and where it crosses the curve a dot drops a thin line to the time axis. Under the graph sit two machines. The top one is the formula run forwards, in four boxes: t, then ÷ (−47), then eˣ, then × 400, giving v. The bottom one is its undoing machine, running the other way: v, then ÷ 400, then ln, then × (−47), giving t. Each box shows the number it hands on, and on a phone each machine stacks its boxes in a column so nothing crowds. The rule: each step of the undoing machine is the opposite of one forward step, in reverse order, because the × 400 was done last and so must come off first. ln undoes eˣ because by the power law ln(eᵏ) = k × ln e, and ln e = 1. So the target ÷ 400 is e^(−t/47) standing alone, its ln is −t ÷ 47, and × (−47) gives the time, which sits exactly under the crossing. Screen by screen: 1 sets the level line at 75 V; by eye it crosses near 80 s, and the forward machine shows a question mark where t goes. 2 asks which step the undoing machine does first: ÷ 400, not ln (ln can undo eˣ only once eˣ is the last step left) or × (−47) (that undoes the first forward step, so it comes last). 3 runs the undoing machine on 75 V: 0.1875, then −1.674, then 78.7 s, landing under the crossing, and notes that a trade page reports IEC 60831 requires discharge to below 75 V within 3 minutes. 4 asks the time to 200 V: 32.6 s, not 23.5 s (a straight line at the starting pace) or −32.6 s (the minus dropped). 5 writes the same steps in symbols, each done to both sides: 75 = 400 e^(−t/47), 0.1875 = e^(−t/47), ln 0.1875 = −t/47, t = −47 × ln 0.1875 ≈ 78.7 s. 6 asks which line follows from 0.1875 = e^(−t/47): ln 0.1875 = −t/47, not 0.1875 = −t/47 (ln taken on one side only) or log 0.1875 = −t/47 (log is base 10, and log of e^(−t/47) is 0.434 × (−t/47)). 7 solves 2ˣ = 20 by taking log of both sides: x log 2 = log 20, so x = 1.301 ÷ 0.301 ≈ 4.32, checked by 2^4.32 ≈ 20. 8 asks how long 5% a year takes to double, 1.05ˣ = 2: 14.2 years, not 0.280 (log(2 ÷ 1.05)) or 20 years (5% of the first amount added each year). 9 switches to the cooling card: lesson 3's part at 90 °C in a 20 °C room, τ = 10 minutes, T = 20 + 70 e^(−t/10), on axes of 0 to 50 minutes and 0 to 100 °C with the room's 20 °C dashed; its forward machine ends in + 20, and its undoing machine starts with − 20, then ÷ 70, ln and × (−10); a level line at 30 °C gives 10, 0.143, −1.946 and 19.5 minutes. 10 asks the first step for T = 30 °C: take 20 from both sides, not take ln of both sides (ln of 20 + 70 e^(−t/10) is the log of a sum, which no law splits) or divide both sides by 70 (the 70 multiplied before the 20 was added, so it comes off second). 11 shows lesson 4's power ruler for an unknown inside a log: log x = 1.5 means x = 10^1.5 ≈ 31.6, and log x + log(x + 3) = 1 becomes x(x + 3) = 10, so (x + 5)(x − 2) = 0, giving 2 or −5; the ruler has no mark for −5, since no power of 10 is negative, so only 2 is a solution, and log 2 + log 5 = 1 checks it. 12 asks for log x + log(x − 3) = 1: x = 5 only, not 5 and −2 (−2 needs the log of a negative number, and no power of 10 is negative) or 3.30 (x(x − 3) = 1, the 10¹ forgotten when the log form is turned into the power form). 13 and 14 mix it all: lesson 1's capacitor, 400 V halving every 10 s, reaches 30 V at 37.4 s, not 3.7 s (the number of halvings, 3.74, with the 10 s left off) or 133.3 s (400 ÷ 30 = 13.3 counted as halvings); and with the level line at 30 V on the main curve, checking once a minute, it crosses 30 V at 121.7 s, so it is first below 30 V at the 3-minute check, not 2 minutes (at 120 s it still reads 31.1 V) or 1 minute (log used in place of ln: −47 × log 0.075 ≈ 52.9 s). A puzzle offers its three answers, and a wrong pick gets a one-line hint showing where it goes wrong.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The capacitor is an ideal one, as in lesson 3: a real one also leaks a little charge through itself. The voltage never quite reaches zero, so a level line at 0 V would never cross, and the slider stops at 5 V. The curve is read by eye, so the crossing gives only about two figures; the machine's figure is the answer, and the line is a check on it. The logs on screen are rounded, so each time is good to the decimal place shown. The cooling card uses lesson 3's law of cooling, which fits a hot part only roughly.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "level": Level line, target voltage, from 5 to 395 in steps of 5, opening at 75 V
+Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id and the decimals given, which is how the explanation rounds it, or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):
+- id "share": e^(−t/47) = target ÷ 400, decimals: 4
+- id "lnShare": ln of target ÷ 400, decimals: 3
+- id "time": Time to reach the level (s), decimals: 1
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Level line's opening setting, in volts: 75 (control)
+- Level line's lowest setting, in volts: 5 (control)
+- Level line's highest setting, in volts: 395 (control)
+- Level line's step, in volts: 5 (control)
+- Starting voltage, in volts: 400 (assumed)
+- Capacitance, from lesson 3, in µF: 470 (assumed)
+- Resistance, from lesson 3, in kΩ: 100 (assumed)
+- Time constant RC, in seconds: 47 (computed)
+- Time axis, right-hand end, in seconds: 240 (assumed)
+- Time axis marks, five time constants, in seconds: 235 (computed)
+- Two time constants, in seconds: 94 (computed)
+- Three time constants, in seconds: 141 (computed)
+- Four time constants, in seconds: 188 (computed)
+- ln e: 1 (computed)
+- Time read by eye at 75 V, in seconds: 80 (computed)
+- 75 ÷ 400: 0.1875 (computed)
+- ln 0.1875: -1.674 (computed)
+- Time to 75 V, −47 × ln 0.1875, in seconds: 78.7 (computed)
+- IEC 60831 discharge limit, as a trade page reports it, in volts: 75 (constant, source [1])
+- IEC 60831 discharge time, as a trade page reports it, in minutes: 3 (constant, source [1])
+- Example target, screen 4, in volts: 200 (assumed)
+- Time to 200 V, 47 × ln 2, in seconds: 32.6 (computed)
+- Slip: starting pace to 200 V, in seconds: 23.5 (computed)
+- Slip: minus dropped, in seconds: -32.6 (computed)
+- log e: 0.434 (computed)
+- Example base, screen 7: 2 (assumed)
+- Example target, screen 7: 20 (assumed)
+- log 20: 1.301 (computed)
+- log 2: 0.301 (computed)
+- Power of 2 that makes 20: 4.32 (computed)
+- Example growth, in % a year, screen 8: 5 (assumed)
+- Growth factor for 5% a year: 1.05 (computed)
+- log 1.05: 0.0212 (computed)
+- Doubling time at 5% a year, in years: 14.2 (computed)
+- Slip: log(2 ÷ 1.05), screen 8: 0.28 (computed)
+- Slip: 5% of the first amount a year, in years: 20 (computed)
+- Cooling part's start, from lesson 3, in °C: 90 (assumed)
+- Room temperature, from lesson 3, in °C: 20 (assumed)
+- Cooling time constant, from lesson 3, in minutes: 10 (assumed)
+- Starting gap, 90 − 20, in °C: 70 (computed)
+- Cooling time axis, right-hand end, in minutes: 50 (assumed)
+- Temperature axis, top, in °C: 100 (assumed)
+- Cooling target, in °C: 30 (assumed)
+- Gap at the target, 30 − 20, in °C: 10 (computed)
+- 10 ÷ 70: 0.143 (computed)
+- ln(10 ÷ 70): -1.946 (computed)
+- Time to 30 °C, in minutes: 19.5 (computed)
+- Part after 20 minutes, from lesson 3, in °C: 29.5 (computed)
+- Example log, screen 11: 1.5 (assumed)
+- 10 to the power 1.5: 31.6 (computed)
+- Example shift inside the log, screen 11: 3 (assumed)
+- Right-hand side, screen 11: 1 (assumed)
+- 10 to the power 1: 10 (computed)
+- Root kept, screen 11: 2 (computed)
+- Root thrown out, screen 11: -5 (computed)
+- Root kept, screen 12: 5 (computed)
+- Root thrown out, screen 12: -2 (computed)
+- Slip: x(x − 3) = 1, screen 12: 3.3 (computed)
+- Lesson 1's halving time, in seconds: 10 (assumed)
+- Lesson 1's target, in volts: 30 (assumed)
+- Halving factor: 0.5 (computed)
+- 30 ÷ 400: 0.075 (computed)
+- Halvings to 30 V: 3.74 (computed)
+- Time to 30 V, halving every 10 s, in seconds: 37.4 (computed)
+- Slip: halvings with the 10 s left off: 3.7 (computed)
+- Slip: 400 ÷ 30 as halvings, in seconds: 133.3 (computed)
+- Lesson 1's bracketing times, in seconds: 30 (computed)
+- Lesson 1's bracketing times, upper, in seconds: 40 (computed)
+- Main curve's time to 30 V, in seconds: 121.7 (computed)
+- Slip: −47 × log 0.075, in seconds: 52.9 (computed)
+- Slip: first check after 52.9 s, in minutes: 1 (computed)
+- First once-a-minute check below 30 V, in minutes: 3 (computed)
+- Slip: the 2-minute check, in minutes: 2 (computed)
+- Two minutes, in seconds: 120 (computed)
+- Main curve at 120 s, in volts: 31.1 (computed)
+- Seconds in a minute: 60 (constant)
+- ln 2: 0.693 (computed)
+- Worked example: starting voltage, in volts: 600 (assumed)
+- Worked example: RC, in seconds: 50 (assumed)
+- Worked example: 75 ÷ 600: 0.125 (computed)
+- Worked example: ln 0.125: -2.079 (computed)
+- Worked example: time to 75 V, in seconds: 104 (computed)
+- Worked example: check, in volts: 75 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+To find an unknown power, undo the formula's other steps, last first, until the power stands alone, then take the log of both sides. The log undoes the power and brings the unknown down to where ordinary rearranging can reach it. It is how you find how long a capacitor takes to fall to a target voltage, such as a safety limit.
+
+Say lesson 3's capacitor, 470 µF through 100 kΩ, so RC = 47 s, is charged to 400 V. Its rule, v = 400 e^(−t/47), is a machine: take the time t, divide by −47, put it through eˣ, then multiply by 400. Lesson 3 ran it forwards, from a time to a voltage. Now the voltage is known and the time is not: when is it down to 75 V? Run the machine backwards, last step first, as you undid machines in Functions and their graphs. The × 400 was done last, so it comes off first: 75 ÷ 400 = 0.1875, so e^(−t/47) = 0.1875, and the power stands alone. Next, undo eˣ with ln. By the power law, ln(eᵏ) = k × ln e, and ln e = 1, so ln(eᵏ) = k: ln takes the e away and leaves its power. ln 0.1875 ≈ −1.674, so −t/47 ≈ −1.674. Last, undo the ÷ (−47) by multiplying by −47: t ≈ 78.7 s. In symbols each step is done to both sides, as in Solving equations: 75 = 400 e^(−t/47), then 0.1875 = e^(−t/47), then ln 0.1875 = −t/47, then t = −47 × ln 0.1875. Once the exponential is alone, you take the log of both sides. A trade page reports that the IEC 60831 standard requires discharge to below…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Capacitor bank discharge methods – Voltage Disturbance (https://voltage-disturbance.com/power-quality/capacitor-bank-discharge-methods): "IEC 60831 standard requires discharge to <75V within 3 minutes to prevent accidental injury by residual voltage."
+[2] 10.6: Solve Exponential and Logarithmic Equations - Mathematics LibreTexts (https://math.libretexts.org/Bookshelves/Algebra/Intermediate_Algebra_1e_(OpenStax)/10%3A_Exponential_and_Logarithmic_Functions/10.06%3A_Solve_Exponential_and_Logarithmic_Equations): "Since the exponential is isolated, take the logarithm of both sides."
+[3] 6.6 Exponential and Logarithmic Equations - College Algebra | OpenStax (https://openstax.org/books/college-algebra/pages/6-6-exponential-and-logarithmic-equations): "Sometimes the terms of an exponential equation cannot be rewritten with a common base. In these cases, we solve by taking the logarithm of each side."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

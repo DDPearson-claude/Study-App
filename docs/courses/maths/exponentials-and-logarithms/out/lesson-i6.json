@@ -1,0 +1,730 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-18T08:04:25.515Z",
+ "startedAt": "2026-10-18T08:04:25.515Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i6",
+  "title": "Solving exponential equations",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the undoing machine's time landing exactly under the point where the level line crosses the curve, when you drag the level line to a new target voltage.",
+   "title": "Read the time back",
+   "controls": [
+    {
+     "id": "level",
+     "label": "Level line, target voltage",
+     "min": 5,
+     "max": 395,
+     "step": 5,
+     "value": 75,
+     "unit": "V"
+    }
+   ],
+   "outputs": [
+    {
+     "id": "share",
+     "label": "e^(−t/47) = target ÷ 400",
+     "unit": "",
+     "decimals": 4
+    },
+    {
+     "id": "lnShare",
+     "label": "ln of target ÷ 400",
+     "unit": "",
+     "decimals": 3
+    },
+    {
+     "id": "time",
+     "label": "Time to reach the level",
+     "unit": "s",
+     "decimals": 1
+    }
+   ],
+   "whatAmILookingAt": "A short lesson in fourteen small screens on one picture. A graph shows a capacitor discharging: time along the bottom from 0 to 240 s, voltage up the side from 0 to 400 V, and the curve v = 400 e^(−t/47). It is lesson 3's ideal capacitor, 470 µF through 100 kΩ, so RC = 47 s, this time charged to 400 V. A level line runs across the graph at the target voltage you set, and where it crosses the curve a dot drops a thin line to the time axis. Under the graph sits one row of boxes, t at the left and v at the right, each showing the number it hands on. Above the row, between the boxes, are the forward steps with arrows running right, the formula run forwards: ÷ (−47), then eˣ, then × 400. Below it, each under the step it reverses, are the undoing machine's steps with arrows running left, so read from the right they go ÷ 400, then ln, then × (−47), giving t. The row is the same on a phone and on a laptop, and ln is set in a typewriter face so its l is not read as a capital I. The rule: each step of the undoing machine is the opposite of one forward step, in reverse order, last first, which is the machine's tidy order. Taking ln first would also work on 400 e^(−t/47), by lesson 5's product law, ln 75 = ln 400 − t/47, but not on a sum such as the cooling card's 20 + 70 e^(−t/10). ln undoes eˣ because by the power law ln(eᵏ) = k × ln e, and ln e = 1. So the target ÷ 400 is e^(−t/47) standing alone, its ln is −t ÷ 47, and × (−47) gives the time, which sits exactly under the crossing. Screen by screen: 1 brings the level line down to 75 V; by eye it crosses near 80 s, read in a small pill just above the time axis, and the forward machine shows a question mark where t goes. 2 asks which step the undoing machine does first: ÷ 400, not ln (ln first works only by way of the product law, a detour from the machine's steps) or × (−47) (that undoes the first forward step, so it comes last). 3 runs the undoing machine on 75 V: 0.1875, then −1.674, then 78.7 s, landing under the crossing, and notes that a trade page reports IEC 60831 requires discharge to below 75 V within 3 minutes, and that the standard is for power capacitor banks, so a worked-out time proves nothing: prove it dead with a tester. 4 asks the time to 200 V: 32.6 s, not 23.5 s (a straight line at the starting pace) or −32.6 s (the minus dropped). 5 writes the same steps in symbols, each done to both sides: 75 = 400 e^(−t/47), 0.1875 = e^(−t/47), ln 0.1875 = −t/47, t = −47 × ln 0.1875 ≈ 78.7 s. 6 asks which line follows from 0.1875 = e^(−t/47): ln 0.1875 = −t/47, not 0.1875 = −t/47 (ln taken on one side only) or log 0.1875 = −t/47 (log is base 10, and log of e^(−t/47) is 0.434 × (−t/47)). 7 solves 2ˣ = 20 by taking log of both sides: x log 2 = log 20, so x = 1.301 ÷ 0.301 ≈ 4.32, checked by 2^4.32 ≈ 20; any log works if you keep the log of the base, so ln would do as well, ln 20 ÷ ln 2 ≈ 4.32, and ln is the tidy one for e because ln e = 1. 8 asks how long 5% a year takes to double, 1.05ˣ = 2: 14.2 years, which the rule of 72 checks (72 ÷ 5 = 14.4), not 0.280 (log(2 ÷ 1.05)) or 20 years (5% of the first amount added each year). 9 switches to the cooling card: lesson 3's part at 90 °C in a 20 °C room, τ = 10 minutes, T = 20 + 70 e^(−t/10), on axes of 0 to 50 minutes and 0 to 100 °C with the room's 20 °C dashed; its forward machine ends in + 20, and its undoing machine starts with − 20, then ÷ 70, ln and × (−10); a level line at 30 °C gives 10, 0.143, −1.946 and 19.5 minutes. 10 asks the first step for T = 30 °C: take 20 from both sides, not take ln of both sides (ln of 20 + 70 e^(−t/10) is the log of a sum, which no law splits) or divide both sides by 70 (the 70 multiplied before the 20 was added, so it comes off second). 11 shows lesson 4's power ruler, now with 0.5, 0.2 and 0.1 left of 1 and its left end open towards 0, for an unknown inside a log: log x = 1.5 means x = 10^1.5 ≈ 31.6, and log x + log(x + 3) = 1 becomes x(x + 3) = 10, then x² + 3x − 10 = 0 by taking 10 from both sides, so (x + 5)(x − 2) = 0, giving 2 or −5; the ruler has no mark for −5, since no power of 10 is negative, so only 2 is a solution, and log 2 + log 5 = 1 checks it. 12 asks for log x + log(x − 3) = 1: x = 5 only, not 5 and −2 (−2 needs the log of a negative number, and no power of 10 is negative) or 3.30 (x(x − 3) = 1, the 10¹ forgotten when the log form is turned into the power form). 13 and 14 mix it all: lesson 1's capacitor, 400 V halving every 10 s, reaches 30 V at 37.4 s (t ÷ 10 = (−1.125) ÷ (−0.301) ≈ 3.74), not 3.7 s (the number of halvings, 3.74, with the 10 s left off) or 133.3 s (400 ÷ 30 = 13.3 counted as halvings); and with the level line at 30 V on the main curve, checking once a minute, it crosses 30 V at 121.7 s, so it is first below 30 V at the 3-minute check, not 2 minutes (at 120 s it still reads 31.1 V) or 1 minute (log used in place of ln: −47 × log 0.075 ≈ 52.9 s). A puzzle offers its three answers, and a wrong pick gets a one-line hint showing where it goes wrong.",
+   "ignores": "The capacitor is an ideal one, as in lesson 3: a real one also leaks a little charge through itself. The voltage never quite reaches zero, so a level line at 0 V would never cross, and the slider stops at 5 V. The curve is read by eye, so the crossing gives only about two figures; the machine's figure is the answer, and the line is a check on it. The logs on screen are rounded, so each time is good to the decimal place shown. The cooling card uses lesson 3's law of cooling, which fits a hot part only roughly.",
+   "numbers": [
+    {
+     "label": "Level line's opening setting, in volts",
+     "value": 75,
+     "kind": "control"
+    },
+    {
+     "label": "Level line's lowest setting, in volts",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Level line's highest setting, in volts",
+     "value": 395,
+     "kind": "control"
+    },
+    {
+     "label": "Level line's step, in volts",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Starting voltage, in volts",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "Capacitance, from lesson 3, in µF",
+     "value": 470,
+     "kind": "assumed"
+    },
+    {
+     "label": "Resistance, from lesson 3, in kΩ",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Time constant RC, in seconds",
+     "value": 47,
+     "kind": "computed"
+    },
+    {
+     "label": "Time axis, right-hand end, in seconds",
+     "value": 240,
+     "kind": "assumed"
+    },
+    {
+     "label": "Time axis marks, five time constants, in seconds",
+     "value": 235,
+     "kind": "computed"
+    },
+    {
+     "label": "Two time constants, in seconds",
+     "value": 94,
+     "kind": "computed"
+    },
+    {
+     "label": "Three time constants, in seconds",
+     "value": 141,
+     "kind": "computed"
+    },
+    {
+     "label": "Four time constants, in seconds",
+     "value": 188,
+     "kind": "computed"
+    },
+    {
+     "label": "ln e",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Time read by eye at 75 V, in seconds",
+     "value": 80,
+     "kind": "computed"
+    },
+    {
+     "label": "75 ÷ 400",
+     "value": 0.1875,
+     "kind": "computed"
+    },
+    {
+     "label": "ln 0.1875",
+     "value": -1.674,
+     "kind": "computed"
+    },
+    {
+     "label": "Time to 75 V, −47 × ln 0.1875, in seconds",
+     "value": 78.7,
+     "kind": "computed"
+    },
+    {
+     "label": "IEC 60831 discharge limit, as a trade page reports it, in volts",
+     "value": 75,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "IEC 60831 discharge time, as a trade page reports it, in minutes",
+     "value": 3,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Example target, screen 4, in volts",
+     "value": 200,
+     "kind": "assumed"
+    },
+    {
+     "label": "Time to 200 V, 47 × ln 2, in seconds",
+     "value": 32.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: starting pace to 200 V, in seconds",
+     "value": 23.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: minus dropped, in seconds",
+     "value": -32.6,
+     "kind": "computed"
+    },
+    {
+     "label": "log e",
+     "value": 0.434,
+     "kind": "computed"
+    },
+    {
+     "label": "Example base, screen 7",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example target, screen 7",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "log 20",
+     "value": 1.301,
+     "kind": "computed"
+    },
+    {
+     "label": "log 2",
+     "value": 0.301,
+     "kind": "computed"
+    },
+    {
+     "label": "Power of 2 that makes 20",
+     "value": 4.32,
+     "kind": "computed"
+    },
+    {
+     "label": "Example growth, in % a year, screen 8",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Growth factor for 5% a year",
+     "value": 1.05,
+     "kind": "computed"
+    },
+    {
+     "label": "log 1.05",
+     "value": 0.0212,
+     "kind": "computed"
+    },
+    {
+     "label": "Doubling time at 5% a year, in years",
+     "value": 14.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: log(2 ÷ 1.05), screen 8",
+     "value": 0.28,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 5% of the first amount a year, in years",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Cooling part's start, from lesson 3, in °C",
+     "value": 90,
+     "kind": "assumed"
+    },
+    {
+     "label": "Room temperature, from lesson 3, in °C",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cooling time constant, from lesson 3, in minutes",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Starting gap, 90 − 20, in °C",
+     "value": 70,
+     "kind": "computed"
+    },
+    {
+     "label": "Cooling time axis, right-hand end, in minutes",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Temperature axis, top, in °C",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cooling target, in °C",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Gap at the target, 30 − 20, in °C",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "10 ÷ 70",
+     "value": 0.143,
+     "kind": "computed"
+    },
+    {
+     "label": "ln(10 ÷ 70)",
+     "value": -1.946,
+     "kind": "computed"
+    },
+    {
+     "label": "Time to 30 °C, in minutes",
+     "value": 19.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Part after 20 minutes, from lesson 3, in °C",
+     "value": 29.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Example log, screen 11",
+     "value": 1.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "10 to the power 1.5",
+     "value": 31.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Example shift inside the log, screen 11",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Right-hand side, screen 11",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "10 to the power 1",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Root kept, screen 11",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Root thrown out, screen 11",
+     "value": -5,
+     "kind": "computed"
+    },
+    {
+     "label": "Root kept, screen 12",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Root thrown out, screen 12",
+     "value": -2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: x(x − 3) = 1, screen 12",
+     "value": 3.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Lesson 1's halving time, in seconds",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Lesson 1's target, in volts",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Halving factor",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "30 ÷ 400",
+     "value": 0.075,
+     "kind": "computed"
+    },
+    {
+     "label": "Halvings to 30 V",
+     "value": 3.74,
+     "kind": "computed"
+    },
+    {
+     "label": "Time to 30 V, halving every 10 s, in seconds",
+     "value": 37.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: halvings with the 10 s left off",
+     "value": 3.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 400 ÷ 30 as halvings, in seconds",
+     "value": 133.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Lesson 1's bracketing times, in seconds",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Lesson 1's bracketing times, upper, in seconds",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Main curve's time to 30 V, in seconds",
+     "value": 121.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: −47 × log 0.075, in seconds",
+     "value": 52.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: first check after 52.9 s, in minutes",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "First once-a-minute check below 30 V, in minutes",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: the 2-minute check, in minutes",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Two minutes, in seconds",
+     "value": 120,
+     "kind": "computed"
+    },
+    {
+     "label": "Main curve at 120 s, in volts",
+     "value": 31.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Seconds in a minute",
+     "value": 60,
+     "kind": "constant"
+    },
+    {
+     "label": "ln 2",
+     "value": 0.693,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: starting voltage, in volts",
+     "value": 600,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: RC, in seconds",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: 75 ÷ 600",
+     "value": 0.125,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: ln 0.125",
+     "value": -2.079,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: time to 75 V, in seconds",
+     "value": 104,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: check, in volts",
+     "value": 75,
+     "kind": "computed"
+    },
+    {
+     "label": "Rule of 72's number",
+     "value": 72,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Rule of 72's doubling time at 5% a year, 72 ÷ 5, in years",
+     "value": 14.4,
+     "kind": "computed"
+    },
+    {
+     "label": "log 0.075",
+     "value": -1.125,
+     "kind": "computed"
+    },
+    {
+     "label": "log 0.5",
+     "value": -0.301,
+     "kind": "computed"
+    },
+    {
+     "label": "Power ruler's marks left of 1",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Power ruler's marks left of 1, next",
+     "value": 0.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Power ruler's left-hand major mark",
+     "value": 0.1,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "To find an unknown power, undo the formula's other steps, last first, until the power stands alone, then take the log of both sides. The log undoes the power and brings the unknown down to where ordinary rearranging can reach it. It is how you find how long a capacitor takes to fall to a target voltage, such as a safety limit.\n\nSay lesson 3's capacitor, 470 µF through 100 kΩ, so RC = 47 s, is charged to 400 V. Its rule, v = 400 e^(−t/47), is a machine: take the time t, divide by −47, put it through eˣ, then multiply by 400. Lesson 3 ran it forwards, from a time to a voltage. Now the voltage is known and the time is not: when is it down to 75 V? Run the machine backwards, last step first, as you undid machines in Functions and their graphs. The × 400 was done last, so it comes off first: 75 ÷ 400 = 0.1875, so e^(−t/47) = 0.1875, and the power stands alone. Next, undo eˣ with ln. By the power law, ln(eᵏ) = k × ln e, and ln e = 1, so ln(eᵏ) = k: ln takes the e away and leaves its power. ln 0.1875 ≈ −1.674, so −t/47 ≈ −1.674. Last, undo the ÷ (−47) by multiplying by −47: t ≈ 78.7 s. In symbols each step is done to both sides, as in Solving equations: 75 = 400 e^(−t/47), then 0.1875 = e^(−t/47), then ln 0.1875 = −t/47, then t = −47 × ln 0.1875. Once the exponential is alone, you take the log of both sides.[^2] A trade page reports that the IEC 60831 standard requires discharge to below 75 V within 3 minutes,[^1] and 78.7 s is inside that, though the standard is for power capacitor banks and a worked-out time proves nothing: prove it dead with a tester before you touch it.\n\nLast step first is the undoing machine's tidy order, because each step worked on what the step before handed it, so the step done last sits outside. For a product, ln first also works, by lesson 5's product law: ln 75 = ln 400 − t/47 gives the same 78.7 s. A sum is what forces the order. Lesson 3's part, at 90 °C in a 20 °C room with τ = 10 minutes, follows T = 20 + 70 e^(−t/10). When is it at 30 °C? This machine's last step is + 20, so it comes off first: 30 − 20 = 10, then ÷ 70 gives 0.143, ln gives −1.946, and × (−10) gives about 19.5 minutes, just before lesson 3's 29.5 °C at 20 minutes. Take ln straight away and you meet ln(20 + 70 e^(−t/10)), the log of a sum, which no log law splits, so the power stays stuck inside. The same steps work in any base, with the power law bringing the unknown down. Lesson 1's capacitor, 400 V halving every 10 seconds, is 400 × 0.5^(t/10). For 30 V, divide by 400: 0.5^(t/10) = 0.075. Take log of both sides, and by the power law (t ÷ 10) × log 0.5 = log 0.075, so t ÷ 10 = (−1.125) ÷ (−0.301) ≈ 3.74 halvings, two negatives making a positive, and t ≈ 37.4 s, between the 30 and 40 seconds lesson 1 found. When the two sides cannot be written as powers of one base, taking the log of each side is the way in.[^3]\n\nWhen the unknown sits inside a log instead, turn the log form into the power form, as in lesson 4: log x = 1.5 means x = 10^1.5 ≈ 31.6. Two logs added are first joined by the product law, so log x + log(x + 3) = 1 becomes x(x + 3) = 10, a quadratic: x² + 3x − 10 = 0, which factorises to (x + 5)(x − 2) = 0, giving 2 or −5. Put each back: −5 would need the log of a negative number, and no power of 10 is negative, so log(−5) does not exist and only x = 2 is a solution. Check: log 2 + log 5 = log 10 = 1. Textbooks call an equation with the unknown in a power an [[exponential equation]], and one with the unknown inside a log a [[logarithmic equation]]. **Get the power alone by undoing the other steps, last first; then take the log of both sides,[^2] and the power law brings the unknown down where you can rearrange for it.**"
+  },
+  "analogy": {
+   "text": "Take apart a termination you made. The cover went on last, so it comes off first, and the conductor that went into the terminal first comes out last. Pull at the conductor with the cover still on and you get nowhere, just as ln cannot get past the + 20 in 20 + 70 e^(−t/10) while it still sits outside the power: the log of a sum does not split.",
+   "breaks": "A termination's parts come off whole. Here each undo is the exact opposite of one step, and last first is the tidy order rather than the only one: ln first still works on 400 e^(−t/47), by lesson 5's product law, and it is a sum that truly forces the order. And no power of e is zero or negative, so a target of 0 V, or of the room's temperature, has no time at all."
+  },
+  "practice": {
+   "text": "- Safe way first: a time from the rule tells you how long to wait, never that a capacitor is safe. Prove it dead with a tester before you touch it.\n- Write the rule as a machine and note the order of its steps.\n- Undo the steps outside the power, last first, until the power stands alone: often that means take away what was added, then divide by what multiplied.\n- Take the log of both sides, the same log on each: ln when the base is e, ln or log for any other base.\n- Bring the unknown down with the power law, then rearrange for it.\n- Check: put the answer back into the rule, see that it fits the graph, and answer the question asked, in whole minutes or as a root a log can take.\n\n**Rule of thumb:** for a discharge, t = −RC × ln(v ÷ V), where V is the starting voltage and v the target. Halving takes RC × ln 2 ≈ 0.693 RC. For growth of r% a year, the rule of 72 gives the doubling time roughly as 72 ÷ r,[^4] so 5% a year doubles in about 72 ÷ 5 = 14.4 years, against the exact 14.2. Keep the calculator's full figures until the last step.\n\n**Worked example:** Say a capacitor at 600 V discharges with RC = 50 s. How long until it is below 75 V? 75 = 600 e^(−t/50). Divide both sides by 600: e^(−t/50) = 0.125. Take ln of both sides: −t/50 = ln 0.125 ≈ −2.079. Multiply both sides by −50: t ≈ 104 s. Check: 600 × e^(−104/50) ≈ 75.0 V. That is inside the 3 minutes a trade page reports for IEC 60831.[^1]\n\n**Common mistakes**\n- Taking logs before the power is alone: ln(20 + 70 e^(−t/10)) does not split. Take the 20 away first.\n- Taking ln of one side only, or log of one side and ln of the other.\n- Undoing e with log: log(eᵏ) is k × 0.434, not k.\n- Dropping a minus: a time after the switch is positive.\n- Reading how many times smaller as how many halvings: 400 ÷ 30 = 13.3, but 30 V is only 3.74 halvings away.\n- Rounding a waiting time down: at 2 minutes the main capacitor still reads 31.1 V.\n- Keeping a root that needs the log of a negative number: put each root back in.\n- Forgetting the base when turning a log back into a power: log(x(x − 3)) = 1 means x(x − 3) = 10, not 1."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Capacitor bank discharge methods – Voltage Disturbance",
+    "url": "https://voltage-disturbance.com/power-quality/capacitor-bank-discharge-methods",
+    "quote": "IEC 60831 standard requires discharge to <75V within 3 minutes to prevent accidental injury by residual voltage."
+   },
+   {
+    "n": 2,
+    "title": "10.6: Solve Exponential and Logarithmic Equations - Mathematics LibreTexts",
+    "url": "https://math.libretexts.org/Bookshelves/Algebra/Intermediate_Algebra_1e_(OpenStax)/10%3A_Exponential_and_Logarithmic_Functions/10.06%3A_Solve_Exponential_and_Logarithmic_Equations",
+    "quote": "Since the exponential is isolated, take the logarithm of both sides."
+   },
+   {
+    "n": 3,
+    "title": "6.6 Exponential and Logarithmic Equations - College Algebra | OpenStax",
+    "url": "https://openstax.org/books/college-algebra/pages/6-6-exponential-and-logarithmic-equations",
+    "quote": "Sometimes the terms of an exponential equation cannot be rewritten with a common base. In these cases, we solve by taking the logarithm of each side."
+   },
+   {
+    "n": 4,
+    "title": "Intuition and exponential growth: bias and the roles of parameterization and complexity - PMC",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8386158/",
+    "quote": "They might want to apply the rule of 72 to convert growth rates into doubling times (divide 72 by the growth rate in percent to obtain the approximate doubling time). Educators could teach this heuristic."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  #stepbox > #mach { margin-top: 2px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  /* ln in a typewriter face, so its l is never read as a capital I */\n  .lnk { font-family: var(--k-mono); font-style: normal; }\n  .pz sup { font-size: .72em; line-height: 0; }\n  .scene { --lab: 13px; display: block; width: 100%; max-width: 30rem; margin-inline: auto; touch-action: pan-y; }\n  @media (max-width: 480px) { .scene { --lab: 14px; } }\n  /* On a screen where the level line can be dragged, a finger on the graph moves it instead of the page. */\n  .scene.grab { touch-action: none; }\n  .scene text { font-family: var(--k-font); font-size: var(--lab); }\n  .scene text.lnk { font-family: var(--k-mono); }\n  /* the graph */\n  .scene .ax { stroke: var(--k-ink); stroke-width: 1.2; }\n  .scene .tk { fill: var(--k-ink); font-weight: 600; }\n  .scene .axt { fill: var(--k-muted); font-weight: 600; }\n  .scene .mint { fill: var(--k-muted); font-weight: 600; }\n  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .room { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }\n  .scene .roomt { fill: var(--k-muted); font-weight: 600; }\n  .scene .lvl { stroke: var(--k-accent); stroke-width: 2; }\n  .scene .lvlt { fill: var(--k-accent); font-weight: 700; }\n  .scene .handle { fill: var(--k-bg); stroke: var(--k-accent); stroke-width: 2.5; }\n  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .hdot { fill: var(--k-accent2); }\n  .scene .drop { stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 4 3; }\n  .scene .tag { fill: var(--k-accent2); }\n  .scene .tagt { fill: var(--k-on-accent2); font-weight: 700; }\n  .scene .eye { fill: var(--k-bg); stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .eyet { fill: var(--k-muted); font-weight: 700; }\n  /* slips: red, for mistakes only */\n  .scene .slip { stroke: var(--k-warn); stroke-width: 2.5; }\n  .scene .slipd { fill: none; stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 6 4; }\n  .scene .slipdot { fill: var(--k-warn); }\n  .scene .slipt { fill: var(--k-warn); font-weight: 700; }\n  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }\n  /* the machines: forwards along the top, the undoing machine along the bottom, the numbers they hand on between */\n  .scene .node { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .nodet { fill: var(--k-ink); font-weight: 700; }\n  .scene .name { fill: var(--k-accent); font-weight: 700; font-style: italic; }\n  .scene .fchip { fill: var(--k-bg); stroke: var(--k-muted); stroke-width: 1.2; }\n  .scene .fchipt { fill: var(--k-ink); font-weight: 700; }\n  .scene .uchip { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .uchipt { fill: var(--k-accent2); font-weight: 700; }\n  .scene .wchip { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 2; }\n  .scene .wchipt { fill: var(--k-warn); font-weight: 700; }\n  .scene .farr { stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .farrh { fill: var(--k-muted); }\n  .scene .uarr { stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .uarrh { fill: var(--k-accent2); }\n  /* the power ruler */\n  .scene .stock { fill: var(--k-sunk); }\n  .scene .edge, .scene .tickb { stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .ticks { stroke: var(--k-ink); stroke-width: 1.2; }\n  .scene .nl { fill: var(--k-ink); font-weight: 600; }\n  .scene .cur { stroke: var(--k-accent2); stroke-width: 2.5; }\n  .scene .b1 { fill: var(--k-cat1); }\n  .scene .b2 { fill: var(--k-cat2); }\n  .scene .bl { fill: var(--k-ink); font-weight: 600; }\n  .scene .br { stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .brt { fill: var(--k-accent2); font-weight: 700; }\n  .scene .art * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: ns-resize; }\n  .mkey { justify-content: center; font-size: .9rem; }\n  /* The same steps written out under the picture. */\n  .forms { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 1.05rem; font-weight: 700; line-height: 1.5; min-height: 1.6em; margin-top: 8px; text-align: center; }\n  .forms .fl { display: block; }\n  /* a line still to come keeps its place, so nothing below it jumps */\n  .forms .fl.wait { visibility: hidden; }\n  .forms .fn { font-weight: 400; font-size: .88rem; color: var(--k-muted); margin-left: .6em; white-space: normal; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stay on one row, each label whole; longer ones stack one to a row. */\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and pictures fade in and rise 4 px. */\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter { animation: none; }\n  }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 178\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\" class=\"art\"></g><g id=\"ui\"></g></svg>\n    <svg class=\"scene\" id=\"mach\" viewBox=\"0 0 340 94\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"mart\" class=\"art\"></g></svg>\n    <div class=\"key mkey\" id=\"mkey\"><span><i class=\"swatch line\" style=\"color:var(--k-muted)\"></i>Above: the rule, run forwards</span><span><i class=\"swatch line\" style=\"color:var(--k-accent2)\"></i>Below: the undoing machine</span></div>\n    <div class=\"forms\" id=\"forms\" aria-live=\"polite\"></div>\n    <div class=\"k-controls\" id=\"ctl\"></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\"></p>\n\n<script>\n  // ---------- the rules ----------\n  // Lesson 3's ideal capacitor: 470 µF through 100 kΩ, so RC = 47 s, charged to 400 V, falls as\n  // v = 400 e^(−t/47). Its undoing machine runs the steps backwards, last first: ÷ 400, ln, × (−47).\n  // ln undoes eˣ because ln(eᵏ) = k × ln e and ln e = 1.\n  const V0 = 400, C_UF = 470, R_K = 100;\n  const RC = Math.round(C_UF * 1e-6 * R_K * 1e3 * 1e6) / 1e6;          // 47 s\n  const LN = Math.log, LG = Math.log10;\n  const vCap = (t) => V0 * Math.exp(-t / RC);\n  const tCap = (v) => -RC * LN(v / V0);\n  // Lesson 3's cooling part: 90 °C in a 20 °C room, τ = 10 minutes, T = 20 + 70 e^(−t/10).\n  const TROOM = 20, TSTART = 90, TAU = 10, GAP0 = TSTART - TROOM;\n  const tempAt = (t) => TROOM + GAP0 * Math.exp(-t / TAU);\n  const tCool = (T) => -TAU * LN((T - TROOM) / GAP0);\n  // Lesson 1's capacitor: 400 V halving every 10 s, v = 400 × 0.5^(t/10).\n  const HALF = 10, HF = 0.5;\n  const vHalf = (t) => V0 * Math.pow(HF, t / HALF);\n  const tHalf = (v) => HALF * LG(v / V0) / LG(HF);\n  // Growth by 5% a year multiplies by 1.05 each year.\n  const PCT = 5, GROW = 1 + PCT / 100;\n  const SRC1 = 'https://voltage-disturbance.com/power-quality/capacitor-bank-discharge-methods';\n  const SRC2 = 'https://math.libretexts.org/Bookshelves/Algebra/Intermediate_Algebra_1e_(OpenStax)/10%3A_Exponential_and_Logarithmic_Functions/10.06%3A_Solve_Exponential_and_Logarithmic_Equations';\n  const SRC3 = 'https://openstax.org/books/college-algebra/pages/6-6-exponential-and-logarithmic-equations';\n  const SRC4 = 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8386158/';\n  const RULE72 = 72;                        // the rule of 72: doubling time ≈ 72 ÷ the % a year\n  const IEC_V = 75, IEC_MIN = 3;            // as the trade page reports IEC 60831\n  const LMIN = 5, LMAX = 395, LSTEP = 5, LOPEN = 75;\n\n  // ---------- numbers ----------\n  // fx: exactly dp decimals with a true minus sign; fv: at most dp, trailing zeros dropped.\n  function fx(v, dp) {\n    const f = Math.pow(10, dp);\n    let r = Math.round(v * f) / f;\n    if (r === 0) r = 0;\n    return (r < 0 ? '−' : '') + Math.abs(r).toFixed(dp);\n  }\n  function fv(v, dp) {\n    const s = fx(v, dp);\n    return dp > 0 ? s.replace(/(\\.\\d*?)0+$/, '$1').replace(/\\.$/, '') : s;\n  }\n  const plain = (s) => Number(String(s).replace(/−/g, '-'));\n  const sec = (t) => fx(t, 1) + ' s';\n  const grid5 = (v) => K.clamp(Math.round(v / LSTEP) * LSTEP, LMIN, LMAX);\n  const shS = (v) => fv(v / V0, 4);                 // e^(−t/47) = target ÷ 400, 4 decimals\n  const lnS = (v) => fx(LN(v / V0), 3);             // its ln, 3 decimals\n  const RCs = fv(RC, 0);\n  const E_RC = 'e^(−t/' + RCs + ')', E_TAU = 'e^(−t/' + TAU + ')';\n  const RULE = 'v = ' + V0 + ' ' + E_RC;\n  const COOL = 'T = ' + TROOM + ' + ' + GAP0 + ' ' + E_TAU;\n  const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');\n\n  // The worked numbers each screen uses, all from the rules above.\n  const T75 = tCap(LOPEN), EYE75 = Math.round(T75 / 10) * 10;\n  const L200 = 200, T200 = tCap(L200), PACE200 = (V0 - L200) / (V0 / RC);   // the starting pace, V0 ÷ RC volts a second, kept up\n  const B2 = 2, Y20 = 20, X20 = LG(Y20) / LG(B2);\n  const X2 = LG(2) / LG(GROW), SLIP_Q = LG(2 / GROW), SLIP_ADD = (2 - 1) / (PCT / 100);\n  const C30 = 30, TC30 = tCool(C30);\n  const P15 = 1.5;\n  const root = (b, c) => (-b + Math.sqrt(b * b - 4 * c)) / 2, root2 = (b, c) => (-b - Math.sqrt(b * b - 4 * c)) / 2;\n  const SH11 = 3, SH12 = 3, RHS = 1, TEN = Math.pow(10, RHS);\n  const K11 = root(SH11, -TEN), D11 = root2(SH11, -TEN);           // x(x + 3) = 10: 2 and −5\n  const K12 = root(-SH12, -TEN), D12 = root2(-SH12, -TEN);         // x(x − 3) = 10: 5 and −2\n  const S12 = root(-SH12, -1);                                     // x(x − 3) = 1: 3.30\n  const L30 = 30, TH30 = tHalf(L30), NH30 = TH30 / HALF, SLIP_TIMES = V0 / L30;\n  const T30 = tCap(L30), V120 = vCap(2 * 60), LOGSLIP = -RC * LG(L30 / V0);\n  const MIN_OK = Math.ceil(T30 / 60), MIN_EARLY = Math.floor(T30 / 60), MIN_LOG = Math.ceil(LOGSLIP / 60);\n\n  // As a screen reader says it.\n  const say = (s) => String(s == null ? '' : s)\n    .replace(/eˣ/g, 'e to the power x').replace(/ˣ/g, ' to the power x').replace(/\\^\\(([^)]*)\\)/g, ' to the power $1').replace(/\\^([0-9.−]+|[a-z])/g, ' to the power $1')\n    .replace(/²/g, ' squared').replace(/≈/g, ' is about ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/−/g, ' minus ').replace(/\\+/g, ' plus ')\n    .replace(/=/g, ' equals ').replace(/°C/g, ' degrees').replace(/\\s+/g, ' ').trim();\n\n  // ---------- the pictures ----------\n  // A graph card: axes, ticks, the curve and its inverse (the time where the curve reaches a level).\n  const CARDS = {\n    cap: { x: [0, 240], xt: [0, 60, 120, 180, 240], xu: ' s', y: [0, V0], yt: [0, 100, 200, 300, 400], ytitle: 'voltage (V)',\n      f: vCap, inv: tCap, tfmt: sec, lv: (L) => fv(L, 0) + ' V', what: 'voltage against time in seconds; the curve falls from ' + V0 + ' V, fast at first, then slower' },\n    cool: { x: [0, 50], xt: [0, 10, 20, 30, 40, 50], xu: ' min', y: [0, 100], yt: [0, 50, 100], ytitle: 'temperature (°C)', room: TROOM,\n      f: tempAt, inv: tCool, tfmt: (t) => fx(t, 1) + ' min', lv: (L) => fv(L, 0) + ' °C', what: 'temperature against time in minutes; the curve cools from ' + TSTART + ' °C towards the room\\'s ' + TROOM + ' °C' },\n    pow2: { x: [0, 5], xt: [0, 1, 2, 3, 4, 5], xu: '', y: [0, 32], yt: [0, 10, 20, 30], ytitle: '2ˣ, with x along the bottom',\n      f: (x) => Math.pow(B2, x), inv: (y) => LG(y) / LG(B2), tfmt: (x) => fx(x, 2), lv: (L) => fv(L, 0), lab: 'left', what: '2 to the power x against x, rising faster and faster' },\n    grow: { x: [0, 25], xt: [0, 5, 10, 15, 20, 25], xu: ' years', y: [0, 3.5], yt: [0, 1, 2, 3], ytitle: 'times the start, 1.05ˣ',\n      f: (x) => Math.pow(GROW, x), inv: (y) => LG(y) / LG(GROW), tfmt: (x) => fx(x, 1) + ' years', lab: 'left', lv: (L) => fv(L, 0) + ' times the start', what: 'how many times the start after x years at ' + PCT + '% a year' },\n    halve: { x: [0, 60], xt: [0, 10, 20, 30, 40, 50, 60], xu: ' s', y: [0, V0], yt: [0, 100, 200, 300, 400], ytitle: 'voltage (V)', dots: [10, 20, 30, 40],\n      f: vHalf, inv: tHalf, tfmt: sec, lv: (L) => fv(L, 0) + ' V', what: 'lesson 1\\'s capacitor, halving every ' + HALF + ' s, with a dot at each halving' },\n  };\n  CARDS.capMin = Object.assign({}, CARDS.cap, { minutes: [60, 120, 180, 240] });\n\n  // A machine: its nodes hold the numbers handed on; forward steps sit above, their undoing below,\n  // each undo under the step it reverses.\n  const F_DIV = '÷ (−' + RCs + ')', U_MUL = '× (−' + RCs + ')', F_MUL = '× ' + V0, U_DIV = '÷ ' + V0;\n  const MACH = {\n    cap: { names: ['t', 'v'], f: [F_DIV, 'eˣ', F_MUL], u: [U_MUL, 'ln', U_DIV], cand: [LMIN, LMAX, LOPEN, L30, L200],\n      vals: (L) => [sec(tCap(L)), fx(LN(L / V0), 3), shS(L), fv(L, 0) + ' V'] },\n    cool: { names: ['t', 'T'], f: ['÷ (−' + TAU + ')', 'eˣ', '× ' + GAP0, '+ ' + TROOM], u: ['× (−' + TAU + ')', 'ln', '÷ ' + GAP0, '− ' + TROOM], cand: [C30],\n      vals: (L) => [fx(tCool(L), 1) + ' min', fx(LN((L - TROOM) / GAP0), 3), fv((L - TROOM) / GAP0, 3), fv(L - TROOM, 0), fv(L, 0) + ' °C'] },\n  };\n\n  // The four lines of the symbols screen, at a level L: each step done to both sides.\n  function capForms(L) {\n    return [\n      [fv(L, 0) + ' = ' + V0 + ' ' + E_RC, ''],\n      [shS(L) + ' = ' + E_RC, U_DIV + ' on both sides'],\n      ['ln ' + shS(L) + ' = −t/' + RCs, 'ln of both sides'],\n      ['t = −' + RCs + ' × ln ' + shS(L) + ' ≈ ' + sec(tCap(L)), U_MUL + ' on both sides'],\n    ];\n  }\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // A part's arrival is 1 (there), 0 (not there), a time (a demonstration's part arriving then), or\n  // R(t) / W(answer, t): arriving t seconds after a right answer, or after that wrong answer.\n  const R = (t) => ({ when: 'right', at: t });\n  const W = (o, t) => ({ when: o, at: t == null ? 0.3 : t });\n  const O1 = [U_DIV, 'ln', U_MUL];\n  const O3 = [sec(T200), sec(PACE200), sec(-T200)];\n  const O5 = ['ln ' + shS(LOPEN) + ' = −t/' + RCs, shS(LOPEN) + ' = −t/' + RCs, 'log ' + shS(LOPEN) + ' = −t/' + RCs];\n  const O7 = [fx(X2, 1) + ' years', fx(SLIP_Q, 3), fv(SLIP_ADD, 0) + ' years'];\n  const O9 = ['Take ' + TROOM + ' from both sides', 'Take ln of both sides', 'Divide both sides by ' + GAP0];\n  const O11 = [fv(K12, 0), fv(K12, 0) + ' and ' + fv(D12, 0), fx(S12, 2)];\n  const O12 = [sec(TH30), fx(NH30, 1) + ' s', sec(SLIP_TIMES * HALF)];\n  const O13 = [plural(MIN_OK, 'minute'), plural(MIN_EARLY, 'minute'), plural(MIN_LOG, 'minute')];\n  const cap4 = capForms(LOPEN);\n\n  const STEPS = [\n    { show: true, live: true, card: 'cap', mach: 'cap', level: LOPEN, name: 'A known voltage',\n      g: { curve: { at: 0.4, dur: 1.2, draw: true }, level: 1.0, glide: { from: LMAX, at: 1.6, dur: 1.0 }, dot: 2.6, drop: { at: 2.8, dur: 0.6, grow: true }, tagShow: 3.4, eye: 3.4, tag: 0 },\n      m: { chips: 0.4, u: [0, 0, 0], n: [0, 0, 0, 1.0] }, forms: [[RULE, '', 0.4]], dur: 4.1,\n      text: 'Here is lesson 3\\'s capacitor, ' + C_UF + ' µF through ' + R_K + ' kΩ, so `RC = ' + RCs + ' s`, this time charged to ' + V0 + ' V. Its rule, `' + RULE + '`, is a machine. Take the time t, divide by −' + RCs + ', put it through eˣ, then multiply by ' + V0 + '. Lesson 3 ran it forwards, from a time to a voltage. Now the voltage is known and the time is not. Watch the level line come down to ' + LOPEN + ' V. By eye it crosses the curve near ' + EYE75 + ' s. Drag it to set another target.' },\n    { kind: 'pick', card: 'cap', mach: 'cap', level: LOPEN, name: 'Which comes off first?',\n      g: { tag: 0 }, m: { u: [0, 0, R(0.1)], n: [0, 0, R(0.5), 1], rings: [{ row: 'f', i: 1, when: O1[1] }, { row: 'f', i: 0, when: O1[2] }] },\n      notes: [{ text: 'ln first needs the product law, as ' + F_MUL + ' still sits outside eˣ', when: O1[1] }, { text: F_DIV + ' went in first, so its undo comes last', when: O1[2] }],\n      opts: O1, want: O1[0], ans: U_DIV,\n      forms: { before: [], right: [[shS(LOPEN) + ' = ' + E_RC, U_DIV + ' on both sides', 0.9]] },\n      task: 'The undoing machine runs the rule backwards, starting from the ' + LOPEN + ' V. Which step does it do first?',\n      why: 'Each step worked on what the step before handed it, so the ' + F_MUL + ', done last, sits outside everything, and the undoing machine takes it off first. `' + LOPEN + ' ÷ ' + V0 + ' = ' + shS(LOPEN) + '`, so `' + E_RC + ' = ' + shS(LOPEN) + '`, and the power stands alone. Then ln can undo eˣ, and ' + U_MUL + ' undoes the very first step, so it comes last. Taking ln first also works for a product, by lesson 5\\'s product law, `ln ' + LOPEN + ' = ln ' + V0 + ' − t/' + RCs + '`, and gives the same time. It is a sum, like the cooling part\\'s + ' + TROOM + ' later on, that forces the order.',\n      hint: 'Not quite. Undo the step that was done last.',\n      hints: { [O1[1]]: 'Not quite. The undoing machine starts with the step done last, ' + F_MUL + '. ln first can work, by lesson 5\\'s product law, but it is a detour, not the machine\\'s step.',\n        [O1[2]]: 'Not quite. ' + U_MUL + ' undoes the first forward step, so it comes last.' } },\n    { show: true, live: true, card: 'cap', mach: 'cap', level: LOPEN, name: 'Run it backwards',\n      g: { tag: { at: 2.9, drop: true } }, m: { u: [2.1, 1.3, 0.5], n: [2.4, 1.6, 0.8, 1] }, forms: [], dur: 3.6,\n      text: 'The *undoing machine* runs along the bottom, last step first. `' + LOPEN + ' ÷ ' + V0 + ' = ' + shS(LOPEN) + '`, so the power stands alone. ln undoes eˣ, giving ' + lnS(LOPEN) + ', and ' + U_MUL + ' undoes the ' + F_DIV + ', giving ' + sec(T75) + '. That lands exactly under the crossing, and the level line agrees by eye. A trade page reports that the IEC 60831 standard requires discharge to below ' + IEC_V + ' V within ' + IEC_MIN + ' minutes, and ' + sec(T75) + ' is inside that. But the standard is for power capacitor banks, and a worked-out time proves nothing: prove it dead with a tester before you touch it. Drag the level line and the machine follows.' },\n    { kind: 'pick', card: 'cap', mach: 'cap', level: L200, name: 'Down to ' + L200 + ' V',\n      g: { tag: R(1.2) }, m: { u: [1, 1, 1], n: [R(0.9), R(0.5), R(0.1), 1], rings: [{ row: 'n', i: 0, when: O3[2] }] },\n      slips: [{ k: 'sline', pts: [[0, V0], [RC, 0]], when: O3[1] }, { k: 'sdot', x: PACE200, y: L200, when: O3[1] }],\n      notes: [{ sw: true, text: 'the starting pace kept up reaches ' + L200 + ' V at ' + sec(PACE200), when: O3[1] }, { text: 'a dropped minus sign gives a time before the switch', when: O3[2] }],\n      opts: O3, want: O3[0], ans: O3[0], forms: { before: [], right: [] },\n      task: 'How long does the capacitor take to fall to ' + L200 + ' V?',\n      why: '`' + L200 + ' ÷ ' + V0 + ' = ' + shS(L200) + '`, so `' + E_RC + ' = ' + shS(L200) + '`. ln gives `ln ' + shS(L200) + ' ≈ ' + lnS(L200) + '`, and ' + U_MUL + ' gives about ' + sec(T200) + '. That is `' + RCs + ' × ln 2`, with `ln 2 ≈ ' + fx(LN(2), 3) + '`. The curve falls fastest at the start and then slows, so keeping up the starting pace would get there too soon, at ' + sec(PACE200) + '.',\n      hint: 'Not quite. Run the undoing machine on ' + L200 + ' V: ' + U_DIV + ', then ln, then ' + U_MUL + '.',\n      hints: { [O3[1]]: 'Not quite. That keeps up the starting pace, a straight line. The curve slows as it falls.',\n        [O3[2]]: 'Not quite. The minus was dropped. ln ' + shS(L200) + ' is negative, and ' + U_MUL + ' makes the time positive.' } },\n    { show: true, live: true, card: 'cap', mach: 'cap', level: LOPEN, name: 'Both sides',\n      g: { tag: 1 }, m: { u: [1, 1, 1], n: [1, 1, 1, 1] }, forms: capForms, formsAt: [0.5, 1.1, 1.7, 2.3], dur: 3.2,\n      text: 'In symbols, each step is done to both sides, as in Solving equations. Dividing both sides by ' + V0 + ' leaves the power standing alone. Then take ln of both sides. By the power law `ln(e^k) = k × ln e`, and `ln e = 1`, so ln takes the e away and leaves its power. Multiplying both sides by −' + RCs + ' gives the time. Drag the level line and the lines follow.' },\n    { kind: 'pick', card: 'cap', mach: 'cap', level: LOPEN, name: 'The next line',\n      g: { tag: R(1.1) }, m: { u: [R(0.5), R(0.1), 1], n: [R(0.8), R(0.4), 1, 1], rings: [{ row: 'n', i: 2, when: O5[1] }], wchip: { i: 1, text: 'log', when: O5[2] } },\n      notes: [{ text: 'ln of one side only leaves the e on the other side', when: O5[1] }, { text: 'log e ≈ ' + fx(LG(Math.E), 3) + ', not 1, so log does not undo eˣ', when: O5[2] }],\n      opts: O5, want: O5[0], ans: O5[0],\n      forms: { before: [[cap4[1][0], '', 0]], right: [[cap4[1][0], '', 0], [cap4[2][0], cap4[2][1], 1.2], [cap4[3][0], cap4[3][1], 1.55]] },\n      task: 'From `' + cap4[1][0] + '`, which line comes next?',\n      why: 'ln undoes eˣ, so take ln of both sides. By the power law `ln(' + E_RC + ') = (−t/' + RCs + ') × ln e`, and `ln e = 1`, which leaves `' + O5[0] + '`. log is base 10, and `log e ≈ ' + fx(LG(Math.E), 3) + '`, not 1, so log would leave `' + fx(LG(Math.E), 3) + ' × (−t/' + RCs + ')` on the right.',\n      hint: 'Not quite. Take ln of both sides, since ln undoes eˣ.',\n      hints: { [O5[1]]: 'Not quite. That takes ln of one side only. Whatever you do, do it to both sides.',\n        [O5[2]]: 'Not quite. log is base 10, and log of `' + E_RC + '` is `' + fx(LG(Math.E), 3) + ' × (−t/' + RCs + ')`. ln undoes eˣ.' } },\n    { show: true, card: 'pow2', level: Y20, name: 'Any base',\n      g: { curve: 0.4, level: 0.8, dot: 1.2, drop: { at: 1.4, dur: 0.6, grow: true }, tagShow: 1.4, tag: { at: 2.4, drop: true } },\n      forms: [[B2 + '^x = ' + Y20, '', 0.5], ['x log ' + B2 + ' = log ' + Y20, 'log of both sides', 1.1], ['x = ' + fx(LG(Y20), 3) + ' ÷ ' + fx(LG(B2), 3) + ' ≈ ' + fx(X20, 2), '÷ log ' + B2 + ' on both sides', 1.7],\n        [B2 + '^' + fx(X20, 2) + ' ≈ ' + fv(Math.pow(B2, plain(fx(X20, 2))), 0), 'the check', 3.0]], dur: 3.7,\n      text: 'An equation with the unknown in a power is an *exponential equation*, and the same steps work in any base. In `' + B2 + '^x = ' + Y20 + '` the power already stands alone, so take log of both sides. By the power law `log(' + B2 + '^x) = x log ' + B2 + '`, so `x log ' + B2 + ' = log ' + Y20 + '`, and the unknown has come down. Divide by log ' + B2 + ', and `x = ' + fx(LG(Y20), 3) + ' ÷ ' + fx(LG(B2), 3) + ' ≈ ' + fx(X20, 2) + '`. Check it, `' + B2 + '^' + fx(X20, 2) + ' ≈ ' + Y20 + '`, just where the level line crosses the curve. Any log works if you keep the log of the base, so ln would do as well, `ln ' + Y20 + ' ÷ ln ' + B2 + ' ≈ ' + fx(LN(Y20) / LN(B2), 2) + '`. ln is the tidy one for e because `ln e = 1`.' },\n    { kind: 'pick', card: 'grow', level: 2, name: 'Doubling at ' + PCT + '%',\n      g: { tag: R(0.5) },\n      slips: [{ k: 'sline', pts: [[0, 1], [25, 1 + 25 * PCT / 100]], when: O7[2] }, { k: 'sdot', x: SLIP_ADD, y: 2, when: O7[2] }, { k: 'stick', x: SLIP_Q, when: O7[1] }],\n      notes: [{ sw: true, text: 'adding ' + PCT + '% of the first amount each year', when: O7[2] }, { text: fx(SLIP_Q, 3) + ' is log(2 ÷ ' + fv(GROW, 2) + '), not a number of years', when: O7[1] }],\n      opts: O7, want: O7[0], ans: O7[0],\n      forms: { before: [[fv(GROW, 2) + '^x = 2', '', 0]], right: [[fv(GROW, 2) + '^x = 2', '', 0], ['x log ' + fv(GROW, 2) + ' = log 2', 'log of both sides', 0.8], ['x = ' + fx(LG(2), 3) + ' ÷ ' + fx(LG(GROW), 4) + ' ≈ ' + fx(X2, 1), '÷ log ' + fv(GROW, 2), 1.15]] },\n      task: 'Money grows by ' + PCT + '% a year, so after x years it is `' + fv(GROW, 2) + '^x` times the start. How long does it take to double?',\n      why: 'Take log of both sides of `' + fv(GROW, 2) + '^x = 2`. By the power law `x log ' + fv(GROW, 2) + ' = log 2`, so `x = ' + fx(LG(2), 3) + ' ÷ ' + fx(LG(GROW), 4) + ' ≈ ' + fx(X2, 1) + '` years. Each year\\'s ' + PCT + '% is ' + PCT + '% of a bigger amount, so it doubles sooner than the ' + fv(SLIP_ADD, 0) + ' years that adding ' + PCT + '% of the first amount would take. The rule of 72 checks it, `' + RULE72 + ' ÷ ' + PCT + ' = ' + fv(RULE72 / PCT, 1) + '` years, close to the exact ' + fx(X2, 1) + '.',\n      hint: 'Not quite. Take log of both sides, then let the power law bring x down.',\n      hints: { [O7[1]]: 'Not quite. That is log(2 ÷ ' + fv(GROW, 2) + '). The power law gives x × log ' + fv(GROW, 2) + ' = log 2, so divide by log ' + fv(GROW, 2) + '.',\n        [O7[2]]: 'Not quite. That adds ' + PCT + '% of the first amount each year. Growth by ' + PCT + '% a year multiplies by ' + fv(GROW, 2) + ' each year.' } },\n    { show: true, card: 'cool', mach: 'cool', level: C30, name: 'Cooling, last step first',\n      g: { curve: { at: 0.4, dur: 1.0, draw: true }, room: 0.4, level: 1.4, dot: 1.8, drop: 1.8, tagShow: 1.8, tag: { at: 3.7, drop: true } },\n      m: { chips: 0.4, u: [3.25, 2.8, 2.35, 1.9], n: [3.45, 3.0, 2.55, 2.1, 1.4] }, forms: [[COOL, '', 0.4]], dur: 4.4,\n      text: 'Lesson 3\\'s part, at ' + TSTART + ' °C in a ' + TROOM + ' °C room with τ = ' + TAU + ' minutes, follows `' + COOL + '`. When is it at ' + C30 + ' °C? Its machine\\'s last step is + ' + TROOM + ', so the undoing machine takes ' + TROOM + ' away first, `' + C30 + ' − ' + TROOM + ' = ' + (C30 - TROOM) + '`. Then ÷ ' + GAP0 + ' gives ' + fv((C30 - TROOM) / GAP0, 3) + ', ln gives ' + fx(LN((C30 - TROOM) / GAP0), 3) + ', and × (−' + TAU + ') gives about ' + fx(TC30, 1) + ' minutes, just before lesson 3\\'s ' + fx(tempAt(20), 1) + ' °C at 20 minutes.' },\n    { kind: 'pick', card: 'cool', mach: 'cool', level: C30, name: 'The first step here',\n      g: { tag: 0 }, m: { u: [0, 0, 0, R(0.1)], n: [0, 0, 0, R(0.5), 1], rings: [{ row: 'f', i: 1, when: O9[1] }, { row: 'f', i: 3, when: O9[2] }] },\n      notes: [{ text: 'ln would meet the log of a sum, which no law splits', when: O9[1] }, { text: '+ ' + TROOM + ' was done after × ' + GAP0 + ', so it comes off first', when: O9[2] }],\n      opts: O9, want: O9[0], ans: '− ' + TROOM,\n      forms: { before: [[C30 + ' = ' + TROOM + ' + ' + GAP0 + ' ' + E_TAU, '', 0]], right: [[C30 + ' = ' + TROOM + ' + ' + GAP0 + ' ' + E_TAU, '', 0], [(C30 - TROOM) + ' = ' + GAP0 + ' ' + E_TAU, '− ' + TROOM + ' on both sides', 0.9]] },\n      task: 'The part is to reach ' + C30 + ' °C. What is the first step?',\n      why: 'The forward machine ends with + ' + TROOM + ', so the ' + TROOM + ' sits outside everything and comes off first, `' + C30 + ' − ' + TROOM + ' = ' + (C30 - TROOM) + '`. Take ln straight away and you meet `ln(' + TROOM + ' + ' + GAP0 + ' ' + E_TAU + ')`, the log of a sum, which no log law splits, so the power stays stuck inside. Next comes ÷ ' + GAP0 + ', then ln, then × (−' + TAU + ').',\n      hint: 'Not quite. The + ' + TROOM + ' was done last, so it comes off first.',\n      hints: { [O9[1]]: 'Not quite. ln of `' + TROOM + ' + ' + GAP0 + ' ' + E_TAU + '` is the log of a sum, which no log law splits.',\n        [O9[2]]: 'Not quite. The ' + GAP0 + ' multiplied before the ' + TROOM + ' was added, so it comes off second.' } },\n    { show: true, card: 'ruler', name: 'An unknown inside a log',\n      items: [\n        { k: 'bracket', a0: 0, a1: P15, row: 'A', text: 'log x = ' + fv(P15, 1), at: 0.6, dur: 0.8, grow: true },\n        { k: 'cursor', p: P15, at: 1.4 },\n        { k: 'bar', a0: 0, a1: LG(K11), cat: 1, text: 'log ' + fv(K11, 0), at: 2.0, dur: 0.5 },\n        { k: 'bar', a0: LG(K11), a1: LG(K11) + LG(K11 + SH11), cat: 2, text: 'log ' + fv(K11 + SH11, 0), at: 2.5, dur: 0.5 },\n        { k: 'bracket', a0: 0, a1: LG(K11 * (K11 + SH11)), row: 'C', text: 'log ' + fv(K11, 0) + ' + log ' + fv(K11 + SH11, 0) + ' = ' + RHS, at: 3.0 },\n      ],\n      notes: [{ text: fv(D11, 0) + ' has no place: no power of 10 is negative', at: 3.4 }],\n      forms: [['log x = ' + fv(P15, 1) + ', so x = 10^' + fv(P15, 1) + ' ≈ ' + fv(Math.pow(10, P15), 1), '', 1.4], ['x(x + ' + SH11 + ') = ' + TEN, '', 2.2], ['x² + ' + SH11 + 'x − ' + TEN + ' = 0, so (x + ' + fv(-D11, 0) + ')(x − ' + fv(K11, 0) + ') = 0', '− ' + TEN + ' on both sides', 2.7], ['x = ' + fv(K11, 0) + ' only', 'as log(' + fv(D11, 0) + ') does not exist', 3.4]], dur: 4.1,\n      text: 'When the unknown sits inside a log, it is a *logarithmic equation*. Turn the log form into the power form, as in lesson 4. `log x = ' + fv(P15, 1) + '` means x sits ' + fv(P15, 1) + ' spaces along the power ruler, at `10^' + fv(P15, 1) + ' ≈ ' + fv(Math.pow(10, P15), 1) + '`. Two logs added are first joined by the product law, so `log x + log(x + ' + SH11 + ') = ' + RHS + '` becomes `x(x + ' + SH11 + ') = ' + TEN + '`. Take ' + TEN + ' from both sides, `x² + ' + SH11 + 'x − ' + TEN + ' = 0`, and `(x + ' + fv(-D11, 0) + ')(x − ' + fv(K11, 0) + ') = 0` gives ' + fv(K11, 0) + ' or ' + fv(D11, 0) + '. Left of 1 the ruler\\'s numbers shrink towards 0 and never reach it, so it has no place for ' + fv(D11, 0) + ': no power of 10 is negative. So only ' + fv(K11, 0) + ' is a solution. Check it, `log ' + fv(K11, 0) + ' + log ' + fv(K11 + SH11, 0) + ' = ' + RHS + '`.' },\n    { kind: 'pick', card: 'ruler', name: 'Two logs',\n      items: [\n        { k: 'bar', a0: 0, a1: LG(K12), cat: 1, text: 'log ' + fv(K12, 0), when: 'right', at: 0.1, dur: 0.5 },\n        { k: 'bar', a0: LG(K12), a1: LG(K12) + LG(K12 - SH12), cat: 2, text: 'log ' + fv(K12 - SH12, 0), when: 'right', at: 0.6, dur: 0.5 },\n        { k: 'bracket', a0: 0, a1: LG(K12 * (K12 - SH12)), row: 'C', text: 'log ' + fv(K12, 0) + ' + log ' + fv(K12 - SH12, 0) + ' = ' + RHS, when: 'right', at: 1.1 },\n        { k: 'ring', p: 0, when: O11[2] },\n      ],\n      notes: [{ text: fv(D12, 0) + ' has no place: log(' + fv(D12, 0) + ') does not exist', when: O11[1] }, { text: fx(S12, 2) + ' × ' + fx(S12 - SH12, 2) + ' ≈ 1, which sits at log 1 = 0, not ' + RHS, when: O11[2] }],\n      opts: O11, want: O11[0], ans: 'x = ' + fv(K12, 0),\n      forms: { before: [['log x + log(x − ' + SH12 + ') = ' + RHS, '', 0]], right: [['log x + log(x − ' + SH12 + ') = ' + RHS, '', 0], ['x(x − ' + SH12 + ') = ' + TEN + ', so (x − ' + fv(K12, 0) + ')(x + ' + fv(-D12, 0) + ') = 0', '', 0.9], ['x = ' + fv(K12, 0) + ' only', 'as log(' + fv(D12, 0) + ') does not exist', 1.3]] },\n      task: 'Solve `log x + log(x − ' + SH12 + ') = ' + RHS + '`.',\n      why: 'By the product law `log(x(x − ' + SH12 + ')) = ' + RHS + '`, so `x(x − ' + SH12 + ') = ' + TEN + '`, that is `x² − ' + SH12 + 'x − ' + TEN + ' = 0`, or `(x − ' + fv(K12, 0) + ')(x + ' + fv(-D12, 0) + ') = 0`. That gives ' + fv(K12, 0) + ' or ' + fv(D12, 0) + '. ' + fv(D12, 0) + ' would need `log(' + fv(D12, 0) + ')`, which does not exist, so `x = ' + fv(K12, 0) + '` only. Check it, `log ' + fv(K12, 0) + ' + log ' + fv(K12 - SH12, 0) + ' = ' + RHS + '`.',\n      hint: 'Not quite. Join the logs, turn the log form into the power form, then put each root back in.',\n      hints: { [O11[1]]: 'Not quite. ' + fv(D12, 0) + ' needs the log of a negative number, and no power of 10 is negative.',\n        [O11[2]]: 'Not quite. That solves `x(x − ' + SH12 + ') = 1`. A log of ' + RHS + ' means the number inside is `10^' + RHS + ' = ' + TEN + '`.' } },\n    { kind: 'pick', card: 'halve', level: L30, name: 'Halving every ' + HALF + ' s',\n      g: { tag: R(0.5) }, slips: [{ k: 'stick', x: NH30, when: O12[1] }],\n      notes: [{ text: fx(NH30, 2) + ' counts halvings, and each one takes ' + HALF + ' s', when: O12[1] }, { text: V0 + ' ÷ ' + L30 + ' = ' + fx(SLIP_TIMES, 1) + ' counts times smaller, not halvings', when: O12[2] }],\n      opts: O12, want: O12[0], ans: O12[0],\n      forms: { before: [[V0 + ' × ' + fv(HF, 1) + '^(t/' + HALF + ') = ' + L30, '', 0]], right: [[V0 + ' × ' + fv(HF, 1) + '^(t/' + HALF + ') = ' + L30, '', 0], [fv(HF, 1) + '^(t/' + HALF + ') = ' + fv(L30 / V0, 4), U_DIV + ' on both sides', 0.8],\n        ['(t ÷ ' + HALF + ') × log ' + fv(HF, 1) + ' = log ' + fv(L30 / V0, 4), 'log of both sides', 1.15], ['t ÷ ' + HALF + ' = (' + fx(LG(L30 / V0), 3) + ') ÷ (' + fx(LG(HF), 3) + ') ≈ ' + fx(NH30, 2) + ', so t ≈ ' + sec(TH30), '', 1.5]] },\n      task: 'Lesson 1\\'s capacitor starts at ' + V0 + ' V and halves every ' + HALF + ' s, so `v = ' + V0 + ' × ' + fv(HF, 1) + '^(t/' + HALF + ')`. When is it down to ' + L30 + ' V?',\n      why: 'Divide by ' + V0 + ', `' + fv(HF, 1) + '^(t/' + HALF + ') = ' + fv(L30 / V0, 4) + '`. Take log of both sides, and by the power law `(t ÷ ' + HALF + ') × log ' + fv(HF, 1) + ' = log ' + fv(L30 / V0, 4) + '`, so `t ÷ ' + HALF + ' = (' + fx(LG(L30 / V0), 3) + ') ÷ (' + fx(LG(HF), 3) + ') ≈ ' + fx(NH30, 2) + '` halvings, two negatives making a positive, and `t ≈ ' + sec(TH30) + '`, between the 30 and 40 seconds lesson 1 found.',\n      hint: 'Not quite. Divide by ' + V0 + ', take log of both sides, and remember each halving takes ' + HALF + ' s.',\n      hints: { [O12[1]]: 'Not quite. ' + fx(NH30, 2) + ' is the number of halvings. Each one takes ' + HALF + ' s.',\n        [O12[2]]: 'Not quite. ' + V0 + ' ÷ ' + L30 + ' = ' + fx(SLIP_TIMES, 1) + ' says how many times smaller, not how many halvings.' } },\n    { kind: 'pick', card: 'capMin', mach: 'cap', level: L30, name: 'Checking once a minute',\n      g: { tag: R(1.2) }, m: { u: [1, 1, 1], n: [R(0.9), R(0.5), R(0.1), 1] },\n      slips: [{ k: 'mring', i: MIN_EARLY - 1, when: O13[1] }, { k: 'stick', x: LOGSLIP, when: O13[2] }, { k: 'mring', i: MIN_LOG - 1, when: O13[2] }],\n      notes: [{ text: 'at ' + plural(MIN_EARLY, 'minute') + ' it still reads ' + fx(V120, 1) + ' V, above ' + L30 + ' V', when: O13[1] }, { text: '−' + RCs + ' × log ' + fv(L30 / V0, 4) + ' ≈ ' + sec(LOGSLIP) + ' uses log in place of ln', when: O13[2] }],\n      opts: O13, want: O13[0], ans: sec(T30),\n      forms: { before: [[L30 + ' = ' + V0 + ' ' + E_RC, '', 0]], right: [[L30 + ' = ' + V0 + ' ' + E_RC, '', 0], ['t = −' + RCs + ' × ln ' + fv(L30 / V0, 4) + ' ≈ ' + sec(T30), '', 1.3], ['', 'the first check after that is at ' + plural(MIN_OK, 'minute'), 1.65]] },\n      task: 'Back to lesson 3\\'s capacitor, with the level line at ' + L30 + ' V. Checked once a minute, at which check is it first below ' + L30 + ' V?',\n      why: '`' + L30 + ' ÷ ' + V0 + ' = ' + fv(L30 / V0, 4) + '`, `ln ' + fv(L30 / V0, 4) + ' ≈ ' + fx(LN(L30 / V0), 3) + '`, and ' + U_MUL + ' gives ' + sec(T30) + ', just after ' + plural(MIN_EARLY, 'minute') + '. At the ' + MIN_EARLY + '-minute check it still reads ' + fx(V120, 1) + ' V, so the first check below ' + L30 + ' V is at ' + plural(MIN_OK, 'minute') + '. Rounding a waiting time down is the slip to watch for.',\n      hint: 'Not quite. Run the undoing machine on ' + L30 + ' V, then find the first whole-minute check after that time.',\n      hints: { [O13[1]]: 'Not quite. At ' + (MIN_EARLY * 60) + ' s it still reads ' + fx(V120, 1) + ' V, just above ' + L30 + ' V.',\n        [O13[2]]: 'Not quite. That used log in place of ln: `−' + RCs + ' × log ' + fv(L30 / V0, 4) + ' ≈ ' + sec(LOGSLIP) + '`.' } },\n  ];\n  const FINISH = 'To find an unknown power, undo the formula\\'s other steps, last first, until the power stands alone. Then take the log of both sides, and the power law brings the unknown down where you can rearrange for it. The level line on the graph is the check.';\n  const CAPTION = 'Every number is worked out from the rule on screen and rounded as the lesson writes it.';\n  const FADE = 0.35;\n  const FB = [2.4, 1.8];   // how long the motion after a right and a wrong answer plays\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- geometry ----------\n  const GX0 = 40, GX1 = 330, GY0 = 24, GY1 = 150, TAGY = 168, MINY = 186;\n  const RX0 = 115, RU = 105, RX = (p) => RX0 + p * RU;\n  const RY = { title: 16, tb: 34, bb: 56, num: 74, curT: 30, curB: 58, ring: 45, brA: 100, bar: 112, barL: 137, brC: 166, note: 192 };\n  const NUMS = [0.1, 0.2, 0.5, 1, 2, 3, 5, 10, 20, 50, 100], NUM_T = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 2, 3, 4, 5, 6, 7, 8, 9, 20, 30, 40, 50, 60, 70, 80, 90];\n  // the machine's rows: forward chips, the nodes (forward arrows above their middle, undo arrows below), undo chips\n  const CH0 = 4, CHH = 22, NY0 = 32, NH = 30, FY = 41, UY = 53, UC0 = 68;\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note\n  // open; live: Dan has moved the level line, so the demonstration is over.\n  function blank() { return { pick: null, res: null, why: false, live: false }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity;\n  let lastL = null, motionEnd = 0, held = null;\n  let REC = null;   // what the last paint drew, for the checks\n\n  // ---------- text with amber key terms, italic letters and raised powers (K.el, never innerHTML) ----------\n  const ITAL = /((?<![A-Za-z])(?:[txvTk])(?![A-Za-zΩ]))/;\n  const LNW = /(?<![A-Za-z])(ln)(?![A-Za-z])/;\n  function lnKey(parent, s) {\n    String(s).split(LNW).forEach((q, j) => { if (q) parent.appendChild(j % 2 ? K.el('span', { class: 'lnk' }, q) : document.createTextNode(q)); });\n  }\n  function italics(parent, s) {\n    String(s).split(LNW).forEach((q, j) => {\n      if (!q) return;\n      if (j % 2) { parent.appendChild(K.el('span', { class: 'lnk' }, q)); return; }\n      q.split(ITAL).forEach((p, k) => {\n        if (!p) return;\n        parent.appendChild(k % 2 ? K.el('span', { class: 'v' }, p) : document.createTextNode(p));\n      });\n    });\n  }\n  const POW = /\\^(\\([^)]*\\)|[0-9.−]+|[a-z])/;\n  function maths(parent, s) {\n    let rest = String(s), m;\n    while ((m = POW.exec(rest))) {\n      if (m.index) italics(parent, rest.slice(0, m.index));\n      const pw = m[1].charAt(0) === '(' ? m[1].slice(1, -1) : m[1];\n      italics(parent.appendChild(K.el('sup')), pw);\n      rest = rest.slice(m.index + m[0].length);\n    }\n    if (rest) italics(parent, rest);\n  }\n  // A formula keeps each piece whole on one line and may break before its = or ≈, or after a comma;\n  // a short one stays whole, and a lone letter never ends a line before its =.\n  function formula(parent, s) {\n    s = String(s);\n    const bits = s.length <= 24 ? [s] : s.split(/ (?=[=≈] )|(?<=,) /).reduce((acc, c) => {\n      if (acc.length && acc[acc.length - 1].length < 4) acc[acc.length - 1] += ' ' + c; else acc.push(c);\n      return acc;\n    }, []);\n    bits.forEach((c, j) => {\n      if (j) parent.appendChild(document.createTextNode(' '));\n      maths(parent.appendChild(K.el('span', { class: 'nw' })), c);\n    });\n  }\n  // `maths` is a formula; *a key term* is highlighted.\n  function write(el, s) {\n    el.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { formula(el, seg); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at0 = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at0) italics(el, seg.slice(at0, m.index));\n        el.appendChild(K.el('span', { class: 'mark' }, m[1]));\n        at0 = m.index + m[0].length;\n      }\n      if (at0 < seg.length) italics(el, seg.slice(at0));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const levelCtl = K.control({ id: 'level', label: 'Level line, target voltage', min: LMIN, max: LMAX, step: LSTEP, value: LOPEN, unit: 'V', snap: [L30, LOPEN, L200], into: '#ctl' });\n  const nav = document.getElementById('nav');\n  const at = () => stepper.get();\n  const cur = () => ({ level: levelCtl.get() });\n  const openP = (i) => ({ level: STEPS[i].mach === 'cap' ? STEPS[i].level : LOPEN });\n  function remember() { lastL = levelCtl.get(); }\n  // A screen opens on its own setting: its demonstration's level, or its puzzle's.\n  function openStep(i) {\n    const st = S[i];\n    st.live = false;\n    levelCtl.set(openP(i).level, true);\n  }\n  // While a demonstration glides the level line, the slider follows it (quietly, so it is not Dan's move).\n  function syncCtl(i) {\n    const d = STEPS[i], st = S[i];\n    if (!d.live || st.live || !REC || REC.L == null) return;\n    const v = grid5(REC.L);\n    if (levelCtl.get() !== v) levelCtl.set(v, true);\n  }\n\n  // Up to three answer buttons; each step fills in its own. A new choice after a wrong answer\n  // settles the picture back to the question.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; }\n  } }));\n  // Check: marks the answer; a right one runs the picture on, a wrong one shows its slip.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(st.res === 'right' ? FB[0] : FB[1]);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i];\n    if (!d.show || finished) return;\n    openStep(i); remember();\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    syncCtl(at()); remember();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); syncCtl(at()); remember(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = document.getElementById(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing helpers ----------\n  const el = (id) => document.getElementById(id);\n  const scene = el('scene'), mach = el('mach'), art = el('art'), ui = el('ui'), mart = el('mart');\n  let into = null, base = art;\n  const add = (node) => (into || base).appendChild(node);\n  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function arr(t0, d) {\n    d = d == null ? K.SOFT : d;\n    if (t0 + d > latest) latest = t0 + d;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(T, t0, d);\n  }\n  // A demonstration's part: there at once once Dan has taken over.\n  const A = (st, t0, d) => (st.live ? 1 : arr(t0, d));\n  // A part's arrival from its spec (see R and W above).\n  function ar(d, st, s) {\n    if (s == null || s === 1 || s === true) return 1;\n    if (s === 0 || s === false) return 0;\n    if (typeof s === 'number') return d.show ? A(st, s) : 1;\n    const t0 = s.at != null ? s.at : (s.when === 'right' ? 0.1 : 0.3), du = s.dur != null ? s.dur : K.SOFT;\n    if (d.show) return A(st, t0, du);\n    if (s.when === 'right') return st.res === 'right' ? arr(t0, du) : 0;\n    if (s.when) return st.res === 'wrong' && st.pick === s.when ? arr(t0, du) : 0;\n    return 1;\n  }\n  function part(a, rise, draw) {\n    if (!(a > 0)) return null;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g; draw(); into = keep;\n    return g;\n  }\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));\n  const dot = (cls, x, y, r) => add(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r: r || 4.5 }));\n  const poly = (cls, pts) => add(K.svg('polyline', { class: cls, points: pts.map((p) => r3(p[0]) + ',' + r3(p[1])).join(' ') }));\n  const tri = (cls, x, y, dir) => add(K.svg('path', { class: cls, d: 'M' + r3(x) + ' ' + r3(y) + 'L' + r3(x - 6 * dir) + ' ' + r3(y - 4) + 'L' + r3(x - 6 * dir) + ' ' + r3(y + 4) + 'Z' }));\n  function text(x, y, s, cls, anchor) {\n    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    t.textContent = String(s);\n    return add(t);\n  }\n  const wide = () => window.innerWidth > 480;\n  const widths = {};\n  function tw(s, cls) {\n    const key = (wide() ? 'w|' : 'n|') + cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = scene.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));\n    t.textContent = String(s);\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    scene.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 8;\n  }\n  // A long note wraps onto a second line rather than run off the drawing.\n  function wrap(s, cls, maxW) {\n    const words = String(s).split(' '), out = [];\n    let ln = '';\n    words.forEach((w) => { const t = ln ? ln + ' ' + w : w; if (ln && tw(t, cls) > maxW) { out.push(ln); ln = w; } else ln = t; });\n    if (ln) out.push(ln);\n    return out;\n  }\n  const pillBox = (w, x) => { const x0 = K.clamp(x - w / 2, 2, 338 - w); return [x0, x0 + w]; };\n  const apart = (b, x0, x1, gap) => Math.max(b[0] - x1, x0 - b[1]) >= gap;\n  // The red notes along the bottom of a drawing: the slip a wrong answer made, in words.\n  function noteLines(d) { return Math.max(0, ...(d.notes || []).map((n) => wrap(n.text, 'slipt', 332 - (n.sw ? 26 : 0)).length)); }\n  function drawNotes(d, st, y0, said) {\n    (d.notes || []).forEach((n) => {\n      const a = ar(d, st, n);\n      if (!(a > 0)) return;\n      const lines = wrap(n.text, 'slipt', 332 - (n.sw ? 26 : 0)), x = n.sw ? 30 : 4;\n      part(a, 0, () => {\n        if (n.sw) line('slipd', 4, y0 - 4.5, 24, y0 - 4.5);\n        lines.forEach((t, k) => text(x, y0 + 18 * k, t, 'slipt', 'start'));\n      });\n      REC.notes.push(n.text);\n      said.push((n.sw ? 'A dashed line, ' : 'A note, ') + 'marking a slip: ' + say(n.text) + '.');\n    });\n  }\n\n  // ---------- the graph ----------\n  function drawGraph(d, st, P) {\n    const c = CARDS[d.card], g = d.g || {}, said = [];\n    const gx = (v) => GX0 + (v - c.x[0]) / (c.x[1] - c.x[0]) * (GX1 - GX0);\n    const gy = (v) => GY1 - (v - c.y[0]) / (c.y[1] - c.y[0]) * (GY1 - GY0);\n    const liveNow = !!(d.live && st.live);\n    let L = d.level;\n    if (liveNow) L = P.level;\n    else if (d.show && g.glide) L = g.glide.from + (d.level - g.glide.from) * A(st, g.glide.at, g.glide.dur);\n    REC.L = L; REC.Lm = d.mach === 'cap' ? grid5(L) : L;\n    const tc = c.inv(L), xc = gx(tc), yc = gy(L);\n    REC.tc = tc; REC.crossX = xc; REC.crossY = yc;\n    const bottom = c.minutes ? MINY + 6 : TAGY + 6, nl = noteLines(d);\n    REC.H = bottom + (nl ? 10 + 18 * nl : 4);\n    said.push('A graph of ' + c.what + '.');\n\n    // the tag on the time axis under the crossing: '?' until the time is known, or the eye's reading\n    const tagOn = ar(d, st, g.tagShow), solA = ar(d, st, g.tag);\n    const eyeOK = g.eye != null && Math.abs(L - d.level) < 1e-9;\n    const val = c.tfmt(tc), eyeTxt = '≈ ' + EYE75 + ' s';\n    let tagBox = null, tagA = 0, tagDraw = null;\n    if (eyeOK && solA <= 0) {\n      const a = tagOn * ar(d, st, g.eye);\n      if (a > 0) {\n        const w = tw(eyeTxt, 'eyet') + 12, x0 = Math.max(GX0 + 4, xc - 8 - w);\n        tagDraw = () => part(a, 0, () => { rect('eye', x0, GY1 - 21, w, 17, 8.5); text(x0 + w / 2, GY1 - 8.5, eyeTxt, 'eyet'); });\n        REC.tag = a >= 1 ? eyeTxt : null;\n      }\n    } else if (tagOn > 0) {\n      const wq = tw('?', 'tagt') + 10, wv = tw(val, 'tagt') + 14, bq = pillBox(wq, xc), bv = pillBox(wv, xc);\n      tagBox = solA > 0 ? [Math.min(bq[0], bv[0]), Math.max(bq[1], bv[1])] : bq; tagA = tagOn;\n      const rise = g.tag && g.tag.drop ? -10 : 0;\n      tagDraw = () => part(tagOn, 0, () => {\n        if (solA < 1) part(1 - solA, 0, () => { rect('tag', bq[0], TAGY - 13, wq, 18, 9); text((bq[0] + bq[1]) / 2, TAGY, '?', 'tagt'); });\n        if (solA > 0) part(solA, rise, () => { rect('tag', bv[0], TAGY - 13, wv, 18, 9); text((bv[0] + bv[1]) / 2, TAGY, val, 'tagt'); });\n      });\n      REC.tag = solA >= 1 ? val : '?';\n    }\n    REC.tagBox = tagBox; REC.tagX = xc;\n\n    // axes, ticks and their numbers (a number under the tag gives way to it)\n    line('ax', GX0, GY1, GX1, GY1);\n    line('ax', GX0, GY0 - 6, GX0, GY1);\n    c.xt.forEach((v) => line('ax', gx(v), GY1, gx(v), GY1 + 4));\n    c.yt.forEach((v) => line('ax', GX0 - 4, gy(v), GX0, gy(v)));\n    c.yt.forEach((v) => text(GX0 - 7, gy(v) + 4.5, fv(v, 1), 'tk', 'end'));\n    text(4, 12, c.ytitle, 'axt', 'start');\n    c.xt.forEach((v, k) => {\n      const s = fv(v, 1) + (k === c.xt.length - 1 ? c.xu : ''), w = tw(s, 'tk'), x = K.clamp(gx(v), 2 + w / 2, 338 - w / 2);\n      const a = tagBox && tagA > 0 && !apart(tagBox, x - w / 2, x + w / 2, 2) ? 1 - tagA : 1;\n      if (a > 0) part(a, 0, () => text(x, TAGY, s, 'tk', 'middle'));\n      REC.ticks.push({ s, shown: a >= 1 });\n    });\n    if (c.minutes) {\n      c.minutes.forEach((v, k) => {\n        const s = plural(v / 60, 'min').replace('mins', 'min');\n        text(K.clamp(gx(v), 22, 316), MINY, s, 'mint', 'middle');\n        REC.mins.push({ s, x: K.clamp(gx(v), 22, 316) });\n      });\n    }\n\n    // the curve, drawn as time runs on in a demonstration\n    const cA = ar(d, st, g.curve), drawIt = !!(g.curve && g.curve.draw);\n    const xEnd = c.x[0] + (c.x[1] - c.x[0]) * (drawIt ? cA : 1);\n    if (cA > 0 && xEnd > c.x[0]) {\n      const pts = K.linspace(c.x[0], xEnd, 121).map((x) => [gx(x), gy(c.f(x))]);\n      part(drawIt ? 1 : cA, 0, () => poly('curve', pts));\n    }\n    // the room's temperature, which the part cools towards\n    if (c.room != null) {\n      const a = ar(d, st, g.room);\n      part(a, 0, () => { line('room', GX0, gy(c.room), GX1, gy(c.room)); text(GX0 + 6, gy(c.room) + 15, 'room, ' + c.room + ' °C', 'roomt', 'start'); });\n      said.push('A dashed line marks the room at ' + c.room + ' degrees.');\n    }\n    if (c.dots) part(1, 0, () => c.dots.forEach((t) => dot('hdot', gx(t), gy(c.f(t)), 3)));\n\n    // the level line, its label kept clear of the curve and the crossing\n    const lA = ar(d, st, g.level), handle = !!d.live && !finished;\n    const lw = tw('target', 'lvlt');\n    const rightX = handle ? GX1 - 18 - lw : GX1 - 4 - lw, leftX = GX0 + 6;\n    const sides = c.lab === 'left' ? [leftX, rightX] : [rightX, leftX];\n    const clear = (x0) => {\n      if (Math.abs(xc - (x0 + lw / 2)) < lw / 2 + 12) return false;\n      for (let x = x0; x <= x0 + lw; x += 4) { const yv = gy(c.f(c.x[0] + (x - GX0) / (GX1 - GX0) * (c.x[1] - c.x[0]))); if (yv > yc - 22 && yv < yc + 4) return false; }\n      return true;\n    };\n    const lx = sides.find(clear) != null ? sides.find(clear) : sides[0];\n    part(lA, 0, () => {\n      line('lvl', GX0, yc, GX1, yc);\n      if (handle) dot('handle', GX1 - 8, yc, 7);\n      text(lx, yc - 6, 'target', 'lvlt', 'start');\n    });\n    REC.lvlLabel = [lx, lx + lw];\n    // the crossing, and the thin line down to the time axis\n    const dA = ar(d, st, g.dot), drA = ar(d, st, g.drop), grow = !!(g.drop && g.drop.grow);\n    if (drA > 0) part(grow ? 1 : drA, 0, () => line('drop', xc, yc, xc, yc + (GY1 - yc) * (grow ? drA : 1)));\n    if (dA > 0) part(dA, 0, () => dot('dot', xc, yc, 5));\n    if (tagDraw) tagDraw();\n    said.push('The level line, marked target, sits at ' + say(c.lv(L)) + (dA > 0 ? ' and crosses the curve' : '') +\n      (REC.tag === val ? ', above ' + say(val) + ' on the time axis.' : REC.tag === eyeTxt ? ', near ' + EYE75 + ' seconds by eye.' : ', at a time still unknown.'));\n\n    // the slips a wrong answer made, in red\n    (d.slips || []).forEach((it) => {\n      const a = ar(d, st, it);\n      if (!(a > 0)) return;\n      if (it.k === 'sline') part(a, 0, () => poly('slipd', it.pts.map((p) => [gx(p[0]), gy(p[1])])));\n      else if (it.k === 'sdot') part(a, 0, () => { line('slipd', gx(it.x), gy(it.y) + 5, gx(it.x), GY1); dot('slipdot', gx(it.x), gy(it.y), 4.5); });\n      else if (it.k === 'stick') part(a, 0, () => line('slip', gx(it.x), GY1 - 14, gx(it.x), GY1));\n      else if (it.k === 'mring') {\n        const m = REC.mins[it.i], w = tw(m.s, 'mint') + 12;\n        part(a, 0, () => rect('ring', m.x - w / 2, MINY - 15, w, 21, 10));\n      }\n      REC.slips += 1;\n    });\n    drawNotes(d, st, bottom + 16, said);\n    return said.join(' ');\n  }\n\n  // ---------- the machines ----------\n  function machLayout(M) {\n    const key = (wide() ? 'w|' : 'n|') + M.names[1];\n    if (M.lay && M.lay.key === key) return M.lay;\n    const n = M.f.length + 1, w = [];\n    let measured = true;\n    for (let j = 0; j < n; j++) {\n      const cands = M.cand.map((L) => M.vals(L)[j]).concat(['?']);\n      w[j] = Math.max(44, Math.max.apply(null, cands.map((s) => { const q = tw(s, 'nodet'); if (!widths[(wide() ? 'w|' : 'n|') + 'nodet|' + s]) measured = false; return q; })) + 14);\n    }\n    const sum = w.reduce((a, b) => a + b, 0), gap = (334 - sum) / (n - 1), xs = [];\n    let x = 3;\n    for (let j = 0; j < n; j++) { xs.push([x, x + w[j]]); x += w[j] + gap; }\n    const lay = { key, xs, gap };\n    if (measured) M.lay = lay;\n    return lay;\n  }\n  function chip(cls, gc, y0, s) {\n    const tc = cls + 't' + (s === 'ln' ? ' lnk' : ''), w = tw(s, tc) + 14, x0 = K.clamp(gc - w / 2, 2, 338 - w);\n    rect(cls, x0, y0, w, CHH, 11);\n    text(x0 + w / 2, y0 + 15.5, s, tc, 'middle');\n    return [x0, x0 + w];\n  }\n  function drawMach(d, st, L) {\n    const M = MACH[d.mach], m = d.m || {}, lay = machLayout(M), xs = lay.xs, n = xs.length, vals = M.vals(L);\n    const mA = ar(d, st, m.chips);\n    const fBox = [], uBox = [], nBox = xs;\n    REC.nodes = []; REC.uchips = []; REC.fchips = M.f.slice();\n    part(mA, 0, () => {\n      xs.forEach((b, j) => {\n        rect('node', b[0], NY0, b[1] - b[0], NH, 8);\n        const a = ar(d, st, m.n[j]), cx = (b[0] + b[1]) / 2;\n        if (a < 1) part(1 - a, 0, () => text(cx, NY0 + 20, '?', 'nodet'));\n        if (a > 0) part(a, 0, () => text(cx, NY0 + 20, vals[j], 'nodet'));\n        REC.nodes[j] = a >= 1 ? vals[j] : '?';\n      });\n      text((xs[0][0] + xs[0][1]) / 2, CH0 + 15.5, M.names[0], 'name');\n      text((xs[n - 1][0] + xs[n - 1][1]) / 2, CH0 + 15.5, M.names[1], 'name');\n      for (let k = 0; k < n - 1; k++) {\n        const x1 = xs[k][1], x2 = xs[k + 1][0], gc = (x1 + x2) / 2;\n        line('farr', x1 + 2, FY, x2 - 6, FY); tri('farrh', x2 - 1, FY, 1);\n        line('farr', gc, CH0 + CHH, gc, FY);\n        fBox[k] = chip('fchip', gc, CH0, M.f[k]);\n        const a = ar(d, st, m.u[k]);\n        if (a > 0) part(a, 0, () => { line('uarr', x2 - 2, UY, x1 + 6, UY); tri('uarrh', x1 + 1, UY, -1); line('uarr', gc, UY, gc, UC0); uBox[k] = chip('uchip', gc, UC0, M.u[k]); });\n        REC.uchips[k] = a >= 1 ? M.u[k] : null;\n      }\n      if (m.wchip) {\n        const a = ar(d, st, m.wchip), k = m.wchip.i, gc = (xs[k][1] + xs[k + 1][0]) / 2;\n        if (a > 0) { part(a, 0, () => chip('wchip', gc, UC0, m.wchip.text)); REC.slips += 1; }\n      }\n      (m.rings || []).forEach((r) => {\n        const a = ar(d, st, r);\n        if (!(a > 0)) return;\n        const b = r.row === 'n' ? nBox[r.i] : r.row === 'u' ? uBox[r.i] : fBox[r.i], y0 = r.row === 'n' ? NY0 : r.row === 'u' ? UC0 : CH0, h = r.row === 'n' ? NH : CHH;\n        if (b) part(a, 0, () => rect('ring', b[0] - 3, y0 - 3, b[1] - b[0] + 6, h + 6, 12));\n        REC.slips += 1;\n      });\n    });\n    const used = M.u.map((u, k) => REC.uchips[k]).filter(Boolean);\n    return 'The rule as a machine, forwards along the top: ' + M.names[0] + ', then ' + M.f.map(say).join(', then ') + ', giving ' + M.names[1] + '. ' +\n      'The numbers it hands on: ' + REC.nodes.map((s) => (s === '?' ? 'unknown' : say(s))).join(', ') + '. ' +\n      (used.length ? 'The undoing machine along the bottom runs the other way: ' + M.u.slice().reverse().filter((u) => used.indexOf(u) >= 0).map(say).join(', then ') + '.' : 'The undoing machine along the bottom is still empty.');\n  }\n\n  // ---------- the power ruler ----------\n  function bracket(a0, a1, y, s, a, la) {\n    if (!(a > 0)) return;\n    const x0 = RX(a0), x1 = RX(a1), wd = x1 - x0, w = tw(s, 'brt');\n    if (wd < 2) return;\n    let lx, ly;\n    if (w + 12 <= wd) { lx = (x0 + x1) / 2 - w / 2; ly = y - 7; }\n    else { lx = K.clamp(x1 + 6, 4, 336 - w); ly = y + 4.5; }\n    part(a, 0, () => {\n      line('br', x0 + 1, y, x1 - 1, y);\n      line('br', x0 + 1, y - 5, x0 + 1, y + 5); line('br', x1 - 1, y - 5, x1 - 1, y + 5);\n      if (la > 0) part(la, 0, () => text(lx, ly, s, 'brt', 'start'));\n    });\n    if (la >= 1) REC.texts2.push(s);\n  }\n  function drawRuler(d, st) {\n    const said = [], items = d.items || [], nl = noteLines(d);\n    REC.H = RY.note + (nl ? 18 * (nl - 1) + 8 : -10);\n    text(4, RY.title, 'Each number sits at its power of 10', 'axt', 'start');\n    // the left end stays open: going left the numbers shrink towards 0 and never reach it\n    rect('stock', 2, RY.tb, RX(2) - 2, RY.bb - RY.tb, 0);\n    line('edge', 2, RY.tb, RX(2), RY.tb); line('edge', 2, RY.bb, RX(2), RY.bb);\n    [-1, 0, 1, 2].forEach((k) => line('tickb', RX(k), RY.tb, RX(k), RY.bb));\n    text(4, RY.num + 18, '← towards 0', 'mint', 'start');\n    NUM_T.forEach((n) => { const x = RX(LG(n)), len = NUMS.indexOf(n) >= 0 ? 12 : 7; line('ticks', x, RY.bb - len, x, RY.bb); });\n    const cu = items.find((it) => it.k === 'cursor'), cA = cu ? ar(d, st, cu) : 0;\n    const cTxt = cu ? fv(Math.pow(10, cu.p), 1) : '', cW = cu ? tw(cTxt, 'tagt') + 14 : 0, cBox = cu ? pillBox(cW, RX(cu.p)) : null;\n    NUMS.forEach((n) => {\n      const s = String(n), w = tw(s, 'nl'), x = RX(LG(n)), xl = Math.max(x, 3 + w / 2);\n      const a = cBox && cA > 0 && !apart(cBox, xl - w / 2, xl + w / 2, 3) ? 1 - cA : 1;\n      if (a > 0) part(a, 0, () => text(xl, RY.num, s, 'nl', 'middle'));\n      REC.nums.push({ n, x, shown: a >= 1 });\n    });\n    said.push('A power ruler from 0.1 to 100: each number sits at its log, so 10 is one space along, 100 two, and 0.1 one space back from 1. Its left end is open: going left the numbers shrink towards 0 and never reach it.');\n    if (cA > 0) {\n      part(cA, 0, () => { line('cur', RX(cu.p), RY.curT, RX(cu.p), RY.curB); rect('tag', cBox[0], RY.num - 13, cW, 18, 9); text((cBox[0] + cBox[1]) / 2, RY.num, cTxt, 'tagt', 'middle'); });\n      REC.cursor = cA >= 1 ? cTxt : null;\n      said.push('A cursor ' + fv(cu.p, 1) + ' spaces along reads ' + cTxt + '.');\n    }\n    const bars = [];\n    items.forEach((it) => {\n      const a = ar(d, st, it);\n      if (!(a > 0)) return;\n      if (it.k === 'bracket') {\n        const a1 = it.grow ? it.a0 + (it.a1 - it.a0) * a : it.a1;\n        bracket(it.a0, a1, it.row === 'A' ? RY.brA : RY.brC, it.text, it.grow ? 1 : a, it.grow ? K.clamp((a - 0.6) / 0.4, 0, 1) : 1);\n        said.push('A bracket: ' + say(it.text) + '.');\n      } else if (it.k === 'bar') {\n        const x0 = RX(it.a0), x1 = RX(it.a0 + (it.a1 - it.a0) * a);\n        bars.push(it);\n        part(1, 0, () => rect(it.cat === 2 ? 'b2' : 'b1', x0, RY.bar, Math.max(0, x1 - x0), 10, 0));\n        part(a, 0, () => text((RX(it.a0) + RX(it.a1)) / 2, RY.barL, it.text, 'bl', 'middle'));\n        if (a >= 1) REC.texts2.push(it.text);\n        said.push('A bar, ' + say(it.text) + ', end to end with the one before.');\n      } else if (it.k === 'ring') {\n        part(a, 0, () => dot('ring', RX(it.p), RY.ring, 11));\n        REC.slips += 1;\n      }\n    });\n    drawNotes(d, st, RY.note, said);\n    return said.join(' ');\n  }\n\n  // ---------- the drag: the level line follows the finger up and down ----------\n  const grip = ui.appendChild(K.svg('rect', { class: 'grip', x: GX0, y: 12, width: GX1 - GX0 + 8, height: GY1 - 4, 'aria-hidden': 'true' }));\n  grip.style.display = 'none';\n  const gripLive = () => !finished && !!STEPS[at()].live;\n  const levelFromY = (y) => grid5((GY1 - y) / (GY1 - GY0) * V0);\n  function svgPt(e) {\n    const ctm = scene.getScreenCTM();\n    if (!ctm) return null;\n    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());\n  }\n  function setLevel(v) {\n    const st = S[at()];\n    if (st.live && T === Infinity && v === levelCtl.get()) return;\n    if (anim.playing()) anim.pause();\n    T = Infinity; st.live = true;\n    levelCtl.set(v, true);\n    K.reveal();\n  }\n  grip.addEventListener('pointerdown', (e) => {\n    if (!gripLive()) return;\n    const p = svgPt(e);\n    if (!p) return;\n    held = e.pointerId;\n    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the finger while it stays on the graph */ }\n    e.preventDefault();\n    setLevel(levelFromY(p.y));\n  });\n  grip.addEventListener('pointermove', (e) => { if (held === e.pointerId && gripLive()) { const p = svgPt(e); if (p) setLevel(levelFromY(p.y)); } });\n  const letGo = (e) => { if (held === e.pointerId) held = null; };\n  grip.addEventListener('pointerup', letGo);\n  grip.addEventListener('pointercancel', letGo);\n  grip.addEventListener('lostpointercapture', () => { held = null; });\n  function placeGrip(d) {\n    const on = !!d.live && !finished;\n    grip.style.display = on ? '' : 'none';\n    scene.classList.toggle('grab', on);\n  }\n\n  // ---------- one paint: the pictures and the forms under them ----------\n  function writeForms(lines) {\n    const f = el('forms');\n    f.textContent = '';\n    REC.forms = [];\n    lines.forEach((l) => {\n      const sp = f.appendChild(K.el('span', { class: 'fl' }));\n      if (l[0]) formula(sp, l[0]);\n      if (l[1]) sp.appendChild(K.el('span', { class: 'fn' }, l[1]));\n      if (!(l[2] > 0)) { sp.classList.add('wait'); sp.setAttribute('aria-hidden', 'true'); return; }\n      K.fade(sp, l[2], 0);\n      REC.forms.push(l[0]);\n    });\n  }\n  function paint(i, P) {\n    if (i == null) i = at();\n    if (!P) P = cur();\n    const d = STEPS[i], st = S[i];\n    art.textContent = ''; mart.textContent = '';\n    REC = { L: null, Lm: null, tc: null, crossX: null, crossY: null, tag: null, tagBox: null, tagX: null, ticks: [], mins: [], nums: [], cursor: null,\n      nodes: [], uchips: [], fchips: [], notes: [], texts2: [], slips: 0, forms: [], lvlLabel: null, H: 178 };\n    base = art; into = null;\n    const said = d.card === 'ruler' ? drawRuler(d, st) : drawGraph(d, st, P);\n    scene.setAttribute('viewBox', '0 0 340 ' + REC.H);\n    scene.setAttribute('aria-label', said);\n    if (d.mach) {\n      base = mart; into = null;\n      mach.setAttribute('aria-label', drawMach(d, st, REC.Lm));\n    }\n    base = art; into = null;\n    let lines;\n    if (d.show) {\n      const src = typeof d.forms === 'function' ? d.forms(d.live && st.live ? P.level : d.level).map((l, k) => [l[0], l[1], d.formsAt[k]]) : (d.forms || []);\n      lines = src.map((l) => [l[0], l[1], A(st, l[2])]);\n    } else if (st.res === 'right') lines = d.forms.right.map((l) => [l[0], l[1], l[2] ? arr(l[2]) : 1]);\n    else lines = d.forms.before.map((l) => [l[0], l[1], 1]);\n    writeForms(lines);\n    placeGrip(d);\n  }\n\n  // The model the lesson reads: the target as a share of the start, its ln, and the time.\n  K.model((p) => {\n    const share = p.level / V0, lnShare = LN(share);\n    return { share, lnShare, time: -RC * lnShare };\n  });\n\n  write(el('finish'), FINISH);\n  write(el('cap'), CAPTION);\n  K.update(() => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      openStep(i);\n      if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }\n    } else if (d.live && levelCtl.get() !== lastL) {\n      // a drag, the slider or a test moved: the demonstration gives way to Dan's setting\n      st.live = true;\n      if (anim.playing()) anim.pause();\n      T = Infinity;\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    mach.style.display = d.mach ? '' : 'none';\n    el('mkey').hidden = !d.mach;\n    const ctl = el('ctl'), ctlWas = ctl.hidden;\n    ctl.hidden = finished || !d.live;\n    if (ctlWas && !ctl.hidden && typeof levelCtl.fit === 'function') levelCtl.fit();\n    paint(i);\n    syncCtl(i);\n    remember();\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.textContent = '';\n      lnKey(b.el.appendChild(K.el('span')), opts[k]);   // one span, so the button's gap does not split an answer\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Tap one of the answers.' : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const PICKS = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const liveSt = () => Object.assign(blank(), { live: true });\n  const close = (a, b, tol) => Math.abs(a - b) <= (tol != null ? tol : 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)));\n  // A step painted in the state and setting given (finished, or t seconds into its motion): what it draws.\n  function drawn(i, st, P, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t;\n    try {\n      paint(i, P || openP(i));\n      const texts = Array.from(art.querySelectorAll('text')).concat(Array.from(mart.querySelectorAll('text'))).map((q) => q.textContent);\n      return { texts, rec: REC };\n    } finally { S[i] = keepS; T = keepT; }\n  }\n  // Every check repaints the screen Dan is on when it is done.\n  const chk = (label, fn, opt) => K.check(label, () => { try { return fn(); } finally { paint(); } }, opt);\n  const LEVELS = [LMIN, 30, 75, 200, 250, LMAX];\n  const capX = (t) => GX0 + t / 240 * (GX1 - GX0), capY = (v) => GY1 - v / V0 * (GY1 - GY0);\n\n  chk('Since the exponential is isolated, take the logarithm of both sides: at every level tried, dividing by the starting voltage, taking ln and multiplying by minus RC gives a time that, put back into the rule, gives the level again, and the lines on the symbols screen say so', () => {\n    const i = idx('Both sides');\n    return LEVELS.every((L) => {\n      const o = K.at({ level: L }), g = drawn(i, liveSt(), { level: L }).rec;\n      return close(o.share, L / V0, 1e-12) && close(o.lnShare, LN(L / V0), 1e-12) && close(o.time, tCap(L), 1e-9) && close(vCap(o.time), L, 1e-9 * L) &&\n        g.forms.length === 4 && g.forms[1] === shS(L) + ' = ' + E_RC && g.forms[2] === 'ln ' + shS(L) + ' = −t/47' && g.forms[3] === 't = −47 × ln ' + shS(L) + ' ≈ ' + sec(tCap(L));\n    });\n  }, { source: SRC2 });\n  chk('The undoing machine\\'s time lands exactly under the crossing: at every level tried, the tag on the time axis sits under the point where the level line meets the curve, and the machine\\'s numbers are the rule\\'s, from 206.0 s at 5 V to 0.6 s at 395 V', () => {\n    const i = idx('Run it backwards');\n    const ok = LEVELS.every((L) => {\n      const g = drawn(i, liveSt(), { level: L }).rec, v = MACH.cap.vals(L);\n      return g.tag === sec(tCap(L)) && close(g.tagX, g.crossX, 1e-9) && close(g.crossX, capX(tCap(L)), 1e-9) && close(g.crossY, capY(L), 1e-9) &&\n        g.nodes.join('|') === v.join('|') && g.uchips.join('|') === '× (−47)|ln|÷ 400' && g.tagBox[0] >= 2 && g.tagBox[1] <= 338;\n    });\n    return ok && sec(tCap(5)) === '206.0 s' && sec(tCap(395)) === '0.6 s' && MACH.cap.vals(75).join('|') === '78.7 s|−1.674|0.1875|75 V';\n  });\n  chk('IEC 60831 requires discharge to below 75 V within 3 minutes, as a trade page reports it: the undoing machine puts 75 V at 78.7 s, well inside 3 minutes', () =>\n    tCap(IEC_V) < IEC_MIN * 60 && sec(tCap(IEC_V)) === '78.7 s' && drawn(idx('Run it backwards'), blank()).rec.tag === '78.7 s', { source: SRC1 });\n  chk('Terms that cannot be rewritten with a common base are solved by taking the logarithm of each side: the powers of two and the yearly growth come out this way, and each answer put back in gives its target', () => {\n    const g6 = drawn(idx('Any base'), blank()).rec, i7 = idx('Doubling at 5%'), g7 = drawn(i7, solvedSt(i7)).rec;\n    return close(Math.pow(B2, X20), Y20, 1e-9) && fx(X20, 2) === '4.32' && g6.tag === '4.32' && close(Math.pow(GROW, X2), 2, 1e-9) && fx(X2, 1) === '14.2' && g7.tag === '14.2 years' &&\n      g6.forms[2] === 'x = 1.301 ÷ 0.301 ≈ 4.32' && g6.forms[3] === '2^4.32 ≈ 20';\n  }, { source: SRC3 });\n  chk('The rule of 72 checks the doubling time: 72 ÷ 5 = 14.4 years, close to the exact 14.2 years that 1.05ˣ = 2 gives', () =>\n    fv(RULE72 / PCT, 1) === '14.4' && fx(X2, 1) === '14.2' && Math.abs(RULE72 / PCT - X2) < 0.5 && /14\\.4/.test(STEPS[idx('Doubling at 5%')].why), { source: SRC4 });\n  chk('The cooling machine takes off its + 20 first: at 30 °C the undoing machine gives 10, then 0.143, −1.946 and 19.5 minutes, which put back into the rule gives 30 °C; lesson 3\\'s part reads 29.5 °C at 20 minutes', () => {\n    const g = drawn(idx('Cooling, last step first'), blank()).rec;\n    return g.nodes.join('|') === '19.5 min|−1.946|0.143|10|30 °C' && g.uchips.join('|') === '× (−10)|ln|÷ 70|− 20' && g.tag === '19.5 min' &&\n      close(tempAt(tCool(30)), 30, 1e-9) && fx(tempAt(20), 1) === '29.5' && close(g.crossX, GX0 + tCool(30) / 50 * (GX1 - GX0), 1e-9);\n  });\n  chk('The opening screen shows the forward machine with the time unknown, 75 V at its end, and the level line crossing the curve near 80 s by eye', () => {\n    const g = drawn(0, blank()).rec;\n    return g.nodes.join('|') === '?|?|?|75 V' && g.uchips.every((u) => u == null) && g.tag === '≈ 80 s' && g.ticks.every((q) => q.shown) && close(g.crossX, capX(T75), 1e-9) && g.forms[0] === 'v = 400 e^(−t/47)';\n  });\n  chk('Every number follows its rule: 32.6 s to 200 V, 23.5 s at the starting pace; ln 0.5 ≈ −0.693; 1.301 ÷ 0.301 ≈ 4.32; 0.301 ÷ 0.0212 ≈ 14.2 years, 0.280 and 20 years; 10, 0.143, −1.946 and 19.5 minutes; 31.6; 2 and −5, then 5, −2 and 3.30; 3.74 halvings, 37.4 s and 133.3 s; 121.7 s, 31.1 V at 120 s and 52.9 s; and every answer offered is the value its own working gives', () => {\n    const ok = sec(T200) === '32.6 s' && sec(PACE200) === '23.5 s' && fx(LN(0.5), 3) === '−0.693' && fx(LN(2), 3) === '0.693' && fx(LG(Math.E), 3) === '0.434' &&\n      fx(LG(20), 3) === '1.301' && fx(LG(2), 3) === '0.301' && fx(LG(GROW), 4) === '0.0212' && fx(X2, 1) === '14.2' && fx(SLIP_Q, 3) === '0.280' && fv(SLIP_ADD, 0) === '20' &&\n      fv((30 - 20) / 70, 3) === '0.143' && fx(LN(1 / 7), 3) === '−1.946' && fx(TC30, 1) === '19.5' && fv(Math.pow(10, 1.5), 1) === '31.6' &&\n      close(K11, 2, 1e-12) && close(D11, -5, 1e-12) && close(K12, 5, 1e-12) && close(D12, -2, 1e-12) && fx(S12, 2) === '3.30' && fx(S12 - 3, 2) === '0.30' &&\n      fx(NH30, 2) === '3.74' && sec(TH30) === '37.4 s' && fx(SLIP_TIMES, 1) === '13.3' && sec(T30) === '121.7 s' && fx(V120, 1) === '31.1' && sec(LOGSLIP) === '52.9 s' &&\n      MIN_OK === 3 && MIN_EARLY === 2 && MIN_LOG === 1 && fx(LN(0.075), 3) === '−2.590' && EYE75 === 80 && RC === 47;\n    const offered = STEPS[idx('Down to 200 V')].opts.join('|') === '32.6 s|23.5 s|−32.6 s' && STEPS[idx('Doubling at 5%')].opts.join('|') === '14.2 years|0.280|20 years' &&\n      STEPS[idx('Two logs')].opts.join('|') === '5|5 and −2|3.30' && STEPS[idx('Halving every 10 s')].opts.join('|') === '37.4 s|3.7 s|133.3 s' &&\n      STEPS[idx('Checking once a minute')].opts.join('|') === '3 minutes|2 minutes|1 minute' && STEPS[idx('The next line')].opts[0] === 'ln 0.1875 = −t/47';\n    return ok && offered;\n  });\n  const shows = (texts, ans) => texts.some((x) => x === ans || (x.indexOf(ans) === 0 && /\\s/.test(x.charAt(ans.length))));\n  chk('Before an answer, nothing in a puzzle\\'s pictures or lines gives it away, and a right answer shows it', () =>\n    PICKS.every((i) => {\n      const d = STEPS[i], b = drawn(i, blank()), r = drawn(i, solvedSt(i));\n      return !shows(b.texts, d.ans) && !shows(b.rec.forms, d.ans) && (shows(r.texts, d.ans) || shows(r.rec.forms, d.ans));\n    }));\n  chk('Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own and draws its slip in red', () =>\n    PICKS.every((i) => {\n      const d = STEPS[i];\n      return d.opts.length === 3 && d.opts.indexOf(d.want) === 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)) &&\n        d.opts.every((o) => o === d.want || (!!(d.hints && d.hints[o]) && (() => { const g = drawn(i, wrongSt(i, o)).rec; return g.slips + g.notes.length > 0; })()));\n    }));\n  chk('The drag maps the finger back to the same setting: a finger at a level\\'s height sets that level, and the top and bottom of the graph give 395 V and 5 V', () =>\n    LEVELS.every((L) => levelFromY(capY(L)) === L) && levelFromY(0) === LMAX && levelFromY(400) === LMIN && levelFromY(capY(77)) === 75 && levelFromY(capY(78)) === 80);\n  chk('The power ruler puts each number at its log: 10 one space along, 100 two, and 31.6 at 1.5 spaces; log 2 and log 5 end to end land on 10', () => {\n    const g = drawn(idx('An unknown inside a log'), blank()).rec;\n    return g.nums.every((q) => close(q.x, RX(LG(q.n)), 1e-9)) && RX(LG(10)) === RX(1) && RX(LG(100)) === RX(2) && close(RX(LG(0.1)), RX(-1), 1e-9) && g.nums.every((q) => q.n > 0) && g.cursor === '31.6' &&\n      close(LG(2) + LG(5), 1, 1e-12) && g.texts2.indexOf('log 2 + log 5 = 1') >= 0;\n  });\n  chk('Every demonstration has finished arriving within its time (3 to 4.5 s), none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, within 2.5 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; earliest = Infinity;\n      S[i] = st;\n      try { paint(i, openP(i)); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }\n      return timed(i, solvedSt(i), FB[0]) && FB[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB[1]) && FB[1] <= 2.5);\n    });\n    T = keepT;\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "Read the time back",
+  "brief": "The one thing you should see is the undoing machine's time landing exactly under the point where the level line crosses the curve, when you drag the level line to a new target voltage.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Since the exponential is isolated, take the logarithm of both sides: at every level tried, dividing by the starting voltage, taking ln and multiplying by minus RC gives a time that, put back into the rule, gives the level again, and the lines on the symbols screen say so",
+     "ok": true,
+     "source": "https://math.libretexts.org/Bookshelves/Algebra/Intermediate_Algebra_1e_(OpenStax)/10%3A_Exponential_and_Logarithmic_Functions/10.06%3A_Solve_Exponential_and_Logarithmic_Equations"
+    },
+    {
+     "label": "The undoing machine's time lands exactly under the crossing: at every level tried, the tag on the time axis sits under the point where the level line meets the curve, and the machine's numbers are the rule's, from 206.0 s at 5 V to 0.6 s at 395 V",
+     "ok": true
+    },
+    {
+     "label": "IEC 60831 requires discharge to below 75 V within 3 minutes, as a trade page reports it: the undoing machine puts 75 V at 78.7 s, well inside 3 minutes",
+     "ok": true,
+     "source": "https://voltage-disturbance.com/power-quality/capacitor-bank-discharge-methods"
+    },
+    {
+     "label": "Terms that cannot be rewritten with a common base are solved by taking the logarithm of each side: the powers of two and the yearly growth come out this way, and each answer put back in gives its target",
+     "ok": true,
+     "source": "https://openstax.org/books/college-algebra/pages/6-6-exponential-and-logarithmic-equations"
+    },
+    {
+     "label": "The rule of 72 checks the doubling time: 72 ÷ 5 = 14.4 years, close to the exact 14.2 years that 1.05ˣ = 2 gives",
+     "ok": true,
+     "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8386158/"
+    },
+    {
+     "label": "The cooling machine takes off its + 20 first: at 30 °C the undoing machine gives 10, then 0.143, −1.946 and 19.5 minutes, which put back into the rule gives 30 °C; lesson 3's part reads 29.5 °C at 20 minutes",
+     "ok": true
+    },
+    {
+     "label": "The opening screen shows the forward machine with the time unknown, 75 V at its end, and the level line crossing the curve near 80 s by eye",
+     "ok": true
+    },
+    {
+     "label": "Every number follows its rule: 32.6 s to 200 V, 23.5 s at the starting pace; ln 0.5 ≈ −0.693; 1.301 ÷ 0.301 ≈ 4.32; 0.301 ÷ 0.0212 ≈ 14.2 years, 0.280 and 20 years; 10, 0.143, −1.946 and 19.5 minutes; 31.6; 2 and −5, then 5, −2 and 3.30; 3.74 halvings, 37.4 s and 133.3 s; 121.7 s, 31.1 V at 120 s and 52.9 s; and every answer offered is the value its own working gives",
+     "ok": true
+    },
+    {
+     "label": "Before an answer, nothing in a puzzle's pictures or lines gives it away, and a right answer shows it",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own and draws its slip in red",
+     "ok": true
+    },
+    {
+     "label": "The drag maps the finger back to the same setting: a finger at a level's height sets that level, and the top and bottom of the graph give 395 V and 5 V",
+     "ok": true
+    },
+    {
+     "label": "The power ruler puts each number at its log: 10 one space along, 100 two, and 31.6 at 1.5 spaces; log 2 and log 5 end to end land on 10",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within its time (3 to 4.5 s), none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "level"
+   ],
+   "readouts": [],
+   "outputs": [
+    "share",
+    "lnShare",
+    "time"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "steps": [
+      "A known voltage",
+      "Which comes off first?",
+      "Run it backwards",
+      "Down to 200 V",
+      "Both sides",
+      "The next line",
+      "Any base",
+      "Doubling at 5%",
+      "Cooling, last step first",
+      "The first step here",
+      "An unknown inside a log",
+      "Two logs",
+      "Halving every 10 s",
+      "Checking once a minute"
+     ],
+     "value": 0
+    },
+    {
+     "id": "level",
+     "kind": "control",
+     "label": "Level line, target voltage",
+     "min": 5,
+     "max": 395,
+     "step": 5,
+     "log": false,
+     "value": 395,
+     "snap": [
+      30,
+      75,
+      200
+     ]
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [
+    "SVG labels \"20\" and \"25 years\" are touching on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 8, and 1 more setting) [at 340 px wide]"
+   ],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-18T08:04:25.515Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "Calls the target a \"safe voltage\", but the practice rightly says a computed time never shows a capacitor is safe; the time is to a chosen target such as a reported safety limit, so the opening overstates what the method gives."
+   },
+   {
+    "path": "practice.text",
+    "problem": "\"Take away what was added, then divide by what multiplied\" is stated as the fixed order, but it holds only for rules shaped like a + b e^(...); in b(e^(...) + a) the divide comes first. Narrowed so the step follows its own last-first rule."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}
