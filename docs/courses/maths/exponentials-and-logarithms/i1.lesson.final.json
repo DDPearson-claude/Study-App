@@ -1,0 +1,322 @@
+{
+  "iid": "i1",
+  "title": "Growth by multiplying",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the multiplying column's rises growing every step while the adding column's stay the same, so it starts behind and then races past, when you step both columns forward.",
+    "title": "Add or multiply",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on two columns of bars over the same equal steps, numbered 0, 1, 2 and on along the bottom. Both columns start from the same bar. The left column adds a fixed amount each step and the right column multiplies by a fixed factor, each named in its heading (+ 2 each step, × 2 each step); the left column's bars are hatched and the right's are solid. A step button moves both on together, and the rise from each bar to the next is highlighted on top of the bar and written in a pill under it (+ 2, + 2, … on the left; + 1, + 2, + 4, + 8 on the right), so the left column's rises stay equal while the right column's grow, because each one is a fixed share of a bigger bar. Each bar drops a dot onto a graph below, steps along the bottom and the value up the side: the adding dots lie on a straight line and the multiplying dots curve. Sliders set the amount and the factor, and the rule is written beside them as A × bˣ, where A is the start, b the growth factor and x the number of steps. Set the factor below 1 and the right column shrinks each step, by less each time, towards the bottom line but never onto it, because a share of a positive bar is still positive. A switch fills in the curve between the dots, where x is a fraction of a step: half a step multiplies by the square root of the factor, because two half steps must make one whole step. Screen by screen: 1 shows the two columns from 1, adding 2 and doubling, up to step 4. 2 asks you to guess the doubling column at step 10 before it runs there. 3 drops the dots onto the graph and builds A × bˣ, with both sliders free. 4 asks for the bar one step after 48 at × 1.5, with no formula on screen. 5 turns 5% a year into × 1.05 on a £1,000 pot over ten years, beside £50 added each year, and marks where it doubles. 6 asks for the factor for 5%. 7 sets the factor to 0.5 and halves a capacitor's 400 V every 10 seconds, writing it as (1/2)ˣ = 2⁻ˣ. 8 asks what an £8,000 machine is worth after 2 years losing 25% a year. 9 turns on the fill-in switch, marks (0, 1) and (1, b) on the curve and shows why b must be positive. 10 asks for the value half a step on from 100 at × 9. 11 to 13 mix it all: which of x², 2ˣ and 10x is exponential, from their tables at x = 1, 2, 3 and 4; a count of 100 growing 9% a day, after 30 days; and when the 400 V passes 30 V. A puzzle offers three answers, and a wrong pick gets a one-line hint showing where it goes wrong.",
+    "ignores": "The starts, amounts, factors, money, machine values and the capacitor's voltages are example values. Each screen draws its bars to one scale, so a bar too short to see beside one of 1,024 is still not zero. Interest and losses in value come at whole steps, so the filled-in curve between those dots is the rule, not a balance between payments. Real quantities rarely keep exactly the same factor for long: rates change, and growth in the world runs into limits. And a real amount made of whole pieces, such as coins or the electrons on a capacitor, stops fitting the rule once only a few pieces are left, while the rule itself never reaches zero.",
+    "numbers": [
+      {
+        "label": "Both columns start at 1, in steps 1 to 3",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "The left column adds 2 each step, in steps 1 to 3",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "The right column multiplies by 2 each step, in steps 1 to 3",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Doubling column at step 2, behind the adding column's 5, in step 1",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Doubling column at step 3, past the adding column's 7, in step 1",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Step 10 of the adding column, 1 + 10 × 2, in step 2",
+        "value": 21,
+        "kind": "computed"
+      },
+      {
+        "label": "Step 10 of the doubling column, 1 doubled 10 times, in step 2",
+        "value": 1024,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 16 + 6 × 8, keeping the last rise of 8, in step 2",
+        "value": 64,
+        "kind": "computed"
+      },
+      {
+        "label": "Factor slider's opening value, in step 3",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Amount slider's opening value, in step 3",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Bar before the next step, in step 4",
+        "value": 48,
+        "kind": "assumed"
+      },
+      {
+        "label": "Factor per step, in step 4",
+        "value": 1.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "One step on, 48 × 1.5, in step 4",
+        "value": 72,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 48 + 1.5, adding the factor, in step 4",
+        "value": 49.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 48 × 2, doubling instead, in step 4",
+        "value": 96,
+        "kind": "computed"
+      },
+      {
+        "label": "Example savings pot, in pounds, in step 5",
+        "value": 1000,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example growth, in % a year, in step 5",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Factor for 5% a year, 1 + 0.05, in steps 5 and 6",
+        "value": 1.05,
+        "kind": "computed"
+      },
+      {
+        "label": "1,000 × 1.05¹⁰, in pounds, in step 5",
+        "value": 1628.89,
+        "kind": "computed"
+      },
+      {
+        "label": "Adding £50 a year for 10 years, in pounds, in step 5",
+        "value": 1500,
+        "kind": "computed"
+      },
+      {
+        "label": "1.05¹⁴, just short of double, in step 5",
+        "value": 1.98,
+        "kind": "computed"
+      },
+      {
+        "label": "1.05¹⁵, just past double, in step 5",
+        "value": 2.08,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip factors for 5%: × 0.05 and × 5, in step 6",
+        "value": 0.05,
+        "kind": "computed"
+      },
+      {
+        "label": "Course puzzle's start voltage, in volts, in steps 7 and 13",
+        "value": 400,
+        "kind": "assumed"
+      },
+      {
+        "label": "Course puzzle's halving time, in seconds, in steps 7 and 13",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Halving factor, in steps 7 and 13",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "400 × 0.5³ after 30 s, in volts, in steps 7 and 13",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "400 × 0.5⁴ after 40 s, in volts, in steps 7 and 13",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "Example machine value, in pounds, in step 8",
+        "value": 8000,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example loss in value, in % a year, in step 8",
+        "value": 25,
+        "kind": "assumed"
+      },
+      {
+        "label": "8,000 × 0.75², in pounds, in step 8",
+        "value": 4500,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: £2,000 taken off twice, in pounds, in step 8",
+        "value": 4000,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 8,000 × 0.25², in pounds, in step 8",
+        "value": 500,
+        "kind": "computed"
+      },
+      {
+        "label": "√2, the factor for half a step at × 2, in step 9",
+        "value": 1.414,
+        "kind": "computed"
+      },
+      {
+        "label": "A negative factor half a step cannot work for, in step 9",
+        "value": -2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Start before half a step, in step 10",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Factor per whole step, in step 10",
+        "value": 9,
+        "kind": "assumed"
+      },
+      {
+        "label": "Half a step on, 100 × √9, in step 10",
+        "value": 300,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 100 × 4.5, half the factor, in step 10",
+        "value": 450,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: halfway along a straight line from 100 to 900, in step 10",
+        "value": 500,
+        "kind": "computed"
+      },
+      {
+        "label": "x² divided by the one before: 4, 2.25, then 1.78, in step 11",
+        "value": 1.78,
+        "kind": "computed"
+      },
+      {
+        "label": "x² at x = 3, ahead of 2ˣ's 8, in step 11",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Example count at the start, in step 12",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example growth, in % a day, in step 12",
+        "value": 9,
+        "kind": "assumed"
+      },
+      {
+        "label": "100 × 1.09⁷, after a week, in step 12",
+        "value": 183,
+        "kind": "computed"
+      },
+      {
+        "label": "100 + 7 × 9, adding after a week, in step 12",
+        "value": 163,
+        "kind": "computed"
+      },
+      {
+        "label": "100 × 1.09³⁰, after 30 days, in step 12",
+        "value": 1327,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 100 + 30 × 9, adding, in step 12",
+        "value": 370,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: the first week's rise of 83 kept up for 30 days, in step 12",
+        "value": 455,
+        "kind": "computed"
+      },
+      {
+        "label": "Course puzzle's target voltage, in volts, in step 13",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slip: falling 200 V every 10 s reaches 30 V, in seconds, in step 13",
+        "value": 18.5,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Some things grow by adding the same amount on each equal step. Others grow by multiplying by the same number on each step, and that is [[exponential]] change: the output is multiplied by the same factor every time the input goes up by one, and that multiplier is called the [[growth factor]].[^1] Start two columns of bars at 1. The left one adds 2 each step: 1, 3, 5, 7, 9. The right one multiplies by 2: 1, 2, 4, 8, 16. At first the doubling column is behind, 2 against 3 and 4 against 5, so here multiplying starts slowly. But each doubling adds as much as there already is, so its rises go 1, 2, 4, 8 while the left column's stay at 2. By step 10 the left column reads 1 + 10 × 2 = 21, and the right column, 1 doubled 10 times, reads 1,024. A slow start can hide it for longer. Say a count of 100 grows 9% a day. After a week it is about 183, close to the 163 that adding 9 a day gives, but after 30 days it is about 1,327 against 370.\n\nThat is the cause: each step's rise is a fixed share of what is there, so the more there is, the more it grows, and the rate of growth is proportional to the current value.[^2] Write the start as A and the factor as b. After one step you have A × b, after two A × b × b, and after x steps A multiplied by b x times, which is A × bˣ. That is a power, as in Powers and roots, but now the letter is in the power, counting the steps. A percentage change gives the factor just as a multiplier does in Percentages: + 5% is × 1.05, because you keep the whole and add 5%. Say a £1,000 pot grows 5% a year. After 10 years it is 1,000 × 1.05¹⁰ ≈ £1,628.89, more than the £1,500 that adding £50 a year gives, because each year's 5% is taken of a bigger amount. It doubles between years 14 and 15, as 1.05¹⁴ ≈ 1.98 and 1.05¹⁵ ≈ 2.08.\n\nA positive growth rate makes the growth factor larger than 1, and a negative one makes it less than 1,[^3] so the amount shrinks each step, which is called [[decay]]. A 25% cut is × 0.75, and halving is × 0.5. Halving x times is (1/2)ˣ, which is 2⁻ˣ, since b⁻ˣ = (1/b)ˣ as in Powers and roots. Halving from 400 goes 400, 200, 100, 50, 25, losing half of what is left each time, so the drops shrink too: 200, 100, 50, 25. Half of a positive amount is still positive, so the rule takes it ever closer to zero but never to zero. Between the steps the rule still works, with a fraction of a step in the power. Half a step multiplies by √b, because two half steps must make one whole step: √2 ≈ 1.414, and 1.414 × 1.414 ≈ 2, so b^(1/2) = √b, as in Powers and roots. So the curve through the dots bends, rather than running straight from one dot to the next. Every bˣ passes through (0, 1), since b⁰ = 1, and (1, b). And b must be positive: half a step at × −2 would need √−2, and no ordinary number times itself gives −2.\n\nSay a capacitor starts at 400 V and halves every 10 seconds. That is 400 × 0.5ˣ with x counting 10-second steps: 50 V after 30 seconds and 25 V after 40, so it passes 30 V somewhere between. Finding exactly when needs a way to undo a power, which comes in Logarithms (lesson 4) and Solving exponential equations (lesson 6). **Exponential change multiplies by the same growth factor on every equal step,[^1] so a start A becomes A × bˣ after x steps: it grows when b is larger than 1, as × 1.05 does for 5%, and shrinks when b is less than 1.[^3]**"
+  },
+  "analogy": {
+    "text": "Set a photocopier to 150% and copy the copy, again and again. Each copy is 1.5 times the one before, so the picture is 1.5, 2.25, then 3.375 times its first size: the same factor every step, and rises that grow. Set it to 50% and each copy is half the last, smaller and smaller.",
+    "breaks": "A copier makes only whole copies, while A × bˣ also works between the steps. A copier also has a largest and smallest setting and a paper size, so it stops long before the rule would, and a copy too small to print is lost, while the rule never reaches zero."
+  },
+  "practice": {
+    "text": "- Check the steps are equal: every year, every 10 seconds, every stage.\n- Turn the change into a factor: keep the whole and add or take away the change, so + 5% is × 1.05 and a 25% cut is × 0.75.\n- Multiply the start by the factor once for each step, A × bˣ, with the calculator's power key (xʸ or ^).\n- Check the direction: a factor above 1 should give more than you started with, and one below 1 less, but still more than zero.\n\n**Rule of thumb:** The factor is 1 plus the change as a decimal, so 1 + 0.05 for 5% and 1 − 0.15 for a 15% cut. A study of how people misjudge growth suggests teaching a check:[^4] 72 ÷ the percentage gives roughly the steps to double: 72 ÷ 5 = 14.4, close to the 14 to 15 years worked out above.\n\n**Worked example:** Say a £12,000 van loses 15% of its value each year. The factor is 0.85, so after 4 years it is worth 12,000 × 0.85⁴ ≈ £6,264.08. Taking 15% of the first £12,000 each year, £1,800 four times, would wrongly give £4,800.\n\n**Common mistakes**\n- Multiplying by the rate: × 0.05 for 5% keeps only 5% of it. Use × 1.05.\n- Taking the percentage of the first value each step, which is adding, not multiplying: £1,500 instead of £1,628.89 for £1,000 at 5% over 10 years.\n- Thinking two 50% cuts leave nothing. 0.5 × 0.5 = 0.25, so a quarter is left.\n- Judging by the first few steps. 9% a day stays near 9 added a day for a week, then pulls far ahead.\n- Reading between steps along a straight line. Half a step at × 9 is × 3, so 100 becomes 300, not 500."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "5.4.3 Exponential Change: The Growth Factor - Algebra 1 | OpenStax",
+      "url": "https://openstax.org/books/algebra-1/pages/5-4-3-exponential-change-the-growth-factor",
+      "quote": "In an exponential function, the output is multiplied by the same factor every time the input increases by one. The multiplier is called the growth factor ."
+    },
+    {
+      "n": 2,
+      "title": "6.8 Exponential Growth and Decay - Calculus Volume 1 | OpenStax",
+      "url": "https://openstax.org/books/calculus-volume-1/pages/6-8-exponential-growth-and-decay",
+      "quote": "That is, the rate of growth is proportional to the current function value."
+    },
+    {
+      "n": 3,
+      "title": "5.1: Exponential Functions - Mathematics LibreTexts",
+      "url": "https://math.libretexts.org/Courses/Highline_College/Math_111%3A_College_Algebra/05%3A_Exponential_and_Logarithmic_Functions/5.01%3A_Exponential_Functions",
+      "quote": "The graph will grow when the growth rate is positive, which will make the growth factor (b) larger than one. When it is negative, the growth factor will be less than one."
+    },
+    {
+      "n": 4,
+      "title": "Intuition and exponential growth: bias and the roles of parameterization and complexity - PMC",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8386158/",
+      "quote": "They might want to apply the rule of 72 to convert growth rates into doubling times (divide 72 by the growth rate in percent to obtain the approximate doubling time). Educators could teach this heuristic."
+    }
+  ]
+}

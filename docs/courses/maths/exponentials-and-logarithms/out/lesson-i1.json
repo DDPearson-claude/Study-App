@@ -1,0 +1,474 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-18T03:06:10.469Z",
+ "startedAt": "2026-10-18T03:06:10.469Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i1",
+  "title": "Growth by multiplying",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the multiplying column's rises growing every step while the adding column's stay the same, so it starts behind and then races past, when you step both columns forward.",
+   "title": "Add or multiply",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in thirteen small screens on two columns of bars over the same equal steps, numbered 0, 1, 2 and on along the bottom. Both columns start from the same bar. The left column adds a fixed amount each step and the right column multiplies by a fixed factor, each named in its heading (+ 2 each step, × 2 each step); the left column's bars are hatched and the right's are solid. A step button moves both on together, and the rise from each bar to the next is highlighted on top of the bar and written in a pill under it (+ 2, + 2, … on the left; + 1, + 2, + 4, + 8 on the right), so the left column's rises stay equal while the right column's grow, because each one is a fixed share of a bigger bar. Each bar drops a dot onto a graph below, steps along the bottom and the value up the side: the adding dots lie on a straight line and the multiplying dots curve. Sliders set the amount and the factor, and the rule is written beside them as A × bˣ, where A is the start, b the growth factor and x the number of steps. Set the factor below 1 and the right column shrinks each step, by less each time, towards the bottom line but never onto it, because a share of a positive bar is still positive. A switch fills in the curve between the dots, where x is a fraction of a step: half a step multiplies by the square root of the factor, because two half steps must make one whole step. Screen by screen: 1 shows the two columns from 1, adding 2 and doubling, up to step 4. 2 asks you to guess the doubling column at step 10 before it runs there. 3 drops the dots onto the graph and builds A × bˣ, with both sliders free. 4 asks for the bar one step after 48 at × 1.5, with no formula on screen. 5 turns 5% a year into × 1.05 on a £1,000 pot over ten years, beside £50 added each year, and marks where it doubles. 6 asks for the factor for 5%. 7 sets the factor to 0.5 and halves a capacitor's 400 V every 10 seconds, writing it as (1/2)ˣ = 2⁻ˣ. 8 asks what an £8,000 machine is worth after 2 years losing 25% a year. 9 turns on the fill-in switch, marks (0, 1) and (1, b) on the curve and shows why b must be positive. 10 asks for the value half a step on from 100 at × 9. 11 to 13 mix it all: which of x², 2ˣ and 10x is exponential, from their tables at x = 1, 2, 3 and 4; a count of 100 growing 9% a day, after 30 days; and when the 400 V passes 30 V. A puzzle offers three answers, and a wrong pick gets a one-line hint showing where it goes wrong.",
+   "ignores": "The starts, amounts, factors, money, machine values and the capacitor's voltages are example values. Each screen draws its bars to one scale, so a bar too short to see beside one of 1,024 is still not zero. Interest and losses in value come at whole steps, so the filled-in curve between those dots is the rule, not a balance between payments. Real quantities rarely keep exactly the same factor for long: rates change, and growth in the world runs into limits. And a real amount made of whole pieces, such as coins or the electrons on a capacitor, stops fitting the rule once only a few pieces are left, while the rule itself never reaches zero.",
+   "numbers": [
+    {
+     "label": "Both columns start at 1, in steps 1 to 3",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "The left column adds 2 each step, in steps 1 to 3",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "The right column multiplies by 2 each step, in steps 1 to 3",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Doubling column at step 2, behind the adding column's 5, in step 1",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Doubling column at step 3, past the adding column's 7, in step 1",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 10 of the adding column, 1 + 10 × 2, in step 2",
+     "value": 21,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 10 of the doubling column, 1 doubled 10 times, in step 2",
+     "value": 1024,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 16 + 6 × 8, keeping the last rise of 8, in step 2",
+     "value": 64,
+     "kind": "computed"
+    },
+    {
+     "label": "Factor slider's opening value, in step 3",
+     "value": 2,
+     "kind": "control"
+    },
+    {
+     "label": "Amount slider's opening value, in step 3",
+     "value": 2,
+     "kind": "control"
+    },
+    {
+     "label": "Bar before the next step, in step 4",
+     "value": 48,
+     "kind": "assumed"
+    },
+    {
+     "label": "Factor per step, in step 4",
+     "value": 1.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "One step on, 48 × 1.5, in step 4",
+     "value": 72,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 48 + 1.5, adding the factor, in step 4",
+     "value": 49.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 48 × 2, doubling instead, in step 4",
+     "value": 96,
+     "kind": "computed"
+    },
+    {
+     "label": "Example savings pot, in pounds, in step 5",
+     "value": 1000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example growth, in % a year, in step 5",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Factor for 5% a year, 1 + 0.05, in steps 5 and 6",
+     "value": 1.05,
+     "kind": "computed"
+    },
+    {
+     "label": "1,000 × 1.05¹⁰, in pounds, in step 5",
+     "value": 1628.89,
+     "kind": "computed"
+    },
+    {
+     "label": "Adding £50 a year for 10 years, in pounds, in step 5",
+     "value": 1500,
+     "kind": "computed"
+    },
+    {
+     "label": "1.05¹⁴, just short of double, in step 5",
+     "value": 1.98,
+     "kind": "computed"
+    },
+    {
+     "label": "1.05¹⁵, just past double, in step 5",
+     "value": 2.08,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip factors for 5%: × 0.05 and × 5, in step 6",
+     "value": 0.05,
+     "kind": "computed"
+    },
+    {
+     "label": "Course puzzle's start voltage, in volts, in steps 7 and 13",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "Course puzzle's halving time, in seconds, in steps 7 and 13",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Halving factor, in steps 7 and 13",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "400 × 0.5³ after 30 s, in volts, in steps 7 and 13",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "400 × 0.5⁴ after 40 s, in volts, in steps 7 and 13",
+     "value": 25,
+     "kind": "computed"
+    },
+    {
+     "label": "Example machine value, in pounds, in step 8",
+     "value": 8000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example loss in value, in % a year, in step 8",
+     "value": 25,
+     "kind": "assumed"
+    },
+    {
+     "label": "8,000 × 0.75², in pounds, in step 8",
+     "value": 4500,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: £2,000 taken off twice, in pounds, in step 8",
+     "value": 4000,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 8,000 × 0.25², in pounds, in step 8",
+     "value": 500,
+     "kind": "computed"
+    },
+    {
+     "label": "√2, the factor for half a step at × 2, in step 9",
+     "value": 1.414,
+     "kind": "computed"
+    },
+    {
+     "label": "A negative factor half a step cannot work for, in step 9",
+     "value": -2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Start before half a step, in step 10",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Factor per whole step, in step 10",
+     "value": 9,
+     "kind": "assumed"
+    },
+    {
+     "label": "Half a step on, 100 × √9, in step 10",
+     "value": 300,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 100 × 4.5, half the factor, in step 10",
+     "value": 450,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: halfway along a straight line from 100 to 900, in step 10",
+     "value": 500,
+     "kind": "computed"
+    },
+    {
+     "label": "x² divided by the one before: 4, 2.25, then 1.78, in step 11",
+     "value": 1.78,
+     "kind": "computed"
+    },
+    {
+     "label": "x² at x = 3, ahead of 2ˣ's 8, in step 11",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Example count at the start, in step 12",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example growth, in % a day, in step 12",
+     "value": 9,
+     "kind": "assumed"
+    },
+    {
+     "label": "100 × 1.09⁷, after a week, in step 12",
+     "value": 183,
+     "kind": "computed"
+    },
+    {
+     "label": "100 + 7 × 9, adding after a week, in step 12",
+     "value": 163,
+     "kind": "computed"
+    },
+    {
+     "label": "100 × 1.09³⁰, after 30 days, in step 12",
+     "value": 1327,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 100 + 30 × 9, adding, in step 12",
+     "value": 370,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: the first week's rise of 83 kept up for 30 days, in step 12",
+     "value": 455,
+     "kind": "computed"
+    },
+    {
+     "label": "Course puzzle's target voltage, in volts, in step 13",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slip: falling 200 V every 10 s reaches 30 V, in seconds, in step 13",
+     "value": 18.5,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Some things grow by adding the same amount on each equal step. Others grow by multiplying by the same number on each step, and that is [[exponential]] change: the output is multiplied by the same factor every time the input goes up by one, and that multiplier is called the [[growth factor]].[^1] Start two columns of bars at 1. The left one adds 2 each step: 1, 3, 5, 7, 9. The right one multiplies by 2: 1, 2, 4, 8, 16. At first the doubling column is behind, 2 against 3 and 4 against 5, so here multiplying starts slowly. But each doubling adds as much as there already is, so its rises go 1, 2, 4, 8 while the left column's stay at 2. By step 10 the left column reads 1 + 10 × 2 = 21, and the right column, 1 doubled 10 times, reads 1,024. A slow start can hide it for longer. Say a count of 100 grows 9% a day. After a week it is about 183, close to the 163 that adding 9 a day gives, but after 30 days it is about 1,327 against 370.\n\nThat is the cause: each step's rise is a fixed share of what is there, so the more there is, the more it grows, and the rate of growth is proportional to the current value.[^2] Write the start as A and the factor as b. After one step you have A × b, after two A × b × b, and after x steps A multiplied by b x times, which is A × bˣ. That is a power, as in Powers and roots, but now the letter is in the power, counting the steps. A percentage change gives the factor just as a multiplier does in Percentages: + 5% is × 1.05, because you keep the whole and add 5%. Say a £1,000 pot grows 5% a year. After 10 years it is 1,000 × 1.05¹⁰ ≈ £1,628.89, more than the £1,500 that adding £50 a year gives, because each year's 5% is taken of a bigger amount. It doubles between years 14 and 15, as 1.05¹⁴ ≈ 1.98 and 1.05¹⁵ ≈ 2.08.\n\nA positive growth rate makes the growth factor larger than 1, and a negative one makes it less than 1,[^3] so the amount shrinks each step, which is called [[decay]]. A 25% cut is × 0.75, and halving is × 0.5. Halving x times is (1/2)ˣ, which is 2⁻ˣ, since b⁻ˣ = (1/b)ˣ as in Powers and roots. Halving from 400 goes 400, 200, 100, 50, 25, losing half of what is left each time, so the drops shrink too: 200, 100, 50, 25. Half of a positive amount is still positive, so the rule takes it ever closer to zero but never to zero. Between the steps the rule still works, with a fraction of a step in the power. Half a step multiplies by √b, because two half steps must make one whole step: √2 ≈ 1.414, and 1.414 × 1.414 ≈ 2, so b^(1/2) = √b, as in Powers and roots. So the curve through the dots bends, rather than running straight from one dot to the next. Every bˣ passes through (0, 1), since b⁰ = 1, and (1, b). And b must be positive: half a step at × −2 would need √−2, and no ordinary number times itself gives −2.\n\nSay a capacitor starts at 400 V and halves every 10 seconds. That is 400 × 0.5ˣ with x counting 10-second steps: 50 V after 30 seconds and 25 V after 40, so it passes 30 V somewhere between. Finding exactly when needs a way to undo a power, which comes in Logarithms (lesson 4) and Solving exponential equations (lesson 6). **Exponential change multiplies by the same growth factor on every equal step,[^1] so a start A becomes A × bˣ after x steps: it grows when b is larger than 1, as × 1.05 does for 5%, and shrinks when b is less than 1.[^3]**"
+  },
+  "analogy": {
+   "text": "Set a photocopier to 150% and copy the copy, again and again. Each copy is 1.5 times the one before, so the picture is 1.5, 2.25, then 3.375 times its first size: the same factor every step, and rises that grow. Set it to 50% and each copy is half the last, smaller and smaller.",
+   "breaks": "A copier makes only whole copies, while A × bˣ also works between the steps. A copier also has a largest and smallest setting and a paper size, so it stops long before the rule would, and a copy too small to print is lost, while the rule never reaches zero."
+  },
+  "practice": {
+   "text": "- Check the steps are equal: every year, every 10 seconds, every stage.\n- Turn the change into a factor: keep the whole and add or take away the change, so + 5% is × 1.05 and a 25% cut is × 0.75.\n- Multiply the start by the factor once for each step, A × bˣ, with the calculator's power key (xʸ or ^).\n- Check the direction: a factor above 1 should give more than you started with, and one below 1 less, but still more than zero.\n\n**Rule of thumb:** The factor is 1 plus the change as a decimal, so 1 + 0.05 for 5% and 1 − 0.15 for a 15% cut. A study of how people misjudge growth suggests teaching a check:[^4] 72 ÷ the percentage gives roughly the steps to double: 72 ÷ 5 = 14.4, close to the 14 to 15 years worked out above.\n\n**Worked example:** Say a £12,000 van loses 15% of its value each year. The factor is 0.85, so after 4 years it is worth 12,000 × 0.85⁴ ≈ £6,264.08. Taking 15% of the first £12,000 each year, £1,800 four times, would wrongly give £4,800.\n\n**Common mistakes**\n- Multiplying by the rate: × 0.05 for 5% keeps only 5% of it. Use × 1.05.\n- Taking the percentage of the first value each step, which is adding, not multiplying: £1,500 instead of £1,628.89 for £1,000 at 5% over 10 years.\n- Thinking two 50% cuts leave nothing. 0.5 × 0.5 = 0.25, so a quarter is left.\n- Judging by the first few steps. 9% a day stays near 9 added a day for a week, then pulls far ahead.\n- Reading between steps along a straight line. Half a step at × 9 is × 3, so 100 becomes 300, not 500."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "5.4.3 Exponential Change: The Growth Factor - Algebra 1 | OpenStax",
+    "url": "https://openstax.org/books/algebra-1/pages/5-4-3-exponential-change-the-growth-factor",
+    "quote": "In an exponential function, the output is multiplied by the same factor every time the input increases by one. The multiplier is called the growth factor ."
+   },
+   {
+    "n": 2,
+    "title": "6.8 Exponential Growth and Decay - Calculus Volume 1 | OpenStax",
+    "url": "https://openstax.org/books/calculus-volume-1/pages/6-8-exponential-growth-and-decay",
+    "quote": "That is, the rate of growth is proportional to the current function value."
+   },
+   {
+    "n": 3,
+    "title": "5.1: Exponential Functions - Mathematics LibreTexts",
+    "url": "https://math.libretexts.org/Courses/Highline_College/Math_111%3A_College_Algebra/05%3A_Exponential_and_Logarithmic_Functions/5.01%3A_Exponential_Functions",
+    "quote": "The graph will grow when the growth rate is positive, which will make the growth factor (b) larger than one. When it is negative, the growth factor will be less than one."
+   },
+   {
+    "n": 4,
+    "title": "Intuition and exponential growth: bias and the roles of parameterization and complexity - PMC",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8386158/",
+    "quote": "They might want to apply the rule of 72 to convert growth rates into doubling times (divide 72 by the growth rate in percent to obtain the approximate doubling time). Educators could teach this heuristic."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }\n  /* Bars: the adding column and the multiplying column; the part each step adds is highlighted,\n     the part it takes away is a dashed outline. A slip is drawn in the warning colour. */\n  .scene .b-add { fill: url(#hatch); stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene .hbg { fill: var(--k-bg); }\n  .scene .hln { stroke: var(--k-accent2); stroke-width: 1.4; }\n  .scene .b-mul { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene .rise { fill: var(--k-fill2); stroke-width: 1.5; }\n  .scene .rise.add { stroke: var(--k-accent2); }\n  .scene .rise.mul { stroke: var(--k-accent2); }\n  .scene .lost { fill: none; stroke: var(--k-ink); stroke-width: 1.5; stroke-dasharray: 4 3; }\n  .scene .slip { fill: var(--k-warn); fill-opacity: .1; stroke: var(--k-warn); stroke-width: 1.5; stroke-dasharray: 4 3; }\n  .scene .pill { fill: var(--k-fill2); stroke: none; }\n  .scene .pill.lost { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.2; stroke-dasharray: 3 2; }\n  .scene .base, .scene .axis, .scene .tickm { stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .grid { stroke: var(--k-line); stroke-width: 1; }\n  .scene .ref { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 6 4; }\n  .scene .guide { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 3 4; }\n  .scene .chord { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }\n  .scene .chord.bad { stroke: var(--k-warn); }\n  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .band { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1; }\n  .scene .d-add { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .d-mul { fill: var(--k-accent2); }\n  .scene .d-bad { fill: var(--k-warn); }\n  .scene .ring { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2.5; }\n  .scene .rowbox { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene text { font-family: var(--k-font); }\n  .scene .hd { font-size: 14px; font-weight: 700; }\n  .scene .hd.add { fill: var(--k-ink); }\n  .scene .hd.mul { fill: var(--k-accent2); }\n  .scene .vl { font-size: 13px; font-weight: 700; fill: var(--k-ink); }\n  .scene .sl, .scene .tk, .scene .an, .scene .key, .scene .leg, .scene .th { font-size: 13px; fill: var(--k-muted); }\n  .scene .pt { font-size: 13px; font-weight: 600; fill: var(--k-ink); }\n  .scene .q { font-size: 17px; font-weight: 700; fill: var(--k-accent2); }\n  .scene .ml { font-size: 13px; font-weight: 700; fill: var(--k-ink); }\n  .scene .rule { font-size: 14px; font-weight: 700; fill: var(--k-ink); }\n  .scene .sn { font-size: 13px; font-weight: 600; fill: var(--k-ink); }\n  .scene .tc { font-size: 15px; font-weight: 600; fill: var(--k-ink); }\n  .scene .tn { font-size: 15px; font-weight: 700; fill: var(--k-ink); }\n  .scene .tp { font-size: 13px; font-weight: 700; fill: var(--k-accent2); }\n  .scene .tp.mut { font-weight: 400; fill: var(--k-muted); }\n  .scene .bad, .scene .tp.bad { fill: var(--k-warn); }\n  /* A label over lines keeps a halo of the page colour. */\n  .scene .h { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }\n  .scene .v { font-style: italic; }\n  /* The two sliders on the graph screen: a track, ticks, and a knob with its value above. */\n  .scene .track { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }\n  .scene .tick { stroke: var(--k-strong); stroke-width: 2; }\n  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .kl { font-size: 15px; font-weight: 700; fill: var(--k-accent2); }\n  .scene #art * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }\n  .scene .grip:active { cursor: grabbing; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  .replay .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  /* The answers stay on one row, each label whole; longer ones stack one to a row. */\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\" id=\"lead\">Every start, amount, sum of money and voltage here is an example.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 300\" width=\"100%\" role=\"img\" aria-label=\"\"><defs><pattern id=\"hatch\" patternUnits=\"userSpaceOnUse\" width=\"6\" height=\"6\" patternTransform=\"rotate(45)\"><rect class=\"hbg\" x=\"0\" y=\"0\" width=\"6\" height=\"6\"></rect><line class=\"hln\" x1=\"1\" y1=\"0\" x2=\"1\" y2=\"6\"></line></pattern></defs><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\"></p>\n\n<script>\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // bars: columns over the same equal steps (cols), each starting at A; 'add' adds d a step, 'mul'\n  // multiplies by b. n: the last bar there at first; N: the last slot; run: how far a right answer\n  // runs on; ask: the column whose bar at run is asked for; at: a demonstration's timetable (seconds\n  // from the screen opening) for each bar, which grows from the bar before. vlab / rlab: which bars\n  // carry their value and their rise (vlabRun / rlabRun once the answer has run on); else all that fit.\n  // graph: dots at whole steps 0 to n, the step along the bottom and the value up the side; drop: the\n  // dots fall from the bars above. A puzzle: opts, the answers offered; val, the value each one gives;\n  // ans, the words that would give the answer away before Check.\n  const PICK = 'Tap one of the answers.';\n  const KEY_RISE = ['rise', 'rise since the bar before'];\n  const KEY_LOST = ['lost', 'lost since the bar before'];\n  const STEPS = [\n    { show: true, name: 'Add or double', dur: 4.0, key: [KEY_RISE],\n      bars: { cols: ['add', 'mul'], A: 1, d: 2, b: 2, n: 4, N: 4, h: 120, at: [null, 0.5, 1.3, 2.1, 2.9] },\n      text: 'Both columns start at 1. The left adds 2 each step: 1, 3, 5, 7, 9. The right multiplies by 2: 1, 2, 4, 8, 16. That is *exponential* change, the same *growth factor* each equal step. The highlighted tops are the rises: 2 every time on the left, growing on the right, because each doubling adds as much as is there. So it starts behind, then passes at step 3.' },\n    { kind: 'pick', name: 'Guess step 10', key: [KEY_RISE], whyAfter: true,\n      bars: { cols: ['add', 'mul'], A: 1, d: 2, b: 2, n: 4, N: 10, run: 10, ask: 'mul', gap: 0.15, h: 120, slip: false,\n        xl: (k) => (k % 2 ? '' : String(k)), vlab: [0, 4], rlab: [4], vlabRun: [0, 4, 10], rlabRun: [4, 10] },\n      opts: ['64', '1,024', '21'], want: '1,024', ans: '1,024',\n      task: 'Keep both columns going to step 10. The left one will read `1 + 10 × 2 = 21`. Guess first: what will the doubling column read?',\n      why: 'Ten steps make ten doublings, so the right column reads 1 doubled 10 times, 1,024. Its last rise alone is 512, while the left column still rises by 2 a step.',\n      hint: 'Not quite. Keep doubling 16 until step 10.',\n      hints: { '21': 'Not quite. That is the adding column. Each doubling adds as much as is there, so the rises keep growing.',\n        '64': 'Not quite. That keeps adding the last rise, 8. The rises keep doubling: 16, 32 and on.' } },\n    { show: true, name: 'Dots on a graph', dur: 3.6, sliders: true,\n      key: [['rise', 'rise'], ['lost', 'lost'], ['add', 'adding'], ['mul', 'multiplying']],\n      bars: { cols: ['add', 'mul'], A: 1, d: 2, b: 2, n: 5, N: 5, h: 76 },\n      graph: { n: 5, ticks: [0, 1, 2, 3, 4, 5], xname: 'steps', yname: 'value', h: 116, series: 'bars', drop: { t0: 0.5, gap: 0.45 } },\n      text: 'Each bar drops a dot onto the graph, its step along the bottom and its value up the side. The adding dots lie on a straight line, and the multiplying dots curve upwards. Write the start as `A` and the factor as `b`. After one step you have `A × b`, after two `A × b × b`, and after `x` steps `A × bˣ`. Slide the amount and the factor.' },\n    { kind: 'pick', name: 'One step on', key: [KEY_RISE],\n      bars: { cols: ['mul'], A: 48, b: 1.5, n: 0, N: 1, run: 1, ask: 'mul', h: 120, xl: ['now', 'one step on'] },\n      opts: ['49.5', '96', '72'], want: '72', val: { '49.5': 48 + 1.5, '96': 48 * 2, '72': 48 * 1.5 }, ans: '72',\n      task: 'A bar is 48, and each step multiplies it by 1.5. What is the bar one step on?',\n      why: '× 1.5 keeps the whole 48 and adds half of it, 24. So the next bar is `48 × 1.5 = 72`. The rise is a share of the bar, so a bigger bar would rise by more.',\n      hint: 'Not quite. Multiply the whole bar by 1.5.',\n      hints: { '49.5': 'Not quite. That adds 1.5. A factor multiplies the whole bar.',\n        '96': 'Not quite. That doubles it. × 1.5 keeps the whole and adds half.' } },\n    { show: true, name: '5% a year', dur: 4.2, key: [['add', 'adding £50 a year'], ['mul', 'growing 5% a year']],\n      bars: { cols: ['add', 'mul'], A: 1000, d: 50, b: 1.05, n: 10, N: 10, h: 80, prefix: '£', rises: false, vlab: [0, 10],\n        xl: (k) => (k % 5 ? '' : String(k)), head: { add: '+ £50 each year', mul: '× 1.05 each year' } },\n      graph: { n: 15, ticks: [0, 5, 10, 15], tl: ['0', '5', '10', '15 years'], yname: 'pounds', yprefix: '£', h: 130, ymax: 2800,\n        yticks: [0, 500, 1000, 1500, 2000, 2500], series: 'bars', upto: 15, drop: { t0: 0.5, gap: 0.13 },\n        line: { y: 2000, label: 'double, £2,000', pos: 'below', t: 2.9 },\n        band: { x0: 14, x1: 15, label: 'doubles between years 14 and 15', t: 3.6 } },\n      text: 'A percentage gives the factor. Growing 5% keeps the whole and adds 5%, so each year is × 1.05. Say a £1,000 pot grows 5% a year, beside one with £50 added each year. After 10 years it is `1,000 × 1.05¹⁰ ≈ £1,628.89` against £1,500, because each 5% is taken of a bigger amount. Run on, it doubles between years 14 and 15.' },\n    { kind: 'pick', name: 'The factor for 5%', key: [KEY_RISE],\n      bars: { cols: ['mul'], A: 1000, b: 1.05, n: 0, N: 1, run: 1, ask: 'mul', h: 120, prefix: '£', xl: ['year 0', 'year 1'], head: { mul: 'A year of 5% growth' } },\n      opts: ['× 0.05', '× 1.05', '× 5'], want: '× 1.05', val: { '× 0.05': 1000 * 0.05, '× 1.05': 1000 * 1.05, '× 5': 1000 * 5 }, ans: '£1,050',\n      task: 'A £1,000 pot grows 5% a year. What does each year multiply it by?',\n      why: 'You keep the whole pot, 1, and add 5%, 0.05, so each year is `× 1.05`. £1,000 becomes £1,050 after one year.',\n      hint: 'Not quite. Keep the whole, 1, and add 5%.',\n      hints: { '× 0.05': 'Not quite. × 0.05 keeps only 5% of the pot. Keep the whole and add 5%.',\n        '× 5': 'Not quite. × 5 makes it five times as big. 5% is 0.05 of the pot.' } },\n    { show: true, name: 'Halving', dur: 4.0, key: [KEY_LOST],\n      bars: { cols: ['mul'], A: 400, b: 0.5, n: 5, N: 5, h: 130, zero: '0 V', xl: (k) => 10 * k + ' s', head: { mul: 'Volts, × 0.5 every 10 s' },\n        at: [null, 0.5, 1.1, 1.7, 2.3, 2.9] },\n      text: 'A factor below 1 shrinks the bar each step, which is called *decay*. Say a capacitor starts at 400 V and halves every 10 seconds, × 0.5 a step: 400, 200, 100, 50, 25. Halving `x` times is `(1/2)ˣ`, which is `2⁻ˣ`, since `b⁻ˣ = (1/b)ˣ` as in Powers and roots. The drops shrink too, because each is half of what is left. Half of a positive amount is still positive, so the rule gets ever closer to 0 V but never reaches it.' },\n    { kind: 'pick', name: 'Losing value', key: [KEY_LOST],\n      bars: { cols: ['mul'], A: 8000, b: 0.75, n: 0, N: 2, run: 2, ask: 'mul', gap: 0.6, h: 120, prefix: '£', xl: ['year 0', 'year 1', 'year 2'], head: { mul: 'Losing 25% each year' } },\n      opts: ['£4,000', '£4,500', '£500'], want: '£4,500', val: { '£4,000': 8000 - 2 * 2000, '£4,500': 8000 * 0.75 * 0.75, '£500': 8000 * 0.25 * 0.25 }, ans: '£4,500',\n      task: 'An £8,000 machine loses 25% of its value each year. What is it worth after 2 years?',\n      why: 'Losing 25% keeps 75%, so each year is × 0.75. `8,000 × 0.75 = 6,000`, then `6,000 × 0.75 = 4,500`. The second loss, £1,500, is smaller than the first, £2,000, because it is a share of less.',\n      hint: 'Not quite. Losing 25% keeps 75% each year.',\n      hints: { '£4,000': 'Not quite. That takes £2,000 off twice. The second year\\'s 25% is of £6,000, so it takes less.',\n        '£500': 'Not quite. × 0.25 keeps only 25%. Losing 25% keeps 75%, × 0.75.' } },\n    { show: true, name: 'Between the steps', dur: 4.0, fill: true,\n      key: [['mul', 'whole steps'], ['curve', 'the rule, 1 × 2ˣ'], ['chord', 'straight from dot to dot']],\n      graph: { n: 3, ticks: [0, 1, 2, 3], xname: 'steps', yname: 'value', h: 170, ymax: 9, yticks: [0, 2, 4, 6, 8],\n        series: [{ kind: 'mul', A: 1, b: 2, upto: 3 }], dotsAt: [0.5, 0.8, 1.1, 1.4], curve: true },\n      text: 'The rule works between the steps too. Half a step multiplies by `√b`, because two half steps must make one whole step, so `b^(1/2) = √b`, as in Powers and roots. At × 2 that is `√2 ≈ 1.414`, and `1.414 × 1.414 ≈ 2`. So the curve bends, rather than running straight from dot to dot, and like every `bˣ` it passes through (0, 1) and (1, `b`). This is why `b` must be positive: half a step at × −2 would need `√−2`, and no ordinary number times itself gives −2.' },\n    { kind: 'pick', name: 'Half a step', key: [['mul', 'whole steps'], ['curve', 'the rule, 100 × 9ˣ']],\n      graph: { n: 1, ticks: [0, 0.5, 1], tl: ['0', '½', '1'], xname: 'steps', yname: 'value', h: 150, ymax: 1000, yticks: [0, 200, 400, 600, 800, 1000],\n        series: [{ kind: 'mul', A: 100, b: 9, upto: 1 }], ask: 0.5, curve: true,\n        dlab: [{ s: 0, k: 0, dx: 9, dy: 5, anchor: 'start' }, { s: 0, k: 1, dx: -9, dy: 5, anchor: 'end' }] },\n      opts: ['500', '300', '450'], want: '300', val: { '500': (100 + 900) / 2, '300': 100 * Math.sqrt(9), '450': 100 * (9 / 2) }, ans: '300',\n      task: 'A value of 100 grows × 9 each whole step, so it is 900 one step on. What is it half a step on?',\n      why: 'Half a step multiplies by `√9 = 3`, because two half steps, × 3 and then × 3, make the whole × 9. So 100 becomes 300 halfway, and 900 after the whole step.',\n      hint: 'Not quite. Two half steps must make the whole × 9.',\n      hints: { '450': 'Not quite. That multiplies by half the factor, 4.5. Two half steps of × 4.5 make × 20.25, not × 9.',\n        '500': 'Not quite. That is halfway along a straight line from 100 to 900. The rule\\'s curve bends below it.' } },\n    { kind: 'pick', name: 'Which is exponential?', table: true,\n      opts: ['x²', '10x', '2ˣ'], want: '2ˣ', ans: '× 2',\n      task: 'Three rules, worked out at `x` = 1, 2, 3 and 4. Which one is exponential?',\n      why: 'Exponential means the same factor on each equal step, not fast growth: at `x` = 3, `x²` is ahead, 9 against 8, and at 4 they are level. Divide each value by the one before: `2ˣ` gives 2 every time. `x²` gives 4, 2.25, then 1.78, and `10x` adds 10 each step.',\n      hint: 'Not quite. Look for the same factor on every step.',\n      hints: { 'x²': 'Not quite. Divide each value of `x²` by the one before: 4, 2.25, then 1.78. The factor keeps changing.',\n        '10x': 'Not quite. `10x` adds 10 each step, the same rise every time.' } },\n    { kind: 'pick', name: '9% a day', key: [['add', 'adding 9 a day'], ['mul', 'growing 9% a day']],\n      graph: { n: 30, ticks: [0, 10, 20, 30], tl: ['0', '10', '20', '30 days'], yname: 'count', h: 150, dp: 0, gap: 0.035,\n        series: [{ kind: 'add', A: 100, d: 9, upto: 7, run: 30 }, { kind: 'mul', A: 100, b: 1.09, upto: 7, run: 30 }], ask: 30,\n        dlab: [{ s: 1, k: 7, dx: -7, dy: -8, anchor: 'end', when: 'before' }, { s: 0, k: 7, dx: 7, dy: 17, anchor: 'start', when: 'before' },\n          { s: 1, k: 30, dx: -8, dy: -9, anchor: 'end', when: 'after', t: 1.3 }, { s: 0, k: 30, dx: 4, dy: -10, anchor: 'end', when: 'after', t: 1.3 }] },\n      opts: ['370', '1,327', '455'], want: '1,327', ans: '1,327',\n      val: { '370': 100 + 30 * 9, '1,327': 100 * Math.pow(1.09, 30), '455': 100 + (100 * Math.pow(1.09, 7) - 100) * 30 / 7 },\n      task: 'A count of 100 grows 9% a day. After a week it is about 183, close to the 163 that adding 9 a day gives. About how big is it after 30 days?',\n      why: 'Each day multiplies by 1.09, so after 30 days it is `100 × 1.09³⁰ ≈ 1,327`. A week in, it is close to adding, 183 against 163, but by day 30 it is far ahead, 1,327 against 370.',\n      hint: 'Not quite. Each day multiplies by 1.09.',\n      hints: { '370': 'Not quite. That adds 9 a day. Each day\\'s 9% is of a bigger count.',\n        '455': 'Not quite. That keeps the first week\\'s rise of 83 going. The rises keep growing.' } },\n    { kind: 'pick', name: 'Passing 30 V', key: [['mul', 'halving every 10 s']],\n      graph: { n: 6, ticks: [0, 1, 2, 3, 4, 5, 6], tl: (v) => 10 * v + ' s', yname: 'volts', yunit: ' V', h: 170, ymax: 440, yticks: [0, 100, 200, 300, 400], gap: 0.15,\n        series: [{ kind: 'mul', A: 400, b: 0.5, upto: 0, run: 6 }], line: { y: 30, label: '30 V', pos: 'above' },\n        band: { x0: 3, x1: 4, label: 'passes 30 V between 30 s and 40 s', after: true, t: 1.5 },\n        dlab: [{ s: 0, k: 0, dx: 9, dy: 5, anchor: 'start' }, { s: 0, k: 3, dx: 7, dy: -9, anchor: 'start', when: 'after', t: 1.2 },\n          { s: 0, k: 4, dx: 7, dy: -9, anchor: 'start', when: 'after', t: 1.2 }] },\n      opts: ['At 18.5 s', 'Between 30 s and 40 s', 'Never'], want: 'Between 30 s and 40 s', ans: 'passes 30 V between 30 s and 40 s',\n      task: 'The capacitor starts at 400 V and halves every 10 seconds. When does it pass 30 V?',\n      why: '`400 × 0.5ˣ`, with `x` counting 10-second steps, gives 50 V after 30 s and 25 V after 40 s. 30 V lies between, so it passes 30 V between 30 s and 40 s. Finding exactly when needs a way to undo a power, which comes in Logarithms (lesson 4) and Solving exponential equations (lesson 6).',\n      hint: 'Not quite. Halve 400 a step at a time.',\n      hints: { 'At 18.5 s': 'Not quite. That falls 200 V every 10 s, as adding would. Halving takes less off each time.',\n        'Never': 'Not quite. The rule never reaches 0 V, but it does pass 30 V. Halve 400 a few times.' } },\n  ];\n  const FINISH = 'Exponential change multiplies by the same growth factor on every equal step, so a start `A` becomes `A × bˣ` after `x` steps. It grows when `b` is larger than 1, as × 1.05 does for 5%, and shrinks when `b` is less than 1, ever closer to zero but never reaching it.';\n  const CAPTION = 'Multiplying by the same factor `b` each equal step gives `A × bˣ`, growth above 1 and decay below.';\n  // Sources the checks restate (the lesson's own).\n  const SRC_GF = 'https://openstax.org/books/algebra-1/pages/5-4-3-exponential-change-the-growth-factor';\n  const SRC_CALC = 'https://openstax.org/books/calculus-volume-1/pages/6-8-exponential-growth-and-decay';\n  const SRC_LIBRE = 'https://math.libretexts.org/Courses/Highline_College/Math_111%3A_College_Algebra/05%3A_Exponential_and_Logarithmic_Functions/5.01%3A_Exponential_Functions';\n  // The sliders on the graph screen, and where their tracks run.\n  const SL = [\n    { id: 'amt', name: 'Amount added', min: 0, max: 5, step: 1, def: 2, ticks: [0, 1, 2, 3, 4, 5], fmt: (v) => '+ ' + fv(v) },\n    { id: 'fac', name: 'Growth factor b', min: 0.5, max: 3, step: 0.05, def: 2, ticks: [0.5, 1, 1.5, 2, 2.5, 3], fmt: (v) => '× ' + fv(v) },\n  ];\n  const SX0 = 142, SX1 = 318;\n  // The graph's frame and where its dots run.\n  const GX0 = 54, GX1 = 330, PX0 = 66, PX1 = 318;\n  const FADE = 0.35;\n  const FB = [2.2, 1.2];   // how long the motion after a right and a wrong answer plays\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- numbers ----------\n  // At most dp decimals, trailing zeros dropped, thousands with commas, a true minus sign.\n  function fv(v, dp) {\n    if (dp == null) dp = 2;\n    const f = Math.pow(10, dp);\n    let r = Math.round(v * f) / f;\n    if (r === 0) r = 0;\n    let s = Math.abs(r).toFixed(dp);\n    if (dp > 0) s = s.replace(/0+$/, '').replace(/\\.$/, '');\n    const p = s.split('.');\n    p[0] = p[0].replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',');\n    return (r < 0 ? '−' : '') + p.join('.');\n  }\n  // The rule: the adding column is A + x × d, the multiplying column A × bˣ.\n  const valOf = (s, x) => (s.kind === 'add' ? s.A + x * s.d : s.A * Math.pow(s.b, x));\n  // As a screen reader says it.\n  const SUP = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9' };\n  const say = (s) => String(s == null ? '' : s)\n    .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g, (m) => (m === '²' ? ' squared' : ' to the power ' + m.split('').map((c) => SUP[c]).join('')))\n    .replace(/ˣ/g, ' to the power x').replace(/√/g, 'root ').replace(/≈/g, ' is about ').replace(/×/g, ' times ')\n    .replace(/−/g, 'minus ').replace(/\\+/g, ' plus ').replace(/=/g, ' equals ').replace(/½/g, 'half').replace(/\\s+/g, ' ').trim();\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // amt, fac: the sliders (null until moved); fill: the curve between the dots on; refill: it is filling in again.\n  function blank() { return { pick: null, res: null, why: false, amt: null, fac: null, fill: true, refill: false }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  const slv = (st, id) => (st[id] != null ? st[id] : SL.find((s) => s.id === id).def);\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion\n  let motionEnd = 0;\n  let REC = null;                                                        // what the last paint drew, for the checks\n\n  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------\n  // The letters A, b and x standing for numbers are italic, and so is the power ˣ.\n  const ITAL = /((?<![A-Za-z])[Abx](?![A-Za-z])|ˣ)/;\n  function italics(parent, s, inSvg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));\n    });\n  }\n  // `maths` stays on one line with its letters italic; *a key term* is highlighted.\n  function write(el, s) {\n    el.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at0 = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at0) el.appendChild(document.createTextNode(seg.slice(at0, m.index)));\n        el.appendChild(K.el('span', { class: 'term' }, m[1]));\n        at0 = m.index + m[0].length;\n      }\n      if (at0 < seg.length) el.appendChild(document.createTextNode(seg.slice(at0)));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = document.getElementById('nav');\n  const at = () => stepper.get();\n\n  // Up to three answer buttons; each step fills in its own. A new choice after a wrong answer\n  // settles the picture back to the question.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  // Check: marks the answer; a right one runs the picture on, a wrong one shows its slip.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(st.res === 'right' ? FB[0] : FB[1]);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  // The switch on the in-between screen: the curve between the dots, on or off.\n  const switchBtn = K.button({ label: 'Fill in the curve', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()], st = S[at()];\n    if (!d.fill || finished) return;\n    st.fill = !st.fill;\n    if (st.fill) { st.refill = true; play(1.9); } else { anim.pause(); T = Infinity; }\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()], st = S[at()];\n    if (!d.show || finished) return;\n    st.fill = true; st.refill = false;\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = document.getElementById(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');\n  let into = null;\n  const add = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function arr(t0, d) {\n    d = d == null ? K.SOFT : d;\n    if (t0 + d > latest) latest = t0 + d;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(T, t0, d);\n  }\n  // A timetable entry: false, not shown; null, there from the start; a time, arriving then.\n  const vis = (t) => (t === false ? 0 : t == null ? 1 : arr(t));\n  function part(a, rise, draw) {\n    if (a <= 0) return null;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g; draw(); into = keep;\n    return g;\n  }\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));\n  const dot = (cls, x, y, r) => add(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r: r || 4 }));\n  function text(x, y, s, cls, anchor, ital) {\n    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    if (ital) italics(t, s, true); else t.textContent = String(s);\n    return add(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));\n    t.textContent = String(s);\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 7.6;\n  }\n  // A label as near as it can sit to centre c, kept inside lo..hi.\n  function textC(c, y, s, cls, lo, hi, ital) { const w = tw(s, cls); return text(K.clamp(c - w / 2, lo, hi - w), y, s, cls, 'start', ital); }\n  // Do labels in a row, each centred where it wants and kept inside lo..hi, all keep 4 apart?\n  function fits(items, lo, hi) {\n    let right = -Infinity;\n    for (const it of items) {\n      const l = K.clamp(it.c - it.w / 2, lo, hi - it.w);\n      if (l < right + 4) return false;\n      right = l + it.w;\n    }\n    return true;\n  }\n  const ends = (list) => [list[0], list[list.length - 1]].filter((k, j, a) => k != null && a.indexOf(k) === j);\n\n  // ---------- each step's sizes ----------\n  const GEO = new Map();\n  function geo(d) {\n    if (GEO.has(d)) return GEO.get(d);\n    const G = {};\n    let y = 4;\n    if (d.sliders) { G.sl = [y + 34, y + 84]; y += 104; G.ruleY = y + 12; G.legY = y + 31; y += 40; }\n    if (d.bars) {\n      const c = d.bars, h = c.h || 110;\n      G.bars = { headY: y + 15, top: y + 40, base: y + 40 + h };\n      G.bars.stepY = G.bars.base + 17;\n      y = c.rises === false ? G.bars.stepY + 8 : G.bars.base + 50;\n    }\n    if (d.graph) {\n      const gc = d.graph;\n      y += 6;\n      G.graph = { top: y + 26, bot: y + 26 + gc.h };\n      G.graph.tickY = G.graph.bot + 18;\n      G.graph.nameY = G.graph.bot + 36;\n      y = (gc.xname || gc.band ? G.graph.nameY : G.graph.tickY) + 8;\n    }\n    if (d.table) { G.table = y + 4; y += 206; }\n    if (d.key && d.key.length) { G.keyY = y + 14; G.keyRows = keyLayout(d.key).length; y += 20 * G.keyRows + 6; }\n    G.H = Math.ceil(y + 4);\n    GEO.set(d, G);\n    return G;\n  }\n  // The step's bars and graph with the sliders' settings in place.\n  function eff(d, st) {\n    const c = d.bars ? Object.assign({}, d.bars) : null;\n    if (c && d.sliders) { c.d = slv(st, 'amt'); c.b = slv(st, 'fac'); }\n    const g = d.graph ? Object.assign({}, d.graph) : null;\n    if (g && g.series === 'bars') g.series = c.cols.map((kind) => Object.assign(colOf(c, kind), { upto: g.upto != null ? g.upto : c.N }));\n    return { c, g };\n  }\n\n  // ---------- the columns of bars ----------\n  const panels = (c) => (c.cols.length === 2 ? [{ x0: 8, x1: 164 }, { x0: 176, x1: 332 }] : [{ x0: 44, x1: 324 }]);\n  const colOf = (c, kind) => ({ kind, A: c.A, d: c.d, b: c.b });\n  const preOf = (c) => c.prefix || '';\n  function headOf(c, kind) {\n    if (c.head && c.head[kind]) return c.head[kind];\n    return kind === 'add' ? '+ ' + preOf(c) + fv(c.d) + ' each step' : '× ' + fv(c.b) + ' each step';\n  }\n  function xlOf(c, k) { if (!c.xl) return String(k); return typeof c.xl === 'function' ? c.xl(k) : c.xl[k] || ''; }\n  // When each bar arrives: false, not drawn; null, there from the start.\n  function barTimes(d, st, c) {\n    const t = [];\n    for (let k = 0; k <= c.N; k++) t.push(false);\n    if (d.show) { for (let k = 0; k <= c.n; k++) t[k] = c.at ? c.at[k] : null; return t; }\n    for (let k = 0; k <= c.n; k++) t[k] = null;\n    if (st.res === 'right') for (let k = c.n + 1; k <= c.run; k++) t[k] = 0.1 + (c.gap || 0.15) * (k - c.n - 1);\n    return t;\n  }\n  function maxTo(c, upto) { let m = 0; c.cols.forEach((kind) => { for (let k = 0; k <= upto; k++) m = Math.max(m, valOf(colOf(c, kind), k)); }); return m; }\n  const slipOn = (d, st) => !d.show && st.res === 'wrong' && st.pick != null && !!d.val && !!d.bars && d.bars.slip !== false;\n  // One scale for the screen's bars: the tallest bar drawn fills the frame. It eases to the new\n  // tallest when an answer runs the columns on (or a slip is drawn).\n  function barScale(d, st, c) {\n    if (d.show) { const m = maxTo(c, c.N); return { now: m, s0: m, s1: m }; }\n    const s0 = maxTo(c, c.n);\n    let s1 = s0, dur = 0.6;\n    if (st.res === 'right') { s1 = Math.max(s0, maxTo(c, c.run)); dur = (c.run - c.n - 1) * (c.gap || 0.15) + 0.7; }\n    else if (slipOn(d, st)) s1 = Math.max(s0, d.val[st.pick]);\n    const p = s1 === s0 ? 1 : arr(0.1, dur);\n    return { now: s0 + (s1 - s0) * p, s0, s1 };\n  }\n  function drawBars(d, st, c, G) {\n    const gb = G.bars, P = panels(c), sc = barScale(d, st, c), times = barTimes(d, st, c), pre = preOf(c), dp = c.dp == null ? 2 : c.dp;\n    const hp = (v) => (Math.max(0, v) / sc.now) * c.h;\n    const right = st.res === 'right';\n    const rec = { scale: sc.now, h: c.h, base: gb.base, b: c.b, d: c.d, cols: {}, tops: {}, slip: null };\n    REC.bars = rec;\n    const said = [];\n    c.cols.forEach((kind, ci) => {\n      const pn = P[ci], slot = (pn.x1 - pn.x0) / (c.N + 1), bw = Math.min(slot * 0.7, 56), col = colOf(c, kind);\n      const cx = (k) => pn.x0 + (k + 0.5) * slot;\n      const vals = [];\n      for (let k = 0; k <= c.N; k++) vals.push(valOf(col, k));\n      text((pn.x0 + pn.x1) / 2, gb.headY, headOf(c, kind), 'hd ' + kind, 'middle');\n      line('base', pn.x0, gb.base, pn.x1, gb.base);\n      if (c.zero && ci === 0) text(pn.x0 - 6, gb.base + 5, c.zero, 'sl', 'end');\n      for (let k = 0; k <= c.N; k++) { const l = xlOf(c, k); if (l) textC(cx(k), gb.stepY, l, 'sl', pn.x0, pn.x1); }\n      rec.cols[kind] = []; rec.tops[kind] = [];\n      const shown = [], now = {};\n      for (let k = 0; k <= c.N; k++) {\n        const t = times[k];\n        if (t === false) continue;\n        const ap = t == null ? 1 : arr(t, 0.3), gr = t == null ? 1 : arr(t + 0.2, 0.5);\n        if (ap <= 0) continue;\n        const v = vals[k], vp = k ? vals[k - 1] : v, vn = vp + (v - vp) * gr, x = cx(k) - bw / 2;\n        part(ap, 0, () => {\n          if (k === 0 || vn === vp) { rect('b-' + kind, x, gb.base - hp(vn), bw, hp(vn), 2); return; }\n          const lo = Math.min(vp, vn);\n          rect('b-' + kind, x, gb.base - hp(lo), bw, hp(lo), 0);\n          if (vn > vp) rect('rise ' + kind, x, gb.base - hp(vn), bw, hp(vn) - hp(vp), 0);\n          else rect('lost', x, gb.base - hp(vp), bw, hp(vp) - hp(vn), 0);\n        });\n        rec.cols[kind].push({ k, v: vn, px: hp(vn) });\n        rec.tops[kind][k] = { x: cx(k), y: gb.base - hp(vn) };\n        now[k] = vn;\n        shown.push(k);\n      }\n      // each bar's value above it, and its rise (or drop) in a pill under the step\n      const vText = (k) => pre + fv(vals[k], dp);\n      const pick = (list, auto) => (list ? list.filter((k) => shown.indexOf(k) >= 0) : auto);\n      const autoV = fits(shown.map((k) => ({ c: cx(k), w: tw(vText(k), 'vl') })), pn.x0, pn.x1) ? shown : ends(shown);\n      pick(right && c.vlabRun ? c.vlabRun : c.vlab, autoV).forEach((k) => {\n        const t = times[k], a = t == null ? 1 : arr(t + 0.6, 0.35);\n        part(a, 3, () => textC(cx(k), gb.base - hp(now[k]) - 6, vText(k), 'vl h', pn.x0, pn.x1));\n      });\n      if (c.rises !== false) {\n        const rk = shown.filter((k) => k > 0);\n        const rText = (k) => { const r = vals[k] - vals[k - 1]; return (r < -1e-12 ? '−' : '+') + pre + fv(Math.abs(r), dp); };\n        const autoR = fits(rk.map((k) => ({ c: cx(k), w: tw(rText(k), 'pt') + 10 })), pn.x0, pn.x1) ? rk : ends(rk);\n        pick(right && c.rlabRun ? c.rlabRun : c.rlab, autoR).forEach((k) => {\n          if (k < 1) return;\n          const t = times[k], a = t == null ? 1 : arr(t + 0.6, 0.35), s = rText(k), w = tw(s, 'pt') + 10, lost = vals[k] < vals[k - 1];\n          part(a, 0, () => {\n            const x = K.clamp(cx(k) - w / 2, pn.x0, pn.x1 - w);\n            rect('pill' + (lost ? ' lost' : ''), x, gb.base + 25, w, 18, 9);\n            text(x + w / 2, gb.base + 38, s, 'pt', 'middle');\n          });\n        });\n      }\n      // the bar asked for, and a slip drawn where it would stand\n      if (!d.show && c.ask === kind) {\n        const gone = right || slipOn(d, st), a = gone ? 1 - arr(0.1, 0.3) : 1;\n        if (a > 0) part(a, 0, () => text(cx(c.run), gb.base - 12, '?', 'q', 'middle'));\n        if (slipOn(d, st)) {\n          const v = d.val[st.pick], from = vals[c.n], ap = arr(0.1, 0.3), gr = arr(0.3, 0.5), vn = from + (v - from) * gr;\n          part(ap, 0, () => rect('slip', cx(c.run) - bw / 2, gb.base - hp(vn), bw, hp(vn), 2));\n          part(arr(0.7, 0.35), 3, () => textC(cx(c.run), gb.base - hp(vn) - 6, pre + fv(v, dp), 'vl bad h', pn.x0, pn.x1));\n          rec.slip = { v: vn, px: hp(vn) };\n        }\n      }\n      said.push((c.cols.length === 2 ? (ci ? 'Right column, ' : 'Left column, ') : 'A column, ') + say(headOf(c, kind)) + ': ' +\n        (shown.length ? shown.map((k) => say(vText(k))).join(', ') : 'no bars yet') + '.');\n    });\n    return said.join(' ');\n  }\n\n  // ---------- the graph ----------\n  // Tick values about a fifth of the way up at a time, in 1, 2, 2.5 or 5 times a power of ten.\n  function niceTicks(max) {\n    const raw = max / 5, mag = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / mag;\n    const step = (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * mag, out = [];\n    for (let j = 0; j * step <= max + 1e-9; j++) out.push(j * step);\n    return out;\n  }\n  // When each dot arrives: false, not drawn; null, there from the start.\n  function dotTime(d, st, gc, s, k) {\n    if (d.show) {\n      if (k > s.upto) return false;\n      if (gc.drop) return gc.drop.t0 + gc.drop.gap * k;\n      if (gc.dotsAt) return st.refill ? null : gc.dotsAt[k];\n      return null;\n    }\n    if (k <= s.upto) return null;\n    if (st.res === 'right' && s.run != null && k <= s.run) return 0.1 + (gc.gap || 0.035) * (k - s.upto - 1);\n    return false;\n  }\n  // The value scale: fixed, or fitting what is drawn, easing to fit what an answer adds.\n  function graphScale(d, st, gc, SER) {\n    if (gc.ymax) return { now: gc.ymax, s0: gc.ymax, s1: gc.ymax, p: 1 };\n    const top = (upto) => {\n      let m = 0;\n      SER.forEach((s) => { const u = upto(s); for (let k = 0; k <= u; k++) m = Math.max(m, valOf(s, k)); });\n      if (gc.line) m = Math.max(m, gc.line.y);\n      return m * 1.12;\n    };\n    const s0 = top((s) => s.upto);\n    if (d.show) return { now: s0, s0, s1: s0, p: 1 };\n    let s1 = s0, dur = 0.6;\n    if (st.res === 'right') { s1 = Math.max(s0, top((s) => (s.run != null ? s.run : s.upto))); dur = 1.2; }\n    else if (st.res === 'wrong' && d.val && d.val[st.pick] != null) s1 = Math.max(s0, d.val[st.pick] * 1.12);\n    const p = s1 === s0 ? 1 : arr(0.1, dur);\n    return { now: s0 + (s1 - s0) * p, s0, s1, p };\n  }\n  function drawGraph(d, st, gc, G) {\n    const g = G.graph, n = gc.n, h = gc.h, SER = gc.series, sc = graphScale(d, st, gc, SER), dp = gc.dp == null ? 2 : gc.dp;\n    const X = (x) => PX0 + (x / n) * (PX1 - PX0), Y = (v) => g.bot - (v / sc.now) * h;\n    const pre = gc.yprefix || '', unit = gc.yunit || '', right = st.res === 'right', answered = right || st.res === 'wrong';\n    const rec = { n, ymax: sc.now, bot: g.bot, h, dots: [], curve: null, half: null, marks: [] };\n    REC.graph = rec;\n    // the value axis: its ticks (a new set fades in while the scale changes), grid lines and name\n    const sets = gc.yticks ? [[gc.yticks, 1]] : sc.s0 === sc.s1 ? [[niceTicks(sc.s1), 1]]\n      : [[niceTicks(sc.s0), 1 - Math.min(1, sc.p * 2)], [niceTicks(sc.s1), Math.max(0, sc.p * 2 - 1)]];\n    sets.forEach((set) => part(set[1], 0, () => set[0].forEach((v) => {\n      if (v > sc.now * 1.0001) return;\n      if (v > 0) line('grid', GX0, Y(v), GX1, Y(v));\n      text(GX0 - 6, Y(v) + 4.5, pre + fv(v), 'tk', 'end');\n    })));\n    text(6, g.top - 12, gc.yname, 'an', 'start');\n    line('axis', GX0, g.top, GX0, g.bot);\n    line('axis', GX0, g.bot, GX1, g.bot);\n    gc.ticks.forEach((v, j) => {\n      line('tickm', X(v), g.bot, X(v), g.bot + 5);\n      const l = gc.tl ? (typeof gc.tl === 'function' ? gc.tl(v) : gc.tl[j]) : String(v);\n      textC(X(v), g.tickY, l, 'tk', 2, 338);\n    });\n    if (gc.xname) text((GX0 + GX1) / 2, g.nameY, gc.xname, 'an', 'middle');\n    const said = ['A graph, ' + (gc.xname || 'time') + ' along the bottom and ' + gc.yname + ' up the side.'];\n    // a reference line, and a band along the time axis\n    if (gc.line) {\n      const L = gc.line;\n      part(L.t == null ? 1 : arr(L.t), 0, () => {\n        line('ref', GX0, Y(L.y), GX1, Y(L.y));\n        text(PX0, L.pos === 'below' ? Y(L.y) + 17 : Y(L.y) - 6, L.label, 'ml h', 'start');\n      });\n      said.push('A dashed line marks ' + say(L.label) + '.');\n    }\n    if (gc.band) {\n      const B = gc.band, a = vis(B.after ? (right ? B.t : false) : B.t);\n      if (a > 0) part(a, 0, () => { rect('band', X(B.x0), g.bot - 4, X(B.x1) - X(B.x0), 8, 2); textC(X((B.x0 + B.x1) / 2), g.nameY, B.label, 'ml', 2, 338); });\n      if (a >= 0.5) said.push('A band on the bottom axis: ' + say(B.label) + '.');\n    }\n    // the rule between the steps, and straight lines from dot to dot to compare it with\n    const mulS = SER.find((s) => s.kind === 'mul');\n    let ct = false, cd = 1.3;\n    if (gc.curve && mulS) {\n      if (d.show) { if (st.fill) { ct = st.refill ? 0.1 : 1.9; cd = st.refill ? 1.2 : 1.3; } }\n      else if (right) { ct = 0.1; cd = 0.8; }\n    }\n    if (ct !== false && d.show) {\n      part(arr(ct), 0, () => { for (let k = 0; k < mulS.upto; k++) line('chord', X(k), Y(valOf(mulS, k)), X(k + 1), Y(valOf(mulS, k + 1))); });\n    }\n    if (ct !== false) {\n      const xc = n * arr(ct, cd);\n      if (xc > 0) {\n        const m = 64, pts = [];\n        for (let j = 0; j <= m; j++) { const x = (xc * j) / m; pts.push(r3(X(x)) + ' ' + r3(Y(valOf(mulS, x)))); }\n        add(K.svg('path', { class: 'curve', d: 'M' + pts.join(' L') }));\n        rec.curve = { to: xc, fn: (x) => valOf(mulS, x) };\n        said.push('A curve fills in the rule between the dots.');\n      }\n    }\n    // the dots, falling from the bars above where there are bars\n    SER.forEach((s) => {\n      const maxK = Math.max(s.upto, s.run || 0);\n      for (let k = 0; k <= maxK; k++) {\n        const t = dotTime(d, st, gc, s, k);\n        if (t === false) continue;\n        const v = valOf(s, k), tx = X(k), ty = Y(v), cls = 'd-' + s.kind;\n        const from = gc.drop && REC.bars && REC.bars.tops[s.kind] && REC.bars.tops[s.kind][k];\n        if (from && t != null) {\n          const p = arr(t, 0.7);\n          if (p <= 0) continue;\n          const g2 = add(K.svg('g'));\n          K.fade(g2, Math.min(1, p * 4), 0);\n          const keep = into; into = g2; dot(cls, K.lerp(from.x, tx, p), K.lerp(from.y, ty, p), 4); into = keep;\n        } else {\n          const a = t == null ? 1 : arr(t);\n          if (a <= 0) continue;\n          part(a, 6, () => dot(cls, tx, ty, 4));\n        }\n        rec.dots.push({ kind: s.kind, k, v, x: tx, y: ty, s });\n      }\n    });\n    // values written beside chosen dots\n    (gc.dlab || []).forEach((L) => {\n      const s = SER[L.s], when = L.when || 'always';\n      let a = 1;\n      if (when === 'before') a = right ? 1 - arr(0.1, 0.4) : 1;\n      else if (when === 'after') a = right ? arr(L.t) : 0;\n      if (a <= 0) return;\n      const v = valOf(s, L.k);\n      part(a, 0, () => text(X(L.k) + L.dx, Y(v) + L.dy, pre + fv(v, dp) + unit, 'ml h', L.anchor));\n      if (a >= 0.5) said.push('At ' + L.k + ', ' + say(pre + fv(v, dp) + unit) + '.');\n    });\n    // the step asked about\n    if (!d.show && gc.ask != null) {\n      const a = answered ? 1 - arr(0.1, 0.3) : 1;\n      if (a > 0) part(a, 0, () => { line('guide', X(gc.ask), g.bot, X(gc.ask), g.top + 18); text(X(gc.ask), g.top + 12, '?', 'q h', 'middle'); });\n    }\n    const ex = EXTRA[d.name];\n    if (ex) { const w = ex({ X, Y, g, st, d, SER, rec, right, wrong: st.res === 'wrong' ? st.pick : null }); if (w) said.push(w); }\n    const md = rec.dots.filter((q) => q.kind === 'mul'), ad = rec.dots.filter((q) => q.kind === 'add');\n    if (ad.length) said.push('Adding dots: ' + ad.map((q) => fv(q.v, dp)).join(', ') + '.');\n    if (md.length) said.push('Multiplying dots: ' + md.map((q) => fv(q.v, dp)).join(', ') + '.');\n    return said.join(' ');\n  }\n  // What one screen's graph adds of its own.\n  const EXTRA = {\n    '5% a year': (x) => {\n      const v = valOf(x.SER[1], 15);\n      part(arr(3.3), 0, () => text(x.X(15) + 4, x.Y(v) - 11, '1.05¹⁴ ≈ 1.98, 1.05¹⁵ ≈ 2.08', 'ml h', 'end'));\n      return '';\n    },\n    'Between the steps': (x) => {\n      if (!x.st.fill) return '';\n      const s = x.SER[0], hv = valOf(s, 0.5), t = x.st.refill ? 1.3 : 3.2, px = x.X(0.5), py = x.Y(hv);\n      part(arr(t), 0, () => {\n        line('guide', px, py - 8, px, py - 33);\n        dot('ring', px, py, 5);\n        text(x.X(0) + 2, py - 39, '½ step: √2 ≈ 1.414', 'ml h', 'start');\n      });\n      x.rec.half = { x: 0.5, v: hv };\n      return 'Half a step on, the curve is at root 2, about 1.414.';\n    },\n    'Half a step': (x) => {\n      const s = x.SER[0];\n      if (x.right) {\n        const v = valOf(s, 0.5);\n        part(arr(0.9), 0, () => { dot('ring', x.X(0.5), x.Y(v), 5); text(x.X(0.5) + 9, x.Y(v) + 19, fv(v), 'ml h', 'start'); });\n        x.rec.marks.push({ x: 0.5, v });\n        return 'Half a step on, the curve is at ' + fv(v) + '.';\n      }\n      if (!x.wrong) return '';\n      const v = x.d.val[x.wrong];\n      if (x.wrong === '500') part(arr(0.1), 0, () => line('chord bad', x.X(0), x.Y(valOf(s, 0)), x.X(1), x.Y(valOf(s, 1))));\n      part(arr(0.4), 0, () => { dot('d-bad', x.X(0.5), x.Y(v), 5); text(x.X(0.5) + 9, x.Y(v) + 19, fv(v), 'ml bad h', 'start'); });\n      x.rec.marks.push({ x: 0.5, v, bad: true });\n      return 'The slip, ' + fv(v) + ', is marked in red.';\n    },\n    '9% a day': (x) => {\n      if (!x.wrong) return '';\n      const v = x.d.val[x.wrong];\n      part(arr(0.4), 0, () => { dot('d-bad', x.X(30), x.Y(v), 5); text(x.X(30) - 9, x.Y(v) + 5, fv(v, 0), 'ml bad h', 'end'); });\n      x.rec.marks.push({ x: 30, v, bad: true });\n      return 'The slip, ' + fv(v, 0) + ', is marked in red at day 30.';\n    },\n    'Passing 30 V': (x) => {\n      if (x.wrong !== 'At 18.5 s') return '';\n      const t30 = (400 - 30) / 200;   // falling 200 V every 10-second step\n      part(arr(0.1), 0, () => line('chord bad', x.X(0), x.Y(400), x.X(t30), x.Y(30)));\n      part(arr(0.5), 0, () => { dot('d-bad', x.X(t30), x.Y(30), 4.5); text(x.X(t30) + 8, x.Y(30) - 8, fv(t30 * 10, 1) + ' s', 'ml bad h', 'start'); });\n      x.rec.marks.push({ x: t30, v: 30, bad: true });\n      return 'The slip, falling 200 volts every 10 seconds, is drawn in red.';\n    },\n  };\n\n  // ---------- the table of three rules ----------\n  const TROWS = [{ name: 'x²', f: (x) => x * x }, { name: '2ˣ', f: (x) => Math.pow(2, x) }, { name: '10x', f: (x) => 10 * x }];\n  const TCOL = [122, 176, 230, 284];\n  // The change from each value to the next: what it is multiplied by, or what is added for 10x.\n  const patText = (r, j) => (r.name === '10x' ? '+ ' + fv(r.f(j + 2) - r.f(j + 1)) : '× ' + fv(r.f(j + 2) / r.f(j + 1)));\n  function drawTable(d, st, G) {\n    const y0 = G.table, right = st.res === 'right', wrong = st.res === 'wrong' ? st.pick : null;\n    const rec = { pats: [] };\n    REC.table = rec;\n    text(44, y0 + 18, 'x', 'th', 'middle', true);\n    TCOL.forEach((cx, j) => text(cx, y0 + 18, String(j + 1), 'th', 'middle'));\n    line('grid', 12, y0 + 28, 328, y0 + 28);\n    const said = ['A table of three rules at x equals 1, 2, 3 and 4.'];\n    TROWS.forEach((r, m) => {\n      const vy = y0 + 58 + m * 56;\n      if (right && r.name === '2ˣ') part(arr(0.1), 0, () => rect('rowbox', 14, vy - 22, 312, 52, 8));\n      text(44, vy, r.name, 'tn', 'middle', true);\n      TCOL.forEach((cx, j) => text(cx, vy, fv(r.f(j + 1)), 'tc', 'middle'));\n      said.push(say(r.name) + ': ' + [1, 2, 3, 4].map((x) => fv(r.f(x))).join(', ') + '.');\n      let t = false, cls = 'tp';\n      if (right) { t = r.name === '2ˣ' ? 0.1 : r.name === 'x²' ? 0.5 : 0.8; cls = r.name === '2ˣ' ? 'tp' : 'tp mut'; }\n      else if (wrong === r.name) { t = 0.1; cls = 'tp bad'; }\n      if (t === false) return;\n      part(arr(t), 4, () => { for (let j = 0; j < 3; j++) text((TCOL[j] + TCOL[j + 1]) / 2, vy + 22, patText(r, j), cls, 'middle'); });\n      for (let j = 0; j < 3; j++) rec.pats.push({ row: r.name, text: patText(r, j), cls });\n      said.push('Between its values: ' + [0, 1, 2].map((j) => say(patText(r, j))).join(', ') + '.');\n    });\n    return said.join(' ');\n  }\n\n  // ---------- the sliders and the rule beside them ----------\n  const slX = (s, v) => SX0 + ((v - s.min) / (s.max - s.min)) * (SX1 - SX0);\n  function drawSliders(st, G, c) {\n    SL.forEach((s, m) => {\n      const ty = G.sl[m], v = slv(st, s.id);\n      text(10, ty + 5, s.name, 'sn', 'start', true);\n      line('track', SX0, ty, SX1, ty);\n      s.ticks.forEach((u) => line('tick', slX(s, u), ty - 6, slX(s, u), ty + 6));\n      const kx = slX(s, v), lab = s.fmt(v), w = tw(lab, 'kl');\n      add(K.svg('circle', { class: 'knob', cx: r3(kx), cy: ty, r: 10 }));\n      text(K.clamp(kx, SX0 - 20 + w / 2, 334 - w / 2), ty - 15, lab, 'kl', 'middle');\n    });\n    text(10, G.ruleY, 'Right column: A × bˣ = ' + fv(c.A) + ' × ' + fv(c.b) + 'ˣ', 'rule', 'start', true);\n    text(10, G.legY, 'A start · b growth factor · x steps', 'leg', 'start', true);\n    return 'Sliders set the amount added, ' + fv(c.d) + ', and the growth factor b, ' + fv(c.b) + '. The right column follows A times b to the power x, ' + fv(c.A) + ' times ' + fv(c.b) + ' to the power x.';\n  }\n  const grips = SL.map((s, m) => {\n    const gr = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1, role: 'slider', 'aria-label': s.name, 'aria-orientation': 'horizontal' }));\n    gr.style.display = 'none';\n    let held = null;\n    gr.addEventListener('pointerdown', (e) => {\n      if (!sliding()) return;\n      held = e.pointerId;\n      try { gr.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the band */ }\n      e.preventDefault();\n      const v = valFrom(e, s);\n      if (v != null) setSl(m, v);\n    });\n    gr.addEventListener('pointermove', (e) => {\n      if (held !== e.pointerId || !sliding()) return;\n      const v = valFrom(e, s);\n      if (v != null) setSl(m, v);\n    });\n    const letGo = (e) => { if (held === e.pointerId) held = null; };\n    gr.addEventListener('pointerup', letGo);\n    gr.addEventListener('pointercancel', letGo);\n    gr.addEventListener('lostpointercapture', () => { held = null; });\n    gr.addEventListener('keydown', (e) => {\n      if (!sliding()) return;\n      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];\n      if (by == null && e.key !== 'Home' && e.key !== 'End') return;\n      e.preventDefault();\n      setSl(m, e.key === 'Home' ? s.min : e.key === 'End' ? s.max : slv(S[at()], s.id) + by * s.step);\n    });\n    return gr;\n  });\n  const sliding = () => !finished && !!STEPS[at()].sliders;\n  const snapSl = (s, v) => Number((s.min + Math.round((K.clamp(v, s.min, s.max) - s.min) / s.step) * s.step).toFixed(2));\n  function setSl(m, v) {\n    const st = S[at()], s = SL[m];\n    v = snapSl(s, v);\n    if (st[s.id] === v && T === Infinity) return;\n    if (anim.playing()) anim.pause();\n    T = Infinity;\n    st[s.id] = v;\n    K.reveal(); K.refresh();\n  }\n  function valFrom(e, s) {\n    const ctm = svg.getScreenCTM();\n    if (!ctm) return null;\n    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());\n    return s.min + ((q.x - SX0) / (SX1 - SX0)) * (s.max - s.min);\n  }\n  function placeGrips(d, G, st) {\n    const on = !!d.sliders && !finished;\n    grips.forEach((gr, m) => {\n      gr.style.display = on ? '' : 'none';\n      gr.setAttribute('tabindex', on ? '0' : '-1');\n      if (!on) return;\n      const s = SL[m], ty = G.sl[m], v = slv(st, s.id);\n      gr.setAttribute('x', SX0 - 22); gr.setAttribute('width', SX1 - SX0 + 44);\n      gr.setAttribute('y', ty - 24); gr.setAttribute('height', 44);\n      gr.setAttribute('aria-valuemin', s.min); gr.setAttribute('aria-valuemax', s.max); gr.setAttribute('aria-valuenow', v);\n      gr.setAttribute('aria-valuetext', s.fmt(v));\n    });\n  }\n\n  // ---------- the key, inside the drawing ----------\n  function keyItems(d, st) {\n    let items = d.key || [];\n    if (d.sliders) {\n      const c = eff(d, st).c, lost = c.b < 1, rise = c.b > 1 || c.d > 0;\n      items = items.filter((it) => (it[0] === 'lost' ? lost : it[0] === 'rise' ? rise : true));\n    }\n    return items;\n  }\n  function keyLayout(items) {\n    const rows = [[]];\n    let x = 12;\n    items.forEach((it) => {\n      const w = 20 + tw(it[1], 'key');\n      if (x + w > 330 && rows[rows.length - 1].length) { rows.push([]); x = 12; }\n      rows[rows.length - 1].push([x, it]);\n      x += w + 16;\n    });\n    return rows;\n  }\n  function drawKey(d, st, G) {\n    keyLayout(keyItems(d, st)).forEach((row, ri) => row.forEach((e) => {\n      const x = e[0], it = e[1], y = G.keyY + ri * 20;\n      if (it[0] === 'rise') rect('rise mul', x, y - 6, 14, 12, 2);\n      else if (it[0] === 'lost') rect('lost', x, y - 6, 14, 12, 2);\n      else if (it[0] === 'add' || it[0] === 'mul') dot('d-' + it[0], x + 7, y, 4);\n      else if (it[0] === 'curve') line('curve', x, y, x + 14, y);\n      else if (it[0] === 'chord') line('chord', x, y, x + 14, y);\n      text(x + 20, y + 4.5, it[1], 'key', 'start', true);\n    }));\n  }\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i], G = geo(d), e = eff(d, st);\n    art.textContent = '';\n    into = null;\n    REC = { bars: null, graph: null, table: null };\n    svg.setAttribute('viewBox', '0 0 340 ' + G.H);\n    const said = [];\n    if (d.sliders) said.push(drawSliders(st, G, e.c));\n    if (d.bars) said.push(drawBars(d, st, e.c, G));\n    if (d.graph) said.push(drawGraph(d, st, e.g, G));\n    if (d.table) said.push(drawTable(d, st, G));\n    if (G.keyY != null) drawKey(d, st, G);\n    placeGrips(d, G, st);\n    svg.setAttribute('aria-label', said.filter(Boolean).join(' '));\n  }\n\n  const el = (id) => document.getElementById(id);\n  write(el('finish'), FINISH);\n  write(el('cap'), CAPTION);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { st.fill = true; st.refill = false; play(d.dur); } else { anim.pause(); T = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('lead').hidden = i !== 0 || finished;\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    switchBtn.el.hidden = !d.fill;\n    switchBtn.el.setAttribute('aria-pressed', st.fill ? 'true' : 'false');\n    el('replay').hidden = replayBtn.el.hidden && switchBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.textContent = '';\n      italics(b.el.appendChild(K.el('span')), opts[k], false);   // one span, so the button's gap does not split \"× 1.05\"\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    const whyOk = !d.whyAfter || right || st.res === 'wrong';   // on the guess-first screen, Why? waits for Check\n    whyBtn.el.hidden = !whyOk;\n    why.hidden = d.show || !st.why || !whyOk;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const PICKS = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const close = (a, b, tol) => Math.abs(a - b) <= (tol != null ? tol : 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)));\n  // Slider settings the checks try: no amount, small and large; factors below 1, at 1 and above.\n  const SLIDES = [];\n  [0, 1, 2, 5].forEach((amt) => [0.5, 0.75, 1, 1.05, 1.5, 2, 3].forEach((fac) => SLIDES.push({ amt, fac })));\n  // Every finished picture the lesson can show: each screen opened, each puzzle solved and each\n  // slip shown, the graph screen at many settings and the in-between screen with its curve off.\n  function states() {\n    const out = [];\n    STEPS.forEach((d, i) => {\n      out.push([i, blank()]);\n      if (d.sliders) SLIDES.forEach((v) => out.push([i, Object.assign(blank(), v)]));\n      if (!d.show) { out.push([i, solvedSt(i)]); d.opts.filter((o) => o !== d.want).forEach((o) => out.push([i, wrongSt(i, o)])); }\n      if (d.fill) out.push([i, Object.assign(blank(), { fill: false })]);\n    });\n    return out;\n  }\n  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t;\n    try {\n      paint(i);\n      return { texts: Array.from(art.querySelectorAll('text')).map((q) => q.textContent), bars: REC.bars, graph: REC.graph, table: REC.table, b: eff(STEPS[i], st) };\n    } finally { S[i] = keepS; T = keepT; paint(); }\n  }\n  let ALL = null;\n  const all = () => ALL || (ALL = states().map((x) => ({ i: x[0], st: x[1], g: drawn(x[0], x[1]) })));\n  const muls = (g) => (g.bars && g.bars.cols.mul ? g.bars.cols.mul : []);\n  const steps1 = (list, f) => list.every((r, j) => j === 0 || list[j - 1].k !== r.k - 1 || f(list[j - 1], r));\n\n  K.check('In an exponential function the output is multiplied by the same factor every time the input increases by one: every multiplying bar and dot drawn, on every screen and at every slider setting, is the one before times its growth factor', () =>\n    all().every(({ g }) => steps1(muls(g), (a, r) => close(r.v, a.v * g.bars.b)) &&\n      (!g.graph || steps1(g.graph.dots.filter((q) => q.kind === 'mul'), (a, r) => close(r.v, a.v * r.s.b)))), { source: SRC_GF });\n  K.check('The rate of growth is proportional to the current value: each rise or drop of the multiplying column is the same share of the bar before it, while the adding column rises by the same amount every step', () =>\n    all().every(({ g }) => !g.bars || (steps1(muls(g), (a, r) => close(r.v - a.v, (g.bars.b - 1) * a.v)) &&\n      steps1(g.bars.cols.add || [], (a, r) => close(r.v - a.v, g.bars.d)))), { source: SRC_CALC });\n  K.check('The growth factor is larger than one when the growth rate is positive and less than one when it is negative: growing by a percentage gives a factor above one and a rising column, losing a percentage or halving gives one below and a falling column', () => {\n    const fac = (pct) => 1 + pct / 100;\n    const series = (name) => { const i = idx(name), g = drawn(i, STEPS[i].show ? blank() : solvedSt(i)); return g.bars ? muls(g) : g.graph.dots.filter((q) => q.kind === 'mul'); };\n    const rises = (name) => { const m = series(name); return m.length > 1 && m.every((r, j) => j === 0 || r.v > m[j - 1].v); };\n    const falls = (name) => { const m = series(name); return m.length > 1 && m.every((r, j) => j === 0 || r.v < m[j - 1].v); };\n    return close(STEPS[idx('5% a year')].bars.b, fac(5)) && fac(5) > 1 && rises('5% a year') &&\n      close(STEPS[idx('9% a day')].graph.series[1].b, fac(9)) && fac(9) > 1 && rises('9% a day') &&\n      close(STEPS[idx('Losing value')].bars.b, fac(-25)) && fac(-25) < 1 && falls('Losing value') &&\n      close(STEPS[idx('Halving')].bars.b, fac(-50)) && fac(-50) < 1 && falls('Halving') && falls('Passing 30 V');\n  }, { source: SRC_LIBRE });\n  K.check('Every number follows its rule: 21 and 1,024 at step 10 (slip 64); 72 from 48 (slips 49.5 and 96); £1,628.89 against £1,500, with 1.98 and 2.08 either side of double; £4,500 (slips £4,000 and £500); 50 V and 25 V; √2 ≈ 1.414; 300 (slips 450 and 500); 4, 2.25 and 1.78; 183 against 163, then 1,327, 370 and 455; 18.5 s; and each answer offered is the value its own working gives', () => {\n    const f = fv;\n    const ok = f(1 + 10 * 2) === '21' && f(Math.pow(2, 10)) === '1,024' && f(Math.pow(2, 10) - Math.pow(2, 9)) === '512' && f(16 + 6 * 8) === '64' && f(48 * 1.5) === '72' && f(48 + 1.5) === '49.5' && f(48 * 2) === '96' &&\n      f(1000 * Math.pow(1.05, 10)) === '1,628.89' && f(1000 + 10 * 50) === '1,500' && f(Math.pow(1.05, 14)) === '1.98' && f(Math.pow(1.05, 15)) === '2.08' &&\n      f(1 + 0.05) === '1.05' && f(8000 * 0.75 * 0.75) === '4,500' && f(8000 - 2 * 2000) === '4,000' && f(8000 * 0.25 * 0.25) === '500' &&\n      f(400 * Math.pow(0.5, 3)) === '50' && f(400 * Math.pow(0.5, 4)) === '25' && f(Math.SQRT2, 3) === '1.414' && f(1.414 * 1.414) === '2' &&\n      f(100 * Math.sqrt(9)) === '300' && f(100 * 4.5) === '450' && f(100 + (900 - 100) / 2) === '500' && f(4.5 * 4.5) === '20.25' &&\n      f(4 / 1) === '4' && f(9 / 4) === '2.25' && f(16 / 9) === '1.78' &&\n      f(100 * Math.pow(1.09, 7), 0) === '183' && f(100 + 7 * 9, 0) === '163' && f(100 * Math.pow(1.09, 30), 0) === '1,327' && f(100 + 30 * 9, 0) === '370' &&\n      f(100 + (100 * Math.pow(1.09, 7) - 100) * 30 / 7, 0) === '455' && f(((400 - 30) / 200) * 10, 1) === '18.5';\n    const labelled = STEPS.filter((d) => d.val && d.name !== 'The factor for 5%').every((d) => d.opts.every((o) => o === (d.bars ? preOf(d.bars) : '') + fv(d.val[o], d.graph && d.graph.dp != null ? d.graph.dp : 2)));\n    const f5 = STEPS[idx('The factor for 5%')].val;\n    return ok && labelled && close(f5['× 1.05'], 1000 * 1.05) && close(f5['× 0.05'], 1000 * 0.05) && close(f5['× 5'], 5000) &&\n      patText(TROWS[0], 2) === '× 1.78' && patText(TROWS[1], 0) === '× 2' && patText(TROWS[2], 1) === '+ 10';\n  });\n  K.check('Decay never reaches zero: halving from 400 V, every bar drawn stays above the bottom line and each drop is half the one before, and twelve halvings still leave more than nothing', () => {\n    const g = drawn(idx('Halving'), blank()), m = muls(g), drops = m.slice(1).map((r, j) => m[j].v - r.v);\n    return m.length === 6 && m.every((r) => r.v > 0 && r.px > 0) && drops.every((x, j) => j === 0 || close(x, drops[j - 1] / 2)) && 400 * Math.pow(0.5, 12) > 0;\n  });\n  K.check('Before an answer, nothing in a puzzle\\'s picture gives it away, and a right answer shows it', () =>\n    PICKS.every((i) => { const d = STEPS[i]; return drawn(i, blank()).texts.indexOf(d.ans) < 0 && drawn(i, solvedSt(i)).texts.indexOf(d.ans) >= 0; }));\n  K.check('Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own', () =>\n    PICKS.every((i) => {\n      const d = STEPS[i];\n      return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)) &&\n        d.opts.every((o) => o === d.want || !!(d.hints && d.hints[o]));\n    }));\n  K.check('Bars and dots are drawn to scale: each bar\\'s height is its value on its screen\\'s one scale, the tallest filling the frame, and each dot sits at its step and value', () =>\n    all().every(({ g }) => {\n      const B = g.bars;\n      const okB = !B || (['add', 'mul'].every((k) => !B.cols[k] || B.cols[k].every((r) => close(r.px, (r.v / B.scale) * B.h, 1e-6))) &&\n        close(Math.max.apply(null, (B.cols.add || []).concat(B.cols.mul || []).map((r) => r.px).concat(B.slip ? [B.slip.px] : [])), B.h, 1e-6));\n      const okG = !g.graph || g.graph.dots.every((q) => close(q.y, g.graph.bot - (q.v / g.graph.ymax) * g.graph.h, 1e-6) && close(q.x, PX0 + (q.k / g.graph.n) * (PX1 - PX0), 1e-6));\n      return okB && okG;\n    }));\n  K.check('Half a step multiplies by the square root of the factor, because two half steps make one whole step: at × 2 the mark sits at √2, and at × 9 the right answer is 300, three times 100', () => {\n    const g9 = drawn(idx('Between the steps'), blank()), i10 = idx('Half a step'), g10 = drawn(i10, solvedSt(i10));\n    return close(Math.pow(2, 0.5) * Math.pow(2, 0.5), 2) && close(Math.sqrt(9) * Math.sqrt(9), 9) && !!g9.graph.half && close(g9.graph.half.v, Math.SQRT2) &&\n      g10.graph.marks.some((m) => m.x === 0.5 && close(m.v, 300)) && !!g10.graph.curve && close(g10.graph.curve.fn(0.5), 300) && close(g10.graph.curve.fn(1), 900);\n  });\n  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, within 2.5 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; earliest = Infinity;\n      S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }\n      return timed(i, solvedSt(i), FB[0]) && FB[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB[1]) && FB[1] <= 2.5);\n    });\n    T = keepT; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "Add or multiply",
+  "brief": "The one thing you should see is the multiplying column's rises growing every step while the adding column's stay the same, so it starts behind and then races past, when you step both columns forward.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "In an exponential function the output is multiplied by the same factor every time the input increases by one: every multiplying bar and dot drawn, on every screen and at every slider setting, is the one before times its growth factor",
+     "ok": true,
+     "source": "https://openstax.org/books/algebra-1/pages/5-4-3-exponential-change-the-growth-factor"
+    },
+    {
+     "label": "The rate of growth is proportional to the current value: each rise or drop of the multiplying column is the same share of the bar before it, while the adding column rises by the same amount every step",
+     "ok": true,
+     "source": "https://openstax.org/books/calculus-volume-1/pages/6-8-exponential-growth-and-decay"
+    },
+    {
+     "label": "The growth factor is larger than one when the growth rate is positive and less than one when it is negative: growing by a percentage gives a factor above one and a rising column, losing a percentage or halving gives one below and a falling column",
+     "ok": true,
+     "source": "https://math.libretexts.org/Courses/Highline_College/Math_111%3A_College_Algebra/05%3A_Exponential_and_Logarithmic_Functions/5.01%3A_Exponential_Functions"
+    },
+    {
+     "label": "Every number follows its rule: 21 and 1,024 at step 10 (slip 64); 72 from 48 (slips 49.5 and 96); £1,628.89 against £1,500, with 1.98 and 2.08 either side of double; £4,500 (slips £4,000 and £500); 50 V and 25 V; √2 ≈ 1.414; 300 (slips 450 and 500); 4, 2.25 and 1.78; 183 against 163, then 1,327, 370 and 455; 18.5 s; and each answer offered is the value its own working gives",
+     "ok": true
+    },
+    {
+     "label": "Decay never reaches zero: halving from 400 V, every bar drawn stays above the bottom line and each drop is half the one before, and twelve halvings still leave more than nothing",
+     "ok": true
+    },
+    {
+     "label": "Before an answer, nothing in a puzzle's picture gives it away, and a right answer shows it",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own",
+     "ok": true
+    },
+    {
+     "label": "Bars and dots are drawn to scale: each bar's height is its value on its screen's one scale, the tallest filling the frame, and each dot sits at its step and value",
+     "ok": true
+    },
+    {
+     "label": "Half a step multiplies by the square root of the factor, because two half steps make one whole step: at × 2 the mark sits at √2, and at × 9 the right answer is 300, three times 100",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "Add or double",
+      "Guess step 10",
+      "Dots on a graph",
+      "One step on",
+      "5% a year",
+      "The factor for 5%",
+      "Halving",
+      "Losing value",
+      "Between the steps",
+      "Half a step",
+      "Which is exponential?",
+      "9% a day",
+      "Passing 30 V"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Fill in the curve",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-18T03:06:10.469Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"2 multiplied by itself 10 times\" read strictly is 2 to the power 11 = 2,048; the column starts at 1 and is doubled 10 times, 1 × 2¹⁰ = 1,024, which is the A × bˣ rule the lesson builds."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

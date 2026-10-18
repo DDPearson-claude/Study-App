@@ -1,0 +1,171 @@
+{
+ "title": "Exponentials and logarithms",
+ "hook": "Say a capacitor discharging through a resistor halves its voltage every 10 seconds, falling fast and then ever more slowly. Starting from 400 V, how long until it is down to 30 V?",
+ "oneBreath": "Exponential change multiplies by the same factor in every equal step, so it grows or shrinks in proportion to what is there, and the number e is the base used for change that never pauses between steps. A capacitor discharging follows that curve, at a pace set by one time constant, and a hot part cooling follows much the same curve, roughly. The logarithm undoes it by answering \"what power do I need?\": it turns multiplying into adding, as decibels do, finds an unknown power, turns curved laws such as y = axⁿ into straight-line graphs and gives the work an ideal gas does expanding at constant temperature.",
+ "ideas": [
+  {
+   "id": "i1",
+   "title": "Growth by multiplying",
+   "oneLine": "Multiplying by the same factor each equal step, such as × 1.05 for 5% a year, gives A × bˣ, which shrinks instead when b is below 1.",
+   "deps": [],
+   "kind": "quantity"
+  },
+  {
+   "id": "i2",
+   "title": "The number e",
+   "oneLine": "Growth that never pauses between steps is written eᵏᵗ, where e is a fixed number like π and k is the growth rate, worked on the eˣ key.",
+   "deps": [
+    "i1"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i3",
+   "title": "The time constant: capacitors and cooling",
+   "oneLine": "A discharging capacitor follows V e^(−t/RC), its time constant RC, in seconds, setting the pace, and a hot part cooling follows much the same curve.",
+   "deps": [
+    "i1",
+    "i2"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i4",
+   "title": "Logarithms: the power you need",
+   "oneLine": "A logarithm is the power a base needs to make a number, so log 1000 = 3 because 10³ = 1000, and ln uses base e.",
+   "deps": [
+    "i1",
+    "i2"
+   ],
+   "kind": "concept"
+  },
+  {
+   "id": "i5",
+   "title": "The log laws and decibels",
+   "oneLine": "Logs turn multiplying into adding, log(ab) = log a + log b, straight from the laws of powers, which is why gains in decibels simply add.",
+   "deps": [
+    "i4"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i6",
+   "title": "Solving exponential equations",
+   "oneLine": "To find an unknown power, get the power term alone, take logs of both sides and bring the unknown down, as in finding a capacitor's discharge time.",
+   "deps": [
+    "i3",
+    "i4",
+    "i5"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i7",
+   "title": "Log graphs: curved laws as straight lines",
+   "oneLine": "Plotting logs of readings turns laws such as y = axⁿ into straight lines, so the gradient gives an unknown power, such as n in pVⁿ = C.",
+   "deps": [
+    "i1",
+    "i3",
+    "i5"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i8",
+   "title": "Isothermal work: when n = 1",
+   "oneLine": "An ideal gas expanding at constant temperature, pV = C, does work W = p₁V₁ ln(V₂/V₁), the case the power rule for integrating cannot reach.",
+   "deps": [
+    "i2",
+    "i4",
+    "i5"
+   ],
+   "kind": "quantity"
+  }
+ ],
+ "calibration": [
+  {
+   "id": "c1",
+   "iid": "i1",
+   "q": "A pump's value drops by 20% every year. After 5 years, roughly how much of its first value is left?",
+   "options": [
+    "None of it",
+    "About a third",
+    "About half"
+   ],
+   "answer": 1,
+   "why": "Each year takes 20% of what is left, not of the first value, so it keeps 0.8 each year: 0.8 × 0.8 × 0.8 × 0.8 × 0.8 is about 0.33. \"None\" takes 20% of the first value five times over."
+  },
+  {
+   "id": "c2",
+   "iid": "i3",
+   "q": "A mug of tea at 80 °C, in a room at 20 °C, cools to 50 °C in 10 minutes. About how warm is it 10 minutes later?",
+   "options": [
+    "20 °C",
+    "25 °C",
+    "35 °C"
+   ],
+   "answer": 2,
+   "why": "Its gap to the room halves in each 10 minutes: 60 degrees, then 30, then 15, so 20 + 15 = 35 °C. 20 °C assumes it keeps losing 30 degrees, and 25 °C halves the temperature, not the gap to the room."
+  }
+ ],
+ "query": "Exponentials and logarithms",
+ "level": "some",
+ "mode": "read",
+ "intake": {
+  "questions": [
+   {
+    "id": "q1",
+    "q": "What do you want from this course?",
+    "options": [
+     "To understand exponentials and logarithms and how to work with them",
+     "A quick refresher of the methods",
+     "Exam practice"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q2",
+    "q": "Where will you use it?",
+    "options": [
+     "On the job and in everyday life",
+     "For further study",
+     "Just curiosity"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q3",
+    "q": "How do you like to learn?",
+    "options": [
+     "Hands-on, with the why explained in full",
+     "Rules and worked examples only",
+     "Lots of practice questions"
+    ],
+    "multi": false,
+    "other": false
+   }
+  ],
+  "answers": {
+   "q1": {
+    "picked": [
+     "To understand exponentials and logarithms and how to work with them"
+    ],
+    "other": null
+   },
+   "q2": {
+    "picked": [
+     "On the job and in everyday life"
+    ],
+    "other": null
+   },
+   "q3": {
+    "picked": [
+     "Hands-on, with the why explained in full"
+    ],
+    "other": null
+   }
+  }
+ }
+}

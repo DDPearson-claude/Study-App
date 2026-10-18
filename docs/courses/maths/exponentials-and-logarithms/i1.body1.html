@@ -1,0 +1,1095 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  /* Bars: the adding column and the multiplying column; the part each step adds is highlighted,
+     the part it takes away is a dashed outline. A slip is drawn in the warning colour. */
+  .scene .b-add { fill: var(--k-fill3); stroke: var(--k-accent); stroke-width: 1.5; }
+  .scene .b-mul { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .rise { fill: var(--k-fill2); stroke-width: 1.5; }
+  .scene .rise.add { stroke: var(--k-accent); }
+  .scene .rise.mul { stroke: var(--k-accent2); }
+  .scene .lost { fill: none; stroke: var(--k-ink); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .slip { fill: var(--k-warn); fill-opacity: .1; stroke: var(--k-warn); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .pill { fill: var(--k-fill2); stroke: none; }
+  .scene .pill.lost { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.2; stroke-dasharray: 3 2; }
+  .scene .base, .scene .axis, .scene .tickm { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .grid { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ref { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 6 4; }
+  .scene .guide { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 3 4; }
+  .scene .chord { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .chord.bad { stroke: var(--k-warn); }
+  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .band { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1; }
+  .scene .d-add { fill: var(--k-accent); }
+  .scene .d-mul { fill: var(--k-accent2); }
+  .scene .d-bad { fill: var(--k-warn); }
+  .scene .ring { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .rowbox { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene text { font-family: var(--k-font); }
+  .scene .hd { font-size: 14px; font-weight: 700; }
+  .scene .hd.add { fill: var(--k-accent); }
+  .scene .hd.mul { fill: var(--k-accent2); }
+  .scene .vl { font-size: 13px; font-weight: 700; fill: var(--k-ink); }
+  .scene .sl, .scene .tk, .scene .an, .scene .key, .scene .leg, .scene .th { font-size: 13px; fill: var(--k-muted); }
+  .scene .pt { font-size: 13px; font-weight: 600; fill: var(--k-ink); }
+  .scene .q { font-size: 17px; font-weight: 700; fill: var(--k-accent2); }
+  .scene .ml { font-size: 13px; font-weight: 700; fill: var(--k-ink); }
+  .scene .rule { font-size: 14px; font-weight: 700; fill: var(--k-ink); }
+  .scene .sn { font-size: 13px; font-weight: 600; fill: var(--k-ink); }
+  .scene .tc { font-size: 15px; font-weight: 600; fill: var(--k-ink); }
+  .scene .tn { font-size: 15px; font-weight: 700; fill: var(--k-ink); }
+  .scene .tp { font-size: 13px; font-weight: 700; fill: var(--k-accent2); }
+  .scene .tp.mut { font-weight: 400; fill: var(--k-muted); }
+  .scene .bad, .scene .tp.bad { fill: var(--k-warn); }
+  /* A label over lines keeps a halo of the page colour. */
+  .scene .h { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .v { font-style: italic; }
+  /* The two sliders on the graph screen: a track, ticks, and a knob with its value above. */
+  .scene .track { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-strong); stroke-width: 2; }
+  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .kl { font-size: 15px; font-weight: 700; fill: var(--k-accent2); }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .replay .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Two columns of bars on the same equal steps. One adds the same amount each step, and one multiplies by the same factor. Every start, amount, sum of money and voltage is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap"></p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // bars: columns over the same equal steps (cols), each starting at A; 'add' adds d a step, 'mul'
+  // multiplies by b. n: the last bar there at first; N: the last slot; run: how far a right answer
+  // runs on; ask: the column whose bar at run is asked for; at: a demonstration's timetable (seconds
+  // from the screen opening) for each bar, which grows from the bar before. vlab / rlab: which bars
+  // carry their value and their rise (vlabRun / rlabRun once the answer has run on); else all that fit.
+  // graph: dots at whole steps 0 to n, the step along the bottom and the value up the side; drop: the
+  // dots fall from the bars above. A puzzle: opts, the answers offered; val, the value each one gives;
+  // ans, the words that would give the answer away before Check.
+  const PICK = 'Tap one of the answers.';
+  const KEY_RISE = ['rise', 'rise since the bar before'];
+  const KEY_LOST = ['lost', 'lost since the bar before'];
+  const STEPS = [
+    { show: true, name: 'Add or double', dur: 4.0, key: [KEY_RISE],
+      bars: { cols: ['add', 'mul'], A: 1, d: 2, b: 2, n: 4, N: 4, h: 120, at: [null, 0.5, 1.3, 2.1, 2.9] },
+      text: 'Both columns start at 1. The left one adds 2 each step: 1, 3, 5, 7, 9. The right one multiplies by 2: 1, 2, 4, 8, 16. That is *exponential* change, the same *growth factor* on each equal step. The highlighted top of each bar is its rise. The left rises stay at 2, but the right ones grow, 1, 2, 4, 8, because each doubling adds as much as is already there. So it starts behind, then passes at step 3.' },
+    { kind: 'pick', name: 'Guess step 10', key: [KEY_RISE],
+      bars: { cols: ['add', 'mul'], A: 1, d: 2, b: 2, n: 4, N: 10, run: 10, ask: 'mul', gap: 0.15, h: 120, slip: false,
+        xl: (k) => (k % 2 ? '' : String(k)), vlab: [0, 4], rlab: [4], vlabRun: [0, 4, 10], rlabRun: [4, 10] },
+      opts: ['21', '1,024', '512'], want: '1,024', ans: '1,024',
+      task: 'Keep both columns going to step 10. The left one will read `1 + 10 × 2 = 21`. Guess first: what will the doubling column read?',
+      why: 'Ten steps make ten doublings, so the right column reads 1 doubled 10 times, 1,024. Its last rise alone is 512, while the left column still rises by 2 a step.',
+      hint: 'Not quite. Keep doubling 16 until step 10.',
+      hints: { '21': 'Not quite. That is the adding column. Each doubling adds as much as is there, so the rises keep growing.',
+        '512': 'Not quite. That is step 9. Ten steps make ten doublings.' } },
+    { show: true, name: 'Dots on a graph', dur: 3.6, sliders: true,
+      key: [['rise', 'rise'], ['lost', 'lost'], ['add', 'adding'], ['mul', 'multiplying']],
+      bars: { cols: ['add', 'mul'], A: 1, d: 2, b: 2, n: 5, N: 5, h: 76 },
+      graph: { n: 5, ticks: [0, 1, 2, 3, 4, 5], xname: 'steps', yname: 'value', h: 116, series: 'bars', drop: { t0: 0.5, gap: 0.45 } },
+      text: 'Each bar drops a dot onto the graph, its step along the bottom and its value up the side. The adding dots lie on a straight line, and the multiplying dots curve upwards. Write the start as `A` and the factor as `b`. After one step you have `A × b`, after two `A × b × b`, and after `x` steps `A × bˣ`. Slide the amount and the factor.' },
+    { kind: 'pick', name: 'One step on', key: [KEY_RISE],
+      bars: { cols: ['mul'], A: 48, b: 1.5, n: 0, N: 1, run: 1, ask: 'mul', h: 120, xl: ['now', 'one step on'] },
+      opts: ['49.5', '96', '72'], want: '72', val: { '49.5': 48 + 1.5, '96': 48 * 2, '72': 48 * 1.5 }, ans: '72',
+      task: 'A bar is 48, and each step multiplies it by 1.5. What is the bar one step on?',
+      why: '× 1.5 keeps the whole 48 and adds half of it, 24. So the next bar is `48 × 1.5 = 72`. The rise is a share of the bar, so a bigger bar would rise by more.',
+      hint: 'Not quite. Multiply the whole bar by 1.5.',
+      hints: { '49.5': 'Not quite. That adds 1.5. A factor multiplies the whole bar.',
+        '96': 'Not quite. That doubles it. × 1.5 keeps the whole and adds half.' } },
+    { show: true, name: '5% a year', dur: 4.2, key: [['add', 'adding £50 a year'], ['mul', 'growing 5% a year']],
+      bars: { cols: ['add', 'mul'], A: 1000, d: 50, b: 1.05, n: 10, N: 10, h: 80, prefix: '£', rises: false, vlab: [0, 10],
+        xl: (k) => (k % 5 ? '' : String(k)), head: { add: '+ £50 each year', mul: '× 1.05 each year' } },
+      graph: { n: 15, ticks: [0, 5, 10, 15], tl: ['0', '5', '10', '15 years'], yname: 'pounds', yprefix: '£', h: 130, ymax: 2800,
+        yticks: [0, 500, 1000, 1500, 2000, 2500], series: 'bars', upto: 15, drop: { t0: 0.5, gap: 0.13 },
+        line: { y: 2000, label: 'double, £2,000', pos: 'below', t: 2.9 },
+        band: { x0: 14, x1: 15, label: 'doubles between years 14 and 15', t: 3.6 } },
+      text: 'A percentage gives the factor. Growing 5% keeps the whole and adds 5%, so each year is × 1.05. Say a £1,000 pot grows 5% a year, beside one with £50 added each year. After 10 years it is `1,000 × 1.05¹⁰ ≈ £1,628.89` against £1,500, because each 5% is taken of a bigger amount. Run on, it doubles between years 14 and 15.' },
+    { kind: 'pick', name: 'The factor for 5%', key: [KEY_RISE],
+      bars: { cols: ['mul'], A: 1000, b: 1.05, n: 0, N: 1, run: 1, ask: 'mul', h: 120, prefix: '£', xl: ['year 0', 'year 1'], head: { mul: 'A year of 5% growth' } },
+      opts: ['× 0.05', '× 1.05', '× 5'], want: '× 1.05', val: { '× 0.05': 1000 * 0.05, '× 1.05': 1000 * 1.05, '× 5': 1000 * 5 }, ans: '£1,050',
+      task: 'A £1,000 pot grows 5% a year. What does each year multiply it by?',
+      why: 'You keep the whole pot, 1, and add 5%, 0.05, so each year is `× 1.05`. £1,000 becomes £1,050 after one year.',
+      hint: 'Not quite. Keep the whole, 1, and add 5%.',
+      hints: { '× 0.05': 'Not quite. × 0.05 keeps only 5% of the pot. Keep the whole and add 5%.',
+        '× 5': 'Not quite. × 5 makes it five times as big. 5% is 0.05 of the pot.' } },
+    { show: true, name: 'Halving', dur: 4.0, key: [KEY_LOST],
+      bars: { cols: ['mul'], A: 400, b: 0.5, n: 5, N: 5, h: 130, zero: '0 V', xl: (k) => 10 * k + ' s', head: { mul: 'Volts, × 0.5 every 10 s' },
+        at: [null, 0.5, 1.1, 1.7, 2.3, 2.9] },
+      text: 'A factor below 1 shrinks the bar each step, which is called *decay*. The course\'s capacitor starts at 400 V and halves every 10 seconds, × 0.5 a step: 400, 200, 100, 50, 25. The drops shrink too, because each is half of what is left. Half of a positive amount is still positive, so it gets ever closer to 0 V but never reaches it.' },
+    { kind: 'pick', name: 'Losing value', key: [KEY_LOST],
+      bars: { cols: ['mul'], A: 8000, b: 0.75, n: 0, N: 2, run: 2, ask: 'mul', gap: 0.6, h: 120, prefix: '£', xl: ['year 0', 'year 1', 'year 2'], head: { mul: 'Losing 25% each year' } },
+      opts: ['£4,000', '£4,500', '£500'], want: '£4,500', val: { '£4,000': 8000 - 2 * 2000, '£4,500': 8000 * 0.75 * 0.75, '£500': 8000 * 0.25 * 0.25 }, ans: '£4,500',
+      task: 'An £8,000 machine loses 25% of its value each year. What is it worth after 2 years?',
+      why: 'Losing 25% keeps 75%, so each year is × 0.75. `8,000 × 0.75 = 6,000`, then `6,000 × 0.75 = 4,500`. The second loss, £1,500, is smaller than the first, £2,000, because it is a share of less.',
+      hint: 'Not quite. Losing 25% keeps 75% each year.',
+      hints: { '£4,000': 'Not quite. That takes £2,000 off twice. The second year\'s 25% is of £6,000, so it takes less.',
+        '£500': 'Not quite. × 0.25 keeps only 25%. Losing 25% keeps 75%, × 0.75.' } },
+    { show: true, name: 'Between the steps', dur: 4.0, fill: true,
+      key: [['mul', 'whole steps'], ['curve', 'the rule, 1 × 2ˣ'], ['chord', 'straight from dot to dot']],
+      graph: { n: 3, ticks: [0, 1, 2, 3], xname: 'steps', yname: 'value', h: 170, ymax: 9, yticks: [0, 2, 4, 6, 8],
+        series: [{ kind: 'mul', A: 1, b: 2, upto: 3 }], dotsAt: [0.5, 0.8, 1.1, 1.4], curve: true },
+      text: 'The rule works between the steps too, with a fraction of a step in the power. Half a step multiplies by `√b`, because two half steps must make one whole step. At × 2 that is `√2 ≈ 1.414`, and `1.414 × 1.414 ≈ 2`. So the curve through the dots bends, rather than running straight from one dot to the next.' },
+    { kind: 'pick', name: 'Half a step', key: [['mul', 'whole steps'], ['curve', 'the rule, 100 × 9ˣ']],
+      graph: { n: 1, ticks: [0, 0.5, 1], tl: ['0', '½', '1'], xname: 'steps', yname: 'value', h: 150, ymax: 1000, yticks: [0, 200, 400, 600, 800, 1000],
+        series: [{ kind: 'mul', A: 100, b: 9, upto: 1 }], ask: 0.5, curve: true,
+        dlab: [{ s: 0, k: 0, dx: 9, dy: 5, anchor: 'start' }, { s: 0, k: 1, dx: -9, dy: 5, anchor: 'end' }] },
+      opts: ['500', '300', '450'], want: '300', val: { '500': (100 + 900) / 2, '300': 100 * Math.sqrt(9), '450': 100 * (9 / 2) }, ans: '300',
+      task: 'A bar of 100 grows × 9 each whole step, so it is 900 one step on. What is it half a step on?',
+      why: 'Half a step multiplies by `√9 = 3`, because two half steps, × 3 and then × 3, make the whole × 9. So 100 becomes 300 halfway, and 900 after the whole step.',
+      hint: 'Not quite. Two half steps must make the whole × 9.',
+      hints: { '450': 'Not quite. That multiplies by half the factor, 4.5. Two half steps of × 4.5 make × 20.25, not × 9.',
+        '500': 'Not quite. That is halfway along a straight line from 100 to 900. The rule\'s curve bends below it.' } },
+    { kind: 'pick', name: 'Which is exponential?', table: true,
+      opts: ['x²', '10x', '2ˣ'], want: '2ˣ', ans: '× 2',
+      task: 'Three rules, worked out at `x` = 1, 2, 3 and 4. Which one is exponential?',
+      why: 'Exponential means the same factor on each equal step. Divide each value by the one before: `2ˣ` gives 2 every time. `x²` gives 4, 2.25, then 1.78, and `10x` adds 10 each step.',
+      hint: 'Not quite. Look for the same factor on every step.',
+      hints: { 'x²': 'Not quite. Divide each value of `x²` by the one before: 4, 2.25, then 1.78. The factor keeps changing.',
+        '10x': 'Not quite. `10x` adds 10 each step, the same rise every time.' } },
+    { kind: 'pick', name: '9% a day', key: [['add', 'adding 9 a day'], ['mul', 'growing 9% a day']],
+      graph: { n: 30, ticks: [0, 10, 20, 30], tl: ['0', '10', '20', '30 days'], yname: 'count', h: 150, dp: 0, gap: 0.035,
+        series: [{ kind: 'add', A: 100, d: 9, upto: 7, run: 30 }, { kind: 'mul', A: 100, b: 1.09, upto: 7, run: 30 }], ask: 30,
+        dlab: [{ s: 1, k: 7, dx: -7, dy: -8, anchor: 'end', when: 'before' }, { s: 0, k: 7, dx: 7, dy: 17, anchor: 'start', when: 'before' },
+          { s: 1, k: 30, dx: -8, dy: -9, anchor: 'end', when: 'after', t: 1.3 }, { s: 0, k: 30, dx: 4, dy: -10, anchor: 'end', when: 'after', t: 1.3 }] },
+      opts: ['370', '1,327', '455'], want: '1,327', ans: '1,327',
+      val: { '370': 100 + 30 * 9, '1,327': 100 * Math.pow(1.09, 30), '455': 100 + (100 * Math.pow(1.09, 7) - 100) * 30 / 7 },
+      task: 'A count of 100 grows 9% a day. After a week it is about 183, close to the 163 that adding 9 a day gives. About how big is it after 30 days?',
+      why: 'Each day multiplies by 1.09, so after 30 days it is `100 × 1.09³⁰ ≈ 1,327`. A week in, it is close to adding, 183 against 163, but by day 30 it is far ahead, 1,327 against 370.',
+      hint: 'Not quite. Each day multiplies by 1.09.',
+      hints: { '370': 'Not quite. That adds 9 a day. Each day\'s 9% is of a bigger count.',
+        '455': 'Not quite. That keeps the first week\'s rise of 83 going. The rises keep growing.' } },
+    { kind: 'pick', name: 'Passing 30 V', key: [['mul', 'halving every 10 s']],
+      graph: { n: 6, ticks: [0, 1, 2, 3, 4, 5, 6], tl: (v) => 10 * v + ' s', yname: 'volts', yunit: ' V', h: 170, ymax: 440, yticks: [0, 100, 200, 300, 400], gap: 0.15,
+        series: [{ kind: 'mul', A: 400, b: 0.5, upto: 0, run: 6 }], line: { y: 30, label: '30 V', pos: 'above' },
+        band: { x0: 3, x1: 4, label: 'passes 30 V between 30 s and 40 s', after: true, t: 1.5 },
+        dlab: [{ s: 0, k: 0, dx: 9, dy: 5, anchor: 'start' }, { s: 0, k: 3, dx: 7, dy: -9, anchor: 'start', when: 'after', t: 1.2 },
+          { s: 0, k: 4, dx: 7, dy: -9, anchor: 'start', when: 'after', t: 1.2 }] },
+      opts: ['At 18.5 s', 'Between 30 s and 40 s', 'Never'], want: 'Between 30 s and 40 s', ans: 'passes 30 V between 30 s and 40 s',
+      task: 'The capacitor starts at 400 V and halves every 10 seconds. When does it pass 30 V?',
+      why: '`400 × 0.5ˣ`, with `x` counting 10-second steps, gives 50 V after 30 s and 25 V after 40 s. 30 V lies between, so it passes 30 V between 30 s and 40 s. Finding exactly when needs a way to undo a power.',
+      hint: 'Not quite. Halve 400 a step at a time.',
+      hints: { 'At 18.5 s': 'Not quite. That falls 200 V every 10 s, as adding would. Halving takes less off each time.',
+        'Never': 'Not quite. It never reaches 0 V, but it does pass 30 V. Halve 400 a few times.' } },
+  ];
+  const FINISH = 'Exponential change multiplies by the same growth factor on every equal step, so a start `A` becomes `A × bˣ` after `x` steps. It grows when `b` is larger than 1, as × 1.05 does for 5%, and shrinks when `b` is less than 1, ever closer to zero but never reaching it.';
+  const CAPTION = 'Multiplying by the same factor `b` each equal step gives `A × bˣ`, growth above 1 and decay below.';
+  // Sources the checks restate (the lesson's own).
+  const SRC_GF = 'https://openstax.org/books/algebra-1/pages/5-4-3-exponential-change-the-growth-factor';
+  const SRC_CALC = 'https://openstax.org/books/calculus-volume-1/pages/6-8-exponential-growth-and-decay';
+  const SRC_LIBRE = 'https://math.libretexts.org/Courses/Highline_College/Math_111%3A_College_Algebra/05%3A_Exponential_and_Logarithmic_Functions/5.01%3A_Exponential_Functions';
+  // The sliders on the graph screen, and where their tracks run.
+  const SL = [
+    { id: 'amt', name: 'Amount added', min: 0, max: 5, step: 1, def: 2, ticks: [0, 1, 2, 3, 4, 5], fmt: (v) => '+ ' + fv(v) },
+    { id: 'fac', name: 'Growth factor b', min: 0.5, max: 3, step: 0.05, def: 2, ticks: [0.5, 1, 1.5, 2, 2.5, 3], fmt: (v) => '× ' + fv(v) },
+  ];
+  const SX0 = 142, SX1 = 318;
+  // The graph's frame and where its dots run.
+  const GX0 = 54, GX1 = 330, PX0 = 66, PX1 = 318;
+  const FADE = 0.35;
+  const FB = [2.2, 1.2];   // how long the motion after a right and a wrong answer plays
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers ----------
+  // At most dp decimals, trailing zeros dropped, thousands with commas, a true minus sign.
+  function fv(v, dp) {
+    if (dp == null) dp = 2;
+    const f = Math.pow(10, dp);
+    let r = Math.round(v * f) / f;
+    if (r === 0) r = 0;
+    let s = Math.abs(r).toFixed(dp);
+    if (dp > 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    const p = s.split('.');
+    p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (r < 0 ? '−' : '') + p.join('.');
+  }
+  // The rule: the adding column is A + x × d, the multiplying column A × bˣ.
+  const valOf = (s, x) => (s.kind === 'add' ? s.A + x * s.d : s.A * Math.pow(s.b, x));
+  // As a screen reader says it.
+  const SUP = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9' };
+  const say = (s) => String(s == null ? '' : s)
+    .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g, (m) => (m === '²' ? ' squared' : ' to the power ' + m.split('').map((c) => SUP[c]).join('')))
+    .replace(/ˣ/g, ' to the power x').replace(/√/g, 'root ').replace(/≈/g, ' is about ').replace(/×/g, ' times ')
+    .replace(/−/g, 'minus ').replace(/\+/g, ' plus ').replace(/=/g, ' equals ').replace(/½/g, 'half').replace(/\s+/g, ' ').trim();
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // amt, fac: the sliders (null until moved); fill: the curve between the dots on; refill: it is filling in again.
+  function blank() { return { pick: null, res: null, why: false, amt: null, fac: null, fill: true, refill: false }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  const slv = (st, id) => (st[id] != null ? st[id] : SL.find((s) => s.id === id).def);
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;                                                        // what the last paint drew, for the checks
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  // The letters A, b and x standing for numbers are italic, and so is the power ˣ.
+  const ITAL = /((?<![A-Za-z])[Abx](?![A-Za-z])|ˣ)/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line with its letters italic; *a key term* is highlighted.
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at0) el.appendChild(document.createTextNode(seg.slice(at0, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at0 = m.index + m[0].length;
+      }
+      if (at0 < seg.length) el.appendChild(document.createTextNode(seg.slice(at0)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own. A new choice after a wrong answer
+  // settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one runs the picture on, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(st.res === 'right' ? FB[0] : FB[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  // The switch on the in-between screen: the curve between the dots, on or off.
+  const switchBtn = K.button({ label: 'Fill in the curve', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.fill || finished) return;
+    st.fill = !st.fill;
+    if (st.fill) { st.refill = true; play(1.9); } else { anim.pause(); T = Infinity; }
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    st.fill = true; st.refill = false;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A timetable entry: false, not shown; null, there from the start; a time, arriving then.
+  const vis = (t) => (t === false ? 0 : t == null ? 1 : arr(t));
+  function part(a, rise, draw) {
+    if (a <= 0) return null;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+    return g;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const dot = (cls, x, y, r) => add(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r: r || 4 }));
+  function text(x, y, s, cls, anchor, ital) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    if (ital) italics(t, s, true); else t.textContent = String(s);
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));
+    t.textContent = String(s);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 7.6;
+  }
+  // A label as near as it can sit to centre c, kept inside lo..hi.
+  function textC(c, y, s, cls, lo, hi, ital) { const w = tw(s, cls); return text(K.clamp(c - w / 2, lo, hi - w), y, s, cls, 'start', ital); }
+  // Do labels in a row, each centred where it wants and kept inside lo..hi, all keep 4 apart?
+  function fits(items, lo, hi) {
+    let right = -Infinity;
+    for (const it of items) {
+      const l = K.clamp(it.c - it.w / 2, lo, hi - it.w);
+      if (l < right + 4) return false;
+      right = l + it.w;
+    }
+    return true;
+  }
+  const ends = (list) => [list[0], list[list.length - 1]].filter((k, j, a) => k != null && a.indexOf(k) === j);
+
+  // ---------- each step's sizes ----------
+  const GEO = new Map();
+  function geo(d) {
+    if (GEO.has(d)) return GEO.get(d);
+    const G = {};
+    let y = 4;
+    if (d.sliders) { G.sl = [y + 34, y + 84]; y += 104; G.ruleY = y + 12; G.legY = y + 31; y += 40; }
+    if (d.bars) {
+      const c = d.bars, h = c.h || 110;
+      G.bars = { headY: y + 15, top: y + 40, base: y + 40 + h };
+      G.bars.stepY = G.bars.base + 17;
+      y = c.rises === false ? G.bars.stepY + 8 : G.bars.base + 50;
+    }
+    if (d.graph) {
+      const gc = d.graph;
+      y += 6;
+      G.graph = { top: y + 26, bot: y + 26 + gc.h };
+      G.graph.tickY = G.graph.bot + 18;
+      G.graph.nameY = G.graph.bot + 36;
+      y = (gc.xname || gc.band ? G.graph.nameY : G.graph.tickY) + 8;
+    }
+    if (d.table) { G.table = y + 4; y += 206; }
+    if (d.key && d.key.length) { G.keyY = y + 14; G.keyRows = keyLayout(d.key).length; y += 20 * G.keyRows + 6; }
+    G.H = Math.ceil(y + 4);
+    GEO.set(d, G);
+    return G;
+  }
+  // The step's bars and graph with the sliders' settings in place.
+  function eff(d, st) {
+    const c = d.bars ? Object.assign({}, d.bars) : null;
+    if (c && d.sliders) { c.d = slv(st, 'amt'); c.b = slv(st, 'fac'); }
+    const g = d.graph ? Object.assign({}, d.graph) : null;
+    if (g && g.series === 'bars') g.series = c.cols.map((kind) => Object.assign(colOf(c, kind), { upto: g.upto != null ? g.upto : c.N }));
+    return { c, g };
+  }
+
+  // ---------- the columns of bars ----------
+  const panels = (c) => (c.cols.length === 2 ? [{ x0: 8, x1: 164 }, { x0: 176, x1: 332 }] : [{ x0: 44, x1: 324 }]);
+  const colOf = (c, kind) => ({ kind, A: c.A, d: c.d, b: c.b });
+  const preOf = (c) => c.prefix || '';
+  function headOf(c, kind) {
+    if (c.head && c.head[kind]) return c.head[kind];
+    return kind === 'add' ? '+ ' + preOf(c) + fv(c.d) + ' each step' : '× ' + fv(c.b) + ' each step';
+  }
+  function xlOf(c, k) { if (!c.xl) return String(k); return typeof c.xl === 'function' ? c.xl(k) : c.xl[k] || ''; }
+  // When each bar arrives: false, not drawn; null, there from the start.
+  function barTimes(d, st, c) {
+    const t = [];
+    for (let k = 0; k <= c.N; k++) t.push(false);
+    if (d.show) { for (let k = 0; k <= c.n; k++) t[k] = c.at ? c.at[k] : null; return t; }
+    for (let k = 0; k <= c.n; k++) t[k] = null;
+    if (st.res === 'right') for (let k = c.n + 1; k <= c.run; k++) t[k] = 0.1 + (c.gap || 0.15) * (k - c.n - 1);
+    return t;
+  }
+  function maxTo(c, upto) { let m = 0; c.cols.forEach((kind) => { for (let k = 0; k <= upto; k++) m = Math.max(m, valOf(colOf(c, kind), k)); }); return m; }
+  const slipOn = (d, st) => !d.show && st.res === 'wrong' && st.pick != null && !!d.val && !!d.bars && d.bars.slip !== false;
+  // One scale for the screen's bars: the tallest bar drawn fills the frame. It eases to the new
+  // tallest when an answer runs the columns on (or a slip is drawn).
+  function barScale(d, st, c) {
+    if (d.show) { const m = maxTo(c, c.N); return { now: m, s0: m, s1: m }; }
+    const s0 = maxTo(c, c.n);
+    let s1 = s0, dur = 0.6;
+    if (st.res === 'right') { s1 = Math.max(s0, maxTo(c, c.run)); dur = (c.run - c.n - 1) * (c.gap || 0.15) + 0.7; }
+    else if (slipOn(d, st)) s1 = Math.max(s0, d.val[st.pick]);
+    const p = s1 === s0 ? 1 : arr(0.1, dur);
+    return { now: s0 + (s1 - s0) * p, s0, s1 };
+  }
+  function drawBars(d, st, c, G) {
+    const gb = G.bars, P = panels(c), sc = barScale(d, st, c), times = barTimes(d, st, c), pre = preOf(c), dp = c.dp == null ? 2 : c.dp;
+    const hp = (v) => (Math.max(0, v) / sc.now) * c.h;
+    const right = st.res === 'right';
+    const rec = { scale: sc.now, h: c.h, base: gb.base, b: c.b, d: c.d, cols: {}, tops: {}, slip: null };
+    REC.bars = rec;
+    const said = [];
+    c.cols.forEach((kind, ci) => {
+      const pn = P[ci], slot = (pn.x1 - pn.x0) / (c.N + 1), bw = Math.min(slot * 0.7, 56), col = colOf(c, kind);
+      const cx = (k) => pn.x0 + (k + 0.5) * slot;
+      const vals = [];
+      for (let k = 0; k <= c.N; k++) vals.push(valOf(col, k));
+      text((pn.x0 + pn.x1) / 2, gb.headY, headOf(c, kind), 'hd ' + kind, 'middle');
+      line('base', pn.x0, gb.base, pn.x1, gb.base);
+      if (c.zero && ci === 0) text(pn.x0 - 6, gb.base + 5, c.zero, 'sl', 'end');
+      for (let k = 0; k <= c.N; k++) { const l = xlOf(c, k); if (l) textC(cx(k), gb.stepY, l, 'sl', pn.x0, pn.x1); }
+      rec.cols[kind] = []; rec.tops[kind] = [];
+      const shown = [], now = {};
+      for (let k = 0; k <= c.N; k++) {
+        const t = times[k];
+        if (t === false) continue;
+        const ap = t == null ? 1 : arr(t, 0.3), gr = t == null ? 1 : arr(t + 0.2, 0.5);
+        if (ap <= 0) continue;
+        const v = vals[k], vp = k ? vals[k - 1] : v, vn = vp + (v - vp) * gr, x = cx(k) - bw / 2;
+        part(ap, 0, () => {
+          if (k === 0 || vn === vp) { rect('b-' + kind, x, gb.base - hp(vn), bw, hp(vn), 2); return; }
+          const lo = Math.min(vp, vn);
+          rect('b-' + kind, x, gb.base - hp(lo), bw, hp(lo), 0);
+          if (vn > vp) rect('rise ' + kind, x, gb.base - hp(vn), bw, hp(vn) - hp(vp), 0);
+          else rect('lost', x, gb.base - hp(vp), bw, hp(vp) - hp(vn), 0);
+        });
+        rec.cols[kind].push({ k, v: vn, px: hp(vn) });
+        rec.tops[kind][k] = { x: cx(k), y: gb.base - hp(vn) };
+        now[k] = vn;
+        shown.push(k);
+      }
+      // each bar's value above it, and its rise (or drop) in a pill under the step
+      const vText = (k) => pre + fv(vals[k], dp);
+      const pick = (list, auto) => (list ? list.filter((k) => shown.indexOf(k) >= 0) : auto);
+      const autoV = fits(shown.map((k) => ({ c: cx(k), w: tw(vText(k), 'vl') })), pn.x0, pn.x1) ? shown : ends(shown);
+      pick(right && c.vlabRun ? c.vlabRun : c.vlab, autoV).forEach((k) => {
+        const t = times[k], a = t == null ? 1 : arr(t + 0.6, 0.35);
+        part(a, 3, () => textC(cx(k), gb.base - hp(now[k]) - 6, vText(k), 'vl h', pn.x0, pn.x1));
+      });
+      if (c.rises !== false) {
+        const rk = shown.filter((k) => k > 0);
+        const rText = (k) => { const r = vals[k] - vals[k - 1]; return (r < -1e-12 ? '−' : '+') + pre + fv(Math.abs(r), dp); };
+        const autoR = fits(rk.map((k) => ({ c: cx(k), w: tw(rText(k), 'pt') + 10 })), pn.x0, pn.x1) ? rk : ends(rk);
+        pick(right && c.rlabRun ? c.rlabRun : c.rlab, autoR).forEach((k) => {
+          if (k < 1) return;
+          const t = times[k], a = t == null ? 1 : arr(t + 0.6, 0.35), s = rText(k), w = tw(s, 'pt') + 10, lost = vals[k] < vals[k - 1];
+          part(a, 0, () => {
+            const x = K.clamp(cx(k) - w / 2, pn.x0, pn.x1 - w);
+            rect('pill' + (lost ? ' lost' : ''), x, gb.base + 25, w, 18, 9);
+            text(x + w / 2, gb.base + 38, s, 'pt', 'middle');
+          });
+        });
+      }
+      // the bar asked for, and a slip drawn where it would stand
+      if (!d.show && c.ask === kind) {
+        const gone = right || slipOn(d, st), a = gone ? 1 - arr(0.1, 0.3) : 1;
+        if (a > 0) part(a, 0, () => text(cx(c.run), gb.base - 12, '?', 'q', 'middle'));
+        if (slipOn(d, st)) {
+          const v = d.val[st.pick], from = vals[c.n], ap = arr(0.1, 0.3), gr = arr(0.3, 0.5), vn = from + (v - from) * gr;
+          part(ap, 0, () => rect('slip', cx(c.run) - bw / 2, gb.base - hp(vn), bw, hp(vn), 2));
+          part(arr(0.7, 0.35), 3, () => textC(cx(c.run), gb.base - hp(vn) - 6, pre + fv(v, dp), 'vl bad h', pn.x0, pn.x1));
+          rec.slip = { v: vn, px: hp(vn) };
+        }
+      }
+      said.push((c.cols.length === 2 ? (ci ? 'Right column, ' : 'Left column, ') : 'A column, ') + say(headOf(c, kind)) + ': ' +
+        (shown.length ? shown.map((k) => say(vText(k))).join(', ') : 'no bars yet') + '.');
+    });
+    return said.join(' ');
+  }
+
+  // ---------- the graph ----------
+  // Tick values about a fifth of the way up at a time, in 1, 2, 2.5 or 5 times a power of ten.
+  function niceTicks(max) {
+    const raw = max / 5, mag = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / mag;
+    const step = (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * mag, out = [];
+    for (let j = 0; j * step <= max + 1e-9; j++) out.push(j * step);
+    return out;
+  }
+  // When each dot arrives: false, not drawn; null, there from the start.
+  function dotTime(d, st, gc, s, k) {
+    if (d.show) {
+      if (k > s.upto) return false;
+      if (gc.drop) return gc.drop.t0 + gc.drop.gap * k;
+      if (gc.dotsAt) return st.refill ? null : gc.dotsAt[k];
+      return null;
+    }
+    if (k <= s.upto) return null;
+    if (st.res === 'right' && s.run != null && k <= s.run) return 0.1 + (gc.gap || 0.035) * (k - s.upto - 1);
+    return false;
+  }
+  // The value scale: fixed, or fitting what is drawn, easing to fit what an answer adds.
+  function graphScale(d, st, gc, SER) {
+    if (gc.ymax) return { now: gc.ymax, s0: gc.ymax, s1: gc.ymax, p: 1 };
+    const top = (upto) => {
+      let m = 0;
+      SER.forEach((s) => { const u = upto(s); for (let k = 0; k <= u; k++) m = Math.max(m, valOf(s, k)); });
+      if (gc.line) m = Math.max(m, gc.line.y);
+      return m * 1.12;
+    };
+    const s0 = top((s) => s.upto);
+    if (d.show) return { now: s0, s0, s1: s0, p: 1 };
+    let s1 = s0, dur = 0.6;
+    if (st.res === 'right') { s1 = Math.max(s0, top((s) => (s.run != null ? s.run : s.upto))); dur = 1.2; }
+    else if (st.res === 'wrong' && d.val && d.val[st.pick] != null) s1 = Math.max(s0, d.val[st.pick] * 1.12);
+    const p = s1 === s0 ? 1 : arr(0.1, dur);
+    return { now: s0 + (s1 - s0) * p, s0, s1, p };
+  }
+  function drawGraph(d, st, gc, G) {
+    const g = G.graph, n = gc.n, h = gc.h, SER = gc.series, sc = graphScale(d, st, gc, SER), dp = gc.dp == null ? 2 : gc.dp;
+    const X = (x) => PX0 + (x / n) * (PX1 - PX0), Y = (v) => g.bot - (v / sc.now) * h;
+    const pre = gc.yprefix || '', unit = gc.yunit || '', right = st.res === 'right', answered = right || st.res === 'wrong';
+    const rec = { n, ymax: sc.now, bot: g.bot, h, dots: [], curve: null, half: null, marks: [] };
+    REC.graph = rec;
+    // the value axis: its ticks (a new set fades in while the scale changes), grid lines and name
+    const sets = gc.yticks ? [[gc.yticks, 1]] : sc.s0 === sc.s1 ? [[niceTicks(sc.s1), 1]]
+      : [[niceTicks(sc.s0), 1 - Math.min(1, sc.p * 2)], [niceTicks(sc.s1), Math.max(0, sc.p * 2 - 1)]];
+    sets.forEach((set) => part(set[1], 0, () => set[0].forEach((v) => {
+      if (v > sc.now * 1.0001) return;
+      if (v > 0) line('grid', GX0, Y(v), GX1, Y(v));
+      text(GX0 - 6, Y(v) + 4.5, pre + fv(v), 'tk', 'end');
+    })));
+    text(6, g.top - 12, gc.yname, 'an', 'start');
+    line('axis', GX0, g.top, GX0, g.bot);
+    line('axis', GX0, g.bot, GX1, g.bot);
+    gc.ticks.forEach((v, j) => {
+      line('tickm', X(v), g.bot, X(v), g.bot + 5);
+      const l = gc.tl ? (typeof gc.tl === 'function' ? gc.tl(v) : gc.tl[j]) : String(v);
+      textC(X(v), g.tickY, l, 'tk', 2, 338);
+    });
+    if (gc.xname) text((GX0 + GX1) / 2, g.nameY, gc.xname, 'an', 'middle');
+    const said = ['A graph, ' + (gc.xname || 'time') + ' along the bottom and ' + gc.yname + ' up the side.'];
+    // a reference line, and a band along the time axis
+    if (gc.line) {
+      const L = gc.line;
+      part(L.t == null ? 1 : arr(L.t), 0, () => {
+        line('ref', GX0, Y(L.y), GX1, Y(L.y));
+        text(PX0, L.pos === 'below' ? Y(L.y) + 17 : Y(L.y) - 6, L.label, 'ml h', 'start');
+      });
+      said.push('A dashed line marks ' + say(L.label) + '.');
+    }
+    if (gc.band) {
+      const B = gc.band, a = vis(B.after ? (right ? B.t : false) : B.t);
+      if (a > 0) part(a, 0, () => { rect('band', X(B.x0), g.bot - 4, X(B.x1) - X(B.x0), 8, 2); textC(X((B.x0 + B.x1) / 2), g.nameY, B.label, 'ml', 2, 338); });
+      if (a >= 0.5) said.push('A band on the bottom axis: ' + say(B.label) + '.');
+    }
+    // the rule between the steps, and straight lines from dot to dot to compare it with
+    const mulS = SER.find((s) => s.kind === 'mul');
+    let ct = false, cd = 1.3;
+    if (gc.curve && mulS) {
+      if (d.show) { if (st.fill) { ct = st.refill ? 0.1 : 1.9; cd = st.refill ? 1.2 : 1.3; } }
+      else if (right) { ct = 0.1; cd = 0.8; }
+    }
+    if (ct !== false && d.show) {
+      part(arr(ct), 0, () => { for (let k = 0; k < mulS.upto; k++) line('chord', X(k), Y(valOf(mulS, k)), X(k + 1), Y(valOf(mulS, k + 1))); });
+    }
+    if (ct !== false) {
+      const xc = n * arr(ct, cd);
+      if (xc > 0) {
+        const m = 64, pts = [];
+        for (let j = 0; j <= m; j++) { const x = (xc * j) / m; pts.push(r3(X(x)) + ' ' + r3(Y(valOf(mulS, x)))); }
+        add(K.svg('path', { class: 'curve', d: 'M' + pts.join(' L') }));
+        rec.curve = { to: xc, fn: (x) => valOf(mulS, x) };
+        said.push('A curve fills in the rule between the dots.');
+      }
+    }
+    // the dots, falling from the bars above where there are bars
+    SER.forEach((s) => {
+      const maxK = Math.max(s.upto, s.run || 0);
+      for (let k = 0; k <= maxK; k++) {
+        const t = dotTime(d, st, gc, s, k);
+        if (t === false) continue;
+        const v = valOf(s, k), tx = X(k), ty = Y(v), cls = 'd-' + s.kind;
+        const from = gc.drop && REC.bars && REC.bars.tops[s.kind] && REC.bars.tops[s.kind][k];
+        if (from && t != null) {
+          const p = arr(t, 0.7);
+          if (p <= 0) continue;
+          const g2 = add(K.svg('g'));
+          K.fade(g2, Math.min(1, p * 4), 0);
+          const keep = into; into = g2; dot(cls, K.lerp(from.x, tx, p), K.lerp(from.y, ty, p), 4); into = keep;
+        } else {
+          const a = t == null ? 1 : arr(t);
+          if (a <= 0) continue;
+          part(a, 6, () => dot(cls, tx, ty, 4));
+        }
+        rec.dots.push({ kind: s.kind, k, v, x: tx, y: ty, s });
+      }
+    });
+    // values written beside chosen dots
+    (gc.dlab || []).forEach((L) => {
+      const s = SER[L.s], when = L.when || 'always';
+      let a = 1;
+      if (when === 'before') a = right ? 1 - arr(0.1, 0.4) : 1;
+      else if (when === 'after') a = right ? arr(L.t) : 0;
+      if (a <= 0) return;
+      const v = valOf(s, L.k);
+      part(a, 0, () => text(X(L.k) + L.dx, Y(v) + L.dy, pre + fv(v, dp) + unit, 'ml h', L.anchor));
+      if (a >= 0.5) said.push('At ' + L.k + ', ' + say(pre + fv(v, dp) + unit) + '.');
+    });
+    // the step asked about
+    if (!d.show && gc.ask != null) {
+      const a = answered ? 1 - arr(0.1, 0.3) : 1;
+      if (a > 0) part(a, 0, () => { line('guide', X(gc.ask), g.bot, X(gc.ask), g.top + 18); text(X(gc.ask), g.top + 12, '?', 'q h', 'middle'); });
+    }
+    const ex = EXTRA[d.name];
+    if (ex) { const w = ex({ X, Y, g, st, d, SER, rec, right, wrong: st.res === 'wrong' ? st.pick : null }); if (w) said.push(w); }
+    const md = rec.dots.filter((q) => q.kind === 'mul'), ad = rec.dots.filter((q) => q.kind === 'add');
+    if (ad.length) said.push('Adding dots: ' + ad.map((q) => fv(q.v, dp)).join(', ') + '.');
+    if (md.length) said.push('Multiplying dots: ' + md.map((q) => fv(q.v, dp)).join(', ') + '.');
+    return said.join(' ');
+  }
+  // What one screen's graph adds of its own.
+  const EXTRA = {
+    '5% a year': (x) => {
+      const v = valOf(x.SER[1], 15);
+      part(arr(3.3), 0, () => text(x.X(15) + 4, x.Y(v) - 11, '1.05¹⁴ ≈ 1.98, 1.05¹⁵ ≈ 2.08', 'ml h', 'end'));
+      return '';
+    },
+    'Between the steps': (x) => {
+      if (!x.st.fill) return '';
+      const s = x.SER[0], hv = valOf(s, 0.5), t = x.st.refill ? 1.3 : 3.2, px = x.X(0.5), py = x.Y(hv);
+      part(arr(t), 0, () => {
+        line('guide', px, py - 8, px, py - 33);
+        dot('ring', px, py, 5);
+        text(x.X(0) + 2, py - 39, '½ step: √2 ≈ 1.414', 'ml h', 'start');
+      });
+      x.rec.half = { x: 0.5, v: hv };
+      return 'Half a step on, the curve is at root 2, about 1.414.';
+    },
+    'Half a step': (x) => {
+      const s = x.SER[0];
+      if (x.right) {
+        const v = valOf(s, 0.5);
+        part(arr(0.9), 0, () => { dot('ring', x.X(0.5), x.Y(v), 5); text(x.X(0.5) + 9, x.Y(v) + 19, fv(v), 'ml h', 'start'); });
+        x.rec.marks.push({ x: 0.5, v });
+        return 'Half a step on, the curve is at ' + fv(v) + '.';
+      }
+      if (!x.wrong) return '';
+      const v = x.d.val[x.wrong];
+      if (x.wrong === '500') part(arr(0.1), 0, () => line('chord bad', x.X(0), x.Y(valOf(s, 0)), x.X(1), x.Y(valOf(s, 1))));
+      part(arr(0.4), 0, () => { dot('d-bad', x.X(0.5), x.Y(v), 5); text(x.X(0.5) + 9, x.Y(v) + 19, fv(v), 'ml bad h', 'start'); });
+      x.rec.marks.push({ x: 0.5, v, bad: true });
+      return 'The slip, ' + fv(v) + ', is marked in red.';
+    },
+    '9% a day': (x) => {
+      if (!x.wrong) return '';
+      const v = x.d.val[x.wrong];
+      part(arr(0.4), 0, () => { dot('d-bad', x.X(30), x.Y(v), 5); text(x.X(30) - 9, x.Y(v) + 5, fv(v, 0), 'ml bad h', 'end'); });
+      x.rec.marks.push({ x: 30, v, bad: true });
+      return 'The slip, ' + fv(v, 0) + ', is marked in red at day 30.';
+    },
+    'Passing 30 V': (x) => {
+      if (x.wrong !== 'At 18.5 s') return '';
+      const t30 = (400 - 30) / 200;   // falling 200 V every 10-second step
+      part(arr(0.1), 0, () => line('chord bad', x.X(0), x.Y(400), x.X(t30), x.Y(30)));
+      part(arr(0.5), 0, () => { dot('d-bad', x.X(t30), x.Y(30), 4.5); text(x.X(t30) + 8, x.Y(30) - 8, fv(t30 * 10, 1) + ' s', 'ml bad h', 'start'); });
+      x.rec.marks.push({ x: t30, v: 30, bad: true });
+      return 'The slip, falling 200 volts every 10 seconds, is drawn in red.';
+    },
+  };
+
+  // ---------- the table of three rules ----------
+  const TROWS = [{ name: 'x²', f: (x) => x * x }, { name: '2ˣ', f: (x) => Math.pow(2, x) }, { name: '10x', f: (x) => 10 * x }];
+  const TCOL = [122, 176, 230, 284];
+  // The change from each value to the next: what it is multiplied by, or what is added for 10x.
+  const patText = (r, j) => (r.name === '10x' ? '+ ' + fv(r.f(j + 2) - r.f(j + 1)) : '× ' + fv(r.f(j + 2) / r.f(j + 1)));
+  function drawTable(d, st, G) {
+    const y0 = G.table, right = st.res === 'right', wrong = st.res === 'wrong' ? st.pick : null;
+    const rec = { pats: [] };
+    REC.table = rec;
+    text(44, y0 + 18, 'x', 'th', 'middle', true);
+    TCOL.forEach((cx, j) => text(cx, y0 + 18, String(j + 1), 'th', 'middle'));
+    line('grid', 12, y0 + 28, 328, y0 + 28);
+    const said = ['A table of three rules at x equals 1, 2, 3 and 4.'];
+    TROWS.forEach((r, m) => {
+      const vy = y0 + 58 + m * 56;
+      if (right && r.name === '2ˣ') part(arr(0.1), 0, () => rect('rowbox', 14, vy - 22, 312, 52, 8));
+      text(44, vy, r.name, 'tn', 'middle', true);
+      TCOL.forEach((cx, j) => text(cx, vy, fv(r.f(j + 1)), 'tc', 'middle'));
+      said.push(say(r.name) + ': ' + [1, 2, 3, 4].map((x) => fv(r.f(x))).join(', ') + '.');
+      let t = false, cls = 'tp';
+      if (right) { t = r.name === '2ˣ' ? 0.1 : r.name === 'x²' ? 0.5 : 0.8; cls = r.name === '2ˣ' ? 'tp' : 'tp mut'; }
+      else if (wrong === r.name) { t = 0.1; cls = 'tp bad'; }
+      if (t === false) return;
+      part(arr(t), 4, () => { for (let j = 0; j < 3; j++) text((TCOL[j] + TCOL[j + 1]) / 2, vy + 22, patText(r, j), cls, 'middle'); });
+      for (let j = 0; j < 3; j++) rec.pats.push({ row: r.name, text: patText(r, j), cls });
+      said.push('Between its values: ' + [0, 1, 2].map((j) => say(patText(r, j))).join(', ') + '.');
+    });
+    return said.join(' ');
+  }
+
+  // ---------- the sliders and the rule beside them ----------
+  const slX = (s, v) => SX0 + ((v - s.min) / (s.max - s.min)) * (SX1 - SX0);
+  function drawSliders(st, G, c) {
+    SL.forEach((s, m) => {
+      const ty = G.sl[m], v = slv(st, s.id);
+      text(10, ty + 5, s.name, 'sn', 'start', true);
+      line('track', SX0, ty, SX1, ty);
+      s.ticks.forEach((u) => line('tick', slX(s, u), ty - 6, slX(s, u), ty + 6));
+      const kx = slX(s, v), lab = s.fmt(v), w = tw(lab, 'kl');
+      add(K.svg('circle', { class: 'knob', cx: r3(kx), cy: ty, r: 10 }));
+      text(K.clamp(kx, SX0 - 20 + w / 2, 334 - w / 2), ty - 15, lab, 'kl', 'middle');
+    });
+    text(10, G.ruleY, 'Right column: A × bˣ = ' + fv(c.A) + ' × ' + fv(c.b) + 'ˣ', 'rule', 'start', true);
+    text(10, G.legY, 'A start · b growth factor · x steps', 'leg', 'start', true);
+    return 'Sliders set the amount added, ' + fv(c.d) + ', and the growth factor b, ' + fv(c.b) + '. The right column follows A times b to the power x, ' + fv(c.A) + ' times ' + fv(c.b) + ' to the power x.';
+  }
+  const grips = SL.map((s, m) => {
+    const gr = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1, role: 'slider', 'aria-label': s.name, 'aria-orientation': 'horizontal' }));
+    gr.style.display = 'none';
+    let held = null;
+    gr.addEventListener('pointerdown', (e) => {
+      if (!sliding()) return;
+      held = e.pointerId;
+      try { gr.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the band */ }
+      e.preventDefault();
+      const v = valFrom(e, s);
+      if (v != null) setSl(m, v);
+    });
+    gr.addEventListener('pointermove', (e) => {
+      if (held !== e.pointerId || !sliding()) return;
+      const v = valFrom(e, s);
+      if (v != null) setSl(m, v);
+    });
+    const letGo = (e) => { if (held === e.pointerId) held = null; };
+    gr.addEventListener('pointerup', letGo);
+    gr.addEventListener('pointercancel', letGo);
+    gr.addEventListener('lostpointercapture', () => { held = null; });
+    gr.addEventListener('keydown', (e) => {
+      if (!sliding()) return;
+      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+      if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+      e.preventDefault();
+      setSl(m, e.key === 'Home' ? s.min : e.key === 'End' ? s.max : slv(S[at()], s.id) + by * s.step);
+    });
+    return gr;
+  });
+  const sliding = () => !finished && !!STEPS[at()].sliders;
+  const snapSl = (s, v) => Number((s.min + Math.round((K.clamp(v, s.min, s.max) - s.min) / s.step) * s.step).toFixed(2));
+  function setSl(m, v) {
+    const st = S[at()], s = SL[m];
+    v = snapSl(s, v);
+    if (st[s.id] === v && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    st[s.id] = v;
+    K.reveal(); K.refresh();
+  }
+  function valFrom(e, s) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    return s.min + ((q.x - SX0) / (SX1 - SX0)) * (s.max - s.min);
+  }
+  function placeGrips(d, G, st) {
+    const on = !!d.sliders && !finished;
+    grips.forEach((gr, m) => {
+      gr.style.display = on ? '' : 'none';
+      gr.setAttribute('tabindex', on ? '0' : '-1');
+      if (!on) return;
+      const s = SL[m], ty = G.sl[m], v = slv(st, s.id);
+      gr.setAttribute('x', SX0 - 22); gr.setAttribute('width', SX1 - SX0 + 44);
+      gr.setAttribute('y', ty - 24); gr.setAttribute('height', 44);
+      gr.setAttribute('aria-valuemin', s.min); gr.setAttribute('aria-valuemax', s.max); gr.setAttribute('aria-valuenow', v);
+      gr.setAttribute('aria-valuetext', s.fmt(v));
+    });
+  }
+
+  // ---------- the key, inside the drawing ----------
+  function keyItems(d, st) {
+    let items = d.key || [];
+    if (d.sliders) {
+      const c = eff(d, st).c, lost = c.b < 1, rise = c.b > 1 || c.d > 0;
+      items = items.filter((it) => (it[0] === 'lost' ? lost : it[0] === 'rise' ? rise : true));
+    }
+    return items;
+  }
+  function keyLayout(items) {
+    const rows = [[]];
+    let x = 12;
+    items.forEach((it) => {
+      const w = 20 + tw(it[1], 'key');
+      if (x + w > 330 && rows[rows.length - 1].length) { rows.push([]); x = 12; }
+      rows[rows.length - 1].push([x, it]);
+      x += w + 16;
+    });
+    return rows;
+  }
+  function drawKey(d, st, G) {
+    keyLayout(keyItems(d, st)).forEach((row, ri) => row.forEach((e) => {
+      const x = e[0], it = e[1], y = G.keyY + ri * 20;
+      if (it[0] === 'rise') rect('rise mul', x, y - 6, 14, 12, 2);
+      else if (it[0] === 'lost') rect('lost', x, y - 6, 14, 12, 2);
+      else if (it[0] === 'add' || it[0] === 'mul') dot('d-' + it[0], x + 7, y, 4);
+      else if (it[0] === 'curve') line('curve', x, y, x + 14, y);
+      else if (it[0] === 'chord') line('chord', x, y, x + 14, y);
+      text(x + 20, y + 4.5, it[1], 'key', 'start', true);
+    }));
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], G = geo(d), e = eff(d, st);
+    art.textContent = '';
+    into = null;
+    REC = { bars: null, graph: null, table: null };
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    const said = [];
+    if (d.sliders) said.push(drawSliders(st, G, e.c));
+    if (d.bars) said.push(drawBars(d, st, e.c, G));
+    if (d.graph) said.push(drawGraph(d, st, e.g, G));
+    if (d.table) said.push(drawTable(d, st, G));
+    if (G.keyY != null) drawKey(d, st, G);
+    placeGrips(d, G, st);
+    svg.setAttribute('aria-label', said.filter(Boolean).join(' '));
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  write(el('cap'), CAPTION);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.fill = true; st.refill = false; play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    switchBtn.el.hidden = !d.fill;
+    switchBtn.el.setAttribute('aria-pressed', st.fill ? 'true' : 'false');
+    el('replay').hidden = replayBtn.el.hidden && switchBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      italics(b.el.appendChild(K.el('span')), opts[k], false);   // one span, so the button's gap does not split "× 1.05"
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const PICKS = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const close = (a, b, tol) => Math.abs(a - b) <= (tol != null ? tol : 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)));
+  // Slider settings the checks try: no amount, small and large; factors below 1, at 1 and above.
+  const SLIDES = [];
+  [0, 1, 2, 5].forEach((amt) => [0.5, 0.75, 1, 1.05, 1.5, 2, 3].forEach((fac) => SLIDES.push({ amt, fac })));
+  // Every finished picture the lesson can show: each screen opened, each puzzle solved and each
+  // slip shown, the graph screen at many settings and the in-between screen with its curve off.
+  function states() {
+    const out = [];
+    STEPS.forEach((d, i) => {
+      out.push([i, blank()]);
+      if (d.sliders) SLIDES.forEach((v) => out.push([i, Object.assign(blank(), v)]));
+      if (!d.show) { out.push([i, solvedSt(i)]); d.opts.filter((o) => o !== d.want).forEach((o) => out.push([i, wrongSt(i, o)])); }
+      if (d.fill) out.push([i, Object.assign(blank(), { fill: false })]);
+    });
+    return out;
+  }
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try {
+      paint(i);
+      return { texts: Array.from(art.querySelectorAll('text')).map((q) => q.textContent), bars: REC.bars, graph: REC.graph, table: REC.table, b: eff(STEPS[i], st) };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  let ALL = null;
+  const all = () => ALL || (ALL = states().map((x) => ({ i: x[0], st: x[1], g: drawn(x[0], x[1]) })));
+  const muls = (g) => (g.bars && g.bars.cols.mul ? g.bars.cols.mul : []);
+  const steps1 = (list, f) => list.every((r, j) => j === 0 || list[j - 1].k !== r.k - 1 || f(list[j - 1], r));
+
+  K.check('In an exponential function the output is multiplied by the same factor every time the input increases by one: every multiplying bar and dot drawn, on every screen and at every slider setting, is the one before times its growth factor', () =>
+    all().every(({ g }) => steps1(muls(g), (a, r) => close(r.v, a.v * g.bars.b)) &&
+      (!g.graph || steps1(g.graph.dots.filter((q) => q.kind === 'mul'), (a, r) => close(r.v, a.v * r.s.b)))), { source: SRC_GF });
+  K.check('The rate of growth is proportional to the current value: each rise or drop of the multiplying column is the same share of the bar before it, while the adding column rises by the same amount every step', () =>
+    all().every(({ g }) => !g.bars || (steps1(muls(g), (a, r) => close(r.v - a.v, (g.bars.b - 1) * a.v)) &&
+      steps1(g.bars.cols.add || [], (a, r) => close(r.v - a.v, g.bars.d)))), { source: SRC_CALC });
+  K.check('The growth factor is larger than one when the growth rate is positive and less than one when it is negative: growing by a percentage gives a factor above one and a rising column, losing a percentage or halving gives one below and a falling column', () => {
+    const fac = (pct) => 1 + pct / 100;
+    const series = (name) => { const i = idx(name), g = drawn(i, STEPS[i].show ? blank() : solvedSt(i)); return g.bars ? muls(g) : g.graph.dots.filter((q) => q.kind === 'mul'); };
+    const rises = (name) => { const m = series(name); return m.length > 1 && m.every((r, j) => j === 0 || r.v > m[j - 1].v); };
+    const falls = (name) => { const m = series(name); return m.length > 1 && m.every((r, j) => j === 0 || r.v < m[j - 1].v); };
+    return close(STEPS[idx('5% a year')].bars.b, fac(5)) && fac(5) > 1 && rises('5% a year') &&
+      close(STEPS[idx('9% a day')].graph.series[1].b, fac(9)) && fac(9) > 1 && rises('9% a day') &&
+      close(STEPS[idx('Losing value')].bars.b, fac(-25)) && fac(-25) < 1 && falls('Losing value') &&
+      close(STEPS[idx('Halving')].bars.b, fac(-50)) && fac(-50) < 1 && falls('Halving') && falls('Passing 30 V');
+  }, { source: SRC_LIBRE });
+  K.check('Every number follows its rule: 21 and 1,024 at step 10; 72 from 48 (slips 49.5 and 96); £1,628.89 against £1,500, with 1.98 and 2.08 either side of double; £4,500 (slips £4,000 and £500); 50 V and 25 V; √2 ≈ 1.414; 300 (slips 450 and 500); 4, 2.25 and 1.78; 183 against 163, then 1,327, 370 and 455; 18.5 s; and each answer offered is the value its own working gives', () => {
+    const f = fv;
+    const ok = f(1 + 10 * 2) === '21' && f(Math.pow(2, 10)) === '1,024' && f(Math.pow(2, 10) - Math.pow(2, 9)) === '512' && f(48 * 1.5) === '72' && f(48 + 1.5) === '49.5' && f(48 * 2) === '96' &&
+      f(1000 * Math.pow(1.05, 10)) === '1,628.89' && f(1000 + 10 * 50) === '1,500' && f(Math.pow(1.05, 14)) === '1.98' && f(Math.pow(1.05, 15)) === '2.08' &&
+      f(1 + 0.05) === '1.05' && f(8000 * 0.75 * 0.75) === '4,500' && f(8000 - 2 * 2000) === '4,000' && f(8000 * 0.25 * 0.25) === '500' &&
+      f(400 * Math.pow(0.5, 3)) === '50' && f(400 * Math.pow(0.5, 4)) === '25' && f(Math.SQRT2, 3) === '1.414' && f(1.414 * 1.414) === '2' &&
+      f(100 * Math.sqrt(9)) === '300' && f(100 * 4.5) === '450' && f(100 + (900 - 100) / 2) === '500' && f(4.5 * 4.5) === '20.25' &&
+      f(4 / 1) === '4' && f(9 / 4) === '2.25' && f(16 / 9) === '1.78' &&
+      f(100 * Math.pow(1.09, 7), 0) === '183' && f(100 + 7 * 9, 0) === '163' && f(100 * Math.pow(1.09, 30), 0) === '1,327' && f(100 + 30 * 9, 0) === '370' &&
+      f(100 + (100 * Math.pow(1.09, 7) - 100) * 30 / 7, 0) === '455' && f(((400 - 30) / 200) * 10, 1) === '18.5';
+    const labelled = STEPS.filter((d) => d.val && d.name !== 'The factor for 5%').every((d) => d.opts.every((o) => o === (d.bars ? preOf(d.bars) : '') + fv(d.val[o], d.graph && d.graph.dp != null ? d.graph.dp : 2)));
+    const f5 = STEPS[idx('The factor for 5%')].val;
+    return ok && labelled && close(f5['× 1.05'], 1000 * 1.05) && close(f5['× 0.05'], 1000 * 0.05) && close(f5['× 5'], 5000) &&
+      patText(TROWS[0], 2) === '× 1.78' && patText(TROWS[1], 0) === '× 2' && patText(TROWS[2], 1) === '+ 10';
+  });
+  K.check('Decay never reaches zero: halving from 400 V, every bar drawn stays above the bottom line and each drop is half the one before, and twelve halvings still leave more than nothing', () => {
+    const g = drawn(idx('Halving'), blank()), m = muls(g), drops = m.slice(1).map((r, j) => m[j].v - r.v);
+    return m.length === 6 && m.every((r) => r.v > 0 && r.px > 0) && drops.every((x, j) => j === 0 || close(x, drops[j - 1] / 2)) && 400 * Math.pow(0.5, 12) > 0;
+  });
+  K.check('Before an answer, nothing in a puzzle\'s picture gives it away, and a right answer shows it', () =>
+    PICKS.every((i) => { const d = STEPS[i]; return drawn(i, blank()).texts.indexOf(d.ans) < 0 && drawn(i, solvedSt(i)).texts.indexOf(d.ans) >= 0; }));
+  K.check('Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own', () =>
+    PICKS.every((i) => {
+      const d = STEPS[i];
+      return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)) &&
+        d.opts.every((o) => o === d.want || !!(d.hints && d.hints[o]));
+    }));
+  K.check('Bars and dots are drawn to scale: each bar\'s height is its value on its screen\'s one scale, the tallest filling the frame, and each dot sits at its step and value', () =>
+    all().every(({ g }) => {
+      const B = g.bars;
+      const okB = !B || (['add', 'mul'].every((k) => !B.cols[k] || B.cols[k].every((r) => close(r.px, (r.v / B.scale) * B.h, 1e-6))) &&
+        close(Math.max.apply(null, (B.cols.add || []).concat(B.cols.mul || []).map((r) => r.px).concat(B.slip ? [B.slip.px] : [])), B.h, 1e-6));
+      const okG = !g.graph || g.graph.dots.every((q) => close(q.y, g.graph.bot - (q.v / g.graph.ymax) * g.graph.h, 1e-6) && close(q.x, PX0 + (q.k / g.graph.n) * (PX1 - PX0), 1e-6));
+      return okB && okG;
+    }));
+  K.check('Half a step multiplies by the square root of the factor, because two half steps make one whole step: at × 2 the mark sits at √2, and at × 9 the right answer is 300, three times 100', () => {
+    const g9 = drawn(idx('Between the steps'), blank()), i10 = idx('Half a step'), g10 = drawn(i10, solvedSt(i10));
+    return close(Math.pow(2, 0.5) * Math.pow(2, 0.5), 2) && close(Math.sqrt(9) * Math.sqrt(9), 9) && !!g9.graph.half && close(g9.graph.half.v, Math.SQRT2) &&
+      g10.graph.marks.some((m) => m.x === 0.5 && close(m.v, 300)) && !!g10.graph.curve && close(g10.graph.curve.fn(0.5), 300) && close(g10.graph.curve.fn(1), 900);
+  });
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i), FB[0]) && FB[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB[1]) && FB[1] <= 2.5);
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

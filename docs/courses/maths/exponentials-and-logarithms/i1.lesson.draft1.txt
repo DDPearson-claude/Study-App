@@ -1,0 +1,54 @@
+{
+  "iid": "i1",
+  "title": "Growth by multiplying",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the multiplying column's rises growing every step while the adding column's stay the same, so it falls behind and then races past, when you step both columns forward.",
+    "title": "Add or multiply",
+    "controls": [
+      { "id": "step", "label": "Step", "min": 0, "max": 12, "step": 1, "value": 0, "unit": "" }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on two columns of bars over the same equal steps, numbered 0, 1, 2 and on along the bottom. Both columns start from the same bar. The left column adds a fixed amount each step, and each new bar is labelled with the sum that made it (+ 2, + 2, …). The right column multiplies by a fixed factor each step, labelled the same way (× 2, × 2, …). A step button moves both on together. Each bar then drops a dot onto a graph below, steps along the bottom and the value up the side: the adding dots lie on a straight line, and the multiplying dots curve upwards. Sliders set the amount and the factor, and the rule is written beside them as A × bˣ, where A is the start, b the factor and x the number of steps. Set the factor below 1 and the right column shrinks each step towards the bottom line but never onto it. A switch fills in the curve between the dots. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick gets a one-line hint.",
+    "ignores": "The starts, amounts, factors, money, machine values and voltages are example values. Real quantities rarely keep exactly the same factor for long.",
+    "numbers": [
+      { "label": "Both columns start at 1, in step 1", "value": 1, "kind": "assumed" },
+      { "label": "The left column adds 2 each step, in step 1", "value": 2, "kind": "assumed" },
+      { "label": "The right column multiplies by 2 each step, in step 1", "value": 2, "kind": "assumed" },
+      { "label": "Step 10 of the adding column, 1 + 10 × 2, in step 2", "value": 21, "kind": "computed" },
+      { "label": "Step 10 of the doubling column, 2 multiplied 10 times, in step 2", "value": 1024, "kind": "computed" },
+      { "label": "One step on from 48 at × 1.5, in step 4", "value": 72, "kind": "computed" },
+      { "label": "Example savings pot, in pounds, in step 5", "value": 1000, "kind": "assumed" },
+      { "label": "Example growth, in % a year, in step 5", "value": 5, "kind": "assumed" },
+      { "label": "1,000 × 1.05¹⁰, in pounds, in step 5", "value": 1628.89, "kind": "computed" },
+      { "label": "Adding £50 a year for 10 years, in pounds, in step 5", "value": 1500, "kind": "computed" },
+      { "label": "Course puzzle's start voltage, in volts, in step 7", "value": 400, "kind": "assumed" },
+      { "label": "Halving time, in seconds, in step 7", "value": 10, "kind": "assumed" },
+      { "label": "Example machine value, in pounds, in step 8", "value": 8000, "kind": "assumed" },
+      { "label": "8,000 × 0.75², in pounds, in step 8", "value": 4500, "kind": "computed" },
+      { "label": "Half a step at × 9 from 100, in step 10", "value": 300, "kind": "computed" },
+      { "label": "100 × 1.09³⁰, in step 12", "value": 1327, "kind": "computed" },
+      { "label": "Course puzzle's target voltage, in volts, in step 13", "value": 30, "kind": "assumed" }
+    ]
+  },
+  "explain": {
+    "text": "Some things grow by adding the same amount each step. Others grow by multiplying by the same number each step, and that is [[exponential]] growth: the output is multiplied by the same factor every time the input goes up by one, and that multiplier is the [[growth factor]].[^1] Exponential growth is always fast. Start two columns at 1. The left adds 2 each step: 1, 3, 5, 7, 9. The right doubles: 1, 2, 4, 8, 16. By step 10 the left has 21 and the right 1,024.\n\nWrite the start as A and the factor as b. After x steps you have A × bˣ. A percentage change gives the factor: + 5% is × 1.05. £1,000 at 5% a year for 10 years is 1,000 × 1.05¹⁰ ≈ £1,628.89, more than the £1,500 from adding £50 a year. The rate of growth is proportional to the current value.[^3]\n\nA factor less than 1 makes it shrink,[^2] and that is [[decay]]. 400 × 0.5ˣ goes 400, 200, 100, 50, 25 and never reaches zero. The course's capacitor halves every 10 seconds, so 30 V comes between 30 and 40 seconds.\n\n**Exponential change multiplies by the same growth factor on every equal step,[^1] so a start A becomes A × bˣ, growing when b is above 1 and shrinking when it is below.[^2]**"
+  },
+  "analogy": {
+    "text": "A photocopier set to 150% enlarges each copy of a copy by the same factor, so the picture grows 1.5, 2.25, 3.375 times. Set it to 50% and each copy halves.",
+    "breaks": "A copier only makes whole copies, so there is nothing between the steps."
+  },
+  "practice": {
+    "text": "- Turn the percentage into a factor.\n- Multiply the start by the factor once per step: A × bˣ.\n\n**Rule of thumb:** The factor is 1 plus the change as a decimal.\n\n**Worked example:** A £12,000 van loses 15% a year. After 4 years it is 12,000 × 0.85⁴ ≈ £6,264.08.\n\n**Common mistakes**\n- Multiplying by 0.05 for 5%.\n- Taking the percentage of the first value each step."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    { "n": 1, "title": "5.4.3 Exponential Change: The Growth Factor - Algebra 1 | OpenStax", "url": "https://openstax.org/books/algebra-1/pages/5-4-3-exponential-change-the-growth-factor", "quote": "In an exponential function, the output is multiplied by the same factor every time the input increases by one. The multiplier is called the growth factor ." },
+    { "n": 2, "title": "5.1: Exponential Functions - Mathematics LibreTexts", "url": "https://math.libretexts.org/Courses/Highline_College/Math_111%3A_College_Algebra/05%3A_Exponential_and_Logarithmic_Functions/5.01%3A_Exponential_Functions", "quote": "The graph will grow when the growth rate is positive, which will make the growth factor (b) larger than one. When it is negative, the growth factor will be less than one." },
+    { "n": 3, "title": "6.8 Exponential Growth and Decay - Calculus Volume 1 | OpenStax", "url": "https://openstax.org/books/calculus-volume-1/pages/6-8-exponential-growth-and-decay", "quote": "That is, the rate of growth is proportional to the current function value." }
+  ],
+  "confidence": "settled",
+  "contested": null
+}
