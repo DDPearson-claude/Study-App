@@ -138,6 +138,18 @@
   }
   // Leaving for the topic page: it scrolls the next idea into view instead of starting at the top.
   function toTopic(tid) { try { sessionStorage.setItem('mu-from-lesson', tid); } catch (e) { /* fine */ } }
+  // The lesson bar's way out (Dan, 18 Oct: "a button to go back instead of just exiting"): a back
+  // arrow to the screen the lesson was opened from (U._from: the Library and its look-up, a shelf,
+  // the course page, Today, the Book), named for it; from anywhere else (another lesson, a fresh
+  // load) it goes to the course page.
+  var BACK = [[/^#\/$/, 'your library'], [/^#\/shelf\/[^/?]+(\/[^/?]+)?$/, 'the shelf'], [/^#\/t\/[^/?]+$/, 'the course'],
+    [/^#\/today$/, 'Today'], [/^#\/(book|map)(\/[^?]*)?$/, 'the Book']];
+  function backLink(tid) {
+    var topic = '#/t/' + encodeURIComponent(tid), from = U._from || '';
+    var hit = BACK.filter(function (b) { return b[0].test(from); })[0];
+    var to = hit ? from : topic, name = hit ? hit[1] : 'the course';
+    return U.h('a', { class: 'icon-btn lsn-close lsn-back', href: to, 'aria-label': 'Back to ' + name, on: { click: function () { if (to === topic) toTopic(tid); } } }, U.icon('back'));
+  }
 
   // ---------- sources ----------
   function sourceSheet(src) {
@@ -211,7 +223,7 @@
     var askBtn = U.h('button', { class: 'lsn-ask', type: 'button', 'aria-label': 'Ask Claude', on: { click: openTutor } },
       U.icon('chat'), U.h('span', null, 'Ask', U.h('span', { class: 'lsn-wide' }, ' Claude')));
     var bar = U.h('div', { class: 'lsn-bar' },
-      U.h('a', { class: 'icon-btn lsn-close', href: '#/t/' + encodeURIComponent(tid), 'aria-label': 'Close the lesson and go back to the topic', on: { click: function () { toTopic(tid); } } }, U.icon('close')),
+      backLink(tid),
       U.h('nav', { class: 'lsn-steps', 'aria-label': 'Lesson progress' }, stepsRow, stepLabel),
       askBtn);
     var eb = U.h('p', { class: 'eyebrow lsn-eb' }, U.h('span', { class: 'skeleton lsn-sk-eb' }));

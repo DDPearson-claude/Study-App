@@ -155,6 +155,24 @@ ok((await page.inputValue('#lib-look')) === 'bulges', 'back on the home, his wor
 await page.click('.lib-look-clear');
 ok(!(await page.locator('.lib-body').evaluate((b) => b.hidden)) && (await page.locator('.lib-results').evaluate((r) => r.hidden)) && (await page.inputValue('#lib-look')) === '', 'clearing brings the page back');
 ok((await page.evaluate(() => document.activeElement && document.activeElement.id)) === 'lib-look', 'with the field ready to type in');
+// The lesson's back arrow returns to where the lesson was opened from: the Library, or the course.
+await page.evaluate(() => U.go('#/'));
+await page.waitForSelector('.lib-open');
+await page.locator('.lib-open').click();
+await page.waitForSelector('.lsn-back');
+ok((await page.getAttribute('.lsn-back', 'aria-label')) === 'Back to your library' && (await page.getAttribute('.lsn-back', 'href')) === '#/', 'opened from the Library, the lesson goes back there');
+await page.locator('.lsn-back').click();
+await page.waitForSelector('.lib-home .lib-open');
+ok((await page.evaluate(() => location.hash)) === '#/', 'and it does');
+await page.evaluate(() => U.go('#/t/how-tides-work-ab12'));
+await page.waitForSelector('.pnode.is-current .pnode-btn');
+await page.locator('.pnode.is-current a.pnode-link').click();
+await page.waitForSelector('.lsn-back');
+ok((await page.getAttribute('.lsn-back', 'aria-label')) === 'Back to the course' && (await page.getAttribute('.lsn-back', 'href')) === '#/t/how-tides-work-ab12', 'opened from the course, back to the course');
+await page.evaluate(() => { location.hash = '#/t/how-tides-work-ab12/i4'; });
+await page.waitForFunction(() => location.hash === '#/t/how-tides-work-ab12/i4');
+await page.waitForSelector('.lsn-back');
+ok((await page.getAttribute('.lsn-back', 'href')) === '#/t/how-tides-work-ab12', 'from another lesson, back to the course');
 // The old Ready-made courses page opens the home.
 await page.evaluate(() => U.go('#/library/courses'));
 await page.waitForFunction(() => location.hash === '#/' && !!document.querySelector('.lib-home'));
