@@ -1,0 +1,378 @@
+{
+  "iid": "i8",
+  "title": "Power factor as a cosine",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the true-power side shrinking as cos φ while the apparent-power side, V × I, keeps its length, when you drag the current arrow further behind the voltage arrow.",
+    "title": "The power triangle",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on one picture, the power triangle. On the left are the voltage arrow V and the current arrow I from Adding waves, drawn at rms. V points right, 230 V long. I sits behind it by the angle φ (phi), lagging as a motor's current does. A dashed line drops from I's tip to the voltage arrow and splits the current, as in Finding angles, into its floor shadow I cos φ, along the voltage arrow, and its wall shadow I sin φ, a quarter turn behind it. On the right is that same triangle with every side multiplied by V: the hypotenuse is the apparent power V × I in volt-amps (VA), the flat adjacent side is the true power V × I cos φ in watts (W), and the upright opposite side is V × I sin φ in VAr (volt-amps reactive), the rate at which energy goes back and forth. The rule is true power ÷ apparent power = adjacent ÷ hypotenuse = cos φ, the power factor. Drag the current arrow's tip to set φ, from 0° (in step) to 90° (a quarter turn behind); readouts give φ, the power factor, the true power and the apparent power. It opens at 230 V, 10 A and φ = 0°, like a heater: the triangle lies flat, apparent and true power are both 2300, and the power factor is 1. With the current held at 10 A, the hypotenuse keeps its length, 2300 VA, as φ grows, and the adjacent side shrinks as 2300 × cos φ. A switch, Hold true power, fixes the adjacent side at 10 kW instead. Drag φ and the hypotenuse must lengthen to 10 kW ÷ cos φ to keep the adjacent side the same, and a current bar beside the triangle grows with it, current = 10 000 ÷ (230 × cos φ), plotted against the power factor below as you drag, its current axis marked at 43.5, 72.5 and 145 A. With the switch on, φ stops at power factor 0.3 (72.5°), where the current is 145 A, because towards 90° the current needed grows without limit. Screen 1 opens at 10 A in step, 2300 W, then swings the current arrow to 60° behind: its floor shadow is 10 cos 60° = 5 A and its wall shadow 10 sin 60° = 8.66 A. Screen 2 asks how much of that 10 A is in step: 5 A, 8.66 A (the wall shadow) or 10 A (the whole current). Screen 3 multiplies every side by 230: 2300 VA along the hypotenuse, 1150 W flat and 1992 VAr upright, so the power factor is 1150 ÷ 2300 = 0.5 = cos 60°; the wall shadow carries energy in and back each cycle, so on average it delivers none, as screen 9 shows. Screen 4 asks the power factor of a motor drawing 2.7 A on 230 V while a wattmeter reads 450 W: 0.725 (450 ÷ 621), 1.38 (621 ÷ 450, upside down) or 621 (the volt-amps, not the ratio). Screen 5 draws the motor's triangle: 621 VA hypotenuse, 450 W flat, φ = cos⁻¹(450 ÷ 621) = 43.6°, and an upright side √(621² − 450²) = 428 VAr; taking power factor as sin φ would give 46.4°, and 621 × cos 46.4° = 428 W, not the meter's 450 W. Screen 6 asks φ for a power factor of 0.5: 60° (cos⁻¹ 0.5), 30° (sin⁻¹ 0.5, power factor taken as sin φ) or 1.05 (cos⁻¹ 0.5 with the calculator in radians mode). Screen 7 turns Hold true power on at 10 kW on 230 V: 43.5 A at φ = 0, and dragging to power factor 0.6 (53.1°) lengthens the hypotenuse to 16.7 kVA and the current bar to 72.5 A. Screen 8 asks the current at power factor 0.8 (36.9°): 54.3 A (10 000 ÷ (230 × 0.8)), 34.8 A (43.5 × 0.8, multiplied by the power factor) or 43.5 A (the power factor left out). Screen 9 drags on to 0.3 and the current climbs to 145 A, the plot curving up. Then the switch goes off, the current is back at 10 A, φ sweeps again from 0° to 90°, and a power wave appears under the triangle: volts × amps at each instant, from the voltage and current waves. At φ = 0 it stays above the line. As φ grows, part of each cycle dips below it, energy going back to the supply. At 90° its humps above and below the line are equal, so its average, the true power, is 0 though 10 A flows. At every φ its average height equals the flat adjacent side. Screen 10 asks the true power of 230 V, 10 A at power factor 0.8: 1840 W (2300 × 0.8), 1380 W (2300 × 0.6, the upright side) or 2875 W (2300 ÷ 0.8). Screens 11, 12 and 13 are mixed, from the whole course, and each asks first which tool the question needs: the right-angled triangle, the sine or cosine rule, radians, or phasor arrows; a wrong tool gets a one-line hint naming what in the question points to the right one, then three answers follow. Screen 11: two cable runs leave a junction box 60° apart, 5 m and 8 m long; how far apart are their ends? The cosine rule: 7 m (25 + 64 − 80 × cos 60° = 49), 9.43 m (√89, Pythagoras as if the angle were 90°) or 11.36 m (√129, the minus sign dropped). Screen 12: a college's marine notes say 60 Hz is the most common frequency on board ship; how many radians a second does its arm turn? Radians: 377 (2π × 60), 60 (turns, not radians) or 188.5 (π × 60, half a turn each time). Screen 13: in a motor circuit two currents join, 4 A in step with the voltage and 3 A a quarter turn behind it; what are the supply current and its power factor? Phasor arrows: 5 A at 0.8 (√(4² + 3²), then 4 ÷ 5), 7 A at 0.57 (the sizes added, 4 ÷ 7) or 5 A at 0.6 (3 ÷ 5, the quarter-turn part on top). A wrong pick gets a one-line hint naming its slip, and Why? draws the answer on the picture. The last Why? adds that Complex numbers writes the power triangle's two short sides as one number.",
+    "ignores": "The waves behind the arrows are perfect sine waves; real supply voltages are close to that shape, and many electronic loads draw currents that are far from it. The current is drawn lagging only; a load can also draw a current ahead of its voltage, with the same cosine. The supply is held at exactly 230 V, while a real supply wanders a little either side. Currents, watts and angles on the screens are example figures, and readouts are rounded while the working keeps every figure.",
+    "numbers": [
+      {
+        "label": "Number of screens",
+        "value": 13,
+        "kind": "assumed"
+      },
+      {
+        "label": "UK phase-to-neutral voltage, rms, in V",
+        "value": 230,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Current in steps 1 and 3, in A",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "φ in step 1, opening, in degrees",
+        "value": 0,
+        "kind": "assumed"
+      },
+      {
+        "label": "Apparent power 230 × 10, in VA",
+        "value": 2300,
+        "kind": "computed"
+      },
+      {
+        "label": "Power factor at φ = 0",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "A quarter turn, in degrees",
+        "value": 90,
+        "kind": "constant"
+      },
+      {
+        "label": "φ in steps 1 to 3, in degrees",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Floor shadow 10 cos 60°, in A",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Wall shadow 10 sin 60°, in A",
+        "value": 8.66,
+        "kind": "computed"
+      },
+      {
+        "label": "True power 2300 cos 60°, in W, step 3",
+        "value": 1150,
+        "kind": "computed"
+      },
+      {
+        "label": "Upright side 2300 sin 60°, in VAr, step 3",
+        "value": 1992,
+        "kind": "computed"
+      },
+      {
+        "label": "Power factor cos 60°",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Motor current, in A",
+        "value": 2.7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Motor wattmeter reading, in W",
+        "value": 450,
+        "kind": "assumed"
+      },
+      {
+        "label": "Motor apparent power 230 × 2.7, in VA",
+        "value": 621,
+        "kind": "computed"
+      },
+      {
+        "label": "Motor power factor 450 ÷ 621",
+        "value": 0.725,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, 621 ÷ 450 upside down",
+        "value": 1.38,
+        "kind": "computed"
+      },
+      {
+        "label": "Motor angle cos⁻¹(450 ÷ 621), in degrees",
+        "value": 43.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Motor upright side √(621² − 450²), in VAr",
+        "value": 428,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip angle sin⁻¹(450 ÷ 621), in degrees",
+        "value": 46.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, sin⁻¹ 0.5, in degrees, step 6",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, cos⁻¹ 0.5 in radians mode, step 6",
+        "value": 1.05,
+        "kind": "computed"
+      },
+      {
+        "label": "Load's true power, in kW",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Current at power factor 1, 10 000 ÷ 230, in A",
+        "value": 43.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Power factor 0.6",
+        "value": 0.6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Angle cos⁻¹ 0.6, in degrees",
+        "value": 53.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Apparent power 10 ÷ 0.6, in kVA",
+        "value": 16.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Current at power factor 0.6, in A",
+        "value": 72.5,
+        "kind": "computed",
+        "source": 2
+      },
+      {
+        "label": "Power factor 0.8",
+        "value": 0.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Angle cos⁻¹ 0.8, in degrees",
+        "value": 36.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Current at 0.8, 10 000 ÷ (230 × 0.8), in A",
+        "value": 54.3,
+        "kind": "computed"
+      },
+      {
+        "label": "The worked example's printed current at 0.8, in A",
+        "value": 54.5,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Slip, 43.5 × 0.8, in A",
+        "value": 34.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Lowest power factor with the switch on",
+        "value": 0.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Angle cos⁻¹ 0.3, in degrees",
+        "value": 72.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Current at power factor 0.3, in A",
+        "value": 145,
+        "kind": "computed"
+      },
+      {
+        "label": "True power at φ = 90°, in W",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "True power 2300 × 0.8, in W, step 10",
+        "value": 1840,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, 2300 × 0.6, in W, step 10",
+        "value": 1380,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, 2300 ÷ 0.8, in W, step 10",
+        "value": 2875,
+        "kind": "computed"
+      },
+      {
+        "label": "Cable runs in step 11, in m",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Second cable run in step 11, in m",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Angle between the runs, in degrees",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Cosine rule 25 + 64 − 80 cos 60°",
+        "value": 49,
+        "kind": "computed"
+      },
+      {
+        "label": "Distance between the ends, in m",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, √89, in m",
+        "value": 9.43,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, √129, in m",
+        "value": 11.36,
+        "kind": "computed"
+      },
+      {
+        "label": "Ships' most common frequency (a college's notes), in Hz",
+        "value": 60,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Angular speed 2π × 60, in rad/s",
+        "value": 377,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, π × 60, in rad/s",
+        "value": 188.5,
+        "kind": "computed"
+      },
+      {
+        "label": "In-step current in step 13, in A",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Quarter-turn current in step 13, in A",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Supply current √(4² + 3²), in A",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Supply power factor 4 ÷ 5",
+        "value": 0.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, 4 + 3, in A",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, 4 ÷ 7",
+        "value": 0.57,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, 3 ÷ 5",
+        "value": 0.6,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "On a heater, watts are volts × amps. On a motor the wattmeter usually reads less, because the current runs behind the voltage and only the part of the current in step with the voltage delivers power on average. That part is the current × cos φ, where φ is the angle between the voltage and current arrows, so watts ÷ (volts × amps) is cos φ.\n\nRemember Adding waves: a voltage and a current of one frequency are two turning arrows, drawn here at rms, and the UK's 230 V between phase and neutral[^1] is an rms value.[^4] In a heater the current rises and falls in step with the voltage, so its arrow lies along the voltage arrow, and 230 V × 10 A gives 2300 W. Textbooks add that in an induction motor the current reaches its peak a little after the voltage does, so its arrow is lagging the voltage arrow by an angle, called φ (phi). Split the current arrow as you split a force in Finding angles. Its floor shadow, I cos φ, lies along the voltage arrow: that part of the current rises and falls in step with the voltage, so it delivers power as a heater's current does. Its wall shadow, I sin φ, is a quarter turn behind the voltage. Textbooks add that a current a quarter turn out of step carries energy into the motor's magnetic field for one quarter of each cycle and back to the supply in the next, so on average it delivers none. Screen 9's power wave, volts × amps instant by instant, shows it: at 90° its humps above and below the line are equal. So the power that does the work is V × I cos φ. At 10 A and φ = 60°, the in-step part is 10 cos 60° = 5 A, not the 8.66 A of the wall shadow.\n\nNow multiply each side of that current triangle by V. The hypotenuse becomes V × I, the [[apparent power]], in volt-amps (VA). The adjacent side becomes V × I cos φ, the [[true power]], in watts, which is what a wattmeter reads. The opposite side, V × I sin φ, measures the rate at which energy goes back and forth; textbooks call it reactive power, in VAr (volt-amps reactive). Scaling keeps the angles, as in Sides in proportion, so φ is still the angle between the true power and apparent power sides. True power and apparent power are the adjacent side and the hypotenuse of a right-angled triangle, so their ratio, the [[power factor]], is the cosine of the phase angle,[^5] because cosine is the adjacent side over the hypotenuse.[^6] Take a motor drawing 2.7 A on 230 V while a wattmeter reads 450 W. Its apparent power is 230 × 2.7 = 621 VA, its power factor is 450 ÷ 621 = 0.725, and the inverse key gives φ = cos⁻¹(450 ÷ 621) = 43.6°. Put it back to check: 621 × cos 43.6° = 450 W. Taking power factor as sin φ instead would give φ = 46.4°, and 621 × cos 46.4° is only 428 W, which is not what the meter reads.\n\nThis is why power factor matters on the job. Hold the true power fixed and the apparent power must be true power ÷ cos φ, so the current is true power ÷ (V × cos φ). Say a load needs 10 kW on 230 V. At power factor 1 it takes 10 000 ÷ 230 = 43.5 A. At 0.6 it takes 72.5 A,[^2] and at 0.8 it takes 10 000 ÷ (230 × 0.8) = 54.3 A, which the same worked example prints as 54.5 A.[^2] The cables, fuses and supply carry the whole current, so a poor power factor means more current for the same work. The course's puzzle was answered by adding arrows; the same arrows, read with the cosine from Sides in proportion, say how much of a current does work. All this holds for pure sine waves, a simplified model; textbooks add that electronic loads such as LED drivers draw currents that are not sine waves, and their power factor is then lower than cos φ. **Power factor, true power in watts over apparent power in volt-amps, is the cosine of the angle between voltage and current.[^7][^5]**"
+  },
+  "analogy": {
+    "text": "A horse on the towpath pulls a barge with a rope at an angle to the canal. Only the rope's pull along the canal, the rope's tension × the cosine of its angle, moves the barge; the sideways part only pulls it towards the bank. The tension is the apparent power, the pull along the canal the true power, and the share that does the work is the cosine of the rope's angle, just as power factor is.",
+    "breaks": "The rope's angle is in space, while φ is a delay in time. A steady sideways pull moves no energy at all, but the quarter-turn part of the current carries energy into the motor's magnetic field and back each cycle, and it still warms the cables on the way."
+  },
+  "practice": {
+    "text": "Take readings with instruments rated for the circuit, as for any live test.\n\n- Read the voltage and current as rms values, which is what a meter shows and what 230 V is.[^4]\n- Apparent power = volts × amps, in VA (or kVA).\n- True power is what a wattmeter reads, in W (or kW).\n- Power factor = true power ÷ apparent power. It lies between 0 and 1; a figure above 1 means it is upside down or a reading is wrong.\n- The angle: φ = cos⁻¹(power factor), with the calculator in degrees.\n- Say which way: 0.8 lagging means the current is behind the voltage, as in induction motors; leading means it is ahead.\n- The other way round: true power = V × I × power factor, and the current a load needs = true power ÷ (V × power factor).\n\n**Rule of thumb:** For the same true power, the current goes as 1 ÷ power factor. Raising a load from 0.6 to 0.8 cuts its current by a quarter: 10 kW on 230 V takes 72.5 A at 0.6[^2] and 54.3 A at 0.8.\n\n**Worked example:** A motor on 230 V draws 2.7 A and a wattmeter reads 450 W. Apparent power: 230 × 2.7 = 621 VA. Power factor: 450 ÷ 621 = 0.725. Angle: cos⁻¹(450 ÷ 621) = 43.6°, the current lagging the voltage. Upright side: √(621² − 450²) = 428 VAr. Check: 621 × cos 43.6° = 450 W.\n\n**Common mistakes**\n- Taking power factor as sin φ. Power factor is the adjacent side over the hypotenuse, so it is the cosine.\n- Dividing the wrong way: volt-amps ÷ watts gives a figure above 1.\n- Multiplying the current by the power factor instead of dividing: a lower power factor needs more current, not less.\n- Using watts = volts × amps for a motor: it holds for a heater, whose current is in step, not where the current lags.\n- Mixing a peak voltage with an rms current.\n- Expecting cos φ to give the power factor of electronic loads such as LED drivers and chargers, whose current is not a sine wave.\n\nComplex numbers, the next course, writes the power triangle's two short sides as one number."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+    {
+      "n": 1,
+      "title": "The Electricity Safety, Quality and Continuity Regulations 2002",
+      "url": "https://www.legislation.gov.uk/uksi/2002/2665/regulation/27/made",
+      "quote": "shall be 50 hertz and the voltage declared in respect of a low voltage supply shall be 230 volts between the phase and neutral conductors at the supply terminals."
+    },
+    {
+      "n": 2,
+      "title": "Power Triangle and Power Factor in AC Circuits | Electrical A2Z",
+      "url": "https://electricala2z.com/electrical-power/power-triangle-power-factor-ac-circuits",
+      "quote": "If the power factor of the load is 0.6 (cos 53°), the total current in the line will be 72.5 A. Correcting the PF to 0.8 (cos 37°) would reduce the current to 54.5 A"
+    },
+    {
+      "n": 3,
+      "title": "maritime electrical installations - notes on design ...",
+      "url": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf",
+      "quote": "60 Hz is the most common frequency adopted for use on board ship"
+    },
+    {
+      "n": 4,
+      "title": "Root mean square (r.m.s.) voltages and currents - Revise: Monitoring and measuring a.c. - Higher Physics Revision - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/guides/zqq77ty/revision/4",
+      "quote": "the mains voltage in the UK can vary between 216 and 253 volts. These are r.m.s. values."
+    },
+    {
+      "n": 5,
+      "title": "Calculating Power Factor | Power Factor | Electronics Textbook",
+      "url": "https://www.allaboutcircuits.com/textbook/alternating-current/chpt-11/calculating-power-factor",
+      "quote": "Because true power and apparent power form the adjacent and hypotenuse sides of a right triangle, respectively, the power factor ratio is also equal to the cosine of that phase angle."
+    },
+    {
+      "n": 6,
+      "title": "7.2 Right Triangle Trigonometry - Algebra and Trigonometry | OpenStax",
+      "url": "https://openstax.org/books/algebra-and-trigonometry/pages/7-2-right-triangle-trigonometry",
+      "quote": "sine as the ratio of the opposite side to the hypotenuse. 2. Find the cosine as the ratio of the adjacent side to the hypotenuse. 3. Find the tangent as the ratio of the opposite side to the adjacent side."
+    },
+    {
+      "n": 7,
+      "title": "Power Factor",
+      "url": "https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf",
+      "quote": "Power Factor is the cosine of the angle between the Real Power and the Apparent Power; kW/kVa pf = kW/kVa = cos(φ)"
+    }
+  ]
+}

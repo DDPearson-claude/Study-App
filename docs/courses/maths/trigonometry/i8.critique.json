@@ -1,0 +1,22 @@
+{
+  "draft": "i8.lesson.draft1.txt",
+  "validator": "draft 1 passes validate.mjs with no problems, soft points or warnings. The faults below are the critic's, not the validator's.",
+  "keep": [
+    "The idea is named in one line up front (watts are volts × amps on a heater, less on a motor, and the ratio is cos φ), and the rule is in words: true power ÷ apparent power = adjacent ÷ hypotenuse = cos φ.",
+    "The triangle is built from lesson 2's split of the current arrow (floor shadow I cos φ in step, wall shadow I sin φ a quarter turn behind), then scaled by V, so power factor is lesson 1's cosine; scaling keeping the angle is lesson 1's own point.",
+    "One worked example with real numbers computed from the rule: the 2.7 A, 450 W motor, 621 VA, 0.725, 43.6°, 428 VAr, with the answer put back to check.",
+    "The misconception 'power factor is sin φ' is shown failing on that example (46.4° gives 428 W, not the meter's 450 W) and has its own DO screens (2, 6 and 10) and hints.",
+    "The Hold true power switch shows the cause of the A2Z figures: the hypotenuse must lengthen to keep the adjacent side at 10 kW. 72.5 A is cited; 54.3 A is computed from the shown rule and the source's printed 54.5 A is reported as printed.",
+    "The mixed set has the brief's 'choose the tool first' step and spans a rule (cosine rule), radians (60 Hz ship supply, cited) and arrows (4 A + 3 A gives 5 A at 0.8).",
+    "Pure sine waves are named once as the simplified model, with non-sine electronic loads as the closing caution; Complex numbers is deferred by name."
+  ],
+  "faults": [
+    { "fault": "explanation skips the causal step", "where": "explain paragraph 2 and screen 9", "text": "Why the quarter-turn part of the current delivers nothing on average rests only on 'textbooks add' and is never seen on the picture, so the heart of the lesson (only the in-step part does work) is asserted rather than shown.", "fix": "Give screen 9 a power wave, volts × amps instant by instant, drawn under the triangle: all above the line at φ = 0, equal humps above and below at φ = 90°, its average height the true power. Point to it in the explain." },
+    { "fault": "false absolute", "where": "explain paragraph 1", "text": "'On a motor the wattmeter reads less' is not true of every motor: a motor run at power factor 1 reads volts × amps. And 'only the part in step delivers power' needs 'on average', as the instant-by-instant power of the quarter-turn part is not zero.", "fix": "'On a motor it usually reads less' and 'only the part in step delivers power on average'." },
+    { "fault": "false absolute", "where": "practice, power factor step", "text": "'a figure above 1 means it is upside down' ignores a misread meter.", "fix": "'a figure above 1 means it is upside down or a reading is wrong'." },
+    { "fault": "analogy breaks stated wrongly", "where": "analogy.breaks", "text": "The barge's sideways pull is not 'lost': with no sideways movement it does no work at all, which matches the lesson rather than breaking it. The real break is that the reactive current carries energy in and out each cycle and warms the cables, while a steady sideways pull moves no energy.", "fix": "Rewrite breaks: the rope's angle is in space, φ is a delay in time; the sideways pull moves no energy, while the quarter-turn current carries energy into the motor's field and back each cycle and still warms the cables." },
+    { "fault": "unexplained label", "where": "explain paragraph 3, whatAmILookingAt", "text": "VAr is used as a unit without saying what it stands for.", "fix": "'in VAr, volt-amps reactive' at first use." },
+    { "fault": "missing practical point", "where": "practice", "text": "A power factor is quoted as lagging or leading on the job; the draft never says to state which, though the ignores panel says a current can lead.", "fix": "Add a step: say which way, 0.8 lagging (current behind, as in induction motors) or leading." }
+  ],
+  "verdict": "Rewrite as draft 2 with these fixes; nothing structural changes."
+}

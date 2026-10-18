@@ -1,0 +1,1382 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .ask { font-weight: 600; line-height: 1.5; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  .ctl { display: grid; gap: 12px; }
+  /* The voltage and current arrows, the power triangle, the held load's current, the power wave. */
+  .scene .axis, .scene .tick { stroke: var(--k-muted); stroke-width: 1.3; }
+  .scene .arV { stroke: var(--k-cat2); stroke-width: 3; }
+  .scene .hdV { fill: var(--k-cat2); }
+  .scene .arI { stroke: var(--k-accent2); stroke-width: 3.5; }
+  .scene .hdI { fill: var(--k-accent2); }
+  .scene .arA { stroke: var(--k-ink); stroke-width: 3; }
+  .scene .hdA { fill: var(--k-ink); }
+  .scene .arB { stroke: var(--k-ink); stroke-width: 2.6; stroke-dasharray: 6 4; }
+  .scene .arS { stroke: var(--k-accent2); stroke-width: 4.5; }
+  .scene .hdS { fill: var(--k-accent2); }
+  .scene .arBad { stroke: var(--k-warn); stroke-width: 2.6; stroke-dasharray: 7 5; }
+  .scene .hdBad { fill: var(--k-warn); }
+  .scene .badL { stroke: var(--k-warn); stroke-width: 3; stroke-dasharray: 7 5; stroke-linecap: round; }
+  .scene .sh { stroke: var(--k-accent); stroke-width: 4.5; stroke-linecap: round; }
+  .scene .shD { stroke: var(--k-accent); stroke-width: 3; stroke-dasharray: 6 4; }
+  .scene .tS { stroke: var(--k-accent2); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .tP { stroke: var(--k-accent); stroke-width: 4.5; stroke-linecap: round; }
+  .scene .tQ { stroke: var(--k-accent); stroke-width: 3; stroke-dasharray: 6 4; }
+  .scene .ghost { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 4 4; }
+  .scene .slip { stroke: var(--k-warn); stroke-width: 2.6; stroke-dasharray: 7 5; stroke-linecap: round; }
+  .scene .wV { fill: none; stroke: var(--k-cat2); stroke-width: 1.6; }
+  .scene .wI { fill: none; stroke: var(--k-accent2); stroke-width: 1.6; }
+  .scene .wP { fill: none; stroke: var(--k-ink); stroke-width: 2.6; stroke-linejoin: round; }
+  .scene .fUp { fill: var(--k-fill1); stroke: none; }
+  .scene .fDn { fill: var(--k-fill3); stroke: none; }
+  .scene .avg { stroke: var(--k-accent); stroke-width: 2.4; stroke-dasharray: 6 4; }
+  .scene .trace { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .guide { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .scene .bar { fill: var(--k-accent2); }
+  .scene .barBad { fill: none; stroke: var(--k-warn); stroke-width: 2.2; stroke-dasharray: 5 4; }
+  .scene .dotI { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .dotK { fill: var(--k-ink); }
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.4; }
+  .scene .arc { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .arcBad { fill: none; stroke: var(--k-warn); stroke-width: 2.4; stroke-dasharray: 6 4; }
+  .scene .ring { fill: none; stroke: var(--k-ink); stroke-width: 2; }
+  .scene .box { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }
+  .scene .run { stroke: var(--k-ink); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .join { stroke: var(--k-accent2); stroke-width: 3; stroke-dasharray: 7 5; }
+  .scene .joinOk { stroke: var(--k-accent2); stroke-width: 3.5; }
+  .scene .tipring { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .pill { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .sw1 { fill: var(--k-fill1); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .sw3 { fill: var(--k-fill3); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .hlbg { fill: var(--k-hl); stroke: none; }
+  .scene .pv { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .al { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .al.bad { fill: var(--k-warn); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .te { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .te.bad { fill: var(--k-warn); }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .after { font-size: 1.08rem; line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A 10 A current arrow lagging the 230 V voltage arrow, the power triangle they make, an example 10 kW load's current, the power wave, then mixed puzzles.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="ctl" id="ctl"></div>
+    <p class="after" id="after" hidden></p>
+    <p class="ask" id="ask" hidden></p>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap" hidden></p>
+
+<script>
+  const el = (id) => document.getElementById(id);
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const PI = Math.PI, TAU = 2 * Math.PI, DEG = 180 / Math.PI, RAD = Math.PI / 180;
+  const sinD = (a) => Math.sin(a * RAD), cosD = (a) => Math.cos(a * RAD);
+  const acosD = (x) => Math.acos(x) * DEG, asinD = (x) => Math.asin(x) * DEG;
+  const neg = (s) => String(s).replace(/^-/, '−');
+  // v rounded to dp places with trailing zeros dropped: 8.66, 5, 0.5.
+  function trim(v, dp) {
+    const f = Math.pow(10, dp);
+    let s = (Math.round(v * f) / f).toFixed(dp);
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    if (s === '-0') s = '0';
+    return neg(s);
+  }
+  // Three significant figures, as the lesson writes currents and kVA: 43.5, 72.5, 145, 16.7.
+  const sig3 = (v) => trim(v, Math.abs(v) >= 99.95 ? 0 : Math.abs(v) >= 9.995 ? 1 : 2);
+  const deg = (v) => trim(v, 1) + '°';
+  const pfS = (v) => trim(v, 3);
+  const hA = (v) => trim(v, 2) + ' A';
+  const W0 = (v) => trim(v, 0);
+  const p12 = (v) => +v.toPrecision(12);   // an angle kept as the slider keeps its snap values
+  const lenOf = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]);
+
+  // The lesson's values. Every other number is worked out from these by the rule.
+  const V0 = 230, I0 = 10, S0 = V0 * I0;                  // 230 V, 10 A: 2300 VA
+  const P_HOLD = 10000;                                    // the held load: 10 kW
+  const PH = { a8: p12(acosD(0.8)), a6: p12(acosD(0.6)), a3: p12(acosD(0.3)), m: p12(acosD(450 / 621)) };
+  const SNAPS = [PH.a8, PH.m, PH.a6, 60, PH.a3];
+  const HMAX = PH.a3;                                      // Hold true power stops at a power factor of 0.3
+  const curOf = (phi) => P_HOLD / (V0 * cosD(phi));        // the current a held 10 kW needs on 230 V
+  const IM = 2.7, PM = 450, SM = V0 * IM;                  // the motor: 2.7 A, 450 W, 621 VA
+  const PFM = PM / SM, PHM = acosD(PFM), QM = Math.sqrt(SM * SM - PM * PM), PHS = asinD(PFM), PS = SM * cosD(PHS);
+
+  // The answers each puzzle offers (worked out here, never typed in).
+  const o1 = [hA(I0 * sinD(60)), hA(I0), hA(I0 * cosD(60))];                                     // 8.66 A, 10 A, 5 A
+  const o3 = [trim(PFM, 3), trim(SM / PM, 2), trim(SM, 0)];                                        // 0.725, 1.38, 621
+  const o5 = [deg(asinD(0.5)), deg(acosD(0.5)), trim(Math.acos(0.5), 2)];                          // 30°, 60°, 1.05
+  const o7 = [sig3(curOf(PH.a8)) + ' A', sig3(curOf(0) * 0.8) + ' A', sig3(curOf(0)) + ' A'];       // 54.3 A, 34.8 A, 43.5 A
+  const o9 = [trim(S0 * 0.6, 0) + ' W', trim(S0 * 0.8, 0) + ' W', trim(S0 / 0.8, 0) + ' W'];        // 1380 W, 1840 W, 2875 W
+  const D11 = Math.sqrt(25 + 64 - 80 * cosD(60));
+  const o10 = [trim(Math.sqrt(89), 2) + ' m', trim(Math.sqrt(129), 2) + ' m', trim(D11, 2) + ' m']; // 9.43 m, 11.36 m, 7 m
+  const o11 = [trim(60, 0), trim(TAU * 60, 0), trim(PI * 60, 1)];                                 // 60, 377, 188.5
+  const I13 = Math.hypot(4, 3);
+  const o12 = [trim(I13, 0) + ' A at ' + trim(4 / I13, 2), trim(4 + 3, 0) + ' A at ' + trim(4 / 7, 2), trim(I13, 0) + ' A at ' + trim(3 / I13, 2)];
+  const TOOLS = ['Right-angled triangle', 'Sine or cosine rule', 'Radians', 'Phasor arrows'];
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const PICK = 'Tap one of the answers.', PICKT = 'Tap one of the tools.';
+  const STEPS = [
+    { show: true, name: 'In step, then behind', pic: 'split', dur: 3.7, rows: 3, live: true, sliders: ['phi'],
+      text: "These are the turning arrows from Adding waves, drawn at rms. The voltage arrow *V*, 230 V, points right. The current arrow *I*, 10 A, starts along it, in step as in a heater, so the power is `230 V × 10 A = 2300 W`. Then I swings 60° behind V, as a motor's current lags. That angle is *φ* (phi). Drag I's tip to set it.",
+      after: "A dashed line drops from I's tip to V and splits I, as in Finding angles. Its *floor shadow*, `I cos φ = 10 cos 60° = 5 A`, lies along V. That part rises and falls in step with the voltage. Its *wall shadow*, `I sin φ = 8.66 A`, is a quarter turn behind." },
+    { kind: 'pick', name: 'The in-step part', pic: 'q5', opts: o1, want: o1[2], secret: ['floor ' + o1[2]],
+      task: 'The current is 10 A, 60° behind the voltage. How much of it is in step with the voltage?',
+      why: "The in-step part is the floor shadow, the part lying along the voltage arrow: `10 cos 60° = 10 × 0.5 = 5 A`. 8.66 A is the wall shadow, `10 sin 60°`, a quarter turn behind the voltage. 10 A is the whole current, and only part of it is in step.",
+      hint: 'Not quite. The in-step part lies along the voltage arrow.',
+      hints: { [o1[0]]: 'Not quite. 8.66 A is the wall shadow, a quarter turn behind. Look along V.',
+        [o1[1]]: 'Not quite. 10 A is the whole current. Only its floor shadow is in step.' },
+      right: ['in step = floor shadow = 10 cos 60°', '= 10 × 0.5 = ' + o1[2]],
+      wrong: { [o1[0]]: ['10 sin 60° = ' + o1[0] + ' is the wall shadow'], [o1[1]]: [o1[1] + ' is the whole current arrow'] } },
+    { show: true, name: 'Times 230 V', pic: 'scale', dur: 4.2, rows: 4, live: true, sliders: ['phi'],
+      text: "Now multiply every side of that current triangle by the voltage, 230 V. The long side becomes `230 × 10 = 2300` volt-amps (VA), the *apparent power*. The flat side becomes `230 × 5 = 1150` watts (W), the *true power*, which a wattmeter reads. The upright side becomes 1992 VAr (volt-amps reactive), the rate at which energy goes back and forth. The wall shadow carries energy in and back each cycle, so on average it delivers none, as step 9 shows.",
+      after: "Scaling keeps the angle, so φ is still 60°. The *power factor* is true power ÷ apparent power, `1150 ÷ 2300 = 0.5`. That is the flat side over the long side, so it is `cos 60°`. Drag I's tip and the long side keeps its 2300 VA while the flat side shrinks as `2300 × cos φ`." },
+    { kind: 'pick', name: "A motor's power factor", pic: 'qmotor', opts: o3, want: o3[0], secret: ['power factor ' + o3[0]],
+      task: 'A motor on 230 V draws 2.7 A, and a wattmeter reads 450 W. What is its power factor?',
+      why: "Apparent power is volts × amps, `230 × 2.7 = 621 VA`. Power factor is true power ÷ apparent power, `450 ÷ 621 = 0.725`. 1.38 divides the wrong way round, and a power factor is never above 1. 621 is the volt-amps themselves, not the ratio.",
+      hint: 'Not quite. Power factor = true power ÷ apparent power.',
+      hints: { [o3[1]]: 'Not quite. That is upside down. A power factor is never above 1.',
+        [o3[2]]: 'Not quite. 621 VA is the apparent power. Divide the watts by it.' },
+      right: ['apparent = 230 × 2.7 = 621 VA', 'power factor = 450 ÷ 621 = ' + o3[0]],
+      wrong: { [o3[1]]: ['621 ÷ 450 = ' + o3[1] + ' is upside down'], [o3[2]]: ['621 VA is the apparent power'] } },
+    { show: true, name: "The motor's triangle", pic: 'motor', dur: 4.2, rows: 5,
+      text: "Here is that motor's power triangle, 621 VA along the long side and 450 W flat. The inverse key gives the angle, `φ = cos⁻¹(450 ÷ 621) = 43.6°`, and Pythagoras gives the upright side, `√(621² − 450²) = 428 VAr`. Put it back to check, `621 × cos 43.6° = 450 W`.",
+      after: "On the right is the slip. Taking power factor as sin φ gives `sin⁻¹(450 ÷ 621) = 46.4°`, and then the flat side is `621 × cos 46.4° = 428 W`, not the 450 W the meter reads." },
+    { kind: 'pick', name: 'From power factor to angle', pic: 'qangle', opts: o5, want: o5[1], secret: ['φ ' + o5[1]],
+      task: 'A load has a power factor of 0.5. What is the angle φ between its voltage and current?',
+      why: "Power factor is cos φ, so `φ = cos⁻¹ 0.5 = 60°`, with the calculator in degrees. 30° is `sin⁻¹ 0.5`, which takes power factor as sin φ. 1.05 is `cos⁻¹ 0.5` with the calculator in radians mode, the same angle in radians.",
+      hint: 'Not quite. Power factor is cos φ, so use cos⁻¹.',
+      hints: { [o5[0]]: 'Not quite. That is sin⁻¹ 0.5. Power factor is the cosine.',
+        [o5[2]]: 'Not quite. That answer is in radians. Set the calculator to degrees.' },
+      right: ['flat ÷ long side = cos φ = 0.5', 'φ = cos⁻¹ 0.5 = ' + o5[1]],
+      wrong: { [o5[0]]: ['sin⁻¹ 0.5 = ' + o5[0] + ' uses sin, not cos'], [o5[2]]: ['cos⁻¹ 0.5 = ' + o5[2] + ' in radians mode'] } },
+    { show: true, name: 'Hold the true power', pic: 'hold', dur: 4.0, rows: 3, live: true, sliders: ['phi', 'hold'],
+      text: "Now *Hold true power* is on, for a 10 kW load on 230 V. In step it needs `10 000 ÷ 230 = 43.5 A`. As φ grows the flat side must stay 10 kW, so the long side stretches to `10 kW ÷ cos φ` and the current bar grows with it. Below, the current is plotted against the power factor.",
+      after: "At a power factor of 0.6, φ is 53.1°. The long side is `10 ÷ 0.6 = 16.7 kVA` and the current is `10 000 ÷ (230 × 0.6) = 72.5 A`. The cables, fuses and supply carry the whole current, so a poor power factor means more current for the same work." },
+    { kind: 'pick', name: 'The current at 0.8', pic: 'q543', opts: o7, want: o7[0], secret: ['current ' + o7[0]],
+      task: 'The same 10 kW load on 230 V runs at a power factor of 0.8 (φ = 36.9°). What current does it draw?',
+      why: "The flat side stays 10 kW, so the current is `10 000 ÷ (230 × 0.8) = 54.3 A`, which Electrical A2Z's worked example prints as 54.5 A. A lower power factor needs more current, never less, so `43.5 × 0.8 = 34.8 A` goes the wrong way. 43.5 A is the current at a power factor of 1, so it leaves the power factor out.",
+      hint: 'Not quite. Current = true power ÷ (volts × power factor).',
+      hints: { [o7[1]]: 'Not quite. That multiplies by 0.8. A lower power factor needs more current.',
+        [o7[2]]: 'Not quite. 43.5 A is the current at a power factor of 1.' },
+      right: ['current = 10 000 ÷ (230 × 0.8)', '= ' + o7[0]],
+      wrong: { [o7[1]]: ['43.5 × 0.8 = ' + o7[1] + ' goes the wrong way'], [o7[2]]: [o7[2] + ' leaves the power factor out'] } },
+    { show: true, name: 'Where the power goes', pic: 'wave', dur: 4.4, rows: 3, live: true, sliders: ['phi', 'hold'],
+      text: "Holding 10 kW, φ goes on to a power factor of 0.3 (72.5°). The current climbs to 145 A and the curve bends up steeply, because towards 90° the current needed grows without limit. Then Hold true power goes off, the current is back at 10 A, and φ sweeps again from 0° to 90°. Under the triangle is the *power wave*, volts × amps at each moment, made from the voltage and current waves.",
+      after: "At 0° the power wave never dips below the line. As φ grows, part of each cycle dips below it, as energy goes back to the supply. At 90° its humps above and below are equal, so its average, the true power, is 0 though 10 A flows. At every φ its average height is the flat side." },
+    { kind: 'pick', name: 'True power at 0.8', pic: 'q1840', opts: o9, want: o9[1], secret: ['true ' + o9[1]],
+      task: 'A load on 230 V draws 10 A at a power factor of 0.8. What is its true power?',
+      why: "Apparent power is `230 × 10 = 2300 VA`, and true power is apparent power × power factor, `2300 × 0.8 = 1840 W`, the flat side. 1380 W is `2300 × 0.6`, the upright side. 2875 W divides by 0.8, which would make the flat side longer than the long side.",
+      hint: 'Not quite. True power = apparent power × power factor.',
+      hints: { [o9[0]]: 'Not quite. 2300 × 0.6 is the upright side. Take the flat side.',
+        [o9[2]]: 'Not quite. Dividing makes it more than 2300 VA. Multiply.' },
+      right: ['apparent = 230 × 10 = 2300 VA', 'true = 2300 × 0.8 = ' + o9[1]],
+      wrong: { [o9[0]]: ['2300 × 0.6 = ' + o9[0] + ' is the upright side'], [o9[2]]: ['2300 ÷ 0.8 = ' + o9[2] + ' is over 2300'] } },
+    { kind: 'pick', mixed: true, name: 'Mixed: two cable runs', pic: 'cable', tool: TOOLS[1], toolSay: 'The cosine rule it is. Now pick the answer.', toolNeed: 'This one needs the cosine rule. Now pick the answer.',
+      opts: o10, want: o10[2], secret: ['apart ' + o10[2]],
+      task: 'Two cable runs leave a junction box 60° apart, one 5 m long and one 8 m. How far apart are their ends?',
+      toolHints: { [TOOLS[0]]: 'Not quite. The runs are 60° apart, not 90°, so there is no right angle. Two sides and the angle between point to the cosine rule.',
+        [TOOLS[2]]: 'Not quite. Nothing turns here. Two sides and the angle between them point to the cosine rule.',
+        [TOOLS[3]]: 'Not quite. These are lengths of cable, not waves. Two sides and the angle between point to the cosine rule.' },
+      why: "Two sides and the angle between them, with no right angle, call for the cosine rule from Triangles without a right angle. `5² + 8² − 2 × 5 × 8 × cos 60° = 25 + 64 − 40 = 49`, so the ends are `√49 = 7 m` apart. 9.43 m is `√89`, Pythagoras, as if the runs were 90° apart. 11.36 m is `√129`, with the minus sign dropped.",
+      hint: 'Not quite. Use the cosine rule with the 60° between the runs.',
+      hints: { [o10[0]]: 'Not quite. That is Pythagoras, as if the runs were 90° apart.',
+        [o10[1]]: 'Not quite. The cosine rule takes 2 × 5 × 8 × cos 60° away.' },
+      right: ['5² + 8² − 2 × 5 × 8 × cos 60°', '= 25 + 64 − 80 × 0.5 = 49', 'apart = √49 = ' + o10[2]],
+      wrong: { [o10[0]]: ['√(5² + 8²) = √89 = ' + o10[0], 'that needs the runs 90° apart'], [o10[1]]: ['25 + 64 + 40 = 129, √129 = ' + o10[1], 'the minus sign was dropped'] } },
+    { kind: 'pick', mixed: true, name: "Mixed: a ship's supply", pic: 'rad', tool: TOOLS[2], toolSay: 'Radians it is. Now pick the answer.', toolNeed: 'This one needs radians. Now pick the answer.',
+      opts: o11, want: o11[1], secret: [o11[1] + ' radians'],
+      task: "A college's marine notes say 60 Hz is the most common frequency on board ship. How many radians a second does its turning arm sweep?",
+      toolHints: { [TOOLS[0]]: 'Not quite. No sides are asked for. "Radians a second" points to radians.',
+        [TOOLS[1]]: 'Not quite. There is no triangle here. "Radians a second" points to radians.',
+        [TOOLS[3]]: 'Not quite. There is only one arm, and the question asks for radians a second.' },
+      why: "One whole turn is 2π radians, and the arm turns 60 times a second, so it sweeps `2π × 60 = 377` radians a second, the ω of From circle to wave. 60 counts turns, not radians, and 188.5 is `π × 60`, only half a turn each time.",
+      hint: 'Not quite. One turn is 2π radians.',
+      hints: { [o11[0]]: 'Not quite. 60 counts turns. Each turn is 2π radians.',
+        [o11[2]]: 'Not quite. π radians is half a turn. A whole turn is 2π.' },
+      right: ['1 turn = 2π radians', '2π × 60 = ' + o11[1] + ' radians a second'],
+      wrong: { [o11[0]]: ['60 counts turns, not radians'], [o11[2]]: ['π × 60 = ' + o11[2] + ' is half a turn each time'] } },
+    { kind: 'pick', mixed: true, name: 'Mixed: two currents', pic: 'twoI', tool: TOOLS[3], toolSay: 'Phasor arrows it is. Now pick the answer.', toolNeed: 'This one needs phasor arrows. Now pick the answer.',
+      opts: o12, want: o12[0], secret: ['supply ' + trim(I13, 0) + ' A', 'power factor ' + trim(4 / I13, 2)],
+      task: 'In a motor circuit two currents join, 4 A in step with the voltage and 3 A a quarter turn behind it. What are the supply current and its power factor?',
+      toolHints: { [TOOLS[0]]: 'Not quite. First the currents become arrows. Two currents of one frequency, out of step, point to phasor arrows.',
+        [TOOLS[1]]: 'Not quite. Two currents of one frequency, a quarter turn apart, point to phasor arrows.',
+        [TOOLS[2]]: 'Not quite. No angle needs turning into radians. Two currents out of step point to phasor arrows.' },
+      why: "Lay the arrows tip to tail, 4 A along the voltage and then 3 A pointing a quarter turn behind. The supply current is `√(4² + 3²) = 5 A`, and its power factor is the in-step part over the whole, `4 ÷ 5 = 0.8`. 7 A adds the sizes as if both were in step, and 0.6 puts the quarter-turn part on top. Complex numbers, the next course, writes the power triangle's two short sides as one number.",
+      hint: 'Not quite. Lay the two currents tip to tail.',
+      hints: { [o12[1]]: 'Not quite. 4 + 3 needs the two in step. They are a quarter turn apart.',
+        [o12[2]]: 'Not quite. 3 ÷ 5 puts the quarter-turn part on top. Use the in-step part.' },
+      right: ['supply = √(4² + 3²) = √25 = 5 A', 'power factor = 4 ÷ 5 = 0.8'],
+      wrong: { [o12[1]]: ['4 + 3 = 7 A needs the two in step'], [o12[2]]: ['3 ÷ 5 = 0.6 puts the wrong part on top'] } },
+  ];
+  const RY = { split: 240, q5: 240, scale: 216, qmotor: 226, motor: 186, qangle: 236, hold: 330, q543: 330, wave: 362, q1840: 216, cable: 214, rad: 214, twoI: 196 };
+  STEPS.forEach((d) => { d.ry = RY[d.pic]; });
+  function vhOf(d, st) {
+    if (d.show) return d.ry + 24 * (d.rows - 1) + 12;
+    const n = (ansOf(st) ? d.right.length : 0) + (wrongOf(st) ? [].concat(d.wrong[st.pick]).length : 0);
+    return n ? d.ry + 24 * (n - 1) + 12 : d.ry - 12;
+  }
+  const FINISH = "Power factor is true power ÷ apparent power, the flat side over the long side of the power triangle, so it is *cos φ*. Hold the true power and a lower power factor needs more current, `current = watts ÷ (volts × power factor)`. Complex numbers, the next course, writes the power triangle's two short sides as one number.";
+  const CAPS = { split: "Example current: 10 A on 230 V, the UK's declared supply between phase and neutral (ESQCR 2002).",
+    q5: '10 A lagging 230 V by 60°. Floor shadow = I × cos φ; wall shadow = I × sin φ.',
+    scale: 'Each side of the current triangle × 230 V. Power factor = true power ÷ apparent power = cos φ.',
+    qmotor: 'Example motor: 2.7 A on 230 V, with a wattmeter reading 450 W.',
+    motor: 'The same readings drawn twice, with power factor as cos φ and wrongly as sin φ.',
+    qangle: 'Power factor 0.5: the true power is half the apparent power.',
+    hold: 'Example load: 10 kW on 230 V. Current = true power ÷ (V × power factor).',
+    q543: 'The same 10 kW load on 230 V, now at power factor 0.8.',
+    wave: '10 A on 230 V. Power at each moment = volts × amps; its average is the true power.',
+    q1840: '230 V and 10 A at power factor 0.8.', cable: 'Two straight cable runs from one junction box.',
+    rad: "60 Hz, the most common frequency on board ship (a college's marine electrical notes).",
+    twoI: 'Two branch currents of one frequency joining into the supply.' };
+  // Sources the checks restate (the lesson's own).
+  const SRC = { leg: 'https://www.legislation.gov.uk/uksi/2002/2665/regulation/27/made',
+    a2z: 'https://electricala2z.com/electrical-power/power-triangle-power-factor-ac-circuits',
+    ship: 'http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf',
+    bbc: 'https://www.bbc.co.uk/bitesize/guides/zqq77ty/revision/4',
+    aac: 'https://www.allaboutcircuits.com/textbook/alternating-current/chpt-11/calculating-power-factor',
+    ox: 'https://openstax.org/books/algebra-and-trigonometry/pages/7-2-right-triangle-trigonometry',
+    ornl: 'https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf' };
+  const FADE = 0.35, ANS = 1.8;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { chunks(seg).forEach((c, m) => { if (m) node.appendChild(document.createTextNode(' ')); node.appendChild(K.el('span', { class: 'nw' }, c)); }); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) node.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) node.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+  // A formula kept whole where it is short; a long one may wrap before an = sign, or before another
+  // sign once a piece is long enough, so nothing runs off a phone at the largest text size.
+  function chunks(s) {
+    if (s.length <= 18) return [s];
+    const out = [];
+    let cur = '';
+    s.split(' ').forEach((t) => {
+      const eq = t === '=', op = /^[÷×+−]$/.test(t);
+      if (cur && (eq || (op && cur.length >= 14))) { out.push(cur); cur = t; } else cur = cur ? cur + ' ' + t : t;
+    });
+    if (cur) out.push(cur);
+    return out;
+  }
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong', 'empty'), why: a puzzle's answer; tool, tres: a mixed puzzle's tool.
+  // phi, hold: the angle and the switch Dan set; null means "as the demonstration has it".
+  function blank() { return { pick: null, res: null, why: false, tool: null, tres: null, phi: null, hold: null }; }
+  const stOf = (o) => Object.assign(blank(), o);
+  const resetLive = (st) => { st.phi = null; st.hold = null; };
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  const ansOf = (st) => st.res === 'right' || !!st.why;
+  const wrongOf = (st) => st.res === 'wrong' && st.pick != null;
+  const stage = (d, st) => (d.mixed && st.tres !== 'right' && !st.why ? 'tool' : 'answer');
+  const toolOk = (d, st) => stage(d, st) === 'answer';
+  const DEF = { split: { phi: 60 }, scale: { phi: 60 }, hold: { phi: PH.a6, hold: true }, wave: { phi: 90, hold: false } };
+  const val = (st, pic, id) => (st[id] != null ? st[id] : DEF[pic][id]);
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, MODE = 'demo', motionEnd = 0, paused = false;
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (stage(d, st) === 'tool') { if (k < TOOLS.length) { st.tool = TOOLS[k]; st.tres = null; } return; }
+    if (!d.opts || k >= d.opts.length) return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (stage(d, st) === 'tool') {
+      if (st.tool == null) { st.tres = 'empty'; return; }
+      st.tres = st.tool === d.tool ? 'right' : 'wrong';
+      if (st.tres === 'right') play('tool', 1.6);
+      return;
+    }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play('answer', ANS);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+    if (st.why && st.res !== 'right') play('answer', ANS);
+  } });
+  // One button plays the demonstration, pauses it, and plays it on or again.
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    if (anim.playing() && T < motionEnd) { anim.pause(); paused = true; return; }
+    if (paused && T < motionEnd) { paused = false; anim.play(); return; }
+    resetLive(st);
+    play('demo', d.dur);
+  } });
+  let replayText = 'Play again';
+  function replayLabel() {
+    const s = anim.playing() && T < motionEnd ? 'Pause' : paused && T < motionEnd ? 'Play' : 'Play again';
+    if (s !== replayText) { replayText = s; replayBtn.setLabel(s); }
+  }
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  // The angle slider and the switch, shown only on the screens that use them.
+  const ctl = {
+    phi: K.control({ id: 'phi', label: 'Angle φ, current behind V', min: 0, max: 90, step: 1, value: 60, snap: SNAPS, fmt: (v) => deg(v), into: '#ctl' }),
+    hold: K.toggle({ id: 'hold', label: 'Hold true power at 10 kW', value: false, into: '#ctl' }),
+  };
+  const SL = Object.keys(ctl);
+  const shown = {};
+  SL.forEach((id) => { shown[id] = ctl[id].get(); });
+  // A control set to what the picture shows (quietly: this is not Dan moving it).
+  function syncCtl(id, v) {
+    const c = ctl[id];
+    if (c.get() !== v) c.set(v, true);
+    shown[id] = c.get();
+  }
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion (and
+  // while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && !paused && T !== Infinity) { T = Infinity; paint(); } });
+  // A demonstration waits until most of its picture is in view, so on a phone it does not play out
+  // while Dan is still reading the words above it.
+  let seen = true, waiting = false, waitDur = 0;
+  if (typeof IntersectionObserver === 'function') {
+    seen = false;
+    new IntersectionObserver((es) => {
+      const e = es[es.length - 1];
+      seen = e.isIntersecting && (e.intersectionRatio >= 0.6 || e.intersectionRect.height >= 0.6 * (window.innerHeight || 1));
+      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }
+    }, { threshold: [0, 0.3, 0.6, 0.8, 1] }).observe(el('scene'));
+  }
+  function play(mode, dur) {
+    MODE = mode; waiting = false; paused = false;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    if (mode === 'demo' && !seen) { waiting = true; waitDur = dur; T = 0; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null, REC = null, VH = 300;
+  const VOID = K.svg('g');
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const when = (m, t, d) => (MODE === m ? arr(t, d) : 1);
+  // A steady motion from 0 to 1 between t0 and t0 + d of the demonstration, 1 when it is not playing.
+  function lin(t0, d) {
+    if (MODE !== 'demo') return 1;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.clamp((T - t0) / d, 0, 1);
+  }
+  // A part fades in at arrival a. A part not yet arrived is still laid out (off the page), so the
+  // labels placed around it never jump when it arrives.
+  function part(a, rise, draw) {
+    const vis = a > 0;
+    const g = vis ? add(K.svg('g')) : VOID;
+    if (vis) K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; if (!vis) VOID.textContent = ''; }
+  }
+  const R = (v) => Math.round(v * 100) / 100;
+  const pt = (q) => R(q[0]) + ' ' + R(q[1]);
+  const poly = (ps, close) => 'M' + ps.map(pt).join(' L') + (close ? ' Z' : '');
+  // Lines and paths, noted (with half their width) so labels keep off them.
+  function lineP(cls, p, q, pad) {
+    add(K.svg('line', { class: cls, x1: R(p[0]), y1: R(p[1]), x2: R(q[0]), y2: R(q[1]) }));
+    if (pad != null) REC.segs.push({ p, q, pad });
+  }
+  function pathP(cls, ps, pad, stride) {
+    add(K.svg('path', { class: cls, d: poly(ps, false) }));
+    const st = stride || 1;
+    if (pad != null) for (let k = st; k < ps.length + st - 1; k += st) { const j = Math.min(k, ps.length - 1); REC.segs.push({ p: ps[k - st], q: ps[j], pad }); }
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: R(x), y: R(y), width: R(Math.max(0, w)), height: R(Math.max(0, h)), rx: rx || 0 }));
+  // A bar from y0 to y1, its outline noted so labels keep off it.
+  function boxRect(cls, x, y0, y1, w) {
+    const y = Math.min(y0, y1), h = Math.abs(y1 - y0);
+    if (h < 0.3) return;
+    rect(cls, x, y, w, h, 0);
+    [[[x, y], [x + w, y]], [[x, y + h], [x + w, y + h]], [[x, y], [x, y + h]], [[x + w, y], [x + w, y + h]]].forEach((s) => REC.segs.push({ p: s[0], q: s[1], pad: 1 }));
+  }
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: R(x), y: R(y), 'text-anchor': anchor || 'middle' }, s));
+  function dot(p, cls, r) {
+    add(K.svg('circle', { class: cls, cx: R(p[0]), cy: R(p[1]), r: r || 4 }));
+    REC.segs.push({ p, q: p, pad: (r || 4) + 1 });
+  }
+  function ringAt(p, cls, r) {
+    add(K.svg('circle', { class: cls, cx: R(p[0]), cy: R(p[1]), r }));
+    REC.segs.push({ p, q: p, pad: r + 2 });
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 8;
+  }
+  // A label at a fixed place (axis ticks and titles, the key), its box noted so placed labels keep clear.
+  function fixedLab(x, y, s, cls, anchor, a) {
+    const w = tw(s, cls), x0 = anchor === 'end' ? x - w : anchor === 'start' ? x : x - w / 2, aa = a == null ? 1 : a;
+    REC.boxes.push({ x: x0, y: y - 11, w, h: 14 });
+    if (aa > 0) part(aa, 0, () => text(x, y, s, cls, anchor || 'middle'));
+    return aa >= 0.5;
+  }
+  // A readout pill against the left or the right edge.
+  function pill(key, s, y, a, left) {
+    const w = tw(s, 'pv') + 14, h = 21, cx = left ? 3 + w / 2 : 337 - w / 2, aa = a == null ? 1 : a;
+    REC.boxes.push({ x: cx - w / 2, y: y - h / 2, w, h });
+    if (aa >= 0.5) REC.pills[key] = s;
+    if (aa > 0) part(aa, 0, () => { rect('pill', cx - w / 2, y - h / 2, w, h, 10); text(cx, y + 5, s, 'pv'); });
+  }
+  // An arrowhead with its tip at p, pointing along the unit direction u.
+  function head(p, u, cls, s, w) {
+    const b = [p[0] - u[0] * s, p[1] - u[1] * s], n = [-u[1], u[0]];
+    add(K.svg('path', { class: cls, d: poly([p, [b[0] + n[0] * w, b[1] + n[1] * w], [b[0] - n[0] * w, b[1] - n[1] * w]], true) }));
+    REC.segs.push({ p: b, q: p, pad: w });
+  }
+  function arrow(p, q, cls, hcls, big) {
+    const L = lenOf(p, q);
+    if (!(L > 0.5)) return false;
+    const u = [(q[0] - p[0]) / L, (q[1] - p[1]) / L], s = big ? 11 : 9, w = big ? 5.5 : 4.5;
+    if (L > s + 3) { lineP(cls, p, [q[0] - u[0] * (s - 1), q[1] - u[1] * (s - 1)], big ? 2.5 : 2); head(q, u, hcls, s, w); }
+    else lineP(cls, p, q, big ? 2.5 : 2);
+    return true;
+  }
+  // A small square marking a right angle at V between two directions (degrees, anticlockwise).
+  function rightMark(V, d1, d2, s) {
+    const u1 = [cosD(d1), -sinD(d1)], u2 = [cosD(d2), -sinD(d2)];
+    const a = [V[0] + u1[0] * s, V[1] + u1[1] * s], c = [V[0] + u2[0] * s, V[1] + u2[1] * s], b = [a[0] + u2[0] * s, a[1] + u2[1] * s];
+    pathP('brk', [a, b, c], 1);
+  }
+
+  // ---------- labels placed clear of everything drawn ----------
+  function segHits(p, q, b) {
+    let t0 = 0, t1 = 1;
+    const dx = q[0] - p[0], dy = q[1] - p[1];
+    const clip = (pp, qq) => {
+      if (pp === 0) return qq >= 0;
+      const r = qq / pp;
+      if (pp < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+      return true;
+    };
+    return clip(-dx, p[0] - b.x) && clip(dx, b.x + b.w - p[0]) && clip(-dy, p[1] - b.y) && clip(dy, b.y + b.h - p[1]) && t0 <= t1;
+  }
+  // Is a box clear of the edges, the floor, the labels placed so far, the handles and the lines?
+  function fits(b) {
+    if (b.x < 3 || b.x + b.w > 337 || b.y < 2 || b.y + b.h > Math.min(VH, REC.floor) - 2) return false;
+    if (REC.boxes.some((o) => o.x < b.x + b.w + 7 && b.x < o.x + o.w + 7 && o.y < b.y + b.h + 2 && b.y < o.y + o.h + 2)) return false;
+    if (REC.handles.some((hd) => Math.hypot(K.clamp(hd.x, b.x, b.x + b.w) - hd.x, K.clamp(hd.y, b.y, b.y + b.h) - hd.y) < 14)) return false;
+    return !REC.segs.some((g) => segHits(g.p, g.q, { x: b.x - g.pad - 1.5, y: b.y - g.pad - 1.5, w: b.w + 2 * g.pad + 3, h: b.h + 2 * g.pad + 3 }));
+  }
+  // A label at the first candidate clear of everything; none when there is no room.
+  function plainLab(s, cls, candsOf, a, inside) {
+    const w = tw(s, cls), h = 14, cands = candsOf(w, h);
+    const c = cands.find((q) => { const b = { x: q[0] - w / 2, y: q[1] - h / 2, w, h }; return (!inside || inside(b)) && fits(b); }) || null;
+    if (!c) return null;
+    const aa = a == null ? 1 : a;
+    REC.boxes.push({ x: c[0] - w / 2, y: c[1] - h / 2, w, h });
+    if (aa >= 0.5) REC.labs.push(s);
+    if (aa > 0) part(aa, 0, () => text(c[0], c[1] + 5, s, cls));
+    return c;
+  }
+  // A label beside a segment, on the side away from a point when it can.
+  function segLab(p, q, s, away, a, cls) {
+    cls = cls || 'al';
+    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1;
+    let n = [-dy / L, dx / L];
+    if (away) { const m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2]; if ((away[0] - m[0]) * n[0] + (away[1] - m[1]) * n[1] > 0) n = [-n[0], -n[1]]; }
+    return plainLab(s, cls, (w, h) => {
+      const out = [];
+      [n, [-n[0], -n[1]]].forEach((nn) => [0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.8, 0.1, 0.9].forEach((f) => [6, 14, 24, 34].forEach((e) => {
+        const d = e + Math.abs(nn[0]) * w / 2 + Math.abs(nn[1]) * h / 2;
+        out.push([p[0] + dx * f + nn[0] * d, p[1] + dy * f + nn[1] * d]);
+      })));
+      return out;
+    }, a);
+  }
+  // A label beside a point in direction dir (degrees, anticlockwise from pointing right) when it can.
+  function cornerLab(V, s, dir, a, cls) {
+    return plainLab(s, cls || 'al', (w, h) => {
+      const out = [];
+      [0, 25, -25, 50, -50, 80, -80, 115, -115, 150, -150, 180].forEach((dt) => [10, 18, 28].forEach((e) => {
+        const u = [cosD(dir + dt), -sinD(dir + dt)], d = e + Math.abs(u[0]) * w / 2 + Math.abs(u[1]) * h / 2;
+        out.push([V[0] + u[0] * d, V[1] + u[1] * d]);
+      }));
+      return out;
+    }, a);
+  }
+  // An angle's arc at corner V from a0 to a1 (degrees, anticlockwise), its label inside the wedge
+  // beyond the arc, left off when the wedge has no room for it.
+  function inWedgeAt(V, a0, a1, pad) {
+    return (b) => [[b.x, b.y], [b.x + b.w, b.y], [b.x, b.y + b.h], [b.x + b.w, b.y + b.h]].every((q) => {
+      const dx = q[0] - V[0], dy = V[1] - q[1], r = Math.hypot(dx, dy);
+      if (r < pad + 1) return false;
+      let p = Math.atan2(dy, dx) / RAD;
+      while (p < a0) p += 360;
+      while (p >= a0 + 360) p -= 360;
+      const m = Math.asin(Math.min(1, pad / r)) / RAD;
+      return p >= a0 + m && p <= a1 - m;
+    });
+  }
+  function arcPathAt(V, a0, a1, r) {
+    const p0 = [V[0] + r * cosD(a0), V[1] - r * sinD(a0)], p1 = [V[0] + r * cosD(a1), V[1] - r * sinD(a1)];
+    return 'M' + pt(p0) + ' A' + r + ' ' + r + ' 0 ' + (a1 - a0 > 180 ? 1 : 0) + ' 0 ' + pt(p1);
+  }
+  function arcAt(V, a0, a1, ra, a, cls) {
+    if (!(a1 - a0 > 0.5)) return;
+    const aa = a == null ? 1 : a, n = Math.max(2, Math.ceil((a1 - a0) / 8));
+    for (let k = 0; k < n; k++) {
+      const t0 = a0 + (a1 - a0) * k / n, t1 = a0 + (a1 - a0) * (k + 1) / n;
+      REC.segs.push({ p: [V[0] + ra * cosD(t0), V[1] - ra * sinD(t0)], q: [V[0] + ra * cosD(t1), V[1] - ra * sinD(t1)], pad: 1 });
+    }
+    if (aa > 0) part(aa, 0, () => add(K.svg('path', { class: cls || 'arc', d: arcPathAt(V, a0, a1, ra) })));
+  }
+  function wedgeLab(V, a0, a1, s, a, ra, maxD, cls, also) {
+    if (!(a1 - a0 > 0.5) || !s) return null;
+    cls = cls || 'al';
+    const w = tw(s, cls), span = a1 - a0, cands = [], top = maxD || 230;
+    for (let dd = ra + Math.hypot(w / 2, 7) + 4; dd < top; dd += 3) [0.5, 0.36, 0.64, 0.24, 0.76].forEach((f) => { const t = a0 + span * f; cands.push([V[0] + cosD(t) * dd, V[1] - sinD(t) * dd]); });
+    const inW = inWedgeAt(V, a0, a1, 3);
+    return plainLab(s, cls, () => cands, a, also ? (b) => inW(b) && also(b) : inW);
+  }
+  // ---------- rows of working under the picture ----------
+  function drawRows(y0, rows) {
+    rows.forEach((r, m) => {
+      const y = y0 + 24 * m, w = tw(r.s, 'te');
+      REC.boxes.push({ x: 12, y: y - 11, w, h: 14 });
+      if (r.a > 0) part(r.a, 4, () => { if (r.hl) rect('hlbg', 7, y - 15, w + 10, 21, 4); text(12, y, r.s, 'te' + (r.bad ? ' bad' : ''), 'start'); });
+    });
+    REC.rows = rows.filter((r) => r.a >= 0.5).map((r) => ({ s: r.s, bad: !!r.bad }));
+  }
+  function puzzleRows(d, st, y0) {
+    const an = (t) => when('answer', t), list = [], ok = ansOf(st);
+    if (ok) d.right.forEach((s, m) => list.push({ s, a: an(0.3 + 0.15 * m) }));
+    if (wrongOf(st)) [].concat(d.wrong[st.pick]).forEach((s, m) => list.push({ s, a: an((ok ? 0.3 + 0.15 * d.right.length : 0.3) + 0.15 * m), bad: true }));
+    drawRows(y0, list);
+  }
+
+  // ---------- the current arrows and the power triangle ----------
+  // A right-angled triangle from C: its long side L px at φ below the floor, its flat side along the
+  // floor, and its upright side down from the flat side's end to the long side's end.
+  function triPts(C, L, phi) {
+    const F = [C[0] + L * cosD(phi), C[1]], E = [F[0], C[1] + L * sinD(phi)];
+    return { C, F, T: E };
+  }
+  const TRI = { S: 'tS', P: 'tP', Q: 'tQ' };
+  function drawTri(t, c) {
+    if (lenOf(t.C, t.F) > 0.5) lineP(c.P, t.C, t.F, 2.5);
+    if (lenOf(t.F, t.T) > 0.5) lineP(c.Q, t.F, t.T, 2);
+    if (lenOf(t.C, t.T) > 0.5) lineP(c.S, t.C, t.T, 2);
+    if (lenOf(t.C, t.F) > 9 && lenOf(t.F, t.T) > 9) rightMark(t.F, 180, 270, 6);
+  }
+  // V along the floor from C, and I (kI px an amp) lagging φ below it, split into its floor shadow
+  // along V and its wall shadow, the dashed drop from I's tip.
+  function curDiag(C, vLen, kI, I, phi) {
+    const Vt = [C[0] + vLen, C[1]], t = triPts(C, kI * I, phi);
+    arrow(C, Vt, 'arV', 'hdV');
+    if (lenOf(t.C, t.F) > 0.5) lineP('sh', t.C, t.F, 2.5);
+    if (lenOf(t.F, t.T) > 0.5) lineP('shD', t.F, t.T, 2);
+    if (lenOf(t.C, t.F) > 9 && lenOf(t.F, t.T) > 9) rightMark(t.F, 180, 270, 6);
+    arrow(C, t.T, 'arI', 'hdI');
+    return { C, Vt, F: t.F, T: t.T, k: kI };
+  }
+  function curLabs(g, o) {
+    o = o || {};
+    const down = [g.C[0], g.C[1] + 40];
+    if (o.floor && lenOf(g.C, g.F) >= 14) segLab(g.C, g.F, o.floor, down, o.fa == null ? 1 : o.fa, o.fcls);
+    if (o.wall && lenOf(g.F, g.T) >= 14 && lenOf(g.C, g.F) >= 8) segLab(g.F, g.T, o.wall, g.C, o.wa == null ? 1 : o.wa, o.wcls);
+    segLab(g.C, g.Vt, 'V 230 V', down, 1);
+    segLab(g.C, g.T, 'I 10 A', g.F, 1, o.icls);
+  }
+  function triLabs(t, o) {
+    const down = [t.C[0], t.C[1] + 40];
+    if (o.P) { if (lenOf(t.C, t.F) >= 14) segLab(t.C, t.F, o.P, down, o.pa == null ? 1 : o.pa, o.pcls); else cornerLab(t.C, o.P, 90, o.pa == null ? 1 : o.pa, o.pcls); }
+    if (o.S && lenOf(t.C, t.T) >= 6) segLab(t.C, t.T, o.S, t.F, o.sa == null ? 1 : o.sa, o.scls);
+    if (o.Q && lenOf(t.F, t.T) >= 14) segLab(t.F, t.T, o.Q, t.C, o.qa == null ? 1 : o.qa, o.qcls);
+  }
+  function pairLabs(g, t, phi, o) {
+    const ta = o.ta == null ? 1 : o.ta;
+    arcAt(g.C, -phi, 0, 20, 1);
+    arcAt(t.C, -phi, 0, 22, ta);
+    wedgeLab(t.C, -phi, 0, o.tw || deg(phi), ta, 22, 160);
+    wedgeLab(g.C, -phi, 0, deg(phi), 1, 20, 130);
+    triLabs(t, o);
+    curLabs(g, o.cur || {});
+  }
+  function tipHandle(p, pivot, max, phi) {
+    ringAt(p, 'tipring', 8);
+    REC.handles.push({ id: 'tip', x: p[0], y: p[1] });
+    REC.pivot = pivot; REC.max = max; REC.phi = phi;
+  }
+  // Where things sit: the first screens' single diagram, the pair (arrows left, triangle right),
+  // the held load (triangle, current bar, plot), and the power wave under the pair.
+  const SP = { C: [36, 50], VL: 260, kI: 15 };
+  const PR = { C1: [16, 44], VL: 132, kI: 11, C2: [190, 44] };
+  const HL = { H: [124, 40], k: 40 / P_HOLD, BX: 296, BW: 16, BB: 172, kA: 1, PX0: 44, PX1: 320, PY0: 268, PY1: 194 };
+  const WV = { X0: 40, X1: 320, CY: 204, AMP: 13, Z: 278, KW: 46 / (2 * S0), N: 160 };
+
+  // The current a held 10 kW needs, plotted against the power factor.
+  function plotAxes() {
+    const X = (pf) => HL.PX0 + (HL.PX1 - HL.PX0) * pf, Y = (I) => HL.PY0 - (HL.PY0 - HL.PY1) * I / 150;
+    lineP('axis', [HL.PX0, HL.PY0], [HL.PX1 + 6, HL.PY0], 1);
+    lineP('axis', [HL.PX0, HL.PY0 + 4], [HL.PX0, HL.PY1 - 8], 1);
+    [0, 0.3, 0.6, 0.8, 1].forEach((v) => { const x = X(v); lineP('tick', [x, HL.PY0], [x, HL.PY0 + 4], 1); fixedLab(x, HL.PY0 + 18, trim(v, 1), 'tk', 'middle'); });
+    fixedLab(HL.PX1 + 6, HL.PY0 + 34, 'power factor', 'tk', 'end');
+    fixedLab(HL.PX0 + 6, HL.PY1 - 2, 'current (A)', 'tk', 'start');
+    [curOf(0), curOf(PH.a6), curOf(HMAX)].forEach((I) => { const y = Y(I); lineP('tick', [HL.PX0 - 4, y], [HL.PX0, y], 1); fixedLab(HL.PX0 - 6, y + 5, sig3(I), 'tk', 'end'); });
+    return { X, Y };
+  }
+  function traceP(pl, pf) {
+    const ps = [];
+    for (let j = 0; j <= 48; j++) { const p = K.lerp(pf, 1, j / 48); ps.push([pl.X(p), pl.Y(P_HOLD / (V0 * p))]); }
+    if (pf < 1 - 1e-9) pathP('trace', ps, 1.5);
+    return ps;
+  }
+  function markAt(pl, pf, I) {
+    const p = [pl.X(pf), pl.Y(I)];
+    lineP('guide', [p[0], HL.PY0], p, 1);
+    lineP('guide', [HL.PX0, p[1]], p, 1);
+    dot(p, 'dotI', 5);
+  }
+  // The held load: its triangle (flat side always 10 kW), the current bar and the plot.
+  function holdDraw(d, phi, ra) {
+    const pf = cosD(phi), I = curOf(phi), Sva = P_HOLD / pf, Q = P_HOLD * Math.tan(phi * RAD);
+    const t = triPts(HL.H, HL.k * Sva, phi), pl = plotAxes(), top = HL.BB - I * HL.kA;
+    drawTri(t, TRI);
+    lineP('axis', [HL.BX - 6, HL.BB], [HL.BX + HL.BW + 6, HL.BB], 1);
+    boxRect('bar', HL.BX, HL.BB, top, HL.BW);
+    const tr = traceP(pl, pf);
+    markAt(pl, pf, I);
+    tipHandle(t.T, HL.H, HMAX, phi);
+    arcAt(HL.H, -phi, 0, 18, 1);
+    // The angle inside the triangle when it fits there, otherwise beside its corner on the left.
+    if (!wedgeLab(HL.H, -phi, 0, deg(phi), 1, 18, 140, null, (b) => b.x + b.w < t.F[0] - 4)) cornerLab(HL.H, 'φ = ' + deg(phi), 180, 1);
+    triLabs(t, { P: 'true 10 kW', S: 'apparent ' + sig3(Sva / 1000) + ' kVA', Q: sig3(Q / 1000) + ' kVAr' });
+    cornerLab([HL.BX + HL.BW / 2, top], 'current ' + sig3(I) + ' A', 90, 1);
+    drawRows(d.ry, [{ s: 'current = 10 000 ÷ (230 × ' + pfS(pf) + ')', a: ra(0) }, { s: '= ' + sig3(I) + ' A', a: ra(1) },
+      { s: '10 kW ÷ ' + pfS(pf) + ' = ' + sig3(Sva / 1000) + ' kVA', a: ra(2) }]);
+    REC.w = { mode: 'hold', t, k: HL.k, phi, I, pf, bar: { top, base: HL.BB }, trace: tr };
+    return 'Hold true power is on: the flat side stays 10 kW, and at ' + deg(phi) + ' (power factor ' + pfS(pf) + ') the long side is ' + sig3(Sva / 1000) +
+      ' kVA and the current bar ' + sig3(I) + ' A. The plot below traces the current from a power factor of 1 down to ' + pfS(pf) + '.';
+  }
+  // The power wave under the pair: volts × amps at each moment, made from the voltage and current
+  // waves (peaks 230 × √2 and 10 × √2, as 230 V and 10 A are rms), shaded where it is above or below the line.
+  function waveStrip(phi) {
+    const { X0, X1, CY, AMP, Z, KW, N } = WV;
+    const xs = (j) => X0 + (X1 - X0) * j / N;
+    const vs = [], is = [], ps = [], pw = [];
+    for (let j = 0; j <= N; j++) {
+      const th = 2 * TAU * j / N, v = Math.sin(th), c = Math.sin(th - phi * RAD);
+      const p = (V0 * Math.SQRT2 * v) * (I0 * Math.SQRT2 * c);
+      vs.push([xs(j), CY - AMP * v]); is.push([xs(j), CY - AMP * c]); ps.push([xs(j), Z - KW * p]); pw.push(p);
+    }
+    const up = [[X0, Z]].concat(ps.map((q, j) => [q[0], Z - KW * Math.max(0, pw[j])]), [[X1, Z]]);
+    const dn = [[X0, Z]].concat(ps.map((q, j) => [q[0], Z - KW * Math.min(0, pw[j])]), [[X1, Z]]);
+    add(K.svg('path', { class: 'fUp', d: poly(up, true) }));
+    add(K.svg('path', { class: 'fDn', d: poly(dn, true) }));
+    lineP('axis', [X0, CY], [X1 + 4, CY], 1);
+    lineP('axis', [X0, Z], [X1 + 4, Z], 1);
+    pathP('wV', vs, 1, 2); pathP('wI', is, 1, 2);
+    const avg = S0 * cosD(phi), ya = Z - KW * avg;
+    lineP('avg', [X0, ya], [X1, ya], 1.5);
+    pathP('wP', ps, 1.5, 2);
+    fixedLab(X0 - 5, Z + 5, '0', 'tk', 'end');
+    // The key, inside the drawing.
+    const ky = 318, k2 = 338;
+    [['wV', 12, 'V'], ['wI', 46, 'I'], ['wP', 80, 'V × I'], ['avg', 146, 'average']].forEach((k) => {
+      add(K.svg('line', { class: k[0], x1: k[1], y1: ky - 4, x2: k[1] + 14, y2: ky - 4 }));
+      REC.boxes.push({ x: k[1], y: ky - 6, w: 14, h: 4 });
+      fixedLab(k[1] + 19, ky + 1, k[2], 'tk', 'start');
+    });
+    rect('sw1', 12, k2 - 10, 12, 12, 2); REC.boxes.push({ x: 12, y: k2 - 10, w: 12, h: 12 });
+    fixedLab(29, k2 + 1, 'to the load', 'tk', 'start');
+    rect('sw3', 124, k2 - 10, 12, 12, 2); REC.boxes.push({ x: 124, y: k2 - 10, w: 12, h: 12 });
+    fixedLab(141, k2 + 1, 'back to the supply', 'tk', 'start');
+    return { ps, pw, Z, KW, avg };
+  }
+  // The pair at a current held at 10 A, with the power wave under it on the wave screen.
+  function pairDraw(d, phi, ra, withWave, aWv) {
+    const k = 130 / S0, g = curDiag(PR.C1, PR.VL, PR.kI, I0, phi), t = triPts(PR.C2, k * S0, phi);
+    drawTri(t, TRI);
+    let wv = null;
+    if (withWave) part(aWv, 0, () => { wv = waveStrip(phi); });
+    tipHandle(g.T, PR.C1, 90, phi);
+    const pf = cosD(phi), P = S0 * pf, Q = S0 * sinD(phi);
+    pairLabs(g, t, phi, { P: 'true ' + W0(P) + ' W', S: 'apparent 2300 VA', Q: W0(Q) + ' VAr', cur: { floor: 'floor ' + hA(I0 * pf), wall: 'wall ' + hA(I0 * sinD(phi)) } });
+    drawRows(d.ry, [{ s: 'power factor = cos ' + deg(phi) + ' = ' + pfS(pf), a: ra(0) }, { s: 'true power = 2300 × ' + pfS(pf) + ' = ' + W0(P) + ' W', a: ra(1) },
+      { s: withWave ? "the wave's average = the flat side" : 'the current is held at 10 A', a: ra(2) }]);
+    REC.w = { mode: 'pair', t, k, g, phi, wave: wv };
+    return 'The current, 10 A, lags the 230 V by ' + deg(phi) + '. Its power triangle has a long side of 2300 VA and a flat side, the true power, of ' + W0(P) + ' W' +
+      (withWave ? '. Under it the power wave, volts × amps at each moment, averages ' + W0(P) + ' W.' : '.');
+  }
+
+  // ---------- each step's picture ----------
+  const PIC = {
+    split(d, st) {
+      const phi = st.phi != null ? st.phi : 60 * K.ease(lin(0.6, 2.0));
+      syncCtl('phi', phi);
+      const C = SP.C, g = curDiag(C, SP.VL, SP.kI, I0, phi), aL = when('demo', 2.7);
+      el('after').style.opacity = String(aL);   // the numbers below arrive with the swing they describe
+      tipHandle(g.T, C, 90, phi);
+      const fl = I0 * cosD(phi), wl = I0 * sinD(phi);
+      arcAt(C, -phi, 0, 24, 1);
+      wedgeLab(C, -phi, 0, deg(phi), aL, 24, 170);
+      curLabs(g, { floor: 'floor ' + hA(fl), wall: 'wall ' + hA(wl), fa: aL, wa: aL });
+      drawRows(d.ry, [{ s: 'at 0°: 230 V × 10 A = 2300 W', a: 1 }, { s: 'floor shadow 10 cos ' + deg(phi) + ' = ' + hA(fl), a: when('demo', 2.9) },
+        { s: 'wall shadow 10 sin ' + deg(phi) + ' = ' + hA(wl), a: when('demo', 3.1) }]);
+      REC.w = { C, F: g.F, T: g.T, k: SP.kI, phi };
+      return 'The voltage arrow V, 230 V, points right, and the current arrow I, 10 A, lags it by ' + deg(phi) + '. A dashed line from I\'s tip splits it into a floor shadow of ' +
+        hA(fl) + ' along V and a wall shadow of ' + hA(wl) + '.';
+    },
+    q5(d, st) {
+      const an = ansOf(st), bad = wrongOf(st) ? st.pick : null, a = when('answer', 0.3);
+      const C = SP.C, g = curDiag(C, SP.VL, SP.kI, I0, 60);
+      if (bad === o1[0]) part(a, 0, () => lineP('badL', g.F, g.T, 2));
+      if (bad === o1[1]) part(a, 0, () => lineP('badL', C, g.T, 2));
+      arcAt(C, -60, 0, 24, 1);
+      wedgeLab(C, -60, 0, '60°', 1, 24, 170);
+      curLabs(g, { floor: 'floor ' + (an ? o1[2] : '?'), wall: bad === o1[0] ? 'wall ' + o1[0] : 'wall', wcls: bad === o1[0] ? 'al bad' : null, icls: bad === o1[1] ? 'al bad' : null });
+      puzzleRows(d, st, d.ry);
+      return 'The current arrow I, 10 A, lags the voltage arrow V, 230 V, by 60°, split into its floor shadow along V and its wall shadow.' + (an ? ' The floor shadow, the in-step part, is 5 A.' : '');
+    },
+    scale(d, st) {
+      const phi = val(st, 'scale', 'phi');
+      syncCtl('phi', phi);
+      const k = 130 / S0, L0 = PR.kI * I0, L1 = k * S0, u = K.ease(lin(0.5, 1.4));
+      const aT = when('demo', 1.9), aS = when('demo', 2.2), aP = when('demo', 2.5), aQ = when('demo', 2.8);
+      // The copy: the current triangle travels across and grows, every side × 230.
+      if (MODE === 'demo' && T < 2.5) {
+        const tg = triPts([K.lerp(PR.C1[0], PR.C2[0], u), K.lerp(PR.C1[1], PR.C2[1], u)], K.lerp(L0, L1, u), phi);
+        [[tg.C, tg.F], [tg.F, tg.T], [tg.C, tg.T]].forEach((s) => { if (lenOf(s[0], s[1]) > 0.5) add(K.svg('line', { class: 'ghost', x1: R(s[0][0]), y1: R(s[0][1]), x2: R(s[1][0]), y2: R(s[1][1]) })); });
+      }
+      const g = curDiag(PR.C1, PR.VL, PR.kI, I0, phi), t = triPts(PR.C2, L1, phi);
+      part(aT, 0, () => drawTri(t, TRI));
+      tipHandle(g.T, PR.C1, 90, phi);
+      const fl = I0 * cosD(phi), wl = I0 * sinD(phi), P = S0 * cosD(phi), Q = S0 * sinD(phi);
+      pairLabs(g, t, phi, { ta: aT, P: 'true ' + W0(P) + ' W', pa: aP, S: 'apparent 2300 VA', sa: aS, Q: W0(Q) + ' VAr', qa: aQ,
+        cur: { floor: 'floor ' + hA(fl), wall: 'wall ' + hA(wl) } });
+      const ra = (j) => when('demo', 3.0 + 0.2 * j);
+      drawRows(d.ry, [{ s: '230 × 10 A = 2300 VA, apparent', a: ra(0) }, { s: '230 × ' + hA(fl) + ' = ' + W0(P) + ' W, true', a: ra(1) },
+        { s: 'power factor = ' + W0(P) + ' ÷ 2300', a: ra(2) }, { s: '= ' + pfS(cosD(phi)) + ' = cos ' + deg(phi), a: ra(3) }]);
+      REC.w = { mode: 'pair', t, k, g, phi };
+      return 'Left, the 10 A current arrow lags the 230 V arrow by ' + deg(phi) + '. Right, the same triangle with every side × 230: the long side is 2300 VA, the flat side ' +
+        W0(P) + ' W and the upright side ' + W0(Q) + ' VAr.';
+    },
+    qmotor(d, st) {
+      const an = ansOf(st), bad = wrongOf(st) ? st.pick : null, a = when('answer', 0.3);
+      const C = [40, 52], k = 200 / SM, t = triPts(C, k * SM, PHM);
+      drawTri(t, TRI);
+      if (bad === o3[2]) part(a, 0, () => lineP('badL', t.C, t.T, 2));
+      pill('ans', 'power factor ' + (an ? o3[0] : '?'), 22, 1, false);
+      arcAt(C, -PHM, 0, 26, 1);
+      wedgeLab(C, -PHM, 0, 'φ', 1, 26, 170);
+      triLabs(t, { P: 'true 450 W', S: an ? 'apparent 621 VA' : bad === o3[2] ? '621 VA' : '230 V × 2.7 A', scls: !an && bad === o3[2] ? 'al bad' : null, Q: 'VAr' });
+      puzzleRows(d, st, d.ry);
+      return "The motor's power triangle: a long side of 230 V × 2.7 A and a flat side of 450 W, the wattmeter's reading." + (an ? ' Its power factor is 0.725.' : '');
+    },
+    motor(d, st) {
+      const k = 0.2, Lc = [14, 52], Rc = [194, 52], tl = triPts(Lc, k * SM, PHM), tr = triPts(Rc, k * SM, PHS);
+      const a1 = when('demo', 0.4), aW = when('demo', 1.0), aQ = when('demo', 1.6), aR = when('demo', 2.8), aRL = when('demo', 3.1);
+      part(a1, 0, () => { lineP('tP', tl.C, tl.F, 2.5); lineP('tS', tl.C, tl.T, 2); });
+      part(aQ, 0, () => { lineP('tQ', tl.F, tl.T, 2); rightMark(tl.F, 180, 270, 6); });
+      part(aR, 0, () => { lineP('slip', tr.C, tr.F, 2); lineP('slip', tr.F, tr.T, 2); lineP('slip', tr.C, tr.T, 2); });
+      arcAt(Lc, -PHM, 0, 20, aW);
+      arcAt(Rc, -PHS, 0, 20, aR, 'arcBad');
+      fixedLab(Lc[0], 22, 'power factor as cos φ', 'al', 'start', a1);
+      fixedLab(Rc[0], 22, 'taken as sin φ', 'al bad', 'start', aR);
+      wedgeLab(Lc, -PHM, 0, deg(PHM), aW, 20, 120);
+      wedgeLab(Rc, -PHS, 0, deg(PHS), aRL, 20, 120, 'al bad');
+      triLabs(tl, { P: W0(PM) + ' W', pa: a1, S: W0(SM) + ' VA', sa: a1, Q: W0(QM) + ' VAr', qa: aQ });
+      triLabs(tr, { P: W0(PS) + ' W', pa: aRL, pcls: 'al bad', S: W0(SM) + ' VA', sa: aRL });
+      const ra = (j) => when('demo', [2.0, 2.2, 2.4, 3.4, 3.6][j]);
+      drawRows(d.ry, [{ s: 'φ = cos⁻¹(450 ÷ 621) = ' + deg(PHM), a: ra(0) }, { s: 'upright = √(621² − 450²) = ' + W0(QM) + ' VAr', a: ra(1) },
+        { s: 'check: 621 × cos ' + deg(PHM) + ' = ' + W0(SM * cosD(PHM)) + ' W', a: ra(2) },
+        { s: 'as sin: φ = sin⁻¹(450 ÷ 621) = ' + deg(PHS), a: ra(3), bad: true }, { s: '621 × cos ' + deg(PHS) + ' = ' + W0(PS) + ' W, not 450 W', a: ra(4), bad: true }]);
+      REC.w = { l: tl, r: tr, k };
+      return "Left, the motor's power triangle: 621 VA long, 450 W flat, at 43.6°, with an upright side of 428 VAr. Right, the slip: taken as sin φ the angle is 46.4° and the flat side only 428 W.";
+    },
+    qangle(d, st) {
+      const an = ansOf(st), bad = wrongOf(st) ? st.pick : null, a = when('answer', 0.3);
+      const C = [70, 50], L = 170, t = triPts(C, L, 60);
+      drawTri(t, TRI);
+      let q = null;
+      if (bad === o5[0]) { q = [C[0] + L * cosD(30), C[1] + L * sinD(30)]; part(a, 0, () => lineP('badL', C, q, 2)); }
+      pill('ans', 'true ÷ apparent = 0.5', 22, 1, false);
+      arcAt(C, -60, 0, 26, 1);
+      wedgeLab(C, -60, 0, 'φ ' + (an ? o5[1] : '?'), 1, 26, 170);
+      triLabs(t, { P: 'true', S: 'apparent', Q: 'VAr' });
+      if (q) segLab(C, q, o5[0], t.F, a, 'al bad');
+      puzzleRows(d, st, d.ry);
+      return 'A power triangle whose flat side, the true power, is half its long side, the apparent power.' + (an ? ' The angle φ is 60°.' : '');
+    },
+    hold(d, st) {
+      const on = !!val(st, 'hold', 'hold');
+      syncCtl('hold', on);
+      const ph0 = st.phi != null ? st.phi : PH.a6 * K.ease(lin(0.6, 2.4));
+      const ra = (j) => when('demo', 3.0 + 0.2 * j);
+      if (!on) { syncCtl('phi', ph0); return pairDraw(d, ph0, ra, false, 1); }
+      const phi = Math.min(ph0, HMAX);
+      syncCtl('phi', phi);
+      return holdDraw(d, phi, ra);
+    },
+    q543(d, st) {
+      const an = ansOf(st), bad = wrongOf(st) ? st.pick : null, a = when('answer', 0.3), phi = PH.a8, pf = cosD(phi);
+      const I = curOf(phi), t = triPts(HL.H, HL.k * P_HOLD / pf, phi), pl = plotAxes();
+      drawTri(t, TRI);
+      lineP('axis', [HL.BX - 6, HL.BB], [HL.BX + HL.BW + 6, HL.BB], 1);
+      pill('ans', 'current ' + (an ? o7[0] : '?'), 22, 1, false);
+      if (an) part(a, 0, () => { boxRect('bar', HL.BX, HL.BB, HL.BB - I * HL.kA, HL.BW); traceP(pl, pf); markAt(pl, pf, I); });
+      const wv = bad === o7[1] ? curOf(0) * 0.8 : bad === o7[2] ? curOf(0) : null;
+      if (wv != null) part(a, 0, () => boxRect('barBad', HL.BX - 2, HL.BB, HL.BB - wv * HL.kA, HL.BW + 4));
+      arcAt(HL.H, -phi, 0, 18, 1);
+      wedgeLab(HL.H, -phi, 0, deg(phi), 1, 18, 140);
+      triLabs(t, { P: 'true 10 kW', S: 'apparent', Q: 'VAr' });
+      if (wv != null) cornerLab([HL.BX - 2, HL.BB - wv * HL.kA], bad, 180, a, 'al bad');
+      puzzleRows(d, st, d.ry);
+      return 'The held 10 kW load at a power factor of 0.8, 36.9°, with its current bar and plot' + (an ? ': the current is 54.3 A.' : ' still to fill.');
+    },
+    wave(d, st) {
+      const uH = K.ease(lin(0.5, 1.2)), aOut = 1 - arr(1.8, 0.4), aIn = arr(2.2, 0.6), uS = K.ease(lin(2.9, 1.4)), aWv = arr(2.4, 0.6);
+      const ra = (j) => when('demo', 3.4 + 0.2 * j);
+      const scripted = st.phi == null && st.hold == null && MODE === 'demo' && T !== Infinity;
+      let on, phi;
+      if (scripted) { on = T < 2.2; phi = on ? K.lerp(PH.a6, HMAX, uH) : K.lerp(0, 90, uS); }
+      else { on = !!val(st, 'wave', 'hold'); phi = val(st, 'wave', 'phi'); }
+      syncCtl('hold', on);
+      let s = '';
+      if (on) {
+        phi = Math.min(phi, HMAX);
+        syncCtl('phi', phi);
+        part(scripted ? aOut : 1, 0, () => { s = holdDraw(d, phi, ra); });
+        return s;
+      }
+      syncCtl('phi', phi);
+      part(scripted ? aIn : 1, 0, () => { s = pairDraw(d, phi, ra, true, scripted ? aWv : 1); });
+      return s;
+    },
+    q1840(d, st) {
+      const an = ansOf(st), bad = wrongOf(st) ? st.pick : null, a = when('answer', 0.3), phi = PH.a8;
+      const k = 110 / S0, g = curDiag(PR.C1, PR.VL, PR.kI, I0, phi), t = triPts(PR.C2, k * S0, phi);
+      drawTri(t, TRI);
+      let ext = null;
+      if (bad === o9[2]) { ext = [PR.C2[0] + k * S0 / 0.8, PR.C2[1]]; part(a, 0, () => lineP('badL', PR.C2, ext, 2)); }
+      if (bad === o9[0]) part(a, 0, () => lineP('badL', t.F, t.T, 2));
+      pairLabs(g, t, phi, { P: 'true ' + (an ? o9[1] : '?'), S: 'apparent 2300 VA', Q: bad === o9[0] ? o9[0] : 'VAr', qcls: bad === o9[0] ? 'al bad' : null, cur: { floor: 'floor', wall: 'wall' } });
+      if (ext) segLab(t.F, ext, o9[2], [t.F[0], t.F[1] + 40], a, 'al bad');
+      puzzleRows(d, st, d.ry);
+      return 'A 10 A current lagging 230 V by 36.9°, and its power triangle with a long side of 2300 VA.' + (an ? ' The flat side, the true power, is 1840 W.' : '');
+    },
+    cable(d, st) {
+      const an = ansOf(st), bad = wrongOf(st) ? st.pick : null, a = when('answer', 0.3), sc = 22;
+      const B = [44, 166], A8 = [B[0] + 8 * sc, B[1]], A5 = [B[0] + 5 * sc * cosD(60), B[1] - 5 * sc * sinD(60)];
+      pill('ans', 'ends apart ' + (an ? o10[2] : '?'), 22, 1, false);
+      lineP(an ? 'joinOk' : 'join', A5, A8, 2);
+      let q = null;
+      if (bad === o10[0]) { q = [B[0], B[1] - 5 * sc]; part(a, 0, () => { lineP('badL', B, q, 2); lineP('badL', q, A8, 2); }); }
+      lineP('run', B, A8, 2.5); lineP('run', B, A5, 2.5);
+      rect('box', B[0] - 9, B[1] - 9, 18, 18, 3);
+      REC.segs.push({ p: B, q: B, pad: 14 });
+      arcAt(B, 0, 60, 30, 1);
+      wedgeLab(B, 0, 60, '60°', 1, 30, 120);
+      segLab(B, A8, '8 m', [B[0], B[1] - 40], 1);
+      segLab(B, A5, '5 m', A8, 1);
+      segLab(A5, A8, an ? o10[2] : '?', B, 1);
+      if (q) segLab(q, A8, o10[0], B, a, 'al bad');
+      cornerLab(B, 'junction box', -90, 1);
+      puzzleRows(d, st, d.ry);
+      return 'Two cable runs, 5 m and 8 m, leave a junction box 60° apart; a dashed line joins their ends.' + (an ? ' The ends are 7 m apart.' : '');
+    },
+    rad(d, st) {
+      const an = ansOf(st), ok = toolOk(d, st), bad = wrongOf(st) ? st.pick : null, a = when('answer', 0.3);
+      const O = [96, 112], r = 68, tip = [O[0] + r * cosD(40), O[1] - r * sinD(40)];
+      pill('ans', an ? o11[1] + ' radians a second' : '60 turns a second', 22, 1, false);
+      add(K.svg('circle', { class: 'ring', cx: O[0], cy: O[1], r }));
+      for (let k = 0; k < 36; k++) REC.segs.push({ p: [O[0] + r * cosD(10 * k), O[1] - r * sinD(10 * k)], q: [O[0] + r * cosD(10 * k + 10), O[1] - r * sinD(10 * k + 10)], pad: 1 });
+      if (bad === o11[2]) arcAt(O, 0, 180, r + 12, a, 'arcBad');
+      lineP('run', O, tip, 2);
+      dot(O, 'dotK', 4); dot(tip, 'dotK', 5);
+      segLab(O, tip, 'arm', [O[0] + 40, O[1] + 40], 1);
+      cornerLab([O[0] + r, O[1]], ok ? '1 turn = 2π radians' : '1 turn', 0, 1);
+      if (bad === o11[2]) cornerLab([O[0], O[1] - r - 12], 'π, half a turn', 90, a, 'al bad');
+      puzzleRows(d, st, d.ry);
+      return 'An arm turning round a circle, 60 turns a second.' + (ok ? ' One turn is 2π radians.' : '') + (an ? ' It sweeps 377 radians a second.' : '');
+    },
+    twoI(d, st) {
+      const an = ansOf(st), ok = toolOk(d, st), bad = wrongOf(st) ? st.pick : null, a = when('answer', 0.3);
+      const C = [40, 62], s = 30, A = [C[0] + 4 * s, C[1]], u = ok ? when('tool', 0.2, 0.9) : 0, aS = ok ? when('tool', 1.0) : 0;
+      const Bt = [K.lerp(C[0], A[0], u), C[1]], Bh = [Bt[0], Bt[1] + 3 * s], Sm = [A[0], A[1] + 3 * s];
+      pill('ans', 'supply ' + (an ? trim(I13, 0) + ' A' : '?'), 22, 1, false);
+      pill('pf', 'power factor ' + (an ? trim(4 / I13, 2) : '?'), 50, 1, false);
+      let q = null;
+      if (bad === o12[1]) { q = [C[0] + 7 * s, C[1]]; part(a, 0, () => arrow(C, q, 'arBad', 'hdBad')); }
+      // The supply arrow is laid out only once the arrows lie tip to tail, so before then it keeps no
+      // place from the 3 A arrow's label.
+      if (ok) part(aS, 0, () => { arrow(C, Sm, 'arS', 'hdS', true); rightMark(A, 180, 270, 6); });
+      arrow(C, A, 'arA', 'hdA');
+      arrow(Bt, Bh, 'arB', 'hdA');
+      if (an) { arcAt(C, -PH.a8, 0, 26, a); wedgeLab(C, -PH.a8, 0, deg(PH.a8), a, 26, 150); }
+      segLab(C, A, '4 A in step', [C[0], C[1] + 40], 1);
+      segLab(Bt, Bh, '3 A, ¼ turn behind', C, 1);
+      if (ok) segLab(C, Sm, an ? trim(I13, 0) + ' A' : '?', A, aS);
+      if (q) segLab(A, q, '7 A', [A[0], A[1] + 40], a, 'al bad');
+      puzzleRows(d, st, d.ry);
+      return 'Two current arrows: 4 A in step along the floor, and 3 A a quarter turn behind, pointing down' + (ok ? ', laid on the 4 A arrow\'s tip, with the supply arrow from start to finish.' : '.') +
+        (an ? ' The supply is 5 A at a power factor of 0.8.' : '');
+    },
+  };
+
+  // ---------- the handle: Dan drags the current arrow's tip (or the triangle's corner) round ----------
+  const grip = ui.appendChild(K.svg('circle', { class: 'grip', cx: -60, cy: -60, r: 22, tabindex: -1, role: 'slider', 'aria-orientation': 'horizontal', 'aria-label': 'The angle φ: drag the current arrow\'s tip round' }));
+  grip.style.display = 'none';
+  // An angle kept to whole degrees, landing exactly on the angles the lesson names.
+  function quantPhi(v) {
+    const mx = REC.max;
+    v = K.clamp(v, 0, mx);
+    const s = SNAPS.find((x) => x <= mx + 1e-9 && Math.abs(v - x) < 0.8);
+    return s != null ? s : K.clamp(Math.round(v), 0, mx);
+  }
+  function phiAt(q) {
+    const P = REC.pivot, a = Math.atan2(q.y - P[1], q.x - P[0]) * DEG;
+    return quantPhi(a < -90 ? REC.max : a < 0 ? 0 : a);
+  }
+  const liveOn = () => !finished && !!STEPS[at()].live && !!REC && REC.handles.some((h) => h.id === 'tip');
+  function placeGrip(d) {
+    const h = REC.handles.filter((q) => q.id === 'tip')[0], on = !finished && !!h && !!d.live;
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    grip.setAttribute('cx', R(h.x)); grip.setAttribute('cy', R(h.y));
+    grip.setAttribute('aria-valuemin', 0); grip.setAttribute('aria-valuemax', R(REC.max));
+    grip.setAttribute('aria-valuenow', R(REC.phi || 0)); grip.setAttribute('aria-valuetext', deg(REC.phi || 0) + ' behind the voltage');
+  }
+  function setLive(ch) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (Object.keys(ch).every((k) => st[k] === ch[k]) && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    waiting = false; paused = false; T = Infinity;
+    (d.sliders || []).forEach((id) => { if (st[id] == null) st[id] = ctl[id].get(); });
+    Object.assign(st, ch);
+    K.reveal(); K.refresh();
+  }
+  function svgPoint(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+  }
+  (() => {
+    let held = null;
+    grip.addEventListener('pointerdown', (e) => {
+      if (!liveOn()) return;
+      held = e.pointerId;
+      try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the handle */ }
+      e.preventDefault();
+      const q = svgPoint(e); if (q) setLive({ phi: phiAt(q) });
+    });
+    grip.addEventListener('pointermove', (e) => { if (held !== e.pointerId || !liveOn()) return; const q = svgPoint(e); if (q) setLive({ phi: phiAt(q) }); });
+    const letGo = (e) => { if (held === e.pointerId) held = null; };
+    grip.addEventListener('pointerup', letGo);
+    grip.addEventListener('pointercancel', letGo);
+    grip.addEventListener('lostpointercapture', () => { held = null; });
+    grip.addEventListener('keydown', (e) => {
+      if (!liveOn()) return;
+      const by = { ArrowUp: -1, ArrowRight: -1, ArrowDown: 1, ArrowLeft: 1 }[e.key];
+      if (by == null) return;
+      e.preventDefault();
+      setLive({ phi: quantPhi((REC.phi || 0) + by) });
+    });
+  })();
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    REC = { segs: [], handles: [], boxes: [], labs: [], rows: [], pills: {}, floor: d.ry - 16, pivot: [0, 0], max: 90, phi: 0, w: null };
+    VH = vhOf(d, st);
+    svg.setAttribute('viewBox', '0 0 340 ' + VH);
+    el('after').style.opacity = '';
+    svg.setAttribute('aria-label', PIC[d.pic](d, st) || '');
+    placeGrip(d);
+    if (i === at()) replayLabel();
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing() && !waiting && !paused) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; paused = false; enter('stepbox');
+      SL.forEach((id) => { shown[id] = p[id]; });
+      if (d.show) { resetLive(st); play('demo', d.dur); }
+      else { waiting = false; anim.pause(); T = Infinity; MODE = 'answer'; }
+    } else {
+      // The slider or the switch moved on this screen: the picture follows it at once, and anything
+      // the demonstration was still moving stays where it was.
+      let moved = false;
+      SL.forEach((id) => {
+        if (p[id] === shown[id]) return;
+        shown[id] = p[id];
+        if (d.show && (d.sliders || []).indexOf(id) >= 0) { st[id] = p[id]; moved = true; }
+      });
+      if (moved) {
+        (d.sliders || []).forEach((id) => { if (st[id] == null) st[id] = shown[id]; });
+        if (anim.playing()) anim.pause(); waiting = false; paused = false; T = Infinity;
+      }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right', stg = stage(d, st);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    const after = el('after');
+    after.hidden = !d.show || !d.after;
+    write(after, d.show && d.after ? d.after : '');
+    const cap = el('cap'), cs = CAPS[d.pic] || '';
+    write(cap, cs); cap.hidden = finished || !cs;
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    let anyCtl = false;
+    SL.forEach((id) => {
+      const on = !finished && !!d.show && (d.sliders || []).indexOf(id) >= 0;
+      ctl[id].el.hidden = !on;
+      if (on) anyCtl = true;
+    });
+    el('ctl').hidden = !anyCtl;
+    const ask = el('ask');
+    ask.hidden = !!d.show || !d.mixed;
+    ask.textContent = d.mixed ? (stg === 'tool' ? 'First, which tool does this need?' : st.tres === 'right' ? d.toolSay : d.toolNeed) : '';
+    const opts = d.show ? [] : stg === 'tool' ? TOOLS : d.opts || [];
+    const sel = stg === 'tool' ? st.tool : st.pick;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', sel === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    const wrongNow = stg === 'tool' ? st.tres === 'wrong' : st.res === 'wrong';
+    fb.className = 'fb' + (right ? ' right' : wrongNow ? ' wrong' : '');
+    let f = '';
+    if (!d.show) {
+      if (right) f = 'That\'s it.';
+      else if (stg === 'tool') f = st.tres === 'wrong' ? d.toolHints[st.tool] : st.tres === 'empty' ? PICKT : '';
+      else f = st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '';
+    }
+    write(fb, f);
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (pic) => STEPS.findIndex((d) => d.pic === pic);
+  // Step i painted in state st (motion m, finished), fn reading what it drew before the page is put back.
+  function withState(i, st, m, fn, tAt) {
+    const keepS = S[i], keepT = T, keepM = MODE;
+    S[i] = st; T = tAt == null ? Infinity : tAt; MODE = m || (STEPS[i].show ? 'demo' : 'answer');
+    latest = 0; earliest = Infinity;
+    try { paint(i); return fn(); } finally { S[i] = keepS; T = keepT; MODE = keepM; paint(); }
+  }
+  const drawn = (i, st, m) => withState(i, st, m, () => ({ texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent), rec: REC }));
+  const toolPart = (i) => (STEPS[i].mixed ? { tool: STEPS[i].tool, tres: 'right' } : {});
+  const solvedSt = (i) => stOf(Object.assign(toolPart(i), { pick: STEPS[i].want, res: 'right' }));
+  const wrongSt = (i, o) => stOf(Object.assign(toolPart(i), { pick: o, res: 'wrong' }));
+  const fail = (msg) => { throw new Error(msg); };
+  const PHIS = [0, 1, 4, 10, 20, 30, PH.a8, 45, PH.a6, 60, 70, HMAX, 80, 86, 89, 90];
+  // Every state a step can be seen in.
+  function statesOf(i) {
+    const d = STEPS[i], out = [];
+    const push = (o) => out.push([stOf(o), 'demo']);
+    if (d.show) {
+      out.push([blank(), 'demo']);
+      if (d.pic === 'split' || d.pic === 'scale') PHIS.forEach((phi) => push({ phi }));
+      else if (d.pic === 'hold' || d.pic === 'wave') PHIS.forEach((phi) => { push({ phi, hold: true }); push({ phi, hold: false }); });
+    } else {
+      out.push([blank(), 'answer'], [solvedSt(i), 'answer'], [stOf({ why: true }), 'answer']);
+      d.opts.filter((o) => o !== d.want).forEach((o) => out.push([wrongSt(i, o), 'answer'], [Object.assign(wrongSt(i, o), { why: true }), 'answer']));
+      if (d.mixed) {
+        out.push([stOf({ tool: d.tool, tres: 'right' }), 'answer']);
+        TOOLS.filter((t) => t !== d.tool).forEach((t) => out.push([stOf({ tool: t, tres: 'wrong' }), 'answer']));
+      }
+    }
+    return out;
+  }
+  // What crowds the labels in the picture now: labels over labels or handles, or off the edge.
+  function crowding() {
+    const bad = [], boxes = [];
+    art.querySelectorAll('text').forEach((t) => {
+      let b = null;
+      try { b = t.getBBox(); } catch (e) { b = null; }
+      if (!b || !(b.width > 0) || !(b.height > 0)) return;
+      const sh = b.height * 0.2;
+      boxes.push({ s: t.textContent, x: b.x, y: b.y + sh, w: b.width, h: b.height - 2 * sh });
+    });
+    boxes.forEach((a, m) => {
+      if (a.x < 1 || a.x + a.w > 339 || a.y < 0 || a.y + a.h > VH) bad.push('"' + a.s + '" off the edge');
+      boxes.slice(m + 1).forEach((b) => {
+        const ix = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x), iy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+        if (ix > 1 && iy > 1) bad.push('"' + a.s + '" on "' + b.s + '"');
+      });
+      REC.handles.forEach((h) => { const nx = K.clamp(h.x, a.x, a.x + a.w), ny = K.clamp(h.y, a.y, a.y + a.h); if (Math.hypot(nx - h.x, ny - h.y) < 11) bad.push('"' + a.s + '" on a handle'); });
+    });
+    return bad;
+  }
+
+  K.check('Find the cosine as the ratio of the adjacent side to the hypotenuse, and the sine as the opposite side over the hypotenuse: on the first screen, at every angle φ from 0° to 90°, the 10 A arrow\'s floor shadow is drawn 10 × cos φ and its wall shadow 10 × sin φ, and at 60° the rows give 10 cos 60° = 5 A and 10 sin 60° = 8.66 A', () => {
+    const i = idx('split');
+    for (let phi = 0; phi <= 90; phi += 5) {
+      const w = drawn(i, stOf({ phi }), 'demo').rec.w;
+      if (!K.near((w.F[0] - w.C[0]) / w.k, 10 * cosD(phi), 1e-9) || !K.near((w.T[1] - w.F[1]) / w.k, 10 * sinD(phi), 1e-9) || !K.near(w.F[1], w.C[1], 1e-12)) fail('shadows off at ' + phi + '°');
+    }
+    const r = drawn(i, blank(), 'demo').rec.rows.map((x) => x.s);
+    return r[0] === 'at 0°: 230 V × 10 A = 2300 W' && r[1] === 'floor shadow 10 cos 60° = 5 A' && r[2] === 'wall shadow 10 sin 60° = 8.66 A';
+  }, { source: SRC.ox });
+  K.check('Because true power and apparent power form the adjacent and hypotenuse sides of a right triangle, the power factor ratio is also equal to the cosine of that phase angle: at every φ the power triangle has a right angle where its flat and upright sides meet, flat ÷ long side = cos φ, and at 60° the rows give 1150 ÷ 2300 = 0.5 = cos 60°', () => {
+    const i = idx('scale');
+    for (let phi = 1; phi < 90; phi += 4) {
+      const t = drawn(i, stOf({ phi }), 'demo').rec.w.t;
+      const dotp = (t.C[0] - t.F[0]) * (t.T[0] - t.F[0]) + (t.C[1] - t.F[1]) * (t.T[1] - t.F[1]);
+      if (!K.near(dotp, 0, 1e-9) || !K.near((t.F[0] - t.C[0]) / lenOf(t.C, t.T), cosD(phi), 1e-9)) fail('not cos φ at ' + phi + '°');
+    }
+    const r = drawn(i, blank(), 'demo').rec.rows.map((x) => x.s);
+    return r[0] === '230 × 10 A = 2300 VA, apparent' && r[1] === '230 × 5 A = 1150 W, true' && r[2] === 'power factor = 1150 ÷ 2300' && r[3] === '= 0.5 = cos 60°';
+  }, { source: SRC.aac });
+  K.check('With the current held at 10 A, dragging the current arrow further behind keeps the long side at 2300 VA while the flat side, the true power, shrinks as 2300 × cos φ at every degree: its label reads 2300 W at 0°, 1150 W at 60° and 0 W at 90°', () => {
+    const i = idx('scale');
+    let last = Infinity;
+    for (let phi = 0; phi <= 90; phi += 1) {
+      const w = drawn(i, stOf({ phi }), 'demo').rec.w, t = w.t, flat = (t.F[0] - t.C[0]) / w.k;
+      if (!K.near(lenOf(t.C, t.T) / w.k, 2300, 1e-6) || !K.near(flat, 2300 * cosD(phi), 1e-6) || !(flat < last)) fail('at ' + phi + '°');
+      last = flat;
+    }
+    const lab = (phi) => drawn(i, stOf({ phi }), 'demo').texts;
+    return lab(0).indexOf('true 2300 W') >= 0 && lab(60).indexOf('true 1150 W') >= 0 && lab(90).indexOf('true 0 W') >= 0;
+  });
+  K.check('Power Factor is the cosine of the angle between the Real Power and the Apparent Power, pf = kW/kVA = cos(φ): with Hold true power on, at every φ up to 72.5° the drawn flat side stays 10 kW, the long side is 10 ÷ cos φ kVA at the angle φ to it, so kW ÷ kVA = cos φ', () => {
+    const i = idx('hold');
+    for (let phi = 0; phi <= 72; phi += 3) {
+      const w = drawn(i, stOf({ phi, hold: true }), 'demo').rec.w, t = w.t;
+      const kW = (t.F[0] - t.C[0]) / w.k / 1000, kVA = lenOf(t.C, t.T) / w.k / 1000, ang = Math.atan2(t.T[1] - t.C[1], t.T[0] - t.C[0]) * DEG;
+      if (!K.near(kW, 10, 1e-9) || !K.near(kW / kVA, cosD(phi), 1e-9) || !K.near(ang, phi, 1e-9)) fail('at ' + phi + '°');
+    }
+    return true;
+  }, { source: SRC.ornl });
+  K.check('If the power factor of the load is 0.6 (cos 53°), the total current in the line will be 72.5 A, and correcting the PF to 0.8 (cos 37°) would reduce the current to 54.5 A: holding 10 kW on 230 V, the current bar is drawn 72.5 A long at 0.6 and 54.3 A at 0.8, within 0.2 A of the printed 54.5 A', () => {
+    const i = idx('hold'), at6 = drawn(i, stOf({ phi: PH.a6, hold: true }), 'demo'), at8 = drawn(i, stOf({ phi: PH.a8, hold: true }), 'demo');
+    const bar = (x) => (x.rec.w.bar.base - x.rec.w.bar.top) / HL.kA;
+    return sig3(bar(at6)) === '72.5' && sig3(bar(at8)) === '54.3' && Math.abs(bar(at8) - 54.5) < 0.2 && at6.texts.indexOf('current 72.5 A') >= 0 && at8.texts.indexOf('current 54.3 A') >= 0;
+  }, { source: SRC.a2z });
+  K.check('With Hold true power on, φ stops at a power factor of 0.3 (72.5°), where the current is 145 A; up to there the current rises at every step up in φ, and the plot traces it from a power factor of 1 down to the setting', () => {
+    const i = idx('hold'), w90 = drawn(i, stOf({ phi: 90, hold: true }), 'demo').rec.w;
+    if (!K.near(w90.phi, HMAX, 1e-9) || sig3(w90.I) !== '145') fail('no stop at 0.3');
+    let last = 0;
+    for (let phi = 0; phi <= 72; phi += 4) {
+      const w = drawn(i, stOf({ phi, hold: true }), 'demo').rec.w;
+      if (!(w.I > last)) fail('current falls at ' + phi + '°');
+      last = w.I;
+      if (!K.near(w.trace[0][0], HL.PX0 + (HL.PX1 - HL.PX0) * cosD(phi), 1e-6) || !K.near(w.trace[w.trace.length - 1][0], HL.PX1, 1e-6)) fail('trace at ' + phi + '°');
+    }
+    return true;
+  });
+  K.check('The mains voltage in the UK can vary between 216 and 253 volts, and these are r.m.s. values: the power wave multiplies a voltage wave peaking at 230 × √2 by a current wave peaking at 10 × √2, so at every φ its average over whole cycles is 230 × 10 × cos φ, the flat side; at 0° it never dips below the line and touches it twice a cycle, and at 90° its humps above and below are equal', () => {
+    const i = idx('wave'), Wof = (w, q) => (w.Z - q[1]) / w.KW;
+    [0, 20, 45, 60, HMAX, 80, 90].forEach((phi) => {
+      const w = drawn(i, stOf({ phi, hold: false }), 'demo').rec.w, pw = w.wave.ps.slice(0, -1).map((q) => Wof(w.wave, q));
+      const avg = pw.reduce((s, v) => s + v, 0) / pw.length, flat = (w.t.F[0] - w.t.C[0]) / w.k;
+      if (!K.near(avg, 230 * 10 * cosD(phi), 1e-6) || !K.near(avg, flat, 1e-6)) fail('average off at ' + phi + '°');
+    });
+    const w0 = drawn(i, stOf({ phi: 0, hold: false }), 'demo').rec.w.wave, p0 = w0.ps.map((q) => Wof(w0, q));
+    const touches = p0.filter((v, j) => j < p0.length - 1 && Math.abs(v) < 1e-6).length;
+    const w9 = drawn(i, stOf({ phi: 90, hold: false }), 'demo').rec.w.wave, p9 = w9.ps.map((q) => Wof(w9, q));
+    return Math.min.apply(null, p0) > -1e-6 && touches === 4 && K.near(Math.max.apply(null, p9), -Math.min.apply(null, p9), 1e-6);
+  }, { source: SRC.bbc });
+  K.check('The voltage declared in respect of a low voltage supply shall be 230 volts between the phase and neutral conductors: the voltage arrow is labelled 230 V, and the working multiplies by 230', () => {
+    const a = drawn(idx('split'), blank(), 'demo'), b = drawn(idx('scale'), blank(), 'demo'), h = drawn(idx('hold'), blank(), 'demo').rec.rows;
+    return a.texts.indexOf('V 230 V') >= 0 && b.texts.indexOf('V 230 V') >= 0 && b.rec.rows[0].s === '230 × 10 A = 2300 VA, apparent' && h[0].s === 'current = 10 000 ÷ (230 × 0.6)';
+  }, { source: SRC.leg });
+  K.check('60 Hz is the most common frequency adopted for use on board ship: the mixed puzzle on a ship\'s supply works from 60 turns a second, and its answer is 2π × 60 = 377 radians a second', () =>
+    drawn(idx('rad'), blank(), 'answer').texts.indexOf('60 turns a second') >= 0 && o11[1] === '377' && K.near(TAU * 60, 376.99, 0.01), { source: SRC.ship });
+  K.check("The motor's triangle is drawn 621 VA long and 450 W flat at 43.6°, its upright side √(621² − 450²) = 428 VAr; the slip triangle, with power factor taken as sin φ, is drawn at 46.4° with a flat side of only 428 W", () => {
+    const w = drawn(idx('motor'), blank(), 'demo').rec.w, L = w.l, Rt = w.r, k = w.k;
+    return K.near(lenOf(L.C, L.T) / k, 621, 1e-9) && K.near((L.F[0] - L.C[0]) / k, 450, 1e-9) && K.near((L.T[1] - L.F[1]) / k, QM, 1e-9) && deg(PHM) === '43.6°' && W0(QM) === '428' &&
+      K.near(lenOf(Rt.C, Rt.T) / k, 621, 1e-9) && W0((Rt.F[0] - Rt.C[0]) / k) === '428' && deg(PHS) === '46.4°';
+  });
+  K.check('Every worked number matches the lesson: 2300 W; 5 A and 8.66 A; 1150 W, 1992 VAr, 0.5; 621 VA, 0.725, 1.38, 43.6°, 428 VAr, 46.4°, 428 W; 60°, 30°, 1.05; 43.5 A, 53.1°, 16.7 kVA, 72.5 A; 36.9°, 54.3 A, 34.8 A; 72.5°, 145 A; 1840 W, 1380 W, 2875 W; 49, 7 m, 9.43 m, 11.36 m; 377, 188.5; 5 A at 0.8, 7 A at 0.57, 5 A at 0.6', () => {
+    const same = (a, b) => a.length === b.length && a.every((v, k) => v === b[k]);
+    return W0(V0 * I0) === '2300' && same(o1, ['8.66 A', '10 A', '5 A']) && W0(S0 * cosD(60)) === '1150' && W0(S0 * sinD(60)) === '1992' && pfS(cosD(60)) === '0.5' &&
+      W0(SM) === '621' && same(o3, ['0.725', '1.38', '621']) && deg(PHM) === '43.6°' && W0(QM) === '428' && deg(PHS) === '46.4°' && W0(PS) === '428' &&
+      same(o5, ['30°', '60°', '1.05']) && sig3(curOf(0)) === '43.5' && deg(PH.a6) === '53.1°' && sig3(P_HOLD / cosD(PH.a6) / 1000) === '16.7' && sig3(curOf(PH.a6)) === '72.5' &&
+      deg(PH.a8) === '36.9°' && same(o7, ['54.3 A', '34.8 A', '43.5 A']) && deg(HMAX) === '72.5°' && sig3(curOf(HMAX)) === '145' &&
+      same(o9, ['1380 W', '1840 W', '2875 W']) && W0(25 + 64 - 80 * cosD(60)) === '49' && same(o10, ['9.43 m', '11.36 m', '7 m']) &&
+      same(o11, ['60', '377', '188.5']) && same(o12, ['5 A at 0.8', '7 A at 0.57', '5 A at 0.6']);
+  });
+  K.check('Each puzzle accepts only its right answer, and each mixed puzzle first only its right tool; every wrong answer and wrong tool has its own hint, every wrong answer its own red row of working, the answer appears once given, and before it nothing in the picture gives it away', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts.indexOf(d.want) < 0 || !d.opts.every((o) => isRight(i, stOf({ pick: o })) === (o === d.want))) fail('options wrong on step ' + (i + 1));
+      if (d.mixed) {
+        const wt = TOOLS.filter((t) => t !== d.tool);
+        if (TOOLS.indexOf(d.tool) < 0 || !wt.every((t) => d.toolHints[t]) || new Set(wt.map((t) => d.toolHints[t])).size !== wt.length) fail('tool hints on step ' + (i + 1));
+        const pre = drawn(i, stOf({ tool: d.tool, tres: 'right' }), 'answer');
+        if (pre.rec.rows.length || d.secret.some((x) => pre.texts.some((t) => t.indexOf(x) >= 0))) fail('answer shown with the tool on step ' + (i + 1));
+      }
+      const wrongs = d.opts.filter((o) => o !== d.want);
+      if (!wrongs.every((o) => d.hints[o] && d.wrong[o]) || d.hints[wrongs[0]] === d.hints[wrongs[1]]) fail('hints missing on step ' + (i + 1));
+      const b = drawn(i, blank(), 'answer'), s = drawn(i, solvedSt(i), 'answer');
+      if (b.rec.rows.length || d.secret.some((x) => b.texts.some((t) => t.indexOf(x) >= 0))) fail('answer shown early on step ' + (i + 1));
+      if (!(s.rec.rows.length === d.right.length && s.rec.rows.every((r) => !r.bad)) || !d.secret.every((x) => s.texts.some((t) => t.indexOf(x) >= 0))) fail('answer not drawn on step ' + (i + 1));
+      return wrongs.every((o) => { const r = drawn(i, wrongSt(i, o), 'answer').rec.rows, w = [].concat(d.wrong[o]); return r.length === w.length && r.every((x, k) => x.bad && x.s === w[k]); });
+    }));
+  K.check('On the two-currents puzzle both branch arrows keep their labels at every stage: before a tool is picked, with each tool picked, once the arrows lie tip to tail, and once answered right, wrong or with Why? open', () =>
+    statesOf(idx('twoI')).every((s) => {
+      const tx = drawn(idx('twoI'), s[0], s[1]).texts;
+      if (tx.indexOf('4 A in step') < 0 || tx.indexOf('3 A, ¼ turn behind') < 0) fail('a branch label is missing: ' + JSON.stringify({ tool: s[0].tool, tres: s[0].tres, pick: s[0].pick, why: s[0].why }));
+      return true;
+    }));
+  K.check('No label sits on another label or a handle, or runs off the picture, on any screen in any state: puzzles answered right, wrong or with Why? open, every tool picked, φ dragged from 0° to 90°, with Hold true power on and off', () =>
+    STEPS.every((d, i) => statesOf(i).every((s) => withState(i, s[0], s[1], () => {
+      const bad = crowding();
+      if (bad.length) fail('step ' + (i + 1) + ' ' + JSON.stringify({ phi: s[0].phi, hold: s[0].hold, pick: s[0].pick, tool: s[0].tool, why: s[0].why }) + ': ' + bad[0]);
+      return true;
+    }))));
+  K.check('Every demonstration has finished within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; each answer, tool and Why? has settled within 1.8 s', () =>
+    STEPS.every((d, i) => {
+      const timed = (st, m) => withState(i, st, m, () => [latest, earliest]);
+      if (d.show) {
+        const t = timed(blank(), 'demo');
+        if (!(t[0] <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && t[1] >= FADE)) fail('step ' + (i + 1) + ' runs ' + t[0] + ' s from ' + t[1]);
+        return true;
+      }
+      const extra = d.mixed ? [[stOf({ tool: d.tool, tres: 'right' }), 'tool']] : [];
+      return statesOf(i).concat(extra).every((s) => timed(s[0], s[1])[0] <= ANS + 1e-9);
+    }));
+
+  K.ready();
+</script>
