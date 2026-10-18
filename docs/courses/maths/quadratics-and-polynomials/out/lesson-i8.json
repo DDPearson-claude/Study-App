@@ -1,0 +1,619 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-18T06:44:19.961Z",
+ "startedAt": "2026-10-18T06:44:19.961Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i8",
+  "title": "Higher powers",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the readout P(a) reaching 0 exactly where the try x = marker meets a root handle, and that handle's bracket (x − a) splitting off to leave a quadratic, when you slide the marker.",
+   "title": "Roots on a string",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 14,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in fifteen small screens on one picture, a cubic's curve on a grid; the last screen is an optional look ahead. Along the x-axis sit three round root handles, with small arrows under them where they drag, and the curve meets the axis wherever a handle sits. Above the grid two rows show the same rule two ways: the bracket row, (x − p)(x − q)(x − r), one bracket for each handle at p, q and r, and the expanded row, the brackets multiplied out. Each handle drags from −4 to 4 in steps of 1 and they open at 1, 2 and 3, giving (x − 1)(x − 2)(x − 3) = x³ − 6x² + 11x − 6. A handle at a puts the bracket (x − a) in the rule because at x = a that bracket is 0, and anything times 0 is 0, so the curve is on the axis there. The curve's height is drawn squashed to fit the screen, so it is a sketch of the rule's shape. On some screens a try x = marker slides along the axis from −1 to 5 in steps of 1, opening at 0, with a dot on the curve above it and a readout of P(a), the rule's value at x = a: −24 at −1, −6 at 0, 0 at 1, 2 and 3, 6 at 4 and 24 at 5. Where it reads 0, the bracket row rewrites as that bracket times a quadratic: (x − 1)(x² − 5x + 6) at 1, (x − 2)(x² − 4x + 3) at 2 and (x − 3)(x² − 3x + 2) at 3. Screens: 1 names a polynomial, its degree (its highest power) and a cubic (degree 3, which meets the axis at most three times, since a fourth bracket would make x⁴), and lets you drag the handles and watch both rows rewrite; 2 shows handles at −1, 2 and 4 and asks which rule the curve has, (x + 1)(x − 2)(x − 4) = x³ − 5x² + 2x + 8; 3 pushes two handles together at 2, giving (x − 1)(x − 2)² = x³ − 5x² + 8x − 4, where the curve touches the axis at 2 instead of crossing, and dragging all three to 2 gives (x − 2)³ = x³ − 6x² + 12x − 8, which crosses, flattening as it goes, because a bracket that comes once or three times changes sign as x passes its root; it multiplies out by (a + b)³ = (a + b)(a + b)² = a³ + 3a²b + 3ab² + b³ with a = x and b = −2; 4 shows a curve that crosses at −1 and touches at 3 and asks for its rule, (x + 1)(x − 3)² = x³ − 5x² + 3x + 9; 5 hides the handles, shows only x³ − 6x² + 11x − 6, and lets you slide the marker until the readout says 0, and names the factor theorem: if P(a) = 0, then (x − a) is a factor; 6 gives x³ − 7x + 6, which is 8 − 14 + 6 = 0 at 2, and asks which bracket is a factor, (x − 2), leaving (x − 2)(x² + 2x − 3); 7 sets 504 ÷ 9 = 56 beside dividing x³ − 6x² + 11x − 6 by (x − 1), with the same four moves, divide the front, multiply back, take away and bring down, each named beside the first round with each divide written out, x³ ÷ x = x², −5x² ÷ x = −5x and 6x ÷ x = 6, which give x² − 5x + 6 and remainder 0; at x = 10 they are the same sum, since 1000 − 600 + 110 − 6 = 504, 10 − 1 = 9 and 100 − 50 + 6 = 56; 8 has you take the next step yourself: once the first round leaves −5x² + 11x, −5x² ÷ x = −5x goes on top; 9 is a spot the slip on that division in three lines, where line 2 takes −6x² − (−x²) as −7x² and line 3 ends with x² − 7x + 4 and remainder −2, and you pick line 2; 10 divides by (x − 4), giving x² − 2x + 3 and remainder 6, and slides the marker to 4, where P(4) = 64 − 96 + 44 − 6 = 6 too, the remainder theorem, because x³ − 6x² + 11x − 6 = (x − 4)(x² − 2x + 3) + 6 and at x = 4 the bracket is 0; 11 asks the remainder from dividing x³ − 6x² + 11x − 6 by (x − 5), which is P(5) = 125 − 150 + 55 − 6 = 24; 12 tries 1, −1, 2 and −2 in x³ + 8, getting 9, 7, 16 and 0, divides by (x + 2) to leave x² − 2x + 4, whose discriminant 4 − 16 = −12 is negative, so it has no real roots and the curve crosses only at −2; 13 asks for x³ − 2x² − 5x + 6 in brackets, (x − 1)(x − 3)(x + 2); 14 asks whether x³ − 3x + 2 = (x − 1)²(x + 2) crosses or touches the axis at 1; 15, an optional look ahead that nothing later depends on, splits (5x + 1) ÷ ((x − 1)(x + 2)) into 2 ÷ (x − 1) + 3 ÷ (x + 2), the step colleges call partial fractions: multiply both sides of (5x + 1) ÷ ((x − 1)(x + 2)) = A ÷ (x − 1) + B ÷ (x + 2) by (x − 1)(x + 2) to get 5x + 1 = A(x + 2) + B(x − 1), put in x = 1 to make the B part vanish, so 6 = 3A and A = 2, then x = −2, so −9 = −3B and B = 3, checked at x = 0, where both sides are −0.5. Some screens show an idea and the rest ask you to pick one answer from three. A wrong pick puts its numbers back into the rule and shows where it fails: on 2, (x − 1)(x + 2)(x + 4) gives 1 × 4 × 6 = 24 at the root 2, not 0, and (x − 1)(x − 2)(x − 4) gives −2 × −3 × −5 = −30 at the root −1; on 4, (x − 1)(x + 3)² touches at −3 and crosses at 1, and (x + 1)²(x − 3) touches at −1 and crosses at 3; on 6, (x + 2) has root −2, where P is −8 + 14 + 6 = 12, and (x − 6) has root 6, where P is 216 − 42 + 6 = 180; on 8, −5x² would give −5x³ + 5x² when multiplied back, though no x³ is left, and 5x would give 5x² − 5x, the wrong sign; on 9, line 1 is right, since x² times (x − 1) is x³ − x², and line 3 follows from line 2, but (x − 1)(x² − 7x + 4) − 2 expands to x³ − 8x² + 11x − 6, not −6x²; on 11, 0 would make (x − 5) a factor, but P(5) is 24, and −336 is P(−5), which belongs to (x + 5); on 13, (x + 1)(x + 3)(x − 2) has the signs swapped, since P(−1) = −1 − 2 + 5 + 6 = 8, and (x − 1)(x + 3)(x − 2) needs P(2) = 0, but 8 − 8 − 10 + 6 = −4; on 14, crossing would need (x − 1) only once, but dividing by it leaves x² + x − 2 = (x − 1)(x + 2), so it comes twice, and not reaching the axis fails because P(1) = 1 − 3 + 2 = 0.",
+   "ignores": "The handles snap to whole numbers so the rules stay readable; real roots can be any number, and the curve between them follows the same rule. The curve's height is squashed to fit, so its humps look smaller than the rule makes them. Only real roots are drawn, where the curve meets the axis: x³ + 8 has two more roots that are complex numbers, which no point on this axis shows. Every rule here has a plain x³ with nothing in front; a number in front stretches the curve, or flips it if negative, but leaves its roots where they are.",
+   "numbers": [
+    {
+     "label": "Screens in the lesson",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Handles drag from",
+     "value": -4,
+     "kind": "control"
+    },
+    {
+     "label": "Handles drag up to",
+     "value": 4,
+     "kind": "control"
+    },
+    {
+     "label": "Handles move in steps of",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "First handle opens at",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Second handle opens at",
+     "value": 2,
+     "kind": "control"
+    },
+    {
+     "label": "Third handle opens at",
+     "value": 3,
+     "kind": "control"
+    },
+    {
+     "label": "Opening rule: number before x²",
+     "value": -6,
+     "kind": "computed"
+    },
+    {
+     "label": "Opening rule: number before x",
+     "value": 11,
+     "kind": "computed"
+    },
+    {
+     "label": "Opening rule: plain number",
+     "value": -6,
+     "kind": "computed"
+    },
+    {
+     "label": "Marker slides from",
+     "value": -1,
+     "kind": "control"
+    },
+    {
+     "label": "Marker slides up to",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Marker moves in steps of",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Marker opens at",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "P(−1) for the opening rule",
+     "value": -24,
+     "kind": "computed"
+    },
+    {
+     "label": "P(0) for the opening rule",
+     "value": -6,
+     "kind": "computed"
+    },
+    {
+     "label": "P(4) for the opening rule",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "P(5) for the opening rule",
+     "value": 24,
+     "kind": "computed"
+    },
+    {
+     "label": "Quadratic left at 1: number before x",
+     "value": -5,
+     "kind": "computed"
+    },
+    {
+     "label": "Quadratic left at 1: plain number",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Quadratic left at 2: number before x",
+     "value": -4,
+     "kind": "computed"
+    },
+    {
+     "label": "Quadratic left at 3: number before x",
+     "value": -3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 handles, first",
+     "value": -1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 handles, third",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 rule: number before x",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 rule: plain number",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 wrong pick at 2: 1 × 4 × 6",
+     "value": 24,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 wrong pick at −1: −2 × −3 × −5",
+     "value": -30,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 rule: number before x",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 rule: plain number",
+     "value": -4,
+     "kind": "computed"
+    },
+    {
+     "label": "(x − 2)³: number before x",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "(x − 2)³: plain number",
+     "value": -8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 rule: plain number",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 rule x³ − 7x + 6: plain number",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 6: P(2), from 8 − 14 + 6",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 wrong pick: P(−2)",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 wrong pick: P(6)",
+     "value": 180,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6: 6³",
+     "value": 216,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7: 504 ÷ 9",
+     "value": 56,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7: x chosen to compare",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 7: P(10)",
+     "value": 504,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 slip: wrong number before x²",
+     "value": -7,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 slip: remainder",
+     "value": -2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 slip: expands back to, before x²",
+     "value": -8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10: 4³",
+     "value": 64,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10: 6 × 4²",
+     "value": 96,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10: 11 × 4",
+     "value": 44,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10: remainder on dividing by (x − 4)",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11: 5³",
+     "value": 125,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11: 6 × 5²",
+     "value": 150,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11: 11 × 5",
+     "value": 55,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 wrong pick: P(−5)",
+     "value": -336,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 rule x³ + 8: plain number",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12: P(1)",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12: P(−1)",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12: P(2)",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12: root",
+     "value": -2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12: discriminant 4 − 16",
+     "value": -12,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 rule: number before x",
+     "value": -5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 rule: plain number",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 wrong pick: P(−1)",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 wrong pick: P(2)",
+     "value": -4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 rule: number before x",
+     "value": -3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 14 rule: plain number",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 15: number before x on top",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 15: A",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 15: B",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 15: both sides at x = 0",
+     "value": -0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Power rule's voltage, from lesson 7, V",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Power rule's internal resistance, from lesson 7, Ω",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Power rule's other root, A",
+     "value": 24,
+     "kind": "computed"
+    },
+    {
+     "label": "Cable drum, say, m",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "First run length, say, m",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Runs of 20 m from 100 m",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Second run length, say, m",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Off-cut with 30 m runs, m",
+     "value": 10,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A [[polynomial]] is a rule that adds up whole-number powers of x, each with a number in front, such as x³ − 6x² + 11x − 6.[^1] That one is a cubic: its degree, the highest power of x in it, is 3. Call the rule P(x), so P(4) is its value at x = 4. Every number a that makes it zero gives it a bracket (x − a). So you factorise one with a higher power by finding a root, dividing out its bracket and factorising what is left. It is lesson 3 run backwards: there two brackets gave two roots, and here each root gives its bracket. Three equal brackets multiply out by (a + b)³ = (a + b)(a + b)² = a³ + 3a²b + 3ab² + b³, so with a = x and b = −2, (x − 2)³ = x³ − 6x² + 12x − 8.\n\nDividing by a bracket works like long division with numbers: divide the front term, multiply back, take away, bring down the next term, and repeat. You stop when what is left has no x for the bracket's x to divide into, so the remainder is a plain number. Divide x³ − 6x² + 11x − 6 by (x − 4) and you get x² − 2x + 3 with 6 left over. So x³ − 6x² + 11x − 6 = (x − 4)(x² − 2x + 3) + 6, for every x. Now put x = 4. The bracket x − 4 is 0, so the whole product is 0 and only the 6 is left. So P(4) is the remainder: 64 − 96 + 44 − 6 = 6. The same steps work for any number a, so putting a into the rule gives the remainder from dividing by (x − a) without any dividing; textbooks call this the [[remainder theorem]].[^2] When P(a) = 0 the remainder is 0, so (x − a) divides exactly and is a factor. That is the [[factor theorem]].[^3] At x = 1 the rule gives 1 − 6 + 11 − 6 = 0, so (x − 1) is a factor; dividing leaves x² − 5x + 6, which splits into (x − 2)(x − 3) because −2 and −3 add to −5 and multiply to 6.[^4] The root and its bracket carry opposite signs: the root 2 gives (x − 2), and the root −2 gives (x + 2), because that is the bracket the root makes zero.\n\nEach root is where the curve meets the x-axis, and each brings its own bracket. Three brackets already multiply out to x³, and a fourth would make x⁴, so a cubic meets the axis at most three times.[^5] Bring two roots together and their bracket comes twice: x³ − 5x² + 8x − 4 = (x − 1)(x − 2)². A square is never negative and (x − 1) stays about 1 near 2, so there the curve comes down to the axis and goes back up on the same side. It touches instead of crossing, at a root repeated twice; one repeated three times, as in (x − 2)³, crosses, flattening as it goes, because a bracket that comes once or three times changes sign as x passes its root. Some cubics meet the axis only once: x³ + 8 is 0 at x = −2, so it is (x + 2)(x² − 2x + 4), and that quadratic's discriminant, 4 − 16 = −12, is negative, so it has no real roots. Textbooks add that its two missing roots are complex numbers, which the Complex numbers course takes up.[^5] The course's power rule, 12I − 0.5I² watts for the load, is a polynomial in I too: it is 0 at I = 0 and at I = 24, so I and (I − 24) are both factors, 12I − 0.5I² = −0.5I(I − 24), and the best current sits halfway between those roots. Cubics turn up at sea too: a ship's engine power is often roughly proportional to the cube of its speed.[^6] **If putting x = a into a polynomial gives 0, then (x − a) is one of its factors.**[^3]"
+  },
+  "analogy": {
+   "text": "Cut a 100 m drum of cable into 20 m runs and you get 5 with nothing over, so 20 goes exactly into 100. Cut it into 30 m runs and 10 m is left on the drum. Dividing a polynomial by (x − a) is the same: the remainder is the off-cut, and a remainder of 0 means (x − a) goes in exactly, which is what being a factor means.",
+   "breaks": "With the drum you have to divide, or cut, to find the off-cut. With a polynomial, putting x = a into the rule gives the remainder straight away, the shortcut the factor theorem rests on. And an off-cut is never negative, while a remainder can be: dividing x³ − 6x² + 11x − 6 by (x + 1) leaves P(−1) = −24."
+  },
+  "practice": {
+   "text": "- Write the rule highest power first, with 0 for any power that is missing: x³ + 8 is x³ + 0x² + 0x + 8.\n- Try small whole numbers for x: 1, −1, 2, −2 and so on. When the x³ has nothing in front and every number is whole, a whole-number root divides the plain number exactly, because (x − a)(x² + bx + c) has the plain number −a × c. So for x³ − 6x² + 11x − 6 try only 1, 2, 3, 6 and their negatives.\n- When P(a) = 0, write down the factor (x − a), with the root's sign swapped.\n- Divide by (x − a): divide the front term, multiply back, take away, bring down, and repeat. When P(a) = 0 the remainder must come out 0; if it does not, look for a sign slip in a take-away.\n- Factorise the quadratic that is left, as in lesson 2, or use the formula from lesson 5. Check by expanding back.\n\n**Rule of thumb:** To find the remainder from dividing by (x − a), put x = a into the rule. To divide by (x + 2), put in x = −2.\n\n**Worked example:** Factorise x³ − 4x² + x + 6. Try 1: 1 − 4 + 1 + 6 = 4, not 0. Try −1: −1 − 4 − 1 + 6 = 0, so (x + 1) is a factor. Divide: x³ ÷ x = x², and x²(x + 1) = x³ + x²; take away to get −4x² − x² = −5x², and bring down x. Then −5x² ÷ x = −5x, and −5x(x + 1) = −5x² − 5x; take away to get x − (−5x) = 6x, and bring down 6. Then 6x ÷ x = 6, and 6(x + 1) = 6x + 6; take away to get 0. What is left is x² − 5x + 6 = (x − 2)(x − 3), since −2 + −3 = −5 and −2 × −3 = 6. So x³ − 4x² + x + 6 = (x + 1)(x − 2)(x − 3), and its curve crosses the axis at −1, 2 and 3.\n\n**Common mistakes**\n- Giving the bracket the root's own sign: the root 2 gives (x − 2), not (x + 2).\n- Taking away a minus as a minus: −6x² − (−x²) is −5x², not −7x². A slip like this leaves a remainder where P(a) = 0 says there is none.\n- Leaving out the 0x² or 0x for a missing power, which puts the terms in the wrong columns.\n- Stopping at one bracket: what is left is a quadratic, which may factorise again.\n- Giving up when no whole number works. If none of the plain number's divisors makes the rule 0, it has no whole-number root; such roots are usually found from a graph or by a step-by-step method of improving guesses, which this course does not teach."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Engineering Mathematics with John Bird FreeBook - Routledge",
+    "url": "https://www.routledge.com/rsc/downloads/Engineering_Mathematics_with_John_Bird_FreeBook.pdf",
+    "quote": "Note that a polynomial is an expression of the form f (x) = a + bx + cx 2 + dx 3 + ···"
+   },
+   {
+    "n": 2,
+    "title": "Remainder Theorem and Factor Theorem - Math is Fun",
+    "url": "https://www.mathsisfun.com/algebra/polynomials-remainder-factor.html",
+    "quote": "When we divide a polynomial f (x) by x−c the remainder is f (c) So to find the remainder after dividing by x-c we don't need to do any division: Just calculate f (c)"
+   },
+   {
+    "n": 3,
+    "title": "Polynomial Factor Theorem -- from Wolfram MathWorld",
+    "url": "https://mathworld.wolfram.com/PolynomialFactorTheorem.html",
+    "quote": "The polynomial factor theorem, also called the factor theorem, states that if a polynomial P(x) has a root x=a , i.e., if P(a)=0 , then x-a is a factor of P(x)"
+   },
+   {
+    "n": 4,
+    "title": "How to factorise an expression - GCSE Maths Revision - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zdtdh4j",
+    "quote": "To factorise the quadratic 𝑥² + 𝑏𝑥 + 𝑐, the sum of the two numbers in the brackets must be 𝑏, and the product must be 𝑐."
+   },
+   {
+    "n": 5,
+    "title": "Solving Polynomial Equations",
+    "url": "https://sheffield.ac.uk/media/31940/download?attachment",
+    "quote": "A polynomial equation of degree n has n roots. Some (possibly all) of the roots may be repeated. Some (possibly all) of the roots may be complex."
+   },
+   {
+    "n": 6,
+    "title": "Principles of Ship Performance Course Notes",
+    "url": "https://www.usna.edu/NAOE/_files/documents/Courses/EN400/EN400_Course_Notes_Fall_AY2021_July2020.pdf",
+    "quote": "Often, ship power is roughly proportional to the cube of the speed"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; touch-action: pan-y; }\n  .scene .grid { stroke: var(--k-line); stroke-width: 1; }\n  .scene .axis { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .alt { fill: none; stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 6 4; }\n  .scene .bead { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .meet { fill: none; stroke: var(--k-accent); stroke-width: 2.5; }\n  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }\n  .scene .probe { stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 3 3; }\n  .scene .dot { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .knob, .scene .cue { fill: var(--k-accent2); }\n  .scene .dvl { fill: none; stroke: var(--k-ink); stroke-width: 1.3; }\n  .scene .tag { font: 700 15px var(--k-font); fill: var(--k-ink); }\n  .scene .hot { fill: var(--k-accent2); }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .tk.on { font-weight: 700; fill: var(--k-accent2); }\n  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .wk { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .wk.bad { fill: var(--k-warn); }\n  .scene .wk.hot { fill: var(--k-accent2); }\n  .scene .hd { font: 700 13px var(--k-font); fill: var(--k-accent); }\n  .scene .dv { font: 500 14px var(--k-font); fill: var(--k-ink); }\n  .scene .ln { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .scene .sl { font: 600 15px var(--k-font); fill: var(--k-ink); }\n  .scene .ds { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .mv { font: 600 12px var(--k-font); fill: var(--k-accent); }\n  .scene .v { font-style: italic; }\n  .scene #art * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }\n  .scene .grip:active { cursor: grabbing; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stack one to a row, each label whole. */\n  .row.picks { flex-direction: column; gap: 8px; }\n  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; font-size: 1.15rem; white-space: nowrap; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">A cubic's curve on a grid, with a round handle on the axis at each root and a try marker under the grid. On the screens that show an idea, drag them yourself; they move in whole steps.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 340\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">A sketch from each screen's own rule, its height squashed to fit; where it meets the axis is exact.</p>\n\n<script>\n  // ---------- the rules (pure, so the checks can test them) ----------\n  // A rule is a list of its numbers, highest power first: x³ − 6x² + 11x − 6 is [1, −6, 11, −6].\n  const close = (a, b) => Math.abs(a - b) < 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));\n  const fmtN = (v) => { let r = Math.round(v * 100) / 100; if (Math.abs(r) < 1e-12) r = 0; return (r < 0 ? '−' : '') + String(Math.abs(r)); };\n  const distinct = (a) => a.filter((v, i) => a.indexOf(v) === i);\n  const same = (a, b) => a.length === b.length && a.every((v, k) => close(v, b[k]));\n  const evalP = (cs, x) => cs.reduce((v, c) => v * x + c, 0);\n  const mul = (p, q) => { const o = new Array(p.length + q.length - 1).fill(0); p.forEach((u, i) => q.forEach((w, j) => { o[i + j] += u * w; })); return o; };\n  const fromRoots = (rs) => rs.reduce((c, r) => mul(c, [1, -r]), [1]);\n  const addC = (cs, k) => cs.map((c, i) => (i === cs.length - 1 ? c + k : c));\n  // Dividing by (x − a), the four moves at a time: what comes out (q) and what is left over (r).\n  function divide(cs, a) { const q = []; let r = 0; cs.forEach((c, k) => { r = r * a + c; if (k < cs.length - 1) q.push(r); }); return { q, r }; }\n  const POW = ['', 'x', 'x²', 'x³'], SUP = ['', '', '²', '³'];\n  function term(c, p, lead) {\n    if (c === 0) return null;\n    const m = Math.abs(c), body = p === 0 ? String(m) : (m === 1 ? '' : String(m)) + POW[p];\n    return lead ? (c < 0 ? '−' : '') + body : (c < 0 ? '− ' : '+ ') + body;\n  }\n  function fmtPoly(cs) { const deg = cs.length - 1, out = []; cs.forEach((c, k) => { const t = term(c, deg - k, !out.length); if (t) out.push(t); }); return out.length ? out.join(' ') : '0'; }\n  // The bracket a root makes zero: the root 2 gives (x − 2), the root −2 gives (x + 2), the root 0 gives x.\n  const brOf = (r) => (r === 0 ? 'x' : '(x ' + (r > 0 ? '− ' : '+ ') + fmtN(Math.abs(r)) + ')');\n  const divisorText = (a) => (a === 0 ? 'x' : 'x ' + (a > 0 ? '− ' : '+ ') + fmtN(Math.abs(a)));\n  function bracketsOf(rs) {\n    const gs = [];\n    rs.forEach((r) => { const g = gs.find((s) => s.r === r); if (g) g.n++; else gs.push({ r, n: 1 }); });\n    gs.sort((a, b) => (a.r === 0 ? -1 : 0) - (b.r === 0 ? -1 : 0));\n    return gs.map((g) => (g.r === 0 ? 'x' + SUP[g.n] : brOf(g.r) + SUP[g.n])).join('');\n  }\n  // A value put into the rule term by term, as the lesson writes it: 64 − 96 + 44 − 6 = 6.\n  function termsText(cs, a) {\n    const deg = cs.length - 1, vals = [];\n    cs.forEach((c, k) => { const v = c * Math.pow(a, deg - k); if (v !== 0) vals.push(v); });\n    const P = evalP(cs, a);\n    if (vals.length < 2) return fmtN(P);\n    let s = fmtN(vals[0]);\n    vals.slice(1).forEach((v) => { s += (v < 0 ? ' − ' : ' + ') + fmtN(Math.abs(v)); });\n    return s + ' = ' + fmtN(P);\n  }\n  const workP = (cs, a) => 'P(' + fmtN(a) + ') = ' + termsText(cs, a);\n  // A rule in brackets, put back at x: each bracket's value, multiplied.\n  const prodText = (rs, x) => { const v = rs.map((r) => x - r); return v.map(fmtN).join(' × ') + ' = ' + fmtN(v.reduce((s, u) => s * u, 1)); };\n  // Where the curve meets the axis: a root twice touches, once or three times crosses.\n  function shapeText(rs, lower) {\n    const gs = distinct(rs).sort((a, b) => a - b).map((r) => ({ r, n: rs.filter((v) => v === r).length }));\n    const runs = [];\n    gs.forEach((g) => {\n      const kind = g.n === 2 ? 'touches' : 'crosses', last = runs[runs.length - 1];\n      if (last && last.kind === kind && !last.flat && g.n !== 3) last.rs.push(g.r); else runs.push({ kind, rs: [g.r], flat: g.n === 3 });\n    });\n    const list = (a) => (a.length === 1 ? fmtN(a[0]) : a.slice(0, -1).map(fmtN).join(', ') + ' and ' + fmtN(a[a.length - 1]));\n    const s = runs.map((u) => u.kind + ' at ' + list(u.rs) + (u.flat ? ', flattening' : '')).join(', ');\n    return lower ? s : s.charAt(0).toUpperCase() + s.slice(1);\n  }\n\n  const OPEN = [1, -6, 11, -6];\n  // The spot-the-slip division of x³ − 6x² + 11x − 6 by (x − 1): the slip takes −x² away as if adding it.\n  const SLIP = (() => {\n    const a = 1, b = OPEN[1], c = OPEN[2], dd = OPEN[3];\n    const back = mul([1, 0, 0], [1, -a]);              // x² times (x − 1)\n    const slip = b + (-a), q0s = c + a * slip, Rs = dd + a * q0s;\n    const L2 = term(b, 2, true) + ' − (' + term(-a, 2, true) + ') = ' + term(slip, 2, true);\n    const after = [1, slip, q0s];\n    return {\n      slip, q0s, Rs, back, after,\n      lines: [\n        { s: 'x²(x − 1) = ' + fmtPoly(back), desc: 'multiply back' },\n        { s: L2, desc: 'take away' },\n        { s: 'x² ' + term(slip, 1) + ' ' + term(q0s, 0) + ', remainder ' + fmtN(Rs), desc: 'what comes out at the end' },\n      ],\n      fix: term(b, 2, true) + ' − (' + term(-a, 2, true) + ') is ' + term(b, 2, true) + ' ' + term(a, 2) + ' = ' + term(b + a, 2, true),\n      l1check: 'x² × x = x³ and x² × −1 = −x²',\n      back1: '(x − 1)(' + fmtPoly(after) + ') ' + (Rs < 0 ? '− ' : '+ ') + fmtN(Math.abs(Rs)),\n      back2: '= ' + fmtPoly(addC(mul([1, -a], after), Rs)) + ', not ' + term(b, 2, true),\n    };\n  })();\n  // The look ahead: (5x + 1) ÷ ((x − 1)(x + 2)) = A ÷ (x − 1) + B ÷ (x + 2).\n  const pfN = (x) => 5 * x + 1;\n  const PF_A = pfN(1) / (1 + 2), PF_B = pfN(-2) / (-2 - 1);\n  const pfL = (x) => pfN(x) / ((x - 1) * (x + 2));\n  const pfR = (x) => PF_A / (x - 1) + PF_B / (x + 2);\n  const Q12 = divide([1, 0, -3, 2], 1).q;\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // roots: the handles (a rule from its brackets); poly + real: a rule given as numbers and its real roots.\n  // hand: how the handles show (drag, show, after a right answer, found where the marker reads 0, pf).\n  // rows: what the two rows above the grid say. marker: the try marker {lo, hi, x0, drag}. lo..hi: the grid's x.\n  // mode: 'lin' draws the height to scale and lets the curve leave the grid; 'sq' squashes it so every value fits.\n  // moves: a demonstration, {k: handle | m: marker, t0, t1, to}. A puzzle: opts, want; ans, where the marker\n  // ends after a right answer; wrong: what each wrong pick puts back. nW: lines of working the screen keeps room for.\n  const PICK = 'Tap one of the answers.';\n  const STEPS = [\n    { show: true, name: 'Roots make brackets', roots: [1, 2, 3], hand: 'drag', rows: 'roots', curve: true, shape: true, lo: -4.5, hi: 4.5, mode: 'lin', nW: 1,\n      moves: [{ k: 0, t0: 0.9, t1: 1.9, to: -2 }, { k: 2, t0: 2.6, t1: 3.6, to: 4 }], dur: 4.0,\n      text: 'A *polynomial* adds up whole-number powers of `x`, and its highest power is its *degree*: a *cubic*, such as `x³ − 6x² + 11x − 6`, has degree 3. A round handle at `a` puts the bracket `(x − a)` in the rule, and at `x = a` that bracket is 0, so the whole product is 0 and the curve meets the axis there. A fourth bracket would make `x⁴`, so a cubic meets the axis at most three times; drag a handle and both rows rewrite.' },\n    { name: 'Read the handles', roots: [-1, 2, 4], hand: 'show', rows: 'hidden', curve: true, shape: true, lo: -4.5, hi: 4.5, mode: 'lin', nW: 2,\n      opts: ['(x − 1)(x + 2)(x + 4)', '(x + 1)(x − 2)(x − 4)', '(x − 1)(x − 2)(x − 4)'], want: '(x + 1)(x − 2)(x − 4)',\n      wrong: { '(x − 1)(x + 2)(x + 4)': { ring: 2, brs: [1, -2, -4] }, '(x − 1)(x − 2)(x − 4)': { ring: -1, brs: [1, 2, 4] } },\n      task: 'The handles sit at −1, 2 and 4. Which rule has this curve?',\n      why: 'The root −1 needs the bracket that −1 makes zero, which is `(x + 1)`. So the three handles give `(x + 1)(x − 2)(x − 4)`, which multiplies out to `x³ − 5x² + 2x + 8`.',\n      hint: 'Not quite. Which bracket does each handle make zero?',\n      hints: { '(x − 1)(x + 2)(x + 4)': 'Not quite. At the root 2 that rule gives `1 × 4 × 6 = 24`, not 0.', '(x − 1)(x − 2)(x − 4)': 'Not quite. At the root −1 that rule gives `−2 × −3 × −5 = −30`, not 0.' } },\n    { show: true, name: 'Two roots together', roots: [1, 2, 3], hand: 'drag', rows: 'roots', curve: true, shape: true, lo: -4.5, hi: 4.5, mode: 'lin', nW: 1,\n      moves: [{ k: 2, t0: 0.9, t1: 1.9, to: 2 }, { k: 0, t0: 2.7, t1: 3.7, to: 2 }], dur: 4.0,\n      text: 'Push two handles together at 2 and that bracket comes twice, `(x − 1)(x − 2)²`: near 2 the square is never negative and `(x − 1)` stays about 1, so the curve comes down to the axis and goes back up, touching instead of crossing. A bracket that comes once or three times changes sign as `x` passes its root, so push the third handle to 2 too and `(x − 2)³` crosses, flattening as it goes. It multiplies out by `(a + b)³` = `(a + b)(a + b)²` = `a³ + 3a²b + 3ab² + b³`, with `a = x` and `b = −2`.' },\n    { name: 'Cross or touch', roots: [-1, 3, 3], hand: 'after', rows: 'hidden', curve: true, shape: true, lo: -4.5, hi: 4.5, mode: 'lin', nW: 2,\n      opts: ['(x − 1)(x + 3)²', '(x + 1)²(x − 3)', '(x + 1)(x − 3)²'], want: '(x + 1)(x − 3)²',\n      wrong: { '(x − 1)(x + 3)²': { roots: [1, -3, -3] }, '(x + 1)²(x − 3)': { roots: [-1, -1, 3] } },\n      task: 'This curve crosses the axis at −1 and touches it at 3. Which rule is it?',\n      why: 'Touching at 3 means the root 3 comes twice, so `(x − 3)` is squared. Crossing at −1 means `(x + 1)` comes once. So the rule is `(x + 1)(x − 3)²`, which multiplies out to `x³ − 5x² + 3x + 9`.',\n      hint: 'Not quite. A touch means that bracket comes twice.',\n      hints: { '(x − 1)(x + 3)²': 'Not quite. That one touches at −3 and crosses at 1, so its signs are swapped.', '(x + 1)²(x − 3)': 'Not quite. That one touches at −1 and crosses at 3, the other way round.' } },\n    { show: true, name: 'Hunt for a zero', poly: OPEN, real: [1, 2, 3], hand: 'found', rows: 'split', curve: true, marker: { lo: -1, hi: 5, x0: 0, drag: true }, lo: -1.5, hi: 5.5, mode: 'sq', nW: 2,\n      moves: [{ m: 1, t0: 0.9, t1: 1.8, to: 1 }, { m: 1, t0: 2.6, t1: 3.4, to: 2 }], dur: 4.0,\n      text: 'Now the handles are hidden and only the rule is left: slide the try marker, and where `P(a)` reads 0 the curve is on the axis. The *factor theorem* says that if `P(a) = 0`, then `(x − a)` is a factor, so there that bracket splits off and leaves a quadratic.' },\n    { name: 'Which bracket?', poly: [1, 0, -7, 6], real: [-3, 1, 2], hand: 'found', rows: 'split', curve: 'after', marker: { lo: -3, hi: 6, x0: 0 }, ans: 2, lo: -4, hi: 6.5, mode: 'sq', nW: 2,\n      opts: ['(x + 2)', '(x − 2)', '(x − 6)'], want: '(x − 2)',\n      wrong: { '(x + 2)': { at: -2, not: true }, '(x − 6)': { at: 6, not: true } },\n      task: 'Use the factor theorem: which bracket is a factor of `x³ − 7x + 6`?',\n      why: 'Put in `x = 2` and the rule gives `8 − 14 + 6 = 0`, so `(x − 2)` is a factor. Dividing it out leaves `x² + 2x − 3`, so the rule is `(x − 2)(x² + 2x − 3)`.',\n      hint: 'Not quite. Put each bracket\\'s root into the rule and look for 0.',\n      hints: { '(x + 2)': 'Not quite. `(x + 2)` has the root −2, where `P` is `−8 + 14 + 6 = 12`.', '(x − 6)': 'Not quite. `(x − 6)` has the root 6, where `P` is `216 − 42 + 6 = 180`.' } },\n    { show: true, name: 'Divide like numbers', poly: OPEN, graph: false, rows: 'divres', div: { a: 1, num: true, t0: 0, t: 0.6, RT: 1.15, MT: 0.38, RS: 22, x10: 3.8 }, dur: 4.4,\n      text: 'Dividing by a bracket uses the same four moves as long division with numbers. Divide the front (`x³ ÷ x = x²`), multiply back, take away and bring down, then repeat until a plain number is left. Put `x = 10` into each line and the two sums match.' },\n    { name: 'Your move', poly: OPEN, graph: false, rows: 'plain', div: { a: 1, stop: 2, RS: 22 }, nW: 2,\n      opts: ['−5x²', '−5x', '5x'], want: '−5x',\n      wrong: { '−5x²': { extra: ['−5x²(x − 1) = −5x³ + 5x², but no x³ is left'] }, '5x': { extra: ['5x(x − 1) = 5x² − 5x, but the front is −5x²'] } },\n      task: 'The first round of dividing by `(x − 1)` left `−5x² + 11x`. What goes on top next?',\n      why: 'Divide the front each time: `−5x² ÷ x = −5x`. Then `−5x(x − 1) = −5x² + 5x`, and taking that away from `−5x² + 11x` leaves `6x`, ready for the last round.',\n      hint: 'Not quite. Divide the front term by the x in (x − 1).',\n      hints: { '−5x²': 'Not quite. Times `(x − 1)` that gives `−5x³ + 5x²`, but there is no `x³` left.', '5x': 'Not quite. Mind the sign: `−5x² ÷ x` is `−5x`.' } },\n    { name: 'Spot the slip', poly: OPEN, graph: false, rows: 'plain', slip: true, nW: 2,\n      opts: ['Line 1', 'Line 2', 'Line 3'], want: 'Line 2',\n      wrong: { 'Line 1': { slipRing: 0 }, 'Line 3': { slipRing: 2 } },\n      task: 'This division of `x³ − 6x² + 11x − 6` by `(x − 1)` has one slip. Which line holds it?',\n      why: 'Taking away a minus is adding, so `−6x² − (−x²)` is `−6x² + x²`, which is `−5x²`. The slip leaves a remainder of −2, though `P(1) = 0` says there is none.',\n      hint: 'Not quite. Look for a minus being taken away.',\n      hints: { 'Line 1': 'Not quite. `x²` times `(x − 1)` is `x³ − x²`, so line 1 is right.', 'Line 3': 'Not quite. Line 3 follows from line 2, but `(x − 1)(x² − 7x + 4) − 2` expands to `x³ − 8x² + 11x − 6`, not `−6x²`.' } },\n    { show: true, name: 'The remainder is P(a)', poly: OPEN, real: [1, 2, 3], hand: 'show', rows: 'rem', curve: true, marker: { lo: -1, hi: 5, x0: 0, drag: true }, lo: -1.5, hi: 5.5, mode: 'sq', GH: 100, nW: 2,\n      div: { a: 'marker', t0: 1.6, t: 1.85, RT: 0.72, MT: 0.24, RS: 20 },\n      moves: [{ m: 1, t0: 0.7, t1: 1.6, to: 4 }], dur: 4.4,\n      text: 'Divide by `(x − 4)` and `x² − 2x + 3` comes out, with 6 left over. At `x = 4` that bracket is 0, so the whole product is 0 and only the 6 is left. So `P(4)`, which is `64 − 96 + 44 − 6`, is the remainder too: this is the *remainder theorem*.' },\n    { name: 'Find the remainder', poly: OPEN, real: [1, 2, 3], hand: 'show', rows: 'remAfter', curve: true, marker: { lo: -1, hi: 5, x0: 0 }, ans: 5, lo: -1.5, hi: 5.5, mode: 'sq', nW: 2,\n      opts: ['0', '24', '−336'], want: '24',\n      wrong: { '0': { at: 5, not: true }, '−336': { at: -5, extra: ['That is the remainder for ' + brOf(-5) + '.'] } },\n      task: 'What is the remainder when `x³ − 6x² + 11x − 6` is divided by `(x − 5)`?',\n      why: 'By the remainder theorem, putting `x = 5` into the rule gives the remainder without any dividing, `125 − 150 + 55 − 6 = 24`. So the rule is `(x − 5)(x² − x + 6) + 24`.',\n      hint: 'Not quite. Put the bracket\\'s root into the rule.',\n      hints: { '0': 'Not quite. 0 would make `(x − 5)` a factor, but `P(5)` is 24.', '−336': 'Not quite. −336 is `P(−5)`, which belongs to `(x + 5)`.' } },\n    { show: true, name: 'Only one crossing', poly: [1, 0, 0, 8], real: [-2], hand: 'found', rows: 'split', curve: true, marker: { lo: -3, hi: 3, x0: 0, drag: true }, lo: -3.5, hi: 3.5, mode: 'sq', trail: true, nW: 5,\n      moves: [{ m: 1, t0: 0.5, t1: 1.0, to: 1 }, { m: 1, t0: 1.3, t1: 1.9, to: -1 }, { m: 1, t0: 2.2, t1: 2.7, to: 2 }, { m: 1, t0: 3.0, t1: 3.6, to: -2 }], dur: 4.5,\n      text: 'Try 1, −1, 2 and −2 in `x³ + 8`, and only −2 gives 0, so `(x + 2)` is a factor. Dividing leaves `x² − 2x + 4`, whose discriminant `4 − 16 = −12` is negative. So the curve crosses the axis only once, at −2.' },\n    { name: 'Mixed: three brackets', poly: [1, -2, -5, 6], real: [-2, 1, 3], hand: 'after', rows: 'full', form: '(x − 1)(x − 3)(x + 2)', curve: 'after', marker: { lo: -3, hi: 4, x0: 0 }, ans: 1, lo: -3.5, hi: 4.5, mode: 'sq', nW: 2,\n      opts: ['(x + 1)(x + 3)(x − 2)', '(x − 1)(x − 3)(x + 2)', '(x − 1)(x + 3)(x − 2)'], want: '(x − 1)(x − 3)(x + 2)',\n      wrong: { '(x + 1)(x + 3)(x − 2)': { at: -1, not: true }, '(x − 1)(x + 3)(x − 2)': { at: 2, not: true } },\n      task: 'Write `x³ − 2x² − 5x + 6` in brackets.',\n      why: 'Try 1, and `1 − 2 − 5 + 6 = 0`, so `(x − 1)` is a factor. Dividing leaves `x² − x − 6`, which is `(x − 3)(x + 2)`, since −3 and 2 add to −1 and multiply to −6.',\n      hint: 'Not quite. Try small whole numbers in the rule and look for 0.',\n      hints: { '(x + 1)(x + 3)(x − 2)': 'Not quite. The signs are swapped, since `P(−1) = −1 − 2 + 5 + 6 = 8`, not 0.', '(x − 1)(x + 3)(x − 2)': 'Not quite. That needs `P(2) = 0`, but `8 − 8 − 10 + 6 = −4`.' } },\n    { name: 'Mixed: cross or touch', poly: [1, 0, -3, 2], real: [-2, 1, 1], hand: 'after', rows: 'given', form: '(x − 1)²(x + 2)', curve: 'after', shape: 'after', marker: { lo: -3, hi: 2, x0: 0 }, ans: 1, lo: -3.5, hi: 2.5, mode: 'lin', nW: 3,\n      opts: ['Crosses', 'Touches', 'Never reaches it'], want: 'Touches',\n      wrong: { 'Crosses': { at: 1, ring: 1, extra: ['Dividing by (x − 1) leaves ' + fmtPoly(Q12) + ',', 'which is ' + bracketsOf([1, -2]) + ', so it comes twice.'] }, 'Never reaches it': { at: 1, ring: 1, extra: ['So the curve is on the axis at 1.'] } },\n      task: '`x³ − 3x + 2` is `(x − 1)²(x + 2)`. At `x = 1`, does its curve cross the axis or touch it?',\n      why: '`(x − 1)` comes twice, and a square is never negative, while `(x + 2)` stays about 3 near 1. So the curve comes down to the axis at 1 and goes back up on the same side; a bracket that came once would change sign there, and the curve would cross.',\n      hint: 'Not quite. How many times does `(x − 1)` come?',\n      hints: { 'Crosses': 'Not quite. Crossing would need `(x − 1)` only once, but dividing by it leaves `x² + x − 2`, which is `(x − 1)(x + 2)`.', 'Never reaches it': 'Not quite. `P(1) = 1 − 3 + 2 = 0`, so the curve is on the axis at 1.' } },\n    { show: true, name: 'Look ahead: split a fraction', pf: true, roots: [1, -2], hand: 'pf', rows: 'pf', curve: false, marker: { lo: -3, hi: 2, x0: 0, drag: true }, lo: -3.5, hi: 2.5, GH: 50, mode: 'lin', nW: 7,\n      moves: [{ m: 1, t0: 0.6, t1: 1.3, to: 1 }, { m: 1, t0: 1.7, t1: 2.5, to: -2 }, { m: 1, t0: 2.9, t1: 3.4, to: 0 }], pfT: [1.4, 2.6, 3.5, 3.6], dur: 4.3,\n      text: 'This last screen is an optional look ahead, which nothing later needs: splitting `(5x + 1)` ÷ `((x − 1)(x + 2))` into `A ÷ (x − 1)` + `B ÷ (x + 2)`, a step colleges call *partial fractions*. Multiply both sides by `(x − 1)(x + 2)` to get `5x + 1` = `A(x + 2) + B(x − 1)`, then put in each bracket\\'s root. At `x = 1` the B part is 0, so `A = 2`, and at `x = −2` the A part is 0, so `B = 3`.' },\n  ];\n  const FINISH = 'If putting `x = a` into a polynomial gives 0, then `(x − a)` is one of its factors. So find a root, divide out its bracket and factorise what is left. The same hunt factorises lesson 7\\'s power rule, `12I − 0.5I² = −0.5I(I − 24)`, and cubics turn up at sea: a ship\\'s engine power grows roughly as the cube of its speed.';\n  // Sources the checks restate (the lesson's own).\n  const MATHWORLD = 'https://mathworld.wolfram.com/PolynomialFactorTheorem.html';\n  const BITESIZE = 'https://www.bbc.co.uk/bitesize/articles/zdtdh4j';\n  // The picture, top to bottom: the two rows; the grid (GT down, x from GX0 to GX1) with the axis across\n  // its middle; the marker under the grid; the numbers; the key; the working; any division.\n  const GX0 = 24, GX1 = 316, GT = 64, TAG1 = 24, TAG2 = 48, WSTEP = 22, SEP = 12, FADE = 0.35;\n  const DVX = 128, PC = [332, 276, 220, 166], UW = [26, 34, 36, 20], NDV = 22, NC = [46, 57, 68];\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  // As a screen reader says it.\n  const say = (s) => String(s == null ? '' : s).replace(/³/g, ' cubed').replace(/²/g, ' squared').replace(/÷/g, ' divided by ').replace(/\\+/g, ' plus ')\n    .replace(/×/g, ' times ').replace(/=/g, ' equals ').replace(/−/g, ' minus ').replace(/\\s+/g, ' ').trim();\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // x: the marker where Dan has set it; roots: the handles where Dan has set them (null until he moves them).\n  function blank() { return { pick: null, res: null, why: false, x: null, roots: null }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  const FB = [2.4, 1.4];   // how long the motion after a right and a wrong answer plays\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion\n  let motionEnd = 0;\n  let REC = null;                                                        // what the last paint drew, for the checks\n  const finalRoots = (d) => { const r = d.roots.slice(); (d.moves || []).forEach((m) => { if (m.k != null) r[m.k] = m.to; }); return r; };\n\n  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------\n  const ITAL = /((?<![A-Za-z])x(?![A-Za-z]))/;\n  const ITALA = /((?<![A-Za-z])[xab](?![A-Za-z]))/;\n  function italics(parent, s, inSvg, re) {\n    String(s).split(re || ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));\n    });\n  }\n  // `maths` stays on one line with its letters italic; *a key term* is highlighted.\n  function write(el, s) {\n    el.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false, ITALA); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));\n        el.appendChild(K.el('span', { class: 'mark' }, m[1]));\n        at = m.index + m[0].length;\n      }\n      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = document.getElementById('nav');\n  const at = () => stepper.get();\n\n  // Up to three answer buttons; each step fills in its own. A new choice after a wrong answer\n  // settles the picture back to the question.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  // Check: a right answer brings in the answer; a wrong one puts its own numbers back.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(st.res === 'right' ? FB[0] : FB[1]);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()];\n    if (!d.show || finished) return;\n    S[at()].x = null; S[at()].roots = null;\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = document.getElementById(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');\n  let into = null;\n  const add = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function arr(t0, d) {\n    d = d == null ? K.SOFT : d;\n    if (t0 + d > latest) latest = t0 + d;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(T, t0, d);\n  }\n  const vis = (t) => (t == null ? 1 : arr(t));\n  function part(a, rise, draw) {\n    if (a <= 0) return;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g; draw(); into = keep;\n  }\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));\n  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r }));\n  const nb = (s) => String(s).replace(/ /g, ' ');\n  function text(x, y, s, cls, anchor) {\n    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    italics(t, nb(s), true);\n    return add(t);\n  }\n  // A row made of pieces, one of them (the bracket that splits off) in the marker's colour.\n  function segText(x, y, segs, cls) {\n    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': 'start' });\n    segs.forEach((g) => { if (g.hot) { const sp = K.svg('tspan', { class: 'hot' }); italics(sp, nb(g.s), true); t.appendChild(sp); } else italics(t, nb(g.s), true); });\n    return add(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = K.svg('text', { class: cls, x: 0, y: -50 });\n    italics(t, nb(s), true);\n    svg.appendChild(t);\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 8;\n  }\n\n  // ---------- each step's sizes ----------\n  const GEO = new Map();\n  function geo(d) {\n    if (GEO.has(d)) return GEO.get(d);\n    const G = { nW: d.nW || 0 };\n    if (d.graph === false) {\n      if (d.slip) { G.top = 80; G.WY0 = 262; G.H = G.WY0 + WSTEP * (G.nW - 1) + 14; }\n      else if (d.div.stop != null) { G.top = 76; G.DT = G.top; G.WY0 = G.top + 50 + 6 * d.div.RS + 34; G.H = G.WY0 + WSTEP * (G.nW - 1) + 14; }\n      else { G.top = 76; G.H = 76 + 50 + 6 * d.div.RS + 34 + 56 + 66 + 14; }\n    } else {\n      G.GH = d.GH || 150; G.GB = GT + G.GH; G.y0 = GT + G.GH / 2; G.NY = G.GB + 30; G.KY = G.NY + 26; G.WY0 = G.KY + 28;\n      let end = G.WY0 + WSTEP * Math.max(0, G.nW - 1);\n      if (d.div) { G.DT = end + 34; end = G.DT + 50 + 6 * d.div.RS; }\n      G.H = end + 14;\n    }\n    GEO.set(d, G);\n    return G;\n  }\n  const gx = (d, x) => GX0 + (x - d.lo) / (d.hi - d.lo) * (GX1 - GX0);\n  // The height to draw. 'lin': to scale, sized to the humps between the roots (the ends leave the grid).\n  function humpH(cs, rs) {\n    const lo = Math.min.apply(null, rs), hi = Math.max.apply(null, rs), pad = 0.2 + Math.max(0, 0.8 - (hi - lo));\n    let H = 0;\n    for (let k = 0; k <= 80; k++) H = Math.max(H, Math.abs(evalP(cs, lo - pad + (hi - lo + 2 * pad) * k / 80)));\n    return Math.max(H, 1e-6);\n  }\n  // 'sq': squashed so the whole grid fits; near the axis (the size of the smallest hump) it is still to scale.\n  const SQ = new Map();\n  function sqOf(d) {\n    if (SQ.has(d)) return SQ.get(d);\n    const u = distinct(d.real).sort((p, q) => p - q);\n    let k;\n    if (u.length > 1) {\n      let mh = Infinity;\n      for (let j = 1; j < u.length; j++) { let h = 0; for (let s = 1; s < 40; s++) h = Math.max(h, Math.abs(evalP(d.poly, u[j - 1] + (u[j] - u[j - 1]) * s / 40))); mh = Math.min(mh, h); }\n      k = mh / 2;\n    } else k = humpH(d.poly, d.real) / 4;\n    let M = 0;\n    for (let s = 0; s <= 160; s++) M = Math.max(M, Math.abs(evalP(d.poly, d.lo + (d.hi - d.lo) * s / 160)));\n    const out = { k, m: Math.asinh(M / k) * 1.02 };\n    SQ.set(d, out);\n    return out;\n  }\n  function scaleOf(d, G, cs, tl) {\n    if (!cs) return () => G.y0;\n    const HALF = G.GH / 2 - 6;\n    if (d.mode === 'sq') { const s = sqOf(d); return (P) => G.y0 - Math.asinh(P / s.k) / s.m * HALF; }\n    const H = humpH(cs, tl.roots || d.real);\n    return (P) => G.y0 - P / (1.25 * H) * HALF;\n  }\n  // The curve as a path, kept inside the grid: where it leaves, it stops at the edge.\n  function clipD(pts, top, bot) {\n    const inn = (p) => p[1] >= top && p[1] <= bot;\n    const cut = (p, q) => { const yb = q[1] < top ? top : bot, t = (yb - p[1]) / (q[1] - p[1]); return [p[0] + (q[0] - p[0]) * t, yb]; };\n    const f = (p) => r3(p[0]) + ' ' + r3(p[1]);\n    let s = '';\n    for (let k = 0; k < pts.length; k++) {\n      const p = pts[k], q = k ? pts[k - 1] : null;\n      if (inn(p)) { if (!q) s += 'M' + f(p); else if (inn(q)) s += ' L' + f(p); else s += ' M' + f(cut(p, q)) + ' L' + f(p); }\n      else if (q && inn(q)) s += ' L' + f(cut(q, p));\n    }\n    return s.trim() || 'M0 0';\n  }\n  function curveD(d, G, cs, yOf, grow) {\n    const n = 150, hi = d.lo + (d.hi - d.lo) * grow, pts = [];\n    for (let k = 0; k <= n; k++) { const x = d.lo + (hi - d.lo) * k / n; pts.push([gx(d, x), yOf(evalP(cs, x))]); }\n    return clipD(pts, GT + 1, G.GB - 1);\n  }\n  // Handles that share a root sit side by side, pushed together, centred on it.\n  function beadPx(d, vals) {\n    const raw = vals.map((v, i) => ({ i, px: gx(d, v) })).sort((a, b) => a.px - b.px || a.i - b.i), out = [];\n    let j = 0;\n    while (j < raw.length) {\n      let e = j;\n      while (e + 1 < raw.length && raw[e + 1].px - raw[e].px < SEP) e++;\n      const grp = raw.slice(j, e + 1), mean = grp.reduce((s, g) => s + g.px, 0) / grp.length;\n      grp.forEach((g, n) => { out[g.i] = mean + (n - (grp.length - 1) / 2) * SEP; });\n      j = e + 1;\n    }\n    return out;\n  }\n\n  // ---------- the timetable of what is on screen ----------\n  function glideRoots(r0, moves) {\n    const r = r0.slice();\n    (moves || []).forEach((m) => { if (m.k == null) return; const p = arr(m.t0, m.t1 - m.t0); r[m.k] += (m.to - r[m.k]) * p; });\n    return r;\n  }\n  // The marker gliding through its moves, and how far what belongs to its spot (a split, a found\n  // handle) has arrived: nothing while it travels, fading in once it lands.\n  function settle(x0, moves) {\n    let x = x0, last = null;\n    (moves || []).forEach((m) => { if (!m.m) return; const p = arr(m.t0, m.t1 - m.t0); x += (m.to - x) * p; if (T >= m.t0) last = m; });\n    if (!last) return { x, a: 1 };\n    const a = arr(last.t1, 0.5);\n    return { x, a: T !== Infinity && T < last.t1 ? 0 : a };\n  }\n  function timeline(d, st) {\n    const tl = { a0: 1, a1: 1, curve: 0, grow: 1, roots: null, x: null, mA: 1, beadsA: 1, rowsA: 1, badA: 0, right: st.res === 'right',\n      wrong: st.res === 'wrong' && st.pick != null && d.wrong ? d.wrong[st.pick] || null : null };\n    if (d.show) {\n      // The picture is there from the moment the screen opens (the screen itself fades in); only the demonstration moves.\n      tl.a0 = 1; tl.a1 = 1;\n      tl.curve = d.curve ? tl.a1 : 0;\n      if (d.roots && d.hand === 'drag') tl.roots = st.roots ? st.roots.slice() : glideRoots(d.roots, d.moves);\n      if (d.marker) { if (st.x != null) tl.x = st.x; else { const g = settle(d.marker.x0, d.moves); tl.x = g.x; tl.mA = g.a; } }\n      return tl;\n    }\n    if (d.roots) tl.roots = d.roots.slice();\n    tl.curve = d.curve === true ? 1 : 0;\n    if (d.hand === 'after') tl.beadsA = 0;\n    tl.rowsA = 0;\n    let moves = [];\n    if (tl.right) {\n      if (d.curve === 'after') { tl.curve = vis(0.1); tl.grow = arr(0.1, 0.8); }\n      if (d.marker && d.ans != null) moves = [{ m: 1, t0: 0.3, t1: 1.0, to: d.ans }];\n      if (d.hand === 'after') tl.beadsA = vis(d.marker ? 1.1 : 0.2);\n      tl.rowsA = vis(d.marker ? 1.2 : 0.5);\n    } else if (tl.wrong) {\n      const w = tl.wrong;\n      if (d.marker && w.at != null && w.at >= d.marker.lo && w.at <= d.marker.hi) moves = [{ m: 1, t0: 0.1, t1: 0.8, to: w.at }];\n      tl.badA = vis(moves.length ? 0.8 : 0.1);\n    }\n    if (d.marker) { const g = settle(d.marker.x0, moves); tl.x = g.x; tl.mA = g.a; }\n    return tl;\n  }\n\n  // ---------- the two rows: the rule in brackets above, multiplied out below ----------\n  function splitSegs(cs, a, rem) {\n    const dv = divide(cs, a), segs = [{ s: ' = ' }, { s: brOf(a), hot: true }, { s: '(' + fmtPoly(dv.q) + ')' }];\n    if (rem && dv.r !== 0) segs.push({ s: (dv.r > 0 ? ' + ' : ' − ') + fmtN(Math.abs(dv.r)) });\n    return segs;\n  }\n  function rowsOf(d, st, tl, a, zero) {\n    const PX = 'P(x)', ex = { s: '= ' + fmtPoly(d.poly || [1]), a: tl.a0 };\n    const sp = (cs, b, rem, ar) => ({ segs: splitSegs(cs, b, rem), a: ar, split: { a: b, q: divide(cs, b).q, r: divide(cs, b).r } });\n    switch (d.rows) {\n      case 'roots': { const rr = tl.roots.map(Math.round); return { r1: [{ segs: [{ s: PX + ' = ' + bracketsOf(rr) }], a: tl.a0 }], r2: { s: '= ' + fmtPoly(fromRoots(rr)), a: tl.a0 } }; }\n      case 'hidden': return { r1: tl.right ? [{ segs: [{ s: PX + ' = ' }], a: 1 }, { segs: [{ s: bracketsOf(d.roots) }], a: tl.rowsA }] : [{ segs: [{ s: PX + ' = ?' }], a: 1 }],\n        r2: tl.right ? { s: '= ' + fmtPoly(fromRoots(d.roots)), a: tl.rowsA } : null };\n      case 'split': return { r1: [{ segs: [{ s: PX }], a: tl.a0 }].concat(zero ? [sp(d.poly, a, false, Math.min(tl.a0, tl.mA))] : []), r2: ex };\n      case 'rem': return { r1: [{ segs: [{ s: PX }], a: tl.a0 }, sp(d.poly, a, true, Math.min(tl.a0, tl.mA))], r2: ex };\n      case 'remAfter': return { r1: [{ segs: [{ s: PX }], a: 1 }].concat(tl.right ? [sp(d.poly, d.ans, true, tl.rowsA)] : []), r2: ex };\n      case 'full': return { r1: [{ segs: [{ s: PX }], a: 1 }].concat(tl.right ? [{ segs: [{ s: ' = ' + d.form }], a: tl.rowsA }] : []), r2: ex };\n      case 'given': return { r1: [{ segs: [{ s: PX + ' = ' + d.form }], a: 1 }], r2: ex };\n      case 'divres': return { r1: [{ segs: [{ s: PX }], a: tl.a0 }, sp(d.poly, d.div.a, false, vis(d.div.t + 2 * d.div.RT + 2 * d.div.MT))], r2: ex };\n      case 'plain': return { r1: [{ segs: [{ s: PX }], a: tl.a0 }], r2: ex };\n      case 'pf': return { r1: [{ segs: [{ s: '(5x + 1) ÷ ((x − 1)(x + 2))' }], a: tl.a0 }],\n        r2: { s: '= ' + fmtN(PF_A) + ' ÷ (x − 1) + ' + fmtN(PF_B) + ' ÷ (x + 2)', a: st.x != null ? 1 : vis(d.pfT[3]) } };\n    }\n    return { r1: [], r2: null };\n  }\n\n  // ---------- the working: values put into the rule ----------\n  function linesOf(d, st, tl, cs, a, zero) {\n    const L = [], w = tl.wrong, bad = (s) => L.push({ s, cls: 'bad', a: tl.badA });\n    if (d.pf) return pfLines(d, st, a);\n    if (d.slip) return slipLines(tl);\n    if (d.div && d.div.stop != null && tl.right) {\n      const q1 = divide(cs, d.div.a).q[1];\n      L.push({ s: term(q1, 2, true) + ' ÷ x = ' + term(q1, 1, true), cls: 'hot', a: vis(0.3) });\n      L.push({ s: term(q1, 1, true) + brOf(d.div.a) + ' = ' + fmtPoly([q1, -d.div.a * q1, 0]), cls: '', a: vis(0.6) });\n    }\n    if (d.marker && a != null) {\n      if (d.trail && st.x == null) {\n        d.moves.forEach((m) => { const ar = arr(m.t1, 0.5); if (T === Infinity || T >= m.t1) L.push({ s: workP(cs, m.to), cls: evalP(cs, m.to) === 0 ? 'hot' : '', a: ar }); });\n      } else if (w && w.at != null && (w.at < d.marker.lo || w.at > d.marker.hi)) {\n        bad(workP(cs, w.at));\n      } else {\n        const landed = !!(w && w.not && w.at === a);\n        L.push({ s: workP(cs, a) + (landed ? ', not 0' : ''), cls: landed ? 'bad' : zero ? 'hot' : '', a: 1 });\n      }\n      if (zero && !d.trail && (d.rows === 'split' || d.rows === 'full')) L.push({ s: brOf(a) + ' is a factor', cls: 'hot', a: Math.min(tl.mA, tl.a1) });\n      if (d.rows === 'rem') L.push({ s: 'At x = ' + fmtN(a) + ' the bracket is 0, so ' + fmtN(divide(cs, a).r) + ' is left', cls: '', a: Math.min(tl.mA, tl.a1) });\n      if (d.trail) {\n        const r = d.real[0], last = d.moves[d.moves.length - 1], ar = st.x != null ? 1 : arr(last.t1 + 0.2, 0.6);\n        const on = st.x != null ? zero : T === Infinity || T >= last.t1;\n        if (on) { const q = divide(cs, r).q; L.push({ s: fmtPoly(q) + ':  ' + fmtN(q[1] * q[1]) + ' − ' + fmtN(4 * q[0] * q[2]) + ' = ' + fmtN(q[1] * q[1] - 4 * q[0] * q[2]) + ', no real roots', cls: '', a: ar }); }\n      }\n    }\n    if (d.shape) {\n      const rs = (d.rows === 'roots' ? tl.roots : d.roots || d.real).map(Math.round);\n      if (d.shape !== 'after') L.push({ s: shapeText(rs), cls: '', a: d.show ? tl.a1 : 1 });\n      else if (tl.right) L.push({ s: shapeText(rs), cls: '', a: tl.rowsA });\n    }\n    if (w && w.brs) bad('x = ' + fmtN(w.ring) + ':  ' + prodText(w.brs, w.ring) + ', not 0');\n    if (w && w.roots) bad('Picked rule: ' + shapeText(w.roots, true));\n    if (w && w.extra) w.extra.forEach((s) => bad(s));\n    return L;\n  }\n  function pfLines(d, st, a) {\n    const dr = st.x != null, due = (k) => (dr ? 1 : vis(d.pfT[k]));\n    return [\n      { s: 'Try x = ' + fmtN(a) + ':  ' + fmtN(pfN(a)) + ' = A × ' + fmtN(a + 2) + ' + B × ' + fmtN(a - 1), cls: '', a: 1 },\n      { s: 'x = 1:  ' + fmtN(pfN(1)) + ' = A × ' + fmtN(1 + 2) + ' + B × ' + fmtN(1 - 1), cls: '', a: due(0) },\n      { s: 'So ' + fmtN(pfN(1)) + ' = ' + fmtN(1 + 2) + 'A, and A = ' + fmtN(PF_A), cls: 'hot', a: due(0) },\n      { s: 'x = −2:  ' + fmtN(pfN(-2)) + ' = A × ' + fmtN(-2 + 2) + ' + B × ' + fmtN(-2 - 1), cls: '', a: due(1) },\n      { s: 'So ' + fmtN(pfN(-2)) + ' = ' + fmtN(-2 - 1) + 'B, and B = ' + fmtN(PF_B), cls: 'hot', a: due(1) },\n      { s: 'Check at x = 0:  ' + fmtN(pfN(0)) + ' ÷ ' + fmtN((0 - 1) * (0 + 2)) + ' = ' + fmtN(pfL(0)), cls: '', a: due(2) },\n      { s: 'and ' + fmtN(PF_A) + ' ÷ ' + fmtN(0 - 1) + ' + ' + fmtN(PF_B) + ' ÷ ' + fmtN(0 + 2) + ' = ' + fmtN(pfR(0)), cls: '', a: due(2) },\n    ];\n  }\n  function slipLines(tl) {\n    const w = tl.wrong;\n    if (tl.right) return [{ s: SLIP.fix, cls: 'hot', a: vis(0.3) }, { s: workP(OPEN, 1) + ', so no remainder', cls: '', a: vis(0.6) }];\n    if (w && w.slipRing === 0) return [{ s: SLIP.l1check, cls: '', a: tl.badA }];\n    if (w && w.slipRing === 2) return [{ s: SLIP.back1, cls: 'bad', a: tl.badA }, { s: SLIP.back2, cls: 'bad', a: tl.badA }];\n    return [];\n  }\n\n  // ---------- the panels without a grid ----------\n  function divRows(cs, a) {\n    const dv = divide(cs, a), b = cs[1], c = cs[2], dd = cs[3], q1 = dv.q[1], q0 = dv.q[2];\n    return [\n      { cells: [[2, term(1, 2, true)], [1, term(q1, 1)], [0, term(q0, 0)]] },\n      { cells: [[3, 'x³'], [2, term(b, 2)], [1, term(c, 1)], [0, term(dd, 0)]] },\n      { cells: [[3, 'x³'], [2, term(-a, 2)]], under: [3, 2], round: 0, move: 1 },\n      { cells: [[2, term(q1, 2, true)], [1, term(c, 1)]], round: 0, move: 2 },\n      { cells: [[2, term(q1, 2, true)], [1, term(-a * q1, 1)]], under: [2, 1], round: 1, move: 1 },\n      { cells: [[1, term(q0, 1, true)], [0, term(dd, 0)]], round: 1, move: 2 },\n      { cells: [[1, term(q0, 1, true)], [0, term(-a * q0, 0)]], under: [1, 0], round: 2, move: 1 },\n      { cells: [[0, fmtN(dv.r)]], round: 2, move: 2 },\n    ];\n  }\n  // 504 ÷ 9 the same way: 9 into 50, multiply back, take away, bring down the 4, and again.\n  const NUM = (() => {\n    const n = [5, 0, 4], dv = 9, first = n[0] * 10 + n[1], q1 = Math.floor(first / dv), m1 = q1 * dv, r1 = first - m1;\n    const second = r1 * 10 + n[2], q2 = Math.floor(second / dv), m2 = q2 * dv, r2 = second - m2;\n    const two = (v, c) => String(v).padStart(2, '0').split('').map((s, j) => [c + j, s]);\n    return { n, dv, q: [q1, q2], r: r2, rows: [\n      { cells: [[1, String(q1)], [2, String(q2)]] },\n      null,\n      { cells: two(m1, 0), under: [0, 1], round: 0, move: 1 },\n      { cells: [[1, String(r1)], [2, String(n[2])]], round: 0, move: 2 },\n      { cells: two(m2, 1), under: [1, 2], round: 1, move: 1 },\n      { cells: [[2, String(r2)]], round: 1, move: 2 },\n    ] };\n  })();\n  function drawDiv(d, a, top, withNum, tl) {\n    const D = d.div, RS = D.RS, y1 = top + 50, rowY = (k) => (k === 0 ? top + 26 : y1 + (k - 1) * RS);\n    // A puzzle (stop) shows the moves up to stop and the next one only after a right answer.\n    const rev = D.stop != null && tl && tl.right ? vis(0.3) : 0;\n    if (rev >= 0.5) REC.next = true;\n    const due = (r, m) => (D.stop == null ? vis(D.t + r * D.RT + m * D.MT) : r * 3 + m <= D.stop ? 1 : r * 3 + m === D.stop + 1 ? rev : 0), a0 = D.t0 ? vis(D.t0) : 1;\n    const bracket = (x, right) => add(K.svg('path', { class: 'dvl', d: 'M' + (x + 4) + ' ' + (y1 + 5) + ' Q' + (x + 9) + ' ' + (y1 - 6) + ' ' + (x + 5) + ' ' + (y1 - 17) + ' L' + right + ' ' + (y1 - 17) }));\n    const rows = divRows(d.poly, a);\n    part(a0, 4, () => {\n      text((DVX + PC[0]) / 2 + 4, top, 'P(x) ÷ ' + brOf(a), 'hd');\n      text(DVX, y1, divisorText(a), 'dv', 'end');\n      bracket(DVX, PC[0] + 4);\n      rows[1].cells.forEach((c) => { if (c[1]) text(PC[c[0]], y1, c[1], 'dv', 'end'); });\n    });\n    rows.forEach((row, k) => {\n      if (k === 1) return;\n      if (k === 0) { row.cells.forEach((c, j) => { if (c[1]) part(due(j, 0), 4, () => text(PC[c[0]], rowY(0), c[1], 'dv', 'end')); }); return; }\n      part(due(row.round, row.move), 4, () => {\n        row.cells.forEach((c) => { if (c[1]) text(PC[c[0]], rowY(k), c[1], 'dv', 'end'); });\n        if (row.under) line('dvl', PC[row.under[0]] - UW[row.under[0]], rowY(k) + 7, PC[row.under[1]] + 2, rowY(k) + 7);\n      });\n    });\n    if (!withNum) return;\n    // Which move each row of the first round is.\n    [[0, 0, 0, 'divide'], [2, 0, 1, 'multiply'], [3, 0, 2, 'take away']].forEach((m) => part(due(m[1], m[2]), 4, () => text(136, rowY(m[0]) - 1, m[3], 'mv', 'end')));\n    part(a0, 4, () => {\n      text(46, top, NUM.n.join('') + ' ÷ ' + NUM.dv, 'hd');\n      text(NDV, y1, String(NUM.dv), 'dv', 'end');\n      bracket(NDV, NC[2] + 4);\n      NUM.n.forEach((s, j) => text(NC[j], y1, String(s), 'dv', 'end'));\n    });\n    NUM.rows.forEach((row, k) => {\n      if (!row) return;\n      if (k === 0) { row.cells.forEach((c, j) => part(due(j, 0), 4, () => text(NC[c[0]], rowY(0), c[1], 'dv', 'end'))); return; }\n      part(due(row.round, row.move), 4, () => {\n        row.cells.forEach((c) => text(NC[c[0]], rowY(k), c[1], 'dv', 'end'));\n        if (row.under) line('dvl', NC[row.under[0]] - 10, rowY(k) + 7, NC[row.under[1]] + 2, rowY(k) + 7);\n      });\n    });\n    // At x = 10 the two divisions are the same sum.\n    const q = divide(d.poly, a).q, yd = y1 + 6 * RS + 34, yx = yd + 56;\n    // Each divide, written out as it happens: the front term divided by the x in the bracket.\n    part(due(0, 0), 4, () => text(12, yd, 'Divide the front each time', 'hd', 'start'));\n    let dx = 12;\n    [[term(1, 3, true), term(1, 2, true)], [term(q[1], 2, true), term(q[1], 1, true)], [term(q[2], 1, true), term(q[2], 0, true)]].forEach((p, r) => {\n      const s = p[0] + ' ÷ x = ' + p[1] + (r < 2 ? ',' : ''), x0 = dx;\n      part(due(r, 0), 4, () => text(x0, yd + 22, s, 'wk', 'start'));\n      dx += tw(s, 'wk') + 12;\n    });\n    part(vis(D.x10), 4, () => {\n      text(12, yx, 'Put x = 10 into each line', 'hd', 'start');\n      text(12, yx + 22, workP(d.poly, 10), 'wk', 'start');\n      text(12, yx + 44, divisorText(a) + ' = 10 − ' + fmtN(a) + ' = ' + fmtN(10 - a), 'wk', 'start');\n      text(12, yx + 66, fmtPoly(q) + ' = ' + termsText(q, 10), 'wk', 'start');\n    });\n  }\n  function drawSlip(G, tl) {\n    part(tl.a0, 4, () => text(12, G.top, 'A worked division by (x − 1)', 'hd', 'start'));\n    SLIP.lines.forEach((ln, k) => {\n      const y = G.top + 30 + 48 * k;\n      part(tl.a0, 4, () => { text(12, y, 'Line ' + (k + 1), 'ln', 'start'); text(78, y, ln.s, 'sl', 'start'); text(78, y + 19, ln.desc, 'ds', 'start'); });\n    });\n    const ring = tl.right ? 1 : tl.wrong ? tl.wrong.slipRing : null, ra = tl.right ? vis(0.1) : tl.badA;\n    if (ring != null && ra > 0) { part(ra, 0, () => rect('ring', 4, G.top + 30 + 48 * ring - 19, 332, 46, 8)); if (ra >= 0.5) REC.slipRing = ring; }\n    if (tl.right && vis(0.3) >= 0.5) REC.fix = true;\n  }\n\n  // ---------- the grid ----------\n  function beadsOf(d, tl, a, zero) {\n    if (d.hand === 'drag') return { vals: tl.roots, a: tl.a1 };\n    if (d.hand === 'show') return { vals: d.roots || d.real, a: d.show ? tl.a1 : 1 };\n    if (d.hand === 'after') return { vals: d.roots || d.real, a: tl.beadsA };\n    if (d.hand === 'found') return zero ? { vals: [a], a: Math.min(tl.a1, tl.mA) } : { vals: [], a: 0 };\n    if (d.hand === 'pf') return { vals: d.roots, a: tl.a1 };\n    return { vals: [], a: 0 };\n  }\n  function drawKey(G, k) {\n    let x = 12;\n    const y = G.KY;\n    const item = (draw, label) => { draw(x); text(x + 18, y, label, 'key', 'start'); x += 18 + tw(label, 'key') + 18; };\n    if (k.bead) item((x0) => circle('bead', x0 + 6, y - 4.5, 5.5), 'root');\n    if (k.curve) item((x0) => line('curve', x0, y - 4.5, x0 + 12, y - 4.5), 'P(x)');\n    if (k.marker) item((x0) => add(K.svg('path', { class: 'knob', d: 'M' + (x0 + 6) + ' ' + (y - 11) + ' L' + x0 + ' ' + (y + 1) + ' L' + (x0 + 12) + ' ' + (y + 1) + ' Z' })), 'try x');\n    if (k.alt) item((x0) => line('alt', x0, y - 4.5, x0 + 14, y - 4.5), 'picked rule');\n  }\n  function drawGraph(d, G, tl, cs, a, zero, said) {\n    const yOf = scaleOf(d, G, cs, tl), GB = G.GB, w = tl.wrong;\n    part(tl.a1, 0, () => {\n      for (let n = Math.ceil(d.lo); n <= Math.floor(d.hi); n++) { const px = gx(d, n); line('grid', px, GT, px, GB); text(px, G.NY, fmtN(n), 'tk' + (d.marker && a === n ? ' on' : '')); }\n      line('axis', GX0 - 8, G.y0, GX1 + 4, G.y0);\n      text(GX1 + 14, G.y0 + 4.5, 'x', 'tk');\n    });\n    // the curve, and a wrong pick's own curve\n    const curveOn = d.curve === true || d.curve === 'after';\n    if (curveOn && tl.curve > 0) part(tl.curve, 0, () => add(K.svg('path', { class: 'curve', d: curveD(d, G, cs, yOf, tl.grow) })));\n    if (curveOn && tl.curve >= 0.5) { REC.curve = true; REC.grow = tl.grow; }\n    if (w && w.roots && tl.badA > 0) { part(tl.badA, 0, () => add(K.svg('path', { class: 'alt', d: curveD(d, G, fromRoots(w.roots), yOf, 1) }))); if (tl.badA >= 0.5) REC.alt = true; }\n    // the root handles\n    const B = beadsOf(d, tl, a, zero);\n    if (B.vals && B.vals.length) {\n      const px = beadPx(d, B.vals);\n      REC.beadPx = px; REC.rootsNow = B.vals.slice();\n      if (B.a > 0) part(B.a, 0, () => px.forEach((x) => circle('bead', x, G.y0, 8)));\n      // On the screens where Dan drags them, small arrows under each handle (or pushed-together group) say they move.\n      if (B.a > 0 && d.hand === 'drag' && d.show && !finished) part(B.a, 0, () => {\n        const gs = [];\n        px.slice().sort((p, q) => p - q).forEach((x) => { const g = gs[gs.length - 1]; if (g && x - g.hi < SEP + 0.5) g.hi = x; else gs.push({ lo: x, hi: x }); });\n        const y = G.y0 + 17;\n        gs.forEach((g) => { const cx = (g.lo + g.hi) / 2, w = (g.hi - g.lo) / 2; [-1, 1].forEach((s) => add(K.svg('path', { class: 'cue', d: 'M' + r3(cx + s * (w + 11)) + ' ' + y + ' L' + r3(cx + s * (w + 4)) + ' ' + (y - 4) + ' L' + r3(cx + s * (w + 4)) + ' ' + (y + 4) + ' Z' }))); });\n      });\n      if (B.a >= 0.5) REC.beads = B.vals.slice();\n    }\n    // where the marker meets a root, and a wrong pick's point\n    if (zero && d.marker && tl.mA > 0) part(Math.min(tl.mA, tl.a1), 0, () => circle('meet', gx(d, a), G.y0, 14));\n    if (w && w.ring != null && tl.badA > 0) { part(tl.badA, 0, () => circle('ring', gx(d, w.ring), G.y0, 15)); if (tl.badA >= 0.5) REC.ring = w.ring; }\n    // the try marker: a pointer under the grid, a dashed line up to its dot on the curve\n    if (tl.x != null) part(tl.a1, 0, () => {\n      const mx = gx(d, tl.x), P = d.pf ? null : evalP(cs, tl.x), y = P == null ? null : yOf(P);\n      const dot = REC.curve && y != null && y >= GT && y <= GB, top = dot ? y : G.y0;\n      if (GB - top > 10) line('probe', mx, top + (dot ? 7 : 0), mx, GB);\n      add(K.svg('path', { class: 'knob', d: 'M' + r3(mx) + ' ' + (GB + 1) + ' L' + r3(mx - 8) + ' ' + (GB + 14) + ' L' + r3(mx + 8) + ' ' + (GB + 14) + ' Z' }));\n      if (d.show && d.marker.drag && !finished) [-1, 1].forEach((s) => add(K.svg('path', { class: 'cue', d: 'M' + r3(mx + s * 20) + ' ' + (GB + 8) + ' L' + r3(mx + s * 14) + ' ' + (GB + 3.5) + ' L' + r3(mx + s * 14) + ' ' + (GB + 12.5) + ' Z' })));\n      if (dot) { circle('dot', mx, y, 5.5); REC.dotY = y; }\n    });\n    part(tl.a1, 0, () => drawKey(G, { bead: !!(B.vals && B.vals.length && B.a >= 0.5), curve: REC.curve, marker: tl.x != null, alt: REC.alt }));\n    if (tl.a1 >= 0.5) {\n      if (REC.beads.length) said.push('Round handles sit on the axis at ' + say(REC.beads.map((v) => fmtN(Math.round(v))).join(', ')) + '.');\n      if (REC.curve) said.push('The curve is drawn.');\n      if (tl.x != null) said.push('The try marker is at x = ' + say(fmtN(a)) + (REC.dotY != null ? (zero ? ', where the curve is on the axis.' : ', and the curve is ' + (evalP(cs, a) > 0 ? 'above' : 'below') + ' the axis there.') : '.'));\n    }\n  }\n\n  // The whole picture for a step now; returns it in words.\n  function drawScene(d, st, G) {\n    const tl = timeline(d, st), said = [];\n    const cs = d.poly ? d.poly : d.pf ? null : fromRoots(tl.roots || d.roots);\n    const a = tl.x != null ? Math.round(tl.x) : null;\n    const zero = a != null && !!cs && evalP(cs, a) === 0;\n    REC = { r1: '', r2: '', lines: [], beads: [], beadPx: [], rootsNow: [], curve: false, grow: 0, x: tl.x, a, dotY: null, y0: G.y0, alt: false, ring: null, split: null, fix: false, slipRing: null, next: false };\n    // the two rows\n    const R = rowsOf(d, st, tl, a, zero);\n    let rx = 12;\n    R.r1.forEach((p) => {\n      const s = p.segs.map((g) => g.s).join(''), x0 = rx;\n      if (p.a > 0) part(p.a, 4, () => segText(x0, TAG1, p.segs, 'tag'));\n      if (p.a >= 0.5) { REC.r1 += s; if (p.split) REC.split = p.split; }\n      rx += tw(s, 'tag');\n    });\n    if (R.r2 && R.r2.a > 0) {\n      const x2 = d.rows === 'pf' ? 30 : 12 + tw('P(x) ', 'tag');\n      part(R.r2.a, 4, () => text(x2, TAG2, R.r2.s, 'tag', 'start'));\n      if (R.r2.a >= 0.5) REC.r2 = R.r2.s;\n    }\n    said.push(say(REC.r1 + (REC.r2 ? ' ' + REC.r2 : '')) + '.');\n    if (d.graph !== false) drawGraph(d, G, tl, cs, a, zero, said);\n    if (d.div) drawDiv(d, d.div.a === 'marker' ? a : d.div.a, d.div.num ? G.top : G.DT, !!d.div.num, tl);\n    if (d.slip) drawSlip(G, tl);\n    // the working\n    linesOf(d, st, tl, cs, a, zero).forEach((l, k) => {\n      if (l.a <= 0) return;\n      const y = G.WY0 + WSTEP * k;\n      part(l.a, 6, () => text(12, y, l.s, 'wk' + (l.cls ? ' ' + l.cls : ''), 'start'));\n      if (l.a >= 0.5) { REC.lines.push({ s: l.s, cls: l.cls }); said.push(say(l.s) + '.'); }\n    });\n    placeGrips(d, G);\n    return said.filter(Boolean).join(' ');\n  }\n\n  // ---------- Dan's own hands: the handles (screens 1 and 3) and the try marker ----------\n  const handDrag = () => !finished && !!STEPS[at()].show && STEPS[at()].hand === 'drag';\n  const markDrag = () => { const d = STEPS[at()]; return !finished && !!d.show && !!d.marker && !!d.marker.drag; };\n  function valFrom(e) {\n    const ctm = svg.getScreenCTM();\n    if (!ctm) return null;\n    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()), d = STEPS[at()];\n    return d.lo + (q.x - GX0) / (GX1 - GX0) * (d.hi - d.lo);\n  }\n  function setRoot(k, v) {\n    const i = at(), d = STEPS[i], st = S[i];\n    v = K.clamp(Math.round(v), -4, 4);\n    if (st.roots && st.roots[k] === v && T === Infinity) return;\n    if (anim.playing()) anim.pause();\n    const base = st.roots || finalRoots(d);\n    T = Infinity;\n    st.roots = base.slice(); st.roots[k] = v;\n    K.reveal(); K.refresh();\n  }\n  function setX(v) {\n    const i = at(), d = STEPS[i], st = S[i];\n    v = K.clamp(Math.round(v), d.marker.lo, d.marker.hi);\n    if (st.x === v && T === Infinity) return;\n    if (anim.playing()) anim.pause();\n    T = Infinity;\n    st.x = v;\n    K.reveal(); K.refresh();\n  }\n  let held = null;\n  const letGo = (e) => { if (held && held.id === e.pointerId) held = null; };\n  function grip(el, kind, k) {\n    const may = () => (kind === 'm' ? markDrag() : handDrag());\n    const put = (v) => (kind === 'm' ? setX(v) : setRoot(k, v));\n    el.addEventListener('pointerdown', (e) => {\n      if (!may()) return;\n      held = { id: e.pointerId, kind, k };\n      try { el.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the grip */ }\n      e.preventDefault();\n      const v = valFrom(e);\n      if (v != null) put(v);\n    });\n    el.addEventListener('pointermove', (e) => {\n      if (!held || held.id !== e.pointerId || held.kind !== kind || held.k !== k || !may()) return;\n      const v = valFrom(e);\n      if (v != null) put(v);\n    });\n    el.addEventListener('pointerup', letGo);\n    el.addEventListener('pointercancel', letGo);\n    el.addEventListener('lostpointercapture', () => { held = null; });\n    el.addEventListener('keydown', (e) => {\n      if (!may()) return;\n      const d = STEPS[at()], st = S[at()];\n      const lo = kind === 'm' ? d.marker.lo : -4, hi = kind === 'm' ? d.marker.hi : 4;\n      const now = kind === 'm' ? Math.round(st.x != null ? st.x : REC.x) : Math.round((st.roots || finalRoots(d))[k]);\n      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];\n      if (by == null && e.key !== 'Home' && e.key !== 'End') return;\n      e.preventDefault();\n      put(e.key === 'Home' ? lo : e.key === 'End' ? hi : now + by);\n    });\n    return el;\n  }\n  const beadGrips = [0, 1, 2].map((k) => {\n    const g = grip(ui.appendChild(K.svg('circle', { class: 'grip', cx: -60, cy: -60, r: 20, tabindex: -1, role: 'slider', 'aria-label': 'Root handle ' + (k + 1), 'aria-orientation': 'horizontal' })), 'h', k);\n    g.style.display = 'none';\n    return g;\n  });\n  const markGrip = grip(ui.appendChild(K.svg('rect', { class: 'grip', x: GX0 - 20, y: -100, width: GX1 - GX0 + 40, height: 48, tabindex: -1, role: 'slider', 'aria-label': 'Try x', 'aria-orientation': 'horizontal' })), 'm', 0);\n  markGrip.style.display = 'none';\n  function placeGrips(d, G) {\n    const onB = d.hand === 'drag' && !!d.show && !finished;\n    beadGrips.forEach((g, k) => {\n      const px = REC.beadPx[k], on = onB && px != null;\n      g.style.display = on ? '' : 'none';\n      g.setAttribute('tabindex', on ? '0' : '-1');\n      if (!on) return;\n      const v = Math.round(REC.rootsNow[k]);\n      g.setAttribute('cx', r3(px)); g.setAttribute('cy', G.y0);\n      g.setAttribute('aria-valuemin', -4); g.setAttribute('aria-valuemax', 4); g.setAttribute('aria-valuenow', v);\n      g.setAttribute('aria-valuetext', 'root at ' + fmtN(v));\n    });\n    const onM = !!d.marker && !!d.marker.drag && !!d.show && !finished && G.GB != null;\n    markGrip.style.display = onM ? '' : 'none';\n    markGrip.setAttribute('tabindex', onM ? '0' : '-1');\n    if (!onM) return;\n    markGrip.setAttribute('y', G.GB - 8);\n    const v = REC.a;\n    markGrip.setAttribute('aria-valuemin', d.marker.lo); markGrip.setAttribute('aria-valuemax', d.marker.hi); markGrip.setAttribute('aria-valuenow', v);\n    markGrip.setAttribute('aria-valuetext', 'x = ' + fmtN(v));\n  }\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i], G = geo(d);\n    art.textContent = '';\n    into = null;\n    svg.setAttribute('viewBox', '0 0 340 ' + G.H);\n    svg.setAttribute('aria-label', drawScene(d, st, G));\n  }\n\n  const el = (id) => document.getElementById(id);\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { st.x = null; st.roots = null; play(d.dur); } else { anim.pause(); T = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.textContent = '';\n      italics(b.el.appendChild(K.el('span')), opts[k], false);   // one span, so the button's gap does not split a bracket\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const ALL3 = [];\n  for (let p = -4; p <= 4; p++) for (let q = -4; q <= 4; q++) for (let r = -4; r <= 4; r++) ALL3.push([p, q, r]);\n  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t;\n    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }\n  }\n\n  K.check('The polynomial factor theorem: if P(x) has a root x = a, i.e. if P(a) = 0, then x − a is a factor of P(x). For every screen\\'s rule and every handle setting, at every whole a from −6 to 6, dividing by (x − a) leaves exactly P(a) over, so it leaves 0 exactly where P(a) = 0', () => {\n    const rules = STEPS.filter((d) => d.poly).map((d) => d.poly).concat(ALL3.map(fromRoots));\n    return rules.every((cs) => {\n      for (let a = -6; a <= 6; a++) {\n        const dv = divide(cs, a), back = addC(mul([1, -a], dv.q), dv.r);\n        if (!same(back, cs) || dv.r !== evalP(cs, a)) return false;\n      }\n      return true;\n    });\n  }, { source: MATHWORLD });\n  K.check('Dividing x³ − 6x² + 11x − 6 by (x − 4) gives x² − 2x + 3 with 6 left, and P(4) = 64 − 96 + 44 − 6 = 6; by (x − 1) it gives x² − 5x + 6 with 0 left; the remainders for a = −1 to 5 are −24, −6, 0, 0, 0, 6 and 24; by (x − 5) it leaves 24, and by (x + 5) −336', () => {\n    const d4 = divide(OPEN, 4), d1 = divide(OPEN, 1), d5 = divide(OPEN, 5);\n    return same(d4.q, [1, -2, 3]) && d4.r === 6 && workP(OPEN, 4) === 'P(4) = 64 − 96 + 44 − 6 = 6' && same(d1.q, [1, -5, 6]) && d1.r === 0 &&\n      [-1, 0, 1, 2, 3, 4, 5].map((a) => divide(OPEN, a).r).join() === '-24,-6,0,0,0,6,24' && d5.r === 24 && same(d5.q, [1, -1, 6]) && divide(OPEN, -5).r === -336 &&\n      workP(OPEN, 5) === 'P(5) = 125 − 150 + 55 − 6 = 24' && workP(OPEN, -5) === 'P(−5) = −125 − 150 − 55 − 6 = −336' && workP(OPEN, 1) === 'P(1) = 1 − 6 + 11 − 6 = 0' && workP(OPEN, -1) === 'P(−1) = −1 − 6 − 11 − 6 = −24' &&\n      divRows(OPEN, 1).map((r) => r.cells.map((c) => c[1]).filter(Boolean).join(' ')).join(' | ') === 'x² − 5x + 6 | x³ − 6x² + 11x − 6 | x³ − x² | −5x² + 11x | −5x² + 5x | 6x − 6 | 6x − 6 | 0';\n  });\n  K.check('Each handle puts its bracket in the rule: 1, 2, 3 give (x − 1)(x − 2)(x − 3) = x³ − 6x² + 11x − 6; −1, 2, 4 give x³ − 5x² + 2x + 8; 1, 2, 2 give (x − 1)(x − 2)² = x³ − 5x² + 8x − 4; 2, 2, 2 give (x − 2)³ = x³ − 6x² + 12x − 8; −1, 3, 3 give (x + 1)(x − 3)² = x³ − 5x² + 3x + 9; and at every setting the rule is 0 at each handle and the rows say so', () => {\n    const named = [[[1, 2, 3], '(x − 1)(x − 2)(x − 3)', 'x³ − 6x² + 11x − 6'], [[-1, 2, 4], '(x + 1)(x − 2)(x − 4)', 'x³ − 5x² + 2x + 8'], [[1, 2, 2], '(x − 1)(x − 2)²', 'x³ − 5x² + 8x − 4'],\n      [[2, 2, 2], '(x − 2)³', 'x³ − 6x² + 12x − 8'], [[-1, 3, 3], '(x + 1)(x − 3)²', 'x³ − 5x² + 3x + 9']];\n    const g = drawn(0, Object.assign(blank(), { roots: [-4, 0, 4] })), h = drawn(2, Object.assign(blank(), { roots: [1, 2, 2] }));\n    return named.every((n) => bracketsOf(n[0]) === n[1] && fmtPoly(fromRoots(n[0])) === n[2]) && ALL3.every((rs) => rs.every((r) => evalP(fromRoots(rs), r) === 0)) &&\n      g.r1 === 'P(x) = x(x + 4)(x − 4)' && g.r2 === '= x³ − 16x' && h.r1 === 'P(x) = (x − 1)(x − 2)²' && h.r2 === '= x³ − 5x² + 8x − 4' && h.beads.join() === '1,2,2';\n  });\n  K.check('A root that comes twice touches: near it the curve stays on one side of the axis; once or three times it crosses, and three times it flattens there (its slope is 0)', () =>\n    ALL3.every((rs) => {\n      const cs = fromRoots(rs);\n      return distinct(rs).every((r) => {\n        const n = rs.filter((v) => v === r).length, L = evalP(cs, r - 0.01), R = evalP(cs, r + 0.01);\n        if ((Math.sign(L) === Math.sign(R)) !== (n === 2)) return false;\n        if (n === 3) { const h = 1e-3; if (Math.abs((evalP(cs, r + h) - evalP(cs, r - h)) / (2 * h)) > 1e-5) return false; }\n        return true;\n      });\n    }) && shapeText([1, 2, 2]) === 'Crosses at 1, touches at 2' && shapeText([2, 2, 2]) === 'Crosses at 2, flattening' && shapeText([-1, 3, 3]) === 'Crosses at −1, touches at 3' &&\n    shapeText([1, -3, -3]) === 'Touches at −3, crosses at 1' && shapeText([-1, -1, 3]) === 'Touches at −1, crosses at 3' && shapeText([1, 2, 3]) === 'Crosses at 1, 2 and 3' && shapeText([-2, 1, 1]) === 'Crosses at −2, touches at 1');\n  K.check('Every puzzle accepts only its right answer, and each wrong pick fails where the lesson says: 1 × 4 × 6 = 24 and −2 × −3 × −5 = −30; P(−2) = 12 and P(6) = 180 for x³ − 7x + 6; P(5) = 24 and P(−5) = −336; P(−1) = 8 and P(2) = −4 for x³ − 2x² − 5x + 6; P(1) = 0 for x³ − 3x + 2; each right rule multiplies back to the question\\'s', () => {\n    const P7 = [1, 0, -7, 6], P12 = [1, -2, -5, 6], P13 = [1, 0, -3, 2];\n    return DO.every((i) => { const d = STEPS[i]; return d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)) && d.opts.filter((o) => o !== d.want).every((o) => !!d.wrong[o]); }) &&\n      prodText([1, -2, -4], 2) === '1 × 4 × 6 = 24' && prodText([1, 2, 4], -1) === '−2 × −3 × −5 = −30' &&\n      workP(P7, -2) === 'P(−2) = −8 + 14 + 6 = 12' && workP(P7, 6) === 'P(6) = 216 − 42 + 6 = 180' && workP(P7, 2) === 'P(2) = 8 − 14 + 6 = 0' &&\n      workP(P12, -1) === 'P(−1) = −1 − 2 + 5 + 6 = 8' && workP(P12, 2) === 'P(2) = 8 − 8 − 10 + 6 = −4' && workP(P12, 1) === 'P(1) = 1 − 2 − 5 + 6 = 0' && workP(P13, 1) === 'P(1) = 1 − 3 + 2 = 0' &&\n      same(fromRoots([1, 3, -2]), P12) && same(fromRoots([1, 1, -2]), P13) && same(fromRoots([-1, 2, 4]), [1, -5, 2, 8]) && same(fromRoots([-1, 3, 3]), [1, -5, 3, 9]) &&\n      fmtPoly(divide(P7, 2).q) === 'x² + 2x − 3' && divide(P7, 2).r === 0 && fmtPoly(Q12) === 'x² + x − 2' && same(Q12, fromRoots([1, -2])) &&\n      fmtPoly(divide(OPEN, 5).q) === 'x² − x + 6';\n  });\n  K.check('The worked numbers: 504 ÷ 9 = 56, and at x = 10 the division is the same sum (1000 − 600 + 110 − 6 = 504, 10 − 1 = 9, 100 − 50 + 6 = 56); x³ + 8 gives 9, 7, 16 and 0 at 1, −1, 2 and −2 and leaves x² − 2x + 4, whose discriminant is 4 − 16 = −12; the slip gives x² − 7x + 4 with −2 left and expands back to x³ − 8x² + 11x − 6; the look ahead gives A = 2, B = 3, and −0.5 on both sides at x = 0', () => {\n    const q8 = divide([1, 0, 0, 8], -2).q;\n    return NUM.q.join('') === '56' && NUM.r === 0 && 504 === 9 * 56 && workP(OPEN, 10) === 'P(10) = 1000 − 600 + 110 − 6 = 504' && termsText([1, -5, 6], 10) === '100 − 50 + 6 = 56' &&\n      [1, -1, 2, -2].map((a) => evalP([1, 0, 0, 8], a)).join() === '9,7,16,0' && fmtPoly(q8) === 'x² − 2x + 4' && q8[1] * q8[1] - 4 * q8[0] * q8[2] === -12 &&\n      SLIP.lines.map((l) => l.s).join(' | ') === 'x²(x − 1) = x³ − x² | −6x² − (−x²) = −7x² | x² − 7x + 4, remainder −2' && SLIP.back2 === '= x³ − 8x² + 11x − 6, not −6x²' &&\n      SLIP.fix === '−6x² − (−x²) is −6x² + x² = −5x²' && PF_A === 2 && PF_B === 3 && close(pfL(0), -0.5) && close(pfR(0), -0.5) &&\n      [-3, -1, 0.5, 2, 3].every((x) => close(pfL(x), pfR(x)));\n  });\n  K.check('To factorise the quadratic x² + bx + c, the sum of the two numbers in the brackets must be b, and the product must be c: each quadratic left once a bracket splits off has two such numbers, and they are the rule\\'s other roots with their signs swapped', () =>\n    [[OPEN, 1, [2, 3]], [OPEN, 2, [1, 3]], [OPEN, 3, [1, 2]], [[1, -2, -5, 6], 1, [-2, 3]], [[1, 0, -7, 6], 2, [-3, 1]]].every((c) => {\n      const q = divide(c[0], c[1]).q;\n      let pair = null;\n      for (let m = -10; m <= 10 && !pair; m++) for (let n = m; n <= 10; n++) if (m + n === q[1] && m * n === q[2]) { pair = [m, n]; break; }\n      return !!pair && same([-pair[1], -pair[0]].sort((u, v) => u - v), c[2]) && pair.every((m) => evalP(c[0], -m) === 0);\n    }), { source: BITESIZE });\n  K.check('The picture follows the rule: on each screen with the try marker, at every whole setting, the dot sits on the axis exactly where P(a) reads 0, and only there does a handle appear and the bracket (x − a) split off, leaving a quadratic that multiplies back to the rule; on the remainder screen the row is (x − a) times what comes out, plus P(a)', () =>\n    STEPS.every((d, i) => {\n      if (!d.show || !d.marker || d.pf) return true;\n      for (let a = d.marker.lo; a <= d.marker.hi; a++) {\n        const g = drawn(i, Object.assign(blank(), { x: a })), z = evalP(d.poly, a) === 0;\n        if (g.dotY == null || (Math.abs(g.dotY - g.y0) < 1e-6) !== z) return false;\n        if (d.rows === 'split' && (g.split != null) !== z) return false;\n        if (d.hand === 'found' && g.beads.join() !== (z ? String(a) : '')) return false;\n        if (d.rows === 'rem' && (!g.split || g.split.r !== evalP(d.poly, a) || g.r1.indexOf('P(x) = ' + brOf(a)) !== 0)) return false;\n        if (g.split && !same(addC(mul([1, -a], g.split.q), g.split.r), d.poly)) return false;\n      }\n      return true;\n    }));\n  K.check('Before Check each puzzle keeps its answer back (no bracket form, curve or handles that give it away), and after a right answer shows it whole, with the marker ending on the value asked for', () =>\n    DO.every((i) => {\n      const d = STEPS[i], g = drawn(i, blank()), h = drawn(i, solvedSt(i));\n      if (d.slip) return !g.fix && g.slipRing == null && h.fix && h.slipRing === 1;\n      if (d.div && d.div.stop != null) return !g.next && h.next && h.lines.length === 2 && h.lines[0].s === '−5x² ÷ x = −5x';\n      const rowsOk = ['hidden', 'full', 'remAfter', 'split'].indexOf(d.rows) < 0 || (g.r1 !== h.r1 && (d.rows !== 'hidden' && d.rows !== 'full' || h.r1 === 'P(x) = ' + d.want));\n      const curveOk = d.curve !== 'after' || (!g.curve && h.curve && h.grow === 1);\n      const beadsOk = d.hand !== 'after' || (g.beads.length === 0 && h.beads.length === 3);\n      const markOk = !d.marker || d.ans == null || (close(g.x, d.marker.x0) && close(h.x, d.ans));\n      return rowsOk && curveOk && beadsOk && markOk;\n    }));\n  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, within 2.5 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; earliest = Infinity;\n      S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE - 1e-9; }\n      return timed(i, solvedSt(i), FB[0]) && FB[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB[1]));\n    });\n    T = keepT; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "Roots on a string",
+  "brief": "The one thing you should see is the readout P(a) reaching 0 exactly where the try x = marker meets a root handle, and that handle's bracket (x − a) splitting off to leave a quadratic, when you slide the marker.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The polynomial factor theorem: if P(x) has a root x = a, i.e. if P(a) = 0, then x − a is a factor of P(x). For every screen's rule and every handle setting, at every whole a from −6 to 6, dividing by (x − a) leaves exactly P(a) over, so it leaves 0 exactly where P(a) = 0",
+     "ok": true,
+     "source": "https://mathworld.wolfram.com/PolynomialFactorTheorem.html"
+    },
+    {
+     "label": "Dividing x³ − 6x² + 11x − 6 by (x − 4) gives x² − 2x + 3 with 6 left, and P(4) = 64 − 96 + 44 − 6 = 6; by (x − 1) it gives x² − 5x + 6 with 0 left; the remainders for a = −1 to 5 are −24, −6, 0, 0, 0, 6 and 24; by (x − 5) it leaves 24, and by (x + 5) −336",
+     "ok": true
+    },
+    {
+     "label": "Each handle puts its bracket in the rule: 1, 2, 3 give (x − 1)(x − 2)(x − 3) = x³ − 6x² + 11x − 6; −1, 2, 4 give x³ − 5x² + 2x + 8; 1, 2, 2 give (x − 1)(x − 2)² = x³ − 5x² + 8x − 4; 2, 2, 2 give (x − 2)³ = x³ − 6x² + 12x − 8; −1, 3, 3 give (x + 1)(x − 3)² = x³ − 5x² + 3x + 9; and at every setting the rule is 0 at each handle and the rows say so",
+     "ok": true
+    },
+    {
+     "label": "A root that comes twice touches: near it the curve stays on one side of the axis; once or three times it crosses, and three times it flattens there (its slope is 0)",
+     "ok": true
+    },
+    {
+     "label": "Every puzzle accepts only its right answer, and each wrong pick fails where the lesson says: 1 × 4 × 6 = 24 and −2 × −3 × −5 = −30; P(−2) = 12 and P(6) = 180 for x³ − 7x + 6; P(5) = 24 and P(−5) = −336; P(−1) = 8 and P(2) = −4 for x³ − 2x² − 5x + 6; P(1) = 0 for x³ − 3x + 2; each right rule multiplies back to the question's",
+     "ok": true
+    },
+    {
+     "label": "The worked numbers: 504 ÷ 9 = 56, and at x = 10 the division is the same sum (1000 − 600 + 110 − 6 = 504, 10 − 1 = 9, 100 − 50 + 6 = 56); x³ + 8 gives 9, 7, 16 and 0 at 1, −1, 2 and −2 and leaves x² − 2x + 4, whose discriminant is 4 − 16 = −12; the slip gives x² − 7x + 4 with −2 left and expands back to x³ − 8x² + 11x − 6; the look ahead gives A = 2, B = 3, and −0.5 on both sides at x = 0",
+     "ok": true
+    },
+    {
+     "label": "To factorise the quadratic x² + bx + c, the sum of the two numbers in the brackets must be b, and the product must be c: each quadratic left once a bracket splits off has two such numbers, and they are the rule's other roots with their signs swapped",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/zdtdh4j"
+    },
+    {
+     "label": "The picture follows the rule: on each screen with the try marker, at every whole setting, the dot sits on the axis exactly where P(a) reads 0, and only there does a handle appear and the bracket (x − a) split off, leaving a quadratic that multiplies back to the rule; on the remainder screen the row is (x − a) times what comes out, plus P(a)",
+     "ok": true
+    },
+    {
+     "label": "Before Check each puzzle keeps its answer back (no bracket form, curve or handles that give it away), and after a right answer shows it whole, with the marker ending on the value asked for",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 14,
+     "step": 1,
+     "steps": [
+      "Roots make brackets",
+      "Read the handles",
+      "Two roots together",
+      "Cross or touch",
+      "Hunt for a zero",
+      "Which bracket?",
+      "Divide like numbers",
+      "Your move",
+      "Spot the slip",
+      "The remainder is P(a)",
+      "Find the remainder",
+      "Only one crossing",
+      "Mixed: three brackets",
+      "Mixed: cross or touch",
+      "Look ahead: split a fraction"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [
+    "SVG labels \"P(x)\" and \"= (x − 2)(x² − 4x + 3)\" are touching on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 5, and 7 more settings)",
+    "SVG labels \"5\" and \"0\" are only 2 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 7, and 1 more setting)",
+    "SVG labels \"0\" and \"4\" are only 2 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 7, and 1 more setting)"
+   ],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-18T06:44:19.961Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"It touches instead of crossing, at a repeated root\" reads as true of every repeated root, but a root repeated three times crosses, as the interactive itself shows with (x − 2)³ on screen 3; only a root repeated an even number of times touches."
+   },
+   {
+    "path": "practice.text",
+    "problem": "\"Such roots are found from a graph or by a step-by-step method of improving guesses\" is too absolute: a cubic with no whole-number root can also be solved exactly, by trying fractions when the x³ has a number in front, or by the cubic formula."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}
