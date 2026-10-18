@@ -1,0 +1,535 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-18T05:59:47.712Z",
+ "startedAt": "2026-10-18T05:59:47.712Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i4",
+  "title": "Logarithms: the power you need",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the power below the pointer going up by 1 each time the number above it is multiplied by the base, when you drag the pointer along the ruler from mark to mark.",
+   "title": "The power ruler",
+   "controls": [
+    {
+     "id": "pointer",
+     "label": "Pointer, as a power",
+     "min": -3,
+     "max": 5,
+     "step": 0.001,
+     "value": 3,
+     "unit": ""
+    },
+    {
+     "id": "base",
+     "label": "Which ruler",
+     "options": [
+      "Ruler of 10s",
+      "Ruler of 2s",
+      "Ruler of e"
+     ],
+     "value": 0
+    }
+   ],
+   "outputs": [
+    {
+     "id": "number",
+     "label": "Number above the pointer",
+     "unit": "",
+     "decimals": 3
+    },
+    {
+     "id": "power",
+     "label": "Its log, the power below",
+     "unit": "",
+     "decimals": 3
+    }
+   ],
+   "whatAmILookingAt": "A short lesson in thirteen small screens on one picture, the power ruler. It is a ruler with numbers along its top edge and powers along its bottom edge. On the ruler of 10s the big marks on top are 1, 10, 100 and 1000 at equal spaces, with '× 10' written over each space, and under them the powers 0, 1, 2 and 3. The number on top is always the base to the power below it, so the power below is the number's logarithm. A pointer you drag reads both at once, and the readout writes the same fact in its two forms, such as 10³ = 1000 and log₁₀ 1000 = 3. Moving one space right multiplies by the base, because the power goes up by 1. Moving half a space multiplies by the number that times itself makes the base, so equal lengths always multiply by equal factors and the ruler is not evenly spaced in numbers. Small marks inside the first space show 2, 3 and 5 at 0.301, 0.477 and 0.699. The switch changes the base: the ruler of 2s has 1, 2, 4, 8, 16 and 32 at 0 to 5, with '× 2' over each space, and the ruler of e has 1, 2.718, 7.389 and 20.09 at 0 to 3, with '× e'. On a phone the ruler shows about five spaces at a time and pans to keep the pointer in view, so its labels never crowd. Left of 1 the powers go negative, on the ruler of 10s 0.1, 0.01 and 0.001 at −1, −2 and −3, each space dividing by the base again. There is no mark at 0 or below: the left end is left open, with the label 'no power gets here'. Screen by screen: 1 shows the ruler of 10s with the pointer stepping 1, 10, 100, 1000 and the power counting 0, 1, 2, 3, so log₁₀ 1000 = 3 because 10³ = 1000, the 3 in kilo's 10³. 2 asks which log says the same as 10⁴ = 10 000. 3 drags between the marks: half a space is × √10 ≈ 3.162, so 316 sits at 2.5; the small marks 2, 3 and 5 appear at 0.301, 0.477 and 0.699, with 3 × 3 = 9, just under 10, as the reason 3 sits just under half way; the pointer stops at 45, reading 1.653. 4 asks where 5 sits between 1 and 10, and its Why? works it out: ten 2s make 1024, just over 10³, so 2 sits at 0.301, and 5 is 10 ÷ 2, at 1 − 0.301 = 0.699. 5 switches to the ruler of 2s: log₂ 8 = 3 and log₂ 32 = 5, then two lengths laid end to end add 3 + 3 = 6, out to an unlabelled mark at 6, to show a log is a number. 6 asks whether log₂ x + log₂ x + log₂ x is the same as x + x + x at x = 2. 7 switches to the ruler of e, names ln and the two calculator keys. 8 asks for ln 10. 9 drags left of 1 to 0.1, 0.01 and 0.001, and shows the open end where 0 and negative numbers would be. 10 asks for log₁₀(−100). 11 draws the graph of y = eˣ, its axes crossing at (0, 0), through (0, 1), (1, 2.718) and (2, 7.389), with the line y = x dashed, and folds it over that line into y = ln x through (1, 0), (2.718, 1) and (7.389, 2). 12 and 13 mix it all: log₁₀ x = −3, turned back into its power form 10⁻³ = 0.001, and, with y = eˣ through (2, 7.389), which point the fold puts on y = ln x. A puzzle offers three answers, and a wrong pick gets a one-line hint showing where it goes wrong.",
+   "ignores": "The ruler of 10s is drawn only from 0.001 to 100 000 (powers −3 to 5, the range every ruler covers); it goes on to the right without end, and to the left it creeps ever closer to 0 without reaching it. The powers round to three decimal places and the numbers to four significant figures, so log₁₀ 2 shows as 0.301 though its decimals carry on without end, and 2.718, 7.389 and 20.09 are e, e² and e³ rounded. Only 2, 3 and 5 get small marks; every number in between has its place too. There is no log of 0 or of a negative number among the ordinary numbers used here; the later course on complex numbers gives a negative number a log of a different kind.",
+   "numbers": [
+    {
+     "label": "Pointer's opening setting, as a power",
+     "value": 3,
+     "kind": "control"
+    },
+    {
+     "label": "Big marks on the ruler of 10s",
+     "value": 1000,
+     "kind": "computed"
+    },
+    {
+     "label": "Factor over each space, ruler of 10s",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "log₁₀ 1000",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Example power of ten, screen 2",
+     "value": 10000,
+     "kind": "assumed"
+    },
+    {
+     "label": "log₁₀ 10 000",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "√10, the factor for half a space",
+     "value": 3.162,
+     "kind": "computed"
+    },
+    {
+     "label": "10^2.5, the number half way from 100 to 1000",
+     "value": 316,
+     "kind": "computed"
+    },
+    {
+     "label": "Power half way through the third space",
+     "value": 2.5,
+     "kind": "computed"
+    },
+    {
+     "label": "log₁₀ 2",
+     "value": 0.301,
+     "kind": "computed"
+    },
+    {
+     "label": "log₁₀ 3",
+     "value": 0.477,
+     "kind": "computed"
+    },
+    {
+     "label": "log₁₀ 5",
+     "value": 0.699,
+     "kind": "computed"
+    },
+    {
+     "label": "Ten 2s multiplied, 2¹⁰",
+     "value": 1024,
+     "kind": "computed"
+    },
+    {
+     "label": "Example number between the marks",
+     "value": 45,
+     "kind": "assumed"
+    },
+    {
+     "label": "log₁₀ 45",
+     "value": 1.653,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 5 read as 4 of the 9 units from 1 to 10, screen 4",
+     "value": 0.444,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 5 read as half way, screen 4",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Biggest mark on the ruler of 2s",
+     "value": 32,
+     "kind": "computed"
+    },
+    {
+     "label": "log₂ 8",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "log₂ 32",
+     "value": 5,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "log₂ 8 + log₂ 8",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Example x, screen 6",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "log₂ 2 + log₂ 2 + log₂ 2",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "2 + 2 + 2",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "e",
+     "value": 2.71828,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "e rounded, on the ruler of e",
+     "value": 2.718,
+     "kind": "computed"
+    },
+    {
+     "label": "e², on the ruler of e",
+     "value": 7.389,
+     "kind": "computed"
+    },
+    {
+     "label": "e³, on the ruler of e",
+     "value": 20.09,
+     "kind": "computed"
+    },
+    {
+     "label": "ln 10",
+     "value": 2.303,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 10 ÷ 2.718, screen 8",
+     "value": 3.68,
+     "kind": "computed"
+    },
+    {
+     "label": "Smallest mark on the ruler of 10s",
+     "value": 0.001,
+     "kind": "computed"
+    },
+    {
+     "label": "log₁₀ 0.1",
+     "value": -1,
+     "kind": "computed"
+    },
+    {
+     "label": "log₁₀ 0.01",
+     "value": -2,
+     "kind": "computed"
+    },
+    {
+     "label": "log₁₀ 0.001",
+     "value": -3,
+     "kind": "computed"
+    },
+    {
+     "label": "Example negative number, screen 10",
+     "value": -100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Biggest number drawn on the ruler of 10s",
+     "value": 100000,
+     "kind": "computed"
+    },
+    {
+     "label": "ln 45, practice",
+     "value": 3.807,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy: example lowest range, in millivolts",
+     "value": 200,
+     "kind": "assumed"
+    },
+    {
+     "label": "Analogy: example ranges, in volts",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Analogy: clicks from 200 mV to 200 V",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Example point on y = eˣ, x = 2, screen 13",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slip: log₁₀ 7.389 in place of ln, screen 13",
+     "value": 0.869,
+     "kind": "computed"
+    },
+    {
+     "label": "Half way through a × 10 space, √10 rounded",
+     "value": 3.16,
+     "kind": "computed"
+    },
+    {
+     "label": "3 × 3, just under 10, screen 3",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "log₁₀ 5 as 1 − log₁₀ 2, screen 4",
+     "value": 0.699,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: −1000 for 10⁻³, screen 12",
+     "value": -1000,
+     "kind": "computed"
+    },
+    {
+     "label": "Unlabelled last mark on screen 5's ruler of 2s, as a power",
+     "value": 6,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A [[logarithm]] asks the powers question the other way round. In Powers and roots you worked out that three 10s multiplied make 1000, 10³ = 1000. The logarithm asks what power of 10 makes 1000, and the answer, 3, is written log₁₀ 1000 = 3. So a logarithm is a power: the one the base needs to make the number. The base 2 logarithm of 32 is 5, for instance, because 5 is the power you must put on 2 to get 32.[^1]\n\nPicture it as the power ruler. Mark 1, 10, 100 and 1000 at equal spaces, so each space multiplies by 10, and write the powers 0, 1, 2 and 3 underneath. The number on top is the base to the power below, so the power below is the number's log: a length along the ruler, and a number like any other, so log₁₀ 1000 + log₁₀ 1000 is simply 3 + 3 = 6. Between the marks the same rule holds. Half a space multiplies by the number that times itself makes 10, which is 10^½ = √10 ≈ 3.162, so 316 sits half way from 100 to 1000 and log₁₀ 316 ≈ 2.5. Equal lengths multiply by equal factors, so the numbers inside a space bunch up towards its right-hand end, and the ruler cannot be read as evenly spaced: 5 is not half way through a space, because half way is about 3.16. Ten 2s multiplied make 1024, just over 10³, so one factor of 2 is about three tenths of a × 10 space: textbooks give log₁₀ 2 = 0.301, with log₁₀ 3 = 0.477 and log₁₀ 5 = 0.699. Any other positive number has its place too, such as log₁₀ 45 = 1.653, between 1 and 2 because 45 is between 10 and 100.\n\nAny positive base other than 1 makes its own ruler. On a ruler of 2s each space multiplies by 2, so 1, 2, 4, 8, 16 and 32 sit at 0 to 5 and log₂ 8 = 3. The number e, the fixed constant about 2.71828 from the last two lessons,[^2] makes a ruler marked 1, 2.718, 7.389 and 20.09, and its log is the [[natural logarithm]],[^3] written ln. ln 10 ≈ 2.303 while log₁₀ 10 = 1, so ln and log give different answers for every number except 1, where both are 0: any base to the power 0 is 1, as in Powers and roots, so 1 sits at power 0 on every ruler. On a calculator, and in this course, the log key means base 10 and the ln key base e; any other base is written, as in log₂. Textbooks add that the base must be positive and not 1: 1 to any power is still 1, so a ruler of 1s never moves, and a negative base has no ordinary value at most powers, such as (−2)^½.\n\nGo left of 1 and the powers go negative: 0.1 is 10⁻¹, one over 10, so log 0.1 = −1, and 0.01 sits at −2. Each space left divides by 10 again, so the numbers shrink towards 0 but never reach it, because a positive base to any power is positive. That is why 0 and negative numbers have no logarithm among ordinary numbers, and a calculator gives an error. Turning the question round swaps the input and the output, so the point (1, 2.718) on the graph of y = eˣ becomes (2.718, 1) on the graph of y = ln x, and the whole graph of y = ln x is y = eˣ folded over the line y = x, as you undid machines in Functions and their graphs. So ln undoes eˣ: ln(e²) asks what power of e makes e², and the answer is 2. **A logarithm is the power a base needs to make a number,[^1] so log 1000 = 3 because 10³ = 1000, and ln asks the same question with base e.[^3]**"
+  },
+  "analogy": {
+   "text": "Say a meter's range knob clicks through 200 mV, 2 V, 20 V and 200 V, each range ten times the one before. The number of clicks between two ranges is the log of how many times bigger one is than the other: 200 V is 1000 times 200 mV, and it is 3 clicks away, as log 1000 = 3.",
+   "breaks": "The knob only clicks in whole steps, while a log has values between them, such as log 45 = 1.653. And the knob stops at ranges its maker chose, while the power ruler goes on in both directions, its left end shrinking towards 0 without reaching it."
+  },
+  "practice": {
+   "text": "- Read log N as 'what power of 10 makes N?' and ln N as 'what power of e makes N?'.\n- Size it up first: find the powers of the base either side. 45 is between 10 and 100, so log 45 is between 1 and 2.\n- Use the log key for base 10 and the ln key for base e. For any other base, write the base, as in log₂ 8.\n- Check by turning it round: log 45 = 1.653 means 10^1.653 ≈ 45.\n- With a base above 1, such as 10, e or 2, a number between 0 and 1 has a negative log. 0 and negative numbers have no log among ordinary numbers.\n\n**Rule of thumb:** For a whole number of 1 or more, log runs from one less than its number of digits up to, but not including, its number of digits: 45 has 2 digits, so its log is at least 1 and under 2, and 1000 has 4, so its log, 3, is at least 3 and under 4. Inside a × 10 space, 2 sits about 0.3 of the way along, 3 about 0.48 and 5 about 0.7.\n\n**Worked example:** Say you need log 45. It has 2 digits, so the answer is between 1 and 2. The log key gives 1.653. Turn it round to check: 10^1.653 ≈ 45. The ln key gives ln 45 ≈ 3.807, bigger, because each step of e multiplies by less than a step of 10, so more steps are needed.\n\n**Common mistakes**\n- Writing the forms the wrong way round: 10⁴ = 10 000 is log 10 000 = 4, not log 4 = 10 000.\n- Reading the ruler as evenly spaced: 5 sits 0.699 of the way through a × 10 space, not half way. Half way is about 3.16.\n- Cancelling log as if it were a number: log₂ 2 + log₂ 2 + log₂ 2 is 3, while 2 + 2 + 2 is 6.\n- Taking ln for log: ln 10 ≈ 2.303, while log 10 = 1.\n- Looking for the log of 0 or of a negative number: no power of a positive base makes one among ordinary numbers. A small positive number does have a log: log 0.001 = −3."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "6.3 Logarithmic Functions - Algebra and Trigonometry 2e | OpenStax",
+    "url": "https://openstax.org/books/algebra-and-trigonometry-2e/pages/6-3-logarithmic-functions",
+    "quote": "For example, the base 2 logarithm of 32 is 5, because 5 is the exponent we must apply to 2 to get 32."
+   },
+   {
+    "n": 2,
+    "title": "Euler Number (e) — Definition, Formula & Examples",
+    "url": "https://www.mathwords.com/e/euler_number.htm",
+    "quote": "e is a fixed constant like π . It always equals approximately 2.71828 and cannot be assigned a different value."
+   },
+   {
+    "n": 3,
+    "title": "10.3 Evaluate and Graph Logarithmic Functions - Intermediate Algebra 2e | OpenStax",
+    "url": "https://openstax.org/books/intermediate-algebra-2e/pages/10-3-evaluate-and-graph-logarithmic-functions",
+    "quote": "The logarithmic function with base e is called the natural logarithmic function ."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: concept -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .pz sup, .caption sup { font-size: .72em; line-height: 0; }\n  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }\n  .scene text { font-family: var(--k-font); }\n  /* The ruler: a sunk band edged in ink, big marks right across it, small marks short. */\n  .scene .band { fill: var(--k-sunk); }\n  .scene .edge, .scene .tickb { stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .ticks { stroke: var(--k-ink); stroke-width: 1.2; }\n  .scene .hl { fill: var(--k-fill1); }\n  .scene .nl, .scene .pl, .scene .pt { font-size: 13px; font-weight: 600; fill: var(--k-ink); }\n  .scene .nl.ask, .scene .pl.ask { fill: var(--k-accent2); font-weight: 700; }\n  .scene .pill { fill: var(--k-fill1); }\n  .scene .an { font-size: 13px; fill: var(--k-muted); }\n  .scene .q { font-size: 17px; font-weight: 700; fill: var(--k-accent2); }\n  .scene .rv { font-size: 13px; font-weight: 700; fill: var(--k-accent2); }\n  /* The pointer: a navy line across the band, the number it reads above, the power below. */\n  .scene .ptr { stroke: var(--k-accent2); stroke-width: 2.5; }\n  .scene .tag { fill: var(--k-accent2); }\n  .scene .tagt { font-size: 13px; font-weight: 700; fill: var(--k-on-accent2); }\n  .scene .askl { stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .part { stroke: var(--k-accent2); stroke-width: 1.5; fill: none; }\n  .scene .partt { font-size: 13px; font-weight: 700; fill: var(--k-accent2); }\n  /* Lengths along the ruler in navy; a slip in the warning colour. */\n  .scene .br { stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .brt { font-size: 13px; font-weight: 700; fill: var(--k-accent2); }\n  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }\n  .scene .slipt { font-size: 13px; font-weight: 700; fill: var(--k-warn); }\n  .scene .echo { stroke: var(--k-accent2); stroke-width: 2.5; }\n  /* The graph: y = eˣ in navy, y = ln x in teal, y = x dashed and muted. */\n  .scene .axis { stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .tk { font-size: 13px; fill: var(--k-muted); }\n  .scene .c-exp { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .c-ln { fill: none; stroke: var(--k-accent); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .c-yx { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 7 5; }\n  .scene .d-exp { fill: var(--k-accent2); }\n  .scene .d-ln { fill: var(--k-accent); }\n  .scene .gring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }\n  .scene .gl { font-size: 13px; font-weight: 600; fill: var(--k-ink); }\n  .scene .gl.slip { fill: var(--k-warn); font-weight: 700; }\n  .scene .h { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }\n  .scene #art * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: pan-y; }\n  .scene .grip:active { cursor: grabbing; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  /* The same fact in its two forms, under the picture. */\n  .forms { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 22px; font-size: 1.1rem; font-weight: 700; line-height: 1.5; min-height: 1.65em; margin-top: 8px; text-align: center; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stay on one row, each label whole; longer ones stack one to a row. */\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\" id=\"lead\">A ruler with numbers along its top edge, their powers along its bottom edge, and a pointer that reads both.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"ptrk\" hidden></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div id=\"basek\"></div>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 130\" width=\"100%\" role=\"img\" aria-label=\"\"><defs><clipPath id=\"rulerwin\"><rect x=\"14\" y=\"0\" width=\"312\" height=\"400\"></rect></clipPath></defs><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <p class=\"forms\" id=\"forms\" aria-live=\"polite\"></p>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\"></p>\n\n<script>\n  // ---------- the rule ----------\n  // On the ruler of base b the number above the power p is b^p, so the power below a number is\n  // that number's logarithm in base b. The pointer's power is the lesson's control; the number is\n  // worked out from it. A space is one power, so one space right multiplies by b.\n  const R10 = 'Ruler of 10s', R2 = 'Ruler of 2s', RE = 'Ruler of e';\n  const OPT = [R10, R2, RE];\n  const BASE = { 'Ruler of 10s': 10, 'Ruler of 2s': 2, 'Ruler of e': Math.E };\n  const SYM = { 'Ruler of 10s': '10', 'Ruler of 2s': '2', 'Ruler of e': 'e' };\n  const LOGW = { 'Ruler of 10s': 'log₁₀', 'Ruler of 2s': 'log₂', 'Ruler of e': 'ln' };\n  const numAt = (name, p) => Math.pow(BASE[name] || 10, p);\n  const PMIN = -3, PMAX = 5;\n  const keep12 = (v) => +v.toPrecision(12);\n  const L2 = keep12(Math.log10(2)), L3 = keep12(Math.log10(3)), L5 = keep12(Math.log10(5)), L4 = Math.log10(4);\n  const L45 = keep12(Math.log10(45)), LN10 = keep12(Math.log(10)), E2 = Math.exp(2);\n  const SMALL = [[2, L2], [3, L3], [5, L5]];\n  // Sources the checks restate (the lesson's own).\n  const SRC1 = 'https://openstax.org/books/algebra-and-trigonometry-2e/pages/6-3-logarithmic-functions';\n  const SRC2 = 'https://www.mathwords.com/e/euler_number.htm';\n  const SRC3 = 'https://openstax.org/books/intermediate-algebra-2e/pages/10-3-evaluate-and-graph-logarithmic-functions';\n\n  // ---------- numbers ----------\n  // fx: exactly dp decimals (a true minus sign; 10 000 and up grouped with a space, as the lesson\n  // writes them); fv: at most dp, trailing zeros dropped. A number on the ruler has four significant\n  // figures, however small (2.718, 20.09, 316.2, 0.001259); a power has three decimals.\n  const NB = ' ';\n  function fx(v, dp) {\n    const f = Math.pow(10, dp);\n    let r = Math.round(v * f) / f;\n    if (r === 0) r = 0;\n    const p = Math.abs(r).toFixed(dp).split('.');\n    if (p[0].length > 4) p[0] = p[0].replace(/\\B(?=(\\d{3})+(?!\\d))/g, NB);\n    return (r < 0 ? '−' : '') + p.join('.');\n  }\n  function fv(v, dp) {\n    const s = fx(v, dp);\n    return dp > 0 ? s.replace(/(\\.\\d*?)0+$/, '$1').replace(/\\.$/, '') : s;\n  }\n  function dpOf(v) { const a = Math.abs(v); if (!(a > 0)) return 0; return K.clamp(3 - Math.floor(Math.log10(a) + 1e-9), 0, 6); }\n  const fn4 = (v) => fv(v, dpOf(v));\n  const fp = (p) => fv(p, 3);\n  const plain = (s) => Number(String(s).replace(/−/g, '-').replace(/ /g, ''));\n  const exact = (v, s) => Math.abs(v - plain(s)) <= 1e-9 * Math.max(1, Math.abs(v));\n  // The pointer's fact in its two forms: 10^3 = 1000 and log₁₀ 1000 = 3 (≈ when either is rounded).\n  function formsOf(name, p) {\n    const N = fn4(numAt(name, p)), P = fp(p), eq = exact(numAt(name, p), N) && exact(p, P) ? ' = ' : ' ≈ ';\n    return [SYM[name] + '^' + P + eq + N, LOGW[name] + ' ' + N + eq + P];\n  }\n  const sits = (n, p, dp) => fn4(n) + ' sits at ' + (dp != null ? fv(p, dp) : fp(p));\n  // a point on the graph keeps at most three decimals, as its powers do: (2, 0.693)\n  const f3 = (v) => fv(v, Math.min(3, dpOf(v)));\n  const pair = (x, y) => '(' + f3(x) + ', ' + f3(y) + ')';\n\n  // A drag lands exactly on a big mark when it comes within 0.05 of one, and on a named number\n  // (2, 3, 5, 45 or half way on the ruler of 10s; 10 on the ruler of e) within 0.025.\n  function snapPtr(p, name) {\n    p = K.clamp(p, PMIN, PMAX);\n    const r = Math.round(p);\n    if (Math.abs(p - r) < 0.05) return r;\n    const named = name === R10 ? [L2, L3, L5, L45, 2.5] : name === RE ? [LN10] : [];\n    const hit = named.find((s) => Math.abs(p - s) < 0.025);\n    return hit != null ? hit : Math.round(p * 1000) / 1000;\n  }\n\n  // As a screen reader says it.\n  const say = (s) => String(s == null ? '' : s)\n    .replace(/log₁₀/g, 'log base 10').replace(/log₂/g, 'log base 2').replace(/log₄/g, 'log base 4')\n    .replace(/\\^([0-9.−]+)/g, ' to the power $1').replace(/¹⁰/g, ' to the power 10').replace(/⁻³/g, ' to the power minus 3').replace(/⁻¹/g, ' to the power minus 1')\n    .replace(/²/g, ' squared').replace(/³/g, ' cubed').replace(/⁴/g, ' to the power 4').replace(/ˣ/g, ' to the x')\n    .replace(/≈/g, ' is about ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/−/g, 'minus ')\n    .replace(/=/g, ' equals ').replace(/\\s+/g, ' ').trim();\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // R: the ruler (its base; u, units per space; the window's travel: it pans from lo to hi as the\n  // pointer moves, or stays at lo when fixed; small, the small marks 2, 3 and 5; inset, the first\n  // space magnified; open, the label at the open left end; pills: false hides the × marks; hidePow,\n  // powers shown as ?; ptr, a pointer drawn still; ask, the number asked about; askNum, its mark).\n  // SHOW: p0, where the pointer ends its demonstration; glide, the pointer's journey [to, when,\n  // how long]; morph, the ruler it changes from; sw, the switch shown; and when parts arrive.\n  // DO: items, what it draws (when: 'right' after a right answer, or the wrong answer whose slip it\n  // draws; at, when it arrives); opts, the answers; vals, each answer by its own working; ans, the\n  // words that would give the answer away; forms, the two forms under the picture.\n  const T4 = fn4(1e4);\n  const O2 = ['log₁₀ 4 = ' + T4, 'log₁₀ ' + T4 + ' = 4', 'log₄ ' + T4 + ' = 10'];\n  const O6 = ['Yes: 6 and 6', 'No: 3 and 6', 'No: 8 and 6'];\n  const O13 = ['(2, 0.693)', '(7.389, 2)', '(7.389, 0.869)'];\n  const O12 = [fn4(1e3), fn4(-1e3), fn4(1e-3)];\n  const STEPS = [\n    { show: true, name: 'Powers of ten', H: 130, R: { base: R10, u: 68, lo: -3.9, hi: 5.5 }, p0: 3, dur: 3.0,\n      glide: { from: 0, stops: [[1, 0.6, 0.55], [2, 1.4, 0.55], [3, 2.2, 0.55]] },\n      text: 'This is the *power ruler*. Its big marks on top are 1, 10, 100 and 1000, each ten times the one before, at equal spaces, with their powers of 10 underneath. One space right multiplies the number by 10 and adds 1 to the power. So `10³ = 1000`, and asked the other way round, the power 10 needs to make 1000 is 3. That power is the *logarithm*, `log₁₀ 1000 = 3`, the 3 in kilo\\'s 10³. Drag the pointer.' },\n    { kind: 'pick', name: 'Which log?', H: 156, R: { base: R10, u: 60, lo: -0.5, fixed: true, ptr: 4 },\n      items: [\n        { k: 'bracket', p0: 0, p1: 4, row: 'r1', text: O2[1], when: 'right', at: 0.2 },\n        { k: 'ring', p: L4, text: sits(4, L4), when: O2[0], at: 0.3 },\n        { k: 'note', p: 2, row: 'r1', text: '4¹⁰ is ' + fn4(Math.pow(4, 10)) + ', not ' + T4, when: O2[2], at: 0.3 },\n      ],\n      opts: O2, want: O2[1], ans: O2[1],\n      vals: { [O2[0]]: 'log₁₀ ' + fn4(4) + ' = ' + fn4(Math.pow(10, 4)), [O2[1]]: 'log₁₀ ' + fn4(1e4) + ' = ' + fp(Math.log10(1e4)), [O2[2]]: 'log₄ ' + fn4(1e4) + ' = ' + fn4(10) },\n      forms: { before: ['10^4 = ' + T4], right: ['10^4 = ' + T4, O2[1]] },\n      task: '`10⁴ = ' + T4 + '`. Which says the same thing as a logarithm?',\n      why: 'A logarithm is the power the base needs to make the number. The base is 10, the number ' + T4 + ' and the power 4, so `' + O2[1] + '`. The number goes inside the log, and the power comes out.',\n      hint: 'Not quite. The number goes inside the log, and the power comes out.',\n      hints: { [O2[0]]: 'Not quite. That asks what power of 10 makes 4. The number, ' + T4 + ', goes inside the log, and the power, 4, comes out.',\n        [O2[2]]: 'Not quite. That makes 4 the base. Here the base is 10, raised to the power 4.' } },\n    { show: true, name: 'Between the marks', H: 218, R: { base: R10, u: 68, lo: -3.9, hi: 5.5, small: true, inset: true }, p0: L45, dur: 3.9,\n      glide: { from: 2, stops: [[2.5, 0.4, 0.7], [L45, 2.9, 0.8]] }, insetAt: 1.3, smallAt: [1.8, 2.1, 2.4],\n      text: 'Between the marks the same rule holds. Half a space multiplies by `√10 ≈ 3.162`, the number that times itself makes 10, so 316 sits half way from 100 to 1000, at 2.5. Equal lengths multiply by equal factors, so the numbers bunch up towards the right of each space. The magnified space shows 2, 3 and 5 at 0.301, 0.477 and 0.699: `3 × 3 = 9` is just under 10, so 3 sits just under half way. The pointer stops at 45, at 1.653.' },\n    { kind: 'pick', name: 'Where 5 sits', H: 238, R: { base: R10, u: 68, lo: -0.6, fixed: true, small: true, inset: true, hideInset: 5 },\n      items: [\n        { k: 'insetrv', f: L5, text: fp(L5), when: 'right', at: 0.2 },\n        { k: 'insetring', f: 0.5, text: sits(Math.sqrt(10), 0.5), when: '0.5', at: 0.3 },\n        { k: 'insetring', f: 4 / 9, text: sits(Math.pow(10, 4 / 9), 4 / 9), when: '0.444', at: 0.3 },\n      ],\n      opts: ['0.5', '0.699', '0.444'], want: '0.699', ans: '0.699',\n      vals: { '0.5': fp(0.5), '0.699': fp(L5), '0.444': fp(4 / 9) },\n      forms: { before: [], right: ['10^0.699 ≈ 5', 'log₁₀ 5 ≈ 0.699'] },\n      task: 'On the ruler of 10s, where does 5 sit between 1 and 10? Give its power.',\n      why: 'Equal lengths multiply by equal factors, so half way is only `√10 ≈ 3.162` and 5 sits further on. Ten 2s multiplied make 1024, just over 10³, so one × 2 step is about 0.3 of a space, and 2 sits at 0.301. 5 is 10 ÷ 2, one × 2 step back from 10, so it sits at `1 − 0.301 = 0.699`. Check by turning it round: `10^0.699 ≈ 5`.',\n      hint: 'Not quite. Equal lengths multiply, so the space is not evenly spaced.',\n      hints: { '0.5': 'Not quite. Half way through a space multiplies by `√10 ≈ 3.162`, not 5.',\n        '0.444': 'Not quite. That reads the space as evenly spaced, with 5 four of the nine steps from 1 to 10. Equal lengths multiply, so 5 sits further right.' } },\n    { show: true, name: 'The ruler of 2s', H: 180, R: { base: R2, u: 44, lo: -3.8, hi: 6.4 }, p0: 5, dur: 3.9, sw: true,\n      morph: { from: R10, at: 0.4, dur: 0.7 }, glide: { from: 0, stops: [[3, 1.1, 0.6], [5, 1.9, 0.6]] }, brk: true,\n      text: 'Any positive base other than 1 makes its own ruler. On the ruler of 2s each space multiplies by 2, so 1, 2, 4, 8, 16 and 32 sit at 0 to 5: `log₂ 8 = 3` and `log₂ 32 = 5`. A log is a length along the ruler, and a number like any other, so two of them simply add: `log₂ 8 + log₂ 8 = 3 + 3 = 6`. Flip the switch to compare rulers.' },\n    { kind: 'pick', name: 'A log is a number', H: 180, R: { base: R2, u: 50, lo: -0.6, fixed: true },\n      items: [\n        { k: 'bracket', p0: 0, p1: 1, row: 'r1', text: 'log₂ 2' },\n        { k: 'slide', p0: 0, p1: 1, by: 1, row: 'r1', text: 'log₂ 2', when: 'right', at: 0.1, dur: 0.7 },\n        { k: 'slide', p0: 0, p1: 1, by: 2, row: 'r1', text: 'log₂ 2', when: 'right', at: 0.5, dur: 0.7 },\n        { k: 'bracket', p0: 0, p1: 3, row: 'r2', text: '1 + 1 + 1 = 3', when: 'right', at: 1.3 },\n        { k: 'note', p: 1.5, row: 'r2', text: 'log₂ 2 is 1, not 2', when: O6[0], at: 0.3 },\n        { k: 'ring', p: 3, row: 'r2', text: sits(8, 3), when: O6[2], at: 0.3 },\n      ],\n      opts: O6, want: O6[1], ans: '1 + 1 + 1 = 3',\n      vals: { [O6[0]]: 'Yes: ' + (2 + 2 + 2) + ' and ' + (2 + 2 + 2), [O6[1]]: 'No: ' + fp(3 * Math.log2(2)) + ' and ' + (2 + 2 + 2), [O6[2]]: 'No: ' + (2 * 2 * 2) + ' and ' + (2 + 2 + 2) },\n      forms: { before: [], right: ['log₂ 2 + log₂ 2 + log₂ 2 = 3', '2 + 2 + 2 = 6'] },\n      task: 'Say x = 2. Is `log₂ x + log₂ x + log₂ x` the same as `x + x + x`?',\n      why: 'A log is a length along the ruler, and a number like any other. `log₂ 2 = 1`, so three of them make `1 + 1 + 1 = 3`, while `2 + 2 + 2 = 6`. The log cannot be dropped as if it were not there.',\n      hint: 'Not quite. A log is a length: log₂ 2 is one space.',\n      hints: { [O6[0]]: 'Not quite. That treats log₂ 2 as 2. It is 1, the power 2 needs to make 2, so the logs make 3.',\n        [O6[2]]: 'Not quite. 8 is three 2s multiplied, the number at power 3. The logs are lengths, and 1 + 1 + 1 = 3.' } },\n    { show: true, name: 'The ruler of e', H: 130, R: { base: RE, u: 60, lo: -3.9, hi: 5.6 }, p0: 3, dur: 3.2, sw: true,\n      morph: { from: R2, at: 0.4, dur: 0.7 }, glide: { from: 0, stops: [[1, 1.2, 0.5], [2, 1.9, 0.5], [3, 2.6, 0.5]] },\n      text: 'The number e, about 2.71828, makes a ruler too. Each space multiplies by e, so its marks are 1, 2.718, 7.389 and 20.09. Its log is the *natural logarithm*, written ln, so `ln 7.389 ≈ 2`. On a calculator, and in this course, the log key means base 10 and the ln key base e. Any other base is written, as in log₂ 8. Flip the switch: the same power sits under a different number on each ruler.' },\n    { kind: 'pick', name: 'Natural log of 10', H: 150, R: { base: RE, u: 84, lo: 0.7, fixed: true, pills: false, ask: { p: LN10, text: '10' } },\n      items: [\n        { k: 'askrv', text: fp(LN10), when: 'right', at: 0.2 },\n        { k: 'ring', p: 1, text: sits(Math.E, 1), when: '1', at: 0.3 },\n        { k: 'ring', p: 10 / Math.E, text: sits(Math.exp(10 / Math.E), 10 / Math.E, 2), when: '3.68', at: 0.3 },\n      ],\n      opts: ['1', '3.68', '2.303'], want: '2.303', ans: '2.303',\n      vals: { '1': fp(Math.log10(10)), '3.68': fv(10 / Math.E, 2), '2.303': fp(Math.log(10)) },\n      forms: { before: [], right: ['e^2.303 ≈ 10', 'ln 10 ≈ 2.303'] },\n      task: 'On the ruler of e, 10 sits between 7.389 and 20.09. What is ln 10?',\n      why: 'ln 10 asks what power of e makes 10. 10 is between `e² ≈ 7.389` and `e³ ≈ 20.09`, so the answer is between 2 and 3, and the ln key gives 2.303. On the ruler of 10s, 10 sits at 1. ln and log give different answers for every number except 1, which sits at power 0 on every ruler, because any base to the power 0 is 1, as in Powers and roots.',\n      hint: 'Not quite. Find the powers of e either side of 10.',\n      hints: { '1': 'Not quite. 1 is log₁₀ 10, on the ruler of 10s. On the ruler of e, 1 is where 2.718 sits.',\n        '3.68': 'Not quite. That is 10 ÷ 2.718. A log asks for a power: 10 sits between e² and e³.' } },\n    { show: true, name: 'Left of 1', H: 164, R: { base: R10, u: 68, lo: -3.9, hi: 5.5, open: true }, p0: -3, dur: 3.3, sw: true,\n      glide: { from: 0, stops: [[-1, 0.5, 0.55], [-2, 1.25, 0.55], [-3, 2.0, 0.55]] }, openAt: 2.6,\n      text: 'Go left of 1 and the powers go negative. 0.1 is 10⁻¹, one over 10, so `log 0.1 = −1`, and 0.01 sits at −2 and 0.001 at −3. Each space left divides by 10 again, so the numbers shrink towards 0 but never reach it, because a positive base to any power is positive. So 0 and the negative numbers have no mark, and no logarithm among ordinary numbers.' },\n    { kind: 'pick', name: 'A negative number', H: 164, R: { base: R10, u: 48, lo: -3.9, fixed: true },\n      items: [\n        { k: 'open', when: 'right', at: 0.2 },\n        { k: 'ring', p: -2, text: sits(0.01, -2), when: '−2', at: 0.3 },\n        { k: 'ring', p: 2, text: sits(100, 2), when: '2', at: 0.3 },\n      ],\n      opts: ['−2', 'There is none', '2'], want: 'There is none', ans: 'no power',\n      vals: { '−2': fp(-Math.log10(100)), 'There is none': 'There is none', '2': fp(Math.log10(100)) },\n      forms: { before: [], right: [] },\n      task: 'What is `log₁₀(−100)`?',\n      why: 'A logarithm asks what power of 10 makes the number. Going left, the numbers shrink towards 0 but never reach it: every power of 10 is positive. So no power of 10 makes −100, and a calculator gives an error. A small positive number does have a log: `log 0.01 = −2`.',\n      hint: 'Not quite. Every power of 10 is positive.',\n      hints: { '−2': 'Not quite. −2 is the log of 0.01, a small positive number. No power of 10 is negative.',\n        '2': 'Not quite. 2 is the log of 100. No power of 10 makes −100.' } },\n    { show: true, graph: true, name: 'The fold', H: 312, dur: 4.0,\n      text: 'Asking the question the other way round swaps the input and the output. The graph of `y = eˣ` passes through `(0, 1)`, `(1, 2.718)` and `(2, 7.389)`. Fold it over the dashed line `y = x` and each point swaps its two numbers, so `(1, 2.718)` lands on `(2.718, 1)`. The folded curve is `y = ln x`, just as you undid machines in Functions and their graphs. So ln undoes eˣ: `ln(e²) = 2`.' },\n    { kind: 'pick', name: 'A small number', H: 150, R: { base: R10, u: 41.7, lo: -3.75, fixed: true, hideNum: [-3], askPow: -3 },\n      items: [\n        { k: 'numrv', p: -3, text: O12[2], when: 'right', at: 0.2 },\n        { k: 'ring', p: 3, text: sits(1000, 3), when: O12[0], at: 0.3 },\n        { k: 'note', p: 0, row: 'r1', text: '10⁻³ is 1 ÷ 1000, not ' + O12[1], when: O12[1], at: 0.3 },\n      ],\n      opts: O12, want: O12[2], ans: O12[2],\n      vals: { [O12[0]]: fn4(Math.pow(10, 3)), [O12[1]]: fn4(-Math.pow(10, 3)), [O12[2]]: fn4(Math.pow(10, -3)) },\n      forms: { before: [], right: ['log₁₀ 0.001 = −3', '10^−3 = 0.001'] },\n      task: '`log₁₀ x = −3`. What is x?',\n      why: '`log₁₀ x = −3` says that x is 10 to the power −3. Each space left of 1 divides by 10, so three spaces left of 1 are 0.1, 0.01 and 0.001. In power form, `10⁻³ = 1 ÷ 1000 = 0.001`.',\n      hint: 'Not quite. Count three spaces left of 1.',\n      hints: { [O12[0]]: 'Not quite. 1000 is `10³`. The power here is −3, three spaces left of 1.',\n        [O12[1]]: 'Not quite. A negative power divides: `10⁻³` is 1 ÷ 1000. No power of 10 is negative.' } },\n    { kind: 'pick', graph: true, name: 'Fold a point', H: 312,\n      items: [\n        { k: 'gfold', when: 'right', at: 0.1, dur: 0.9 },\n        { k: 'gslip', x: 2, y: Math.log(2), text: O13[0], when: O13[0], at: 0.3 },\n        { k: 'gslip', x: E2, y: Math.log10(E2), text: O13[2], when: O13[2], at: 0.3 },\n      ],\n      opts: O13, want: O13[1], ans: O13[1],\n      vals: { [O13[0]]: pair(2, Math.log(2)), [O13[1]]: pair(E2, Math.log(E2)), [O13[2]]: pair(E2, Math.log10(E2)) },\n      forms: { before: [], right: ['ln 7.389 ≈ 2', 'e^2 ≈ 7.389'] },\n      task: '`y = eˣ` passes through `(2, 7.389)`. Which point does the fold over `y = x` put on `y = ln x`?',\n      why: 'The fold swaps the two numbers of every point, so `(2, 7.389)` lands on `(7.389, 2)`. It says `ln 7.389 ≈ 2`: the power e needs to make 7.389 is 2, since `e² ≈ 7.389`.',\n      hint: 'Not quite. The fold swaps the two numbers of each point.',\n      hints: { [O13[0]]: 'Not quite. That is the point of y = ln x above 2. The fold swaps the two numbers of `(2, 7.389)`.',\n        [O13[2]]: 'Not quite. 0.869 is log₁₀ 7.389, from the ruler of 10s. The fold undoes eˣ, so it gives ln 7.389 ≈ 2.' } },\n  ];\n  const FINISH = 'A logarithm is the power a base needs to make a number: `log 1000 = 3` because `10³ = 1000`, and ln asks the same question with base e. On the power ruler it is a length, and 0 and the negative numbers have none.';\n  const CAPTION = 'Each number on top is the base raised to the power beneath it, worked out by the rule and rounded.';\n  const FADE = 0.35;\n  const FB = [2.2, 1.2];   // how long the motion after a right and a wrong answer plays\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- geometry ----------\n  // The pointer travels X0..X1; the ruler is seen through the window WL..WR. Rows, top to bottom:\n  // the stretch from the last big mark to the pointer, the × marks, the numbers, the band, the\n  // powers, then lengths (r1, r2) or the magnified first space.\n  const X0 = 20, X1 = 320, WL = 14, WR = 326;\n  const Y = { part: 16, partLine: 24, pill: 32, num: 68, top: 74, bot: 102, mid: 88, pow: 120 };\n  const ROWY = { r1: 146, r2: 170 };\n  const IX0 = 30, IX1 = 310, IY = 132;\n  const ix = (f) => IX0 + f * (IX1 - IX0);\n  // The window pans with the pointer, from lo at the far left to hi at the far right, at a steady\n  // share of its travel, so the pointer stays in view and under the finger.\n  function panK(R) { const W = (X1 - X0) / R.u, span = R.hi - W - R.lo; return R.fixed || !(span > 0) ? 0 : span / (PMAX - PMIN); }\n  function viewOf(R, pos) { const k = panK(R); return { u: R.u, v0: R.lo + k * ((pos == null ? 0 : pos) - PMIN), k }; }\n  const xAt = (V, p) => X0 + (p - V.v0) * V.u;\n  function posFromX(R, x) { const k = panK(R); return ((x - X0) / R.u + R.lo - k * PMIN) / (1 - k); }\n  // The graph: x and y from −2 to 8 at the same scale, so the fold over y = x is a true mirror.\n  const GX = (x) => 46 + (x + 2) * 26, GY = (y) => 24 + (8 - y) * 26;\n  const EXP = K.linspace(-2, Math.log(8), 90).map((x) => [x, Math.exp(x)]);\n  const LN = EXP.map((q) => [q[1], q[0]]);\n  const PTS = [[0, 1], [1, Math.E], [2, E2]];\n  // Folding over y = x: a point turns about the line, so the part of it across the line shrinks to\n  // nothing half way and comes out mirrored, (x, y) to (y, x).\n  function foldPt(x, y, m) { const c = (x + y) / 2, d = (x - y) / 2, f = Math.cos(Math.PI * m); return [c + d * f, c - d * f]; }\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // live: Dan has moved the pointer or the switch, so the demonstration is over; trans: a switch of ruler.\n  function blank() { return { pick: null, res: null, why: false, live: false, trans: null }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity;\n  let lastPtr = null, lastBase = null, motionEnd = 0, held = null;\n  let REC = null;   // what the last paint drew, for the checks\n\n  // ---------- text with amber key terms, italic letters and raised powers (K.el, never innerHTML) ----------\n  const ITAL = /((?<![A-Za-z])[xy](?![A-Za-z])|ˣ)/;\n  function italics(parent, s, inSvg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));\n    });\n  }\n  const POW = /\\^(\\([^)]*\\)|[0-9.−]+)/;\n  function maths(parent, s) {\n    let rest = String(s), m;\n    while ((m = POW.exec(rest))) {\n      if (m.index) italics(parent, rest.slice(0, m.index), false);\n      const pw = m[1].charAt(0) === '(' ? m[1].slice(1, -1) : m[1];\n      italics(parent.appendChild(K.el('sup')), pw, false);\n      rest = rest.slice(m.index + m[0].length);\n    }\n    if (rest) italics(parent, rest, false);\n  }\n  // `maths` stays on one line; *a key term* is highlighted.\n  function write(el, s) {\n    el.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { maths(el.appendChild(K.el('span', { class: 'nw' })), seg); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at0 = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at0) el.appendChild(document.createTextNode(seg.slice(at0, m.index)));\n        el.appendChild(K.el('span', { class: 'mark' }, m[1]));\n        at0 = m.index + m[0].length;\n      }\n      if (at0 < seg.length) el.appendChild(document.createTextNode(seg.slice(at0)));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  // The lesson's pointer; Dan moves it by dragging along the ruler, which keeps it in step.\n  const ptrCtl = K.control({ id: 'pointer', label: 'Pointer, as a power', min: PMIN, max: PMAX, step: 0.001, value: 3, unit: '', snap: [L45, L2, L3, L5, LN10], into: '#ptrk' });\n  const baseCtl = K.choice({ id: 'base', label: 'Which ruler', options: OPT, value: 0, into: '#basek' });\n  const nav = document.getElementById('nav');\n  const at = () => stepper.get();\n  const cur = () => ({ pointer: ptrCtl.get(), base: baseCtl.get() });\n  const openP = (i) => ({ pointer: STEPS[i].p0 != null ? STEPS[i].p0 : 3, base: STEPS[i].R ? STEPS[i].R.base : R10 });\n  function remember() { lastPtr = ptrCtl.get(); lastBase = baseCtl.get(); }\n  // A screen opens on its own settings: the pointer where its demonstration ends, its own ruler.\n  function openStep(i) {\n    const P = openP(i), st = S[i];\n    st.live = false; st.trans = null;\n    ptrCtl.set(P.pointer, true); baseCtl.set(P.base, true);\n  }\n\n  // Up to three answer buttons; each step fills in its own. A new choice after a wrong answer\n  // settles the picture back to the question.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  // Check: marks the answer; a right one runs the picture on, a wrong one shows its slip.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(st.res === 'right' ? FB[0] : FB[1]);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i];\n    if (!d.show || finished) return;\n    openStep(i); remember();\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer or a switch; with reduced\n  // motion (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = document.getElementById(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing helpers ----------\n  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');\n  let into = null;\n  const add = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function arr(t0, d) {\n    d = d == null ? K.SOFT : d;\n    if (t0 + d > latest) latest = t0 + d;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(T, t0, d);\n  }\n  // A demonstration's part: there at once once Dan has taken over.\n  const A = (st, t0, d) => (st.live ? 1 : arr(t0, d));\n  function part(a, rise, draw) {\n    if (!(a > 0)) return null;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g; draw(); into = keep;\n    return g;\n  }\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));\n  const dot = (cls, x, y, r) => add(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r: r || 4.5 }));\n  const path = (cls, pts) => add(K.svg('path', { class: cls, d: 'M' + pts.map((q) => r3(q[0]) + ' ' + r3(q[1])).join(' L') }));\n  function text(x, y, s, cls, anchor, ital) {\n    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    if (ital) italics(t, s, true); else t.textContent = String(s);\n    return add(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));\n    t.textContent = String(s);\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 7.6;\n  }\n  function partial(pts, p) {\n    if (p >= 1) return pts.slice();\n    const n = pts.length - 1, f = p * n, k = Math.floor(f), out = pts.slice(0, k + 1);\n    if (k < n) { const a = pts[k], b = pts[k + 1], u = f - k; out.push([a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u]); }\n    return out;\n  }\n  // While the picture moves (a demonstration, a drag) labels fade in and out softly at the window's\n  // edges and beside the pointer; a still picture shows each one whole or not at all.\n  const isMoving = () => (T !== Infinity && T < motionEnd) || held != null;\n  const settle = (a, cut) => (isMoving() ? a : (a >= cut ? 1 : 0));\n  const edgeA = (x0, x1) => settle(K.clamp(Math.min(x0 - WL, WR - x1) / 10, 0, 1), 0.6);\n  function occA(x0, x1, occ) {\n    let a = 1;\n    (occ || []).forEach((o) => { const gap = Math.max(o[0] - x1, x0 - o[1]); a = Math.min(a, K.clamp((gap - 1) / 8, 0, 1)); });\n    return settle(a, 0.5);\n  }\n  // A row of labels: each kept clear of the ones before it and of the pointer's tags.\n  function rowLabels(list, y, occ) {\n    const done = [];\n    list.forEach((it) => {\n      it.drawn = false;\n      if (!(it.a > 0)) return;\n      const w = tw(it.s, it.cls), x0 = it.x - w / 2, x1 = it.x + w / 2;\n      if (done.some((q) => x0 < q[1] + 2 && q[0] < x1 + 2)) return;\n      const a = it.a * edgeA(x0, x1) * occA(x0, x1, occ);\n      if (!(a > 0)) return;\n      done.push([x0, x1]);\n      it.drawn = true;\n      part(a, 0, () => text(it.x, y, it.s, it.cls, 'middle'));\n    });\n  }\n  // A clipped group: the band, its marks and the lengths end at the window's edges.\n  function clipped(fn) {\n    const g = add(K.svg('g', { 'clip-path': 'url(#rulerwin)' }));\n    const keep = into; into = g; fn(); into = keep;\n  }\n  // A length along the ruler: a bracket from p0 to p1 with its label above it.\n  function bracket(V, p0, p1, y, s, cls, a) {\n    if (!(a > 0)) return;\n    const x0 = xAt(V, p0), x1 = xAt(V, p1);\n    clipped(() => part(a, 0, () => {\n      line(cls, x0 + 1, y, x1 - 1, y); line(cls, x0 + 1, y - 5, x0 + 1, y + 5); line(cls, x1 - 1, y - 5, x1 - 1, y + 5);\n    }));\n    const w = tw(s, 'brt'), c = (x0 + x1) / 2, la = a * edgeA(c - w / 2, c + w / 2);\n    if (la > 0) part(la, 0, () => text(c, y - 6, s, 'brt', 'middle'));\n    REC.brackets.push({ p0, p1, text: s, shown: la > 0 });\n  }\n  // A slip's label in the warning colour, kept inside the window.\n  function slipText(x, y, s, a) {\n    const w = tw(s, 'slipt'), x0 = K.clamp(x - w / 2, WL + 2, WR - 2 - w);\n    part(a, 0, () => text(x0, y, s, 'slipt', 'start'));\n    REC.notes.push(s);\n  }\n\n  // ---------- the ruler ----------\n  function glidePos(d, st) {\n    const g = d.glide;\n    let pos = g.from, prev = g.from;\n    g.stops.forEach((s) => { pos += (s[0] - prev) * A(st, s[1], s[2]); prev = s[0]; });\n    return pos;\n  }\n  function tagBox(s, x) { const w = tw(s, 'tagt') + 14, x0 = K.clamp(x - w / 2, WL, WR - w); return [x0, x0 + w]; }\n  function itemA(st, it) {\n    if (!it.when) return 1;\n    const t0 = it.at != null ? it.at : (it.when === 'right' ? 0.1 : 0.3);\n    if (it.when === 'right') return st.res === 'right' ? arr(t0, it.dur || K.SOFT) : 0;\n    return st.res === 'wrong' && st.pick === it.when ? arr(t0, it.dur || K.SOFT) : 0;\n  }\n  function drawRuler(d, st, P) {\n    const R = d.R, show = !!d.show, said = [];\n    const name = show ? P.base : R.base;\n    let from = null, m = 1;\n    if (show) {\n      if (st.trans && st.trans.from !== name) { from = st.trans.from; m = arr(0.05, 0.8); }\n      else if (d.morph && !st.live && d.morph.from !== name) { from = d.morph.from; m = A(st, d.morph.at, d.morph.dur); }\n      if (m >= 1) from = null;\n    }\n    const pos = show ? (st.live ? P.pointer : glidePos(d, st)) : null;\n    const V = viewOf(R, pos);\n    const X = (p) => xAt(V, p);\n    REC.view = V; REC.name = name; REC.pos = pos;\n    const right = st.res === 'right';\n    const qA = !show && right ? 1 - arr(0.05, 0.3) : 1;\n    const insetA = R.inset ? (show ? A(st, d.insetAt, K.SOFT) : 1) : 0;\n    // the small marks belong to the ruler of 10s: they fade with it when the ruler changes\n    const w10 = name === R10 ? (from ? m : 1) : (from === R10 ? 1 - m : 0);\n    const smallA = SMALL.map((q, j) => (R.small ? w10 * (show && d.smallAt ? A(st, d.smallAt[j], 0.5) : 1) : 0));\n\n    // screen 5's ruler of 2s runs one space further, to an unlabelled big mark at 6, under 3 + 3 = 6\n    const PEND = show && d.brk && name === R2 ? 6 : PMAX;\n    clipped(() => {\n      rect('band', X(PMIN), Y.top, X(PEND) - X(PMIN), Y.bot - Y.top, 0);\n      // the open left end: the band fades out where 0 and the negative numbers would be\n      [0.7, 0.45, 0.25, 0.1].forEach((o, j) => { const g = rect('band', X(PMIN - 0.15 * (j + 1)), Y.top, 0.15 * V.u, Y.bot - Y.top, 0); g.setAttribute('opacity', o); });\n      if (insetA > 0) part(insetA, 0, () => rect('hl', X(0), Y.top, V.u, Y.bot - Y.top, 0));\n      line('edge', X(PMIN), Y.top, X(PEND), Y.top); line('edge', X(PMIN), Y.bot, X(PEND), Y.bot);\n      for (let k = PMIN; k <= PEND; k++) line('tickb', X(k), Y.top, X(k), Y.bot);\n      SMALL.forEach((q, j) => { if (smallA[j] > 0) part(smallA[j], 0, () => line('ticks', X(q[1]), Y.top, X(q[1]), Y.top + 11)); });\n    });\n\n    // the pointer's tags, worked out first so the labels beside them make room\n    let tN = null, tP = null, nT = '', pT = '';\n    if (show) { nT = fn4(numAt(name, pos)); pT = fp(pos); tN = tagBox(nT, X(pos)); tP = tagBox(pT, X(pos)); }\n    else if (R.ptr != null) { nT = fn4(numAt(name, R.ptr)); pT = fp(R.ptr); tN = tagBox(nT, X(R.ptr)); tP = tagBox(pT, X(R.ptr)); }\n    const occN = tN ? [tN] : [], occP = tP ? [tP] : [];\n\n    // numbers along the top: the base to each power (a ruler being switched fades into the next)\n    const hideN = (k) => (R.hideNum || []).indexOf(k) >= 0;\n    const marks = (nm, a) => { const out = []; for (let k = PMIN; k <= PMAX; k++) out.push({ x: X(k), s: hideN(k) ? '?' : fn4(numAt(nm, k)), a: hideN(k) ? a * qA : a, k, cls: hideN(k) ? 'q' : R.askNum === k ? 'nl ask' : 'nl' }); return out; };\n    const newL = marks(name, from ? m : 1);\n    if (from) {\n      const oldL = marks(from, 1 - m);\n      oldL.forEach((o, j) => { if (o.s === newL[j].s) { o.a = 0; newL[j].a = 1; } });\n      rowLabels(oldL, Y.num, occN);\n    }\n    // the small marks stay short ticks here, too close for numbers: the magnified space labels them\n    rowLabels(newL, Y.num, occN);\n    newL.forEach((it) => REC.marks.push({ k: it.k, v: numAt(name, it.k), text: it.s, drawn: it.drawn }));\n    SMALL.forEach((q, j) => REC.small.push({ n: q[0], p: q[1], drawn: smallA[j] > 0 }));\n\n    // powers along the bottom\n    const powL = [];\n    for (let k = PMIN; k <= PMAX; k++) {\n      const hide = (R.hidePow || []).indexOf(k) >= 0;\n      powL.push({ x: X(k), s: hide ? '?' : fp(k), cls: hide ? 'q' : R.askPow === k ? 'pl ask' : 'pl', a: hide ? qA : 1, k });\n    }\n    if (R.ask) powL.push({ x: X(R.ask.p), s: '?', cls: 'q', a: qA });\n    rowLabels(powL, Y.pow, occP);\n    powL.forEach((it) => { if (it.k != null) REC.pows.push({ k: it.k, text: it.s, drawn: it.drawn }); });\n\n    // × the base over every space\n    if (R.pills !== false) {\n      for (let k = PMIN; k < PEND; k++) {\n        const x = X(k + 0.5), sN = '× ' + SYM[name], sO = from ? '× ' + SYM[from] : null;\n        const w = Math.max(tw(sN, 'pt'), sO ? tw(sO, 'pt') : 0) + 8;\n        const a = edgeA(x - w / 2, x + w / 2);\n        if (!(a > 0)) continue;\n        part(a, 0, () => {\n          rect('pill', x - w / 2, Y.pill, w, 18, 9);\n          if (sO && sO !== sN) { part(1 - m, 0, () => text(x, Y.pill + 13, sO, 'pt')); part(m, 0, () => text(x, Y.pill + 13, sN, 'pt')); }\n          else text(x, Y.pill + 13, sN, 'pt');\n        });\n        REC.pills.push({ k, text: sN });\n      }\n    }\n\n    // the number asked about (a navy mark from above)\n    if (R.ask) {\n      const x = X(R.ask.p);\n      line('askl', x, 28, x, Y.top);\n      text(x, 22, R.ask.text, 'rv');\n    }\n\n    // the open left end: no mark, and a note saying why\n    const openA = R.open ? (show ? A(st, d.openAt, K.SOFT) : 1) : 0;\n    const drawOpen = (a) => {\n      const x0 = X(-3.72), w = Math.max(tw('no power', 'pt'), tw('gets here', 'pt')), ea = a * edgeA(x0, x0 + w);\n      if (!(ea > 0)) return;\n      part(ea, 0, () => { text(x0, 140, 'no power', 'pt', 'start'); text(x0, 156, 'gets here', 'pt', 'start'); });\n      REC.open = true;\n    };\n    if (openA > 0) drawOpen(openA);\n\n    // lengths on the ruler of 2s: log₂ 8 is 3 spaces, and two of them laid end to end make 6\n    if (show && d.brk && name === R2) {\n      const lab = 'log₂ 8 = 3', sB = A(st, 2.6, 0.6);\n      bracket(V, 0, 3, ROWY.r1, lab, 'br', A(st, 1.7, 0.5));\n      bracket(V, 3 * sB, 3 + 3 * sB, ROWY.r1, lab, 'br', A(st, 2.5, 0.3));\n      bracket(V, 0, 6, ROWY.r2, '3 + 3 = 6', 'br', A(st, 3.2, 0.6));\n    }\n\n    // the first space magnified\n    if (R.inset && insetA > 0) drawInset(d, st, insetA, smallA, pos, name);\n\n    // a puzzle's parts\n    if (!show) (d.items || []).forEach((it) => {\n      const a = itemA(st, it);\n      if (!(a > 0)) return;\n      if (it.k === 'bracket') bracket(V, it.p0, it.p1, ROWY[it.row], it.text, 'br', a);\n      else if (it.k === 'slide') { const s = a; bracket(V, it.p0 + it.by * s, it.p1 + it.by * s, ROWY[it.row], it.text, 'br', Math.min(1, a * 4)); }\n      else if (it.k === 'ring') {\n        const x = X(it.p);\n        clipped(() => part(a, 0, () => dot('ring', x, Y.mid, 8)));\n        slipText(x, ROWY[it.row || 'r1'] - 6, it.text, a);\n        REC.rings.push({ p: it.p, text: it.text });\n        said.push('In red, a ring where ' + say(it.text) + '.');\n      } else if (it.k === 'note') { slipText(X(it.p), ROWY[it.row || 'r1'] - 6, it.text, a); said.push('In red: ' + say(it.text) + '.'); }\n      else if (it.k === 'open') drawOpen(a);\n      else if (it.k === 'powrv') part(a, 0, () => text(X(it.p), Y.pow, it.text, 'rv'));\n      else if (it.k === 'numrv') part(a, 0, () => text(X(it.p), Y.num, it.text, 'rv'));\n      else if (it.k === 'askrv') part(a, 0, () => text(X(R.ask.p), Y.pow, it.text, 'rv'));\n      else if (it.k === 'insetrv') part(a, 0, () => text(ix(it.f), IY + 78, it.text, 'rv'));\n      else if (it.k === 'insetring') { part(a, 0, () => dot('ring', ix(it.f), IY + 51, 8)); slipText(ix(it.f), IY + 98, it.text, a); REC.rings.push({ f: it.f, text: it.text }); }\n      if (it.k === 'powrv' || it.k === 'numrv' || it.k === 'askrv' || it.k === 'insetrv') REC.reveal = it.text;\n    });\n    if (!show && R.inset && R.hideInset) {\n      const f = SMALL.find((q) => q[0] === R.hideInset)[1];\n      part(qA, 0, () => text(ix(f), IY + 78, '?', 'q'));\n    }\n\n    // the pointer: a navy line across the band, the number above, its power below\n    const ptrAt = show ? pos : R.ptr;\n    if (ptrAt != null) {\n      const x = X(ptrAt);\n      line('ptr', x, Y.top, x, Y.pow - 14);\n      rect('tag', tN[0], Y.num - 13, tN[1] - tN[0], 18, 9); text((tN[0] + tN[1]) / 2, Y.num, nT, 'tagt');\n      rect('tag', tP[0], Y.pow - 13, tP[1] - tP[0], 18, 9); text((tP[0] + tP[1]) / 2, Y.pow, pT, 'tagt');\n      REC.tag = { p: ptrAt, num: nT, pow: pT, x };\n      said.push('The pointer reads ' + say(nT) + ' above and the power ' + say(pT) + ' below.');\n      // from the last big mark to the pointer: the factor that stretch multiplies by\n      const k0 = Math.floor(ptrAt + 1e-9), frac = ptrAt - k0;\n      if (show && frac > 1e-6 && frac < 1 - 1e-6) {\n        const xa = X(k0), s = '× ' + fn4(Math.pow(BASE[name], frac)), pa = settle(K.clamp((x - xa - 4) / 10, 0, 1), 0.5);\n        if (pa > 0) {\n          clipped(() => part(pa, 0, () => { line('part', xa, Y.partLine, x, Y.partLine); line('part', xa, Y.partLine - 3, xa, Y.partLine + 3); line('part', x, Y.partLine - 3, x, Y.partLine + 3); }));\n          const w = tw(s, 'partt'), lx = K.clamp((xa + x) / 2 - w / 2, WL, WR - w);\n          part(pa, 0, () => text(lx, Y.part, s, 'partt', 'start'));\n          REC.part = { from: k0, to: ptrAt, text: s };\n          said.push('From ' + say(fn4(numAt(name, k0))) + ' to the pointer, ' + say(s) + '.');\n        }\n      }\n    }\n    const shownN = REC.marks.filter((q) => q.drawn).map((q) => q.text);\n    said.unshift('The ' + name.toLowerCase() + ': along the top ' + shownN.map(say).join(', ') + ', each space times ' + say(SYM[name]) + ', with their powers underneath.');\n    if (REC.open) said.push('At the left end the ruler is open: no power gets there.');\n    return said.join(' ');\n  }\n  function drawInset(d, st, a, smallA, pos, name) {\n    part(a, 0, () => {\n      text(IX0 - 10, IY + 14, 'The space from 1 to 10, magnified', 'an', 'start');\n      rect('hl', IX0, IY + 42, IX1 - IX0, 18, 0);\n      line('edge', IX0, IY + 42, IX1, IY + 42); line('edge', IX0, IY + 60, IX1, IY + 60);\n      line('tickb', IX0, IY + 42, IX0, IY + 60); line('tickb', IX1, IY + 42, IX1, IY + 60);\n      text(IX0, IY + 36, '1', 'nl'); text(IX1, IY + 36, '10', 'nl');\n      text(IX0, IY + 78, '0', 'pl'); text(IX1, IY + 78, '1', 'pl');\n    });\n    SMALL.forEach((q, j) => {\n      const sa = a * smallA[j];\n      if (!(sa > 0)) return;\n      part(sa, 0, () => {\n        line('ticks', ix(q[1]), IY + 42, ix(q[1]), IY + 52);\n        text(ix(q[1]), IY + 36, String(q[0]), 'nl');\n        if (d.R.hideInset !== q[0]) text(ix(q[1]), IY + 78, fp(q[1]), 'pl');\n      });\n    });\n    if (d.show && name === R10 && pos != null && pos >= 0 && pos <= 1) part(a, 0, () => line('echo', ix(pos), IY + 42, ix(pos), IY + 60));\n    REC.inset = { small: SMALL.map((q) => q[0]) };\n  }\n\n  // ---------- the graph ----------\n  const GPOS = { rb: [8, 13, 'start'], fl: [-30, 4.5, 'end'], r: [8, 4.5, 'start'], l: [-8, 4.5, 'end'], ar: [6, -8, 'start'], al: [-6, -8, 'end'], br: [6, 17, 'start'], bl: [-6, 17, 'end'], a: [0, -11, 'middle'], b: [0, 21, 'middle'], aar: [6, -22, 'start'], aal: [-6, -22, 'end'], bbr: [6, 30, 'start'], bbl: [-6, 30, 'end'] };\n  const ALLPOS = Object.keys(GPOS);\n  function segBox(x1, y1, x2, y2, b) {\n    let t0 = 0, t1 = 1;\n    const dx = x2 - x1, dy = y2 - y1, p = [-dx, dx, -dy, dy], q = [x1 - b.x0, b.x1 - x1, y1 - b.y0, b.y1 - y1];\n    for (let i = 0; i < 4; i++) {\n      if (p[i] === 0) { if (q[i] < 0) return false; }\n      else { const r = q[i] / p[i]; if (p[i] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; } }\n    }\n    return true;\n  }\n  const hitsBox = (b, polys) => polys.reduce((n, pl) => { for (let j = 1; j < pl.length; j++) if (segBox(pl[j - 1][0], pl[j - 1][1], pl[j][0], pl[j][1], b)) return n + 1; return n; }, 0);\n  let gPlaced = [];\n  // Each label tries its places in turn and takes the first clear of every line, dot and label.\n  function gPlace(x, y, s, prefs, polys, H, cls) {\n    const w = tw(s, cls || 'gl');\n    let best = null, bestScore = Infinity;\n    prefs.concat(ALLPOS).forEach((k, j) => {\n      const P = GPOS[k];\n      const x0 = P[2] === 'start' ? x + P[0] : P[2] === 'end' ? x + P[0] - w : x + P[0] - w / 2, by = y + P[1];\n      const b = { x0: x0 - 2, x1: x0 + w + 2, y0: by - 12, y1: by + 4 };\n      let score = (b.x0 < 2 || b.x1 > 338 || b.y0 < 2 || b.y1 > H - 2) ? 100 : 0;\n      score += 10 * hitsBox(b, polys) + 10 * gPlaced.filter((q) => b.x0 < q.x1 && q.x0 < b.x1 && b.y0 < q.y1 && q.y0 < b.y1).length + j * 0.001;\n      if (score < bestScore) { bestScore = score; best = { x0, by, b }; }\n    });\n    gPlaced.push(best.b);\n    return { x: best.x0, y: best.by, ok: bestScore < 1 };\n  }\n  const px = (pts) => pts.map((q) => [GX(q[0]), GY(q[1])]);\n  const cross = (q) => { const x = GX(q[0]), y = GY(q[1]); return [[[x - 5, y], [x + 5, y]], [[x, y - 5], [x, y + 5]]]; };\n  function drawGraph(d, st) {\n    const show = !!d.show, right = st.res === 'right', said = ['A graph whose axes cross at (0, 0), x across and y up, both from minus 2 to 8 at the same scale.'];\n    gPlaced = [];\n    // the axes cross at (0, 0); the stretch from −2 to 0 lies beyond them\n    const OX = GX(0), OY = GY(0);\n    line('axis', OX, GY(8), OX, GY(-2)); line('axis', GX(-2), OY, GX(8), OY);\n    [2, 4, 6, 8].forEach((v) => {\n      line('axis', GX(v), OY, GX(v), OY + 4); text(GX(v), OY + 16, fv(v, 0), 'tk');\n      line('axis', OX - 4, GY(v), OX, GY(v)); text(OX - 8, GY(v) + 4.5, fv(v, 0), 'tk', 'end');\n      const wv = tw(fv(v, 0), 'tk');\n      gPlaced.push({ x0: GX(v) - wv / 2 - 2, x1: GX(v) + wv / 2 + 2, y0: OY + 4, y1: OY + 18 }, { x0: OX - 10 - wv, x1: OX - 6, y0: GY(v) - 6, y1: GY(v) + 6 });\n    });\n    text(OX + 4, OY + 16, '0', 'tk', 'start');\n    text(312, OY + 4.5, 'x', 'tk', 'start', true); text(OX + 6, 16, 'y', 'tk', 'start', true);\n    gPlaced.push({ x0: OX + 2, x1: OX + 14, y0: OY + 4, y1: OY + 18 }, { x0: 310, x1: 322, y0: OY - 8, y1: OY + 8 }, { x0: OX + 4, x1: OX + 14, y0: 4, y1: 20 });\n    const YX = [[GX(-2), GY(-2)], [GX(8), GY(8)]];\n    const polys = [[[OX, GY(8)], [OX, GY(-2)]], [[GX(-2), OY], [GX(8), OY]], YX, px(EXP), px(LN)];\n    // the points each picture shows, as obstacles for the labels\n    const pts = show ? PTS.concat(PTS.map((q) => [q[1], q[0]])) : [[2, E2]].concat(right ? [[E2, 2]] : []).concat((d.items || []).filter((it) => it.k === 'gslip' && st.res === 'wrong' && st.pick === it.when).map((it) => [it.x, it.y]));\n    pts.forEach((q) => cross(q).forEach((c) => polys.push(c)));\n    const H = d.H;\n    const Lyx = gPlace(GX(6.6), GY(6.6), 'y = x', ['br', 'bbr', 'r'], polys, H);\n    const Lexp = gPlace(GX(1.7), GY(Math.exp(1.7)), 'y = eˣ', ['r', 'br', 'ar'], polys, H);\n    const Lln = gPlace(GX(5.5), GY(Math.log(5.5)), 'y = ln x', ['a', 'al', 'ar'], polys, H);\n    const ok = [Lyx.ok, Lexp.ok, Lln.ok];\n    const glab = (L, s, a, cls) => { if (a > 0) part(a, 0, () => text(L.x, L.y, s, 'gl h' + (cls ? ' ' + cls : ''), 'start', true)); };\n    REC.graph = { folded: [], dots: [], labels: [], labelsOk: true, move: null };\n\n    const yxA = show ? A(st, 0.4, 0.5) : 1, penP = show ? A(st, 0.5, 0.9) : 1;\n    if (yxA > 0) part(yxA, 0, () => line('c-yx', YX[0][0], YX[0][1], YX[1][0], YX[1][1]));\n    glab(Lyx, 'y = x', yxA);\n    if (penP > 0) { const pp = partial(px(EXP), penP); if (pp.length > 1) path('c-exp', pp); }\n    glab(Lexp, 'y = eˣ', show ? A(st, 1.3, 0.5) : 1);\n    said.push('The curve y equals e to the x, and the dashed line y equals x.');\n\n    if (show) {\n      // the fold: a copy of y = eˣ turns over the line y = x and lands as y = ln x\n      const m = A(st, 2.0, 1.3), lnA = A(st, 3.3, 0.6);\n      const P0 = PTS.map((q, j) => gPlace(GX(q[0]), GY(q[1]), pair(q[0], q[1]), ['l', 'al', 'aal', 'bl'], polys, H));\n      const P1 = PTS.map((q) => gPlace(GX(q[1]), GY(q[0]), pair(q[1], q[0]), ['br', 'b', 'bbr', 'bl', 'bbl', 'r'], polys, H));\n      if (m > 0) {\n        const fc = EXP.map((q) => foldPt(q[0], q[1], m));\n        path('c-ln', px(fc));\n        if (m >= 1) REC.graph.folded = fc;\n      }\n      glab(Lln, 'y = ln x', lnA);\n      PTS.forEach((q, j) => {\n        const a = A(st, 1.0 + 0.25 * j, 0.5);\n        if (a > 0) part(a, 0, () => dot('d-exp', GX(q[0]), GY(q[1])));\n        glab(P0[j], pair(q[0], q[1]), a);\n        if (m > 0) { const f = foldPt(q[0], q[1], m); dot('d-ln', GX(f[0]), GY(f[1])); REC.graph.dots.push(f); }\n        glab(P1[j], pair(q[1], q[0]), lnA);\n      });\n      P0.concat(P1).forEach((L) => ok.push(L.ok));\n      said.push('Points (0, 1), (1, 2.718) and (2, 7.389) on it fold over the line to (1, 0), (2.718, 1) and (7.389, 2) on the curve y equals ln x.');\n    } else {\n      path('c-ln', px(LN));\n      glab(Lln, 'y = ln x', 1);\n      const C = [2, E2], Lc = gPlace(GX(C[0]), GY(C[1]), pair(C[0], C[1]), ['l', 'al'], polys, H);\n      ok.push(Lc.ok);\n      dot('d-exp', GX(C[0]), GY(C[1]));\n      glab(Lc, pair(C[0], C[1]), 1);\n      said.push('The curve y equals ln x, and the point (2, 7.389) on y equals e to the x.');\n      (d.items || []).forEach((it) => {\n        const a = itemA(st, it);\n        if (!(a > 0)) return;\n        if (it.k === 'gfold') {\n          const f = foldPt(C[0], C[1], a), L = gPlace(GX(E2), GY(2), pair(E2, 2), ['br', 'b', 'bbr', 'bl', 'bbl'], polys, H);\n          ok.push(L.ok);\n          dot('d-ln', GX(f[0]), GY(f[1]));\n          glab(L, pair(E2, 2), arr(1.0, 0.5));\n          REC.graph.move = f;\n          said.push('The point folds over the line to (7.389, 2).');\n        } else if (it.k === 'gslip') {\n          const L = gPlace(GX(it.x), GY(it.y), it.text, ['br', 'bl', 'b', 'bbr', 'bbl', 'r'], polys, H, 'gl slip');\n          ok.push(L.ok);\n          part(a, 0, () => dot('gring', GX(it.x), GY(it.y), 6));\n          glab(L, it.text, a, 'slip');\n          REC.notes.push(it.text);\n          said.push('In red, the point ' + it.text + '.');\n        }\n      });\n    }\n    REC.graph.labelsOk = ok.every(Boolean);\n    return said.join(' ');\n  }\n\n  // ---------- the drag along the ruler ----------\n  const grip = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1, role: 'slider', 'aria-label': 'Pointer, as a power', 'aria-orientation': 'horizontal' }));\n  grip.style.display = 'none';\n  const gripLive = () => !finished && STEPS[at()].show && !STEPS[at()].graph;\n  function svgX(e) {\n    const ctm = svg.getScreenCTM();\n    if (!ctm) return null;\n    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()).x;\n  }\n  function setPtr(v) {\n    const st = S[at()];\n    if (st.live && ptrCtl.get() === v && T === Infinity) return;\n    if (anim.playing()) anim.pause();\n    T = Infinity; st.live = true; st.trans = null;\n    ptrCtl.set(v, true);\n    K.reveal();\n  }\n  const fromX = (x) => snapPtr(posFromX(STEPS[at()].R, x), baseCtl.get());\n  grip.addEventListener('pointerdown', (e) => {\n    if (!gripLive()) return;\n    held = e.pointerId;\n    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the ruler */ }\n    const x = svgX(e);\n    if (x != null) setPtr(fromX(x));\n  });\n  grip.addEventListener('pointermove', (e) => {\n    if (held !== e.pointerId || !gripLive()) return;\n    const x = svgX(e);\n    if (x != null) setPtr(fromX(x));\n  });\n  const letGo = (e) => { if (held === e.pointerId) { held = null; K.refresh(); } };\n  grip.addEventListener('pointerup', letGo);\n  grip.addEventListener('pointercancel', letGo);\n  grip.addEventListener('lostpointercapture', () => { if (held != null) { held = null; K.refresh(); } });\n  grip.addEventListener('keydown', (e) => {\n    if (!gripLive()) return;\n    const by = { ArrowUp: 0.1, ArrowRight: 0.1, ArrowDown: -0.1, ArrowLeft: -0.1, PageUp: 1, PageDown: -1 }[e.key];\n    if (by == null && e.key !== 'Home' && e.key !== 'End') return;\n    e.preventDefault();\n    const now = ptrCtl.get();\n    setPtr(snapPtr(e.key === 'Home' ? PMIN : e.key === 'End' ? PMAX : now + by, baseCtl.get()));\n  });\n  function placeGrip(d) {\n    const on = !!(d.show && !d.graph && !finished);\n    grip.style.display = on ? '' : 'none';\n    grip.setAttribute('tabindex', on ? '0' : '-1');\n    if (!on) return;\n    grip.setAttribute('x', WL); grip.setAttribute('width', WR - WL);\n    grip.setAttribute('y', 52); grip.setAttribute('height', 78);\n    const p = REC.pos != null ? REC.pos : ptrCtl.get();\n    grip.setAttribute('aria-valuemin', PMIN); grip.setAttribute('aria-valuemax', PMAX); grip.setAttribute('aria-valuenow', r3(p));\n    grip.setAttribute('aria-valuetext', say(formsOf(REC.name || R10, p)[0]));\n  }\n\n  // ---------- one paint: the scene and the two forms under it ----------\n  const el = (id) => document.getElementById(id);\n  function writeForms(lines) {\n    const f = el('forms');\n    f.textContent = '';\n    (lines || []).forEach((s) => { if (s) maths(f.appendChild(K.el('span', { class: 'nw' })), s); });\n    REC.forms = (lines || []).slice();\n  }\n  function paint(i, P) {\n    if (i == null) i = at();\n    if (!P) P = cur();\n    const d = STEPS[i], st = S[i];\n    art.textContent = '';\n    into = null;\n    REC = { marks: [], small: [], pows: [], pills: [], brackets: [], rings: [], notes: [], tag: null, part: null, inset: null, open: false, view: null, name: null, pos: null, graph: null, reveal: null, forms: [] };\n    svg.setAttribute('viewBox', '0 0 340 ' + d.H);\n    const said = d.graph ? drawGraph(d, st) : drawRuler(d, st, P);\n    if (d.show && !d.graph) writeForms(formsOf(REC.name, REC.pos));\n    else if (d.show) writeForms([]);\n    else writeForms(st.res === 'right' ? d.forms.right : d.forms.before);\n    placeGrip(d);\n    svg.setAttribute('aria-label', said);\n  }\n\n  // The model the lesson reads: the number above the pointer, and its power, the log.\n  K.model((p) => ({ number: numAt(p.base, p.pointer), power: p.pointer }));\n\n  write(el('finish'), FINISH);\n  write(el('cap'), CAPTION);\n  function switched(d, st, from) {\n    st.live = true;\n    st.trans = { from };\n    play(0.9);\n  }\n  K.update(() => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      openStep(i);\n      if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }\n    } else if (d.show && !d.graph) {\n      const P = cur();\n      if (P.base !== lastBase) switched(d, st, lastBase);\n      else if (P.pointer !== lastPtr) {\n        // the drag, the slider or a test moved: the demonstration gives way to Dan's setting\n        st.live = true; st.trans = null;\n        if (anim.playing()) anim.pause();\n        T = Infinity;\n      }\n    }\n    remember();\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('lead').hidden = i !== 0 || finished;\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    const bk = el('basek'), bkWas = bk.hidden;\n    bk.hidden = finished || !d.show || !d.sw;\n    if (bkWas && !bk.hidden && typeof baseCtl.fit === 'function') baseCtl.fit();   // its stack test needs it visible\n    paint(i);\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.textContent = '';\n      b.el.appendChild(K.el('span', null, opts[k]));   // one span, so the button's gap does not split an answer\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Tap one of the answers.' : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const SHOWS = STEPS.map((d, i) => i).filter((i) => STEPS[i].show);\n  const RSHOWS = SHOWS.filter((i) => !STEPS[i].graph);\n  const PICKS = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const liveSt = () => Object.assign(blank(), { live: true });\n  const close = (a, b, tol) => Math.abs(a - b) <= (tol != null ? tol : 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)));\n  // A step painted in the state and settings given (finished, or t seconds into its motion): what it draws.\n  function drawn(i, st, P, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t;\n    try {\n      paint(i, P || openP(i));\n      return { texts: Array.from(art.querySelectorAll('text')).map((q) => q.textContent), rec: REC };\n    } finally { S[i] = keepS; T = keepT; }\n  }\n  // Every check repaints the screen Dan is on when it is done.\n  const chk = (label, fn, opt) => K.check(label, () => { try { return fn(); } finally { paint(); } }, opt);\n  const TRY = [-3, -2.5, -1, 0, L2, 0.5, 1, L45, 2.5, 3, 4.2, 5];\n  function states() {\n    const out = [];\n    STEPS.forEach((d, i) => {\n      out.push([i, blank(), openP(i)]);\n      if (d.show && !d.graph) OPT.forEach((base) => TRY.forEach((p) => out.push([i, liveSt(), { base, pointer: p }])));\n      else if (!d.show) { out.push([i, solvedSt(i), openP(i)]); d.opts.filter((o) => o !== d.want).forEach((o) => out.push([i, wrongSt(i, o), openP(i)])); }\n    });\n    return out;\n  }\n  let ALL = null;\n  const all = () => ALL || (ALL = states().map((x) => ({ i: x[0], g: drawn(x[0], x[1], x[2]) })));\n\n  chk('The base 2 logarithm of 32 is 5, because 5 is the exponent we must apply to 2 to get 32: on the ruler of 2s the model puts 32 above the power 5, and the ruler and the pointer read 32 and 5 there', () => {\n    const o = K.at({ base: R2, pointer: 5 }), g = drawn(idx('The ruler of 2s'), liveSt(), { base: R2, pointer: 5 });\n    const m = g.rec.marks.find((q) => q.k === 5);\n    return o.number === 32 && o.power === 5 && !!m && m.text === '32' && !!g.rec.tag && g.rec.tag.num === '32' && g.rec.tag.pow === '5' && g.rec.forms[1] === 'log₂ 32 = 5';\n  }, { source: SRC1 });\n  chk('e is a fixed constant of approximately 2.71828: every space on the ruler of e multiplies by 2.71828, and its first big mark reads 2.718', () =>\n    close(BASE[RE], 2.71828, 1e-5) && fn4(Math.E) === '2.718' &&\n    [-3, -2, -1, 0, 1, 2, 3, 4].every((k) => close(numAt(RE, k + 1) / numAt(RE, k), 2.71828, 1e-5)), { source: SRC2 });\n  chk('The logarithmic function with base e is called the natural logarithmic function: on the ruler of e the power below the pointer is the natural log of the number above it at every setting tried, and it is written ln', () =>\n    [-3, -1.25, 0, 0.5, 1, LN10, 3.807, 5].every((p) => close(Math.log(K.at({ base: RE, pointer: p }).number), p, 1e-9)) &&\n    formsOf(RE, 2)[1].indexOf('ln ') === 0, { source: SRC3 });\n  chk('On every ruler each big mark is the base to the power beneath it: one space right multiplies the number by the base and adds 1 to the power, every space is marked × the base, and every number drawn is above 0', () => {\n    const steps = OPT.every((nm) => { for (let k = PMIN; k < PMAX; k++) { if (!close(numAt(nm, k + 1) / numAt(nm, k), BASE[nm], 1e-12 * BASE[nm])) return false; } return true; });\n    const labels = [-3, -2, -1, 0, 1, 2, 3, 4, 5].map((k) => fn4(numAt(R10, k))).join('|') === ['0.001', '0.01', '0.1', '1', '10', '100', '1000', '10' + NB + '000', '100' + NB + '000'].join('|') &&\n      [-3, -2, -1, 0, 1, 2, 3, 4, 5].map((k) => fn4(numAt(R2, k))).join(' ') === '0.125 0.25 0.5 1 2 4 8 16 32' &&\n      [0, 1, 2, 3].map((k) => fn4(numAt(RE, k))).join(' ') === '1 2.718 7.389 20.09';\n    const pics = all().every(({ g }) => g.rec.marks.every((q) => q.v > 0 && (q.text === '?' || q.text === fn4(numAt(g.rec.name, q.k)))) &&\n      g.rec.pows.every((q) => q.text === '?' || q.text === fp(q.k)) && g.rec.pills.every((q) => q.text === '× ' + SYM[g.rec.name]));\n    return steps && labels && pics;\n  });\n  chk('The pointer reads the number and power the model gives, and the two forms say the same fact, at every setting tried on every ruler screen; it stays in the window, and the drag maps the finger back to the same setting', () =>\n    RSHOWS.every((i) => OPT.every((base) => TRY.every((p) => {\n      const g = drawn(i, liveSt(), { base, pointer: p }), o = K.at({ base, pointer: p }), x = xAt(g.rec.view, p);\n      return !!g.rec.tag && g.rec.tag.num === fn4(o.number) && g.rec.tag.pow === fp(o.power) && close(o.number, Math.pow(BASE[base], p), 1e-9 * Math.max(1, o.number)) &&\n        g.rec.forms.join('|') === formsOf(base, p).join('|') && x >= WL + 4 && x <= WR - 4 && close(posFromX(STEPS[i].R, x), p, 1e-9);\n    }))));\n  chk('Half a space multiplies by √10 ≈ 3.162, so 316.2 sits at 2.5, and equal lengths multiply by equal factors anywhere on every ruler: the stretch from the mark before the pointer reads × 3.162 at 2.5 and at 0.5 alike', () => {\n    const half = close(K.at({ pointer: 2.5 }).number / K.at({ pointer: 2 }).number, Math.sqrt(10), 1e-12) && fn4(Math.sqrt(10)) === '3.162' && fn4(K.at({ pointer: 2.5 }).number) === '316.2';\n    const equal = OPT.every((base) => [-2.7, -0.4, 0.3, 1.9, 3.3].every((a) => close(K.at({ base, pointer: a + 0.37 }).number / K.at({ base, pointer: a }).number, Math.pow(BASE[base], 0.37), 1e-9)));\n    const i = idx('Between the marks'), a = drawn(i, liveSt(), { base: R10, pointer: 2.5 }).rec.part, b = drawn(i, liveSt(), { base: R10, pointer: 0.5 }).rec.part;\n    return half && equal && !!a && !!b && a.text === '× 3.162' && b.text === '× 3.162' && a.from === 2 && b.from === 0;\n  });\n  chk('Ten 2s multiplied make 1024, just over 10³, so 2 sits just past 0.3 of a space: the small marks 2, 3 and 5 sit at 0.301, 0.477 and 0.699 inside the first space, as the magnified space shows, and 45 sits at 1.653', () => {\n    const nums = Math.pow(2, 10) === 1024 && 10 * L2 > 3 && 10 * L2 < 3.02 && fp(L2) === '0.301' && fp(L3) === '0.477' && fp(L5) === '0.699' && fp(L45) === '1.653' && close(Math.pow(10, L45), 45, 1e-9) && fn4(Math.pow(10, L45)) === '45';\n    const g = drawn(idx('Between the marks'), blank());\n    const inset = ['0.301', '0.477', '0.699', '2', '3', '5', 'The space from 1 to 10, magnified'].every((s) => g.texts.indexOf(s) >= 0);\n    const order = SMALL.every((q, j) => q[1] > 0 && q[1] < 1 && (j === 0 || q[1] > SMALL[j - 1][1]));\n    return nums && inset && order && !!g.rec.tag && g.rec.tag.num === '45' && g.rec.tag.pow === '1.653';\n  });\n  chk('Left of 1 each space divides by the base again: 0.1, 0.01 and 0.001 sit at −1, −2 and −3, there is no mark at 0 or below, and the open left end says no power gets there', () => {\n    const nums = fn4(numAt(R10, -1)) === '0.1' && fn4(numAt(R10, -2)) === '0.01' && fn4(numAt(R10, -3)) === '0.001' && K.at({ pointer: PMIN }).number > 0;\n    const g = drawn(idx('Left of 1'), blank());\n    return nums && g.rec.open && g.texts.indexOf('no power') >= 0 && g.texts.indexOf('gets here') >= 0 && !!g.rec.tag && g.rec.tag.num === '0.001' && g.rec.tag.pow === '−3' &&\n      all().every(({ g: h }) => h.rec.marks.every((q) => q.v > 0 && (q.text === '?' || plain(q.text) > 0)));\n  });\n  chk('Every number follows its rule: 1000, 10 000 and 100 000 above 3, 4 and 5; 316.2 at 2.5; 1024 for ten 2s; 45 at 1.653; 2.783 at 0.444; 32 at 5 and 3 + 3 = 6 on the ruler of 2s; 2.718, 7.389 and 20.09 on the ruler of e; 2.303 for ln 10, and 3.68 for 10 ÷ 2.718, where 39.6 sits; 0.602 for 4; 1 048 576 for 4¹⁰; 0.693 for ln 2 and 0.869 for log₁₀ 7.389; and each answer offered is the value its own working gives', () => {\n    const ok = fn4(1e3) === '1000' && fn4(1e4) === '10' + NB + '000' && fn4(1e5) === '100' + NB + '000' && fn4(Math.pow(10, 2.5)) === '316.2' &&\n      fn4(Math.pow(10, 4 / 9)) === '2.783' && fp(4 / 9) === '0.444' && fp(L4) === '0.602' && fn4(Math.pow(4, 10)) === '1' + NB + '048' + NB + '576' &&\n      fp(LN10) === '2.303' && fv(10 / Math.E, 2) === '3.68' && fn4(Math.exp(10 / Math.E)) === '39.6' && fn4(E2) === '7.389' && fn4(Math.exp(3)) === '20.09' &&\n      fp(Math.log(2)) === '0.693' && fp(Math.log10(E2)) === '0.869' && 3 + 3 === 6 && numAt(R2, 3) === 8;\n    const answers = PICKS.every((i) => { const d = STEPS[i]; return d.opts.every((o) => d.vals[o] === o); });\n    return ok && answers;\n  });\n  const shows = (texts, ans) => texts.some((x) => x === ans || (x.indexOf(ans) === 0 && /\\s/.test(x.charAt(ans.length))));\n  chk('Before an answer, nothing in a puzzle\\'s picture or forms gives it away, and a right answer shows it', () =>\n    PICKS.every((i) => {\n      const d = STEPS[i], b = drawn(i, blank()), r = drawn(i, solvedSt(i));\n      return !shows(b.texts, d.ans) && !shows(b.rec.forms, d.ans) && shows(r.texts, d.ans);\n    }));\n  chk('Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own and draws its slip', () =>\n    PICKS.every((i) => {\n      const d = STEPS[i];\n      return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)) &&\n        d.opts.every((o) => o === d.want || (!!(d.hints && d.hints[o]) && (o === 'There is none' || drawn(i, wrongSt(i, o)).rec.notes.length > 0)));\n    }));\n  chk('The fold swaps each point\\'s two numbers: every point of the folded curve is a point of y = eˣ with x and y swapped and lies on y = ln x, half way through the fold every point sits on y = x, (2, 7.389) lands on (7.389, 2), and every label on the graphs is clear of the lines and of one another', () => {\n    const g = drawn(idx('The fold'), blank()), r = g.rec.graph;\n    const want = ['(0, 1)', '(1, 2.718)', '(2, 7.389)', '(1, 0)', '(2.718, 1)', '(7.389, 2)'];\n    const folded = !!r && r.folded.length === EXP.length && r.folded.every((q, j) => close(q[0], EXP[j][1], 1e-8) && close(q[1], EXP[j][0], 1e-8) && close(q[1], Math.log(q[0]), 1e-8));\n    const mid = EXP.every((q) => { const f = foldPt(q[0], q[1], 0.5); return close(f[0], f[1], 1e-8); });\n    const i13 = idx('Fold a point'), s13 = drawn(i13, solvedSt(i13)).rec.graph;\n    const clear = [drawn(i13, blank()), drawn(i13, solvedSt(i13))].concat(STEPS[i13].opts.filter((o) => o !== STEPS[i13].want).map((o) => drawn(i13, wrongSt(i13, o)))).every((x) => x.rec.graph.labelsOk);\n    return folded && mid && r.labelsOk && want.every((s) => g.texts.indexOf(s) >= 0) && !!s13.move && close(s13.move[0], E2, 1e-8) && close(s13.move[1], 2, 1e-8) && clear;\n  });\n  chk('Every demonstration has finished arriving within its time (at most 4.5 s), none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, within 2.5 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; earliest = Infinity;\n      S[i] = st;\n      try { paint(i, openP(i)); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }\n      return timed(i, solvedSt(i), FB[0]) && FB[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB[1]) && FB[1] <= 2.5);\n    });\n    T = keepT;\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "The power ruler",
+  "brief": "The one thing you should see is the power below the pointer going up by 1 each time the number above it is multiplied by the base, when you drag the pointer along the ruler from mark to mark.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The base 2 logarithm of 32 is 5, because 5 is the exponent we must apply to 2 to get 32: on the ruler of 2s the model puts 32 above the power 5, and the ruler and the pointer read 32 and 5 there",
+     "ok": true,
+     "source": "https://openstax.org/books/algebra-and-trigonometry-2e/pages/6-3-logarithmic-functions"
+    },
+    {
+     "label": "e is a fixed constant of approximately 2.71828: every space on the ruler of e multiplies by 2.71828, and its first big mark reads 2.718",
+     "ok": true,
+     "source": "https://www.mathwords.com/e/euler_number.htm"
+    },
+    {
+     "label": "The logarithmic function with base e is called the natural logarithmic function: on the ruler of e the power below the pointer is the natural log of the number above it at every setting tried, and it is written ln",
+     "ok": true,
+     "source": "https://openstax.org/books/intermediate-algebra-2e/pages/10-3-evaluate-and-graph-logarithmic-functions"
+    },
+    {
+     "label": "On every ruler each big mark is the base to the power beneath it: one space right multiplies the number by the base and adds 1 to the power, every space is marked × the base, and every number drawn is above 0",
+     "ok": true
+    },
+    {
+     "label": "The pointer reads the number and power the model gives, and the two forms say the same fact, at every setting tried on every ruler screen; it stays in the window, and the drag maps the finger back to the same setting",
+     "ok": true
+    },
+    {
+     "label": "Half a space multiplies by √10 ≈ 3.162, so 316.2 sits at 2.5, and equal lengths multiply by equal factors anywhere on every ruler: the stretch from the mark before the pointer reads × 3.162 at 2.5 and at 0.5 alike",
+     "ok": true
+    },
+    {
+     "label": "Ten 2s multiplied make 1024, just over 10³, so 2 sits just past 0.3 of a space: the small marks 2, 3 and 5 sit at 0.301, 0.477 and 0.699 inside the first space, as the magnified space shows, and 45 sits at 1.653",
+     "ok": true
+    },
+    {
+     "label": "Left of 1 each space divides by the base again: 0.1, 0.01 and 0.001 sit at −1, −2 and −3, there is no mark at 0 or below, and the open left end says no power gets there",
+     "ok": true
+    },
+    {
+     "label": "Every number follows its rule: 1000, 10 000 and 100 000 above 3, 4 and 5; 316.2 at 2.5; 1024 for ten 2s; 45 at 1.653; 2.783 at 0.444; 32 at 5 and 3 + 3 = 6 on the ruler of 2s; 2.718, 7.389 and 20.09 on the ruler of e; 2.303 for ln 10, and 3.68 for 10 ÷ 2.718, where 39.6 sits; 0.602 for 4; 1 048 576 for 4¹⁰; 0.693 for ln 2 and 0.869 for log₁₀ 7.389; and each answer offered is the value its own working gives",
+     "ok": true
+    },
+    {
+     "label": "Before an answer, nothing in a puzzle's picture or forms gives it away, and a right answer shows it",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own and draws its slip",
+     "ok": true
+    },
+    {
+     "label": "The fold swaps each point's two numbers: every point of the folded curve is a point of y = eˣ with x and y swapped and lies on y = ln x, half way through the fold every point sits on y = x, (2, 7.389) lands on (7.389, 2), and every label on the graphs is clear of the lines and of one another",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within its time (at most 4.5 s), none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "pointer",
+    "base"
+   ],
+   "readouts": [],
+   "outputs": [
+    "number",
+    "power"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "Powers of ten",
+      "Which log?",
+      "Between the marks",
+      "Where 5 sits",
+      "The ruler of 2s",
+      "A log is a number",
+      "The ruler of e",
+      "Natural log of 10",
+      "Left of 1",
+      "A negative number",
+      "The fold",
+      "A small number",
+      "Fold a point"
+     ],
+     "value": 0
+    },
+    {
+     "id": "pointer",
+     "kind": "control",
+     "label": "Pointer, as a power",
+     "min": -3,
+     "max": 5,
+     "step": 0.001,
+     "log": false,
+     "value": 3,
+     "snap": [
+      1.65321251378,
+      0.301029995664,
+      0.47712125472,
+      0.698970004336,
+      2.30258509299
+     ]
+    },
+    {
+     "id": "base",
+     "kind": "choice",
+     "label": "Which ruler",
+     "options": [
+      "Ruler of 10s",
+      "Ruler of 2s",
+      "Ruler of e"
+     ],
+     "labels": [
+      "Ruler of 10s",
+      "Ruler of 2s",
+      "Ruler of e"
+     ],
+     "value": "Ruler of 10s",
+     "index": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-18T05:59:47.712Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"ln and log give different answers for the same number\" fails at 1, where both are 0; and \"0 and negative numbers have no logarithm\" is absolute, though the ignores panel and the later Complex numbers course give negatives a log of another kind."
+   },
+   {
+    "path": "practice.text",
+    "problem": "\"0 and negative numbers have none\" and \"no power of a positive base makes one\" are absolute, read alone in the dossier; they hold only among ordinary (real) numbers, as the ignores panel itself says."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "\"The ruler is drawn only from 0.001 to 100 000\" is true only of the ruler of 10s; the rulers of 2s and e cover the same powers −3 to 5 but other numbers (0.125 to 32, about 0.05 to 148)."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Placed right after the ruler of e, \"Left of 1 ... 0.1, 0.01 and 0.001 at −1, −2 and −3\" reads as true of every ruler; it is the ruler of 10s only (the ruler of 2s has 0.5, 0.25, 0.125 there)."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

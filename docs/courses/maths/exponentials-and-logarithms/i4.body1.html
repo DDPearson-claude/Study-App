@@ -1,0 +1,1152 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .pz sup, .caption sup { font-size: .72em; line-height: 0; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  .scene text { font-family: var(--k-font); }
+  /* The ruler: a sunk band edged in ink, big marks right across it, small marks short. */
+  .scene .band { fill: var(--k-sunk); }
+  .scene .edge, .scene .tickb { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .ticks { stroke: var(--k-ink); stroke-width: 1.2; }
+  .scene .hl { fill: var(--k-fill2); }
+  .scene .nl, .scene .pl, .scene .pt { font-size: 13px; font-weight: 600; fill: var(--k-ink); }
+  .scene .nl.ask { fill: var(--k-accent2); font-weight: 700; }
+  .scene .pill { fill: var(--k-fill1); }
+  .scene .an { font-size: 13px; fill: var(--k-muted); }
+  .scene .q { font-size: 17px; font-weight: 700; fill: var(--k-accent2); }
+  .scene .rv { font-size: 13px; font-weight: 700; fill: var(--k-accent2); }
+  /* The pointer: a navy line across the band, the number it reads above, the power below. */
+  .scene .ptr { stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .tag { fill: var(--k-accent2); }
+  .scene .tagt { font-size: 13px; font-weight: 700; fill: var(--k-on-accent2); }
+  .scene .askl { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .part { stroke: var(--k-accent2); stroke-width: 1.5; fill: none; }
+  .scene .partt { font-size: 13px; font-weight: 700; fill: var(--k-accent2); }
+  /* Lengths along the ruler in navy; a slip in the warning colour. */
+  .scene .br { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .brt { font-size: 13px; font-weight: 700; fill: var(--k-accent2); }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .slipt { font-size: 13px; font-weight: 700; fill: var(--k-warn); }
+  .scene .echo { stroke: var(--k-accent2); stroke-width: 2.5; }
+  /* The graph: y = eˣ in navy, y = ln x in teal, y = x dashed and muted. */
+  .scene .axis { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .tk { font-size: 13px; fill: var(--k-muted); }
+  .scene .c-exp { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .c-ln { fill: none; stroke: var(--k-accent); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .c-yx { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 7 5; }
+  .scene .d-exp { fill: var(--k-accent2); }
+  .scene .d-ln { fill: var(--k-accent); }
+  .scene .gring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .gl { font-size: 13px; font-weight: 600; fill: var(--k-ink); }
+  .scene .gl.slip { fill: var(--k-warn); font-weight: 700; }
+  .scene .h { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: pan-y; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  /* The same fact in its two forms, under the picture. */
+  .forms { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 22px; font-size: 1.1rem; font-weight: 700; line-height: 1.5; min-height: 1.65em; margin-top: 8px; text-align: center; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead" id="lead">A ruler with numbers along its top edge, their powers along its bottom edge, and a pointer that reads both.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="ptrk" hidden></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div id="basek"></div>
+    <svg class="scene" id="scene" viewBox="0 0 340 130" width="100%" role="img" aria-label=""><defs><clipPath id="rulerwin"><rect x="14" y="0" width="312" height="400"></rect></clipPath></defs><g id="art"></g><g id="ui"></g></svg>
+    <p class="forms" id="forms" aria-live="polite"></p>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap"></p>
+
+<script>
+  // ---------- the rule ----------
+  // On the ruler of base b the number above the power p is b^p, so the power below a number is
+  // that number's logarithm in base b. The pointer's power is the lesson's control; the number is
+  // worked out from it. A space is one power, so one space right multiplies by b.
+  const R10 = 'Ruler of 10s', R2 = 'Ruler of 2s', RE = 'Ruler of e';
+  const OPT = [R10, R2, RE];
+  const BASE = { 'Ruler of 10s': 10, 'Ruler of 2s': 2, 'Ruler of e': Math.E };
+  const SYM = { 'Ruler of 10s': '10', 'Ruler of 2s': '2', 'Ruler of e': 'e' };
+  const LOGW = { 'Ruler of 10s': 'log₁₀', 'Ruler of 2s': 'log₂', 'Ruler of e': 'ln' };
+  const numAt = (name, p) => Math.pow(BASE[name] || 10, p);
+  const PMIN = -3, PMAX = 5;
+  const keep12 = (v) => +v.toPrecision(12);
+  const L2 = keep12(Math.log10(2)), L3 = keep12(Math.log10(3)), L5 = keep12(Math.log10(5)), L4 = Math.log10(4);
+  const L45 = keep12(Math.log10(45)), LN10 = keep12(Math.log(10)), E2 = Math.exp(2);
+  const SMALL = [[2, L2], [3, L3], [5, L5]];
+  // Sources the checks restate (the lesson's own).
+  const SRC1 = 'https://openstax.org/books/algebra-and-trigonometry-2e/pages/6-3-logarithmic-functions';
+  const SRC2 = 'https://www.mathwords.com/e/euler_number.htm';
+  const SRC3 = 'https://openstax.org/books/intermediate-algebra-2e/pages/10-3-evaluate-and-graph-logarithmic-functions';
+
+  // ---------- numbers ----------
+  // fx: exactly dp decimals (a true minus sign; 10 000 and up grouped with a space, as the lesson
+  // writes them); fv: at most dp, trailing zeros dropped. A number on the ruler has four significant
+  // figures and at most three decimals (2.718, 20.09, 316.2, 0.001); a power has three decimals.
+  const NB = ' ';
+  function fx(v, dp) {
+    const f = Math.pow(10, dp);
+    let r = Math.round(v * f) / f;
+    if (r === 0) r = 0;
+    const p = Math.abs(r).toFixed(dp).split('.');
+    if (p[0].length > 4) p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, NB);
+    return (r < 0 ? '−' : '') + p.join('.');
+  }
+  function fv(v, dp) {
+    const s = fx(v, dp);
+    return dp > 0 ? s.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '') : s;
+  }
+  function dpOf(v) { const a = Math.abs(v); if (!(a > 0)) return 0; return K.clamp(3 - Math.floor(Math.log10(a) + 1e-9), 0, 3); }
+  const fn4 = (v) => fv(v, dpOf(v));
+  const fp = (p) => fv(p, 3);
+  const plain = (s) => Number(String(s).replace(/−/g, '-').replace(/ /g, ''));
+  const exact = (v, s) => Math.abs(v - plain(s)) <= 1e-9 * Math.max(1, Math.abs(v));
+  // The pointer's fact in its two forms: 10^3 = 1000 and log₁₀ 1000 = 3 (≈ when either is rounded).
+  function formsOf(name, p) {
+    const N = fn4(numAt(name, p)), P = fp(p), eq = exact(numAt(name, p), N) && exact(p, P) ? ' = ' : ' ≈ ';
+    return [SYM[name] + '^' + P + eq + N, LOGW[name] + ' ' + N + eq + P];
+  }
+  const sits = (n, p, dp) => fn4(n) + ' sits at ' + (dp != null ? fv(p, dp) : fp(p));
+  const pair = (x, y) => '(' + fn4(x) + ', ' + fn4(y) + ')';
+
+  // A drag lands exactly on a big mark when it comes within 0.05 of one, and on a named number
+  // (2, 3, 5, 45 or half way on the ruler of 10s; 10 on the ruler of e) within 0.025.
+  function snapPtr(p, name) {
+    p = K.clamp(p, PMIN, PMAX);
+    const r = Math.round(p);
+    if (Math.abs(p - r) < 0.05) return r;
+    const named = name === R10 ? [L2, L3, L5, L45, 2.5] : name === RE ? [LN10] : [];
+    const hit = named.find((s) => Math.abs(p - s) < 0.025);
+    return hit != null ? hit : Math.round(p * 1000) / 1000;
+  }
+
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s)
+    .replace(/log₁₀/g, 'log base 10').replace(/log₂/g, 'log base 2').replace(/log₄/g, 'log base 4')
+    .replace(/\^([0-9.−]+)/g, ' to the power $1').replace(/¹⁰/g, ' to the power 10').replace(/⁻³/g, ' to the power minus 3').replace(/⁻¹/g, ' to the power minus 1')
+    .replace(/²/g, ' squared').replace(/³/g, ' cubed').replace(/⁴/g, ' to the power 4').replace(/ˣ/g, ' to the x')
+    .replace(/≈/g, ' is about ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/−/g, 'minus ')
+    .replace(/=/g, ' equals ').replace(/\s+/g, ' ').trim();
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // R: the ruler (its base; u, units per space; the window's travel: it pans from lo to hi as the
+  // pointer moves, or stays at lo when fixed; small, the small marks 2, 3 and 5; inset, the first
+  // space magnified; open, the label at the open left end; pills: false hides the × marks; hidePow,
+  // powers shown as ?; ptr, a pointer drawn still; ask, the number asked about; askNum, its mark).
+  // SHOW: p0, where the pointer ends its demonstration; glide, the pointer's journey [to, when,
+  // how long]; morph, the ruler it changes from; sw, the switch shown; and when parts arrive.
+  // DO: items, what it draws (when: 'right' after a right answer, or the wrong answer whose slip it
+  // draws; at, when it arrives); opts, the answers; vals, each answer by its own working; ans, the
+  // words that would give the answer away; forms, the two forms under the picture.
+  const T4 = fn4(1e4);
+  const O2 = ['log₁₀ 4 = ' + T4, 'log₁₀ ' + T4 + ' = 4', 'log₄ ' + T4 + ' = 10'];
+  const O6 = ['Yes: 6 and 6', 'No: 3 and 6', 'No: 8 and 6'];
+  const O13 = ['(2, 0.693)', '(7.389, 2)', '(7.389, 0.869)'];
+  const STEPS = [
+    { show: true, name: 'Powers of ten', H: 130, R: { base: R10, u: 68, lo: -3.9, hi: 5.5 }, p0: 3, dur: 3.0,
+      glide: { from: 0, stops: [[1, 0.6, 0.55], [2, 1.4, 0.55], [3, 2.2, 0.55]] },
+      text: 'This is the *power ruler*. Its big marks on top are 1, 10, 100 and 1000, each ten times the one before, at equal spaces, with their powers of 10 underneath. One space right multiplies the number by 10 and adds 1 to the power. So `10³ = 1000`, and asked the other way round, the power 10 needs to make 1000 is 3. That power is the *logarithm*, `log₁₀ 1000 = 3`, the 3 in kilo\'s 10³. Drag the pointer.' },
+    { kind: 'pick', name: 'Which log?', H: 156, R: { base: R10, u: 60, lo: -0.5, fixed: true, ptr: 4 },
+      items: [
+        { k: 'bracket', p0: 0, p1: 4, row: 'r1', text: O2[1], when: 'right', at: 0.2 },
+        { k: 'ring', p: L4, text: sits(4, L4), when: O2[0], at: 0.3 },
+        { k: 'note', p: 2, row: 'r1', text: '4¹⁰ is ' + fn4(Math.pow(4, 10)) + ', not ' + T4, when: O2[2], at: 0.3 },
+      ],
+      opts: O2, want: O2[1], ans: O2[1],
+      vals: { [O2[0]]: 'log₁₀ ' + fn4(4) + ' = ' + fn4(Math.pow(10, 4)), [O2[1]]: 'log₁₀ ' + fn4(1e4) + ' = ' + fp(Math.log10(1e4)), [O2[2]]: 'log₄ ' + fn4(1e4) + ' = ' + fn4(10) },
+      forms: { before: ['10^4 = ' + T4], right: ['10^4 = ' + T4, O2[1]] },
+      task: '`10⁴ = ' + T4 + '`. Which says the same thing as a logarithm?',
+      why: 'A logarithm is the power the base needs to make the number. The base is 10, the number ' + T4 + ' and the power 4, so `' + O2[1] + '`. The number goes inside the log, and the power comes out.',
+      hint: 'Not quite. The number goes inside the log, and the power comes out.',
+      hints: { [O2[0]]: 'Not quite. That asks what power of 10 makes 4. The number, ' + T4 + ', goes inside the log, and the power, 4, comes out.',
+        [O2[2]]: 'Not quite. That makes 4 the base. Here the base is 10, raised to the power 4.' } },
+    { show: true, name: 'Between the marks', H: 218, R: { base: R10, u: 68, lo: -3.9, hi: 5.5, small: true, inset: true }, p0: L45, dur: 3.9,
+      glide: { from: 2, stops: [[2.5, 0.4, 0.7], [L45, 2.9, 0.8]] }, insetAt: 1.3, smallAt: [1.8, 2.1, 2.4],
+      text: 'Between the marks the same rule holds. Half a space multiplies by `√10 ≈ 3.162`, the number that times itself makes 10, so 316 sits half way from 100 to 1000, at 2.5. Equal lengths multiply by equal factors, so the numbers bunch up towards the right of each space. Ten 2s multiplied make 1024, just over 10³, so ten steps of × 2 are about three spaces, and 2 sits near 0.3. The magnified space shows 2, 3 and 5 at 0.301, 0.477 and 0.699. The pointer stops at 45, at 1.653.' },
+    { kind: 'pick', name: 'Where 5 sits', H: 238, R: { base: R10, u: 68, lo: -0.6, fixed: true, small: true, inset: true, hideInset: 5 },
+      items: [
+        { k: 'insetrv', f: L5, text: fp(L5), when: 'right', at: 0.2 },
+        { k: 'insetring', f: 0.5, text: sits(Math.sqrt(10), 0.5), when: '0.5', at: 0.3 },
+        { k: 'insetring', f: 4 / 9, text: sits(Math.pow(10, 4 / 9), 4 / 9), when: '0.444', at: 0.3 },
+      ],
+      opts: ['0.5', '0.699', '0.444'], want: '0.699', ans: '0.699',
+      vals: { '0.5': fp(0.5), '0.699': fp(L5), '0.444': fp(4 / 9) },
+      forms: { before: [], right: ['10^0.699 ≈ 5', 'log₁₀ 5 ≈ 0.699'] },
+      task: 'On the ruler of 10s, where does 5 sit between 1 and 10? Give its power.',
+      why: 'Equal lengths multiply by equal factors, so the numbers bunch up towards the right of each space. Half way is only `√10 ≈ 3.162`, so 5 sits further on, at 0.699. Check by turning it round: `10^0.699 ≈ 5`.',
+      hint: 'Not quite. Equal lengths multiply, so the space is not evenly spaced.',
+      hints: { '0.5': 'Not quite. Half way through a space multiplies by `√10 ≈ 3.162`, not 5.',
+        '0.444': 'Not quite. That reads the space as evenly spaced, with 5 four of the nine steps from 1 to 10. Equal lengths multiply, so 5 sits further right.' } },
+    { show: true, name: 'The ruler of 2s', H: 180, R: { base: R2, u: 44, lo: -3.8, hi: 6.4 }, p0: 5, dur: 3.9, sw: true,
+      morph: { from: R10, at: 0.4, dur: 0.7 }, glide: { from: 0, stops: [[3, 1.1, 0.6], [5, 1.9, 0.6]] }, brk: true,
+      text: 'Any positive base other than 1 makes its own ruler. On the ruler of 2s each space multiplies by 2, so 1, 2, 4, 8, 16 and 32 sit at 0 to 5: `log₂ 8 = 3` and `log₂ 32 = 5`. A log is a length along the ruler, and a number like any other, so two of them simply add: `log₂ 8 + log₂ 8 = 3 + 3 = 6`. Flip the switch to compare rulers.' },
+    { kind: 'pick', name: 'A log is a number', H: 180, R: { base: R2, u: 50, lo: -0.6, fixed: true },
+      items: [
+        { k: 'bracket', p0: 0, p1: 1, row: 'r1', text: 'log₂ 2' },
+        { k: 'slide', p0: 0, p1: 1, by: 1, row: 'r1', text: 'log₂ 2', when: 'right', at: 0.1, dur: 0.7 },
+        { k: 'slide', p0: 0, p1: 1, by: 2, row: 'r1', text: 'log₂ 2', when: 'right', at: 0.5, dur: 0.7 },
+        { k: 'bracket', p0: 0, p1: 3, row: 'r2', text: '1 + 1 + 1 = 3', when: 'right', at: 1.3 },
+        { k: 'note', p: 1.5, row: 'r2', text: 'log₂ 2 is 1, not 2', when: O6[0], at: 0.3 },
+        { k: 'ring', p: 3, row: 'r2', text: sits(8, 3), when: O6[2], at: 0.3 },
+      ],
+      opts: O6, want: O6[1], ans: '1 + 1 + 1 = 3',
+      vals: { [O6[0]]: 'Yes: ' + (2 + 2 + 2) + ' and ' + (2 + 2 + 2), [O6[1]]: 'No: ' + fp(3 * Math.log2(2)) + ' and ' + (2 + 2 + 2), [O6[2]]: 'No: ' + (2 * 2 * 2) + ' and ' + (2 + 2 + 2) },
+      forms: { before: [], right: ['log₂ 2 + log₂ 2 + log₂ 2 = 3', '2 + 2 + 2 = 6'] },
+      task: 'Say x = 2. Is `log₂ x + log₂ x + log₂ x` the same as `x + x + x`?',
+      why: 'A log is a length along the ruler, and a number like any other. `log₂ 2 = 1`, so three of them make `1 + 1 + 1 = 3`, while `2 + 2 + 2 = 6`. The log cannot be dropped as if it were not there.',
+      hint: 'Not quite. A log is a length: log₂ 2 is one space.',
+      hints: { [O6[0]]: 'Not quite. That treats log₂ 2 as 2. It is 1, the power 2 needs to make 2, so the logs make 3.',
+        [O6[2]]: 'Not quite. 8 is three 2s multiplied, the number at power 3. The logs are lengths, and 1 + 1 + 1 = 3.' } },
+    { show: true, name: 'The ruler of e', H: 130, R: { base: RE, u: 60, lo: -3.9, hi: 5.6 }, p0: 3, dur: 3.2, sw: true,
+      morph: { from: R2, at: 0.4, dur: 0.7 }, glide: { from: 0, stops: [[1, 1.2, 0.5], [2, 1.9, 0.5], [3, 2.6, 0.5]] },
+      text: 'The number e, about 2.71828, makes a ruler too. Each space multiplies by e, so its marks are 1, 2.718, 7.389 and 20.09. Its log is the *natural logarithm*, written ln, so `ln 7.389 ≈ 2`. On a calculator, and in this course, the log key means base 10 and the ln key base e. Any other base is written, as in log₂ 8. Flip the switch: the same number sits at a different power on each ruler.' },
+    { kind: 'pick', name: 'Natural log of 10', H: 150, R: { base: RE, u: 84, lo: 0.7, fixed: true, pills: false, ask: { p: LN10, text: '10' } },
+      items: [
+        { k: 'askrv', text: fp(LN10), when: 'right', at: 0.2 },
+        { k: 'ring', p: 1, text: sits(Math.E, 1), when: '1', at: 0.3 },
+        { k: 'ring', p: 10 / Math.E, text: sits(Math.exp(10 / Math.E), 10 / Math.E, 2), when: '3.68', at: 0.3 },
+      ],
+      opts: ['1', '3.68', '2.303'], want: '2.303', ans: '2.303',
+      vals: { '1': fp(Math.log10(10)), '3.68': fv(10 / Math.E, 2), '2.303': fp(Math.log(10)) },
+      forms: { before: [], right: ['e^2.303 ≈ 10', 'ln 10 ≈ 2.303'] },
+      task: 'On the ruler of e, 10 sits between 7.389 and 20.09. What is ln 10?',
+      why: 'ln 10 asks what power of e makes 10. 10 is between `e² ≈ 7.389` and `e³ ≈ 20.09`, so the answer is between 2 and 3, and the ln key gives 2.303. On the ruler of 10s, 10 sits at 1: ln and log give different answers for every number except 1.',
+      hint: 'Not quite. Find the powers of e either side of 10.',
+      hints: { '1': 'Not quite. 1 is log₁₀ 10, on the ruler of 10s. On the ruler of e, 1 is where 2.718 sits.',
+        '3.68': 'Not quite. That is 10 ÷ 2.718. A log asks for a power: 10 sits between e² and e³.' } },
+    { show: true, name: 'Left of 1', H: 164, R: { base: R10, u: 68, lo: -3.9, hi: 5.5, small: true, open: true }, p0: -3, dur: 3.3, sw: true,
+      glide: { from: 0, stops: [[-1, 0.5, 0.55], [-2, 1.25, 0.55], [-3, 2.0, 0.55]] }, openAt: 2.6,
+      text: 'Go left of 1 and the powers go negative. 0.1 is 10⁻¹, one over 10, so `log 0.1 = −1`, and 0.01 sits at −2 and 0.001 at −3. Each space left divides by 10 again, so the numbers shrink towards 0 but never reach it, because a positive base to any power is positive. So 0 and the negative numbers have no mark, and no logarithm among ordinary numbers.' },
+    { kind: 'pick', name: 'A negative number', H: 164, R: { base: R10, u: 48, lo: -3.9, fixed: true },
+      items: [
+        { k: 'open', when: 'right', at: 0.2 },
+        { k: 'ring', p: -2, text: sits(0.01, -2), when: '−2', at: 0.3 },
+        { k: 'ring', p: 2, text: sits(100, 2), when: '2', at: 0.3 },
+      ],
+      opts: ['−2', 'There is none', '2'], want: 'There is none', ans: 'no power',
+      vals: { '−2': fp(-Math.log10(100)), 'There is none': 'There is none', '2': fp(Math.log10(100)) },
+      forms: { before: [], right: [] },
+      task: 'What is `log₁₀(−100)`?',
+      why: 'A logarithm asks what power of 10 makes the number. Going left, the numbers shrink towards 0 but never reach it: every power of 10 is positive. So no power of 10 makes −100, and a calculator gives an error. A small positive number does have a log: `log 0.01 = −2`.',
+      hint: 'Not quite. Every power of 10 is positive.',
+      hints: { '−2': 'Not quite. −2 is the log of 0.01, a small positive number. No power of 10 is negative.',
+        '2': 'Not quite. 2 is the log of 100. No power of 10 makes −100.' } },
+    { show: true, graph: true, name: 'The fold', H: 312, dur: 4.0,
+      text: 'Asking the question the other way round swaps the input and the output. The graph of `y = eˣ` passes through (0, 1), (1, 2.718) and (2, 7.389). Fold it over the dashed line `y = x` and each point swaps its two numbers, so (1, 2.718) lands on (2.718, 1). The folded curve is `y = ln x`, just as you undid machines in Functions and their graphs. So ln undoes eˣ: `ln(e²) = 2`.' },
+    { kind: 'pick', name: 'A small number', H: 150, R: { base: R10, u: 41.7, lo: -3.75, fixed: true, hidePow: [-3], askNum: -3 },
+      items: [
+        { k: 'powrv', p: -3, text: fp(-3), when: 'right', at: 0.2 },
+        { k: 'ring', p: 3, text: sits(1000, 3), when: '3', at: 0.3 },
+        { k: 'ring', p: -2, text: sits(0.01, -2), when: '−2', at: 0.3 },
+      ],
+      opts: ['3', '−2', '−3'], want: '−3', ans: '−3',
+      vals: { '3': fp(Math.log10(1000)), '−2': fp(-2), '−3': fp(Math.log10(0.001)) },
+      forms: { before: [], right: ['10^−3 = 0.001', 'log₁₀ 0.001 = −3'] },
+      task: '`10ˣ = 0.001`. What is x?',
+      why: '0.001 is 1 divided by 10 three times: 0.1, 0.01, 0.001. Each space left of 1 divides by 10, so 0.001 sits three spaces left, at −3. Check by turning it round: `10⁻³ = 1 ÷ 1000 = 0.001`.',
+      hint: 'Not quite. Count the spaces left of 1.',
+      hints: { '3': 'Not quite. 10³ = 1000. A number below 1 sits left of 1, at a negative power.',
+        '−2': 'Not quite. Count the spaces left of 1: 0.1, 0.01 and 0.001 make three.' } },
+    { kind: 'pick', graph: true, name: 'Fold a point', H: 312,
+      items: [
+        { k: 'gfold', when: 'right', at: 0.1, dur: 0.9 },
+        { k: 'gslip', x: 2, y: Math.log(2), text: O13[0], when: O13[0], at: 0.3 },
+        { k: 'gslip', x: E2, y: Math.log10(E2), text: O13[2], when: O13[2], at: 0.3 },
+      ],
+      opts: O13, want: O13[1], ans: O13[1],
+      vals: { [O13[0]]: pair(2, Math.log(2)), [O13[1]]: pair(E2, Math.log(E2)), [O13[2]]: pair(E2, Math.log10(E2)) },
+      forms: { before: [], right: ['ln 7.389 ≈ 2', 'e^2 ≈ 7.389'] },
+      task: '`y = eˣ` passes through (2, 7.389). Which point does the fold over `y = x` put on `y = ln x`?',
+      why: 'The fold swaps the two numbers of every point, so (2, 7.389) lands on (7.389, 2). It says `ln 7.389 ≈ 2`: the power e needs to make 7.389 is 2, since `e² ≈ 7.389`.',
+      hint: 'Not quite. The fold swaps the two numbers of each point.',
+      hints: { [O13[0]]: 'Not quite. That is the point of y = ln x above 2. The fold swaps the two numbers of (2, 7.389).',
+        [O13[2]]: 'Not quite. 0.869 is log₁₀ 7.389, from the ruler of 10s. The fold undoes eˣ, so it gives ln 7.389 ≈ 2.' } },
+  ];
+  const FINISH = 'A logarithm is the power a base needs to make a number: `log 1000 = 3` because `10³ = 1000`, and ln asks the same question with base e. On the power ruler it is a length, and 0 and the negative numbers have none.';
+  const CAPTION = 'Each number on top is the base raised to the power beneath it, worked out by the rule and rounded.';
+  const FADE = 0.35;
+  const FB = [2.2, 1.2];   // how long the motion after a right and a wrong answer plays
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- geometry ----------
+  // The pointer travels X0..X1; the ruler is seen through the window WL..WR. Rows, top to bottom:
+  // the stretch from the last big mark to the pointer, the × marks, the numbers, the band, the
+  // powers, then lengths (r1, r2) or the magnified first space.
+  const X0 = 20, X1 = 320, WL = 14, WR = 326;
+  const Y = { part: 16, partLine: 24, pill: 32, num: 68, top: 74, bot: 102, mid: 88, pow: 120 };
+  const ROWY = { r1: 146, r2: 170 };
+  const IX0 = 30, IX1 = 310, IY = 132;
+  const ix = (f) => IX0 + f * (IX1 - IX0);
+  // The window pans with the pointer, from lo at the far left to hi at the far right, at a steady
+  // share of its travel, so the pointer stays in view and under the finger.
+  function panK(R) { const W = (X1 - X0) / R.u, span = R.hi - W - R.lo; return R.fixed || !(span > 0) ? 0 : span / (PMAX - PMIN); }
+  function viewOf(R, pos) { const k = panK(R); return { u: R.u, v0: R.lo + k * ((pos == null ? 0 : pos) - PMIN), k }; }
+  const xAt = (V, p) => X0 + (p - V.v0) * V.u;
+  function posFromX(R, x) { const k = panK(R); return ((x - X0) / R.u + R.lo - k * PMIN) / (1 - k); }
+  // The graph: x and y from −2 to 8 at the same scale, so the fold over y = x is a true mirror.
+  const GX = (x) => 46 + (x + 2) * 26, GY = (y) => 24 + (8 - y) * 26;
+  const EXP = K.linspace(-2, Math.log(8), 90).map((x) => [x, Math.exp(x)]);
+  const LN = EXP.map((q) => [q[1], q[0]]);
+  const PTS = [[0, 1], [1, Math.E], [2, E2]];
+  // Folding over y = x: a point turns about the line, so the part of it across the line shrinks to
+  // nothing half way and comes out mirrored, (x, y) to (y, x).
+  function foldPt(x, y, m) { const c = (x + y) / 2, d = (x - y) / 2, f = Math.cos(Math.PI * m); return [c + d * f, c - d * f]; }
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // live: Dan has moved the pointer or the switch, so the demonstration is over; trans: a switch of ruler.
+  function blank() { return { pick: null, res: null, why: false, live: false, trans: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;
+  let lastPtr = null, lastBase = null, motionEnd = 0, held = null;
+  let REC = null;   // what the last paint drew, for the checks
+
+  // ---------- text with amber key terms, italic letters and raised powers (K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[xy](?![A-Za-z])|ˣ)/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  const POW = /\^(\([^)]*\)|[0-9.−]+)/;
+  function maths(parent, s) {
+    let rest = String(s), m;
+    while ((m = POW.exec(rest))) {
+      if (m.index) italics(parent, rest.slice(0, m.index), false);
+      const pw = m[1].charAt(0) === '(' ? m[1].slice(1, -1) : m[1];
+      italics(parent.appendChild(K.el('sup')), pw, false);
+      rest = rest.slice(m.index + m[0].length);
+    }
+    if (rest) italics(parent, rest, false);
+  }
+  // `maths` stays on one line; *a key term* is highlighted.
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { maths(el.appendChild(K.el('span', { class: 'nw' })), seg); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at0) el.appendChild(document.createTextNode(seg.slice(at0, m.index)));
+        el.appendChild(K.el('span', { class: 'mark' }, m[1]));
+        at0 = m.index + m[0].length;
+      }
+      if (at0 < seg.length) el.appendChild(document.createTextNode(seg.slice(at0)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  // The lesson's pointer; Dan moves it by dragging along the ruler, which keeps it in step.
+  const ptrCtl = K.control({ id: 'pointer', label: 'Pointer, as a power', min: PMIN, max: PMAX, step: 0.001, value: 3, unit: '', snap: [L45, L2, L3, L5, LN10], into: '#ptrk' });
+  const baseCtl = K.choice({ id: 'base', label: 'Which ruler', options: OPT, value: 0, into: '#basek' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+  const cur = () => ({ pointer: ptrCtl.get(), base: baseCtl.get() });
+  const openP = (i) => ({ pointer: STEPS[i].p0 != null ? STEPS[i].p0 : 3, base: STEPS[i].R ? STEPS[i].R.base : R10 });
+  function remember() { lastPtr = ptrCtl.get(); lastBase = baseCtl.get(); }
+  // A screen opens on its own settings: the pointer where its demonstration ends, its own ruler.
+  function openStep(i) {
+    const P = openP(i), st = S[i];
+    st.live = false; st.trans = null;
+    ptrCtl.set(P.pointer, true); baseCtl.set(P.base, true);
+  }
+
+  // Up to three answer buttons; each step fills in its own. A new choice after a wrong answer
+  // settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one runs the picture on, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(st.res === 'right' ? FB[0] : FB[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    openStep(i); remember();
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer or a switch; with reduced
+  // motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing helpers ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A demonstration's part: there at once once Dan has taken over.
+  const A = (st, t0, d) => (st.live ? 1 : arr(t0, d));
+  function part(a, rise, draw) {
+    if (!(a > 0)) return null;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+    return g;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const dot = (cls, x, y, r) => add(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r: r || 4.5 }));
+  const path = (cls, pts) => add(K.svg('path', { class: cls, d: 'M' + pts.map((q) => r3(q[0]) + ' ' + r3(q[1])).join(' L') }));
+  function text(x, y, s, cls, anchor, ital) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    if (ital) italics(t, s, true); else t.textContent = String(s);
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));
+    t.textContent = String(s);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 7.6;
+  }
+  function partial(pts, p) {
+    if (p >= 1) return pts.slice();
+    const n = pts.length - 1, f = p * n, k = Math.floor(f), out = pts.slice(0, k + 1);
+    if (k < n) { const a = pts[k], b = pts[k + 1], u = f - k; out.push([a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u]); }
+    return out;
+  }
+  // While the picture moves (a demonstration, a drag) labels fade in and out softly at the window's
+  // edges and beside the pointer; a still picture shows each one whole or not at all.
+  const isMoving = () => (T !== Infinity && T < motionEnd) || held != null;
+  const settle = (a, cut) => (isMoving() ? a : (a >= cut ? 1 : 0));
+  const edgeA = (x0, x1) => settle(K.clamp(Math.min(x0 - WL, WR - x1) / 10, 0, 1), 0.6);
+  function occA(x0, x1, occ) {
+    let a = 1;
+    (occ || []).forEach((o) => { const gap = Math.max(o[0] - x1, x0 - o[1]); a = Math.min(a, K.clamp((gap - 1) / 8, 0, 1)); });
+    return settle(a, 0.5);
+  }
+  // A row of labels: each kept clear of the ones before it and of the pointer's tags.
+  function rowLabels(list, y, occ) {
+    const done = [];
+    list.forEach((it) => {
+      it.drawn = false;
+      if (!(it.a > 0)) return;
+      const w = tw(it.s, it.cls), x0 = it.x - w / 2, x1 = it.x + w / 2;
+      if (done.some((q) => x0 < q[1] + 2 && q[0] < x1 + 2)) return;
+      const a = it.a * edgeA(x0, x1) * occA(x0, x1, occ);
+      if (!(a > 0)) return;
+      done.push([x0, x1]);
+      it.drawn = true;
+      part(a, 0, () => text(it.x, y, it.s, it.cls, 'middle'));
+    });
+  }
+  // A clipped group: the band, its marks and the lengths end at the window's edges.
+  function clipped(fn) {
+    const g = add(K.svg('g', { 'clip-path': 'url(#rulerwin)' }));
+    const keep = into; into = g; fn(); into = keep;
+  }
+  // A length along the ruler: a bracket from p0 to p1 with its label above it.
+  function bracket(V, p0, p1, y, s, cls, a) {
+    if (!(a > 0)) return;
+    const x0 = xAt(V, p0), x1 = xAt(V, p1);
+    clipped(() => part(a, 0, () => {
+      line(cls, x0 + 1, y, x1 - 1, y); line(cls, x0 + 1, y - 5, x0 + 1, y + 5); line(cls, x1 - 1, y - 5, x1 - 1, y + 5);
+    }));
+    const w = tw(s, 'brt'), c = (x0 + x1) / 2, la = a * edgeA(c - w / 2, c + w / 2);
+    if (la > 0) part(la, 0, () => text(c, y - 6, s, 'brt', 'middle'));
+    REC.brackets.push({ p0, p1, text: s, shown: la > 0 });
+  }
+  // A slip's label in the warning colour, kept inside the window.
+  function slipText(x, y, s, a) {
+    const w = tw(s, 'slipt'), x0 = K.clamp(x - w / 2, WL + 2, WR - 2 - w);
+    part(a, 0, () => text(x0, y, s, 'slipt', 'start'));
+    REC.notes.push(s);
+  }
+
+  // ---------- the ruler ----------
+  function glidePos(d, st) {
+    const g = d.glide;
+    let pos = g.from, prev = g.from;
+    g.stops.forEach((s) => { pos += (s[0] - prev) * A(st, s[1], s[2]); prev = s[0]; });
+    return pos;
+  }
+  function tagBox(s, x) { const w = tw(s, 'tagt') + 14, x0 = K.clamp(x - w / 2, WL, WR - w); return [x0, x0 + w]; }
+  function itemA(st, it) {
+    if (!it.when) return 1;
+    const t0 = it.at != null ? it.at : (it.when === 'right' ? 0.1 : 0.3);
+    if (it.when === 'right') return st.res === 'right' ? arr(t0, it.dur || K.SOFT) : 0;
+    return st.res === 'wrong' && st.pick === it.when ? arr(t0, it.dur || K.SOFT) : 0;
+  }
+  function drawRuler(d, st, P) {
+    const R = d.R, show = !!d.show, said = [];
+    const name = show ? P.base : R.base;
+    let from = null, m = 1;
+    if (show) {
+      if (st.trans && st.trans.from !== name) { from = st.trans.from; m = arr(0.05, 0.8); }
+      else if (d.morph && !st.live && d.morph.from !== name) { from = d.morph.from; m = A(st, d.morph.at, d.morph.dur); }
+      if (m >= 1) from = null;
+    }
+    const pos = show ? (st.live ? P.pointer : glidePos(d, st)) : null;
+    const V = viewOf(R, pos);
+    const X = (p) => xAt(V, p);
+    REC.view = V; REC.name = name; REC.pos = pos;
+    const right = st.res === 'right';
+    const qA = !show && right ? 1 - arr(0.05, 0.3) : 1;
+    const insetA = R.inset ? (show ? A(st, d.insetAt, K.SOFT) : 1) : 0;
+    // the small marks belong to the ruler of 10s: they fade with it when the ruler changes
+    const w10 = name === R10 ? (from ? m : 1) : (from === R10 ? 1 - m : 0);
+    const smallA = SMALL.map((q, j) => (R.small ? w10 * (show && d.smallAt ? A(st, d.smallAt[j], 0.5) : 1) : 0));
+
+    clipped(() => {
+      rect('band', X(PMIN), Y.top, X(PMAX) - X(PMIN), Y.bot - Y.top, 0);
+      // the open left end: the band fades out where 0 and the negative numbers would be
+      [0.7, 0.45, 0.25, 0.1].forEach((o, j) => { const g = rect('band', X(PMIN - 0.15 * (j + 1)), Y.top, 0.15 * V.u, Y.bot - Y.top, 0); g.setAttribute('opacity', o); });
+      if (insetA > 0) part(insetA, 0, () => rect('hl', X(0), Y.top, V.u, Y.bot - Y.top, 0));
+      line('edge', X(PMIN), Y.top, X(PMAX), Y.top); line('edge', X(PMIN), Y.bot, X(PMAX), Y.bot);
+      for (let k = PMIN; k <= PMAX; k++) line('tickb', X(k), Y.top, X(k), Y.bot);
+      SMALL.forEach((q, j) => { if (smallA[j] > 0) part(smallA[j], 0, () => line('ticks', X(q[1]), Y.top, X(q[1]), Y.top + 11)); });
+    });
+
+    // the pointer's tags, worked out first so the labels beside them make room
+    let tN = null, tP = null, nT = '', pT = '';
+    if (show) { nT = fn4(numAt(name, pos)); pT = fp(pos); tN = tagBox(nT, X(pos)); tP = tagBox(pT, X(pos)); }
+    else if (R.ptr != null) { nT = fn4(numAt(name, R.ptr)); pT = fp(R.ptr); tN = tagBox(nT, X(R.ptr)); tP = tagBox(pT, X(R.ptr)); }
+    const occN = tN ? [tN] : [], occP = tP ? [tP] : [];
+
+    // numbers along the top: the base to each power (a ruler being switched fades into the next)
+    const marks = (nm, a) => { const out = []; for (let k = PMIN; k <= PMAX; k++) out.push({ x: X(k), s: fn4(numAt(nm, k)), a, k, cls: R.askNum === k ? 'nl ask' : 'nl' }); return out; };
+    const newL = marks(name, from ? m : 1);
+    if (from) {
+      const oldL = marks(from, 1 - m);
+      oldL.forEach((o, j) => { if (o.s === newL[j].s) { o.a = 0; newL[j].a = 1; } });
+      rowLabels(oldL, Y.num, occN);
+    }
+    const smallL = SMALL.map((q, j) => ({ x: X(q[1]), s: String(q[0]), a: smallA[j], cls: 'nl', small: true }));
+    rowLabels(newL.concat(smallL), Y.num, occN);
+    newL.forEach((it) => REC.marks.push({ k: it.k, v: numAt(name, it.k), text: it.s, drawn: it.drawn }));
+    smallL.forEach((it, j) => REC.small.push({ n: SMALL[j][0], p: SMALL[j][1], drawn: it.drawn }));
+
+    // powers along the bottom
+    const powL = [];
+    for (let k = PMIN; k <= PMAX; k++) {
+      const hide = (R.hidePow || []).indexOf(k) >= 0;
+      powL.push({ x: X(k), s: hide ? '?' : fp(k), cls: hide ? 'q' : 'pl', a: hide ? qA : 1, k });
+    }
+    if (R.ask) powL.push({ x: X(R.ask.p), s: '?', cls: 'q', a: qA });
+    rowLabels(powL, Y.pow, occP);
+    powL.forEach((it) => { if (it.k != null) REC.pows.push({ k: it.k, text: it.s, drawn: it.drawn }); });
+
+    // × the base over every space
+    if (R.pills !== false) {
+      for (let k = PMIN; k < PMAX; k++) {
+        const x = X(k + 0.5), sN = '× ' + SYM[name], sO = from ? '× ' + SYM[from] : null;
+        const w = Math.max(tw(sN, 'pt'), sO ? tw(sO, 'pt') : 0) + 8;
+        const a = edgeA(x - w / 2, x + w / 2);
+        if (!(a > 0)) continue;
+        part(a, 0, () => {
+          rect('pill', x - w / 2, Y.pill, w, 18, 9);
+          if (sO && sO !== sN) { part(1 - m, 0, () => text(x, Y.pill + 13, sO, 'pt')); part(m, 0, () => text(x, Y.pill + 13, sN, 'pt')); }
+          else text(x, Y.pill + 13, sN, 'pt');
+        });
+        REC.pills.push({ k, text: sN });
+      }
+    }
+
+    // the number asked about (a navy mark from above)
+    if (R.ask) {
+      const x = X(R.ask.p);
+      line('askl', x, 28, x, Y.top);
+      text(x, 22, R.ask.text, 'rv');
+    }
+
+    // the open left end: no mark, and a note saying why
+    const openA = R.open ? (show ? A(st, d.openAt, K.SOFT) : 1) : 0;
+    const drawOpen = (a) => {
+      const x0 = X(-3.72), w = Math.max(tw('no power', 'pt'), tw('gets here', 'pt')), ea = a * edgeA(x0, x0 + w);
+      if (!(ea > 0)) return;
+      part(ea, 0, () => { text(x0, 140, 'no power', 'pt', 'start'); text(x0, 156, 'gets here', 'pt', 'start'); });
+      REC.open = true;
+    };
+    if (openA > 0) drawOpen(openA);
+
+    // lengths on the ruler of 2s: log₂ 8 is 3 spaces, and two of them laid end to end make 6
+    if (show && d.brk && name === R2) {
+      const lab = 'log₂ 8 = 3', sB = A(st, 2.6, 0.6);
+      bracket(V, 0, 3, ROWY.r1, lab, 'br', A(st, 1.7, 0.5));
+      bracket(V, 3 * sB, 3 + 3 * sB, ROWY.r1, lab, 'br', A(st, 2.5, 0.3));
+      bracket(V, 0, 6, ROWY.r2, '3 + 3 = 6', 'br', A(st, 3.2, 0.6));
+    }
+
+    // the first space magnified
+    if (R.inset && insetA > 0) drawInset(d, st, insetA, smallA, pos, name);
+
+    // a puzzle's parts
+    if (!show) (d.items || []).forEach((it) => {
+      const a = itemA(st, it);
+      if (!(a > 0)) return;
+      if (it.k === 'bracket') bracket(V, it.p0, it.p1, ROWY[it.row], it.text, 'br', a);
+      else if (it.k === 'slide') { const s = a; bracket(V, it.p0 + it.by * s, it.p1 + it.by * s, ROWY[it.row], it.text, 'br', Math.min(1, a * 4)); }
+      else if (it.k === 'ring') {
+        const x = X(it.p);
+        clipped(() => part(a, 0, () => dot('ring', x, Y.mid, 8)));
+        slipText(x, ROWY[it.row || 'r1'] - 6, it.text, a);
+        REC.rings.push({ p: it.p, text: it.text });
+        said.push('In red, a ring where ' + say(it.text) + '.');
+      } else if (it.k === 'note') { slipText(X(it.p), ROWY[it.row || 'r1'] - 6, it.text, a); said.push('In red: ' + say(it.text) + '.'); }
+      else if (it.k === 'open') drawOpen(a);
+      else if (it.k === 'powrv') part(a, 0, () => text(X(it.p), Y.pow, it.text, 'rv'));
+      else if (it.k === 'askrv') part(a, 0, () => text(X(R.ask.p), Y.pow, it.text, 'rv'));
+      else if (it.k === 'insetrv') part(a, 0, () => text(ix(it.f), IY + 78, it.text, 'rv'));
+      else if (it.k === 'insetring') { part(a, 0, () => dot('ring', ix(it.f), IY + 51, 8)); slipText(ix(it.f), IY + 98, it.text, a); REC.rings.push({ f: it.f, text: it.text }); }
+      if (it.k === 'powrv' || it.k === 'askrv' || it.k === 'insetrv') REC.reveal = it.text;
+    });
+    if (!show && R.inset && R.hideInset) {
+      const f = SMALL.find((q) => q[0] === R.hideInset)[1];
+      part(qA, 0, () => text(ix(f), IY + 78, '?', 'q'));
+    }
+
+    // the pointer: a navy line across the band, the number above, its power below
+    const ptrAt = show ? pos : R.ptr;
+    if (ptrAt != null) {
+      const x = X(ptrAt);
+      line('ptr', x, Y.top, x, Y.pow - 14);
+      rect('tag', tN[0], Y.num - 13, tN[1] - tN[0], 18, 9); text((tN[0] + tN[1]) / 2, Y.num, nT, 'tagt');
+      rect('tag', tP[0], Y.pow - 13, tP[1] - tP[0], 18, 9); text((tP[0] + tP[1]) / 2, Y.pow, pT, 'tagt');
+      REC.tag = { p: ptrAt, num: nT, pow: pT, x };
+      said.push('The pointer reads ' + say(nT) + ' above and the power ' + say(pT) + ' below.');
+      // from the last big mark to the pointer: the factor that stretch multiplies by
+      const k0 = Math.floor(ptrAt + 1e-9), frac = ptrAt - k0;
+      if (show && frac > 1e-6 && frac < 1 - 1e-6) {
+        const xa = X(k0), s = '× ' + fn4(Math.pow(BASE[name], frac)), pa = settle(K.clamp((x - xa - 4) / 10, 0, 1), 0.5);
+        if (pa > 0) {
+          clipped(() => part(pa, 0, () => { line('part', xa, Y.partLine, x, Y.partLine); line('part', xa, Y.partLine - 3, xa, Y.partLine + 3); line('part', x, Y.partLine - 3, x, Y.partLine + 3); }));
+          const w = tw(s, 'partt'), lx = K.clamp((xa + x) / 2 - w / 2, WL, WR - w);
+          part(pa, 0, () => text(lx, Y.part, s, 'partt', 'start'));
+          REC.part = { from: k0, to: ptrAt, text: s };
+          said.push('From ' + say(fn4(numAt(name, k0))) + ' to the pointer, ' + say(s) + '.');
+        }
+      }
+    }
+    const shownN = REC.marks.filter((q) => q.drawn).map((q) => q.text);
+    said.unshift('The ' + name.toLowerCase() + ': along the top ' + shownN.map(say).join(', ') + ', each space times ' + say(SYM[name]) + ', with their powers underneath.');
+    if (REC.open) said.push('At the left end the ruler is open: no power gets there.');
+    return said.join(' ');
+  }
+  function drawInset(d, st, a, smallA, pos, name) {
+    part(a, 0, () => {
+      text(IX0 - 10, IY + 14, 'The space from 1 to 10, magnified', 'an', 'start');
+      rect('hl', IX0, IY + 42, IX1 - IX0, 18, 0);
+      line('edge', IX0, IY + 42, IX1, IY + 42); line('edge', IX0, IY + 60, IX1, IY + 60);
+      line('tickb', IX0, IY + 42, IX0, IY + 60); line('tickb', IX1, IY + 42, IX1, IY + 60);
+      text(IX0, IY + 36, '1', 'nl'); text(IX1, IY + 36, '10', 'nl');
+      text(IX0, IY + 78, '0', 'pl'); text(IX1, IY + 78, '1', 'pl');
+    });
+    SMALL.forEach((q, j) => {
+      const sa = a * smallA[j];
+      if (!(sa > 0)) return;
+      part(sa, 0, () => {
+        line('ticks', ix(q[1]), IY + 42, ix(q[1]), IY + 52);
+        text(ix(q[1]), IY + 36, String(q[0]), 'nl');
+        if (d.R.hideInset !== q[0]) text(ix(q[1]), IY + 78, fp(q[1]), 'pl');
+      });
+    });
+    if (d.show && name === R10 && pos != null && pos >= 0 && pos <= 1) part(a, 0, () => line('echo', ix(pos), IY + 42, ix(pos), IY + 60));
+    REC.inset = { small: SMALL.map((q) => q[0]) };
+  }
+
+  // ---------- the graph ----------
+  const GPOS = { r: [8, 4.5, 'start'], l: [-8, 4.5, 'end'], ar: [6, -8, 'start'], al: [-6, -8, 'end'], br: [6, 17, 'start'], bl: [-6, 17, 'end'], a: [0, -11, 'middle'], b: [0, 21, 'middle'], aar: [6, -22, 'start'], aal: [-6, -22, 'end'], bbr: [6, 30, 'start'], bbl: [-6, 30, 'end'] };
+  const ALLPOS = Object.keys(GPOS);
+  function segBox(x1, y1, x2, y2, b) {
+    let t0 = 0, t1 = 1;
+    const dx = x2 - x1, dy = y2 - y1, p = [-dx, dx, -dy, dy], q = [x1 - b.x0, b.x1 - x1, y1 - b.y0, b.y1 - y1];
+    for (let i = 0; i < 4; i++) {
+      if (p[i] === 0) { if (q[i] < 0) return false; }
+      else { const r = q[i] / p[i]; if (p[i] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; } }
+    }
+    return true;
+  }
+  const hitsBox = (b, polys) => polys.reduce((n, pl) => { for (let j = 1; j < pl.length; j++) if (segBox(pl[j - 1][0], pl[j - 1][1], pl[j][0], pl[j][1], b)) return n + 1; return n; }, 0);
+  let gPlaced = [];
+  // Each label tries its places in turn and takes the first clear of every line, dot and label.
+  function gPlace(x, y, s, prefs, polys, H, cls) {
+    const w = tw(s, cls || 'gl');
+    let best = null, bestScore = Infinity;
+    prefs.concat(ALLPOS).forEach((k, j) => {
+      const P = GPOS[k];
+      const x0 = P[2] === 'start' ? x + P[0] : P[2] === 'end' ? x + P[0] - w : x + P[0] - w / 2, by = y + P[1];
+      const b = { x0: x0 - 2, x1: x0 + w + 2, y0: by - 12, y1: by + 4 };
+      let score = (b.x0 < 2 || b.x1 > 338 || b.y0 < 2 || b.y1 > H - 2) ? 100 : 0;
+      score += 10 * hitsBox(b, polys) + 10 * gPlaced.filter((q) => b.x0 < q.x1 && q.x0 < b.x1 && b.y0 < q.y1 && q.y0 < b.y1).length + j * 0.001;
+      if (score < bestScore) { bestScore = score; best = { x0, by, b }; }
+    });
+    gPlaced.push(best.b);
+    return { x: best.x0, y: best.by, ok: bestScore < 1 };
+  }
+  const px = (pts) => pts.map((q) => [GX(q[0]), GY(q[1])]);
+  const cross = (q) => { const x = GX(q[0]), y = GY(q[1]); return [[[x - 5, y], [x + 5, y]], [[x, y - 5], [x, y + 5]]]; };
+  function drawGraph(d, st) {
+    const show = !!d.show, right = st.res === 'right', said = ['A graph, x along the bottom and y up the side, both from minus 2 to 8 at the same scale.'];
+    gPlaced = [];
+    line('axis', 46, 24, 46, 284); line('axis', 46, 284, 306, 284);
+    [0, 2, 4, 6, 8].forEach((v) => {
+      line('axis', GX(v), 284, GX(v), 289); text(GX(v), 302, fv(v, 0), 'tk');
+      line('axis', 41, GY(v), 46, GY(v)); text(38, GY(v) + 4.5, fv(v, 0), 'tk', 'end');
+      const wv = tw(fv(v, 0), 'tk');
+      gPlaced.push({ x0: GX(v) - wv / 2 - 2, x1: GX(v) + wv / 2 + 2, y0: 290, y1: 306 }, { x0: 36 - wv, x1: 40, y0: GY(v) - 8, y1: GY(v) + 8 });
+    });
+    text(312, 288, 'x', 'tk', 'start', true); text(52, 16, 'y', 'tk', 'start', true);
+    const YX = [[GX(-2), GY(-2)], [GX(8), GY(8)]];
+    const polys = [[[46, 24], [46, 284]], [[46, 284], [306, 284]], YX, px(EXP), px(LN)];
+    // the points each picture shows, as obstacles for the labels
+    const pts = show ? PTS.concat(PTS.map((q) => [q[1], q[0]])) : [[2, E2]].concat(right ? [[E2, 2]] : []).concat((d.items || []).filter((it) => it.k === 'gslip' && st.res === 'wrong' && st.pick === it.when).map((it) => [it.x, it.y]));
+    pts.forEach((q) => cross(q).forEach((c) => polys.push(c)));
+    const H = d.H;
+    const Lyx = gPlace(GX(6.6), GY(6.6), 'y = x', ['br', 'bbr', 'r'], polys, H);
+    const Lexp = gPlace(GX(1.7), GY(Math.exp(1.7)), 'y = eˣ', ['r', 'br', 'ar'], polys, H);
+    const Lln = gPlace(GX(5.5), GY(Math.log(5.5)), 'y = ln x', ['a', 'al', 'ar'], polys, H);
+    const ok = [Lyx.ok, Lexp.ok, Lln.ok];
+    const glab = (L, s, a, cls) => { if (a > 0) part(a, 0, () => text(L.x, L.y, s, 'gl h' + (cls ? ' ' + cls : ''), 'start', true)); };
+    REC.graph = { folded: [], dots: [], labels: [], labelsOk: true, move: null };
+
+    const yxA = show ? A(st, 0.4, 0.5) : 1, penP = show ? A(st, 0.5, 0.9) : 1;
+    if (yxA > 0) part(yxA, 0, () => line('c-yx', YX[0][0], YX[0][1], YX[1][0], YX[1][1]));
+    glab(Lyx, 'y = x', yxA);
+    if (penP > 0) { const pp = partial(px(EXP), penP); if (pp.length > 1) path('c-exp', pp); }
+    glab(Lexp, 'y = eˣ', show ? A(st, 1.3, 0.5) : 1);
+    said.push('The curve y equals e to the x, and the dashed line y equals x.');
+
+    if (show) {
+      // the fold: a copy of y = eˣ turns over the line y = x and lands as y = ln x
+      const m = A(st, 2.0, 1.3), lnA = A(st, 3.3, 0.6);
+      const P0 = PTS.map((q, j) => gPlace(GX(q[0]), GY(q[1]), pair(q[0], q[1]), ['l', 'al', 'aal', 'bl'], polys, H));
+      const P1 = PTS.map((q) => gPlace(GX(q[1]), GY(q[0]), pair(q[1], q[0]), ['br', 'b', 'bbr', 'bl', 'bbl', 'r'], polys, H));
+      if (m > 0) {
+        const fc = EXP.map((q) => foldPt(q[0], q[1], m));
+        path('c-ln', px(fc));
+        if (m >= 1) REC.graph.folded = fc;
+      }
+      glab(Lln, 'y = ln x', lnA);
+      PTS.forEach((q, j) => {
+        const a = A(st, 1.0 + 0.25 * j, 0.5);
+        if (a > 0) part(a, 0, () => dot('d-exp', GX(q[0]), GY(q[1])));
+        glab(P0[j], pair(q[0], q[1]), a);
+        if (m > 0) { const f = foldPt(q[0], q[1], m); dot('d-ln', GX(f[0]), GY(f[1])); REC.graph.dots.push(f); }
+        glab(P1[j], pair(q[1], q[0]), lnA);
+      });
+      P0.concat(P1).forEach((L) => ok.push(L.ok));
+      said.push('Points (0, 1), (1, 2.718) and (2, 7.389) on it fold over the line to (1, 0), (2.718, 1) and (7.389, 2) on the curve y equals ln x.');
+    } else {
+      path('c-ln', px(LN));
+      glab(Lln, 'y = ln x', 1);
+      const C = [2, E2], Lc = gPlace(GX(C[0]), GY(C[1]), pair(C[0], C[1]), ['l', 'al'], polys, H);
+      ok.push(Lc.ok);
+      dot('d-exp', GX(C[0]), GY(C[1]));
+      glab(Lc, pair(C[0], C[1]), 1);
+      said.push('The curve y equals ln x, and the point (2, 7.389) on y equals e to the x.');
+      (d.items || []).forEach((it) => {
+        const a = itemA(st, it);
+        if (!(a > 0)) return;
+        if (it.k === 'gfold') {
+          const f = foldPt(C[0], C[1], a), L = gPlace(GX(E2), GY(2), pair(E2, 2), ['br', 'b', 'bbr', 'bl', 'bbl'], polys, H);
+          ok.push(L.ok);
+          dot('d-ln', GX(f[0]), GY(f[1]));
+          glab(L, pair(E2, 2), arr(1.0, 0.5));
+          REC.graph.move = f;
+          said.push('The point folds over the line to (7.389, 2).');
+        } else if (it.k === 'gslip') {
+          const L = gPlace(GX(it.x), GY(it.y), it.text, ['br', 'bl', 'b', 'bbr', 'bbl', 'r'], polys, H, 'gl slip');
+          ok.push(L.ok);
+          part(a, 0, () => dot('gring', GX(it.x), GY(it.y), 6));
+          glab(L, it.text, a, 'slip');
+          REC.notes.push(it.text);
+          said.push('In red, the point ' + it.text + '.');
+        }
+      });
+    }
+    REC.graph.labelsOk = ok.every(Boolean);
+    return said.join(' ');
+  }
+
+  // ---------- the drag along the ruler ----------
+  const grip = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1, role: 'slider', 'aria-label': 'Pointer, as a power', 'aria-orientation': 'horizontal' }));
+  grip.style.display = 'none';
+  const gripLive = () => !finished && STEPS[at()].show && !STEPS[at()].graph;
+  function svgX(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()).x;
+  }
+  function setPtr(v) {
+    const st = S[at()];
+    if (st.live && ptrCtl.get() === v && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    T = Infinity; st.live = true; st.trans = null;
+    ptrCtl.set(v, true);
+    K.reveal();
+  }
+  const fromX = (x) => snapPtr(posFromX(STEPS[at()].R, x), baseCtl.get());
+  grip.addEventListener('pointerdown', (e) => {
+    if (!gripLive()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the ruler */ }
+    const x = svgX(e);
+    if (x != null) setPtr(fromX(x));
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !gripLive()) return;
+    const x = svgX(e);
+    if (x != null) setPtr(fromX(x));
+  });
+  const letGo = (e) => { if (held === e.pointerId) { held = null; K.refresh(); } };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { if (held != null) { held = null; K.refresh(); } });
+  grip.addEventListener('keydown', (e) => {
+    if (!gripLive()) return;
+    const by = { ArrowUp: 0.1, ArrowRight: 0.1, ArrowDown: -0.1, ArrowLeft: -0.1, PageUp: 1, PageDown: -1 }[e.key];
+    if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault();
+    const now = ptrCtl.get();
+    setPtr(snapPtr(e.key === 'Home' ? PMIN : e.key === 'End' ? PMAX : now + by, baseCtl.get()));
+  });
+  function placeGrip(d) {
+    const on = !!(d.show && !d.graph && !finished);
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    grip.setAttribute('x', WL); grip.setAttribute('width', WR - WL);
+    grip.setAttribute('y', 52); grip.setAttribute('height', 78);
+    const p = REC.pos != null ? REC.pos : ptrCtl.get();
+    grip.setAttribute('aria-valuemin', PMIN); grip.setAttribute('aria-valuemax', PMAX); grip.setAttribute('aria-valuenow', r3(p));
+    grip.setAttribute('aria-valuetext', say(formsOf(REC.name || R10, p)[0]));
+  }
+
+  // ---------- one paint: the scene and the two forms under it ----------
+  const el = (id) => document.getElementById(id);
+  function writeForms(lines) {
+    const f = el('forms');
+    f.textContent = '';
+    (lines || []).forEach((s) => { if (s) maths(f.appendChild(K.el('span', { class: 'nw' })), s); });
+    REC.forms = (lines || []).slice();
+  }
+  function paint(i, P) {
+    if (i == null) i = at();
+    if (!P) P = cur();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    REC = { marks: [], small: [], pows: [], pills: [], brackets: [], rings: [], notes: [], tag: null, part: null, inset: null, open: false, view: null, name: null, pos: null, graph: null, reveal: null, forms: [] };
+    svg.setAttribute('viewBox', '0 0 340 ' + d.H);
+    const said = d.graph ? drawGraph(d, st) : drawRuler(d, st, P);
+    if (d.show && !d.graph) writeForms(formsOf(REC.name, REC.pos));
+    else if (d.show) writeForms([]);
+    else writeForms(st.res === 'right' ? d.forms.right : d.forms.before);
+    placeGrip(d);
+    svg.setAttribute('aria-label', said);
+  }
+
+  // The model the lesson reads: the number above the pointer, and its power, the log.
+  K.model((p) => ({ number: numAt(p.base, p.pointer), power: p.pointer }));
+
+  write(el('finish'), FINISH);
+  write(el('cap'), CAPTION);
+  function switched(d, st, from) {
+    st.live = true;
+    st.trans = { from };
+    play(0.9);
+  }
+  K.update(() => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      openStep(i);
+      if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }
+    } else if (d.show && !d.graph) {
+      const P = cur();
+      if (P.base !== lastBase) switched(d, st, lastBase);
+      else if (P.pointer !== lastPtr) {
+        // the drag, the slider or a test moved: the demonstration gives way to Dan's setting
+        st.live = true; st.trans = null;
+        if (anim.playing()) anim.pause();
+        T = Infinity;
+      }
+    }
+    remember();
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('lead').hidden = i !== 0 || finished;
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('basek').hidden = finished || !d.show || !d.sw;
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      b.el.appendChild(K.el('span', null, opts[k]));   // one span, so the button's gap does not split an answer
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Tap one of the answers.' : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const SHOWS = STEPS.map((d, i) => i).filter((i) => STEPS[i].show);
+  const RSHOWS = SHOWS.filter((i) => !STEPS[i].graph);
+  const PICKS = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const liveSt = () => Object.assign(blank(), { live: true });
+  const close = (a, b, tol) => Math.abs(a - b) <= (tol != null ? tol : 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)));
+  // A step painted in the state and settings given (finished, or t seconds into its motion): what it draws.
+  function drawn(i, st, P, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try {
+      paint(i, P || openP(i));
+      return { texts: Array.from(art.querySelectorAll('text')).map((q) => q.textContent), rec: REC };
+    } finally { S[i] = keepS; T = keepT; }
+  }
+  // Every check repaints the screen Dan is on when it is done.
+  const chk = (label, fn, opt) => K.check(label, () => { try { return fn(); } finally { paint(); } }, opt);
+  const TRY = [-3, -2.5, -1, 0, L2, 0.5, 1, L45, 2.5, 3, 4.2, 5];
+  function states() {
+    const out = [];
+    STEPS.forEach((d, i) => {
+      out.push([i, blank(), openP(i)]);
+      if (d.show && !d.graph) OPT.forEach((base) => TRY.forEach((p) => out.push([i, liveSt(), { base, pointer: p }])));
+      else if (!d.show) { out.push([i, solvedSt(i), openP(i)]); d.opts.filter((o) => o !== d.want).forEach((o) => out.push([i, wrongSt(i, o), openP(i)])); }
+    });
+    return out;
+  }
+  let ALL = null;
+  const all = () => ALL || (ALL = states().map((x) => ({ i: x[0], g: drawn(x[0], x[1], x[2]) })));
+
+  chk('The base 2 logarithm of 32 is 5, because 5 is the exponent we must apply to 2 to get 32: on the ruler of 2s the model puts 32 above the power 5, and the ruler and the pointer read 32 and 5 there', () => {
+    const o = K.at({ base: R2, pointer: 5 }), g = drawn(idx('The ruler of 2s'), liveSt(), { base: R2, pointer: 5 });
+    const m = g.rec.marks.find((q) => q.k === 5);
+    return o.number === 32 && o.power === 5 && !!m && m.text === '32' && !!g.rec.tag && g.rec.tag.num === '32' && g.rec.tag.pow === '5' && g.rec.forms[1] === 'log₂ 32 = 5';
+  }, { source: SRC1 });
+  chk('e is a fixed constant of approximately 2.71828: every space on the ruler of e multiplies by 2.71828, and its first big mark reads 2.718', () =>
+    close(BASE[RE], 2.71828, 1e-5) && fn4(Math.E) === '2.718' &&
+    [-3, -2, -1, 0, 1, 2, 3, 4].every((k) => close(numAt(RE, k + 1) / numAt(RE, k), 2.71828, 1e-5)), { source: SRC2 });
+  chk('The logarithmic function with base e is called the natural logarithmic function: on the ruler of e the power below the pointer is the natural log of the number above it at every setting tried, and it is written ln', () =>
+    [-3, -1.25, 0, 0.5, 1, LN10, 3.807, 5].every((p) => close(Math.log(K.at({ base: RE, pointer: p }).number), p, 1e-9)) &&
+    formsOf(RE, 2)[1].indexOf('ln ') === 0, { source: SRC3 });
+  chk('On every ruler each big mark is the base to the power beneath it: one space right multiplies the number by the base and adds 1 to the power, every space is marked × the base, and every number drawn is above 0', () => {
+    const steps = OPT.every((nm) => { for (let k = PMIN; k < PMAX; k++) { if (!close(numAt(nm, k + 1) / numAt(nm, k), BASE[nm], 1e-12 * BASE[nm])) return false; } return true; });
+    const labels = [-3, -2, -1, 0, 1, 2, 3, 4, 5].map((k) => fn4(numAt(R10, k))).join('|') === ['0.001', '0.01', '0.1', '1', '10', '100', '1000', '10' + NB + '000', '100' + NB + '000'].join('|') &&
+      [-3, -2, -1, 0, 1, 2, 3, 4, 5].map((k) => fn4(numAt(R2, k))).join(' ') === '0.125 0.25 0.5 1 2 4 8 16 32' &&
+      [0, 1, 2, 3].map((k) => fn4(numAt(RE, k))).join(' ') === '1 2.718 7.389 20.09';
+    const pics = all().every(({ g }) => g.rec.marks.every((q) => q.v > 0 && q.text === fn4(numAt(g.rec.name, q.k))) &&
+      g.rec.pows.every((q) => q.text === '?' || q.text === fp(q.k)) && g.rec.pills.every((q) => q.text === '× ' + SYM[g.rec.name]));
+    return steps && labels && pics;
+  });
+  chk('The pointer reads the number and power the model gives, and the two forms say the same fact, at every setting tried on every ruler screen; it stays in the window, and the drag maps the finger back to the same setting', () =>
+    RSHOWS.every((i) => OPT.every((base) => TRY.every((p) => {
+      const g = drawn(i, liveSt(), { base, pointer: p }), o = K.at({ base, pointer: p }), x = xAt(g.rec.view, p);
+      return !!g.rec.tag && g.rec.tag.num === fn4(o.number) && g.rec.tag.pow === fp(o.power) && close(o.number, Math.pow(BASE[base], p), 1e-9 * Math.max(1, o.number)) &&
+        g.rec.forms.join('|') === formsOf(base, p).join('|') && x >= WL + 4 && x <= WR - 4 && close(posFromX(STEPS[i].R, x), p, 1e-9);
+    }))));
+  chk('Half a space multiplies by √10 ≈ 3.162, so 316.2 sits at 2.5, and equal lengths multiply by equal factors anywhere on every ruler: the stretch from the mark before the pointer reads × 3.162 at 2.5 and at 0.5 alike', () => {
+    const half = close(K.at({ pointer: 2.5 }).number / K.at({ pointer: 2 }).number, Math.sqrt(10), 1e-12) && fn4(Math.sqrt(10)) === '3.162' && fn4(K.at({ pointer: 2.5 }).number) === '316.2';
+    const equal = OPT.every((base) => [-2.7, -0.4, 0.3, 1.9, 3.3].every((a) => close(K.at({ base, pointer: a + 0.37 }).number / K.at({ base, pointer: a }).number, Math.pow(BASE[base], 0.37), 1e-9)));
+    const i = idx('Between the marks'), a = drawn(i, liveSt(), { base: R10, pointer: 2.5 }).rec.part, b = drawn(i, liveSt(), { base: R10, pointer: 0.5 }).rec.part;
+    return half && equal && !!a && !!b && a.text === '× 3.162' && b.text === '× 3.162' && a.from === 2 && b.from === 0;
+  });
+  chk('Ten 2s multiplied make 1024, just over 10³, so 2 sits just past 0.3 of a space: the small marks 2, 3 and 5 sit at 0.301, 0.477 and 0.699 inside the first space, as the magnified space shows, and 45 sits at 1.653', () => {
+    const nums = Math.pow(2, 10) === 1024 && 10 * L2 > 3 && 10 * L2 < 3.02 && fp(L2) === '0.301' && fp(L3) === '0.477' && fp(L5) === '0.699' && fp(L45) === '1.653' && close(Math.pow(10, L45), 45, 1e-9) && fn4(Math.pow(10, L45)) === '45';
+    const g = drawn(idx('Between the marks'), blank());
+    const inset = ['0.301', '0.477', '0.699', '2', '3', '5', 'The space from 1 to 10, magnified'].every((s) => g.texts.indexOf(s) >= 0);
+    const order = SMALL.every((q, j) => q[1] > 0 && q[1] < 1 && (j === 0 || q[1] > SMALL[j - 1][1]));
+    return nums && inset && order && !!g.rec.tag && g.rec.tag.num === '45' && g.rec.tag.pow === '1.653';
+  });
+  chk('Left of 1 each space divides by the base again: 0.1, 0.01 and 0.001 sit at −1, −2 and −3, there is no mark at 0 or below, and the open left end says no power gets there', () => {
+    const nums = fn4(numAt(R10, -1)) === '0.1' && fn4(numAt(R10, -2)) === '0.01' && fn4(numAt(R10, -3)) === '0.001' && K.at({ pointer: PMIN }).number > 0;
+    const g = drawn(idx('Left of 1'), blank());
+    return nums && g.rec.open && g.texts.indexOf('no power') >= 0 && g.texts.indexOf('gets here') >= 0 && !!g.rec.tag && g.rec.tag.num === '0.001' && g.rec.tag.pow === '−3' &&
+      all().every(({ g: h }) => h.rec.marks.every((q) => q.v > 0 && plain(q.text) > 0));
+  });
+  chk('Every number follows its rule: 1000, 10 000 and 100 000 above 3, 4 and 5; 316.2 at 2.5; 1024 for ten 2s; 45 at 1.653; 2.783 at 0.444; 32 at 5 and 3 + 3 = 6 on the ruler of 2s; 2.718, 7.389 and 20.09 on the ruler of e; 2.303 for ln 10, and 3.68 for 10 ÷ 2.718, where 39.6 sits; 0.602 for 4; 1 048 576 for 4¹⁰; 0.693 for ln 2 and 0.869 for log₁₀ 7.389; and each answer offered is the value its own working gives', () => {
+    const ok = fn4(1e3) === '1000' && fn4(1e4) === '10' + NB + '000' && fn4(1e5) === '100' + NB + '000' && fn4(Math.pow(10, 2.5)) === '316.2' &&
+      fn4(Math.pow(10, 4 / 9)) === '2.783' && fp(4 / 9) === '0.444' && fp(L4) === '0.602' && fn4(Math.pow(4, 10)) === '1' + NB + '048' + NB + '576' &&
+      fp(LN10) === '2.303' && fv(10 / Math.E, 2) === '3.68' && fn4(Math.exp(10 / Math.E)) === '39.6' && fn4(E2) === '7.389' && fn4(Math.exp(3)) === '20.09' &&
+      fp(Math.log(2)) === '0.693' && fp(Math.log10(E2)) === '0.869' && 3 + 3 === 6 && numAt(R2, 3) === 8;
+    const answers = PICKS.every((i) => { const d = STEPS[i]; return d.opts.every((o) => d.vals[o] === o); });
+    return ok && answers;
+  });
+  const shows = (texts, ans) => texts.some((x) => x === ans || (x.indexOf(ans) === 0 && /\s/.test(x.charAt(ans.length))));
+  chk('Before an answer, nothing in a puzzle\'s picture or forms gives it away, and a right answer shows it', () =>
+    PICKS.every((i) => {
+      const d = STEPS[i], b = drawn(i, blank()), r = drawn(i, solvedSt(i));
+      return !shows(b.texts, d.ans) && !shows(b.rec.forms, d.ans) && shows(r.texts, d.ans);
+    }));
+  chk('Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own and draws its slip', () =>
+    PICKS.every((i) => {
+      const d = STEPS[i];
+      return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)) &&
+        d.opts.every((o) => o === d.want || (!!(d.hints && d.hints[o]) && (o === 'There is none' || drawn(i, wrongSt(i, o)).rec.notes.length > 0)));
+    }));
+  chk('The fold swaps each point\'s two numbers: every point of the folded curve is a point of y = eˣ with x and y swapped and lies on y = ln x, half way through the fold every point sits on y = x, (2, 7.389) lands on (7.389, 2), and every label on the graphs is clear of the lines and of one another', () => {
+    const g = drawn(idx('The fold'), blank()), r = g.rec.graph;
+    const want = ['(0, 1)', '(1, 2.718)', '(2, 7.389)', '(1, 0)', '(2.718, 1)', '(7.389, 2)'];
+    const folded = !!r && r.folded.length === EXP.length && r.folded.every((q, j) => close(q[0], EXP[j][1], 1e-8) && close(q[1], EXP[j][0], 1e-8) && close(q[1], Math.log(q[0]), 1e-8));
+    const mid = EXP.every((q) => { const f = foldPt(q[0], q[1], 0.5); return close(f[0], f[1], 1e-8); });
+    const i13 = idx('Fold a point'), s13 = drawn(i13, solvedSt(i13)).rec.graph;
+    const clear = [drawn(i13, blank()), drawn(i13, solvedSt(i13))].concat(STEPS[i13].opts.filter((o) => o !== STEPS[i13].want).map((o) => drawn(i13, wrongSt(i13, o)))).every((x) => x.rec.graph.labelsOk);
+    return folded && mid && r.labelsOk && want.every((s) => g.texts.indexOf(s) >= 0) && !!s13.move && close(s13.move[0], E2, 1e-8) && close(s13.move[1], 2, 1e-8) && clear;
+  });
+  chk('Every demonstration has finished arriving within its time (at most 4.5 s), none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i, openP(i)); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i), FB[0]) && FB[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB[1]) && FB[1] <= 2.5);
+    });
+    T = keepT;
+    return ok;
+  });
+
+  K.ready();
+</script>

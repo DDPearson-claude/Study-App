@@ -1,0 +1,300 @@
+{
+  "iid": "i4",
+  "title": "Logarithms: the power you need",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the power below the pointer going up by 1 each time the number above it is multiplied by the base, when you drag the pointer along the ruler from mark to mark.",
+    "title": "The power ruler",
+    "controls": [
+      {
+        "id": "pointer",
+        "label": "Pointer, as a power",
+        "min": -3,
+        "max": 5,
+        "step": 0.001,
+        "value": 3,
+        "unit": ""
+      },
+      {
+        "id": "base",
+        "label": "Which ruler",
+        "options": [
+          "Ruler of 10s",
+          "Ruler of 2s",
+          "Ruler of e"
+        ],
+        "value": 0
+      }
+    ],
+    "outputs": [
+      {
+        "id": "number",
+        "label": "Number above the pointer",
+        "unit": "",
+        "decimals": 3
+      },
+      {
+        "id": "power",
+        "label": "Its log, the power below",
+        "unit": "",
+        "decimals": 3
+      }
+    ],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on one picture, the power ruler. It is a ruler with numbers along its top edge and powers along its bottom edge. On the ruler of 10s the big marks on top are 1, 10, 100 and 1000 at equal spaces, with '× 10' written over each space, and under them the powers 0, 1, 2 and 3. The number on top is always the base to the power below it, so the power below is the number's logarithm. A pointer you drag reads both at once, and the readout writes the same fact in its two forms, such as 10³ = 1000 and log₁₀ 1000 = 3. Moving one space right multiplies by the base, because the power goes up by 1. Moving half a space multiplies by the number that times itself makes the base, so equal lengths always multiply by equal factors and the ruler is not evenly spaced in numbers. Small marks inside the first space show 2, 3 and 5 at 0.301, 0.477 and 0.699. The switch changes the base: the ruler of 2s has 1, 2, 4, 8, 16 and 32 at 0 to 5, with '× 2' over each space, and the ruler of e has 1, 2.718, 7.389 and 20.09 at 0 to 3, with '× e'. On a phone the ruler shows about five spaces at a time and pans to keep the pointer in view, so its labels never crowd. Left of 1 the powers go negative, 0.1, 0.01 and 0.001 at −1, −2 and −3, each space dividing by the base again. There is no mark at 0 or below: the left end is left open, with the label 'no power gets here'. Screen by screen: 1 shows the ruler of 10s with the pointer stepping 1, 10, 100, 1000 and the power counting 0, 1, 2, 3, so log₁₀ 1000 = 3 because 10³ = 1000, the 3 in kilo's 10³. 2 asks which log says the same as 10⁴ = 10 000. 3 drags between the marks: half a space is × √10 ≈ 3.162, so 316 sits at 2.5; the small marks 2, 3 and 5 appear at 0.301, 0.477 and 0.699, with ten 2s making 1024, just over 10³, as the reason 2 sits near 0.3; the pointer stops at 45, reading 1.653. 4 asks where 5 sits between 1 and 10. 5 switches to the ruler of 2s: log₂ 8 = 3 and log₂ 32 = 5, then two pointers side by side add 3 + 3 = 6 to show a log is a number. 6 asks whether log₂ x + log₂ x + log₂ x is the same as x + x + x at x = 2. 7 switches to the ruler of e, names ln and the two calculator keys. 8 asks for ln 10. 9 drags left of 1 to 0.1, 0.01 and 0.001, and shows the open end where 0 and negative numbers would be. 10 asks for log₁₀(−100). 11 draws the graph of y = eˣ through (0, 1), (1, 2.718) and (2, 7.389), with the line y = x dashed, and folds it over that line into y = ln x through (1, 0), (2.718, 1) and (7.389, 2). 12 and 13 mix it all: 10ˣ = 0.001, and, with y = eˣ through (2, 7.389), which point the fold puts on y = ln x. A puzzle offers three answers, and a wrong pick gets a one-line hint showing where it goes wrong.",
+    "ignores": "The ruler is drawn only from 0.001 to 100 000 (powers −3 to 5); it goes on to the right without end, and to the left it creeps ever closer to 0 without reaching it. The readouts round to three decimal places, so log₁₀ 2 shows as 0.301 though its decimals carry on without end, and 2.718, 7.389 and 20.09 are e, e² and e³ rounded. Only 2, 3 and 5 get small marks; every number in between has its place too. There is no log of 0 or of a negative number among the ordinary numbers used here; the later course on complex numbers gives a negative number a log of a different kind.",
+    "numbers": [
+      {
+        "label": "Pointer's opening setting, as a power",
+        "value": 3,
+        "kind": "control"
+      },
+      {
+        "label": "Big marks on the ruler of 10s",
+        "value": 1000,
+        "kind": "computed"
+      },
+      {
+        "label": "Factor over each space, ruler of 10s",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "log₁₀ 1000",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Example power of ten, screen 2",
+        "value": 10000,
+        "kind": "assumed"
+      },
+      {
+        "label": "log₁₀ 10 000",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "√10, the factor for half a space",
+        "value": 3.162,
+        "kind": "computed"
+      },
+      {
+        "label": "10^2.5, the number half way from 100 to 1000",
+        "value": 316,
+        "kind": "computed"
+      },
+      {
+        "label": "Power half way through the third space",
+        "value": 2.5,
+        "kind": "computed"
+      },
+      {
+        "label": "log₁₀ 2",
+        "value": 0.301,
+        "kind": "computed"
+      },
+      {
+        "label": "log₁₀ 3",
+        "value": 0.477,
+        "kind": "computed"
+      },
+      {
+        "label": "log₁₀ 5",
+        "value": 0.699,
+        "kind": "computed"
+      },
+      {
+        "label": "Ten 2s multiplied, 2¹⁰",
+        "value": 1024,
+        "kind": "computed"
+      },
+      {
+        "label": "Example number between the marks",
+        "value": 45,
+        "kind": "assumed"
+      },
+      {
+        "label": "log₁₀ 45",
+        "value": 1.653,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 5 read as 4 of the 9 units from 1 to 10, screen 4",
+        "value": 0.444,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 5 read as half way, screen 4",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Biggest mark on the ruler of 2s",
+        "value": 32,
+        "kind": "computed"
+      },
+      {
+        "label": "log₂ 8",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "log₂ 32",
+        "value": 5,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "log₂ 8 + log₂ 8",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Example x, screen 6",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "log₂ 2 + log₂ 2 + log₂ 2",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "2 + 2 + 2",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "e",
+        "value": 2.71828,
+        "kind": "constant",
+        "source": 8
+      },
+      {
+        "label": "e rounded, on the ruler of e",
+        "value": 2.718,
+        "kind": "computed"
+      },
+      {
+        "label": "e², on the ruler of e",
+        "value": 7.389,
+        "kind": "computed"
+      },
+      {
+        "label": "e³, on the ruler of e",
+        "value": 20.09,
+        "kind": "computed"
+      },
+      {
+        "label": "ln 10",
+        "value": 2.303,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 10 ÷ 2.718, screen 8",
+        "value": 3.68,
+        "kind": "computed"
+      },
+      {
+        "label": "Smallest mark on the ruler of 10s",
+        "value": 0.001,
+        "kind": "computed"
+      },
+      {
+        "label": "log₁₀ 0.1",
+        "value": -1,
+        "kind": "computed"
+      },
+      {
+        "label": "log₁₀ 0.01",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "log₁₀ 0.001",
+        "value": -3,
+        "kind": "computed"
+      },
+      {
+        "label": "Example negative number, screen 10",
+        "value": -100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Biggest number drawn on the ruler of 10s",
+        "value": 100000,
+        "kind": "computed"
+      },
+      {
+        "label": "ln 45, practice",
+        "value": 3.807,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy: example lowest range, in millivolts",
+        "value": 200,
+        "kind": "assumed"
+      },
+      {
+        "label": "Analogy: example ranges, in volts",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Analogy: clicks from 200 mV to 200 V",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Example point on y = eˣ, x = 2, screen 13",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slip: log₁₀ 7.389 in place of ln, screen 13",
+        "value": 0.869,
+        "kind": "computed"
+      },
+      {
+        "label": "Half way through a × 10 space, √10 rounded",
+        "value": 3.16,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A [[logarithm]] asks the powers question the other way round. In Powers and roots you worked out that three 10s multiplied make 1000, 10³ = 1000. The logarithm asks what power of 10 makes 1000, and the answer, 3, is written log₁₀ 1000 = 3. So a logarithm is a power: the one the base needs to make the number. The base 2 logarithm of 32 is 5, for instance, because 5 is the power you must put on 2 to get 32.[^1]\n\nPicture it as the power ruler. Mark 1, 10, 100 and 1000 at equal spaces, so each space multiplies by 10, and write the powers 0, 1, 2 and 3 underneath. The number on top is the base to the power below, so the power below is the number's log: a length along the ruler, and a number like any other, so log₁₀ 1000 + log₁₀ 1000 is simply 3 + 3 = 6. Between the marks the same rule holds. Half a space multiplies by the number that times itself makes 10, which is 10^½ = √10 ≈ 3.162, so 316 sits half way from 100 to 1000 and log₁₀ 316 ≈ 2.5. Equal lengths multiply by equal factors, so the numbers inside a space bunch up towards its right-hand end, and the ruler cannot be read as evenly spaced: 5 is not half way through a space, because half way is about 3.16. Ten 2s multiplied make 1024, just over 10³, so one factor of 2 is about three tenths of a × 10 space: textbooks give log₁₀ 2 = 0.301, with log₁₀ 3 = 0.477 and log₁₀ 5 = 0.699. Any other positive number has its place too, such as log₁₀ 45 = 1.653, between 1 and 2 because 45 is between 10 and 100.\n\nAny positive base other than 1 makes its own ruler. On a ruler of 2s each space multiplies by 2, so 1, 2, 4, 8, 16 and 32 sit at 0 to 5 and log₂ 8 = 3. The number e, the fixed constant about 2.71828 from the last two lessons,[^8] makes a ruler marked 1, 2.718, 7.389 and 20.09, and its log is the [[natural logarithm]],[^2] written ln. ln 10 ≈ 2.303 while log₁₀ 10 = 1, so ln and log give different answers for the same number. On a calculator, and in this course, the log key means base 10 and the ln key base e; any other base is written, as in log₂. Textbooks add that the base must be positive and not 1: 1 to any power is still 1, so a ruler of 1s never moves, and a negative base has no ordinary value at most powers, such as (−2)^½.\n\nGo left of 1 and the powers go negative: 0.1 is 10⁻¹, one over 10, so log 0.1 = −1, and 0.01 sits at −2. Each space left divides by 10 again, so the numbers shrink towards 0 but never reach it, because a positive base to any power is positive. That is why 0 and negative numbers have no logarithm, and a calculator gives an error. Turning the question round swaps the input and the output, so the point (1, 2.718) on the graph of y = eˣ becomes (2.718, 1) on the graph of y = ln x, and the whole graph of y = ln x is y = eˣ folded over the line y = x, as you undid machines in Functions and their graphs. So ln undoes eˣ: ln(e²) asks what power of e makes e², and the answer is 2. **A logarithm is the power a base needs to make a number,[^1] so log 1000 = 3 because 10³ = 1000, and ln asks the same question with base e.[^2]**"
+  },
+  "analogy": {
+    "text": "Say a meter's range knob clicks through 200 mV, 2 V, 20 V and 200 V, each range ten times the one before. The number of clicks between two ranges is the log of how many times bigger one is than the other: 200 V is 1000 times 200 mV, and it is 3 clicks away, as log 1000 = 3.",
+    "breaks": "The knob only clicks in whole steps, while a log has values between them, such as log 45 = 1.653. And the knob stops at ranges its maker chose, while the power ruler goes on in both directions, its left end shrinking towards 0 without reaching it."
+  },
+  "practice": {
+    "text": "- Read log N as 'what power of 10 makes N?' and ln N as 'what power of e makes N?'.\n- Size it up first: find the powers of the base either side. 45 is between 10 and 100, so log 45 is between 1 and 2.\n- Use the log key for base 10 and the ln key for base e. For any other base, write the base, as in log₂ 8.\n- Check by turning it round: log 45 = 1.653 means 10^1.653 ≈ 45.\n- With a base above 1, such as 10, e or 2, a number between 0 and 1 has a negative log. 0 and negative numbers have none.\n\n**Rule of thumb:** For a whole number of 1 or more, log sits between one less than its number of digits and its number of digits: 45 has 2 digits, so its log is between 1 and 2, and 316 has 3, so between 2 and 3. Inside a × 10 space, 2 sits about 0.3 of the way along, 3 about 0.48 and 5 about 0.7.\n\n**Worked example:** Say you need log 45. It has 2 digits, so the answer is between 1 and 2. The log key gives 1.653. Turn it round to check: 10^1.653 ≈ 45. The ln key gives ln 45 ≈ 3.807, bigger, because each step of e multiplies by less than a step of 10, so more steps are needed.\n\n**Common mistakes**\n- Writing the forms the wrong way round: 10⁴ = 10 000 is log 10 000 = 4, not log 4 = 10 000.\n- Reading the ruler as evenly spaced: 5 sits 0.699 of the way through a × 10 space, not half way. Half way is about 3.16.\n- Cancelling log as if it were a number: log₂ 2 + log₂ 2 + log₂ 2 is 3, while 2 + 2 + 2 is 6.\n- Taking ln for log: ln 10 ≈ 2.303, while log 10 = 1.\n- Looking for the log of 0 or of a negative number: no power of a positive base makes one. A small positive number does have a log: log 0.001 = −3."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    {
+      "n": 1,
+      "title": "6.3 Logarithmic Functions - Algebra and Trigonometry 2e | OpenStax",
+      "url": "https://openstax.org/books/algebra-and-trigonometry-2e/pages/6-3-logarithmic-functions",
+      "quote": "For example, the base 2 logarithm of 32 is 5, because 5 is the exponent we must apply to 2 to get 32."
+    },
+    {
+      "n": 2,
+      "title": "10.3 Evaluate and Graph Logarithmic Functions - Intermediate Algebra 2e | OpenStax",
+      "url": "https://openstax.org/books/intermediate-algebra-2e/pages/10-3-evaluate-and-graph-logarithmic-functions",
+      "quote": "The logarithmic function with base e is called the natural logarithmic function ."
+    },
+    {
+      "n": 8,
+      "title": "Euler Number (e) — Definition, Formula & Examples",
+      "url": "https://www.mathwords.com/e/euler_number.htm",
+      "quote": "e is a fixed constant like π . It always equals approximately 2.71828 and cannot be assigned a different value."
+    }
+  ],
+  "confidence": "settled",
+  "contested": null
+}
