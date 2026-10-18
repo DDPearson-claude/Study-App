@@ -1,0 +1,626 @@
+{
+  "iid": "i8",
+  "title": "Ohm's law with j: series and parallel",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the current arrow I shrinking by Z's length and swinging back from the fixed supply arrow V by Z's angle, when you drag the tip of Z.",
+    "title": "The circuit's phasor diagram",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens. At the top is a small circuit drawing: a 230 V supply feeding the parts, in series on the early screens and in two branches side by side later. Below it is a phasor diagram on the complex plane from the earlier lessons, real across and j up. The supply voltage V is a fixed arrow along the real axis, 230∠0°, because every angle is measured from it. A small plane beside it holds the impedance Z as an arrow: drag its tip to set R across, from 4 to 20 Ω, and X up for a coil or down for a capacitor, from −20 to 20 Ω. The current arrow I = V ÷ Z, drawn dashed, is redrawn as you drag. Its length is 230 divided by Z's length, and its angle is 0° take away Z's angle, so it shrinks as Z grows and swings back as far as Z points up, or forward as far as Z points down. Currents are drawn to their own scale in amps, not the volts' scale. In series mode the part voltages are drawn too: I × R along I, because R has no angle, and I × jX a quarter turn from I, laid tip to tail so they end on V's tip. In parallel mode the Z you drag is the coil's branch, and a switch adds a capacitor branch beside it, whose reactance X_C a slider sets from 5 to 40 Ω. Each branch current is V ÷ that branch's impedance, and the two are laid tip to tail to make the supply current, whose length reads out. Readouts give Z, I and each arrow both as parts and as a length and an angle. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, a wrong pick gets a one-line hint naming its slip, and Why? redraws the arrows for it.",
+    "ignores": "The parts are ideal: a real coil's winding and a real capacitor waste a little energy, which tilts their arrows slightly. The supply holds 230 V whatever current it gives, so the cables' own impedance is left out. The diagram is a still: on a real supply every arrow turns together, fifty times a second on UK mains, and only the angles between them stay fixed. The arrows' lengths are the sizes a meter reads; some books draw the peak values instead, which rescales every arrow by the same amount. The smallest supply current comes at X_C = 16.67 Ω, between slider steps, so at 17 Ω the readout shows the j parts as all but cancelled.",
+    "numbers": [
+      {
+        "label": "UK mains supply voltage, in volts",
+        "value": 230,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "UK mains frequency, in hertz",
+        "value": 50,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Supply's angle, chosen as the measuring point, in degrees",
+        "value": 0,
+        "kind": "assumed"
+      },
+      {
+        "label": "Resistance R, lowest setting, in ohms",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Resistance R, highest setting, in ohms",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Reactance X, lowest setting, in ohms",
+        "value": -20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Reactance X, highest setting, in ohms",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitor branch X_C, lowest setting, in ohms",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitor branch X_C, highest setting, in ohms",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Coil's angle, j as a quarter turn up, in degrees",
+        "value": 90,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Capacitor's angle, a quarter turn down, in degrees",
+        "value": -90,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Example coil's resistance R, in ohms, in step 0",
+        "value": 8,
+        "kind": "control"
+      },
+      {
+        "label": "Example coil's reactance X, in ohms, in step 0",
+        "value": 6,
+        "kind": "control"
+      },
+      {
+        "label": "Length of 8 + j6, √(64 + 36), in ohms, in step 0",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle of 8 + j6, tan⁻¹(6 ÷ 8), in degrees, in step 0",
+        "value": 36.87,
+        "kind": "computed"
+      },
+      {
+        "label": "Current's length, 230 ÷ 10, in amps, in step 0",
+        "value": 23,
+        "kind": "computed"
+      },
+      {
+        "label": "Current's angle, 0 − 36.87, in degrees, in step 0",
+        "value": -36.87,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip angles added: current's angle, in degrees, in step 1",
+        "value": 36.87,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip sizes added: 230 ÷ (8 + 6), in amps, in step 1",
+        "value": 16.43,
+        "kind": "computed"
+      },
+      {
+        "label": "Sizes added, 8 + 6, in ohms, in step 1",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: measured from Z, 36.87 − 36.87, in degrees, in step 2",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: clock started later, V's angle, in degrees, in step 2",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slip: current's angle on that clock, 30 − 36.87, in degrees, in step 2",
+        "value": -6.87,
+        "kind": "computed"
+      },
+      {
+        "label": "Resistor's voltage, 23 × 8, in volts, in step 5",
+        "value": 184,
+        "kind": "computed"
+      },
+      {
+        "label": "Coil's voltage, 23 × 6, in volts, in step 5",
+        "value": 138,
+        "kind": "computed"
+      },
+      {
+        "label": "Coil's voltage angle, −36.87 + 90, in degrees, in step 5",
+        "value": 53.13,
+        "kind": "computed"
+      },
+      {
+        "label": "184∠−36.87° real part, 184 × 0.8, in volts, in step 5",
+        "value": 147.2,
+        "kind": "computed"
+      },
+      {
+        "label": "184∠−36.87° j part, in volts, in step 5",
+        "value": -110.4,
+        "kind": "computed"
+      },
+      {
+        "label": "138∠53.13° real part, 138 × 0.6, in volts, in step 5",
+        "value": 82.8,
+        "kind": "computed"
+      },
+      {
+        "label": "138∠53.13° j part, 138 × 0.8, in volts, in step 5",
+        "value": 110.4,
+        "kind": "computed"
+      },
+      {
+        "label": "cos 36.87°, in step 5",
+        "value": 0.8,
+        "kind": "computed"
+      },
+      {
+        "label": "sin 36.87°, in step 5",
+        "value": 0.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip voltages added as sizes, 184 + 138, in volts, in step 6",
+        "value": 322,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip voltages taken away, 184 − 138, in volts, in step 6",
+        "value": 46,
+        "kind": "computed"
+      },
+      {
+        "label": "184² + 138², in step 6",
+        "value": 52900,
+        "kind": "computed"
+      },
+      {
+        "label": "Supply voltage, √52900, in volts, in step 6",
+        "value": 230,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacitor branch reactance, opening setting, in ohms, in step 7",
+        "value": 10,
+        "kind": "control"
+      },
+      {
+        "label": "Coil branch current real part, 23 × 0.8, in amps, in step 7",
+        "value": 18.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Coil branch current j part, in amps, in step 7",
+        "value": -13.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacitor branch current, 230 ÷ 10, in amps, in step 7",
+        "value": 23,
+        "kind": "computed"
+      },
+      {
+        "label": "Supply current j part, 23 − 13.8, in amps, in step 7",
+        "value": 9.2,
+        "kind": "computed"
+      },
+      {
+        "label": "18.4 squared, in step 7",
+        "value": 338.56,
+        "kind": "computed"
+      },
+      {
+        "label": "9.2 squared, in step 7",
+        "value": 84.64,
+        "kind": "computed"
+      },
+      {
+        "label": "Supply current, √423.2, in amps, in step 7",
+        "value": 20.57,
+        "kind": "computed"
+      },
+      {
+        "label": "Supply current's angle, tan⁻¹(9.2 ÷ 18.4), in degrees, in step 7",
+        "value": 26.57,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip branch sizes added, 23 + 23, in amps, in step 8",
+        "value": 46,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip branches cancel, in amps, in step 8",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Top, (8 + j6)(−j10): real part, in step 9",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "Top, (8 + j6)(−j10): j part, in step 9",
+        "value": -80,
+        "kind": "computed"
+      },
+      {
+        "label": "Bottom, 8 + j6 − j10: j part, in step 9",
+        "value": -4,
+        "kind": "computed"
+      },
+      {
+        "label": "Bottom's conjugate times itself, 8² + 4², in step 9",
+        "value": 80,
+        "kind": "computed"
+      },
+      {
+        "label": "Top times 8 + j4: real part, in step 9",
+        "value": 800,
+        "kind": "computed"
+      },
+      {
+        "label": "Top times 8 + j4: j part, in step 9",
+        "value": -400,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacitor branch reactance in the bottom, in ohms, in step 9",
+        "value": -10,
+        "kind": "computed"
+      },
+      {
+        "label": "Parallel impedance real part, in ohms, in step 9",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Parallel impedance j part, in ohms, in step 9",
+        "value": -5,
+        "kind": "computed"
+      },
+      {
+        "label": "Length of 10 − j5, √125, in ohms, in step 9",
+        "value": 11.18,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle of 10 − j5, in degrees, in step 9",
+        "value": -26.57,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacitor current that cancels the coil's j part, in amps",
+        "value": 13.8,
+        "kind": "computed"
+      },
+      {
+        "label": "X_C for the smallest supply current, 230 ÷ 13.8, near, in ohms",
+        "value": 17,
+        "kind": "computed"
+      },
+      {
+        "label": "X_C for the smallest supply current, 230 ÷ 13.8, exactly, in ohms",
+        "value": 16.67,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle resistor, in ohms, in step 10",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle capacitor's reactance, in ohms, in step 10",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle Z = 6 − j8: length, in ohms, in step 10",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle Z = 6 − j8: angle, in degrees, in step 10",
+        "value": -53.13,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle answer current's angle, in degrees, in step 10",
+        "value": 53.13,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle two equal branches, each 10∠36.87° Ω, in step 11",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle top, 10 × 10, length in ohms, in step 11",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle top's angle, 36.87 + 36.87, in degrees, in step 11",
+        "value": 73.74,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle bottom, 16 + j12, length in ohms, in step 11",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle bottom real part, in ohms, in step 11",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle bottom j part, in ohms, in step 11",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle top in parts, 64 − 36, real part, in step 11",
+        "value": 28,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle top in parts, 2 × 8 × 6, j part, in step 11",
+        "value": 96,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle bottom's conjugate times itself, 16² + 12², in step 11",
+        "value": 400,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle top times 16 − j12: real part, 448 + 1152, in step 11",
+        "value": 1600,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle top times 16 − j12: j part, in step 11",
+        "value": 1200,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle pair's impedance in parts, real part, in ohms, in step 11",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle pair's impedance in parts, j part, in ohms, in step 11",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle pair's impedance, 100 ÷ 20, in ohms, in step 11",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle answer supply current, 230 ÷ 5, in amps, in step 11",
+        "value": 46,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip added in series: 230 ÷ 20, in amps, in step 11",
+        "value": 11.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip bottom's angle not taken away, in degrees, in step 11",
+        "value": -73.74,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle current given, length in amps, in step 12",
+        "value": 11.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle current given, angle in degrees, in step 12",
+        "value": -36.87,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle answer Z's length, 230 ÷ 11.5, in ohms, in step 12",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle answer R = 20 cos 36.87°, in ohms, in step 12",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle answer X = 20 sin 36.87°, in ohms, in step 12",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice motor's resistance, in ohms",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice motor's reactance, in ohms",
+        "value": 16,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice 144 + 256",
+        "value": 400,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice length of 12 + j16, √400, in ohms",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice angle tan⁻¹(16 ÷ 12), in degrees",
+        "value": 53.13,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice current, 230 ÷ 20, in amps",
+        "value": 11.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice current's real part, 11.5 × 0.6, in amps",
+        "value": 6.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice current's j part, 11.5 × 0.8, in amps",
+        "value": 9.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice capacitor's reactance, 230 ÷ 9.2, in ohms",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice capacitor, 1 ÷ (2π × 50 × 25), in microfarads",
+        "value": 127.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Microfarads in a farad",
+        "value": 1000000,
+        "kind": "constant"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Ohm's law works for AC just as it does for DC, once the opposition is the impedance Z, a complex number: V = IZ, so I = V ÷ Z.[^3] Impedances in series add, and for parts side by side their reciprocals add, the same rules as for resistors.[^4] One university course puts it plainly: all the DC methods work with AC, as long as you handle the complex arithmetic.[^5] What is new is that every answer comes with an angle as well as a size, and with the supply drawn at 0° a current's angle tells you how far it is behind or ahead of the voltage.\n\nTake the resistor and coil from the last lesson, Z = 8 + j6 = 10∠36.87° Ω, on 230 V mains.[^1] A single wave's angle depends on when you start the clock,[^14] so we choose the supply voltage as the zero and draw it along the real axis, V = 230∠0°. Divide in polar form, as in Multiplying and dividing in polar form: divide the lengths and take the angles away.[^6] I = 230∠0° ÷ 10∠36.87° = 23∠−36.87° A. The length, 23 A, is what a clamp meter would read. The angle says the current lags 36.87° behind the voltage. Why behind? Turn it round: V = I × Z, and multiplying by Z stretches I ten times and turns it forward 36.87°, because multiplying adds the angles.[^7] V sits at 0°, so I must sit 36.87° back. The angle between the voltage and the current is the impedance's angle.[^8] A drawing of a circuit's voltages and currents as arrows from one point is a [[phasor diagram]]. Drag Z's tip higher and I swings further back; drag it below the real axis, as a capacitor does, and I swings ahead of V.\n\nIn series one current flows through every part, so each part's voltage is that current times the part's own impedance. Across the resistor, I × 8 = 184∠−36.87° V, lying along I because 8 has no angle. Across the coil, I × j6 = 23∠−36.87° × 6∠90° = 138∠53.13° V, a quarter turn ahead of I.[^2] A meter would read 184 V and 138 V, and 184 + 138 = 322 V, more than the supply. Nothing is wrong: the two voltages stand at a quarter turn, so they add as arrows, tip to tail. In parts, (147.2 − j110.4) + (82.8 + j110.4) = 230 + j0, the supply exactly.\n\nSide by side, each branch has the whole supply across it, so each branch current is V ÷ that branch's impedance, and the branch currents add to make the supply current, as with DC,[^9] but as arrows. Put a −j10 Ω capacitor across that 8 + j6 branch. Its current is 230∠0° ÷ 10∠−90° = 23∠90° A: as big as the coil branch's, but a quarter turn ahead of the voltage. Add by parts: (18.4 − j13.8) + j23 = 18.4 + j9.2, which is √(338.56 + 84.64) = 20.57 A at tan⁻¹(9.2 ÷ 18.4) = 26.57°. The capacitor's current points up and the coil's j part points down, so it cancels the coil's −j13.8 and leaves j9.2 over,[^10] while the 18.4 A real part is untouched, as the capacitor's current has no real part. Product over sum, the reciprocal rule worked out for two branches as you use it for resistors, gives the same answer. The top is (8 + j6)(−j10) = 60 − j80 and the bottom is 8 + j6 − j10 = 8 − j4. Divide as in The conjugate, and dividing, times 8 + j4 top and bottom: (800 − j400) ÷ 80 = 10 − j5 = 11.18∠−26.57° Ω, and 230 ÷ 11.18 = 20.57 A. A capacitor drawing 13.8 A, near X_C = 17 Ω on the slider, would cancel the coil's j part exactly and leave just 18.4 A; one drawing more pushes the supply current back up. These are ideal parts on a steady sine wave; real coils and capacitors waste a little energy, which tilts their arrows slightly. That is the course's puzzle answered: two currents of 23 A make about 21 A because they point different ways. **V = IZ with complex impedances gives each current's size and its angle from the voltage, and impedances combine in series and parallel by your DC rules, with voltages and currents added as arrows.[^3][^4][^8]**"
+  },
+  "analogy": {
+    "text": "On a balanced three-phase supply, three equal phase currents return through one neutral, yet the neutral carries next to nothing, because the three currents are a third of a turn apart and their arrows close into a triangle. The capacitor and coil branches do the same on a smaller scale: two 23 A currents meet in the supply cable and make 20.57 A, because their arrows point different ways.",
+    "breaks": "The three phase currents are driven by three supply voltages a third of a turn apart; here one supply feeds both branches, and the angle between their currents is set by the impedances. And a neutral feeding rectifiers and other non-linear loads can carry more, not less, because those currents are not single sine waves, which these arrows cannot describe."
+  },
+  "practice": {
+    "text": "- Draw the supply voltage along the real axis, at 0°. Every other angle is measured from it.\n- Write each part's impedance: a resistor R, a coil +jX_L, a capacitor −jX_C.\n- In series, add the impedances by parts, then turn Z into a length and an angle.\n- Find the current: I = V ÷ Z. Divide the lengths and take Z's angle away.\n- For each part's voltage, multiply the current by that part's impedance. Check they add as arrows back to the supply.\n- In parallel, find each branch current as V ÷ that branch's Z, then add them by parts. For two branches, product over sum gives the combined Z.\n- Read the angle: a current behind the voltage (negative) means the coils win; ahead (positive) means the capacitors win.\n\n**Rule of thumb:** Add and take away by parts; multiply and divide by length and angle.[^11]\n\n**Rule of thumb:** Sizes at an angle to each other add to less than their sum. Add meter readings straight only when their arrows point the same way, as for two resistors in series.\n\n**Worked example:** Model a motor on 230 V, 50 Hz[^1] as 12 + j16 Ω. Its length is √(144 + 256) = √400 = 20 Ω at tan⁻¹(16 ÷ 12) = 53.13°, so I = 230∠0° ÷ 20∠53.13° = 11.5∠−53.13° A, which is 6.9 − j9.2 A in parts. A capacitor drawing j9.2 A cancels that j part,[^12] so it needs X_C = 230 ÷ 9.2 = 25 Ω, and at 50 Hz C = 1 ÷ (2π × 50 × 25) = 0.0001273 F, or 127.3 µF. The supply current falls from 11.5 A to 6.9 A, while the motor still draws its own 11.5 A: correcting the power factor lowers the current the supply provides while the load's power stays the same.[^13] Power factor correction is a topic of its own at college; this is only a first look.\n\n**Common mistakes**\n- Adding the angles when dividing. 230∠0° ÷ 10∠36.87° is 23∠−36.87°, not 23∠36.87°.\n- Dividing by the sizes added. 8 + j6 is 10 Ω, not 14 Ω.\n- Adding voltages or branch currents as plain numbers. 184 V and 138 V make 230 V, not 322 V.\n- Quoting a current's angle on its own. It means something only as an angle from the supply voltage.\n- Thinking more capacitor current always helps. Once the capacitor's current is bigger than the coil's j part, the supply current grows again."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "The National Grid and mains electricity - OCR Gateway — BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/guides/zcfm8mn/revision/3",
+      "quote": "The mains supply in the UK is an alternating current (ac) voltage at a frequency of 50 hertz (Hz) and a voltage of 230 volts (V)."
+    },
+    {
+      "n": 2,
+      "title": "\"Modular Electronics Learning (ModEL) project\" — Tony R. Kuphaldt, ModEL project",
+      "url": "https://ibiblio.org/kuphaldt/socratic/model/mod_rxz.pdf",
+      "quote": "Since resistive impedance has a phase angle of zero degrees its vector points to the right, while inductive impedance with its 90 o phase angle points up and capacitive impedance with its −90 o phase angle points down."
+    },
+    {
+      "n": 3,
+      "title": "Parallel Resistor-Inductor Circuits | Reactance and Impedance—Inductive | Electronics Textbook — All About Circuits",
+      "url": "https://www.allaboutcircuits.com/textbook/alternating-current/chpt-3/parallel-resistor-inductor-circuits",
+      "quote": "Now we can apply Ohm’s Law (I=E/Z)"
+    },
+    {
+      "n": 4,
+      "title": "6.1. Impedance of components in parallel. | In-class Activity 6. | 18.031 Courseware | MIT Open Learning Library",
+      "url": "https://openlearninglibrary.mit.edu/courses/course-v1:OCW+18.031+2019_Spring/courseware/week4/rec6",
+      "quote": "Impedances add in series; reciprocals of impedances add in parallel."
+    },
+    {
+      "n": 5,
+      "title": "Lecture 12 Introduction to AC Phasors — University of Utah",
+      "url": "https://my.ece.utah.edu/~ece2210/Lect12_AC_PhasorIntro.pdf",
+      "quote": "You can use impedances just like resistances as long as you deal with the complex arithmetic. ALL the DC circuit analysis techniques will work with AC."
+    },
+    {
+      "n": 6,
+      "title": "7_6.dvi — mathcentre",
+      "url": "https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_6.pdf",
+      "quote": "To divide, we divide their moduli and subtract their arguments."
+    },
+    {
+      "n": 7,
+      "title": "7_6.dvi — mathcentre",
+      "url": "https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_6.pdf",
+      "quote": "Note that to multiply the two numbers we multiply their moduli and add their arguments."
+    },
+    {
+      "n": 8,
+      "title": "2.6: Phasors - Engineering LibreTexts",
+      "url": "https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electro-Optics/Introduction_to_Electric_Power_Systems_(Kirtley)/02%3A_AC_power_flow_in_linear_networks/2.06%3A_Phasors",
+      "quote": "Note that the phase angle between voltage and current is the same as the phase angle of the impedance."
+    },
+    {
+      "n": 9,
+      "title": "Parallel Resistor-Inductor Circuits | Reactance and Impedance—Inductive | Electronics Textbook — All About Circuits",
+      "url": "https://www.allaboutcircuits.com/textbook/alternating-current/chpt-3/parallel-resistor-inductor-circuits",
+      "quote": "Just as with DC circuits, branch currents in a parallel AC circuit add to form the total current"
+    },
+    {
+      "n": 10,
+      "title": "Power Factor Improvement Methods | EEEGUIDE",
+      "url": "https://www.eeeguide.com/power-factor-improvement",
+      "quote": "The capacitor draws a leading current and partly or completely neutralizes the lagging reactive component of load current."
+    },
+    {
+      "n": 11,
+      "title": "10.2 — University of Sheffield",
+      "url": "https://sheffield.ac.uk/media/31975/download?attachment",
+      "quote": "We conclude that addition and subtraction are most easily carried out in Cartesian form whereas multiplication and division are most easily carried out in polar form."
+    },
+    {
+      "n": 12,
+      "title": "7.3: Power Triangle - Engineering LibreTexts",
+      "url": "https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/AC_Electrical_Circuit_Analysis%3A_A_Practical_Approach_(Fiore)/07%3A_AC_Power/7.3%3A_Power_Triangle",
+      "quote": "By adding the capacitor, the two reactive currents cancel"
+    },
+    {
+      "n": 13,
+      "title": "7.3: Power Triangle - Engineering LibreTexts",
+      "url": "https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/AC_Electrical_Circuit_Analysis%3A_A_Practical_Approach_(Fiore)/07%3A_AC_Power/7.3%3A_Power_Triangle",
+      "quote": "power factor correction is used to lower current demand while keeping load power constant."
+    },
+    {
+      "n": 14,
+      "title": "\"Modular Electronics Learning (ModEL) project\" — Tony R. Kuphaldt, ModEL project",
+      "url": "https://ibiblio.org/kuphaldt/socratic/model/mod_rxz.pdf",
+      "quote": "A single AC waveform, without another waveform to compare to, cannot have a phase value at all."
+    }
+  ]
+}

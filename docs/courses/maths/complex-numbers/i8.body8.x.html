@@ -1,0 +1,1153 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .gap { display: block; height: .55em; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  sub { font-size: .75em; line-height: 0; }
+  /* One figure: the circuit on top, the phasor diagram with the small Z plane beside it, then the key. */
+  .fig { max-width: 26rem; margin-inline: auto; }
+  .fig svg { display: block; width: 100%; height: auto; }
+  .pair { display: grid; grid-template-columns: minmax(0, 196fr) minmax(0, 102fr); align-items: center; }
+  /* On the screens where you drag Z, its plane takes a larger share of the width. */
+  .pair.free { grid-template-columns: minmax(0, 196fr) minmax(0, 118fr); }
+  .pair.wide { grid-template-columns: minmax(0, 1fr); }
+  /* Every label carries a thin halo of the page colour, so a line passing behind it never hides it. */
+  .scene text { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .gr { stroke: var(--k-line); stroke-width: 1; fill: none; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 2; }
+  .scene .tn { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .an { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .nm { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .nm.bad { fill: var(--k-warn); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  /* The arrows: V and Z in ink, the current in navy and dashed, resistor things blue, coil things orange,
+     capacitor things magenta, both branches together aqua, a slip in red. */
+  .scene .shaft { fill: none; stroke-width: 3.5; stroke-linecap: round; }
+  .scene .shaft.v { stroke: var(--k-ink); stroke-width: 4.5; }
+  .scene .head.v { fill: var(--k-ink); }
+  .scene .shaft.z { stroke: var(--k-ink); stroke-width: 4; }
+  .scene .head.z { fill: var(--k-ink); }
+  .scene .shaft.i { stroke: var(--k-accent2); stroke-dasharray: 7 6; }
+  .scene .head.i { fill: var(--k-accent2); }
+  .scene .shaft.vr { stroke: var(--k-cat1); }
+  .scene .head.vr { fill: var(--k-cat1); }
+  .scene .shaft.vx, .scene .shaft.i1 { stroke: var(--k-cat2); }
+  .scene .head.vx, .scene .head.i1 { fill: var(--k-cat2); }
+  .scene .shaft.vc, .scene .shaft.i2, .scene .shaft.z2 { stroke: var(--k-cat3); }
+  .scene .head.vc, .scene .head.i2, .scene .head.z2 { fill: var(--k-cat3); }
+  .scene .shaft.zp { stroke: var(--k-cat4); stroke-width: 4; }
+  .scene .head.zp { fill: var(--k-cat4); }
+  .scene .shaft.bad { stroke: var(--k-warn); stroke-width: 4; }
+  .scene .head.bad { fill: var(--k-warn); }
+  .scene .arc { fill: none; stroke-width: 2; stroke: var(--k-ink); stroke-linecap: round; }
+  .scene .arc.i { stroke: var(--k-accent2); }
+  .scene .ah { fill: var(--k-ink); }
+  .scene .ah.i { fill: var(--k-accent2); }
+  .scene .sq { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .hdl { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .dotb { fill: var(--k-warn); }
+  .scene .sc { stroke: var(--k-muted); stroke-width: 2; }
+  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .src { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .res { fill: var(--k-bg); stroke: var(--k-cat1); stroke-width: 2.5; }
+  .scene .coil { fill: none; stroke: var(--k-cat2); stroke-width: 2.5; }
+  .scene .plate { stroke: var(--k-cat3); stroke-width: 3.5; }
+  .scene .load { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .jn { fill: var(--k-ink); }
+  .work { display: flex; flex-direction: column; gap: 2px; }
+  .wk { display: flex; flex-wrap: wrap; justify-content: space-between; column-gap: 12px; line-height: 1.5; }
+  .wk .w { font-weight: 700; white-space: nowrap; margin-left: auto; }
+  .wk.bad { color: var(--k-warn); }
+  .work .ph { color: var(--k-muted); margin: 0; }
+  #free > * + * { margin-top: 6px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row when short; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; font-size: 1.05rem; }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">An example circuit on 230 V mains, an 8 Ω resistor with a 6 Ω coil, and its voltages and currents drawn as arrows from one point.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="fig" id="fig">
+      <svg class="scene" id="cv" viewBox="0 0 340 118" width="100%" role="img" aria-label=""><g id="cart"></g></svg>
+      <div class="pair" id="pair">
+        <svg class="scene" id="pv" viewBox="0 0 196 212" width="100%" role="img" aria-label=""><g id="part"></g><g id="plab"></g></svg>
+        <svg class="scene" id="zv" viewBox="0 0 102 212" width="100%" role="img" aria-label=""><g id="zart"></g><g id="zlab"></g></svg>
+      </div>
+      <svg class="scene" id="kv" viewBox="0 0 340 60" width="100%" role="img" aria-label="Key and scales"><g id="kart"></g></svg>
+    </div>
+    <div class="work" id="work" aria-live="polite"></div>
+    <p class="say" id="say" hidden></p>
+    <div id="free" hidden><div id="zsl"></div><div id="psl"></div></div>
+    <div class="replay" id="replay"></div>
+    <p class="task show" id="more" hidden></p>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Ideal parts on 230 V UK mains (BBC Bitesize); I = V ÷ Z, with volts and amps drawn to separate scales.</p>
+
+<script>
+  // ---------- numbers ----------
+  const rad = (v) => v * Math.PI / 180, dgr = (v) => v * 180 / Math.PI;
+  const rnd = (v, dp) => { const k = Math.pow(10, dp), r = Math.round(v * k) / k; return Math.abs(r) < 1e-12 ? 0 : r; };
+  const fmtN = (v, dp) => { const r = rnd(v, dp); return (r < 0 ? '−' : '') + Math.abs(r); };
+  const n2 = (v) => fmtN(v, 2), dg = (v) => n2(v) + '°';
+  const near = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1e-9 : tol);
+  const same = (p, q, tol) => { const t = tol == null ? 1e-6 : tol; return !!p && !!q && near(p[0], q[0], t) && near(p[1], q[1], t); };
+  const O = [0, 0];
+  const P = (r, th) => [r * Math.cos(rad(th)), r * Math.sin(rad(th))];
+  const len = (z) => Math.hypot(z[0], z[1]);
+  const ang = (z) => (len(z) < 1e-12 ? 0 : dgr(Math.atan2(z[1], z[0])));
+  const cadd = (a, b) => [a[0] + b[0], a[1] + b[1]];
+  const csub = (a, b) => [a[0] - b[0], a[1] - b[1]];
+  const cmul = (a, b) => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]];
+  const cdiv = (a, b) => { const q = b[0] * b[0] + b[1] * b[1]; return [(a[0] * b[0] + a[1] * b[1]) / q, (a[1] * b[0] - a[0] * b[1]) / q]; };
+  // As the explanation writes them: a length and an angle, or parts, to two decimals.
+  const pol = (z) => (rnd(len(z), 2) === 0 ? '0' : n2(len(z)) + '∠' + dg(ang(z)));
+  function parts(z) {
+    const re = rnd(z[0], 2), im = rnd(z[1], 2), js = 'j' + n2(Math.abs(im));
+    if (im === 0) return n2(re);
+    if (re === 0) return (im < 0 ? '−' : '') + js;
+    return n2(re) + (im < 0 ? ' − ' : ' + ') + js;
+  }
+
+  // ---------- the lesson's rule: Ohm's law with j ----------
+  const VS = 230, V = [VS, 0];                          // UK mains, drawn along the real axis at 0°: the measuring point
+  const Iof = (Z) => cdiv(V, Z);                        // I = V ÷ Z
+  const capZ = (xc) => [0, -xc];                        // a capacitor's opposition points straight down: −jX_C
+  const pos = (a, b) => cdiv(cmul(a, b), cadd(a, b));   // two branches side by side: product over sum
+  const reactName = (X) => (X > 0 ? 'j' : '−j') + n2(Math.abs(X)) + ' Ω';
+  const A = (I) => pol(I) + ' A';
+  const rel = (I) => n2(Math.abs(ang(I))) + '° ' + (ang(I) > 0 ? 'ahead of V' : 'behind V');
+
+  const ALLC = 'https://www.allaboutcircuits.com/textbook/alternating-current/chpt-3/parallel-resistor-inductor-circuits';
+  const MIT = 'https://openlearninglibrary.mit.edu/courses/course-v1:OCW+18.031+2019_Spring/courseware/week4/rec6';
+  const KIRT = 'https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electro-Optics/Introduction_to_Electric_Power_Systems_(Kirtley)/02%3A_AC_power_flow_in_linear_networks/2.06%3A_Phasors';
+  const MODEL = 'https://ibiblio.org/kuphaldt/socratic/model/mod_rxz.pdf';
+  const BBC = 'https://www.bbc.co.uk/bitesize/guides/zcfm8mn/revision/3';
+  const FIORE = 'https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/AC_Electrical_Circuit_Analysis%3A_A_Practical_Approach_(Fiore)/07%3A_AC_Power/7.3%3A_Power_Triangle';
+  const MC = 'https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_6.pdf';
+
+  // ---------- the worked examples, all from the rule ----------
+  const R0 = 8, X0 = 6, XC0 = 10, Z0 = [R0, X0], ZC0 = capZ(XC0);
+  const I0 = Iof(Z0), I2c = Iof(ZC0), IS0 = cadd(I0, I2c), ZP0 = pos(Z0, ZC0);
+  const VR0 = cmul(I0, [R0, 0]), VX0 = cmul(I0, [0, X0]), VSUM = cadd(VR0, VX0);
+  const Z3 = [R0, -X0], I3 = Iof(Z3);
+  const Z9 = [6, -8], I9 = Iof(Z9);
+  const ZT10 = cmul(Z0, Z0), ZB10 = cadd(Z0, Z0), Z10 = cdiv(ZT10, ZB10), I10 = Iof(Z10);
+  const ZS10 = P(len(ZT10) / len(ZB10), ang(ZT10));     // the slip: the bottom's angle not taken away
+  const CONJ10 = [ZB10[0], -ZB10[1]];                   // the bottom's conjugate, 16 − j12
+  const I11 = P(11.5, -36.87), Z11 = cdiv(V, I11);
+  const CLK = 30;                                        // the slip's later clock, in degrees
+  const DEF = { R: R0, X: X0, XC: XC0, cap: true };
+  const CONJ8 = [ZB10[0] / 2, -cadd(Z0, ZC0)[1]];       // 8 + j4, the conjugate of the bottom 8 − j4
+  const TOP8 = cmul(Z0, ZC0), BOT8 = cadd(Z0, ZC0);
+
+  // ---------- what a screen draws: a list of parts, each arriving at t (null: there from the start) ----------
+  const AR = (pane, u, a, b, cls, o) => Object.assign({ k: 'ar', pane, u, a, b, cls, t: null }, o);
+  const PV = (a, b, cls, o) => AR('p', 'V', a, b, cls, o);
+  const PA = (a, b, cls, o) => AR('p', 'A', a, b, cls, o);
+  const PZ = (a, b, cls, o) => AR('z', 'O', a, b, cls, o);
+  const ARC = (pane, u, vec, cls, t) => ({ k: 'arc', pane, u, vec, cls, t });
+  const SQ = (at, to, t) => ({ k: 'sq', at, to, t });
+  const DOT = (nm, t) => ({ k: 'dot', nm, t, bad: true });
+  const RW = (e, w, t, o) => Object.assign({ k: 'row', e, w, t }, o);
+  const CIR = (spec, o) => Object.assign({ k: 'cir', spec }, o);
+  const bad = (o) => Object.assign({ bad: true }, o);
+  const ser = (R, X, o) => Object.assign({ type: 'ser', R, X }, o);
+  const par = (R, X, xc, o) => Object.assign({ type: 'par', R, X, xc }, o);
+  const VB = PV(O, V, 'v', { nm: 'V' });   // the supply, fixed at 0° on every screen
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const STEPS = [
+    { show: true, name: 'Ohm\'s law with j', z: true, dur: 4.3, circ: ser(R0, X0),
+      ops: [VB, PZ(O, Z0, 'z', { t: 0.4, nm: 'Z' }), ARC('z', 'O', Z0, 'z', 1.0), RW('Z = ' + parts(Z0) + ' Ω', pol(Z0) + ' Ω', 1.0),
+        PA(O, I0, 'i', { t: 1.5, dur: 0.6, nm: 'I', mv: { t: 2.6, dur: 1.1, b0: [len(I0), 0] } }),
+        RW('Lengths divided: 230 ÷ ' + n2(len(Z0)), n2(VS / len(Z0)) + ' A', 2.0),
+        RW('Angles taken away: 0° − ' + dg(ang(Z0)), dg(0 - ang(Z0)), 3.0),
+        ARC('p', 'A', I0, 'i', 3.7), RW('So the current I', A(I0), 3.7)],
+      text: 'Ohm\'s law works for AC just as it does for DC, once the opposition is the impedance Z: `I = V ÷ Z`. The supply voltage V is drawn along the real axis, at 0°, and every other angle is measured from it.',
+      more: 'Here the 8 Ω resistor and 6 Ω coil make `Z = 8 + j6 = 10∠36.87° Ω`. Divide the lengths, `230 ÷ 10 = 23` A, and take the angles away: `I = 23∠−36.87° A`. The 23 A is what a clamp meter reads. Why 36.87° behind? Turn it round: `V = I × Z`, and multiplying by Z turns I forward 36.87°, onto V at 0°.' },
+    { name: 'Dividing by Z', z: true, circ: ser(R0, X0),
+      base: [VB, PZ(O, Z0, 'z', { nm: 'Z' }), ARC('z', 'O', Z0, 'z', null)],
+      opts: [A([I0[0], -I0[1]]), n2(VS / (R0 + X0)) + '∠' + dg(ang(I0)) + ' A', A(I0)], ok: 2,
+      truth: () => A(cdiv([230, 0], [8, 6])),
+      truthOk: (g) => g.arrows.some((a) => a.cls === 'i' && !a.bad && same(a.b, Iof([8, 6]), 1e-9)),
+      mvs: [
+        [PA(O, [I0[0], -I0[1]], 'i', bad({ t: 0.1, nm: 'I' })), RW('Angles added: 0° + ' + dg(ang(Z0)), A([I0[0], -I0[1]]), 0.7, { bad: true })],
+        [PA(O, P(VS / (R0 + X0), ang(I0)), 'i', bad({ t: 0.1, nm: 'I' })), RW('Sizes added: 230 ÷ (' + R0 + ' + ' + X0 + ')', n2(VS / (R0 + X0)) + ' A', 0.7, { bad: true })],
+        [PA(O, I0, 'i', { t: 0.1, nm: 'I', mv: { t: 0.8, dur: 0.9, b0: [len(I0), 0] } }), RW('Lengths divided: 230 ÷ ' + n2(len(Z0)), n2(len(I0)) + ' A', 0.6),
+          RW('Angles taken away: 0° − ' + dg(ang(Z0)), dg(ang(I0)), 1.5), ARC('p', 'A', I0, 'i', 1.8)],
+      ],
+      task: 'An 8 Ω resistor and a 6 Ω coil, `Z = 8 + j6`, are in series on 230 V. What current flows?',
+      hint: 'Not quite. Divide the lengths and take Z\'s angle away.',
+      hints: { 0: 'Not quite. Dividing takes the angles away, so the current\'s angle is `0° − 36.87°`, not plus.', 1: 'Not quite. The 8 Ω and the j6 Ω stand at a quarter turn, so Z is `√(8² + 6²) = 10` Ω, not 14.' },
+      why: 'Z is `8 + j6 = 10∠36.87° Ω`. Dividing divides the lengths, `230 ÷ 10 = 23` A, and takes the angles away, `0° − 36.87° = −36.87°`. So `I = 23∠−36.87° A`: 23 A on a clamp meter, lagging the voltage by Z\'s angle.' },
+    { name: 'Measured from what?', z: true, circ: ser(R0, X0),
+      base: [VB, PZ(O, Z0, 'z', { nm: 'Z' }), ARC('z', 'O', Z0, 'z', null), PA(O, I0, 'i', { nm: 'I', id: 'i0' })],
+      opts: ['Z\'s own arrow', 'The supply voltage V', 'Nothing: it is I\'s own angle'], ok: 1,
+      truth: () => (near(ang(cdiv([230, 0], [8, 6])) - ang([230, 0]), -ang([8, 6])) ? 'The supply voltage V' : '?'),
+      truthOk: (g) => g.arcs >= 2 && g.arrows.some((a) => a.cls === 'i' && !a.bad && same(a.b, Iof([8, 6]), 1e-9)),
+      mvs: [
+        [PA(O, [len(I0), 0], 'i', bad({ id: 'i0', nm: 'I', mv: { t: 0.1, dur: 0.9, b0: I0 } })),
+          RW('Measured from Z: ' + dg(ang(Z0)) + ' − ' + dg(-ang(I0)), '0°, in step with V', 0.8, { bad: true }), RW('So I would be', A([len(I0), 0]), 1.2, { bad: true })],
+        [PV(O, P(VS, CLK), 'v', bad({ t: 0.1, dur: 0.7, nm: 'V' })), PA(O, P(len(I0), CLK + ang(I0)), 'i', bad({ id: 'i0', nm: 'I', mv: { t: 0.1, dur: 0.7, b0: I0 } })),
+          RW('Clock started ' + CLK + '° later: V', pol(P(VS, CLK)) + ' V', 0.8, { bad: true }), RW('I\'s own angle changes', A(P(len(I0), CLK + ang(I0))), 1.2, { bad: true }),
+          RW('Yet the gap from V is still', dg(CLK - (CLK + ang(I0))), 1.6)],
+        [PA(O, I0, 'i', { id: 'i0', nm: 'I' }), ARC('p', 'A', I0, 'i', 0.2), RW('Measured from V, drawn at 0°', dg(ang(I0)) + ', behind V', 0.5),
+          RW('The gap is Z\'s angle', dg(ang(Z0)), 1.0)],
+      ],
+      task: 'The current is `I = 23∠−36.87° A`. What is its −36.87° measured from?',
+      hint: 'Not quite. An angle on its own means nothing; it is measured from another wave.',
+      hints: { 0: 'Not quite. Z\'s angle sets the size of the gap, 36.87°, but the gap is measured from V.', 2: 'Not quite. A single wave has no angle of its own: start the clock later and I\'s angle changes, but its gap from V does not.' },
+      why: 'A single wave\'s angle depends on when you start the clock; only the gap between two waves means anything. We chose the supply voltage as the zero and drew it at 0°, so I\'s −36.87° says it is 36.87° behind V. Start the clock 30° later and V reads `230∠30°` and I `23∠−6.87°`: both angles change, but the gap is still 36.87°, Z\'s angle.' },
+    { show: true, free: true, mode: 'ser', name: 'Drag Z', z: true, dur: 4.1,
+      demo: { ph: [{ t: 0.4, dur: 1.3, to: { X: 16 } }, { t: 2.1, dur: 1.9, to: { X: -16 } }] },
+      text: 'Drag the tip of Z, or use the sliders. The current\'s length is always 230 V divided by Z\'s length, and its angle is Z\'s angle taken the other way.',
+      more: 'Point Z higher, as a bigger coil does, and I shrinks and swings further back. Bring Z down onto the real axis and the current is in step with the voltage, as in DC. Take Z below the axis, as a capacitor does, and I swings ahead of V.' },
+    { name: 'A capacitor instead', z: true, circ: ser(R0, -X0),
+      base: [VB, PZ(O, Z3, 'z', { nm: 'Z' }), ARC('z', 'O', Z3, 'z', null)],
+      opts: [A(Iof(Z0)), A([VS / len(Z3), 0]), A(I3)], ok: 2,
+      truth: () => A(cdiv([230, 0], [8, -6])),
+      truthOk: (g) => g.arrows.some((a) => a.cls === 'i' && !a.bad && same(a.b, Iof([8, -6]), 1e-9)),
+      mvs: [
+        [PA(O, Iof(Z0), 'i', bad({ t: 0.1, nm: 'I' })), RW('Swung back, as with the coil', A(Iof(Z0)), 0.7, { bad: true })],
+        [PA(O, [VS / len(Z3), 0], 'i', bad({ t: 0.1, nm: 'I' })), RW('Angle left out, as in DC', A([VS / len(Z3), 0]), 0.7, { bad: true })],
+        [PA(O, I3, 'i', { t: 0.1, nm: 'I', mv: { t: 0.8, dur: 0.9, b0: [len(I3), 0] } }), RW('Lengths divided: 230 ÷ ' + n2(len(Z3)), n2(len(I3)) + ' A', 0.6),
+          RW('Angles taken away: 0° − (' + dg(ang(Z3)) + ')', '+' + dg(ang(I3)), 1.5), ARC('p', 'A', I3, 'i', 1.8)],
+      ],
+      task: 'Swap the coil for a capacitor of 6 Ω, so `Z = 8 − j6`. What current flows from the 230 V supply now?',
+      hint: 'Not quite. Z now points down, so you take away a negative angle.',
+      hints: { 0: 'Not quite. Taking away a negative angle adds it: `0° − (−36.87°) = +36.87°`. A capacitor swings the current ahead of the voltage.', 1: 'Not quite. Only a Z with no angle keeps the current in step, as in DC. This Z points 36.87° down.' },
+      why: '`8 − j6` is `10∠−36.87° Ω`: the same length as before, pointing down. So `I = 230∠0° ÷ 10∠−36.87° = 23∠36.87° A`. The +36.87° is measured from the supply voltage: the current leads V by 36.87°, where the coil made it lag.' },
+    { show: true, free: true, mode: 'volts', name: 'The part voltages', z: true, dur: 3.3, amps: 2,
+      demo: { tb: { vr: 0.4, vx: 1.4, sq: 2.3, rvr: 1.1, rvx: 2.1 } },
+      text: 'In series one current flows through every part, so each part\'s voltage is that current times the part\'s own impedance. The two voltages add as arrows, tip to tail, back to V.',
+      more: 'Across the resistor, `I × 8 = 184∠−36.87° V`, lying along I because 8 has no angle. Across the coil, `I × j6 = 138∠53.13° V`, a quarter turn ahead of I. A meter would read 184 V and 138 V. They stand at a quarter turn, so they add as arrows and end exactly on V\'s tip: in parts, `(147.2 − j110.4) + (82.8 + j110.4) = 230 + j0`. Drag Z and they always do.' },
+    { name: 'Two meter readings', z: false, circ: ser(R0, X0),
+      base: [PV(O, VR0, 'vr', { nm: n2(len(VR0)) + ' V' }), PV(VR0, VSUM, 'vx', { nm: n2(len(VX0)) + ' V' }), SQ(VR0, VSUM, null)],
+      opts: [n2(len(VR0) + len(VX0)) + ' V', n2(len(VR0) - len(VX0)) + ' V', n2(len(VSUM)) + ' V'], ok: 2,
+      truth: () => n2(Math.hypot(147.2 + 82.8, -110.4 + 110.4)) + ' V',
+      truthOk: (g) => g.arrows.some((a) => a.cls === 'v' && !a.bad && same(a.b, [230, 0], 1e-9)),
+      mvs: [
+        [PV(O, [len(VR0), 0], 'vr', bad({ t: 0.1, dy: -9 })), PV([len(VR0), 0], [len(VR0) + len(VX0), 0], 'vx', bad({ t: 0.6, dy: -9, nm: n2(len(VR0) + len(VX0)) + ' V' })),
+          RW('Readings added: ' + n2(len(VR0)) + ' + ' + n2(len(VX0)), n2(len(VR0) + len(VX0)) + ' V', 1.1, { bad: true })],
+        [PV(O, [len(VR0), 0], 'vr', bad({ t: 0.1, dy: -9 })), PV([len(VR0), 0], [len(VR0) - len(VX0), 0], 'vx', bad({ t: 0.6, dy: -19, nm: n2(len(VR0) - len(VX0)) + ' V' })),
+          RW('Readings taken away: ' + n2(len(VR0)) + ' − ' + n2(len(VX0)), n2(len(VR0) - len(VX0)) + ' V', 1.1, { bad: true })],
+        [PV(O, V, 'v', { t: 0.1, dur: 0.7, nm: 'V' }), RW('At a right angle: √(' + n2(len(VR0)) + '² + ' + n2(len(VX0)) + '²)', '√' + n2(len(VR0) ** 2 + len(VX0) ** 2) + ' = ' + n2(Math.hypot(len(VR0), len(VX0))) + ' V', 0.9),
+          RW('Or in parts: (' + parts(VR0) + ') + (' + parts(VX0) + ')', n2(VSUM[0]) + ' + j' + n2(Math.abs(VSUM[1])), 1.3),
+          RW('So the supply gives', pol(VSUM) + ' V', 1.7)],
+      ],
+      task: 'In that circuit a meter reads 184 V across the resistor and 138 V across the coil. What voltage is the supply giving?',
+      hint: 'Not quite. The two voltages stand at a quarter turn, so add them as arrows.',
+      hints: { 0: 'Not quite. Adding the readings lays the two arrows end to end. They stand at a quarter turn, so add them tip to tail as drawn.', 1: 'Not quite. The coil\'s voltage stands a quarter turn from the resistor\'s; it does not point back against it.' },
+      why: 'The resistor\'s 184 V lies along the current and the coil\'s 138 V stands a quarter turn ahead of it, so they add as arrows, tip to tail. They meet at a right angle, so the voltage triangle you already know gives the supply: `√(184² + 138²) = √52900 = 230` V. In parts it checks: `(147.2 − j110.4) + (82.8 + j110.4) = 230 + j0`.' },
+    { show: true, free: true, mode: 'par', par: true, name: 'Side by side', z: true, dur: 4.6, amps: 2,
+      demo: { start: { cap: false }, ph: [{ t: 0.5, set: { cap: true } }, { t: 2.8, dur: 1.6, to: { XC: 17 } }], tb: { cap: 0.5, i2: 0.6, is: 1.4, r2: 0.9, rs: 1.9 } },
+      text: 'Side by side, each branch has the whole supply across it, so each branch current is V divided by that branch\'s own impedance. The branch currents add to make the supply current, as with DC, but as arrows.',
+      more: 'Here Z₁ is the coil\'s branch, `8 + j6`, drawing `23∠−36.87° A`. Switch in a −j10 Ω capacitor and its current is `230∠0° ÷ 10∠−90° = 23∠90° A`, straight up. Laid tip to tail, `(18.4 − j13.8) + j23 = 18.4 + j9.2`, which is `20.57∠26.57° A`: less than either branch\'s 23 A. Slide the capacitor\'s reactance to about 17 Ω and its current cancels the coil\'s j part, leaving just 18.4 A.' },
+    { name: 'Two 23 A branches', z: true, amps: 2, par: true, circ: par(R0, X0, XC0),
+      base: [VB, PA(O, I0, 'i1', { nm: 'I₁' }), PA(O, I2c, 'i2', { nm: 'I₂', id: 'i2' }), PZ(O, Z0, 'z', { nm: 'Z₁' }), PZ(O, ZC0, 'z2', { nm: 'Z₂' })],
+      opts: [n2(len(I0) + len(I2c)) + ' A', n2(len(IS0)) + ' A', n2(len(I0) - len(I2c)) + ' A'], ok: 1,
+      truth: () => n2(Math.hypot(18.4, 23 - 13.8)) + ' A',
+      truthOk: (g) => g.arrows.some((a) => a.cls === 'i' && !a.bad && same(a.b, cadd(Iof([8, 6]), Iof([0, -10])), 1e-9)),
+      mvs: [
+        [PA(I0, cadd(I0, P(len(I2c), ang(I0))), 'i2', bad({ id: 'i2', nm: n2(len(I0) + len(I2c)) + ' A', mv: { t: 0.1, dur: 1.1, a0: O, b0: I2c } })),
+          RW('Sizes added: ' + n2(len(I0)) + ' + ' + n2(len(I2c)), n2(len(I0) + len(I2c)) + ' A', 1.4, { bad: true })],
+        [PA(I0, IS0, 'i2', { id: 'i2', nm: 'I₂', mv: { t: 0.1, dur: 1.1, a0: O, b0: I2c } }), PA(O, IS0, 'i', { t: 1.3, nm: 'I' }), ARC('p', 'A', IS0, 'i', 1.9),
+          RW('By parts: (' + parts(I0) + ') + ' + parts(I2c), parts(IS0) + ' A', 1.5), RW('As a length and angle', A(IS0), 2.0)],
+        [PA(I0, O, 'i2', bad({ id: 'i2', nm: false, mv: { t: 0.1, dur: 1.1, a0: O, b0: I2c } })), DOT('0 A', 1.3),
+          RW('Taken as cancelling: ' + n2(len(I0)) + ' − ' + n2(len(I2c)), n2(len(I0) - len(I2c)) + ' A', 1.5, { bad: true })],
+      ],
+      task: 'Side by side on 230 V, the coil branch draws 23 A and a −j10 Ω capacitor draws 23 A. What current does the supply give?',
+      hint: 'Not quite. Lay the two branch currents tip to tail, as arrows.',
+      hints: { 0: 'Not quite. 23 + 23 lays the currents end to end, as if they pointed the same way. One points up, the other down and to the right.', 2: 'Not quite. The capacitor\'s current is not opposite the coil\'s. It points straight up, so it cancels only the coil\'s j part.' },
+      why: 'Add by parts: `(18.4 − j13.8) + j23 = 18.4 + j9.2`. Its length is `√(338.56 + 84.64) = 20.57` A, at `tan⁻¹(9.2 ÷ 18.4) = 26.57°`. The capacitor\'s j23 cancels the coil\'s −j13.8 and leaves j9.2 over, while the 18.4 A real part is untouched.' },
+    { show: true, name: 'Product over sum', z: true, dur: 4.4, amps: 2, par: true, circ: par(R0, X0, XC0),
+      ops: [VB, PZ(O, Z0, 'z', { nm: 'Z₁' }), PZ(O, ZC0, 'z2', { nm: 'Z₂' }),
+        RW('Z₁ × Z₂ = (' + parts(Z0) + ')(' + parts(ZC0) + ')', parts(TOP8), 0.5),
+        RW('Z₁ + Z₂ = ' + parts(Z0) + ' − j' + n2(XC0), parts(BOT8), 1.1),
+        RW('Top and bottom × (' + parts(CONJ8) + ')', '(' + parts(cmul(TOP8, CONJ8)) + ') ÷ ' + n2(cmul(BOT8, CONJ8)[0]), 1.7),
+        PZ(O, ZP0, 'zp', { t: 2.3, nm: 'Z' }), RW('Both branches as one', 'Z = ' + parts(ZP0) + ' = ' + pol(ZP0) + ' Ω', 2.5),
+        PA(O, IS0, 'i', { t: 3.2, nm: 'I' }), ARC('p', 'A', IS0, 'i', 3.7), RW('I = 230 ÷ ' + n2(len(ZP0)) + ', at +' + dg(ang(IS0)), A(IS0), 3.5)],
+      text: 'Product over sum, the reciprocal rule worked out for two branches, works here just as you use it for two resistors. It turns the pair into one impedance Z, which gives the same supply current.',
+      more: 'The top is `(8 + j6)(−j10) = 60 − j80` and the bottom is `8 + j6 − j10 = 8 − j4`. Divide as in The conjugate, and dividing: times `8 + j4` top and bottom gives `(800 − j400) ÷ 80 = 10 − j5`, or `11.18∠−26.57° Ω`. Then `230 ÷ 11.18 = 20.57` A, at +26.57°: the same arrow as adding the branch currents.' },
+    { name: 'A capacitor in series', z: true, circ: ser(6, -8, { xl: '8 Ω' }),
+      base: [VB],
+      opts: [rel(Iof([6, 8])), rel(I9), rel(Iof([8, -6]))], ok: 1,
+      truth: () => { const a = ang(cdiv([230, 0], [6, -8])); return n2(Math.abs(a)) + '° ' + (a > 0 ? 'ahead of V' : 'behind V'); },
+      truthOk: (g) => g.arrows.some((a) => a.cls === 'i' && !a.bad && same(a.b, Iof([6, -8]), 1e-9)),
+      mvs: [
+        [PZ(O, [6, 8], 'z', bad({ t: 0.1, nm: 'Z' })), PA(O, Iof([6, 8]), 'i', bad({ t: 0.6, nm: 'I' })),
+          RW('Capacitor taken as +j8: Z = 6 + j8', pol([6, 8]) + ' Ω', 0.8, { bad: true }), RW('Its angle taken away', 'I ' + rel(Iof([6, 8])), 1.3, { bad: true })],
+        [PZ(O, Z9, 'z', { t: 0.1, nm: 'Z' }), ARC('z', 'O', Z9, 'z', 0.6), PA(O, I9, 'i', { t: 0.8, nm: 'I' }), ARC('p', 'A', I9, 'i', 1.3),
+          RW('Z = ' + parts(Z9), pol(Z9) + ' Ω', 0.6), RW('Angle taken away: 0° − (' + dg(ang(Z9)) + ')', '+' + dg(ang(I9)) + ', ahead of V', 1.3)],
+        [PZ(O, [8, -6], 'z', bad({ t: 0.1, nm: 'Z' })), PA(O, Iof([8, -6]), 'i', bad({ t: 0.6, nm: 'I' })),
+          RW('Angle from tan⁻¹(6 ÷ 8)', dg(ang(Iof([8, -6]))) + ', ahead of V', 0.9, { bad: true })],
+      ],
+      task: 'To finish, three mixed puzzles: choose the form first. A 6 Ω resistor and a capacitor of 8 Ω are in series on 230 V. How far is the current from the supply voltage, and which way?',
+      hint: 'Not quite. Give the capacitor its −j, find Z\'s angle, then take it away.',
+      hints: { 0: 'Not quite. A capacitor\'s opposition points down: −j8, not +j8. So the current swings ahead.', 2: 'Not quite. Z\'s angle is tan⁻¹ of the j part over the real part: `tan⁻¹(8 ÷ 6)`, not `tan⁻¹(6 ÷ 8)`.' },
+      why: 'Adding is a job for parts: the capacitor gives −j8, so `Z = 6 − j8`. An angle is a job for length and angle: `Z = 10∠−53.13° Ω`, pointing down. Taking its angle away, `0° − (−53.13°) = +53.13°`: the current leads the supply voltage by 53.13°.' },
+    { name: 'Two equal branches', z: true, amps: 2, par: true, circ: par(R0, X0, null, { b2: { R: R0, X: X0 } }),
+      base: [VB, PZ(O, Z0, 'z', { nm: 'Z₁' })],
+      opts: [A(Iof(ZB10)), A(Iof(ZS10)), A(I10)], ok: 2,
+      truth: () => A(cdiv([230, 0], cdiv(cmul([8, 6], [8, 6]), [16, 12]))),
+      truthOk: (g) => g.arrows.some((a) => a.cls === 'i' && !a.bad && same(a.b, Iof(pos([8, 6], [8, 6])), 1e-9)),
+      mvs: [
+        [PZ(O, ZB10, 'zp', bad({ t: 0.1, nm: 'Z' })), PA(O, Iof(ZB10), 'i', bad({ t: 0.7, nm: 'I' })),
+          RW('As if in series: (' + parts(Z0) + ') + (' + parts(Z0) + ')', pol(ZB10) + ' Ω', 0.8, { bad: true }), RW('230 ÷ ' + n2(len(ZB10)), A(Iof(ZB10)), 1.3, { bad: true })],
+        [PZ(O, ZS10, 'zp', bad({ t: 0.1, nm: 'Z' })), PA(O, Iof(ZS10), 'i', bad({ t: 0.7, nm: 'I' })),
+          RW('Top: ' + pol(Z0) + ' × ' + pol(Z0), pol(ZT10), 0.5), RW('Bottom: ' + parts(ZB10), pol(ZB10), 0.9),
+          RW('Bottom\'s angle not taken away', 'Z = ' + pol(ZS10) + ' Ω', 1.3, { bad: true }), RW('230 ÷ ' + n2(len(ZS10)), A(Iof(ZS10)), 1.7, { bad: true })],
+        [PZ(O, Z10, 'zp', { t: 0.1, nm: 'Z' }), PA(O, I10, 'i', { t: 1.2, nm: 'I' }), ARC('p', 'A', I10, 'i', 1.7),
+          RW('Top: ' + pol(Z0) + ' × ' + pol(Z0), pol(ZT10), 0.3), RW('Bottom: (' + parts(Z0) + ') + (' + parts(Z0) + ')', parts(ZB10) + ' = ' + pol(ZB10), 0.7),
+          RW('Top ÷ bottom', 'Z = ' + pol(Z10) + ' Ω', 1.1), RW('Check in parts: (' + parts(ZT10) + ')(' + parts(CONJ10) + ') ÷ ' + n2(cmul(ZB10, CONJ10)[0]), parts(Z10) + ' Ω', 1.4),
+          RW('I = 230∠0° ÷ ' + pol(Z10), A(I10), 1.8)],
+      ],
+      task: 'Choose the form first. Two equal branches, each an 8 Ω resistor with a 6 Ω coil, `8 + j6 = 10∠36.87° Ω`, are side by side on 230 V. What current does the supply give?',
+      hint: 'Not quite. Side by side, use product over sum, or add the two branch currents as arrows.',
+      hints: { 0: 'Not quite. That adds the two branches as if in series. Side by side, use product over sum.', 1: 'Not quite. Dividing the top by the bottom takes the bottom\'s angle away: `73.74° − 36.87° = 36.87°`.' },
+      why: 'Product over sum, each job in its own form. The bottom is a sum, so add by parts: `16 + j12 = 20∠36.87°`. The top is a product, so multiply by length and angle: `10∠36.87° × 10∠36.87° = 100∠73.74°`. Dividing gives `5∠36.87° Ω`, so `I = 230 ÷ 5 = 46` A at −36.87°. All in parts works too, as in the first lessons: `(8 + j6)² = 64 + j96 + j²36 = 28 + j96`, because `j × j = −1`, and times the bottom\'s conjugate `16 − j12`, top and bottom, `(1600 + j1200) ÷ 400 = 4 + j3`, the same 5∠36.87°. By branches: each draws `23∠−36.87° A`, pointing the same way, so they add straight, to 46 A.' },
+    { name: 'From the current to Z', z: true, amps: 4, circ: { type: 'load' },
+      base: [VB, PA(O, I11, 'i', { nm: 'I' }), ARC('p', 'A', I11, 'i', null)],
+      opts: [parts([Z11[1], Z11[0]]), parts([Z11[0], -Z11[1]]), parts(Z11)], ok: 2,
+      truth: () => parts(cdiv([230, 0], P(11.5, -36.87))),
+      truthOk: (g) => g.arrows.some((a) => a.pane === 'z' && a.cls === 'z' && !a.bad && same(a.b, cdiv([230, 0], P(11.5, -36.87)), 1e-9)),
+      mvs: [
+        [PZ(O, [Z11[1], Z11[0]], 'z', bad({ t: 0.1, nm: 'Z' })), RW('Length 230 ÷ ' + n2(len(I11)), n2(VS / len(I11)) + ' Ω', 0.5),
+          RW('R = 20 sin 36.87°, X = 20 cos 36.87°', parts([Z11[1], Z11[0]]), 1.0, { bad: true })],
+        [PZ(O, [Z11[0], -Z11[1]], 'z', bad({ t: 0.1, nm: 'Z' })), RW('Length 230 ÷ ' + n2(len(I11)), n2(VS / len(I11)) + ' Ω', 0.5),
+          RW('Current\'s angle copied: ' + dg(ang(I11)), 'Z = ' + parts([Z11[0], -Z11[1]]), 1.0, { bad: true })],
+        [PZ(O, Z11, 'z', { t: 0.1, nm: 'Z' }), ARC('z', 'O', Z11, 'z', 0.7), RW('Length 230 ÷ ' + n2(len(I11)), n2(VS / len(I11)) + ' Ω', 0.4),
+          RW('Angle 0° − (' + dg(ang(I11)) + ')', dg(ang(Z11)), 0.8), RW('R = 20 cos 36.87°, X = 20 sin 36.87°', parts(Z11), 1.2)],
+      ],
+      task: 'Choose the form first. A load on 230 V draws `11.5∠−36.87° A`. What is its impedance Z, in parts?',
+      hint: 'Not quite. `Z = V ÷ I`: divide the lengths, take the angles away, then split it into parts.',
+      hints: { 0: 'Not quite. That swaps cos and sin. The real part R is the length times cos 36.87°.', 1: 'Not quite. The current lags, so Z points up: its angle is `0° − (−36.87°) = +36.87°`.' },
+      why: '`V = IZ`, so `Z = V ÷ I`, a division, which is a job for length and angle: `230∠0° ÷ 11.5∠−36.87° = 20∠36.87° Ω`. Then change form for the answer in parts: `R = 20 cos 36.87° = 16` and `X = 20 sin 36.87° = 12`. So `Z = 16 + j12`: 16 Ω of resistance with a coil\'s 12 Ω.' },
+  ];
+  const FINISH = 'Ohm\'s law works for AC just as for DC: `I = V ÷ Z`. The current\'s size is the supply voltage over Z\'s length, and its angle from the voltage is Z\'s angle the other way. In series the part voltages add as arrows to V; side by side the branch currents add as arrows to the supply current.';
+  STEPS.forEach((d) => {
+    const nRows = (list) => list.filter((x) => x.k === 'row').length;
+    d.rowsMax = d.free ? (d.mode === 'ser' ? 2 : 4) : d.show ? nRows(d.ops) : Math.max(1, ...d.mvs.map(nRows));
+  });
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  const blank = () => ({ pick: null, res: null, why: false, mode: 'demo', set: null });
+  const hintFor = (d, st) => (d.hints && d.hints[st.pick]) || d.hint;
+  const shownIdx = (d, st) => (st.why || st.res === 'right' ? d.ok : st.res === 'wrong' ? st.pick : null);
+  let S = STEPS.map(blank);
+  let finished = false, lastStep = -1, lastDone = false, seen = null;
+  let T = Infinity, motionEnd = 0, latest = 0, earliest = Infinity, NOLAB = false, REC = null, LIVE = null, HANDLE = null;
+
+  // A free screen's state while its demonstration plays: whole ohms, so every frame is a real slider setting.
+  function demoState(d) {
+    const s = Object.assign({}, DEF, d.demo.start || {});
+    (d.demo.ph || []).forEach((ph) => {
+      if (ph.set) { note(ph.t, 0); if (T >= ph.t) Object.assign(s, ph.set); return; }
+      const p = grow(ph.t, ph.dur);
+      if (p <= 0) return;
+      Object.keys(ph.to).forEach((k) => { s[k] = Math.round(K.lerp(s[k], ph.to[k], p)); });
+    });
+    return s;
+  }
+  // A free screen's drawing, built from its state by the rule. tb: when each part arrives in the demonstration.
+  function liveItems(s, tb) {
+    tb = tb || {};
+    const Z = [s.R, s.X], I1 = Iof(Z), isPar = s.mode === 'par', out = [];
+    out.push(CIR(isPar ? par(s.R, s.X, s.cap ? s.XC : null) : ser(s.R, s.X), { bAt: tb.cap }));
+    out.push(PZ(O, Z, 'z', { nm: isPar ? 'Z₁' : 'Z', handle: true }), ARC('z', 'O', Z, 'z', null), VB);
+    out.push(RW((isPar ? 'Z₁ = ' : 'Z = ') + parts(Z) + ' Ω', pol(Z) + ' Ω', null));
+    if (!isPar) {
+      out.push(PA(O, I1, 'i', { nm: 'I', lp: s.mode === 'volts' ? 'side' : null }), ARC('p', 'A', I1, 'i', null), RW('I = ' + parts(I1) + ' A', A(I1), null));
+      if (s.mode === 'volts') {
+        const vr = cmul(I1, [s.R, 0]), vx = cmul(I1, [0, s.X]);
+        out.push(PV(O, vr, 'vr', { t: tb.vr, dur: 0.8, nm: 'I × R' }));
+        if (s.X !== 0) out.push(PV(vr, cadd(vr, vx), s.X > 0 ? 'vx' : 'vc', { t: tb.vx, dur: 0.8, nm: 'I × jX' }), SQ(vr, cadd(vr, vx), tb.sq));
+        out.push(RW('I × R = ' + parts(vr) + ' V', pol(vr) + ' V', tb.rvr), RW('I × jX = ' + parts(vx) + ' V', pol(vx) + ' V', tb.rvx));
+      }
+    } else {
+      const I2 = s.cap ? Iof(capZ(s.XC)) : null;
+      out.push(PA(O, I1, 'i1', { nm: I2 ? 'I₁' : 'I₁ = I' }), RW('I₁ = ' + parts(I1) + ' A', A(I1), null));
+      if (I2) {
+        const Is = cadd(I1, I2);
+        out.push(PA(I1, Is, 'i2', { t: tb.i2, dur: 0.6, nm: 'I₂' }), PA(O, Is, 'i', { t: tb.is, dur: 0.6, nm: 'I' }), ARC('p', 'A', Is, 'i', tb.is == null ? null : tb.is + 0.6));
+        out.push(RW('I₂ = V ÷ (−j' + n2(s.XC) + ') = ' + parts(I2) + ' A', A(I2), tb.r2), RW('I = I₁ + I₂ = ' + parts(Is) + ' A', A(Is), tb.rs));
+      }
+    }
+    return out;
+  }
+  function itemsOf(d, st) {
+    if (d.free) {
+      const s = Object.assign({}, st.mode === 'static' ? (st.set || vals()) : demoState(d), { mode: d.mode });
+      LIVE = s;
+      return liveItems(s, st.mode === 'static' ? null : d.demo.tb);
+    }
+    if (d.show) return d.ops;
+    const k = shownIdx(d, st);
+    if (k == null) return d.base;
+    const extra = d.mvs[k], ids = extra.map((x) => x.id).filter(Boolean);
+    return d.base.filter((x) => !x.id || ids.indexOf(x.id) < 0).concat(extra);
+  }
+
+  // ---------- text: maths in `backticks` stays on one line; X_C takes its small letter ----------
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('\n').forEach((para, n) => {
+      if (n) node.appendChild(K.el('span', { class: 'gap' }));
+      para.split('`').forEach((seg, k) => {
+        if (!seg) return;
+        // Long maths may break before an equals sign or between bracketed parts, never inside a number.
+        // A short left-hand side (I, Z, X_C) keeps its equals sign rather than ending a line alone.
+        const pieces = [];
+        (k % 2 ? seg.split(/ (?==)|(?<=\)) (?=\+ \()/) : [seg]).forEach((p) => {
+          if (pieces.length && p[0] === '=' && pieces[pieces.length - 1].length <= 5) pieces[pieces.length - 1] += ' ' + p; else pieces.push(p);
+        });
+        pieces.forEach((piece, m) => {
+          if (m) node.appendChild(document.createTextNode(' '));
+          const host = k % 2 ? node.appendChild(K.el('span', { class: 'nw' })) : node;
+          piece.split(/(X_[LC])/).forEach((bit) => {
+            if (!bit) return;
+            if (/^X_[LC]$/.test(bit)) host.appendChild(K.el('span', {}, 'X', K.el('sub', {}, bit[2])));
+            else host.appendChild(document.createTextNode(bit));
+          });
+        });
+      });
+    });
+  }
+  // As a screen reader says it.
+  const spoken = (s) => String(s == null ? '' : s).replace(/°/g, ' degrees').replace(/∠/g, ' at an angle of ')
+    .replace(/÷/g, ' divided by ').replace(/=/g, ' equals ').replace(/\+/g, ' plus ').replace(/−/g, ' minus ').replace(/×/g, ' times ')
+    .replace(/Ω/g, ' ohms').replace(/₁/g, ' 1').replace(/₂/g, ' 2').replace(/\s+/g, ' ').trim();
+
+  // ---------- the sentence under a free screen: what is on screen now ----------
+  function sayFree(d, s) {
+    const Z = [s.R, s.X], I = Iof(Z), za = rnd(ang(Z), 2), zl = n2(len(Z)), il = n2(len(I));
+    if (d.mode === 'ser') {
+      if (za === 0) return 'Z is ' + zl + ' Ω with no angle, so the current is 230 ÷ ' + zl + ' = ' + il + ' A, in step with the voltage, just as in DC.';
+      return 'Z is ' + zl + ' Ω at ' + dg(za) + ', so the current is 230 ÷ ' + zl + ' = ' + il + ' A, and it swings ' + dg(Math.abs(za)) + (za > 0 ? ' behind' : ' ahead of') + ' the voltage.';
+    }
+    if (d.mode === 'volts') {
+      if (s.X === 0) return 'With no coil or capacitor, the resistor takes the whole 230 V, and its arrow lies along V.';
+      return 'The resistor\'s ' + n2(len(I) * s.R) + ' V and the ' + (s.X > 0 ? 'coil' : 'capacitor') + '\'s ' + n2(len(I) * Math.abs(s.X)) +
+        ' V stand at a quarter turn, so as arrows they add to the supply\'s 230 V.';
+    }
+    if (!s.cap) return 'With only the first branch, the supply gives that branch\'s own ' + il + ' A.';
+    const I2 = Iof(capZ(s.XC)), Is = cadd(I, I2), lag = -I[1], up = I2[1];
+    if (lag <= 0) return 'Both branch currents point up here, so the supply gives ' + n2(len(Is)) + ' A.';
+    if (Math.abs(Is[1]) < 0.5) return 'The capacitor\'s ' + n2(up) + ' A all but cancels the coil branch\'s j part, so the supply gives just ' + n2(len(Is)) + ' A, nearly in step with the voltage.';
+    if (up < lag) return 'The capacitor\'s ' + n2(up) + ' A points up and cancels that much of the coil branch\'s j part, so the supply gives ' + n2(len(Is)) + ' A, less than the coil branch\'s own ' + il + ' A.';
+    return 'The capacitor\'s ' + n2(up) + ' A is more than the coil branch\'s j part of ' + n2(lag) + ' A, so the supply current swings ahead of the voltage, at ' + n2(len(Is)) + ' A.';
+  }
+
+  // ---------- controls ----------
+  const el = (id) => document.getElementById(id);
+  const zv = el('zv');
+  // The Z plane's own controls first; the step control is the page's progress.
+  const sl = {
+    R: K.control({ id: 'R', label: 'Resistance R', min: 4, max: 20, step: 1, value: R0, unit: 'Ω', snap: [R0], into: '#zsl' }),
+    X: K.control({ id: 'X', label: 'Reactance X', hint: 'Up for a coil, down for a capacitor', min: -20, max: 20, step: 1, value: X0, snap: [X0, -X0],
+      fmt: (v) => (v === 0 ? '0 Ω' : (v > 0 ? '+j' : '−j') + Math.abs(v) + ' Ω'), into: '#zsl' }),
+    cap: K.toggle({ id: 'cap', label: 'Capacitor branch', value: true, into: '#psl' }),
+    XC: K.control({ id: 'XC', label: 'Capacitor\'s reactance', min: 5, max: 40, step: 1, value: XC0, snap: [XC0, 17], fmt: (v) => '−j' + v + ' Ω', into: '#psl' }),
+  };
+  const vals = () => ({ R: sl.R.get(), X: sl.X.get(), XC: sl.XC.get(), cap: !!sl.cap.get() });
+  function setControls(s) {
+    ['R', 'X', 'XC'].forEach((k) => { if (sl[k].get() !== s[k]) sl[k].set(s[k], true); });
+    if (!!sl.cap.get() !== !!s.cap) sl.cap.set(!!s.cap, true);
+    seen = vals();
+  }
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const cur = () => stepper.get();
+  function motionLen(i, st) {
+    const keepS = S[i], keepT = T, keepN = NOLAB;
+    S[i] = st; T = Infinity; latest = 0; NOLAB = true;
+    try { paintStep(STEPS[i], st); } finally { S[i] = keepS; T = keepT; NOLAB = keepN; }
+    return Math.max(0.3, latest);
+  }
+  // Three answers; a new choice after a wrong one settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = k; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  // Check: marks the answer, then builds it: the right one, or what the slip does.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.ok ? 'right' : 'wrong';
+    st.why = false;
+    play(motionLen(i, st));
+  } });
+  // Why?: the reason in words, and the arrows built again for the right answer.
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    st.why = !st.why;
+    if (st.why) play(motionLen(i, st)); else { anim.pause(); T = Infinity; }
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = cur(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i] = blank();
+    if (d.free) setControls(Object.assign({}, DEF, d.demo.start || {}));
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, cur() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = cur();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1;
+    stepper.set(0, true);
+  } });
+
+  // Drag Z's tip in its plane: across sets R, up and down sets X. Only the free screens take a drag;
+  // elsewhere the plane shows a given Z and a touch leaves it as it is.
+  const PH = 212, OY = 104, OX = 24, VU = 164 / VS, ZX0 = 10, ZU = 4;
+  const dragOn = () => !finished && !!STEPS[cur()].free;
+  K.drag(zv, { control: 'R', toValue: (x) => (dragOn() ? K.clamp(Math.round((x - ZX0) / ZU), 4, 20) : sl.R.get()) });
+  K.drag(zv, { control: 'X', toValue: (x, y) => {
+    if (!dragOn()) return sl.X.get();
+    const v = K.clamp(Math.round((OY - y) / ZU), -20, 20);
+    return STEPS[cur()].mode === 'par' ? Math.max(1, v) : v;   // on the side-by-side screen Z₁ stays a coil
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion (and
+  // while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- timing ----------
+  function note(t0, d) { if (t0 >= 0) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; } }
+  function arr(t0, d) { d = d == null ? 0.4 : d; note(t0, d); return K.arrive(T, t0, d); }
+  function prog(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }
+  const vis = (t) => (t == null ? 1 : arr(t));
+  const grow = (t0, d) => (t0 == null ? 1 : K.ease(prog(t0, d)));
+  const after = (t, d) => (t == null ? null : t + d);
+
+  // ---------- drawing ----------
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  let into = null, AV = [], PTS = [], AU = 3;
+  const add = (node) => into.appendChild(node);
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const path = (cls, d) => add(K.svg('path', { class: cls, d }));
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    t.textContent = s;
+    return add(t);
+  }
+  function part(a, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // An arrow with a solid head at (x1, y1).
+  function arrowPx(x0, y0, x1, y1, cls, hmax) {
+    const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy);
+    if (L < 1) return;
+    const ux = dx / L, uy = dy / L, h = Math.min(hmax || 11, L * 0.55), w = h * 0.5, bx = x1 - ux * h, by = y1 - uy * h;
+    if (L - h > 0.5) AV.push(line('shaft ' + cls, x0, y0, bx + ux, by + uy));
+    AV.push(add(K.svg('polygon', { class: 'head ' + cls, points: [x1, y1, bx - uy * w, by + ux * w, bx + uy * w, by - ux * w].map(r3).join(' ') })));
+  }
+  // An angle's arc round (cx, cy), R px out, from the real axis turning by sweep (anticlockwise positive), with a small head.
+  function arcAt(cx, cy, sweep, R, cls, hcls) {
+    if (Math.abs(sweep) < 0.3) return;
+    const n = Math.max(2, Math.ceil(Math.abs(sweep) / 4)), pts = [];
+    for (let k = 0; k <= n; k++) { const a = rad(sweep * k / n); pts.push(r3(cx + R * Math.cos(a)) + ' ' + r3(cy - R * Math.sin(a))); }
+    AV.push(path(cls, 'M' + pts.join(' L')));
+    if (Math.abs(rad(sweep)) * R < 14) return;
+    const sg = sweep > 0 ? 1 : -1, qx = cx + R * Math.cos(rad(sweep)), qy = cy - R * Math.sin(rad(sweep));
+    const tx = -Math.sin(rad(sweep)) * sg, ty = -Math.cos(rad(sweep)) * sg, bx = qx - tx * 7, by = qy - ty * 7;
+    AV.push(add(K.svg('polygon', { class: hcls, points: [qx, qy, bx - ty * 3.5, by + tx * 3.5, bx + ty * 3.5, by - tx * 3.5].map(r3).join(' ') })));
+  }
+  const scaleOf = (u) => (u === 'V' ? VU : u === 'A' ? AU : ZU);
+  const pxOf = (pane, u, q) => (pane === 'z' ? [ZX0 + q[0] * ZU, OY - q[1] * ZU] : [OX + q[0] * scaleOf(u), OY - q[1] * scaleOf(u)]);
+  // Currents have their own scale: 3 px per amp in series, 2 side by side or where I lies along I × R, smaller only if the arrows would leave the diagram.
+  function ampsScale(items, W, base) {
+    const pts = [];
+    items.forEach((it) => { if (it.k === 'ar' && it.u === 'A') { pts.push(it.a, it.b); if (it.mv) { pts.push(it.mv.a0 || it.a); pts.push(it.mv.b0); } } });
+    return [base, 1.2, 0.8].find((s) => pts.every((q) => q[0] * s >= -(OX - 8) && q[0] * s <= W - OX - 16 && Math.abs(q[1] * s) <= 90)) || 0.8;
+  }
+  const unitWord = (u) => (u === 'V' ? ' V' : u === 'A' ? ' A' : ' Ω');
+  // One arrow, growing from a to b from time t (and, with mv, sliding and turning into place); its name fades in once it has arrived.
+  function drawAr(it, LB, said) {
+    const D = it.dur || 0.5, p = grow(it.t, D);
+    if (p <= 0) return;
+    let a = it.a, b = it.b, done = p >= 1, t1 = after(it.t, D);
+    if (it.mv) {
+      const m = it.mv, q = grow(m.t, m.dur), a0 = m.a0 || it.a, v0 = csub(m.b0, a0), v1 = csub(it.b, it.a);
+      let sw = ang(v1) - ang(v0);
+      if (sw > 180) sw -= 360;
+      if (sw < -180) sw += 360;
+      a = [K.lerp(a0[0], it.a[0], q), K.lerp(a0[1], it.a[1], q)];
+      b = cadd(a, P(K.lerp(len(v0), len(v1), q), ang(v0) + sw * q));
+      if (q < 1) done = false;
+      t1 = m.t + m.dur;
+    }
+    if (len(csub(b, a)) < 1e-9) return;
+    const e = [K.lerp(a[0], b[0], p), K.lerp(a[1], b[1], p)], dy = it.dy || 0;
+    const Ap = pxOf(it.pane, it.u, a), Bp = pxOf(it.pane, it.u, e);
+    Ap[1] += dy; Bp[1] += dy;
+    PTS.push(Ap, Bp);
+    arrowPx(Ap[0], Ap[1], Bp[0], Bp[1], it.bad ? 'bad' : it.cls, it.pane === 'z' ? 11 : 12);
+    if (it.handle) HANDLE = Bp;
+    if (!done) return;
+    REC.arrows.push({ pane: it.pane, u: it.u, a: it.a, b: it.b, cls: it.cls, bad: !!it.bad, nm: it.nm || null });
+    if (it.bad) REC.bad++;
+    // A short current from the origin is named beyond its tip; longer arrows and those laid tip to tail beside their middle.
+    const tip = it.pane === 'p' && it.u === 'A' && it.lp !== 'side' && same(it.a, O, 0) && Math.hypot(Bp[0] - Ap[0], Bp[1] - Ap[1]) < 110;
+    if (it.nm) LB.push({ A: Ap, B: Bp, text: it.nm, cls: it.bad ? 'nm bad' : 'nm', a: vis(t1), z: it.pane === 'z', tip, handle: !!it.handle, f: it.cls === 'v' ? 0.85 : null });
+    said.push((it.bad ? 'In red, a mistaken arrow ' : 'Arrow ') + spoken(it.nm || '') + ', ' + spoken(pol(csub(it.b, it.a)) + unitWord(it.u)) + '.');
+  }
+  function drawArc(it) {
+    const p = grow(it.t, 0.5);
+    if (p <= 0) return;
+    const deg = ang(it.vec), Lpx = len(it.vec) * scaleOf(it.u), R = it.pane === 'z' ? 15 : 28;
+    if (Math.abs(deg) < 2 || Lpx < R + 10) return;
+    const c = pxOf(it.pane, it.u, O), ic = it.cls === 'i' ? ' i' : '';
+    arcAt(c[0], c[1], deg * p, R, 'arc' + ic, 'ah' + ic);
+    if (p >= 1) REC.arcs++;
+  }
+  // The right angle where the resistor's voltage meets the coil's.
+  function drawSq(it) {
+    const a = vis(it.t);
+    if (a <= 0) return;
+    const C = pxOf('p', 'V', it.at), U = pxOf('p', 'V', O), Wp = pxOf('p', 'V', it.to);
+    const l1 = Math.hypot(U[0] - C[0], U[1] - C[1]), l2 = Math.hypot(Wp[0] - C[0], Wp[1] - C[1]);
+    if (l1 < 24 || l2 < 24) return;
+    const u1 = [(U[0] - C[0]) / l1 * 9, (U[1] - C[1]) / l1 * 9], u2 = [(Wp[0] - C[0]) / l2 * 9, (Wp[1] - C[1]) / l2 * 9];
+    part(a, () => AV.push(path('sq', 'M' + r3(C[0] + u1[0]) + ' ' + r3(C[1] + u1[1]) + ' L' + r3(C[0] + u1[0] + u2[0]) + ' ' + r3(C[1] + u1[1] + u2[1]) + ' L' + r3(C[0] + u2[0]) + ' ' + r3(C[1] + u2[1]))));
+    if (a >= 1) REC.sq++;
+  }
+  function drawDot(it, LB, said) {
+    const a = vis(it.t);
+    if (a <= 0) return;
+    part(a, () => AV.push(add(K.svg('circle', { class: 'dotb', cx: OX, cy: OY, r: 5.5 }))));
+    LB.push({ at: { x: OX + 10, y: OY + 22, anchor: 'start' }, text: it.nm, cls: 'nm bad', a });
+    if (a >= 1) { REC.dots.push(it.nm); REC.bad++; said.push('In red, a mistaken answer: ' + it.nm + '.'); }
+  }
+  // Where a name goes: beside the arrow on the side away from the drawing's middle, or (Z plane) beyond its tip.
+  function labelSpot(L, C) {
+    if (L.at) return L.at;
+    const ax = L.A[0], ay = L.A[1], dx = L.B[0] - ax, dy = L.B[1] - ay, l = Math.hypot(dx, dy) || 1, ux = dx / l, uy = dy / l;
+    if (L.z || L.tip) {
+      const g = L.handle ? 15 : 10;
+      return { x: L.B[0] + ux * g, y: L.B[1] + uy * g + 5, anchor: ux > 0.35 ? 'start' : ux < -0.35 ? 'end' : 'middle' };
+    }
+    const f = L.f || (l > 90 ? 0.7 : 0.5), mx = ax + dx * f, my = ay + dy * f;
+    let nx = uy, ny = -ux;
+    if ((mx - C[0]) * nx + (my - C[1]) * ny < -1e-6) { nx = -nx; ny = -ny; }
+    const anchor = nx > 0.35 ? 'start' : nx < -0.35 ? 'end' : 'middle';
+    return { x: mx + nx * 11, y: my + ny * 11 + 4.5 + (anchor === 'middle' ? ny * 3 : 0), anchor };
+  }
+  function centroid(pts) {
+    const c = [0, 0];
+    pts.forEach((q) => { c[0] += q[0] / pts.length; c[1] += q[1] / pts.length; });
+    return c;
+  }
+  function placeLabels(gid, LB, C, avoid) {
+    const items = LB.filter((L) => L.a > 0).map((L) => Object.assign(labelSpot(L, C), { text: L.text, cls: L.cls, a: L.a }));
+    REC.labels = REC.labels.concat(items.map((x) => x.text));
+    const g = el(gid);
+    if (NOLAB || !items.length) { g.textContent = ''; return; }
+    const ts = K.labels(g, items.map((x) => ({ text: x.text, class: x.cls, x: x.x, y: x.y, anchor: x.anchor })), { avoid });
+    ts.forEach((tEl, n) => { if (items[n].a < 1) K.fade(tEl, items[n].a, 0); });
+  }
+  const lay = (it) => (it.k === 'sq' ? 0 : it.k === 'arc' ? 1 : it.k === 'ar' ? (it.u === 'V' ? 2 : it.cls === 'zp' ? 3 : 4) + (it.bad ? 1 : 0) : 7);
+  const layered = (list) => list.map((it, n) => ({ it, n })).sort((p, q) => (lay(p.it) - lay(q.it)) || (p.n - q.n)).map((x) => x.it);
+
+  // The phasor diagram: V fixed along the real axis, every other arrow drawn from the rule.
+  function paintPhasor(items, W) {
+    const g = el('part');
+    g.textContent = ''; into = g; AV = []; PTS = [[OX, OY]];
+    const said = ['A phasor diagram, real across and j up.'], LB = [];
+    AV.push(line('ax', 4, OY, W - 4, OY));
+    AV.push(line('ax', OX, 6, OX, PH - 6));
+    text(OX + 7, 16, 'j', 'an', 'start');
+    text(W - 4, OY + 17, 'real', 'an', 'end');
+    layered(items.filter((it) => it.pane === 'p' || it.k === 'sq' || it.k === 'dot')).forEach((it) => {
+      if (it.k === 'ar') drawAr(it, LB, said);
+      else if (it.k === 'arc') drawArc(it);
+      else if (it.k === 'sq') drawSq(it);
+      else if (it.k === 'dot') drawDot(it, LB, said);
+    });
+    placeLabels('plab', LB, centroid(PTS), AV);
+    el('pv').setAttribute('aria-label', said.join(' '));
+  }
+  // The small Z plane, in ohms: R across from 0 to 20, X from −j20 to j20.
+  function paintZ(items) {
+    const g = el('zart');
+    g.textContent = ''; into = g; AV = []; PTS = [[ZX0, OY]]; HANDLE = null;
+    const top = OY - 20 * ZU, bot = OY + 20 * ZU, right = ZX0 + 20 * ZU, said = ['The impedance plane, in ohms.'], LB = [];
+    for (let k = 0; k <= 4; k++) line('gr', ZX0 + k * 5 * ZU, top, ZX0 + k * 5 * ZU, bot);
+    for (let k = -4; k <= 4; k++) line('gr', ZX0, OY - k * 5 * ZU, right, OY - k * 5 * ZU);
+    AV.push(line('ax', ZX0, OY, right, OY));
+    AV.push(line('ax', ZX0, top, ZX0, bot));
+    text(ZX0 - 6, top - 8, 'j20', 'tn', 'start');
+    text(ZX0 - 6, bot + 16, '−j20', 'tn', 'start');
+    text(ZX0 + 10 * ZU, bot + 16, '10', 'tn');
+    text(right, bot + 16, '20', 'tn');
+    text(right + 6, top - 8, 'Z, in Ω', 'an', 'end');
+    layered(items.filter((it) => it.pane === 'z')).forEach((it) => { if (it.k === 'ar') drawAr(it, LB, said); else if (it.k === 'arc') drawArc(it); });
+    if (HANDLE) AV.push(add(K.svg('circle', { class: 'hdl', cx: r3(HANDLE[0]), cy: r3(HANDLE[1]), r: 8 })));
+    placeLabels('zlab', LB, centroid(PTS), AV);
+    zv.setAttribute('aria-label', said.join(' ') + (HANDLE ? ' Drag Z\'s tip to change it.' : ''));
+  }
+  // The circuit: the supply on the left, the parts in series along the top, or two branches side by side.
+  function paintCirc(c, bAt) {
+    const g = el('cart');
+    g.textContent = ''; into = g; REC.cir = c;
+    const yT = 24, yB = c.type === 'par' ? 108 : 104;
+    add(K.svg('circle', { class: 'src', cx: 40, cy: 62, r: 15 }));
+    path('wire', 'M29 62 Q34.5 52 40 62 T51 62');
+    path('wire', 'M40 47 V' + yT + ' M40 77 V' + yB);
+    text(62, 67, '230 V', 'nm', 'start');
+    const head = (x, y) => add(K.svg('polygon', { class: 'head i', points: [x + 5, y, x - 4, y - 4.5, x - 4, y + 4.5].join(' ') }));
+    let words;
+    if (c.type !== 'par') {
+      let x = 40;
+      const to = (x1) => { path('wire', 'M' + x + ' ' + yT + ' H' + x1); };
+      if (c.type === 'load') {
+        to(150); add(K.svg('rect', { class: 'load', x: 150, y: 11, width: 80, height: 26, rx: 3 })); text(190, 29, 'load', 'nm'); x = 230;
+        words = 'A 230 V supply feeding a load.';
+      } else {
+        to(110); add(K.svg('rect', { class: 'res', x: 110, y: 16, width: 40, height: 16, rx: 2 })); text(130, 52, n2(c.R) + ' Ω', 'nm'); x = 150;
+        if (c.X > 0) { to(192); path('coil', 'M192 24 a5.5 5.5 0 0 1 11 0 a5.5 5.5 0 0 1 11 0 a5.5 5.5 0 0 1 11 0 a5.5 5.5 0 0 1 11 0'); x = 236; }
+        else if (c.X < 0) { to(210); line('plate', 210, 12, 210, 36); line('plate', 218, 12, 218, 36); x = 218; }
+        if (c.X) text(214, 52, c.xl || reactName(c.X), 'nm');
+        words = 'A 230 V supply feeding a ' + n2(c.R) + ' ohm resistor' + (c.X ? ' and a ' + (c.X > 0 ? 'coil' : 'capacitor') + ' of ' + spoken(c.xl || reactName(c.X)) : '') + ' in series.';
+      }
+      to(300);
+      path('wire', 'M300 ' + yT + ' V' + yB + ' H40');
+      head(84, yT); text(84, 44, 'I', 'nm');
+    } else {
+      const xA = 150, xB = 270, hasB = c.xc != null || !!c.b2;
+      path('wire', 'M40 ' + yT + ' H' + xA + ' M40 ' + yB + ' H' + xA);
+      branch(xA, c.R, c.X, 'I₁', yT, yB);
+      if (hasB) {
+        part(vis(bAt), () => {
+          path('wire', 'M' + xA + ' ' + yT + ' H' + xB + ' M' + xA + ' ' + yB + ' H' + xB);
+          add(K.svg('circle', { class: 'jn', cx: xA, cy: yT, r: 3.5 }));
+          add(K.svg('circle', { class: 'jn', cx: xA, cy: yB, r: 3.5 }));
+          if (c.b2) branch(xB, c.b2.R, c.b2.X, 'I₂', yT, yB);
+          else {
+            path('wire', 'M' + xB + ' ' + yT + ' V62');
+            line('plate', xB - 12, 62, xB + 12, 62); line('plate', xB - 12, 70, xB + 12, 70);
+            path('wire', 'M' + xB + ' 70 V' + yB);
+            text(xB + 16, 71, reactName(-c.xc), 'nm', 'start');
+            text(xB - 12, 47, 'I₂', 'nm', 'end');
+          }
+        });
+      }
+      head(94, yT); text(94, 44, 'I', 'nm');
+      words = 'A 230 V supply feeding two branches side by side: ' + n2(c.R) + ' ohms with ' + spoken(reactName(c.X)) +
+        (c.b2 ? ', and the same again.' : c.xc != null ? ', and a capacitor of ' + spoken(reactName(-c.xc)) + '.' : ', and no second branch yet.');
+    }
+    el('cv').setAttribute('aria-label', words);
+  }
+  function branch(x, R, X, nm, yT, yB) {
+    path('wire', 'M' + x + ' ' + yT + ' V30');
+    add(K.svg('rect', { class: 'res', x: x - 8, y: 30, width: 16, height: 26, rx: 2 }));
+    text(x + 16, 47, n2(R) + ' Ω', 'nm', 'start');
+    if (X > 0) {
+      path('wire', 'M' + x + ' 56 V62');
+      path('coil', 'M' + x + ' 62 a5.5 5.5 0 0 1 0 11 a5.5 5.5 0 0 1 0 11 a5.5 5.5 0 0 1 0 11');
+      path('wire', 'M' + x + ' 95 V' + yB);
+    } else if (X < 0) {
+      path('wire', 'M' + x + ' 56 V74');
+      line('plate', x - 12, 74, x + 12, 74); line('plate', x - 12, 82, x + 12, 82);
+      path('wire', 'M' + x + ' 82 V' + yB);
+    } else path('wire', 'M' + x + ' 56 V' + yB);
+    if (X) text(x + 16, 84, reactName(X), 'nm', 'start');
+    text(x - 12, 47, nm, 'nm', 'end');
+  }
+  // The key, in two columns, and the two scales: volts and amps are drawn to separate scales.
+  const KORDER = ['v', 'i', 'i1', 'i2', 'vr', 'vx', 'vc', 'z', 'z2', 'zp', 'bad'];
+  function keyText(c, d) {
+    const pr = d.mode === 'par' || !!d.par;
+    return ({ v: 'V, the supply', i: pr ? 'I, from the supply' : 'I, the current', i1: 'I₁, through Z₁', i2: 'I₂, the capacitor\'s',
+      vr: 'I × R, across R', vx: 'I × jX, the coil\'s', vc: 'I × jX, capacitor\'s', z: pr ? 'Z₁, coil branch' : 'Z, the impedance',
+      z2: 'Z₂, the capacitor', zp: 'Z, both together', bad: 'a mistaken answer' })[c];
+  }
+  function paintKey(d, items) {
+    const g = el('kart');
+    g.textContent = ''; into = g; AV = [];
+    let cls;
+    if (d.free) cls = d.mode === 'par' ? ['v', 'i1', 'i2', 'i', 'z'] : d.mode === 'volts' ? ['v', 'i', 'vr', LIVE && LIVE.X < 0 ? 'vc' : 'vx', 'z'] : ['v', 'i', 'z'];
+    else {
+      const s = new Set();
+      items.forEach((it) => { if (it.k === 'ar') s.add(it.bad ? 'bad' : it.cls); if (it.k === 'dot') s.add('bad'); });
+      cls = KORDER.filter((c) => s.has(c));
+    }
+    cls.forEach((c, n) => {
+      const x = 12 + (n % 2) * 164, y = 15 + Math.floor(n / 2) * 20;
+      line('shaft ' + c, x, y - 4, x + 24, y - 4);
+      text(x + 30, y + 1, keyText(c, d), 'key', 'start');
+    });
+    const y = 15 + Math.ceil(cls.length / 2) * 20, vb = 100 * VU;
+    line('sc', 12, y - 4, 12 + vb, y - 4); line('sc', 12, y - 8, 12, y); line('sc', 12 + vb, y - 8, 12 + vb, y);
+    text(18 + vb, y + 1, '100 V', 'key', 'start');
+    if (items.some((it) => it.k === 'ar' && it.u === 'A')) {
+      const ab = 10 * AU;
+      line('sc', 176, y - 4, 176 + ab, y - 4); line('sc', 176, y - 8, 176, y); line('sc', 176 + ab, y - 8, 176 + ab, y);
+      text(182 + ab, y + 1, '10 A', 'key', 'start');
+    }
+    el('kv').setAttribute('viewBox', '0 0 340 ' + (y + 8));
+    el('kv').setAttribute('aria-label', 'Key: ' + cls.map((c) => spoken(keyText(c, d))).join('; ') + '. Scale: 100 volts and 10 amps.');
+  }
+  // The lines of working, under the figure.
+  function paintRows(d, st, items) {
+    const box = el('work');
+    box.textContent = '';
+    box.style.minHeight = (d.rowsMax * 1.55) + 'em';
+    if (!d.show && shownIdx(d, st) == null) { box.appendChild(K.el('p', { class: 'ph small' }, 'The working appears here after Check.')); return; }
+    items.filter((r) => r.k === 'row').forEach((r) => {
+      const a = vis(r.t);
+      if (a <= 0) return;
+      const row = K.el('div', { class: 'wk' + (r.bad ? ' bad' : '') }, K.el('span', { class: 'e' }, r.e), K.el('span', { class: 'w' }, r.w));
+      box.appendChild(row);
+      K.fade(row, a, 6);
+      if (a >= 0.5) REC.rows.push({ e: r.e, w: r.w, bad: !!r.bad });
+    });
+  }
+  function paintStep(d, st) {
+    REC = { arrows: [], rows: [], bad: 0, arcs: 0, sq: 0, dots: [], cir: null, labels: [], amps: 0 };
+    LIVE = null;
+    const items = itemsOf(d, st), W = d.z ? 196 : 340;
+    AU = ampsScale(items, W, d.amps || 3);
+    REC.amps = AU;
+    el('pair').classList.toggle('wide', !d.z);
+    el('pair').classList.toggle('free', !!d.free);
+    el('pv').setAttribute('viewBox', '0 0 ' + W + ' ' + PH);
+    if (d.z) zv.removeAttribute('hidden'); else zv.setAttribute('hidden', '');
+    const cirIt = items.filter((x) => x.k === 'cir').pop();
+    paintCirc(cirIt ? cirIt.spec : d.circ, cirIt ? cirIt.bAt : null);
+    paintPhasor(items, W);
+    if (d.z) paintZ(items); else { el('zart').textContent = ''; el('zlab').textContent = ''; }
+    paintKey(d, items);
+    paintRows(d, st, items);
+  }
+  // The page's own paint: on a free screen the controls follow the demonstration, and the sentence says what is on screen.
+  function paint(i) {
+    if (i == null) i = cur();
+    const d = STEPS[i], st = S[i];
+    paintStep(d, st);
+    if (d.free && LIVE) {
+      if (st.mode !== 'static') setControls(LIVE);
+      el('say').textContent = sayFree(d, LIVE);
+    }
+  }
+
+  write(el('finish'), FINISH);
+  const idx = (nm) => STEPS.findIndex((d) => d.name === nm);
+  const I2s = idx('Drag Z'), I4s = idx('The part voltages'), I6s = idx('Side by side'), I8s = idx('Product over sum');
+  K.update((p) => {
+    let i = Math.round(p.step), d = STEPS[i];
+    const now = vals();
+    const zMv = !!seen && (now.R !== seen.R || now.X !== seen.X);
+    const pMv = !!seen && (now.XC !== seen.XC || now.cap !== seen.cap);
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i === lastStep && ((zMv && !d.free) || (pMv && d.mode !== 'par'))) {
+      // These controls are hidden off their screens, so only a test can move them there: show what it set where they belong.
+      i = pMv ? I6s : I2s; d = STEPS[i];
+      stepper.set(i, true); lastStep = i; enter('stepbox');
+      S[i] = Object.assign(blank(), { mode: 'static' });
+      anim.pause(); T = Infinity;
+    } else if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { S[i] = blank(); if (d.free) setControls(Object.assign({}, DEF, d.demo.start || {})); play(d.dur); } else { anim.pause(); T = Infinity; }
+    } else if (d.free && (zMv || pMv)) {
+      // A drag or a slider moved: the free screen follows it at once.
+      if (anim.playing()) anim.pause();
+      T = Infinity; S[i].mode = 'static'; S[i].set = null;
+      K.reveal();
+    }
+    seen = vals();
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const st = S[i], right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('more').hidden = !(d.show && d.more);
+    write(el('more'), d.show && d.more ? d.more : '');
+    el('free').hidden = !d.free;
+    el('zsl').hidden = d.mode === 'par';
+    el('psl').hidden = d.mode !== 'par';
+    el('say').hidden = !d.free;
+    zv.classList.toggle('k-drag', !!d.free);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-label', spoken(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === k ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(d, st) : st.res === 'empty' ? 'Tap one of the answers.' : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DOS = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solved = (i, k) => Object.assign(blank(), { pick: k, res: k === STEPS[i].ok ? 'right' : 'wrong' });
+  // A screen painted in the state given, finished, without labels: what it drew.
+  function drawnD(d, st) {
+    const keepT = T;
+    T = Infinity; NOLAB = true;
+    try { paintStep(d, st); return REC; } finally { T = keepT; }
+  }
+  const drawn = (i, st) => drawnD(STEPS[i], st);
+  const MEMO = new Map();
+  function freeAt(i, s) {
+    const set = Object.assign({}, DEF, s), key = i + JSON.stringify(set);
+    if (!MEMO.has(key)) MEMO.set(key, drawn(i, Object.assign(blank(), { mode: 'static', set })));
+    return MEMO.get(key);
+  }
+  // Each check paints what it needs, then puts the page back as it was.
+  function chk(label, fn, opts) {
+    K.check(label, () => { const keepT = T; try { return fn(); } finally { NOLAB = false; T = keepT; paint(); } }, opts);
+  }
+  const arrowOf = (g, cls) => g.arrows.find((a) => a.cls === cls && !a.bad);
+  const ZSET = [];
+  [4, 8, 12, 16, 20].forEach((R) => [-20, -10, -6, -1, 0, 1, 6, 10, 20].forEach((X) => ZSET.push({ R, X })));
+  const PSET = [];
+  [4, 8, 20].forEach((R) => [1, 6, 20].forEach((X) => [5, 10, 17, 40].forEach((XC) => PSET.push({ R, X, XC, cap: true }))));
+  let ALL = null;
+  function allDrawn() {
+    if (ALL) return ALL;
+    ALL = [];
+    STEPS.forEach((d, i) => {
+      ALL.push(drawn(i, blank()));
+      if (!d.show) d.opts.forEach((o, k) => ALL.push(drawn(i, solved(i, k))));
+    });
+    return ALL;
+  }
+
+  chk('Now we can apply Ohm\'s Law, I = E/Z: on the series screen, at every resistance and reactance tested, the current arrow I is the supply\'s arrow V divided by Z\'s arrow, R + jX, as complex numbers', () =>
+    ZSET.every((s) => {
+      const g = freeAt(I2s, s), i = arrowOf(g, 'i'), z = arrowOf(g, 'z'), v = arrowOf(g, 'v');
+      return !!i && !!z && !!v && same(z.b, [s.R, s.X], 0) && same(v.b, V, 0) && same(i.a, O, 0) && same(i.b, cdiv(v.b, z.b), 1e-12);
+    }), { source: ALLC });
+  chk('The phase angle between voltage and current is the same as the phase angle of the impedance: at every setting tested, the angle from I\'s arrow round to V\'s is Z\'s angle, and I\'s length times Z\'s is V\'s', () =>
+    ZSET.every((s) => {
+      const g = freeAt(I2s, s), i = arrowOf(g, 'i'), z = arrowOf(g, 'z');
+      return !!i && !!z && near(ang(V) - ang(i.b), ang(z.b), 1e-9) && near(len(i.b) * len(z.b), VS, 1e-9);
+    }), { source: KIRT });
+  chk('Dragging Z up shrinks I and swings it further back, and below the real axis I swings ahead: with R = 8 Ω, for every whole ohm of X from −20 to 20 Ω, I\'s angle falls as X rises, from ahead of V to behind it, and I is longest, 28.75 A, at X = 0', () => {
+    let prev = null, ok = true, best = -1, at = null;
+    for (let X = -20; X <= 20; X++) {
+      const i = arrowOf(freeAt(I2s, { R: 8, X }), 'i');
+      if (!i) return false;
+      const a = ang(i.b), l = len(i.b);
+      if (prev != null && !(a < prev)) ok = false;
+      if ((X < 0 && !(a > 0)) || (X > 0 && !(a < 0)) || (X === 0 && rnd(a, 9) !== 0)) ok = false;
+      if (l > best) { best = l; at = X; }
+      prev = a;
+    }
+    return ok && at === 0 && n2(best) === '28.75';
+  });
+  chk('Impedances add in series; reciprocals of impedances add in parallel: on the voltages screen I × R and I × jX end exactly on V\'s tip at every setting tested, and side by side the supply current is V times the sum of the branches\' reciprocal impedances, the same as V divided by product over sum, which the product-over-sum screen draws', () => {
+    const series = ZSET.every((s) => {
+      const g = freeAt(I4s, s), vr = arrowOf(g, 'vr'), vx = arrowOf(g, s.X > 0 ? 'vx' : 'vc'), i = arrowOf(g, 'i');
+      if (!vr || !i || !same(vr.a, O, 0) || !same(vr.b, cmul(i.b, [s.R, 0]), 1e-12)) return false;
+      if (s.X === 0) return !arrowOf(g, 'vx') && !arrowOf(g, 'vc') && same(vr.b, V, 1e-9);
+      return !!vx && same(vx.a, vr.b, 1e-12) && same(vx.b, V, 1e-9) && same(csub(vx.b, vx.a), cmul(i.b, [0, s.X]), 1e-9);
+    });
+    const parallel = PSET.every((s) => {
+      const i = arrowOf(freeAt(I6s, s), 'i'), Z1 = [s.R, s.X], Z2 = capZ(s.XC);
+      return !!i && same(i.b, cmul(V, cadd(cdiv([1, 0], Z1), cdiv([1, 0], Z2))), 1e-9) && same(i.b, cdiv(V, pos(Z1, Z2)), 1e-9);
+    });
+    const g8 = drawn(I8s, blank()), zp = arrowOf(g8, 'zp'), i8 = arrowOf(g8, 'i');
+    return series && parallel && !!zp && !!i8 && same(zp.b, pos([8, 6], [0, -10]), 1e-12) && same(i8.b, cdiv(V, zp.b), 1e-9);
+  }, { source: MIT });
+  chk('Just as with DC circuits, branch currents in a parallel AC circuit add to form the total current: on the side-by-side screen, at every setting tested, the supply\'s arrow I runs from 0 to the tip of I₂, laid at the tip of I₁; with the capacitor switched off the supply gives I₁ alone', () => {
+    const on = PSET.every((s) => {
+      const g = freeAt(I6s, s), i1 = arrowOf(g, 'i1'), i2 = arrowOf(g, 'i2'), i = arrowOf(g, 'i');
+      return !!i1 && !!i2 && !!i && same(i1.a, O, 0) && same(i2.a, i1.b, 0) && same(i.a, O, 0) && same(i.b, i2.b, 0) &&
+        same(i1.b, cdiv(V, [s.R, s.X]), 1e-12) && same(csub(i2.b, i2.a), cdiv(V, capZ(s.XC)), 1e-9);
+    });
+    const off = freeAt(I6s, { cap: false });
+    return on && !arrowOf(off, 'i2') && !arrowOf(off, 'i') && !!arrowOf(off, 'i1');
+  }, { source: ALLC });
+  chk('Resistive impedance points right, inductive impedance with its 90° phase angle points up and capacitive impedance with its −90° phase angle points down: the capacitor branch\'s Z₂ is drawn straight down, its current I₂ stands straight up from the supply\'s 0° at every capacitor setting tested, and across a coil I × jX stands a quarter turn ahead of I × R, across a capacitor a quarter turn behind', () => {
+    let ok = true;
+    for (let XC = 5; XC <= 40; XC++) {
+      const i2 = arrowOf(freeAt(I6s, { XC }), 'i2');
+      if (!i2 || !near(ang(csub(i2.b, i2.a)), 90, 1e-9)) ok = false;
+    }
+    const z2 = arrowOf(drawn(I8s, blank()), 'z2');
+    const quarter = ZSET.filter((s) => s.X !== 0).every((s) => {
+      const g = freeAt(I4s, s), vr = arrowOf(g, 'vr'), vx = arrowOf(g, s.X > 0 ? 'vx' : 'vc');
+      let d = ang(csub(vx.b, vx.a)) - ang(vr.b);
+      if (d > 180) d -= 360;
+      if (d < -180) d += 360;
+      return near(d, s.X > 0 ? 90 : -90, 1e-9);
+    });
+    return ok && !!z2 && near(ang(z2.b), -90, 1e-12) && quarter;
+  }, { source: MODEL });
+  chk('The mains supply in the UK is 230 volts: V is drawn as 230∠0° V, the same arrow, on every screen but the meter puzzle, which asks for it, and in every answer', () => {
+    const gs = allDrawn();
+    const fixed = gs.every((g) => g.arrows.filter((a) => a.cls === 'v' && !a.bad).every((a) => same(a.a, O, 0) && same(a.b, [230, 0], 0)));
+    const there = STEPS.every((d, i) => d.name === 'Two meter readings' ? !arrowOf(drawn(i, blank()), 'v') : !!arrowOf(drawn(i, blank()), 'v'));
+    return fixed && there;
+  }, { source: BBC });
+  chk('A single AC waveform, without another waveform to compare to, cannot have a phase value at all: on the measured-from screen, starting the clock 30° later turns V and I alike, so I\'s own angle changes while the angle from I round to V stays Z\'s angle; the right answer measures I\'s angle from V at 0°', () => {
+    const i = idx('Measured from what?'), g = drawn(i, solved(i, 2));
+    const v = g.arrows.find((a) => a.cls === 'v' && a.bad), c = g.arrows.find((a) => a.cls === 'i' && a.bad), r = arrowOf(drawn(i, solved(i, 1)), 'i');
+    return i > 0 && !!v && !!c && !near(ang(c.b), ang(I0), 1e-6) && near(ang(v.b) - ang(c.b), ang(Z0), 1e-9) && !!r && near(ang(V) - ang(r.b), ang(Z0), 1e-9);
+  }, { source: MODEL });
+  chk('By adding the capacitor, the two reactive currents cancel: with the example coil, as the capacitor\'s current grows the supply current\'s j part shrinks to nearly nothing, where the supply current is least, and beyond that it grows again', () => {
+    const L = {}, Y = {};
+    for (let XC = 5; XC <= 40; XC++) { const i = arrowOf(freeAt(I6s, { XC }), 'i'); if (!i) return false; L[XC] = len(i.b); Y[XC] = i.b[1]; }
+    let best = 5;
+    for (let XC = 5; XC <= 40; XC++) if (L[XC] < L[best]) best = XC;
+    let fall = true, rise = true;
+    for (let XC = 40; XC > best; XC--) if (!(L[XC - 1] < L[XC])) fall = false;
+    for (let XC = best; XC > 5; XC--) if (!(L[XC - 1] > L[XC])) rise = false;
+    const off = arrowOf(freeAt(I6s, { cap: false }), 'i1');
+    return best === 17 && Math.abs(Y[17]) < 0.3 && Math.abs(Y[17]) < Math.abs(off.b[1]) && n2(L[17]) === '18.4' && fall && rise;
+  }, { source: FIORE });
+  chk('To divide, we divide their moduli and subtract their arguments: the opening screen draws I first as the supply\'s length divided by Z\'s, along V, then turns it back by Z\'s argument', () => {
+    const it = STEPS[0].ops.find((x) => x.k === 'ar' && x.cls === 'i'), z = STEPS[0].ops.find((x) => x.k === 'ar' && x.cls === 'z');
+    const i = arrowOf(drawn(0, blank()), 'i');
+    return !!it && !!z && !!i && near(it.mv.b0[0], VS / len(z.b)) && it.mv.b0[1] === 0 && near(len(it.b), VS / len(z.b)) &&
+      near(ang(it.b), 0 - ang(z.b)) && same(i.b, it.b, 0);
+  }, { source: MC });
+  chk('Known answers worked by hand: 230 ÷ (8 + j6) = 23∠−36.87° = 18.4 − j13.8 A; I × 8 = 184∠−36.87° = 147.2 − j110.4 V and I × j6 = 138∠53.13° = 82.8 + j110.4 V, together 230 + j0; with −j10 alongside, 18.4 + j9.2 = 20.57∠26.57° A from 338.56 + 84.64; product over sum 60 − j80 over 8 − j4, times 8 + j4: (800 − j400) ÷ 80 = 10 − j5 = 11.18∠−26.57° Ω; 6 − j8 = 10∠−53.13° gives +53.13°; two 8 + j6 coils give 100∠73.74° over 20∠36.87°, 5∠36.87° Ω and 46∠−36.87° A; 11.5∠−36.87° A means 16 + j12 Ω; the slips give 16.43, 322, 46, 0, 11.5 and −73.74; and 230 ÷ 13.8 is near 17; √(184² + 138²) = √52900 = 230; (8 + j6)² = 28 + j96, times 16 − j12 is 1600 + j1200, over 400 is 4 + j3; a clock 30° later puts I at −6.87°', () => {
+    const eq = [[A(I0), '23∠−36.87° A'], [parts(I0), '18.4 − j13.8'], [pol(VR0), '184∠−36.87°'], [parts(VR0), '147.2 − j110.4'], [pol(VX0), '138∠53.13°'],
+      [parts(VX0), '82.8 + j110.4'], [n2(VSUM[0]) + ' + j' + n2(Math.abs(VSUM[1])), '230 + j0'], [parts(IS0), '18.4 + j9.2'], [pol(IS0), '20.57∠26.57°'],
+      [n2(18.4 * 18.4), '338.56'], [n2(9.2 * 9.2), '84.64'], [parts(TOP8), '60 − j80'], [parts(BOT8), '8 − j4'], [parts(CONJ8), '8 + j4'],
+      [parts(cmul(TOP8, CONJ8)), '800 − j400'], [n2(cmul(BOT8, CONJ8)[0]), '80'], [parts(ZP0), '10 − j5'], [pol(ZP0), '11.18∠−26.57°'],
+      [pol(Z9), '10∠−53.13°'], [rel(I9), '53.13° ahead of V'], [pol(ZT10), '100∠73.74°'], [pol(ZB10), '20∠36.87°'], [pol(Z10), '5∠36.87°'], [A(I10), '46∠−36.87° A'],
+      [parts(Z11), '16 + j12'], [n2(VS / (R0 + X0)), '16.43'], [n2(184 + 138), '322'], [n2(184 - 138), '46'], [n2(23 - 23), '0'], [n2(VS / 20), '11.5'],
+      [dg(ang(Iof(ZS10))), '−73.74°'], [String(Math.round(VS / 13.8)), '17'], [A(Iof([8, -6])), '23∠36.87° A'],
+      [n2(184 * 184 + 138 * 138), '52900'], [n2(Math.hypot(len(VR0), len(VX0))), '230'], [parts(ZT10), '28 + j96'], [parts(cmul(ZT10, CONJ10)), '1600 + j1200'],
+      [n2(cmul(ZB10, CONJ10)[0]), '400'], [parts(Z10), '4 + j3'], [dg(CLK + ang(I0)), '−6.87°']];
+    return eq.every((q) => q[0] === q[1]);
+  });
+  chk('From outside the rule: the practice motor, 12 + j16 Ω on 230 V, is √400 = 20∠53.13° Ω and draws 11.5 A, 6.9 − j9.2 in parts; a capacitor of 230 ÷ 9.2 = 25 Ω cancels that j part, which at 50 Hz is 1 ÷ (2π × 50 × 25) = 127.3 µF', () => {
+    const Zm = [12, 16], Im = Iof(Zm), C = 1 / (2 * Math.PI * 50 * (VS / -Im[1]));
+    return 12 * 12 + 16 * 16 === 400 && pol(Zm) === '20∠53.13°' && n2(len(Im)) === '11.5' && parts(Im) === '6.9 − j9.2' &&
+      n2(VS / -Im[1]) === '25' && fmtN(C * 1000000, 1) === '127.3';
+  });
+  chk('Each puzzle takes only its right answer: its three answers differ, the right one matches a working done separately here and only it is drawn without a mistake; each wrong one is drawn as what its slip makes, in red', () =>
+    DOS.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts[d.ok] !== d.truth()) return false;
+      return d.opts.every((o, k) => { const g = drawn(i, solved(i, k)); return k === d.ok ? g.bad === 0 && d.truthOk(g) && g.rows.length > 0 : g.bad > 0 && !d.truthOk(g) && g.rows.some((r) => r.bad); });
+    }));
+  chk('Before an answer, a puzzle shows only its question: no working, nothing marked as a mistake and not its answer\'s arrow', () =>
+    DOS.every((i) => { const g = drawn(i, blank()); return g.rows.length === 0 && g.bad === 0 && !STEPS[i].truthOk(g); }));
+  chk('Every demonstration finishes within 4.8 s of its screen opening and none starts before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 3 s; and a drag or slider move on a free screen shows its result at once', () => {
+    const timed = (i, st) => { T = Infinity; latest = 0; earliest = Infinity; NOLAB = true; paintStep(STEPS[i], st); return { latest, earliest }; };
+    const demos = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank()); return r.latest <= d.dur + 1e-9 && d.dur <= 4.8 && d.dur >= 3 && r.earliest >= FADE; }
+      return d.opts.every((o, k) => timed(i, solved(i, k)).latest <= 3 + 1e-9);
+    });
+    const moved = [I2s, I4s, I6s].every((i) => {
+      const st = Object.assign(blank(), { mode: 'static', set: Object.assign({}, DEF, { R: 12, X: 10, XC: 20 }) });
+      T = 0; NOLAB = true; paintStep(STEPS[i], st);
+      const n0 = REC.arrows.length, r0 = REC.rows.length;
+      T = Infinity; paintStep(STEPS[i], st);
+      return n0 > 0 && n0 === REC.arrows.length && r0 === REC.rows.length;
+    });
+    return demos && moved;
+  });
+
+  K.ready();
+</script>

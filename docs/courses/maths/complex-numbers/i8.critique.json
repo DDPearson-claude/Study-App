@@ -1,0 +1,22 @@
+{
+  "draft": "i8.lesson.draft1.txt",
+  "validator": "draft 1 passes validate.mjs with no problems, soft problems or warnings.",
+  "keep": [
+    "The idea is named up front in plain words (Ohm's law works for AC once the opposition is Z; series add, reciprocals add in parallel) with [1], [2] and the Utah line [3] that the DC methods carry over, answering ModEL's 'AC is wholly different' misconception from the brief.",
+    "The causal step for the current's angle is there: V = I × Z, multiplying adds angles [17], V sits at 0°, so I sits Z's angle back; then Kirtley's line [4]. The brief's picture (V fixed at 0°, I shrinking by |Z| and swinging back by Z's angle, series part voltages tip to tail, parallel branch currents adding and falling with a capacitor) is the interactive.",
+    "One fully worked example with real numbers computed from the rule, matching the brief's figures: 230∠0° ÷ 10∠36.87° = 23∠−36.87° A; 184∠−36.87° and 138∠53.13° adding to 230 + j0; 18.4 − j13.8 plus j23 = 18.4 + j9.2 = 20.57∠26.57° A; product over sum 10 − j5 = 11.18∠−26.57° Ω giving the same 20.57 A. It answers the course puzzle exactly (23 A coil, 23 A capacitor, about 21 A).",
+    "Every brief misconception has a DO screen with its own slip: angles added (23∠36.87°), sizes added (16.43 A), meter readings added (322 V and 46 V), the lone phase (what −36.87° is measured from), branch currents added as sizes (46 A) or cancelled (0 A), and in the mixed set a capacitor taken as +j, parallel combined as series, and cos/sin swapped.",
+    "Analogy from Dan's trade (the balanced three-phase neutral) is different from every earlier lesson's, reproduces the main result (equal currents adding to less because they point different ways), and its breaks are correct (three supplies vs one; non-linear loads)."
+  ],
+  "fix": [
+    "False absolute in explain: 'the angle always tells you how far the current is behind or ahead of the voltage'. The current's angle says that only because the supply is drawn at 0°; it is the impedance's angle that always gives it. Reword.",
+    "False absolute in practice: 'Never add meter readings straight.' Readings of parts whose arrows point the same way (two resistors in series) do add straight. Say: add readings straight only when their arrows point the same way.",
+    "Skipped causal step in the product-over-sum working: it jumps from (8 + j6)(−j10) ÷ (8 − j4) to 10 − j5 without showing 8 + j6 − j10 = 8 − j4, nor the division by the conjugate from The conjugate, and dividing: (60 − j80)(8 + j4) ÷ 80 = (800 − j400) ÷ 80. Show both lines, and say product over sum is the reciprocal rule worked out for two branches, as Dan uses it for resistors.",
+    "Order in the last paragraph: the ideal-parts sentence sits between the puzzle sentence and the takeaway; the prompt asks for the puzzle sentence just before the takeaway. Move the ideal-parts sentence up.",
+    "Refer back to earlier lessons by name, not number: 'as in lesson 6' becomes 'as in Multiplying and dividing in polar form'.",
+    "Practice's 'Thinking a bigger capacitor is always better' is ambiguous (bigger in µF or in ohms?). Say a capacitor drawing more current than the coil's j part pushes the supply current back up, which the X_C slider shows at its low end.",
+    "whatAmILookingAt: say that in parallel mode the Z you drag is the coil's branch, so the drag still means one thing on every screen.",
+    "Small: 'A single wave's angle depends only on when you start the clock' carries a needless 'only'; drop it."
+  ],
+  "verdict": "Rewrite as draft 2 with the eight fixes; no structural change."
+}
