@@ -1,0 +1,442 @@
+{
+  "iid": "i3",
+  "title": "Round the circle: any angle",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the arm's tip reading cos θ across and sin θ up, each turning negative in its own quarters while the two squares still add to 1, when you drag the arm round the circle.",
+    "title": "The turning arm",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens, all on one picture: axes drawn with the same scale both ways, and a circle of radius 1 round the centre. An arm of length 1 runs from the centre to the circle at angle θ, measured anticlockwise from pointing right. On the screens that show an idea you can drag the arm's tip round. Dashed lines drop from the tip to each axis, and each axis carries its own readout to three decimal places: cos θ along the across axis and sin θ up the up axis, each with its sign. Under the arm is lesson 1's right-angled triangle: the arm is its hypotenuse, 1 long, the side along the across axis is cos θ and the upright side is sin θ, because each ratio is that side divided by 1. As the arm passes into another quarter the triangle flips with it, and a side that lies left of the centre or below it is drawn dashed, because its length counts as negative. A third readout adds the squares, cos² θ + sin² θ, and shows 1 at every angle, because the triangle is right-angled with a hypotenuse of 1, so Pythagoras applies. Screen 1 is lesson 1's triangle at 30°, its tip at (0.866, 0.5). Screen 3 turns the arm to 150°, where the tip is at (−0.866, 0.5). Screen 5 sweeps the arm through the four quarters, with each quarter's signs written inside it, stopping at 210° and 330°. Screen 7 shows the squares adding to 1 at 150°, 0.75 + 0.25, and the arm's slope, sin θ ÷ cos θ, which is tan θ: positive where sine and cosine share a sign, with no value at 90°, where the across is 0. Screen 9 adds a level line you drag up and down. Where it crosses the circle two arms are drawn with their angles, mirror images across the up axis, so at height 0.5 they are 30° and 150°, which add to 180°, and an arc on the left shows the 150° arm making the same 30° with the across axis; at the very top or bottom the two arms become one. Below the circle a calculator keys sin⁻¹ 0.5 and shows only 30°. Screen 12 asks for tan 210°, and once it is answered a faint arm at 30° shows the same slope on the same line. Until the cosine puzzles on screens 8 and 13 are answered, the triangle's sides are drawn plain, so the picture does not give the sign away. The other screens ask you to try it: a puzzle offers three answers, a wrong pick gets a one-line hint naming its slip, and Why? draws the answer on the circle. A negative angle, such as the −30° the calculator gives for sin⁻¹(−0.5), is drawn turned clockwise, and lands on the same arm as 330°.",
+    "ignores": "The circle has radius 1 in no particular unit, because sine and cosine are ratios of lengths; an arm of any other length scales both coordinates by its length. Readouts are rounded to three decimal places and angles to one, while the working keeps every figure. The arm is shown from 0° to 360°; turning on past a full turn, or clockwise below 0°, brings the same arm round again, which is how −30° and 330° are the same arm.",
+    "numbers": [
+      {
+        "label": "A full turn, in degrees",
+        "value": 360,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "A right angle, in degrees",
+        "value": 90,
+        "kind": "constant"
+      },
+      {
+        "label": "A half turn, in degrees",
+        "value": 180,
+        "kind": "constant"
+      },
+      {
+        "label": "Three quarters of a turn, in degrees",
+        "value": 270,
+        "kind": "computed"
+      },
+      {
+        "label": "Length of the arm, the circle's radius",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example angle, in degrees, in step 1",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "cos 30°, across, in step 1",
+        "value": 0.866,
+        "kind": "computed"
+      },
+      {
+        "label": "sin 30°, up, in step 1",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle angle, in degrees, in step 2",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "cos 40°, across, in step 2",
+        "value": 0.766,
+        "kind": "computed"
+      },
+      {
+        "label": "sin 40°, up, in step 2",
+        "value": 0.643,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 0.766 + 0.643, in step 2",
+        "value": 1.409,
+        "kind": "computed"
+      },
+      {
+        "label": "Example angle, in degrees, in step 3",
+        "value": 150,
+        "kind": "assumed"
+      },
+      {
+        "label": "cos 150°, across, in step 3",
+        "value": -0.866,
+        "kind": "computed"
+      },
+      {
+        "label": "sin 150°, up, in step 3",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle angle, in degrees, in step 4",
+        "value": 120,
+        "kind": "assumed"
+      },
+      {
+        "label": "cos 120°, in step 4",
+        "value": -0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip cos 120° without its sign, in step 4",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip sin 120°, the height, in step 4",
+        "value": 0.866,
+        "kind": "computed"
+      },
+      {
+        "label": "Example angle in the third quarter, in degrees, in step 5",
+        "value": 210,
+        "kind": "assumed"
+      },
+      {
+        "label": "cos 210°, in step 5",
+        "value": -0.866,
+        "kind": "computed"
+      },
+      {
+        "label": "sin 210°, in step 5",
+        "value": -0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Example angle in the fourth quarter, in degrees, in step 5",
+        "value": 330,
+        "kind": "assumed"
+      },
+      {
+        "label": "cos 330°, in step 5",
+        "value": 0.866,
+        "kind": "computed"
+      },
+      {
+        "label": "sin 330°, in step 5",
+        "value": -0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle angle, in degrees, in step 6",
+        "value": 300,
+        "kind": "assumed"
+      },
+      {
+        "label": "cos 300°, in step 6",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "sin 300°, in step 6",
+        "value": -0.866,
+        "kind": "computed"
+      },
+      {
+        "label": "cos² 150°, in step 7",
+        "value": 0.75,
+        "kind": "computed"
+      },
+      {
+        "label": "sin² 150°, in step 7",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "cos² θ + sin² θ at every angle, in step 7",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "tan 150° = 0.5 ÷ −0.866, in step 7",
+        "value": -0.577,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle sine, in step 8",
+        "value": 0.6,
+        "kind": "assumed"
+      },
+      {
+        "label": "sin² θ = 0.6², in step 8",
+        "value": 0.36,
+        "kind": "computed"
+      },
+      {
+        "label": "cos² θ = 1 − 0.36, in step 8",
+        "value": 0.64,
+        "kind": "computed"
+      },
+      {
+        "label": "cos θ in the second quarter, in step 8",
+        "value": -0.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, the root without its sign, in step 8",
+        "value": 0.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 1 − 0.6, in step 8",
+        "value": 0.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Height of the level line, in step 9",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "First angle, sin⁻¹ 0.5, in degrees, in step 9",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Second angle, 180 − 30, in degrees, in step 9",
+        "value": 150,
+        "kind": "computed"
+      },
+      {
+        "label": "Smallest angle sin⁻¹ gives, in degrees",
+        "value": -90,
+        "kind": "constant"
+      },
+      {
+        "label": "Puzzle sine, in step 10",
+        "value": 0.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "sin⁻¹ 0.8, in degrees, in step 10",
+        "value": 53.1,
+        "kind": "computed"
+      },
+      {
+        "label": "180 − 53.1, in degrees, in step 10",
+        "value": 126.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 360 − 53.1, in degrees, in step 10",
+        "value": 306.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip sin 306.9°, in step 10",
+        "value": -0.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle sine, in step 11",
+        "value": -0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "sin⁻¹(−0.5), in degrees, in step 11",
+        "value": -30,
+        "kind": "computed"
+      },
+      {
+        "label": "180 + 30, in degrees, in step 11",
+        "value": 210,
+        "kind": "computed"
+      },
+      {
+        "label": "360 − 30, in degrees, in step 11",
+        "value": 330,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, the angles for +0.5, in degrees, in step 11",
+        "value": 150,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle angle, in degrees, in step 12",
+        "value": 210,
+        "kind": "assumed"
+      },
+      {
+        "label": "tan 210° = −0.5 ÷ −0.866, in step 12",
+        "value": 0.577,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip tan 210° with the wrong sign, in step 12",
+        "value": -0.577,
+        "kind": "computed"
+      },
+      {
+        "label": "Arm on the same line, 210 − 180, in degrees, in step 12",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle angle, in degrees, in step 13",
+        "value": 110,
+        "kind": "assumed"
+      },
+      {
+        "label": "cos 110°, in step 13",
+        "value": -0.342,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip cos 110° without its sign, in step 13",
+        "value": 0.342,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip sin 110°, in step 13",
+        "value": 0.94,
+        "kind": "computed"
+      },
+      {
+        "label": "Its mirror angle 180 − 110, in degrees, in step 13",
+        "value": 70,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example sine",
+        "value": 0.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example sin⁻¹ 0.3, in degrees",
+        "value": 17.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example 180 − 17.5, in degrees",
+        "value": 162.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example negative sine",
+        "value": -0.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example sin⁻¹(−0.3), in degrees",
+        "value": -17.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example 180 + 17.5, in degrees",
+        "value": 197.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example 360 − 17.5, in degrees",
+        "value": 342.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy 30° plus a full turn, in degrees",
+        "value": 390,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Lesson 1's ratios lived inside a right-angled triangle, so they stopped at 90°. Put that triangle on a turning arm and sine and cosine work for every angle, sometimes coming out negative. Draw axes as in The coordinate plane, with a circle of radius 1 round the centre. A full turn is 360°,[^1] and the angle θ is measured from an arm pointing right, along the across axis, turning anticlockwise; an angle turned that way counts as positive.[^2] Lay lesson 1's triangle under the arm with θ at the centre. The arm is the hypotenuse, the upright drop from the tip is the side opposite θ, and the stretch along the across axis is the side next to it. Sine is opposite ÷ hypotenuse and cosine adjacent ÷ hypotenuse,[^3] and here the hypotenuse is 1, so sin θ is simply the tip's height and cos θ is how far across the tip is. So the tip sits at the point (cos θ, sin θ):[^4] cosine across, sine up. At 30° that is (0.866, 0.5). A circle of radius 1 used this way is called the [[unit circle]].\n\nNow turn the arm past 90° and keep the same rule: cos θ is the tip's across coordinate and sin θ its up coordinate, signs and all. Between 0° and 90° this gives lesson 1's values, and it needs no triangle to work, so beyond 90° it is how sine and cosine are defined, and it is what the calculator works out. At 150° the tip is 0.866 left of the centre and 0.5 up, so cos 150° = −0.866 and sin 150° = 0.5. The axes cut the circle into four quarters, called [[quadrant]]s, which this lesson numbers anticlockwise from the top right. In the first quadrant the tip is right and up, so both are positive. In the second it is left, so the cosine is negative. In the third it is left and down, so both are negative. In the fourth it is down, so the sine is negative. That is why sine, cosine and tangent change sign from one quadrant to the next.[^5] Tangent was opposite ÷ adjacent, and on the arm those sides are sin θ and cos θ, so tan θ = sin θ ÷ cos θ: the arm's slope, rise over run. It is positive where sine and cosine share a sign, in the first and third quadrants, and at 90° the run is 0, so tan 90° has no value, like the gradient of an upright line in Straight-line graphs. An angle between 180° and 360°, like 210° or 330°, is called a reflex angle;[^6] the arm treats it like any other.\n\nTwo more facts come straight from the picture. The arm is always the hypotenuse of a right-angled triangle whose other sides are cos θ and sin θ, so Pythagoras gives cos² θ + sin² θ = 1, where sin² θ means (sin θ)². Squaring takes the signs away, so it holds in every quadrant: at 150°, 0.75 + 0.25 = 1. And a level line at height 0.5 crosses the circle twice, at 30° and at 150°, because the circle is the same on both sides of the up axis: mirror the 30° arm across it and you get the 150° arm, at the same height. So sin (180° − θ) = sin θ. Two angles that add up to 180°, like 30° and 150°, are called [[supplementary]].[^7] The calculator's sin⁻¹ gives only one angle, between −90° and 90°, so the second angle from 0° to 360° comes from the picture. For sin θ = 0.8, sin⁻¹ gives 53.1°, and the level line crosses again at 180° − 53.1° = 126.9°. This turning arm comes back in From circle to wave, where its height traced against time draws the wave of an AC supply. **On a turning arm of length 1 the tip is at (cos θ, sin θ),[^4] so sine and cosine have a value at every angle, positive or negative by quadrant.[^5]**"
+  },
+  "analogy": {
+    "text": "Turn the handle of a cable drum and its knob goes round a circle. Measured from the axle, the knob is so far across and so far up; over the top it moves to the other side of the axle, and round the far side it drops below the axle. Count right and up as positive, left and down as negative, and take the handle's angle anticlockwise from pointing right: the knob's two measurements, as fractions of the handle's length, are cos θ and sin θ. On the way round there are two places at each height, one either side of the axle.",
+    "breaks": "The knob's position comes round again every turn, so 30° and 390° put it in the same place, though the drum has wound on a whole turn more of cable, which the angle's sine and cosine cannot tell you."
+  },
+  "practice": {
+    "text": "- Picture the arm. Find the quadrant: 0° to 90° is the first, 90° to 180° the second, 180° to 270° the third, 270° to 360° the fourth.\n- Read the signs from where the tip is: left of the centre, the cosine is negative; below it, the sine is negative.[^5]\n- For a value, use the calculator in degrees mode;[^8] it gives the sign for you. Check the sign against the picture.\n- To find every angle from 0° to 360° with a given sine, press sin⁻¹ for the first angle, then picture the level line at that height. It crosses the circle at that angle and at 180° minus it; at the very top or bottom the two are one angle. A negative first angle, such as −30°, is the same arm as 360° − 30° = 330°.\n- Check each answer by taking its sine.\n\n**Rule of thumb:** Cosine across, sine up. Two angles share a sine: θ and 180° − θ.\n\n**Worked example:** Find every angle from 0° to 360° with sin θ = 0.3. sin⁻¹ 0.3 = 17.5°, in the first quadrant. The level line at 0.3 crosses the circle again in the second quadrant, at 180° − 17.5° = 162.5°. Keep the whole angle in the calculator and sin 162.5° gives 0.3 back. For sin θ = −0.3 the line is below the centre: sin⁻¹ gives −17.5°, the same arm as 360° − 17.5° = 342.5°, and its mirror image is 180° + 17.5° = 197.5°.\n\n**Common mistakes**\n- Taking the across coordinate as the sine.[^9] The sine is the height; the cosine is across.\n- Stopping at the calculator's one angle. sin θ = 0.8 has two angles from 0° to 360°, 53.1° and 126.9°.\n- Dropping the sign past 90°. cos 110° is −0.342, not 0.342, because the arm points left. The next lesson's cosine rule needs that minus sign.\n- Using 360° − θ for the second angle with the same sine. That angle keeps the cosine and flips the sine: sin 306.9° is −0.8, not 0.8.\n- Taking only the positive root from cos² θ + sin² θ = 1. When sin θ = 0.6, cos θ is 0.8 or −0.8, and the quadrant decides which."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Drawing and measuring angles - KS3 Maths - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/z4dw239",
+      "quote": "Angles are based on parts of a full turn, which is 360°."
+    },
+    {
+      "n": 2,
+      "title": "5.1 Angles - Precalculus 2e | OpenStax",
+      "url": "https://openstax.org/books/precalculus-2e/pages/5-1-angles",
+      "quote": "If the angle is measured in a counterclockwise direction from the initial side to the terminal side, the angle is said to be a positive angle"
+    },
+    {
+      "n": 3,
+      "title": "7.2 Right Triangle Trigonometry - Algebra and Trigonometry | OpenStax",
+      "url": "https://openstax.org/books/algebra-and-trigonometry/pages/7-2-right-triangle-trigonometry",
+      "quote": "sine as the ratio of the opposite side to the hypotenuse. 2. Find the cosine as the ratio of the adjacent side to the hypotenuse. 3. Find the tangent as the ratio of the opposite side to the adjacent side."
+    },
+    {
+      "n": 4,
+      "title": "5.2 Unit Circle: Sine and Cosine Functions - Precalculus 2e | OpenStax",
+      "url": "https://openstax.org/books/precalculus-2e/pages/5-2-unit-circle-sine-and-cosine-functions",
+      "quote": "The terminal side of the angle intersects the circle at the point (x,y), which is equivalent to (cos t, sin t)."
+    },
+    {
+      "n": 5,
+      "title": "Trigonometric skills - National 5 Maths - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/topics/zt7wb82",
+      "quote": "Sine, cosine and tangent all have different positive or negative values depending on what quadrant they are in."
+    },
+    {
+      "n": 6,
+      "title": "Drawing and measuring angles - KS3 Maths - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/z4dw239",
+      "quote": "A reflex angle is between 180° and 360°."
+    },
+    {
+      "n": 7,
+      "title": "Finding angles on a straight line - Finding angles between lines - 3rd level Maths Revision - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/guides/zr3q96f/revision/2",
+      "quote": "Angles that add together to make a straight line are called supplementary angles"
+    },
+    {
+      "n": 8,
+      "title": "What is right-angled trigonometry? - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zck7rmn",
+      "quote": "Scientific calculators need to be used for trigonometry and should be in degrees mode."
+    },
+    {
+      "n": 9,
+      "title": "UNDERSTANDINGS AND MISUNDERSTANDINGS OF TRIGONOMETRY 1 Understandings and Misunderstandings of Trigonometry Christopher Williams Georgia College & State University December 13,",
+      "url": "https://www.gcsu.edu/sites/files/page-assets/node-808/attachments/williams.pdf",
+      "quote": "Other students incorrectly identified the x-coordinate as the sine ratio"
+    }
+  ]
+}

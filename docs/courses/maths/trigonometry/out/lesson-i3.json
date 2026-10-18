@@ -1,0 +1,616 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-18T10:24:55.407Z",
+ "startedAt": "2026-10-18T10:24:55.407Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i3",
+  "title": "Round the circle: any angle",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the arm's tip reading cos θ across and sin θ up, each turning negative in its own quarters while the two squares still add to 1, when you drag the arm round the circle.",
+   "title": "The turning arm",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in thirteen small screens, all on one picture: axes drawn with the same scale both ways, and a circle of radius 1 round the centre. An arm of length 1 runs from the centre to the circle at angle θ, measured anticlockwise from pointing right. On the screens that show an idea you can drag the arm's tip round. Dashed lines drop from the tip to each axis, and each axis carries its own readout to three decimal places: cos θ along the across axis and sin θ up the up axis, each with its sign. Under the arm is lesson 1's right-angled triangle: the arm is its hypotenuse, 1 long, the side along the across axis is cos θ and the upright side is sin θ, because each ratio is that side divided by 1. As the arm passes into another quarter the triangle flips with it, and a side that lies left of the centre or below it is drawn dashed, because the coordinate it stands for is negative. A third readout adds the squares, cos² θ + sin² θ, and shows 1 at every angle, because the triangle is right-angled with a hypotenuse of 1, so Pythagoras applies; on an axis, where the triangle flattens, one square is 0 and the other 1. Screen 1 is lesson 1's triangle at 30°, its tip at (0.866, 0.5). Screen 3 turns the arm to 150°, where the tip is at (−0.866, 0.5). Screen 5 sweeps the arm through the four quarters, with each quarter's signs written inside it, stopping at 210° and 330°. Screen 7 shows the squares adding to 1 at 150°, 0.75 + 0.25, and the arm's slope, sin θ ÷ cos θ, which is tan θ: positive where sine and cosine share a sign, with no value at 90°, where the across is 0. Screen 9 adds a level line you drag up and down. Where it crosses the circle two arms are drawn with their angles, mirror images across the up axis, so at height 0.5 they are 30° and 150°, which add to 180°, and an arc on the left shows the 150° arm making the same 30° with the across axis; at the very top or bottom the two arms become one. Below the circle a calculator keys sin⁻¹ 0.5 and shows only 30°. Screen 12 asks for tan 210°, and once it is answered a faint arm at 30° shows the same slope on the same line. Until the cosine puzzles on screens 8 and 13 are answered, the triangle's sides are drawn plain, so the picture does not give the sign away. The other screens ask you to try it: a puzzle offers three answers, a wrong pick gets a one-line hint naming its slip, and Why? draws the answer on the circle. A negative angle, such as the −30° the calculator gives for sin⁻¹(−0.5), is drawn turned clockwise, and lands on the same arm as 330°.",
+   "ignores": "The circle has radius 1 in no particular unit, because sine and cosine are ratios of lengths; an arm of any other length scales both coordinates by its length. Readouts are rounded to three decimal places and angles to one, while the working keeps every figure. The arm is shown from 0° to 360°; turning on past a full turn, or clockwise below 0°, brings the same arm round again, which is how −30° and 330° are the same arm.",
+   "numbers": [
+    {
+     "label": "A full turn, in degrees",
+     "value": 360,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "A right angle, in degrees",
+     "value": 90,
+     "kind": "constant"
+    },
+    {
+     "label": "A half turn, in degrees",
+     "value": 180,
+     "kind": "constant"
+    },
+    {
+     "label": "Three quarters of a turn, in degrees",
+     "value": 270,
+     "kind": "computed"
+    },
+    {
+     "label": "Length of the arm, the circle's radius",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example angle, in degrees, in step 1",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "cos 30°, across, in step 1",
+     "value": 0.866,
+     "kind": "computed"
+    },
+    {
+     "label": "sin 30°, up, in step 1",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle angle, in degrees, in step 2",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "cos 40°, across, in step 2",
+     "value": 0.766,
+     "kind": "computed"
+    },
+    {
+     "label": "sin 40°, up, in step 2",
+     "value": 0.643,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 0.766 + 0.643, in step 2",
+     "value": 1.409,
+     "kind": "computed"
+    },
+    {
+     "label": "Example angle, in degrees, in step 3",
+     "value": 150,
+     "kind": "assumed"
+    },
+    {
+     "label": "cos 150°, across, in step 3",
+     "value": -0.866,
+     "kind": "computed"
+    },
+    {
+     "label": "sin 150°, up, in step 3",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle angle, in degrees, in step 4",
+     "value": 120,
+     "kind": "assumed"
+    },
+    {
+     "label": "cos 120°, in step 4",
+     "value": -0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip cos 120° without its sign, in step 4",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip sin 120°, the height, in step 4",
+     "value": 0.866,
+     "kind": "computed"
+    },
+    {
+     "label": "Example angle in the third quarter, in degrees, in step 5",
+     "value": 210,
+     "kind": "assumed"
+    },
+    {
+     "label": "cos 210°, in step 5",
+     "value": -0.866,
+     "kind": "computed"
+    },
+    {
+     "label": "sin 210°, in step 5",
+     "value": -0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Example angle in the fourth quarter, in degrees, in step 5",
+     "value": 330,
+     "kind": "assumed"
+    },
+    {
+     "label": "cos 330°, in step 5",
+     "value": 0.866,
+     "kind": "computed"
+    },
+    {
+     "label": "sin 330°, in step 5",
+     "value": -0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle angle, in degrees, in step 6",
+     "value": 300,
+     "kind": "assumed"
+    },
+    {
+     "label": "cos 300°, in step 6",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "sin 300°, in step 6",
+     "value": -0.866,
+     "kind": "computed"
+    },
+    {
+     "label": "cos² 150°, in step 7",
+     "value": 0.75,
+     "kind": "computed"
+    },
+    {
+     "label": "sin² 150°, in step 7",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "cos² θ + sin² θ at every angle, in step 7",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "tan 150° = 0.5 ÷ −0.866, in step 7",
+     "value": -0.577,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle sine, in step 8",
+     "value": 0.6,
+     "kind": "assumed"
+    },
+    {
+     "label": "sin² θ = 0.6², in step 8",
+     "value": 0.36,
+     "kind": "computed"
+    },
+    {
+     "label": "cos² θ = 1 − 0.36, in step 8",
+     "value": 0.64,
+     "kind": "computed"
+    },
+    {
+     "label": "cos θ in the second quarter, in step 8",
+     "value": -0.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, the root without its sign, in step 8",
+     "value": 0.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 1 − 0.6, in step 8",
+     "value": 0.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Height of the level line, in step 9",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "First angle, sin⁻¹ 0.5, in degrees, in step 9",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Second angle, 180 − 30, in degrees, in step 9",
+     "value": 150,
+     "kind": "computed"
+    },
+    {
+     "label": "Smallest angle sin⁻¹ gives, in degrees",
+     "value": -90,
+     "kind": "constant"
+    },
+    {
+     "label": "Puzzle sine, in step 10",
+     "value": 0.8,
+     "kind": "assumed"
+    },
+    {
+     "label": "sin⁻¹ 0.8, in degrees, in step 10",
+     "value": 53.1,
+     "kind": "computed"
+    },
+    {
+     "label": "180 − 53.1, in degrees, in step 10",
+     "value": 126.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 360 − 53.1, in degrees, in step 10",
+     "value": 306.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip sin 306.9°, in step 10",
+     "value": -0.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle sine, in step 11",
+     "value": -0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "sin⁻¹(−0.5), in degrees, in step 11",
+     "value": -30,
+     "kind": "computed"
+    },
+    {
+     "label": "180 + 30, in degrees, in step 11",
+     "value": 210,
+     "kind": "computed"
+    },
+    {
+     "label": "360 − 30, in degrees, in step 11",
+     "value": 330,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, the angles for +0.5, in degrees, in step 11",
+     "value": 150,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle angle, in degrees, in step 12",
+     "value": 210,
+     "kind": "assumed"
+    },
+    {
+     "label": "tan 210° = −0.5 ÷ −0.866, in step 12",
+     "value": 0.577,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip tan 210° with the wrong sign, in step 12",
+     "value": -0.577,
+     "kind": "computed"
+    },
+    {
+     "label": "Arm on the same line, 210 − 180, in degrees, in step 12",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle angle, in degrees, in step 13",
+     "value": 110,
+     "kind": "assumed"
+    },
+    {
+     "label": "cos 110°, in step 13",
+     "value": -0.342,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip cos 110° without its sign, in step 13",
+     "value": 0.342,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip sin 110°, in step 13",
+     "value": 0.94,
+     "kind": "computed"
+    },
+    {
+     "label": "Its mirror angle 180 − 110, in degrees, in step 13",
+     "value": 70,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example sine",
+     "value": 0.3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example sin⁻¹ 0.3, in degrees",
+     "value": 17.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example 180 − 17.5, in degrees",
+     "value": 162.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example negative sine",
+     "value": -0.3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example sin⁻¹(−0.3), in degrees",
+     "value": -17.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example 180 + 17.5, in degrees",
+     "value": 197.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example 360 − 17.5, in degrees",
+     "value": 342.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy 30° plus a full turn, in degrees",
+     "value": 390,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Lesson 1's ratios lived inside a right-angled triangle, so they stopped at 90°. Put that triangle on a turning arm and sine and cosine work for every angle, sometimes coming out negative. Draw axes as in The coordinate plane, with a circle of radius 1 round the centre. A full turn is 360°,[^1] and the angle θ is measured from an arm pointing right, along the across axis, turning anticlockwise; an angle turned that way counts as positive.[^2] Lay lesson 1's triangle under the arm with θ at the centre. The arm is the hypotenuse, the upright drop from the tip is the side opposite θ, and the stretch along the across axis is the side next to it. Sine is opposite ÷ hypotenuse and cosine adjacent ÷ hypotenuse,[^3] and here the hypotenuse is 1, so sin θ is simply the tip's height and cos θ is how far across the tip is. So the tip sits at the point (cos θ, sin θ):[^4] cosine across, sine up. At 30° that is (0.866, 0.5). A circle of radius 1 used this way is called the [[unit circle]].\n\nNow turn the arm past 90° and keep the same rule: cos θ is the tip's across coordinate and sin θ its up coordinate, signs and all. Between 0° and 90° this gives lesson 1's values, and it needs no triangle to work, so beyond 90° it is how sine and cosine are defined, and it is what the calculator works out. At 150° the tip is 0.866 left of the centre and 0.5 up, so cos 150° = −0.866 and sin 150° = 0.5. The axes cut the circle into four quarters, called [[quadrant]]s, which this lesson numbers anticlockwise from the top right. In the first quadrant the tip is right and up, so both are positive. In the second it is left, so the cosine is negative. In the third it is left and down, so both are negative. In the fourth it is down, so the sine is negative. That is why sine, cosine and tangent are positive or negative depending on the quadrant.[^5] Tangent was opposite ÷ adjacent, and on the arm those sides are sin θ and cos θ, so tan θ = sin θ ÷ cos θ: the arm's slope, rise over run. It is positive where sine and cosine share a sign, in the first and third quadrants, and at 90° the run is 0, so tan 90° has no value, like the gradient of an upright line in Straight-line graphs. An angle between 180° and 360°, like 210° or 330°, is called a reflex angle;[^6] the arm treats it like any other.\n\nTwo more facts come straight from the picture. Off the axes, the arm is the hypotenuse of a right-angled triangle whose other sides are cos θ and sin θ, so Pythagoras gives cos² θ + sin² θ = 1, where sin² θ means (sin θ)². Squaring takes the signs away, so it holds in every quadrant: at 150°, 0.75 + 0.25 = 1. On an axis one is 0 and the other 1 or −1, so it holds there too. And a level line at height 0.5 crosses the circle twice, at 30° and at 150°, because the circle is the same on both sides of the up axis: mirror the 30° arm across it and you get the 150° arm, at the same height. So sin (180° − θ) = sin θ. Two angles that add up to 180°, like 30° and 150°, are called [[supplementary]].[^7] The calculator's sin⁻¹ gives only one angle, between −90° and 90°, so the second angle from 0° to 360° comes from the picture. For sin θ = 0.8, sin⁻¹ gives 53.1°, and the level line crosses again at 180° − 53.1° = 126.9°. This turning arm comes back in From circle to wave, where its height traced against time draws the wave of an AC supply. **On a turning arm of length 1 the tip is at (cos θ, sin θ),[^4] so sine and cosine have a value at every angle, positive or negative by quadrant.[^5]**"
+  },
+  "analogy": {
+   "text": "Turn the handle of a cable drum and its knob goes round a circle. Measured from the axle, the knob is so far across and so far up; over the top it moves to the other side of the axle, and round the far side it drops below the axle. Count right and up as positive, left and down as negative, and take the handle's angle anticlockwise from pointing right: the knob's two measurements, as fractions of the handle's length, are cos θ and sin θ. On the way round there are two places at each height, one either side of the axle, except at the very top and bottom, where there is one.",
+   "breaks": "The knob's position comes round again every turn, so 30° and 390° put it in the same place, though the drum has wound on a whole turn more of cable, which the angle's sine and cosine cannot tell you."
+  },
+  "practice": {
+   "text": "- Picture the arm. Find the quadrant: 0° to 90° is the first, 90° to 180° the second, 180° to 270° the third, 270° to 360° the fourth.\n- Read the signs from where the tip is: left of the centre, the cosine is negative; below it, the sine is negative.[^5]\n- For a value, use the calculator in degrees mode;[^8] it gives the sign for you. Check the sign against the picture.\n- To find every angle from 0° to 360° with a given sine, press sin⁻¹ for the first angle, then picture the level line at that height. It crosses the circle at that angle and at 180° minus it; at the very top or bottom the two are one angle. A negative first angle, such as −30°, is the same arm as 360° − 30° = 330°.\n- Check each answer by taking its sine.\n\n**Rule of thumb:** Cosine across, sine up. Two angles share a sine: θ and 180° − θ.\n\n**Worked example:** Find every angle from 0° to 360° with sin θ = 0.3. sin⁻¹ 0.3 = 17.5°, in the first quadrant. The level line at 0.3 crosses the circle again in the second quadrant, at 180° − 17.5° = 162.5°. Keep the whole angle in the calculator and sin 162.5° gives 0.3 back. For sin θ = −0.3 the line is below the centre: sin⁻¹ gives −17.5°, the same arm as 360° − 17.5° = 342.5°, and its mirror image is 180° + 17.5° = 197.5°.\n\n**Common mistakes**\n- Taking the across coordinate as the sine.[^9] The sine is the height; the cosine is across.\n- Stopping at the calculator's one angle. sin θ = 0.8 has two angles from 0° to 360°, 53.1° and 126.9°.\n- Dropping the sign past 90°. cos 110° is −0.342, not 0.342, because the arm points left. The next lesson's cosine rule needs that minus sign.\n- Using 360° − θ for the second angle with the same sine. That angle keeps the cosine and flips the sine: sin 306.9° is −0.8, not 0.8.\n- Taking only the positive root from cos² θ + sin² θ = 1. When sin θ = 0.6, cos θ is 0.8 or −0.8, and the quadrant decides which."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Drawing and measuring angles - KS3 Maths - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/z4dw239",
+    "quote": "Angles are based on parts of a full turn, which is 360°."
+   },
+   {
+    "n": 2,
+    "title": "5.1 Angles - Precalculus 2e | OpenStax",
+    "url": "https://openstax.org/books/precalculus-2e/pages/5-1-angles",
+    "quote": "If the angle is measured in a counterclockwise direction from the initial side to the terminal side, the angle is said to be a positive angle"
+   },
+   {
+    "n": 3,
+    "title": "7.2 Right Triangle Trigonometry - Algebra and Trigonometry | OpenStax",
+    "url": "https://openstax.org/books/algebra-and-trigonometry/pages/7-2-right-triangle-trigonometry",
+    "quote": "sine as the ratio of the opposite side to the hypotenuse. 2. Find the cosine as the ratio of the adjacent side to the hypotenuse. 3. Find the tangent as the ratio of the opposite side to the adjacent side."
+   },
+   {
+    "n": 4,
+    "title": "5.2 Unit Circle: Sine and Cosine Functions - Precalculus 2e | OpenStax",
+    "url": "https://openstax.org/books/precalculus-2e/pages/5-2-unit-circle-sine-and-cosine-functions",
+    "quote": "The terminal side of the angle intersects the circle at the point (x,y), which is equivalent to (cos t, sin t)."
+   },
+   {
+    "n": 5,
+    "title": "Trigonometric skills - National 5 Maths - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/topics/zt7wb82",
+    "quote": "Sine, cosine and tangent all have different positive or negative values depending on what quadrant they are in."
+   },
+   {
+    "n": 6,
+    "title": "Drawing and measuring angles - KS3 Maths - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/z4dw239",
+    "quote": "A reflex angle is between 180° and 360°."
+   },
+   {
+    "n": 7,
+    "title": "Finding angles on a straight line - Finding angles between lines - 3rd level Maths Revision - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/guides/zr3q96f/revision/2",
+    "quote": "Angles that add together to make a straight line are called supplementary angles"
+   },
+   {
+    "n": 8,
+    "title": "What is right-angled trigonometry? - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zck7rmn",
+    "quote": "Scientific calculators need to be used for trigonometry and should be in degrees mode."
+   },
+   {
+    "n": 9,
+    "title": "UNDERSTANDINGS AND MISUNDERSTANDINGS OF TRIGONOMETRY 1 Understandings and Misunderstandings of Trigonometry Christopher Williams Georgia College & State University December 13,",
+    "url": "https://www.gcsu.edu/sites/files/page-assets/node-808/attachments/williams.pdf",
+    "quote": "Other students incorrectly identified the x-coordinate as the sine ratio"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: concept -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }\n  /* The circle, the axes and their ticks. */\n  .scene .ring { fill: none; stroke: var(--k-muted); stroke-width: 1.6; }\n  .scene .axis { stroke: var(--k-ink); stroke-width: 1.4; }\n  .scene .tick { stroke: var(--k-ink); stroke-width: 1.2; }\n  /* Lesson 1's triangle under the arm: a side whose coordinate is negative is dashed. */\n  .scene .face { fill: var(--k-fill1); stroke: none; }\n  .scene .side { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; fill: none; }\n  .scene .side.neg { stroke-dasharray: 7 5; stroke-linecap: butt; }\n  .scene .side.hl { stroke: var(--k-amber-line); stroke-width: 5; }\n  .scene .mk, .scene .arc { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }\n  /* Arms: the turning arm, the arms on a level line, a stop left behind, a wrong answer's arm. */\n  .scene .arm { stroke: var(--k-accent2); stroke-width: 4; stroke-linecap: round; }\n  .scene .arm2 { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }\n  .scene .ghost { stroke: var(--k-muted); stroke-width: 2.5; stroke-dasharray: 6 4; }\n  .scene .badarm { stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }\n  .scene .badring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }\n  .scene .guide { stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 3 3; }\n  .scene .level { stroke: var(--k-muted); stroke-width: 3; stroke-linecap: round; }\n  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .lknob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .dot { fill: var(--k-accent2); }\n  .scene .dot.muted { fill: var(--k-muted); }\n  .scene .dot.bad { fill: var(--k-warn); }\n  /* Readouts on the axes: a pill with its value. */\n  .scene .pill { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .pill.hl { stroke: var(--k-amber-line); stroke-width: 2.5; }\n  .scene .lbg { fill: var(--k-bg); stroke: none; }\n  .scene .pill.bad { stroke: var(--k-warn); stroke-width: 2; }\n  .scene .pv { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .scene .al { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .pv.bad, .scene .al.bad, .scene .te.bad { fill: var(--k-warn); }\n  .scene .sn { font: 600 13px var(--k-font); fill: var(--k-accent); }\n  .scene .gl { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .te { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  /* The calculator: what was keyed, DEG, and the one angle it gives. */\n  .scene .cbody { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .cin { font: 500 15px var(--k-font); fill: var(--k-ink); }\n  .scene .ctag { font: 700 13px var(--k-font); fill: var(--k-accent); }\n  .scene .cout { font: 700 20px var(--k-font); fill: var(--k-ink); }\n  .scene #art * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }\n  .scene .grip:active { cursor: grabbing; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .after { font-size: 1.08rem; line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">An arm of length 1 turning round a circle, with its tip read off the two axes.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 280\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <div class=\"replay\" id=\"replay\"></div>\n    <p class=\"after\" id=\"after\" hidden></p>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\" hidden></p>\n\n<script>\n  const el = (id) => document.getElementById(id);\n  // ---------- numbers (pure, so the checks can test them) ----------\n  const RAD = Math.PI / 180;\n  const sinD = (a) => Math.sin(a * RAD), cosD = (a) => Math.cos(a * RAD), tanD = (a) => Math.tan(a * RAD), asinD = (v) => Math.asin(v) / RAD;\n  const neg = (s) => String(s).replace(/^-/, '−');\n  // v rounded to dp places with trailing zeros dropped: 0.5, 0.866, 30.\n  function trim(v, dp) {\n    const f = Math.pow(10, dp);\n    let s = (Math.round(v * f) / f).toFixed(dp);\n    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\\.$/, '');\n    if (s === '-0') s = '0';\n    return neg(s);\n  }\n  // v to exactly three places, so it sits beside other three-place answers: 0.940.\n  const f3 = (v) => neg((Math.round(v * 1000) / 1000).toFixed(3));\n  const v3 = (v) => trim(v, 3), angS = (v) => trim(v, 1) + '°', hS = (v) => trim(v, 2);\n  const ang2 = (x, y) => { const a = Math.atan2(y, x) / RAD; return a < 0 ? a + 360 : a; };\n  const pair = (x, y) => '(' + v3(x) + ', ' + v3(y) + ')';\n\n  // The picture: the centre, the circle of radius 1 drawn 96 units long, and the axes.\n  const O = [170, 124], RU = 96, AX = 108, XL = 22, XR = 336;\n  const FLOOR = 252;   // labels in the picture stay above the rows of working and the calculator\n  const tipOf = (th) => [O[0] + RU * cosD(th), O[1] - RU * sinD(th)];\n\n  // The rows of working the picture writes, worked out from the rule.\n  const tipRow = (th) => 'tip = (cos θ, sin θ) = ' + pair(cosD(th), sinD(th));\n  const sqRow = (th) => { const c = cosD(th), s = sinD(th); return 'cos² θ + sin² θ = ' + v3(c * c) + ' + ' + v3(s * s) + ' = ' + v3(c * c + s * s); };\n  const tanRow = (th) => { const c = cosD(th), s = sinD(th); return Math.abs(c) < 1e-9 ? 'tan ' + angS(th) + ' has no value: the run is 0' : 'tan ' + angS(th) + ' = ' + v3(s) + ' ÷ ' + v3(c) + ' = ' + v3(s / c); };\n  // A level line at height h: the calculator's angle a1 (−90° to 90°), its arm n1 from 0° to 360°, and the mirror arm n2 = 180° − a1.\n  function levelAngles(h) { const a1 = asinD(K.clamp(h, -1, 1)), n1 = a1 < 0 ? a1 + 360 : a1, n2 = 180 - a1; return { a1, n1, n2, one: Math.abs(n1 - n2) < 1e-6 }; }\n  const hArg = (h) => (h < 0 ? '(' + hS(h) + ')' : ' ' + hS(h));\n  const mirrorRow = (h) => { const a1 = asinD(K.clamp(h, -1, 1)); return (a1 < 0 ? '180° + ' + angS(-a1) : '180° − ' + angS(a1)) + ' = ' + angS(180 - a1); };\n\n  // The lesson's example values.\n  const P1 = 40, P3 = 120, P5 = 300, S7 = 0.6, S9 = 0.8, S10 = -0.5, P11 = 110, PT = 210;\n  const TH7 = 180 - asinD(S7), A9 = asinD(S9), A10 = asinD(S10);\n  const o1 = [v3(cosD(P1)), v3(sinD(P1)), v3(cosD(P1) + sinD(P1))];\n  const o3 = [v3(-cosD(P3)), v3(sinD(P3)), v3(cosD(P3))];\n  const o5 = [pair(cosD(P5), sinD(P5)), pair(sinD(P5), cosD(P5)), pair(cosD(P5), -sinD(P5))];\n  const BAD5 = { [o5[1]]: ang2(sinD(P5), cosD(P5)), [o5[2]]: ang2(cosD(P5), -sinD(P5)) };\n  const o7 = [v3(-cosD(TH7)), v3(cosD(TH7)), v3(1 - S7)];\n  const o9 = [angS(A9) + ' only', angS(A9) + ' and ' + angS(360 - A9), angS(A9) + ' and ' + angS(180 - A9)];\n  const o10 = [angS(180 - A10) + ' and ' + angS(360 + A10), angS(-A10) + ' and ' + angS(180 + A10), angS(180 + A10) + ' and ' + angS(360 + A10)];\n  const o11 = [f3(-cosD(P11)), f3(cosD(P11)), f3(sinD(P11))];\n  const oT = [v3(tanD(PT)), v3(-tanD(PT)), 'no value'];\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // pic: the picture; vh: its height; dur: a demonstration's length; live: what Dan can drag.\n  // A puzzle has opts, want, a hint for each wrong answer, why, rows of working (right, and wrong[answer]\n  // in red) and secret: what the picture must not show before an answer.\n  const PICK = 'Tap one of the answers.';\n  const STEPS = [\n    { show: true, name: 'The arm and its tip', pic: 'tip30', vh: 280, dur: 4.2, live: ['tip'],\n      text: 'Here is lesson 1\\'s triangle on a turning arm. The arm is 1 long and starts out pointing right, and `θ` is how far it has turned anticlockwise, 30° here. The arm is the hypotenuse, and dividing by 1 changes nothing. So `sin θ`, opposite ÷ hypotenuse, is simply the tip\\'s height, and `cos θ` is how far across it is. Drag the tip.',\n      after: 'The tip sits at `(cos θ, sin θ)`, here (0.866, 0.5). A circle of radius 1 used like this is called the *unit circle*.' },\n    { kind: 'pick', name: 'How high at 40°', pic: 'p40', vh: 326,\n      opts: o1, want: o1[1], secret: [o1[1]],\n      task: 'The arm turns to 40°. How far up is its tip?',\n      why: 'Sine is opposite ÷ hypotenuse. The side opposite 40° is the tip\\'s height, and the hypotenuse is the arm, 1 long. So the height is `sin 40° = 0.643`. How far across is `cos 40° = 0.766`.',\n      hint: 'Not quite. The height is the side opposite θ.',\n      hints: { [o1[0]]: 'Not quite. 0.766 is how far across the tip is, `cos 40°`. The height is the sine.',\n        [o1[2]]: 'Not quite. `0.766 + 0.643` adds across and up. The tip is never higher than the arm is long, 1.' },\n      right: ['up = sin 40° = ' + o1[1], 'across = cos 40° = ' + o1[0]],\n      wrong: { [o1[0]]: 'cos 40° = ' + o1[0] + ' is across, not up', [o1[2]]: o1[0] + ' + ' + o1[1] + ' = ' + o1[2] + ', longer than the arm' } },\n    { show: true, name: 'Past 90°', pic: 'past90', vh: 280, dur: 3.4, live: ['tip'],\n      text: 'Turn the arm past 90° and keep the same rule: `cos θ` is the tip\\'s across and `sin θ` its up, signs and all. At 150° the tip is 0.866 left of the centre and 0.5 up, so `cos 150° = −0.866` and `sin 150° = 0.5`. The triangle flips over with the arm. Its side along the across axis now lies left of the centre, so it is drawn dashed: that coordinate is negative.',\n      after: 'Past 90° no triangle is needed. This is how sine and cosine are defined, and it is what the calculator works out.' },\n    { kind: 'pick', name: 'cos 120°', pic: 'p120', vh: 326,\n      opts: o3, want: o3[2], secret: [o3[2]],\n      task: 'The arm turns to 120°. What is `cos 120°`?',\n      why: 'At 120° the tip is in the top left quarter, 0.5 left of the centre and 0.866 up. Cosine is the across coordinate, sign and all, so `cos 120° = −0.5`.',\n      hint: 'Not quite. Cosine is how far across the tip is, with its sign.',\n      hints: { [o3[0]]: 'Not quite. At 120° the arm points left of the centre, so its across is negative.',\n        [o3[1]]: 'Not quite. 0.866 is the tip\\'s height, `sin 120°`. Cosine is across.' },\n      right: ['cos 120° = ' + o3[2] + ', left of the centre', 'sin 120° = ' + o3[1] + ', up'],\n      wrong: { [o3[0]]: o3[0] + ' is right of the centre', [o3[1]]: 'sin 120° = ' + o3[1] + ' is the height' } },\n    { show: true, name: 'Four quadrants', pic: 'sweep', vh: 304, dur: 4.4, live: ['tip'],\n      text: 'The axes cut the circle into four quarters, called *quadrants*, numbered anticlockwise from the top right. Where the tip sits decides the signs. Left of the centre the cosine is negative, and below it the sine is negative. So at 210°, in the third quadrant, both are negative, (−0.866, −0.5). At 330°, in the fourth, only the sine is, (0.866, −0.5). Angles between 180° and 360°, like these two, are called *reflex*; the rule works for them just the same. That is why sine and cosine are positive or negative depending on the quadrant.' },\n    { kind: 'pick', name: 'The tip at 300°', pic: 'p300', vh: 326,\n      opts: o5, want: o5[0], secret: [v3(sinD(P5))],\n      task: 'The arm turns to 300°. Where is its tip, `(cos θ, sin θ)`?',\n      why: '300° is in the fourth quadrant, right of the centre and below it. So the cosine is positive and the sine negative: `cos 300° = 0.5` and `sin 300° = −0.866`. The tip is at (0.5, −0.866).',\n      hint: 'Not quite. Cosine is across, sine is up, and the quadrant gives the signs.',\n      hints: { [o5[1]]: 'Not quite. That puts the sine first. Cosine is across, sine is up.',\n        [o5[2]]: 'Not quite. At 300° the arm points down into the fourth quadrant, so the tip is below the centre.' },\n      right: ['cos 300° = ' + v3(cosD(P5)) + ', right of the centre', 'sin 300° = ' + v3(sinD(P5)) + ', below it'],\n      wrong: { [o5[1]]: o5[1] + ' is the point at ' + angS(BAD5[o5[1]]), [o5[2]]: o5[2] + ' is above the centre' } },\n    { show: true, name: 'Squares and slope', pic: 'squares', vh: 328, dur: 3.6, live: ['tip'],\n      text: 'Off the axes the arm is the hypotenuse of a right-angled triangle whose other sides are `cos θ` and `sin θ`. So Pythagoras gives `cos² θ + sin² θ = 1`, where `sin² θ` means `(sin θ)²`. Squaring takes the signs away, so it holds in every quadrant: at 150°, 0.75 + 0.25 = 1. The arm\\'s slope, rise over run, is `sin θ ÷ cos θ`, which is `tan θ`. It is positive where sine and cosine share a sign, in the first and third quadrants. At 90° the run is 0, so `tan 90°` has no value.' },\n    { kind: 'pick', name: 'cos from sin', pic: 'p06', vh: 326,\n      opts: o7, want: o7[1], secret: [o7[1]],\n      task: 'The tip is 0.6 up, in the second quadrant. What is `cos θ`?',\n      why: 'From `cos² θ + sin² θ = 1`, `cos² θ = 1 − 0.6² = 1 − 0.36 = 0.64`. That has two roots, 0.8 and −0.8, and the quadrant decides. In the second quadrant the tip is left of the centre, so `cos θ = −0.8`.',\n      hint: 'Not quite. Use `cos² θ + sin² θ = 1`, then the quadrant for the sign.',\n      hints: { [o7[0]]: 'Not quite. 0.8 is a root of 0.64, but in the second quadrant the tip is left of the centre.',\n        [o7[2]]: 'Not quite. `1 − 0.6` takes away the sine, not its square. Square it first, `0.6² = 0.36`.' },\n      right: ['cos² θ = 1 − ' + hS(S7) + '² = 1 − ' + v3(S7 * S7) + ' = ' + v3(1 - S7 * S7), 'left of the centre, so cos θ = ' + o7[1]],\n      wrong: { [o7[0]]: '√' + v3(1 - S7 * S7) + ' = ' + o7[0] + ', but the tip is left', [o7[2]]: '1 − ' + hS(S7) + ' = ' + o7[2] + ' forgets to square' } },\n    { show: true, name: 'Two angles, one sine', pic: 'level', vh: 338, dur: 4.4, live: ['level'],\n      text: 'A level line at height 0.5 crosses the circle twice, at 30° and at 150°. The circle is the same on both sides of the up axis, so the second arm is the first one\\'s mirror image: it makes the same 30° with the across axis on the left, so it sits at `180° − 30° = 150°`. So `sin (180° − θ) = sin θ`. The calculator\\'s `sin⁻¹` gives only one angle, between −90° and 90°, so the second comes from the picture. Drag the line.',\n      after: 'Two angles that add up to 180°, like these, are called *supplementary*. Below the centre the calculator\\'s angle is negative, an arm turned clockwise: at −0.5 it gives −30°, the same arm as 330°. At the very top or bottom the two arms become one.' },\n    { kind: 'pick', name: 'sin θ = 0.8', pic: 'p08', vh: 326,\n      opts: o9, want: o9[2], secret: [angS(180 - A9)],\n      task: '`sin θ = 0.8`. Which angles from 0° to 360° have it?',\n      why: '`sin⁻¹ 0.8 = 53.1°`, in the first quadrant. The level line at 0.8 crosses the circle again at its mirror image, `180° − 53.1° = 126.9°`. Both tips are 0.8 up.',\n      hint: 'Not quite. The level line at 0.8 crosses the circle twice.',\n      hints: { [o9[0]]: 'Not quite. The calculator gives one angle, but the level line at 0.8 crosses the circle twice.',\n        [o9[1]]: 'Not quite. `360° − 53.1°` keeps the cosine and flips the sine: `sin 306.9° = −0.8`.' },\n      right: ['sin⁻¹ ' + hS(S9) + ' = ' + angS(A9), '180° − ' + angS(A9) + ' = ' + angS(180 - A9)],\n      wrong: { [o9[0]]: 'the line at ' + hS(S9) + ' crosses twice', [o9[1]]: 'sin ' + angS(360 - A9) + ' = ' + v3(sinD(360 - A9)) + ', below the centre' } },\n    { kind: 'pick', name: 'sin θ = −0.5', pic: 'pm05', vh: 326,\n      opts: o10, want: o10[0], secret: [angS(180 - A10), angS(360 + A10)],\n      task: '`sin θ = −0.5`. Which angles from 0° to 360° have it?',\n      why: '`sin⁻¹(−0.5) = −30°`, turned clockwise, which is the same arm as `360° − 30° = 330°`. The level line at −0.5 crosses again at its mirror image, `180° + 30° = 210°`. Both tips are below the centre.',\n      hint: 'Not quite. A negative sine puts the tip below the centre.',\n      hints: { [o10[1]]: 'Not quite. Those have a sine of 0.5, above the centre. A negative sine is below it.',\n        [o10[2]]: 'Not quite. 150° is above the centre. The mirror of −30° is `180° − (−30°) = 210°`.' },\n      right: ['sin⁻¹(' + hS(S10) + ') = ' + angS(A10) + ', the arm at ' + angS(360 + A10), '180° + ' + angS(-A10) + ' = ' + angS(180 - A10)],\n      wrong: { [o10[1]]: 'sin 30° and sin 150° are 0.5, above', [o10[2]]: 'sin 150° = 0.5, above the centre' } },\n    { kind: 'pick', name: 'tan 210°', pic: 'ptan', vh: 326,\n      opts: oT, want: oT[0], secret: [oT[0]],\n      task: 'The arm turns to 210°, its tip at (−0.866, −0.5). What is `tan 210°`?',\n      why: '`tan θ = sin θ ÷ cos θ`, so `tan 210° = −0.5 ÷ −0.866 = 0.577`. Both are negative, and a negative divided by a negative is positive. The arm at 210° lies on the same line as the arm at 30°, so it has the same slope: `tan 30° = 0.577` too.',\n      hint: 'Not quite. Tangent is sine ÷ cosine, signs and all.',\n      hints: { [oT[1]]: 'Not quite. Here sine and cosine are both negative, and a negative ÷ a negative is positive.',\n        [oT[2]]: 'Not quite. Tangent has no value only where the run, `cos θ`, is 0: at 90° and 270°.' },\n      right: [tanRow(PT), 'both negative, so tan is positive'],\n      wrong: { [oT[1]]: v3(sinD(PT)) + ' ÷ ' + v3(cosD(PT)) + ' is positive', [oT[2]]: 'cos 210° = ' + v3(cosD(PT)) + ', not 0' } },\n    { kind: 'pick', name: 'cos 110°', pic: 'p110', vh: 326,\n      opts: o11, want: o11[1], secret: [o11[1]],\n      task: 'The arm turns to 110°. What is `cos 110°`?',\n      why: '110° is in the second quadrant, so the tip is left of the centre. Its mirror arm, at `180° − 110° = 70°`, is at the same height but 0.342 to the right. So `cos 110° = −0.342`. The next lesson\\'s cosine rule needs that minus sign.',\n      hint: 'Not quite. Cosine is across, with its sign.',\n      hints: { [o11[0]]: 'Not quite. At 110° the arm points left of the centre, so the cosine is negative.',\n        [o11[2]]: 'Not quite. 0.940 is the height, `sin 110°`. Cosine is across.' },\n      right: ['cos 110° = ' + o11[1] + ', left of the centre', 'its mirror, ' + angS(180 - P11) + ', is ' + o11[0] + ' across'],\n      wrong: { [o11[0]]: 'cos ' + angS(180 - P11) + ' = ' + o11[0] + ', the arm on the right', [o11[2]]: 'sin 110° = ' + o11[2] + ' is the height' } },\n  ];\n  const FINISH = 'On a turning arm of length 1 the tip is at `(cos θ, sin θ)`, so sine and cosine have a value at every angle, positive or negative by quadrant. Two angles share each sine, `θ` and `180° − θ`.';\n  const CAP_ARM = 'The arm is 1 long, so the tip\\'s across is cos θ and its up is sin θ.';\n  const CAP_LEVEL = 'Every point on the level line is the same height, so both arms there share one sine.';\n  const CAPS = { tip30: CAP_ARM, past90: CAP_ARM, sweep: CAP_ARM, squares: CAP_ARM, p40: CAP_ARM, p120: CAP_ARM, p300: CAP_ARM, p06: CAP_ARM, ptan: CAP_ARM, p110: CAP_ARM, level: CAP_LEVEL, p08: CAP_LEVEL, pm05: CAP_LEVEL };\n  // Sources the checks restate (the lesson's own).\n  const SRC = {\n    turn: 'https://www.bbc.co.uk/bitesize/articles/z4dw239',\n    ratios: 'https://openstax.org/books/algebra-and-trigonometry/pages/7-2-right-triangle-trigonometry',\n    circle: 'https://openstax.org/books/precalculus-2e/pages/5-2-unit-circle-sine-and-cosine-functions',\n    signs: 'https://www.bbc.co.uk/bitesize/topics/zt7wb82',\n    degrees: 'https://www.bbc.co.uk/bitesize/articles/zck7rmn',\n    slip: 'https://www.gcsu.edu/sites/files/page-assets/node-808/attachments/williams.pdf',\n  };\n  const FADE = 0.35, ANS = 1.8, LH = 17;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------\n  function write(node, s) {\n    node.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { node.appendChild(K.el('span', { class: 'nw' }, seg)); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at) node.appendChild(document.createTextNode(seg.slice(at, m.index)));\n        node.appendChild(K.el('span', { class: 'term' }, m[1]));\n        at = m.index + m[0].length;\n      }\n      if (at < seg.length) node.appendChild(document.createTextNode(seg.slice(at)));\n    });\n  }\n\n  // ---------- each step's state ----------\n  // pick, res ('right', 'wrong', 'empty'), why: a puzzle's answer. th: the arm's angle Dan set by\n  // dragging the tip; h: the level line's height he set (null until he drags).\n  function blank() { return { pick: null, res: null, why: false, th: null, h: null }; }\n  const stOf = (o) => Object.assign(blank(), o);\n  const resetLive = (st) => { st.th = null; st.h = null; };\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  const ansOf = (st) => st.res === 'right' || !!st.why;\n  const wrongOf = (st) => st.res === 'wrong' && st.pick != null;\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, MODE = 'demo', motionEnd = 0;\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = el('nav');\n  const at = () => stepper.get();\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play('answer', ANS);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const d = STEPS[at()];\n    if (d.show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n    if (st.why && st.res !== 'right') play('answer', ANS);\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()], st = S[at()];\n    if (!d.show || finished) return;\n    resetLive(st);\n    play('demo', d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion (and\n  // while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && T !== Infinity) { T = Infinity; paint(); } });\n  // A demonstration waits until most of its picture is in view, so on a phone it does not play out\n  // while Dan is still reading the words above it.\n  let seen = true, waiting = false, waitDur = 0;\n  if (typeof IntersectionObserver === 'function') {\n    seen = false;\n    new IntersectionObserver((es) => {\n      const e = es[es.length - 1];\n      seen = e.isIntersecting && (e.intersectionRatio >= 0.6 || e.intersectionRect.height >= 0.6 * (window.innerHeight || 1));\n      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }\n    }, { threshold: [0, 0.3, 0.6, 0.8, 1] }).observe(el('scene'));\n  }\n  function play(mode, dur) {\n    MODE = mode; waiting = false;\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    if (mode === 'demo' && !seen) { waiting = true; waitDur = dur; T = 0; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = el('scene'), art = el('art'), ui = el('ui');\n  let into = null, REC = null, VH = 280;\n  const VOID = K.svg('g');\n  const add = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function arr(t0, d) {\n    d = d == null ? K.SOFT : d;\n    if (t0 + d > latest) latest = t0 + d;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(T, t0, d);\n  }\n  const when = (m, t, d) => (MODE === m ? arr(t, d) : 1);\n  // A motion from 0 to 1 between t0 and t0 + d of the demonstration (eased), 1 when it is not playing.\n  function mv(t0, d) {\n    if (MODE !== 'demo') return 1;\n    if (t0 + d > latest) latest = t0 + d;\n    if (t0 < earliest) earliest = t0;\n    return K.ease(K.clamp((T - t0) / d, 0, 1));\n  }\n  // A part fades in at arrival a. A part not yet arrived is still laid out (off the page), so the\n  // labels placed around it never jump when it arrives.\n  function part(a, rise, draw) {\n    const shown = a > 0;\n    const g = shown ? add(K.svg('g')) : VOID;\n    if (shown) K.fade(g, a, rise);\n    const keep = into; into = g;\n    try { draw(); } finally { into = keep; if (!shown) VOID.textContent = ''; }\n  }\n  const R = (v) => Math.round(v * 100) / 100;\n  const pt = (q) => R(q[0]) + ' ' + R(q[1]);\n  const poly = (ps, close) => 'M' + ps.map(pt).join(' L') + (close ? ' Z' : '');\n  // Lines and paths, noted (with half their width) so labels keep off them.\n  function lineP(cls, p, q, pad) {\n    add(K.svg('line', { class: cls, x1: R(p[0]), y1: R(p[1]), x2: R(q[0]), y2: R(q[1]) }));\n    if (pad != null) REC.segs.push({ p, q, pad });\n  }\n  function pathP(cls, ps, pad) {\n    add(K.svg('path', { class: cls, d: poly(ps, false) }));\n    if (pad != null) for (let k = 1; k < ps.length; k++) REC.segs.push({ p: ps[k - 1], q: ps[k], pad });\n  }\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: R(x), y: R(y), width: R(Math.max(0, w)), height: R(Math.max(0, h)), rx: rx || 0 }));\n  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: R(x), y: R(y), 'text-anchor': anchor || 'middle' }, s));\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 8;\n  }\n  const FS = { sn: 13, gl: 13, al: 14, te: 14, key: 13, pv: 14 };\n  function boxOf(x, y, s, cls, anchor) {\n    const w = tw(s, cls), f = FS[cls.split(' ')[0]] || 14;\n    return { x: anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2, y: y - 0.78 * f, w, h: f };\n  }\n  // A single label at a fixed place (an axis name).\n  function tagAt(x, y, s, anchor, a, cls) {\n    REC.boxes.push(boxOf(x, y, s, cls, anchor));\n    if (a == null || a >= 0.5) REC.tags.push(s);\n    part(a == null ? 1 : a, 0, () => text(x, y, s, cls, anchor));\n  }\n\n  // ---------- labels placed clear of everything drawn ----------\n  // Does the segment p-q cross the box?\n  function segHits(p, q, b) {\n    let t0 = 0, t1 = 1;\n    const dx = q[0] - p[0], dy = q[1] - p[1];\n    const clip = (pp, qq) => {\n      if (pp === 0) return qq >= 0;\n      const r = qq / pp;\n      if (pp < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }\n      return true;\n    };\n    return clip(-dx, p[0] - b.x) && clip(dx, b.x + b.w - p[0]) && clip(-dy, p[1] - b.y) && clip(dy, b.y + b.h - p[1]) && t0 <= t1;\n  }\n  // Is a box clear of the edges, the labels placed so far, the handles and the lines? Pills cover the\n  // circle and the axes (their backing hides them); plain labels keep off those too when they can.\n  function fits(b, pill, strict) {\n    if (b.x < 3 || b.x + b.w > 337 || b.y < 2 || b.y + b.h > Math.min(VH, FLOOR) - 2) return false;\n    if (REC.boxes.some((o) => o.x < b.x + b.w + 3 && b.x < o.x + o.w + 3 && o.y < b.y + b.h + 2 && b.y < o.y + o.h + 2)) return false;\n    if (REC.handles.some((hd) => Math.hypot(K.clamp(hd.x, b.x, b.x + b.w) - hd.x, K.clamp(hd.y, b.y, b.y + b.h) - hd.y) < 14)) return false;\n    const hit = (g) => segHits(g.p, g.q, { x: b.x - g.pad - 1.5, y: b.y - g.pad - 1.5, w: b.w + 2 * g.pad + 3, h: b.h + 2 * g.pad + 3 });\n    if (REC.segs.some(hit)) return false;\n    if (strict && !pill && REC.soft.some(hit)) return false;\n    return true;\n  }\n  // The first candidate centre where a w × h label fits, or null.\n  function freeSpot(w, h, cands, pill) {\n    for (let pass = 0; pass < 2; pass++) {\n      for (let k = 0; k < cands.length; k++) {\n        const c = cands[k];\n        if (fits({ x: c[0] - w / 2, y: c[1] - h / 2, w, h }, pill, pass === 0)) return c;\n      }\n    }\n    return null;\n  }\n  // A plain label at the first candidate clear of every line; failing that, at the first one clear of\n  // the arms and sides, on a small backing of the page colour that hides the circle or axis under it.\n  // None when there is no room.\n  function plainLab(s, cls, candsOf, a, inside) {\n    const w = tw(s, cls), h = 14, cands = candsOf(w, h);\n    const ok = (c, strict) => { const b = { x: c[0] - w / 2, y: c[1] - h / 2, w, h }; return (!inside || inside(b)) && fits(b, !strict, strict); };\n    let c = cands.find((q) => ok(q, true)) || null, back = false;\n    if (!c) { c = cands.find((q) => ok(q, false)) || null; back = !!c; }\n    if (!c) return null;\n    const aa = a == null ? 1 : a;\n    REC.boxes.push({ x: c[0] - w / 2 - (back ? 3 : 0), y: c[1] - h / 2, w: w + (back ? 6 : 0), h });\n    if (aa >= 0.5) REC.labs.push(s);\n    if (aa > 0) part(aa, 0, () => { if (back) rect('lbg', c[0] - w / 2 - 3, c[1] - h / 2 - 1, w + 6, h + 2, 4); text(c[0], c[1] + 5, s, cls); });\n    return c;\n  }\n\n  // ---------- the circle and its axes ----------\n  const CIRC = [];\n  for (let k = 0; k < 72; k++) CIRC.push({ p: tipOf(k * 5), q: tipOf(k * 5 + 5), pad: 1 });\n  function base(a) {\n    part(a, 0, () => {\n      add(K.svg('circle', { class: 'ring', cx: O[0], cy: O[1], r: RU }));\n      add(K.svg('line', { class: 'axis', x1: XL, y1: O[1], x2: XR, y2: O[1] }));\n      add(K.svg('line', { class: 'axis', x1: O[0], y1: O[1] - AX, x2: O[0], y2: O[1] + AX }));\n      [-1, -0.5, 0.5, 1].forEach((v) => {\n        add(K.svg('line', { class: 'tick', x1: R(O[0] + v * RU), y1: O[1] - 4, x2: R(O[0] + v * RU), y2: O[1] + 4 }));\n        add(K.svg('line', { class: 'tick', x1: O[0] - 4, y1: R(O[1] - v * RU), x2: O[0] + 4, y2: R(O[1] - v * RU) }));\n      });\n    });\n    REC.soft = CIRC.concat([{ p: [XL, O[1]], q: [XR, O[1]], pad: 1 }, { p: [O[0], O[1] - AX], q: [O[0], O[1] + AX], pad: 1 }]);\n    tagAt(XR, O[1] - 8, 'across', 'end', a, 'key');\n    tagAt(O[0] + 8, 14, 'up', 'start', a, 'key');\n  }\n\n  // ---------- lesson 1's triangle under the arm: θ at the centre, the right angle at the foot ----------\n  // o: a (arrival), guides (arrival of the dashed line from the tip to the up axis), glow {base | up: arrival}.\n  function triangle(th, o) {\n    const tp = tipOf(th), c = cosD(th), s = sinD(th), F = [tp[0], O[1]], bx = Math.abs(c * RU), uy = Math.abs(s * RU);\n    const baseK = bx > 0.5 ? (c < 0 ? 'dashed' : 'solid') : 'none', upK = uy > 0.5 ? (s < 0 ? 'dashed' : 'solid') : 'none';\n    REC.tri = { th, c, s, T: tp, F, base: baseK, up: upK, negLen: (c < 0 ? bx : 0) + (s < 0 ? uy : 0) };\n    const A = o.a == null ? 1 : o.a;\n    part(A, 0, () => {\n      if (bx > 1 && uy > 1) add(K.svg('path', { class: 'face', d: poly([O, F, tp], true) }));\n      if (baseK !== 'none') lineP('side' + (baseK === 'dashed' && !o.plain ? ' neg' : ''), O, F, 1.5);\n      if (upK !== 'none') lineP('side' + (upK === 'dashed' && !o.plain ? ' neg' : ''), F, tp, 1.5);\n      const mk = Math.min(9, bx / 3, uy / 3);\n      if (mk > 4) { const dx = c > 0 ? -1 : 1, dy = s > 0 ? 1 : -1; pathP('mk', [[F[0] + dx * mk, F[1]], [F[0] + dx * mk, F[1] - dy * mk], [F[0], F[1] - dy * mk]], 1); }\n    });\n    const gl = o.glow || {};\n    ['base', 'up'].forEach((k) => {\n      const g = gl[k], kind = k === 'base' ? baseK : upK;\n      if (!(g > 0.001) || kind === 'none') return;\n      if (g >= 0.5) REC.glowOn.push(k);\n      part(g, 0, () => lineP('side hl' + (kind === 'dashed' ? ' neg' : ''), k === 'base' ? O : F, k === 'base' ? F : tp));\n    });\n    if (o.guides != null && bx > 0.5) part(o.guides, 0, () => lineP('guide', tp, [O[0], tp[1]], 1));\n    return REC.tri;\n  }\n  // An arm from the centre to the circle at angle th. o: a, cls ('arm', 'arm2', 'ghost', 'badarm'), handle, dot.\n  function arm(th, o) {\n    const tp = tipOf(th), A = o.a == null ? 1 : o.a, cls = o.cls || 'arm';\n    part(A, 0, () => {\n      lineP(cls, O, tp, cls === 'arm' ? 2.5 : 1.8);\n      if (o.handle) add(K.svg('circle', { class: 'knob', cx: R(tp[0]), cy: R(tp[1]), r: 9 }));\n      else add(K.svg('circle', { class: 'dot' + (o.dot ? ' ' + o.dot : ''), cx: R(tp[0]), cy: R(tp[1]), r: 4.5 }));\n    });\n    if (o.handle) REC.handles.push({ id: 'tip', x: tp[0], y: tp[1] });\n    REC.arms.push({ th, cls, a: A });\n    return tp;\n  }\n  // A red ring round a point a wrong answer names.\n  function ringAt(p, a) {\n    REC.boxes.push({ x: p[0] - 10, y: p[1] - 10, w: 20, h: 20 });\n    if (a > 0) part(a, 0, () => add(K.svg('circle', { class: 'badring', cx: R(p[0]), cy: R(p[1]), r: 8 })));\n  }\n  const ring = (th, a) => ringAt(tipOf(th), a);\n  // A level line at height h across the circle, with its handle at the left end.\n  function levelLine(h, a, handle) {\n    const y = O[1] - h * RU, x0 = 40, x1 = 284;\n    part(a, 0, () => {\n      lineP('level', [x0 + (handle ? 10 : 0), y], [x1, y], 1.5);\n      if (handle) add(K.svg('circle', { class: 'lknob', cx: x0, cy: R(y), r: 9 }));\n    });\n    if (handle) REC.handles.push({ id: 'level', x: x0, y });\n    REC.level = { h, y };\n  }\n  // The key for the dashed sides, under the circle, while a dashed side is drawn.\n  function keyLab(a) {\n    const t = REC.tri;\n    if (!t || t.negLen < 0.5) return;\n    const al = (a == null ? 1 : a) * (MODE === 'demo' && T !== Infinity ? K.clamp(t.negLen / 20, 0, 1) : 1), y = 252, s = 'dashed side: negative';\n    REC.boxes.push(boxOf(40, y, s, 'key', 'start'), { x: 10, y: y - 9, w: 26, h: 8 });\n    if (al >= 0.5) REC.key = true;\n    if (al > 0) part(al, 0, () => { add(K.svg('line', { class: 'side neg', x1: 12, y1: y - 5, x2: 34, y2: y - 5 })); text(40, y, s, 'key', 'start'); });\n  }\n  // The quadrants' names and signs, each written inside its own quarter, outside the circle.\n  const QPOS = { 1: [306, 50], 2: [34, 50], 3: [34, 198], 4: [306, 198] }, QN = { 1: 'first', 2: 'second', 3: 'third', 4: 'fourth' };\n  const QS = { 1: ['+', '+'], 2: ['−', '+'], 3: ['−', '−'], 4: ['+', '−'] };\n  function quad(k, aName, aSigns) {\n    const p = QPOS[k], lines = [{ s: QN[k], cls: 'sn', a: aName }];\n    if (aSigns != null) lines.push({ s: 'cos ' + QS[k][0], cls: 'gl', a: aSigns }, { s: 'sin ' + QS[k][1], cls: 'gl', a: aSigns });\n    const w = Math.max.apply(null, lines.map((l) => tw(l.s, l.cls))), h = lines.length * 16;\n    REC.boxes.push({ x: p[0] - w / 2, y: p[1] - h / 2, w, h });\n    lines.forEach((l, m) => { if (l.a > 0) part(l.a, 0, () => text(p[0], p[1] - h / 2 + 12 + m * 16, l.s, l.cls)); });\n    if (aName >= 0.5) REC.quads[k] = lines.filter((l) => l.a >= 0.5).map((l) => l.s).join(' ');\n  }\n  // The two readouts: cos θ on the across axis under the triangle's foot, sin θ on the up axis at the\n  // tip's height, on the side away from the tip. While the arm is moving, a pill fades out as it\n  // changes sides, so it never jumps.\n  function pillAt(key, P, candsOf, f) {\n    const cls = P.cls || '', w = tw(P.s, 'pv') + 14, h = 21, cands = candsOf(w, h), c = freeSpot(w, h, cands, true) || cands[0];\n    REC.boxes.push({ x: c[0] - w / 2, y: c[1] - h / 2, w, h });\n    REC.pillAt[key] = { x: c[0], y: c[1], w, h };\n    const a = (P.a == null ? 1 : P.a) * (f == null ? 1 : f);\n    if (a >= 0.5) REC.pills[key] = P.s;\n    if (a > 0) part(a, 0, () => { rect('pill' + (cls ? ' ' + cls : ''), c[0] - w / 2, c[1] - h / 2, w, h, 10); text(c[0], c[1] + 5, P.s, 'pv' + (cls === 'bad' ? ' bad' : '')); });\n  }\n  function pills(th, o) {\n    const tp = tipOf(th), c = cosD(th), s = sinD(th), moving = MODE === 'demo' && T !== Infinity;\n    const fc = moving ? K.clamp(Math.min(Math.abs(c), Math.abs(s)) / 0.12, 0, 1) : 1, fs = moving ? K.clamp(Math.abs(c) / 0.12, 0, 1) : 1;\n    if (o.c) pillAt('c', o.c, (w, h) => {\n      const sg = s >= -1e-9 ? 1 : -1, side = c >= -1e-9 ? 1 : -1, y0 = O[1] + sg * (5 + h / 2), out = [];\n      const x = side > 0 ? Math.max(tp[0], O[0] + w / 2 + 6) : Math.min(tp[0], O[0] - w / 2 - 6);\n      [0, 24, 48].forEach((dy) => [0, -30 * side, 30 * side, -60 * side].forEach((dx) => out.push([K.clamp(x + dx, w / 2 + 3, 337 - w / 2), y0 + sg * dy])));\n      return out;\n    }, fc);\n    if (o.s) pillAt('s', o.s, (w, h) => {\n      const side = c > 1e-9 ? -1 : c < -1e-9 ? 1 : -1, x = O[0] + side * (6 + w / 2), out = [];\n      [0, 24, -24, 48, -48, 72, -72].forEach((dy) => [0, 40, 70].forEach((dx) => out.push([K.clamp(x + side * dx, w / 2 + 3, 337 - w / 2), K.clamp(tp[1] + dy, h / 2 + 3, Math.min(VH, FLOOR) - h / 2 - 3)])));\n      return out;\n    }, fs);\n  }\n  // An angle's arc from a0 to a1 (anticlockwise, a1 > a0), its label inside the wedge beyond the arc,\n  // hidden when the wedge is too narrow for it.\n  function inWedge(a0, a1, pad) {\n    return (b) => [[b.x, b.y], [b.x + b.w, b.y], [b.x, b.y + b.h], [b.x + b.w, b.y + b.h]].every((q) => {\n      const dx = q[0] - O[0], dy = O[1] - q[1], r = Math.hypot(dx, dy);\n      if (r < pad + 1) return false;\n      let p = Math.atan2(dy, dx) / RAD;\n      while (p < a0) p += 360;\n      while (p >= a0 + 360) p -= 360;\n      const m = Math.asin(Math.min(1, pad / r)) / RAD;\n      return p >= a0 + m && p <= a1 - m;\n    });\n  }\n  function arcPath(a0, a1, r) {\n    const p0 = [O[0] + r * cosD(a0), O[1] - r * sinD(a0)], p1 = [O[0] + r * cosD(a1), O[1] - r * sinD(a1)];\n    return 'M' + pt(p0) + ' A' + r + ' ' + r + ' 0 ' + (a1 - a0 > 180 ? 1 : 0) + ' 0 ' + pt(p1);\n  }\n  // The arc is drawn with the shapes, before any readout, so a readout's backing covers it and the\n  // readouts keep off it; its label is placed later with the other labels.\n  function wedgeArc(a0, a1, a, ra) {\n    if (!(a1 - a0 > 0.5)) return;\n    ra = ra || 22;\n    const aa = a == null ? 1 : a, n = Math.max(2, Math.ceil((a1 - a0) / 10));\n    for (let k = 0; k < n; k++) {\n      const t0 = a0 + (a1 - a0) * k / n, t1 = a0 + (a1 - a0) * (k + 1) / n;\n      REC.segs.push({ p: [O[0] + ra * cosD(t0), O[1] - ra * sinD(t0)], q: [O[0] + ra * cosD(t1), O[1] - ra * sinD(t1)], pad: 1 });\n    }\n    if (aa > 0) part(aa, 0, () => add(K.svg('path', { class: 'arc', d: arcPath(a0, a1, ra) })));\n  }\n  function wedgeLab(a0, a1, s, a, ra) {\n    if (!(a1 - a0 > 0.5) || !s) return null;\n    ra = ra || 22;\n    const w = tw(s, 'al'), mid = (a0 + a1) / 2, u = [cosD(mid), -sinD(mid)], cands = [];\n    for (let dd = ra + Math.hypot(w / 2, 7) + 5; dd < 200; dd += 2) cands.push([O[0] + u[0] * dd, O[1] + u[1] * dd]);\n    const c = plainLab(s, 'al', () => cands, a, inWedge(a0, a1, 3));\n    if (c && (a == null || a >= 0.5)) REC.wedges.push(s);\n    return c;\n  }\n  // The arm's length, 1, beside the arm on the side away from the triangle.\n  function oneLab(th, a) {\n    const tp = tipOf(th), c = cosD(th), s = sinD(th), away = c * s >= 0 ? [-s, -c] : [s, c], other = [-away[0], -away[1]];\n    // On the arm's own side of the up axis, so it never reads as an axis value; anywhere clear if not.\n    const mine = Math.abs(c) < 0.2 ? null : (b) => (c < 0 ? b.x + b.w < O[0] - 3 : b.x > O[0] + 3);\n    const cands = (w, h) => {\n      const out = [];\n      [away, other].forEach((n) => [0.5, 0.38, 0.62, 0.28, 0.72].forEach((f) => [8, 16, 26].forEach((e) => {\n        const m = [O[0] + (tp[0] - O[0]) * f, O[1] + (tp[1] - O[1]) * f], d = e + Math.abs(n[0]) * w / 2 + Math.abs(n[1]) * h / 2;\n        out.push([m[0] + n[0] * d, m[1] + n[1] * d]);\n      })));\n      return out;\n    };\n    return (mine && plainLab('1', 'al', cands, a, mine)) || plainLab('1', 'al', cands, a);\n  }\n  // An arm's angle written just beyond its tip, outside the circle.\n  function tipLab(th, s, a, bad) {\n    const cls = 'al' + (bad ? ' bad' : ''), tp = tipOf(th);\n    return plainLab(s, cls, (w, h) => {\n      const out = [];\n      [8, 20].forEach((e) => [0, 10, -10, 20, -20, 32, -32].forEach((dt) => {\n        const u = [cosD(th + dt), -sinD(th + dt)], d = RU + e + Math.abs(u[0]) * w / 2 + Math.abs(u[1]) * h / 2;\n        out.push([O[0] + u[0] * d, O[1] + u[1] * d]);\n      }));\n      out.push([tp[0] + w / 2 + 12, tp[1]], [tp[0] - w / 2 - 12, tp[1]], [tp[0], tp[1] - 18], [tp[0], tp[1] + 18]);\n      return out;\n    }, a);\n  }\n  // The level line's height, a readout beside the line, placed after the arms' angles have their room.\n  function levelLab(h, a) {\n    const y = O[1] - h * RU;\n    pillAt('h', { s: 'sin θ = ' + hS(h), a }, (w, hh) => {\n      const out = [];\n      [6, 28].forEach((e) => [284 - w / 2, 337 - w / 2, 64 + w / 2, 226 - w / 2, 120 + w / 2, 170].forEach((x) => [-1, 1].forEach((sg) => out.push([x, y + sg * (e + hh / 2)]))));\n      return out;\n    });\n  }\n  // The calculator under the circle: what was keyed, DEG, and the one angle it gives.\n  function calcStrip(y, entry, result, a) {\n    const x = 70, w = 200, rec = { tag: 'DEG', entry: '', result: null };\n    REC.boxes.push({ x, y, w, h: 46 });\n    part(a, 0, () => { rect('cbody', x, y, w, 46, 8); text(x + 12, y + 39, 'DEG', 'ctag', 'start'); });\n    if (entry.some((e) => e.a > 0)) part(a, 0, () => {\n      const t = add(K.svg('text', { class: 'cin', x: x + 12, y: y + 19, 'text-anchor': 'start' }));\n      entry.forEach((e) => t.appendChild(K.svg('tspan', { 'fill-opacity': K.clamp(e.a, 0, 1) }, e.s.replace(/ /g, ' '))));\n    });\n    entry.forEach((e) => { if (e.a >= 0.5) rec.entry += e.s; });\n    if (result && result.a > 0) {\n      part(result.a * a, 0, () => text(x + w - 12, y + 37, result.s, 'cout', 'end'));\n      if (result.a >= 0.5 && a >= 0.5) rec.result = result.s;\n    }\n    REC.calcs.push(rec);\n  }\n  // ---------- rows of working under the picture ----------\n  function drawRows(y0, rows) {\n    rows.forEach((r, m) => {\n      REC.boxes.push(boxOf(12, y0 + 24 * m, r.s, 'te', 'start'));\n      if (r.a > 0) part(r.a, 4, () => text(12, y0 + 24 * m, r.s, 'te' + (r.bad ? ' bad' : ''), 'start'));\n    });\n    REC.rows = rows.filter((r) => r.a >= 0.5).map((r) => ({ s: r.s, bad: !!r.bad }));\n  }\n  function puzzleRows(d, st) {\n    const an = (t) => when('answer', t), list = [], ok = ansOf(st);\n    if (ok) d.right.forEach((s, m) => list.push({ s, a: an(0.5 + 0.25 * m) }));\n    if (wrongOf(st)) list.push({ s: d.wrong[st.pick], a: an(ok ? 0.5 + 0.25 * d.right.length : 0.3), bad: true });\n    drawRows(268, list);\n  }\n\n  const describe = (th) => 'A circle of radius 1 on axes with the same scale. An arm from the centre is turned ' + angS(th).replace('°', ' degrees') +\n    ' anticlockwise from pointing right, with a right-angled triangle under it. Its tip is ' + v3(cosD(th)) + ' across and ' + v3(sinD(th)) + ' up.';\n  const asked = (th) => 'A circle of radius 1 on axes with the same scale. An arm from the centre is turned ' + angS(th).replace('°', ' degrees') + ' anticlockwise from pointing right, with a right-angled triangle under it.';\n  const allTip = (th) => ({ c: { s: 'cos θ = ' + v3(cosD(th)) }, s: { s: 'sin θ = ' + v3(sinD(th)) } });\n\n  // ---------- each step's picture; each returns it in words ----------\n  const PIC = {\n    tip30(d, st) {\n      const dm = (t) => when('demo', t), th = st.th != null ? st.th : 30 * mv(0.8, 1.4);\n      base(1);\n      triangle(th, { a: 1, guides: dm(2.7) });\n      arm(th, { a: 1, handle: true });\n      wedgeArc(0, th, dm(2.3));\n      keyLab(dm(0.5));\n      pills(th, { c: { s: 'cos θ = ' + v3(cosD(th)), a: dm(2.7) }, s: { s: 'sin θ = ' + v3(sinD(th)), a: dm(3.1) } });\n      wedgeLab(0, th, angS(th), dm(2.3));\n      oneLab(th, dm(1.0));\n      drawRows(268, [{ s: tipRow(th), a: dm(3.5) }]);\n      return describe(th);\n    },\n    p40(d, st) {\n      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), th = P1, wAcross = w && st.pick === o1[0];\n      base(1);\n      triangle(th, { guides: 1, glow: ok ? { up: an(0.3) } : null });\n      arm(th, {});\n      wedgeArc(0, th, 1);\n      keyLab(1);\n      pills(th, {\n        c: ok || wAcross ? { s: 'cos θ = ' + o1[0], a: ok ? an(0.4) : an(0.1), cls: wAcross ? 'bad' : '' } : { s: 'cos θ = ?' },\n        s: ok ? { s: 'sin θ = ' + o1[1], a: an(0.3), cls: 'hl' } : { s: 'sin θ = ?' } });\n      wedgeLab(0, th, angS(th), 1);\n      oneLab(th, 1);\n      puzzleRows(d, st);\n      return ok ? describe(th) : asked(th) + ' How far up is its tip?';\n    },\n    past90(d, st) {\n      const dm = (t) => when('demo', t), a = dm(0.4), th = st.th != null ? st.th : 30 + 120 * mv(0.9, 2.0);\n      base(a);\n      triangle(th, { a, guides: a });\n      arm(th, { a, handle: true });\n      wedgeArc(0, th, a);\n      keyLab(a);\n      pills(th, { c: { s: 'cos θ = ' + v3(cosD(th)), a }, s: { s: 'sin θ = ' + v3(sinD(th)), a } });\n      wedgeLab(0, th, angS(th), a);\n      oneLab(th, a);\n      drawRows(268, [{ s: tipRow(th), a }]);\n      return describe(th) + ' A side left of the centre or below it is dashed.';\n    },\n    p120(d, st) {\n      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), th = P3, wPos = w && st.pick === o3[0], wUp = w && st.pick === o3[1];\n      base(1);\n      triangle(th, { guides: 1, glow: ok ? { base: an(0.3) } : null });\n      arm(th, {});\n      wedgeArc(0, th, 1);\n      if (wPos) ringAt([O[0] + (+o3[0]) * RU, O[1]], an(0.1));\n      keyLab(1);\n      pills(th, {\n        c: ok ? { s: 'cos θ = ' + o3[2], a: an(0.3), cls: 'hl' } : { s: 'cos θ = ?' },\n        s: ok || wUp ? { s: 'sin θ = ' + o3[1], a: ok ? an(0.5) : an(0.1), cls: wUp ? 'bad' : '' } : { s: 'sin θ = ?' } });\n      wedgeLab(0, th, angS(th), 1);\n      oneLab(th, 1);\n      puzzleRows(d, st);\n      return ok ? describe(th) : asked(th) + ' What is its cosine?';\n    },\n    sweep(d, st) {\n      const dm = (t) => when('demo', t), a = dm(0.4), live = st.th != null;\n      const th = live ? st.th : 210 * mv(0.7, 1.7) + 120 * mv(2.9, 0.9), g = live ? 1 : dm(2.5);\n      base(a);\n      arm(210, { a: g, cls: 'ghost', dot: 'muted' });\n      triangle(th, { a, guides: a });\n      arm(th, { a, handle: true });\n      wedgeArc(0, th, a);\n      keyLab(a);\n      [1, 2, 3, 4].forEach((k) => { const q = live ? 1 : a * K.clamp((th - (90 * k - 85)) / 20, 0, 1); quad(k, q, q); });\n      pills(th, { c: { s: 'cos θ = ' + v3(cosD(th)), a }, s: { s: 'sin θ = ' + v3(sinD(th)), a } });\n      wedgeLab(0, th, angS(th), a);\n      oneLab(th, a);\n      tipLab(210, angS(210), g);\n      drawRows(268, [{ s: '210°: ' + pair(cosD(210), sinD(210)) + ', both negative', a: dm(2.5) },\n        { s: '330°: ' + pair(cosD(330), sinD(330)) + ', sine negative', a: dm(3.8) }]);\n      return describe(th) + ' The four quadrants carry their signs: first, cos plus and sin plus; second, cos minus and sin plus; third, both minus; fourth, cos plus and sin minus. A dashed arm marks the stop at 210 degrees, at minus 0.866 across and minus 0.5 up.';\n    },\n    p300(d, st) {\n      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), th = P5, bad = w ? BAD5[st.pick] : null;\n      base(1);\n      triangle(th, { guides: 1, glow: ok ? { base: an(0.3), up: an(0.3) } : null });\n      arm(th, {});\n      wedgeArc(0, th, 1);\n      if (bad != null) { arm(bad, { a: an(0.1), cls: 'badarm', dot: 'bad' }); ring(bad, an(0.1)); }\n      keyLab(1);\n      quad(4, 1, ok ? an(0.5) : null);\n      pills(th, ok ? { c: { s: allTip(th).c.s, a: an(0.3), cls: 'hl' }, s: { s: allTip(th).s.s, a: an(0.3), cls: 'hl' } } : { c: { s: 'cos θ = ?' }, s: { s: 'sin θ = ?' } });\n      wedgeLab(0, th, angS(th), 1);\n      oneLab(th, 1);\n      puzzleRows(d, st);\n      return ok ? describe(th) : asked(th) + ' Where is its tip?';\n    },\n    squares(d, st) {\n      const dm = (t) => when('demo', t), a = dm(0.4), th = st.th != null ? st.th : 30 + 60 * mv(0.8, 1.0) + 60 * mv(2.4, 0.9);\n      base(a);\n      triangle(th, { a, guides: a });\n      arm(th, { a, handle: true });\n      wedgeArc(0, th, a);\n      keyLab(a);\n      pills(th, { c: { s: 'cos θ = ' + v3(cosD(th)), a }, s: { s: 'sin θ = ' + v3(sinD(th)), a } });\n      wedgeLab(0, th, angS(th), a);\n      oneLab(th, a);\n      drawRows(268, [{ s: sqRow(th), a: dm(0.5) }, { s: 'tan θ = sin θ ÷ cos θ, the arm\\'s slope', a: dm(0.7) }, { s: tanRow(th), a: dm(0.9) }]);\n      return describe(th) + ' ' + sqRow(th) + '. ' + tanRow(th) + '.';\n    },\n    p06(d, st) {\n      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), th = TH7, wPos = w && st.pick === o7[0];\n      base(1);\n      triangle(th, { guides: 1, plain: !ok, glow: ok ? { base: an(0.3) } : null });\n      arm(th, {});\n      wedgeArc(0, th, 1);\n      if (wPos) { arm(180 - th, { a: an(0.1), cls: 'badarm', dot: 'bad' }); ring(180 - th, an(0.1)); }\n      if (ok) keyLab(an(0.3));\n      quad(2, 1, null);\n      pills(th, { c: ok ? { s: 'cos θ = ' + o7[1], a: an(0.3), cls: 'hl' } : { s: 'cos θ = ?' }, s: { s: 'sin θ = ' + v3(sinD(th)) } });\n      wedgeLab(0, th, 'θ', 1);\n      oneLab(th, 1);\n      puzzleRows(d, st);\n      return 'A circle of radius 1 on axes with the same scale. An arm in the second quadrant has its tip 0.6 up' + (ok ? ' and 0.8 left of the centre, so cos theta is minus 0.8.' : '. How far across is it?');\n    },\n    level(d, st) {\n      const dm = (t) => when('demo', t), a = dm(0.4), b = dm(0.6), h = st.h != null ? st.h : 0.5 * mv(0.8, 1.4), L = levelAngles(h);\n      base(a);\n      levelLine(h, b, true);\n      arm(L.n1, { a: b, cls: 'arm2' });\n      if (!L.one) arm(L.n2, { a: b, cls: 'arm2' });\n      const lo = Math.min(L.n2, 180), hi = Math.max(L.n2, 180), mg = dm(2.3);\n      if (!L.one) wedgeArc(lo, hi, mg, 26);\n      if (L.a1 < -0.05) wedgeArc(L.a1, 0, b, 26);\n      if (L.a1 < -0.05) wedgeLab(L.a1, 0, angS(L.a1), b, 26);\n      tipLab(L.n1, angS(L.n1), b);\n      if (!L.one) tipLab(L.n2, angS(L.n2), b);\n      levelLab(h, b);\n      if (!L.one) wedgeLab(lo, hi, angS(Math.abs(L.a1)), mg, 26);\n      calcStrip(254, [{ s: 'sin⁻¹', a: dm(2.6) }, { s: hArg(h), a: dm(2.8) }], { s: trim(L.a1, 1), a: dm(3.2) }, dm(2.4));\n      drawRows(326, [{ s: mirrorRow(h), a: dm(3.6) }]);\n      return 'A circle of radius 1 with a level line at height ' + hS(h) + '. It meets the circle at ' + angS(L.n1).replace('°', ' degrees') +\n        (L.one ? ', one arm' : ' and ' + angS(L.n2).replace('°', ' degrees') + ', two arms that are mirror images across the up axis, the second making the same ' + angS(Math.abs(L.a1)).replace('°', ' degrees') + ' with the across axis on the left') +\n        '. A calculator in degrees mode keyed inverse sine ' + hS(h) + ' shows ' + trim(L.a1, 1) + '.';\n    },\n    p08(d, st) {\n      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), L = levelAngles(S9), flip = 360 - L.a1;\n      const wOnly = w && st.pick === o9[0], wFlip = w && st.pick === o9[1];\n      base(1);\n      levelLine(S9, 1, false);\n      arm(L.n1, { cls: 'arm2' });\n      if (ok) arm(L.n2, { a: an(0.3), cls: 'arm2' });\n      if (wFlip) arm(flip, { a: an(0.1), cls: 'badarm', dot: 'bad' });\n      if (wOnly) ring(L.n2, an(0.1));\n      tipLab(L.n1, angS(L.n1), 1);\n      if (ok) tipLab(L.n2, angS(L.n2), an(0.3));\n      if (wFlip) tipLab(flip, angS(flip), an(0.1), true);\n      levelLab(S9, 1);\n      puzzleRows(d, st);\n      return 'A circle of radius 1 with a level line at height 0.8 and an arm at 53.1 degrees.' + (ok ? ' A second arm meets the line at 126.9 degrees.' : ' Where else does the line meet the circle?');\n    },\n    pm05(d, st) {\n      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), L = levelAngles(S10), up = asinD(-S10);\n      const wUp = w && st.pick === o10[1], wMix = w && st.pick === o10[2];\n      base(1);\n      levelLine(S10, 1, false);\n      if (ok) { arm(L.n2, { a: an(0.3), cls: 'arm2' }); arm(L.n1, { a: an(0.3), cls: 'arm2' }); }\n      if (wUp) { arm(up, { a: an(0.1), cls: 'badarm', dot: 'bad' }); arm(180 - up, { a: an(0.1), cls: 'badarm', dot: 'bad' }); }\n      if (wMix) { arm(180 - up, { a: an(0.1), cls: 'badarm', dot: 'bad' }); arm(L.n1, { a: an(0.1), cls: 'arm2' }); }\n      if (ok) wedgeArc(L.a1, 0, an(0.5), 26);\n      if (ok) wedgeLab(L.a1, 0, angS(L.a1), an(0.5), 26);\n      if (ok) { tipLab(L.n2, angS(L.n2), an(0.3)); tipLab(L.n1, angS(L.n1), an(0.3)); }\n      if (wUp) { tipLab(up, angS(up), an(0.1), true); tipLab(180 - up, angS(180 - up), an(0.1), true); }\n      if (wMix) { tipLab(180 - up, angS(180 - up), an(0.1), true); tipLab(L.n1, angS(L.n1), an(0.1)); }\n      levelLab(S10, 1);\n      puzzleRows(d, st);\n      return 'A circle of radius 1 with a level line at height minus 0.5, below the centre.' + (ok ? ' It meets the circle at 210 and 330 degrees; 330 degrees is the same arm as minus 30 degrees, turned clockwise.' : ' Where does it meet the circle?');\n    },\n    ptan(d, st) {\n      const ok = ansOf(st), an = (t) => when('answer', t), th = PT, same = th - 180;\n      base(1);\n      if (ok) arm(same, { a: an(0.6), cls: 'ghost', dot: 'muted' });\n      triangle(th, { guides: 1, glow: ok ? { base: an(0.3), up: an(0.3) } : null });\n      arm(th, {});\n      wedgeArc(0, th, 1);\n      keyLab(1);\n      quad(3, 1, null);\n      pills(th, allTip(th));\n      wedgeLab(0, th, angS(th), 1);\n      oneLab(th, 1);\n      if (ok) tipLab(same, angS(same), an(0.6));\n      puzzleRows(d, st);\n      return ok ? describe(th) + ' Its slope, minus 0.5 over minus 0.866, is 0.577, the same as the arm at 30 degrees, which lies on the same line.' : asked(th) + ' Its tip is at minus 0.866 across and minus 0.5 up. What is tan 210 degrees?';\n    },\n    p110(d, st) {\n      const ok = ansOf(st), w = wrongOf(st) && !ok, an = (t) => when('answer', t), th = P11, mir = 180 - th;\n      const wPos = w && st.pick === o11[0], wUp = w && st.pick === o11[2];\n      base(1);\n      if (ok) arm(mir, { a: an(0.6), cls: 'ghost', dot: 'muted' });\n      if (wPos) arm(mir, { a: an(0.1), cls: 'badarm', dot: 'bad' });\n      triangle(th, { guides: 1, plain: !ok, glow: ok ? { base: an(0.3) } : null });\n      arm(th, {});\n      wedgeArc(0, th, 1);\n      if (ok) keyLab(an(0.3));\n      pills(th, {\n        c: ok ? { s: 'cos θ = ' + o11[1], a: an(0.3), cls: 'hl' } : { s: 'cos θ = ?' },\n        s: ok || wUp ? { s: 'sin θ = ' + o11[2], a: ok ? an(0.5) : an(0.1), cls: wUp ? 'bad' : '' } : { s: 'sin θ = ?' } });\n      wedgeLab(0, th, angS(th), 1);\n      oneLab(th, 1);\n      if (ok) tipLab(mir, angS(mir), an(0.6));\n      if (wPos) tipLab(mir, angS(mir), an(0.1), true);\n      puzzleRows(d, st);\n      return ok ? describe(th) + ' Its mirror arm at 70 degrees is 0.342 across, on the right.' : asked(th) + ' What is its cosine?';\n    },\n  };\n\n  // ---------- the handles: Dan drags the arm's tip round, or the level line up and down ----------\n  const GRIPS = { tip: 'The arm\\'s angle θ, in degrees', level: 'The height of the level line' };\n  const grips = {};\n  Object.keys(GRIPS).forEach((id) => {\n    const g = ui.appendChild(K.svg('circle', { class: 'grip', cx: -60, cy: -60, r: 22, tabindex: -1, role: 'slider', 'aria-orientation': id === 'level' ? 'vertical' : 'horizontal', 'aria-label': GRIPS[id] }));\n    g.style.display = 'none';\n    grips[id] = g;\n  });\n  const tipAngle = (q) => { let a = Math.round(Math.atan2(O[1] - q.y, q.x - O[0]) / RAD); if (a < 0) a += 360; if (a >= 360) a -= 360; return a; };\n  const levelOf = (q) => Math.round(K.clamp(Math.round((O[1] - q.y) / RU / 0.05) * 0.05, -1, 1) * 100) / 100;\n  const liveOn = (id) => !finished && (STEPS[at()].live || []).indexOf(id) >= 0 && !!REC && REC.handles.some((h) => h.id === id);\n  function gripVal(id) { return id === 'tip' ? Math.round(REC.tri ? REC.tri.th : 0) % 360 : (REC.level ? Math.round(REC.level.h * 100) / 100 : 0); }\n  function placeGrips(d) {\n    Object.keys(grips).forEach((id) => {\n      const g = grips[id], h = REC.handles.filter((q) => q.id === id)[0], on = !finished && !!h && (d.live || []).indexOf(id) >= 0;\n      g.style.display = on ? '' : 'none';\n      g.setAttribute('tabindex', on ? '0' : '-1');\n      if (!on) return;\n      g.setAttribute('cx', R(h.x)); g.setAttribute('cy', R(h.y));\n      const v = gripVal(id);\n      g.setAttribute('aria-valuemin', id === 'tip' ? 0 : -1); g.setAttribute('aria-valuemax', id === 'tip' ? 359 : 1);\n      g.setAttribute('aria-valuenow', v); g.setAttribute('aria-valuetext', id === 'tip' ? v + '°' : hS(v));\n    });\n  }\n  function setLive(ch) {\n    const st = S[at()];\n    if (Object.keys(ch).every((k) => st[k] === ch[k]) && T === Infinity) return;\n    if (anim.playing()) anim.pause();\n    waiting = false; T = Infinity;\n    Object.assign(st, ch);\n    K.reveal(); K.refresh();\n  }\n  function setGrip(id, v) {\n    if (id === 'tip') setLive({ th: ((Math.round(v) % 360) + 360) % 360 });\n    else setLive({ h: Math.round(K.clamp(v, -1, 1) * 100) / 100 });\n  }\n  function svgPoint(e) {\n    const ctm = svg.getScreenCTM();\n    if (!ctm) return null;\n    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());\n  }\n  function dragTo(id, q) {\n    if (id === 'tip') setGrip('tip', tipAngle(q));\n    else setGrip('level', levelOf(q));\n  }\n  Object.keys(grips).forEach((id) => {\n    const g = grips[id];\n    let held = null;\n    g.addEventListener('pointerdown', (e) => {\n      if (!liveOn(id)) return;\n      held = e.pointerId;\n      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the handle */ }\n      e.preventDefault();\n      const q = svgPoint(e); if (q) dragTo(id, q);\n    });\n    g.addEventListener('pointermove', (e) => { if (held !== e.pointerId || !liveOn(id)) return; const q = svgPoint(e); if (q) dragTo(id, q); });\n    const letGo = (e) => { if (held === e.pointerId) held = null; };\n    g.addEventListener('pointerup', letGo);\n    g.addEventListener('pointercancel', letGo);\n    g.addEventListener('lostpointercapture', () => { held = null; });\n    g.addEventListener('keydown', (e) => {\n      if (!liveOn(id)) return;\n      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];\n      if (by == null) return;\n      e.preventDefault();\n      setGrip(id, gripVal(id) + by * (id === 'tip' ? 1 : 0.05));\n    });\n  });\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    art.textContent = '';\n    into = null;\n    REC = { segs: [], soft: [], handles: [], boxes: [], labs: [], tags: [], wedges: [], calcs: [], glowOn: [], arms: [], rows: [], pills: {}, pillAt: {}, quads: {}, key: false, tri: null, level: null };\n    VH = d.vh;\n    svg.setAttribute('viewBox', '0 0 340 ' + d.vh);\n    svg.setAttribute('aria-label', PIC[d.pic](d, st) || '');\n    if (!d.show && !ansOf(st) && st.res !== 'wrong') {\n      let b = null;\n      try { b = art.getBBox(); } catch (e) { b = null; }\n      if (b && b.height > 0) svg.setAttribute('viewBox', '0 0 340 ' + Math.min(d.vh, Math.ceil(b.y + b.height + 10)));\n    }\n    placeGrips(d);\n  }\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing() && !waiting) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { resetLive(st); play('demo', d.dur); }\n      else { waiting = false; anim.pause(); T = Infinity; MODE = 'answer'; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    const after = el('after');\n    after.hidden = !d.show || !d.after;\n    write(after, d.show && d.after ? d.after : '');\n    const cap = el('cap'), cs = CAPS[d.pic] || '';\n    cap.textContent = cs; cap.hidden = finished || !cs;\n    paint(i);\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const idx = (pic) => STEPS.findIndex((d) => d.pic === pic);\n  // Step i painted in state st (motion m, at time tAt, finished if none), fn reading what it drew\n  // before the page is put back.\n  function withState(i, st, m, fn, tAt) {\n    const keepS = S[i], keepT = T, keepM = MODE;\n    S[i] = st; T = tAt == null ? Infinity : tAt; MODE = m || (STEPS[i].show ? 'demo' : 'answer');\n    latest = 0; earliest = Infinity;\n    try { paint(i); return fn(); } finally { S[i] = keepS; T = keepT; MODE = keepM; paint(); }\n  }\n  const drawn = (i, st, m) => withState(i, st, m, () => ({ texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent), rec: REC }));\n  const solvedSt = (i) => stOf({ pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => stOf({ pick: o, res: 'wrong' });\n  const fail = (msg) => { throw new Error(msg); };\n  const ANGS = [];\n  for (let a = 0; a < 360; a += 10) ANGS.push(a);\n  [1, 5, 85, 89, 91, 95, 175, 179, 181, 185, 265, 269, 271, 275, 355, 359, 30, 40, 120, 150, 210, 300, 330].forEach((a) => ANGS.push(a));\n  const HS = [];\n  for (let k = -20; k <= 20; k++) HS.push(k / 20);\n  // Every state a step can be seen in.\n  function statesOf(i) {\n    const d = STEPS[i], out = [];\n    if (d.show) {\n      out.push([blank(), 'demo']);\n      if ((d.live || []).indexOf('tip') >= 0) ANGS.forEach((th) => out.push([stOf({ th }), 'demo']));\n      if ((d.live || []).indexOf('level') >= 0) HS.forEach((h) => out.push([stOf({ h }), 'demo']));\n    } else {\n      out.push([blank(), 'answer'], [solvedSt(i), 'answer'], [stOf({ why: true }), 'answer']);\n      d.opts.filter((o) => o !== d.want).forEach((o) => out.push([wrongSt(i, o), 'answer'], [stOf({ pick: o, res: 'wrong', why: true }), 'answer']));\n    }\n    return out;\n  }\n  // What crowds the labels in the picture now: labels over labels or handles, or off the edge.\n  function crowding() {\n    const bad = [], boxes = [];\n    art.querySelectorAll('text').forEach((t) => {\n      let b = null;\n      try { b = t.getBBox(); } catch (e) { b = null; }\n      if (!b || !(b.width > 0) || !(b.height > 0)) return;\n      const sh = b.height * 0.2;\n      boxes.push({ s: t.textContent, x: b.x, y: b.y + sh, w: b.width, h: b.height - 2 * sh, calc: /^c/.test(t.getAttribute('class') || '') });\n    });\n    boxes.forEach((a, m) => {\n      if (a.x < 1 || a.x + a.w > 339 || a.y < 0 || a.y + a.h > VH) bad.push('\"' + a.s + '\" off the edge');\n      boxes.slice(m + 1).forEach((b) => {\n        const ix = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x), iy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);\n        if (ix > 1 && iy > 1) bad.push('\"' + a.s + '\" on \"' + b.s + '\"');\n      });\n      if (a.calc) return;\n      REC.handles.forEach((h) => { const nx = K.clamp(h.x, a.x, a.x + a.w), ny = K.clamp(h.y, a.y, a.y + a.h); if (Math.hypot(nx - h.x, ny - h.y) < 11) bad.push('\"' + a.s + '\" on a handle'); });\n    });\n    return bad;\n  }\n\n  K.check('Angles are based on parts of a full turn, which is 360°: dragging the tip anywhere round the centre gives an angle from 0° up to but not including 360°, every quarter of the turn is reachable, and turning the arm on by a full 360° puts its tip back in the same place, so 30° and 390° are the same arm', () => {\n    const angs = [];\n    for (let x = 0; x <= 340; x += 20) for (let y = 0; y <= 260; y += 20) if (Math.hypot(x - O[0], y - O[1]) > 4) angs.push(tipAngle({ x, y }));\n    const same = (a, b) => { const p = tipOf(a), q = tipOf(b); return K.near(p[0], q[0], 1e-9) && K.near(p[1], q[1], 1e-9); };\n    for (let th = 0; th < 360; th++) if (!same(th, th + 360)) return false;\n    return angs.every((a) => a >= 0 && a < 360 && a === Math.round(a)) && [0, 1, 2, 3].every((q) => angs.some((a) => a >= 90 * q && a < 90 * q + 90)) && same(30, 390) &&\n      tipAngle({ x: O[0] + 50, y: O[1] }) === 0 && tipAngle({ x: O[0], y: O[1] - 50 }) === 90 && tipAngle({ x: O[0] - 50, y: O[1] }) === 180 && tipAngle({ x: O[0], y: O[1] + 50 }) === 270;\n  }, { source: SRC.turn });\n  K.check('The terminal side of the angle intersects the circle at the point (x, y), which is equivalent to (cos t, sin t): at whole angles all the way round, the arm\\'s tip, measured off the drawing, lies on the circle, as far across as cos θ and as far up as sin θ, and the readout on each axis and the row under the picture give those same values', () => {\n    const i = idx('tip30');\n    for (let th = 0; th < 360; th += 6) {\n      const r = drawn(i, stOf({ th }), 'demo').rec, t = r.tri;\n      if (!K.near(Math.hypot(t.T[0] - O[0], t.T[1] - O[1]), RU, 1e-9)) fail('tip off the circle at ' + th);\n      if (!K.near((t.T[0] - O[0]) / RU, cosD(th), 1e-9) || !K.near((O[1] - t.T[1]) / RU, sinD(th), 1e-9)) fail('tip not at (cos, sin) at ' + th);\n      if (r.pills.c !== 'cos θ = ' + v3(cosD(th)) || r.pills.s !== 'sin θ = ' + v3(sinD(th))) fail('readouts wrong at ' + th + ': ' + r.pills.c + ' / ' + r.pills.s);\n      if (!r.rows[0] || r.rows[0].s !== tipRow(th)) fail('tip row wrong at ' + th);\n    }\n    return true;\n  }, { source: SRC.circle });\n  K.check('Sine is the ratio of the opposite side to the hypotenuse and cosine the ratio of the adjacent side to the hypotenuse: on the first screen the upright side opposite θ divided by the arm, the hypotenuse, both measured off the drawing, is what the up axis reads, the side along the across axis divided by the arm is what the across axis reads, and the arm is exactly as long as the circle\\'s radius', () => {\n    const r = drawn(0, blank(), 'demo').rec, t = r.tri, hyp = Math.hypot(t.T[0] - O[0], t.T[1] - O[1]);\n    const opp = t.F[1] - t.T[1], adj = t.F[0] - O[0];\n    return K.near(hyp, RU, 1e-9) && r.pills.s === 'sin θ = ' + v3(opp / hyp) && r.pills.c === 'cos θ = ' + v3(adj / hyp) &&\n      r.pills.s === 'sin θ = 0.5' && r.pills.c === 'cos θ = 0.866' && K.near(t.th, 30, 1e-9) && r.wedges.indexOf('30°') >= 0 && r.labs.indexOf('1') >= 0;\n  }, { source: SRC.ratios });\n  K.check('Sine, cosine and tangent all have different positive or negative values depending on what quadrant they are in: at whole angles all the way round, a side of the triangle is drawn dashed exactly when the coordinate it stands for is negative, the readouts carry the same signs, the slope row\\'s tangent is negative exactly where sine and cosine have different signs, and the signs written in each quadrant on the four-quadrant screen match the tip\\'s signs there', () => {\n    const i4 = idx('sweep');\n    for (let th = 1; th < 360; th += 4) {\n      const r = drawn(i4, stOf({ th }), 'demo').rec, c = cosD(th), s = sinD(th);\n      if (r.tri.base !== (c < 0 ? 'dashed' : 'solid') || r.tri.up !== (s < 0 ? 'dashed' : 'solid')) fail('dashed sides wrong at ' + th);\n      if ((r.pills.c.indexOf('−') >= 0) !== (c < 0) || (r.pills.s.indexOf('−') >= 0) !== (s < 0)) fail('readout signs wrong at ' + th);\n      if (r.key !== (c < 0 || s < 0)) fail('key wrong at ' + th);\n      const q = th < 90 ? 1 : th < 180 ? 2 : th < 270 ? 3 : 4;\n      if (r.quads[q] !== QN[q] + ' cos ' + (c < 0 ? '−' : '+') + ' sin ' + (s < 0 ? '−' : '+')) fail('quadrant ' + q + ' reads ' + r.quads[q]);\n      const tr = tanRow(th);\n      if ((tr.slice(tr.lastIndexOf('=')).indexOf('−') >= 0) !== (c * s < 0)) fail('tan sign wrong at ' + th);\n    }\n    return true;\n  }, { source: SRC.signs });\n  K.check('Scientific calculators need to be used for trigonometry and should be in degrees mode: the calculator on the level-line screen is marked DEG at every height of the line, and its inverse sine gives the angle in degrees, the one an arm is drawn at, where radians would give a far smaller number', () => {\n    const i = idx('level');\n    HS.forEach((h) => {\n      const r = drawn(i, stOf({ h }), 'demo').rec, cc = r.calcs[0], a1 = asinD(h);\n      if (!cc || cc.tag !== 'DEG' || cc.result !== trim(a1, 1)) fail('calculator wrong at ' + h);\n      if (!r.arms.some((a) => K.near(a.th, a1 < 0 ? a1 + 360 : a1, 1e-9))) fail('no arm at the calculator angle at ' + h);\n    });\n    const r5 = drawn(i, blank(), 'demo').rec.calcs[0];\n    return r5.entry === 'sin⁻¹ 0.5' && r5.result === '30' && trim(Math.asin(0.5), 1) !== r5.result;\n  }, { source: SRC.degrees });\n  K.check('Other students incorrectly identified the x-coordinate as the sine ratio: the first puzzle offers the tip\\'s across coordinate as a wrong answer, with its own hint and its own red working, and on every screen with readouts the sine sits on the up axis and the cosine on the across axis', () => {\n    const i = idx('p40'), d = STEPS[i], across = v3(cosD(P1));\n    if (d.want === across || d.opts.indexOf(across) < 0 || !/across/.test(d.hints[across]) || !/across/.test(d.wrong[across])) return false;\n    if (drawn(i, wrongSt(i, across), 'answer').rec.pills.c !== 'cos θ = ' + across) return false;\n    return ['tip30', 'past90', 'sweep', 'squares'].every((pic) => [0, 40, 100, 150, 200, 250, 300, 350].every((th) => {\n      const r = drawn(idx(pic), stOf({ th }), 'demo').rec, pc = r.pillAt.c, ps = r.pillAt.s;\n      return !!pc && !!ps && Math.abs(pc.y - O[1]) <= 64 && Math.abs(ps.x - O[0]) <= ps.w / 2 + 77;\n    }));\n  }, { source: SRC.slip });\n  K.check('cos² θ + sin² θ = 1 at every whole angle: the squares row always comes to 1, at 150° it reads 0.75 + 0.25 = 1, and on an axis one square is 0 and the other 1', () => {\n    for (let th = 0; th < 360; th++) if (!/= 1$/.test(sqRow(th)) || !K.near(Math.pow(cosD(th), 2) + Math.pow(sinD(th), 2), 1, 1e-12)) return false;\n    const r = drawn(idx('squares'), blank(), 'demo').rec;\n    return r.rows[0].s === 'cos² θ + sin² θ = 0.75 + 0.25 = 1' && sqRow(90) === 'cos² θ + sin² θ = 0 + 1 = 1' && sqRow(180) === 'cos² θ + sin² θ = 1 + 0 = 1';\n  });\n  K.check('tan θ = sin θ ÷ cos θ is the arm\\'s slope, rise over run: at 150° the slope row reads 0.5 ÷ −0.866 = −0.577, at whole angles off the up axis it equals the drawn rise over run, and at 90° and 270°, where the run is 0, it says tan has no value', () => {\n    const i = idx('squares');\n    for (let th = 0; th < 360; th += 10) {\n      if (th % 180 === 90) continue;\n      const r = drawn(i, stOf({ th }), 'demo').rec, t = r.tri;\n      if (!K.near(tanD(th), (O[1] - t.T[1]) / (t.T[0] - O[0]), 1e-9) || r.rows[2].s !== tanRow(th)) fail('slope wrong at ' + th);\n    }\n    return drawn(i, blank(), 'demo').rec.rows[2].s === 'tan 150° = 0.5 ÷ −0.866 = −0.577' && /no value/.test(drawn(i, stOf({ th: 90 }), 'demo').rec.rows[2].s) && /no value/.test(tanRow(270));\n  });\n  K.check('Two angles share each sine, mirror images across the up axis that add up to 180°: at every height of the level line from −1 to 1 each arm\\'s tip lies on the circle and on the line, the calculator\\'s angle lies between −90° and 90°, the row gives the second angle from it, at 0.5 the arms are at 30° and 150°, and at the very top and bottom the two arms are one', () => {\n    const i = idx('level');\n    HS.forEach((h) => {\n      const r = drawn(i, stOf({ h }), 'demo').rec, a1 = asinD(h), arms = r.arms.filter((a) => a.cls === 'arm2');\n      if (!(a1 >= -90 && a1 <= 90)) fail('calculator angle out of range at ' + h);\n      if (arms.length !== (Math.abs(h) === 1 ? 1 : 2)) fail(arms.length + ' arms at ' + h);\n      if (!arms.every((a) => { const p = tipOf(a.th); return K.near(p[1], r.level.y, 1e-9) && K.near(Math.hypot(p[0] - O[0], p[1] - O[1]), RU, 1e-9); })) fail('arm off the line at ' + h);\n      if (arms.length === 2 && (!K.near(tipOf(arms[0].th)[0] - O[0], O[0] - tipOf(arms[1].th)[0], 1e-9) || !K.near(a1 + (180 - a1), 180, 1e-9))) fail('arms not mirrored at ' + h);\n      if (!r.rows[0] || r.rows[0].s !== mirrorRow(h)) fail('mirror row wrong at ' + h);\n      if (arms.some((a) => r.labs.indexOf(angS(a.th)) < 0)) fail('an arm without its angle at ' + h);\n    });\n    const r = drawn(i, blank(), 'demo').rec;\n    return r.labs.indexOf('30°') >= 0 && r.labs.indexOf('150°') >= 0 && r.rows[0].s === '180° − 30° = 150°' && r.pills.h === 'sin θ = 0.5';\n  });\n  K.check('Each puzzle accepts only its right answer, every wrong answer has its own hint and its own red row of working, the answer appears once it is given, and before an answer nothing in the picture gives it away', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts.indexOf(d.want) < 0 || !d.opts.every((o) => isRight(i, stOf({ pick: o })) === (o === d.want))) fail('options wrong on step ' + (i + 1));\n      const wrongs = d.opts.filter((o) => o !== d.want);\n      if (!wrongs.every((o) => d.hints[o] && d.wrong[o] && wrongs.every((p) => p === o || d.hints[p] !== d.hints[o]))) fail('hints missing on step ' + (i + 1));\n      const b = drawn(i, blank(), 'answer'), s = drawn(i, solvedSt(i), 'answer');\n      if (b.rec.rows.length || d.secret.some((x) => b.texts.some((t) => t.indexOf(x) >= 0))) fail('answer shown early on step ' + (i + 1));\n      if (!(s.rec.rows.length === d.right.length && s.rec.rows.every((r) => !r.bad)) || !d.secret.every((x) => s.texts.some((t) => t.indexOf(x) >= 0))) fail('answer not drawn on step ' + (i + 1));\n      return wrongs.every((o) => { const r = drawn(i, wrongSt(i, o), 'answer').rec.rows; return r.length === 1 && r[0].bad && r[0].s === d.wrong[o]; });\n    }));\n  K.check('Every worked number matches the lesson: 0.866 and 0.5 at 30°; 0.766, 0.643 and 1.409 at 40°; −0.866 and 0.5 at 150°; −0.5, 0.5 and 0.866 at 120°; −0.866 and −0.5 at 210°; 0.866 and −0.5 at 330°; 0.5 and −0.866 at 300°; 0.75 + 0.25 = 1 and −0.577 at 150°; 0.36, 0.64, −0.8, 0.8 and 0.4; 30° and 150° at 0.5; 53.1°, 126.9° and 306.9° with −0.8; −30°, 210° and 330°; 0.577, −0.577 and no value at 210°; −0.342, 0.342, 0.940 and 70° at 110°', () => {\n    const same = (a, b) => a.length === b.length && a.every((v, k) => v === b[k]);\n    return same(o1, ['0.766', '0.643', '1.409']) && same(o3, ['0.5', '0.866', '−0.5']) && same(o5, ['(0.5, −0.866)', '(−0.866, 0.5)', '(0.5, 0.866)']) &&\n      same(o7, ['0.8', '−0.8', '0.4']) && same(o9, ['53.1° only', '53.1° and 306.9°', '53.1° and 126.9°']) && same(o10, ['210° and 330°', '30° and 150°', '150° and 330°']) &&\n      same(o11, ['0.342', '−0.342', '0.940']) && same(oT, ['0.577', '−0.577', 'no value']) && tanRow(PT) === 'tan 210° = −0.5 ÷ −0.866 = 0.577' && tipRow(30) === 'tip = (cos θ, sin θ) = (0.866, 0.5)' && tipRow(150) === 'tip = (cos θ, sin θ) = (−0.866, 0.5)' &&\n      pair(cosD(210), sinD(210)) === '(−0.866, −0.5)' && pair(cosD(330), sinD(330)) === '(0.866, −0.5)' && angS(BAD5[o5[1]]) === '150°' &&\n      sqRow(150) === 'cos² θ + sin² θ = 0.75 + 0.25 = 1' && tanRow(150) === 'tan 150° = 0.5 ÷ −0.866 = −0.577' &&\n      v3(S7 * S7) === '0.36' && v3(1 - S7 * S7) === '0.64' && mirrorRow(0.5) === '180° − 30° = 150°' && v3(sinD(360 - A9)) === '−0.8' &&\n      angS(A10) === '−30°' && mirrorRow(-0.5) === '180° + 30° = 210°' && angS(360 + A10) === '330°' && angS(180 - P11) === '70°' && v3(cosD(180 - P11)) === '0.342';\n  });\n  K.check('No label sits on another label or a handle, or runs off the picture, on any screen in any state: puzzles answered right, wrong or with Why? open, the arm dragged all the way round, the level line at every height', () =>\n    STEPS.every((d, i) => statesOf(i).every((s) => withState(i, s[0], s[1], () => { const bad = crowding(); if (bad.length) fail('step ' + (i + 1) + ' ' + JSON.stringify({ th: s[0].th, h: s[0].h, pick: s[0].pick, why: s[0].why }) + ': ' + bad[0]); return true; }))));\n  K.check('Every demonstration has finished within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; each answer and Why? has settled within 1.8 s', () =>\n    STEPS.every((d, i) => {\n      const timed = (st, m) => withState(i, st, m, () => [latest, earliest]);\n      if (d.show) {\n        const t = timed(blank(), 'demo');\n        if (!(t[0] <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && t[1] >= FADE)) fail('step ' + (i + 1) + ' runs ' + t[0] + ' s from ' + t[1]);\n        return true;\n      }\n      return statesOf(i).every((s) => timed(s[0], s[1])[0] <= ANS + 1e-9);\n    }));\n\n  K.ready();\n</script>",
+  "title": "The turning arm",
+  "brief": "The one thing you should see is the arm's tip reading cos θ across and sin θ up, each turning negative in its own quarters while the two squares still add to 1, when you drag the arm round the circle.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Angles are based on parts of a full turn, which is 360°: dragging the tip anywhere round the centre gives an angle from 0° up to but not including 360°, every quarter of the turn is reachable, and turning the arm on by a full 360° puts its tip back in the same place, so 30° and 390° are the same arm",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/z4dw239"
+    },
+    {
+     "label": "The terminal side of the angle intersects the circle at the point (x, y), which is equivalent to (cos t, sin t): at whole angles all the way round, the arm's tip, measured off the drawing, lies on the circle, as far across as cos θ and as far up as sin θ, and the readout on each axis and the row under the picture give those same values",
+     "ok": true,
+     "source": "https://openstax.org/books/precalculus-2e/pages/5-2-unit-circle-sine-and-cosine-functions"
+    },
+    {
+     "label": "Sine is the ratio of the opposite side to the hypotenuse and cosine the ratio of the adjacent side to the hypotenuse: on the first screen the upright side opposite θ divided by the arm, the hypotenuse, both measured off the drawing, is what the up axis reads, the side along the across axis divided by the arm is what the across axis reads, and the arm is exactly as long as the circle's radius",
+     "ok": true,
+     "source": "https://openstax.org/books/algebra-and-trigonometry/pages/7-2-right-triangle-trigonometry"
+    },
+    {
+     "label": "Sine, cosine and tangent all have different positive or negative values depending on what quadrant they are in: at whole angles all the way round, a side of the triangle is drawn dashed exactly when the coordinate it stands for is negative, the readouts carry the same signs, the slope row's tangent is negative exactly where sine and cosine have different signs, and the signs written in each quadrant on the four-quadrant screen match the tip's signs there",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/topics/zt7wb82"
+    },
+    {
+     "label": "Scientific calculators need to be used for trigonometry and should be in degrees mode: the calculator on the level-line screen is marked DEG at every height of the line, and its inverse sine gives the angle in degrees, the one an arm is drawn at, where radians would give a far smaller number",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/zck7rmn"
+    },
+    {
+     "label": "Other students incorrectly identified the x-coordinate as the sine ratio: the first puzzle offers the tip's across coordinate as a wrong answer, with its own hint and its own red working, and on every screen with readouts the sine sits on the up axis and the cosine on the across axis",
+     "ok": true,
+     "source": "https://www.gcsu.edu/sites/files/page-assets/node-808/attachments/williams.pdf"
+    },
+    {
+     "label": "cos² θ + sin² θ = 1 at every whole angle: the squares row always comes to 1, at 150° it reads 0.75 + 0.25 = 1, and on an axis one square is 0 and the other 1",
+     "ok": true
+    },
+    {
+     "label": "tan θ = sin θ ÷ cos θ is the arm's slope, rise over run: at 150° the slope row reads 0.5 ÷ −0.866 = −0.577, at whole angles off the up axis it equals the drawn rise over run, and at 90° and 270°, where the run is 0, it says tan has no value",
+     "ok": true
+    },
+    {
+     "label": "Two angles share each sine, mirror images across the up axis that add up to 180°: at every height of the level line from −1 to 1 each arm's tip lies on the circle and on the line, the calculator's angle lies between −90° and 90°, the row gives the second angle from it, at 0.5 the arms are at 30° and 150°, and at the very top and bottom the two arms are one",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle accepts only its right answer, every wrong answer has its own hint and its own red row of working, the answer appears once it is given, and before an answer nothing in the picture gives it away",
+     "ok": true
+    },
+    {
+     "label": "Every worked number matches the lesson: 0.866 and 0.5 at 30°; 0.766, 0.643 and 1.409 at 40°; −0.866 and 0.5 at 150°; −0.5, 0.5 and 0.866 at 120°; −0.866 and −0.5 at 210°; 0.866 and −0.5 at 330°; 0.5 and −0.866 at 300°; 0.75 + 0.25 = 1 and −0.577 at 150°; 0.36, 0.64, −0.8, 0.8 and 0.4; 30° and 150° at 0.5; 53.1°, 126.9° and 306.9° with −0.8; −30°, 210° and 330°; 0.577, −0.577 and no value at 210°; −0.342, 0.342, 0.940 and 70° at 110°",
+     "ok": true
+    },
+    {
+     "label": "No label sits on another label or a handle, or runs off the picture, on any screen in any state: puzzles answered right, wrong or with Why? open, the arm dragged all the way round, the level line at every height",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; each answer and Why? has settled within 1.8 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "The arm and its tip",
+      "How high at 40°",
+      "Past 90°",
+      "cos 120°",
+      "Four quadrants",
+      "The tip at 300°",
+      "Squares and slope",
+      "cos from sin",
+      "Two angles, one sine",
+      "sin θ = 0.8",
+      "sin θ = −0.5",
+      "tan 210°",
+      "cos 110°"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 3
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-18T10:24:55.407Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"Sine, cosine and tangent change sign from one quadrant to the next\" is false read literally (sine stays positive from the first to the second quadrant); and \"the arm is always the hypotenuse of a right-angled triangle\" fails on the axes (0°, 90°, 180°, 270°), where the triangle flattens though the identity still holds."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "A length is never negative: it is the coordinate a dashed side stands for that is negative; and the squares readout’s reason (a right-angled triangle) does not exist on the axes, where the triangle flattens, though the sum is still 1."
+   },
+   {
+    "path": "analogy.text",
+    "problem": "\"Two places at each height\" fails at the very top and bottom of the circle, where the knob has only one place at that height (the lesson itself says the two arms become one there)."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}
