@@ -11,6 +11,19 @@ for it in the current look (row E); then set it aside: a deck of every lesson ac
 "too overwhelming, too much content to flick between". The rule that came out of it: keep the
 choice small at each step. Pick a shelf, then a course, and only see lessons once inside a course.
 
+| File | Screen | Address |
+|---|---|---|
+| `home.html` | The Library as the home: look-up, left open, the puzzle box, the shelves | `#/` |
+| `lookup.html` | The home with "power factor" typed: results in place of the page | `#/` |
+| `folder.html` | A folder with its planned courses folded away | `#/shelf/maths/advanced` |
+| `course.html` | The topic page with a picture on the lesson he is on | `#/t/:tid` |
+| `today.html` | Today as the puzzle box | `#/today` |
+| `overview.png` | All five side by side | |
+
+Each is a plain 390 x 844 page with inline styles: open it in a browser or render it with
+Playwright (web fonts are blocked in the test sandbox, so a render there uses fallback fonts).
+`docs/HANDOFF-build-library-home.md` says how to build it.
+
 ## The idea in one line
 
 Open the app on the shelves. One row says what you left open, one row says how many puzzles are
