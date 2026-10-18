@@ -1,0 +1,929 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  /* The number line: its axis, a tick at each whole number, and the numbers under it. */
+  .scene .ax { stroke: var(--k-strong); stroke-width: 2; }
+  .scene .tk { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tk0 { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .tn { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tn0 { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  /* Straight up and straight down from 0, once j has a name: a dotted guide labelled j and −j. */
+  .scene .jax { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 2 5; }
+  .scene .jl { font: 700 16px var(--k-font); fill: var(--k-accent); }
+  /* The arrow for a number; its turn done twice is dashed; a slip is red; a stop on the way is a muted dashed ghost. */
+  .scene .shaft { fill: none; stroke: var(--k-accent2); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .head { fill: var(--k-accent2); }
+  .scene .shaft.conn { stroke-width: 2; }
+  .scene .shaft.twice { stroke: var(--k-ink); stroke-width: 2.5; stroke-dasharray: 7 5; stroke-linecap: butt; }
+  .scene .head.twice { fill: var(--k-ink); }
+  .scene .shaft.ghost { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 4 4; stroke-linecap: butt; }
+  .scene .head.ghost { fill: var(--k-muted); }
+  .scene .shaft.bad { stroke: var(--k-warn); }
+  .scene .head.bad { fill: var(--k-warn); }
+  /* The turn so far, traced round 0, with a small head showing the way it turns. */
+  .scene .trace { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .trace.twice { stroke: var(--k-ink); stroke-dasharray: 5 4; }
+  .scene .trace.bad { stroke: var(--k-warn); }
+  .scene .thead { fill: var(--k-muted); }
+  .scene .thead.twice { fill: var(--k-ink); }
+  .scene .thead.bad { fill: var(--k-warn); }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2; }
+  .scene .ring.ok { stroke: var(--k-accent2); }
+  .scene .dot { fill: var(--k-accent2); }
+  .scene .dot.bad { fill: var(--k-warn); }
+  .scene .real { stroke: var(--k-amber-line); stroke-width: 6; stroke-linecap: round; }
+  .scene .jpart { stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 4 4; }
+  .scene .tl { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .tl.bad { fill: var(--k-warn); }
+  .scene .tl.ghost { fill: var(--k-muted); }
+  .scene .al { font: 600 14px var(--k-font); fill: var(--k-accent); }
+  .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .te { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .tw { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .te.bad, .scene .tw.bad { fill: var(--k-warn); }
+  .scene .pw { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .v { font-style: italic; }
+  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2.5; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .replay .k-btn.act { font-size: 1.1rem; min-width: 5.5rem; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Each number drawn as an arrow from 0 on a number line, and three example equations: <span class="nw"><i>x</i>² = −9</span>, <span class="nw"><i>x</i>² + 2<i>x</i> + 5 = 0</span> and <span class="nw"><i>x</i>² + 4 = 0</span>.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Times −1 turns an arrow 180° (LibreTexts), times j turns it 90° (Khan Academy), and j² = −1 (mathcentre).</p>
+
+<script>
+  // ---------- numbers: a complex number is [real part, j part] ----------
+  const Z = (re, im) => [re, im || 0];
+  const ONE = Z(1), NEG = Z(-1), J = Z(0, 1), NJ = Z(0, -1);
+  const mul = (a, b) => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]];
+  const plus = (a, b) => [a[0] + b[0], a[1] + b[1]];
+  const prod = (fs) => fs.reduce(mul, ONE);
+  const sq = (z) => mul(z, z);
+  const pw = (z, n) => { let r = ONE; for (let k = 0; k < n; k++) r = mul(r, z); return r; };
+  const tidy = (v) => (Math.abs(v) < 1e-9 ? 0 : Math.round(v * 1e6) / 1e6);
+  const size = (z) => Math.hypot(z[0], z[1]);
+  // The turn a number makes from 1, anticlockwise, in degrees (0 up to 360).
+  const turnOf = (z) => { const a = tidy(Math.atan2(z[1], z[0]) * 180 / Math.PI); return a < 0 ? a + 360 : a; };
+  const same = (a, b) => Math.abs(a[0] - b[0]) < 1e-6 && Math.abs(a[1] - b[1]) < 1e-6;
+  const num = (v) => { v = tidy(v); return (v < 0 ? '−' : '') + Math.abs(v); };
+  const deg = (v) => num(v) + '°';
+  // As the explanation writes it: 9, −9, j, −j, j3, −1 + j2.
+  function name(z) {
+    const re = tidy(z[0]), im = tidy(z[1]);
+    if (!im) return num(re);
+    const jp = 'j' + (Math.abs(im) === 1 ? '' : Math.abs(im));
+    if (!re) return (im < 0 ? '−' : '') + jp;
+    return num(re) + (im < 0 ? ' − ' : ' + ') + jp;
+  }
+  const SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+  const powName = (n) => 'j' + (n === 1 ? '' : SUP[n]);
+  const HALF = turnOf(NEG), QUARTER = turnOf(J);   // 180° and 90°, from the rule
+  const VAL = { '1': ONE, '−1': NEG, 'j': J, '−j': NJ };
+  const lands = (a) => Math.abs((((a % 360) + 360) % 360) - HALF) < 0.5;   // a turn that ends on −1
+
+  // Sources the checks restate (the lesson's own).
+  const LIBRE = 'https://chem.libretexts.org/Bookshelves/Physical_and_Theoretical_Chemistry_Textbook_Maps/Physical_Chemistry_(LibreTexts)/32%3A_Math_Chapters/32.01%3A_Complex_Numbers';
+  const KHAN = 'https://www.khanacademy.org/science/electrical-engineering/ee-circuit-analysis-topic/ee-ac-analysis/v/ee-complex-rotation';
+  const MATHC = 'https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_1.pdf';
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: 'map' (a number on top, times itself below), 'turn' (× −1), 'handle' (a turn and that turn
+  // done twice), 'power' (quarter turns counted), 'cycle' (× j round and round), 'mult' (an arrow
+  // turned and stretched by each factor), 'quad' (the quadratic's two roots). view: the number line's
+  // scale. lines: rows of working under the picture. A mult puzzle's mv gives each answer its factors
+  // f (a turn through each one's angle, a stretch by its size) and stop, how many make x itself.
+  const HKEY = [{ sw: 'shaft main', label: 'the turn' }, { sw: 'shaft twice', label: 'done twice' }, { knob: true, label: 'the handle' }];
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, name: 'No square below 0', pic: 'map', view: 'map', lines: 3, dur: 4.4,
+      text: 'You already know that `3 × 3 = 9`, and from Negative numbers that `−3 × −3 = 9` too, while `0 × 0 = 0`. Every number on the line, times itself, lands at 0 or to the right of it. So the example `x² = −9` has no answer on the line.' },
+    { name: 'Squares to −9', pic: 'map', view: 'map', lines: 2, opts: ['3', '−3', 'No number'], want: 'No number',
+      task: 'Which number on the line squares to `−9`?',
+      hint: 'Not quite. Square it and see where it lands.',
+      hints: { '3': 'Not quite. `3 × 3 = 9`, to the right of 0.', '−3': 'Not quite. `−3 × −3 = 9`, since two minuses make a plus.' },
+      why: '`3 × 3 = 9` and `−3 × −3 = 9`, and every other number on the line squares to 0 or more. So no number on the line squares to `−9`, and we need a new kind of number.' },
+    { show: true, name: 'Times −1', pic: 'turn', view: 'unit', lines: 2, dur: 4.4, btn: '× −1',
+      text: 'Draw each number as an arrow from 0. Times `−1` keeps the arrow\'s length and points it the other way: it turns it through 180°, a *half turn*. Do it twice and the arrow makes a full turn, 360°, back on 1, just as `−1 × −1 = 1`. Tap × −1 to turn it yourself.' },
+    { name: 'Find the turn', pic: 'handle', view: 'unit', lines: 0, key: HKEY, th0: 30, opts: ['45°', '90°', '180°'], want: '90°',
+      task: 'A turn can be split into two equal turns. Which turn, done twice, makes the half turn? Drag the handle to try some.',
+      hint: 'Not quite. Done twice, it must make 180°.',
+      hints: { '45°': 'Not quite. 45° done twice is only 90°, which leaves the arrow pointing straight up.', '180°': 'Not quite. 180° is the half turn itself. Done twice it makes 360°, back on 1.' },
+      why: 'On the line a half turn lands where a mirror at 0 would, but a turn splits in two. Half of 180° is 90°, a *quarter turn*, and two of them make 180°, landing on `−1`. After the first one the arrow points straight up, off the line.' },
+    { show: true, name: 'The quarter turn, j', pic: 'handle', view: 'unit', lines: 2, key: HKEY, dur: 4.4,
+      text: 'A quarter turn leaves the arrow from 1 pointing straight up, off the line. No number on the line can do that, so it is a new number, called *j*. Times `j` turns an arrow 90° anticlockwise, and two quarter turns make a half turn, so `j × j = −1`. Three quarter turns, 270°, done twice make 540°, a full turn and a half, and land on `−1` too. That arrow points straight down: it is `−j`.' },
+    { name: 'j cubed', pic: 'power', view: 'unit', lines: 2, n: 3, opts: ['−j', 'j', '−1'], want: '−j',
+      task: '`j³` is `j × j × j`. Where does it point? Count the quarter turns from 1.',
+      hint: 'Not quite. Count three quarter turns anticlockwise from 1.',
+      hints: { 'j': 'Not quite. `j` is one quarter turn. Three go on past `j` and `−1`.', '−1': 'Not quite. `−1` is `j²`, two quarter turns. One more turns it on.' },
+      why: 'Three quarter turns, `3 × 90° = 270°`, leave the arrow pointing straight down. In numbers, `j³ = j² × j = −1 × j = −j`.' },
+    { show: true, name: 'Round and round', pic: 'cycle', view: 'unit', lines: 1, dur: 4.4, btn: '× j',
+      text: 'Keep tapping × j and the arrow goes round: 1, `j`, `−1`, `−j`, 1. Four quarter turns, `4 × 90° = 360°`, bring it home, so `j⁴ = j² × j² = −1 × −1 = 1`. The powers of `j` repeat every four.' },
+    { name: 'Stretch to 3', pic: 'mult', view: 'B', lines: 2, labels: [-9, -3, 0, 3, 9], target: -9, xName: true, q: 'x² = −9',
+      opts: ['j3', '3', '−3'], want: 'j3',
+      mv: { 'j3': { f: [Z(3), J, J, Z(3)], stop: 2, e: '(j3)² = j × j × 3 × 3' }, '3': { f: [Z(3), Z(3)], stop: 1, e: '3 × 3' },
+        '−3': { f: [Z(3), NEG, NEG, Z(3)], stop: 2, e: '−3 × −3' } },
+      task: 'Stretch the arrow to 3, then turn it. Which number answers `x² = −9`?',
+      hint: 'Not quite. Square it and see where the arrow lands.',
+      hints: { '3': 'Not quite. `3 × 3 = 9`, not `−9`.', '−3': 'Not quite. `−3 × −3 = 9`: its two half turns make a full turn.' },
+      why: '`j3` is 3 turned a quarter turn. Squared, `(j3)² = j × j × 3 × 3 = −1 × 9 = −9`. The other answer is `−j3`, since `(−j3)² = −9` too.' },
+    { show: true, name: 'Two square roots', pic: 'mult', view: 'B', lines: 2, labels: [-6, -2, 0, 2, 6], dur: 4.0,
+      demo: { f: [Z(2), J, J, Z(3)], stop: 2, e: 'j2 × j3 = j × j × 6' }, slip: [-4, -9],
+      text: 'Read `√−4` as `j2`, which is `j × 2`, and `√−9` as `j3`. Then `j2 × j3 = j × j × 6 = −6`: two quarter turns and a stretch to 6. The usual rule `√a × √b = √(ab)` would give `√36 = 6`, the wrong sign, because both numbers under the roots are negative. So write each one with `j` first.' },
+    { name: 'j3 × j2', pic: 'mult', view: 'B', lines: 2, labels: [-6, -3, 0, 3, 6], q: 'j3 × j2',
+      opts: ['−6', '6', '−1'], want: '−6',
+      mv: { '−6': { f: [Z(3), J, J, Z(2)], stop: 2, e: 'j × j × 3 × 2' }, '6': { f: [Z(3), Z(2)], stop: 1, e: 'j × j as +1: 3 × 2' },
+        '−1': { f: [J, J], stop: 1, e: 'j × j' } },
+      task: 'Work out `j3 × j2`.',
+      hint: 'Not quite. Multiply the `j`s, then the numbers.',
+      hints: { '6': 'Not quite. That takes `j × j` as +1. It is `−1`.', '−1': 'Not quite. `j × j = −1`, and the 3 and the 2 multiply in too.' },
+      why: '`j3 × j2 = j × j × 3 × 2 = −1 × 6 = −6`. Two quarter turns make a half turn, and the arrow is stretched to 6.' },
+    { show: true, name: 'Back to the quadratic', pic: 'quad', view: 'C', lines: 3, dur: 4.0, quad: { b: 2, c: 5 },
+      key: [{ sw: 'real', label: 'real part' }, { sw: 'jpart', label: 'j part' }],
+      text: 'Back to `x² + 2x + 5 = 0`. Here `b = 2` and `c = 5`, so `b² − 4ac = 4 − 20 = −16`. That is `(j4)²`, so the formula gives `x = (−2 ± j4) ÷ 2 = −1 ± j2`. A number like `−1 + j2`, an ordinary number plus a `j` part, is a *complex number*: `−1` is its *real part* and 2 its `j` part.' },
+    { name: 'j to the fifth', pic: 'power', view: 'unit', lines: 2, n: 5, opts: ['j', '1', '−j'], want: 'j',
+      task: 'What is `j⁵`? Count the quarter turns.',
+      hint: 'Not quite. Count five quarter turns anticlockwise from 1.',
+      hints: { '1': 'Not quite. Four quarter turns bring it home to 1, and the fifth turns it on.', '−j': 'Not quite. `−j` is three quarter turns, and `j⁵` is five.' },
+      why: 'Five quarter turns, `5 × 90° = 450°`, are a full turn and one more quarter turn. In numbers, `j⁵ = j⁴ × j = 1 × j = j`.' },
+    { name: 'x² + 4 = 0', pic: 'mult', view: 'D', lines: 2, labels: [-16, -12, -4, 0, 4, 8], xName: true, plus: 4, q: 'x² + 4 = 0',
+      opts: ['±j2', '±2', '±j4'], want: '±j2',
+      mv: { '±j2': { f: [Z(2), J, J, Z(2)], stop: 2, e: '(j2)² + 4' }, '±2': { f: [Z(2), Z(2)], stop: 1, e: '2² + 4' },
+        '±j4': { f: [Z(4), J, J, Z(4)], stop: 2, e: '(j4)² + 4' } },
+      task: 'Which numbers solve `x² + 4 = 0`?',
+      hint: 'Not quite. Square it, add 4, and see if you reach 0.',
+      hints: { '±2': 'Not quite. `2² + 4 = 8`. An ordinary number squared is never negative.', '±j4': 'Not quite. `(j4)² = −16`, and `−16 + 4 = −12`.' },
+      why: '`x² + 4 = 0` means `x² = −4`. `(j2)² = j × j × 4 = −4`, and `(−j2)² = −4` too, so `x = ±j2`.' },
+  ];
+  const FINISH = 'Multiplying by `−1` is a half turn, so `j`, the quarter turn, done twice makes it: `j × j = −1`. Keep turning and the powers of `j` go round 1, `j`, `−1`, `−j`, 1.';
+  const OPD = 0.36, GAP = 0.06;   // each turn or stretch after an answer
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong' or 'empty'), why; th: the handle's turn (null: the step's own);
+  // play: a turn being shown done twice after Check; n: taps of × −1 or × j (null: the demonstration).
+  function blank() { return { pick: null, res: null, why: false, th: null, play: null, n: null }; }
+  const hintFor = (d, st) => (d.hints && d.hints[st.pick]) || d.hint;
+  const shownOpt = (d, st) => (st.why || st.res === 'right' ? d.want : st.res === 'wrong' ? st.pick : null);
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;
+  let REC = null;
+
+  // ---------- text: maths in `backticks` stays on one line with letters italic; *key terms* highlighted ----------
+  const ITAL = /(x|b(?=²)|(?<=4)a|(?<=4a)c|(?<=√)[ab]|(?<=√\()a|(?<=√\(a)b|(?<=^)[bc](?= =))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s).replace(/±/g, ' plus or minus ').replace(/√/g, ' the square root of ').replace(/²/g, ' squared')
+    .replace(/³/g, ' cubed').replace(/([⁴⁵⁶⁷⁸])/g, (c) => ' to the power ' + SUP.indexOf(c)).replace(/°/g, ' degrees').replace(/×/g, ' times ')
+    .replace(/÷/g, ' divided by ').replace(/=/g, ' equals ').replace(/\+/g, ' plus ').replace(/−/g, ' minus ').replace(/\s+/g, ' ').trim();
+
+  // ---------- controls ----------
+  const el = (id) => document.getElementById(id);
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const cur = () => stepper.get();
+  const motionLen = (i, st) => { const keepS = S[i], keepT = T; S[i] = st; T = Infinity; latest = 0; try { paint(i); } finally { S[i] = keepS; T = keepT; } return Math.max(0.3, latest); };
+
+  // Up to three answers; a new choice after a wrong one settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { st.play = null; anim.pause(); T = Infinity; }
+  } }));
+  // Check: marks the answer, then plays its turns: the right one, or what the slip does.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    st.why = false;
+    if (d.pic === 'handle') { st.play = parseFloat(st.pick); st.th = st.play; }
+    play(motionLen(i, st));
+  } });
+  // Why?: the reason in words, and the right answer's turns played again.
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    st.why = !st.why;
+    if (st.why) {
+      if (d.pic === 'handle') { st.play = parseFloat(d.want); st.th = st.play; }
+      play(motionLen(i, st));
+    } else { anim.pause(); T = Infinity; }
+  } });
+  // × −1 and × j: each tap turns the arrow on from where it is.
+  const actBtn = K.button({ label: '× j', into: '#replay', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (finished || !d.show || !d.btn) return;
+    if (d.pic === 'turn') st.n = st.n == null || st.n >= 2 ? 1 : st.n + 1;
+    else st.n = (st.n == null ? 4 : st.n >= 8 ? 0 : st.n) + 1;
+    play(motionLen(i, st));
+  } });
+  actBtn.el.classList.add('act');
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = cur(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].n = null; S[i].th = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, cur() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = cur();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer or a tap; with reduced
+  // motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived, noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 >= 0) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; } }
+  function arr(t0, d) { d = d == null ? 0.4 : d; note(t0, d); return K.arrive(T, t0, d); }
+  function prog(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }
+  // A timetable entry: false, not shown; null, there from the start; a time, arriving then.
+  const vis = (t) => (t === false ? 0 : t == null ? 1 : arr(t));
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rad = (a) => a * Math.PI / 180;
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, x, y, r) => add(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r }));
+  function text(x, y, s, cls, anchor, maths) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    if (maths) italics(t, s, true); else t.textContent = s;
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 7;
+  }
+  // An arrow with a solid head at (x1, y1).
+  function arrowPx(x0, y0, x1, y1, cls) {
+    const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy);
+    if (L < 1) return;
+    const ux = dx / L, uy = dy / L, h = Math.min(11, L * 0.55), w = h * 0.5, bx = x1 - ux * h, by = y1 - uy * h;
+    if (L - h > 0.5) line('shaft ' + cls, x0, y0, bx + ux, by + uy);
+    add(K.svg('polygon', { class: 'head ' + cls, points: [x1, y1, bx - uy * w, by + ux * w, bx + uy * w, by - ux * w].map(r3).join(' ') }));
+  }
+  // A point r units from 0 at a turn of a degrees.
+  const pt = (V, r, a) => [V.ox + r * V.u * Math.cos(rad(a)), V.cy - r * V.u * Math.sin(rad(a))];
+  function arrowTo(V, r, a, cls) { const p = pt(V, r, a); arrowPx(V.ox, V.cy, p[0], p[1], cls); return p; }
+  // The turn so far, traced round 0 (widening a little each full turn), with a head showing its way.
+  function trace(V, a0, turned, R, grow, cls) {
+    if (Math.abs(turned) < 0.5) return;
+    const n = Math.max(2, Math.ceil(Math.abs(turned) / 4)), pts = [];
+    for (let k = 0; k <= n; k++) {
+      const a = a0 + turned * k / n, rr = R + grow * Math.abs(turned * k / n) / 360;
+      pts.push(r3(V.ox + rr * Math.cos(rad(a))) + ' ' + r3(V.cy - rr * Math.sin(rad(a))));
+    }
+    add(K.svg('path', { class: 'trace ' + cls, d: 'M' + pts.join(' L') }));
+    if (Math.abs(turned) < 20) return;
+    const ae = a0 + turned, re = R + grow * Math.abs(turned) / 360, ex = V.ox + re * Math.cos(rad(ae)), ey = V.cy - re * Math.sin(rad(ae));
+    const sg = Math.sign(turned), tx = -Math.sin(rad(ae)) * sg, ty = -Math.cos(rad(ae)) * sg, bx = ex - tx * 7, by = ey - ty * 7;
+    add(K.svg('polygon', { class: 'thead ' + cls, points: [ex, ey, bx - ty * 3.5, by + tx * 3.5, bx + ty * 3.5, by - tx * 3.5].map(r3).join(' ') }));
+  }
+  // A label just beyond an arrow's tip; beside it when the arrow points straight up or down.
+  function tipLabel(p, a, s, cls) {
+    const c = Math.cos(rad(a)), sn = Math.sin(rad(a));
+    if (Math.abs(c) < 0.2) { text(p[0] + 11, p[1] + (sn > 0 ? 9 : 1), s, cls, 'start', true); return; }
+    text(p[0] + c * 16, p[1] - sn * 16 + 5 + (sn < -0.5 ? 6 : 0), s, cls, c > 0 ? 'start' : 'end', true);
+  }
+  function axis(V, labels, zeroLeft) {
+    line('ax', V.ox + V.lo * V.u, V.cy, V.ox + V.hi * V.u, V.cy);
+    for (let v = Math.ceil(V.lo); v <= Math.floor(V.hi); v++) { const x = V.ox + v * V.u; line(v ? 'tk' : 'tk0', x, V.cy - (v ? 4 : 6), x, V.cy + (v ? 4 : 6)); }
+    labels.forEach((v) => {
+      const x = V.ox + v * V.u;
+      if (!v && zeroLeft) text(x - 9, V.cy + 20, '0', 'tn0', 'end');
+      else text(x, V.cy + 20, num(v), v ? 'tn' : 'tn0');
+    });
+  }
+  function jAxis(V, aj, anj) {
+    part(aj, 0, () => { line('jax', V.ox, V.cy - V.u * 1.14, V.ox, V.cy + V.u * 1.14); text(V.ox + 18, V.cy - V.u + 6, 'j', 'jl', 'start'); });
+    part(anj, 0, () => text(V.ox + 18, V.cy + V.u + 6, '−j', 'jl', 'start'));
+  }
+  // The arrow's pose after its turns and stretches so far.
+  function pose(z0, ops) {
+    let r = size(z0), a = turnOf(z0), turned = 0;
+    ops.forEach((o) => {
+      const p = K.ease(prog(o.t, o.d));
+      if (o.turn != null) { a += o.turn * p; turned += o.turn * p; } else r *= 1 + (o.stretch - 1) * p;
+    });
+    return { r, a, turned };
+  }
+  const cart = (ps) => [tidy(ps.r * Math.cos(rad(ps.a))), tidy(ps.r * Math.sin(rad(ps.a)))];
+  // Times each factor: a turn through its angle, then a stretch by its size.
+  function opsOf(fs, t0, dur, gap) {
+    const ops = [], doneAt = [];
+    let t = t0;
+    fs.forEach((f, k) => {
+      const a = turnOf(f), r = size(f);
+      if (a) { ops.push({ turn: a, t, d: dur }); t += dur + gap; }
+      if (Math.abs(r - 1) > 1e-9) { ops.push({ stretch: r, t, d: dur }); t += dur + gap; }
+      doneAt[k] = t - gap;
+    });
+    return { ops, doneAt, end: ops.length ? t - gap : t0 };
+  }
+
+  // ---------- each step's sizes ----------
+  const VIEWS = {
+    unit: { u: 100, lo: -1.3, hi: 1.3, cy: 150, bottom: 282 },
+    B: { u: 15, lo: -10.4, hi: 10.4, cy: 84, bottom: 120 },
+    C: { u: 40, lo: -2.6, hi: 2.6, cy: 120, bottom: 236 },
+    D: { u: 11, lo: -17.4, hi: 9.4, cy: 84, bottom: 120 },
+    map: { u: 14, lo: -10, hi: 10, cy: 140, bottom: 176 },
+  };
+  const GEO = new Map();
+  function geo(d) {
+    if (GEO.has(d)) return GEO.get(d);
+    const v = VIEWS[d.view], V = Object.assign({}, v, { ox: 170 - (v.lo + v.hi) / 2 * v.u });
+    let y = V.bottom;
+    const rowY = d.pic === 'cycle' ? y + 22 : null;
+    if (rowY != null) y += 34;
+    const workY = y;
+    y += 28 * d.lines + 6;
+    const keyY = d.key ? y + 14 : null;
+    if (keyY != null) y += 26;
+    const G = { V, rowY, workY, keyY, H: Math.ceil(y + 6) };
+    GEO.set(d, G);
+    return G;
+  }
+
+  // ---------- the pictures ----------
+  // A number on the top line, an arrow down to it times itself on the bottom line.
+  function drawMap(d, st, G, W, said) {
+    const X = (v) => 170 + v * 14, TY = 64, BY = 140, ASK = -9;
+    text(12, 22, 'Top: a number x. Bottom: x × x.', 'key', 'start', true);
+    [TY, BY].forEach((y) => { line('ax', X(-10), y, X(10), y); for (let v = -10; v <= 10; v++) line(v ? 'tk' : 'tk0', X(v), y - (v ? 4 : 6), X(v), y + (v ? 4 : 6)); });
+    [-3, 0, 3].forEach((v) => text(X(v), TY - 12, num(v), v ? 'tn' : 'tn0'));
+    [ASK, 0, 9].forEach((v) => text(X(v), BY + 22, num(v), v ? 'tn' : 'tn0'));
+    const hops = [];
+    let ringT = null;
+    if (d.show) {
+      hops.push({ v: 3, dot: null, t: 0.8 }, { v: -3, dot: null, t: 2.3 }, { v: 0, dot: null, t: 3.3, d: 0.4 });   // the numbers to be squared are there from the start
+      ringT = 3.6;
+      W.push({ e: '3 × 3', w: num(3 * 3), t: 1.6 }, { e: '−3 × −3', w: num(-3 * -3), t: 3.1 }, { e: 'x × x = ' + num(ASK), w: 'no answer on the line', t: 3.9, bad: true });
+    } else {
+      W.push({ e: 'x × x = ' + num(ASK), w: '', t: null });
+      const o = shownOpt(d, st);
+      if (o === d.want) {
+        hops.push({ v: 3, dot: null, t: 0.1 }, { v: -3, dot: null, t: 0.5 });
+        W.push({ e: '3 × 3 and −3 × −3', w: num(3 * 3) + ', not ' + num(ASK), t: 1.3 });
+      } else if (o != null) {
+        const v = Number(o.replace('−', '-'));
+        hops.push({ v, dot: null, t: 0.1, bad: true });
+        W.push({ e: num(v) + ' × ' + num(v), w: num(v * v), t: 0.9, bad: true });
+      }
+      [-3, 3].forEach((v) => { if (!hops.some((h) => h.v === v)) hops.push({ v, dot: null, t: false }); });
+    }
+    part(vis(ringT), 0, () => circle(d.show ? 'ring' : 'ring ok', X(ASK), BY, 8));
+    hops.forEach((h) => {
+      const bad = h.bad ? ' bad' : '';
+      part(vis(h.dot), 0, () => circle('dot' + bad, X(h.v), TY, 5));
+      if (h.t === false) return;
+      const dd = h.d || 0.8, p = K.ease(prog(h.t, dd)), x0 = X(h.v), y0 = TY + 8, x1 = X(h.v * h.v), y1 = BY - 8;
+      if (p > 0.02) arrowPx(x0, y0, K.lerp(x0, x1, p), K.lerp(y0, y1, p), 'conn' + bad);
+      part(vis(h.t + dd), 0, () => circle('dot' + bad, x1, BY, 5));
+      if (p >= 1) said.push(num(h.v) + ' times itself lands on ' + num(h.v * h.v) + '.');
+    });
+    said.unshift('Two number lines: on top a number, below it that number times itself.');
+  }
+
+  // × −1: each press swings the arrow a half turn on from where it is.
+  function turnMotion(st) {
+    if (st.n == null) return { ops: [{ turn: HALF, t: 0.5, d: 1.4 }, { turn: HALF, t: 2.6, d: 1.4 }], marks: [1.9, 4.0] };
+    const ops = [], marks = [false, false];
+    for (let k = 1; k <= st.n; k++) { const last = k === st.n; ops.push({ turn: HALF, t: last ? 0.1 : -10, d: 1.0 }); marks[k - 1] = last ? 1.1 : null; }
+    return { ops, marks };
+  }
+  function drawTurn(d, st, G, W, said) {
+    const V = G.V, m = turnMotion(st);
+    axis(V, [-1, 0, 1], true);
+    const ps = pose(ONE, m.ops);
+    trace(V, 0, ps.turned, 34, 10, '');
+    arrowTo(V, ps.r, ps.a, 'main');
+    part(vis(m.marks[0]), 4, () => text(V.ox, V.cy - 52, 'half turn, ' + deg(HALF), 'al'));
+    part(vis(m.marks[1]), 4, () => text(V.ox, V.cy + 66, 'full turn, ' + deg(2 * HALF), 'al'));
+    [1, 2].forEach((k) => { if (m.marks[k - 1] !== false) W.push({ e: '1' + ' × −1'.repeat(k), w: name(pw(NEG, k)), t: m.marks[k - 1] }); });
+    REC.tip = cart(ps); REC.turned = ps.turned;
+    said.push('An arrow from 0, turned through ' + deg(Math.round(ps.turned)) + ' so far.');
+  }
+
+  // A turn set by the handle, and that turn done twice as a dashed arrow.
+  let knob = null;
+  function drawHandle(d, st, G, W, said) {
+    const V = G.V;
+    axis(V, [-1, 0, 1], true);
+    let th, twice;
+    if (d.show) {
+      let aj = 1, anj = 1, wk = [null, null];
+      if (st.th == null) {   // the demonstration: the handle swings to a quarter turn, then on to three quarters
+        const p1 = K.ease(prog(0.5, 1.1)), p2 = K.ease(prog(2.4, 1.3));
+        th = QUARTER * p1 + (turnOf(NJ) - QUARTER) * p2;
+        aj = vis(1.7); anj = vis(3.7); wk = [1.8, 3.9];
+      } else th = st.th;
+      twice = 2 * th;
+      jAxis(V, aj, anj);
+      W.push({ e: 'j × j', w: name(mul(J, J)), t: wk[0] }, { e: '−j × −j', w: name(mul(NJ, NJ)), t: wk[1] });
+    } else {
+      if (st.play != null) {   // after Check or Why?: the turn, then the same turn again
+        const p1 = K.ease(prog(0.1, 0.7)), p2 = K.ease(prog(0.9, 0.8));
+        th = st.play * p1; twice = th + st.play * p2;
+      } else { th = st.th == null ? d.th0 : st.th; twice = 2 * th; }
+      circle('ring ok', pt(V, 1, HALF)[0], V.cy, 9);
+    }
+    trace(V, 0, twice, 48, 10, 'twice');
+    trace(V, 0, th, 28, 0, '');
+    arrowTo(V, 1, twice, 'twice');
+    const kp = arrowTo(V, 1, th, 'main');
+    circle('knob', kp[0], kp[1], 10);
+    knob = { x: kp[0], y: kp[1], th };
+    const on = lands(twice);
+    text(12, 22, 'Turn ' + deg(Math.round(th)) + ', done twice ' + deg(Math.round(twice)) + (on ? ', on −1' : ''), 'tag', 'start');
+    REC.th = th; REC.twice = twice; REC.tip = cart({ r: 1, a: twice });
+    said.push('The handle turns the arrow ' + Math.round(th) + ' degrees; done twice, ' + Math.round(twice) + ' degrees' + (on ? ', landing on minus 1.' : '.'));
+  }
+
+  // j to a power: one quarter turn for each j.
+  function drawPower(d, st, G, W, said) {
+    const V = G.V;
+    axis(V, [-1, 0, 1], true);
+    jAxis(V, 1, 1);
+    W.push({ e: powName(d.n), w: Array(d.n).fill('j').join(' × '), t: null });
+    const o = shownOpt(d, st), ops = [];
+    let cls = 'main';
+    if (o != null) {
+      const right = o === d.want, c = right ? d.n : (turnOf(VAL[o]) / QUARTER || 4);
+      for (let k = 0; k < c; k++) ops.push({ turn: QUARTER, t: 0.1 + k * (OPD + GAP), d: OPD });
+      cls = right ? 'main' : 'bad';
+      const end = 0.1 + c * (OPD + GAP) - GAP;
+      W.push(right ? { e: c + ' × ' + deg(QUARTER), w: deg(c * QUARTER), t: end - 0.1 }
+        : { e: o + ' is ' + c + ' quarter turn' + (c > 1 ? 's' : ''), w: deg(c * QUARTER), t: end - 0.1, bad: true });
+    }
+    const ps = pose(ONE, ops);
+    trace(V, 0, ps.turned, 34, 10, cls === 'bad' ? 'bad' : '');
+    arrowTo(V, ps.r, ps.a, cls);
+    REC.tip = cart(ps); REC.turned = ps.turned;
+    said.push('An arrow from 0, turned ' + Math.round(ps.turned) + ' degrees from 1.');
+  }
+
+  // × j, again and again: the arrow steps round, and each power of j is read out.
+  function cycleMotion(st) {
+    const ops = [], rowT = {};
+    if (st.n == null) {
+      for (let k = 0; k < 4; k++) { ops.push({ turn: QUARTER, t: 0.4 + k * 0.95, d: 0.7 }); rowT[k + 1] = 0.4 + k * 0.95 + 0.7; }
+      return { n: 4, ops, rowT, workT: rowT[4] };
+    }
+    for (let k = 0; k < st.n; k++) { const last = k === st.n - 1; ops.push({ turn: QUARTER, t: last ? 0.1 : -10, d: 0.7 }); rowT[k + 1] = last ? 0.8 : null; }
+    return { n: st.n, ops, rowT, workT: 0.8 };
+  }
+  function drawCycle(d, st, G, W, said) {
+    const V = G.V, m = cycleMotion(st);
+    axis(V, [-1, 0, 1], true);
+    jAxis(V, 1, 1);
+    const ps = pose(ONE, m.ops);
+    trace(V, 0, ps.turned, 34, 8, '');
+    arrowTo(V, ps.r, ps.a, 'main');
+    const first = Math.max(1, m.n - 3), row = [];
+    for (let k = first; k <= m.n; k++) {
+      const s = 'j' + SUP[k] + ' = ' + name(pw(J, k)), x = 50 + (k - first) * 80;
+      part(vis(m.rowT[k]), 4, () => text(x, G.rowY, s, 'pw', 'middle', true));
+      row.push(say(s));
+    }
+    W.push({ e: m.n + ' × ' + deg(QUARTER), w: deg(m.n * QUARTER), t: m.workT });
+    REC.tip = cart(ps); REC.turned = ps.turned; REC.n = m.n;
+    said.push('An arrow from 0, turned ' + Math.round(ps.turned) + ' degrees. ' + row.join(', ') + '.');
+  }
+
+  // An arrow from 1, turned and stretched by each factor in turn.
+  function multMotion(d, st) {
+    if (d.show) { const o = opsOf(d.demo.f, 0.5, 0.55, 0.1); return { m: d.demo, ops: o.ops, doneAt: o.doneAt, end: o.end, cls: 'main' }; }
+    const op = shownOpt(d, st);
+    if (op == null) return { m: null, ops: [], doneAt: [], end: 0, cls: 'main' };
+    const m = d.mv[op], o = opsOf(m.f, 0.1, OPD, GAP);
+    return { m, ops: o.ops, doneAt: o.doneAt, end: o.end, cls: op === d.want ? 'main' : 'bad' };
+  }
+  function drawMult(d, st, G, W, said) {
+    const V = G.V, mo = multMotion(d, st), m = mo.m, bad = mo.cls === 'bad' ? ' bad' : '';
+    axis(V, d.labels, false);
+    if (d.target != null) circle('ring ok', pt(V, Math.abs(d.target), d.target < 0 ? 180 : 0)[0], V.cy, 8);
+    if (!d.show) W.push({ e: d.q, w: '', t: null });
+    // x itself, on the way, left behind as a dashed ghost when it is off the line
+    if (m && m.stop) {
+      const z = prod(m.f.slice(0, m.stop));
+      if (tidy(z[1]) !== 0) {
+        part(vis(mo.doneAt[m.stop - 1]), 0, () => { const p = arrowTo(V, size(z), turnOf(z), 'ghost'); tipLabel(p, turnOf(z), (d.xName ? 'x = ' : '') + name(z), 'tl ghost'); });
+        REC.ghost = z;
+      }
+    }
+    const ps = pose(ONE, mo.ops);
+    trace(V, 0, ps.turned, 20, 6, bad.trim());
+    arrowTo(V, ps.r, ps.a, mo.cls);
+    REC.tip = cart(ps); REC.turned = ps.turned;
+    said.push('An arrow from 0 to ' + name(REC.tip) + '.');
+    if (!m) return;
+    const P = prod(m.f);
+    if (d.plus) {
+      const t1 = mo.end + 0.05, p = K.ease(prog(t1, 0.35)), R = plus(P, Z(d.plus));
+      const x0 = V.ox + P[0] * V.u, x1 = V.ox + R[0] * V.u, y = V.cy - 12;
+      if (p > 0.02) arrowPx(x0, y, K.lerp(x0, x1, p), y, 'conn' + bad);
+      part(vis(t1), 4, () => text((x0 + x1) / 2, y - 8, '+ ' + d.plus, 'tl' + bad));
+      part(arr(t1 + 0.35, 0.3), 0, () => circle('dot' + bad, x1, V.cy, 5));
+      REC.result = R;
+      W.push({ e: m.e, w: num(P[0]) + ' + ' + d.plus + ' = ' + num(R[0]), t: t1 + 0.35, bad: !!bad });
+    } else W.push({ e: m.e, w: name(P), t: mo.end - 0.05, bad: !!bad });
+    if (d.show && d.slip) {   // the slip: √a × √b read as √(ab)
+      const ab = d.slip[0] * d.slip[1], wrong = Math.sqrt(ab);
+      part(vis(mo.end + 0.5), 0, () => circle('dot bad', V.ox + wrong * V.u, V.cy, 5));
+      W.push({ e: '√' + num(d.slip[0]) + ' × √' + num(d.slip[1]) + ' as √' + ab, w: num(wrong), t: mo.end + 0.5, bad: true });
+    }
+  }
+
+  // The quadratic's two roots, each an ordinary number plus a j part.
+  function quadRoots(Q) {
+    const disc = Q.b * Q.b - 4 * Q.c, s = Math.sqrt(-disc);
+    return { disc, s, roots: [Z(-Q.b / 2, s / 2), Z(-Q.b / 2, -s / 2)] };
+  }
+  function drawQuad(d, st, G, W, said) {
+    const V = G.V, Q = d.quad, R = quadRoots(Q), r0 = R.roots[0];
+    axis(V, [-2, -1, 0, 1, 2], false);
+    W.push({ e: 'b² − 4ac', w: num(Q.b * Q.b) + ' − ' + num(4 * Q.c) + ' = ' + num(R.disc), t: 0.5 },
+      { e: '(j' + R.s + ')² = j × j × ' + R.s * R.s, w: name(sq(Z(0, R.s))), t: 1.1 },
+      { e: 'x = (' + num(-Q.b) + ' ± j' + R.s + ') ÷ 2', w: num(-Q.b / 2) + ' ± j' + R.s / 2, t: 1.7 });
+    const pa = vis(3.5), xr = V.ox + r0[0] * V.u, yr = V.cy - r0[1] * V.u;
+    part(pa, 0, () => {
+      line('real', V.ox, V.cy, xr, V.cy);
+      line('jpart', xr, V.cy, xr, yr);
+      text(xr - 8, (V.cy + yr) / 2 + 5, 'j part ' + num(r0[1]), 'al', 'end');
+    });
+    R.roots.forEach((z, k) => {
+      const t = 2.2 + 0.6 * k, p = K.ease(prog(t, 0.6));
+      if (p > 0.02) arrowTo(V, size(z) * p, turnOf(z), 'main');
+      part(vis(t + 0.6), 4, () => tipLabel(pt(V, size(z), turnOf(z)), turnOf(z), name(z), 'tl'));
+    });
+    REC.roots = R.roots;
+    said.push('Arrows from 0 to ' + say(name(R.roots[0])) + ' and ' + say(name(R.roots[1])) + '.');
+  }
+  const PICS = { map: drawMap, turn: drawTurn, handle: drawHandle, power: drawPower, cycle: drawCycle, mult: drawMult, quad: drawQuad };
+
+  // A line of working: the expression on the left, what it makes on the right.
+  function drawWork(r, m, G, said) {
+    const y = G.workY + 20 + 28 * m, a = vis(r.t), bad = r.bad ? ' bad' : '';
+    part(a, 6, () => { text(12, y, r.e, 'te' + bad, 'start', true); if (r.w) text(328, y, r.w, 'tw' + bad, 'end', true); });
+    if (a >= 0.5) { REC.work.push(r); said.push(say(r.e) + (r.w ? ': ' + say(r.w) : '') + '.'); }
+  }
+  // The key, inside the drawing.
+  function drawKey(items, y) {
+    let x = 12;
+    items.forEach((it) => {
+      if (it.knob) { circle('knob', x + 7, y - 4, 7); x += 20; } else { line(it.sw, x, y - 4, x + 24, y - 4); x += 30; }
+      text(x, y + 1, it.label, 'key', 'start');
+      x += tw(it.label, 'key') + 16;
+    });
+  }
+  function drawScene(d, st, G) {
+    REC = { tip: null, turned: 0, work: [], ghost: null, result: null, th: null, twice: null, roots: null, n: null };
+    knob = null;
+    const W = [], said = [];
+    PICS[d.pic](d, st, G, W, said);
+    W.forEach((r, m) => drawWork(r, m, G, said));
+    if (G.keyY != null) drawKey(d.key, G.keyY);
+    placeGrip();
+    return said.filter(Boolean).join(' ');
+  }
+  function paint(i) {
+    if (i == null) i = cur();
+    const d = STEPS[i], G = geo(d);
+    art.textContent = '';
+    into = null;
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    svg.setAttribute('aria-label', drawScene(d, S[i], G));
+  }
+
+  // ---------- the handle: Dan sets the turn himself ----------
+  const grip = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 24, tabindex: -1, role: 'slider', 'aria-label': 'Turn handle', 'aria-valuemin': 0, 'aria-valuemax': 355 }));
+  grip.style.display = 'none';
+  function placeGrip() {
+    const on = !!knob && !finished;
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    grip.setAttribute('cx', r3(knob.x)); grip.setAttribute('cy', r3(knob.y));
+    grip.setAttribute('aria-valuenow', Math.round(knob.th));
+    grip.setAttribute('aria-valuetext', Math.round(knob.th) + ' degrees');
+  }
+  const handleOn = () => !finished && STEPS[cur()].pic === 'handle';
+  // The turn Dan sets, to the nearest 5°: it settles any motion, and the dashed arrow follows at twice it.
+  function setTh(v) {
+    const st = S[cur()];
+    v = ((Math.round(v / 5) * 5) % 360 + 360) % 360;
+    if (st.th === v && st.play == null && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    st.th = v; st.play = null;
+    K.reveal(); K.refresh();
+  }
+  function thFrom(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()), V = geo(STEPS[cur()]).V;
+    const a = Math.atan2(V.cy - q.y, q.x - V.ox) * 180 / Math.PI;
+    return a < 0 ? a + 360 : a;
+  }
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!handleOn()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the knob */ }
+    e.preventDefault();
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !handleOn()) return;
+    const v = thFrom(e);
+    if (v != null) setTh(v);
+  });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    if (!handleOn()) return;
+    const by = { ArrowUp: 5, ArrowRight: 5, ArrowDown: -5, ArrowLeft: -5 }[e.key];
+    if (by == null) return;
+    e.preventDefault();
+    setTh((knob ? knob.th : 0) + by);
+  });
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.n = null; st.th = null; play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    actBtn.el.hidden = !(d.show && d.btn);
+    if (d.btn) actBtn.setLabel(d.btn);
+    actBtn.el.setAttribute('aria-label', d.btn === '× j' ? 'times j' : 'times minus 1');
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = actBtn.el.hidden && replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(d, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const idx = (nm) => STEPS.findIndex((d) => d.name === nm);
+  const DOS = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solved = (i, o) => { const d = STEPS[i]; return Object.assign(blank(), { pick: o, res: o === d.want ? 'right' : 'wrong' }, d.pic === 'handle' ? { play: parseFloat(o), th: parseFloat(o) } : {}); };
+  const withN = (n) => Object.assign(blank(), { n });
+  // A step painted in the state given (finished, or t seconds into its motion): what it drew.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try {
+      paint(i);
+      return Object.assign({ texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) }, REC);
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+
+  K.check('If a number is multiplied by −1, its arrow is turned through 180 degrees: each × −1 turns the arrow 180°, from 1 to −1 and on round to 1, and half way it points straight up at full length, a turn and never a flip through 0', () => {
+    const i = idx('Times −1');
+    const one = drawn(i, withN(1)), two = drawn(i, withN(2)), demo = drawn(i, blank()), half = drawn(i, withN(1), 0.6);
+    const turnNotFlip = [0.2, 0.35, 0.6, 0.85, 1.0].every((t) => { const g = drawn(i, withN(1), t); return Math.abs(size(g.tip) - 1) < 1e-6 && g.tip[1] >= -1e-9; });
+    return HALF === 180 && same(one.tip, NEG) && same(two.tip, ONE) && same(demo.tip, ONE) && Math.abs(two.turned - 360) < 1e-4 &&
+      Math.abs(one.turned - 180) < 1e-4 && turnNotFlip && half.tip[1] > 0.99 && one.texts.indexOf('half turn, 180°') >= 0;
+  }, { source: LIBRE });
+  K.check('Multiplying by j corresponds to a rotation by +90 degrees: each × j turns the arrow 90° anticlockwise, round 1, j, −1, −j and back to 1, landing each time on the product', () => {
+    const i = idx('Round and round'), demo = drawn(i, blank());
+    const each = [1, 2, 3, 4, 5, 6, 7, 8].every((n) => { const g = drawn(i, withN(n)); return same(g.tip, pw(J, n)) && Math.abs(g.turned - 90 * n) < 1e-4; });
+    const a1 = turnOf(drawn(i, withN(1), 0.3).tip), a2 = turnOf(drawn(i, withN(1), 0.6).tip);
+    const order = [1, 2, 3, 4].map((n) => name(pw(J, n))).join(', ') === 'j, −1, −j, 1';
+    return QUARTER === 90 && same(demo.tip, ONE) && Math.abs(demo.turned - 360) < 1e-4 && each && a1 > 0 && a2 > a1 && a2 < 90 && order;
+  }, { source: KHAN });
+  K.check('j² = −1: two quarter turns land the arrow from 1 on −1, and two turns of 270° (−j × −j) land there too', () => {
+    const i = idx('The quarter turn, j'), g = drawn(i, blank()), q = drawn(i, Object.assign(blank(), { th: 90 }));
+    return same(mul(J, J), NEG) && same(pw(J, 2), NEG) && same(mul(NJ, NJ), NEG) && Math.abs(g.th - 270) < 1e-6 && Math.abs(g.twice - 540) < 1e-6 &&
+      lands(g.twice) && lands(q.twice) && same(q.tip, NEG) && g.work.some((r) => r.e === 'j × j' && r.w === '−1') && g.work.some((r) => r.e === '−j × −j' && r.w === '−1');
+  }, { source: MATHC });
+  K.check('Known answers worked by hand: 3 × 3 = 9 and −3 × −3 = 9; (j3)² = −9 and (−j3)² = −9; j2 × j3 = −6; j³ = −j, j⁴ = 1, j⁵ = j; 45° twice is 90°, 270° twice is 540°; (j4)² = −16; (j2)² + 4 = 0, 2² + 4 = 8, (j4)² + 4 = −12', () => {
+    const pairs = [[sq(Z(3)), Z(9)], [sq(Z(-3)), Z(9)], [sq(Z(0, 3)), Z(-9)], [sq(Z(0, -3)), Z(-9)], [mul(Z(0, 2), Z(0, 3)), Z(-6)], [mul(Z(0, 3), Z(0, 2)), Z(-6)],
+      [pw(J, 3), NJ], [pw(J, 4), ONE], [pw(J, 5), J], [sq(Z(0, 4)), Z(-16)], [plus(sq(Z(0, 2)), Z(4)), Z(0)], [plus(sq(Z(2)), Z(4)), Z(8)], [plus(sq(Z(0, 4)), Z(4)), Z(-12)]];
+    const h = idx('Find the turn');
+    return pairs.every((p) => same(p[0], p[1])) && drawn(h, Object.assign(blank(), { th: 45 })).twice === 90 && drawn(h, Object.assign(blank(), { th: 270 })).twice === 540 &&
+      HALF / 2 === 90 && 5 * QUARTER === 450 && name(Z(-1, 2)) === '−1 + j2' && name(NJ) === '−j' && name(Z(0, 3)) === 'j3' && name(Z(-6)) === '−6';
+  });
+  K.check('From outside the formula: putting the page\'s roots −1 + j2 and −1 − j2 back into x² + 2x + 5 gives 0, and the worked example −3 ± j2 makes x² + 6x + 13 zero', () => {
+    const g = drawn(idx('Back to the quadratic'), blank()), f = (x, b, c) => plus(plus(sq(x), mul(Z(b), x)), Z(c));
+    return g.roots.length === 2 && same(g.roots[0], Z(-1, 2)) && same(g.roots[1], Z(-1, -2)) && g.roots.every((r) => same(f(r, 2, 5), Z(0))) &&
+      same(f(Z(-3, 2), 6, 13), Z(0)) && same(f(Z(-3, -2), 6, 13), Z(0)) && g.work.some((r) => r.w === '4 − 20 = −16') && g.work.some((r) => r.w === '−1 ± j2');
+  });
+  K.check('Every turn and stretch lands where multiplying says: on every screen and for every answer the arrow ends on the product of its factors, x itself is the stop on the way, and the working shows that product', () =>
+    STEPS.every((d, i) => {
+      if (d.pic === 'mult') {
+        const list = d.show ? [[blank(), d.demo]] : d.opts.map((o) => [solved(i, o), d.mv[o]]);
+        return list.every(([st, m]) => {
+          const g = drawn(i, st), P = prod(m.f), w = g.work.find((r) => r.e === m.e), stop = prod(m.f.slice(0, m.stop));
+          const ghostOk = tidy(stop[1]) === 0 ? g.ghost == null : same(g.ghost, stop);
+          return same(g.tip, P) && !!w && ghostOk && (d.plus ? same(g.result, plus(P, Z(d.plus))) && w.w.endsWith(num(P[0] + d.plus)) : w.w === name(P));
+        });
+      }
+      if (d.pic === 'power') return d.opts.every((o) => { const g = drawn(i, solved(i, o)), c = o === d.want ? d.n : turnOf(VAL[o]) / 90 || 4; return same(g.tip, pw(J, c)) && same(g.tip, VAL[o]) && Math.abs(g.turned - 90 * c) < 1e-4; });
+      if (d.pic === 'handle' && !d.show) return d.opts.every((o) => { const g = drawn(i, solved(i, o)), a = parseFloat(o); return Math.abs(g.th - a) < 1e-9 && Math.abs(g.twice - 2 * a) < 1e-9; });
+      return true;
+    }));
+  K.check('Each puzzle takes only its right answer, and each wrong answer lands somewhere else: no number on the line squares to −9; of 45°, 90° and 180° only 90° done twice lands on −1; j³ = −j; only j3 squares to −9; j3 × j2 = −6; j⁵ = j; ±j2 solve x² + 4 = 0', () => {
+    const squares = []; for (let v = -10; v <= 10; v += 0.25) squares.push(v * v >= 0);
+    const s3 = STEPS[idx('Find the turn')], s7 = STEPS[idx('Stretch to 3')], s9 = STEPS[idx('j3 × j2')], s12 = STEPS[idx('x² + 4 = 0')];
+    const turnOk = s3.opts.every((o) => lands(2 * parseFloat(o)) === (o === s3.want));
+    const sqOk = s7.opts.every((o) => same(prod(s7.mv[o].f), Z(-9)) === (o === s7.want)) && same(prod(s7.mv.j3.f), sq(Z(0, 3)));
+    const mOk = same(prod(s9.mv[s9.want].f), mul(Z(0, 3), Z(0, 2))) && s9.opts.every((o) => same(prod(s9.mv[o].f), Z(-6)) === (o === s9.want));
+    const qOk = s12.opts.every((o) => same(plus(prod(s12.mv[o].f), Z(4)), Z(0)) === (o === s12.want)) && same(plus(sq(Z(0, -2)), Z(4)), Z(0)) && same(prod(s12.mv['±j2'].f), sq(Z(0, 2)));
+    const pOk = [idx('j cubed'), idx('j to the fifth')].every((i) => STEPS[i].opts.every((o) => same(pw(J, STEPS[i].n), VAL[o]) === (o === STEPS[i].want)));
+    return squares.every(Boolean) && turnOk && sqOk && mOk && qOk && pOk && DOS.every((i) => STEPS[i].opts.indexOf(STEPS[i].want) >= 0);
+  });
+  K.check('Of every turn the handle can set, 5° apart, only a quarter turn (90°) and three quarters (270°) land on −1 when done twice, and the dashed arrow is always at twice the turn', () => {
+    const ok = []; for (let a = 0; a < 360; a += 5) ok.push(lands(2 * a) === (a === 90 || a === 270));
+    const h = idx('Find the turn');
+    return ok.every(Boolean) && [0, 30, 135, 200, 355].every((a) => { const g = drawn(h, Object.assign(blank(), { th: a })); return g.twice === 2 * a; });
+  });
+  K.check('Before an answer, a puzzle\'s picture shows only the question: the arrow still on 1 and one line of working', () =>
+    DOS.every((i) => {
+      const d = STEPS[i];
+      if (d.pic === 'handle') return true;
+      const g = drawn(i, blank());
+      return g.work.length === 1 && (d.pic === 'map' || same(g.tip, ONE)) && g.ghost == null;
+    }));
+  K.check('Every demonstration finishes within 4.6 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.6 s; each tap of × −1 or × j within 1.6 s', () => {
+    const keepT = T;
+    const timed = (i, st) => { const keepS = S[i]; T = Infinity; latest = 0; earliest = Infinity; S[i] = st; try { paint(i); } finally { S[i] = keepS; } return { latest, earliest }; };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) {
+        const r = timed(i, blank());
+        if (!(r.latest <= d.dur + 1e-9 && d.dur <= 4.6 && d.dur >= 3 && r.earliest >= FADE)) return false;
+        return !d.btn || [1, 2].every((n) => timed(i, withN(n)).latest <= 1.6);
+      }
+      return d.opts.every((o) => timed(i, solved(i, o)).latest <= 2.6);
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

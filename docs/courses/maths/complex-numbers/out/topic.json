@@ -1,0 +1,188 @@
+{
+ "id": "complex-numbers-wq4zn",
+ "title": "Complex numbers, from j to AC circuits",
+ "query": "Complex numbers",
+ "createdAt": "2026-10-18T11:39:34.854Z",
+ "updatedAt": "2026-10-18T11:39:34.854Z",
+ "plannedAt": "2026-10-18T11:39:34.854Z",
+ "status": "ready",
+ "error": null,
+ "hook": "Say a coil draws 23 A from a 230 V supply. Why does wiring a capacitor across it, a second path drawing 23 A of its own, cut the supply current to about 21 A?",
+ "oneBreath": "Multiplying by −1 turns an arrow half way round, so call the quarter turn j: done twice it gives −1, and numbers become arrows on a flat plane, each with an across part and an up part. Arrows add tip to tail and multiply by stretching and turning, so each can be written as across-and-up or as a length and an angle, whichever suits the sum. A coil or a capacitor opposes AC by a size at a quarter turn, so one such number holds a circuit's whole opposition, and Ohm's law, series and parallel work just as they do for DC.",
+ "level": "some",
+ "hue": 268,
+ "mode": "read",
+ "intake": {
+  "questions": [
+   {
+    "id": "q1",
+    "q": "What do you want from this course?",
+    "options": [
+     "To understand complex numbers and how to work with them",
+     "A quick refresher of the methods",
+     "Exam practice"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q2",
+    "q": "Where will you use it?",
+    "options": [
+     "On the job and in everyday life",
+     "For further study",
+     "Just curiosity"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q3",
+    "q": "How do you like to learn?",
+    "options": [
+     "Hands-on, with the why explained in full",
+     "Rules and worked examples only",
+     "Lots of practice questions"
+    ],
+    "multi": false,
+    "other": false
+   }
+  ],
+  "answers": {
+   "q1": {
+    "picked": [
+     "To understand complex numbers and how to work with them"
+    ],
+    "other": null
+   },
+   "q2": {
+    "picked": [
+     "On the job and in everyday life"
+    ],
+    "other": null
+   },
+   "q3": {
+    "picked": [
+     "Hands-on, with the why explained in full"
+    ],
+    "other": null
+   }
+  }
+ },
+ "ideas": [
+  {
+   "id": "i1",
+   "title": "A number whose square is minus one",
+   "oneLine": "Times −1 is a half turn, so j, the quarter turn that done twice makes it, is a number with j × j = −1.",
+   "deps": [],
+   "kind": "concept"
+  },
+  {
+   "id": "i2",
+   "title": "The complex plane, and adding",
+   "oneLine": "Add complex numbers real with real and j with j, which lays their arrows tip to tail on a plane: real across, j up.",
+   "deps": [
+    "i1"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i3",
+   "title": "Multiplying: stretch and turn",
+   "oneLine": "Multiply complex numbers like two brackets, putting j × j = −1, and see the answer is the first arrow stretched and turned.",
+   "deps": [
+    "i1",
+    "i2"
+   ],
+   "kind": "concept"
+  },
+  {
+   "id": "i4",
+   "title": "The conjugate, and dividing",
+   "oneLine": "Divide by multiplying top and bottom by the bottom's conjugate, its mirror image with the j part's sign flipped, which makes the bottom real.",
+   "deps": [
+    "i2",
+    "i3"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i5",
+   "title": "Polar form: length and angle",
+   "oneLine": "Convert a + jb to length and angle, r∠θ, with Pythagoras and tan⁻¹, checking the quarter on a sketch, and back with cos and sin.",
+   "deps": [
+    "i2"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i6",
+   "title": "Multiplying and dividing in polar form",
+   "oneLine": "In length-and-angle form, multiply by multiplying the lengths and adding the angles, and divide by dividing the lengths and taking the angles away.",
+   "deps": [
+    "i3",
+    "i5"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i7",
+   "title": "Impedance: Z = R + jX",
+   "oneLine": "Impedance R + jX is resistance plus reactance, the opposition to AC of a coil (+j) or a capacitor (−j), all in ohms.",
+   "deps": [
+    "i1",
+    "i2",
+    "i5"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i8",
+   "title": "Ohm's law with j: series and parallel",
+   "oneLine": "V = IZ with complex impedances, combined in series and parallel by your DC rules, gives each current's size and its angle from the voltage.",
+   "deps": [
+    "i2",
+    "i4",
+    "i6",
+    "i7"
+   ],
+   "kind": "skill"
+  }
+ ],
+ "calibration": [
+  {
+   "id": "c1",
+   "iid": "i1",
+   "q": "Which number, multiplied by itself, gives −9?",
+   "options": [
+    "−3",
+    "3 and −3 both do",
+    "None of the ordinary positive or negative numbers"
+   ],
+   "answer": 2,
+   "why": "3 × 3 = 9, and −3 × −3 = 9 too, because minus times minus is plus, so no ordinary number squares to a negative. −3 is the common slip: it forgets that the second minus cancels the first."
+  },
+  {
+   "id": "c2",
+   "iid": "i2",
+   "q": "You walk 30 m along a wall, turn a right angle and walk 40 m. How far are you, in a straight line, from where you started?",
+   "options": [
+    "70 m",
+    "50 m",
+    "10 m"
+   ],
+   "answer": 1,
+   "why": "The two walks are arrows at a right angle, so Pythagoras gives √(30² + 40²) = 50 m. 70 m adds the lengths as if both walks went the same way; 10 m takes one from the other, as if they went opposite ways."
+  }
+ ],
+ "overviewChecked": true,
+ "research": {
+  "status": "done",
+  "at": "2026-10-18T11:39:34.854Z",
+  "sources": 38,
+  "dropped": 0,
+  "error": null,
+  "reason": null,
+  "tries": 0
+ }
+}
