@@ -1,0 +1,55 @@
+{
+  "iid": "i3",
+  "title": "The time constant: capacitors and cooling",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the gap bar keeping 0.368 of itself at every time constant, whatever R and C are, when you drag the time handle along from 1τ to 2τ to 3τ.",
+    "title": "The shrinking gap",
+    "controls": [
+      { "id": "time", "label": "Time, in time constants", "min": 0, "max": 5, "step": 1, "value": 0, "unit": "τ" },
+      { "id": "mode", "label": "What is changing", "options": ["Discharging", "Charging", "Cooling"], "value": 0 }
+    ],
+    "outputs": [
+      { "id": "timeConstant", "label": "Time constant RC", "unit": "s", "decimals": 0 },
+      { "id": "gapLeft", "label": "Gap left, share of the start", "unit": "", "decimals": 3 }
+    ],
+    "whatAmILookingAt": "A graph of voltage against time for a capacitor emptying through a resistor, starting at 10 V. A bar from the curve down to zero shows the voltage still to go. Drag the time handle and it snaps to 1τ, 2τ and 3τ, and the bar keeps 0.368 of itself each time. The time constant is RC, the resistance times the capacitance, shown in seconds: 100 kΩ and 470 µF give 47 s. The switch turns it to charging towards a 10 V supply, where the bar is the gap up to the supply line, and to cooling, where the bar is the gap down to the room's 20 °C.",
+    "ignores": "The capacitor and resistor are ideal. Real capacitors leak a little.",
+    "numbers": [
+      { "label": "Example starting voltage, in volts", "value": 10, "kind": "assumed" },
+      { "label": "Share left after one time constant", "value": 0.368, "kind": "constant", "source": 2 },
+      { "label": "Example resistance, in kΩ", "value": 100, "kind": "assumed" },
+      { "label": "Example capacitance, in µF", "value": 470, "kind": "assumed" },
+      { "label": "Time constant RC, in seconds", "value": 47, "kind": "computed" },
+      { "label": "Example room temperature, in °C", "value": 20, "kind": "assumed" },
+      { "label": "Time handle's opening setting, in τ", "value": 0, "kind": "control" },
+      { "label": "Voltage after 1τ, in volts", "value": 3.68, "kind": "computed" },
+      { "label": "Voltage after 2τ, in volts", "value": 1.35, "kind": "computed" },
+      { "label": "Share closed in each τ while charging", "value": 0.632, "kind": "computed" },
+      { "label": "Charged after 5τ, in %", "value": 99.3, "kind": "computed" },
+      { "label": "Example hot part, in °C", "value": 90, "kind": "assumed" },
+      { "label": "Example cooling time constant, in minutes", "value": 10, "kind": "assumed" },
+      { "label": "Part after 10 minutes, in °C", "value": 45.8, "kind": "computed" }
+    ]
+  },
+  "explain": {
+    "text": "A capacitor emptying through a resistor loses the same share of its voltage in each equal stretch of time, so it follows the decay curve of the last lesson. The pace is set by R × C, the [[time constant]].\n\nIn the first time constant the voltage falls to 0.368 of its start.[^2] RC has dimensions of time, so it is called the time constant of the circuit.[^1] With 100 kΩ and 470 µF it is 47 s. So 10 V falls to 3.68 V after 47 s and to 1.35 V after 94 s. The formula is v = V e^(−t/RC).\n\nCharging is the same in reverse: v = V(1 − e^(−t/RC)). Each time constant closes 0.632 of the gap, and after 5τ it is 99.3% charged, which counts as full.\n\nA hot part cooling in a room does much the same: [[Newton's law of cooling]] says it cools at a rate proportional to the gap to the room.[^3] A 90 °C part in a 20 °C room with a time constant of 10 minutes is at 45.8 °C after 10 minutes. **The time constant RC sets how fast a capacitor charges or discharges, leaving 0.368 of the gap after each one.**"
+  },
+  "analogy": {
+    "text": "It is like a bath emptying: fast at first, then slower as the water gets shallow.",
+    "breaks": "A bath does empty completely."
+  },
+  "practice": {
+    "text": "- Work out RC in seconds.\n- Divide the time by RC.\n- Press eˣ on minus that number and multiply by the starting voltage.\n\n**Worked example:** 10 V, 100 kΩ and 470 µF, after 47 s: 10 × 0.368 = 3.68 V.\n\n**Common mistakes**\n- Forgetting the minus.\n- Getting the units wrong."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    { "n": 1, "title": "5. Charging and discharging of a capacitor", "url": "https://physics.iitd.ac.in/uploads/manual_leiBQt035s.pdf", "quote": "RC is the time during which the charge on the capacitor drops to 1/e of the initial value. Further, since RC has dimensions of time, it is called the time constant of the circuit." },
+    { "n": 2, "title": "DC Circuits Containing Resistors and Capacitors | Physics II", "url": "https://courses.lumenlearning.com/atd-austincc-physics2/chapter/21-6-dc-circuits-containing-resistors-and-capacitors/", "quote": "In the first time interval τ = RC after the switch is closed, the voltage falls to 0.368 of its initial value, since V = V ₀ ⋅ e −1 = 0.368 V ₀ ." },
+    { "n": 3, "title": "Newton's Law of Cooling", "url": "https://www.math.uwaterloo.ca/~baforres/UCM138/Lectures/Chapter4/SLIDESNewtonsLaw.pdf", "quote": "Newton’s law of cooling states that an object will cool (or warm) at a rate that is proportional to the difference between the temperature of the object and the ambient temperature T a of its surroundings." }
+  ],
+  "confidence": "settled",
+  "contested": null
+}

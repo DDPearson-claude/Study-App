@@ -1,0 +1,523 @@
+{
+  "iid": "i3",
+  "title": "The time constant: capacitors and cooling",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the gap bar keeping 0.368 of itself at every time constant, whatever R and C are set to, when you drag the time handle from 1τ to 2τ to 3τ.",
+    "title": "The shrinking gap",
+    "controls": [
+      {
+        "id": "time",
+        "label": "Time handle, in time constants",
+        "min": 0,
+        "max": 5,
+        "step": 1,
+        "value": 0,
+        "unit": "τ"
+      },
+      {
+        "id": "mode",
+        "label": "What is changing",
+        "options": [
+          "Discharging",
+          "Charging",
+          "Cooling"
+        ],
+        "value": 0
+      }
+    ],
+    "outputs": [
+      {
+        "id": "timeConstant",
+        "label": "Time constant RC",
+        "unit": "s",
+        "decimals": 1
+      },
+      {
+        "id": "gapLeft",
+        "label": "Gap left, share of the start",
+        "unit": "",
+        "decimals": 3
+      },
+      {
+        "id": "reading",
+        "label": "Voltage or temperature now",
+        "unit": "V or °C",
+        "decimals": 2
+      }
+    ],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on one graph: time along the bottom, marked in seconds and in time constants (1τ, 2τ, 3τ …), and voltage up the side. To start, a capacitor charged to 10 V empties through a resistor, and its voltage falls as a curve. A bar runs from the curve down to zero: the gap still to close, which here is the voltage itself. The current through the resistor is the voltage left ÷ R, by Ohm's law, so the fall slows exactly as the voltage does, and each equal stretch of time takes the same share. Drag the time handle and it snaps to 1τ, 2τ, 3τ, 4τ and 5τ; at each one the bar keeps 0.368 of the length it had at the one before, and the readout gives the share of the starting gap still left. On screens 1 and 5 a dotted line runs from the point at the handle along the curve's slope, its pace at that moment, and on screen 3 from the start; because the pace is the gap ÷ RC, that line kept up would reach the line in exactly one time constant. Screen 3 adds two sliders, resistance R from 10 to 200 kΩ in steps of 10 (opening at 100 kΩ) and capacitance C from 10 to 1000 µF in steps of 10 (opening at 470 µF): a bigger R lets less current through at the same voltage and a bigger C must lose more charge for each volt, so either one stretches the time axis while the curve keeps its shape. The time constant readout is R × C in seconds, with kΩ and µF turned into ohms and farads: 100 kΩ × 470 µF = 100,000 × 0.000470 = 47 s. The rule is v = V e^(−t/RC): v is the voltage now, V the starting voltage, t the time since the switch closed, and t/RC that time counted in time constants. The switch has three settings. Discharging is the curve just described. Charging draws a dashed supply line at 10 V and a curve rising towards it, v = V(1 − e^(−t/RC)); the bar is now the gap from the curve up to the supply line, which shrinks exactly as the discharge voltage did, because the charging current is that gap ÷ R. Cooling turns the side axis into temperature and the line into the room's 20 °C; an example part starts at 90 °C with a time constant of 10 minutes (600 s, the sliders rest), and the bar is the gap down to the room line, T = T_room + (T₀ − T_room) e^(−t/τ), where T₀ is the starting temperature and τ the part's own time constant. Screen by screen: 1 shows the discharge from 10 V with RC = 47 s, the handle stepping to 3.68 V at 1τ (47 s), 1.35 V at 2τ (94 s) and 0.50 V at 3τ (141 s). 2 asks for the voltage at 2τ, knowing 3.68 V at 1τ. 3 frees the R and C sliders, shows the readout change while every τ mark still reads 0.368, writes the rule, and marks one point between the marks, 30 s, at 5.28 V from e^(−30/47) ≈ 0.528. 4 asks for a 400 V capacitor with RC = 20 s after 10 s. 5 switches to charging towards 10 V: 6.32 V at 1τ, 8.65 V at 2τ, 9.50 V at 3τ, the curve shown as the discharge curve flipped and lifted. 6 asks for the voltage at 2τ while charging. 7 steps to 4τ and 5τ, 98.2% and 99.3% charged, and zooms on the gap left at 5τ, 0.07 V, with 5τ labelled 'the usual line for full'; then back to discharging from 400 V, which leaves 2.7 V at 5τ. 8 asks for that 400 V capacitor's voltage after 5τ, and after an answer the magnifier shows what is left. 9 opens on cooling, with no switch: the 90 °C part, the 20 °C room line and the 70 °C gap at the start, with Newton's law of cooling written under it. 10 asks for the part's temperature after 10 minutes, then shows 45.8 °C at 1τ, 29.5 °C at 2τ and 23.5 °C at 3τ. 11, 12 and 13 mix it all: a 5 V supply charging 470 µF through 100 kΩ for 100 s; RC for 10 kΩ and 1000 µF; and 80 °C oil in a 30 °C room with τ = 20 minutes, after 40 minutes. A puzzle offers three answers, and a wrong pick gets a one-line hint showing where it goes wrong.",
+    "ignores": "The voltages, resistances, capacitances, temperatures and times are example values. The curve is drawn only to 5τ, so its right-hand end can look as if it meets the line; by the rule the gap only shrinks, and it is the drawing that stops. The handle snaps to whole time constants to make the marks easy to hit; the curve itself changes smoothly between them. The capacitor and resistor are ideal: real capacitors also leak a little charge through themselves, and a real resistor's value drifts as it warms. The cooling part has one temperature all through and a fixed time constant, while a real part is hotter inside than at its surface, and while it is very hot it loses heat faster than Newton's law says, partly by giving off heat as radiation.",
+    "numbers": [
+      {
+        "label": "Example starting voltage, discharge, in volts, screens 1 to 3",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example supply voltage, charging, in volts, screens 5 to 7",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Time handle's opening setting, in time constants",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Resistance slider's opening setting, in kΩ",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Capacitance slider's opening setting, in µF",
+        "value": 470,
+        "kind": "control"
+      },
+      {
+        "label": "100 kΩ in ohms",
+        "value": 100000,
+        "kind": "computed"
+      },
+      {
+        "label": "470 µF in farads",
+        "value": 0.00047,
+        "kind": "computed"
+      },
+      {
+        "label": "Time constant RC at the opening settings, in seconds",
+        "value": 47,
+        "kind": "computed"
+      },
+      {
+        "label": "Share left after one time constant",
+        "value": 0.368,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Discharge voltage at 1τ, 10 × 0.368, in volts",
+        "value": 3.68,
+        "kind": "computed"
+      },
+      {
+        "label": "Time of 2τ at RC = 47 s, in seconds",
+        "value": 94,
+        "kind": "computed"
+      },
+      {
+        "label": "Discharge voltage at 2τ, 10 × e^(−2), in volts",
+        "value": 1.35,
+        "kind": "computed"
+      },
+      {
+        "label": "Time of 3τ at RC = 47 s, in seconds",
+        "value": 141,
+        "kind": "computed"
+      },
+      {
+        "label": "Discharge voltage at 3τ, 10 × e^(−3), in volts",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: same 6.32 V lost again at 2τ, in volts, screen 2",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 3.68 V halved at 2τ, in volts, screen 2",
+        "value": 1.84,
+        "kind": "computed"
+      },
+      {
+        "label": "Example time between the marks, in seconds, screen 3",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "e^(−30/47), share left after 30 s",
+        "value": 0.528,
+        "kind": "computed"
+      },
+      {
+        "label": "Discharge voltage after 30 s, in volts, screen 3",
+        "value": 5.28,
+        "kind": "computed"
+      },
+      {
+        "label": "Example start voltage, in volts, screens 4, 7 and 8",
+        "value": 400,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example time constant, in seconds, screen 4",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example time, in seconds, screen 4",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "400 × e^(−10/20), in volts, screen 4",
+        "value": 243,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: plus in the power, 400 × e^0.5, in volts, screen 4",
+        "value": 659,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: t × RC = 200 in the power, in volts, screen 4",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Share of the gap closed in each τ, 1 − 0.368",
+        "value": 0.632,
+        "kind": "computed"
+      },
+      {
+        "label": "Charging voltage at 1τ, in volts, screen 5",
+        "value": 6.32,
+        "kind": "computed"
+      },
+      {
+        "label": "Charging voltage at 2τ, in volts, screens 5 and 6",
+        "value": 8.65,
+        "kind": "computed"
+      },
+      {
+        "label": "Charging voltage at 3τ, in volts, screen 5",
+        "value": 9.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Charged at 1τ, in %",
+        "value": 63.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Charged at 2τ, in %",
+        "value": 86.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Charged at 3τ, in %",
+        "value": 95,
+        "kind": "computed"
+      },
+      {
+        "label": "Charged at 4τ, in %",
+        "value": 98.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Charged at 5τ, in %",
+        "value": 99.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: twice 63.2%, in %",
+        "value": 126.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: twice 63.2% of 10 V, in volts, screen 6",
+        "value": 12.64,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 0.632 × 0.632 of 10 V, in volts, screen 6",
+        "value": 3.99,
+        "kind": "computed"
+      },
+      {
+        "label": "Time constants counted as full or empty",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap left at 5τ charging to 10 V, in volts, screen 7",
+        "value": 0.07,
+        "kind": "computed"
+      },
+      {
+        "label": "400 V after 5τ, 400 × e^(−5), in volts, screens 7 and 8",
+        "value": 2.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 400 ÷ 5, in volts, screen 8",
+        "value": 80,
+        "kind": "computed"
+      },
+      {
+        "label": "Example room temperature, in °C, screens 9 and 10",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example hot part, in °C, screens 9 and 10",
+        "value": 90,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example cooling time constant, in minutes, screens 9 and 10",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Cooling time constant shown in seconds",
+        "value": 600,
+        "kind": "computed"
+      },
+      {
+        "label": "Starting gap to the room, 90 − 20, in °C",
+        "value": 70,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap after 10 minutes, 70 × 0.368, in °C",
+        "value": 25.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Part after 10 minutes, in °C",
+        "value": 45.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Time of 2τ in cooling, in minutes",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Part after 20 minutes, in °C",
+        "value": 29.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Time of 3τ in cooling, in minutes",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Part after 30 minutes, in °C",
+        "value": 23.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 0.368 of 90 °C, gap to zero, in °C, screen 10",
+        "value": 33.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 0.632 of the gap left, in °C, screen 10",
+        "value": 64.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Example supply, in volts, screen 11 and practice",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example charging time, in seconds, screen 11 and practice",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "100 s in time constants, 100 ÷ 47",
+        "value": 2.13,
+        "kind": "computed"
+      },
+      {
+        "label": "e^(−2.13), share of the gap left",
+        "value": 0.119,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap left after 100 s, in volts",
+        "value": 0.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Voltage after 100 s, 5 − 0.60, in volts",
+        "value": 4.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: straight line, 2.13 × 63.2% of 5 V, in volts, screen 11",
+        "value": 6.72,
+        "kind": "computed"
+      },
+      {
+        "label": "Example resistance, in kΩ, screen 12",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example capacitance, in µF, screen 12",
+        "value": 1000,
+        "kind": "assumed"
+      },
+      {
+        "label": "RC for 10 kΩ and 1000 µF, in seconds, screen 12",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: kΩ × µF read as seconds, screen 12",
+        "value": 10000,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: kΩ left unconverted, in seconds, screen 12",
+        "value": 0.01,
+        "kind": "computed"
+      },
+      {
+        "label": "100 kΩ × 470 µF before converting, in milliseconds",
+        "value": 47000,
+        "kind": "computed"
+      },
+      {
+        "label": "Example oil temperature, in °C, screen 13",
+        "value": 80,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example room temperature, in °C, screen 13",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example oil time constant, in minutes, screen 13",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example cooling time, in minutes, screen 13",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Oil after 40 minutes, 30 + 50 × e^(−2), in °C",
+        "value": 36.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 80 × e^(−2), below the room, in °C, screen 13",
+        "value": 10.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: one time constant only, in °C, screen 13",
+        "value": 48.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy: example distance to the wall, in metres",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Analogy: distance left after one, two, three steps, in metres",
+        "value": 3.68,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap left after 4τ, e^(−4), screen 7",
+        "value": 0.018,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap left after 5τ, e^(−5), screen 7",
+        "value": 0.007,
+        "kind": "computed"
+      },
+      {
+        "label": "IEC 60831 discharge limit, as a trade page reports it, in volts",
+        "value": 75,
+        "kind": "constant",
+        "source": 8
+      },
+      {
+        "label": "IEC 60831 discharge time, as a trade page reports it, in minutes",
+        "value": 3,
+        "kind": "constant",
+        "source": 8
+      }
+    ]
+  },
+  "explain": {
+    "text": "In the last lesson, e^(−t) kept 0.368 of what was there after each unit of time. A capacitor emptying through a resistor does the same, and the circuit sets the unit of time: R × C, called the [[time constant]]. Charging the capacitor, and a hot part cooling to the room, are the same shrinking gap seen from another side.\n\nStart with the discharge: say a capacitor charged to 10 V, with a resistor across it. The current through the resistor is the voltage left ÷ R, by Ohm's law. Textbooks add that a capacitor's charge is C × its voltage, so its voltage falls by the charge that flows away ÷ C. Halve the voltage and you halve the current, so the voltage falls half as fast. The fall always keeps in proportion to what is left, so each equal stretch of time takes away the same share of it, not the same number of volts: the same factor on every equal step, as in the first lesson. It is the downhill version of growth whose rate is proportional to the current value.[^2] A bigger R lets less current through at the same voltage, and a bigger C must lose more charge for each volt it drops, so both slow it down: the voltage falls at (v ÷ R) ÷ C = v ÷ RC volts a second, so the pace is set by their product. RC has dimensions of time, so it is called the time constant of the circuit;[^3] textbooks add that ohms times farads come out in seconds, so 100 kΩ and 470 µF give 100,000 × 0.000470 = 47 s. At its starting pace, 10 V ÷ 47 s, the capacitor would be empty in exactly one RC, but it slows as it falls, so in that time it only gets down to a share of its start: that is why RC is the natural unit of time. In the first time constant the voltage falls to 0.368 of its start, since e^(−1) ≈ 0.368.[^1] The share lost depends only on how long you wait, not on where you start, so every later time constant does the same: 10 V, then 3.68 V at 47 s, 1.35 V at 94 s and 0.50 V at 141 s. As a rule, v = V e^(−t/RC), where v is the voltage now, V the starting voltage, t the time since the switch closed and t/RC that time counted in time constants. Between the marks it works on the eˣ key: after 30 s, e^(−30/47) ≈ 0.528, so the capacitor is at 5.28 V. Keep the minus: without it the power grows and the voltage would rise.\n\nNow charge it from a 10 V supply through the same resistor. The current is (10 − v) ÷ R, so it is driven by the gap still to close up to the supply, and it shrinks with that gap. An insulation tester charging the insulation under test sees the same: the capacitive charging current quickly falls to zero.[^6] That gap shrinks exactly as the discharge voltage did, keeping 0.368 of itself in each time constant, so each one closes 0.632 of whatever gap remained. The capacitor's voltage is the supply minus the gap, v = V(1 − e^(−t/RC)): the discharge curve flipped and lifted, as you moved graphs in Functions and their graphs. So it reaches 63.2% after 1τ, 86.5% after 2τ, 95.0% after 3τ, 98.2% after 4τ and 99.3% after 5τ: after four the gap left is e^(−4) ≈ 0.018 of the start, and after five e^(−5) ≈ 0.007, so 1 − 0.007 = 99.3%. Two time constants give 86.5%, not twice 63.2%, because the second closes 0.632 of a smaller gap. In the rule the gap only ever shrinks, so by the rule a charging capacitor is never quite full and a discharging one never quite empty; in practice the gap soon becomes too small to measure. A trade tutorial puts it this way: after five time constants it reaches 99.3% charge, so at this point the capacitor is considered to be fully charged,[^7] and textbooks add that five are counted for empty too. It is a line people draw at 99.3%, not a point the curve reaches. From 400 V, 5τ still leaves about 2.7 V. That matters at work: a trade page reports that the IEC 60831 standard requires power factor correction capacitors to discharge to below 75 V within 3 minutes, to prevent accidental injury by residual voltage.[^8]\n\nA hot part cooling in a room follows much the same curve. [[Newton's law of cooling]] says an object cools at a rate proportional to the difference between its temperature and that of its surroundings,[^4] just as the charging current is proportional to the gap to the supply. So the gap to the room keeps the same share in each equal stretch of time, and the part's temperature is the room's plus that gap: T = T_room + (T₀ − T_room) e^(−t/τ), as textbooks write it, where T₀ is the starting temperature and τ the part's own time constant, which textbooks add is set by how much heat it holds and how easily heat leaves it. Say a 90 °C part sits in a 20 °C room with τ = 10 minutes: the 70 °C gap shrinks to 25.8 °C after 10 minutes, so the part reads 45.8 °C, then 29.5 °C at 20 minutes and 23.5 °C at 30. It is a rougher fit than the capacitor's: for heat given off as radiation, Newton's law of cooling holds only for very small temperature differences,[^5] and textbooks add that in still air a very hot part also loses heat faster than the law says. The capacitor and resistor here are ideal ones, a teaching model; real capacitors also leak a little charge through themselves. **In each time constant, a capacitor charging or discharging through a resistor keeps 0.368 of the gap it still has to close, and a cooling part keeps roughly the same share of its gap to the room.**"
+  },
+  "analogy": {
+    "text": "Walk towards a wall so that every step covers 0.632 of the distance still left. From 10 m away you are 3.68 m off after one step, 1.35 m after two, 0.50 m after three: big steps first, then ever smaller ones, each keeping 0.368 of the distance, so by that rule you never quite arrive.",
+    "breaks": "Your steps are separate jumps, while the capacitor's gap shrinks smoothly every instant, its share depending only on how long has passed. And your step size is your choice; the capacitor's is set by the circuit, through R × C."
+  },
+  "practice": {
+    "text": "- Safe way first: by the rule the voltage only ever shrinks, so a time tells you how long to wait, never that a capacitor is safe. Prove it dead with a tester before you touch it.\n- Put R in ohms and C in farads: 100 kΩ is 100,000 Ω and 470 µF is 0.000470 F.\n- Multiply them for RC in seconds.\n- Divide the time by RC, to count it in time constants.\n- Discharging: v = V × e^(−t/RC). Charging: v = V × (1 − e^(−t/RC)). Cooling: the room's temperature plus the starting gap × e^(−t/τ).\n- Check the size: a discharge sits between zero and the start, a charge between zero and the supply, a cooling part above the room.\n\n**Rule of thumb:** Each time constant closes about two thirds of the gap and leaves about a third, 0.632 and 0.368. Five time constants is the usual line for full or empty, at 99.3%.\n\n**Worked example:** Say a 5 V supply charges 470 µF through 100 kΩ. RC = 100,000 × 0.000470 = 47 s. After 100 s, t ÷ RC = 100 ÷ 47 ≈ 2.13, and e^(−2.13) ≈ 0.119, so the gap left is 5 × 0.119 ≈ 0.60 V and the capacitor is at 5 − 0.60 = 4.40 V.\n\n**Common mistakes**\n- Dropping the minus: e^(+t/RC) grows, so a discharge would rise.\n- Leaving kΩ and µF unconverted: 100 × 470 = 47,000 is in milliseconds, so RC is 47 s, not 47,000 s.\n- Taking two time constants as twice 63.2%: that would be 126.4%, more than full. It is 86.5%.\n- Answering with the gap when the question wants the voltage: 0.60 V is the gap, 4.40 V the voltage.\n- Cooling towards zero instead of towards the room: 0.368 of 90 °C is about 33.1 °C, but it is the 70 °C gap that shrinks, so the part is at 45.8 °C.\n- Treating 5τ as empty: from 400 V it still leaves about 2.7 V."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "DC Circuits Containing Resistors and Capacitors | Physics II",
+      "url": "https://courses.lumenlearning.com/atd-austincc-physics2/chapter/21-6-dc-circuits-containing-resistors-and-capacitors/",
+      "quote": "In the first time interval τ = RC after the switch is closed, the voltage falls to 0.368 of its initial value, since V = V ₀ ⋅ e −1 = 0.368 V ₀ ."
+    },
+    {
+      "n": 2,
+      "title": "6.8 Exponential Growth and Decay - Calculus Volume 1 | OpenStax",
+      "url": "https://openstax.org/books/calculus-volume-1/pages/6-8-exponential-growth-and-decay",
+      "quote": "That is, the rate of growth is proportional to the current function value."
+    },
+    {
+      "n": 3,
+      "title": "5. Charging and discharging of a capacitor",
+      "url": "https://physics.iitd.ac.in/uploads/manual_leiBQt035s.pdf",
+      "quote": "RC is the time during which the charge on the capacitor drops to 1/e of the initial value. Further, since RC has dimensions of time, it is called the time constant of the circuit."
+    },
+    {
+      "n": 4,
+      "title": "Newton's Law of Cooling",
+      "url": "https://www.math.uwaterloo.ca/~baforres/UCM138/Lectures/Chapter4/SLIDESNewtonsLaw.pdf",
+      "quote": "Newton’s law of cooling states that an object will cool (or warm) at a rate that is proportional to the difference between the temperature of the object and the ambient temperature T a of its surroundings."
+    },
+    {
+      "n": 5,
+      "title": "Newton's law of cooling - Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Newton's_law_of_cooling",
+      "quote": "Newton's law of cooling holds only for very small temperature differences."
+    },
+    {
+      "n": 6,
+      "title": "Insulation testing diagnostic techniques | Megger",
+      "url": "https://www.megger.com/en/et-online/october-2008-(1)/insulation-testing-diagnostic-techniques",
+      "quote": "The capacitive charging current quickly falls to zero, whereas the absorption current falls more slowly as the molecules in the insulation become polarised."
+    },
+    {
+      "n": 7,
+      "title": "RC Charging Circuit Tutorial & RC Time Constant",
+      "url": "https://www.electronics-tutorials.ws/rc/rc_1.html",
+      "quote": "So for all practical purposes, after five time constants (5T) it reaches 99.3% charge, so at this point the capacitor is considered to be fully charged."
+    },
+    {
+      "n": 8,
+      "title": "Capacitor bank discharge methods – Voltage Disturbance",
+      "url": "https://voltage-disturbance.com/power-quality/capacitor-bank-discharge-methods",
+      "quote": "IEC 60831 standard requires discharge to <75V within 3 minutes to prevent accidental injury by residual voltage."
+    }
+  ]
+}

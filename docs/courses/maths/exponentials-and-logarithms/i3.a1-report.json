@@ -1,0 +1,214 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "In the first time interval τ = RC the voltage falls to 0.368 of its initial value, since e^(−1) = 0.368: at 1τ the model keeps 0.368 of the start and a 10 V start reads 3.68 V, at every R and C tried",
+        "ok": true,
+        "source": "https://courses.lumenlearning.com/atd-austincc-physics2/chapter/21-6-dc-circuits-containing-resistors-and-capacitors/"
+      },
+      {
+        "label": "RC is the time during which the charge drops to 1/e of the initial value, and has dimensions of time: 100 kΩ × 470 µF gives 47 s, 10 kΩ × 1000 µF gives 10 s, and one RC leaves 1/e of the gap on every curve drawn",
+        "ok": true,
+        "source": "https://physics.iitd.ac.in/uploads/manual_leiBQt035s.pdf"
+      },
+      {
+        "label": "An object cools at a rate proportional to the difference between its temperature and the ambient temperature: on every cooling curve, the rate of fall measured at many times divided by the gap to the room is the same everywhere",
+        "ok": true,
+        "source": "https://www.math.uwaterloo.ca/~baforres/UCM138/Lectures/Chapter4/SLIDESNewtonsLaw.pdf"
+      },
+      {
+        "label": "The rate of growth is proportional to the current function value, here run downhill: on every capacitor curve, discharging and charging, the slope measured at many times divided by the gap still to close is the same everywhere",
+        "ok": true,
+        "source": "https://openstax.org/books/calculus-volume-1/pages/6-8-exponential-growth-and-decay"
+      },
+      {
+        "label": "Every gap bar keeps 0.368 of the bar one time constant before it, in every mode, at every handle setting and with R and C across their ranges, and every pill reads × 0.368",
+        "ok": true
+      },
+      {
+        "label": "Charging is the discharge flipped and lifted: at every time the charging and discharging voltages add to the 10 V supply, so the charging gap bars match the discharge bars",
+        "ok": true
+      },
+      {
+        "label": "By the rule the gap never closes: at 5τ the charge is 99.3% with 0.07 V to go, 400 V leaves 2.7 V, and every curve drawn stays strictly between its start and its line",
+        "ok": true
+      },
+      {
+        "label": "The model returns the time constant, the share of the gap left and the reading the picture shows, at every handle setting and switch setting on every demonstration screen",
+        "ok": true
+      },
+      {
+        "label": "The 30 s point sits on the curve between the marks: e^(−30/47) ≈ 0.528 gives 5.28 V, and with a bigger R the same 30 s is fewer time constants, so it sits higher",
+        "ok": true
+      },
+      {
+        "label": "Every number follows its rule: 3.68, 1.35 and 0.50 V (slips 0 V and 1.84 V); 47 s, 94 s and 141 s; 243 V (slips 659 V and 0 V); 0.632, 6.32, 8.65 and 9.50 V; 63.2, 86.5, 95.0, 98.2 and 99.3% (slips 12.64 V, 126.4% and 3.99 V); 2.7 V (slip 80 V); 70, 25.8, 45.8, 29.5 and 23.5 °C (slips 33.1 and 64.2 °C); 2.13, 0.119, 0.60 and 4.40 V (slip 6.72 V); 10 s (slips 10,000 s and 0.01 s); 6.8 and 36.8 °C (slips 10.8 and 48.4 °C); and each answer offered is the value its own working gives",
+        "ok": true
+      },
+      {
+        "label": "Before an answer, nothing in a puzzle's picture gives it away, and a right answer shows it",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within its time (at most 4.5 s), none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "time",
+      "mode",
+      "R",
+      "C"
+    ],
+    "readouts": [],
+    "outputs": [
+      "timeConstant",
+      "gapLeft",
+      "reading"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "One time constant",
+          "Two time constants",
+          "R and C set the pace",
+          "400 V after 10 s",
+          "Charging",
+          "Charging, two time constants",
+          "Never quite full",
+          "400 V after five",
+          "Cooling",
+          "After 10 minutes",
+          "5 V for 100 s",
+          "Find RC",
+          "Oil after 40 minutes"
+        ],
+        "value": 0
+      },
+      {
+        "id": "time",
+        "kind": "control",
+        "label": "Time handle, in time constants",
+        "min": 0,
+        "max": 5,
+        "step": 1,
+        "log": false,
+        "value": 3
+      },
+      {
+        "id": "mode",
+        "kind": "choice",
+        "label": "What is changing",
+        "options": [
+          "Discharging",
+          "Charging",
+          "Cooling"
+        ],
+        "labels": [
+          "Discharging",
+          "Charging",
+          "Cooling"
+        ],
+        "value": "Discharging",
+        "index": 0
+      },
+      {
+        "id": "R",
+        "kind": "control",
+        "label": "Resistance R",
+        "min": 10,
+        "max": 200,
+        "step": 10,
+        "log": false,
+        "value": 100,
+        "snap": [
+          100
+        ]
+      },
+      {
+        "id": "C",
+        "kind": "control",
+        "label": "Capacitance C",
+        "min": 10,
+        "max": 1000,
+        "step": 10,
+        "log": false,
+        "value": 470,
+        "snap": [
+          470
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "ready": true,
+    "warnings": [
+      "SVG labels \"206.8 s\" and \"258.5 s\" are touching on one row, so they read as one: leave at least 4 px between them, or label only what differs (at R = 110 kΩ, and 1 more setting)"
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1",
+    "time = 3.75",
+    "mode = \"Charging\"",
+    "R = 152.5",
+    "C = 752.5",
+    "pressed \"Answer 1\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i3.a1-360-light.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i3.a1-360-light-moved.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i3.a1-360-light-end.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i3.a1-360-dark.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i3.a1-360-dark-moved.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i3.a1-360-dark-end.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i3.a1-1280-light.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i3.a1-1280-light-moved.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i3.a1-1280-light-end.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i3.a1-1280-dark.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i3.a1-1280-dark-moved.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i3.a1-1280-dark-end.png"
+  ]
+}

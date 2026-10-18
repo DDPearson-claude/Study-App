@@ -1,0 +1,1216 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .pz sup, .caption sup { font-size: .72em; line-height: 0; }
+  .rck { display: grid; gap: 4px; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  /* Lines: the curve in navy, reference lines dashed and muted, the 5τ line dashed in teal, a slip dashed in the warning colour. */
+  .scene .axis, .scene .tickm { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .st-main { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .st-ref { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 7 4; }
+  .scene .st-slip { fill: none; stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 5 4; }
+  .scene .st-five { stroke: var(--k-accent); stroke-width: 2; stroke-dasharray: 3 4; }
+  .scene .guide { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 3 4; }
+  /* The gap still to close: an amber bar, the one at the handle outlined in navy. */
+  .scene .bar { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1; }
+  .scene .bar.cur { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .d-main { fill: var(--k-accent2); }
+  .scene .d-slip { fill: var(--k-warn); }
+  .scene .ring { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .ring.bad { stroke: var(--k-warn); }
+  .scene .pill { fill: var(--k-fill2); }
+  .scene .inbox { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1; }
+  .scene text { font-family: var(--k-font); }
+  .scene .tk, .scene .an, .scene .key { font-size: 13px; fill: var(--k-muted); }
+  .scene .hd { font-size: 13px; font-weight: 600; fill: var(--k-ink); }
+  .scene .ml { font-size: 13px; font-weight: 700; fill: var(--k-ink); }
+  .scene .ml.slip { fill: var(--k-warn); }
+  .scene .pt { font-size: 13px; font-weight: 600; fill: var(--k-ink); }
+  .scene .q { font-size: 17px; font-weight: 700; fill: var(--k-accent2); }
+  .scene .five { font-size: 13px; font-weight: 700; fill: var(--k-accent); }
+  .scene .tks { font-size: 13px; font-weight: 700; fill: var(--k-warn); }
+  .scene .tkr { font-size: 13px; font-weight: 700; fill: var(--k-ink); }
+  /* A label over lines keeps a halo of the page colour. */
+  .scene .h { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .v { font-style: italic; }
+  /* The time handle: a knob on the time axis; the band over the graph takes the drag. */
+  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: pan-y; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead" id="lead">A capacitor's voltage on a graph, with time along the bottom. Every voltage, resistor, capacitor, temperature and time here is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="timek" hidden></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div id="modek"></div>
+    <svg class="scene" id="scene" viewBox="0 0 340 304" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="rck" id="rck"></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap"></p>
+
+<script>
+  // ---------- the rule ----------
+  // Every curve here is a gap shrinking towards a line. With n the time counted in time constants
+  // (t ÷ RC), the value is line + (start − line) × e^(−n), so in each τ the gap keeps e^(−1) ≈ 0.368
+  // of itself. Discharging: the line is 0 V and the start the charged voltage. Charging: the line is
+  // the supply and the start 0 V, so v = V(1 − e^(−t/RC)). Cooling: the line is the room.
+  const E1 = Math.exp(-1);
+  const val = (s, n) => s.line + (s.start - s.line) * Math.exp(-n);
+  const gapOf = (s, n) => Math.abs(s.start - s.line) * Math.exp(-n);
+  const rcOf = (R, C) => (Math.round(R) * Math.round(C)) / 1000;   // kΩ × µF: 1,000 Ω × 0.000001 F, so ÷ 1,000 for seconds
+  // Sources the checks restate (the lesson's own).
+  const SRC1 = 'https://courses.lumenlearning.com/atd-austincc-physics2/chapter/21-6-dc-circuits-containing-resistors-and-capacitors/';
+  const SRC2 = 'https://openstax.org/books/calculus-volume-1/pages/6-8-exponential-growth-and-decay';
+  const SRC3 = 'https://physics.iitd.ac.in/uploads/manual_leiBQt035s.pdf';
+  const SRC4 = 'https://www.math.uwaterloo.ca/~baforres/UCM138/Lectures/Chapter4/SLIDESNewtonsLaw.pdf';
+
+  // ---------- numbers ----------
+  // fx: exactly dp decimals; fv: at most dp, trailing zeros dropped. Commas, a true minus sign.
+  function fx(v, dp) {
+    const f = Math.pow(10, dp);
+    let r = Math.round(v * f) / f;
+    if (r === 0) r = 0;
+    const p = Math.abs(r).toFixed(dp).split('.');
+    p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (r < 0 ? '−' : '') + p.join('.');
+  }
+  function fv(v, dp) {
+    if (dp == null) dp = 2;
+    const s = fx(v, dp);
+    return dp > 0 ? s.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '') : s;
+  }
+  // Each written the way the lesson writes it: volts to the hundredth on a 10 V or 5 V scale,
+  // whole volts from 400 V (tenths below 10 V), temperatures to a tenth.
+  const V2 = (v) => (Math.abs(v) < 0.005 ? '0' : fx(v, 2)) + ' V';
+  const V400 = (v) => (v >= 10 ? fx(v, 0) : fv(v, 1)) + ' V';
+  const C1 = (v) => fx(v, 1) + ' °C';
+  const pct = (v) => fx(v, 1) + '%';
+  const secT = (v) => fv(v, v < 1 ? 2 : 1) + ' s';
+  const mins = (v) => fv(v, 1) + ' min';
+  const f3 = (v) => fx(v, 3);
+
+  // ---------- the three cases ----------
+  const BASE = {
+    dis: { k: 'dis', start: 10, line: 0, ymax: 11, yt: [0, 5, 10], unit: 'V', yname: 'volts', curve: 'voltage', fmt: V2 },
+    chg: { k: 'chg', start: 0, line: 10, ymax: 11, yt: [0, 5, 10], unit: 'V', yname: 'volts', curve: 'voltage', fmt: V2 },
+    cool: { k: 'cool', start: 90, line: 20, rc: 600, ymax: 100, yt: [0, 50, 100], unit: '°C', yname: '°C', curve: 'temperature', fmt: C1 },
+  };
+  const mk = (k, o) => Object.assign({}, BASE[k], o || {});
+  const OPT = ['Discharging', 'Charging', 'Cooling'];
+  const KIND = { Discharging: 'dis', Charging: 'chg', Cooling: 'cool' };
+  // A demonstration screen follows the switch and the R and C sliders; a puzzle keeps its own case.
+  function scenOf(d, mode, R, C) {
+    if (!d.show) return d.sc;
+    const k = KIND[mode] || 'dis';
+    const s = Object.assign({}, BASE[k], (d.over && d.over[k]) || {});
+    if (s.rc == null) s.rc = rcOf(R, C);
+    s.pct = !!(d.pct && k === 'chg');
+    return s;
+  }
+  const secText = (s, k) => (s.k === 'cool' ? mins((k * s.rc) / 60) : secT(k * s.rc));
+  const SC = {
+    d10: mk('dis', { rc: 47 }),
+    d400: mk('dis', { start: 400, rc: 20, ymax: 440, yt: [0, 200, 400], fmt: V400 }),
+    c10: mk('chg', { rc: 47 }),
+    d400b: mk('dis', { start: 400, rc: 47, ymax: 440, yt: [0, 200, 400], fmt: V400 }),
+    cool: mk('cool'),
+    c5: mk('chg', { line: 5, rc: 47, ymax: 5.5, yt: [0, 1, 2, 3, 4, 5] }),
+    share: mk('dis', { start: 1, rc: 10, ymax: 1.1, yt: [0, 0.5, 1], fmt: f3, yname: 'share of the start', curve: 'share left' }),
+    oil: mk('cool', { start: 80, line: 30, rc: 1200 }),
+  };
+  const T100 = 100 / 47;   // 100 s counted in time constants of 47 s
+  const R632 = Number(f3(1 - E1));   // 0.632, as the lesson rounds it
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // SHOW: mode0, the switch's setting on arrival; time0, where the handle ends its demonstration;
+  // glide, the handle's demonstration (from, the stops, when it starts, the gap between stops, how
+  // long each move takes); pen, the curve drawn by a pen; refAt, startAt, gapAt, when the line, the
+  // starting gap and its label arrive; morph, the discharge curve flipped and lifted into the charge;
+  // switch, sliders, the controls shown; sym, the rule's letters labelled on the picture.
+  // DO: sc, the puzzle's case; graph, its time axis (tmax, ticks [time, τ row, seconds row]) and
+  // header; items, what it draws (when: 'right' after a right answer, or the wrong answer whose slip
+  // it draws; at, when it arrives; dur, a pen's time). opts, the answers offered; val, the value each
+  // gives by its own working; ans, the words that would give the answer away; fmt, how they are written.
+  const PICK = 'Tap one of the answers.';
+  const G3 = (sec) => [[0, '0', ''], [1, '1τ', sec[0]], [2, '2τ', sec[1]], [3, '3τ', sec[2]]];
+  const STEPS = [
+    { show: true, name: 'One time constant', mode0: 'Discharging', time0: 3, dur: 4.3,
+      pen: { at: 0.4, dur: 1.0 }, startAt: 0.4, glide: { from: 0, stops: [1, 2, 3], t0: 1.6, gap: 0.8, dur: 0.55 },
+      text: 'A capacitor charged to 10 V empties through a resistor. By Ohm\'s law the current through the resistor is the voltage left ÷ R, so the fall slows exactly as the voltage does. The bar is the gap still to close, here the voltage itself, and each equal stretch of time takes the same share of it. In one *time constant*, written τ, the bar keeps 0.368 of itself, so 10 V becomes 3.68 V at 1τ, 1.35 V at 2τ and 0.50 V at 3τ. Drag the time handle along the bottom.' },
+    { kind: 'pick', name: 'Two time constants', sc: SC.d10,
+      graph: { tmax: 3, ticks: G3(['47 s', '94 s', '141 s']), header: 'RC = 47 s' },
+      items: [
+        { k: 'bar', t: 0 },
+        { k: 'curve', from: 0, to: 1 },
+        { k: 'bar', t: 1 },
+        { k: 'mark', t: 1, text: V2(10 * E1), dot: 'dot' },
+        { k: 'pill', t0: 0, t1: 1 },
+        { k: 'q', t: 2 },
+        { k: 'curve', from: 1, to: 2, when: 'right', at: 0.1, dur: 0.8 },
+        { k: 'bar', t: 2, cur: true, when: 'right', at: 0.9 },
+        { k: 'mark', t: 2, text: V2(10 * Math.exp(-2)), dot: 'ring', when: 'right', at: 1.0 },
+        { k: 'pill', t0: 1, t1: 2, when: 'right', at: 1.1 },
+        { k: 'seg', pts: [[1, 10 * E1], [1 + (10 * E1) / (10 - 10 * E1), 0], [2, 0]], cls: 'slip', when: '0 V', at: 0.3, dur: 0.6 },
+        { k: 'mark', t: 2, v: 0, text: '0 V', cls: 'slip', dot: 'ring', when: '0 V', at: 0.6 },
+        { k: 'seg', pts: [[1, 10 * E1], [2, 5 * E1]], cls: 'slip', when: '1.84 V', at: 0.3, dur: 0.6 },
+        { k: 'mark', t: 2, v: 5 * E1, text: '1.84 V', cls: 'slip', dot: 'ring', when: '1.84 V', at: 0.6 },
+      ],
+      opts: ['0 V', '1.35 V', '1.84 V'], want: '1.35 V', ans: '1.35 V', fmt: V2,
+      val: { '0 V': Math.max(0, 10 * E1 - (10 - 10 * E1)), '1.35 V': 10 * Math.exp(-2), '1.84 V': (10 * E1) / 2 },
+      task: 'After one time constant the capacitor is at 3.68 V. What is it after two?',
+      why: 'The second time constant takes the same share as the first, so the bar keeps 0.368 of what is left, `3.68 × 0.368 ≈ 1.35 V`. That is `10 × e^(−2)`. Equal stretches of time take the same share, not the same number of volts.',
+      hint: 'Not quite. Each τ keeps 0.368 of what is left.',
+      hints: { '0 V': 'Not quite. That takes the same 6.32 V off again, which would empty it. Each τ keeps 0.368 of what is left.',
+        '1.84 V': 'Not quite. That halves 3.68 V. Each τ keeps 0.368 of what is left, not half.' } },
+    { show: true, name: 'R and C set the pace', mode0: 'Discharging', time0: 3, dur: 3.0, sliders: true, rcForm: true, sym: true,
+      extras: { start: 0.4, p30: 1.0 },
+      text: 'The pace is set by R × C, the time constant. A bigger R lets less current through at the same voltage, and a bigger C must lose more charge for each volt, so either one stretches the time axis while the curve keeps its shape. Ohms times farads give seconds, so 100 kΩ and 470 µF give `100,000 × 0.000470 = 47 s`. As a rule, `v = V e^(−t/RC)`, where `v` is the voltage now, `V` the start and `t` the time since the switch closed. Between the marks it works on the eˣ key. After 30 s, `e^(−30/47) ≈ 0.528`, so the capacitor is at 5.28 V. Slide R and C, and every τ mark still keeps 0.368.' },
+    { kind: 'pick', name: '400 V after 10 s', sc: SC.d400,
+      graph: { tmax: 2, ticks: [[0, '0', ''], [0.5, '', '10 s'], [1, '1τ', '20 s'], [2, '2τ', '40 s']], header: 'RC = 20 s' },
+      items: [
+        { k: 'bar', t: 0 },
+        { k: 'mark', t: 0, text: '400 V', dot: 'dot' },
+        { k: 'q', t: 0.5 },
+        { k: 'curve', from: 0, to: 2, when: 'right', at: 0.1, dur: 1.0 },
+        { k: 'bar', t: 0.5, cur: true, when: 'right', at: 0.7 },
+        { k: 'mark', t: 0.5, text: V400(400 * Math.exp(-0.5)), dot: 'ring', when: 'right', at: 0.8 },
+        { k: 'fn', fn: (t) => 400 * Math.exp(t), from: 0, to: 0.5, cls: 'slip', when: '659 V', at: 0.3, dur: 0.6 },
+        { k: 'mark', t: 0.5, v: 400 * Math.exp(0.5), text: '659 V', cls: 'slip', dot: 'ring', prefs: ['r', 'ar'], when: '659 V', at: 0.6 },
+        { k: 'fn', fn: (t) => 400 * Math.exp(-400 * t), from: 0, to: 0.5, cls: 'slip', when: '0 V', at: 0.3, dur: 0.6 },
+        { k: 'mark', t: 0.5, v: 0, text: '0 V', cls: 'slip', dot: 'ring', when: '0 V', at: 0.6 },
+      ],
+      slipMax: { '659 V': 700 },
+      opts: ['243 V', '659 V', '0 V'], want: '243 V', ans: '243 V', fmt: V400,
+      val: { '243 V': 400 * Math.exp(-10 / 20), '659 V': 400 * Math.exp(10 / 20), '0 V': 400 * Math.exp(-10 * 20) },
+      task: 'A 400 V capacitor empties through a resistor, with RC = 20 s. What is its voltage after 10 s?',
+      why: 'Count the time in time constants first, `10 ÷ 20 = 0.5`. Then `400 × e^(−0.5)` ≈ 243 V on the eˣ key. Half a time constant has not yet brought it down to 0.368 of the start.',
+      hint: 'Not quite. Divide the time by RC, then use the eˣ key.',
+      hints: { '659 V': 'Not quite. That drops the minus, so the power grows and the voltage rises. The power is −10 ÷ 20.',
+        '0 V': 'Not quite. That puts 10 × 20 = 200 in the power. Divide the time by RC instead, 10 ÷ 20.' } },
+    { show: true, name: 'Charging', mode0: 'Charging', time0: 3, dur: 4.4, switch: true, sliders: true, rcForm: true, sym: true,
+      refAt: 0.4, morph: { from: 'Discharging', at: 0.9, dur: 1.1 }, glide: { from: 0, stops: [1, 2, 3], t0: 2.1, gap: 0.7, dur: 0.5 },
+      text: 'Now charge it from a 10 V supply through the same resistor. The charging current is the gap still to close up to the supply ÷ R, so that gap shrinks exactly as the discharge voltage did. It keeps 0.368 of itself each τ, so each τ closes 0.632 of whatever gap remained, giving 6.32 V at 1τ, 8.65 V at 2τ and 9.50 V at 3τ. The curve is the discharge curve flipped and lifted, `v = V(1 − e^(−t/RC))`, with `V` now the supply. Flip the switch and the gap bars stay the same.' },
+    { kind: 'pick', name: 'Charging, two time constants', sc: SC.c10,
+      graph: { tmax: 3, ticks: G3(['47 s', '94 s', '141 s']), header: 'RC = 47 s' },
+      items: [
+        { k: 'ref' },
+        { k: 'bar', t: 0 },
+        { k: 'curve', from: 0, to: 1 },
+        { k: 'bar', t: 1 },
+        { k: 'mark', t: 1, text: V2(10 * (1 - E1)), dot: 'dot' },
+        { k: 'pill', t0: 0, t1: 1 },
+        { k: 'q', t: 2 },
+        { k: 'curve', from: 1, to: 2, when: 'right', at: 0.1, dur: 0.8 },
+        { k: 'bar', t: 2, cur: true, when: 'right', at: 0.9 },
+        { k: 'mark', t: 2, text: V2(10 * (1 - Math.exp(-2))), dot: 'ring', when: 'right', at: 1.0 },
+        { k: 'pill', t0: 1, t1: 2, when: 'right', at: 1.1 },
+        { k: 'seg', pts: [[0, 0], [1, 10 * (1 - E1)], [2, 20 * (1 - E1)]], cls: 'slip', when: '12.64 V', at: 0.3, dur: 0.6 },
+        { k: 'mark', t: 2, v: 20 * (1 - E1), text: '12.64 V', cls: 'slip', dot: 'ring', prefs: ['r', 'ar'], when: '12.64 V', at: 0.6 },
+        { k: 'mark', t: 2, v: 10 * R632 * R632, text: '3.99 V', cls: 'slip', dot: 'ring', prefs: ['br', 'r'], when: '3.99 V', at: 0.3 },
+      ],
+      slipMax: { '12.64 V': 14 },
+      opts: ['12.64 V', '8.65 V', '3.99 V'], want: '8.65 V', ans: '8.65 V', fmt: V2,
+      val: { '12.64 V': 2 * 10 * (1 - E1), '8.65 V': 10 * (1 - Math.exp(-2)), '3.99 V': 10 * R632 * R632 },
+      task: 'Charging from a 10 V supply, the capacitor is at 6.32 V after one time constant. What is it after two?',
+      why: 'The gap to the supply keeps 0.368 of itself each τ, so it goes 10 V, then 3.68 V, then 1.35 V. The capacitor is at `10 − 1.35 = 8.65 V`, 86.5% charged. The second τ closes 0.632 of a smaller gap.',
+      hint: 'Not quite. Follow the gap to the supply, which keeps 0.368 each τ.',
+      hints: { '12.64 V': 'Not quite. Twice 63.2% is 126.4%, more than full. The second τ closes 0.632 of the smaller gap that is left.',
+        '3.99 V': 'Not quite. That is 0.632 of 0.632 of 10 V. It is the gap that keeps 0.368 each τ, so take 1.35 V from 10 V.' } },
+    { show: true, name: 'Never quite full', mode0: 'Charging', time0: 5, dur: 3.4, switch: true, sliders: true, rcForm: true, pct: true, top: 50,
+      glide: { from: 3, stops: [4, 5], t0: 0.5, gap: 0.8, dur: 0.55 }, line5At: 2.0, insetAt: 2.6,
+      over: { dis: { start: 400, ymax: 440, yt: [0, 200, 400], fmt: V400 } },
+      text: 'At 4τ it is 98.2% charged, and at 5τ 99.3%. By the rule the gap only ever shrinks, so it is never quite full, though the gap soon becomes too small to measure. Engineers usually count 5τ as full or empty, a line people draw at 99.3%, not a point the curve reaches. The magnifier shows the 0.07 V still to go. Switch to discharging to see the same line from 400 V.' },
+    { kind: 'pick', name: '400 V after five', sc: SC.d400b,
+      graph: { tmax: 5, top: 50, ticks: [[0, '0', ''], [1, '1τ', ''], [2, '2τ', ''], [3, '3τ', ''], [4, '4τ', ''], [5, '5τ', '']], header: '' },
+      items: [
+        { k: 'bar', t: 0 },
+        { k: 'curve', from: 0, to: 5 },
+        { k: 'q', t: 5 },
+        { k: 'bar', t: 5, cur: true, when: 'right', at: 0.1 },
+        { k: 'mark', t: 5, text: V400(400 * Math.exp(-5)), dot: 'ring', when: 'right', at: 0.2 },
+        { k: 'vline', t: 5, text: '5τ: the usual line for empty', when: 'right', at: 0.5 },
+        { k: 'mark', t: 5, v: 80, text: '80 V', cls: 'slip', dot: 'ring', when: '80 V', at: 0.3 },
+        { k: 'mark', t: 5, v: 0, text: '0 V', cls: 'slip', dot: 'ring', when: '0 V', at: 0.3 },
+      ],
+      opts: ['80 V', '0 V', '2.7 V'], want: '2.7 V', ans: '2.7 V', fmt: V400,
+      val: { '80 V': 400 / 5, '0 V': 0, '2.7 V': 400 * Math.exp(-5) },
+      task: 'A capacitor charged to 400 V empties for five time constants. What voltage is left?',
+      why: 'Five time constants keep `e^(−5)` of the start, so `400 × e^(−5)` ≈ 2.7 V is still there. 5τ is the usual line for empty, yet by the rule the gap never closes. Time alone never makes a capacitor safe, so prove it dead with a tester before you touch it.',
+      hint: 'Not quite. Each τ keeps 0.368 of what is left, five times over.',
+      hints: { '80 V': 'Not quite. That splits 400 V into five equal drops. Each τ keeps 0.368 of what is left instead.',
+        '0 V': 'Not quite. 5τ is the usual line for empty, but by the rule the gap only shrinks. A little is still left.' } },
+    { show: true, name: 'Cooling', mode0: 'Cooling', time0: 0, handle: false, dur: 3.4, switch: true,
+      refAt: 0.4, pen: { at: 0.8, dur: 1.4 }, startAt: 2.2, gapAt: 2.6,
+      text: 'A hot part cooling in a room follows much the same curve. *Newton\'s law of cooling* says an object cools at a rate proportional to the difference between its temperature and that of its surroundings, just as the charging current follows the gap to the supply. So the gap to the room keeps the same share in each τ, and the part reads the room\'s temperature plus that gap. Here a 90 °C part sits in a 20 °C room, a 70 °C gap. Its own time constant, 10 minutes, is set by how much heat it holds and how easily heat leaves it.' },
+    { kind: 'pick', name: 'After 10 minutes', sc: SC.cool,
+      graph: { tmax: 3.6, ticks: G3(['10 min', '20 min', '30 min']), header: 'τ = 10 min' },
+      items: [
+        { k: 'ref' },
+        { k: 'bar', t: 0 },
+        { k: 'gaplab' },
+        { k: 'q', t: 1 },
+        { k: 'curve', from: 0, to: 3.6, when: 'right', at: 0.1, dur: 0.9 },
+        { k: 'bar', t: 1, cur: true, when: 'right', at: 0.4 },
+        { k: 'mark', t: 1, text: C1(20 + 70 * E1), dot: 'ring', when: 'right', at: 0.5 },
+        { k: 'pill', t0: 0, t1: 1, when: 'right', at: 0.6 },
+        { k: 'bar', t: 2, when: 'right', at: 0.8 },
+        { k: 'mark', t: 2, text: C1(20 + 70 * Math.exp(-2)), dot: 'dot', when: 'right', at: 0.9 },
+        { k: 'pill', t0: 1, t1: 2, when: 'right', at: 1.0 },
+        { k: 'bar', t: 3, when: 'right', at: 1.2 },
+        { k: 'mark', t: 3, text: C1(20 + 70 * Math.exp(-3)), dot: 'dot', when: 'right', at: 1.3 },
+        { k: 'pill', t0: 2, t1: 3, when: 'right', at: 1.4 },
+        { k: 'fn', fn: (t) => 90 * Math.exp(-t), from: 0, to: 1, cls: 'slip', when: '33.1 °C', at: 0.3, dur: 0.6 },
+        { k: 'mark', t: 1, v: 90 * E1, text: '33.1 °C', cls: 'slip', dot: 'ring', when: '33.1 °C', at: 0.6 },
+        { k: 'mark', t: 1, v: 20 + 70 * (1 - E1), text: '64.2 °C', cls: 'slip', dot: 'ring', when: '64.2 °C', at: 0.3 },
+      ],
+      opts: ['45.8 °C', '33.1 °C', '64.2 °C'], want: '45.8 °C', ans: '45.8 °C', fmt: C1,
+      val: { '45.8 °C': 20 + 70 * E1, '33.1 °C': 90 * E1, '64.2 °C': 20 + 70 * (1 - E1) },
+      task: 'This part starts at 90 °C in a 20 °C room, with a time constant of 10 minutes. What does it read after 10 minutes?',
+      why: 'The 70 °C gap to the room keeps 0.368 of itself in one time constant, `70 × 0.368 ≈ 25.8 °C`. The part reads the room plus the gap, `20 + 25.8 = 45.8 °C`. Then 29.5 °C at 20 minutes and 23.5 °C at 30, closing on the room but never passing it.',
+      hint: 'Not quite. Only the gap to the room shrinks.',
+      hints: { '33.1 °C': 'Not quite. That shrinks the whole 90 °C towards zero. The part cools towards the room, so only the 70 °C gap shrinks.',
+        '64.2 °C': 'Not quite. That keeps 0.632 of the gap. Each τ keeps 0.368 of it.' } },
+    { kind: 'pick', name: '5 V for 100 s', sc: SC.c5,
+      graph: { tmax: 3, ticks: [[0, '0', ''], [1, '1τ', ''], [2, '2τ', ''], [T100, '', '100 s'], [3, '3τ', '']], header: 'R = 100 kΩ, C = 470 µF' },
+      items: [
+        { k: 'ref' },
+        { k: 'bar', t: 0 },
+        { k: 'q', t: T100 },
+        { k: 'tick', t: 1, text: secT(47), when: 'right', at: 0.1 },
+        { k: 'curve', from: 0, to: 3, when: 'right', at: 0.1, dur: 0.9 },
+        { k: 'bar', t: T100, cur: true, when: 'right', at: 0.9 },
+        { k: 'mark', t: T100, text: V2(5 - 5 * Math.exp(-T100)), dot: 'ring', when: 'right', at: 1.0 },
+        { k: 'mark', t: T100, v: 5 * Math.exp(-T100), text: '0.60 V', cls: 'slip', dot: 'ring', prefs: ['ar', 'r'], when: '0.60 V', at: 0.3 },
+        { k: 'seg', pts: [[0, 0], [T100, T100 * (1 - E1) * 5]], cls: 'slip', when: '6.72 V', at: 0.3, dur: 0.6 },
+        { k: 'mark', t: T100, v: T100 * (1 - E1) * 5, text: '6.72 V', cls: 'slip', dot: 'ring', prefs: ['r', 'ar'], when: '6.72 V', at: 0.6 },
+      ],
+      slipMax: { '6.72 V': 8 },
+      opts: ['0.60 V', '6.72 V', '4.40 V'], want: '4.40 V', ans: '4.40 V', fmt: V2,
+      val: { '0.60 V': 5 * Math.exp(-T100), '6.72 V': T100 * (1 - E1) * 5, '4.40 V': 5 - 5 * Math.exp(-T100) },
+      task: 'A 5 V supply charges 470 µF through 100 kΩ. What is the capacitor\'s voltage after 100 s?',
+      why: 'RC is `100,000 × 0.000470 = 47 s`, so 100 s is `100 ÷ 47 ≈ 2.13` time constants. The gap keeps `e^(−2.13) ≈ 0.119` of the 5 V, about 0.60 V, so the capacitor is at `5 − 0.60 = 4.40 V`.',
+      hint: 'Not quite. Find RC, count the time in time constants, then follow the gap.',
+      hints: { '0.60 V': 'Not quite. 0.60 V is the gap still to close. The capacitor is at the supply minus the gap.',
+        '6.72 V': 'Not quite. That adds 63.2% of 5 V for every time constant, which passes the supply. Each τ closes 0.632 of the gap still left.' } },
+    { kind: 'pick', name: 'Find RC', sc: SC.share,
+      graph: { tmax: 3, ticks: G3(['', '', '']), header: 'R = 10 kΩ, C = 1,000 µF' },
+      items: [
+        { k: 'bar', t: 0 },
+        { k: 'curve', from: 0, to: 3 },
+        { k: 'bar', t: 1 }, { k: 'bar', t: 2 }, { k: 'bar', t: 3 },
+        { k: 'mark', t: 1, text: f3(E1), dot: 'dot' },
+        { k: 'mark', t: 2, text: f3(Math.exp(-2)), dot: 'dot' },
+        { k: 'mark', t: 3, text: f3(Math.exp(-3)), dot: 'dot' },
+        { k: 'pill', t0: 0, t1: 1 }, { k: 'pill', t0: 1, t1: 2 }, { k: 'pill', t0: 2, t1: 3 },
+        { k: 'q', t: 1, row: 'sec' },
+        { k: 'tick', t: 1, text: secT(10000 * 0.001), when: 'right', at: 0.2 },
+        { k: 'tick', t: 2, text: secT(2 * 10000 * 0.001), when: 'right', at: 0.5 },
+        { k: 'tick', t: 3, text: secT(3 * 10000 * 0.001), when: 'right', at: 0.8 },
+        { k: 'tick', t: 1, text: '10,000 s', cls: 'slip', when: '10,000 s', at: 0.3 },
+        { k: 'tick', t: 1, text: '0.01 s', cls: 'slip', when: '0.01 s', at: 0.3 },
+      ],
+      opts: ['10,000 s', '10 s', '0.01 s'], want: '10 s', ans: '10 s', fmt: secT,
+      val: { '10,000 s': 10 * 1000, '10 s': 10000 * 0.001, '0.01 s': 10 * 0.001 },
+      task: 'A 1,000 µF capacitor empties through a 10 kΩ resistor. What is its time constant?',
+      why: 'Put R in ohms and C in farads first. 10 kΩ is 10,000 Ω and 1,000 µF is 0.001 F, so `RC = 10,000 × 0.001 = 10 s`. The curve keeps its shape; only the seconds along the bottom change.',
+      hint: 'Not quite. Turn kΩ into ohms and µF into farads first.',
+      hints: { '10,000 s': 'Not quite. That multiplies 10 × 1,000 straight from kΩ and µF. Turn them into ohms and farads first.',
+        '0.01 s': 'Not quite. That uses 10 Ω. 10 kΩ is 10,000 Ω.' } },
+    { kind: 'pick', name: 'Oil after 40 minutes', sc: SC.oil,
+      graph: { tmax: 3, ticks: G3(['20 min', '40 min', '60 min']), header: 'τ = 20 min' },
+      items: [
+        { k: 'ref' },
+        { k: 'bar', t: 0 },
+        { k: 'gaplab' },
+        { k: 'q', t: 2 },
+        { k: 'curve', from: 0, to: 3, when: 'right', at: 0.1, dur: 0.9 },
+        { k: 'bar', t: 1, when: 'right', at: 0.5 },
+        { k: 'pill', t0: 0, t1: 1, when: 'right', at: 0.6 },
+        { k: 'bar', t: 2, cur: true, when: 'right', at: 0.9 },
+        { k: 'mark', t: 2, text: C1(30 + 50 * Math.exp(-2)), dot: 'ring', when: 'right', at: 1.0 },
+        { k: 'pill', t0: 1, t1: 2, when: 'right', at: 1.1 },
+        { k: 'fn', fn: (t) => 80 * Math.exp(-t), from: 0, to: 2, cls: 'slip', when: '10.8 °C', at: 0.3, dur: 0.6 },
+        { k: 'mark', t: 2, v: 80 * Math.exp(-2), text: '10.8 °C', cls: 'slip', dot: 'ring', when: '10.8 °C', at: 0.6 },
+        { k: 'mark', t: 2, v: 30 + 50 * E1, text: '48.4 °C', cls: 'slip', dot: 'ring', when: '48.4 °C', at: 0.3 },
+      ],
+      opts: ['10.8 °C', '48.4 °C', '36.8 °C'], want: '36.8 °C', ans: '36.8 °C', fmt: C1,
+      val: { '10.8 °C': 80 * Math.exp(-2), '48.4 °C': 30 + 50 * E1, '36.8 °C': 30 + 50 * Math.exp(-2) },
+      task: 'Oil at 80 °C cools in a 30 °C room, with a time constant of 20 minutes. What is it after 40 minutes?',
+      why: '40 minutes is two time constants. The 50 °C gap to the room keeps `e^(−2) ≈ 0.135` of itself, about 6.8 °C, so the oil reads `30 + 50 × e^(−2)` ≈ 36.8 °C.',
+      hint: 'Not quite. Only the 50 °C gap to the room shrinks, for two time constants.',
+      hints: { '10.8 °C': 'Not quite. That shrinks the whole 80 °C towards zero, below the room. Only the 50 °C gap to the room shrinks.',
+        '48.4 °C': 'Not quite. That is after one time constant, 20 minutes. 40 minutes is two.' } },
+  ];
+  const FINISH = 'In every time constant the gap still to close keeps 0.368 of itself, whatever R and C are. A discharge, a charge and a part cooling to the room are the same shrinking gap, and by the rule it never quite closes.';
+  const CAPTION = 'Each gap here keeps `e^(−1) ≈ 0.368` of itself in every time constant, by the rule.';
+  const FADE = 0.35;
+  const FB = [2.2, 1.2];   // how long the motion after a right and a wrong answer plays
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- geometry ----------
+  const GX0 = 34, PX0 = 46, PX1 = 326, PH = 150;   // the value axis, time 0, the last time, the graph's height
+  const MPOS = { ar: [7, -8, 'start'], a: [0, -12, 'middle'], al: [-7, -8, 'end'], aal: [-7, -30, 'end'], br: [7, 17, 'start'], b: [0, 21, 'middle'], bl: [-7, 17, 'end'], r: [8, 4.5, 'start'], l: [-8, 4.5, 'end'] };
+  // A falling curve keeps its labels above and to the right of each point, a rising one below; at
+  // the right-hand end, where the curve is flat, they move to the left.
+  const FALLS = ['ar', 'al', 'aal', 'a', 'r'], RISES = ['br', 'b', 'bl', 'r'];
+  const prefsFor = (s, k) => (s.line > s.start ? (s.pct && k >= 4 ? ['bl', 'b', 'br'] : RISES) : FALLS);
+  // Which marks carry their number: the one at the handle always; up to 3τ otherwise (up to 2τ once
+  // the handle is past 3τ, where the labels would crowd); on the near-full screen only 4τ and 5τ.
+  const labelled = (k, curK, s) => k === curK || (s.pct ? k >= 4 : k <= (curK >= 4 ? 2 : 3));
+  function geo(d) {
+    const top = (d.graph && d.graph.top) || d.top || 34, bot = top + PH;
+    const keyY = d.show ? bot + 108 : bot + 86;
+    return { top, bot, h: PH, tauY: bot + 24, secY: bot + 40, pillY: bot + 48, roY: bot + 86, keyY, H: keyY + 12 };
+  }
+
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s)
+    .replace(/\^\(([^)]*)\)/g, ' to the power $1').replace(/≈/g, ' is about ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ')
+    .replace(/−/g, 'minus ').replace(/τ/g, ' tau').replace(/µF/g, ' microfarads').replace(/kΩ/g, ' kilohms').replace(/Ω/g, ' ohms')
+    .replace(/=/g, ' equals ').replace(/\s+/g, ' ').trim();
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // live: Dan has moved the handle, a slider or the switch, so the demonstration is over; trans: a
+  // switch between discharging and charging, flipping the curve.
+  function blank() { return { pick: null, res: null, why: false, live: false, trans: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let lastTime = null, lastMode = null, lastR = null, lastC = null;
+  let motionEnd = 0;
+  let REC = null;   // what the last paint drew, for the checks
+
+  // ---------- text with amber key terms, italic letters and raised powers (K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[vt](?![A-Za-z])|ˣ)/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  const POW = /\^(\([^)]*\)|[0-9.−]+[a-z]?)/;
+  function maths(parent, s) {
+    let rest = String(s), m;
+    while ((m = POW.exec(rest))) {
+      if (m.index) italics(parent, rest.slice(0, m.index), false);
+      const pw = m[1].charAt(0) === '(' ? m[1].slice(1, -1) : m[1];
+      italics(parent.appendChild(K.el('sup')), pw, false);
+      rest = rest.slice(m.index + m[0].length);
+    }
+    if (rest) italics(parent, rest, false);
+  }
+  // `maths` stays on one line; *a key term* is highlighted.
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { maths(el.appendChild(K.el('span', { class: 'nw' })), seg); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at0) el.appendChild(document.createTextNode(seg.slice(at0, m.index)));
+        el.appendChild(K.el('span', { class: 'mark' }, m[1]));
+        at0 = m.index + m[0].length;
+      }
+      if (at0 < seg.length) el.appendChild(document.createTextNode(seg.slice(at0)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  // The lesson's time control; Dan moves it with the handle drawn on the graph, which keeps it in step.
+  const timeCtl = K.control({ id: 'time', label: 'Time handle, in time constants', min: 0, max: 5, step: 1, value: 0, unit: 'τ', into: '#timek' });
+  const modeCtl = K.choice({ id: 'mode', label: 'What is changing', options: OPT, value: 0, into: '#modek' });
+  const rCtl = K.control({ id: 'R', label: 'Resistance R', min: 10, max: 200, step: 10, value: 100, unit: 'kΩ', snap: [100], into: '#rck' });
+  const cCtl = K.control({ id: 'C', label: 'Capacitance C', min: 10, max: 1000, step: 10, value: 470, unit: 'µF', snap: [470], into: '#rck' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+  const cur = () => ({ time: timeCtl.get(), mode: modeCtl.get(), R: rCtl.get(), C: cCtl.get() });
+  const openP = (i) => ({ time: STEPS[i].time0 || 0, mode: STEPS[i].mode0 || 'Discharging', R: 100, C: 470 });
+  function remember() { lastTime = timeCtl.get(); lastMode = modeCtl.get(); lastR = rCtl.get(); lastC = cCtl.get(); }
+  // A screen opens on its own settings: the handle where its demonstration ends, its switch, R and C at the start.
+  function openStep(i) {
+    const P = openP(i), st = S[i];
+    st.live = false; st.trans = null;
+    timeCtl.set(P.time, true); modeCtl.set(P.mode, true); rCtl.set(P.R, true); cCtl.set(P.C, true);
+  }
+
+  // Up to three answer buttons; each step fills in its own. A new choice after a wrong answer
+  // settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one runs the picture on, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(st.res === 'right' ? FB[0] : FB[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    openStep(i); remember();
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer or a switch; with reduced
+  // motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A demonstration's part: there at once once Dan has taken over.
+  const A = (st, t0, d) => (st.live ? 1 : arr(t0, d));
+  function part(a, rise, draw) {
+    if (a <= 0) return null;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+    return g;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const dot = (cls, x, y, r) => add(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r: r || 4 }));
+  function text(x, y, s, cls, anchor, ital) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    if (ital) italics(t, s, true); else t.textContent = String(s);
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));
+    t.textContent = String(s);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 7.6;
+  }
+  // A label as near as it can sit to centre c, kept inside lo..hi.
+  function textC(c, y, s, cls, lo, hi, ital) { const w = tw(s, cls); return text(K.clamp(c - w / 2, lo, hi - w), y, s, cls, 'start', ital); }
+  // Labels on the picture keep clear of one another: each tries its places in turn.
+  let placed = [];
+  const reserve = (x0, y, w) => placed.push({ x0: x0 - 2, x1: x0 + w + 2, y0: y - 11, y1: y + 3 });
+  function freeBox(b, lim) {
+    if (b.x0 < 2 || b.x1 > 338 || b.y0 < lim[0] || b.y1 > lim[1]) return false;
+    return !placed.some((q) => b.x0 < q.x1 && q.x0 < b.x1 && b.y0 < q.y1 && q.y0 < b.y1);
+  }
+  function placeLabel(x, y, s, cls, prefs, lim, ital) {
+    const w = tw(s, cls);
+    let pick = null, first = null;
+    prefs.forEach((k) => {
+      if (pick) return;
+      const P = MPOS[k], x0 = P[2] === 'start' ? x + P[0] : P[2] === 'end' ? x + P[0] - w : x + P[0] - w / 2, by = y + P[1];
+      const c = { x0, by, b: { x0: x0 - 2, x1: x0 + w + 2, y0: by - 11, y1: by + 3 } };
+      if (!first) first = c;
+      if (freeBox(c.b, lim)) pick = c;
+    });
+    if (!pick) { pick = first; pick.x0 = K.clamp(pick.x0, 2, 338 - w); }
+    placed.push(pick.b);
+    return text(pick.x0, pick.by, s, cls, 'start', ital);
+  }
+  // Tick values about a fifth of the way up at a time, in 1, 2, 2.5 or 5 times a power of ten.
+  function niceTicks(max) {
+    const raw = max / 5, mag = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / mag;
+    const step = (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * mag, out = [];
+    for (let j = 0; j * step <= max + 1e-9; j++) out.push(j * step);
+    return out;
+  }
+  function partial(pts, p) {
+    if (p >= 1) return pts.slice();
+    const n = pts.length - 1, f = p * n, k = Math.floor(f), out = pts.slice(0, k + 1);
+    if (k < n) { const a = pts[k], b = pts[k + 1], u = f - k; out.push([a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u]); }
+    return out;
+  }
+
+  // ---------- a demonstration screen, worked out from its settings ----------
+  function morphable(d, a, b) {
+    const ka = KIND[a], kb = KIND[b];
+    if (ka === kb || ka === 'cool' || kb === 'cool') return false;
+    return scenOf(d, a, 100, 470).ymax === scenOf(d, b, 100, 470).ymax;
+  }
+  function glidePos(d, st) {
+    const g = d.glide;
+    let pos = g.from;
+    g.stops.forEach((stop, j) => { const prev = j ? g.stops[j - 1] : g.from; pos += (stop - prev) * A(st, g.t0 + j * g.gap, g.dur); });
+    return pos;
+  }
+  function headerOf(d, s, P) {
+    if (s.k === 'cool') return 'τ = ' + mins(s.rc / 60) + ', ' + secT(s.rc);
+    if (d.rcForm) return 'RC = ' + fx(Math.round(P.R) * 1000, 0) + ' Ω × ' + fx(Math.round(P.C) / 1e6, 6) + ' F = ' + secT(s.rc);
+    return 'RC = ' + secT(s.rc);
+  }
+  function showModel(d, st, P) {
+    const s = scenOf(d, P.mode, P.R, P.C), g = d.glide;
+    let s0 = null, m = 1;
+    if (st.trans && morphable(d, st.trans.from, st.trans.to)) { s0 = scenOf(d, st.trans.from, P.R, P.C); m = arr(0.05, 0.8); }
+    else if (d.morph && !st.live && s.k === 'chg') { s0 = scenOf(d, d.morph.from, P.R, P.C); m = A(st, d.morph.at, d.morph.dur); }
+    if (m >= 1) s0 = null;
+    const viaSwitch = !!(s0 && st.trans);
+    let pos;
+    if (d.handle === false) pos = d.time0;
+    else if (st.live) pos = K.clamp(Math.round(P.time), 0, 5);
+    else pos = g ? glidePos(d, st) : d.time0;
+    const landA = (k) => {
+      if (st.live || !g || k <= g.from) return 1;
+      const j = g.stops.indexOf(k);
+      return j < 0 ? 1 : A(st, g.t0 + j * g.gap + g.dur - 0.05, 0.4);
+    };
+    const vis = (a, p) => ({ a, p: p == null ? 1 : p });
+    const mA = s0 ? Math.max(0, 2 * m - 1) : 1, oA = s0 ? Math.max(0, 1 - 2 * m) : 0;
+    const items = [];
+    if (d.insetAt != null && s.k !== 'cool') items.push({ k: 'inset', s, vis: vis(A(st, d.insetAt)) });
+    const refA = d.refAt != null ? A(st, d.refAt) : 1;
+    if (s.k !== 'dis') items.push({ k: 'ref', s, sym: d.sym, vis: vis(viaSwitch && s0.k === 'dis' ? m : refA) });
+    if (s0 && s0.k !== 'dis' && s.k === 'dis') items.push({ k: 'ref', s: s0, sym: d.sym, vis: vis(1 - m) });
+    if (d.line5At != null && s.k !== 'cool') items.push({ k: 'vline', t: 5, text: '5τ: the usual line for ' + (s.k === 'chg' ? 'full' : 'empty'), vis: vis(A(st, d.line5At)) });
+    const pen = d.pen && !st.live ? A(st, d.pen.at, d.pen.dur) : 1;
+    items.push({ k: 'curve', s, s0, m, from: 0, to: 5, vis: vis(pen > 0 ? 1 : 0, pen) });
+    items.push({ k: 'bar', t: 0, s, s0, m, cur: pos === 0, vis: vis(d.startAt != null ? A(st, d.startAt) : 1) });
+    if (d.gapAt != null) items.push({ k: 'gaplab', s, vis: vis(A(st, d.gapAt)) });
+    const L = Math.floor(pos + 1e-9), frac = pos - L > 1e-6;
+    const valM = (k) => (s0 ? K.lerp(val(s0, k), val(s, k), m) : val(s, k));
+    const labelOf = (sc, k) => (sc.pct ? pct(100 * (1 - Math.exp(-k))) : sc.fmt(val(sc, k)));
+    const curK = frac ? -1 : L;
+    for (let k = 1; k <= L; k++) {
+      const isCur = k === curK, la = landA(k);
+      const hide = (d.insetAt != null && k === 5 && s.k === 'dis') || !labelled(k, curK, s);   // the magnifier carries 5τ's
+      items.push({ k: 'bar', t: k, s, s0, m, cur: isCur, vis: vis(1) });
+      items.push({ k: 'mark', t: k, v: valM(k), text: hide ? null : (d.sym && isCur && s.k !== 'cool' ? 'v = ' : '') + labelOf(s, k), dot: isCur ? 'ring' : 'dot', cur: isCur, prefs: prefsFor(s, k), vis: vis(la * mA) });
+      if (s0 && oA > 0 && labelled(k, curK, s0)) items.push({ k: 'mark', t: k, v: valM(k), text: labelOf(s0, k), prefs: prefsFor(s0, k), old: true, vis: vis(oA) });
+      items.push({ k: 'pill', t0: k - 1, t1: k, s, vis: vis(la) });
+    }
+    if (frac) {
+      items.push({ k: 'bar', t: pos, s, s0, m, cur: true, vis: vis(1) });
+      items.push({ k: 'mark', t: pos, v: valM(pos), text: null, dot: 'ring', cur: true, moving: true, vis: vis(1) });
+    }
+    if (d.extras && s.k === 'dis') {
+      items.push({ k: 'mark', t: 0, v: s.start, text: 'V = ' + fv(s.start, 1) + ' V', dot: 'dot', prefs: ['ar', 'r'], vis: vis(A(st, d.extras.start)) });
+      const t30 = 30 / s.rc;
+      if (t30 <= 5) {
+        items.push({ k: 'guide', t: t30, v: val(s, t30), vis: vis(A(st, d.extras.p30)) });
+        items.push({ k: 'mark', t: t30, v: val(s, t30), text: '30 s: ' + V2(val(s, t30)), dot: 'ring', prefs: ['ar', 'br', 'al', 'bl', 'a'], p30: true, vis: vis(A(st, d.extras.p30 + 0.6)) });
+      }
+    }
+    const ro = L === 0 ? 'At the start, none of the gap has closed yet.' : 'Gap left at ' + L + 'τ, ' + secText(s, L) + ': ' + f3(Math.exp(-L)) + ' of the start';
+    const gc = { tmax: 5, ticks: [0, 1, 2, 3, 4, 5].map((k) => [k, k ? k + 'τ' : '0', k ? secText(s, k) : '']), header: headerOf(d, s, P), sym: !!d.sym };
+    return { s, gc, items, pos, readout: ro, roA: L ? landA(L) : 1, key: [['main', s.curve], ['bar', 'gap still to close']], handle: d.handle !== false, rc: s.rc };
+  }
+  function doModel(d) {
+    return { s: d.sc, gc: d.graph, items: d.items, key: [['main', d.sc.curve], ['bar', 'gap still to close']], handle: false, rc: d.sc.rc };
+  }
+
+  // ---------- the graph ----------
+  // The value scale: fixed, easing out to fit a slip that runs off the top.
+  function yScale(d, st, s) {
+    const s0 = s.ymax;
+    let s1 = s0;
+    if (!d.show && st.res === 'wrong' && d.slipMax && d.slipMax[st.pick]) s1 = d.slipMax[st.pick];
+    const p = s1 === s0 ? 1 : arr(0.1, 0.6);
+    return { now: s0 + (s1 - s0) * p, s0, s1, p };
+  }
+  const slipFor = (d, pick) => (d.items || []).some((it) => it.when === pick);
+  // How far a puzzle's item has arrived: {a: how solid, p: how far its pen has drawn}, or null.
+  function itemVis(d, st, it) {
+    if (it.vis) return it.vis;
+    const pen = !!it.dur;
+    const timed = (t0) => (pen ? { a: arr(t0, it.dur) > 0 ? 1 : 0, p: arr(t0, it.dur) } : { a: arr(t0), p: 1 });
+    const right = st.res === 'right';
+    if (it.k === 'q') {
+      const gone = right || (st.res === 'wrong' && slipFor(d, st.pick));
+      return gone ? { a: 1 - arr(0.1, 0.3), p: 1 } : { a: 1, p: 1 };
+    }
+    if (!it.when) return { a: 1, p: 1 };
+    if (it.when === 'right') return right ? timed(it.at != null ? it.at : 0.1) : null;
+    return st.res === 'wrong' && st.pick === it.when ? timed(it.at != null ? it.at : 0.3) : null;
+  }
+  const spanOf = (sc, t) => { const a = val(sc, t), b = sc.line; return [Math.min(a, b), Math.max(a, b)]; };
+  function drawInset(s, G, a) {
+    const up = s.line > s.start;   // charging: the supply line is above the curve
+    const bx = 156, bw = 162, bh = 74, by = up ? G.top + 60 : G.top + 4;
+    placed.push({ x0: bx, x1: bx + bw, y0: by, y1: by + bh });
+    if (a <= 0) return;
+    part(a, 0, () => {
+      rect('inbox', bx, by, bw, bh, 6);
+      text(bx + 8, by + 16, 'Near 5τ, magnified', 'an', 'start');
+      const ix0 = bx + 10, ix1 = bx + bw - 20, y0 = by + 24, y1 = by + bh - 4, span = gapOf(s, 4) * 1.15;
+      const iy = (v) => (up ? y0 + ((s.line - v) / span) * (y1 - y0) : y1 - ((v - s.line) / span) * (y1 - y0));
+      const ix = (t) => ix0 + (t - 4) * (ix1 - ix0);
+      line(up ? 'st-ref' : 'axis', ix0 - 4, iy(s.line), ix1 + 12, iy(s.line));
+      const pts = [];
+      for (let j = 0; j <= 40; j++) { const t = 4 + j / 40; pts.push(r3(ix(t)) + ' ' + r3(iy(val(s, t)))); }
+      add(K.svg('path', { class: 'st-main', d: 'M' + pts.join(' L') }));
+      const yv = iy(val(s, 5)), yl = iy(s.line);
+      rect('bar cur', ix(5) - 4, Math.min(yv, yl), 8, Math.abs(yv - yl), 1.5);
+      const g5 = gapOf(s, 5), lab = s.fmt(g5) + (up ? ' to go' : ' left');
+      text(ix(5) - 9, up ? yl + 12 : yl - 1, lab, 'ml', 'end');
+      REC.inset = { gap: g5, text: lab };
+    });
+  }
+  function drawItem(d, st, it, s, X, Y, G, said) {
+    const vis = itemVis(d, st, it);
+    if (!vis || vis.a <= 0) {
+      if (it.k === 'inset') drawInset(it.s || s, G, 0);
+      return;
+    }
+    const cls = it.cls || 'main', sA = it.s || s, lim = [G.top - 22, G.bot - 1];
+    if (it.k === 'inset') { drawInset(sA, G, vis.a); said.push('A magnifier shows the gap still left at 5 tau.'); return; }
+    if (it.k === 'ref') {
+      const v = sA.line, chg = sA.k === 'chg';
+      const lab = chg ? (it.sym ? 'supply, V = ' : 'supply ') + fv(v, 1) + ' V' : 'room ' + fv(v, 1) + ' °C';
+      const w = tw(lab, 'an');
+      const x0 = chg ? PX0 + 14 : PX1 - 2 - w, y = chg ? Y(v) - 5 : Y(v) + 16;
+      part(vis.a, 0, () => { line('st-ref', PX0 - 6, Y(v), PX1 + 6, Y(v)); text(x0, y, lab, 'an h', 'start', it.sym); });
+      reserve(x0, y, w);
+      said.push('A dashed line for the ' + (chg ? 'supply' : 'room') + ', ' + say(lab) + '.');
+      return;
+    }
+    if (it.k === 'vline') {
+      const w = tw(it.text, 'five'), x = X(it.t);
+      part(vis.a, 0, () => { line('st-five', x, G.bot, x, G.top - 18); text(x - 6 - w, G.top - 6, it.text, 'five', 'start'); });
+      reserve(x - 6 - w, G.top - 6, w);
+      said.push(say(it.text) + '.');
+      return;
+    }
+    if (it.k === 'curve' || it.k === 'fn') {
+      const fn = it.fn ? it.fn : it.s0 ? (t) => K.lerp(val(it.s0, t), val(sA, t), it.m) : (t) => val(sA, t);
+      const from = it.from || 0, to = from + (it.to - from) * vis.p;
+      if (to - from < 1e-6) return;
+      const pts = [];
+      for (let j = 0; j <= 96; j++) { const t = from + ((to - from) * j) / 96; pts.push(r3(X(t)) + ' ' + r3(Y(fn(t)))); }
+      part(vis.a, 0, () => add(K.svg('path', { class: 'st-' + cls, d: 'M' + pts.join(' L') })));
+      REC.curves.push({ fn, from, to, cls, s: sA, morph: !!it.s0, k: it.k });
+      said.push(cls === 'slip' ? 'In red, a curve.' : 'The ' + sA.curve + ' as a curve.');
+      return;
+    }
+    if (it.k === 'seg') {
+      const pts = partial(it.pts, vis.p);
+      if (pts.length < 2) return;
+      part(vis.a, 0, () => add(K.svg('path', { class: 'st-' + cls, d: 'M' + pts.map((q) => r3(X(q[0])) + ' ' + r3(Y(q[1]))).join(' L') })));
+      said.push('In red, a straight line.');
+      return;
+    }
+    if (it.k === 'bar') {
+      let q = spanOf(sA, it.t);
+      if (it.s0) { const q0 = spanOf(it.s0, it.t); q = [K.lerp(q0[0], q[0], it.m), K.lerp(q0[1], q[1], it.m)]; }
+      if (!(q[1] - q[0] > 0)) return;
+      const yTop = Y(q[1]), hgt = Math.max(0.8, Y(q[0]) - yTop);
+      part(vis.a, 0, () => rect('bar' + (it.cur ? ' cur' : ''), X(it.t) - 6, yTop, 12, hgt, 1.5));
+      REC.bars.push({ t: it.t, lo: q[0], hi: q[1], cur: !!it.cur });
+      return;
+    }
+    if (it.k === 'mark') {
+      const v = it.v != null ? it.v : val(sA, it.t), x = X(it.t), y = Y(v);
+      part(vis.a, 0, () => {
+        if (it.dot === 'ring') dot('ring' + (cls === 'slip' ? ' bad' : ''), x, y, 5);
+        else if (it.dot) dot('d-' + cls, x, y, 4.5);
+        if (it.text) placeLabel(x, y, it.text, 'ml h' + (cls === 'slip' ? ' slip' : ''), it.prefs || (sA.line > sA.start ? RISES : FALLS), lim, /^v = /.test(it.text));
+      });
+      if (!it.old) REC.marks.push({ t: it.t, v, text: it.text, cls, cur: !!it.cur, p30: !!it.p30, moving: !!it.moving });
+      if (it.p30) REC.p30 = { t: it.t, v, text: it.text };
+      if (it.text && !it.old) said.push((cls === 'slip' ? 'In red, ' : '') + say(it.text) + '.');
+      return;
+    }
+    if (it.k === 'pill') {
+      const tx = '× ' + f3(gapOf(sA, it.t1) / gapOf(sA, it.t0));
+      part(vis.a, 0, () => {
+        const c = (X(it.t0) + X(it.t1)) / 2, w = tw(tx, 'pt') + 10;
+        rect('pill', c - w / 2, G.pillY, w, 18, 9);
+        text(c, G.pillY + 13, tx, 'pt', 'middle');
+      });
+      REC.pills.push({ t0: it.t0, t1: it.t1, text: tx });
+      said.push('From ' + it.t0 + ' to ' + it.t1 + ' tau, ' + say(tx) + '.');
+      return;
+    }
+    if (it.k === 'q') {
+      if (it.row === 'sec') part(vis.a, 0, () => text(X(it.t), G.secY + 2, '?', 'q', 'middle'));
+      else part(vis.a, 0, () => { line('guide', X(it.t), G.bot, X(it.t), G.top + 18); text(X(it.t), G.top + 12, '?', 'q h', 'middle'); });
+      said.push('A question mark at the time asked about.');
+      return;
+    }
+    if (it.k === 'tick') {
+      part(vis.a, 4, () => textC(X(it.t), G.secY, it.text, cls === 'slip' ? 'tks' : 'tkr', 2, 338));
+      REC.ticks.push(it.text);
+      said.push((cls === 'slip' ? 'In red, ' : '') + say(it.text) + ' under ' + it.t + ' tau.');
+      return;
+    }
+    if (it.k === 'guide') { part(vis.a, 0, () => line('guide', X(it.t), Y(it.v), X(it.t), G.bot)); return; }
+    if (it.k === 'gaplab') {
+      const lab = fv(Math.abs(sA.start - sA.line), 1) + ' ' + sA.unit + ' gap', w = tw(lab, 'ml');
+      const y = sA.line < sA.start ? Y(sA.line) - 6 : Y(sA.line) + 16;
+      part(vis.a, 0, () => text(PX0 + 10, y, lab, 'ml h', 'start'));
+      reserve(PX0 + 10, y, w);
+      said.push('At the start, a ' + say(lab) + '.');
+    }
+  }
+  function drawGraph(d, st, G, M) {
+    const s = M.s, gc = M.gc, sc = yScale(d, st, s);
+    const X = (t) => PX0 + (t / gc.tmax) * (PX1 - PX0);
+    const Y = (v) => G.bot - (v / sc.now) * G.h;
+    text(6, 16, s.yname, 'an', 'start');
+    reserve(6, 16, tw(s.yname, 'an'));
+    if (gc.header) { const w = tw(gc.header, 'hd'); text(334 - w, 16, gc.header, 'hd', 'start'); reserve(334 - w, 16, w); REC.header = gc.header; }
+    // the value axis: its ticks (a new set fades in while the scale changes)
+    const sets = sc.s0 === sc.s1 ? [[s.yt, 1]] : [[s.yt, 1 - Math.min(1, sc.p * 2)], [niceTicks(sc.s1), Math.max(0, sc.p * 2 - 1)]];
+    sets.forEach((set) => part(set[1], 0, () => set[0].forEach((v) => {
+      if (v > sc.now * 1.0001) return;
+      line('tickm', GX0 - 5, Y(v), GX0, Y(v));
+      text(GX0 - 7, Y(v) + 4.5, fv(v), 'tk', 'end');
+    })));
+    line('axis', GX0, G.top, GX0, G.bot);
+    line('axis', GX0, G.bot, PX1 + 8, G.bot);
+    gc.ticks.forEach((tk) => {
+      line('tickm', X(tk[0]), G.bot, X(tk[0]), G.bot + 5);
+      if (tk[1]) textC(X(tk[0]), G.tauY, tk[1], 'tk', 2, 338);
+      if (tk[2]) { textC(X(tk[0]), G.secY, tk[2], 'tk', 2, 338); REC.ticks.push(tk[2]); }
+    });
+    if (gc.sym) text(8, G.secY, 't', 'tk', 'start', true);
+    const said = ['A graph of the ' + s.curve + ', time along the bottom in time constants.'];
+    if (gc.header) said.push(say(gc.header) + '.');
+    M.items.forEach((it) => drawItem(d, st, it, s, X, Y, G, said));
+    if (M.handle && !finished) {
+      const x = X(M.pos);
+      add(K.svg('circle', { class: 'knob', cx: r3(x), cy: G.bot, r: 9 }));
+      said.push('The time handle at ' + fv(M.pos, 2) + ' tau.');
+    }
+    if (M.readout != null) {
+      part(M.roA, 0, () => text(12, G.roY, M.readout, 'pt', 'start'));
+      REC.readout = M.readout;
+      said.push(say(M.readout) + '.');
+    }
+    drawKey(G, M.key);
+    REC.rc = M.rc;
+    REC.pos = M.pos;
+    REC.s = s;
+    return said.join(' ');
+  }
+
+  // ---------- the key, inside the drawing ----------
+  function drawKey(G, items) {
+    let x = 12;
+    items.forEach((it) => {
+      const y = G.keyY;
+      if (it[0] === 'bar') rect('bar', x + 2, y - 7, 12, 12, 1.5);
+      else line('st-' + it[0], x, y, x + 16, y);
+      text(x + 22, y + 4.5, it[1], 'key', 'start');
+      x += 22 + tw(it[1], 'key') + 18;
+    });
+  }
+
+  // ---------- the time handle ----------
+  const grip = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1, role: 'slider', 'aria-label': 'Time handle, in time constants', 'aria-orientation': 'horizontal' }));
+  grip.style.display = 'none';
+  let held = null;
+  const handleLive = () => !finished && STEPS[at()].show && STEPS[at()].handle !== false;
+  function svgX(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()).x;
+  }
+  const toTau = (x) => Math.round(((x - PX0) / (PX1 - PX0)) * 5);
+  function setTime(n) {
+    const st = S[at()];
+    n = K.clamp(Math.round(n), 0, 5);
+    if (st.live && timeCtl.get() === n && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    T = Infinity; st.live = true; st.trans = null;
+    timeCtl.set(n, true);
+    K.reveal();
+  }
+  grip.addEventListener('pointerdown', (e) => {
+    if (!handleLive()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the band */ }
+    const x = svgX(e);
+    if (x != null) setTime(toTau(x));
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !handleLive()) return;
+    const x = svgX(e);
+    if (x != null) setTime(toTau(x));
+  });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    if (!handleLive()) return;
+    const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+    if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault();
+    const now = REC && REC.pos != null ? Math.round(REC.pos) : timeCtl.get();
+    setTime(e.key === 'Home' ? 0 : e.key === 'End' ? 5 : now + by);
+  });
+  function placeGrip(d, G, M) {
+    const on = !!(d.show && M.handle && !finished);
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    const n = Math.round(M.pos);
+    grip.setAttribute('x', PX0 - 24); grip.setAttribute('width', PX1 - PX0 + 34);
+    grip.setAttribute('y', G.top); grip.setAttribute('height', G.bot + 30 - G.top);
+    grip.setAttribute('aria-valuemin', 0); grip.setAttribute('aria-valuemax', 5); grip.setAttribute('aria-valuenow', n);
+    grip.setAttribute('aria-valuetext', n + ' time constants, ' + say(secText(M.s, n)));
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i, P) {
+    if (i == null) i = at();
+    if (!P) P = cur();
+    const d = STEPS[i], st = S[i], G = geo(d);
+    art.textContent = '';
+    into = null;
+    placed = [];
+    REC = { marks: [], bars: [], pills: [], curves: [], ticks: [], readout: '', header: '', rc: null, pos: null, s: null, p30: null, inset: null };
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    const M = d.show ? showModel(d, st, P) : doModel(d);
+    const said = drawGraph(d, st, G, M);
+    placeGrip(d, G, M);
+    svg.setAttribute('aria-label', said);
+  }
+
+  // The model the lesson reads: the time constant, the share of the gap left and the reading at the handle.
+  function modelAt(p) {
+    const i = K.clamp(Math.round(p.step), 0, STEPS.length - 1), d = STEPS[i];
+    const s = scenOf(d, p.mode, p.R, p.C), n = K.clamp(Math.round(p.time), 0, 5);
+    return { timeConstant: s.rc, gapLeft: Math.exp(-n), reading: val(s, n) };
+  }
+  K.model(modelAt);
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  write(el('cap'), CAPTION);
+  function switched(d, st, from, to) {
+    st.live = true;
+    if (morphable(d, from, to)) { st.trans = { from, to }; play(0.9); }
+    else { st.trans = null; anim.pause(); T = Infinity; enter('scene'); }
+  }
+  K.update(() => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      openStep(i);
+      if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }
+    } else if (d.show) {
+      const P = cur();
+      if (P.mode !== lastMode) switched(d, st, lastMode, P.mode);
+      else if (P.time !== lastTime || P.R !== lastR || P.C !== lastC) {
+        // the handle, a slider or a test moved: the demonstration gives way to Dan's setting
+        st.live = true; st.trans = null;
+        if (anim.playing()) anim.pause();
+        T = Infinity;
+      }
+    }
+    remember();
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    const sNow = d.show ? scenOf(d, modeCtl.get(), rCtl.get(), cCtl.get()) : d.sc;
+    el('lead').hidden = i !== 0 || finished;
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('modek').hidden = finished || !d.show || !d.switch;
+    el('rck').hidden = finished || !d.show || !d.sliders || sNow.k === 'cool';
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      b.el.appendChild(K.el('span', null, opts[k]));   // one span, so the button's gap does not split "1.35 V"
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const SHOWS = STEPS.map((d, i) => i).filter((i) => STEPS[i].show);
+  const PICKS = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const liveSt = () => Object.assign(blank(), { live: true });
+  const PP = (o) => Object.assign({ time: 0, mode: 'Discharging', R: 100, C: 470 }, o);
+  const close = (a, b, tol) => Math.abs(a - b) <= (tol != null ? tol : 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)));
+  // A step painted in the state and settings given (finished, or t seconds into its motion): what it draws.
+  function drawn(i, st, P, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try {
+      paint(i, P || openP(i));
+      return { texts: Array.from(art.querySelectorAll('text')).map((q) => q.textContent), rec: REC };
+    } finally { S[i] = keepS; T = keepT; }
+  }
+  // Every check repaints the screen Dan is on when it is done.
+  const chk = (label, fn, opt) => K.check(label, () => { try { return fn(); } finally { paint(); } }, opt);
+  // Every finished picture the lesson can show: each demonstration opened and at every handle
+  // setting in every mode, each puzzle opened, solved and with each slip shown.
+  function states() {
+    const out = [];
+    STEPS.forEach((d, i) => {
+      out.push([i, blank(), openP(i)]);
+      if (d.show) OPT.forEach((mode) => [0, 1, 2, 3, 4, 5].forEach((n) => out.push([i, liveSt(), PP({ time: n, mode })])));
+      else { out.push([i, solvedSt(i), openP(i)]); d.opts.filter((o) => o !== d.want).forEach((o) => out.push([i, wrongSt(i, o), openP(i)])); }
+    });
+    return out;
+  }
+  let ALL = null;
+  const all = () => ALL || (ALL = states().map((x) => ({ i: x[0], g: drawn(x[0], x[1], x[2]) })));
+  // Each gap bar drawn keeps 0.368 of the bar one time constant before it; every pill says so.
+  function keepsShare(rec) {
+    return rec.bars.every((b) => {
+      const prev = rec.bars.find((q) => Math.abs(q.t - (b.t - 1)) < 1e-9);
+      return !prev || close((b.hi - b.lo) / (prev.hi - prev.lo), E1, 1e-9);
+    }) && rec.pills.every((p) => p.text === '× 0.368');
+  }
+
+  chk('In the first time interval τ = RC the voltage falls to 0.368 of its initial value, since e^(−1) = 0.368: at 1τ the model keeps 0.368 of the start and a 10 V start reads 3.68 V, at every R and C tried', () =>
+    [10, 50, 100, 150, 200].every((R) => [10, 100, 470, 1000].every((C) => {
+      const o = K.at({ R, C, time: 1 });
+      return close(o.gapLeft, E1) && f3(o.gapLeft) === '0.368' && V2(o.reading) === '3.68 V' && close(o.reading, 10 * E1);
+    })) && f3(E1) === '0.368', { source: SRC1 });
+  chk('RC is the time during which the charge drops to 1/e of the initial value, and has dimensions of time: 100 kΩ × 470 µF gives 47 s, 10 kΩ × 1000 µF gives 10 s, and one RC leaves 1/e of the gap on every curve drawn', () => {
+    const okRC = close(K.at({}).timeConstant, 47) && close(K.at({ R: 10, C: 1000 }).timeConstant, 10) && close(K.at({ R: 200, C: 1000 }).timeConstant, 200) &&
+      secT(rcOf(100, 470)) === '47 s' && secT(rcOf(10, 1000)) === '10 s' && fx(100 * 1000, 0) === '100,000' && fx(470 / 1e6, 6) === '0.000470';
+    const curves = all().every(({ g }) => g.rec.curves.filter((c) => c.cls === 'main' && !c.morph && c.to >= 1 && c.from <= 0).every((c) => close(Math.abs(c.fn(1) - c.s.line), Math.abs(c.s.start - c.s.line) * E1, 1e-9 * Math.max(1, c.s.start))));
+    return okRC && curves;
+  }, { source: SRC3 });
+  chk('An object cools at a rate proportional to the difference between its temperature and the ambient temperature: on every cooling curve, the rate of fall measured at many times divided by the gap to the room is the same everywhere', () =>
+    [SC.cool, SC.oil, BASE.cool].every((s) => {
+      const r = [0.2, 0.7, 1.5, 3, 4.5].map((t) => ((val(s, t + 1e-5) - val(s, t - 1e-5)) / 2e-5) / (val(s, t) - s.line));
+      return r.every((x) => close(x, r[0], 1e-5)) && close(r[0], -1, 1e-5);
+    }), { source: SRC4 });
+  chk('The rate of growth is proportional to the current function value, here run downhill: on every capacitor curve, discharging and charging, the slope measured at many times divided by the gap still to close is the same everywhere', () =>
+    [SC.d10, SC.c10, SC.d400, SC.c5, BASE.dis, BASE.chg].every((s) => {
+      const r = [0.2, 0.7, 1.5, 3, 4.5].map((t) => ((val(s, t + 1e-5) - val(s, t - 1e-5)) / 2e-5) / (s.line - val(s, t)));
+      return r.every((x) => close(x, r[0], 1e-5)) && close(r[0], 1, 1e-5);
+    }), { source: SRC2 });
+  chk('Every gap bar keeps 0.368 of the bar one time constant before it, in every mode, at every handle setting and with R and C across their ranges, and every pill reads × 0.368', () => {
+    const rcs = [[100, 470], [10, 10], [200, 1000], [130, 470]];
+    const shows = SHOWS.every((i) => OPT.every((mode) => rcs.every((rc) => {
+      const g = drawn(i, liveSt(), PP({ time: 5, mode, R: rc[0], C: rc[1] }));
+      const want = STEPS[i].handle === false ? 1 : 6;
+      return g.rec.bars.length === want && keepsShare(g.rec) && g.rec.pills.length === want - 1;
+    })));
+    return shows && all().every(({ g }) => keepsShare(g.rec));
+  });
+  chk('Charging is the discharge flipped and lifted: at every time the charging and discharging voltages add to the 10 V supply, so the charging gap bars match the discharge bars', () => {
+    const add10 = [0, 0.3, 1, 2, 3.7, 5].every((t) => close(val(BASE.chg, t) + val(BASE.dis, t), 10));
+    const i = idx('Charging');
+    const a = drawn(i, liveSt(), PP({ time: 3, mode: 'Charging' })).rec.bars, b = drawn(i, liveSt(), PP({ time: 3, mode: 'Discharging' })).rec.bars;
+    return add10 && a.length === 4 && b.length === 4 && a.every((x, j) => close(x.hi - x.lo, b[j].hi - b[j].lo, 1e-9) && close(x.hi, 10) && close(b[j].lo, 0));
+  });
+  chk('By the rule the gap never closes: at 5τ the charge is 99.3% with 0.07 V to go, 400 V leaves 2.7 V, and every curve drawn stays strictly between its start and its line', () => {
+    const nums = pct(100 * (1 - Math.exp(-5))) === '99.3%' && V2(10 * Math.exp(-5)) === '0.07 V' && V400(400 * Math.exp(-5)) === '2.7 V';
+    const g7 = drawn(idx('Never quite full'), blank());
+    const inset = !!g7.rec.inset && g7.rec.inset.text === '0.07 V to go' && g7.texts.indexOf('5τ: the usual line for full') >= 0 && g7.texts.indexOf('99.3%') >= 0;
+    const g7d = drawn(idx('Never quite full'), liveSt(), PP({ time: 5, mode: 'Discharging' }));
+    const inset400 = !!g7d.rec.inset && g7d.rec.inset.text === '2.7 V left';
+    const between = all().every(({ g }) => g.rec.curves.filter((c) => c.cls === 'main' && !c.morph).every((c) => {
+      for (let j = 1; j <= 40; j++) {
+        const t = c.from + ((c.to - c.from) * j) / 40, f = (c.fn(t) - c.s.line) / (c.s.start - c.s.line);
+        if (t > 0 && !(f > 0 && f < 1)) return false;
+        if (!close(c.fn(t), val(c.s, t), 1e-9 * Math.max(1, c.s.start, c.s.line))) return false;
+      }
+      return true;
+    }));
+    return nums && inset && inset400 && between;
+  });
+  chk('The model returns the time constant, the share of the gap left and the reading the picture shows, at every handle setting and switch setting on every demonstration screen', () =>
+    SHOWS.every((i) => OPT.every((mode) => (STEPS[i].handle === false ? [STEPS[i].time0] : [0, 1, 2, 3, 4, 5]).every((n) => {
+      const d = STEPS[i], g = drawn(i, liveSt(), PP({ time: n, mode })), o = K.at({ step: i, time: n, mode }), s = scenOf(d, mode, 100, 470);
+      if (!(close(o.timeConstant, g.rec.rc) && close(o.gapLeft, Math.exp(-n)) && close(o.reading, val(s, n)) && Math.round(g.rec.pos) === n)) return false;
+      if (n === 0) return g.rec.readout === 'At the start, none of the gap has closed yet.' || d.handle === false;
+      const m = g.rec.marks.find((x) => x.cur);
+      if (!m || !close(m.v, o.reading) || !close(m.t, n)) return false;
+      if (m.text != null && m.text.replace(/^v = /, '') !== (s.pct ? pct(100 * (1 - o.gapLeft)) : s.fmt(o.reading))) return false;
+      return g.rec.readout.indexOf(f3(o.gapLeft) + ' of the start') >= 0 && g.rec.readout.indexOf(n + 'τ, ' + secText(s, n)) >= 0;
+    }))));
+  chk('The 30 s point sits on the curve between the marks: e^(−30/47) ≈ 0.528 gives 5.28 V, and with a bigger R the same 30 s is fewer time constants, so it sits higher', () => {
+    const i = idx('R and C set the pace');
+    const a = drawn(i, liveSt(), PP({ time: 3 })).rec.p30, b = drawn(i, liveSt(), PP({ time: 3, R: 200 })).rec.p30, c = drawn(i, liveSt(), PP({ time: 3, R: 10, C: 10 })).rec.p30;
+    return f3(Math.exp(-30 / 47)) === '0.528' && !!a && close(a.t, 30 / 47) && a.text === '30 s: 5.28 V' && !!b && b.t < a.t && b.v > a.v && c === null;
+  });
+  chk('Every number follows its rule: 3.68, 1.35 and 0.50 V (slips 0 V and 1.84 V); 47 s, 94 s and 141 s; 243 V (slips 659 V and 0 V); 0.632, 6.32, 8.65 and 9.50 V; 63.2, 86.5, 95.0, 98.2 and 99.3% (slips 12.64 V, 126.4% and 3.99 V); 2.7 V (slip 80 V); 70, 25.8, 45.8, 29.5 and 23.5 °C (slips 33.1 and 64.2 °C); 2.13, 0.119, 0.60 and 4.40 V (slip 6.72 V); 10 s (slips 10,000 s and 0.01 s); 6.8 and 36.8 °C (slips 10.8 and 48.4 °C); and each answer offered is the value its own working gives', () => {
+    const ok = V2(10 * E1) === '3.68 V' && V2(10 * Math.exp(-2)) === '1.35 V' && V2(10 * Math.exp(-3)) === '0.50 V' &&
+      V2(Math.max(0, 10 * E1 - (10 - 10 * E1))) === '0 V' && V2((10 * E1) / 2) === '1.84 V' && fv(10 - 10 * E1, 2) === '6.32' &&
+      secT(47) === '47 s' && secT(2 * 47) === '94 s' && secT(3 * 47) === '141 s' &&
+      V400(400 * Math.exp(-0.5)) === '243 V' && V400(400 * Math.exp(0.5)) === '659 V' && V400(400 * Math.exp(-200)) === '0 V' &&
+      f3(1 - E1) === '0.632' && V2(10 * (1 - E1)) === '6.32 V' && V2(10 * (1 - Math.exp(-2))) === '8.65 V' && V2(10 * (1 - Math.exp(-3))) === '9.50 V' &&
+      [1, 2, 3, 4, 5].map((k) => pct(100 * (1 - Math.exp(-k)))).join(' ') === '63.2% 86.5% 95.0% 98.2% 99.3%' &&
+      V2(2 * 10 * (1 - E1)) === '12.64 V' && pct(2 * 100 * (1 - E1)) === '126.4%' && V2(10 * R632 * R632) === '3.99 V' &&
+      V400(400 * Math.exp(-5)) === '2.7 V' && V400(400 / 5) === '80 V' &&
+      fv(90 - 20, 1) === '70' && fx(70 * E1, 1) === '25.8' && C1(20 + 70 * E1) === '45.8 °C' && C1(20 + 70 * Math.exp(-2)) === '29.5 °C' && C1(20 + 70 * Math.exp(-3)) === '23.5 °C' &&
+      C1(90 * E1) === '33.1 °C' && C1(20 + 70 * (1 - E1)) === '64.2 °C' && secT(600) === '600 s' && mins(600 / 60) === '10 min' &&
+      fx(T100, 2) === '2.13' && f3(Math.exp(-T100)) === '0.119' && V2(5 * Math.exp(-T100)) === '0.60 V' && V2(5 - 5 * Math.exp(-T100)) === '4.40 V' && V2(T100 * (1 - E1) * 5) === '6.72 V' &&
+      secT(10000 * 0.001) === '10 s' && secT(10 * 1000) === '10,000 s' && secT(10 * 0.001) === '0.01 s' &&
+      fx(50 * Math.exp(-2), 1) === '6.8' && C1(30 + 50 * Math.exp(-2)) === '36.8 °C' && C1(80 * Math.exp(-2)) === '10.8 °C' && C1(30 + 50 * E1) === '48.4 °C';
+    const labelled = PICKS.every((i) => { const d = STEPS[i]; return d.opts.every((o) => d.val[o] != null && d.fmt(d.val[o]) === o); });
+    return ok && labelled;
+  });
+  const shows = (texts, ans) => texts.some((x) => x === ans || (x.indexOf(ans) === 0 && /\s/.test(x.charAt(ans.length))));
+  chk('Before an answer, nothing in a puzzle\'s picture gives it away, and a right answer shows it', () =>
+    PICKS.every((i) => { const d = STEPS[i]; return !shows(drawn(i, blank()).texts, d.ans) && shows(drawn(i, solvedSt(i)).texts, d.ans); }));
+  chk('Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own', () =>
+    PICKS.every((i) => {
+      const d = STEPS[i];
+      return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)) &&
+        d.opts.every((o) => o === d.want || !!(d.hints && d.hints[o]));
+    }));
+  chk('Every demonstration has finished arriving within its time (at most 4.5 s), none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i, openP(i)); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i), FB[0]) && FB[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB[1]) && FB[1] <= 2.5);
+    });
+    T = keepT;
+    return ok;
+  });
+
+  K.ready();
+</script>

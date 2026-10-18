@@ -1,0 +1,38 @@
+{
+  "draft": "i3.lesson.draft1.txt",
+  "validator": "Draft 1 passes tools/eval/validate.mjs with no problems, soft points or warnings, so every fault below is the critic's, not the validator's.",
+  "keep": [
+    "The idea named in one line up front: the voltage loses the same share in each equal stretch of time, the decay of the last lesson, at a pace set by R × C.",
+    "IIT Delhi [1] on RC having dimensions of time and so being called the time constant, and Lumen [2] on 0.368 after the first τ, each on words its quote supports.",
+    "The brief's picture, The shrinking gap, with the time handle snapping to whole τ and a switch for discharging, charging and cooling.",
+    "The example circuit 100 kΩ and 470 µF, RC = 47 s, which also makes the brief's worked example (5 V, 100 s) computable."
+  ],
+  "fix": [
+    "Causal step skipped, the main one: why the same share goes in each equal time. Say it from Ohm's law, which Dan uses daily: the current draining the capacitor is v ÷ R, so half the voltage drives half the current and the fall runs at half the speed. The fall is proportional to what is left, so each equal stretch takes the same share, the same factor every equal step of the first lesson. Tie it to lesson 2's growth whose rate is proportional to the current value (OpenStax [5]), run downhill.",
+    "Causal step skipped: why the pace is R × C and not R or C alone. Bigger R gives less current at the same voltage; bigger C holds more charge for each volt, so the same current takes longer to lower it (textbooks add Q = Cv). Both slow it, so the product sets the pace. Show the units: 100,000 Ω × 0.000470 F = 47 s.",
+    "Causal step skipped: why every later τ also leaves 0.368. The source states the first τ only; the reason it repeats is that the share lost depends only on the time elapsed, not on where you start. Say so, and show 10 V, 3.68, 1.35, 0.50.",
+    "Charging taught as a bare formula. Give its cause (the charging current is (supply − v) ÷ R, proportional to the gap), so the gap to the supply shrinks exactly as the discharge voltage did, and the curve is the discharge curve flipped and lifted, as in Functions and their graphs.",
+    "False absolute: '99.3% charged, which counts as full' presents a convention as a fact, and the brief says 5τ is a convention, never a law. Say the gap in the rule only shrinks, so the capacitor is never quite full by the rule; textbooks add that engineers usually treat 5 time constants as full; in practice the gap soon becomes too small to measure. Same for discharge: 400 V leaves about 2.7 V after 5τ.",
+    "Misconceptions from the brief not caught: e^(+t/RC) offered for a discharge (OCR, Pearson examiners on negative powers and the sign of k) and 'two time constants give twice 63%' (the curve is not a straight line). Each needs a DO screen with its own hint. Add the cooling slip of taking 0.368 of the temperature instead of the gap to the room, and the kΩ × µF unit slip.",
+    "Newton's law's limit is missing: the brief and research [4] say it holds only for very small temperature differences. Cite it and say a cooling part follows the curve only roughly; confidence should be 'simplified', with the ideal capacitor and resistor named as a teaching model once.",
+    "Cooling has no why: Newton's law [3] gives a rate proportional to the gap to the room, the same cause as charging, so the gap shrinks by the same factor each equal time. Give T = T_room + (T₀ − T_room)e^(−t/τ) as textbooks add, each symbol named, and work 90 °C in a 20 °C room through 10, 20 and 30 minutes.",
+    "Interactive is missing the R and C sliders the brief asks for, the RC readout alone cannot show the axis stretching, and the gap bar's 'share' readout has no reading in volts or degrees. whatAmILookingAt names no screens, so the builder must guess them: list all thirteen (SHOW and DO alternating, three mixed puzzles), each wrong option with the slip that makes it.",
+    "ignores is thin: say what the picture wrongly suggests (the curve reaching the line at the right-hand edge, the snapping handle making time look like it jumps), that real capacitors leak and resistors warm, and that a real part cools faster than Newton's law while very hot.",
+    "Numbers list lacks most values that appear (94 s, 0.50 V, 5τ, 86.5%, 95.0%, 98.2%, every slip value, the worked examples). Every number must be listed with its kind.",
+    "Analogy fails the rule: a bath emptying through a plughole is not exponential (the flow goes with the square root of the depth), and 'a bath does empty completely' gives no specific break. Use one that reproduces the main result, the same share of what is left closed each step and so never quite there, with a correct break.",
+    "Practice lacks a safe-way-first line (the rule only shrinks, so time is a guide and the meter decides), a rule of thumb (about two thirds closed per τ, about 99% at 5τ), a worked example that is not just the first τ, and the mistakes' numbers."
+  ],
+  "round2": {
+    "draft": "i3.lesson.draft2.txt",
+    "fixed": "All thirteen points above are fixed in draft 2.",
+    "checked": [
+      "No false absolutes: the gap 'only shrinks' in the rule and becomes 'too small to measure' in practice; 5τ is 'the usual line', a convention; the 'same share' holds at every setting of R, C and the time handle in the ideal model.",
+      "Every number is a control, an assumed example worded 'say' or 'example', computed from v = V e^(−t/RC), v = V(1 − e^(−t/RC)) or the cooling rule on screen, or 0.368 cited to Lumen [2].",
+      "Misconceptions caught on DO screens with their own hints: a straight-line fall (2), a plus in the power and t × RC (4), twice 63% and squaring the filled share (6), 5τ taken as empty (8), the gap taken to zero instead of the room (10), the gap answered instead of the voltage (11), kΩ × µF left unconverted (12), a temperature below the room (13).",
+      "Rhythm: SHOW 1, 3, 5, 7, 9 alternate with DO 2, 4, 6, 8, 10; mixed puzzles 11, 12 and 13.",
+      "Terms: time constant and Newton's law of cooling, two new terms; the time constant is used again in Solving exponential equations and Log graphs."
+    ],
+    "fix": [],
+    "validator": "Draft 2 first failed validate.mjs with one hard problem, 'interactive.controls must have 1-2 controls': the R and C sliders were listed as controls. They now open on screen 3 and are described in whatAmILookingAt (as lesson 2's rate slider is), leaving the time handle and the switch as the two controls. It then passed with no problems, soft points or warnings."
+  }
+}

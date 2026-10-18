@@ -1,0 +1,768 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-18T05:00:18.947Z",
+ "startedAt": "2026-10-18T05:00:18.947Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i3",
+  "title": "The time constant: capacitors and cooling",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the gap bar keeping 0.368 of itself at every time constant, whatever R and C are set to, when you drag the time handle from 1τ to 2τ to 3τ.",
+   "title": "The shrinking gap",
+   "controls": [
+    {
+     "id": "time",
+     "label": "Time handle, in time constants",
+     "min": 0,
+     "max": 5,
+     "step": 1,
+     "value": 0,
+     "unit": "τ"
+    },
+    {
+     "id": "mode",
+     "label": "What is changing",
+     "options": [
+      "Discharging",
+      "Charging",
+      "Cooling"
+     ],
+     "value": 0
+    }
+   ],
+   "outputs": [
+    {
+     "id": "timeConstant",
+     "label": "Time constant RC",
+     "unit": "s",
+     "decimals": 1
+    },
+    {
+     "id": "gapLeft",
+     "label": "Gap left, share of the start",
+     "unit": "",
+     "decimals": 3
+    },
+    {
+     "id": "reading",
+     "label": "Voltage or temperature now",
+     "unit": "V or °C",
+     "decimals": 2
+    }
+   ],
+   "whatAmILookingAt": "A short lesson in thirteen small screens on one graph: time along the bottom, marked in seconds and in time constants (1τ, 2τ, 3τ …), and voltage up the side. To start, a capacitor charged to 10 V empties through a resistor, and its voltage falls as a curve. A bar runs from the curve down to zero: the gap still to close, which here is the voltage itself. The current through the resistor is the voltage left ÷ R, by Ohm's law, so the fall slows exactly as the voltage does, and each equal stretch of time takes the same share. Drag the time handle and it snaps to 1τ, 2τ, 3τ, 4τ and 5τ; at each one the bar keeps 0.368 of the length it had at the one before, and the readout gives the share of the starting gap still left. On screens 1 and 5 a dotted line runs from the point at the handle along the curve's slope, its pace at that moment, and on screen 3 from the start; because the pace is the gap ÷ RC, that line kept up would reach the line in exactly one time constant. Screen 3 adds two sliders, resistance R from 10 to 200 kΩ in steps of 10 (opening at 100 kΩ) and capacitance C from 10 to 1000 µF in steps of 10 (opening at 470 µF): a bigger R lets less current through at the same voltage and a bigger C must lose more charge for each volt, so either one stretches the time axis while the curve keeps its shape. The time constant readout is R × C in seconds, with kΩ and µF turned into ohms and farads: 100 kΩ × 470 µF = 100,000 × 0.000470 = 47 s. The rule is v = V e^(−t/RC): v is the voltage now, V the starting voltage, t the time since the switch closed, and t/RC that time counted in time constants. The switch has three settings. Discharging is the curve just described. Charging draws a dashed supply line at 10 V and a curve rising towards it, v = V(1 − e^(−t/RC)); the bar is now the gap from the curve up to the supply line, which shrinks exactly as the discharge voltage did, because the charging current is that gap ÷ R. Cooling turns the side axis into temperature and the line into the room's 20 °C; an example part starts at 90 °C with a time constant of 10 minutes (600 s, the sliders rest), and the bar is the gap down to the room line, T = T_room + (T₀ − T_room) e^(−t/τ), where T₀ is the starting temperature and τ the part's own time constant. Screen by screen: 1 shows the discharge from 10 V with RC = 47 s, the handle stepping to 3.68 V at 1τ (47 s), 1.35 V at 2τ (94 s) and 0.50 V at 3τ (141 s). 2 asks for the voltage at 2τ, knowing 3.68 V at 1τ. 3 frees the R and C sliders, shows the readout change while every τ mark still reads 0.368, writes the rule, and marks one point between the marks, 30 s, at 5.28 V from e^(−30/47) ≈ 0.528. 4 asks for a 400 V capacitor with RC = 20 s after 10 s. 5 switches to charging towards 10 V: 6.32 V at 1τ, 8.65 V at 2τ, 9.50 V at 3τ, the curve shown as the discharge curve flipped and lifted. 6 asks for the voltage at 2τ while charging. 7 steps to 4τ and 5τ, 98.2% and 99.3% charged, and zooms on the gap left at 5τ, 0.07 V, with 5τ labelled 'the usual line for full'; then back to discharging from 400 V, which leaves 2.7 V at 5τ. 8 asks for that 400 V capacitor's voltage after 5τ, and after an answer the magnifier shows what is left. 9 opens on cooling, with no switch: the 90 °C part, the 20 °C room line and the 70 °C gap at the start, with Newton's law of cooling written under it. 10 asks for the part's temperature after 10 minutes, then shows 45.8 °C at 1τ, 29.5 °C at 2τ and 23.5 °C at 3τ. 11, 12 and 13 mix it all: a 5 V supply charging 470 µF through 100 kΩ for 100 s; RC for 10 kΩ and 1000 µF; and 80 °C oil in a 30 °C room with τ = 20 minutes, after 40 minutes. A puzzle offers three answers, and a wrong pick gets a one-line hint showing where it goes wrong.",
+   "ignores": "The voltages, resistances, capacitances, temperatures and times are example values. The curve is drawn only to 5τ, so its right-hand end can look as if it meets the line; by the rule the gap only shrinks, and it is the drawing that stops. The handle snaps to whole time constants to make the marks easy to hit; the curve itself changes smoothly between them. The capacitor and resistor are ideal: real capacitors also leak a little charge through themselves, and a real resistor's value drifts as it warms. The cooling part has one temperature all through and a fixed time constant, while a real part is hotter inside than at its surface, and while it is very hot it loses heat faster than Newton's law says, partly by giving off heat as radiation.",
+   "numbers": [
+    {
+     "label": "Example starting voltage, discharge, in volts, screens 1 to 3",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example supply voltage, charging, in volts, screens 5 to 7",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Time handle's opening setting, in time constants",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Resistance slider's opening setting, in kΩ",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Capacitance slider's opening setting, in µF",
+     "value": 470,
+     "kind": "control"
+    },
+    {
+     "label": "100 kΩ in ohms",
+     "value": 100000,
+     "kind": "computed"
+    },
+    {
+     "label": "470 µF in farads",
+     "value": 0.00047,
+     "kind": "computed"
+    },
+    {
+     "label": "Time constant RC at the opening settings, in seconds",
+     "value": 47,
+     "kind": "computed"
+    },
+    {
+     "label": "Share left after one time constant",
+     "value": 0.368,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Discharge voltage at 1τ, 10 × 0.368, in volts",
+     "value": 3.68,
+     "kind": "computed"
+    },
+    {
+     "label": "Time of 2τ at RC = 47 s, in seconds",
+     "value": 94,
+     "kind": "computed"
+    },
+    {
+     "label": "Discharge voltage at 2τ, 10 × e^(−2), in volts",
+     "value": 1.35,
+     "kind": "computed"
+    },
+    {
+     "label": "Time of 3τ at RC = 47 s, in seconds",
+     "value": 141,
+     "kind": "computed"
+    },
+    {
+     "label": "Discharge voltage at 3τ, 10 × e^(−3), in volts",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: same 6.32 V lost again at 2τ, in volts, screen 2",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 3.68 V halved at 2τ, in volts, screen 2",
+     "value": 1.84,
+     "kind": "computed"
+    },
+    {
+     "label": "Example time between the marks, in seconds, screen 3",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "e^(−30/47), share left after 30 s",
+     "value": 0.528,
+     "kind": "computed"
+    },
+    {
+     "label": "Discharge voltage after 30 s, in volts, screen 3",
+     "value": 5.28,
+     "kind": "computed"
+    },
+    {
+     "label": "Example start voltage, in volts, screens 4, 7 and 8",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example time constant, in seconds, screen 4",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example time, in seconds, screen 4",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "400 × e^(−10/20), in volts, screen 4",
+     "value": 243,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: plus in the power, 400 × e^0.5, in volts, screen 4",
+     "value": 659,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: t × RC = 200 in the power, in volts, screen 4",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Share of the gap closed in each τ, 1 − 0.368",
+     "value": 0.632,
+     "kind": "computed"
+    },
+    {
+     "label": "Charging voltage at 1τ, in volts, screen 5",
+     "value": 6.32,
+     "kind": "computed"
+    },
+    {
+     "label": "Charging voltage at 2τ, in volts, screens 5 and 6",
+     "value": 8.65,
+     "kind": "computed"
+    },
+    {
+     "label": "Charging voltage at 3τ, in volts, screen 5",
+     "value": 9.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Charged at 1τ, in %",
+     "value": 63.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Charged at 2τ, in %",
+     "value": 86.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Charged at 3τ, in %",
+     "value": 95,
+     "kind": "computed"
+    },
+    {
+     "label": "Charged at 4τ, in %",
+     "value": 98.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Charged at 5τ, in %",
+     "value": 99.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: twice 63.2%, in %",
+     "value": 126.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: twice 63.2% of 10 V, in volts, screen 6",
+     "value": 12.64,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 0.632 × 0.632 of 10 V, in volts, screen 6",
+     "value": 3.99,
+     "kind": "computed"
+    },
+    {
+     "label": "Time constants counted as full or empty",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap left at 5τ charging to 10 V, in volts, screen 7",
+     "value": 0.07,
+     "kind": "computed"
+    },
+    {
+     "label": "400 V after 5τ, 400 × e^(−5), in volts, screens 7 and 8",
+     "value": 2.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 400 ÷ 5, in volts, screen 8",
+     "value": 80,
+     "kind": "computed"
+    },
+    {
+     "label": "Example room temperature, in °C, screens 9 and 10",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example hot part, in °C, screens 9 and 10",
+     "value": 90,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example cooling time constant, in minutes, screens 9 and 10",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cooling time constant shown in seconds",
+     "value": 600,
+     "kind": "computed"
+    },
+    {
+     "label": "Starting gap to the room, 90 − 20, in °C",
+     "value": 70,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap after 10 minutes, 70 × 0.368, in °C",
+     "value": 25.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Part after 10 minutes, in °C",
+     "value": 45.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Time of 2τ in cooling, in minutes",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Part after 20 minutes, in °C",
+     "value": 29.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Time of 3τ in cooling, in minutes",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Part after 30 minutes, in °C",
+     "value": 23.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 0.368 of 90 °C, gap to zero, in °C, screen 10",
+     "value": 33.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 0.632 of the gap left, in °C, screen 10",
+     "value": 64.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Example supply, in volts, screen 11 and practice",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example charging time, in seconds, screen 11 and practice",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "100 s in time constants, 100 ÷ 47",
+     "value": 2.13,
+     "kind": "computed"
+    },
+    {
+     "label": "e^(−2.13), share of the gap left",
+     "value": 0.119,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap left after 100 s, in volts",
+     "value": 0.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Voltage after 100 s, 5 − 0.60, in volts",
+     "value": 4.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: straight line, 2.13 × 63.2% of 5 V, in volts, screen 11",
+     "value": 6.72,
+     "kind": "computed"
+    },
+    {
+     "label": "Example resistance, in kΩ, screen 12",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example capacitance, in µF, screen 12",
+     "value": 1000,
+     "kind": "assumed"
+    },
+    {
+     "label": "RC for 10 kΩ and 1000 µF, in seconds, screen 12",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: kΩ × µF read as seconds, screen 12",
+     "value": 10000,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: kΩ left unconverted, in seconds, screen 12",
+     "value": 0.01,
+     "kind": "computed"
+    },
+    {
+     "label": "100 kΩ × 470 µF before converting, in milliseconds",
+     "value": 47000,
+     "kind": "computed"
+    },
+    {
+     "label": "Example oil temperature, in °C, screen 13",
+     "value": 80,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example room temperature, in °C, screen 13",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example oil time constant, in minutes, screen 13",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example cooling time, in minutes, screen 13",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Oil after 40 minutes, 30 + 50 × e^(−2), in °C",
+     "value": 36.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 80 × e^(−2), below the room, in °C, screen 13",
+     "value": 10.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: one time constant only, in °C, screen 13",
+     "value": 48.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy: example distance to the wall, in metres",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Analogy: distance left after one, two, three steps, in metres",
+     "value": 3.68,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap left after 4τ, e^(−4), screen 7",
+     "value": 0.018,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap left after 5τ, e^(−5), screen 7",
+     "value": 0.007,
+     "kind": "computed"
+    },
+    {
+     "label": "IEC 60831 discharge limit, as a trade page reports it, in volts",
+     "value": 75,
+     "kind": "constant",
+     "source": 8
+    },
+    {
+     "label": "IEC 60831 discharge time, as a trade page reports it, in minutes",
+     "value": 3,
+     "kind": "constant",
+     "source": 8
+    }
+   ]
+  },
+  "explain": {
+   "text": "In the last lesson, e^(−t) kept 0.368 of what was there after each unit of time. A capacitor emptying through a resistor does the same, and the circuit sets the unit of time: R × C, called the [[time constant]]. Charging the capacitor, and a hot part cooling to the room, are the same shrinking gap seen from another side.\n\nStart with the discharge: say a capacitor charged to 10 V, with a resistor across it. The current through the resistor is the voltage left ÷ R, by Ohm's law. Textbooks add that a capacitor's charge is C × its voltage, so its voltage falls by the charge that flows away ÷ C. Halve the voltage and you halve the current, so the voltage falls half as fast. The fall always keeps in proportion to what is left, so each equal stretch of time takes away the same share of it, not the same number of volts: the same factor on every equal step, as in the first lesson. It is the downhill version of growth whose rate is proportional to the current value.[^2] A bigger R lets less current through at the same voltage, and a bigger C must lose more charge for each volt it drops, so both slow it down: the voltage falls at (v ÷ R) ÷ C = v ÷ RC volts a second, so the pace is set by their product. RC has dimensions of time, so it is called the time constant of the circuit;[^3] textbooks add that ohms times farads come out in seconds, so 100 kΩ and 470 µF give 100,000 × 0.000470 = 47 s. At its starting pace, 10 V ÷ 47 s, the capacitor would be empty in exactly one RC, but it slows as it falls, so in that time it only gets down to a share of its start: that is why RC is the natural unit of time. In the first time constant the voltage falls to 0.368 of its start, since e^(−1) ≈ 0.368.[^1] The share lost depends only on how long you wait, not on where you start, so every later time constant does the same: 10 V, then 3.68 V at 47 s, 1.35 V at 94 s and 0.50 V at 141 s. As a rule, v = V e^(−t/RC), where v is the voltage now, V the starting voltage, t the time since the switch closed and t/RC that time counted in time constants. Between the marks it works on the eˣ key: after 30 s, e^(−30/47) ≈ 0.528, so the capacitor is at 5.28 V. Keep the minus: without it the power grows and the voltage would rise.\n\nNow charge it from a 10 V supply through the same resistor. The current is (10 − v) ÷ R, so it is driven by the gap still to close up to the supply, and it shrinks with that gap. An insulation tester charging the insulation under test sees the same: the capacitive charging current quickly falls to zero.[^6] That gap shrinks exactly as the discharge voltage did, keeping 0.368 of itself in each time constant, so each one closes 0.632 of whatever gap remained. The capacitor's voltage is the supply minus the gap, v = V(1 − e^(−t/RC)): the discharge curve flipped and lifted, as you moved graphs in Functions and their graphs. So it reaches 63.2% after 1τ, 86.5% after 2τ, 95.0% after 3τ, 98.2% after 4τ and 99.3% after 5τ: after four the gap left is e^(−4) ≈ 0.018 of the start, and after five e^(−5) ≈ 0.007, so 1 − 0.007 = 99.3%. Two time constants give 86.5%, not twice 63.2%, because the second closes 0.632 of a smaller gap. In the rule the gap only ever shrinks, so by the rule a charging capacitor is never quite full and a discharging one never quite empty; in practice the gap soon becomes too small to measure. A trade tutorial puts it this way: after five time constants it reaches 99.3% charge, so at this point the capacitor is considered to be fully charged,[^7] and textbooks add that five are counted for empty too. It is a line people draw at 99.3%, not a point the curve reaches. From 400 V, 5τ still leaves about 2.7 V. That matters at work: a trade page reports that the IEC 60831 standard requires power factor correction capacitors to discharge to below 75 V within 3 minutes, to prevent accidental injury by residual voltage.[^8]\n\nA hot part cooling in a room follows much the same curve. [[Newton's law of cooling]] says an object cools at a rate proportional to the difference between its temperature and that of its surroundings,[^4] just as the charging current is proportional to the gap to the supply. So the gap to the room keeps the same share in each equal stretch of time, and the part's temperature is the room's plus that gap: T = T_room + (T₀ − T_room) e^(−t/τ), as textbooks write it, where T₀ is the starting temperature and τ the part's own time constant, which textbooks add is set by how much heat it holds and how easily heat leaves it. Say a 90 °C part sits in a 20 °C room with τ = 10 minutes: the 70 °C gap shrinks to 25.8 °C after 10 minutes, so the part reads 45.8 °C, then 29.5 °C at 20 minutes and 23.5 °C at 30. It is a rougher fit than the capacitor's: for heat given off as radiation, Newton's law of cooling holds only for very small temperature differences,[^5] and textbooks add that in still air a very hot part also loses heat faster than the law says. The capacitor and resistor here are ideal ones, a teaching model; real capacitors also leak a little charge through themselves. **In each time constant, a capacitor charging or discharging through a resistor keeps 0.368 of the gap it still has to close, and a cooling part keeps roughly the same share of its gap to the room.**"
+  },
+  "analogy": {
+   "text": "Walk towards a wall so that every step covers 0.632 of the distance still left. From 10 m away you are 3.68 m off after one step, 1.35 m after two, 0.50 m after three: big steps first, then ever smaller ones, each keeping 0.368 of the distance, so by that rule you never quite arrive.",
+   "breaks": "Your steps are separate jumps, while the capacitor's gap shrinks smoothly every instant, its share depending only on how long has passed. And your step size is your choice; the capacitor's is set by the circuit, through R × C."
+  },
+  "practice": {
+   "text": "- Safe way first: by the rule the voltage only ever shrinks, so a time tells you how long to wait, never that a capacitor is safe. Prove it dead with a tester before you touch it.\n- Put R in ohms and C in farads: 100 kΩ is 100,000 Ω and 470 µF is 0.000470 F.\n- Multiply them for RC in seconds.\n- Divide the time by RC, to count it in time constants.\n- Discharging: v = V × e^(−t/RC). Charging: v = V × (1 − e^(−t/RC)). Cooling: the room's temperature plus the starting gap × e^(−t/τ).\n- Check the size: a discharge sits between zero and the start, a charge between zero and the supply, a cooling part above the room.\n\n**Rule of thumb:** Each time constant closes about two thirds of the gap and leaves about a third, 0.632 and 0.368. Five time constants is the usual line for full or empty, at 99.3%.\n\n**Worked example:** Say a 5 V supply charges 470 µF through 100 kΩ. RC = 100,000 × 0.000470 = 47 s. After 100 s, t ÷ RC = 100 ÷ 47 ≈ 2.13, and e^(−2.13) ≈ 0.119, so the gap left is 5 × 0.119 ≈ 0.60 V and the capacitor is at 5 − 0.60 = 4.40 V.\n\n**Common mistakes**\n- Dropping the minus: e^(+t/RC) grows, so a discharge would rise.\n- Leaving kΩ and µF unconverted: 100 × 470 = 47,000 is in milliseconds, so RC is 47 s, not 47,000 s.\n- Taking two time constants as twice 63.2%: that would be 126.4%, more than full. It is 86.5%.\n- Answering with the gap when the question wants the voltage: 0.60 V is the gap, 4.40 V the voltage.\n- Cooling towards zero instead of towards the room: 0.368 of 90 °C is about 33.1 °C, but it is the 70 °C gap that shrinks, so the part is at 45.8 °C.\n- Treating 5τ as empty: from 400 V it still leaves about 2.7 V."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "DC Circuits Containing Resistors and Capacitors | Physics II",
+    "url": "https://courses.lumenlearning.com/atd-austincc-physics2/chapter/21-6-dc-circuits-containing-resistors-and-capacitors/",
+    "quote": "In the first time interval τ = RC after the switch is closed, the voltage falls to 0.368 of its initial value, since V = V ₀ ⋅ e −1 = 0.368 V ₀ ."
+   },
+   {
+    "n": 2,
+    "title": "6.8 Exponential Growth and Decay - Calculus Volume 1 | OpenStax",
+    "url": "https://openstax.org/books/calculus-volume-1/pages/6-8-exponential-growth-and-decay",
+    "quote": "That is, the rate of growth is proportional to the current function value."
+   },
+   {
+    "n": 3,
+    "title": "5. Charging and discharging of a capacitor",
+    "url": "https://physics.iitd.ac.in/uploads/manual_leiBQt035s.pdf",
+    "quote": "RC is the time during which the charge on the capacitor drops to 1/e of the initial value. Further, since RC has dimensions of time, it is called the time constant of the circuit."
+   },
+   {
+    "n": 4,
+    "title": "Newton's Law of Cooling",
+    "url": "https://www.math.uwaterloo.ca/~baforres/UCM138/Lectures/Chapter4/SLIDESNewtonsLaw.pdf",
+    "quote": "Newton’s law of cooling states that an object will cool (or warm) at a rate that is proportional to the difference between the temperature of the object and the ambient temperature T a of its surroundings."
+   },
+   {
+    "n": 5,
+    "title": "Newton's law of cooling - Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Newton's_law_of_cooling",
+    "quote": "Newton's law of cooling holds only for very small temperature differences."
+   },
+   {
+    "n": 6,
+    "title": "Insulation testing diagnostic techniques | Megger",
+    "url": "https://www.megger.com/en/et-online/october-2008-(1)/insulation-testing-diagnostic-techniques",
+    "quote": "The capacitive charging current quickly falls to zero, whereas the absorption current falls more slowly as the molecules in the insulation become polarised."
+   },
+   {
+    "n": 7,
+    "title": "RC Charging Circuit Tutorial & RC Time Constant",
+    "url": "https://www.electronics-tutorials.ws/rc/rc_1.html",
+    "quote": "So for all practical purposes, after five time constants (5T) it reaches 99.3% charge, so at this point the capacitor is considered to be fully charged."
+   },
+   {
+    "n": 8,
+    "title": "Capacitor bank discharge methods – Voltage Disturbance",
+    "url": "https://voltage-disturbance.com/power-quality/capacitor-bank-discharge-methods",
+    "quote": "IEC 60831 standard requires discharge to <75V within 3 minutes to prevent accidental injury by residual voltage."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .pz sup, .caption sup { font-size: .72em; line-height: 0; }\n  .rck { display: grid; gap: 4px; }\n  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }\n  /* Lines: the curve in navy, reference lines dashed and muted, the 5τ line dashed in teal, a slip dashed in the warning colour. */\n  .scene .axis, .scene .tickm { stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .st-main { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .st-ref { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 7 4; }\n  .scene .st-slip { fill: none; stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 5 4; }\n  .scene .st-five { stroke: var(--k-accent); stroke-width: 2; stroke-dasharray: 3 4; }\n  .scene .guide { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 3 4; }\n  /* The gap still to close: an ink-tinted bar, the one at the handle outlined in navy. */\n  .scene .bar { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1; }\n  .scene .bar.cur { stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .d-main { fill: var(--k-accent2); }\n  .scene .d-slip { fill: var(--k-warn); }\n  .scene .ring { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2.5; }\n  .scene .ring.bad { stroke: var(--k-warn); }\n  .scene .pill { fill: var(--k-fill1); }\n  /* The pace now: a straight dashed line along the curve's slope, which reaches the line one τ later. */\n  .scene .st-pace { fill: none; stroke: var(--k-ink); stroke-width: 1.5; stroke-dasharray: 2 3; }\n  .scene .inbox { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1; }\n  .scene text { font-family: var(--k-font); }\n  .scene .tk, .scene .an, .scene .key { font-size: 13px; fill: var(--k-muted); }\n  .scene .hd { font-size: 13px; font-weight: 600; fill: var(--k-ink); }\n  .scene .ml { font-size: 13px; font-weight: 700; fill: var(--k-ink); }\n  .scene .ml.slip { fill: var(--k-warn); }\n  .scene .pt { font-size: 13px; font-weight: 600; fill: var(--k-ink); }\n  .scene .q { font-size: 17px; font-weight: 700; fill: var(--k-accent2); }\n  .scene .five { font-size: 13px; font-weight: 700; fill: var(--k-accent); }\n  .scene .tks { font-size: 13px; font-weight: 700; fill: var(--k-warn); }\n  .scene .tkr { font-size: 13px; font-weight: 700; fill: var(--k-ink); }\n  /* A label over lines keeps a halo of the page colour. */\n  .scene .h { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }\n  .scene .v { font-style: italic; }\n  /* The time handle: a knob on the time axis; the band over the graph takes the drag. */\n  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene #art * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: pan-y; }\n  .scene .grip:active { cursor: grabbing; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stay on one row, each label whole; longer ones stack one to a row. */\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\" id=\"lead\">A capacitor's voltage on a graph, with time along the bottom. Every voltage, resistor, capacitor, temperature and time here is an example.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"timek\" hidden></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div id=\"modek\"></div>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 304\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <div class=\"rck\" id=\"rck\"></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\"></p>\n\n<script>\n  // ---------- the rule ----------\n  // Every curve here is a gap shrinking towards a line. With n the time counted in time constants\n  // (t ÷ RC), the value is line + (start − line) × e^(−n), so in each τ the gap keeps e^(−1) ≈ 0.368\n  // of itself. Discharging: the line is 0 V and the start the charged voltage. Charging: the line is\n  // the supply and the start 0 V, so v = V(1 − e^(−t/RC)). Cooling: the line is the room.\n  const E1 = Math.exp(-1);\n  const val = (s, n) => s.line + (s.start - s.line) * Math.exp(-n);\n  const gapOf = (s, n) => Math.abs(s.start - s.line) * Math.exp(-n);\n  const rcOf = (R, C) => (Math.round(R) * Math.round(C)) / 1000;   // kΩ × µF: 1,000 Ω × 0.000001 F, so ÷ 1,000 for seconds\n  // Sources the checks restate (the lesson's own).\n  const SRC1 = 'https://courses.lumenlearning.com/atd-austincc-physics2/chapter/21-6-dc-circuits-containing-resistors-and-capacitors/';\n  const SRC2 = 'https://openstax.org/books/calculus-volume-1/pages/6-8-exponential-growth-and-decay';\n  const SRC3 = 'https://physics.iitd.ac.in/uploads/manual_leiBQt035s.pdf';\n  const SRC4 = 'https://www.math.uwaterloo.ca/~baforres/UCM138/Lectures/Chapter4/SLIDESNewtonsLaw.pdf';\n\n  // ---------- numbers ----------\n  // fx: exactly dp decimals; fv: at most dp, trailing zeros dropped. Commas, a true minus sign.\n  function fx(v, dp) {\n    const f = Math.pow(10, dp);\n    let r = Math.round(v * f) / f;\n    if (r === 0) r = 0;\n    const p = Math.abs(r).toFixed(dp).split('.');\n    p[0] = p[0].replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',');\n    return (r < 0 ? '−' : '') + p.join('.');\n  }\n  function fv(v, dp) {\n    if (dp == null) dp = 2;\n    const s = fx(v, dp);\n    return dp > 0 ? s.replace(/(\\.\\d*?)0+$/, '$1').replace(/\\.$/, '') : s;\n  }\n  // Each written the way the lesson writes it: volts to the hundredth on a 10 V or 5 V scale,\n  // whole volts from 400 V (tenths below 10 V), temperatures to a tenth.\n  const V2 = (v) => (Math.abs(v) < 0.005 ? '0' : fx(v, 2)) + ' V';\n  const V400 = (v) => (v >= 10 ? fx(v, 0) : fv(v, 1)) + ' V';\n  const C1 = (v) => fx(v, 1) + ' °C';\n  const pct = (v) => fx(v, 1) + '%';\n  const secT = (v) => fv(v, v < 1 ? 2 : 1) + ' s';\n  const mins = (v) => fv(v, 1) + ' min';\n  const f3 = (v) => fx(v, 3);\n\n  // ---------- the three cases ----------\n  const BASE = {\n    dis: { k: 'dis', start: 10, line: 0, ymax: 11, yt: [0, 5, 10], unit: 'V', yname: 'volts', curve: 'voltage', fmt: V2 },\n    chg: { k: 'chg', start: 0, line: 10, ymax: 11, yt: [0, 5, 10], unit: 'V', yname: 'volts', curve: 'voltage', fmt: V2 },\n    cool: { k: 'cool', start: 90, line: 20, rc: 600, ymax: 100, yt: [0, 50, 100], unit: '°C', yname: '°C', curve: 'temperature', fmt: C1 },\n  };\n  const mk = (k, o) => Object.assign({}, BASE[k], o || {});\n  const OPT = ['Discharging', 'Charging', 'Cooling'];\n  const KIND = { Discharging: 'dis', Charging: 'chg', Cooling: 'cool' };\n  // A demonstration screen follows the switch and the R and C sliders; a puzzle keeps its own case.\n  function scenOf(d, mode, R, C) {\n    if (!d.show) return d.sc;\n    const k = KIND[mode] || 'dis';\n    const s = Object.assign({}, BASE[k], (d.over && d.over[k]) || {});\n    if (s.rc == null) s.rc = rcOf(R, C);\n    s.pct = !!(d.pct && k === 'chg');\n    return s;\n  }\n  const secText = (s, k) => (s.k === 'cool' ? mins((k * s.rc) / 60) : secT(k * s.rc));\n  const SC = {\n    d10: mk('dis', { rc: 47 }),\n    d400: mk('dis', { start: 400, rc: 20, ymax: 440, yt: [0, 200, 400], fmt: V400 }),\n    c10: mk('chg', { rc: 47 }),\n    d400b: mk('dis', { start: 400, rc: 47, ymax: 440, yt: [0, 200, 400], fmt: V400 }),\n    cool: mk('cool'),\n    c5: mk('chg', { line: 5, rc: 47, ymax: 5.5, yt: [0, 1, 2, 3, 4, 5] }),\n    share: mk('dis', { start: 1, rc: 10, ymax: 1.1, yt: [0, 0.5, 1], fmt: f3, yname: 'share of the start', curve: 'share left' }),\n    oil: mk('cool', { start: 80, line: 30, rc: 1200 }),\n  };\n  const T100 = 100 / 47;   // 100 s counted in time constants of 47 s\n  const R632 = Number(f3(1 - E1));   // 0.632, as the lesson rounds it\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // SHOW: mode0, the switch's setting on arrival; time0, where the handle ends its demonstration;\n  // glide, the handle's demonstration (from, the stops, when it starts, the gap between stops, how\n  // long each move takes); pen, the curve drawn by a pen; refAt, startAt, gapAt, when the line, the\n  // starting gap and its label arrive; morph, the discharge curve flipped and lifted into the charge;\n  // switch, sliders, the controls shown; sym, the rule's letters labelled on the picture.\n  // DO: sc, the puzzle's case; graph, its time axis (tmax, ticks [time, τ row, seconds row]) and\n  // header; items, what it draws (when: 'right' after a right answer, or the wrong answer whose slip\n  // it draws; at, when it arrives; dur, a pen's time). opts, the answers offered; val, the value each\n  // gives by its own working; ans, the words that would give the answer away; fmt, how they are written.\n  const PICK = 'Tap one of the answers.';\n  const G3 = (sec) => [[0, '0', ''], [1, '1τ', sec[0]], [2, '2τ', sec[1]], [3, '3τ', sec[2]]];\n  const STEPS = [\n    { show: true, name: 'One time constant', mode0: 'Discharging', time0: 3, dur: 4.3,\n      pen: { at: 0.4, dur: 1.0 }, startAt: 0.4, slope: 'handle', slopeAt: 1.4, glide: { from: 0, stops: [1, 2, 3], t0: 1.6, gap: 0.8, dur: 0.55 },\n      text: 'A capacitor charged to 10 V empties through a resistor. The current is the voltage left ÷ R, so the fall slows as the voltage does; the dashed line is its pace now. The bar is the gap still to close. In one *time constant*, written τ, it keeps 0.368 of itself. Here `τ = R × C = 47 s`, so 10 V becomes 3.68 V at 1τ, 1.35 V at 2τ and 0.50 V at 3τ. Drag the time handle.' },\n    { kind: 'pick', name: 'Two time constants', sc: SC.d10,\n      graph: { tmax: 3, ticks: G3(['47 s', '94 s', '141 s']), header: 'RC = 47 s' },\n      items: [\n        { k: 'bar', t: 0 },\n        { k: 'curve', from: 0, to: 1 },\n        { k: 'bar', t: 1 },\n        { k: 'mark', t: 1, text: V2(10 * E1), dot: 'dot' },\n        { k: 'pill', t0: 0, t1: 1 },\n        { k: 'q', t: 2 },\n        { k: 'curve', from: 1, to: 2, when: 'right', at: 0.1, dur: 0.8 },\n        { k: 'bar', t: 2, cur: true, when: 'right', at: 0.9 },\n        { k: 'mark', t: 2, text: V2(10 * Math.exp(-2)), dot: 'ring', when: 'right', at: 1.0 },\n        { k: 'pill', t0: 1, t1: 2, when: 'right', at: 1.1 },\n        { k: 'seg', pts: [[1, 10 * E1], [1 + (10 * E1) / (10 - 10 * E1), 0], [2, 0]], cls: 'slip', when: '0 V', at: 0.3, dur: 0.6 },\n        { k: 'mark', t: 2, v: 0, text: '0 V', cls: 'slip', dot: 'ring', when: '0 V', at: 0.6 },\n        { k: 'seg', pts: [[1, 10 * E1], [2, 5 * E1]], cls: 'slip', when: '1.84 V', at: 0.3, dur: 0.6 },\n        { k: 'mark', t: 2, v: 5 * E1, text: '1.84 V', cls: 'slip', dot: 'ring', when: '1.84 V', at: 0.6 },\n      ],\n      opts: ['0 V', '1.35 V', '1.84 V'], want: '1.35 V', ans: '1.35 V', fmt: V2,\n      val: { '0 V': Math.max(0, 10 * E1 - (10 - 10 * E1)), '1.35 V': 10 * Math.exp(-2), '1.84 V': (10 * E1) / 2 },\n      task: 'After one time constant the capacitor is at 3.68 V. What is it after two?',\n      why: 'The second time constant takes the same share as the first, so the bar keeps 0.368 of what is left, `3.68 × 0.368 ≈ 1.35 V`. That is `10 × e^(−2)`. Equal stretches of time take the same share, not the same number of volts.',\n      hint: 'Not quite. Each τ keeps 0.368 of what is left.',\n      hints: { '0 V': 'Not quite. That takes the same 6.32 V off again, which would empty it. Each τ keeps 0.368 of what is left.',\n        '1.84 V': 'Not quite. That halves 3.68 V. Each τ keeps 0.368 of what is left, not half.' } },\n    { show: true, name: 'R and C set the pace', mode0: 'Discharging', time0: 3, dur: 3.0, sliders: true, rcForm: true, sym: true,\n      extras: { start: 0.4, p30: 1.0 }, slope: 0, slopeAt: 0.6,\n      text: 'A bigger R lets less current through, and a bigger C must lose more charge for each volt. Together the voltage falls at `v ÷ RC` volts a second. The dashed line is the starting pace, `10 V ÷ 47 s`: kept up, it would empty the capacitor in exactly one RC. It slows as it falls, so it only gets to 0.368. That is why RC is the unit of time. As a rule, `v = V e^(−t/RC)`. After 30 s, `e^(−30/47) ≈ 0.528`, so 5.28 V. Slide R and C.' },\n    { kind: 'pick', name: '400 V after 10 s', sc: SC.d400,\n      graph: { tmax: 2, ticks: [[0, '0', ''], [0.5, '', '10 s'], [1, '1τ', '20 s'], [2, '2τ', '40 s']], header: 'RC = 20 s' },\n      items: [\n        { k: 'bar', t: 0 },\n        { k: 'mark', t: 0, text: '400 V', dot: 'dot' },\n        { k: 'q', t: 0.5 },\n        { k: 'curve', from: 0, to: 2, when: 'right', at: 0.1, dur: 1.0 },\n        { k: 'bar', t: 0.5, cur: true, when: 'right', at: 0.7 },\n        { k: 'mark', t: 0.5, text: V400(400 * Math.exp(-0.5)), dot: 'ring', when: 'right', at: 0.8 },\n        { k: 'fn', fn: (t) => 400 * Math.exp(t), from: 0, to: 0.5, cls: 'slip', when: '659 V', at: 0.3, dur: 0.6 },\n        { k: 'mark', t: 0.5, v: 400 * Math.exp(0.5), text: '659 V', cls: 'slip', dot: 'ring', prefs: ['r', 'ar'], when: '659 V', at: 0.6 },\n        { k: 'fn', fn: (t) => 400 * Math.exp(-400 * t), from: 0, to: 0.5, cls: 'slip', when: '0 V', at: 0.3, dur: 0.6 },\n        { k: 'mark', t: 0.5, v: 0, text: '0 V', cls: 'slip', dot: 'ring', when: '0 V', at: 0.6 },\n      ],\n      slipMax: { '659 V': 700 },\n      opts: ['243 V', '659 V', '0 V'], want: '243 V', ans: '243 V', fmt: V400,\n      val: { '243 V': 400 * Math.exp(-10 / 20), '659 V': 400 * Math.exp(10 / 20), '0 V': 400 * Math.exp(-10 * 20) },\n      task: 'A 400 V capacitor empties through a resistor, with RC = 20 s. What is its voltage after 10 s?',\n      why: 'Count the time in time constants first, `10 ÷ 20 = 0.5`. Then `400 × e^(−0.5)` ≈ 243 V on the eˣ key. Half a time constant has not yet brought it down to 0.368 of the start.',\n      hint: 'Not quite. Divide the time by RC, then use the eˣ key.',\n      hints: { '659 V': 'Not quite. That drops the minus, so the power grows and the voltage rises. The power is −10 ÷ 20.',\n        '0 V': 'Not quite. That puts 10 × 20 = 200 in the power. Divide the time by RC instead, 10 ÷ 20.' } },\n    { show: true, name: 'Charging', mode0: 'Charging', time0: 3, dur: 4.4, switch: true, sliders: true, rcForm: true, sym: true,\n      refAt: 0.4, morph: { from: 'Discharging', at: 0.9, dur: 1.1 }, slope: 'handle', slopeAt: 2.0, glide: { from: 0, stops: [1, 2, 3], t0: 2.1, gap: 0.7, dur: 0.5 },\n      text: 'Now charge it from a 10 V supply. The charging current is the gap up to the supply ÷ R, so that gap shrinks just as the discharge voltage did, keeping 0.368 of itself each τ. So each τ closes 0.632 of the gap left: 6.32 V at 1τ, 8.65 V at 2τ and 9.50 V at 3τ. The curve is the discharge flipped and lifted, `v = V(1 − e^(−t/RC))`. Flip the switch: the bars stay the same.' },\n    { kind: 'pick', name: 'Charging, two time constants', sc: SC.c10,\n      graph: { tmax: 3, ticks: G3(['47 s', '94 s', '141 s']), header: 'RC = 47 s' },\n      items: [\n        { k: 'ref' },\n        { k: 'bar', t: 0 },\n        { k: 'curve', from: 0, to: 1 },\n        { k: 'bar', t: 1 },\n        { k: 'mark', t: 1, text: V2(10 * (1 - E1)), dot: 'dot' },\n        { k: 'pill', t0: 0, t1: 1 },\n        { k: 'q', t: 2 },\n        { k: 'curve', from: 1, to: 2, when: 'right', at: 0.1, dur: 0.8 },\n        { k: 'bar', t: 2, cur: true, when: 'right', at: 0.9 },\n        { k: 'mark', t: 2, text: V2(10 * (1 - Math.exp(-2))), dot: 'ring', when: 'right', at: 1.0 },\n        { k: 'pill', t0: 1, t1: 2, when: 'right', at: 1.1 },\n        { k: 'seg', pts: [[0, 0], [1, 10 * (1 - E1)], [2, 20 * (1 - E1)]], cls: 'slip', when: '12.64 V', at: 0.3, dur: 0.6 },\n        { k: 'mark', t: 2, v: 20 * (1 - E1), text: '12.64 V', cls: 'slip', dot: 'ring', prefs: ['r', 'ar'], when: '12.64 V', at: 0.6 },\n        { k: 'mark', t: 2, v: 10 * R632 * R632, text: '3.99 V', cls: 'slip', dot: 'ring', prefs: ['br', 'r'], when: '3.99 V', at: 0.3 },\n      ],\n      slipMax: { '12.64 V': 14 },\n      opts: ['12.64 V', '8.65 V', '3.99 V'], want: '8.65 V', ans: '8.65 V', fmt: V2,\n      val: { '12.64 V': 2 * 10 * (1 - E1), '8.65 V': 10 * (1 - Math.exp(-2)), '3.99 V': 10 * R632 * R632 },\n      task: 'Charging from a 10 V supply, the capacitor is at 6.32 V after one time constant. What is it after two?',\n      why: 'The gap to the supply keeps 0.368 of itself each τ, so it goes 10 V, then 3.68 V, then 1.35 V. The capacitor is at `10 − 1.35 = 8.65 V`, 86.5% charged. The second τ closes 0.632 of a smaller gap.',\n      hint: 'Not quite. Follow the gap to the supply, which keeps 0.368 each τ.',\n      hints: { '12.64 V': 'Not quite. Twice 63.2% is 126.4%, more than full. The second τ closes 0.632 of the smaller gap that is left.',\n        '3.99 V': 'Not quite. That is 0.632 of 0.632 of 10 V. It is the gap that keeps 0.368 each τ, so take 1.35 V from 10 V.' } },\n    { show: true, name: 'Never quite full', mode0: 'Charging', time0: 5, dur: 3.4, switch: true, sliders: true, rcForm: true, pct: true, top: 50,\n      glide: { from: 3, stops: [4, 5], t0: 0.5, gap: 0.8, dur: 0.55 }, line5At: 2.0, insetAt: 2.6,\n      over: { dis: { start: 400, ymax: 440, yt: [0, 200, 400], fmt: V400 } },\n      text: 'At 4τ the gap left is `0.368^4 ≈ 0.018` of the start, so it is 98.2% charged. At 5τ it is `0.368^5 ≈ 0.007`, so 99.3%. By the rule the gap only ever shrinks, so it is never quite full. A trade tutorial counts 5τ as fully charged: a line people draw, not a point the curve reaches. The magnifier shows the 0.07 V still to go. Switch to discharging to see it from 400 V.' },\n    { kind: 'pick', name: '400 V after five', sc: SC.d400b,\n      graph: { tmax: 5, top: 50, ticks: [[0, '0', ''], [1, '1τ', ''], [2, '2τ', ''], [3, '3τ', ''], [4, '4τ', ''], [5, '5τ', '']], header: '' },\n      items: [\n        { k: 'bar', t: 0 },\n        { k: 'curve', from: 0, to: 5 },\n        { k: 'q', t: 5 },\n        { k: 'bar', t: 5, cur: true, when: 'right', at: 0.1 },\n        { k: 'mark', t: 5, text: V400(400 * Math.exp(-5)), dot: 'ring', when: 'right', at: 0.2 },\n        { k: 'vline', t: 5, text: '5τ: the usual line for empty', when: 'right', at: 0.5 },\n        { k: 'inset', when: 'right', at: 0.6 },\n        { k: 'inset', slip: 0, when: '0 V', at: 0.5 },\n        { k: 'mark', t: 5, v: 80, text: '80 V', cls: 'slip', dot: 'ring', when: '80 V', at: 0.3 },\n        { k: 'mark', t: 5, v: 0, text: '0 V', cls: 'slip', dot: 'ring', when: '0 V', at: 0.3 },\n      ],\n      opts: ['80 V', '0 V', '2.7 V'], want: '2.7 V', ans: '2.7 V', fmt: V400,\n      val: { '80 V': 400 / 5, '0 V': 0, '2.7 V': 400 * Math.exp(-5) },\n      task: 'A capacitor charged to 400 V empties for five time constants. What voltage is left?',\n      why: 'Five time constants keep `e^(−5)` of the start, so `400 × e^(−5)` ≈ 2.7 V is still there. 5τ is the usual line for empty, yet by the rule the gap never closes. Time alone never makes a capacitor safe, so prove it dead with a tester before you touch it.',\n      hint: 'Not quite. Each τ keeps 0.368 of what is left, five times over.',\n      hints: { '80 V': 'Not quite. That divides 400 V by 5. Each τ keeps 0.368 of what is left, five times over: `400 × 0.368^5`.',\n        '0 V': 'Not quite. 5τ is the usual line for empty, but by the rule the gap only shrinks. A little is still left.' } },\n    { show: true, name: 'Cooling', mode0: 'Cooling', time0: 0, handle: false, dur: 3.4,\n      refAt: 0.4, pen: { at: 0.8, dur: 1.4 }, startAt: 2.2, gapAt: 2.6,\n      text: 'A hot part cooling in a room follows much the same curve. *Newton\\'s law of cooling* says it cools at a rate proportional to the gap between its temperature and the room\\'s, like the charging current. So the gap to the room keeps much the same share in each τ. It is a rougher fit: for heat given off as radiation, the law holds only for small temperature differences. Here a 90 °C part sits in a 20 °C room, with τ = 10 minutes.' },\n    { kind: 'pick', name: 'After 10 minutes', sc: SC.cool,\n      graph: { tmax: 3.6, ticks: G3(['10 min', '20 min', '30 min']), header: 'τ = 10 min' },\n      items: [\n        { k: 'ref' },\n        { k: 'bar', t: 0 },\n        { k: 'gaplab' },\n        { k: 'q', t: 1 },\n        { k: 'curve', from: 0, to: 3.6, when: 'right', at: 0.1, dur: 0.9 },\n        { k: 'bar', t: 1, cur: true, when: 'right', at: 0.4 },\n        { k: 'mark', t: 1, text: C1(20 + 70 * E1), dot: 'ring', when: 'right', at: 0.5 },\n        { k: 'pill', t0: 0, t1: 1, when: 'right', at: 0.6 },\n        { k: 'bar', t: 2, when: 'right', at: 0.8 },\n        { k: 'mark', t: 2, text: C1(20 + 70 * Math.exp(-2)), dot: 'dot', when: 'right', at: 0.9 },\n        { k: 'pill', t0: 1, t1: 2, when: 'right', at: 1.0 },\n        { k: 'bar', t: 3, when: 'right', at: 1.2 },\n        { k: 'mark', t: 3, text: C1(20 + 70 * Math.exp(-3)), dot: 'dot', when: 'right', at: 1.3 },\n        { k: 'pill', t0: 2, t1: 3, when: 'right', at: 1.4 },\n        { k: 'fn', fn: (t) => 90 * Math.exp(-t), from: 0, to: 1, cls: 'slip', when: '33.1 °C', at: 0.3, dur: 0.6 },\n        { k: 'mark', t: 1, v: 90 * E1, text: '33.1 °C', cls: 'slip', dot: 'ring', when: '33.1 °C', at: 0.6 },\n        { k: 'mark', t: 1, v: 20 + 70 * (1 - E1), text: '64.2 °C', cls: 'slip', dot: 'ring', when: '64.2 °C', at: 0.3 },\n      ],\n      opts: ['45.8 °C', '33.1 °C', '64.2 °C'], want: '45.8 °C', ans: '45.8 °C', fmt: C1,\n      val: { '45.8 °C': 20 + 70 * E1, '33.1 °C': 90 * E1, '64.2 °C': 20 + 70 * (1 - E1) },\n      task: 'This part starts at 90 °C in a 20 °C room, with a time constant of 10 minutes. What does it read after 10 minutes?',\n      why: 'The 70 °C gap to the room keeps 0.368 of itself in one time constant, `70 × 0.368 ≈ 25.8 °C`. The part reads the room plus the gap, `20 + 25.8 = 45.8 °C`. Then 29.5 °C at 20 minutes and 23.5 °C at 30, closing on the room but never passing it.',\n      hint: 'Not quite. Only the gap to the room shrinks.',\n      hints: { '33.1 °C': 'Not quite. That shrinks the whole 90 °C towards zero. The part cools towards the room, so only the 70 °C gap shrinks.',\n        '64.2 °C': 'Not quite. That keeps 0.632 of the gap. Each τ keeps 0.368 of it.' } },\n    { kind: 'pick', name: '5 V for 100 s', sc: SC.c5,\n      graph: { tmax: 3, ticks: [[0, '0', ''], [1, '1τ', ''], [2, '2τ', ''], [T100, '', '100 s'], [3, '3τ', '']], header: 'R = 100 kΩ, C = 470 µF' },\n      items: [\n        { k: 'ref' },\n        { k: 'bar', t: 0 },\n        { k: 'q', t: T100 },\n        { k: 'tick', t: 1, text: secT(47), when: 'right', at: 0.1 },\n        { k: 'curve', from: 0, to: 3, when: 'right', at: 0.1, dur: 0.9 },\n        { k: 'bar', t: T100, cur: true, when: 'right', at: 0.9 },\n        { k: 'mark', t: T100, text: V2(5 - 5 * Math.exp(-T100)), dot: 'ring', when: 'right', at: 1.0 },\n        { k: 'mark', t: T100, v: 5 * Math.exp(-T100), text: '0.60 V', cls: 'slip', dot: 'ring', prefs: ['ar', 'r'], when: '0.60 V', at: 0.3 },\n        { k: 'seg', pts: [[0, 0], [T100, T100 * (1 - E1) * 5]], cls: 'slip', when: '6.72 V', at: 0.3, dur: 0.6 },\n        { k: 'mark', t: T100, v: T100 * (1 - E1) * 5, text: '6.72 V', cls: 'slip', dot: 'ring', prefs: ['r', 'ar'], when: '6.72 V', at: 0.6 },\n      ],\n      slipMax: { '6.72 V': 8 },\n      opts: ['0.60 V', '6.72 V', '4.40 V'], want: '4.40 V', ans: '4.40 V', fmt: V2,\n      val: { '0.60 V': 5 * Math.exp(-T100), '6.72 V': T100 * (1 - E1) * 5, '4.40 V': 5 - 5 * Math.exp(-T100) },\n      task: 'A 5 V supply charges 470 µF through 100 kΩ. What is the capacitor\\'s voltage after 100 s?',\n      why: 'RC is `100,000 × 0.000470 = 47 s`, so 100 s is `100 ÷ 47 ≈ 2.13` time constants. The gap keeps `e^(−2.13) ≈ 0.119` of the 5 V, about 0.60 V, so the capacitor is at `5 − 0.60 = 4.40 V`.',\n      hint: 'Not quite. Find RC, count the time in time constants, then follow the gap.',\n      hints: { '0.60 V': 'Not quite. 0.60 V is the gap still to close. The capacitor is at the supply minus the gap.',\n        '6.72 V': 'Not quite. That adds 63.2% of 5 V for every time constant, which passes the supply. Each τ closes 0.632 of the gap still left.' } },\n    { kind: 'pick', name: 'Find RC', sc: SC.share,\n      graph: { tmax: 3, ticks: G3(['', '', '']), header: 'R = 10 kΩ, C = 1,000 µF' },\n      items: [\n        { k: 'bar', t: 0 },\n        { k: 'curve', from: 0, to: 3 },\n        { k: 'bar', t: 1 }, { k: 'bar', t: 2 }, { k: 'bar', t: 3 },\n        { k: 'mark', t: 1, text: f3(E1), dot: 'dot' },\n        { k: 'mark', t: 2, text: f3(Math.exp(-2)), dot: 'dot' },\n        { k: 'mark', t: 3, text: f3(Math.exp(-3)), dot: 'dot' },\n        { k: 'pill', t0: 0, t1: 1 }, { k: 'pill', t0: 1, t1: 2 }, { k: 'pill', t0: 2, t1: 3 },\n        { k: 'q', t: 1, row: 'sec' },\n        { k: 'tick', t: 1, text: secT(10000 * 0.001), when: 'right', at: 0.2 },\n        { k: 'tick', t: 2, text: secT(2 * 10000 * 0.001), when: 'right', at: 0.5 },\n        { k: 'tick', t: 3, text: secT(3 * 10000 * 0.001), when: 'right', at: 0.8 },\n        { k: 'tick', t: 1, text: '10,000 s', cls: 'slip', when: '10,000 s', at: 0.3 },\n        { k: 'tick', t: 1, text: '0.01 s', cls: 'slip', when: '0.01 s', at: 0.3 },\n      ],\n      opts: ['10,000 s', '10 s', '0.01 s'], want: '10 s', ans: '10 s', fmt: secT,\n      val: { '10,000 s': 10 * 1000, '10 s': 10000 * 0.001, '0.01 s': 10 * 0.001 },\n      task: 'A 1,000 µF capacitor empties through a 10 kΩ resistor. What is its time constant?',\n      why: 'Put R in ohms and C in farads first. 10 kΩ is 10,000 Ω and 1,000 µF is 0.001 F, so `RC = 10,000 × 0.001 = 10 s`. The curve keeps its shape; only the seconds along the bottom change.',\n      hint: 'Not quite. Turn kΩ into ohms and µF into farads first.',\n      hints: { '10,000 s': 'Not quite. That multiplies 10 × 1,000 straight from kΩ and µF. Turn them into ohms and farads first.',\n        '0.01 s': 'Not quite. That uses 10 Ω. 10 kΩ is 10,000 Ω.' } },\n    { kind: 'pick', name: 'Oil after 40 minutes', sc: SC.oil,\n      graph: { tmax: 3, ticks: G3(['20 min', '40 min', '60 min']), header: 'τ = 20 min' },\n      items: [\n        { k: 'ref' },\n        { k: 'bar', t: 0 },\n        { k: 'gaplab' },\n        { k: 'q', t: 2 },\n        { k: 'curve', from: 0, to: 3, when: 'right', at: 0.1, dur: 0.9 },\n        { k: 'bar', t: 1, when: 'right', at: 0.5 },\n        { k: 'pill', t0: 0, t1: 1, when: 'right', at: 0.6 },\n        { k: 'bar', t: 2, cur: true, when: 'right', at: 0.9 },\n        { k: 'mark', t: 2, text: C1(30 + 50 * Math.exp(-2)), dot: 'ring', when: 'right', at: 1.0 },\n        { k: 'pill', t0: 1, t1: 2, when: 'right', at: 1.1 },\n        { k: 'fn', fn: (t) => 80 * Math.exp(-t), from: 0, to: 2, cls: 'slip', when: '10.8 °C', at: 0.3, dur: 0.6 },\n        { k: 'mark', t: 2, v: 80 * Math.exp(-2), text: '10.8 °C', cls: 'slip', dot: 'ring', when: '10.8 °C', at: 0.6 },\n        { k: 'mark', t: 2, v: 30 + 50 * E1, text: '48.4 °C', cls: 'slip', dot: 'ring', when: '48.4 °C', at: 0.3 },\n      ],\n      opts: ['10.8 °C', '48.4 °C', '36.8 °C'], want: '36.8 °C', ans: '36.8 °C', fmt: C1,\n      val: { '10.8 °C': 80 * Math.exp(-2), '48.4 °C': 30 + 50 * E1, '36.8 °C': 30 + 50 * Math.exp(-2) },\n      task: 'Oil at 80 °C cools in a 30 °C room, with a time constant of 20 minutes. What is it after 40 minutes?',\n      why: '40 minutes is two time constants. The 50 °C gap to the room keeps `e^(−2) ≈ 0.135` of itself, about 6.8 °C, so the oil reads `30 + 50 × e^(−2)` ≈ 36.8 °C.',\n      hint: 'Not quite. Only the 50 °C gap to the room shrinks, for two time constants.',\n      hints: { '10.8 °C': 'Not quite. That shrinks the whole 80 °C towards zero, below the room. Only the 50 °C gap to the room shrinks.',\n        '48.4 °C': 'Not quite. That is after one time constant, 20 minutes. 40 minutes is two.' } },\n  ];\n  const FINISH = 'In every time constant the gap still to close keeps 0.368 of itself, whatever R and C are. A discharge, a charge and a part cooling to the room are much the same shrinking gap, and by the rule it never quite closes.';\n  const CAPTION = 'Each gap here keeps `e^(−1) ≈ 0.368` of itself in every time constant, by the rule.';\n  const FADE = 0.35;\n  const FB = [2.2, 1.2];   // how long the motion after a right and a wrong answer plays\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- geometry ----------\n  const GX0 = 34, PX0 = 46, PX1 = 326, PH = 150;   // the value axis, time 0, the last time, the graph's height\n  const MPOS = { ar: [7, -8, 'start'], a: [0, -12, 'middle'], al: [-7, -8, 'end'], aal: [-7, -30, 'end'], br: [7, 17, 'start'], b: [0, 21, 'middle'], bl: [-7, 17, 'end'], r: [8, 4.5, 'start'], l: [-8, 4.5, 'end'] };\n  // A falling curve keeps its labels above and to the right of each point, a rising one below; at\n  // the right-hand end, where the curve is flat, they move to the left.\n  const FALLS = ['ar', 'al', 'aal', 'a', 'r'], RISES = ['br', 'b', 'bl', 'r'];\n  const prefsFor = (s, k) => (s.line > s.start ? (s.pct && k >= 4 ? ['bl', 'b', 'br'] : RISES) : FALLS);\n  // Which marks carry their number: the one at the handle always; up to 3τ otherwise (up to 2τ once\n  // the handle is past 3τ, where the labels would crowd); on the near-full screen only 4τ and 5τ.\n  const labelled = (k, curK, s) => k === curK || (s.pct ? k >= 4 : k <= (curK >= 4 ? 2 : 3));\n  function geo(d) {\n    const top = (d.graph && d.graph.top) || d.top || 34, bot = top + PH;\n    const keyY = d.show ? bot + 108 : bot + 86;\n    return { top, bot, h: PH, tauY: bot + 24, secY: bot + 40, pillY: bot + 48, roY: bot + 86, keyY, H: keyY + 12 };\n  }\n\n  // As a screen reader says it.\n  const say = (s) => String(s == null ? '' : s)\n    .replace(/\\^\\(([^)]*)\\)/g, ' to the power $1').replace(/≈/g, ' is about ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ')\n    .replace(/−/g, 'minus ').replace(/τ/g, ' tau').replace(/µF/g, ' microfarads').replace(/kΩ/g, ' kilohms').replace(/Ω/g, ' ohms')\n    .replace(/=/g, ' equals ').replace(/\\s+/g, ' ').trim();\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // live: Dan has moved the handle, a slider or the switch, so the demonstration is over; trans: a\n  // switch between discharging and charging, flipping the curve.\n  function blank() { return { pick: null, res: null, why: false, live: false, trans: null }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion\n  let lastTime = null, lastMode = null, lastR = null, lastC = null;\n  let motionEnd = 0;\n  let REC = null;   // what the last paint drew, for the checks\n\n  // ---------- text with amber key terms, italic letters and raised powers (K.el, never innerHTML) ----------\n  const ITAL = /((?<![A-Za-z])[vt](?![A-Za-z])|ˣ)/;\n  function italics(parent, s, inSvg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));\n    });\n  }\n  const POW = /\\^(\\([^)]*\\)|[0-9.−]+[a-z]?)/;\n  function maths(parent, s) {\n    let rest = String(s), m;\n    while ((m = POW.exec(rest))) {\n      if (m.index) italics(parent, rest.slice(0, m.index), false);\n      const pw = m[1].charAt(0) === '(' ? m[1].slice(1, -1) : m[1];\n      italics(parent.appendChild(K.el('sup')), pw, false);\n      rest = rest.slice(m.index + m[0].length);\n    }\n    if (rest) italics(parent, rest, false);\n  }\n  // `maths` stays on one line; *a key term* is highlighted.\n  function write(el, s) {\n    el.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { maths(el.appendChild(K.el('span', { class: 'nw' })), seg); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at0 = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at0) el.appendChild(document.createTextNode(seg.slice(at0, m.index)));\n        el.appendChild(K.el('span', { class: 'mark' }, m[1]));\n        at0 = m.index + m[0].length;\n      }\n      if (at0 < seg.length) el.appendChild(document.createTextNode(seg.slice(at0)));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  // The lesson's time control; Dan moves it with the handle drawn on the graph, which keeps it in step.\n  const timeCtl = K.control({ id: 'time', label: 'Time handle, in time constants', min: 0, max: 5, step: 1, value: 0, unit: 'τ', into: '#timek' });\n  const modeCtl = K.choice({ id: 'mode', label: 'What is changing', options: OPT, value: 0, into: '#modek' });\n  const rCtl = K.control({ id: 'R', label: 'Resistance R', min: 10, max: 200, step: 10, value: 100, unit: 'kΩ', snap: [100], into: '#rck' });\n  const cCtl = K.control({ id: 'C', label: 'Capacitance C', min: 10, max: 1000, step: 10, value: 470, unit: 'µF', snap: [470], into: '#rck' });\n  const nav = document.getElementById('nav');\n  const at = () => stepper.get();\n  const cur = () => ({ time: timeCtl.get(), mode: modeCtl.get(), R: rCtl.get(), C: cCtl.get() });\n  const openP = (i) => ({ time: STEPS[i].time0 || 0, mode: STEPS[i].mode0 || 'Discharging', R: 100, C: 470 });\n  function remember() { lastTime = timeCtl.get(); lastMode = modeCtl.get(); lastR = rCtl.get(); lastC = cCtl.get(); }\n  // A screen opens on its own settings: the handle where its demonstration ends, its switch, R and C at the start.\n  function openStep(i) {\n    const P = openP(i), st = S[i];\n    st.live = false; st.trans = null;\n    timeCtl.set(P.time, true); modeCtl.set(P.mode, true); rCtl.set(P.R, true); cCtl.set(P.C, true);\n  }\n\n  // Up to three answer buttons; each step fills in its own. A new choice after a wrong answer\n  // settles the picture back to the question.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  // Check: marks the answer; a right one runs the picture on, a wrong one shows its slip.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(st.res === 'right' ? FB[0] : FB[1]);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i];\n    if (!d.show || finished) return;\n    openStep(i); remember();\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer or a switch; with reduced\n  // motion (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = document.getElementById(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');\n  let into = null;\n  const add = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function arr(t0, d) {\n    d = d == null ? K.SOFT : d;\n    if (t0 + d > latest) latest = t0 + d;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(T, t0, d);\n  }\n  // A demonstration's part: there at once once Dan has taken over.\n  const A = (st, t0, d) => (st.live ? 1 : arr(t0, d));\n  function part(a, rise, draw) {\n    if (a <= 0) return null;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g; draw(); into = keep;\n    return g;\n  }\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));\n  const dot = (cls, x, y, r) => add(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r: r || 4 }));\n  function text(x, y, s, cls, anchor, ital) {\n    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    if (ital) italics(t, s, true); else t.textContent = String(s);\n    return add(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));\n    t.textContent = String(s);\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 7.6;\n  }\n  // A label as near as it can sit to centre c, kept inside lo..hi.\n  function textC(c, y, s, cls, lo, hi, ital) { const w = tw(s, cls); return text(K.clamp(c - w / 2, lo, hi - w), y, s, cls, 'start', ital); }\n  // Labels on the picture keep clear of one another: each tries its places in turn.\n  let placed = [];\n  const reserve = (x0, y, w) => placed.push({ x0: x0 - 2, x1: x0 + w + 2, y0: y - 11, y1: y + 3 });\n  function freeBox(b, lim) {\n    if (b.x0 < 2 || b.x1 > 338 || b.y0 < lim[0] || b.y1 > lim[1]) return false;\n    return !placed.some((q) => b.x0 < q.x1 && q.x0 < b.x1 && b.y0 < q.y1 && q.y0 < b.y1);\n  }\n  function placeLabel(x, y, s, cls, prefs, lim, ital) {\n    const w = tw(s, cls);\n    let pick = null, first = null;\n    prefs.forEach((k) => {\n      if (pick) return;\n      const P = MPOS[k], x0 = P[2] === 'start' ? x + P[0] : P[2] === 'end' ? x + P[0] - w : x + P[0] - w / 2, by = y + P[1];\n      const c = { x0, by, b: { x0: x0 - 2, x1: x0 + w + 2, y0: by - 11, y1: by + 3 } };\n      if (!first) first = c;\n      if (freeBox(c.b, lim)) pick = c;\n    });\n    if (!pick) { pick = first; pick.x0 = K.clamp(pick.x0, 2, 338 - w); }\n    placed.push(pick.b);\n    return text(pick.x0, pick.by, s, cls, 'start', ital);\n  }\n  // Tick values about a fifth of the way up at a time, in 1, 2, 2.5 or 5 times a power of ten.\n  function niceTicks(max) {\n    const raw = max / 5, mag = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / mag;\n    const step = (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * mag, out = [];\n    for (let j = 0; j * step <= max + 1e-9; j++) out.push(j * step);\n    return out;\n  }\n  function partial(pts, p) {\n    if (p >= 1) return pts.slice();\n    const n = pts.length - 1, f = p * n, k = Math.floor(f), out = pts.slice(0, k + 1);\n    if (k < n) { const a = pts[k], b = pts[k + 1], u = f - k; out.push([a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u]); }\n    return out;\n  }\n\n  // ---------- a demonstration screen, worked out from its settings ----------\n  function morphable(d, a, b) {\n    const ka = KIND[a], kb = KIND[b];\n    if (ka === kb || ka === 'cool' || kb === 'cool') return false;\n    return scenOf(d, a, 100, 470).ymax === scenOf(d, b, 100, 470).ymax;\n  }\n  function glidePos(d, st) {\n    const g = d.glide;\n    let pos = g.from;\n    g.stops.forEach((stop, j) => { const prev = j ? g.stops[j - 1] : g.from; pos += (stop - prev) * A(st, g.t0 + j * g.gap, g.dur); });\n    return pos;\n  }\n  function headerOf(d, s, P) {\n    if (s.k === 'cool') return 'τ = ' + mins(s.rc / 60) + ', ' + secT(s.rc);\n    if (d.rcForm) return 'RC = ' + fx(Math.round(P.R) * 1000, 0) + ' Ω × ' + fx(Math.round(P.C) / 1e6, 6) + ' F = ' + secT(s.rc);\n    return 'RC = ' + secT(s.rc);\n  }\n  function showModel(d, st, P) {\n    const s = scenOf(d, P.mode, P.R, P.C), g = d.glide;\n    let s0 = null, m = 1;\n    if (st.trans && morphable(d, st.trans.from, st.trans.to)) { s0 = scenOf(d, st.trans.from, P.R, P.C); m = arr(0.05, 0.8); }\n    else if (d.morph && !st.live && s.k === 'chg') { s0 = scenOf(d, d.morph.from, P.R, P.C); m = A(st, d.morph.at, d.morph.dur); }\n    if (m >= 1) s0 = null;\n    const viaSwitch = !!(s0 && st.trans);\n    let pos;\n    if (d.handle === false) pos = d.time0;\n    else if (st.live) pos = K.clamp(Math.round(P.time), 0, 5);\n    else pos = g ? glidePos(d, st) : d.time0;\n    const landA = (k) => {\n      if (st.live || !g || k <= g.from) return 1;\n      const j = g.stops.indexOf(k);\n      return j < 0 ? 1 : A(st, g.t0 + j * g.gap + g.dur - 0.05, 0.4);\n    };\n    const vis = (a, p) => ({ a, p: p == null ? 1 : p });\n    const mA = s0 ? Math.max(0, 2 * m - 1) : 1, oA = s0 ? Math.max(0, 1 - 2 * m) : 0;\n    const items = [];\n    if (d.insetAt != null && s.k !== 'cool') items.push({ k: 'inset', s, vis: vis(A(st, d.insetAt)) });\n    const refA = d.refAt != null ? A(st, d.refAt) : 1;\n    if (s.k !== 'dis') items.push({ k: 'ref', s, sym: d.sym, vis: vis(viaSwitch && s0.k === 'dis' ? m : refA) });\n    if (s0 && s0.k !== 'dis' && s.k === 'dis') items.push({ k: 'ref', s: s0, sym: d.sym, vis: vis(1 - m) });\n    if (d.line5At != null && s.k !== 'cool') items.push({ k: 'vline', t: 5, text: '5τ: the usual line for ' + (s.k === 'chg' ? 'full' : 'empty'), vis: vis(A(st, d.line5At)) });\n    const pen = d.pen && !st.live ? A(st, d.pen.at, d.pen.dur) : 1;\n    items.push({ k: 'curve', s, s0, m, from: 0, to: 5, vis: vis(pen > 0 ? 1 : 0, pen) });\n    // The pace now, along the curve's slope: the slope is (line − value) per τ, so kept up it reaches the line one τ later.\n    const paceOn = d.slope != null && s.k !== 'cool';\n    if (paceOn) {\n      const tp = d.slope === 'handle' ? pos : d.slope, vAt = (t) => (s0 ? K.lerp(val(s0, t), val(s, t), m) : val(s, t));\n      items.push({ k: 'pace', t: tp, v: vAt(tp), line: s0 ? K.lerp(s0.line, s.line, m) : s.line, vis: vis(d.slopeAt != null ? A(st, d.slopeAt) : 1) });\n    }\n    items.push({ k: 'bar', t: 0, s, s0, m, cur: pos === 0, vis: vis(d.startAt != null ? A(st, d.startAt) : 1) });\n    if (d.gapAt != null) items.push({ k: 'gaplab', s, vis: vis(A(st, d.gapAt)) });\n    const L = Math.floor(pos + 1e-9), frac = pos - L > 1e-6;\n    const valM = (k) => (s0 ? K.lerp(val(s0, k), val(s, k), m) : val(s, k));\n    const labelOf = (sc, k) => (sc.pct ? pct(100 * (1 - Math.exp(-k))) : sc.fmt(val(sc, k)));\n    const curK = frac ? -1 : L;\n    for (let k = 1; k <= L; k++) {\n      const isCur = k === curK, la = landA(k);\n      const hide = (d.insetAt != null && k === 5 && s.k === 'dis') || !labelled(k, curK, s);   // the magnifier carries 5τ's\n      items.push({ k: 'bar', t: k, s, s0, m, cur: isCur, vis: vis(1) });\n      items.push({ k: 'mark', t: k, v: valM(k), text: hide ? null : (d.sym && isCur && s.k !== 'cool' ? 'v = ' : '') + labelOf(s, k), dot: isCur ? 'ring' : 'dot', cur: isCur, prefs: prefsFor(s, k), vis: vis(la * mA) });\n      if (!st.live && g && k === g.from && k !== curK && !labelled(k, curK, s)) items.push({ k: 'mark', t: k, v: valM(k), text: labelOf(s, k), prefs: prefsFor(s, k), old: true, vis: vis(1 - arr(g.t0, 0.3)) });\n      if (s0 && oA > 0 && labelled(k, curK, s0)) items.push({ k: 'mark', t: k, v: valM(k), text: labelOf(s0, k), prefs: prefsFor(s0, k), old: true, vis: vis(oA) });\n      items.push({ k: 'pill', t0: k - 1, t1: k, s, vis: vis(la) });\n    }\n    if (frac) {\n      items.push({ k: 'bar', t: pos, s, s0, m, cur: true, vis: vis(1) });\n      items.push({ k: 'mark', t: pos, v: valM(pos), text: null, dot: 'ring', cur: true, moving: true, vis: vis(1) });\n    }\n    if (d.extras && s.k === 'dis') {\n      items.push({ k: 'mark', t: 0, v: s.start, text: 'V = ' + fv(s.start, 1) + ' V', dot: 'dot', prefs: ['ar', 'r'], vis: vis(A(st, d.extras.start)) });\n      const t30 = 30 / s.rc;\n      if (t30 <= 5) {\n        items.push({ k: 'guide', t: t30, v: val(s, t30), vis: vis(A(st, d.extras.p30)) });\n        items.push({ k: 'mark', t: t30, v: val(s, t30), text: '30 s: ' + V2(val(s, t30)), dot: 'ring', prefs: ['ar', 'br', 'al', 'bl', 'a'], p30: true, vis: vis(A(st, d.extras.p30 + 0.6)) });\n      }\n    }\n    const ro = L === 0 ? 'At the start, none of the gap has closed yet.' : 'Gap left at ' + L + 'τ, ' + secText(s, L) + ': ' + f3(Math.exp(-L)) + ' of the start';\n    const gc = { tmax: 5, ticks: [0, 1, 2, 3, 4, 5].map((k) => [k, k ? k + 'τ' : '0', k ? secText(s, k) : '']), header: headerOf(d, s, P), sym: !!d.sym };\n    return { s, gc, items, pos, readout: ro, roA: L ? landA(L) : 1, key: [['main', s.curve], ['bar', 'gap still to close']].concat(paceOn ? [['pace', 'pace now']] : []), handle: d.handle !== false, rc: s.rc };\n  }\n  function doModel(d) {\n    return { s: d.sc, gc: d.graph, items: d.items, key: [['main', d.sc.curve], ['bar', 'gap still to close']], handle: false, rc: d.sc.rc };\n  }\n\n  // ---------- the graph ----------\n  // The value scale: fixed, easing out to fit a slip that runs off the top.\n  function yScale(d, st, s) {\n    const s0 = s.ymax;\n    let s1 = s0;\n    if (!d.show && st.res === 'wrong' && d.slipMax && d.slipMax[st.pick]) s1 = d.slipMax[st.pick];\n    const p = s1 === s0 ? 1 : arr(0.1, 0.6);\n    return { now: s0 + (s1 - s0) * p, s0, s1, p };\n  }\n  const slipFor = (d, pick) => (d.items || []).some((it) => it.when === pick);\n  // How far a puzzle's item has arrived: {a: how solid, p: how far its pen has drawn}, or null.\n  function itemVis(d, st, it) {\n    if (it.vis) return it.vis;\n    const pen = !!it.dur;\n    const timed = (t0) => (pen ? { a: arr(t0, it.dur) > 0 ? 1 : 0, p: arr(t0, it.dur) } : { a: arr(t0), p: 1 });\n    const right = st.res === 'right';\n    if (it.k === 'q') {\n      const gone = right || (st.res === 'wrong' && slipFor(d, st.pick));\n      return gone ? { a: 1 - arr(0.1, 0.3), p: 1 } : { a: 1, p: 1 };\n    }\n    if (!it.when) return { a: 1, p: 1 };\n    if (it.when === 'right') return right ? timed(it.at != null ? it.at : 0.1) : null;\n    return st.res === 'wrong' && st.pick === it.when ? timed(it.at != null ? it.at : 0.3) : null;\n  }\n  const spanOf = (sc, t) => { const a = val(sc, t), b = sc.line; return [Math.min(a, b), Math.max(a, b)]; };\n  function drawInset(s, G, a, slip) {\n    const up = s.line > s.start;   // charging: the supply line is above the curve\n    const bx = 156, bw = 162, bh = 74, by = up ? G.top + 60 : G.top + 4;\n    placed.push({ x0: bx, x1: bx + bw, y0: by, y1: by + bh });\n    if (a <= 0) return;\n    part(a, 0, () => {\n      rect('inbox', bx, by, bw, bh, 6);\n      text(bx + 8, by + 16, 'Near 5τ, magnified', 'an', 'start');\n      const ix0 = bx + 10, ix1 = bx + bw - 20, y0 = by + 24, y1 = by + bh - 4, span = gapOf(s, 4) * 1.15;\n      const iy = (v) => (up ? y0 + ((s.line - v) / span) * (y1 - y0) : y1 - ((v - s.line) / span) * (y1 - y0));\n      const ix = (t) => ix0 + (t - 4) * (ix1 - ix0);\n      line(up ? 'st-ref' : 'axis', ix0 - 4, iy(s.line), ix1 + 12, iy(s.line));\n      const pts = [];\n      for (let j = 0; j <= 40; j++) { const t = 4 + j / 40; pts.push(r3(ix(t)) + ' ' + r3(iy(val(s, t)))); }\n      add(K.svg('path', { class: 'st-main', d: 'M' + pts.join(' L') }));\n      const yv = iy(val(s, 5)), yl = iy(s.line);\n      rect('bar cur', ix(5) - 4, Math.min(yv, yl), 8, Math.abs(yv - yl), 1.5);\n      if (slip != null) dot('ring bad', ix(5), iy(slip), 4);\n      const g5 = gapOf(s, 5), lab = slip != null ? 'some still left' : s.fmt(g5) + (up ? ' to go' : ' left');\n      text(ix(5) - 9, up ? yl + 12 : yl - 1, lab, 'ml', 'end');\n      REC.inset = { gap: g5, text: lab };\n    });\n  }\n  function drawItem(d, st, it, s, X, Y, G, said) {\n    const vis = itemVis(d, st, it);\n    if (!vis || vis.a <= 0) {\n      if (it.k === 'inset') drawInset(it.s || s, G, 0);\n      return;\n    }\n    const cls = it.cls || 'main', sA = it.s || s, lim = [G.top - 22, G.bot - 1];\n    if (it.k === 'inset') { drawInset(sA, G, vis.a, it.slip); said.push('A magnifier shows the gap still left at 5 tau.'); return; }\n    if (it.k === 'pace') {\n      const t1 = Math.min(it.t + 1, 5), v1 = it.v + (it.line - it.v) * (t1 - it.t);\n      if (t1 - it.t < 1e-6) return;\n      part(vis.a, 0, () => line('st-pace', X(it.t), Y(it.v), X(t1), Y(v1)));\n      REC.pace = { t: it.t, v: it.v, t1, v1, line: it.line };\n      said.push('A dotted line shows the pace now: kept up, it would reach the ' + (it.line > it.v ? 'supply' : 'bottom') + ' one tau later.');\n      return;\n    }\n    if (it.k === 'ref') {\n      const v = sA.line, chg = sA.k === 'chg';\n      const lab = chg ? (it.sym ? 'supply, V = ' : 'supply ') + fv(v, 1) + ' V' : 'room ' + fv(v, 1) + ' °C';\n      const w = tw(lab, 'an');\n      const x0 = chg ? PX0 + 14 : PX1 - 2 - w, y = chg ? Y(v) - 5 : Y(v) + 16;\n      part(vis.a, 0, () => { line('st-ref', PX0 - 6, Y(v), PX1 + 6, Y(v)); text(x0, y, lab, 'an h', 'start', it.sym); });\n      reserve(x0, y, w);\n      said.push('A dashed line for the ' + (chg ? 'supply' : 'room') + ', ' + say(lab) + '.');\n      return;\n    }\n    if (it.k === 'vline') {\n      const w = tw(it.text, 'five'), x = X(it.t);\n      part(vis.a, 0, () => { line('st-five', x, G.bot, x, G.top - 18); text(x - 6 - w, G.top - 6, it.text, 'five', 'start'); });\n      reserve(x - 6 - w, G.top - 6, w);\n      said.push(say(it.text) + '.');\n      return;\n    }\n    if (it.k === 'curve' || it.k === 'fn') {\n      const fn = it.fn ? it.fn : it.s0 ? (t) => K.lerp(val(it.s0, t), val(sA, t), it.m) : (t) => val(sA, t);\n      const from = it.from || 0, to = from + (it.to - from) * vis.p;\n      if (to - from < 1e-6) return;\n      const pts = [];\n      for (let j = 0; j <= 96; j++) { const t = from + ((to - from) * j) / 96; pts.push(r3(X(t)) + ' ' + r3(Y(fn(t)))); }\n      part(vis.a, 0, () => add(K.svg('path', { class: 'st-' + cls, d: 'M' + pts.join(' L') })));\n      REC.curves.push({ fn, from, to, cls, s: sA, morph: !!it.s0, k: it.k });\n      said.push(cls === 'slip' ? 'In red, a curve.' : 'The ' + sA.curve + ' as a curve.');\n      return;\n    }\n    if (it.k === 'seg') {\n      const pts = partial(it.pts, vis.p);\n      if (pts.length < 2) return;\n      part(vis.a, 0, () => add(K.svg('path', { class: 'st-' + cls, d: 'M' + pts.map((q) => r3(X(q[0])) + ' ' + r3(Y(q[1]))).join(' L') })));\n      said.push('In red, a straight line.');\n      return;\n    }\n    if (it.k === 'bar') {\n      let q = spanOf(sA, it.t);\n      if (it.s0) { const q0 = spanOf(it.s0, it.t); q = [K.lerp(q0[0], q[0], it.m), K.lerp(q0[1], q[1], it.m)]; }\n      if (!(q[1] - q[0] > 0)) return;\n      const yTop = Y(q[1]), hgt = Math.max(0.8, Y(q[0]) - yTop);\n      part(vis.a, 0, () => rect('bar' + (it.cur ? ' cur' : ''), X(it.t) - 6, yTop, 12, hgt, 1.5));\n      REC.bars.push({ t: it.t, lo: q[0], hi: q[1], cur: !!it.cur });\n      return;\n    }\n    if (it.k === 'mark') {\n      const v = it.v != null ? it.v : val(sA, it.t), x = X(it.t), y = Y(v);\n      part(vis.a, 0, () => {\n        if (it.dot === 'ring') dot('ring' + (cls === 'slip' ? ' bad' : ''), x, y, 5);\n        else if (it.dot) dot('d-' + cls, x, y, 4.5);\n        if (it.text) placeLabel(x, y, it.text, 'ml h' + (cls === 'slip' ? ' slip' : ''), it.prefs || (sA.line > sA.start ? RISES : FALLS), lim, /^v = /.test(it.text));\n      });\n      if (!it.old) REC.marks.push({ t: it.t, v, text: it.text, cls, cur: !!it.cur, p30: !!it.p30, moving: !!it.moving });\n      if (it.p30) REC.p30 = { t: it.t, v, text: it.text };\n      if (it.text && !it.old) said.push((cls === 'slip' ? 'In red, ' : '') + say(it.text) + '.');\n      return;\n    }\n    if (it.k === 'pill') {\n      const tx = '× ' + f3(gapOf(sA, it.t1) / gapOf(sA, it.t0));\n      part(vis.a, 0, () => {\n        const c = (X(it.t0) + X(it.t1)) / 2, w = tw(tx, 'pt') + 10;\n        rect('pill', c - w / 2, G.pillY, w, 18, 9);\n        text(c, G.pillY + 13, tx, 'pt', 'middle');\n      });\n      REC.pills.push({ t0: it.t0, t1: it.t1, text: tx });\n      said.push('From ' + it.t0 + ' to ' + it.t1 + ' tau, ' + say(tx) + '.');\n      return;\n    }\n    if (it.k === 'q') {\n      if (it.row === 'sec') part(vis.a, 0, () => text(X(it.t), G.secY + 2, '?', 'q', 'middle'));\n      else part(vis.a, 0, () => { line('guide', X(it.t), G.bot, X(it.t), G.top + 18); text(X(it.t), G.top + 12, '?', 'q h', 'middle'); });\n      said.push('A question mark at the time asked about.');\n      return;\n    }\n    if (it.k === 'tick') {\n      part(vis.a, 4, () => textC(X(it.t), G.secY, it.text, cls === 'slip' ? 'tks' : 'tkr', 2, 338));\n      REC.ticks.push(it.text);\n      said.push((cls === 'slip' ? 'In red, ' : '') + say(it.text) + ' under ' + it.t + ' tau.');\n      return;\n    }\n    if (it.k === 'guide') { part(vis.a, 0, () => line('guide', X(it.t), Y(it.v), X(it.t), G.bot)); return; }\n    if (it.k === 'gaplab') {\n      const lab = fv(Math.abs(sA.start - sA.line), 1) + ' ' + sA.unit + ' gap', w = tw(lab, 'ml');\n      const y = sA.line < sA.start ? Y(sA.line) - 6 : Y(sA.line) + 16;\n      part(vis.a, 0, () => text(PX0 + 10, y, lab, 'ml h', 'start'));\n      reserve(PX0 + 10, y, w);\n      said.push('At the start, a ' + say(lab) + '.');\n    }\n  }\n  function drawGraph(d, st, G, M) {\n    const s = M.s, gc = M.gc, sc = yScale(d, st, s);\n    const X = (t) => PX0 + (t / gc.tmax) * (PX1 - PX0);\n    const Y = (v) => G.bot - (v / sc.now) * G.h;\n    text(6, 16, s.yname, 'an', 'start');\n    reserve(6, 16, tw(s.yname, 'an'));\n    if (gc.header) { const w = tw(gc.header, 'hd'); text(334 - w, 16, gc.header, 'hd', 'start'); reserve(334 - w, 16, w); REC.header = gc.header; }\n    // the value axis: its ticks (a new set fades in while the scale changes)\n    const sets = sc.s0 === sc.s1 ? [[s.yt, 1]] : [[s.yt, 1 - Math.min(1, sc.p * 2)], [niceTicks(sc.s1), Math.max(0, sc.p * 2 - 1)]];\n    sets.forEach((set) => part(set[1], 0, () => set[0].forEach((v) => {\n      if (v > sc.now * 1.0001) return;\n      line('tickm', GX0 - 5, Y(v), GX0, Y(v));\n      text(GX0 - 7, Y(v) + 4.5, fv(v), 'tk', 'end');\n    })));\n    line('axis', GX0, G.top, GX0, G.bot);\n    line('axis', GX0, G.bot, PX1 + 8, G.bot);\n    gc.ticks.forEach((tk) => {\n      line('tickm', X(tk[0]), G.bot, X(tk[0]), G.bot + 5);\n      if (tk[1]) textC(X(tk[0]), G.tauY, tk[1], 'tk', 2, 338);\n      if (tk[2]) { textC(X(tk[0]), G.secY, tk[2], 'tk', 2, 338); REC.ticks.push(tk[2]); }\n    });\n    if (gc.sym) text(8, G.secY, 't', 'tk', 'start', true);\n    const said = ['A graph of the ' + s.curve + ', time along the bottom in time constants.'];\n    if (gc.header) said.push(say(gc.header) + '.');\n    M.items.forEach((it) => drawItem(d, st, it, s, X, Y, G, said));\n    if (M.handle && !finished) {\n      const x = X(M.pos);\n      add(K.svg('circle', { class: 'knob', cx: r3(x), cy: G.bot, r: 9 }));\n      said.push('The time handle at ' + fv(M.pos, 2) + ' tau.');\n    }\n    if (M.readout != null) {\n      part(M.roA, 0, () => text(12, G.roY, M.readout, 'pt', 'start'));\n      REC.readout = M.readout;\n      said.push(say(M.readout) + '.');\n    }\n    drawKey(G, M.key);\n    REC.rc = M.rc;\n    REC.pos = M.pos;\n    REC.s = s;\n    return said.join(' ');\n  }\n\n  // ---------- the key, inside the drawing ----------\n  function drawKey(G, items) {\n    let x = 12;\n    items.forEach((it) => {\n      const y = G.keyY;\n      if (it[0] === 'bar') rect('bar', x + 2, y - 7, 12, 12, 1.5);\n      else line('st-' + it[0], x, y, x + 16, y);\n      text(x + 22, y + 4.5, it[1], 'key', 'start');\n      x += 22 + tw(it[1], 'key') + 18;\n    });\n  }\n\n  // ---------- the time handle ----------\n  const grip = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1, role: 'slider', 'aria-label': 'Time handle, in time constants', 'aria-orientation': 'horizontal' }));\n  grip.style.display = 'none';\n  let held = null;\n  const handleLive = () => !finished && STEPS[at()].show && STEPS[at()].handle !== false;\n  function svgX(e) {\n    const ctm = svg.getScreenCTM();\n    if (!ctm) return null;\n    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()).x;\n  }\n  const toTau = (x) => Math.round(((x - PX0) / (PX1 - PX0)) * 5);\n  function setTime(n) {\n    const st = S[at()];\n    n = K.clamp(Math.round(n), 0, 5);\n    if (st.live && timeCtl.get() === n && T === Infinity) return;\n    if (anim.playing()) anim.pause();\n    T = Infinity; st.live = true; st.trans = null;\n    timeCtl.set(n, true);\n    K.reveal();\n  }\n  grip.addEventListener('pointerdown', (e) => {\n    if (!handleLive()) return;\n    held = e.pointerId;\n    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the band */ }\n    const x = svgX(e);\n    if (x != null) setTime(toTau(x));\n  });\n  grip.addEventListener('pointermove', (e) => {\n    if (held !== e.pointerId || !handleLive()) return;\n    const x = svgX(e);\n    if (x != null) setTime(toTau(x));\n  });\n  const letGo = (e) => { if (held === e.pointerId) held = null; };\n  grip.addEventListener('pointerup', letGo);\n  grip.addEventListener('pointercancel', letGo);\n  grip.addEventListener('lostpointercapture', () => { held = null; });\n  grip.addEventListener('keydown', (e) => {\n    if (!handleLive()) return;\n    const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];\n    if (by == null && e.key !== 'Home' && e.key !== 'End') return;\n    e.preventDefault();\n    const now = REC && REC.pos != null ? Math.round(REC.pos) : timeCtl.get();\n    setTime(e.key === 'Home' ? 0 : e.key === 'End' ? 5 : now + by);\n  });\n  function placeGrip(d, G, M) {\n    const on = !!(d.show && M.handle && !finished);\n    grip.style.display = on ? '' : 'none';\n    grip.setAttribute('tabindex', on ? '0' : '-1');\n    if (!on) return;\n    const n = Math.round(M.pos);\n    grip.setAttribute('x', PX0 - 24); grip.setAttribute('width', PX1 - PX0 + 34);\n    grip.setAttribute('y', G.top); grip.setAttribute('height', G.bot + 30 - G.top);\n    grip.setAttribute('aria-valuemin', 0); grip.setAttribute('aria-valuemax', 5); grip.setAttribute('aria-valuenow', n);\n    grip.setAttribute('aria-valuetext', n + ' time constants, ' + say(secText(M.s, n)));\n  }\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i, P) {\n    if (i == null) i = at();\n    if (!P) P = cur();\n    const d = STEPS[i], st = S[i], G = geo(d);\n    art.textContent = '';\n    into = null;\n    placed = [];\n    REC = { marks: [], bars: [], pills: [], curves: [], ticks: [], readout: '', header: '', rc: null, pos: null, s: null, p30: null, inset: null, pace: null };\n    svg.setAttribute('viewBox', '0 0 340 ' + G.H);\n    const M = d.show ? showModel(d, st, P) : doModel(d);\n    const said = drawGraph(d, st, G, M);\n    placeGrip(d, G, M);\n    svg.setAttribute('aria-label', said);\n  }\n\n  // The model the lesson reads: the time constant, the share of the gap left and the reading at the handle.\n  function modelAt(p) {\n    const i = K.clamp(Math.round(p.step), 0, STEPS.length - 1), d = STEPS[i];\n    const s = scenOf(d, p.mode, p.R, p.C), n = K.clamp(Math.round(p.time), 0, 5);\n    return { timeConstant: s.rc, gapLeft: Math.exp(-n), reading: val(s, n) };\n  }\n  K.model(modelAt);\n\n  const el = (id) => document.getElementById(id);\n  write(el('finish'), FINISH);\n  write(el('cap'), CAPTION);\n  function switched(d, st, from, to) {\n    st.live = true;\n    if (morphable(d, from, to)) { st.trans = { from, to }; play(0.9); }\n    else { st.trans = null; anim.pause(); T = Infinity; enter('scene'); }\n  }\n  K.update(() => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      openStep(i);\n      if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }\n    } else if (d.show) {\n      const P = cur();\n      if (P.mode !== lastMode) switched(d, st, lastMode, P.mode);\n      else if (P.time !== lastTime || P.R !== lastR || P.C !== lastC) {\n        // the handle, a slider or a test moved: the demonstration gives way to Dan's setting\n        st.live = true; st.trans = null;\n        if (anim.playing()) anim.pause();\n        T = Infinity;\n      }\n    }\n    remember();\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    const sNow = d.show ? scenOf(d, modeCtl.get(), rCtl.get(), cCtl.get()) : d.sc;\n    el('lead').hidden = i !== 0 || finished;\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    el('modek').hidden = finished || !d.show || !d.switch;\n    el('rck').hidden = finished || !d.show || !d.sliders || sNow.k === 'cool';\n    paint(i);\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.textContent = '';\n      b.el.appendChild(K.el('span', null, opts[k]));   // one span, so the button's gap does not split \"1.35 V\"\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const SHOWS = STEPS.map((d, i) => i).filter((i) => STEPS[i].show);\n  const PICKS = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const liveSt = () => Object.assign(blank(), { live: true });\n  const PP = (o) => Object.assign({ time: 0, mode: 'Discharging', R: 100, C: 470 }, o);\n  const close = (a, b, tol) => Math.abs(a - b) <= (tol != null ? tol : 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)));\n  // A step painted in the state and settings given (finished, or t seconds into its motion): what it draws.\n  function drawn(i, st, P, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t;\n    try {\n      paint(i, P || openP(i));\n      return { texts: Array.from(art.querySelectorAll('text')).map((q) => q.textContent), rec: REC };\n    } finally { S[i] = keepS; T = keepT; }\n  }\n  // Every check repaints the screen Dan is on when it is done.\n  const chk = (label, fn, opt) => K.check(label, () => { try { return fn(); } finally { paint(); } }, opt);\n  // Every finished picture the lesson can show: each demonstration opened and at every handle\n  // setting in every mode, each puzzle opened, solved and with each slip shown.\n  function states() {\n    const out = [];\n    STEPS.forEach((d, i) => {\n      out.push([i, blank(), openP(i)]);\n      if (d.show) OPT.forEach((mode) => [0, 1, 2, 3, 4, 5].forEach((n) => out.push([i, liveSt(), PP({ time: n, mode })])));\n      else { out.push([i, solvedSt(i), openP(i)]); d.opts.filter((o) => o !== d.want).forEach((o) => out.push([i, wrongSt(i, o), openP(i)])); }\n    });\n    return out;\n  }\n  let ALL = null;\n  const all = () => ALL || (ALL = states().map((x) => ({ i: x[0], g: drawn(x[0], x[1], x[2]) })));\n  // Each gap bar drawn keeps 0.368 of the bar one time constant before it; every pill says so.\n  function keepsShare(rec) {\n    return rec.bars.every((b) => {\n      const prev = rec.bars.find((q) => Math.abs(q.t - (b.t - 1)) < 1e-9);\n      return !prev || close((b.hi - b.lo) / (prev.hi - prev.lo), E1, 1e-9);\n    }) && rec.pills.every((p) => p.text === '× 0.368');\n  }\n\n  chk('In the first time interval τ = RC the voltage falls to 0.368 of its initial value, since e^(−1) = 0.368: at 1τ the model keeps 0.368 of the start and a 10 V start reads 3.68 V, at every R and C tried', () =>\n    [10, 50, 100, 150, 200].every((R) => [10, 100, 470, 1000].every((C) => {\n      const o = K.at({ R, C, time: 1 });\n      return close(o.gapLeft, E1) && f3(o.gapLeft) === '0.368' && V2(o.reading) === '3.68 V' && close(o.reading, 10 * E1);\n    })) && f3(E1) === '0.368', { source: SRC1 });\n  chk('RC is the time during which the charge drops to 1/e of the initial value, and has dimensions of time: 100 kΩ × 470 µF gives 47 s, 10 kΩ × 1000 µF gives 10 s, and one RC leaves 1/e of the gap on every curve drawn', () => {\n    const okRC = close(K.at({}).timeConstant, 47) && close(K.at({ R: 10, C: 1000 }).timeConstant, 10) && close(K.at({ R: 200, C: 1000 }).timeConstant, 200) &&\n      secT(rcOf(100, 470)) === '47 s' && secT(rcOf(10, 1000)) === '10 s' && fx(100 * 1000, 0) === '100,000' && fx(470 / 1e6, 6) === '0.000470';\n    const curves = all().every(({ g }) => g.rec.curves.filter((c) => c.cls === 'main' && !c.morph && c.to >= 1 && c.from <= 0).every((c) => close(Math.abs(c.fn(1) - c.s.line), Math.abs(c.s.start - c.s.line) * E1, 1e-9 * Math.max(1, c.s.start))));\n    return okRC && curves;\n  }, { source: SRC3 });\n  chk('An object cools at a rate proportional to the difference between its temperature and the ambient temperature: on every cooling curve, the rate of fall measured at many times divided by the gap to the room is the same everywhere', () =>\n    [SC.cool, SC.oil, BASE.cool].every((s) => {\n      const r = [0.2, 0.7, 1.5, 3, 4.5].map((t) => ((val(s, t + 1e-5) - val(s, t - 1e-5)) / 2e-5) / (val(s, t) - s.line));\n      return r.every((x) => close(x, r[0], 1e-5)) && close(r[0], -1, 1e-5);\n    }), { source: SRC4 });\n  chk('The rate of growth is proportional to the current function value, here run downhill: on every capacitor curve, discharging and charging, the slope measured at many times divided by the gap still to close is the same everywhere', () =>\n    [SC.d10, SC.c10, SC.d400, SC.c5, BASE.dis, BASE.chg].every((s) => {\n      const r = [0.2, 0.7, 1.5, 3, 4.5].map((t) => ((val(s, t + 1e-5) - val(s, t - 1e-5)) / 2e-5) / (s.line - val(s, t)));\n      return r.every((x) => close(x, r[0], 1e-5)) && close(r[0], 1, 1e-5);\n    }), { source: SRC2 });\n  chk('The rate is proportional to the gap: the pace line at the handle runs along the curve\\'s slope and, kept up, reaches the line exactly one time constant later, discharging and charging, at every handle setting and R and C tried', () =>\n    ['One time constant', 'Charging'].every((name) => { const i = idx(name); return ['Discharging', 'Charging'].every((mode) => [[100, 470], [10, 1000]].every((rc) => [0, 1, 2, 3, 4].every((n) => {\n      const p = drawn(i, liveSt(), PP({ time: n, mode, R: rc[0], C: rc[1] })).rec.pace, s = scenOf(STEPS[i], mode, rc[0], rc[1]);\n      const slope = (val(s, n + 1e-5) - val(s, n - 1e-5)) / 2e-5;\n      return !!p && close(p.t, n) && close(p.v, val(s, n)) && close(p.t1, n + 1) && close(p.v1, s.line, 1e-9 * 10) && close((p.v1 - p.v) / (p.t1 - p.t), slope, 1e-5);\n    }))); }), { source: SRC2 });\n  chk('Every gap bar keeps 0.368 of the bar one time constant before it, in every mode, at every handle setting and with R and C across their ranges, and every pill reads × 0.368', () => {\n    const rcs = [[100, 470], [10, 10], [200, 1000], [130, 470]];\n    const shows = SHOWS.every((i) => OPT.every((mode) => rcs.every((rc) => {\n      const g = drawn(i, liveSt(), PP({ time: 5, mode, R: rc[0], C: rc[1] }));\n      const want = STEPS[i].handle === false ? 1 : 6;\n      return g.rec.bars.length === want && keepsShare(g.rec) && g.rec.pills.length === want - 1;\n    })));\n    return shows && all().every(({ g }) => keepsShare(g.rec));\n  });\n  chk('Charging is the discharge flipped and lifted: at every time the charging and discharging voltages add to the 10 V supply, so the charging gap bars match the discharge bars', () => {\n    const add10 = [0, 0.3, 1, 2, 3.7, 5].every((t) => close(val(BASE.chg, t) + val(BASE.dis, t), 10));\n    const i = idx('Charging');\n    const a = drawn(i, liveSt(), PP({ time: 3, mode: 'Charging' })).rec.bars, b = drawn(i, liveSt(), PP({ time: 3, mode: 'Discharging' })).rec.bars;\n    return add10 && a.length === 4 && b.length === 4 && a.every((x, j) => close(x.hi - x.lo, b[j].hi - b[j].lo, 1e-9) && close(x.hi, 10) && close(b[j].lo, 0));\n  });\n  chk('By the rule the gap never closes: at 5τ the charge is 99.3% with 0.07 V to go, 400 V leaves 2.7 V, and every curve drawn stays strictly between its start and its line', () => {\n    const nums = pct(100 * (1 - Math.exp(-5))) === '99.3%' && V2(10 * Math.exp(-5)) === '0.07 V' && V400(400 * Math.exp(-5)) === '2.7 V';\n    const g7 = drawn(idx('Never quite full'), blank());\n    const inset = !!g7.rec.inset && g7.rec.inset.text === '0.07 V to go' && g7.texts.indexOf('5τ: the usual line for full') >= 0 && g7.texts.indexOf('99.3%') >= 0;\n    const g7d = drawn(idx('Never quite full'), liveSt(), PP({ time: 5, mode: 'Discharging' }));\n    const inset400 = !!g7d.rec.inset && g7d.rec.inset.text === '2.7 V left';\n    const between = all().every(({ g }) => g.rec.curves.filter((c) => c.cls === 'main' && !c.morph).every((c) => {\n      for (let j = 1; j <= 40; j++) {\n        const t = c.from + ((c.to - c.from) * j) / 40, f = (c.fn(t) - c.s.line) / (c.s.start - c.s.line);\n        if (t > 0 && !(f > 0 && f < 1)) return false;\n        if (!close(c.fn(t), val(c.s, t), 1e-9 * Math.max(1, c.s.start, c.s.line))) return false;\n      }\n      return true;\n    }));\n    return nums && inset && inset400 && between;\n  });\n  chk('The model returns the time constant, the share of the gap left and the reading the picture shows, at every handle setting and switch setting on every demonstration screen', () =>\n    SHOWS.every((i) => OPT.every((mode) => (STEPS[i].handle === false ? [STEPS[i].time0] : [0, 1, 2, 3, 4, 5]).every((n) => {\n      const d = STEPS[i], g = drawn(i, liveSt(), PP({ time: n, mode })), o = K.at({ step: i, time: n, mode }), s = scenOf(d, mode, 100, 470);\n      if (!(close(o.timeConstant, g.rec.rc) && close(o.gapLeft, Math.exp(-n)) && close(o.reading, val(s, n)) && Math.round(g.rec.pos) === n)) return false;\n      if (n === 0) return g.rec.readout === 'At the start, none of the gap has closed yet.' || d.handle === false;\n      const m = g.rec.marks.find((x) => x.cur);\n      if (!m || !close(m.v, o.reading) || !close(m.t, n)) return false;\n      if (m.text != null && m.text.replace(/^v = /, '') !== (s.pct ? pct(100 * (1 - o.gapLeft)) : s.fmt(o.reading))) return false;\n      return g.rec.readout.indexOf(f3(o.gapLeft) + ' of the start') >= 0 && g.rec.readout.indexOf(n + 'τ, ' + secText(s, n)) >= 0;\n    }))));\n  chk('The 30 s point sits on the curve between the marks: e^(−30/47) ≈ 0.528 gives 5.28 V, and with a bigger R the same 30 s is fewer time constants, so it sits higher', () => {\n    const i = idx('R and C set the pace');\n    const a = drawn(i, liveSt(), PP({ time: 3 })).rec.p30, b = drawn(i, liveSt(), PP({ time: 3, R: 200 })).rec.p30, c = drawn(i, liveSt(), PP({ time: 3, R: 10, C: 10 })).rec.p30;\n    return f3(Math.exp(-30 / 47)) === '0.528' && !!a && close(a.t, 30 / 47) && a.text === '30 s: 5.28 V' && !!b && b.t < a.t && b.v > a.v && c === null;\n  });\n  chk('Every number follows its rule: 3.68, 1.35 and 0.50 V (slips 0 V and 1.84 V); 47 s, 94 s and 141 s; 243 V (slips 659 V and 0 V); 0.632, 6.32, 8.65 and 9.50 V; 63.2, 86.5, 95.0, 98.2 and 99.3% (slips 12.64 V, 126.4% and 3.99 V); 2.7 V (slip 80 V); 70, 25.8, 45.8, 29.5 and 23.5 °C (slips 33.1 and 64.2 °C); 2.13, 0.119, 0.60 and 4.40 V (slip 6.72 V); 10 s (slips 10,000 s and 0.01 s); 6.8 and 36.8 °C (slips 10.8 and 48.4 °C); and each answer offered is the value its own working gives', () => {\n    const ok = V2(10 * E1) === '3.68 V' && V2(10 * Math.exp(-2)) === '1.35 V' && V2(10 * Math.exp(-3)) === '0.50 V' &&\n      V2(Math.max(0, 10 * E1 - (10 - 10 * E1))) === '0 V' && V2((10 * E1) / 2) === '1.84 V' && fv(10 - 10 * E1, 2) === '6.32' &&\n      secT(47) === '47 s' && secT(2 * 47) === '94 s' && secT(3 * 47) === '141 s' &&\n      V400(400 * Math.exp(-0.5)) === '243 V' && V400(400 * Math.exp(0.5)) === '659 V' && V400(400 * Math.exp(-200)) === '0 V' &&\n      f3(1 - E1) === '0.632' && V2(10 * (1 - E1)) === '6.32 V' && V2(10 * (1 - Math.exp(-2))) === '8.65 V' && V2(10 * (1 - Math.exp(-3))) === '9.50 V' &&\n      [1, 2, 3, 4, 5].map((k) => pct(100 * (1 - Math.exp(-k)))).join(' ') === '63.2% 86.5% 95.0% 98.2% 99.3%' &&\n      V2(2 * 10 * (1 - E1)) === '12.64 V' && pct(2 * 100 * (1 - E1)) === '126.4%' && V2(10 * R632 * R632) === '3.99 V' &&\n      V400(400 * Math.exp(-5)) === '2.7 V' && V400(400 / 5) === '80 V' &&\n      fv(90 - 20, 1) === '70' && fx(70 * E1, 1) === '25.8' && C1(20 + 70 * E1) === '45.8 °C' && C1(20 + 70 * Math.exp(-2)) === '29.5 °C' && C1(20 + 70 * Math.exp(-3)) === '23.5 °C' &&\n      C1(90 * E1) === '33.1 °C' && C1(20 + 70 * (1 - E1)) === '64.2 °C' && secT(600) === '600 s' && mins(600 / 60) === '10 min' &&\n      fx(T100, 2) === '2.13' && f3(Math.exp(-T100)) === '0.119' && V2(5 * Math.exp(-T100)) === '0.60 V' && V2(5 - 5 * Math.exp(-T100)) === '4.40 V' && V2(T100 * (1 - E1) * 5) === '6.72 V' &&\n      secT(10000 * 0.001) === '10 s' && secT(10 * 1000) === '10,000 s' && secT(10 * 0.001) === '0.01 s' &&\n      fx(50 * Math.exp(-2), 1) === '6.8' && C1(30 + 50 * Math.exp(-2)) === '36.8 °C' && C1(80 * Math.exp(-2)) === '10.8 °C' && C1(30 + 50 * E1) === '48.4 °C';\n    const labelled = PICKS.every((i) => { const d = STEPS[i]; return d.opts.every((o) => d.val[o] != null && d.fmt(d.val[o]) === o); });\n    return ok && labelled;\n  });\n  const shows = (texts, ans) => texts.some((x) => x === ans || (x.indexOf(ans) === 0 && /\\s/.test(x.charAt(ans.length))));\n  chk('Before an answer, nothing in a puzzle\\'s picture gives it away, and a right answer shows it', () =>\n    PICKS.every((i) => { const d = STEPS[i]; return !shows(drawn(i, blank()).texts, d.ans) && shows(drawn(i, solvedSt(i)).texts, d.ans); }));\n  chk('Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own', () =>\n    PICKS.every((i) => {\n      const d = STEPS[i];\n      return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)) &&\n        d.opts.every((o) => o === d.want || !!(d.hints && d.hints[o]));\n    }));\n  chk('Every demonstration has finished arriving within its time (at most 4.5 s), none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, within 2.5 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; earliest = Infinity;\n      S[i] = st;\n      try { paint(i, openP(i)); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }\n      return timed(i, solvedSt(i), FB[0]) && FB[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB[1]) && FB[1] <= 2.5);\n    });\n    T = keepT;\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "The shrinking gap",
+  "brief": "The one thing you should see is the gap bar keeping 0.368 of itself at every time constant, whatever R and C are set to, when you drag the time handle from 1τ to 2τ to 3τ.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "In the first time interval τ = RC the voltage falls to 0.368 of its initial value, since e^(−1) = 0.368: at 1τ the model keeps 0.368 of the start and a 10 V start reads 3.68 V, at every R and C tried",
+     "ok": true,
+     "source": "https://courses.lumenlearning.com/atd-austincc-physics2/chapter/21-6-dc-circuits-containing-resistors-and-capacitors/"
+    },
+    {
+     "label": "RC is the time during which the charge drops to 1/e of the initial value, and has dimensions of time: 100 kΩ × 470 µF gives 47 s, 10 kΩ × 1000 µF gives 10 s, and one RC leaves 1/e of the gap on every curve drawn",
+     "ok": true,
+     "source": "https://physics.iitd.ac.in/uploads/manual_leiBQt035s.pdf"
+    },
+    {
+     "label": "An object cools at a rate proportional to the difference between its temperature and the ambient temperature: on every cooling curve, the rate of fall measured at many times divided by the gap to the room is the same everywhere",
+     "ok": true,
+     "source": "https://www.math.uwaterloo.ca/~baforres/UCM138/Lectures/Chapter4/SLIDESNewtonsLaw.pdf"
+    },
+    {
+     "label": "The rate of growth is proportional to the current function value, here run downhill: on every capacitor curve, discharging and charging, the slope measured at many times divided by the gap still to close is the same everywhere",
+     "ok": true,
+     "source": "https://openstax.org/books/calculus-volume-1/pages/6-8-exponential-growth-and-decay"
+    },
+    {
+     "label": "The rate is proportional to the gap: the pace line at the handle runs along the curve's slope and, kept up, reaches the line exactly one time constant later, discharging and charging, at every handle setting and R and C tried",
+     "ok": true,
+     "source": "https://openstax.org/books/calculus-volume-1/pages/6-8-exponential-growth-and-decay"
+    },
+    {
+     "label": "Every gap bar keeps 0.368 of the bar one time constant before it, in every mode, at every handle setting and with R and C across their ranges, and every pill reads × 0.368",
+     "ok": true
+    },
+    {
+     "label": "Charging is the discharge flipped and lifted: at every time the charging and discharging voltages add to the 10 V supply, so the charging gap bars match the discharge bars",
+     "ok": true
+    },
+    {
+     "label": "By the rule the gap never closes: at 5τ the charge is 99.3% with 0.07 V to go, 400 V leaves 2.7 V, and every curve drawn stays strictly between its start and its line",
+     "ok": true
+    },
+    {
+     "label": "The model returns the time constant, the share of the gap left and the reading the picture shows, at every handle setting and switch setting on every demonstration screen",
+     "ok": true
+    },
+    {
+     "label": "The 30 s point sits on the curve between the marks: e^(−30/47) ≈ 0.528 gives 5.28 V, and with a bigger R the same 30 s is fewer time constants, so it sits higher",
+     "ok": true
+    },
+    {
+     "label": "Every number follows its rule: 3.68, 1.35 and 0.50 V (slips 0 V and 1.84 V); 47 s, 94 s and 141 s; 243 V (slips 659 V and 0 V); 0.632, 6.32, 8.65 and 9.50 V; 63.2, 86.5, 95.0, 98.2 and 99.3% (slips 12.64 V, 126.4% and 3.99 V); 2.7 V (slip 80 V); 70, 25.8, 45.8, 29.5 and 23.5 °C (slips 33.1 and 64.2 °C); 2.13, 0.119, 0.60 and 4.40 V (slip 6.72 V); 10 s (slips 10,000 s and 0.01 s); 6.8 and 36.8 °C (slips 10.8 and 48.4 °C); and each answer offered is the value its own working gives",
+     "ok": true
+    },
+    {
+     "label": "Before an answer, nothing in a puzzle's picture gives it away, and a right answer shows it",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within its time (at most 4.5 s), none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "time",
+    "mode",
+    "R",
+    "C"
+   ],
+   "readouts": [],
+   "outputs": [
+    "timeConstant",
+    "gapLeft",
+    "reading"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "One time constant",
+      "Two time constants",
+      "R and C set the pace",
+      "400 V after 10 s",
+      "Charging",
+      "Charging, two time constants",
+      "Never quite full",
+      "400 V after five",
+      "Cooling",
+      "After 10 minutes",
+      "5 V for 100 s",
+      "Find RC",
+      "Oil after 40 minutes"
+     ],
+     "value": 0
+    },
+    {
+     "id": "time",
+     "kind": "control",
+     "label": "Time handle, in time constants",
+     "min": 0,
+     "max": 5,
+     "step": 1,
+     "log": false,
+     "value": 3
+    },
+    {
+     "id": "mode",
+     "kind": "choice",
+     "label": "What is changing",
+     "options": [
+      "Discharging",
+      "Charging",
+      "Cooling"
+     ],
+     "labels": [
+      "Discharging",
+      "Charging",
+      "Cooling"
+     ],
+     "value": "Discharging",
+     "index": 0
+    },
+    {
+     "id": "R",
+     "kind": "control",
+     "label": "Resistance R",
+     "min": 10,
+     "max": 200,
+     "step": 10,
+     "log": false,
+     "value": 100,
+     "snap": [
+      100
+     ]
+    },
+    {
+     "id": "C",
+     "kind": "control",
+     "label": "Capacitance C",
+     "min": 10,
+     "max": 1000,
+     "step": 10,
+     "log": false,
+     "value": 470,
+     "snap": [
+      470
+     ]
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [
+    "SVG labels \"206.8 s\" and \"258.5 s\" are touching on one row, so they read as one: leave at least 4 px between them, or label only what differs (at R = 110 kΩ, and 1 more setting)"
+   ],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-18T05:00:18.947Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "The Wikipedia line is about heat lost by thermal radiation; dropping that qualifier makes the law sound useless for any real gap, including the lesson's own 70 °C one. Also e^(−1) is 0.3679…, so 'about', not 'equals', 0.368."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "A part at around 90 °C does not glow: it radiates invisible infrared heat, and visible glowing only starts hundreds of degrees hotter, so 'glowing radiation' is misleading."
+   }
+  ],
+  "notes": [
+   {
+    "path": "interactive.controls",
+    "problem": "whatAmILookingAt and numbers describe R (10 to 200 kΩ) and C (10 to 1000 µF) sliders from screen 3, but controls lists only the time handle and the mode switch; the builder needs these sliders added."
+   },
+   {
+    "path": "interactive.numbers",
+    "problem": "The screen 11 slip is labelled '2.13 × 63.2% of 5 V' but holds 6.72; 2.13 × 0.632 × 5 = 6.73 (6.72 comes only from the unrounded 100/47), so a hint showing it would look like a sum error."
+   }
+  ]
+ },
+ "error": null,
+ "flags": {}
+}
