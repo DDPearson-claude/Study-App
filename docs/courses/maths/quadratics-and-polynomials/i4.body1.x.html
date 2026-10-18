@@ -1,0 +1,1112 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; touch-action: pan-y; }
+  /* Tiles as in lesson 1: the x² square, x strips, and small squares for plain numbers. */
+  .scene .t2 { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .t1 { fill: var(--k-fill3); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .t0 { fill: var(--k-sunk); stroke: var(--k-accent2); stroke-width: 1.2; }
+  /* The missing corner, and its drop on the graph, in amber. */
+  .scene .corner { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .cgrid { stroke: var(--k-amber-line); stroke-width: .8; }
+  .scene .flash { fill: var(--k-amber-line); }
+  .scene .gapline { fill: none; stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 4 3; }
+  .scene .cand { fill: none; stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 5 3; }
+  .scene .drop { stroke: var(--k-amber-line); stroke-width: 3; stroke-linecap: round; }
+  .scene .axis { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .frame { stroke: var(--k-line); stroke-width: 1; }
+  .scene .tick { stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .cline { stroke: var(--k-ink); stroke-width: 1.2; stroke-dasharray: 5 4; }
+  .scene .sym { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 3 4; }
+  .scene .mirror { stroke: var(--k-accent); stroke-width: 1.4; stroke-dasharray: 3 3; }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .mdot { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .ydot { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .baddot { fill: var(--k-warn); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .track { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }
+  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .cue { fill: var(--k-accent2); }
+  .scene .tag { font: 700 16px var(--k-font); fill: var(--k-accent2); }
+  .scene .sl { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .tm { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  .scene .cn { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .cl { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .pt { font: 600 13px var(--k-font); fill: var(--k-ink); paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .an { font: 400 13px var(--k-font); fill: var(--k-muted); paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .xl { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .te { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .tw { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .note { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .bad { fill: var(--k-warn); }
+  .scene .v { font-style: italic; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stack one to a row, each label whole. */
+  .row.picks { flex-direction: column; gap: 8px; }
+  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; font-size: 1.15rem; white-space: nowrap; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Tiles for <span class="v">x</span>² + <span class="v">bx</span>, a square with a strip <span class="v">b</span> wide beside it, and beside them the curve of the same rule with its lowest point marked. On the screens that show an idea, drag the half strip or the slider for <span class="v">b</span> yourself.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">A sketch drawn from each screen's own rule. The square's side x is drawn at one fixed length.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // q: the quadratic [a, b, c], a x² + b x + c. pic: 'tiles' (the tiles beside a small graph) or
+  // 'graph' (the graph alone, from the screen where minus signs come in). demo: what a SHOW screen
+  // plays ('cut' swings half the strip round, 'units' puts the plain number in the corner, 'solve'
+  // and 'flip' write the working). slider: a slider for b (0 to 10 in steps of 2); moves: [t0, t1, b].
+  // A puzzle: kind 'corner' (a number), 'form' (a completed-square form [a, h, k] for a(x + h)² + k),
+  // 'turn' (a point [x, y]) or 'next' (the right side of the next line); o: its options, 'R' being
+  // the right one, worked out from the rule; hs: a hint for each wrong one; chk: the x put into both.
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, name: 'Share the strip', pic: 'tiles', q: [1, 6, 0], demo: 'cut', drag: true, dur: 4.4,
+      text: '`x² + 6x` is an `x` by `x` square with a strip 6 wide beside it. Cut the strip in half and swing one half round to the bottom, so both sides grow by 3. The pieces nearly make a square with sides `x + 3`, missing a 3 by 3 corner, so `x² + 6x` is `(x + 3)² − 9`.' },
+    { name: 'The corner for 8', pic: 'tiles', q: [1, 8, 0], kind: 'corner', chk: 1, o: [64, 'R', 4],
+      task: 'Cut the strip of `x² + 8x` in half and swing one half round. What is the missing corner?',
+      why: 'Half of 8 is 4, so each side grows by 4 and the corner is 4 by 4, which is 16. So `x² + 8x` is `(x + 4)² − 16`, and at `x = 1` both give 9.',
+      hint: 'Not quite. The corner\'s sides are half the strip.',
+      hs: ['Not quite. 64 squares the whole 8, but each side gets only half of it.', null, 'Not quite. 4 is the corner\'s side, and the corner is 4 by 4.'] },
+    { show: true, name: 'Any b', pic: 'tiles', q: [1, 6, 0], slider: true, chk: 1, moves: [[2.0, 2.8, 10], [3.0, 3.8, 2], [3.9, 4.5, 6]], dur: 4.5,
+      text: 'Whatever `b` is, half of it goes on each side, so the corner is `(b ÷ 2)²`. Add the corner and take it off again, and nothing changes, so `x² + bx` is `(x + b ÷ 2)²` less the corner. This move is called *completing the square*.' },
+    { name: 'Which form?', pic: 'tiles', q: [1, 10, 0], kind: 'form', chk: 1, o: [[1, 5, 0], 'R', [1, 10, -100]],
+      task: 'Which is `x² + 10x` with its square completed?',
+      why: 'Half of 10 is 5, so the square is `(x + 5)²`, and its 5 by 5 corner, 25, comes off again. At `x = 1`, `1 + 10 = 11` and `36 − 25 = 11`.',
+      hint: 'Not quite. Put `x = 1` into both, and they must agree.',
+      hs: ['Not quite. That leaves the corner on. At `x = 1` it gives 36, not 11.', null, 'Not quite. Each side grows by half of 10. At `x = 1` that form gives 21, not 11.'] },
+    { show: true, name: 'The plain number', pic: 'tiles', q: [1, 6, 2], demo: 'units', chk: 1, dur: 4.2,
+      text: 'In `x² + 6x + 2` the 2 is two small squares. Put them in the corner, and 7 of its 9 squares are still empty. So `x² + 6x + 2` is `(x + 3)² − 7`.' },
+    { name: 'No pair? Complete it', pic: 'tiles', q: [1, 4, 1], kind: 'form', chk: 1, o: ['R', [1, 2, 5], [1, 4, -15]],
+      task: 'Lesson 2 found no whole-number pair for `x² + 4x + 1`. Which is it with its square completed?',
+      why: 'Half of 4 is 2, so the corner is 2 by 2, which is 4. The 1 fills one of its squares and leaves 3 empty, so it is `(x + 2)² − 4 + 1`, which is `(x + 2)² − 3`. At `x = 1` both give 6.',
+      hint: 'Not quite. Put `x = 1` into both, and they must agree.',
+      hs: [null, 'Not quite. The corner comes off, so it is −4 + 1. At `x = 1` that form gives 14, not 6.', 'Not quite. Half of 4 goes on each side. At `x = 1` that form gives 10, not 6.'] },
+    { show: true, name: 'The turning point', pic: 'tiles', q: [1, 6, 2], slider: true, sym: true, mirror: 2, moves: [[2.6, 3.4, 10], [3.6, 4.4, 6]], dur: 4.4,
+      text: '`(x + 3)²` is never below zero, and it is zero at `x = −3`, so `(x + 3)² − 7` is lowest there, at −7. That bottom of the U, `(−3, −7)`, is its *turning point*, and the curve is a mirror image about the line `x = −3`, its *line of symmetry*. Slide `b` and the turning point moves to `x = −b ÷ 2`, dropping by the corner.' },
+    { name: 'Read the turning point', pic: 'graph', q: [1, -8, 19], asForm: true, kind: 'turn', sym: true, win: [-6, 9, -6, 30], o: [[-4, 3], [4, -3], 'R'],
+      task: 'Where is the turning point of `(x − 4)² + 3`?',
+      why: 'The square is zero when `x − 4 = 0`, at `x = 4`, and there the value is the 3 outside. So the turning point is `(4, 3)`. The graph is `y = x²` slid 4 right and 3 up.',
+      hint: 'Not quite. Which `x` makes the bracket zero?',
+      hs: ['Not quite. At `x = −4` the rule gives `64 + 3 = 67`. Which `x` makes `x − 4` zero?', 'Not quite. At `x = 4` the rule gives `0 + 3 = 3`, so the height is 3.', null] },
+    { show: true, name: 'Solve it', pic: 'graph', q: [1, 6, 2], demo: 'solve', roots: true, win: [-7, 1.5, -14, 12], dur: 4.2,
+      text: 'To solve `x² + 6x + 2 = 0`, take the 2 across and add the corner, 9, to both sides, so `(x + 3)² = 7`. Then `x + 3` is `√7` or `−√7`, about 2.65 either way. So `x` is about −0.35 or −5.65, where the curve crosses the axis.' },
+    { name: 'The next line', pic: 'graph', q: [1, 4, 1], kind: 'next', roots: true, win: [-5, 1.2, -9, 8], o: ['R', -1, 5],
+      task: 'Solving `x² + 4x + 1 = 0`, the first line is `x² + 4x = −1`. What is the next line?',
+      why: 'Add the corner, 4, to both sides, so the left becomes `(x + 2)²` and the right `−1 + 4 = 3`. Then `x + 2` is `√3` or `−√3`, and `x` is about −0.27 or −3.73.',
+      hint: 'Not quite. Add the corner to both sides.',
+      hs: [null, 'Not quite. The 4 went on the left only. Add it to both sides.', 'Not quite. `−1 + 4` is 3.'] },
+    { show: true, name: 'Upside down', pic: 'graph', q: [-1, 4, 10], demo: 'flip', sym: true, win: [-2.5, 6.5, -8, 22], dur: 4.2,
+      text: 'With a minus in front of `x²`, take it out first, so `−x² + 4x + 10` is `−(x² − 4x) + 10`. Completing the square inside gives `−(x − 2)² + 14`. The square is never below zero, so this is never above 14, its highest point, at `x = 2`.' },
+    { name: 'Mixed: a 2 in front', pic: 'graph', q: [2, 12, 5], kind: 'form', chk: 0, sym: true, win: [-6.5, 0.8, -22, 14], o: [[2, 3, -4], [2, 6, -13], 'R'],
+      task: 'Which is `2x² + 12x + 5` with its square completed?',
+      why: 'Take the 2 out of the first two terms, so `2(x² + 6x) + 5`. Then `x² + 6x` is `(x + 3)² − 9`, and the 9 comes off twice, `2 × 9 = 18`. So it is `2(x + 3)² − 13`, and at `x = 0` both give 5.',
+      hint: 'Not quite. Take the 2 out first.',
+      hs: ['Not quite. The corner comes off twice, `2 × 9 = 18`. At `x = 0` that form gives 14, not 5.', 'Not quite. Take the 2 out before halving. At `x = 0` that form gives 59, not 5.', null] },
+    { name: 'Mixed: the lowest point', pic: 'graph', q: [1, -10, 30], kind: 'turn', sym: true, win: [-6.5, 11, -5, 40], o: ['R', [-5, 5], [0, 30]],
+      task: 'Where is the lowest point of `x² − 10x + 30`?',
+      why: 'Half of −10 is −5, so it is `(x − 5)² − 25 + 30`, which is `(x − 5)² + 5`. The square is zero at `x = 5`, so the lowest point is `(5, 5)`.',
+      hint: 'Not quite. Complete the square first.',
+      hs: [null, 'Not quite. At `x = −5` the rule gives `25 + 50 + 30 = 105`. The bracket is `x − 5`.', 'Not quite. That is where the curve crosses the y-axis. At `x = 5` it is lower, 5.'] },
+  ];
+  const FINISH = 'Halve the number in front of `x`, square that for the corner, and take it off again. So `x² + 6x + 2` is `(x + 3)² − 7`, and its turning point is `(−3, −7)`.';
+  // Sources the checks restate (the lesson's own).
+  const BRILLIANT = 'https://brilliant.org/wiki/completing-the-square';
+  const MATHWORLD = 'https://mathworld.wolfram.com/CompletingtheSquare.html';
+  const BITESIZE = 'https://www.bbc.co.uk/bitesize/guides/z3hb97h/revision/6';
+  // The picture. Tiles: the x by x square at TX, TY, side SQ; U px for each 1 of b. The small graph
+  // beside them (TG, window TWIN), its key at KEYY, the slider for b at SY. Graph screens: GG.
+  const TX = 26, TY = 58, SQ = 76, U = 8, GAP = 3;
+  const TAGY = 22, CLY = 196, KEYY = 220, SY = 262, SX0 = 60, SX1 = 300, WSTEP = 24;
+  const TG = { x0: 200, x1: 334, t: 44, b: 182 }, GG = { x0: 46, x1: 326, t: 40, b: 214 };
+  const TWIN = [-7.5, 4, -30, 10];
+  const FADE = 0.35, FL = 0.9, SPEED = 2.5;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- the rule (pure, so the checks can test it) ----------
+  const close = (a, b) => Math.abs(a - b) < 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));
+  const fmtN = (v) => { let r = Math.round(v * 100) / 100; if (Math.abs(r) < 1e-12) r = 0; return (r < 0 ? '−' : '') + String(Math.abs(r)).replace(/^\d+/, (n) => n.replace(/\B(?=(\d{3})+$)/g, ',')); };
+  const poly = (q, x) => q[0] * x * x + q[1] * x + q[2];
+  // The completed square a(x + h)² + k: h = b ÷ 2a, and k is the rule's own value where the bracket is zero.
+  const csOf = (q) => { const h = q[1] / (2 * q[0]); return [q[0], h, poly(q, -h)]; };
+  const formAt = (f, x) => f[0] * (x + f[1]) * (x + f[1]) + f[2];
+  function polyText(q) {
+    const t = [[q[0], 'x²'], [q[1], 'x'], [q[2], '']].filter((p) => p[0] !== 0);
+    if (!t.length) return '0';
+    return t.map((p, k) => {
+      const a = Math.abs(p[0]), body = p[1] ? (a === 1 ? p[1] : fmtN(a) + p[1]) : fmtN(a);
+      return (k === 0 ? (p[0] < 0 ? '−' : '') : p[0] < 0 ? ' − ' : ' + ') + body;
+    }).join('');
+  }
+  const bracket = (h) => (h === 0 ? 'x' : '(x ' + (h > 0 ? '+ ' : '− ') + fmtN(Math.abs(h)) + ')');
+  function formText(f) {
+    const a = f[0], lead = a === 1 ? '' : a === -1 ? '−' : fmtN(a);
+    let s = lead + (f[1] === 0 ? 'x²' : bracket(f[1]) + '²');
+    if (f[2]) s += (f[2] < 0 ? ' − ' : ' + ') + fmtN(Math.abs(f[2]));
+    return s;
+  }
+  // The rule's value at x, term by term as the lesson writes it: 1 + 6 + 2 = 9.
+  function ruleText(q, x) {
+    const t = [q[0] * x * x, q[1] * x, q[2]].filter((v) => !close(v, 0));
+    if (!t.length) return '0';
+    if (t.length === 1) return fmtN(t[0]);
+    let s = fmtN(t[0]);
+    for (let k = 1; k < t.length; k++) s += (t[k] < 0 ? ' − ' : ' + ') + fmtN(Math.abs(t[k]));
+    return s + ' = ' + fmtN(t.reduce((a, b) => a + b, 0));
+  }
+  // A completed form's value at x, square first: 16 − 9 = 7.
+  function formEvalText(f, x) {
+    const s = f[0] * (x + f[1]) * (x + f[1]), k = f[2];
+    return k ? fmtN(s) + (k < 0 ? ' − ' : ' + ') + fmtN(Math.abs(k)) + ' = ' + fmtN(s + k) : fmtN(s);
+  }
+  const ruleAt = (d, x) => (d.asForm ? formAt(csOf(d.q), x) : poly(d.q, x));
+  const valText = (d, x) => (d.asForm ? formEvalText(csOf(d.q), x) : ruleText(d.q, x));
+  // A puzzle's right answer, worked out from its rule.
+  function rightOf(d) {
+    const cs = csOf(d.q), h = cs[1];
+    return d.kind === 'corner' ? h * h : d.kind === 'form' ? cs : d.kind === 'turn' ? [-h, cs[2]] : h * h - d.q[2];
+  }
+  function optText(d, v) {
+    if (d.kind === 'corner') return fmtN(v);
+    if (d.kind === 'form') return formText(v);
+    if (d.kind === 'turn') return '(' + fmtN(v[0]) + ', ' + fmtN(v[1]) + ')';
+    return bracket(csOf(d.q)[1]) + '² = ' + fmtN(v);
+  }
+  STEPS.forEach((d) => {
+    if (d.show) return;
+    d.val = d.o.map((v) => (v === 'R' ? rightOf(d) : v));
+    d.right = d.o.indexOf('R');
+    d.opts = d.val.map((v) => optText(d, v));
+    d.want = d.opts[d.right];
+  });
+  // Lines of working.
+  function checkLine(q, f, x) {
+    const ag = close(formAt(f, x), poly(q, x));
+    return { l: 'x = ' + fmtN(x), r: ruleText(q, x) + (ag ? ', and ' : ', but ') + formEvalText(f, x), bad: !ag };
+  }
+  function mirrorLine(q) {
+    const cs = csOf(q), vx = -cs[1];
+    return { l: 'x = ' + fmtN(vx + 2) + ' and ' + fmtN(vx - 2), r: formEvalText(cs, vx + 2) };
+  }
+  function solveLines(q) {
+    const h = q[1] / 2, r = h * h - q[2], s = Math.sqrt(r), inner = h === 0 ? 'x' : 'x ' + (h > 0 ? '+ ' : '− ') + fmtN(Math.abs(h));
+    return [
+      { l: polyText([1, q[1], 0]) + ' = ' + fmtN(-q[2]), note: 'take the ' + fmtN(q[2]) + ' across' },
+      { l: bracket(h) + '² = ' + fmtN(r), note: 'add ' + fmtN(h * h) + ' to both sides' },
+      { l: inner + ' = √' + fmtN(r) + ' or −√' + fmtN(r), note: '√' + fmtN(r) + ' is about ' + fmtN(s) },
+      { l: 'x is about ' + fmtN(-h + s) + ' or ' + fmtN(-h - s) },
+    ];
+  }
+  function flipLines(q) {
+    const a = q[0], inner = [1, q[1] / a, 0], ci = csOf(inner), cs = csOf(q), out = a * ci[2];
+    return [
+      { l: polyText(q) + ' = ' + (a === -1 ? '−' : fmtN(a)) + '(' + polyText(inner) + ') + ' + fmtN(q[2]) },
+      { l: polyText(inner) + ' = ' + formText(ci), note: 'complete the square' },
+      { l: 'so it is ' + formText(cs), note: fmtN(out) + ' + ' + fmtN(q[2]) + ' = ' + fmtN(out + q[2]) },
+      { l: 'x = 0', r: formEvalText(cs, 0) },
+    ];
+  }
+  // The working a screen shows in a state (bs: the slider's b on a tiles screen).
+  function linesOf(d, st, bs) {
+    const q = d.pic === 'tiles' ? [1, bs, d.q[2]] : d.q, cs = csOf(q), h = cs[1];
+    if (d.show) {
+      if (d.demo === 'cut') return [];
+      if (d.demo === 'solve') return solveLines(q);
+      if (d.demo === 'flip') return flipLines(q);
+      if (d.mirror) return [mirrorLine(q)];
+      return [checkLine(q, cs, d.chk)];
+    }
+    const k = st.pick == null ? -1 : d.opts.indexOf(st.pick), v = k >= 0 ? d.val[k] : null;
+    if (d.kind === 'next') {
+      const L = solveLines(q);
+      if (st.res === 'right') return L;
+      if (st.res === 'wrong' && v != null) return [L[0], { l: optText(d, v), note: fmtN(-q[2]) + ' + ' + fmtN(h * h) + ' = ' + fmtN(h * h - q[2]), bad: true }];
+      return [L[0]];
+    }
+    if (st.res === 'right') return d.kind === 'turn' ? [{ l: 'x = ' + fmtN(-h), r: valText(d, -h) }] : [checkLine(q, cs, d.chk)];
+    if (st.res !== 'wrong' || v == null) return [];
+    if (d.kind === 'corner') return [checkLine(q, [1, h, -v], d.chk)];
+    if (d.kind === 'form') return [checkLine(q, v, d.chk)];
+    // A point: its x put into the rule.
+    return close(ruleAt(d, v[0]), v[1]) ? [{ l: 'x = ' + fmtN(-h), r: valText(d, -h) + ', lower than ' + fmtN(v[1]), bad: true }]
+      : [{ l: 'x = ' + fmtN(v[0]), r: valText(d, v[0]) + ', not ' + fmtN(v[1]), bad: true }];
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s).replace(/²/g, ' squared').replace(/√/g, ' root ').replace(/÷/g, ' divided by ').replace(/\+/g, ' plus ')
+    .replace(/×/g, ' times ').replace(/=/g, ' equals ').replace(/−/g, ' minus ').replace(/\s+/g, ' ').trim();
+
+  // ---------- each step's state ----------
+  // pick, res, why: a puzzle's answer, 'right', 'wrong' or 'empty' once checked, and the Why? note.
+  // mv: where Dan has swung the half strip (0 beside, 1 under; null until he drags it), goal: where
+  // it is settling. b: Dan's b on the slider (null until he slides it), bv: the b drawn as it eases there.
+  function blank() { return { pick: null, res: null, why: false, mv: null, goal: null, b: null, bv: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i], k = d.opts.indexOf(st.pick); return (k >= 0 && d.hs && d.hs[k]) || d.hint; };
+  const fbOf = () => [2.4, 1.4];   // how long the motion after a right and a wrong answer plays
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, F = Infinity;   // T: seconds into the motion; F: into the corner's flash
+  let motionEnd = 0;
+  let REC = null;   // what the last paint drew, for the checks
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[xb](?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line with its letters italic; *a key term* is highlighted.
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Three answer buttons; each step fills in its own. A new choice after a wrong answer settles the
+  // picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: a right answer finishes the square (or draws the curve); a wrong one puts its number in.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    const f = fbOf();
+    play(st.res === 'right' ? f[0] : f[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    Object.assign(S[at()], { mv: null, goal: null, b: null, bv: null });
+    F = Infinity;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, the motion after an answer, the half strip settling
+  // and b easing to Dan's setting; with reduced motion (and while the self-test looks) all open finished.
+  const toward = (a, b, s) => (a < b ? Math.min(b, a + s) : Math.max(b, a - s));
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt; F += dt;
+    const st = S[at()];
+    let busy = T < motionEnd || F < FL;
+    if (st.goal != null && st.mv != null) { st.mv = toward(st.mv, st.goal, dt * SPEED); if (st.mv === st.goal) st.goal = null; else busy = true; }
+    if (st.b != null && st.bv != null && st.bv !== st.b) { st.bv = toward(st.bv, st.b, dt * 18); if (st.bv !== st.b) busy = true; }
+    paint();
+    return busy;
+  } });
+  function settle(st) {
+    if (st.goal != null && st.mv != null) { st.mv = st.goal; st.goal = null; }
+    if (st.b != null) st.bv = st.b;
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && !anim.playing() && (T !== Infinity || F !== Infinity)) { T = Infinity; F = Infinity; settle(S[at()]); paint(); }
+  });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function kick() {
+    if (REDUCE || testing()) return;
+    if (!anim.playing()) { motionEnd = 0; anim.play(); }
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const vis = (t) => (t == null ? 1 : arr(t));
+  // The corner flashes twice in FL seconds.
+  const flash = (t) => (t >= 0 && t <= FL ? Math.pow(Math.sin(2 * Math.PI * t / FL), 2) : 0);
+  function flashAt(t0) { if (t0 + FL > latest) latest = t0 + FL; if (t0 < earliest) earliest = t0; return T === Infinity ? 0 : flash(T - t0); }
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, extra) => add(K.svg('rect', Object.assign({ class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)) }, extra || {})));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r }));
+  const nb = (s) => String(s).replace(/ /g, ' ');
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    italics(t, nb(s), true);
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, nb(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 15 * 0.6;
+  }
+  const linesN = (d) => (d.pic === 'graph' ? (d.demo || d.kind === 'next' ? 4 : 1) : d.demo === 'cut' ? 0 : 1);
+  const wy0 = (d) => (d.pic === 'graph' ? 258 : d.slider ? 314 : 254);
+  const heightOf = (d) => (linesN(d) ? wy0(d) + WSTEP * (linesN(d) - 1) + 12 : KEYY + 14);
+  // Where b is at time T: from its opening value, gliding to each move's b in turn.
+  function glide(b0, moves) {
+    let b = b0;
+    (moves || []).forEach((m) => { const p = arr(m[0], m[1] - m[0]); b = b + (m[2] - b) * p; });
+    return b;
+  }
+
+  // ---------- a tiles screen's timetable in its state ----------
+  // a0, a1: the tiles and the graph arriving; cut: the strip parting; e: the half swinging round
+  // (0 beside, 1 under); up: the small squares going into the corner; fl: the corner's flash; reveal:
+  // the corner shown as the answer; tagA: the finished form; vA, dropA: the lowest point and the drop.
+  function tilesTL(d, st) {
+    const c = d.q[2];
+    const tl = { a0: 1, a1: 1, cut: 1, e: 1, up: 1, fl: 0, tagA: 1, reveal: true, curve: 1, grow: 1, vA: 1, dropA: 1, symA: d.sym ? 1 : 0, mirA: d.mirror ? 1 : 0, work: [1], cand: null, candA: 0 };
+    tl.bv = d.slider ? (st.b == null ? glide(d.q[1], d.moves) : st.bv == null ? st.b : st.bv) : d.q[1];
+    tl.bs = d.slider ? (st.b == null ? 2 * Math.round(tl.bv / 2) : st.b) : d.q[1];
+    if (d.show) {
+      tl.a0 = vis(FADE); tl.a1 = vis(0.75); tl.curve = tl.a1;
+      if (d.demo === 'cut') {
+        if (st.mv == null) { tl.cut = arr(1.3, 0.5); tl.e = arr(1.9, 1.1); tl.fl = flashAt(3.0); tl.tagA = vis(3.2); tl.dropA = vis(3.4); }
+        else tl.e = st.mv;
+        tl.work = [];
+      } else if (d.demo === 'units') {
+        tl.up = arr(1.3, 1.1); tl.fl = flashAt(2.4); tl.tagA = vis(2.6); tl.dropA = vis(2.9); tl.work = [vis(3.4)];
+      } else if (d.sym) { tl.symA = vis(1.2); tl.mirA = vis(1.6); tl.work = [vis(2.0)]; }
+      else { tl.fl = flashAt(1.0); tl.work = [vis(1.2)]; }
+      tl.fl = Math.max(tl.fl, flash(F));
+    } else {
+      Object.assign(tl, { cut: 0, e: 0, up: 0, tagA: 0, reveal: false, curve: 0, grow: 0, vA: 0, dropA: 0, work: [] });
+      if (st.res === 'right') {
+        Object.assign(tl, { reveal: true, cut: arr(0.1, 0.3), e: arr(0.4, 0.8), curve: vis(0.1), grow: arr(0.1, 0.8), vA: vis(0.9) });
+        if (c) Object.assign(tl, { up: arr(1.2, 0.5), fl: flashAt(1.5), tagA: vis(1.6), dropA: vis(1.6), work: [vis(1.8)] });
+        else Object.assign(tl, { up: 1, fl: flashAt(1.2), tagA: vis(1.3), dropA: vis(1.4), work: [vis(1.7)] });
+      } else if (st.res === 'wrong' && st.pick != null) {
+        const v = d.val[d.opts.indexOf(st.pick)];
+        if (d.kind === 'corner') Object.assign(tl, { cut: arr(0.1, 0.2), e: arr(0.2, 0.6), cand: v, candA: vis(0.8), work: [vis(0.8)] });
+        else tl.work = [vis(0.1)];
+      }
+    }
+    tl.ca = tl.reveal ? K.clamp((tl.e - 0.8) / 0.2, 0, 1) : 0;
+    tl.tagA = Math.min(tl.tagA, tl.ca); tl.dropA = Math.min(tl.dropA, tl.ca);
+    return tl;
+  }
+  // The outer half of the strip at swing e: from beside the inner half to under the square, its
+  // centre curving round the square's corner while it turns a quarter.
+  function pieceAt(wh, gap, e) {
+    const c0x = TX + SQ + wh + gap + wh / 2, c0y = TY + SQ / 2, c1x = TX + SQ / 2, c1y = TY + SQ + wh / 2;
+    const bz = (a, p, b) => (1 - e) * (1 - e) * a + 2 * (1 - e) * e * p + e * e * b;
+    return { c0x, c0y, c1x, c1y, cx: bz(c0x, c0x, c1x), cy: bz(c0y, c1y, c1y), wh, e };
+  }
+  // The label under the tiles: the corner, and what the plain number's squares do to it.
+  function cornerLabels(hs, c) {
+    if (hs === 0) return ['no strip, so no corner', null];
+    const K2 = hs * hs, a = 'corner ' + hs + ' × ' + hs + ' = ' + K2;
+    if (!c) return [a, null];
+    return [a, c < K2 ? 'corner ' + K2 + ': ' + c + ' filled, ' + (K2 - c) + ' empty' : c === K2 ? 'corner ' + K2 + ': all filled' : 'corner ' + K2 + ' filled, ' + (c - K2) + ' left over'];
+  }
+
+  function drawTiles(d, st, tl, said) {
+    const c = d.q[2], hv = tl.bv / 2, hs = tl.bs / 2, wh = U * hv, e = tl.e, cut = tl.cut, gap = GAP * cut;
+    const R = REC.tiles = { rects: [], corner: null, label: '', units: [], cand: null, e };
+    part(tl.a0, 0, () => {
+      rect('t2', TX, TY, SQ, SQ);
+      text(TX + SQ / 2, TY + SQ / 2 + 5, 'x²', 'tm');
+      text(TX + SQ / 2, TY - 8, 'x', 'sl');
+      text(TX - 11, TY + SQ / 2 + 5, 'x', 'sl');
+    });
+    R.rects.push([TX, TY, SQ, SQ]);
+    const cx0 = TX + SQ, cy0 = TY + SQ;
+    if (wh > 0.01) {
+      if (cut <= 0.001) {
+        part(tl.a0, 0, () => {
+          rect('t1', cx0, TY, 2 * wh, SQ);
+          text(cx0 + wh, TY - 8, fmtN(tl.bs), 'sl');
+          if (2 * wh >= 24) text(cx0 + wh, TY + SQ / 2 + 5, fmtN(tl.bs) + 'x', 'tm');
+        });
+        R.rects.push([cx0, TY, 2 * wh, SQ]);
+      } else {
+        const P = pieceAt(wh, gap, e);
+        REC.piece = P;
+        part(tl.a0, 0, () => {
+          // the inner half stays put
+          rect('t1', cx0, TY, wh, SQ);
+          if (wh >= 22) text(cx0 + wh / 2, TY + SQ / 2 + 5, fmtN(hs) + 'x', 'tm');
+          part(cut, 0, () => text(cx0 + wh / 2, TY - 8, fmtN(hs), 'sl'));
+          part(1 - cut, 0, () => text(cx0 + wh + gap / 2, TY - 8, fmtN(tl.bs), 'sl'));
+          // the outer half swings round to the bottom
+          add(K.svg('rect', { class: 't1', x: r3(P.cx - wh / 2), y: r3(P.cy - SQ / 2), width: r3(wh), height: SQ, transform: 'rotate(' + r3(90 * e) + ' ' + r3(P.cx) + ' ' + r3(P.cy) + ')' }));
+          const la = e < 0.5 ? 1 - K.clamp(e / 0.15, 0, 1) : K.clamp((e - 0.85) / 0.15, 0, 1);
+          if (wh >= 22) part(la, 0, () => text(P.cx, P.cy + 5, fmtN(hs) + 'x', 'tm'));
+          part(cut * (1 - K.clamp(e / 0.2, 0, 1)), 0, () => text(P.c0x, TY - 8, fmtN(hs), 'sl'));
+          part(K.clamp((e - 0.8) / 0.2, 0, 1), 0, () => text(TX - 11, cy0 + wh / 2 + 5, fmtN(hs), 'sl'));
+        });
+        R.rects.push([cx0, TY, wh, SQ]);
+        R.rects.push(e >= 1 ? [TX, cy0, SQ, wh] : [P.cx - wh / 2, P.cy - SQ / 2, wh, SQ]);
+      }
+      // the corner the pieces leave empty
+      const ca = K.clamp((e - 0.8) / 0.2, 0, 1) * tl.a0;
+      if (tl.reveal) {
+        part(ca, 0, () => {
+          rect('corner', cx0, cy0, wh, wh);
+          if (c > 0 && hs >= 1) for (let k = 1; k < hs; k++) { line('cgrid', cx0 + k * U, cy0, cx0 + k * U, cy0 + wh); line('cgrid', cx0, cy0 + k * U, cx0 + wh, cy0 + k * U); }
+          if (!c && wh >= 22) text(cx0 + wh / 2, cy0 + wh / 2 + 5, fmtN(hs * hs), 'cn');
+        });
+        R.corner = { x: cx0, y: cy0, w: wh, value: hs * hs, shown: ca >= 0.5 };
+      } else if (e > 0.8) part(ca, 0, () => rect('gapline', cx0, cy0, wh, wh));
+    }
+    // the plain number's small squares: beside the tiles, then into the corner
+    if (c > 0) {
+      const n = hs * hs, figR = cx0 + wh + (1 - e) * (wh + gap);
+      for (let j = 0; j < c; j++) {
+        const bx = figR + 8 + j * (U + 3), by = cy0 + wh * e - U;
+        const inC = j < n && hs >= 1, col = inC ? j % hs : 0, row = inC ? Math.floor(j / hs) : 0, p = inC ? tl.up : 0;
+        const x = K.lerp(bx, cx0 + col * U, p), y = K.lerp(by, cy0 + row * U, p);
+        part(tl.a0, 0, () => rect('t0', x, y, U, U));
+        R.units.push([x, y]);
+      }
+    }
+    // the flash over the corner's empty squares
+    if (tl.reveal && tl.fl > 0 && wh > 0.01) {
+      const a = r3(0.55 * tl.fl * K.clamp((e - 0.8) / 0.2, 0, 1));
+      if (!c || hs < 1) rect('flash', cx0, cy0, wh, wh, { style: 'opacity:' + a });
+      else for (let j = Math.min(c, hs * hs); j < hs * hs; j++) rect('flash', cx0 + (j % hs) * U, cy0 + Math.floor(j / hs) * U, U, U, { style: 'opacity:' + a });
+    }
+    // a wrong corner, drawn where the corner goes
+    if (tl.cand != null && tl.candA > 0) {
+      const side = Math.sqrt(tl.cand) * U;
+      part(tl.candA, 0, () => { rect('cand', cx0, cy0, side, side); text(cx0 + side + 4, cy0 + side / 2 + 5, fmtN(tl.cand), 'tw bad', 'start'); });
+      if (tl.candA >= 0.5) R.cand = tl.cand;
+    }
+    // the corner named under the tiles
+    const labs = cornerLabels(hs, c), u2 = c ? K.clamp((tl.up - 0.6) / 0.4, 0, 1) : 0;
+    const la = hs === 0 ? tl.a0 : tl.ca * tl.a0;
+    part(la * (labs[1] ? 1 - u2 : 1), 0, () => text(12, CLY, labs[0], 'cl', 'start'));
+    if (labs[1]) part(la * u2, 0, () => text(12, CLY, labs[1], 'cl', 'start'));
+    if (la >= 0.5) R.label = labs[1] && u2 >= 0.5 ? labs[1] : labs[0];
+    // in words
+    if (wh <= 0.01) said.push('An x by x square, with no strip beside it.');
+    else if (cut < 0.5) said.push('An x by x square with a strip ' + fmtN(tl.bs) + ' wide beside it.');
+    else if (e < 0.5) said.push('The strip is cut into two halves, each ' + fmtN(hs) + ' wide.');
+    else if (e < 1) said.push('One half is swinging round to the bottom of the square.');
+    else said.push('One half now sits under the square, so both sides are x plus ' + fmtN(hs) + ', and a ' + fmtN(hs) + ' by ' + fmtN(hs) + ' corner is empty.');
+    if (R.label) said.push(say(R.label) + '.');
+    if (R.cand != null) said.push('A square of ' + fmtN(R.cand) + ' is drawn in the corner.');
+  }
+
+  // ---------- the graphs ----------
+  const xOf = (g, w) => (x) => g.x0 + (x - w[0]) / (w[1] - w[0]) * (g.x1 - g.x0);
+  const yOf = (g, w) => (y) => g.b - (y - w[2]) / (w[3] - w[2]) * (g.b - g.t);
+  // The curve over the window, cut where it leaves the top or bottom.
+  function curvePath(f, w, grow, X, Y) {
+    const n = 120, hi = w[0] + (w[1] - w[0]) * grow, out = [], inY = (y) => y >= w[2] && y <= w[3], pt = (x, y) => r3(X(x)) + ' ' + r3(Y(y));
+    let prev = null, open = false;
+    for (let k = 0; k <= n; k++) {
+      const x = w[0] + (hi - w[0]) * k / n, y = f(x);
+      if (prev && inY(prev[1]) !== inY(y)) {
+        const was = inY(prev[1]), edge = was ? (y > w[3] ? w[3] : w[2]) : (prev[1] > w[3] ? w[3] : w[2]), t = (edge - prev[1]) / (y - prev[1]);
+        out.push((was ? 'L' : 'M') + pt(prev[0] + (x - prev[0]) * t, edge));
+        open = !was;
+      }
+      if (inY(y)) { out.push((open ? 'L' : 'M') + pt(x, y)); open = true; } else open = false;
+      prev = [x, y];
+    }
+    return out.join(' ');
+  }
+  const niceStep = (span, n) => [1, 2, 5, 10, 20].find((s) => span / s <= n) || 50;
+  function axes(g, w, X, Y, b, ticks) {
+    if (ticks) {
+      line('frame', g.x0, g.b, g.x1, g.b); line('frame', g.x0, g.t, g.x0, g.b);
+      const sx = niceStep(w[1] - w[0], 8), sy = niceStep(w[3] - w[2], 6);
+      for (let v = Math.ceil(w[0] / sx) * sx; v <= w[1] + 1e-9; v += sx) { line('tick', X(v), g.b, X(v), g.b + 4); text(X(v), g.b + 17, fmtN(v), 'tk'); }
+      for (let v = Math.ceil(w[2] / sy) * sy; v <= w[3] + 1e-9; v += sy) { line('tick', g.x0 - 4, Y(v), g.x0, Y(v)); text(g.x0 - 7, Y(v) + 4.5, fmtN(v), 'tk', 'end'); }
+    }
+    if (w[2] <= 0 && w[3] >= 0) { line('axis', g.x0, Y(0), g.x1, Y(0)); text(g.x1 - 2, Y(0) - 6, 'x', 'an', 'end'); }
+    if (w[0] <= 0 && w[1] >= 0) { line('axis', X(0), g.t, X(0), g.b); const left = b >= 0; text(X(0) + (left ? -5 : 5), g.t + 11, 'y', 'an', left ? 'end' : 'start'); }
+  }
+  // The turning point: a dot, its coordinates and (with the line of symmetry) its x, below a lowest
+  // point and above a highest one, on whichever side has room.
+  function vertexMark(g, X, Y, vx, vy, lx, ly, a, vA, symA, said) {
+    const px = X(vx), py = Y(vy), pill = '(' + fmtN(lx) + ', ' + fmtN(ly) + ')', sl = 'x = ' + fmtN(lx);
+    const w = Math.max(tw(pill, 'pt'), symA > 0 ? tw(sl, 'pt') : 0), right = px + 6 + w <= g.x1, down = a > 0 ? 1 : -1;
+    const tx = right ? px + 6 : px - 6, an = right ? 'start' : 'end', y1 = down > 0 ? py + 17 : py - 9, y2 = down > 0 ? py + 33 : py - 25;
+    part(vA, 0, () => { circle('dot', px, py, 5.5); text(tx, y1, pill, 'pt', an); });
+    if (symA > 0) part(Math.min(vA, symA), 0, () => text(tx, y2, sl, 'pt', an));
+    if (vA >= 0.5) {
+      REC.vertex = { x: vx, y: vy, px, py, text: pill, lx, ly };
+      said.push('The ' + (a > 0 ? 'lowest' : 'highest') + ' point is at ' + say(pill) + '.');
+    }
+  }
+
+  function drawSmallGraph(d, st, tl, said) {
+    const g = TG, w = TWIN, X = xOf(g, w), Y = yOf(g, w), c = d.q[2], hv = tl.bv / 2, hs = tl.bs / 2;
+    const qv = [1, tl.bv, c], kv = c - hv * hv, ks = c - hs * hs;
+    part(tl.a1, 0, () => {
+      axes(g, w, X, Y, tl.bv, false);
+      if (c) { line('cline', g.x0, Y(c), g.x1, Y(c)); text(g.x0 + 2, Y(c) - 5, fmtN(c), 'pt', 'start'); }
+    });
+    if (tl.curve > 0) part(Math.min(tl.curve, tl.a1), 0, () => {
+      const p = curvePath((x) => poly(qv, x), w, tl.grow, X, Y);
+      if (p) add(K.svg('path', { class: 'curve', d: p }));
+    });
+    if (tl.curve >= 0.5) { REC.curve = true; REC.grow = tl.grow; }
+    if (d.sym && tl.symA > 0) part(Math.min(tl.symA, tl.a1), 0, () => line('sym', X(-hv), g.t, X(-hv), g.b));
+    if (d.sym && tl.symA >= 0.5) REC.sym = { x: -hv };
+    // the drop: from the plain number down to the lowest point, by the corner
+    if (hs > 0 && tl.dropA > 0) part(Math.min(tl.dropA, tl.a1), 0, () => {
+      const bx = X(-hv) + 8, y1 = Y(c), y2 = Y(kv);
+      line('drop', bx, y1, bx, y2); line('drop', bx - 4, y1, bx + 4, y1); line('drop', bx - 4, y2, bx + 4, y2);
+      if (y2 - y1 >= 18) { const s = fmtN(hs * hs), right = bx + 5 + tw(s, 'pt') <= g.x1; text(right ? bx + 5 : bx - 5, y1 - 5, s, 'pt', right ? 'start' : 'end'); }
+    });
+    if (hs > 0 && tl.dropA >= 0.5) { REC.drop = { v: hs * hs, top: c, bottom: ks }; said.push('From the plain number the curve drops by the corner, ' + fmtN(hs * hs) + ', to its lowest point.'); }
+    // two points the same distance either side, at the same height
+    if (d.mirror && tl.mirA > 0) part(Math.min(tl.mirA, tl.a1), 0, () => {
+      const m = d.mirror, y = Y(kv + m * m);
+      line('mirror', X(-hv - m), y, X(-hv + m), y);
+      circle('mdot', X(-hv - m), y, 4.5); circle('mdot', X(-hv + m), y, 4.5);
+    });
+    if (d.mirror && tl.mirA >= 0.5) REC.mirror = { a: poly(qv, -hv - d.mirror), b: poly(qv, -hv + d.mirror) };
+    vertexMark(g, X, Y, -hv, kv, -hs, ks, 1, Math.min(tl.vA, tl.a1, tl.curve > 0 ? 1 : 0), tl.symA, said);
+  }
+
+  function drawLines(lines, alphas, y0, said) {
+    lines.forEach((ln, k) => {
+      const a = alphas[k] == null ? 1 : alphas[k], y = y0 + WSTEP * k, cls = ln.bad ? ' bad' : '';
+      part(a, 6, () => {
+        if (ln.l) text(12, y, ln.l, 'te' + cls, 'start');
+        if (ln.r) text(328, y, ln.r, 'tw' + cls, 'end');
+        if (ln.note) text(328, y, ln.note, 'note' + cls, 'end');
+      });
+      if (a >= 0.5) { REC.work.push(ln); said.push(say([ln.l, ln.r, ln.note].filter(Boolean).join(', ')) + '.'); }
+    });
+  }
+
+  function drawTileScreen(d, st) {
+    const tl = tilesTL(d, st), c = d.q[2], said = [], qs = [1, tl.bs, c], cs = csOf(qs), hs = tl.bs / 2;
+    // the rule, and its finished form once the square is complete
+    const first = polyText(qs);
+    part(tl.a0, 4, () => text(12, TAGY, first, 'tag', 'start'));
+    let tag = first;
+    if (hs > 0 && tl.tagA > 0) {
+      const second = ' = ' + formText(cs);
+      part(tl.tagA * tl.a0, 4, () => text(12 + tw(first, 'tag'), TAGY, second, 'tag', 'start'));
+      if (tl.tagA * tl.a0 >= 0.5) { REC.tagForm = formText(cs); tag += second; }
+    }
+    REC.tag = tag;
+    said.push(say(tag) + '.');
+    drawTiles(d, st, tl, said);
+    drawSmallGraph(d, st, tl, said);
+    // the key, inside the drawing
+    part(tl.a0, 0, () => {
+      let kx = 12;
+      rect('corner', kx, KEYY - 10, 12, 12); text(kx + 18, KEYY, 'corner', 'key', 'start'); kx += 18 + tw('corner', 'key') + 16;
+      circle('dot', kx + 5, KEYY - 4.5, 5); text(kx + 15, KEYY, 'lowest point', 'key', 'start'); kx += 15 + tw('lowest point', 'key') + 16;
+      if (c) { line('cline', kx, KEYY - 4.5, kx + 20, KEYY - 4.5); text(kx + 26, KEYY, 'plain number', 'key', 'start'); }
+    });
+    // the slider for b
+    if (d.slider) part(tl.a0, 0, () => {
+      line('track', SX0, SY, SX1, SY);
+      for (let v = 0; v <= 10; v += 2) { const x = SX0 + v / 10 * (SX1 - SX0); line('tick', x, SY - 6, x, SY + 6); text(x, SY + 23, fmtN(v), 'tk'); }
+      text(SX0 - 26, SY + 5, 'b', 'xl');
+      const kx = SX0 + tl.bv / 10 * (SX1 - SX0), lab = 'b = ' + fmtN(tl.bs), w = tw(lab, 'xl');
+      circle('knob', kx, SY, 9);
+      if (!finished) [-1, 1].forEach((s) => add(K.svg('path', { class: 'cue', d: 'M' + r3(kx + s * 22) + ' ' + SY + ' L' + r3(kx + s * 15) + ' ' + (SY - 5) + ' L' + r3(kx + s * 15) + ' ' + (SY + 5) + ' Z' })));
+      text(K.clamp(kx, 4 + w / 2, 336 - w / 2), SY - 16, lab, 'xl');
+    });
+    if (d.slider) said.unshift('The slider sets b to ' + fmtN(tl.bs) + '.');
+    drawLines(linesOf(d, st, tl.bs), tl.work, wy0(d), said);
+    return said.join(' ');
+  }
+
+  // ---------- a graph screen's timetable in its state ----------
+  function graphTL(d, st) {
+    const tl = { a0: 1, curve: 1, grow: 1, vA: 1, symA: d.sym ? 1 : 0, tagA: 1, rootsA: d.roots ? 1 : 0, lines: [1, 1, 1, 1], yc: 0, dot: null, dotA: 0 };
+    if (d.show) {
+      tl.a0 = vis(FADE); tl.curve = vis(0.75); tl.grow = arr(0.75, 0.8);
+      if (d.demo === 'solve') { tl.vA = vis(1.0); tl.lines = [vis(1.3), vis(1.9), vis(2.5), vis(3.1)]; tl.rootsA = vis(3.4); }
+      else { tl.lines = [vis(1.3), vis(1.9), vis(2.5), vis(3.4)]; tl.tagA = vis(2.5); tl.vA = vis(3.0); tl.symA = vis(3.0); }
+      return tl;
+    }
+    Object.assign(tl, { curve: 0, grow: 0, vA: 0, symA: 0, tagA: 0, rootsA: 0, yc: 1, lines: d.kind === 'next' ? [1] : [] });
+    if (st.res === 'right') {
+      Object.assign(tl, { curve: vis(0.1), grow: arr(0.1, 0.8) });
+      if (d.kind === 'next') { tl.lines = [1, vis(0.3), vis(0.8), vis(1.3)]; tl.rootsA = vis(1.6); }
+      else Object.assign(tl, { vA: vis(0.8), symA: d.sym ? vis(1.1) : 0, tagA: vis(1.1), lines: [vis(1.4)] });
+    } else if (st.res === 'wrong' && st.pick != null) {
+      const v = d.val[d.opts.indexOf(st.pick)];
+      if (d.kind === 'turn') { tl.dot = v; tl.dotA = vis(0.1); tl.lines = [vis(0.4)]; }
+      else tl.lines = d.kind === 'next' ? [1, vis(0.1)] : [vis(0.1)];
+    }
+    return tl;
+  }
+
+  function drawGraphScreen(d, st) {
+    const tl = graphTL(d, st), q = d.q, cs = csOf(q), w = d.win, g = GG, X = xOf(g, w), Y = yOf(g, w), said = [];
+    const first = d.asForm ? formText(cs) : polyText(q) + (d.roots ? ' = 0' : '');
+    part(tl.a0, 4, () => text(12, TAGY, first, 'tag', 'start'));
+    let tag = first;
+    if (!d.asForm && !d.roots && tl.tagA > 0) {
+      const second = ' = ' + formText(cs);
+      part(Math.min(tl.tagA, tl.a0), 4, () => text(12 + tw(first, 'tag'), TAGY, second, 'tag', 'start'));
+      if (Math.min(tl.tagA, tl.a0) >= 0.5) { REC.tagForm = formText(cs); tag += second; }
+    }
+    REC.tag = tag;
+    said.push(say(tag) + '.');
+    part(tl.a0, 0, () => axes(g, w, X, Y, q[1], true));
+    if (tl.curve > 0) part(tl.curve, 0, () => {
+      const p = curvePath((x) => poly(q, x), w, tl.grow, X, Y);
+      if (p) add(K.svg('path', { class: 'curve', d: p }));
+    });
+    if (tl.curve >= 0.5) { REC.curve = true; REC.grow = tl.grow; said.push('The curve of the rule is drawn.'); }
+    const h = cs[1];
+    if (d.sym && tl.symA > 0) part(tl.symA, 0, () => line('sym', X(-h), g.t, X(-h), g.b));
+    if (d.sym && tl.symA >= 0.5) REC.sym = { x: -h };
+    if (!d.roots) vertexMark(g, X, Y, -h, cs[2], -h, cs[2], q[0], tl.vA, tl.symA, said);
+    else if (tl.vA > 0 && d.show) vertexMark(g, X, Y, -h, cs[2], -h, cs[2], q[0], tl.vA, 0, said);
+    // where the curve crosses the axis, labelled between the two crossings
+    if (d.roots && tl.rootsA > 0) {
+      const r = Math.sqrt(q[1] * q[1] - 4 * q[0] * q[2]), xs = [(-q[1] + r) / (2 * q[0]), (-q[1] - r) / (2 * q[0])].sort((a, b) => b - a);
+      part(tl.rootsA, 0, () => {
+        circle('dot', X(xs[0]), Y(0), 5); circle('dot', X(xs[1]), Y(0), 5);
+        text(X(xs[0]) - 6, Y(0) - 8, fmtN(xs[0]), 'pt', 'end'); text(X(xs[1]) + 6, Y(0) - 8, fmtN(xs[1]), 'pt', 'start');
+      });
+      if (tl.rootsA >= 0.5) { REC.roots = xs; said.push('It crosses the axis at about ' + say(fmtN(xs[0])) + ' and ' + say(fmtN(xs[1])) + '.'); }
+    }
+    // where it crosses the y-axis, a point every puzzle can start from
+    if (tl.yc > 0) {
+      const yv = poly(q, 0), lab = '(0, ' + fmtN(yv) + ')', px = X(0), py = Y(yv), wl = tw(lab, 'pt'), right = px + 7 + wl <= g.x1;
+      const below = right ? q[1] > 0 : q[1] < 0, ring = tl.dot && close(tl.dot[0], 0) && close(tl.dot[1], yv);
+      part(1, 0, () => {
+        circle('ydot', px, py, 4.5);
+        text(right ? px + 7 : px - 7, below ? py + 17 : py - 8, lab, 'pt', right ? 'start' : 'end');
+        if (ring) part(tl.dotA, 0, () => circle('ring', px, py, 9));
+      });
+      REC.ycross = { x: 0, y: yv };
+      said.push('It crosses the y-axis at ' + say(lab) + '.');
+    }
+    // a wrong point, in red
+    if (tl.dot && !(close(tl.dot[0], 0) && close(tl.dot[1], poly(q, 0)))) {
+      const inW = tl.dot[0] >= w[0] && tl.dot[0] <= w[1] && tl.dot[1] >= w[2] && tl.dot[1] <= w[3];
+      if (inW) part(tl.dotA, 0, () => circle('baddot', X(tl.dot[0]), Y(tl.dot[1]), 5.5));
+      if (tl.dotA >= 0.5) { REC.bad = tl.dot; said.push('The point picked is marked in red.'); }
+    }
+    drawLines(linesOf(d, st, q[1]), tl.lines, wy0(d), said);
+    return said.join(' ');
+  }
+
+  // ---------- grips: the half strip on screen 1, the slider for b ----------
+  const bGrip = ui.appendChild(K.svg('rect', { class: 'grip', x: SX0 - 24, y: SY - 26, width: SX1 - SX0 + 48, height: 48, tabindex: -1, role: 'slider', 'aria-label': 'b, the number in front of x', 'aria-orientation': 'horizontal', 'aria-valuemin': 0, 'aria-valuemax': 10 }));
+  const pGrip = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 44, height: 44, tabindex: -1, role: 'slider', 'aria-label': 'Half of the strip, from beside the square to under it', 'aria-valuemin': 0, 'aria-valuemax': 100 }));
+  bGrip.style.display = 'none'; pGrip.style.display = 'none';
+  function placeGrips(d, st) {
+    const onB = !!d.slider && !!d.show && !finished, onP = !!d.drag && !finished && !!REC.piece;
+    bGrip.style.display = onB ? '' : 'none'; bGrip.setAttribute('tabindex', onB ? '0' : '-1');
+    pGrip.style.display = onP ? '' : 'none'; pGrip.setAttribute('tabindex', onP ? '0' : '-1');
+    if (onB) { const v = REC.bs; bGrip.setAttribute('aria-valuenow', v); bGrip.setAttribute('aria-valuetext', 'b = ' + v); }
+    if (onP) {
+      const P = REC.piece, th = Math.PI / 2 * P.e, ex = P.wh / 2 * Math.abs(Math.cos(th)) + SQ / 2 * Math.abs(Math.sin(th)), ey = P.wh / 2 * Math.abs(Math.sin(th)) + SQ / 2 * Math.abs(Math.cos(th));
+      const w = Math.max(44, 2 * ex + 8), h = Math.max(44, 2 * ey + 8);
+      pGrip.setAttribute('x', r3(P.cx - w / 2)); pGrip.setAttribute('y', r3(P.cy - h / 2)); pGrip.setAttribute('width', r3(w)); pGrip.setAttribute('height', r3(h));
+      pGrip.setAttribute('aria-valuenow', Math.round(P.e * 100));
+      pGrip.setAttribute('aria-valuetext', P.e >= 1 ? 'under the square' : P.e <= 0 ? 'beside the square' : 'on its way round');
+    }
+  }
+  function toSvg(e) {
+    const ctm = svg.getScreenCTM();
+    return ctm ? new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()) : null;
+  }
+  // Dan's b, in steps of 2: it settles the demonstration, eases the tiles there and flashes the corner.
+  function setB(v) {
+    const i = at(), d = STEPS[i], st = S[i];
+    v = K.clamp(Math.round(v / 2) * 2, 0, 10);
+    if (st.b === v && T === Infinity) return;
+    const from = st.b == null ? tilesTL(d, st).bv : st.bv == null ? st.b : st.bv;
+    T = Infinity;
+    st.bv = from; st.b = v; F = 0;
+    K.reveal(); kick(); K.refresh();
+  }
+  let bHeld = null;
+  const bFrom = (e) => { const q = toSvg(e); return q ? (q.x - SX0) / (SX1 - SX0) * 10 : null; };
+  const sliding = () => !finished && !!STEPS[at()].show && !!STEPS[at()].slider;
+  bGrip.addEventListener('pointerdown', (e) => {
+    if (!sliding()) return;
+    bHeld = e.pointerId;
+    try { bGrip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the band */ }
+    e.preventDefault();
+    const v = bFrom(e); if (v != null) setB(v);
+  });
+  bGrip.addEventListener('pointermove', (e) => { if (bHeld !== e.pointerId || !sliding()) return; const v = bFrom(e); if (v != null) setB(v); });
+  const bGo = (e) => { if (bHeld === e.pointerId) bHeld = null; };
+  bGrip.addEventListener('pointerup', bGo);
+  bGrip.addEventListener('pointercancel', bGo);
+  bGrip.addEventListener('lostpointercapture', () => { bHeld = null; });
+  bGrip.addEventListener('keydown', (e) => {
+    if (!sliding()) return;
+    const now = REC.bs, by = { ArrowUp: 2, ArrowRight: 2, ArrowDown: -2, ArrowLeft: -2 }[e.key];
+    if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault();
+    setB(e.key === 'Home' ? 0 : e.key === 'End' ? 10 : now + by);
+  });
+  // The half strip: Dan drags it along its way round; let go, and it settles home or back.
+  let pHeld = null;
+  const swinging = () => !finished && !!STEPS[at()].drag;
+  function letGoPiece() {
+    const st = S[at()];
+    if (st.mv == null) return;
+    st.goal = st.mv >= 0.5 ? 1 : 0;
+    if (st.goal === 1 && st.mv < 1) F = -(1 - st.mv) / SPEED;   // the corner flashes as the half arrives
+    if (st.goal === st.mv) st.goal = null;
+    kick(); K.refresh();
+  }
+  pGrip.addEventListener('pointerdown', (e) => {
+    if (!swinging() || !REC.piece) return;
+    const q = toSvg(e); if (!q) return;
+    const P = REC.piece, st = S[at()];
+    pHeld = { id: e.pointerId, dx: q.x - P.cx, dy: q.y - P.cy };
+    try { pGrip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the strip */ }
+    e.preventDefault();
+    if (st.mv == null) st.mv = P.e;
+    st.goal = null; T = Infinity; F = Infinity;
+    K.reveal(); K.refresh();
+  });
+  pGrip.addEventListener('pointermove', (e) => {
+    if (!pHeld || pHeld.id !== e.pointerId || !swinging() || !REC.piece) return;
+    const q = toSvg(e); if (!q) return;
+    const P = REC.piece, st = S[at()], x = q.x - pHeld.dx, y = q.y - pHeld.dy, ux = P.c1x - P.c0x, uy = P.c1y - P.c0y;
+    st.mv = K.clamp(((x - P.c0x) * ux + (y - P.c0y) * uy) / (ux * ux + uy * uy), 0, 1);
+    K.refresh();
+  });
+  const pGo = (e) => { if (pHeld && pHeld.id === e.pointerId) { pHeld = null; letGoPiece(); } };
+  pGrip.addEventListener('pointerup', pGo);
+  pGrip.addEventListener('pointercancel', pGo);
+  pGrip.addEventListener('keydown', (e) => {
+    if (!swinging()) return;
+    if (['Enter', ' ', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'ArrowRight'].indexOf(e.key) < 0) return;
+    e.preventDefault();
+    const st = S[at()], cur = st.mv == null ? (REC.piece ? REC.piece.e : 1) : st.mv;
+    T = Infinity; st.mv = cur;
+    st.goal = e.key === 'ArrowDown' || e.key === 'ArrowLeft' ? 1 : e.key === 'ArrowUp' || e.key === 'ArrowRight' ? 0 : cur >= 0.5 ? 0 : 1;
+    F = st.goal === 1 && cur < 1 ? -(1 - cur) / SPEED : Infinity;
+    if (st.goal === cur) st.goal = null;
+    K.reveal(); kick(); K.refresh();
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    REC = { pic: d.pic, tag: '', tagForm: null, tiles: null, vertex: null, drop: null, sym: null, mirror: null, curve: false, grow: 0, work: [], piece: null, roots: null, ycross: null, bad: null, bs: d.pic === 'tiles' ? null : d.q[1] };
+    svg.setAttribute('viewBox', '0 0 340 ' + heightOf(d));
+    let said;
+    if (d.pic === 'tiles') { said = drawTileScreen(d, st); REC.bs = tilesTL(d, st).bs; } else said = drawGraphScreen(d, st);
+    svg.setAttribute('aria-label', said);
+    placeGrips(d, st);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) { T = Infinity; F = Infinity; settle(st); }   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox'); F = Infinity;
+      if (d.show) { Object.assign(st, { mv: null, goal: null, b: null, bv: null }); play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      italics(b.el.appendChild(K.el('span')), opts[k], false);   // one span, so the button's gap does not split "(x + 5)² − 25"
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const withB = (b) => Object.assign(blank(), { b, bv: b });
+  const bsOf = (d) => (d.slider ? [0, 2, 4, 6, 8, 10] : [d.q[1]]);
+  const qAt = (d, b) => [d.q[0], b, d.q[2]];
+  const XS = K.linspace(-10, 10, 41);
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T, keepF = F;
+    S[i] = st; T = t == null ? Infinity : t; F = Infinity;
+    try {
+      paint(i);
+      const rec = REC;
+      rec.texts = Array.from(art.querySelectorAll('text')).map((n) => n.textContent.replace(/ /g, ' '));
+      return rec;
+    } finally { S[i] = keepS; T = keepT; F = keepF; paint(); }
+  }
+  const stateFor = (d, i, b) => (d.show ? (d.slider ? withB(b) : blank()) : solvedSt(i));
+
+  K.check('Completing the square is a technique for manipulating a quadratic into a perfect square plus a constant: on every screen, at every setting of b, the finished form drawn agrees with the screen\'s quadratic at every x tried', () =>
+    STEPS.every((d, i) => bsOf(d).every((b) => {
+      const q = qAt(d, b), f = csOf(q);
+      if (!XS.every((x) => close(formAt(f, x), poly(q, x)))) return false;
+      const g = drawn(i, stateFor(d, i, b));
+      return g.tagForm == null || g.tagForm === formText(f);
+    })), { source: BRILLIANT });
+  K.check('In modern notation ax^2 + bx + c converts to a(x + b/(2a))^2 + (c − b^2/(4a)): every screen\'s bracket number is b ÷ 2a and its number outside is c − b² ÷ 4a, for a = 1, 2 and −1 alike', () => {
+    const as = new Set();
+    const ok = STEPS.every((d) => bsOf(d).every((b) => {
+      const q = qAt(d, b), f = csOf(q);
+      as.add(q[0]);
+      return close(f[1], q[1] / (2 * q[0])) && close(f[2], q[2] - q[1] * q[1] / (4 * q[0]));
+    }));
+    return ok && as.has(1) && as.has(2) && as.has(-1);
+  }, { source: MATHWORLD });
+  K.check('The coordinates of the turning point and the equation of the line of symmetry can be found by writing the quadratic expression in completed square form: every marked turning point sits at (−h, k) of that form, every line of symmetry at x = −h, the slope there is zero and the curve is mirrored about it', () =>
+    STEPS.every((d, i) => bsOf(d).every((b) => {
+      const q = qAt(d, b), f = csOf(q), g = drawn(i, stateFor(d, i, b));
+      const mirrored = [0.5, 1, 2, 3.5].every((t) => close(poly(q, -f[1] + t), poly(q, -f[1] - t)) && (q[0] > 0 ? poly(q, -f[1] + t) > f[2] : poly(q, -f[1] + t) < f[2]));
+      const flat = close(2 * q[0] * -f[1] + q[1], 0);
+      const v = !g.vertex || (close(g.vertex.x, -f[1]) && close(g.vertex.y, f[2]) && g.vertex.text === '(' + fmtN(-f[1]) + ', ' + fmtN(f[2]) + ')');
+      const s = !g.sym || close(g.sym.x, -f[1]);
+      const m = !g.mirror || close(g.mirror.a, g.mirror.b);
+      return mirrored && flat && v && s && m && (!d.sym || d.show || !!g.sym);
+    })), { source: BITESIZE });
+  K.check('The tiles add up: at every b from 0 to 10, the square, its two half strips and the empty corner exactly fill a square of side x + b ÷ 2 without overlapping, and the corner reads (b ÷ 2)², which is 0, 1, 4, 9, 16 and 25', () => {
+    const i = STEPS.findIndex((d) => d.slider && !d.sym), vals = [];
+    const ok = [0, 2, 4, 6, 8, 10].every((b) => {
+      const g = drawn(i, withB(b)), t = g.tiles, h = b / 2, wh = U * h, rs = t.rects.slice();
+      if (t.corner) rs.push([t.corner.x, t.corner.y, t.corner.w, t.corner.w]);
+      const area = rs.reduce((s, r) => s + r[2] * r[3], 0);
+      const x0 = Math.min.apply(null, rs.map((r) => r[0])), y0 = Math.min.apply(null, rs.map((r) => r[1]));
+      const x1 = Math.max.apply(null, rs.map((r) => r[0] + r[2])), y1 = Math.max.apply(null, rs.map((r) => r[1] + r[3]));
+      const apart = rs.every((r, k) => rs.every((s, j) => j <= k || Math.max(0, Math.min(r[0] + r[2], s[0] + s[2]) - Math.max(r[0], s[0])) * Math.max(0, Math.min(r[1] + r[3], s[1] + s[3]) - Math.max(r[1], s[1])) < 1e-6));
+      vals.push(t.corner ? t.corner.value : 0);
+      return close(area, (SQ + wh) * (SQ + wh)) && close(x0, TX) && close(y0, TY) && close(x1 - x0, SQ + wh) && close(y1 - y0, SQ + wh) && apart &&
+        t.label === (h ? 'corner ' + h + ' × ' + h + ' = ' + h * h : 'no strip, so no corner');
+    });
+    return ok && vals.join() === '0,1,4,9,16,25';
+  });
+  K.check('Every puzzle accepts only its right answer, worked out from its rule; each wrong pick, put into the rule at its check value, gives a different number, and a point on the curve that is not the turning point sits higher than it', () =>
+    DO.every((i) => {
+      const d = STEPS[i], q = d.q, f = csOf(q), h = f[1];
+      const agrees = (v) => (d.kind === 'corner' ? close(formAt([1, h, -v], d.chk), poly(q, d.chk))
+        : d.kind === 'form' ? close(formAt(v, d.chk), poly(q, d.chk))
+        : d.kind === 'turn' ? close(v[0], -h) && close(v[1], f[2]) : close(v, h * h - q[2]));
+      const wrongOk = (v) => (d.kind !== 'turn' ? !agrees(v) : !close(ruleAt(d, v[0]), v[1]) || v[1] > f[2]);
+      return d.opts.length === 3 && new Set(d.opts).size === 3 && d.opts.every((o, k) => pickRight(i, o) === (k === d.right)) &&
+        d.val.every((v, k) => (k === d.right ? agrees(v) : wrongOk(v))) &&
+        (d.kind !== 'form' || XS.every((x) => close(formAt(d.val[d.right], x), poly(q, x))));
+    }));
+  K.check('The worked numbers: 1 + 6 = 7 and 16 − 9 = 7 at x = 1; the wrong picks give 36, 21, 14, 10, 67, 14, 59 and 105; √7 is about 2.65, the roots are about −0.35, −5.65, −0.27 and −3.73; (−5, −23) at b = 10; and the practice form 2(x − 3)² + 7 gives 18 + 7 = 25 at x = 0', () => {
+    const s = (k) => STEPS[k], line0 = (k, st, b) => linesOf(s(k), st, b == null ? s(k).q[1] : b)[0];
+    const wr = (k, n) => linesOf(s(k), wrongSt(k, s(k).opts[n]), s(k).q[1]);
+    const R = (ln) => ln && ln.r, L = (ln) => ln && ln.l, N = (ln) => ln && ln.note;
+    const sv = solveLines(s(8).q), nx = solveLines(s(9).q), fl = flipLines(s(10).q);
+    const v6 = drawn(6, withB(10)).vertex, v0 = drawn(6, withB(0)).vertex;
+    const listed = [
+      [R(line0(2, withB(6), 6)), '1 + 6 = 7, and 16 − 9 = 7'],
+      [R(line0(1, solvedSt(1))), '1 + 8 = 9, and 25 − 16 = 9'],
+      [R(wr(1, 0)[0]), '1 + 8 = 9, but 25 − 64 = −39'], [R(wr(1, 2)[0]), '1 + 8 = 9, but 25 − 4 = 21'],
+      [R(line0(3, solvedSt(3))), '1 + 10 = 11, and 36 − 25 = 11'],
+      [R(wr(3, 0)[0]), '1 + 10 = 11, but 36'], [R(wr(3, 2)[0]), '1 + 10 = 11, but 121 − 100 = 21'],
+      [R(line0(4, blank())), '1 + 6 + 2 = 9, and 16 − 7 = 9'],
+      [R(line0(5, solvedSt(5))), '1 + 4 + 1 = 6, and 9 − 3 = 6'],
+      [R(wr(5, 1)[0]), '1 + 4 + 1 = 6, but 9 + 5 = 14'], [R(wr(5, 2)[0]), '1 + 4 + 1 = 6, but 25 − 15 = 10'],
+      [L(line0(6, withB(6), 6)), 'x = −1 and −5'], [R(line0(6, withB(6), 6)), '4 − 7 = −3'],
+      [R(wr(7, 0)[0]), '64 + 3 = 67, not 3'], [R(wr(7, 1)[0]), '0 + 3 = 3, not −3'], [R(line0(7, solvedSt(7))), '0 + 3 = 3'],
+      [L(sv[1]), '(x + 3)² = 7'], [N(sv[2]), '√7 is about 2.65'], [L(sv[3]), 'x is about −0.35 or −5.65'],
+      [L(nx[1]), '(x + 2)² = 3'], [L(nx[3]), 'x is about −0.27 or −3.73'], [N(wr(9, 1)[1]), '−1 + 4 = 3'], [N(wr(9, 2)[1]), '−1 + 4 = 3'],
+      [L(fl[0]), '−x² + 4x + 10 = −(x² − 4x) + 10'], [L(fl[2]), 'so it is −(x − 2)² + 14'], [R(fl[3]), '−4 + 14 = 10'],
+      [R(line0(11, solvedSt(11))), '5, and 18 − 13 = 5'], [R(wr(11, 0)[0]), '5, but 18 − 4 = 14'], [R(wr(11, 1)[0]), '5, but 72 − 13 = 59'],
+      [R(wr(12, 1)[0]), '25 + 50 + 30 = 105, not 5'], [R(wr(12, 2)[0]), '25 − 50 + 30 = 5, lower than 30'],
+      [v6 && v6.text, '(−5, −23)'], [v0 && v0.text, '(0, 2)'], [drawn(0, blank()).vertex.text, '(−3, −9)'],
+      [formText(csOf([2, -12, 25])), '2(x − 3)² + 7'], [formEvalText(csOf([2, -12, 25]), 0), '18 + 7 = 25'],
+    ];
+    return listed.every((r) => r[0] === r[1]) && close(4 * 3 - 12, 0);
+  });
+  K.check('As b grows from 0 to 10 the lowest point slides left to x = −b ÷ 2 and drops below the plain number by exactly the corner, from (0, 0) to (−5, −25), and the drop on the graph is the corner under the tiles', () => {
+    const i = STEPS.findIndex((d) => d.slider && !d.sym);
+    return [0, 2, 4, 6, 8, 10].every((b) => {
+      const g = drawn(i, withB(b)), h = b / 2;
+      return g.vertex && close(g.vertex.x, -h) && close(g.vertex.y, -h * h) && Math.abs(g.vertex.px - xOf(TG, TWIN)(-h)) < 1e-6 &&
+        (h ? !!g.drop && g.drop.v === h * h && g.tiles.corner && g.tiles.corner.value === g.drop.v && close(g.drop.top - g.drop.bottom, h * h) : !g.drop);
+    }) && drawn(i, withB(0)).vertex.text === '(0, 0)' && drawn(i, withB(10)).vertex.text === '(−5, −25)';
+  });
+  K.check('Before Check a puzzle shows no curve and no finished form; after a right answer the curve is drawn whole with its turning point, roots or completed corner, and a wrong pick puts its own number in, in red', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank()), h = drawn(i, solvedSt(i));
+      if (g.curve || g.tagForm || g.vertex || g.drop || g.roots) return false;
+      if (!(h.curve && h.grow === 1)) return false;
+      if (d.kind === 'next' ? !(h.roots && h.roots.length === 2) : !h.vertex) return false;
+      if (d.kind === 'form' && h.tagForm !== formText(csOf(d.q))) return false;
+      if (d.pic === 'tiles' && !(h.tiles.corner && h.tiles.corner.shown && h.tiles.e === 1)) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => {
+        const w = drawn(i, wrongSt(i, o));
+        return w.work.length >= 1 && w.work[w.work.length - 1].bad && !w.tagForm && !w.curve;
+      });
+    }));
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T, keepF = F;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; F = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const f = fbOf();
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i), f[0]) && f[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), f[1]) && f[1] <= 2.5);
+    });
+    T = keepT; F = keepF; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>
