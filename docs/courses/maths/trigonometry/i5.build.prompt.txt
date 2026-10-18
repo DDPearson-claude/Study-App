@@ -1,0 +1,444 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Trigonometry, from triangles to waves
+Idea: Radians: angle as arc over radius (A radian is the angle whose arc is one radius long, on any circle, so a whole turn, 360°, is 2π radians.)
+Kind: concept
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the rod and the arc growing together, so the arc counted in radius-lengths stays the same, when you drag the size handle to grow or shrink the circle.
+Title (the app shows it above the frame, so do not repeat it): Wrap the radius
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in fourteen small screens, most on one picture, wrap the radius. A circle is drawn round a centre, with lesson 3's arm running from the centre to the edge, pointing right at first. A copy of the arm, one radius long, is drawn as a thick bendy rod. Turning the arm anticlockwise opens an angle at the centre, and the rod is laid round the edge from the starting point towards the arm's tip, one radius-length after another, each length numbered 1, 2, 3 and so on, with the part left over shorter and labelled with its fraction. A readout gives the angle as a count of radius-lengths, which is the angle in radians, to two decimal places, and beside it the same angle in degrees to one place, found as radians × 180 ÷ π. On screens that show an idea you can drag the arm's tip to open the angle, and a size handle on the edge grows or shrinks the circle: the rod is always one radius long, so it grows with the circle, and the count does not change. Screen 1 opens the arm until one rod fits, labelled 1 radian, then on to two rods, 2 radians. Screen 2 asks for the angle when an arc of 4 m sits on a circle of radius 2 m: 2 radians, 4 radians (metres counted, not radius-lengths) or 0.5 radians (radius ÷ arc). Screen 3 holds the angle at 1 radian and sweeps the size handle from a small circle to a large one; rod and arc grow together, the readout stays at 1.00, and the rule arc ÷ radius appears below. Screen 4 stacks a circle of radius 1 m with an arc of 1 m above one of radius 3 m with an arc of 3 m, each labelled, and asks which angle is bigger: the same, 1 radian each; the large circle's, three times as big; or the small circle's. Screen 5 wraps the rod all the way round: six whole rods and 0.28 of a seventh, 6.28, which is 2π, while the degrees readout reaches 360; at the half turn the count is 3.14, which is π, and 180°; and one rod's slice reads 57.3°. Screen 6 asks how many radius-lengths fit round a quarter of the circle: 1.57, 1 (a quarter taken as one radian) or 0.25 (the whole circle taken as one radian). Screen 7 converts both ways, 60° × π ÷ 180 = 1.047 radians and 2 radians × 180 ÷ π = 114.6°, then draws two arms on one circle, 10° solid and 10 radians dashed, the dashed arm's path a spiral that wraps 1.59 times round and stops at 213.0°, left of the centre and below it, so its cosine reads −0.839 against 0.985 for 10°. Screen 8 asks for 45° in radians: 0.785, 2578.3 (multiplied by 180 ÷ π, the wrong way) or 0.25 (divided by 180 with π left out). Screen 9 marks the arc's length: θ radians hold θ rods, so the arc is s = rθ; a winch drum of radius 0.2 m turned through 2.5 radians winds on 0.5 m of wire. Screen 10 asks for the arc on a circle of radius 0.5 m at 60°: 0.524 m, 30 m (60 used as if it were radians) or 0.262 (θr², whose unit is square metres, an area). Screen 11 spins the arm as a shaft: 400 rev/min is 400 × 2π radians a minute, and ÷ 60 for each second gives 41.9 rad/s; with a torque of 400 kN m that shaft delivers 16.76 MW. Screens 12 to 14 are mixed. An angle given as 0.5 with no degree sign: is its sine 0.479, 0.0087 (degrees mode) or 0.5 (the angle itself, though the tip's height is a little less than the arc it has travelled)? A motor shaft at 1,500 rev/min: is it 157.1 rad/s, 25 (turns a second, the 2π left out) or 9,425 (the ÷ 60 left out)? A sheave of radius 0.25 m makes 3 full turns: how much rope passes over it, 4.71 m, 0.75 m (3 turns taken as 3 radians) or 270 m (3 × 360 degrees used in s = rθ)? Each puzzle offers three answers; a wrong pick gets a one-line hint naming its slip, and Why? draws the answer on the picture.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The rod bends round the edge without stretching, so its length along the edge is exactly one radius; a real rod bent that way would stretch on the outside and squash on the inside. Readouts are rounded, radians to two decimal places and degrees to one, while the working keeps every figure. The lengths, speeds and torque are example figures. You may have seen "rad" written after a figure: the radian is a unit of angle, but its figure is one length over another, so it carries no metres.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 13 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Radius-lengths in one radian's arc, in step 1: 1 (constant)
+- Two rods laid, in radians, in step 1: 2 (assumed)
+- Puzzle arc, in m, in step 2: 4 (assumed)
+- Puzzle radius, in m, in step 2: 2 (assumed)
+- Angle 4 ÷ 2, in radians, in step 2: 2 (computed)
+- Slip, metres counted, in step 2: 4 (computed)
+- Slip, radius ÷ arc, in step 2: 0.5 (computed)
+- Readout held while resizing, in radians, in step 3: 1 (computed)
+- Small circle's radius and arc, in m, in step 4: 1 (assumed)
+- Large circle's radius and arc, in m, in step 4: 3 (assumed)
+- A full turn, in degrees: 360 (constant)
+- A half turn, in degrees: 180 (constant)
+- π, to five decimal places: 3.14159 (constant)
+- Full turn 2π, in radians, in step 5: 6.28 (computed)
+- Left over after six whole rods, in step 5: 0.28 (computed)
+- Half turn π, in radians, in step 5: 3.14 (computed)
+- One radian, 180 ÷ π, in degrees, in step 5: 57.3 (computed)
+- Quarter turn π ÷ 2, in radians, in step 6: 1.57 (computed)
+- Slip, whole circle as one radian, in step 6: 0.25 (computed)
+- Example angle, in degrees, in step 7: 60 (assumed)
+- 60° in radians, in step 7: 1.047 (computed)
+- Example angle, in radians, in step 7: 2 (assumed)
+- 2 radians in degrees, in step 7: 114.6 (computed)
+- Mode example angle, in step 7: 10 (assumed)
+- Turns in 10 radians, in step 7: 1.59 (computed)
+- Where 10 radians stops, in degrees, in step 7: 213 (computed)
+- cos 10 in radian mode, in step 7: -0.839 (computed)
+- cos 10° in degrees mode, in step 7: 0.985 (computed)
+- Puzzle angle, in degrees, in step 8: 45 (assumed)
+- 45° in radians, π ÷ 4, in step 8: 0.785 (computed)
+- Slip, 45 × 180 ÷ π, in step 8: 2578.3 (computed)
+- Slip, 45 ÷ 180, in step 8: 0.25 (computed)
+- Winch drum radius, in m, in step 9: 0.2 (assumed)
+- Winch drum turn, in radians, in step 9: 2.5 (assumed)
+- Wire wound on, 0.2 × 2.5, in m, in step 9: 0.5 (computed)
+- Puzzle radius, in m, in step 10: 0.5 (assumed)
+- Puzzle angle, in degrees, in step 10: 60 (assumed)
+- Arc 0.5 × 1.047, in m, in step 10: 0.524 (computed)
+- Slip, 0.5 × 60, in m, in step 10: 30 (computed)
+- Slip, θr² = 1.047 × 0.25, in step 10: 0.262 (computed)
+- Seconds in a minute: 60 (constant)
+- Example shaft speed, in rev/min, in step 11: 400 (assumed)
+- 400 × 2π ÷ 60, in rad/s, in step 11: 41.9 (computed)
+- Example shaft torque, in kN m, in step 11: 400 (assumed)
+- Shaft power, torque × ω, in MW, in step 11: 16.76 (computed)
+- Puzzle angle, no degree sign, in step 12: 0.5 (assumed)
+- sin 0.5 in radian mode, in step 12: 0.479 (computed)
+- Slip, sin 0.5° in degrees mode, in step 12: 0.0087 (computed)
+- Motor speed, in rev/min, in step 13: 1500 (assumed)
+- 1500 × 2π ÷ 60, in rad/s, in step 13: 157.1 (computed)
+- Slip, 1500 ÷ 60, in step 13: 25 (computed)
+- Slip, 1500 × 2π, in step 13: 9425 (computed)
+- Sheave radius, in m, in step 14: 0.25 (assumed)
+- Sheave turns, in step 14: 3 (assumed)
+- Rope 0.25 × 6π, in m, in step 14: 4.71 (computed)
+- Slip, 0.25 × 3, in m, in step 14: 0.75 (computed)
+- Slip, 0.25 × 1080, in m, in step 14: 270 (computed)
+- Fan tip radius, in m, worked example: 0.6 (assumed)
+- Fan speed, in rev/min, worked example: 1200 (assumed)
+- 1200 × 2π ÷ 60, in rad/s, worked example: 125.7 (computed)
+- Tip's arc in one second, 0.6 × 125.7, in m: 75.4 (computed)
+- Edge of a 0.5 m circle, 2π × 0.5, in m: 3.14 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+Degrees split a full turn into 360. A radian measures turning with the circle's own ruler instead: it is the angle at the centre whose arc, the stretch of edge between the two arms, is one radius long. So an angle in radians is a count of radius-lengths round the edge, the same count on any circle, and a full turn is 2π of them, about 6.28.
+
+Picture lesson 3's turning arm, now on a circle of any size. The angle is the turn between where the arm starts and where it stops, as in Round the circle. Lift the arm off as a bendy rod, exactly one radius long, and lay it round the edge from where the arm starts, turning anticlockwise. The angle it spans at the centre is one radian. Now make the circle twice as big. The radius doubles, so the rod doubles. A circle twice as big is the same shape drawn at twice the scale, as lesson 1's triangles were, so every length in it doubles, the arc between the same two arms as well as the radius. Rod and arc grow together, so the rod still spans the same angle. That is why an angle's arc keeps the same relation to the radius whatever the radius is, and why the angle in radians can be worked out as arc ÷ radius. Both are lengths, so their units cancel. The radian is a unit of angle, as the degree is, but its figure is one length over another, so it carries no metres, and the word "radians" is often left off.
+
+Now lay the rod all the way round. The …
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] 5.1 Angles - Precalculus 2e | OpenStax (https://openstax.org/books/precalculus-2e/pages/5-1-angles): "One radian is the measure of a central angle of a circle that intercepts an arc equal in length to the radius of that circle."
+[2] Angles and Radian Measure 8.2 (https://static.bigideasmath.com/protected/content/pe/hsim/int_math3_pe_08_02.pdf): "So, degree measure and radian measure are related by the equation 360° = 2π radians, or 180° = π radians."
+[3] 5.1 Angles - Precalculus 2e | OpenStax (https://openstax.org/books/precalculus-2e/pages/5-1-angles): "the arc length produced by any given angle also has a constant relation to the radius, regardless of the length of the radius."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: concept). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: concept -->
+<style>
+  /* Columns in rem, so at a large text size the cards reflow to fewer, wider columns and no name splits. */
+  .groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 12px; }
+  .group { padding: 10px 12px 12px; border-radius: var(--k-r); background: var(--k-panel); }
+  .group-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 10px; }
+  .group-head b { font-size: .95rem; }
+  .group-head span { font-size: .8rem; color: var(--k-muted); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)); gap: 6px; margin-top: 8px; }
+  .card { display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 7px; padding: 6px 8px; border-radius: 10px; background: var(--k-bg); }
+  .card i { font-style: normal; font-size: 13px; line-height: 1; }
+  .card b { font-size: 1rem; line-height: 1.1; }
+  .card span { grid-column: 1 / -1; font-size: .75rem; color: var(--k-muted); }
+</style>
+
+<p class="lead">Sort these ten elements three ways. Which way puts elements that behave alike in the same group?</p>
+
+<div class="k-controls" id="controls"></div>
+<div class="groups" id="groups" role="img" aria-label=""></div>
+<div class="key" id="key" aria-hidden="true"></div>
+<div class="k-readouts" id="outs"></div>
+<p class="say" id="say"></p>
+<p class="caption">Behaviour and states at room temperature are the source's; group-mates "behave alike" when they share a behaviour.</p>
+
+<script>
+  // Source [1] of the lesson: the halogens, alkali metals and noble gases.
+  const SOURCE = 'https://en.wikipedia.org/wiki/Halogen';
+
+  // A fair set: the first members of three families in order (no hand-picking to make one sort
+  // look good), with hydrogen left out because it is not an alkali metal.
+  const ELEMENTS = [
+    { sym: 'Li', name: 'Lithium', column: 1, state: 'Solid', mass: 6.94, does: 'metal' },
+    { sym: 'Na', name: 'Sodium', column: 1, state: 'Solid', mass: 22.99, does: 'metal' },
+    { sym: 'K', name: 'Potassium', column: 1, state: 'Solid', mass: 39.10, does: 'metal' },
+    { sym: 'F', name: 'Fluorine', column: 17, state: 'Gas', mass: 19.00, does: 'salt' },
+    { sym: 'Cl', name: 'Chlorine', column: 17, state: 'Gas', mass: 35.45, does: 'salt' },
+    { sym: 'Br', name: 'Bromine', column: 17, state: 'Liquid', mass: 79.90, does: 'salt' },
+    { sym: 'I', name: 'Iodine', column: 17, state: 'Solid', mass: 126.90, does: 'salt' },
+    { sym: 'He', name: 'Helium', column: 18, state: 'Gas', mass: 4.00, does: 'inert' },
+    { sym: 'Ne', name: 'Neon', column: 18, state: 'Gas', mass: 20.18, does: 'inert' },
+    { sym: 'Ar', name: 'Argon', column: 18, state: 'Gas', mass: 39.95, does: 'inert' },
+  ];
+  // Three equal kinds of behaviour: categorical colours, each with its own shape too.
+  const DOES = {
+    metal: { text: 'Soft metal that fizzes in water', role: 'cat1', mark: '●' },
+    salt: { text: 'Joins with sodium to make a salt', role: 'cat2', mark: '▲' },
+    inert: { text: 'Hardly ever reacts', role: 'cat3', mark: '■' },
+  };
+  // Each way of sorting: the group an element goes in, and the groups in display order.
+  const SORTS = {
+    state: { groupOf: (e) => e.state, order: ['Solid', 'Liquid', 'Gas'] },
+    mass: { groupOf: (e) => e.mass < 30 ? 'Lighter atoms' : 'Heavier atoms', order: ['Lighter atoms', 'Heavier atoms'] },
+    column: { groupOf: (e) => 'Column ' + e.column, order: ['Column 1', 'Column 17', 'Column 18'] },
+  };
+  const groupsFor = (by) => SORTS[by].order.map((g) => ({ name: g, members: ELEMENTS.filter((e) => SORTS[by].groupOf(e) === g) }));
+  // Pairs of group-mates, and how many of them share a behaviour.
+  function pairs(by) {
+    let all = 0, alike = 0;
+    groupsFor(by).forEach((g) => g.members.forEach((a, i) => g.members.slice(i + 1).forEach((b) => { all++; if (a.does === b.does) alike++; })));
+    return { all, alike };
+  }
+
+  // The lesson's control: named options, opening on the first (index 0).
+  K.choice({ id: 'by', label: 'Sort them by', value: 0, into: '#controls', options: [
+    { value: 'state', label: 'Solid, liquid, gas' },
+    { value: 'mass', label: 'Weight' },
+    { value: 'column', label: 'Table column' },
+  ] });
+  K.readout({ id: 'alike', label: 'Group-mates alike', unit: '%', decimals: 0, into: '#outs' });
+  K.readout({ id: 'mixed', label: 'Mixed groups', into: '#outs' });
+
+  // The pure model: a way of sorting -> how well its groups predict behaviour.
+  K.model((p) => {
+    const n = pairs(p.by), groups = groupsFor(p.by);
+    return {
+      alike: n.all ? 100 * n.alike / n.all : 0,
+      mixed: groups.filter((g) => new Set(g.members.map((e) => e.does)).size > 1).length,
+      groups: groups.length,
+    };
+  });
+
+  const key = document.getElementById('key');
+  Object.keys(DOES).forEach((k) => key.appendChild(K.el('span', null, K.el('i', { style: { color: K.color(DOES[k].role), fontStyle: 'normal' } }, DOES[k].mark), DOES[k].text)));
+
+  K.update((p, o) => {
+    const box = document.getElementById('groups');
+    box.textContent = '';
+    groupsFor(p.by).forEach((g) => {
+      const kinds = new Set(g.members.map((e) => e.does)).size;
+      const verdict = g.members.length < 2 ? 'on its own' : kinds === 1 ? 'all behave alike' : 'mixed: ' + kinds + ' kinds';
+      box.appendChild(K.el('div', { class: 'group' },
+        K.el('div', { class: 'group-head' }, K.el('b', null, g.name + ' · ' + g.members.length), K.el('span', null, verdict)),
+        K.el('div', { class: 'cards' }, g.members.map((e) => K.el('div', { class: 'card' },
+          K.el('i', { style: { color: K.color(DOES[e.does].role) }, 'aria-hidden': 'true' }, DOES[e.does].mark), K.el('b', null, e.sym), K.el('span', null, e.name))))));
+    });
+    box.setAttribute('aria-label', groupsFor(p.by).map((g) => g.name + ': ' + g.members.map((e) => e.name + ' (' + DOES[e.does].text.toLowerCase() + ')').join(', ')).join('. '));
+    // The sentence uses the readout's own rounding (whole percent), so the two always agree.
+    const pct = K.fmt(o.alike, { decimals: 0 }) + '%';
+    document.getElementById('say').textContent = !K.moved ? 'Which way of sorting will keep elements that behave alike together? Make your guess, then try each one.' : {
+      state: 'Sorted by state, only ' + pct + ' of group-mates behave alike: bromine sits alone as the only liquid, and the gases mix elements that react eagerly with ones that hardly react at all.',
+      mass: 'Sorted by weight, just ' + pct + ' of group-mates behave alike: lithium shares a group with neon, potassium with bromine. Weight alone predicts almost nothing here.',
+      column: 'Sorted by column, ' + pct + ' of group-mates behave alike. Knowing the column tells you how an element reacts: a natural grouping, and the reason the periodic table is laid out this way.',
+    }[p.by];
+  });
+
+  // Known answers, counted by hand from the table above.
+  K.check('By column, all 12 pairs of group-mates behave alike (100%)', () => K.near(K.at({ by: 'column' }).alike, 100) && K.at({ by: 'column' }).mixed === 0);
+  K.check('By state, 7 of 16 pairs behave alike (43.75%)', () => K.near(K.at({ by: 'state' }).alike, 43.75));
+  K.check('By weight, 5 of 20 pairs behave alike (25%)', () => K.near(K.at({ by: 'mass' }).alike, 25) && K.at({ by: 'mass' }).mixed === 2);
+  K.check('At room temperature bromine is the only liquid; fluorine and chlorine are gases, iodine a solid', () =>
+    groupsFor('state')[1].members.map((e) => e.sym).join() === 'Br' &&
+    ['F', 'Cl'].every((s) => ELEMENTS.find((e) => e.sym === s).state === 'Gas') && ELEMENTS.find((e) => e.sym === 'I').state === 'Solid', { source: SOURCE });
+  K.check('A fair test: every sort places each of the ten exactly once', () =>
+    Object.keys(SORTS).every((by) => groupsFor(by).reduce((n, g) => n + g.members.length, 0) === 10 &&
+      ELEMENTS.every((e) => groupsFor(by).filter((g) => g.members.includes(e)).length === 1)));
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

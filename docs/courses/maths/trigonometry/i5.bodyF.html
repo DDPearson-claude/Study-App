@@ -1,0 +1,1310 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  /* The circle, its arms and the rod. */
+  .scene .edge { fill: none; stroke: var(--k-muted); stroke-width: 1.6; }
+  .scene .drum { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .arm { stroke: var(--k-ink); stroke-width: 5; stroke-linecap: round; }
+  .scene .arm0 { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .arm10 { stroke: var(--k-accent2); stroke-width: 3; stroke-dasharray: 9 6; stroke-linecap: round; }
+  .scene .rod { fill: none; stroke: var(--k-accent2); stroke-width: 7; stroke-linejoin: round; }
+  /* A pale core down the rod, so it reads as its own piece on the dark arm. */
+  .scene .rodc { fill: none; stroke: var(--k-bg); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .carm { stroke: var(--k-muted); stroke-width: 2; stroke-linecap: round; }
+  .scene .joint { stroke: var(--k-bg); stroke-width: 2.5; }
+  .scene .etick { stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .ask { fill: none; stroke: var(--k-amber-line); stroke-width: 6; }
+  .scene .slice { fill: var(--k-fill2); stroke: none; }
+  .scene .ghost { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 6 4; }
+  .scene .path { fill: none; stroke: var(--k-muted); stroke-width: 1.6; }
+  .scene .headm { fill: var(--k-muted); }
+  .scene .head { fill: var(--k-ink); }
+  .scene .turn { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .wire, .scene .rope { fill: none; stroke: var(--k-ink); stroke-width: 2.5; }
+  .scene .weight { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .axis { stroke: var(--k-muted); stroke-width: 1.4; }
+  .scene .guide { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 4 3; }
+  .scene .cline { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.4; }
+  .scene .mk, .scene .arc { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .sknob { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .sarrow { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .shead { fill: var(--k-accent2); }
+  .scene .pin { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .dot { fill: var(--k-ink); }
+  .scene .pill { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .lbg { fill: var(--k-bg); stroke: none; }
+  .scene .hlbg { fill: var(--k-hl); stroke: none; }
+  .scene .pv { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .al { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .rn { font: 700 13px var(--k-font); fill: var(--k-accent2); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .te { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .te.bad { fill: var(--k-warn); }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .after { font-size: 1.08rem; line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A circle with lesson 3's turning arm and a bendy rod one radius long, laid round its edge, then a winch drum, a ship's shaft and three mixed puzzles.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <p class="after" id="after" hidden></p>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap" hidden></p>
+
+<script>
+  const el = (id) => document.getElementById(id);
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const PI = Math.PI, TAU = 2 * Math.PI, DEG = 180 / Math.PI, RAD = Math.PI / 180;
+  const sinD = (a) => Math.sin(a * RAD), cosD = (a) => Math.cos(a * RAD);
+  const neg = (s) => String(s).replace(/^-/, '−');
+  // v rounded to dp places with trailing zeros dropped: 0.5, 0.28, 30.
+  function trim(v, dp) {
+    const f = Math.pow(10, dp);
+    let s = (Math.round(v * f) / f).toFixed(dp);
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    if (s === '-0') s = '0';
+    return neg(s);
+  }
+  // v to exactly dp places: 1.00, 360.0, 0.0087.
+  function fix(v, dp) {
+    const f = Math.pow(10, dp);
+    let s = (Math.round(v * f) / f).toFixed(dp);
+    if (/^-0(\.0*)?$/.test(s)) s = s.slice(1);
+    return neg(s);
+  }
+  const commas = (s) => String(s).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  // The readout: radians to two places, degrees (radians × 180 ÷ π) to one.
+  const radS = (v) => fix(v, 2), degS = (v) => fix(v, 1) + '°';
+  const readS = (th) => radS(th) + ' radians = ' + degS(th * DEG);
+  const rads = (v, dp) => trim(v, dp == null ? 3 : dp) + (Math.abs(v - 1) < 1e-12 ? ' radian' : ' radians');
+  const radLab = (n) => n + (n === 1 ? ' radian' : ' radians');
+  // A point at angle a (radians, anticlockwise from pointing right) on a circle of radius r round C.
+  const pE = (C, r, a) => [C[0] + r * Math.cos(a), C[1] - r * Math.sin(a)];
+  const lenOf = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]);
+  const polyLen = (ps) => { let s = 0; for (let k = 1; k < ps.length; k++) s += lenOf(ps[k - 1], ps[k]); return s; };
+
+  // The lesson's example values, and the answers each puzzle offers (worked out here, never typed in).
+  const A2 = 4, R2 = 2;                                           // an arc of 4 m on a circle of radius 2 m
+  const o1 = [rads(A2), rads(A2 / R2), rads(R2 / A2)];            // metres counted; arc ÷ radius; radius ÷ arc
+  const S1 = 1, S3 = 3;                                           // arcs one radius long on circles of 1 m and 3 m
+  const o3 = ['The big circle\'s, ' + trim(S3 / S1, 0) + ' times as big', 'The small circle\'s', 'The same, ' + rads(S1 / S1) + ' each'];
+  const QT = TAU / 4;                                             // a quarter turn
+  const o5 = [fix(QT, 2), trim(1, 0), trim(1 / 4, 2)];
+  const C60 = 60 * PI / 180, C2 = 2 * 180 / PI;                   // the two conversions
+  const M10 = 10, turns10 = M10 / TAU, stop10 = M10 * DEG - 360;  // 10 radians against 10°
+  const D8 = 45;
+  const o7 = [fix(D8 * 180 / PI, 1), trim(D8 / 180, 2), fix(D8 * PI / 180, 3)];
+  const WR = 0.2, WT = 2.5;                                       // the winch drum
+  const R10 = 0.5, D10 = 60, T10 = D10 * PI / 180;                // the arc at 60°
+  const o9 = [trim(R10 * D10, 3) + ' m', fix(R10 * T10, 3) + ' m', fix(T10 * R10 * R10, 3)];
+  const N11 = 400, TQ = 400, W11 = N11 * TAU / 60, P11 = TQ * W11 / 1000;   // kN m × rad/s = kW; ÷ 1000 for MW
+  const A12 = 0.5;
+  const o11 = [fix(Math.sin(A12), 3), trim(A12, 2), fix(Math.sin(A12 * RAD), 4)];
+  const N13 = 1500, N13S = commas(String(N13));
+  const o12 = [trim(N13 / 60, 1), commas(fix(N13 * TAU, 0)), fix(N13 * TAU / 60, 1)];
+  const R14 = 0.25, N14 = 3;
+  const o13 = [trim(R14 * N14, 2) + ' m', fix(R14 * N14 * TAU, 2) + ' m', trim(R14 * N14 * 360, 1) + ' m'];
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: the picture; vh: its height; dur: a demonstration's length; live: what Dan can drag.
+  // A puzzle has opts, want, a hint for each wrong answer, why, rows of working (right, and wrong[answer]
+  // in red) and secret: what the picture must not show before an answer.
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, name: 'Wrap the radius', pic: 'wrap1', vh: 296, dur: 4.2, live: ['tip', 'size'],
+      text: 'Here is lesson 3\'s turning arm on a circle, pointing right to start. Lift a copy of it off as a bendy rod, exactly one radius long, and lay it round the edge from where the arm starts. Turn the arm anticlockwise until it meets the rod\'s far end. The angle it has opened at the centre is one *radian*, because its *arc*, the stretch of edge between the two arms, is one radius long. Two rods laid end to end make 2 radians. Drag the tip of the arm, or the size handle on the edge.',
+      after: 'So an angle in radians is a count of radius-lengths round the edge. The readout gives that count, and beside it the same angle in degrees.' },
+    { kind: 'pick', name: 'An arc of 4 m', pic: 'arc4', ry: 258,
+      opts: o1, want: o1[1], secret: [o1[1]],
+      task: 'An arc of 4 m sits on a circle of radius 2 m. What angle does it make at the centre?',
+      why: 'Count the arc in radius-lengths. Each radius is 2 m, so the 4 m arc holds `4 ÷ 2 = 2` of them, and the angle is 2 radians. Arc ÷ radius gives the angle.',
+      hint: 'Not quite. Count the arc in radius-lengths.',
+      hints: { [o1[0]]: 'Not quite. That counts metres. Count radius-lengths of 2 m instead.',
+        [o1[2]]: 'Not quite. That is radius ÷ arc, upside down. Divide the arc by the radius.' },
+      right: [A2 + ' m ÷ ' + R2 + ' m = ' + trim(A2 / R2, 2) + ' radius-lengths', 'angle = ' + o1[1]],
+      wrong: { [o1[0]]: A2 + ' counts metres, not radius-lengths', [o1[2]]: R2 + ' ÷ ' + A2 + ' = ' + trim(R2 / A2, 2) + ' is radius ÷ arc' } },
+    { show: true, name: 'Any size of circle', pic: 'size', vh: 322, dur: 3.8, live: ['tip', 'size'],
+      text: 'Hold the arm at 1 radian and make the circle bigger. The radius grows, so the rod grows with it. A bigger circle is the same shape drawn at a bigger scale, as lesson 1\'s triangles were, so the arc between the same two arms grows in step. Rod and arc grow together, so the count stays at 1.00 on every circle. That is why the angle in radians can be worked out as *arc ÷ radius*. Drag the size handle on the edge.',
+      after: 'Arc and radius are both lengths, so their units cancel. The radian is a unit of angle, as the degree is, but its figure carries no metres.' },
+    { kind: 'pick', name: 'Two circles', pic: 'two', ry: 272,
+      opts: o3, want: o3[2], secret: [rads(1)],
+      task: 'A circle of radius 1 m has an arc of 1 m. A circle of radius 3 m has an arc of 3 m. Which angle at the centre is bigger?',
+      why: 'Each arc is exactly one radius long, `1 m ÷ 1 m = 1` and `3 m ÷ 3 m = 1`, so each angle is 1 radian. The big circle\'s arc is longer only because its radius is longer too.',
+      hint: 'Not quite. Divide each arc by its radius.',
+      hints: { [o3[0]]: 'Not quite. Its arc is 3 times longer, but so is its radius.',
+        [o3[1]]: 'Not quite. Its arc is shorter, but so is its radius. Divide each arc by its radius.' },
+      right: [S1 + ' m ÷ ' + S1 + ' m = ' + rads(S1 / S1), S3 + ' m ÷ ' + S3 + ' m = ' + rads(S3 / S3)],
+      wrong: { [o3[0]]: S3 + ' m arc, but a ' + S3 + ' m radius too', [o3[1]]: 'a short arc, but a short radius too' } },
+    { show: true, name: 'All the way round', pic: 'round', vh: 346, dur: 3.8, live: ['tip', 'size'],
+      text: 'Now lay the rod all the way round. The edge is the circumference, `2πr`, so it holds `2πr ÷ r = 2π` rods, six whole rods and 0.28 of a seventh. A full turn is 360°, so `360° = 2π radians`. Halfway round the count is 3.14, which is π, so `180° = π radians`. One rod\'s slice is `180° ÷ π`, about 57.3°, a little under a sixth of the circle, not the whole circle. Drag the tip of the arm.',
+      after: 'Since `180° = π` radians, 1° is `π ÷ 180` radians. So to turn degrees into radians, multiply by `π ÷ 180`, and to turn radians into degrees, multiply by `180 ÷ π`.' },
+    { kind: 'pick', name: 'A quarter turn', pic: 'quarter', ry: 258,
+      opts: o5, want: o5[0], secret: [o5[0]],
+      task: 'How many radius-lengths fit round a quarter of the circle?',
+      why: 'A full turn holds 2π rods, about 6.28, so a quarter holds `6.28 ÷ 4 = 1.57`. That is π ÷ 2, one whole rod and a little over half another. One radian is only 57.3°, short of the quarter\'s 90°.',
+      hint: 'Not quite. A full turn holds 6.28 radius-lengths.',
+      hints: { [o5[1]]: 'Not quite. That takes a quarter as one radian, but one radian is 57.3°, less than 90°.',
+        [o5[2]]: 'Not quite. That takes the whole circle as one radian. A full turn is 6.28 radians.' },
+      right: ['a full turn holds 2π = ' + fix(TAU, 2) + ' rods', 'a quarter holds ' + fix(TAU, 2) + ' ÷ 4 = ' + o5[0]],
+      wrong: { [o5[1]]: '1 radian is ' + degS(DEG) + ', short of 90°', [o5[2]]: 'that takes the whole turn as 1 radian' } },
+    { show: true, name: 'Degrees and radians', pic: 'modes', vh: 328, dur: 4.4,
+      text: 'Here are the two conversions at work. `60° × π ÷ 180 = 1.047` radians, and 2 radians is `2 × 180 ÷ π = 114.6°`. Exam courses such as SQA Higher take an angle with no degree sign, as in `cos 10`, to be in radians, so the calculator must be in radian mode. The two can be far apart. 10° is a small turn, but 10 radians wraps 1.59 times round and stops at 213.0°, left of the centre and below it. The cosine is the arm\'s shadow across, as in lesson 3, so there it is negative: `cos 10 = −0.839`, against 0.985 for 10°.',
+      after: 'So check the calculator\'s mode whenever an angle comes without a degree sign.' },
+    { kind: 'pick', name: '45° in radians', pic: 'deg45', ry: 258,
+      opts: o7, want: o7[2], secret: [o7[2]],
+      task: 'What is 45° in radians?',
+      why: 'To turn degrees into radians, multiply by `π ÷ 180`. So `45 × π ÷ 180 = 0.785`, which is π ÷ 4, half the quarter turn\'s 1.57. A check on size: a radian is about 57.3°, so the degree figure is about 57.3 times the radian figure.',
+      hint: 'Not quite. Multiply by `π ÷ 180`.',
+      hints: { [o7[0]]: 'Not quite. That multiplies by `180 ÷ π`, the wrong way. Into radians, the figure gets smaller.',
+        [o7[1]]: 'Not quite. Dividing by 180 leaves out π. Multiply by `π ÷ 180`.' },
+      right: [D8 + ' × π ÷ 180 = ' + o7[2] + ' radians'],
+      wrong: { [o7[0]]: D8 + ' × 180 ÷ π = ' + o7[0] + ', the wrong way', [o7[1]]: D8 + ' ÷ 180 = ' + o7[1] + ' leaves out π' } },
+    { show: true, name: 'Arc length', pic: 'winch', vh: 328, dur: 3.9, live: ['tip'],
+      text: 'Each radian of angle holds one radius of edge, so θ radians on a circle of radius `r` hold an arc `s = rθ`, with θ in radians. Say a winch drum of radius 0.2 m turns through 2.5 radians. The wire it winds on lies round its edge, two whole radius-lengths and half of another, so `s = 0.2 × 2.5 = 0.5` m, and the hook rises 0.5 m. Drag the arm on the drum to turn it.',
+      after: 'Check the unit. A radius in metres times an angle in radians gives metres.' },
+    { kind: 'pick', name: 'The arc at 60°', pic: 'arc60', ry: 258,
+      opts: o9, want: o9[1], secret: [fix(R10 * T10, 3)],
+      task: 'A circle has a radius of 0.5 m. How long is the arc between two arms 60° apart?',
+      why: '`s = rθ` needs θ in radians. First `60° × π ÷ 180 = 1.047` radians, then `s = 0.5 × 1.047 = 0.524` m. A check: the whole edge is `2π × 0.5 = 3.14` m, and 60° is a sixth of a turn, so the arc is a sixth of 3.14 m.',
+      hint: 'Not quite. Turn 60° into radians first.',
+      hints: { [o9[0]]: 'Not quite. 60 is in degrees. Turn it into radians first.',
+        [o9[2]]: 'Not quite. That is `θr²`, whose unit is square metres, an area. The arc is `rθ`.' },
+      right: ['60° × π ÷ 180 = ' + fix(T10, 3) + ' radians', 's = ' + R10 + ' × ' + fix(T10, 3) + ' = ' + o9[1]],
+      wrong: { [o9[0]]: [R10 + ' × ' + D10 + ' = ' + o9[0] + ' uses degrees', 'the whole edge is only ' + fix(TAU * R10, 2) + ' m'],
+        [o9[2]]: fix(T10, 3) + ' × ' + R10 + '² = ' + o9[2] + ' m², an area' } },
+    { show: true, name: 'Turning speed', pic: 'shaft', vh: 282, dur: 4.2,
+      text: 'Turning speed is counted the same way. Bird\'s engineering textbook works through a ship\'s drive shaft turning at 400 rev/min, 400 turns a minute. Each turn is 2π radians, so it turns through `400 × 2π` radians a minute, and a minute is 60 seconds. Its *angular speed*, ω, the Greek letter omega, is `400 × 2π ÷ 60 = 41.9` radians a second, written rad/s. A shaft\'s power is its torque times ω, so with Bird\'s torque of 400 kN m it delivers 16.76 MW.',
+      after: 'To turn rev/min into rad/s, multiply by 2π, then divide by 60.' },
+    { kind: 'pick', name: 'No degree sign', pic: 'sin05', ry: 258,
+      opts: o11, want: o11[0], secret: [o11[0]],
+      task: 'An angle is given as 0.5, with no degree sign. What is its sine?',
+      why: 'No degree sign means radians, so the calculator goes in radian mode, and `sin 0.5 = 0.479`. On the picture the arm\'s tip has travelled 0.5 of a radius round the edge, and its height, the sine, is a little less than that arc.',
+      hint: 'Not quite. No degree sign means radians.',
+      hints: { [o11[2]]: 'Not quite. That is `sin 0.5°`, from degrees mode. No degree sign means radians.',
+        [o11[1]]: 'Not quite. 0.5 is the arc the tip has travelled. Its height is a little less.' },
+      right: ['no degree sign: radian mode', 'sin ' + trim(A12, 2) + ' = ' + o11[0]],
+      wrong: { [o11[2]]: 'sin ' + trim(A12, 2) + '° = ' + o11[2] + ' is degrees mode', [o11[1]]: trim(A12, 2) + ' is the arc; the height is less' } },
+    { kind: 'pick', name: 'A motor shaft', pic: 'motor', ry: 226,
+      opts: o12, want: o12[2], secret: [o12[2]],
+      task: 'A motor shaft turns at 1,500 rev/min. What is its angular speed, in rad/s?',
+      why: 'Each turn is 2π radians, so 1,500 turns a minute is `1,500 × 2π = 9,425` radians a minute. A minute is 60 seconds, so `ω = 9,425 ÷ 60 = 157.1` rad/s.',
+      hint: 'Not quite. Multiply by 2π, then divide by 60.',
+      hints: { [o12[0]]: 'Not quite. 25 is turns a second. Each turn is 2π radians.',
+        [o12[1]]: 'Not quite. That is radians a minute. Divide by 60 for each second.' },
+      right: [N13S + ' × 2π = ' + o12[1] + ' radians a minute', '÷ 60: ω = ' + o12[2] + ' rad/s'],
+      wrong: { [o12[0]]: [N13S + ' ÷ 60 = ' + o12[0] + ' turns a second', 'the 2π is left out'], [o12[1]]: [N13S + ' × 2π = ' + o12[1] + ' a minute', 'the ÷ 60 is left out'] } },
+    { kind: 'pick', name: 'A sheave', pic: 'sheave', ry: 262,
+      opts: o13, want: o13[1], secret: [fix(R14 * N14 * TAU, 2)],
+      task: 'A sheave, a grooved wheel, of radius 0.25 m makes 3 full turns. How much rope passes over it?',
+      why: 'Each full turn is 2π radians, so 3 turns are `3 × 2π = 6π` radians. With θ in radians, `s = rθ = 0.25 × 6π = 4.71` m, three times the sheave\'s edge.',
+      hint: 'Not quite. Each turn is 2π radians.',
+      hints: { [o13[0]]: 'Not quite. That takes 3 turns as 3 radians. Each turn is 2π radians.',
+        [o13[2]]: 'Not quite. That puts degrees, `3 × 360 = 1080`, into `s = rθ`. Use radians.' },
+      right: [N14 + ' turns = ' + N14 + ' × 2π = ' + 2 * N14 + 'π radians', 's = ' + R14 + ' × ' + 2 * N14 + 'π = ' + o13[1]],
+      wrong: { [o13[0]]: R14 + ' × ' + N14 + ' = ' + o13[0] + ': ' + N14 + ' turns as ' + N14 + ' radians', [o13[2]]: R14 + ' × ' + N14 * 360 + ' = ' + o13[2] + ' uses degrees' } },
+  ];
+  // A puzzle's picture is as tall as the rows of working it shows now: no empty band before an answer.
+  STEPS.forEach((d) => {
+    if (d.show) return;
+    const mw = Math.max.apply(null, d.opts.filter((o) => o !== d.want).map((o) => [].concat(d.wrong[o]).length));
+    d.vh = d.ry + 24 * (d.right.length + mw - 1) + 12;
+  });
+  function vhOf(d, st) {
+    if (d.show) return d.vh;
+    const n = (ansOf(st) ? d.right.length : 0) + (wrongOf(st) ? [].concat(d.wrong[st.pick]).length : 0);
+    return n ? d.ry + 24 * (n - 1) + 12 : d.ry - 12;
+  }
+  const FINISH = 'A *radian* is the angle whose arc is one radius long, the same on any circle. So an angle in radians is arc ÷ radius, a full turn of 360° is 2π radians, about 6.28, and the arc is `s = rθ`.';
+  const CAP_W = 'The rod is one radius long, so the count of rods round the edge is the angle in radians.';
+  const CAP_Q = 'The arc asked about is marked on the edge.';
+  const CAPS = { wrap1: CAP_W, size: 'Rod and arc grow together, so arc ÷ radius, the count of rods, stays the same on every circle.',
+    round: 'A full turn holds 2π rods, about 6.28, so 360° = 2π radians.',
+    arc4: 'Drawn to scale: a radius of 2 m and an arc of 4 m.', two: 'Drawn to scale, each circle with its own radius and arc.',
+    quarter: CAP_Q, deg45: CAP_Q, modes: 'Degrees × π ÷ 180 gives radians, and radians × 180 ÷ π gives degrees.',
+    winch: 'Example figures: a drum of radius 0.2 m. The wire wound on lies round its edge.', arc60: 'Drawn to scale, on a circle of radius 0.5 m.',
+    shaft: 'Bird\'s worked example of a ship\'s drive shaft. The turning is drawn slowed right down.', sin05: 'The arm is 1 long, so its tip\'s height is the sine.',
+    motor: 'Example figures for a motor shaft.', sheave: 'Example figures: a sheave of radius 0.25 m, drawn to scale.' };
+  // Sources the checks restate (the lesson's own).
+  const SRC = { def: 'https://openstax.org/books/precalculus-2e/pages/5-1-angles',
+    turn: 'https://static.bigideasmath.com/protected/content/pe/hsim/int_math3_pe_08_02.pdf' };
+  const FADE = 0.35, ANS = 1.8;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { chunks(seg).forEach((c, m) => { if (m) node.appendChild(document.createTextNode(' ')); node.appendChild(K.el('span', { class: 'nw' }, c)); }); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) node.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) node.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+  // A formula kept whole where it is short; a long one may wrap before an = sign, or before another
+  // sign once a piece is long enough, so nothing runs off a phone at the largest text size.
+  function chunks(s) {
+    if (s.length <= 18) return [s];
+    const out = [];
+    let cur = '';
+    s.split(' ').forEach((t) => {
+      const eq = t === '=', op = /^[÷×+−]$/.test(t);
+      if (cur && (eq || (op && cur.length >= 14))) { out.push(cur); cur = t; } else cur = cur ? cur + ' ' + t : t;
+    });
+    if (cur) out.push(cur);
+    return out;
+  }
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong', 'empty'), why: a puzzle's answer. th: the arm's angle Dan set by dragging
+  // its tip; r: the circle's size he set with the size handle (null until he drags).
+  function blank() { return { pick: null, res: null, why: false, th: null, r: null }; }
+  const stOf = (o) => Object.assign(blank(), o);
+  const resetLive = (st) => { st.th = null; st.r = null; };
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  const ansOf = (st) => st.res === 'right' || !!st.why;
+  const wrongOf = (st) => st.res === 'wrong' && st.pick != null;
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, MODE = 'demo', motionEnd = 0;
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play('answer', ANS);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+    if (st.why && st.res !== 'right') play('answer', ANS);
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    resetLive(st);
+    play('demo', d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion (and
+  // while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && T !== Infinity) { T = Infinity; paint(); } });
+  // A demonstration waits until most of its picture is in view, so on a phone it does not play out
+  // while Dan is still reading the words above it.
+  let seen = true, waiting = false, waitDur = 0;
+  if (typeof IntersectionObserver === 'function') {
+    seen = false;
+    new IntersectionObserver((es) => {
+      const e = es[es.length - 1];
+      seen = e.isIntersecting && (e.intersectionRatio >= 0.6 || e.intersectionRect.height >= 0.6 * (window.innerHeight || 1));
+      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }
+    }, { threshold: [0, 0.3, 0.6, 0.8, 1] }).observe(el('scene'));
+  }
+  function play(mode, dur) {
+    MODE = mode; waiting = false;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    if (mode === 'demo' && !seen) { waiting = true; waitDur = dur; T = 0; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null, REC = null, VH = 300;
+  const VOID = K.svg('g');
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const when = (m, t, d) => (MODE === m ? arr(t, d) : 1);
+  // A motion from 0 to 1 between t0 and t0 + d of the demonstration (eased), 1 when it is not playing.
+  function mv(t0, d) {
+    if (MODE !== 'demo') return 1;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.ease(K.clamp((T - t0) / d, 0, 1));
+  }
+  const moving = () => MODE === 'demo' && T !== Infinity;
+  // A part fades in at arrival a. A part not yet arrived is still laid out (off the page), so the
+  // labels placed around it never jump when it arrives.
+  function part(a, rise, draw) {
+    const shown = a > 0;
+    const g = shown ? add(K.svg('g')) : VOID;
+    if (shown) K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; if (!shown) VOID.textContent = ''; }
+  }
+  const R = (v) => Math.round(v * 100) / 100;
+  const pt = (q) => R(q[0]) + ' ' + R(q[1]);
+  const poly = (ps, close) => 'M' + ps.map(pt).join(' L') + (close ? ' Z' : '');
+  // Lines and paths, noted (with half their width) so labels keep off them.
+  function lineP(cls, p, q, pad) {
+    add(K.svg('line', { class: cls, x1: R(p[0]), y1: R(p[1]), x2: R(q[0]), y2: R(q[1]) }));
+    if (pad != null) REC.segs.push({ p, q, pad });
+  }
+  function pathP(cls, ps, pad) {
+    add(K.svg('path', { class: cls, d: poly(ps, false) }));
+    if (pad != null) for (let k = 1; k < ps.length; k++) REC.segs.push({ p: ps[k - 1], q: ps[k], pad });
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: R(x), y: R(y), width: R(Math.max(0, w)), height: R(Math.max(0, h)), rx: rx || 0 }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: R(x), y: R(y), 'text-anchor': anchor || 'middle' }, s));
+  const dot = (p, cls, r) => add(K.svg('circle', { class: cls || 'dot', cx: R(p[0]), cy: R(p[1]), r: r || 4 }));
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 8;
+  }
+  // A readout pill against the right edge.
+  function pillR(key, s, y, a) {
+    const w = tw(s, 'pv') + 14, h = 21, cx = 334 - w / 2, aa = a == null ? 1 : a;
+    REC.boxes.push({ x: cx - w / 2, y: y - h / 2, w, h });
+    if (aa >= 0.5) REC.pills[key] = s;
+    if (aa > 0) part(aa, 0, () => { rect('pill', cx - w / 2, y - h / 2, w, h, 10); text(cx, y + 5, s, 'pv'); });
+  }
+  // An arrowhead with its tip at p, pointing along the unit direction u.
+  function arrowHead(p, u, cls) {
+    const s = 9, w = 4.5, b = [p[0] - u[0] * s, p[1] - u[1] * s], n = [-u[1], u[0]];
+    add(K.svg('path', { class: cls || 'head', d: poly([p, [b[0] + n[0] * w, b[1] + n[1] * w], [b[0] - n[0] * w, b[1] - n[1] * w]], true) }));
+    REC.segs.push({ p: b, q: p, pad: 5 });
+  }
+
+  // ---------- labels placed clear of everything drawn ----------
+  function segHits(p, q, b) {
+    let t0 = 0, t1 = 1;
+    const dx = q[0] - p[0], dy = q[1] - p[1];
+    const clip = (pp, qq) => {
+      if (pp === 0) return qq >= 0;
+      const r = qq / pp;
+      if (pp < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+      return true;
+    };
+    return clip(-dx, p[0] - b.x) && clip(dx, b.x + b.w - p[0]) && clip(-dy, p[1] - b.y) && clip(dy, b.y + b.h - p[1]) && t0 <= t1;
+  }
+  // Is a box clear of the edges, the floor, the labels placed so far, the handles and the lines? Soft
+  // lines (axes, dashed guides) may be covered by a label on a backing when nothing else fits.
+  function fits(b, pill, strict) {
+    if (b.x < 3 || b.x + b.w > 337 || b.y < 2 || b.y + b.h > Math.min(VH, REC.floor) - 2) return false;
+    if (REC.boxes.some((o) => o.x < b.x + b.w + 3 && b.x < o.x + o.w + 3 && o.y < b.y + b.h + 2 && b.y < o.y + o.h + 2)) return false;
+    if (REC.handles.some((hd) => Math.hypot(K.clamp(hd.x, b.x, b.x + b.w) - hd.x, K.clamp(hd.y, b.y, b.y + b.h) - hd.y) < 14)) return false;
+    const hit = (g) => segHits(g.p, g.q, { x: b.x - g.pad - 1.5, y: b.y - g.pad - 1.5, w: b.w + 2 * g.pad + 3, h: b.h + 2 * g.pad + 3 });
+    if (REC.segs.some(hit)) return false;
+    if (strict && !pill && REC.soft.some(hit)) return false;
+    return true;
+  }
+  // A plain label at the first candidate clear of every line; failing that, at the first one clear of
+  // the hard lines, on a small backing of the page colour over a soft one. None when there is no room.
+  function plainLab(s, cls, candsOf, a, inside) {
+    const w = tw(s, cls), h = 14, cands = candsOf(w, h);
+    const ok = (c, strict) => { const b = { x: c[0] - w / 2, y: c[1] - h / 2, w, h }; return (!inside || inside(b)) && fits(b, !strict, strict); };
+    let c = cands.find((q) => ok(q, true)) || null, back = false;
+    if (!c) { c = cands.find((q) => ok(q, false)) || null; back = !!c; }
+    if (!c) return null;
+    const aa = a == null ? 1 : a;
+    REC.boxes.push({ x: c[0] - w / 2 - (back ? 3 : 0), y: c[1] - h / 2, w: w + (back ? 6 : 0), h });
+    if (aa >= 0.5) REC.labs.push(s);
+    if (aa > 0) part(aa, 0, () => { if (back) rect('lbg', c[0] - w / 2 - 3, c[1] - h / 2 - 1, w + 6, h + 2, 4); text(c[0], c[1] + 5, s, cls); });
+    return c;
+  }
+  // A label beside a segment, on the side away from a point when it can.
+  function segLab(p, q, s, away, a, cls, onLine) {
+    cls = cls || 'al';
+    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1;
+    let n = [-dy / L, dx / L];
+    if (away) { const m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2]; if ((away[0] - m[0]) * n[0] + (away[1] - m[1]) * n[1] > 0) n = [-n[0], -n[1]]; }
+    return plainLab(s, cls, (w, h) => {
+      const out = [];
+      [n, [-n[0], -n[1]]].forEach((nn) => [0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.8, 0.1, 0.9].forEach((f) => [6, 14, 24, 34].forEach((e) => {
+        const d = e + Math.abs(nn[0]) * w / 2 + Math.abs(nn[1]) * h / 2;
+        out.push([p[0] + dx * f + nn[0] * d, p[1] + dy * f + nn[1] * d]);
+      })));
+      if (onLine) [0.5, 0.6, 0.4, 0.7].forEach((f) => out.push([p[0] + dx * f, p[1] + dy * f]));
+      return out;
+    }, a);
+  }
+  // A label beside a point in direction dir (degrees, anticlockwise from pointing right) when it can.
+  function cornerLab(V, s, dir, a, cls) {
+    return plainLab(s, cls || 'al', (w, h) => {
+      const out = [];
+      [0, 25, -25, 50, -50, 80, -80, 115, -115, 150, -150, 180].forEach((dt) => [10, 18, 28].forEach((e) => {
+        const u = [cosD(dir + dt), -sinD(dir + dt)], d = e + Math.abs(u[0]) * w / 2 + Math.abs(u[1]) * h / 2;
+        out.push([V[0] + u[0] * d, V[1] + u[1] * d]);
+      }));
+      return out;
+    }, a);
+  }
+  // A label just outside the edge of a circle, near the angle m (radians).
+  function outLab(C, r, m, s, cls, a) {
+    return plainLab(s, cls, (w, h) => {
+      const c = [];
+      [0, 0.07, -0.07, 0.14, -0.14, 0.22, -0.22, 0.32, -0.32].forEach((da) => [7, 13, 20, 28].forEach((e) => {
+        const t = m + da, u = [Math.cos(t), -Math.sin(t)], d = r + 3.5 + e + Math.abs(u[0]) * w / 2 + Math.abs(u[1]) * h / 2;
+        c.push([C[0] + u[0] * d, C[1] + u[1] * d]);
+      }));
+      return c;
+    }, a);
+  }
+  // An angle's arc at corner V from a0 to a1 (degrees, anticlockwise), its label inside the wedge
+  // beyond the arc, left off when the wedge has no room for it.
+  function inWedgeAt(V, a0, a1, pad) {
+    return (b) => [[b.x, b.y], [b.x + b.w, b.y], [b.x, b.y + b.h], [b.x + b.w, b.y + b.h]].every((q) => {
+      const dx = q[0] - V[0], dy = V[1] - q[1], r = Math.hypot(dx, dy);
+      if (r < pad + 1) return false;
+      let p = Math.atan2(dy, dx) / RAD;
+      while (p < a0) p += 360;
+      while (p >= a0 + 360) p -= 360;
+      const m = Math.asin(Math.min(1, pad / r)) / RAD;
+      return p >= a0 + m && p <= a1 - m;
+    });
+  }
+  function arcPathAt(V, a0, a1, r) {
+    const p0 = [V[0] + r * cosD(a0), V[1] - r * sinD(a0)], p1 = [V[0] + r * cosD(a1), V[1] - r * sinD(a1)];
+    return 'M' + pt(p0) + ' A' + r + ' ' + r + ' 0 ' + (a1 - a0 > 180 ? 1 : 0) + ' 0 ' + pt(p1);
+  }
+  function arcAt(V, a0, a1, ra, a, cls) {
+    if (!(a1 - a0 > 0.5)) return;
+    const aa = a == null ? 1 : a, n = Math.max(2, Math.ceil((a1 - a0) / 8));
+    for (let k = 0; k < n; k++) {
+      const t0 = a0 + (a1 - a0) * k / n, t1 = a0 + (a1 - a0) * (k + 1) / n;
+      REC.segs.push({ p: [V[0] + ra * cosD(t0), V[1] - ra * sinD(t0)], q: [V[0] + ra * cosD(t1), V[1] - ra * sinD(t1)], pad: 1 });
+    }
+    if (aa > 0) part(aa, 0, () => add(K.svg('path', { class: cls || 'arc', d: arcPathAt(V, a0, a1, ra) })));
+  }
+  function wedgeLab(V, a0, a1, s, a, ra, maxD, cls) {
+    if (!(a1 - a0 > 0.5) || !s) return null;
+    cls = cls || 'al';
+    const w = tw(s, cls), span = a1 - a0, cands = [], top = maxD || 230;
+    for (let dd = ra + Math.hypot(w / 2, 7) + 4; dd < top; dd += 3) [0.5, 0.36, 0.64, 0.24, 0.76].forEach((f) => { const t = a0 + span * f; cands.push([V[0] + cosD(t) * dd, V[1] - sinD(t) * dd]); });
+    return plainLab(s, cls, () => cands, a, inWedgeAt(V, a0, a1, 3));
+  }
+  // A right angle's square at V between unit directions u1 and u2.
+  function square(V, u1, u2, a, s) {
+    s = s || 10;
+    const p1 = [V[0] + u1[0] * s, V[1] + u1[1] * s], p3 = [V[0] + u2[0] * s, V[1] + u2[1] * s], p2 = [p1[0] + u2[0] * s, p1[1] + u2[1] * s];
+    part(a == null ? 1 : a, 0, () => pathP('mk', [p1, p2, p3], 1));
+  }
+  // ---------- rows of working under the picture ----------
+  function drawRows(y0, rows) {
+    rows.forEach((r, m) => {
+      const y = y0 + 24 * m, w = tw(r.s, 'te');
+      REC.boxes.push({ x: 12, y: y - 11, w, h: 14 });
+      if (r.a > 0) part(r.a, 4, () => { if (r.hl) rect('hlbg', 7, y - 15, w + 10, 21, 4); text(12, y, r.s, 'te' + (r.bad ? ' bad' : ''), 'start'); });
+    });
+    REC.rows = rows.filter((r) => r.a >= 0.5).map((r) => ({ s: r.s, bad: !!r.bad }));
+  }
+  function puzzleRows(d, st, y0) {
+    const an = (t) => when('answer', t), list = [], ok = ansOf(st);
+    if (ok) d.right.forEach((s, m) => list.push({ s, a: an(0.4 + 0.2 * m) }));
+    if (wrongOf(st)) [].concat(d.wrong[st.pick]).forEach((s, m) => list.push({ s, a: an((ok ? 0.4 + 0.2 * d.right.length : 0.3) + 0.2 * m), bad: true }));
+    drawRows(y0, list);
+  }
+
+  // ---------- the circle, the arms and the rod ----------
+  // The circle's edge, noted so labels keep off it.
+  function edge(C, r, cls) {
+    part(1, 0, () => add(K.svg('circle', { class: cls || 'edge', cx: R(C[0]), cy: R(C[1]), r: R(r) })));
+    const n = 64;
+    for (let k = 0; k < n; k++) REC.segs.push({ p: pE(C, r, TAU * k / n), q: pE(C, r, TAU * (k + 1) / n), pad: 1 });
+  }
+  // The angle's small arc at the centre, a whole ring once the arm has gone all the way round.
+  function centreArc(C, th, ra, a) {
+    const span = th * DEG;
+    if (!(span > 0.5)) return;
+    if (span >= 359.9) {
+      for (let k = 0; k < 36; k++) REC.segs.push({ p: pE(C, ra, TAU * k / 36), q: pE(C, ra, TAU * (k + 1) / 36), pad: 1 });
+      part(a == null ? 1 : a, 0, () => add(K.svg('circle', { class: 'arc', cx: R(C[0]), cy: R(C[1]), r: ra })));
+      return;
+    }
+    arcAt(C, 0, span, ra, a);
+  }
+  // The arc asked about in a puzzle, marked in amber along the edge.
+  function askArc(C, r, a0, a1, a) {
+    const n = Math.max(2, Math.ceil((a1 - a0) / 0.03)), ps = [];
+    for (let k = 0; k <= n; k++) ps.push(pE(C, r, a0 + (a1 - a0) * k / n));
+    const m = Math.max(1, Math.ceil((a1 - a0) / 0.1));
+    for (let k = 0; k < m; k++) REC.segs.push({ p: pE(C, r, a0 + (a1 - a0) * k / m), q: pE(C, r, a0 + (a1 - a0) * (k + 1) / m), pad: 5 });
+    part(a, 0, () => add(K.svg('path', { class: 'ask', d: poly(ps) })));
+  }
+  // The rod laid round the edge from where the arm starts (angle 0) to `laid` radians: one radius-length
+  // after another, with a joint between whole rods and a tick at each end.
+  function rodLines(C, r, laid, a) {
+    if (!(laid > 1e-4)) return null;
+    const n = Math.max(2, Math.ceil(laid / 0.02)), ps = [];
+    for (let k = 0; k <= n; k++) ps.push(pE(C, r, laid * k / n));
+    const m = Math.max(1, Math.ceil(laid / 0.1));
+    for (let k = 0; k < m; k++) REC.segs.push({ p: pE(C, r, laid * k / m), q: pE(C, r, laid * (k + 1) / m), pad: 6 });
+    const whole = Math.floor(laid + 1e-6), J = [];
+    for (let k = 1; k <= whole; k++) if (k < laid - 1e-3) J.push(k);
+    [0, laid].forEach((t) => REC.segs.push({ p: pE(C, r - 8, t), q: pE(C, r + 8, t), pad: 1 }));
+    part(a == null ? 1 : a, 0, () => {
+      add(K.svg('path', { class: 'rod', d: poly(ps) }));
+      add(K.svg('path', { class: 'rodc', d: poly(ps) }));
+      J.forEach((k) => { const p = pE(C, r - 6, k), q = pE(C, r + 6, k); add(K.svg('line', { class: 'joint', x1: R(p[0]), y1: R(p[1]), x2: R(q[0]), y2: R(q[1]) })); });
+      [0, laid].forEach((t) => { const p = pE(C, r - 8, t), q = pE(C, r + 8, t); add(K.svg('line', { class: 'etick', x1: R(p[0]), y1: R(p[1]), x2: R(q[0]), y2: R(q[1]) })); });
+    });
+    REC.rods.push({ C, r, laid, ps, joints: J });
+    return ps;
+  }
+  // Each whole rod numbered 1, 2, 3 just outside the edge; the part left over labelled with its fraction.
+  function rodLabels(C, r, laid, a, dp) {
+    const out = [], aa = a == null ? 1 : a;
+    if (!(laid > 1e-4)) return out;
+    const whole = Math.floor(laid + 1e-6), f = laid - whole;
+    const one = (m, s) => { if (outLab(C, r, m, s, 'rn', aa) && aa >= 0.5) out.push(s); };
+    for (let k = 1; k <= whole; k++) one(k - 0.5, String(k));
+    if (f >= 0.005) one(whole + f / 2, trim(f, dp == null ? 2 : dp));
+    return out;
+  }
+  // The rod lifted off the arm: lying on the arm (u = 0), swung up to stand on the edge where the arm
+  // starts (u = 1), then bent round the edge (v from 0 to 1) without stretching. In the arm's own
+  // frame its start is at (u r, 0), it sets off at u × 90°, and it curves by v ÷ r per unit length.
+  function liftRod(C, r, u, v) {
+    const k = v / r, x0 = u * r, f0 = u * PI / 2, n = 40, ps = [];
+    for (let i = 0; i <= n; i++) {
+      const s = r * i / n;
+      let X, Y;
+      if (k < 1e-9) { X = x0 + s * Math.cos(f0); Y = s * Math.sin(f0); }
+      else { X = x0 + (Math.sin(f0 + k * s) - Math.sin(f0)) / k; Y = -(Math.cos(f0 + k * s) - Math.cos(f0)) / k; }
+      ps.push([C[0] + X, C[1] - Y]);
+    }
+    for (let i = 0; i < n; i += 4) REC.segs.push({ p: ps[i], q: ps[Math.min(n, i + 4)], pad: 6 });
+    part(1, 0, () => { add(K.svg('path', { class: 'rod', d: poly(ps) })); add(K.svg('path', { class: 'rodc', d: poly(ps) })); });
+    REC.lift = { ps };
+  }
+  const sectorPath = (C, r, a0, a1) => { const p0 = pE(C, r, a0), p1 = pE(C, r, a1); return 'M' + pt(C) + ' L' + pt(p0) + ' A' + R(r) + ' ' + R(r) + ' 0 ' + (a1 - a0 > PI ? 1 : 0) + ' 0 ' + pt(p1) + ' Z'; };
+  // A curved arrow for turning, anticlockwise from a0 to a1 (radians) at radius rr.
+  function turnArrow(C, rr, a0, a1, a) {
+    const n = Math.max(2, Math.ceil((a1 - a0) / 0.06)), ps = [];
+    for (let k = 0; k <= n; k++) ps.push(pE(C, rr, a0 + (a1 - a0) * k / n));
+    const u = [-Math.sin(a1), -Math.cos(a1)];
+    part(a == null ? 1 : a, 0, () => { pathP('turn', ps.slice(0, n), 1); arrowHead(ps[n], u, 'head'); });
+  }
+
+  // The main picture: lesson 3's arm on a circle that can be resized, with the rod laid round the edge.
+  const WC = [158, 146], RMIN = 44, RMAX = 98, R0 = 80, SZA = -0.72, WFLOOR = 286;
+  const SNAPS = [1, 2, 3, 4, 5, 6, PI / 2, PI, TAU];
+  function rodKey(y) {
+    const s = 'rod: one radius long', w = tw(s, 'key');
+    REC.boxes.push({ x: 10, y: y - 12, w: 40 + w, h: 17 });
+    part(1, 0, () => { add(K.svg('line', { class: 'rod', x1: 14, y1: y - 4, x2: 38, y2: y - 4 })); add(K.svg('line', { class: 'rodc', x1: 14, y1: y - 4, x2: 38, y2: y - 4 })); text(46, y + 1, s, 'key', 'start'); });
+  }
+  // The size handle sits on the edge below the starting arm; dragging it in or out shrinks or grows the circle.
+  function sizeHandle(C, r) {
+    const P = pE(C, r, SZA), p1 = pE(C, r - 20, SZA), p2 = pE(C, r + 20, SZA), u = [Math.cos(SZA), -Math.sin(SZA)];
+    REC.segs.push({ p: p1, q: p2, pad: 5 });
+    part(1, 0, () => {
+      add(K.svg('line', { class: 'sarrow', x1: R(p1[0]), y1: R(p1[1]), x2: R(p2[0]), y2: R(p2[1]) }));
+      arrowHead(p2, u, 'shead'); arrowHead(p1, [-u[0], -u[1]], 'shead');
+      dot(P, 'sknob', 8);
+    });
+    REC.handles.push({ id: 'size', x: P[0], y: P[1] });
+  }
+  function sizeLab(C, r) {
+    return plainLab('size', 'key', (w, h) => {
+      const c = [];
+      [0, 0.2, -0.2, 0.4, -0.4].forEach((da) => [6, 14, 24].forEach((e) => {
+        const t = SZA + da, u = [Math.cos(t), -Math.sin(t)], dd = r + 20 + e + Math.abs(u[0]) * w / 2 + Math.abs(u[1]) * h / 2;
+        c.push([C[0] + u[0] * dd, C[1] + u[1] * dd]);
+      }));
+      return c;
+    }, 1);
+  }
+  // "1 radian", "2 radians" in the wedge while the arm stands at a whole number of rods.
+  function countLab(C, r, th) {
+    const n = Math.round(th);
+    if (n < 1 || n > 6) return null;
+    const close = Math.abs(th - n);
+    const a = moving() ? K.clamp(1 - close / 0.05, 0, 1) : (close < 0.005 ? 1 : 0);
+    if (!(a > 0)) return null;
+    const s = radLab(n);
+    return wedgeLab(C, 0, th * DEG, s, a, 18, r + 50) && a >= 0.5 ? s : null;
+  }
+  // o: lift {u, v}, laid (how far the rod is laid, radians), sizeH, pill, key, count, half (arrival of
+  // the half-turn mark), slice (arrival of one rod's slice).
+  function wrapScene(th, r, o) {
+    const C = WC, tip = pE(C, r, th), E0 = pE(C, r, 0), laid = o.laid == null ? th : o.laid;
+    REC.floor = WFLOOR; REC.pivot = C; REC.th = th; REC.r = r; REC.range = [0, TAU]; REC.tipStep = 0.01;
+    REC.wrap = { C, r, th, tip, E0, laid };
+    if (o.pill) pillR('read', readS(th), 18);
+    if (o.key) rodKey(WFLOOR - 4);
+    edge(C, r);
+    const sl = o.slice > 0 && laid >= 1 - 1e-9 ? o.slice : 0;
+    if (sl > 0) {
+      part(sl, 0, () => add(K.svg('path', { class: 'slice', d: sectorPath(C, r, 0, 1) })));
+      REC.segs.push({ p: C, q: pE(C, r, 1), pad: 1 });
+    }
+    if (o.lift) liftRod(C, r, o.lift.u, o.lift.v); else rodLines(C, r, laid, 1);
+    const half = o.half || 0;
+    if (half > 0) {
+      const H = pE(C, r, PI);
+      part(half, 0, () => add(K.svg('line', { class: 'ghost', x1: R(C[0]), y1: R(C[1]), x2: R(H[0]), y2: R(H[1]) })));
+      REC.segs.push({ p: C, q: H, pad: 1.5 });
+    }
+    part(1, 0, () => { lineP('arm0', C, E0, 2); lineP('arm', C, tip, 3); });
+    centreArc(C, th, 16, 1);
+    part(1, 0, () => { dot(C, 'pin', 5); dot(tip, 'knob', 9); });
+    REC.handles.push({ id: 'tip', x: tip[0], y: tip[1] });
+    if (o.sizeH) sizeHandle(C, r);
+    // Labels, the most important first.
+    REC.count = o.count ? countLab(C, r, th) : null;
+    REC.sliceLab = sl > 0 && wedgeLab(C, 0, DEG, degS(DEG), sl, 18, r + 40) && sl >= 0.5 ? degS(DEG) : null;
+    REC.rodLabs = o.lift ? [] : rodLabels(C, r, laid, 1, 2);
+    if (half > 0) plainLab('half turn', 'key', (w, h) => [[C[0] - r / 2, C[1] - 12], [C[0] - r / 2, C[1] + 13], [C[0] - r - 12 - w / 2, C[1]],
+      [C[0] - r - 12 - w / 2, C[1] - 18], [C[0] - r - 12 - w / 2, C[1] + 18], [C[0] - r / 2 - 14, C[1] - 12], [C[0] - r / 2 - 14, C[1] + 13]], half);
+    segLab(C, E0, 'radius', tip, 1, 'key');
+    if (o.sizeH) sizeLab(C, r);
+  }
+  function rodWords(laid) {
+    const whole = Math.floor(laid + 1e-6), f = laid - whole;
+    if (!(laid > 1e-4)) return 'no rod laid yet';
+    return whole + ' whole radius-length' + (whole === 1 ? '' : 's') + (f >= 0.005 ? ' and ' + trim(f, 2) + ' of another' : '');
+  }
+  const describeWrap = (th, laid) => 'A circle with lesson 3\'s arm turned anticlockwise ' + radS(th) + ' radians, ' + fix(th * DEG, 1) +
+    ' degrees, from where it started, pointing right. A bendy rod one radius long is laid round the edge from the start: ' + rodWords(laid) + '. A size handle on the edge grows or shrinks the circle.';
+
+  // ---------- puzzle pictures: a circle with two arms, the arc asked about marked in amber ----------
+  const PC = [150, 116], PR = 84, PFL = 236;
+  // o: ask (the amber arc), rods (arrival of the rod laid along it), square (a right angle at the centre),
+  // wedge {s, a}, arcLab {s, a}, radius (its label), dp (places for the rod's leftover).
+  function puzzleWheel(C, r, th, o) {
+    const tip = pE(C, r, th), E0 = pE(C, r, 0);
+    edge(C, r);
+    if (o.ask) askArc(C, r, 0, th, 1);
+    if (o.rods > 0) rodLines(C, r, th, o.rods);
+    part(1, 0, () => { lineP('arm0', C, E0, 2); lineP('arm', C, tip, 3); });
+    if (o.square) square(C, [1, 0], [0, -1], 1, 12); else centreArc(C, th, 18, 1);
+    part(1, 0, () => { dot(C, 'pin', 5); dot(tip, 'dot', 4.5); });
+    const got = { C, r, th, tip, E0 };
+    if (o.wedge) got.wedge = wedgeLab(C, 0, th * DEG, o.wedge.s, o.wedge.a, 18, r + 50) ||
+      plainLab(o.wedge.s, 'al', (w) => [[C[0] - 14 - w / 2, C[1] - 14], [C[0] - 14 - w / 2, C[1] + 16], [C[0] - r - 10 - w / 2, C[1]], [C[0], C[1] + r + 18]], o.wedge.a);
+    if (o.arcLab) got.arc = outLab(C, r, th / 2, o.arcLab.s, 'al', o.arcLab.a);
+    if (o.rods > 0) got.rods = rodLabels(C, r, th, o.rods, o.dp);
+    if (o.radius) got.radius = segLab(C, E0, o.radius, tip, 1, 'al');
+    return got;
+  }
+
+  // ---------- the other pictures ----------
+  const MC = [172, 112], MR = 66;                 // 10° against 10 radians
+  const DC = [100, 80], DR = 44, HOOK0 = 236;     // the winch drum and where its hook starts
+  const SC = [112, 98], SR = 62;                  // a shaft's end
+  const HC = [150, 92], HR = 60, HY = 222;        // the sheave and where its rope hangs to
+
+  const PIC = {
+    wrap1(d, st) {
+      const r = st.r != null ? st.r : R0;
+      const u = mv(0.4, 0.7), v = mv(1.1, 0.7), m1 = mv(1.9, 0.7), m2 = mv(3.3, 0.7);
+      const th = st.th != null ? st.th : m1 + m2;
+      const lift = st.th == null && st.r == null && v < 1 ? { u, v } : null;
+      const laid = st.th != null ? th : Math.max(th, 1);
+      wrapScene(th, r, { lift, laid, sizeH: true, pill: true, key: true, count: true });
+      drawRows(WFLOOR + 24, []);
+      return lift ? 'A circle with lesson 3\'s arm pointing right. A copy of the arm, a bendy rod one radius long, is lifted off and bent round the edge from where the arm starts.' : describeWrap(th, laid);
+    },
+    arc4(d, st) {
+      const ok = ansOf(st), ra = ok ? when('answer', 0.3) : 0;
+      REC.floor = PFL;
+      puzzleWheel(PC, 70, A2 / R2, { ask: 1, rods: ra, wedge: { s: ok ? o1[1] : '?', a: ok ? ra : 1 }, arcLab: { s: 'arc ' + A2 + ' m', a: 1 }, radius: R2 + ' m', dp: 2 });
+      puzzleRows(d, st, d.ry);
+      return 'A circle of radius 2 metres drawn to scale, with an arc 4 metres long between two arms. The angle at the centre is ' + (ok ? '2 radians: the arc holds two radius-lengths.' : 'asked for.');
+    },
+    size(d, st) {
+      const dm = (t) => when('demo', t), th = st.th != null ? st.th : 1;
+      const r = st.r != null ? st.r : R0 - (R0 - 46) * mv(0.4, 0.9) + (RMAX - 46) * mv(1.5, 1.4);
+      wrapScene(th, r, { sizeH: true, pill: true, key: true, count: true });
+      drawRows(WFLOOR + 24, [{ s: 'angle in radians = arc ÷ radius', a: dm(3.1), hl: true }]);
+      return describeWrap(th, th) + ' However big the circle, the count of rods stays the same.';
+    },
+    two(d, st) {
+      const ok = ansOf(st), ra = ok ? when('answer', 0.3) : 0, ws = ok ? rads(1) : '?', wa = ok ? ra : 1;
+      REC.floor = 250;
+      REC.two = [
+        puzzleWheel([84, 50], 24, S1 / S1, { ask: 1, rods: ra, wedge: { s: ws, a: wa }, arcLab: { s: 'arc ' + S1 + ' m', a: 1 }, radius: S1 + ' m', dp: 2 }),
+        puzzleWheel([176, 164], 72, S3 / S3, { ask: 1, rods: ra, wedge: { s: ws, a: wa }, arcLab: { s: 'arc ' + S3 + ' m', a: 1 }, radius: S3 + ' m', dp: 2 }),
+      ];
+      puzzleRows(d, st, d.ry);
+      return 'Two circles drawn to scale: above, radius 1 metre with an arc of 1 metre; below, radius 3 metres with an arc of 3 metres.' + (ok ? ' Each angle at the centre is 1 radian.' : ' Which angle at the centre is bigger?');
+    },
+    round(d, st) {
+      const dm = (t) => when('demo', t), r = st.r != null ? st.r : R0;
+      const th = st.th != null ? st.th : TAU * mv(0.4, 2.6);
+      const still = st.th != null || !moving();
+      const half = still ? 1 : K.clamp((th - PI + 0.3) / 0.3, 0, 1);
+      const sl = st.th != null ? (th >= 1 - 1e-9 ? 1 : 0) : dm(3.1);
+      wrapScene(th, r, { sizeH: true, pill: true, key: true, half, slice: sl });
+      drawRows(WFLOOR + 24, [{ s: 'half turn: ' + fix(PI, 2) + ' radians = π = ' + trim(PI * DEG, 1) + '°', a: dm(1.8) },
+        { s: 'full turn: ' + fix(TAU, 2) + ' radians = 2π = ' + trim(TAU * DEG, 1) + '°', a: dm(3.0) }]);
+      return describeWrap(th, th) + ' A dashed line marks the half turn, and one rod\'s slice of the circle, ' + degS(DEG).replace('°', ' degrees') + ', is shaded.';
+    },
+    quarter(d, st) {
+      const ok = ansOf(st), ra = ok ? when('answer', 0.3) : 0;
+      REC.floor = PFL;
+      puzzleWheel(PC, PR, QT, { ask: 1, rods: ra, square: true, arcLab: ok ? null : { s: '?', a: 1 }, dp: 2 });
+      puzzleRows(d, st, d.ry);
+      return 'A circle with two arms at a right angle, a quarter of a turn, the arc between them marked on the edge.' + (ok ? ' Round it lie one whole rod and 0.57 of another: 1.57 radius-lengths.' : '');
+    },
+    modes(d, st) {
+      const dm = (t) => when('demo', t), f = M10 * mv(1.8, 1.6), a1 = dm(1.3), a2 = dm(1.8), a3 = dm(3.4);
+      REC.floor = 224;
+      const C = MC, r = MR, t10 = pE(C, r, 10 * RAD), tf = pE(C, r, f), c1 = dm(0.4), c2 = dm(0.9), t60 = pE(C, r, C60), t2 = pE(C, r, 2);
+      edge(C, r);
+      part(c1, 0, () => lineP('carm', C, t60, 2));
+      part(c2, 0, () => lineP('carm', C, t2, 2));
+      // The 10-radian arm's path, drawn outside the edge so its loops never cross.
+      const pr = (x) => r + 8 + 12 * x / TAU;
+      if (f > 0.02) {
+        const n = Math.max(2, Math.ceil(f / 0.05)), ps = [];
+        for (let k = 0; k <= n; k++) ps.push(pE(C, pr(f * k / n), f * k / n));
+        const rr = pr(f), dr = 12 / TAU, tg = [dr * Math.cos(f) - rr * Math.sin(f), -(dr * Math.sin(f) + rr * Math.cos(f))], tl = Math.hypot(tg[0], tg[1]);
+        part(a2, 0, () => { pathP('path', ps.slice(0, Math.max(2, n - 1)), 1); arrowHead(ps[n], [tg[0] / tl, tg[1] / tl], 'headm'); });
+      }
+      part(a1, 0, () => lineP('arm', C, t10, 3));
+      part(a2, 0, () => lineP('arm10', C, tf, 2.5));
+      arcAt(C, 0, 10, 24, a1);
+      part(1, 0, () => dot(C, 'pin', 5));
+      const pathEnd = pE(C, pr(f), f);
+      const L10 = cornerLab(t10, '10°', 10, a1, 'al');
+      const LR = cornerLab(tf, '10 radians', f * DEG, a3, 'al');
+      const LT = plainLab(fix(turns10, 2) + ' turns', 'al', (w, h) => {
+        const c = [];
+        [0, 0.1, -0.1, 0.2, -0.2, 0.35, -0.35].forEach((da) => [8, 16, 26].forEach((e) => {
+          const t = f + da, u = [Math.cos(t), -Math.sin(t)], dd = pr(f) + 4 + e + Math.abs(u[0]) * w / 2 + Math.abs(u[1]) * h / 2;
+          c.push([C[0] + u[0] * dd, C[1] + u[1] * dd]);
+        }));
+        return c;
+      }, a3);
+      segLab(C, t60, '60°', t2, c1, 'key');
+      segLab(C, t2, '2 radians', t60, c2, 'key');
+      REC.modes = { C, r, tip10d: t10, tip10r: tf, turns: f / TAU, pathEnd, labs: [L10 && '10°', LR && '10 radians', LT && fix(turns10, 2) + ' turns'] };
+      drawRows(244, [{ s: '60° × π ÷ 180 = ' + fix(C60, 3) + ' radians', a: dm(0.4) }, { s: '2 radians × 180 ÷ π = ' + degS(C2), a: dm(0.9) },
+        { s: '10 radians stops at ' + degS(stop10), a: dm(3.5) }, { s: 'cos 10 = ' + fix(Math.cos(M10), 3) + ', but cos 10° = ' + fix(cosD(M10), 3), a: dm(3.8) }]);
+      return 'One circle with arms from the start, pointing right. Two thin arms mark the conversions: 60 degrees, 1.047 radians, and 2 radians, 114.6 degrees. A solid arm turned 10 degrees, a small turn. A dashed arm turned 10 radians, ' +
+        'whose path wraps 1.59 times round outside the edge and stops at 213.0 degrees, left of the centre and below it. Rows give the conversions and the two cosines.';
+    },
+    deg45(d, st) {
+      const ok = ansOf(st), ra = ok ? when('answer', 0.3) : 0;
+      REC.floor = PFL;
+      puzzleWheel(PC, PR, D8 * RAD, { ask: 1, rods: ra, wedge: { s: D8 + '°', a: 1 }, arcLab: ok ? null : { s: '?', a: 1 }, dp: 3 });
+      puzzleRows(d, st, d.ry);
+      return 'A circle with two arms 45 degrees apart, the arc between them marked on the edge.' + (ok ? ' It holds 0.785 of a radius-length.' : ' How many radians is that?');
+    },
+    winch(d, st) {
+      const dm = (t) => when('demo', t), th = st.th != null ? st.th : WT * mv(0.5, 2.2);
+      const C = DC, r = DR, tip = pE(C, r, th), E0 = pE(C, r, 0), rise = r * th, hy = HOOK0 - rise, BX = E0[0] + 44;
+      REC.floor = 270; REC.pivot = C; REC.th = th; REC.r = r; REC.range = [0, 3]; REC.tipStep = 0.1;
+      edge(C, r, 'drum');
+      const ps = rodLines(C, r, th, 1);
+      // The free wire hangs from where the arm starts down to the hook; the dashed line is where the hook started.
+      part(1, 0, () => {
+        add(K.svg('line', { class: 'cline', x1: R(E0[0] - 26), y1: HOOK0, x2: R(BX + 6), y2: HOOK0 }));
+        lineP('wire', E0, [E0[0], hy], 1.5);
+        rect('weight', E0[0] - 13, hy, 26, 18, 3);
+      });
+      REC.soft.push({ p: [E0[0] - 26, HOOK0], q: [BX + 6, HOOK0], pad: 1 });
+      REC.boxes.push({ x: E0[0] - 15, y: hy - 1, w: 30, h: 21 });
+      const showB = rise > 3;
+      if (showB) part(1, 0, () => pathP('brk', [[BX - 5, HOOK0], [BX, HOOK0], [BX, hy], [BX - 5, hy]], 1));
+      part(1, 0, () => { lineP('arm0', C, E0, 2); lineP('arm', C, tip, 3); });
+      centreArc(C, th, 13, 1);
+      part(1, 0, () => { dot(C, 'pin', 5); dot(tip, 'knob', 9); });
+      REC.handles.push({ id: 'tip', x: tip[0], y: tip[1] });
+      const riseS = trim(WR * th, 3) + ' m';
+      const rl = showB ? plainLab(riseS, 'al', (w) => { const m = (HOOK0 + hy) / 2; return [[BX + 8 + w / 2, m], [BX + 8 + w / 2, m - 16], [BX + 8 + w / 2, m + 16], [BX + 8 + w / 2, hy + 8]]; }, 1) : null;
+      const rodLabs = rodLabels(C, r, th, 1, 2);
+      plainLab('start', 'key', (w) => [[E0[0] - 30 - w / 2, HOOK0], [E0[0] - 30 - w / 2, HOOK0 + 14], [E0[0] - 30 - w / 2, HOOK0 - 14]], 1);
+      segLab(C, E0, WR + ' m', tip, 1, 'al');
+      REC.winch = { C, r, ps, rise, hy, th, riseLab: rl ? riseS : null, rodLabs };
+      drawRows(292, [{ s: 'θ radians hold θ rods, so s = rθ', a: dm(2.9), hl: true }, { s: 's = ' + WR + ' × ' + trim(th, 2) + ' = ' + riseS, a: dm(3.3) }]);
+      return 'A winch drum of radius 0.2 metres, turned ' + trim(th, 2) + ' radians. The wire it has wound on lies round its edge, ' + rodWords(th) +
+        ', and the hook below has risen ' + riseS.replace(' m', ' metres') + ' from where it started.';
+    },
+    arc60(d, st) {
+      const ok = ansOf(st), ra = ok ? when('answer', 0.3) : 0;
+      REC.floor = PFL;
+      puzzleWheel(PC, PR, T10, { ask: 1, wedge: { s: D10 + '°', a: 1 }, arcLab: { s: ok ? 's = ' + o9[1] : 's = ?', a: ok ? ra : 1 }, radius: R10 + ' m' });
+      puzzleRows(d, st, d.ry);
+      return 'A circle of radius 0.5 metres with two arms 60 degrees apart, the arc between them marked on the edge.' + (ok ? ' The arc is 0.524 metres long.' : ' How long is it?');
+    },
+    shaft(d, st) {
+      const dm = (t) => when('demo', t), th = TAU * mv(0.4, 2.0);
+      REC.floor = 198;
+      const C = SC, r = SR, tip = pE(C, r, th), E0 = pE(C, r, 0);
+      edge(C, r, 'drum');
+      rodLines(C, r, th, 1);
+      part(1, 0, () => { lineP('arm0', C, E0, 2); lineP('arm', C, tip, 3); });
+      centreArc(C, th, 14, 1);
+      part(1, 0, () => { dot(C, 'pin', 5); dot(tip, 'dot', 4.5); });
+      turnArrow(C, r + 34, -0.5, 0.5, 1);
+      plainLab(N11 + ' rev/min', 'al', (w) => [[C[0] + r + 44 + w / 2, C[1]], [C[0] + r + 44 + w / 2, C[1] - 18], [C[0] + r + 44 + w / 2, C[1] + 18]], 1);
+      REC.shaftRods = rodLabels(C, r, th, 1, 2);
+      drawRows(222, [{ s: 'one turn = 2π radians', a: dm(2.5) }, { s: 'ω = ' + N11 + ' × 2π ÷ 60 = ' + fix(W11, 1) + ' rad/s', a: dm(3.0) },
+        { s: 'P = ' + TQ + ' kN m × ' + fix(W11, 1) + ' rad/s = ' + fix(P11, 2) + ' MW', a: dm(3.5) }]);
+      return 'The end of a shaft turning at 400 rev/min. Its arm has turned ' + radS(th) + ' radians, the rod laid behind it: ' + rodWords(th) + '. Rows give its angular speed and power.';
+    },
+    sin05(d, st) {
+      const ok = ansOf(st), ra = ok ? when('answer', 0.3) : 0;
+      REC.floor = PFL;
+      const C = [124, 124], r = 96, th = A12, tip = pE(C, r, th), F = [tip[0], C[1]], E0 = pE(C, r, 0);
+      part(1, 0, () => add(K.svg('line', { class: 'axis', x1: C[0] - r - 14, y1: C[1], x2: C[0] + r + 40, y2: C[1] })));
+      REC.soft.push({ p: [C[0] - r - 14, C[1]], q: [C[0] + r + 40, C[1]], pad: 1 });
+      edge(C, r);
+      rodLines(C, r, th, 1);
+      part(1, 0, () => add(K.svg('line', { class: 'guide', x1: R(tip[0]), y1: R(tip[1]), x2: R(F[0]), y2: R(F[1]) })));
+      REC.soft.push({ p: tip, q: F, pad: 1 });
+      part(1, 0, () => { lineP('arm0', C, E0, 2); lineP('arm', C, tip, 3); });
+      centreArc(C, th, 22, 1);
+      part(1, 0, () => { dot(C, 'pin', 5); dot(tip, 'dot', 4.5); dot(F, 'dot', 3); });
+      REC.sin = { C, r, tip, F, height: segLab(F, tip, ok ? 'height ' + o11[0] : 'height ?', C, ok ? ra : 1, 'al') };
+      rodLabels(C, r, th, 1, 2);
+      segLab(C, E0, '1', tip, 1, 'al');
+      puzzleRows(d, st, d.ry);
+      return 'An arm 1 long turned 0.5 radians, so its tip has travelled an arc of 0.5 round the edge. A dashed line drops from the tip to the across axis: its height, the sine,' + (ok ? ' is 0.479.' : ' is asked for.');
+    },
+    motor(d, st) {
+      const ok = ansOf(st), ra = ok ? when('answer', 0.3) : 0;
+      REC.floor = 200;
+      const C = SC, r = SR, th = 0.9, tip = pE(C, r, th), E0 = pE(C, r, 0);
+      edge(C, r, 'drum');
+      part(1, 0, () => { lineP('arm0', C, E0, 2); lineP('arm', C, tip, 3); });
+      centreArc(C, th, 14, 1);
+      part(1, 0, () => { dot(C, 'pin', 5); dot(tip, 'dot', 4.5); });
+      turnArrow(C, r + 16, -0.5, 0.5, 1);
+      plainLab(N13S + ' rev/min', 'al', (w) => [[C[0] + r + 26 + w / 2, C[1]], [C[0] + r + 26 + w / 2, C[1] - 18], [C[0] + r + 26 + w / 2, C[1] + 18]], 1);
+      REC.omega = plainLab(ok ? 'ω = ' + o12[2] + ' rad/s' : 'ω = ?', 'al', (w) => [[C[0], C[1] + r + 22], [C[0] + 20, C[1] + r + 22], [C[0] - 20, C[1] + r + 22]], ok ? ra : 1);
+      puzzleRows(d, st, d.ry);
+      return 'The end of a motor shaft turning at 1,500 rev/min. Its angular speed in radians a second is ' + (ok ? '157.1.' : 'asked for.');
+    },
+    sheave(d, st) {
+      const ok = ansOf(st), ra = ok ? when('answer', 0.3) : 0;
+      REC.floor = 238;
+      const C = HC, r = HR, sp = pE(C, r, -0.95);
+      edge(C, r, 'drum');
+      const top = [];
+      for (let k = 0; k <= 40; k++) top.push(pE(C, r, PI - PI * k / 40));
+      part(1, 0, () => {
+        pathP('rope', [[C[0] - r, HY]].concat(top, [[C[0] + r, HY]]), 2);
+        arrowHead([C[0] - r, 200], [0, 1], 'head');
+        arrowHead([C[0] + r, 150], [0, -1], 'head');
+        lineP('arm', C, sp, 3);
+        dot(C, 'pin', 5);
+      });
+      turnArrow(C, r + 14, 1.25 * PI, 1.75 * PI, 1);
+      plainLab(N14 + ' turns', 'al', (w) => [[C[0], C[1] + r + 34], [C[0], C[1] + r + 48]], 1);
+      segLab(pE(C, r * 0.4, -0.95), sp, R14 + ' m', [C[0] + r, C[1]], 1, 'al');
+      REC.rope = plainLab(ok ? 'rope = ' + o13[1] : 'rope = ?', 'al', (w) => [[C[0] + r + 12 + w / 2, 186], [C[0] + r + 12 + w / 2, 168], [C[0] + r + 12 + w / 2, 206]], ok ? ra : 1);
+      puzzleRows(d, st, d.ry);
+      return 'A sheave of radius 0.25 metres, drawn to scale, with a rope over it, making 3 full turns. The rope that passes over it is ' + (ok ? '4.71 metres.' : 'asked for.');
+    },
+  };
+
+  // ---------- the handles: Dan drags the arm's tip round the circle, or the size handle in and out ----------
+  const GRIPS = { tip: 'The angle the arm has turned', size: 'The size of the circle' };
+  const grips = {};
+  Object.keys(GRIPS).forEach((id) => {
+    const g = ui.appendChild(K.svg('circle', { class: 'grip', cx: -60, cy: -60, r: 22, tabindex: -1, role: 'slider', 'aria-orientation': 'horizontal', 'aria-label': GRIPS[id] }));
+    g.style.display = 'none';
+    grips[id] = g;
+  });
+  // An angle kept to the drag's steps, landing exactly on whole rods, a quarter, a half and a full turn.
+  function quantTip(v) {
+    const rg = REC.range, s = REC.tipStep || 0.01;
+    v = K.clamp(v, rg[0], rg[1]);
+    v = K.clamp(Math.round(v / s) * s, rg[0], rg[1]);
+    if (s < 0.05) SNAPS.forEach((q) => { if (q <= rg[1] + 1e-9 && Math.abs(v - q) <= 0.035) v = q; });
+    return v;
+  }
+  // The pointer's angle round the centre, taken on the turn nearest the arm's present angle, so the arm
+  // can be dragged on past where it started.
+  function tipAt(q) {
+    const P = REC.pivot;
+    let a = Math.atan2(P[1] - q.y, q.x - P[0]);
+    if (a < 0) a += TAU;
+    const cur = REC.th || 0;
+    let best = a;
+    [a - TAU, a + TAU].forEach((c) => { if (Math.abs(c - cur) < Math.abs(best - cur)) best = c; });
+    return quantTip(best);
+  }
+  const sizeAt = (q) => Math.round(K.clamp(Math.hypot(q.x - REC.pivot[0], q.y - REC.pivot[1]), RMIN, RMAX));
+  const liveOn = (id) => !finished && (STEPS[at()].live || []).indexOf(id) >= 0 && !!REC && REC.handles.some((h) => h.id === id);
+  function gripVal(id) { return id === 'tip' ? (REC.th || 0) : (REC.r || R0); }
+  function placeGrips(d) {
+    Object.keys(grips).forEach((id) => {
+      const g = grips[id], h = REC.handles.filter((q) => q.id === id)[0], on = !finished && !!h && (d.live || []).indexOf(id) >= 0;
+      g.style.display = on ? '' : 'none';
+      g.setAttribute('tabindex', on ? '0' : '-1');
+      if (!on) return;
+      g.setAttribute('cx', R(h.x)); g.setAttribute('cy', R(h.y));
+      const v = gripVal(id);
+      if (id === 'tip') {
+        g.setAttribute('aria-valuemin', REC.range[0]); g.setAttribute('aria-valuemax', R(REC.range[1]));
+        g.setAttribute('aria-valuenow', R(v)); g.setAttribute('aria-valuetext', radS(v) + ' radians');
+      } else {
+        g.setAttribute('aria-valuemin', RMIN); g.setAttribute('aria-valuemax', RMAX);
+        g.setAttribute('aria-valuenow', Math.round(v));
+        g.setAttribute('aria-valuetext', v <= RMIN + 0.5 ? 'smallest circle' : v >= RMAX - 0.5 ? 'largest circle' : 'between the smallest and largest circle');
+      }
+    });
+  }
+  function setLive(ch) {
+    const st = S[at()];
+    if (Object.keys(ch).every((k) => st[k] === ch[k]) && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    waiting = false; T = Infinity;
+    Object.assign(st, ch);
+    K.reveal(); K.refresh();
+  }
+  function setGrip(id, v) {
+    if (id === 'tip') setLive({ th: quantTip(v) });
+    else setLive({ r: Math.round(K.clamp(v, RMIN, RMAX)) });
+  }
+  function svgPoint(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+  }
+  const dragTo = (id, q) => (id === 'tip' ? setLive({ th: tipAt(q) }) : setLive({ r: sizeAt(q) }));
+  Object.keys(grips).forEach((id) => {
+    const g = grips[id];
+    let held = null;
+    g.addEventListener('pointerdown', (e) => {
+      if (!liveOn(id)) return;
+      held = e.pointerId;
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the handle */ }
+      e.preventDefault();
+      const q = svgPoint(e); if (q) dragTo(id, q);
+    });
+    g.addEventListener('pointermove', (e) => { if (held !== e.pointerId || !liveOn(id)) return; const q = svgPoint(e); if (q) dragTo(id, q); });
+    const letGo = (e) => { if (held === e.pointerId) held = null; };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', () => { held = null; });
+    g.addEventListener('keydown', (e) => {
+      if (!liveOn(id)) return;
+      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+      if (by == null) return;
+      e.preventDefault();
+      setGrip(id, gripVal(id) + by * (id === 'tip' ? ((REC.tipStep || 0.01) < 0.05 ? 0.05 : REC.tipStep) : 2));
+    });
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    REC = { segs: [], soft: [], handles: [], boxes: [], labs: [], rows: [], pills: {}, rods: [], floor: 1000, pivot: null, range: [0, TAU], th: null, r: null, tipStep: 0.01 };
+    VH = vhOf(d, st);
+    svg.setAttribute('viewBox', '0 0 340 ' + VH);
+    svg.setAttribute('aria-label', PIC[d.pic](d, st) || '');
+    placeGrips(d);
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing() && !waiting) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { resetLive(st); play('demo', d.dur); }
+      else { waiting = false; anim.pause(); T = Infinity; MODE = 'answer'; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    const after = el('after');
+    after.hidden = !d.show || !d.after;
+    write(after, d.show && d.after ? d.after : '');
+    const cap = el('cap'), cs = CAPS[d.pic] || '';
+    write(cap, cs); cap.hidden = finished || !cs;
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (pic) => STEPS.findIndex((d) => d.pic === pic);
+  // Step i painted in state st (motion m, at time tAt, finished if none), fn reading what it drew
+  // before the page is put back.
+  function withState(i, st, m, fn, tAt) {
+    const keepS = S[i], keepT = T, keepM = MODE;
+    S[i] = st; T = tAt == null ? Infinity : tAt; MODE = m || (STEPS[i].show ? 'demo' : 'answer');
+    latest = 0; earliest = Infinity;
+    try { paint(i); return fn(); } finally { S[i] = keepS; T = keepT; MODE = keepM; paint(); }
+  }
+  const drawn = (i, st, m) => withState(i, st, m, () => ({ texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent), rec: REC }));
+  const solvedSt = (i) => stOf({ pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => stOf({ pick: o, res: 'wrong' });
+  const fail = (msg) => { throw new Error(msg); };
+  const THS = [];
+  for (let k = 0; k <= 31; k++) THS.push(k * 0.2);
+  [0.01, 1, 2, 3, 4, 5, 6, PI / 2, PI, TAU, 5.5, 5.56, 6.27].forEach((v) => THS.push(v));
+  const RS = [RMIN, 52, 62, 72, R0, 90, RMAX];
+  const WTS = [];
+  for (let k = 0; k <= 30; k++) WTS.push(k / 10);
+  // Every state a step can be seen in.
+  function statesOf(i) {
+    const d = STEPS[i], out = [], L = d.live || [];
+    if (d.show) {
+      out.push([blank(), 'demo']);
+      if (d.pic === 'winch') WTS.forEach((th) => out.push([stOf({ th }), 'demo']));
+      else if (L.indexOf('tip') >= 0) THS.forEach((th) => [RMIN, R0, RMAX].forEach((r) => out.push([stOf({ th, r }), 'demo'])));
+      if (L.indexOf('size') >= 0) RS.forEach((r) => out.push([stOf({ r }), 'demo']));
+    } else {
+      out.push([blank(), 'answer'], [solvedSt(i), 'answer'], [stOf({ why: true }), 'answer']);
+      d.opts.filter((o) => o !== d.want).forEach((o) => out.push([wrongSt(i, o), 'answer'], [stOf({ pick: o, res: 'wrong', why: true }), 'answer']));
+    }
+    return out;
+  }
+  // What crowds the labels in the picture now: labels over labels or handles, or off the edge.
+  function crowding() {
+    const bad = [], boxes = [];
+    art.querySelectorAll('text').forEach((t) => {
+      let b = null;
+      try { b = t.getBBox(); } catch (e) { b = null; }
+      if (!b || !(b.width > 0) || !(b.height > 0)) return;
+      const sh = b.height * 0.2;
+      boxes.push({ s: t.textContent, x: b.x, y: b.y + sh, w: b.width, h: b.height - 2 * sh });
+    });
+    boxes.forEach((a, m) => {
+      if (a.x < 1 || a.x + a.w > 339 || a.y < 0 || a.y + a.h > VH) bad.push('"' + a.s + '" off the edge');
+      boxes.slice(m + 1).forEach((b) => {
+        const ix = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x), iy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+        if (ix > 1 && iy > 1) bad.push('"' + a.s + '" on "' + b.s + '"');
+      });
+      REC.handles.forEach((h) => { const nx = K.clamp(h.x, a.x, a.x + a.w), ny = K.clamp(h.y, a.y, a.y + a.h); if (Math.hypot(nx - h.x, ny - h.y) < 11) bad.push('"' + a.s + '" on a handle'); });
+    });
+    return bad;
+  }
+
+  K.check('One radian is the measure of a central angle of a circle that intercepts an arc equal in length to the radius of that circle: at every size the handle can set, the arm turned to exactly 1 radian ends where the first rod ends, the rod lies on the drawn edge, its length measured along the edge equals the drawn radius, the wedge reads 1 radian and the readout 1.00 radians = 57.3°', () => {
+    const i = idx('wrap1');
+    for (let r = RMIN; r <= RMAX; r += 2) {
+      const rec = drawn(i, stOf({ th: 1, r }), 'demo').rec, w = rec.wrap, rod = rec.rods[0];
+      if (!rod) fail('no rod at ' + r);
+      if (!K.near(polyLen(rod.ps) / r, 1, 2e-4) || lenOf(rod.ps[rod.ps.length - 1], w.tip) > 1e-9 || !rod.ps.every((p) => K.near(lenOf(p, w.C), r, 1e-9))) fail('rod wrong at ' + r);
+      if (rec.pills.read !== '1.00 radians = 57.3°' || rec.count !== '1 radian') fail('readout or label wrong at ' + r + ': ' + rec.pills.read + ', ' + rec.count);
+    }
+    return true;
+  }, { source: SRC.def });
+  K.check('The arc length produced by any given angle also has a constant relation to the radius, regardless of the length of the radius: with the arm held at 0.5, 1, 2, π and 5 radians, at every size from the smallest circle to the largest, the rod laid from the start to the arm, measured along the drawn edge and divided by the drawn radius, gives the same count, the angle in radians, and the readout does not change', () => {
+    const i = idx('size');
+    [0.5, 1, 2, PI, 5].forEach((th) => {
+      let first = null, read = null;
+      for (let r = RMIN; r <= RMAX; r += 3) {
+        const rec = drawn(i, stOf({ th, r }), 'demo').rec, cnt = polyLen(rec.rods[0].ps) / r;
+        if (first == null) { first = cnt; read = rec.pills.read; }
+        if (!K.near(cnt, first, 1e-9) || !K.near(cnt / th, 1, 2e-4) || rec.pills.read !== read) fail('count changes at ' + th + ' radians, size ' + r);
+      }
+    });
+    return true;
+  }, { source: SRC.def });
+  K.check('Degree measure and radian measure are related by the equation 360° = 2π radians, or 180° = π radians: on the full-wrap screen the rod laid all the way round makes six whole rods and 0.28 of a seventh, ends back where it started, and the readout reads 6.28 radians = 360.0°; at the half turn it reads 3.14 radians = 180.0° with the arm pointing straight left', () => {
+    const i = idx('round'), f = drawn(i, blank(), 'demo').rec, h = drawn(i, stOf({ th: PI }), 'demo').rec, rod = f.rods[0];
+    if (f.pills.read !== '6.28 radians = 360.0°' || rod.joints.length !== 6 || f.rodLabs.join() !== '1,2,3,4,5,6,0.28') fail('full turn: ' + f.pills.read + ', ' + rod.joints.length + ' joints, labels ' + f.rodLabs.join());
+    return lenOf(rod.ps[rod.ps.length - 1], rod.ps[0]) < 1e-9 && h.pills.read === '3.14 radians = 180.0°' && K.near(h.wrap.tip[1], h.wrap.C[1], 1e-9) && h.wrap.tip[0] < h.wrap.C[0];
+  }, { source: SRC.turn });
+  K.check('One radian is 180° ÷ π = 57.3°, a little under a sixth of the circle, not the whole circle: the shaded slice spans exactly the first rod and is labelled 57.3°, six such slices fall short of a full turn and seven pass it', () => {
+    const f = drawn(idx('round'), blank(), 'demo').rec;
+    return f.sliceLab === '57.3°' && degS(DEG) === '57.3°' && 6 * DEG < 360 && 7 * DEG > 360 && 6 < TAU && TAU < 7;
+  });
+  K.check('The bendy rod does not stretch: at every moment of the first screen\'s lift and bend it is one radius long, it starts lying on the arm and it ends lying round the edge from where the arm starts', () => {
+    const i = idx('wrap1');
+    for (let k = 0; k <= 40; k++) {
+      const t = k * 0.05, rec = withState(i, blank(), 'demo', () => REC, t), ps = rec.lift ? rec.lift.ps : rec.rods[0].ps;
+      if (!K.near(polyLen(ps) / rec.wrap.r, 1, 2e-4)) fail('rod ' + polyLen(ps) / rec.wrap.r + ' radius-lengths at ' + t + ' s');
+    }
+    const s0 = withState(i, blank(), 'demo', () => REC, 0), s1 = withState(i, blank(), 'demo', () => REC, 1.9), w = s0.wrap, p0 = s0.lift.ps, p1 = s1.rods[0].ps;
+    return lenOf(p0[0], w.C) < 1e-9 && lenOf(p0[p0.length - 1], w.E0) < 1e-9 && lenOf(p1[0], w.E0) < 1e-9 && K.near(polyLen(p1) / w.r, 1, 2e-4) && p1.every((p) => K.near(lenOf(p, w.C), w.r, 1e-9));
+  });
+  K.check('An angle with no degree sign is in radians, and the two can be far apart: the dashed arm turned 10 radians, measured off the drawing, ends at 213.0°, left of the centre and below it, after 1.59 turns, its across distance over the radius is cos 10 = −0.839, and the solid arm at 10° gives cos 10° = 0.985', () => {
+    const m = drawn(idx('modes'), blank(), 'demo').rec.modes;
+    const across = (m.tip10r[0] - m.C[0]) / m.r, ang = (Math.atan2(m.C[1] - m.tip10r[1], m.tip10r[0] - m.C[0]) * DEG + 360) % 360;
+    return K.near(across, Math.cos(10), 1e-9) && fix(across, 3) === '−0.839' && fix(ang, 1) === '213.0' && m.tip10r[0] < m.C[0] && m.tip10r[1] > m.C[1] &&
+      fix(m.turns, 2) === '1.59' && fix((m.tip10d[0] - m.C[0]) / m.r, 3) === '0.985' && m.labs.every((s) => !!s);
+  });
+  K.check('Each radian of angle holds one radius of edge, so the arc is s = rθ: at every turn of the winch drum from 0.1 to 3 radians, the wire wound on, measured along the drawn edge, and the hook\'s rise measured off the drawing both equal the drawn radius times the angle, and at 2.5 radians on a 0.2 m drum the rise reads 0.5 m', () => {
+    const i = idx('winch');
+    for (let k = 1; k <= 30; k++) {
+      const th = k / 10, w = drawn(i, stOf({ th }), 'demo').rec.winch;
+      if (!K.near(polyLen(w.ps) / (w.r * th), 1, 2e-4) || !K.near(w.rise, w.r * th, 1e-9) || !K.near(HOOK0 - w.hy, w.r * th, 1e-9)) fail('wire wrong at ' + th);
+    }
+    const w = drawn(i, blank(), 'demo').rec.winch;
+    return K.near(w.th, WT, 1e-12) && w.riseLab === '0.5 m' && w.rodLabs.join() === '1,2,0.5';
+  });
+  K.check('Every worked number matches the lesson: 4 m ÷ 2 m = 2 radians with slips 4 and 0.5; 1 radian on both circles; 2π = 6.28 with 0.28 over six rods, π = 3.14 and 57.3°; a quarter 1.57 with slips 1 and 0.25; 60° = 1.047 radians and 2 radians = 114.6°; 10 radians 1.59 turns to 213.0°, cos 10 = −0.839 and cos 10° = 0.985; 45° = 0.785 with slips 2578.3 and 0.25; 0.2 × 2.5 = 0.5 m; 0.524 m with slips 30 m and 0.262, and an edge of 3.14 m; 41.9 rad/s and 16.76 MW; sin 0.5 = 0.479 with slips 0.0087 and 0.5; 157.1 rad/s with slips 25 and 9,425; 4.71 m with slips 0.75 m and 270 m', () => {
+    const same = (a, b) => a.length === b.length && a.every((v, k) => v === b[k]);
+    return same(o1, ['4 radians', '2 radians', '0.5 radians']) && same(o3, ['The big circle\'s, 3 times as big', 'The small circle\'s', 'The same, 1 radian each']) &&
+      fix(TAU, 2) === '6.28' && fix(TAU - 6, 2) === '0.28' && fix(PI, 2) === '3.14' && degS(DEG) === '57.3°' && same(o5, ['1.57', '1', '0.25']) &&
+      fix(C60, 3) === '1.047' && degS(C2) === '114.6°' && fix(turns10, 2) === '1.59' && degS(stop10) === '213.0°' && fix(Math.cos(M10), 3) === '−0.839' && fix(cosD(M10), 3) === '0.985' &&
+      same(o7, ['2578.3', '0.25', '0.785']) && trim(WR * WT, 3) === '0.5' && same(o9, ['30 m', '0.524 m', '0.262']) && fix(T10, 3) === '1.047' && fix(TAU * R10, 2) === '3.14' &&
+      fix(W11, 1) === '41.9' && fix(P11, 2) === '16.76' && same(o11, ['0.479', '0.5', '0.0087']) && same(o12, ['25', '9,425', '157.1']) && N13S === '1,500' &&
+      same(o13, ['0.75 m', '4.71 m', '270 m']) && N14 * 360 === 1080;
+  });
+  K.check('Each puzzle accepts only its right answer, every wrong answer has its own hint and its own red row of working, the answer appears once it is given, and before an answer nothing in the picture gives it away', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts.indexOf(d.want) < 0 || !d.opts.every((o) => isRight(i, stOf({ pick: o })) === (o === d.want))) fail('options wrong on step ' + (i + 1));
+      const wrongs = d.opts.filter((o) => o !== d.want);
+      if (!wrongs.every((o) => d.hints[o] && d.wrong[o] && wrongs.every((p) => p === o || d.hints[p] !== d.hints[o]))) fail('hints missing on step ' + (i + 1));
+      const b = drawn(i, blank(), 'answer'), s = drawn(i, solvedSt(i), 'answer');
+      if (b.rec.rows.length || d.secret.some((x) => b.texts.some((t) => t.indexOf(x) >= 0))) fail('answer shown early on step ' + (i + 1));
+      if (!(s.rec.rows.length === d.right.length && s.rec.rows.every((r) => !r.bad)) || !d.secret.every((x) => s.texts.some((t) => t.indexOf(x) >= 0))) fail('answer not drawn on step ' + (i + 1));
+      return wrongs.every((o) => { const r = drawn(i, wrongSt(i, o), 'answer').rec.rows, w = [].concat(d.wrong[o]); return r.length === w.length && r.every((x, k) => x.bad && x.s === w[k]); });
+    }));
+  K.check('No label sits on another label or a handle, or runs off the picture, on any screen in any state: puzzles answered right, wrong or with Why? open, the arm dragged to every angle on circles of every size, the drum turned to every angle', () =>
+    STEPS.every((d, i) => statesOf(i).every((s) => withState(i, s[0], s[1], () => { const bad = crowding(); if (bad.length) fail('step ' + (i + 1) + ' ' + JSON.stringify({ th: s[0].th, r: s[0].r, pick: s[0].pick, why: s[0].why }) + ': ' + bad[0]); return true; }))));
+  K.check('Every demonstration has finished within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; each answer and Why? has settled within 1.8 s', () =>
+    STEPS.every((d, i) => {
+      const timed = (st, m) => withState(i, st, m, () => [latest, earliest]);
+      if (d.show) {
+        const t = timed(blank(), 'demo');
+        if (!(t[0] <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && t[1] >= FADE)) fail('step ' + (i + 1) + ' runs ' + t[0] + ' s from ' + t[1]);
+        return true;
+      }
+      return statesOf(i).every((s) => timed(s[0], s[1])[0] <= ANS + 1e-9);
+    }));
+
+  K.ready();
+</script>

@@ -1,0 +1,402 @@
+{
+  "iid": "i5",
+  "title": "Radians: angle as arc over radius",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the rod and the arc growing together, so the arc counted in radius-lengths stays the same, when you drag the size handle to grow or shrink the circle.",
+    "title": "Wrap the radius",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in fourteen small screens, most on one picture, wrap the radius. A circle is drawn round a centre, with lesson 3's arm running from the centre to the edge, pointing right at first. A copy of the arm, one radius long, is drawn as a thick bendy rod. Turning the arm anticlockwise opens an angle at the centre, and the rod is laid round the edge from the starting point towards the arm's tip, one radius-length after another, each length numbered 1, 2, 3 and so on, with the part left over shorter and labelled with its fraction. A readout gives the angle as a count of radius-lengths, which is the angle in radians, to two decimal places, and beside it the same angle in degrees to one place, found as radians × 180 ÷ π. On screens that show an idea you can drag the arm's tip to open the angle, and a size handle on the edge grows or shrinks the circle: the rod is always one radius long, so it grows with the circle, and the count does not change. Screen 1 opens the arm until one rod fits, labelled 1 radian, then on to two rods, 2 radians. Screen 2 asks for the angle when an arc of 4 m sits on a circle of radius 2 m: 2 radians, 4 radians (metres counted, not radius-lengths) or 0.5 radians (radius ÷ arc). Screen 3 holds the angle at 1 radian and sweeps the size handle from a small circle to a large one; rod and arc grow together, the readout stays at 1.00, and the rule arc ÷ radius appears below. Screen 4 stacks a circle of radius 1 m with an arc of 1 m above one of radius 3 m with an arc of 3 m, each labelled, and asks which angle is bigger: the same, 1 radian each; the large circle's, three times as big; or the small circle's. Screen 5 wraps the rod all the way round: six whole rods and 0.28 of a seventh, 6.28, which is 2π, while the degrees readout reaches 360; at the half turn the count is 3.14, which is π, and 180°; and one rod's slice reads 57.3°. Screen 6 asks how many radius-lengths fit round a quarter of the circle: 1.57, 1 (a quarter taken as one radian) or 0.25 (the whole circle taken as one radian). Screen 7 converts both ways, 60° × π ÷ 180 = 1.047 radians and 2 radians × 180 ÷ π = 114.6°, each drawn as a thin arm on one circle, then draws two more arms, 10° solid and 10 radians dashed, the dashed arm's path a spiral that wraps 1.59 times round and stops at 213.0°, left of the centre and below it, so its cosine, lesson 3's shadow across, is negative: −0.839 against 0.985 for 10°. Screen 8 asks for 45° in radians: 0.785, 2578.3 (multiplied by 180 ÷ π, the wrong way) or 0.25 (divided by 180 with π left out). Screen 9 marks the arc's length: θ radians hold θ rods, so the arc is s = rθ; a winch drum of radius 0.2 m turned through 2.5 radians winds on 0.5 m of wire. Screen 10 asks for the arc on a circle of radius 0.5 m at 60°: 0.524 m, 30 m (60 used as if it were radians) or 0.262 (θr², whose unit is square metres, an area). Screen 11 spins the arm as Bird's ship's drive shaft: 400 rev/min is 400 × 2π radians a minute, and ÷ 60 for each second gives ω, the Greek letter omega, 41.9 rad/s; power is torque times ω, so with Bird's 400 kN m that shaft delivers 16.76 MW. Screens 12 to 14 are mixed. An angle given as 0.5 with no degree sign: is its sine 0.479, 0.0087 (degrees mode) or 0.5 (the angle itself, though the tip's height is a little less than the arc it has travelled)? A motor shaft at 1,500 rev/min: is it 157.1 rad/s, 25 (turns a second, the 2π left out) or 9,425 (the ÷ 60 left out)? A sheave of radius 0.25 m makes 3 full turns: how much rope passes over it, 4.71 m, 0.75 m (3 turns taken as 3 radians) or 270 m (3 × 360 degrees used in s = rθ)? Each puzzle offers three answers; a wrong pick gets a one-line hint naming its slip, and Why? draws the answer on the picture.",
+    "ignores": "The rod bends round the edge without stretching, so its length along the edge is exactly one radius; a real rod bent that way would stretch on the outside and squash on the inside. Readouts are rounded, radians to two decimal places and degrees to one, while the working keeps every figure. The lengths and the motor's speed are example figures; the ship's shaft, 400 kN m at 400 rev/min, is Bird's worked example. You may have seen \"rad\" written after a figure: the radian is a unit of angle, but its figure is one length over another, so it carries no metres.",
+    "numbers": [
+      {
+        "label": "Radius-lengths in one radian's arc, in step 1",
+        "value": 1,
+        "kind": "constant"
+      },
+      {
+        "label": "Two rods laid, in radians, in step 1",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle arc, in m, in step 2",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle radius, in m, in step 2",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Angle 4 ÷ 2, in radians, in step 2",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, metres counted, in step 2",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, radius ÷ arc, in step 2",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Readout held while resizing, in radians, in step 3",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Small circle's radius and arc, in m, in step 4",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Large circle's radius and arc, in m, in step 4",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "A full turn, in degrees",
+        "value": 360,
+        "kind": "constant"
+      },
+      {
+        "label": "A half turn, in degrees",
+        "value": 180,
+        "kind": "constant"
+      },
+      {
+        "label": "π, to five decimal places",
+        "value": 3.14159,
+        "kind": "constant"
+      },
+      {
+        "label": "Full turn 2π, in radians, in step 5",
+        "value": 6.28,
+        "kind": "computed"
+      },
+      {
+        "label": "Left over after six whole rods, in step 5",
+        "value": 0.28,
+        "kind": "computed"
+      },
+      {
+        "label": "Half turn π, in radians, in step 5",
+        "value": 3.14,
+        "kind": "computed"
+      },
+      {
+        "label": "One radian, 180 ÷ π, in degrees, in step 5",
+        "value": 57.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Quarter turn π ÷ 2, in radians, in step 6",
+        "value": 1.57,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, whole circle as one radian, in step 6",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Example angle, in degrees, in step 7",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "60° in radians, in step 7",
+        "value": 1.047,
+        "kind": "computed"
+      },
+      {
+        "label": "Example angle, in radians, in step 7",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "2 radians in degrees, in step 7",
+        "value": 114.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Mode example angle, in step 7",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Turns in 10 radians, in step 7",
+        "value": 1.59,
+        "kind": "computed"
+      },
+      {
+        "label": "Where 10 radians stops, in degrees, in step 7",
+        "value": 213,
+        "kind": "computed"
+      },
+      {
+        "label": "cos 10 in radian mode, in step 7",
+        "value": -0.839,
+        "kind": "computed"
+      },
+      {
+        "label": "cos 10° in degrees mode, in step 7",
+        "value": 0.985,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle angle, in degrees, in step 8",
+        "value": 45,
+        "kind": "assumed"
+      },
+      {
+        "label": "45° in radians, π ÷ 4, in step 8",
+        "value": 0.785,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, 45 × 180 ÷ π, in step 8",
+        "value": 2578.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, 45 ÷ 180, in step 8",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Winch drum radius, in m, in step 9",
+        "value": 0.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Winch drum turn, in radians, in step 9",
+        "value": 2.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Wire wound on, 0.2 × 2.5, in m, in step 9",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle radius, in m, in step 10",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle angle, in degrees, in step 10",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Arc 0.5 × 1.047, in m, in step 10",
+        "value": 0.524,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, 0.5 × 60, in m, in step 10",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, θr² = 1.047 × 0.25, in step 10",
+        "value": 0.262,
+        "kind": "computed"
+      },
+      {
+        "label": "Seconds in a minute",
+        "value": 60,
+        "kind": "constant"
+      },
+      {
+        "label": "Bird's ship shaft speed, in rev/min, in step 11",
+        "value": 400,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "400 × 2π ÷ 60, in rad/s, in step 11",
+        "value": 41.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Bird's ship shaft torque, in kN m, in step 11",
+        "value": 400,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "Shaft power, torque × ω, in MW, in step 11",
+        "value": 16.76,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle angle, no degree sign, in step 12",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "sin 0.5 in radian mode, in step 12",
+        "value": 0.479,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, sin 0.5° in degrees mode, in step 12",
+        "value": 0.0087,
+        "kind": "computed"
+      },
+      {
+        "label": "Motor speed, in rev/min, in step 13",
+        "value": 1500,
+        "kind": "assumed"
+      },
+      {
+        "label": "1500 × 2π ÷ 60, in rad/s, in step 13",
+        "value": 157.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, 1500 ÷ 60, in step 13",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, 1500 × 2π, in step 13",
+        "value": 9425,
+        "kind": "computed"
+      },
+      {
+        "label": "Sheave radius, in m, in step 14",
+        "value": 0.25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Sheave turns, in step 14",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Rope 0.25 × 6π, in m, in step 14",
+        "value": 4.71,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, 0.25 × 3, in m, in step 14",
+        "value": 0.75,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, 0.25 × 1080, in m, in step 14",
+        "value": 270,
+        "kind": "computed"
+      },
+      {
+        "label": "Fan tip radius, in m, worked example",
+        "value": 0.6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Fan speed, in rev/min, worked example",
+        "value": 1200,
+        "kind": "assumed"
+      },
+      {
+        "label": "1200 × 2π ÷ 60, in rad/s, worked example",
+        "value": 125.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Tip's arc in one second, 0.6 × 125.7, in m",
+        "value": 75.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Edge of a 0.5 m circle, 2π × 0.5, in m",
+        "value": 3.14,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Degrees split a full turn into 360. A [[radian]] measures turning with the circle's own ruler instead: it is the angle at the centre whose [[arc]], the stretch of edge between the two arms, is one radius long.[^1] So an angle in radians is a count of radius-lengths round the edge, the same count on any circle, and a full turn is 2π of them, about 6.28.[^2]\n\nPicture lesson 3's turning arm, now on a circle of any size. The angle is the turn between where the arm starts and where it stops, as in Round the circle. Lift the arm off as a bendy rod, exactly one radius long, and lay it round the edge from where the arm starts, turning anticlockwise. The angle it spans at the centre is one radian.[^1] Now make the circle twice as big. The radius doubles, so the rod doubles. A circle twice as big is the same shape drawn at twice the scale, as lesson 1's triangles were, so every length in it doubles, the arc between the same two arms as well as the radius. Rod and arc grow together, so the rod still spans the same angle. That is why an angle's arc keeps the same relation to the radius whatever the radius is,[^3] and why the angle in radians can be worked out as arc ÷ radius. Both are lengths, so their units cancel. The radian is a unit of angle, as the degree is, but its figure is one length over another, so it carries no metres, and the word \"radians\" is often left off.\n\nNow lay the rod all the way round. The edge is the circumference, 2πr from Geometry fundamentals, so it holds 2πr ÷ r = 2π rods: six whole rods and 0.28 of a seventh. A full turn is 360°, so 360° = 2π radians, and halving both, 180° = π radians.[^2] One radian is therefore 180° ÷ π, about 57.3°, a slice a little under a sixth of the circle, not the whole circle. So 1° is π ÷ 180 radians: to turn degrees into radians multiply by π ÷ 180, and to turn radians into degrees multiply by 180 ÷ π. The arc follows from the definition: each radian of angle holds one radius of edge, so θ radians on a circle of radius r hold an arc s = rθ, with θ in radians. Exam courses such as SQA Higher take an angle written with no degree sign, as in cos 10, to be in radians,[^4] so the calculator must be in radian mode: cos 10 is −0.839 for 10 radians and 0.985 for 10°.\n\nTurning speed is counted the same way. A shaft turning N times a minute turns through N × 2π radians a minute, and a minute is 60 seconds, so its [[angular speed]], ω (the Greek letter omega), is N × 2π ÷ 60 radians a second. A shaft's power in watts is its torque in newton metres times ω,[^5] with ω in radians a second.[^6] Bird's worked example is a ship's drive shaft giving a torque of 400 kN m at 400 rev/min:[^7] that is 41.9 rad/s, and 400 kN m × 41.9 rad/s is 16.76 MW. Radians are also the most useful angle measure in calculus, because they let the rules for sine and cosine be written simply;[^8] the Derivatives course in Advanced maths shows why. From circle to wave uses ω for the turning arm that draws an AC wave. **A radian is the angle whose arc is one radius long,[^1] the same on any circle, so an angle in radians is arc ÷ radius, and a full turn of 360° is 2π radians, about 6.28.[^2]**"
+  },
+  "analogy": {
+    "text": "Roll a wheel along the floor without slipping and the distance it travels equals the arc of its rim that has touched the floor. Divide that distance by the wheel's radius and you have how far it has turned, in radians, whatever the wheel's size: a trolley wheel and a lorry wheel that each roll one radius along have each turned 1 radian, and each rolls 2π radii, about 6.28, in a full turn.",
+    "breaks": "It holds only while the wheel rolls without slipping, and a tyre squashes where it meets the floor, so it rolls a little less than its drawn radius would give. An angle in radians needs no rolling at all: it is the arc between two arms, measured on the circle."
+  },
+  "practice": {
+    "text": "- Degrees into radians: multiply by π ÷ 180, because 180° = π radians, so 1° is π ÷ 180 radians. Radians into degrees: multiply by 180 ÷ π.\n- Arc length: s = rθ, with θ in radians. Convert degrees first.\n- Rev/min into rad/s: multiply by 2π, then divide by 60.\n- Set the calculator to radian mode for an angle with no degree sign, and to degrees mode for one with °.\n- Check the size: a radian is about 57.3°, so for any angle but zero the degree figure is about 57.3 times the radian figure. Check the unit: a radius in metres times an angle in radians gives metres.\n\n**Rule of thumb:** A half turn is π radians, about 3.14, and a full turn 2π, about 6.28. One radian is a little under 60°.\n\n**Worked example:** Say a fan's blade tips are 0.6 m from its centre and it turns at 1,200 rev/min. Its angular speed is 1,200 × 2π ÷ 60 = 125.7 rad/s. In one second a tip sweeps 125.7 radians of arc on a circle of radius 0.6 m, so it travels s = rθ = 0.6 × 125.7 = 75.4 m. The tip moves at 75.4 metres a second.\n\n**Common mistakes**\n- Taking the whole circle, or a quarter of it, as one radian. A full turn is about 6.28 radians and a quarter about 1.57.\n- Converting the wrong way: 45 × 180 ÷ π gives 2578.3, many turns. 45° is 45 × π ÷ 180 = 0.785 radians.\n- Putting degrees into s = rθ: 0.5 × 60 gives a 30 m arc on a circle whose whole edge is 2π × 0.5 = 3.14 m. Convert 60° to 1.047 radians first, for 0.524 m.\n- Writing the arc as θr²: its unit is square metres, an area, not a length.\n- The wrong calculator mode: cos 10 is −0.839 in radian mode and 0.985 in degrees mode.\n- Leaving out the 2π, which gives turns a second, or the ÷ 60, which gives radians a minute."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+    {
+      "n": 1,
+      "title": "5.1 Angles - Precalculus 2e | OpenStax",
+      "url": "https://openstax.org/books/precalculus-2e/pages/5-1-angles",
+      "quote": "One radian is the measure of a central angle of a circle that intercepts an arc equal in length to the radius of that circle."
+    },
+    {
+      "n": 2,
+      "title": "Angles and Radian Measure 8.2",
+      "url": "https://static.bigideasmath.com/protected/content/pe/hsim/int_math3_pe_08_02.pdf",
+      "quote": "So, degree measure and radian measure are related by the equation 360° = 2π radians, or 180° = π radians."
+    },
+    {
+      "n": 3,
+      "title": "5.1 Angles - Precalculus 2e | OpenStax",
+      "url": "https://openstax.org/books/precalculus-2e/pages/5-1-angles",
+      "quote": "the arc length produced by any given angle also has a constant relation to the radius, regardless of the length of the radius."
+    },
+    {
+      "n": 4,
+      "title": "Higher Mathematics Course Specification",
+      "url": "https://www.sqa.org.uk/sqa/files_ccc/h-course-spec-mathematics.pdf",
+      "quote": "explain that in the absence of a degree symbol, candidates should use radians in solutions"
+    },
+    {
+      "n": 5,
+      "title": "CHAPTER 10 TORQUE",
+      "url": "https://s3-eu-west-1.amazonaws.com/s3-euw1-ap-pe-ws4-cws-documents.ri-prod/9781138781573/study/11.pdf",
+      "quote": "Power, P = ωT = 2πnT"
+    },
+    {
+      "n": 6,
+      "title": "Motor Calculations - Michigan Technological University",
+      "url": "https://pages.mtu.edu/~wjendres/ProductRealization1Course/DC_Motor_Calculations.pdf",
+      "quote": "In calculating rotational power, it is necessary to convert the velocity to units of rad/sec."
+    },
+    {
+      "n": 7,
+      "title": "CHAPTER 10 TORQUE",
+      "url": "https://s3-eu-west-1.amazonaws.com/s3-euw1-ap-pe-ws4-cws-documents.ri-prod/9781138781573/study/11.pdf",
+      "quote": "The drive shaft of a ship supplies a torque of 400 kN m to its propeller at 400 rev/min. Determine the power delivered by the shaft."
+    },
+    {
+      "n": 8,
+      "title": "Radian -- from Wolfram MathWorld",
+      "url": "https://mathworld.wolfram.com/Radian.html",
+      "quote": "Radians are the most useful angular measure in calculus because they allow derivative and integral identities to be written in simple terms"
+    }
+  ]
+}
