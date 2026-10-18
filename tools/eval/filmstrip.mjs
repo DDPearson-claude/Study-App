@@ -4,6 +4,10 @@
 // every --every ms for --for ms. Each step's frames go on one contact sheet with their times.
 //   node tools/eval/filmstrip.mjs body.html --out build/x/i3.film [--steps 0,2,4] [--every 200]
 //        [--for 5000] [--app tests/out/kit.html] [--theme dark] [--control step] [--eval "js"]
+//        [--crop "svg.scene"]
+// --crop films only the lesson's picture (the first element matching the selector, e.g. svg.scene),
+// so a sheet's frames stay legible when read. The default, "none", films the whole card, which a
+// review needs to see text, buttons and hints clipped or overlapping; no match also films the card.
 // --eval runs in the lesson's frame after the step opens (to answer a puzzle, say), then filming
 // starts again from that moment. Writes <out>-s<N>.png (contact sheets), <out>-s<N>-end.png (the
 // last frame) and <out>.json: per step,
@@ -21,6 +25,7 @@ const span = Math.max(every, +arg('for', 5000));
 const control = arg('control', 'step');
 const theme = arg('theme', 'light');
 const evalJs = arg('eval', '');
+const crop = arg('crop', 'none');
 mkdirSync(dirname(out), { recursive: true });
 
 const app = await openApp({ width: 360, height: 900, file: arg('app') ? resolve(arg('app')) : undefined });
@@ -43,8 +48,14 @@ if (!ctl) { console.error('no control "' + control + '" (has: ' + info.inputs.ma
 const steps = arg('steps') ? arg('steps').split(',').map(Number) : Array.from({ length: (ctl.max | 0) + 1 }, (_, i) => i);
 const frameEl = page.locator('.kit-iframe').first();
 const kitFrame = () => page.frames().find((f) => f !== page.mainFrame());
+const sceneEl = crop === 'none' ? null : page.frameLocator('.kit-iframe').first().locator(crop).first();
+async function target() {
+  if (sceneEl && await sceneEl.count().catch(() => 0) && await sceneEl.isVisible().catch(() => false)) return sceneEl;
+  return frameEl;
+}
 
 async function film() {
+  const el = await target();
   const shots = [], t0 = Date.now();
   let prev = null;
   for (let k = 0; ; k++) {
@@ -53,7 +64,7 @@ async function film() {
     const wait = due - Date.now();
     if (wait > 0) await page.waitForTimeout(wait);
     const t = (Date.now() - t0) / 1000;
-    const buf = await frameEl.screenshot();
+    const buf = await el.screenshot();
     shots.push({ t, buf, changed: !!prev && !prev.equals(buf) });
     prev = buf;
   }
