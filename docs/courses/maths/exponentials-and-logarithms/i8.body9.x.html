@@ -1,0 +1,1367 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  /* ln in a typewriter face, so its l is never read as a capital I */
+  .lnk { font-family: var(--k-mono); font-style: normal; }
+  .pz sup { font-size: .72em; line-height: 0; }
+  /* The switches sit side by side above the graph, on a phone too. */
+  #sw.k-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; padding: 4px 12px; }
+  #sw.k-controls.one { grid-template-columns: minmax(0, 1fr); }
+  #sw .k-toggle { gap: 8px; }
+  #ctl.k-controls { grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 8px 12px 10px; }
+  #dbl .k-btn { width: 100%; min-height: 44px; }
+  #dbl .k-btn:disabled { opacity: .55; cursor: default; }
+  .scene { --lab: 13px; display: block; width: 100%; max-width: 30rem; margin-inline: auto; touch-action: pan-y; }
+  @media (max-width: 480px) { .scene { --lab: 14px; } }
+  /* While the handles can be dragged, a finger on the drawing moves them instead of the page. */
+  .scene.grab { touch-action: none; }
+  .scene text { font-family: var(--k-font); font-size: var(--lab); }
+  .scene .vi { font-style: italic; }
+  .scene .ax { stroke: var(--k-ink); stroke-width: 1.2; }
+  .scene .tk { fill: var(--k-ink); font-weight: 600; }
+  .scene .axt { fill: var(--k-muted); font-weight: 600; }
+  .scene .h { stroke: var(--k-bg); stroke-width: 3.5px; paint-order: stroke; stroke-linejoin: round; }
+  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; }
+  .scene .poly { fill: none; stroke: var(--k-accent); stroke-width: 2.5; stroke-linejoin: round; }
+  .scene .polyar { fill: none; stroke: var(--k-accent); stroke-width: 1.8; stroke-dasharray: 5 4; }
+  .scene .bar { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1; }
+  .scene .bar3 { fill: var(--k-fill3); stroke: var(--k-accent); stroke-width: 1; }
+  .scene .hatch { fill: url(#hatch); stroke: none; }
+  .scene .hatchl { stroke: var(--k-accent2); stroke-width: 1.6; stroke-opacity: .6; }
+  .scene .pair { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.5; }
+  .scene .piece { fill: var(--k-fill2); stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .ghost { fill: none; stroke: var(--k-amber-line); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .tbd { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .shade { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1; }
+  .scene .strip { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.5; }
+  .scene .eline { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .elab { fill: var(--k-muted); font-weight: 700; }
+  .scene .arw { fill: var(--k-accent2); }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .pdot { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .lab { fill: var(--k-ink); font-weight: 600; }
+  .scene .plab { fill: var(--k-accent); font-weight: 700; }
+  .scene .keyt { fill: var(--k-ink); font-weight: 600; }
+  .scene .handle { fill: var(--k-bg); stroke: var(--k-accent); stroke-width: 2.5; }
+  .scene .tag { fill: var(--k-accent2); }
+  .scene .tagt { fill: var(--k-on-accent2); font-weight: 700; }
+  /* slips: for mistakes only */
+  .scene .slip { stroke: var(--k-warn); stroke-width: 2.5; fill: none; }
+  .scene .slipd { stroke: var(--k-warn); stroke-width: 2; fill: none; stroke-dasharray: 5 4; }
+  .scene .slipt { fill: var(--k-warn); font-weight: 700; }
+  .scene .art * { pointer-events: none; }
+  .scene .track { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: ew-resize; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; pointer-events: none; }
+  .scene .grip:focus-visible { outline: none; stroke: var(--k-accent2); stroke-width: 2; }
+  /* The same steps written out under the picture. */
+  .forms { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 1.05rem; font-weight: 700; line-height: 1.5; min-height: 1.6em; margin-top: 8px; text-align: center; }
+  .forms .fl { display: block; }
+  /* a line still to come keeps its place, so nothing below it jumps */
+  .forms .fl.wait { visibility: hidden; }
+  .forms .fl.x .fo { text-decoration: line-through; text-decoration-color: var(--k-warn); text-decoration-thickness: 2px; }
+  .forms .fn { font-weight: 400; font-size: .88rem; color: var(--k-muted); margin-left: .6em; white-space: normal; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .row.picks { flex-direction: column; gap: 8px; }
+  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; font-size: 1.1rem; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and pictures fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="k-controls" id="sw"></div>
+    <svg class="scene" id="scene" viewBox="0 0 340 222" width="100%" role="img" aria-label="">
+      <defs><pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hatchl" x1="0" y1="0" x2="0" y2="7"></line></pattern></defs>
+      <g id="art" class="art"></g><g id="ui"></g>
+    </svg>
+    <div class="k-controls" id="ctl"><div id="ctlc"></div><div id="dbl"></div></div>
+    <div class="k-readouts" id="outs"></div>
+    <div class="forms" id="forms" aria-live="polite"></div>
+    <p class="say" id="say"></p>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap"></p>
+
+<script>
+  // ---------- the rules ----------
+  // The gas starts at 400 kPa in 0.1 m³ and is held at a steady temperature, so pV stays at
+  // C = 400 × 0.1 = 40 kJ (a kPa times a m³ is a kJ) and its pressure follows p = C ÷ V.
+  const P0 = 400, V0 = 0.1, C = P0 * V0;
+  const NP = 1.3;                                   // the example polytropic power
+  const VMIN = 0.1, VMAX = 0.8, VSTEP = 0.05;       // where the handles go
+  const TOP = 450, TOP_OV = 800;                    // the pressure axis, and stretched for n = 1.3
+  const LN = Math.log, LG = Math.log10;
+  const pOf = (c, V) => c / V;
+  // p × V^n stays the same from the start (Vs, c ÷ Vs).
+  const pPoly = (c, Vs, V) => (c / Vs) * Math.pow(Vs / V, NP);
+  // Calculus fundamentals' rule for the area under pVⁿ = C: (p₁V₁ − p₂V₂) ÷ (n − 1).
+  const polyW = (c, V1, V2) => (c - pPoly(c, V1, V2) * V2) / (NP - 1);
+  // The ln rule: W = C × ln(V₂ ÷ V₁).
+  const lnW = (c, V1, V2) => c * LN(V2 / V1);
+  // N bars of equal width from V₁ to V₂, each as tall as the curve at its middle; the width is minus when V₂ < V₁.
+  function midBars(c, V1, V2, N) {
+    const w = (V2 - V1) / N, out = [];
+    for (let k = 0; k < N; k++) { const a = V1 + k * w, b = a + w; out.push({ a, b, w, h: pOf(c, (a + b) / 2) }); }
+    return out;
+  }
+  const barsSum = (list) => list.reduce((s, b) => s + b.w * b.h, 0);
+  // k bars of equal ratio from Vs: each one part in k of the volume where it starts wide, as tall as the curve at its left edge.
+  function eBars(c, Vs, k) {
+    const out = [];
+    let a = Vs;
+    for (let j = 0; j < k; j++) { const w = a / k, b = a + w; out.push({ a, b, w, h: pOf(c, a) }); a = b; }
+    return out;
+  }
+  const eEnd = (Vs, k) => Vs * Math.pow(1 + 1 / k, k);   // lesson 2's sum with k parts, times Vs
+  const HSTRIP = 0.25;                                    // the preview's thin strip, drawn h wide (never given a number)
+  const SRC1 = 'https://www.mathwords.com/e/euler_number.htm';
+  const SRC2 = 'https://phys.libretexts.org/Bookshelves/Thermodynamics_and_Statistical_Mechanics/Heat_and_Thermodynamics_(Tatum)/08%3A_Heat_Capacity_and_the_Expansion_of_Gases/8.03%3A_Isothermal_Expansion_of_an_Ideal_Gas';
+  const SRC3 = 'https://www.sfu.ca/~mbahrami/Mech%20240/Lectures/Energy%20Analysis_Closed%20System.pdf';
+  const SRC4 = 'https://simple.m.wikipedia.org/wiki/Integral';
+  const SRC5 = 'https://openstax.org/books/intermediate-algebra-2e/pages/10-3-evaluate-and-graph-logarithmic-functions';
+  const SRC6 = 'https://www2.ph.ed.ac.uk/~gja/thermo/course_notes/topic03.pdf';
+  const NB = ' ';
+
+  // ---------- numbers ----------
+  // fx: exactly dp decimals with a true minus sign; fv: at most dp, trailing zeros dropped.
+  function fx(v, dp) {
+    const f = Math.pow(10, dp);
+    let r = Math.round(v * f) / f;
+    if (r === 0) r = 0;
+    return (r < 0 ? '−' : '') + Math.abs(r).toFixed(dp);
+  }
+  function fv(v, dp) {
+    const s = fx(v, dp);
+    return dp > 0 ? s.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '') : s;
+  }
+  const kj = (v) => fx(v, 2) + NB + 'kJ';
+  const kpa = (p) => fx(p, 0) + NB + 'kPa';
+  const vol = (V) => fv(V, 3);
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const snapV = (V) => r2(Math.round(V / VSTEP) * VSTEP);
+  const clampLo = (V, hi) => r2(K.clamp(snapV(V), VMIN, r2(hi - VSTEP)));
+  const clampHi = (V, lo) => r2(K.clamp(snapV(V), r2(lo + VSTEP), VMAX));
+  const dblOK = (to) => to.lo != null && to.lo <= 0.4 + 1e-9;
+  const dblTo = (lo) => r2(2 * lo);
+  // "= 2" when the ratio is exact to three places, "≈ 2.333" otherwise.
+  const eqs = (x, dp) => (Math.abs(x * Math.pow(10, dp) - Math.round(x * Math.pow(10, dp))) < 1e-9 ? '= ' : '≈ ') + fv(x, dp);
+
+  // ---------- the drawings' axes ----------
+  const CARDS = {
+    main: { c: C, vmax: 0.8, vt: [0, 0.2, 0.4, 0.6, 0.8], top: TOP },
+    mid: { c: C, vmax: 0.5, vt: [0, 0.1, 0.2, 0.3, 0.4, 0.5], top: TOP },
+    zoom: { c: C, vmax: 0.3, vt: [0, 0.1, 0.2, 0.3], top: TOP },
+    g12: { c: 300 * 0.1, vmax: 0.6, vt: [0, 0.2, 0.4, 0.6], top: 350, pt: [0, 100, 200, 300], keyName: 'the gas: _pV_ the same' },
+    g13: { c: 100 * 0.08, vmax: 0.1, vt: [0, 0.02, 0.04, 0.06, 0.08, 0.1], top: 900, pt: [0, 200, 400, 600, 800], keyName: 'the air: _pV_ the same' },
+  };
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // A part's arrival is 1 (there), a time (a demonstration's part arriving then), or R(t) / W(answer, t):
+  // arriving t seconds after a right answer, or after that wrong answer.
+  const R = (t, d) => ({ when: 'right', at: t, dur: d });
+  const W = (o, t) => ({ when: o, at: t == null ? 0.3 : t });
+  const STRIKE = true;
+  const W27 = lnW(C, 0.1, 0.2);
+  const O2 = ['Its power is −1, and adding one gives 0, so it would divide by 0', 'The curve never meets the axis, so the area is endless', 'pV = C is a straight line, so no area rule is needed'];
+  const O3 = [kj(W27), kj(2 * W27), kj(W27 / 2)];
+  const O5 = [kj(3 * W27), kj(7 * W27), kj(8 * W27)];
+  const O7 = [kj(lnW(C, 0.1, 0.3)), kj(C * LG(0.3 / 0.1)), kj(C * LN(0.3 - 0.1))];
+  const O9 = [kj(lnW(C, 0.4, 0.1)), '+' + kj(-lnW(C, 0.4, 0.1)), '0' + NB + 'kJ'];
+  const O11 = ['The steady-temperature one, pV = C', 'The n = 1.3 one', 'The same: both end at 0.1 m³'];
+  const C12 = CARDS.g12.c;
+  const O12 = [kj(lnW(C12, 0.1, 0.5)), kj(C12 * LG(0.5 / 0.1)), kj(300 * LN(0.5 / 0.1))];
+  const C13 = CARDS.g13.c, V13 = C13 / 800;
+  const O13 = [kj(lnW(C13, 0.08, V13)), kj(C13 * LG(V13 / 0.08)), '+' + kj(-lnW(C13, 0.08, V13))];
+  const PV2 = pPoly(C, 0.2, 0.1) * 0.1;   // the n = 1.3 gas's pV squeezed to 0.1 m³
+  const ANS11 = '(' + fv(C, 2) + ' − ' + fx(PV2, 2) + ') ÷ 0.3 ≈ ' + kj(polyW(C, 0.2, 0.1));
+  const STRUCK = fv(C, 2) + ' × V^−1 → ' + fv(C, 2) + ' × V^0 ÷ 0';
+  const NAR = midBars(C, 0.1, 0.2, 2), WID = midBars(C, 0.2, 0.4, 2);   // screen 4's pair of bars
+  const areaLine = (b) => fv(b.w, 2) + ' × ' + fx(b.h, 0) + ' = ' + fv(b.w * b.h, 2);
+
+  // The forms a live screen writes, worked from where its handles stand.
+  function ends(to) { const sq = !!to.sq; return { V1: sq ? to.hi : to.lo, V2: sq ? to.lo : to.hi, sq }; }
+  function sqForms(to) {
+    const e = ends(to), r = e.V2 / e.V1;
+    return [['V₂ ÷ V₁ = ' + vol(e.V2) + ' ÷ ' + vol(e.V1) + ' ' + eqs(r, 3), '', 2.0],
+      ['= ' + fx(pOf(C, e.V1), 0) + ' ÷ ' + fx(pOf(C, e.V2), 0), 'the pressures, upside down', 2.4],
+      ['W = ' + fv(C, 2) + ' × ln ' + fv(r, 3), r < 1 ? 'minus: the piston does the work on the gas' : 'plus: the gas does the work', 2.8]];
+  }
+  function polyForms(to) {
+    if (!to.ov && to.top !== TOP_OV) return [];
+    const e = ends(to), r = e.V1 / e.V2, pv = C * Math.pow(r, NP - 1);
+    return [['p₂V₂ = ' + fv(C, 2) + ' × ' + fv(r, 3) + '^0.3 ≈ ' + fx(pv, 2), pv < C ? 'less than ' + fv(C, 2) + ', as the gas expands' : 'more than ' + fv(C, 2) + ', as it is squeezed', 3.2],
+      ['W = (' + fv(C, 2) + ' − ' + fx(pv, 2) + ') ÷ 0.3', 'the rule from Calculus fundamentals lesson 9', 3.6]];
+  }
+
+  const STEPS = [
+    { show: true, kind: 'pv', card: 'main', name: 'Count it with bars', drag: true, ctl: { bars: 1 }, outs: true, outsAt: 0.4, dur: 4.2,
+      tl: [{ t: 0, lo: 0.1, hi: 0.2, n: 4, sq: 0, ov: 0, top: TOP, hA: 1 }, { t: 2.9, n: 8, g: 0.5 }, { t: 3.6, n: 100, g: 0.5 }],
+      forms: [['C = ' + P0 + ' × ' + V0 + ' = ' + fv(C, 2), 'kPa × m³ = kJ', 0.5],
+        ['(p₁V₁ − p₂V₂) ÷ (n − 1) = (' + fv(C, 2) + ' − ' + fv(C, 2) + ') ÷ 0', 'the old rule with n = 1', 1.1, STRIKE],
+        [STRUCK, 'the reverse power rule: add one to the power, then divide by it', 1.7, STRIKE]],
+      text: 'A gas held at one temperature keeps `pV` the same: Boyle\'s law, which is `pV^n = C` with `n = 1`, the *isothermal* case. This one starts at 400 kPa in 0.1 m³, so `C = 400 × 0.1 = 40` kJ, and its pressure falls along `p = 40 ÷ V`. The work it does is the area under that curve, but both old rules divide by 0 here. So count the area with bars, as in Calculus fundamentals, and watch their total settle as they thin.' },
+    { kind: 'pv', card: 'mid', name: 'Why no rule?',
+      fix: { lo: 0.1, hi: 0.2, n: 100, sq: 0, ov: 0, top: TOP }, dots: [0.1, 0.2],
+      key: [{ sw: 'bar', text: '0.1 to 0.2 m³: ' + kj(W27) }],
+      items: [{ k: 'vline', V: 0.2, when: O2[1] }, { k: 'chord', a: 0.1, b: 0.2, when: O2[2] }],
+      notes: [{ text: 'the bars stop at V₂ and settle on ' + kj(W27), when: O2[1] }, { text: 'p halves as V doubles, so the line bends away from a straight one', when: O2[2] }],
+      opts: O2, want: O2[0], ans: STRUCK, formsR: [[STRUCK, 'V^0 is 1, and nothing divides by 0', 0.4, STRIKE]],
+      task: 'Why can\'t the reverse power rule find the area under `p = 40 ÷ V`?',
+      why: '`40 ÷ V` is `40 × V^−1`. The reverse power rule adds one to the power, giving `V^0`, then divides by the new power, 0, which cannot be done. The area itself is fine: the bars stop at V₂ and settle on ' + kj(W27) + ', and the curve bends, since `p` halves each time `V` doubles.',
+      hint: 'Not quite. Write 40 ÷ V as 40 × V⁻¹, then try the rule\'s first step.',
+      hints: { [O2[1]]: 'Not quite. The bars stop at V₂, and their total settles as they thin.', [O2[2]]: 'Not quite. p halves each time V doubles, so the curve bends.' } },
+    { kind: 'pv', card: 'mid', name: 'The next doubling',
+      fix: { lo: 0.1, hi: 0.2, n: 100, sq: 0, ov: 0, top: TOP }, dots: [0.1, 0.2, 0.4],
+      more: [{ a: 0.2, b: 0.4, cls: 'bar3', show: R(0.3) }, { a: 0.2, b: 0.4, cls: 'tbd', hide: true }],
+      key: [{ sw: 'bar', text: '0.1 to 0.2 m³: ' + kj(W27) }, { sw: 'tbd', text: '0.2 to 0.4 m³: ?', swR: 'bar3', textR: '0.2 to 0.4 m³: ' + kj(lnW(C, 0.2, 0.4)) }],
+      items: [{ k: 'shape', when: O3[1], pts: () => K.linspace(0.1, 0.2, 24).map((V) => [0.2 + 2 * (V - 0.1), pOf(C, V)]) },
+        { k: 'shape', when: O3[2], pts: () => K.linspace(0.1, 0.2, 24).map((V) => [0.2 + (V - 0.1), pOf(C, V) / 2]) }],
+      notes: [{ text: 'that keeps the height: twice as wide, but the pressure there is half', when: O3[1] }, { text: 'that halves the height but keeps the width, though the stretch is twice as long', when: O3[2] }],
+      opts: O3, want: O3[0], ans: '0.2 to 0.4 m³: ' + kj(lnW(C, 0.2, 0.4)), formsR: [],
+      task: 'From 0.1 to 0.2 m³ the bars total 27.73 kJ. What do the bars from 0.2 to 0.4 m³ total?',
+      why: 'From 0.2 to 0.4 m³ the stretch is twice as long, so each bar is twice as wide, and at twice the volume `40 ÷ V` is half the pressure, so each bar is half as tall. Twice the width times half the height is the same area, so the total is ' + kj(W27) + ' again.',
+      hint: 'Not quite. Compare one bar\'s width and height with its partner\'s.',
+      hints: { [O3[1]]: 'Not quite. The bars are twice as wide, but the pressure there is half.', [O3[2]]: 'Not quite. The pressure is half, but the stretch is twice as wide.' } },
+    { show: true, kind: 'pv', card: 'main', name: 'Double it', drag: true, ctl: { bars: 1, dbl: 1 }, outs: true, outsAt: 3.0, dur: 5.0, pairs: true,
+      tl: [{ t: 0, lo: 0.15, hi: 0.3, n: 0, sq: 0, ov: 0, top: TOP, hA: 0 }, { t: 3.0, n: 100, hA: 1, g: 0.5 }, { t: 3.7, lo: 0.3, hi: 0.6, g: 0.6 }, { t: 4.4, lo: 0.1, hi: 0.4, g: 0.6 }],
+      forms: [[areaLine(NAR[0]), 'a narrow bar: width × height, in kJ', 2.3], [areaLine(WID[0]), 'its partner: twice as wide, half as tall', 2.6]],
+      text: 'Here is why. Two bars from 0.1 to 0.2 m³ stand beside two from 0.2 to 0.4 m³. Each bar on the right is twice as wide, because its stretch is twice as long, and half as tall, because at twice the volume `40 ÷ V` is half the pressure. Cut one in two and lay it over its partner: the same area. So every doubling holds the same work, wherever it starts. Double it puts V₂ at twice V₁; drag either handle to start anywhere.' },
+    { kind: 'pv', card: 'main', name: 'From 0.1 to 0.8',
+      fix: { lo: 0.1, hi: 0.8, n: 0, sq: 0, ov: 0, top: TOP }, dots: [0.1, 0.2, 0.4, 0.8],
+      more: [{ a: 0.1, b: 0.2, cls: 'bar' }, { a: 0.2, b: 0.4, cls: 'bar3', show: R(0.3) }, { a: 0.4, b: 0.8, cls: 'bar', show: R(0.7) }, { a: 0.2, b: 0.8, cls: 'tbd', hide: true }],
+      key: [{ sw: 'bar', text: '0.1 to 0.2 m³: ' + kj(W27) }, { sw: 'tbd', text: '0.1 to 0.8 m³: ?', swR: 'none', textR: '0.1 to 0.8 m³: ' + kj(lnW(C, 0.1, 0.8)) }],
+      items: [{ k: 'ticks', vs: [0.2, 0.3, 0.4, 0.5, 0.6, 0.7], when: O5[1] }],
+      notes: [{ text: 'seven steps of 0.1 m³ are equal gaps, but equal ratios give equal work', when: O5[1] }, { text: '8 is the ratio, 0.8 ÷ 0.1, and it holds three doublings, 2 × 2 × 2', when: O5[2] }],
+      opts: O5, want: O5[0], ans: '0.1 to 0.8 m³: ' + kj(lnW(C, 0.1, 0.8)),
+      formsR: [['0.8 ÷ 0.1 = 8 = 2 × 2 × 2', 'three doublings', 0.4], ['3 × ' + fx(W27, 2) + ' = ' + kj(3 * W27), '', 0.9]],
+      task: 'What work does the gas do expanding from 0.1 to 0.8 m³?',
+      why: 'Only the ratio counts: `0.8 ÷ 0.1 = 8 = 2 × 2 × 2`, three doublings, each holding ' + kj(W27) + ', so `3 × 27.73 = 83.18` kJ. Seven steps of 0.1 m³ are equal gaps, not equal ratios: the later steps are at lower pressure and hold less. And 8 is the ratio, not the number of doublings.',
+      hint: 'Not quite. Count the doublings from 0.1 to 0.8 m³.',
+      hints: { [O5[1]]: 'Not quite. Equal ratios give equal work, not equal steps of volume.', [O5[2]]: 'Not quite. 8 is the ratio. How many doublings make 8?' } },
+    { show: true, kind: 'e', card: 'zoom', name: 'The stretch that adds C', ln: true, ctl: { parts: 1 }, outs: true, outsAt: 0.4, lnAt: 3.3, dur: 3.9, eAt: 3.2,
+      tl: [{ t: 0, k: 0 }, { t: 0.4, k: 1, g: 0.4 }, { t: 1.0, k: 2, g: 0.4 }, { t: 1.6, k: 4, g: 0.4 }, { t: 2.2, k: 12, g: 0.4 }, { t: 2.8, k: 365, g: 0.4 }],
+      forms: [['(V ÷ k) × (40 ÷ V) = 40 ÷ k', 'each bar, whatever V is', 0.7], ['(1 + 1/k)^k × 0.1 → e × 0.1', 'where the last bar ends as k grows', 2.9], ['W = C × ln(V₂ ÷ V₁)', 'each stretch by e adds C', 3.3]],
+      text: 'Which stretch adds exactly C? Cut the volume from 0.1 m³ into `k` bars, each one part in `k` of the volume where it starts wide, and as tall as the curve at its left edge. Each holds `40 ÷ k`, so the `k` bars make 40 kJ every time, and the last ends at `(1 + 1/k)^k × 0.1`, lesson 2\'s sum, which settles on e × 0.1. The bars stand a little above the curve, by less as they thin, so the area from V₁ to e × V₁ is exactly C. Each further stretch by e adds another C, so the work is C times the number of e-stretches from V₁ to V₂, and that number is the power of e that makes V₂ ÷ V₁, lesson 4\'s power you need: `ln(V₂ ÷ V₁)`. So `W = C × ln(V₂ ÷ V₁)`. Check it with one part: that bar ends at 0.2 m³, and `40 × ln 2 ≈ 40 × 0.693 = 27.73` kJ, the hundred bars\' total on screen 1.' },
+    { kind: 'pv', card: 'mid', name: 'From 0.1 to 0.3',
+      fix: { lo: 0.1, hi: 0.3, n: 100, sq: 0, ov: 0, top: TOP }, dots: [0.1, 0.3],
+      key: [{ sw: 'bar', text: '0.1 to 0.3 m³: ?', textR: '0.1 to 0.3 m³: ' + kj(lnW(C, 0.1, 0.3)) }],
+      notes: [{ text: '40 × log 3: the log key counts ten-fold stretches, not e-fold ones', when: O7[1] }, { text: '40 × ln 0.2: 0.3 − 0.1 is the difference, and ln needs the ratio', when: O7[2] }],
+      opts: O7, want: O7[0], ans: '0.1 to 0.3 m³: ' + kj(lnW(C, 0.1, 0.3)),
+      formsR: [['V₂ ÷ V₁ = 0.3 ÷ 0.1 = 3', '', 0.3], [fv(C, 2) + ' × ln 3 ≈ ' + fv(C, 2) + ' × ' + fx(LN(3), 3) + ' ≈ ' + kj(lnW(C, 0.1, 0.3)), '', 0.8]],
+      task: 'What work does the gas do expanding from 0.1 to 0.3 m³?',
+      why: '`V₂ ÷ V₁ = 0.3 ÷ 0.1 = 3`, and ln 3 is about 1.099, so `W = 40 × ln 3 ≈ 43.94` kJ. The log key gives `40 × log 3 ≈ 19.08`, counting ten-fold stretches, not e-fold ones. And `0.3 − 0.1 = 0.2` is the difference: `40 × ln 0.2` is about −64.38, minus, though the gas expands.',
+      hint: 'Not quite. Find V₂ ÷ V₁, then use C × ln.',
+      hints: { [O7[1]]: 'Not quite. That is the log key, which counts ten-fold stretches. Use ln.', [O7[2]]: 'Not quite. ln needs the ratio V₂ ÷ V₁, not the difference.' } },
+    { show: true, kind: 'pv', card: 'main', name: 'Squeeze it', drag: true, ln: true, ctl: { bars: 1, dbl: 1, sq: 1 }, outs: true, outsAt: 0.4, dur: 3.4,
+      tl: [{ t: 0, lo: 0.1, hi: 0.2, n: 0, sq: 0, ov: 0, top: TOP, hA: 1 }, { t: 0.4, n: 100, g: 0.4 }, { t: 1.1, sq: 1, g: 0.8 }],
+      forms: sqForms,
+      text: 'Now run it the other way. Squeeze it swaps the handles: a piston pushes the gas from 0.2 m³ back to 0.1 m³, and its pressure climbs from 200 to 400 kPa. Every change in volume is now minus, so each bar\'s width is minus: the bars are hatched and both readouts turn minus. `V₂ ÷ V₁ = 0.5`, the same as 200 ÷ 400, and a ratio below 1 has a minus ln. The gas does minus work, which means the piston does that much work on it.' },
+    { kind: 'pv', card: 'mid', name: 'Squeezed from 0.4',
+      fix: { lo: 0.1, hi: 0.4, n: 100, sq: 1, ov: 0, top: TOP }, dots: [0.1, 0.4],
+      key: [{ sw: 'hatch', text: 'squeezed, 0.4 to 0.1 m³: ?', textR: 'squeezed, 0.4 to 0.1 m³: ' + kj(lnW(C, 0.4, 0.1)) }],
+      notes: [{ text: 'that drops the minus: a ratio below 1 has a minus ln, as every width is minus', when: O9[1] }, { text: 'pV is 40 at both ends, but the work is the area under the curve', when: O9[2] }],
+      opts: O9, want: O9[0], ans: 'squeezed, 0.4 to 0.1 m³: ' + kj(lnW(C, 0.4, 0.1)),
+      formsR: [['V₂ ÷ V₁ = 0.1 ÷ 0.4 = 0.25', '', 0.3], [fv(C, 2) + ' × ln 0.25 ≈ ' + kj(lnW(C, 0.4, 0.1)), 'the piston does ' + kj(-lnW(C, 0.4, 0.1)) + ' on the gas', 0.8]],
+      task: 'A piston squeezes the gas from 0.4 m³ to 0.1 m³. What work does the gas do?',
+      why: '`V₂ ÷ V₁ = 0.1 ÷ 0.4 = 0.25`, a ratio below 1, so its ln is minus: `40 × ln 0.25 ≈ −55.45` kJ, two halvings of −27.73 kJ each. The gas does −55.45 kJ of work, so the piston does 55.45 kJ on it. `pV` is 40 at both ends, but the work is the area under the curve, not the change in `pV`.',
+      hint: 'Not quite. Find V₂ ÷ V₁ and take its ln.',
+      hints: { [O9[1]]: 'Not quite. Squeezed, every width is minus, so the work is minus.', [O9[2]]: 'Not quite. pV is the same at both ends, but the work is the area under the curve.' } },
+    { show: true, kind: 'pv', card: 'main', name: 'Show n = 1.3', drag: true, ln: true, ctl: { bars: 1, dbl: 1, sq: 1, ov: 1 }, outs: true, outsAt: 0.4, dur: 4.2,
+      tl: [{ t: 0, lo: 0.1, hi: 0.2, n: 0, sq: 0, ov: 0, top: TOP, hA: 1 }, { t: 0.4, n: 100, g: 0.4 }, { t: 0.9, top: TOP_OV, g: 1.0 }, { t: 1.9, ov: 1, g: 1.0 }],
+      forms: polyForms,
+      text: 'Show n = 1.3 lays a second gas from the same start, one where `p × V^1.3` stays the same, a *polytropic* process as in Calculus fundamentals, with 1.3 an example value. The pressure axis stretches to 800 kPa so its curve fits. Here `pV` is a fixed number ÷ `V^0.3`, which shrinks as the gas expands, so this curve falls below the steady one: 162 kPa at 0.2 m³, against 200. Its work, from `(p₁V₁ − p₂V₂) ÷ (n − 1)`, is the third readout.' },
+    { kind: 'pv', card: 'mid', name: 'Which takes less work?',
+      fix: { lo: 0.1, hi: 0.2, n: 100, sq: 1, ov: 1, top: TOP_OV }, dots: [0.2, 0.1], polyDot: true,
+      key: [{ sw: 'hatch', text: 'the steady squeeze' }, { sw: 'poly', text: 'the _n_ = 1.3 curve' }, { sw: 'polyar', text: 'the area under it' }],
+      notes: [{ text: 'squeezed, its pV grows, so its curve climbs above the steady one and holds more area', when: O11[1] }, { text: 'the work is the area under the path, not set by where it ends', when: O11[2] }],
+      opts: O11, want: O11[0], ans: ANS11,
+      formsR: [[fv(C, 2) + ' × ln 0.5 ≈ ' + kj(lnW(C, 0.2, 0.1)), 'the steady-temperature squeeze', 0.3], [ANS11, 'the n = 1.3 squeeze, more work', 0.8]],
+      task: 'Squeezed from 0.2 m³ at 200 kPa to the same end volume, 0.1 m³, which gas takes less work?',
+      why: 'Squeezed, the n = 1.3 gas\'s `pV`, a fixed number ÷ `V^0.3`, grows as `V` shrinks, so its curve climbs to 492 kPa, above the steady 400, and holds more area: 30.82 kJ against 27.73. Expanding, it gave less work, but squeezing runs its `pV` the other way. Both end at 0.1 m³, but the work is the area under the path, not set by its ends. That is for the same end volume: squeezed to the same end pressure instead, the n = 1.3 gas would stop short of 0.1 m³.',
+      hint: 'Not quite. Compare the areas under the two curves.',
+      hints: { [O11[1]]: 'Not quite. Squeezed, the n = 1.3 gas\'s pV grows, so its curve climbs higher.', [O11[2]]: 'Not quite. The work is the area under the path, and the paths differ.' } },
+    { kind: 'pv', card: 'g12', name: 'A gas at 300 kPa',
+      fix: { lo: 0.1, hi: 0.5, n: 100, sq: 0, ov: 0 }, dots: [0.1, 0.5],
+      key: [{ sw: 'bar', text: '0.1 to 0.5 m³: ?', textR: '0.1 to 0.5 m³: ' + kj(lnW(C12, 0.1, 0.5)) }],
+      notes: [{ text: '30 × log 5: the log key counts ten-fold stretches; press ln', when: O12[1] }, { text: '300 × ln 5 leaves V₁ out: C is p₁V₁ = 300 × 0.1 = 30', when: O12[2] }],
+      opts: O12, want: O12[0], ans: '0.1 to 0.5 m³: ' + kj(lnW(C12, 0.1, 0.5)),
+      formsR: [['C = 300 × 0.1 = ' + fv(C12, 2), 'p₁V₁, in kJ', 0.3], [fv(C12, 2) + ' × ln 5 ≈ ' + fv(C12, 2) + ' × ' + fx(LN(5), 3) + ' ≈ ' + kj(lnW(C12, 0.1, 0.5)), '', 0.8]],
+      task: 'A gas at 300 kPa in 0.1 m³ expands at a steady temperature to 0.5 m³. What work does it do?',
+      why: '`C = p₁V₁ = 300 × 0.1 = 30` kJ, and `V₂ ÷ V₁ = 0.5 ÷ 0.1 = 5`. ln 5 is about 1.609, so `W = 30 × ln 5 ≈ 48.28` kJ. `30 × log 5 ≈ 20.97` uses the log key, which counts ten-fold stretches, and `300 × ln 5` leaves V₁ out of C.',
+      hint: 'Not quite. Work out C = p₁V₁ first.',
+      hints: { [O12[1]]: 'Not quite. That is the log key. Use ln.', [O12[2]]: 'Not quite. C is p₁V₁, not p₁.' } },
+    { kind: 'pv', card: 'g13', name: 'The compressor',
+      fix: { lo: V13, hi: 0.08, n: 100, sq: 1, ov: 0 }, dots: [0.08, V13],
+      key: [{ sw: 'hatch', text: 'the squeeze: ?', textR: 'the squeeze: ' + kj(lnW(C13, 0.08, V13)) }],
+      notes: [{ text: '8 × log(1/8): the log key counts ten-fold stretches', when: O13[1] }, { text: 'that drops the minus, though squeezing makes the ratio below 1', when: O13[2] }],
+      opts: O13, want: O13[0], ans: 'the squeeze: ' + kj(lnW(C13, 0.08, V13)),
+      formsR: [['C = 100 × 0.08 = ' + fv(C13, 2), '', 0.3], ['V₂ ÷ V₁ = 100 ÷ 800 = 1/8', 'pV stays at 8, so V₂ = ' + vol(V13) + ' m³', 0.7], ['8 × ln(1/8) ≈ 8 × (' + fx(LN(1 / 8), 3) + ') ≈ ' + kj(lnW(C13, 0.08, V13)), '', 1.1]],
+      task: 'Say an air compressor squeezes 0.08 m³ of air at 100 kPa to 800 kPa, at a steady temperature. What work does the air do?',
+      why: '`C = 100 × 0.08 = 8` kJ. `pV` stays at 8, so the air ends at `8 ÷ 800 = 0.01` m³, and `V₂ ÷ V₁ = 1/8`, the same as `100 ÷ 800`. ln(1/8) is about −2.079, so `W = 8 × ln(1/8) ≈ −16.64` kJ: the air does −16.64 kJ of work, so the piston does 16.64 kJ on it. The log key gives −7.22, counting ten-fold stretches.',
+      hint: 'Not quite. Find C and the ratio V₂ ÷ V₁ from the pressures.',
+      hints: { [O13[1]]: 'Not quite. That is the log key. Use ln.', [O13[2]]: 'Not quite. Squeezing makes V₂ ÷ V₁ below 1, so the work is minus.' } },
+    { show: true, kind: 'prev', name: 'A preview: ln x', drag: true, dur: 3.9,
+      tl: [{ t: 0, x: 1 }, { t: 0.4, x: 3, g: 2.0 }], stripAt: 2.8,
+      forms: [['area from 1 to x = ln x', '', 0.6], ['strip ≈ h × 1 ÷ x', 'one more strip: its width times its height', 2.9], ['slope of ln x = 1 ÷ x', 'the Derivatives course takes this up', 3.3]],
+      text: 'A preview of where this leads. Here is `y = 1 ÷ x`, the same curve with `C = 1`, shaded from 1 to `x`. With `C = 1` and `V₁ = 1`, the area `C × ln(x ÷ 1)` is just `ln x`. Drag `x` along. One more thin strip, `h` wide, at `x` adds about `h × 1 ÷ x`, so `ln x` climbs at a rate of `1 ÷ x`: the slope of `ln x` is `1 ÷ x`. The Derivatives course takes this up.' },
+  ];
+  STEPS.forEach((d) => { d.ctl = d.ctl || {}; });
+  const FINISH = 'A gas at a steady temperature keeps `pV` the same, and the work it does, the area under `p = C ÷ V`, is `W = p₁V₁ ln(V₂ ÷ V₁)`: the same for every doubling of its volume, and minus when it is squeezed.';
+  const CAPTION = 'An example gas, 400 kPa in 0.1 m³, held at a steady temperature; n = 1.3 is an example value.';
+  const FADE = 0.35;
+  const FB = [2.4, 1.8];   // how long the motion after a right and a wrong answer plays
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- geometry ----------
+  const GX0 = 48, GX1 = 326, GY0 = 30, GY1 = 176, XT = 193, XTT = 214, H0 = 222, PY0 = 184;
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // live: Dan has taken over from the demonstration; cur: where things stand then; from: where they
+  // stood when his last change began, gliding over dur seconds.
+  function blank() { return { pick: null, res: null, why: false, live: false, cur: null, from: null, dur: 0 }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;
+  let GEO = null, REC = null, BOXES = [], OBST = [], HANDLES = [], held = null, lastCtl = {};
+
+  // ---------- text with amber key terms, italic letters and raised powers (K.el, never innerHTML) ----------
+  const VARS = /^[pVCnWxyhk]{1,2}$/;
+  function italics(parent, s) {
+    String(s).split(/\b(ln)\b/).forEach((q, j) => {
+      if (!q) return;
+      if (j % 2) { parent.appendChild(K.el('span', { class: 'lnk' }, q)); return; }
+      q.split(/([A-Za-z]+)/).forEach((w, k) => {
+        if (!w) return;
+        parent.appendChild(k % 2 && VARS.test(w) ? K.el('span', { class: 'v' }, w) : document.createTextNode(w));
+      });
+    });
+  }
+  function lnKey(parent, s) {
+    String(s).split(/\b(ln)\b/).forEach((q, j) => { if (q) parent.appendChild(j % 2 ? K.el('span', { class: 'lnk' }, q) : document.createTextNode(q)); });
+  }
+  const POW = /\^(\([^)]*\)|[0-9.−]+|[a-z])/;
+  function maths(parent, s) {
+    let rest = String(s), m;
+    while ((m = POW.exec(rest))) {
+      if (m.index) italics(parent, rest.slice(0, m.index));
+      const pw = m[1].charAt(0) === '(' ? m[1].slice(1, -1) : m[1];
+      italics(parent.appendChild(K.el('sup')), pw);
+      rest = rest.slice(m.index + m[0].length);
+    }
+    if (rest) italics(parent, rest);
+  }
+  // A formula keeps each piece whole on one line and may break before its =, ≈ or →, or after a comma.
+  function formula(parent, s) {
+    s = String(s);
+    const bits = s.length <= 22 ? [s] : s.split(/ (?=[=≈→] )|(?<=,) /).reduce((acc, c) => {
+      if (acc.length && acc[acc.length - 1].length < 4) acc[acc.length - 1] += ' ' + c; else acc.push(c);
+      return acc;
+    }, []);
+    bits.forEach((c, j) => {
+      if (j) parent.appendChild(document.createTextNode(' '));
+      maths(parent.appendChild(K.el('span', { class: 'nw' })), c);
+    });
+  }
+  // `maths` is a formula; *a key term* is highlighted; the rest is plain words.
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { formula(node, seg); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at0) lnKey(node, seg.slice(at0, m.index));
+        node.appendChild(K.el('span', { class: 'mark' }, m[1]));
+        at0 = m.index + m[0].length;
+      }
+      if (at0 < seg.length) lnKey(node, seg.slice(at0));
+    });
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s).replace(/_/g, '').replace(/ /g, ' ').replace(/m³/g, ' cubic metres')
+    .replace(/₁/g, ' 1').replace(/₂/g, ' 2').replace(/\^\(([^)]*)\)/g, ' to the power $1').replace(/\^([0-9.−]+|[a-z])/g, ' to the power $1')
+    .replace(/⁻¹/g, ' to the power minus 1').replace(/≈/g, ' is about ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/−/g, ' minus ')
+    .replace(/\+/g, ' plus ').replace(/=/g, ' equals ').replace(/→/g, ' becomes ').replace(/\s+/g, ' ').trim();
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const tgS = K.toggle({ id: 'squeeze', label: 'Squeeze it', value: false, into: '#sw' });
+  const tgO = K.toggle({ id: 'overlay', label: 'Show n = 1.3', value: false, into: '#sw' });
+  const barsC = K.choice({ id: 'bars', label: 'Bars', options: [4, 8, 100], value: 4, into: '#ctlc' });
+  const partsC = K.choice({ id: 'parts', label: 'Parts', options: [1, 2, 4, 12, 365], value: 1, into: '#ctlc' });
+  const rB = K.readout({ id: 'barsTotal', label: 'Bars\' total', unit: 'kJ', decimals: 2, into: '#outs' });
+  const rL = K.readout({ id: 'lnRule', label: 'C × ln(V₂ ÷ V₁)', unit: 'kJ', decimals: 2, hint: 'with the ln key, C = 40', into: '#outs' });
+  const rP = K.readout({ id: 'polyWork', label: 'n = 1.3 curve\'s work', unit: 'kJ', decimals: 2, into: '#outs' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+  const ctlNow = () => ({ bars: Number(barsC.get()), parts: Number(partsC.get()), sq: tgS.get() === true, ov: tgO.get() === true });
+  void rB;
+
+  // Microtask, so the readouts catch up after a control is set quietly.
+  let queued = false;
+  function soon() { if (queued) return; queued = true; Promise.resolve().then(() => { queued = false; K.refresh(); }); }
+  function setCtl(w) {
+    const n = ctlNow();
+    let ch = false;
+    if (w.bars !== n.bars) { barsC.set(w.bars, true); ch = true; }
+    if (w.parts !== n.parts) { partsC.set(w.parts, true); ch = true; }
+    if (w.sq !== n.sq) { tgS.set(w.sq, true); ch = true; }
+    if (w.ov !== n.ov) { tgO.set(w.ov, true); ch = true; }
+    lastCtl = ctlNow();
+    if (ch) soon();
+  }
+
+  // ---------- where a screen stands: a timeline, Dan's own setting, or a puzzle's fixed picture ----------
+  // A timeline's frames each glide their keys from the last value over g seconds.
+  function tlAt(frames, t) {
+    const to = {}, from = {}, q = {};
+    frames.forEach((f) => {
+      if (f.t > t) return;
+      Object.keys(f).forEach((k) => {
+        if (k === 't' || k === 'g') return;
+        if (k in to && f.t > 0) { from[k] = to[k]; q[k] = arr(f.t, f.g || 0.5); }
+        to[k] = f[k];
+      });
+    });
+    return { to, from, q };
+  }
+  function viewOf(d, st) {
+    if (d.fix) return { to: d.fix, from: {}, q: {} };
+    if (st.live && st.cur) {
+      const qq = st.dur ? K.arrive(T, 0, st.dur) : 1, q = {};
+      Object.keys(st.cur).forEach((k) => { q[k] = qq; });
+      return { to: st.cur, from: st.dur ? (st.from || {}) : {}, q };
+    }
+    return tlAt(d.tl, T);
+  }
+  function val(v, k) {
+    const t = v.to[k], f = v.from[k];
+    if (f == null || t == null || f === t) return t;
+    return f + (t - f) * (v.q[k] == null ? 1 : v.q[k]);
+  }
+  const targetsOf = (i) => viewOf(STEPS[i], S[i]).to;
+  // Dan takes over: the screen stands where it is shown now, then his change glides in.
+  function takeOver(i, mut, dur) {
+    const d = STEPS[i], st = S[i];
+    if (!d.tl) return;
+    const v = viewOf(d, st), shown = {};
+    Object.keys(v.to).forEach((k) => {
+      if (k === 'n' || k === 'k') { const q = v.q[k] == null ? 1 : v.q[k]; shown[k] = v.from[k] != null && q < 0.5 ? v.from[k] : v.to[k]; }
+      else shown[k] = val(v, k);
+    });
+    st.cur = Object.assign({}, v.to);
+    if (st.cur.hA != null) st.cur.hA = 1;
+    if (d.ctl.bars && !st.cur.n) st.cur.n = Number(barsC.get());
+    if (d.kind === 'e' && !st.cur.k) st.cur.k = Number(partsC.get());
+    st.from = shown; st.live = true;
+    mut(st.cur);
+    st.dur = dur || 0;
+    if (dur) play(dur); else { anim.pause(); T = Infinity; }
+  }
+  // A screen opens on its own switches and settings.
+  function openStep(i) {
+    const d = STEPS[i], st = S[i];
+    st.live = false; st.cur = null; st.from = null; st.dur = 0;
+    const w = ctlNow();
+    w.sq = false; w.ov = false;
+    if (d.tl) { const t0 = tlAt(d.tl, 0).to; if (t0.n) w.bars = t0.n; if (t0.k) w.parts = t0.k; }
+    setCtl(w);
+  }
+  // While a demonstration runs, its controls follow it (quietly, so it is not Dan's move).
+  function sync(i) {
+    const d = STEPS[i], st = S[i];
+    if (!d.show || st.live || finished || !d.tl) return;
+    const to = viewOf(d, st).to, w = ctlNow();
+    if (d.kind === 'pv') { if (to.n) w.bars = to.n; w.sq = !!to.sq; w.ov = !!to.ov || to.top === TOP_OV; }
+    if (d.kind === 'e' && to.k) w.parts = to.k;
+    setCtl(w);
+  }
+
+  // Up to three answer buttons; each step fills in its own. A new choice after a wrong answer
+  // settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  // Check: marks the answer; a right one runs the picture on, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(st.res === 'right' ? FB[0] : FB[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    openStep(i);
+    play(d.dur);
+  } });
+  const dblBtn = K.button({ label: 'Double it', secondary: true, into: '#dbl', press: () => {
+    const i = at(), d = STEPS[i];
+    if (finished || !d.ctl.dbl) return;
+    if (!dblOK(targetsOf(i))) return;
+    takeOver(i, (c) => { c.hi = dblTo(c.lo); }, 0.6);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, each change Dan makes, and the motion after an answer;
+  // with reduced motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    sync(at());
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); sync(at()); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing helpers ----------
+  const el = (id) => document.getElementById(id);
+  const scene = el('scene'), art = el('art'), ui = el('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A demonstration's part: there at once once Dan has taken over.
+  const A = (st, t0, d) => (st.live ? 1 : arr(t0, d));
+  // A part's arrival from its spec (see R and W above).
+  function ar(d, st, s) {
+    if (s == null || s === 1 || s === true) return 1;
+    if (s === 0 || s === false) return 0;
+    if (typeof s === 'number') return d.show ? A(st, s) : 1;
+    const t0 = s.at != null ? s.at : (s.when === 'right' ? 0.1 : 0.3), du = s.dur != null ? s.dur : K.SOFT;
+    if (d.show) return A(st, t0, du);
+    if (s.when === 'right') return st.res === 'right' ? arr(t0, du) : 0;
+    if (s.when) return st.res === 'wrong' && st.pick === s.when ? arr(t0, du) : 0;
+    return 1;
+  }
+  function part(a, rise, draw) {
+    if (!(a > 0)) return null;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+    return g;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const dot = (cls, x, y, r) => add(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r: r || 4.5 }));
+  const path = (cls, pts, close) => add(K.svg('path', { class: cls, d: 'M' + pts.map((q) => r3(q[0]) + ' ' + r3(q[1])).join(' L') + (close ? ' Z' : '') }));
+  // Text in the drawing; _x_ is an italic letter.
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    fillT(t, s);
+    return add(t);
+  }
+  // _x_ in italics, and ln in the typewriter face, so its l is never read as a capital I.
+  function fillT(t, s) {
+    String(s).split('_').forEach((q, k) => {
+      if (!q) return;
+      if (k % 2) { t.appendChild(K.svg('tspan', { class: 'vi' }, q)); return; }
+      q.split(/\b(ln)\b/).forEach((w, j) => { if (w) t.appendChild(j % 2 ? K.svg('tspan', { class: 'lnk' }, w) : document.createTextNode(w)); });
+    });
+  }
+  const wide = () => window.innerWidth > 480;
+  const widths = {};
+  function tw(s, cls) {
+    s = String(s).replace(/_/g, '');
+    const key = (wide() ? 'w|' : 'n|') + cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = scene.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));
+    fillT(t, s);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    scene.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return s.length * 8;
+  }
+  // A label goes at the first of its places clear of the other labels, the edges and the curves.
+  function boxOf(x, y, s, cls, anchor) {
+    const w = tw(s, cls), x0 = anchor === 'end' ? x - w : anchor === 'middle' ? x - w / 2 : x;
+    return { x0, x1: x0 + w, y0: y - 11, y1: y + 3 };
+  }
+  const hit = (a, b, pad) => a.x0 - pad < b.x1 && b.x0 - pad < a.x1 && a.y0 - pad < b.y1 && b.y0 - pad < a.y1;
+  function free(bx) {
+    if (bx.x0 < 2 || bx.x1 > 338 || bx.y0 < 2) return false;
+    if (BOXES.some((b) => hit(bx, b, 3))) return false;
+    return !OBST.some((q) => q[0] > bx.x0 - 2 && q[0] < bx.x1 + 2 && q[1] > bx.y0 - 2 && q[1] < bx.y1 + 2);
+  }
+  function placeAt(s, cls, cands) {
+    for (let j = 0; j < cands.length; j++) { const c = cands[j], bx = boxOf(c[0], c[1], s, cls, c[2]); if (free(bx)) { BOXES.push(bx); return c; } }
+    // nowhere clear: the first place that at least stays inside the drawing
+    const c = cands.find((q) => { const bx = boxOf(q[0], q[1], s, cls, q[2]); return bx.x0 >= 2 && bx.x1 <= 338; }) || cands[0];
+    BOXES.push(boxOf(c[0], c[1], s, cls, c[2]));
+    return c;
+  }
+  // The notes along the bottom of the drawing: the slip a wrong answer made, in words.
+  function wrap(s, cls, maxW) {
+    const words = String(s).split(' '), out = [];
+    let ln = '';
+    words.forEach((w) => { const t = ln ? ln + ' ' + w : w; if (ln && tw(t, cls) > maxW) { out.push(ln); ln = w; } else ln = t; });
+    if (ln) out.push(ln);
+    return out;
+  }
+  function noteLines(d) { return Math.max(0, ...(d.notes || []).map((n) => wrap(n.text, 'slipt', 332).length)); }
+  function drawNotes(d, st, y0, said) {
+    (d.notes || []).forEach((n) => {
+      const a = ar(d, st, n);
+      if (!(a > 0)) return;
+      const lines = wrap(n.text, 'slipt', 332);
+      part(a, 0, () => lines.forEach((t, k) => text(4, y0 + 18 * k, t, 'slipt', 'start')));
+      REC.notes.push(n.text);
+      said.push('A note marking a slip: ' + say(n.text) + '.');
+    });
+  }
+  // A curve's points, closer together where it bends most.
+  function curvePts(f, Va, Vb, N) {
+    const out = [];
+    for (let j = 0; j < N; j++) { const V = Va * Math.pow(Vb / Va, j / (N - 1)); out.push([V, f(V)]); }
+    return out;
+  }
+
+  // ---------- the key, in the drawing's top right corner ----------
+  // Swatches: a line for a curve, a block for an area.
+  function swatch(kind, x, y) {
+    if (kind === 'line') line('curve', x, y - 4, x + 16, y - 4);
+    else if (kind === 'poly') line('poly', x, y - 4, x + 16, y - 4);
+    else if (kind === 'polyar') line('polyar', x, y - 4, x + 16, y - 4);
+    else if (kind === 'tbd') rect('tbd', x + 1, y - 10, 14, 10, 1);
+    else if (kind === 'bar' || kind === 'bar3' || kind === 'shade' || kind === 'strip') rect(kind, x + 1, y - 10, 14, 10, 1);
+    else if (kind === 'hatch') { rect('bar', x + 1, y - 10, 14, 10, 1); rect('hatch', x + 1, y - 10, 14, 10, 1); }
+  }
+  // rows: [{sw, text, a, same}]; a row marked same shares the slot above it (a crossfade).
+  function drawKey(rows, said) {
+    let slot = -1;
+    rows.forEach((r) => {
+      if (!(r.a > 0)) { if (!r.same) slot += 0; return; }
+      if (!r.same) slot += 1;
+      const y = 44 + 18 * slot, w = tw(r.text, 'keyt'), x1 = 336 - w;
+      BOXES.push({ x0: x1 - 24, x1: 336, y0: y - 11, y1: y + 3 });
+      part(r.a, 0, () => { if (r.sw && r.sw !== 'none') swatch(r.sw, x1 - 22, y); text(336, y, r.text, 'keyt h', 'end'); });
+      if (r.a >= 1) { REC.keys.push(r.text.replace(/_/g, '')); said.push('Key: ' + say(r.text) + '.'); }
+    });
+  }
+
+  // ---------- the pV graph ----------
+  function drawPV(d, st, said) {
+    const v = viewOf(d, st), to = v.to, cd = CARDS[d.card], c = cd.c, isE = d.kind === 'e', live = !!st.live;
+    const top = to.top != null ? val(v, 'top') : cd.top;
+    const X = (x) => GX0 + x / cd.vmax * (GX1 - GX0), Y = (p) => GY1 - p / top * (GY1 - GY0);
+    GEO = { X, Y, c, top, invX: (px) => (px - GX0) / (GX1 - GX0) * cd.vmax };
+    REC.top = top;
+    // where things stand now
+    let lo = V0, hi = V0, sqA = 0, ovA = 0, hA = 1, nNew = 0, nOld = 0, nA = 1, kNew = 0, kOld = 0, kA = 1, end = null;
+    if (isE) {
+      kNew = to.k || 0;
+      if (v.from.k != null && v.from.k !== kNew) { kOld = v.from.k; kA = v.q.k; }
+      end = kNew ? (kOld ? eEnd(V0, kOld) + (eEnd(V0, kNew) - eEnd(V0, kOld)) * kA : eEnd(V0, kNew)) : null;
+    } else {
+      lo = val(v, 'lo'); hi = val(v, 'hi');
+      sqA = to.sq != null ? val(v, 'sq') : 0; ovA = to.ov != null ? val(v, 'ov') : 0; hA = to.hA != null ? val(v, 'hA') : 1;
+      nNew = to.n || 0;
+      if (v.from.n != null && v.from.n !== nNew) { nOld = v.from.n; nA = v.q.n; }
+    }
+    const barsA = isE ? (kNew ? (kOld ? 1 : kA) : 0) : (nNew ? (nOld ? 1 : nA) : (nOld ? 1 - nA : 0));
+    REC.sq = sqA; REC.ov = ovA;
+
+    // the handles' tags under the axis, pushed apart when they would touch
+    const pills = [];
+    if (isE) {
+      pills.push({ V: V0, t: ['V₁ = ' + vol(V0)], a: [1] });
+      if (end != null) pills.push({ V: end, t: ['V₂ = ' + vol(end)], a: [kOld ? 1 : kA] });
+    } else if (d.drag) {
+      const aOld = 1 - K.clamp(2 * sqA, 0, 1), aNew = K.clamp(2 * sqA - 1, 0, 1);
+      pills.push({ V: lo, t: ['V₁ = ' + vol(lo), 'V₂ = ' + vol(lo)], a: [hA * aOld, hA * aNew] });
+      pills.push({ V: hi, t: ['V₂ = ' + vol(hi), 'V₁ = ' + vol(hi)], a: [hA * aOld, hA * aNew] });
+    }
+    pills.forEach((p) => { p.w = Math.max(...p.t.map((s) => tw(s, 'tagt'))) + 14; p.x = X(p.V); p.am = Math.max(...p.a); });
+    if (pills.length === 2) {
+      const need = (pills[0].w + pills[1].w) / 2 + 6;
+      if (pills[1].x - pills[0].x < need) { const m = (pills[0].x + pills[1].x) / 2; pills[0].x = m - need / 2; pills[1].x = m + need / 2; }
+      if (pills[0].x - pills[0].w / 2 < 2) { pills[0].x = 2 + pills[0].w / 2; pills[1].x = Math.max(pills[1].x, pills[0].x + need); }
+      if (pills[1].x + pills[1].w / 2 > 338) { pills[1].x = 338 - pills[1].w / 2; pills[0].x = Math.min(pills[0].x, pills[1].x - need); }
+    } else pills.forEach((p) => { p.x = K.clamp(p.x, 2 + p.w / 2, 338 - p.w / 2); });
+    pills.forEach((p) => { if (p.am > 0) BOXES.push({ x0: p.x - p.w / 2, x1: p.x + p.w / 2, y0: PY0, y1: PY0 + 18 }); });
+
+    // the key
+    const rows = [{ sw: 'line', text: cd.keyName || '_pV_ = ' + fv(c, 2), a: 1 }];
+    if (isE) rows.push({ sw: 'bar', text: 'bars, each 40 ÷ _k_ kJ', a: barsA });
+    else if (d.key) {
+      d.key.forEach((r) => {
+        if (r.textR) {
+          const out = st.res === 'right' ? 1 - arr(0.1, 0.3) : 1, inn = st.res === 'right' ? arr(0.4, 0.3) : 0;
+          rows.push({ sw: r.sw, text: r.text, a: out }, { sw: r.swR || r.sw, text: r.textR, a: inn, same: out > 0 });
+        } else rows.push({ sw: r.sw, text: r.text, a: 1 });
+      });
+    } else {
+      rows.push({ sw: 'bar', text: 'bars: their total is the work', a: barsA });
+      rows.push({ sw: 'hatch', text: 'hatched: squeezed, so minus', a: sqA });
+      rows.push({ sw: 'poly', text: 'the _n_ = 1.3 curve', a: ovA }, { sw: 'polyar', text: 'the area under it', a: ovA });
+    }
+
+    // axes, ticks and titles (a tick number under a handle's tag gives way to it)
+    line('ax', GX0, GY1, GX1 + 6, GY1);
+    line('ax', GX0, GY0 - 8, GX0, GY1);
+    cd.vt.forEach((V) => {
+      const x = X(V), s = fv(V, 3), w = tw(s, 'tk'), b0 = x - w / 2, b1 = x + w / 2;
+      let a = 1;
+      pills.forEach((p) => { if (!(p.am > 0)) return; const gap = Math.max(p.x - p.w / 2 - b1, b0 - (p.x + p.w / 2)); a = Math.min(a, 1 - p.am * (1 - K.clamp((gap - 2) / 6, 0, 1))); });
+      part(1, 0, () => line('ax', x, GY1, x, GY1 + 5));
+      if (a > 0.001) { part(a, 0, () => text(x, XT, s, 'tk', 'middle')); if (a > 0.5) BOXES.push({ x0: b0, x1: b1, y0: XT - 11, y1: XT + 3 }); }
+    });
+    const u = cd.pt ? 0 : K.clamp((top - TOP) / (TOP_OV - TOP), 0, 1);
+    const pticks = cd.pt ? cd.pt.map((p) => [p, 1]) : [[0, 1], [100, 1 - u], [200, 1], [300, 1 - u], [400, 1], [600, u], [800, u]];
+    pticks.forEach((q) => {
+      if (q[0] > top + 1e-9 || !(q[1] > 0.001)) return;
+      const y = Y(q[0]);
+      part(q[1], 0, () => { line('ax', GX0 - 5, y, GX0, y); text(GX0 - 8, y + 4.5, String(q[0]), 'tk', 'end'); });
+      if (q[1] >= 1) REC.pticks.push(q[0]);
+    });
+    text(4, 16, 'pressure _p_ (kPa)', 'axt h', 'start');
+    text(336, XTT, 'volume _V_ (m³)', 'axt h', 'end');
+
+    // the bars: the handles' bars, the puzzle's other stretches, and screen 4's pair
+    function bars(list, cls, a, hatchA) {
+      if (!(a > 0) || !list.length) return;
+      const sorted = list.map((b) => ({ a: Math.min(b.a, b.b), b: Math.max(b.a, b.b), h: b.h })).sort((p, q) => p.a - q.a);
+      const outline = [[X(sorted[0].a), Y(0)]];
+      sorted.forEach((b) => { outline.push([X(b.a), Y(b.h)], [X(b.b), Y(b.h)]); });
+      outline.push([X(sorted[sorted.length - 1].b), Y(0)]);
+      part(a, 0, () => {
+        if (sorted.length <= 12) sorted.forEach((b) => rect(cls, X(b.a), Y(b.h), X(b.b) - X(b.a), Y(0) - Y(b.h)));
+        else path(cls, outline, true);
+        if (hatchA > 0) { const hp = path('hatch', outline, true); hp.setAttribute('opacity', r3(hatchA)); }
+      });
+      if (a >= 1) REC.bars.push({ cls, list: sorted, hatch: hatchA });
+    }
+    if (isE) {
+      if (kOld) bars(eBars(c, V0, kOld), 'bar', 1 - kA, 0);
+      if (kNew) bars(eBars(c, V0, kNew), 'bar', kOld ? kA : kA, 0);
+    } else {
+      if (nOld) bars(midBars(c, lo, hi, nOld), 'bar', 1 - nA, sqA);
+      if (nNew) bars(midBars(c, lo, hi, nNew), 'bar', nA, sqA);
+      (d.more || []).forEach((m) => {
+        if (m.cls === 'tbd') {
+          const a = m.hide ? 1 - (st.res === 'right' ? arr(0.1, 0.4) : 0) : 1;
+          const pts = curvePts((V) => pOf(c, V), m.a, m.b, 40).map((q) => [X(q[0]), Y(q[1])]);
+          part(a, 0, () => path('tbd', [[X(m.a), Y(0)]].concat(pts, [[X(m.b), Y(0)]]), false));
+        } else bars(midBars(c, m.a, m.b, 100), m.cls, ar(d, st, m.show), 0);
+      });
+    }
+    if (d.pairs && !live) {
+      const pa = A(st, 0.4) * (1 - A(st, 2.7, 0.4)), hl = A(st, 1.0), lift = A(st, 1.3, 1.0), lift2 = A(st, 1.5, 1.0);
+      if (pa > 0) {
+        part(pa, 0, () => {
+          [NAR[1], WID[1]].forEach((b) => rect('bar', X(b.a), Y(b.h), X(b.b) - X(b.a), Y(0) - Y(b.h)));
+          // once lifted, the wide bar leaves only its outline behind
+          (lift > 0 ? [NAR[0]] : [NAR[0], WID[0]]).forEach((b) => {
+            rect(hl >= 1 ? 'pair' : 'bar', X(b.a), Y(b.h), X(b.b) - X(b.a), Y(0) - Y(b.h));
+          });
+          if (lift > 0) {
+            // the wide bar, cut in two, each half lifted and laid over its partner
+            const w = WID[0], half = (w.b - w.a) / 2, pieces = [[w.a, 0, 0], [w.a + half, w.h, lift2]];
+            rect('ghost', X(w.a), Y(w.h), X(w.b) - X(w.a), Y(0) - Y(w.h));
+            REC.pieces = [];
+            pieces.forEach((pc, j) => {
+              const q = j ? lift2 : lift, x0 = pc[0] + (NAR[0].a - pc[0]) * q, base = pc[1] * q + Math.sin(Math.PI * q) * 30;
+              rect('piece', X(x0), Y(base + w.h), X(x0 + half) - X(x0), Y(base) - Y(base + w.h));
+              REC.pieces.push({ a: x0, b: x0 + half, y0: base, y1: base + w.h });
+            });
+          }
+        });
+        if (hl > 0 && hl < 1) part(pa * hl, 0, () => [NAR[0], WID[0]].forEach((b) => rect('pair', X(b.a), Y(b.h), X(b.b) - X(b.a), Y(0) - Y(b.h))));
+      }
+      if (pa > 0 && pa >= 1) said.push('Two narrow bars from 0.1 to 0.2 cubic metres stand beside two bars twice as wide and half as tall from 0.2 to 0.4.');
+    }
+
+    // the n = 1.3 gas from the start, as it expands (from lo) or is squeezed (from hi)
+    const polys = [[lo, hi, ovA * (1 - sqA)], [hi, lo, ovA * sqA]];
+    if (!isE) polys.forEach((pp) => {
+      const Vs = pp[0], Ve = pp[1], a = pp[2];
+      if (!(a > 0)) return;
+      const Va = Vs * Math.pow(pOf(c, Vs) / top, 1 / NP), pts = curvePts((V) => pPoly(c, Vs, V), Math.max(Va, 0.005), cd.vmax, 140);
+      const ar2 = curvePts((V) => pPoly(c, Vs, V), Math.min(Vs, Ve), Math.max(Vs, Ve), 50).map((q) => [X(q[0]), Y(q[1])]);
+      part(a, 0, () => {
+        path('polyar', [[X(Math.min(Vs, Ve)), Y(0)]].concat(ar2, [[X(Math.max(Vs, Ve)), Y(0)]]), false);
+        path('poly', pts.map((q) => [X(q[0]), Y(q[1])]), false);
+      });
+      pts.forEach((q) => OBST.push([X(q[0]), Y(q[1])]));
+    });
+    // the steady-temperature curve, p = C ÷ V
+    const iso = curvePts((V) => pOf(c, V), c / top, cd.vmax, 200).map((q) => [X(q[0]), Y(q[1])]);
+    path('curve', iso, false);
+    iso.forEach((q) => OBST.push(q));
+
+    // which way the gas runs: an arrowhead on the curve
+    function arrow(Va, Vb, a) {
+      if (!(a > 0)) return;
+      const Vm = Math.sqrt(Va * Vb), e = Vm * 0.03, dir = Vb > Va ? 1 : -1;
+      const p0 = [X(Vm - e), Y(pOf(c, Vm - e))], p1 = [X(Vm + e), Y(pOf(c, Vm + e))];
+      let ux = p1[0] - p0[0], uy = p1[1] - p0[1];
+      const L = Math.hypot(ux, uy) || 1;
+      ux = ux / L * dir; uy = uy / L * dir;
+      const cx = X(Vm), cy = Y(pOf(c, Vm)), nx = -uy, ny = ux, bx = cx - ux * 5, by = cy - uy * 5;
+      const pts = [[cx + ux * 7, cy + uy * 7], [bx + nx * 5.5, by + ny * 5.5], [bx - nx * 5.5, by - ny * 5.5]];
+      part(a, 0, () => add(K.svg('polygon', { class: 'arw', points: pts.map((q) => r3(q[0]) + ',' + r3(q[1])).join(' ') })));
+      BOXES.push({ x0: cx - 9, x1: cx + 9, y0: cy - 9, y1: cy + 9 });
+      if (a >= 1) REC.arrows.push(dir);
+    }
+    if (!isE) {
+      const show = d.fix ? 1 : hA * barsA;
+      arrow(lo, hi, show * (1 - sqA));
+      arrow(hi, lo, show * sqA);
+    }
+
+    // the key goes in before the labels, which keep clear of it
+    drawKey(rows, said);
+
+    // a dot on the curve at each end, with its pressure
+    const dots = [];
+    if (d.dots) d.dots.forEach((V) => dots.push({ V, a: 1 }));
+    else if (d.drag && !isE) { dots.push({ V: lo, a: hA }, { V: hi, a: hA }); }
+    dots.forEach((q) => {
+      if (!(q.a > 0)) return;
+      const p = pOf(c, q.V), x = X(q.V), y = Y(p), s = kpa(p), isLo = Math.abs(q.V - Math.min(lo, hi)) < 1e-9 && !d.dots;
+      part(q.a, 0, () => dot('dot', x, y, 4.5));
+      BOXES.push({ x0: x - 5, x1: x + 5, y0: y - 5, y1: y + 5 });
+      const cands = isLo ? [[x + 9, y - 7, 'start'], [x + 9, y - 16, 'start'], [x - 9, y - 7, 'end'], [x - 9, y + 17, 'end']]
+        : [[x + 9, y - 7, 'start'], [x + 9, y + 17, 'start'], [x - 9, y - 7, 'end'], [x - 9, y - 16, 'end'], [x - 6, y - 24, 'end'], [x, y - 14, 'middle']];
+      const pl = placeAt(s, 'lab', cands);
+      part(q.a, 0, () => text(pl[0], pl[1], s, 'lab h', pl[2]));
+      if (q.a >= 1) REC.dots.push({ V: q.V, p, x, y, text: s });
+    });
+    // the n = 1.3 gas's end, with its pressure
+    if (!isE && (d.polyDot || (d.drag && ovA > 0))) {
+      [[lo, hi, ovA * (1 - sqA)], [hi, lo, ovA * sqA]].forEach((pp) => {
+        const a = d.polyDot ? (pp[0] === to.lo && !to.sq || pp[0] === to.hi && to.sq ? 1 : 0) : pp[2];
+        if (!(a > 0)) return;
+        const p = pPoly(c, pp[0], pp[1]), x = X(pp[1]), y = Y(p), s = kpa(p);
+        part(a, 0, () => dot('pdot', x, y, 4.5));
+        BOXES.push({ x0: x - 5, x1: x + 5, y0: y - 5, y1: y + 5 });
+        const pl = placeAt(s, 'plab', [[x + 9, y - 7, 'start'], [x + 9, y + 17, 'start'], [x - 9, y + 17, 'end'], [x - 9, y - 7, 'end'], [x - 9, y - 16, 'end']]);
+        part(a, 0, () => text(pl[0], pl[1], s, 'plab h', pl[2]));
+        if (a >= 1) REC.dots.push({ V: pp[1], p, x, y, text: s, poly: true });
+      });
+    }
+
+    // the handles on the axis, and their tags
+    if (d.drag && !isE) {
+      [lo, hi].forEach((V) => part(hA, 0, () => dot('handle', X(V), GY1, 6.5)));
+      if (!finished && (live || hA >= 1)) HANDLES = [{ key: 'lo', x: X(lo), V: lo }, { key: 'hi', x: X(hi), V: hi }];
+    }
+    pills.forEach((p) => {
+      p.t.forEach((s, j) => {
+        if (!(p.a[j] > 0)) return;
+        part(p.a[j], 0, () => { rect('tag', p.x - p.w / 2, PY0, p.w, 18, 9); text(p.x, PY0 + 13.5, s, 'tagt', 'middle'); });
+        if (p.a[j] >= 1) REC.pills.push(s);
+      });
+    });
+
+    // screen 6: where e × 0.1 sits
+    if (isE) {
+      const a = A(st, d.eAt), Ve = Math.E * V0, x = X(Ve);
+      part(a, 0, () => { line('eline', x, GY1, x, 98); text(336, 92, 'e × 0.1 ≈ ' + fx(Ve, 3), 'elab h', 'end'); });
+      if (a >= 1) { REC.eline = x; said.push('A dashed line marks e times 0.1, about ' + fx(Ve, 3) + ' cubic metres.'); }
+    }
+
+    // a puzzle's slips
+    (d.items || []).forEach((it) => {
+      const a = ar(d, st, it);
+      if (!(a > 0)) return;
+      REC.slips += 1;
+      part(a, 0, () => {
+        if (it.k === 'vline') line('slip', X(it.V), GY1, X(it.V), Y(pOf(c, it.V)) + 6);
+        else if (it.k === 'chord') line('slipd', X(it.a), Y(pOf(c, it.a)), X(it.b), Y(pOf(c, it.b)));
+        else if (it.k === 'ticks') it.vs.forEach((V) => line('slip', X(V), GY1 - 12, X(V), GY1));
+        else if (it.k === 'shape') { const pts = it.pts().map((q) => [X(q[0]), Y(q[1])]); path('slipd', [[pts[0][0], Y(0)]].concat(pts, [[pts[pts.length - 1][0], Y(0)]]), false); }
+      });
+    });
+
+    said.unshift('A graph of pressure against volume, with the curve p equals ' + fv(c, 2) + ' divided by V' + (isE ? '' : ', from ' + vol(Math.min(lo, hi)) + ' to ' + vol(Math.max(lo, hi)) + ' cubic metres' + (sqA >= 0.5 ? ', squeezed' : '')) + '.');
+    if (ovA >= 1) said.push('A second curve shows the n equals 1.3 gas from the same start.');
+  }
+
+  // ---------- the preview: y = 1 ÷ x ----------
+  function drawPrev(d, st, said) {
+    const v = viewOf(d, st), xs = val(v, 'x'), live = !!st.live;
+    const X = (x) => GX0 + x / 4 * (GX1 - GX0), Y = (y) => GY1 - y / 3 * (GY1 - GY0);
+    GEO = { X, Y, invX: (px) => (px - GX0) / (GX1 - GX0) * 4 };
+    const sA = A(st, d.stripAt);
+    const ptxt = '_x_ = ' + fv(xs, 2), pw = tw(ptxt, 'tagt') + 14, px = K.clamp(X(xs), 2 + pw / 2, 338 - pw / 2);
+    BOXES.push({ x0: px - pw / 2, x1: px + pw / 2, y0: PY0, y1: PY0 + 18 });
+    line('ax', GX0, GY1, GX1 + 6, GY1);
+    line('ax', GX0, GY0 - 8, GX0, GY1);
+    [0, 1, 2, 3, 4].forEach((x) => {
+      const xx = X(x), s = String(x), w = tw(s, 'tk'), gap = Math.max(px - pw / 2 - (xx + w / 2), xx - w / 2 - (px + pw / 2)), a = K.clamp((gap - 2) / 6, 0, 1);
+      line('ax', xx, GY1, xx, GY1 + 5);
+      if (a > 0.001) part(a, 0, () => text(xx, XT, s, 'tk', 'middle'));
+    });
+    [0, 1, 2, 3].forEach((y) => { const yy = Y(y); line('ax', GX0 - 5, yy, GX0, yy); text(GX0 - 8, yy + 4.5, String(y), 'tk', 'end'); });
+    text(4, 16, '_y_', 'axt h', 'start');
+    text(336, XTT, '_x_', 'axt h', 'end');
+    // the shaded area from 1 to x, and one more strip
+    if (xs > 1 + 1e-6) {
+      const pts = curvePts((x) => 1 / x, 1, xs, 60).map((q) => [X(q[0]), Y(q[1])]);
+      path('shade', [[X(1), Y(0)]].concat(pts, [[X(xs), Y(0)]]), true);
+      REC.shade = [1, xs];
+    }
+    if (sA > 0) {
+      const pts = curvePts((x) => 1 / x, xs, xs + HSTRIP, 12).map((q) => [X(q[0]), Y(q[1])]);
+      part(sA, 0, () => { path('strip', [[X(xs), Y(0)]].concat(pts, [[X(xs + HSTRIP), Y(0)]]), true); text(X(xs + HSTRIP / 2), Y(1 / xs) - 8, '_h_', 'lab h', 'middle'); });
+    }
+    const curve = curvePts((x) => 1 / x, 1 / 3, 4, 160).map((q) => [X(q[0]), Y(q[1])]);
+    path('curve', curve, false);
+    const ln = Math.abs(xs - 1) < 1e-9 ? 'ln 1 = 0' : 'ln ' + fv(xs, 2) + ' ≈ ' + fx(LN(xs), 3);
+    drawKey([{ sw: 'line', text: '_y_ = 1 ÷ _x_', a: 1 }, { sw: 'shade', text: 'shaded: ' + ln, a: 1 }, { sw: 'strip', text: 'one more strip, _h_ wide', a: sA }], said);
+    dot('handle', X(xs), GY1, 6.5);
+    rect('tag', px - pw / 2, PY0, pw, 18, 9); text(px, PY0 + 13.5, ptxt, 'tagt', 'middle');
+    REC.pills.push(ptxt.replace(/_/g, ''));
+    if (!finished) HANDLES = [{ key: 'x', x: X(xs), V: xs }];
+    said.unshift('A graph of y equals 1 divided by x, shaded from 1 to x equals ' + fv(xs, 2) + '.');
+    void live;
+  }
+
+  // ---------- the drag: each handle slides along the bottom axis ----------
+  function svgPt(e) {
+    const ctm = scene.getScreenCTM();
+    if (!ctm) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+  }
+  function moveTo(key, V) {
+    const i = at(), d = STEPS[i];
+    if (finished || !d.drag || !isFinite(V)) return;
+    const to = targetsOf(i);
+    if (key === 'x') {
+      const x = r2(K.clamp(Math.round(V / VSTEP) * VSTEP, 1, 3.5));
+      if (S[i].live && x === to.x) return;
+      takeOver(i, (c) => { c.x = x; }, 0);
+    } else {
+      let lo = to.lo, hi = to.hi;
+      if (key === 'lo') lo = clampLo(V, hi); else hi = clampHi(V, lo);
+      if (S[i].live && lo === to.lo && hi === to.hi) return;
+      takeOver(i, (c) => { c.lo = lo; c.hi = hi; }, 0);
+    }
+    K.reveal(); K.refresh();
+  }
+  const track = ui.appendChild(K.svg('rect', { class: 'track', x: GX0 - 18, y: GY1 - 34, width: GX1 - GX0 + 36, height: 64 }));
+  track.style.display = 'none';
+  track.addEventListener('pointerdown', (e) => {
+    const q = svgPt(e);
+    if (!q || !HANDLES.length || !GEO) return;
+    let best = null;
+    HANDLES.forEach((h) => { const dd = Math.abs(h.x - q.x); if (dd <= 40 && (!best || dd < best.d)) best = { d: dd, h }; });
+    if (!best) return;
+    held = { id: e.pointerId, key: best.h.key };
+    try { track.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the track */ }
+    e.preventDefault();
+    moveTo(held.key, GEO.invX(q.x));
+  });
+  track.addEventListener('pointermove', (e) => {
+    if (!held || held.id !== e.pointerId) return;
+    e.preventDefault();
+    const q = svgPt(e);
+    if (q && GEO) moveTo(held.key, GEO.invX(q.x));
+  });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((ev) => track.addEventListener(ev, (e) => { if (held && held.id === e.pointerId) held = null; }));
+  const grips = [0, 1].map((k) => {
+    const gp = ui.appendChild(K.svg('circle', { class: 'grip', cx: -100, cy: -100, r: 16, tabindex: -1, role: 'button', 'aria-label': 'A handle' }));
+    gp.style.display = 'none';
+    gp.addEventListener('keydown', (e) => {
+      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key], h = HANDLES[k];
+      if (!by || !h) return;
+      e.preventDefault();
+      moveTo(h.key, h.V + by * VSTEP);
+    });
+    return gp;
+  });
+  function placeGrips(d) {
+    const on = !!d.drag && !finished && HANDLES.length > 0;
+    scene.classList.toggle('grab', on);
+    track.style.display = on ? '' : 'none';
+    const sq = d.kind === 'pv' && REC.sq >= 0.5;   // the painted screen's own direction
+    grips.forEach((gp, k) => {
+      const h = on ? HANDLES[k] : null;
+      gp.style.display = h ? '' : 'none';
+      gp.setAttribute('tabindex', h ? '0' : '-1');
+      if (!h) return;
+      gp.setAttribute('cx', r3(h.x)); gp.setAttribute('cy', r3(GY1));
+      const name = h.key === 'x' ? 'The x handle' : ((h.key === 'lo') !== sq ? 'The V 1 handle' : 'The V 2 handle');
+      gp.setAttribute('aria-label', name + ', at ' + fv(h.V, 2) + '. Use the arrow keys to move it.');
+    });
+  }
+
+  // ---------- one paint: the picture, its lines under it, the readouts' arrival and the sentence ----------
+  function writeForms(lines) {
+    const f = el('forms');
+    f.textContent = '';
+    REC.forms = [];
+    lines.forEach((l) => {
+      const sp = f.appendChild(K.el('span', { class: 'fl' + (l[3] ? ' x' : '') }));
+      if (l[0]) formula(sp.appendChild(K.el('span', { class: 'fo' })), l[0]);
+      if (l[1]) sp.appendChild(K.el('span', { class: 'fn' }, l[1]));
+      if (!(l[2] > 0)) { sp.classList.add('wait'); sp.setAttribute('aria-hidden', 'true'); return; }
+      K.fade(sp, l[2], 0);
+      if (l[0]) REC.forms.push(l[0]);
+    });
+  }
+  function sayOf(d, to) {
+    if (d.kind === 'prev') {
+      const x = to.x, xs = fv(x, 2);
+      if (Math.abs(x - 1) < 1e-9) return 'At x = 1 nothing is shaded yet: ln 1 = 0. A strip h wide there stands 1 tall, so it adds about h × 1.';
+      return 'The shaded area from 1 to ' + xs + ' is ln ' + xs + ', about ' + fx(LN(x), 3) + '. A strip h wide at x = ' + xs + ' stands 1 ÷ ' + xs + ' ' + eqs(1 / x, 3) + ' tall, so it adds about h × ' + fv(1 / x, 3) + '.';
+    }
+    if (d.kind === 'e') {
+      const k = to.k || Number(partsC.get()), endV = eEnd(V0, k), area = barsSum(midBars(C, V0, endV, 100));
+      return (k === 1 ? 'One bar makes 40 kJ and ends at ' : 'The ' + k + ' bars make 40 kJ and end at ') + vol(endV) + ' m³, where 100 thin mid-height bars under the curve total ' + kj(area) + ', so ' + (k === 1 ? 'it stands ' : 'they stand ') + kj(C - area) + ' above it.';
+    }
+    const e = ends(to), n = to.n || Number(barsC.get()), tot = barsSum(midBars(C, e.V1, e.V2, n)), r = e.V2 / e.V1;
+    let s = e.sq ? 'A piston squeezes the gas from ' + vol(e.V1) + ' to ' + vol(e.V2) + ' m³, so V₂ ÷ V₁ ' + eqs(r, 3) + ', and with every width minus its ' + n + ' bars hold ' + kj(tot) + ': the piston does ' + kj(-tot) + ' of work on the gas.'
+      : 'The gas expands from ' + vol(e.V1) + ' to ' + vol(e.V2) + ' m³, so V₂ ÷ V₁ ' + eqs(r, 3) + (Math.abs(r - 2) < 1e-9 ? ', one doubling,' : ',') + ' and its ' + n + ' bars hold ' + kj(tot) + ' of work.';
+    if (d.ctl.ov && (to.ov || to.top === TOP_OV)) { const pw = polyW(C, e.V1, e.V2); s += ' From the same start, the n = 1.3 gas ' + (pw < 0 ? 'takes ' + kj(-pw) + ' to squeeze.' : 'does ' + kj(pw) + '.'); }
+    return s;
+  }
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    REC = { dots: [], bars: [], keys: [], pills: [], notes: [], slips: 0, forms: [], top: 0, sq: 0, ov: 0, pticks: [], arrows: [], pieces: null, eline: null, shade: null };
+    into = null; BOXES = []; OBST = []; HANDLES = [];
+    const said = [];
+    if (d.kind === 'prev') drawPrev(d, st, said); else drawPV(d, st, said);
+    const nl = noteLines(d);
+    drawNotes(d, st, H0 + 14, said);
+    scene.setAttribute('viewBox', '0 0 340 ' + (H0 + (nl ? 8 + 18 * nl : 0)));
+    scene.setAttribute('aria-label', said.join(' '));
+    let lines;
+    if (d.show) {
+      const src = typeof d.forms === 'function' ? d.forms(viewOf(d, st).to) : (d.forms || []);
+      lines = src.map((l) => [l[0], l[1], A(st, l[2]), l[3]]);
+    } else if (st.res === 'right') lines = (d.formsR || []).map((l) => [l[0], l[1], l[2] ? arr(l[2]) : 1, l[3]]);
+    else lines = [];
+    writeForms(lines);
+    el('forms').hidden = d.show ? (typeof d.forms !== 'function' && !(d.forms || []).length) : !(d.formsR || []).length;
+    if (d.outs) {
+      const a = A(st, d.outsAt), o = el('outs');
+      o.style.visibility = a > 0 ? '' : 'hidden';
+      K.fade(o, a, 0);
+      if (d.ctl.ov) K.fade(rP.el, st.live ? 1 : A(st, 2.9), 0);
+      K.fade(rL.el, d.lnAt ? A(st, d.lnAt) : 1, 0);
+    }
+    const sy = el('say');
+    if (d.show) {
+      const a = A(st, d.dur - 0.6);
+      sy.textContent = sayOf(d, viewOf(d, st).to);
+      sy.style.visibility = a > 0 ? '' : 'hidden';
+      K.fade(sy, a, 0);
+    }
+    placeGrips(d);
+  }
+
+  // The model the lesson reads: on the screens with readouts, the bars' total, the ln rule and the
+  // n = 1.3 gas's work, from where the handles stand (or the equal-ratio bars on screen 6).
+  K.model((p) => {
+    const i = K.clamp(Math.round(Number(p.step) || 0), 0, STEPS.length - 1), d = STEPS[i];
+    const none = { barsTotal: '—', lnRule: '—', polyWork: '—' };
+    if (!d.outs) return none;
+    const to = targetsOf(i);
+    if (d.kind === 'e') {
+      const k = Number(p.parts) || to.k || 1;
+      return { barsTotal: barsSum(eBars(C, V0, k)), lnRule: lnW(C, V0, eEnd(V0, k)), polyWork: '—' };
+    }
+    const sq = d.ctl.sq ? p.squeeze === true : !!to.sq, ov = d.ctl.ov ? p.overlay === true : !!to.ov;
+    const V1 = sq ? to.hi : to.lo, V2 = sq ? to.lo : to.hi, n = Number(p.bars) || to.n || 100;
+    return { barsTotal: barsSum(midBars(C, V1, V2, n)), lnRule: d.ln ? lnW(C, V1, V2) : '—', polyWork: ov ? polyW(C, V1, V2) : '—' };
+  });
+
+  write(el('finish'), FINISH);
+  write(el('cap'), CAPTION);
+  K.update(() => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      openStep(i);
+      if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }
+    } else if (!finished && d.show) {
+      // a control moved (by Dan, or a test): he takes over from the demonstration
+      const now = ctlNow();
+      if (d.ctl.bars && now.bars !== lastCtl.bars) takeOver(i, (c) => { c.n = now.bars; }, 0.4);
+      if (d.ctl.parts && now.parts !== lastCtl.parts) takeOver(i, (c) => { c.k = now.parts; }, 0.5);
+      if (d.ctl.sq && now.sq !== lastCtl.sq) takeOver(i, (c) => { c.sq = now.sq ? 1 : 0; }, 0.6);
+      if (d.ctl.ov && now.ov !== lastCtl.ov) takeOver(i, (c) => { c.ov = now.ov ? 1 : 0; c.top = now.ov ? TOP_OV : TOP; }, 0.8);
+    }
+    lastCtl = ctlNow();
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right', c = d.ctl;
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('sw').hidden = finished || !(c.sq || c.ov);
+    el('sw').classList.toggle('one', !(c.sq && c.ov));
+    tgS.el.hidden = !c.sq; tgO.el.hidden = !c.ov;
+    barsC.el.hidden = !c.bars; partsC.el.hidden = !c.parts; el('dbl').hidden = !c.dbl;
+    el('ctl').hidden = finished || !(c.bars || c.parts || c.dbl);
+    el('outs').hidden = finished || !d.outs;
+    rL.el.hidden = !d.ln;
+    paint(i);
+    sync(i);
+    const to = targetsOf(i);
+    rP.el.hidden = !(c.ov && (to.ov || to.top === TOP_OV));
+    dblBtn.setLabel(c.sq && to.sq ? 'Halve it' : 'Double it');
+    dblBtn.el.disabled = !dblOK(to);
+    dblBtn.el.setAttribute('aria-disabled', dblBtn.el.disabled ? 'true' : 'false');
+    el('say').hidden = finished || !d.show;
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      maths(b.el.appendChild(K.el('span')), opts[k]);   // one span, so the button's gap does not split an answer
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Tap one of the answers.' : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const PICKS = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const liveSt = (i, cur) => Object.assign(blank(), { live: true, cur: Object.assign({}, tlAt(STEPS[i].tl, Infinity).to, cur), from: {} });
+  const close = (a, b, tol) => Math.abs(a - b) <= (tol != null ? tol : 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)));
+  // A step painted in the state given (finished, or t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try {
+      paint(i);
+      return { texts: Array.from(art.querySelectorAll('text')).map((q) => q.textContent), rec: REC };
+    } finally { S[i] = keepS; T = keepT; }
+  }
+  // The model at a step, in the state given (its demonstration finished by default).
+  function atStep(i, over, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st || blank(); T = Infinity;
+    try { return K.at(Object.assign({ step: i }, over)); } finally { S[i] = keepS; T = keepT; }
+  }
+  // Every check repaints the screen Dan is on when it is done.
+  const chk = (label, fn, opt) => K.check(label, () => { try { return fn(); } finally { paint(); } }, opt);
+  const I_PAIR = idx('Double it'), I_E = idx('The stretch that adds C'), I_SQ = idx('Squeeze it'), I_OV = idx('Show n = 1.3');
+
+  chk('Along the curve pV stays at 400 × 0.1 = 40: 400 kPa at 0.1 m³, 200 at 0.2, 100 at 0.4 and 50 at 0.8, each dot drawn at its pressure', () => {
+    const g = drawn(0, liveSt(0, { lo: 0.1, hi: 0.8, n: 4 })).rec, want = [[0.1, 400], [0.2, 200], [0.4, 100], [0.8, 50]];
+    return C === 40 && want.every((q) => close(pOf(C, q[0]), q[1])) && g.dots.length === 2 &&
+      g.dots.every((q) => close(q.y, GY1 - pOf(C, q.V) / TOP * (GY1 - GY0), 1e-6)) && g.dots.map((q) => q.text).join('|') === kpa(400) + '|' + kpa(50);
+  });
+  chk('Mid-height bars from 0.1 to 0.2 m³ total 27.65 kJ for 4, 27.71 kJ for 8 and 27.73 kJ for 100, each a little under 40 × ln 2', () => {
+    const t = [4, 8, 100].map((n) => atStep(0, { bars: n }).barsTotal);
+    return fx(t[0], 2) === '27.65' && fx(t[1], 2) === '27.71' && fx(t[2], 2) === '27.73' && t[0] < t[1] && t[1] < t[2] && t[2] < lnW(C, 0.1, 0.2);
+  });
+  chk('Doubling the volume makes each bar twice as wide and half as tall, so 0.2 to 0.4, 0.15 to 0.3 and 0.3 to 0.6 m³ hold what 0.1 to 0.2 does for 4, 8 and 100 bars, and 0.1 to 0.4 m³ gives 55.45 kJ', () => {
+    const same = [4, 8, 100].every((n) => {
+      const a = midBars(C, 0.1, 0.2, n), b = midBars(C, 0.2, 0.4, n);
+      return a.every((x, k) => close(b[k].w, 2 * x.w, 1e-12) && close(b[k].h, x.h / 2, 1e-9)) &&
+        [[0.15, 0.3], [0.3, 0.6], [0.2, 0.4]].every((s) => close(barsSum(midBars(C, s[0], s[1], n)), barsSum(a), 1e-9));
+    });
+    return same && fx(atStep(I_PAIR, { bars: 100 }).barsTotal, 2) === '55.45' && fx(barsSum(midBars(C, 0.15, 0.3, 100)), 2) === '27.73';
+  });
+  chk('Cut in two and lifted, the wide bar from 0.2 to 0.3 m³ lands exactly over the narrow one from 0.1 to 0.15 m³: 0.05 × 320 = 0.1 × 160 = 16 kJ', () => {
+    const g = drawn(I_PAIR, blank(), 2.55).rec, P = g.pieces;
+    return !!P && P.length === 2 && close(P[0].a, 0.1, 1e-9) && close(P[0].b, 0.15, 1e-9) && close(P[0].y0, 0, 1e-6) && close(P[0].y1, 160, 1e-6) &&
+      close(P[1].a, 0.1, 1e-9) && close(P[1].y0, 160, 1e-6) && close(P[1].y1, 320, 1e-6) && close(NAR[0].h, 320) && close(WID[0].h, 160) &&
+      areaLine(NAR[0]) === '0.05 × 320 = 16' && areaLine(WID[0]) === '0.1 × 160 = 16';
+  });
+  chk('Double it puts V₂ at twice V₁, and is greyed out while V₁ is over 0.4 m³', () =>
+    dblTo(0.15) === 0.3 && dblTo(0.3) === 0.6 && dblTo(0.4) === 0.8 && dblOK({ lo: 0.4 }) && !dblOK({ lo: 0.45 }) && dblOK({ lo: 0.1 }));
+  chk('Cut from 0.1 m³ into k bars of equal ratio, each holds 40 ÷ k, so k bars make 40 kJ, and the last ends at 0.2, 0.225, 0.244, 0.261 and 0.271 m³ for k = 1, 2, 4, 12 and 365, while the area under the curve to there climbs towards 40 kJ', () => {
+    const ks = [1, 2, 4, 12, 365], endsW = ['0.2', '0.225', '0.244', '0.261', '0.271'];
+    const each = ks.every((k, j) => {
+      const b = eBars(C, V0, k), o = atStep(I_E, { parts: k });
+      return b.every((x) => close(x.w * x.h, C / k, 1e-9)) && close(o.barsTotal, 40, 1e-9) && fv(eEnd(V0, k), 3) === endsW[j] && close(b[k - 1].b, eEnd(V0, k), 1e-12) && o.lnRule < 40;
+    });
+    const climbs = ks.every((k, j) => j === 0 || atStep(I_E, { parts: k }).lnRule > atStep(I_E, { parts: ks[j - 1] }).lnRule);
+    return each && climbs && fx(atStep(I_E, { parts: 1 }).lnRule, 2) === '27.73' && fx(atStep(I_E, { parts: 365 }).lnRule, 2) === '39.95';
+  });
+  chk('e always equals approximately 2.71828: lesson 2\'s sum with 365 parts is 2.71, and e × 0.1 ≈ 0.272 m³', () =>
+    close(Math.E, 2.71828, 1e-5) && fv(Math.pow(1 + 1 / 365, 365), 2) === '2.71' && fx(Math.E * V0, 3) === '0.272', { source: SRC1 });
+  chk('Squeezed from 0.2 to 0.1 m³, every width is minus and both readouts read −27.73 kJ, with V₂ ÷ V₁ = 0.5, the same as 200 ÷ 400', () => {
+    const o = atStep(I_SQ, { squeeze: true, bars: 100 }), e = atStep(I_SQ, { squeeze: false, bars: 100 });
+    return midBars(C, 0.2, 0.1, 100).every((x) => x.w < 0) && fx(o.barsTotal, 2) === '−27.73' && fx(o.lnRule, 2) === '−27.73' &&
+      close(o.lnRule, -e.lnRule, 1e-12) && close(0.1 / 0.2, pOf(C, 0.2) / pOf(C, 0.1)) && o.polyWork === '—';
+  });
+  chk('The n = 1.3 gas from the same start falls to 162 kPa at 0.2 m³ and does 25.03 kJ; squeezed from 0.2 to 0.1 m³ it climbs to 492 kPa and takes 30.82 kJ, against 27.73', () => {
+    const ex = atStep(I_OV, { overlay: true, bars: 100 }), sq = atStep(I_OV, { overlay: true, squeeze: true, bars: 100 }), off = atStep(I_OV, { overlay: false });
+    return fx(pPoly(C, 0.1, 0.2), 0) === '162' && fx(pPoly(C, 0.1, 0.2) * 0.2, 2) === '32.49' && fx(ex.polyWork, 2) === '25.03' && fx(Math.pow(0.5, 0.3), 3) === '0.812' &&
+      fx(pPoly(C, 0.2, 0.1), 0) === '492' && fx(sq.polyWork, 2) === '−30.82' && fx(sq.lnRule, 2) === '−27.73' && off.polyWork === '—' && ANS11 === '(40 − 49.25) ÷ 0.3 ≈ −30.82' + NB + 'kJ';
+  });
+  chk('Boyle\'s law: a fixed mass of gas kept at constant temperature, compressed or allowed to expand, keeps PV constant, at every point drawn on each curve', () =>
+    Object.keys(CARDS).every((k) => { const c = CARDS[k].c; return curvePts((V) => pOf(c, V), c / CARDS[k].top, CARDS[k].vmax, 50).every((q) => close(q[0] * q[1], c, 1e-9)); }), { source: SRC2 });
+  chk('The special case n = 1 is the isothermal expansion, P1V1 = P2V2 = C: as n nears 1, (P1V1 − P2V2) ÷ (n − 1) closes in on C ln(V2/V1)', () => {
+    const near = (V1, V2) => { const n = 1 + 1e-7; return (C - C * Math.pow(V1 / V2, n - 1)) / (n - 1); };
+    return [[0.1, 0.2], [0.1, 0.8], [0.4, 0.1]].every((s) => close(near(s[0], s[1]), lnW(C, s[0], s[1]), 1e-4)) && close(pOf(C, 0.1) * 0.1, pOf(C, 0.2) * 0.2);
+  }, { source: SRC3 });
+  chk('Adding one to the power −1 produces 0, and a division by 0 is not possible, so the reverse power rule cannot take p = 40 × V^−1', () =>
+    -1 + 1 === 0 && !isFinite(C / (-1 + 1)), { source: SRC4 });
+  chk('The work of a reversible isothermal expansion is nRT ln(V2/V1), nRT being the steady pV: the second readout is pV × ln(V2/V1) wherever the handles stand, expanding or squeezed', () => {
+    const vs = [0.1, 0.15, 0.25, 0.4, 0.55, 0.8];
+    return vs.every((a) => vs.every((b) => {
+      if (!(b > a)) return true;
+      const st = liveSt(I_SQ, { lo: a, hi: b, n: 100 }), ex = atStep(I_SQ, { squeeze: false, bars: 100 }, st), sq = atStep(I_SQ, { squeeze: true, bars: 100 }, st);
+      return close(ex.lnRule, pOf(C, a) * a * LN(b / a), 1e-9) && close(sq.lnRule, pOf(C, b) * b * LN(a / b), 1e-9);
+    }));
+  }, { source: SRC6 });
+  chk('The logarithmic function with base e is the natural logarithm: e to the power ln of each ratio on the page gives the ratio back', () =>
+    [2, 3, 5, 8, 0.5, 0.25, 0.125, Math.E].every((r) => close(Math.exp(LN(r)), r, 1e-12)) && close(LN(Math.E), 1, 1e-12), { source: SRC5 });
+  chk('Every answer offered is the value its own working gives: 27.73, 55.45 and 13.86; 83.18, 194.08 and 221.81; 43.94, 19.08 and −64.38; −55.45; 48.28, 20.97 and 482.83; −16.64 and −7.22 kJ', () => {
+    const k = (a) => a.map((s) => s.replace(NB + 'kJ', '')).join('|');
+    return k(O3) === '27.73|55.45|13.86' && k(O5) === '83.18|194.08|221.81' && k(O7) === '43.94|19.08|−64.38' && k(O9) === '−55.45|+55.45|0' &&
+      k(O12) === '48.28|20.97|482.83' && k(O13) === '−16.64|−7.22|+16.64' && fx(LN(3), 3) === '1.099' && fx(LN(5), 3) === '1.609' && fx(LN(1 / 8), 3) === '−2.079' &&
+      fx(LN(2), 3) === '0.693' && V13 === 0.01 && fx(C * LG(2), 2) === '12.04';
+  });
+  const shows = (texts, ans) => texts.some((x) => x === ans || (x.indexOf(ans) === 0 && /\s/.test(x.charAt(ans.length))));
+  chk('Before an answer, nothing in a puzzle\'s picture or lines gives it away, and a right answer shows it', () =>
+    PICKS.every((i) => {
+      const d = STEPS[i], b = drawn(i, blank()), r = drawn(i, solvedSt(i));
+      return !shows(b.texts, d.ans) && !shows(b.rec.forms, d.ans) && (shows(r.texts, d.ans) || shows(r.rec.forms, d.ans));
+    }));
+  chk('Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own and draws its slip', () =>
+    PICKS.every((i) => {
+      const d = STEPS[i];
+      return d.opts.length === 3 && d.opts.indexOf(d.want) === 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)) &&
+        d.opts.every((o) => o === d.want || (!!(d.hints && d.hints[o]) && (() => { const g = drawn(i, wrongSt(i, o)).rec; return g.slips + g.notes.length > 0; })()));
+    }));
+  chk('A finger on the axis lands on the nearest 0.05 m³, and the handles stay in order between 0.1 and 0.8 m³', () => {
+    const cd = CARDS.main, X = (x) => GX0 + x / cd.vmax * (GX1 - GX0), inv = (px) => (px - GX0) / (GX1 - GX0) * cd.vmax;
+    return [0.1, 0.15, 0.35, 0.8].every((V) => snapV(inv(X(V))) === V) && snapV(inv(X(0.37))) === 0.35 &&
+      clampLo(0.05, 0.2) === 0.1 && clampLo(0.3, 0.2) === 0.15 && clampHi(0.9, 0.1) === 0.8 && clampHi(0.1, 0.3) === 0.35;
+  });
+  chk('Under y = 1 ÷ x, a thousand thin bars from 1 to 3 add up to ln 3 ≈ 1.099, and one more strip h wide at 3 adds about h ÷ 3', () => {
+    const b = midBars(1, 1, 3, 1000), h = 0.001;
+    return close(barsSum(b), LN(3), 1e-6) && close((LN(3 + h) - LN(3)) / h, 1 / 3, 1e-3) && fx(LN(3), 3) === '1.099';
+  });
+  chk('Every demonstration finishes arriving within its time (3 to 5 s), none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i), FB[0]) && FB[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB[1]) && FB[1] <= 2.5);
+    });
+    T = keepT;
+    return ok;
+  });
+
+  K.ready();
+</script>

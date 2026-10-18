@@ -1,0 +1,253 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Along the curve pV stays at 400 × 0.1 = 40: 400 kPa at 0.1 m³, 200 at 0.2, 100 at 0.4 and 50 at 0.8, each dot drawn at its pressure",
+        "ok": true
+      },
+      {
+        "label": "Mid-height bars from 0.1 to 0.2 m³ total 27.65 kJ for 4, 27.71 kJ for 8 and 27.73 kJ for 100, each a little under 40 × ln 2",
+        "ok": true
+      },
+      {
+        "label": "Doubling the volume makes each bar twice as wide and half as tall, so 0.2 to 0.4, 0.15 to 0.3 and 0.3 to 0.6 m³ hold what 0.1 to 0.2 does for 4, 8 and 100 bars, and 0.1 to 0.4 m³ gives 55.45 kJ",
+        "ok": true
+      },
+      {
+        "label": "Cut in two and lifted, the wide bar from 0.2 to 0.3 m³ lands exactly over the narrow one from 0.1 to 0.15 m³: 0.05 × 320 = 0.1 × 160 = 16 kJ",
+        "ok": true
+      },
+      {
+        "label": "Double it puts V₂ at twice V₁, and is greyed out while V₁ is over 0.4 m³",
+        "ok": true
+      },
+      {
+        "label": "Cut from 0.1 m³ into k bars of equal ratio, each holds 40 ÷ k, so k bars make 40 kJ, and the last ends at 0.2, 0.225, 0.244, 0.261 and 0.271 m³ for k = 1, 2, 4, 12 and 365, while the area under the curve to there climbs towards 40 kJ",
+        "ok": true
+      },
+      {
+        "label": "e always equals approximately 2.71828: lesson 2's sum with 365 parts is 2.71, and e × 0.1 ≈ 0.272 m³",
+        "ok": true,
+        "source": "https://www.mathwords.com/e/euler_number.htm"
+      },
+      {
+        "label": "Squeezed from 0.2 to 0.1 m³, every width is minus and both readouts read −27.73 kJ, with V₂ ÷ V₁ = 0.5, the same as 200 ÷ 400",
+        "ok": true
+      },
+      {
+        "label": "The n = 1.3 gas from the same start falls to 162 kPa at 0.2 m³ and does 25.03 kJ; squeezed from 0.2 to 0.1 m³ it climbs to 492 kPa and takes 30.82 kJ, against 27.73",
+        "ok": true
+      },
+      {
+        "label": "Boyle's law: a fixed mass of gas kept at constant temperature, compressed or allowed to expand, keeps PV constant, at every point drawn on each curve",
+        "ok": true,
+        "source": "https://phys.libretexts.org/Bookshelves/Thermodynamics_and_Statistical_Mechanics/Heat_and_Thermodynamics_(Tatum)/08%3A_Heat_Capacity_and_the_Expansion_of_Gases/8.03%3A_Isothermal_Expansion_of_an_Ideal_Gas"
+      },
+      {
+        "label": "The special case n = 1 is the isothermal expansion, P1V1 = P2V2 = C: as n nears 1, (P1V1 − P2V2) ÷ (n − 1) closes in on C ln(V2/V1)",
+        "ok": true,
+        "source": "https://www.sfu.ca/~mbahrami/Mech%20240/Lectures/Energy%20Analysis_Closed%20System.pdf"
+      },
+      {
+        "label": "Adding one to the power −1 produces 0, and a division by 0 is not possible, so the reverse power rule cannot take p = 40 × V^−1",
+        "ok": true,
+        "source": "https://simple.m.wikipedia.org/wiki/Integral"
+      },
+      {
+        "label": "The work of a reversible isothermal expansion is nRT ln(V2/V1), nRT being the steady pV: the second readout is pV × ln(V2/V1) wherever the handles stand, expanding or squeezed",
+        "ok": true,
+        "source": "https://www2.ph.ed.ac.uk/~gja/thermo/course_notes/topic03.pdf"
+      },
+      {
+        "label": "The logarithmic function with base e is the natural logarithm: e to the power ln of each ratio on the page gives the ratio back",
+        "ok": true,
+        "source": "https://openstax.org/books/intermediate-algebra-2e/pages/10-3-evaluate-and-graph-logarithmic-functions"
+      },
+      {
+        "label": "Every answer offered is the value its own working gives: 27.73, 55.45 and 13.86; 83.18, 194.08 and 221.81; 43.94, 19.08 and −64.38; −55.45; 48.28, 20.97 and 482.83; −16.64 and −7.22 kJ",
+        "ok": true
+      },
+      {
+        "label": "Before an answer, nothing in a puzzle's picture or lines gives it away, and a right answer shows it",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own and draws its slip",
+        "ok": true
+      },
+      {
+        "label": "A finger on the axis lands on the nearest 0.05 m³, and the handles stay in order between 0.1 and 0.8 m³",
+        "ok": true
+      },
+      {
+        "label": "Under y = 1 ÷ x, a thousand thin bars from 1 to 3 add up to ln 3 ≈ 1.099, and one more strip h wide at 3 adds about h ÷ 3",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration finishes arriving within its time (3 to 5 s), none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "squeeze",
+      "overlay",
+      "bars",
+      "parts"
+    ],
+    "readouts": [
+      "barsTotal",
+      "lnRule",
+      "polyWork"
+    ],
+    "outputs": [
+      "barsTotal",
+      "lnRule",
+      "polyWork"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "Count it with bars",
+          "Why no rule?",
+          "The next doubling",
+          "Double it",
+          "From 0.1 to 0.8",
+          "The stretch that adds C",
+          "From 0.1 to 0.3",
+          "Squeeze it",
+          "Squeezed from 0.4",
+          "Show n = 1.3",
+          "Which takes less work?",
+          "A gas at 300 kPa",
+          "The compressor",
+          "A preview: ln x"
+        ],
+        "value": 0
+      },
+      {
+        "id": "squeeze",
+        "kind": "toggle",
+        "label": "Squeeze it",
+        "options": [
+          false,
+          true
+        ],
+        "value": false
+      },
+      {
+        "id": "overlay",
+        "kind": "toggle",
+        "label": "Show n = 1.3",
+        "options": [
+          false,
+          true
+        ],
+        "value": false
+      },
+      {
+        "id": "bars",
+        "kind": "choice",
+        "label": "Bars",
+        "options": [
+          4,
+          8,
+          100
+        ],
+        "labels": [
+          "4",
+          "8",
+          "100"
+        ],
+        "value": 4,
+        "index": 0
+      },
+      {
+        "id": "parts",
+        "kind": "choice",
+        "label": "Parts",
+        "options": [
+          1,
+          2,
+          4,
+          12,
+          365
+        ],
+        "labels": [
+          "1",
+          "2",
+          "4",
+          "12",
+          "365"
+        ],
+        "value": 1,
+        "index": 0
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Double it",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1",
+    "squeeze = true",
+    "overlay = true",
+    "bars = 8",
+    "parts = 2",
+    "pressed \"Answer 1\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i8.a2-360-light.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i8.a2-360-light-moved.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i8.a2-360-light-end.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i8.a2-360-dark.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i8.a2-360-dark-moved.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i8.a2-360-dark-end.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i8.a2-1280-light.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i8.a2-1280-light-moved.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i8.a2-1280-light-end.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i8.a2-1280-dark.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i8.a2-1280-dark-moved.png",
+    "/home/user/Study-App/build/maths/exponentials-and-logarithms/i8.a2-1280-dark-end.png"
+  ]
+}

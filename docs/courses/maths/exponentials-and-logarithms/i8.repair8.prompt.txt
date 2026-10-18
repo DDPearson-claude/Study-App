@@ -1,0 +1,372 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Exponentials and logarithms
+Idea: Isothermal work: when n = 1 (An ideal gas expanding at constant temperature, pV = C, does work W = p₁V₁ ln(V₂/V₁), the case the power rule for integrating cannot reach.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is every bar turning twice as wide and half as tall, so the bars' total stays at 27.73 kJ, when you press 'Double it' from any start volume.
+Title (the app shows it above the frame, so do not repeat it): Equal ratios, equal areas
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in fourteen small screens on one pV diagram, as in Calculus fundamentals: pressure p in kPa up the side, from 0 to 450, and volume V in m³ along the bottom, from 0 to 0.8. On it is the curve p = 40 ÷ V, a gas held at a steady temperature, so p × V stays at 40 all along it: 400 kPa at 0.1 m³, 200 at 0.2, 100 at 0.4 and 50 at 0.8. Two handles on the bottom axis mark the start volume V₁ and the end volume V₂; each drags from 0.1 to 0.8 m³ in steps of 0.05, and a dot on the curve above each shows its pressure. Between them stand bars of equal width, as in Calculus fundamentals lesson 8, each as tall as the curve at its middle, so each bar is a pressure times a change in volume, a little work; a kPa times a m³ is a kJ. Buttons under the graph set how many bars stand there: 4, 8 or 100. The readouts give the bars' total and, from screen 6, C × ln(V₂ ÷ V₁) worked with the ln key, where C = 40, both in kJ. A 'Double it' button moves V₂ to twice V₁ (while squeezing it reads 'Halve it', and the squeeze ends at half the start volume); it is greyed out while V₁ is over 0.4 m³, where twice V₁ would run off the axis. A switch, 'Squeeze it', swaps the two handles, so the gas runs from the larger volume back to the smaller: each bar's width, the change in volume, is then minus, the bars are hatched and both readouts turn minus. A second switch, 'Show n = 1.3', lays a second curve from the same start point, one where p × V^1.3 stays the same, an example polytropic process, with the area under it outlined and a third readout, its work from (p₁V₁ − p₂V₂) ÷ (n − 1), the rule from Calculus fundamentals lesson 9; while it is on, the pressure axis stretches to 800 kPa so that curve fits. The rule: here pV = C, so p = C ÷ V, and the work is the area under that curve between V₁ and V₂. Doubling the volume makes each bar twice as wide and, at twice the volume, half as tall, so each bar's area and the bars' total stay the same: the area depends only on V₂ ÷ V₁. Each stretch of the volume by e, about 2.718, adds exactly C, so the area is C × ln(V₂ ÷ V₁), where ln is the natural log from lesson 4 and C = p₁V₁. Screen by screen: 1 writes pV = C beside the curve, with 4 bars standing from the start, then the old rule (p₁V₁ − p₂V₂) ÷ (n − 1) with n = 1, which gives (40 − 40) ÷ 0, and the reverse power rule's step for 40 × V⁻¹, add one to the power to get V⁰, then divide by 0, struck through; then the bars from 0.1 to 0.2 m³ go from 4 (27.65 kJ) to 8 (27.71 kJ) to 100 (27.73 kJ). 2 asks why the reverse power rule cannot find this area: p = 40 × V⁻¹, and adding one to the power −1 gives 0, a division by 0; not 'the curve never meets the axis, so the area is endless' (the bars stop at V₂ and settle on 27.73 kJ) or 'pV = C is a straight line, so no area rule is needed' (p halves as V doubles, so the line bends). 3 asks what the bars from 0.2 to 0.4 m³ total, given 27.73 kJ from 0.1 to 0.2: 27.73 kJ, not 55.45 kJ (twice as wide, but the pressure is half) or 13.86 kJ (half the pressure, but the stretch is twice as wide). 4 shows why: the bars from 0.2 to 0.4 m³ are drawn beside those from 0.1 to 0.2, each twice as wide and half as tall as its partner, and one pair is lifted and laid over the other to show the same area; then 'Double it' runs from 0.15 to 0.3 and from 0.3 to 0.6 m³, 27.73 kJ each time, and 0.1 to 0.4 m³, two doublings, gives 55.45 kJ. 5 asks for the work from 0.1 to 0.8 m³: 83.18 kJ (0.8 ÷ 0.1 = 8 = 2 × 2 × 2, three doublings), not 194.08 kJ (seven steps of 0.1 m³, as if the work went by the difference) or 221.81 kJ (eight doublings, the ratio 8 taken as the count). 6 finds the stretch that adds exactly C: buttons cut the stretch from 0.1 m³ into 1, 2, 4, 12 and 365 bars, each as wide as one part of the volume where it starts and as tall as the curve at its left edge, so each bar's area is 40 ÷ parts and together they make 40 kJ every time; the last bar ends at 0.2, 0.225, 0.244, 0.261 and 0.271 m³, lesson 2's (1 + 1/parts)^parts times 0.1, settling on e × 0.1 ≈ 0.272 m³. Each bar's left edge is its tallest point, so the bars stand a little above the curve, by less as they thin, the overshoot, measured against 100 mid-height bars up to the last bar's end, shrinking towards nothing: the area from V₁ to e × V₁ is exactly C. Each further stretch by e adds another C, so the work is C times the number of e-stretches, ln(V₂ ÷ V₁), lesson 4's power you need; then the second readout appears: 40 × ln 2 = 27.73 kJ, ln 2 being about 0.693, the bars' total. 7 asks for the work from 0.1 to 0.3 m³: 43.94 kJ (40 × ln 3, ln 3 being about 1.099), not 19.08 kJ (40 × log 3, the log key, which counts ten-fold stretches) or −64.38 kJ (40 × ln 0.2, the difference 0.3 − 0.1 put where the ratio belongs). 8 flips 'Squeeze it' with V₁ = 0.2 and V₂ = 0.1 m³: the pressure climbs from 200 to 400 kPa, V₂ ÷ V₁ = 0.5, the same as 200 ÷ 400, and both readouts read −27.73 kJ: the gas does −27.73 kJ of work, so the piston does 27.73 kJ on it. 9 asks for the gas's work squeezed from 0.4 to 0.1 m³: −55.45 kJ (40 × ln 0.25), not +55.45 kJ (a ratio below 1 has a minus ln, as every bar's width is minus) or 0 kJ (pV is 40 at both ends, but the work is the area under the curve, not the change in pV). 10 flips 'Show n = 1.3' on the expansion from 0.1 to 0.2 m³: the new curve falls to 162 kPa at 0.2 m³, below the isothermal 200, because p × V^1.3 staying the same makes pV a fixed number ÷ V^0.3, which shrinks as V grows (32.49 at 0.2 m³ against 40); its work is (40 − 32.49) ÷ 0.3 = 25.03 kJ against 27.73 kJ. 11 asks, squeezing from 0.2 m³ at 200 kPa to the same end volume of 0.1 m³, which curve takes less work: the isothermal, 27.73 kJ against 30.82 kJ, because the n = 1.3 curve climbs to 492 kPa, above the isothermal 400, as that pV, a fixed number ÷ V^0.3, grows when V shrinks; not the n = 1.3 curve (it gave less work expanding, but squeezing runs its pV the other way) or 'the same, since both end at 0.1 m³' (the work is the area under the path, not set by its ends). 12 and 13 redraw the curve and axes for their own gas and mix it all. 12: gas at 300 kPa in 0.1 m³ expands at a steady temperature to 0.5 m³: 48.28 kJ (C = 30, 30 × ln 5, ln 5 being about 1.609), not 20.97 kJ (30 × log 5) or 482.83 kJ (300 × ln 5, with V₁ left out of C = p₁V₁). 13: say an air compressor squeezes 0.08 m³ of air at 100 kPa to 800 kPa at a steady temperature: −16.64 kJ (pV stays 8, so V₂ ÷ V₁ = 100 ÷ 800 = 1/8, and 8 × ln(1/8), ln(1/8) being about −2.079), not −7.22 kJ (8 × log(1/8), the log key) or +16.64 kJ (the minus lost, though squeezing makes the ratio below 1). 14, a preview, puts the curve y = 1 ÷ x on fresh axes, x from 0 to 4, shaded from 1 to a dragged x, so the shaded area is C × ln(x ÷ 1) with C = 1, which is ln x; one more thin bar of width h at x adds about h × 1 ÷ x, so ln x climbs at a rate of 1 ÷ x: the slope of ln x is 1 ÷ x, which the Derivatives course takes up. A puzzle offers its three answers, and a wrong pick gets a one-line hint showing where it goes wrong.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The gas is ideal and its temperature held exactly steady. Holding it steady needs heat to flow into the gas as it expands and out as it is squeezed, so a real gas comes near the isothermal curve only when the process is slow or the gas well cooled. The value 1.3 is an example, not a measured one. The bars take the pressure at their middles, so a few bars come out a little under the exact area. Readouts are rounded to two decimal places, so a total can differ from the ln rule in the last figure.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "squeeze": Squeeze it, an on/off switch (K.toggle), starting off
+- id "overlay": Show n = 1.3, an on/off switch (K.toggle), starting off
+Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id and the decimals given, which is how the explanation rounds it, or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):
+- id "barsTotal": Bars' total (kJ), decimals: 2
+- id "lnRule": C × ln(V₂ ÷ V₁) (kJ), decimals: 2
+- id "polyWork": n = 1.3 curve's work (kJ), decimals: 2
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Start volume handle's opening setting, in m³: 0.1 (control)
+- End volume handle's opening setting, in m³: 0.2 (control)
+- Volume handles' highest setting, in m³: 0.8 (control)
+- Volume handles' step, in m³: 0.05 (control)
+- Bar buttons: fewest bars: 4 (control)
+- Bar buttons: middle setting: 8 (control)
+- Bar buttons: most bars: 100 (control)
+- Switches' opening setting, off: 0 (control)
+- Switches' on setting: 1 (control)
+- Gas's starting pressure, in kPa: 400 (assumed)
+- Pressure axis, top, in kPa: 450 (assumed)
+- Pressure axis with the overlay on, top, in kPa: 800 (assumed)
+- Example polytropic power n: 1.3 (assumed)
+- C = p₁V₁, 400 × 0.1, in kJ: 40 (computed)
+- Pressure at 0.2 m³, 40 ÷ 0.2, in kPa: 200 (computed)
+- Pressure at 0.4 m³, in kPa: 100 (computed)
+- Pressure at 0.8 m³, in kPa: 50 (computed)
+- Volume where doubling leaves the axis, in m³: 0.4 (computed)
+- 4 bars' total, 0.1 to 0.2 m³, in kJ: 27.65 (computed)
+- 8 bars' total, 0.1 to 0.2 m³, in kJ: 27.71 (computed)
+- 100 bars' total and 40 × ln 2, in kJ: 27.73 (computed)
+- Two doublings, 0.1 to 0.4 m³, in kJ: 55.45 (computed)
+- Slip: half of 27.73, in kJ: 13.86 (computed)
+- Doubling start, in m³: 0.15 (assumed)
+- Doubled from 0.15, in m³: 0.3 (computed)
+- Doubled from 0.3, in m³: 0.6 (computed)
+- Ratio 0.8 ÷ 0.1: 8 (computed)
+- Doublings in a ratio of 8: 3 (computed)
+- Three doublings, 0.1 to 0.8 m³, in kJ: 83.18 (computed)
+- Slip: seven steps of 0.1 m³ × 27.73, in kJ: 194.08 (computed)
+- Slip: steps of 0.1 m³ from 0.1 to 0.8: 7 (computed)
+- Slip: eight doublings × 27.73, in kJ: 221.81 (computed)
+- Screen 6 buttons: parts: 12 (assumed)
+- Screen 6 buttons: most parts: 365 (assumed)
+- Screen 6 buttons: 2 parts: 2 (assumed)
+- End of 2 equal-ratio bars, in m³: 0.225 (computed)
+- End of 4 equal-ratio bars, in m³: 0.244 (computed)
+- End of 12 equal-ratio bars, in m³: 0.261 (computed)
+- End of 365 equal-ratio bars, in m³: 0.271 (computed)
+- e × 0.1, in m³: 0.272 (computed)
+- e, about: 2.718 (constant, source [1])
+- Lesson 2's sum with 2 parts: 2.25 (computed)
+- Lesson 2's sum with 365 parts: 2.71 (computed)
+- ln 2: 0.693 (computed)
+- ln 2, to four places: 0.6931 (computed)
+- Slip: 40 × log 2, in kJ: 12.04 (computed)
+- ln 3: 1.099 (computed)
+- Work from 0.1 to 0.3 m³, 40 × ln 3, in kJ: 43.94 (computed)
+- Slip: 40 × log 3, in kJ: 19.08 (computed)
+- Slip: 40 × ln 0.2, in kJ: -64.38 (computed)
+- Ratio squeezing 0.2 to 0.1 m³: 0.5 (computed)
+- Squeeze 0.2 to 0.1 m³, 40 × ln 0.5, in kJ: -27.73 (computed)
+- Ratio squeezing 0.4 to 0.1 m³: 0.25 (computed)
+- Squeeze 0.4 to 0.1 m³, 40 × ln 0.25, in kJ: -55.45 (computed)
+- n = 1.3 curve: pressure at 0.2 m³, in kPa: 162 (computed)
+- n = 1.3 curve: pV at 0.2 m³, in kJ: 32.49 (computed)
+- n = 1.3 curve: 0.5 to the power 0.3: 0.812 (computed)
+- Power left on V in pV = C ÷ V^0.3: 0.3 (computed)
+- n = 1.3 curve: work from 0.1 to 0.2 m³, in kJ: 25.03 (computed)
+- n = 1.3 curve: pressure squeezed to 0.1 m³, in kPa: 492 (computed)
+- n = 1.3 curve: work squeezing 0.2 to 0.1 m³, in kJ: 30.82 (computed)
+- Screen 12: starting pressure, in kPa: 300 (assumed)
+- Screen 12: end volume, in m³: 0.5 (assumed)
+- Screen 12: C, 300 × 0.1, in kJ: 30 (computed)
+- Screen 12: ratio 0.5 ÷ 0.1: 5 (computed)
+- ln 5: 1.609 (computed)
+- Screen 12: work, 30 × ln 5, in kJ: 48.28 (computed)
+- Slip: 30 × log 5, in kJ: 20.97 (computed)
+- Slip: 300 × ln 5, in kJ: 482.83 (computed)
+- Compressor: air volume at the start, in m³: 0.08 (assumed)
+- Compressor: starting pressure, in kPa: 100 (assumed)
+- Compressor: end pressure, in kPa: 800 (assumed)
+- Compressor: C, 100 × 0.08, in kJ: 8 (computed)
+- Compressor: end volume, 8 ÷ 800, in m³: 0.01 (computed)
+- Compressor: ratio 1/8: 0.125 (computed)
+- ln(1/8): -2.079 (computed)
+- Compressor: work, in kJ: -16.64 (computed)
+- Slip: 8 × log(1/8), in kJ: -7.22 (computed)
+- Preview: x axis's right-hand end: 4 (assumed)
+- 1 bar in kPa: 100 (constant, source [8])
+- 1 bar × 1 litre, in joules: 100 (computed)
+- Course puzzle: halving time, in seconds: 10 (assumed)
+- E12 resistor values in each × 10: 12 (constant, source [7])
+- E12: a value, in ohms: 15 (constant, source [7])
+- E12: last value below 100, in ohms: 82 (constant, source [7])
+- E12: a decade's top, 100 × 10, in ohms: 1000 (computed)
+- E12: each value over the last, about: 1.2 (computed)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Check failed: "Every demonstration finishes arriving within its time (3 to 5 s), none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s" (returned false)
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Euler Number (e) — Definition, Formula & Examples (https://www.mathwords.com/e/euler_number.htm): "e is a fixed constant like π . It always equals approximately 2.71828 and cannot be assigned a different value."
+[2] 8.3: Isothermal Expansion of an Ideal Gas - Physics LibreTexts (https://phys.libretexts.org/Bookshelves/Thermodynamics_and_Statistical_Mechanics/Heat_and_Thermodynamics_(Tatum)/08%3A_Heat_Capacity_and_the_Expansion_of_Gases/8.03%3A_Isothermal_Expansion_of_an_Ideal_Gas): "if a fixed mass of gas kept at constant temperature is compressed or allowed to expand, its pressure and volume will vary according to PV = constant. That is, Boyle's Law."
+[3] Energy Analysis_Closed System - Simon Fraser University (https://www.sfu.ca/~mbahrami/Mech%20240/Lectures/Energy%20Analysis_Closed%20System.pdf): "The special case n =1 is the isothermal expansion P1V1 = P2V2 = mRT0= C"
+[4] Integral - Simple English Wikipedia, the free encyclopedia (https://simple.m.wikipedia.org/wiki/Integral): "These cannot be integrated using the formula above (add one to the power, divide by the power), because adding one to the power produces 0, and a division by 0 is not possible."
+[5] 10.3 Evaluate and Graph Logarithmic Functions - Intermediate Algebra 2e | OpenStax (https://openstax.org/books/intermediate-algebra-2e/pages/10-3-evaluate-and-graph-logarithmic-functions): "The logarithmic function with base e is called the natural logarithmic function ."
+[6] School of Physics and Astronomy Junior Honours Thermodynamics GJA 2019-2020 (https://www2.ph.ed.ac.uk/~gja/thermo/course_notes/topic03.pdf): "The work done on the surroundings by a system comprising n moles of ideal gas expanding reversibly and isothermally is equal to nRT ln( V 2 /V 1)."
+[7] E series of preferred numbers - Wikipedia (https://en.wikipedia.org/wiki/E_series_of_preferred_numbers): "10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82"
+[8] NIST Guide to the SI, Chapter 5: Units Outside the SI | NIST (https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-5-units-outside-si): "1 bar = 0.1 MPa = 100 kPa"
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (/home/user/Study-App/build/maths/exponentials-and-logarithms/i8.body8.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

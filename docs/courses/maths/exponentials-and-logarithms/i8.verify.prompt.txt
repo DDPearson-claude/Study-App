@@ -1,0 +1,650 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Exponentials and logarithms
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i8 "Isothermal work: when n = 1" — An ideal gas expanding at constant temperature, pV = C, does work W = p₁V₁ ln(V₂/V₁), the case the power rule for integrating cannot reach. [quantity]
+This is the last idea in the course.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] 8.3: Isothermal Expansion of an Ideal Gas - Physics LibreTexts — https://phys.libretexts.org/Bookshelves/Thermodynamics_and_Statistical_Mechanics/Heat_and_Thermodynamics_(Tatum)/08%3A_Heat_Capacity_and_the_Expansion_of_Gases/8.03%3A_Isothermal_Expansion_of_an_Ideal_Gas
+    "if a fixed mass of gas kept at constant temperature is compressed or allowed to expand, its pressure and volume will vary according to PV = constant. That is, Boyle's Law."
+[R2] School of Physics and Astronomy Junior Honours Thermodynamics GJA 2019-2020 — https://www2.ph.ed.ac.uk/~gja/thermo/course_notes/topic03.pdf
+    "The work done on the surroundings by a system comprising n moles of ideal gas expanding reversibly and isothermally is equal to nRT ln( V 2 /V 1)."
+[R3] Energy Analysis_Closed System - Simon Fraser University — https://www.sfu.ca/~mbahrami/Mech%20240/Lectures/Energy%20Analysis_Closed%20System.pdf
+    "The special case n =1 is the isothermal expansion P1V1 = P2V2 = mRT0= C"
+[R4] Integral - Simple English Wikipedia, the free encyclopedia — https://simple.m.wikipedia.org/wiki/Integral
+    "These cannot be integrated using the formula above (add one to the power, divide by the power), because adding one to the power produces 0, and a division by 0 is not possible."
+[R5] Answers and Explanations -- The Number $e$ as a Limit — https://www.math.toronto.edu/mathnet/plain/answers/answers_12.html
+    "Under simple interest alone, the money will double during that period. Under continually compounding interest, it will be multiplied by e."
+[R6] Euler Number (e) — Definition, Formula & Examples — https://www.mathwords.com/e/euler_number.htm
+    "e is a fixed constant like π . It always equals approximately 2.71828 and cannot be assigned a different value."
+[R7] 6.8 Exponential Growth and Decay - Calculus Volume 1 | OpenStax — https://openstax.org/books/calculus-volume-1/pages/6-8-exponential-growth-and-decay
+    "That is, the rate of growth is proportional to the current function value."
+[R8] 6.3 Logarithmic Functions - Algebra and Trigonometry 2e | OpenStax — https://openstax.org/books/algebra-and-trigonometry-2e/pages/6-3-logarithmic-functions
+    "For example, the base 2 logarithm of 32 is 5, because 5 is the exponent we must apply to 2 to get 32."
+[R9] 10.3 Evaluate and Graph Logarithmic Functions - Intermediate Algebra 2e | OpenStax — https://openstax.org/books/intermediate-algebra-2e/pages/10-3-evaluate-and-graph-logarithmic-functions
+    "The logarithmic function with base e is called the natural logarithmic function ."
+[R10] Intro to logarithm properties (article) | Khan Academy — https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:logs/x2ec2f6f830c9fb89:log-prop/a/properties-of-logarithms
+    "This property says that the logarithm of a product is the sum of the logs of its factors."
+[R11] 1.2: The Decibel - Engineering LibreTexts — https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/Operational_Amplifiers_and_Linear_Integrated_Circuits_-_Theory_and_Application_(Fiore)/01:_Introductory_Concepts_and_Fundamentals/1.02:_The_Decibel
+    "Normal multiplication becomes addition in the log system, and division becomes subtraction. Likewise, powers and roots become multiplication and division."
+[R12] Decibel (dB) | Definition, Formula, & Facts | Britannica — https://www.britannica.com/science/decibel
+    "One decibel (0.1 bel) equals 10 times the common logarithm of the power ratio."
+[R13] Resolution MSC.337(91), Code on Noise Levels on Board Ships - IMO — https://wwwcdn.imo.org/localresources/en/KnowledgeCentre/IndexofIMOResolutions/MSCResolutions/MSC.337(91).pdf
+    "3.6.2 Sound pressure level readings shall be taken in decibels using an A-weighting (dB(A)) and C-weighting (dB(C)) filter and if necessary also in octave bands between 31.5 and 8,000 Hz."
+Notes (claims, and the sources that support them):
+- Gas kept at constant temperature has pressure and volume varying so that PV is constant, which is Boyle's Law. [R1]
+- The work done by n moles of ideal gas expanding reversibly and isothermally is nRT ln(V2/V1). [R2]
+- The special case n = 1 of pV^n = constant is the isothermal expansion, where the work integral gives a natural logarithm. [R3]
+- The add-one-to-the-power, divide-by-the-power rule cannot integrate certain terms, because adding one to their power gives 0 (source's equation symbols did not come through: the terms are powers of -1). [R4]
+- With a 100% rate over a period, simple interest doubles the money but continually compounding interest multiplies it by e. [R5]  (from an idea this one builds on)
+- e is a fixed constant like π, approximately 2.71828. [R6]  (from an idea this one builds on)
+- In exponential growth the rate of growth is proportional to the current value. [R7]  (from an idea this one builds on)
+- A logarithm gives an exponent: the base 2 logarithm of 32 is 5 because 5 is the exponent applied to 2 to get 32. [R8]  (from an idea this one builds on)
+- The logarithm with base e is called the natural logarithm, written ln. [R9]  (from an idea this one builds on)
+- The logarithm of a product is the sum of the logs of its factors. [R10]  (from an idea this one builds on)
+- In the log system multiplication becomes addition and division subtraction, and powers become multiplication, which is why decibel gains of stages add. [R11]  (from an idea this one builds on)
+- A decibel is 10 times the common logarithm of a power ratio (added for i5's decibel screens). [R12]  (from an idea this one builds on)
+- Engine-room sound readings are taken in decibels with A-weighting, dB(A) (added for i5's decibel screen). [R13]  (from an idea this one builds on)
+- The number e is a fixed constant like π, approximately 2.71828, so it is a number to work with rather than a variable. [R6]  (whole topic)
+- A logarithm answers "what power?": the base 2 logarithm of 32 is 5 because 5 is the exponent applied to 2 to get 32. [R8]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i8",
+ "title": "Isothermal work: when n = 1",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is every bar turning twice as wide and half as tall, so the bars' total stays at 27.73 kJ, when you press 'Double it' from any start volume.",
+  "title": "Equal ratios, equal areas",
+  "controls": [
+   {
+    "id": "squeeze",
+    "label": "Squeeze it",
+    "min": 0,
+    "max": 1,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   },
+   {
+    "id": "overlay",
+    "label": "Show n = 1.3",
+    "min": 0,
+    "max": 1,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "barsTotal",
+    "label": "Bars' total",
+    "unit": "kJ",
+    "decimals": 2
+   },
+   {
+    "id": "lnRule",
+    "label": "C × ln(V₂ ÷ V₁)",
+    "unit": "kJ",
+    "decimals": 2
+   },
+   {
+    "id": "polyWork",
+    "label": "n = 1.3 curve's work",
+    "unit": "kJ",
+    "decimals": 2
+   }
+  ],
+  "whatAmILookingAt": "A short lesson in fourteen small screens on one pV diagram, as in Calculus fundamentals: pressure p in kPa up the side, from 0 to 450, and volume V in m³ along the bottom, from 0 to 0.8. On it is the curve p = 40 ÷ V, a gas held at a steady temperature, so p × V stays at 40 all along it: 400 kPa at 0.1 m³, 200 at 0.2, 100 at 0.4 and 50 at 0.8. Two handles on the bottom axis mark the start volume V₁ and the end volume V₂; each drags from 0.1 to 0.8 m³ in steps of 0.05, and a dot on the curve above each shows its pressure. Between them stand bars of equal width, as in Calculus fundamentals lesson 8, each as tall as the curve at its middle, so each bar is a pressure times a change in volume, a little work; a kPa times a m³ is a kJ. Buttons under the graph set how many bars stand there: 4, 8 or 100. The readouts give the bars' total and, from screen 6, C × ln(V₂ ÷ V₁) worked with the ln key, where C = 40, both in kJ. A 'Double it' button moves V₂ to twice V₁; it is greyed out while V₁ is over 0.4 m³, where twice V₁ would run off the axis. A switch, 'Squeeze it', swaps the two handles, so the gas runs from the larger volume back to the smaller: each bar's width, the change in volume, is then minus, the bars are hatched and both readouts turn minus. A second switch, 'Show n = 1.3', lays a second curve from the same start point, one where p × V^1.3 stays the same, an example polytropic process, with the area under it outlined and a third readout, its work from (p₁V₁ − p₂V₂) ÷ (n − 1), the rule from Calculus fundamentals lesson 9; while it is on, the pressure axis stretches to 800 kPa so that curve fits. The rule: here pV = C, so p = C ÷ V, and the work is the area under that curve between V₁ and V₂. Doubling the volume makes each bar twice as wide and, at twice the volume, half as tall, so each bar's area and the bars' total stay the same: the area depends only on V₂ ÷ V₁. Each stretch of the volume by e, about 2.718, adds exactly C, so the area is C × ln(V₂ ÷ V₁), where ln is the natural log from lesson 4 and C = p₁V₁. Screen by screen: 1 writes pV = C beside the curve, then the old rule (p₁V₁ − p₂V₂) ÷ (n − 1) with n = 1, which gives (40 − 40) ÷ 0, and the reverse power rule's step for 40 × V⁻¹, add one to the power to get V⁰, then divide by 0, struck through; then the bars from 0.1 to 0.2 m³ go from 4 (27.65 kJ) to 8 (27.71 kJ) to 100 (27.73 kJ). 2 asks why the reverse power rule cannot find this area: p = 40 × V⁻¹, and adding one to the power −1 gives 0, a division by 0; not 'the curve never meets the axis, so the area is endless' (the bars stop at V₂ and settle on 27.73 kJ) or 'pV = C is a straight line, so no area rule is needed' (p halves as V doubles, so the line bends). 3 asks what the bars from 0.2 to 0.4 m³ total, given 27.73 kJ from 0.1 to 0.2: 27.73 kJ, not 55.45 kJ (twice as wide, but the pressure is half) or 13.86 kJ (half the pressure, but the stretch is twice as wide). 4 shows why: the bars from 0.2 to 0.4 m³ are drawn beside those from 0.1 to 0.2, each twice as wide and half as tall as its partner, and one pair is lifted and laid over the other to show the same area; then 'Double it' runs from 0.15 to 0.3 and from 0.3 to 0.6 m³, 27.73 kJ each time, and 0.1 to 0.4 m³, two doublings, gives 55.45 kJ. 5 asks for the work from 0.1 to 0.8 m³: 83.18 kJ (0.8 ÷ 0.1 = 8 = 2 × 2 × 2, three doublings), not 194.08 kJ (seven steps of 0.1 m³, as if the work went by the difference) or 221.81 kJ (eight doublings, the ratio 8 taken as the count). 6 finds the stretch that adds exactly C: buttons cut the stretch from 0.1 m³ into 1, 2, 4, 12 and 365 bars, each as wide as one part of the volume where it starts and as tall as the curve at its left edge, so each bar's area is 40 ÷ parts and together they make 40 kJ every time; the last bar ends at 0.2, 0.225, 0.244, 0.261 and 0.271 m³, lesson 2's (1 + 1/parts)^parts times 0.1, settling on e × 0.1 ≈ 0.272 m³. Each bar's left edge is its tallest point, so the bars stand a little above the curve, by less as they thin, the overshoot shrinking towards nothing: the area from V₁ to e × V₁ is exactly C. Then the second readout appears: 40 × ln 2 = 40 × 0.693 = 27.73 kJ, the bars' total. 7 asks for the work from 0.1 to 0.3 m³: 43.94 kJ (40 × ln 3 = 40 × 1.099), not 19.08 kJ (40 × log 3, the log key, which counts ten-fold stretches) or −64.38 kJ (40 × ln 0.2, the difference 0.3 − 0.1 put where the ratio belongs). 8 flips 'Squeeze it' with V₁ = 0.2 and V₂ = 0.1 m³: the pressure climbs from 200 to 400 kPa, V₂ ÷ V₁ = 0.5, the same as 200 ÷ 400, and both readouts read −27.73 kJ: the gas does −27.73 kJ of work, so the piston does 27.73 kJ on it. 9 asks for the gas's work squeezed from 0.4 to 0.1 m³: −55.45 kJ (40 × ln 0.25), not +55.45 kJ (a ratio below 1 has a minus ln, as every bar's width is minus) or 0 kJ (pV is 40 at both ends, but the work is the area under the curve, not the change in pV). 10 flips 'Show n = 1.3' on the expansion from 0.1 to 0.2 m³: the new curve falls to 162 kPa at 0.2 m³, below the isothermal 200, because p × V^1.3 staying the same makes pV = C ÷ V^0.3, which shrinks as V grows (32.49 at 0.2 m³ against 40); its work is (40 − 32.49) ÷ 0.3 = 25.03 kJ against 27.73 kJ. 11 asks, squeezing from 0.2 to 0.1 m³ from 200 kPa, which curve takes less work: the isothermal, 27.73 kJ against 30.82 kJ, because the n = 1.3 curve climbs to 492 kPa, above the isothermal 400, as pV = C ÷ V^0.3 grows when V shrinks; not the n = 1.3 curve (it gave less work expanding, but squeezing runs its pV the other way) or 'the same, since both end at 0.1 m³' (the work is the area under the path, not set by its ends). 12 and 13 redraw the curve and axes for their own gas and mix it all. 12: gas at 300 kPa in 0.1 m³ expands at a steady temperature to 0.5 m³: 48.28 kJ (C = 30, 30 × ln 5 = 30 × 1.609), not 20.97 kJ (30 × log 5) or 482.83 kJ (300 × ln 5, with V₁ left out of C = p₁V₁). 13: say an air compressor squeezes 0.08 m³ of air at 100 kPa to 800 kPa at a steady temperature: −16.64 kJ (pV stays 8, so V₂ ÷ V₁ = 100 ÷ 800 = 1/8, and 8 × ln(1/8) = 8 × −2.079), not −7.22 kJ (8 × log(1/8), the log key) or +16.64 kJ (the minus lost, though squeezing makes the ratio below 1). 14, a preview, puts the curve y = 1 ÷ x on fresh axes, x from 0 to 4, shaded from 1 to a dragged x, so the shaded area is ln x; one more thin bar of width h at x adds about h × 1 ÷ x, so ln x climbs by about 1 ÷ x for each 1 along: the slope of ln x is 1 ÷ x, which the Derivatives course takes up. A puzzle offers its three answers, and a wrong pick gets a one-line hint showing where it goes wrong.",
+  "ignores": "The gas is ideal and its temperature held exactly steady. Holding it steady needs heat to flow into the gas as it expands and out as it is squeezed, so a real gas comes near the isothermal curve only when the process is slow or the gas well cooled. The value 1.3 is an example, not a measured one. The bars take the pressure at their middles, so a few bars come out a little under the exact area. Readouts are rounded to two decimal places, so a total can differ from the ln rule in the last figure.",
+  "numbers": [
+   {
+    "label": "Start volume handle's opening setting, in m³",
+    "value": 0.1,
+    "kind": "control"
+   },
+   {
+    "label": "End volume handle's opening setting, in m³",
+    "value": 0.2,
+    "kind": "control"
+   },
+   {
+    "label": "Volume handles' highest setting, in m³",
+    "value": 0.8,
+    "kind": "control"
+   },
+   {
+    "label": "Volume handles' step, in m³",
+    "value": 0.05,
+    "kind": "control"
+   },
+   {
+    "label": "Bar buttons: fewest bars",
+    "value": 4,
+    "kind": "control"
+   },
+   {
+    "label": "Bar buttons: middle setting",
+    "value": 8,
+    "kind": "control"
+   },
+   {
+    "label": "Bar buttons: most bars",
+    "value": 100,
+    "kind": "control"
+   },
+   {
+    "label": "Switches' opening setting, off",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Switches' on setting",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Gas's starting pressure, in kPa",
+    "value": 400,
+    "kind": "assumed"
+   },
+   {
+    "label": "Pressure axis, top, in kPa",
+    "value": 450,
+    "kind": "assumed"
+   },
+   {
+    "label": "Pressure axis with the overlay on, top, in kPa",
+    "value": 800,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example polytropic power n",
+    "value": 1.3,
+    "kind": "assumed"
+   },
+   {
+    "label": "C = p₁V₁, 400 × 0.1, in kJ",
+    "value": 40,
+    "kind": "computed"
+   },
+   {
+    "label": "Pressure at 0.2 m³, 40 ÷ 0.2, in kPa",
+    "value": 200,
+    "kind": "computed"
+   },
+   {
+    "label": "Pressure at 0.4 m³, in kPa",
+    "value": 100,
+    "kind": "computed"
+   },
+   {
+    "label": "Pressure at 0.8 m³, in kPa",
+    "value": 50,
+    "kind": "computed"
+   },
+   {
+    "label": "Volume where doubling leaves the axis, in m³",
+    "value": 0.4,
+    "kind": "computed"
+   },
+   {
+    "label": "4 bars' total, 0.1 to 0.2 m³, in kJ",
+    "value": 27.65,
+    "kind": "computed"
+   },
+   {
+    "label": "8 bars' total, 0.1 to 0.2 m³, in kJ",
+    "value": 27.71,
+    "kind": "computed"
+   },
+   {
+    "label": "100 bars' total and 40 × ln 2, in kJ",
+    "value": 27.73,
+    "kind": "computed"
+   },
+   {
+    "label": "Two doublings, 0.1 to 0.4 m³, in kJ",
+    "value": 55.45,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: half of 27.73, in kJ",
+    "value": 13.86,
+    "kind": "computed"
+   },
+   {
+    "label": "Doubling start, in m³",
+    "value": 0.15,
+    "kind": "assumed"
+   },
+   {
+    "label": "Doubled from 0.15, in m³",
+    "value": 0.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Doubled from 0.3, in m³",
+    "value": 0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Ratio 0.8 ÷ 0.1",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Doublings in a ratio of 8",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Three doublings, 0.1 to 0.8 m³, in kJ",
+    "value": 83.18,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: seven steps of 0.1 m³ × 27.73, in kJ",
+    "value": 194.08,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: steps of 0.1 m³ from 0.1 to 0.8",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: eight doublings × 27.73, in kJ",
+    "value": 221.81,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 buttons: parts",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 6 buttons: most parts",
+    "value": 365,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 6 buttons: 2 parts",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "End of 2 equal-ratio bars, in m³",
+    "value": 0.225,
+    "kind": "computed"
+   },
+   {
+    "label": "End of 4 equal-ratio bars, in m³",
+    "value": 0.244,
+    "kind": "computed"
+   },
+   {
+    "label": "End of 12 equal-ratio bars, in m³",
+    "value": 0.261,
+    "kind": "computed"
+   },
+   {
+    "label": "End of 365 equal-ratio bars, in m³",
+    "value": 0.271,
+    "kind": "computed"
+   },
+   {
+    "label": "e × 0.1, in m³",
+    "value": 0.272,
+    "kind": "computed"
+   },
+   {
+    "label": "e, about",
+    "value": 2.718,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Lesson 2's sum with 2 parts",
+    "value": 2.25,
+    "kind": "computed"
+   },
+   {
+    "label": "Lesson 2's sum with 365 parts",
+    "value": 2.71,
+    "kind": "computed"
+   },
+   {
+    "label": "ln 2",
+    "value": 0.693,
+    "kind": "computed"
+   },
+   {
+    "label": "ln 2, to four places",
+    "value": 0.6931,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: 40 × log 2, in kJ",
+    "value": 12.04,
+    "kind": "computed"
+   },
+   {
+    "label": "ln 3",
+    "value": 1.099,
+    "kind": "computed"
+   },
+   {
+    "label": "Work from 0.1 to 0.3 m³, 40 × ln 3, in kJ",
+    "value": 43.94,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: 40 × log 3, in kJ",
+    "value": 19.08,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: 40 × ln 0.2, in kJ",
+    "value": -64.38,
+    "kind": "computed"
+   },
+   {
+    "label": "Ratio squeezing 0.2 to 0.1 m³",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Squeeze 0.2 to 0.1 m³, 40 × ln 0.5, in kJ",
+    "value": -27.73,
+    "kind": "computed"
+   },
+   {
+    "label": "Ratio squeezing 0.4 to 0.1 m³",
+    "value": 0.25,
+    "kind": "computed"
+   },
+   {
+    "label": "Squeeze 0.4 to 0.1 m³, 40 × ln 0.25, in kJ",
+    "value": -55.45,
+    "kind": "computed"
+   },
+   {
+    "label": "n = 1.3 curve: pressure at 0.2 m³, in kPa",
+    "value": 162,
+    "kind": "computed"
+   },
+   {
+    "label": "n = 1.3 curve: pV at 0.2 m³, in kJ",
+    "value": 32.49,
+    "kind": "computed"
+   },
+   {
+    "label": "n = 1.3 curve: 0.5 to the power 0.3",
+    "value": 0.812,
+    "kind": "computed"
+   },
+   {
+    "label": "Power left on V in pV = C ÷ V^0.3",
+    "value": 0.3,
+    "kind": "computed"
+   },
+   {
+    "label": "n = 1.3 curve: work from 0.1 to 0.2 m³, in kJ",
+    "value": 25.03,
+    "kind": "computed"
+   },
+   {
+    "label": "n = 1.3 curve: pressure squeezed to 0.1 m³, in kPa",
+    "value": 492,
+    "kind": "computed"
+   },
+   {
+    "label": "n = 1.3 curve: work squeezing 0.2 to 0.1 m³, in kJ",
+    "value": 30.82,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12: starting pressure, in kPa",
+    "value": 300,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12: end volume, in m³",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12: C, 300 × 0.1, in kJ",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12: ratio 0.5 ÷ 0.1",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "ln 5",
+    "value": 1.609,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12: work, 30 × ln 5, in kJ",
+    "value": 48.28,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: 30 × log 5, in kJ",
+    "value": 20.97,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: 300 × ln 5, in kJ",
+    "value": 482.83,
+    "kind": "computed"
+   },
+   {
+    "label": "Compressor: air volume at the start, in m³",
+    "value": 0.08,
+    "kind": "assumed"
+   },
+   {
+    "label": "Compressor: starting pressure, in kPa",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Compressor: end pressure, in kPa",
+    "value": 800,
+    "kind": "assumed"
+   },
+   {
+    "label": "Compressor: C, 100 × 0.08, in kJ",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Compressor: end volume, 8 ÷ 800, in m³",
+    "value": 0.01,
+    "kind": "computed"
+   },
+   {
+    "label": "Compressor: ratio 1/8",
+    "value": 0.125,
+    "kind": "computed"
+   },
+   {
+    "label": "ln(1/8)",
+    "value": -2.079,
+    "kind": "computed"
+   },
+   {
+    "label": "Compressor: work, in kJ",
+    "value": -16.64,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: 8 × log(1/8), in kJ",
+    "value": -7.22,
+    "kind": "computed"
+   },
+   {
+    "label": "Preview: x axis's right-hand end",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "1 bar in kPa",
+    "value": 100,
+    "kind": "constant"
+   },
+   {
+    "label": "1 bar × 1 litre, in joules",
+    "value": 100,
+    "kind": "computed"
+   },
+   {
+    "label": "Course puzzle: halving time, in seconds",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "E12 resistor values in each × 10",
+    "value": 12,
+    "kind": "constant"
+   },
+   {
+    "label": "E12: a value, in ohms",
+    "value": 15,
+    "kind": "constant"
+   },
+   {
+    "label": "E12: last value below 100, in ohms",
+    "value": 82,
+    "kind": "constant"
+   },
+   {
+    "label": "E12: a decade's top, in ohms",
+    "value": 1000,
+    "kind": "constant"
+   },
+   {
+    "label": "E12: each value over the last, about",
+    "value": 1.2,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "When a gas expands while its temperature holds steady, its pressure falls in step with its volume, and the work it does is W = p₁V₁ ln(V₂/V₁). The log is there because, along the curve such a gas follows, every doubling of the volume adds the same work, wherever it starts.\n\nKeep a gas at one temperature and squeeze it or let it expand, and its pressure and volume change so that pV stays the same, which is Boyle's law.[^2] That is pVⁿ = C from Calculus fundamentals with n = 1, and the process is called [[isothermal]], meaning at a steady temperature.[^3] There the area under pVⁿ = C came out as (p₁V₁ − p₂V₂) ÷ (n − 1). Here pV is the same at both ends, so that rule gives 0 ÷ 0. The reason is underneath it: p = C ÷ V is C × V⁻¹, and the reverse power rule adds one to the power, giving V⁰, then divides by the new power, 0, which cannot be done.[^4] The area is still there, so count it with bars, as in Calculus fundamentals. Say the gas starts at 400 kPa in 0.1 m³, so C = 400 × 0.1 = 40 kJ, since a kPa times a m³ is a kJ, as in Calculus fundamentals, and along p = 40 ÷ V it falls to 200 kPa at 0.2 m³. Four mid-height bars from 0.1 to 0.2 m³ total 27.65 kJ, and a hundred total 27.73 kJ. Now double again, from 0.2 to 0.4 m³. Each bar there is twice as wide, because the stretch is twice as long, and half as tall, because at twice the volume 40 ÷ V is half the pressure. Twice the width times half the height is the same area, so the total is 27.73 kJ again. The same pairing works from any start, so the work depends only on V₂ ÷ V₁: from 0.1 to 0.8 m³ is a ratio of 8, three doublings, 3 × 27.73 = 83.18 kJ, not seven times 27.73 for seven steps of 0.1 m³.\n\nCounting doublings is a log, as in lesson 4: log₂ 8 = 3. The natural log comes from asking which stretch adds exactly C. Cut the stretch from V₁ into bars, each as wide as one part in k of the volume where it starts, V ÷ k, and as tall as the curve at its left edge, C ÷ V. Each bar's area is then (V ÷ k) × (C ÷ V) = C ÷ k, whatever V is, so k bars make exactly C. Each bar ends (1 + 1/k) times as far along as it starts, so the last ends at (1 + 1/k)ᵏ × V₁, lesson 2's sum with k parts, which settles on e, about 2.718,[^1] as k grows. A bar's left edge is its tallest point, so the bars stand a little above the curve, by less as they thin, the overshoot shrinking towards nothing, so the area from V₁ to e × V₁ is exactly C. Each further stretch by e adds another C, so the area is C times the number of e-stretches from V₁ to V₂, and the power of e that makes V₂ ÷ V₁ is its natural log, ln.[^5] With C = p₁V₁, W = p₁V₁ ln(V₂/V₁). Check it on the bars: 40 × ln 2 = 40 × 0.693 = 27.73 kJ. It has to be the ln key: 40 × log 2 = 12.04 counts ten-fold stretches, not e-fold ones. Engineering notes write the steady pV as p₁V₁ = p₂V₂ = mRT,[^3] and physics notes give the work of a slow, steady-temperature expansion as nRT ln(V₂/V₁),[^6] their nRT being the same pV, with n there counting the gas in moles, not a power.\n\nSqueeze the gas instead and every change in volume is minus: from 0.2 back to 0.1 m³, V₂ ÷ V₁ = 0.5 and 40 × ln 0.5 = −27.73 kJ, so the piston does 27.73 kJ of work on the gas. Lay a curve with n = 1.3, an example value, from the same start: p × V^1.3 staying the same makes pV = C ÷ V^0.3, which shrinks as the gas expands and grows as it is squeezed. So expanding from 0.1 to 0.2 m³ that gas does 25.03 kJ against 27.73, and squeezing it from 0.2 to 0.1 m³ takes 30.82 kJ against 27.73: of the two, the steady-temperature squeeze takes less work. Textbooks add that this is one reason air compressors are cooled as they work. All of this is a simplified model of an ideal gas: holding the temperature steady needs heat to flow in as the gas expands and out as it is squeezed, so a real process comes near it only when it is slow or well cooled. The course's capacitor follows the same pattern: it takes 10 s to halve from 400 V or from 100 V, and the log counts the halvings as it counts the stretches here. **A gas expanding at a steady temperature keeps pV the same, and the work it does, the area under p = C ÷ V, is W = p₁V₁ ln(V₂/V₁),[^6] the same for every doubling of its volume and minus when it is squeezed.**"
+ },
+ "analogy": {
+  "text": "Resistors come in the E12 series: twelve values in every × 10, from 10, 12, 15 and so on up to 82 ohms, then 100, each about 1.2 times the last. From 10 to 100 ohms is twelve steps, and so is 100 to 1000: the count depends only on how many times bigger the top value is, not on how far apart the two are. Work under p = C ÷ V counts the same way: equal ratios of volume, equal work.",
+  "breaks": "The E12 values are rounded, so their steps are only roughly equal ratios, and the count goes in whole steps, while the area under the curve grows smoothly and every stretch by the same ratio adds exactly the same work. And every decade holds twelve values, while the work for one doubling grows with C: a gas with twice the pV does twice the work."
+ },
+ "practice": {
+  "text": "- Check the process is isothermal: the temperature holds steady, so pV is the same at both ends. If it follows pVⁿ = C with n not 1, use (p₁V₁ − p₂V₂) ÷ (n − 1) instead.\n- Work out C = p₁V₁. In kPa and m³ it comes out in kJ.\n- Find the ratio V₂ ÷ V₁. Given pressures instead, use p₁ ÷ p₂: when pV stays the same, the volume ratio is the pressure ratio upside down.\n- Press ln on the ratio, not log.\n- Multiply: W = p₁V₁ ln(V₂/V₁).\n- Check the sign: plus as the gas expands, minus as it is squeezed, when the piston does the work on the gas.\n\n**Rule of thumb:** each doubling of the volume adds 0.693 × p₁V₁, and each stretch by e, about 2.718, adds p₁V₁ itself.\n\n**Worked example:** Say an air compressor squeezes 0.08 m³ of air at 100 kPa to 800 kPa, with its temperature held steady. C = 100 × 0.08 = 8 kJ. pV stays at 8, so the air ends at 8 ÷ 800 = 0.01 m³, and V₂ ÷ V₁ = 0.01 ÷ 0.08 = 1/8, the same as 100 ÷ 800. ln(1/8) = −2.079, so W = 8 × −2.079 = −16.64 kJ: the air does −16.64 kJ of work, which means the piston does 16.64 kJ on it. Check by halvings: 1/8 is three halvings, and 3 × 0.6931 × 8 ≈ 16.64 kJ.\n\n**Common mistakes**\n- Pressing log instead of ln: 8 × log(1/8) = −7.22 kJ counts ten-fold stretches, not e-fold ones.\n- Using the difference V₂ − V₁ where the ratio belongs: equal ratios, not equal gaps, give equal work.\n- Leaving V₁ out of C: it is p₁V₁, not p₁.\n- Losing the minus on a squeeze.\n- Putting n = 1 into (p₁V₁ − p₂V₂) ÷ (n − 1): it gives 0 ÷ 0.\n- Mixing units: bar times litres gives hundreds of joules, since 1 bar × 1 litre = 100 J, not kJ."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Euler Number (e) — Definition, Formula & Examples",
+   "url": "https://www.mathwords.com/e/euler_number.htm",
+   "quote": "e is a fixed constant like π . It always equals approximately 2.71828 and cannot be assigned a different value."
+  },
+  {
+   "n": 2,
+   "title": "8.3: Isothermal Expansion of an Ideal Gas - Physics LibreTexts",
+   "url": "https://phys.libretexts.org/Bookshelves/Thermodynamics_and_Statistical_Mechanics/Heat_and_Thermodynamics_(Tatum)/08%3A_Heat_Capacity_and_the_Expansion_of_Gases/8.03%3A_Isothermal_Expansion_of_an_Ideal_Gas",
+   "quote": "if a fixed mass of gas kept at constant temperature is compressed or allowed to expand, its pressure and volume will vary according to PV = constant. That is, Boyle's Law."
+  },
+  {
+   "n": 3,
+   "title": "Energy Analysis_Closed System - Simon Fraser University",
+   "url": "https://www.sfu.ca/~mbahrami/Mech%20240/Lectures/Energy%20Analysis_Closed%20System.pdf",
+   "quote": "The special case n =1 is the isothermal expansion P1V1 = P2V2 = mRT0= C"
+  },
+  {
+   "n": 4,
+   "title": "Integral - Simple English Wikipedia, the free encyclopedia",
+   "url": "https://simple.m.wikipedia.org/wiki/Integral",
+   "quote": "These cannot be integrated using the formula above (add one to the power, divide by the power), because adding one to the power produces 0, and a division by 0 is not possible."
+  },
+  {
+   "n": 5,
+   "title": "10.3 Evaluate and Graph Logarithmic Functions - Intermediate Algebra 2e | OpenStax",
+   "url": "https://openstax.org/books/intermediate-algebra-2e/pages/10-3-evaluate-and-graph-logarithmic-functions",
+   "quote": "The logarithmic function with base e is called the natural logarithmic function ."
+  },
+  {
+   "n": 6,
+   "title": "School of Physics and Astronomy Junior Honours Thermodynamics GJA 2019-2020",
+   "url": "https://www2.ph.ed.ac.uk/~gja/thermo/course_notes/topic03.pdf",
+   "quote": "The work done on the surroundings by a system comprising n moles of ideal gas expanding reversibly and isothermally is equal to nRT ln( V 2 /V 1)."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }
