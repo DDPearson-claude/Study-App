@@ -1,0 +1,601 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-18T07:04:01.357Z",
+ "startedAt": "2026-10-18T07:04:01.357Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i5",
+  "title": "The log laws and decibels",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the bottom ruler reading the two numbers multiplied while their two lengths add end to end, when you slide the top power ruler along the bottom one.",
+   "title": "The slide rule",
+   "controls": [
+    {
+     "id": "slide",
+     "label": "Top ruler's 1 sits over",
+     "min": 1,
+     "max": 10,
+     "step": 0.1,
+     "value": 1,
+     "unit": ""
+    },
+    {
+     "id": "cursor",
+     "label": "Cursor on the top ruler",
+     "min": 1,
+     "max": 10,
+     "step": 0.1,
+     "value": 3,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "product",
+     "label": "Bottom ruler under the cursor",
+     "unit": "",
+     "decimals": 2
+    },
+    {
+     "id": "lengths",
+     "label": "Two lengths added, as a power",
+     "unit": "",
+     "decimals": 3
+    },
+    {
+     "id": "decibels",
+     "label": "Same reading in decibels",
+     "unit": "dB",
+     "decimals": 1
+    }
+   ],
+   "whatAmILookingAt": "A short lesson in fourteen small screens on one picture, the slide rule. It is two power rulers, one above the other, and the top one slides. Each is the power ruler from the last lesson, where a number sits at its log: 2 is 0.301 along, 3 is 0.477 along and 10 is one whole × 10 space along. The bottom ruler runs from 1 to 100, two × 10 spaces, and the top ruler from 1 to 10, one space of the same length. You slide the top ruler, and the slide control names the number on the bottom ruler that the top ruler's 1 sits over. A cursor, a thin upright line, moves along the top ruler. The rule: the cursor's distance from the bottom ruler's 1 is the slide's length plus the cursor's length along the top ruler, so the bottom ruler under the cursor reads the two numbers multiplied. The two lengths are drawn as bars under the rulers, end to end, so you can see them add. The readout writes the same fact two ways, log 2 + log 3 = log 6 and 10^0.301 × 10^0.477 = 10^0.778 = 6, on two lines on a phone, and on the decibel screens, 11 to 13, a decibel scale under the bottom ruler, with the readout written in decibels, ten times the log of the bottom number. The top ruler and the bottom ruler's first space are numbered 1, 2, 3, 4, 5 and 10, and the bottom ruler's second space 20, 30 and 100; the other marks, 40 among them, are ticks, and the cursor carries the number it sits on, so on a phone no labels crowd. Screen by screen: 1 opens with the cursor on 3, then slides the top ruler's 1 over 2, carrying the cursor's 3 along, and reads 6 below, with the bars 0.301 + 0.477 = 0.778. 2 asks what the bottom ruler reads with the top ruler's 1 over 4 and the cursor at 5: 20, not 9 (the numbers added) or 1.301 (the length, not the number). 3 names the law, log(ab) = log a + log b, beside 10ᵐ × 10ⁿ = 10ᵐ⁺ⁿ, so the laws need one base throughout, shows log 5 = 0.699 next to log 2 + log 3 = 0.778, and points to the ruler's start, log 1 = 0, and the end of one space, log 10 = 1, as in any base the log of the base is 1 (log₂ 2 = 1, ln e = 1). 4 asks for log(3 + 7): 1, not 1.322 (log 3 + log 7, which is log 21) or 10 (the log left off). 5 slides back: the top ruler's 3 goes over the bottom's 6, its 1 sits over 2, marked with a tag, and the bars show 0.778 − 0.477 = 0.301; dragging the top ruler then keeps the cursor on the bottom ruler's number. 6 asks which number log 8 − log 2 is the log of: 4, not 6 (8 − 2) or 16 (8 × 2). 7 lays three bars of log 2 end to end and lands on 8, so log(2³) = 3 log 2 = 0.903, beside (10ᵐ)ⁿ = 10ᵐⁿ. 8 asks which is log(5²): 2 log 5 ≈ 1.398, not (log 5)² ≈ 0.489 or log 10 = 1 (5 × 2). 9 says that 2 to a power x sits x lengths of log 2 along, then counts how many bars of log 2 fit into log 5: 0.699 ÷ 0.301 ≈ 2.322, so log₂ 5 ≈ 2.322, checked by 2^2.322 ≈ 5. 10 asks which gives log₂ 5: log 5 ÷ log 2 ≈ 2.322, not log(5 ÷ 2) ≈ 0.398 or 5 ÷ 2 = 2.5 (the logs cancelled). 11 relabels the bottom ruler in decibels, 0, 10 and 20 dB at 1, 10 and 100, with 3 dB at 2, and slides two amplifier stages together, × 2 then × 10, to × 20, while 3 dB + 10 dB = 13 dB, and notes that engine-room noise readings are taken in dB(A). 12 asks which number sits at 5 dB, half way through the first space: 3.16, not 5.5 (half way between 1 and 10 counted evenly) or 5 (the decibels read as the number). 13 and 14 mix it all: the decibels of a stage of × 4 then one of × 5, 13.0 dB, not 9.5 dB (the ratios added, × 9) or 42 dB (the decibels multiplied); and log 40 − log 4, which is 1, not 1.556 (log 36) or 2.661 (log 40 ÷ log 4). A puzzle offers its three answers, and a wrong pick gets a one-line hint showing where it goes wrong.",
+   "ignores": "The rulers are drawn only from 1 to 100; the power ruler goes on both ways. A real slide rule works the same way but is read by eye, so its answers carry only the figures you can see. Here the controls move in steps of 0.1, so the slide sits exactly on 2.0. The logs are rounded to three decimal places, so 0.301 + 0.477 = 0.778 matches log 6 to that rounding. A decibel here is only a ratio of two powers: it says nothing about how loud a sound seems, and a sound level meter's dB(A) adds a weighting this picture leaves out. Each amplifier stage is drawn as a fixed factor; a real stage's gain can change with frequency and load.",
+   "numbers": [
+    {
+     "label": "Slide's opening setting",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Cursor's opening setting",
+     "value": 3,
+     "kind": "control"
+    },
+    {
+     "label": "Slide and cursor range, top end",
+     "value": 10,
+     "kind": "control"
+    },
+    {
+     "label": "Slide and cursor step",
+     "value": 0.1,
+     "kind": "control"
+    },
+    {
+     "label": "Bottom ruler's right-hand end",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "× 10 spaces on the bottom ruler",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Second-space marks on the bottom ruler",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "log 2",
+     "value": 0.301,
+     "kind": "computed"
+    },
+    {
+     "label": "log 3",
+     "value": 0.477,
+     "kind": "computed"
+    },
+    {
+     "label": "log 6, the two lengths added",
+     "value": 0.778,
+     "kind": "computed"
+    },
+    {
+     "label": "2 × 3, read on the bottom ruler",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Example number, screen 2",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example number, screen 2",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "4 × 5, screen 2",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "log 4",
+     "value": 0.602,
+     "kind": "computed"
+    },
+    {
+     "label": "log 5",
+     "value": 0.699,
+     "kind": "computed"
+    },
+    {
+     "label": "log 20",
+     "value": 1.301,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 4 + 5, screen 2",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "log 1",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "log 10",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Example number, screen 4",
+     "value": 7,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slip: 3 + 7 with the log left off, screen 4",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 3 × 7, screen 4",
+     "value": 21,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: log 21, screen 4",
+     "value": 1.322,
+     "kind": "computed"
+    },
+    {
+     "label": "Example number, screen 6",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "log 8, three lengths of log 2",
+     "value": 0.903,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 8 × 2, screen 6",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Power of 5, screen 8",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "5², screen 8",
+     "value": 25,
+     "kind": "computed"
+    },
+    {
+     "label": "2 log 5, which is log 25",
+     "value": 1.398,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: (log 5)², screen 8",
+     "value": 0.489,
+     "kind": "computed"
+    },
+    {
+     "label": "log₂ 5, log 5 ÷ log 2",
+     "value": 2.322,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 5 ÷ 2, logs cancelled, screen 10",
+     "value": 2.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: log 2.5, screen 10",
+     "value": 0.398,
+     "kind": "computed"
+    },
+    {
+     "label": "Multiplier in front of the log, decibels of power",
+     "value": 10,
+     "kind": "constant"
+    },
+    {
+     "label": "Multiplier in front of the log, decibels of voltage",
+     "value": 20,
+     "kind": "constant"
+    },
+    {
+     "label": "Decibels for twice the power, 10 log 2",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Decibels for half the power",
+     "value": -3,
+     "kind": "computed"
+    },
+    {
+     "label": "Decibels for ten times the power",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Decibels for a hundred times the power",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Stage gains, screen 11, × 2 then × 10",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Two stages together, screen 11, × 20",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Decibels of × 20, 3 + 10",
+     "value": 13,
+     "kind": "computed"
+    },
+    {
+     "label": "Example decibel mark, screen 12, in dB",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Number at 5 dB, √10",
+     "value": 3.16,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: half way from 1 to 10 counted evenly",
+     "value": 5.5,
+     "kind": "computed"
+    },
+    {
+     "label": "10 log 4, in dB",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "10 log 5, in dB",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "10 log 20, in dB",
+     "value": 13,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 10 log 9, in dB, screen 13",
+     "value": 9.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 6.0 × 7.0, screen 13",
+     "value": 42,
+     "kind": "computed"
+    },
+    {
+     "label": "Example number, screen 14",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slip: 40 − 4, screen 14",
+     "value": 36,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: log 36, screen 14",
+     "value": 1.556,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: log 40 ÷ log 4, screen 14",
+     "value": 2.661,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: cable loss, in dB",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: overall after the cable, in dB",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy: example voltage, in kV",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Analogy: example current, in mA",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Power of ten for kilo",
+     "value": 3,
+     "kind": "constant"
+    },
+    {
+     "label": "Power of ten for milli",
+     "value": -3,
+     "kind": "constant"
+    },
+    {
+     "label": "Analogy: the two powers of ten added",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy: power, in watts",
+     "value": 6,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A log turns multiplying into adding. Slide one power ruler along another and the lengths add while the numbers multiply, so log 2 + log 3 = log 6. It comes straight from Powers and roots, where multiplying powers of the same base adds the powers.\n\nOn the power ruler each number sits at its log: 2 at 0.301, 3 at 0.477 and 6 at 0.778. Lay a second power ruler on top and slide it until its 1 sits over the bottom ruler's 2. The top ruler now starts 0.301 along. Find 3 on the top ruler, a further 0.477 along, so the cursor is 0.301 + 0.477 = 0.778 from the bottom ruler's 1, and the bottom ruler reads 6 there. The reason is the multiplying law of powers. 2 is 10^0.301 and 3 is 10^0.477, so 2 × 3 = 10^0.301 × 10^0.477 = 10^(0.301 + 0.477) = 10^0.778, which is 6. So the log of a product is the sum of the logs of its factors:[^1] log(ab) = log a + log b. It says nothing about log(a + b). The slide put 3 after 2 and landed on 6, not 5, and log 5 = 0.699 while log 2 + log 3 = 0.778, so no log law splits a sum: log(3 + 7) is simply log 10 = 1. The laws need one base throughout; here it is 10, the log key. Two lengths come straight off the ruler as well: log 1 = 0, because the ruler starts at 1 with no length yet, and log 10 = 1, one whole × 10 space.\n\nSlide the other way and you divide. Put the top ruler's 3 over the bottom's 6 and its 1 sits over 2: 0.778 − 0.477 leaves 0.301, so log(6 ÷ 3) = log 6 − log 3, from 10ᵐ ÷ 10ⁿ = 10ᵐ⁻ⁿ. Lay three lengths of log 2 end to end and you land on 2 × 2 × 2 = 8, so log(2³) = 3 log 2 = 0.903, from (10ᵐ)ⁿ = 10ᵐⁿ. These are the three [[log laws]]: multiplying becomes adding, dividing becomes taking away, and a power becomes a multiplier in front.[^2] The power law also gives a log in a base your calculator has no key for. log₂ 5 asks what power of 2 makes 5. By the power law, 2 to a power x sits x lengths of log 2 along the ruler, so the answer is how many lengths of log 2 fit into the length of log 5: log₂ 5 = log 5 ÷ log 2 = 0.699 ÷ 0.301 ≈ 2.322. That is the [[change of base]]. It divides one log by another, which is not the log of a division: log(5 ÷ 2) = log 2.5 ≈ 0.398.\n\nA [[decibel]] (dB) gives a ratio of two powers as ten times its log:[^3] gain in dB = 10 log(P₂ ÷ P₁). So ten times the power is 10 dB, a hundred times is 20 dB, and twice the power is 10 log 2 ≈ 3 dB. Relabel the bottom ruler that way, 10 dB to each × 10 space. Each decibel figure is now a length on the ruler, so when lengths add, decibels add. An amplifier stage of × 2 followed by one of × 10 slides together to × 20, while their decibels add, 3 + 10 = 13 dB. A loss runs the slide backwards: a cable that halves the power is about −3 dB. Textbooks add that a voltage ratio across the same resistance uses 20 log, because power goes with the voltage squared, P = V²/R, and the power law turns the square into a 2 in front. Engine-room noise readings are decibels too, taken with an A-weighting and written dB(A),[^4] a weighting this ruler leaves out. **Logs turn multiplying into adding, log(ab) = log a + log b,[^1] because multiplying powers adds the powers, and that is why the decibel gains of stages in a row simply add.**"
+  },
+  "analogy": {
+   "text": "Say you work out the power of 2 kV at 3 mA. Kilo is 10³ and milli is 10⁻³, so you add their powers of ten, 3 + (−3) = 0, and multiply what is left, 2 × 3 = 6: the power is 6 W. Adding the powers did that part of the multiplying for you.",
+   "breaks": "Prefixes handle only whole powers of ten, so you still multiply the 2 by the 3 yourself. The log laws go further: they give 2 and 3 their own powers, 0.301 and 0.477, so even that multiplying becomes adding."
+  },
+  "practice": {
+   "text": "- Check that every log has the same base before you combine them. The laws need one base throughout.\n- log a + log b is log(ab): multiply the numbers inside. log a − log b is log(a ÷ b): divide them. n log a is log(aⁿ).\n- A log of a sum does not split. Add inside the brackets first: log(3 + 7) = log 10 = 1.\n- For a base with no key, divide one log by another: log₂ 5 = log 5 ÷ log 2.\n- For stages in a row, turn each power gain into decibels with 10 log of its ratio, add them, and turn the total back with 10^(dB ÷ 10) if you need the ratio.\n\n**Rule of thumb:** + 3 dB is about twice the power, + 10 dB ten times, and − 3 dB about half. Before you trust a log rule you are unsure of, try it on the calculator with easy numbers such as 2 and 3.\n\n**Worked example:** Say a signal passes through an amplifier stage that multiplies its power by 4, then one that multiplies it by 5. In decibels the first is 10 log 4 ≈ 6.0 dB and the second 10 log 5 ≈ 7.0 dB, so together they give 6.0 + 7.0 = 13.0 dB. Check by multiplying: 4 × 5 = 20, and 10 log 20 ≈ 13.0 dB. If a cable after them loses 3 dB, the total is 13.0 − 3 = 10 dB, about ten times the power that went in.\n\n**Common mistakes**\n- Splitting a sum: log(3 + 7) is log 10 = 1, not log 3 + log 7, which is log 21 ≈ 1.322.\n- Taking away when the logs are divided: log 8 ÷ log 2 = 3, while log 8 − log 2 = log 4 ≈ 0.602.\n- Change of base turned into one log: log₂ 5 is log 5 ÷ log 2 ≈ 2.322, not log(5 ÷ 2) ≈ 0.398, and the logs do not cancel to 5 ÷ 2.\n- Squaring the log: log(5²) is 2 log 5 ≈ 1.398, not (log 5)² ≈ 0.489.\n- Reading the ratios on a decibel ruler as evenly spaced: 5 dB is about × 3.16, not half way from 1 to 10.\n- Adding the power ratios: stages of × 4 and × 5 make × 20, which is 13.0 dB, not × 9.\n- 10 or 20: 10 log for a power ratio, 20 log for a voltage ratio across the same resistance."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Intro to logarithm properties (article) | Khan Academy",
+    "url": "https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:logs/x2ec2f6f830c9fb89:log-prop/a/properties-of-logarithms",
+    "quote": "This property says that the logarithm of a product is the sum of the logs of its factors."
+   },
+   {
+    "n": 2,
+    "title": "1.2: The Decibel - Engineering LibreTexts",
+    "url": "https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/Operational_Amplifiers_and_Linear_Integrated_Circuits_-_Theory_and_Application_(Fiore)/01:_Introductory_Concepts_and_Fundamentals/1.02:_The_Decibel",
+    "quote": "Normal multiplication becomes addition in the log system, and division becomes subtraction. Likewise, powers and roots become multiplication and division."
+   },
+   {
+    "n": 3,
+    "title": "Decibel (dB) | Definition, Formula, & Facts | Britannica",
+    "url": "https://www.britannica.com/science/decibel",
+    "quote": "One decibel (0.1 bel) equals 10 times the common logarithm of the power ratio."
+   },
+   {
+    "n": 4,
+    "title": "Resolution MSC.337(91), Code on Noise Levels on Board Ships - IMO",
+    "url": "https://wwwcdn.imo.org/localresources/en/KnowledgeCentre/IndexofIMOResolutions/MSCResolutions/MSC.337(91).pdf",
+    "quote": "3.6.2 Sound pressure level readings shall be taken in decibels using an A-weighting (dB(A)) and C-weighting (dB(C)) filter and if necessary also in octave bands between 31.5 and 8,000 Hz."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .pz sup, .caption sup { font-size: .72em; line-height: 0; }\n  .scene { --lab: 13px; display: block; width: 100%; max-width: 30rem; margin-inline: auto; touch-action: pan-y; }\n  @media (max-width: 480px) { .scene { --lab: 14px; } }\n  .scene text { font-family: var(--k-font); }\n  /* The two rulers: the bottom one fixed (sunk), the top one sliding (tinted), edged in ink. */\n  .scene .stock { fill: var(--k-sunk); }\n  .scene .slide { fill: var(--k-fill1); }\n  .scene .edge, .scene .tickb { stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .ticks { stroke: var(--k-ink); stroke-width: 1.2; }\n  .scene .nl { font-size: var(--lab); font-weight: 600; fill: var(--k-ink); }\n  /* The decibel scale under the bottom ruler: small teal labels. */\n  .scene .dbline, .scene .dbtick { stroke: var(--k-accent); stroke-width: 1.5; }\n  .scene .dbl { font-size: var(--lab); font-weight: 600; fill: var(--k-accent); }\n  /* The cursor: a navy line across both rulers, the number it sits on above and below. */\n  .scene .cur, .scene .idx, .scene .ask { stroke: var(--k-accent2); stroke-width: 2.5; }\n  .scene .tag { fill: var(--k-accent2); }\n  .scene .tagt { font-size: var(--lab); font-weight: 700; fill: var(--k-on-accent2); }\n  .scene .askt { font-size: var(--lab); font-weight: 700; fill: var(--k-accent2); }\n  /* The lengths, as bars end to end, and brackets over whole lengths. */\n  .scene .b1 { fill: var(--k-cat1); }\n  .scene .b2 { fill: var(--k-cat2); }\n  .scene .bl { font-size: var(--lab); font-weight: 600; fill: var(--k-ink); }\n  .scene .br { stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .brt { font-size: var(--lab); font-weight: 700; fill: var(--k-accent2); }\n  .scene .cmp { stroke: var(--k-muted); stroke-width: 2; }\n  .scene .cmpt { font-size: var(--lab); font-weight: 700; fill: var(--k-muted); }\n  .scene .slip { stroke: var(--k-warn); stroke-width: 2; }\n  .scene .slipt { font-size: var(--lab); font-weight: 700; fill: var(--k-warn); }\n  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }\n  .scene #art * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: pan-y; }\n  .scene .grip:active { cursor: grabbing; }\n  /* The same fact written out under the picture. */\n  .forms { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 1.05rem; font-weight: 700; line-height: 1.5; min-height: 1.6em; margin-top: 8px; text-align: center; }\n  .forms .fl { display: block; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stay on one row, each label whole; longer ones stack one to a row. */\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 184\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <div class=\"forms\" id=\"forms\" aria-live=\"polite\"></div>\n    <div class=\"k-controls\" id=\"ctl\"></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\"></p>\n\n<script>\n  // ---------- the rule ----------\n  // Both rulers are power rulers of base 10: a number n sits log n along, one × 10 space being U\n  // units. The top ruler's 1 sits over the slide's number, so the top ruler starts log(slide)\n  // along; the cursor sits at the cursor's number on the top ruler, a further log(cursor) along.\n  // So the cursor is log(slide) + log(cursor) from the bottom ruler's 1, and the bottom ruler\n  // reads 10 to that power there, which is slide × cursor. Decibels are ten times that log.\n  const LG = (v) => Math.log10(v);\n  const L2 = LG(2), L3 = LG(3), L4 = LG(4), L5 = LG(5), L6 = LG(6), L8 = LG(8), L9 = LG(9);\n  const L20 = LG(20), L21 = LG(21), L36 = LG(36), L40 = LG(40);\n  const SRC1 = 'https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:logs/x2ec2f6f830c9fb89:log-prop/a/properties-of-logarithms';\n  const SRC3 = 'https://www.britannica.com/science/decibel';\n  const SRC2 = 'https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/Operational_Amplifiers_and_Linear_Integrated_Circuits_-_Theory_and_Application_(Fiore)/01:_Introductory_Concepts_and_Fundamentals/1.02:_The_Decibel';\n\n  // ---------- numbers ----------\n  // fx: exactly dp decimals with a true minus sign; fv: at most dp, trailing zeros dropped.\n  // A setting has one decimal (2.3), a reading on the bottom ruler two (10.81), a length three\n  // (0.301), and decibels exactly one (3.0 dB), as the lesson writes them.\n  function fx(v, dp) {\n    const f = Math.pow(10, dp);\n    let r = Math.round(v * f) / f;\n    if (r === 0) r = 0;\n    return (r < 0 ? '−' : '') + Math.abs(r).toFixed(dp);\n  }\n  function fv(v, dp) {\n    const s = fx(v, dp);\n    return dp > 0 ? s.replace(/(\\.\\d*?)0+$/, '$1').replace(/\\.$/, '') : s;\n  }\n  const fs = (v) => fv(v, 1);\n  const fP = (v) => fv(v, 2);\n  const fp = (v) => fv(v, 3);\n  const fd = (v) => fx(v, 1);\n  const plain = (s) => Number(String(s).replace(/−/g, '-'));\n  const thou = (v) => Math.round(v * 1000);\n  const tenth = (v) => Math.round(v * 10);\n  // The controls move in steps of 0.1 from 1 to 10.\n  const grid = (v) => K.clamp(Math.round(v * 10) / 10, 1, 10);\n  const eqs = (ok) => (ok ? ' = ' : ' ≈ ');\n  // 10 to a shown power is the shown number exactly only for a whole power of 10.\n  const endEq = (pw, n) => eqs(Number.isInteger(plain(pw)) && Math.pow(10, plain(pw)) === plain(n));\n  // The fact under the picture, for a setting of the two controls, as the screen writes it.\n  function liveForms(mode, s, c) {\n    const ls = LG(s), lc = LG(c), lt = ls + lc, P = fP(Math.pow(10, lt)), S = fs(s), C = fs(c);\n    if (mode === 'db') {\n      return ['× ' + S + ' then × ' + C + ' is × ' + P,\n        fd(10 * ls) + ' dB + ' + fd(10 * lc) + ' dB' + eqs(tenth(10 * ls) + tenth(10 * lc) === tenth(10 * lt)) + fd(10 * lt) + ' dB'];\n    }\n    const a = fp(ls), b = fp(lc), t = fp(lt);\n    if (mode === 'div') {\n      return ['log ' + P + ' − log ' + C + ' = log ' + S,\n        '10^' + t + ' ÷ 10^' + b + eqs(thou(lt) - thou(lc) === thou(ls)) + '10^' + a + endEq(a, S) + S];\n    }\n    return ['log ' + S + ' + log ' + C + ' = log ' + P,\n      '10^' + a + ' × 10^' + b + eqs(thou(ls) + thou(lc) === thou(lt)) + '10^' + t + endEq(t, P) + P];\n  }\n\n  // As a screen reader says it.\n  const say = (s) => String(s == null ? '' : s)\n    .replace(/log₂/g, 'log base 2').replace(/\\^\\(([^)]*)\\)/g, ' to the power $1').replace(/\\^([0-9.−]+)/g, ' to the power $1')\n    .replace(/²/g, ' squared').replace(/³/g, ' cubed').replace(/√/g, 'root ')\n    .replace(/≈/g, ' is about ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/−/g, ' minus ').replace(/\\+/g, ' plus ')\n    .replace(/=/g, ' equals ').replace(/\\bdB\\b/g, 'decibels').replace(/\\s+/g, ' ').trim();\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // R: the picture (s, c: where the slide and the cursor start; cur: false hides the cursor;\n  // bars: the two lengths as bars, true, or 'right' after a right answer; rowBars: room for bars\n  // drawn by the step itself; sum: the row of the bracket over the whole length, sumWhen 'right'\n  // after a right answer, sumFmt 'named' to write it as log N = L; botQ: the bottom reading is\n  // asked, shown as ?; db: the decibel scale; ask: a length whose number is asked).\n  // SHOW: live, Dan can drag it once the demonstration is over (mode: how the forms read it; end:\n  // where it ends); moves, the slide and cursor's journey [to, when, how long], hold keeping the\n  // bottom reading still; items arrive at their times. DO: items arrive after a right answer\n  // (when: 'right') or after the wrong answer whose slip they draw; opts, the answers; work, each\n  // answer by its own working; ans, the words that would give the answer away; forms before and\n  // after a right answer.\n  const STEPS = [\n    { show: true, live: true, mode: 'mul', name: 'Two power rulers', R: { s: 1, c: 3, bars: true, sum: 1 }, end: { s: 2, c: 3 },\n      moves: [{ s: 2, at: 0.8, dur: 1.6 }], sumAt: 0.4, formsAt: 2.6, dur: 3.4,\n      text: 'Here are two *power rulers*, each number sitting at its log, as in the last lesson. The upright line across both is the *cursor*, on 3. Slide the top ruler until its 1 sits over 2: it starts ' + fp(L2) + ' along, and its 3 a further ' + fp(L3) + '. The lengths add end to end to ' + fp(L2 + L3) + ', and the bottom ruler reads 6 there, `2 × 3`. Drag the top ruler or the cursor to try others.' },\n    { kind: 'pick', name: 'Four times five', R: { s: 4, c: 5, bars: true, sum: 1, sumWhen: 'right', sumAt: 0.4, botQ: true },\n      items: [\n        { k: 'bracket', a0: 0, a1: L4 + L5, row: 1, cls: 'slip', text: fp(L4 + L5) + ' is the length', when: '1.301' },\n        { k: 'ring', n: 9, row: 1, text: '4 + 5 = 9 sits at ' + fp(L9), when: '9' },\n      ],\n      opts: ['20', '9', '1.301'], want: '20', ans: '20',\n      work: { '20': [fP(Math.pow(10, L4 + L5)), '20'], '9': [String(4 + 5), '9'], '1.301': [fp(L4 + L5), '1.301'] },\n      forms: { before: [], right: ['log 4 + log 5 = log 20', '10^' + fp(L4) + ' × 10^' + fp(L5) + ' = 10^' + fp(L20) + ' ≈ 20'] },\n      task: 'The top ruler\\'s 1 sits over 4, and the cursor is on 5. What does the bottom ruler read under the cursor?',\n      why: 'On the rulers 4 is ' + fp(L4) + ' along and 5 a further ' + fp(L5) + ', so the lengths add to ' + fp(L4 + L5) + '. Adding lengths multiplies the numbers, so the bottom ruler reads `4 × 5 = 20` under the cursor. ' + fp(L4 + L5) + ' is the length itself, which is log 20, and 9 would be the numbers added.',\n      hint: 'Not quite. Adding lengths on these rulers multiplies the numbers.',\n      hints: { '9': 'Not quite. 9 is 4 + 5. The lengths add, so the numbers multiply.',\n        '1.301': 'Not quite. 1.301 is the length to the cursor. Read the number on the bottom ruler there.' } },\n    { show: true, name: 'The product law', R: { s: 2, c: 3, bars: false },\n      items: [\n        { k: 'bracket', a0: 0, a1: L2 + L3, row: 1, cls: 'br', text: 'log 2 + log 3 = ' + fp(L2 + L3), at: 0.5 },\n        { k: 'bracket', a0: 0, a1: L5, row: 2, cls: 'cmp', text: 'log 5 = ' + fp(L5), at: 1.4 },\n        { k: 'bracket', a0: 0, a1: 1, row: 3, cls: 'br', text: 'log 10 = 1', at: 2.3 },\n      ], formsAt: 2.9, dur: 3.6,\n      forms: ['log(2 × 3) = log 2 + log 3', 'log 1 = 0 and log 10 = 1'],\n      text: 'So the log of a product is the sum of the logs of its factors, `log(ab) = log a + log b`. It comes from `10ᵐ × 10ⁿ = 10ᵐ⁺ⁿ`, so it needs one base throughout. It says nothing about a sum: 2 then 3 lands on 6, not 5, since `log 5 = ' + fp(L5) + '` while `log 2 + log 3 = ' + fp(L2 + L3) + '`. The ruler starts at `log 1 = 0`, and one whole space is `log 10 = 1`. In any base the log of the base is 1, as `log₂ 2 = 1` and `ln e = 1`.' },\n    { kind: 'pick', name: 'A sum inside', R: { s: 1, c: 3, bars: true },\n      items: [\n        { k: 'move', c: 10, when: 'right', at: 0.1, dur: 0.9 },\n        { k: 'bracket', a0: 0, a1: 1, row: 1, cls: 'br', text: 'log 10 = ' + fp(LG(3 + 7)), when: 'right', at: 1.0 },\n        { k: 'move', s: 3, c: 7, when: '1.322', at: 0.1, dur: 0.9 },\n        { k: 'bracket', a0: 0, a1: L21, row: 1, cls: 'slip', text: 'log 21 ≈ ' + fp(L21), when: '1.322', at: 1.0 },\n        { k: 'ring', n: 10, row: 1, text: '3 + 7 = 10 goes inside the log', when: '10' },\n      ],\n      opts: ['1', '1.322', '10'], want: '1', ans: 'log 10 = 1',\n      work: { '1': [fp(LG(3 + 7)), '1'], '1.322': [fp(L3 + LG(7)), '1.322'], '10': [String(3 + 7), '10'] },\n      forms: { before: [], right: ['log(3 + 7) = log 10 = 1'] },\n      task: 'What is `log(3 + 7)`?',\n      why: 'No log law splits a sum, so add inside the brackets first. `3 + 7 = 10`, and `log 10 = 1`, one whole space. `log 3 + log 7` is `log(3 × 7)`, the log of 21, about ' + fp(L21) + ', a different number.',\n      hint: 'Not quite. No log law splits a sum. Add inside the brackets first.',\n      hints: { '1.322': 'Not quite. log 3 + log 7 is log(3 × 7), the log of 21. Add inside the brackets first.',\n        '10': 'Not quite. 10 is 3 + 7, the number inside the log. Now take its log.' } },\n    { show: true, live: true, mode: 'div', name: 'Slide back to divide', R: { s: 1, c: 6, bars: true, sum: 1 }, end: { s: 2, c: 3 },\n      moves: [{ s: 2, hold: true, at: 1.1, dur: 1.5 }], items: [{ k: 'idx', at: 2.6 }], sumAt: 0.4, formsAt: 2.8, dur: 3.6,\n      text: 'Slide the other way and you divide. Put the cursor on 6 on the bottom ruler, then slide the top ruler until its 3 sits under the cursor. Its 1 now sits over 2, so `6 ÷ 3 = 2`. The lengths take away, `' + fp(L6) + ' − ' + fp(L3) + ' = ' + fp(L2) + '`. So `log(a ÷ b) = log a − log b`, from `10ᵐ ÷ 10ⁿ = 10ᵐ⁻ⁿ`. Drag the top ruler, and the cursor keeps its place on the bottom ruler, or drag the cursor to try others.' },\n    { kind: 'pick', name: 'Taking logs away', R: { s: 1, c: 8, bars: 'right', barsAt: 1.0, sum: 1, sumFmt: 'named' },\n      items: [\n        { k: 'move', s: 4, hold: true, when: 'right', at: 0.1, dur: 0.9 },\n        { k: 'idx', when: 'right', at: 1.0 },\n        { k: 'ring', n: 6, row: 2, text: '8 − 2 = 6 sits at ' + fp(L6), when: '6' },\n        { k: 'ring', n: 16, row: 2, text: '8 × 2 = 16 sits at ' + fp(LG(16)), when: '16' },\n      ],\n      opts: ['4', '6', '16'], want: '4', ans: 'log 8 − log 2 = log 4',\n      work: { '4': [fP(Math.pow(10, L8 - L2)), '4'], '6': [String(8 - 2), '6'], '16': [String(8 * 2), '16'] },\n      forms: { before: [], right: ['log 8 − log 2 = log 4', '10^' + fp(L8) + ' ÷ 10^' + fp(L2) + ' = 10^' + fp(L4) + ' ≈ 4'] },\n      task: '`log 8 − log 2` is the log of which number?',\n      why: 'Taking lengths away divides the numbers. `log 8 = ' + fp(L8) + '` and `log 2 = ' + fp(L2) + '`, and `' + fp(L8) + ' − ' + fp(L2) + ' = ' + fp(L4) + '`, which is log 4. On the rulers, put the top ruler\\'s 2 under 8 and its 1 sits over 4, since `8 ÷ 2 = 4`.',\n      hint: 'Not quite. Taking logs away divides the numbers.',\n      hints: { '6': 'Not quite. 6 is 8 − 2. Taking logs away divides the numbers.',\n        '16': 'Not quite. 16 is 8 × 2, which adding the logs would give. Taking them away divides.' } },\n    { show: true, name: 'Powers', R: { s: 1, c: 1, bars: false, rowBars: true },\n      moves: [{ s: 2, at: 0.5, dur: 0.8 }, { c: 2, at: 1.4, dur: 0.8 }, { s: 4, at: 2.3, dur: 0.8 }],\n      items: [\n        { k: 'seg', a0: 0, a1: L2, cat: 1, text: fp(L2), at: 0.5, dur: 0.8 },\n        { k: 'seg', a0: L2, a1: 2 * L2, cat: 2, text: fp(L2), at: 1.4, dur: 0.8 },\n        { k: 'seg', a0: 2 * L2, a1: 3 * L2, cat: 1, text: fp(L2), at: 2.3, dur: 0.8 },\n        { k: 'bracket', a0: 0, a1: 3 * L2, row: 1, cls: 'br', text: '3 × ' + fp(L2) + ' = ' + fp(3 * L2), at: 3.2 },\n      ], formsAt: 3.4, dur: 4.1,\n      forms: ['log(2³) = 3 × log 2', '(10^' + fp(L2) + ')³ = 10^' + fp(3 * L2) + ' ≈ 8'],\n      text: 'A power multiplies equal numbers, so its log lays equal lengths end to end. `2³ = 2 × 2 × 2`, so three lengths of log 2 land on 8, and `log(2³) = 3 × log 2 = ' + fp(3 * L2) + '`. In general `log(aⁿ) = n log a`, here with `a = 2` and `n = 3`. It comes from `(10ᵐ)ⁿ = 10ᵐⁿ`, where a power of a power multiplies the powers.' },\n    { kind: 'pick', name: 'A square', R: { s: 1, c: 5, bars: true },\n      items: [\n        { k: 'move', s: 5, when: 'right', at: 0.1, dur: 0.9 },\n        { k: 'bracket', a0: 0, a1: 2 * L5, row: 1, cls: 'br', text: '2 × ' + fp(L5) + ' = ' + fp(2 * L5), when: 'right', at: 1.0 },\n        { k: 'ring', n: Math.pow(10, L5 * L5), row: 1, text: '(log 5)² ≈ ' + fp(L5 * L5) + ', at ' + fP(Math.pow(10, L5 * L5)), when: '(log 5)²' },\n        { k: 'ring', n: 10, row: 1, text: 'log 10 is log(5 × 2)', when: 'log 10' },\n      ],\n      opts: ['2 log 5', '(log 5)²', 'log 10'], want: '2 log 5', ans: '2 × ' + fp(L5) + ' = ' + fp(2 * L5),\n      work: { '2 log 5': [fp(2 * L5), fp(LG(25))], '(log 5)²': [fp(L5 * L5), '0.489'], 'log 10': [fp(LG(5 * 2)), '1'] },\n      forms: { before: [], right: ['log(5²) = 2 log 5', '(10^' + fp(L5) + ')² = 10^' + fp(2 * L5) + ' ≈ 25'] },\n      task: 'Which is `log(5²)`?',\n      why: '`5² = 5 × 5`, so its log is two lengths of log 5 end to end, `2 × ' + fp(L5) + ' = ' + fp(2 * L5) + '`, which is log 25. Squaring the length instead gives `(log 5)² ≈ ' + fp(L5 * L5) + '`, the log of only ' + fP(Math.pow(10, L5 * L5)) + '. And log 10 is the log of `5 × 2`.',\n      hint: 'Not quite. 5² is 5 × 5, two lengths of log 5 end to end.',\n      hints: { '(log 5)²': 'Not quite. That squares the length. 5² is 5 × 5, so its log is two lengths of log 5 added.',\n        'log 10': 'Not quite. 10 is 5 × 2, but 5² is 5 × 5 = 25.' } },\n    { show: true, name: 'Counting lengths', R: { s: 1, c: 5, bars: false, rowBars: true },\n      items: [\n        { k: 'bracket', a0: 0, a1: L5, row: 1, cls: 'br', text: 'log 5 = ' + fp(L5), at: 0.5 },\n        { k: 'seg', a0: 0, a1: L2, cat: 1, text: fp(L2), at: 1.2, dur: 0.6 },\n        { k: 'seg', a0: L2, a1: 2 * L2, cat: 2, text: fp(L2), at: 1.9, dur: 0.6 },\n        { k: 'seg', a0: 2 * L2, a1: L5, cat: 1, text: '', at: 2.6, dur: 0.4 },\n        { k: 'note', p: 0, anchor: 'start', row: 2, cls: 'brt', text: fp(L5) + ' ÷ ' + fp(L2) + ' ≈ ' + fp(L5 / L2) + ' lengths of log 2', at: 3.0 },\n      ], formsAt: 3.2, dur: 3.9,\n      forms: ['log₂ 5 = log 5 ÷ log 2 ≈ ' + fp(L5 / L2), '2^' + fp(L5 / L2) + ' ≈ 5'],\n      text: 'A log in another base counts how many times that base multiplies. How many 2s multiply to make 5? By the power law, `2ˣ` sits x lengths of log 2 along, so count how many lengths of log 2 fit into log 5. Two fit, landing on 4, and part of a third, `' + fp(L5) + ' ÷ ' + fp(L2) + ' ≈ ' + fp(L5 / L2) + '`. So `log₂ 5 ≈ ' + fp(L5 / L2) + '`, and the check is `2^' + fp(L5 / L2) + ' ≈ 5`. This *change of base* gives a log in any base from the log key alone.' },\n    { kind: 'pick', name: 'Which divides', R: { s: 1, c: 5, bars: false, rowBars: true },\n      items: [\n        { k: 'bracket', a0: 0, a1: L5, row: 1, cls: 'br', text: 'log 5 = ' + fp(L5) },\n        { k: 'seg', a0: 0, a1: L2, cat: 1, text: fp(L2) },\n        { k: 'seg', a0: L2, a1: 2 * L2, cat: 2, text: fp(L2), when: 'right', at: 0.1, dur: 0.6 },\n        { k: 'seg', a0: 2 * L2, a1: L5, cat: 1, text: '', when: 'right', at: 0.7, dur: 0.4 },\n        { k: 'note', p: 0, anchor: 'start', row: 2, cls: 'brt', text: fp(L5) + ' ÷ ' + fp(L2) + ' ≈ ' + fp(L5 / L2), when: 'right', at: 1.2 },\n        { k: 'bracket', a0: L2, a1: L5, row: 2, cls: 'slip', text: 'log 2.5 ≈ ' + fp(LG(2.5)), when: 'log(5 ÷ 2)' },\n        { k: 'note', p: 0, anchor: 'start', row: 2, cls: 'slip', text: '5 ÷ 2 = 2.5 drops the logs', when: '5 ÷ 2' },\n      ],\n      opts: ['log 5 ÷ log 2', 'log(5 ÷ 2)', '5 ÷ 2'], want: 'log 5 ÷ log 2', ans: fp(L5) + ' ÷ ' + fp(L2) + ' ≈ ' + fp(L5 / L2),\n      work: { 'log 5 ÷ log 2': [fp(L5 / L2), '2.322'], 'log(5 ÷ 2)': [fp(LG(5 / 2)), '0.398'], '5 ÷ 2': [fv(5 / 2, 1), '2.5'] },\n      forms: { before: [], right: ['log₂ 5 = log 5 ÷ log 2 ≈ ' + fp(L5 / L2), '2^' + fp(L5 / L2) + ' ≈ 5'] },\n      task: 'Which gives `log₂ 5`?',\n      why: '`log₂ 5` asks how many lengths of log 2 fit into log 5, so divide one length by the other, `' + fp(L5) + ' ÷ ' + fp(L2) + ' ≈ ' + fp(L5 / L2) + '`. `log(5 ÷ 2) ≈ ' + fp(LG(2.5)) + '` takes the lengths away instead, and `5 ÷ 2 = 2.5` drops the logs.',\n      hint: 'Not quite. Count how many lengths of log 2 fit into log 5.',\n      hints: { 'log(5 ÷ 2)': 'Not quite. log(5 ÷ 2) is the gap from 2 to 5, a length, not a count.',\n        '5 ÷ 2': 'Not quite. That crosses out the logs. They are numbers, ' + fp(L5) + ' and ' + fp(L2) + ', and do not cancel.' } },\n    { show: true, live: true, mode: 'db', name: 'Decibels', R: { s: 1, c: 1, bars: true, sum: 1, db: true }, end: { s: 2, c: 10 },\n      dbAt: 0.4, moves: [{ s: 2, at: 1.1, dur: 1.0 }, { c: 10, at: 2.2, dur: 1.0 }], sumAt: 3.3, formsAt: 3.5, dur: 4.2,\n      text: '*Decibels* (dB) relabel the bottom ruler. A power ratio in decibels is ten times its log, so each × 10 space is 10 dB, and 2 sits at ' + fd(10 * L2) + ' dB. Amplifier stages in a row multiply the power, so their decibels add: × 2 then × 10 gives × 20, and `' + fd(10 * L2) + ' dB + 10.0 dB = ' + fd(10 * L20) + ' dB`. Engine-room noise readings are decibels too, taken in dB(A), with a weighting this ruler leaves out. Drag to try other stages.' },\n    { kind: 'pick', name: 'Five decibels', R: { s: 1, c: 1, cur: false, bars: false, db: true, ask: 0.5 },\n      items: [\n        { k: 'ring', n: 5.5, row: 1, text: '5.5 sits at ' + fd(10 * LG(5.5)) + ' dB', when: '5.5' },\n        { k: 'ring', n: 5, row: 1, text: '5 sits at ' + fd(10 * L5) + ' dB', when: '5' },\n      ],\n      opts: ['3.16', '5.5', '5'], want: '3.16', ans: '3.16',\n      work: { '3.16': [fP(Math.pow(10, 5 / 10)), '3.16'], '5.5': [fv((1 + 10) / 2, 1), '5.5'], '5': [String(5), '5'] },\n      forms: { before: [], right: ['10^(5 ÷ 10) = 10^0.5 ≈ 3.16', '3.16 × 3.16 ≈ 10'] },\n      task: 'Which number sits at 5 dB, half way through the first × 10 space?',\n      why: '5 dB is half of a 10 dB space, and equal lengths multiply by equal factors. Two halves must multiply to make 10, so each multiplies by `√10 ≈ 3.16`. Check it, `10 log 3.16 ≈ ' + fd(10 * LG(3.16)) + ' dB`.',\n      hint: 'Not quite. Equal lengths multiply, so half a space multiplies by the number that, times itself, makes 10.',\n      hints: { '5.5': 'Not quite. 5.5 is half way counted evenly. On these rulers equal lengths multiply.',\n        '5': 'Not quite. That reads the decibels as the number. 5 sits at ' + fd(10 * L5) + ' dB.' } },\n    { kind: 'pick', name: 'Two stages', R: { s: 4, c: 5, bars: true, db: true, sum: 1, sumWhen: 'right', sumAt: 0.4, botQ: true },\n      items: [\n        { k: 'bracket', a0: 0, a1: L9, row: 1, cls: 'slip', text: '× 9 is ' + fd(10 * L9) + ' dB', when: '9.5 dB' },\n        { k: 'note', p: 0, anchor: 'start', row: 1, cls: 'slip', text: fd(10 * L4) + ' × ' + fd(10 * L5) + ' = 42, but decibels add', when: '42 dB' },\n      ],\n      opts: ['13.0 dB', '9.5 dB', '42 dB'], want: '13.0 dB', ans: fd(10 * L4 + 10 * L5) + ' dB',\n      work: { '13.0 dB': [fd(10 * L4 + 10 * L5) + ' dB', '13.0 dB'], '9.5 dB': [fd(10 * LG(4 + 5)) + ' dB', '9.5 dB'], '42 dB': [fv(plain(fd(10 * L4)) * plain(fd(10 * L5)), 0) + ' dB', '42 dB'] },\n      forms: { before: [], right: ['× 4 then × 5 is × 20', fd(10 * L4) + ' dB + ' + fd(10 * L5) + ' dB = ' + fd(10 * L20) + ' dB'] },\n      task: 'A signal passes a stage of × 4, then a stage of × 5. What is their total gain in decibels?',\n      why: 'Each stage multiplies the power, so their decibels add. `10 log 4 ≈ ' + fd(10 * L4) + ' dB` and `10 log 5 ≈ ' + fd(10 * L5) + ' dB` make ' + fd(10 * L4 + 10 * L5) + ' dB. Check by multiplying, `4 × 5 = 20`, and `10 log 20 ≈ ' + fd(10 * L20) + ' dB`. A loss is negative, so a cable that halves the power is `' + fd(10 * LG(0.5)) + ' dB`. For a voltage ratio across the same resistance, textbooks use 20 log, since power goes with the voltage squared.',\n      hint: 'Not quite. Stages in a row multiply the power, so their decibels add.',\n      hints: { '9.5 dB': 'Not quite. That adds the ratios, × 9. Stages multiply the power, so their decibels add.',\n        '42 dB': 'Not quite. That multiplies the decibels. Stages multiply the power, so their decibels add.' } },\n    { kind: 'pick', name: 'Forty over four', R: { s: 4, c: 10, bars: 'right', barsAt: 1.0, sum: 1, sumFmt: 'named' },\n      items: [\n        { k: 'move', s: 10, hold: true, when: 'right', at: 0.1, dur: 0.9 },\n        { k: 'idx', when: 'right', at: 1.0 },\n        { k: 'bracket', a0: 0, a1: L36, row: 2, cls: 'slip', text: 'log 36 ≈ ' + fp(L36), when: '1.556' },\n        { k: 'note', p: 0, anchor: 'start', row: 2, cls: 'slip', text: fp(L40) + ' ÷ ' + fp(L4) + ' ≈ ' + fp(L40 / L4) + ' divides the logs', when: '2.661' },\n      ],\n      opts: ['1', '1.556', '2.661'], want: '1', ans: 'log 40 − log 4 = log 10 = 1',\n      work: { '1': [fp(L40 - L4), '1'], '1.556': [fp(LG(40 - 4)), '1.556'], '2.661': [fp(L40 / L4), '2.661'] },\n      forms: { before: [], right: ['log 40 − log 4 = log 10 = 1', '40 ÷ 4 = 10'] },\n      task: 'What is `log 40 − log 4`?',\n      why: 'Taking logs away divides the numbers inside, so `log 40 − log 4 = log(40 ÷ 4) = log 10 = 1`. On the rulers, put the top ruler\\'s 4 under 40, and its 1 sits over 10, one whole space along.',\n      hint: 'Not quite. Taking logs away divides the numbers inside them.',\n      hints: { '1.556': 'Not quite. 1.556 is log 36, the log of 40 − 4. Taking logs away divides the numbers.',\n        '2.661': 'Not quite. That divides the logs. Taking logs away divides the numbers inside, 40 ÷ 4.' } },\n  ];\n  const FINISH = 'A log turns multiplying into adding, because on the power rulers the lengths add while the numbers multiply: `log(ab) = log a + log b`, `log(a ÷ b) = log a − log b` and `log(aⁿ) = n log a`. Taking one length from another divides, laying equal lengths end to end makes a power, and decibels, ten times the log of a power ratio, simply add.';\n  const CAPTION = 'Each number sits at its log to base 10, worked out by the rule and rounded.';\n  const FADE = 0.35;\n  const FB = [2.2, 1.8];   // how long the motion after a right and a wrong answer plays\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- geometry ----------\n  // One × 10 space is U units; the bottom ruler runs two spaces, 1 to 100, from X0. Rows, top to\n  // bottom: the top ruler's numbers, its band, the bottom ruler's band, its numbers, the decibel\n  // scale, the bars, then bracket rows 28 units apart.\n  const X0 = 20, U = 150;\n  const X = (p) => X0 + p * U;\n  const fromX = (x) => (x - X0) / U;\n  const Y = { tl: 32, tb0: 40, mid: 62, bb1: 84, bl: 99, curT: 37, curB: 86, ring: 73, db: 106, dbl: 127, b0: 110, db0: 136 };\n  const TOP_N = [1, 2, 3, 4, 5, 10], TOP_T = [2, 3, 4, 5, 6, 7, 8, 9];\n  const BOT_N = [1, 2, 3, 4, 5, 10, 20, 30, 100];\n  const BOT_T = [2, 3, 4, 5, 6, 7, 8, 9, 20, 30, 40, 50, 60, 70, 80, 90];\n  const rowsOf = (d) => [d.R.sum || 0].concat((d.items || []).map((it) => it.row || 0));\n  STEPS.forEach((d) => {\n    const R = d.R, y0 = R.db ? Y.db0 : Y.b0, hasBars = !!(R.bars || R.rowBars), m = Math.max.apply(null, rowsOf(d));\n    d.H = m ? (hasBars ? y0 + 34 : y0) + 28 * m + 14 : (hasBars ? y0 + 46 : y0 + 4);\n  });\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // live: Dan has moved the slide or the cursor, so the demonstration is over.\n  function blank() { return { pick: null, res: null, why: false, live: false, pin: null }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity;\n  let lastS = null, lastC = null, motionEnd = 0, held = null;\n  let REC = null;   // what the last paint drew, for the checks\n\n  // ---------- text with amber key terms, italic letters and raised powers (K.el, never innerHTML) ----------\n  const ITAL = /((?<![A-Za-z])(?:ab|[abmn])(?![A-Za-z]))/;\n  function italics(parent, s) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? K.el('span', { class: 'v' }, p) : document.createTextNode(p));\n    });\n  }\n  const POW = /\\^(\\([^)]*\\)|[0-9.−]+)/;\n  function maths(parent, s) {\n    let rest = String(s), m;\n    while ((m = POW.exec(rest))) {\n      if (m.index) italics(parent, rest.slice(0, m.index));\n      const pw = m[1].charAt(0) === '(' ? m[1].slice(1, -1) : m[1];\n      italics(parent.appendChild(K.el('sup')), pw);\n      rest = rest.slice(m.index + m[0].length);\n    }\n    if (rest) italics(parent, rest);\n  }\n  // A formula keeps each piece whole on one line and may break before its = or ≈.\n  function formula(parent, s) {\n    String(s).split(/ (?=[=≈] )/).forEach((c, j) => {\n      if (j) parent.appendChild(document.createTextNode(' '));\n      maths(parent.appendChild(K.el('span', { class: 'nw' })), c);\n    });\n  }\n  // `maths` is a formula; *a key term* is highlighted.\n  function write(el, s) {\n    el.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { formula(el, seg); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at0 = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at0) el.appendChild(document.createTextNode(seg.slice(at0, m.index)));\n        el.appendChild(K.el('span', { class: 'mark' }, m[1]));\n        at0 = m.index + m[0].length;\n      }\n      if (at0 < seg.length) el.appendChild(document.createTextNode(seg.slice(at0)));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const slideCtl = K.control({ id: 'slide', label: 'Top ruler\\'s 1 sits over', min: 1, max: 10, step: 0.1, value: 1, unit: '', fmt: (v) => fs(v), into: '#ctl' });\n  const cursorCtl = K.control({ id: 'cursor', label: 'Cursor on the top ruler', min: 1, max: 10, step: 0.1, value: 3, unit: '', fmt: (v) => fs(v), into: '#ctl' });\n  const nav = document.getElementById('nav');\n  const at = () => stepper.get();\n  const cur = () => ({ slide: slideCtl.get(), cursor: cursorCtl.get() });\n  const openP = (i) => { const d = STEPS[i], e = d.end || d.R; return { slide: grid(e.s), cursor: grid(e.c) }; };\n  function remember() { lastS = slideCtl.get(); lastC = cursorCtl.get(); }\n  // A screen opens on its own settings: where its demonstration ends, or its puzzle's picture.\n  function openStep(i) {\n    const P = openP(i), st = S[i];\n    st.live = false; st.pin = null;\n    slideCtl.set(P.slide, true); cursorCtl.set(P.cursor, true);\n  }\n  // While a demonstration plays, the two sliders follow the rulers (quietly, so it is not Dan's move).\n  function syncCtl(i) {\n    const d = STEPS[i], st = S[i];\n    if (!d.show || !d.live || st.live || !REC || REC.s == null) return;\n    const s = grid(REC.s), c = grid(REC.c);\n    if (slideCtl.get() !== s) slideCtl.set(s, true);\n    if (cursorCtl.get() !== c) cursorCtl.set(c, true);\n  }\n\n  // Up to three answer buttons; each step fills in its own. A new choice after a wrong answer\n  // settles the picture back to the question.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  // Check: marks the answer; a right one runs the picture on, a wrong one shows its slip.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(st.res === 'right' ? FB[0] : FB[1]);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i];\n    if (!d.show || finished) return;\n    openStep(i); remember();\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    syncCtl(at()); remember();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); syncCtl(at()); remember(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = document.getElementById(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing helpers ----------\n  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');\n  let into = null;\n  const add = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function arr(t0, d) {\n    d = d == null ? K.SOFT : d;\n    if (t0 + d > latest) latest = t0 + d;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(T, t0, d);\n  }\n  // A demonstration's part: there at once once Dan has taken over.\n  const A = (st, t0, d) => (st.live ? 1 : arr(t0, d));\n  function part(a, rise, draw) {\n    if (!(a > 0)) return null;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g; draw(); into = keep;\n    return g;\n  }\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));\n  const dot = (cls, x, y, r) => add(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r: r || 4.5 }));\n  function text(x, y, s, cls, anchor) {\n    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    t.textContent = String(s);\n    return add(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));\n    t.textContent = String(s);\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 7.6;\n  }\n  // While the picture moves (a demonstration, a drag) labels fade in and out softly beside the\n  // tags; a still picture shows each one whole or not at all.\n  const isMoving = () => (T !== Infinity && T < motionEnd) || held != null;\n  const settle = (a, cut) => (isMoving() ? a : (a >= cut ? 1 : 0));\n  function occA(x0, x1, occ) {\n    let a = 1;\n    (occ || []).forEach((o) => { const gap = Math.max(o[0] - x1, x0 - o[1]); a = Math.min(a, K.clamp((gap - 1) / 3, 0, 1)); });\n    return settle(a, 0.5);\n  }\n  // A row of ruler numbers: each kept clear of the ones before it and of the tags; fb is a tag\n  // that arrives (a), and the numbers under it give way as it does.\n  function rowLabels(list, y, occ, fb, fa, rec) {\n    const done = [];\n    list.forEach((it) => {\n      const w = tw(it.s, 'nl'), x0 = it.x - w / 2, x1 = it.x + w / 2;\n      let a = occA(x0, x1, occ);\n      if (fb && Math.max(fb[0] - x1, x0 - fb[1]) < 3) a *= settle(1 - fa, 0.5);\n      const ok = a > 0 && !done.some((q) => x0 < q[1] + 2 && q[0] < x1 + 2);\n      if (ok) { done.push([x0, x1]); part(a, 0, () => text(it.x, y, it.s, 'nl', 'middle')); }\n      rec.push({ n: it.n, x: it.x, text: it.s, drawn: ok });\n    });\n  }\n  const tagW = (list) => Math.max.apply(null, list.map((s) => tw(s, 'tagt'))) + 10;\n  function tagBox(w, x) { const x0 = K.clamp(x - w / 2, 2, 338 - w); return [x0, x0 + w]; }\n  const tagRect = (b, y) => rect('tag', b[0], y - 13, b[1] - b[0], 18, 9);\n  const tagText = (b, y, s, a) => part(a, 0, () => text((b[0] + b[1]) / 2, y, s, 'tagt', 'middle'));\n  // A length along the bottom ruler: a bracket from a0 to a1 (powers), its label above it when it\n  // fits, else beside it, never across its ends.\n  function bracket(a0, a1, y, s, kind, a) {\n    if (!(a > 0)) return;\n    const x0 = X(a0), x1 = X(a1), wd = x1 - x0;\n    if (wd < 2) return;\n    const lc = kind === 'slip' ? 'slip' : kind === 'cmp' ? 'cmp' : 'br', tc = lc + 't', w = tw(s, tc);\n    let lx, ly, up = true;\n    if (w + 12 <= wd) { lx = (x0 + x1) / 2 - w / 2; ly = y - 6; }\n    else if (x1 + 6 + w <= 336) { lx = x1 + 6; ly = y + 4.5; }\n    else if (x0 - 6 - w >= 4) { lx = x0 - 6 - w; ly = y + 4.5; }\n    else { lx = K.clamp((x0 + x1) / 2 - w / 2, 4, 336 - w); ly = y - 8; up = false; }\n    part(a, 0, () => {\n      line(lc, x0 + 1, y, x1 - 1, y);\n      line(lc, x0 + 1, up ? y - 5 : y, x0 + 1, y + 5); line(lc, x1 - 1, up ? y - 5 : y, x1 - 1, y + 5);\n      text(lx, ly, s, tc, 'start');\n    });\n    REC.brackets.push({ a0, a1, text: s, kind });\n    REC.texts2.push(s);\n    if (kind === 'slip') REC.notes.push(s);\n  }\n  // A row of bars end to end, each labelled underneath; a label that would touch the one before\n  // it drops to a second line.\n  function barRow(bars, y0) {\n    const placed = [[], []];\n    bars.forEach((g) => {\n      const x0 = X(g.a0), x1 = X(g.a1), wd = x1 - x0;\n      if (wd > 0.05) part(g.a, 0, () => rect(g.cls, x0, y0, wd, 10, 0));\n      const rec = { a0: g.a0, a1: g.a1, text: g.text || '', shown: false };\n      REC.bars.push(rec);\n      if (!g.text || wd < 0.5) return;\n      const w = tw(g.text, 'bl'), lx = K.clamp((x0 + x1) / 2 - w / 2, 4, 336 - w);\n      let ln = -1;\n      for (let k = 0; k < 2; k++) if (!placed[k].some((q) => lx < q[1] + 4 && q[0] < lx + w + 4)) { ln = k; break; }\n      if (ln < 0) return;\n      const la = g.ta * settle(K.clamp(wd / 8, 0, 1), 0.5);\n      if (!(la > 0)) return;\n      placed[ln].push([lx, lx + w]);\n      part(la, 0, () => text(lx, y0 + 25 + 15 * ln, g.text, 'bl', 'start'));\n      rec.shown = true;\n    });\n  }\n  function slipText(x, y, s, a) {\n    const w = tw(s, 'slipt'), x0 = K.clamp(x - w / 2, 4, 336 - w);\n    part(a, 0, () => text(x0, y + 4.5, s, 'slipt', 'start'));\n    REC.notes.push(s);\n  }\n\n  // ---------- where the slide and the cursor are ----------\n  // Live: Dan's settings. Otherwise from the start, each move in turn by how far it has arrived;\n  // a move that holds keeps the cursor still on the bottom ruler while the top ruler slides.\n  function itemA(d, st, it) {\n    if (d.show) return it.at != null ? A(st, it.at, it.dur) : 1;\n    if (!it.when) return 1;\n    const t0 = it.at != null ? it.at : (it.when === 'right' ? 0.1 : 0.3);\n    if (it.when === 'right') return st.res === 'right' ? arr(t0, it.dur || K.SOFT) : 0;\n    return st.res === 'wrong' && st.pick === it.when ? arr(t0, it.dur || K.SOFT) : 0;\n  }\n  function stateOf(d, st, P) {\n    if (d.show && d.live && st.live) return { s: P.slide, c: P.cursor, ls: LG(P.slide), lc: LG(P.cursor) };\n    let ls = LG(d.R.s), lc = LG(d.R.c);\n    const moves = d.show ? (d.moves || []) : (d.items || []).filter((it) => it.k === 'move');\n    moves.forEach((m) => {\n      const a = d.show ? A(st, m.at, m.dur) : itemA(d, st, m);\n      if (!(a > 0)) return;\n      if (m.hold) { const tot = ls + lc, n = ls + (LG(m.s) - ls) * a; lc = tot - n; ls = n; }\n      else { if (m.s != null) ls += (LG(m.s) - ls) * a; if (m.c != null) lc += (LG(m.c) - lc) * a; }\n    });\n    return { s: Math.pow(10, ls), c: Math.pow(10, lc), ls, lc };\n  }\n\n  // ---------- the slide rule ----------\n  function drawRule(d, st, P) {\n    const R = d.R, show = !!d.show, right = st.res === 'right', said = [];\n    const Z = stateOf(d, st, P), ls = Z.ls, lc = Z.lc, lt = ls + lc;\n    REC.s = Z.s; REC.c = Z.c; REC.ls = ls; REC.lc = lc;\n    const y0 = R.db ? Y.db0 : Y.b0, base = R.bars || R.rowBars ? y0 + 34 : y0;\n    const rowY = (k) => base + 28 * k;\n    const curOn = R.cur !== false, xc = X(lt);\n    const prodTxt = fP(Math.pow(10, lt)), topTxt = fs(Z.c);\n\n    // the tags first, so the numbers beside them make room\n    const qA = R.botQ && !show ? (right ? arr(0.2, 0.5) : 0) : 1;\n    const tTop = curOn ? tagBox(tagW([topTxt]), xc) : null;\n    const tBot = curOn ? tagBox(tagW(R.botQ && !show ? ['?', prodTxt] : [prodTxt]), xc) : null;\n    const askTxt = R.ask != null ? fP(Math.pow(10, R.ask)) : '';\n    const askA = R.ask != null ? (right ? arr(0.2, 0.5) : 0) : 0;\n    const tAsk = R.ask != null ? tagBox(tagW(['?', askTxt]), X(R.ask)) : null;\n    const idxIt = (d.items || []).find((it) => it.k === 'idx');\n    const idxA = idxIt ? itemA(d, st, idxIt) : 0;\n    const idxTxt = fP(Z.s);\n    let tIdx = idxA > 0 ? tagBox(tagW([idxTxt]), X(ls)) : null;\n    if (tIdx && tBot && tIdx[0] < tBot[1] + 2 && tBot[0] < tIdx[1] + 2) tIdx = null;\n\n    // the bottom ruler, fixed: 1 to 100, two × 10 spaces; its ticks rise from its lower edge\n    rect('stock', X(0), Y.mid, 2 * U, Y.bb1 - Y.mid, 0);\n    line('edge', X(0), Y.mid, X(2), Y.mid); line('edge', X(0), Y.bb1, X(2), Y.bb1);\n    [0, 1, 2].forEach((k) => line('tickb', X(k), Y.mid, X(k), Y.bb1));\n    BOT_T.forEach((n) => { const x = X(LG(n)), len = BOT_N.indexOf(n) >= 0 ? 12 : 7; line('ticks', x, Y.bb1 - len, x, Y.bb1); });\n    // the top ruler, 1 to 10, slid so its 1 sits log(slide) along; its ticks hang from its upper edge\n    rect('slide', X(ls), Y.tb0, U, Y.mid - Y.tb0, 0);\n    line('edge', X(ls), Y.tb0, X(ls + 1), Y.tb0); line('edge', X(ls), Y.mid, X(ls + 1), Y.mid);\n    line('tickb', X(ls), Y.tb0, X(ls), Y.mid); line('tickb', X(ls + 1), Y.tb0, X(ls + 1), Y.mid);\n    TOP_T.forEach((n) => { const x = X(ls + LG(n)), len = TOP_N.indexOf(n) >= 0 ? 12 : 7; line('ticks', x, Y.tb0, x, Y.tb0 + len); });\n    rowLabels(TOP_N.map((n) => ({ x: X(ls + LG(n)), s: String(n), n })), Y.tl, tTop ? [tTop] : [], null, 0, REC.top);\n    rowLabels(BOT_N.map((n) => ({ x: X(LG(n)), s: String(n), n })), Y.bl, [tBot, tAsk].filter(Boolean), tIdx, idxA, REC.bot);\n    said.push('Two power rulers. The top ruler\\'s 1 sits over ' + say(fs(Z.s)) + ' on the bottom ruler, which runs from 1 to 100.');\n\n    // the decibel scale: ten decibels to each × 10 space, a tick for every decibel\n    if (R.db) {\n      const da = show ? A(st, d.dbAt != null ? d.dbAt : 0.4, K.SOFT) : 1;\n      const marks = [[0, '0 dB'], [10, '10 dB'], [20, '20 dB']];\n      part(da, 0, () => {\n        line('dbline', X(0), Y.db, X(2), Y.db);\n        for (let k = 0; k <= 20; k++) line('dbtick', X(k / 10), Y.db, X(k / 10), Y.db + (k % 10 ? 4 : 6));\n        marks.forEach((q) => text(X(q[0] / 10), Y.dbl, q[1], 'dbl', 'middle'));\n      });\n      REC.db = marks.map((q) => ({ v: q[0], x: X(q[0] / 10), text: q[1] }));\n      said.push('Under the bottom ruler a decibel scale, 0 decibels at 1, 10 at 10 and 20 at 100.');\n    }\n    // the length asked about, as decibels\n    if (R.ask != null) {\n      const x = X(R.ask);\n      line('ask', x, Y.mid, x, Y.curB);\n      line('ask', x, Y.db, x, Y.db + 9);\n      text(x, Y.dbl, fv(10 * R.ask, 1) + ' dB', 'askt', 'middle');\n      tagRect(tAsk, Y.bl);\n      if (askA < 1) tagText(tAsk, Y.bl, '?', 1 - askA);\n      if (askA > 0) tagText(tAsk, Y.bl, askTxt, askA);\n      REC.ask = askA >= 1 ? askTxt : '?';\n      REC.boxes.push(tAsk);\n      said.push('A mark at ' + fv(10 * R.ask, 1) + ' decibels asks which number sits there: ' + (askA >= 1 ? say(askTxt) : 'unknown') + '.');\n    }\n\n    // the lengths: the slide's then the cursor's, end to end, or the step's own bars\n    const bars = [];\n    if (R.bars) {\n      const ba = R.bars === 'right' ? (right ? arr(R.barsAt != null ? R.barsAt : 0.9, K.SOFT) : 0) : 1;\n      const lab = (v) => (R.db ? fd(10 * v) + ' dB' : fp(v));\n      if (ba > 0) bars.push({ a0: 0, a1: ls, cls: 'b1', text: lab(ls), a: ba, ta: ba }, { a0: ls, a1: lt, cls: 'b2', text: lab(lc), a: ba, ta: ba });\n    }\n    (d.items || []).forEach((it) => {\n      if (it.k !== 'seg') return;\n      const p = itemA(d, st, it);\n      if (!(p > 0)) return;\n      bars.push({ a0: it.a0, a1: it.a0 + (it.a1 - it.a0) * p, cls: it.cat === 2 ? 'b2' : 'b1', text: it.text, a: 1, ta: p });\n    });\n    barRow(bars, y0);\n    const shownBars = REC.bars.filter((b) => b.shown).map((b) => b.text);\n    if (shownBars.length) said.push('Under the rulers, lengths end to end: ' + shownBars.map(say).join(', then ') + '.');\n\n    // the whole length, from the bottom ruler's 1 to the cursor\n    if (R.sum) {\n      const sa = show ? A(st, d.sumAt != null ? d.sumAt : 0, K.SOFT) : (R.sumWhen === 'right' ? (right ? arr(R.sumAt != null ? R.sumAt : 0.9, K.SOFT) : 0) : 1);\n      const s = R.sumFmt === 'named' ? 'log ' + prodTxt + ' = ' + fp(lt) : R.db ? fd(10 * lt) + ' dB' : fp(lt);\n      if (sa > 0 && X(lt) - X(0) >= 2) { bracket(0, lt, rowY(R.sum), s, 'br', sa); REC.sum = s; said.push('A bracket over the whole length: ' + say(s) + '.'); }\n    }\n    // the step's own parts\n    (d.items || []).forEach((it) => {\n      if (it.k === 'move' || it.k === 'seg' || it.k === 'idx') return;\n      const a = itemA(d, st, it);\n      if (!(a > 0)) return;\n      if (it.k === 'bracket') {\n        bracket(it.a0, it.a1, rowY(it.row), it.text, it.cls, a);\n        said.push((it.cls === 'slip' ? 'In red, a bracket: ' : 'A bracket: ') + say(it.text) + '.');\n      } else if (it.k === 'ring') {\n        const x = X(LG(it.n));\n        part(a, 0, () => dot('ring', x, Y.ring, 8));\n        slipText(x, rowY(it.row), it.text, a);\n        REC.rings.push({ n: it.n, text: it.text });\n        said.push('In red, a ring on the bottom ruler: ' + say(it.text) + '.');\n      } else if (it.k === 'note') {\n        const cls = it.cls === 'brt' ? 'brt' : 'slipt', w = tw(it.text, cls);\n        const x0 = K.clamp(it.anchor === 'start' ? X(it.p) : X(it.p) - w / 2, 4, 336 - w);\n        part(a, 0, () => text(x0, rowY(it.row) + 4.5, it.text, cls, 'start'));\n        if (cls === 'slipt') REC.notes.push(it.text); else REC.texts2.push(it.text);\n        said.push((cls === 'slipt' ? 'In red: ' : '') + say(it.text) + '.');\n      }\n    });\n\n    // the top ruler's 1, read on the bottom ruler\n    if (tIdx) {\n      part(idxA, 0, () => { line('idx', X(ls), Y.tb0, X(ls), Y.curB); tagRect(tIdx, Y.bl); text((tIdx[0] + tIdx[1]) / 2, Y.bl, idxTxt, 'tagt', 'middle'); });\n      REC.idx = idxTxt; REC.boxes.push(tIdx);\n      said.push('The top ruler\\'s 1 sits over ' + say(idxTxt) + '.');\n    }\n    // the cursor, the number it sits on above and the bottom ruler's reading below\n    if (curOn) {\n      line('cur', xc, Y.curT, xc, Y.curB);\n      tagRect(tTop, Y.tl); tagText(tTop, Y.tl, topTxt, 1);\n      tagRect(tBot, Y.bl);\n      if (qA < 1) tagText(tBot, Y.bl, '?', 1 - qA);\n      if (qA > 0) tagText(tBot, Y.bl, prodTxt, qA);\n      REC.tagTop = topTxt; REC.tagBot = qA >= 1 ? prodTxt : '?'; REC.curX = xc;\n      REC.boxes.push(tTop, tBot);\n      said.push('The cursor sits on ' + say(topTxt) + ' on the top ruler, and the bottom ruler reads ' + (qA >= 1 ? say(prodTxt) : 'an unknown number') + ' under it.');\n    }\n    return said.join(' ');\n  }\n\n  // ---------- the drag: the top ruler slides, the cursor moves ----------\n  const grip = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 12, width: 340, height: 96, 'aria-hidden': 'true' }));\n  grip.style.display = 'none';\n  const gripLive = () => !finished && STEPS[at()].show && !!STEPS[at()].live;\n  function svgPt(e) {\n    const ctm = svg.getScreenCTM();\n    if (!ctm) return null;\n    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());\n  }\n  // A finger at x puts the cursor on the top ruler's number there; a slide by dx moves the top\n  // ruler's 1 by dx along, both landing on the controls' steps of 0.1.\n  const cursorFrom = (x, ls) => grid(Math.pow(10, fromX(x) - ls));\n  const slideFrom = (ls0, x0, x) => grid(Math.pow(10, ls0 + (x - x0) / U));\n  function setVals(s, c) {\n    const st = S[at()];\n    if (st.live && T === Infinity && (s == null || s === slideCtl.get()) && (c == null || c === cursorCtl.get())) return;\n    if (anim.playing()) anim.pause();\n    T = Infinity; st.live = true;\n    if (s != null) slideCtl.set(s, true);\n    if (c != null) cursorCtl.set(c, true);\n    K.reveal();\n  }\n  function dragTo(p) {\n    if (!held || !p) return;\n    if (held.mode === 'cursor') setVals(null, cursorFrom(p.x, LG(slideCtl.get())));\n    else setVals(slideFrom(held.ls0, held.x0, p.x), null);\n  }\n  grip.addEventListener('pointerdown', (e) => {\n    if (!gripLive()) return;\n    const p = svgPt(e);\n    if (!p) return;\n    const ls = REC && REC.s != null ? REC.ls : LG(slideCtl.get()), xc = X(ls + (REC && REC.s != null ? REC.lc : LG(cursorCtl.get())));\n    held = { id: e.pointerId, mode: Math.abs(p.x - xc) <= 22 || p.y > Y.mid ? 'cursor' : 'slide', x0: p.x, ls0: LG(grid(Math.pow(10, ls))) };\n    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the finger while it stays on the rulers */ }\n    if (held.mode === 'cursor') dragTo(p);\n    else setVals(grid(Math.pow(10, held.ls0)), null);\n  });\n  grip.addEventListener('pointermove', (e) => { if (held && held.id === e.pointerId && gripLive()) dragTo(svgPt(e)); });\n  const letGo = (e) => { if (held && held.id === e.pointerId) { held = null; K.refresh(); } };\n  grip.addEventListener('pointerup', letGo);\n  grip.addEventListener('pointercancel', letGo);\n  grip.addEventListener('lostpointercapture', () => { if (held) { held = null; K.refresh(); } });\n  function placeGrip(d) { grip.style.display = d.show && d.live && !finished ? '' : 'none'; }\n\n  // ---------- one paint: the scene and the forms under it ----------\n  const el = (id) => document.getElementById(id);\n  function writeForms(lines, a) {\n    const f = el('forms');\n    f.textContent = '';\n    (lines || []).forEach((s) => { if (s) formula(f.appendChild(K.el('span', { class: 'fl' })), s); });\n    K.fade(f, a, 0);\n    REC.forms = a > 0 ? (lines || []).slice() : [];\n  }\n  function paint(i, P) {\n    if (i == null) i = at();\n    if (!P) P = cur();\n    const d = STEPS[i], st = S[i];\n    art.textContent = '';\n    into = null;\n    REC = { s: null, c: null, ls: 0, lc: 0, top: [], bot: [], tagTop: null, tagBot: null, curX: null, idx: null, ask: null, db: null, sum: null,\n      bars: [], brackets: [], rings: [], notes: [], texts2: [], boxes: [], forms: [] };\n    svg.setAttribute('viewBox', '0 0 340 ' + d.H);\n    const said = drawRule(d, st, P);\n    let lines, fa = 1;\n    if (d.show && d.live && st.live) lines = liveForms(d.mode, P.slide, P.cursor);\n    else if (d.show && d.live) { lines = liveForms(d.mode, d.end.s, d.end.c); fa = A(st, d.formsAt, K.SOFT); }\n    else if (d.show) { lines = d.forms; fa = A(st, d.formsAt, K.SOFT); }\n    else if (st.res === 'right') { lines = d.forms.right; fa = arr(0.9, K.SOFT); }\n    else lines = d.forms.before;\n    writeForms(lines, fa);\n    placeGrip(d);\n    svg.setAttribute('aria-label', said);\n  }\n\n  // The model the lesson reads: the bottom ruler under the cursor, the two lengths added, and\n  // the same reading in decibels.\n  K.model((p) => {\n    const len = LG(p.slide) + LG(p.cursor);\n    return { product: Math.pow(10, len), lengths: len, decibels: 10 * len };\n  });\n\n  write(el('finish'), FINISH);\n  write(el('cap'), CAPTION);\n  K.update(() => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      openStep(i);\n      if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }\n    } else if (d.show && d.live) {\n      const P = cur();\n      if (P.slide !== lastS || P.cursor !== lastC) {\n        // a drag, a slider or a test moved: the demonstration gives way to Dan's setting\n        // (on the dividing screen a moved top ruler keeps the cursor on its bottom-ruler number)\n        if (d.mode === 'div') {\n          if (P.cursor !== lastC) st.pin = P.slide * P.cursor;\n          else { if (st.pin == null) st.pin = lastS * lastC; cursorCtl.set(grid(st.pin / P.slide), true); }\n        }\n        st.live = true;\n        if (anim.playing()) anim.pause();\n        T = Infinity;\n      }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    const ctl = el('ctl'), ctlWas = ctl.hidden;\n    ctl.hidden = finished || !(d.show && d.live);\n    if (ctlWas && !ctl.hidden) [slideCtl, cursorCtl].forEach((c) => { if (typeof c.fit === 'function') c.fit(); });\n    paint(i);\n    syncCtl(i);\n    remember();\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.textContent = '';\n      b.el.appendChild(K.el('span', null, opts[k]));   // one span, so the button's gap does not split an answer\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Tap one of the answers.' : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const PICKS = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const liveSt = () => Object.assign(blank(), { live: true });\n  const close = (a, b, tol) => Math.abs(a - b) <= (tol != null ? tol : 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)));\n  // A step painted in the state and settings given (finished, or t seconds into its motion): what it draws.\n  function drawn(i, st, P, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t;\n    try {\n      paint(i, P || openP(i));\n      return { texts: Array.from(art.querySelectorAll('text')).map((q) => q.textContent), rec: REC };\n    } finally { S[i] = keepS; T = keepT; }\n  }\n  // Every check repaints the screen Dan is on when it is done.\n  const chk = (label, fn, opt) => K.check(label, () => { try { return fn(); } finally { paint(); } }, opt);\n  const TRY_S = [1, 1.5, 2, 2.3, 4, 7.7, 10], TRY_C = [1, 3, 4.7, 9.9, 10];\n\n  chk('The logarithm of a product is the sum of the logs of its factors: at every setting tried, the two lengths add to the log of the bottom ruler\\'s reading, which is the slide\\'s number times the cursor\\'s, and the tags and the forms on the multiplying screen say so', () => {\n    const i = idx('Two power rulers');\n    return TRY_S.every((s) => TRY_C.every((c) => {\n      const o = K.at({ slide: s, cursor: c }), g = drawn(i, liveSt(), { slide: s, cursor: c }).rec;\n      return close(o.lengths, LG(s) + LG(c), 1e-12) && close(o.product, s * c, 1e-9 * s * c) && close(o.decibels, 10 * LG(s * c), 1e-9) &&\n        g.tagBot === fP(s * c) && g.tagTop === fs(c) && g.forms[0] === 'log ' + fs(s) + ' + log ' + fs(c) + ' = log ' + fP(s * c);\n    }));\n  }, { source: SRC1 });\n  chk('Normal multiplication becomes addition in the log system, and division becomes subtraction: on the dividing screen the whole length less the cursor\\'s length leaves the slide\\'s, and the forms read the quotient where the top ruler starts, at every setting tried', () => {\n    const i = idx('Slide back to divide');\n    return TRY_S.every((s) => TRY_C.every((c) => {\n      const g = drawn(i, liveSt(), { slide: s, cursor: c }).rec, P = s * c;\n      return g.forms[0] === 'log ' + fP(P) + ' − log ' + fs(c) + ' = log ' + fs(s) && close(LG(P) - LG(c), LG(s), 1e-12) && close(P / c, s, 1e-12) &&\n        close(X(g.ls), X(LG(P)) - (X(LG(c)) - X(0)), 1e-9);\n    }));\n  }, { source: SRC2 });\n  chk('Powers and roots become multiplication and division: three lengths of log two laid end to end land on eight, and log five divided by log two is the power of two that makes five', () => {\n    const g = drawn(idx('Powers'), blank()).rec, end = Math.max.apply(null, g.bars.map((b) => b.a1));\n    return close(3 * L2, L8, 1e-12) && close(end, L8, 1e-9) && g.tagBot === '8' && close(Math.pow(2, L5 / L2), 5, 1e-12) && fp(L5 / L2) === '2.322' &&\n      drawn(idx('Counting lengths'), blank()).rec.texts2.indexOf('0.699 ÷ 0.301 ≈ 2.322 lengths of log 2') >= 0;\n  }, { source: SRC2 });\n  chk('The opening demonstration ends with the top ruler\\'s 1 over 2 and the cursor on 3, reading 6 below, with lengths 0.301 and 0.477 end to end adding to 0.778, while log 5 is only 0.699', () => {\n    const g = drawn(0, blank()).rec, labels = g.bars.filter((b) => b.shown).map((b) => b.text);\n    return close(g.s, 2, 1e-9) && close(g.c, 3, 1e-9) && g.tagTop === '3' && g.tagBot === '6' && labels.join('|') === '0.301|0.477' &&\n      g.sum === '0.778' && fp(L5) === '0.699' && close(g.curX, X(L2 + L3), 1e-9);\n  });\n  chk('Each ruler\\'s numbers sit where the rule puts them: the top ruler\\'s 1, 2, 3, 4, 5 and 10 move with the slide, the bottom ruler\\'s 1 to 5, 10, 20, 30 and 100 stay put with 100 two × 10 spaces along, and the decibel scale puts 0, 10 and 20 dB at 1, 10 and 100', () => {\n    const ok = [[1, 1], [2.3, 4.7], [10, 1]].every((q) => {\n      const g = drawn(0, liveSt(), { slide: q[0], cursor: q[1] }).rec;\n      return g.top.length === 6 && g.bot.length === 9 && g.top.every((t) => close(t.x, X(LG(q[0]) + LG(t.n)), 1e-6)) && g.bot.every((b) => close(b.x, X(LG(b.n)), 1e-6));\n    });\n    const gd = drawn(idx('Decibels'), blank()).rec;\n    return ok && X(LG(100)) === X(2) && !!gd.db && gd.db.map((q) => q.text).join('|') === '0 dB|10 dB|20 dB' && gd.db.every((q) => close(q.x, X(LG(Math.pow(10, q.v / 10))), 1e-9));\n  });\n  chk('Ten times the log gives decibels: × 2 is 3.0 dB, × 10 is 10.0 dB and × 20 is 13.0 dB, so stages of × 2 and × 10 add to 13.0 dB as the demonstration ends; half the power is −3.0 dB, and 5 dB sits at √10 ≈ 3.16', () => {\n    const g = drawn(idx('Decibels'), blank()).rec;\n    return fd(10 * L2) === '3.0' && fd(10 * LG(10)) === '10.0' && fd(10 * L20) === '13.0' && close(10 * L2 + 10 * LG(10), 10 * L20, 1e-9) &&\n      fd(10 * LG(0.5)) === '−3.0' && fP(Math.sqrt(10)) === '3.16' && close(K.at({ slide: 2, cursor: 10 }).decibels, 10 * L20, 1e-9) &&\n      g.sum === '13.0 dB' && g.tagBot === '20' && g.bars.filter((b) => b.shown).map((b) => b.text).join('|') === '3.0 dB|10.0 dB';\n  }, { source: SRC3 });\n  chk('Every number follows its rule: 4 × 5 = 20 at 1.301 and 9 at 0.954; log 21 ≈ 1.322; 0.903 − 0.301 = 0.602 for 4; 6 at 0.778 and 16 at 1.204; 2 × 0.699 = 1.398, and (log 5)² ≈ 0.489 at 3.08; log 2.5 ≈ 0.398; 0.699 ÷ 0.301 ≈ 2.322 and 2^2.322 ≈ 5; 5.5 at 7.4 dB and 5 at 7.0 dB; 6.0 + 7.0 = 13.0 dB and × 9 at 9.5 dB; 36 at 1.556 and 1.602 ÷ 0.602 ≈ 2.661; and each answer offered is the value its own working gives', () => {\n    const ok = fp(L4 + L5) === '1.301' && fp(L9) === '0.954' && fp(L21) === '1.322' && fp(L8) === '0.903' && fp(L8 - L2) === '0.602' && thou(L8) - thou(L2) === thou(L4) &&\n      fp(L6) === '0.778' && fp(LG(16)) === '1.204' && fp(2 * L5) === '1.398' && 2 * thou(L5) === thou(LG(25)) && fp(L5 * L5) === '0.489' && fP(Math.pow(10, L5 * L5)) === '3.08' &&\n      fp(LG(2.5)) === '0.398' && fp(L5 / L2) === '2.322' && fp(0.699 / 0.301) === '2.322' && close(Math.pow(2, 2.322), 5, 0.001) &&\n      fd(10 * LG(5.5)) === '7.4' && fd(10 * L5) === '7.0' && fd(10 * L4) === '6.0' && fd(10 * L4 + 10 * L5) === '13.0' && fd(10 * L9) === '9.5' &&\n      fp(L36) === '1.556' && fp(L40) === '1.602' && fp(L40 / L4) === '2.661' && fd(10 * LG(3.16)) === '5.0' &&\n      thou(L4) + thou(L5) === thou(L20) && thou(L2) + thou(L3) === thou(L6) && thou(L6) - thou(L3) === thou(L2) && 3 * thou(L2) === thou(L8);\n    const answers = PICKS.every((i) => { const d = STEPS[i]; return d.opts.every((o) => !!d.work[o] && d.work[o][0] === d.work[o][1]); });\n    return ok && answers;\n  });\n  const shows = (texts, ans) => texts.some((x) => x === ans || (x.indexOf(ans) === 0 && /\\s/.test(x.charAt(ans.length))));\n  chk('Before an answer, nothing in a puzzle\\'s picture or forms gives it away, and a right answer shows it', () =>\n    PICKS.every((i) => {\n      const d = STEPS[i], b = drawn(i, blank()), r = drawn(i, solvedSt(i));\n      return !shows(b.texts, d.ans) && !shows(b.rec.forms, d.ans) && (shows(r.texts, d.ans) || shows(r.rec.forms, d.ans));\n    }));\n  chk('Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own and draws its slip in red', () =>\n    PICKS.every((i) => {\n      const d = STEPS[i];\n      return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)) &&\n        d.opts.every((o) => o === d.want || (!!(d.hints && d.hints[o]) && drawn(i, wrongSt(i, o)).rec.notes.length > 0));\n    }));\n  chk('The drag maps the finger back to the same setting: the cursor\\'s own place reads back its setting, a slide by a length moves the top ruler\\'s 1 by that length, and every tag stays inside the drawing', () =>\n    TRY_S.every((s) => TRY_C.every((c) => {\n      const g = drawn(0, liveSt(), { slide: s, cursor: c }).rec;\n      return cursorFrom(X(LG(s) + LG(c)), LG(s)) === c && slideFrom(0, X(0), X(LG(s))) === s && close(g.curX, X(LG(s) + LG(c)), 1e-9) &&\n        g.boxes.every((b) => b[0] >= 2 && b[1] <= 338);\n    })));\n  chk('With the top ruler\\'s 1 over the bottom ruler\\'s 1 both rulers read alike, so the bottom number is the cursor\\'s own; with both at 10 the cursor reaches 100, the bottom ruler\\'s right-hand end', () => {\n    const g = drawn(0, liveSt(), { slide: 10, cursor: 10 }).rec;\n    return [1, 2.5, 7.3, 10].every((c) => close(K.at({ slide: 1, cursor: c }).product, c, 1e-9 * c)) &&\n      close(K.at({ slide: 10, cursor: 10 }).product, 100, 1e-9) && close(K.at({ slide: 10, cursor: 10 }).lengths, 2, 1e-12) &&\n      g.tagBot === '100' && close(g.curX, X(2), 1e-9) && K.at({ slide: 1, cursor: 1 }).lengths === 0;\n  });\n  chk('Every demonstration has finished arriving within its time (3 to 4.5 s), none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, within 2.5 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; earliest = Infinity;\n      S[i] = st;\n      try { paint(i, openP(i)); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }\n      return timed(i, solvedSt(i), FB[0]) && FB[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB[1]) && FB[1] <= 2.5);\n    });\n    T = keepT;\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "The slide rule",
+  "brief": "The one thing you should see is the bottom ruler reading the two numbers multiplied while their two lengths add end to end, when you slide the top power ruler along the bottom one.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The logarithm of a product is the sum of the logs of its factors: at every setting tried, the two lengths add to the log of the bottom ruler's reading, which is the slide's number times the cursor's, and the tags and the forms on the multiplying screen say so",
+     "ok": true,
+     "source": "https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:logs/x2ec2f6f830c9fb89:log-prop/a/properties-of-logarithms"
+    },
+    {
+     "label": "Normal multiplication becomes addition in the log system, and division becomes subtraction: on the dividing screen the whole length less the cursor's length leaves the slide's, and the forms read the quotient where the top ruler starts, at every setting tried",
+     "ok": true,
+     "source": "https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/Operational_Amplifiers_and_Linear_Integrated_Circuits_-_Theory_and_Application_(Fiore)/01:_Introductory_Concepts_and_Fundamentals/1.02:_The_Decibel"
+    },
+    {
+     "label": "Powers and roots become multiplication and division: three lengths of log two laid end to end land on eight, and log five divided by log two is the power of two that makes five",
+     "ok": true,
+     "source": "https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/Operational_Amplifiers_and_Linear_Integrated_Circuits_-_Theory_and_Application_(Fiore)/01:_Introductory_Concepts_and_Fundamentals/1.02:_The_Decibel"
+    },
+    {
+     "label": "The opening demonstration ends with the top ruler's 1 over 2 and the cursor on 3, reading 6 below, with lengths 0.301 and 0.477 end to end adding to 0.778, while log 5 is only 0.699",
+     "ok": true
+    },
+    {
+     "label": "Each ruler's numbers sit where the rule puts them: the top ruler's 1, 2, 3, 4, 5 and 10 move with the slide, the bottom ruler's 1 to 5, 10, 20, 30 and 100 stay put with 100 two × 10 spaces along, and the decibel scale puts 0, 10 and 20 dB at 1, 10 and 100",
+     "ok": true
+    },
+    {
+     "label": "Ten times the log gives decibels: × 2 is 3.0 dB, × 10 is 10.0 dB and × 20 is 13.0 dB, so stages of × 2 and × 10 add to 13.0 dB as the demonstration ends; half the power is −3.0 dB, and 5 dB sits at √10 ≈ 3.16",
+     "ok": true,
+     "source": "https://www.britannica.com/science/decibel"
+    },
+    {
+     "label": "Every number follows its rule: 4 × 5 = 20 at 1.301 and 9 at 0.954; log 21 ≈ 1.322; 0.903 − 0.301 = 0.602 for 4; 6 at 0.778 and 16 at 1.204; 2 × 0.699 = 1.398, and (log 5)² ≈ 0.489 at 3.08; log 2.5 ≈ 0.398; 0.699 ÷ 0.301 ≈ 2.322 and 2^2.322 ≈ 5; 5.5 at 7.4 dB and 5 at 7.0 dB; 6.0 + 7.0 = 13.0 dB and × 9 at 9.5 dB; 36 at 1.556 and 1.602 ÷ 0.602 ≈ 2.661; and each answer offered is the value its own working gives",
+     "ok": true
+    },
+    {
+     "label": "Before an answer, nothing in a puzzle's picture or forms gives it away, and a right answer shows it",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own and draws its slip in red",
+     "ok": true
+    },
+    {
+     "label": "The drag maps the finger back to the same setting: the cursor's own place reads back its setting, a slide by a length moves the top ruler's 1 by that length, and every tag stays inside the drawing",
+     "ok": true
+    },
+    {
+     "label": "With the top ruler's 1 over the bottom ruler's 1 both rulers read alike, so the bottom number is the cursor's own; with both at 10 the cursor reaches 100, the bottom ruler's right-hand end",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within its time (3 to 4.5 s), none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "slide",
+    "cursor"
+   ],
+   "readouts": [],
+   "outputs": [
+    "product",
+    "lengths",
+    "decibels"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "steps": [
+      "Two power rulers",
+      "Four times five",
+      "The product law",
+      "A sum inside",
+      "Slide back to divide",
+      "Taking logs away",
+      "Powers",
+      "A square",
+      "Counting lengths",
+      "Which divides",
+      "Decibels",
+      "Five decibels",
+      "Two stages",
+      "Forty over four"
+     ],
+     "value": 0
+    },
+    {
+     "id": "slide",
+     "kind": "control",
+     "label": "Top ruler's 1 sits over",
+     "min": 1,
+     "max": 10,
+     "step": 0.1,
+     "log": false,
+     "value": 1
+    },
+    {
+     "id": "cursor",
+     "kind": "control",
+     "label": "Cursor on the top ruler",
+     "min": 1,
+     "max": 10,
+     "step": 0.1,
+     "log": false,
+     "value": 3
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-18T07:04:01.357Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "Halving the power is 10 log 0.5 = −3.01 dB, not exactly −3 dB; the same paragraph rightly says doubling is ≈ 3 dB, so the loss should be \"about\" −3 dB too."
+   },
+   {
+    "path": "practice.text",
+    "problem": "A decibel ruler is evenly spaced in decibels; the mistake is reading the power ratios on it as evenly spaced, and 5 dB is √10 ≈ 3.162, so \"about × 3.16\"."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

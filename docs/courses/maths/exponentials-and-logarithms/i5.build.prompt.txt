@@ -1,0 +1,410 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Exponentials and logarithms
+Idea: The log laws and decibels (Logs turn multiplying into adding, log(ab) = log a + log b, straight from the laws of powers, which is why gains in decibels simply add.)
+Kind: skill
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the bottom ruler reading the two numbers multiplied while their two lengths add end to end, when you slide the top power ruler along the bottom one.
+Title (the app shows it above the frame, so do not repeat it): The slide rule
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in fourteen small screens on one picture, the slide rule. It is two power rulers, one above the other, and the top one slides. Each is the power ruler from the last lesson, where a number sits at its log: 2 is 0.301 along, 3 is 0.477 along and 10 is one whole × 10 space along. The bottom ruler runs from 1 to 100, two × 10 spaces, and the top ruler from 1 to 10, one space of the same length. You slide the top ruler, and the slide control names the number on the bottom ruler that the top ruler's 1 sits over. A cursor, a thin upright line, moves along the top ruler. The rule: the cursor's distance from the bottom ruler's 1 is the slide's length plus the cursor's length along the top ruler, so the bottom ruler under the cursor reads the two numbers multiplied. The two lengths are drawn as bars under the rulers, end to end, so you can see them add. The readout writes the same fact two ways, log 2 + log 3 = log 6 and 10^0.301 × 10^0.477 = 10^0.778 = 6, on two lines on a phone, and under it the same reading in decibels, ten times the log of the bottom number. The top ruler and the bottom ruler's first space are numbered 1, 2, 3, 4, 5 and 10, and the bottom ruler's second space 20, 30, 40, 50 and 100; the other marks are ticks, and the cursor carries the number it sits on, so on a phone no labels crowd. Screen by screen: 1 slides the top ruler's 1 over 2, moves the cursor to 3 on top and reads 6 below, with the bars 0.301 + 0.477 = 0.778. 2 asks what the bottom ruler reads with the top ruler's 1 over 4 and the cursor at 5: 20, not 9 (the numbers added) or 1.301 (the length, not the number). 3 names the law, log(ab) = log a + log b, beside 10ᵐ × 10ⁿ = 10ᵐ⁺ⁿ, shows log 5 = 0.699 next to log 2 + log 3 = 0.778, and points to the ruler's start, log 1 = 0, and the end of one space, log 10 = 1. 4 asks for log(3 + 7): 1, not 1.322 (log 3 + log 7, which is log 21) or 10 (the log left off). 5 slides back: the top ruler's 3 goes over the bottom's 6, its 1 sits over 2, and the bars show 0.778 − 0.477 = 0.301. 6 asks which number log 8 − log 2 is the log of: 4, not 6 (8 − 2) or 16 (8 × 2). 7 lays three bars of log 2 end to end and lands on 8, so log(2³) = 3 log 2 = 0.903, beside (10ᵐ)ⁿ = 10ᵐⁿ. 8 asks which is log(5²): 2 log 5 ≈ 1.398, not (log 5)² ≈ 0.489 or log 10 = 1 (5 × 2). 9 counts how many bars of log 2 fit into log 5: 0.699 ÷ 0.301 ≈ 2.322, so log₂ 5 ≈ 2.322, checked by 2^2.322 ≈ 5. 10 asks which gives log₂ 5: log 5 ÷ log 2 ≈ 2.322, not log(5 ÷ 2) ≈ 0.398 or 5 ÷ 2 = 2.5 (the logs cancelled). 11 relabels the bottom ruler in decibels, 0, 10 and 20 dB at 1, 10 and 100, with 3 dB at 2, and slides two amplifier stages together, × 2 then × 10, to × 20, while 3 dB + 10 dB = 13 dB. 12 asks which number sits at 5 dB, half way through the first space: 3.16, not 5.5 (half way between 1 and 10 counted evenly) or 5 (the decibels read as the number). 13 and 14 mix it all: the decibels of a stage of × 4 then one of × 5, 13.0 dB, not 9.5 dB (the ratios added, × 9) or 42 dB (the decibels multiplied); and log 40 − log 4, which is 1, not 1.556 (log 36) or 2.661 (log 40 ÷ log 4). A puzzle offers its three answers, and a wrong pick gets a one-line hint showing where it goes wrong.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The rulers are drawn only from 1 to 100; the power ruler goes on both ways. A real slide rule works the same way but is read by eye, so its answers carry only the figures you can see. Here the controls move in steps of 0.1, so the slide sits exactly on 2.0. The logs are rounded to three decimal places, so 0.301 + 0.477 = 0.778 matches log 6 to that rounding. A decibel here is only a ratio of two powers: it says nothing about how loud a sound seems, and a sound level meter's dB(A) adds a weighting this picture leaves out. Each amplifier stage is drawn as a fixed factor; a real stage's gain can change with frequency and load.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "slide": Top ruler's 1 sits over, from 1 to 10 in steps of 0.1, opening at 1
+- id "cursor": Cursor on the top ruler, from 1 to 10 in steps of 0.1, opening at 3
+Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id and the decimals given, which is how the explanation rounds it, or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):
+- id "product": Bottom ruler under the cursor, decimals: 2
+- id "lengths": Two lengths added, as a power, decimals: 3
+- id "decibels": Same reading in decibels (dB), decimals: 1
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Slide's opening setting: 1 (control)
+- Cursor's opening setting: 3 (control)
+- Slide and cursor range, top end: 10 (control)
+- Slide and cursor step: 0.1 (control)
+- Bottom ruler's right-hand end: 100 (computed)
+- × 10 spaces on the bottom ruler: 2 (computed)
+- Second-space marks on the bottom ruler: 30 (computed)
+- log 2: 0.301 (computed)
+- log 3: 0.477 (computed)
+- log 6, the two lengths added: 0.778 (computed)
+- 2 × 3, read on the bottom ruler: 6 (computed)
+- Example number, screen 2: 4 (assumed)
+- Example number, screen 2: 5 (assumed)
+- 4 × 5, screen 2: 20 (computed)
+- log 4: 0.602 (computed)
+- log 5: 0.699 (computed)
+- log 20: 1.301 (computed)
+- Slip: 4 + 5, screen 2: 9 (computed)
+- log 1: 0 (computed)
+- log 10: 1 (computed)
+- Example number, screen 4: 7 (assumed)
+- Slip: 3 + 7 with the log left off, screen 4: 10 (computed)
+- Slip: 3 × 7, screen 4: 21 (computed)
+- Slip: log 21, screen 4: 1.322 (computed)
+- Example number, screen 6: 8 (assumed)
+- log 8, three lengths of log 2: 0.903 (computed)
+- Slip: 8 × 2, screen 6: 16 (computed)
+- Power of 5, screen 8: 2 (assumed)
+- 5², screen 8: 25 (computed)
+- 2 log 5, which is log 25: 1.398 (computed)
+- Slip: (log 5)², screen 8: 0.489 (computed)
+- log₂ 5, log 5 ÷ log 2: 2.322 (computed)
+- Slip: 5 ÷ 2, logs cancelled, screen 10: 2.5 (computed)
+- Slip: log 2.5, screen 10: 0.398 (computed)
+- Multiplier in front of the log, decibels of power: 10 (constant)
+- Multiplier in front of the log, decibels of voltage: 20 (constant)
+- Decibels for twice the power, 10 log 2: 3 (computed)
+- Decibels for half the power: -3 (computed)
+- Decibels for ten times the power: 10 (computed)
+- Decibels for a hundred times the power: 20 (computed)
+- Stage gains, screen 11, × 2 then × 10: 2 (assumed)
+- Two stages together, screen 11, × 20: 20 (computed)
+- Decibels of × 20, 3 + 10: 13 (computed)
+- Example decibel mark, screen 12, in dB: 5 (assumed)
+- Number at 5 dB, √10: 3.16 (computed)
+- Slip: half way from 1 to 10 counted evenly: 5.5 (computed)
+- 10 log 4, in dB: 6 (computed)
+- 10 log 5, in dB: 7 (computed)
+- 10 log 20, in dB: 13 (computed)
+- Slip: 10 log 9, in dB, screen 13: 9.5 (computed)
+- Slip: 6.0 × 7.0, screen 13: 42 (computed)
+- Example number, screen 14: 40 (assumed)
+- Slip: 40 − 4, screen 14: 36 (computed)
+- Slip: log 36, screen 14: 1.556 (computed)
+- Slip: log 40 ÷ log 4, screen 14: 2.661 (computed)
+- Worked example: cable loss, in dB: 3 (assumed)
+- Worked example: overall after the cable, in dB: 10 (computed)
+- Analogy: example voltage, in kV: 2 (assumed)
+- Analogy: example current, in mA: 3 (assumed)
+- Power of ten for kilo: 3 (constant)
+- Power of ten for milli: -3 (constant)
+- Analogy: the two powers of ten added: 0 (computed)
+- Analogy: power, in watts: 6 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+A log turns multiplying into adding. Slide one power ruler along another and the lengths add while the numbers multiply, so log 2 + log 3 = log 6. It comes straight from Powers and roots, where multiplying powers of the same base adds the powers.
+
+On the power ruler each number sits at its log: 2 at 0.301, 3 at 0.477 and 6 at 0.778. Lay a second power ruler on top and slide it until its 1 sits over the bottom ruler's 2. The top ruler now starts 0.301 along. Find 3 on the top ruler, a further 0.477 along, so the cursor is 0.301 + 0.477 = 0.778 from the bottom ruler's 1, and the bottom ruler reads 6 there. The reason is the multiplying law of powers. 2 is 10^0.301 and 3 is 10^0.477, so 2 × 3 = 10^0.301 × 10^0.477 = 10^(0.301 + 0.477) = 10^0.778, which is 6. So the log of a product is the sum of the logs of its factors: log(ab) = log a + log b. It says nothing about log(a + b). The slide put 3 after 2 and landed on 6, not 5, and log 5 = 0.699 while log 2 + log 3 = 0.778, so no log law splits a sum: log(3 + 7) is simply log 10 = 1. The laws need one base throughout; here it is 10, the log key. Two lengths come straight off the ruler as well: log 1 = 0, because the ruler starts at 1 with no length yet, and log 10 = 1, one whole × 10 space.
+
+Slide the other way and you divide. Put the top ruler's 3 over the bottom's 6 and its 1 sits over 2: 0.778 − 0.477 leaves 0.301, so log(6 ÷ 3) …
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Intro to logarithm properties (article) | Khan Academy (https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:logs/x2ec2f6f830c9fb89:log-prop/a/properties-of-logarithms): "This property says that the logarithm of a product is the sum of the logs of its factors."
+[2] 1.2: The Decibel - Engineering LibreTexts (https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/Operational_Amplifiers_and_Linear_Integrated_Circuits_-_Theory_and_Application_(Fiore)/01:_Introductory_Concepts_and_Fundamentals/1.02:_The_Decibel): "Normal multiplication becomes addition in the log system, and division becomes subtraction. Likewise, powers and roots become multiplication and division."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.
