@@ -1,0 +1,287 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Quadratics, parabolas and higher powers
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i2 "Factorising quadratics" — Factorising undoes expanding: two numbers multiplying to 6 and adding to 5 split x² + 5x + 6 into (x + 2)(x + 3). [skill]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i3 Solving by factorising — A product is zero only if a factor is zero, so (x − 2)(x − 5) = 0 gives x = 2 or 5.
+- i4 Completing the square — Add the missing corner and x² + 6x + 2 becomes (x + 3)² − 7, a form that shows its lowest value at once.
+- i5 The quadratic formula — Completing the square with letters gives x = (−b ± √(b² − 4ac)) ÷ 2a, the answers to any quadratic equation that has them.
+- i6 The parabola from its rule — Three clues in the rule sketch a quadratic's U-shaped graph: a's sign gives which way up, c the y-crossing, the roots the x-crossings.
+- i7 Quadratics at work — A thrown ball's height, a load's power against current and a loaded beam's bending rise and fall as quadratics, peaking halfway between two zeros.
+- i8 Higher powers — If putting x = a into a polynomial, a sum of whole-number powers of x, gives 0, then (x − a) is one of its factors.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] How to factorise an expression - GCSE Maths Revision - BBC Bitesize — https://www.bbc.co.uk/bitesize/articles/zdtdh4j
+    "To factorise the quadratic 𝑥² + 𝑏𝑥 + 𝑐, the sum of the two numbers in the brackets must be 𝑏, and the product must be 𝑐."
+[R2] Multiplying binomials: area model (video) | Khan Academy — https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:quadratics-multiplying-factoring/x2f8bb11595b61c86:multiply-binomial/v/area-model-for-multiplying-binomials
+    "Sal expresses the area of a rectangle whose height is x+2 and width is x+3."
+[R3] Multiplying binomials: area model (video) | Khan Academy — https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:quadratics-multiplying-factoring/x2f8bb11595b61c86:multiply-binomial/v/area-model-for-multiplying-binomials
+    "So this and this are two ways of expressing the area, so they're going to be equal"
+[R4] How to simplify expressions and expand brackets - GCSE Maths Revision - BBC Bitesize — https://www.bbc.co.uk/bitesize/topics/zxk7g82/articles/zkxk6rd
+    "When expanding double brackets, every term in the first bracket has to be multiplied by every term in the second bracket."
+[R5] Mathematics Written Examination Syllabus - GOV.UK — https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus
+    "States the product of two binomial expressions."
+[R6] Mathematics Written Examination Syllabus - GOV.UK — https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus
+    "States the general formula for solution of a quadratic ax ² \+ bx + c = 0."
+[R7] 3.2 Quadratic Functions - Precalculus | OpenStax — https://openstax.org/books/precalculus/pages/3-2-quadratic-functions
+    "The graph of a quadratic function is a U-shaped curve called a parabola ."
+Notes (claims, and the sources that support them):
+- To factorise x² + bx + c into two brackets, the two numbers must add to b and multiply to c. [R1]
+- A rectangle with sides x+2 and x+3 has its area written two ways: as the product of two binomials, and as the sum of its four smaller rectangles' areas. [R2][R3]  (from an idea this one builds on)
+- Expanding double brackets means multiplying every term in the first bracket by every term in the second. [R4]  (from an idea this one builds on)
+- The MCA Second Engineer mathematics syllabus calls a two-term bracket a binomial expression (2.1.11). [R5]  (from an idea this one builds on)
+- The MCA Second Engineer mathematics syllabus names ax² + bx + c, with x² its highest power, a quadratic (2.1.33). [R6]  (from an idea this one builds on)
+- A quadratic's graph is a U-shaped curve called a parabola. [R7]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i2",
+ "title": "Factorising quadratics",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the tiles of x² + 5x + 6 closing into a rectangle only when the 6 squares split 2 by 3 to match the strips, when you drag them into place.",
+  "title": "Tiles into a rectangle",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens on the tiles from lesson 1, now handed to you loose. An x² tile is an x by x square, an x-strip is x long and 1 wide, and a unit square is 1 by 1. A quadratic such as x² + 5x + 6 is one x² tile, 5 strips and 6 unit squares. You drag them into one rectangle. The x² tile sits in the top-left corner, the strips lie along its right side and its bottom edge, and the unit squares fill the bottom-right corner between them. If a strips go one way and b the other, that corner is a by b, so it needs a × b squares. The rectangle closes only when the squares fill that corner exactly and every strip is used, and then its width and height read off as the two brackets, x + a and x + b. A wrong split leaves a gap or an overhang, and a count beside it shows the strips and squares that rectangle would need against the ones you have. For 2x², two x² tiles sit side by side, so that side is 2x long. Where a quadratic has a minus sign, the tiles become lesson 1's grid filled in backwards: x² goes in the top-left cell, the number on its own in the bottom-right cell, and the two other cells must add up to the x term. A cell below zero is hatched, because no tile can have an area below zero. Some screens show an idea and the rest ask you to try it. A puzzle offers three answers. A wrong pick shows its own rectangle or grid, with what it would need, or is checked by putting a number into the quadratic and into that answer, which come out different.",
+  "ignores": "The tiles draw x as one positive length, and they are to scale only for the x drawn. x can be any number, negative or a fraction, and every factorising here still holds. The grid's hatched cells are terms below zero, not areas. Only whole-number pairs are tried, so the quadratics are chosen to have one. A quadratic with no whole-number pair, such as x² + 4x + 1, may still split into brackets with other numbers, and later lessons find them.",
+  "numbers": [
+   {
+    "label": "x² + 5x + 6 is 1 x² tile, 5 strips and 6 squares, in step 1",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "2 strips one way, 3 the other, squares 2 by 3, so (x + 2)(x + 3), in step 1",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "x² + 6x + 8 = (x + 2)(x + 4), not (x + 3)(x + 3) (needs 9 squares) or (x + 1)(x + 8) (needs 9 strips), in step 2",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Pairs making 6: 1 and 6 add to 7, 2 and 3 add to 5, in step 3",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "(x + 3)(x + 3) needs 9 squares and 6 strips, which is x² + 6x + 9, in step 3",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "x² + 9x + 20 = (x + 4)(x + 5), not (x + 2)(x + 10) (needs 12 strips) or (x + 3)(x + 6) (needs 18 squares), in step 4",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "x² − x − 12: −4 and 3 multiply to −12 and add to −1, so (x − 4)(x + 3), in step 5",
+    "value": -12,
+    "kind": "computed"
+   },
+   {
+    "label": "Check at x = 5: brackets 1 × 8 = 8, and 25 − 5 − 12 = 8, in step 5",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "x² + 2x − 15 = (x + 5)(x − 3), not (x − 5)(x + 3) (signs swapped) or (x + 5)(x + 3) (corner sign), in step 6",
+    "value": -15,
+    "kind": "computed"
+   },
+   {
+    "label": "Check at x = 4: quadratic 9, (x − 5)(x + 3) makes −7, (x + 5)(x + 3) makes 63, in step 6",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "x² + 2x has no squares, so x(x + 2), in step 7",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "2x² + 10x + 12 = 2(x² + 5x + 6) = 2(x + 2)(x + 3), two copies of step 1's rectangle, in step 7",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "x² + 6x = x(x + 6), not (x + 3)(x + 3) (needs 9 squares) or 6x(x + 1) (makes 6x²), in step 8",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Check at x = 1: quadratic 7, (x + 3)(x + 3) makes 16, 6x(x + 1) makes 12, in step 8",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "2x² + 7x + 3: pair multiplies to 2 × 3 = 6 and adds to 7, so 6 and 1, in step 9",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "2x² + 6x + x + 3 = 2x(x + 3) + 1(x + 3) = (2x + 1)(x + 3), in step 9",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Check at x = 1: brackets 3 × 4 = 12, and 2 + 7 + 3 = 12, in step 9",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "3x² + 10x + 8 = (3x + 4)(x + 2), as 6 × 4 = 24 = 3 × 8 and 6 + 4 = 10, in step 10",
+    "value": 24,
+    "kind": "computed"
+   },
+   {
+    "label": "Not (3x + 2)(x + 4) (needs 14 strips) or (3x + 8)(x + 1) (needs 11 strips), in step 10",
+    "value": 14,
+    "kind": "computed"
+   },
+   {
+    "label": "Check at x = 1: quadratic 21, (3x + 2)(x + 4) makes 25, (3x + 8)(x + 1) makes 22, in step 10",
+    "value": 21,
+    "kind": "computed"
+   },
+   {
+    "label": "x² − 49: pair adds to 0 and multiplies to −49, so (x + 7)(x − 7), in step 11",
+    "value": -49,
+    "kind": "computed"
+   },
+   {
+    "label": "x² + 4x + 1: no whole-number pair multiplies to 1 and adds to 4, in step 11",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "x² − 6x + 9 = (x − 3)², not (x + 3)² (strip signs) or (x + 3)(x − 3) (makes x² − 9), in step 12",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "Check at x = 1: quadratic 4, (x + 3)² makes 16, (x + 3)(x − 3) makes −8, in step 12",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "2x² − 8 = 2(x + 2)(x − 2), not (x + 2)(x − 2) (2 left out) or 2(x − 2)² (makes 2x² − 8x + 8), in step 13",
+    "value": -8,
+    "kind": "computed"
+   },
+   {
+    "label": "Check at x = 3: quadratic 10, (x + 2)(x − 2) makes 5, 2(x − 2)² makes 2, in step 13",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked check at x = 4: (x + 2)(x + 3) = 6 × 7 = 42, and 16 + 20 + 6 = 42",
+    "value": 42,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice example 2x² + 2x − 12 = 2(x + 3)(x − 2); at x = 3 both make 12",
+    "value": 12,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Factorising is expanding run backwards. In lesson 1 you had the two brackets and found the tiles. Now you are handed the tiles and must find the rectangle, because its two sides are the brackets. x² + 5x + 6 is one x² tile, 5 strips and 6 unit squares. Put the x² tile in a corner and the strips along its two sides, say a of them along one side and b along the other. That leaves an a by b corner to fill with unit squares, so the rectangle closes only when the strips split into a pair that adds to 5 and the same pair multiplies to 6. This is lesson 1's (x + a)(x + b) = x² + (a + b)x + ab read from the right: to factorise x² + bx + c, the two numbers in the brackets must add to b and multiply to c.[^1] Of the whole-number pairs that make 6, 1 and 6 add to 7, and only 2 and 3 add to 5, so x² + 5x + 6 = (x + 2)(x + 3). The brackets and the tiles are two ways of writing the same area, so they are equal,[^2] and trying a number catches a slip: at x = 4, (x + 2)(x + 3) is 6 × 7 = 42, and 16 + 20 + 6 = 42. An easy slip is (x + 3)(x + 3), since 3 + 3 is 6 too, but that rectangle needs 9 squares and 6 strips, which is x² + 6x + 9.\n\nA minus sign has no tile, so lesson 1's grid takes over, filled in backwards: x² in one corner, the number on its own in the opposite corner, and the two other cells must add to the x term. For x² − x − 12 the pair must multiply to −12 and add to −1. Only opposite signs multiply to a minus, as in Negative numbers, so one number is positive and one negative, and their sum is the gap between their sizes. 4 and 3 have a gap of 1, and the sum is −1, so the 4 takes the minus: x² − x − 12 = (x − 4)(x + 3). When the number on its own is positive and the x term negative, both numbers are negative. A pair also works with no x term at all, as long as it adds to 0. For x² − 49 that is 7 and −7, whose strips cancel, as in lesson 1's (x + 3)(x − 3), so x² − 49 = (x + 7)(x − 7), a [[difference of two squares]]. With a pair of equal numbers the rectangle is a square, so x² − 6x + 9 = (x − 3)², a [[perfect square]].\n\nBefore looking for a pair, take out any common factor, as in Linear equations, so the brackets are smaller. x² + 2x has no unit squares, so it is x(x + 2), and 2x² + 10x + 12 = 2(x² + 5x + 6) = 2(x + 2)(x + 3). When x² has a number in front that will not come out, as in 2x² + 7x + 3, the pair must multiply to 2 × 3 = 6 and add to 7. The reason is in the rectangle whose sides are 2x + 1 and 1x + 3. Its 2 x² tiles are 2 × 1, and its 3 squares are 1 × 3. Its strips come in two blocks, 2 × 3 = 6 one way and 1 × 1 = 1 the other, and the two blocks use the same four numbers once each, so 6 × 1 is the same as 2 × 3. So split 7x into 6x + x and group the four terms in twos: 2x² + 6x = 2x(x + 3) and x + 3 = 1(x + 3). Both groups hold (x + 3), so it comes out as a common factor, leaving (2x + 1)(x + 3). Some quadratics, such as x² + 4x + 1, have no whole-number pair, because only 1 and 1, or −1 and −1, multiply to 1, and neither adds to 4. Lesson 4 finds the numbers for those.\n\nBrackets are worth finding because a product can be read at a glance, and lesson 3 uses them to find where a quadratic is zero. **To factorise x² + bx + c, find two numbers that add to b and multiply to c,[^1] so x² + 5x + 6 = (x + 2)(x + 3), and check by expanding back.**"
+ },
+ "analogy": {
+  "text": "Say a rectangular deck hatch takes 10 m of seal round its edge and has an opening of 6 m². Half the seal, 5 m, is one long side plus one short side, and the two sides multiply to 6 m². 2 m and 3 m is the pair that does both, so the hatch is 2 m by 3 m, just as 2 and 3 split x² + 5x + 6.",
+  "breaks": "A hatch's sides are positive lengths, so it cannot show a pair with a minus sign, such as −4 and 3 for x² − x − 12, which needs the grid. Its two numbers are the sides themselves, while each bracket adds its number to x, and x can be any number."
+ },
+ "practice": {
+  "text": "- Take out any common factor first.\n- For x² + bx + c, list pairs that multiply to c and pick the one that adds to b.[^1]\n- With a number a in front of x² that will not come out, find a pair that multiplies to a × c and adds to b, split the x term with it and group in twos.\n- Write the brackets.\n- Expand them back, or try a number in the quadratic and in your brackets, then a second number.\n\n**Rule of thumb:** If c is positive, both numbers take the sign of b. If c is negative, one is plus and one minus, and the bigger one takes the sign of b. No x term means the pair adds to 0.\n\n**Worked example:** 2x² + 2x − 12. Every term divides by 2, so it is 2(x² + x − 6). The pair must multiply to −6 and add to 1, so one is negative, and 3 and −2 work. That gives 2(x + 3)(x − 2). As a check, at x = 3 the quadratic makes 18 + 6 − 12 = 12, and the brackets make 2 × 6 × 1 = 12.\n\n**Common mistakes**\n- A pair that adds right but multiplies wrong, so x² + 5x + 6 becomes (x + 3)(x + 3). That is x² + 6x + 9.\n- Swapping the signs, so x² + 2x − 15 becomes (x − 5)(x + 3). That adds to −2, not 2. Try x = 4, which gives −7 against 9.\n- Missing the common factor, so x² + 6x is forced into two brackets. It is x(x + 6).\n- With a number in front, using a pair that multiplies to c alone, so 3x² + 10x + 8 becomes (3x + 2)(x + 4). The pair must multiply to 3 × 8 = 24, which gives 6 and 4, and (3x + 4)(x + 2)."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "How to factorise an expression - GCSE Maths Revision - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/articles/zdtdh4j",
+   "quote": "To factorise the quadratic 𝑥² + 𝑏𝑥 + 𝑐, the sum of the two numbers in the brackets must be 𝑏, and the product must be 𝑐."
+  },
+  {
+   "n": 2,
+   "title": "Multiplying binomials: area model (video) | Khan Academy",
+   "url": "https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:quadratics-multiplying-factoring/x2f8bb11595b61c86:multiply-binomial/v/area-model-for-multiplying-binomials",
+   "quote": "So this and this are two ways of expressing the area, so they're going to be equal"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }
