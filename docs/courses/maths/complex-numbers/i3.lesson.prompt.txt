@@ -1,0 +1,213 @@
+TASK: write-lesson
+
+You are a world-class teacher and science and history writer, writing one lesson for Dan in "My University", his personal learning app. Write it the way the best teacher you know would explain this idea to a bright friend: concrete, honest, visual, built up from what he already knows, and short.
+
+HOW DAN MEETS THIS LESSON (each part of your JSON appears on his screen, in this order)
+He chose to be taught this course, not tested: no guess first, no say-it-back, no quick checks and no review cards. So "predict" and "say" are null and "checks" is [].
+1. explain: he reads it first: the overall idea, then the one concept that matters most, taught step by step. Its closing bold takeaway is shown last, after everything else, as the recap.
+2. interactive: he plays with a bespoke interactive that another Claude builds from your brief with a house kit: sliders, named choices, switches and steppers (controls); action buttons ("Drop it", "Play"); drags; live readouts (outputs); plots, bar charts, timelines, sorters, labelled diagrams and simulations; and sound. It is about 340 px wide on his phone. No text input, no images or data from the web.
+3. analogy (optional): a comparison to something he knows, plus where it breaks.
+4. practice: "Put it into practice": how he can use the idea for real. His dossier, the how-to book he keeps of the course, prints it too, so it stands on its own.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Complex numbers, from j to AC circuits
+Puzzle the course answers: Say a coil draws 23 A from a 230 V supply. Why does wiring a capacitor across it, a second path drawing 23 A of its own, cut the supply current to about 21 A?
+His level: KNOWS A LITTLE. He has met the basics but may hold common misconceptions. Simple equations are fine once each symbol is explained.
+In one breath: Multiplying by −1 turns an arrow half way round, so call the quarter turn j: done twice it gives −1, and numbers become arrows on a flat plane, each with an across part and an up part. Arrows add tip to tail and multiply by stretching and turning, so each can be written as across-and-up or as a length and an angle, whichever suits the sum. A coil or a capacitor opposes AC by a size at a quarter turn, so one such number holds a circuit's whole opposition, and Ohm's law, series and parallel work just as they do for DC.
+What he typed when he started (what he says about himself there, such as his job or trade, is ground he already has: build on it, never explain it): Complex numbers
+Ideas, in teaching order (id, title — one line, [kind]):
+  i1  A number whose square is minus one — Times −1 is a half turn, so j, the quarter turn that done twice makes it, is a number with j × j = −1. [concept]
+  i2  The complex plane, and adding — Add complex numbers real with real and j with j, which lays their arrows tip to tail on a plane: real across, j up. [skill] (needs i1)
+  i3  Multiplying: stretch and turn — Multiply complex numbers like two brackets, putting j × j = −1, and see the answer is the first arrow stretched and turned. [concept] (needs i1, i2)   <-- THIS LESSON
+  i4  The conjugate, and dividing — Divide by multiplying top and bottom by the bottom's conjugate, its mirror image with the j part's sign flipped, which makes the bottom real. [skill] (needs i2, i3)
+  i5  Polar form: length and angle — Convert a + jb to length and angle, r∠θ, with Pythagoras and tan⁻¹, checking the quarter on a sketch, and back with cos and sin. [skill] (needs i2)
+  i6  Multiplying and dividing in polar form — In length-and-angle form, multiply by multiplying the lengths and adding the angles, and divide by dividing the lengths and taking the angles away. [skill] (needs i3, i5)
+  i7  Impedance: Z = R + jX — Impedance R + jX is resistance plus reactance, the opposition to AC of a coil (+j) or a capacitor (−j), all in ohms. [quantity] (needs i1, i2, i5)
+  i8  Ohm's law with j: series and parallel — V = IZ with complex impedances, combined in series and parallel by your DC rules, gives each current's size and its angle from the voltage. [skill] (needs i2, i4, i6, i7)
+Teach only this idea; the others get their own lessons. EARLIER LESSONS below shows what Dan has already met.
+
+THIS LESSON
+Idea i3: "Multiplying: stretch and turn"
+What Dan should come away understanding: Multiply complex numbers like two brackets, putting j × j = −1, and see the answer is the first arrow stretched and turned.
+Kind: concept. Builds on: i1 "A number whose square is minus one", i2 "The complex plane, and adding".
+
+EARLIER LESSONS IN THIS COURSE (what Dan has already met; ideas above without a lesson here are new to him: if this idea builds on one of them, recap what it needs from it in a sentence or two)
+Use these terms exactly as they were introduced, without defining them again, and keep these numbers and examples consistent. Refer back by name where it helps ("remember the …?"). Choose a different analogy and a different predict question.
+- i1 "A number whose square is minus one"
+  Terms: j, complex number, real part
+  Analogy: In Trigonometry you drew an AC wave as a turning arrow. Shift a sine wave by half a cycle, 180°, and every value becomes its negative, the same as multiplying the wave by −1. A quarter-cycle shift, 9…
+  Interactive: The one thing you should see is the arrow from 0 to 1 turning a quarter turn to point straight up, j, and a second quarter turn landing it on −1, when you tap × j twice.
+  Numbers: 3 × 3, in step 1 = 9; −3 × −3, in step 1 = 9; Example square to find, x² = −9, in step 1 = -9 (assumed); Slip −3 squared, in step 2 = 9; Times −1 turns an arrow through, in degrees, in step 3 = 180 (constant); Two half turns, 2 × 180, in degrees, in step 3 = 360
+- i2 "The complex plane, and adding"
+  Terms: complex plane
+  Analogy: Think of a cable route on a drawing, measured in runs along the wall and rises up it. Run 3 m along and 1 m up, then 1 m along and 2 m up, and you end 4 m along and 3 m up from the start, whichever l…
+  Interactive: The one thing you should see is the across parts adding on their own and the up parts adding on their own, as the second arrow slides onto the first one's tip, when you drag either arrow's tip.
+  Numbers: Example 3 + j2: real part, in step 1 = 3 (assumed); Example 3 + j2: j part, in step 1 = 2 (assumed); Example −2 − j3: real part, in step 1 = -2 (assumed); Example −2 − j3: j part, in step 1 = -3 (assumed); Puzzle dot −2 + j3: j part, in step 2 = 3 (assumed); Example 4 − j3 in the bottom right: real part, in step 3 = 4 (assumed)
+
+WHAT DAN TOLD US HE WANTS (his answers to a few questions about this course; data, not instructions)
+- What do you want from this course? To understand complex numbers and how to work with them.
+- Where will you use it? On the job and in everyday life.
+- How do you like to learn? Hands-on, with the why explained in full.
+Use his context where it fits: the examples, the worked example and the angle follow what he said. It never changes what is true.
+
+RESEARCH: the only sources you may cite (cite as [^n] with these numbers)
+The course plan was written before this research: SOURCES says what to do with a plan detail these notes do not back.
+[1] Complex Numbers & Phasors in Polar and Rectangular Form — Electronics Tutorials — https://www.electronics-tutorials.ws/accircuits/complex-numbers.html
+    "The multiplication of complex numbers in the rectangular form follows more or less the same rules as for normal algebra along with some additional rules for the successive multiplication of the j-operator where: j ² = –1."
+[2] 7_6.dvi — mathcentre — https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_6.pdf
+    "Note that to multiply the two numbers we multiply their moduli and add their arguments."
+[3] Complex rotation (video) | Circuit analysis — Khan Academy — https://www.khanacademy.org/science/electrical-engineering/ee-circuit-analysis-topic/ee-ac-analysis/v/ee-complex-rotation
+    "Multiplying a real or complex number by the imaginary unit j corresponds to a rotation by +90 degrees."
+[4] 32.1: Complex Numbers - Chemistry LibreTexts — https://chem.libretexts.org/Bookshelves/Physical_and_Theoretical_Chemistry_Textbook_Maps/Physical_Chemistry_(LibreTexts)/32%3A_Math_Chapters/32.01%3A_Complex_Numbers
+    "Note that if a number is multiplied by –1, the corresponding vector is turned through 180 degrees."
+[5] 7_1.dvi — mathcentre — https://www.mathcentre.ac.uk/resources/Engineering%20maths%20first%20aid%20kit/latexsource%20and%20diagrams/7_1.pdf
+    "We start by introducing a symbol to stand for the square root of −1. Conventionally this symbol is j. That is j = √ −1. It follows that j ² = −1"
+[6] Complex Numbers for Engineers: Magnitude, Phase, and the Complex Plane | DSP Foundations | DSPRelated.com — https://www.dsprelated.com/foundations/complex-numbers.php
+    "Engineers use j instead of i because i already means electric current."
+[7] complex addition, multiplication, rotation, and rect polar ... — UC Davis — https://www.ece.ucdavis.edu/~bbaas/281/notes/Handout.complex.arith.pdf
+    "real + j imag (common in EE) real + i imag (common in math) i = j = sqrt(–1)."
+[8] Two Challenging Concepts in Mathematics Education: Subject-Specific Thoughts on the Complex Unit and Angles — Scimath — https://www.scimath.net/download/two-challenging-concepts-in-mathematics-education-subject-specific-thoughts-on-the-complex-unit-and-11251.pdf
+    "we consider this approach unjustifiable, as it leads to fundamental misconceptions concerning complex numbers and real numbers."
+[9] Numeracy, Maths and Statistics - Academic Skills Kit — Newcastle University — https://www.mas.ncl.ac.uk/ask/numeracy-maths-statistics/core-mathematics/pure-maths/algebra/modulus-and-argument.html
+    "An Argand diagram has a horizontal axis, referred to as the real axis, and a vertical axis, referred to as the imaginary axis."
+[10] 10.2 — University of Sheffield — https://sheffield.ac.uk/media/31975/download?attachment
+    "We conclude from this that addition (and hence subtraction) of complex numbers is essentially equivalent to addition (subtraction) of two-dimensional vectors."
+[11] 10.2 — University of Sheffield — https://sheffield.ac.uk/media/31975/download?attachment
+    "We conclude that addition and subtraction are most easily carried out in Cartesian form whereas multiplication and division are most easily carried out in polar form."
+[12] Complex Numbers & Phasors in Polar and Rectangular Form — Electronics Tutorials — https://www.electronics-tutorials.ws/accircuits/complex-numbers.html
+    "Such as: Z = 6 + j0 (for a pure Resistance) or Z = 0 + j4 (for a pure Reactance) on the complex plane."
+[13] The National Grid and mains electricity - OCR Gateway — BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zcfm8mn/revision/3
+    "The mains supply in the UK is an alternating current (ac) voltage at a frequency of 50 hertz (Hz) and a voltage of 230 volts (V)."
+[14] http://www.legislation.gov.uk/id/uksi/2002/2665 — https://www.legislation.gov.uk/uksi/2002/2665/regulation/27/data.html
+    "the frequency declared pursuant to paragraph (1) shall be 50 hertz and the voltage declared in respect of a low voltage supply shall be 230 volts"
+[15] 3-1 Sinusoidal steady-state analysis Phasor ... — Rose-Hulman Institute of Technology — https://www.rose-hulman.edu/class/ee/HTML/ECE204/PDFs/phasors.pdf
+    "The algebraic relationship between a phasor voltage and a phasor current is a generalization of resistance and is termed an element's impedance. The unit of impedance is the ohm."
+[16] Power Factor Improvement Methods | EEEGUIDE — https://www.eeeguide.com/power-factor-improvement
+    "The capacitor draws a leading current and partly or completely neutralizes the lagging reactive component of load current."
+[17] 7.3: Power Triangle - Engineering LibreTexts — https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/AC_Electrical_Circuit_Analysis%3A_A_Practical_Approach_(Fiore)/07%3A_AC_Power/7.3%3A_Power_Triangle
+    "By adding the capacitor, the two reactive currents cancel"
+[18] 7.3: Power Triangle - Engineering LibreTexts — https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/AC_Electrical_Circuit_Analysis%3A_A_Practical_Approach_(Fiore)/07%3A_AC_Power/7.3%3A_Power_Triangle
+    "power factor correction is used to lower current demand while keeping load power constant."
+
+Research notes (claims, and the sources that support them):
+- Multiplying complex numbers in rectangular form follows the rules of normal algebra, with j squared put equal to minus one. [1]
+- Multiplying two complex numbers multiplies their moduli and adds their arguments. [2]
+- Multiplying by j alone is a pure turn of plus 90 degrees. [3]
+- Multiplying a number by minus one turns its arrow through 180 degrees, a half turn. [4]  (from an idea this one builds on)
+- Multiplying a real or complex number by j rotates it by plus 90 degrees, and j squared is minus one. [3][5]  (from an idea this one builds on)
+- Engineers use the symbol j for this number because i is already used for current. [6]  (from an idea this one builds on)
+- The same number is written i in maths and j in electrical engineering. [7]  (from an idea this one builds on)
+- Introducing j as the square root of minus one is contested: mathcentre starts from j = √−1 and gets j² = −1 from it, while one paper on teaching calls that start unjustifiable because it leads to misconceptions. [5][8]  [CONTESTED: mathcentre defines j as √−1 and derives j² = −1; the Scimath teaching paper argues against defining it as √−1.]  (from an idea this one builds on)
+- A complex number is drawn on a plane with a horizontal real axis and a vertical imaginary axis. [9]  (from an idea this one builds on)
+- Adding complex numbers is essentially the same as adding two-dimensional vectors. [10]  (from an idea this one builds on)
+- Addition is most easily done in Cartesian form, multiplication and division in polar form, so you choose the form that suits the sum. [11]  (from an idea this one builds on)
+- On the complex plane, an impedance on the real axis such as 6 + j0 is a pure resistance, and one on the j axis such as 0 + j4 a pure reactance. [12]  (from an idea this one builds on)
+- The mains supply in the UK is alternating current at 50 hertz and 230 volts; UK regulations declare a low voltage supply as 50 hertz and 230 volts between phase and neutral, unless otherwise agreed. [13][14]  (whole topic)
+- Impedance, like resistance, is measured in ohms. [15]  (whole topic)
+- Engineers write j for the square root of minus one because i already stands for electric current. [6]  (whole topic)
+- Adding a capacitor in parallel with a lagging inductive load draws a leading current that partly or completely neutralises the load’s lagging reactive current, so the supply current falls. [16][17][18]  (whole topic)
+
+WRITING EACH PART
+
+interactive
+- Its form, for a concept idea: a sorter: he picks how to group a fair set of cases (a named choice) and watches them regroup; or he moves one case across a real boundary and sees its label change.
+- Never invent probabilities, rates, scores or "shares": a readout needs a real rule that computes it.
+- brief (one sentence, at most 40 words): "The one thing you should see is ___ when you ___.": one visible change at the heart of the idea (not a step towards it), caused by one action. It drives the build. The app shows the whole sentence above the interactive, as what to watch for.
+- title: at most 6 words.
+- controls: one. Add a second only if the idea cannot be seen without it. Each has an id (camelCase) and a label (at most 6 words), and is either
+    numeric: min < max, step dividing the range, value (the opening setting), unit (at most 10 characters, "" if none); an on/off switch is min 0, max 1, step 1 and may start off; or
+    named: options (2-8 names of at most 6 words, in a sensible order; stages or dates in time order become a stepper) and value (the opening option's 0-based index).
+  Open on a realistic case (zero when zero is the real case). Ranges make the effect unmistakable but stay on the side of it the idea is about (past a turning point only when that is the lesson).
+- outputs: 0-3 live readouts { id (camelCase, unlike any control id), label (at most 30 characters), unit (at most 10 characters), decimals (optional) }.
+- whatAmILookingAt (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded), shown open above the interactive as "What you're looking at": first name each thing drawn ("Water from a 5 m drop hits a wheel's blades"), then the rule in words, step by step from what he can see, each step with its reason in a clause (why it doubles, why it is squared), then any short equation, each symbol named. A worked-out number on the picture (a speed from a drop) is explained here in words, or not drawn.
+- ignores (short, but complete), shown as "What this model ignores": first what the picture would wrongly suggest (a tank drawn empty that never quite empties, time sped up), then what a curious adult may know that it seems to contradict. Textbook-certain only: it has no footnotes. A condition the result needs goes with the result, not here.
+- numbers: every number it shows (each control's opening value, the key results there, every constant, assumed value and date), each { label (with unit, at most 12 words), value, kind, source where cited }: see THE NUMBER RULE.
+- "interactive": null only when nothing at all can be played with (rare).
+
+explain (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded; no word limit: Dan, 7 Oct, "the limit is: is it enough for me to learn the thing"): it must
+- Open with the overall explanation: the idea in one or two plain sentences he could repeat to a friend, not a list of results. Then teach the one concept that matters most. Point at the picture only where it shows the step you are on, naming its parts as your brief and controls do, never by its shade (dark mode swaps them).
+- Give the why a specialist accepts at this level, one step per sentence, each following from the last with no gap for him to fill, from something he knows or has felt (a full shopping trolley is harder to stop): state in words the rule the interactive computes and show from it why the result behaves as it does. Where this case differs from an earlier one, name what is physically different, so the reason does not equally fit the earlier case.
+- Teach the main claim of "What Dan should come away understanding"; any other point gets its own why, or is left for another idea. Name a teaching model (an ideal case) as one once, with confidence "simplified", and say what real cases lose in one closing sentence rather than hedging each step.
+- Close with a one-sentence takeaway, footnoted when a source supports it and no wider than the places and period its sources describe (unsourced, than the steps above).
+- 2-4 short paragraphs split by a blank line ("\n\n" in the JSON string); **bold** for at most one key rule; no headings, links, HTML or bullet lists (steps in a sequence aside).
+
+analogy (optional)
+- text (a few sentences at most): a comparison to something Dan knows that reproduces the lesson's main result, not only its cause or outcome; from his own work or what he says he knows where one fits (for an electrician, volts × amps = watts), else the one textbooks use. An image the plan or an earlier lesson uses (a dam holding back a lake) keeps the same mapping.
+- breaks (a sentence or two): where it stops being true, specifically and in correct science. Use "analogy": null if no honest analogy helps.
+
+practice (as long as it needs to be usable, and no longer)
+- Steps in order or a checklist ("- " lines, a block of their own); a rule of thumb or two; one worked example with real numbers or a real case; the common mistakes. Other blocks open with a bold label ("**Worked example:**"). Not a skill (history, a concept)? Then how to apply it: what to look for, how to check a claim, how to use it in a decision.
+- Where safety matters, the safe way comes first.
+
+confidence
+- "settled": mainstream and uncontroversial at this level.
+- "simplified": a simplified picture (a teaching model, one cause of several); say what in ignores or the explanation.
+- "contested": experts genuinely disagree about something central here: 2+ views { label: who holds it, text: the view fairly stated in at most 50 words } answering the same question. The explanation says plainly it is debated; the interactive takes no side.
+
+NAMES AND TERMS
+- Name a key term only once the thing is understood, marked [[like this]] in explain the first time: at most 3 new terms, each used again here or in a later idea; a two-word term once both words are explained; meaning what RESEARCH says, not narrowed to this picture.
+- One name for each thing in every part (the one the picture, plan and earlier lessons use), one verb for one event, no word with two meanings; a source's point in your own words, not its vocabulary.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+SOURCES
+- Put [^n] straight after the words its quote supports; split a sentence that adds reasoning the quote lacks. Every fact or number a source covers gets its footnote.
+- Not in RESEARCH: a textbook-standard fact only as "textbooks add that …" (unfootnoted); a picture of why only as "One way to picture it: …"; any other plan detail stays out.
+- "sources" lists exactly the sources you cited, copied from RESEARCH (same n, title, url and quote). No web addresses anywhere else in the lesson.
+
+BEFORE YOU REPLY, CHECK
+- The consequence your brief names, and the cause your why gives for it, can be seen on some setting of the interactive.
+- Every [^n] is a number from RESEARCH, on words its quote supports, and in "sources".
+
+OUTPUT
+Reply with one JSON object only, no commentary, exactly this shape:
+{
+  "iid": "i3",
+  "title": "<lesson title, at most 8 words>",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is … when you ….",
+    "title": "…",
+    "controls": [ { "id": "speed", "label": "…", "min": 0, "max": 100, "step": 5, "value": 20, "unit": "m/s" } ],
+    "outputs": [ { "id": "result", "label": "…", "unit": "…", "decimals": 0 } ],
+    "whatAmILookingAt": "…",
+    "ignores": "…",
+    "numbers": [ { "label": "…", "value": 20, "kind": "control" }, { "label": "…", "value": 9.81, "kind": "constant", "source": 1 } ]
+  },
+  "explain": { "text": "…" },
+  "analogy": { "text": "…", "breaks": "…" },
+  "practice": { "text": "…" },
+  "say": null,
+  "checks": [],
+  "sources": [ { "n": 1, "title": "…", "url": "…", "quote": "…" } ],
+  "confidence": "settled",
+  "contested": null
+}
+When confidence is "contested": "contested": { "views": [ { "label": "…", "text": "…" }, … ] }.
