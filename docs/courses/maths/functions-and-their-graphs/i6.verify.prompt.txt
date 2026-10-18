@@ -1,0 +1,344 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Functions and graphs you will actually use
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i6 "Stretching and flipping" — Multiplying the output, 2f(x), stretches a graph up and down, a minus flips it over the x-axis, and multiplying the input, f(2x), squeezes it sideways. [skill]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i7 One machine feeding another — In a chain of two functions, written f(g(x)), the output of g becomes the input of f, and swapping the order usually changes the answer.
+- i8 Undoing a machine — An inverse function, read "f inverse", undoes a function that never gives two inputs the same output, running its steps backwards in reverse order.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] 1.5 Transformation of Functions - Precalculus 2e | OpenStax — https://openstax.org/books/precalculus-2e/pages/1-5-transformation-of-functions
+    "When we multiply a function by a positive constant, we get a function whose graph is stretched or compressed vertically in relation to the graph of the original function."
+[R2] 1.5 Transformation of Functions - Precalculus 2e | OpenStax — https://openstax.org/books/precalculus-2e/pages/1-5-transformation-of-functions
+    "Multiply all outputs by –1 for a vertical reflection. The new graph is a reflection of the original graph about the x -axis."
+[R3] 1.2: 1.2 Graphical Transformations - K12 LibreTexts — https://k12.libretexts.org/Bookshelves/Mathematics/Precalculus/01%3A_Functions_and_Graphs/1.02%3A_1.2_Graphical_Transformations
+    "This transformation is a vertical reflection across the x axis and a horizontal compression by a factor of 2."
+[R4] Graph transformations - Identifying and sketching related functions - Higher Maths Revision - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zc6hhyc/revision/1
+    "Adding or subtracting a constant (k) to a function has the effect of shifting the graph up or down vertically by (k) units."
+[R5] Graph transformations - Identifying and sketching related functions - Higher Maths Revision - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zc6hhyc/revision/1
+    "Adding or subtracting a constant (k) to the (x) term has the effect of shifting the graph left or right along the (x)-axis."
+[R6] 1.2: 1.2 Graphical Transformations - K12 LibreTexts — https://k12.libretexts.org/Bookshelves/Mathematics/Precalculus/01%3A_Functions_and_Graphs/1.02%3A_1.2_Graphical_Transformations
+    "A common misconception is to shift right because the three is positive."
+[R7] Relating 4 to 20 mA Signals to Instrument Variables | Understanding Analog Instrumentation | Textbook — https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables
+    "Each real-world value must be converted into its analog current equivalent, then into a scaled integer value, and finally back into a real-world representation, all with the linear equation: y=mx+b."
+[R8] Square root scaling for differential pressure flowmeters - Control Engineering — https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters
+    "But the root of a number from 0-1 is larger: √0.5 = 0.707. So if there is a 12 mA signal from the DP cell, that’s 50% DP, but 71% flow rate."
+Notes (claims, and the sources that support them):
+- Multiplying a function by a positive constant stretches or compresses its graph vertically. [R1]
+- Multiplying all outputs by minus 1 reflects the graph about the x-axis. [R2]
+- A transformation of the form -g(2x) is a reflection in the x axis together with a horizontal compression by a factor of 2. [R3]
+- Adding or subtracting a constant k to a function shifts its graph up or down by k units. [R4]  (from an idea this one builds on)
+- Adding or subtracting a constant k to the x term shifts the graph left or right along the x-axis. [R5]  (from an idea this one builds on)
+- The horizontal shift direction is a common trap: the misconception is to shift right because the 3 in f(x + 3) is positive. [R6]  (from an idea this one builds on)
+- The 4 to 20 mA loop is a 0 to 100 percent scale, and its straight-line conversion is y = mx + b. [R7]  (whole topic)
+- A 12 mA signal from a differential-pressure cell is 50% pressure difference but 71% flow rate. [R8]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i6",
+ "title": "Stretching and flipping",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the arrows from the x-axis to four marked points all growing by the same factor, as the rule rewrites to 2f(x), when you pull the top handle.",
+  "title": "Pull the graph",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens on stretching and flipping a graph. A graph sits on axes with the input along the bottom and the output up the side. It has a handle above the curve and a handle at its side. A faint copy stays where the graph started, and the rule above the graph rewrites as you pull. Four marked points sit on the curve, each with an arrow from the x-axis showing its height, and each shows its old and new coordinates. Pull the top handle and every output is multiplied by the handle's number, so every arrow grows by the same factor at once. On the square y = x², the points at x = −2, −1, 1 and 2 have heights 4, 1, 1 and 4, and 2f(x) = 2x² makes them 8, 2, 2 and 8. The inputs stay put, and the point (0, 0) does not move, because 2 × 0 is 0. Below 1 the top handle squashes the graph, so ½x² takes (2, 4) to (2, 2). At 0 the graph lies flat on the x-axis, and pulled on through the axis to −1 it flips to −f(x) = −x², taking (2, 4) to (2, −4). Pull the side handle in and every input is divided by its number. f(2x) doubles the input before the machine, so an input half as big gives the old output. On the square root y = √x, drawn from 0 to 9, the points (1, 1), (4, 2) and (9, 3) move to (0.5, 1), (2, 2) and (4.5, 3), and a three-row table shows the inputs 0.5, 2 and 4.5 giving 1, 2 and 3. Pulled through the y-axis, the side handle gives f(−x) = √(−x), which takes only inputs of 0 and below and passes through (−4, 2). A switch shows the 4 to 20 mA transmitter from lesson 2. The fraction of full scale, f(p) = p ÷ 100, runs from 0 to 1 across 0% to 100%. The top handle stretches it by 16, the instrument's gain, to run from 0 to 16 mA, and lesson 5's slide lifts it by 4 mA, its offset, to run from 4 to 20 mA: S(p) = 0.16p + 4. At 50% the readout shows 0.5, then 8 mA, then 12 mA. The last screen is a look ahead: a sketched AC wave with a peak of 1 is stretched to a peak of 2, lifted by 1 as a DC offset so it runs from −1 to 3, and slid to the right as a delay. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick shows the slip that makes it, such as multiplying the input instead of the output, flipping over the wrong axis, or lifting before multiplying.",
+  "ignores": "Each graph shows only part of its curve, which carries on past the edge of the picture. The factors 2, 3 and ½, the faulty gain of 8, the 50% level and the wave's sizes are example values, kept simple so points land on grid lines; a graph can be stretched by any number, a fraction too, and the rules still hold. The transmitter is drawn as its plain straight-line rule, and only from 0% to 100%. The AC wave is a sketch, and its own rule is left for the Trigonometry course. Only ordinary (real) numbers are used.",
+  "numbers": [
+   {
+    "label": "Top handle's example factor, in step 0",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Marked points at x = −2, −1, 1 and 2, step 0",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "x² at x = 1 and 2 gives 1 and 4, step 0",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "2x² gives 2 and 8 there, in step 0",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "√x passes through (4, 2), in step 1",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Example factor in 3f(x), in step 1",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "3√x at x = 4 is 6; slips (12, 2), (4, 5), step 1",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Squash factor ½: (2, 4) to (2, 2), in step 2",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "−x² at x = 2 is −4, in step 2",
+    "value": -4,
+    "kind": "computed"
+   },
+   {
+    "label": "−√x at x = 9 is −3; slips (−9, 3), (−9, −3), step 3",
+    "value": -3,
+    "kind": "computed"
+   },
+   {
+    "label": "Square root drawn from 0 to 9, in step 4",
+    "value": 9,
+    "kind": "assumed"
+   },
+   {
+    "label": "√(2x): inputs 0.5, 2, 4.5 give 1, 2, 3, step 4",
+    "value": 4.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Example factor in √(3x), in step 5",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "√(3x) gives 3 at x = 3; slips 27, 9, step 5",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "√(−x) gives 2 at x = −4, in step 6",
+    "value": -4,
+    "kind": "computed"
+   },
+   {
+    "label": "√(−x) passes (−9, 3); slip √(x + 9) starts at −9, step 7",
+    "value": -9,
+    "kind": "computed"
+   },
+   {
+    "label": "4 to 20 mA loop: 0% sends 4 mA",
+    "value": 4,
+    "kind": "constant"
+   },
+   {
+    "label": "4 to 20 mA loop: 100% sends 20 mA",
+    "value": 20,
+    "kind": "constant"
+   },
+   {
+    "label": "Fraction of full scale, p ÷ 100, at 100%",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Gain: stretch by 16, from 20 − 4 mA, step 8",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "S(p) = 0.16p + 4: mA per percent",
+    "value": 0.16,
+    "kind": "computed"
+   },
+   {
+    "label": "Example level, percent, in step 8",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "At 50%: 0.5, then 16 × 0.5 = 8 mA, step 8",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Lifted 4 mA: S(50) = 12 mA, in step 8",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, lift first: 16 × 4.5 = 72 mA",
+    "value": 72,
+    "kind": "computed"
+   },
+   {
+    "label": "−x² + 2 at x = 2 is −2; slips −6, 6, step 9",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "−(x² + 2) at x = 2 is −6",
+    "value": -6,
+    "kind": "computed"
+   },
+   {
+    "label": "−(2x)² at x = 1 is −4: (2, 4) to (1, −4), step 10",
+    "value": -4,
+    "kind": "computed"
+   },
+   {
+    "label": "Slips: −2x² gives (2, −8); (−2x)² gives (−1, 4), step 10",
+    "value": -8,
+    "kind": "computed"
+   },
+   {
+    "label": "Example fault: gain set to 8, in step 11",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "8 × 0.5 + 4 = 8 mA at 50%; slips 6, 4, step 11",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Wave's example peak, 1 stretched to 2, in step 12",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Wave's example DC offset, in step 12",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Lifted wave runs from −1 to 3, in step 12",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Analogy: ideal transformer, secondary turns per primary turn",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example 3√(2x): (2, 2) to (2, 6)",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example 3√(2x): (9, 3) to (4.5, 9)",
+    "value": 9,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Stretching and flipping change a graph by multiplying, where lesson 5's shifts slid it by adding. Multiply the output by a number and the graph is stretched or squashed up and down; multiply the input and it is squeezed in or pulled out sideways. A minus in either place flips it over.\n\n2f(x) means put x through the machine, then double what comes out. Take the square from lesson 3, f(x) = x². At x = 1 it gives 1 and at x = 2 it gives 4, so 2x² gives 2 and 8 there. The inputs stay the same and only the outputs double, at every input, so every height doubles. Tall points move further than low ones, and a point on the x-axis does not move at all, because 2 × 0 is still 0. That is a [[vertical stretch]].[^1] A number between 0 and 1 squashes the graph instead: ½x² takes (2, 4) down to (2, 2).[^1] Multiply by −1 and every height changes sign, so (2, 4) goes to (2, −4): −f(x) is the graph flipped over the x-axis, a [[reflection]].[^2]\n\nf(2x) means double the input first, then put it through the machine. Take the square root, f(x) = √x, which gives 2 at x = 4. √(2x) gives 2 when 2x is 4, which is at x = 2. Each input need only be half as big to give the old output, so every point moves halfway in towards the y-axis, and the graph is squeezed sideways by a factor of 2.[^3] It goes the opposite way to how the 2 looks, for the same reason as lesson 5's sideways slide: the change is made to the input before the machine. In the same way f(½x) pulls the graph out to twice as wide. Textbooks add that a minus inside, f(−x), flips the graph over the y-axis, and one point shows it: √(−x) gives 2 at x = −4, because −(−4) is 4, so the point (4, 2) moves to (−4, 2).\n\nTwo moves outside the bracket follow the order of the sum. −f(x) + 2 flips first and then lifts, so the 4 at x = 2 becomes −4 and then −2; −(f(x) + 2) lifts first and then flips, and gives −6. The 4 to 20 mA scale from lesson 2 is two moves in that order. The fraction of full scale, p ÷ 100, runs from 0 to 1. Stretch it by 16 and it runs from 0 to 16 mA, then lift it by 4 and it runs from 4 to 20 mA. That is S(p) = 0.16p + 4, a straight-line rule y = mx + b,[^4] so 50% gives 0.5, then 8, then 12 mA; lift first and 50% would give 16 × 4.5 = 72 mA. Textbooks add that on an instrument the multiplier is called the gain and the added part the offset. **Multiplying the output, 2f(x), stretches a graph up and down,[^1] and a minus there flips it over the x-axis;[^2] multiplying the input, f(2x), squeezes it sideways by half,[^3] because each input need only be half as big to give the old output.**"
+ },
+ "analogy": {
+  "text": "Think of an ideal transformer with twice as many turns on its secondary as on its primary. Every instant of the supply wave comes out at twice the voltage, so each peak doubles, each zero crossing stays at zero and the timing is unchanged: the output is 2f(t). Swap the secondary's two leads and every voltage changes sign as well, −2f(t), the same wave flipped over the axis.",
+  "breaks": "A transformer works only on a changing voltage, so a steady DC input gives nothing out, while 2f(x) doubles every output, a constant one too. It cannot squeeze the wave sideways either: f(2t) would be the same wave at twice the frequency, which no turns ratio gives. And a real transformer loses a little in its windings and core, so the exact ratio is the ideal case."
+ },
+ "practice": {
+  "text": "- First look where the number sits. In front, as in 2f(x), it acts on the outputs. Inside the bracket, as in f(2x), it acts on the inputs.\n- In front: multiply every height by the number and keep every input. A number above 1 stretches, one between 0 and 1 squashes, and a minus flips the graph over the x-axis.\n- Inside: divide every input by the number and keep every height. f(2x) halves every input, so the graph squeezes in; a minus inside flips it over the y-axis.\n- Two moves in front: do them in the order of the sum, multiplying before adding unless a bracket says otherwise.\n- Check one moved point in the new rule.\n\n**Rule of thumb:** In front does what it says to the heights. Inside does the opposite to the widths: × 2 inside halves them.\n\n**Worked example:** Sketch y = 3√(2x) from y = √x, which passes through (1, 1), (4, 2) and (9, 3). Inside, the 2 halves every input: (0.5, 1), (2, 2) and (4.5, 3). In front, the 3 triples every height: (0.5, 3), (2, 6) and (4.5, 9). Check one: at x = 2, √(2 × 2) = √4 = 2, and 3 × 2 = 6.\n\n**Mistakes to watch for**\n- Taking f(2x) as twice as wide. Check a point: √(2x) gives 2 at x = 2, not at x = 8.\n- Mixing up −f(x) and f(−x). A minus in front flips the heights over the x-axis; a minus inside flips the inputs over the y-axis.\n- Adding before multiplying. −(x² + 2) is not −x² + 2: at x = 2 the first gives −6 and the second −2.\n- Moving points that sit on the x-axis in a stretch. Their height is 0, and any multiple of 0 is still 0."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "1.5 Transformation of Functions - Precalculus 2e | OpenStax",
+   "url": "https://openstax.org/books/precalculus-2e/pages/1-5-transformation-of-functions",
+   "quote": "When we multiply a function by a positive constant, we get a function whose graph is stretched or compressed vertically in relation to the graph of the original function."
+  },
+  {
+   "n": 2,
+   "title": "1.5 Transformation of Functions - Precalculus 2e | OpenStax",
+   "url": "https://openstax.org/books/precalculus-2e/pages/1-5-transformation-of-functions",
+   "quote": "Multiply all outputs by –1 for a vertical reflection. The new graph is a reflection of the original graph about the x -axis."
+  },
+  {
+   "n": 3,
+   "title": "1.2: 1.2 Graphical Transformations - K12 LibreTexts",
+   "url": "https://k12.libretexts.org/Bookshelves/Mathematics/Precalculus/01%3A_Functions_and_Graphs/1.02%3A_1.2_Graphical_Transformations",
+   "quote": "This transformation is a vertical reflection across the x axis and a horizontal compression by a factor of 2."
+  },
+  {
+   "n": 4,
+   "title": "Relating 4 to 20 mA Signals to Instrument Variables | Understanding Analog Instrumentation | Textbook",
+   "url": "https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables",
+   "quote": "Each real-world value must be converted into its analog current equivalent, then into a scaled integer value, and finally back into a real-world representation, all with the linear equation: y=mx+b."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

@@ -1,0 +1,16 @@
+{
+ "issues": [
+  {
+   "path": "practice.text",
+   "problem": "\"Moving points that sit on the x-axis in a stretch\" is false for a sideways stretch: f(½x) moves an x-axis crossing such as (4, 0) to (8, 0); only the up-and-down stretch leaves them put.",
+   "severity": "fix",
+   "now": "- First look where the number sits. In front, as in 2f(x), it acts on the outputs. Inside the bracket, as in f(2x), it acts on the inputs.\n- In front: multiply every height by the number and keep every input. A number above 1 stretches, one between 0 and 1 squashes, and a minus flips the graph over the x-axis.\n- Inside: divide every input by the number and keep every height. f(2x) halves every input, so the graph squeezes in; a minus inside flips it over the y-axis.\n- Two moves in front: do them in the order of the sum, multiplying before adding unless a bracket says otherwise.\n- Check one moved point in the new rule.\n\n**Rule of thumb:** In front does what it says to the heights. Inside does the opposite to the widths: × 2 inside halves them.\n\n**Worked example:** Sketch y = 3√(2x) from y = √x, which passes through (1, 1), (4, 2) and (9, 3). Inside, the 2 halves every input: (0.5, 1), (2, 2) and (4.5, 3). In front, the 3 triples every height: (0.5, 3), (2, 6) and (4.5, 9). Check one: at x = 2, √(2 × 2) = √4 = 2, and 3 × 2 = 6.\n\n**Mistakes to watch for**\n- Taking f(2x) as twice as wide. Check a point: √(2x) gives 2 at x = 2, not at x = 8.\n- Mixing up −f(x) and f(−x). A minus in front flips the heights over the x-axis; a minus inside flips the inputs over the y-axis.\n- Adding before multiplying. −(x² + 2) is not −x² + 2: at x = 2 the first gives −6 and the second −2.\n- Moving points that sit on the x-axis in an up-and-down stretch. Their height is 0, and any multiple of 0 is still 0."
+  },
+  {
+   "path": "analogy.breaks",
+   "problem": "A real transformer given steady DC does give a brief pulse out at switch-on before falling to zero, so \"gives nothing out\" overstates it; \"no lasting output\" is what a specialist would say.",
+   "severity": "fix",
+   "now": "A transformer works only on a changing voltage, so a steady DC input gives no lasting output, while 2f(x) doubles every output, a constant one too. It cannot squeeze the wave sideways either: f(2t) would be the same wave at twice the frequency, which no turns ratio gives. And a real transformer loses a little in its windings and core, so the exact ratio is the ideal case."
+  }
+ ]
+}

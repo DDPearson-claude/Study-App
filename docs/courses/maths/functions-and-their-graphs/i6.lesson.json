@@ -1,0 +1,73 @@
+{
+  "iid": "i6",
+  "title": "Stretching and flipping",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the arrows from the x-axis to four marked points all growing by the same factor, as the rule rewrites to 2f(x), when you pull the top handle.",
+    "title": "Pull the graph",
+    "controls": [ { "id": "step", "label": "Step", "min": 0, "max": 12, "step": 1, "value": 0, "unit": "" } ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on stretching and flipping a graph. A graph sits on axes with the input along the bottom and the output up the side. It has a handle above the curve and a handle at its side. A faint copy stays where the graph started, and the rule above the graph rewrites as you pull. Four marked points sit on the curve, each with an arrow from the x-axis showing its height, and each shows its old and new coordinates. Pull the top handle and every output is multiplied by the handle's number, so every arrow grows by the same factor at once. On the square y = x², the points at x = −2, −1, 1 and 2 have heights 4, 1, 1 and 4, and 2f(x) = 2x² makes them 8, 2, 2 and 8. The inputs stay put, and the point (0, 0) does not move, because 2 × 0 is 0. Below 1 the top handle squashes the graph, so ½x² takes (2, 4) to (2, 2). At 0 the graph lies flat on the x-axis, and pulled on through the axis to −1 it flips to −f(x) = −x², taking (2, 4) to (2, −4). Pull the side handle in and every input is divided by its number. f(2x) doubles the input before the machine, so an input half as big gives the old output. On the square root y = √x, drawn from 0 to 9, the points (1, 1), (4, 2) and (9, 3) move to (0.5, 1), (2, 2) and (4.5, 3), and a three-row table shows the inputs 0.5, 2 and 4.5 giving 1, 2 and 3. Pulled through the y-axis, the side handle gives f(−x) = √(−x), which takes only inputs of 0 and below and passes through (−4, 2). A switch shows the 4 to 20 mA transmitter from lesson 2. The fraction of full scale, f(p) = p ÷ 100, runs from 0 to 1 across 0% to 100%. The top handle stretches it by 16, the instrument's gain, to run from 0 to 16 mA, and lesson 5's slide lifts it by 4 mA, its offset, to run from 4 to 20 mA: S(p) = 0.16p + 4. At 50% the readout shows 0.5, then 8 mA, then 12 mA. The last screen is a look ahead: a sketched AC wave with a peak of 1 is stretched to a peak of 2, lifted by 1 as a DC offset so it runs from −1 to 3, and slid to the right as a delay. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick shows the slip that makes it, such as multiplying the input instead of the output, flipping over the wrong axis, or lifting before multiplying.",
+    "ignores": "Each graph shows only part of its curve, which carries on past the edge of the picture. The factors 2, 3 and ½, the faulty gain of 8, the 50% level and the wave's sizes are example values, kept simple so points land on grid lines; a graph can be stretched by any number, a fraction too, and the rules still hold. The transmitter is drawn as its plain straight-line rule, and only from 0% to 100%. The AC wave is a sketch, and its own rule is left for the Trigonometry course. Only ordinary (real) numbers are used.",
+    "numbers": [
+      { "label": "Top handle's example factor, in step 0", "value": 2, "kind": "assumed" },
+      { "label": "Marked points at x = −2, −1, 1 and 2, step 0", "value": 2, "kind": "assumed" },
+      { "label": "x² at x = 1 and 2 gives 1 and 4, step 0", "value": 4, "kind": "computed" },
+      { "label": "2x² gives 2 and 8 there, in step 0", "value": 8, "kind": "computed" },
+      { "label": "√x passes through (4, 2), in step 1", "value": 2, "kind": "computed" },
+      { "label": "Example factor in 3f(x), in step 1", "value": 3, "kind": "assumed" },
+      { "label": "3√x at x = 4 is 6; slips (12, 2), (4, 5), step 1", "value": 6, "kind": "computed" },
+      { "label": "Squash factor ½: (2, 4) to (2, 2), in step 2", "value": 0.5, "kind": "assumed" },
+      { "label": "−x² at x = 2 is −4, in step 2", "value": -4, "kind": "computed" },
+      { "label": "−√x at x = 9 is −3; slips (−9, 3), (−9, −3), step 3", "value": -3, "kind": "computed" },
+      { "label": "Square root drawn from 0 to 9, in step 4", "value": 9, "kind": "assumed" },
+      { "label": "√(2x): inputs 0.5, 2, 4.5 give 1, 2, 3, step 4", "value": 4.5, "kind": "computed" },
+      { "label": "Example factor in √(3x), in step 5", "value": 3, "kind": "assumed" },
+      { "label": "√(3x) gives 3 at x = 3; slips 27, 9, step 5", "value": 3, "kind": "computed" },
+      { "label": "√(−x) gives 2 at x = −4, in step 6", "value": -4, "kind": "computed" },
+      { "label": "√(−x) passes (−9, 3); slip √(x + 9) starts at −9, step 7", "value": -9, "kind": "computed" },
+      { "label": "4 to 20 mA loop: 0% sends 4 mA", "value": 4, "kind": "constant" },
+      { "label": "4 to 20 mA loop: 100% sends 20 mA", "value": 20, "kind": "constant" },
+      { "label": "Fraction of full scale, p ÷ 100, at 100%", "value": 1, "kind": "computed" },
+      { "label": "Gain: stretch by 16, from 20 − 4 mA, step 8", "value": 16, "kind": "computed" },
+      { "label": "S(p) = 0.16p + 4: mA per percent", "value": 0.16, "kind": "computed" },
+      { "label": "Example level, percent, in step 8", "value": 50, "kind": "assumed" },
+      { "label": "At 50%: 0.5, then 16 × 0.5 = 8 mA, step 8", "value": 8, "kind": "computed" },
+      { "label": "Lifted 4 mA: S(50) = 12 mA, in step 8", "value": 12, "kind": "computed" },
+      { "label": "Slip, lift first: 16 × 4.5 = 72 mA", "value": 72, "kind": "computed" },
+      { "label": "−x² + 2 at x = 2 is −2; slips −6, 6, step 9", "value": -2, "kind": "computed" },
+      { "label": "−(x² + 2) at x = 2 is −6", "value": -6, "kind": "computed" },
+      { "label": "−(2x)² at x = 1 is −4: (2, 4) to (1, −4), step 10", "value": -4, "kind": "computed" },
+      { "label": "Slips: −2x² gives (2, −8); (−2x)² gives (−1, 4), step 10", "value": -8, "kind": "computed" },
+      { "label": "Example fault: gain set to 8, in step 11", "value": 8, "kind": "assumed" },
+      { "label": "8 × 0.5 + 4 = 8 mA at 50%; slips 6, 4, step 11", "value": 8, "kind": "computed" },
+      { "label": "Wave's example peak, 1 stretched to 2, in step 12", "value": 2, "kind": "assumed" },
+      { "label": "Wave's example DC offset, in step 12", "value": 1, "kind": "assumed" },
+      { "label": "Lifted wave runs from −1 to 3, in step 12", "value": 3, "kind": "computed" },
+      { "label": "Analogy: ideal transformer, secondary turns per primary turn", "value": 2, "kind": "assumed" },
+      { "label": "Worked example 3√(2x): (2, 2) to (2, 6)", "value": 6, "kind": "computed" },
+      { "label": "Worked example 3√(2x): (9, 3) to (4.5, 9)", "value": 9, "kind": "computed" }
+    ]
+  },
+  "explain": {
+    "text": "Stretching and flipping change a graph by multiplying, where lesson 5's shifts slid it by adding. Multiply the output by a number and the graph is stretched or squashed up and down; multiply the input and it is squeezed in or pulled out sideways. A minus in either place flips it over.\n\n2f(x) means put x through the machine, then double what comes out. Take the square from lesson 3, f(x) = x². At x = 1 it gives 1 and at x = 2 it gives 4, so 2x² gives 2 and 8 there. The inputs stay the same and only the outputs double, at every input, so every height doubles. Tall points move further than low ones, and a point on the x-axis does not move at all, because 2 × 0 is still 0. That is a [[vertical stretch]].[^1] A number between 0 and 1 squashes the graph instead: ½x² takes (2, 4) down to (2, 2).[^1] Multiply by −1 and every height changes sign, so (2, 4) goes to (2, −4): −f(x) is the graph flipped over the x-axis, a [[reflection]].[^2]\n\nf(2x) means double the input first, then put it through the machine. Take the square root, f(x) = √x, which gives 2 at x = 4. √(2x) gives 2 when 2x is 4, which is at x = 2. Each input need only be half as big to give the old output, so every point moves halfway in towards the y-axis, and the graph is squeezed sideways by a factor of 2.[^3] It goes the opposite way to how the 2 looks, for the same reason as lesson 5's sideways slide: the change is made to the input before the machine. In the same way f(½x) pulls the graph out to twice as wide. Textbooks add that a minus inside, f(−x), flips the graph over the y-axis, and one point shows it: √(−x) gives 2 at x = −4, because −(−4) is 4, so the point (4, 2) moves to (−4, 2).\n\nTwo moves outside the bracket follow the order of the sum. −f(x) + 2 flips first and then lifts, so the 4 at x = 2 becomes −4 and then −2; −(f(x) + 2) lifts first and then flips, and gives −6. The 4 to 20 mA scale from lesson 2 is two moves in that order. The fraction of full scale, p ÷ 100, runs from 0 to 1. Stretch it by 16 and it runs from 0 to 16 mA, then lift it by 4 and it runs from 4 to 20 mA. That is S(p) = 0.16p + 4, a straight-line rule y = mx + b,[^7] so 50% gives 0.5, then 8, then 12 mA; lift first and 50% would give 16 × 4.5 = 72 mA. Textbooks add that on an instrument the multiplier is called the gain and the added part the offset. **Multiplying the output, 2f(x), stretches a graph up and down,[^1] and a minus there flips it over the x-axis;[^2] multiplying the input, f(2x), squeezes it sideways by half,[^3] because each input need only be half as big to give the old output.**"
+  },
+  "analogy": {
+    "text": "Think of an ideal transformer with twice as many turns on its secondary as on its primary. Every instant of the supply wave comes out at twice the voltage, so each peak doubles, each zero crossing stays at zero and the timing is unchanged: the output is 2f(t). Swap the secondary's two leads and every voltage changes sign as well, −2f(t), the same wave flipped over the axis.",
+    "breaks": "A transformer works only on a changing voltage, so a steady DC input gives nothing out, while 2f(x) doubles every output, a constant one too. It cannot squeeze the wave sideways either: f(2t) would be the same wave at twice the frequency, which no turns ratio gives. And a real transformer loses a little in its windings and core, so the exact ratio is the ideal case."
+  },
+  "practice": {
+    "text": "- First look where the number sits. In front, as in 2f(x), it acts on the outputs. Inside the bracket, as in f(2x), it acts on the inputs.\n- In front: multiply every height by the number and keep every input. A number above 1 stretches, one between 0 and 1 squashes, and a minus flips the graph over the x-axis.\n- Inside: divide every input by the number and keep every height. f(2x) halves every input, so the graph squeezes in; a minus inside flips it over the y-axis.\n- Two moves in front: do them in the order of the sum, multiplying before adding unless a bracket says otherwise.\n- Check one moved point in the new rule.\n\n**Rule of thumb:** In front does what it says to the heights. Inside does the opposite to the widths: × 2 inside halves them.\n\n**Worked example:** Sketch y = 3√(2x) from y = √x, which passes through (1, 1), (4, 2) and (9, 3). Inside, the 2 halves every input: (0.5, 1), (2, 2) and (4.5, 3). In front, the 3 triples every height: (0.5, 3), (2, 6) and (4.5, 9). Check one: at x = 2, √(2 × 2) = √4 = 2, and 3 × 2 = 6.\n\n**Mistakes to watch for**\n- Taking f(2x) as twice as wide. Check a point: √(2x) gives 2 at x = 2, not at x = 8.\n- Mixing up −f(x) and f(−x). A minus in front flips the heights over the x-axis; a minus inside flips the inputs over the y-axis.\n- Adding before multiplying. −(x² + 2) is not −x² + 2: at x = 2 the first gives −6 and the second −2.\n- Moving points that sit on the x-axis in a stretch. Their height is 0, and any multiple of 0 is still 0."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    { "n": 1, "title": "1.5 Transformation of Functions - Precalculus 2e | OpenStax", "url": "https://openstax.org/books/precalculus-2e/pages/1-5-transformation-of-functions", "quote": "When we multiply a function by a positive constant, we get a function whose graph is stretched or compressed vertically in relation to the graph of the original function." },
+    { "n": 2, "title": "1.5 Transformation of Functions - Precalculus 2e | OpenStax", "url": "https://openstax.org/books/precalculus-2e/pages/1-5-transformation-of-functions", "quote": "Multiply all outputs by –1 for a vertical reflection. The new graph is a reflection of the original graph about the x -axis." },
+    { "n": 3, "title": "1.2: 1.2 Graphical Transformations - K12 LibreTexts", "url": "https://k12.libretexts.org/Bookshelves/Mathematics/Precalculus/01%3A_Functions_and_Graphs/1.02%3A_1.2_Graphical_Transformations", "quote": "This transformation is a vertical reflection across the x axis and a horizontal compression by a factor of 2." },
+    { "n": 7, "title": "Relating 4 to 20 mA Signals to Instrument Variables | Understanding Analog Instrumentation | Textbook", "url": "https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables", "quote": "Each real-world value must be converted into its analog current equivalent, then into a scaled integer value, and finally back into a real-world representation, all with the linear equation: y=mx+b." }
+  ],
+  "confidence": "settled",
+  "contested": null,
+  "format": "steps"
+}
