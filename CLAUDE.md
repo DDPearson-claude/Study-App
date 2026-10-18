@@ -17,6 +17,21 @@ changing code; it is the contract between modules.
 - Light mode by default; dark mode and text size live in reading settings. Phone first (360 px), desktop equally good.
 - Nothing ever gets in the way: today's study is one tap away; no guilt mechanics.
 
+## Dan's background (Dan, 18 Oct 2026)
+Every course brief starts from this: never re-teach what these cover, pitch above it, and use it for examples.
+- Electrician, now committed to the electrical and electrical engineering path in the Royal Navy. Next: leading rate
+  engineering qualifications, a level 3 marine engineering qualification and a level 4 management and leadership
+  qualification (at HMS Drake / HMS Collingwood). Educationally qualified for Upper Yardman and Senior Upper Yardman.
+- Electrical (EAL): NVQ L3 Electrical Installation; L3 18th Edition BS 7671:2018 (Feb 2025); L3 Building Regulations
+  for Electrical Installations in Dwellings (May 2025); L3 Initial Verification and Certification, L3 Periodic
+  Inspection, Testing and Certification, L3 In-Service Inspection and Testing (PAT) and L2 Fundamental Inspection,
+  Testing and Initial Verification (all Oct 2025); L4 Design and Verification.
+- Other: BTEC L3 Diploma in Advanced Manufacturing Engineering; City & Guilds Assured Subsea Cable Testing and Fault
+  Location (Sept 2026); a Navy Advanced Apprenticeship with Maths and English proxies.
+- So an electrical course assumes BS 7671 design and verification (cable sizing, voltage drop, earth fault loop
+  impedance, protective devices, inspection and test) and cable fault location; it adds what marine and naval work
+  needs beyond them. Ask him for his course syllabi and build to them when he shares them.
+
 ## Code rules
 - Plain JS, no frameworks, no dependencies in the shipped page. One global namespace `U`.
 - Never put model-written text into `innerHTML`; use `U.h()` / `U.rich()`. Model-written HTML runs only
