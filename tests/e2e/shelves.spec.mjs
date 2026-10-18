@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// Browser test for ready-made courses (76-shelves.js): the Library opens on two choices, Dossiers
-// (the dossiers as tiles) and Ready-made courses; Ready-made courses lists each shelf (Maths), the shelf
-// shows its folders, a folder lists its courses in order, built ones open their topic, the rest
-// say they are not built yet. No shelves: no section. A built course (topic.readyMade) stays out
-// of Learn's list and Continue, and its row says where Dan is ("Lesson 3 of 6"). Screenshots:
-// tests/out/shelves/.
+// Browser test for the Library, the home (77-library.js), and ready-made courses (76-shelves.js):
+// the home lists each shelf (Maths) under "Your library", the shelf shows its folders, a folder lists
+// its courses in order, built ones open their topic, the rest say they are not built yet, and a
+// started course's row says where Dan is ("Lesson 3 of 6"). The old Ready-made courses page opens
+// the home; the Book tab opens the dossiers, ending with "In your own words" and the Map.
+// Screenshots: tests/out/shelves/.
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -42,25 +42,17 @@ for (const [tid, v] of Object.entries(SEED.progress)) MADE[`data/users/${UID}/pr
 
 let app = await open({ ...MADE, 'shelves/maths': SHELF });
 const { page } = app;
-await page.waitForSelector('.tgrid .tcard');
-ok((await page.locator('.shelf-card').count()) === 0, 'Learn has no ready-made courses (they live in the Library)');
-await page.waitForTimeout(600);
-const learnLinks = await page.locator('.learn a[href^="#/t/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
-ok(learnLinks.length > 0 && !learnLinks.some((h) => h.includes('how-tides-work-ab12')), 'a built ready-made course is not in Learn\'s topics or Continue (' + learnLinks.join(' ') + ')');
-await page.evaluate(() => U.go('#/book'));
-await page.waitForSelector('.lib-choice');
-ok((await page.locator('.lib-choice').count()) === 2, 'the Library opens on two choices');
-ok((await page.locator('.lib-choice-t').allTextContents()).join() === 'Dossiers,Ready-made courses', 'Dossiers and Ready-made courses');
-await page.waitForFunction(() => /Maths/.test((document.querySelector('.is-courses .lib-choice-m') || {}).textContent || ''));
-await page.screenshot({ path: join(SHOTS, 'library-360.png') });
-await page.locator('.lib-choice.is-courses').click();
-await page.waitForSelector('.shelf-page .shelf-card');
-ok((await page.locator('.shelf-page h1').textContent()) === 'Ready-made courses', 'Ready-made courses');
-ok(/Maths/.test(await page.locator('.shelf-page .shelf-card').innerText()) && /2 folders · 3 courses · 1 built/.test(await page.locator('.shelf-page .shelf-card').innerText()), 'the Maths folder, with its counts');
-await page.locator('.shelf-page .shelf-card').click();
+await page.waitForSelector('.lib-home .shelf-card');
+ok((await page.locator('.lib-home h1').textContent()) === 'Your library', 'the home is the Library');
+ok((await page.evaluate(() => document.getElementById('view').dataset.screen)) === 'library', 'its own screen');
+ok((await page.locator('.ask, .tcard, .ccard').count()) === 0, 'no ask box and no topic cards');
+ok(/Maths/.test(await page.locator('.lib-home .shelf-card').innerText()) && /2 folders · 3 courses · 1 built/.test(await page.locator('.lib-home .shelf-card').innerText()), 'the Maths shelf, with its counts');
+await page.screenshot({ path: join(SHOTS, 'home-360.png') });
+await page.locator('.lib-home .shelf-card').click();
 await page.waitForFunction(() => (document.querySelector('.shelf-page h1') || {}).textContent === 'Maths');
-await page.waitForSelector('.shelf-page h1');
 ok((await page.locator('.shelf-page h1').textContent()) === 'Maths', 'the shelf page');
+ok((await page.locator('.backlink').getAttribute('href')) === '#/' && /Your library/.test(await page.locator('.backlink').innerText()), 'back to the Library');
+ok((await page.getAttribute('#tabs .tab[data-tab="library"]', 'aria-current')) === 'page', 'under the Library tab');
 ok((await page.locator('.shelf-page .shelf-card').count()) === 2, 'its two folders');
 ok(/1 course · none built yet/.test(await page.locator('.shelf-page .shelf-card').nth(1).innerText()), 'with each folder\'s count');
 await page.screenshot({ path: join(SHOTS, 'shelf-360.png'), fullPage: true });
@@ -77,22 +69,29 @@ ok((await page.locator('.backlink').getAttribute('href')) === '#/shelf/maths', '
 await page.evaluate(() => U.go('#/shelf/maths/nope'));
 await page.waitForSelector('.v-empty');
 ok(/not in Maths any more/.test(await page.locator('.v-empty').innerText()), 'an unknown folder says so');
-// The other choice: the dossiers, as tiles, ending with "In your own words".
-await page.evaluate(() => U.go('#/book'));
-await page.locator('.lib-choice.is-dossiers').click();
+// The old Ready-made courses page opens the home.
+await page.evaluate(() => U.go('#/library/courses'));
+await page.waitForFunction(() => location.hash === '#/' && !!document.querySelector('.lib-home'));
+ok(true, 'the old Ready-made courses address opens the Library');
+// The Book tab: the dossiers, as tiles, ending with "In your own words", then the Map.
+await page.locator('#tabs .tab[data-tab="book"]').click();
 await page.waitForSelector('.lib-dossiers .dl-grid > li:last-child a.own');
-ok((await page.locator('.lib-page h1').textContent()) === 'Dossiers' && (await page.evaluate(() => location.hash)) === '#/library/dossiers', 'Dossiers opens the dossiers, ending with In your own words');
+ok((await page.locator('.lib-page h1').textContent()) === 'Dossiers' && (await page.evaluate(() => location.hash)) === '#/book', 'the Book opens the dossiers, ending with In your own words');
+ok((await page.locator('a.lib-map').getAttribute('href')) === '#/map', 'and links to the Map');
+await page.locator('a.lib-map').click();
+await page.waitForSelector('.map h1');
+ok((await page.getAttribute('#tabs .tab[data-tab="book"]', 'aria-current')) === 'page', 'the Map sits under the Book tab');
+ok((await page.locator('#tabs .tab').count()) === 3, 'three tabs: no Map tab');
 ok(app.errors.length === 0, 'no page errors ' + app.errors.join(' | '));
 await app.close();
 
 app = await open({ ...base });
-await app.page.waitForSelector('.tgrid .tcard');
-await app.page.waitForTimeout(800);
-await app.page.evaluate(() => U.go('#/library/courses'));
-await app.page.waitForFunction(() => /None yet/.test(document.querySelector('.shelf-page') ? document.querySelector('.shelf-page').textContent : ''));
-ok(true, 'no shelves: Ready-made courses says none yet');
+await app.page.waitForFunction(() => /No shelves yet/.test((document.querySelector('.lib-shelves') || {}).textContent || ''));
+ok(true, 'no shelves: the Library says so');
 await app.close();
 const wide = await open({ ...base, 'shelves/maths': SHELF }, 1280);
+await wide.page.waitForSelector('.lib-home .shelf-card');
+await wide.page.screenshot({ path: join(SHOTS, 'home-1280.png') });
 await wide.page.evaluate(() => U.go('#/shelf/maths'));
 await wide.page.waitForSelector('.shelf-page .shelf-card');
 await wide.page.screenshot({ path: join(SHOTS, 'shelf-1280.png') });

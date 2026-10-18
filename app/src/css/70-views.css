@@ -561,27 +561,25 @@ a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
 .shelf-n { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--line-strong); color: var(--muted); font-weight: 700; font-size: .9rem; }
 .shelf-courses .is-built .shelf-n { border-color: var(--heading); color: var(--heading); }
 /* The Library's two choices (73-book.js). */
-.lib-choices { display: grid; gap: 14px; }
-@container view (min-width: 608px) { .lib-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; } }
-.lib-choice { display: flex; align-items: center; gap: 16px; padding: 20px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); color: inherit; text-decoration: none; box-shadow: var(--shadow); }
-.lib-choice:hover { border-color: var(--line-strong); }
-.lib-choice-ico { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--sunk); color: var(--heading); }
-.lib-choice-ico svg { width: 28px; height: 28px; }
-.lib-choice-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
-.lib-choice-t { font-weight: 800; font-size: 1.2rem; color: var(--heading); }
-.lib-choice-x { line-height: 1.45; }
-.lib-choice-m { color: var(--muted); font-size: .875rem; }
-.lib-choice-m:empty { display: none; }
-.lib-choice-go { flex: none; width: 22px; height: 22px; color: var(--muted); }
+/* The Library, the home (77-library.js): the shelves under a "Shelves" eyebrow. The Book ends with
+   a link to the Map (73-book.js), which has no tab of its own. */
+.lib-home { display: flex; flex-direction: column; gap: 20px; }
+.lib-home > .page-head { margin-bottom: 0; }
+.lib-shelves { display: grid; gap: 12px; }
+.lib-shelves > h2.eyebrow { margin: 6px 0 0; }
+.lib-art:empty, .lib-live:empty { display: none; }
+.lib-map { display: flex; align-items: center; gap: 12px; min-height: 60px; margin-top: 24px; padding: 12px 16px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); color: inherit; text-decoration: none; }
+.lib-map:hover { border-color: var(--line-strong); }
+.lib-map-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.lib-map-text strong { color: var(--heading); }
+.lib-map-go { flex: none; width: 20px; height: 20px; color: var(--muted); }
 /* Menus in colour (Dan, 14 Oct): each shelf, folder and course carries its course colour (the
    dossier's six tones, 75-dossier.css [data-tone], from V.toneOf): a band at its left edge, its
-   icon tile and its number in the colour's tint and ink. The Library's two doors take one each,
-   and a Map card a band along its top, like a dossier's tile. Meaning colours are untouched:
+   icon tile and its number in the colour's tint and ink. A Map card takes a band along its top, like a dossier's tile. Meaning colours are untouched:
    teal labels, green finished, amber due, red warnings, ink controls. A course not built yet
    wears its colour faintly, so the built ones stand out. */
 .shelf-card[data-tone], .shelf-course[data-tone] { box-shadow: inset 5px 0 0 var(--acc); }
-.lib-choice[data-tone] { box-shadow: inset 5px 0 0 var(--acc), var(--shadow); }
-.shelf-card[data-tone] .shelf-ico, .lib-choice[data-tone] .lib-choice-ico { background: var(--acc-tint); color: var(--acc-ink); }
+.shelf-card[data-tone] .shelf-ico { background: var(--acc-tint); color: var(--acc-ink); }
 .shelf-course[data-tone] .shelf-n { background: var(--acc-tint); border-color: var(--acc); color: var(--acc-ink); }
 .shelf-courses .is-waiting .shelf-course[data-tone] { box-shadow: inset 5px 0 0 color-mix(in srgb, var(--acc) 40%, var(--surface)); }
 .shelf-courses .is-waiting .shelf-course[data-tone] .shelf-n { background: transparent; border-color: color-mix(in srgb, var(--acc) 50%, var(--surface)); color: var(--muted); }

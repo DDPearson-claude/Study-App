@@ -291,7 +291,7 @@ U.go = function (hash) {
     if (before === hash) U._route();
   }
 };
-// Back to Learn without adding a history entry (bad or unknown addresses). The address is spelled
+// Back to the Library (the home) without adding a history entry (bad or unknown addresses). The address is spelled
 // out in full: a bare '#/' resolves against the document's base URL, which in a srcdoc frame is the
 // host page's, so the frame would load that page instead of moving to its own '#/'.
 U._home = function () {
@@ -374,7 +374,7 @@ U.notHere = function (view) {
   U.clear(view).appendChild(U.h('div', { class: 'empty not-here' },
     U.h('h1', { class: 'not-here-h' }, 'This page is not here'),
     U.h('p', null, 'The link may be wrong, or what it pointed to has been removed.'),
-    U.h('p', { class: 'not-here-go' }, U.h('a', { class: 'btn secondary', href: '#/' }, 'Go to Learn'))));
+    U.h('p', { class: 'not-here-go' }, U.h('a', { class: 'btn secondary', href: '#/' }, 'Go to your library'))));
 };
 U.fail = function (view, e) {
   console.error(e);

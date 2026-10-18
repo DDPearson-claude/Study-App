@@ -78,7 +78,7 @@ async function open({ width = 360, height = 760, hash = '#/', db = seedDb(), ini
 for (const [width, height, layout] of [[360, 760, 'phone'], [1280, 800, 'laptop']]) {
   await test(`toasts: a result shown while a sheet is open is seen, not hidden under it (${layout})`, async () => {
     const app = await open({ width, height });
-    await app.page.locator('.tcard').first().waitFor();
+    await app.page.locator('.lib-home h1').waitFor();
     await app.page.click('#settings-btn');
     await app.page.locator('.sheet').waitFor();
     await app.page.getByRole('button', { name: 'Save a backup' }).click();
@@ -269,7 +269,7 @@ await test('playing with the interactive counts as study time; hidden self-test 
 // ---------- radio groups ----------
 await test('settings radio groups: one Tab stop each, arrow keys move the choice and wrap', async () => {
   const app = await open({ width: 390, height: 844 });
-  await app.page.locator('.tcard').first().waitFor();
+  await app.page.locator('.lib-home h1').waitFor();
   await app.page.click('#settings-btn');
   await app.page.locator('.sheet').waitFor();
   await sleep(200);

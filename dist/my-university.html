@@ -192,16 +192,6 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus, h3[tabindex="-1"]:focus { outl
 .tab svg { width: 24px; height: 24px; }
 .tab[aria-current="page"] { color: var(--heading); }
 .tab[aria-current="page"]::before { content: ""; position: absolute; top: -7px; left: 28%; right: 28%; height: 3px; border-radius: 0 0 3px 3px; background: var(--heading); }
-.tab-badge {
-  min-width: 1.5em; height: 1.5em; padding: 0 5px; border-radius: .75em;
-  background: var(--heading); color: var(--on-heading); font: 800 .75rem/1.5 var(--sans); text-align: center;
-}
-/* Bottom tabs: the badge sits on the icon's top-right corner, measured from the icon (the tab's
-   centre) and sized in px like the icon, so at large text sizes it never covers the clock. */
-:root:not([data-layout="laptop"]) .tab-badge {
-  position: absolute; top: -1px; left: calc(50% + 8px); min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px;
-  font-size: 12px; line-height: 20px; box-shadow: 0 0 0 2px var(--surface);
-}
 .focus .tabs { display: none; }
 :root[data-layout="laptop"] { --shell: var(--wide); }
 :root[data-layout="laptop"], :root[data-layout="laptop"][data-size] { --tabbar-h: 0px; }
@@ -1757,27 +1747,25 @@ a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
 .shelf-n { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--line-strong); color: var(--muted); font-weight: 700; font-size: .9rem; }
 .shelf-courses .is-built .shelf-n { border-color: var(--heading); color: var(--heading); }
 /* The Library's two choices (73-book.js). */
-.lib-choices { display: grid; gap: 14px; }
-@container view (min-width: 608px) { .lib-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; } }
-.lib-choice { display: flex; align-items: center; gap: 16px; padding: 20px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); color: inherit; text-decoration: none; box-shadow: var(--shadow); }
-.lib-choice:hover { border-color: var(--line-strong); }
-.lib-choice-ico { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--sunk); color: var(--heading); }
-.lib-choice-ico svg { width: 28px; height: 28px; }
-.lib-choice-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
-.lib-choice-t { font-weight: 800; font-size: 1.2rem; color: var(--heading); }
-.lib-choice-x { line-height: 1.45; }
-.lib-choice-m { color: var(--muted); font-size: .875rem; }
-.lib-choice-m:empty { display: none; }
-.lib-choice-go { flex: none; width: 22px; height: 22px; color: var(--muted); }
+/* The Library, the home (77-library.js): the shelves under a "Shelves" eyebrow. The Book ends with
+   a link to the Map (73-book.js), which has no tab of its own. */
+.lib-home { display: flex; flex-direction: column; gap: 20px; }
+.lib-home > .page-head { margin-bottom: 0; }
+.lib-shelves { display: grid; gap: 12px; }
+.lib-shelves > h2.eyebrow { margin: 6px 0 0; }
+.lib-art:empty, .lib-live:empty { display: none; }
+.lib-map { display: flex; align-items: center; gap: 12px; min-height: 60px; margin-top: 24px; padding: 12px 16px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); color: inherit; text-decoration: none; }
+.lib-map:hover { border-color: var(--line-strong); }
+.lib-map-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.lib-map-text strong { color: var(--heading); }
+.lib-map-go { flex: none; width: 20px; height: 20px; color: var(--muted); }
 /* Menus in colour (Dan, 14 Oct): each shelf, folder and course carries its course colour (the
    dossier's six tones, 75-dossier.css [data-tone], from V.toneOf): a band at its left edge, its
-   icon tile and its number in the colour's tint and ink. The Library's two doors take one each,
-   and a Map card a band along its top, like a dossier's tile. Meaning colours are untouched:
+   icon tile and its number in the colour's tint and ink. A Map card takes a band along its top, like a dossier's tile. Meaning colours are untouched:
    teal labels, green finished, amber due, red warnings, ink controls. A course not built yet
    wears its colour faintly, so the built ones stand out. */
 .shelf-card[data-tone], .shelf-course[data-tone] { box-shadow: inset 5px 0 0 var(--acc); }
-.lib-choice[data-tone] { box-shadow: inset 5px 0 0 var(--acc), var(--shadow); }
-.shelf-card[data-tone] .shelf-ico, .lib-choice[data-tone] .lib-choice-ico { background: var(--acc-tint); color: var(--acc-ink); }
+.shelf-card[data-tone] .shelf-ico { background: var(--acc-tint); color: var(--acc-ink); }
 .shelf-course[data-tone] .shelf-n { background: var(--acc-tint); border-color: var(--acc); color: var(--acc-ink); }
 .shelf-courses .is-waiting .shelf-course[data-tone] { box-shadow: inset 5px 0 0 color-mix(in srgb, var(--acc) 40%, var(--surface)); }
 .shelf-courses .is-waiting .shelf-course[data-tone] .shelf-n { background: transparent; border-color: color-mix(in srgb, var(--acc) 50%, var(--surface)); color: var(--muted); }
@@ -2388,8 +2376,6 @@ h1 { font-weight: 700; }
 :root:not([data-layout="laptop"]) .tab { flex: 1; min-width: 0; border-radius: 13px; color: var(--ink); font: 600 .75rem/1.2 var(--sans); }
 .tab[aria-current="page"]::before { display: none; }
 :root:not([data-layout="laptop"]) .tab[aria-current="page"] { background: var(--ink); color: var(--bg); }
-.tab-badge { background: var(--due); color: #1D1F22; font-weight: 700; }
-:root:not([data-layout="laptop"]) .tab-badge { box-shadow: 0 0 0 2px var(--surface); }
 :root[data-layout="laptop"] .tab { color: var(--ink); font-weight: 600; border-radius: 12px; }
 :root[data-layout="laptop"] .tab[aria-current="page"] { background: var(--ink); color: var(--bg); }
 :root.framed .app { box-shadow: 0 0 0 2px var(--edge), 0 12px 40px rgba(29, 31, 34, .1); }
@@ -2640,10 +2626,9 @@ h1 { font-weight: 700; }
       <span class="brand-name">My University</span>
     </a>
     <nav class="tabs" id="tabs" aria-label="Sections">
-      <a class="tab" href="#/" data-tab="learn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v13.5M4 19.5A1.5 1.5 0 0 0 5.5 21H20M4 19.5A1.5 1.5 0 0 1 5.5 18H20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Learn</span></a>
-      <a class="tab" href="#/today" data-tab="today"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Today</span><b class="tab-badge" id="today-badge" hidden></b></a>
-      <a class="tab" href="#/map" data-tab="map"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="7" r="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="6" r="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="17" r="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m8 8.5 2.8 6.4M15.9 7.6 13.2 15M8.5 7h7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Map</span></a>
-      <a class="tab" href="#/book" data-tab="book"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10.3 5.2 7.8 4.5 4 4.5v13c3.8 0 6.3.7 8 2m0-13c1.7-1.3 4.2-2 8-2v13c-3.8 0-6.3.7-8 2m0-13v13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Library</span></a>
+      <a class="tab" href="#/" data-tab="library"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10.3 5.2 7.8 4.5 4 4.5v13c3.8 0 6.3.7 8 2m0-13c1.7-1.3 4.2-2 8-2v13c-3.8 0-6.3.7-8 2m0-13v13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Library</span></a>
+      <a class="tab" href="#/today" data-tab="today"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Today</span></a>
+      <a class="tab" href="#/book" data-tab="book"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h11a2 2 0 0 1 2 2v16H6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2M9 8h6M9 12h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Book</span></a>
     </nav>
     <button class="icon-btn settings-btn" id="settings-btn" type="button" aria-label="Reading settings"><span class="aa" aria-hidden="true">Aa</span></button>
   </header>
@@ -2656,7 +2641,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-14-af8f5db";
+U.BUILD = "2026-10-18-7167ca2";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -2947,7 +2932,7 @@ U.go = function (hash) {
     if (before === hash) U._route();
   }
 };
-// Back to Learn without adding a history entry (bad or unknown addresses). The address is spelled
+// Back to the Library (the home) without adding a history entry (bad or unknown addresses). The address is spelled
 // out in full: a bare '#/' resolves against the document's base URL, which in a srcdoc frame is the
 // host page's, so the frame would load that page instead of moving to its own '#/'.
 U._home = function () {
@@ -3030,7 +3015,7 @@ U.notHere = function (view) {
   U.clear(view).appendChild(U.h('div', { class: 'empty not-here' },
     U.h('h1', { class: 'not-here-h' }, 'This page is not here'),
     U.h('p', null, 'The link may be wrong, or what it pointed to has been removed.'),
-    U.h('p', { class: 'not-here-go' }, U.h('a', { class: 'btn secondary', href: '#/' }, 'Go to Learn'))));
+    U.h('p', { class: 'not-here-go' }, U.h('a', { class: 'btn secondary', href: '#/' }, 'Go to your library'))));
 };
 U.fail = function (view, e) {
   console.error(e);
@@ -9095,7 +9080,7 @@ U.interactive = (function () {
 
 // ---- src/js/35-art.js ----
 // Course pictures: a cover picture for each course, drawn by an image model (Z-Image Turbo)
-// through Dan's Hugging Face connector, and shown wherever the course's cover is (V.cover: Learn,
+// through Dan's Hugging Face connector, and shown wherever the course's cover is (V.cover: the Library,
 // the topic page, the Map, the Book) and as a tile on its dossier's At a glance page. Decoration only: it
 // teaches nothing, so it is said to be drawn by an image model, and nothing waits for it.
 //
@@ -9476,7 +9461,7 @@ U.interactive = (function () {
     });
   }
 
-  // Dan says yes (Learn's invitation, Settings). The connector is asked for first, while he is
+  // Dan says yes (the Library's invitation, Settings). The connector is asked for first, while he is
   // looking; pictures are turned on only once it is allowed, so nothing is drawn while the
   // prompt is open. 'undecided': he closed it without choosing (nothing changes).
   function turnOn() {
@@ -12775,7 +12760,9 @@ U.interactive = (function () {
 //       reviewed today, cards in all, Today's time for today's session ("About 5 minutes", from each
 //       card's type; 0 when nothing is waiting), and Today's words when nothing is waiting ("Done for
 //       today", its lead, "Next up: 2 cards tomorrow." or ''), for Learn's reviews row and quiet line
-//   U.review.refreshBadge()                    #today-badge text + hidden
+//   U.review.refreshBadge()                    re-reads what the box holds (the Today tab carries no
+//       badge since the Library became the home, 18 Oct: nothing counts down; #today-badge, if a
+//       page still has one, is filled)
 //   U.review.ideaBands() -> Promise<{tid:{iid: band}}>
 //   U.review.slipping() -> Promise<[{tid, iid, lapses, last}]>   ideas forgotten 2+ times in 30 days
 //       (only Agains since the idea was last learned and since its latest round began)
@@ -13682,10 +13669,11 @@ U.interactive = (function () {
 })();
 
 // ---- src/js/70-learn.js ----
-// Learn (#/): the home screen. Dan asks for a new topic, picks up where he left off, sees when
-// reviews are waiting, and finds every topic as a card with its own generated cover.
-// Also defines U.views, small helpers the topic page, Map and Book share: generated covers,
-// progress summaries, safe outbound links and dates. Contract: docs/ARCHITECTURE.md 4, 9, 10.
+// Learn: the old home screen, unhooked since the Library became the home (Dan, 18 Oct: ready-made
+// courses only; docs/HANDOFF-build-library-home.md). Its screen (the ask box, intake, planning, the
+// topic list and the welcome) stays here as V.learnScreen, routed nowhere, until Dan says it can go.
+// Defines U.views, small helpers the Library, the topic page, Map and Book share: generated covers,
+// course tones, progress summaries, safe outbound links and dates. Contract: docs/ARCHITECTURE.md 4, 9, 10.
 (function () {
   'use strict';
   var V = (U.views = U.views || {});
@@ -14099,7 +14087,7 @@ U.interactive = (function () {
     return h < 5 ? 'Good evening' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
   };
 
-  // ---------- the Learn screen ----------
+  // ---------- the Learn screen (unhooked: no route draws it) ----------
 
   var EXAMPLES = ['Why the sky is blue', 'The fall of Rome', 'How index funds work', 'Why minor keys sound sad', 'Sharpening a kitchen knife'];
   var LEVELS = [['new', 'New to it'], ['some', 'Know a bit'], ['solid', 'Know it well']];
@@ -14108,7 +14096,7 @@ U.interactive = (function () {
   V.INTAKE_MS = 12000;
   var CLOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-  U.routes.add('#/', function (params, ctx) {
+  V.learnScreen = function (params, ctx) {
     var level = 'new', mode = 'study', busy = false, topics = null, progress = {}, seq = 0, job = 0;
 
     // --- ask ---
@@ -14664,7 +14652,7 @@ U.interactive = (function () {
     }
 
     return function () { stop(); lw.stop(); clearTimeout(stuckTimer); clearTimeout(refetch); clearTimeout(slowTimer); window.removeEventListener('resize', fit); if (fitRo) fitRo.disconnect(); cancelAnimationFrame(fitRaf); offPrefs(); };
-  }, { tab: 'learn', title: 'Learn' });
+  };
 })();
 
 // ---- src/js/71-topic.js ----
@@ -14896,13 +14884,13 @@ U.interactive = (function () {
     // an error: a calm "Reconnecting…", and the page fills in by itself.
     function goneView() {
       U.setTitle('Topic not found');
-      return U.h('div', { class: 'tp-state' }, V.back('#/', 'All topics'),
-        V.empty({ h1: true, title: 'This topic is not here any more', text: 'It may have been deleted on another device.', action: { href: '#/', label: 'Back to Learn' } }));
+      return U.h('div', { class: 'tp-state' }, V.back('#/', 'Your library'),
+        V.empty({ h1: true, title: 'This topic is not here any more', text: 'It may have been deleted on another device.', action: { href: '#/', label: 'Your library' } }));
     }
     function errorView() {
       var retrying = !!(failure && failure.retrying);
       if (!retrying) U.setTitle('Topic could not be loaded');
-      return U.h('div', { class: 'tp-state' }, V.back('#/', 'All topics'),
+      return U.h('div', { class: 'tp-state' }, V.back('#/', 'Your library'),
         retrying ? null : U.h('h1', { class: 'tp-state-h' }, 'This topic could not be loaded'),
         V.loadError('This topic', failure && failure.e, retrying, { lead: '' }));
     }
@@ -14912,7 +14900,7 @@ U.interactive = (function () {
     function planningParts() {
       return [['planning', sig(topic.query, topic.title, topic.hue), function () {
         return U.h('div', { class: 'tp-planning-in' },
-          V.back('#/', 'All topics'),
+          V.back('#/', 'Your library'),
           U.h('div', { class: 'tp-split' },
             U.h('div', { class: 'tp-banner is-planning' }, V.cover(topic), U.h('div', { class: 'tcard-shimmer' })),
             U.h('div', { class: 'tp-split-main' },
@@ -14938,7 +14926,7 @@ U.interactive = (function () {
       return [['failed', sig(topic.query, topic.title, topic.error, stopped, ui.retrying), function () {
         var q = V.asTitle(topic.query || topic.title) || 'Your new topic';
         return U.h('div', { class: 'tp-failed-in' },
-          V.back('#/', 'All topics'),
+          V.back('#/', 'Your library'),
           U.h('div', { class: 'tp-split' },
             U.h('div', { class: 'tp-banner is-quiet' }, V.cover(topic)),
             U.h('div', { class: 'tp-split-main' },
@@ -15076,10 +15064,10 @@ U.interactive = (function () {
       var note = cta ? V.lessonNote(next, s.index + 1, s.started, 'tp-next-note') : null;
       // On a laptop the cover sits beside the title (above the rail), not across the page, so
       // the path starts on the first screen.
-      // A ready-made course is reached from its shelf (Learn leaves it out), so back goes there.
+      // A ready-made course is reached from its shelf (the Library's shelves), so back goes there.
       var shelfId = topic.readyMade && topic.readyMade.shelf;
       return U.h('header', { class: 'tp-head' },
-        U.validId(shelfId) ? V.back('#/shelf/' + encodeURIComponent(shelfId), 'Ready-made courses') : V.back('#/', 'All topics'),
+        U.validId(shelfId) ? V.back('#/shelf/' + encodeURIComponent(shelfId), 'Ready-made courses') : V.back('#/', 'Your library'),
         U.h('div', { class: 'tp-split' },
           U.h('div', { class: 'tp-banner' }, V.cover(topic)),
           U.h('div', { class: 'tp-split-main' },
@@ -15413,7 +15401,7 @@ U.interactive = (function () {
       clearTimeout(slowTimer);
       if (frame) cancelAnimationFrame(frame);
     };
-  }, { tab: 'learn', title: 'Topic' });
+  }, { tab: 'library', title: 'Topic' });
 })();
 
 // ---- src/js/72-map.js ----
@@ -15535,6 +15523,7 @@ U.interactive = (function () {
     var listBox = U.h('div', { class: 'map-list' });
     var body = U.h('div', { class: 'map-body' }, U.h('div', { class: 'skeleton map-sk' }));
     ctx.view.appendChild(U.h('div', { class: 'map' },
+      V.back('#/book', 'Book'),
       U.h('header', { class: 'page-head' },
         U.h('p', { class: 'eyebrow' }, 'Map'),
         U.h('h1', null, 'Everything you are learning'),
@@ -15585,7 +15574,7 @@ U.interactive = (function () {
           art: U.h('div', { class: 'v-empty-art map-empty-art' }, emptyArt()),
           title: 'Your map is empty for now',
           text: 'Each topic you start appears here as a cluster of ideas. The dots fill in with colour as you learn and review them.',
-          action: { href: '#/', label: 'Start a topic' },
+          action: { href: '#/', label: 'Your library' },
         }));
         return;
       }
@@ -15659,13 +15648,13 @@ U.interactive = (function () {
     }
 
     return function () { stop(); onPrefs(); drawJob++; renderJob++; if (ro) ro.disconnect(); if (raf) cancelAnimationFrame(raf); };
-  }, { tab: 'map', title: 'Map' });
+  }, { tab: 'book', title: 'Map' });   // no tab of its own: the Book links to it
 })();
 
 // ---- src/js/73-book.js ----
-// The Library tab (#/book): two choices, Dossiers (#/library/dossiers: the course dossiers as
-// tiles, 75-dossier.js draws them, then "In your own words", a link to the Book) and Ready-made
-// courses (76-shelves.js).
+// The Book tab (#/book, and the older address #/library/dossiers): the course dossiers as tiles
+// (75-dossier.js draws them), then "In your own words", then a link to the Map, which has no tab
+// since the Library became the home (Dan, 18 Oct; docs/HANDOFF-build-library-home.md).
 // Book (#/book/words): Dan's own words. For every idea he has explained back ("say it back" in a
 // lesson), it shows his first explanation and his latest, with dates, so he can see how his
 // understanding grew, plus the questions he asked Claude. Exports as Markdown or JSON.
@@ -15761,50 +15750,25 @@ U.interactive = (function () {
       })));
   }
 
-  // The Library opens on two choices (Dan, 7 Oct): his Dossiers, and Ready-made courses.
-  // Each door in a colour of its own (the six course tones, 75-dossier.css): the Dossiers blue, the
-  // courses' folder orange (Dan, 14 Oct: more colour on the menus, within the palette).
-  function choice(href, title, text, meta, cls) {
-    return U.h('a', { class: 'lib-choice ' + cls, href: href, 'data-tone': cls === 'is-courses' ? '2' : '0' },
-      U.h('span', { class: 'lib-choice-ico', 'aria-hidden': 'true' }, U.icon(cls === 'is-courses' ? 'folder' : 'book')),
-      U.h('span', { class: 'lib-choice-body' }, U.h('span', { class: 'lib-choice-t' }, title), U.h('span', { class: 'lib-choice-x' }, text), meta),
-      U.icon('arrow', 'lib-choice-go'));
-  }
-  U.routes.add('#/book', function (params, ctx) {
-    var dosMeta = U.h('span', { class: 'lib-choice-m' }), courseMeta = U.h('span', { class: 'lib-choice-m' });
-    ctx.view.appendChild(U.h('div', { class: 'lib-page lib-home' },
-      U.h('header', { class: 'page-head' },
-        U.h('p', { class: 'eyebrow' }, 'Library'),
-        U.h('h1', null, 'Your library')),
-      U.h('div', { class: 'lib-choices' },
-        choice('#/library/dossiers', 'Dossiers', 'Your course books: every idea you finish, bound as a chapter, and your own words.', dosMeta, 'is-dossiers'),
-        choice('#/library/courses', 'Ready-made courses', 'Whole courses, built in full, to browse at your leisure.', courseMeta, 'is-courses'))));
-    // Counts are a nicety: the choices work without them.
-    if (U.store.dossier && U.store.dossier.list) U.store.dossier.list().then(function (l) {
-      var n = (l || []).filter(function (d) { return d && d.chapters && Object.keys(d.chapters).length; }).length;
-      if (ctx.alive() && n) dosMeta.textContent = n === 1 ? '1 dossier' : n + ' dossiers';
-    }, function () {});
-    if (U.store.shelves) U.store.shelves.list().then(function (l) {
-      var names = (l || []).map(function (x) { return x && typeof x.title === 'string' ? x.title.trim() : ''; }).filter(Boolean);
-      if (ctx.alive() && names.length) courseMeta.textContent = names.join(' · ');
-    }, function () {});
-  }, { tab: 'book', title: 'Library' });
-
-  // The Library's Dossiers (#/library/dossiers): the dossiers as tiles (75-dossier.js draws them),
-  // ending with "In your own words".
-  U.routes.add('#/library/dossiers', function (params, ctx) {
+  // The Book: the dossiers as tiles, ending with "In your own words", and the Map after them.
+  function bookView(params, ctx) {
     var own = U.dossier && U.dossier.ownTile ? U.dossier.ownTile('#/book/words')
       : U.h('a', { class: 'own', href: '#/book/words' }, 'In your own words');
     var slot = U.h('div', { class: 'lib-dossiers' });
     ctx.view.appendChild(U.h('div', { class: 'lib-page' },
-      V.back('#/book', 'Library'),
       U.h('header', { class: 'page-head dl-head' },
+        U.h('p', { class: 'eyebrow' }, 'Your Book'),
         U.h('h1', null, 'Dossiers'),
         U.h('p', { class: 'muted' }, 'A field guide for every course, a chapter per idea.')),
-      U.h('div', { class: 'dos lib-body' }, slot)));
+      U.h('div', { class: 'dos lib-body' }, slot),
+      U.h('a', { class: 'lib-map', href: '#/map' },
+        U.h('span', { class: 'lib-map-text' }, U.h('strong', null, 'The Map'), U.h('span', { class: 'muted small' }, 'Every idea you have learned, and how well it is holding up.')),
+        U.icon('arrow', 'lib-map-go'))));
     if (U.dossier && typeof U.dossier.shelf === 'function') return U.dossier.shelf(slot, ctx, { after: own });
     slot.appendChild(own);
-  }, { tab: 'book', title: 'Dossiers' });
+  }
+  U.routes.add('#/book', bookView, { tab: 'book', title: 'Book' });
+  U.routes.add('#/library/dossiers', bookView, { tab: 'book', title: 'Dossiers' });
 
   U.routes.add('#/book/words', function (params, ctx) {
     var book = [];
@@ -15821,7 +15785,7 @@ U.interactive = (function () {
         } } }, 'Save a full copy')));
     var body = U.h('div', { class: 'book-body' }, U.h('div', { class: 'skeleton book-sk' }));
     ctx.view.appendChild(U.h('div', { class: 'book' },
-      V.back('#/library/dossiers', 'Dossiers'),
+      V.back('#/book', 'Book'),
       U.h('header', { class: 'page-head' },
         U.h('p', { class: 'eyebrow' }, 'Your Book'),
         U.h('h1', null, 'In your own words'),
@@ -15839,7 +15803,7 @@ U.interactive = (function () {
           art: U.h('div', { class: 'v-empty-art book-empty-art', 'aria-hidden': 'true' }, U.icon('book')),
           title: 'Your Book fills as you explain ideas',
           text: 'At the end of each idea you put it into your own words. Those explanations collect here, first try and latest side by side, so you can watch your understanding grow.',
-          action: { href: '#/', label: 'Go to Learn' },
+          action: { href: '#/', label: 'Go to your library' },
         }));
         return;
       }
@@ -16030,8 +15994,8 @@ U.interactive = (function () {
       var pictures = null;
       if (U.art) {
         var artStatus = U.h('div', { class: 'set-art-status' });
-        // Every course still without a picture (Learn queues them too, whenever it opens).
-        var queueAll = function () { U.store.topics.list().then(function (l) { U.art.want(l); }, function () { /* Learn queues them */ }); };
+        // Every course still without a picture (the Library queues them too, whenever it opens).
+        var queueAll = function () { U.store.topics.list().then(function (l) { U.art.want(l); }, function () { /* the Library queues them */ }); };
         var checkArt = function () {
           U.clear(artStatus);
           var perms = U.rt && U.rt.permissions;
@@ -16168,7 +16132,7 @@ U.interactive = (function () {
 // profile/dossiers/{tid}/chapters/{iid} (one doc per chapter, under LIMIT bytes: a plate that
 // would not fit is left out with a note). A dossier outlives its course when Dan keeps it.
 //
-// Pages, in reading order (model().leaves; the Library itself is #/library/dossiers in 73-book.js):
+// Pages, in reading order (model().leaves; the dossiers' shelf itself is the Book, #/book in 73-book.js):
 //   #/book/:tid  at a glance (the cover and contents in one; /contents, an older address, opens it
 //   at the chapters) · per bound chapter: /:iid the chapter, with its plate (/plate, older: at the
 //   plate; /plate/play: awake) and /:iid/practice put it into practice and its sources (/tests, an
@@ -16709,11 +16673,11 @@ U.interactive = (function () {
   // =====================================================================================
   // THE READER: one page of tiles per route, in reading order, with the page bar
   // =====================================================================================
-  var LIBRARY = '#/library/dossiers';
+  var LIBRARY = '#/book';   // the Book tab: the dossiers' shelf (73-book.js)
   function reader(kind) {
     return function (params, ctx) {
       var tid = params.tid, iid = params.iid || null;
-      var root = h('div', { class: 'dos reader' }, topBar({ href: LIBRARY, label: 'the Library' }, [{ t: 'library' }]),
+      var root = h('div', { class: 'dos reader' }, topBar({ href: LIBRARY, label: 'the Book' }, [{ t: 'book' }]),
         h('div', { class: 'dos-page' }, h('div', { class: 't-full skeleton dos-sk' })));
       ctx.view.appendChild(root);
       var S = { root: root, ctx: ctx, plates: [], io: null, pop: null, popFrom: null, offs: [] };
@@ -16777,7 +16741,7 @@ U.interactive = (function () {
   // of 2" drops away as one piece (75-dossier.css), never cut to "I…". o.at: what the middle says
   // instead of the leaf's own words (the back matter opened at the bibliography).
   function pageBar(M, t, o) {
-    var cur = t.at, lib = { href: LIBRARY, k: 'Library' };
+    var cur = t.at, lib = { href: LIBRARY, k: 'Book' };
     function link(l, dir) {
       var leaf = l !== lib, name = leaf ? barName(l, cur) : { shown: l.k, more: '' };
       return h('a', { class: 'pb-' + dir + (leaf ? ' is-leaf' : ''), href: l.href, rel: leaf ? dir : null },
@@ -16888,7 +16852,7 @@ U.interactive = (function () {
       kids.push(tile('a', 'grey', { span: more.length === 1 ? 'full' : 'half', cls: 'g-more', attrs: { href: M.base + x[1] } },
         [h('span', { class: 't-label' }, x[0]), h('span', { class: 'g-more-n' }, x[2]), h('span', { class: 't-open' }, 'Open', icon('next'))]));
     });
-    pageOf(S, M, { leaf: 'glance', up: { href: LIBRARY, label: 'the Library' }, path: [{ t: 'library' }, { t: slugOf(b), cls: 'fit' }], cls: 'dos-glance', kids: kids });
+    pageOf(S, M, { leaf: 'glance', up: { href: LIBRARY, label: 'the Book' }, path: [{ t: 'book' }, { t: slugOf(b), cls: 'fit' }], cls: 'dos-glance', kids: kids });
     if (at === 'chapters') scrollTo(document.getElementById('chapters'));
   }
   // Bound: progress, so the ink tile (a green ring once finished). Said once to a screen reader.
@@ -17244,7 +17208,7 @@ U.interactive = (function () {
   }
 
   // =====================================================================================
-  // THE LIBRARY'S DOSSIERS (73-book.js draws the page around them)
+  // THE BOOK'S DOSSIERS (73-book.js draws the page around them)
   // =====================================================================================
   // The lead tile is the dossier most recently bound that is still being written; then the rest
   // as half tiles: still being written, finished, kept. o.after: a tile to end the grid with
@@ -17562,7 +17526,7 @@ U.interactive = (function () {
   }
 
   // =====================================================================================
-  // ROUTES (the Library's #/book and #/library/dossiers, and the Book's #/book/words, are
+  // ROUTES (the Book's #/book and #/library/dossiers, and its #/book/words, are
   // 73-book.js's, registered first)
   // =====================================================================================
   var R = { focus: true, tab: 'book', title: 'Dossier' };
@@ -17591,7 +17555,7 @@ U.interactive = (function () {
 // 20-store.js S.shelves), so Claude's build sessions fill them in without a new version of the
 // app: a course with a tid opens that topic; one without says it is not built yet.
 //
-//   #/library/courses                      the Library's Ready-made courses: every shelf (Maths…)
+//   #/                                     the Library, the home: every shelf (77-library.js)
 //   #/shelf/:sid                           a shelf: its folders
 //   #/shelf/:sid/:fid                      a folder: its courses, in order
 (function () {
@@ -17645,27 +17609,8 @@ U.interactive = (function () {
   }
   function loadError(box, what, e) { U.clear(box).appendChild(V && V.loadError ? V.loadError(what, e, false) : U.h('p', { class: 'muted' }, what + ' could not be loaded just now.')); }
 
-  // ---------- the Library's Ready-made courses ----------
-  U.routes.add('#/library/courses', function (params, ctx) {
-    var box = U.h('div', { class: 'shelf-grid' }, U.h('div', { class: 'skeleton', style: 'height:96px;border-radius:18px' }));
-    ctx.view.appendChild(U.h('div', { class: 'shelf-page' },
-      V.back('#/book', 'Library'),
-      U.h('header', { class: 'page-head' },
-        U.h('p', { class: 'eyebrow' }, 'Library'),
-        U.h('h1', null, 'Ready-made courses'),
-        U.h('p', { class: 'muted' }, 'Whole courses, built in full, to browse at your leisure.')),
-      box));
-    return U.store.shelves.watch(function (list) {
-      if (!ctx.alive()) return;
-      var shelves = order(list.filter(function (s) { return U.validId(s.__id) && str(s.title) && folders(s).length; }));
-      U.clear(box);
-      if (!shelves.length) { box.appendChild(U.h('p', { class: 'muted' }, 'None yet.')); return; }
-      shelves.forEach(function (s) {
-        var f = folders(s);
-        box.appendChild(card('#/shelf/' + encodeURIComponent(s.__id), str(s.title), str(s.blurb), (f.length === 1 ? '1 folder' : f.length + ' folders') + ' · ' + counts(allCourses(s))));
-      });
-    }, function (e) { if (ctx.alive()) loadError(box, 'Ready-made courses', e); });
-  }, { tab: 'book', title: 'Ready-made courses' });
+  // The old Ready-made courses page: the shelves are the Library's home now (77-library.js).
+  U.routes.add('#/library/courses', function () { U._home(); }, { tab: 'library' });
 
   // ---------- a shelf, and one of its folders ----------
   function page(params, ctx) {
@@ -17675,15 +17620,15 @@ U.interactive = (function () {
     U.store.shelves.get(sid).then(function (shelf) {
       if (!ctx.alive()) return;
       if (!shelf || !folders(shelf).length) {
-        U.clear(box).appendChild(V.empty({ h1: true, title: 'Not here', text: 'These ready-made courses are not here any more.', action: { href: '#/library/courses', label: 'Ready-made courses' } }));
+        U.clear(box).appendChild(V.empty({ h1: true, title: 'Not here', text: 'These ready-made courses are not here any more.', action: { href: '#/', label: 'Your library' } }));
         return;
       }
       var title = str(shelf.title);
       if (!fid) {
         U.setTitle(title);
-        U.clear(box).append(V.back('#/library/courses', 'Ready-made courses'),
+        U.clear(box).append(V.back('#/', 'Your library'),
           U.h('header', { class: 'page-head' },
-            U.h('p', { class: 'eyebrow' }, 'Ready-made courses'),
+            U.h('p', { class: 'eyebrow' }, 'Your library'),
             U.h('h1', { tabindex: '-1' }, title),
             str(shelf.blurb) ? U.h('p', { class: 'muted' }, str(shelf.blurb)) : null),
           U.h('div', { class: 'shelf-grid' }, folders(shelf).map(function (f) {
@@ -17719,10 +17664,96 @@ U.interactive = (function () {
         })));
     }, function (e) { if (ctx.alive()) loadError(box, 'These courses', e); });
   }
-  U.routes.add('#/shelf/:sid', page, { tab: 'book', title: 'Ready-made courses' });
-  U.routes.add('#/shelf/:sid/:fid', page, { tab: 'book', title: 'Ready-made courses' });
+  U.routes.add('#/shelf/:sid', page, { tab: 'library', title: 'Your library' });
+  U.routes.add('#/shelf/:sid/:fid', page, { tab: 'library', title: 'Your library' });
 
-  U.shelves = {};
+  // For the Library's home (77-library.js): the same reads and the same cards.
+  U.shelves = { folders: folders, courses: courses, built: built, allCourses: allCourses, order: order, card: card, counts: counts, str: str, loadError: loadError };
+})();
+
+// ---- src/js/77-library.js ----
+// The Library, the home (#/): ready-made courses only (Dan, 18 Oct: "material and content I can
+// dive into when I feel like learning something new or brushing up"). It greets him and shows the
+// shelves as 76-shelves.js draws them; nothing on it is due or counts down. It also queues the
+// course pictures (35-art.js) and, once he has a course, asks once whether he wants them (below the
+// shelves, never in the way), as Learn did.
+// Design: docs/design/library-home/README.md; build order: docs/HANDOFF-build-library-home.md.
+(function () {
+  'use strict';
+  var V = U.views, SH = U.shelves;
+
+  U.routes.add('#/', function (params, ctx) {
+    var eyebrow = U.h('p', { class: 'eyebrow' }, V.greeting());
+    var artBox = U.h('div', { class: 'lib-art' });
+    var shelvesBox = U.h('div', { class: 'shelf-grid' }, U.h('div', { class: 'skeleton', style: 'height:96px;border-radius:18px' }));
+    ctx.view.appendChild(U.h('div', { class: 'lib-page lib-home' },
+      U.h('header', { class: 'page-head' }, eyebrow, U.h('h1', null, 'Your library')),
+      U.h('section', { class: 'lib-shelves', 'aria-labelledby': 'lib-shelves-h' },
+        U.h('h2', { class: 'eyebrow', id: 'lib-shelves-h' }, 'Shelves'),
+        shelvesBox),
+      artBox));
+
+    // Hello by first name when the runtime knows it.
+    if (U.rt.user && U.rt.user.me) {
+      Promise.resolve(U.rt.user.me()).then(function (me) {
+        var first = me && me.name ? String(me.name).trim().split(/\s+/)[0] : '';
+        if (first && ctx.alive()) eyebrow.textContent = V.greeting() + ', ' + first;
+      }, function () {});
+    }
+
+    // Course pictures: the ones still to draw are queued; the question is asked once.
+    // invite: null (none shown) | 'asking' (the card is up) | 'answered' (his answer, said back).
+    var invite = null, hasCourse = false;
+    function paintInvite() {
+      if (invite === 'answered') return;
+      var ask = !!U.art && !!(U.settings && U.settings.loaded) && !U.art.asked() && hasCourse;
+      if (!ask) { if (invite) { U.clear(artBox); invite = null; } return; }
+      if (invite) return;
+      invite = 'asking';
+      U.art.available().then(function (ok) {
+        if (!ctx.alive() || invite !== 'asking') return;
+        if (!ok || U.art.asked()) { invite = null; return; }
+        U.clear(artBox).appendChild(V.artInvite(function (note) {
+          if (!note || !ctx.alive()) return;
+          var had = artBox.contains(document.activeElement);
+          invite = 'answered';
+          var p = U.h('p', { class: 'muted small art-note', tabindex: '-1', role: 'status' }, note);
+          U.clear(artBox).appendChild(p);
+          if (had || document.activeElement === document.body) p.focus();
+        }));
+      });
+    }
+    var offPrefs = U.on('prefs', paintInvite);
+    var stopTopics = U.store.topics.watch(function (list) {
+      list = list || [];
+      hasCourse = list.some(function (t) { return t && t.status === 'ready'; });
+      if (U.art) { U.art.want(list); paintInvite(); }
+    }, function () { /* the shelves still show; pictures wait for the next visit */ });
+
+    // The shelves, live. A watch that stops once they are shown keeps them and says so above them
+    // until its next snapshot (V.liveError); before they are shown it says "Reconnecting…" while
+    // the store retries, and only a refusal is an error, with Try again.
+    var liveBox = U.h('div', { class: 'lib-live' }), shown = false;
+    shelvesBox.parentNode.insertBefore(liveBox, shelvesBox);
+    var stopShelves = U.store.shelves.watch(function (list) {
+      if (!ctx.alive()) return;
+      shown = true;
+      U.clear(liveBox);
+      var shelves = SH.order(list.filter(function (s) { return U.validId(s.__id) && SH.str(s.title) && SH.folders(s).length; }));
+      U.clear(shelvesBox);
+      if (!shelves.length && U.rt.savedLate()) { shelvesBox.appendChild(V.savedLate('your shelves')); return; }
+      if (!shelves.length) { shelvesBox.appendChild(U.h('p', { class: 'muted' }, 'No shelves yet. Courses arrive here as they are built.')); return; }
+      shelves.forEach(function (s) {
+        var f = SH.folders(s);
+        shelvesBox.appendChild(SH.card('#/shelf/' + encodeURIComponent(s.__id), SH.str(s.title), SH.str(s.blurb), (f.length === 1 ? '1 folder' : f.length + ' folders') + ' · ' + SH.counts(SH.allCourses(s))));
+      });
+    }, function (e, info) {
+      if (!ctx.alive()) return;
+      if (shown) { if (!info || !info.retrying) U.clear(liveBox).appendChild(V.liveError('Your shelves', e)); return; }
+      U.clear(shelvesBox).appendChild(V.loadError('Your shelves', e, V.reconnecting(e, info)));
+    });
+    return function () { stopShelves(); stopTopics(); offPrefs(); };
+  }, { tab: 'library', title: 'Your library', screen: 'library' });
 })();
 
 // ---- src/js/99-boot.js ----

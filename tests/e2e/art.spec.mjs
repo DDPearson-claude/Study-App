@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Browser tests for course pictures (35-art.js): drawn through the Hugging Face connector
 // ('Claude MCP', Z-Image Turbo) for every planned course, one at a time, and shown on the covers
-// (Learn, the topic page), in Settings and as a tile on the dossier's At a glance page. Asked once on Learn;
+// (the topic page), in Settings and as a tile on the dossier's At a glance page. Asked once on the Library;
 // off means hidden and never drawn; a refused connector stops the queue; a failure is said only
 // where Dan asked; deleting a course takes its picture unless its dossier is kept.
 // The full build, with the stub runtime. Screenshots land in tests/out/art/.
@@ -140,34 +140,29 @@ await test('pictures on: every planned course gets one, drawn one at a time, sho
     assert(d.src.length < 190000, tid + ': under the limit: ' + d.src.length);
     assert(/^A quiet harbour wall/.test(d.scene) && d.model === 'Z-Image Turbo' && d.seed > 553645 && !d.by, tid + ': scene, model, seed, no holder: ' + JSON.stringify({ ...d, src: '' }));
   }
-  // Every course card shows its own picture (the continue card too).
-  await app.page.waitForFunction((n) => document.querySelectorAll('.tgrid svg.cover image.cv-art').length >= n, TIDS.length, { timeout: 10000 });
-  const hrefs = await covers(app, '.tgrid');
-  assert(hrefs.every((h) => /^data:image\//.test(h || '')), 'every card has a picture');
-  const size = await app.page.$eval('.tgrid svg.cover image.cv-art', (i) => { const r = i.getBoundingClientRect(); return [r.width, r.height]; });
-  assert(size[0] > 40 && size[1] > 40, 'drawn at a real size: ' + size);
-  await shot(app, 'learn-390');
   // The topic page: the banner, and the line that says what it is.
   await go(app, '#/t/' + TIDS[0]);
   await app.page.waitForSelector('.tp-banner svg.cover image.cv-art');
   const line = await app.page.locator('.tp-art').innerText();
   assert(/drawn by an image model, for decoration only/.test(line) && /Draw a new one/.test(line), 'said plainly: ' + line);
+  const size = await app.page.$eval('.tp-banner svg.cover image.cv-art', (i) => { const r = i.getBoundingClientRect(); return [r.width, r.height]; });
+  assert(size[0] > 40 && size[1] > 40, 'drawn at a real size: ' + size);
   await shot(app, 'topic-390');
   // Dark mode: a little dimmer.
-  const dark = await open({ dark: true, width: 1280, height: 900, db: seedDb({ prefs: { pictures: true, theme: 'dark' }, extra: Object.fromEntries(TIDS.map((t) => ['art/' + t, artDoc(t)])) }), tools: con.tools });
-  await dark.page.waitForSelector('.tgrid svg.cover image.cv-art');
+  const dark = await open({ dark: true, width: 1280, height: 900, hash: '#/t/' + TIDS[1], db: seedDb({ prefs: { pictures: true, theme: 'dark' }, extra: Object.fromEntries(TIDS.map((t) => ['art/' + t, artDoc(t)])) }), tools: con.tools });
+  await dark.page.waitForSelector('.tp-banner svg.cover image.cv-art');
   await dark.page.waitForTimeout(900);   // the fade-in as the pictures arrive
-  eq(await dark.page.$eval('.tgrid svg.cover image.cv-art', (i) => getComputedStyle(i).opacity), '0.86', 'dimmer in dark mode');
-  await shot(dark, 'learn-1280-dark');
+  eq(await dark.page.$eval('.tp-banner svg.cover image.cv-art', (i) => getComputedStyle(i).opacity), '0.86', 'dimmer in dark mode');
+  await shot(dark, 'topic-1280-dark');
   eq(con.calls.length, TIDS.length, 'courses that have a picture are not drawn again');
 });
 
-await test('not asked yet: Learn asks once, below the topics; "No thanks" turns them off for good', async () => {
+await test('not asked yet: the Library asks once, below the shelves; "No thanks" turns them off for good', async () => {
   const con = connector();
   const app = await open({ tools: con.tools });
   await app.page.waitForSelector('.art-invite');
-  const box = await app.page.evaluate(() => { const a = document.querySelector('.learn-art').getBoundingClientRect().top, t = document.querySelector('.learn-topics').getBoundingClientRect().bottom; return a >= t - 1; });
-  assert(box, 'below his topics, never in the way');
+  const box = await app.page.evaluate(() => { const a = document.querySelector('.lib-art').getBoundingClientRect().top, t = document.querySelector('.lib-shelves').getBoundingClientRect().bottom; return a >= t - 1; });
+  assert(box, 'below the shelves, never in the way');
   assert(/Pictures for your courses/.test(await app.page.locator('.art-invite').innerText()), 'the invitation');
   await shot(app, 'invite-390');
   await app.page.locator('.art-invite button', { hasText: 'No thanks' }).click();
@@ -175,11 +170,11 @@ await test('not asked yet: Learn asks once, below the topics; "No thanks" turns 
   await app.page.waitForFunction((p) => { const d = window.__CLAUDE_STUB__.get(p); return d && d.prefs && d.prefs.pictures === false; }, `data/users/${UID}/profile`, { timeout: 10000 });
   await app.page.waitForTimeout(1200);
   eq(con.calls.length, 0, 'nothing drawn');
-  // (The stub's db starts afresh on a reload, so Learn is left and opened again instead.)
+  // (The stub's db starts afresh on a reload, so the Library is left and opened again instead.)
   await go(app, '#/map');
   await app.page.waitForTimeout(300);
   await go(app, '#/');
-  await app.page.waitForSelector('.tgrid .tcard');
+  await app.page.waitForSelector('.lib-home h1');
   await app.page.waitForTimeout(800);
   eq(await app.page.locator('.art-invite').count(), 0, 'never asked again');
 });
@@ -217,11 +212,11 @@ await test('topic page: drawing again keeps the old picture until the new one is
   assert(d.status === 'failed' && d.code === 'tool_error' && d.src === old, 'recorded, old picture kept: ' + JSON.stringify({ ...d, src: d.src.slice(0, 22) }));
   eq((await covers(b, '.tp-banner'))[0], old, 'still shown');
   await shot(b, 'topic-failed-390');
-  // Learn never shows a picture failure as an error.
+  // The Library never shows a picture failure as an error.
   await go(b, '#/');
-  await b.page.waitForSelector('.tgrid .tcard');
+  await b.page.waitForSelector('.lib-home h1');
   await b.page.waitForTimeout(800);
-  eq(await b.page.locator('.toast.bad, .toast[data-kind="bad"]').count(), 0, 'no red toast on Learn');
+  eq(await b.page.locator('.toast.bad, .toast[data-kind="bad"]').count(), 0, 'no red toast on the Library');
 });
 
 await test('a connector that is not allowed stops the queue after one try', async () => {
@@ -239,7 +234,7 @@ await test('a connector that is not allowed stops the queue after one try', asyn
 
 await test('no connector: never asked, nothing drawn, Settings says how to connect it', async () => {
   const app = await open({ tools: {} });
-  await app.page.waitForSelector('.tgrid .tcard');
+  await app.page.waitForSelector('.lib-home h1');
   await app.page.waitForTimeout(1200);
   eq(await app.page.locator('.art-invite').count(), 0, 'no invitation without the connector');
   await app.page.evaluate(() => U.settings.open());
@@ -254,8 +249,8 @@ await test('no connector: never asked, nothing drawn, Settings says how to conne
 await test('off: pictures hidden and never drawn; Settings turns them on and off again', async () => {
   const con = connector();
   const db = seedDb({ prefs: { pictures: false }, extra: { ['art/' + TIDS[0]]: artDoc(TIDS[0]) } });
-  const app = await open({ width: 1280, height: 900, db, tools: con.tools });
-  await app.page.waitForSelector('.tgrid .tcard');
+  const app = await open({ width: 1280, height: 900, db, tools: con.tools, hash: '#/t/' + TIDS[0] });
+  await app.page.waitForSelector('.tp-banner svg.cover');
   await app.page.waitForTimeout(1000);
   eq(await app.page.locator('svg.cover image.cv-art').count(), 0, 'hidden while off');
   eq(con.calls.length, 0, 'nothing drawn while off');
@@ -266,7 +261,7 @@ await test('off: pictures hidden and never drawn; Settings turns them on and off
   await shot(app, 'settings-1280');
   await ready(app, TIDS.length);
   eq(con.calls.length, TIDS.length - 1, 'drawn for the courses without one');
-  await app.page.waitForFunction((n) => document.querySelectorAll('.tgrid svg.cover image.cv-art').length >= n, TIDS.length, { timeout: 10000 });
+  await app.page.waitForSelector('.tp-banner svg.cover image.cv-art', { timeout: 10000 });
   await app.page.click('.set-switch:has(input[name=pictures])');
   await app.page.waitForFunction(() => document.querySelectorAll('svg.cover image.cv-art').length === 0, null, { timeout: 5000 });
   eq(await app.page.locator('.set-art-status').innerText(), '', 'no status while off');
@@ -358,7 +353,7 @@ await test('closed without choosing: nothing changes and the card stays to answe
 await test('unattended drawing never asks: pictures on, but the connector not yet allowed here', async () => {
   const con = connector();
   const app = await open({ db: seedDb({ prefs: { pictures: true } }), tools: con.tools, permissions: { states: { [PERM]: 'prompt' } } });
-  await app.page.waitForSelector('.tgrid .tcard');
+  await app.page.waitForSelector('.lib-home h1');
   await app.page.waitForTimeout(2500);
   eq(con.calls.length, 0, 'no unattended call that would open the prompt');
   eq(await permsCalls(app), 0, 'and no request either');

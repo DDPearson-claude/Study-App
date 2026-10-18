@@ -1,5 +1,5 @@
 // Course pictures: a cover picture for each course, drawn by an image model (Z-Image Turbo)
-// through Dan's Hugging Face connector, and shown wherever the course's cover is (V.cover: Learn,
+// through Dan's Hugging Face connector, and shown wherever the course's cover is (V.cover: the Library,
 // the topic page, the Map, the Book) and as a tile on its dossier's At a glance page. Decoration only: it
 // teaches nothing, so it is said to be drawn by an image model, and nothing waits for it.
 //
@@ -380,7 +380,7 @@
     });
   }
 
-  // Dan says yes (Learn's invitation, Settings). The connector is asked for first, while he is
+  // Dan says yes (the Library's invitation, Settings). The connector is asked for first, while he is
   // looking; pictures are turned on only once it is allowed, so nothing is drawn while the
   // prompt is open. 'undecided': he closed it without choosing (nothing changes).
   function turnOn() {

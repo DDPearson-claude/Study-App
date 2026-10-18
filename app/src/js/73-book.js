@@ -1,6 +1,6 @@
-// The Library tab (#/book): two choices, Dossiers (#/library/dossiers: the course dossiers as
-// tiles, 75-dossier.js draws them, then "In your own words", a link to the Book) and Ready-made
-// courses (76-shelves.js).
+// The Book tab (#/book, and the older address #/library/dossiers): the course dossiers as tiles
+// (75-dossier.js draws them), then "In your own words", then a link to the Map, which has no tab
+// since the Library became the home (Dan, 18 Oct; docs/HANDOFF-build-library-home.md).
 // Book (#/book/words): Dan's own words. For every idea he has explained back ("say it back" in a
 // lesson), it shows his first explanation and his latest, with dates, so he can see how his
 // understanding grew, plus the questions he asked Claude. Exports as Markdown or JSON.
@@ -96,50 +96,25 @@
       })));
   }
 
-  // The Library opens on two choices (Dan, 7 Oct): his Dossiers, and Ready-made courses.
-  // Each door in a colour of its own (the six course tones, 75-dossier.css): the Dossiers blue, the
-  // courses' folder orange (Dan, 14 Oct: more colour on the menus, within the palette).
-  function choice(href, title, text, meta, cls) {
-    return U.h('a', { class: 'lib-choice ' + cls, href: href, 'data-tone': cls === 'is-courses' ? '2' : '0' },
-      U.h('span', { class: 'lib-choice-ico', 'aria-hidden': 'true' }, U.icon(cls === 'is-courses' ? 'folder' : 'book')),
-      U.h('span', { class: 'lib-choice-body' }, U.h('span', { class: 'lib-choice-t' }, title), U.h('span', { class: 'lib-choice-x' }, text), meta),
-      U.icon('arrow', 'lib-choice-go'));
-  }
-  U.routes.add('#/book', function (params, ctx) {
-    var dosMeta = U.h('span', { class: 'lib-choice-m' }), courseMeta = U.h('span', { class: 'lib-choice-m' });
-    ctx.view.appendChild(U.h('div', { class: 'lib-page lib-home' },
-      U.h('header', { class: 'page-head' },
-        U.h('p', { class: 'eyebrow' }, 'Library'),
-        U.h('h1', null, 'Your library')),
-      U.h('div', { class: 'lib-choices' },
-        choice('#/library/dossiers', 'Dossiers', 'Your course books: every idea you finish, bound as a chapter, and your own words.', dosMeta, 'is-dossiers'),
-        choice('#/library/courses', 'Ready-made courses', 'Whole courses, built in full, to browse at your leisure.', courseMeta, 'is-courses'))));
-    // Counts are a nicety: the choices work without them.
-    if (U.store.dossier && U.store.dossier.list) U.store.dossier.list().then(function (l) {
-      var n = (l || []).filter(function (d) { return d && d.chapters && Object.keys(d.chapters).length; }).length;
-      if (ctx.alive() && n) dosMeta.textContent = n === 1 ? '1 dossier' : n + ' dossiers';
-    }, function () {});
-    if (U.store.shelves) U.store.shelves.list().then(function (l) {
-      var names = (l || []).map(function (x) { return x && typeof x.title === 'string' ? x.title.trim() : ''; }).filter(Boolean);
-      if (ctx.alive() && names.length) courseMeta.textContent = names.join(' · ');
-    }, function () {});
-  }, { tab: 'book', title: 'Library' });
-
-  // The Library's Dossiers (#/library/dossiers): the dossiers as tiles (75-dossier.js draws them),
-  // ending with "In your own words".
-  U.routes.add('#/library/dossiers', function (params, ctx) {
+  // The Book: the dossiers as tiles, ending with "In your own words", and the Map after them.
+  function bookView(params, ctx) {
     var own = U.dossier && U.dossier.ownTile ? U.dossier.ownTile('#/book/words')
       : U.h('a', { class: 'own', href: '#/book/words' }, 'In your own words');
     var slot = U.h('div', { class: 'lib-dossiers' });
     ctx.view.appendChild(U.h('div', { class: 'lib-page' },
-      V.back('#/book', 'Library'),
       U.h('header', { class: 'page-head dl-head' },
+        U.h('p', { class: 'eyebrow' }, 'Your Book'),
         U.h('h1', null, 'Dossiers'),
         U.h('p', { class: 'muted' }, 'A field guide for every course, a chapter per idea.')),
-      U.h('div', { class: 'dos lib-body' }, slot)));
+      U.h('div', { class: 'dos lib-body' }, slot),
+      U.h('a', { class: 'lib-map', href: '#/map' },
+        U.h('span', { class: 'lib-map-text' }, U.h('strong', null, 'The Map'), U.h('span', { class: 'muted small' }, 'Every idea you have learned, and how well it is holding up.')),
+        U.icon('arrow', 'lib-map-go'))));
     if (U.dossier && typeof U.dossier.shelf === 'function') return U.dossier.shelf(slot, ctx, { after: own });
     slot.appendChild(own);
-  }, { tab: 'book', title: 'Dossiers' });
+  }
+  U.routes.add('#/book', bookView, { tab: 'book', title: 'Book' });
+  U.routes.add('#/library/dossiers', bookView, { tab: 'book', title: 'Dossiers' });
 
   U.routes.add('#/book/words', function (params, ctx) {
     var book = [];
@@ -156,7 +131,7 @@
         } } }, 'Save a full copy')));
     var body = U.h('div', { class: 'book-body' }, U.h('div', { class: 'skeleton book-sk' }));
     ctx.view.appendChild(U.h('div', { class: 'book' },
-      V.back('#/library/dossiers', 'Dossiers'),
+      V.back('#/book', 'Book'),
       U.h('header', { class: 'page-head' },
         U.h('p', { class: 'eyebrow' }, 'Your Book'),
         U.h('h1', null, 'In your own words'),
@@ -174,7 +149,7 @@
           art: U.h('div', { class: 'v-empty-art book-empty-art', 'aria-hidden': 'true' }, U.icon('book')),
           title: 'Your Book fills as you explain ideas',
           text: 'At the end of each idea you put it into your own words. Those explanations collect here, first try and latest side by side, so you can watch your understanding grow.',
-          action: { href: '#/', label: 'Go to Learn' },
+          action: { href: '#/', label: 'Go to your library' },
         }));
         return;
       }

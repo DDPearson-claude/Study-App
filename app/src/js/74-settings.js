@@ -167,8 +167,8 @@
       var pictures = null;
       if (U.art) {
         var artStatus = U.h('div', { class: 'set-art-status' });
-        // Every course still without a picture (Learn queues them too, whenever it opens).
-        var queueAll = function () { U.store.topics.list().then(function (l) { U.art.want(l); }, function () { /* Learn queues them */ }); };
+        // Every course still without a picture (the Library queues them too, whenever it opens).
+        var queueAll = function () { U.store.topics.list().then(function (l) { U.art.want(l); }, function () { /* the Library queues them */ }); };
         var checkArt = function () {
           U.clear(artStatus);
           var perms = U.rt && U.rt.permissions;

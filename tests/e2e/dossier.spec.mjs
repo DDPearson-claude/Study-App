@@ -185,7 +185,7 @@ await test('library: the dossier being written leads, then finished ones, then "
   for (const [w, dark] of [[390, false], [1366, true]]) {
     const app = await open({ width: w, dark, hash: '#/library/dossiers' });
     await app.page.waitForFunction(() => document.querySelectorAll('.lib-dossiers .dl-tile:not(.dl-own)').length === 2, null, { timeout: 20000 });
-    eq(await app.page.locator('#tabs .tab[data-tab="book"]').innerText(), 'Library', 'the tab is "Library"');
+    eq(await app.page.locator('#tabs .tab[data-tab="book"]').innerText(), 'Book', 'the tab is "Book"');
     eq(await app.page.getAttribute('#tabs .tab[data-tab="book"]', 'aria-current'), 'page', 'and is current');
     eq(await focusedH1(app), 'Dossiers', 'heading takes focus');
     eq(await app.page.title(), 'Dossiers · My University', 'title');
@@ -217,7 +217,7 @@ await test('library: the dossier being written leads, then finished ones, then "
       await app.page.waitForSelector('.book h1');
       eq(await text(app, '.book h1'), 'In your own words', 'the Book, unchanged, at #/book/words');
       eq(await app.page.evaluate(() => location.hash), '#/book/words', 'its address');
-      eq(await app.page.getAttribute('#tabs .tab[data-tab="book"]', 'aria-current'), 'page', 'still under the Library tab');
+      eq(await app.page.getAttribute('#tabs .tab[data-tab="book"]', 'aria-current'), 'page', 'still under the Book tab');
       await app.page.locator('.book .backlink').click();
       await app.page.waitForSelector('.lib-page h1');
     } else {
@@ -234,8 +234,8 @@ await test('reader on a phone: at a glance, a chapter with its plate asleep unti
   eq(await app.page.evaluate(() => document.title), 'Why pendulums keep time · Dossier · My University', 'and the page title');
   eq(await app.page.evaluate(() => document.getElementById('view').dataset.screen), 'dossier', 'its own screen');
   eq(await app.page.evaluate(() => document.documentElement.classList.contains('focus')), true, 'no app chrome: D4\'s focus bar instead');
-  eq(await app.page.getAttribute('.dos-bar .dos-up', 'href'), '#/library/dossiers', 'back goes to the Library');
-  assert(/^library\/why-pendulums-keep-time$/.test(await app.page.locator('.dos-path').textContent()), 'where he is, by the title\'s words: ' + await app.page.locator('.dos-path').textContent());
+  eq(await app.page.getAttribute('.dos-bar .dos-up', 'href'), '#/book', 'back goes to the Book');
+  assert(/^book\/why-pendulums-keep-time$/.test(await app.page.locator('.dos-path').textContent()), 'where he is, by the title\'s words: ' + await app.page.locator('.dos-path').textContent());
   await app.page.waitForFunction(() => /3 of 5 chapters bound/.test(document.querySelector('.g-bound') && document.querySelector('.g-bound').textContent), null, { timeout: 15000 });
   eq(await app.page.$eval('.g-bound', (e) => getComputedStyle(e).backgroundColor), await token(app, '--heading'), 'the Bound tile is ink: progress');
   assert(/Begun\s*2 Sept?\s*2026 · \d+ sources/.test(await app.page.locator('.g-begun').textContent()), 'begun: ' + await app.page.locator('.g-begun').textContent());
@@ -245,7 +245,7 @@ await test('reader on a phone: at a glance, a chapter with its plate asleep unti
   eq(await app.page.locator('.g-grid li.is-unbound a').count(), 0, 'and not links');
   eq(await app.page.locator('.g-grid li.is-bound a').count(), 3, 'the bound ones are');
   assert(/A weight on a string kept the world on time/.test(await app.page.locator('.g-hook').textContent()), 'the question it set out to answer');
-  eq(JSON.stringify(await bar(app)), JSON.stringify({ prev: 'Library', prevHref: '#/library/dossiers', at: 'at a glance', next: 'Chapter I', nextHref: '#/book/pendulums/i1', steps: '' }), 'the page bar');
+  eq(JSON.stringify(await bar(app)), JSON.stringify({ prev: 'Book', prevHref: '#/book', at: 'at a glance', next: 'Chapter I', nextHref: '#/book/pendulums/i1', steps: '' }), 'the page bar');
   await noSideways(app, 'at a glance');
   await noDan(app, 'at a glance');
   await shot(app, 'glance-390', true);
@@ -350,7 +350,7 @@ await test('reader on a phone: at a glance, a chapter with its plate asleep unti
   assert((await app.page.locator('.b-biblio').innerText()).includes('Science Museum'), 'the research\'s sources in the bibliography');
   const biblioTop = await app.page.evaluate(() => document.getElementById('bibliography').getBoundingClientRect().top);
   assert(biblioTop < 300, '#/…/bibliography opens at the bibliography (' + biblioTop + ')');
-  eq(JSON.stringify(await bar(app)), JSON.stringify({ prev: 'Ch. V', prevHref: '#/book/pendulums/i5/practice', at: 'bibliography', next: 'Library', nextHref: '#/library/dossiers', steps: '' }), 'the book ends at the Library; opened at the bibliography, the bar says so');
+  eq(JSON.stringify(await bar(app)), JSON.stringify({ prev: 'Ch. V', prevHref: '#/book/pendulums/i5/practice', at: 'bibliography', next: 'Book', nextHref: '#/book', steps: '' }), 'the book ends at the Book; opened at the bibliography, the bar says so');
   assert(/\/bibliography$/.test(await app.page.locator('.dos-path').textContent()), 'and so does the path');
   await noSideways(app, 'back matter');
   await noTests(app, 'back matter');

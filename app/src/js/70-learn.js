@@ -1,7 +1,8 @@
-// Learn (#/): the home screen. Dan asks for a new topic, picks up where he left off, sees when
-// reviews are waiting, and finds every topic as a card with its own generated cover.
-// Also defines U.views, small helpers the topic page, Map and Book share: generated covers,
-// progress summaries, safe outbound links and dates. Contract: docs/ARCHITECTURE.md 4, 9, 10.
+// Learn: the old home screen, unhooked since the Library became the home (Dan, 18 Oct: ready-made
+// courses only; docs/HANDOFF-build-library-home.md). Its screen (the ask box, intake, planning, the
+// topic list and the welcome) stays here as V.learnScreen, routed nowhere, until Dan says it can go.
+// Defines U.views, small helpers the Library, the topic page, Map and Book share: generated covers,
+// course tones, progress summaries, safe outbound links and dates. Contract: docs/ARCHITECTURE.md 4, 9, 10.
 (function () {
   'use strict';
   var V = (U.views = U.views || {});
@@ -415,7 +416,7 @@
     return h < 5 ? 'Good evening' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
   };
 
-  // ---------- the Learn screen ----------
+  // ---------- the Learn screen (unhooked: no route draws it) ----------
 
   var EXAMPLES = ['Why the sky is blue', 'The fall of Rome', 'How index funds work', 'Why minor keys sound sad', 'Sharpening a kitchen knife'];
   var LEVELS = [['new', 'New to it'], ['some', 'Know a bit'], ['solid', 'Know it well']];
@@ -424,7 +425,7 @@
   V.INTAKE_MS = 12000;
   var CLOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-  U.routes.add('#/', function (params, ctx) {
+  V.learnScreen = function (params, ctx) {
     var level = 'new', mode = 'study', busy = false, topics = null, progress = {}, seq = 0, job = 0;
 
     // --- ask ---
@@ -980,5 +981,5 @@
     }
 
     return function () { stop(); lw.stop(); clearTimeout(stuckTimer); clearTimeout(refetch); clearTimeout(slowTimer); window.removeEventListener('resize', fit); if (fitRo) fitRo.disconnect(); cancelAnimationFrame(fitRaf); offPrefs(); };
-  }, { tab: 'learn', title: 'Learn' });
+  };
 })();

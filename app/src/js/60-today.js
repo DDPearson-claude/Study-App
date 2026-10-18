@@ -15,7 +15,9 @@
 //       reviewed today, cards in all, Today's time for today's session ("About 5 minutes", from each
 //       card's type; 0 when nothing is waiting), and Today's words when nothing is waiting ("Done for
 //       today", its lead, "Next up: 2 cards tomorrow." or ''), for Learn's reviews row and quiet line
-//   U.review.refreshBadge()                    #today-badge text + hidden
+//   U.review.refreshBadge()                    re-reads what the box holds (the Today tab carries no
+//       badge since the Library became the home, 18 Oct: nothing counts down; #today-badge, if a
+//       page still has one, is filled)
 //   U.review.ideaBands() -> Promise<{tid:{iid: band}}>
 //   U.review.slipping() -> Promise<[{tid, iid, lapses, last}]>   ideas forgotten 2+ times in 30 days
 //       (only Agains since the idea was last learned and since its latest round began)

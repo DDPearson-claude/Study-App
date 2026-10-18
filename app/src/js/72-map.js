@@ -116,6 +116,7 @@
     var listBox = U.h('div', { class: 'map-list' });
     var body = U.h('div', { class: 'map-body' }, U.h('div', { class: 'skeleton map-sk' }));
     ctx.view.appendChild(U.h('div', { class: 'map' },
+      V.back('#/book', 'Book'),
       U.h('header', { class: 'page-head' },
         U.h('p', { class: 'eyebrow' }, 'Map'),
         U.h('h1', null, 'Everything you are learning'),
@@ -166,7 +167,7 @@
           art: U.h('div', { class: 'v-empty-art map-empty-art' }, emptyArt()),
           title: 'Your map is empty for now',
           text: 'Each topic you start appears here as a cluster of ideas. The dots fill in with colour as you learn and review them.',
-          action: { href: '#/', label: 'Start a topic' },
+          action: { href: '#/', label: 'Your library' },
         }));
         return;
       }
@@ -240,5 +241,5 @@
     }
 
     return function () { stop(); onPrefs(); drawJob++; renderJob++; if (ro) ro.disconnect(); if (raf) cancelAnimationFrame(raf); };
-  }, { tab: 'map', title: 'Map' });
+  }, { tab: 'book', title: 'Map' });   // no tab of its own: the Book links to it
 })();

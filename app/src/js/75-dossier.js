@@ -18,7 +18,7 @@
 // profile/dossiers/{tid}/chapters/{iid} (one doc per chapter, under LIMIT bytes: a plate that
 // would not fit is left out with a note). A dossier outlives its course when Dan keeps it.
 //
-// Pages, in reading order (model().leaves; the Library itself is #/library/dossiers in 73-book.js):
+// Pages, in reading order (model().leaves; the dossiers' shelf itself is the Book, #/book in 73-book.js):
 //   #/book/:tid  at a glance (the cover and contents in one; /contents, an older address, opens it
 //   at the chapters) · per bound chapter: /:iid the chapter, with its plate (/plate, older: at the
 //   plate; /plate/play: awake) and /:iid/practice put it into practice and its sources (/tests, an
@@ -559,11 +559,11 @@
   // =====================================================================================
   // THE READER: one page of tiles per route, in reading order, with the page bar
   // =====================================================================================
-  var LIBRARY = '#/library/dossiers';
+  var LIBRARY = '#/book';   // the Book tab: the dossiers' shelf (73-book.js)
   function reader(kind) {
     return function (params, ctx) {
       var tid = params.tid, iid = params.iid || null;
-      var root = h('div', { class: 'dos reader' }, topBar({ href: LIBRARY, label: 'the Library' }, [{ t: 'library' }]),
+      var root = h('div', { class: 'dos reader' }, topBar({ href: LIBRARY, label: 'the Book' }, [{ t: 'book' }]),
         h('div', { class: 'dos-page' }, h('div', { class: 't-full skeleton dos-sk' })));
       ctx.view.appendChild(root);
       var S = { root: root, ctx: ctx, plates: [], io: null, pop: null, popFrom: null, offs: [] };
@@ -627,7 +627,7 @@
   // of 2" drops away as one piece (75-dossier.css), never cut to "I…". o.at: what the middle says
   // instead of the leaf's own words (the back matter opened at the bibliography).
   function pageBar(M, t, o) {
-    var cur = t.at, lib = { href: LIBRARY, k: 'Library' };
+    var cur = t.at, lib = { href: LIBRARY, k: 'Book' };
     function link(l, dir) {
       var leaf = l !== lib, name = leaf ? barName(l, cur) : { shown: l.k, more: '' };
       return h('a', { class: 'pb-' + dir + (leaf ? ' is-leaf' : ''), href: l.href, rel: leaf ? dir : null },
@@ -738,7 +738,7 @@
       kids.push(tile('a', 'grey', { span: more.length === 1 ? 'full' : 'half', cls: 'g-more', attrs: { href: M.base + x[1] } },
         [h('span', { class: 't-label' }, x[0]), h('span', { class: 'g-more-n' }, x[2]), h('span', { class: 't-open' }, 'Open', icon('next'))]));
     });
-    pageOf(S, M, { leaf: 'glance', up: { href: LIBRARY, label: 'the Library' }, path: [{ t: 'library' }, { t: slugOf(b), cls: 'fit' }], cls: 'dos-glance', kids: kids });
+    pageOf(S, M, { leaf: 'glance', up: { href: LIBRARY, label: 'the Book' }, path: [{ t: 'book' }, { t: slugOf(b), cls: 'fit' }], cls: 'dos-glance', kids: kids });
     if (at === 'chapters') scrollTo(document.getElementById('chapters'));
   }
   // Bound: progress, so the ink tile (a green ring once finished). Said once to a screen reader.
@@ -1094,7 +1094,7 @@
   }
 
   // =====================================================================================
-  // THE LIBRARY'S DOSSIERS (73-book.js draws the page around them)
+  // THE BOOK'S DOSSIERS (73-book.js draws the page around them)
   // =====================================================================================
   // The lead tile is the dossier most recently bound that is still being written; then the rest
   // as half tiles: still being written, finished, kept. o.after: a tile to end the grid with
@@ -1412,7 +1412,7 @@
   }
 
   // =====================================================================================
-  // ROUTES (the Library's #/book and #/library/dossiers, and the Book's #/book/words, are
+  // ROUTES (the Book's #/book and #/library/dossiers, and its #/book/words, are
   // 73-book.js's, registered first)
   // =====================================================================================
   var R = { focus: true, tab: 'book', title: 'Dossier' };

@@ -146,8 +146,9 @@ async function runSession({ width, theme, full }) {
   check(/7\s+cards to revisit/.test(todayText), `${tag}: Today shows 7 cards due (got "${todayText.split('\n').slice(0, 4).join(' | ')}")`);
   check(/About \d+ minutes?/.test(todayText), `${tag}: Today estimates minutes`);
   check(/How sound travels/.test(todayText) && /Sourdough bread/.test(todayText), `${tag}: Today names both topics`);
-  const badge = await page.evaluate(async () => { await U.review.refreshBadge(); const b = document.getElementById('today-badge'); return { text: b.textContent, hidden: b.hidden }; });
-  check(badge.text === '7' && !badge.hidden, `${tag}: badge shows 7`);
+  // The Today tab carries no badge (the Library became the home, 18 Oct): the count is Today's own.
+  const badge = await page.evaluate(async () => ({ n: await U.review.refreshBadge(), el: !!document.getElementById('today-badge') }));
+  check(badge.n === 7 && !badge.el, `${tag}: 7 counted, and no badge on the tab`);
   await shot('00-today');
 
   check(await page.locator('.td-light input.switch[role="switch"]').count() === 1, `${tag}: Light day uses the shared switch`);
@@ -346,8 +347,8 @@ async function runSession({ width, theme, full }) {
   check(prog && prog.ideas && prog.ideas.i2 && prog.ideas.i2.relearn === true, `${tag}: relearn flag patched on progress`);
   const mins = ((d) => (typeof d === 'number' ? d : Object.values(d || {}).reduce((a, n) => a + (Number(n) || 0), 0)))((db[P('profile')].days || {})[TODAY]);
   check(mins >= 1 && typeof (db[P('profile')].days || {})[TODAY] === 'object', `${tag}: study minutes logged for today, per device (${mins})`);
-  const after = await page.evaluate(async () => { await U.review.refreshBadge(); const b = document.getElementById('today-badge'); return { hidden: b.hidden, n: await U.review.dueCount() }; });
-  check(after.hidden && after.n === 0, `${tag}: badge hidden and nothing due after the session`);
+  const after = await page.evaluate(async () => ({ counted: await U.review.refreshBadge(), n: await U.review.dueCount() }));
+  check(after.counted === 0 && after.n === 0, `${tag}: nothing due after the session`);
   const grades = await page.evaluate(() => window.__grades);
   check(grades.length === 1 && grades[0].say.prompt === SPECS_PROMPT && grades[0].attempt === 1, `${tag}: U.gen.grade called once with the recall spec`);
   check(await page.evaluate(() => window.__mounts === window.__destroyed && window.__mounts === 1), `${tag}: the target interactive was destroyed when the card left`);
@@ -531,8 +532,8 @@ async function regressions() {
   check(cards.i2_c3.retired === true && cards.i2_c3.hist.length === 1, `${tag}: a target card skipped as unusable is retired, not graded`);
   const h = cards.i1_c1.hist;
   check(h.length === 3 && h.some((e) => e.from === 'phone') && cards.i1_c1.s.lapses >= 1 && cards.i1_c1.s.reps === 3, `${tag}: the other device's review is kept and this answer added on top (hist ${h.map((e) => e.grade).join(',')}, lapses ${cards.i1_c1.s.lapses}, reps ${cards.i1_c1.s.reps})`);
-  const after = await page.evaluate(async () => { await U.review.refreshBadge(); return document.getElementById('today-badge').hidden; });
-  check(after, `${tag}: the badge clears`);
+  const after = await page.evaluate(async () => (await U.review.refreshBadge()) === 0);
+  check(after, `${tag}: the count clears`);
   check(app.errors.length === 0, `${tag}: no page errors ${app.errors.join(' | ')}`);
   await app.close();
 }
@@ -550,7 +551,8 @@ function auditDb(cards, prefs = {}) {
 const choiceCard = (id, iid, due, extra = {}) => ({ id, tid: 'tA', iid, type: 'choice', createdAt: isoDaysAgo(20), learnedAt: isoDaysAgo(20),
   spec: { id: id.split('_')[1], type: 'choice', q: 'Question ' + id + '?', options: ['Right', 'Wrong'], answer: 0, why: 'Because.' },
   s: { due, stability: 3.2, difficulty: 5.4, reps: 1, lapses: 0, last: addDays(TODAY, -7) }, hist: [{ at: isoDaysAgo(7), grade: 3, ok: true }], ...extra });
-const badgeOf = (page) => page.evaluate(() => { const b = document.getElementById('today-badge'); return b.hidden ? 0 : Number(b.textContent); });
+// What the Today count says (the tab had a badge with it until 18 Oct).
+const badgeOf = (page) => page.evaluate(() => U.review.refreshBadge());
 
 // #11 A target card whose lesson is not ready (a Learn it again or rebuild that failed, is under
 // way, or was left part-way) is neither shown nor left due for ever: the session retires it, or

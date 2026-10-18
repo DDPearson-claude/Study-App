@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// Browser tests for the views: Learn (home), topic page, Map, Library and Book, reading settings and boot.
+// Browser tests for the views: the Library (home), topic page, Map and Book, reading settings and boot.
+// (Learn, the old home with its ask box and intake, is unhooked since 18 Oct: its tests went with it.)
 // Builds a partial page with only these modules (plus core), fakes U.gen / U.review / U.tutor
 // and the lesson route where they are absent, and checks behaviour at 360 and 1280 px in light
-// and dark. Version 9: Learn's mode beside the level, the intake questions (answered, skipped,
-// changed, failing, slow, none), the topic page's mode switch and "What you told me", and ideas
+// and dark. Version 9: the topic page's mode switch and "What you told me", and ideas
 // only read shown as "Read" on the path and the Map.
 // Screenshots land in tests/out/views/. Exits non-zero on any failure.
 // Usage: node tests/e2e/views.spec.mjs [filter]
@@ -18,7 +18,7 @@ const UID = 'u_stubuser0000000000000000';
 const SEED = readJson('tests/fixtures/views-seed.json');
 const FILTER = process.argv[2] || '';
 
-const built = spawnSync(process.execPath, [join(ROOT, 'tools', 'build.mjs'), '--only', '70,71,72,73,74,75,99', '--out', FILE], { stdio: 'inherit' });
+const built = spawnSync(process.execPath, [join(ROOT, 'tools', 'build.mjs'), '--only', '70,71,72,73,74,75,76,77,99', '--out', FILE], { stdio: 'inherit' });
 if (built.status !== 0) process.exit(built.status || 1);
 mkdirSync(SHOTS, { recursive: true });
 
@@ -45,8 +45,14 @@ async function test(name, fn) {
 }
 
 // ---------- fixtures ----------
+// The Library's one shelf: tides built (a ready-made course), two not built yet.
+const SHELF = { v: 1, title: 'Maths', order: 1, blurb: 'Every area of maths in one place.', folders: [
+  { id: 'foundations', title: 'Foundational maths', blurb: 'The building blocks.', courses: [
+    { id: 'tides', title: 'How tides work', blurb: 'Why the sea rises twice a day.', tid: 'how-tides-work-ab12' },
+    { id: 'negative-numbers', title: 'Negative numbers', blurb: 'Numbers below zero.', tid: null }] },
+  { id: 'algebra', title: 'Algebra', blurb: 'Patterns and rules.', courses: [{ id: 'visual-algebra', title: 'Visual algebra', blurb: 'Spot the rule.', tid: null }] }] };
 function seedDb(opts = {}) {
-  const db = {};
+  const db = { 'shelves/maths': SHELF };
   const topics = opts.topics || Object.keys(SEED.topics);
   for (const tid of topics) db['topics/' + tid] = SEED.topics[tid];
   for (const [k, v] of Object.entries(SEED.research)) if (topics.includes(k.split('/')[0])) db['topics/' + k.replace('/', '/research/')] = v;
@@ -156,132 +162,25 @@ const tag = (w, dark) => `${w}-${dark ? 'dark' : 'light'}`;
 
 // ---------- tests ----------
 
+await test('home: the Library opens on its shelves, under three tabs: Library, Today, Book', async () => {
+  for (const [w, dark] of WIDTHS) {
+    const app = await open({ width: w, dark, db: seedDb() });
+    await app.page.waitForSelector('.lib-home .shelf-card');
+    eq(await text(app, '.lib-home h1'), 'Your library', 'the heading');
+    eq((await app.page.locator('#tabs .tab').allInnerTexts()).map((t) => t.trim()).join('|'), 'Library|Today|Book', 'three tabs');
+    eq(await app.page.getAttribute('#tabs .tab[data-tab="library"]', 'aria-current'), 'page', 'Library is current');
+    eq(await count(app, '#today-badge'), 0, 'no badge on Today');
+    eq(await count(app, '.ask, .tcard, .ccard'), 0, 'no ask box, no topic cards');
+    await shot(app, `home-${tag(w, dark)}`);
+  }
+});
+
 await test('shell: on a phone the tab bar sits at the bottom and the settings button is tappable', async () => {
   const app = await open({});
   const r = await app.page.evaluate(() => { const t = document.getElementById('tabs').getBoundingClientRect(); return { bottom: t.bottom, vh: innerHeight }; });
   assert(Math.abs(r.bottom - r.vh) < 2, `tab bar at the bottom (bottom ${r.bottom}, viewport ${r.vh})`);
   await app.page.click('#settings-btn');
   await app.page.waitForSelector('.set');
-});
-
-await test('home: first run at 360 and 1280, light and dark', async () => {
-  for (const [w, dark] of WIDTHS) {
-    const app = await open({ width: w, dark, fakes: { due: 0 } });
-    await app.page.waitForSelector('.welcome');
-    eq(await text(app, '.ask h1'), 'What do you want to learn?', 'heading');
-    eq(await count(app, '.ask-levels [role=radio]'), 3, 'three levels');
-    eq(await app.page.getAttribute('.ask-levels [data-level=new]', 'aria-checked'), 'true', 'New is the default level');
-    eq(await count(app, '.ccard'), 0, 'no continue card on first run');
-    eq(await count(app, 'a.today-row'), 0, 'no Today row when nothing is due');
-    eq(await app.page.locator('.today-row.is-quiet').isVisible(), false, 'first run: how it works, not the nothing-due line');
-    eq(await app.page.getAttribute('html', 'data-mu-theme'), dark ? 'dark' : 'light', 'theme');
-    if (w === 1280) {
-      const r = await app.page.evaluate(() => { const a = document.querySelector('.ask').getBoundingClientRect(), b = document.querySelector('.welcome').getBoundingClientRect(); return { gap: b.left - a.right, dy: b.top - a.top }; });
-      assert(r.gap >= 0 && Math.abs(r.dy) < 40, `how it works sits beside the ask on a laptop (${JSON.stringify(r)})`);
-    }
-    await shot(app, `home-first-${tag(w, dark)}`);
-  }
-});
-
-await test('home: example chips fill the input; level chips switch', async () => {
-  const app = await open();
-  await app.page.click('.chip-soft >> text=How index funds work');
-  eq(await app.page.inputValue('#ask-input'), 'How index funds work', 'example fills the input');
-  await app.page.click('.ask-levels [data-level=solid]');
-  eq(await app.page.getAttribute('.ask-levels [data-level=solid]', 'aria-checked'), 'true', 'level picked');
-  eq(await app.page.getAttribute('.ask-levels [data-level=new]', 'aria-checked'), 'false', 'other level cleared');
-  // An empty submit does nothing but nudge.
-  await app.page.fill('#ask-input', '   ');
-  await app.page.press('#ask-input', 'Enter');
-  eq(await hash(app), '#/', 'empty query stays home');
-});
-
-await test('home: typing a topic shows planning, then the plan arrives', async () => {
-  for (const [w, dark] of [[360, false], [1280, true]]) {
-    const app = await open({ width: w, dark });
-    await app.page.evaluate(() => { window.__PLAN_MS = 2200; });
-    await app.page.fill('#ask-input', 'How tides work');
-    await app.page.click('.ask-levels [data-level=some]');
-    await app.page.press('#ask-input', 'Enter');
-    await app.page.waitForSelector('.tp-planning');
-    assert((await hash(app)).startsWith('#/t/how-tides-work-'), 'navigated to the new topic');
-    eq(await text(app, '.tp-title'), 'How tides work', 'query is the title while planning');
-    assert((await text(app, '.tp-wait-line')).length > 10, 'a waiting line shows');
-    const calls = await app.page.evaluate(() => window.__calls.gen);
-    eq(calls[0].level, 'some', 'level passed to createTopic');
-    await shot(app, `topic-planning-${tag(w, dark)}`);
-    await app.page.waitForSelector('.path', { timeout: 6000 });
-    eq(await count(app, '.pnode'), 5, 'five ideas once ready');
-    eq(await text(app, '.pnode.is-current .pnode-kicker'), 'START HERE', 'first idea is marked Start here');
-    eq(await text(app, '.pnode.is-current .pnode-btn'), 'Start this idea', 'its button says what it does');
-    assert((await text(app, '.tp-cta')).startsWith('Start: Gravity weakens'), 'the header offers the first idea');
-    // Back home the topic shows as a card and as the Continue card.
-    await app.page.click('.backlink');
-    await app.page.waitForSelector('.ccard');
-    eq((await text(app, '.ccard .eyebrow')).toLowerCase(), 'ready when you are', 'not started yet');
-  }
-});
-
-await test('home: createTopic that resolves after planning opens the topic as soon as it exists', async () => {
-  const app = await open({ fakes: { gen: 'slow' } });
-  await app.page.fill('#ask-input', 'Why the sky is blue');
-  await app.page.click('.ask-go');
-  await app.page.waitForSelector('.tp-planning', { timeout: 1500 });
-  await app.page.waitForSelector('.path', { timeout: 5000 });
-});
-
-await test('home: a failed createTopic explains and re-enables', async () => {
-  const app = await open({ fakes: { gen: 'fail' } });
-  await app.page.fill('#ask-input', 'Black holes');
-  await app.page.click('.ask-go');
-  await app.page.waitForSelector('.toast.bad');
-  assert((await text(app, '.toast.bad')).includes('Claude is busy'), 'plain-words error');
-  await app.page.waitForFunction(() => !document.querySelector('#ask-input').disabled);
-});
-
-await test('home: continue card, Today row and topic cards', async () => {
-  const fresh = new Date().toISOString();   // planning right now (an old 'planning' would show as stopped)
-  const planning = { id: 'black-holes-zz', title: '', query: 'How black holes form', createdAt: fresh, updatedAt: fresh, status: 'planning', hue: 250, ideas: [] };
-  for (const [w, dark] of WIDTHS) {
-    const app = await open({ width: w, dark, db: seedDb({ extra: { 'topics/black-holes-zz': planning } }) });
-    await app.page.waitForSelector('.ccard');
-    eq(await text(app, '.ccard-title'), 'How tides work', 'most recently touched topic');
-    assert((await text(app, '.ccard-next')).includes('Idea 3 of 6'), 'next idea shown');
-    eq(await app.page.getAttribute('.ccard', 'href'), '#/t/how-tides-work-ab12/i3', 'continue opens the lesson');
-    assert((await text(app, '.today-row')).includes('4 reviews ready'), 'Today row');
-    if (w === 1280) {
-      const r = await app.page.evaluate(() => { const a = document.querySelector('.ask-form').getBoundingClientRect(), b = document.querySelector('.today-row').getBoundingClientRect(), h = document.querySelector('.ask h1').getBoundingClientRect(); return { gap: b.left - a.right, top: b.top - h.top, below: b.top < a.bottom }; });
-      assert(r.gap > 0 && r.below && Math.abs(r.top) < 60, `reviews sit beside the ask on a laptop (${JSON.stringify(r)})`);
-    }
-    eq(await count(app, '.tcard'), 4, 'four topic cards');
-    eq(await count(app, '.tcard.is-planning'), 1, 'planning card');
-    assert((await text(app, '.tcard.is-done')).includes('All 5 ideas done'), 'finished topic');
-    eq(await app.page.locator('.tcard .src-badge:not(.is-quiet)').count(), 1, 'one Sources found badge');
-    await shot(app, `home-topics-${tag(w, dark)}`);
-    if (w === 360 && !dark) {
-      // Returning on a phone: a compact ask; the level choice appears once Dan starts typing.
-      eq(await app.page.locator('.ask-level-row').isVisible(), false, 'levels tucked away');
-      eq(await app.page.locator('.ask-try').isVisible(), false, 'examples tucked away');
-      await app.page.fill('#ask-input', 'Black holes');
-      eq(await app.page.locator('.ask-level-row').isVisible(), true, 'levels shown while typing');
-      await app.page.fill('#ask-input', '');
-      // Covers are deterministic: the same topic draws the same picture every render.
-      const a = await app.page.evaluate(() => U.views.cover({ title: 'How tides work', hue: 196 }).outerHTML);
-      const b = await app.page.evaluate(() => U.views.cover({ title: 'How tides work', hue: 196 }).outerHTML);
-      eq(a, b, 'cover is deterministic');
-      await app.page.click('.today-row');
-      await app.page.waitForSelector('#fake-today');
-    }
-  }
-});
-
-await test('home: topic cards update live', async () => {
-  const app = await open({ db: seedDb({ topics: ['index-funds-cd34'] }) });
-  await app.page.waitForSelector('.tcard');
-  const now = new Date().toISOString();
-  await app.seed('topics/new-one-aa', { id: 'new-one-aa', title: '', query: 'The fall of Rome', createdAt: now, updatedAt: now, status: 'planning', hue: 20, ideas: [] });
-  await app.page.waitForSelector('.tcard.is-planning');
-  assert((await text(app, '.tcard.is-planning')).includes('The fall of Rome'), 'planning card shows the query');
 });
 
 await test('topic: ready page with hook, path and library (no warm-up once started)', async () => {
@@ -572,7 +471,7 @@ await test('settings: changes apply at once, save, and survive a reload', async 
   eq(await app.page.getAttribute('html', 'data-easy'), '1', 'easy kept after reload');
   await app.page.waitForTimeout(400);
   eq((await doc(app, `data/users/${UID}/profile`)).prefs.theme, 'dark', 'adopted into the profile');
-  await app.page.waitForSelector('.tcard, .welcome');
+  await app.page.waitForSelector('.lib-shelves .shelf-card, .lib-shelves p.muted');
   await shot(app, 'home-after-reload-360-dark-xl');
 });
 
@@ -648,14 +547,14 @@ await test('boot: slow saved work is waited for, said plainly, and shown when it
   }
   const notice = (app) => app.page.evaluate(() => { const n = document.getElementById('persist-notice'); return n ? n.textContent : null; });
 
-  // db answers at 12 s: boot waits for it (saying why after 10 s) and opens on Dan's own topics.
+  // db answers at 12 s: boot waits for it (saying why after 10 s) and opens on his shelves.
   let app = await slowApp('db', 12000);
   await app.page.clock.runFor(11500);
   assert((await text(app, '.boot-opening')).includes('Your saved work is taking longer than usual to load'), 'says what is slow');
   await app.page.clock.runFor(1000);
   await app.page.waitForFunction(() => U.boot.ready === true);
-  await app.page.waitForSelector('.ccard');
-  eq(await count(app, '.welcome'), 0, 'never the first-run screen');
+  await app.page.waitForSelector('.lib-home .shelf-card');
+  assert(!/No shelves yet/.test(await text(app, '.lib-home')), 'never an empty Library');
   eq(await notice(app), null, 'no notice');
 
   // db answers at 35 s: the app opens at 30 s, says plainly that the saved work is not in yet,
@@ -665,21 +564,22 @@ await test('boot: slow saved work is waited for, said plainly, and shown when it
   await app.page.waitForFunction(() => U.boot.ready === true);
   assert(/Your saved work has not loaded yet/.test(await notice(app)), 'plain notice, not "open this in the Claude app"');
   await app.page.clock.runFor(5000);
-  await app.page.waitForSelector('.ccard');
+  await app.page.waitForSelector('.lib-home .shelf-card');
   eq(await app.page.evaluate(() => U.store.persistent()), true, 'the real db is in use');
   eq(await notice(app), null, 'the notice goes');
   await app.page.waitForFunction(() => /Your saved work has loaded/.test(document.getElementById('toasts').textContent));
-  eq(await count(app, '.tcard'), Object.keys(SEED.topics).length, 'every topic is back');
+  eq(await count(app, '.lib-home .shelf-card'), 1, 'the shelf is back');
 
-  // The user capability late: topics show, progress joins them when the id arrives.
+  // The user capability late: the courses show, his progress joins them when the id arrives.
   app = await slowApp('user', 35000);
   await app.page.clock.runFor(30500);
   await app.page.waitForFunction(() => U.boot.ready === true);
-  await app.page.waitForSelector('.tcard');
-  assert((await text(app, '.ccard')).includes('0 of 5 done'), 'no progress yet');
+  await app.page.evaluate(() => U.go('#/shelf/maths/foundations'));
+  await app.page.waitForSelector('.shelf-courses .is-built .shelf-ready');
+  eq(await text(app, '.shelf-courses .is-built .shelf-ready'), 'Ready to browse', 'no progress yet');
   assert(/Your saved work has not loaded yet/.test(await notice(app)), 'notice while progress is missing');
   await app.page.clock.runFor(5000);
-  await app.page.waitForFunction(() => /2 of 6 done/.test((document.querySelector('.ccard') || {}).textContent || ''));
+  await app.page.waitForFunction(() => /Lesson 3 of 6/.test((document.querySelector('.shelf-courses .is-built .shelf-ready') || {}).textContent || ''));
   eq(await app.page.evaluate(() => U.rt.uid), UID);
   eq(await notice(app), null);
 });
@@ -704,15 +604,15 @@ await test('boot: saved work that answers null (a host that did not answer) is a
   }
   const notice = (app) => app.page.evaluate(() => { const n = document.getElementById('persist-notice'); return n ? n.textContent : null; });
 
-  // One null, then the db: boot asks again a second later and opens on Dan's own topics.
+  // One null, then the db: boot asks again a second later and opens on his shelves.
   let app = await nullApp('db', 1);
   await app.page.clock.runFor(10500);
   eq(await app.page.evaluate(() => !!(window.U && U.boot && U.boot.ready)), false, 'still waiting for it');
   await app.page.clock.runFor(1000);
   await app.page.waitForFunction(() => U.boot.ready === true);
-  await app.page.waitForSelector('.ccard');
+  await app.page.waitForSelector('.lib-home .shelf-card');
   eq(await app.page.evaluate(() => window.__asked()), 2, 'asked again');
-  eq(await count(app, '.welcome'), 0, 'never the first-run screen');
+  assert(!/No shelves yet/.test(await text(app, '.lib-home')), 'never an empty Library');
   eq(await notice(app), null, 'no notice');
 
   // Null at every ask for 30 s: the app opens saying the saved work is still loading (not "open
@@ -722,8 +622,8 @@ await test('boot: saved work that answers null (a host that did not answer) is a
   await app.page.clock.runFor(30500);
   await app.page.waitForFunction(() => U.boot.ready === true);
   assert(/Your saved work has not loaded yet/.test(await notice(app)), 'plain notice: ' + await notice(app));
-  eq(await count(app, '.welcome'), 0, 'not the first-run welcome');
-  assert((await text(app, '.learn-topics')).includes('Your saved work is still loading'), 'says the topics are still loading');
+  assert(!/No shelves yet/.test(await text(app, '.lib-home')), 'not an empty Library');
+  assert((await text(app, '.lib-shelves')).includes('Your saved work is still loading'), 'says the shelves are still loading');
   await app.page.evaluate(() => U.go('#/t/how-tides-work-ab12'));
   await app.page.waitForSelector('.v-saved-late');
   assert(!(await text(app, '#view')).includes('not here any more'), 'a topic is not called deleted');
@@ -732,20 +632,21 @@ await test('boot: saved work that answers null (a host that did not answer) is a
   eq(await count(app, '.v-empty'), 0, 'nor is the map called empty');
   await app.page.evaluate(() => U.go('#/'));
   await app.page.clock.runFor(8000);
-  await app.page.waitForSelector('.ccard');
+  await app.page.waitForSelector('.lib-home .shelf-card');
   eq(await app.page.evaluate(() => U.store.persistent()), true, 'the real db is in use');
   eq(await app.page.evaluate(() => window.__asked()), 4, 'asked until it answered');
   eq(await notice(app), null, 'the notice goes');
   await app.page.waitForFunction(() => /Your saved work has loaded/.test(document.getElementById('toasts').textContent));
-  eq(await count(app, '.tcard'), Object.keys(SEED.topics).length, 'every topic is back');
+  eq(await count(app, '.lib-home .shelf-card'), 1, 'the shelf is back');
 
-  // The user capability the same way: progress joins the topics when it arrives.
+  // The user capability the same way: his progress joins the courses when it arrives.
   app = await nullApp('user', 3);
   await app.page.clock.runFor(30500);
   await app.page.waitForFunction(() => U.boot.ready === true);
   assert(/Your saved work has not loaded yet/.test(await notice(app)), 'notice while progress is missing');
+  await app.page.evaluate(() => U.go('#/shelf/maths/foundations'));
   await app.page.clock.runFor(8000);
-  await app.page.waitForFunction(() => /2 of 6 done/.test((document.querySelector('.ccard') || {}).textContent || ''));
+  await app.page.waitForFunction(() => /Lesson 3 of 6/.test((document.querySelector('.shelf-courses .is-built .shelf-ready') || {}).textContent || ''));
   eq(await app.page.evaluate(() => U.rt.uid), UID);
   eq(await notice(app), null);
 
@@ -771,10 +672,6 @@ await test('regressions: a planning topic nobody is planning offers Try again an
   await app.page.goto(app.url('#/t/rome-zz'));
   await app.page.waitForSelector('.tp-planning');
   await app.page.waitForSelector('.tp-failed', { timeout: 6000 });
-  await app.page.goto(app.url('#/'));
-  await app.page.waitForSelector('.tcard');
-  eq(await count(app, '.tcard.is-planning'), 0, 'no endless "Planning…" card on Learn');
-  assert((await text(app, '.tcard.is-failed')).includes('Planning stopped'), 'Learn says it stopped');
 });
 
 await test('regressions: research left running by a closed page counts as not checked, with a retry', async () => {
@@ -786,8 +683,6 @@ await test('regressions: research left running by a closed page counts as not ch
   await app.page.click('.lib-retry');
   await app.page.waitForFunction(() => window.__calls.gen.some((c) => c.research === 'minor-keys-ef56'));
   await app.page.waitForFunction(() => /Checking sources/.test(document.querySelector('.lib-status').textContent));
-  await app.page.goto(app.url('#/'));
-  await app.page.waitForSelector('.tcard');
 });
 
 await test('regressions: research that finished but confirmed no source says so, with a retry (G3)', async () => {
@@ -809,11 +704,6 @@ await test('regressions: "Sources found" only when a source was kept; a check th
   const NONE = 'The source check ran but could not confirm a single source, so these lessons are not source-checked.';
   for (const [w, dark] of [[360, false], [1280, true]]) {
     const app = await open({ width: w, dark, db, tools: { 'Parallel Search': { web_search: () => ({ results: [] }), web_fetch: () => ({}) } } });
-    await app.page.waitForSelector('.tcard');
-    eq(await app.page.locator('.tcard .src-badge:not(.is-quiet)').count(), 1, 'one Sources found badge: only the topic that kept sources');
-    eq(await app.page.locator('.tcard[href="#/t/how-tides-work-ab12"] .src-badge').count(), 1, 'the topic with 4 sources keeps its badge');
-    eq(await app.page.locator('.tcard[href="#/t/minor-keys-ef56"] .src-badge').count(), 0, 'done with 0 sources: no badge');
-    eq(await app.page.locator('.tcard[href="#/t/index-funds-cd34"] .src-badge').count(), 0, 'confirmed none: no badge');
     for (const tid of ['minor-keys-ef56', 'index-funds-cd34']) {
       await app.page.goto(app.url('#/t/' + tid));
       await app.page.waitForSelector('.path');
@@ -853,9 +743,9 @@ await test('settings: connected, but on a view that cannot run page tools it say
   }
 });
 
-await test('regressions: a dead subscription shows an error with Try again, never the first-run screen', async () => {
+await test('regressions: a dead subscription shows an error with Try again, never an empty Library', async () => {
   const app = await open({ db: seedDb() });
-  await app.page.waitForSelector('.tcard');
+  await app.page.waitForSelector('.lib-home .shelf-card');
   await app.page.evaluate(() => {
     const real = U.rt.db;
     const dying = (ref, code) => new Proxy(ref, { get(t, k) {
@@ -863,23 +753,23 @@ await test('regressions: a dead subscription shows an error with Try again, neve
       if (k === 'orderBy' || k === 'where' || k === 'limit') return (...a) => dying(t[k](...a), code);
       const v = t[k]; return typeof v === 'function' ? v.bind(t) : v;
     } });
-    window.__listCode = 'unavailable';   // the topics list: a dead bridge first, refused later
+    window.__listCode = 'unavailable';   // the shelves: a dead bridge first, refused later
     U.rt.db = { doc: (p) => dying(real.doc(p), 'revoked'), collection: (p) => new Proxy({}, { get(t, k) { return dying(real.collection(p), window.__listCode)[k]; } }) };
   });
   await app.page.evaluate(() => U.go('#/map'));
   await app.page.evaluate(() => U.go('#/'));
-  await app.page.waitForSelector('.learn-topics .v-load-error');
-  assert(!/starts here/.test(await text(app, '.learn-topics')), 'not the welcome');
-  assert(/Reconnecting/.test(await text(app, '.learn-topics')), 'says it is reconnecting first');
+  await app.page.waitForSelector('.lib-shelves .v-load-error');
+  assert(!/No shelves yet/.test(await text(app, '.lib-shelves .shelf-grid')), 'never "no shelves"');
+  assert(/Reconnecting/.test(await text(app, '.lib-shelves .shelf-grid')), 'says it is reconnecting first');
   // A dead bridge: parked after the quick tries, so it still says "Reconnecting…" (it loads by itself).
   await app.page.waitForTimeout(4500);
-  assert(/^Reconnecting/.test(await text(app, '.learn-topics')) && !(await count(app, '.learn-topics .btn')), 'parked: still reconnecting, nothing to press: ' + await text(app, '.learn-topics'));
+  assert(/^Reconnecting/.test(await text(app, '.lib-shelves .shelf-grid')) && !(await count(app, '.lib-shelves .shelf-grid .btn')), 'parked: still reconnecting, nothing to press: ' + await text(app, '.lib-shelves .shelf-grid'));
   // Refused: an error, with Try again.
   await app.page.evaluate(() => { window.__listCode = 'revoked'; U.go('#/'); });
-  await app.page.waitForFunction(() => /could not be loaded/.test(document.querySelector('.learn-topics').textContent), null, { timeout: 8000 });
-  eq(await count(app, '.learn-topics .btn >> text=Try again'), 1, 'then Try again');
-  assert(!/starts here/.test(await text(app, '.learn-topics')), 'not the welcome');
-  await shot(app, 'regress-learn-dead-subscription-360-light');
+  await app.page.waitForFunction(() => /could not be loaded/.test(document.querySelector('.lib-shelves').textContent), null, { timeout: 8000 });
+  eq(await count(app, '.lib-shelves .btn >> text=Try again'), 1, 'then Try again');
+  assert(!/No shelves yet/.test(await text(app, '.lib-shelves .shelf-grid')), 'never "no shelves"');
+  await shot(app, 'regress-home-dead-subscription-360-light');
   await app.page.evaluate(() => U.go('#/t/how-tides-work-ab12'));
   await app.page.waitForSelector('.tp .v-load-error');
   eq(await count(app, '.tp .skeleton'), 0, 'no endless skeleton on the topic page');
@@ -890,7 +780,7 @@ await test('regressions: bad addresses go home or say "not here"', async () => {
   await app.page.waitForSelector('.path');
   await app.page.evaluate(() => { location.hash = '#/t/how-tides-work-ab12%E0%A4%A'; });
   await app.page.waitForFunction(() => location.hash === '#/');
-  await app.page.waitForSelector('.ask');
+  await app.page.waitForSelector('.lib-home');
   await app.page.evaluate(() => { location.hash = '#/t/..'; });
   await app.page.waitForSelector('.not-here');
   eq(await text(app, '.not-here h1'), 'This page is not here', 'not-here screen');
@@ -950,10 +840,11 @@ await test('regressions: the Book reads keyed explanations and questions (and ol
 
 await test('a11y: each screen takes focus on its h1, names itself, and the view is not one live region', async () => {
   const app = await open({ db: seedDb() });
-  await app.page.waitForSelector('.tcard');
+  await app.page.waitForSelector('.lib-home .shelf-card');
+  eq(await app.page.title(), 'Your library · My University', 'the home names itself');
   eq(await app.page.getAttribute('#view', 'aria-live'), null, 'no aria-live on the whole view');
   eq(await app.page.getAttribute('html', 'lang'), 'en-GB', 'language set');
-  await app.page.click('.tab[data-tab="map"]');
+  await app.page.evaluate(() => U.go('#/map'));
   await app.page.waitForSelector('.map h1');
   await app.page.waitForFunction(() => document.activeElement && document.activeElement.tagName === 'H1');
   eq(await app.page.title(), 'Map · My University', 'title');
@@ -969,7 +860,7 @@ await test('a11y: each screen takes focus on its h1, names itself, and the view 
 
 await test('topic: back from a lesson brings the next idea into view; the header offers it', async () => {
   const app = await open({ db: seedDb(), hash: '#/' });
-  await app.page.waitForSelector('.tcard');
+  await app.page.waitForSelector('.lib-home .shelf-card');
   await app.page.evaluate(() => { sessionStorage.setItem('mu-from-lesson', 'how-tides-work-ab12'); U.go('#/t/how-tides-work-ab12'); });
   await app.page.waitForSelector('.pnode.is-current');
   await app.page.waitForTimeout(300);
@@ -1007,7 +898,7 @@ await test('dark mode: the delete button and error toasts are readable', async (
 
 // ---------- UX round 2 (docs/review/ux-round2.md: screens) ----------
 
-await test('ux2: planning and failed topics get a proper title, the topic page\'s words, a red Delete and a time note', async () => {
+await test('ux2: planning and failed topics get a proper title, the same words, a red Delete and a time note', async () => {
   const fresh = new Date().toISOString(), old = ago(3 * 60e3);
   const db = {
     'topics/holes-zz': { id: 'holes-zz', title: '', query: 'how black holes form', createdAt: fresh, updatedAt: fresh, status: 'planning', hue: 250, ideas: [] },
@@ -1015,14 +906,11 @@ await test('ux2: planning and failed topics get a proper title, the topic page\'
     'topics/rome-zz': { id: 'rome-zz', title: '', query: 'the fall of rome', createdAt: old, updatedAt: old, status: 'planning', hue: 20, ideas: [] },
   };
   for (const [w, dark] of [[360, false], [1280, true]]) {
-    const app = await open({ width: w, dark, db });
-    await app.page.waitForSelector('.tcard.is-failed');
-    eq(await text(app, '.tcard.is-planning .tcard-title'), 'How black holes form', 'planning card titled like the topic page');
-    const failed = await text(app, '.tcard[href="#/t/roads-zz"]'), stuck = await text(app, '.tcard[href="#/t/rome-zz"]');
-    assert(failed.startsWith('How the romans built roads') && failed.includes('Planning did not finish. Open it to try again.'), 'failed card: ' + failed);
-    assert(stuck.startsWith('The fall of rome') && stuck.includes('Planning stopped. Open it to try again.'), 'stopped card: ' + stuck);
-    await app.page.evaluate(() => U.go('#/t/roads-zz'));
+    const app = await open({ width: w, dark, db, hash: '#/t/rome-zz' });
     await app.page.waitForSelector('.tp-failed');
+    assert((await text(app, '.tp-failed .notice')).startsWith('Planning stopped'), 'a planning nobody is doing has stopped');
+    await app.page.evaluate(() => U.go('#/t/roads-zz'));
+    await app.page.waitForFunction(() => /did not finish/.test((document.querySelector('.tp-failed .notice') || {}).textContent || ''));
     assert((await text(app, '.tp-failed .notice')).startsWith('Planning did not finish.'), 'the page uses the same words');
     const red = await app.page.evaluate(() => { const d = document.querySelector('.tp-failed .tp-delete'), probe = document.createElement('span'); probe.style.color = 'var(--red)'; document.body.appendChild(probe); const r = [getComputedStyle(d).color, getComputedStyle(probe).color]; probe.remove(); return r; });
     eq(red[0], red[1], 'Delete is red, as it is everywhere else');
@@ -1038,25 +926,6 @@ await test('ux2: planning and failed topics get a proper title, the topic page\'
     const sk = await app.page.evaluate(() => { const probe = document.createElement('span'); probe.style.color = 'var(--line)'; document.body.appendChild(probe); const line = getComputedStyle(probe).color; probe.remove(); return { line, bg: getComputedStyle(document.querySelector('.tp-sk-path .skeleton')).backgroundImage }; });
     assert(sk.bg.includes(sk.line), 'the waiting path is drawn in --line, so it shows: ' + sk.bg);
     await shot(app, `ux2-planning-${tag(w, dark)}`, { full: false });
-  }
-});
-
-await test('ux2: a long question wraps in the ask box (up to three lines), and Enter still asks', async () => {
-  const LONG = 'How do vaccines train the immune system to remember a virus it has never met before';
-  for (const w of [360, 1280]) {
-    const app = await open({ width: w, db: seedDb() });
-    await app.page.waitForSelector('.tcard');
-    eq(await app.page.evaluate(() => document.getElementById('ask-input').tagName), 'TEXTAREA', 'a box that wraps');
-    const one = await app.page.evaluate(() => document.getElementById('ask-input').getBoundingClientRect().height);
-    await app.page.fill('#ask-input', LONG);
-    const m = await app.page.evaluate(() => { const i = document.getElementById('ask-input'), cs = getComputedStyle(i); return { h: i.getBoundingClientRect().height, sw: i.scrollWidth, cw: i.clientWidth, line: parseFloat(cs.lineHeight), go: document.querySelector('.ask-go').getBoundingClientRect().bottom, bottom: i.getBoundingClientRect().bottom }; });
-    assert(m.sw <= m.cw, `no sideways scroll (${m.sw} > ${m.cw})`);
-    assert(m.h > one + m.line * 0.9 && m.h <= one + m.line * 2 + 2, `grows by whole lines, to three at most (${one} -> ${m.h})`);
-    assert(Math.abs(m.go - m.bottom) < 2, 'the go button stays beside the last line');
-    if (w === 360) await shot(app, 'ux2-ask-long-360-light', { full: false });
-    await app.page.press('#ask-input', 'Enter');
-    await app.page.waitForSelector('.tp-planning');
-    eq((await app.page.evaluate(() => window.__calls.gen))[0].query, LONG, 'Enter asks, with no new line added');
   }
 });
 
@@ -1076,21 +945,11 @@ await test('ux2: covers come in six motifs, and the three older ones still go to
   eq(r.moved.join(', '), '', 'a topic on an older motif keeps it');
 });
 
-await test('ux2: the Today badge sits on the clock\'s corner at every text size', async () => {
-  for (const size of ['m', 'xl']) {
-    const app = await open({ db: seedDb(), prefs: { theme: 'light', size } });
-    await app.page.waitForSelector('#today-badge:not([hidden])');
-    const r = await app.page.evaluate(() => { const i = document.querySelector('.tab[data-tab="today"] svg').getBoundingClientRect(), b = document.getElementById('today-badge').getBoundingClientRect(); return { left: (b.left - i.left) / i.width, bottom: (b.bottom - i.top) / i.height }; });
-    assert(r.left >= 0.75 && r.bottom <= 0.6, `badge in the icon's top-right corner at ${size} (${JSON.stringify(r)})`);
-    if (size === 'xl') await shot(app, 'ux2-badge-360-xl', { full: false });
-  }
-});
-
 await test('ux2: on a laptop every tab screen starts at the same left edge', async () => {
   const app = await open({ width: 1280, db: seedDb() });
-  await app.page.waitForSelector('.tcard');
+  await app.page.waitForSelector('.lib-home .shelf-card');
   const lefts = {};
-  for (const [hash, sel] of [['#/', '.ask h1'], ['#/today', '#fake-today'], ['#/map', '.map h1'], ['#/book', '.lib-page h1']]) {
+  for (const [hash, sel] of [['#/', '.lib-home h1'], ['#/today', '#fake-today'], ['#/map', '.map h1'], ['#/book', '.lib-page h1']]) {
     await app.page.evaluate((h) => U.go(h), hash);
     await app.page.waitForSelector(sel);
     lefts[hash] = await app.page.evaluate((s) => Math.round(document.querySelector(s).getBoundingClientRect().left), sel);
@@ -1110,7 +969,7 @@ await test('ux2: the laptop layout on a narrow screen says its tabs are icons on
 });
 
 // ---------- whole lessons: say whether the next one is being prepared or ready ----------
-// A lesson opens only when it is whole, so Learn and the topic page tell Dan whether the next
+// A lesson opens only when it is whole, so the topic page tells Dan whether the next
 // idea's lesson is still being prepared or ready (from its doc, and this page's own work on it).
 function nextUp() {
   const p = JSON.parse(JSON.stringify(SEED.progress['how-tides-work-ab12']));
@@ -1154,30 +1013,6 @@ await test('whole lessons: the topic page says whether the next idea is being pr
   }
 });
 
-await test('whole lessons: Learn\'s continue card says whether its idea is being prepared or ready', async () => {
-  for (const [w, dark] of [[360, false], [1280, true]]) {
-    const app = await open({ width: w, dark, db: seedDb({ extra: { ...nextUp(), [TIDES_I3]: busyDoc('building') } }) });
-    await app.page.waitForSelector('.ccard');
-    await app.page.waitForSelector('.ccard-status');
-    eq(await text(app, '.ccard-status'), 'Idea 3 is being prepared…', 'continue card: being prepared');
-    assert((await text(app, '.ccard-next')).includes('Idea 3 of 6'), 'the next idea is named');
-    await app.page.evaluate(() => document.querySelector('.ccard').scrollIntoView({ block: 'center' }));
-    await shot(app, `whole-learn-preparing-${tag(w, dark)}`, { full: false });
-    await app.seed(TIDES_I3, readyDoc());
-    await app.page.waitForFunction(() => /Idea 3 is ready\./.test(document.querySelector('.ccard-status') && document.querySelector('.ccard-status').textContent));
-    await app.page.evaluate(() => document.querySelector('.ccard').scrollIntoView({ block: 'center' }));
-    await shot(app, `whole-learn-ready-${tag(w, dark)}`, { full: false });
-  }
-  // A started idea whose lesson is whole needs no word; one being prepared again does.
-  const app = await open({ db: seedDb({ extra: { 'topics/how-tides-work-ab12/lessons/i3': readyDoc() } }) });
-  await app.page.waitForSelector('.ccard');
-  await app.page.waitForTimeout(300);
-  eq(await count(app, '.ccard-status'), 0, 'started and ready: nothing to say');
-  await app.seed(TIDES_I3, busyDoc('writing'));
-  await app.page.waitForSelector('.ccard-status');
-  eq(await text(app, '.ccard-status'), 'Idea 3 is being prepared…', 'started, being prepared again');
-});
-
 // Final fixes F1: a reload kills the next idea's background prefetch, leaving its doc 'building'
 // under this tab's name with nothing working on it. In the complete app (real store and U.gen,
 // only the model stubbed), Learn and the topic page never say "being prepared" while nothing
@@ -1210,13 +1045,13 @@ await test('whole lessons: after a reload, the next idea\'s prefetch is started 
     current.apps.push(app);
     // The tab's id outlives a reload (sessionStorage): this page is the reloaded tab.
     await app.page.addInitScript(() => { try { sessionStorage.setItem('mu.tab', 'tReloaded'); } catch (e) { /* fine */ } });
-    await app.page.goto(app.url('#/'));
+    await app.page.goto(app.url('#/t/' + tid));
     await app.booted();
-    // From boot on: whenever the card says idea 2 is being prepared, is a job of this page on it?
+    // From boot on: whenever the page says idea 2 is being prepared, is a job of this page on it?
     await app.page.evaluate((tid) => {
       window.__claims = [];
       setInterval(() => {
-        const n = document.querySelector('.ccard-status, .tp-next-note');
+        const n = document.querySelector('.tp-next-note');
         if (!n || !/being prepared/.test(n.textContent)) return;
         const l = (U.gen.status(tid).lessons || {}).i2;
         window.__claims.push({ live: l || null, at: Date.now() });
@@ -1228,16 +1063,15 @@ await test('whole lessons: after a reload, the next idea\'s prefetch is started 
   // This tab's prefetch, killed by the reload: started again, once, for idea 2 only.
   const mine = { device: 'dSame', tab: 'tReloaded', page: 'pBeforeReload', holder: 'dSame/tReloaded' };
   const { app, calls } = await start(mine);
-  await app.page.waitForFunction(() => /Idea 2 is being prepared…/.test((document.querySelector('.ccard-status') || {}).textContent || ''), null, { timeout: 15000 });
+  await app.page.waitForFunction(() => /Idea 2 is being prepared…/.test((document.querySelector('.tp-next-note') || {}).textContent || ''), null, { timeout: 15000 });
   await app.page.waitForTimeout(800);
   eq(await app.page.evaluate((t) => (U.gen.status(t).lessons || {}).i2, tid), 'building', 'a job of this page is on idea 2');
   // (A lesson saved before its fact-check ran is checked beside the build: contract V.)
   eq(calls.map((c) => c.task).sort().join(','), 'build-interactive,verify-lesson', 'the written lesson is kept: only its interactive is built again, and the lesson checked');
   assert(/Gravity’s part/.test(calls.find((c) => c.task === 'build-interactive').text), 'for idea 2');
   const lying = await app.page.evaluate(() => window.__claims.filter((c) => !c.live || !/^(writing|waiting|building)$/.test(c.live)));
-  eq(lying.length, 0, 'Learn never says "being prepared" while nothing prepares it');
-  await shot(app, 'whole-learn-after-reload-360-light', { full: false });
-  // The topic page agrees, and starts nothing more.
+  eq(lying.length, 0, 'the topic page never says "being prepared" while nothing prepares it');
+    // The topic page agrees, and starts nothing more.
   await app.page.evaluate(() => U.go('#/t/pendulums'));
   await app.page.waitForSelector('.tp-next-note');
   eq(await text(app, '.tp-next-note'), 'Idea 2 is being prepared…', 'topic header');
@@ -1251,7 +1085,7 @@ await test('whole lessons: after a reload, the next idea\'s prefetch is started 
 
   // Another tab's (or device's) fresh work is believed, and left to it.
   const other = await start({ device: 'dOther', tab: 'tOther', page: 'pOther', holder: 'dOther/tOther' });
-  await other.app.page.waitForFunction(() => /Idea 2 is being prepared…/.test((document.querySelector('.ccard-status') || {}).textContent || ''), null, { timeout: 15000 });
+  await other.app.page.waitForFunction(() => /Idea 2 is being prepared…/.test((document.querySelector('.tp-next-note') || {}).textContent || ''), null, { timeout: 15000 });
   await other.app.page.waitForTimeout(1500);
   eq(other.calls.length, 0, 'nothing started over another tab\'s work');
 });
@@ -1326,7 +1160,7 @@ await test('audit 24: the plan\'s overview says it is Claude\'s and not source-c
 // Audit 40: every state of the topic page has an h1 that takes focus, and a title of its own.
 await test('audit 40: a topic that could not be loaded, was deleted elsewhere, or loads after 6 s gets a heading, focus and a title', async () => {
   const app = await open({ db: seedDb() });
-  await app.page.waitForSelector('.tcard');
+  await app.page.waitForSelector('.lib-home .shelf-card');
   // A watch the db refuses: "could not be loaded", with Try again.
   await app.page.evaluate(() => {
     const real = window.__realDb = U.rt.db;
@@ -1335,7 +1169,7 @@ await test('audit 40: a topic that could not be loaded, was deleted elsewhere, o
       const v = t[k]; return typeof v === 'function' ? v.bind(t) : v;
     } }) };
   });
-  await app.page.click('.tcard[href="#/t/how-tides-work-ab12"]');
+  await app.page.evaluate(() => U.go('#/t/how-tides-work-ab12'));
   await app.page.waitForSelector('.tp-state-h');
   eq(await text(app, '#view h1'), 'This topic could not be loaded', 'its own heading');
   await app.page.waitForFunction(() => document.activeElement && document.activeElement.matches('#view h1'), null, { timeout: 3000 });
@@ -1351,8 +1185,8 @@ await test('audit 40: a topic that could not be loaded, was deleted elsewhere, o
     } }) };
   });
   await app.page.click('.backlink');
-  await app.page.waitForSelector('.tcard');
-  await app.page.click('.tcard[href="#/t/how-tides-work-ab12"]');
+  await app.page.waitForSelector('.lib-home .shelf-card');
+  await app.page.evaluate(() => U.go('#/t/how-tides-work-ab12'));
   await app.page.waitForTimeout(6500);
   eq(await count(app, '#view h1'), 0, 'still loading after 6 s');
   await app.page.waitForSelector('.tp-title', { timeout: 5000 });
@@ -1367,66 +1201,7 @@ await test('audit 40: a topic that could not be loaded, was deleted elsewhere, o
   eq(await app.page.title(), 'Topic not found · My University', 'title once gone');
 });
 
-// Audit 49: Learn's level choice behaves as radios do (U.radios, as Settings).
-await test('audit 49: Learn\'s level choice is one Tab stop and follows the arrow keys', async () => {
-  const app = await open({ fakes: { due: 0 } });
-  await app.page.waitForSelector('.welcome');
-  const stops = () => app.page.evaluate(() => [...document.querySelectorAll('.ask-levels [role=radio]')].map((b) => b.tabIndex).join(','));
-  eq(await stops(), '0,-1,-1', 'only the checked level is a Tab stop');
-  await app.page.focus('.ask h1');
-  await app.page.keyboard.press('Tab');
-  assert(await focusedOn(app, '.ask-levels [data-level=new]'), 'Tab reaches the checked level');
-  await app.page.keyboard.press('ArrowRight');
-  assert(await focusedOn(app, '.ask-levels [data-level=some][aria-checked=true]'), 'ArrowRight picks and focuses the next level');
-  await app.page.keyboard.press('ArrowLeft');
-  await app.page.keyboard.press('ArrowLeft');
-  assert(await focusedOn(app, '.ask-levels [data-level=solid][aria-checked=true]'), 'ArrowLeft wraps round to the last');
-  eq(await app.page.locator('.ask-levels [aria-checked=true]').count(), 1, 'one level checked');
-  eq(await stops(), '-1,-1,0', 'the Tab stop follows the choice');
-  await app.page.keyboard.press('Tab');
-  assert(await focusedOn(app, '.ask-modes [data-mode=study]'), 'Tab leaves the group in one step, to the mode (v9)');
-  await app.page.keyboard.press('Tab');
-  assert(await focusedOn(app, '#ask-input'), 'and the mode group is one Tab stop too');
-  await app.page.fill('#ask-input', 'How tides work');
-  await app.page.press('#ask-input', 'Enter');
-  await app.page.waitForSelector('.tp-planning');
-  eq((await app.page.evaluate(() => window.__calls.gen))[0].level, 'solid', 'the level chosen with the keys is the one asked for');
-});
-
 // Audit 51: Learn's reviews row gives Today's own time for the session, never its own guess.
-await test('audit 51: Learn says the time Today says for the same reviews', async () => {
-  const app = await open({ db: seedDb(), fakes: { due: 4, minutes: 7 } });
-  await app.page.waitForSelector('a.today-row');
-  assert((await text(app, 'a.today-row')).includes('About 7 minutes'), 'the review module\'s estimate: ' + await text(app, 'a.today-row'));
-  // In the complete app, with every card type due: one number on both screens.
-  const FULL = join(ROOT, 'tests', 'out', 'views-full.html');
-  const b = spawnSync(process.execPath, [join(ROOT, 'tools', 'build.mjs'), '--out', FULL], { stdio: 'inherit' });
-  assert(b.status === 0, 'full build failed');
-  const day = await app.page.evaluate(() => U.studyDay());
-  const card = (id, iid, type, spec) => ({ id, tid: 'how-tides-work-ab12', iid, type, spec: { type, why: 'w', ...spec }, createdAt: ago(864e5 * 3), learnedAt: ago(864e5 * 3), s: { due: day, stability: 3, difficulty: 5, reps: 1, lapses: 0, last: day }, hist: [] });
-  const db = seedDb({ extra: { [`data/users/${UID}/profile/cards/how-tides-work-ab12`]: { cards: {
-    i1_c1: card('i1_c1', 'i1', 'choice', { q: 'One?', options: ['A', 'B'], answer: 0 }),
-    i2_c1: card('i2_c1', 'i2', 'choice', { q: 'Two?', options: ['A', 'B'], answer: 0 }),
-    i2_c2: card('i2_c2', 'i2', 'target', { q: 'Make it 3 s.', control: 'len', output: 'period', target: 3, tolerance: 0.1 }),
-    i1_c3: card('i1_c3', 'i1', 'order', { q: 'Order?', items: ['a', 'b', 'c'] }),
-    i3_c1: card('i3_c1', 'i3', 'estimate', { q: 'How many?', min: 0, max: 10, answer: 2, tolerance: 1 }),
-    i1_say: card('i1_say', 'i1', 'recall', { prompt: 'Explain it.', rubric: ['x'], model: 'm', mine: 'n' }),
-  } } } });
-  const full = await openApp({ width: 360, height: 707, file: FULL, config: { db } });
-  current.apps.push(full);
-  await full.page.goto(full.url('#/'));
-  await full.booted();
-  await full.page.waitForSelector('a.today-row');
-  const learn = (await text(full, 'a.today-row')).replace(/\s+/g, ' ');
-  await full.page.click('a.today-row');
-  await full.page.waitForSelector('.td-plan');
-  const today = (await text(full, '.td-plan')).replace(/\s+/g, ' ');
-  const lm = learn.match(/About (\d+) minutes?/), tm = today.match(/About (\d+) minutes?/);
-  assert(/6 reviews ready/.test(learn) && /6 cards to revisit/.test(today), `six cards on both (${learn} | ${today})`);
-  assert(lm && tm && lm[1] === tm[1], `one time on both screens (Learn "${learn}", Today "${today}")`);
-  eq(tm[1], '5', 'two choice, a target, an order, an estimate and a recall card: about 5 minutes (per-type times)');
-});
-
 // Finding 7 (what was left): a watch parked by a dead bridge (20-store.js) after the screen has
 // loaded. The audit's case: the topic page shows "Planning your topic"; the bridge stops for longer
 // than the quick resubscribes; the plan finishes and is saved meanwhile.
@@ -1450,17 +1225,16 @@ await test('finding 7: a parked watch says "Reconnecting…" over the page it ke
     await app.page.evaluate(() => { window.__bridge.down = false; });
     await app.page.waitForSelector('.tp-ready .path', { timeout: 8000 });
     await app.page.waitForFunction(() => !document.querySelector('.tp-conn').children.length, null, { timeout: 8000 });
-    // Learn: the topics watch parks after the list was shown.
+    // The Library: the shelves watch parks after they were shown.
     await app.page.evaluate(() => U.go('#/'));
-    await app.page.waitForSelector('.tcard');
+    await app.page.waitForSelector('.lib-home .shelf-card');
     await app.page.evaluate(() => window.__bridge.drop());
-    await app.page.waitForSelector('.learn-live .v-reconnect', { timeout: 10000 });
-    eq(await count(app, '.tcard'), 4, 'Learn keeps its topics');
-    assert(!/could not be loaded/.test(await text(app, '.learn')), 'not "could not be loaded" over topics it shows');
-    await app.page.locator('.learn-live').scrollIntoViewIfNeeded();
-    await shot(app, `finding7-learn-reconnecting-${tag(w, dark)}`, { full: false });
+    await app.page.waitForSelector('.lib-live .v-reconnect', { timeout: 10000 });
+    eq(await count(app, '.lib-home .shelf-card'), 1, 'the Library keeps its shelves');
+    assert(!/could not be loaded/.test(await text(app, '.lib-home')), 'not "could not be loaded" over shelves it shows');
+    await shot(app, `finding7-home-reconnecting-${tag(w, dark)}`, { full: false });
     await app.page.evaluate(() => { window.__bridge.down = false; });
-    await app.page.waitForFunction(() => !document.querySelector('.learn-live').children.length, null, { timeout: 8000 });
+    await app.page.waitForFunction(() => !document.querySelector('.lib-live').children.length, null, { timeout: 8000 });
     // A watch ended for good (refused, not a dead bridge) says so, with Try again.
     await app.page.evaluate(() => U.go('#/t/how-tides-work-ab12'));
     await app.page.waitForSelector('.path');
@@ -1479,14 +1253,10 @@ const CLAIMS = /checked against \d|lessons? (were |was |are )?checked|sources ch
 
 // 1. Nothing checks a lesson against the sources yet, and the first lesson is usually written
 // before research finishes (unsourced). The Library says only what research found, and that each
-// lesson says which it is; Learn's badge uses the same words.
-await test('views check 1: the Library says what research found, never that lessons were checked; Learn\'s badge says the same', async () => {
+// lesson says which it is.
+await test('views check 1: the Library says what research found, never that lessons were checked', async () => {
   for (const [w, dark] of [[360, false], [1280, true]]) {
-    const app = await open({ width: w, dark, db: seedDb() });
-    await app.page.waitForSelector('.tcard');
-    eq(await text(app, '.tcard[href="#/t/how-tides-work-ab12"] .src-badge'), 'Sources found', 'Learn\'s badge: what research found');
-    assert(!CLAIMS.test(await text(app, '.learn-topics')), 'no "checked" claim on Learn: ' + await text(app, '.learn-topics'));
-    await app.page.click('.tcard[href="#/t/how-tides-work-ab12"]');
+    const app = await open({ width: w, dark, db: seedDb(), hash: '#/t/how-tides-work-ab12' });
     await app.page.waitForSelector('.lib-fold');
     eq(await text(app, '.lib-status'), 'Research found 4 sources', 'the Library: what research found');
     eq(await text(app, '.tp-lib .lib-note'), LIB_NOTE, 'and that each lesson says whether it drew on them');
@@ -1575,7 +1345,7 @@ await test('views check 2: the overview note calls a statement hook "the line ab
 // 3. The bridge down for longer than the quick tries when a screen opens: the store keeps trying
 // (parked) and the screen fills in by itself, so it says "Reconnecting…" calmly. Only a refusal
 // is an error, with its heading, its title and Try again.
-await test('views check 3: a watch parked before the screen has loaded says "Reconnecting…" calmly (topic page, Learn); a refusal is still an error', async () => {
+await test('views check 3: a watch parked before the screen has loaded says "Reconnecting…" calmly (topic page, the Library); a refusal is still an error', async () => {
   const down = () => { window.__bridge.down = true; };
   const calm = async (app, sel, what) => {
     await app.page.waitForSelector(sel + ' .v-load-error', { timeout: 10000 });
@@ -1594,22 +1364,22 @@ await test('views check 3: a watch parked before the screen has loaded says "Rec
     await app.page.evaluate(() => { window.__bridge.down = false; window.dispatchEvent(new Event('online')); });
     await app.page.waitForSelector('.tp-title', { timeout: 8000 });
     await app.page.waitForFunction(() => document.activeElement && document.activeElement.matches('.tp-title'), null, { timeout: 3000 });
-    // Learn's first load, the same way.
+    // The Library's first load, the same way.
     await app.page.evaluate(() => { window.__bridge.down = true; U.go('#/'); });
-    await calm(app, '.learn-topics', 'Learn');
-    await shot(app, `check3-learn-parked-before-load-${tag(w, dark)}`, { full: false });
+    await calm(app, '.lib-shelves', 'the Library');
+    await shot(app, `check3-home-parked-before-load-${tag(w, dark)}`, { full: false });
     await app.page.evaluate(() => { window.__bridge.down = false; window.dispatchEvent(new Event('online')); });
-    await app.page.waitForSelector('.tcard', { timeout: 8000 });
+    await app.page.waitForSelector('.lib-home .shelf-card', { timeout: 8000 });
   }
-  // Refused: the topic page's error, with its heading and title; Learn's, with Try again.
+  // Refused: the topic page's error, with its heading and title; the Library's, with Try again.
   const app = await open({ db: seedDb(), hash: '#/t/how-tides-work-ab12', init: [deadBridge, () => { window.__bridge.down = true; window.__bridge.code = 'permission_denied'; }] });
   await app.page.waitForSelector('.tp-state-h');
   eq(await text(app, '#view h1'), 'This topic could not be loaded', 'a refusal is an error');
   eq(await count(app, '#view .notice.bad .btn >> text=Try again'), 1, 'with Try again');
   eq(await app.page.title(), 'Topic could not be loaded · My University', 'and its title');
   await app.page.evaluate(() => U.go('#/'));
-  await app.page.waitForSelector('.learn-topics .v-load-error.bad');
-  eq(await count(app, '.learn-topics .btn >> text=Try again'), 1, 'Learn: Try again');
+  await app.page.waitForSelector('.lib-shelves .v-load-error.bad');
+  eq(await count(app, '.lib-shelves .btn >> text=Try again'), 1, 'the Library: Try again');
 });
 
 // 4. A watch parked once the topic page has loaded: a small "Reconnecting…" that floats under the
@@ -1687,119 +1457,6 @@ await test('views check 5: after the warm-up\'s Next question, Done or Skip, foc
 });
 
 // ---------- v9: how Dan learns a topic, and the intake ----------
-await test('v9 learn: the mode sits beside the level (teach and test by default) and goes to the plan', async () => {
-  for (const [w, dark] of [[360, false], [1280, true]]) {
-    const app = await open({ width: w, dark, fakes: { due: 0 } });
-    await app.page.waitForSelector('.welcome');
-    eq(await count(app, '.ask-modes [role=radio]'), 2, 'two modes');
-    eq((await app.page.locator('.ask-modes [role=radio]').allInnerTexts()).join('|'), 'Teach and test me|Just teach me', 'in plain words');
-    eq(await app.page.getAttribute('.ask-modes [data-mode=study]', 'aria-checked'), 'true', 'teach and test by default');
-    eq(await app.page.getAttribute('.ask-modes', 'role'), 'radiogroup', 'a radio group');
-    eq(await app.page.evaluate(() => document.querySelector('.ask-modes').getAttribute('aria-labelledby') && document.getElementById(document.querySelector('.ask-modes').getAttribute('aria-labelledby')).textContent), 'How do you want to learn it?', 'named');
-    await app.page.click('.ask-modes [data-mode=read]');
-    eq(await app.page.getAttribute('.ask-modes [data-mode=read]', 'aria-checked'), 'true', 'Just teach me picked');
-    assert(/no questions, no reviews/.test(await text(app, '.ask-mode-note')), 'and it says what that means');
-    const r = await app.page.evaluate(() => { const a = document.querySelector('.ask-levels').getBoundingClientRect(), b = document.querySelector('.ask-modes').getBoundingClientRect(); return { dy: Math.round(b.top - a.top), dx: Math.round(b.left - a.left) }; });
-    if (w === 1280) assert(Math.abs(r.dy) < 4 && r.dx > 200, 'beside the level on a laptop: ' + JSON.stringify(r));
-    else assert(r.dy > 30, 'under it on a phone: ' + JSON.stringify(r));
-    await shot(app, `v9-learn-mode-${tag(w, dark)}`);
-    await app.page.fill('#ask-input', 'How tides work');
-    await app.page.press('#ask-input', 'Enter');
-    await app.page.waitForSelector('.tp-planning');
-    const calls = await app.page.evaluate(() => window.__calls.gen);
-    eq(calls[0].mode, 'read', 'the mode goes to createTopic');
-    eq(calls[0].intake, null, 'no intake in this view: none');
-    await app.page.waitForSelector('.path', { timeout: 6000 });
-    assert(/just teach me/i.test(await text(app, '.tp-head .eyebrow')), 'the topic page says how it is learned: ' + await text(app, '.tp-head .eyebrow'));
-  }
-});
-
-await test('v9 learn: the intake asks a few questions in place; his answers go to the plan', async () => {
-  for (const [w, dark] of [[360, false], [1280, false]]) {
-    const app = await open({ width: w, dark, fakes: { intake: 'ok' } });
-    await app.page.fill('#ask-input', 'How tides work');
-    await app.page.click('.ask-levels [data-level=some]');
-    await app.page.press('#ask-input', 'Enter');
-    await app.page.waitForSelector('.ask-working:not([hidden])');
-    assert(/reading your question/i.test(await text(app, '.ask-working')), 'says what it is doing while it reads');
-    await app.page.waitForSelector('.intake');
-    eq(await hash(app), '#/', 'nothing is planned yet');
-    eq(await app.page.evaluate(() => document.activeElement && document.activeElement.id), 'intake-h', 'focus goes to the questions');
-    await app.page.waitForFunction(() => /2 questions/.test(document.querySelector('.ask [role=status]').textContent));
-    eq(await count(app, '.intake-q'), 2, 'two questions');
-    eq(await app.page.getAttribute('.intake-q:nth-child(1) .intake-chips', 'role'), 'radiogroup', 'pick one: a radio group');
-    eq(await app.page.getAttribute('.intake-q:nth-child(2) .intake-chips', 'role'), 'group', 'pick any: a group of toggles');
-    eq(await count(app, '.intake-q:nth-child(1) .intake-other'), 1, 'a "Something else" field where the question allows one');
-    eq(await count(app, '.intake-q:nth-child(2) .intake-other'), 0, 'and none where it does not');
-    const call = (await app.page.evaluate(() => window.__calls.gen)).find((c) => c.intake === 'How tides work');
-    assert(call && call.level === 'some' && call.mode === 'study', 'intake asked with the level and mode: ' + JSON.stringify(call));
-    await shot(app, `v9-intake-${tag(w, dark)}`);
-    // Keyboard: Tab reaches the first question's chips, the arrows pick one.
-    await app.page.focus('.intake-q:nth-child(1) .intake-chip');
-    await app.page.keyboard.press('ArrowRight');
-    eq(await app.page.getAttribute('.intake-q:nth-child(1) .intake-chip:nth-child(2)', 'aria-checked'), 'true', 'the arrow keys pick');
-    await app.page.click('.intake-q:nth-child(1) .intake-chip >> text=Predict the tide times');
-    await app.page.fill('.intake-other', 'For sailing');
-    await app.page.click('.intake-q:nth-child(2) .intake-chip >> text=The Moon\'s pull');
-    await app.page.click('.intake-q:nth-child(2) .intake-chip >> text=Why there are two a day');
-    await app.page.click('.intake-q:nth-child(2) .intake-chip >> text=The Moon\'s pull');
-    eq(await app.page.getAttribute('.intake-q:nth-child(2) .intake-chip >> nth=0', 'aria-pressed'), 'false', 'a second tap takes a pick back');
-    await app.page.click('.intake-plan');
-    await app.page.waitForSelector('.tp-planning');
-    const made = (await app.page.evaluate(() => window.__calls.gen)).find((c) => c.query === 'How tides work');
-    eq(JSON.stringify(made.intake.answers), JSON.stringify({ q1: { picked: ['Predict the tide times'], other: 'For sailing' }, q2: { picked: ['Why there are two a day'], other: null } }), 'his answers, as given');
-    eq(made.intake.questions.length, 2, 'with the questions they answer');
-    const tid = (await hash(app)).replace('#/t/', '');
-    eq(JSON.stringify((await doc(app, 'topics/' + tid)).intake.answers.q1), JSON.stringify({ picked: ['Predict the tide times'], other: 'For sailing' }), 'kept on the topic');
-    // The topic page reads them back.
-    await app.page.waitForSelector('.tp-told', { timeout: 6000 });
-    const told = await text(app, '.tp-told');
-    assert(/What you told me/.test(told) && /Predict the tide times; For sailing/.test(told) && /Why there are two a day/.test(told), 'what he told Claude: ' + told);
-    await shot(app, `v9-told-${tag(w, dark)}`, { full: true });
-  }
-});
-
-await test('v9 learn: Skip the questions plans at once; Change my question goes back to the box', async () => {
-  const app = await open({ fakes: { intake: 'ok' } });
-  await app.page.fill('#ask-input', 'How tides work');
-  await app.page.press('#ask-input', 'Enter');
-  await app.page.waitForSelector('.intake');
-  await app.page.click('.intake-change');
-  await app.page.waitForFunction(() => !document.querySelector('.intake') && !document.querySelector('#ask-input').disabled);
-  eq(await app.page.evaluate(() => document.activeElement.id), 'ask-input', 'back in the box, its words kept');
-  eq(await app.page.inputValue('#ask-input'), 'How tides work', 'his question kept');
-  await app.page.fill('#ask-input', 'How tides really work');
-  await app.page.press('#ask-input', 'Enter');
-  await app.page.waitForSelector('.intake');
-  await app.page.click('.intake-skip');
-  await app.page.waitForSelector('.tp-planning');
-  const made = (await app.page.evaluate(() => window.__calls.gen)).filter((c) => c.query);
-  eq(made.length, 1, 'one topic');
-  eq(made[0].query, 'How tides really work', 'the changed question');
-  eq(made[0].intake, null, 'skipped: no intake');
-  await app.page.waitForSelector('.path', { timeout: 6000 });
-  eq(await count(app, '.tp-told'), 0, 'nothing to read back');
-});
-
-await test('v9 learn: an intake that fails, takes too long or has no questions never gets in the way', async () => {
-  for (const kind of ['fail', 'slow', 'none']) {
-    const app = await open({ fakes: { intake: kind } });
-    await app.page.evaluate(() => { U.views.INTAKE_MS = 1500; });
-    await app.page.fill('#ask-input', 'How tides work');
-    const t0 = Date.now();
-    await app.page.press('#ask-input', 'Enter');
-    await app.page.waitForSelector('.tp-planning', { timeout: 6000 });
-    const ms = Date.now() - t0;
-    assert(kind !== 'slow' || ms < 4000, `${kind}: planning starts once the wait is over (${ms} ms)`);
-    eq(await count(app, '.intake'), 0, `${kind}: no questions`);
-    const made = (await app.page.evaluate(() => window.__calls.gen)).filter((c) => c.query);
-    eq(made.length, 1, `${kind}: planned once`);
-    eq(made[0].intake, null, `${kind}: with no intake`);
-    if (kind !== 'none') assert(/straight away/.test(await text(app, '#toasts')), `${kind}: a calm note says so`);
-    else eq(await count(app, '#toasts .toast'), 0, 'no questions is no failure: nothing to say');
-  }
-});
-
 await test('v9 topic: the mode shows with a switch for the ideas to come', async () => {
   const db = seedDb();
   const t = db['topics/index-funds-cd34'];

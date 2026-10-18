@@ -1445,18 +1445,19 @@ topics started here are not source-checked); "Not connected." with the steps to 
 ## 10. Navigation
 
 ```
-#/                     learn    tab learn    70-learn.js
-#/t/:tid               topic    tab learn    71-topic.js
+#/                     library  tab library  77-library.js   the Library, the home: the shelves (the design: docs/design/library-home/)
+#/t/:tid               topic    tab library  71-topic.js
 #/t/:tid/:iid          lesson   focus        50-lesson.js
 #/t/:tid/:iid/again    lesson   focus        Learn it again (while the idea is slipping); the address becomes #/t/:tid/:iid
 #/today                today    tab today    60-today.js
 #/review               review   focus        60-today.js
 #/review/more          review   focus        one batch beyond the daily cap
-#/map                  map      tab map      72-map.js
-#/book                 book     tab book     73-book.js   the Library: two choices, Dossiers and Ready-made courses
-#/library/dossiers     library  tab book     73-book.js   the dossiers as tiles (75-dossier.js), then "In your own words"
-#/library/courses      library  tab book     76-shelves.js   Ready-made courses (and #/shelf/:sid, #/shelf/:sid/:fid)
-#/book/words           book     tab book     73-book.js   the Book (Dan's own words), linked from the Library
+#/shelf/:sid           shelf    tab library  76-shelves.js   a shelf's folders (and #/shelf/:sid/:fid, a folder's courses)
+#/book                 book     tab book     73-book.js   the Book: the dossiers as tiles (75-dossier.js), "In your own words", the Map
+#/library/dossiers     library  tab book     73-book.js   the same page, at its older address
+#/library/courses      (none)                76-shelves.js   the old Ready-made courses page: opens #/
+#/map                  map      tab book     72-map.js    no tab of its own since 18 Oct: the Book links to it
+#/book/words           book     tab book     73-book.js   Dan's own words, linked from the Book
 #/book/:tid            dossier  focus        75-dossier.js   a dossier's pages, in reading order: At a glance (cover and contents)
 #/book/:tid/:iid                                             a chapter, with its plate (asleep until Tap to play)
 #/book/:tid/:iid/practice                                    put it into practice and its sources (sources alone without practice;
@@ -1477,9 +1478,9 @@ topics started here are not source-checked); "Not connected." with the steps to 
   Where he is is never cut: when the bar is narrow " · 1 of 2" drops away whole and the numeral
   stays, a page's name may take two lines, and a bar under 17rem (a small phone at XL) shows the
   previous page by its chevron alone (still 44 px, its name still said). The
-  book starts and ends at the Library (the bar's first back and last next). The page bar and the
-  arrow keys (not inside the plate, a form control, details, a sheet or a source card; the Library
-  is not a page, so they stop at either end) go through the page order (`model().leaves`); the
+  book starts and ends at the Book tab's page, `#/book` (the bar's first back and last next). The page bar and the
+  arrow keys (not inside the plate, a form control, details, a sheet or a source card; the Book's
+  page is not a page of the dossier, so they stop at either end) go through the page order (`model().leaves`); the
   reader says which page it shows (`.dos.reader[data-leaf]`). Topic ids are `slug-xxxxx`, so
   `words` is never one.
 - `U.routes.add(pattern, handler, {focus, tab, title, screen})`; `handler(params, ctx)` draws
@@ -1504,8 +1505,9 @@ topics started here are not source-checked); "Not connected." with the steps to 
   included, it says "Reconnecting…" calmly and fills in by itself). When the warm-up's Next
   question, Done, Skip or "Try the warm-up questions" takes away the button that had focus, focus
   goes to what replaced it (the next question, the summary, the "Try" line), not to the h1.
-- Learn's level choice (New to it, Know a bit, Know it well) is a radio group (`U.radios`), like Settings',
-  and so is the mode beside it (Teach and test me, Just teach me; v9), and the topic page's switch.
+- The topic page's mode switch (Teach and test me, Just teach me; v9) is a radio group (`U.radios`), like
+  Settings'. (Learn, the old home with its ask box, level and mode choices, is unhooked since 18 Oct:
+  `V.learnScreen` in 70-learn.js, routed nowhere.)
 - Lesson stages (v9): a study lesson Predict, Play, Explain (with "Put it into practice" after the
   analogy), Say it back, Check; a read lesson Explore (the interactive, "Try this", then what
   happens if the lesson says), Read (explanation, analogy, practice, sources; "Done reading"),
@@ -1519,8 +1521,8 @@ topics started here are not source-checked); "Not connected." with the steps to 
   a study lesson ignores it. A steps lesson (`format: 'steps'`, section 5) has one step, Lesson:
   the frame alone, full width, then the done section with its sources in "Sources (n)"; if its
   frame cannot be shown, or is closed, it opens as an ordinary read lesson.
-- Tabs Learn / Today / Map / Library (`#tabs`, Today's badge `#today-badge`; the Library tab is
-  `data-tab="book"`) sit at the bottom in
+- Tabs Library / Today / Book (`#tabs`: `data-tab` library, today, book; since 18 Oct, when the
+  Library became the home, Today carries no badge and the Map has no tab) sit at the bottom in
   the phone layout and in the top bar in the laptop layout. The Aa button opens `U.settings.open()`.
 
 ## 11. Layout

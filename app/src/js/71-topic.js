@@ -226,13 +226,13 @@
     // an error: a calm "Reconnecting…", and the page fills in by itself.
     function goneView() {
       U.setTitle('Topic not found');
-      return U.h('div', { class: 'tp-state' }, V.back('#/', 'All topics'),
-        V.empty({ h1: true, title: 'This topic is not here any more', text: 'It may have been deleted on another device.', action: { href: '#/', label: 'Back to Learn' } }));
+      return U.h('div', { class: 'tp-state' }, V.back('#/', 'Your library'),
+        V.empty({ h1: true, title: 'This topic is not here any more', text: 'It may have been deleted on another device.', action: { href: '#/', label: 'Your library' } }));
     }
     function errorView() {
       var retrying = !!(failure && failure.retrying);
       if (!retrying) U.setTitle('Topic could not be loaded');
-      return U.h('div', { class: 'tp-state' }, V.back('#/', 'All topics'),
+      return U.h('div', { class: 'tp-state' }, V.back('#/', 'Your library'),
         retrying ? null : U.h('h1', { class: 'tp-state-h' }, 'This topic could not be loaded'),
         V.loadError('This topic', failure && failure.e, retrying, { lead: '' }));
     }
@@ -242,7 +242,7 @@
     function planningParts() {
       return [['planning', sig(topic.query, topic.title, topic.hue), function () {
         return U.h('div', { class: 'tp-planning-in' },
-          V.back('#/', 'All topics'),
+          V.back('#/', 'Your library'),
           U.h('div', { class: 'tp-split' },
             U.h('div', { class: 'tp-banner is-planning' }, V.cover(topic), U.h('div', { class: 'tcard-shimmer' })),
             U.h('div', { class: 'tp-split-main' },
@@ -268,7 +268,7 @@
       return [['failed', sig(topic.query, topic.title, topic.error, stopped, ui.retrying), function () {
         var q = V.asTitle(topic.query || topic.title) || 'Your new topic';
         return U.h('div', { class: 'tp-failed-in' },
-          V.back('#/', 'All topics'),
+          V.back('#/', 'Your library'),
           U.h('div', { class: 'tp-split' },
             U.h('div', { class: 'tp-banner is-quiet' }, V.cover(topic)),
             U.h('div', { class: 'tp-split-main' },
@@ -406,10 +406,10 @@
       var note = cta ? V.lessonNote(next, s.index + 1, s.started, 'tp-next-note') : null;
       // On a laptop the cover sits beside the title (above the rail), not across the page, so
       // the path starts on the first screen.
-      // A ready-made course is reached from its shelf (Learn leaves it out), so back goes there.
+      // A ready-made course is reached from its shelf (the Library's shelves), so back goes there.
       var shelfId = topic.readyMade && topic.readyMade.shelf;
       return U.h('header', { class: 'tp-head' },
-        U.validId(shelfId) ? V.back('#/shelf/' + encodeURIComponent(shelfId), 'Ready-made courses') : V.back('#/', 'All topics'),
+        U.validId(shelfId) ? V.back('#/shelf/' + encodeURIComponent(shelfId), 'Ready-made courses') : V.back('#/', 'Your library'),
         U.h('div', { class: 'tp-split' },
           U.h('div', { class: 'tp-banner' }, V.cover(topic)),
           U.h('div', { class: 'tp-split-main' },
@@ -743,5 +743,5 @@
       clearTimeout(slowTimer);
       if (frame) cancelAnimationFrame(frame);
     };
-  }, { tab: 'learn', title: 'Topic' });
+  }, { tab: 'library', title: 'Topic' });
 })();
