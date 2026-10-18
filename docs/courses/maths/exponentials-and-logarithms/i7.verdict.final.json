@@ -1,0 +1,169 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "A logged axis puts each number at its log: 2, 5 and 20 sit 0.301, 0.699 and 1.301 of a × 10 space along, and on the ln axis 2, 5 and 10 sit at 0.693, 1.609 and 2.303",
+        "ok": true
+      },
+      {
+        "label": "Only the right switches straighten each card: the gas and the lamp lie on a line with both axes logged and stay bent on every other setting; the capacitor's gap is bent on ordinary axes, lies on a line with only its y-axis logged, and bends again when t is logged too, dropping the 0 s reading",
+        "ok": true
+      },
+      {
+        "label": "The gas line: handles on it at (0.301, 1.086) and (1, 0.176) give a gradient of −0.910 ÷ 0.699 ≈ −1.30, an intercept of 1.478 at log V = 0, and C = 10^1.478 ≈ 30, so 30 ÷ 4^1.3 ≈ 4.95 bar, beside the 5.0 bar read",
+        "ok": true
+      },
+      {
+        "label": "RC is the time constant: the capacitor's ln(10 − v) line falls from 2.303 at 0 s to 0.182 at 100 s, a gradient of −0.0212 per second, which gives back RC ≈ 1 ÷ 0.0212 ≈ 47 s, and e^2.303 ≈ 10 V, the supply",
+        "ok": true,
+        "source": "https://physics.iitd.ac.in/uploads/manual_leiBQt035s.pdf"
+      },
+      {
+        "label": "Slope on a log-log graph is the exponent n: the lamp's readings, with both axes logged, lie on a line whose gradient is the power of d in its law, and that law gives back each reading",
+        "ok": true,
+        "source": "https://ocw.mit.edu/courses/res-18-005-highlights-of-calculus-spring-2010/eba56cdd70e64afea45efcb4da10435d_MITRES18_05S10_Growth_Rate_Log_Graphs.pdf"
+      },
+      {
+        "label": "The special case n = 1 is the isothermal expansion: readings of pV = C, with both axes logged, lie on a line of gradient −1",
+        "ok": true,
+        "source": "https://www.sfu.ca/~mbahrami/Mech%20240/Lectures/Energy%20Analysis_Closed%20System.pdf"
+      },
+      {
+        "label": "Logarithmic graphs estimate the parameters of y = axⁿ and y = kbˣ from data for x and y: the gas gives its n and C, the capacitor its RC and supply, and the lamp its power and a, each only on its straightening switches",
+        "ok": true,
+        "source": "https://www.ocr.org.uk/Images/308723-specification-accredited-a-level-gce-mathematics-a-h240.pdf"
+      },
+      {
+        "label": "The intercept sits on the upright axis: at log x = 0, that is x = 1, on a logged x-axis, and at t = 0 on the capacitor's ordinary one; its tag says log C, ln a or log a, and a tick number beside it gives way",
+        "ok": true
+      },
+      {
+        "label": "Every number follows its rule: logs 0.477, 0.602, 0.778, 0.851, 0.462 and 1.000; (5 − 1) ÷ 9 ≈ 0.44 and √10 ≈ 3.16; 10^1.70 ≈ 50.1 and e^1.70 ≈ 5.47; gaps 6.5, 4.3, 2.8, 1.8 and 1.2 V with ln 1.872, 1.459, 1.030, 0.588 and 0.182; e^5.99 ≈ 400, 10^5.99 ≈ 977 000 and 10^2.303 ≈ 201; lamp logs 1.991, 1.653, 1.398 and 1.204; −0.84 ÷ 0.6 = −1.4 and 0.6 ÷ 0.84 ≈ 0.71; and every answer offered is the value its own working gives",
+        "ok": true
+      },
+      {
+        "label": "Before an answer, nothing in a puzzle's picture or lines gives it away, and a right answer shows it",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own and draws its slip in red",
+        "ok": true
+      },
+      {
+        "label": "A right answer to \"which plot is straight\" slides the capacitor's dots onto a line, and \"not inverse-square\" bends the lamp's",
+        "ok": true
+      },
+      {
+        "label": "The drag maps the finger back to the same height: a finger at a handle sets it there, a finger off the top or bottom stops at the axis's end",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within its time (3 to 4.5 s), none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "logY",
+      "logX"
+    ],
+    "readouts": [
+      "gradient",
+      "intercept",
+      "aBack"
+    ],
+    "outputs": [
+      "gradient",
+      "intercept",
+      "aBack"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "Two switches",
+          "Where 5 sits",
+          "Why it goes straight",
+          "The straight-line form",
+          "Lay the line",
+          "Turn it back",
+          "The capacitor",
+          "Which plot is straight?",
+          "The capacitor's line",
+          "The start of a discharge",
+          "The lamp",
+          "Which law?",
+          "Read the power",
+          "A reading off the line"
+        ],
+        "value": 0
+      },
+      {
+        "id": "logY",
+        "kind": "toggle",
+        "label": "Log the y-axis",
+        "options": [
+          false,
+          true
+        ],
+        "value": false
+      },
+      {
+        "id": "logX",
+        "kind": "toggle",
+        "label": "Log the x-axis",
+        "options": [
+          false,
+          true
+        ],
+        "value": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

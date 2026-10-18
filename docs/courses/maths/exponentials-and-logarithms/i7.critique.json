@@ -1,0 +1,28 @@
+{
+  "draft": "i7.lesson.draft1.txt",
+  "validator": "Draft 1 passes tools/eval/validate.mjs with no problems, soft points or warnings, so every fault below is the critic's, not the validator's.",
+  "keep": [
+    "The brief's picture, straighten the curve: readings on ordinary axes, two switches that log the y-axis and the x-axis with the points sliding, a line laid with two handles as in Straight-line graphs lesson 6, an intercept labelled 'log a' with a convert-back readout.",
+    "The brief's three cards: pVⁿ readings, the charging capacitor's ln(10 − v) against t (lesson 3's 10 V supply and RC = 47 s), and an inverse-square set (a lamp's lux readings).",
+    "Sources on the words their quotes support: MIT [1] for the slope on a log-log graph being the exponent, OCR [2] for estimating the parameters of y = axⁿ and y = kbˣ from logarithmic graphs, IIT Delhi [8] for RC as the time constant.",
+    "The Mercator analogy is new to the course, fits his marine aim, reproduces the main result (rescale the axes, the path goes straight and its one constant is read off as an angle) and says where it breaks."
+  ],
+  "fix": [
+    "The causal step is skipped: 'taking logs, log p = log C − n log V' jumps over the two log laws that make it. Show both, from lesson 5: the product law splits log(C × V^(−n)) into log C + log V^(−n), and the power law brings the −n down. That is the whole reason the power becomes a gradient, and it must be on screen 3 and in explain.",
+    "Why the right switch pattern differs between the two laws is not given: say that in abˣ the unknown x is already a power, so log y = log a + x log b is straight in plain x, while in axⁿ x is raised to a power, so log x is what the n multiplies. Without it 'y only for abˣ, both for axⁿ' is a rule to memorise, not understand.",
+    "False absolute: 'plotting their logs always puts them on a straight line' is untrue of real readings (they scatter) and of plotting logs on the wrong axes (lnv against t bends, and logging t as well bends the capacitor card again). Say the points lie on or near a line when the right axes are logged.",
+    "The intercept is not explained: on a log x-axis there is no 0 (no power of 10 is zero, lesson 4), so the line meets the upright axis where log V = 0, at V = 1 L, outside the readings. The draft says 'an intercept of 1.478' with no word on where it is read or why C = 30 follows (10^1.478 ≈ 30). OCR's convert-back slip needs the reason, not just the label.",
+    "Different bases: the capacitor card uses ln while the others use log₁₀, and the draft never says why or how the convert-back key changes (eˣ for an ln axis, 10ˣ for a log axis). Add a sentence: any base straightens it, ln is used where the law is written with e so the gradient is −1/RC directly, and the intercept is undone with the matching key.",
+    "The capacitor's line is asserted, not derived: show ln(10 − v) = ln 10 − t/47, and why the gap, not v, is the thing to log (v = 10 − 10e^(−t/47) is a difference, and lesson 5 has no law for the log of a difference).",
+    "Brief shows only the effect: 'the curved readings sliding into a straight line when you switch the right axes to logs' never names what the straight line gives. Name the gradient: the line's gradient reads the unknown power.",
+    "whatAmILookingAt is a list of screen topics without the numbers, the options and the hints each DO screen needs to be built: the builder cannot make screen 2 or 6 from 'asks where 5 sits'. Give every screen its content, every DO screen its right answer, two wrong answers and what each wrong answer comes from, as lesson 6 does. Also name the other two cards' axes and readings.",
+    "Misconceptions in the brief not caught: OCR's linear-form slip ('n log aP', a DO screen offering log p = −n log(CV)), the exact-fit belief (scattered readings, one fitted line), the sign of n (pVⁿ = C has gradient −n), and the log scale read as linear. Each needs its own DO screen with its own hint.",
+    "Scatter missing from the teaching: the readings are scattered on purpose, and the explain and practice must say the line is a best fit with readings above and below it, as in Straight-line graphs lesson 6, not dot to dot.",
+    "Practice is thin: no safe check, no table of logs, no rule for where to read the gradient (two points on the line far apart, not two readings), no check of the answer against a reading, and the worked example skips its arithmetic. The lamp's inverse-square law needs 'textbooks add that' wording, since no source here states it, and the condition it needs (a small lamp, distances large beside it).",
+    "Numbers: list every reading on every card, its log, every option and slip on every DO screen, the axis marks (2, 3 and 5 at 0.301, 0.477 and 0.699), the handles' points, and the computed results (C = 30.1, RC ≈ 47 s, a = 400 lux).",
+    "ignores is too short: say the readings are made up with small scatter, that a real gas's n is itself a model, that the capacitor is lesson 3's ideal one, that the lamp's law needs a small source, and that the logs shown are rounded.",
+    "Text that talks about the idea instead of teaching it: 'That is y = mx + c with log p up the side' is fine, but the takeaway 'Log the right axes and a curved law becomes a straight line' leaves out the intercept, which is half of what Dan has to read off. State the whole rule.",
+    "Add the forward pointer to lesson 8 (n = 1 is the isothermal case, P₁V₁ = P₂V₂, SFU [3]) so the pVⁿ card leads on."
+  ],
+  "verdict": "Rewrite as draft 2 with these fixes; the picture, the three cards, the sources and the analogy stay."
+}

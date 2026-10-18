@@ -1,0 +1,48 @@
+{
+  "iid": "i7",
+  "title": "Log graphs: curved laws as straight lines",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the curved readings sliding into a straight line when you switch the right axes to logs.",
+    "title": "Straighten the curve",
+    "controls": [
+      { "id": "logY", "label": "Log the y-axis", "min": 0, "max": 1, "step": 1, "value": 0, "unit": "" },
+      { "id": "logX", "label": "Log the x-axis", "min": 0, "max": 1, "step": 1, "value": 0, "unit": "" }
+    ],
+    "outputs": [
+      { "id": "gradient", "label": "Gradient of your line", "unit": "", "decimals": 2 },
+      { "id": "intercept", "label": "Intercept, log a", "unit": "", "decimals": 3 },
+      { "id": "aBack", "label": "a, converted back", "unit": "", "decimals": 1 }
+    ],
+    "whatAmILookingAt": "A short lesson in fourteen screens on one graph of readings. The first card is a gas expanding in a cylinder: volume V in litres along the bottom, pressure p in bar up the side, five readings that curve down. Two switches log the axes, and when one flips, its axis is relabelled like lesson 4's power ruler and the points slide to their new heights. With both on, the readings lie on a line. Two handles lay a line through them, and the readouts give the line's gradient, its intercept (log a) and a converted back. The rule: p = C V^(−n), so log p = log C − n log V, a straight line with gradient −n and intercept log C. Screen by screen: 1 flips the switches. 2 asks where 5 sits on a log axis. 3 shows the straight-line form. 4 asks for it. 5 lays the line: gradient −1.30, intercept 1.478, C = 30. 6 asks to convert 1.70 back. 7 shows the capacitor card. 8 asks which plot is straight. 9 straightens it. 10 converts back on an ln axis. 11 shows the lamp card. 12 to 14 are mixed.",
+    "ignores": "The readings are made up for the example. The line is laid by eye, so n comes out to about two figures.",
+    "numbers": [
+      { "label": "Switches' opening setting, off", "value": 0, "kind": "control" },
+      { "label": "Example volumes, smallest, in litres", "value": 2, "kind": "assumed" },
+      { "label": "Example volumes, largest, in litres", "value": 10, "kind": "assumed" },
+      { "label": "Gradient of the pV line", "value": -1.3, "kind": "computed" },
+      { "label": "Intercept of the pV line", "value": 1.478, "kind": "computed" },
+      { "label": "C converted back", "value": 30, "kind": "computed" }
+    ]
+  },
+  "explain": {
+    "text": "When readings follow a power law, y = axⁿ, or an exponential, y = abˣ, plotting their logs always puts them on a straight line. The gradient of that line is the unknown power, and the intercept is log a.\n\nTake a gas expanding so that pVⁿ = C. Then p = C V^(−n), and taking logs, log p = log C − n log V. That is y = mx + c with log p up the side and log V along the bottom, so the gradient is −n.[^1] Laying a line through five readings gives a gradient of −1.30, so n = 1.3, and an intercept of 1.478, so C = 30.\n\nFor y = abˣ, log y = log a + x log b, so you log the y-axis only. A charging capacitor's gap, 10 − v, is 10 e^(−t/47), so ln(10 − v) against t is straight, with gradient −1/RC.[^8]\n\n**Log the right axes and a curved law becomes a straight line whose gradient is the unknown power.**[^2]"
+  },
+  "analogy": {
+    "text": "A ship steering a constant compass course traces a curve on a globe that spirals towards the pole, but on a Mercator chart that same course is a straight line, and the angle of the line is the course. Changing the scale of the map straightens the path and lets you read its one constant with a ruler.",
+    "breaks": "Mercator stretches the map by its own rule, not by taking logs, and it straightens only constant-course paths. A log graph straightens only readings that follow a power or exponential law."
+  },
+  "practice": {
+    "text": "- Write the law and take logs of both sides.\n- Log y only for y = abˣ; log both for y = axⁿ.\n- Plot, lay a line, read the gradient and intercept.\n- Convert the intercept back.\n\n**Worked example:** Say a lamp gives 400, 98, 45, 25 and 16 lux at 1 to 5 m. Log both: the gradient is −2.0, so the law is inverse square.\n\n**Common mistakes**\n- Leaving the intercept as a log.\n- Reading a log axis as evenly spaced."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    { "n": 1, "title": "Growth Rate and Log Graphs", "url": "https://ocw.mit.edu/courses/res-18-005-highlights-of-calculus-spring-2010/eba56cdd70e64afea45efcb4da10435d_MITRES18_05S10_Growth_Rate_Log_Graphs.pdf", "quote": "Slope on a log-log graph is the exponent n" },
+    { "n": 2, "title": "Cambridge OCR Level 3 Advanced GCE in Mathematics A H240 Specification", "url": "https://www.ocr.org.uk/Images/308723-specification-accredited-a-level-gce-mathematics-a-h240.pdf", "quote": "Be able to use logarithmic graphs to estimate parameters in relationships of the form y = ax n and y = kb x , given data for x and y" },
+    { "n": 8, "title": "5. Charging and discharging of a capacitor", "url": "https://physics.iitd.ac.in/uploads/manual_leiBQt035s.pdf", "quote": "RC is the time during which the charge on the capacitor drops to 1/e of the initial value. Further, since RC has dimensions of time, it is called the time constant of the circuit." }
+  ],
+  "confidence": "settled",
+  "contested": null
+}

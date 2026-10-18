@@ -1,0 +1,1171 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  /* ln in a typewriter face, so its l is never read as a capital I */
+  .lnk { font-family: var(--k-mono); font-style: normal; }
+  .pz sup { font-size: .72em; line-height: 0; }
+  /* The two switches sit side by side above the graph, on a phone too. */
+  #sw.k-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; padding: 4px 12px; }
+  #sw .k-toggle { gap: 8px; }
+  .scene { --lab: 13px; display: block; width: 100%; max-width: 30rem; margin-inline: auto; touch-action: pan-y; }
+  @media (max-width: 480px) { .scene { --lab: 14px; } }
+  /* While the handles can be dragged, a finger on them moves the line instead of the page. */
+  .scene.grab { touch-action: none; }
+  .scene text { font-family: var(--k-font); font-size: var(--lab); }
+  .scene .vi { font-style: italic; }
+  .scene .ax { stroke: var(--k-ink); stroke-width: 1.2; }
+  .scene .tk { fill: var(--k-ink); font-weight: 600; }
+  .scene .axt { fill: var(--k-muted); font-weight: 600; }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .vdot { fill: var(--k-muted); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .fit { stroke: var(--k-accent); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .stk { stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .handle { fill: var(--k-bg); stroke: var(--k-accent); stroke-width: 2.5; }
+  .scene .idot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .tag { fill: var(--k-accent2); }
+  .scene .tagt { fill: var(--k-on-accent2); font-weight: 700; }
+  .scene .lab { fill: var(--k-ink); font-weight: 600; }
+  .scene .labn { fill: var(--k-accent2); font-weight: 700; }
+  .scene .br { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .brt { fill: var(--k-accent2); font-weight: 700; }
+  .scene .tri { stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 5 4; }
+  .scene .supply { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .supt { fill: var(--k-muted); font-weight: 600; }
+  .scene .gapbar { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1; }
+  /* slips: red, for mistakes only */
+  .scene .slip { stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .slipt { fill: var(--k-warn); font-weight: 700; }
+  .scene .art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: ns-resize; }
+  .scene .grip:focus-visible { outline: none; stroke: var(--k-accent2); stroke-width: 2; }
+  /* The strip that sums up the switches. */
+  .strip { display: flex; flex-wrap: wrap; gap: 8px; }
+  .strip .cell { flex: 1 1 6rem; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 6px 10px; border: 1.5px solid var(--k-line); border-radius: var(--k-r); }
+  .strip .cell.on { border: 2px solid var(--k-accent2); }
+  .strip .sf { font-weight: 700; font-size: 1.05rem; white-space: nowrap; }
+  /* The same steps written out under the picture. */
+  .forms { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 1.05rem; font-weight: 700; line-height: 1.5; min-height: 1.6em; margin-top: 8px; text-align: center; }
+  .forms .fl { display: block; }
+  /* a line still to come keeps its place, so nothing below it jumps */
+  .forms .fl.wait { visibility: hidden; }
+  .forms .fn { font-weight: 400; font-size: .88rem; color: var(--k-muted); margin-left: .6em; white-space: normal; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row and may wrap. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and pictures fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="k-controls" id="sw"></div>
+    <svg class="scene" id="scene" viewBox="0 0 340 213" width="100%" role="img" aria-label=""><g id="art" class="art"></g><g id="ui"></g></svg>
+    <div class="strip" id="strip" hidden>
+      <div class="cell" data-k="n"><span class="k-label">Neither switch</span><span class="sf" id="sfn"></span></div>
+      <div class="cell" data-k="y"><span class="k-label">y switch only</span><span class="sf" id="sfy"></span></div>
+      <div class="cell" data-k="b"><span class="k-label">Both switches</span><span class="sf" id="sfb"></span></div>
+    </div>
+    <div class="forms" id="forms" aria-live="polite"></div>
+    <div class="k-readouts" id="outs"></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap"></p>
+
+<script>
+  // ---------- the rules ----------
+  // A power law y = axⁿ logs to log y = log a + n log x: straight with both axes logged, gradient n.
+  // An exponential y = abˣ logs to log y = log a + x log b: straight with only the y-axis logged.
+  const LG = Math.log10, LN = Math.log;
+  // Card 1, the gas: volume V in litres, pressure p in bar, following pVⁿ = C.
+  const GAS = [[2, 12.2], [3, 7.1], [4, 5.0], [6, 2.9], [10, 1.5]];
+  // Card 2, lesson 3's capacitor: 470 µF through 100 kΩ, charging towards a 10 V supply, read every 20 s.
+  const C_UF = 470, R_K = 100, VS = 10, DT = 20, TEND = 100;
+  const RC = Math.round(C_UF * 1e-6 * R_K * 1e3 * 1e6) / 1e6;          // 47 s
+  const VREAD = [0, 3.5, 5.7, 7.2, 8.2, 8.8];
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const CAPV = VREAD.map((v, k) => [k * DT, v]);
+  const CAPG = VREAD.map((v, k) => [k * DT, r1(VS - v)]);          // the gap still to close: 10, 6.5, 4.3, 2.8, 1.8, 1.2 V
+  // Card 3, the lamp: distance d in metres, light E in lux.
+  const LAMP = [[1, 400], [2, 98], [3, 45], [4, 25], [5, 16]];
+  // Screen 6: another gas's log C. Screen 10: a discharge line's ln intercept (lesson 6's capacitor, RC = 47 s).
+  // Screen 13: two points on another gas's line.
+  const LOGC6 = 1.70, LNA10 = 5.99, P13 = [[0.2, 1.30], [0.8, 0.46]];
+  // Screen 12: readings of the form y = abˣ, drawn as dots only, with no numbers.
+  const MYST = [0, 1, 2, 3, 4, 5].map((x) => [x, 3 * Math.pow(2, x)]);
+  const N_ISO = 1;   // the isothermal case
+  const SRC1 = 'https://www.sfu.ca/~mbahrami/Mech%20240/Lectures/Energy%20Analysis_Closed%20System.pdf';
+  const SRC2 = 'https://ocw.mit.edu/courses/res-18-005-highlights-of-calculus-spring-2010/eba56cdd70e64afea45efcb4da10435d_MITRES18_05S10_Growth_Rate_Log_Graphs.pdf';
+  const SRC3 = 'https://physics.iitd.ac.in/uploads/manual_leiBQt035s.pdf';
+  const SRC4 = 'https://www.ocr.org.uk/Images/308723-specification-accredited-a-level-gce-mathematics-a-h240.pdf';
+  const NB = ' ';
+  const NOLINE = 'not straight';   // the gradient readout when the switches leave the readings bent
+
+  // ---------- numbers ----------
+  // fx: exactly dp decimals with a true minus sign; fv: at most dp, trailing zeros dropped; sg: n significant figures.
+  function fx(v, dp) {
+    const f = Math.pow(10, dp);
+    let r = Math.round(v * f) / f;
+    if (r === 0) r = 0;
+    return (r < 0 ? '−' : '') + Math.abs(r).toFixed(dp);
+  }
+  function fv(v, dp) {
+    const s = fx(v, dp);
+    return dp > 0 ? s.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '') : s;
+  }
+  function sg(v, n) {
+    if (!isFinite(v) || v === 0) return '0';
+    let e = Math.floor(Math.log10(Math.abs(v))), q = Math.pow(10, e - n + 1), r = Math.round(v / q) * q;
+    if (Math.abs(r) >= Math.pow(10, e + 1)) { e += 1; q = Math.pow(10, e - n + 1); r = Math.round(v / q) * q; }
+    return fx(r, Math.max(0, n - 1 - e));
+  }
+  const plain = (s) => Number(String(s).replace(/−/g, '-'));
+
+  // ---------- lines ----------
+  const lineThrough = (a, b) => { const m = (b[1] - a[1]) / (b[0] - a[0]); return { m, c: a[1] - m * a[0] }; };
+  const lineOf = (c, h) => lineThrough([c.fit.hx[0], h[0]], [c.fit.hx[1], h[1]]);
+  const backOf = (c, v) => (c.e ? Math.exp(v) : Math.pow(10, v));
+
+  // ---------- the cards ----------
+  // An axis has an ordinary range (pr, ticks pt) and a logged one (lr in logs, ticks lt at their logs), or only one of them.
+  const AX = {
+    V: { name: 'volume _V_ (L)', pr: [0, 10], pt: [0, 2, 4, 6, 8, 10], lr: [0, 1], lt: [1, 2, 5, 10], f: LG, b: 'log' },
+    p: { name: 'pressure _p_ (bar)', pr: [0, 14], pt: [0, 4, 8, 12], lr: [0, 1.5], lt: [1, 2, 5, 10, 20], f: LG, b: 'log' },
+    t: { name: 'time _t_ (s)', pr: [0, 100], pt: [0, 20, 40, 60, 80, 100], lr: [1, 2], lt: [10, 20, 50, 100], f: LG, b: 'log' },
+    gap: { name: 'gap, 10 − _v_ (V)', pr: [0, 10], pt: [0, 2, 4, 6, 8, 10], lr: [0, 2.5], lt: [1, 2, 5, 10], f: LN, b: 'ln' },
+    d: { name: 'distance _d_ (m)', pr: [0, 5], pt: [0, 1, 2, 3, 4, 5], lr: [0, 1], lt: [1, 2, 5, 10], f: LG, b: 'log' },
+    E: { name: 'light _E_ (lux)', pr: [0, 450], pt: [0, 100, 200, 300, 400], lr: [1, 3], lt: [10, 20, 50, 100, 200, 500, 1000], f: LG, b: 'log' },
+    Vl: { name: 'volume _V_ (L)', lr: [0, 1], lt: [1, 2, 5, 10], f: LG, b: 'log' },
+    pl: { name: 'pressure _p_ (bar)', lr: [0, 1.5], lt: [1, 2, 5, 10, 20], f: LG, b: 'log' },
+    pC: { name: 'pressure _p_ (bar)', lr: [0, 2], lt: [1, 10, 100], f: LG, b: 'log' },
+    lnv: { name: 'ln _v_, with _v_ in volts', pr: [0, 7], pt: [0, 2, 4, 6] },
+    mx: { name: '_x_', pr: [0, 5], pt: [0, 1, 2, 3, 4, 5], nolab: true },
+    my: { name: '_y_', lr: [0, 2], lt: [1, 10, 100], f: LG, b: 'log' },
+  };
+  // st: the axes on which the card's readings lie straight, and whose coordinates its line uses.
+  // fit: where its two handles sit (hx) and their opening heights on the line (h0), and how its intercept is named.
+  const CARDS = {
+    gas: { x: AX.V, y: AX.p, pts: GAS, st: { x: 1, y: 1 }, what: 'the gas\'s pressure against its volume',
+      fit: { hx: [LG(2), 1], h0: [LG(12.2), LG(1.5)], ic: 'log C', il: 'Intercept: log C', al: 'C, converted back', ah: '10 to the power log C', au: '', gu: '' } },
+    cap: { x: AX.t, y: AX.gap, pts: CAPG, st: { x: 0, y: 1 }, e: true, what: 'the capacitor\'s gap still to close against time',
+      fit: { hx: [0, TEND], h0: [LN(VS - VREAD[0]), LN(r1(VS - VREAD[5]))], ic: 'ln a', il: 'Intercept: ln a', al: 'a, converted back', ah: 'e to the power ln a', au: ' V', gu: ' per second' } },
+    lamp: { x: AX.d, y: AX.E, pts: LAMP, st: { x: 1, y: 1 }, what: 'the light meter\'s readings against distance from the lamp',
+      fit: { hx: [0, LG(5)], h0: [LG(400), LG(16)], ic: 'log a', il: 'Intercept: log a', al: 'a, converted back', ah: '10 to the power log a', au: ' lux', gu: '' } },
+    gasC: { x: AX.Vl, y: AX.pC, pts: [], st: { x: 1, y: 1 }, line: { m: -1.3, c: LOGC6 }, what: 'another gas\'s line, with both axes logged' },
+    gasN: { x: AX.Vl, y: AX.pl, pts: [], st: { x: 1, y: 1 }, line: lineThrough(P13[0], P13[1]), what: 'another gas\'s line, with both axes logged' },
+    dis: { x: AX.t, y: AX.lnv, pts: [], st: { x: 0, y: 0 }, line: { m: -1 / RC, c: LNA10 }, e: true, what: 'a discharging capacitor\'s ln v against time' },
+    myst: { x: AX.mx, y: AX.my, pts: MYST, st: { x: 0, y: 1 }, line: { m: LG(2), c: LG(3) }, what: 'a set of readings with only the y-axis logged' },
+  };
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // A part's arrival is 1 (there), 0 (not there), a time (a demonstration's part arriving then), or
+  // R(t) / W(answer, t): arriving t seconds after a right answer, or after that wrong answer.
+  // A flip moves one axis to ordinary (0) or logged (1) over a second; the dots slide as it does.
+  const R = (t) => ({ when: 'right', at: t });
+  const W = (o, t) => ({ when: o, at: t == null ? 0.3 : t });
+  const FLIP = 1.0, LIVE_DUR = 1.0;
+  const O2 = ['About 0.7 of the way', 'About 0.44 of the way', 'Halfway'];
+  const O4 = ['log p = log C − n log V', 'log p = −n log(CV)', 'p = log C − n log V'];
+  const O6 = ['About 50', '1.70', '5.47'];
+  const O8 = ['ln(10 − v) against t', 'ln v against t', 'ln(10 − v) against ln t'];
+  const O10 = ['About 400' + NB + 'V', 'About 977' + NB + '000' + NB + 'V', '5.99' + NB + 'V'];
+  const O12 = ['y = ab^x', 'y = ax^n', 'y = mx + c'];
+  const O13 = [fv(-lineThrough(P13[0], P13[1]).m, 1), fx(lineThrough(P13[0], P13[1]).m, 1), fx((P13[1][0] - P13[0][0]) / (P13[0][1] - P13[1][1]), 2)];
+  const O14 = ['Keep the line', 'Move one handle until the line goes through 98', 'Decide the law is not inverse-square'];
+  const E170 = Math.pow(10, LOGC6), V599 = Math.exp(LNA10);
+  const ANS6 = 'C = 10^1.70 ≈ ' + fx(E170, 1), ANS10 = 'v = e^5.99 ≈ ' + sg(V599, 2) + NB + 'V';
+  const RUN13 = fv(P13[1][0] - P13[0][0], 1), FALL13 = fx(P13[1][1] - P13[0][1], 2);
+  const CAPLAW = 'ln(10 − v) = ln 10 − t/' + RC;
+
+  // The law each laid line gives, read off as the handles move (rounded as the readouts round).
+  function gasForms(L, t1, t2) {
+    const n = sg(-L.m, 2), C = sg(Math.pow(10, L.c), 2), p4 = plain(C) / Math.pow(4, plain(n));
+    return [['pV^' + n + ' = ' + C, 'the law the line gives', t1], [C + ' ÷ 4^' + n + ' ≈ ' + fx(p4, 2), 'bar at 4 L, beside the 5.0 bar read', t2]];
+  }
+  function capForms(L, t1, t2) {
+    const out = [[CAPLAW, 'ln of both sides', t1]];
+    if (L.m < 0) out.push(['RC ≈ 1 ÷ ' + sg(-L.m, 3) + ' ≈ ' + sg(-1 / L.m, 2) + ' s', 'lesson 3\'s time constant', t2]);
+    else out.push(['', 'a line that does not fall gives no time constant', t2]);
+    return out;
+  }
+  function lampForms(L, t1, t2) {
+    const a = sg(Math.pow(10, L.c), 2), m = sg(L.m, 2), out = [['E = ' + a + ' d^(' + m + ')', 'the law the line gives', t1]];
+    if (L.m < 0) out.push([a + ' ÷ 3^' + sg(-L.m, 2) + ' ≈ ' + fx(plain(a) / Math.pow(3, plain(sg(-L.m, 2))), 1), 'lux at 3 m, beside the 45 read', t2]);
+    else out.push(['', 'a line that does not fall is no inverse-square law', t2]);
+    return out;
+  }
+
+  const STEPS = [
+    { show: true, sw: true, live: true, card: 'gas', ax0: { x: 0, y: 0 }, name: 'Two switches',
+      flips: [{ axis: 'y', to: 1, at: 0.6, dur: FLIP }, { axis: 'x', to: 1, at: 2.2, dur: FLIP }],
+      g: { dots: 1 }, forms: [], dur: 3.4,
+      text: 'A gas expanding in a cylinder gives five readings. Its pressure `p` falls from 12.2 bar at 2 L to 1.5 bar at 10 L as its volume `V` grows, and on ordinary axes the dots curve, so no single gradient can be read off them. Watch the switches. Logging the y-axis puts each pressure at its log, like lesson 4\'s power ruler, and the dots slide but stay bent. Logging the x-axis as well slides them onto a straight line. Flip the switches yourself and watch the bend come and go.' },
+    { kind: 'pick', card: 'gas', ax0: { x: 1, y: 1 }, name: 'Where 5 sits',
+      g: { dots: 1 }, hideTick: { axis: 'x', v: 5, show: R(0.1) },
+      items: [{ k: 'bracketX', X0: 0, X1: LG(5), text: 'log 5 = ' + fx(LG(5), 3), when: 'right', at: 0.5 },
+        { k: 'stickX', X: (5 - 1) / 9, when: O2[1] }, { k: 'stickX', X: 0.5, when: O2[2] }],
+      notes: [{ text: 'read as evenly spaced: (5 − 1) ÷ 9 ≈ ' + fx(4 / 9, 2) + ' of the way', when: O2[1] }, { text: 'halfway along is √10 ≈ ' + fx(Math.sqrt(10), 2) + ', not 5', when: O2[2] }],
+      opts: O2, want: O2[0], ans: 'log 5 = ' + fx(LG(5), 3), forms: { before: [], right: [] },
+      task: 'On the logged volume axis, 1 L sits at the upright axis and 10 L at the far end. Where does 5 L sit?',
+      why: 'Each number sits at its log, and `log 5 = ' + fx(LG(5), 3) + '`, so 5 L sits about 0.7 of the way from 1 L to 10 L. Read as evenly spaced it would be `(5 − 1) ÷ 9 ≈ ' + fx(4 / 9, 2) + '`, but each step along a log axis multiplies rather than adds. Halfway is `√10 ≈ ' + fx(Math.sqrt(10), 2) + '`, since half a × 10 space multiplies by √10.',
+      hint: 'Not quite. On a logged axis each number sits at its log.',
+      hints: { [O2[1]]: 'Not quite. That reads the axis as evenly spaced. On a logged axis each number sits at its log.',
+        [O2[2]]: 'Not quite. Halfway along a × 10 space is √10 ≈ ' + fx(Math.sqrt(10), 2) + ', not 5.' } },
+    { show: true, card: 'gas', ax0: { x: 1, y: 1 }, name: 'Why it goes straight',
+      g: { dots: 1 }, forms: [['p = C V^(−n)', 'both sides ÷ Vⁿ', 0.5], ['log p = log C + log V^(−n)', 'product law', 1.1], ['log p = log C − n log V', 'power law', 1.7], ['y = mx + c', 'with y as log p, x as log V, m as −n and c as log C', 2.3]], dur: 3.0,
+      text: 'Why a line? Divide both sides of `pV^n = C` by `V^n`, and `p = C V^(−n)`. Take the log of both sides. The product law from lesson 5 splits the log of `C` times `V^(−n)` into `log C + log V^(−n)`, and the power law brings the `−n` down in front of `log V`. Now put `log p` up the side and `log V` along the bottom, and it is `y = mx + c` from Straight-line graphs. The power has become the gradient, `−n`, and `log C` the intercept.' },
+    { kind: 'pick', card: 'gas', ax0: { x: 1, y: 1 }, name: 'The straight-line form',
+      g: { dots: 1, line: R(1.2) },
+      notes: [{ text: 'the n multiplies log C too, though only V carries the power', when: O4[1] }, { text: 'logs taken of one side only, so p is left unlogged', when: O4[2] }],
+      opts: O4, want: O4[0], ans: O4[0],
+      forms: { before: [['pV^n = C', '', 0]], right: [['pV^n = C', '', 0], ['p = C V^(−n)', 'both sides ÷ Vⁿ', 0.5], [O4[0], 'log of both sides', 1.0]] },
+      task: 'Which line is the straight-line form of `pV^n = C`?',
+      why: 'Divide by `V^n` to get `p = C V^(−n)`, then take the log of both sides. The product law gives `log C + log V^(−n)`, and the power law turns `log V^(−n)` into `−n log V`. Only `V` carries the power, so only `log V` gets the `n`, and the log is taken of `p` as well as of the right side.',
+      hint: 'Not quite. Take the log of both sides, then use the product law and the power law.',
+      hints: { [O4[1]]: 'Not quite. Only V carries the power, so only log V gets the n.',
+        [O4[2]]: 'Not quite. That takes the log of one side only. Whatever you do, do it to both sides.' } },
+    { show: true, sw: true, live: true, outs: true, outsAt: 2.1, card: 'gas', ax0: { x: 1, y: 1 }, name: 'Lay the line',
+      g: { dots: 1, line: { at: 0.5, dur: 1.0, grow: true }, hdl: 1.1, stk: 1.6, icpt: 2.1 },
+      forms: (L) => gasForms(L, 2.7, 3.2), dur: 3.8,
+      text: 'Now lay a line through the logged readings, as in Straight-line graphs. Its handles sit on it at `log V = 0.301` and 1, and each reading has a thin stick to the line, too short to see here. The gradient is `−0.910 ÷ 0.699`, about −1.3, so `n ≈ 1.3`. A log axis has no 0, since no power of 10 is zero, so the upright axis sits at `log V = 0`, that is 1 L, and the line crosses it at the intercept in the readouts. That is `log C`, not `C`: convert it back, 10 to that power, and `C` is about 30, so `pV^1.3 = 30`. Drag a handle and the readouts follow.' },
+    { kind: 'pick', card: 'gasC', ax0: { x: 1, y: 1 }, name: 'Turn it back',
+      g: { xline: 1, icpt: 1 }, addTick: { axis: 'y', v: 50, show: R(0.1) },
+      items: [{ k: 'tag', X: 0, Y: LOGC6, dx: 10, dy: -10, text: 'log _C_ = ' + fx(LOGC6, 2) }],
+      notes: [{ text: 'the log left unconverted', when: O6[1] }, { text: 'e to the power 1.70, the wrong key for a log axis', when: O6[2] }],
+      opts: O6, want: O6[0], ans: ANS6,
+      forms: { before: [], right: [[ANS6, '', 0.5]] },
+      task: 'Another gas\'s line crosses the upright axis at `log C = 1.70`. What is `C`?',
+      why: 'The intercept on a log axis is a log, so turn it back with `10^x`: `10^1.70 ≈ ' + fx(E170, 1) + '`, so `C` is about 50. On the axis, 1.70 sits just where 50 sits. `e^1.70 ≈ ' + fx(Math.exp(LOGC6), 2) + '` would turn back an ln, and this axis is log.',
+      hint: 'Not quite. The intercept is log C. Turn it back with 10ˣ.',
+      hints: { [O6[1]]: 'Not quite. 1.70 is log C, still a log. Turn it back into C.',
+        [O6[2]]: 'Not quite. That is e^1.70, the key for an ln axis. This axis is log, base 10.' } },
+    { show: true, card: 'cap', ax0: { x: 0, y: 0 }, name: 'The capacitor', gapDemo: true, ytitle: 'voltage (V)',
+      g: {}, forms: [['v = 10 − 10 e^(−t/' + RC + ')', 'the voltage, rising', 0.4], ['10 − v = 10 e^(−t/' + RC + ')', 'the gap still to close', 3.4]], dur: 4.1,
+      text: 'Now lesson 3\'s capacitor, ' + C_UF + ' µF through ' + R_K + ' kΩ, so `RC = ' + RC + ' s`, charging towards a 10 V supply and read every 20 s. Its voltage `v` rises, 0, 3.5, 5.7, 7.2, 8.2 and 8.8 V. That is a difference, `v = 10 − 10 e^(−t/' + RC + ')`. The gap still to close, `10 − v`, is the plain exponential, shrinking as in lesson 3: 10, 6.5, 4.3, 2.8, 1.8 and 1.2 V. Watch each gap drop to the axis and become a dot. The dots curve down.' },
+    { kind: 'pick', card: 'cap', ax0: { x: 0, y: 0 }, name: 'Which plot is straight?',
+      g: { dots: 1, line: R(1.3) },
+      flips: [{ axis: 'y', to: 1, when: 'right', at: 0.2, dur: FLIP }, { axis: 'y', to: 1, when: O8[2], at: 0.2, dur: FLIP }, { axis: 'x', to: 1, when: O8[2], at: 0.2, dur: FLIP }],
+      notes: [{ text: 'v is a difference, and no log law splits the log of a difference', when: O8[1] }, { text: 't sits in the power, not under one: logging it bends the dots again', when: O8[2] }],
+      opts: O8, want: O8[0], ans: CAPLAW,
+      forms: { before: [['10 − v = 10 e^(−t/' + RC + ')', '', 0]], right: [['10 − v = 10 e^(−t/' + RC + ')', '', 0], [CAPLAW, 'ln of both sides', 1.3]] },
+      task: 'Which plot of the capacitor\'s readings will come out straight?',
+      why: 'The gap is a plain exponential, `10 − v = 10 e^(−t/' + RC + ')`. Take ln of both sides, and `' + CAPLAW + '`, a straight line against plain `t`. `v` itself is a difference, and no log law splits the log of a difference, so `ln v` stays bent. And `t` sits in the power, not under one, so logging `t` bends the line again.',
+      hint: 'Not quite. Find the plain exponential, and log only what the power sits on.',
+      hints: { [O8[1]]: 'Not quite. v is a difference, 10 − 10 e^(−t/' + RC + '), and no log law splits the log of a difference.',
+        [O8[2]]: 'Not quite. t sits in the power, not under one, so logging t bends the line again.' } },
+    { show: true, sw: true, live: true, outs: true, outsAt: 1.6, card: 'cap', ax0: { x: 0, y: 0 }, name: 'The capacitor\'s line',
+      flips: [{ axis: 'y', to: 1, at: 0.5, dur: FLIP }, { axis: 'x', to: 1, at: 3.2, dur: FLIP }],
+      g: { dots: 1, line: { at: 1.6, dur: 0.8, grow: true }, hdl: 1.9, stk: 2.2, icpt: 2.4 },
+      forms: (L) => capForms(L, 1.6, 2.6), dur: 4.3,
+      text: 'Flip the y switch, which takes ln here because the law is written with e, and the dots fall on a line, `' + CAPLAW + '`. The handles sit on the 0 s and 100 s readings, and the gradient in the readouts gives `RC ≈ 1 ÷ 0.0212 ≈ 47 s`, lesson 3\'s time constant. The intercept is `ln a`, so it turns back with `e^x`, not `10^x`, and e to that power is the 10 V supply. Then the x switch logs `t` as well, and the dots bend again. The 0 s reading drops off, since 0 has no log.' },
+    { kind: 'pick', card: 'dis', ax0: { x: 0, y: 0 }, name: 'The start of a discharge',
+      g: { xline: 1, icpt: 1 },
+      items: [{ k: 'tag', X: 0, Y: LNA10, dx: 10, dy: -10, text: 'ln _a_ = ' + fx(LNA10, 2) }],
+      notes: [{ text: '10 to the power 5.99, the wrong key for an ln axis', when: O10[1] }, { text: 'the log left unconverted', when: O10[2] }],
+      opts: O10, want: O10[0], ans: ANS10,
+      forms: { before: [], right: [[ANS10, 'at t = 0', 0.5]] },
+      task: 'A discharging capacitor\'s `ln v` against `t` line crosses the upright axis at 5.99. What was its starting voltage?',
+      why: 'On an ln axis the intercept is the ln of the starting voltage, so turn it back with `e^x`: `e^5.99 ≈ ' + sg(V599, 2) + '`, so it started at about 400 V. `10^5.99` is the key for a log axis, and would give about 977 000 V. And 5.99 is still a log until it is turned back.',
+      hint: 'Not quite. The intercept is ln a. Turn it back with eˣ.',
+      hints: { [O10[1]]: 'Not quite. That is 10^5.99, the key for a log axis. This axis is ln, so use eˣ.',
+        [O10[2]]: 'Not quite. 5.99 is ln a, still a log. Turn it back into a voltage.' } },
+    { show: true, sw: true, live: true, outs: true, outsAt: 2.9, card: 'lamp', ax0: { x: 0, y: 0 }, name: 'The lamp',
+      flips: [{ axis: 'y', to: 1, at: 0.5, dur: FLIP }, { axis: 'x', to: 1, at: 1.8, dur: FLIP }],
+      g: { dots: 1, line: 2.9, hdl: 2.9, stk: 2.9, icpt: 3.2, near: 3.5 }, strip: { on: 'b', a: 3.5 },
+      forms: (L) => lampForms(L, 3.6, 3.9), dur: 4.5,
+      text: 'Now a light meter reads 400, 98, 45, 25 and 16 lux at 1, 2, 3, 4 and 5 m from a small lamp. Logging only the y-axis leaves a bend. Log both and the dots line up, so it is a power law. With the handles on the 1 m and 5 m readings, the gradient in the readouts is the power, about −2, so `E = a d^(−2)`, and the light falls as 1 ÷ d². The intercept converts back to `a`, about 400 lux. The 98 lux reading sits a little below the line and the 45 lux one a little above it: readings scatter, so the line goes between them. The strip sums up the switches.' },
+    { kind: 'pick', card: 'myst', ax0: { x: 0, y: 1 }, name: 'Which law?',
+      g: { dots: 1, xline: 1 }, strip: { on: 'y', a: R(0.2) },
+      notes: [{ text: 'that law needs both axes logged, as x is raised to a power', when: O12[1] }, { text: 'that is straight on ordinary axes, and logging y bends it', when: O12[2] }],
+      opts: O12, want: O12[0], ans: 'log y = log a + x log b',
+      forms: { before: [], right: [['log y = log a + x log b', 'straight against plain x', 0.6]] },
+      task: 'These readings lie on a straight line with only the y-axis logged. Which law do they follow?',
+      why: 'Logging only `y` gives `log y = log a + x log b` for `y = ab^x`: the unknown sits in the power, so `x` stays on an ordinary axis. `y = ax^n` needs both axes logged, because `x` is raised to a power. And `y = mx + c` is straight before any switch; logging `y` would bend it.',
+      hint: 'Not quite. Ask which law the y switch alone straightens.',
+      hints: { [O12[1]]: 'Not quite. y = axⁿ needs both axes logged, because x is raised to a power.',
+        [O12[2]]: 'Not quite. y = mx + c is straight before any switch, and logging y bends it.' } },
+    { kind: 'pick', card: 'gasN', ax0: { x: 1, y: 1 }, name: 'Read the power',
+      g: { xline: 1 },
+      items: [{ k: 'pt', X: P13[0][0], Y: P13[0][1], pos: 'ar', text: '(' + fv(P13[0][0], 1) + ', ' + fx(P13[0][1], 2) + ')' },
+        { k: 'pt', X: P13[1][0], Y: P13[1][1], pos: 'bl', text: '(' + fv(P13[1][0], 1) + ', ' + fx(P13[1][1], 2) + ')' },
+        { k: 'tri', when: 'right', at: 0.1 }],
+      notes: [{ text: 'the minus kept, though the gradient is −n', when: O13[1] }, { text: RUN13 + ' ÷ ' + fx(-plain(FALL13), 2) + ' is the run over the fall', when: O13[2] }],
+      opts: O13, want: O13[0], ans: 'n = ' + O13[0],
+      forms: { before: [], right: [['gradient = ' + FALL13 + ' ÷ ' + RUN13 + ' = ' + O13[1], '', 0.8], ['n = ' + O13[0], 'as the gradient is −n', 1.2]] },
+      task: 'Another gas\'s `log p` against `log V` line passes through (0.2, 1.30) and (0.8, 0.46). What is `n`?',
+      why: 'The gradient is the fall over the run, `(0.46 − 1.30) ÷ (0.8 − 0.2) = ' + FALL13 + ' ÷ ' + RUN13 + ' = ' + O13[1] + '`. The line is `log p = log C − n log V`, so the gradient is `−n` and `n = ' + O13[0] + '`: a falling line means a positive `n`. Had it come out as ' + N_ISO + ', the law would be `pV = C`, which for an ideal gas is the isothermal case.',
+      hint: 'Not quite. Find the gradient, fall over run, then remember it is −n.',
+      hints: { [O13[1]]: 'Not quite. pVⁿ = C gives a gradient of −n, so a falling line means a positive n.',
+        [O13[2]]: 'Not quite. That is the run over the fall, upside down.' } },
+    { kind: 'pick', card: 'lamp', ax0: { x: 1, y: 1 }, name: 'A reading off the line',
+      g: { dots: 1, line: 1, stk: 1, near: R(0.2) },
+      flips: [{ axis: 'x', to: 0, when: O14[2], at: 0.2, dur: FLIP }],
+      notes: [{ text: 'chasing one reading tips the line off the others', when: O14[1] }, { text: 'a wrong law bends the whole set, as here with only the y-axis logged', when: O14[2] }],
+      opts: O14, want: O14[0], ans: '98 lux: just below', forms: { before: [], right: [] },
+      task: 'The lamp\'s line misses the 98 lux reading a little. What now?',
+      why: 'Real readings scatter, so a best-fit line has readings on both sides of it: here 98 lux sits a little below and 45 lux a little above. Moving a handle to chase one reading tips the line off the others. And a wrong law would bend the whole set, as the y-only switch did, not leave one reading a little off.',
+      hint: 'Not quite. Real readings scatter.',
+      hints: { [O14[1]]: 'Not quite. Chasing one reading tips the line off the others.',
+        [O14[2]]: 'Not quite. A wrong law bends the whole set, as the y-only switch did.' } },
+  ];
+  const FINISH = 'Log the right axes and a curved law comes out straight: the y-axis alone for `y = ab^x`, both axes for `y = ax^n`. The line\'s gradient gives the unknown power, and its intercept is a log until you turn it back.';
+  const CAPTION = 'The readings are worked out from each law and rounded; logs are shown to three decimal places.';
+  const FADE = 0.35;
+  const FB = [2.4, 1.8];   // how long the motion after a right and a wrong answer plays
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- geometry ----------
+  const GX0 = 54, GX1 = 328, GY0 = 30, GY1 = 168, XT = 186, XTT = 205;
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // live: Dan has taken over from the demonstration; tr: the axes sliding after his switch;
+  // h: the line's heights at its two handles.
+  function blank(i) {
+    const c = CARDS[STEPS[i].card];
+    return { pick: null, res: null, why: false, live: false, tr: null, h: c.fit ? c.fit.h0.slice() : null };
+  }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;
+  let lastSw = { x: false, y: false }, held = null, GEO = null, GRIPS_AT = [];
+  let REC = null;   // what the last paint drew, for the checks
+
+  // ---------- text with amber key terms, italic letters and raised powers (K.el, never innerHTML) ----------
+  const ITAL = /(?<![A-Za-z ])([pVCnxyabtvdEmc]+)(?![A-Za-zΩµ])/;
+  const LNW = /(?<![A-Za-z])(ln)(?![A-Za-z])/;
+  function lnKey(parent, s) {
+    String(s).split(LNW).forEach((q, j) => { if (q) parent.appendChild(j % 2 ? K.el('span', { class: 'lnk' }, q) : document.createTextNode(q)); });
+  }
+  function italics(parent, s) {
+    String(s).split(LNW).forEach((q, j) => {
+      if (!q) return;
+      if (j % 2) { parent.appendChild(K.el('span', { class: 'lnk' }, q)); return; }
+      q.split(ITAL).forEach((p, k) => {
+        if (!p) return;
+        parent.appendChild(k % 2 ? K.el('span', { class: 'v' }, p) : document.createTextNode(p));
+      });
+    });
+  }
+  const POW = /\^(\([^)]*\)|[0-9.−]+|[a-z])/;
+  function maths(parent, s) {
+    let rest = String(s), m;
+    while ((m = POW.exec(rest))) {
+      if (m.index) italics(parent, rest.slice(0, m.index));
+      const pw = m[1].charAt(0) === '(' ? m[1].slice(1, -1) : m[1];
+      italics(parent.appendChild(K.el('sup')), pw);
+      rest = rest.slice(m.index + m[0].length);
+    }
+    if (rest) italics(parent, rest);
+  }
+  // A formula keeps each piece whole on one line and may break before its = or ≈, or after a comma.
+  function formula(parent, s) {
+    s = String(s);
+    const bits = s.length <= 24 ? [s] : s.split(/ (?=[=≈] )|(?<=,) /).reduce((acc, c) => {
+      if (acc.length && acc[acc.length - 1].length < 4) acc[acc.length - 1] += ' ' + c; else acc.push(c);
+      return acc;
+    }, []);
+    bits.forEach((c, j) => {
+      if (j) parent.appendChild(document.createTextNode(' '));
+      maths(parent.appendChild(K.el('span', { class: 'nw' })), c);
+    });
+  }
+  // `maths` is a formula; *a key term* is highlighted; the rest is plain words.
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { formula(node, seg); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at0) lnKey(node, seg.slice(at0, m.index));
+        node.appendChild(K.el('span', { class: 'mark' }, m[1]));
+        at0 = m.index + m[0].length;
+      }
+      if (at0 < seg.length) lnKey(node, seg.slice(at0));
+    });
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s).replace(/_/g, '').replace(/ /g, ' ')
+    .replace(/\^\(([^)]*)\)/g, ' to the power $1').replace(/\^([0-9.−]+|[a-z])/g, ' to the power $1')
+    .replace(/eˣ/g, 'e to the power x').replace(/ˣ/g, ' to the power x').replace(/ⁿ/g, ' to the power n').replace(/²/g, ' squared').replace(/√/g, 'root ')
+    .replace(/≈/g, ' is about ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/−/g, ' minus ').replace(/\+/g, ' plus ')
+    .replace(/=/g, ' equals ').replace(/\s+/g, ' ').trim();
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const tgY = K.toggle({ id: 'logY', label: 'Log the y-axis', value: false, into: '#sw' });
+  const tgX = K.toggle({ id: 'logX', label: 'Log the x-axis', value: false, into: '#sw' });
+  // "y-axis" stays whole on one line.
+  [[tgY, 'y-axis'], [tgX, 'x-axis']].forEach(([tg, w]) => {
+    const lb = tg.el.querySelector('.k-field-label');
+    if (!lb) return;
+    lb.textContent = 'Log the ';
+    lb.appendChild(K.el('span', { class: 'nw' }, w));
+  });
+  const curCard = () => CARDS[STEPS[K.clamp(stepper.get(), 0, STEPS.length - 1)].card];
+  const rG = K.readout({ id: 'gradient', label: 'Gradient of your line', fmt: (v) => sg(v, 3) + ((curCard().fit || {}).gu || ''), into: '#outs' });
+  const rI = K.readout({ id: 'intercept', label: 'Intercept: log a', decimals: 3, fmt: (v) => fx(v, 3), into: '#outs' });
+  const rA = K.readout({ id: 'aBack', label: 'a, converted back', hint: '10 to the power log a', fmt: (v) => '≈ ' + sg(v, 2) + ((curCard().fit || {}).au || ''), into: '#outs' });
+  const labI = rI.el.querySelector('.k-readout-label'), labA = rA.el.querySelector('.k-readout-label'), hintA = rA.el.querySelector('.k-hint');
+  maths(document.getElementById('sfn'), 'y = mx + c');
+  maths(document.getElementById('sfy'), 'y = ab^x');
+  maths(document.getElementById('sfb'), 'y = ax^n');
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Microtask, so the readouts catch up after a switch is set quietly.
+  let queued = false;
+  function soon() { if (queued) return; queued = true; Promise.resolve().then(() => { queued = false; K.refresh(); }); }
+  // A screen opens on its own switches and the line's opening handles.
+  function openStep(i) {
+    const d = STEPS[i], st = S[i], c = CARDS[d.card];
+    st.live = false; st.tr = null;
+    if (c.fit) st.h = c.fit.h0.slice();
+    const s = { x: !!d.ax0.x, y: !!d.ax0.y };
+    lastSw = s; tgX.set(s.x, true); tgY.set(s.y, true);
+    soon();
+  }
+  // While a demonstration flips a switch, the switch follows it (quietly, so it is not Dan's move).
+  function syncSw(i) {
+    const d = STEPS[i], st = S[i];
+    if (!d.sw || st.live || finished) return;
+    const s = swNow(d, st);
+    if (s.x === lastSw.x && s.y === lastSw.y) return;
+    lastSw = s; tgX.set(s.x, true); tgY.set(s.y, true);
+    soon();
+  }
+
+  // Up to three answer buttons; each step fills in its own. A new choice after a wrong answer
+  // settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  // Check: marks the answer; a right one runs the picture on, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(st.res === 'right' ? FB[0] : FB[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    openStep(i);
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, the slide after a switch, and the motion after an answer;
+  // with reduced motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    syncSw(at());
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); syncSw(at()); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing helpers ----------
+  const el = (id) => document.getElementById(id);
+  const scene = el('scene'), art = el('art'), ui = el('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A demonstration's part: there at once once Dan has taken over.
+  const A = (st, t0, d) => (st.live ? 1 : arr(t0, d));
+  // A part's arrival from its spec (see R and W above).
+  function ar(d, st, s) {
+    if (s == null || s === 1 || s === true) return 1;
+    if (s === 0 || s === false) return 0;
+    if (typeof s === 'number') return d.show ? A(st, s) : 1;
+    const t0 = s.at != null ? s.at : (s.when === 'right' ? 0.1 : 0.3), du = s.dur != null ? s.dur : K.SOFT;
+    if (d.show) return A(st, t0, du);
+    if (s.when === 'right') return st.res === 'right' ? arr(t0, du) : 0;
+    if (s.when) return st.res === 'wrong' && st.pick === s.when ? arr(t0, du) : 0;
+    return 1;
+  }
+  function part(a, rise, draw) {
+    if (!(a > 0)) return null;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+    return g;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const dot = (cls, x, y, r) => add(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r: r || 4.5 }));
+  // Text in the drawing; _x_ is an italic letter.
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    String(s).split('_').forEach((q, k) => { if (q) t.appendChild(k % 2 ? K.svg('tspan', { class: 'vi' }, q) : document.createTextNode(q)); });
+    return add(t);
+  }
+  const wide = () => window.innerWidth > 480;
+  const widths = {};
+  function tw(s, cls) {
+    s = String(s).replace(/_/g, '');
+    const key = (wide() ? 'w|' : 'n|') + cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = scene.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));
+    t.textContent = s;
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    scene.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return s.length * 8;
+  }
+  // A long note wraps onto a second line rather than run off the drawing.
+  function wrap(s, cls, maxW) {
+    const words = String(s).split(' '), out = [];
+    let ln = '';
+    words.forEach((w) => { const t = ln ? ln + ' ' + w : w; if (ln && tw(t, cls) > maxW) { out.push(ln); ln = w; } else ln = t; });
+    if (ln) out.push(ln);
+    return out;
+  }
+  // The red notes along the bottom of the drawing: the slip a wrong answer made, in words.
+  function noteLines(d) { return Math.max(0, ...(d.notes || []).map((n) => wrap(n.text, 'slipt', 332).length)); }
+  function drawNotes(d, st, y0, said) {
+    (d.notes || []).forEach((n) => {
+      const a = ar(d, st, n);
+      if (!(a > 0)) return;
+      const lines = wrap(n.text, 'slipt', 332);
+      part(a, 0, () => lines.forEach((t, k) => text(4, y0 + 18 * k, t, 'slipt', 'start')));
+      REC.notes.push(n.text);
+      said.push('A note marking a slip: ' + say(n.text) + '.');
+    });
+  }
+
+  // ---------- the axes: each switch slides its axis between ordinary and logged ----------
+  // How far each axis is logged now: 0 ordinary, 1 logged, in between while it slides.
+  function axU(d, st, a) {
+    const ax = CARDS[d.card][a];
+    if (!ax.pr) return 1;
+    if (!ax.lr) return 0;
+    if (st.live && st.tr) { const t = st.tr[a]; return t.from + (t.to - t.from) * K.arrive(T, 0, LIVE_DUR); }
+    let v = d.ax0[a];
+    (d.flips || []).forEach((f) => { if (f.axis !== a) return; const q = ar(d, st, f); if (q > 0) v += (f.to - v) * q; });
+    return v;
+  }
+  // Where the switches stand now: each flip that has begun has turned its switch.
+  function swNow(d, st) {
+    if (st.live && st.tr) return { x: st.tr.x.to === 1, y: st.tr.y.to === 1 };
+    const o = { x: !!d.ax0.x, y: !!d.ax0.y };
+    (d.flips || []).forEach((f) => { if (ar(d, st, f) > 0) o[f.axis] = f.to === 1; });
+    return o;
+  }
+  // A value's place along an axis, part ordinary and part logged as the axis slides (0 has no log: it stays put).
+  function mixP(ax, v, u, lo, hi) {
+    const P = ax.pr ? lo + (v - ax.pr[0]) / (ax.pr[1] - ax.pr[0]) * (hi - lo) : null;
+    const L = ax.lr && v > 0 ? lo + (ax.f(v) - ax.lr[0]) / (ax.lr[1] - ax.lr[0]) * (hi - lo) : null;
+    if (P == null) return L;
+    if (L == null) return P;
+    return P + (L - P) * u;
+  }
+  const tickAt = (ax, v, log, lo, hi) => (log ? lo + (ax.f(v) - ax.lr[0]) / (ax.lr[1] - ax.lr[0]) * (hi - lo) : lo + (v - ax.pr[0]) / (ax.pr[1] - ax.pr[0]) * (hi - lo));
+  // The ticks to draw: the ordinary ones fading out as the axis is logged, the logged ones fading in.
+  function ticksOf(d, st, ax, which, u) {
+    const out = [];
+    if (ax.pr) ax.pt.forEach((v) => out.push({ v, log: false, a: 1 - u }));
+    if (ax.lr) ax.lt.forEach((v) => out.push({ v, log: true, a: u }));
+    const h = d.hideTick, ad = d.addTick;
+    if (h && h.axis === which) out.forEach((t) => { if (t.log && t.v === h.v) t.a *= ar(d, st, h.show); });
+    if (ad && ad.axis === which) out.push({ v: ad.v, log: true, a: u * ar(d, st, ad.show) });
+    return out.filter((t) => t.a > 0.001);
+  }
+  const titleOf = (ax, logged) => ax.name + (logged ? ', each at its ' + ax.b : '');
+  // The part of a line y = mX + c inside the axes' box, as X from xa to xb.
+  function clipSeg(L, xr, yr) {
+    let xa = xr[0], xb = xr[1];
+    if (Math.abs(L.m) < 1e-12) return L.c >= yr[0] && L.c <= yr[1] ? [xa, xb] : null;
+    const p = (yr[0] - L.c) / L.m, q = (yr[1] - L.c) / L.m;
+    xa = Math.max(xa, Math.min(p, q)); xb = Math.min(xb, Math.max(p, q));
+    return xb > xa ? [xa, xb] : null;
+  }
+
+  // ---------- the graph ----------
+  function drawGraph(d, st) {
+    const c = CARDS[d.card], g = d.g || {}, said = [];
+    const ux = axU(d, st, 'x'), uy = axU(d, st, 'y');
+    REC.ux = ux; REC.uy = uy;
+    const PX = (v) => mixP(c.x, v, ux, GX0, GX1), PY = (v) => mixP(c.y, v, uy, GY1, GY0);
+    const xr = c.st.x ? c.x.lr : c.x.pr, yr = c.st.y ? c.y.lr : c.y.pr;
+    const SX = (X) => GX0 + (X - xr[0]) / (xr[1] - xr[0]) * (GX1 - GX0);
+    const SY = (Y) => GY1 - (Y - yr[0]) / (yr[1] - yr[0]) * (GY1 - GY0);
+    const toS = (x, y) => [c.st.x ? (x > 0 ? c.x.f(x) : NaN) : x, c.st.y ? (y > 0 ? c.y.f(y) : NaN) : y];
+    GEO = { SX, SY, xr, yr, card: d.card };
+    // how straight the axes are for this card's readings: the line shows only on the straightening pair
+    const vis = K.clamp(1 - 2 * Math.max(Math.abs(ux - c.st.x), Math.abs(uy - c.st.y)), 0, 1);
+    REC.vis = vis;
+    const nl = noteLines(d);
+    REC.H = XTT + 8 + (nl ? 14 + 18 * nl : 0);
+    const logged = (u) => (u >= 0.5 ? 'logged' : 'ordinary');
+    said.push('A graph of ' + c.what + '. The x-axis is ' + logged(c.x.pr ? ux : 1) + ' and the y-axis ' + logged(c.y.pr ? uy : 1) + '.');
+
+    // the line: laid through the readings with two handles, or given by a puzzle
+    let L = null, la = 0, lg = 1;
+    if (c.fit && g.line != null) {
+      L = lineOf(c, st.h || c.fit.h0);
+      const q = ar(d, st, g.line);
+      if (g.line && g.line.grow) { lg = q; la = q > 0 ? vis : 0; } else la = q * vis;
+    } else if (c.line && g.xline != null) { L = c.line; la = ar(d, st, g.xline) * vis; }
+    REC.L = la >= 1 ? L : null;
+    // the intercept, where the line meets the upright axis
+    const icA = L && g.icpt != null && la > 0 ? ar(d, st, g.icpt) * vis : 0;
+    const icIn = !!L && L.c >= yr[0] - 1e-9 && L.c <= yr[1] + 1e-9;
+    let pill = null;
+    if (icA > 0 && icIn && c.fit) {
+      const w = tw(c.fit.ic, 'tagt') + 12;
+      pill = { a: icA, y: SY(L.c), x0: Math.max(2, GX0 - 6 - w), w, text: c.fit.ic };
+    }
+
+    // axes, ticks and titles (a number beside the intercept's tag gives way to it)
+    line('ax', GX0, GY1, GX1 + 6, GY1);
+    line('ax', GX0, GY0 - 8, GX0, GY1);
+    ticksOf(d, st, c.x, 'x', ux).forEach((t) => {
+      const X = tickAt(c.x, t.v, t.log, GX0, GX1), s = String(t.v), w = tw(s, 'tk');
+      part(t.a, 0, () => { line('ax', X, GY1, X, GY1 + 5); if (!c.x.nolab) text(K.clamp(X, 2 + w / 2, 338 - w / 2), XT, s, 'tk', 'middle'); });
+      if (t.a >= 1) REC.ticks.push({ ax: 'x', v: t.v, log: t.log, at: X });
+    });
+    ticksOf(d, st, c.y, 'y', uy).forEach((t) => {
+      const Y = tickAt(c.y, t.v, t.log, GY1, GY0);
+      let a = t.a;
+      if (pill && Math.abs(Y - pill.y) < 15) a *= 1 - pill.a;
+      if (!(a > 0.001)) return;
+      part(a, 0, () => { line('ax', GX0 - 5, Y, GX0, Y); text(GX0 - 8, Y + 4.5, String(t.v), 'tk', 'end'); });
+      if (a >= 1) REC.ticks.push({ ax: 'y', v: t.v, log: t.log, at: Y });
+    });
+    const yT = d.ytitle ? [[d.ytitle, 1]] : c.y.pr && c.y.lr ? [[titleOf(c.y, false), 1 - uy], [titleOf(c.y, true), uy]] : [[titleOf(c.y, !!c.y.lr), 1]];
+    yT.forEach((q) => { if (q[1] > 0.001) part(q[1], 0, () => text(4, 16, q[0], 'axt', 'start')); });
+    const xT = c.x.pr && c.x.lr ? [[titleOf(c.x, false), 1 - ux], [titleOf(c.x, true), ux]] : [[titleOf(c.x, !!c.x.lr), 1]];
+    xT.forEach((q) => { if (q[1] > 0.001) part(q[1], 0, () => text(336, XTT, q[0], 'axt', 'end')); });
+
+    // the line, drawn on from the upright axis in a demonstration
+    if (L && la > 0) {
+      const seg = clipSeg(L, xr, yr);
+      if (seg) {
+        const xe = seg[0] + (seg[1] - seg[0]) * lg;
+        if (xe > seg[0]) part(la, 0, () => line('fit', SX(seg[0]), SY(L.m * seg[0] + L.c), SX(xe), SY(L.m * xe + L.c)));
+      }
+      if (la >= 1) said.push('A line runs through ' + (c.fit ? 'the readings' : 'the graph') + '.');
+    }
+    // a thin stick from each reading to the line
+    if (c.fit && L && g.stk != null && la > 0) {
+      const a = ar(d, st, g.stk) * vis;
+      if (a > 0) part(a, 0, () => (c.pts || []).forEach((q) => {
+        const P = toS(q[0], q[1]);
+        if (!isFinite(P[0]) || !isFinite(P[1])) return;
+        const Yl = K.clamp(L.m * P[0] + L.c, yr[0], yr[1]);
+        line('stk', SX(P[0]), SY(P[1]), SX(P[0]), SY(Yl));
+        if (a >= 1) REC.sticks.push({ x: SX(P[0]), y0: SY(P[1]), y1: SY(Yl) });
+      }));
+    }
+    // the readings, sliding as the axes change
+    if (d.gapDemo) drawGap(d, st, c, PX, PY, said);
+    else if (g.dots != null) {
+      const dA = ar(d, st, g.dots);
+      (c.pts || []).forEach((q) => {
+        let a = dA;
+        if (c.x.lr && c.x.pr && !(q[0] > 0)) a *= 1 - ux;   // no log of 0: that reading drops off
+        if (c.y.lr && c.y.pr && !(q[1] > 0)) a *= 1 - uy;
+        if (!(a > 0.001)) return;
+        const X = PX(q[0]), Y = PY(q[1]);
+        part(a, 0, () => dot('dot', X, Y, 4.5));
+        if (a >= 1) REC.dots.push([X, Y]);
+      });
+      if (dA >= 1 && (c.pts || []).length) said.push((c.pts.length) + ' readings are drawn as dots.');
+    }
+    // the intercept's dot on the upright axis, and its name
+    if (L && icA > 0 && icIn) {
+      part(icA, 0, () => dot('idot', GX0, SY(L.c), 4.5));
+      if (pill) part(icA, 0, () => { rect('tag', pill.x0, pill.y - 9, pill.w, 18, 9); text(pill.x0 + pill.w / 2, pill.y + 4.5, pill.text, 'tagt', 'middle'); });
+      if (icA >= 1) { REC.icpt = { x: GX0, y: SY(L.c), text: pill ? pill.text : null }; said.push('The line meets the upright axis' + (pill ? ' at ' + say(pill.text) : '') + '.'); }
+    }
+    // the two handles, on the line
+    GRIPS_AT = [];
+    if (c.fit && L && g.hdl != null && la > 0) {
+      const a = ar(d, st, g.hdl) * vis, h = st.h || c.fit.h0;
+      if (a > 0) part(a, 0, () => c.fit.hx.forEach((X, k) => dot('handle', SX(X), SY(h[k]), 6.5)));
+      if (a >= 0.99 && vis >= 0.99) GRIPS_AT = c.fit.hx.map((X, k) => ({ k, X: SX(X), Y: SY(h[k]) }));
+      if (a >= 1) said.push('Two handles sit on the line.');
+    }
+    // the two readings a little off the lamp's line
+    if (g.near != null && L && la > 0) {
+      const a = ar(d, st, g.near) * vis;
+      if (a > 0) {
+        const p98 = toS(2, 98), p45 = toS(3, 45);
+        part(a, 0, () => { text(SX(p98[0]) + 9, SY(p98[1]) - 9, '98 lux: just below', 'lab', 'start'); text(SX(p45[0]) + 9, SY(p45[1]) - 9, '45 lux: just above', 'lab', 'start'); });
+        if (a >= 1) said.push('The 98 lux reading sits just below the line and the 45 lux reading just above it.');
+      }
+    }
+    // a puzzle's own marks
+    (d.items || []).forEach((it) => {
+      const a = ar(d, st, it);
+      if (!(a > 0)) return;
+      if (it.k === 'bracketX') {
+        const x0 = SX(it.X0), x1 = SX(it.X1), y = GY1 - 12;
+        part(a, 0, () => { line('br', x0 + 1, y, x1 - 1, y); line('br', x0 + 1, y - 5, x0 + 1, y + 5); line('br', x1 - 1, y - 5, x1 - 1, y + 5); text((x0 + x1) / 2, y - 8, it.text, 'brt', 'middle'); });
+        if (a >= 1) said.push('A bracket: ' + say(it.text) + '.');
+      } else if (it.k === 'stickX') {
+        part(a, 0, () => line('slip', SX(it.X), GY1 - 18, SX(it.X), GY1));
+        REC.slips += 1;
+      } else if (it.k === 'tag') {
+        part(a, 0, () => text(SX(it.X) + it.dx, SY(it.Y) + it.dy, it.text, 'labn', 'start'));
+        said.push('A label: ' + say(it.text) + '.');
+      } else if (it.k === 'pt') {
+        const x = SX(it.X), y = SY(it.Y);
+        part(a, 0, () => { dot('dot', x, y, 4.5); if (it.pos === 'ar') text(x + 8, y - 8, it.text, 'lab', 'start'); else text(x - 8, y + 18, it.text, 'lab', 'end'); });
+        said.push('A point on the line at ' + say(it.text) + '.');
+      } else if (it.k === 'tri') {
+        const x1 = SX(P13[0][0]), y1 = SY(P13[0][1]), x2 = SX(P13[1][0]), y2 = SY(P13[1][1]);
+        part(a, 0, () => {
+          line('tri', x1, y1, x2, y1); line('tri', x2, y1, x2, y2);
+          text((x1 + x2) / 2, y1 + 17, 'run ' + RUN13, 'labn', 'middle');
+          text(x2 + 7, (y1 + y2) / 2 - 4, 'fall', 'labn', 'start'); text(x2 + 7, (y1 + y2) / 2 + 13, FALL13, 'labn', 'start');
+        });
+        said.push('A step from the first point to the second: run ' + RUN13 + ', fall ' + say(FALL13) + '.');
+      }
+    });
+    drawNotes(d, st, XTT + 26, said);
+    return said.join(' ');
+  }
+
+  // Screen 7: each gap from the voltage up to the supply drops to the axis and becomes a dot.
+  function drawGap(d, st, c, PX, PY, said) {
+    const sA = A(st, 0.4), vA = A(st, 0.4) * (1 - A(st, 3.4)), bA = A(st, 1.2) * (1 - A(st, 3.0, 0.5)), drop = A(st, 1.9, 1.1), gA = A(st, 3.0, 0.5);
+    part(sA, 0, () => { line('supply', GX0, PY(VS), GX1, PY(VS)); text(GX1, PY(VS) - 6, VS + ' V supply', 'supt', 'end'); });
+    if (bA > 0) {
+      part(bA, 0, () => CAPG.forEach((q, k) => {
+        const b = VREAD[k] * (1 - drop), x = PX(q[0]);
+        rect('gapbar', x - 5, PY(b + q[1]), 10, PY(b) - PY(b + q[1]), 2);
+      }));
+      const b1 = VREAD[1] * (1 - drop);
+      part(bA, 0, () => text((PX(CAPG[1][0]) + PX(CAPG[2][0])) / 2, PY(b1 + CAPG[1][1] / 2) + 4.5, '10 − _v_', 'lab', 'middle'));
+    }
+    if (vA > 0) part(vA, 0, () => { CAPV.forEach((q) => dot('vdot', PX(q[0]), PY(q[1]), 4)); text(PX(TEND) - 9, PY(VREAD[5]) + 18, '_v_', 'lab', 'end'); });
+    if (gA > 0) part(gA, 0, () => { CAPG.forEach((q) => dot('dot', PX(q[0]), PY(q[1]), 4.5)); text(PX(DT) + 9, PY(CAPG[1][1]) + 4.5, '10 − _v_', 'lab', 'start'); });
+    if (gA >= 1) CAPG.forEach((q) => REC.dots.push([PX(q[0]), PY(q[1])]));
+    said.push('A dashed line marks the 10 volt supply. ' + (gA >= 1 ? 'Six dots show the gap still to close, curving down.' : 'Dots show the voltage rising, with a bar for each gap up to the supply.'));
+  }
+
+  // ---------- the strip that sums up the switches ----------
+  function paintStrip(d, st) {
+    const s = d.strip, box = el('strip');
+    box.hidden = !s || finished;
+    REC.strip = null;
+    if (!s) return;
+    const a = ar(d, st, s.a);
+    box.style.visibility = a > 0 ? '' : 'hidden';
+    K.fade(box, a, 0);
+    box.querySelectorAll('.cell').forEach((cl) => cl.classList.toggle('on', cl.dataset.k === s.on));
+    REC.strip = a >= 1 ? s.on : null;
+  }
+
+  // ---------- the drag: each handle moves its end of the line up or down ----------
+  function svgPt(e) {
+    const ctm = scene.getScreenCTM();
+    if (!ctm) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+  }
+  const yFromPx = (py) => (GEO ? GEO.yr[0] + (GY1 - py) / (GY1 - GY0) * (GEO.yr[1] - GEO.yr[0]) : NaN);
+  // A handle lands on steps of 0.005, and back on the opening line when it comes within 0.012 of it.
+  function snapH(c, k, Y, home) {
+    const yr = c.st.y ? c.y.lr : c.y.pr;
+    let v = Math.round(Y / 0.005) * 0.005;
+    if (home && Math.abs(Y - c.fit.h0[k]) < 0.012) return c.fit.h0[k];
+    return K.clamp(Math.round(v * 1e6) / 1e6, yr[0], yr[1]);
+  }
+  function setHandle(k, Y, home) {
+    const i = at(), d = STEPS[i], st = S[i], c = CARDS[d.card];
+    if (!d.live || finished || !c.fit || !isFinite(Y) || !GRIPS_AT[k]) return;
+    const h = (st.h || c.fit.h0).slice(), v = snapH(c, k, Y, home);
+    if (h[k] === v && st.live) return;
+    if (!st.live) {
+      // Dan takes over: the switches stay as they stand, and the rest of the demonstration is there at once
+      const s = swNow(d, st);
+      st.tr = { x: { from: s.x ? 1 : 0, to: s.x ? 1 : 0 }, y: { from: s.y ? 1 : 0, to: s.y ? 1 : 0 } };
+      st.live = true;
+    }
+    h[k] = v; st.h = h;
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    K.reveal(); K.refresh();
+  }
+  const grips = [0, 1].map((k) => {
+    const gp = ui.appendChild(K.svg('circle', { class: 'grip', cx: -100, cy: -100, r: 22, tabindex: -1, role: 'button',
+      'aria-label': (k ? 'The line\'s right handle' : 'The line\'s left handle') + '. Drag it up or down, or use the arrow keys.' }));
+    gp.style.display = 'none';
+    gp.addEventListener('pointerdown', (e) => {
+      if (!GRIPS_AT[k]) return;
+      held = { id: e.pointerId, k };
+      try { gp.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the handle */ }
+      e.preventDefault();
+    });
+    gp.addEventListener('pointermove', (e) => {
+      if (!held || held.id !== e.pointerId) return;
+      e.preventDefault();
+      const q = svgPt(e);
+      if (q) setHandle(held.k, yFromPx(q.y), true);
+    });
+    const letGo = (e) => { if (held && held.id === e.pointerId) held = null; };
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((ev) => gp.addEventListener(ev, letGo));
+    gp.addEventListener('keydown', (e) => {
+      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+      if (!by || !GRIPS_AT[k]) return;
+      e.preventDefault();
+      const c = CARDS[STEPS[at()].card], st = S[at()];
+      setHandle(k, (st.h || c.fit.h0)[k] + by * 0.01, false);
+    });
+    return gp;
+  });
+  function placeGrips(d) {
+    const on = !!d.live && !finished && GRIPS_AT.length > 0;
+    scene.classList.toggle('grab', on);
+    grips.forEach((gp, k) => {
+      const h = on ? GRIPS_AT[k] : null;
+      gp.style.display = h ? '' : 'none';
+      gp.setAttribute('tabindex', h ? '0' : '-1');
+      if (!h) return;
+      gp.setAttribute('cx', r3(h.X)); gp.setAttribute('cy', r3(h.Y));
+    });
+  }
+
+  // ---------- one paint: the picture, the strip, the readouts' arrival and the forms under them ----------
+  function writeForms(lines) {
+    const f = el('forms');
+    f.textContent = '';
+    REC.forms = [];
+    lines.forEach((l) => {
+      const sp = f.appendChild(K.el('span', { class: 'fl' }));
+      if (l[0]) formula(sp, l[0]);
+      if (l[1]) sp.appendChild(K.el('span', { class: 'fn' }, l[1]));
+      if (!(l[2] > 0)) { sp.classList.add('wait'); sp.setAttribute('aria-hidden', 'true'); return; }
+      K.fade(sp, l[2], 0);
+      if (l[0]) REC.forms.push(l[0]);
+    });
+  }
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], c = CARDS[d.card];
+    art.textContent = '';
+    REC = { ux: 0, uy: 0, vis: 0, L: null, ticks: [], dots: [], sticks: [], icpt: null, notes: [], slips: 0, forms: [], strip: null, H: 213 };
+    into = null;
+    const said = drawGraph(d, st);
+    scene.setAttribute('viewBox', '0 0 340 ' + REC.H);
+    scene.setAttribute('aria-label', said);
+    let lines;
+    if (d.show) {
+      const src = typeof d.forms === 'function' ? d.forms(lineOf(c, st.h || c.fit.h0)) : (d.forms || []);
+      lines = src.map((l) => [l[0], l[1], A(st, l[2])]);
+    } else if (st.res === 'right') lines = d.forms.right.map((l) => [l[0], l[1], l[2] ? arr(l[2]) : 1]);
+    else lines = d.forms.before.map((l) => [l[0], l[1], 1]);
+    writeForms(lines);
+    paintStrip(d, st);
+    if (d.outs) {
+      const a = A(st, d.outsAt), o = el('outs');
+      o.style.visibility = a > 0 ? '' : 'hidden';
+      K.fade(o, a, 0);
+    }
+    placeGrips(d);
+  }
+
+  // The model the lesson reads: the laid line's gradient and intercept, and the intercept turned back,
+  // once the switches stand where the card's readings lie straight (otherwise there is no line to read).
+  K.model((p) => {
+    const i = K.clamp(Math.round(Number(p.step) || 0), 0, STEPS.length - 1), c = CARDS[STEPS[i].card];
+    const none = { gradient: NOLINE, intercept: '—', aBack: '—' };
+    if (!c.fit) return none;
+    if ((p.logX === true ? 1 : 0) !== c.st.x || (p.logY === true ? 1 : 0) !== c.st.y) return none;
+    const L = lineOf(c, (S[i] && S[i].h) || c.fit.h0);
+    return { gradient: L.m, intercept: L.c, aBack: backOf(c, L.c) };
+  });
+
+  write(el('finish'), FINISH);
+  write(el('cap'), CAPTION);
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i], c = CARDS[d.card];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    const sw = { x: p.logX === true, y: p.logY === true };
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      openStep(i);
+      if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }
+    } else if (sw.x !== lastSw.x || sw.y !== lastSw.y) {
+      // a switch flipped (by Dan, or a test): the axes slide from where they stand to the switches' setting
+      if (d.sw && !finished) {
+        const fx0 = axU(d, st, 'x'), fy0 = axU(d, st, 'y');
+        st.tr = { x: { from: fx0, to: sw.x ? 1 : 0 }, y: { from: fy0, to: sw.y ? 1 : 0 } };
+        st.live = true;
+        lastSw = sw;
+        play(LIVE_DUR);
+      } else lastSw = sw;
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('sw').hidden = finished || !d.sw;
+    el('outs').hidden = finished || !d.outs;
+    if (c.fit) {
+      if (labI) labI.textContent = c.fit.il;
+      if (labA) labA.textContent = c.fit.al;
+      if (hintA) hintA.textContent = c.fit.ah;
+    }
+    paint(i);
+    syncSw(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      maths(b.el.appendChild(K.el('span')), opts[k]);   // one span, so the button's gap does not split an answer
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Tap one of the answers.' : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const PICKS = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = (i) => Object.assign(blank(i), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(i), { pick: o, res: 'wrong' });
+  const liveSt = (i, sx, sy, h) => Object.assign(blank(i), { live: true, tr: { x: { from: sx, to: sx }, y: { from: sy, to: sy } } }, h ? { h } : {});
+  const close = (a, b, tol) => Math.abs(a - b) <= (tol != null ? tol : 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)));
+  // A step painted in the state given (finished, or t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try {
+      paint(i);
+      return { texts: Array.from(art.querySelectorAll('text')).map((q) => q.textContent), rec: REC };
+    } finally { S[i] = keepS; T = keepT; }
+  }
+  // The model at a step, with that step's line on its opening handles.
+  function atStep(i, over) {
+    const keep = S[i];
+    S[i] = blank(i);
+    try { return K.at(Object.assign({ step: i }, over)); } finally { S[i] = keep; }
+  }
+  // Every check repaints the screen Dan is on when it is done.
+  const chk = (label, fn, opt) => K.check(label, () => { try { return fn(); } finally { paint(); } }, opt);
+  // The biggest gap, in drawing units, between a dot and the line through the first and last dots.
+  function bend(pts) {
+    const a = pts[0], b = pts[pts.length - 1];
+    return Math.max(...pts.map((q) => Math.abs(q[1] - (a[1] + (b[1] - a[1]) * (q[0] - a[0]) / (b[0] - a[0])))));
+  }
+  const I_GAS = idx('Lay the line'), I_CAP = idx('The capacitor\'s line'), I_LAMP = idx('The lamp');
+
+  chk('A logged axis puts each number at its log: 2, 5 and 20 sit 0.301, 0.699 and 1.301 of a × 10 space along, and on the ln axis 2, 5 and 10 sit at 0.693, 1.609 and 2.303', () => {
+    const g = drawn(I_GAS, blank(I_GAS)).rec, gc = drawn(I_CAP, liveSt(I_CAP, 0, 1)).rec;
+    const xs = g.ticks.filter((t) => t.ax === 'x' && t.log), ys = g.ticks.filter((t) => t.ax === 'y' && t.log), cs = gc.ticks.filter((t) => t.ax === 'y' && t.log);
+    return xs.map((t) => t.v).join('|') === '1|2|5|10' && xs.every((t) => close(t.at, GX0 + LG(t.v) * (GX1 - GX0), 1e-6)) &&
+      ys.map((t) => t.v).join('|') === '1|2|5|10|20' && ys.every((t) => close(t.at, GY1 - LG(t.v) / 1.5 * (GY1 - GY0), 1e-6)) &&
+      cs.length >= 3 && cs.every((t) => close(t.at, GY1 - LN(t.v) / 2.5 * (GY1 - GY0), 1e-6)) &&
+      fx(LG(2), 3) === '0.301' && fx(LG(5), 3) === '0.699' && fx(LG(20), 3) === '1.301' && fx(LN(2), 3) === '0.693' && fx(LN(5), 3) === '1.609' && fx(LN(10), 3) === '2.303';
+  });
+  chk('Only the right switches straighten each card: the gas and the lamp lie on a line with both axes logged and stay bent on every other setting; the capacitor\'s gap is bent on ordinary axes, lies on a line with only its y-axis logged, and bends again when t is logged too, dropping the 0 s reading', () => {
+    const all = [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 1]];
+    const cases = [[idx('Two switches'), all, 5], [I_LAMP, all, 5], [I_CAP, [[0, 0, 0], [0, 1, 1], [1, 1, 0]], 6]];
+    return cases.every((cs) => cs[1].every((s) => {
+      const dots = drawn(cs[0], liveSt(cs[0], s[0], s[1])).rec.dots, want = cs[0] === I_CAP && s[0] === 1 ? 5 : cs[2];
+      return dots.length === want && (s[2] ? bend(dots) < 2 : bend(dots) > 4);
+    }));
+  });
+  chk('The gas line: handles on it at (0.301, 1.086) and (1, 0.176) give a gradient of −0.910 ÷ 0.699 ≈ −1.30, an intercept of 1.478 at log V = 0, and C = 10^1.478 ≈ 30, so 30 ÷ 4^1.3 ≈ 4.95 bar, beside the 5.0 bar read', () => {
+    const o = atStep(I_GAS, { logX: true, logY: true }), off = atStep(I_GAS, { logX: false, logY: true }), g = drawn(I_GAS, blank(I_GAS)).rec;
+    return sg(o.gradient, 3) === '−1.30' && fx(o.intercept, 3) === '1.478' && sg(o.aBack, 2) === '30' && off.gradient === NOLINE && off.aBack === '—' &&
+      fx(LG(12.2), 3) === '1.086' && fx(LG(1.5), 3) === '0.176' && fx(LG(1.5) - LG(12.2), 3) === '−0.910' && fx(1 - LG(2), 3) === '0.699' &&
+      fx(Math.pow(4, 1.3), 2) === '6.06' && fx(30 / Math.pow(4, 1.3), 2) === '4.95' && sg(-o.gradient, 2) === '1.3' &&
+      !!g.icpt && g.icpt.text === 'log C' && close(g.icpt.x, GX0) && close(g.icpt.y, GY1 - o.intercept / 1.5 * (GY1 - GY0), 1e-6) &&
+      g.forms[0] === 'pV^1.3 = 30' && g.forms[1] === '30 ÷ 4^1.3 ≈ 4.95';
+  });
+  chk('RC is the time constant: the capacitor\'s ln(10 − v) line falls from 2.303 at 0 s to 0.182 at 100 s, a gradient of −0.0212 per second, which gives back RC ≈ 1 ÷ 0.0212 ≈ 47 s, and e^2.303 ≈ 10 V, the supply', () => {
+    const o = atStep(I_CAP, { logX: false, logY: true }), g = drawn(I_CAP, liveSt(I_CAP, 0, 1)).rec;
+    return RC === 47 && sg(o.gradient, 3) === '−0.0212' && fx(o.intercept, 3) === '2.303' && sg(o.aBack, 2) === '10' && sg(-1 / o.gradient, 2) === '47' &&
+      close(VS * Math.exp(-RC / RC), VS / Math.E, 1e-12) && !!g.icpt && g.icpt.text === 'ln a' && g.forms[1] === 'RC ≈ 1 ÷ 0.0212 ≈ 47 s';
+  }, { source: SRC3 });
+  chk('Slope on a log-log graph is the exponent n: the lamp\'s readings, with both axes logged, lie on a line whose gradient is the power of d in its law, and that law gives back each reading', () => {
+    const o = atStep(I_LAMP, { logX: true, logY: true }), a = o.aBack;
+    return sg(o.gradient, 3) === '−2.00' && sg(a, 2) === '400' && fx(o.intercept, 3) === '2.602' &&
+      LAMP.every((q) => Math.abs(a * Math.pow(q[0], o.gradient) / q[1] - 1) < 0.03) && fx(a / 9, 1) === '44.4';
+  }, { source: SRC2 });
+  chk('The special case n = 1 is the isothermal expansion: readings of pV = C, with both axes logged, lie on a line of gradient −1', () => {
+    const pts = [2, 3, 4, 6, 10].map((V) => [LG(V), LG(30 / Math.pow(V, N_ISO))]), L = lineThrough(pts[0], pts[4]);
+    return close(L.m, -1, 1e-12) && pts.every((q) => close(q[1], L.m * q[0] + L.c, 1e-12));
+  }, { source: SRC1 });
+  chk('Logarithmic graphs estimate the parameters of y = axⁿ and y = kbˣ from data for x and y: the gas gives its n and C, the capacitor its RC and supply, and the lamp its power and a, each only on its straightening switches', () => {
+    const ok = (i, sx, sy) => { const o = atStep(i, { logX: sx === 1, logY: sy === 1 }); return [o.gradient, o.intercept, o.aBack].every((v) => typeof v === 'number' && isFinite(v)); };
+    const no = (i, sx, sy) => atStep(i, { logX: sx === 1, logY: sy === 1 }).gradient === NOLINE;
+    return ok(I_GAS, 1, 1) && no(I_GAS, 0, 1) && no(I_GAS, 1, 0) && ok(I_CAP, 0, 1) && no(I_CAP, 1, 1) && ok(I_LAMP, 1, 1) && no(I_LAMP, 0, 1) && no(I_LAMP, 0, 0);
+  }, { source: SRC4 });
+  chk('The intercept sits on the upright axis: at log x = 0, that is x = 1, on a logged x-axis, and at t = 0 on the capacitor\'s ordinary one; its tag says log C, ln a or log a, and a tick number beside it gives way', () => {
+    const g = drawn(I_GAS, blank(I_GAS)).rec, c = drawn(I_CAP, liveSt(I_CAP, 0, 1)).rec, l = drawn(I_LAMP, blank(I_LAMP)).rec;
+    const one = g.ticks.find((t) => t.ax === 'x' && t.log && t.v === 1), zero = c.ticks.find((t) => t.ax === 'x' && !t.log && t.v === 0);
+    return !!one && close(one.at, GX0) && !!zero && close(zero.at, GX0) && g.icpt.text === 'log C' && c.icpt.text === 'ln a' && l.icpt.text === 'log a' &&
+      !c.ticks.some((t) => t.ax === 'y' && t.v === 10) && !l.ticks.some((t) => t.ax === 'y' && t.v === 500);
+  });
+  chk('Every number follows its rule: logs 0.477, 0.602, 0.778, 0.851, 0.462 and 1.000; (5 − 1) ÷ 9 ≈ 0.44 and √10 ≈ 3.16; 10^1.70 ≈ 50.1 and e^1.70 ≈ 5.47; gaps 6.5, 4.3, 2.8, 1.8 and 1.2 V with ln 1.872, 1.459, 1.030, 0.588 and 0.182; e^5.99 ≈ 400, 10^5.99 ≈ 977 000 and 10^2.303 ≈ 201; lamp logs 1.991, 1.653, 1.398 and 1.204; −0.84 ÷ 0.6 = −1.4 and 0.6 ÷ 0.84 ≈ 0.71; and every answer offered is the value its own working gives', () => {
+    const logs = [[3, '0.477'], [4, '0.602'], [6, '0.778'], [7.1, '0.851'], [2.9, '0.462'], [10, '1.000'], [98, '1.991'], [45, '1.653'], [25, '1.398'], [16, '1.204'], [400, '2.602']].every((q) => fx(LG(q[0]), 3) === q[1]);
+    const gaps = CAPG.map((q) => q[1]).join('|') === '10|6.5|4.3|2.8|1.8|1.2' && CAPG.slice(1).map((q) => fx(LN(q[1]), 3)).join('|') === '1.872|1.459|1.030|0.588|0.182';
+    const ok = fx(4 / 9, 2) === '0.44' && fx(Math.sqrt(10), 2) === '3.16' && fx(E170, 1) === '50.1' && fx(Math.exp(1.7), 2) === '5.47' &&
+      sg(V599, 2) === '400' && Math.round(Math.pow(10, 5.99) / 1000) === 977 && fv(Math.pow(10, 2.303), 0) === '201' &&
+      FALL13 === '−0.84' && RUN13 === '0.6' && O13.join('|') === '1.4|−1.4|0.71' && ANS6 === 'C = 10^1.70 ≈ 50.1' && ANS10 === 'v = e^5.99 ≈ 400' + NB + 'V';
+    return logs && gaps && ok;
+  });
+  const shows = (texts, ans) => texts.some((x) => x === ans || (x.indexOf(ans) === 0 && /\s/.test(x.charAt(ans.length))));
+  chk('Before an answer, nothing in a puzzle\'s picture or lines gives it away, and a right answer shows it', () =>
+    PICKS.every((i) => {
+      const d = STEPS[i], b = drawn(i, blank(i)), r = drawn(i, solvedSt(i));
+      return !shows(b.texts, d.ans) && !shows(b.rec.forms, d.ans) && (shows(r.texts, d.ans) || shows(r.rec.forms, d.ans));
+    }));
+  chk('Each puzzle offers three answers and takes only its right one, and every wrong answer has a hint of its own and draws its slip in red', () =>
+    PICKS.every((i) => {
+      const d = STEPS[i];
+      return d.opts.length === 3 && d.opts.indexOf(d.want) === 0 && d.opts.every((o) => isRight(i, Object.assign(blank(i), { pick: o })) === (o === d.want)) &&
+        d.opts.every((o) => o === d.want || (!!(d.hints && d.hints[o]) && (() => { const g = drawn(i, wrongSt(i, o)).rec; return g.slips + g.notes.length > 0; })()));
+    }));
+  chk('A right answer to "which plot is straight" slides the capacitor\'s dots onto a line, and "not inverse-square" bends the lamp\'s', () => {
+    const i8 = idx('Which plot is straight?'), i14 = idx('A reading off the line');
+    return bend(drawn(i8, blank(i8)).rec.dots) > 4 && bend(drawn(i8, solvedSt(i8)).rec.dots) < 2 &&
+      bend(drawn(i14, blank(i14)).rec.dots) < 2 && bend(drawn(i14, wrongSt(i14, O14[2])).rec.dots) > 4;
+  });
+  chk('The drag maps the finger back to the same height: a finger at a handle sets it there, a finger off the top or bottom stops at the axis\'s end', () => [I_GAS, I_CAP, I_LAMP].every((i) => {
+    const c = CARDS[STEPS[i].card], yr = c.st.y ? c.y.lr : c.y.pr;
+    drawn(i, blank(i));
+    const home = c.fit.h0.every((h, k) => snapH(c, k, yFromPx(GEO.SY(h)), true) === h);
+    const moved = c.fit.h0.every((h, k) => Math.abs(snapH(c, k, yFromPx(GEO.SY(h + 0.05)), true) - (h + 0.05)) <= 0.0025 + 1e-9);
+    return home && moved && snapH(c, 0, yFromPx(-100), true) === yr[1] && snapH(c, 0, yFromPx(400), true) === yr[0];
+  }));
+  chk('Every demonstration has finished arriving within its time (3 to 4.5 s), none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(i), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i), FB[0]) && FB[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB[1]) && FB[1] <= 2.5);
+    });
+    T = keepT;
+    return ok;
+  });
+
+  K.ready();
+</script>

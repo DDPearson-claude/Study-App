@@ -1,0 +1,589 @@
+{
+  "iid": "i7",
+  "title": "Log graphs: curved laws as straight lines",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is curved readings sliding onto a straight line whose gradient reads the unknown power, when you switch the right axes to logs.",
+    "title": "Straighten the curve",
+    "controls": [
+      {
+        "id": "logY",
+        "label": "Log the y-axis",
+        "min": 0,
+        "max": 1,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      },
+      {
+        "id": "logX",
+        "label": "Log the x-axis",
+        "min": 0,
+        "max": 1,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "gradient",
+        "label": "Gradient of your line",
+        "unit": ""
+      },
+      {
+        "id": "intercept",
+        "label": "Intercept: log a",
+        "unit": "",
+        "decimals": 3
+      },
+      {
+        "id": "aBack",
+        "label": "a, converted back",
+        "unit": ""
+      }
+    ],
+    "whatAmILookingAt": "A short lesson in fourteen small screens on one graph of readings. Three cards each give a set of readings, drawn as dots on ordinary axes, where they curve. Two switches sit above the graph: 'Log the y-axis' and 'Log the x-axis'. When a switch flips, that axis is relabelled like lesson 4's power ruler, with each number at its log (1, 2, 5, 10, 20 at 0, 0.301, 0.699, 1 and 1.301 on a log axis), and every dot slides to its new place over about a second, so you can watch the bend come out or go back in. Once the dots lie on a line, two handles lay a line through them, as in Straight-line graphs lesson 6: each reading shows a thin stick to the line, and the readouts give the line's gradient (to three figures), its intercept, labelled 'log a' (or 'ln a' on an ln axis), and under it a 'convert back' step that shows 10 to that power (or e to it) as the number a. On a phone the switches sit side by side above the graph, the readouts stack under it, and the tick labels show only 1, 2, 5 and 10 in each × 10 space so nothing crowds. The rule: for a power law, y = axⁿ, the log laws from lesson 5 give log y = log a + n log x, so log y against log x is a straight line with gradient n and intercept log a; for an exponential, y = abˣ, they give log y = log a + x log b, so log y against plain x is straight, with gradient log b. The intercept is where the upright axis sits: at log x = 0, that is x = 1, on a log x-axis (there is no log of 0), or at x = 0 on an ordinary one. Card 1, the gas: a gas expanding in a cylinder, volume V from 0 to 10 L along the bottom, pressure p from 0 to 14 bar up the side, readings (2 L, 12.2 bar), (3, 7.1), (4, 5.0), (6, 2.9) and (10, 1.5). Logged, V runs from 1 to 10 (log V 0 to 1) and p from 1 to about 32 (log p 0 to 1.5), and the readings sit at log V 0.301, 0.477, 0.602, 0.778, 1 and log p 1.086, 0.851, 0.699, 0.462, 0.176; the rule here is pVⁿ = C, so log p = log C − n log V, with gradient −n. Card 2, the capacitor: lesson 3's capacitor, 470 µF through 100 kΩ (RC = 47 s), charging towards a 10 V supply, read every 20 s from 0 to 100 s: v = 0, 3.5, 5.7, 7.2, 8.2 and 8.8 V. It plots the gap still to close, 10 − v, from 0 to 10 V up the side: 10, 6.5, 4.3, 2.8, 1.8 and 1.2 V. Its y switch takes ln, not log, because the law is written with e: the marks 1, 2, 5 and 10 sit at 0, 0.693, 1.609 and 2.303, and the readings at 2.303, 1.872, 1.459, 1.030, 0.588 and 0.182. Its x switch logs t, which bends the dots again and drops the 0 s reading, since 0 has no log. Card 3, the lamp: a light meter's readings at 1, 2, 3, 4 and 5 m from a small lamp, 400, 98, 45, 25 and 16 lux, on axes of 0 to 5 m and 0 to 450 lux; logged, d runs from 1 to 10 and E from 10 to 1000, with log d 0, 0.301, 0.477, 0.602, 0.699 and log E 2.602, 1.991, 1.653, 1.398, 1.204. Screen by screen: 1 opens the gas card on ordinary axes, flips 'Log the y-axis' (the dots slide, still bent), then 'Log the x-axis' (they slide onto a line). 2 asks where 5 sits on the logged V axis between 1 and 10: about 0.7 of the way (log 5 = 0.699), not about 0.44 of the way ((5 − 1) ÷ 9, the axis read as evenly spaced) or halfway (halfway is √10 ≈ 3.16, since half a × 10 space multiplies by √10). 3 shows why it is straight, one line at a time: p = C V^(−n); log p = log C + log V^(−n) (product law); log p = log C − n log V (power law); then y = mx + c beneath it, with log p as y, log V as x, −n as m and log C as c. 4 asks which line is the straight-line form of pVⁿ = C: log p = log C − n log V, not log p = −n log(CV) (the n multiplying C's log too, though only V carries the power) or p = log C − n log V (logs taken of one side only). 5 lays the line: the handles sit on the line at log V = 0.301 (log p 1.086) and log V = 1 (log p 0.176), the gradient reads −0.910 ÷ 0.699 ≈ −1.30, so n ≈ 1.3; the line is extended left to the upright axis at log V = 0, V = 1 L, where it crosses at 1.478 (there the −n log V term is zero, so the height is log C), labelled 'log C', and the convert-back step shows 10^1.478 ≈ 30; the law pV^1.3 = 30 is written beside it, checked at 4 L: 30 ÷ 4^1.3 ≈ 4.95 bar against the 5.0 bar reading. 6 asks: another gas's line crosses at log C = 1.70, so what is C? About 50 (10^1.70 ≈ 50.1), not 1.70 (the log left unconverted) or 5.47 (e^1.70, the wrong key for a log axis). 7 changes to the capacitor card: the readings of v, then the gap 10 − v as lesson 3's shrinking bars turned into dots, curving down, with 10 − v = 10 e^(−t/47) written beside them; the bars are ink, and the upright axis's title changes from voltage to the gap as they drop. 8 asks which plot will be straight: ln(10 − v) against t, not ln v against t (v = 10 − 10 e^(−t/47) is a difference, and no log law splits the log of a difference) or ln(10 − v) against ln t (t sits in the power, not under one, so logging t bends the line again). 9 flips the y switch only: the dots fall on a line, and beside it ln(10 − v) = ln 10 + ln e^(−t/47) (product law) and then ln(10 − v) = ln 10 − t/47 (ln of e to a power is the power) are written, the handles sit at (0 s, 2.303) and (100 s, 0.182), the gradient reads −0.0212 per second, so RC ≈ 1 ÷ 0.0212 ≈ 47 s, lesson 3's time constant, and the intercept, labelled 'ln a', converts back with eˣ: e^2.303 ≈ 10 V, the supply; then the x switch flips on and the dots bend again, and it flips back off, leaving the line. 10 asks: a discharging capacitor's ln v against t line crosses at 5.99, so what was its starting voltage? About 400 V (e^5.99), not about 977 000 V (10^5.99, the wrong key for an ln axis) or 5.99 V (the log left unconverted). 11 changes to the lamp card: y only leaves a bend, both switches make a line; the handles at (0, 2.602) and (0.699, 1.204) give a gradient of −2.00, so E = a d^(−2), and the intercept 2.602 converts back to 10^2.602 ≈ 400 lux; the 98 lux reading sits a little below the line and the 45 lux reading a little above it, and the sticks show it; a strip under the graph sums up the switches: neither for y = mx + c, y only for y = abˣ, both for y = axⁿ. 12, 13 and 14 mix it all, each with its own card: 12, a set of readings that lies on a line with the y-axis logged only: which law? y = abˣ, not y = axⁿ (that needs both axes logged, because x is raised to a power) or y = mx + c (that is straight before any switch, and logging y bends it); a right answer then turns the gradient back: log b ≈ 0.301, so b = 10^0.301 ≈ 2. 13, a gas's log p against log V line passes through (0.2, 1.30) and (0.8, 0.46): what is n? 1.4 (gradient −0.84 ÷ 0.6 = −1.4, and the gradient is −n), not −1.4 (the minus kept, though pVⁿ = C gives a gradient of −n) or 0.71 (0.6 ÷ 0.84, run over rise). 14, the lamp line, which reads 100 lux at 2 m, misses the 98 lux reading a little: what now? Keep the line, not move a handle until the line goes through 98 (chasing one reading tips the line off the others) or decide the law is not inverse-square (a wrong law bends the whole set, as the y-only switch did). A puzzle offers its three answers, and a wrong pick gets a one-line hint showing where it goes wrong.",
+    "ignores": "The readings on all three cards are made up for the examples: worked out from the laws given and rounded, with two of the lamp's readings moved a little, so the lines fit them well. Real readings scatter more. The line is laid by eye, so n and RC come out to about two figures. pVⁿ = C is itself a model of a real expansion, which follows it with n nearly constant rather than exactly. The capacitor is lesson 3's ideal one. Whether, and how closely, a real lamp's light falls as the inverse square is physics this lesson has no source for; the lamp's readings are simply made to follow it. The logs on screen are rounded to three decimal places.",
+    "numbers": [
+      {
+        "label": "Switches' opening setting, off",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Switches' on setting",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "log 2, a mark on the log axes",
+        "value": 0.301,
+        "kind": "computed"
+      },
+      {
+        "label": "log 5, a mark on the log axes",
+        "value": 0.699,
+        "kind": "computed"
+      },
+      {
+        "label": "log 20, a mark on the log axes",
+        "value": 1.301,
+        "kind": "computed"
+      },
+      {
+        "label": "Gas card: volume axis, right-hand end, in litres",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Gas card: pressure axis, top, in bar",
+        "value": 14,
+        "kind": "assumed"
+      },
+      {
+        "label": "Gas card: logged pressure axis, top, as a log",
+        "value": 1.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Gas card: logged pressure axis, top, about, in bar",
+        "value": 32,
+        "kind": "computed"
+      },
+      {
+        "label": "Gas reading 1: volume, in litres",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Gas reading 1: pressure, in bar",
+        "value": 12.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Gas reading 2: volume, in litres",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Gas reading 2: pressure, in bar",
+        "value": 7.1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Gas reading 3: volume, in litres",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Gas reading 3: pressure, in bar",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Gas reading 4: volume, in litres",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Gas reading 4: pressure, in bar",
+        "value": 2.9,
+        "kind": "assumed"
+      },
+      {
+        "label": "Gas reading 5: volume, in litres",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Gas reading 5: pressure, in bar",
+        "value": 1.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "log 3",
+        "value": 0.477,
+        "kind": "computed"
+      },
+      {
+        "label": "log 4",
+        "value": 0.602,
+        "kind": "computed"
+      },
+      {
+        "label": "log 6",
+        "value": 0.778,
+        "kind": "computed"
+      },
+      {
+        "label": "log 10",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "log 12.2",
+        "value": 1.086,
+        "kind": "computed"
+      },
+      {
+        "label": "log 7.1",
+        "value": 0.851,
+        "kind": "computed"
+      },
+      {
+        "label": "log 2.9",
+        "value": 0.462,
+        "kind": "computed"
+      },
+      {
+        "label": "log 1.5",
+        "value": 0.176,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 5 read as evenly spaced, (5 − 1) ÷ 9",
+        "value": 0.44,
+        "kind": "computed"
+      },
+      {
+        "label": "Halfway on a log axis, √10",
+        "value": 3.16,
+        "kind": "computed"
+      },
+      {
+        "label": "Gas line: fall between the handles, 0.176 − 1.086",
+        "value": -0.91,
+        "kind": "computed"
+      },
+      {
+        "label": "Gas line: run between the handles, 1 − 0.301",
+        "value": 0.699,
+        "kind": "computed"
+      },
+      {
+        "label": "Gas line: gradient",
+        "value": -1.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Gas law's power n",
+        "value": 1.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Gas line: intercept, log C",
+        "value": 1.478,
+        "kind": "computed"
+      },
+      {
+        "label": "Gas law's C, 10 to the 1.478, in bar and litres",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "4 to the power 1.3",
+        "value": 6.06,
+        "kind": "computed"
+      },
+      {
+        "label": "Gas law's pressure at 4 L, in bar",
+        "value": 4.95,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6: another gas's log C",
+        "value": 1.7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 6: 10 to the 1.70",
+        "value": 50.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: e to the 1.70",
+        "value": 5.47,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacitance, from lesson 3, in µF",
+        "value": 470,
+        "kind": "assumed"
+      },
+      {
+        "label": "Resistance, from lesson 3, in kΩ",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Time constant RC, in seconds",
+        "value": 47,
+        "kind": "computed"
+      },
+      {
+        "label": "Supply voltage, from lesson 3, in volts",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitor readings' spacing, in seconds",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitor card: time axis, right-hand end, in seconds",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitor reading at 0 s, in volts",
+        "value": 0,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitor reading at 20 s, in volts",
+        "value": 3.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitor reading at 40 s, in volts",
+        "value": 5.7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitor reading at 60 s, in volts",
+        "value": 7.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitor reading at 80 s, in volts",
+        "value": 8.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitor reading at 100 s, in volts",
+        "value": 8.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Gap at 20 s, in volts",
+        "value": 6.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap at 40 s, in volts",
+        "value": 4.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap at 60 s, in volts",
+        "value": 2.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap at 80 s, in volts",
+        "value": 1.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap at 100 s, in volts",
+        "value": 1.2,
+        "kind": "computed"
+      },
+      {
+        "label": "ln 2, a mark on the ln axis",
+        "value": 0.693,
+        "kind": "computed"
+      },
+      {
+        "label": "ln 5, a mark on the ln axis",
+        "value": 1.609,
+        "kind": "computed"
+      },
+      {
+        "label": "ln 10",
+        "value": 2.303,
+        "kind": "computed"
+      },
+      {
+        "label": "ln 6.5",
+        "value": 1.872,
+        "kind": "computed"
+      },
+      {
+        "label": "ln 4.3",
+        "value": 1.459,
+        "kind": "computed"
+      },
+      {
+        "label": "ln 2.8",
+        "value": 1.03,
+        "kind": "computed"
+      },
+      {
+        "label": "ln 1.8",
+        "value": 0.588,
+        "kind": "computed"
+      },
+      {
+        "label": "ln 1.2",
+        "value": 0.182,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacitor line: gradient, per second",
+        "value": -0.0212,
+        "kind": "computed"
+      },
+      {
+        "label": "RC from the gradient, 1 ÷ 0.0212, in seconds",
+        "value": 47,
+        "kind": "computed"
+      },
+      {
+        "label": "Supply from the intercept, e to the 2.303, in volts",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10: a discharge line's intercept, ln",
+        "value": 5.99,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 10: e to the 5.99, in volts",
+        "value": 400,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 10 to the 5.99, in volts",
+        "value": 977000,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 10 to the 2.303",
+        "value": 201,
+        "kind": "computed"
+      },
+      {
+        "label": "Lamp distances, 1 to 5, in metres",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Lamp reading at 1 m, in lux",
+        "value": 400,
+        "kind": "assumed"
+      },
+      {
+        "label": "Lamp reading at 2 m, in lux",
+        "value": 98,
+        "kind": "assumed"
+      },
+      {
+        "label": "Lamp reading at 3 m, in lux",
+        "value": 45,
+        "kind": "assumed"
+      },
+      {
+        "label": "Lamp reading at 4 m, in lux",
+        "value": 25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Lamp reading at 5 m, in lux",
+        "value": 16,
+        "kind": "assumed"
+      },
+      {
+        "label": "Lamp card: lux axis, top",
+        "value": 450,
+        "kind": "assumed"
+      },
+      {
+        "label": "Lamp card: logged lux axis, top",
+        "value": 1000,
+        "kind": "assumed"
+      },
+      {
+        "label": "log 400",
+        "value": 2.602,
+        "kind": "computed"
+      },
+      {
+        "label": "log 98",
+        "value": 1.991,
+        "kind": "computed"
+      },
+      {
+        "label": "log 45",
+        "value": 1.653,
+        "kind": "computed"
+      },
+      {
+        "label": "log 25",
+        "value": 1.398,
+        "kind": "computed"
+      },
+      {
+        "label": "log 16",
+        "value": 1.204,
+        "kind": "computed"
+      },
+      {
+        "label": "Lamp line: gradient",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Lamp law's a, 10 to the 2.602, in lux",
+        "value": 400,
+        "kind": "computed"
+      },
+      {
+        "label": "Lamp law at 3 m, 400 ÷ 9, in lux",
+        "value": 44.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13: first point on the line, log V",
+        "value": 0.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13: first point on the line, log p",
+        "value": 1.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13: second point on the line, log V",
+        "value": 0.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13: second point on the line, log p",
+        "value": 0.46,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13: fall, 0.46 − 1.30",
+        "value": -0.84,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13: run, 0.8 − 0.2",
+        "value": 0.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13: n",
+        "value": 1.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: run over rise, 0.6 ÷ 0.84",
+        "value": 0.71,
+        "kind": "computed"
+      },
+      {
+        "label": "Isothermal case, n",
+        "value": 1,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Lamp line's reading at 2 m, 400 ÷ 4, in lux",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12: b, 10 to the 0.301",
+        "value": 2,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Some laws curve on an ordinary graph, so no single gradient can be read off them. Plot the logs of the readings instead, on the right axes, and a power law such as y = axⁿ, or an exponential such as y = abˣ, comes out straight. The line's gradient then gives the unknown power, and its intercept is log a, which you turn back into a.\n\nSay a gas expanding in a cylinder gives five readings, from 12.2 bar at 2 L to 1.5 bar at 10 L, and you want the n in pVⁿ = C. Divide both sides by Vⁿ: p = C × V^(−n). Now take the log of both sides. By the product law from lesson 5, the log of C times V^(−n) is log C + log V^(−n). By the power law, log V^(−n) = −n log V. So log p = log C − n log V. Put log p up the side and log V along the bottom, and this is y = mx + c from Straight-line graphs: the power −n has become the gradient, and log C the intercept. A graph with both axes logged is a [[log-log graph]], and its slope is the exponent of the power law,[^2] here −n. Lay a line through the logged readings, and two points on it, (0.301, 1.086) and (1, 0.176), give a gradient of −0.910 ÷ 0.699 ≈ −1.30, so n ≈ 1.3. At log V = 0, which is V = 1 L, the −n log V term is zero, so the line's height there, 1.478, is log C, not C: 10^1.478 ≈ 30, so pV^1.3 = 30 in bar and litres. Check it at 4 L: 30 ÷ 4^1.3 ≈ 4.95 bar, beside the 5.0 bar read. When n comes out as 1, the law is pV = C, which for an ideal gas is the isothermal case,[^1] which lesson 8 takes up.\n\nWhen the unknown sits in the power, as in y = abˣ, only the y-axis needs logging. The same two laws give log y = log a + x log b: x is already outside any log, so it stays on an ordinary axis, and the gradient is log b. A graph with only the y-axis logged is a [[log-linear graph]]. Lesson 3's capacitor, 470 µF through 100 kΩ, charging towards a 10 V supply, is one. Its voltage, v = 10 − 10 e^(−t/47), is a difference, and no log law splits the log of a difference, so ln v against t stays bent. The gap still to close, 10 − v = 10 e^(−t/47), is a pure exponential. Take ln of both sides: the product law gives ln(10 − v) = ln 10 + ln e^(−t/47), and the ln of e to a power is the power, so ln(10 − v) = ln 10 − t/47, a straight line against t with gradient −1 ÷ 47, that is −1 ÷ RC, the time constant.[^3] From readings every 20 s, the line falls from 2.303 at 0 s to 0.182 at 100 s, a gradient of −0.0212 per second, so RC ≈ 1 ÷ 0.0212 ≈ 47 s. Any base straightens it; ln is used because the law is written with e, and its intercept, 2.303, turns back with eˣ, not 10ˣ: e^2.303 ≈ 10 V, the supply.\n\nWhich switches straighten a set of readings tells you the law: y only for y = abˣ, both for y = axⁿ. A light meter's readings at 1 to 5 m from a small lamp come out straight only with both axes logged, with a gradient of −2.0, so the light falls as 1 ÷ d², an inverse-square law (why a lamp's light falls this way is physics this lesson has no source for). Real readings scatter, so lay a best-fit line with readings either side of it, as in Straight-line graphs: a reading a little off the line does not overturn the law, but a whole set that bends means the wrong law or the wrong switches. **To find an unknown power, plot log y against log x for y = axⁿ, or log y against x for y = abˣ; the line's gradient gives n, or log b, and its intercept is log a, to be turned back into a.**[^4]"
+  },
+  "analogy": {
+    "text": "A ship holding one compass course, other than due north, south, east or west, crosses every meridian at the same angle, and on a globe that track curves, spiralling towards the pole. A Mercator chart is stretched so that the same track is a straight line, and the angle of the line is the course: lay a ruler and read it off. A log graph does the same for readings: stretch the right axes and a curved law goes straight, and the line's slope is the one number you were after.",
+    "breaks": "A Mercator chart is stretched by one fixed rule for every voyage, while on a log graph you choose which axes to stretch, and that choice is what tells you the law. The chart straightens only constant-course tracks, not, in general, the shortest route between two ports; a log graph straightens only a few kinds of law, chiefly power and exponential ones, and most others stay curved."
+  },
+  "practice": {
+    "text": "- Write the law and take the log of both sides, the same base on each: the product law, then the power law.\n- Choose the axes from what you get: log y against log x for y = axⁿ, a log-log graph; log y against x for y = abˣ, a log-linear graph. Not sure which law fits? Try both and keep the one that comes out straight.\n- Make a table of the logs to three decimal places and plot them. Use ln where the law is written with e.\n- Lay a best-fit line with readings on both sides of it, not dot to dot.\n- Read the gradient from two points on the line far apart, not from two readings.\n- Read the intercept at log x = 0, that is x = 1, on a log-log graph, or at x = 0 on a log-linear graph. It is log a: turn it back with 10ˣ after log, or eˣ after ln.\n- Check: put one reading's x into the law you found and see it lands near that reading.\n\n**Rule of thumb:** on a log-log graph the gradient is the power; on a log-linear graph it is the log of the factor for each step of 1 in x. The intercept is always a log until you turn it back.\n\n**Worked example:** A light meter reads 400, 98, 45, 25 and 16 lux at 1, 2, 3, 4 and 5 m from a small lamp. log d is 0, 0.301, 0.477, 0.602 and 0.699; log E is 2.602, 1.991, 1.653, 1.398 and 1.204. Logging only E leaves a bend, so log both. The best-fit line passes through (0, 2.602) and (0.699, 1.204), so its gradient is −1.398 ÷ 0.699 = −2.0, so n = −2. Its intercept, 2.602, is log a, and 10^2.602 ≈ 400, so E = 400 ÷ d². Check at 3 m: 400 ÷ 9 ≈ 44.4 lux, beside the 45 read.\n\n**Common mistakes**\n- Leaving the intercept as a log: log C = 1.478 means C ≈ 30, not 1.478.\n- Turning it back with the wrong key: an ln intercept of 2.303 means e^2.303 ≈ 10, not 10^2.303 ≈ 201.\n- Writing log p = −n log(CV): only V carries the power, so only log V gets the n.\n- Losing the minus: pVⁿ = C gives a gradient of −n, so a falling line means a positive n.\n- Reading a log axis as evenly spaced: 5 sits 0.699 of the way from 1 to 10, not 0.44.\n- Looking for the intercept at x = 0 on a log axis: there is no log of 0, so it is at x = 1.\n- Bending the line to touch every reading: readings scatter, so balance them."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Energy Analysis_Closed System - Simon Fraser University",
+      "url": "https://www.sfu.ca/~mbahrami/Mech%20240/Lectures/Energy%20Analysis_Closed%20System.pdf",
+      "quote": "The special case n =1 is the isothermal expansion P1V1 = P2V2 = mRT0= C"
+    },
+    {
+      "n": 2,
+      "title": "Growth Rate and Log Graphs",
+      "url": "https://ocw.mit.edu/courses/res-18-005-highlights-of-calculus-spring-2010/eba56cdd70e64afea45efcb4da10435d_MITRES18_05S10_Growth_Rate_Log_Graphs.pdf",
+      "quote": "Slope on a log-log graph is the exponent n"
+    },
+    {
+      "n": 3,
+      "title": "5. Charging and discharging of a capacitor",
+      "url": "https://physics.iitd.ac.in/uploads/manual_leiBQt035s.pdf",
+      "quote": "RC is the time during which the charge on the capacitor drops to 1/e of the initial value. Further, since RC has dimensions of time, it is called the time constant of the circuit."
+    },
+    {
+      "n": 4,
+      "title": "Cambridge OCR Level 3 Advanced GCE in Mathematics A H240 Specification",
+      "url": "https://www.ocr.org.uk/Images/308723-specification-accredited-a-level-gce-mathematics-a-h240.pdf",
+      "quote": "Be able to use logarithmic graphs to estimate parameters in relationships of the form y = ax n and y = kb x , given data for x and y"
+    }
+  ]
+}

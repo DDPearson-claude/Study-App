@@ -1,0 +1,380 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Exponentials and logarithms
+Idea: Log graphs: curved laws as straight lines (Plotting logs of readings turns laws such as y = axⁿ into straight lines, so the gradient gives an unknown power, such as n in pVⁿ = C.)
+Kind: skill
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is curved readings sliding onto a straight line whose gradient reads the unknown power, when you switch the right axes to logs.
+Title (the app shows it above the frame, so do not repeat it): Straighten the curve
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in fourteen small screens on one graph of readings. Three cards each give a set of readings, drawn as dots on ordinary axes, where they curve. Two switches sit above the graph: 'Log the y-axis' and 'Log the x-axis'. When a switch flips, that axis is relabelled like lesson 4's power ruler, with each number at its log (1, 2, 5, 10, 20 at 0, 0.301, 0.699, 1 and 1.301 on a log axis), and every dot slides to its new place over about a second, so you can watch the bend come out or go back in. Once the dots lie on a line, two handles lay a line through them, as in Straight-line graphs lesson 6: each reading shows a thin stick to the line, and the readouts give the line's gradient (to three figures), its intercept, labelled 'log a' (or 'ln a' on an ln axis), and under it a 'convert back' step that shows 10 to that power (or e to it) as the number a. On a phone the switches sit side by side above the graph, the readouts stack under it, and the tick labels show only 1, 2, 5 and 10 in each × 10 space so nothing crowds. The rule: for a power law, y = axⁿ, the log laws from lesson 5 give log y = log a + n log x, so log y against log x is a straight line with gradient n and intercept log a; for an exponential, y = abˣ, they give log y = log a + x log b, so log y against plain x is straight, with gradient log b. The intercept is where the upright axis sits: at log x = 0, that is x = 1, on a log x-axis (there is no log of 0), or at x = 0 on an ordinary one. Card 1, the gas: a gas expanding in a cylinder, volume V from 0 to 10 L along the bottom, pressure p from 0 to 14 bar up the side, readings (2 L, 12.2 bar), (3, 7.1), (4, 5.0), (6, 2.9) and (10, 1.5). Logged, V runs from 1 to 10 (log V 0 to 1) and p from 1 to about 32 (log p 0 to 1.5), and the readings sit at log V 0.301, 0.477, 0.602, 0.778, 1 and log p 1.086, 0.851, 0.699, 0.462, 0.176; the rule here is pVⁿ = C, so log p = log C − n log V, with gradient −n. Card 2, the capacitor: lesson 3's capacitor, 470 µF through 100 kΩ (RC = 47 s), charging towards a 10 V supply, read every 20 s from 0 to 100 s: v = 0, 3.5, 5.7, 7.2, 8.2 and 8.8 V. It plots the gap still to close, 10 − v, from 0 to 10 V up the side: 10, 6.5, 4.3, 2.8, 1.8 and 1.2 V. Its y switch takes ln, not log, because the law is written with e: the marks 1, 2, 5 and 10 sit at 0, 0.693, 1.609 and 2.303, and the readings at 2.303, 1.872, 1.459, 1.030, 0.588 and 0.182. Its x switch logs t, which bends the dots again and drops the 0 s reading, since 0 has no log. Card 3, the lamp: a light meter's readings at 1, 2, 3, 4 and 5 m from a small lamp, 400, 98, 45, 25 and 16 lux, on axes of 0 to 5 m and 0 to 450 lux; logged, d runs from 1 to 10 and E from 10 to 1000, with log d 0, 0.301, 0.477, 0.602, 0.699 and log E 2.602, 1.991, 1.653, 1.398, 1.204. Screen by screen: 1 opens the gas card on ordinary axes, flips 'Log the y-axis' (the dots slide, still bent), then 'Log the x-axis' (they slide onto a line). 2 asks where 5 sits on the logged V axis between 1 and 10: about 0.7 of the way (log 5 = 0.699), not about 0.44 of the way ((5 − 1) ÷ 9, the axis read as evenly spaced) or halfway (halfway is √10 ≈ 3.16, since half a × 10 space multiplies by √10). 3 shows why it is straight, one line at a time: p = C V^(−n); log p = log C + log V^(−n) (product law); log p = log C − n log V (power law); then y = mx + c beneath it, with log p as y, log V as x, −n as m and log C as c. 4 asks which line is the straight-line form of pVⁿ = C: log p = log C − n log V, not log p = −n log(CV) (the n multiplying C's log too, though only V carries the power) or p = log C − n log V (logs taken of one side only). 5 lays the line: the handles sit on the line at log V = 0.301 (log p 1.086) and log V = 1 (log p 0.176), the gradient reads −0.910 ÷ 0.699 ≈ −1.30, so n ≈ 1.3; the line is extended left to the upright axis at log V = 0, V = 1 L, where it crosses at 1.478, labelled 'log C', and the convert-back step shows 10^1.478 ≈ 30; the law pV^1.3 = 30 is written beside it, checked at 4 L: 30 ÷ 4^1.3 ≈ 4.95 bar against the 5.0 bar reading. 6 asks: another gas's line crosses at log C = 1.70, so what is C? About 50 (10^1.70 ≈ 50.1), not 1.70 (the log left unconverted) or 5.47 (e^1.70, the wrong key for a log axis). 7 changes to the capacitor card: the readings of v, then the gap 10 − v as lesson 3's shrinking bars turned into dots, curving down, with 10 − v = 10 e^(−t/47) written beside them. 8 asks which plot will be straight: ln(10 − v) against t, not ln v against t (v = 10 − 10 e^(−t/47) is a difference, and no log law splits the log of a difference) or ln(10 − v) against ln t (t sits in the power, not under one, so logging t bends the line again). 9 flips the y switch only: the dots fall on a line, ln(10 − v) = ln 10 − t/47 is written beside it, the handles sit at (0 s, 2.303) and (100 s, 0.182), the gradient reads −0.0212 per second, so RC ≈ 1 ÷ 0.0212 ≈ 47 s, lesson 3's time constant, and the intercept, labelled 'ln a', converts back with eˣ: e^2.303 ≈ 10 V, the supply; then the x switch flips on and the dots bend again. 10 asks: a discharging capacitor's ln v against t line crosses at 5.99, so what was its starting voltage? About 400 V (e^5.99), not about 977 000 V (10^5.99, the wrong key for an ln axis) or 5.99 V (the log left unconverted). 11 changes to the lamp card: y only leaves a bend, both switches make a line; the handles at (0, 2.602) and (0.699, 1.204) give a gradient of −2.00, so E = a d^(−2), and the intercept 2.602 converts back to 10^2.602 ≈ 400 lux; the 98 lux reading sits a little below the line and the 45 lux reading a little above it, and the sticks show it; a strip under the graph sums up the switches: neither for y = mx + c, y only for y = abˣ, both for y = axⁿ. 12, 13 and 14 mix it all, each with its own card: 12, a set of readings that lies on a line with the y-axis logged only: which law? y = abˣ, not y = axⁿ (that needs both axes logged, because x is raised to a power) or y = mx + c (that is straight before any switch, and logging y bends it). 13, a gas's log p against log V line passes through (0.2, 1.30) and (0.8, 0.46): what is n? 1.4 (gradient −0.84 ÷ 0.6 = −1.4, and the gradient is −n), not −1.4 (the minus kept, though pVⁿ = C gives a gradient of −n) or 0.71 (0.6 ÷ 0.84, run over rise). 14, the lamp line misses the 98 lux reading a little: what now? Keep the line, not move a handle until the line goes through 98 (chasing one reading tips the line off the others) or decide the law is not inverse-square (a wrong law bends the whole set, as the y-only switch did). A puzzle offers its three answers, and a wrong pick gets a one-line hint showing where it goes wrong.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The readings on all three cards are made up for the examples: worked out from the laws given and rounded, with two of the lamp's readings moved a little, so the lines fit them well. Real readings scatter more. The line is laid by eye, so n and RC come out to about two figures. pVⁿ = C is itself a model of a real expansion, which follows it with n nearly constant rather than exactly. The capacitor is lesson 3's ideal one. The lamp's inverse-square fall holds for a small lamp at distances large beside its size; near a long fitting the light falls off more slowly. The logs on screen are rounded to three decimal places.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "logY": Log the y-axis, an on/off switch (K.toggle), starting off
+- id "logX": Log the x-axis, an on/off switch (K.toggle), starting off
+Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id and the decimals given, which is how the explanation rounds it, or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):
+- id "gradient": Gradient of your line
+- id "intercept": Intercept: log a, decimals: 3
+- id "aBack": a, converted back
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Switches' opening setting, off: 0 (control)
+- Switches' on setting: 1 (control)
+- log 2, a mark on the log axes: 0.301 (computed)
+- log 5, a mark on the log axes: 0.699 (computed)
+- log 20, a mark on the log axes: 1.301 (computed)
+- Gas card: volume axis, right-hand end, in litres: 10 (assumed)
+- Gas card: pressure axis, top, in bar: 14 (assumed)
+- Gas card: logged pressure axis, top, as a log: 1.5 (assumed)
+- Gas card: logged pressure axis, top, about, in bar: 32 (computed)
+- Gas reading 1: volume, in litres: 2 (assumed)
+- Gas reading 1: pressure, in bar: 12.2 (assumed)
+- Gas reading 2: volume, in litres: 3 (assumed)
+- Gas reading 2: pressure, in bar: 7.1 (assumed)
+- Gas reading 3: volume, in litres: 4 (assumed)
+- Gas reading 3: pressure, in bar: 5 (assumed)
+- Gas reading 4: volume, in litres: 6 (assumed)
+- Gas reading 4: pressure, in bar: 2.9 (assumed)
+- Gas reading 5: volume, in litres: 10 (assumed)
+- Gas reading 5: pressure, in bar: 1.5 (assumed)
+- log 3: 0.477 (computed)
+- log 4: 0.602 (computed)
+- log 6: 0.778 (computed)
+- log 10: 1 (computed)
+- log 12.2: 1.086 (computed)
+- log 7.1: 0.851 (computed)
+- log 2.9: 0.462 (computed)
+- log 1.5: 0.176 (computed)
+- Slip: 5 read as evenly spaced, (5 − 1) ÷ 9: 0.44 (computed)
+- Halfway on a log axis, √10: 3.16 (computed)
+- Gas line: fall between the handles, 0.176 − 1.086: -0.91 (computed)
+- Gas line: run between the handles, 1 − 0.301: 0.699 (computed)
+- Gas line: gradient: -1.3 (computed)
+- Gas law's power n: 1.3 (computed)
+- Gas line: intercept, log C: 1.478 (computed)
+- Gas law's C, 10 to the 1.478, in bar and litres: 30 (computed)
+- 4 to the power 1.3: 6.06 (computed)
+- Gas law's pressure at 4 L, in bar: 4.95 (computed)
+- Screen 6: another gas's log C: 1.7 (assumed)
+- Screen 6: 10 to the 1.70: 50.1 (computed)
+- Slip: e to the 1.70: 5.47 (computed)
+- Capacitance, from lesson 3, in µF: 470 (assumed)
+- Resistance, from lesson 3, in kΩ: 100 (assumed)
+- Time constant RC, in seconds: 47 (computed)
+- Supply voltage, from lesson 3, in volts: 10 (assumed)
+- Capacitor readings' spacing, in seconds: 20 (assumed)
+- Capacitor card: time axis, right-hand end, in seconds: 100 (assumed)
+- Capacitor reading at 0 s, in volts: 0 (assumed)
+- Capacitor reading at 20 s, in volts: 3.5 (assumed)
+- Capacitor reading at 40 s, in volts: 5.7 (assumed)
+- Capacitor reading at 60 s, in volts: 7.2 (assumed)
+- Capacitor reading at 80 s, in volts: 8.2 (assumed)
+- Capacitor reading at 100 s, in volts: 8.8 (assumed)
+- Gap at 20 s, in volts: 6.5 (computed)
+- Gap at 40 s, in volts: 4.3 (computed)
+- Gap at 60 s, in volts: 2.8 (computed)
+- Gap at 80 s, in volts: 1.8 (computed)
+- Gap at 100 s, in volts: 1.2 (computed)
+- ln 2, a mark on the ln axis: 0.693 (computed)
+- ln 5, a mark on the ln axis: 1.609 (computed)
+- ln 10: 2.303 (computed)
+- ln 6.5: 1.872 (computed)
+- ln 4.3: 1.459 (computed)
+- ln 2.8: 1.03 (computed)
+- ln 1.8: 0.588 (computed)
+- ln 1.2: 0.182 (computed)
+- Capacitor line: gradient, per second: -0.0212 (computed)
+- RC from the gradient, 1 ÷ 0.0212, in seconds: 47 (computed)
+- Supply from the intercept, e to the 2.303, in volts: 10 (computed)
+- Screen 10: a discharge line's intercept, ln: 5.99 (assumed)
+- Screen 10: e to the 5.99, in volts: 400 (computed)
+- Slip: 10 to the 5.99, in volts: 977000 (computed)
+- Slip: 10 to the 2.303: 201 (computed)
+- Lamp distances, 1 to 5, in metres: 5 (assumed)
+- Lamp reading at 1 m, in lux: 400 (assumed)
+- Lamp reading at 2 m, in lux: 98 (assumed)
+- Lamp reading at 3 m, in lux: 45 (assumed)
+- Lamp reading at 4 m, in lux: 25 (assumed)
+- Lamp reading at 5 m, in lux: 16 (assumed)
+- Lamp card: lux axis, top: 450 (assumed)
+- Lamp card: logged lux axis, top: 1000 (assumed)
+- log 400: 2.602 (computed)
+- log 98: 1.991 (computed)
+- log 45: 1.653 (computed)
+- log 25: 1.398 (computed)
+- log 16: 1.204 (computed)
+- Lamp line: gradient: -2 (computed)
+- Lamp law's a, 10 to the 2.602, in lux: 400 (computed)
+- Lamp law at 3 m, 400 ÷ 9, in lux: 44.4 (computed)
+- Screen 13: first point on the line, log V: 0.2 (assumed)
+- Screen 13: first point on the line, log p: 1.3 (assumed)
+- Screen 13: second point on the line, log V: 0.8 (assumed)
+- Screen 13: second point on the line, log p: 0.46 (assumed)
+- Screen 13: fall, 0.46 − 1.30: -0.84 (computed)
+- Screen 13: run, 0.8 − 0.2: 0.6 (computed)
+- Screen 13: n: 1.4 (computed)
+- Slip: run over rise, 0.6 ÷ 0.84: 0.71 (computed)
+- Isothermal case, n: 1 (constant, source [1])
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Check failed: "Only the right switches straighten each card: the gas and the lamp lie on a line with both axes logged, the capacitor's gap with only its y-axis logged, and every other setting leaves a bend; logging t drops the 0 s reading" (returned false)
+- Check failed: "The drag maps the finger back to the same height: a finger at a handle sets it there, a finger off the top or bottom stops at the axis's end" (returned false)
+- While sweeping the controls: output "intercept" has a readout, and the text "Now lay a line through the logged readi…" (<p#task.task>) prints its value too: while Dan answers a check on it, the app hides only the readout and the .say line, so this gives the answer away. Show that value in its readout alone (no label or aria-label repeating it)
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Energy Analysis_Closed System - Simon Fraser University (https://www.sfu.ca/~mbahrami/Mech%20240/Lectures/Energy%20Analysis_Closed%20System.pdf): "The special case n =1 is the isothermal expansion P1V1 = P2V2 = mRT0= C"
+[2] Growth Rate and Log Graphs (https://ocw.mit.edu/courses/res-18-005-highlights-of-calculus-spring-2010/eba56cdd70e64afea45efcb4da10435d_MITRES18_05S10_Growth_Rate_Log_Graphs.pdf): "Slope on a log-log graph is the exponent n"
+[3] 5. Charging and discharging of a capacitor (https://physics.iitd.ac.in/uploads/manual_leiBQt035s.pdf): "RC is the time during which the charge on the capacitor drops to 1/e of the initial value. Further, since RC has dimensions of time, it is called the time constant of the circuit."
+[4] Cambridge OCR Level 3 Advanced GCE in Mathematics A H240 Specification (https://www.ocr.org.uk/Images/308723-specification-accredited-a-level-gce-mathematics-a-h240.pdf): "Be able to use logarithmic graphs to estimate parameters in relationships of the form y = ax n and y = kb x , given data for x and y"
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (/home/user/Study-App/build/maths/exponentials-and-logarithms/i7.body1.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.
