@@ -15,6 +15,8 @@
 //       reviewed today, cards in all, Today's time for today's session ("About 5 minutes", from each
 //       card's type; 0 when nothing is waiting), and Today's words when nothing is waiting ("Done for
 //       today", its lead, "Next up: 2 cards tomorrow." or ''), for Learn's reviews row and quiet line
+//   U.review.box() -> Promise<{size, courses: [{tid, n, ideas: [iid]}]}>   what is in the box: every
+//       card that can come back, due or not, and by course (most first), for the Library's puzzle row
 //   U.review.refreshBadge()                    re-reads what the box holds (the Today tab carries no
 //       badge since the Library became the home, 18 Oct: nothing counts down; #today-badge, if a
 //       page still has one, is filled)
@@ -456,6 +458,19 @@
     mendCards: mendCards,
     queue: function (opts) { return plan(opts).then(function (p) { return p.queue; }); },
     dueCount: function () { return planShared().then(function (p) { return p.size; }); },
+    box: function () {
+      return planShared().then(function (p) {
+        var by = {}, courses = [];
+        p.data.cards.forEach(function (c) {
+          if (c.retired) return;
+          if (!by[c.tid]) courses.push(by[c.tid] = { tid: c.tid, n: 0, ideas: [] });
+          by[c.tid].n++;
+          if (by[c.tid].ideas.indexOf(c.iid) < 0) by[c.tid].ideas.push(c.iid);
+        });
+        courses.sort(function (a, b) { return b.n - a.n; });
+        return { size: courses.reduce(function (n, c) { return n + c.n; }, 0), courses: courses };
+      });
+    },
     // For Learn, from the same read as dueCount: Today's time for the session (so the two screens
     // never disagree) and, when nothing is waiting, Today's words.
     outlook: function () {

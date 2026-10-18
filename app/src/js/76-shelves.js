@@ -62,6 +62,7 @@
   U.routes.add('#/library/courses', function () { U._home(); }, { tab: 'library' });
 
   // ---------- a shelf, and one of its folders ----------
+  var foldOpen = {};   // sid/fid -> the planned courses' fold as he left it
   function page(params, ctx) {
     var sid = params.sid, fid = params.fid || null;
     var box = U.h('div', { class: 'shelf-page' }, U.h('div', { class: 'skeleton', style: 'height:220px;border-radius:18px' }));
@@ -91,13 +92,7 @@
         return;
       }
       U.setTitle(str(folder.title) + ' · ' + title);
-      U.clear(box).append(V.back('#/shelf/' + encodeURIComponent(sid), title),
-        U.h('header', { class: 'page-head' },
-          U.h('p', { class: 'eyebrow' }, title),
-          U.h('h1', { tabindex: '-1' }, str(folder.title)),
-          str(folder.blurb) ? U.h('p', { class: 'muted' }, str(folder.blurb)) : null,
-          U.h('p', { class: 'muted small' }, counts(courses(folder)))),
-        U.h('ol', { class: 'shelf-courses' }, courses(folder).map(function (c, i) {
+      var rows = courses(folder).map(function (c, i) {
           var tid = built(c), row;
           // Its colour: from its title now, and from the built topic's own hue once that is read.
           var inner = [
@@ -110,7 +105,21 @@
           row = tid ? U.h('a', { class: 'shelf-course', href: '#/t/' + encodeURIComponent(tid), 'data-tone': V.toneOf(str(c.title)) }, inner)
             : U.h('div', { class: 'shelf-course', 'data-tone': V.toneOf(str(c.title)) }, inner);
           return U.h('li', { class: tid ? 'is-built' : 'is-waiting' }, row);
-        })));
+        });
+      // Built courses first, in shelf order; the planned ones fold under one line, closed until he
+      // opens it (open when nothing here is built yet), kept as he left it for the visit.
+      var ready = rows.filter(function (li) { return li.className === 'is-built'; }), later = rows.filter(function (li) { return li.className !== 'is-built'; });
+      var key = sid + '/' + fid, open = key in foldOpen ? foldOpen[key] : !ready.length;
+      U.clear(box).append(V.back('#/shelf/' + encodeURIComponent(sid), title),
+        U.h('header', { class: 'page-head' },
+          U.h('p', { class: 'eyebrow' }, title),
+          U.h('h1', { tabindex: '-1' }, str(folder.title)),
+          str(folder.blurb) ? U.h('p', { class: 'muted' }, str(folder.blurb)) : null,
+          U.h('p', { class: 'muted small' }, counts(courses(folder)))),
+        ready.length ? U.h('ol', { class: 'shelf-courses' }, ready) : null,
+        later.length ? U.h('details', { class: 'lib-fold shelf-fold', open: open, on: { toggle: function (e) { foldOpen[key] = !!e.target.open; } } },
+          U.h('summary', null, U.h('span', null, later.length + ' more coming'), U.h('span', { class: 'lsn-chev', 'aria-hidden': 'true' }, U.icon('back'))),
+          U.h('div', { class: 'lib-fold-body' }, U.h('ol', { class: 'shelf-courses' }, later))) : null);
     }, function (e) { if (ctx.alive()) loadError(box, 'These courses', e); });
   }
   U.routes.add('#/shelf/:sid', page, { tab: 'library', title: 'Your library' });
