@@ -1,0 +1,20 @@
+{
+ "issues": [
+  {
+   "path": "explain.text",
+   "problem": "\"Later lessons divide this way\" is not assured: lesson i6 divides with lengths and angles, and sources say division is easiest in polar form. \"Dividing part by part does not work\" is too broad: it is exactly how a real bottom is divided, as the same text says earlier.",
+   "severity": "fix",
+   "now": "To divide by a complex number, multiply the top and the bottom by the bottom's [[conjugate]]: the same number with the sign of its j part flipped.[^2] That turns the bottom into an ordinary real number, and dividing by a real number is easy: divide each part. Later lessons need dividing to work out AC circuits.\n\nThe conjugate of 3 + j4 is 3 − j4. The real part stays as it is; only the j part's sign flips. On the complex plane 3 + j4 is 3 across and 4 up, and 3 − j4 is 3 across and 4 down, so the conjugate is the number's mirror image in the real axis.[^3] Flip both signs instead and you get −3 − j4, which is the arrow turned half round, times −1: a different number. A number on the real axis, such as 5, sits on the mirror line, so it is its own conjugate: its j part is 0, and flipping 0 changes nothing. The two roots of x² + 2x + 5 = 0 from the first lesson, −1 + j2 and −1 − j2, are a mirror pair.\n\nNow multiply a number by its conjugate, with the four tiles from the last lesson: (3 + j4)(3 − j4). The tiles are 3 × 3 = 9, 3 × (−j4) = −j12, j4 × 3 = j12, and j4 × (−j4) = −j × j × 16. The two j tiles are the same size with opposite signs, so they cancel. In the last tile j × j = −1, so it becomes +16, not −16. The answer is 9 + 16 = 25, with no j part at all: an arrow lying flat on the real axis. The same happens for any number: (a + jb)(a − jb) = a² − jab + jab + b² = a² + b². So a number times its conjugate is always a real number,[^4] and because a² and b² are squares, it is never negative. From Quadratics you might expect the difference of two squares, a² − b². It is a² − (jb)², and (jb)² = −b², so the minus becomes a plus. The arrows show the same thing. In the last lesson, multiplying by 3 + j4 turned and stretched any arrow the way 1 is turned and stretched into 3 + j4: up by 3 + j4's angle, and 5 times longer, since by Pythagoras 3 + j4 is 5 long. The mirror 3 − j4 points down by exactly that angle, so the turn brings it level with the real axis, and the stretch makes it 5 × 5 = 25 long.\n\nThat is what makes dividing work. Take 10 ÷ (3 + j4). Multiply the top and the bottom by 3 − j4.[^5] Since (3 − j4) ÷ (3 − j4) is 1, this is multiplying by 1, so the answer does not change. The top becomes 10 × (3 − j4) = 30 − j40 and the bottom becomes 25, so the answer is 30 ÷ 25 and −40 ÷ 25, which is 1.2 − j1.6. Textbooks call this step [[rationalising]] the bottom. Check by multiplying back: (1.2 − j1.6)(3 + j4) = 3.6 + j4.8 − j4.8 + 6.4 = 10. When the bottom has a j part, dividing part by part does not work, because each part of the bottom multiplies both parts of the answer. For (5 + j5) ÷ (2 + j1), part by part gives 2.5 + j5, but (2.5 + j5)(2 + j1) is j12.5, not 5 + j5; the conjugate gives 3 + j1, and (3 + j1)(2 + j1) is 5 + j5. **To divide, multiply the top and the bottom by the bottom's conjugate,[^5] which makes the bottom real; then divide each part, and check by multiplying back.**"
+  },
+  {
+   "path": "interactive.numbers",
+   "problem": "Step 12 slip \"part by part\" gives 25 ÷ 4 and 25 ÷ −3, but 25 + j0 divided part by part is 6.25 + j0; 6.25 − j8.33 comes from dividing the top by each part of the bottom. The build should word that hint to match the wrong answer shown.",
+   "severity": "note"
+  },
+  {
+   "path": "interactive.numbers",
+   "problem": "Step 5 slip \"j tiles not cancelled, 5 + j4\": the j tiles are −j2 and +j2, so leaving them uncancelled gives 5 + j0; j4 needs the minus sign dropped too. The build should word that hint as adding the two j tiles with the minus lost.",
+   "severity": "note"
+  }
+ ]
+}

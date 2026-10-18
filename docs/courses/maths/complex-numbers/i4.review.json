@@ -1,0 +1,40 @@
+{
+  "scores": { "lands": 5, "why": 5, "cause": 4, "trade": 3, "honest": 4, "pleasure": 4 },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Steps 8, 10 and 13, the dividing puzzles 5 ÷ (1 + j2), (5 + j5) ÷ (2 + j1) and 25 ÷ (4 − j3) (#tilebox)",
+      "what": "The tile grid stays hidden until Check, because gridSpec returns null for an unanswered card step and K.update sets #tilebox.hidden from it. Pressing Check then puts a box about 190 px tall above the answer buttons at 360 px, which pushes Check, Why? and the hint down the page. Picking again after a wrong answer hides it again, so the page jumps on every try. Reserve its height before Check (an empty dashed grid with blank headers, or visibility:hidden) so nothing pops in."
+    },
+    {
+      "severity": "fix",
+      "where": "analogy.breaks",
+      "what": "\"With 0.25 several numbers would clear the decimal, 4 or 8 or 100. For a complex bottom only its conjugate, or the conjugate times a real number\" sets up a contrast that is not there: 4, 8 and 100 are all 4 times a whole number, which is the same thing as the conjugate times a real number. The honest break is different. 3 ÷ 0.25 can be done directly and the trick only tidies it, but a complex bottom cannot be divided part by part at all, so the conjugate is the method itself, and it works through j × j = −1, which decimals have no counterpart to. Keep the second half and replace the first."
+    },
+    {
+      "severity": "polish",
+      "where": "Step 5 'Times its mirror' (product line under the plane) and the 'new bottom' strip on every dividing card",
+      "what": "The product is drawn on a real line of its own with only a j stub. The new bottom is always a full-width arrow with no scale. So 'lies flat on the real axis' is true by construction. What actually shows the cause is the tiles' j pile reading 0. One line in step 5's text could say that the j pile's 0 is why the product can sit on a real line."
+    },
+    {
+      "severity": "polish",
+      "where": "Step 13 '25 ÷ (4 − j3)', first answer 6.25 − j8.33",
+      "what": "The part-by-part slip divides 25 by the j part's −3 and writes the result as a j part. A top with no j part makes that an unlikely slip, and 8.33 is rounded with no 'about'. A likelier wrong answer would be multiplying the top and the bottom by 4 − j3 itself, or 25 ÷ 4 = 6.25 alone."
+    },
+    {
+      "severity": "polish",
+      "where": "Step 7 'Dividing' (more text) and explain.text ('Textbooks call this step rationalising the bottom')",
+      "what": "The name 'rationalising' has no citation among the lesson's five sources. The brief had one: Electronics Tutorials, and HELM's 'to get a real number in the denominator' (notes 4.4, 2.4). Add it as a footnote."
+    },
+    {
+      "severity": "polish",
+      "where": "analogy.text ('You met the same trick with decimals')",
+      "what": "In Fractions, what Dan did was multiply the top and the bottom by the same number to make an equivalent fraction (an eighth is two sixteenths). He did not divide by a decimal. 'You met the same trick with fractions' would point at the step he actually practised."
+    },
+    {
+      "severity": "polish",
+      "where": "Step 11 'Dividing by j'",
+      "what": "1 ÷ j = −j as a quarter turn back is the brief's lesson 6 material (j is 1∠90°, so ÷ j is a quarter turn back). Taught here, lesson 6 should refer back to this screen and not teach it again as new."
+    }
+  ]
+}
