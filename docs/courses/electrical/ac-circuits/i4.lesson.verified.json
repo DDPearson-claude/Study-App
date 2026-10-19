@@ -1,0 +1,465 @@
+{
+  "iid": "i4",
+  "title": "Inductance: the coil that pushes back",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the coil's voltage peaking a quarter cycle before its current, because it equals the steepness of the tangent riding the current wave, when you drag the time cursor along the waves.",
+    "title": "The back-emf coil",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "volts",
+        "label": "Coil voltage at the cursor",
+        "unit": "V",
+        "decimals": 1
+      },
+      {
+        "id": "amps",
+        "label": "Current at the cursor",
+        "unit": "A",
+        "decimals": 2
+      },
+      {
+        "id": "xl",
+        "label": "Reactance, X_L",
+        "unit": "Ω",
+        "decimals": 1
+      }
+    ],
+    "whatAmILookingAt": "A short lesson in twelve small screens on one picture, the back-emf coil. An ideal coil of about 31.8 mH, an example value picked so its reactance at 50 Hz comes to 10 Ω, sits on an AC supply with the scrubber's 100 V peak, at 50 Hz. Flux lines run through its turns, thickening and thinning with the current. Above, its current wave (dashed, as on the scrubber) and its voltage wave share one time axis, 0 to 40 ms, two cycles of 20 ms. A time cursor runs through the graphs, and where it meets the current wave a short tangent line lies along it, showing how steeply the current is changing at that instant. The coil's voltage at each instant is its inductance × that steepness, because a changing current changes the flux through the coil's own turns and a changing flux induces an emf; in an ideal coil this back-emf balances the supply at every instant. So the voltage wave is drawn from the tangent: tallest where the tangent is steepest, as the current crosses zero, and zero where the tangent lies flat, at the current's top or bottom. Below, on the same time axis, is lesson 3's power wave, voltage × current worked instant by instant, with a dot at the cursor; for this coil it rises to 500 W and dips to −500 W, two humps up and two down each cycle. To one side, a small graph plots the reactance X_L, the supply voltage ÷ the current, against frequency from 0 to 100 Hz: a straight line through zero, with a dot at the present frequency. Readouts give the voltage and the current at the cursor and X_L. Screen 1 opens with the cursor at 0 ms, where the current crosses zero rising: the tangent is steepest and the voltage is at its 100 V peak. A row works the rule at the cursor, L × steepness: 0.0318 H × 3,142 A/s ≈ 100 V. The cursor sweeps to 2.5 ms; the tangent flattens as the current climbs to 7.07 A, and the voltage falls to 70.7 V. Screen 2 parks the cursor at 5 ms and asks for the coil's voltage: 0 V; 100 V (the biggest current taken to give the biggest voltage, the resistor's rule); or −100 V. A right Check lays the tangent flat and the voltage dot at 0. Screen 3 sweeps a whole cycle, 0 to 20 ms, tracing the voltage from the tangent, and asks Dan to watch which wave reaches its top first. Screen 4 shows a still pair of a coil's waves and asks which leads and by how much: the voltage, by a quarter cycle; the current, by a quarter cycle (the later peak read as ahead); or the voltage, by half a cycle, 10 ms. A right Check draws a bracket over the 5 ms between the voltage's peak and the current's, a quarter cycle, and a row: the voltage leads by a quarter cycle, a phase angle of +90° measured as the angle by which the voltage leads. Screen 5 frees a frequency slider, 25 to 100 Hz in steps of 5, opening at 50, and an inductance slider, 5 to 40 mH in steps of 0.1, opening at the example coil, and plays the frequency up to 100 Hz with the supply held at 100 V peak: the waves squeeze together, the current's peak shrinks from 10 A to 5 A, and the X_L dot climbs the line from 10 Ω to 20 Ω, with the row X_L = 2π × 100 × 0.0318 ≈ 20 Ω. Two more rows name coils from the sources to set on the sliders: a textbook's 10 mH coil, 3.77 Ω on 60 Hz, and City & Guilds' 20 mH coil on 50 Hz, which works out at 6.28 Ω. When a small coil draws more current than the graphs hold, their scales stretch and the ticks give the peaks. Screen 6 asks for the current's peak at 60 Hz, the frequency a marine college's notes, a secondary source, give as most common on board ship: 8.33 A; 12 A (the current scaled up with the frequency); or 10 A (the frequency ignored, as for a resistor). A right Check moves the slider to 60 Hz, where X_L reads 12 Ω. Screen 7 returns to 50 Hz and sweeps a cycle with the power wave shaded: from 0 to 5 ms the voltage and current are both positive, the current is growing and the dot climbs to 500 W, energy going into the coil's field; from 5 to 10 ms the current is still positive but dying away, the voltage is negative and the dot dips to −500 W, energy coming back. A flat line marks the average, 0 W, beside a ghost of lesson 3's heater element, with the same 100 V and 10 A peaks, averaging 500 W. Screen 8 gives meter readings on the coil of 70.7 V and 7.07 A, the same as the heater's, and asks for its average power: 0 W; 500 W (volts × amps, the rule for a resistance); or −500 W (the giving back taken as all it does). Screen 9 runs the X_L line down to 0 Hz, steady DC, where X_L is 0 Ω and only the wire's resistance, an example 0.5 Ω, is left; a row reads 100 V ÷ 0.5 Ω = 200 A on a steady 100 V. As the dot reaches DC the 50 Hz waves fade, and a flat current line, off the scale at 200 A, with a flat tangent on it, and a flat back-emf of 0 V take their place. Screen 10: an ohmmeter reads 0.5 Ω across the coil, yet on 50 Hz it opposes with 10 Ω; why? The ohmmeter's steady current does not change, so there is no back-emf; the coil is shorted (a healthy coil reads this too); or reactance only appears at high voltage. Screens 11 and 12 are mixed. Screen 11: at 25 Hz on the same 100 V peak, the current peaks at 20 A and still lags a quarter cycle; at 5 A, lagging a quarter cycle (the frequency scaled the wrong way); or at 20 A, in step with the voltage (the lag thought to fade at low frequency). Screen 12: an ideal coil draws 4 A from 230 V, 50 Hz mains, so its X_L is 57.5 Ω, its waves drawn at their peaks, 230 × √2 ≈ 325 V and 5.66 A; on a 230 V, 60 Hz supply it draws 3.33 A and averages 0 W; 4.8 A and 0 W (the current scaled up with the frequency); or 3.33 A and about 767 W (volts × amps, 230 × 3.33, taken as watts). Each puzzle offers three answers; a wrong pick gets a one-line hint naming its slip, Why? explains in words, and a right Check draws the answer on the picture, the question marks fading out as the answer rows fade in. The closing line says the power dot dips below the line because the current runs a quarter cycle behind the voltage, and that lesson 5's capacitor has its current a quarter cycle ahead.",
+    "ignores": "The coil is ideal: it has no wire resistance, so its current lags by a full quarter cycle and it takes no watts; a real coil's resistance makes the lag less and takes some watts, a little of each when its resistance is small beside its reactance. Its core is air, so its inductance is fixed; an iron core's inductance changes with the current, and the core itself warms. The supply is a pure sine and has been on for a while, so the switch-on surge is left out. Time is stretched so one 20 ms cycle fills half the screen. The coil, the supply, the wire resistance and the meter readings are example values.",
+    "numbers": [
+      {
+        "label": "Number of screens",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Coil's inductance, in millihenries",
+        "value": 31.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Coil's reactance at 50 Hz, in ohms",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Supply voltage peak, in volts",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Opening frequency, in hertz",
+        "value": 50,
+        "kind": "control"
+      },
+      {
+        "label": "Current peak at 50 Hz, in amps",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Time axis, lowest, in milliseconds",
+        "value": 0,
+        "kind": "assumed"
+      },
+      {
+        "label": "Time axis, highest, in milliseconds",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "One cycle at 50 Hz, in milliseconds",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "A quarter cycle at 50 Hz, in milliseconds",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Opening cursor time, in milliseconds",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Coil voltage at the opening cursor, in volts",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, the negative peak, in volts",
+        "value": -100,
+        "kind": "computed"
+      },
+      {
+        "label": "Coil's phase angle, voltage ahead, in degrees",
+        "value": 90,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, half a cycle at 50 Hz, in milliseconds",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Coil's power hump tops, in watts",
+        "value": 500,
+        "kind": "computed"
+      },
+      {
+        "label": "Coil's power hump bottoms, in watts",
+        "value": -500,
+        "kind": "computed"
+      },
+      {
+        "label": "Frequency slider, lowest, in hertz",
+        "value": 25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Frequency slider, highest, in hertz",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Frequency slider step, in hertz",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Reactance at 100 Hz, in ohms",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Current peak at 100 Hz, in amps",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Most common ship frequency, in hertz",
+        "value": 60,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Reactance at 60 Hz, in ohms",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Current peak at 60 Hz, in amps",
+        "value": 8.33,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, current scaled up at 60 Hz, in amps",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Coil's rms voltage, in volts",
+        "value": 70.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Coil's rms current, in amps",
+        "value": 7.07,
+        "kind": "computed"
+      },
+      {
+        "label": "Lesson 3 heater element's resistance, in ohms",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Lesson 3 heater element's average power, in watts",
+        "value": 500,
+        "kind": "computed"
+      },
+      {
+        "label": "Coil's average power, in watts",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Coil's wire resistance, in ohms",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Current on a steady 100 V, in amps",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "Reactance at 25 Hz, in ohms",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Current peak at 25 Hz, in amps",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "UK mains nominal voltage, in volts",
+        "value": 230,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "UK mains frequency, in hertz",
+        "value": 50,
+        "kind": "constant"
+      },
+      {
+        "label": "Screen 12 coil's current at 50 Hz, in amps",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 coil's reactance at 50 Hz, in ohms",
+        "value": 57.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 coil's reactance at 60 Hz, in ohms",
+        "value": 69,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 coil's current at 60 Hz, in amps",
+        "value": 3.33,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, screen 12 current scaled up, in amps",
+        "value": 4.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, screen 12 volts × amps, in watts",
+        "value": 767,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice coil's inductance, in millihenries",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice coil's reactance at 50 Hz, in ohms",
+        "value": 31.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice coil's current at 50 Hz, in amps",
+        "value": 7.32,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice coil's reactance at 60 Hz, in ohms",
+        "value": 37.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice coil's current at 60 Hz, in amps",
+        "value": 6.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Current cut in the safety example, in amps",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Time taken to cut it, in milliseconds",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Voltage across the gap, in volts",
+        "value": 318,
+        "kind": "computed"
+      },
+      {
+        "label": "Current's steepest rate of change at 50 Hz, in amps per second",
+        "value": 3142,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1's sweep ends at, in milliseconds",
+        "value": 2.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Current at 2.5 ms, in amps",
+        "value": 7.07,
+        "kind": "computed"
+      },
+      {
+        "label": "Coil voltage at 2.5 ms, in volts",
+        "value": 70.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Inductance slider, lowest, in millihenries",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Inductance slider, highest, in millihenries",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Inductance slider step, in millihenries",
+        "value": 0.1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Textbook coil's inductance, in millihenries",
+        "value": 10,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Textbook coil's reactance at 60 Hz, in ohms",
+        "value": 3.77,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Textbook coil's reactance at 120 Hz, in ohms",
+        "value": 7.54,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "City & Guilds coil's inductance, in millihenries",
+        "value": 20,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "City & Guilds coil's reactance at 50 Hz, in ohms",
+        "value": 6.28,
+        "kind": "computed"
+      },
+      {
+        "label": "Mains supply's peak, in volts",
+        "value": 325,
+        "kind": "computed"
+      },
+      {
+        "label": "Mains coil's current peak at 50 Hz, in amps",
+        "value": 5.66,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A coil fights any change in the current through it. A changing current changes the flux through the coil's own turns, and a changing flux induces an emf that pushes back, so the coil's push follows how fast its current is changing, not how big the current is. On AC that puts the current of an ideal coil a quarter cycle behind the voltage, and it makes the coil's opposition rise in step with the frequency.\n\nRemember the turning coil: an emf appears whenever the flux through a coil changes, and the faster it changes, the bigger the emf.[^5] Here the flux comes from the coil's own current, since current through the turns makes a field through them, as in any electromagnet: more current, more flux. So when the current changes, the flux through the coil changes, and the coil induces an emf in itself. The induced emf is the negative of the change in flux per unit time;[^6] that minus sign means it pushes against the change that made it. This self-made push is the [[back-emf]]. How much back-emf a coil makes for each amp per second of change is its [[inductance]], L, in henries. A coil opposes changes in its current by dropping a voltage directly proportional to the rate of change of current,[^7] so its voltage is L times that rate: the v = L di/dt of Calculus fundamentals lesson 5, now with its cause. A steady current makes a steady flux and meets no back-emf at all, only the wire's resistance. The coil pushes back against change, not against current.\n\nOn the back-emf coil, a tangent line rides the current wave, and the coil's voltage is L times its steepness. In an ideal coil, one with no resistance, there is nothing else in the coil for the supply's voltage to appear across, so the back-emf matches the supply at every instant. The current therefore changes fastest exactly when the supply pushes hardest. A sine current is steepest as it crosses zero and flat for an instant at its top. So the voltage is at its peak as the current crosses zero, and zero as the current tops out: the voltage peaks a quarter cycle, 5 ms at 50 Hz, before the current. The voltage leads and the current lags.[^8] This is the cause behind the +jX_L of Complex numbers lesson 7; this course measures the phase angle as the angle by which the voltage leads the current, so a coil's is +90°. Multiply the two waves instant by instant, as on lesson 3's scrubber, and the power dot spends half its time below the line. While the current grows, the coil takes energy into its field; while it dies away, the coil hands it back. For an ideal coil the humps below match those above, so it averages 0 W, where the heater element with the same 100 V and 10 A peaks averaged 500 W. A resistor never returns power to the source, as reactive loads like this coil do.[^9]\n\nNow raise the frequency and keep the supply's 100 V peak. The back-emf must still match the supply, so the current's steepest slope is fixed by the supply's peak. To climb to the same peak in half the time, the current would have to change twice as fast, making twice the back-emf, more than the supply gives. So at twice the frequency the current reaches that same steepest slope with half the peak. The coil's opposition to AC, the voltage ÷ the current, is its [[inductive reactance]], X_L, in ohms. You met X_L = 2πfL in Complex numbers lesson 7;[^10] here is where it comes from, and why it is directly proportional to the frequency.[^11] The 2π comes from Trigonometry's turning arm: as the wave crosses zero, the arm's tip is moving straight up, so the wave rises at the tip's speed, and the tip travels 2π radii in each turn and makes f turns a second. So a sine's steepest slope is 2π × f × its peak, and the back-emf's peak is L times that. The example coil of about 31.8 mH has 10 Ω at 50 Hz, 12 Ω at 60 Hz, which a marine college's notes give as the frequency most common on board ship,[^1] and 20 Ω at 100 Hz, so on the 100 V peak its current peaks at 10 A, 8.33 A and 5 A. Published figures check the rule: a textbook's 10 mH coil has 3.77 Ω at 60 Hz and 7.54 Ω at 120 Hz,[^3] and City & Guilds' 20 mH coil on a 50 Hz supply[^4] has 2π × 50 × 0.02 = 6.28 Ω. At 0 Hz, steady DC, X_L is 0 Ω and only the wire's resistance is left. This is a simplified model, an ideal coil on a pure sine; a real coil's wire resistance makes the lag less than a quarter cycle and takes some watts, both small when its resistance is small beside its reactance. **A coil's back-emf follows how fast its current changes, so on AC an ideal coil's current lags the voltage by a quarter cycle[^8] and its reactance, X_L = 2πfL, rises in proportion to the frequency.[^10][^11]**"
+  },
+  "analogy": {
+    "text": "Turn a heavy cable drum on its stand to and fro by hand. You push hardest as it turns round, when it is still for an instant but its speed is changing fastest, and you are not pushing at all as it swings through at full speed. So your push peaks a quarter swing before its speed does, as the coil's voltage peaks before its current. Swing it to and fro faster with the same push and it never gets up to as much speed each way, as the coil's current shrinks when the frequency rises. Without friction, the work you put in speeding it up comes back to you as you slow it, as the coil's energy does.",
+    "breaks": "The drum's mass is fixed, while a coil's inductance depends on its turns and its core, and with an iron core it changes with the current. And a coil's field reaches beyond it, so its changing flux can induce a voltage in a coil beside it, which one drum cannot do to another."
+  },
+  "practice": {
+    "text": "- Expect the kick at the moment a coil's current is broken, and isolating its circuit breaks it too. The rule that makes the back-emf says a fast change makes a large voltage: cut 10 A to zero steadily in 1 ms in a 31.8 mH coil and it gives 0.0318 × 10 ÷ 0.001 = 318 V while the current falls, across the opening contacts, pushing to keep the current going.\n- From a coil's inductance, X_L = 2πfL, with f in hertz and L in henries.[^10]\n- From a test on AC, X_L is close to the rms voltage ÷ the rms current when the wire's resistance is small beside it; lesson 6 handles the two together.\n- For the current, I = V ÷ X_L, with V and I both rms or both peak.\n- At another frequency, scale X_L in proportion to the frequency;[^11] at the same voltage the current scales the other way.\n- For watts, do not multiply a coil's volts by its amps. An ideal coil averages 0 W; lesson 8 gives the real power of a real load.\n\nMotors are inductive loads,[^12] and contactor coils and transformer windings are coils too, so they all push back like this, which is where the course's motor puzzle is heading.\n\n**Rule of thumb:** On a coil whose wire resistance is small beside its reactance, double the frequency, double the reactance, halve the current, and the voltage peaks close to a quarter cycle before the current.\n\n**Worked example:** An example 100 mH coil on 230 V, 50 Hz mains[^2] has X_L = 2 × π × 50 × 0.1 = 31.4 Ω, so it draws 230 ÷ 31.4 = 7.32 A. On a 230 V, 60 Hz supply, X_L = 2 × π × 60 × 0.1 = 37.7 Ω and the current falls to 230 ÷ 37.7 = 6.10 A. On an ohmmeter it reads only its wire's resistance, because the meter's steady current never changes.\n\n**Common mistakes**\n- Taking an ohmmeter reading as a coil's opposition to AC. The meter's steady current meets no back-emf.\n- Saying the current leads. On a coil the voltage leads and the current lags.[^8]\n- Reading half a cycle between the peaks. The voltage peaks as the current crosses zero, a quarter cycle early.\n- Scaling the current up with the frequency. The reactance rises with frequency, so the current falls.\n- Calling a coil's volts × amps its watts. An ideal coil gives back each quarter cycle what it took in the one before."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "maritime electrical installations - notes on design ...",
+      "url": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf",
+      "quote": "60 Hz is the most common frequency adopted for use on board ship; the higher frequency enabling motors and generators to run at higher speeds with a consequent reduction in size for a given power rating."
+    },
+    {
+      "n": 2,
+      "title": "Statutory Voltage Limits – Energy Networks Association (ENA)",
+      "url": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits",
+      "quote": "UK mains electricity operates at a nominal voltage of 230V, and can operate within limits of 253V and 216V set by the Electricity Safety, Quality and Continuity Regulations (ESQCR)"
+    },
+    {
+      "n": 3,
+      "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 3",
+      "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html",
+      "quote": "Reactance of a 10 mH inductor: | Frequency (Hertz) | Reactance (Ohms) | | 60 | 3.7699 | | 120 | 7.5398 | | 2500 | 157.0796 |"
+    },
+    {
+      "n": 4,
+      "title": "City & Guilds 2366-350 sample multiple-choice exam",
+      "url": "https://www.cityandguilds.com/-/media/productdocuments/building_services_engineering/electrical_installation/2366/assessment-documents/sample-assessments/2366-350_mcq_exam_sample_v1-1-090326-pdf.pdf",
+      "quote": "What is the inductive reactance (X L ) of an inductor of 20 milli-Henrys connected to a 50 Hz supply?"
+    },
+    {
+      "n": 5,
+      "title": "EMF from rotating coil",
+      "url": "https://web.pa.msu.edu/courses/2000fall/phy232/lectures/induction/rotatingcoil.html",
+      "quote": "The magnitude of the voltage increases with higher rotation frequency, since that leads to a higher rate of change in the flux."
+    },
+    {
+      "n": 6,
+      "title": "13.1 Faraday’s Law - University Physics Volume 2 | OpenStax",
+      "url": "https://openstax.org/books/university-physics-volume-2/pages/13-1-faradays-law",
+      "quote": "The emf induced is the negative change in the magnetic flux per unit time."
+    },
+    {
+      "n": 7,
+      "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 3",
+      "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html",
+      "quote": "Whereas resistors simply oppose the flow of electrons through them (by dropping a voltage directly proportional to the current), inductors oppose changes in current through them, by dropping a voltage directly proportional to the rate of change of current."
+    },
+    {
+      "n": 8,
+      "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 3",
+      "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html",
+      "quote": "Looking at the graph, the voltage wave seems to have a “head start” on the current wave; the voltage “leads” the current, and the current “lags” behind the voltage."
+    },
+    {
+      "n": 9,
+      "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 11",
+      "url": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html",
+      "quote": "Note that the waveform for power is always positive, never negative for this resistive circuit. This means that power is always being dissipated by the resistive load, and never returned to the source as it is with reactive loads."
+    },
+    {
+      "n": 10,
+      "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 3",
+      "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html",
+      "quote": "Inductive reactance can be calculated using this formula: X L = 2πfL"
+    },
+    {
+      "n": 11,
+      "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 3",
+      "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html",
+      "quote": "What this means is that reactance in ohms for any inductor is directly proportional to the frequency of the alternating current."
+    },
+    {
+      "n": 12,
+      "title": "Teacher Guide",
+      "url": "https://matrixtsl.com/wp-content/uploads/2025/05/CP0295T-Electrical-installation-circuit-principles-level-3-Teacher-Guide.pdf",
+      "quote": "Inductive loads, such as high power electric motors, use added capacitors for power factor correction."
+    }
+  ]
+}

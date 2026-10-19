@@ -15,9 +15,33 @@ import { join, resolve } from 'node:path';
 import { openApp } from '../harness/page.mjs';
 
 function arg(name, dflt) { const i = process.argv.indexOf('--' + name); return i > 0 ? process.argv[i + 1] : dflt; }
+// A line drawn point by point (M then L, as plotted curves are) rewritten with relative steps to a
+// tenth of a unit: each point is rounded first and the steps taken between rounded points, so the
+// error never adds up. A path with any other command is left as it is.
+function compactPath(d) {
+  if (!/^\s*M[-\d.\s,eL]*$/.test(d)) return d;
+  const toks = d.match(/[ML]|-?\d*\.?\d+(?:e-?\d+)?/g) || [];
+  const num = (v) => {
+    let s = (Math.round(v * 10) / 10).toFixed(1).replace(/\.?0+$/, '');
+    if (s === '-0' || s === '') s = '0';
+    return s.replace(/^(-?)0\./, '$1.');
+  };
+  let out = '', cmd = null, mode = null, px = 0, py = 0;
+  for (let i = 0; i < toks.length;) {
+    if (toks[i] === 'M' || toks[i] === 'L') { cmd = toks[i++]; continue; }
+    if (i + 1 >= toks.length || !cmd) return d;
+    const x = Math.round(+toks[i] * 10) / 10, y = Math.round(+toks[i + 1] * 10) / 10; i += 2;
+    const pair = (a, b) => { const sa = num(a), sb = num(b); return sa + (sb[0] === '-' ? '' : ' ') + sb; };
+    if (cmd === 'M') { out += 'M' + pair(x, y); mode = 'M'; cmd = 'L'; }
+    else { const p = pair(x - px, y - py); out += mode === 'l' ? (p[0] === '-' ? '' : ' ') + p : 'l' + p; mode = 'l'; }
+    px = x; py = y;
+  }
+  return out;
+}
 function compactSvg(svg) {
   const hex = (n) => Number(n).toString(16).padStart(2, '0');
   return svg
+    .replace(/ d="([^"]*)"/g, (m, d) => ' d="' + compactPath(d) + '"')
     .replace(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/g, (m, r, g, b) => {
       const h = hex(r) + hex(g) + hex(b);
       return '#' + (h[0] === h[1] && h[2] === h[3] && h[4] === h[5] ? h[0] + h[2] + h[4] : h);
@@ -134,7 +158,7 @@ for (const iid of ideas) {
   }
   // The pictures carry the page's computed styles inline: the same colours in rgb() on every label.
   // Written as hex, with no spaces between tags, a guide stays under the db's document limit
-  // (assemble.mjs: 250 KB) without changing what is drawn.
+  // (assemble.mjs: 250 KB) without changing what is drawn; plotted curves are written as short relative steps.
   for (const p of pages) if (p.svg) p.svg = compactSvg(p.svg);
   const guide = { v: 1, iid, pages };
   const bytes = Buffer.byteLength(JSON.stringify(guide));

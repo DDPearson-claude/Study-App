@@ -1,0 +1,169 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "The voltage wave has a \"head start\" on the current wave; the voltage leads the current, and the current lags behind the voltage: on every screen each top and bottom of the drawn voltage comes a quarter cycle before the drawn current's",
+        "ok": true,
+        "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html"
+      },
+      {
+        "label": "Inductive reactance can be calculated using this formula: X_L = 2πfL. The drawn X_L line, its dot and the supply's peak ÷ the current's peak all agree with it at every setting of the frequency slider",
+        "ok": true,
+        "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html"
+      },
+      {
+        "label": "Reactance in ohms for any inductor is directly proportional to the frequency of the alternating current: the drawn X_L line runs straight from zero, and twice the frequency gives twice the reactance and half the current",
+        "ok": true,
+        "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html"
+      },
+      {
+        "label": "Power is never returned to the source by a resistive load, as it is with reactive loads: the coil's drawn power, the drawn voltage × the drawn current at each instant, goes below zero and averages zero, while the heater's never goes below zero",
+        "ok": true,
+        "source": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html"
+      },
+      {
+        "label": "60 Hz is the most common frequency adopted for use on board ship: answered, the ship screen runs the coil at 60 Hz, where X_L is 12 Ω and the current peaks at 8.33 A",
+        "ok": true,
+        "source": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf"
+      },
+      {
+        "label": "UK mains electricity operates at a nominal voltage of 230V: the mains coil drawing 4 A has X_L = 230 ÷ 4 = 57.5 Ω at 50 Hz, and on a 230 V, 60 Hz supply 69 Ω and 3.33 A",
+        "ok": true,
+        "source": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits"
+      },
+      {
+        "label": "The coil's voltage is its inductance × the steepness of its current: 100 V at 0 ms where the tangent is steepest, 0 V at 5 ms where it lies flat, −100 V at 10 ms; every drawn voltage point is L × the drawn current's slope there",
+        "ok": true
+      },
+      {
+        "label": "At 0 ms the tangent is just as steep at every frequency, so the current peaks at 20 A on 25 Hz, 10 A on 50 Hz, 8.33 A on 60 Hz and 5 A on 100 Hz",
+        "ok": true
+      },
+      {
+        "label": "On 50 Hz the coil's power rises to 500 W and dips to −500 W, two humps up and two down each 20 ms cycle",
+        "ok": true
+      },
+      {
+        "label": "At 0 Hz, steady DC, X_L is 0 Ω and only the wire's 0.5 Ω is left: 100 V ÷ 0.5 Ω = 200 A",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle accepts only its right answer; before an answer its picture hides what is asked, a right answer draws it, and each wrong pick draws what it claims, in red",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "t",
+      "f"
+    ],
+    "readouts": [],
+    "outputs": [
+      "volts",
+      "amps",
+      "xl"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "The back-emf coil",
+          "At the top",
+          "A quarter cycle ahead",
+          "Which leads?",
+          "A faster supply",
+          "On board ship",
+          "Taking and giving back",
+          "Meter readings",
+          "Down to steady DC",
+          "The ohmmeter",
+          "Mixed: a slower supply",
+          "Mixed: a mains coil"
+        ],
+        "value": 0
+      },
+      {
+        "id": "t",
+        "kind": "control",
+        "label": "Time cursor",
+        "min": 0,
+        "max": 40,
+        "step": 0.1,
+        "log": false,
+        "value": 0,
+        "snap": [
+          0,
+          5,
+          10,
+          15,
+          20
+        ]
+      },
+      {
+        "id": "f",
+        "kind": "control",
+        "label": "Supply frequency",
+        "min": 25,
+        "max": 100,
+        "step": 5,
+        "log": false,
+        "value": 50,
+        "snap": [
+          25,
+          60,
+          100
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Replay",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}
