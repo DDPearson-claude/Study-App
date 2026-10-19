@@ -22,6 +22,20 @@ touches app code or the AC circuits build.
   have to wait: you used power factor and √3 in design for years, so each borrowed idea gets a
   one-line reminder that stands on its own if AC circuits is not finished.
 
+## A possible second course in the same folder (second batch, 19 Oct)
+Dan's assignment pack (ED4-01A) and his course's project guide add a job, a car showroom, whose
+questions go beyond circuit calculation: containment, maximum demand and balancing, switchgear, lighting
+control, EV charging, emergency lighting and IP codes (see brief.md section 8). If Dan wants it, it
+would sit in this folder after Design and verification, as id `installation-project`, "The design
+project: a whole installation". It is not planned yet: the assignment's two drawings are missing, and
+it needs sources his materials do not hold. Design and verification lesson 10 already uses the
+showroom's supply and its question 3 as the capstone, so the second course would start from the
+whole building, not from circuit design again.
+
+One more link to AC circuits from the second batch: question 4's star-delta motor (Design and
+verification lessons 1 and 3) uses AC circuits lesson 10's delta relation, line current = √3 × phase
+current, to size the cables to the windings. One line of reminder, no re-teaching.
+
 ## How it relates to AC circuits (build/electrical/ac-circuits/brief.md)
 Nothing is taught twice. AC circuits teaches the cause. Design and verification uses the result in a
 design calculation. Each borrowed idea gets one line and a pointer.
@@ -29,7 +43,7 @@ design calculation. Each borrowed idea gets one line and a pointer.
 | Idea | Taught in AC circuits | Used in Design and verification |
 |---|---|---|
 | Real, reactive and apparent power; power factor = P ÷ S = cos φ | Lesson 8 | Lesson 1: Ib from output ÷ (efficiency × power factor). The power triangle is the picture's second half and is not explained again. |
-| Three-phase √3, line and phase; √3 V_L I_L cos φ | Lesson 10 | Lesson 1: the three-phase Ib formula is that one rearranged. Lesson 6: ÷ √3 to turn a three-phase submain's drop into a single-phase one. |
+| Three-phase √3, line and phase; √3 V_L I_L cos φ | Lesson 10 | Lesson 1: the three-phase Ib formula is that one rearranged, and the star-delta motor's winding current is line ÷ √3. Lesson 6: ÷ √3 to turn a three-phase submain's drop into a single-phase one. Lesson 10: the showroom's three-phase submain. |
 | Balanced currents cancel in the neutral | Lesson 10 | Lesson 5 starts from it, then shows why third harmonics do not cancel. |
 | The impedance triangle R, X, Z; current lagging by φ | Lessons 4 and 6 | Lesson 7: the cable's r, x and z mV/A/m columns, and only the parts of the r and x drops along the voltage count. |
 | Rms values | Lesson 2 | Every current and voltage here is rms; said once, in lesson 1. |

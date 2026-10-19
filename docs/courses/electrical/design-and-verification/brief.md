@@ -12,7 +12,8 @@ Edition and the three inspection and testing awards. So the course never re-teac
 It walks your course's own calculation process step by step and spends its screens on *why* each step
 is there, more deeply than a three-hour exam course has time for.
 
-**Sources used here.** Three files are in `source/` beside this brief:
+**Sources used here.** Five files are in `source/` beside this brief (the last two came on 19 Oct,
+second batch):
 - **Slides**: `eal-l4-design-and-verification-spec.pdf`, 70 pages. It is not the EAL qualification
   specification, despite the file name. It is your course's teaching slide deck: one slide a page,
   with no units or learning outcomes in it. It is cited below as "slides p.N", the PDF page.
@@ -21,11 +22,53 @@ is there, more deeply than a three-hour exam course has time for.
   "Created by Tony Maus" and calls it "representative only". Cited as "flowchart step N".
 - **Formula sheet**: `circuit-design-formula.pdf`, 1 page, the formulas keyed to the flowchart's
   steps. Cited as "formula sheet step N".
+- **Learner pack**: `eal-ed4-assign-01a-learner-pack.pdf`, 9 pages, EAL's assignment ED4-01A, Issue
+  1.3 (footer "EAL-ED4-01A-LP-ISSUE 1.3-1122"): the design project set on a new car showroom, and the
+  Appendix 1 checklist. Cited as "pack p.N", the PDF page (its own footers jump from "1 of 9" to "2
+  of 7").
+- **Project guide**: `eal-l4-project-presentation.pptx`, 12 slides, "Project Guide", your course's
+  key points for each assignment question. Converted to PDF in `../pptx-pdf/` to read. Cited as
+  "guide p.N".
 
 The real qualification document was found on the web for this brief (one search and one fetch, 19
 Oct). It is the **EAL Qualification Manual, Issue 1.3** (EAL-ED4-QM-Issue 1.3-1122), cited as "EAL
 QM p.N". Its unit list and assignment checklist are below. The research stage must re-fetch and
 quote it (see "Research the build must still do").
+
+## Changes from the materials of 19 Oct (second batch)
+The learner pack and the project guide changed four things:
+- **The criteria now come from your own papers.** The pack's Appendix 1 (pack p.8) prints the same
+  ED4-01 checklist as the QM, D1 and 1.1 to 5.0. `specRefs` now cite the pack. The full learning
+  outcomes are still not in anything you have sent.
+- **Lesson 10 is now the showroom.** It was "the whole process end to end" on an invented circuit.
+  Now it is the assignment's own job: a three-phase TN-C-S supply with Ze 0.1 Ω and a prospective
+  fault current of 4.6 kA, 20 °C ambient (pack p.3). The design runs from the MDB through the submain
+  to DBL2 and on to DBL2's longest circuit (questions 3a and 3b, pack p.4). The verification screens
+  stay at the end of it. The guide's key points become its checks: "include all lengths of the cable
+  run", "Include calculations for thermal constraints", "Compare your calculated Zs value to the
+  maximum permitted" (guide p.5), and "the sum of all voltage drops from the intake equipment" (guide
+  p.6).
+- **New puzzles with real figures.** The question 4 motor (400 V, 11 kW, power factor 0.8, 86%
+  efficiency, star-delta, pack p.4) goes into lessons 1 and 3. The 20 °C ambient goes into lesson 3,
+  and the 4.6 kA into lesson 9. See "Puzzles from the assignment" in section 3.
+- **A second course is now possible, not recommended yet.** Most of the assignment is not circuit
+  calculation: containment sizes, load balancing and maximum demand, switchgear choice, lighting
+  control, EV charging, emergency lighting by the lumen method, IP codes, the inspection interval and
+  handover documents (questions 1, 2 and 5 to 10, pack p.4 to 5). Your slides teach none of it. It
+  would make a second course built to the assignment, sketched in section 8. It needs the
+  assignment's two drawings first, which are not in the pack.
+
+**Still missing after the second batch:**
+- the Ct and power-factor voltage-drop formulas (nothing new on them);
+- verification as a method. The assignment asks only for the first inspection interval and the
+  handover documents (question 9, pack p.5). So lesson 10's measured-against-design screens are still
+  sourced by research;
+- the full learning outcomes;
+- the two drawings: "The two attached drawings show the proposed electrical installation" (pack p.3).
+  Without them there are no circuit lengths or loads, so lesson 10's lengths and loads are labelled
+  example figures.
+
+The order of lessons 1 to 9 and the one-course decision do not change.
 
 ## The short version
 **One course, ten lessons**, in your course's order (slides p.6, the flowchart):
@@ -38,7 +81,7 @@ quote it (see "Research the build must still do").
 7. Voltage drop, refined: hot conductors and power factor
 8. Shock protection: will it disconnect in time?
 9. Surviving the fault: the adiabatic check and breaking capacity
-10. Verifying the design, and the whole process end to end
+10. The showroom: one design end to end, then verified
 
 **The main pictures** (one a lesson, each moved with your finger, each showing the cause):
 - **The nameplate and its triangle (1).** A motor's rating plate beside the power triangle. Drag the
@@ -65,9 +108,11 @@ quote it (see "Research the build must still do").
   towards the 0.4 s line, then past it, in red.
 - **Heat in against heat it can take (9).** Two bars: the fault's I²t and the conductor's k²S². Drag the
   fault current, the time and S. Switch Cmin and Cmax and watch which check each one drives.
-- **The live design card (10).** One circuit run through all twenty flowchart steps at once. Change one
-  input and every step recomputes, and a failing check sends you round its loop. Then switch to "as
-  built": put in measured readings and compare them with the design's values.
+- **The showroom's design card (10).** The assignment's showroom supply (pack p.3) feeds the MDB, the
+  submain to DBL2 and DBL2's longest circuit, with the twenty flowchart steps beside each. Change one
+  input and every step recomputes. A failing check sends you round its loop, and the voltage drop is
+  summed from the intake. Then switch to "as built": put in measured readings and compare them with the
+  design's values.
 
 **Decisions taken for you** (say if you want any changed):
 - **One course, not two.** Your materials are all design calculation. Nothing in them covers
@@ -76,13 +121,16 @@ quote it (see "Research the build must still do").
   to build it to. So "verification" is the last lesson: checking the built circuit against its design
   (EAL QM p.13, "initial verification" in the unit title). It is sourced by research, because your
   materials say nothing about it. If your course had verification slides, send them and I will look
-  again. See "One course or two?" below.
+  again. The second batch does not change this: the assignment's only verification question is the
+  first inspection interval and the handover documents (question 9, pack p.5). See "One course or
+  two?" below.
 - **Ten lessons, about 12 screens each, in the slides' order.** The slides' list (p.6) has nine design
   stages. Overload (p.29 to 32) and harmonics (p.33 to 36) sit inside the cable-selection part of the
   slides, and each needs its own picture, so they are lessons 4 and 5. Voltage drop is split in two,
   because Ct and the power-factor correction (p.43 to 45) are the L4 part and need their own screens.
   The adiabatic check, the short-circuit check and breaking capacity (p.57 to 70) share one equation
-  in two forms, so they share lesson 9. Lesson 10 adds verification. Nine is possible by joining
+  in two forms, so they share lesson 9. Lesson 10 is the assignment's showroom, designed end to end
+  and then verified. Nine is possible by joining
   lessons 6 and 7. Lesson 7 would then get three screens, and Ct and the power-factor method are the
   two things an L3 electrician has not met.
 - **Steps lessons, with a little more explaining ("Partly", RUNBOOK section 0, item 3).** Each lesson
@@ -111,6 +159,10 @@ quote it (see "Research the build must still do").
   published: EAL's 2025 L3 specification names "BS 7671:2018 (2024) Amendment 3" (web search, 19 Oct).
   The lessons teach your course as it was taught, and the research stage must check every cited table
   value against the current amendment and say where one has changed.
+- **The capstone is your assignment's job, not a new one.** Lesson 10 uses the showroom's stated
+  supply (pack p.3) and the guide's key points (guide p.5 to 6). The showroom's lengths and loads come
+  from drawings that are not in the pack, so they are labelled example figures until you send the
+  drawings. It is a refresher on a job you have done, not a model answer to the assignment.
 - **Not built yet.** You asked for a plan. When you say build, lesson 1 is built first for you to try.
 
 ## 1. The overall topic
@@ -159,7 +211,9 @@ open book written exam" and "A design project", at least 40 hours (slides p.2, p
 
 **The unit's assessment criteria.** The QM does not print the full learning outcomes (they are in a
 password-protected delivery pack, EAL QM p.4). Its Appendix 1 checklist (EAL QM p.13) lists what a
-learner's own project must evidence, in this order:
+learner's own project must evidence. Your learner pack prints the same checklist (pack p.8), with
+"D1 Project reflects learner's current knowledge and is sufficient in scope and complexity as the EAL
+set project. (Including a three-phase supply)" before it. In order:
 - **1.1** interprets the requirements of relevant sources of information for design;
 - **2.2** designs final circuits; **2.3** designs distribution circuits; **2.4** establishes maximum
   demand, including diversity;
@@ -176,6 +230,31 @@ version of the same award (2396) prints its outcomes, and one reads "6 Be able t
 verification procedures for single and poly phase electrical installations", worth 50% of its
 assignment (C&G 2396 handbook, web search, 19 Oct). It is a different awarding body's unit, used only
 as a guide to what EAL's hidden outcomes probably hold.
+
+**The design assignment, ED4-01A** (pack p.2 to 5). You "must successfully answer ALL the
+questions" for a pass, and "show all your workings out" (pack p.2). The job is a new car showroom
+(pack p.3): block walls with a mineral-wool panel facade, suspended ceilings at 4.3 m in the showroom
+and 2.2 m elsewhere, cars driven over the showroom floor, ambient 20 °C, and a "Three phase four
+wire 400 V, with a TN-C-S earthing arrangement", Ze 0.1 Ω, prospective fault current 4.6 kA. Five
+boards: MDB, DBL1, DBL2, DBP1, DBP2 (pack p.4). The questions and where the course meets them:
+
+| Q (pack p.) | What it asks | Guide key points | In this course |
+|---|---|---|---|
+| 1a (p.4) | Wiring system routes, selection and justification | Sizes of tray, conduit and trunking with calculations (guide p.2) | Lesson 3 (reference method only); containment sizing left out |
+| 1b (p.4) | Divide the installation into circuits, balancing loads | Maximum demand and diversity from "Section 3 of The Electrical Installation Guide"; a schedule of circuits (guide p.3) | Lesson 1 (diversity), lesson 10 (balancing, one screen) |
+| 2 (p.4) | Choose the origin switchgear and sub-boards from manufacturers' literature | Installation outline as in its 3.2 (guide p.4) | Left out |
+| 3a to 3c (p.4) | Fully design the DBL2 submain and the longest circuits from DBL2 and DBP2, with protective devices | All lengths of run, thermal constraints, SWA armour as cpc "justified by calculation", Zs against the device's maximum (guide p.5); all voltage drops from the intake, three-phase to single-phase per its 5.3.3, manual calculations (guide p.6) | Lessons 1 to 9; lesson 10 is 3a and 3b end to end |
+| 4 (p.4) | 11 kW 400 V motor, pf 0.8 lagging, 86% efficiency, star-delta: (a) Ib, (b) minimum csa of 90 °C singles in conduit from starter to motor on "delta running conditions" | Its 4.7 (guide p.7) | Lessons 1 and 3 (puzzles) |
+| 5 (p.4) | Showroom lighting control 7.30 am to 9 pm; external lights on when dark, off midnight to 6 am | Manufacturers' data (guide p.8) | Left out |
+| 6 (p.5) | EV charging circuits, two outlets a point | RCD protection, TN-C-S and "PEN Fault protection", optional load management (guide p.9) | Left out (one line in lesson 8) |
+| 7 (p.5) | Emergency luminaires for 15 lux in the plant room, 0.5 m working plane | "Use the lumen method", no utilisation factor, maintenance factor 0.8 (guide p.10) | Left out |
+| 8 (p.5) | Where the IP code needs more protection | (none) | Left out |
+| 9a, 9b (p.5) | First periodic inspection interval; handover documents | (none) | Lesson 10 (two screens, research-sourced) |
+| 10 (p.5) | Maximum demand of the installation, using 4a | Linked to 1b (guide p.3) | Lesson 10 (one screen) |
+
+The guide cites "The Electrical Installation Guide" by section (3, 3.2, 4.7, 5.3.3). The QM's
+essential book is the "IET Electrical Installation Design Guide" (EAL QM p.9). Whether they are the
+same book is UNCONFIRMED.
 
 **What your slides cover, in their order** (this is the course's spine):
 
@@ -197,6 +276,7 @@ as a guide to what EAL's hidden outcomes probably hold.
 | p.63 to 68 | Short circuit on the live conductors: Ze(l/n), R1+Rn with 1.28, t = k²S² ÷ I², k = 143 | 9 |
 | p.69 to 70 | IPF and Icn: IPF ≤ Icn | 9 |
 | (none) | Initial verification: measured values against the design | 10 (research) |
+| Pack p.3 to 5; guide p.2 to 12 | The showroom assignment and the guide's key points | 10, and puzzles in 1, 3, 6, 8, 9 |
 
 The flowchart runs the same chain as twenty steps: Ib (1), In (2), factors (3, 4), reference method
 (5), conductor (6), voltage drop and its loop (7, 8), cpc (9), R1+R2 (10 to 12), Zs and its check (13,
@@ -206,8 +286,9 @@ not the same thing" and gives a loop for the minimum.
 
 **Where each criterion is met:** 2.2, 3.0 and 4.1 run through every lesson. 2.3 (distribution
 circuits) is lessons 1 and 6 (sub-board voltage, submain drop) and 9 (fault level at a board). 2.4
-(maximum demand, diversity) is lesson 1. 4.2 (components) is lessons 2 and 3. 1.1, 4.3 and 5.0 are not
-calculation and are left out (see "Left out").
+(maximum demand, diversity) is lesson 1, with the showroom's maximum demand in lesson 10. 4.2
+(components) is lessons 2 and 3. 4.3 (design information) gets lesson 10's handover screen. 1.1 and
+5.0 are not calculation and are left out (see "Left out").
 
 ## 3. What is truly useful to brush up, in an order that builds
 The order is your course's (slides p.6, flowchart), because each check needs the one before it: Ib
@@ -216,7 +297,7 @@ current, and the fault current sets the thermal check. What is worth your time, 
 designer, is the why behind each step, the traps your slides name, and the L4 refinements most
 electricians skip (Ct, the power-factor drop, harmonics, Cmin against Cmax, minimum cpc).
 
-| # | Lesson | The skill | Spec (EAL QM p.13) | Materials |
+| # | Lesson | The skill | Spec (pack p.8; EAL QM p.13) | Materials |
 |---|---|---|---|---|
 | 1 | Design current: what the circuit really draws | Find Ib for single- and three-phase loads from the nameplate, with power factor, efficiency, diversity and the voltage actually at the board. Why: a cable sized on watts alone is sized on the wrong current. One screen on Reg 132.1 and Part 3's six headings as the "before the sums" checklist. | 2.2, 2.3, 2.4, 4.1 | Slides p.7 to 19; flowchart step 1; formula sheet step 1 |
 | 2 | Choosing the device: Ib ≤ In and the time-current curve | Choose In and the device type. Read a time-current curve: why B, C and D exist (starting current, slides p.20), what Ia is and where it is read (Appendix 3), fuses by system and by gG or gM (p.21). The curve is drawn here once and reused in lessons 4, 8 and 9. | 2.2, 3.0, 4.2 | Slides p.20 to 22; flowchart step 2 |
@@ -227,7 +308,28 @@ electricians skip (Ct, the power-factor drop, harmonics, Cmin against Cmax, mini
 | 7 | Voltage drop, refined: hot conductors and power factor | Ct: a cable carrying well under its rating runs cooler, so its resistance and drop are lower (p.43). The r, x and z columns from 25 mm² (p.45), and using r and x with a known power factor. Why: the tabulated mV/A/m assumes a fully loaded, hot conductor and a current in the worst phase. | 3.0, 4.1 | Slides p.43 to 45 (method only; formulas from research) |
 | 8 | Shock protection: will it disconnect in time? | Zs = Ze + R1+R2, with R1+R2 from mΩ/m × multiplier × length ÷ 1000. Max Zs from Uo × Cmin ÷ Ia. Disconnection times by circuit (Reg 411.3.2.2, Table 41.1). PEFC and where it lands on the curve. Why the multiplier (operating temperature) and why Cmin (the lowest voltage gives the least fault current). | 2.2, 3.0, 4.1 | Slides p.46 to 56; flowchart steps 9 to 16; formula sheet steps 12, 13, 15 |
 | 9 | Surviving the fault: the adiabatic check and breaking capacity | S = √(I²t) ÷ k for the cpc, and t = k²S² ÷ I² for the live conductors on a short circuit. Cmin for disconnection, Cmax for the conductor (p.62). Ze(l/n) and R1+Rn (p.64 to 65). Minimum against suitable cpc (flowchart note 2). IPF ≤ Icn (p.69 to 70). | 2.2, 2.3, 3.0, 4.1 | Slides p.57 to 70; flowchart steps 17 to 20; formula sheet steps 18/19 |
-| 10 | Verifying the design, and the whole process end to end | Take one circuit through all twenty steps, with both loops. Then check the built circuit against the design: measured R1+R2, Zs and fault current against the design's values, allowing for the conductor being cold when tested. The last screens are a mixed set from the whole course. | 2.2, 4.1, 4.3; unit title ("initial verification") | Flowchart (all steps); slides p.6; verification from research only |
+| 10 | The showroom: one design end to end, then verified | The assignment's questions 3a and 3b as one chain: the showroom supply (Ze 0.1 Ω, 4.6 kA, 20 °C, pack p.3), the three-phase submain from the MDB to DBL2 with its armour as cpc if justified (guide p.5), then DBL2's longest lighting circuit, voltage drop summed from the intake and turned single-phase (guide p.6), Zs at the board and at the end (formula sheet step 13), and the thermal checks. One screen balances loads across the phases and adds the motor of 4a to a maximum demand (questions 1b, 10). Then verification: measured R1+R2, Zs and fault current against the design's values, allowing for a cold conductor at test, and the first inspection interval and handover documents (question 9). The last screens are a mixed set from the whole course. | D1, 2.2, 2.3, 2.4, 4.1, 4.3; unit title ("initial verification") | Pack p.3 to 5; guide p.3, 5, 6; flowchart (all steps); formula sheet step 13; verification from research only |
+
+**Puzzles from the assignment** (figures from the pack, results computed from the rules shown):
+- **Lesson 1, the question 4 motor:** Ib = 11 000 ÷ (√3 × 400 × 0.8 × 0.86) = 23.08 A (computed; pack
+  p.4). Then the "delta running conditions": in delta each winding, and each cable from the starter to
+  the motor, carries the line current ÷ √3, 13.32 A (computed; AC circuits lesson 10 has the delta
+  √3). The guide sends you to its 4.7 for this (guide p.7); research must quote the rule before the
+  lesson states it.
+- **Lesson 3, a cool room:** the showroom's 20 °C ambient (pack p.3) is below the 30 °C the tables
+  assume (the 30 °C is on slides p.24), so Ca is above 1 and It falls. Ca at 20 °C for 90 °C
+  thermosetting must be sourced. And six singles in one conduit to a star-delta motor: how many
+  circuits count for Cg (research).
+- **Lesson 6:** the guide's two voltage-drop rules: sum every drop "from the intake equipment to the
+  end of the circuit", and turn three-phase to single-phase correctly (guide p.6). The formula sheet's
+  ÷ √3 (step 7 note) is that second rule.
+- **Lesson 8:** Zs on a TN-C-S supply with Ze 0.1 Ω (pack p.3). The prospective earth fault current at
+  the origin is 230 ÷ 0.1 = 2.3 kA (computed, without Cmin), half the stated 4.6 kA.
+- **Lesson 9, breaking capacity:** IPF 4.6 kA at the origin (pack p.3) against each device's Icn. One
+  DO screen asks why the stated PFC is twice the 2.3 kA from Ze. The usual guidance takes a
+  three-phase fault as about twice the single-phase one (UNCONFIRMED; research must quote it). Also
+  the SWA armour as cpc, "justified by calculation" (guide p.5), with the adiabatic equation (armour
+  resistance and k to be sourced).
 
 ## 4. Can it be taught visually, through interaction?
 **Partly** (RUNBOOK section 0, item 3). Every lesson is a steps lesson of about 12 screens, SHOW then
@@ -310,14 +412,19 @@ what each picture shows.
   the IPF beside the device's Icn (p.70). *Why:* "There will be 341.4A in the conductors for 0.1s. It
   may not seem long" (p.56). Showing the equation as energy in against energy the conductor can hold
   explains both of its forms at once, and why k changes with the insulation (115 and 143, p.58, 66).
-- **Lesson 10, the live design card.** One circuit's whole design on one card, as the flowchart's
-  twenty steps in a column, each with its value and a tick. Change one input (length, ambient, device
-  type, Ze) and every step recomputes. A failing check turns red and draws the flowchart's loop back to
-  step 6 or step 9. Then an "as built" switch adds measured readings, R1+R2, Zs and PFC, beside the
-  design values, with the allowance for a cold conductor at test. *Why:* your flowchart is the course
-  (it is "Tony's version of the design process"), and seeing one change ripple through it is the point
-  of a chain of checks. Verification is the same card read the other way: the design predicts the
-  readings.
+- **Lesson 10, the showroom's design card.** A one-line diagram across the top: the showroom intake
+  (400 V TN-C-S, Ze 0.1 Ω, 4.6 kA, pack p.3), the MDB, the three-phase submain to DBL2, and DBL2's
+  longest lighting circuit. Under each cable is its column of flowchart steps, each with its value and
+  a tick. The voltage drop is drawn as one falling line from the intake to the last luminaire, with
+  the submain's part turned single-phase. Zs builds up as Ze, then Zs at DBL2, then Zs at the end.
+  Change one input (a length, the submain's size, the armour as cpc, a device) and every step
+  downstream recomputes. A failing check turns red and draws the flowchart's loop back to step 6 or
+  step 9. Then an "as built" switch adds measured readings, R1+R2, Zs and PFC, beside the design
+  values, with the allowance for a cold conductor at test. *Why:* your flowchart is the course (it is
+  "Tony's version of the design process"), and the assignment's question 3 is that process run twice
+  in series, submain then final circuit. Seeing one change at the MDB ripple to the last luminaire is
+  the point of the guide's "all voltage drops from the intake" (guide p.6). Verification is the same
+  card read the other way: the design predicts the readings.
 
 ## 5. Dan's starting point
 - **He has passed this course.** The aim is to keep it sharp and to understand each step's reason,
@@ -385,6 +492,15 @@ them as the traps. Those marked RESEARCH must be sourced before a lesson states 
 - **Lesson 9, a smaller fault current is always gentler.** RESEARCH: a lower fault current can push a
   device into the slow part of its curve, so I²t can rise. It is not in your slides. Taught only if a
   source is quoted.
+- **Lesson 1 or 3, the motor's cable on line current.** Question 4b says "Base your selection on the
+  delta running conditions" (pack p.4): the cables from the starter to a delta winding carry line
+  current ÷ √3. A DO screen offers the 23.08 A line current. The rule must be quoted by research.
+- **Lesson 10, only the main route measured.** "Remember to include all lengths of the cable run in
+  your calculations not just the main cable routes" (guide p.5).
+- **Lesson 10, a voltage drop that starts at the sub-board.** "Include the sum of all voltage drops
+  from the intake equipment to the end of the circuit" (guide p.6).
+- **Lesson 10, Zs worked out but never compared.** "Compare your calculated Zs value to the maximum
+  permitted for the device" (guide p.5).
 - **Lesson 10, measured Zs compared straight with the table.** RESEARCH: a reading taken on a cold
   circuit must be compared with a maximum corrected for operating temperature (BS 7671 Appendix 3 note,
   or GN3). Not in your slides.
@@ -426,10 +542,21 @@ page) or computed on screen from a shown rule.
   slides use (p.58, 66); 14.82 mΩ/m and 1.28 (p.65); Cmax = 1.1 (p.48); the meaning of Icn for a
   BS EN 60898 breaker and an RCBO. **Check p.64:** the slides give the 20 A RCBO an Ia of 100 A without
   stating its type (UNCONFIRMED: type B assumed).
-- **Lesson 10 (all from research, nothing in your materials):** what initial verification compares
-  with the design (BS 7671 Part 6, GN3); the correction of a measured Zs or R1+R2 for test temperature
-  (BS 7671 Appendix 3 note, GN3 or the OSG); whether the EIC's design section asks the designer to
-  record these values.
+- **Lesson 10 (verification from research, nothing in your materials):** what initial verification
+  compares with the design (BS 7671 Part 6, GN3); the correction of a measured Zs or R1+R2 for test
+  temperature (BS 7671 Appendix 3 note, GN3 or the OSG); whether the EIC's design section asks the
+  designer to record these values; for question 9 (pack p.5), the guidance on the first periodic
+  inspection interval for a shop or showroom (GN3 or the OSG) and the handover documents
+  (City & Guilds 2396's criterion 2.6 lists "Verification documentation and certification", "As
+  fitted drawings", "Operation and maintenance manuals", web search 19 Oct; EAL's own list is
+  UNCONFIRMED).
+- **Second batch, for lessons 1, 3, 8, 9 and 10:** the rule for sizing cables to a delta-connected
+  motor from a star-delta starter (the guide points to its 4.7, guide p.7); Ca at 20 °C for 70 °C
+  thermoplastic and 90 °C thermosetting cables (Table 4B1); how Cg counts the six cores of a
+  star-delta motor in one conduit; the guidance that a three-phase prospective fault current is about
+  twice the single-phase value (to explain the pack's 4.6 kA against 230 ÷ 0.1 = 2.3 kA); the armour
+  resistance and k for SWA armour as a cpc (guide p.5); which book "The Electrical Installation Guide"
+  is, and its sections 3, 3.2, 4.7 and 5.3.3 (guide p.3, 4, 6, 7).
 - **All lessons:** check each cited value against BS 7671:2018+A3:2024 and say where it changed.
 
 **Sea (optional, only if found):**
@@ -452,11 +579,25 @@ certification". I recommend **one**, for three reasons:
   test: the design predicts the readings. That fits in one lesson.
 - Ten lessons is inside the 6 to 10 a course should be, and the order builds without a break.
 
-If your D&V course had more (the "webinars", "the powerpoint" and "the mocks in the drive" on slide
-p.5), send them. The mocks would make lesson 10's mixed set and the DO screens exam-shaped. A
-second course could follow for what EAL's checklist lists and your slides skip: maximum demand for a
-whole installation, distribution design and discrimination, and associated systems (EAL QM p.13,
-2.3, 2.4, 5.0).
+The second batch (19 Oct) keeps this decision. The assignment has one verification question, the
+first inspection interval and the handover documents (question 9, pack p.5), which fit in lesson 10.
+
+**What the second batch does open: a possible second course on the whole installation.** Most of the
+assignment is design that is not circuit calculation, and your slides teach none of it. A second
+course built to the assignment could be about six lessons: containment sizing (question 1a, guide
+p.2); load balancing, maximum demand and the schedule of circuits (1b, 10, guide p.3); switchgear and
+distribution boards (2); lighting control and time switching (5); EV charging on TN-C-S, RCDs and PEN
+fault protection (6, guide p.9); and emergency lighting by the lumen method, with IP codes (7, 8,
+guide p.10). I do **not** recommend planning it yet:
+- it needs the assignment's two drawings, which are not in the pack (pack p.3);
+- its subjects need sources your materials do not hold (BS 7671 Section 722 for EV charging, BS 5266
+  for emergency lighting, manufacturers' data);
+- several are mostly words, not interaction, so it would be closer to "No" (reading lessons) than
+  this course.
+
+If you want it, send the drawings and say so. Also still worth sending: the "webinars", "the
+powerpoint" and "the mocks in the drive" (slides p.5). The mocks would make lesson 10's mixed set and
+the DO screens exam-shaped.
 
 ## 9. Size and cost
 - 10 lessons of about 12 screens, plus the research stage and the plan.
@@ -470,10 +611,12 @@ whole installation, distribution design and discrimination, and associated syste
 
 ## 10. Left out
 - **Not taught, because your slides do not teach them** (a second course could, see section 8):
-  maximum demand of a whole installation beyond the diversity screen; discrimination and selectivity;
-  RCD selection and types; protective bonding and earthing conductor sizing; TT and earth electrodes;
-  the associated systems of criterion 5.0; the statutory and non-statutory framework of criterion 1.1;
-  design documentation of criterion 4.3.
+  maximum demand of a whole installation beyond lesson 10's one screen; discrimination and
+  selectivity; RCD selection and types; protective bonding and earthing conductor sizing; TT and earth
+  electrodes; the associated systems of criterion 5.0; the statutory and non-statutory framework of
+  criterion 1.1. From the assignment (pack p.4 to 5): containment sizing (1a), switchgear choice (2),
+  lighting control (5), EV charging (6; lesson 8 says in one line that it has its own rules), emergency
+  lighting (7) and IP codes (8).
 - **Mentioned in one screen and moved on:** Reg 132.1 and Part 3's six headings (slides p.7 to 8),
   fuse systems C, E and G (p.21), and fuse wire (p.20).
 - **Not repeated from other courses:** AC theory (AC circuits), the test methods and certificates
@@ -483,9 +626,18 @@ whole installation, distribution design and discrimination, and associated syste
 - **The file named "spec" is the course's slide deck**, not EAL's qualification specification. It
   has no unit numbers or learning outcomes. The QM found on the web supplies the unit, and its full
   outcomes are not public (UNCONFIRMED).
-- **Nothing on verification**, though it is half the qualification's title.
+- **Nothing on verification as a method**, though it is half the qualification's title. The
+  assignment's only verification question is the inspection interval and handover documents
+  (question 9, pack p.5).
+- **The assignment's two drawings are missing.** The pack says "The two attached drawings show the
+  proposed electrical installation" (pack p.3), and questions 1, 3, 7 and 10 depend on them. The PDF
+  has none. Ask Dan for them.
+- **"The Electrical Installation Guide"** is cited by section in the project guide (guide p.3, 4, 6,
+  7), but no edition or publisher is given.
+- **The pack's page footers** run "1 of 9" then "2 of 7" to "7 of 7"; this brief cites PDF pages.
 - **No formulas for Ct or for the power-factor voltage drop.** The slides say "Let's go to the drawing
-  board" (p.43, p.45), so they were given in a webinar that is not in `source/`.
+  board" (p.43, p.45), so they were given in a webinar that is not in `source/`. The second batch has
+  nothing on them either.
 - **Reference method B for twin and earth in trunking** (p.28, p.31) and "column 7" of Table 4D5 need
   checking.
 - **"10,000s"** as the time to operate at I2 (p.30, 32) needs checking against the conventional time.

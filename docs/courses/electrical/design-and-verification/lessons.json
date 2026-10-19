@@ -5,12 +5,14 @@
   "oneLine": "The cable carries the current the load draws from the supply, so Ib comes from the apparent input power: output ÷ (efficiency × power factor), at the voltage actually at the board, with diversity only as guidance.",
   "skill": "Find Ib for single- and three-phase loads from a nameplate, with power factor, efficiency, diversity and a sub-board voltage.",
   "specRefs": [
-   "EAL ED4-01 (J/507/9710), QM Issue 1.3 p.13: 2.2, 2.3, 2.4, 4.1"
+   "EAL ED4-01 (J/507/9710), checklist in eal-ed4-assign-01a-learner-pack.pdf p.8 and QM Issue 1.3 p.13: 2.2, 2.3, 2.4, 4.1"
   ],
   "materialRefs": [
    "eal-l4-design-and-verification-spec.pdf p.6-19",
    "circuit-design-calculation-process.pdf step 1",
-   "circuit-design-formula.pdf step 1"
+   "circuit-design-formula.pdf step 1",
+   "eal-ed4-assign-01a-learner-pack.pdf p.4 (Q4a: 11 kW 400 V motor, pf 0.8, 86%; Ib = 23.08 A computed; delta winding current 13.32 A computed)",
+   "eal-l4-project-presentation.pptx (pptx-pdf) p.7"
   ],
   "picture": "The nameplate and its triangle: drag power factor and efficiency down from 1 and the Ib bar grows for the same output (28.87 A to 41.48 A for the slides' 20 kW load); a voltage slider gives the 393 V sub-board case (29.38 A).",
   "builds_on": [
@@ -24,7 +26,7 @@
   "oneLine": "A device's time-current curve says how long it takes to open at each current; B, C and D differ in where the instant trip starts, so a motor's starting current decides the type.",
   "skill": "Choose In and the device type, and read Ia and an operating time off a time-current curve.",
   "specRefs": [
-   "EAL ED4-01 QM p.13: 2.2, 3.0, 4.2"
+   "EAL ED4-01 checklist (eal-ed4-assign-01a-learner-pack.pdf p.8; QM p.13): 2.2, 3.0, 4.2"
   ],
   "materialRefs": [
    "eal-l4-design-and-verification-spec.pdf p.20-22",
@@ -42,12 +44,14 @@
   "oneLine": "Each rating factor is heat the cable's tabulated rating did not allow for, so It = In ÷ (the factors that act together), worked for each section of the run, and the worst section sets the cable.",
   "skill": "Apply Ca, Cg, Ci and Cf only where they occur together, choose the governing reference method, and select a conductor with Iz ≥ In.",
   "specRefs": [
-   "EAL ED4-01 QM p.13: 2.2, 3.0, 4.1, 4.2"
+   "EAL ED4-01 checklist (eal-ed4-assign-01a-learner-pack.pdf p.8; QM p.13): 2.2, 3.0, 4.1, 4.2"
   ],
   "materialRefs": [
    "eal-l4-design-and-verification-spec.pdf p.23-28",
    "circuit-design-calculation-process.pdf steps 3-6",
-   "circuit-design-formula.pdf step 4"
+   "circuit-design-formula.pdf step 4",
+   "eal-ed4-assign-01a-learner-pack.pdf p.3 (20 °C ambient: Ca above 1, value to be sourced)",
+   "eal-ed4-assign-01a-learner-pack.pdf p.4 (Q4b: 90 °C singles in conduit, delta running conditions)"
   ],
   "picture": "The cable run in sections: the slides' 3 kW heater route (clipped, in trunking with another circuit, through 50 mm of insulation), each section shaded by heat with its own factor product and required It (21.3 A and 19.3 A); the worst section is outlined as governing.",
   "builds_on": [
@@ -61,7 +65,7 @@
   "oneLine": "A device may let about 1.45 In flow for its conventional time before it opens, so the cable must survive that: I2 ≤ 1.45 Iz, which is why a semi-enclosed fuse needs Cf = 1.45 ÷ 2 = 0.725.",
   "skill": "Check I2 ≤ 1.45 Iz and derive Cf for a device with a fusing factor above 1.45.",
   "specRefs": [
-   "EAL ED4-01 QM p.13: 3.0, 4.1"
+   "EAL ED4-01 checklist (eal-ed4-assign-01a-learner-pack.pdf p.8; QM p.13): 3.0, 4.1"
   ],
   "materialRefs": [
    "eal-l4-design-and-verification-spec.pdf p.22, 25, 29-32"
@@ -78,7 +82,7 @@
   "oneLine": "Balanced fundamentals cancel in the neutral but third harmonics on the three lines are in step and add, so above about a third the neutral current, 3 × h × IL, sets the cable.",
   "skill": "Use Table 4Aa's bands, compute Ibn = 3 × h × IL, decide whether line or neutral current is Ib, and apply the 0.86 factor.",
   "specRefs": [
-   "EAL ED4-01 QM p.13: 2.3, 3.0, 4.1"
+   "EAL ED4-01 checklist (eal-ed4-assign-01a-learner-pack.pdf p.8; QM p.13): 2.3, 3.0, 4.1"
   ],
   "materialRefs": [
    "eal-l4-design-and-verification-spec.pdf p.33-36"
@@ -95,12 +99,13 @@
   "oneLine": "Voltage drop is mV/A/m × Ib × L ÷ 1000, added along the whole path from origin to load, and judged as 3% or 5% of the voltage you were given, not of a habit.",
   "skill": "Calculate voltage drop for final and distribution circuits, add the submain's drop (÷ √3 for a three-phase submain feeding a single-phase circuit), and chase the drop to a compliant size.",
   "specRefs": [
-   "EAL ED4-01 QM p.13: 2.2, 2.3, 3.0, 4.1"
+   "EAL ED4-01 checklist (eal-ed4-assign-01a-learner-pack.pdf p.8; QM p.13): 2.2, 2.3, 3.0, 4.1"
   ],
   "materialRefs": [
    "eal-l4-design-and-verification-spec.pdf p.37-42",
    "circuit-design-calculation-process.pdf steps 7-8",
-   "circuit-design-formula.pdf step 7"
+   "circuit-design-formula.pdf step 7",
+   "eal-l4-project-presentation.pptx (pptx-pdf) p.6 (sum all voltage drops from the intake; three-phase to single-phase)"
   ],
   "picture": "The voltage along the run: origin, sub-board and load with the voltage drawn falling along the cable; drag length, CSA and Ib; a 395 V / 400 V toggle shows the 19.8 V total failing and passing; a chase button steps 1.5 mm² up to 6 mm².",
   "builds_on": [
@@ -114,7 +119,7 @@
   "oneLine": "Tabulated mV/A/m assume a fully loaded, hot conductor; a lightly loaded one runs cooler (Ct), and with a known power factor only the parts of the r and x drops along the voltage count.",
   "skill": "Apply Ct to a voltage drop and use the r and x columns with a known power factor for cables of 25 mm² and above.",
   "specRefs": [
-   "EAL ED4-01 QM p.13: 3.0, 4.1"
+   "EAL ED4-01 checklist (eal-ed4-assign-01a-learner-pack.pdf p.8; QM p.13): 3.0, 4.1"
   ],
   "materialRefs": [
    "eal-l4-design-and-verification-spec.pdf p.43-45 (method only; Ct and power-factor formulas to be sourced by research)"
@@ -132,12 +137,14 @@
   "oneLine": "Every metre of cable adds to the earth fault loop, the loop limits the fault current at the lowest supply voltage (Cmin), and that current decides where on the device's curve it opens, inside or outside the required time.",
   "skill": "Calculate R1+R2 with the temperature multiplier, Zs = Ze + R1+R2, max Zs = Uo × Cmin ÷ Ia, PEFC, and check the disconnection time for the circuit.",
   "specRefs": [
-   "EAL ED4-01 QM p.13: 2.2, 3.0, 4.1"
+   "EAL ED4-01 checklist (eal-ed4-assign-01a-learner-pack.pdf p.8; QM p.13): 2.2, 3.0, 4.1"
   ],
   "materialRefs": [
    "eal-l4-design-and-verification-spec.pdf p.46-56",
    "circuit-design-calculation-process.pdf steps 9-16",
-   "circuit-design-formula.pdf steps 12, 13, 15"
+   "circuit-design-formula.pdf steps 12, 13, 15",
+   "eal-ed4-assign-01a-learner-pack.pdf p.3 (TN-C-S, Ze 0.1 Ω)",
+   "eal-l4-project-presentation.pptx (pptx-pdf) p.5 (compare calculated Zs with the device maximum)"
   ],
   "picture": "The fault loop: the earth fault path drawn as a ring (Ze, line out, fault, cpc back); drag length and CSA, R1+R2, Zs and the fault current update, and on lesson 2's curve the operating point slides from 0.1 s past the 0.4 s line, turning red; a cold/hot toggle shows the 1.2 multiplier.",
   "builds_on": [
@@ -151,12 +158,14 @@
   "oneLine": "A conductor can absorb k²S² of fault energy before it is damaged, so it survives if I²t is smaller: S = √(I²t) ÷ k for the cpc, t = k²S² ÷ I² for the live conductors, with Cmax for the conductor and Cmin for disconnection, and the device must break the largest fault (IPF ≤ Icn).",
   "skill": "Size the minimum cpc by the adiabatic equation, check live conductors under short circuit from Ze(l/n) and R1+Rn, choose Cmin or Cmax for each check, and check IPF ≤ Icn.",
   "specRefs": [
-   "EAL ED4-01 QM p.13: 2.2, 2.3, 3.0, 4.1"
+   "EAL ED4-01 checklist (eal-ed4-assign-01a-learner-pack.pdf p.8; QM p.13): 2.2, 2.3, 3.0, 4.1"
   ],
   "materialRefs": [
    "eal-l4-design-and-verification-spec.pdf p.57-70",
    "circuit-design-calculation-process.pdf steps 17-20 and note 2",
-   "circuit-design-formula.pdf steps 18/19"
+   "circuit-design-formula.pdf steps 18/19",
+   "eal-ed4-assign-01a-learner-pack.pdf p.3 (prospective fault current 4.6 kA against Icn)",
+   "eal-l4-project-presentation.pptx (pptx-pdf) p.5 (thermal constraints; SWA armour as cpc justified by calculation)"
   ],
   "picture": "Heat in against heat it can take: two bars, the fault's I²t and the conductor's k²S²; drag fault current, time and S; a Cmin/Cmax switch shows which check each drives; further cards turn the equation round for short circuit and set IPF beside Icn.",
   "builds_on": [
@@ -165,18 +174,21 @@
  },
  {
   "n": 10,
-  "title": "Verifying the design, and the whole process end to end",
-  "oneLine": "The design is one chain of checks in which a change at one step ripples through the rest, and it predicts the readings the finished circuit should give, allowing for the conductor being cold at test.",
-  "skill": "Run one circuit through all twenty flowchart steps with both loops, then compare measured R1+R2, Zs and fault current with the design's values.",
+  "title": "The showroom: one design end to end, then verified",
+  "oneLine": "The assignment's showroom designed as one chain, MDB to DBL2 to its longest circuit, where a change at the intake ripples to the last luminaire; the design then predicts the readings the finished circuit should give, allowing for a cold conductor at test.",
+  "skill": "Design the DBL2 submain and DBL2's longest circuit end to end (questions 3a and 3b): voltage drop summed from the intake, Zs at the board and at the end, thermal checks, IPF against Icn; then compare measured R1+R2, Zs and fault current with the design and name the first inspection interval and handover documents.",
   "specRefs": [
-   "EAL ED4-01 QM p.13: 2.2, 4.1, 4.3",
-   "Unit title: initial verification (verification content UNCONFIRMED in materials; research to source from BS 7671 Part 6, Appendix 3 and GN3)"
+   "EAL ED4-01 checklist (eal-ed4-assign-01a-learner-pack.pdf p.8; QM p.13): D1, 2.2, 2.3, 2.4, 4.1, 4.3",
+   "Unit title: initial verification (method not in Dan's materials; research to source from BS 7671 Part 6, Appendix 3 and GN3)"
   ],
   "materialRefs": [
+   "eal-ed4-assign-01a-learner-pack.pdf p.3-5 (showroom supply: 400 V TN-C-S, Ze 0.1 Ω, 4.6 kA, 20 °C; Q1b, Q3a-3b, Q9, Q10)",
+   "eal-l4-project-presentation.pptx (pptx-pdf) p.3, 5, 6",
    "circuit-design-calculation-process.pdf steps 1-20",
-   "eal-l4-design-and-verification-spec.pdf p.6"
+   "circuit-design-formula.pdf step 13 (Zs = Zs@db + R1+R2)",
+   "Drawings for lengths and loads: missing, so example figures labelled"
   ],
-  "picture": "The live design card: the twenty flowchart steps in a column, each with its value and tick; change one input and every step recomputes, a failing check draws its loop back to step 6 or 9; an 'as built' switch sets measured readings beside the design values with the cold-conductor allowance.",
+  "picture": "The showroom's design card: a one-line diagram from the intake through the MDB and the submain to DBL2 and its longest circuit, each cable with its column of flowchart steps; one voltage-drop line falls from the intake to the last luminaire and Zs builds up board by board; change one input and everything downstream recomputes, a failing check draws its loop; an 'as built' switch sets measured readings beside the design values.",
   "builds_on": [
    1,
    2,
