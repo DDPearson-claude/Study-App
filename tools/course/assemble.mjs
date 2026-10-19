@@ -107,6 +107,10 @@ if (cmd === 'docs') {
   }
 
   // The lesson docs, whole: ready, with the checked lesson and the tested interactive (or the note).
+  // Every course built here is a ready-made shelf course: without <dir>/shelf.json the topic is not
+  // marked readyMade, so the app would write or rebuild its lessons in the page (the Algebra folder's
+  // eight courses went live that way on 17-18 Oct). Never assemble one without it.
+  if (!existsSync(join(dir, 'shelf.json'))) problems.push('no ' + join(dir, 'shelf.json') + ': write {"shelf": "<shelf id>", "course": "<course id>"} so the topic is marked readyMade');
   const summary = [], missing = [], formats = {};
   ids.forEach((iid) => {
     const idea = topic.ideas.find((i) => i.id === iid);
