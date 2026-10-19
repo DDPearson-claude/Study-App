@@ -86,6 +86,32 @@ The order of lessons 1 to 9 and the one-course decision do not change.
   missing drawings, but not the others.
 - **One new picture**: lesson 10 draws its own simplified plan of the showroom, never EAL's image.
 
+## Changes from the practice papers (19 Oct, fourth batch)
+- **They are City & Guilds papers, not EAL's.** Each is "2396-402 ... Design, construction management
+  and initial verification of electrical installations" (P1 p.1, P2 p.1, P3 p.1). That is City &
+  Guilds' Level 4 award, a sibling of your EAL award from a different awarding body. They are probably
+  "the mocks in the drive" (slides p.5). They are question papers only, with no answers or mark
+  schemes, and they date from 2012 to 2017, so they follow BS 7671:2008 (the 17th Edition).
+- **The lesson list does not change.** About 30% of each paper's 200 marks is calculation (Section A,
+  plus a few calculation questions in Section B: about 66, 60 and 56 marks in P1, P2 and P3), and every one of those maps onto lessons 1 to 3, 6, 8
+  and 9. Each paper's Section A is a whole circuit designed end to end, which is what lesson 10 does.
+  Four calculations the papers set and your slides do not are added as screens inside existing
+  lessons: grouping with lightly loaded cables (lesson 3); an RCD for fault protection when Zs is too
+  high, and supplementary bonding when ADS cannot be met in time (lesson 8); a short-circuit check with
+  a low fault current on a fuse (lesson 9); and the armour as cpc from given armour data (lesson 9).
+- **Verification gets real questions to aim at** (lesson 10): why the installed Zs is usually below
+  the design value (P1 p.5), why measured and maximum Zs are compared with Cmin (P1 p.18, P2 p.4, P3
+  p.4), what a designer hands the inspector (P2 p.13) and what sets the first inspection interval
+  (P2 p.14). There are still no answers, so research must source them.
+- **The second course is still not recommended.** The other 70% of the marks is protective measures,
+  isolation and switching, special locations, selection and erection, EMC and testing. Your 18th
+  Edition and inspection and testing awards already cover those. The papers have no question on
+  maximum demand, EV charging, emergency lighting or containment, so they give the sketched second
+  course no support.
+- **Puzzles vary the numbers.** The papers are City & Guilds copyright. No puzzle repeats a scenario or
+  its figures; each takes the shape of a question and changes the load, length, temperature and
+  device. See "The practice papers, question by question" in section 2.
+
 ## The short version
 **One course, ten lessons**, in your course's order (slides p.6, the flowchart):
 1. Design current: what the circuit really draws
@@ -312,6 +338,101 @@ same book is UNCONFIRMED.
   luminaire about 37 m. From DBL1 the same column is about 33 m. Lesson 10 says which board it gives
   the external lighting to, and why.
 
+**The practice papers, question by question** (fourth batch). Files `practice-paper-1-2396-mar16.pdf`
+(P1, 18 PDF pages), `practice-paper-2-2396-jun17.pdf` (P2, 20 PDF pages, the last two blank) and
+`practice-paper-3-2396-dec12.pdf` (P3, 4 PDF pages, questions only). Pages are PDF pages. **P1 is
+missing printed pages 6 and 7**: its PDF page 5 is printed page 5 and its PDF page 6 is printed page 8,
+so question 3 is not there. Each paper allows "BS 7671 as amended; IET On-site Guide; IET Guidance
+Note 3" (P1 p.1). Each has Section A (two scenario questions, 20 marks each) and Section B (eight
+questions, 20 marks each). "Calc" means the question needs a calculation or a reading from a table to
+reach a number. "Out" means outside this course: covered by your 18th Edition or inspection and
+testing awards, or not in your EAL slides.
+
+| Paper | Q (p.) | Topic | Lesson | Calc |
+|---|---|---|---|---|
+| P1 | 1 (p.2) | Three-phase 12 kW water heater in singles, steel trunking grouped with two others, 18 m, 35 °C, BS 88-2 fuse, drop ≤ 5 V: Ib, In, method, factors, table and column, minimum size, actual drop | 1, 2, 3, 6 | Yes |
+| P1 | 2a (p.4) | cpc for design Zs and thermal constraints (TN-S, Zs at the board given) | 8, 9 | Yes |
+| P1 | 2b (p.5) | Why the installed Zs is likely below the design value | 10 | No |
+| P1 | 3 (pp.6–7) | Missing from the scan | — | — |
+| P1 | 4a–c, e (p.6–7) | Workshop on ADS: basic protection, RCD additional protection, SELV hand lamps | Out | No |
+| P1 | 4d (p.7) | Two circuits each for 0.4 s and 5 s | 8 | No |
+| P1 | 5a (p.8) | Total Zs, 2.5/1.5 T&E, 58 m, type C, TN-C-S | 8 | Yes |
+| P1 | 5b (p.8) | RCD rating to meet Reg 411.4.9 when Zs is too high | 8 | Yes |
+| P1 | 5c (p.9) | Short-circuit protection of the live conductors, Reg 434.5.2 | 9 | Yes |
+| P1 | 6a–b (p.9–10) | EM disturbance sources; meshed bonding networks | Out | No |
+| P1 | 7a–d (p.11–12) | Isolation, switching for maintenance, emergency switching, undervoltage | Out | No |
+| P1 | 8 (p.13) | Garden office in a timber chalet: selection and erection | Out | No |
+| P1 | 9a–b (p.15) | RCD test currents; earth electrode test (TT) | Out | No |
+| P1 | 9c (p.16) | Three electrode readings: acceptable, and the value for the certificate | 10 (one screen) | Yes |
+| P1 | 10a (p.17) | Marina risks and measures | Out | No |
+| P1 | 10b (p.18) | Table 4C1 grouping: nine cables, six lightly loaded | 3 | Yes |
+| P1 | 10c (p.18) | Why Cmin when comparing measured Zs (Appendix 14) | 8, 10 | No |
+| P2 | 1 (p.2) | Three-phase 22 kW motor at power factor 0.87, four-core 70 °C on tray touching one other circuit, 35 °C, 27 m, type C, drop ≤ 10 V, TN-C-S | 1, 2, 3, 6 | Yes |
+| P2 | 2a–b (p.3–4) | Total Zs, and whether it is acceptable | 8 | Yes |
+| P2 | 2c (p.4) | Thermal constraints under earth fault | 9 | Yes |
+| P2 | 2d (p.4) | Why Cmin is applied to Uo | 8 | No |
+| P2 | 3a, c (p.5–6) | Equipment characteristics harmful to other equipment; the six general characteristics | 1 (one screen) | No |
+| P2 | 3b, d (p.5–6) | Principles for the number of circuits; accessibility | Out | No |
+| P2 | 4a–d (p.6–8) | RCDs for additional protection and for disconnection; what to do where ADS cannot be met in time, and how | 8 (one screen) | No |
+| P2 | 5 (p.9) | Short-circuit protection: 1.5 mm², 37 m, BS 88-3 fuse, low PSCC at the origin | 9 | Yes |
+| P2 | 6a–c (p.10–11) | Escape routes; buildings of public significance; a CA2 example | Out | No |
+| P2 | 7a (p.12) | Equipment with a high protective conductor current | Out | No |
+| P2 | 7b–c (p.13) | Earthing conductor to an electrode; its minimum size on TT | Out | Yes (7c) |
+| P2 | 8a–b (p.13–14) | What a designer gives the inspector; factors for the first inspection interval | 10 | No |
+| P2 | 8c (p.14) | Separation and insulation test of SELV lighting | Out | No |
+| P2 | 9a–b (p.15–16) | Marinas; caravan park pitch supplies | Out | No |
+| P2 | 10a–d (p.17–18) | Isolation, switching for maintenance, functional switching, undervoltage | Out | No |
+| P3 | 1 (p.2) | Four-core 90 °C SWA on cleats, 58 m, 40 °C, three-phase 16.8 kW at power factor 0.78, type C, drop ≤ 8 V: method, Ca, table and column, Ib, In, size, drop | 1, 2, 3, 6 | Yes |
+| P3 | 2a (p.2) | Armour as cpc from given armour data: thermal and design Zs | 8, 9 | Yes |
+| P3 | 2b (p.2) | Alternative cpc if the armour fails | 9 | No |
+| P3 | 3a (p.3) | Three methods against indirect contact | Out | No |
+| P3 | 3b (p.3) | A hazard of overload | 4 | No |
+| P3 | 3c (p.3) | Seven considerations for wiring type and method | 3 (one screen) | No |
+| P3 | 4a–c, e (p.3) | School on ADS: basic protection, RCDs, main bonding | Out | No |
+| P3 | 4d (p.3) | Circuits for 0.4 s and 5 s | 8 | No |
+| P3 | 5a–c (p.3) | RCD where Zs is too high: 6/2.5 singles, 29 m, TN-S, 40 A type C; Zs, Reg 411.4.9, Reg 434.5.2 | 8, 9 | Yes |
+| P3 | 6a–b (p.3) | Electrical separation; SELV | Out | No |
+| P3 | 7a–b (p.3) | Isolation and switching; an isolator used as a functional switch | Out | No |
+| P3 | 8a–c (p.4) | Connections not needing access; warning notices; non-electrical services | Out | No |
+| P3 | 9a (p.4) | Why measured and maximum Zs are compared per Appendix 14 | 10 | No |
+| P3 | 9b (p.4) | Earth fault loop path on TT, as a diagram | 8 (one screen) | No |
+| P3 | 10a–b (p.4) | Caravan parks; marina external influences | Out | No |
+
+**What the papers show:**
+- **The calculation core is the same as your EAL slides.** Every Section A is your flowchart from Ib
+  to the thermal check (P1 p.2, p.4; P2 p.2 to 4; P3 p.2). Lessons 1 to 9 cover all of it.
+- **Four calculations beyond the slides**, now inside lessons 3, 8 and 9 (see the Changes section).
+- **Topics the exam expects and the slides skip:** protective measures (basic protection, SELV,
+  electrical separation), RCDs for additional protection, isolation and switching (in all three
+  papers), special locations (marinas and caravan parks, in all three), selection and erection
+  (escape routes, CA2 cables, timber buildings), EMC and bonding networks, accessibility, warning
+  notices, and inspection and testing. These are 18th Edition and inspection and testing ground,
+  which you hold, so they stay out. Lesson 10 keeps the parts that tie design to verification.
+- **What the papers do not ask:** diversity or maximum demand, discrimination or selectivity,
+  harmonics, Ct, or the power-factor voltage drop. The EAL slides teach harmonics, Ct and the
+  power-factor drop (p.33 to 45), so those lessons stay: they are your course's, even if this exam did
+  not set them.
+- **No gaps filled.** The papers have no worked answers, so they give no Ct or power-factor formula,
+  no method for verification, and no learning outcomes. They follow the 17th Edition, so "Regulation
+  411.4.9" (P1 p.8, P3 p.3) and "Appendix 14" (P1 p.18, P3 p.4) may have moved in BS 7671:2018.
+  Research must map each to the current numbering before a lesson cites it.
+
+**Puzzles from the papers** (shapes only; every number changed, and no scenario text reused):
+- **Lessons 1 to 3 and 6:** a three-phase heater grouped in trunking (P1 Q1); a motor given a power
+  factor but no efficiency, on tray touching one other circuit (P2 Q1); an SWA machine supply at a
+  high ambient (P3 Q1). Each becomes a run of DO screens with a new load, length and temperature.
+- **Lesson 3:** a group where some cables are lightly loaded, and whether they count for Cg (P1 Q10b).
+  The rule must be quoted from Table 4C1's notes by research.
+- **Lesson 8:** a long socket circuit whose Zs fails, then the RCD that rescues it (P1 Q5a–b, P3
+  Q5a–b). Also why Cmin (P2 Q2d) and the 0.4 s and 5 s examples (P1 Q4d, P3 Q4d).
+- **Lesson 9:** the short-circuit check on a small cable fed through a fuse with a low PSCC at the
+  origin (P2 Q5). A low fault current moves the fuse into the slow part of its curve, which is the
+  "smaller fault current is always gentler" mistake in section 6. And the armour as cpc, from a small
+  table of armour data the lesson makes up and labels (P3 Q2a). P3's own Figure 1 values are City &
+  Guilds' and are not used.
+- **Lesson 10:** why the installed Zs comes in below design (P1 Q2b), what the designer hands the
+  inspector (P2 Q8a), and three electrode readings to judge (P1 Q9c), as the closing screens.
+
 **What your slides cover, in their order** (this is the course's spine):
 
 | Slides | Section | Course lesson |
@@ -358,12 +479,12 @@ electricians skip (Ct, the power-factor drop, harmonics, Cmin against Cmax, mini
 |---|---|---|---|---|
 | 1 | Design current: what the circuit really draws | Find Ib for single- and three-phase loads from the nameplate, with power factor, efficiency, diversity and the voltage actually at the board. Why: a cable sized on watts alone is sized on the wrong current. One screen on Reg 132.1 and Part 3's six headings as the "before the sums" checklist. | 2.2, 2.3, 2.4, 4.1 | Slides p.7 to 19; flowchart step 1; formula sheet step 1 |
 | 2 | Choosing the device: Ib ≤ In and the time-current curve | Choose In and the device type. Read a time-current curve: why B, C and D exist (starting current, slides p.20), what Ia is and where it is read (Appendix 3), fuses by system and by gG or gM (p.21). The curve is drawn here once and reused in lessons 4, 8 and 9. | 2.2, 3.0, 4.2 | Slides p.20 to 22; flowchart step 2 |
-| 3 | Rating factors: what makes a cable run hot | Find It ≥ In ÷ (Ca Cg Ci Cf) and pick the cable. Why the factors divide: each one is heat that the cable's tabulated rating did not allow for. Factors multiply only where they happen together, and Cg always counts the circuit itself (p.25). Design to the worst section and the worst reference method (p.28). | 2.2, 3.0, 4.1, 4.2 | Slides p.23 to 28; flowchart steps 3 to 6; formula sheet step 4 |
+| 3 | Rating factors: what makes a cable run hot | Find It ≥ In ÷ (Ca Cg Ci Cf) and pick the cable. Why the factors divide: each one is heat that the cable's tabulated rating did not allow for. Factors multiply only where they happen together, and Cg always counts the circuit itself (p.25). Design to the worst section and the worst reference method (p.28). Lightly loaded cables in a group (practice paper P1 Q10b; the rule from research). | 2.2, 3.0, 4.1, 4.2 | Slides p.23 to 28; flowchart steps 3 to 6; formula sheet step 4 |
 | 4 | Overload: why 1.45 | I2, the current that operates the device within its conventional time, is about 1.45 In for most devices (p.30). I2 ≤ 1.45 Iz says the cable can take that overload for that long (p.32). With Ib ≤ In ≤ Iz this is why Cf = 0.725 for a semi-enclosed fuse, which is 1.45 ÷ 2 (computed). | 3.0, 4.1 | Slides p.22, 25, 29 to 32 |
 | 5 | Harmonics: when the neutral carries more than the line | Read Table 4Aa's bands (p.34). Work Ibn = 3 × h × IL (p.35) and decide whether line or neutral current sets Ib. Why: balanced fundamentals cancel in the neutral, but third harmonics are in step on all three lines and add (AC circuits lesson 10 has the cancellation). | 2.3, 3.0, 4.1 | Slides p.33 to 36 |
 | 6 | Voltage drop: the volts left at the load | VD = mV/A/m × Ib × L ÷ 1000. Limits as a percentage of the voltage you were given (p.40 to 41). Add the submain's drop to the final circuit's. Turn a three-phase submain drop into a single-phase one by ÷ √3 (formula sheet). Chase the drop to the next size (p.42). | 2.2, 2.3, 3.0, 4.1 | Slides p.37 to 42; flowchart steps 7, 8; formula sheet step 7 |
 | 7 | Voltage drop, refined: hot conductors and power factor | Ct: a cable carrying well under its rating runs cooler, so its resistance and drop are lower (p.43). The r, x and z columns from 25 mm² (p.45), and using r and x with a known power factor. Why: the tabulated mV/A/m assumes a fully loaded, hot conductor and a current in the worst phase. | 3.0, 4.1 | Slides p.43 to 45 (method only; formulas from research) |
-| 8 | Shock protection: will it disconnect in time? | Zs = Ze + R1+R2, with R1+R2 from mΩ/m × multiplier × length ÷ 1000. Max Zs from Uo × Cmin ÷ Ia. Disconnection times by circuit (Reg 411.3.2.2, Table 41.1). PEFC and where it lands on the curve. Why the multiplier (operating temperature) and why Cmin (the lowest voltage gives the least fault current). | 2.2, 3.0, 4.1 | Slides p.46 to 56; flowchart steps 9 to 16; formula sheet steps 12, 13, 15 |
+| 8 | Shock protection: will it disconnect in time? | Zs = Ze + R1+R2, with R1+R2 from mΩ/m × multiplier × length ÷ 1000. Max Zs from Uo × Cmin ÷ Ia. Disconnection times by circuit (Reg 411.3.2.2, Table 41.1). PEFC and where it lands on the curve. Why the multiplier (operating temperature) and why Cmin (the lowest voltage gives the least fault current). When Zs is too high: an RCD for fault protection, sized so Zs × IΔn stays within the touch-voltage limit, and supplementary bonding where ADS cannot be met (practice papers P1 Q5, P2 Q4, P3 Q5; current regulation numbers from research). | 2.2, 3.0, 4.1 | Slides p.46 to 56; flowchart steps 9 to 16; formula sheet steps 12, 13, 15 |
 | 9 | Surviving the fault: the adiabatic check and breaking capacity | S = √(I²t) ÷ k for the cpc, and t = k²S² ÷ I² for the live conductors on a short circuit. Cmin for disconnection, Cmax for the conductor (p.62). Ze(l/n) and R1+Rn (p.64 to 65). Minimum against suitable cpc (flowchart note 2). IPF ≤ Icn (p.69 to 70). | 2.2, 2.3, 3.0, 4.1 | Slides p.57 to 70; flowchart steps 17 to 20; formula sheet steps 18/19 |
 | 10 | The showroom: one design end to end, then verified | The assignment's questions 3a and 3b as one chain: the showroom supply (Ze 0.1 Ω, 4.6 kA, 20 °C, pack p.3), the three-phase submain from the MDB in the plant room to DBL2 in the tools and warranty store (power dwg; about 17 m on plan plus drops, scaled), its load from the key's wattages for the luminaires the lesson gives DBL2 (lighting dwg) with its armour as cpc if justified (guide p.5), then DBL2's longest lighting circuit, voltage drop summed from the intake and turned single-phase (guide p.6), Zs at the board and at the end (formula sheet step 13), and the thermal checks. One screen balances loads across the phases and adds the motor of 4a to a maximum demand (questions 1b, 10). Then verification: measured R1+R2, Zs and fault current against the design's values, allowing for a cold conductor at test, and the first inspection interval and handover documents (question 9). The last screens are a mixed set from the whole course. | D1, 2.2, 2.3, 2.4, 4.1, 4.3; unit title ("initial verification") | Pack p.3 to 5; guide p.3, 5, 6; power and lighting dwgs; flowchart (all steps); formula sheet step 13; verification from research only |
 
@@ -622,6 +743,15 @@ page) or computed on screen from a shown rule.
   twice the single-phase value (to explain the pack's 4.6 kA against 230 ÷ 0.1 = 2.3 kA); the armour
   resistance and k for SWA armour as a cpc (guide p.5); which book "The Electrical Installation Guide"
   is, and its sections 3, 3.2, 4.7 and 5.3.3 (guide p.3, 4, 6, 7).
+- **Fourth batch (practice papers), for lessons 3, 8, 9 and 10:** the Table 4C1 note on lightly loaded
+  cables in a group (P1 p.18); the condition for an RCD giving fault protection when Zs is too high,
+  and its current regulation number (the papers cite Reg 411.4.9 of the 17th Edition, P1 p.8, P3 p.3);
+  where BS 7671 sends you when ADS cannot be met in time, and how supplementary bonding is applied (P2
+  p.7 to 8); the current regulation for short-circuit protection checks (the papers cite 434.5.2, P1
+  p.9, P3 p.3); a fuse's time at a low fault current, for the "gentler" mistake (P2 p.9); typical SWA
+  armour CSA and resistance from a manufacturer, so lesson 9 does not use P3's Figure 1; the
+  18th-Edition home of the old Appendix 14 on comparing measured and maximum Zs (P1 p.18, P3 p.4); and
+  sourced answers to the verification questions P1 Q2b, P2 Q8a and Q8b.
 - **All lessons:** check each cited value against BS 7671:2018+A3:2024 and say where it changed.
 
 **Sea (optional, only if found):**
@@ -680,9 +810,15 @@ for. It also sits far from your naval path. My recommendation: leave it; if you 
 four calculable topics (containment, maximum demand and balancing, the EV circuit, emergency lighting)
 would make a short course of four lessons on this same plan.
 
-Also still worth sending: the "webinars", "the
-powerpoint" and "the mocks in the drive" (slides p.5). The mocks would make lesson 10's mixed set and
-the DO screens exam-shaped.
+**The practice papers (fourth batch) do not change this.** About 70% of their marks is protective
+measures, isolation and switching, special locations, selection and erection, EMC and testing. Your
+18th Edition and inspection and testing awards cover those, so a course on them would re-teach what
+you hold. None of the three papers asks about maximum demand, EV charging, emergency lighting or
+containment. So the papers give the sketched second course no support.
+
+Also still worth sending: the "webinars" (slides p.5), and the mark schemes for the three practice
+papers, if your course had them. The mark schemes may hold worked answers for the Ct or power-factor
+drop, and for the verification questions.
 
 ## 9. Size and cost
 - 10 lessons of about 12 screens, plus the research stage and the plan.
@@ -736,3 +872,5 @@ the DO screens exam-shaped.
   R1+R2 at 0.4356 Ω, the immersion heater's Zs is 0.6456 Ω and its PEFC 338.4 A, not 341.4 A (p.54 to
   55, computed). Every check still passes.
 - **The edition** is A2:2022, and A3:2024 is now in force (see Decisions).
+- **The practice papers are City & Guilds 2396**, not EAL, and from the 17th Edition era (2012 to
+  2017). They have no answers. P1 is missing printed pages 6 and 7 (question 3).

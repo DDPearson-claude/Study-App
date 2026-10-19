@@ -38,6 +38,15 @@ ones (containment, maximum demand and balancing, the EV circuit, emergency light
 outside Dan's course (OSG factors, BS 7671 Section 722, BS 5266, manufacturers' data). If Dan asks for
 it later, those four would make a short course of four lessons on the same plan (brief.md section 8).
 
+Fourth batch (three City & Guilds 2396 practice papers, 19 Oct): no change to the folder or the
+recommendation. The papers' calculation questions all fit Design and verification lessons 1 to 10.
+Their descriptive questions (protective measures, isolation and switching, special locations,
+selection and erection, testing) are 18th Edition and inspection and testing ground that Dan holds.
+They ask nothing about maximum demand, EV charging, emergency lighting or containment, so they do not
+support the second course. One link to AC circuits: P2's motor question gives a power factor (0.87)
+and no efficiency, a direct use of AC circuits lesson 8's power triangle in Design and verification
+lesson 1.
+
 One more link to AC circuits from the second batch: question 4's star-delta motor (Design and
 verification lessons 1 and 3) uses AC circuits lesson 10's delta relation, line current = √3 × phase
 current, to size the cables to the windings. One line of reminder, no re-teaching.
