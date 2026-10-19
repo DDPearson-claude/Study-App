@@ -12,8 +12,8 @@ Edition and the three inspection and testing awards. So the course never re-teac
 It walks your course's own calculation process step by step and spends its screens on *why* each step
 is there, more deeply than a three-hour exam course has time for.
 
-**Sources used here.** Five files are in `source/` beside this brief (the last two came on 19 Oct,
-second batch):
+**Sources used here.** Seven files are in `source/` beside this brief (the learner pack and project
+guide came in the second batch on 19 Oct, the two drawings in the third):
 - **Slides**: `eal-l4-design-and-verification-spec.pdf`, 70 pages. It is not the EAL qualification
   specification, despite the file name. It is your course's teaching slide deck: one slide a page,
   with no units or learning outcomes in it. It is cited below as "slides p.N", the PDF page.
@@ -29,6 +29,11 @@ second batch):
 - **Project guide**: `eal-l4-project-presentation.pptx`, 12 slides, "Project Guide", your course's
   key points for each assignment question. Converted to PDF in `../pptx-pdf/` to read. Cited as
   "guide p.N".
+- **Power drawing**: `eal-l4-drawing-power.pdf`, and **lighting drawing**: `eal-l4-drawing-lighting.pdf`.
+  One A1 sheet each, "PROPOSED", "Scale: 1:50 @ A1", "Date: Nov 2015", EAL's title block. Cited as
+  "power dwg" and "lighting dwg". Positions given as (x, y) are points on the PDF page, measured with
+  `pdftotext -bbox`. Lengths are scaled from those at 1:50: 1 pt is 0.3528 mm on the sheet, so 17.6 mm
+  on site. No dimensions are printed on either sheet, so every length taken from them is approximate.
 
 The real qualification document was found on the web for this brief (one search and one fetch, 19
 Oct). It is the **EAL Qualification Manual, Issue 1.3** (EAL-ED4-QM-Issue 1.3-1122), cited as "EAL
@@ -64,11 +69,22 @@ The learner pack and the project guide changed four things:
   handover documents (question 9, pack p.5). So lesson 10's measured-against-design screens are still
   sourced by research;
 - the full learning outcomes;
-- the two drawings: "The two attached drawings show the proposed electrical installation" (pack p.3).
-  Without them there are no circuit lengths or loads, so lesson 10's lengths and loads are labelled
-  example figures.
+- (now received, third batch) the two drawings.
 
 The order of lessons 1 to 9 and the one-course decision do not change.
+
+## Changes from the drawings (19 Oct, third batch)
+- **They are the pack's two drawings.** Everything the questions point to is on them: the five boards
+  (pack p.4), the dado trunking (question 1a), the "63 A TPN isolators in the consultation bay"
+  (question 6), the external column luminaires (question 5b), and "the four luminaries shown on the
+  lighting drawing" in the plant room (question 7). The plant room has four twin 58 W fittings (lighting
+  dwg).
+- **Lesson 10 now uses the real board positions, scaled lengths and the key's real wattages.** The
+  circuit split and the routes are still the designer's choice, as in the assignment (question 1b), so
+  the lesson states its own and labels them. See "What the drawings give" in section 2.
+- **The second course is still not recommended** (section 8). The drawings removed one reason, the
+  missing drawings, but not the others.
+- **One new picture**: lesson 10 draws its own simplified plan of the showroom, never EAL's image.
 
 ## The short version
 **One course, ten lessons**, in your course's order (slides p.6, the flowchart):
@@ -108,8 +124,10 @@ The order of lessons 1 to 9 and the one-course decision do not change.
   towards the 0.4 s line, then past it, in red.
 - **Heat in against heat it can take (9).** Two bars: the fault's I²t and the conductor's k²S². Drag the
   fault current, the time and S. Switch Cmin and Cmax and watch which check each one drives.
-- **The showroom's design card (10).** The assignment's showroom supply (pack p.3) feeds the MDB, the
-  submain to DBL2 and DBL2's longest circuit, with the twenty flowchart steps beside each. Change one
+- **The showroom's design card (10).** The app's own simplified plan of the showroom, rooms as
+  rectangles, with the MDB in the plant room and DBL2 in the tools and warranty store where the power
+  drawing puts them. Drag the cable route and its length reads out at 1:50. The submain to DBL2 and
+  DBL2's longest circuit, with the twenty flowchart steps beside each. Change one
   input and every step recomputes. A failing check sends you round its loop, and the voltage drop is
   summed from the intake. Then switch to "as built": put in measured readings and compare them with the
   design's values.
@@ -160,9 +178,11 @@ The order of lessons 1 to 9 and the one-course decision do not change.
   The lessons teach your course as it was taught, and the research stage must check every cited table
   value against the current amendment and say where one has changed.
 - **The capstone is your assignment's job, not a new one.** Lesson 10 uses the showroom's stated
-  supply (pack p.3) and the guide's key points (guide p.5 to 6). The showroom's lengths and loads come
-  from drawings that are not in the pack, so they are labelled example figures until you send the
-  drawings. It is a refresher on a job you have done, not a model answer to the assignment.
+  supply (pack p.3), the guide's key points (guide p.5 to 6), the board positions on the power drawing
+  and the luminaire wattages in the lighting drawing's key. Lengths are scaled from the drawings and
+  said to be approximate. Which luminaires DBL2 feeds is the lesson's own choice, said on screen,
+  because the assignment leaves the split to you (question 1b). It is a refresher on a job you have
+  done, not a model answer to the assignment.
 - **Not built yet.** You asked for a plan. When you say build, lesson 1 is built first for you to try.
 
 ## 1. The overall topic
@@ -256,6 +276,42 @@ The guide cites "The Electrical Installation Guide" by section (3, 3.2, 4.7, 5.3
 essential book is the "IET Electrical Installation Design Guide" (EAL QM p.9). Whether they are the
 same book is UNCONFIRMED.
 
+**What the drawings give** (third batch). Two plans of the same single-storey building, about 37 to
+38 m across (scaled from the walls at about x = 100 and x = 2230 pt).
+- **Rooms** (both dwgs): trade parts counter, parts manager, service and parts admin, plant room,
+  Sales, Parts sale, Hospitality, uni-sex, female and male toilets, cleaner, tea bay, tools and
+  warranty store, oil store, Consultation Bay, Service reception, Welcome manager, Foyer, and the open
+  showroom floor with cars drawn on it.
+- **Boards** (power dwg): MDB on the plant room's west wall (about 907, 364); DBL1 and DBP1 on its
+  north wall (about 927, 308 and 998, 308); DBL2 and DBP2 together in the tools and warranty store
+  (about 1544, 695 and 1615, 695).
+- **MDB to DBL2** (power dwg, scaled): about 11.2 m east and 5.8 m south on plan, so about 17 m along
+  an orthogonal route, plus the vertical runs at each end into the 2.2 m ceiling void of the plant
+  room and stores (pack p.3). Approximate, and the route is the designer's choice.
+- **Power points** (power dwg key and plan): 2-compartment dado trunking in the offices and at the
+  welcome desk; twin switched sockets; three "Single Socket mounted in ceiling void" (CV), two in
+  Hospitality; floor boxes with twin sockets in the showroom floor (question 1a's floor-laid wiring,
+  pack p.3); switched fused spurs; three 20 A DP switches and one 32 A rotary isolator near the
+  toilets and tea bay, with no load named (UNCONFIRMED what they feed); and "Electrical Vehicle
+  Charging Points 2x32a each", two points labelled ELV on the consultation bay's north wall, each beside
+  a 63 A TPN rotary isolator. The question 4 motor is not drawn.
+- **Lighting** (lighting dwg key): "Led Lighting 26W"; "4 x 1200mm Modular Fluo 4 x 36W"; "Twin 1700mm
+  Fluo Luminaire 58W"; "Wall Spot Light 2 x 35W"; "Walkway Bollard 18W"; "Column Mounted Luminaire 3m
+  from FFL 70W"; "IP65 2D Bulkhead 18W". Rough counts from an image count of the sheet, which the build
+  must recount by hand: about 160 LED downlights (showroom, offices, service reception, foyer); about
+  35 modular 4 x 36 W (trade counter, parts and admin offices, consultation bay (6), toilets); 16 twin
+  58 W (corridor, plant room (4), service and parts admin, oil store, tools store); six 70 W columns
+  along the front and west side; six bollards by the foyer and service reception; a few IP65 bulkheads
+  over the external doors; and wall spots on the showroom's west wall and the welcome desk.
+- **What they do not give:** circuit numbers or the split between DBL1 and DBL2 or DBP1 and DBP2; any
+  load for the 20 A and 32 A points or the sockets; the motor's position; routes; heights of boards
+  or points. These are the designer's assumptions, which question 10 expects ("making informed
+  assumptions where necessary", pack p.5).
+- **The candidates for "the longest circuit from DBL2"** (question 3b) depend on that split. Scaled
+  from DBL2: the consultation bay's far corner is about 19 m on plan; the westmost front column
+  luminaire about 37 m. From DBL1 the same column is about 33 m. Lesson 10 says which board it gives
+  the external lighting to, and why.
+
 **What your slides cover, in their order** (this is the course's spine):
 
 | Slides | Section | Course lesson |
@@ -277,6 +333,7 @@ same book is UNCONFIRMED.
 | p.69 to 70 | IPF and Icn: IPF ≤ Icn | 9 |
 | (none) | Initial verification: measured values against the design | 10 (research) |
 | Pack p.3 to 5; guide p.2 to 12 | The showroom assignment and the guide's key points | 10, and puzzles in 1, 3, 6, 8, 9 |
+| Power and lighting dwgs | Board positions, scaled lengths, luminaire wattages | 10 |
 
 The flowchart runs the same chain as twenty steps: Ib (1), In (2), factors (3, 4), reference method
 (5), conductor (6), voltage drop and its loop (7, 8), cpc (9), R1+R2 (10 to 12), Zs and its check (13,
@@ -308,7 +365,7 @@ electricians skip (Ct, the power-factor drop, harmonics, Cmin against Cmax, mini
 | 7 | Voltage drop, refined: hot conductors and power factor | Ct: a cable carrying well under its rating runs cooler, so its resistance and drop are lower (p.43). The r, x and z columns from 25 mm² (p.45), and using r and x with a known power factor. Why: the tabulated mV/A/m assumes a fully loaded, hot conductor and a current in the worst phase. | 3.0, 4.1 | Slides p.43 to 45 (method only; formulas from research) |
 | 8 | Shock protection: will it disconnect in time? | Zs = Ze + R1+R2, with R1+R2 from mΩ/m × multiplier × length ÷ 1000. Max Zs from Uo × Cmin ÷ Ia. Disconnection times by circuit (Reg 411.3.2.2, Table 41.1). PEFC and where it lands on the curve. Why the multiplier (operating temperature) and why Cmin (the lowest voltage gives the least fault current). | 2.2, 3.0, 4.1 | Slides p.46 to 56; flowchart steps 9 to 16; formula sheet steps 12, 13, 15 |
 | 9 | Surviving the fault: the adiabatic check and breaking capacity | S = √(I²t) ÷ k for the cpc, and t = k²S² ÷ I² for the live conductors on a short circuit. Cmin for disconnection, Cmax for the conductor (p.62). Ze(l/n) and R1+Rn (p.64 to 65). Minimum against suitable cpc (flowchart note 2). IPF ≤ Icn (p.69 to 70). | 2.2, 2.3, 3.0, 4.1 | Slides p.57 to 70; flowchart steps 17 to 20; formula sheet steps 18/19 |
-| 10 | The showroom: one design end to end, then verified | The assignment's questions 3a and 3b as one chain: the showroom supply (Ze 0.1 Ω, 4.6 kA, 20 °C, pack p.3), the three-phase submain from the MDB to DBL2 with its armour as cpc if justified (guide p.5), then DBL2's longest lighting circuit, voltage drop summed from the intake and turned single-phase (guide p.6), Zs at the board and at the end (formula sheet step 13), and the thermal checks. One screen balances loads across the phases and adds the motor of 4a to a maximum demand (questions 1b, 10). Then verification: measured R1+R2, Zs and fault current against the design's values, allowing for a cold conductor at test, and the first inspection interval and handover documents (question 9). The last screens are a mixed set from the whole course. | D1, 2.2, 2.3, 2.4, 4.1, 4.3; unit title ("initial verification") | Pack p.3 to 5; guide p.3, 5, 6; flowchart (all steps); formula sheet step 13; verification from research only |
+| 10 | The showroom: one design end to end, then verified | The assignment's questions 3a and 3b as one chain: the showroom supply (Ze 0.1 Ω, 4.6 kA, 20 °C, pack p.3), the three-phase submain from the MDB in the plant room to DBL2 in the tools and warranty store (power dwg; about 17 m on plan plus drops, scaled), its load from the key's wattages for the luminaires the lesson gives DBL2 (lighting dwg) with its armour as cpc if justified (guide p.5), then DBL2's longest lighting circuit, voltage drop summed from the intake and turned single-phase (guide p.6), Zs at the board and at the end (formula sheet step 13), and the thermal checks. One screen balances loads across the phases and adds the motor of 4a to a maximum demand (questions 1b, 10). Then verification: measured R1+R2, Zs and fault current against the design's values, allowing for a cold conductor at test, and the first inspection interval and handover documents (question 9). The last screens are a mixed set from the whole course. | D1, 2.2, 2.3, 2.4, 4.1, 4.3; unit title ("initial verification") | Pack p.3 to 5; guide p.3, 5, 6; power and lighting dwgs; flowchart (all steps); formula sheet step 13; verification from research only |
 
 **Puzzles from the assignment** (figures from the pack, results computed from the rules shown):
 - **Lesson 1, the question 4 motor:** Ib = 11 000 ÷ (√3 × 400 × 0.8 × 0.86) = 23.08 A (computed; pack
@@ -412,9 +469,17 @@ what each picture shows.
   the IPF beside the device's Icn (p.70). *Why:* "There will be 341.4A in the conductors for 0.1s. It
   may not seem long" (p.56). Showing the equation as energy in against energy the conductor can hold
   explains both of its forms at once, and why k changes with the insulation (115 and 143, p.58, 66).
-- **Lesson 10, the showroom's design card.** A one-line diagram across the top: the showroom intake
-  (400 V TN-C-S, Ze 0.1 Ω, 4.6 kA, pack p.3), the MDB, the three-phase submain to DBL2, and DBL2's
-  longest lighting circuit. Under each cable is its column of flowchart steps, each with its value and
+- **Lesson 10, the showroom's design card.** On the left, the app's own simplified plan of the
+  showroom, drawn as about a dozen labelled rectangles from the scaled room positions (plant room,
+  tools and warranty store, consultation bay, service reception, foyer, the offices and the showroom
+  floor). It is never EAL's drawing or a trace of it: no furniture, cars, symbols or title block. Dots
+  mark the MDB, DBL1, DBP1, DBL2 and DBP2 where the power drawing puts them, and the luminaires as
+  small marks by type, with the wattage from the key. Drag the cable route's corners: its plan length
+  reads out at 1:50, and the vertical runs into the 2.2 m or 4.3 m ceiling void (pack p.3) are added,
+  for the guide's "all lengths of the cable run" (guide p.5). Tap luminaires to give them to a DBL2
+  circuit; its load and length update, and the longest circuit is outlined. On the right, a one-line
+  diagram: the showroom intake (400 V TN-C-S, Ze 0.1 Ω, 4.6 kA, pack p.3), the MDB, the three-phase
+  submain to DBL2, and DBL2's longest lighting circuit. Under each cable is its column of flowchart steps, each with its value and
   a tick. The voltage drop is drawn as one falling line from the intake to the last luminaire, with
   the submain's part turned single-phase. Zs builds up as Ze, then Zs at DBL2, then Zs at the end.
   Change one input (a length, the submain's size, the armour as cpc, a device) and every step
@@ -582,20 +647,40 @@ certification". I recommend **one**, for three reasons:
 The second batch (19 Oct) keeps this decision. The assignment has one verification question, the
 first inspection interval and the handover documents (question 9, pack p.5), which fit in lesson 10.
 
-**What the second batch does open: a possible second course on the whole installation.** Most of the
+**What the second batch opens: a possible second course on the whole installation.** Most of the
 assignment is design that is not circuit calculation, and your slides teach none of it. A second
 course built to the assignment could be about six lessons: containment sizing (question 1a, guide
 p.2); load balancing, maximum demand and the schedule of circuits (1b, 10, guide p.3); switchgear and
 distribution boards (2); lighting control and time switching (5); EV charging on TN-C-S, RCDs and PEN
 fault protection (6, guide p.9); and emergency lighting by the lumen method, with IP codes (7, 8,
-guide p.10). I do **not** recommend planning it yet:
-- it needs the assignment's two drawings, which are not in the pack (pack p.3);
-- its subjects need sources your materials do not hold (BS 7671 Section 722 for EV charging, BS 5266
-  for emergency lighting, manufacturers' data);
-- several are mostly words, not interaction, so it would be closer to "No" (reading lessons) than
-  this course.
+guide p.10).
 
-If you want it, send the drawings and say so. Also still worth sending: the "webinars", "the
+**With the drawings (third batch): still no.** The drawings give it a real building, so that reason
+is gone. Topic by topic:
+- **Containment** (1a): the drawings show the dado trunking and the floor boxes, but sizing it needs
+  cable and trunking factors from the OSG, not in your materials. Teachable and visual; sources needed.
+- **Maximum demand and balancing** (1b, 10): the lighting key gives real wattages to add, and phase
+  balancing is a good picture. But the 20 A and 32 A points, the sockets and the EV points need
+  assumed loads, and the diversity allowances come from "Section 3 of The Electrical Installation
+  Guide" (guide p.3), which you have not sent. One screen of it is in lesson 10 already.
+- **Switchgear** (2): choosing products from manufacturers' literature. Not teachable by interaction,
+  and it would date.
+- **EV charging** (6): two points, "2x32a each", with 63 A TPN isolators on the drawing. The real
+  content is BS 7671 Section 722 and PEN fault protection on TN-C-S (guide p.9), none of it in your
+  materials, and it changed in recent amendments, so it needs careful current sources.
+- **Emergency lighting** (7): the plant room is about 4.5 m by 2.6 m (scaled, power dwg), with four
+  fittings, 15 lux, a 0.5 m working plane and a 0.8 maintenance factor (pack p.5, guide p.10). The
+  lumen method is a good small calculation, but it needs a luminaire's emergency lumen output from
+  manufacturer's data and BS 5266, neither in hand.
+- **IP codes** (8): a one-screen idea (bulkheads are IP65 in the key), not a lesson.
+
+So two of six topics are not interactive, and the other four each need several sources outside your
+course. The course would be built mostly from outside your materials, which is not what you asked
+for. It also sits far from your naval path. My recommendation: leave it; if you want it later, the
+four calculable topics (containment, maximum demand and balancing, the EV circuit, emergency lighting)
+would make a short course of four lessons on this same plan.
+
+Also still worth sending: the "webinars", "the
 powerpoint" and "the mocks in the drive" (slides p.5). The mocks would make lesson 10's mixed set and
 the DO screens exam-shaped.
 
@@ -629,9 +714,9 @@ the DO screens exam-shaped.
 - **Nothing on verification as a method**, though it is half the qualification's title. The
   assignment's only verification question is the inspection interval and handover documents
   (question 9, pack p.5).
-- **The assignment's two drawings are missing.** The pack says "The two attached drawings show the
-  proposed electrical installation" (pack p.3), and questions 1, 3, 7 and 10 depend on them. The PDF
-  has none. Ask Dan for them.
+- **The drawings** (third batch) have no dimensions, no circuit numbers and no loads for the 20 A and
+  32 A points or the sockets. Lengths are scaled at 1:50 and approximate. The luminaire counts in
+  section 2 are rough and must be recounted by hand before a lesson uses them.
 - **"The Electrical Installation Guide"** is cited by section in the project guide (guide p.3, 4, 6,
   7), but no edition or publisher is given.
 - **The pack's page footers** run "1 of 9" then "2 of 7" to "7 of 7"; this brief cites PDF pages.

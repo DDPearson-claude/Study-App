@@ -32,6 +32,12 @@ it needs sources his materials do not hold. Design and verification lesson 10 al
 showroom's supply and its question 3 as the capstone, so the second course would start from the
 whole building, not from circuit design again.
 
+Third batch (the two drawings, 19 Oct): still not recommended. The drawings give it a real building,
+but two of its six topics (switchgear choice, IP codes) are not interactive, and the four calculable
+ones (containment, maximum demand and balancing, the EV circuit, emergency lighting) each need sources
+outside Dan's course (OSG factors, BS 7671 Section 722, BS 5266, manufacturers' data). If Dan asks for
+it later, those four would make a short course of four lessons on the same plan (brief.md section 8).
+
 One more link to AC circuits from the second batch: question 4's star-delta motor (Design and
 verification lessons 1 and 3) uses AC circuits lesson 10's delta relation, line current = √3 × phase
 current, to size the cables to the windings. One line of reminder, no re-teaching.
