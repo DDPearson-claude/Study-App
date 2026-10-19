@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why piece: 1.45 and Cf</title>
+<!-- Mockup for docs/courses/electrical/design-and-verification/format/design.md. One "why" piece, as the existing steps-lesson screen plays it: the device's promise (I2) and the cable's limit (1.45 Iz) on one current line. Switch to a rewireable fuse and the device's mark passes the cable's; Cf = 0.725 pulls it back. Figures: your slides p.25, 30-32.
+     Self-contained: no external files. Styled with the app's D4 tokens (app/src/css/80-d4.css). -->
+<style>
+/* D4 "Claude's notes" tokens and components, copied from app/src/css/00-tokens.css, 10-base.css,
+   50-lesson.css and 80-d4.css (light mode). Self-contained: the font stacks fall back to system
+   fonts when Barlow is not installed. */
+:root {
+  --bg: #FAFAF8; --surface: #FFFFFF; --sunk: #F2F3F4; --ink: #1D1F22; --muted: #5F6670;
+  --heading: #1D1F22; --teal: #0B6A70; --teal-tint: #E1F1F1; --amber: #FFF3D1; --hl: #F8DC8A;
+  --red: #9F3038; --red-tint: #F8ECEC; --green: #2E7D4F; --green-tint: #E5F1E9;
+  --line: #E1E4E7; --line-strong: #A9AFB6; --on-heading: #FFFFFF;
+  --shadow: 0 1px 2px rgba(29, 31, 34, .05), 0 6px 18px rgba(29, 31, 34, .08);
+  --edge: #1D1F22; --dot: #D9D9D4; --due: #EBA81E; --due-ink: #8F6200; --due-tint: #FBEFD2;
+  --step: #B8647A; --pin: #E7D5DB;
+  --sans: "Barlow", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --cond: "Barlow Semi Condensed", "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --r-sm: 10px; --r: 14px; --r-lg: 16px;
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; color: var(--ink); font: 400 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased;
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--dot) 1px, transparent 1.3px); background-size: 16px 16px;
+}
+h1, h2, h3 { margin: 0; color: var(--heading); line-height: 1.22; letter-spacing: -.01em; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 700; }
+h2 { font-size: 20px; font-weight: 700; }
+h3 { font-size: 17px; font-weight: 700; }
+p { margin: 0; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; border-radius: 6px; }
+[hidden] { display: none !important; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* page column */
+.view { max-width: 720px; margin: 0 auto; padding: 0 16px 120px; }
+
+/* the focus bar: outlined back button, where you are in mono, Aa */
+.fbar {
+  position: sticky; top: 0; z-index: 10; display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; gap: 12px;
+  min-height: 60px; margin: 0 -16px; padding: 8px 16px; background: var(--bg); border-bottom: 1px solid var(--line);
+}
+.ibtn {
+  display: inline-grid; place-items: center; width: 44px; height: 44px; border: 2px solid var(--edge); border-radius: 12px;
+  background: var(--surface); color: var(--ink); text-decoration: none; font: 600 17px/1 var(--sans); cursor: pointer;
+}
+.ibtn svg { width: 22px; height: 22px; }
+.crumb { min-width: 0; font: 500 13px/1.3 var(--mono); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crumb b { font-weight: 500; color: var(--ink); }
+
+/* type helpers */
+.eyebrow { font: 600 12.5px/1.4 var(--cond); letter-spacing: .09em; text-transform: uppercase; color: var(--teal); }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.mono { font-family: var(--mono); }
+mark.term {
+  color: inherit; font-weight: 600; padding: 0 .12em; margin: 0 -.04em; border-radius: 3px;
+  background: linear-gradient(180deg, transparent 50%, var(--hl) 50%, var(--hl) 92%, transparent 92%);
+}
+.cite { font: 600 12px/1 var(--cond); letter-spacing: .02em; color: var(--teal); background: var(--teal-tint); border-radius: 4px; padding: 3px 5px; white-space: nowrap; }
+
+/* surfaces */
+.card { background: var(--surface); border: 2px solid var(--edge); border-radius: var(--r-lg); padding: 16px; }
+.panel { background: var(--sunk); border-radius: 8px; padding: 12px 14px; }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+.stack-sm { display: flex; flex-direction: column; gap: 8px; }
+
+/* buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 12px 20px;
+  border: 0; border-radius: 14px; background: var(--ink); color: var(--on-heading); font: 700 16px/1.2 var(--sans);
+  text-decoration: none; text-align: center; cursor: pointer;
+}
+.btn.secondary { background: var(--surface); color: var(--ink); border: 2px solid var(--edge); }
+.btn.wide { width: 100%; }
+.btn svg { width: 20px; height: 20px; flex: none; }
+.linkish { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--ink);
+  font: 700 15px/1.3 var(--sans); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.chip { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--edge);
+  background: var(--surface); color: var(--ink); font: 600 14px/1.3 var(--sans); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.seg { display: inline-flex; gap: 4px; padding: 4px; border-radius: 12px; background: var(--sunk); }
+.seg button { min-height: 40px; padding: 6px 14px; border: 0; border-radius: 9px; background: none; color: var(--ink); font: 600 15px/1 var(--sans); cursor: pointer; }
+.seg button[aria-checked="true"] { background: var(--ink); color: var(--bg); }
+
+/* Claude's notes */
+.note-by { display: flex; align-items: center; gap: 8px; min-height: 26px; }
+.note-av { flex: none; display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--edge); background: var(--pin); }
+.note-av svg { width: 14px; height: 14px; }
+.note-av.is-app { background: var(--surface); }
+.note-name { font: 600 14px/1.3 var(--sans); color: var(--muted); }
+.note-ctx { font: 500 13px/1.3 var(--cond); color: var(--muted); }
+
+/* marks: ink tick (a check met), red cross (fails), amber dot (needs your value), green (finished only) */
+.mk { flex: none; display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; }
+.mk svg { width: 15px; height: 15px; }
+.mk.ok { border: 2px solid var(--ink); color: var(--ink); }
+.mk.fail { background: var(--red); color: #fff; }
+.mk.need { background: var(--due-tint); border: 2px solid var(--due); }
+.mk.need::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--due-ink); }
+.mk.hold { border: 2px dashed var(--line-strong); }
+.mk.val { border: 2px solid transparent; }
+.mk.done { background: var(--green); color: #fff; }
+
+</style>
+</head>
+<body>
+<style>
+.lbar { position: sticky; top: 0; z-index: 10; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 60px; margin: 0 -16px; padding: 6px 16px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.steps { display: flex; gap: 4px; }
+.steps i { flex: 1; height: 7px; border-radius: 4px; background: var(--sunk); }
+.steps i.d { background: var(--step); }
+.steps i.n { background: linear-gradient(90deg, var(--step) 0 45%, color-mix(in srgb, var(--step) 15%, var(--sunk)) 45% 100%); }
+.slab { display: block; margin-top: 6px; font: 600 12px/1.2 var(--cond); letter-spacing: .08em; text-transform: uppercase; color: var(--teal); }
+.ask { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border: 2px solid var(--edge); border-radius: 12px; background: var(--surface); font: 700 15px/1 var(--sans); }
+.ask svg { width: 18px; height: 18px; }
+.frame { display: flex; flex-direction: column; gap: 14px; padding: 22px 0 8px; }
+.eb { font: 500 13px/1.3 var(--mono); color: var(--muted); }
+.frame h2 { font-size: 24px; }
+.frame p.t { font-size: 17px; line-height: 1.55; }
+.ia { display: flex; flex-direction: column; gap: 12px; padding: 14px 12px 16px; border-radius: 12px; background: var(--surface); border: 1.5px solid var(--line); }
+.ia svg { width: 100%; height: auto; display: block; }
+.ia text { font: 600 13px/1 var(--sans); fill: var(--ink); }
+.ia text.m { font: 500 12px/1 var(--mono); fill: var(--muted); }
+.ia text.r { fill: var(--red); }
+.ctl { display: flex; flex-direction: column; gap: 6px; }
+.ctl .lbl { font: 600 12px/1.4 var(--cond); letter-spacing: .09em; text-transform: uppercase; color: var(--teal); }
+.dev { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: var(--sunk); }
+.dev button { min-height: 48px; padding: 6px 8px; border: 0; border-radius: 9px; background: none; font: 600 14.5px/1.2 var(--sans); color: var(--ink); cursor: pointer; }
+.dev button small { display: block; font: 500 12px/1.2 var(--mono); color: inherit; opacity: .8; }
+.dev button[aria-checked="true"] { background: var(--ink); color: var(--bg); }
+.sl { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+.sl input { width: 100%; accent-color: var(--ink); height: 32px; }
+.sl b { font: 600 16px/1 var(--mono); }
+.ro { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ro div { padding: 10px 12px; border-radius: 10px; background: var(--sunk); }
+.ro span { display: block; font: 600 12px/1.3 var(--cond); letter-spacing: .06em; text-transform: uppercase; color: var(--teal); }
+.ro b { display: block; margin-top: 2px; font: 600 17px/1.2 var(--mono); }
+.ro small { display: block; margin-top: 2px; font: 500 12px/1.3 var(--mono); color: var(--muted); }
+.verdict { display: flex; align-items: flex-start; gap: 10px; font: 700 16px/1.4 var(--sans); }
+.verdict.bad { color: var(--red); }
+.cf { min-height: 48px; }
+.aside { padding: 12px 14px; border-radius: 10px; background: var(--amber); font-size: 15px; line-height: 1.5; }
+</style>
+<div class="view">
+  <header class="lbar">
+    <a class="ibtn" href="course.html" aria-label="Close the lesson"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></a>
+    <div><div class="steps" aria-hidden="true"><i class="d"></i><i class="d"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i></div><span class="slab">Lesson</span></div>
+    <span class="ask"><svg viewBox="0 0 24 24"><path d="M5 5h14v10H10l-5 4V5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Ask</span>
+  </header>
+  <div class="frame">
+    <p class="eb">Job 4 · why 1.45</p>
+    <h2>Two promises on one line</h2>
+    <p class="t">A 10 A breaker "will not operate until it has 14.5A" (your slides p.30). So the cable has to survive that current too. Here are the device's mark and the cable's limit on one line.</p>
+    <div class="ia">
+      <svg id="line" viewBox="0 0 304 150" role="img" aria-label="Current line"></svg>
+      <div class="ctl"><span class="lbl">The device</span>
+        <div class="dev" role="radiogroup" aria-label="Device"><button role="radio" aria-checked="true" data-dev="mcb">Circuit breaker<small>BS EN 60898</small></button><button role="radio" aria-checked="false" data-dev="fuse">Rewireable fuse<small>BS 3036</small></button></div>
+      </div>
+      <div class="ctl"><span class="lbl">The cable's Iz</span><div class="sl"><input id="iz" type="range" min="10" max="15" step="0.5" value="13" aria-label="Iz"><b id="izv">13.0 A</b></div></div>
+      <div class="ro"><div><span>Device's I2</span><b id="i2">14.50 A</b><small id="i2w">1.45 × 10</small></div><div><span>Cable's limit</span><b id="lim">18.85 A</b><small id="limw">1.45 × 13.0</small></div></div>
+      <p class="verdict" id="vd"></p>
+      <button class="btn secondary cf" id="cf" hidden>Apply Cf = 0.725</button>
+    </div>
+    <p class="aside" id="aside">Where does the 2 come from? Your slides give Cf = 0.725 for a BS 3036 fuse (p.25), and 1.45 ÷ 0.725 = 2. So the fuse may let twice its rating flow before it goes.</p>
+    <button class="btn wide">Continue</button>
+  </div>
+</div>
+<script>
+(function () {
+  var dev = 'mcb', In = 10, cf = false, svg = document.getElementById('line'), izEl = document.getElementById('iz');
+  var X0 = 14, X1 = 292, MIN = 8, MAX = 22;
+  function x(a) { return X0 + (X1 - X0) * (a - MIN) / (MAX - MIN); }
+  function f2(v) { return (Math.round(v * 100) / 100).toFixed(2); }
+  function draw() {
+    var Iz = +izEl.value, k = dev === 'mcb' ? 1.45 : 2, I2 = Math.round(k * In * 100) / 100, lim = Math.round(1.45 * Iz * 100) / 100;
+    if (cf && dev === 'fuse') { Iz = Math.max(Iz, Math.round(In / 0.725 * 100) / 100); lim = Math.round(1.45 * Iz * 100) / 100; }
+    var bad = I2 > lim, s = '';
+    s += '<rect x="' + X0 + '" y="70" width="' + (x(lim) - X0) + '" height="14" rx="3" fill="var(--sunk)"/>';
+    s += '<text class="m" x="' + (X0 + 4) + '" y="81">cable safe</text>';
+    if (bad) s += '<rect x="' + x(lim) + '" y="70" width="' + (x(I2) - x(lim)) + '" height="14" fill="var(--red-tint)" stroke="var(--red)" stroke-width="1.5"/>';
+    s += '<line x1="' + X0 + '" y1="84" x2="' + X1 + '" y2="84" stroke="var(--ink)" stroke-width="2"/>';
+    for (var t = MIN; t <= MAX; t += 2) s += '<line x1="' + x(t) + '" y1="84" x2="' + x(t) + '" y2="90" stroke="var(--ink)" stroke-width="1.5"/><text class="m" x="' + x(t) + '" y="104" text-anchor="middle">' + t + '</text>';
+    s += '<text class="m" x="' + X0 + '" y="142">amps, from 8 A</text>';
+    // In and Iz: small marks under the line
+    s += '<line x1="' + x(In) + '" y1="69" x2="' + x(In) + '" y2="54" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 2"/><text class="m" x="' + x(In) + '" y="48" text-anchor="middle">In</text>';
+    s += '<line x1="' + x(Iz) + '" y1="69" x2="' + x(Iz) + '" y2="54" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 2"/><text class="m" x="' + x(Iz) + '" y="48" text-anchor="middle">Iz</text>';
+    // cable limit: a thick bar; device mark: a triangle above
+    s += '<line x1="' + x(lim) + '" y1="64" x2="' + x(lim) + '" y2="92" stroke="var(--ink)" stroke-width="4"/><text x="' + Math.min(x(lim), 262) + '" y="124" text-anchor="middle">1.45 Iz</text>';
+    var c = bad ? 'var(--red)' : 'var(--ink)';
+    s += '<path d="M' + x(I2) + ' 66 l-8 -14 h16 Z" fill="' + c + '"/><line x1="' + x(I2) + '" y1="66" x2="' + x(I2) + '" y2="84" stroke="' + c + '" stroke-width="2"/>';
+    s += '<text x="' + (x(I2) + 12) + '" y="50"' + (bad ? ' class="r"' : '') + '>I2</text>';
+    s += '<text x="' + X0 + '" y="20" class="m">device mark ▼ · cable limit ┃</text>';
+    svg.innerHTML = s;
+    document.getElementById('izv').textContent = Iz.toFixed(cf && dev === 'fuse' ? 2 : 1) + ' A';
+    document.getElementById('i2').textContent = f2(I2) + ' A';
+    document.getElementById('i2w').textContent = (dev === 'mcb' ? '1.45' : '2') + ' × ' + In;
+    document.getElementById('lim').textContent = f2(lim) + ' A';
+    document.getElementById('limw').textContent = '1.45 × ' + (cf && dev === 'fuse' ? f2(Iz) : Iz.toFixed(1));
+    var v = document.getElementById('vd');
+    v.className = 'verdict' + (bad ? ' bad' : '');
+    v.innerHTML = bad ? '<span class="mk fail" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="m4.5 4.5 7 7m0-7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span><span>The fuse may hold ' + f2(I2) + ' A, past the ' + f2(lim) + ' A the cable can take.</span>'
+      : '<span class="mk ok" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="m3.2 8.4 3 3 6.6-6.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>' + (cf && dev === 'fuse' ? 'With Iz ≥ 10 ÷ 0.725 = 13.79 A the cable can take what the fuse lets through.' : 'The device opens before the cable reaches its limit.') + '</span>';
+    document.getElementById('cf').hidden = dev !== 'fuse' || cf;
+    document.getElementById('aside').hidden = dev !== 'fuse';
+  }
+  document.querySelector('.dev').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-dev]'); if (!b) return; dev = b.dataset.dev; cf = false;
+    document.querySelectorAll('.dev button').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); }); draw();
+  });
+  izEl.addEventListener('input', function () { cf = false; draw(); });
+  document.getElementById('cf').addEventListener('click', function () { cf = true; draw(); });
+  window.whySet = function (d, c) { dev = d; cf = !!c; document.querySelectorAll('.dev button').forEach(function (x) { x.setAttribute('aria-checked', String(x.dataset.dev === d)); }); draw(); };
+  draw();
+})();
+</script>
+</body>
+</html>

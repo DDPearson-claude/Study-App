@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design sheet: immersion heater</title>
+<!-- Mockup for docs/courses/electrical/design-and-verification/format/design.md. The design sheet mid-job: his own circuit, one row open with its table prompt, rule and working. Change the length or the CSA and every row below re-works.
+     Self-contained: no external files. Styled with the app's D4 tokens (app/src/css/80-d4.css). -->
+<style>
+/* D4 "Claude's notes" tokens and components, copied from app/src/css/00-tokens.css, 10-base.css,
+   50-lesson.css and 80-d4.css (light mode). Self-contained: the font stacks fall back to system
+   fonts when Barlow is not installed. */
+:root {
+  --bg: #FAFAF8; --surface: #FFFFFF; --sunk: #F2F3F4; --ink: #1D1F22; --muted: #5F6670;
+  --heading: #1D1F22; --teal: #0B6A70; --teal-tint: #E1F1F1; --amber: #FFF3D1; --hl: #F8DC8A;
+  --red: #9F3038; --red-tint: #F8ECEC; --green: #2E7D4F; --green-tint: #E5F1E9;
+  --line: #E1E4E7; --line-strong: #A9AFB6; --on-heading: #FFFFFF;
+  --shadow: 0 1px 2px rgba(29, 31, 34, .05), 0 6px 18px rgba(29, 31, 34, .08);
+  --edge: #1D1F22; --dot: #D9D9D4; --due: #EBA81E; --due-ink: #8F6200; --due-tint: #FBEFD2;
+  --step: #B8647A; --pin: #E7D5DB;
+  --sans: "Barlow", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --cond: "Barlow Semi Condensed", "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --r-sm: 10px; --r: 14px; --r-lg: 16px;
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; color: var(--ink); font: 400 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased;
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--dot) 1px, transparent 1.3px); background-size: 16px 16px;
+}
+h1, h2, h3 { margin: 0; color: var(--heading); line-height: 1.22; letter-spacing: -.01em; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 700; }
+h2 { font-size: 20px; font-weight: 700; }
+h3 { font-size: 17px; font-weight: 700; }
+p { margin: 0; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; border-radius: 6px; }
+[hidden] { display: none !important; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* page column */
+.view { max-width: 720px; margin: 0 auto; padding: 0 16px 120px; }
+
+/* the focus bar: outlined back button, where you are in mono, Aa */
+.fbar {
+  position: sticky; top: 0; z-index: 10; display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; gap: 12px;
+  min-height: 60px; margin: 0 -16px; padding: 8px 16px; background: var(--bg); border-bottom: 1px solid var(--line);
+}
+.ibtn {
+  display: inline-grid; place-items: center; width: 44px; height: 44px; border: 2px solid var(--edge); border-radius: 12px;
+  background: var(--surface); color: var(--ink); text-decoration: none; font: 600 17px/1 var(--sans); cursor: pointer;
+}
+.ibtn svg { width: 22px; height: 22px; }
+.crumb { min-width: 0; font: 500 13px/1.3 var(--mono); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crumb b { font-weight: 500; color: var(--ink); }
+
+/* type helpers */
+.eyebrow { font: 600 12.5px/1.4 var(--cond); letter-spacing: .09em; text-transform: uppercase; color: var(--teal); }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.mono { font-family: var(--mono); }
+mark.term {
+  color: inherit; font-weight: 600; padding: 0 .12em; margin: 0 -.04em; border-radius: 3px;
+  background: linear-gradient(180deg, transparent 50%, var(--hl) 50%, var(--hl) 92%, transparent 92%);
+}
+.cite { font: 600 12px/1 var(--cond); letter-spacing: .02em; color: var(--teal); background: var(--teal-tint); border-radius: 4px; padding: 3px 5px; white-space: nowrap; }
+
+/* surfaces */
+.card { background: var(--surface); border: 2px solid var(--edge); border-radius: var(--r-lg); padding: 16px; }
+.panel { background: var(--sunk); border-radius: 8px; padding: 12px 14px; }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+.stack-sm { display: flex; flex-direction: column; gap: 8px; }
+
+/* buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 12px 20px;
+  border: 0; border-radius: 14px; background: var(--ink); color: var(--on-heading); font: 700 16px/1.2 var(--sans);
+  text-decoration: none; text-align: center; cursor: pointer;
+}
+.btn.secondary { background: var(--surface); color: var(--ink); border: 2px solid var(--edge); }
+.btn.wide { width: 100%; }
+.btn svg { width: 20px; height: 20px; flex: none; }
+.linkish { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--ink);
+  font: 700 15px/1.3 var(--sans); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.chip { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--edge);
+  background: var(--surface); color: var(--ink); font: 600 14px/1.3 var(--sans); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.seg { display: inline-flex; gap: 4px; padding: 4px; border-radius: 12px; background: var(--sunk); }
+.seg button { min-height: 40px; padding: 6px 14px; border: 0; border-radius: 9px; background: none; color: var(--ink); font: 600 15px/1 var(--sans); cursor: pointer; }
+.seg button[aria-checked="true"] { background: var(--ink); color: var(--bg); }
+
+/* Claude's notes */
+.note-by { display: flex; align-items: center; gap: 8px; min-height: 26px; }
+.note-av { flex: none; display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--edge); background: var(--pin); }
+.note-av svg { width: 14px; height: 14px; }
+.note-av.is-app { background: var(--surface); }
+.note-name { font: 600 14px/1.3 var(--sans); color: var(--muted); }
+.note-ctx { font: 500 13px/1.3 var(--cond); color: var(--muted); }
+
+/* marks: ink tick (a check met), red cross (fails), amber dot (needs your value), green (finished only) */
+.mk { flex: none; display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; }
+.mk svg { width: 15px; height: 15px; }
+.mk.ok { border: 2px solid var(--ink); color: var(--ink); }
+.mk.fail { background: var(--red); color: #fff; }
+.mk.need { background: var(--due-tint); border: 2px solid var(--due); }
+.mk.need::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--due-ink); }
+.mk.hold { border: 2px dashed var(--line-strong); }
+.mk.val { border: 2px solid transparent; }
+.mk.done { background: var(--green); color: #fff; }
+
+</style>
+</head>
+<body>
+<style>
+/* The design sheet */
+.sheet-view { padding-bottom: 104px; }
+.sv-grid { display: block; }
+.sv-rail, .sv-detail { display: none; }
+.sv-head { display: flex; flex-direction: column; gap: 4px; padding: 18px 0 12px; }
+.sv-head h1 { font-size: 26px; }
+.sv-sub { font: 500 13px/1.4 var(--mono); color: var(--muted); }
+.sv-keys { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.key { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-height: 56px; padding: 8px 12px; text-align: left;
+  border: 1.5px solid var(--line-strong); border-radius: 12px; background: var(--surface); cursor: pointer; }
+.key-l { font: 600 12px/1.3 var(--cond); letter-spacing: .06em; text-transform: uppercase; color: var(--teal); }
+.key-l em { font-style: normal; color: var(--ink); background: var(--teal-tint); border-radius: 4px; padding: 0 4px; letter-spacing: .02em; text-transform: none; }
+.key-v { font: 600 15px/1.3 var(--sans); color: var(--ink); }
+.key.is-changed { border: 2px solid var(--edge); }
+.sv-status { display: flex; flex-direction: column; gap: 6px; margin: 14px 0 10px; }
+.sv-status p { font: 500 14px/1.4 var(--sans); color: var(--muted); }
+.sv-status .red { color: var(--red); font-weight: 700; }
+.segs { display: flex; gap: 4px; }
+.segs i { flex: 1; height: 7px; border-radius: 4px; background: var(--sunk); }
+.segs .seg-ok { background: var(--ink); }
+.segs .seg-fail { background: var(--red); }
+.segs .seg-need { background: var(--due); }
+.segs .seg-hold { background: none; box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+
+.sv-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.sr { border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface); scroll-margin-top: 70px; }
+.sr.is-open { border: 2px solid var(--edge); }
+.sr.is-fail { border: 2px solid var(--red); }
+.sr.is-need { border-left: 6px solid var(--due); }
+.sr.is-hold { background: transparent; border-style: dashed; border-color: var(--line-strong); }
+.sr-head { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto 26px; align-items: center; gap: 8px; width: 100%; min-height: 54px;
+  padding: 6px 10px 6px 6px; border: 0; background: none; text-align: left; cursor: pointer; border-radius: 12px; }
+.sr-n { display: inline-grid; place-items: center; min-width: 40px; height: 28px; padding: 0 4px; border-radius: 7px; background: var(--sunk);
+  font: 500 12px/1 var(--mono); color: var(--ink); white-space: nowrap; }
+.sr-name { font: 600 16px/1.25 var(--sans); color: var(--ink); }
+.sr-sym { font: 500 13px/1 var(--mono); color: var(--muted); }
+.sr-val { font: 600 15px/1.2 var(--mono); color: var(--ink); white-space: nowrap; }
+.sr.is-hold .sr-name, .sr.is-hold .sr-val { color: var(--muted); }
+.sr.is-fail .sr-val { color: var(--red); }
+.sr-body { display: flex; flex-direction: column; gap: 12px; padding: 4px 14px 14px; }
+.sr-where { margin-top: -2px; }
+.sr-in { display: flex; flex-direction: column; gap: 0; margin: 0; border-top: 1px solid var(--line); }
+.sr-in > div { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 40px; border-bottom: 1px solid var(--line); }
+.sr-in dt { font-size: 14px; color: var(--muted); }
+.sr-in dd { margin: 0; font: 600 14.5px/1.3 var(--sans); text-align: right; }
+.needv { color: var(--due-ink); font-weight: 600; }
+.edit { display: inline-flex; align-items: center; gap: 6px; }
+.edit input { width: 76px; min-height: 44px; padding: 6px 10px; border: 2px solid var(--edge); border-radius: 10px; font: 600 16px/1 var(--mono); text-align: right; background: var(--surface); }
+.tv { display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 10px; background: var(--sunk); }
+.tv.is-need { background: var(--due-tint); box-shadow: inset 0 0 0 1.5px var(--due); }
+.tv-src { color: var(--teal); }
+.tv.is-need .tv-src { color: var(--due-ink); }
+.tv-where { font-size: 14.5px; line-height: 1.4; }
+.tv-what { display: flex; flex-direction: column; gap: 6px; font: 600 14px/1.3 var(--sans); }
+.tv-in { display: flex; align-items: center; gap: 8px; }
+.tv-in input { width: 120px; min-height: 48px; padding: 8px 12px; border: 2px solid var(--edge); border-radius: 12px; background: var(--surface); font: 600 18px/1 var(--mono); }
+.tv-in input::placeholder { font: 500 15px/1 var(--sans); color: var(--muted); }
+.tv-in span { font: 600 15px/1 var(--mono); color: var(--muted); }
+.tv-note { font-size: 13px; color: var(--muted); }
+.sr-pick { display: flex; flex-direction: column; gap: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.sr-pick .chip { min-width: 52px; justify-content: center; font-family: var(--mono); font-weight: 500; }
+.sr-rule, .sr-work { display: flex; flex-direction: column; gap: 4px; }
+.sr-rule p { font: 600 15px/1.45 var(--sans); }
+.sr-work { padding: 10px 12px; border-radius: 8px; background: var(--sunk); }
+.sr-work p { font: 500 14px/1.5 var(--mono); overflow-wrap: anywhere; }
+.sr-verdict { display: flex; align-items: center; gap: 8px; font: 700 16px/1.3 var(--sans); }
+.sr-verdict.is-fail { color: var(--red); }
+.sr-why { font-size: 15px; line-height: 1.45; }
+.sr-links { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; }
+.sr-links .linkish svg { width: 18px; height: 18px; }
+.loop { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 10px; background: var(--red-tint); }
+.loop-svg { width: 100%; height: auto; }
+.loop-svg text { font: 600 12.5px/1 var(--sans); fill: var(--ink); }
+.loop-svg text.b { font-size: 12px; }
+.loop-svg text.r { fill: var(--red); font-size: 13px; font-weight: 700; }
+.loop-text { font-size: 15px; color: var(--red); }
+.loop-help { font-size: 14.5px; line-height: 1.45; }
+.loop .chip { font-size: 14px; }
+.sv-honest { margin-top: 18px; font-size: 13px; line-height: 1.45; color: var(--muted); }
+.sv-bar { position: fixed; left: 10px; right: 10px; bottom: 10px; z-index: 12; display: grid; grid-template-columns: 52px minmax(0, 1fr) 52px auto; align-items: center; gap: 6px;
+  padding: 5px; border: 2px solid var(--edge); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow); }
+.bar-btn { display: grid; place-items: center; width: 52px; height: 52px; border: 0; border-radius: 13px; background: var(--sunk); color: var(--ink); cursor: pointer; }
+.bar-btn svg { width: 24px; height: 24px; }
+.bar-mid { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.bar-where { font: 500 12px/1.3 var(--mono); color: var(--muted); }
+.bar-name { font: 700 15px/1.3 var(--sans); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.bar-sum { display: inline-grid; place-items: center; height: 52px; padding: 0 14px; border-radius: 13px; background: var(--ink); color: var(--on-heading); font: 700 15px/1 var(--sans); text-decoration: none; }
+
+/* laptop: the rail, the rows, the open row beside them */
+@media (min-width: 1000px) {
+  .sheet-view { max-width: 1240px; padding-bottom: 40px; }
+  .sv-grid { display: grid; grid-template-columns: 262px minmax(0, 1fr) 420px; gap: 24px; align-items: start; }
+  .sv-rail { display: block; position: sticky; top: 76px; padding-top: 18px; }
+  .sv-rail .eyebrow { margin-bottom: 8px; }
+  .rail-svg { width: 256px; height: auto; display: block; }
+  .rail-svg .rn { cursor: pointer; }
+  .rail-svg .rn-n { font: 500 11px/1 var(--mono); fill: var(--muted); }
+  .rail-svg .rn-t { font: 600 13px/1 var(--sans); fill: var(--ink); }
+  .rail-svg .rn-t.is-hold { fill: var(--muted); }
+  .rail-svg .arc { fill: none; stroke-width: 2; }
+  .rail-svg .arc.is-red { stroke: var(--red); stroke-width: 2.4; }
+  .rail-svg .arc.is-quiet { stroke: var(--line-strong); }
+  .rail-svg .arc.is-added { stroke: var(--line-strong); stroke-dasharray: 4 3; }
+  .rail-svg .is-red-head { fill: var(--red); } .rail-svg .is-quiet-head, .rail-svg .is-added-head { fill: var(--line-strong); }
+  .rail-svg .arcl { font: 600 10px/1 var(--cond); fill: var(--muted); letter-spacing: .04em; }
+  .rail-svg .arcl.is-red { fill: var(--red); }
+  .rail-key { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 8px; font: 500 12px/1.3 var(--cond); color: var(--muted); }
+  .rail-key i { display: inline-block; width: 16px; height: 0; margin-right: 5px; vertical-align: middle; border-top: 2px solid var(--line-strong); }
+  .rail-key .k-red { border-color: var(--red); } .rail-key .k-a { border-top-style: dashed; }
+  .sv-rows .sr-body { display: none; }
+  .sr.is-open { background: var(--surface); box-shadow: inset 5px 0 0 var(--ink); }
+  .sv-detail { display: block; position: sticky; top: 76px; margin-top: 18px; padding: 16px 18px 6px; border: 2px solid var(--edge); border-radius: var(--r-lg); background: var(--surface); max-height: calc(100vh - 96px); overflow: auto; }
+  .sd-head { display: grid; grid-template-columns: auto minmax(0, 1fr) 26px; align-items: center; gap: 10px; padding-bottom: 6px; }
+  .sd-head h2 { font-size: 21px; }
+  .sv-detail .sr-body { padding: 4px 0 12px; }
+  .sv-bar { display: none; }
+}
+
+.stepper { display: grid; grid-template-columns: 52px minmax(0, 1fr) 52px; align-items: center; gap: 8px; }
+.st-btn { width: 52px; height: 52px; border: 2px solid var(--edge); border-radius: 13px; background: var(--surface); font: 600 26px/1 var(--sans); color: var(--ink); cursor: pointer; }
+.st-btn[disabled] { border-color: var(--line); color: var(--line-strong); }
+.st-val { text-align: center; font: 600 20px/1 var(--mono); }
+
+.sv-note { font-size: 13px; color: var(--muted); }
+</style>
+<div class="view sheet-view">
+  <header class="fbar">
+    <a class="ibtn" href="course.html" aria-label="Back to your jobs"><svg viewBox="0 0 24 24"><path d="m14.5 5.5-6.5 6.5 6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <span class="crumb">design / <b>plant-room heater</b> / circuit 1</span>
+    <button class="ibtn" aria-label="Reading settings">Aa</button>
+  </header>
+  <div id="sheet"></div>
+</div>
+<script>
+/* The design sheet, mockup engine. Each row is worked from the figures shown in the rows above it
+   (rounded as shown), so every working line can be checked by hand on a calculator.
+   Table values are never built in: each one is a value Dan types from his own copy. In this mockup
+   the "typed" values are the figures printed in his course slides, cited by page. */
+var DV = (function () {
+  function rd(x, d) { var p = Math.pow(10, d); return Math.round(x * p + 1e-9) / p; }
+  function f(x, d) { return rd(x, d).toFixed(d); }
+  function n(x) { return String(x); }
+  var SIZES = [1, 1.5, 2.5, 4, 6, 10, 16];
+  function sz(x) { return x >= 10 ? String(x) : x.toFixed(1); }
+
+  function compute(J) {
+    var rows = [], waitFrom = null, needFrom = null;
+    function push(r) { rows.push(r); return r; }
+    function tv(spec) { spec.kind = 'table'; return spec; }
+
+    // 1 Design current
+    var Ib = rd(J.P / (J.U0 * J.pf * J.eff), 2);
+    push({ id: 'ib', n: '1', where: 'Flowchart step 1', name: 'Design current', short: 'Design current', sym: 'Ib', value: f(Ib, 2) + ' A', state: 'val',
+      inputs: [{ label: 'Load (output)', v: J.P + ' W' }, { label: 'Voltage at the board', v: J.U0 + ' V' }, { label: 'Power factor', v: n(J.pf) }, { label: 'Efficiency', v: n(J.eff) }],
+      rule: 'Ib = P ÷ (U × eff × pf)', work: [J.P + ' ÷ (' + J.U0 + ' × ' + J.eff + ' × ' + J.pf + ') = ' + f(Ib, 2) + ' A'],
+      cite: 'slides p.12', why: 'The cable carries what the load draws from the supply, so Ib follows the input, not the output.' });
+
+    // 2 Device
+    var okIn = Ib <= J.In;
+    push({ id: 'in', n: '2', where: 'Flowchart step 2', name: 'Protective device', sym: 'In', value: J.In + ' A', state: okIn ? 'ok' : 'fail', check: true,
+      inputs: [{ label: 'Device', v: J.dev }, { label: 'Rating In', v: J.In + ' A' }],
+      rule: 'Ib ≤ In', work: [f(Ib, 2) + ' A ≤ ' + J.In + ' A'], verdict: okIn ? 'Met' : 'Fails: choose a larger In',
+      cite: 'Reg 433.1.1, slides p.22', why: 'The device must carry the normal load without opening.' });
+
+    // 3-4 Rating factors
+    var prod = J.Ca * J.Cg * J.Ci, It = rd(J.In / prod, 2);
+    push({ id: 'ct', n: '3–4', where: 'Flowchart steps 3–4', name: 'Rating factors', sym: 'It', value: f(It, 2) + ' A', state: 'val',
+      inputs: [tv({ what: 'Ca, ambient ' + J.amb + ' °C', table: 'Table 4B1', col: '70 °C thermoplastic', row: J.amb + ' °C row', v: J.Ca, cite: 'slides p.26' }),
+        { label: 'Cg, grouping', v: J.Cg + ' (no other circuits)' }, { label: 'Ci, insulation', v: J.Ci + ' (none on the run)' }],
+      rule: 'It ≥ In ÷ (Ca × Cg × Ci), only the factors that act together', work: [J.In + ' ÷ (' + J.Ca + ' × ' + J.Cg + ' × ' + J.Ci + ') = ' + f(It, 2) + ' A'],
+      cite: 'slides p.25', why: 'Each factor is heat the table did not allow for, so it raises the rating you need.' });
+
+    // 5 Reference method
+    push({ id: 'rm', n: '5', where: 'Flowchart step 5', name: 'Reference method', sym: '', value: J.method, state: 'val',
+      inputs: [{ label: 'Installed', v: J.install }, { label: 'Method', v: 'Reference Method ' + J.method + ' (Table 4A2)' }],
+      rule: 'Design to the method with the lowest rating anywhere on the run', work: ['One method along the whole run: ' + J.method],
+      cite: 'slides p.23, 28', why: 'The cable is only as good as its hottest stretch.' });
+
+    // 6 Conductor
+    var itab = J.itab[J.csa], cond = push({ id: 'cs', n: '6', where: 'Flowchart step 6', name: 'Conductor', sym: 'Iz', value: sz(J.csa) + ' mm²', check: true, csaPick: true,
+      inputs: [tv({ what: 'Current-carrying capacity It(tab)', table: 'Table 4D1A', col: 'Reference Method ' + J.method + ', 2 cables single-phase', row: sz(J.csa) + ' mm² row', v: itab, unit: 'A', cite: itab != null ? J.itabCite[J.csa] : '' })],
+      rule: 'It(tab) ≥ It, then Iz = It(tab) × factors ≥ In', cite: 'flowchart step 6', why: 'Pick the smallest cable whose rating covers It.' });
+    var Iz = null;
+    if (itab == null) { cond.state = 'need'; cond.work = ['Waiting for It(tab) for ' + sz(J.csa) + ' mm²']; needFrom = needFrom || 'cs'; }
+    else {
+      Iz = rd(itab * prod, 2);
+      var okC = itab >= It && Iz >= J.In;
+      cond.state = okC ? 'ok' : 'fail';
+      cond.work = [itab + ' A ≥ ' + f(It, 2) + ' A', 'Iz = ' + itab + ' × ' + J.Ca + ' = ' + f(Iz, 2) + ' A', f(Iz, 2) + ' A ≥ ' + J.In + ' A'];
+      cond.verdict = okC ? 'Met' : 'Fails: go to a larger CSA';
+    }
+
+    // 6+ Overload 1.45
+    var ovl = push({ id: 'ov', n: '+', where: 'Added: slides p.29–32', name: 'Overload', sym: '1.45', check: true,
+      rule: 'I2 ≤ 1.45 × Iz, with I2 = 1.45 × In for most devices', cite: 'slides p.30, 32',
+      inputs: [{ label: 'I2 of the device', v: '1.45 × In (' + J.dev + ')' }], why: 'The device lets about 1.45 In flow before it opens, so the cable must take that too.' });
+    if (Iz == null) { ovl.state = 'hold'; ovl.value = '–'; ovl.work = ['Waits for step 6']; }
+    else {
+      var I2 = rd(1.45 * J.In, 2), lim = rd(1.45 * Iz, 2), okO = I2 <= lim;
+      ovl.state = okO ? 'ok' : 'fail'; ovl.value = f(I2, 2) + ' A';
+      ovl.work = ['I2 = 1.45 × ' + J.In + ' = ' + f(I2, 2) + ' A', '1.45 × ' + f(Iz, 2) + ' = ' + f(lim, 2) + ' A', f(I2, 2) + ' A ≤ ' + f(lim, 2) + ' A'];
+      ovl.verdict = okO ? 'Met' : 'Fails';
+    }
+
+    // 7-8 Voltage drop
+    var mv = J.mv[J.csa], limit = rd(J.U0 * J.pct / 100, 2), vd = push({ id: 'vd', n: '7–8', where: 'Flowchart steps 7–8', name: 'Voltage drop', sym: 'VD', check: true,
+      inputs: [tv({ what: 'Voltage drop mV/A/m', table: 'Table 4D1B', col: '2 cables, single-phase', row: sz(J.csa) + ' mm² row', v: mv, unit: 'mV/A/m', cite: mv != null ? J.mvCite[J.csa] : '' }),
+        { label: 'Length', v: J.L + ' m', edit: 'L' }, { label: 'Drop before this board', v: f(J.up, 2) + ' V · from the origin' }, { label: 'Limit', v: J.pct + '% of ' + J.U0 + ' V (power)' }],
+      rule: 'VD = mV/A/m × Ib × L ÷ 1000, added to the drop before this board', cite: 'formula sheet step 7; slides p.38–41',
+      why: 'The limit is for the whole path from the origin, so every drop on the way counts.' });
+    if (mv == null) { vd.state = 'need'; vd.value = '–'; vd.work = ['Waiting for mV/A/m for ' + sz(J.csa) + ' mm²']; needFrom = needFrom || 'vd'; }
+    else if (!waitFrom && cond.state !== 'need') {
+      var V = rd(mv * Ib * J.L / 1000, 2), tot = rd(J.up + V, 2), okV = tot <= limit;
+      vd.value = f(tot, 2) + ' V'; vd.state = okV ? 'ok' : 'fail';
+      vd.work = [mv + ' × ' + f(Ib, 2) + ' × ' + J.L + ' ÷ 1000 = ' + f(V, 2) + ' V', 'From the origin: ' + f(J.up, 2) + ' + ' + f(V, 2) + ' = ' + f(tot, 2) + ' V (' + f(tot / J.U0 * 100, 2) + '%)', f(tot, 2) + ' V ' + (okV ? '≤ ' : '> ') + f(limit, 2) + ' V (' + J.pct + '% of ' + J.U0 + ' V)'];
+      vd.verdict = okV ? 'Met' : 'Fails: ' + f(tot, 2) + ' V is over the ' + f(limit, 2) + ' V limit';
+      if (!okV) {
+        var maxmv = Math.floor((limit - J.up) * 1000 / (Ib * J.L) * 100) / 100;
+        vd.loop = { back: '6', text: 'Go back to step 6 and increase the conductor CSA.', helper: 'At ' + J.L + ' m the cable needs no more than ' + maxmv.toFixed(2) + ' mV/A/m: ' + f(limit - J.up, 2) + ' × 1000 ÷ (' + f(Ib, 2) + ' × ' + J.L + ') = ' + ((limit - J.up) * 1000 / (Ib * J.L)).toFixed(3) + ', rounded down. Look down the same column for the first size at or under it.' };
+        waitFrom = 'vd';
+      }
+    } else { vd.state = 'hold'; vd.value = '–'; vd.work = ['Waits for step 6']; }
+
+    // 9 cpc
+    var cpcR = push({ id: 'cp', n: '9', where: 'Flowchart step 9', name: 'Protective conductor', short: 'cpc size', sym: 'cpc', value: waitFrom ? '–' : sz(J.cpc) + ' mm²', state: waitFrom ? 'hold' : 'val',
+      inputs: [{ label: 'cpc CSA', v: sz(J.cpc) + ' mm² (Table 54.7: same as the line up to 16 mm²)' }], rule: 'Suitable cpc first; the minimum comes from the thermal check', work: [waitFrom ? 'On hold until step 8 passes' : 'Singles: ' + sz(J.csa) + ' mm² line, ' + sz(J.cpc) + ' mm² cpc'],
+      cite: 'flowchart step 9 and note 2', why: 'Suitable and minimum cpc are not the same thing.' });
+
+    // 10-12 R1+R2
+    var key = sz(J.csa) + '/' + sz(J.cpc), mo = J.r12[key], r12 = push({ id: 'r12', n: '10–12', where: 'Flowchart steps 10–12', name: 'R1 + R2', sym: '', check: false,
+      inputs: [tv({ what: 'R1 + R2 per metre', table: 'OSG Table I1', col: 'copper, mΩ/m at 20 °C', row: sz(J.csa) + ' mm² line, ' + sz(J.cpc) + ' mm² cpc', v: mo, unit: 'mΩ/m', cite: mo != null ? 'slides p.51' : '' }),
+        tv({ what: 'Multiplier to operating temperature', table: 'OSG Table I3', col: '', row: '70 °C thermoplastic', v: J.mult, unit: '', cite: 'slides p.52' }), { label: 'Length', v: J.L + ' m' }],
+      rule: 'R1+R2 = mΩ/m × multiplier × L ÷ 1000', cite: 'formula sheet step 12', why: 'The multiplier works the loop out as if the cable were hot and running.' });
+    var R = null;
+    if (waitFrom) { r12.state = 'hold'; r12.value = '–'; r12.work = ['On hold until step 8 passes']; }
+    else if (mo == null) { r12.state = 'need'; r12.value = '–'; r12.work = ['Waiting for R1 + R2 per metre for ' + key + ' mm²']; needFrom = needFrom || 'r12'; }
+    else { R = rd(mo * J.mult * J.L / 1000, 3); r12.state = 'val'; r12.value = f(R, 3) + ' Ω'; r12.work = [mo + ' × ' + J.mult + ' × ' + J.L + ' ÷ 1000 = ' + f(R, 3) + ' Ω']; }
+
+    // 13-14 Zs
+    var zs = push({ id: 'zs', n: '13–14', where: 'Flowchart steps 13–14', name: 'Earth fault loop', sym: 'Zs', check: true,
+      inputs: [{ label: 'Ze (declared)', v: J.Ze + ' Ω' }, tv({ what: 'Maximum Zs', table: 'BS 7671 Table 41.3', col: 'type B', row: J.In + ' A', v: J.maxZs, unit: 'Ω', cite: 'slides p.54' })],
+      rule: 'Zs = Ze + (R1+R2) ≤ maximum Zs', cite: 'formula sheet step 13; Tables 41.2–41.4', why: 'The loop decides the fault current, and the current decides how fast the device opens.' });
+    var Zs = null;
+    if (R == null) { zs.state = 'hold'; zs.value = '–'; zs.work = [waitFrom ? 'On hold until step 8 passes' : 'Waits for R1 + R2']; }
+    else { Zs = rd(J.Ze + R, 3); var okZ = Zs <= J.maxZs; zs.state = okZ ? 'ok' : 'fail'; zs.value = f(Zs, 3) + ' Ω';
+      zs.work = [J.Ze + ' + ' + f(R, 3) + ' = ' + f(Zs, 3) + ' Ω', f(Zs, 3) + ' Ω ' + (okZ ? '≤ ' : '> ') + J.maxZs + ' Ω']; zs.verdict = okZ ? 'Met' : 'Fails'; }
+
+    // 15-16 fault current and time
+    var pf = push({ id: 'pe', n: '15–16', where: 'Flowchart steps 15–16', name: 'Fault current and time', short: 'Fault current, t', sym: 't', check: true,
+      inputs: [{ label: 'Uo × Cmin', v: J.U0 + ' × 0.95 (slides p.48)' }, tv({ what: 'Current to open in 0.1 s', table: 'BS 7671 Appendix 3, Fig 3A4', col: 'type B', row: J.In + ' A curve', v: J.Ia, unit: 'A', cite: 'slides p.55' }),
+        tv({ what: 'Longest time allowed', table: 'BS 7671 Table 41.1', col: 'TN', row: 'final circuit up to 32 A', v: J.tmax, unit: 's', cite: 'slides p.51' })],
+      rule: 'If = Uo × Cmin ÷ Zs; read the time off the device curve', cite: 'formula sheet step 15', why: 'Cmin gives the least fault current, so the slowest the device could be.' });
+    var If = null;
+    if (Zs == null) { pf.state = 'hold'; pf.value = '–'; pf.work = [waitFrom ? 'On hold until step 8 passes' : 'Waits for Zs']; }
+    else { If = rd(J.U0 * 0.95 / Zs, 2); var okT = If >= J.Ia; pf.state = okT ? 'ok' : 'fail'; pf.value = okT ? '0.1 s' : '–';
+      pf.work = [J.U0 + ' × 0.95 ÷ ' + f(Zs, 3) + ' = ' + f(If, 2) + ' A', f(If, 2) + ' A ≥ ' + J.Ia + ' A, so it opens in 0.1 s', '0.1 s ≤ ' + J.tmax + ' s']; pf.verdict = okT ? 'Met' : 'Read the time off the curve'; }
+
+    // 17-20 thermal
+    var ad = push({ id: 'ad', n: '17–20', where: 'Flowchart steps 17–20', name: 'Thermal check', sym: 'S', check: true,
+      inputs: [{ label: 'Uo × Cmax', v: J.U0 + ' × 1.1 (slides p.48, 62)' }, { label: 'Time t', v: '0.1 s (step 16)' }, tv({ what: 'k for the cpc', table: 'BS 7671 Tables 54.2–54.6', col: 'the one for your cpc', row: '70 °C thermoplastic', v: J.k, unit: '', cite: 'slides p.59' })],
+      rule: 'S = √(I² × t) ÷ k, with I worked at Cmax', cite: 'formula sheet step 18/19; slides p.58–62', why: 'Cmax gives the most fault energy, the worst case for the cpc.' });
+    if (If == null) { ad.state = 'hold'; ad.value = '–'; ad.work = [waitFrom ? 'On hold until step 8 passes' : 'Waits for step 16']; }
+    else { var Im = rd(J.U0 * 1.1 / Zs, 2), S = rd(Math.sqrt(Im * Im * 0.1) / J.k, 2), okS = S <= J.cpc; ad.state = okS ? 'ok' : 'fail'; ad.value = f(S, 2) + ' mm²';
+      ad.work = ['I = ' + J.U0 + ' × 1.1 ÷ ' + f(Zs, 3) + ' = ' + f(Im, 2) + ' A', 'S = √(' + f(Im, 2) + '² × 0.1) ÷ ' + J.k + ' = ' + f(S, 2) + ' mm²', f(S, 2) + ' mm² ≤ ' + sz(J.cpc) + ' mm²']; ad.verdict = okS ? 'Met' : 'Fails: go back to step 9'; }
+
+    // + Breaking capacity
+    var bc = push({ id: 'bc', n: '+', where: 'Added: slides p.69–70', name: 'Breaking capacity', short: 'Breaking capacity', sym: 'Icn', check: true, value: '–', state: 'need',
+      inputs: [{ label: 'IPF at the origin', v: '', need: 'From the DNO, or measured' }, { label: 'Icn of the device', v: '', need: 'Marked on the device' }],
+      rule: 'IPF ≤ Icn', work: ['Waiting for both values'], cite: 'slides p.69–70', why: 'A device asked to break more than its Icn may destroy itself.' });
+    if (waitFrom) { bc.state = 'hold'; bc.work = ['On hold until step 8 passes']; }
+
+    var checks = rows.filter(function (r) { return r.check; });
+    return { rows: rows, Ib: Ib, waitFrom: waitFrom, met: checks.filter(function (r) { return r.state === 'ok'; }).length,
+      fails: checks.filter(function (r) { return r.state === 'fail'; }).length, total: checks.length,
+      waiting: checks.filter(function (r) { return r.state === 'hold' || r.state === 'need'; }).length };
+  }
+  return { compute: compute, f: f, rd: rd, sz: sz, SIZES: SIZES };
+})();
+if (typeof module !== 'undefined') module.exports = DV;
+
+</script>
+<script>
+window.SHEET = {
+  job: { P: 3000, U0: 230, pf: 1, eff: 1, In: 16, dev: 'BS EN 60898 type B', amb: 35, Ca: 0.94, Cg: 1, Ci: 1, method: 'B', install: 'Singles in conduit on a wall',
+    csa: 1.5, cpc: 1.5, itab: { 1.5: 17.5, 6: 41 }, itabCite: { 1.5: 'slides p.42', 6: 'slides p.43' }, mv: { 1.5: 29, 6: 7.3 }, mvCite: { 1.5: 'slides p.42', 6: 'slides p.42 (7.3 worked back from its 8.09 V)' },
+    L: 15, up: 0, pct: 5, r12: { '1.5/1.5': 24.2 }, mult: 1.2, Ze: 0.21, maxZs: 2.73, Ia: 80, tmax: 0.4, k: 115 },
+  open: 'cs',
+  eyebrow: 'Your job · saved 19 Oct',
+  title: 'Immersion heater, plant room',
+  sub: 'TN-S · Ze 0.21 Ω · 230 V · circuit 1 of 1',
+  keys: function (J) { return [{ l: 'Load', v: '3 kW · 1-phase', open: 'ib' }, { l: 'Run', v: J.L + ' m · 35 °C', open: 'vd' }, { l: 'Cable', v: DV.sz(J.csa) + ' mm² singles', open: 'cs' }, { l: 'Device', v: '16 A type B', open: 'in' }]; }
+};
+</script>
+<script>
+/* The design sheet's screen (mockup). Phone: one list of rows, one open at a time, a bottom bar
+   for one-handed use. Laptop (>= 1000 px): the flowchart rail, the rows, and the open row's
+   detail beside them. Every change re-works the whole chain. */
+(function () {
+  var C = window.SHEET, J = C.job, open = C.open, root = document.getElementById('sheet');
+  var ICON = {
+    ok: '<svg viewBox="0 0 16 16"><path d="m3.2 8.4 3 3 6.6-6.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    fail: '<svg viewBox="0 0 16 16"><path d="m4.5 4.5 7 7m0-7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    chev: '<svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    back: '<svg viewBox="0 0 24 24"><path d="m14.5 5.5-6.5 6.5 6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    book: '<svg viewBox="0 0 24 24"><path d="M5 4.5h9.5a3 3 0 0 1 3 3v12H8a3 3 0 0 1-3-3v-12Z M5 16.5a3 3 0 0 1 3-3h9.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>'
+  };
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  function mark(state) {
+    var cls = { ok: 'ok', fail: 'fail', need: 'need', hold: 'hold', val: 'val' }[state];
+    var label = { ok: 'Check met', fail: 'Check fails', need: 'Needs your value', hold: 'Waiting', val: 'Worked out' }[state];
+    return '<span class="mk ' + cls + '" role="img" aria-label="' + label + '">' + (state === 'ok' ? ICON.ok : state === 'fail' ? ICON.fail : '') + '</span>';
+  }
+  function tvBlock(t) {
+    var need = t.v == null || t.v === '';
+    var src = /^OSG/.test(t.table) ? 'From your On-Site Guide' : 'From your BS 7671';
+    return '<div class="tv' + (need ? ' is-need' : '') + '">' +
+      '<span class="eyebrow tv-src">' + src + '</span>' +
+      '<p class="tv-where"><b>' + esc(t.table) + '</b>' + (t.col ? ' · ' + esc(t.col) : '') + ' · ' + esc(t.row) + '</p>' +
+      '<label class="tv-what"><span>' + esc(t.what) + '</span>' +
+      '<span class="tv-in"><input inputmode="decimal" value="' + (need ? '' : esc(t.v)) + '" placeholder="Type it in"' + (need ? '' : '') + '>' + (t.unit ? '<span>' + esc(t.unit) + '</span>' : '') + '</span></label>' +
+      (need ? '<p class="tv-note">Not entered yet. The sheet waits for it.</p>' : t.cite ? '<p class="tv-note">In this mockup: the figure on your ' + esc(t.cite) + '</p>' : '') +
+      '</div>';
+  }
+  function loopHtml(r) {
+    if (!r.loop) return '';
+    return '<div class="loop"><svg class="loop-svg" viewBox="0 0 300 104" role="img" aria-label="The flowchart loop: step 8 fails, go back to step 6">' +
+        '<text x="150" y="16" text-anchor="middle" class="r">No: back to step 6, bigger CSA</text>' +
+        '<rect x="2" y="32" width="92" height="38" rx="8" fill="var(--surface)" stroke="var(--edge)" stroke-width="2"/><text x="48" y="56" text-anchor="middle">6 Conductor</text>' +
+        '<rect x="112" y="32" width="88" height="38" rx="8" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="1.5"/><text x="156" y="56" text-anchor="middle">7 Volt drop</text>' +
+        '<path d="M256 26 L298 51 L256 76 L214 51 Z" fill="var(--surface)" stroke="var(--red)" stroke-width="2"/><text x="256" y="55" text-anchor="middle" class="b">8 ≤ 5%?</text>' +
+        '<path d="M94 51 H108" stroke="var(--line-strong)" stroke-width="1.5" marker-end="url(#ah)"/><path d="M200 51 H210" stroke="var(--line-strong)" stroke-width="1.5" marker-end="url(#ah)"/>' +
+        '<path d="M256 78 V96 H48 V74" fill="none" stroke="var(--red)" stroke-width="2.4" marker-end="url(#ahr)"/>' +
+        '<defs><marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 8 4 0 8Z" fill="var(--line-strong)"/></marker>' +
+        '<marker id="ahr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 8 4 0 8Z" fill="var(--red)"/></marker></defs></svg>' +
+        '<p class="loop-text"><b>' + esc(r.loop.text) + '</b></p><p class="loop-help">' + esc(r.loop.helper) + '</p>' +
+        '<div class="chips">' + DV.SIZES.filter(function (s) { return s > J.csa; }).slice(0, 4).map(function (s) {
+          return '<button class="chip" data-csa="' + s + '">Try ' + DV.sz(s) + ' mm²</button>';
+        }).join('') + '</div></div>';
+  }
+  function verdictHtml(r) { return r.verdict ? '<p class="sr-verdict is-' + r.state + '">' + mark(r.state) + '<span>' + esc(r.verdict) + '</span></p>' : ''; }
+  function body(r) {
+    var h = '<div class="sr-body">', failing = r.state === 'fail';
+    h += '<p class="sr-where"><span class="eyebrow">' + esc(r.where) + '</span></p>';
+    if (failing) h += verdictHtml(r) + loopHtml(r);
+    var plain = (r.inputs || []).filter(function (i) { return i.kind !== 'table'; });
+    if (plain.length) {
+      h += '<dl class="sr-in">' + plain.map(function (i) {
+        var v = i.edit === 'L' ? '<span class="edit"><input inputmode="decimal" data-edit="L" value="' + J.L + '"><span>m</span></span>' :
+          i.need ? '<span class="needv">' + esc(i.need) + '</span>' : esc(i.v);
+        return '<div><dt>' + esc(i.label) + '</dt><dd>' + v + '</dd></div>';
+      }).join('') + '</dl>';
+    }
+    if (r.csaPick) {
+      var k = DV.SIZES.indexOf(J.csa), dn = DV.SIZES[k - 1], up = DV.SIZES[k + 1];
+      h += '<div class="sr-pick"><span class="eyebrow">Conductor CSA</span><div class="stepper">' +
+        '<button class="st-btn" ' + (dn ? 'data-csa="' + dn + '"' : 'disabled') + ' aria-label="Smaller size">−</button>' +
+        '<span class="st-val">' + DV.sz(J.csa) + ' mm²</span>' +
+        '<button class="st-btn" ' + (up ? 'data-csa="' + up + '"' : 'disabled') + ' aria-label="Next size up">+</button></div></div>';
+    }
+    (r.inputs || []).filter(function (i) { return i.kind === 'table'; }).forEach(function (t) { h += tvBlock(t); });
+    h += '<div class="sr-rule"><span class="eyebrow">Rule</span><p>' + esc(r.rule) + '</p></div>';
+    h += '<div class="sr-work"><span class="eyebrow">Working</span>' + (r.work || []).map(function (w) { return '<p>' + esc(w) + '</p>'; }).join('') + '</div>';
+    if (!failing) h += verdictHtml(r);
+    h += '<p class="sr-why"><b>Why:</b> ' + esc(r.why) + '</p>';
+    h += '<p class="sr-links"><a class="linkish" href="reference.html">' + ICON.book + 'Rule and where it lives</a><span class="cite">' + esc(r.cite) + '</span></p>';
+    if (C.extra && C.extra[r.id]) h += C.extra[r.id];
+    return h + '</div>';
+  }
+  function railSvg(s) {
+    var rows = s.rows, y0 = 14, gap = 44, h = y0 + rows.length * gap + 6, out = '';
+    var idx = {}; rows.forEach(function (r, i) { idx[r.id] = i; });
+    function cy(id) { return y0 + idx[id] * gap + 15; }
+    function arc(from, to, x, cls, label) {
+      var a = cy(from), b = cy(to);
+      return '<path d="M196 ' + a + ' H' + x + ' V' + b + ' H200" class="arc ' + cls + '" marker-end="url(#ra-' + cls + ')"/>' +
+        (label ? '<text x="' + (x + 4) + '" y="' + ((a + b) / 2) + '" class="arcl ' + cls + '" transform="rotate(90 ' + (x + 4) + ' ' + ((a + b) / 2) + ')" text-anchor="middle">' + label + '</text>' : '');
+    }
+    rows.forEach(function (r, i) {
+      var y = y0 + i * gap, sel = r.id === open;
+      var fill = r.state === 'fail' ? 'var(--red-tint)' : r.state === 'need' ? 'var(--due-tint)' : 'var(--surface)';
+      var stroke = sel ? 'var(--edge)' : r.state === 'fail' ? 'var(--red)' : r.state === 'need' ? 'var(--due)' : r.state === 'hold' ? 'var(--line-strong)' : 'var(--line-strong)';
+      out += '<g class="rn" data-open="' + r.id + '"><rect x="4" y="' + y + '" width="192" height="30" rx="8" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + (sel ? 2.5 : 1.5) + '"' + (r.state === 'hold' ? ' stroke-dasharray="4 3"' : '') + '/>' +
+        '<text x="14" y="' + (y + 19.5) + '" class="rn-n">' + r.n + '</text><text x="58" y="' + (y + 19.5) + '" class="rn-t' + (r.state === 'hold' ? ' is-hold' : '') + '">' + esc(r.short || r.name) + '</text>' +
+        (r.state === 'ok' ? '<path d="M174 ' + (y + 15) + ' l3.5 3.5 6.5-7" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' : '') +
+        (r.state === 'fail' ? '<path d="M175 ' + (y + 10) + ' l9 9 m0 -9 l-9 9" stroke="var(--red)" stroke-width="2.4" stroke-linecap="round"/>' : '') +
+        '</g>';
+      if (i < rows.length - 1) out += '<path d="M40 ' + (y + 30) + ' V' + (y + gap) + '" stroke="var(--line-strong)" stroke-width="1.5"/>';
+    });
+    var vdFail = s.rows[idx.vd].state === 'fail';
+    out += arc('vd', 'cs', 222, vdFail ? 'is-red' : 'is-quiet', 'step 8 → 6');
+    out += arc('ad', 'cp', 236, 'is-quiet', 'step 20 → 9');
+    out += arc('zs', 'cp', 210, 'is-added', '');
+    return '<svg class="rail-svg" viewBox="0 0 256 ' + h + '" role="img" aria-label="Your flowchart, step by step, with its loops">' +
+      '<defs>' + ['is-red', 'is-quiet', 'is-added'].map(function (c) { return '<marker id="ra-' + c + '" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 8 4 0 8Z" class="' + c + '-head"/></marker>'; }).join('') + '</defs>' + out + '</svg>';
+  }
+  function render() {
+    var s = DV.compute(J), rows = s.rows;
+    var segs = rows.filter(function (r) { return r.check; }).map(function (r) { return '<i class="seg-' + r.state + '"></i>'; }).join('');
+    var bits = [s.met + ' of ' + s.total + ' checks met'];
+    if (s.fails) bits.push('<b class="red">' + s.fails + ' fails</b>');
+    if (s.waiting) bits.push(s.waiting + ' waiting' + (s.rows.some(function (r) { return r.state === 'need'; }) ? ' for your values' : ''));
+    var h = '';
+    h += '<div class="sv-grid"><aside class="sv-rail"><p class="eyebrow">Your flowchart</p>' + railSvg(s) +
+      '<p class="rail-key"><span><i class="k-red"></i>loop in use</span><span><i class="k-q"></i>flowchart loop</span><span><i class="k-a"></i>added loop</span></p></aside>';
+    h += '<main class="sv-main">';
+    h += '<div class="sv-head"><p class="eyebrow">' + esc(C.eyebrow) + '</p><h1>' + esc(C.title) + '</h1><p class="sv-sub">' + esc(C.sub) + '</p></div>';
+    h += '<div class="sv-keys">' + C.keys(J).map(function (k) { return '<button class="key' + (k.changed ? ' is-changed' : '') + '" data-open="' + k.open + '"><span class="key-l">' + esc(k.l) + (k.changed ? ' <em>changed</em>' : '') + '</span><span class="key-v">' + esc(k.v) + '</span></button>'; }).join('') + '</div>';
+    h += '<div class="sv-status"><div class="segs" aria-hidden="true">' + segs + '</div><p>' + bits.join(' · ') + '</p></div>';
+    h += '<ol class="sv-rows">' + rows.map(function (r) {
+      var isOpen = r.id === open;
+      return '<li class="sr is-' + r.state + (isOpen ? ' is-open' : '') + '" id="row-' + r.id + '"><button class="sr-head" data-open="' + r.id + '" aria-expanded="' + isOpen + '">' +
+        '<span class="sr-n">' + r.n + '</span><span class="sr-name">' + esc(r.name) + (r.sym ? ' <span class="sr-sym">' + esc(r.sym) + '</span>' : '') + '</span>' +
+        '<span class="sr-val">' + esc(r.value) + '</span>' + mark(r.state) + '</button>' + (isOpen ? body(r) : '') + '</li>';
+    }).join('') + '</ol>';
+    h += '<p class="sv-honest">Rules as taught in your course: BS 7671:2018+A2:2022. An aid to your own design, not a substitute for the regulations or your sign-off.</p>';
+    h += '</main>';
+    var cur = rows.filter(function (r) { return r.id === open; })[0];
+    h += '<section class="sv-detail" aria-label="The open row">' + (cur ? '<div class="sd-head"><span class="sr-n">' + cur.n + '</span><h2>' + esc(cur.name) + (cur.sym ? ' <span class="sr-sym">' + esc(cur.sym) + '</span>' : '') + '</h2>' + mark(cur.state) + '</div>' + body(cur) : '') + '</section></div>';
+    var i = rows.map(function (r) { return r.id; }).indexOf(open);
+    h += '<nav class="sv-bar" aria-label="Rows"><button class="bar-btn" data-step="-1" aria-label="Previous row">' + ICON.back + '</button>' +
+      '<span class="bar-mid"><span class="bar-where">' + (cur ? (cur.n === '+' ? 'added check' : 'step ' + cur.n) : rows.length + ' rows') + '</span><span class="bar-name">' + esc(cur ? cur.name : 'Tap a row') + '</span></span>' +
+      '<button class="bar-btn" data-step="1" aria-label="Next row">' + ICON.chev + '</button><a class="bar-sum" href="site.html">Summary</a></nav>';
+    root.innerHTML = h;
+  }
+  root.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-open],[data-csa],[data-step]'); if (!t) return;
+    if (t.dataset.csa) { J.csa = +t.dataset.csa; J.cpc = J.csa; if (C.onCsa) C.onCsa(J); }
+    else if (t.dataset.step) { var ids = DV.compute(J).rows.map(function (r) { return r.id; }); var i = ids.indexOf(open) + (+t.dataset.step); if (i >= 0 && i < ids.length) open = ids[i]; }
+    else open = open === t.dataset.open && !window.matchMedia('(min-width: 1000px)').matches ? null : t.dataset.open;
+    render();
+  });
+  root.addEventListener('change', function (e) { if (e.target.dataset.edit === 'L') { J.L = +e.target.value || J.L; render(); } });
+  window.sheetSet = function (k, v) { J[k] = v; if (k === 'csa') J.cpc = v; render(); };
+  window.sheetOpen = function (id) { open = id; render(); };
+  render();
+})();
+
+</script>
+</body>
+</html>
