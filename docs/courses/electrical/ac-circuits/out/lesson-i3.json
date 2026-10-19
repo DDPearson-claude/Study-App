@@ -1,0 +1,576 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-19T19:24:39.864Z",
+ "startedAt": "2026-10-19T19:24:39.864Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i3",
+  "title": "Resistance in AC: power, moment by moment",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the dot on the power wave staying above the line and making two humps for every cycle of the voltage when you drag the time cursor along the in-step waves.",
+   "title": "The power scrubber",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "volts",
+     "label": "Voltage at the cursor",
+     "unit": "V",
+     "decimals": 1
+    },
+    {
+     "id": "amps",
+     "label": "Current at the cursor",
+     "unit": "A",
+     "decimals": 2
+    },
+    {
+     "id": "watts",
+     "label": "Power at the cursor",
+     "unit": "W",
+     "decimals": 0
+    }
+   ],
+   "whatAmILookingAt": "A short lesson in twelve small screens on one picture, the power scrubber. The heater test's 10 Ω element, an example value, sits on an AC supply with a 100 V peak at 50 Hz. Above, its voltage wave and its current wave share one time axis, 0 to 40 ms, two cycles of 20 ms; the current wave is dashed, with its scale on the right, peaking at 100 ÷ 10 = 10 A. They cross zero and reach their tops together, because the current through a resistance is the voltage ÷ the resistance at every instant, so voltage × current is also voltage² ÷ 10, the heater test's humps, now built from two waves. Below, on the same time axis, is the power wave, voltage × current worked instant by instant. A time cursor, a vertical line through both graphs, is dragged from 0 to 40 ms and opens at 5 ms, the top of the first cycle. Where it crosses the waves, readouts give the voltage, the current and their product, and a dot lands on the power wave at that product: 100 V × 10 A = 1000 W at 5 ms. A flat dashed line marks the power wave's average, 500 W, labelled V_rms × I_rms. Screen 1 lets you drag the cursor and watch the dot ride the power wave. Screen 2 parks the cursor at 15 ms, the bottom of the cycle, with readouts of −100 V and −10 A, and asks for the power: 1000 W; −1000 W (the minus kept); or 0 W. A right Check drops the dot at 1000 W. Screen 3 sweeps the cursor along a whole cycle, leaving a trace: one hump from 0 to 1000 W while the voltage is forward and another while it is backward, each 10 ms long, so two humps for every cycle; a counter shows 100 humps a second on 50 Hz. Screen 4 asks how many humps a second a heater gives on the 60 Hz supply most common on board ship: 120; 60 (the supply's own frequency); or 240 (doubled twice). Screen 5 draws the dashed average at 500 W, half the 1000 W top, because the power is 100 sin × 10 sin = 1000 sin², 1000 W × the sine squared and a squared sine's humps fit exactly into its dips (Calculus fundamentals' fold). Beside it the rms values, 0.707 × 100 = 70.7 V and 0.707 × 10 = 7.07 A, multiply to about 500 W, because each is 1 ÷ √2 of its peak and 1 ÷ √2 squared is a half. Screen 6 shows the voltage and the current each averaging zero over a cycle and asks what the element averages: 500 W; 0 W (the averages multiplied); or 1000 W (the top of a hump). Screen 7 turns to the mains card: a 1 kW heater on 230 V mains, 230² ÷ 1000 = 52.9 Ω, drawing 230 ÷ 52.9 = 4.35 A rms. The voltage wave peaks at 325 V and the current at 4.35 × √2 = 6.15 A, so the dashed average sits at 230 × 4.35 = 1000 W and the humps reach twice that, 2000 W, about 325 × 6.15. Screen 8: a clamp meter reads 10 A on a heater at 230 V, and the meter and the 230 V are both rms; what is its average power, and how high do its humps reach? 2300 W with tops of 4600 W; 4600 W with tops of 9200 W (the peaks multiplied, about 325 V × 14.1 A, taken as the average); or 1150 W with tops of 2300 W (the rms product taken as the top). Screen 9, on the 10 Ω card, switches the supply to 60 Hz itself, then frees the switch, 50 Hz and 60 Hz, to flick back and forth: at 60 Hz the humps crowd closer, 120 a second, but their tops stay at 1000 W and the average at 500 W, because a resistor's current follows the voltage at each instant whatever the frequency. Screen 10: a heater's power humps top out at 3000 W; what is its average power? 1500 W; 3000 W (the top taken as the average); or 2120 W (0.707 used once on the power). Screens 11 and 12 are mixed. Screen 11: which is true of the 10 Ω element's power? It reaches zero twice each cycle and never goes below it; it goes below zero on the backward half; or it stays steady at 500 W. Screen 12: an example heater element across 440 V, the voltage most ships' systems run at, on the 60 Hz most common on board ship, draws 10 A; is its power 4.4 kW in 120 humps a second; 4.4 kW in 60 humps a second; or 8.8 kW in 120 humps a second (the peaks multiplied, about 622 V × 14.1 A, twice 4.4 kW)? Each puzzle offers three answers; a wrong pick gets a one-line hint naming its slip, Why? explains in words, and a right Check draws the answer on the picture. The closing line says the dot never goes below the line here because the voltage and current keep step, and that lessons 4 and 5 put in a coil and a capacitor, where it does.",
+   "ignores": "The element is ideal: its resistance is held fixed, though a real element's resistance changes as it heats. The waves are pure sines; real mains is close to a sine rather than exactly one. Time is stretched so one 20 ms cycle fills half the screen. The 10 Ω element, the 100 V peak, the heaters and the meter readings are example values.",
+   "numbers": [
+    {
+     "label": "Number of screens",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Element's resistance, in ohms",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Voltage peak on the scrubber, in volts",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Current peak on the scrubber, in amps",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "UK mains frequency, in hertz",
+     "value": 50,
+     "kind": "constant"
+    },
+    {
+     "label": "One cycle at 50 Hz, in milliseconds",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Time axis, lowest, in milliseconds",
+     "value": 0,
+     "kind": "assumed"
+    },
+    {
+     "label": "Time axis, highest, in milliseconds",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Opening cursor time, in milliseconds",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Power at the opening cursor, in watts",
+     "value": 1000,
+     "kind": "computed"
+    },
+    {
+     "label": "Cursor time for screen 2, in milliseconds",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Voltage at 15 ms, in volts",
+     "value": -100,
+     "kind": "computed"
+    },
+    {
+     "label": "Current at 15 ms, in amps",
+     "value": -10,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, the minus kept, in watts",
+     "value": -1000,
+     "kind": "computed"
+    },
+    {
+     "label": "Length of one power hump at 50 Hz, in milliseconds",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Power humps a second at 50 Hz",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "Most common ship frequency, in hertz",
+     "value": 60,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Power humps a second at 60 Hz",
+     "value": 120,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, doubled twice, humps a second",
+     "value": 240,
+     "kind": "computed"
+    },
+    {
+     "label": "Average power on the scrubber, in watts",
+     "value": 500,
+     "kind": "computed"
+    },
+    {
+     "label": "Rms ÷ peak for a sine",
+     "value": 0.707,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Rms voltage on the scrubber, in volts",
+     "value": 70.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Rms current on the scrubber, in amps",
+     "value": 7.07,
+     "kind": "computed"
+    },
+    {
+     "label": "UK mains nominal voltage, in volts",
+     "value": 230,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Mains heater rating, in watts",
+     "value": 1000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Mains heater rating, in kilowatts",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Mains heater's resistance, in ohms",
+     "value": 52.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Mains heater's rms current, in amps",
+     "value": 4.35,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak of 230 V mains, in volts",
+     "value": 325,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Peak ÷ rms for a sine, √2",
+     "value": 1.41,
+     "kind": "computed"
+    },
+    {
+     "label": "Mains heater's peak current, in amps",
+     "value": 6.15,
+     "kind": "computed"
+    },
+    {
+     "label": "Mains heater's hump tops, in watts",
+     "value": 2000,
+     "kind": "computed"
+    },
+    {
+     "label": "Clamp meter reading in screen 8, in amps",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 8 heater's power, in watts",
+     "value": 2300,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 heater's peak current, in amps",
+     "value": 14.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, the peaks multiplied, in watts",
+     "value": 4600,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, the rms product halved, in watts",
+     "value": 1150,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, the peaks multiplied, its hump tops, in watts",
+     "value": 9200,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10 hump tops, in watts",
+     "value": 3000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 10 average power, in watts",
+     "value": 1500,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, 0.707 used once on power, in watts",
+     "value": 2120,
+     "kind": "computed"
+    },
+    {
+     "label": "Ship system voltage, in volts",
+     "value": 440,
+     "kind": "constant",
+     "source": 5
+    },
+    {
+     "label": "Ship heater's current, in amps",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Ship heater's power, in kilowatts",
+     "value": 4.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak of 440 V, in volts",
+     "value": 622,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, ship heater's peaks multiplied, in kilowatts",
+     "value": 8.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Rectifier humps' average ÷ top",
+     "value": 0.637,
+     "kind": "computed"
+    },
+    {
+     "label": "Hump tops ÷ average power, for a sine",
+     "value": 2,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Feed a resistor AC and its power is not steady. Multiply the voltage by the current at each instant and you get a power wave that pulses twice for every cycle of the supply and never drops below zero, and for a resistance its average is the rms voltage times the rms current, just as volts times amps on DC.\n\nIn a resistor the current is the voltage ÷ the resistance at every instant, so the two waves rise and fall together: they reach their tops and bottoms at the same times.[^6] Waves that keep step like this are [[in phase]]. The power at any one instant is that instant's voltage times that instant's current, the P = V × I you use on DC, worked moment by moment: the [[instantaneous power]]. Take the heater test's 10 Ω element on a 100 V peak, so the current peaks at 10 A. At the top of the wave it takes 100 × 10 = 1000 W. As the wave crosses zero both are zero, so it takes nothing. On the backward half both are negative, −100 V and −10 A at the bottom, and a minus times a minus is a plus, so it takes 1000 W again: the element heats whichever way the current flows. So there is one hump of power on the forward half and another on the backward half. That is the heater test's row of humps again, now built from two waves: the current is the voltage ÷ 10 Ω at each instant, so voltage × current is voltage² ÷ 10. Multiplying the two waves is the form that lasts, because in later lessons the current will not keep step with the voltage. For a resistor the power wave never goes below zero,[^7] touching zero only as the waves cross it, and its frequency is double that of the voltage and current.[^8] On 50 Hz mains that is 100 humps a second.\n\nThe humps run from 0 to 1000 W. The power is 1000 W × the sine squared, and remember Calculus fundamentals' fold: a squared sine's humps fit exactly into its dips, so they average half their top, 500 W. That is the [[average power]], the heat the element actually gives. The rms values give it straight away. For a sine each is about 0.707 of its peak,[^2] so 70.7 V and 7.07 A, and 70.7 × 7.07 is about 500 W, because 0.707 is 1 ÷ √2 and 1 ÷ √2 squared is a half. For a resistance, the product of the rms voltage and the rms current equals the average power.[^9] The peaks multiplied give the top of each hump, twice the average, not the heat. Averaging first fails too: over a whole cycle the voltage and the current each average zero, yet the element still warms, because it is the product that has to be averaged, and here the product never goes below zero.\n\nUK mains is 230 V nominal,[^3] peaking near 325 V.[^4] A 1 kW heater on it is 230² ÷ 1000 = 52.9 Ω and draws 230 ÷ 52.9 = 4.35 A, so its power averages 230 × 4.35 = 1000 W, in humps that reach twice that, 2000 W, 100 times a second. On the 60 Hz most common on board ship,[^1] the humps come 120 times a second. This is a simplified model, an ideal resistor on a pure sine; a real element's resistance changes as it warms, and real mains is close to a sine rather than exactly one. **In a resistor the voltage and current keep step, so the power wave never goes below zero,[^7] beats at twice the supply's frequency[^8] and averages the rms voltage times the rms current.[^9]**"
+  },
+  "analogy": {
+   "text": "A full-wave bridge rectifier on 50 Hz gives a row of humps all one way, 100 a second, because it turns the backward half of the wave forward. A resistor's power wave has the same look for a related reason: on the backward half the voltage and the current are both negative, and a minus times a minus is a plus, so the power is forward again.",
+   "breaks": "The rectifier's diodes steer the backward half round, so its humps are the wave's size made positive, meet zero in sharp points and average 0.637 of the top. The resistor steers nothing: its current really does reverse every half cycle, and its power stays positive only because the voltage reverses with it. Its humps are a sine squared, touching zero smoothly, so they average half the top."
+  },
+  "practice": {
+   "text": "- Take the rms voltage and the rms current. Appliances and devices are commonly quoted in rms values, rather than peak values.[^10]\n- For a heater, an element or any plain resistance, multiply them: average power = V_rms × I_rms.[^9]\n- The power humps top out at twice that, for a sine, and come at twice the supply's frequency.[^8]\n- For a motor, or anything with a coil or a capacitor, V × I is not yet the watts; lessons 4, 5 and 8 show why.\n\n**Rule of thumb:** On a resistance, watts = rms volts × rms amps, and the hump tops are twice that, 100 a second on 50 Hz.\n\n**Worked example:** A clamp meter reads 10 A on a heater at 230 V. Its power is 230 × 10 = 2300 W. Its voltage peaks at 325 V and its current at 14.1 A, so the humps top out at twice 2300 W, 4600 W, for an instant each, about 325 × 14.1.\n\n**Common mistakes**\n- Multiplying the peaks, about 325 × 14.1 = 4600 W. That is the top of each hump, twice the heat.\n- Averaging first. The voltage and current each average zero over a cycle; the power does not.\n- Expecting the power to go below zero on the backward half. In a resistor both are negative together, so the power stays positive.[^7]\n- Expecting the power to pulse at the supply's frequency. It pulses at twice it.[^8]\n- Using V × I as the watts of a motor. It works on a resistance; a coil changes it."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "maritime electrical installations - notes on design ...",
+    "url": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf",
+    "quote": "60 Hz is the most common frequency adopted for use on board ship; the higher frequency enabling motors and generators to run at higher speeds with a consequent reduction in size for a given power rating."
+   },
+   {
+    "n": 2,
+    "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 1",
+    "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html",
+    "quote": "For a sine wave, the RMS value is approximately 0.707 of its peak value."
+   },
+   {
+    "n": 3,
+    "title": "Statutory Voltage Limits – Energy Networks Association (ENA)",
+    "url": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits",
+    "quote": "UK mains electricity operates at a nominal voltage of 230V, and can operate within limits of 253V and 216V set by the Electricity Safety, Quality and Continuity Regulations (ESQCR)"
+   },
+   {
+    "n": 4,
+    "title": "Alternating currents — WJEC A-Level Physics Revision",
+    "url": "https://masterymind.co.uk/subjects/physics-a-level/wjec/a-level/alternating-currents",
+    "quote": "Misconception: Peak voltage is the same as mains voltage. Correction: UK mains voltage is 230 V RMS, so the peak voltage is about 325 V (230 × √2)."
+   },
+   {
+    "n": 5,
+    "title": "maritime electrical installations - notes on design ...",
+    "url": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf",
+    "quote": "The majority of ships have a 3 phase, 3 wire, 440V insulated neutral system. This means that the neutral point of star connected generators is not earthed to the ship's hull. For Continental European vessels, a 380V, 3 phase system is common."
+   },
+   {
+    "n": 6,
+    "title": "15.2 Simple AC Circuits - University Physics Volume 2 | OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-2/pages/15-2-simple-ac-circuits",
+    "quote": "Both curves reach their maxima and minima at the same times, that is, the current through and the voltage across the resistor are in phase."
+   },
+   {
+    "n": 7,
+    "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 11",
+    "url": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html",
+    "quote": "Note that the waveform for power is always positive, never negative for this resistive circuit. This means that power is always being dissipated by the resistive load, and never returned to the source as it is with reactive loads."
+   },
+   {
+    "n": 8,
+    "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 11",
+    "url": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html",
+    "quote": "Also note that the waveform for power is not at the same frequency as the voltage or current! Rather, its frequency is double that of either the voltage or current waveforms."
+   },
+   {
+    "n": 9,
+    "title": "2.8 Power and energy in resistive circuits – Applied Electrical Engineering Fundamentals",
+    "url": "https://openbooks.library.umass.edu/funee/chapter/2-8",
+    "quote": "Note that the product of the RMS voltage and RMS current is equal to the average power:"
+   },
+   {
+    "n": 10,
+    "title": "15.2 Simple AC Circuits - University Physics Volume 2 | OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-2/pages/15-2-simple-ac-circuits",
+    "quote": "Appliances and devices are commonly quoted with rms values for their operations, rather than peak values."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .wrap { position: relative; margin-inline: auto; }\n  .scene { display: block; width: 100%; touch-action: pan-y; }\n  /* Dragging across the graphs moves the time cursor (an HTML layer: a sideways drag scrubs, an up-down swipe still scrolls). */\n  .tgrip { position: absolute; touch-action: pan-y; cursor: ew-resize; border-radius: 8px; }\n  .tgrip:focus { outline: none; }\n  .tgrip:focus-visible { outline: 2px solid var(--k-accent); outline-offset: 2px; }\n  .ctl { display: grid; gap: 12px; }\n  .scene .axis { stroke: var(--k-muted); stroke-width: 1.3; }\n  .scene .zero { stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .vw { fill: none; stroke: var(--k-ink); stroke-width: 2.2; stroke-linejoin: round; }\n  .scene .cw { fill: none; stroke: var(--k-accent); stroke-width: 2.2; stroke-dasharray: 7 4; stroke-linejoin: round; }\n  /* The power in a clearer blue than the voltage's ink, so their key swatches and dots differ in light mode. */\n  .scene { --pow: color-mix(in srgb, var(--k-accent2) 55%, var(--k-cat1)); }\n  .scene .pw { fill: none; stroke: var(--pow); stroke-width: 2.6; stroke-linejoin: round; }\n  .scene .avg { fill: none; stroke: var(--pow); stroke-width: 1.8; stroke-dasharray: 6 4; }\n  .scene .bad { fill: none; stroke: var(--k-warn); stroke-width: 2.2; stroke-dasharray: 6 4; stroke-linejoin: round; }\n  .scene .cap { fill: var(--k-fill2); stroke: none; }\n  .scene .cur { stroke: var(--k-accent2); stroke-width: 1.6; }\n  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.3; }\n  .scene .dv { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .dc { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .dp { fill: var(--pow); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .dbad { fill: var(--k-warn); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .pen { fill: var(--pow); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .ring { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .knob { fill: var(--k-accent2); }\n  .scene .ask { fill: var(--k-bg); stroke: var(--k-amber-line); stroke-width: 2; }\n  .scene .tt { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .tkc { font: 400 13px var(--k-font); fill: var(--k-accent); }\n  .scene .ax { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .axc { font: 600 13px var(--k-font); fill: var(--k-accent); }\n  .scene .wk { font: 500 13px var(--k-font); fill: var(--k-ink); }\n  .scene .wk.em { font-weight: 700; fill: var(--k-accent2); }\n  .scene .ky { font: 400 13px var(--k-font); fill: var(--k-ink); }\n  .scene .q { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .scene #art * { pointer-events: none; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stay on one row, each label whole; longer ones stack one to a row. */\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.05rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">Voltage and current above, power below.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div class=\"wrap\" id=\"wrap\">\n      <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 400\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n      <div class=\"tgrip\" id=\"grip\" role=\"slider\" tabindex=\"-1\" aria-label=\"Time cursor\" hidden></div>\n    </div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"ctl\" id=\"ctl\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Elements, peaks and meter readings are example values; the power at each instant is the voltage × the current.</p>\n\n<script>\n  // ---------- the rule ----------\n  // A resistor's current is its voltage ÷ its resistance at every instant, so the two waves keep step.\n  // The power at an instant is that instant's voltage × that instant's current. For a sine it averages\n  // half its top, which is the rms voltage × the rms current.\n  const TAU = 2 * Math.PI, SPAN = 40, NS = 400, MORPH = 0.9, RT2 = Math.SQRT2;\n  // Each card: a resistance R (Ω), a voltage peak Vp (V), a supply frequency f (Hz), and the graph\n  // scales (Vax, Iax, Pax: what the half-height of each graph stands for). idp: decimals of the\n  // current's peak tick. The mains heater is 230² ÷ 1000 = 52.9 Ω; the clamp-meter heater 230 ÷ 10 = 23 Ω;\n  // the ship heater 440 ÷ 10 = 44 Ω; the 'tops' heater is sized so its humps top out at 3000 W.\n  const CARDS = {\n    test: { R: 10, Vp: 100, f: 50, Vax: 120, Iax: 20, Pax: 1200, idp: 0, title: (f) => '10 Ω element, 100 V peak, ' + f + ' Hz' },\n    mains: { R: 230 * 230 / 1000, Vp: 230 * RT2, f: 50, Vax: 400, Iax: 12, Pax: 2400, idp: 2, title: () => '1 kW heater, 52.9 Ω, on 230 V mains' },\n    clamp: { R: 230 / 10, Vp: 230 * RT2, f: 50, Vax: 400, Iax: 28, Pax: 5500, idp: 1, title: () => 'a clamp meter reads 10 A on a 230 V heater' },\n    tops: { R: 2 * 230 * 230 / 3000, Vp: 230 * RT2, f: 50, Pax: 3600, compact: true, title: () => 'a heater\\'s power humps, tops at 3000 W' },\n    ship: { R: 440 / 10, Vp: 440 * RT2, f: 60, Vax: 750, Iax: 28, Pax: 10500, idp: 1, kw: true, title: () => 'a heater on 440 V at 60 Hz, drawing 10 A' },\n  };\n  // The waves on a card at frequency f (t in ms): voltage, current = voltage ÷ R, power = voltage × current.\n  function waves(c, f) {\n    const v = (t) => c.Vp * Math.sin(TAU * f * t / 1000);\n    const i = (t) => v(t) / c.R;\n    return { v, i, p: (t) => v(t) * i(t) };\n  }\n  // A number as the lesson writes it: at most dp decimals, no trailing zeros, a true minus sign.\n  function num(v, dp) {\n    dp = dp == null ? 2 : dp;\n    const m = Math.pow(10, dp);\n    let r = Math.round(v * m) / m;\n    if (r === 0) r = 0;\n    let s = r.toFixed(dp);\n    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\\.$/, '');\n    return s.replace('-', '−');\n  }\n  // A reading with exactly dp decimals (the readouts' rounding), a true minus sign.\n  function fx(v, dp) {\n    const m = Math.pow(10, dp);\n    let r = Math.round(v * m) / m;\n    if (r === 0) r = 0;\n    return r.toFixed(dp).replace('-', '−');\n  }\n  const mix = (a, b, t) => (t >= 1 ? b : t <= 0 ? a : a + (b - a) * t);\n  const pwr = (c, w) => (c.kw ? num(w / 1000, 1) + ' kW' : num(w, 0) + ' W');\n  const pwTick = (c, w) => (c.kw ? num(w / 1000, 1) : num(w, 0));\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // cur: 'live' (Dan drags the time cursor) or 'park' (fixed at t ms); sweep: the cursor's\n  // demonstration moves [start s, seconds, from ms, to ms]; trace: how much of the power wave is drawn\n  // ('reach': as far as the cursor has been; 'sweep': behind the sweep, then the next cycle).\n  // part: a puzzle shows the power only up to this time; hidePow: the power is hidden until a right\n  // answer. avg: the dashed average ('show', or 'ask' until a right answer); count: the humps-a-second\n  // row; slips: what each wrong pick claims, drawn in red (a dot, a flat line or a wave).\n  const STEPS = [\n    { show: true, name: 'The power scrubber', card: 'test', cur: 'live', t: 5, trace: 'reach', dur: 3.4,\n      sweep: [[0.4, 1.6, 5, 10], [2.4, 1.0, 10, 5]],\n      text: 'The heater test\\'s 10 Ω element on a 100 V peak, so its current peaks at 100 ÷ 10 = 10 A. The voltage and the dashed current top out together: they are *in phase*. Below is the *instantaneous power*, volts × amps as on DC, at each instant. Drag the time cursor and watch the dot ride it.' },\n    { name: 'At the bottom', card: 'test', cur: 'park', t: 15, part: 10, rdur: 1.8,\n      slips: { '−1000 W': { dot: -1000 }, '0 W': { dot: 0 } },\n      task: 'The cursor is parked at 15 ms, the bottom of the cycle: −100 V and −10 A. What power does the element take at that instant?',\n      opts: ['1000 W', '−1000 W', '0 W'], want: '1000 W',\n      why: 'The power at an instant is that instant\\'s voltage × its current: −100 × −10 = +1000 W, because a minus times a minus is a plus. The element heats whichever way the current flows, just as at the top of the wave. The power is zero only where both waves cross zero, at 0, 10 and 20 ms.',\n      hint: 'Not quite. Multiply the two readings, signs and all.',\n      hints: { '−1000 W': 'Not quite. Both readings are negative here. What is a minus times a minus?',\n        '0 W': 'Not quite. The power is zero only where the waves cross zero. Here they are at their biggest.' } },\n    { show: true, name: 'Two humps a cycle', card: 'test', cur: 'live', t: 20, trace: 'sweep', sweep: [[0.4, 2.0, 0, 20]],\n      brackets: true, count: 'show', dur: 3.6, tl: { next: 2.5, b1: 1.4, b2: 2.4, count: 3.0 },\n      text: 'Now the cursor sweeps one whole cycle, 20 ms, leaving a trace. While the voltage is forward the power rises to 1000 W and falls back: one hump, 10 ms long. While it is backward both readings are negative, and a minus times a minus is a plus: a second hump, just the same. So the power pulses at double the supply\\'s frequency, two humps a cycle, 100 a second on 50 Hz.' },\n    { name: 'On board ship', card: 'test', f: 60, hidePow: true, count: 'ask', rdur: 2.0,\n      slips: { '60': { wave: 1 }, '240': { wave: 4 } },\n      task: '60 Hz is the most common frequency on board ship. How many power humps a second does this element give there?',\n      opts: ['60', '240', '120'], want: '120',\n      why: 'Every cycle has a forward half and a backward half, and each gives a hump: 2 humps a cycle × 60 cycles a second = 120 humps a second. 60 would be one hump a cycle, as if the backward half gave nothing. 240 doubles twice.',\n      hint: 'Not quite. Count the humps in one cycle, then the cycles in a second.',\n      hints: { '60': 'Not quite. That is the supply\\'s own frequency. Each cycle has a forward and a backward half.',\n        '240': 'Not quite. That doubles twice. Each cycle gives two humps, not four.' } },\n    { show: true, name: 'The average', card: 'test', cur: 'live', t: 5, avg: 'show', fold: true, derive: true, dur: 3.8,\n      tl: { avg: 0.5, cap: 1.0, fold: [1.6, 1.2], r1: 2.6, r2: 2.9, rr: 3.2 },\n      text: 'So how much heat does the element give on average? Its power is 100 sin × 10 sin = 1000 sin², 1000 W × the sine squared. Remember Calculus fundamentals\\' fold: the top of each hump fits exactly into the dip beside it, so the humps average half their top, 500 W, the *average power*. The rms values give it straight away: each is 0.707 of its peak, and 70.7 V × 7.07 A is about 500 W, because 0.707 is 1 ÷ √2, and 1 ÷ √2 squared is a half.' },\n    { name: 'Averaging first', card: 'test', avg: 'ask', each0: true, rdur: 1.0,\n      slips: { '0 W': { line: 0 }, '1000 W': { line: 1000 } },\n      task: 'Over a whole cycle the voltage averages 0 V and the current 0 A. What power does the element average?',\n      opts: ['0 W', '500 W', '1000 W'], want: '500 W',\n      why: 'It is the product that has to be averaged, and the product never goes below zero: humps from 0 to 1000 W, averaging half their top, 500 W, which is 70.7 V × 7.07 A. Averaging the voltage and the current first lets each backward half cancel its forward half, but in the product the backward half heats the element just as well, because a minus times a minus is a plus. 1000 W is only the top of each hump, for an instant.',\n      hint: 'Not quite. Average the power itself, the humps on the lower graph.',\n      hints: { '0 W': 'Not quite. That multiplies the averages. Average the product instead: it never goes below zero.',\n        '1000 W': 'Not quite. The power reaches 1000 W only at the top of each hump.' } },\n    { show: true, name: 'A mains heater', card: 'mains', cur: 'live', t: 5, grow: [0.4, 1.8], avg: 'show', dur: 3.2, tl: { avg: 2.3, rr: 2.6 },\n      text: 'Now the mains card: a 1 kW heater on 230 V mains is 230² ÷ 1000 = 52.9 Ω, drawing 230 ÷ 52.9 = 4.35 A. Its voltage peaks at 325 V and its current at 4.35 × √2 = 6.15 A. The dashed average sits at 230 V × 4.35 A = 1000 W, and the humps reach twice that, 2000 W, about 325 × 6.15, for an instant each.' },\n    { name: 'The clamp meter', card: 'clamp', hidePow: true, avg: 'ask', rdur: 2.0,\n      slips: { '4600 W, tops 9200 W': { line: 4600 }, '1150 W, tops 2300 W': { line: 1150 } },\n      task: 'A clamp meter reads 10 A on a heater at 230 V. What is its average power, and how high do its humps reach?',\n      opts: ['4600 W, tops 9200 W', '1150 W, tops 2300 W', '2300 W, tops 4600 W'], want: '2300 W, tops 4600 W',\n      why: 'The clamp meter shows an rms value (lesson 2), and the 230 V is rms too, so multiply them: 230 V × 10 A = 2300 W, the average. The humps top out at twice that, 4600 W, for an instant each: the peaks, about 325 V × 14.1 A. Taking 4600 W as the average puts the heat at the tops; halving 2300 W halves once too often, because the rms values already allow for the humps.',\n      hint: 'Not quite. Ask which values the meter and the 230 V label give, then where the tops sit.',\n      hints: { '4600 W, tops 9200 W': 'Not quite. 4600 W multiplies the peaks: that is the top of each hump, not the average.',\n        '1150 W, tops 2300 W': 'Not quite. The rms product, 2300 W, is already the average. The tops are twice it.' } },\n    { show: true, name: 'A faster supply', card: 'test', f: 50, fsel: true, morph: [0.8, 60, 1.4], cur: 'live', t: 5, avg: 'show', count: 'show', dur: 3.0,\n      text: 'Watch the supply switch to 60 Hz, the most common frequency on board ship. The humps crowd closer, 120 a second, but their tops stay at 1000 W and the average at 500 W, because a resistor\\'s current follows its voltage at each instant, whatever the frequency. Now switch back and forth between 50 Hz and 60 Hz, and drag the cursor.' },\n    { name: 'From the tops', card: 'tops', avg: 'ask', rdur: 1.0,\n      slips: { '3000 W': { line: 3000 }, '2120 W': { line: 2120 } },\n      task: 'A heater\\'s power humps top out at 3000 W. What is its average power?',\n      opts: ['1500 W', '3000 W', '2120 W'], want: '1500 W',\n      why: 'For a sine, the tops of the humps fit into their dips, so the humps average half their top: 3000 ÷ 2 = 1500 W. 3000 W is reached only for an instant. 2120 W uses 0.707 once on the power, but 0.707 belongs to the voltage and to the current; the power takes it twice, and 0.707 × 0.707 is a half.',\n      hint: 'Not quite. Think of the humps\\' tops filling their dips.',\n      hints: { '3000 W': 'Not quite. The power touches 3000 W only at the top of each hump.',\n        '2120 W': 'Not quite. 0.707 is for a voltage or a current. The power takes it twice.' } },\n    { name: 'Mixed: the shape of the power', card: 'test', hidePow: true, rdur: 1.6,\n      slips: { 'It goes below zero on the backward half': { wave: 'signed' }, 'It stays steady at 500 W': { line: 500 } },\n      task: 'Mixed. Which is true of the 10 Ω element\\'s power?',\n      opts: ['It goes below zero on the backward half', 'It reaches zero twice each cycle and never goes below it', 'It stays steady at 500 W'],\n      want: 'It reaches zero twice each cycle and never goes below it',\n      why: 'The power is the voltage × the current. Both cross zero together twice a cycle, so the power touches zero there. On the backward half both are negative, so their product is positive. 500 W is its average, not a steady value: it swings between 0 and 1000 W.',\n      hint: 'Not quite. Multiply the two waves at a few instants.',\n      hints: { 'It goes below zero on the backward half': 'Not quite. On the backward half both are negative. What is a minus times a minus?',\n        'It stays steady at 500 W': 'Not quite. 500 W is the average. At each instant the power swings between 0 and 1000 W.' } },\n    { name: 'Mixed: a ship heater', card: 'ship', hidePow: true, avg: 'ask', count: 'ask', rdur: 2.0,\n      slips: { '8.8 kW, 120 humps a second': { line: 8800 }, '4.4 kW, 60 humps a second': { wave: 1 } },\n      task: 'Mixed. A heater element across 440 V at 60 Hz draws 10 A. What is its power?',\n      opts: ['8.8 kW, 120 humps a second', '4.4 kW, 60 humps a second', '4.4 kW, 120 humps a second'], want: '4.4 kW, 120 humps a second',\n      why: 'Rms volts × rms amps: 440 × 10 = 4400 W, 4.4 kW, in humps that come twice a cycle, 2 × 60 = 120 a second. The peaks, about 622 V and 14.1 A, multiply to 8.8 kW, the top of each hump, twice the heat. 60 a second would be one hump a cycle.',\n      hint: 'Not quite. Multiply the rms values, and count two humps a cycle.',\n      hints: { '8.8 kW, 120 humps a second': 'Not quite. That multiplies the peaks: the top of each hump, not the average.',\n        '4.4 kW, 60 humps a second': 'Not quite. The power humps come twice a cycle, forward and backward.' } },\n  ];\n  const FINISH = 'A resistor\\'s voltage and current keep step, so its power, their product at each instant, never goes below zero: on the backward half both are negative, and a minus times a minus is a plus. It pulses twice a cycle, 100 times a second on 50 Hz and 120 on 60 Hz, and averages half its top, the rms volts × the rms amps: 230 V × 10 A = 2300 W on a heater. The dot stays above the line here because the waves keep step. Lessons 4 and 5 put in a coil and a capacitor, which pull the current out of step, and there it dips below. Next, Inductance: the coil that pushes back.';\n  // Sources the checks restate (the lesson's own).\n  const OS = 'https://openstax.org/books/university-physics-volume-2/pages/15-2-simple-ac-circuits';\n  const KUPH11 = 'http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html';\n  const KUPH1 = 'https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html';\n  const UMASS = 'https://openbooks.library.umass.edu/funee/chapter/2-8';\n  const ENA = 'https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits';\n  const WJEC = 'https://masterymind.co.uk/subjects/physics-a-level/wjec/a-level/alternating-currents';\n  const SHIP = 'http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf';\n\n  const PICK = 'Tap one of the answers.';\n  const FADE = 0.35;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const el = (id) => document.getElementById(id);\n\n  // ---------- each step's state ----------\n  // pick, res ('right', 'wrong' or 'empty' once checked), why: the puzzle. t: the cursor time Dan has\n  // set (null: the demonstration's); reach: how far the cursor has been; f: the frequency he switched\n  // to, ff: the one before it.\n  function blank() { return { pick: null, res: null, why: false, t: null, reach: 0, f: null, ff: null }; }\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, MODE = 'demo', motionEnd = 0;\n  let REC = {}, VBH = 400, curF = 50;\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n\n  // Text with highlighted key terms (*term*), built with K.el, never innerHTML.\n  function write(node, s) {\n    node.textContent = '';\n    s = String(s || '');\n    const re = /\\*([^*]+)\\*/g;\n    let from = 0, m;\n    while ((m = re.exec(s))) {\n      if (m.index > from) node.appendChild(document.createTextNode(s.slice(from, m.index)));\n      node.appendChild(K.el('span', { class: 'mark' }, m[1]));\n      from = m.index + m[0].length;\n    }\n    if (from < s.length) node.appendChild(document.createTextNode(s.slice(from)));\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => stepper.get();\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; }\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play('answer', st.res === 'right' ? d.rdur : 0.8);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  // Replay plays the screen's demonstration again from its start.\n  const replayBtn = K.button({ label: 'Replay', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()], st = S[at()];\n    if (!d.show || finished) return;\n    Object.assign(st, { t: null, reach: 0, f: null, ff: null });\n    play('demo', d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n  // The time cursor and the supply switch, shown only on the screens that free them.\n  const ctlT = K.control({ id: 't', label: 'Time cursor', min: 0, max: SPAN, step: 0.1, value: 5, unit: 'ms', fmt: (v) => fx(v, 1) + ' ms', snap: [5, 10, 15, 20], into: '#ctl' });\n  const ctlF = K.choice({ id: 'f', label: 'Supply', options: [{ value: '50', label: '50 Hz' }, { value: '60', label: '60 Hz' }], value: '50', into: '#ctl' });\n  const shown = { t: ctlT.get(), f: ctlF.get() };\n  // The controls set to what the picture shows (quietly: this is not Dan moving them).\n  function syncT(v) { if (v == null) return; if (Math.abs(ctlT.get() - v) > 1e-9) ctlT.set(v, true); shown.t = ctlT.get(); }\n  function syncF(f) { const s = String(f); if (String(ctlF.get()) !== s) ctlF.set(s, true); shown.f = ctlF.get(); }\n\n  // One animation plays each demonstration, a frequency switch and the motion after an answer; with\n  // reduced motion (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && T !== Infinity) { T = Infinity; paint(); } });\n  // A demonstration waits until most of its picture is in view, so on a phone it does not play out\n  // while Dan is still reading the words above it.\n  let seen = true, waiting = false, waitDur = 0;\n  if (typeof IntersectionObserver === 'function') {\n    seen = false;\n    new IntersectionObserver((es) => {\n      const e = es[es.length - 1];\n      seen = e.isIntersecting && (e.intersectionRatio >= 0.6 || e.intersectionRect.height >= 0.6 * (window.innerHeight || 1));\n      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }\n    }, { threshold: [0, 0.3, 0.6, 0.8, 1] }).observe(el('scene'));\n  }\n  function play(mode, dur) {\n    MODE = mode; waiting = false;\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    if (mode === 'demo' && !seen) { waiting = true; waitDur = dur; T = 0; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  // Dan takes over: whatever was moving shows finished.\n  function stopMotion() { if (anim.playing()) anim.pause(); waiting = false; T = Infinity; }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = el('scene'), art = el('art'), grip = el('grip');\n  let into = null;\n  const add = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function arr(t0, dd) {\n    dd = dd == null ? K.SOFT : dd;\n    if (t0 + dd > latest) latest = t0 + dd;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(T, t0, dd);\n  }\n  // A steady motion from 0 to 1 between t0 and t0 + dd.\n  function lin(t0, dd) {\n    if (t0 + dd > latest) latest = t0 + dd;\n    if (t0 < earliest) earliest = t0;\n    return T === Infinity ? 1 : K.clamp((T - t0) / dd, 0, 1);\n  }\n  function part(a, rise, draw) {\n    if (!(a > 0.001)) return;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g;\n    try { draw(); } finally { into = keep; }\n  }\n  const R = (v) => Math.round(v * 100) / 100;\n  const poly = (ps) => 'M' + ps.map((q) => R(q[0]) + ' ' + R(q[1])).join('L');\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: R(x1), y1: R(y1), x2: R(x2), y2: R(y2) }));\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: R(x), y: R(y), width: R(Math.max(0, w)), height: R(Math.max(0, h)), rx: rx || 0 }));\n  const circ = (cls, p, r) => add(K.svg('circle', { class: cls, cx: R(p[0]), cy: R(p[1]), r }));\n  const path = (cls, dd) => add(K.svg('path', { class: cls, d: dd }));\n  // A text; '_rms' in it is set as a lowered 'rms' (V_rms reads as V with rms below the line).\n  function makeText(x, y, s, cls, anchor) {\n    const t = K.svg('text', { class: cls, x: R(x), y: R(y), 'text-anchor': anchor || 'middle' });\n    const bits = String(s).split(/(_rms)/);\n    bits.forEach((b, j) => {\n      if (!b) return;\n      if (b === '_rms') t.appendChild(K.svg('tspan', { dy: 4 }, 'rms'));\n      else if (j > 0 && bits[j - 1] === '_rms') t.appendChild(K.svg('tspan', { dy: -4 }, b));\n      else t.appendChild(document.createTextNode(b));\n    });\n    return t;\n  }\n  const text = (x, y, s, cls, anchor) => add(makeText(x, y, s, cls, anchor));\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(makeText(0, -50, s, cls, 'start'));\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 7;\n  }\n  function ask(x, y) { circ('ask', [x, y], 10); text(x, y + 5, '?', 'q'); }\n  // A key inside the drawing, in rows: each item a swatch and its name.\n  function keyRows(items, y) {\n    let x = 8, row = 0;\n    items.forEach((it) => {\n      const w = 18 + 6 + tw(it.label, 'ky');\n      if (x > 8 && x + w > 336) { x = 8; row++; }\n      const yy = y + row * 22, x0 = x;\n      part(it.a == null ? 1 : it.a, 0, () => { it.sw(x0, yy); text(x0 + 24, yy + 5, it.label, 'ky', 'start'); });\n      x += w + 14;\n    });\n    return y + row * 22 + 12;\n  }\n  const swLine = (cls) => (x, yy) => line(cls, x, yy, x + 18, yy);\n\n  // ---------- the scrubber ----------\n  const X0 = 44, X1 = 296, xT = (t) => X0 + t / SPAN * (X1 - X0);\n  // The graphs: the voltage and current graph (zero VY, half-height VH) and the power graph (zero PY,\n  // PH above and PN below); a power-only card leaves the first out.\n  const GF = { title: 16, axl: 38, VY: 92, VH: 42, plab: 162, PY: 226, PH: 52, PN: 52 };\n  const GC = { title: 16, plab: 40, PY: 104, PH: 52, PN: 52 };\n  // The moments sampled along a trace, every 0.1 ms up to `upto`.\n  function samples(upto) {\n    const out = [], n = Math.ceil(upto / SPAN * NS - 1e-9);\n    for (let j = 0; j <= n; j++) out.push(Math.min(upto, j * SPAN / NS));\n    return out;\n  }\n  function trace(cls, fn, upto, yf) {\n    const pts = [], data = [];\n    samples(upto).forEach((t) => { const v = fn(t); data.push([t, v]); pts.push([xT(t), yf(v)]); });\n    path(cls, poly(pts));\n    return data;\n  }\n  const tickL = (y, s) => { line('axis', X0 - 4, y, X0, y); text(X0 - 7, y + 5, s, 'tk', 'end'); };\n  const tickR = (y, s) => { line('axis', X1, y, X1 + 4, y); text(X1 + 7, y + 5, s, 'tkc', 'start'); };\n  // Where the cursor is in a demonstration's sweep (the last move started).\n  function sweepPos(d, demo) {\n    if (!d.sweep) return d.t;\n    let pos = d.sweep[0][2];\n    for (const s of d.sweep) {\n      if (demo && T < s[0]) break;\n      pos = mix(s[2], s[3], demo ? K.ease(lin(s[0], s[1])) : 1);\n    }\n    return pos;\n  }\n  // The furthest the sweep has taken the cursor so far.\n  function sweepReach(d, demo) {\n    let r = 0;\n    for (const s of d.sweep || []) {\n      if (demo && T < s[0]) break;\n      r = Math.max(r, s[2], mix(s[2], s[3], demo ? K.ease(lin(s[0], s[1])) : 1));\n    }\n    return r;\n  }\n  // The top of the first hump above the average, moved on by s × 5 ms and turned over by s; at s = 1\n  // it sits in the dip beside it. Returns its curved edge in data units [ms, W].\n  function capPath(W, avgP, s, yP) {\n    const edge = [];\n    for (let j = 0; j <= 50; j++) { const t = 2.5 + j * 0.1; edge.push([t + 5 * s, avgP + (W.p(t) - avgP) * (1 - 2 * s)]); }\n    const pts = edge.map((q) => [xT(q[0]), yP(q[1])]).concat([[xT(7.5 + 5 * s), yP(avgP)], [xT(2.5 + 5 * s), yP(avgP)]]);\n    path('cap', poly(pts) + 'Z');\n    return edge;\n  }\n\n  function drawCard(d, st) {\n    const c = CARDS[d.card], g = c.compact ? GC : GF, tl = d.tl || {};\n    const right = !d.show && st.res === 'right';\n    const slip = !d.show && st.res === 'wrong' ? (d.slips || {})[st.pick] || null : null;\n    const demo = d.show && MODE === 'demo';\n    const slipA = slip ? arr(0.1) : 0;\n\n    // The supply's frequency now: the screen's own, a demonstration's switch, or Dan's, part-way.\n    let fa = d.f || c.f, fb = fa, k = 1, m0 = null, md = MORPH;\n    if (d.fsel && st.f != null) {\n      fb = st.f; fa = st.ff != null ? st.ff : fb;\n      if (fa !== fb) { m0 = 0; k = MODE === 'morph' ? K.ease(lin(0, MORPH)) : 1; }\n    } else if (d.fsel && d.morph) {\n      fb = d.morph[1]; md = d.morph[2];\n      if (demo) { m0 = d.morph[0]; k = K.ease(lin(d.morph[0], md)); }\n    }\n    if (k >= 1) { fa = fb; k = 1; }\n    const f = fa + (fb - fa) * k, fShown = k < 0.5 ? fa : fb;\n    const W = waves(c, f);\n    const top = c.Vp * c.Vp / c.R, Vr = c.Vp / RT2, Ir = Vr / c.R, avgP = Vr * Ir;\n    const yP = (w) => g.PY - w * g.PH / c.Pax;\n    const yV = (v) => g.VY - v * g.VH / c.Vax, yI = (a) => g.VY - a * g.VH / c.Iax;\n\n    // The cursor: Dan's, the sweep's, or parked.\n    let tc = null;\n    if (d.cur === 'live') tc = st.t != null ? st.t : sweepPos(d, demo);\n    else if (d.cur === 'park') tc = d.t;\n    const live = d.cur === 'live' && !finished;\n\n    // How much of the power wave is drawn.\n    let upto = SPAN, pen = false;\n    if (d.hidePow) { upto = right ? SPAN * lin(0.2, 1.2) : 0; pen = true; }\n    else if (d.part != null) { upto = right ? d.part + (SPAN - d.part) * lin(0.4, 1.2) : d.part; pen = right; }\n    else if (d.trace === 'reach') upto = Math.max(st.reach || 0, sweepReach(d, demo), tc);\n    else if (d.trace === 'sweep') { upto = demo && T < tl.next ? tc : 20 + 20 * (demo ? lin(tl.next, 0.8) : 1); pen = true; }\n    else if (d.grow) { upto = demo ? SPAN * lin(d.grow[0], d.grow[1]) : SPAN; pen = true; }\n\n    // The dashed average, and the hump-count row.\n    let avgA = 0;\n    if (d.avg === 'show') avgA = demo && tl.avg != null ? arr(tl.avg) : 1;\n    else if (d.avg === 'ask') avgA = right ? arr(d.hidePow ? 1.3 : 0.3) : 0;\n    let countA = 0, countF = fShown;\n    if (d.count === 'show') {\n      if (d.fsel && m0 != null) {\n        if (T < m0) { countF = fa; countA = 1 - K.arrive(T, Math.max(FADE + 0.1, m0 - 0.35), 0.3); }\n        else countA = k < 1 ? 0 : arr(m0 + md + 0.2);\n      } else countA = demo && tl.count != null ? arr(tl.count) : 1;\n    } else if (d.count === 'ask') countA = right ? arr(1.3) : 0;\n\n    Object.assign(REC, { tc, f: fShown, upto, Vr, Ir, top, R: c.R, avg: avgA > 0 ? avgP : null, wv: null, cu: null, pw: null, cap: null,\n      slip: slip && slipA > 0 ? slip : null, dotShown: false });\n\n    // ---- the card ----\n    text(8, g.title, c.title(fShown), 'tt', 'start');\n\n    // ---- the voltage and the current, sharing one time axis ----\n    if (!c.compact) {\n      text(8, g.axl, 'voltage (V)', 'ax', 'start');\n      text(336, g.axl, 'current (A)', 'axc', 'end');\n      line('axis', X0, g.VY - g.VH - 4, X0, g.VY + g.VH + 4);\n      line('axis', X1, g.VY - g.VH - 4, X1, g.VY + g.VH + 4);\n      line('zero', X0, g.VY, X1, g.VY);\n      text(X0 - 7, g.VY + 5, '0', 'tk', 'end');\n      tickL(yV(c.Vp), num(c.Vp, 0)); tickL(yV(-c.Vp), '−' + num(c.Vp, 0));\n      const Ip = c.Vp / c.R;\n      tickR(yI(Ip), num(Ip, c.idp)); tickR(yI(-Ip), '−' + num(Ip, c.idp));\n      REC.wv = trace('vw', W.v, SPAN, yV);\n      REC.cu = trace('cw', W.i, SPAN, yI);\n    }\n\n    // ---- the power, voltage × current at each instant ----\n    text(8, g.plab, c.kw ? 'power (kW)' : 'power (W)', 'ax', 'start');\n    line('axis', X0, g.PY - g.PH - 4, X0, g.PY + g.PN);\n    line('axis', X0, g.PY + g.PN, X1, g.PY + g.PN);\n    line('zero', X0, g.PY, X1, g.PY);\n    text(X0 - 7, g.PY + 5, '0', 'tk', 'end');\n    const topA = d.hidePow ? (right ? arr(1.0) : 0) : 1;\n    part(topA, 0, () => tickL(yP(top), pwTick(c, top)));\n    part(avgA, 0, () => { tickL(yP(avgP), pwTick(c, avgP)); line('avg', X0, yP(avgP), X1, yP(avgP)); });\n    if (d.fold) {\n      const s = demo ? K.ease(lin(tl.fold[0], tl.fold[1])) : 1;\n      part(demo ? arr(tl.cap) : 1, 0, () => { REC.cap = capPath(W, avgP, s, yP); });\n    }\n    if (upto > 0.05) {\n      REC.pw = trace('pw', W.p, upto, yP);\n      if (pen && upto < SPAN - 1e-9) circ('pen', [xT(upto), yP(W.p(upto))], 4.5);\n    }\n    if (d.hidePow && !right && !slip) ask(xT(20), g.PY - g.PH / 2);\n    if (slip) part(slipA, 0, () => {\n      if (slip.line != null) line('bad', X0, yP(slip.line), X1, yP(slip.line));\n      if (slip.dot != null) circ('dbad', [xT(d.t), yP(slip.dot)], 6);\n      if (slip.wave != null) {\n        const fn = slip.wave === 'signed'\n          ? (t) => { const s = Math.sin(TAU * f * t / 1000); return top * s * Math.abs(s); }\n          : (t) => top * Math.pow(Math.sin(slip.wave * Math.PI * f * t / 1000), 2);\n        trace('bad', fn, SPAN, yP);\n      }\n    });\n    // The time axis, 0 to 40 ms.\n    const ty = g.PY + g.PN + 24;\n    for (let t = 0; t <= SPAN; t += 10) {\n      line('axis', xT(t), g.PY + g.PN, xT(t), g.PY + g.PN + 5);\n      text(xT(t), ty, t === SPAN ? SPAN + ' ms' : String(t), 'tk', 'middle');\n    }\n\n    // ---- the time cursor through both graphs, and where it meets each wave ----\n    let vv = 0, ii = 0, pp = 0, dotA = 0;\n    if (tc != null) {\n      const x = xT(tc);\n      vv = W.v(tc); ii = W.i(tc); pp = vv * ii;\n      if (!c.compact) line('cur', x, g.VY - g.VH - 4, x, g.VY + g.VH + 4);\n      line('cur', x, g.PY - g.PH - 4, x, g.PY + g.PN);\n      if (!c.compact) { circ('dv', [x, yV(vv)], 4.5); circ('dc', [x, yI(ii)], 4.5); }\n      dotA = d.part != null ? (right ? arr(0.2) : 0) : 1;\n      part(dotA, 0, () => circ('dp', [x, yP(pp)], 6));\n      if (live) { circ('ring', [x, g.PY + g.PN], 9); circ('knob', [x, g.PY + g.PN], 4); }\n      Object.assign(REC, { volts: vv, amps: ii, watts: pp, dotShown: dotA > 0 });\n    }\n\n    // ---- under the graphs: the hump lengths, then the working ----\n    let y = ty;\n    if (d.brackets) {\n      const hl = 1000 / (2 * fShown);\n      [[0, tl.b1], [hl, tl.b2]].forEach((b) => part(demo ? arr(b[1]) : 1, 0, () => {\n        const xa = xT(b[0]) + 2, xb = xT(b[0] + hl) - 2, yb = ty + 12;\n        path('brk', 'M' + R(xa) + ' ' + (yb - 5) + 'V' + yb + 'H' + R(xb) + 'V' + (yb - 5));\n        text((xa + xb) / 2, yb + 17, num(hl, 0) + ' ms', 'tk', 'middle');\n      }));\n      y += 32;\n    }\n    const row = (s, a, cls) => { y += 24; const yy = y; part(a == null ? 1 : a, 0, () => text(8, yy, s, cls || 'wk', 'start')); };\n    if (tc != null) {\n      y += 24;\n      const pre = 'at ' + fx(tc, 1) + ' ms: ' + fx(vv, 1) + ' V × ' + fx(ii, 2) + ' A =';\n      text(8, y, pre, 'wk', 'start');\n      const x2 = 8 + tw(pre, 'wk') + 5, yy = y;\n      if (dotA > 0) part(dotA, 0, () => text(x2, yy, fx(pp, 0) + ' W', 'wk em', 'start'));\n      else text(x2, y, '?', 'wk em', 'start');\n    }\n    if (d.count === 'ask' && !right) row('on ' + fShown + ' Hz: ? humps a second');\n    else if (d.count) row('2 humps a cycle × ' + countF + ' Hz = ' + 2 * countF + ' humps a second', countA);\n    if (d.each0) row('each wave averages 0 over a cycle');\n    if (d.derive) {\n      row('V_rms = 0.707 × ' + num(c.Vp, 0) + ' V = ' + num(Vr, 1) + ' V', demo ? arr(tl.r1) : 1);\n      row('I_rms = 0.707 × ' + num(c.Vp / c.R, 2) + ' A = ' + num(Ir, 2) + ' A', demo ? arr(tl.r2) : 1);\n    }\n    if (d.avg === 'ask' && !right) row('average power: ?');\n    else if (d.avg) {\n      const rowA = d.avg === 'show' && demo && tl.rr != null ? arr(tl.rr) : avgA;\n      row(c.compact ? 'average: half the ' + pwr(c, top) + ' top = ' + pwr(c, avgP)\n        : 'V_rms × I_rms = ' + num(Vr, 1) + ' V × ' + num(Ir, 2) + ' A = ' + pwr(c, avgP), rowA);\n    }\n\n    // ---- the key ----\n    const items = [];\n    if (!c.compact) items.push({ sw: swLine('vw'), label: 'voltage' }, { sw: swLine('cw'), label: 'current' });\n    items.push({ sw: swLine('pw'), label: 'power' });\n    if (d.avg) items.push({ sw: swLine('avg'), label: c.compact ? 'average' : 'average, V_rms × I_rms' });\n    if (d.fold) items.push({ sw: (x, yy) => rect('cap', x, yy - 7, 18, 14, 2), label: 'a hump\\'s top, moved into a dip' });\n    if (tc != null) items.push({ sw: (x, yy) => line('cur', x + 9, yy - 8, x + 9, yy + 8), label: 'time cursor' });\n    // A puzzle keeps the place for 'that pick' from the start, so a wrong Check never moves the picture.\n    if (!d.show) items.push({ sw: swLine('bad'), label: 'that pick', a: slip ? slipA : 0 });\n    y = keyRows(items, y + 30);\n\n    // ---- in words, for a screen reader ----\n    let said = c.title(fShown) + '. ';\n    if (tc != null) said += 'At ' + fx(tc, 1) + ' ms the voltage is ' + fx(vv, 1) + ' V and the current ' + fx(ii, 2) + ' A' + (dotA > 0 ? ', so the power then is ' + fx(pp, 0) + ' W. ' : '; the power there is asked. ');\n    said += REC.pw ? 'The power wave stays at or above zero, two humps a cycle' + (avgA > 0 ? ', averaging ' + pwr(c, avgP) + '.' : '.') : 'The power wave is hidden.';\n    return { h: y + 4, said };\n  }\n\n  // ---------- dragging the time cursor across the graphs ----------\n  const liveOn = () => !finished && STEPS[at()].cur === 'live';\n  function placeGrip(d) {\n    const on = !finished && d.cur === 'live';\n    grip.hidden = !on;\n    grip.tabIndex = on ? 0 : -1;\n    if (!on) return;\n    const g = CARDS[d.card].compact ? GC : GF;\n    const top = (g.VY != null ? g.VY - g.VH : g.PY - g.PH) - 8, bot = g.PY + g.PN + 12;\n    grip.style.left = ((X0 - 12) / 340 * 100).toFixed(3) + '%';\n    grip.style.width = ((X1 - X0 + 24) / 340 * 100).toFixed(3) + '%';\n    grip.style.top = (top / VBH * 100).toFixed(3) + '%';\n    grip.style.height = ((bot - top) / VBH * 100).toFixed(3) + '%';\n    const tv = REC.tc == null ? 0 : REC.tc;\n    grip.setAttribute('aria-valuemin', '0'); grip.setAttribute('aria-valuemax', String(SPAN));\n    grip.setAttribute('aria-valuenow', fx(tv, 1)); grip.setAttribute('aria-valuetext', 'time ' + fx(tv, 1) + ' ms');\n  }\n  function tFromX(clientX) {\n    const r = svg.getBoundingClientRect();\n    if (!r.width) return null;\n    const x = (clientX - r.left) / r.width * 340;\n    return K.clamp((x - X0) / (X1 - X0) * SPAN, 0, SPAN);\n  }\n  function setT(v) {\n    if (v == null || !isFinite(v)) return;\n    if (typeof ctlT.drag === 'function') ctlT.drag(v); else ctlT.set(Math.round(v * 10) / 10);\n    K.reveal();\n  }\n  // A sideways drag scrubs; a tap jumps the cursor there; an up-down swipe scrolls the page.\n  let held = null, slid = false;\n  grip.addEventListener('pointerdown', (e) => {\n    if (!liveOn()) return;\n    held = e.pointerId; slid = false;\n    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the graphs */ }\n    if (e.pointerType === 'mouse') { e.preventDefault(); slid = true; setT(tFromX(e.clientX)); }\n  });\n  grip.addEventListener('pointermove', (e) => { if (held !== e.pointerId || !liveOn()) return; slid = true; setT(tFromX(e.clientX)); });\n  grip.addEventListener('pointerup', (e) => {\n    if (held === e.pointerId && !slid && liveOn()) setT(tFromX(e.clientX));\n    if (held === e.pointerId) held = null;\n  });\n  grip.addEventListener('pointercancel', (e) => { if (held === e.pointerId) held = null; });\n  grip.addEventListener('lostpointercapture', () => { held = null; });\n  grip.addEventListener('keydown', (e) => {\n    if (!liveOn()) return;\n    const by = { ArrowUp: 0.5, ArrowRight: 0.5, ArrowDown: -0.5, ArrowLeft: -0.5 }[e.key];\n    if (by == null) return;\n    e.preventDefault();\n    ctlT.set(K.clamp(Math.round((ctlT.get() + by) * 10) / 10, 0, SPAN));\n  });\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    art.textContent = '';\n    into = null;\n    REC = {};\n    const out = drawCard(d, st);\n    VBH = Math.ceil(out.h);\n    svg.setAttribute('viewBox', '0 0 340 ' + VBH);\n    svg.setAttribute('aria-label', out.said);\n    if (i === at()) {\n      if (d.trace === 'reach') st.reach = Math.max(st.reach || 0, REC.upto || 0);\n      curF = REC.f;\n      placeGrip(d);\n      if (d.cur === 'live' && !finished && REC.tc != null) syncT(REC.tc);\n      if (d.fsel && !finished) syncF(REC.f);\n    }\n  }\n\n  // ---------- the model: the readings at the screen's cursor ----------\n  function modelOf(p) {\n    const d = STEPS[K.clamp(Math.round(p.step), 0, STEPS.length - 1)], c = CARDS[d.card];\n    const f = d.fsel ? (String(p.f) === '60' ? 60 : 50) : d.f || c.f;\n    const t = d.cur === 'live' ? p.t : d.t != null ? d.t : 5;\n    const W = waves(c, f), v = W.v(t), a = W.i(t);\n    return { volts: v, amps: a, watts: v * a };\n  }\n  K.model(modelOf);\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing() && !waiting) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      shown.t = p.t; shown.f = p.f;\n      if (d.show) { Object.assign(st, { t: null, reach: 0, f: null, ff: null }); play('demo', d.dur); }\n      else { waiting = false; anim.pause(); T = Infinity; MODE = 'answer'; }\n    } else {\n      // Dan moved the cursor: the demonstration stops where it ends, and the cursor is his.\n      if (p.t !== shown.t) {\n        shown.t = p.t;\n        if (d.cur === 'live' && !finished) { stopMotion(); st.t = p.t; }\n      }\n      // Dan switched the supply: the waves squeeze or stretch to the new frequency.\n      if (String(p.f) !== String(shown.f)) {\n        shown.f = p.f;\n        const nf = String(p.f) === '60' ? 60 : 50;\n        if (d.fsel && !finished && nf !== curF) { st.ff = curF; st.f = nf; play('morph', MORPH + 0.85); }\n        else if (d.fsel && !finished) { st.f = nf; st.ff = null; }\n      }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const tOn = !finished && d.cur === 'live', fOn = !finished && !!d.fsel;\n    ctlT.el.hidden = !tOn;\n    ctlF.el.hidden = !fOn;\n    el('ctl').hidden = !tOn && !fOn;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const near = (a, b, tol) => Math.abs(a - b) <= tol;\n  // A step painted in the state given, finished: what it draws.\n  function drawn(i, st, mode) {\n    const keepS = S[i], keepT = T, keepM = MODE;\n    S[i] = st; T = Infinity; MODE = mode || (STEPS[i].show ? 'demo' : 'answer');\n    try {\n      paint(i);\n      return Object.assign({}, REC, { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) });\n    } finally { S[i] = keepS; T = keepT; MODE = keepM; paint(); }\n  }\n  const settledOf = (i) => drawn(i, STEPS[i].show ? blank() : solvedSt(i));\n  // The times of a drawn trace's tops (sign 1) or bottoms (sign −1).\n  function peaks(data, sign) {\n    const out = [];\n    for (let j = 1; j < data.length - 1; j++) {\n      const a = sign * data[j - 1][1], b = sign * data[j][1], c = sign * data[j + 1][1];\n      if (b > a && b >= c) out.push(data[j][0]);\n    }\n    return out;\n  }\n\n  K.check('Both curves reach their maxima and minima at the same times, that is, the current through and the voltage across the resistor are in phase: on every card the drawn current is the drawn voltage ÷ the resistance at each instant, and its tops and bottoms fall at the voltage\\'s', () =>\n    STEPS.every((d, i) => {\n      if (CARDS[d.card].compact) return true;\n      const g = settledOf(i);\n      if (!g.wv || !g.cu || g.wv.length !== g.cu.length || g.wv.length < 300) return false;\n      const okI = g.wv.every((q, j) => near(g.cu[j][0], q[0], 1e-12) && near(g.cu[j][1], q[1] / g.R, 1e-9 * Math.max(1, Math.abs(q[1]))));\n      const same = (a, b) => a.length === b.length && a.every((t, j) => near(t, b[j], 1e-9));\n      return okI && peaks(g.wv, 1).length >= 2 && same(peaks(g.wv, 1), peaks(g.cu, 1)) && same(peaks(g.wv, -1), peaks(g.cu, -1));\n    }), { source: OS });\n  K.check('The waveform for power is always positive, never negative for this resistive circuit: on every screen each drawn point of the power wave is the drawn voltage × the drawn current at that instant, and none is below zero', () =>\n    STEPS.every((d, i) => {\n      const g = settledOf(i), c = CARDS[d.card];\n      if (!g.pw || g.pw.length < 100) return false;\n      if (!g.pw.every((q) => q[1] >= -1e-9 * g.top)) return false;\n      if (c.compact) return g.pw.every((q) => near(q[1], g.top * Math.pow(Math.sin(TAU * c.f * q[0] / 1000), 2), 1e-9 * g.top));\n      return g.pw.every((q, j) => near(q[0], g.wv[j][0], 1e-12) && near(q[1], g.wv[j][1] * g.cu[j][1], 1e-9 * g.top));\n    }), { source: KUPH11 });\n  K.check('The waveform for power is not at the same frequency as the voltage or current; its frequency is double that of either: the drawn power wave has a hump at every top and every bottom of the voltage, two a cycle, shown as 100 humps a second on 50 Hz and 120 on 60 Hz', () =>\n    [['Two humps a cycle', 50], ['A faster supply', 60], ['On board ship', 60]].every((q) => {\n      const g = settledOf(idx(q[0]));\n      if (!g.wv || !g.pw) return false;\n      const vt = peaks(g.wv, 1).concat(peaks(g.wv, -1)).sort((a, b) => a - b), pt = peaks(g.pw, 1);\n      return g.f === q[1] && vt.length >= 4 && vt.length === pt.length && vt.every((t, j) => near(t, pt[j], 1e-9)) &&\n        g.texts.indexOf('2 humps a cycle × ' + q[1] + ' Hz = ' + 2 * q[1] + ' humps a second') >= 0;\n    }), { source: KUPH11 });\n  K.check('The product of the RMS voltage and RMS current is equal to the average power: on the 10 Ω, mains, clamp-meter and ship cards the dashed average sits at the mean of the drawn power wave over whole humps, and the row under it multiplies the rms values to that figure: 500 W, 1000 W, 2300 W and 4.4 kW', () =>\n    [['The average', 'Vrms × Irms = 70.7 V × 7.07 A = 500 W'], ['A mains heater', 'Vrms × Irms = 230 V × 4.35 A = 1000 W'],\n      ['The clamp meter', 'Vrms × Irms = 230 V × 10 A = 2300 W'], ['Mixed: a ship heater', 'Vrms × Irms = 440 V × 10 A = 4.4 kW']].every((q) => {\n      const g = settledOf(idx(q[0]));\n      if (!g.pw || g.avg == null) return false;\n      const hump = 1000 / (2 * g.f);\n      let n = Math.floor(SPAN / hump + 1e-9);\n      while (n > 0 && Math.abs(n * hump * 10 - Math.round(n * hump * 10)) > 1e-6) n--;\n      const end = Math.round(n * hump * 10) / 10;\n      let area = 0;\n      for (let j = 1; j < g.pw.length && g.pw[j][0] <= end + 1e-9; j++) area += (g.pw[j - 1][1] + g.pw[j][1]) / 2 * (g.pw[j][0] - g.pw[j - 1][0]);\n      return n >= 2 && near(area / end, g.avg, 2e-3 * g.avg) && near(g.Vr * g.Ir, g.avg, 1e-9 * g.avg) && g.texts.indexOf(q[1]) >= 0;\n    }), { source: UMASS });\n  K.check('For a sine wave, the RMS value is approximately 0.707 of its peak value: on the 10 Ω card the rows read Vrms = 0.707 × 100 V = 70.7 V and Irms = 0.707 × 10 A = 7.07 A', () => {\n    const g = settledOf(idx('The average'));\n    return near(1 / RT2, 0.707, 5e-4) && num(100 * 0.707, 1) === num(100 / RT2, 1) && num(10 * 0.707, 2) === num(10 / RT2, 2) &&\n      g.texts.indexOf('Vrms = 0.707 × 100 V = 70.7 V') >= 0 && g.texts.indexOf('Irms = 0.707 × 10 A = 7.07 A') >= 0;\n  }, { source: KUPH1 });\n  K.check('UK mains voltage is 230 V RMS, so the peak voltage is about 325 V (230 × √2): on the mains card the voltage wave reaches 325 V at the top of each cycle and −325 V at the bottom', () => {\n    const g = settledOf(idx('A mains heater'));\n    let hi = -Infinity, lo = Infinity;\n    g.wv.forEach((q) => { hi = Math.max(hi, q[1]); lo = Math.min(lo, q[1]); });\n    return near(hi, 230 * RT2, 0.01) && near(lo, -230 * RT2, 0.01) && g.texts.indexOf('325') >= 0 && g.texts.indexOf('−325') >= 0;\n  }, { source: WJEC });\n  K.check('UK mains electricity operates at a nominal voltage of 230V: the 1 kW mains heater is 230² ÷ 1000 = 52.9 Ω and draws 230 ÷ 52.9 = 4.35 A, its power humps reaching 2000 W and averaging 1000 W', () => {\n    const g = settledOf(idx('A mains heater'));\n    let hi = 0;\n    g.pw.forEach((q) => { hi = Math.max(hi, q[1]); });\n    return near(CARDS.mains.R, 52.9, 1e-9) && near(g.Vr, 230, 1e-9) && num(g.Ir, 2) === '4.35' && near(hi, 2000, 1e-6) && near(g.avg, 1000, 1e-9) &&\n      g.texts.indexOf('1 kW heater, 52.9 Ω, on 230 V mains') >= 0 && g.texts.indexOf('2000') >= 0;\n  }, { source: ENA });\n  K.check('60 Hz is the most common frequency adopted for use on board ship: the ship screens run at 60 Hz, and once answered show 2 humps a cycle × 60 Hz = 120 humps a second', () =>\n    ['On board ship', 'Mixed: a ship heater'].every((n) => { const g = settledOf(idx(n)); return g.f === 60 && g.texts.indexOf('2 humps a cycle × 60 Hz = 120 humps a second') >= 0; }),\n  { source: SHIP });\n  K.check('The majority of ships have a 3 phase, 3 wire, 440V insulated neutral system: the ship heater runs at 440 V rms, its wave peaking at 440 × √2 = 622 V, and drawing 10 A it averages 440 × 10 = 4.4 kW', () => {\n    const g = settledOf(idx('Mixed: a ship heater'));\n    let hi = -Infinity;\n    g.wv.forEach((q) => { hi = Math.max(hi, q[1]); });\n    return near(g.Vr, 440, 1e-9) && near(g.Ir, 10, 1e-9) && near(g.avg, 4400, 1e-6) && g.texts.indexOf('622') >= 0 && hi <= 440 * RT2 + 1e-9 && hi > 440 * RT2 * 0.999;\n  }, { source: SHIP });\n  K.check('The scrubber multiplies: at 5 ms 100 V × 10 A = 1000 W; at 10 ms both are 0, so the power is 0; at 15 ms −100 V × −10 A = +1000 W', () => {\n    const a = K.at({ step: 0, t: 5 }), b = K.at({ step: 0, t: 10 }), c = K.at({ step: idx('At the bottom') });\n    return near(a.volts, 100, 1e-9) && near(a.amps, 10, 1e-9) && near(a.watts, 1000, 1e-9) && near(b.volts, 0, 1e-9) && near(b.watts, 0, 1e-9) &&\n      near(c.volts, -100, 1e-9) && near(c.amps, -10, 1e-9) && near(c.watts, 1000, 1e-9);\n  });\n  K.check('The fold: the top of a hump above the 500 W average, moved on half a hump (5 ms) and turned over, lies exactly along the dip beside it', () => {\n    const W = waves(CARDS.test, 50);\n    for (let j = 0; j <= 100; j++) { const t = 2.5 + j * 0.05; if (!near(1000 - W.p(t), W.p(t + 5), 1e-9)) return false; }\n    const g = settledOf(idx('The average'));\n    return !!g.cap && g.cap.length > 20 && g.cap.every((q) => q[0] >= 7.5 - 1e-9 && q[0] <= 12.5 + 1e-9 && near(q[1], W.p(q[0]), 1e-9));\n  });\n  K.check('Each puzzle accepts only its right answer; before an answer its picture hides what is asked (the power there, the power wave, the average or the humps a second), and each wrong pick draws what it claims, in red', () => {\n    const only = DO.every((i) => { const d = STEPS[i]; return d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)); });\n    const hidden = DO.every((i) => {\n      const d = STEPS[i], g = drawn(i, blank());\n      return (d.part == null || (!g.dotShown && !!g.pw && g.pw[g.pw.length - 1][0] <= d.part + 1e-9 && g.texts.indexOf('?') >= 0)) &&\n        (!d.hidePow || g.pw === null) && (d.avg !== 'ask' || (g.avg === null && g.texts.indexOf('average power: ?') >= 0)) &&\n        (d.count !== 'ask' || g.texts.indexOf('on ' + g.f + ' Hz: ? humps a second') >= 0);\n    });\n    const slips = DO.every((i) => STEPS[i].opts.filter((o) => o !== STEPS[i].want).every((o) => {\n      const s = STEPS[i].slips[o], g = drawn(i, wrongSt(i, o));\n      return !!s && g.slip === s;\n    }));\n    return only && hidden && slips;\n  });\n  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, within 2.5 s', () => {\n    const keepT = T, keepM = MODE;\n    const timed = (i, st, mode, limit) => {\n      const keepS = S[i];\n      T = Infinity; MODE = mode; latest = 0; earliest = Infinity; S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), 'demo', d.dur); return r && d.dur >= 3 && d.dur <= 4.5 && earliest >= FADE; }\n      return timed(i, solvedSt(i), 'answer', d.rdur) && d.rdur <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), 'answer', 0.8));\n    });\n    T = keepT; MODE = keepM; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "The power scrubber",
+  "brief": "The one thing you should see is the dot on the power wave staying above the line and making two humps for every cycle of the voltage when you drag the time cursor along the in-step waves.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Both curves reach their maxima and minima at the same times, that is, the current through and the voltage across the resistor are in phase: on every card the drawn current is the drawn voltage ÷ the resistance at each instant, and its tops and bottoms fall at the voltage's",
+     "ok": true,
+     "source": "https://openstax.org/books/university-physics-volume-2/pages/15-2-simple-ac-circuits"
+    },
+    {
+     "label": "The waveform for power is always positive, never negative for this resistive circuit: on every screen each drawn point of the power wave is the drawn voltage × the drawn current at that instant, and none is below zero",
+     "ok": true,
+     "source": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html"
+    },
+    {
+     "label": "The waveform for power is not at the same frequency as the voltage or current; its frequency is double that of either: the drawn power wave has a hump at every top and every bottom of the voltage, two a cycle, shown as 100 humps a second on 50 Hz and 120 on 60 Hz",
+     "ok": true,
+     "source": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html"
+    },
+    {
+     "label": "The product of the RMS voltage and RMS current is equal to the average power: on the 10 Ω, mains, clamp-meter and ship cards the dashed average sits at the mean of the drawn power wave over whole humps, and the row under it multiplies the rms values to that figure: 500 W, 1000 W, 2300 W and 4.4 kW",
+     "ok": true,
+     "source": "https://openbooks.library.umass.edu/funee/chapter/2-8"
+    },
+    {
+     "label": "For a sine wave, the RMS value is approximately 0.707 of its peak value: on the 10 Ω card the rows read Vrms = 0.707 × 100 V = 70.7 V and Irms = 0.707 × 10 A = 7.07 A",
+     "ok": true,
+     "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html"
+    },
+    {
+     "label": "UK mains voltage is 230 V RMS, so the peak voltage is about 325 V (230 × √2): on the mains card the voltage wave reaches 325 V at the top of each cycle and −325 V at the bottom",
+     "ok": true,
+     "source": "https://masterymind.co.uk/subjects/physics-a-level/wjec/a-level/alternating-currents"
+    },
+    {
+     "label": "UK mains electricity operates at a nominal voltage of 230V: the 1 kW mains heater is 230² ÷ 1000 = 52.9 Ω and draws 230 ÷ 52.9 = 4.35 A, its power humps reaching 2000 W and averaging 1000 W",
+     "ok": true,
+     "source": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits"
+    },
+    {
+     "label": "60 Hz is the most common frequency adopted for use on board ship: the ship screens run at 60 Hz, and once answered show 2 humps a cycle × 60 Hz = 120 humps a second",
+     "ok": true,
+     "source": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf"
+    },
+    {
+     "label": "The majority of ships have a 3 phase, 3 wire, 440V insulated neutral system: the ship heater runs at 440 V rms, its wave peaking at 440 × √2 = 622 V, and drawing 10 A it averages 440 × 10 = 4.4 kW",
+     "ok": true,
+     "source": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf"
+    },
+    {
+     "label": "The scrubber multiplies: at 5 ms 100 V × 10 A = 1000 W; at 10 ms both are 0, so the power is 0; at 15 ms −100 V × −10 A = +1000 W",
+     "ok": true
+    },
+    {
+     "label": "The fold: the top of a hump above the 500 W average, moved on half a hump (5 ms) and turned over, lies exactly along the dip beside it",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle accepts only its right answer; before an answer its picture hides what is asked (the power there, the power wave, the average or the humps a second), and each wrong pick draws what it claims, in red",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "t",
+    "f"
+   ],
+   "readouts": [],
+   "outputs": [
+    "volts",
+    "amps",
+    "watts"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "The power scrubber",
+      "At the bottom",
+      "Two humps a cycle",
+      "On board ship",
+      "The average",
+      "Averaging first",
+      "A mains heater",
+      "The clamp meter",
+      "A faster supply",
+      "From the tops",
+      "Mixed: the shape of the power",
+      "Mixed: a ship heater"
+     ],
+     "value": 0
+    },
+    {
+     "id": "t",
+     "kind": "control",
+     "label": "Time cursor",
+     "min": 0,
+     "max": 40,
+     "step": 0.1,
+     "log": false,
+     "value": 5,
+     "snap": [
+      5,
+      10,
+      15,
+      20
+     ]
+    },
+    {
+     "id": "f",
+     "kind": "choice",
+     "label": "Supply",
+     "options": [
+      "50",
+      "60"
+     ],
+     "labels": [
+      "50 Hz",
+      "60 Hz"
+     ],
+     "value": "50",
+     "index": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Replay",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-19T19:24:39.864Z",
+  "applied": [
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 7 says 4.35 × 1.41 = 6.15 A, but 4.35 × 1.41 is 6.13; 6.15 A comes from multiplying by √2 itself (1.414), so the shown sum is wrong as written."
+   },
+   {
+    "path": "practice.text",
+    "problem": "The worked example says 230² ÷ 2300 = 23 Ω \"checks it as a resistance\", but working out a resistance from the same readings cannot show the load is resistive, and 23 Ω is not one of the lesson’s listed numbers."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

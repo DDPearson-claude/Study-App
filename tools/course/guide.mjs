@@ -15,6 +15,25 @@ import { join, resolve } from 'node:path';
 import { openApp } from '../harness/page.mjs';
 
 function arg(name, dflt) { const i = process.argv.indexOf('--' + name); return i > 0 ? process.argv[i + 1] : dflt; }
+function compactSvg(svg) {
+  const hex = (n) => Number(n).toString(16).padStart(2, '0');
+  return svg
+    .replace(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/g, (m, r, g, b) => {
+      const h = hex(r) + hex(g) + hex(b);
+      return '#' + (h[0] === h[1] && h[2] === h[3] && h[4] === h[5] ? h[0] + h[2] + h[4] : h);
+    })
+    .replace(/>\s+</g, '><')
+    .replace(/^(<svg\b[^>]*>)([\s\S]*)$/, (m, open, rest) => {
+      // Each style used more than once becomes a class in one <style> inside the picture.
+      const seen = {};
+      rest.replace(/ style="([^"]*)"/g, (x, st) => { seen[st] = (seen[st] || 0) + 1; return x; });
+      const names = {}, css = [];
+      Object.keys(seen).filter((st) => seen[st] > 1).forEach((st, k) => { names[st] = 's' + k.toString(36); css.push('.' + names[st] + '{' + st + '}'); });
+      if (!css.length) return m;
+      const body = rest.replace(/(<[a-zA-Z][^>]*?) style="([^"]*)"/g, (x, tag, st) => (names[st] && !/\sclass="/.test(tag) ? tag + ' class="' + names[st] + '"' : x));
+      return open + '<style>' + css.join('').replace(/&quot;/g, '"') + '</style>' + body;
+    });
+}
 const dir = arg('dir');
 if (!dir) { console.error('usage: guide.mjs --dir <build dir> [--idea iN] [--app kit.html]'); process.exit(2); }
 const appFile = resolve(arg('app', 'tests/out/kit-d4.html'));
@@ -113,6 +132,10 @@ for (const iid of ideas) {
     }
     pages.push({ kind: 'example', name: d.name, task: terms(d.task), answer, why: terms(d.why), svg: snap && snap.svg, alt: snap ? snap.alt : '' });
   }
+  // The pictures carry the page's computed styles inline: the same colours in rgb() on every label.
+  // Written as hex, with no spaces between tags, a guide stays under the db's document limit
+  // (assemble.mjs: 250 KB) without changing what is drawn.
+  for (const p of pages) if (p.svg) p.svg = compactSvg(p.svg);
   const guide = { v: 1, iid, pages };
   const bytes = Buffer.byteLength(JSON.stringify(guide));
   writeFileSync(join(dir, iid + '.guide.json'), JSON.stringify(guide) + '\n');

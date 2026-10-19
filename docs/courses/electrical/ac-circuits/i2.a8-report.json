@@ -1,0 +1,179 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Whatever magnitude of DC voltage would produce the same amount of heat energy dissipation through an equal resistance is the DC equivalent: for every shape on both cards, the DC level where the bars match heats the equal resistance as much as the drawn power humps do on average",
+        "ok": true,
+        "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html"
+      },
+      {
+        "label": "For a sine wave, the RMS value is approximately 0.707 of its peak value: on the heater test the bars match at 70.7 V of the 100 V peak, a ratio of 0.707, where the steady DC heater takes the AC heater's 500 W",
+        "ok": true,
+        "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html"
+      },
+      {
+        "label": "UK mains voltage is 230 V RMS, so the peak voltage is about 325 V (230 × √2): on the mains card, once the puzzle is answered, the wave reaches 325 V at the top of each cycle and −325 V at the bottom, and 230 V of DC heats the twin heater just as much, 1000 W",
+        "ok": true,
+        "source": "https://masterymind.co.uk/subjects/physics-a-level/wjec/a-level/alternating-currents"
+      },
+      {
+        "label": "UK mains electricity operates at a nominal voltage of 230V: the mains card runs at 230 V rms, and its 1 kW heater is 230² ÷ 1000 = 52.9 Ω",
+        "ok": true,
+        "source": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits"
+      },
+      {
+        "label": "Heat goes with the square, not the plain average: the 100 V sine averages 63.7 V over half a cycle, and 63.7 V of DC gives only about 406 W against 500 W, while a steady 100 V gives 1000 W, twice the AC heater's heat",
+        "ok": true
+      },
+      {
+        "label": "Each shape has its own ratio: the triangle's humps average a third of their 1000 W top, 333 W, matching at 57.7 V, 0.577 of the peak, and the square's power is a flat 1000 W, matching at 100 V, a ratio of 1.000",
+        "ok": true
+      },
+      {
+        "label": "The deflection of the needle is naturally proportional to the average value of the AC, and the accuracy of this calibration depends on an assumed waveshape, usually a sine wave: the average-reading meter reads the folded wave's average marked up by 1.11, 0.707 ÷ 0.637, so 230 V on the mains sine, 180 V on the 325 V triangle while the bars match at 188 V, 361 V on the 325 V square, 111 V on the 100 V square, and 167 V on the 300 V triangle whose rms value is 173 V",
+        "ok": true,
+        "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html"
+      },
+      {
+        "label": "At every DC level from 0 V to 120 V the DC heater takes the level squared ÷ 10, the share of the peak is the level ÷ 100, and the bars show a match only at 70.7 V",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle accepts only its right answer; before an answer its picture hides what is asked (the DC level, the DC heat or the wave), and each wrong pick draws what it claims, in red",
+        "ok": true
+      },
+      {
+        "label": "On every screen, each drawn point of the power humps is the drawn voltage at that moment squared ÷ the resistance",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "dc",
+      "shape"
+    ],
+    "readouts": [],
+    "outputs": [
+      "acHeat",
+      "dcHeat",
+      "ratio"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "The heater test",
+          "Where they match",
+          "Why 70.7 V",
+          "Peak against steady",
+          "Other shapes",
+          "The triangle",
+          "Mains",
+          "The top of the wave",
+          "The meter",
+          "A meter on a square",
+          "230 V of DC",
+          "Two meters"
+        ],
+        "value": 0
+      },
+      {
+        "id": "dc",
+        "kind": "control",
+        "label": "DC level",
+        "min": 0,
+        "max": 120,
+        "step": 0.1,
+        "log": false,
+        "value": 50,
+        "snap": [
+          57.7,
+          63.7,
+          70.7
+        ]
+      },
+      {
+        "id": "shape",
+        "kind": "choice",
+        "label": "Wave shape",
+        "options": [
+          "sine",
+          "tri",
+          "square"
+        ],
+        "labels": [
+          "Sine",
+          "Triangle",
+          "Square"
+        ],
+        "value": "sine",
+        "index": 0
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Replay",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1",
+    "dc = 90",
+    "shape = \"tri\"",
+    "pressed \"Answer 1\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/ac-circuits/i2.a8-360-light.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i2.a8-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i2.a8-360-light-end.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i2.a8-360-dark.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i2.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i2.a8-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i2.a8-1280-light.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i2.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i2.a8-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i2.a8-1280-dark.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i2.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i2.a8-1280-dark-end.png"
+  ]
+}

@@ -1,0 +1,918 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .wrap { position: relative; max-width: 22rem; margin-inline: auto; }
+  .scene { display: block; width: 100%; touch-action: pan-y; }
+  /* Dragging across the graphs moves the time cursor (an HTML layer: a sideways drag scrubs, an up-down swipe still scrolls). */
+  .tgrip { position: absolute; touch-action: pan-y; cursor: ew-resize; border-radius: 8px; }
+  .tgrip:focus { outline: none; }
+  .tgrip:focus-visible { outline: 2px solid var(--k-accent); outline-offset: 2px; }
+  .ctl { display: grid; gap: 12px; }
+  .scene .axis { stroke: var(--k-muted); stroke-width: 1.3; }
+  .scene .zero { stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .vw { fill: none; stroke: var(--k-ink); stroke-width: 2.2; stroke-linejoin: round; }
+  .scene .cw { fill: none; stroke: var(--k-accent); stroke-width: 2.2; stroke-dasharray: 7 4; stroke-linejoin: round; }
+  .scene .pw { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linejoin: round; }
+  .scene .avg { fill: none; stroke: var(--k-accent2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+  .scene .bad { fill: none; stroke: var(--k-warn); stroke-width: 2.2; stroke-dasharray: 6 4; stroke-linejoin: round; }
+  .scene .cap { fill: var(--k-fill2); stroke: none; }
+  .scene .cur { stroke: var(--k-accent2); stroke-width: 1.6; }
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.3; }
+  .scene .dv { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .dc { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .dp { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .dbad { fill: var(--k-warn); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .pen { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .ring { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .knob { fill: var(--k-accent2); }
+  .scene .ask { fill: var(--k-bg); stroke: var(--k-amber-line); stroke-width: 2; }
+  .scene .tt { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tkc { font: 400 13px var(--k-font); fill: var(--k-accent); }
+  .scene .ax { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .axc { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .wk { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .scene .wk.em { font-weight: 700; fill: var(--k-accent2); }
+  .scene .ky { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  .scene .q { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene #art * { pointer-events: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">An example 10 Ω heater element on AC peaking at 100 V, 50 Hz: its voltage and current waves above, their product, the power, below, and a time cursor through both; later, mains and ship heaters.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="wrap" id="wrap">
+      <svg class="scene" id="scene" viewBox="0 0 340 400" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+      <div class="tgrip" id="grip" role="slider" tabindex="-1" aria-label="Time cursor" hidden></div>
+    </div>
+    <div class="replay" id="replay"></div>
+    <div class="ctl" id="ctl"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Elements, peaks and meter readings are example values; the power at each instant is the voltage × the current.</p>
+
+<script>
+  // ---------- the rule ----------
+  // A resistor's current is its voltage ÷ its resistance at every instant, so the two waves keep step.
+  // The power at an instant is that instant's voltage × that instant's current. For a sine it averages
+  // half its top, which is the rms voltage × the rms current.
+  const TAU = 2 * Math.PI, SPAN = 40, NS = 400, MORPH = 0.9, RT2 = Math.SQRT2;
+  // Each card: a resistance R (Ω), a voltage peak Vp (V), a supply frequency f (Hz), and the graph
+  // scales (Vax, Iax, Pax: what the half-height of each graph stands for). idp: decimals of the
+  // current's peak tick. The mains heater is 230² ÷ 1000 = 52.9 Ω; the clamp-meter heater 230 ÷ 10 = 23 Ω;
+  // the ship heater 440 ÷ 10 = 44 Ω; the 'tops' heater is sized so its humps top out at 3000 W.
+  const CARDS = {
+    test: { R: 10, Vp: 100, f: 50, Vax: 120, Iax: 20, Pax: 1200, idp: 0, title: (f) => '10 Ω element, 100 V peak, ' + f + ' Hz' },
+    mains: { R: 230 * 230 / 1000, Vp: 230 * RT2, f: 50, Vax: 400, Iax: 12, Pax: 2400, idp: 2, title: () => '1 kW heater, 52.9 Ω, on 230 V mains' },
+    clamp: { R: 230 / 10, Vp: 230 * RT2, f: 50, Vax: 400, Iax: 28, Pax: 5500, idp: 1, title: () => 'a clamp meter reads 10 A on a 230 V heater' },
+    tops: { R: 2 * 230 * 230 / 3000, Vp: 230 * RT2, f: 50, Pax: 3600, compact: true, title: () => 'a heater\'s power humps, tops at 3000 W' },
+    ship: { R: 440 / 10, Vp: 440 * RT2, f: 60, Vax: 750, Iax: 28, Pax: 10500, idp: 1, kw: true, title: () => 'a heater on 440 V at 60 Hz, drawing 10 A' },
+  };
+  // The waves on a card at frequency f (t in ms): voltage, current = voltage ÷ R, power = voltage × current.
+  function waves(c, f) {
+    const v = (t) => c.Vp * Math.sin(TAU * f * t / 1000);
+    const i = (t) => v(t) / c.R;
+    return { v, i, p: (t) => v(t) * i(t) };
+  }
+  // A number as the lesson writes it: at most dp decimals, no trailing zeros, a true minus sign.
+  function num(v, dp) {
+    dp = dp == null ? 2 : dp;
+    const m = Math.pow(10, dp);
+    let r = Math.round(v * m) / m;
+    if (r === 0) r = 0;
+    let s = r.toFixed(dp);
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    return s.replace('-', '−');
+  }
+  // A reading with exactly dp decimals (the readouts' rounding), a true minus sign.
+  function fx(v, dp) {
+    const m = Math.pow(10, dp);
+    let r = Math.round(v * m) / m;
+    if (r === 0) r = 0;
+    return r.toFixed(dp).replace('-', '−');
+  }
+  const mix = (a, b, t) => (t >= 1 ? b : t <= 0 ? a : a + (b - a) * t);
+  const pwr = (c, w) => (c.kw ? num(w / 1000, 1) + ' kW' : num(w, 0) + ' W');
+  const pwTick = (c, w) => (c.kw ? num(w / 1000, 1) : num(w, 0));
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // cur: 'live' (Dan drags the time cursor) or 'park' (fixed at t ms); sweep: the cursor's
+  // demonstration moves [start s, seconds, from ms, to ms]; trace: how much of the power wave is drawn
+  // ('reach': as far as the cursor has been; 'sweep': behind the sweep, then the next cycle).
+  // part: a puzzle shows the power only up to this time; hidePow: the power is hidden until a right
+  // answer. avg: the dashed average ('show', or 'ask' until a right answer); count: the humps-a-second
+  // row; slips: what each wrong pick claims, drawn in red (a dot, a flat line or a wave).
+  const STEPS = [
+    { show: true, name: 'The power scrubber', card: 'test', cur: 'live', t: 5, trace: 'reach', dur: 3.5,
+      sweep: [[0.4, 2.0, 0, 10], [2.6, 0.9, 10, 5]],
+      text: 'The heater test\'s 10 Ω element on a supply that peaks at 100 V, so its current peaks at 100 ÷ 10 = 10 A. The voltage and the dashed current rise and fall together, topping out at the same moments: they are *in phase*. Below is the *instantaneous power*, the voltage × the current at each instant, the volts × amps you use on DC worked moment by moment. Drag the time cursor and watch the dot ride the power wave.' },
+    { name: 'At the bottom', card: 'test', cur: 'park', t: 15, part: 10, rdur: 1.8,
+      slips: { '−1000 W': { dot: -1000 }, '0 W': { dot: 0 } },
+      task: 'The cursor is parked at 15 ms, the bottom of the cycle: −100 V and −10 A. What power does the element take at that instant?',
+      opts: ['1000 W', '−1000 W', '0 W'], want: '1000 W',
+      why: 'The power at an instant is that instant\'s voltage × its current: −100 × −10 = +1000 W, because a minus times a minus is a plus. The element heats whichever way the current flows, just as at the top of the wave. The power is zero only where both waves cross zero, at 0, 10 and 20 ms.',
+      hint: 'Not quite. Multiply the two readings, signs and all.',
+      hints: { '−1000 W': 'Not quite. Both readings are negative here. What is a minus times a minus?',
+        '0 W': 'Not quite. The power is zero only where the waves cross zero. Here they are at their biggest.' } },
+    { show: true, name: 'Two humps a cycle', card: 'test', cur: 'live', t: 20, trace: 'sweep', sweep: [[0.4, 2.0, 0, 20]],
+      brackets: true, count: 'show', dur: 3.6, tl: { next: 2.5, b1: 1.4, b2: 2.4, count: 3.0 },
+      text: 'Now the cursor sweeps one whole cycle, 20 ms, leaving a trace. While the voltage is forward the power rises to 1000 W and falls back: one hump, 10 ms long. While it is backward both readings are negative, and a minus times a minus is a plus: a second hump, just the same. So the power pulses at double the supply\'s frequency, two humps a cycle, 100 a second on 50 Hz.' },
+    { name: 'On board ship', card: 'test', f: 60, hidePow: true, count: 'ask', rdur: 2.0,
+      slips: { '60': { wave: 1 }, '240': { wave: 4 } },
+      task: 'Most ships run at 60 Hz. How many power humps a second does this element give there?',
+      opts: ['60', '240', '120'], want: '120',
+      why: 'Every cycle has a forward half and a backward half, and each gives a hump: 2 humps a cycle × 60 cycles a second = 120 humps a second. 60 would be one hump a cycle, as if the backward half gave nothing. 240 doubles twice.',
+      hint: 'Not quite. Count the humps in one cycle, then the cycles in a second.',
+      hints: { '60': 'Not quite. That is the supply\'s own frequency. Each cycle has a forward and a backward half.',
+        '240': 'Not quite. That doubles twice. Each cycle gives two humps, not four.' } },
+    { show: true, name: 'The average', card: 'test', cur: 'live', t: 5, avg: 'show', fold: true, derive: true, dur: 3.8,
+      tl: { avg: 0.5, cap: 1.0, fold: [1.6, 1.2], r1: 2.6, r2: 2.9, rr: 3.2 },
+      text: 'So how much heat does the element give on average? Its power is 1000 W × the sine squared, and remember Calculus fundamentals\' fold: the top of each hump fits exactly into the dip beside it, so the humps average half their top, 500 W, the *average power*. The rms values give it straight away: each is 0.707 of its peak, and 70.7 V × 7.07 A is about 500 W, because 0.707 is 1 ÷ √2, and 1 ÷ √2 squared is a half.' },
+    { name: 'Averaging first', card: 'test', avg: 'ask', each0: true, rdur: 1.0,
+      slips: { '0 W': { line: 0 }, '1000 W': { line: 1000 } },
+      task: 'Over a whole cycle the voltage averages 0 V and the current 0 A. What power does the element average?',
+      opts: ['0 W', '500 W', '1000 W'], want: '500 W',
+      why: 'It is the product that has to be averaged, and the product never goes below zero: humps from 0 to 1000 W, averaging half their top, 500 W, which is 70.7 V × 7.07 A. Averaging the voltage and the current first throws away the backward half, where a minus times a minus heats the element just as well. 1000 W is only the top of each hump, for an instant.',
+      hint: 'Not quite. Average the power itself, the humps on the lower graph.',
+      hints: { '0 W': 'Not quite. That multiplies the averages. Average the product instead: it never goes below zero.',
+        '1000 W': 'Not quite. The power reaches 1000 W only at the top of each hump.' } },
+    { show: true, name: 'A mains heater', card: 'mains', cur: 'live', t: 5, grow: [0.4, 1.8], avg: 'show', dur: 3.2, tl: { avg: 2.3, rr: 2.6 },
+      text: 'Now the mains card: a 1 kW heater on 230 V mains is 230² ÷ 1000 = 52.9 Ω, drawing 230 ÷ 52.9 = 4.35 A. Its voltage peaks at 325 V and its current at 4.35 × √2 = 6.15 A. The dashed average sits at 230 V × 4.35 A = 1000 W, and the humps reach twice that, 2000 W, about 325 × 6.15, for an instant each.' },
+    { name: 'The clamp meter', card: 'clamp', hidePow: true, avg: 'ask', rdur: 2.0,
+      slips: { '4600 W': { line: 4600 }, '1150 W': { line: 1150 } },
+      task: 'A clamp meter reads 10 A on a heater at 230 V. What is its power?',
+      opts: ['4600 W', '1150 W', '2300 W'], want: '2300 W',
+      why: 'Meters read rms values, so multiply them: 230 V × 10 A = 2300 W. The peaks, about 325 V and 14.1 A, multiply to 4600 W, the top of each hump for an instant, twice the heat. Halving the rms product halves once too often: the rms values already allow for the humps.',
+      hint: 'Not quite. Ask which values the meter and the 230 V label give.',
+      hints: { '4600 W': 'Not quite. That multiplies the peaks: the top of each hump, not the average.',
+        '1150 W': 'Not quite. The rms product is already the average. Do not halve it.' } },
+    { show: true, name: 'A faster supply', card: 'test', f: 50, fsel: true, morph: [0.8, 60, 1.4], cur: 'live', t: 5, avg: 'show', count: 'show', dur: 3.0,
+      text: 'Switch to 60 Hz, the supply most ships use. The humps crowd closer, 120 a second, but their tops stay at 1000 W and the average at 500 W, because a resistor\'s current follows its voltage at each instant, whatever the frequency. Switch between 50 Hz and 60 Hz, and drag the cursor.' },
+    { name: 'From the tops', card: 'tops', avg: 'ask', rdur: 1.0,
+      slips: { '3000 W': { line: 3000 }, '2120 W': { line: 2120 } },
+      task: 'A heater\'s power humps top out at 3000 W. What is its average power?',
+      opts: ['1500 W', '3000 W', '2120 W'], want: '1500 W',
+      why: 'For a sine, the tops of the humps fit into their dips, so the humps average half their top: 3000 ÷ 2 = 1500 W. 3000 W is reached only for an instant. 2120 W uses 0.707 once on the power, but 0.707 belongs to the voltage and to the current; the power takes it twice, and 0.707 × 0.707 is a half.',
+      hint: 'Not quite. Think of the humps\' tops filling their dips.',
+      hints: { '3000 W': 'Not quite. The power touches 3000 W only at the top of each hump.',
+        '2120 W': 'Not quite. 0.707 is for a voltage or a current. The power takes it twice.' } },
+    { name: 'Mixed: the shape of the power', card: 'test', hidePow: true, rdur: 1.6,
+      slips: { 'It goes below zero on the backward half': { wave: 'signed' }, 'It stays steady at 500 W': { line: 500 } },
+      task: 'Mixed. Which is true of the 10 Ω element\'s power?',
+      opts: ['It goes below zero on the backward half', 'It reaches zero twice each cycle and never goes below it', 'It stays steady at 500 W'],
+      want: 'It reaches zero twice each cycle and never goes below it',
+      why: 'The power is the voltage × the current. Both cross zero together twice a cycle, so the power touches zero there. On the backward half both are negative, so their product is positive. 500 W is its average, not a steady value: it swings between 0 and 1000 W.',
+      hint: 'Not quite. Multiply the two waves at a few instants.',
+      hints: { 'It goes below zero on the backward half': 'Not quite. On the backward half both are negative. What is a minus times a minus?',
+        'It stays steady at 500 W': 'Not quite. 500 W is the average. At each instant the power swings between 0 and 1000 W.' } },
+    { name: 'Mixed: a ship heater', card: 'ship', hidePow: true, avg: 'ask', count: 'ask', rdur: 2.0,
+      slips: { '8.8 kW, 120 humps a second': { line: 8800 }, '4.4 kW, 60 humps a second': { wave: 1 } },
+      task: 'Mixed. A heater element across 440 V at 60 Hz draws 10 A. What is its power?',
+      opts: ['8.8 kW, 120 humps a second', '4.4 kW, 60 humps a second', '4.4 kW, 120 humps a second'], want: '4.4 kW, 120 humps a second',
+      why: 'Rms volts × rms amps: 440 × 10 = 4400 W, 4.4 kW, in humps that come twice a cycle, 2 × 60 = 120 a second. The peaks, about 622 V and 14.1 A, multiply to 8.8 kW, the top of each hump, twice the heat. 60 a second would be one hump a cycle.',
+      hint: 'Not quite. Multiply the rms values, and count two humps a cycle.',
+      hints: { '8.8 kW, 120 humps a second': 'Not quite. That multiplies the peaks: the top of each hump, not the average.',
+        '4.4 kW, 60 humps a second': 'Not quite. The power humps come twice a cycle, forward and backward.' } },
+  ];
+  const FINISH = 'A resistor\'s voltage and current keep step, so its power, their product at each instant, never goes below zero: on the backward half both are negative, and a minus times a minus is a plus. It pulses twice a cycle, 100 times a second on 50 Hz and 120 on 60 Hz, and averages half its top, the rms volts × the rms amps: 230 V × 10 A = 2300 W on a heater. The dot stays above the line here because the waves keep step. Lessons 4 and 5 put in a coil and a capacitor, which pull the current out of step, and there it dips below. Next, Inductance: the coil that pushes back.';
+  // Sources the checks restate (the lesson's own).
+  const OS = 'https://openstax.org/books/university-physics-volume-2/pages/15-2-simple-ac-circuits';
+  const KUPH11 = 'http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html';
+  const KUPH1 = 'https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html';
+  const UMASS = 'https://openbooks.library.umass.edu/funee/chapter/2-8';
+  const ENA = 'https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits';
+  const WJEC = 'https://masterymind.co.uk/subjects/physics-a-level/wjec/a-level/alternating-currents';
+  const SHIP = 'http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf';
+
+  const PICK = 'Tap one of the answers.';
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong' or 'empty' once checked), why: the puzzle. t: the cursor time Dan has
+  // set (null: the demonstration's); reach: how far the cursor has been; f: the frequency he switched
+  // to, ff: the one before it.
+  function blank() { return { pick: null, res: null, why: false, t: null, reach: 0, f: null, ff: null }; }
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, MODE = 'demo', motionEnd = 0;
+  let REC = {}, VBH = 400, curF = 50;
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+
+  // Text with highlighted key terms (*term*), built with K.el, never innerHTML.
+  function write(node, s) {
+    node.textContent = '';
+    s = String(s || '');
+    const re = /\*([^*]+)\*/g;
+    let from = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > from) node.appendChild(document.createTextNode(s.slice(from, m.index)));
+      node.appendChild(K.el('span', { class: 'mark' }, m[1]));
+      from = m.index + m[0].length;
+    }
+    if (from < s.length) node.appendChild(document.createTextNode(s.slice(from)));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play('answer', st.res === 'right' ? d.rdur : 0.8);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  // Replay plays the screen's demonstration again from its start.
+  const replayBtn = K.button({ label: 'Replay', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    Object.assign(st, { t: null, reach: 0, f: null, ff: null });
+    play('demo', d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  // The time cursor and the supply switch, shown only on the screens that free them.
+  const ctlT = K.control({ id: 't', label: 'Time cursor', min: 0, max: SPAN, step: 0.1, value: 5, unit: 'ms', fmt: (v) => fx(v, 1) + ' ms', snap: [5, 10, 15, 20], into: '#ctl' });
+  const ctlF = K.choice({ id: 'f', label: 'Supply', options: [{ value: '50', label: '50 Hz' }, { value: '60', label: '60 Hz' }], value: '50', into: '#ctl' });
+  const shown = { t: ctlT.get(), f: ctlF.get() };
+  // The controls set to what the picture shows (quietly: this is not Dan moving them).
+  function syncT(v) { if (v == null) return; if (Math.abs(ctlT.get() - v) > 1e-9) ctlT.set(v, true); shown.t = ctlT.get(); }
+  function syncF(f) { const s = String(f); if (String(ctlF.get()) !== s) ctlF.set(s, true); shown.f = ctlF.get(); }
+
+  // One animation plays each demonstration, a frequency switch and the motion after an answer; with
+  // reduced motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && T !== Infinity) { T = Infinity; paint(); } });
+  // A demonstration waits until most of its picture is in view, so on a phone it does not play out
+  // while Dan is still reading the words above it.
+  let seen = true, waiting = false, waitDur = 0;
+  if (typeof IntersectionObserver === 'function') {
+    seen = false;
+    new IntersectionObserver((es) => {
+      const e = es[es.length - 1];
+      seen = e.isIntersecting && (e.intersectionRatio >= 0.6 || e.intersectionRect.height >= 0.6 * (window.innerHeight || 1));
+      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }
+    }, { threshold: [0, 0.3, 0.6, 0.8, 1] }).observe(el('scene'));
+  }
+  function play(mode, dur) {
+    MODE = mode; waiting = false;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    if (mode === 'demo' && !seen) { waiting = true; waitDur = dur; T = 0; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // Dan takes over: whatever was moving shows finished.
+  function stopMotion() { if (anim.playing()) anim.pause(); waiting = false; T = Infinity; }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), grip = el('grip');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, dd) {
+    dd = dd == null ? K.SOFT : dd;
+    if (t0 + dd > latest) latest = t0 + dd;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, dd);
+  }
+  // A steady motion from 0 to 1 between t0 and t0 + dd.
+  function lin(t0, dd) {
+    if (t0 + dd > latest) latest = t0 + dd;
+    if (t0 < earliest) earliest = t0;
+    return T === Infinity ? 1 : K.clamp((T - t0) / dd, 0, 1);
+  }
+  function part(a, rise, draw) {
+    if (!(a > 0.001)) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  const R = (v) => Math.round(v * 100) / 100;
+  const poly = (ps) => 'M' + ps.map((q) => R(q[0]) + ' ' + R(q[1])).join('L');
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: R(x1), y1: R(y1), x2: R(x2), y2: R(y2) }));
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: R(x), y: R(y), width: R(Math.max(0, w)), height: R(Math.max(0, h)), rx: rx || 0 }));
+  const circ = (cls, p, r) => add(K.svg('circle', { class: cls, cx: R(p[0]), cy: R(p[1]), r }));
+  const path = (cls, dd) => add(K.svg('path', { class: cls, d: dd }));
+  // A text; '_rms' in it is set as a lowered 'rms' (V_rms reads as V with rms below the line).
+  function makeText(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: R(x), y: R(y), 'text-anchor': anchor || 'middle' });
+    const bits = String(s).split(/(_rms)/);
+    bits.forEach((b, j) => {
+      if (!b) return;
+      if (b === '_rms') t.appendChild(K.svg('tspan', { dy: 4 }, 'rms'));
+      else if (j > 0 && bits[j - 1] === '_rms') t.appendChild(K.svg('tspan', { dy: -4 }, b));
+      else t.appendChild(document.createTextNode(b));
+    });
+    return t;
+  }
+  const text = (x, y, s, cls, anchor) => add(makeText(x, y, s, cls, anchor));
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(makeText(0, -50, s, cls, 'start'));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 7;
+  }
+  function ask(x, y) { circ('ask', [x, y], 10); text(x, y + 5, '?', 'q'); }
+  // A key inside the drawing, in rows: each item a swatch and its name.
+  function keyRows(items, y) {
+    let x = 8, row = 0;
+    items.forEach((it) => {
+      const w = 18 + 6 + tw(it.label, 'ky');
+      if (x > 8 && x + w > 336) { x = 8; row++; }
+      const yy = y + row * 22, x0 = x;
+      part(it.a == null ? 1 : it.a, 0, () => { it.sw(x0, yy); text(x0 + 24, yy + 5, it.label, 'ky', 'start'); });
+      x += w + 14;
+    });
+    return y + row * 22 + 12;
+  }
+  const swLine = (cls) => (x, yy) => line(cls, x, yy, x + 18, yy);
+
+  // ---------- the scrubber ----------
+  const X0 = 44, X1 = 296, xT = (t) => X0 + t / SPAN * (X1 - X0);
+  // The graphs: the voltage and current graph (zero VY, half-height VH) and the power graph (zero PY,
+  // PH above and PN below); a power-only card leaves the first out.
+  const GF = { title: 16, axl: 38, VY: 92, VH: 42, plab: 162, PY: 226, PH: 52, PN: 52 };
+  const GC = { title: 16, plab: 40, PY: 104, PH: 52, PN: 52 };
+  // The moments sampled along a trace, every 0.1 ms up to `upto`.
+  function samples(upto) {
+    const out = [], n = Math.ceil(upto / SPAN * NS - 1e-9);
+    for (let j = 0; j <= n; j++) out.push(Math.min(upto, j * SPAN / NS));
+    return out;
+  }
+  function trace(cls, fn, upto, yf) {
+    const pts = [], data = [];
+    samples(upto).forEach((t) => { const v = fn(t); data.push([t, v]); pts.push([xT(t), yf(v)]); });
+    path(cls, poly(pts));
+    return data;
+  }
+  const tickL = (y, s) => { line('axis', X0 - 4, y, X0, y); text(X0 - 7, y + 5, s, 'tk', 'end'); };
+  const tickR = (y, s) => { line('axis', X1, y, X1 + 4, y); text(X1 + 7, y + 5, s, 'tkc', 'start'); };
+  // Where the cursor is in a demonstration's sweep (the last move started).
+  function sweepPos(d, demo) {
+    if (!d.sweep) return d.t;
+    let pos = d.sweep[0][2];
+    for (const s of d.sweep) {
+      if (demo && T < s[0]) break;
+      pos = mix(s[2], s[3], demo ? K.ease(lin(s[0], s[1])) : 1);
+    }
+    return pos;
+  }
+  // The furthest the sweep has taken the cursor so far.
+  function sweepReach(d, demo) {
+    let r = 0;
+    for (const s of d.sweep || []) {
+      if (demo && T < s[0]) break;
+      r = Math.max(r, s[2], mix(s[2], s[3], demo ? K.ease(lin(s[0], s[1])) : 1));
+    }
+    return r;
+  }
+  // The top of the first hump above the average, moved on by s × 5 ms and turned over by s; at s = 1
+  // it sits in the dip beside it. Returns its curved edge in data units [ms, W].
+  function capPath(W, avgP, s, yP) {
+    const edge = [];
+    for (let j = 0; j <= 50; j++) { const t = 2.5 + j * 0.1; edge.push([t + 5 * s, avgP + (W.p(t) - avgP) * (1 - 2 * s)]); }
+    const pts = edge.map((q) => [xT(q[0]), yP(q[1])]).concat([[xT(7.5 + 5 * s), yP(avgP)], [xT(2.5 + 5 * s), yP(avgP)]]);
+    path('cap', poly(pts) + 'Z');
+    return edge;
+  }
+
+  function drawCard(d, st) {
+    const c = CARDS[d.card], g = c.compact ? GC : GF, tl = d.tl || {};
+    const right = !d.show && st.res === 'right';
+    const slip = !d.show && st.res === 'wrong' ? (d.slips || {})[st.pick] || null : null;
+    const demo = d.show && MODE === 'demo';
+    const slipA = slip ? arr(0.1) : 0;
+
+    // The supply's frequency now: the screen's own, a demonstration's switch, or Dan's, part-way.
+    let fa = d.f || c.f, fb = fa, k = 1, m0 = null, md = MORPH;
+    if (d.fsel && st.f != null) {
+      fb = st.f; fa = st.ff != null ? st.ff : fb;
+      if (fa !== fb) { m0 = 0; k = MODE === 'morph' ? K.ease(lin(0, MORPH)) : 1; }
+    } else if (d.fsel && d.morph) {
+      fb = d.morph[1]; md = d.morph[2];
+      if (demo) { m0 = d.morph[0]; k = K.ease(lin(d.morph[0], md)); }
+    }
+    if (k >= 1) { fa = fb; k = 1; }
+    const f = fa + (fb - fa) * k, fShown = k < 0.5 ? fa : fb;
+    const W = waves(c, f);
+    const top = c.Vp * c.Vp / c.R, Vr = c.Vp / RT2, Ir = Vr / c.R, avgP = Vr * Ir;
+    const yP = (w) => g.PY - w * g.PH / c.Pax;
+    const yV = (v) => g.VY - v * g.VH / c.Vax, yI = (a) => g.VY - a * g.VH / c.Iax;
+
+    // The cursor: Dan's, the sweep's, or parked.
+    let tc = null;
+    if (d.cur === 'live') tc = st.t != null ? st.t : sweepPos(d, demo);
+    else if (d.cur === 'park') tc = d.t;
+    const live = d.cur === 'live' && !finished;
+
+    // How much of the power wave is drawn.
+    let upto = SPAN, pen = false;
+    if (d.hidePow) { upto = right ? SPAN * lin(0.2, 1.2) : 0; pen = true; }
+    else if (d.part != null) { upto = right ? d.part + (SPAN - d.part) * lin(0.4, 1.2) : d.part; pen = right; }
+    else if (d.trace === 'reach') upto = Math.max(st.reach || 0, sweepReach(d, demo), tc);
+    else if (d.trace === 'sweep') { upto = demo && T < tl.next ? tc : 20 + 20 * (demo ? lin(tl.next, 0.8) : 1); pen = true; }
+    else if (d.grow) { upto = demo ? SPAN * lin(d.grow[0], d.grow[1]) : SPAN; pen = true; }
+
+    // The dashed average, and the hump-count row.
+    let avgA = 0;
+    if (d.avg === 'show') avgA = demo && tl.avg != null ? arr(tl.avg) : 1;
+    else if (d.avg === 'ask') avgA = right ? arr(d.hidePow ? 1.3 : 0.3) : 0;
+    let countA = 0, countF = fShown;
+    if (d.count === 'show') {
+      if (d.fsel && m0 != null) {
+        if (T < m0) { countF = fa; countA = 1 - K.arrive(T, Math.max(FADE + 0.1, m0 - 0.35), 0.3); }
+        else countA = k < 1 ? 0 : arr(m0 + md + 0.2);
+      } else countA = demo && tl.count != null ? arr(tl.count) : 1;
+    } else if (d.count === 'ask') countA = right ? arr(1.3) : 0;
+
+    Object.assign(REC, { tc, f: fShown, upto, Vr, Ir, top, R: c.R, avg: avgA > 0 ? avgP : null, wv: null, cu: null, pw: null, cap: null,
+      slip: slip && slipA > 0 ? slip : null, dotShown: false });
+
+    // ---- the card ----
+    text(8, g.title, c.title(fShown), 'tt', 'start');
+
+    // ---- the voltage and the current, sharing one time axis ----
+    if (!c.compact) {
+      text(8, g.axl, 'voltage (V)', 'ax', 'start');
+      text(336, g.axl, 'current (A)', 'axc', 'end');
+      line('axis', X0, g.VY - g.VH - 4, X0, g.VY + g.VH + 4);
+      line('axis', X1, g.VY - g.VH - 4, X1, g.VY + g.VH + 4);
+      line('zero', X0, g.VY, X1, g.VY);
+      text(X0 - 7, g.VY + 5, '0', 'tk', 'end');
+      tickL(yV(c.Vp), num(c.Vp, 0)); tickL(yV(-c.Vp), '−' + num(c.Vp, 0));
+      const Ip = c.Vp / c.R;
+      tickR(yI(Ip), num(Ip, c.idp)); tickR(yI(-Ip), '−' + num(Ip, c.idp));
+      REC.wv = trace('vw', W.v, SPAN, yV);
+      REC.cu = trace('cw', W.i, SPAN, yI);
+    }
+
+    // ---- the power, voltage × current at each instant ----
+    text(8, g.plab, c.kw ? 'power (kW)' : 'power (W)', 'ax', 'start');
+    line('axis', X0, g.PY - g.PH - 4, X0, g.PY + g.PN);
+    line('axis', X0, g.PY + g.PN, X1, g.PY + g.PN);
+    line('zero', X0, g.PY, X1, g.PY);
+    text(X0 - 7, g.PY + 5, '0', 'tk', 'end');
+    const topA = d.hidePow ? (right ? arr(1.0) : 0) : 1;
+    part(topA, 0, () => tickL(yP(top), pwTick(c, top)));
+    part(avgA, 0, () => { tickL(yP(avgP), pwTick(c, avgP)); line('avg', X0, yP(avgP), X1, yP(avgP)); });
+    if (d.fold) {
+      const s = demo ? K.ease(lin(tl.fold[0], tl.fold[1])) : 1;
+      part(demo ? arr(tl.cap) : 1, 0, () => { REC.cap = capPath(W, avgP, s, yP); });
+    }
+    if (upto > 0.05) {
+      REC.pw = trace('pw', W.p, upto, yP);
+      if (pen && upto < SPAN - 1e-9) circ('pen', [xT(upto), yP(W.p(upto))], 4.5);
+    }
+    if (d.hidePow && !right && !slip) ask(xT(20), g.PY - g.PH / 2);
+    if (slip) part(slipA, 0, () => {
+      if (slip.line != null) line('bad', X0, yP(slip.line), X1, yP(slip.line));
+      if (slip.dot != null) circ('dbad', [xT(d.t), yP(slip.dot)], 6);
+      if (slip.wave != null) {
+        const fn = slip.wave === 'signed'
+          ? (t) => { const s = Math.sin(TAU * f * t / 1000); return top * s * Math.abs(s); }
+          : (t) => top * Math.pow(Math.sin(slip.wave * Math.PI * f * t / 1000), 2);
+        trace('bad', fn, SPAN, yP);
+      }
+    });
+    // The time axis, 0 to 40 ms.
+    const ty = g.PY + g.PN + 24;
+    for (let t = 0; t <= SPAN; t += 10) {
+      line('axis', xT(t), g.PY + g.PN, xT(t), g.PY + g.PN + 5);
+      text(xT(t), ty, t === SPAN ? SPAN + ' ms' : String(t), 'tk', 'middle');
+    }
+
+    // ---- the time cursor through both graphs, and where it meets each wave ----
+    let vv = 0, ii = 0, pp = 0, dotA = 0;
+    if (tc != null) {
+      const x = xT(tc);
+      vv = W.v(tc); ii = W.i(tc); pp = vv * ii;
+      if (!c.compact) line('cur', x, g.VY - g.VH - 4, x, g.VY + g.VH + 4);
+      line('cur', x, g.PY - g.PH - 4, x, g.PY + g.PN);
+      if (!c.compact) { circ('dv', [x, yV(vv)], 4.5); circ('dc', [x, yI(ii)], 4.5); }
+      dotA = d.part != null ? (right ? arr(0.2) : 0) : 1;
+      part(dotA, 0, () => circ('dp', [x, yP(pp)], 6));
+      if (live) { circ('ring', [x, g.PY + g.PN], 9); circ('knob', [x, g.PY + g.PN], 4); }
+      Object.assign(REC, { volts: vv, amps: ii, watts: pp, dotShown: dotA > 0 });
+    }
+
+    // ---- under the graphs: the hump lengths, then the working ----
+    let y = ty;
+    if (d.brackets) {
+      const hl = 1000 / (2 * fShown);
+      [[0, tl.b1], [hl, tl.b2]].forEach((b) => part(demo ? arr(b[1]) : 1, 0, () => {
+        const xa = xT(b[0]) + 2, xb = xT(b[0] + hl) - 2, yb = ty + 12;
+        path('brk', 'M' + R(xa) + ' ' + (yb - 5) + 'V' + yb + 'H' + R(xb) + 'V' + (yb - 5));
+        text((xa + xb) / 2, yb + 17, num(hl, 0) + ' ms', 'tk', 'middle');
+      }));
+      y += 32;
+    }
+    const row = (s, a, cls) => { y += 24; const yy = y; part(a == null ? 1 : a, 0, () => text(8, yy, s, cls || 'wk', 'start')); };
+    if (tc != null) {
+      y += 24;
+      const pre = 'at ' + fx(tc, 1) + ' ms: ' + fx(vv, 1) + ' V × ' + fx(ii, 2) + ' A =';
+      text(8, y, pre, 'wk', 'start');
+      const x2 = 8 + tw(pre, 'wk') + 5, yy = y;
+      if (dotA > 0) part(dotA, 0, () => text(x2, yy, fx(pp, 0) + ' W', 'wk em', 'start'));
+      else text(x2, y, '?', 'wk em', 'start');
+    }
+    if (d.count === 'ask' && !right) row('on ' + fShown + ' Hz: ? humps a second');
+    else if (d.count) row('2 humps a cycle × ' + countF + ' Hz = ' + 2 * countF + ' humps a second', countA);
+    if (d.each0) row('each wave averages 0 over a cycle');
+    if (d.derive) {
+      row('V_rms = 0.707 × ' + num(c.Vp, 0) + ' V = ' + num(Vr, 1) + ' V', demo ? arr(tl.r1) : 1);
+      row('I_rms = 0.707 × ' + num(c.Vp / c.R, 2) + ' A = ' + num(Ir, 2) + ' A', demo ? arr(tl.r2) : 1);
+    }
+    if (d.avg === 'ask' && !right) row('average power: ?');
+    else if (d.avg) {
+      const rowA = d.avg === 'show' && demo && tl.rr != null ? arr(tl.rr) : avgA;
+      row(c.compact ? 'average: half the ' + pwr(c, top) + ' top = ' + pwr(c, avgP)
+        : 'V_rms × I_rms = ' + num(Vr, 1) + ' V × ' + num(Ir, 2) + ' A = ' + pwr(c, avgP), rowA);
+    }
+
+    // ---- the key ----
+    const items = [];
+    if (!c.compact) items.push({ sw: swLine('vw'), label: 'voltage' }, { sw: swLine('cw'), label: 'current' });
+    items.push({ sw: swLine('pw'), label: 'power' });
+    if (d.avg) items.push({ sw: swLine('avg'), label: c.compact ? 'average' : 'average, V_rms × I_rms' });
+    if (d.fold) items.push({ sw: (x, yy) => rect('cap', x, yy - 7, 18, 14, 2), label: 'a hump\'s top, moved into a dip' });
+    if (tc != null) items.push({ sw: (x, yy) => line('cur', x + 9, yy - 8, x + 9, yy + 8), label: 'time cursor' });
+    // A puzzle keeps the place for 'that pick' from the start, so a wrong Check never moves the picture.
+    if (!d.show) items.push({ sw: swLine('bad'), label: 'that pick', a: slip ? slipA : 0 });
+    y = keyRows(items, y + 30);
+
+    // ---- in words, for a screen reader ----
+    let said = c.title(fShown) + '. ';
+    if (tc != null) said += 'At ' + fx(tc, 1) + ' ms the voltage is ' + fx(vv, 1) + ' V and the current ' + fx(ii, 2) + ' A' + (dotA > 0 ? ', so the power then is ' + fx(pp, 0) + ' W. ' : '; the power there is asked. ');
+    said += REC.pw ? 'The power wave stays at or above zero, two humps a cycle' + (avgA > 0 ? ', averaging ' + pwr(c, avgP) + '.' : '.') : 'The power wave is hidden.';
+    return { h: y + 4, said };
+  }
+
+  // ---------- dragging the time cursor across the graphs ----------
+  const liveOn = () => !finished && STEPS[at()].cur === 'live';
+  function placeGrip(d) {
+    const on = !finished && d.cur === 'live';
+    grip.hidden = !on;
+    grip.tabIndex = on ? 0 : -1;
+    if (!on) return;
+    const g = CARDS[d.card].compact ? GC : GF;
+    const top = (g.VY != null ? g.VY - g.VH : g.PY - g.PH) - 8, bot = g.PY + g.PN + 12;
+    grip.style.left = ((X0 - 12) / 340 * 100).toFixed(3) + '%';
+    grip.style.width = ((X1 - X0 + 24) / 340 * 100).toFixed(3) + '%';
+    grip.style.top = (top / VBH * 100).toFixed(3) + '%';
+    grip.style.height = ((bot - top) / VBH * 100).toFixed(3) + '%';
+    const tv = REC.tc == null ? 0 : REC.tc;
+    grip.setAttribute('aria-valuemin', '0'); grip.setAttribute('aria-valuemax', String(SPAN));
+    grip.setAttribute('aria-valuenow', fx(tv, 1)); grip.setAttribute('aria-valuetext', 'time ' + fx(tv, 1) + ' ms');
+  }
+  function tFromX(clientX) {
+    const r = svg.getBoundingClientRect();
+    if (!r.width) return null;
+    const x = (clientX - r.left) / r.width * 340;
+    return K.clamp((x - X0) / (X1 - X0) * SPAN, 0, SPAN);
+  }
+  function setT(v) {
+    if (v == null || !isFinite(v)) return;
+    if (typeof ctlT.drag === 'function') ctlT.drag(v); else ctlT.set(Math.round(v * 10) / 10);
+    K.reveal();
+  }
+  // A sideways drag scrubs; a tap jumps the cursor there; an up-down swipe scrolls the page.
+  let held = null, slid = false;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!liveOn()) return;
+    held = e.pointerId; slid = false;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the graphs */ }
+    if (e.pointerType === 'mouse') { e.preventDefault(); slid = true; setT(tFromX(e.clientX)); }
+  });
+  grip.addEventListener('pointermove', (e) => { if (held !== e.pointerId || !liveOn()) return; slid = true; setT(tFromX(e.clientX)); });
+  grip.addEventListener('pointerup', (e) => {
+    if (held === e.pointerId && !slid && liveOn()) setT(tFromX(e.clientX));
+    if (held === e.pointerId) held = null;
+  });
+  grip.addEventListener('pointercancel', (e) => { if (held === e.pointerId) held = null; });
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    if (!liveOn()) return;
+    const by = { ArrowUp: 0.5, ArrowRight: 0.5, ArrowDown: -0.5, ArrowLeft: -0.5 }[e.key];
+    if (by == null) return;
+    e.preventDefault();
+    ctlT.set(K.clamp(Math.round((ctlT.get() + by) * 10) / 10, 0, SPAN));
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    REC = {};
+    const out = drawCard(d, st);
+    VBH = Math.ceil(out.h);
+    svg.setAttribute('viewBox', '0 0 340 ' + VBH);
+    svg.setAttribute('aria-label', out.said);
+    if (i === at()) {
+      if (d.trace === 'reach') st.reach = Math.max(st.reach || 0, REC.upto || 0);
+      curF = REC.f;
+      placeGrip(d);
+      if (d.cur === 'live' && !finished && REC.tc != null) syncT(REC.tc);
+      if (d.fsel && !finished) syncF(REC.f);
+    }
+  }
+
+  // ---------- the model: the readings at the screen's cursor ----------
+  function modelOf(p) {
+    const d = STEPS[K.clamp(Math.round(p.step), 0, STEPS.length - 1)], c = CARDS[d.card];
+    const f = d.fsel ? (String(p.f) === '60' ? 60 : 50) : d.f || c.f;
+    const t = d.cur === 'live' ? p.t : d.t != null ? d.t : 5;
+    const W = waves(c, f), v = W.v(t), a = W.i(t);
+    return { volts: v, amps: a, watts: v * a };
+  }
+  K.model(modelOf);
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing() && !waiting) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      shown.t = p.t; shown.f = p.f;
+      if (d.show) { Object.assign(st, { t: null, reach: 0, f: null, ff: null }); play('demo', d.dur); }
+      else { waiting = false; anim.pause(); T = Infinity; MODE = 'answer'; }
+    } else {
+      // Dan moved the cursor: the demonstration stops where it ends, and the cursor is his.
+      if (p.t !== shown.t) {
+        shown.t = p.t;
+        if (d.cur === 'live' && !finished) { stopMotion(); st.t = p.t; }
+      }
+      // Dan switched the supply: the waves squeeze or stretch to the new frequency.
+      if (String(p.f) !== String(shown.f)) {
+        shown.f = p.f;
+        const nf = String(p.f) === '60' ? 60 : 50;
+        if (d.fsel && !finished && nf !== curF) { st.ff = curF; st.f = nf; play('morph', MORPH + 0.85); }
+        else if (d.fsel && !finished) { st.f = nf; st.ff = null; }
+      }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const tOn = !finished && d.cur === 'live', fOn = !finished && !!d.fsel;
+    ctlT.el.hidden = !tOn;
+    ctlF.el.hidden = !fOn;
+    el('ctl').hidden = !tOn && !fOn;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const near = (a, b, tol) => Math.abs(a - b) <= tol;
+  // A step painted in the state given, finished: what it draws.
+  function drawn(i, st, mode) {
+    const keepS = S[i], keepT = T, keepM = MODE;
+    S[i] = st; T = Infinity; MODE = mode || (STEPS[i].show ? 'demo' : 'answer');
+    try {
+      paint(i);
+      return Object.assign({}, REC, { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) });
+    } finally { S[i] = keepS; T = keepT; MODE = keepM; paint(); }
+  }
+  const settledOf = (i) => drawn(i, STEPS[i].show ? blank() : solvedSt(i));
+  // The times of a drawn trace's tops (sign 1) or bottoms (sign −1).
+  function peaks(data, sign) {
+    const out = [];
+    for (let j = 1; j < data.length - 1; j++) {
+      const a = sign * data[j - 1][1], b = sign * data[j][1], c = sign * data[j + 1][1];
+      if (b > a && b >= c) out.push(data[j][0]);
+    }
+    return out;
+  }
+
+  K.check('Both curves reach their maxima and minima at the same times, that is, the current through and the voltage across the resistor are in phase: on every card the drawn current is the drawn voltage ÷ the resistance at each instant, and its tops and bottoms fall at the voltage\'s', () =>
+    STEPS.every((d, i) => {
+      if (CARDS[d.card].compact) return true;
+      const g = settledOf(i);
+      if (!g.wv || !g.cu || g.wv.length !== g.cu.length || g.wv.length < 300) return false;
+      const okI = g.wv.every((q, j) => near(g.cu[j][0], q[0], 1e-12) && near(g.cu[j][1], q[1] / g.R, 1e-9 * Math.max(1, Math.abs(q[1]))));
+      const same = (a, b) => a.length === b.length && a.every((t, j) => near(t, b[j], 1e-9));
+      return okI && peaks(g.wv, 1).length >= 2 && same(peaks(g.wv, 1), peaks(g.cu, 1)) && same(peaks(g.wv, -1), peaks(g.cu, -1));
+    }), { source: OS });
+  K.check('The waveform for power is always positive, never negative for this resistive circuit: on every screen each drawn point of the power wave is the drawn voltage × the drawn current at that instant, and none is below zero', () =>
+    STEPS.every((d, i) => {
+      const g = settledOf(i), c = CARDS[d.card];
+      if (!g.pw || g.pw.length < 100) return false;
+      if (!g.pw.every((q) => q[1] >= -1e-9 * g.top)) return false;
+      if (c.compact) return g.pw.every((q) => near(q[1], g.top * Math.pow(Math.sin(TAU * c.f * q[0] / 1000), 2), 1e-9 * g.top));
+      return g.pw.every((q, j) => near(q[0], g.wv[j][0], 1e-12) && near(q[1], g.wv[j][1] * g.cu[j][1], 1e-9 * g.top));
+    }), { source: KUPH11 });
+  K.check('The waveform for power is not at the same frequency as the voltage or current; its frequency is double that of either: the drawn power wave has a hump at every top and every bottom of the voltage, two a cycle, shown as 100 humps a second on 50 Hz and 120 on 60 Hz', () =>
+    [['Two humps a cycle', 50], ['A faster supply', 60], ['On board ship', 60]].every((q) => {
+      const g = settledOf(idx(q[0]));
+      if (!g.wv || !g.pw) return false;
+      const vt = peaks(g.wv, 1).concat(peaks(g.wv, -1)).sort((a, b) => a - b), pt = peaks(g.pw, 1);
+      return g.f === q[1] && vt.length >= 4 && vt.length === pt.length && vt.every((t, j) => near(t, pt[j], 1e-9)) &&
+        g.texts.indexOf('2 humps a cycle × ' + q[1] + ' Hz = ' + 2 * q[1] + ' humps a second') >= 0;
+    }), { source: KUPH11 });
+  K.check('The product of the RMS voltage and RMS current is equal to the average power: on the 10 Ω, mains, clamp-meter and ship cards the dashed average sits at the mean of the drawn power wave over whole humps, and the row under it multiplies the rms values to that figure: 500 W, 1000 W, 2300 W and 4.4 kW', () =>
+    [['The average', 'Vrms × Irms = 70.7 V × 7.07 A = 500 W'], ['A mains heater', 'Vrms × Irms = 230 V × 4.35 A = 1000 W'],
+      ['The clamp meter', 'Vrms × Irms = 230 V × 10 A = 2300 W'], ['Mixed: a ship heater', 'Vrms × Irms = 440 V × 10 A = 4.4 kW']].every((q) => {
+      const g = settledOf(idx(q[0]));
+      if (!g.pw || g.avg == null) return false;
+      const hump = 1000 / (2 * g.f);
+      let n = Math.floor(SPAN / hump + 1e-9);
+      while (n > 0 && Math.abs(n * hump * 10 - Math.round(n * hump * 10)) > 1e-6) n--;
+      const end = Math.round(n * hump * 10) / 10;
+      let area = 0;
+      for (let j = 1; j < g.pw.length && g.pw[j][0] <= end + 1e-9; j++) area += (g.pw[j - 1][1] + g.pw[j][1]) / 2 * (g.pw[j][0] - g.pw[j - 1][0]);
+      return n >= 2 && near(area / end, g.avg, 2e-3 * g.avg) && near(g.Vr * g.Ir, g.avg, 1e-9 * g.avg) && g.texts.indexOf(q[1]) >= 0;
+    }), { source: UMASS });
+  K.check('For a sine wave, the RMS value is approximately 0.707 of its peak value: on the 10 Ω card the rows read Vrms = 0.707 × 100 V = 70.7 V and Irms = 0.707 × 10 A = 7.07 A', () => {
+    const g = settledOf(idx('The average'));
+    return near(1 / RT2, 0.707, 5e-4) && num(100 * 0.707, 1) === num(100 / RT2, 1) && num(10 * 0.707, 2) === num(10 / RT2, 2) &&
+      g.texts.indexOf('Vrms = 0.707 × 100 V = 70.7 V') >= 0 && g.texts.indexOf('Irms = 0.707 × 10 A = 7.07 A') >= 0;
+  }, { source: KUPH1 });
+  K.check('UK mains voltage is 230 V RMS, so the peak voltage is about 325 V (230 × √2): on the mains card the voltage wave reaches 325 V at the top of each cycle and −325 V at the bottom', () => {
+    const g = settledOf(idx('A mains heater'));
+    let hi = -Infinity, lo = Infinity;
+    g.wv.forEach((q) => { hi = Math.max(hi, q[1]); lo = Math.min(lo, q[1]); });
+    return near(hi, 230 * RT2, 0.01) && near(lo, -230 * RT2, 0.01) && g.texts.indexOf('325') >= 0 && g.texts.indexOf('−325') >= 0;
+  }, { source: WJEC });
+  K.check('UK mains electricity operates at a nominal voltage of 230V: the 1 kW mains heater is 230² ÷ 1000 = 52.9 Ω and draws 230 ÷ 52.9 = 4.35 A, its power humps reaching 2000 W and averaging 1000 W', () => {
+    const g = settledOf(idx('A mains heater'));
+    let hi = 0;
+    g.pw.forEach((q) => { hi = Math.max(hi, q[1]); });
+    return near(CARDS.mains.R, 52.9, 1e-9) && near(g.Vr, 230, 1e-9) && num(g.Ir, 2) === '4.35' && near(hi, 2000, 1e-6) && near(g.avg, 1000, 1e-9) &&
+      g.texts.indexOf('1 kW heater, 52.9 Ω, on 230 V mains') >= 0 && g.texts.indexOf('2000') >= 0;
+  }, { source: ENA });
+  K.check('60 Hz is the most common frequency adopted for use on board ship: the ship screens run at 60 Hz, and once answered show 2 humps a cycle × 60 Hz = 120 humps a second', () =>
+    ['On board ship', 'Mixed: a ship heater'].every((n) => { const g = settledOf(idx(n)); return g.f === 60 && g.texts.indexOf('2 humps a cycle × 60 Hz = 120 humps a second') >= 0; }),
+  { source: SHIP });
+  K.check('The majority of ships have a 3 phase, 3 wire, 440V insulated neutral system: the ship heater runs at 440 V rms, its wave peaking at 440 × √2 = 622 V, and drawing 10 A it averages 440 × 10 = 4.4 kW', () => {
+    const g = settledOf(idx('Mixed: a ship heater'));
+    let hi = -Infinity;
+    g.wv.forEach((q) => { hi = Math.max(hi, q[1]); });
+    return near(g.Vr, 440, 1e-9) && near(g.Ir, 10, 1e-9) && near(g.avg, 4400, 1e-6) && g.texts.indexOf('622') >= 0 && hi <= 440 * RT2 + 1e-9 && hi > 440 * RT2 * 0.999;
+  }, { source: SHIP });
+  K.check('The scrubber multiplies: at 5 ms 100 V × 10 A = 1000 W; at 10 ms both are 0, so the power is 0; at 15 ms −100 V × −10 A = +1000 W', () => {
+    const a = K.at({ step: 0, t: 5 }), b = K.at({ step: 0, t: 10 }), c = K.at({ step: idx('At the bottom') });
+    return near(a.volts, 100, 1e-9) && near(a.amps, 10, 1e-9) && near(a.watts, 1000, 1e-9) && near(b.volts, 0, 1e-9) && near(b.watts, 0, 1e-9) &&
+      near(c.volts, -100, 1e-9) && near(c.amps, -10, 1e-9) && near(c.watts, 1000, 1e-9);
+  });
+  K.check('The fold: the top of a hump above the 500 W average, moved on half a hump (5 ms) and turned over, lies exactly along the dip beside it', () => {
+    const W = waves(CARDS.test, 50);
+    for (let j = 0; j <= 100; j++) { const t = 2.5 + j * 0.05; if (!near(1000 - W.p(t), W.p(t + 5), 1e-9)) return false; }
+    const g = settledOf(idx('The average'));
+    return !!g.cap && g.cap.length > 20 && g.cap.every((q) => q[0] >= 7.5 - 1e-9 && q[0] <= 12.5 + 1e-9 && near(q[1], W.p(q[0]), 1e-9));
+  });
+  K.check('Each puzzle accepts only its right answer; before an answer its picture hides what is asked (the power there, the power wave, the average or the humps a second), and each wrong pick draws what it claims, in red', () => {
+    const only = DO.every((i) => { const d = STEPS[i]; return d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)); });
+    const hidden = DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank());
+      return (d.part == null || (!g.dotShown && !!g.pw && g.pw[g.pw.length - 1][0] <= d.part + 1e-9 && g.texts.indexOf('?') >= 0)) &&
+        (!d.hidePow || g.pw === null) && (d.avg !== 'ask' || (g.avg === null && g.texts.indexOf('average power: ?') >= 0)) &&
+        (d.count !== 'ask' || g.texts.indexOf('on ' + g.f + ' Hz: ? humps a second') >= 0);
+    });
+    const slips = DO.every((i) => STEPS[i].opts.filter((o) => o !== STEPS[i].want).every((o) => {
+      const s = STEPS[i].slips[o], g = drawn(i, wrongSt(i, o));
+      return !!s && g.slip === s;
+    }));
+    return only && hidden && slips;
+  });
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T, keepM = MODE;
+    const timed = (i, st, mode, limit) => {
+      const keepS = S[i];
+      T = Infinity; MODE = mode; latest = 0; earliest = Infinity; S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), 'demo', d.dur); return r && d.dur >= 3 && d.dur <= 4.5 && earliest >= FADE; }
+      return timed(i, solvedSt(i), 'answer', d.rdur) && d.rdur <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), 'answer', 0.8));
+    });
+    T = keepT; MODE = keepM; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

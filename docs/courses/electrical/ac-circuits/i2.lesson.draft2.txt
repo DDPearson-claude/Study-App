@@ -1,0 +1,91 @@
+{
+  "iid": "i2",
+  "title": "Rms: the number on the label",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the two heat bars matching when the DC level sits near 0.707 of the AC wave's peak, not at the peak or the average, when you drag the DC level up and down.",
+    "title": "The heater test",
+    "controls": [
+      { "id": "step", "label": "Step", "min": 0, "max": 11, "step": 1, "value": 0, "unit": "" }
+    ],
+    "outputs": [
+      { "id": "acHeat", "label": "AC heater, average heat", "unit": "W", "decimals": 0 },
+      { "id": "dcHeat", "label": "DC heater, heat", "unit": "W", "decimals": 0 },
+      { "id": "ratio", "label": "DC level ÷ AC peak", "unit": "", "decimals": 3 }
+    ],
+    "whatAmILookingAt": "A short lesson in twelve small screens, most on one picture, the heater test. Two identical heater elements sit side by side, each 10 Ω, an example value. The left one is fed AC, drawn as a sine wave of voltage against time with a 100 V peak. The right one is fed DC, drawn as a flat line whose height you drag up and down, from 0 to 120 V, opening at 50 V. Under each element is its power against time, worked moment by moment as voltage squared ÷ resistance, the P = V² ÷ R you use on DC, applied at each instant. The AC element's power is a row of humps: 100² ÷ 10 = 1000 W at each peak of the voltage, nothing as it crosses zero, and the same humps on the backward half, because a minus squared is a plus. A dashed line marks the humps' average, 500 W, half their top, because a squared sine's humps fit exactly into its dips (Calculus fundamentals' fold). The DC element's power is a flat line at its level squared ÷ 10: 250 W at the opening 50 V. Beside each element a heat bar fills to its average power, and readouts give the AC heater's average heat, the DC heater's heat and the DC level ÷ the AC peak. When the bars match, the DC level is the AC wave's rms value: near 70.7 V, where 70.7² ÷ 10 = 500 W, a ratio near 0.707. Screen 1 lets you drag the DC level and watch the DC heat bar rise and fall against the AC one. Screen 2 asks where the bars match: at 100 V (the peak), near 70.7 V, or near 63.7 V (the AC voltage's average over half a cycle). Each wrong pick sets the DC line there and shows its heat bar missing: 1000 W at 100 V, about 406 W at 63.7 V. Screen 3 shows why it lands near 70.7 V: the DC line slides to 70.7 V, its flat 500 W power line lies along the AC humps' dashed average, and the recipe is spelt out under the humps, square the wave, take the mean, take the root, 5000 V² then 70.7 V. Screen 4 asks how the heat compares with the DC level at 100 V and the AC peak at 100 V: the DC one gives twice the heat, 1000 W against 500 W; the same heat; or 1.41 times the heat (the voltage ratio, forgetting the square). Screen 5 frees a shape switch, sine, triangle and square, all with a 100 V peak. The square wave sits at 100 V the whole time except for its instant flips, so its power is a flat 1000 W and the bars match at 100 V, a ratio of 1.0. The triangle spends more of its time low down than the sine does, so its humps are thinner: the mean of a ramp's square is a third of its top's square (Calculus fundamentals' ramp), so its average heat is 10000 ÷ 3 ÷ 10 = 333 W and the bars match near 57.7 V, 100 ÷ √3, a ratio near 0.577. Screen 6 asks what DC heats the element as much as the 100 V triangle: near 57.7 V; near 70.7 V (the sine's ratio used on the wrong shape); or 50 V (the triangle's average over half a cycle). Screen 7 turns to the mains card: the AC wave is now 230 V mains on a 1 kW heater of 52.9 Ω, 230² ÷ 1000. The voltage axis runs to 400 V. The wave reaches 325 V at the top of each cycle and −325 V at the bottom, 230 × √2, and the power humps reach 2000 W with a dashed average of 1000 W. The DC line set at 230 V gives a flat 1000 W and the heat bars match. Screen 8 asks for the top of the 230 V mains wave: 325 V; 230 V (the label taken as the top); or 163 V (230 ÷ √2, the conversion the wrong way round). Screen 9 adds a meter beside the mains card, a needle on a scale to 400 V. Its needle follows the average of the wave folded all one way, 0.637 of the peak on a sine, and its scale is marked up by 1.11, the sine's 0.707 ÷ 0.637, so on the sine it reads 230 V. The shape switch then puts on a triangle and a square, each with the same 325 V peak: on the triangle the needle shows 180 V while the heat bars match at 188 V; on the square it shows 361 V while they match at 325 V. Screen 10: such a meter shows 111 V on a square wave whose peak is 100 V; what is its rms value? 100 V; 111 V (trusting the meter); or 70.7 V (the sine's ratio). Screens 11 and 12 are mixed. Screen 11: a 1 kW, 230 V heater is run from a 230 V DC supply; does it give 1 kW, 2 kW (the AC power at the top of each wave), or 1.41 kW (the voltage ratio used on the heat)? Screen 12: on one supply an average-reading meter shows 180 V and a true-rms meter 188 V; is the wave not a sine, with 188 V the figure that sets the heat; is the average-reading meter faulty; or is the true-rms meter showing the peak? Each puzzle offers three answers; a wrong pick gets a one-line hint naming its slip, Why? explains in words, and a right Check draws the answer on the picture. The closing line says where the course goes next: Resistance in AC, the power wave moment by moment.",
+    "ignores": "The heat bars fill straight to the average power; a real element takes time to warm, and at mains frequency its temperature barely ripples within a cycle. The elements' resistance is held fixed, though a real element's resistance changes as it heats. The square wave's flips are drawn as instant. The meter is an idealised average-reading meter. Real mains is close to a sine rather than exactly one. Heater sizes and the 100 V peak are example values.",
+    "numbers": [
+      { "label": "Number of screens", "value": 12, "kind": "assumed" },
+      { "label": "Each heater element's resistance, in ohms", "value": 10, "kind": "assumed" },
+      { "label": "AC wave's peak on the heater test, in volts", "value": 100, "kind": "assumed" },
+      { "label": "DC level slider, lowest, in volts", "value": 0, "kind": "assumed" },
+      { "label": "DC level slider, highest, in volts", "value": 120, "kind": "assumed" },
+      { "label": "Opening DC level, in volts", "value": 50, "kind": "control" },
+      { "label": "DC heat at the opening level, in watts", "value": 250, "kind": "computed" },
+      { "label": "AC power at each peak, in watts", "value": 1000, "kind": "computed" },
+      { "label": "AC heater's average heat, in watts", "value": 500, "kind": "computed" },
+      { "label": "Mean of the squared voltage, in volts squared", "value": 5000, "kind": "computed" },
+      { "label": "DC level where the heat bars match, in volts", "value": 70.7, "kind": "computed" },
+      { "label": "Rms ÷ peak for a sine", "value": 0.707, "kind": "constant", "source": 2 },
+      { "label": "Sine's average over half a cycle, in volts", "value": 63.7, "kind": "computed" },
+      { "label": "Sine's half-cycle average ÷ peak", "value": 0.637, "kind": "computed" },
+      { "label": "DC heat at 63.7 V, in watts", "value": 406, "kind": "computed" },
+      { "label": "DC heat at 100 V, in watts", "value": 1000, "kind": "computed" },
+      { "label": "Heat ratio, DC at 100 V to AC of 100 V peak", "value": 2, "kind": "computed" },
+      { "label": "Slip, the voltage ratio √2", "value": 1.41, "kind": "computed" },
+      { "label": "Square wave's matching DC level, in volts", "value": 100, "kind": "computed" },
+      { "label": "Rms ÷ peak for a square wave", "value": 1.0, "kind": "computed" },
+      { "label": "Triangle's squared top, in volts squared", "value": 10000, "kind": "computed" },
+      { "label": "Triangle's average heat, in watts", "value": 333, "kind": "computed" },
+      { "label": "Triangle's matching DC level, in volts", "value": 57.7, "kind": "computed" },
+      { "label": "Rms ÷ peak for a triangle", "value": 0.577, "kind": "computed" },
+      { "label": "Triangle's average over half a cycle, in volts", "value": 50, "kind": "computed" },
+      { "label": "UK mains nominal voltage, in volts", "value": 230, "kind": "constant", "source": 4 },
+      { "label": "UK mains lower limit, in volts", "value": 216, "kind": "constant", "source": 4 },
+      { "label": "UK mains upper limit, in volts", "value": 253, "kind": "constant", "source": 4 },
+      { "label": "Peak of 230 V mains, in volts", "value": 325, "kind": "constant", "source": 3 },
+      { "label": "Mains swing, top to bottom, in volts", "value": 650, "kind": "computed" },
+      { "label": "Peak at the upper limit, in volts", "value": 358, "kind": "computed" },
+      { "label": "Example heater rating, in kilowatts", "value": 1, "kind": "assumed" },
+      { "label": "Example heater rating, in watts", "value": 1000, "kind": "assumed" },
+      { "label": "Heater's resistance, in ohms", "value": 52.9, "kind": "computed" },
+      { "label": "Heater's power at the top of each wave, in watts", "value": 2000, "kind": "computed" },
+      { "label": "Mains card voltage axis top, in volts", "value": 400, "kind": "assumed" },
+      { "label": "Slip, 230 ÷ √2, in volts", "value": 163, "kind": "computed" },
+      { "label": "Average-reading meter's scale factor", "value": 1.11, "kind": "computed" },
+      { "label": "Meter on a 325 V triangle, in volts", "value": 180, "kind": "computed" },
+      { "label": "Rms of a 325 V triangle, in volts", "value": 188, "kind": "computed" },
+      { "label": "Meter on a 325 V square wave, in volts", "value": 361, "kind": "computed" },
+      { "label": "Meter on a 100 V square wave, in volts", "value": 111, "kind": "computed" },
+      { "label": "Slip, 1 kW heater's AC power at the top, in kilowatts", "value": 2, "kind": "computed" },
+      { "label": "Slip, heat scaled by √2, in kilowatts", "value": 1.41, "kind": "computed" },
+      { "label": "Cable current in the analogy, in amps", "value": 20, "kind": "assumed" },
+      { "label": "Cable's average current, in amps", "value": 5, "kind": "computed" },
+      { "label": "Cable's heat-equivalent steady current, in amps", "value": 10, "kind": "computed" },
+      { "label": "Mean of the cable current squared, in amps squared", "value": 100, "kind": "computed" }
+    ]
+  },
+  "explain": {
+    "text": "The 230 V on a heater's label is not the top of the mains wave. It is the steady DC voltage that would heat that heater just as much, and for a sine wave that steady level is about 0.707 of the peak, so 230 V mains climbs to about 325 V at the top of each cycle.\n\nTake two identical heater elements of 10 Ω, one on AC with a 100 V peak and one on a DC level you can set. Heat in a resistor goes with the voltage squared, P = V² ÷ R, and that holds at each instant on AC too. At the top of the wave the AC element takes 100² ÷ 10 = 1000 W, as the wave crosses zero it takes nothing, and on the backward half it heats just the same, because a minus squared is a plus. So its power is a row of humps between 0 and 1000 W, and remember Calculus fundamentals' fold: a squared sine's humps fit exactly into its dips, so they average half their top, 500 W. The DC element takes its level squared ÷ 10, steadily, which is 500 W when the level squared is 5000, at 70.7 V. That steady DC, the one giving the same heat in an equal resistance, is how the size of an AC voltage or current is defined.[^1] It is the [[rms value]], root mean square, after Calculus fundamentals' recipe: square the wave, take the mean, take the root. For a sine it is about 0.707 of the peak.[^2] That is 1 ÷ √2, as the 70.7 V from a 100 V peak shows.\n\nThe plain average will not do. Over a whole cycle the voltage's average is zero, and even over half a cycle it is only 63.7 V, and 63.7 V of DC heats the element by about 406 W, not 500 W. The high parts of the wave count for more than the low parts, because heat goes with the square. That also makes the answer depend on the wave's shape. A square wave sits at its full height, one way or the other, almost the whole time, so its rms value is its peak, a ratio of 1.0. A triangle spends more of its time low down than a sine, and the mean of a ramp's square is a third of its top's square, so its rms value is the peak ÷ √3, 0.577 of it. So 0.707 belongs to the sine, and only to it of these three.\n\nUK mains is 230 V nominal, kept between 216 V and 253 V.[^4] The 230 V is an rms figure, so the wave peaks at about 230 × √2 = 325 V,[^3] and everything across the supply meets 325 V at the top of each cycle and −325 V at the bottom, a swing of 650 V. Textbooks add that a simple analogue meter's needle follows the average of the wave folded all one way, 0.637 of the peak on a sine, with its scale marked up by 1.11, the sine's 0.707 ÷ 0.637, so it reads rms correctly only on a sine: on a triangle of 325 V peak it shows 180 V where the rms value is 188 V. A [[true-rms meter]] works out the heating value whatever the shape. The heater test is a simplified model; a real element's resistance changes as it warms, and real mains is close to a sine rather than exactly one. **Rms is the steady DC that would heat an equal resistance just as much,[^1] about 0.707 of the peak for a sine,[^2] so 230 V mains peaks near 325 V.[^3]**"
+  },
+  "analogy": {
+    "text": "A cable feeding a load that draws 20 A for a quarter of the time and nothing for the rest carries 5 A on average, yet it warms like a cable carrying a steady 10 A. Heat goes with the current squared, so the mean of the current squared is 400 ÷ 4 = 100, and its root is 10 A. The busy quarter counts for far more than the idle rest saves. The rms value is that same steady equivalent, worked out for a smooth wave.",
+    "breaks": "It holds only when the load switches much faster than the cable warms and cools; on long on and off spells the cable heats and cools in between and peaks hotter. And this load jumps between two levels rather than following a sine, so its ratio is not the sine's 0.707."
+  },
+  "practice": {
+    "text": "The safe way first: a supply labelled 230 V reaches about 325 V at the top of every cycle,[^3] and more when the supply sits high in its allowed band, 253 × √2 = 358 V at the upper limit.[^4] Anything connected across it, insulation included, meets the peak, not the label.\n\n- Read an AC voltage or current on a label, a nameplate or a meter as rms unless it says peak: the steady DC that would heat the same resistance.[^1]\n- For a sine, go up to the peak by multiplying by √2, about 1.41, and down to rms by multiplying by 0.707.[^2] For a sine the peak is the bigger figure, which checks the direction.\n- For other shapes, use that shape's ratio: 1.0 for a square wave, 0.577 for a triangle.\n- For a resistance, work heat and power with rms values just as you would with DC, P = V² ÷ R. Coils and capacitors need more, which later lessons take up.\n- On a wave that may not be a sine, trust a true-rms meter, not an average-reading one.\n\n**Rule of thumb:** Peak = rms × 1.41 and rms = peak × 0.707, for a sine only.\n\n**Worked example:** A 1 kW heater rated at 230 V has a resistance of 230² ÷ 1000 = 52.9 Ω. Its supply peaks at about 230 × 1.41 = 325 V, where it takes 325² ÷ 52.9 = 2000 W for an instant. Its humps average half that, 1000 W, just as 230 V of DC would give.\n\n**Common mistakes**\n- Taking the 230 V on the label as the top of the wave. It is the rms value; the top is about 325 V.\n- Converting the wrong way round, 230 ÷ 1.41 = 163 V. The peak is bigger than the rms value, never smaller.\n- Taking rms as the average. The average over a cycle is zero, and over half a cycle 0.637 of the peak, which heats less.\n- Using 0.707 on a wave that is not a sine.\n- Trusting an average-reading meter on a distorted wave. It is right only on a sine."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    { "n": 1, "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 1", "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html", "quote": "This is the general idea used to assign a “DC equivalent” measurement to any AC voltage or current: whatever magnitude of DC voltage or current would produce the same amount of heat energy dissipation through an equal resistance" },
+    { "n": 2, "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 1", "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html", "quote": "For a sine wave, the RMS value is approximately 0.707 of its peak value." },
+    { "n": 3, "title": "Alternating currents — WJEC A-Level Physics Revision", "url": "https://masterymind.co.uk/subjects/physics-a-level/wjec/a-level/alternating-currents", "quote": "Misconception: Peak voltage is the same as mains voltage. Correction: UK mains voltage is 230 V RMS, so the peak voltage is about 325 V (230 × √2)." },
+    { "n": 4, "title": "Statutory Voltage Limits – Energy Networks Association (ENA)", "url": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits", "quote": "UK mains electricity operates at a nominal voltage of 230V, and can operate within limits of 253V and 216V set by the Electricity Safety, Quality and Continuity Regulations (ESQCR)" }
+  ],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps"
+}

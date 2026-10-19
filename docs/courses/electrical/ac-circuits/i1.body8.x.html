@@ -1,0 +1,966 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  .ctl { display: grid; gap: 12px; }
+  /* The magnets, their field and the coil seen end-on. */
+  .scene .pole { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .fl { stroke: var(--k-muted); stroke-width: 1.1; }
+  .scene .fl.on { stroke: var(--k-accent); stroke-width: 1.6; }
+  .scene .flh { fill: var(--k-muted); }
+  .scene .flh.on { fill: var(--k-accent); }
+  .scene .band { fill: var(--k-fill3); }
+  .scene .sw { fill: var(--k-fill3); stroke: var(--k-accent); stroke-width: 1; }
+  .scene .coil { stroke: var(--k-ink); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .wire { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .pdot { fill: var(--k-accent2); }
+  .scene .px { stroke: var(--k-accent2); stroke-width: 2; stroke-linecap: round; }
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .ghost { fill: none; stroke: var(--k-warn); stroke-width: 2.4; stroke-dasharray: 6 4; }
+  .scene .arm { stroke: var(--k-accent2); stroke-width: 4; stroke-linecap: round; }
+  .scene .ref { stroke: var(--k-ink); stroke-width: 1.4; stroke-dasharray: 3 3; }
+  .scene .shadow { stroke: var(--k-accent); stroke-width: 5; stroke-linecap: round; }
+  .scene .arc { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .spd { stroke: var(--k-muted); stroke-width: 2.2; }
+  .scene .spdh { fill: var(--k-muted); }
+  .scene .acr { stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .acrh { fill: var(--k-accent2); }
+  /* The traces against time. */
+  .scene .axis { stroke: var(--k-muted); stroke-width: 1.3; }
+  .scene .zero { stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .tf { fill: none; stroke: var(--k-accent); stroke-width: 2.4; stroke-linejoin: round; }
+  .scene .te { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linejoin: round; }
+  .scene .tg { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 6 4; }
+  .scene .tbad { fill: none; stroke: var(--k-warn); stroke-width: 2.2; stroke-dasharray: 6 4; }
+  .scene .penF { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .penE { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .penBad { fill: var(--k-warn); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .slope { stroke: var(--k-amber-line); stroke-width: 3.2; stroke-linecap: round; }
+  .scene .ask { fill: var(--k-bg); stroke: var(--k-amber-line); stroke-width: 2; }
+  /* The lamp and its current. */
+  .scene .lead2 { fill: none; stroke: var(--k-ink); stroke-width: 2; }
+  .scene .lamp { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .glow { fill: var(--k-amber-line); stroke: none; }
+  .scene .cur { stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .curh { fill: var(--k-accent2); }
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.4; }
+  .scene .pl { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .tt { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lb.f { fill: var(--k-accent); }
+  .scene .lb.e { fill: var(--k-accent2); }
+  .scene .lb.bad { fill: var(--k-warn); }
+  .scene .wk { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .scene .ky { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  .scene .q { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A coil of wire, an example 10 cm square, turning between two magnet poles, seen end-on, with its flux and emf traced against time.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="ctl" id="ctl"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Each emf on the coil you can turn is worked out from its turns of wire, field, area and turns a second; the puzzles' 12 V, 20 V and 100 V peaks are example figures.</p>
+
+<script>
+  // ---------- the rule ----------
+  // A coil of N turns of wire, each of area AREA, in a field of B teslas, turning f times a second.
+  // Its angle θ from face-on is 2πft. The flux through it is its face-on amount × cos θ, and its
+  // emf, minus how fast the flux through all its turns changes, is N × B × A × 2πf × sin θ.
+  const AREA = 0.01, TAU = 2 * Math.PI, WIN = 2;          // m² (an example 10 cm square), a turn in radians, the graphs' 2 s
+  const peakOf = (N, B, f) => N * B * AREA * TAU * f;
+  const shareOf = (f, t) => Math.cos(TAU * f * t);
+  const emfOf = (pk, f, t) => pk * Math.sin(TAU * f * t);
+  // A number as the lesson writes it: at most dp decimals, no trailing zeros, a true minus sign.
+  function num(v, dp) {
+    dp = dp == null ? 2 : dp;
+    const m = Math.pow(10, dp);
+    let r = Math.round(v * m) / m;
+    if (r === 0) r = 0;
+    let s = r.toFixed(dp);
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    return s.replace('-', '−');
+  }
+  const V = (v, dp) => num(v, dp) + ' V';
+  const P1 = peakOf(100, 0.5, 1), P2 = peakOf(100, 0.5, 2);   // 3.14 V and 6.28 V
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic 'coil': the magnets and the coil on the left, the flux trace on the right; with emf, the
+  // lamp on the left and the emf trace under the flux trace. A SHOW step's tl is its timetable in
+  // seconds from when the screen opens (a part it leaves out, already seen, is there from the start); tEnd is where its spin stops (s), and live lets Dan drag.
+  // A DO step's coil sits at `at` seconds; hide lists what stays hidden until a right answer
+  // (grow draws that trace in, move turns the coil from, to, over seconds).
+  // pic 'wave': emf against time alone, full width: a base wave, the answer's wave and each slip's.
+  const STEPS = [
+    { show: true, name: 'Flux through the coil', pic: 'coil', live: true, f: 1, N: 100, B: 0.5, tEnd: 1.375,
+      dur: 3.2, tl: { band: 0.6, flux: 1.0, spin: 1.7 },
+      text: 'Two magnet poles face each other, and their field runs straight across from north to south. A coil of wire turns between them, seen end-on, so it shows as a line with a wire at each end. The shaded band is the field passing through the coil, its *flux*. Face-on the coil catches the most, edge-on none, and past edge-on the field passes through from the other side. The trace shows the flux as a share of its face-on amount. Drag the ringed wire round.' },
+    { name: 'Edge-on', pic: 'coil', f: 1, N: 100, B: 0.5, at: 0.25, tag: 'edge-on', hide: ['flux'], grow: 'flux', growDur: 1.0,
+      penLab: 'flux 0', labAt: 1.2, rdur: 1.8,
+      ghosts: { 'The most': [0, 'face-on'], 'Half': [60, '60° from face-on'] },
+      task: 'The coil is edge-on to the field. How much flux passes through it?',
+      opts: ['The most', 'None', 'Half'], want: 'None',
+      why: 'Edge-on, the coil\'s face lies along the field lines, so they all slip past and none passes through. Its flux is zero. Face-on it catches the most, and turned 60° from face-on, half.',
+      hint: 'Not quite. Look at which way the coil\'s face points.',
+      hints: { 'The most': 'Not quite. The most passes through face-on, square to the field.',
+        'Half': 'Not quite. Half passes through 60° from face-on. Edge-on, the field lines all slip past.' } },
+    { show: true, name: 'The emf', pic: 'coil', live: true, emf: true, slope: true, f: 1, N: 100, B: 0.5, tEnd: 1.25, emax: 4,
+      dur: 3.1, tl: { emf: 0.6, lamp: 1.1, spin: 1.8 },
+      text: 'Now the coil spins steadily. A changing flux makes a push round the coil, its *emf*, traced below in volts, and the lamp shows the current it drives. The emf is zero where the flux trace is at its top or bottom. It peaks where the flux crosses zero at its steepest, and the short line riding the flux trace shows that slope. The emf is drawn as how fast the flux falls, Faraday\'s minus sign; which way round counts as positive is a choice.' },
+    { name: 'Where it peaks', pic: 'coil', emf: true, slope: true, f: 1, N: 100, B: 0.5, at: 1, emax: 4,
+      hide: ['emf', 'slope', 'push', 'lamp', 'now'], move: [1, 1.25, 1.0], ansTag: 'edge-on', labAt: 1.0, rdur: 1.6,
+      task: 'The coil turns steadily. Where in its turn is the emf biggest?',
+      opts: ['Face-on', 'Halfway between', 'Edge-on'], want: 'Edge-on',
+      why: 'The emf follows how fast the flux changes, not how much there is. Edge-on, the flux crosses zero at its steepest, so the emf peaks. Face-on, the flux is at its most and for that instant not changing, like a ball at the top of its throw, so the emf is zero.',
+      hint: 'Not quite. Find where the flux trace is steepest.',
+      hints: { 'Face-on': 'Not quite. Face-on the flux is at its most, but for that instant it is not changing.',
+        'Halfway between': 'Not quite. At 45° the flux is changing, but fastest where it crosses zero, edge-on.' } },
+    { show: true, name: 'Why a sine', pic: 'coil', live: true, emf: true, arm: true, f: 1, N: 100, B: 0.5, tEnd: 1.25, emax: 4,
+      dur: 3.1, tl: { arm: 0.6, speed: 1.1, spin: 1.8 },
+      text: 'Why a sine? The ringed wire is the arm in From circle to wave, with θ measured from the upright, face-on, so here its height is cos θ, the flux share. It moves round steadily, and only its up-and-down part crosses the field lines and changes the flux: its speed × sin θ. So the emf goes as sin θ, and it reverses each time the coil passes face-on.' },
+    { name: 'What reverses', pic: 'coil', emf: true, f: 1, N: 100, B: 0.5, at: 7 / 6, emax: 4, move: [7 / 6, 5 / 3, 1.8], rdur: 2.0,
+      task: 'Something reverses every half turn, as the coil passes face-on. What is it?',
+      opts: ['The field between the poles', 'The push and the current', 'Nothing, the current just stops'], want: 'The push and the current',
+      why: 'As the coil passes face-on, the flux stops falling and starts rising, so the push reverses, and the lamp\'s current reverses with it. The magnets\' field never changes. Current driven to and fro like this is *alternating current*.',
+      hint: 'Not quite. Watch the marks on the wires and the lamp\'s arrow.',
+      hints: { 'The field between the poles': 'Not quite. The magnets\' field stays put. The coil\'s turning makes the change.',
+        'Nothing, the current just stops': 'Not quite. The emf is zero only for an instant, face-on, and then it pushes the other way.' } },
+    { show: true, name: 'Faster', pic: 'coil', live: true, emf: true, sliders: ['f'], f: 2, N: 100, B: 0.5, tEnd: 1.125, emax: 16,
+      ghost: { f: 1, N: 100, B: 0.5, label: '1 turn a second' }, period: true, work: true,
+      dur: 3.1, tl: { ghost: 0.6, work: 1.1, spin: 1.9 },
+      text: 'Turn the coil faster and its flux changes faster, so the push is bigger. At 2 turns a second the peak doubles to 6.28 V, and each wave takes half as long, 0.5 s. The dashed wave is the coil at 1 turn a second. Slide the speed, and the height and the period change together.' },
+    { name: 'Twice as fast', pic: 'wave', win: 2, ticks: ['1 s', '2 s'], emax: 8, period: true, rdur: 1.8,
+      base: { pk: P1, f: 1, label: V(P1) + ' peak, 1 turn a second' }, ans: { pk: P2, f: 2, label: V(P2) + ' peak, 2 turns a second' },
+      slips: { 'Halves the period only': { pk: P1, f: 2 }, 'Doubles the peak only': { pk: P2, f: 1 } },
+      task: 'The coil turns twice as fast, 2 turns a second instead of 1. What happens to its emf?',
+      opts: ['Halves the period only', 'Doubles the peak only', 'Doubles the peak, halves the period'], want: 'Doubles the peak, halves the period',
+      why: 'Twice as fast, the flux changes twice as fast, so the peak doubles to 6.28 V. Each turn takes half as long, so the period halves to 0.5 s. Speed changes both together.',
+      hint: 'Not quite. Think about the height and the period.',
+      hints: { 'Halves the period only': 'Not quite. The flux also changes twice as fast, so the push is bigger too.',
+        'Doubles the peak only': 'Not quite. Each turn also takes half as long, so each wave does too.' } },
+    { show: true, name: 'Turns and field', pic: 'coil', live: true, emf: true, sliders: ['N', 'B'], f: 1, N: 100, Nend: 200, B: 0.5, tEnd: 1.25, emax: 16,
+      ghost: { f: 1, N: 100, B: 0.5, label: '100 turns, 0.5 T' }, period: true, work: true,
+      dur: 3.8, tl: { ghost: 0.6, work: 1.1, spin: 1.6, ramp: 2.95 },
+      text: 'Each turn of wire adds its own push, and a stronger field gives more flux to change, so both scale the peak. Neither changes how fast the coil turns, so the period stays at 1 s. With 200 turns of wire the peak doubles to 6.28 V. The dashed wave is the coil with 100 turns at 0.5 T.' },
+    { name: 'Three times the turns', pic: 'wave', win: 2, ticks: ['1 rev', '2 revs'], emax: 40, rdur: 1.8,
+      base: { pk: 12, f: 1, label: '12 V peak' }, ans: { pk: 36, f: 1, label: '36 V peak' },
+      slips: { '36 V, a third of the period': { pk: 36, f: 3 }, '4 V': { pk: 4, f: 1 } },
+      task: 'A coil gives 12 V peak. It is rewound with three times the turns of wire, at the same field and speed. What does it give?',
+      opts: ['36 V, same period', '4 V', '36 V, a third of the period'], want: '36 V, same period',
+      why: 'Each turn of wire adds its own push, so three times the turns gives 3 × 12 = 36 V. The speed is the same, so each wave takes as long as before.',
+      hint: 'Not quite. Ask what more turns change, and what they leave alone.',
+      hints: { '36 V, a third of the period': 'Not quite. The speed is unchanged, so the period is too.',
+        '4 V': 'Not quite. More turns add more push, so multiply by 3.' } },
+    { name: '30° past face-on', pic: 'coil', emf: true, tunit: 'turn', f: 1, peak: 20, at: 13 / 12, emax: 25, tag: '30° past face-on', wedge: true,
+      hide: ['emf', 'lamp', 'now'], grow: 'emf', growDur: 0.9, rev: 0.9, penLab: '10 V', labAt: 1.0, rdur: 1.6,
+      marks: { '17.3 V': 20 * Math.cos(Math.PI / 6), '0 V': 0 },
+      task: 'Mixed. This coil peaks at 20 V, and it is 30° past face-on. What is its emf now?',
+      opts: ['17.3 V', '10 V', '0 V'], want: '10 V',
+      why: 'The emf goes as the sine of the angle from face-on, so it is 20 × sin 30° = 10 V. The cosine gives 17.3 V, which is the shape of the flux, not the emf.',
+      hint: 'Not quite. The emf goes with the sine of the angle from face-on.',
+      hints: { '17.3 V': 'Not quite. 20 × cos 30° follows the flux. The emf goes with the sine.',
+        '0 V': 'Not quite. The emf is zero only face-on. At 30° the flux is already changing.' } },
+    { name: '60 Hz at sea', pic: 'wave', win: 40, ticks: ['20 ms', '40 ms'], emax: 140, rdur: 1.8,
+      base: { pk: 100, f: 0.05, label: '100 V peak, 50 Hz' }, ans: { pk: 120, f: 0.06, label: '120 V peak, 60 Hz' },
+      slips: { '100 V': { pk: 100, f: 0.06 }, '83.3 V': { pk: 100 * 50 / 60, f: 0.06 } },
+      task: 'Mixed. This simple coil gives 100 V peak at 50 turns a second, a 50 Hz wave. To make 60 Hz it turns 60 times a second, with the same field. What is its peak?',
+      opts: ['100 V', '83.3 V', '120 V'], want: '120 V',
+      why: 'The peak follows how fast the flux changes, so turning 60 times a second instead of 50 gives 100 × 60 ÷ 50 = 120 V, at 60 Hz. 60 Hz is the most common frequency on board ship. A real generator adjusts its field to hold its voltage, which Three-phase power systems at sea takes up.',
+      hint: 'Not quite. Speed scales the peak as well as the frequency.',
+      hints: { '100 V': 'Not quite. With the field held, a faster turn changes the flux faster, so the peak rises too.',
+        '83.3 V': 'Not quite. That ratio is upside down. Faster gives more, × 60 ÷ 50.' } },
+  ];
+  const FINISH = 'A coil turned steadily in a magnetic field makes a sine-wave emf. It peaks edge-on, where the flux is zero but changing fastest, and reverses each time the coil passes face-on. Speed scales the peak and the frequency together, while turns and field scale the peak alone. Next, Rms: what the 230 V on a label means for a wave that never stands still.';
+  // Sources the checks restate (the lesson's own).
+  const OPENSTAX_F = 'https://openstax.org/books/university-physics-volume-2/pages/13-1-faradays-law';
+  const OPENSTAX_G = 'https://openstax.org/books/college-physics-2e/pages/23-5-electric-generators';
+  const MSU = 'https://web.pa.msu.edu/courses/2000fall/phy232/lectures/induction/rotatingcoil.html';
+  const SHIP = 'http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf';
+
+  const PICK = 'Tap one of the answers.';
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong' or 'empty' once checked), why: the puzzle. t: the time Dan has
+  // dragged the coil to (null: the demonstration's); spin: he pressed Spin; f, N, B: his sliders.
+  function blank() { return { pick: null, res: null, why: false, t: null, spin: false, f: null, N: null, B: null }; }
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, MODE = 'demo', motionEnd = 0, paused = false;
+  let REC = {};                                     // what the last paint drew, for the checks
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+
+  // Text with highlighted key terms (*term*), built with K.el, never innerHTML.
+  function write(node, s) {
+    node.textContent = '';
+    s = String(s || '');
+    const re = /\*([^*]+)\*/g;
+    let from = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > from) node.appendChild(document.createTextNode(s.slice(from, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      from = m.index + m[0].length;
+    }
+    if (from < s.length) node.appendChild(document.createTextNode(s.slice(from)));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play('answer', st.res === 'right' ? d.rdur : 0.8);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  // Spin sets the coil turning from the start of the graphs at the speed shown; it pauses and carries on.
+  const replayBtn = K.button({ label: 'Spin', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    if (anim.playing() && T < motionEnd) { anim.pause(); paused = true; return; }
+    if (paused && T < motionEnd) { paused = false; anim.play(); return; }
+    st.t = null; st.spin = true;
+    play('spin', WIN + 0.1);
+  } });
+  function replayLabel() { replayBtn.setLabel(anim.playing() && T < motionEnd ? 'Pause' : paused && T < motionEnd ? 'Carry on' : 'Spin'); }
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  // The sliders, shown only on the screens that free them.
+  const ctl = {
+    f: K.control({ id: 'f', label: 'Turns a second', min: 0.5, max: 5, step: 0.5, value: 1, snap: [1, 2], into: '#ctl' }),
+    N: K.control({ id: 'N', label: 'Turns of wire', min: 10, max: 200, step: 10, value: 100, snap: [100, 200], into: '#ctl' }),
+    B: K.control({ id: 'B', label: 'Field', min: 0.1, max: 1, step: 0.1, value: 0.5, unit: 'T', snap: [0.5], into: '#ctl' }),
+  };
+  const SL = ['f', 'N', 'B'];
+  const tidy = (id, v) => (id === 'N' ? Math.round(v / 10) * 10 : id === 'f' ? Math.round(v * 2) / 2 : Math.round(v * 10) / 10);
+  const shown = { f: ctl.f.get(), N: ctl.N.get(), B: ctl.B.get() };
+  // A slider set to what the picture shows (quietly: this is not Dan moving it).
+  function syncCtl(id, v) {
+    const c = ctl[id];
+    if (c.get() !== v) c.set(v, true);
+    shown[id] = c.get();
+  }
+
+  // One animation plays each demonstration, a spin and the motion after an answer; with reduced
+  // motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && !paused && T !== Infinity) { T = Infinity; paint(); } });
+  // A demonstration waits until most of its picture is in view, so on a phone it does not play out
+  // while Dan is still reading the words above it.
+  let seen = true, waiting = false, waitDur = 0;
+  if (typeof IntersectionObserver === 'function') {
+    seen = false;
+    new IntersectionObserver((es) => {
+      const e = es[es.length - 1];
+      seen = e.isIntersecting && (e.intersectionRatio >= 0.6 || e.intersectionRect.height >= 0.6 * (window.innerHeight || 1));
+      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }
+    }, { threshold: [0, 0.3, 0.6, 0.8, 1] }).observe(el('scene'));
+  }
+  function play(mode, dur) {
+    MODE = mode; waiting = false; paused = false;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    if (mode === 'demo' && !seen) { waiting = true; waitDur = dur; T = 0; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, dd) {
+    dd = dd == null ? K.SOFT : dd;
+    if (t0 + dd > latest) latest = t0 + dd;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, dd);
+  }
+  // A steady motion from 0 to 1 between t0 and t0 + dd (the coil turns steadily: no easing).
+  function lin(t0, dd) {
+    if (t0 + dd > latest) latest = t0 + dd;
+    if (t0 < earliest) earliest = t0;
+    return T === Infinity ? 1 : K.clamp((T - t0) / dd, 0, 1);
+  }
+  function part(a, rise, draw) {
+    if (!(a > 0.001)) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  const R = (v) => Math.round(v * 100) / 100;
+  const poly = (ps) => 'M' + ps.map((q) => R(q[0]) + ' ' + R(q[1])).join('L');
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: R(x1), y1: R(y1), x2: R(x2), y2: R(y2) }));
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: R(x), y: R(y), width: R(Math.max(0, w)), height: R(Math.max(0, h)), rx: rx || 0 }));
+  const circ = (cls, p, r) => add(K.svg('circle', { class: cls, cx: R(p[0]), cy: R(p[1]), r }));
+  const path = (cls, dd) => add(K.svg('path', { class: cls, d: dd }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: R(x), y: R(y), 'text-anchor': anchor || 'middle' }, s));
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 7;
+  }
+  // An arrow from p to q with a filled head; false when too short to draw.
+  function arrow(cls, hcls, p, q, head) {
+    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy), h = head || 8;
+    if (L < h + 2) return false;
+    const ux = dx / L, uy = dy / L, bx = q[0] - ux * h, by = q[1] - uy * h, w = h * 0.55;
+    line(cls, p[0], p[1], bx + ux, by + uy);
+    path(hcls, 'M' + R(q[0]) + ' ' + R(q[1]) + 'L' + R(bx - uy * w) + ' ' + R(by + ux * w) + 'L' + R(bx + uy * w) + ' ' + R(by - ux * w) + 'Z');
+    return true;
+  }
+  // A trace of fn(u) for u from 0 to upto, finely sampled; returns its points [u, fn(u)].
+  function trace(cls, fn, f, upto, y0, k, x0, xs) {
+    const n = Math.max(2, Math.ceil(upto * f * 48) + 1), pts = [], data = [];
+    for (let j = 0; j < n; j++) { const u = upto * j / (n - 1), v = fn(u); data.push([u, v]); pts.push([x0 + u * xs, y0 - k * v]); }
+    path(cls, poly(pts));
+    return data;
+  }
+  function ask(x, y) { circ('ask', [x, y], 10); text(x, y + 5, '?', 'q'); }
+  // A wire seen end-on with the push along it: a dot coming out of the page, a cross going in.
+  function pushMark(p, out) {
+    circ('wire', p, 7.5);
+    if (out) circ('pdot', p, 2.8);
+    else { line('px', p[0] - 3.6, p[1] - 3.6, p[0] + 3.6, p[1] + 3.6); line('px', p[0] - 3.6, p[1] + 3.6, p[0] + 3.6, p[1] - 3.6); }
+  }
+  // A key inside the drawing, in rows: each item a swatch and its name.
+  function keyRows(items, y) {
+    let x = 8, row = 0;
+    items.forEach((it) => {
+      const w = it.w + 6 + tw(it.label, 'ky');
+      if (x > 8 && x + w > 334) { x = 8; row++; }
+      const yy = y + row * 22, x0 = x;
+      part(it.a == null ? 1 : it.a, 0, () => { it.sw(x0, yy); text(x0 + it.w + 6, yy + 5, it.label, 'ky', 'start'); });
+      x += w + 16;
+    });
+    return y + row * 22 + 12;
+  }
+
+  // ---------- the coil picture ----------
+  const CX = 78, CY = 84, RC = 36;                         // the coil's turning centre and half-width
+  const PX0 = 178, PX1 = 334, XS = (PX1 - PX0) / WIN;      // the time axis, 2 s
+  const FY = 84, FA = 36, EY = 210, EA = 46;               // the flux trace (share 1 is FA high, level with the coil) and the emf trace
+  const FIELD = [36, 48, 60, 72, 84, 96, 108, 120, 132];   // the field lines, north to south
+  const xT = (u) => PX0 + u * XS;
+  // The coil's two wires at angle th from face-on (face-on: one straight above the other).
+  const sideA = (th) => [CX - RC * Math.sin(th), CY - RC * Math.cos(th)];
+  const sideB = (th) => [CX + RC * Math.sin(th), CY + RC * Math.cos(th)];
+
+  // The speed, turns and field now: Dan's sliders, else the step's own (on the turns screen the
+  // demonstration winds the turns up from 100 to 200).
+  function prm(d, st) {
+    const f = st.f != null ? st.f : d.f, B = st.B != null ? st.B : d.B;
+    let N = st.N != null ? st.N : d.Nend != null ? d.Nend : d.N;
+    if (st.N == null && d.Nend != null && MODE === 'demo' && !st.spin && st.t == null) N = Math.round(K.lerp(d.N, d.Nend, K.ease(lin(d.tl.ramp, 0.8))) / 10) * 10;
+    return { f, N, B, pk: d.peak != null ? d.peak : peakOf(N, B, f) };
+  }
+  // The coil's time now, in seconds of its own turning.
+  function tNow(d, st) {
+    if (d.show) {
+      if (st.t != null) return st.t;
+      if (st.spin) return WIN * lin(0.05, WIN);
+      return d.tEnd * (MODE === 'demo' ? lin(d.tl.spin, d.tEnd) : 1);
+    }
+    if (st.res === 'right' && d.move) return K.lerp(d.move[0], d.move[1], lin(0.2, d.move[2]));
+    return d.at;
+  }
+  // How far each part has arrived: a demonstration's timetable, or a puzzle's hidden parts.
+  function arrivals(d, st) {
+    const a = { mag: 1, coil: 1, band: 1, fpanel: 1, flux: 1, slope: 1, epanel: 1, emf: 1, lampbox: 1, lamp: 1, push: 1, now: 1, arm: 1, speed: 1, ghost: 1, work: 1, bad: 0, lab: 0 };
+    if (d.show) {
+      if (MODE === 'demo' && !st.spin && st.t == null && st.f == null && st.N == null && st.B == null) {
+        const tl = d.tl;
+        const due = (...ks) => { for (const k of ks) if (tl[k] != null) return arr(tl[k]); return 1; };
+        a.mag = due('mag');
+        a.coil = due('coil', 'mag'); a.band = due('band', 'coil', 'mag');
+        a.fpanel = a.flux = a.slope = due('flux', 'mag');
+        a.epanel = a.emf = due('emf', 'mag');
+        a.lampbox = a.lamp = a.push = a.now = due('lamp', 'emf', 'mag');
+        a.arm = due('arm', 'mag'); a.speed = due('speed', 'arm', 'mag');
+        a.ghost = due('ghost', 'mag'); a.work = due('work', 'mag');
+      }
+      return a;
+    }
+    const right = st.res === 'right';
+    (d.hide || []).forEach((k) => { a[k] = right ? (d.grow === k ? 1 : arr(d.rev == null ? 0.2 : d.rev)) : 0; });
+    if (right) a.lab = arr(d.labAt == null ? 1.2 : d.labAt);
+    if (st.res === 'wrong') a.bad = arr(0.1);
+    return a;
+  }
+
+  function drawCoil(d, st) {
+    const P = prm(d, st), t = tNow(d, st), th = TAU * P.f * t, c = Math.cos(th), s = Math.sin(th);
+    const A = arrivals(d, st), right = !d.show && st.res === 'right', wrong = !d.show && st.res === 'wrong' ? st.pick : null;
+    const ky = d.emf ? EA / d.emax : 0, e = emfOf(P.pk, P.f, t), sg = Math.abs(s) > 0.06 ? Math.sign(s) : 0;
+    const g = right && d.grow ? lin(0.2, d.growDur) : 1;
+    const tF = d.grow === 'flux' ? t * g : t, tE = d.grow === 'emf' ? t * g : t;
+    const pa = sideA(th), pb = sideB(th), hb = RC * Math.abs(c);
+    Object.assign(REC, { t, th, f: P.f, N: P.N, B: P.B, pk: P.pk, e, A: pa, band: [CY - hb, CY + hb], push: 0, cur: 0, flux: null, emf: null, penF: null, penE: null });
+    const unit = d.tunit === 'turn' ? ['1 rev', '2 revs'] : ['1 s', '2 s'];
+    const deg = Math.round(((th * 180 / Math.PI) % 360 + 360) % 360);
+    let said = 'A north pole on the left and a south pole on the right, their field running straight across. The coil is ' + deg + ' degrees from face-on' +
+      (A.flux > 0 ? ', and ' + num(Math.abs(c)) + ' of its face-on flux passes through it' : '') + '.';
+    if (d.emf && A.now > 0) said += ' Its emf is ' + V(e) + ', peaking at ' + V(P.pk) + '.';
+
+    // A label over the magnets: what the puzzle says, the answer, or the slip's coil.
+    const gh = wrong && d.ghosts ? d.ghosts[wrong] : null;
+    if (gh) part(A.bad, 0, () => text(CX, 18, gh[1], 'lb bad'));
+    else if (right && d.ansTag) part(A.lab, 0, () => text(CX, 18, d.ansTag, 'lb e'));
+    else if (d.tag) text(CX, 18, d.tag, 'lb');
+
+    // The poles, the flux band and the field lines: those passing through the coil drawn in its colour.
+    part(A.mag, 0, () => {
+      rect('pole', 2, 28, 22, 112, 3); rect('pole', 132, 28, 22, 112, 3);
+      text(13, 90, 'N', 'pl'); text(143, 90, 'S', 'pl');
+    });
+    part(A.mag * A.band, 0, () => { if (hb > 0.4) rect('band', 24, CY - hb, 108, 2 * hb); });
+    part(A.mag, 0, () => FIELD.forEach((y) => {
+      const on = A.band > 0.5 && y > CY - hb + 0.5 && y < CY + hb - 0.5;
+      line('fl' + (on ? ' on' : ''), 24, y, 124, y);
+      path('flh' + (on ? ' on' : ''), 'M132 ' + y + 'l-9 -4v8z');
+    }));
+    if (gh) part(A.bad, 0, () => { const ph = gh[0] * Math.PI / 180, ga = sideA(ph), gb = sideB(ph); line('ghost', ga[0], ga[1], gb[0], gb[1]); circ('ghost', ga, 7.5); circ('ghost', gb, 7.5); });
+    // The angle from face-on: a short line pointing face-on and an arc to the ringed wire.
+    if (d.arm || d.wedge) part(d.arm ? A.arm : 1, 0, () => {
+      line('ref', CX, CY, CX, CY - 30);
+      const m = ((th % TAU) + TAU) % TAU;
+      if (m > 0.04 && m < TAU - 0.04) {
+        const r = 17, q = [CX - r * Math.sin(m), CY - r * Math.cos(m)];
+        path('arc', 'M' + CX + ' ' + (CY - r) + 'A' + r + ' ' + r + ' 0 ' + (m > Math.PI ? 1 : 0) + ' 0 ' + R(q[0]) + ' ' + R(q[1]));
+      }
+      if (d.arm) {
+        line('shadow', CX, CY, CX, CY - RC * c);
+        if (m > 0.7 && m < TAU - 0.7) text(CX - 28 * Math.sin(m / 2), CY - 28 * Math.cos(m / 2) + 5, 'θ', 'lb');
+      }
+    });
+    // The coil, its push marks and, where Dan can drag it, the ring on its wire.
+    part(A.coil, 0, () => {
+      line('coil', pa[0], pa[1], pb[0], pb[1]);
+      if (d.arm) part(A.arm, 0, () => line('arm', CX, CY, pa[0], pa[1]));
+      circ('wire', pa, 7.5); circ('wire', pb, 7.5);
+      if (d.emf && A.push > 0 && sg) { part(A.push, 0, () => { pushMark(pa, sg > 0); pushMark(pb, sg < 0); }); REC.push = sg; }
+      if (d.live && !finished) circ('ring', pa, 12.5);
+    });
+    // Why a sine: the wire's speed round the circle and the part of it across the field lines.
+    if (d.arm) part(A.coil * A.speed, 0, () => {
+      const u = [-c, s], p0 = [pa[0] + u[0] * 8, pa[1] + u[1] * 8];
+      arrow('spd', 'spdh', p0, [p0[0] + u[0] * 30, p0[1] + u[1] * 30]);
+      const q0 = [pa[0], pa[1] + 8 * (s < 0 ? -1 : 1)];
+      arrow('acr', 'acrh', q0, [q0[0], q0[1] + 30 * s]);
+    });
+
+    // The flux trace: its share of the face-on flux against time.
+    part(A.fpanel, 0, () => {
+      text(PX0, 20, 'flux share', 'tt', 'start');
+      line('axis', PX0, FY - FA - 4, PX0, FY + FA + 4);
+      line('zero', PX0, FY, PX1, FY);
+      text(PX0 - 6, FY - FA + 5, '1', 'tk', 'end'); text(PX0 - 6, FY + 5, '0', 'tk', 'end'); text(PX0 - 6, FY + FA + 5, '−1', 'tk', 'end');
+      [1, 2].forEach((k) => line('axis', xT(k), FY - 4, xT(k), FY + 4));
+      if (!d.emf) { text(PX0, FY + FA + 22, '0', 'tk'); text(xT(1), FY + FA + 22, unit[0], 'tk'); text(PX1, FY + FA + 22, unit[1], 'tk', 'end'); }
+    });
+    if (A.flux > 0) part(A.fpanel * A.flux, 0, () => {
+      REC.flux = trace('tf', (u) => shareOf(P.f, u), P.f, tF, FY, FA, PX0, XS);
+      const pf = [xT(tF), FY - FA * shareOf(P.f, tF)];
+      circ('penF', pf, 4.5); REC.penF = pf;
+    });
+    else if (!d.show) ask(xT(d.at), FY);
+    // Its slope at the coil's time, a short line along the trace.
+    if (d.slope && A.slope > 0 && A.flux > 0) part(A.fpanel * A.slope, 0, () => {
+      const x = xT(t), y = FY - FA * c, m = FA * TAU * P.f * s / XS, k = 1 / Math.hypot(1, m);
+      const lo = Math.max(-20 * k, PX0 + 1 - x), hi = Math.min(20 * k, PX1 - x);
+      line('slope', x + lo, y + m * lo, x + hi, y + m * hi);
+    });
+    if (right && d.penLab && d.grow === 'flux') part(A.lab, 0, () => text(xT(t) + 9, FY - FA * c - 7, d.penLab, 'lb f', 'start'));
+
+    let y = d.emf ? 278 : FY + FA + 22;
+    if (d.emf) {
+      // The emf trace under it, on the same time axis.
+      part(A.epanel, 0, () => {
+        text(PX0, 150, 'emf (V)', 'tt', 'start');
+        text(PX1, 150, 'peak ' + V(P.pk), 'tt', 'end');
+        line('axis', PX0, EY - EA - 4, PX0, EY + EA + 4);
+        line('zero', PX0, EY, PX1, EY);
+        text(PX0 - 6, EY + 5, '0', 'tk', 'end');
+        line('axis', PX0 - 4, EY - EA, PX0, EY - EA); text(PX0 - 6, EY - EA + 5, num(d.emax, 0), 'tk', 'end');
+        [1, 2].forEach((k) => line('axis', xT(k), EY - 4, xT(k), EY + 4));
+        text(PX0, EY + EA + 22, '0', 'tk'); text(xT(1), EY + EA + 22, unit[0], 'tk'); text(PX1, EY + EA + 22, unit[1], 'tk', 'end');
+      });
+      if (d.ghost) part(A.epanel * A.ghost, 0, () => {
+        const gp = peakOf(d.ghost.N, d.ghost.B, d.ghost.f);
+        REC.ghost = trace('tg', (u) => emfOf(gp, d.ghost.f, u), d.ghost.f, WIN, EY, ky, PX0, XS);
+      });
+      if (A.emf > 0) part(A.epanel * A.emf, 0, () => {
+        REC.emf = trace('te', (u) => emfOf(P.pk, P.f, u), P.f, tE, EY, ky, PX0, XS);
+        const pe = [xT(tE), EY - ky * emfOf(P.pk, P.f, tE)];
+        circ('penE', pe, 4.5); REC.penE = pe;
+      });
+      else if (!d.show) ask(xT(d.at), EY);
+      if (right && d.penLab && d.grow === 'emf') part(A.lab, 0, () => text(xT(t) + 9, EY - ky * e - 7, d.penLab, 'lb e', 'start'));
+      if (wrong && d.marks && d.marks[wrong] != null) part(A.bad, 0, () => {
+        const p = [xT(t), EY - ky * d.marks[wrong]];
+        circ('penBad', p, 4.5); text(p[0] + 9, p[1] - 7, wrong, 'lb bad', 'start');
+      });
+      // One period, bracketed under the time axis.
+      if (d.period) {
+        part(A.epanel, 0, () => {
+          const x1 = xT(Math.min(WIN, 1 / P.f)), yb = EY + EA + 30;
+          path('brk', 'M' + PX0 + ' ' + yb + 'V' + (yb + 6) + 'H' + R(x1) + 'V' + yb);
+          const lab = 'period ' + num(1 / P.f) + ' s', w = tw(lab, 'lb');
+          text(K.clamp((PX0 + x1) / 2, PX0 + w / 2, PX1 - w / 2), yb + 22, lab, 'lb');
+        });
+        y = EY + EA + 52;
+      }
+      // The lamp across the coil's ends, its current's way and size, and the emf now.
+      part(A.lampbox, 0, () => {
+        path('lead2', 'M30 166V204H65M91 204H126V166');
+        circ('wire', [30, 166], 3); circ('wire', [126, 166], 3);
+        circ('lamp', [78, 204], 13);
+        const lit = A.lamp * Math.min(1, Math.abs(e) / P.pk);
+        if (lit > 0.01) { add(K.svg('circle', { class: 'glow', cx: 78, cy: 204, r: R(13 + 7 * lit), 'fill-opacity': R(0.3 * lit) })); add(K.svg('circle', { class: 'glow', cx: 78, cy: 204, r: 11.5, 'fill-opacity': R(0.85 * lit) })); }
+        REC.glow = lit;
+        line('lead2', 68.8, 194.8, 87.2, 213.2); line('lead2', 68.8, 213.2, 87.2, 194.8);
+        text(78, 170, 'from the coil', 'tk');
+      });
+      if (A.lamp > 0 && sg) part(A.lampbox * A.lamp, 0, () => {
+        const L = 30 * Math.min(1, Math.abs(e) / P.pk);
+        if (arrow('cur', 'curh', [78 - sg * L, 234], [78 + sg * L, 234], 9)) REC.cur = sg;
+      });
+      const curLab = A.lamp > 0 ? (sg ? (REC.cur ? 'current' : '') : 'no current') : 'current ?';
+      part(A.lampbox, 0, () => {
+        if (curLab) text(78, 254, curLab, 'lb');
+        text(78, 274, 'emf now ' + (A.now > 0 ? V(e) : '?'), 'lb');
+      });
+    }
+    // The rule multiplied out, on the screens that free the sliders.
+    if (d.work) {
+      part(A.work, 0, () => {
+        text(8, y + 24, 'peak = ' + num(P.N, 0) + ' turns of wire × ' + num(P.B, 1) + ' T × 0.01 m²', 'wk', 'start');
+        text(8, y + 44, '× 2π × ' + num(P.f, 1) + (P.f === 1 ? ' turn' : ' turns') + ' a second = ' + V(P.pk), 'wk', 'start');
+      });
+      y += 44;
+    }
+    // The key.
+    const items = [{ w: 18, sw: (x, yy) => rect('sw', x, yy - 6, 18, 12, 2), label: 'field through the coil', a: A.band }];
+    if (d.emf) items.push({ w: 36, sw: (x, yy) => { pushMark([x + 8, yy], true); pushMark([x + 28, yy], false); }, label: 'push out of, into the page', a: A.push });
+    if (d.arm || d.wedge) items.push({ w: 22, sw: (x, yy) => line('ref', x, yy, x + 22, yy), label: 'face-on', a: d.arm ? A.arm : 1 });
+    if (d.slope) items.push({ w: 22, sw: (x, yy) => line('slope', x, yy, x + 22, yy), label: 'slope of the flux', a: A.slope });
+    if (d.arm) items.push(
+      { w: 22, sw: (x, yy) => line('shadow', x + 2, yy, x + 20, yy), label: 'the wire\'s shadow, cos θ', a: A.arm },
+      { w: 26, sw: (x, yy) => arrow('spd', 'spdh', [x, yy], [x + 26, yy]), label: 'the wire\'s speed', a: A.speed },
+      { w: 26, sw: (x, yy) => arrow('acr', 'acrh', [x, yy], [x + 26, yy]), label: 'its part across the field', a: A.speed });
+    if (d.ghost) items.push({ w: 22, sw: (x, yy) => line('tg', x, yy, x + 22, yy), label: d.ghost.label, a: A.ghost });
+    const end = keyRows(items, y + 26);
+    return { h: end + 2, said };
+  }
+
+  // ---------- the wave picture: emf against time, full width ----------
+  function drawWave(d, st) {
+    const right = st.res === 'right', slip = st.res === 'wrong' ? d.slips[st.pick] || null : null;
+    const a = right ? arr(0.2) : 0, g = right ? lin(0.2, 1.2) : 0, la = right ? arr(1.2) : 0, ab = slip ? arr(0.1) : 0;
+    const X0 = 40, X1 = 334, Y = 100, H = 66, xs = (X1 - X0) / d.win, ky = H / d.emax, xW = (u) => X0 + u * xs;
+    REC.waves = [];
+    text(X0, 18, 'emf (V)', 'tt', 'start');
+    line('axis', X0, Y - H - 4, X0, Y + H + 4); line('zero', X0, Y, X1, Y);
+    text(X0 - 6, Y + 5, '0', 'tk', 'end');
+    [0.5, 1].forEach((k) => line('axis', xW(d.win * k), Y - 4, xW(d.win * k), Y + 4));
+    text(X0, Y + H + 22, '0', 'tk'); text(xW(d.win / 2), Y + H + 22, d.ticks[0], 'tk'); text(X1, Y + H + 22, d.ticks[1], 'tk', 'end');
+    const wave = (w, cls, alpha, upto, role) => part(alpha, 0, () => {
+      REC.waves.push({ role, pk: w.pk, f: w.f, data: trace(cls, (u) => emfOf(w.pk, w.f, u), w.f, upto, Y, ky, X0, xs) });
+    });
+    // The wave before: drawn as the coil's, then kept dashed for comparison once answered.
+    wave(d.base, 'te', 1 - a, d.win, 'base');
+    wave(d.base, 'tg', a, d.win, 'was');
+    if (right) wave(d.ans, 'te', 1, Math.max(1e-6, d.win * g), 'ans');
+    if (slip) wave(slip, 'tbad', ab, d.win, 'slip');
+    let y = Y + H + 22;
+    if (d.period) {
+      const yb = y + 8;
+      const br = (w, alpha) => part(alpha, 0, () => {
+        const x1 = xW(Math.min(d.win, 1 / w.f)), lab = 'period ' + num(1 / w.f) + ' s', lw = tw(lab, 'lb');
+        path('brk', 'M' + X0 + ' ' + yb + 'V' + (yb + 6) + 'H' + R(x1) + 'V' + yb);
+        text(K.clamp((X0 + x1) / 2, X0 + lw / 2, X1 - lw / 2), yb + 22, lab, 'lb');
+      });
+      br(d.base, 1 - a);
+      if (right) br(d.ans, la);
+      y = yb + 22;
+    }
+    const items = [{ w: 22, sw: (x, yy) => { part(1 - a, 0, () => line('te', x, yy, x + 22, yy)); part(a, 0, () => line('tg', x, yy, x + 22, yy)); }, label: d.base.label }];
+    if (right) items.push({ w: 22, sw: (x, yy) => line('te', x, yy, x + 22, yy), label: d.ans.label, a: la });
+    if (slip) items.push({ w: 22, sw: (x, yy) => line('tbad', x, yy, x + 22, yy), label: 'that pick', a: ab });
+    const end = keyRows(items, y + 26);
+    const said = 'A wave of emf against time, ' + d.base.label + '.' + (right ? ' After the change, ' + d.ans.label + '.' : '') +
+      (slip ? ' That pick, drawn dashed, peaks at ' + V(slip.pk, 1) + '.' : '');
+    return { h: end + 2, said };
+  }
+
+  // ---------- dragging the coil round by its ringed wire ----------
+  const grip = ui.appendChild(K.svg('circle', { class: 'grip', cx: -60, cy: -60, r: 22, tabindex: -1, role: 'slider', 'aria-label': 'The coil\'s angle from face-on', 'aria-orientation': 'horizontal' }));
+  grip.style.display = 'none';
+  const liveOn = () => !finished && !!STEPS[at()].live && !!REC.A;
+  function placeGrip(d) {
+    const on = !finished && !!d.live && !!REC.A;
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    grip.setAttribute('cx', R(REC.A[0])); grip.setAttribute('cy', R(REC.A[1]));
+    const deg = Math.round(((REC.th * 180 / Math.PI) % 360 + 360) % 360);
+    grip.setAttribute('aria-valuemin', '0'); grip.setAttribute('aria-valuemax', '360'); grip.setAttribute('aria-valuenow', String(deg));
+    grip.setAttribute('aria-valuetext', deg + ' degrees from face-on');
+  }
+  // A time kept to whole degrees of turn, landing exactly on each quarter turn.
+  function quantT(t, f) {
+    t = K.clamp(t, 0, WIN);
+    const q = 1 / (4 * f), tq = Math.round(t / q) * q;
+    t = Math.abs(t - tq) < 4 / (360 * f) ? tq : Math.round(t * 360 * f) / (360 * f);
+    return K.clamp(t, 0, WIN);
+  }
+  // The pointer's angle round the centre, on the turn nearest the coil's present one.
+  function tFrom(q) {
+    const f = REC.f, ang = Math.atan2(-(q.x - CX), -(q.y - CY));
+    let n = ang / TAU;
+    n -= Math.round(n - REC.t * f);
+    return quantT(n / f, f);
+  }
+  function setT(t) {
+    const st = S[at()];
+    if (st.t === t && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    waiting = false; paused = false; T = Infinity;
+    st.t = t; st.spin = false;
+    K.reveal(); K.refresh();
+  }
+  function svgPoint(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+  }
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!liveOn()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the ring */ }
+    e.preventDefault();
+    const q = svgPoint(e); if (q) setT(tFrom(q));
+  });
+  grip.addEventListener('pointermove', (e) => { if (held !== e.pointerId || !liveOn()) return; const q = svgPoint(e); if (q) setT(tFrom(q)); });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    if (!liveOn()) return;
+    const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+    if (by == null) return;
+    e.preventDefault();
+    setT(quantT(REC.t + by / (24 * REC.f), REC.f));
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    REC = {};
+    const out = d.pic === 'wave' ? drawWave(d, st) : drawCoil(d, st);
+    svg.setAttribute('viewBox', '0 0 340 ' + Math.ceil(out.h));
+    svg.setAttribute('aria-label', out.said);
+    if (i === at()) {
+      placeGrip(d);
+      replayLabel();
+      (d.sliders || []).forEach((id) => syncCtl(id, tidy(id, REC[id])));
+    }
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing() && !waiting && !paused) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; paused = false; enter('stepbox');
+      SL.forEach((id) => { shown[id] = p[id]; });
+      if (d.show) { Object.assign(st, { t: null, spin: false, f: null, N: null, B: null }); play('demo', d.dur); }
+      else { waiting = false; anim.pause(); T = Infinity; MODE = 'answer'; }
+    } else {
+      // A slider moved on this screen: the picture follows it at once, the coil staying where it is.
+      let moved = false;
+      SL.forEach((id) => {
+        if (p[id] === shown[id]) return;
+        shown[id] = p[id];
+        if (d.show && !finished && (d.sliders || []).indexOf(id) >= 0) { st[id] = tidy(id, p[id]); moved = true; }
+      });
+      if (moved) {
+        if (st.t == null && (st.spin || anim.playing() || paused || waiting) && REC.t != null) st.t = REC.t;
+        if (anim.playing()) anim.pause();
+        waiting = false; paused = false; T = Infinity; st.spin = false;
+      }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    let anyCtl = false;
+    SL.forEach((id) => {
+      const on = !finished && !!d.show && (d.sliders || []).indexOf(id) >= 0;
+      ctl[id].el.hidden = !on;
+      if (on) anyCtl = true;
+    });
+    el('ctl').hidden = !anyCtl;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const liveSt = (o) => Object.assign(blank(), o);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const near = (a, b, tol) => Math.abs(a - b) <= tol;
+  // The points of a drawn path, read back from the page.
+  function pathPts(cls) {
+    const pth = art.querySelector('path.' + cls);
+    if (!pth) return [];
+    return pth.getAttribute('d').slice(1).split('L').map((s) => s.trim().split(/\s+/).map(Number));
+  }
+  // A step painted in the state given, finished: what it draws.
+  function drawn(i, st, mode) {
+    const keepS = S[i], keepT = T, keepM = MODE;
+    S[i] = st; T = Infinity; MODE = mode || (STEPS[i].show ? 'demo' : 'answer');
+    try {
+      paint(i);
+      return Object.assign({}, REC, { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent), te: pathPts('te') });
+    } finally { S[i] = keepS; T = keepT; MODE = keepM; paint(); }
+  }
+
+  K.check('The emf induced is the negative change in the magnetic flux per unit time: at every speed, number of turns and field the emf is minus how fast the flux through all the turns changes, worked out from the flux itself, and the emf trace drawn on the spinning screen follows it', () => {
+    const h = 1e-6;
+    const rule = [0.5, 1, 2, 5].every((f) => [10, 100, 200].every((N) => [0.1, 0.5, 1].every((B) => K.linspace(0, 2, 33).every((t) => {
+      const link = (u) => N * B * AREA * shareOf(f, u), pk = peakOf(N, B, f);
+      return near(emfOf(pk, f, t), -(link(t + h) - link(t - h)) / (2 * h), 1e-5 * pk);
+    }))));
+    const g = drawn(idx('The emf'), liveSt({ t: 1.6 })), ky = EA / 4;
+    return rule && g.te.length > 40 && g.te.every((q) => near((EY - q[1]) / ky, emfOf(P1, 1, (q[0] - PX0) / XS), 5e-3));
+  }, { source: OPENSTAX_F });
+  K.check('A single rectangular coil rotated at constant angular velocity in a uniform magnetic field produces an emf that varies sinusoidally in time: on every screen with the turning coil and its emf, the coil is drawn at its angle and every drawn point of the emf trace is the peak times the sine of the angle at that time, after a right answer too', () =>
+    STEPS.every((d, i) => {
+      if (d.pic !== 'coil' || !d.emf) return true;
+      const g = drawn(i, d.show ? blank() : solvedSt(i)), ky = EA / d.emax, A0 = sideA(g.th);
+      return near(g.A[0], A0[0], 1e-9) && near(g.A[1], A0[1], 1e-9) && near(g.th, TAU * g.f * g.t, 1e-12) && g.te.length > 10 &&
+        g.te.every((q) => near((EY - q[1]) / ky, emfOf(g.pk, g.f, (q[0] - PX0) / XS), 4e-3 * Math.max(1, g.pk)));
+    }), { source: OPENSTAX_G });
+  K.check('The magnitude of the voltage increases with higher rotation frequency, since that leads to a higher rate of change in the flux: across the speed slider the peak rises in step with the turns a second, the flux trace\'s steepest slope rises with it, and the peak printed on the screen follows', () => {
+    const i = idx('Faster');
+    let prev = 0;
+    return K.linspace(0.5, 5, 10).every((f) => {
+      const g = drawn(i, liveSt({ f, t: 2 }));
+      let steep = 0;
+      for (let k = 1; k < g.flux.length; k++) steep = Math.max(steep, Math.abs(g.flux[k][1] - g.flux[k - 1][1]) / (g.flux[k][0] - g.flux[k - 1][0]));
+      const ok = g.pk > prev && near(g.pk / f, P1, 1e-9) && near(steep / (TAU * f), 1, 0.01) && g.texts.indexOf('peak ' + V(g.pk)) >= 0;
+      prev = g.pk;
+      return ok;
+    });
+  }, { source: MSU });
+  K.check('60 Hz is the most common frequency adopted for use on board ship: the last puzzle\'s coil turns 60 times a second instead of 50, its wave repeats every 1 ÷ 60 s, and at the same field its peak is 100 × 60 ÷ 50 = 120 V', () => {
+    const i = idx('60 Hz at sea'), d = STEPS[i], g = drawn(i, solvedSt(i)), w = g.waves.filter((x) => x.role === 'ans')[0];
+    return near(d.ans.f * 1000, 60, 1e-9) && near(d.base.f * 1000, 50, 1e-9) && near(d.ans.pk, d.base.pk * 60 / 50, 1e-9) && near(d.ans.pk, 120, 1e-9) &&
+      !!w && w.data.length > 50 && w.data.every((q) => near(q[1], emfOf(120, 0.06, q[0]), 1e-9)) &&
+      near(emfOf(120, 0.06, 1000 / 60 + 5), emfOf(120, 0.06, 5), 1e-9) && g.texts.indexOf('120 V peak, 60 Hz') >= 0;
+  }, { source: SHIP });
+  K.check('At the opening settings the peak is 100 × 0.5 × 0.01 × 2π × 1 = 3.14 V and the period 1 s; at 2 turns a second it is 6.28 V and 0.5 s; with 200 turns it is 6.28 V and still 1 s; and the screens print exactly these', () => {
+    const a = drawn(idx('The emf'), blank()), b = drawn(idx('Faster'), blank()), c2 = drawn(idx('Turns and field'), blank());
+    return num(P1) === '3.14' && num(P2) === '6.28' && num(peakOf(200, 0.5, 1)) === '6.28' && num(1 / 1) === '1' && num(1 / 2) === '0.5' &&
+      a.texts.indexOf('peak 3.14 V') >= 0 && b.texts.indexOf('peak 6.28 V') >= 0 && b.texts.indexOf('period 0.5 s') >= 0 &&
+      b.texts.some((s) => /= 6\.28 V$/.test(s)) && c2.N === 200 && c2.texts.indexOf('peak 6.28 V') >= 0 && c2.texts.indexOf('period 1 s') >= 0;
+  });
+  K.check('Edge-on (90°) the flux is 0 and the emf at its peak; face-on (0° and 180°) the flux is 1 and −1 and the emf 0; at 270° the emf is at its peak the other way; the spinning screen ends edge-on, its emf pen at the peak and no band', () => {
+    const q = (deg) => deg / 360;   // the time at 1 turn a second
+    const g = drawn(idx('The emf'), blank());
+    return near(shareOf(1, q(90)), 0, 1e-12) && near(emfOf(P1, 1, q(90)), P1, 1e-12) && near(shareOf(1, 0), 1, 1e-12) && near(emfOf(P1, 1, 0), 0, 1e-12) &&
+      near(shareOf(1, q(180)), -1, 1e-12) && near(emfOf(P1, 1, q(180)), 0, 1e-12) && near(emfOf(P1, 1, q(270)), -P1, 1e-12) &&
+      near(g.penE[1], EY - EA / 4 * P1, 1e-6) && near(g.penF[1], FY, 1e-6) && g.band[1] - g.band[0] < 1e-6;
+  });
+  K.check('The band is the field passing through the coil: at every angle dragged its height is the coil\'s height across the field, 72 × the size of the flux share, and the flux pen sits level with the ringed wire', () =>
+    K.linspace(0, 2, 49).every((t) => {
+      const g = drawn(0, liveSt({ t })), c = shareOf(1, t);
+      return near(g.band[1] - g.band[0], 2 * RC * Math.abs(c), 1e-9) && near(g.penF[1], g.A[1], 1e-9) && near(g.penF[1], FY - FA * c, 1e-9);
+    }));
+  K.check('The push marks and the lamp\'s current keep their direction from face-on to face-on and reverse as the coil passes face-on, every half turn', () =>
+    K.linspace(0, 2, 73).every((t) => {
+      const g = drawn(idx('The emf'), liveSt({ t })), s = Math.sin(TAU * t), want = Math.abs(s) > 0.06 ? Math.sign(s) : 0;
+      return g.push === want && (g.cur === want || (g.cur === 0 && Math.abs(s) < 0.4));
+    }));
+  K.check('Every puzzle\'s numbers are right, and each accepts only its right answer: the flux share is 0 edge-on and 0.5 at 60°; 3 × 12 = 36 V, with 12 ÷ 3 = 4 V the slip; 20 × sin 30° = 10 V, with 20 × cos 30° = 17.3 V the slip; 100 × 60 ÷ 50 = 120 V, with 100 × 50 ÷ 60 = 83.3 V the slip', () => {
+    const d7 = STEPS[idx('Twice as fast')], d9 = STEPS[idx('Three times the turns')], d10 = STEPS[idx('30° past face-on')], d11 = STEPS[idx('60 Hz at sea')];
+    const nums = near(shareOf(1, 0.25), 0, 1e-12) && near(shareOf(1, 1 / 6), 0.5, 1e-12) &&
+      d9.ans.pk === 3 * d9.base.pk && d9.ans.pk === 36 && d9.slips['4 V'].pk === d9.base.pk / 3 && d9.ans.f === d9.base.f &&
+      near(emfOf(d10.peak, 1, d10.at), 10, 1e-9) && num(d10.marks['17.3 V'], 1) === '17.3' && d10.peak === 20 &&
+      near(d11.ans.pk, 120, 1e-9) && num(d11.slips['83.3 V'].pk, 1) === '83.3' &&
+      near(d7.ans.pk, 2 * d7.base.pk, 1e-12) && near(d7.ans.f, 2 * d7.base.f, 1e-12);
+    const only = DO.every((i) => { const d = STEPS[i]; return d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)); });
+    return nums && only;
+  });
+  K.check('Before an answer, nothing in a puzzle\'s picture gives it away: no flux trace when the flux is asked, no emf trace, lamp current or emf value when the emf is asked, and no changed wave or its label until Check', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank());
+      if (d.pic === 'wave') return g.waves.length === 1 && g.waves[0].role === 'base' && g.texts.indexOf(d.ans.label) < 0;
+      const hid = d.hide || [];
+      const noLab = (!d.penLab || g.texts.indexOf(d.penLab) < 0) && (!d.ansTag || g.texts.indexOf(d.ansTag) < 0);
+      return noLab && (hid.indexOf('flux') < 0 || g.flux === null) &&
+        (hid.indexOf('emf') < 0 || (g.emf === null && g.cur === 0 && g.texts.indexOf('emf now ?') >= 0)) && (hid.indexOf('push') < 0 || g.push === 0);
+    }));
+  K.check('Turns and field scale the peak and leave the period alone: on that screen, at every setting, the peak is turns × field × 0.01 m² × 2π × 1, the period bracket reads 1 s, and the working multiplies out to the peak shown', () => {
+    const i = idx('Turns and field');
+    return [10, 50, 100, 150, 200].every((N) => [0.1, 0.3, 0.5, 1].every((B) => {
+      const g = drawn(i, liveSt({ N, B, t: 0.8 }));
+      return near(g.pk, N * B * 0.01 * TAU, 1e-9) && g.f === 1 && g.texts.indexOf('period 1 s') >= 0 &&
+        g.texts.indexOf('× 2π × 1 turn a second = ' + V(g.pk)) >= 0 && g.texts.indexOf('peak = ' + N + ' turns of wire × ' + num(B, 1) + ' T × 0.01 m²') >= 0;
+    }));
+  });
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T, keepM = MODE;
+    const timed = (i, st, mode, limit) => {
+      const keepS = S[i];
+      T = Infinity; MODE = mode; latest = 0; earliest = Infinity; S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), 'demo', d.dur); return r && d.dur >= 3 && d.dur <= 4.5 && earliest >= FADE; }
+      return timed(i, solvedSt(i), 'answer', d.rdur) && d.rdur <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), 'answer', 0.8));
+    });
+    T = keepT; MODE = keepM; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

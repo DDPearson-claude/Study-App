@@ -1,0 +1,95 @@
+{
+  "iid": "i3",
+  "title": "Resistance in AC: power, moment by moment",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the dot on the power wave staying above the line and making two humps for every cycle of the voltage when you drag the time cursor along the in-step waves.",
+    "title": "The power scrubber",
+    "controls": [
+      { "id": "step", "label": "Step", "min": 0, "max": 11, "step": 1, "value": 0, "unit": "" }
+    ],
+    "outputs": [
+      { "id": "volts", "label": "Voltage at the cursor", "unit": "V", "decimals": 1 },
+      { "id": "amps", "label": "Current at the cursor", "unit": "A", "decimals": 2 },
+      { "id": "watts", "label": "Power at the cursor", "unit": "W", "decimals": 0 }
+    ],
+    "whatAmILookingAt": "A short lesson in twelve small screens on one picture, the power scrubber. The heater test's 10 Ω element, an example value, sits on an AC supply with a 100 V peak at 50 Hz. Above, its voltage wave and its current wave share one time axis, 0 to 40 ms, two cycles of 20 ms; the current wave is dashed, with its scale on the right, peaking at 100 ÷ 10 = 10 A. They cross zero and reach their tops together, because the current through a resistance is the voltage ÷ the resistance at every instant. Below, on the same time axis, is the power wave, voltage × current worked instant by instant. A time cursor, a vertical line through both graphs, is dragged from 0 to 40 ms and opens at 5 ms, the top of the first cycle. Where it crosses the waves, readouts give the voltage, the current and their product, and a dot lands on the power wave at that product: 100 V × 10 A = 1000 W at 5 ms. A flat dashed line marks the power wave's average, 500 W, labelled V_rms × I_rms. Screen 1 lets you drag the cursor and watch the dot ride the power wave. Screen 2 parks the cursor at 15 ms, the bottom of the cycle, with readouts of −100 V and −10 A, and asks for the power: 1000 W; −1000 W (the minus kept); or 0 W. A right Check drops the dot at 1000 W. Screen 3 sweeps the cursor along a whole cycle, leaving a trace: one hump from 0 to 1000 W while the voltage is forward and another while it is backward, each 10 ms long, so two humps for every cycle; a counter shows 100 humps a second on 50 Hz. Screen 4 asks how many humps a second a heater gives on the 60 Hz supply most common on board ship: 120; 60 (the supply's own frequency); or 240 (doubled twice). Screen 5 draws the dashed average at 500 W, half the 1000 W top, because the power is 1000 W × the sine squared and a squared sine's humps fit exactly into its dips (Calculus fundamentals' fold). Beside it the rms values, 0.707 × 100 = 70.7 V and 0.707 × 10 = 7.07 A, multiply to 500 W. Screen 6 shows the voltage and the current each averaging zero over a cycle and asks what the element averages: 500 W; 0 W (the averages multiplied); or 1000 W (the top of a hump). Screen 7 turns to the mains card: a 1 kW heater on 230 V mains, 230² ÷ 1000 = 52.9 Ω, drawing 230 ÷ 52.9 = 4.35 A rms. The voltage wave peaks at 325 V and the current at 4.35 × 1.41 = 6.15 A, so the humps reach 325 × 6.15 = 2000 W and the dashed average sits at 230 × 4.35 = 1000 W. Screen 8: a clamp meter reads 10 A on a heater at 230 V; what is its power? 2300 W; 4600 W (325 V × 14.1 A, the peaks multiplied); or 1150 W (the rms product halved). Screen 9 frees a frequency switch, 50 Hz and 60 Hz, on the 10 Ω card: at 60 Hz the humps crowd closer, 120 a second, but their tops stay at 1000 W and the average at 500 W, because a resistor's current follows the voltage at each instant whatever the frequency. Screen 10: a heater's power humps top out at 3000 W; what is its average power? 1500 W; 3000 W (the top taken as the average); or 2120 W (0.707 used once on the power). Screens 11 and 12 are mixed. Screen 11: which is true of the 10 Ω element's power? It reaches zero twice each cycle and never goes below it; it goes below zero on the backward half; or it stays steady at 500 W. Screen 12: an example heater element across a ship's 440 V, 60 Hz supply draws 10 A; is its power 4.4 kW in 120 humps a second; 4.4 kW in 60 humps a second; or 8.8 kW in 120 humps a second (622 V × 14.1 A, the peaks)? Each puzzle offers three answers; a wrong pick gets a one-line hint naming its slip, Why? explains in words, and a right Check draws the answer on the picture. The closing line says the dot never goes below the line here because the voltage and current keep step, and that lessons 4 and 5 put in a coil and a capacitor, where it does.",
+    "ignores": "The element is ideal: its resistance is held fixed, though a real element's resistance changes as it heats. The waves are pure sines; real mains is close to a sine rather than exactly one. Time is stretched so one 20 ms cycle fills half the screen. The 10 Ω element, the 100 V peak, the heaters and the meter readings are example values.",
+    "numbers": [
+      { "label": "Number of screens", "value": 12, "kind": "assumed" },
+      { "label": "Element's resistance, in ohms", "value": 10, "kind": "assumed" },
+      { "label": "Voltage peak on the scrubber, in volts", "value": 100, "kind": "assumed" },
+      { "label": "Current peak on the scrubber, in amps", "value": 10, "kind": "computed" },
+      { "label": "UK mains frequency, in hertz", "value": 50, "kind": "constant" },
+      { "label": "One cycle at 50 Hz, in milliseconds", "value": 20, "kind": "computed" },
+      { "label": "Time axis, lowest, in milliseconds", "value": 0, "kind": "assumed" },
+      { "label": "Time axis, highest, in milliseconds", "value": 40, "kind": "assumed" },
+      { "label": "Opening cursor time, in milliseconds", "value": 5, "kind": "control" },
+      { "label": "Power at the opening cursor, in watts", "value": 1000, "kind": "computed" },
+      { "label": "Cursor time for screen 2, in milliseconds", "value": 15, "kind": "assumed" },
+      { "label": "Voltage at 15 ms, in volts", "value": -100, "kind": "computed" },
+      { "label": "Current at 15 ms, in amps", "value": -10, "kind": "computed" },
+      { "label": "Slip, the minus kept, in watts", "value": -1000, "kind": "computed" },
+      { "label": "Length of one power hump at 50 Hz, in milliseconds", "value": 10, "kind": "computed" },
+      { "label": "Power humps a second at 50 Hz", "value": 100, "kind": "computed" },
+      { "label": "Most common ship frequency, in hertz", "value": 60, "kind": "constant", "source": 17 },
+      { "label": "Power humps a second at 60 Hz", "value": 120, "kind": "computed" },
+      { "label": "Slip, doubled twice, humps a second", "value": 240, "kind": "computed" },
+      { "label": "Average power on the scrubber, in watts", "value": 500, "kind": "computed" },
+      { "label": "Rms ÷ peak for a sine", "value": 0.707, "kind": "constant", "source": 10 },
+      { "label": "Rms voltage on the scrubber, in volts", "value": 70.7, "kind": "computed" },
+      { "label": "Rms current on the scrubber, in amps", "value": 7.07, "kind": "computed" },
+      { "label": "UK mains nominal voltage, in volts", "value": 230, "kind": "constant", "source": 12 },
+      { "label": "Mains heater rating, in watts", "value": 1000, "kind": "assumed" },
+      { "label": "Mains heater rating, in kilowatts", "value": 1, "kind": "assumed" },
+      { "label": "Mains heater's resistance, in ohms", "value": 52.9, "kind": "computed" },
+      { "label": "Mains heater's rms current, in amps", "value": 4.35, "kind": "computed" },
+      { "label": "Peak of 230 V mains, in volts", "value": 325, "kind": "constant", "source": 11 },
+      { "label": "Peak ÷ rms for a sine, √2", "value": 1.41, "kind": "computed" },
+      { "label": "Mains heater's peak current, in amps", "value": 6.15, "kind": "computed" },
+      { "label": "Mains heater's hump tops, in watts", "value": 2000, "kind": "computed" },
+      { "label": "Clamp meter reading in screen 8, in amps", "value": 10, "kind": "assumed" },
+      { "label": "Screen 8 heater's power, in watts", "value": 2300, "kind": "computed" },
+      { "label": "Screen 8 heater's peak current, in amps", "value": 14.1, "kind": "computed" },
+      { "label": "Slip, the peaks multiplied, in watts", "value": 4600, "kind": "computed" },
+      { "label": "Slip, the rms product halved, in watts", "value": 1150, "kind": "computed" },
+      { "label": "Screen 10 hump tops, in watts", "value": 3000, "kind": "assumed" },
+      { "label": "Screen 10 average power, in watts", "value": 1500, "kind": "computed" },
+      { "label": "Slip, 0.707 used once on power, in watts", "value": 2120, "kind": "computed" },
+      { "label": "Ship system voltage, in volts", "value": 440, "kind": "constant", "source": 16 },
+      { "label": "Ship heater's current, in amps", "value": 10, "kind": "assumed" },
+      { "label": "Ship heater's power, in kilowatts", "value": 4.4, "kind": "computed" },
+      { "label": "Peak of 440 V, in volts", "value": 622, "kind": "computed" },
+      { "label": "Slip, ship heater's peaks multiplied, in kilowatts", "value": 8.8, "kind": "computed" },
+      { "label": "Rectifier humps' average ÷ top", "value": 0.637, "kind": "computed" }
+    ]
+  },
+  "explain": {
+    "text": "Feed a resistor AC and its power is not steady. Multiply the voltage by the current at each instant and you get a power wave that pulses twice for every cycle of the supply and never drops below zero, and its average is the rms voltage times the rms current, just as on DC.\n\nIn a resistor the current is the voltage ÷ the resistance at every instant, so the two waves rise and fall together: they reach their tops and bottoms at the same times.[^1] Waves that keep step like this are [[in phase]]. The power at any one instant is that instant's voltage times that instant's current, the P = V × I you use on DC, worked moment by moment: the [[instantaneous power]]. Take the heater test's 10 Ω element on a 100 V peak, so the current peaks at 10 A. At the top of the wave it takes 100 × 10 = 1000 W. As the wave crosses zero both are zero, so it takes nothing. On the backward half both are negative, −100 V and −10 A at the bottom, and a minus times a minus is a plus, so it takes 1000 W again: the element heats whichever way the current flows. So there is one hump of power on the forward half and another on the backward half. The power wave is always positive for a resistor,[^4] and its frequency is double that of the voltage and current.[^3] On 50 Hz mains that is 100 humps a second.\n\nThe humps run from 0 to 1000 W. The power is 1000 W × the sine squared, and remember Calculus fundamentals' fold: a squared sine's humps fit exactly into its dips, so they average half their top, 500 W. That is the [[average power]], the heat the element actually gives. The rms values give it straight away: 0.707 × 100 = 70.7 V and 0.707 × 10 = 7.07 A, and 70.7 × 7.07 = 500 W, because each rms value is 1 ÷ √2 of its peak and 1 ÷ √2 squared is a half. The product of the rms voltage and the rms current equals the average power.[^2] The peaks multiplied give the top of each hump, twice the average. Averaging first fails too: over a whole cycle the voltage and the current each average zero, yet the element still warms, because it is the product that is averaged, and the product is never negative.\n\nUK mains is 230 V nominal,[^12] peaking near 325 V.[^11] A 1 kW heater on it is 230² ÷ 1000 = 52.9 Ω and draws 230 ÷ 52.9 = 4.35 A, so its power humps reach 325 × 6.15 = 2000 W, 100 times a second, and average 230 × 4.35 = 1000 W. On the 60 Hz most common on board ship,[^17] the humps come 120 times a second. This is a simplified model, an ideal resistor on a pure sine; a real element's resistance changes as it warms, and real mains is close to a sine rather than exactly one. **In a resistor the voltage and current keep step, so the power wave never goes below zero,[^4] beats at twice the supply's frequency[^3] and averages the rms voltage times the rms current.[^2]**"
+  },
+  "analogy": {
+    "text": "A full-wave bridge rectifier on 50 Hz gives a row of humps all one way, 100 a second, because it turns the backward half of the wave forward. A resistor's power wave has the same look for a related reason: on the backward half the voltage and the current are both negative, and a minus times a minus is a plus, so the power is forward again.",
+    "breaks": "The rectifier's humps are a voltage, the wave's size made positive, so they average 0.637 of the top; the power humps are two waves multiplied, a sine squared, so they average half the top. And the rectifier changes the current in its circuit; the resistor's current really does reverse every half cycle."
+  },
+  "practice": {
+    "text": "- Take the rms voltage and the rms current. Appliances and devices are quoted in rms values.[^15]\n- For a heater, an element or any plain resistance, multiply them: average power = V_rms × I_rms.[^2]\n- The power humps top out at twice that, for a sine, and come at twice the supply's frequency.[^3]\n- For a motor, or anything with a coil or a capacitor, V × I is not yet the watts; lessons 4, 5 and 8 show why.\n\n**Rule of thumb:** On a resistance, watts = rms volts × rms amps, and the hump tops are twice that, 100 a second on 50 Hz.\n\n**Worked example:** A clamp meter reads 10 A on a heater at 230 V. Its power is 230 × 10 = 2300 W, and 230² ÷ 2300 = 23 Ω checks it as a resistance. Its voltage peaks at 325 V and its current at 14.1 A, so each hump tops out at 325 × 14.1 = 4600 W for an instant, and the humps average half that, 2300 W.\n\n**Common mistakes**\n- Multiplying the peaks, 325 × 14.1 = 4600 W. That is the top of each hump, not the heat.\n- Averaging first. The voltage and current each average zero over a cycle; the power does not.\n- Expecting the power to go below zero on the backward half. In a resistor both are negative together, so the power stays positive.[^4]\n- Expecting the power to pulse at the supply's frequency. It pulses at twice it.[^3]\n- Using V × I as the watts of a motor. It works on a resistance; a coil changes it."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    { "n": 1, "title": "15.2 Simple AC Circuits - University Physics Volume 2 | OpenStax", "url": "https://openstax.org/books/university-physics-volume-2/pages/15-2-simple-ac-circuits", "quote": "Both curves reach their maxima and minima at the same times, that is, the current through and the voltage across the resistor are in phase." },
+    { "n": 2, "title": "2.8 Power and energy in resistive circuits – Applied Electrical Engineering Fundamentals", "url": "https://openbooks.library.umass.edu/funee/chapter/2-8", "quote": "Note that the product of the RMS voltage and RMS current is equal to the average power:" },
+    { "n": 3, "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 11", "url": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html", "quote": "Also note that the waveform for power is not at the same frequency as the voltage or current! Rather, its frequency is double that of either the voltage or current waveforms." },
+    { "n": 4, "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 11", "url": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html", "quote": "Note that the waveform for power is always positive, never negative for this resistive circuit. This means that power is always being dissipated by the resistive load, and never returned to the source as it is with reactive loads." },
+    { "n": 10, "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 1", "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html", "quote": "For a sine wave, the RMS value is approximately 0.707 of its peak value." },
+    { "n": 11, "title": "Alternating currents — WJEC A-Level Physics Revision", "url": "https://masterymind.co.uk/subjects/physics-a-level/wjec/a-level/alternating-currents", "quote": "Misconception: Peak voltage is the same as mains voltage. Correction: UK mains voltage is 230 V RMS, so the peak voltage is about 325 V (230 × √2)." },
+    { "n": 12, "title": "Statutory Voltage Limits – Energy Networks Association (ENA)", "url": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits", "quote": "UK mains electricity operates at a nominal voltage of 230V, and can operate within limits of 253V and 216V set by the Electricity Safety, Quality and Continuity Regulations (ESQCR)" },
+    { "n": 15, "title": "15.2 Simple AC Circuits - University Physics Volume 2 | OpenStax", "url": "https://openstax.org/books/university-physics-volume-2/pages/15-2-simple-ac-circuits", "quote": "Appliances and devices are commonly quoted with rms values for their operations, rather than peak values." },
+    { "n": 16, "title": "maritime electrical installations - notes on design ...", "url": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf", "quote": "The majority of ships have a 3 phase, 3 wire, 440V insulated neutral system. This means that the neutral point of star connected generators is not earthed to the ship's hull. For Continental European vessels, a 380V, 3 phase system is common." },
+    { "n": 17, "title": "maritime electrical installations - notes on design ...", "url": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf", "quote": "60 Hz is the most common frequency adopted for use on board ship; the higher frequency enabling motors and generators to run at higher speeds with a consequent reduction in size for a given power rating." }
+  ],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps"
+}

@@ -1,0 +1,192 @@
+{
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [
+      "SVG text \"1000 W\" is hard to read: 1.1:1 contrast with the page (it needs 3:1). Draw text in ink, muted, accent2, accent, warn or good (on-accent2 on a navy shape), with var(--k-…) or K.color in K.update, so it follows the theme (at the opening state, in the dark theme)"
+    ],
+    "checks": [
+      {
+        "label": "Both curves reach their maxima and minima at the same times, that is, the current through and the voltage across the resistor are in phase: on every card the drawn current is the drawn voltage ÷ the resistance at each instant, and its tops and bottoms fall at the voltage's",
+        "ok": true,
+        "source": "https://openstax.org/books/university-physics-volume-2/pages/15-2-simple-ac-circuits"
+      },
+      {
+        "label": "The waveform for power is always positive, never negative for this resistive circuit: on every screen each drawn point of the power wave is the drawn voltage × the drawn current at that instant, and none is below zero",
+        "ok": true,
+        "source": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html"
+      },
+      {
+        "label": "The waveform for power is not at the same frequency as the voltage or current; its frequency is double that of either: the drawn power wave has a hump at every top and every bottom of the voltage, two a cycle, shown as 100 humps a second on 50 Hz and 120 on 60 Hz",
+        "ok": true,
+        "source": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html"
+      },
+      {
+        "label": "The product of the RMS voltage and RMS current is equal to the average power: on the 10 Ω, mains, clamp-meter and ship cards the dashed average sits at the mean of the drawn power wave over whole humps, and the row under it multiplies the rms values to that figure: 500 W, 1000 W, 2300 W and 4.4 kW",
+        "ok": true,
+        "source": "https://openbooks.library.umass.edu/funee/chapter/2-8"
+      },
+      {
+        "label": "For a sine wave, the RMS value is approximately 0.707 of its peak value: on the 10 Ω card the rows read Vrms = 0.707 × 100 V = 70.7 V and Irms = 0.707 × 10 A = 7.07 A",
+        "ok": true,
+        "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html"
+      },
+      {
+        "label": "UK mains voltage is 230 V RMS, so the peak voltage is about 325 V (230 × √2): on the mains card the voltage wave reaches 325 V at the top of each cycle and −325 V at the bottom",
+        "ok": true,
+        "source": "https://masterymind.co.uk/subjects/physics-a-level/wjec/a-level/alternating-currents"
+      },
+      {
+        "label": "UK mains electricity operates at a nominal voltage of 230V: the 1 kW mains heater is 230² ÷ 1000 = 52.9 Ω and draws 230 ÷ 52.9 = 4.35 A, its power humps reaching 2000 W and averaging 1000 W",
+        "ok": true,
+        "source": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits"
+      },
+      {
+        "label": "60 Hz is the most common frequency adopted for use on board ship: the ship screens run at 60 Hz, and once answered show 2 humps a cycle × 60 Hz = 120 humps a second",
+        "ok": true,
+        "source": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf"
+      },
+      {
+        "label": "The majority of ships have a 3 phase, 3 wire, 440V insulated neutral system: the ship heater runs at 440 V rms, its wave peaking at 440 × √2 = 622 V, and drawing 10 A it averages 440 × 10 = 4.4 kW",
+        "ok": true,
+        "source": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf"
+      },
+      {
+        "label": "The scrubber multiplies: at 5 ms 100 V × 10 A = 1000 W; at 10 ms both are 0, so the power is 0; at 15 ms −100 V × −10 A = +1000 W",
+        "ok": true
+      },
+      {
+        "label": "The fold: the top of a hump above the 500 W average, moved on half a hump (5 ms) and turned over, lies exactly along the dip beside it",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle accepts only its right answer; before an answer its picture hides what is asked (the power there, the power wave, the average or the humps a second), and each wrong pick draws what it claims, in red",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "t",
+      "f"
+    ],
+    "readouts": [],
+    "outputs": [
+      "volts",
+      "amps",
+      "watts"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "The power scrubber",
+          "At the bottom",
+          "Two humps a cycle",
+          "On board ship",
+          "The average",
+          "Averaging first",
+          "A mains heater",
+          "The clamp meter",
+          "A faster supply",
+          "From the tops",
+          "Mixed: the shape of the power",
+          "Mixed: a ship heater"
+        ],
+        "value": 0
+      },
+      {
+        "id": "t",
+        "kind": "control",
+        "label": "Time cursor",
+        "min": 0,
+        "max": 40,
+        "step": 0.1,
+        "log": false,
+        "value": 5,
+        "snap": [
+          5,
+          10,
+          15,
+          20
+        ]
+      },
+      {
+        "id": "f",
+        "kind": "choice",
+        "label": "Supply",
+        "options": [
+          "50",
+          "60"
+        ],
+        "labels": [
+          "50 Hz",
+          "60 Hz"
+        ],
+        "value": "50",
+        "index": 0
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Replay",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ]
+  },
+  "moved": [
+    "step = 1",
+    "t = 30",
+    "f = \"60\"",
+    "pressed \"Answer 1\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/ac-circuits/i3.a8-360-light.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i3.a8-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i3.a8-360-light-end.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i3.a8-360-dark.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i3.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i3.a8-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i3.a8-1280-light.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i3.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i3.a8-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i3.a8-1280-dark.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i3.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i3.a8-1280-dark-end.png"
+  ]
+}

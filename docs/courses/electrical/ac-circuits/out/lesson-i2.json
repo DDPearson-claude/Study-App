@@ -1,0 +1,629 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-19T19:24:39.864Z",
+ "startedAt": "2026-10-19T19:24:39.864Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i2",
+  "title": "Rms: the number on the label",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the two heat bars matching when the DC level sits near 0.707 of the AC wave's peak, not at the peak or the average, when you drag the DC level up and down.",
+   "title": "The heater test",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "acHeat",
+     "label": "AC heater, average heat",
+     "unit": "W",
+     "decimals": 0
+    },
+    {
+     "id": "dcHeat",
+     "label": "DC heater, heat",
+     "unit": "W",
+     "decimals": 0
+    },
+    {
+     "id": "ratio",
+     "label": "DC level ÷ AC peak",
+     "unit": "",
+     "decimals": 3
+    }
+   ],
+   "whatAmILookingAt": "A short lesson in twelve small screens, most on one picture, the heater test. Two identical heater elements sit side by side, each 10 Ω, an example value. The left one is fed AC, drawn as a sine wave of voltage against time with a 100 V peak. The right one is fed DC, drawn as a flat line whose height you drag up and down, from 0 to 120 V, opening at 50 V. Under each element is its power against time, worked moment by moment as voltage squared ÷ resistance, the P = V² ÷ R you use on DC, applied at each instant. The AC element's power is a row of humps: 100² ÷ 10 = 1000 W at each peak of the voltage, nothing as it crosses zero, and the same humps on the backward half, because a minus squared is a plus. A dashed line marks the humps' average, 500 W, half their top, because a squared sine's humps fit exactly into its dips (Calculus fundamentals' fold). The DC element's power is a flat line at its level squared ÷ 10: 250 W at the opening 50 V. Beside each element a heat bar fills to its average power, and readouts give the AC heater's average heat, the DC heater's heat and the DC level ÷ the AC peak. When the bars match, the DC level is the AC wave's rms value: near 70.7 V, where 70.7² ÷ 10 = 500 W, a ratio near 0.707. Screen 1 lets you drag the DC level and watch the DC heat bar rise and fall against the AC one. Screen 2 asks where the bars match: at 100 V (the peak), near 70.7 V, or near 63.7 V (the AC voltage's average over half a cycle). Each wrong pick sets the DC line there and shows its heat bar missing: 1000 W at 100 V, about 406 W at 63.7 V. Screen 3 shows why it lands near 70.7 V: the DC line slides to 70.7 V, its flat 500 W power line lies along the AC humps' dashed average, and the recipe is spelt out under the humps: square the wave, whose top is 100² = 10000 V²; take the mean, half of that, 5000 V², which checks as 500 W × 10 Ω; take the root, 70.7 V. Screen 4 asks how the heat compares with the DC level at 100 V and the AC peak at 100 V: the DC one gives twice the heat, 1000 W against 500 W; the same heat; or 1.41 times the heat (the voltage ratio, forgetting the square). Screen 5 frees a shape switch, sine, triangle and square, all with a 100 V peak. The square wave sits at 100 V the whole time except for its instant flips, so its power is a flat 1000 W and the bars match at 100 V, a ratio of 1.0. The triangle spends more of its time low down than the sine does, so its humps are thinner: the mean of a ramp's square is a third of its top's square (Calculus fundamentals' ramp), so its average heat is 10000 ÷ 3 ÷ 10 = 333 W and the bars match near 57.7 V, 100 ÷ √3, a ratio near 0.577. Screen 6 asks what DC heats the element as much as a triangle with an example 80 V peak, whose humps top out at 80² ÷ 10 = 640 W and average a third of that, 213 W: near 46.2 V, 80 ÷ √3; near 56.6 V (the sine's 0.707 used on the wrong shape); or 40 V (the triangle's average over half a cycle). Screen 7 turns to the mains card: the AC wave is now 230 V mains on a 1 kW heater of 52.9 Ω, 230² ÷ 1000. The voltage axis runs to 400 V, its scale numbers hidden for now. The DC line set at 230 V gives a flat 1000 W and the heat bars match, and the wave is seen climbing above the DC line. Screen 8 asks for the top of the 230 V mains wave, which stays hidden until answered: 325 V; 230 V (the label taken as the top); or 163 V (230 ÷ √2, the conversion the wrong way round). A right answer draws the wave reaching 325 V at the top of each cycle and −325 V at the bottom, 230 × √2, a swing of 650 V, with power humps reaching 2000 W and a dashed average of 1000 W; Why? adds that a ship's 440 V system, as an example, peaks at 440 × √2 = 622 V. Screen 9 adds a meter beside the mains card, a needle on a scale to 400 V, standing for the many analogue meters that do not square the wave. Its needle follows the average of the wave folded all one way, 0.637 of the peak on a sine (2 ÷ π, a hump's area over its width), and its scale is marked up by 1.11, the sine's form factor, rms ÷ average, 0.707 ÷ 0.637, so on the sine it reads 230 V. The shape switch then puts on a triangle and a square, each with the same 325 V peak: on the triangle the needle shows 180 V while the heat bars match at 188 V; on the square it shows 361 V while they match at 325 V. Screen 10: such a meter shows 111 V on a square wave whose peak is 100 V; what is its rms value? 100 V; 111 V (trusting the meter); or 70.7 V (the sine's ratio). Screens 11 and 12 are mixed. Screen 11: a 1 kW, 230 V heater is run from a 230 V DC supply; does it give 1 kW, 2 kW (the AC power at the top of each wave), or 1.41 kW (the voltage ratio used on the heat)? Screen 12 drops the graphs and shows two meters, both in calibration, on one supply, an example triangle of 300 V peak: an average-reading meter shows 167 V and a true-rms meter 173 V; is the wave not a sine, with 173 V the figure that sets the heat; is the average-reading meter faulty; or is the true-rms meter showing the peak? Each puzzle offers three answers; a wrong pick gets a one-line hint naming its slip, Why? explains in words, and a right Check draws the answer on the picture. The closing line brings back a cable carrying 20 A for a quarter of the time, which warms like a steady 10 A, and the 253 × √2 = 358 V peak at the upper limit, and says where the course goes next: Resistance in AC, the power wave moment by moment.",
+   "ignores": "The heat bars fill straight to the average power; a real element takes time to warm, and at mains frequency its temperature barely ripples within a cycle. The elements' resistance is held fixed, though a real element's resistance changes as it heats. The square wave's flips are drawn as instant. The meter is an idealised average-reading meter. Real mains is close to a sine rather than exactly one. Heater sizes and the peaks of 100 V, 80 V and 300 V are example values.",
+   "numbers": [
+    {
+     "label": "Number of screens",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Each heater element's resistance, in ohms",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "AC wave's peak on the heater test, in volts",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "DC level slider, lowest, in volts",
+     "value": 0,
+     "kind": "assumed"
+    },
+    {
+     "label": "DC level slider, highest, in volts",
+     "value": 120,
+     "kind": "assumed"
+    },
+    {
+     "label": "Opening DC level, in volts",
+     "value": 50,
+     "kind": "control"
+    },
+    {
+     "label": "DC heat at the opening level, in watts",
+     "value": 250,
+     "kind": "computed"
+    },
+    {
+     "label": "AC power at each peak, in watts",
+     "value": 1000,
+     "kind": "computed"
+    },
+    {
+     "label": "AC heater's average heat, in watts",
+     "value": 500,
+     "kind": "computed"
+    },
+    {
+     "label": "Mean of the squared voltage, in volts squared",
+     "value": 5000,
+     "kind": "computed"
+    },
+    {
+     "label": "DC level where the heat bars match, in volts",
+     "value": 70.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Rms ÷ peak for a sine",
+     "value": 0.707,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Sine's average over half a cycle, in volts",
+     "value": 63.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Sine's half-cycle average ÷ peak",
+     "value": 0.637,
+     "kind": "computed"
+    },
+    {
+     "label": "DC heat at 63.7 V, in watts",
+     "value": 406,
+     "kind": "computed"
+    },
+    {
+     "label": "DC heat at 100 V, in watts",
+     "value": 1000,
+     "kind": "computed"
+    },
+    {
+     "label": "Heat ratio, DC at 100 V to AC of 100 V peak",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, the voltage ratio √2",
+     "value": 1.41,
+     "kind": "computed"
+    },
+    {
+     "label": "Square wave's matching DC level, in volts",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "Rms ÷ peak for a square wave",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Triangle's squared top, in volts squared",
+     "value": 10000,
+     "kind": "computed"
+    },
+    {
+     "label": "Triangle's average heat, in watts",
+     "value": 333,
+     "kind": "computed"
+    },
+    {
+     "label": "Triangle's matching DC level, in volts",
+     "value": 57.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Rms ÷ peak for a triangle",
+     "value": 0.577,
+     "kind": "computed"
+    },
+    {
+     "label": "Triangle's average over half a cycle, in volts",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "UK mains nominal voltage, in volts",
+     "value": 230,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "UK mains lower limit, in volts",
+     "value": 216,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "UK mains upper limit, in volts",
+     "value": 253,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Peak of 230 V mains, in volts",
+     "value": 325,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Mains swing, top to bottom, in volts",
+     "value": 650,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak at the upper limit, in volts",
+     "value": 358,
+     "kind": "computed"
+    },
+    {
+     "label": "Example heater rating, in kilowatts",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example heater rating, in watts",
+     "value": 1000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Heater's resistance, in ohms",
+     "value": 52.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Heater's power at the top of each wave, in watts",
+     "value": 2000,
+     "kind": "computed"
+    },
+    {
+     "label": "Mains card voltage axis top, in volts",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slip, 230 ÷ √2, in volts",
+     "value": 163,
+     "kind": "computed"
+    },
+    {
+     "label": "Average-reading meter's scale factor",
+     "value": 1.11,
+     "kind": "computed"
+    },
+    {
+     "label": "Meter on a 325 V triangle, in volts",
+     "value": 180,
+     "kind": "computed"
+    },
+    {
+     "label": "Rms of a 325 V triangle, in volts",
+     "value": 188,
+     "kind": "computed"
+    },
+    {
+     "label": "Meter on a 325 V square wave, in volts",
+     "value": 361,
+     "kind": "computed"
+    },
+    {
+     "label": "Meter on a 100 V square wave, in volts",
+     "value": 111,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, 1 kW heater's AC power at the top, in kilowatts",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, heat scaled by √2, in kilowatts",
+     "value": 1.41,
+     "kind": "computed"
+    },
+    {
+     "label": "Cable current in the analogy, in amps",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cable's average current, in amps",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Cable's heat-equivalent steady current, in amps",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Mean of the cable current squared, in amps squared",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "Triangle puzzle's peak, in volts",
+     "value": 80,
+     "kind": "assumed"
+    },
+    {
+     "label": "Triangle puzzle's power at each peak, in watts",
+     "value": 640,
+     "kind": "computed"
+    },
+    {
+     "label": "Triangle puzzle's average heat, in watts",
+     "value": 213,
+     "kind": "computed"
+    },
+    {
+     "label": "Triangle puzzle's matching DC level, in volts",
+     "value": 46.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, the sine's ratio on the 80 V triangle, in volts",
+     "value": 56.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Triangle puzzle's average over half a cycle, in volts",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Squared sine's top on the heater test, in volts squared",
+     "value": 10000,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak of 230 V mains to one decimal, in volts",
+     "value": 325.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Rms of a 325 V triangle to one decimal, in volts",
+     "value": 187.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Two-meters triangle's peak, in volts",
+     "value": 300,
+     "kind": "assumed"
+    },
+    {
+     "label": "Average-reading meter on the 300 V triangle, in volts",
+     "value": 167,
+     "kind": "computed"
+    },
+    {
+     "label": "True-rms meter on the 300 V triangle, in volts",
+     "value": 173,
+     "kind": "computed"
+    },
+    {
+     "label": "Rms of the 300 V triangle to one decimal, in volts",
+     "value": 173.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Ship system voltage, an example, in volts",
+     "value": 440,
+     "kind": "constant",
+     "source": 8
+    },
+    {
+     "label": "Peak of a 440 V ship supply, in volts",
+     "value": 622,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "The 230 V on a heater's label is not the top of the mains wave. It is the steady DC voltage that would heat that heater just as much, and for a sine wave that steady level is about 0.707 of the peak, so 230 V mains climbs to about 325 V at the top of each cycle.\n\nTake two identical heater elements of 10 Ω, one on AC with a 100 V peak and one on a DC level you can set. Heat in a resistor goes with the voltage squared, P = V² ÷ R, and that holds at each instant on AC too. At the top of the wave the AC element takes 100² ÷ 10 = 1000 W, as the wave crosses zero it takes nothing, and on the backward half it heats just the same, because a minus squared is a plus. So its power is a row of humps between 0 and 1000 W, and remember Calculus fundamentals' fold: a squared sine's humps fit exactly into its dips, so they average half their top, 500 W. The DC element takes its level squared ÷ 10, steadily, which is 500 W when the level squared is 5000, at 70.7 V. That steady DC, the one giving the same heat in an equal resistance, is how the size of an AC voltage or current is defined,[^4] and appliances and devices are commonly quoted with it rather than with the peak.[^7] It is the [[rms value]], root mean square, after Calculus fundamentals' recipe: square the wave, take the mean, take the root. For a sine it is about 0.707 of the peak.[^1] That is 1 ÷ √2, as the 70.7 V from a 100 V peak shows.\n\nThe plain average will not do. Over a whole cycle the voltage's average is zero, and even over half a cycle it is only 63.7 V, and 63.7 V of DC heats the element by about 406 W, not 500 W. The high parts of the wave count for more than the low parts, because heat goes with the square. That also makes the answer depend on the wave's shape. A square wave sits at its full height, one way or the other, almost the whole time, so its rms value is its peak, a ratio of 1.0. A triangle spends more of its time low down than a sine, and the mean of a ramp's square is a third of its top's square, so its rms value is the peak ÷ √3, 0.577 of it. So 0.707 belongs to the sine, and only to it of these three.\n\nUK mains is 230 V nominal, kept between 216 V and 253 V.[^2] The 230 V is an rms figure, so the wave peaks at about 230 × √2 = 325 V,[^3] and everything across the supply meets 325 V at the top of each cycle and −325 V at the bottom, a swing of 650 V. A ship's 440 V system,[^8] as an example, peaks at 440 × √2 = 622 V. Many analogue meters do not square the wave: the needle follows the average of the wave,[^5] and the scale is calibrated to show rms on an assumed shape, usually a sine.[^6] On a sine that average, folded all one way, is 0.637 of the peak, 2 ÷ π, so the scale is marked up by 1.11, the sine's [[form factor]] (rms ÷ average), 0.707 ÷ 0.637, and it reads rms correctly only on a sine: on a triangle of 325 V peak it shows 180 V where the rms value is 188 V. A [[true-rms meter]] works out the heating value on other shapes too, within the limits its maker states. The heater test is a simplified model; a real element's resistance changes as it warms, and real mains is close to a sine rather than exactly one. **Rms is the steady DC that would heat an equal resistance just as much,[^4] about 0.707 of the peak for a sine,[^1] so 230 V mains peaks near 325 V.[^3]**"
+  },
+  "analogy": {
+   "text": "A cable feeding a load that draws 20 A for a quarter of the time and nothing for the rest carries 5 A on average, yet it warms like a cable carrying a steady 10 A. Heat goes with the current squared, so the mean of the current squared is 400 ÷ 4 = 100, and its root is 10 A. The busy quarter counts for far more than the idle rest saves. The rms value is that same steady equivalent, worked out for a smooth wave.",
+   "breaks": "It holds only when the load switches much faster than the cable warms and cools; on long on and off spells the cable heats and cools in between and peaks hotter. And this load jumps between two levels rather than following a sine, so its ratio is not the sine's 0.707."
+  },
+  "practice": {
+   "text": "The safe way first: a supply labelled 230 V reaches about 325 V at the top of every cycle,[^3] and more when the supply sits high in its allowed band, 253 × √2 = 358 V at the upper limit.[^2] Anything connected across it, insulation included, meets the peak, not the label.\n\n- Read an AC voltage or current on a label or a nameplate as rms unless it says peak or peak-to-peak,[^7] the steady DC that would heat the same resistance.[^4] A meter's scale shows rms too, calibrated for a sine.[^6]\n- For a sine, go up to the peak by multiplying by √2, about 1.41, and down to rms by multiplying by 0.707.[^1] For a sine the peak is the bigger figure, which checks the direction.\n- For other shapes, use that shape's ratio: 1.0 for a square wave, 0.577 for a triangle.\n- For a resistance, work heat and power with rms values just as you would with DC, P = V² ÷ R. Coils and capacitors need more, which later lessons take up.\n- On a wave that may not be a sine, trust a true-rms meter, not an average-reading one.[^5][^6]\n\n**Rule of thumb:** Peak = rms × 1.41 and rms = peak × 0.707, for a sine only.\n\n**Worked example:** A 1 kW heater rated at 230 V has a resistance of 230² ÷ 1000 = 52.9 Ω. Its supply peaks at about 230 × 1.41 = 325 V, where it takes about 325² ÷ 52.9 = 2000 W for an instant. Its humps average half that, 1000 W, just as 230 V of DC would give.\n\n**Common mistakes**\n- Taking the 230 V on the label as the top of the wave. It is the rms value; the top is about 325 V.\n- Converting the wrong way round, 230 ÷ 1.41 = 163 V. The peak is bigger than the rms value, never smaller.\n- Taking rms as the average. The average over a cycle is zero, and over half a cycle of a sine 0.637 of the peak, which heats less.\n- Using 0.707 on a wave that is not a sine.\n- Trusting an average-reading meter on a distorted wave. It is right only on a sine."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 1",
+    "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html",
+    "quote": "For a sine wave, the RMS value is approximately 0.707 of its peak value."
+   },
+   {
+    "n": 2,
+    "title": "Statutory Voltage Limits – Energy Networks Association (ENA)",
+    "url": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits",
+    "quote": "UK mains electricity operates at a nominal voltage of 230V, and can operate within limits of 253V and 216V set by the Electricity Safety, Quality and Continuity Regulations (ESQCR)"
+   },
+   {
+    "n": 3,
+    "title": "Alternating currents — WJEC A-Level Physics Revision",
+    "url": "https://masterymind.co.uk/subjects/physics-a-level/wjec/a-level/alternating-currents",
+    "quote": "Misconception: Peak voltage is the same as mains voltage. Correction: UK mains voltage is 230 V RMS, so the peak voltage is about 325 V (230 × √2)."
+   },
+   {
+    "n": 4,
+    "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 1",
+    "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html",
+    "quote": "This is the general idea used to assign a “DC equivalent” measurement to any AC voltage or current: whatever magnitude of DC voltage or current would produce the same amount of heat energy dissipation through an equal resistance"
+   },
+   {
+    "n": 5,
+    "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 1",
+    "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html",
+    "quote": "Because the mechanical inertia and dampening effects of an electromechanical meter movement makes the deflection of the needle naturally proportional to the average value of the AC, not the true RMS value"
+   },
+   {
+    "n": 6,
+    "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 1",
+    "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html",
+    "quote": "analog meters must be specifically calibrated (or mis-calibrated, depending on how you look at it) to indicate voltage or current in RMS units. The accuracy of this calibration depends on an assumed waveshape, usually a sine wave."
+   },
+   {
+    "n": 7,
+    "title": "15.2 Simple AC Circuits - University Physics Volume 2 | OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-2/pages/15-2-simple-ac-circuits",
+    "quote": "Appliances and devices are commonly quoted with rms values for their operations, rather than peak values."
+   },
+   {
+    "n": 8,
+    "title": "maritime electrical installations - notes on design ...",
+    "url": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf",
+    "quote": "The majority of ships have a 3 phase, 3 wire, 440V insulated neutral system. This means that the neutral point of star connected generators is not earthed to the ship's hull. For Continental European vessels, a 380V, 3 phase system is common."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .wrap { position: relative; max-width: 22rem; margin-inline: auto; }\n  .scene { display: block; width: 100%; touch-action: pan-y; }\n  /* Dragging on the voltage graph sets the DC level (an HTML layer, so the page never scrolls under the finger). */\n  .dcgrip { position: absolute; touch-action: none; cursor: ns-resize; border-radius: 8px; }\n  .dcgrip:focus { outline: none; }\n  .dcgrip:focus-visible { outline: 2px solid var(--k-accent); outline-offset: 2px; }\n  .ctl { display: grid; gap: 12px; }\n  /* The heaters and their heat. */\n  .scene .hbox { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .hfill { fill: var(--k-fill1); }\n  .scene .hbad { fill: var(--k-warn); fill-opacity: .22; }\n  .scene .zig { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linejoin: round; }\n  .scene .badbox { fill: none; stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 6 4; }\n  /* The graphs against time. */\n  .scene .axis { stroke: var(--k-muted); stroke-width: 1.3; }\n  .scene .zero { stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .te { fill: none; stroke: var(--k-accent2); stroke-width: 2.4; stroke-linejoin: round; }\n  .scene .td { fill: none; stroke: var(--k-accent2); stroke-width: 4.4; stroke-opacity: .45; }\n  .scene .tavg { fill: none; stroke: var(--k-accent2); stroke-width: 1.8; stroke-dasharray: 6 4; }\n  .scene .tbad { fill: none; stroke: var(--k-warn); stroke-width: 2.2; stroke-dasharray: 6 4; }\n  .scene .tfold { fill: none; stroke: var(--k-accent2); stroke-width: 1.8; stroke-linejoin: round; }\n  .scene .tg { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 5 4; }\n  .scene .penE { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .penD { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .knob { fill: var(--k-accent2); }\n  .scene .ask { fill: var(--k-bg); stroke: var(--k-amber-line); stroke-width: 2; }\n  /* The meters. */\n  .scene .dial { fill: none; stroke: var(--k-strong); stroke-width: 1.6; }\n  .scene .needle { stroke: var(--k-ink); stroke-width: 2.4; stroke-linecap: round; }\n  .scene .pivot { fill: var(--k-ink); }\n  .scene .arw { stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .arwh { fill: var(--k-ink); }\n  .scene .tt { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lb.e { fill: var(--k-accent2); }\n  .scene .lb.bad { fill: var(--k-warn); }\n  .scene .wk { font: 500 13px var(--k-font); fill: var(--k-ink); }\n  .scene .wk.bad { fill: var(--k-warn); }\n  .scene .ky { font: 400 13px var(--k-font); fill: var(--k-ink); }\n  .scene .q { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .scene #art * { pointer-events: none; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stay on one row, each label whole; longer ones stack one to a row. */\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">Two identical heater elements, one fed AC and one a steady DC level, with their voltage, power and heat: first an example pair of 10 Ω, then a 1 kW mains heater of 52.9 Ω.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div class=\"wrap\" id=\"wrap\">\n      <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 366\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n      <div class=\"dcgrip\" id=\"grip\" role=\"slider\" tabindex=\"-1\" aria-label=\"DC level\" hidden></div>\n    </div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"ctl\" id=\"ctl\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Heater sizes and peaks are example values; each heat is the voltage squared ÷ the resistance, averaged.</p>\n\n<script>\n  // ---------- the rule ----------\n  // A heater's power at each instant is the voltage then, squared, ÷ its resistance. Its heat is the\n  // average of that power. The DC level that heats an equal resistance as much is the wave's rms value.\n  const TAU = 2 * Math.PI, CYC = 2, MORPH = 0.9, GROW = 1.8;   // two cycles drawn; a shape change and a trace take this long (s)\n  const F = {                                                  // each shape with a peak of 1, in step with the sine\n    sine: (u) => Math.sin(TAU * u),\n    tri: (u) => (2 / Math.PI) * Math.asin(K.clamp(Math.sin(TAU * u), -1, 1)),\n    square: (u) => { const s = Math.sin(TAU * u); return Math.abs(s) < 1e-12 ? 0 : Math.sign(s); },\n  };\n  const MS = { sine: 0.5, tri: 1 / 3, square: 1 };            // the mean of the squared wave, as a share of the peak squared\n  const MA = { sine: 2 / Math.PI, tri: 0.5, square: 1 };      // the mean of the wave folded all one way, as a share of the peak\n  const FF = (1 / Math.SQRT2) / (2 / Math.PI);                // the meter's mark-up, the sine's 0.707 ÷ 0.637 = 1.11\n  const NAME = { sine: 'sine', tri: 'triangle', square: 'square' };\n  // The heater test (10 Ω, 100 V peak) and the mains card (230 V mains on a 1 kW heater of 230² ÷ 1000 = 52.9 Ω;\n  // its sine peaks at 230 × √2, and the meter screen's triangle and square have the same 325 V peak).\n  const CARDS = {\n    test: { R: 10, Vmax: 120, Pmax: 1500, vt: 100, pt: 1000, dp: 1, ac: 'AC heater, 10 Ω', dc: 'DC heater, 10 Ω', peak: () => 100 },\n    mains: { R: 230 * 230 / 1000, Vmax: 400, Pmax: 2500, vt: 325, pt: 2000, dp: 0, ac: 'AC heater, 52.9 Ω', dc: 'DC heater, 52.9 Ω',\n      peak: (s) => (s === 'sine' ? 230 * Math.SQRT2 : 325) },\n  };\n  // A number as the lesson writes it: at most dp decimals, no trailing zeros, a true minus sign.\n  function num(v, dp) {\n    dp = dp == null ? 2 : dp;\n    const m = Math.pow(10, dp);\n    let r = Math.round(v * m) / m;\n    if (r === 0) r = 0;\n    let s = r.toFixed(dp);\n    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\\.$/, '');\n    return s.replace('-', '−');\n  }\n  const V = (v, dp) => num(v, dp == null ? 0 : dp) + ' V';\n  const Wt = (w) => num(w, 0) + ' W';\n  const mix = (a, b, t) => (t >= 1 ? b : t <= 0 ? a : a + (b - a) * t);\n  // The wave on a card, part-way (k) from shape a to shape b: its voltage at each instant, the means\n  // of its square and of its folded size, its rms value, its heat and what the meter reads.\n  function waveInfo(card, a, b, k, pk) {\n    const c = CARDS[card];\n    if (k >= 1 || a === b) { a = b; k = 1; }\n    const pa = pk || c.peak(a), pb = pk || c.peak(b);\n    const v = (u) => (k >= 1 ? pb * F[b](u) : (1 - k) * pa * F[a](u) + k * pb * F[b](u));\n    let ms, ma;\n    if (k >= 1) { ms = MS[b] * pb * pb; ma = MA[b] * pb; }\n    else {\n      let s2 = 0, s1 = 0;\n      const n = 720;\n      for (let j = 0; j < n; j++) { const x = v((j + 0.5) / n); s2 += x * x; s1 += Math.abs(x); }\n      ms = s2 / n; ma = s1 / n;\n    }\n    return { c, a, b, k, pa, pb, peak: mix(pa, pb, k), v, ms, ma, rms: Math.sqrt(ms), heat: ms / c.R, meter: FF * ma };\n  }\n  // The DC level where the bars match: on the heater test the slider's tenth of a volt, on mains exact.\n  const matchOf = (W) => (W.c.dp === 1 && W.k >= 1 ? Math.round(W.rms * 10) / 10 : W.rms);\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // card: which heaters; shape: the AC wave's shape. A SHOW step's tl is its timetable in seconds\n  // from when the screen opens (parts already seen are there from the start): grow draws the traces\n  // in, heat fills the bars, slide moves the DC level [start, seconds, from, to], morphs change the\n  // shape [start, to], meter and needle bring the meter in. live lets Dan set the DC level, shapes\n  // frees the shape switch, follow keeps the DC level on the match.\n  // A DO step's dc is its DC level before an answer (null: hidden), ansDc the level a right answer\n  // brings, hide what stays hidden until a right answer, slips what each wrong pick claims (drawn in red).\n  const STEPS = [\n    { show: true, name: 'The heater test', card: 'test', shape: 'sine', live: true, dc: 50, dur: 3.2, tl: { grow: 0.6, heat: 2.6 },\n      text: 'Two identical 10 Ω heaters: the left on AC that peaks at 100 V, the right on a steady DC level. The power in each is the voltage squared ÷ 10, moment by moment, so the AC power comes in humps, on the backward half too, because a minus squared is a plus. Its heat is the humps\\' average, the dashed line. Drag the DC level and watch the heat bars.' },\n    { name: 'Where they match', card: 'test', shape: 'sine', dc: 50, ansDc: 70.7, rdur: 2.0,\n      slips: { '100 V': { dc: 100 }, 'Near 63.7 V': { dc: 63.7 } },\n      task: 'At what DC level do the two heat bars match?',\n      opts: ['100 V', 'Near 63.7 V', 'Near 70.7 V'], want: 'Near 70.7 V',\n      why: 'The AC heater averages half its 1000 W top, 500 W. A steady level gives 500 W when its square is 500 × 10 = 5000, and that is near 70.7 V. A steady 100 V gives 1000 W all the time, while the wave touches 100 V only for an instant. The 63.7 V is the wave\\'s plain average over half a cycle, a hump\\'s area over its width, 2 ÷ π of the peak (Calculus fundamentals\\' mid-ordinate rule). It gives only about 406 W, because heat goes with the square.',\n      hint: 'Not quite. Find the steady level that gives the AC heater\\'s 500 W.',\n      hints: { '100 V': 'Not quite. The wave touches 100 V only for an instant, so a steady 100 V heats far more.',\n        'Near 63.7 V': 'Not quite. That is the wave\\'s plain average. Heat goes with the square, so the high parts count for more.' } },\n    { show: true, name: 'Why 70.7 V', card: 'test', shape: 'sine', live: true, slide: [0.6, 1.2, 50, 70.7], work: true, dur: 3.3,\n      tl: { match: 1.8, work1: 1.9, work2: 2.3, work3: 2.7 },\n      text: 'At 70.7 V the DC heater\\'s flat power lies along the AC humps\\' dashed average, 500 W, and the bars match. That is Calculus fundamentals\\' recipe, worked under the graph: square the wave, take the mean, take the root. This steady equivalent is the *rms value*, root mean square. For a sine it is about 0.707 of the peak, 1 ÷ √2.' },\n    { name: 'Peak against steady', card: 'test', shape: 'sine', dc: 100, hide: ['dcHeat'], rdur: 2.0,\n      slips: { 'The same heat': { heat: 500 }, '1.41 times the heat': { heat: 500 * Math.SQRT2 } },\n      task: 'The DC level is now 100 V, the AC wave\\'s peak. How does the DC heater\\'s heat compare with the AC heater\\'s?',\n      opts: ['Twice the heat', 'The same heat', '1.41 times the heat'], want: 'Twice the heat',\n      why: 'A steady 100 V gives 100² ÷ 10 = 1000 W the whole time. The AC heater reaches 1000 W only at the top of each wave and averages half of it, 500 W. So the DC gives twice the heat. 1.41 is the ratio of the voltages, and heat goes with its square, about 2.',\n      hint: 'Not quite. Work out the steady 100 V\\'s heat, and compare it with the dashed average.',\n      hints: { 'The same heat': 'Not quite. The AC wave is at 100 V only for an instant. The DC is there all the time.',\n        '1.41 times the heat': 'Not quite. 1.41 is the ratio of the voltages. Heat goes with the voltage squared.' } },\n    { show: true, name: 'Other shapes', card: 'test', shape: 'sine', live: true, shapes: true, follow: true, morphs: [[0.6, 'tri'], [2.4, 'square']], dur: 3.3,\n      text: 'The 0.707 belongs to the sine. A square wave sits at its full 100 V all but the instant it flips, so its power is a flat 1000 W and the bars match at 100 V, a ratio of 1.0. A triangle spends more time low down: the mean of a ramp\\'s square is a third of its top\\'s (Calculus fundamentals). Switch the shape and watch the match move.' },\n    { name: 'The triangle', card: 'test', shape: 'tri', pk: 80, dc: null, ansDc: 46.2, rdur: 2.0,\n      slips: { 'Near 56.6 V': { dc: 56.6 }, '40 V': { dc: 40 } },\n      task: 'The AC heater now runs on a triangle wave with an 80 V peak. What steady DC heats its twin just as much?',\n      opts: ['Near 56.6 V', 'Near 46.2 V', '40 V'], want: 'Near 46.2 V',\n      why: 'The triangle\\'s power humps top out at 80² ÷ 10 = 640 W and average a third of that, 213 W. A steady level gives 213 W at 80 ÷ √3, near 46.2 V, the triangle\\'s 0.577 of the peak. 56.6 V uses the sine\\'s 0.707 on the wrong shape, and 40 V is the triangle\\'s plain average over half a cycle, which forgets the square.',\n      hint: 'Not quite. Find the steady level that gives the triangle\\'s average heat.',\n      hints: { 'Near 56.6 V': 'Not quite. 0.707 is the sine\\'s ratio. The triangle spends more of its time low down.',\n        '40 V': 'Not quite. 40 V is the triangle\\'s plain average. Heat goes with the square.' } },\n    { show: true, name: 'Mains', card: 'mains', shape: 'sine', dc: 230, noTicks: true, dur: 3.2, tl: { grow: 0.6, heat: 2.6 },\n      text: 'Now the mains card: 230 V mains on a 1 kW heater of 230² ÷ 1000 = 52.9 Ω. A steady 230 V of DC gives its twin the same 1000 W, so the 230 V on the label is the rms value. The wave itself climbs above the DC line. How far?' },\n    { name: 'The top of the wave', card: 'mains', shape: 'sine', dc: 230, hide: ['wave', 'humps'], rdur: 2.0,\n      slips: { '230 V': { peak: 230 }, '163 V': { peak: 230 / Math.SQRT2 } },\n      task: 'This heater runs on 230 V mains, and 230 V of DC heats its twin just as much. How high does the mains wave climb at the top of each cycle?',\n      opts: ['230 V', '163 V', '325 V'], want: '325 V',\n      why: '230 V is the rms value, the steady DC that gives the same heat. For a sine the peak is √2 times bigger, 230 × 1.41, about 325 V. Dividing by √2 instead gives 163 V, the wrong way round. So everything on the supply, insulation included, meets 325 V at the top of every cycle and −325 V at the bottom, a swing of 650 V. A ship\\'s 440 V system, for example, peaks at 440 × √2 = 622 V.',\n      hint: 'Not quite. Ask whether the top of a sine is bigger or smaller than its rms value.',\n      hints: { '230 V': 'Not quite. 230 V is the rms value on the label, not the top of the wave.',\n        '163 V': 'Not quite. That divides by √2. The peak is bigger than the rms value, never smaller.' } },\n    { show: true, name: 'The meter', card: 'mains', shape: 'sine', shapes: true, follow: true, meter: 'fold', morphs: [[2.2, 'tri']], dur: 3.1,\n      tl: { meter: 0.6, needle: 1.0 },\n      text: 'Many analogue meters do not square the wave. The needle follows its average folded all one way, 0.637 (2 ÷ π) of the peak on a sine, and the scale is marked up by the sine\\'s *form factor*, rms ÷ average, 0.707 ÷ 0.637 = 1.11. So on a sine it reads 230 V. Now watch a triangle with the same 325 V peak, and try the square.' },\n    { name: 'A meter on a square', card: 'test', shape: 'square', dc: null, ansDc: 100, meter: 'fold', rdur: 2.0,\n      slips: { '111 V': { dc: 111 }, '70.7 V': { dc: 70.7 } },\n      task: 'An average-reading meter shows 111 V on this square wave, which peaks at 100 V. What is its rms value?',\n      opts: ['100 V', '111 V', '70.7 V'], want: '100 V',\n      why: 'A square wave sits at its full 100 V all the time, one way or the other, so it heats like a steady 100 V. Its rms value is its peak, 100 V. The meter\\'s 1.11 mark-up is meant for a sine, so on a square it over-reads, 111 V. 70.7 V would use the sine\\'s ratio on the wrong shape.',\n      hint: 'Not quite. Ask what steady DC heats the element as much as this wave.',\n      hints: { '111 V': 'Not quite. The meter\\'s scale assumes a sine. Ask what steady DC heats the same.',\n        '70.7 V': 'Not quite. 0.707 is the sine\\'s ratio, not the square\\'s.' } },\n    { name: '230 V of DC', card: 'mains', shape: 'sine', dc: 230, hide: ['dcHeat'], rdur: 2.0,\n      slips: { '2 kW': { heat: 2000 }, '1.41 kW': { heat: 1000 * Math.SQRT2 } },\n      task: 'Mixed. A 1 kW heater rated at 230 V is run from a 230 V DC supply instead of mains. What does it give?',\n      opts: ['2 kW', '1 kW', '1.41 kW'], want: '1 kW',\n      why: 'The 230 V of mains is an rms figure, the steady DC that heats a resistance just as much. So 230 V of DC gives the same 1 kW. The 2 kW is the mains heater\\'s power for an instant at the top of each wave, not its average.',\n      hint: 'Not quite. Remember what the 230 V on the label means.',\n      hints: { '2 kW': 'Not quite. 2 kW is the mains heater\\'s power only at the top of each wave.',\n        '1.41 kW': 'Not quite. The rms value already allows for the square. Same rms, same heat.' } },\n    { name: 'Two meters', card: 'mains', shape: 'tri', pk: 300, compact: true, dc: null, ansDc: 300 / Math.sqrt(3), hide: ['wave', 'humps', 'acBar', 'dcHeat'], meter: 'two', rdur: 2.0,\n      slips: { 'The average-reading meter is faulty': { meter: 'avg' }, 'The true-rms meter shows the peak': { meter: 'rms' } },\n      task: 'Mixed. On one supply, with both meters in calibration, an average-reading meter shows 167 V and a true-rms meter shows 173 V. What is going on?',\n      opts: ['The average-reading meter is faulty', 'The true-rms meter shows the peak', 'It is not a sine, and 173 V sets the heat'], want: 'It is not a sine, and 173 V sets the heat',\n      why: 'Both meters are fine. The average-reading meter\\'s 1.11 mark-up is right only on a sine, so the two disagree when the wave is another shape. Here it is a triangle with a 300 V peak. The true-rms meter works out the heating value, so 173 V is the figure that sets the heat.',\n      hint: 'Not quite. Ask when an average-reading meter is right.',\n      hints: { 'The average-reading meter is faulty': 'Not quite. It does what it is built to do. Its scale assumes a sine.',\n        'The true-rms meter shows the peak': 'Not quite. A true-rms meter works out the heating value, not the peak.' } },\n  ];\n  const FINISH = 'Rms is the steady DC that would heat an equal resistance just as much, which is why a cable carrying 20 A for a quarter of the time, switched quickly, warms like a steady 10 A. For a sine it is about 0.707 of the peak, so 230 V mains climbs to about 325 V at the top of each cycle, and to 253 × √2 = 358 V at its upper limit. Each shape has its own ratio, and an average-reading meter is right only on a sine. Next, Resistance in AC: power, moment by moment.';\n  // Sources the checks restate (the lesson's own).\n  const KUPH = 'https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html';\n  const ENA = 'https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits';\n  const WJEC = 'https://masterymind.co.uk/subjects/physics-a-level/wjec/a-level/alternating-currents';\n\n  const PICK = 'Tap one of the answers.';\n  const FADE = 0.35;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const el = (id) => document.getElementById(id);\n\n  // ---------- each step's state ----------\n  // pick, res ('right', 'wrong' or 'empty' once checked), why: the puzzle. dc: the DC level Dan has\n  // set (null: the demonstration's); shape: the shape he switched to, from: the shape before it.\n  function blank() { return { pick: null, res: null, why: false, dc: null, shape: null, from: null }; }\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, MODE = 'demo', motionEnd = 0;\n  let REC = {}, VBH = 366, curShape = 'sine';\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n\n  // Text with highlighted key terms (*term*), built with K.el, never innerHTML.\n  function write(node, s) {\n    node.textContent = '';\n    s = String(s || '');\n    const re = /\\*([^*]+)\\*/g;\n    let from = 0, m;\n    while ((m = re.exec(s))) {\n      if (m.index > from) node.appendChild(document.createTextNode(s.slice(from, m.index)));\n      node.appendChild(K.el('span', { class: 'mark' }, m[1]));\n      from = m.index + m[0].length;\n    }\n    if (from < s.length) node.appendChild(document.createTextNode(s.slice(from)));\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => stepper.get();\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; }\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play('answer', st.res === 'right' ? d.rdur : 0.8);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  // Replay plays the screen's demonstration again from its start.\n  const replayBtn = K.button({ label: 'Replay', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()], st = S[at()];\n    if (!d.show || finished) return;\n    Object.assign(st, { dc: null, shape: null, from: null });\n    play('demo', d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n  // The DC level and the shape switch, shown only on the screens that free them.\n  const ctlDc = K.control({ id: 'dc', label: 'DC level', min: 0, max: 120, step: 0.1, value: 50, unit: 'V', fmt: (v) => num(v, 1) + ' V', snap: [57.7, 63.7, 70.7], into: '#ctl' });\n  const ctlShape = K.choice({ id: 'shape', label: 'Wave shape', options: [{ value: 'sine', label: 'Sine' }, { value: 'tri', label: 'Triangle' }, { value: 'square', label: 'Square' }], value: 'sine', into: '#ctl' });\n  const shown = { dc: ctlDc.get(), shape: ctlShape.get() };\n  // The controls set to what the picture shows (quietly: this is not Dan moving them).\n  function syncDc(v) { if (v == null) return; if (Math.abs(ctlDc.get() - v) > 1e-9) ctlDc.set(v, true); shown.dc = ctlDc.get(); }\n  function syncShape(s) { if (ctlShape.get() !== s) ctlShape.set(s, true); shown.shape = ctlShape.get(); }\n\n  // One animation plays each demonstration, a shape change and the motion after an answer; with\n  // reduced motion (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && T !== Infinity) { T = Infinity; paint(); } });\n  // A demonstration waits until most of its picture is in view, so on a phone it does not play out\n  // while Dan is still reading the words above it.\n  let seen = true, waiting = false, waitDur = 0;\n  if (typeof IntersectionObserver === 'function') {\n    seen = false;\n    new IntersectionObserver((es) => {\n      const e = es[es.length - 1];\n      seen = e.isIntersecting && (e.intersectionRatio >= 0.6 || e.intersectionRect.height >= 0.6 * (window.innerHeight || 1));\n      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }\n    }, { threshold: [0, 0.3, 0.6, 0.8, 1] }).observe(el('scene'));\n  }\n  function play(mode, dur) {\n    MODE = mode; waiting = false;\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    if (mode === 'demo' && !seen) { waiting = true; waitDur = dur; T = 0; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  // Dan takes over: whatever was moving shows finished.\n  function stopMotion() { if (anim.playing()) anim.pause(); waiting = false; T = Infinity; }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = el('scene'), art = el('art'), grip = el('grip');\n  let into = null;\n  const add = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function arr(t0, dd) {\n    dd = dd == null ? K.SOFT : dd;\n    if (t0 + dd > latest) latest = t0 + dd;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(T, t0, dd);\n  }\n  // A steady motion from 0 to 1 between t0 and t0 + dd.\n  function lin(t0, dd) {\n    if (t0 + dd > latest) latest = t0 + dd;\n    if (t0 < earliest) earliest = t0;\n    return T === Infinity ? 1 : K.clamp((T - t0) / dd, 0, 1);\n  }\n  function part(a, rise, draw) {\n    if (!(a > 0.001)) return;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g;\n    try { draw(); } finally { into = keep; }\n  }\n  const R = (v) => Math.round(v * 100) / 100;\n  const poly = (ps) => 'M' + ps.map((q) => R(q[0]) + ' ' + R(q[1])).join('L');\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: R(x1), y1: R(y1), x2: R(x2), y2: R(y2) }));\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: R(x), y: R(y), width: R(Math.max(0, w)), height: R(Math.max(0, h)), rx: rx || 0 }));\n  const circ = (cls, p, r) => add(K.svg('circle', { class: cls, cx: R(p[0]), cy: R(p[1]), r }));\n  const path = (cls, dd) => add(K.svg('path', { class: cls, d: dd }));\n  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: R(x), y: R(y), 'text-anchor': anchor || 'middle' }, s));\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 7;\n  }\n  // An arrow from p to q with a filled head; false when too short to draw.\n  function arrow(cls, hcls, p, q, head) {\n    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy), h = head || 8;\n    if (L < h + 2) return false;\n    const ux = dx / L, uy = dy / L, bx = q[0] - ux * h, by = q[1] - uy * h, w = h * 0.55;\n    line(cls, p[0], p[1], bx + ux, by + uy);\n    path(hcls, 'M' + R(q[0]) + ' ' + R(q[1]) + 'L' + R(bx - uy * w) + ' ' + R(by + ux * w) + 'L' + R(bx + uy * w) + ' ' + R(by - ux * w) + 'Z');\n    return true;\n  }\n  function ask(x, y) { circ('ask', [x, y], 10); text(x, y + 5, '?', 'q'); }\n  // A key inside the drawing, in rows: each item a swatch and its name.\n  function keyRows(items, y) {\n    let x = 8, row = 0;\n    items.forEach((it) => {\n      const w = it.w + 6 + tw(it.label, 'ky');\n      if (x > 8 && x + w > 336) { x = 8; row++; }\n      const yy = y + row * 22, x0 = x;\n      part(it.a == null ? 1 : it.a, 0, () => { it.sw(x0, yy); text(x0 + it.w + 6, yy + 5, it.label, 'ky', 'start'); });\n      x += w + 12;\n    });\n    return y + row * 22 + 12;\n  }\n\n  // ---------- the heater test ----------\n  const X0 = 44, X1 = 334, XS = (X1 - X0) / CYC;       // the shared time axis: two cycles\n  const VY = 140, VH = 44, PY = 290, PH = 74;            // the voltage graph's zero and half-height; the power graph's base and height\n  const BX = [8, 180], BW = 156, BY = 24, BH = 22;       // the two heaters, each drawn as its heat bar\n  const xU = (u) => X0 + u * XS;\n  // The moments sampled along the traces, up to `upto` cycles; a square's flips get a point either side.\n  function samples(upto) {\n    const out = [0, 1e-7], n = Math.ceil(upto * 96 - 1e-9);\n    for (let j = 1; j <= n; j++) {\n      const u = Math.min(upto, j / 96), flip = Math.abs(u * 2 - Math.round(u * 2)) < 1e-9;\n      if (flip && u < upto - 1e-9) out.push(u - 1e-7, u + 1e-7);\n      else if (flip) out.push(u - 1e-7);\n      else out.push(u);\n    }\n    return out;\n  }\n  // A trace of fn(u) for u from 0 to upto; returns its points [u, fn(u)].\n  function trace(cls, fn, upto, yf, xf) {\n    xf = xf || xU;\n    const pts = [], data = [];\n    samples(upto).forEach((u) => { const v = fn(u); data.push([u, v]); pts.push([xf(u), yf(v)]); });\n    path(cls, poly(pts));\n    return data;\n  }\n  function tick(y, s) { line('axis', X0 - 4, y, X0, y); text(X0 - 7, y + 5, s, 'tk', 'end'); }\n  // A heater element (the zigzag) in its box, the box filling with its heat.\n  function heater(x0, w, bad) {\n    rect('hbox', x0, BY, BW, BH, 4);\n    if (w > 0.3) rect(bad ? 'hbad' : 'hfill', x0, BY, Math.min(w, BW), BH, 4);\n    const n = 14, xa = x0 + 12, xb = x0 + BW - 12, ym = BY + BH / 2, pts = [[x0 + 3, ym], [xa, ym]];\n    for (let j = 1; j < n; j++) pts.push([xa + (xb - xa) * j / n, ym + (j % 2 ? -6 : 6)]);\n    pts.push([xb, ym], [x0 + BW - 3, ym]);\n    path('zig', poly(pts));\n  }\n\n  function drawCard(d, st) {\n    const c = CARDS[d.card], tl = d.tl || {};\n    const right = !d.show && st.res === 'right';\n    const slip = !d.show && st.res === 'wrong' ? d.slips[st.pick] || null : null;\n    const demo = d.show && MODE === 'demo';\n    const hid = (key) => !d.show && (d.hide || []).indexOf(key) >= 0;\n\n    // The wave's shape now: the screen's own, Dan's switch, or a demonstration's change, part-way.\n    let a = d.shape || 'sine', b = a, k = 1;\n    if (d.show && st.shape) {\n      b = st.shape; a = st.from || b;\n      if (a !== b) { k = MODE === 'morph' ? K.ease(lin(0, MORPH)) : 1; if (k >= 1) a = b; }\n    } else if (d.show) {\n      for (const m of d.morphs || []) {\n        const kk = demo ? K.ease(lin(m[0], MORPH)) : 1;\n        if (kk >= 1) { a = b = m[1]; continue; }\n        if (kk > 0) { b = m[1]; k = kk; }\n        break;\n      }\n    }\n    const W = waveInfo(d.card, a, b, k, d.pk);\n\n    // What has arrived: a demonstration's timetable, or a puzzle's hidden parts after a right answer.\n    const grow = demo && tl.grow != null ? lin(tl.grow, GROW) : 1;\n    const heatIn = demo && tl.heat != null ? K.ease(lin(tl.heat, 0.6)) : 1;\n    const heatLab = demo && tl.heat != null ? arr(tl.heat) : 1;\n    const waveUp = hid('wave') ? (right ? lin(0.2, 1.2) : 0) : 1;   // the voltages are there from the start; the power draws in\n    const humpUp = hid('humps') ? (right ? lin(0.2, 1.2) : 0) : grow;\n    const vTickA = hid('wave') ? (right ? arr(0.8) : 0) : d.noTicks ? 0 : 1;\n    const pTickA = hid('humps') ? (right ? arr(0.8) : 0) : d.noTicks ? 0 : 1;\n    const vt = d.pk || c.vt, pt = d.pk ? d.pk * d.pk / c.R : c.pt;\n    const avgA = hid('humps') ? (right ? arr(1.0) : 0) : heatLab;\n    const acFill = hid('acBar') ? (right ? K.ease(lin(0.6, 0.8)) : 0) : heatIn;\n    const acLabA = hid('acBar') ? (right ? arr(0.6) : 0) : heatLab;\n\n    // The DC level: Dan's, the match, a demonstration's slide, a slip's, or the right answer's.\n    let lvl = null, dcBad = false, dcA = 1;\n    if (d.show) {\n      if (st.dc != null) lvl = st.dc;\n      else if (d.follow) lvl = matchOf(W);\n      else if (d.slide) lvl = mix(d.slide[2], d.slide[3], demo ? K.ease(lin(d.slide[0], d.slide[1])) : 1);\n      else lvl = d.dc;\n    } else if (slip && slip.dc != null) {\n      dcBad = true;\n      if (d.dc != null) lvl = mix(d.dc, slip.dc, K.ease(lin(0.1, 0.6)));\n      else { lvl = slip.dc; dcA = arr(0.1); }\n    } else if (right && d.ansDc != null) {\n      if (d.dc != null) lvl = mix(d.dc, d.ansDc, K.ease(lin(0.2, 1.0)));\n      else { lvl = d.ansDc; dcA = arr(0.2); }\n    } else lvl = d.dc;\n    const dcPowUp = d.show ? grow : 1;\n    const dcHeat = lvl == null ? null : lvl * lvl / c.R;\n    const heatHidden = lvl == null || (hid('dcHeat') && !right);\n    let dcFill, dcLabA;\n    if (d.show) { dcFill = heatIn; dcLabA = heatLab; }\n    else if (hid('dcHeat')) { dcFill = right ? K.ease(lin(0.3, 0.8)) : 0; dcLabA = right ? arr(0.3) : 0; }\n    else if (d.dc == null) { dcFill = lvl == null ? 0 : right ? K.ease(lin(0.2, 0.8)) : K.ease(lin(0.1, 0.6)); dcLabA = dcA; }\n    else { dcFill = 1; dcLabA = 1; }\n    const acShown = !hid('acBar') || right;\n    const matched = lvl != null && !dcBad && !heatHidden && acShown && Math.round(dcHeat) === Math.round(W.heat);\n    const matchA = matched ? Math.min(dcLabA, acLabA, right ? arr(1.2) : demo && tl.match != null ? arr(tl.match) : 1) : 0;\n    const waveShown = !hid('wave') || right;\n    const slipA = slip ? arr(0.1) : 0;\n    Object.assign(REC, { a: W.a, b: W.b, k: W.k, peak: W.peak, R: c.R, acHeat: W.heat, rms: W.rms, meter: W.meter, lvl, dcBad, dcHeat, matched,\n      wvData: null, hpData: null, slipHeat: slip ? slip.heat : undefined, slipPeak: slip ? slip.peak : undefined, slipMeter: slip ? slip.meter : undefined });\n\n    // ---- the two heaters, each drawn as a bar filling with its heat ----\n    const sc = BW / c.Pmax;\n    text(BX[0], 16, c.ac, 'tt', 'start');\n    text(BX[1], 16, c.dc, 'tt', 'start');\n    heater(BX[0], acFill * W.heat * sc, false);\n    if (!acShown) text(BX[0], 66, 'average heat ?', 'lb', 'start');\n    else part(acLabA, 0, () => text(BX[0], 66, 'average heat ' + Wt(W.heat), 'lb', 'start'));\n    heater(BX[1], heatHidden ? 0 : dcFill * dcHeat * sc, dcBad);\n    if (heatHidden) text(BX[1], 66, 'heat ?', 'lb', 'start');\n    else {\n      const lab = 'heat ' + Wt(dcHeat);\n      part(dcLabA, 0, () => text(BX[1], 66, lab, dcBad ? 'lb bad' : 'lb', 'start'));\n      part(matchA, 0, () => text(BX[1], 84, 'the bars match', 'lb e', 'start'));\n    }\n    // The AC heater's average heat marked on the DC heater's bar: where it must reach to match.\n    part(avgA * (acShown ? 1 : 0), 0, () => line('tavg', BX[1] + W.heat * sc, BY - 4, BX[1] + W.heat * sc, BY + BH + 4));\n    if (slip && slip.heat != null) part(slipA, 0, () => rect('badbox', BX[1], BY, Math.min(BW, slip.heat * sc), BH, 4));\n\n    // ---- the voltage graph: the AC wave and the DC level on one axis (not on a meters-only screen) ----\n    if (!d.compact) {\n    const ky = VH / c.Vmax, yV = (v) => VY - v * ky;\n    text(X0, 90, 'voltage (V)', 'tt', 'start');\n    line('axis', X0, VY - VH - 4, X0, VY + VH + 4);\n    line('zero', X0, VY, X1, VY);\n    text(X0 - 7, VY + 5, '0', 'tk', 'end');\n    part(vTickA, 0, () => { tick(yV(vt), num(vt, 0)); tick(yV(-vt), '−' + num(vt, 0)); });\n    if (waveUp > 0.001) part(1, 0, () => {\n      REC.wvData = trace('te wv', W.v, CYC * waveUp, yV);\n      // While the power draws in, a pen rides the wave at the same moment.\n      const pu = CYC * Math.min(waveUp, humpUp);\n      if (pu < CYC) circ('penE', [xU(pu), yV(W.v(pu))], 4.5);\n    });\n    else if (hid('wave') && !(slip && slip.peak != null)) ask(xU(0.75), VY + 0.5 * VH);\n    if (slip && slip.peak != null) part(slipA, 0, () => trace('tbad', (u) => slip.peak * F.sine(u), CYC, yV));\n    if (lvl != null) part(dcA, 0, () => {\n      const y = yV(lvl);\n      path(dcBad ? 'tbad dl' : 'td dl', 'M' + X0 + ' ' + R(y) + 'H' + X1);\n      if (d.show && d.live && !finished) { circ('ring', [X1 - 12, y], 10); circ('knob', [X1 - 12, y], 4); }\n      if (dcPowUp < 1) circ('penD', [xU(CYC * dcPowUp), y], 4.5);\n    });\n    else ask(xU(1.6), VY - 0.5 * VH);\n\n    // ---- the power graph: each heater's power, moment by moment ----\n    const kp = PH / c.Pmax, yP = (w) => PY - w * kp;\n    text(X0, 208, 'power (W)', 'tt', 'start');\n    line('axis', X0, PY - PH - 4, X0, PY + 4);\n    line('zero', X0, PY, X1, PY);\n    text(X0 - 7, PY + 5, '0', 'tk', 'end');\n    part(pTickA, 0, () => tick(yP(pt), num(pt, 0)));\n    if (humpUp > 0.001) part(1, 0, () => {\n      REC.hpData = trace('te hp', (u) => { const v = W.v(u); return v * v / c.R; }, CYC * humpUp, yP);\n      if (humpUp < 1) { const v = W.v(CYC * humpUp); circ('penE', [xU(CYC * humpUp), yP(v * v / c.R)], 4.5); }\n    });\n    part(avgA, 0, () => line('tavg', X0, yP(W.heat), X1, yP(W.heat)));\n    if (!heatHidden) part(hid('dcHeat') ? dcLabA : dcA, 0, () => {\n      const x1 = xU(CYC * dcPowUp), y = yP(dcHeat);\n      path(dcBad ? 'tbad dp' : 'td dp', 'M' + X0 + ' ' + R(y) + 'H' + R(x1));\n      if (dcPowUp < 1) circ('penD', [x1, y], 4.5);\n    });\n    if (slip && slip.heat != null) part(slipA, 0, () => line('tbad', X0, yP(slip.heat), X1, yP(slip.heat)));\n    text(X1, 306, 'time', 'tk', 'end');\n    }\n\n    // ---- the recipe, and the DC level as a share of the peak ----\n    let y = d.compact ? 92 : 306;\n    if (d.work) {\n      part(demo ? arr(tl.work1) : 1, 0, () => text(8, y + 22, 'square the wave: its top is ' + num(W.peak, 0) + '² = ' + num(W.peak * W.peak, 0) + ' V²', 'wk', 'start'));\n      part(demo ? arr(tl.work2) : 1, 0, () => text(8, y + 42, 'take the mean: half, ' + num(W.ms, 0) + ' V² (' + Wt(W.heat) + ' × ' + num(c.R, 1) + ' Ω)', 'wk', 'start'));\n      part(demo ? arr(tl.work3) : 1, 0, () => text(8, y + 62, 'take the root: √' + num(W.ms, 0) + ' = ' + V(W.rms, 1) + ', the rms value', 'wk', 'start'));\n      y += 60;\n    }\n    const dcT = lvl == null ? '?' : V(lvl, 1), pkT = waveShown && vTickA > 0.5 ? V(W.peak, 1) : '?';\n    REC.ratioText = 'DC level ÷ AC peak = ' + dcT + ' ÷ ' + pkT + (lvl != null && pkT !== '?' ? ' = ' + (lvl / W.peak).toFixed(3) : '');\n    text(8, y + 22, REC.ratioText, dcBad ? 'wk bad' : 'wk', 'start');\n    y += 22;\n\n    // ---- the key ----\n    const items = [\n      { w: 18, sw: (x, yy) => line('te', x, yy, x + 18, yy), label: 'AC' },\n      { w: 18, sw: (x, yy) => line('tavg', x, yy, x + 18, yy), label: 'AC average heat' },\n      { w: 18, sw: (x, yy) => line('td', x, yy, x + 18, yy), label: 'DC' },\n    ];\n    // A puzzle keeps the place for 'that pick' from the start, so a wrong Check never moves the picture.\n    const slipKey = slip && (slip.dc != null || slip.heat != null || slip.peak != null || slip.meter);\n    if (!d.show) items.push({ w: 18, sw: (x, yy) => line('tbad', x, yy, x + 18, yy), label: 'that pick', a: slipKey ? slipA : 0 });\n    if (!d.compact) y = keyRows(items, y + 26);\n\n    if (d.meter) y = drawMeter(d, W, y + 6, demo, slip, slipA);\n\n    // ---- in words, for a screen reader ----\n    let said = 'Two identical heaters of ' + num(c.R, 1) + ' ohms. ';\n    said += waveShown ? 'The AC one runs on ' + (W.k < 1 ? 'a wave changing shape' : 'a ' + NAME[W.b] + ' wave') + ' peaking at ' + V(W.peak) + '. ' : 'The AC wave is hidden. ';\n    if (acShown) said += 'Its average heat is ' + Wt(W.heat) + '. ';\n    said += lvl == null ? 'The DC level is hidden.' : 'The DC one sits at ' + V(lvl, c.dp) + (heatHidden ? ', its heat hidden.' : ', giving ' + Wt(dcHeat) + (matched ? ', the same heat.' : '.'));\n    if (d.meter) said += ' An average-reading meter reads ' + V(W.meter) + (d.meter === 'two' ? ', and a true-rms meter ' + V(W.rms) : '') + '.';\n    return { h: y + 4, said };\n  }\n\n  // ---------- the meter: the wave folded all one way, its average, and the needle ----------\n  const DR = 34;\n  function dial(cx, cy, title, tx, anchor, reading, needleV, alpha, readA) {\n    part(alpha, 0, () => {\n      text(tx, cy - 74, title, 'lb', anchor);\n      path('dial', 'M' + (cx - DR) + ' ' + cy + 'A' + DR + ' ' + DR + ' 0 0 1 ' + (cx + DR) + ' ' + cy);\n      // Scale marks inside the arc; 100, 200 and 300 well outside it, 0 and 400 under its ends.\n      for (let v = 0; v <= 400; v += 100) {\n        const th = Math.PI * (1 - v / 400), cs = Math.cos(th), sn = Math.sin(th);\n        line('dial', cx + (DR - 6) * cs, cy - (DR - 6) * sn, cx + DR * cs, cy - DR * sn);\n        if (v === 0 || v === 400) text(cx + DR * cs, cy + 17, String(v), 'tk', 'middle');\n        else text(cx + 52 * cs, cy - 52 * sn + 5, String(v), 'tk', 'middle');\n      }\n      const th = Math.PI * (1 - K.clamp(needleV, 0, 400) / 400);\n      line('needle', cx, cy, cx + (DR - 5) * Math.cos(th), cy - (DR - 5) * Math.sin(th));\n      circ('pivot', [cx, cy], 3.5);\n    });\n    part(alpha * readA, 0, () => text(cx, cy + 36, 'reads ' + V(reading, 0), 'lb', 'middle'));\n  }\n  function drawMeter(d, W, y0, demo, slip, slipA) {\n    const tl = d.tl || {}, cy = y0 + 88;\n    if (d.meter === 'fold') {\n      const mA = demo && tl.meter != null ? arr(tl.meter) : 1;\n      const swing = demo && tl.needle != null ? K.ease(lin(tl.needle, 0.8)) : 1;\n      const rA = demo && tl.needle != null ? arr(tl.needle + 0.8) : 1;\n      part(mA, 0, () => {\n        const FX0 = 44, FX1 = 190, fz = y0 + 84, fk = 46 / W.c.Vmax, fx = (u) => FX0 + u * (FX1 - FX0) / CYC;\n        text(FX0, y0 + 14, 'folded all one way', 'lb', 'start');\n        line('axis', FX0, fz - 50, FX0, fz + 2);\n        line('zero', FX0, fz, FX1, fz);\n        REC.fold = trace('tfold', (u) => Math.abs(W.v(u)), CYC, (v) => fz - v * fk, fx);\n        const ya = fz - W.ma * fk;\n        line('tg', FX0, ya, FX1, ya);\n        arrow('arw', 'arwh', [FX1 + 4, ya], [228, ya], 7);\n        text(209, ya - 7, '× ' + num(FF, 2), 'lb', 'middle');\n        line('tg', FX0, y0 + 104, FX0 + 22, y0 + 104);\n        text(FX0 + 28, y0 + 109, 'its average', 'ky', 'start');\n      });\n      dial(282, cy, 'average-reading meter', 336, 'end', W.meter, W.meter * swing, mA, rA);\n    } else {\n      dial(96, cy, 'true-rms meter', 96, 'middle', W.rms, W.rms, 1, 1);\n      dial(256, cy, 'average-reading meter', 256, 'middle', W.meter, W.meter, 1, 1);\n      if (slip && slip.meter) part(slipA, 0, () => rect('badbox', (slip.meter === 'rms' ? 96 : 256) - 70, y0 + 2, 140, 130, 8));\n    }\n    return y0 + 134;\n  }\n\n  // ---------- dragging the DC level on the voltage graph ----------\n  const liveOn = () => !finished && !!STEPS[at()].show && !!STEPS[at()].live;\n  function placeGrip(d) {\n    const on = !finished && !!d.show && !!d.live;\n    grip.hidden = !on;\n    grip.tabIndex = on ? 0 : -1;\n    if (!on) return;\n    const top = VY - VH - 8, h = VH + 18;\n    grip.style.left = (X0 / 340 * 100).toFixed(3) + '%';\n    grip.style.width = ((X1 - X0) / 340 * 100).toFixed(3) + '%';\n    grip.style.top = (top / VBH * 100).toFixed(3) + '%';\n    grip.style.height = (h / VBH * 100).toFixed(3) + '%';\n    const lv = REC.lvl == null ? 0 : REC.lvl;\n    grip.setAttribute('aria-valuemin', '0'); grip.setAttribute('aria-valuemax', '120');\n    grip.setAttribute('aria-valuenow', num(lv, 1)); grip.setAttribute('aria-valuetext', 'DC level ' + V(lv, 1));\n  }\n  function dcFromY(clientY) {\n    const r = svg.getBoundingClientRect();\n    if (!r.height) return null;\n    const y = (clientY - r.top) / r.height * VBH;\n    return K.clamp(CARDS.test.Vmax * (VY - y) / VH, 0, 120);\n  }\n  function setDc(v) {\n    if (v == null || !isFinite(v)) return;\n    if (typeof ctlDc.drag === 'function') ctlDc.drag(v); else ctlDc.set(Math.round(v));\n    K.reveal();\n  }\n  let held = null;\n  grip.addEventListener('pointerdown', (e) => {\n    if (!liveOn()) return;\n    held = e.pointerId;\n    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the graph */ }\n    e.preventDefault();\n    setDc(dcFromY(e.clientY));\n  });\n  grip.addEventListener('pointermove', (e) => { if (held !== e.pointerId || !liveOn()) return; e.preventDefault(); setDc(dcFromY(e.clientY)); });\n  const letGo = (e) => { if (held === e.pointerId) held = null; };\n  grip.addEventListener('pointerup', letGo);\n  grip.addEventListener('pointercancel', letGo);\n  grip.addEventListener('lostpointercapture', () => { held = null; });\n  grip.addEventListener('keydown', (e) => {\n    if (!liveOn()) return;\n    const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];\n    if (by == null) return;\n    e.preventDefault();\n    ctlDc.set(K.clamp(Math.round(ctlDc.get()) + by, 0, 120));\n  });\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    art.textContent = '';\n    into = null;\n    REC = {};\n    const out = drawCard(d, st);\n    VBH = Math.ceil(out.h);\n    svg.setAttribute('viewBox', '0 0 340 ' + VBH);\n    svg.setAttribute('aria-label', out.said);\n    if (i === at()) {\n      curShape = REC.k < 0.5 ? REC.a : REC.b;\n      placeGrip(d);\n      if (d.show && d.live && !finished) syncDc(REC.lvl);\n      if (d.show && d.shapes && !finished) syncShape(curShape);\n    }\n  }\n\n  // ---------- the model: what the screen's settled picture gives ----------\n  function modelOf(p) {\n    const d = STEPS[K.clamp(Math.round(p.step), 0, STEPS.length - 1)];\n    const sh = d.shapes && F[p.shape] ? p.shape : d.shape || 'sine';\n    const W = waveInfo(d.card, sh, sh, 1, d.pk);\n    const lvl = d.live ? p.dc : d.follow ? matchOf(W) : d.ansDc != null ? d.ansDc : d.dc;\n    return { acHeat: W.heat, dcHeat: lvl * lvl / W.c.R, ratio: lvl / W.peak };\n  }\n  K.model(modelOf);\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing() && !waiting) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      shown.dc = p.dc; shown.shape = p.shape;\n      if (d.show) { Object.assign(st, { dc: null, shape: null, from: null }); play('demo', d.dur); }\n      else { waiting = false; anim.pause(); T = Infinity; MODE = 'answer'; }\n    } else {\n      // Dan set the DC level: the demonstration stops where it ends, and the level is his.\n      if (p.dc !== shown.dc) {\n        shown.dc = p.dc;\n        if (d.show && d.live && !finished) { stopMotion(); st.dc = p.dc; }\n      }\n      // Dan switched the shape: the wave changes over, and the DC level slides to the new match.\n      if (p.shape !== shown.shape) {\n        shown.shape = p.shape;\n        if (d.show && d.shapes && !finished && F[p.shape]) {\n          st.from = curShape || 'sine'; st.shape = p.shape; st.dc = null;\n          play('morph', MORPH + 0.05);\n        }\n      }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const dcOn = !finished && !!d.show && !!d.live, shOn = !finished && !!d.show && !!d.shapes;\n    ctlDc.el.hidden = !dcOn;\n    ctlShape.el.hidden = !shOn;\n    el('ctl').hidden = !dcOn && !shOn;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const liveSt = (o) => Object.assign(blank(), o);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const near = (a, b, tol) => Math.abs(a - b) <= tol;\n  // A step painted in the state given, finished: what it draws.\n  function drawn(i, st, mode) {\n    const keepS = S[i], keepT = T, keepM = MODE;\n    S[i] = st; T = Infinity; MODE = mode || (STEPS[i].show ? 'demo' : 'answer');\n    try {\n      paint(i);\n      return Object.assign({}, REC, { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) });\n    } finally { S[i] = keepS; T = keepT; MODE = keepM; paint(); }\n  }\n\n  K.check('Whatever magnitude of DC voltage would produce the same amount of heat energy dissipation through an equal resistance is the DC equivalent: for every shape on both cards, the DC level where the bars match heats the equal resistance as much as the drawn power humps do on average', () =>\n    ['test', 'mains'].every((card) => ['sine', 'tri', 'square'].every((s) => {\n      const W = waveInfo(card, s, s, 1), us = samples(CYC);\n      let area = 0;\n      for (let j = 1; j < us.length; j++) area += (Math.pow(W.v(us[j - 1]), 2) + Math.pow(W.v(us[j]), 2)) / 2 * (us[j] - us[j - 1]);\n      const avg = area / CYC / W.c.R, m = matchOf(W);\n      return near(avg, W.heat, 3e-3 * W.heat) && near(m * m / W.c.R, W.heat, 2e-3 * W.heat);\n    })) && [['sine', 70.7], ['tri', 57.7], ['square', 100]].every((q) => { const g = drawn(idx('Other shapes'), liveSt({ shape: q[0] })); return g.lvl === q[1] && g.matched; }),\n  { source: KUPH });\n  K.check('For a sine wave, the RMS value is approximately 0.707 of its peak value: on the heater test the bars match at 70.7 V of the 100 V peak, a ratio of 0.707, where the steady DC heater takes the AC heater\\'s 500 W', () => {\n    const i = idx('Why 70.7 V'), g = drawn(i, blank()), m = K.at({ step: i, dc: 70.7 });\n    return near(1 / Math.SQRT2, 0.707, 5e-4) && g.lvl === 70.7 && g.matched && g.peak === 100 &&\n      g.texts.indexOf('DC level ÷ AC peak = 70.7 V ÷ 100 V = 0.707') >= 0 && g.texts.indexOf('average heat 500 W') >= 0 && g.texts.indexOf('heat 500 W') >= 0 &&\n      near(m.ratio, 0.707, 1e-9) && Math.round(m.dcHeat) === 500 && near(m.acHeat, 500, 1e-9);\n  }, { source: KUPH });\n  K.check('UK mains voltage is 230 V RMS, so the peak voltage is about 325 V (230 × √2): on the mains card, once the puzzle is answered, the wave reaches 325 V at the top of each cycle and −325 V at the bottom, and 230 V of DC heats the twin heater just as much, 1000 W', () => {\n    const i8 = idx('The top of the wave'), g = drawn(i8, solvedSt(i8));\n    if (!g.wvData) return false;\n    let hi = -Infinity, lo = Infinity;\n    g.wvData.forEach((q) => { hi = Math.max(hi, q[1]); lo = Math.min(lo, q[1]); });\n    return num(230 * Math.SQRT2, 0) === '325' && near(hi, 230 * Math.SQRT2, 0.01) && near(lo, -230 * Math.SQRT2, 0.01) &&\n      g.texts.indexOf('325') >= 0 && g.texts.indexOf('−325') >= 0 && g.lvl === 230 && g.matched && Math.round(g.acHeat) === 1000 && Math.round(g.dcHeat) === 1000;\n  }, { source: WJEC });\n  K.check('UK mains electricity operates at a nominal voltage of 230V: the mains card runs at 230 V rms, and its 1 kW heater is 230² ÷ 1000 = 52.9 Ω', () => {\n    const W = waveInfo('mains', 'sine', 'sine', 1), g = drawn(idx('Mains'), blank());\n    return near(W.rms, 230, 1e-9) && near(CARDS.mains.R, 52.9, 1e-12) && g.texts.indexOf('AC heater, 52.9 Ω') >= 0 && g.texts.indexOf('DC heater, 52.9 Ω') >= 0;\n  }, { source: ENA });\n  K.check('Heat goes with the square, not the plain average: the 100 V sine averages 63.7 V over half a cycle, and 63.7 V of DC gives only about 406 W against 500 W, while a steady 100 V gives 1000 W, twice the AC heater\\'s heat', () => {\n    const i2 = idx('Where they match'), i4 = idx('Peak against steady');\n    const a = drawn(i2, wrongSt(i2, 'Near 63.7 V')), b = drawn(i2, wrongSt(i2, '100 V')), c = drawn(i4, solvedSt(i4));\n    return num(MA.sine * 100, 1) === '63.7' && a.lvl === 63.7 && a.texts.indexOf('heat 406 W') >= 0 && !a.matched &&\n      b.lvl === 100 && b.texts.indexOf('heat 1000 W') >= 0 && near(c.dcHeat, 2 * c.acHeat, 1e-9) && c.texts.indexOf('heat 1000 W') >= 0;\n  });\n  K.check('Each shape has its own ratio: the triangle\\'s humps average a third of their 1000 W top, 333 W, matching at 57.7 V, 0.577 of the peak, and the square\\'s power is a flat 1000 W, matching at 100 V, a ratio of 1.000', () => {\n    const i5 = idx('Other shapes'), t = drawn(i5, liveSt({ shape: 'tri' })), s = drawn(i5, liveSt({ shape: 'square' }));\n    const mt = K.at({ step: i5, shape: 'tri', dc: 57.7 });\n    return t.texts.indexOf('average heat 333 W') >= 0 && t.texts.indexOf('DC level ÷ AC peak = 57.7 V ÷ 100 V = 0.577') >= 0 && t.matched &&\n      s.texts.indexOf('average heat 1000 W') >= 0 && s.texts.indexOf('DC level ÷ AC peak = 100 V ÷ 100 V = 1.000') >= 0 && s.matched &&\n      !!s.hpData && s.hpData.every((q) => q[0] < 1e-6 || near(q[1], 1000, 1e-6)) && near(mt.ratio, 0.577, 1e-9) && Math.round(mt.acHeat) === 333;\n  });\n  K.check('The deflection of the needle is naturally proportional to the average value of the AC, and the accuracy of this calibration depends on an assumed waveshape, usually a sine wave: the average-reading meter reads the folded wave\\'s average marked up by 1.11, 0.707 ÷ 0.637, so 230 V on the mains sine, 180 V on the 325 V triangle while the bars match at 188 V, 361 V on the 325 V square, 111 V on the 100 V square, and 167 V on the 300 V triangle whose rms value is 173 V', () => {\n    const i9 = idx('The meter'), g = (s) => drawn(i9, liveSt({ shape: s }));\n    const sn = g('sine'), tr = g('tri'), sq = g('square'), p10 = drawn(idx('A meter on a square'), blank()), p12 = drawn(idx('Two meters'), blank());\n    return num(FF, 2) === '1.11' && num(0.707 / 0.637, 2) === '1.11' &&\n      sn.texts.indexOf('reads 230 V') >= 0 && tr.texts.indexOf('reads 180 V') >= 0 && tr.texts.indexOf('DC level ÷ AC peak = 187.6 V ÷ 325 V = 0.577') >= 0 && tr.matched &&\n      sn.texts.indexOf('DC level ÷ AC peak = 230 V ÷ 325.3 V = 0.707') >= 0 &&\n      sq.texts.indexOf('reads 361 V') >= 0 && p10.texts.indexOf('reads 111 V') >= 0 && p12.texts.indexOf('reads 167 V') >= 0 && p12.texts.indexOf('reads 173 V') >= 0;\n  }, { source: KUPH });\n  K.check('At every DC level from 0 V to 120 V the DC heater takes the level squared ÷ 10, the share of the peak is the level ÷ 100, and the bars show a match only at 70.7 V', () => {\n    const lv = [57.7, 63.7, 70.7];\n    for (let v = 0; v <= 120; v++) lv.push(v);\n    return lv.every((v) => {\n      const g = drawn(0, liveSt({ dc: v })), m = K.at({ step: 0, dc: v });\n      return near(g.dcHeat, v * v / 10, 1e-9) && near(m.dcHeat, v * v / 10, 1e-9) && near(m.ratio, v / 100, 1e-12) && g.matched === (v === 70.7);\n    });\n  });\n  K.check('Each puzzle accepts only its right answer; before an answer its picture hides what is asked (the DC level, the DC heat or the wave), and each wrong pick draws what it claims, in red', () => {\n    const only = DO.every((i) => { const d = STEPS[i]; return d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)); });\n    const hidden = DO.every((i) => {\n      const d = STEPS[i], g = drawn(i, blank()), h = d.hide || [];\n      return (d.dc != null || g.lvl === null) && (d.ansDc == null || g.lvl !== d.ansDc) &&\n        (h.indexOf('dcHeat') < 0 || (g.texts.indexOf('heat ?') >= 0 && !g.matched)) &&\n        (h.indexOf('wave') < 0 || (g.wvData === null && g.texts.indexOf('325') < 0 && g.texts.indexOf('−325') < 0));\n    });\n    const slips = DO.every((i) => STEPS[i].opts.filter((o) => o !== STEPS[i].want).every((o) => {\n      const s = STEPS[i].slips[o], g = drawn(i, wrongSt(i, o));\n      return !!s && (s.dc == null || (g.lvl === s.dc && g.dcBad)) && (s.heat == null || g.slipHeat === s.heat) &&\n        (s.peak == null || g.slipPeak === s.peak) && (s.meter == null || g.slipMeter === s.meter);\n    }));\n    return only && hidden && slips;\n  });\n  K.check('On every screen, each drawn point of the power humps is the drawn voltage at that moment squared ÷ the resistance', () =>\n    STEPS.every((d, i) => {\n      if (d.compact) return true;   // the meters-only screen draws no graphs\n      const g = drawn(i, d.show ? blank() : solvedSt(i));\n      if (!g.wvData || !g.hpData || g.wvData.length !== g.hpData.length || g.wvData.length < 100) return false;\n      return g.wvData.every((q, j) => near(g.hpData[j][0], q[0], 1e-12) && near(g.hpData[j][1], q[1] * q[1] / g.R, 1e-9 * Math.max(1, g.hpData[j][1])));\n    }));\n  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, within 2.5 s', () => {\n    const keepT = T, keepM = MODE;\n    const timed = (i, st, mode, limit) => {\n      const keepS = S[i];\n      T = Infinity; MODE = mode; latest = 0; earliest = Infinity; S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), 'demo', d.dur); return r && d.dur >= 3 && d.dur <= 4.5 && earliest >= FADE; }\n      return timed(i, solvedSt(i), 'answer', d.rdur) && d.rdur <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), 'answer', 0.8));\n    });\n    T = keepT; MODE = keepM; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "The heater test",
+  "brief": "The one thing you should see is the two heat bars matching when the DC level sits near 0.707 of the AC wave's peak, not at the peak or the average, when you drag the DC level up and down.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Whatever magnitude of DC voltage would produce the same amount of heat energy dissipation through an equal resistance is the DC equivalent: for every shape on both cards, the DC level where the bars match heats the equal resistance as much as the drawn power humps do on average",
+     "ok": true,
+     "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html"
+    },
+    {
+     "label": "For a sine wave, the RMS value is approximately 0.707 of its peak value: on the heater test the bars match at 70.7 V of the 100 V peak, a ratio of 0.707, where the steady DC heater takes the AC heater's 500 W",
+     "ok": true,
+     "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html"
+    },
+    {
+     "label": "UK mains voltage is 230 V RMS, so the peak voltage is about 325 V (230 × √2): on the mains card, once the puzzle is answered, the wave reaches 325 V at the top of each cycle and −325 V at the bottom, and 230 V of DC heats the twin heater just as much, 1000 W",
+     "ok": true,
+     "source": "https://masterymind.co.uk/subjects/physics-a-level/wjec/a-level/alternating-currents"
+    },
+    {
+     "label": "UK mains electricity operates at a nominal voltage of 230V: the mains card runs at 230 V rms, and its 1 kW heater is 230² ÷ 1000 = 52.9 Ω",
+     "ok": true,
+     "source": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits"
+    },
+    {
+     "label": "Heat goes with the square, not the plain average: the 100 V sine averages 63.7 V over half a cycle, and 63.7 V of DC gives only about 406 W against 500 W, while a steady 100 V gives 1000 W, twice the AC heater's heat",
+     "ok": true
+    },
+    {
+     "label": "Each shape has its own ratio: the triangle's humps average a third of their 1000 W top, 333 W, matching at 57.7 V, 0.577 of the peak, and the square's power is a flat 1000 W, matching at 100 V, a ratio of 1.000",
+     "ok": true
+    },
+    {
+     "label": "The deflection of the needle is naturally proportional to the average value of the AC, and the accuracy of this calibration depends on an assumed waveshape, usually a sine wave: the average-reading meter reads the folded wave's average marked up by 1.11, 0.707 ÷ 0.637, so 230 V on the mains sine, 180 V on the 325 V triangle while the bars match at 188 V, 361 V on the 325 V square, 111 V on the 100 V square, and 167 V on the 300 V triangle whose rms value is 173 V",
+     "ok": true,
+     "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html"
+    },
+    {
+     "label": "At every DC level from 0 V to 120 V the DC heater takes the level squared ÷ 10, the share of the peak is the level ÷ 100, and the bars show a match only at 70.7 V",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle accepts only its right answer; before an answer its picture hides what is asked (the DC level, the DC heat or the wave), and each wrong pick draws what it claims, in red",
+     "ok": true
+    },
+    {
+     "label": "On every screen, each drawn point of the power humps is the drawn voltage at that moment squared ÷ the resistance",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "dc",
+    "shape"
+   ],
+   "readouts": [],
+   "outputs": [
+    "acHeat",
+    "dcHeat",
+    "ratio"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "The heater test",
+      "Where they match",
+      "Why 70.7 V",
+      "Peak against steady",
+      "Other shapes",
+      "The triangle",
+      "Mains",
+      "The top of the wave",
+      "The meter",
+      "A meter on a square",
+      "230 V of DC",
+      "Two meters"
+     ],
+     "value": 0
+    },
+    {
+     "id": "dc",
+     "kind": "control",
+     "label": "DC level",
+     "min": 0,
+     "max": 120,
+     "step": 0.1,
+     "log": false,
+     "value": 50,
+     "snap": [
+      57.7,
+      63.7,
+      70.7
+     ]
+    },
+    {
+     "id": "shape",
+     "kind": "choice",
+     "label": "Wave shape",
+     "options": [
+      "sine",
+      "tri",
+      "square"
+     ],
+     "labels": [
+      "Sine",
+      "Triangle",
+      "Square"
+     ],
+     "value": "sine",
+     "index": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Replay",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-19T19:24:39.864Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "'Is how the size of an AC voltage or current is defined' is too absolute: peak and peak-to-peak are also used (scope readings, insulation); the source calls it the general idea. 'Whatever the shape' overstates a true-rms meter, which has bandwidth and crest-factor limits."
+   },
+   {
+    "path": "practice.text",
+    "problem": "325² ÷ 52.9 is 1997 W, not exactly 2000 W (2000 comes from the unrounded peak), so it needs 'about'; 0.637 of the peak is the sine's half-cycle average only; and readings may be marked peak-to-peak as well as peak."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

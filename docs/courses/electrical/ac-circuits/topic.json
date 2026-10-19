@@ -1,0 +1,192 @@
+{
+  "title": "AC circuits, from turning coil to three-phase",
+  "hook": "A motor on a 230 V supply draws 10 A, yet the wattmeter reads only 1.6 kW, not 2.3 kW. Where has the rest gone, and why must the cable still carry all 10 A?",
+  "oneBreath": "Alternating current from a generator comes from a coil turning in a magnetic field, so it pushes one way and then the other in a sine wave, and its rms value is the steady DC that would heat a resistor just as much. A coil pushes back against any change in its current and a capacitor fills and empties as its voltage changes, so, ideally, their currents run a quarter cycle behind or ahead of the voltage, and how hard they oppose AC depends on its frequency. When current and voltage are out of step, some energy only flows out to the load and back each cycle, so generators and cables must be big enough for the volt-amps, not just the watts; a capacitor across an inductive load trims that, and three windings set a third of a turn apart give three-phase, where star or delta decides whether the voltage or the current picks up the √3.",
+  "ideas": [
+    {
+      "id": "i1",
+      "title": "AC from a turning coil",
+      "oneLine": "A coil turning steadily in a magnetic field makes a sine-wave emf, which peaks where the flux through the coil is changing fastest.",
+      "deps": [],
+      "kind": "mechanism"
+    },
+    {
+      "id": "i2",
+      "title": "Rms: the number on the label",
+      "oneLine": "Rms is the steady DC that would heat a resistor equally: for a sine it is peak ÷ √2, so 230 V mains peaks near 325 V.",
+      "deps": [
+        "i1"
+      ],
+      "kind": "quantity"
+    },
+    {
+      "id": "i3",
+      "title": "Resistance in AC: power, moment by moment",
+      "oneLine": "Multiplying a resistor's voltage and current instant by instant gives a power wave at twice the frequency, averaging rms volts times rms amps.",
+      "deps": [
+        "i1",
+        "i2"
+      ],
+      "kind": "quantity"
+    },
+    {
+      "id": "i4",
+      "title": "Inductance: the coil that pushes back",
+      "oneLine": "A coil pushes back against changing current, so its current lags the voltage by a quarter cycle and its reactance, X_L = 2πfL, rises with frequency.",
+      "deps": [
+        "i1",
+        "i3"
+      ],
+      "kind": "mechanism"
+    },
+    {
+      "id": "i5",
+      "title": "Capacitance: the store that fills and empties",
+      "oneLine": "A capacitor draws current as it fills and empties, so its current leads the voltage by a quarter cycle and its reactance, X_C = 1/(2πfC), falls with frequency.",
+      "deps": [
+        "i1",
+        "i3",
+        "i4"
+      ],
+      "kind": "mechanism"
+    },
+    {
+      "id": "i6",
+      "title": "Series RL and RC: impedance you can measure",
+      "oneLine": "In series, the resistor's and the reactance's voltages add as arrows at right angles, so three meter readings give the impedance triangle and an unknown coil's inductance.",
+      "deps": [
+        "i4",
+        "i5"
+      ],
+      "kind": "skill"
+    },
+    {
+      "id": "i7",
+      "title": "Series RLC and resonance",
+      "oneLine": "In series, a coil's and a capacitor's reactances subtract and cancel at one frequency, where the current peaks and each can carry more voltage than the supply.",
+      "deps": [
+        "i4",
+        "i5",
+        "i6"
+      ],
+      "kind": "quantity"
+    },
+    {
+      "id": "i8",
+      "title": "Real, reactive and apparent power",
+      "oneLine": "Out of step, the power wave dips below zero, so watts used, vars sloshing back and volt-amps supplied form a triangle whose ratio is the power factor.",
+      "deps": [
+        "i3",
+        "i6"
+      ],
+      "kind": "quantity"
+    },
+    {
+      "id": "i9",
+      "title": "Power factor correction",
+      "oneLine": "Size a capacitor across an inductive load from the power triangle, so it supplies the load's vars locally and cuts the supply current while the watts stay put.",
+      "deps": [
+        "i5",
+        "i8"
+      ],
+      "kind": "skill"
+    },
+    {
+      "id": "i10",
+      "title": "Three-phase: star and delta",
+      "oneLine": "Three windings 120° apart connect in star, where line voltage is √3 times phase voltage, or delta, where line current is; power is √3 V_L I_L cos φ.",
+      "deps": [
+        "i1",
+        "i6",
+        "i8"
+      ],
+      "kind": "skill"
+    }
+  ],
+  "calibration": [
+    {
+      "id": "c1",
+      "iid": "i1",
+      "q": "A simple generator's coil is turned twice as fast, with nothing else changed. What happens to the AC it gives out?",
+      "options": [
+        "Each cycle takes half as long, but the peak voltage stays the same",
+        "The peak voltage doubles, but each cycle takes just as long",
+        "The peak voltage doubles and each cycle takes half as long"
+      ],
+      "answer": 2,
+      "why": "Turning twice as fast changes the flux through the coil twice as fast, so the emf peaks twice as high, and each turn, one cycle, takes half the time. The steady mains voltage tempts the first answer, but a simple generator has nothing holding its voltage fixed."
+    },
+    {
+      "id": "c2",
+      "iid": "i3",
+      "q": "A kettle element runs on AC mains, so for half of every cycle the current flows backwards through it. What does the element do during those backward halves?",
+      "options": [
+        "Gives a little heat back to the supply",
+        "Heats just as it does when the current flows forwards",
+        "Stops heating until the current turns round again"
+      ],
+      "answer": 1,
+      "why": "Heating in a resistor does not care which way the current flows: a backward current warms the wire just as a forward one does, so the element heats through both halves. Nothing flows back to the supply from a plain resistor, and it only stops heating for the instant the current passes through zero."
+    }
+  ],
+  "query": "AC circuits",
+  "level": "some",
+  "mode": "read",
+  "intake": {
+    "questions": [
+      {
+        "id": "q1",
+        "q": "What do you want from this course?",
+        "options": [
+          "To understand ac circuits and how to work with them",
+          "A quick refresher of the methods",
+          "Exam practice"
+        ],
+        "multi": false,
+        "other": false
+      },
+      {
+        "id": "q2",
+        "q": "Where will you use it?",
+        "options": [
+          "On the job and in everyday life",
+          "For further study",
+          "Just curiosity"
+        ],
+        "multi": false,
+        "other": false
+      },
+      {
+        "id": "q3",
+        "q": "How do you like to learn?",
+        "options": [
+          "Hands-on, with the why explained in full",
+          "Rules and worked examples only",
+          "Lots of practice questions"
+        ],
+        "multi": false,
+        "other": false
+      }
+    ],
+    "answers": {
+      "q1": {
+        "picked": [
+          "To understand ac circuits and how to work with them"
+        ],
+        "other": null
+      },
+      "q2": {
+        "picked": [
+          "On the job and in everyday life"
+        ],
+        "other": null
+      },
+      "q3": {
+        "picked": [
+          "Hands-on, with the why explained in full"
+        ],
+        "other": null
+      }
+    }
+  }
+}
