@@ -793,7 +793,7 @@ await test('a refresher lesson\'s summary card opens its chapter, and the saved 
     assert(r.first, 'the chapter opens on the card, straight after its header');
     eq(r.label, 'Keep this', 'its label');
     eq(r.title, 'Design current, Ib', 'its title');
-    assert(r.traps.length === 2 && /Output alone: 28\.87 A.*Slides p\.17/.test(r.traps[0]) && r.bold && !r.img && /onerror/.test(r.traps[1]), 'traps with their citations, as text only: ' + JSON.stringify(r.traps));
+    assert(r.traps.length === 2 && /Output alone: 28\.87 A/.test(r.traps[0]) && !/Slides p\./.test(r.traps.join(' ')) && r.bold && !r.img && /onerror/.test(r.traps[1]), 'traps as text only, their citations kept as data, not shown: ' + JSON.stringify(r.traps));
     assert(r.figs.join('|') === 'Design current, Ib23.08 A|Delta, per cable13.33 A', 'the case figures ' + JSON.stringify(r.figs));
     assert(r.term && /^Where it lives: your slides/.test(r.where) && r.scroll, 'key term, where it lives, no sideways scroll');
     await noDan(app, 'summary');
@@ -823,6 +823,25 @@ await test('a guide\'s still step is drawn in a sandboxed frame in the chapter',
   const r = await app.page.evaluate(() => { const fr = document.querySelector('.gd-still iframe'); return { sandbox: fr.getAttribute('sandbox'), first: fr.closest('li').firstElementChild.className, wake: document.querySelectorAll('.dos .wake').length }; });
   eq(JSON.stringify([r.sandbox, r.first, r.wake]), JSON.stringify(['allow-scripts', 'gd-text', 0]), 'sandboxed, after its words, nothing to wake');
   await app.page.frameLocator('.gd-still iframe').locator('.eq').waitFor({ timeout: 10000 });
+});
+
+// A version 3 guide (stillW, each still's h): the chapter draws its still in a frame that runs no
+// script, at its size from the first paint (Dan, 20 Oct: blank pictures), with a choice example's options.
+await test('a version 3 still in the chapter needs no script and is never held invisible', async () => {
+  const db = seed({ finished: false });
+  db['topics/pendulums/guide/i1'] = { v: 3, iid: 'i1', stillW: 328, style: '.rule1 { padding: 12px; }', pages: [
+    { kind: 'show', name: 'Panel', text: 'The rule, as your slides put it.', html: '<div class="rule1"><p class="eq">Ib ≤ In ≤ Iz</p></div>', h: 100, alt: 'Ib ≤ In ≤ Iz' },
+    { kind: 'example', name: 'Pick', task: 'Which is the design current?', answer: '14.15 A', input: 'pick', options: ['12.03 A', '14.15 A'], why: '', html: '<p class="w">7 500 ÷ 530.0 = 14.15 A</p>', h: 60, alt: '' },
+  ] };
+  const app = await open({ db, hash: '#/book/pendulums/i1' });
+  await app.page.locator('.gd-still iframe').first().waitFor({ timeout: 20000 });
+  const r = await app.page.evaluate(() => ({
+    frames: [...document.querySelectorAll('.gd-still iframe')].map((fr) => [fr.getAttribute('sandbox'), getComputedStyle(fr).opacity, /<script/i.test(fr.getAttribute('srcdoc')), Math.round(fr.closest('.rd-still-box').getBoundingClientRect().height) > 40]),
+    opts: [...document.querySelectorAll('.gd-opts li')].map((l) => (l.classList.contains('is-right') ? '*' : '') + l.textContent.replace(' (the answer)', '')),
+  }));
+  eq(JSON.stringify(r.frames), JSON.stringify([['', '1', false, true], ['', '1', false, true]]), 'no script, visible, sized');
+  eq(JSON.stringify(r.opts), JSON.stringify(['12.03 A', '*14.15 A']), 'the choices, the answer marked');
+  eq(await app.page.frameLocator('.gd-still iframe').first().locator('.eq').textContent(), 'Ib ≤ In ≤ Iz', 'painted');
 });
 
 // A source from Dan's own course materials ("material:<slug>#p<page>"): in the chapter's footnote,

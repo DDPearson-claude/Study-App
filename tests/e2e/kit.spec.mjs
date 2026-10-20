@@ -1745,9 +1745,9 @@ section('refresher pieces: typed answers, written answers, the case file, the su
   await fr.getByRole('button', { name: 'Check my answer' }).click();
   await fr.locator('.k-mark .k-pts').waitFor({ timeout: 5000 });
   const m1 = await fr.locator('.k-mark').evaluate((el) => ({ made: el.querySelectorAll('li.made .k-mk.tick').length, miss: el.querySelectorAll('li.miss .k-mk.ring').length, wrong: (el.querySelector('.k-wrong') || {}).textContent || '',
-    aim: el.querySelector('.k-aim').textContent, cite: el.querySelector('li small').textContent, model: !el.closest('.k-written').querySelector('.k-model').hidden, send: el.closest('.k-written').querySelector('.k-written-send').hidden }));
-  expect('marked: two ink ticks, two dashed rings, the citations, "any three", the wrong statement named, no model answer yet',
-    marks.length === 1 && marks[0].go === 1 && m1.made === 2 && m1.miss === 2 && /isn't right: The cable/.test(m1.wrong) && /any three/.test(m1.aim) && m1.cite === 'Slides p.18' && !m1.model && m1.send, { marks, m1 });
+    aim: el.querySelector('.k-aim').textContent, cite: el.querySelectorAll('li small').length, model: !el.closest('.k-written').querySelector('.k-model').hidden, send: el.closest('.k-written').querySelector('.k-written-send').hidden }));
+  expect('marked: two ink ticks, two dashed rings, no citations shown (Dan, 20 Oct), "any three", the wrong statement named, no model answer yet',
+    marks.length === 1 && marks[0].go === 1 && m1.made === 2 && m1.miss === 2 && /isn't right: The cable/.test(m1.wrong) && /any three/.test(m1.aim) && m1.cite === 0 && !m1.model && m1.send, { marks, m1 });
   await fr.getByRole('button', { name: 'Another go' }).click();
   await fr.locator('.k-written-input').fill('The submain drops volts, so the board is lower, more current flows, and the device and cable are chosen from Ib.');
   await fr.getByRole('button', { name: 'Check my answer' }).click();
@@ -1772,8 +1772,8 @@ section('refresher pieces: typed answers, written answers, the case file, the su
   // The summary card, with the case file's figures.
   await app.page.evaluate(() => window.rm.set('step', 2));
   const card = await fr.locator('.k-summary').textContent();
-  expect('the summary card: title, rule, traps with citations, the case figures, where it lives',
-    /Design current, Ib/.test(card) && /Three-phase: Ib = P/.test(card) && /Output alone:.*Slides p\.17/.test(card) && /Delta, per cable\s*13\.33 A/.test(card) && /Where it lives: your slides/.test(card), card);
+  expect('the summary card: title, rule, traps with no citation shown (Dan, 20 Oct), the case figures, where it lives',
+    /Design current, Ib/.test(card) && /Three-phase: Ib = P/.test(card) && /Output alone:/.test(card) && !/Slides p\.17/.test(card) && /Delta, per cable\s*13\.33 A/.test(card) && /Where it lives: your slides/.test(card), card);
   // Shown answer: carried forward at the course's figure, and said so.
   await app.page.evaluate(() => window.rm.set('step', 0));
   await fr.getByRole('button', { name: 'Show me' }).click();

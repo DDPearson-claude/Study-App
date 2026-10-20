@@ -2320,7 +2320,7 @@
 
   // ---- written answers, marked by Claude against the lesson's points ----
   // K.written({id, into, onMark?}) -> {el, id, stage(), answered()}: the question lesson.written[id]
-  // (q, points [{text, cite}], need, model) with a box for Dan's words. Check my answer sends them
+  // (q, points [{text, cite}], need, model; each cite kept as data, not shown) with a box for Dan's words. Check my answer sends them
   // to the host, which has Claude mark them against the points; each point comes back with an ink
   // tick (made) or a dashed ring (not yet), a statement that is wrong named in red, one line on what
   // he did well and one nudge. One more go, then the model answer. Without Claude (no signal, a
@@ -2389,7 +2389,7 @@
       points.forEach(function (p, i) {
         var made = self ? !!w.ticks[i] : !!(r.met && r.met[i]);
         var text = termText(K.el('p'), p.text);
-        if (p.cite) text.appendChild(K.el('small', null, p.cite));
+        // Each point keeps its citation as data (cite), never shown: he gave the sources (Dan, 20 Oct).
         if (self) {
           var box = K.el('button', { type: 'button', class: 'k-pt-tick', role: 'checkbox', 'aria-checked': made ? 'true' : 'false', 'aria-label': 'I made this point' });
           box.appendChild(iconEl(made ? TICK : '', 'k-mk ' + (made ? 'tick' : 'ring')));
@@ -2471,7 +2471,8 @@
     var traps = Array.isArray(s.traps) ? s.traps : [];
     if (traps.length) {
       var tb = K.el('div', { class: 'k-sum-traps' }, lab('Traps'));
-      traps.forEach(function (t) { var p = termText(K.el('p', { class: 'k-trap' }), t && t.text); if (t && t.cite) p.appendChild(K.el('small', null, String(t.cite))); tb.appendChild(p); });
+      // A trap's cite is kept as data, not shown (Dan, 20 Oct: he gave the sources).
+      traps.forEach(function (t) { tb.appendChild(termText(K.el('p', { class: 'k-trap' }), t && t.text)); });
       el.appendChild(tb);
     }
     var figs = (Array.isArray(s.figures) ? s.figures : []).map(function (f) { return typeof f === 'string' ? figureOf(f) : { label: String(f && f.label || ''), text: String(f && (f.text || f.value) || '') }; });

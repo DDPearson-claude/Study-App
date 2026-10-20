@@ -892,28 +892,28 @@
       str(p.for) ? h('div', null, lab('What it is for'), U.inline(h('p'), str(p.for))) : null,
       str(p.rule) ? h('div', { class: 'sm-rule' }, lab('The rule'), ruleLines(p.rule).map(function (l) { return U.inline(h('p', { class: l.note ? 'n' : null }), l.text); })) : null,
       traps.length ? h('div', { class: 'sm-traps' }, lab('Traps'), traps.map(function (t) {
-        return h('p', { class: 'sm-trap' }, U.inline(h('span'), str(t.text)), str(t.cite) ? h('small', null, str(t.cite)) : null);
+        return U.inline(h('p', { class: 'sm-trap' }), str(t.text));   // its cite: data, not shown (Dan, 20 Oct)
       })) : null,
       figs.length ? h('div', null, lab(str(p.figuresLabel) || 'Figures so far'), h('dl', { class: 'sm-figs' }, figs.map(function (f) {
         return h('div', null, h('dt', null, str(f.label)), h('dd', null, str(f.value)));
       }))) : null,
       str(p.where) ? h('p', { class: 'sm-where' }, 'Where it lives: ' + str(p.where).replace(/^where it lives:\s*/i, '')) : null]);
   }
-  // A step kept as still HTML (a refresher lesson's panels and worked lines): a placeholder the page
-  // fills with a sandboxed frame once it is on the screen (U.readThrough.still), destroyed with it.
+  // A step kept as still HTML (a refresher lesson's panels and worked lines): a sandboxed frame that
+  // runs no script, sized from the guide before it paints (U.readThrough.still), destroyed with it.
   function guidePic(p, g, S) {
     if (p.html && U.readThrough && U.readThrough.stillHtml(p.html, g && g.style)) {
       var box = h('div', { class: 'gd-still' });
-      setTimeout(function () {
-        if (!box.isConnected) return;
-        var m = U.readThrough.still(box, p.html, g && g.style);
-        if (m && S && S.offs) S.offs.push(function () { m.destroy(); });
-      });
+      var m = U.readThrough.still(box, p.html, g && g.style, { w: g && g.stillW, h: p.h });
+      if (m && S && S.offs) S.offs.push(function () { m.destroy(); });
       return box;
     }
     if (!p.svg || !/^<svg[\s>]/.test(p.svg)) return null;
     return h('img', { class: 'gd-pic', src: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(p.svg), alt: p.alt || '', loading: 'lazy', decoding: 'async' });
   }
+  // An example's answer with its unit, and a choice example's options (53-read.js).
+  function RTa(p) { return U.readThrough && U.readThrough.answerOf ? U.readThrough.answerOf(p) : str(p.answer); }
+  function RTc(p) { return U.readThrough && U.readThrough.choicesOf ? U.readThrough.choicesOf(p) : []; }
   function guideTiles(c, fx, S) {
     var sid = 'c' + c.n, shows = [], examples = [];
     c.guide.pages.filter(isObj).forEach(function (p) {
@@ -926,8 +926,12 @@
         examples.push(tile('li', 'white', { span: 'full', cls: 'gd-ex' }, [
           h('p', { class: 't-label' }, 'Worked example'),
           inl(h('p', { class: 'gd-q' }), str(p.task), fx),
+          RTc(p).length ? h('ul', { class: 'gd-opts', 'aria-label': 'The choices' }, RTc(p).map(function (o) {
+            var right = o === str(p.answer);
+            return h('li', { class: right ? 'is-right' : null }, o, right ? h('span', { class: 'vh' }, ' (the answer)') : null);
+          })) : null,
           epic ? (epic.className === 'gd-still' ? epic : h('div', { class: 'gd-well' }, epic)) : null,
-          p.answer ? h('p', { class: 'gd-a' }, h('span', { class: 'gd-a-k' }, 'Answer '), h('b', null, str(p.answer))) : null,
+          RTa(p) ? h('p', { class: 'gd-a' }, h('span', { class: 'gd-a-k' }, 'Answer '), h('b', null, RTa(p))) : null,
           p.why ? inl(h('p', { class: 'gd-why' }), str(p.why), fx) : null]));
       }
     });
@@ -1354,7 +1358,7 @@
     return h('div', { class: 't em full' }, xk('Keep this'), h('h3', null, str(p.title)),
       str(p.for) ? h('p', null, h('b', null, 'What it is for. '), U.plain(str(p.for))) : null,
       str(p.rule) ? h('div', null, ruleLines(p.rule).map(function (l) { return h('p', { class: l.note ? 'small' : null }, l.note ? U.plain(l.text) : h('b', null, U.plain(l.text))); })) : null,
-      traps.length ? h('ul', null, traps.map(function (t) { return h('li', null, h('b', null, 'Trap: '), U.plain(str(t.text)), str(t.cite) ? ' (' + str(t.cite) + ')' : ''); })) : null,
+      traps.length ? h('ul', null, traps.map(function (t) { return h('li', null, h('b', null, 'Trap: '), U.plain(str(t.text))); })) : null,
       figs.length ? h('p', null, figs.map(function (f, k) { return (k ? ' · ' : '') + str(f.label) + ' ' + str(f.value); }).join('')) : null,
       str(p.where) ? h('p', { class: 'small' }, 'Where it lives: ' + str(p.where).replace(/^where it lives:\s*/i, '')) : null);
   }

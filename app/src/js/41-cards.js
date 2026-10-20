@@ -925,12 +925,9 @@
     if (!pg || !RT) return null;
     if (pg.html && RT.stillHtml(pg.html, pg.style)) {
       var box = h('div', { class: 'rd-still qc-still' });
-      requestAnimationFrame(function () {
-        if (!box.isConnected || c.stillMounted) return;
-        c.stillMounted = true;
-        var m = RT.still(box, pg.html, pg.style);
-        if (m) c.cleanups.push(function () { try { m.destroy(); } catch (e) { /* gone */ } });
-      });
+      // A still needs no script, timer or animation frame: drawn at once, sized from the guide.
+      var m = RT.still(box, pg.html, pg.style, { w: pg.w, h: pg.h });
+      if (m) c.cleanups.push(function () { try { m.destroy(); } catch (e) { /* gone */ } });
       return h('div', { class: 'qc-pic' }, label('Worked through'), box);
     }
     var src = RT.pic(pg.svg);

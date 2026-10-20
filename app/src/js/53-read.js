@@ -16,9 +16,11 @@
 //   U.readThrough.known(tid, iid) -> true | false | undefined (not read yet)
 //   U.readThrough.parts(guide) -> {pages: [show | example], summary: summary page | null}   pure
 //   U.readThrough.pic(svg) -> data: URL of an SVG image, or null for anything that is not one
-//   U.readThrough.still(container, html, style) -> mount api | null   a step kept as still HTML (a
-//       guide page's html, its guide's style): drawn in a sandboxed kit frame (32-sandbox.js), never
-//       in the app's page, in the light palette at the app's text size, with no script of its own
+//   U.readThrough.still(container, html, style, {w, h}) -> {el, frame, destroy()} | null   a step kept
+//       as still HTML (a guide page's html and h, its guide's style and stillW): a sandboxed frame
+//       that runs no script (sandbox=""), never the app's page, in the light palette, laid out at the
+//       build's width and scaled to the column like a picture
+//   U.readThrough.stillDoc(html, style) -> the still's whole document | null   pure
 // Contract: docs/ARCHITECTURE.md sections 4 (progress), 9 and 10.
 (function () {
   'use strict';
@@ -37,6 +39,17 @@
   }
   // Only a string that is an SVG becomes a picture, as a plain image (an <img> runs no script).
   function pic(svg) { return typeof svg === 'string' && /^<svg[\s>]/.test(svg) ? 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg) : null; }
+  // An example's answer as it reads: with its unit when the guide gives one apart ('23.08' + 'A').
+  function answerOf(p) {
+    var a = isObj(p) ? str(p.answer).trim() : '', u = isObj(p) ? str(p.unit).trim() : '';
+    if (!a || !u) return a;
+    return a.slice(-u.length) === u ? a : a + ' ' + u;
+  }
+  // A choice example's options, in screen order, when the answer is one of them; else none.
+  function choicesOf(p) {
+    var o = isObj(p) && p.input === 'pick' && Array.isArray(p.options) ? p.options.map(str).filter(Boolean) : [];
+    return o.length >= 2 && o.indexOf(str(p.answer)) >= 0 ? o : [];
+  }
   function usable(g) { var p = parts(g); return p.pages.length > 0 || !!p.summary; }
 
   // ---------- the guide, read once per page load ----------
@@ -53,22 +66,56 @@
   }
   function known(tid, iid) { var k = tid + '/' + iid; return k in seen ? seen[k] : undefined; }
   // A step kept as still HTML (tools/course/guide.mjs): the lesson's own markup and styles, shown
-  // as it looked finished. Model-written, so only ever inside a sandboxed frame; no script runs but
-  // the kit's (for its height and the text size), and the light palette keeps its fixed colours
-  // (drawn in light) readable in dark mode too, on a light card as the pictures are.
+  // as it looked finished. Model-written, so it is only ever drawn inside a sandboxed frame, never
+  // in the app's page. It is a still, so the frame runs no script at all (sandbox=""): nothing in it
+  // waits for a message, a timer or an animation frame before it paints (Dan, 20 Oct: the stills
+  // came out blank). Markup that could load, navigate or submit anything is refused outright.
+  var UNSAFE = /<\s*(script|iframe|frame|object|embed|form|meta|link|base|portal)\b|\son[a-z]+\s*=|javascript:/i;
+  var STILL_CSS = '.k-after-move{visibility:visible!important}*,*::before,*::after{animation:none!important;transition:none!important}' +
+    'html,body{overflow:hidden}body{padding:10px 12px 14px}';
   function stillHtml(html, style) {
-    if (typeof html !== 'string' || !html.trim() || /<script|\son[a-z]+\s*=/i.test(html)) return null;
-    // Still: no motion (a frame off the screen may never play an entrance, so it would stay unseen).
-    var css = '.k-after-move{visibility:visible!important}*,*::before,*::after{animation:none!important;transition:none!important}body{padding:10px 12px 14px}' + (typeof style === 'string' ? style : '');
+    if (typeof html !== 'string' || !html.trim() || UNSAFE.test(html)) return null;
+    var css = STILL_CSS + (typeof style === 'string' ? style : '');
     return '<style>' + css.replace(/<\//g, '<\\/') + '</style>' + html;
   }
-  function still(container, html, style) {
+  // The whole document of a still: the kit's styles in Dan's light palette (kit.css's own defaults:
+  // no kit script runs to set a theme), the lesson's styles, the step. A light card in both themes,
+  // as the SVG pictures are on their white well. null for anything stillHtml refuses.
+  function stillDoc(html, style) {
+    var body = stillHtml(html, style);
+    if (!body) return null;
+    var csp = "default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:; form-action 'none'";
+    return '<!doctype html><html lang="en" data-theme="light"><head><meta http-equiv="Content-Security-Policy" content="' + csp + '">' +
+      '<meta charset="utf-8"><style>' + String(U.KIT_CSS || '').replace(/<\//g, '<\\/') + '</style></head><body>' + body + '</body></html>';
+  }
+  // still(container, html, style, size) -> {el, frame, destroy()} | null. size {w, h}: the width the
+  // build laid the step out at and its height there (guide.stillW, page.h). The frame keeps that
+  // layout and is scaled to the column like a picture (at most 1.25 times, centred beyond that), so
+  // its height is known before it paints. A guide made before 20 Oct (no size) falls back to the
+  // kit frame that measures itself (U.sandbox.mount).
+  var MAX_SCALE = 1.25;
+  function still(container, html, style, size) {
+    var w = size && Number(size.w), h = size && Number(size.h);
+    if (!(w > 0 && h > 0)) return liveStill(container, html, style);
+    var doc = stillDoc(html, style);
+    if (!doc) return null;
+    var frame = U.h('iframe', { class: 'rd-still-frame', sandbox: '', srcdoc: doc, title: 'A step of the lesson, as it looks', referrerpolicy: 'no-referrer',
+      scrolling: 'no', tabindex: '-1', 'aria-hidden': 'true', style: { width: w + 'px', height: h + 'px' } });
+    var box = U.h('div', { class: 'rd-still-box', style: { maxWidth: Math.round(w * MAX_SCALE) + 'px', aspectRatio: w + ' / ' + h } }, frame);
+    container.appendChild(box);
+    function fit() { var cw = box.clientWidth; if (cw > 0) frame.style.transform = 'scale(' + (cw / w).toFixed(4) + ')'; }
+    fit();
+    var ro = window.ResizeObserver ? new ResizeObserver(fit) : null;
+    if (ro) ro.observe(box); else window.addEventListener('resize', fit);
+    return { el: box, frame: frame, destroy: function () { if (ro) ro.disconnect(); else window.removeEventListener('resize', fit); box.remove(); } };
+  }
+  function liveStill(container, html, style) {
     var body = stillHtml(html, style);
     if (!body || !U.sandbox || typeof U.sandbox.mount !== 'function') return null;
     try { return U.sandbox.mount(container, { html: body, title: 'A step of the lesson, as it looks', minHeight: 120, loading: false, theme: function () { return U.sandbox.theme({ light: true }); } }); }
     catch (e) { console.warn('still step', e); return null; }
   }
-  U.readThrough = { guide: guide, known: known, parts: parts, pic: pic, still: still, stillHtml: stillHtml };
+  U.readThrough = { guide: guide, known: known, parts: parts, pic: pic, still: still, stillHtml: stillHtml, stillDoc: stillDoc, answerOf: answerOf, choicesOf: choicesOf };
   if (!U.routes) return;
 
   // ---------- the screen ----------
@@ -129,7 +176,7 @@
     // A step's picture: its still HTML in a frame (mounted once the list is on the page), else its SVG.
     var stills = [], mounts = [];
     function picture(p) {
-      if (stillHtml(p.html, st.guide.style)) { var box = U.h('div', { class: 'rd-still' }); stills.push([box, p.html]); return box; }
+      if (stillHtml(p.html, st.guide.style)) { var box = U.h('div', { class: 'rd-still' }); stills.push([box, p]); return box; }
       var src = pic(p.svg);
       return src ? U.h('div', { class: 'rd-well' }, U.h('img', { class: 'rd-pic', src: src, alt: str(p.alt), decoding: 'async' })) : null;
     }
@@ -152,16 +199,23 @@
           var shown = picture(pg), said = str(pg.text) ? words('p', 'rd-text', pg.text) : null;
           list.appendChild(U.h('li', { class: 'rd-show' }, shown && shown.classList.contains('rd-still') ? [said, shown] : [shown, said]));
         } else {
+          // The question, the choices it offered (the right one marked), the step as it looks
+          // worked, the answer with its unit, then why.
+          var ans = answerOf(pg), opts = choicesOf(pg);
           list.appendChild(U.h('li', { class: 'rd-ex' },
-            U.h('p', { class: 'eyebrow rd-ex-l' }, 'Worked example'),
+            U.h('p', { class: 'eyebrow rd-ex-l' }, pg.written ? 'Written question' : 'Worked example'),
             words('p', 'rd-ex-q', pg.task),
+            opts.length ? U.h('ul', { class: 'rd-ex-opts', 'aria-label': 'The choices' }, opts.map(function (o) {
+              var right = o === str(pg.answer);
+              return U.h('li', { class: right ? 'is-right' : null }, right ? U.h('span', { class: 'rd-ex-tick', 'aria-hidden': 'true' }, U.icon('tick')) : null, U.h('span', null, o), right ? U.h('span', { class: 'visually-hidden' }, ' (the answer)') : null);
+            })) : null,
             picture(pg),
-            str(pg.answer) ? U.h('p', { class: 'rd-ex-a' }, U.h('span', { class: 'rd-ex-k' }, 'Answer'), U.h('b', null, str(pg.answer))) : null,
+            ans ? U.h('p', { class: 'rd-ex-a' }, U.h('span', { class: 'rd-ex-k' }, 'Answer'), U.h('b', null, ans)) : null,
             str(pg.why) ? words('p', 'rd-ex-why', pg.why) : null));
         }
       });
       body.appendChild(list);
-      stills.forEach(function (x) { var m = still(x[0], x[1], st.guide.style); if (m) mounts.push(m); });
+      stills.forEach(function (x) { var m = still(x[0], x[1].html, st.guide.style, { w: st.guide.stillW, h: x[1].h }); if (m) mounts.push(m); });
       if (p.summary) body.appendChild(summaryCard(p.summary));
       body.appendChild(endPart());
     }
@@ -180,7 +234,7 @@
         str(s.for) ? U.h('div', null, lab('What it is for'), U.inline(U.h('p'), str(s.for))) : null,
         str(s.rule) ? U.h('div', { class: 'rd-sum-rule' }, lab('The rule'), rule) : null,
         traps.length ? U.h('div', { class: 'rd-sum-traps' }, lab('Traps'), traps.map(function (t) {
-          return U.h('p', { class: 'rd-trap' }, U.inline(U.h('span'), str(t.text)), str(t.cite) ? U.h('small', null, str(t.cite)) : null);
+          return U.inline(U.h('p', { class: 'rd-trap' }), str(t.text));   // its cite: data, not shown
         })) : null,
         figs.length ? U.h('div', null, lab(str(s.figuresLabel) || 'Figures so far'), U.h('dl', { class: 'rd-figs' }, figs.map(function (f) { return U.h('div', null, U.h('dt', null, str(f.label)), U.h('dd', null, str(f.value))); }))) : null,
         str(s.where) ? U.h('p', { class: 'rd-sum-where' }, 'Where it lives: ' + str(s.where).replace(/^where it lives:\s*/i, '')) : null);

@@ -141,7 +141,7 @@ await test('Just read it through: the read-through renders the refresher guide, 
     assert(r.wide, 'pictures at the column\'s width');
     assert(/Worked example/i.test(r.examples[0]) && /Answer\s*13\.33 A/i.test(r.examples[0]) && /23\.08 ÷ √3/.test(r.examples[0]), 'the answer shown, no hiding: ' + r.examples[0]);
     assert(/A model answer: The submain drops voltage/.test(r.examples[1]), 'a written question with its model answer');
-    assert(r.sumLast && /Keep this/i.test(r.sum) && /Design current, Ib/.test(r.sum) && /Output alone/.test(r.sum) && /23\.08 A/.test(r.sum), 'the Keep this card, last');
+    assert(r.sumLast && /Keep this/i.test(r.sum) && /Design current, Ib/.test(r.sum) && /Output alone/.test(r.sum) && /23\.08 A/.test(r.sum) && !/Slides p\.1[78]/.test(r.sum), 'the Keep this card, last, its traps with no citation shown');
     assert(r.term && r.fn === 1 && r.frames === 0 && r.hidden === 0, 'key terms, a working footnote, nothing to play or reveal');
     await app.page.locator('.rd-text button.fn').click();
     await app.page.locator('.sheet .lsn-src').waitFor();
@@ -234,15 +234,46 @@ await test('a still step is drawn in a sandboxed frame, light, after its words',
   assert(bg !== 'rgba(0, 0, 0, 0)', 'the guide\'s style applies inside: ' + bg);
 });
 
+// A version 3 guide's still (20 Oct: Dan saw blank pictures): a frame that runs no script, sized from
+// the guide before it paints and scaled to the column, never held invisible; a choice example lists
+// its options with the answer marked; an answer shows its unit; a trap shows no citation.
+const GUIDE3 = { v: 3, iid: 'i2', stillW: 328, style: '.rule1 { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); }', pages: [
+  { kind: 'show', name: 'Panel', text: 'The rule, as your slides put it.', html: '<div class="rule1"><span class="k-label">Your slides p.22</span><p class="eq">Ib ≤ In ≤ Iz</p></div>', h: 120, alt: 'Ib ≤ In ≤ Iz' },
+  { kind: 'example', name: 'Pick', task: 'A 7.5 kW motor at 400 V, pf 0.85, efficiency 90%. What is Ib?', answer: '14.15 A', why: 'Ib = P ÷ (√3 × UL × eff × pf).', input: 'pick', options: ['12.03 A', '12.74 A', '14.15 A'], html: '<div class="rule1"><p class="w">7 500 ÷ (√3 × 400 × 0.9 × 0.85) = 14.15 A</p></div>', h: 80, alt: '' },
+  { kind: 'example', name: 'Typed', task: 'Determine the design current.', answer: '23.08', unit: 'A', why: '', input: 'typed', svg: SVG, alt: 'Solved.' },
+] };
+await test('a version 3 still paints at once with no script, sized from the guide; choices and units read as words', async () => {
+  for (const [width, dark] of [[360, false], [1280, true]]) {
+    const app = await open({ width, dark, hash: '#/t/pendulums/i2/read', extra: { 'topics/pendulums/guide/i2': GUIDE3 } });
+    await app.page.locator('.rd-still iframe').first().waitFor({ timeout: 20000 });
+    const r = await app.page.evaluate(() => [...document.querySelectorAll('.rd-still')].map((b) => {
+      const fr = b.querySelector('iframe'), box = b.querySelector('.rd-still-box'), cs = getComputedStyle(fr), bx = box.getBoundingClientRect();
+      return { sandbox: fr.getAttribute('sandbox'), kit: !!b.querySelector('.kit-frame'), opacity: cs.opacity, w: bx.width, h: bx.height, scale: fr.style.transform, script: /<script/i.test(fr.getAttribute('srcdoc')) };
+    }));
+    eq(r.map((x) => [x.sandbox, x.kit, x.opacity, x.script]), [['', false, '1', false], ['', false, '1', false]], width + ': no script, no kit frame, never held invisible');
+    const col = await app.page.evaluate(() => document.querySelector('.rd-pages').getBoundingClientRect().width);
+    const want = Math.min(col, 328 * 1.25);
+    assert(Math.abs(r[0].w - want) < 2 && Math.abs(r[0].h - 120 * r[0].w / 328) < 2, width + ': scaled like a picture from 328 × 120: ' + JSON.stringify([r[0], col]));
+    eq(await app.page.frameLocator('.rd-still iframe').first().locator('.eq').textContent(), 'Ib ≤ In ≤ Iz', width + ': painted with the lesson\'s panel');
+    const bg = await app.page.frameLocator('.rd-still iframe').first().locator('.rule1').evaluate((e) => getComputedStyle(e).backgroundColor);
+    eq(bg, 'rgb(247, 245, 240)', width + ': the kit\'s light panel colour, with no kit script');
+    const ex = await app.page.evaluate(() => [...document.querySelectorAll('.rd-ex')].map((e) => ({ opts: [...e.querySelectorAll('.rd-ex-opts li')].map((l) => (l.classList.contains('is-right') ? '*' : '') + l.textContent.replace(' (the answer)', '')), a: (e.querySelector('.rd-ex-a b') || {}).textContent })));
+    eq(ex, [{ opts: ['12.03 A', '12.74 A', '*14.15 A'] , a: '14.15 A' }, { opts: [], a: '23.08 A' }], width + ': the choices with the answer marked; the answer with its unit');
+    await noSideways(app, 'v3 read-through ' + width);
+    await shot(app, `still-v3-${width}`);
+  }
+});
+
 // guide.mjs on a refresher body drawn in HTML: its Section A step (scenario, carried part, answered
-// right) is kept as still HTML with no script or handler and no input; a step's `read` sentence
-// takes the place of its words.
-await test('guide.mjs keeps an HTML-drawn step as still HTML, and a step\'s read sentence', async () => {
+// right) is kept as still HTML with no script or handler and no input, with its height at the
+// stills' width (version 3); a DO step's `read` that gives the answer away never replaces its
+// question.
+await test('guide.mjs keeps an HTML-drawn step as still HTML, sized, and keeps a question a question', async () => {
   const { mkdtempSync, writeFileSync: wf, copyFileSync } = await import('node:fs');
   const { tmpdir } = await import('node:os');
   const dir = mkdtempSync(join(tmpdir(), 'mu-guide-'));
   const FX = join(ROOT, 'tests', 'fixtures');
-  const body = readFileSync(join(FX, 'refresher-body.html'), 'utf8').replace("{ name: 'Delta current', task:", "{ name: 'Delta current', read: 'Each cable carries the current of one winding.', task:");
+  const body = readFileSync(join(FX, 'refresher-body.html'), 'utf8').replace("{ name: 'Delta current', task:", "{ name: 'Delta current', read: 'Each cable carries 13.33 A, the current of one winding.', task:");
   wf(join(dir, 'i1.body.final.html'), body);
   copyFileSync(join(FX, 'refresher-case.json'), join(dir, 'case.json'));
   const L = stepsLesson('i1').lesson; Object.assign(L, fx('refresher-parts.json'));
@@ -250,7 +281,7 @@ await test('guide.mjs keeps an HTML-drawn step as still HTML, and a step\'s read
   wf(join(dir, 'topic.json'), JSON.stringify(fx('lesson-ui-topic.json')));
   // The kit's own test page, as the build tools use it.
   const KIT = join(ROOT, 'tests', 'out', 'read-kit.html');
-  const b = spawnSync(process.execPath, [join(ROOT, 'tools', 'build.mjs'), '--only', '32,33', '--out', KIT], { encoding: 'utf8' });
+  const b = spawnSync(process.execPath, [join(ROOT, 'tools', 'build.mjs'), '--only', '32,33,53', '--out', KIT], { encoding: 'utf8' });
   assert(b.status === 0, b.stderr);
   const r = spawnSync(process.execPath, [join(ROOT, 'tools', 'course', 'guide.mjs'), '--dir', dir, '--idea', 'i1', '--app', KIT], { encoding: 'utf8' });
   assert(r.status === 0, (r.stderr + r.stdout).split('\n').filter((l) => /Error|error|at /.test(l)).slice(0, 6).join(' | '));
@@ -259,9 +290,12 @@ await test('guide.mjs keeps an HTML-drawn step as still HTML, and a step\'s read
   assert(a && a.html && !a.svg, 'kept as still HTML: ' + JSON.stringify(a && Object.keys(a)));
   assert(/Your showroom: the motor/.test(a.html) && /23\.08 A/.test(a.html), 'the scenario and the carried part');
   assert(!/<script|\son[a-z]+=|<input|<textarea/i.test(a.html) && !/>Check</.test(a.html), 'no script, handler, input or Check button');
-  eq(a.task, 'Each cable carries the current of one winding.', 'its read sentence');
-  // Version 2: how each worked example is asked, for the puzzle box.
-  eq(g.v, 2, 'a version 2 guide');
+  eq(a.task, '(b) Determine the current each cable from the starter to the motor carries when the motor runs in delta.', 'its question, not a read sentence that gives the answer');
+  assert(/gives the answer/.test(r.stderr + r.stdout), 'and the build is told');
+  assert(g.stillW === 328 && a.h > 40, 'the still\'s height at the stills\' width: ' + JSON.stringify([g.stillW, a.h]));
+  assert(!/>\s*(Right|Still there|That's it)\.?\s*</.test(a.html), 'no quiz verdict in the still');
+  // Version 2's fields (how each worked example is asked, for the puzzle box), in a version 3 guide.
+  eq(g.v, 3, 'a version 3 guide');
   const ex = g.pages.filter((p) => p.kind === 'example');
   assert(ex.some((p) => p.input === 'typed' && p.answer), 'a typed answer says so: ' + JSON.stringify(ex.map((p) => [p.name, p.input, p.unit, p.options])));
   assert(ex.filter((p) => p.input === 'pick').every((p) => p.options.length >= 2 && p.options.includes(p.answer)), 'a pick keeps its options, the answer among them');

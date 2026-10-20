@@ -500,7 +500,7 @@ below) and, for a refresher lesson, its written questions:
   get "Type a number, like 12.5 A." and no mark), or the lesson's options as a choice card. After the
   answer: the answer when wrong, the `why` (Claude's note, with its byline and reply row), and the
   example's solved picture ("Worked through": an SVG as a plain image on a white well, or still HTML
-  in a sandboxed frame, `U.readThrough.still`), read from the guide by the review (once per page load,
+  in a script-free sandboxed frame, `U.readThrough.still`, sized from the guide's `stillW` and its `h`), read from the guide by the review (once per page load,
   the next puzzle's while he answers; none after 5 s, or when the page is not that example any more).
   The picture is never copied into the card, and never shown before the answer: it is the solved
   state. Auto grades as other objective cards (a typed right answer counts as instant within 9 s plus
@@ -592,26 +592,42 @@ of it to Atkinson. The page builders, in reading order (`model().leaves`):
 - **A chapter of a ready-made steps lesson** reads as a still guide instead of the plate (Dan, 11 Oct:
   "a re-read guide with visuals, not a test to move on"): `topics/{tid}/guide/{iid}` (public, beside
   the lesson; `U.store.guide.get`), made at build time by `tools/course/guide.mjs`, is
-  `{v, iid, pages: [{kind: 'show', text, svg, alt} | {kind: 'example', task, answer, why, svg?, alt, input?, options?, unit?, written?}
-  | {kind: 'summary', title, for, rule, traps: [{text, cite}], where, figures: [{label, value}], figuresLabel?}], style?}`.
+  `{v, iid, pages: [{kind: 'show', text, svg, alt, html?, h?} | {kind: 'example', task, answer, why, svg?, alt, html?, h?, input?, options?, unit?, written?}
+  | {kind: 'summary', title, for, rule, traps: [{text, cite}], where, figures: [{label, value}], figuresLabel?}], style?, stillW?}`.
   Version 2 (20 Oct, for puzzles): an example says how the lesson asks it, `input` 'pick' with
   `options` (the buttons he chose from, in screen order, the answer among them) or 'typed' (a K.answer
   field, with its `unit`); none for a drag or a colouring; a written step's page names its question
   (`written`). `guide.mjs --answers` brings a version 1 guide to version 2 without drawing it again;
   assemble.mjs stamps the topic's `guideV` (the oldest of its guides, from 2).
+  Version 3 (20 Oct, Dan: "some of the text doesn't make sense… the images are blank"): an example's
+  `task` is always its question (a STEPS `read` that gives the answer away is not used); sentences
+  that only make sense in the quiz (drag, tap, press, "Skip to the practice"…) are left out of every
+  page and every still, as are "Right."/"Still there." verdicts, a choice's options (the page lists
+  them) and the scenario after its first showing; a step whose end needs his moves is finished by
+  its STEPS `still` ({control: value} or a function) before it is kept; a still that would show an
+  empty box is left out; each still carries `h`, its height at the guide's `stillW` (328 px). Its
+  puzzle fields are version 2's; publishing a version 3 guide with the topic's `guideV` 3 has
+  mendPuzzles make its puzzles again with the new questions.
   A show or example page may carry `html` instead of `svg`: a step drawn in HTML (a panel, a
   worked example's lines all shown, a recall's options answered, a Section A scenario and its
   carried parts), kept by guide.mjs as still HTML (no script, no handler, no input or control; a
   canvas as its picture), with the lesson's own CSS once in the guide's `style`. It is model-written,
-  so it is only ever drawn by `U.readThrough.still` in a sandboxed kit frame (`U.sandbox.mount`, the
-  light palette from `U.sandbox.theme({light: true})` at the app's text size, every animation off),
-  after the page's words: a light card in both themes, as the SVG pictures are on their white well.
-  A STEPS entry's `read` sentence replaces the step's words in the guide (words that ask him to act).
+  so it is only ever drawn by `U.readThrough.still`, in a sandboxed frame that runs no script at all
+  (`sandbox=""`, its own CSP; markup that could load, navigate or submit is refused): the kit's CSS
+  in its light defaults, the lesson's CSS, every animation off. Laid out at `stillW` and `h`, it is
+  scaled to the column like a picture (at most 1.25 times, centred beyond), so it paints the moment
+  it is on the page and never waits for a message, a timer or an animation frame (the live frames
+  of version 1 and 2 guides were held invisible until the kit reported its height). A guide without
+  `h` falls back to the kit frame (`U.sandbox.mount`). After the page's words: a light card in both
+  themes, as the SVG pictures are on their white well. Its text keeps the build's size (16 px at a
+  phone's width), as a picture's does.
+  A SHOW step's `read` sentence replaces its words in the guide (words that ask him to act); a DO
+  step's `read` replaces its task only when it is a question (KIT.md, REFRESHER.md).
   Lesson 1 of Design and verification: 9 still steps, 12.7 KB of HTML, 26 KB in all.
   A refresher lesson's Keep this card (`lesson.summary`, its case-file figures written out) is the
   guide's first page, and the chapter opens on it: an emphasis tile "Keep this" straight after the
   header, before Key idea (words only: the rule on a grey panel, each trap with the red edge mistakes
-  carry and its citation, the figures as small mono pairs, "Where it lives"); Save a copy keeps it
+  carry (its `cite` kept as data, never shown: Dan, 20 Oct, "I gave you the sources"), the figures as small mono pairs, "Where it lives"); Save a copy keeps it
   as text.
   The chapter shows "The lesson, step by step" (each demonstration's finished picture on a white well
   with its sentence), then "Worked examples" (question, solved picture when the build could press the
@@ -1035,7 +1051,7 @@ half a unit in the answer's last place (`decimals`, default 2, or more when the 
 case file's figure for each earlier part, ticked in ink, or a dashed ring and "carried forward" when
 that part's `K.answer` on this page was missed (wrong and never right, or revealed). `K.written` draws
 the lesson's question with a box for Dan's words; marked, each point gets an ink tick (made) or a
-dashed ring (not yet), with its citation, a wrong statement in red, the nailed and followUp lines on
+dashed ring (not yet; its `cite` is data, never shown), a wrong statement in red, the nailed and followUp lines on
 grey, then Another go and Model answer; the second go ends with the model answer; on `{error}` the
 points are a checklist he ticks himself (each tick posted). No marks, no grades, no colour but for
 meaning. `K.summary` draws the card and says it is the first page of the chapter in his Book. The
@@ -1530,7 +1546,10 @@ U.gen.markWritten(written, answer, attempt, {previous, title}) -> Promise<{met, 
 ```
 U.readThrough.guide(tid, iid) -> Promise<guide | null>   read once per page load (a failed read is tried again); null: no usable guide
 U.readThrough.known(tid, iid) -> true | false | undefined   U.readThrough.parts(guide) -> {pages, summary}   U.readThrough.pic(svg) -> data: URL | null
-U.readThrough.stillHtml(html, style) -> srcdoc body | null (null with a script or a handler)   U.readThrough.still(container, html, style) -> mount api | null
+U.readThrough.stillHtml(html, style) -> body | null (null with a script, a handler, a frame, form, meta, link, base or javascript:)
+U.readThrough.stillDoc(html, style) -> the still's whole document (CSP, kit CSS, styles, body) | null   pure
+U.readThrough.still(container, html, style, {w, h}) -> {el, frame, destroy()} | null   a script-free frame scaled from w; no size: the kit frame
+U.readThrough.answerOf(page) -> answer with its unit   U.readThrough.choicesOf(page) -> a pick example's options, or []
 V.way(progress) -> 'quiz'|'read'   V.lessonHref(tid, iid, progress, way?)   V.setWay(tid, way, progress?)   V.readThrough(progress, iid)
 U.lesson.backLink(tid)   the lesson bar's back arrow (U._from), shared with the read-through
 ```
@@ -1549,10 +1568,12 @@ through it" (or opens the quiz when that is his choice). The steps lesson of a r
 the lesson's column under the lesson bar ("Read-through", the back arrow as the lesson's): the
 eyebrow (course · Lesson n of N), the title and the idea's one line, "Just reading it through. Quiz
 me through it instead", each demonstration's picture (a plain SVG image on a white well, the
-column's width) with its sentence, each worked example in an outlined card with its picture,
-"Answer" and why shown, a written question with its model answer, footnotes opening the lesson's
+column's width) or its still with its sentence, each worked example in an outlined card: its
+question, a choice example's options in screen order with the answer ringed in ink
+(`U.readThrough.choicesOf`), its picture, "Answer" with its unit (`U.readThrough.answerOf`) and
+why, a written question ("Written question") with its model answer, footnotes opening the lesson's
 source sheet, then a refresher lesson's Keep this card (the rule on grey, each trap on the red
-tint with its citation, the case's figures, where it lives), and "Finished reading" with "Quiz me
+tint, the case's figures, where it lives), and "Finished reading" with "Quiz me
 through it". Opening it begins the idea (startedAt, stage 'play', lastIdea); Finished reading
 writes stage 'done', doneAt, readRound, cardsRound and readThrough (no puzzles: only quizzing through
 makes them, section 4), binds the dossier chapter on the first finish, and shows "Lesson read" with the next open lesson (its read-through when it has a
