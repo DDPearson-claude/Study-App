@@ -518,7 +518,7 @@
           U.h('span', { class: 'pnode-body' },
             U.h('span', { class: 'pnode-kicker' }, kicker),
             U.h('span', { class: 'pnode-title' }, idea.title),
-            idea.oneLine ? U.h('span', { class: 'pnode-line' }, U.plain(idea.oneLine)) : null,
+            idea.oneLine ? U.line(U.h('span', { class: 'pnode-line' }), idea.oneLine) : null,
             preparing === 'soon' ? U.h('span', { class: 'pnode-prep is-soon' }, 'Coming soon')
               : preparing ? U.h('span', { class: 'pnode-prep' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Being prepared…') : null,
             mayKnow(idea, st) && !done ? U.h('span', { class: 'pnode-known' }, 'You may already know this') : null,

@@ -119,7 +119,7 @@
       U.h('span', { class: 'shelf-n', 'aria-hidden': 'true' }, String(n)),
       U.h('span', { class: 'shelf-body' },
         U.h('span', { class: 'shelf-title' }, String(h.idea.title || '')),
-        h.idea.oneLine ? U.h('span', { class: 'shelf-blurb' }, String(h.idea.oneLine)) : null,
+        h.idea.oneLine ? U.line(U.h('span', { class: 'shelf-blurb' }), String(h.idea.oneLine)) : null,
         meta),
       U.icon('arrow', 'shelf-go'));
     function say(live) {

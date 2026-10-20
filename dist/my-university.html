@@ -231,6 +231,9 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus, h3[tabindex="-1"]:focus { outl
 .reading { font-family: var(--serif); font-size: var(--fs); line-height: 1.8; color: var(--ink); }
 .reading p { max-width: 36em; }
 .reading p + p { margin-top: 1.1em; }
+/* A symbol's subscript (X_L in model text, U.inline): small, and kept from opening up the line. */
+sub { font-size: .75em; line-height: 0; vertical-align: -.25em; }
+
 mark.term {
   color: inherit; font-weight: 600; padding: 0 .12em; margin: 0 -.04em; border-radius: 3px;
   background: linear-gradient(180deg, transparent 50%, var(--hl) 50%, var(--hl) 92%, transparent 92%);
@@ -2699,7 +2702,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-18-252ee9d";
+U.BUILD = "2026-10-20-6aefc77";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -2750,7 +2753,8 @@ U.icons = {
 U.icon = function (name, cls) { var s = U.svg(U.icons[name]); if (cls) s.setAttribute('class', cls); return s; };
 
 // ---------- safe rich text ----------
-// Paragraphs split on blank lines; **bold**, *italic*, [[key term]], [^n] footnotes, `code`.
+// Paragraphs split on blank lines; **bold**, *italic*, [[key term]], [^n] footnotes, `code`, and a
+// one-letter symbol's subscript written X_L or V_ph (X with a lowered L).
 // Bullet lines starting with "- " become a list. No links, no raw HTML.
 U.rich = function (text, opts) {
   opts = opts || {};
@@ -2771,7 +2775,7 @@ U.rich = function (text, opts) {
 };
 U.inline = function (el, text, opts) {
   opts = opts || {};
-  var re = /\[\[([^\]]{1,80})\]\]|\[\^(\d{1,3})\]|\*\*([^*]{1,300})\*\*|\*([^*\s][^*]{0,300}?)\*|`([^`]{1,120})`/g;
+  var re = /\[\[([^\]]{1,80})\]\]|\[\^(\d{1,3})\]|\*\*([^*]{1,300})\*\*|\*([^*\s][^*]{0,300}?)\*|`([^`]{1,120})`|(?<![A-Za-z0-9_])([A-Za-z\u03b8\u03c6\u03c9])_([A-Za-z0-9]{1,4})(?![A-Za-z0-9_])/g;
   var last = 0, m;
   text = String(text || '');
   while ((m = re.exec(text))) {
@@ -2785,11 +2789,14 @@ U.inline = function (el, text, opts) {
     else if (m[3]) el.appendChild(U.h('strong', null, m[3]));
     else if (m[4]) el.appendChild(U.h('em', null, m[4]));
     else if (m[5]) el.appendChild(U.h('code', null, m[5]));
+    else if (m[6]) { el.appendChild(document.createTextNode(m[6])); el.appendChild(U.h('sub', null, m[7])); }
     last = re.lastIndex;
   }
   if (last < text.length) el.appendChild(document.createTextNode(text.slice(last)));
   return el;
 };
+// A plain line (a summary, say) with its subscripts drawn: markers are dropped, nothing else is formatted.
+U.line = function (el, text) { return U.inline(U.clear(el), U.plain(text)); };
 U.plain = function (text) { return String(text || '').replace(/\[\[([^\]]+)\]\]/g, '$1').replace(/\[\^\d+\]/g, '').replace(/\*\*?([^*]+)\*\*?/g, '$1').replace(/`([^`]+)`/g, '$1'); };
 
 // ---------- ids, time, hashing ----------
@@ -10897,7 +10904,7 @@ U.interactive = (function () {
       U.append(U.clear(eb), [U.h('span', { class: 'lsn-eb-topic' }, st.topic.title || 'Topic'), U.h('span', { class: 'lsn-eb-n' }, 'Idea ' + (st.index + 1) + ' of ' + n)]);
       eb.classList.add('is-filled');
       h1.textContent = st.idea.title || (st.lesson && st.lesson.title) || 'This idea';
-      one.textContent = st.idea.oneLine || '';
+      U.line(one, st.idea.oneLine || '');
       paintOne();
       U.setTitle(st.idea.title || st.topic.title);
     }
@@ -12147,7 +12154,7 @@ U.interactive = (function () {
               : says.length ? 'Your words are in your Library, under In your own words, and your answers will come back in review.' : 'Your answers will come back in review.')),
           nx
             ? U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, String(nx.title || 'The next idea')),
-              nx.oneLine ? U.h('p', { class: 'muted' }, String(nx.oneLine)) : null,
+              nx.oneLine ? U.line(U.h('p', { class: 'muted' }), String(nx.oneLine)) : null,
               nextStatus(nx),
               go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Start this idea', U.icon('arrow')),
                 U.h('a', { class: 'btn secondary', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic')))
@@ -15290,7 +15297,7 @@ U.interactive = (function () {
           U.h('span', { class: 'pnode-body' },
             U.h('span', { class: 'pnode-kicker' }, kicker),
             U.h('span', { class: 'pnode-title' }, idea.title),
-            idea.oneLine ? U.h('span', { class: 'pnode-line' }, U.plain(idea.oneLine)) : null,
+            idea.oneLine ? U.line(U.h('span', { class: 'pnode-line' }), idea.oneLine) : null,
             preparing === 'soon' ? U.h('span', { class: 'pnode-prep is-soon' }, 'Coming soon')
               : preparing ? U.h('span', { class: 'pnode-prep' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Being prepared…') : null,
             mayKnow(idea, st) && !done ? U.h('span', { class: 'pnode-known' }, 'You may already know this') : null,
@@ -17967,7 +17974,7 @@ U.interactive = (function () {
       U.h('span', { class: 'shelf-n', 'aria-hidden': 'true' }, String(n)),
       U.h('span', { class: 'shelf-body' },
         U.h('span', { class: 'shelf-title' }, String(h.idea.title || '')),
-        h.idea.oneLine ? U.h('span', { class: 'shelf-blurb' }, String(h.idea.oneLine)) : null,
+        h.idea.oneLine ? U.line(U.h('span', { class: 'shelf-blurb' }), String(h.idea.oneLine)) : null,
         meta),
       U.icon('arrow', 'shelf-go'));
     function say(live) {

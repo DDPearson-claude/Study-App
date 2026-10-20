@@ -6,7 +6,7 @@
 // device's other settings and reach the profile; playing with an interactive counts as study time
 // (its hidden self-test frames do not); the Settings radio groups are one Tab stop each and follow
 // the arrow keys; a change that could not be saved before the app was closed is sent when it opens
-// again (the outbox kept on the device).
+// again (the outbox kept on the device); rich text draws X_L as X with a lowered L.
 // Usage: node tests/e2e/shell.spec.mjs [filter]
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
@@ -160,6 +160,28 @@ await test('Map idea dots route in the app even where the viewer cancels link cl
   eq(await dot.evaluate((a) => a.namespaceURI), 'http://www.w3.org/2000/svg', 'the dot is an SVG link');
   await dot.click();
   await app.page.waitForFunction((h) => U.currentHash() === h && document.getElementById('view').dataset.screen === 'lesson', href, { timeout: 5000 });
+});
+
+await test('rich text draws a symbol\'s subscript (X_L, V_ph) and leaves words, code and other underscores alone', async () => {
+  const app = await open({ width: 390, height: 844, hash: '#/' });
+  await app.page.waitForFunction(() => window.U && U.inline, null, { timeout: 8000 });
+  const r = await app.page.evaluate(() => {
+    const one = (t) => { const p = U.inline(document.createElement('p'), t); return p.innerHTML; };
+    const line = U.line(document.createElement('span'), 'Its reactance, [[X_L]] = 2πfL, rises; *V_ph* too.');
+    return {
+      xl: one('X_L = 2πfL and X_C falls'), vph: one('3 × V_ph × I_ph × cos φ'), phi: one('φ_1 leads'),
+      word: one('a file_name and snake_case_word'), code: one('`X_L` stays code'), long: one('V_abcde is not one'),
+      line: line.innerHTML, text: line.textContent,
+    };
+  });
+  eq(r.xl, 'X<sub>L</sub> = 2πfL and X_C falls'.replace('X_C', 'X<sub>C</sub>'), 'X_L and X_C');
+  eq(r.vph, '3 × V<sub>ph</sub> × I<sub>ph</sub> × cos φ', 'V_ph and I_ph');
+  eq(r.phi, 'φ<sub>1</sub> leads', 'a Greek symbol');
+  eq(r.word, 'a file_name and snake_case_word', 'words with underscores are left as they are');
+  eq(r.code, '<code>X_L</code> stays code', 'code is left as written');
+  eq(r.long, 'V_abcde is not one', 'a subscript is at most four characters');
+  eq(r.text, 'Its reactance, XL = 2πfL, rises; Vph too.', 'a summary line drops its markers');
+  assert(/X<sub>L<\/sub>/.test(r.line) && !/<mark|<em/.test(r.line), 'a summary line draws the subscript and nothing else ' + r.line);
 });
 
 // ---------- reading settings before the profile is known ----------

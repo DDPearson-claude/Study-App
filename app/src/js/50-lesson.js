@@ -358,7 +358,7 @@
       U.append(U.clear(eb), [U.h('span', { class: 'lsn-eb-topic' }, st.topic.title || 'Topic'), U.h('span', { class: 'lsn-eb-n' }, 'Idea ' + (st.index + 1) + ' of ' + n)]);
       eb.classList.add('is-filled');
       h1.textContent = st.idea.title || (st.lesson && st.lesson.title) || 'This idea';
-      one.textContent = st.idea.oneLine || '';
+      U.line(one, st.idea.oneLine || '');
       paintOne();
       U.setTitle(st.idea.title || st.topic.title);
     }
@@ -1608,7 +1608,7 @@
               : says.length ? 'Your words are in your Library, under In your own words, and your answers will come back in review.' : 'Your answers will come back in review.')),
           nx
             ? U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, String(nx.title || 'The next idea')),
-              nx.oneLine ? U.h('p', { class: 'muted' }, String(nx.oneLine)) : null,
+              nx.oneLine ? U.line(U.h('p', { class: 'muted' }), String(nx.oneLine)) : null,
               nextStatus(nx),
               go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Start this idea', U.icon('arrow')),
                 U.h('a', { class: 'btn secondary', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic')))

@@ -51,7 +51,8 @@ U.icons = {
 U.icon = function (name, cls) { var s = U.svg(U.icons[name]); if (cls) s.setAttribute('class', cls); return s; };
 
 // ---------- safe rich text ----------
-// Paragraphs split on blank lines; **bold**, *italic*, [[key term]], [^n] footnotes, `code`.
+// Paragraphs split on blank lines; **bold**, *italic*, [[key term]], [^n] footnotes, `code`, and a
+// one-letter symbol's subscript written X_L or V_ph (X with a lowered L).
 // Bullet lines starting with "- " become a list. No links, no raw HTML.
 U.rich = function (text, opts) {
   opts = opts || {};
@@ -72,7 +73,7 @@ U.rich = function (text, opts) {
 };
 U.inline = function (el, text, opts) {
   opts = opts || {};
-  var re = /\[\[([^\]]{1,80})\]\]|\[\^(\d{1,3})\]|\*\*([^*]{1,300})\*\*|\*([^*\s][^*]{0,300}?)\*|`([^`]{1,120})`/g;
+  var re = /\[\[([^\]]{1,80})\]\]|\[\^(\d{1,3})\]|\*\*([^*]{1,300})\*\*|\*([^*\s][^*]{0,300}?)\*|`([^`]{1,120})`|(?<![A-Za-z0-9_])([A-Za-z\u03b8\u03c6\u03c9])_([A-Za-z0-9]{1,4})(?![A-Za-z0-9_])/g;
   var last = 0, m;
   text = String(text || '');
   while ((m = re.exec(text))) {
@@ -86,11 +87,14 @@ U.inline = function (el, text, opts) {
     else if (m[3]) el.appendChild(U.h('strong', null, m[3]));
     else if (m[4]) el.appendChild(U.h('em', null, m[4]));
     else if (m[5]) el.appendChild(U.h('code', null, m[5]));
+    else if (m[6]) { el.appendChild(document.createTextNode(m[6])); el.appendChild(U.h('sub', null, m[7])); }
     last = re.lastIndex;
   }
   if (last < text.length) el.appendChild(document.createTextNode(text.slice(last)));
   return el;
 };
+// A plain line (a summary, say) with its subscripts drawn: markers are dropped, nothing else is formatted.
+U.line = function (el, text) { return U.inline(U.clear(el), U.plain(text)); };
 U.plain = function (text) { return String(text || '').replace(/\[\[([^\]]+)\]\]/g, '$1').replace(/\[\^\d+\]/g, '').replace(/\*\*?([^*]+)\*\*?/g, '$1').replace(/`([^`]+)`/g, '$1'); };
 
 // ---------- ids, time, hashing ----------
