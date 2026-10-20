@@ -1,0 +1,240 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "At 11.4 m of 2.5 mm², worked hot: R1+R2 0.216 Ω, Zs 0.366 Ω and 596.99 A, as parts 2a and 2b work it",
+        "ok": true
+      },
+      {
+        "label": "Near 37.9 m the run meets the limit: 0.867 Ω and 252.02 A at 37.8 m, 0.871 Ω and 250.86 A at 38.0 m",
+        "ok": true
+      },
+      {
+        "label": "At 50 m: 2.5 mm² gives 1.098 Ω and 199.00 A, 4 mm² gives 0.740 Ω and 295.27 A",
+        "ok": true
+      },
+      {
+        "label": "At 40 m: worked hot 0.909 Ω and 240.37 A, cold 0.743 Ω and 294.08 A, a gap of 0.166 Ω",
+        "ok": true
+      },
+      {
+        "label": "Longest runs within 0.87 Ω: 37.9 m in 2.5 mm², 61.0 m in 4 mm², 91.3 m in 6 mm²",
+        "ok": true
+      },
+      {
+        "label": "Every metre adds: Zs never falls and the fault current never rises as the run lengthens",
+        "ok": true
+      },
+      {
+        "label": "No run at all: Zs is the 0.15 Ω at DBP2, and 1456.67 A flows; the dot waits at the top of the 750 A axis",
+        "ok": true
+      },
+      {
+        "label": "Maximum Zs from the rule: 230 × 0.95 ÷ 250 = 0.874 Ω for the 25 A type C, 230 × 0.95 ÷ 125 = 1.748 Ω for a 25 A type B",
+        "ok": true
+      },
+      {
+        "label": "The recall: 230 × 0.95 ÷ 7.28 = 30.01 A; 31.59 A without Cmin, 34.75 A with Cmax",
+        "ok": true
+      },
+      {
+        "label": "The heater: 0.436 Ω, 0.646 Ω and 338.24 A; the showroom origin 2185.00 A",
+        "ok": true
+      },
+      {
+        "label": "Section A slips and the changed numbers come out as the case file works them",
+        "ok": true
+      },
+      {
+        "label": "Every slip lies outside its answer's accepted figures",
+        "ok": true
+      },
+      {
+        "label": "For a low voltage supply under the ESQCR, Cmin is 0.95",
+        "ok": true,
+        "source": "https://electrical.theiet.org/media/1442/maximum-zs-values.pdf"
+      },
+      {
+        "label": "Table 41.3 gives a C25 breaker a maximum Zs of 0.87 Ω",
+        "ok": true,
+        "source": "https://www.elec-mate.com/guides/maximum-zs-values-bs-7671"
+      },
+      {
+        "label": "Table 41.5 gives 1667 Ω for a 30 mA device and 500 Ω for a 100 mA device",
+        "ok": true,
+        "source": "https://www.elec-mate.com/guides/maximum-zs-values-bs-7671"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "len",
+      "size",
+      "hot"
+    ],
+    "readouts": [],
+    "outputs": [
+      "r12",
+      "zs",
+      "ifl"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "What it is for",
+          "The why",
+          "Check",
+          "When Zs is too high",
+          "Worked example",
+          "Section A 2(a)",
+          "Section A 2(b)",
+          "Section B (1)",
+          "Section B (2)",
+          "Changed numbers",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "len",
+        "kind": "control",
+        "label": "Run length",
+        "min": 0,
+        "max": 100,
+        "step": 0.2,
+        "log": false,
+        "value": 11.4,
+        "shown": false,
+        "snap": [
+          11.4,
+          37.8,
+          38,
+          40,
+          50
+        ]
+      },
+      {
+        "id": "size",
+        "kind": "choice",
+        "label": "Line and cpc",
+        "options": [
+          "2.5",
+          "4",
+          "6"
+        ],
+        "labels": [
+          "2.5 mm²",
+          "4 mm²",
+          "6 mm²"
+        ],
+        "value": "2.5",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "hot",
+        "kind": "toggle",
+        "label": "Worked hot, × 1.28",
+        "options": [
+          false,
+          true
+        ],
+        "value": true,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Refresh the why",
+      "Skip to the practice",
+      "Check",
+      "Acceptable",
+      "Too high",
+      "Finish the lesson",
+      "Show",
+      "Back",
+      "Continue",
+      "Current round the loop"
+    ],
+    "answers": [
+      {
+        "id": "2a",
+        "answer": 0.366,
+        "accept": [
+          0.37
+        ],
+        "ok": true
+      },
+      {
+        "id": "2b",
+        "answer": 596.99,
+        "accept": [
+          596.59
+        ],
+        "ok": true
+      },
+      {
+        "id": "l6.A.changed",
+        "answer": 0.925,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [
+      "b1",
+      "b2"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 2 (the first step that shows a control)",
+    "len = 75",
+    "size = \"4\"",
+    "hot = false"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/design-and-verification/i6.a8-360-light.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i6.a8-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i6.a8-360-light-end.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i6.a8-360-dark.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i6.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i6.a8-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i6.a8-1280-light.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i6.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i6.a8-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i6.a8-1280-dark.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i6.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i6.a8-1280-dark-end.png"
+  ]
+}

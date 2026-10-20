@@ -1,0 +1,87 @@
+{
+  "scores": {
+    "lands": 4,
+    "why": 4,
+    "cause": 4,
+    "trade": 5,
+    "honest": 4,
+    "pleasure": 4
+  },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Screens 7 and 8, the typed answers for 2(a) and 2(b)",
+      "what": "The accepted figures 0.37 Ω and 596.59 A are never accepted. The page reads f.accept.also, but K.figure returns no accept field, so also() gives [] (the self-test report lists accept: [] for all three answers). If Dan types 0.37 Ω or 596.59 A he is told 'Not quite' and loses a try, against what the case file promises. Pass the figures explicitly (accept: [0.37] and [596.59]) or make K.figure return accept. While there, fix the 2(a) rightNote, which reads 'That is 0.366 Ω to two places'. Make it '0.37 Ω is 0.366 Ω rounded to two places. Part (b) starts from 0.366 Ω.'"
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 11, Section A changed numbers",
+      "what": "No screen gives the question's key input, 9.22 mΩ/m for a 4 mm² line and cpc. It shows only if Dan picked 4 mm² on screen 3, and never if he skipped to the practice. Part 2(a) states its 14.82 mΩ/m, so state this one too: 'Use 9.22 mΩ/m for the 4 mm² pair.' Choosing the 70 °C multiplier can stay the test."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 5, the RCD card",
+      "what": "'It trips on residual current, not on fault current' sets two things against each other that are the same thing: an earth fault current is a residual current. Rewrite it: 'It trips when line and neutral differ by its rating, 30 mA say. So even a poor earth path lets enough current flow to trip it.'"
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 5, the RCD card",
+      "what": "'Table 41.5 allows about 1667 Ω ... Check both figures in BS 7671 before you rely on them' hedges a value that is exact and adds a caveat that doubts the source. Drop 'about' and the last sentence. If research quotes the 50 V ÷ IΔn rule, show it so that 1667 Ω is worked from a rule."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 2, What it is for, first sentence",
+      "what": "'By now the circuit works.' is vague, so a tired reader stops to ask what 'works' means. Say it plainly: 'The earlier lessons sized the circuit to carry its load.'"
+    },
+    {
+      "severity": "fix",
+      "where": "Section B b2, point 3 (and the same sentence in the model answer)",
+      "what": "'The current flows in both line and neutral through it.' does not explain why the RCD stays in. Rewrite it: 'The load current goes out on the line and back on the neutral through it, so it sees no imbalance.'"
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3, the picture's current axis",
+      "what": "The current axis is linear from 0 to 1500 A. That puts the whole pass-or-fail story (0 to 250 A) in its bottom sixth. Dragging from 11.4 m to 50 m moves the dot only about 55 px, and the three band labels sit about 15 px apart at 360 px. A log axis, or an axis to about 750 A with the top clamped, would make crossing Ia the big movement."
+    },
+    {
+      "severity": "polish",
+      "where": "The attempt's lookAt pictures (360 light and dark 'moved')",
+      "what": "The moved state was set on step 1, which is screen 2, so the run length, size and hot switch were changed out of view. No picture shows the failing state (the red Zs row and the red dot under Ia) or the interactive in dark mode. Set the moved state on step 2 (screen 3) at about 50 m."
+    },
+    {
+      "severity": "polish",
+      "where": "Keep this card and the Section B points (kit-wide)",
+      "what": "K.summary prints each trap's cite under it on screen ('Slides p.52; On-Site Guide p.217, 220', 'Formula sheet step 13'). Dan asked on 20 Oct not to be told where things come from. Keep the cites as data and hide them on screen."
+    },
+    {
+      "severity": "polish",
+      "where": "Keep this card, The showroom so far",
+      "what": "Three figures rest on practice values but show as plain figures: 2(a) 0.366 Ω, 2(b) 596.99 A (both on the practice 0.15 Ω at DBP2) and 1g 9.45 V. Tag any figure whose case entry has practice: true."
+    },
+    {
+      "severity": "polish",
+      "where": "Keep this card, rule and where",
+      "what": "The card says 'Too high? ... or an RCD' but gives no RCD condition (the Table 41.5 maximum, 1667 Ω at 30 mA). 'Where it lives' names only Table 41.3, yet the practice text checks against Tables 41.2 to 41.4, and fuses need 41.2 and 41.4."
+    },
+    {
+      "severity": "polish",
+      "where": "Section B b1, the points",
+      "what": "Points 1 and 2 overlap (the voltage can fall to 218.5 V; Cmin 0.95 allows for it), and so do points 4 and 5 (the smallest current must reach Ia; so maximum Zs is worked at Cmin). One sentence can earn two points, so 'any three' can be met with two ideas. Merge or sharpen them."
+    },
+    {
+      "severity": "polish",
+      "where": "Section B b2, point 2, and the lesson's screens",
+      "what": "Point 2's first sentence runs to 27 words with a regulation number. Split it: 'A PME earth must not serve an outdoor charge point on its own. One of three measures must hold the open-PEN voltage within 70 V.' No screen mentions EV charging or PEN faults, so this question is pure recall with no refresh before it. A line on screen 5, or a note that it is 18th Edition ground, would help."
+    },
+    {
+      "severity": "polish",
+      "where": "Screens 8 and 11, the acceptability judgement",
+      "what": "Both questions ask whether the value is acceptable, but Dan types only a number (the fault current, or Zs). The comparison a C&G answer expects (0.366 Ω against 0.87 Ω, or 0.925 Ω against 0.87 Ω) appears only in the text that follows. A quick Acceptable or Too high pick after the typed figure would make him make the call."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 1, the caption",
+      "what": "'Each line is worked from the rounded figures shown before it.' sits under the recall's three choices, where nothing is worked line by line. Show it from screen 3 on."
+    }
+  ]
+}

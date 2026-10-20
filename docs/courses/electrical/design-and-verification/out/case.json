@@ -411,6 +411,74 @@
    "practice": true,
    "cite": "no source: the motor is not drawn (brief section 2); assumption a.starter said \"a few metres, set at build\"",
    "note": "A practice value: the starter sits beside the motor, so a few metres of conduit; measure the real run on site."
+  },
+  {
+   "id": "g.zmax.C25",
+   "label": "Maximum Zs, 25 A type C circuit-breaker to BS EN 60898, 0.4 s, U0 230 V",
+   "value": 0.87,
+   "unit": "Ω",
+   "text": "0.87 Ω",
+   "cite": "BS 7671 Table 41.3 (the flowchart sends step 2 to its pages P67 to P69, which are not among the pages saved from your copy: read the figure from your copy); a trade guide prints it as C25 0.87 Ω (research source 356); the rule behind it is Regulation 411.4.4 with the current that opens a type C breaker taken as 10 × In = 250 A, 230 × 0.95 ÷ 250 = 0.874 Ω, printed 0.87 (research sources 361, 357, 345, 350)",
+   "note": "Tabulated Table 41.3 values are worst-case limits for the hot conductors; the manufacturer's own data may allow more (research source 362)."
+  },
+  {
+   "id": "g.r1r2.2p5",
+   "label": "(R1+R2) per metre, 2.5 mm² line with a 2.5 mm² cpc, copper, at 20 °C",
+   "value": 14.82,
+   "unit": "mΩ/m",
+   "text": "14.82 mΩ/m",
+   "cite": "On-Site Guide Table I1, your copy p.218 (checked against the page image; research source 332)"
+  },
+  {
+   "id": "g.r1r2.4",
+   "label": "(R1+R2) per metre, 4 mm² line with a 4 mm² cpc, copper, at 20 °C",
+   "value": 9.22,
+   "unit": "mΩ/m",
+   "text": "9.22 mΩ/m",
+   "cite": "On-Site Guide Table I1, your copy p.218 (checked against the page image; research source 333)"
+  },
+  {
+   "id": "g.r1r2.6",
+   "label": "(R1+R2) per metre, 6 mm² line with a 6 mm² cpc, copper, at 20 °C",
+   "value": 6.16,
+   "unit": "mΩ/m",
+   "text": "6.16 mΩ/m",
+   "cite": "On-Site Guide Table I1, your copy p.218 (checked against the page image; research source 334)"
+  },
+  {
+   "id": "g.mult.90ts",
+   "label": "Table I3 multiplier, 90 °C thermosetting, cpc in a cable or bunched",
+   "value": 1.28,
+   "unit": "",
+   "text": "1.28",
+   "cite": "On-Site Guide Table I3, your copy p.220 (the row was missing from the saved text and is corrected from the page image; research source 335); the slides use 1.2 for their 70 °C PVC heater (slides p.52)"
+  },
+  {
+   "id": "g.mult.free",
+   "label": "Table I3 multiplier, conductor not in a cable and not bunched",
+   "value": 1.04,
+   "unit": "",
+   "text": "1.04",
+   "cite": "On-Site Guide Table I3, your copy p.220 (research source 336)"
+  },
+  {
+   "id": "g.osg.meas25",
+   "label": "Maximum measured Zs at ambient temperature, 25 A type C, 0.4 s",
+   "value": 0.7,
+   "unit": "Ω",
+   "text": "0.7 Ω",
+   "cite": "On-Site Guide Table B6, row 3&C, your copy p.145 (the row was missing from the saved text and is corrected from the page image; research source 339); 80% of the tabulated 0.87 Ω (research source 371)",
+   "note": "For lesson 9: a cold reading is compared with this, not with 0.87 Ω."
+  },
+  {
+   "id": "p.ZsDBP2",
+   "label": "Zs at DBP2, the origin of the motor circuit (practice value)",
+   "value": 0.15,
+   "unit": "Ω",
+   "text": "0.15 Ω",
+   "practice": true,
+   "cite": "no source: the DBP2 submain is never designed in this course, so its R1+R2 is not worked anywhere (compare p.submain)",
+   "note": "A practice value: Ze 0.1 Ω (pack p.3) plus about 0.05 Ω for a short 16 mm² submain. Read the real one from the DBP2 submain's design (Zs = Ze + R1+R2) or measure it at the board."
   }
  ],
  "assumptions": [
@@ -582,6 +650,21 @@
    "status": "set",
    "why": "The formula was found in text only on a reader comment and in an IET forum discussion, not in Appendix 4 itself (research sources 302, 303, 306, 307, 310).",
    "text": "The course's own assumption: Ct = (230 + tp − (Ca² Cg² − Ib²/It²)(tp − 30)) ÷ (230 + tp), with Ca and Cg and not Ci, tp 90 °C for these cables (70 °C for the slides' PVC heater), 2 decimal places. Check it against your copy of Appendix 4, section 6, before relying on it. How Ct combines with the r and x terms is not sourced: the lesson shows the two refinements separately."
+  },
+  {
+   "id": "a.cpc",
+   "status": "assumption",
+   "text": "The course's own assumption: the cable from DBP2 to the starter carries a 2.5 mm² cpc, the same size as its 2.5 mm² line conductors (the flowchart's note 2: Table 54.7 sizes the cpc the same as the live conductors below 16 mm², research source 71), run in the same conduit. Its (R1+R2) is the Table I1 row 2.5/2.5, 14.82 mΩ/m, and the multiplier is the Table I3 value for a conductor in a cable or bunched, 1.28 (g.r1r2.2p5, g.mult.90ts)."
+  },
+  {
+   "id": "a.iaC",
+   "status": "assumption",
+   "text": "The course's own assumption: the fault current that opens the 25 A type C breaker (a.device) within 0.4 s is taken as 10 × In = 250 A, the top of its 5 to 10 In instantaneous band and the worst case that Table 41.3 uses (research sources 357, 361, 345). That is the lowest current the design may count on: 230 × 0.95 ÷ 250 = 0.874 Ω, which Table 41.3 prints as 0.87 Ω (g.zmax.C25). Lesson 3 gives the band as 125 to 250 A (figure l3.A.tripC)."
+  },
+  {
+   "id": "a.zsPoint",
+   "status": "assumption",
+   "text": "The course's own assumption: question 2(a)'s Zs is taken at the motor's starter, the end of the 11.4 m DBP2-to-starter run (a.motorRun, a.motorSupply): Zs = Zs at DBP2 (p.ZsDBP2, 0.15 Ω) + that run's R1+R2 (0.216 Ω) = 0.366 Ω. The starter-to-motor leg (practice p.legLen, 3.0 m of 1.5 mm² with a 1.5 mm² cpc, 24.2 × 1.28 × 3 ÷ 1000 = 0.093 Ω) adds to the loop at the motor itself, 0.459 Ω, still under 0.87 Ω; the lesson may say so in one line. The 25 A breaker at DBP2 is the device that clears a fault on either part."
   }
  ],
  "lessons": [
@@ -633,7 +716,7 @@
    "sectionA": [
     "2(a)",
     "2(b)",
-    "Section B: why Cmin (C&G 2(d))"
+    "Section B: why Cmin (C&G 2(d)); EV charging on TN-C-S (pack question 6)"
    ]
   },
   {
@@ -3769,42 +3852,402 @@
    "cite": "guide p.6",
    "text": "8.93 V",
    "work": "31 × 9 × 32 ÷ 1000 = 8.93 V"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "2a",
+   "part": "2a",
+   "label": "Section A 2(a): Zs at the motor's starter",
+   "value": 0.366,
+   "unit": "Ω",
+   "kind": "showroom",
+   "practice": true,
+   "rule": "R1+R2 = mΩ/m × multiplier × L ÷ 1000 (formula sheet step 12); Zs = Zs at DBP2 + (R1+R2) (step 13)",
+   "inputs": {
+    "mΩ/m": "14.82, 2.5 mm² line with 2.5 mm² cpc (g.r1r2.2p5; a.cpc)",
+    "multiplier": "1.28, 90 °C thermosetting in a cable or bunched (g.mult.90ts)",
+    "L": "11.4 m (a.motorRun, a.motorSupply)",
+    "Zs at DBP2": "0.15 Ω (practice value p.ZsDBP2)"
+   },
+   "cite": "formula sheet steps 12, 13; On-Site Guide Tables I1 and I3, your copy p.218, 220; practice value p.ZsDBP2; assumptions a.zsPoint, a.cpc",
+   "note": "Rests on the practice 0.15 Ω at DBP2. At the motor, the 3.0 m practice leg of 1.5 mm² with a 1.5 mm² cpc adds 0.093 Ω: 0.459 Ω (l6.A.atMotor).",
+   "accept": {
+    "min": 0.366,
+    "max": 0.366,
+    "also": [
+     0.37
+    ],
+    "why": "the unrounded 0.36625 Ω also rounds to 0.366; 0.37 is the same to two places"
+   },
+   "text": "0.366 Ω",
+   "work": "14.82 × 1.28 × 11.4 ÷ 1000 = 0.216 Ω; 0.150 + 0.216 = 0.366 Ω"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "2a.slip1",
+   "label": "2(a) slip: the multiplier left out",
+   "value": 0.319,
+   "unit": "Ω",
+   "kind": "slip",
+   "rule": "R1+R2 at 20 °C",
+   "inputs": {},
+   "cite": "On-Site Guide p.217 (values at 20 °C); slides p.52",
+   "text": "0.319 Ω",
+   "work": "14.82 × 11.4 ÷ 1000 = 0.169 Ω; 0.15 + 0.169 = 0.319 Ω"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "2a.slip2",
+   "label": "2(a) slip: Ze in place of Zs at DBP2",
+   "value": 0.316,
+   "unit": "Ω",
+   "kind": "slip",
+   "rule": "Ze + (R1+R2) for a circuit fed from a sub-board",
+   "inputs": {},
+   "cite": "formula sheet step 13 (the rule it breaks)",
+   "text": "0.316 Ω",
+   "work": "0.1 + 0.216 = 0.316 Ω"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "2a.slip3",
+   "label": "2(a) slip: the 70 °C multiplier, 1.20",
+   "value": 0.353,
+   "unit": "Ω",
+   "kind": "slip",
+   "rule": "Table I3 column for 70 °C thermoplastic",
+   "inputs": {},
+   "cite": "On-Site Guide Table I3, your copy p.220",
+   "text": "0.353 Ω",
+   "work": "14.82 × 1.20 × 11.4 ÷ 1000 = 0.203 Ω; 0.15 + 0.203 = 0.353 Ω"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "l6.A.atMotor",
+   "label": "Zs at the motor, with the starter-to-motor leg",
+   "value": 0.459,
+   "unit": "Ω",
+   "kind": "showroom",
+   "practice": true,
+   "rule": "Zs at the starter + leg R1+R2",
+   "inputs": {
+    "leg": "3.0 m (practice value p.legLen), 1.5 mm² with 1.5 mm² cpc, 24.2 mΩ/m (slides p.51), × 1.28"
+   },
+   "cite": "assumption a.zsPoint; slides p.51; On-Site Guide Table I3",
+   "text": "0.459 Ω",
+   "work": "24.2 × 1.28 × 3 ÷ 1000 = 0.093 Ω; 0.366 + 0.093 = 0.459 Ω ≤ 0.87 Ω"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "2b",
+   "part": "2b",
+   "label": "Section A 2(b): the fault current at Cmin, against Ia",
+   "value": 596.99,
+   "unit": "A",
+   "kind": "showroom",
+   "practice": true,
+   "rule": "Fault current = Uo × Cmin ÷ Zs (formula sheet step 15); acceptable if it reaches Ia, that is Zs ≤ maximum Zs (Table 41.3)",
+   "inputs": {
+    "Uo": "230 V",
+    "Cmin": "0.95",
+    "Zs": "0.366 Ω (part 2a)",
+    "Ia": "250 A, 10 × In (a.iaC)",
+    "maximum Zs": "0.87 Ω (g.zmax.C25)"
+   },
+   "cite": "guide p.5 (\"Compare your calculated Zs value to the maximum permitted for the device\"); slides p.47, 55; formula sheet step 15",
+   "note": "Acceptable: 596.99 A ≥ 250 A and 0.366 Ω ≤ 0.87 Ω. The run could reach near 37.9 m before failing (l6.A.maxRun).",
+   "accept": {
+    "min": 596.99,
+    "max": 596.99,
+    "also": [
+     596.59
+    ],
+    "why": "596.59 A from the unrounded Zs, 0.36625 Ω"
+   },
+   "text": "596.99 A",
+   "work": "230 × 0.95 ÷ 0.366 = 596.99 A ≥ 250 A; 0.366 Ω ≤ 0.87 Ω: acceptable"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "2b.slip1",
+   "label": "2(b) slip: Cmin left out",
+   "value": 628.42,
+   "unit": "A",
+   "kind": "slip",
+   "rule": "Uo ÷ Zs",
+   "inputs": {},
+   "cite": "slides p.48 (the rule it breaks)",
+   "text": "628.42 A",
+   "work": "230 ÷ 0.366 = 628.42 A"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "2b.slip2",
+   "label": "2(b) slip: Cmax used",
+   "value": 691.26,
+   "unit": "A",
+   "kind": "slip",
+   "rule": "Uo × Cmax ÷ Zs",
+   "inputs": {},
+   "cite": "slides p.48 (the rule it breaks)",
+   "text": "691.26 A",
+   "work": "230 × 1.1 ÷ 0.366 = 691.26 A"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "l6.A.maxRun",
+   "label": "Longest 2.5 mm² run from DBP2 the 25 A type C allows",
+   "value": 37.9,
+   "unit": "m",
+   "kind": "showroom",
+   "practice": true,
+   "rule": "(maximum Zs − Zs at DBP2) × 1000 ÷ (mΩ/m × multiplier), rounded down",
+   "inputs": {
+    "maximum Zs": "0.87 Ω",
+    "Zs at DBP2": "0.15 Ω (practice)",
+    "mΩ/m × multiplier": "14.82 × 1.28 = 18.97"
+   },
+   "cite": "formula sheet steps 12, 13; g.zmax.C25",
+   "text": "37.9 m",
+   "work": "(0.87 − 0.15) × 1000 ÷ 18.97 = 37.9 m (rounded down)"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "l6.why.38",
+   "label": "The why: 2.5 mm² at 38.0 m",
+   "value": 0.871,
+   "unit": "Ω",
+   "kind": "worked",
+   "practice": true,
+   "rule": "Zs = 0.15 + 14.82 × 1.28 × L ÷ 1000",
+   "inputs": {
+    "L": "38.0 m"
+   },
+   "cite": "On-Site Guide Tables I1, I3",
+   "text": "0.871 Ω",
+   "work": "14.82 × 1.28 × 38 ÷ 1000 = 0.721 Ω; 0.15 + 0.721 = 0.871 Ω > 0.87 Ω; 230 × 0.95 ÷ 0.871 = 250.86 A"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "l6.why.50",
+   "label": "The why: 2.5 mm² at 50 m",
+   "value": 1.098,
+   "unit": "Ω",
+   "kind": "worked",
+   "practice": true,
+   "rule": "Zs = 0.15 + 14.82 × 1.28 × L ÷ 1000",
+   "inputs": {
+    "L": "50 m"
+   },
+   "cite": "On-Site Guide Tables I1, I3",
+   "text": "1.098 Ω",
+   "work": "14.82 × 1.28 × 50 ÷ 1000 = 0.948 Ω; 0.15 + 0.948 = 1.098 Ω; 230 × 0.95 ÷ 1.098 = 199.00 A"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "l6.why.50.4",
+   "label": "The why: 4 mm² at 50 m",
+   "value": 0.74,
+   "unit": "Ω",
+   "kind": "worked",
+   "practice": true,
+   "rule": "Zs = 0.15 + 9.22 × 1.28 × L ÷ 1000",
+   "inputs": {
+    "L": "50 m",
+    "mΩ/m": "9.22 (g.r1r2.4)"
+   },
+   "cite": "On-Site Guide Tables I1, I3",
+   "text": "0.740 Ω",
+   "work": "9.22 × 1.28 × 50 ÷ 1000 = 0.590 Ω; 0.15 + 0.590 = 0.740 Ω; 230 × 0.95 ÷ 0.740 = 295.27 A"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "l6.why.max4",
+   "label": "The why: longest 4 mm² run",
+   "value": 61,
+   "unit": "m",
+   "kind": "worked",
+   "practice": true,
+   "rule": "(0.87 − 0.15) × 1000 ÷ (9.22 × 1.28)",
+   "inputs": {},
+   "cite": "On-Site Guide Tables I1, I3",
+   "text": "61.0 m",
+   "work": "9.22 × 1.28 = 11.80; 720 ÷ 11.80 = 61.0 m (rounded down)"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "l6.why.max6",
+   "label": "The why: longest 6 mm² run",
+   "value": 91.3,
+   "unit": "m",
+   "kind": "worked",
+   "practice": true,
+   "rule": "(0.87 − 0.15) × 1000 ÷ (6.16 × 1.28)",
+   "inputs": {
+    "mΩ/m": "6.16 (g.r1r2.6)"
+   },
+   "cite": "On-Site Guide Tables I1, I3",
+   "text": "91.3 m",
+   "work": "6.16 × 1.28 = 7.88; 720 ÷ 7.88 = 91.3 m (rounded down)"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "l6.check.hot",
+   "label": "Check: 2.5 mm² at 40 m, worked hot",
+   "value": 0.909,
+   "unit": "Ω",
+   "kind": "worked",
+   "practice": true,
+   "rule": "Zs = 0.15 + 14.82 × 1.28 × 40 ÷ 1000",
+   "inputs": {},
+   "cite": "On-Site Guide Tables I1, I3",
+   "text": "0.909 Ω",
+   "work": "14.82 × 1.28 × 40 ÷ 1000 = 0.759 Ω; 0.15 + 0.759 = 0.909 Ω; 230 × 0.95 ÷ 0.909 = 240.37 A"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "l6.check.cold",
+   "label": "Check slip: 2.5 mm² at 40 m, no multiplier",
+   "value": 0.743,
+   "unit": "Ω",
+   "kind": "slip",
+   "practice": true,
+   "rule": "Zs = 0.15 + 14.82 × 40 ÷ 1000",
+   "inputs": {},
+   "cite": "On-Site Guide p.217 (values at 20 °C)",
+   "text": "0.743 Ω",
+   "work": "14.82 × 40 ÷ 1000 = 0.593 Ω; 0.15 + 0.593 = 0.743 Ω; 230 × 0.95 ÷ 0.743 = 294.08 A"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "l6.maxzs.C25",
+   "label": "25 A type C maximum Zs from the rule",
+   "value": 0.874,
+   "unit": "Ω",
+   "kind": "worked",
+   "rule": "Uo × Cmin ÷ Ia, Ia = 10 × In",
+   "inputs": {
+    "Ia": "250 A (a.iaC)"
+   },
+   "cite": "IET EngX on Table 41.3; Table 41.3 prints 0.87 Ω (g.zmax.C25)",
+   "text": "0.874 Ω",
+   "work": "230 × 0.95 ÷ 250 = 0.874 Ω, printed 0.87 Ω"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "l6.typeB25",
+   "label": "A 25 A type B's maximum Zs from the rule (the course's working)",
+   "value": 1.748,
+   "unit": "Ω",
+   "kind": "worked",
+   "rule": "Uo × Cmin ÷ (5 × In)",
+   "inputs": {
+    "Ia": "125 A"
+   },
+   "cite": "On-Site Guide p.90 (type B 3 to 5 In); read the real figure from Table 41.3",
+   "text": "1.748 Ω",
+   "work": "230 × 0.95 ÷ 125 = 1.748 Ω"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "l6.A.changed",
+   "label": "Section A, changed numbers: Zs of a 52 m 4 mm² circuit on a 25 A type C",
+   "value": 0.925,
+   "unit": "Ω",
+   "kind": "practice",
+   "rule": "Zs = Zs at the board + mΩ/m × multiplier × L ÷ 1000",
+   "inputs": {
+    "mΩ/m": "9.22 (4 mm² line and cpc)",
+    "multiplier": "1.20 (70 °C thermoplastic, bunched)",
+    "L": "52 m",
+    "Zs at the board": "0.35 Ω"
+   },
+   "cite": "shape: C&G practice paper 1 Q5(a), paper 3 Q5(a) (\"Determine the total earth fault loop impedance\"), numbers changed; On-Site Guide Tables I1, I3",
+   "accept": {
+    "min": 0.925,
+    "max": 0.925,
+    "why": "the unrounded 0.925328 Ω rounds to it too"
+   },
+   "text": "0.925 Ω",
+   "work": "9.22 × 1.20 × 52 ÷ 1000 = 0.575 Ω; 0.35 + 0.575 = 0.925 Ω > 0.87 Ω: too high"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "l6.A.changed.slip1",
+   "label": "Changed slip: the multiplier left out",
+   "value": 0.829,
+   "unit": "Ω",
+   "kind": "slip",
+   "rule": "R1+R2 at 20 °C",
+   "inputs": {},
+   "cite": "On-Site Guide p.217",
+   "text": "0.829 Ω",
+   "work": "9.22 × 52 ÷ 1000 = 0.479 Ω; 0.35 + 0.479 = 0.829 Ω"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "l6.A.changed.slip2",
+   "label": "Changed slip: the 90 °C multiplier, 1.28",
+   "value": 0.964,
+   "unit": "Ω",
+   "kind": "slip",
+   "rule": "Table I3 column for 90 °C",
+   "inputs": {},
+   "cite": "On-Site Guide Table I3",
+   "text": "0.964 Ω",
+   "work": "9.22 × 1.28 × 52 ÷ 1000 = 0.614 Ω; 0.35 + 0.614 = 0.964 Ω"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "l6.A.changed.slip3",
+   "label": "Changed slip: the board's Zs left out",
+   "value": 0.575,
+   "unit": "Ω",
+   "kind": "slip",
+   "rule": "R1+R2 alone",
+   "inputs": {},
+   "cite": "formula sheet step 13",
+   "text": "0.575 Ω",
+   "work": "9.22 × 1.20 × 52 ÷ 1000 = 0.575 Ω"
+  },
+  {
+   "lesson": "i6",
+   "status": "worked",
+   "id": "l6.A.changed.fix",
+   "label": "Changed numbers: the same run in 6 mm²",
+   "value": 0.734,
+   "unit": "Ω",
+   "kind": "practice",
+   "rule": "Zs = 0.35 + 6.16 × 1.20 × 52 ÷ 1000",
+   "inputs": {},
+   "cite": "On-Site Guide Tables I1, I3",
+   "text": "0.734 Ω",
+   "work": "6.16 × 1.20 × 52 ÷ 1000 = 0.384 Ω; 0.35 + 0.384 = 0.734 Ω ≤ 0.87 Ω"
   }
  ],
  "pending": [
-  {
-   "id": "l6.A.2a",
-   "label": "Section A 2(a): Zs at the motor's starter",
-   "value": null,
-   "unit": "Ω",
-   "rule": "Zs = Zs at DBP2 + R1+R2 (formula sheet step 13)",
-   "needs": [
-    "Zs at DBP2 (the DBP2 submain's R1+R2 or armour)",
-    "R1+R2 per metre and multiplier for the circuit's sizes (OSG Tables I1, I3)",
-    "assumption a.motorRun"
-   ],
-   "cite": "formula sheet step 13; pack p.3",
-   "kind": "showroom",
-   "status": "to research",
-   "lesson": "i6",
-   "part": "2a"
-  },
-  {
-   "id": "l6.A.2b",
-   "label": "Section A 2(b): is it acceptable?",
-   "value": null,
-   "unit": "Ω",
-   "rule": "Zs ≤ maximum Zs for the device (Tables 41.2 to 41.4)",
-   "needs": [
-    "1c (the device)",
-    "that device's maximum Zs"
-   ],
-   "cite": "guide p.5 (\"Compare your calculated Zs value to the maximum permitted for the device\")",
-   "kind": "showroom",
-   "status": "to research",
-   "lesson": "i6",
-   "part": "2b"
-  },
   {
    "id": "l7.A.2c",
    "label": "Section A 2(c): thermal constraints on the motor circuit's cpc",
@@ -3812,7 +4255,7 @@
    "unit": "mm²",
    "rule": "S = √(I² t) ÷ k, I at Cmax",
    "needs": [
-    "l6.A.2a",
+    "2a",
     "the device's time at that current",
     "k for the cpc (Tables 54.2 to 54.6)"
    ],
@@ -3950,27 +4393,31 @@
    "worked": "figures l5.ct.6, l5.ct.4, l5.ct.15, l5.pf.08, l5.A.1g.ct"
   },
   {
-   "id": "l6.A.2a",
-   "status": "to research",
+   "id": "2a",
+   "status": "worked",
    "needs": [
     "Zs at DBP2 (the DBP2 submain's R1+R2 or armour)",
     "R1+R2 per metre and multiplier for the circuit's sizes (OSG Tables I1, I3)",
     "assumption a.motorRun"
-   ]
+   ],
+   "researched": "i6 top-up, 20 Oct 2026: see pending l6.A.2a and givens g.r1r2.2p5, g.mult.90ts, g.zmax.C25, p.ZsDBP2",
+   "worked": "figure 2a (and 2a.slip*, l6.A.atMotor)"
   },
   {
-   "id": "l6.A.2b",
-   "status": "to research",
+   "id": "2b",
+   "status": "worked",
    "needs": [
     "1c (the device)",
     "that device's maximum Zs"
-   ]
+   ],
+   "researched": "i6 top-up, 20 Oct 2026: see pending l6.A.2b and givens g.r1r2.2p5, g.mult.90ts, g.zmax.C25, p.ZsDBP2",
+   "worked": "figure 2b (and 2b.slip*, l6.A.maxRun)"
   },
   {
    "id": "l7.A.2c",
    "status": "to research",
    "needs": [
-    "l6.A.2a",
+    "2a",
     "the device's time at that current",
     "k for the cpc (Tables 54.2 to 54.6)"
    ]
@@ -4031,5 +4478,5 @@
    ]
   }
  ],
- "updatedAt": "2026-10-20T14:34:32.393Z"
+ "updatedAt": "2026-10-20T17:05:40.440Z"
 }

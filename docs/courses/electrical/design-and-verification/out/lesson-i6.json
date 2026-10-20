@@ -1,0 +1,1109 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-20T17:05:40.440Z",
+ "startedAt": "2026-10-20T17:05:40.440Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i6",
+  "title": "Shock protection, and when Zs is too high",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is Zs pass 0.87 Ω near 37.9 m and the fault current drop below 250 A when you drag the run longer, adding to R1+R2 with every metre.",
+   "title": "The fault loop, metre by metre",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Twelve screens, with Back and Continue, on the earth fault loop and the time a device has to open.\n\nScreen 1, Do you still have it? The question: “A lighting circuit has a 6 A type B breaker. Its maximum Zs is 7.28 Ω. At that Zs, how much earth fault current does the design count on?” Three choices, in this order: “31.59 A: 230 ÷ 7.28”; “30.01 A: 230 × 0.95 ÷ 7.28”; “34.75 A: 230 × 1.1 ÷ 7.28”. Right: “Still there.” Then the working, 230 × 0.95 ÷ 7.28 = 30.01 A. That is the breaker's Ia of 30 A. The maximum Zs is simply the Zs that still lets Ia flow at the lowest supply voltage. Each slip gets its own line. Then come two buttons. Refresh the why goes to screen 2, and Skip to the practice goes to screen 7. Wrong, 31.59 A: “You left out Cmin. The supply can sag to 218.5 V, so the fault current is worked at 0.95 of 230 V.” Wrong, 34.75 A: “That is Cmax, 1.1. It gives the largest current. You need that for conductor heating, in lesson 7. Whether the breaker opens in time is judged on the smallest current.” Then the right working, and on to screen 2. Read: 230 × 0.95 ÷ 7.28 = 30.01 A, the breaker's Ia. The maximum Zs is the one that still lets Ia flow at the lowest supply voltage.\n\nScreen 2, What it is for. “The earlier lessons sized the circuit to carry its load. Now ask whether it disconnects on an earth fault. It must do so fast enough to protect anyone touching metalwork that has gone live. The fault current runs round a loop. It goes out on the line conductor, back on the cpc, and home through the supply. The loop's impedance is Zs = Ze + (R1+R2). The lower Zs is, the more current flows. Enough current opens the device within the time allowed. On a 230 V TN supply, final circuits up to 32 A get 0.4 s. So do socket-outlet circuits up to 63 A. Distribution circuits and other final circuits get up to 5 s. These are the longest times allowed, not how long it will take.” In red, what goes wrong if it is skipped: “A Zs over the device's maximum goes unnoticed. The fault current is then too small to be sure of opening the device in time.” Read: Zs = Ze + (R1+R2) must not exceed the device's maximum. Then the fault current opens it within 0.4 s for final circuits up to 32 A, or 5 s for distribution circuits.\n\nScreen 3, The why: the fault loop, metre by metre. Said once at the top: “Assume the motor is fed from DBP2 through the 25 A type C breaker from lesson 3. The cable to the starter is a 2.5 mm² line with a 2.5 mm² cpc, 90 °C thermosetting singles in conduit. Take Zs at DBP2 as 0.15 Ω for practice. On a real job, measure it or work it out from the submain's design.” On the left, the loop as a ring, with short labels: DBP2; Line out (R1); Fault at the starter; cpc back (R2); Supply side 0.15 Ω. On the right, a current axis from 0 to 750 A. Above 750 A the dot waits at the top. The fault current is a dot on it, over three bands for the breaker. Under 125 A, “Thermal: slow”. From 125 to 250 A, “May trip”. From 250 A up, “Within 0.1 s”. The words beside the bands: “A type C breaker trips instantly somewhere between 5 and 10 times its rating, so 125 to 250 A here. Below that, only its slower thermal part works. Take Ia as 250 A, the top of the band. That is the worst case, and the maximum Zs tables use it too.” The 250 A line is marked Ia.\n\nThe controls come next. A Run length slider covers DBP2 to the starter. It runs from 0 to 100 m in steps of 0.2 m and opens at 11.4 m. A Line and cpc choice offers 2.5 mm², 4 mm² or 6 mm², and opens on 2.5 mm². A Worked hot switch applies × 1.28 and opens switched on. The readouts: R1+R2 = mΩ/m × multiplier × length ÷ 1000. A 2.5 mm² line with a 2.5 mm² cpc is 14.82 mΩ/m.[^1] The 4 mm² pair is 9.22 and the 6 mm² pair 6.16. The multiplier for 90 °C thermosetting singles in conduit is 1.28.[^2] Then Zs = 0.15 + R1+R2, and the fault current = 230 × 0.95 ÷ Zs. Zs turns red over 0.87 Ω. That is the 25 A type C's maximum in Table 41.3.[^3] It comes from 230 × 0.95 ÷ 250 = 0.874 Ω, printed as 0.87.\n\nWhat it shows. At 11.4 m: R1+R2 0.216 Ω, Zs 0.366 Ω, fault current 596.99 A. At 37.8 m: Zs 0.867 Ω and 252.02 A. At 38.0 m: Zs 0.871 Ω, red, and 250.86 A. So the 2.5 mm² run reaches its limit near 37.9 m. At 50 m: R1+R2 0.948 Ω, Zs 1.098 Ω and 199.00 A. That is in the band where the breaker may not trip instantly. Choose 4 mm² at 50 m: R1+R2 0.590 Ω, Zs 0.740 Ω and 295.27 A, a pass again. 4 mm² reaches the limit at 61.0 m, and 6 mm² near 91.3 m. Switch Worked hot off at 40 m in 2.5 mm²: R1+R2 0.593 Ω, Zs 0.743 Ω and 294.08 A. That looks like a pass, but it is false. Worked hot, the same run is 0.909 Ω and 240.37 A. The words under it: “Each metre adds resistance to the loop. A conductor that has been carrying current is warm, and warm copper has more resistance. The multiplier allows for that. The loop sets how much current the supply can push at its lowest voltage. The breaker is sure to open in time only once that current reaches Ia.” The prompt above the picture: “Drag the run longer and watch Zs and the dot.” Read: at 11.4 m, Zs is 0.366 Ω and the fault current 596.99 A. Near 37.9 m, Zs reaches 0.87 Ω and the current falls to about 250 A. At 50 m, 4 mm² brings Zs back to 0.740 Ω.\n\nScreen 4, Check. “The same 2.5 mm² run is now 40 m long. Zs at DBP2 is still the practice 0.15 Ω. One designer works R1+R2 hot and gets Zs 0.909 Ω, a fail. Another leaves out the multiplier and gets 0.743 Ω, a pass. Which figure do you compare with 0.87 Ω?” Choices: “0.909 Ω: the limit assumes conductors at working temperature”; “0.743 Ω: the cable is installed at 20 °C”; “Either: the gap is only rounding”. Right, the first: “The milliohm figures are for copper at 20 °C. The maximum Zs values assume conductors at working temperature. The multiplier brings R1+R2 up to that.” Wrong, the second: “A fault happens on a working, warm circuit. A cold reading is a verification job, checked against lower limits. That comes in lesson 9.” Wrong, the third: “The 0.166 Ω between them is the whole difference between a pass and a fail here.” Read: compare the hot figure, 0.909 Ω, with 0.87 Ω. At 40 m the run fails.\n\nScreen 5, When Zs is too high. “Stretch the motor's run to 50 m. Zs is 1.098 Ω, over 0.87 Ω. The fault current is 199.00 A, under 250 A. Zs at DBP2 is still the practice 0.15 Ω. There are four ways out.” Four cards. First: “Bring R1+R2 down. Use bigger conductors, a bigger cpc or a shorter run. A 4 mm² line and cpc gives 0.740 Ω.” Second: “Use a breaker that trips instantly on less current. A type B does so at 3 to 5 times In, so its maximum Zs is higher. For a 25 A type B the rule gives 230 × 0.95 ÷ 125 = 1.748 Ω. On a job, read the real figure from Table 41.3. A type B does not suit this motor, though. In lesson 3 we chose type C so it rides through the starting current.” Third: “Add an RCD for fault protection. It trips when line and neutral differ by its rating, 30 mA say. So even a poor earth path lets enough current flow to trip it. Table 41.5 allows 1667 Ω for 30 mA and 500 Ω for 100 mA.” Fourth: “Where the time cannot be met at all, add supplementary protective equipotential bonding.” A box headed Debated: “The regulations point to this bonding when the times cannot be met. Some engineers argue it does not hold the touch voltage to 50 V in every fault.” Read: at 50 m, Zs is 1.098 Ω and fails. 4 mm² brings it to 0.740 Ω. An RCD needs far less earth path. Supplementary bonding is the route where the time cannot be met.\n\nScreen 6, Worked example, a line at each press. “A 3 kW immersion heater on 15 m of 1.5 mm² 70 °C thermoplastic singles in conduit. Ze is 0.21 Ω. A 16 A type B breaker protects it, on a TN-S supply. It is a final circuit under 32 A, so it has 0.4 s.” The prompt: “Work each step yourself first, then press Show.” The lines: a 1.5 mm² line and cpc is 24.2 mΩ/m, and the multiplier is 1.2. R1+R2 = 24.2 × 1.2 × 15 ÷ 1000 = 0.436 Ω. Zs = 0.21 + 0.436 = 0.646 Ω, within the breaker's 2.73 Ω. Fault current = 230 × 0.95 ÷ 0.646 = 338.24 A. That is over its Ia of 80 A. So it opens within 0.1 s, well inside the 0.4 s allowed. The last line uses the same rule at the showroom's origin, where Ze is 0.1 Ω: 230 × 0.95 ÷ 0.1 = 2185.00 A. A note under the lines: “You may have 0.43 Ω, 0.64 Ω and 341.4 A written down. Those figures were rounded down partway through. The pass is the same.” Read: R1+R2 is 0.436 Ω. Zs is 0.646 Ω, within 2.73 Ω. The fault current is 338.24 A, over the Ia of 80 A. So it opens within 0.1 s.\n\nScreen 7, Section A, question 2 (a). The scenario panel, and parts 1(a) and 1(c) carried forward. Then, said once: “Assume these for the motor circuit. DBP2 to the starter is 11.4 m on plan. That is approximate. A real design adds the vertical runs. The cable is a 2.5 mm² line with a 2.5 mm² cpc, 90 °C thermosetting singles in conduit. Zs at DBP2 is the practice 0.15 Ω. Use 14.82 mΩ/m and a multiplier of 1.28.” The question: “(a) Determine, for the motor circuit, the total earth fault loop impedance (Zs) at the starter.” A typed answer, part 2a: 14.82 × 1.28 × 11.4 ÷ 1000 = 0.216 Ω, then Zs = 0.150 + 0.216 = 0.366 Ω. Accepted too: 0.37 Ω, with the note “0.37 Ω is 0.366 Ω rounded to two places. Part (b) starts from 0.366 Ω.” Slips: 0.319 Ω, “You left out the multiplier. The table figures are for cold copper.” 0.316 Ω, “You used Ze, 0.1 Ω. This circuit starts at DBP2, so start from Zs there.” 0.353 Ω, “1.20 is for 70 °C cable. These singles are 90 °C thermosetting, so use 1.28.” After two misses, the working. One line under it: “Take the starter-to-motor leg as 3.0 m, another practice value. In 1.5 mm² with a 1.5 mm² cpc it adds 24.2 × 1.28 × 3 ÷ 1000 = 0.093 Ω. Zs at the motor is 0.459 Ω, still inside.” Read: R1+R2 = 14.82 × 1.28 × 11.4 ÷ 1000 = 0.216 Ω. Zs = 0.150 + 0.216 = 0.366 Ω, taking the practice 0.15 Ω at DBP2.\n\nScreen 8, Section A, question 2 (b). Part (a) carried forward. The question: “(b) Determine if the value of earth fault loop impedance is acceptable.” First comes the fault current at Cmin, a typed answer for part 2b: 230 × 0.95 ÷ 0.366 = 596.99 A. Accepted too: 596.59 A, from the unrounded Zs. Slips: 628.42 A, “You left out Cmin.” 691.26 A, “That is Cmax. It is for conductor heating, in lesson 7.” After two misses, the working. Then he makes the call: “Now make the call. Is 0.366 Ω acceptable here?” Two buttons, Acceptable and Too high. Right: Acceptable. Then: “596.99 A is well over the 250 A that opens the breaker within 0.1 s. And 0.366 Ω is within 0.87 Ω. So it is acceptable. This rests on the practice 0.15 Ω at DBP2. The run could grow to near 37.9 m before it failed.” Read: 230 × 0.95 ÷ 0.366 = 596.99 A, over 250 A. 0.366 Ω is within 0.87 Ω, so it is acceptable.\n\nScreen 9, Section B: “Explain why the factor Cmin is applied to the nominal voltage to earth when an earth fault current is worked out.” A written answer, marked against four points. Any three make a full answer. You get one more go, then the model answer.\n\nScreen 10, Section B: “State what a designer must consider for the showroom's EV charging points on its TN-C-S supply.” Under it: “This one is 18th Edition ground: Section 722, EV charging on a PME supply.” A written answer, marked against five points. Any three make a full answer. You get one more go, then the model answer.\n\nScreen 11, Section A, changed numbers. “A single-phase circuit is wired in 70 °C thermoplastic singles in conduit: a 4 mm² line and a 4 mm² cpc, 52 m long. A 25 A type C breaker to BS EN 60898 protects it. Its maximum Zs is 0.87 Ω. Zs at its board is 0.35 Ω. Use 9.22 mΩ/m for the 4 mm² pair. Determine the total earth fault loop impedance, and whether it is acceptable.” A typed answer: 9.22 × 1.20 × 52 ÷ 1000 = 0.575 Ω, then 0.35 + 0.575 = 0.925 Ω. That is over 0.87 Ω, so it is too high. Slips: 0.829 Ω, “You left out the multiplier. That turns a fail into a false pass.” 0.964 Ω, “1.28 is for 90 °C cable. These are 70 °C singles, so use 1.20.” 0.575 Ω, “That is R1+R2 alone. Add the board's 0.35 Ω.” Then he makes the call, Acceptable or Too high. Right: Too high. After it: “Go up to a 6 mm² line and cpc: 6.16 × 1.20 × 52 ÷ 1000 = 0.384 Ω. Zs is then 0.734 Ω, inside. Or add an RCD.” Read: 9.22 × 1.20 × 52 ÷ 1000 = 0.575 Ω. Zs is 0.925 Ω, over 0.87 Ω, so it is too high. 6 mm² gives 0.734 Ω.\n\nScreen 12, Keep this: the summary card, then Finish the lesson.\n\nFrom screen 3 on, each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.",
+   "ignores": "The loop is drawn as a ring of resistances. Zs at DBP2 is a practice figure, not a designed one. The cables' small reactance is left out. The breaker is shown as three bands, not a full curve. The picture takes Ia as 10 times In, the worst case. A real type C may trip instantly anywhere from 5 to 10 times In. Table 41.3 prints 0.874 Ω as 0.87 Ω. So for a few tenths of a metre past 37.9 m, Zs fails while the dot still sits just over 250 A. The fault is placed at the far end of the run, the worst place for it.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 12 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Recall: 6 A type B maximum Zs, Ω",
+     "value": 7.28,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Recall: its Ia, A",
+     "value": 30,
+     "kind": "constant",
+     "source": 5
+    },
+    {
+     "label": "Nominal voltage to earth, V",
+     "value": 230,
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "Cmin",
+     "value": 0.95,
+     "kind": "constant",
+     "source": 7
+    },
+    {
+     "label": "Lowest supply voltage, V",
+     "value": 218.5,
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "Cmax",
+     "value": 1.1,
+     "kind": "constant"
+    },
+    {
+     "label": "Recall: 230 × 0.95 ÷ 7.28, A",
+     "value": 30.01,
+     "kind": "computed",
+     "source": 8
+    },
+    {
+     "label": "Recall slip: 230 ÷ 7.28, A",
+     "value": 31.59,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall slip: 230 × 1.1 ÷ 7.28, A",
+     "value": 34.75,
+     "kind": "computed"
+    },
+    {
+     "label": "Final circuits up to, A (Table 41.1, 0.4 s)",
+     "value": 32,
+     "kind": "constant",
+     "source": 9
+    },
+    {
+     "label": "Socket-outlet circuits up to, A",
+     "value": 63,
+     "kind": "constant",
+     "source": 9
+    },
+    {
+     "label": "Maximum disconnection time, final circuits, s",
+     "value": 0.4,
+     "kind": "constant",
+     "source": 10
+    },
+    {
+     "label": "Maximum disconnection time, distribution circuits, s",
+     "value": 5,
+     "kind": "constant",
+     "source": 11
+    },
+    {
+     "label": "Showroom motor breaker: 25 A type C (lesson 3), A",
+     "value": 25,
+     "kind": "constant"
+    },
+    {
+     "label": "Zs at DBP2 (practice value), Ω",
+     "value": 0.15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Ze declared, showroom, Ω",
+     "value": 0.1,
+     "kind": "constant",
+     "source": 12
+    },
+    {
+     "label": "Type C instantaneous trip, low end: 5 In, A",
+     "value": 125,
+     "kind": "computed",
+     "source": 13
+    },
+    {
+     "label": "Type C instantaneous trip, top: 10 In, taken as Ia, A",
+     "value": 250,
+     "kind": "computed",
+     "source": 14
+    },
+    {
+     "label": "Type C: multiples of In for instantaneous trip",
+     "value": "5 to 10",
+     "kind": "constant",
+     "source": 13
+    },
+    {
+     "label": "Type B: multiples of In for instantaneous trip",
+     "value": "3 to 5",
+     "kind": "constant",
+     "source": 15
+    },
+    {
+     "label": "Opens within, at 10 In, s",
+     "value": 0.1,
+     "kind": "constant",
+     "source": 14
+    },
+    {
+     "label": "Current axis: 0 to, A",
+     "value": 750,
+     "kind": "assumed"
+    },
+    {
+     "label": "Run length slider: 0 to, m",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Run length slider step, m",
+     "value": 0.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Run length opens at: DBP2 to the starter (assumed), m",
+     "value": 11.4,
+     "kind": "control"
+    },
+    {
+     "label": "2.5 mm² line and cpc, mΩ/m (Table I1)",
+     "value": 14.82,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "4 mm² line and cpc, mΩ/m",
+     "value": 9.22,
+     "kind": "constant",
+     "source": 16
+    },
+    {
+     "label": "6 mm² line and cpc, mΩ/m",
+     "value": 6.16,
+     "kind": "constant",
+     "source": 17
+    },
+    {
+     "label": "Multiplier, 90 °C thermosetting, bunched (Table I3)",
+     "value": 1.28,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Multiplier, 70 °C thermoplastic, bunched (Table I3)",
+     "value": 1.2,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Table I1 temperature, °C",
+     "value": 20,
+     "kind": "constant",
+     "source": 18
+    },
+    {
+     "label": "25 A type C maximum Zs (Table 41.3), Ω",
+     "value": 0.87,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "230 × 0.95 ÷ 250, Ω",
+     "value": 0.874,
+     "kind": "computed"
+    },
+    {
+     "label": "11.4 m: R1+R2, Ω",
+     "value": 0.216,
+     "kind": "computed"
+    },
+    {
+     "label": "11.4 m: Zs, Ω",
+     "value": 0.366,
+     "kind": "computed"
+    },
+    {
+     "label": "11.4 m: fault current, A",
+     "value": 596.99,
+     "kind": "computed"
+    },
+    {
+     "label": "37.8 m: Zs, Ω",
+     "value": 0.867,
+     "kind": "computed"
+    },
+    {
+     "label": "37.8 m: fault current, A",
+     "value": 252.02,
+     "kind": "computed"
+    },
+    {
+     "label": "38.0 m: Zs, Ω",
+     "value": 0.871,
+     "kind": "computed"
+    },
+    {
+     "label": "38.0 m: fault current, A",
+     "value": 250.86,
+     "kind": "computed"
+    },
+    {
+     "label": "Longest 2.5 mm² run, near, m",
+     "value": 37.9,
+     "kind": "computed"
+    },
+    {
+     "label": "50 m: R1+R2, 2.5 mm², Ω",
+     "value": 0.948,
+     "kind": "computed"
+    },
+    {
+     "label": "50 m: Zs, 2.5 mm², Ω",
+     "value": 1.098,
+     "kind": "computed"
+    },
+    {
+     "label": "50 m: fault current, 2.5 mm², A",
+     "value": 199,
+     "kind": "computed"
+    },
+    {
+     "label": "50 m: R1+R2, 4 mm², Ω",
+     "value": 0.59,
+     "kind": "computed"
+    },
+    {
+     "label": "50 m: Zs, 4 mm², Ω",
+     "value": 0.74,
+     "kind": "computed"
+    },
+    {
+     "label": "50 m: fault current, 4 mm², A",
+     "value": 295.27,
+     "kind": "computed"
+    },
+    {
+     "label": "Longest 4 mm² run, m",
+     "value": 61,
+     "kind": "computed"
+    },
+    {
+     "label": "Longest 6 mm² run, near, m",
+     "value": 91.3,
+     "kind": "computed"
+    },
+    {
+     "label": "40 m cold: R1+R2, Ω",
+     "value": 0.593,
+     "kind": "computed"
+    },
+    {
+     "label": "40 m cold: Zs, Ω",
+     "value": 0.743,
+     "kind": "computed"
+    },
+    {
+     "label": "40 m cold: fault current, A",
+     "value": 294.08,
+     "kind": "computed"
+    },
+    {
+     "label": "40 m hot: Zs, Ω",
+     "value": 0.909,
+     "kind": "computed"
+    },
+    {
+     "label": "40 m hot: fault current, A",
+     "value": 240.37,
+     "kind": "computed"
+    },
+    {
+     "label": "Check: gap between hot and cold Zs, Ω",
+     "value": 0.166,
+     "kind": "computed"
+    },
+    {
+     "label": "Type B 25 A: 230 × 0.95 ÷ 125, Ω",
+     "value": 1.748,
+     "kind": "computed"
+    },
+    {
+     "label": "Table 41.5: 30 mA, Ω",
+     "value": 1667,
+     "kind": "constant",
+     "source": 19
+    },
+    {
+     "label": "Table 41.5: 100 mA, Ω",
+     "value": 500,
+     "kind": "constant",
+     "source": 19
+    },
+    {
+     "label": "Touch voltage in the debate, V",
+     "value": 50,
+     "kind": "constant",
+     "source": 20
+    },
+    {
+     "label": "Worked heater: power, kW",
+     "value": 3,
+     "kind": "constant"
+    },
+    {
+     "label": "Worked heater: length, m",
+     "value": 15,
+     "kind": "constant",
+     "source": 21
+    },
+    {
+     "label": "Worked heater: Ze, Ω",
+     "value": 0.21,
+     "kind": "constant",
+     "source": 22
+    },
+    {
+     "label": "Worked heater: 1.5 mm² line and cpc, mΩ/m",
+     "value": 24.2,
+     "kind": "constant",
+     "source": 23
+    },
+    {
+     "label": "Worked heater: breaker rating, A",
+     "value": 16,
+     "kind": "constant"
+    },
+    {
+     "label": "Worked heater: R1+R2, 24.2 × 1.2 × 15 ÷ 1000, Ω",
+     "value": 0.436,
+     "kind": "computed",
+     "source": 21
+    },
+    {
+     "label": "Cut-short R1+R2, Ω",
+     "value": 0.43,
+     "kind": "constant"
+    },
+    {
+     "label": "Worked heater: Zs, Ω",
+     "value": 0.646,
+     "kind": "computed",
+     "source": 22
+    },
+    {
+     "label": "Cut-short Zs, Ω",
+     "value": 0.64,
+     "kind": "constant",
+     "source": 22
+    },
+    {
+     "label": "16 A type B maximum Zs, Ω",
+     "value": 2.73,
+     "kind": "constant",
+     "source": 24
+    },
+    {
+     "label": "Worked heater: fault current, A",
+     "value": 338.24,
+     "kind": "computed",
+     "source": 25
+    },
+    {
+     "label": "Cut-short fault current, A",
+     "value": 341.4,
+     "kind": "constant",
+     "source": 25
+    },
+    {
+     "label": "16 A type B Ia, A",
+     "value": 80,
+     "kind": "constant",
+     "source": 26
+    },
+    {
+     "label": "Showroom origin: 230 × 0.95 ÷ 0.1, A",
+     "value": 2185,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2a: Zs at the starter, Ω",
+     "value": 0.366,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2a accepted, Ω",
+     "value": 0.37,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2a slip: no multiplier, Ω",
+     "value": 0.319,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2a slip: Ze in place of Zs at DBP2, Ω",
+     "value": 0.316,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2a slip: 1.20 multiplier, Ω",
+     "value": 0.353,
+     "kind": "computed"
+    },
+    {
+     "label": "Starter-to-motor leg (practice value), m",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Leg R1+R2, 24.2 × 1.28 × 3 ÷ 1000, Ω",
+     "value": 0.093,
+     "kind": "computed"
+    },
+    {
+     "label": "Zs at the motor, Ω",
+     "value": 0.459,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2b: fault current at Cmin, A",
+     "value": 596.99,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2b accepted: from 0.36625 Ω, A",
+     "value": 596.59,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2b slip: no Cmin, A",
+     "value": 628.42,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2b slip: Cmax, A",
+     "value": 691.26,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers: length, m",
+     "value": 52,
+     "kind": "assumed"
+    },
+    {
+     "label": "Changed numbers: Zs at the board, Ω",
+     "value": 0.35,
+     "kind": "assumed"
+    },
+    {
+     "label": "Changed numbers: R1+R2, Ω",
+     "value": 0.575,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers: Zs, Ω",
+     "value": 0.925,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed slip: no multiplier, Ω",
+     "value": 0.829,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed slip: 1.28 multiplier, Ω",
+     "value": 0.964,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed: 6 mm² R1+R2, Ω",
+     "value": 0.384,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed: 6 mm² Zs, Ω",
+     "value": 0.734,
+     "kind": "computed"
+    },
+    {
+     "label": "Rule of thumb: 14.82 × 1.28, mΩ/m",
+     "value": 18.97,
+     "kind": "computed"
+    },
+    {
+     "label": "EV: open-PEN voltage limit, V rms",
+     "value": 70,
+     "kind": "constant",
+     "source": 27
+    },
+    {
+     "label": "EV: DC fault current threshold, mA",
+     "value": 6,
+     "kind": "constant",
+     "source": 28
+    },
+    {
+     "label": "Section B: points, of which any make a full answer",
+     "value": "5, any 3",
+     "kind": "constant"
+    }
+   ]
+  },
+  "explain": {
+   "text": "An earth fault opens the breaker in time only if enough current flows. That current runs round a loop. It goes out on the line conductor, back on the cpc, and home through the supply. The loop's impedance is Zs = Ze + (R1+R2). Every metre of cable adds to R1+R2. So a longer run means a bigger Zs and a smaller fault current.\n\nWork R1+R2 as milliohms per metre × multiplier × length ÷ 1000. The milliohm figures in Table I1 are for copper at 20 °C. A fault happens on a circuit that has been working, and warm copper has more resistance. The multiplier brings the figure up to working temperature. The fault current is then Uo × Cmin ÷ Zs. The supply can sag below 230 V, as low as 218.5 V. Cmin, 0.95, allows for that.[^7] You design on the lowest voltage because it gives the least current. If the breaker opens on that, it opens on anything higher.\n\nA breaker is sure to open within the time only once the current reaches a set figure, its Ia. For a 6 A type B, Ia is 30 A. Its maximum Zs comes straight from that: 230 × 0.95 ÷ 30 = 7.28 Ω. So checking Zs against the maximum is the same as checking the fault current against Ia. Take Zs at DBP2 as 0.15 Ω for practice. Then the showroom motor's 2.5 mm² run reaches its 0.87 Ω limit near 37.9 m. When Zs is too high, bring R1+R2 down with bigger conductors, a bigger cpc or a shorter run. Or add an RCD. It trips on residual current, so it needs far less of an earth path. Where the time cannot be met at all, supplementary bonding is the other route. Engineers debate whether that bonding holds the touch voltage to 50 V in every fault. The picture here is simplified. It takes one figure for the breaker's opening current, the worst case. A real type C may trip instantly anywhere from 5 to 10 times its rating.\n\n**Work Zs hot and keep it within the device's maximum. Then the fault current at the lowest supply voltage still opens the device in time. If Zs is too high, bring R1+R2 down or add an RCD.**"
+  },
+  "analogy": {
+   "text": "Think of jump-starting a van on a cold morning. The starter only turns once enough current reaches it. Long, thin leads let less current through. A battery sagging in the cold pushes less still. So you plan on the weak battery, not the fresh one. The leads are the fault loop, the cold battery is Cmin, and the current the starter needs is the breaker's Ia.",
+   "breaks": "A starter draws a working current set by its own load. An earth fault is close to a dead short, limited by little but the loop. And a breaker below Ia does not simply stay shut. It may still trip instantly, or open on its slower thermal part, perhaps too late for the time allowed."
+  },
+  "practice": {
+   "text": "- Work R1+R2. Take the mΩ/m for line and cpc together from Table I1. Multiply by the Table I3 multiplier and the length. Then divide by 1000.\n- Add the loop before the circuit. That is Ze at the origin. For a circuit fed from a sub-board, it is Zs at that board.\n- Find the time allowed. On a 230 V TN supply, final circuits up to 32 A get 0.4 s, and so do socket-outlet circuits up to 63 A.[^9] Distribution circuits and other final circuits get up to 5 s.\n- Compare Zs with the device's maximum from Tables 41.2 to 41.4. Use the maker's figure where you have it.\n- Check it the other way round too. Uo × Cmin ÷ Zs must reach the device's Ia.\n- Too high? Use bigger conductors or cpc, or a shorter run. Or add an RCD for fault protection. Table 41.5 allows a far higher Zs for one.[^19] Where the time cannot be met at all, add supplementary bonding.\n\n**Rule of thumb:** the longest run a device allows is (maximum Zs − Zs at the board) × 1000 ÷ (mΩ/m × multiplier). Take the practice 0.15 Ω at DBP2. For the showroom motor that gives (0.87 − 0.15) × 1000 ÷ 18.97 = 37.9 m.\n\n**Worked example:** the showroom motor, with the practice 0.15 Ω at DBP2. R1+R2 = 14.82 × 1.28 × 11.4 ÷ 1000 = 0.216 Ω. Zs = 0.150 + 0.216 = 0.366 Ω, within the 25 A type C's 0.87 Ω. The fault current is 230 × 0.95 ÷ 0.366 = 596.99 A. That is well over the 250 A that opens the breaker within 0.1 s.\n\n**Common mistakes**\n- Leaving out the multiplier. The fault current then comes out bigger than it will be.\n- Using 230 V without Cmin, or with Cmax. Disconnection is judged at the lowest voltage.\n- Starting from Ze when the circuit is fed from a sub-board. Use Zs at that board.\n- Reading 0.4 s as the time it will take. It is the longest time allowed.\n- Calling a slow trip a pass. Below Ia a breaker may still open on its thermal part, but that can take far longer."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "written": {
+   "b1": {
+    "q": "Explain why the factor Cmin is applied to the nominal voltage to earth when an earth fault current is worked out.",
+    "points": [
+     {
+      "text": "The supply voltage is not fixed. Cmin, 0.95, allows for it falling from 230 V to as low as 218.5 V.",
+      "cite": "Slides p.48; IET, Reduction in maximum values of earth fault loop impedance in BS 7671, in research"
+     },
+     {
+      "text": "A lower voltage pushes less fault current through the same Zs. The fault current is Uo × Cmin ÷ Zs.",
+      "cite": "Formula sheet step 15; slides p.55"
+     },
+     {
+      "text": "The device is sure to open in time only if the fault current reaches its Ia. So the design checks the smallest current, and maximum Zs values are worked at Cmin.",
+      "cite": "Slides p.47, 48"
+     },
+     {
+      "text": "For a 6 A type B breaker with an Ia of 30 A, that gives 230 × 0.95 ÷ 30 = 7.28 Ω.",
+      "cite": "Slides p.47; IET EngX on Table 41.3, in research"
+     }
+    ],
+    "need": 3,
+    "model": "The supply voltage is not fixed. It can fall below the nominal 230 V, as low as 218.5 V. Cmin is the factor that allows for that. For a low voltage supply under the ESQCR, it is 0.95. The fault current is Uo × Cmin ÷ Zs. So a lower voltage pushes less current through the same loop. The device is sure to open in time only if that current reaches its Ia. So the design checks the smallest current the supply could give. If the device opens on that, it opens on anything higher. That is why maximum Zs values are worked at Cmin. For a 6 A type B breaker, 230 × 0.95 ÷ 30 A gives 7.28 Ω."
+   },
+   "b2": {
+    "q": "State what a designer must consider for the showroom's EV charging points on its TN-C-S supply.",
+    "points": [
+     {
+      "text": "The circuit supplying the charging equipment must not include a PEN conductor.",
+      "cite": "BS 7671 Section 722 (A1:2020 text), in research"
+     },
+     {
+      "text": "A PME earth must not serve an outdoor charge point on its own. One of three measures must hold the open-PEN voltage within 70 V. They are balanced loading, an added earth electrode, or a device that detects the fault. Making the point TT takes it off the PME earth altogether.",
+      "cite": "BS 7671 Section 722, in research; IET Wiring Matters 80; NICEIC EV guide"
+     },
+     {
+      "text": "An RCD gives no protection against an open-PEN fault. The load current goes out on the line and back on the neutral through it, so it sees no imbalance. PEN fault protection has to be designed in.",
+      "cite": "NICEIC EV guide, in research; project guide p.9"
+     },
+     {
+      "text": "Each charging point needs RCD protection, including protection against DC fault currents over 6 mA. That means a Type B RCD, or a Type A or F RCD with a device that detects them, unless the charger provides it.",
+      "cite": "IET Wiring Matters 100 on Regulation 722.531.3.101; BEAMA RCD guide, in research; project guide p.9"
+     },
+     {
+      "text": "Load management can be added to bring the maximum demand down, but it is optional.",
+      "cite": "Project guide p.9"
+     }
+    ],
+    "need": 3,
+    "model": "The circuit to the charging equipment must not include a PEN conductor. A PME earth must not serve an outdoor charge point on its own. One of three measures must hold the open-PEN voltage within 70 V. They are well-balanced loading across the phases, an added earth electrode, or a device that detects the fault. Making the point TT takes it off the PME earth altogether. An RCD is no protection against that fault. The load current goes out on the line and back on the neutral through it, so it sees no imbalance. PEN fault protection has to be designed in. Each charging point needs RCD protection, including protection against DC fault currents over 6 mA. That means a Type B RCD, or a Type A or F RCD with a detecting device, unless the charger provides it. Load management can be added to bring the maximum demand down, but it is optional. Section 722 has changed in recent amendments. Check it against the amendment you work to."
+   }
+  },
+  "summary": {
+   "title": "Shock protection: Zs and the fault current",
+   "for": "An earth fault must open the device in time. Work Zs hot and keep it within the device's maximum. Then even at the lowest supply voltage, the fault current reaches the current that opens it.",
+   "rule": "R1+R2 = mΩ/m × multiplier × L ÷ 1000\nZs = Ze + (R1+R2), or Zs at the board + (R1+R2)\nFault current = Uo × Cmin ÷ Zs, with Cmin 0.95\nMaximum Zs = Uo × Cmin ÷ Ia\nPass: Zs ≤ maximum Zs, so fault current ≥ Ia\nLongest run = (maximum Zs − Zs at the board) × 1000 ÷ (mΩ/m × multiplier)\n\nOn a 230 V TN supply: 0.4 s for final circuits to 32 A, or to 63 A with socket-outlets. Up to 5 s for distribution circuits and other final circuits. These are maximum times.\nToo high? Bigger conductors or cpc, or a shorter run.\nOr an RCD: then Zs need only meet Table 41.5, 1667 Ω at 30 mA.\nSupplementary bonding where the time cannot be met.",
+   "traps": [
+    {
+     "text": "Leaving out the multiplier. The fault current then comes out bigger than it will be.",
+     "cite": "Slides p.52; On-Site Guide p.217, 220"
+    },
+    {
+     "text": "Using 230 V without Cmin, or with Cmax. Disconnection is judged at the lowest voltage.",
+     "cite": "Slides p.48"
+    },
+    {
+     "text": "Starting from Ze when the circuit is fed from a sub-board. Use Zs at that board.",
+     "cite": "Formula sheet step 13"
+    },
+    {
+     "text": "Reading 0.4 s or 5 s as the time it will take. They are the longest allowed.",
+     "cite": "Slides p.50"
+    },
+    {
+     "text": "Working Zs out but never comparing it with the device's maximum.",
+     "cite": "Project guide p.5"
+    }
+   ],
+   "where": "BS 7671 Regulation 411.3.2 and Tables 41.1 to 41.5. On-Site Guide Tables I1 and I3.",
+   "figures": [
+    "1a",
+    "1c",
+    "1g",
+    "2a",
+    "2b"
+   ]
+  },
+  "sources": [
+   {
+    "n": 1,
+    "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+    "url": "material:osg#p218",
+    "quote": "2.5 2.5 14.82"
+   },
+   {
+    "n": 2,
+    "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+    "url": "material:osg#p220",
+    "quote": "Incorporated in a cable or bunched (NOTE 2) 1.20 1.28 1.28"
+   },
+   {
+    "n": 3,
+    "title": "Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app site, not a standard)",
+    "url": "https://www.elec-mate.com/guides/maximum-zs-values-bs-7671",
+    "quote": "C25 0.87 Ω 0.70 Ω"
+   },
+   {
+    "n": 4,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p47",
+    "quote": "According to table 41.3 it has a maximum tabulated Zs of 7.28Ω."
+   },
+   {
+    "n": 5,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p47",
+    "quote": "According to Fig 3A4 it has an Ia of 30A."
+   },
+   {
+    "n": 6,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p48",
+    "quote": "voltage fluctuates as it’s produced, which means it can drop below the nominal voltage of 230V to as low as 218.5V."
+   },
+   {
+    "n": 7,
+    "title": "REDUCTION IN MAXIMUM VALUES OF EARTH FAULT LOOP IMPEDANCE IN BS 7671",
+    "url": "https://electrical.theiet.org/media/1442/maximum-zs-values.pdf",
+    "quote": "NOTE 1: For a low voltage supply given in accordance with ESQCR, Cmin is given the value 0.95."
+   },
+   {
+    "n": 8,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p47",
+    "quote": "230 x 0.95 / 7.28 = 30A"
+   },
+   {
+    "n": 9,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p49",
+    "quote": "All final circuits up to 63A if supplying socket outlets"
+   },
+   {
+    "n": 10,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p51",
+    "quote": "This circuit means that table 41.1 will be used, which explains it needs to disconnect within 0.4s."
+   },
+   {
+    "n": 11,
+    "title": "TN Systems - Gt-Engineering (quotes IEC 60364-4-41, which BS 7671 follows)",
+    "url": "https://www.gt-engineering.it/en/technical-standards/en-iec-standards/iec-60364-4-41/tn-systems",
+    "quote": "[IEC 60364-4-41] 411.3.2.3 In TN systems, a disconnection time not exceeding 5 s is permitted for distribution circuits, and for circuits not covered by 411.3.2.2."
+   },
+   {
+    "n": 12,
+    "title": "ED4-01A learner pack: car showroom assignment",
+    "url": "material:learner-pack#p3",
+    "quote": "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+   },
+   {
+    "n": 13,
+    "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+    "url": "material:osg#p90",
+    "quote": "C 5 to 10 In the use of fluorescent lighting, small motors, etc., can"
+   },
+   {
+    "n": 14,
+    "title": "— Electrical installation solutions for buildings – Technical details MCBs",
+    "url": "https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj",
+    "quote": "C 0.5 to 63 A 1.13 · In > 1 h 5 · In > 0.1 s 1.45 · In < 1 h 10 · In < 0.1 s"
+   },
+   {
+    "n": 15,
+    "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+    "url": "material:osg#p90",
+    "quote": "B 3 to 5 In switching surge"
+   },
+   {
+    "n": 16,
+    "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+    "url": "material:osg#p218",
+    "quote": "4 4 9.22"
+   },
+   {
+    "n": 17,
+    "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+    "url": "material:osg#p218",
+    "quote": "6 6 6.16"
+   },
+   {
+    "n": 18,
+    "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+    "url": "material:osg#p217",
+    "quote": "These values are at 20 °C."
+   },
+   {
+    "n": 19,
+    "title": "Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app site, not a standard)",
+    "url": "https://www.elec-mate.com/guides/maximum-zs-values-bs-7671",
+    "quote": "Regulation 411.5.3 and Table 41.5 give 1667 Ω for a 30 mA device and 500 Ω for a 100 mA device"
+   },
+   {
+    "n": 20,
+    "title": "TN system - Max Zs Vs tripping time in the Presence of RCD protection - IET EngX forum (a forum answer, contested point)",
+    "url": "https://engx.theiet.org/f/wiring-and-regulations/31645/tn-system---max-zs-vs-tripping-time-in-the-presence-of-rcd-protection",
+    "quote": "Using this method (Regulations 415.2 and 419.3), the voltage is not actually limited to 50 V for every possible fault."
+   },
+   {
+    "n": 21,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p53",
+    "quote": "24.2 x 1.2 x 15 / 1000"
+   },
+   {
+    "n": 22,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p54",
+    "quote": "Our Zs will be calculated as: 0.21 + 0.43 = 0.64Ω"
+   },
+   {
+    "n": 23,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p51",
+    "quote": "For the (mΩ/m) of a 1.5mm² line and a 1.5mm² cpc, the value to use is: 24.2."
+   },
+   {
+    "n": 24,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p54",
+    "quote": "The maximum Zs of the device is 2.73Ω"
+   },
+   {
+    "n": 25,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p55",
+    "quote": "230 x 0.95 / 0.64 = 341.4A"
+   },
+   {
+    "n": 26,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p55",
+    "quote": "The Ia of the device is 80A, and because our PEFC exceeds this, the device will operate in 0.1s."
+   },
+   {
+    "n": 27,
+    "title": "BS 7671:2018 with Amendment 1 (IET), Section 722",
+    "url": "https://electrical.theiet.org/media/2422/bs-7671-2018_a1_2020-inc-corrigendum-may-2020_read-only.pdf",
+    "quote": "in the event of an open-circuit fault in the PEN conductor of the low voltage network supplying the installation does not exceed 70 V rms."
+   },
+   {
+    "n": 28,
+    "title": "GUIDE TO RESIDUAL CURRENT DEVICE (RCD) PROTECTION OF ELECTRIC VEHICLE (EV) CHARGING INSTALLATIONS",
+    "url": "https://www.beama.org.uk/static/9fa28e39-62fe-4ba6-a5e6e571d731b3f0/BEAMA-Guide-RCD-selection-for-protection-of-Electric-Vehicle-charging-installations.pdf",
+    "quote": "In addition, protection shall be provided against DC fault currents exceeding 6 mA."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: mechanism -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .task > p + p { margin-top: 10px; }\n  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }\n  .ask { font-size: 1rem; font-weight: 700; color: var(--k-ink); }\n  .assume { line-height: 1.6; }\n  .scene { display: block; width: 100%; }\n  .scene .lb { font: 500 13px var(--k-font); fill: var(--k-ink); }\n  .scene .hd { font: 700 13px var(--k-font); fill: var(--k-ink); }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .cond { fill: none; stroke: var(--k-strong); stroke-linecap: round; stroke-linejoin: round; }\n  .scene .flow { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 3 13; }\n  .scene .box { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .bolt { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .axis { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .b0 { fill: var(--k-warn); fill-opacity: .22; }\n  .scene .b1 { fill: var(--k-fill2); }\n  .scene .b2 { fill: var(--k-fill1); }\n  .scene .ia { stroke: var(--k-ink); stroke-width: 1.5; stroke-dasharray: 4 3; }\n  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .dot.low { fill: var(--k-warn); }\n  .ctl { display: grid; gap: 12px; }\n  .wk { display: grid; gap: 10px; padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1px solid var(--k-line); }\n  .wk .r { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 2px; align-items: baseline; }\n  .wk .n { grid-column: 1 / -1; font-weight: 700; line-height: 1.4; }\n  .wk .f { grid-column: 1; color: var(--k-muted); font-size: .92rem; line-height: 1.4; font-variant-numeric: tabular-nums; }\n  .wk .v { grid-column: 2; grid-row: 2; font-weight: 800; font-size: 1.1rem; font-variant-numeric: tabular-nums; white-space: nowrap; }\n  .wk .r.bad .v, .wk .r.bad .f { color: var(--k-warn); }\n  .rule1 { display: grid; gap: 6px; padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.6; }\n  .rows { display: grid; gap: 8px; }\n  .rows p { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }\n  .rows b { font-weight: 700; }\n  .w { font-weight: 600; font-variant-numeric: tabular-nums; }\n  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }\n  .wl .w { margin-top: 6px; }\n  .picks { display: flex; flex-direction: column; gap: 10px; }\n  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; padding: 10px 14px; }\n  .picks .k-btn.is-right, #jrow .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }\n  .picks .k-btn.is-wrong, #jrow .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }\n  #judge > * + * { margin-top: 10px; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }\n  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }\n  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }\n  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }\n  .fb > * + * { margin-top: 6px; }\n  .fb .v { font-weight: 700; font-size: 1.05rem; }\n  .fb.ok .v { color: var(--k-good); }\n  .fb .sl { font-size: .95rem; color: var(--k-muted); }\n  .why { line-height: 1.6; }\n  .debate > * + * { margin-top: 4px; }\n  #stepbox.enter, .wl .w.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing .wl .w.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .w.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <p class=\"k-label count\" id=\"count\"></p>\n  <div id=\"stepbox\">\n    <div id=\"scen\"></div>\n    <div id=\"carry1\"></div>\n    <div id=\"carry2\"></div>\n    <p class=\"assume\" id=\"assume\"></p>\n    <div class=\"task\" id=\"task\"></div>\n    <p class=\"sub\" id=\"sub\"></p>\n    <div id=\"wrap\"><svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 244\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"ctl\" id=\"ctl\"></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"wk\" id=\"wk\"></div>\n    <p class=\"sub\" id=\"lim\"></p>\n    <p class=\"sub\" id=\"bands\"></p>\n    <div class=\"note why\" id=\"under\"></div>\n    <div class=\"rule1\" id=\"rule1\"></div>\n    <div class=\"warn-note\" id=\"warn2\"></div>\n    <div class=\"rows\" id=\"cards\"></div>\n    <div class=\"note debate\" id=\"debate\"></div>\n    <div class=\"rows\" id=\"worked\"></div>\n    <div class=\"row\" id=\"workedgo\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div id=\"ans-2a\"></div>\n    <div id=\"ans-2b\"></div>\n    <div id=\"ans-ch\"></div>\n    <div class=\"row\" id=\"acts\"></div>\n    <div class=\"fb\" id=\"fb\" aria-live=\"polite\"></div>\n    <div id=\"judge\"><p class=\"ask\" id=\"jask\"></p><div class=\"row\" id=\"jrow\"></div><p class=\"say\" id=\"jmsg\" aria-live=\"polite\"></p></div>\n    <div class=\"note why\" id=\"after\"></div>\n    <div class=\"row\" id=\"go\"></div>\n    <div id=\"wr1\"></div>\n    <div id=\"wr2\"></div>\n    <div id=\"keep\"></div>\n    <div class=\"row\" id=\"fin\"></div>\n    <p class=\"say\" id=\"donefb\"></p>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\">Each line is worked from the rounded figures shown before it.</p>\n\n<script>\n  // ---------- rounding, and the course's figures ----------\n  const r2 = (x) => Math.round(x * 100 + 1e-7) / 100;\n  const r3 = (x) => Math.round(x * 1000 + 1e-6) / 1000;\n  const f1 = (x) => (Math.round(x * 10 + 1e-7) / 10).toFixed(1);\n  const f2 = (x) => r2(x).toFixed(2);\n  const f3 = (x) => r3(x).toFixed(3);\n  const F = (id) => K.figure(id);\n  const el = (id) => document.getElementById(id);\n\n  // The case file's givens and practice values.\n  const UO = F('g.U0').value, ZE = F('g.Ze').value, ZDB = F('p.ZsDBP2').value, ZMAX = F('g.zmax.C25').value;\n  const M90 = F('g.mult.90ts').value, LEG = F('p.legLen').value;\n  const MPM = { '2.5': F('g.r1r2.2p5').value, '4': F('g.r1r2.4').value, '6': F('g.r1r2.6').value };\n  const CMIN = 0.95, CMAX = 1.1, M70 = 1.2, IN = 25, IA = 10 * IN, ILO = 5 * IN, RUN = 11.4, IMAX = 750;   // the axis stops at 750 A: above it the dot waits at the top\n  const RCD = { 30: 1667, 100: 500 };              // Table 41.5, ohms\n  const Z87 = ZMAX.toFixed(2), ZD = ZDB.toFixed(2);\n\n  // The rule: R1+R2 = mΩ/m × multiplier × length ÷ 1000; Zs = Zs at DBP2 + R1+R2; fault current = 230 × 0.95 ÷ Zs.\n  // Each line is worked from the rounded figure before it.\n  function loop(len, size, hot) {\n    const L = Math.round((+len || 0) * 10) / 10;\n    const m = MPM[String(size)] || MPM['2.5'];\n    const r12 = r3(m * (hot ? M90 : 1) * L / 1000);\n    const zs = r3(ZDB + r12);\n    return { r12, zs, ifl: r2(UO * CMIN / zs) };\n  }\n  // The longest run within the maximum Zs, rounded down.\n  const longest = (m, mult) => Math.floor((ZMAX - ZDB) * 1000 / r2(m * mult) * 10 + 1e-7) / 10;\n\n  const fR = F('l6.recall'), fR1 = F('l6.recall.slip1'), fR2 = F('l6.recall.slip2');\n  const fHot = F('l6.check.hot'), fCold = F('l6.check.cold');\n  const f38 = F('l6.why.38'), f50 = F('l6.why.50'), f504 = F('l6.why.50.4');\n  const fMax = F('l6.A.maxRun'), fMax4 = F('l6.why.max4'), fMax6 = F('l6.why.max6');\n  const fZm = F('l6.maxzs.C25'), fTB = F('l6.typeB25');\n  const fWr = F('l6.worked.r12'), fWz = F('l6.worked.zs'), fWi = F('l6.worked.pefc'), fOrg = F('l6.showroom.pefc');\n  const f2a = F('2a'), f2b = F('2b'), fLeg = F('l6.A.atMotor');\n  const f2a1 = F('2a.slip1'), f2a2 = F('2a.slip2'), f2a3 = F('2a.slip3'), f2b1 = F('2b.slip1'), f2b2 = F('2b.slip2');\n  const fCh = F('l6.A.changed'), fCh1 = F('l6.A.changed.slip1'), fCh2 = F('l6.A.changed.slip2'), fCh3 = F('l6.A.changed.slip3'), fChF = F('l6.A.changed.fix');\n\n  // The figures each screen quotes, worked by the rule.\n  const A0 = loop(RUN, '2.5', true);\n  const C40h = loop(40, '2.5', true), C40c = loop(40, '2.5', false), GAP = r3(C40h.zs - C40c.zs);\n  const W50 = loop(50, '2.5', true), W504 = loop(50, '4', true);\n  const MAX25 = longest(MPM['2.5'], M90);\n  const ZRULE = r3(UO * CMIN / IA), ZB25 = r3(UO * CMIN / ILO);\n  const ZR = 7.28;                                 // a 6 A type B's maximum Zs (Table 41.3)\n  const RC = { right: r2(UO * CMIN / ZR), noC: r2(UO / ZR), cmax: r2(UO * CMAX / ZR) };\n  const RECALL_WORK = UO + ' × ' + CMIN + ' ÷ ' + ZR + ' = ' + f2(RC.right) + ' A';\n  // The heater worked example: 3 kW on 15 m of 1.5 mm² 70 °C singles, Ze 0.21 Ω, a 16 A type B.\n  const WH = { mpm: 24.2, mult: 1.2, len: 15, ze: 0.21, zmax: 2.73, ia: 80 };\n  const wR12 = r3(WH.mpm * WH.mult * WH.len / 1000), wZs = r3(WH.ze + wR12), wI = r2(UO * CMIN / wZs), oI = r2(UO * CMIN / ZE);\n  // Section A: the starter-to-motor leg, and the changed-numbers circuit.\n  const legR = r3(WH.mpm * M90 * LEG / 1000), atMotor = r3(A0.zs + legR);\n  const ZUN = Math.round((ZDB + MPM['2.5'] * M90 * RUN / 1000) * 1e5) / 1e5;  // Zs before rounding, to 5 places: 0.36625 Ω\n  const CH = { len: 52, zb: 0.35 };\n  const chR = r3(MPM['4'] * M70 * CH.len / 1000), chZ = r3(CH.zb + chR);\n  const chFixR = r3(MPM['6'] * M70 * CH.len / 1000), chFixZ = r3(CH.zb + chFixR);\n\n  // ---------- the lesson: SHOW steps teach, DO steps ask ----------\n  const O_NOC = f2(RC.noC) + ' A: ' + UO + ' ÷ ' + ZR, O_RIGHT = f2(RC.right) + ' A: ' + UO + ' × ' + CMIN + ' ÷ ' + ZR, O_CMAX = f2(RC.cmax) + ' A: ' + UO + ' × ' + CMAX + ' ÷ ' + ZR;\n  const O_HOT = f3(C40h.zs) + ' Ω: the limit assumes conductors at working temperature';\n  const O_COLD = f3(C40c.zs) + ' Ω: the cable is installed at 20 °C';\n  const O_EITHER = 'Either: the gap is only rounding';\n  const ASSUME_WHY = 'Assume the motor is fed from DBP2 through the 25 A type C breaker from lesson 3. The cable to the starter is a 2.5 mm² line with a 2.5 mm² cpc, 90 °C thermosetting singles in conduit. Take Zs at DBP2 as ' + ZD + ' Ω for practice. On a real job, measure it or work it out from the submain\\'s design.';\n  const ASSUME_A = 'Assume these for the motor circuit. DBP2 to the starter is ' + f1(RUN) + ' m on plan. That is approximate. A real design adds the vertical runs. The cable is a 2.5 mm² line with a 2.5 mm² cpc, 90 °C thermosetting singles in conduit. Zs at DBP2 is the practice ' + ZD + ' Ω. Use ' + MPM['2.5'] + ' mΩ/m and a multiplier of ' + M90 + '.';\n  const Q2A = '(a) Determine, for the motor circuit, the total earth fault loop impedance (Zs) at the starter.';\n  const Q2B = '(b) Determine if the value of earth fault loop impedance is acceptable.';\n  const CH_Q = 'A single-phase circuit is wired in 70 °C thermoplastic singles in conduit: a 4 mm² line and a 4 mm² cpc, ' + CH.len + ' m long. A 25 A type C breaker to BS EN 60898 protects it. Its maximum Zs is ' + Z87 + ' Ω. Zs at its board is ' + CH.zb.toFixed(2) + ' Ω. Use ' + MPM['4'] + ' mΩ/m for the 4 mm² pair. Determine the total earth fault loop impedance, and whether it is acceptable.';\n  const WK_TEXT = 'A 3 kW immersion heater on ' + WH.len + ' m of 1.5 mm² 70 °C thermoplastic singles in conduit. Ze is ' + WH.ze + ' Ω. A 16 A type B breaker protects it, on a TN-S supply. It is a final circuit under 32 A, so it has 0.4 s.';\n  const HIGH_TEXT = 'Stretch the motor\\'s run to 50 m. Zs is ' + f3(W50.zs) + ' Ω, over ' + Z87 + ' Ω. The fault current is ' + f2(W50.ifl) + ' A, under ' + IA + ' A. Zs at DBP2 is still the practice ' + ZD + ' Ω. There are four ways out.';\n\n  const STEPS = [\n    { name: 'Do you still have it?', label: 'Do you still have it?',\n      task: 'A lighting circuit has a 6 A type B breaker. Its maximum Zs is ' + ZR + ' Ω. At that Zs, how much earth fault current does the design count on?',\n      opts: [O_NOC, O_RIGHT, O_CMAX], want: O_RIGHT, why: RECALL_WORK + ', the breaker\\'s Ia of 30 A.',\n      read: RECALL_WORK + ', the breaker\\'s Ia. The maximum Zs is the one that still lets Ia flow at the lowest supply voltage.' },\n    { show: true, name: 'What it is for', label: 'What it is for',\n      text: 'The earlier lessons sized the circuit to carry its load. Now ask whether it disconnects on an *earth fault*. It must do so fast enough to protect anyone touching metalwork that has gone live.\\n\\nThe fault current runs round a loop. It goes out on the line conductor, back on the cpc, and home through the supply. The loop\\'s impedance is *Zs = Ze + (R1+R2)*. The lower Zs is, the more current flows. Enough current opens the device within the time allowed.',\n      read: 'Zs = Ze + (R1+R2) must not exceed the device\\'s maximum. Then the fault current opens it within 0.4 s for final circuits up to 32 A, or 5 s for distribution circuits.' },\n    { show: true, name: 'The why', label: 'The why: the fault loop, metre by metre', text: ASSUME_WHY,\n      read: 'At ' + f1(RUN) + ' m, Zs is ' + f3(A0.zs) + ' Ω and the fault current ' + f2(A0.ifl) + ' A. Near ' + f1(MAX25) + ' m, Zs reaches ' + Z87 + ' Ω and the current falls to about ' + IA + ' A. At 50 m, 4 mm² brings Zs back to ' + f3(W504.zs) + ' Ω.' },\n    { name: 'Check', label: 'Check',\n      task: 'The same 2.5 mm² run is now 40 m long. Zs at DBP2 is still the practice ' + ZD + ' Ω. One designer works R1+R2 hot and gets Zs ' + f3(C40h.zs) + ' Ω, a fail. Another leaves out the multiplier and gets ' + f3(C40c.zs) + ' Ω, a pass. Which figure do you compare with ' + Z87 + ' Ω?',\n      opts: [O_HOT, O_COLD, O_EITHER], want: O_HOT,\n      why: 'The milliohm figures are for copper at 20 °C. The maximum Zs values assume conductors at working temperature. The multiplier brings R1+R2 up to that.',\n      read: 'Compare the hot figure, ' + f3(C40h.zs) + ' Ω, with ' + Z87 + ' Ω. At 40 m the run fails.' },\n    { show: true, name: 'When Zs is too high', label: 'When Zs is too high', text: HIGH_TEXT,\n      read: 'At 50 m, Zs is ' + f3(W50.zs) + ' Ω and fails. 4 mm² brings it to ' + f3(W504.zs) + ' Ω. An RCD needs far less earth path. Supplementary bonding is the route where the time cannot be met.' },\n    { show: true, name: 'Worked example', label: 'Worked example', text: WK_TEXT,\n      read: 'R1+R2 is ' + f3(wR12) + ' Ω. Zs is ' + f3(wZs) + ' Ω, within ' + WH.zmax + ' Ω. The fault current is ' + f2(wI) + ' A, over the Ia of ' + WH.ia + ' A. So it opens within 0.1 s.' },\n    { name: 'Section A 2(a)', label: 'Section A · Question 2', part: Q2A, task: ASSUME_A + ' ' + Q2A,\n      want: f2a.text, why: f2a.work,\n      read: 'R1+R2 = ' + MPM['2.5'] + ' × ' + M90 + ' × ' + f1(RUN) + ' ÷ 1000 = ' + f3(A0.r12) + ' Ω. Zs = ' + ZDB.toFixed(3) + ' + ' + f3(A0.r12) + ' = ' + f2a.text + ', taking the practice ' + ZD + ' Ω at DBP2.' },\n    { name: 'Section A 2(b)', label: 'Section A · Question 2', part: Q2B, task: Q2B,\n      want: f2b.text, why: f2b.work,\n      read: UO + ' × ' + CMIN + ' ÷ ' + f3(f2a.value) + ' = ' + f2b.text + ', over ' + IA + ' A. ' + f2a.text + ' is within ' + Z87 + ' Ω, so it is acceptable.' },\n    { kind: 'written', written: 'b1', name: 'Section B (1)', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },\n    { kind: 'written', written: 'b2', name: 'Section B (2)', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },\n    { name: 'Changed numbers', label: 'Section A · Changed numbers', part: CH_Q, task: CH_Q,\n      want: fCh.text, why: fCh.work,\n      read: MPM['4'] + ' × ' + M70.toFixed(2) + ' × ' + CH.len + ' ÷ 1000 = ' + f3(chR) + ' Ω. Zs is ' + fCh.text + ', over ' + Z87 + ' Ω, so it is too high. 6 mm² gives ' + f3(chFixZ) + ' Ω.',\n      // The read-through's still: the call made, as the sentence ends.\n      still: () => { S[iCh].call = 'Too high'; K.refresh(); } },\n    { kind: 'summary', name: 'Keep this', label: 'Keep this' },\n  ];\n  const iR = 0, iFor = 1, iWhy = 2, iChk = 3, iHigh = 4, iWk = 5, iA = 6, iB = 7, iB1 = 8, iB2 = 9, iCh = 10, iK = 11;\n  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, fb: null, call: null }));\n  const WORKING = [iWhy, iChk, iHigh, iWk, iA, iB, iCh];\n  let lastStep = -1, finished = false, lines = 0;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n\n  // Text with key terms (*term*) highlighted in amber (the <mark> element), built with K.el, never innerHTML.\n  function write(node, s) {\n    node.textContent = '';\n    String(s || '').split(/(\\*[^*]+\\*)/).forEach((b) => {\n      if (!b) return;\n      if (b.length > 2 && b.charAt(0) === '*' && b.charAt(b.length - 1) === '*') node.appendChild(K.el('mark', null, b.slice(1, -1)));\n      else node.appendChild(document.createTextNode(b));\n    });\n    return node;\n  }\n  function paras(node, s) {\n    node.textContent = '';\n    String(s || '').split('\\n\\n').forEach((t) => { if (t) node.appendChild(write(K.el('p'), t)); });\n  }\n  const workLines = (w) => String(w || '').split('; ');\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const ctlLen = K.control({ id: 'len', label: 'Run length', hint: 'DBP2 to the starter', min: 0, max: 100, step: 0.2, value: RUN,\n    fmt: (v) => f1(v) + ' m', snap: [RUN, 37.8, 38, 40, 50], into: '#ctl' });\n  K.choice({ id: 'size', label: 'Line and cpc', options: [{ value: '2.5', label: '2.5 mm²' }, { value: '4', label: '4 mm²' }, { value: '6', label: '6 mm²' }], value: '2.5', into: '#ctl' });\n  K.toggle({ id: 'hot', label: 'Worked hot, × ' + M90, value: true, into: '#ctl' });\n\n  // The current flows round the loop, faster the more of it there is.\n  let flowEl = null, flowOff = 0;\n  const flow = K.anim({ button: false, label: 'Current round the loop', step: (dt) => {\n    if (at() !== iWhy || REDUCE) return false;\n    const o = K.outputs() || {};\n    flowOff = (flowOff - dt * Math.max(6, (+o.ifl || 0) * 0.05)) % 160;\n    if (flowEl) flowEl.setAttribute('stroke-dashoffset', flowOff.toFixed(1));\n  } });\n\n  // Picks: one tap answers.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));\n  function pick(k) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.opts || k >= d.opts.length) return;\n    if (i === iR) {\n      if (st.res) return;     // a recall gets one go\n      st.pick = d.opts[k];\n      const slips = [f2(RC.noC) + ' A leaves out Cmin.', f2(RC.cmax) + ' A uses Cmax, ' + CMAX + ', in its place.'];\n      if (st.pick === d.want) {\n        st.res = 'right';\n        st.fb = { ok: true, v: 'Still there.', w: [RECALL_WORK],\n          p: 'That is the breaker\\'s *Ia* of 30 A. The maximum Zs is simply the Zs that still lets Ia flow at the lowest supply voltage.', xs: slips };\n      } else {\n        st.res = 'wrong';\n        st.fb = st.pick === O_NOC\n          ? { ok: false, v: 'You left out Cmin.', p0: 'The supply can sag to 218.5 V, so the fault current is worked at ' + CMIN + ' of ' + UO + ' V.',\n            w: ['The working: ' + RECALL_WORK], p: 'That is the breaker\\'s *Ia* of 30 A. Continue, and the refresh starts from here.' }\n          : { ok: false, v: 'That is Cmax, ' + CMAX + '.', p0: 'It gives the largest current. You need that for conductor heating, in lesson 7. Whether the breaker opens in time is judged on the smallest current.',\n            w: ['The working: ' + RECALL_WORK], p: 'That is the breaker\\'s *Ia* of 30 A. Continue, and the refresh starts from here.' };\n      }\n    } else if (i === iChk) {\n      if (st.res === 'right') return;\n      st.pick = d.opts[k];\n      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'That\\'s it.', p0: d.why }; }\n      else if (st.pick === O_COLD) { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: 'A fault happens on a working, warm circuit. A cold reading is a verification job, checked against lower limits. That comes in lesson 9.' }; }\n      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: 'The ' + f3(GAP) + ' Ω between them is the whole difference between a pass and a fail here.' }; }\n    }\n  }\n\n  // Recall right: on to the why, or straight to the practice.\n  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iFor); } });\n  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iA); } });\n\n  // ---------- Section A: typed answers on the course's figures ----------\n  K.scenario({ into: '#scen', open: true });\n  K.carried({ parts: ['1a', '1c'], into: '#carry1' });\n  K.carried({ parts: ['2a'], into: '#carry2' });\n  const ACC2A = 0.37, ACC2B = r2(UO * CMIN / ZUN);   // 0.366 Ω to two places; 596.59 A from the unrounded Zs\n  // An accepted answer that is not the printed figure is told so.\n  const differs = (r, f, dp) => r.value != null && Math.abs(r.value - f.value) > 0.5 * Math.pow(10, -dp) + 1e-9;\n  const SPEC = {\n    [iA]: { id: '2a', fig: f2a, unit: 'Ω', dp: 3, accept: [ACC2A],\n      slips: [\n        { value: f2a1.value, hint: 'You left out the multiplier. The table figures are for cold copper.' },\n        { value: f2a2.value, hint: 'You used Ze, ' + ZE + ' Ω. This circuit starts at DBP2, so start from Zs there.' },\n        { value: f2a3.value, hint: M70.toFixed(2) + ' is for 70 °C cable. These singles are 90 °C thermosetting, so use ' + M90 + '.' },\n      ],\n      hint: 'Not quite. Work R1+R2 as mΩ/m × multiplier × length ÷ 1000, then add Zs at DBP2.',\n      rightNote: (r) => (differs(r, f2a, 3) ? ACC2A.toFixed(2) + ' Ω is ' + f2a.text + ' rounded to two places. Part (b) starts from ' + f2a.text + '.' : ''),\n      missNote: 'Part (b) starts from ' + f2a.text + '.',\n      after: 'Take the starter-to-motor leg as ' + LEG.toFixed(1) + ' m, another practice value. In 1.5 mm² with a 1.5 mm² cpc it adds ' + WH.mpm + ' × ' + M90 + ' × ' + LEG + ' ÷ 1000 = ' + f3(legR) + ' Ω. Zs at the motor is ' + f3(atMotor) + ' Ω, still inside.' },\n    [iB]: { id: '2b', fig: f2b, unit: 'A', dp: 2, accept: [ACC2B],\n      slips: [\n        { value: f2b1.value, hint: 'You left out Cmin.' },\n        { value: f2b2.value, hint: 'That is Cmax. It is for conductor heating, in lesson 7.' },\n      ],\n      hint: 'Not quite. The fault current is ' + UO + ' × ' + CMIN + ' ÷ Zs.',\n      rightNote: (r) => (differs(r, f2b, 2) ? 'That comes from the unrounded Zs, ' + ZUN.toFixed(5) + ' Ω. Worked from the ' + f2a.text + ' shown, it is ' + f2b.text + '.' : ''),\n      missNote: '',\n      after: f2b.text + ' is well over the ' + IA + ' A that opens the breaker within 0.1 s. And ' + f2a.text + ' is within ' + Z87 + ' Ω. So it is acceptable. This rests on the practice ' + ZD + ' Ω at DBP2. The run could grow to near ' + fMax.text + ' before it failed.' },\n    [iCh]: { id: 'l6.A.changed', fig: fCh, unit: 'Ω', dp: 3, accept: [],\n      slips: [\n        { value: fCh1.value, hint: 'You left out the multiplier. That turns a fail into a false pass.' },\n        { value: fCh2.value, hint: M90 + ' is for 90 °C cable. These are 70 °C singles, so use ' + M70.toFixed(2) + '.' },\n        { value: fCh3.value, hint: 'That is R1+R2 alone. Add the board\\'s ' + CH.zb.toFixed(2) + ' Ω.' },\n      ],\n      hint: 'Not quite. Work R1+R2 with the 70 °C multiplier, then add Zs at the board.',\n      rightNote: () => '', missNote: '',\n      after: 'That is over ' + Z87 + ' Ω, so it is too high. Go up to a 6 mm² line and cpc: ' + MPM['6'] + ' × ' + M70.toFixed(2) + ' × ' + CH.len + ' ÷ 1000 = ' + f3(chFixR) + ' Ω. Zs is then ' + f3(chFixZ) + ' Ω, inside. Or add an RCD.' },\n  };\n  const BOX = { [iA]: '#ans-2a', [iB]: '#ans-2b', [iCh]: '#ans-ch' };\n  const ANS = {};\n  Object.keys(SPEC).forEach((key) => {\n    const i = +key, sp = SPEC[i];\n    const a = K.answer({ id: sp.id, unit: sp.unit, answer: sp.fig.value, decimals: sp.dp, accept: sp.accept, slips: sp.slips, into: BOX[i],\n      onCheck: (r) => {\n        const st = S[i];\n        if (st.shown) return;\n        if (r.state === 'right') { st.res = 'right'; st.fb = { ok: true, v: 'Right.', w: workLines(sp.fig.work), p: sp.rightNote(r) }; }\n        else if (r.state === 'wrong') {\n          st.tries += 1;\n          if (st.tries >= 2) {\n            st.shown = true; st.res = 'shown';\n            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: workLines(sp.fig.work), p: sp.missNote };\n            a.reveal();\n          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }\n        } else { st.res = r.state; st.fb = null; }\n        K.refresh();\n      } });\n    ANS[i] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });\n\n  // After the typed figure, he makes the call himself.\n  const CALLS = ['Acceptable', 'Too high'];\n  const JUDGE = { [iB]: { fig: () => f2a.text, want: 'Acceptable' }, [iCh]: { fig: () => fCh.text, want: 'Too high' } };\n  const jBtns = CALLS.map((t) => K.button({ label: t, secondary: true, into: '#jrow', press: () => judge(t) }));\n  function judge(t) {\n    const i = at(), jd = JUDGE[i], st = S[i];\n    if (!jd || !(st.res === 'right' || st.shown) || st.call) return;\n    st.call = t;\n    K.refresh();\n  }\n\n  // ---------- Section B and Keep this ----------\n  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];\n  function markLine(id) {\n    const w = K.lesson && K.lesson.written && K.lesson.written[id];\n    const n = w && Array.isArray(w.points) ? w.points.length : 0, need = w ? +w.need : 0;\n    return n && need ? 'A written answer, marked against ' + (WORDS[n] || n) + ' points. Any ' + (WORDS[need] || need) + ' make a full answer. You get one more go, then the model answer.'\n      : 'A written answer, in your own words. You get one more go, then the model answer.';\n  }\n  const wB1 = K.written({ id: 'b1', into: '#wr1', onMark: () => K.refresh() });\n  const wB2 = K.written({ id: 'b2', into: '#wr2', onMark: () => K.refresh() });\n  el('wr1').addEventListener('click', () => K.refresh());\n  el('wr2').addEventListener('click', () => K.refresh());\n  K.summary({ into: '#keep' });\n  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {\n    if (at() !== iK) return;\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n\n  // ---------- the worked example, a line at each press ----------\n  const WLINES = [\n    'A 1.5 mm² line and cpc is ' + WH.mpm + ' mΩ/m, and the multiplier is ' + WH.mult + '.',\n    'R1+R2 = ' + WH.mpm + ' × ' + WH.mult + ' × ' + WH.len + ' ÷ 1000 = ' + f3(wR12) + ' Ω',\n    'Zs = ' + WH.ze + ' + ' + f3(wR12) + ' = ' + f3(wZs) + ' Ω, within the breaker\\'s ' + WH.zmax + ' Ω',\n    'Fault current = ' + UO + ' × ' + CMIN + ' ÷ ' + f3(wZs) + ' = ' + f2(wI) + ' A',\n    'That is over its Ia of ' + WH.ia + ' A. So it opens within 0.1 s, well inside the 0.4 s allowed.',\n    'The same rule at the showroom\\'s origin, where Ze is ' + ZE + ' Ω: ' + UO + ' × ' + CMIN + ' ÷ ' + ZE + ' = ' + f2(oI) + ' A',\n  ];\n  const wlines = [];\n  (function () {\n    const box = K.el('div', { class: 'wl' }, K.el('p', { class: 'k-label' }, 'The heater, a line at each press'));\n    WLINES.forEach((t) => { const w = K.el('p', { class: 'w' }, t); box.appendChild(w); wlines.push(w); });\n    el('worked').appendChild(box);\n  })();\n  const cutNote = K.el('p', { class: 'sub' }, 'You may have ' + fWr.value.toFixed(3).slice(0, 4) + ' Ω, ' + fWz.value.toFixed(3).slice(0, 4) + ' Ω and 341.4 A written down. Those figures were rounded down partway through. The pass is the same.');\n  el('worked').appendChild(cutNote);\n  const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {\n    if (at() !== iWk || lines >= wlines.length) return;\n    const w = wlines[lines]; lines += 1;\n    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');\n  } });\n\n  // ---------- fixed words on their screens ----------\n  (function fixed() {\n    const r = el('rule1');\n    r.appendChild(K.el('span', { class: 'k-label' }, 'Time allowed'));\n    r.appendChild(K.el('p', null, 'On a 230 V TN supply, final circuits up to 32 A get 0.4 s. So do socket-outlet circuits up to 63 A. Distribution circuits and other final circuits get up to 5 s. These are the longest times allowed, not how long it will take.'));\n    const wn = el('warn2');\n    wn.appendChild(K.el('b', null, 'If it is skipped: '));\n    wn.appendChild(document.createTextNode('A Zs over the device\\'s maximum goes unnoticed. The fault current is then too small to be sure of opening the device in time.'));\n    write(el('bands'), 'A type C breaker trips instantly somewhere between 5 and 10 times its rating, so ' + ILO + ' to ' + IA + ' A here. Below that, only its slower thermal part works. Take *Ia* as ' + IA + ' A, the top of the band. That is the worst case, and the maximum Zs tables use it too.');\n    el('lim').textContent = 'The limit is ' + Z87 + ' Ω, the 25 A type C\\'s maximum Zs. It comes from ' + UO + ' × ' + CMIN + ' ÷ ' + IA + ' = ' + f3(ZRULE) + ' Ω, printed as ' + Z87 + '.';\n    write(el('under'), 'Each metre adds resistance to the loop. A conductor that has been carrying current is warm, and warm copper has more resistance. The *multiplier* allows for that. The loop sets how much current the supply can push at its lowest voltage. The breaker is sure to open in time only once that current reaches Ia.');\n    const cards = el('cards');\n    const card = (head, rest) => { const p = K.el('p'); p.appendChild(K.el('b', null, head)); if (rest) p.appendChild(document.createTextNode(' ' + rest)); cards.appendChild(p); };\n    card('Bring R1+R2 down.', 'Use bigger conductors, a bigger cpc or a shorter run. A 4 mm² line and cpc gives ' + f3(W504.zs) + ' Ω.');\n    card('Use a breaker that trips instantly on less current.', 'A type B does so at 3 to 5 times In, so its maximum Zs is higher. For a 25 A type B the rule gives ' + UO + ' × ' + CMIN + ' ÷ ' + ILO + ' = ' + f3(ZB25) + ' Ω. On a job, read the real figure from Table 41.3. A type B does not suit this motor, though. In lesson 3 we chose type C so it rides through the starting current.');\n    card('Add an RCD for fault protection.', 'It trips when line and neutral differ by its rating, 30 mA say. So even a poor earth path lets enough current flow to trip it. Table 41.5 allows ' + RCD[30] + ' Ω for 30 mA and ' + RCD[100] + ' Ω for 100 mA.');\n    const p4 = K.el('p'); p4.appendChild(K.el('b', null, 'Where the time cannot be met at all, add ')); p4.appendChild(K.el('mark', null, 'supplementary protective equipotential bonding')); p4.appendChild(document.createTextNode('.'));\n    cards.appendChild(p4);\n    const db = el('debate');\n    db.appendChild(K.el('span', { class: 'k-label' }, 'Debated'));\n    db.appendChild(K.el('p', null, 'The regulations point to this bonding when the times cannot be met. Some engineers argue it does not hold the touch voltage to 50 V in every fault.'));\n  })();\n\n  // The working under the picture: the rule, line by line, at the controls' settings.\n  const wk = el('wk');\n  function wkRow() {\n    const n = K.el('span', { class: 'n' }), f = K.el('span', { class: 'f' }), v = K.el('span', { class: 'v' });\n    const r = K.el('div', { class: 'r' }, n, f, v); wk.appendChild(r); return { r, n, f, v };\n  }\n  const WK = [wkRow(), wkRow(), wkRow()];\n\n  // ---------- the picture: the fault loop, and the current it lets flow ----------\n  const svg = el('scene');\n  function add(tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; svg.appendChild(n); return n; }\n  function txt(x, y, s, cls, anchor) { return add('text', { x, y, class: cls, 'text-anchor': anchor || 'start' }, s); }\n  const AX = 228, AY0 = 230, AY1 = 26, TOP = 41, BOT = 186, LEFT = 20;\n  const yI = (i) => AY0 - K.clamp(i, 0, IMAX) / IMAX * (AY0 - AY1);\n  const xrOf = (len) => 126 + 0.81 * K.clamp(+len || 0, 0, 100);\n  const WID = { '2.5': 3, '4': 4.5, '6': 6 };\n  function drawLoop(p, o) {\n    svg.textContent = '';\n    const xr = +xrOf(p.len).toFixed(1), w = WID[String(p.size)] || 3, low = o.ifl < IA;\n    // The breaker's three bands along the current axis, and its Ia.\n    add('rect', { x: AX, y: yI(ILO).toFixed(1), width: 10, height: (AY0 - yI(ILO)).toFixed(1), class: 'b0' });\n    add('rect', { x: AX, y: yI(IA).toFixed(1), width: 10, height: (yI(ILO) - yI(IA)).toFixed(1), class: 'b1' });\n    add('rect', { x: AX, y: AY1, width: 10, height: (yI(IA) - AY1).toFixed(1), class: 'b2' });\n    add('line', { x1: AX, y1: AY1, x2: AX, y2: AY0, class: 'axis' });\n    add('line', { x1: 214, y1: yI(IA).toFixed(1), x2: 242, y2: yI(IA).toFixed(1), class: 'ia' });\n    txt(244, 14, 'Fault current', 'hd');\n    txt(244, 31, IMAX + ' A and up', 'tk');\n    txt(222, 234, '0 A', 'tk', 'end');\n    txt(246, (yI(IA) - 4).toFixed(1), 'Ia, ' + IA + ' A', 'lb');\n    txt(244, ((AY1 + yI(IA)) / 2 + 5).toFixed(1), 'Within 0.1 s', 'lb');\n    txt(244, ((yI(IA) + yI(ILO)) / 2 + 5).toFixed(1), 'May trip', 'lb');\n    txt(244, ((yI(ILO) + AY0) / 2 + 5).toFixed(1), 'Thermal: slow', 'lb');\n    // The loop: line out along the top, the fault at the starter, the cpc back along the bottom, the supply side up the left.\n    add('path', { d: 'M' + LEFT + ' ' + BOT + ' V54', class: 'cond', 'stroke-width': 3 });\n    add('path', { d: 'M56 ' + TOP + ' H' + xr + ' V96 M' + xr + ' 140 V' + BOT + ' H' + LEFT, class: 'cond', 'stroke-width': w });\n    flowEl = add('path', { d: 'M56 ' + TOP + ' H' + xr + ' V' + BOT + ' H' + LEFT + ' V54', class: 'flow', 'stroke-dashoffset': flowOff.toFixed(1) });\n    add('rect', { x: LEFT - 7, y: 132, width: 14, height: 44, rx: 3, class: 'box' });\n    add('rect', { x: 4, y: 28, width: 52, height: 26, rx: 5, class: 'box' });\n    txt(30, 46, 'DBP2', 'hd', 'middle');\n    add('rect', { x: xr - 13, y: 96, width: 26, height: 44, rx: 4, class: 'box' });\n    add('path', { d: 'M' + xr + ' 99 L' + (xr - 6) + ' 116 L' + (xr + 5) + ' 120 L' + (xr - 1) + ' 137', class: 'bolt' });\n    txt(((56 + xr) / 2).toFixed(1), 22, 'Line out (R1)', 'lb', 'middle');\n    txt(xr - 18, 112, 'Fault at', 'lb', 'end');\n    txt(xr - 18, 128, 'the starter', 'lb', 'end');\n    txt(34, 154, 'Supply side', 'lb');\n    txt(34, 171, ZD + ' Ω', 'hd');\n    txt(((LEFT + xr) / 2).toFixed(1), 205, 'cpc back (R2)', 'lb', 'middle');\n    txt(4, 228, p.hot ? 'Worked hot, × ' + M90 : 'Worked cold, at 20 °C', 'tk');\n    // The fault current: a dot on the axis.\n    add('circle', { cx: AX + 5, cy: yI(o.ifl).toFixed(1), r: 7, class: 'dot' + (low ? ' low' : '') });\n    svg.setAttribute('aria-label', 'The earth fault loop: DBP2, the line out to a fault at the starter, the cpc back, and the supply side. ' + f1(p.len) + ' m of ' + p.size + ' mm², ' +\n      (p.hot ? 'worked hot' : 'worked cold') + '. On the current axis, the fault current sits ' + (low ? 'below' : 'above') + ' Ia, ' + IA + ' A.');\n  }\n  function sayFor(p, o) {\n    const hotO = loop(p.len, p.size, true), bad = o.zs > ZMAX + 1e-9;\n    if (!p.hot) {\n      if (!bad && hotO.zs > ZMAX + 1e-9) return 'Worked cold, Zs looks like a pass at ' + f3(o.zs) + ' Ω, but it is false. Worked hot, the same run is ' + f3(hotO.zs) + ' Ω, and only ' + f2(hotO.ifl) + ' A flows.';\n      if (!bad) return 'Worked cold, Zs is ' + f3(o.zs) + ' Ω. The ' + Z87 + ' Ω limit assumes warm conductors, so switch Worked hot back on before you compare.';\n      return 'Even worked cold, Zs is ' + f3(o.zs) + ' Ω, over ' + Z87 + ' Ω. Worked hot, it is worse: ' + f3(hotO.zs) + ' Ω.';\n    }\n    if (!bad) return 'The loop is ' + f3(o.zs) + ' Ω, within ' + Z87 + ' Ω, so ' + f2(o.ifl) + ' A flows at the lowest supply voltage. That is more than the ' + IA + ' A that opens the breaker within 0.1 s.';\n    if (o.ifl >= IA) return 'Zs is ' + f3(o.zs) + ' Ω, just over the ' + Z87 + ' Ω limit, so the run fails. The current is still just over ' + IA + ' A here, because the table prints ' + f3(ZRULE) + ' Ω as ' + Z87 + '.';\n    if (o.ifl >= ILO) return 'Zs is ' + f3(o.zs) + ' Ω, over ' + Z87 + ' Ω, so only ' + f2(o.ifl) + ' A flows. That is under the ' + IA + ' A that is sure to open the breaker, so it may not trip instantly.';\n    return 'Zs is ' + f3(o.zs) + ' Ω, so only ' + f2(o.ifl) + ' A flows. That is under ' + ILO + ' A, where only the breaker\\'s slower thermal part works.';\n  }\n  function drawWorking(p, o) {\n    const m = MPM[String(p.size)] || MPM['2.5'], bad = o.zs > ZMAX + 1e-9;\n    WK[0].n.textContent = p.hot ? 'R1+R2 = mΩ/m × multiplier × length ÷ 1000' : 'R1+R2 = mΩ/m × length ÷ 1000, no multiplier';\n    WK[0].f.textContent = p.hot ? m + ' × ' + M90 + ' × ' + f1(p.len) + ' ÷ 1000' : m + ' × ' + f1(p.len) + ' ÷ 1000';\n    WK[0].v.textContent = f3(o.r12) + ' Ω';\n    WK[1].n.textContent = 'Zs = Zs at DBP2 + R1+R2';\n    WK[1].f.textContent = ZD + ' + ' + f3(o.r12) + (bad ? ', over the ' + Z87 + '\\u00a0Ω limit' : ', within ' + Z87 + '\\u00a0Ω');\n    WK[1].v.textContent = f3(o.zs) + ' Ω';\n    WK[1].r.classList.toggle('bad', bad);\n    WK[2].n.textContent = 'Fault current = ' + UO + ' × Cmin ÷ Zs';\n    WK[2].f.textContent = UO + ' × ' + CMIN + ' ÷ ' + f3(o.zs);\n    WK[2].v.textContent = f2(o.ifl) + ' A';\n  }\n\n  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }\n  function paintFb(f) {\n    const fb = el('fb');\n    fb.textContent = '';\n    fb.hidden = !f;\n    if (!f) return;\n    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');\n    fb.appendChild(K.el('p', { class: 'v' }, f.v));\n    if (f.p0) fb.appendChild(write(K.el('p'), f.p0));\n    (f.w || []).forEach((t) => fb.appendChild(K.el('p', { class: 'w' }, t)));\n    if (f.p) fb.appendChild(write(K.el('p'), f.p));\n    (f.xs || []).forEach((t) => fb.appendChild(K.el('p', { class: 'sl' }, t)));\n  }\n\n  // ---------- nav ----------\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });\n  function canGo(i) {\n    const d = STEPS[i], st = S[i];\n    if (d.show) return true;\n    if (i === iR) return st.res === 'wrong';\n    if (i === iChk) return st.res === 'right';\n    if (ANS[i]) return (st.res === 'right' || st.shown) && (!JUDGE[i] || !!st.call);\n    if (i === iB1) return !!(wB1 && wB1.answered && wB1.answered());\n    if (i === iB2) return !!(wB2 && wB2.answered && wB2.answered());\n    return false;\n  }\n\n  K.model((p) => loop(p.len, p.size, p.hot));\n\n  const ON = { scen: [iA, iB], carry1: [iA], carry2: [iB], assume: [iA],\n    wrap: [iWhy], ctl: [iWhy], say: [iWhy], wk: [iWhy], lim: [iWhy], bands: [iWhy], under: [iWhy],\n    rule1: [iFor], warn2: [iFor], cards: [iHigh], debate: [iHigh], worked: [iWk], workedgo: [iWk],\n    picks: [iR, iChk], 'ans-2a': [iA], 'ans-2b': [iB], 'ans-ch': [iCh], wr1: [iB1], wr2: [iB2], keep: [iK], fin: [iK] };\n\n  K.update((p, o) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) {\n      if (lastStep !== -1) enter();\n      lastStep = i;\n    }\n    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });\n    el('cap').hidden = WORKING.indexOf(i) < 0;\n\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;\n    el('assume').textContent = i === iA ? ASSUME_A : '';\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    if (d.show) paras(task, d.text);\n    else write(task, d.part || (d.kind ? '' : d.task));\n    task.hidden = !task.textContent;\n    const sub = el('sub');\n    sub.className = 'sub' + (i === iWhy || i === iWk || i === iB ? ' ask' : '');\n    sub.textContent = i === iWhy ? 'Drag the run longer and watch Zs and the dot.'\n      : i === iWk ? 'Work each step yourself first, then press Show.'\n      : i === iB ? 'First, the fault current at Cmin.'\n      : i === iB1 ? markLine('b1') : i === iB2 ? 'This one is 18th Edition ground: Section 722, EV charging on a PME supply. ' + markLine('b2')\n      : i === iCh ? 'The same kind of question, with new numbers.'\n      : i === iK ? 'One card to come back to on a real job.' : '';\n    sub.hidden = !sub.textContent;\n\n    // The why: the loop, the working and the sentence, at the controls' settings.\n    if (i === iWhy) {\n      drawLoop(p, o);\n      drawWorking(p, o);\n      el('say').textContent = sayFor(p, o);\n      if (!REDUCE && !flow.playing()) flow.play();\n    } else { svg.textContent = ''; flowEl = null; }\n\n    // Picks.\n    const opts = d.opts || [];\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      const done = st.res === 'right' || (i === iR && st.res === 'wrong');\n      b.el.classList.toggle('is-right', done && opts[k] === d.want);\n      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    // The worked example's lines.\n    wlines.forEach((w, k) => { w.hidden = k >= lines; });\n    cutNote.hidden = lines < wlines.length;\n    nextLine.el.hidden = lines >= wlines.length;\n    if (i === iWk) el('workedgo').hidden = lines >= wlines.length;\n\n    // Check, the feedback, and what follows a finished typed answer.\n    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);\n    checkBtn.el.hidden = !typed || typedDone;\n    el('acts').hidden = checkBtn.el.hidden;\n    paintFb(st.fb);\n    const jd = JUDGE[i], showJ = !!jd && typedDone;\n    el('judge').hidden = !showJ;\n    if (showJ) {\n      el('jask').textContent = 'Now make the call. Is ' + jd.fig() + ' acceptable here?';\n      jBtns.forEach((b, k) => {\n        b.el.classList.toggle('is-right', !!st.call && CALLS[k] === jd.want);\n        b.el.classList.toggle('is-wrong', !!st.call && CALLS[k] === st.call && st.call !== jd.want);\n        b.el.setAttribute('aria-pressed', st.call === CALLS[k] ? 'true' : 'false');\n      });\n      el('jmsg').textContent = !st.call ? '' : st.call === jd.want ? 'Right.' : 'Not quite. It is ' + jd.want.toLowerCase() + '.';\n      el('jmsg').hidden = !st.call;\n    }\n    const after = el('after');\n    after.textContent = typedDone && SPEC[i].after && (!jd || st.call) ? SPEC[i].after : '';\n    after.hidden = !after.textContent;\n    el('go').hidden = !(i === iR && st.res === 'right');\n\n    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';\n    el('donefb').hidden = !el('donefb').textContent;\n\n    backBtn.el.hidden = i === 0;\n    nextBtn.el.hidden = i === iK || !canGo(i) || (i === iR && st.res === 'right');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const near = (a, b) => K.near(a, b, 1e-9);\n  K.check('At 11.4 m of 2.5 mm², worked hot: R1+R2 0.216 Ω, Zs 0.366 Ω and 596.99 A, as parts 2a and 2b work it', () => {\n    const o = K.at({ len: RUN, size: '2.5', hot: true }); return near(o.r12, 0.216) && near(o.zs, f2a.value) && near(o.ifl, f2b.value);\n  });\n  K.check('Near 37.9 m the run meets the limit: 0.867 Ω and 252.02 A at 37.8 m, 0.871 Ω and 250.86 A at 38.0 m', () => {\n    const a = K.at({ len: 37.8, size: '2.5', hot: true }), b = K.at({ len: 38, size: '2.5', hot: true });\n    return near(a.zs, 0.867) && near(a.ifl, 252.02) && a.zs <= ZMAX && near(b.zs, f38.value) && near(b.ifl, 250.86) && b.zs > ZMAX && near(MAX25, fMax.value);\n  });\n  K.check('At 50 m: 2.5 mm² gives 1.098 Ω and 199.00 A, 4 mm² gives 0.740 Ω and 295.27 A', () => {\n    const a = K.at({ len: 50, size: '2.5', hot: true }), b = K.at({ len: 50, size: '4', hot: true });\n    return near(a.r12, 0.948) && near(a.zs, f50.value) && near(a.ifl, 199) && near(b.r12, 0.59) && near(b.zs, f504.value) && near(b.ifl, 295.27);\n  });\n  K.check('At 40 m: worked hot 0.909 Ω and 240.37 A, cold 0.743 Ω and 294.08 A, a gap of 0.166 Ω', () => {\n    const h = K.at({ len: 40, size: '2.5', hot: true }), c = K.at({ len: 40, size: '2.5', hot: false });\n    return near(h.zs, fHot.value) && near(h.ifl, 240.37) && near(c.r12, 0.593) && near(c.zs, fCold.value) && near(c.ifl, 294.08) && near(GAP, 0.166);\n  });\n  K.check('Longest runs within 0.87 Ω: 37.9 m in 2.5 mm², 61.0 m in 4 mm², 91.3 m in 6 mm²', () =>\n    near(longest(MPM['2.5'], M90), fMax.value) && near(longest(MPM['4'], M90), fMax4.value) && near(longest(MPM['6'], M90), fMax6.value));\n  K.check('Every metre adds: Zs never falls and the fault current never rises as the run lengthens', () => {\n    for (const s of ['2.5', '4', '6']) for (const h of [true, false]) {\n      let prev = null;\n      for (let L = 0; L <= 100; L += 0.2) {\n        const o = loop(L, s, h);\n        if (prev && (o.zs < prev.zs || o.ifl > prev.ifl)) return false;\n        prev = o;\n      }\n    }\n    return true;\n  });\n  K.check('No run at all: Zs is the 0.15 Ω at DBP2, and 1456.67 A flows; the dot waits at the top of the 750 A axis', () => {\n    const o = K.at({ len: 0 }); return near(o.zs, ZDB) && near(o.ifl, 1456.67) && o.ifl > IMAX && near(yI(o.ifl), AY1);\n  });\n  K.check('Maximum Zs from the rule: 230 × 0.95 ÷ 250 = 0.874 Ω for the 25 A type C, 230 × 0.95 ÷ 125 = 1.748 Ω for a 25 A type B', () =>\n    near(ZRULE, fZm.value) && near(ZB25, fTB.value));\n  K.check('The recall: 230 × 0.95 ÷ 7.28 = 30.01 A; 31.59 A without Cmin, 34.75 A with Cmax', () =>\n    near(RC.right, fR.value) && near(RC.noC, fR1.value) && near(RC.cmax, fR2.value));\n  K.check('The heater: 0.436 Ω, 0.646 Ω and 338.24 A; the showroom origin 2185.00 A', () =>\n    near(wR12, fWr.value) && near(wZs, fWz.value) && near(wI, fWi.value) && near(oI, fOrg.value));\n  K.check('Section A slips and the changed numbers come out as the case file works them', () =>\n    near(r3(ZDB + r3(MPM['2.5'] * RUN / 1000)), f2a1.value) && near(r3(ZE + A0.r12), f2a2.value) && near(r3(ZDB + r3(MPM['2.5'] * M70 * RUN / 1000)), f2a3.value) &&\n    near(r2(UO / f2a.value), f2b1.value) && near(r2(UO * CMAX / f2a.value), f2b2.value) && near(ACC2B, 596.59) && near(atMotor, fLeg.value) &&\n    near(chZ, fCh.value) && near(r3(CH.zb + r3(MPM['4'] * CH.len / 1000)), fCh1.value) && near(r3(CH.zb + r3(MPM['4'] * M90 * CH.len / 1000)), fCh2.value) &&\n    near(chR, fCh3.value) && near(chFixZ, fChF.value));\n  K.check('Every slip lies outside its answer\\'s accepted figures', () => Object.keys(SPEC).every((k) => {\n    const sp = SPEC[k], tol = 0.5 * Math.pow(10, -sp.dp);\n    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > tol * 2 && sp.accept.every((x) => Math.abs(s.value - x) > tol * 2));\n  }));\n  K.check('For a low voltage supply under the ESQCR, Cmin is 0.95', () => CMIN === 0.95,\n    { source: 'https://electrical.theiet.org/media/1442/maximum-zs-values.pdf' });\n  K.check('Table 41.3 gives a C25 breaker a maximum Zs of 0.87 Ω', () => near(ZMAX, 0.87),\n    { source: 'https://www.elec-mate.com/guides/maximum-zs-values-bs-7671' });\n  K.check('Table 41.5 gives 1667 Ω for a 30 mA device and 500 Ω for a 100 mA device', () => RCD[30] === 1667 && RCD[100] === 500,\n    { source: 'https://www.elec-mate.com/guides/maximum-zs-values-bs-7671' });\n\n  K.ready();\n</script>",
+  "title": "The fault loop, metre by metre",
+  "brief": "The one thing you should see is Zs pass 0.87 Ω near 37.9 m and the fault current drop below 250 A when you drag the run longer, adding to R1+R2 with every metre.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "At 11.4 m of 2.5 mm², worked hot: R1+R2 0.216 Ω, Zs 0.366 Ω and 596.99 A, as parts 2a and 2b work it",
+     "ok": true
+    },
+    {
+     "label": "Near 37.9 m the run meets the limit: 0.867 Ω and 252.02 A at 37.8 m, 0.871 Ω and 250.86 A at 38.0 m",
+     "ok": true
+    },
+    {
+     "label": "At 50 m: 2.5 mm² gives 1.098 Ω and 199.00 A, 4 mm² gives 0.740 Ω and 295.27 A",
+     "ok": true
+    },
+    {
+     "label": "At 40 m: worked hot 0.909 Ω and 240.37 A, cold 0.743 Ω and 294.08 A, a gap of 0.166 Ω",
+     "ok": true
+    },
+    {
+     "label": "Longest runs within 0.87 Ω: 37.9 m in 2.5 mm², 61.0 m in 4 mm², 91.3 m in 6 mm²",
+     "ok": true
+    },
+    {
+     "label": "Every metre adds: Zs never falls and the fault current never rises as the run lengthens",
+     "ok": true
+    },
+    {
+     "label": "No run at all: Zs is the 0.15 Ω at DBP2, and 1456.67 A flows; the dot waits at the top of the 750 A axis",
+     "ok": true
+    },
+    {
+     "label": "Maximum Zs from the rule: 230 × 0.95 ÷ 250 = 0.874 Ω for the 25 A type C, 230 × 0.95 ÷ 125 = 1.748 Ω for a 25 A type B",
+     "ok": true
+    },
+    {
+     "label": "The recall: 230 × 0.95 ÷ 7.28 = 30.01 A; 31.59 A without Cmin, 34.75 A with Cmax",
+     "ok": true
+    },
+    {
+     "label": "The heater: 0.436 Ω, 0.646 Ω and 338.24 A; the showroom origin 2185.00 A",
+     "ok": true
+    },
+    {
+     "label": "Section A slips and the changed numbers come out as the case file works them",
+     "ok": true
+    },
+    {
+     "label": "Every slip lies outside its answer's accepted figures",
+     "ok": true
+    },
+    {
+     "label": "For a low voltage supply under the ESQCR, Cmin is 0.95",
+     "ok": true,
+     "source": "https://electrical.theiet.org/media/1442/maximum-zs-values.pdf"
+    },
+    {
+     "label": "Table 41.3 gives a C25 breaker a maximum Zs of 0.87 Ω",
+     "ok": true,
+     "source": "https://www.elec-mate.com/guides/maximum-zs-values-bs-7671"
+    },
+    {
+     "label": "Table 41.5 gives 1667 Ω for a 30 mA device and 500 Ω for a 100 mA device",
+     "ok": true,
+     "source": "https://www.elec-mate.com/guides/maximum-zs-values-bs-7671"
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "len",
+    "size",
+    "hot"
+   ],
+   "readouts": [],
+   "outputs": [
+    "r12",
+    "zs",
+    "ifl"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Lesson",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "Do you still have it?",
+      "What it is for",
+      "The why",
+      "Check",
+      "When Zs is too high",
+      "Worked example",
+      "Section A 2(a)",
+      "Section A 2(b)",
+      "Section B (1)",
+      "Section B (2)",
+      "Changed numbers",
+      "Keep this"
+     ],
+     "value": 0
+    },
+    {
+     "id": "len",
+     "kind": "control",
+     "label": "Run length",
+     "min": 0,
+     "max": 100,
+     "step": 0.2,
+     "log": false,
+     "value": 11.4,
+     "shown": false,
+     "snap": [
+      11.4,
+      37.8,
+      38,
+      40,
+      50
+     ]
+    },
+    {
+     "id": "size",
+     "kind": "choice",
+     "label": "Line and cpc",
+     "options": [
+      "2.5",
+      "4",
+      "6"
+     ],
+     "labels": [
+      "2.5 mm²",
+      "4 mm²",
+      "6 mm²"
+     ],
+     "value": "2.5",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "hot",
+     "kind": "toggle",
+     "label": "Worked hot, × 1.28",
+     "options": [
+      false,
+      true
+     ],
+     "value": true,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Refresh the why",
+    "Skip to the practice",
+    "Check",
+    "Acceptable",
+    "Too high",
+    "Finish the lesson",
+    "Show",
+    "Back",
+    "Continue",
+    "Current round the loop"
+   ],
+   "answers": [
+    {
+     "id": "2a",
+     "answer": 0.366,
+     "accept": [
+      0.37
+     ],
+     "ok": true
+    },
+    {
+     "id": "2b",
+     "answer": 596.99,
+     "accept": [
+      596.59
+     ],
+     "ok": true
+    },
+    {
+     "id": "l6.A.changed",
+     "answer": 0.925,
+     "accept": [],
+     "ok": true
+    }
+   ],
+   "written": [
+    "b1",
+    "b2"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-20T17:05:40.440Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "'A breaker opens within the time only once the current reaches Ia' is too absolute: a type B can trip instantly from 3 In and a type C from 5 In, below their Ia; Ia is the current at which opening in time is certain."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screens 2 and 3 say a current below Ia is too small to open the device in time and that it opens in time only at Ia, but the picture's own 'May trip' band (125 to 250 A) shows it may; and Table 41.5 is not in the BS 7671 pages Dan holds (p.441 to 491)."
+   },
+   {
+    "path": "analogy.breaks",
+    "problem": "Says a breaker below Ia opens only on its thermal part and too late; between 5 and 10 In a type C may still trip instantly (the picture's 'May trip' band), so lateness is possible, not certain."
+   },
+   {
+    "path": "written.b1.points[3].text",
+    "problem": "'Opens in time only if the current reaches Ia' is too absolute: a breaker can trip instantly below Ia (a type B from 3 In); Ia is the current that makes opening in time certain."
+   },
+   {
+    "path": "written.b1.model",
+    "problem": "Same overstatement as the point: a device can open in time below Ia; reaching Ia is what makes it certain."
+   },
+   {
+    "path": "written.b2.points[1].text",
+    "problem": "The 722.411.4.1 methods are balanced loading, an earth electrode at the installation, or an open-PEN device; making the point TT is a separate option that takes it off the PME earth altogether, not one of those methods."
+   },
+   {
+    "path": "written.b2.points[3].text",
+    "problem": "A device that detects DC fault current is used with a Type A or F RCD, not on its own; the research gives a Type B RCD, or a Type A or F with a DC-detecting device."
+   },
+   {
+    "path": "written.b2.model",
+    "problem": "Carries the same two slips as points 2 and 4: an earth electrode is one method but making the point TT is a separate option, and the DC-detecting device goes with a Type A or F RCD."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

@@ -1,0 +1,583 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Design and verification, a Level 4 refresher
+Idea: Shock protection, and when Zs is too high (Every metre adds to the earth fault loop, the loop limits the fault current at the lowest supply voltage (Cmin), and that current decides whether the device opens in time; when Zs is too high, a bigger cpc or an RCD.)
+Kind: mechanism
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is Zs pass 0.87 Ω near 37.9 m and the fault current drop below 250 A when you drag the run longer, adding to R1+R2 with every metre.
+Title (the app shows it above the frame, so do not repeat it): The fault loop, metre by metre
+The rule (the app shows it just above the frame, under "What you're looking at"): Twelve screens, with Back and Continue, on the earth fault loop and the time a device has to open.
+
+Screen 1, Do you still have it? The question: “A lighting circuit has a 6 A type B breaker. Its maximum Zs is 7.28 Ω. At that Zs, how much earth fault current does the design count on?” Three choices, in this order: “31.59 A: 230 ÷ 7.28”; “30.01 A: 230 × 0.95 ÷ 7.28”; “34.75 A: 230 × 1.1 ÷ 7.28”. Right: “Still there.” Then the working, 230 × 0.95 ÷ 7.28 = 30.01 A. That is the breaker's Ia of 30 A. The maximum Zs is simply the Zs that still lets Ia flow at the lowest supply voltage. Each slip gets its own line. Then come two buttons. Refresh the why goes to screen 2, and Skip to the practice goes to screen 7. Wrong, 31.59 A: “You left out Cmin. The supply can sag to 218.5 V, so the fault current is worked at 0.95 of 230 V.” Wrong, 34.75 A: “That is Cmax, 1.1. It gives the largest current. You need that for conductor heating, in lesson 7. Whether the breaker opens in time is judged on the smallest current.” Then the right working, and on to screen 2. Read: 230 × 0.95 ÷ 7.28 = 30.01 A, the breaker's Ia. The maximum Zs is the one that still lets Ia flow at the lowest supply voltage.
+
+Screen 2, What it is for. “By now the circuit works. Now ask whether it disconnects on an earth fault. It must do so fast enough to protect anyone touching metalwork that has gone live. The fault current runs round a loop. It goes out on the line conductor, back on the cpc, and home through the supply. The loop's impedance is Zs = Ze + (R1+R2). The lower Zs is, the more current flows. Enough current opens the device within the time allowed. On a 230 V TN supply, final circuits up to 32 A get 0.4 s. So do socket-outlet circuits up to 63 A. Distribution circuits and other final circuits get up to 5 s. These are the longest times allowed, not how long it will take.” In red, what goes wrong if it is skipped: “A Zs over the device's maximum goes unnoticed. The fault current is then too small to be sure of opening the device in time.” Read: Zs = Ze + (R1+R2) must not exceed the device's maximum. Then the fault current opens it within 0.4 s for final circuits up to 32 A, or 5 s for distribution circuits.
+
+Screen 3, The why: the fault loop, metre by metre. Said once at the top: “Assume the motor is fed from DBP2 through the 25 A type C breaker from lesson 3. The cable to the starter is a 2.5 mm² line with a 2.5 mm² cpc, 90 °C thermosetting singles in conduit. Take Zs at DBP2 as 0.15 Ω for practice. On a real job, measure it or work it out from the submain's design.” On the left, the loop as a ring, with short labels: DBP2; Line out (R1); Fault at the starter; cpc back (R2); Supply side 0.15 Ω. On the right, a current axis from 0 to 1500 A. The fault current is a dot on it, over three bands for the breaker. Under 125 A, “Thermal: slow”. From 125 to 250 A, “May trip”. From 250 A up, “Within 0.1 s”. The words beside the bands: “A type C breaker trips instantly somewhere between 5 and 10 times its rating, so 125 to 250 A here. Below that, only its slower thermal part works. Take Ia as 250 A, the top of the band. That is the worst case, and the maximum Zs tables use it too.” The 250 A line is marked Ia.
+
+The controls come next. A Run length slider covers DBP2 to the starter. It runs from 0 to 100 m in steps of 0.2 m and opens at 11.4 m. A Line and cpc choice offers 2.5 mm², 4 mm² or 6 mm², and opens on 2.5 mm². A Worked hot switch applies × 1.28 and opens switched on. The readouts: R1+R2 = mΩ/m × multiplier × length ÷ 1000. A 2.5 mm² line with a 2.5 mm² cpc is 14.82 mΩ/m.[^1] The 4 mm² pair is 9.22 and the 6 mm² pair 6.16. The multiplier for 90 °C thermosetting singles in conduit is 1.28.[^2] Then Zs = 0.15 + R1+R2, and the fault current = 230 × 0.95 ÷ Zs. Zs turns red over 0.87 Ω. That is the 25 A type C's maximum in Table 41.3.[^3] It comes from 230 × 0.95 ÷ 250 = 0.874 Ω, printed as 0.87.
+
+What it shows. At 11.4 m: R1+R2 0.216 Ω, Zs 0.366 Ω, fault current 596.99 A. At 37.8 m: Zs 0.867 Ω and 252.02 A. At 38.0 m: Zs 0.871 Ω, red, and 250.86 A. So the 2.5 mm² run reaches its limit near 37.9 m. At 50 m: R1+R2 0.948 Ω, Zs 1.098 Ω and 199.00 A. That is in the band where the breaker may not trip instantly. Choose 4 mm² at 50 m: R1+R2 0.590 Ω, Zs 0.740 Ω and 295.27 A, a pass again. 4 mm² reaches the limit at 61.0 m, and 6 mm² near 91.3 m. Switch Worked hot off at 40 m in 2.5 mm²: R1+R2 0.593 Ω, Zs 0.743 Ω and 294.08 A. That looks like a pass, but it is false. Worked hot, the same run is 0.909 Ω and 240.37 A. The words under it: “Each metre adds resistance to the loop. A conductor that has been carrying current is warm, and warm copper has more resistance. The multiplier allows for that. The loop sets how much current the supply can push at its lowest voltage. The breaker is sure to open in time only once that current reaches Ia.” The prompt above the picture: “Drag the run longer and watch Zs and the dot.” Read: at 11.4 m, Zs is 0.366 Ω and the fault current 596.99 A. Near 37.9 m, Zs reaches 0.87 Ω and the current falls to about 250 A. At 50 m, 4 mm² brings Zs back to 0.740 Ω.
+
+Screen 4, Check. “The same 2.5 mm² run is now 40 m long. Zs at DBP2 is still the practice 0.15 Ω. One designer works R1+R2 hot and gets Zs 0.909 Ω, a fail. Another leaves out the multiplier and gets 0.743 Ω, a pass. Which figure do you compare with 0.87 Ω?” Choices: “0.909 Ω: the limit assumes conductors at working temperature”; “0.743 Ω: the cable is installed at 20 °C”; “Either: the gap is only rounding”. Right, the first: “The milliohm figures are for copper at 20 °C. The maximum Zs values assume conductors at working temperature. The multiplier brings R1+R2 up to that.” Wrong, the second: “A fault happens on a working, warm circuit. A cold reading is a verification job, checked against lower limits. That comes in lesson 9.” Wrong, the third: “The 0.166 Ω between them is the whole difference between a pass and a fail here.” Read: compare the hot figure, 0.909 Ω, with 0.87 Ω. At 40 m the run fails.
+
+Screen 5, When Zs is too high. “Stretch the motor's run to 50 m. Zs is 1.098 Ω, over 0.87 Ω. The fault current is 199.00 A, under 250 A. Zs at DBP2 is still the practice 0.15 Ω. There are four ways out.” Four cards. First: “Bring R1+R2 down. Use bigger conductors, a bigger cpc or a shorter run. A 4 mm² line and cpc gives 0.740 Ω.” Second: “Use a breaker that trips instantly on less current. A type B does so at 3 to 5 times In, so its maximum Zs is higher. For a 25 A type B the rule gives 230 × 0.95 ÷ 125 = 1.748 Ω. On a job, read the real figure from Table 41.3. A type B does not suit this motor, though. In lesson 3 we chose type C so it rides through the starting current.” Third: “Add an RCD for fault protection. It trips on residual current, not on fault current. So it needs far less of an earth path. Table 41.5 allows about 1667 Ω for 30 mA and 500 Ω for 100 mA. Check both figures in BS 7671 before you rely on them.” Fourth: “Where the time cannot be met at all, add supplementary protective equipotential bonding.” A box headed Debated: “The regulations point to this bonding when the times cannot be met. Some engineers argue it does not hold the touch voltage to 50 V in every fault.” Read: at 50 m, Zs is 1.098 Ω and fails. 4 mm² brings it to 0.740 Ω. An RCD needs far less earth path. Supplementary bonding is the route where the time cannot be met.
+
+Screen 6, Worked example, a line at each press. “A 3 kW immersion heater on 15 m of 1.5 mm² 70 °C thermoplastic singles in conduit. Ze is 0.21 Ω. A 16 A type B breaker protects it, on a TN-S supply. It is a final circuit under 32 A, so it has 0.4 s.” The prompt: “Work each step yourself first, then press Show.” The lines: a 1.5 mm² line and cpc is 24.2 mΩ/m, and the multiplier is 1.2. R1+R2 = 24.2 × 1.2 × 15 ÷ 1000 = 0.436 Ω. Zs = 0.21 + 0.436 = 0.646 Ω, within the breaker's 2.73 Ω. Fault current = 230 × 0.95 ÷ 0.646 = 338.24 A. That is over its Ia of 80 A. So it opens within 0.1 s, well inside the 0.4 s allowed. The last line uses the same rule at the showroom's origin, where Ze is 0.1 Ω: 230 × 0.95 ÷ 0.1 = 2185.00 A. A note under the lines: “You may have 0.43 Ω, 0.64 Ω and 341.4 A written down. Those figures were rounded down partway through. The pass is the same.” Read: R1+R2 is 0.436 Ω. Zs is 0.646 Ω, within 2.73 Ω. The fault current is 338.24 A, over the Ia of 80 A. So it opens within 0.1 s.
+
+Screen 7, Section A, question 2 (a). The scenario panel, and parts 1(a) and 1(c) carried forward. Then, said once: “Assume these for the motor circuit. DBP2 to the starter is 11.4 m on plan. That is approximate. A real design adds the vertical runs. The cable is a 2.5 mm² line with a 2.5 mm² cpc, 90 °C thermosetting singles in conduit. Zs at DBP2 is the practice 0.15 Ω. Use 14.82 mΩ/m and a multiplier of 1.28.” The question: “(a) Determine, for the motor circuit, the total earth fault loop impedance (Zs) at the starter.” A typed answer, part 2a: 14.82 × 1.28 × 11.4 ÷ 1000 = 0.216 Ω, then Zs = 0.150 + 0.216 = 0.366 Ω. Accepted too: 0.37 Ω. Slips: 0.319 Ω, “You left out the multiplier. The table figures are for cold copper.” 0.316 Ω, “You used Ze, 0.1 Ω. This circuit starts at DBP2, so start from Zs there.” 0.353 Ω, “1.20 is for 70 °C cable. These singles are 90 °C thermosetting, so use 1.28.” After two misses, the working. One line under it: “Take the starter-to-motor leg as 3.0 m, another practice value. In 1.5 mm² with a 1.5 mm² cpc it adds 24.2 × 1.28 × 3 ÷ 1000 = 0.093 Ω. Zs at the motor is 0.459 Ω, still inside.” Read: R1+R2 = 14.82 × 1.28 × 11.4 ÷ 1000 = 0.216 Ω. Zs = 0.150 + 0.216 = 0.366 Ω, taking the practice 0.15 Ω at DBP2.
+
+Screen 8, Section A, question 2 (b). Part (a) carried forward. The question: “(b) Determine if the value of earth fault loop impedance is acceptable.” First comes the fault current at Cmin, a typed answer for part 2b: 230 × 0.95 ÷ 0.366 = 596.99 A. Accepted too: 596.59 A, from the unrounded Zs. Slips: 628.42 A, “You left out Cmin.” 691.26 A, “That is Cmax. It is for conductor heating, in lesson 7.” After two misses, the working. Then the judgement: “596.99 A is well over the 250 A that opens the breaker within 0.1 s. And 0.366 Ω is within 0.87 Ω. So it is acceptable. This rests on the practice 0.15 Ω at DBP2. The run could grow to near 37.9 m before it failed.” Read: 230 × 0.95 ÷ 0.366 = 596.99 A, over 250 A. 0.366 Ω is within 0.87 Ω, so it is acceptable.
+
+Screen 9, Section B: “Explain why the factor Cmin is applied to the nominal voltage to earth when an earth fault current is worked out.” A written answer, marked against five points. Any three make a full answer. You get one more go, then the model answer.
+
+Screen 10, Section B: “State what a designer must consider for the showroom's EV charging points on its TN-C-S supply.” A written answer, marked against five points. Any three make a full answer. You get one more go, then the model answer.
+
+Screen 11, Section A, changed numbers. “A single-phase circuit is wired in 70 °C thermoplastic singles in conduit: a 4 mm² line and a 4 mm² cpc, 52 m long. A 25 A type C breaker to BS EN 60898 protects it. Its maximum Zs is 0.87 Ω. Zs at its board is 0.35 Ω. Determine the total earth fault loop impedance, and whether it is acceptable.” A typed answer: 9.22 × 1.20 × 52 ÷ 1000 = 0.575 Ω, then 0.35 + 0.575 = 0.925 Ω. That is over 0.87 Ω, so it is too high. Slips: 0.829 Ω, “You left out the multiplier. That turns a fail into a false pass.” 0.964 Ω, “1.28 is for 90 °C cable. These are 70 °C singles, so use 1.20.” 0.575 Ω, “That is R1+R2 alone. Add the board's 0.35 Ω.” After it: “Go up to a 6 mm² line and cpc: 6.16 × 1.20 × 52 ÷ 1000 = 0.384 Ω. Zs is then 0.734 Ω, inside. Or add an RCD.” Read: 9.22 × 1.20 × 52 ÷ 1000 = 0.575 Ω. Zs is 0.925 Ω, over 0.87 Ω, so it is too high. 6 mm² gives 0.734 Ω.
+
+Screen 12, Keep this: the summary card, then Finish the lesson.
+
+On every screen, each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The loop is drawn as a ring of resistances. Zs at DBP2 is a practice figure, not a designed one. The cables' small reactance is left out. The breaker is shown as three bands, not a full curve. The picture takes Ia as 10 times In, the worst case. A real type C may trip instantly anywhere from 5 to 10 times In. Table 41.3 prints 0.874 Ω as 0.87 Ω. So for a few tenths of a metre past 37.9 m, Zs fails while the dot still sits just over 250 A. The fault is placed at the far end of the run, the worst place for it.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 11 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 12 (the stepper): 0 (control)
+- Recall: 6 A type B maximum Zs, Ω: 7.28 (constant, source [4])
+- Recall: its Ia, A: 30 (constant, source [5])
+- Nominal voltage to earth, V: 230 (constant, source [6])
+- Cmin: 0.95 (constant, source [7])
+- Lowest supply voltage, V: 218.5 (constant, source [6])
+- Cmax: 1.1 (constant)
+- Recall: 230 × 0.95 ÷ 7.28, A: 30.01 (computed, source [8])
+- Recall slip: 230 ÷ 7.28, A: 31.59 (computed)
+- Recall slip: 230 × 1.1 ÷ 7.28, A: 34.75 (computed)
+- Final circuits up to, A (Table 41.1, 0.4 s): 32 (constant, source [9])
+- Socket-outlet circuits up to, A: 63 (constant, source [9])
+- Maximum disconnection time, final circuits, s: 0.4 (constant, source [10])
+- Maximum disconnection time, distribution circuits, s: 5 (constant, source [11])
+- Showroom motor breaker: 25 A type C (lesson 3), A: 25 (constant)
+- Zs at DBP2 (practice value), Ω: 0.15 (assumed)
+- Ze declared, showroom, Ω: 0.1 (constant, source [12])
+- Type C instantaneous trip, low end: 5 In, A: 125 (computed, source [13])
+- Type C instantaneous trip, top: 10 In, taken as Ia, A: 250 (computed, source [14])
+- Type C: multiples of In for instantaneous trip: 5 to 10 (constant, source [13])
+- Type B: multiples of In for instantaneous trip: 3 to 5 (constant, source [15])
+- Opens within, at 10 In, s: 0.1 (constant, source [14])
+- Current axis: 0 to, A: 1500 (assumed)
+- Run length slider: 0 to, m: 100 (assumed)
+- Run length slider step, m: 0.2 (assumed)
+- Run length opens at: DBP2 to the starter (assumed), m: 11.4 (control)
+- 2.5 mm² line and cpc, mΩ/m (Table I1): 14.82 (constant, source [1])
+- 4 mm² line and cpc, mΩ/m: 9.22 (constant, source [16])
+- 6 mm² line and cpc, mΩ/m: 6.16 (constant, source [17])
+- Multiplier, 90 °C thermosetting, bunched (Table I3): 1.28 (constant, source [2])
+- Multiplier, 70 °C thermoplastic, bunched (Table I3): 1.2 (constant, source [2])
+- Table I1 temperature, °C: 20 (constant, source [18])
+- 25 A type C maximum Zs (Table 41.3), Ω: 0.87 (constant, source [3])
+- 230 × 0.95 ÷ 250, Ω: 0.874 (computed)
+- 11.4 m: R1+R2, Ω: 0.216 (computed)
+- 11.4 m: Zs, Ω: 0.366 (computed)
+- 11.4 m: fault current, A: 596.99 (computed)
+- 37.8 m: Zs, Ω: 0.867 (computed)
+- 37.8 m: fault current, A: 252.02 (computed)
+- 38.0 m: Zs, Ω: 0.871 (computed)
+- 38.0 m: fault current, A: 250.86 (computed)
+- Longest 2.5 mm² run, near, m: 37.9 (computed)
+- 50 m: R1+R2, 2.5 mm², Ω: 0.948 (computed)
+- 50 m: Zs, 2.5 mm², Ω: 1.098 (computed)
+- 50 m: fault current, 2.5 mm², A: 199 (computed)
+- 50 m: R1+R2, 4 mm², Ω: 0.59 (computed)
+- 50 m: Zs, 4 mm², Ω: 0.74 (computed)
+- 50 m: fault current, 4 mm², A: 295.27 (computed)
+- Longest 4 mm² run, m: 61 (computed)
+- Longest 6 mm² run, near, m: 91.3 (computed)
+- 40 m cold: R1+R2, Ω: 0.593 (computed)
+- 40 m cold: Zs, Ω: 0.743 (computed)
+- 40 m cold: fault current, A: 294.08 (computed)
+- 40 m hot: Zs, Ω: 0.909 (computed)
+- 40 m hot: fault current, A: 240.37 (computed)
+- Check: gap between hot and cold Zs, Ω: 0.166 (computed)
+- Type B 25 A: 230 × 0.95 ÷ 125, Ω: 1.748 (computed)
+- Table 41.5: 30 mA, Ω: 1667 (constant, source [19])
+- Table 41.5: 100 mA, Ω: 500 (constant, source [19])
+- Touch voltage in the debate, V: 50 (constant, source [20])
+- Worked heater: power, kW: 3 (constant)
+- Worked heater: length, m: 15 (constant, source [21])
+- Worked heater: Ze, Ω: 0.21 (constant, source [22])
+- Worked heater: 1.5 mm² line and cpc, mΩ/m: 24.2 (constant, source [23])
+- Worked heater: breaker rating, A: 16 (constant)
+- Worked heater: R1+R2, 24.2 × 1.2 × 15 ÷ 1000, Ω: 0.436 (computed, source [21])
+- Cut-short R1+R2, Ω: 0.43 (constant)
+- Worked heater: Zs, Ω: 0.646 (computed, source [22])
+- Cut-short Zs, Ω: 0.64 (constant, source [22])
+- 16 A type B maximum Zs, Ω: 2.73 (constant, source [24])
+- Worked heater: fault current, A: 338.24 (computed, source [25])
+- Cut-short fault current, A: 341.4 (constant, source [25])
+- 16 A type B Ia, A: 80 (constant, source [26])
+- Showroom origin: 230 × 0.95 ÷ 0.1, A: 2185 (computed)
+- Part 2a: Zs at the starter, Ω: 0.366 (computed)
+- Part 2a accepted, Ω: 0.37 (computed)
+- Part 2a slip: no multiplier, Ω: 0.319 (computed)
+- Part 2a slip: Ze in place of Zs at DBP2, Ω: 0.316 (computed)
+- Part 2a slip: 1.20 multiplier, Ω: 0.353 (computed)
+- Starter-to-motor leg (practice value), m: 3 (assumed)
+- Leg R1+R2, 24.2 × 1.28 × 3 ÷ 1000, Ω: 0.093 (computed)
+- Zs at the motor, Ω: 0.459 (computed)
+- Part 2b: fault current at Cmin, A: 596.99 (computed)
+- Part 2b accepted: from 0.36625 Ω, A: 596.59 (computed)
+- Part 2b slip: no Cmin, A: 628.42 (computed)
+- Part 2b slip: Cmax, A: 691.26 (computed)
+- Changed numbers: length, m: 52 (assumed)
+- Changed numbers: Zs at the board, Ω: 0.35 (assumed)
+- Changed numbers: R1+R2, Ω: 0.575 (computed)
+- Changed numbers: Zs, Ω: 0.925 (computed)
+- Changed slip: no multiplier, Ω: 0.829 (computed)
+- Changed slip: 1.28 multiplier, Ω: 0.964 (computed)
+- Changed: 6 mm² R1+R2, Ω: 0.384 (computed)
+- Changed: 6 mm² Zs, Ω: 0.734 (computed)
+- Rule of thumb: 14.82 × 1.28, mΩ/m: 18.97 (computed)
+- EV: open-PEN voltage limit, V rms: 70 (constant, source [27])
+- EV: DC fault current threshold, mA: 6 (constant, source [28])
+- Section B: points, of which any make a full answer: 5, any 3 (constant)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+An earth fault opens the breaker in time only if enough current flows. That current runs round a loop. It goes out on the line conductor, back on the cpc, and home through the supply. The loop's impedance is Zs = Ze + (R1+R2). Every metre of cable adds to R1+R2. So a longer run means a bigger Zs and a smaller fault current.
+
+Work R1+R2 as milliohms per metre × multiplier × length ÷ 1000. The milliohm figures in Table I1 are for copper at 20 °C. A fault happens on a circuit that has been working, and warm copper has more resistance. The multiplier brings the figure up to working temperature. The fault current is then Uo × Cmin ÷ Zs. The supply can sag below 230 V, as low as 218.5 V. Cmin, 0.95, allows for that. You design on the lowest voltage because it gives the least current. If the breaker opens on that, it opens on anything higher.
+
+A breaker is sure to open within the time only once the current reaches a set figure, its Ia. For a 6 A type B, Ia is 30 A. Its maximum Zs comes straight from that: 230 × 0.95 ÷ 30 = 7.28 Ω. So checking Zs against the maximum is the same as checking the fault current against Ia. Take Zs at DBP2 as 0.15 Ω for practice. Then the showroom motor's 2.5 mm² run reaches its 0.87 Ω limit near 37.9 m. When Zs is too high, bring R1+R2 down with bigger conductors, a bigger cpc or a shorter run. Or add an RCD. It trips on residual current, so it needs far …
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p218): "2.5 2.5 14.82"
+[2] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p220): "Incorporated in a cable or bunched (NOTE 2) 1.20 1.28 1.28"
+[3] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app site, not a standard) (https://www.elec-mate.com/guides/maximum-zs-values-bs-7671): "C25 0.87 Ω 0.70 Ω"
+[4] EAL Level 4 Design and Verification: course slides (material:eal-slides#p47): "According to table 41.3 it has a maximum tabulated Zs of 7.28Ω."
+[5] EAL Level 4 Design and Verification: course slides (material:eal-slides#p47): "According to Fig 3A4 it has an Ia of 30A."
+[6] EAL Level 4 Design and Verification: course slides (material:eal-slides#p48): "voltage fluctuates as it’s produced, which means it can drop below the nominal voltage of 230V to as low as 218.5V."
+[7] REDUCTION IN MAXIMUM VALUES OF EARTH FAULT LOOP IMPEDANCE IN BS 7671 (https://electrical.theiet.org/media/1442/maximum-zs-values.pdf): "NOTE 1: For a low voltage supply given in accordance with ESQCR, Cmin is given the value 0.95."
+[8] EAL Level 4 Design and Verification: course slides (material:eal-slides#p47): "230 x 0.95 / 7.28 = 30A"
+[9] EAL Level 4 Design and Verification: course slides (material:eal-slides#p49): "All final circuits up to 63A if supplying socket outlets"
+[10] EAL Level 4 Design and Verification: course slides (material:eal-slides#p51): "This circuit means that table 41.1 will be used, which explains it needs to disconnect within 0.4s."
+[11] TN Systems - Gt-Engineering (quotes IEC 60364-4-41, which BS 7671 follows) (https://www.gt-engineering.it/en/technical-standards/en-iec-standards/iec-60364-4-41/tn-systems): "[IEC 60364-4-41] 411.3.2.3 In TN systems, a disconnection time not exceeding 5 s is permitted for distribution circuits, and for circuits not covered by 411.3.2.2."
+[12] ED4-01A learner pack: car showroom assignment (material:learner-pack#p3): "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+[13] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p90): "C 5 to 10 In the use of fluorescent lighting, small motors, etc., can"
+[14] — Electrical installation solutions for buildings – Technical details MCBs (https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj): "C 0.5 to 63 A 1.13 · In > 1 h 5 · In > 0.1 s 1.45 · In < 1 h 10 · In < 0.1 s"
+[15] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p90): "B 3 to 5 In switching surge"
+[16] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p218): "4 4 9.22"
+[17] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p218): "6 6 6.16"
+[18] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p217): "These values are at 20 °C."
+[19] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app site, not a standard) (https://www.elec-mate.com/guides/maximum-zs-values-bs-7671): "Regulation 411.5.3 and Table 41.5 give 1667 Ω for a 30 mA device and 500 Ω for a 100 mA device"
+[20] TN system - Max Zs Vs tripping time in the Presence of RCD protection - IET EngX forum (a forum answer, contested point) (https://engx.theiet.org/f/wiring-and-regulations/31645/tn-system---max-zs-vs-tripping-time-in-the-presence-of-rcd-protection): "Using this method (Regulations 415.2 and 419.3), the voltage is not actually limited to 50 V for every possible fault."
+[21] EAL Level 4 Design and Verification: course slides (material:eal-slides#p53): "24.2 x 1.2 x 15 / 1000"
+[22] EAL Level 4 Design and Verification: course slides (material:eal-slides#p54): "Our Zs will be calculated as: 0.21 + 0.43 = 0.64Ω"
+[23] EAL Level 4 Design and Verification: course slides (material:eal-slides#p51): "For the (mΩ/m) of a 1.5mm² line and a 1.5mm² cpc, the value to use is: 24.2."
+[24] EAL Level 4 Design and Verification: course slides (material:eal-slides#p54): "The maximum Zs of the device is 2.73Ω"
+[25] EAL Level 4 Design and Verification: course slides (material:eal-slides#p55): "230 x 0.95 / 0.64 = 341.4A"
+[26] EAL Level 4 Design and Verification: course slides (material:eal-slides#p55): "The Ia of the device is 80A, and because our PEFC exceeds this, the device will operate in 0.1s."
+[27] BS 7671:2018 with Amendment 1 (IET), Section 722 (https://electrical.theiet.org/media/2422/bs-7671-2018_a1_2020-inc-corrigendum-may-2020_read-only.pdf): "in the event of an open-circuit fault in the PEN conductor of the low voltage network supplying the installation does not exceed 70 V rms."
+[28] GUIDE TO RESIDUAL CURRENT DEVICE (RCD) PROTECTION OF ELECTRIC VEHICLE (EV) CHARGING INSTALLATIONS (https://www.beama.org.uk/static/9fa28e39-62fe-4ba6-a5e6e571d731b3f0/BEAMA-Guide-RCD-selection-for-protection-of-Electric-Vehicle-charging-installations.pdf): "In addition, protection shall be provided against DC fault currents exceeding 6 mA."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: mechanism). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: mechanism -->
+<style>
+  .push .floor { stroke: var(--k-strong); stroke-width: 2; }
+  .push .tick { stroke: var(--k-line); stroke-width: 2; }
+  .push .box { fill: var(--k-panel); stroke: var(--k-muted); stroke-width: 2; }
+  .push .mass { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .push .yours { stroke: var(--k-accent2); fill: var(--k-accent2); stroke-width: 4; }
+  .push .grip { stroke: var(--k-accent); fill: var(--k-accent); stroke-width: 4; }
+  .push .most { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .push .hand { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .push .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .push .lab.limit { fill: var(--k-muted); }
+</style>
+
+<p class="lead">Drag the round handle (or the slider) to push the box harder, and watch how hard the floor pushes back.</p>
+
+<svg class="push" id="scene" viewBox="0 0 340 170" role="img" aria-label="">
+  <g id="ticks"></g>
+  <line class="floor" x1="0" y1="100" x2="340" y2="100"/>
+  <rect class="box" id="box" x="150" y="40" width="80" height="60" rx="6"/>
+  <text class="mass" x="190" y="75" text-anchor="middle">20 kg</text>
+  <g id="yours"></g>
+  <line class="most" id="most" y1="122" y2="122" x2="232"/>
+  <g class="k-after-move" id="grip"></g>
+  <circle class="hand" id="hand" cy="70" r="10"/>
+  <g id="labels"></g>
+</svg>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<p class="caption">Example numbers: the floor grips with up to half the box's weight, kept while sliding (simplified: usually a little less).</p>
+
+<script>
+  // Source [1] of the lesson: static friction matches the push, up to a limit.
+  const SOURCE = 'https://en.wikipedia.org/wiki/Friction';
+  const M = 20, G = 9.81, GRIP = 0.5;          // the example box and floor (assumed values)
+  const MOST = GRIP * M * G;                   // the most the floor can grip with: 98.1 N
+  // A simplification, said in the caption: the grip stays at MOST while the box slides (real
+  // sliding friction is usually a little lower than the most a floor grips a box at rest).
+  const S = 0.75;                              // drawing units per newton, the same for both arrows
+  const N = (f) => K.fmt(f, { decimals: Number.isInteger(f) ? 0 : 1 }) + ' N';
+  // Sliding, what is left of the push after the grip speeds the box up (a negative one slows it).
+  const accel = (push) => (push - MOST) / M;
+
+  // The cause Dan controls: his push, by dragging the handle or the slider (they move together).
+  // A drag near the limit lands on it exactly (snap).
+  const push = K.control({ id: 'push', label: 'Your push', min: 0, max: 160, step: 1, value: 40, unit: 'N', snap: [MOST], into: '#controls' });
+  K.stage('#scene', '#controls');
+  const handX = (f) => 136 - f * S;
+  K.drag('#hand', { control: 'push', toValue: (x) => (136 - x) / S });   // its first touch reveals, like a slider move
+
+  // The pure model, for a box that starts at rest: the floor pushes back as hard as the push, up to its limit.
+  K.model((p) => ({ grip: Math.min(p.push, MOST), slides: p.push > MOST ? 'yes' : 'no' }));
+
+  // The box's own state while it slides. The motion runs whenever the push beats the grip, and
+  // stops when the box stands still again: no Play button, the push is what starts it.
+  let speed = 0, slid = 0;
+  const slide = K.anim({ button: false, step: (dt) => {
+    speed = Math.max(0, speed + accel(push.get()) * dt);
+    slid += speed * dt;
+    draw(K.params(), K.outputs());
+    return speed > 0 || push.get() > MOST;
+  } });
+
+  const svg = document.getElementById('scene');
+  // A straight arrow from x1 to x2 at height y: a line and a filled head.
+  function arrow(g, x1, x2, y, cls) {
+    g.textContent = '';
+    const dir = x2 > x1 ? 1 : -1;
+    if (Math.abs(x2 - x1) < 12) return null;
+    const line = K.svg('line', { class: cls, x1, y1: y, x2: x2 - dir * 9, y2: y });
+    g.append(line, K.svg('path', { class: cls, d: `M${x2} ${y}l${-dir * 11} -7v14z` }));
+    return line;
+  }
+  document.getElementById('most').setAttribute('x1', 232 - MOST * S);
+
+  function draw(p, o) {
+    // The floor's marks drift back while the box slides (the view follows the box).
+    const off = (slid * 40) % 20, ticks = document.getElementById('ticks');
+    ticks.textContent = '';
+    for (let x = 10 - off; x < 350; x += 20) ticks.appendChild(K.svg('line', { class: 'tick', x1: x, y1: 101, x2: x - 8, y2: 111 }));
+    const hx = handX(p.push), grip = speed > 0 ? MOST : o.grip;
+    document.getElementById('hand').setAttribute('cx', hx);
+    const yours = arrow(document.getElementById('yours'), hx + 10, 148, 70, 'yours');
+    const gripLine = arrow(document.getElementById('grip'), 232, 232 - grip * S, 122, 'grip');
+    // Labels move with their arrows; K.labels keeps them off the arrows, the box and the limit line.
+    K.labels('#labels', [
+      { x: (hx + 148) / 2, y: 56, text: p.push ? 'push ' + N(p.push) : 'no push', class: 'lab' },
+      { x: 152, y: 126, text: 'grip limit ' + N(MOST), anchor: 'end', class: 'lab limit' },
+    ].concat(K.moved && grip ? [{ x: 232 - grip * S / 2, y: 148, text: 'floor\'s grip ' + N(grip), class: 'lab' }] : []),
+      { avoid: [yours, gripLine, '#most', '#box', '#hand'].filter(Boolean) });
+    svg.setAttribute('aria-label', 'A 20 kg box on a floor, pushed with ' + N(p.push) + (K.moved ? '; the floor grips back with ' + N(grip) + (speed > 0 ? ', and the box is sliding.' : ', and the box stays put.') : '.'));
+
+    let text;
+    if (!K.moved) text = 'The hand pushes with ' + N(p.push) + ' and the box stays put. How hard is the floor pushing back? Make your guess, then drag the handle.';
+    else if (p.push > MOST) text = 'The push (' + N(p.push) + ') is more than the floor can grip with (' + N(MOST) + '), so the box slides and keeps speeding up: ' + K.fmt(speed, { decimals: 1 }) + ' m/s now.';
+    else if (speed > 0) text = 'The push is less than the grip again, so the grip slows the sliding box down: ' + K.fmt(speed, { decimals: 1 }) + ' m/s now.';
+    else if (p.push === 0) text = 'No push, so the floor pushes back with nothing: its grip only ever answers a push.';
+    else text = 'The floor pushes back with exactly ' + N(o.grip) + ', as hard as the hand pushes, so the box stays put. It can grip with up to ' + N(MOST) + '.';
+    document.getElementById('say').textContent = text;
+  }
+  K.update((p, o) => {
+    if (p.push > MOST && !slide.playing()) slide.play();
+    draw(p, o);
+  });
+
+  // Known answers, worked by hand, and the rule as the source states it.
+  K.check('A 40 N push: the floor pushes back with exactly 40 N, and the box stays put', () => K.at({ push: 40 }).grip === 40 && K.at({ push: 40 }).slides === 'no');
+  K.check('The most grip is half the weight: 0.5 × 20 kg × 9.81 m/s² = 98.1 N', () => K.near(MOST, 98.1, 1e-9));
+  K.check('Just past it (100 N) the box slides; in this simplified model the grip stays at 98.1 N', () => { const o = K.at({ push: 100 }); return o.slides === 'yes' && K.near(o.grip, 98.1, 1e-9); });
+  K.check('Pushing 20 N more than the grip speeds the 20 kg box up by 1 m/s every second', () => K.near(accel(MOST + 20), 1, 1e-9));
+  K.check('Static friction matches the push, up to a most of μ × the weight pressing down', () =>
+    [0, 30, 60, 98, 98.1, 120, 160].every((f) => K.near(K.at({ push: f }).grip, Math.min(f, GRIP * M * G), 1e-9)), { source: SOURCE });
+
+  K.ready();
+</script>
+
+
+## Refresher lessons: typed answers, written answers, the case file, the summary
+
+A refresher course's steps lesson (a ready-made course built in Claude Code) has four more kit
+pieces. The app passes the page two pieces of checked data, as it passes the theme: the course's
+case file (`K.caseFile`) and the lesson's own `{written, summary}` (`K.lesson`). Name what you want
+by id; the kit draws the checked words, so never retype a figure, a point or a summary line.
+
+```
+K.figure(id) -> {id, label, value, unit, text, part, lesson, rule, work}   a given or worked figure; print f.text ("23.08 A"), f.work its working
+K.scenario({into, open?})                                        the case's scenario panel (folds)
+K.carried({parts: ['1a'], into})  -> {el, refresh()}             earlier Section A parts at the course's figures
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+    -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state: 'right'|'wrong'|'empty'|'unreadable', value, accepted?, slip?, hint?}
+K.written({id, into, onMark?}) -> {el, id, stage(), answered()}
+K.summary({into, kept?})
+```
+
+**Typed answers** (Section A, where a C&G paper has him write a figure). A decimal-keypad field;
+your Check button calls `a.check()` (Enter does too) and you write the feedback from the result.
+`answer` is the course's figure, each line worked from the rounded figures shown; it is accepted
+within half a unit in its last place (`decimals`, default 2). `accept: [13.32]` adds the answer
+worked from unrounded figures; `slips: [{value: 50, hint: 'You left out √3.'}]` names a usual slip
+and its hint (`r.hint`). A unit typed after the number ("13.33 A") is fine. Give the part's
+case-file id as the answer's id ('1b'), so `K.carried` knows when he missed it: a part got wrong
+and never right, or shown with `a.reveal()`, is carried forward at the course's figure and says so.
+After two wrong tries, show the working and `reveal()`; Continue once `right()`.
+The self-test grades every answer: its figure and each accepted one right (with the unit too), a
+near miss and each slip refused, and the figure typed into the field and checked on its step.
+
+**Written answers** (Section B: "Explain why…", "State two…"). `K.written({id: 'b1', into})` shows
+`lesson.written.b1`'s question, a box for his words and Check my answer. Claude marks them against
+the lesson's points through the app (never from the page): each point comes back with an ink tick
+or a dashed ring, a statement that is wrong named in red, one line on what he did well and one
+nudge; one more go, then the model answer. Without Claude, the points are a checklist he ticks.
+No marks, no grades, nothing to score. `onMark(r)` runs when a result is drawn; let him Continue
+once `answered()`.
+
+**The summary** (Keep this, the last step). `K.summary({into: '#keep'})` draws `lesson.summary`
+as a card (what it is for, the rule, the traps, the case's figures so far, where it lives) and says
+it is the first page of the chapter in his Book. Then the Finish button calls `K.complete()`.
+
+**STEPS entries** (tools/course/guide.mjs reads them for the Book): a typed-answer step keeps
+`want` (the answer as printed, '13.33 A'); a written step is `{kind: 'written', written: 'b1',
+name, task}`; the summary step is `{kind: 'summary', name: 'Keep this'}`; the recall opener is a
+DO step like any other. The Book and the read-through show each step as it looks finished (a step
+drawn in HTML is kept as still HTML), with its own words; when those words ask him to do something
+("Drag…", "Work each step yourself first, then show it"), give the entry a `read` sentence that
+says the same for reading it through.
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.
