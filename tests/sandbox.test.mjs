@@ -84,7 +84,7 @@ test('merge() takes ids, inputs and checks from the widths whose page ran', () =
 test('srcdoc() puts the frame\'s token beside the theme, as inline-safe JSON', () => {
   const U = boot({ rootPx: 16, fs: '1.125rem' });
   const doc = U.sandbox.srcdoc('<p>x</p>', { token: 'abc</script>' });
-  assert.match(doc, /window\.K_TOKEN="abc\\u003c\/script>";window\.K_QUIZ=null;<\/script><script>/);
+  assert.match(doc, /window\.K_TOKEN="abc\\u003c\/script>";window\.K_QUIZ=null;window\.K_CASE=null;window\.K_LESSON=null;<\/script><script>/);
   assert.ok(doc.indexOf('K_TOKEN') < doc.indexOf('<p>x</p>'));
   assert.match(U.sandbox.srcdoc('<p>x</p>'), /window\.K_TOKEN="";/);
 });
@@ -164,8 +164,60 @@ const BODY = '<p class="say">x</p><script>K.ready();</script>';
 
 test('srcdoc() carries the quiz output (or null) beside the token, as inline-safe JSON', () => {
   const U = boot({ rootPx: 16, fs: '1.125rem' });
-  assert.match(U.sandbox.srcdoc('<p>x</p>', { token: 't', quiz: 'T</script>' }), /window\.K_TOKEN="t";window\.K_QUIZ="T\\u003c\/script>";<\/script>/);
+  assert.match(U.sandbox.srcdoc('<p>x</p>', { token: 't', quiz: 'T</script>' }), /window\.K_TOKEN="t";window\.K_QUIZ="T\\u003c\/script>";window\.K_CASE=null;/);
   assert.match(U.sandbox.srcdoc('<p>x</p>', { token: 't' }), /window\.K_QUIZ=null;/);
+});
+
+// Refresher lessons: the course's case file and the lesson's {written, summary} go into the
+// srcdoc as K_CASE and K_LESSON (inline-safe), and nothing else of the lesson does.
+test('srcdoc() carries a refresher lesson\'s case file and its written questions and summary, nothing else', () => {
+  const U = boot({ rootPx: 16, fs: '1.125rem' });
+  const kase = { title: 'The showroom', givens: [{ id: 'ze', label: 'Ze', value: 0.1, unit: 'Ω', cite: 'pack p.3' }], figures: [] };
+  const lesson = { title: 'Design current', say: { prompt: 'secret' }, written: { b1: { q: 'Why </script>?', points: [{ text: 'a', cite: 'p.1' }], model: 'm' } }, summary: { title: 'Ib' } };
+  const doc = U.sandbox.srcdoc('<p>x</p>', { token: 't', kase, lesson });
+  const json = (name) => JSON.parse(new RegExp('window\\.' + name + '=(.*?);window\\.|window\\.' + name + '=(.*?);</script>').exec(doc).slice(1).find(Boolean));
+  assert.deepEqual(json('K_CASE'), kase);
+  assert.deepEqual(json('K_LESSON'), { written: lesson.written, summary: lesson.summary });
+  assert.ok(!doc.includes('secret') && doc.includes('Why \\u003c/script>?'), 'only written and summary, inline-safe');
+  assert.match(U.sandbox.srcdoc('<p>x</p>', { token: 't', lesson: { title: 'x' } }), /window\.K_LESSON=null;/);
+});
+
+// A written answer (K.written): the page posts {type:'written', id, text, go}; the host marks it
+// through onWritten and replies {type:'marked', id, ...}; an error, an unknown host or a bad
+// message gets {error}. One at a time per question, at most four per mount; ticks pass through.
+test('mount(): a written answer goes to onWritten and the result comes back as marked', async () => {
+  const P = fakePage(), asked = [], ticked = [];
+  let fail = false;
+  const m = P.U.sandbox.mount(P.box(), { html: BODY, onWritten: (w) => { asked.push(w); return fail ? Promise.reject({ code: 'unavailable' }) : Promise.resolve({ met: [true, false], nailed: 'Good.', followUp: 'Why?', wrong: '' }); }, onTicked: (t) => ticked.push(t) });
+  const f = m.frame, flush = () => new Promise((r) => setImmediate(r));
+  P.wait(300); P.kit(f, { type: 'ready', checks: [] });
+  P.kit(f, { type: 'written', id: 'b1', text: 'x'.repeat(4000), go: 1 });
+  P.kit(f, { type: 'written', id: 'b1', text: 'again while marking', go: 2 });
+  await flush();
+  assert.equal(asked.length, 1, 'one at a time per question');
+  assert.deepEqual([asked[0].id, asked[0].text.length, asked[0].go], ['b1', 3000, 1]);
+  assert.deepEqual(P.sent(f, 'marked'), [{ src: 'kit', type: 'marked', id: 'b1', met: [true, false], nailed: 'Good.', followUp: 'Why?', wrong: '' }]);
+  fail = true;
+  P.kit(f, { type: 'written', id: 'b1', text: 'second go', go: 2 });
+  await flush();
+  assert.deepEqual(P.sent(f, 'marked')[1], { src: 'kit', type: 'marked', id: 'b1', error: 'unavailable' });
+  P.kit(f, { type: 'written', id: 'bad id!', text: 'x', go: 1 });
+  P.kit(f, { type: 'ticked', id: 'b1', met: [true, 'yes', false] });
+  await flush();
+  assert.equal(asked.length, 2, 'a bad id is ignored');
+  assert.deepEqual(JSON.parse(JSON.stringify(ticked)), [{ id: 'b1', met: [true, false, false] }]);
+  P.kit(f, { type: 'written', id: 'b1', text: 'three', go: 2 });
+  await flush();
+  P.kit(f, { type: 'written', id: 'b1', text: 'four', go: 2 });
+  await flush();
+  P.kit(f, { type: 'written', id: 'b1', text: 'five', go: 2 });
+  await flush();
+  assert.equal(asked.length, 4, 'at most four marks per question in one mount');
+  assert.deepEqual(P.sent(f, 'marked').slice(-1)[0], { src: 'kit', type: 'marked', id: 'b1', error: 'unavailable' });
+  // A page mounted without onWritten (a dossier plate, say): told at once, so it shows the self-tick list.
+  const m2 = P.U.sandbox.mount(P.box(), { html: BODY });
+  P.wait(300); P.kit(m2.frame, { type: 'written', id: 'b1', text: 'hello', go: 1 });
+  assert.deepEqual(P.sent(m2.frame, 'marked'), [{ src: 'kit', type: 'marked', id: 'b1', error: 'unavailable' }]);
 });
 
 // Audit 3, #22 (residual): a page that silences the kit (document.open() erases its listeners) and

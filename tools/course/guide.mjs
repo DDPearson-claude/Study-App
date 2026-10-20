@@ -4,8 +4,16 @@
 // every demonstration opens finished) and walks its STEPS:
 //   SHOW step -> {kind: 'show', text, svg, alt}: its sentence and its finished picture;
 //   DO step   -> {kind: 'example', task, answer, why, svg?, alt?}: the puzzle as a worked example. When
-//                its answer is a button on screen, the tool presses it and Check, and keeps the solved
-//                picture; otherwise the example is words only.
+//                its answer is a button on screen (or a typed answer, K.answer, typed into its field),
+//                the tool presses it and Check, and keeps the solved picture; otherwise the example
+//                is words only.
+// A refresher lesson (lesson.summary, lesson.written; app/kit/REFRESHER.md) also gets its Keep this
+// card as the guide's FIRST page, {kind: 'summary', title, for, rule, traps, where, figures:
+// [{label, value}]} (case-file figures written out from <dir>/case.json), which the dossier's
+// chapter opens on. Its Keep this step (kind 'summary') is left out of the walk, and a written
+// step (kind 'written', written: id) becomes an example: the question and its model answer.
+// The lesson is <dir>/<iid>.lesson.verified.json (else .lesson.final.json); its page is mounted with
+// the lesson's written questions, summary and the case file, as the app mounts it.
 // Pictures are the lesson's own <svg id="scene">, cloned with every computed style inlined, so they
 // draw the same as a plain image (no script, no lesson CSS). Lesson markup *term* becomes [[term]].
 //   node tools/course/guide.mjs --dir build/maths/fractions [--idea i3] [--app tests/out/kit-d4.html]
@@ -62,7 +70,24 @@ const dir = arg('dir');
 if (!dir) { console.error('usage: guide.mjs --dir <build dir> [--idea iN] [--app kit.html]'); process.exit(2); }
 const appFile = resolve(arg('app', 'tests/out/kit-d4.html'));
 const ideas = arg('idea') ? [arg('idea')] : readdirSync(dir).filter((f) => /^i\d+\.body\.final\.html$/.test(f)).map((f) => f.split('.')[0]).sort((a, b) => +a.slice(1) - +b.slice(1));
-const terms = (s) => String(s || '').replace(/\*([^*\n]+)\*/g, '[[$1]]');
+const terms = (s) => String(s || '').replace(/\*\*([^*\n]+)\*\*/g, '\u0000$1\u0001').replace(/\*([^*\n]+)\*/g, '[[$1]]').replace(/\u0000([^\u0001]*)\u0001/g, '**$1**');
+const readJson = (f) => (existsSync(f) ? JSON.parse(readFileSync(f, 'utf8')) : null);
+const lessonIn = (x) => (x && x.lesson && typeof x.lesson === 'object' && 'status' in x ? x.lesson : x);
+const caseFile = readJson(join(dir, 'case.json'));
+// The summary card as the guide's first page: figures named by case-file id written out.
+function summaryPage(sum) {
+  if (!sum || typeof sum !== 'object' || !sum.title) return null;
+  const all = caseFile ? [].concat(caseFile.givens || [], caseFile.figures || []) : [];
+  const figures = (Array.isArray(sum.figures) ? sum.figures : []).map((f) => {
+    if (typeof f !== 'string') return { label: String(f.label || ''), value: String(f.text || f.value || '') };
+    const c = all.find((x) => x && x.id === f);
+    if (!c) throw new Error('summary figure "' + f + '" is not in ' + join(dir, 'case.json'));
+    return { label: String(c.label), value: c.text ? String(c.text) : String(c.value) + (c.unit ? ' ' + c.unit : '') };
+  });
+  const out = { kind: 'summary', title: sum.title, for: sum.for || '', rule: sum.rule || '', traps: (sum.traps || []).map((t) => ({ text: t.text, cite: t.cite || '' })), where: sum.where || '', figures };
+  if (sum.figuresLabel || (caseFile && caseFile.title && figures.length)) out.figuresLabel = sum.figuresLabel || caseFile.title + ' so far';
+  return out;
+}
 
 // Runs in the lesson frame: the scene as a standalone SVG string with computed styles inlined.
 const SNAP = `(() => {
@@ -98,24 +123,36 @@ await app.page.emulateMedia({ reducedMotion: 'reduce' });
 await app.page.goto(app.url('#/__eval'));
 for (const iid of ideas) {
   const body = readFileSync(join(dir, iid + '.body.final.html'), 'utf8');
-  await app.page.evaluate(async (html) => {
+  const lesson = lessonIn(readJson(join(dir, iid + '.lesson.verified.json')) || readJson(join(dir, iid + '.lesson.final.json')) || {});
+  const ctx = { kase: caseFile, lesson: lesson.written || lesson.summary ? { written: lesson.written || null, summary: lesson.summary || null } : null };
+  await app.page.evaluate(async ([html, c]) => {
     await U.rt.ready;
     document.documentElement.dataset.muTheme = 'light';
     const shell = document.getElementById('app'); if (shell) shell.style.display = 'none';
     document.querySelectorAll('.guide-host').forEach((n) => n.remove());
     const box = document.createElement('div'); box.className = 'guide-host'; box.style.cssText = 'max-width:390px;margin:0 auto';
     document.body.appendChild(box);
-    window.__g = U.sandbox.mount(box, { html });
+    window.__g = U.sandbox.mount(box, { html, kase: c.kase, lesson: c.lesson });
     await Promise.race([window.__g.ready, new Promise((r) => setTimeout(r, 8000))]);
-  }, body);
+  }, [body, ctx]);
   const frame = () => app.page.frames().find((f) => f !== app.page.mainFrame());
   // A puzzle names its answer either as `want` (the right option's words) or as `opts`, a list of
   // option keys in button order with 'right' marking the answer (the calculus lessons' way, where
   // the words are worked out at render time).
-  const steps = await frame().evaluate(() => STEPS.map((d) => ({ show: !!d.show, text: d.text || '', task: d.task || d.ask || '', why: d.why || '', want: d.want, name: d.name || '', rightIndex: Array.isArray(d.opts) ? d.opts.indexOf('right') : -1 })));
+  const steps = await frame().evaluate(() => STEPS.map((d) => ({ show: !!d.show, text: d.text || '', task: d.task || d.ask || '', why: d.why || '', want: d.want, name: d.name || '', rightIndex: Array.isArray(d.opts) ? d.opts.indexOf('right') : -1, kind: d.kind || '', written: d.written || '' })));
   const pages = [];
+  const sp = summaryPage(lesson.summary);
+  if (sp) pages.push(sp);
   for (let i = 0; i < steps.length; i++) {
     const d = steps[i];
+    // A refresher lesson's Keep this step is the summary page above; a written step is its
+    // question with the model answer, in words.
+    if (d.kind === 'summary') continue;
+    if (d.kind === 'written' || d.written) {
+      const w = (lesson.written || {})[d.written];
+      if (w) pages.push({ kind: 'example', name: d.name, task: terms(w.q), answer: '', why: terms('A model answer: ' + w.model), svg: null, alt: '' });
+      continue;
+    }
     await app.page.evaluate((v) => window.__g.set('step', v), i);
     await app.page.waitForTimeout(400);
     if (d.show) {
@@ -138,6 +175,15 @@ for (const iid of ideas) {
           const picks = [...document.querySelectorAll('#picks button')].filter((b) => b.offsetParent !== null);
           const pool = picks.length ? picks : all.filter((b) => !CTRL.test(norm(b.textContent)));
           btn = pool[idx] || null;
+        }
+        // A typed answer (K.answer): the answer typed into its field, then Check.
+        const field = !btn && ans ? [...document.querySelectorAll('.k-answer-input')].find((x) => x.offsetParent !== null) : null;
+        if (field) {
+          field.value = String(ans).replace(/\s*[A-Za-zΩ°%²]+$/, '');
+          field.dispatchEvent(new Event('input', { bubbles: true }));
+          const check = all.find((b) => norm(b.textContent) === 'Check');
+          if (check) check.click();
+          return norm(ans);
         }
         if (!btn) return null;
         btn.click();
@@ -163,7 +209,7 @@ for (const iid of ideas) {
   const guide = { v: 1, iid, pages };
   const bytes = Buffer.byteLength(JSON.stringify(guide));
   writeFileSync(join(dir, iid + '.guide.json'), JSON.stringify(guide) + '\n');
-  console.log(iid, 'pages', pages.length, 'show', pages.filter((p) => p.kind === 'show').length, 'examples with pictures', pages.filter((p) => p.kind === 'example' && p.svg).length, 'of', pages.filter((p) => p.kind === 'example').length, 'bytes', bytes);
+  console.log(iid, 'pages', pages.length, 'summary', pages.filter((p) => p.kind === 'summary').length, 'show', pages.filter((p) => p.kind === 'show').length, 'examples with pictures', pages.filter((p) => p.kind === 'example' && p.svg).length, 'of', pages.filter((p) => p.kind === 'example').length, 'bytes', bytes);
 }
 if (app.errors.length) console.log('page errors:', app.errors.slice(0, 5).join('\n'));
 await app.close();

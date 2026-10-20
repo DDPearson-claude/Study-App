@@ -7,7 +7,11 @@
 //        (--final for a finalised or verified lesson, whose sources are numbered in citation order)
 //     --mode: the course's mode (default the topic's "mode", else study): a read lesson needs no
 //     predict, say or checks; practice is required in both
-//   node tools/eval/validate.mjs grade   reply.json [--attempt 1]
+//     --case case.json: the course's case file (a refresher course), so summary.figures named by id
+//     are checked against it; lesson.written and lesson.summary are checked whenever present (each
+//     point and trap carries its citation)
+//   node tools/eval/validate.mjs grade   reply.json [--attempt 1] [--written --rubric 4 --need 3]
+//   node tools/eval/validate.mjs case    case.json         a refresher course's case file (topics/{tid}/case/file)
 //   node tools/eval/validate.mjs verify  reply.json --lesson lesson.json [--out lesson.verified.json]
 //     the fact-check's reply (TASK: verify-lesson) against the lesson it checked (the lesson JSON or a
 //     saved lesson doc); also prints what U.verify.apply would change (applied) and record (notes),
@@ -39,7 +43,7 @@ if (!U.parseJson) {
   ctx.window = ctx; ctx.U = U;
   vm.runInContext(readFileSync(join(root, 'app/src/js/10-runtime.js'), 'utf8'), ctx);
 }
-const kind = process.argv[2];
+const kind = process.argv[2] === 'case' ? 'caseFile' : process.argv[2];
 const text = readFileSync(process.argv[3], 'utf8');
 let problems, warnings = [], verified = null, kept = null;
 try {
@@ -67,8 +71,12 @@ try {
     // sources are renumbered in order of first citation, as the app checks it before saving; without
     // it the check expects the write prompt's numbering and a final lesson fails on every source.
     if (process.argv.includes('--final')) opts.final = true;
+    if (arg('case')) opts.caseFile = JSON.parse(readFileSync(arg('case'), 'utf8'));
   }
-  if (kind === 'grade') opts.attempt = Number(arg('attempt', '1'));
+  if (kind === 'grade') {
+    opts.attempt = Number(arg('attempt', '1'));
+    if (process.argv.includes('--written')) { opts.written = true; opts.rubric = Number(arg('rubric', '0')) || undefined; opts.need = Number(arg('need', '0')) || undefined; }
+  }
   const got = U.parseJson.pick(text, (o) => U.validate[kind](o, opts));
   problems = got.problems || [];
   // The advice for the reply the app would keep (its warnings ride on the validator's list).

@@ -9,7 +9,10 @@
 //   U.prompts.writeLesson(topic, idea, {research, known, avoid, feedback, prior, mode})  TASK: write-lesson
 //            mode (default topic.mode): 'study' (taught and tested) or 'read' (just taught: no
 //            predict, say or checks); topic.intake, Dan's answers, reaches the writer too
-//   U.prompts.grade(say, answer, {attempt, previous, title})                TASK: grade
+//   U.prompts.grade(say, answer, {attempt, previous, title, written})       TASK: grade
+//            say {prompt, rubric:[1-5], model, need?}; written: a refresher lesson's written answer
+//            (lesson.written[id]: the points from his sources are the rubric, need how many make a full
+//            answer; the reply adds "wrong" and never a model answer)
 //   U.prompts.tutor(context)                                                TASK: tutor
 //   U.prompts.coverPicture(topic)                                           TASK: cover-picture
 //            one sentence describing the course's cover picture, for the image model (35-art.js)
@@ -21,7 +24,8 @@
 //            what earlier lessons in a topic gave Dan (writeLesson's `prior`)
 //   U.prompts.truthRules({sources, history}) -> the CLAIMS THAT STAY TRUE and THE NUMBER RULE text
 //            exactly as the lesson writer reads it
-//   U.validate.plan(o) / .lesson(o, {iid, sources, final, kind, mode}) / .grade(o, {rubric, attempt})
+//   U.validate.plan(o) / .lesson(o, {iid, sources, final, kind, mode}) / .grade(o, {rubric, attempt, need, written})
+//            / .written(lesson.written) / .summary(lesson.summary, {caseFile}) / .caseFile(o)   (refresher lessons)
 //            / .research(o, {ideas}) / .intake(o) / .cover(o) -> [problem strings]  (empty when valid); the list's .soft
 //            names the soft problems among them (length limits and word-matching judgements: see
 //            "validators" below), and its .warnings holds advice that is never a problem
@@ -866,21 +870,30 @@
     var attempt = Math.max(1, Number(opts.attempt) || 1);
     var rubric = Array.isArray(say.rubric) ? say.rubric : [];
     var prev = opts.previous;
+    // A refresher lesson's written answer: the rubric is the mark scheme's points from his own
+    // sources, `need` of them make a full answer, a wrong statement is named, and the lesson's own
+    // model answer is shown after, so none is written here.
+    var written = !!opts.written;
+    var need = written && isInt(say.need) && say.need > 0 && say.need < rubric.length ? say.need : rubric.length;
+    var full = need < rubric.length ? 'any ' + need + ' of the ' + rubric.length + ' points' : 'every point';
     return [
       'TASK: grade',
       '',
-      'You are grading Dan\'s "say it back" answer in his learning app: the moment he explains an idea in his own words. Your job is to notice what he understood, credit it generously and specifically, and ask the one question that gets him the rest of the way. Being put right should feel like help, never like a test he failed.',
+      written
+        ? 'You are marking Dan\'s written answer to a short-answer question in his learning app, the way an examiner reads a mark scheme: the points come from his own course materials. Credit each point he makes in any wording that makes it (an examiner\'s "accept equivalent"), notice what he understood, and ask the one question that gets him the rest of the way. There are no marks or grades: he sees each point ticked, or not yet.'
+        : 'You are grading Dan\'s "say it back" answer in his learning app: the moment he explains an idea in his own words. Your job is to notice what he understood, credit it generously and specifically, and ask the one question that gets him the rest of the way. Being put right should feel like help, never like a test he failed.',
       '',
       opts.title ? 'THE IDEA: ' + data(opts.title, 160) + '\n' : '',
       'THE QUESTION HE ANSWERED',
       '"' + data(say.prompt, 500) + '"',
       '',
-      'RUBRIC (what a complete answer contains)',
-      rubric.map(function (r, i) { return (i + 1) + '. ' + data(r, 200); }).join('\n'),
+      written ? 'MARK SCHEME POINTS (from his sources; a full answer makes ' + full + ')' : 'RUBRIC (what a complete answer contains)',
+      rubric.map(function (r, i) { return (i + 1) + '. ' + data(r, 300); }).join('\n'),
       '',
-      attempt === 1
-        ? 'MODEL ANSWER (for your eyes only on this attempt: never quote or paraphrase it to him)'
-        : 'MODEL ANSWER (for reference; you will give him your own short version)',
+      written ? 'MODEL ANSWER (for your eyes only: he is shown it himself later; never quote or paraphrase it)'
+        : attempt === 1
+          ? 'MODEL ANSWER (for your eyes only on this attempt: never quote or paraphrase it to him)'
+          : 'MODEL ANSWER (for reference; you will give him your own short version)',
       '"' + data(say.model, 700) + '"',
       '',
       prev && (prev.text || prev.followUp) ? 'HIS PREVIOUS TRY\n"' + data(prev.text, 1200) + '"' + (prev.followUp ? '\nYou then asked him: "' + data(prev.followUp, 300) + '"' : '') + '\n' : '',
@@ -889,23 +902,29 @@
       data(answer, 3000),
       '"""',
       '',
-      'HOW TO GRADE',
-      '- For each rubric point, met = true if his answer shows he understands it, in any words: everyday language, an example, an analogy, a rough version that is right in substance. Spelling, grammar, brevity and missing jargon do not matter: "soaks up the heat" meets "absorbs the heat".',
+      written ? 'HOW TO MARK' : 'HOW TO GRADE',
+      '- For each ' + (written ? 'point' : 'rubric point') + ', met = true if his answer shows he understands it, in any words: everyday language, an example, an analogy, a rough version that is right in substance. Spelling, grammar, brevity and missing jargon do not matter: "soaks up the heat" meets "absorbs the heat".',
       '- A point is also met when his answer clearly implies it, even if he does not spell it out (not merely when it could be read that way).',
       '- met = false if the point is missing, or if he states something that contradicts it. Be generous with partial understanding, never with errors.',
-      '- verdict: "got-it" when every point is met; "partly" when at least one is met; "not-yet" when none is (or the answer is blank, off-topic or "I don\'t know").',
+      written
+        ? '- verdict: "got-it" when at least ' + need + ' point' + (need === 1 ? ' is' : 's are') + ' met; "partly" when at least one is met; "not-yet" when none is (or the answer is blank, off-topic or "I don\'t know"). He never sees the verdict.'
+        : '- verdict: "got-it" when every point is met; "partly" when at least one is met; "not-yet" when none is (or the answer is blank, off-topic or "I don\'t know").',
+      written ? '- wrong: when his answer states something that is wrong (not merely missing or vague), one short sentence that names it plainly and says what is true instead, in his own terms ("Ib is the current the load draws, not what the cable can carry."). Otherwise "". Never call a missing point wrong.' : null,
       '- nailed: 1-2 sentences of specific, true praise for what he got right, pointing at his own words ("You nailed that the air pushes back on the engine just as hard."). No generic praise ("Great job!"). If nothing is right yet, thank him for having a go and name the closest thing he has right, if anything; never pretend.',
       '- followUp: ONE short question (at most 25 words) that points him at the most important missing point without giving it away: a nudge, not the answer ("What happens to the push if the air leaves faster?"). If he said something wrong, ask about that first. Use "" when the verdict is "got-it".',
-      attempt === 1
-        ? '- This is his first attempt: do NOT include the model answer, its wording or the missing point itself anywhere. Leave out "model".'
-        : '- This is attempt ' + attempt + ': include "model": a short model answer (at most 60 words) in plain words, built from his own words where possible, so he sees the whole thing. Keep followUp as a final nudge, or "" if got-it.',
+      written
+        ? '- Do NOT include the model answer, its wording or a missing point itself anywhere. Leave out "model".'
+        : attempt === 1
+          ? '- This is his first attempt: do NOT include the model answer, its wording or the missing point itself anywhere. Leave out "model".'
+          : '- This is attempt ' + attempt + ': include "model": a short model answer (at most 60 words) in plain words, built from his own words where possible, so he sees the whole thing. Keep followUp as a final nudge, or "" if got-it.',
       '- Tone: warm, plain UK English, speaking to him as "you". No lecture, no exclamation marks.',
       '',
       'OUTPUT',
       'Reply with one JSON object only, no commentary:',
-      '{ "met": [' + rubric.map(function () { return '<true|false>'; }).join(', ') + '], "verdict": "<got-it|partly|not-yet>", "nailed": "…", "followUp": "<one question, or \"\">"' + (attempt === 1 ? ' }' : ', "model": "…" }'),
-      '"met" has exactly ' + rubric.length + ' entries, in rubric order.',
-    ].join('\n').replace(/\n{3,}/g, '\n\n');
+      '{ "met": [' + rubric.map(function () { return '<true|false>'; }).join(', ') + '], "verdict": "<got-it|partly|not-yet>", "nailed": "…", "followUp": "<one question, or \"\">"' +
+        (written ? ', "wrong": "<one sentence, or \"\">" }' : attempt === 1 ? ' }' : ', "model": "…" }'),
+      '"met" has exactly ' + rubric.length + ' entries, in ' + (written ? 'the points\'' : 'rubric') + ' order.',
+    ].filter(function (l) { return l !== null; }).join('\n').replace(/\n{3,}/g, '\n\n');
   }
 
   // ==================================================================================
@@ -1407,6 +1426,11 @@
       ns.forEach(function (n) { if (cited.indexOf(n) < 0 && !(isObj(it) && (it.numbers || []).some(function (x) { return x && x.source === n; }))) v.add('source [' + n + '] is listed but never cited.'); });
     }
 
+    // A refresher lesson's written questions and summary card: each point and trap carries its citation.
+    if (o.written != null) vWritten(o.written).forEach(function (p, k, all) { v.add(p, (all.soft || []).indexOf(p) >= 0); });
+    if (o.summary != null) vSummary(o.summary, { caseFile: opts.caseFile }).filter(function (p) { return opts.caseFile || !/no case file was given/.test(p); })
+      .forEach(function (p, k, all) { v.add(p, /characters; keep it under/.test(p)); });
+
     // confidence
     if (['settled', 'contested', 'simplified'].indexOf(o.confidence) < 0) v.add('confidence must be "settled", "simplified" or "contested".');
     if (o.confidence === 'contested') {
@@ -1539,25 +1563,119 @@
   }
 
   // opts: {rubric: number of rubric points, attempt}
+  // opts.written: a refresher lesson's written answer (up to 5 points, `need` of them a full
+  // answer, and "wrong" for a statement that is wrong).
   function vGrade(o, opts) {
     opts = opts || {};
     var v = V();
-    if (!isObj(o)) return ['The reply must be one JSON object { met, verdict, nailed, followUp }.'];
+    if (!isObj(o)) return ['The reply must be one JSON object { met, verdict, nailed, followUp' + (opts.written ? ', wrong' : '') + ' }.'];
     var n = opts.rubric;
     if (!Array.isArray(o.met) || !o.met.every(function (x) { return typeof x === 'boolean'; })) v.add('met must be a list of true/false, one per rubric point.');
     else if (n && o.met.length !== n) v.add('met has ' + o.met.length + ' entries but the rubric has ' + n + ' points.');
-    else if (!n && (o.met.length < 1 || o.met.length > 4)) v.add('met must have one entry per rubric point.');
+    else if (!n && (o.met.length < 1 || o.met.length > 5)) v.add('met must have one entry per rubric point.');
     if (['got-it', 'partly', 'not-yet'].indexOf(o.verdict) < 0) v.add('verdict must be "got-it", "partly" or "not-yet".');
     if (Array.isArray(o.met) && o.met.length) {
-      var all = o.met.every(function (x) { return x === true; }), some = o.met.some(function (x) { return x === true; });
-      if (o.verdict === 'got-it' && !all) v.add('verdict is "got-it" but not every rubric point is met.');
+      var count = o.met.filter(function (x) { return x === true; }).length, need = isInt(opts.need) && opts.need > 0 && opts.need < o.met.length ? opts.need : o.met.length;
+      var all = count >= need, some = count > 0;
+      if (o.verdict === 'got-it' && !all) v.add(need < o.met.length ? 'verdict is "got-it" but fewer than ' + need + ' points are met.' : 'verdict is "got-it" but not every rubric point is met.');
       if (o.verdict === 'partly' && !some) v.add('verdict is "partly" but no rubric point is met; use "not-yet".');
     }
     if (!isStr(o.nailed)) v.add('nailed must be a sentence of specific praise (or thanks for having a go).');
     if (typeof o.followUp !== 'string') v.add('followUp must be a string ("" when got-it).');
     else if (o.verdict !== 'got-it' && !o.followUp.trim()) v.add('followUp must ask one short question about what is missing.');
     if (o.model != null && typeof o.model !== 'string') v.add('model must be a short model answer string.');
+    if (o.wrong != null && typeof o.wrong !== 'string') v.add('wrong must be one sentence naming what is wrong, or "".');
     // A missing model answer on attempt 2 is not a failure: the pipeline falls back to the lesson's own.
+    return v.list;
+  }
+
+  // ---------- refresher lessons (docs/ARCHITECTURE.md section 5) ----------
+  // lesson.written = {[id]: {q, points: [3-5 {text, cite}], need?, model}}: Section B questions,
+  // marked by Claude against points taken from Dan's sources, each point carrying its citation.
+  var WRITTEN_ID = /^[a-z][A-Za-z0-9_-]{0,31}$/;
+  function vWritten(o) {
+    var v = V();
+    if (!isObj(o)) return ['written must be an object { <id>: { q, points: [{ text, cite }], need?, model } }.'];
+    var ids = Object.keys(o);
+    if (!ids.length) v.add('written has no questions: leave it out instead.');
+    ids.forEach(function (id) {
+      var w = o[id], p = 'written.' + id;
+      if (!WRITTEN_ID.test(id)) v.add(p + ': the id must be a short name of letters and digits starting with a lower-case letter ("b1").');
+      if (!isObj(w)) { v.add(p + ' must be an object { q, points, need?, model }.'); return; }
+      v.str(w.q, p + '.q', 400);
+      if (!Array.isArray(w.points) || w.points.length < 1 || w.points.length > 5) v.add(p + '.points must have 1-5 points (three to five make a mark scheme).');
+      else w.points.forEach(function (x, k) {
+        var pp = p + '.points[' + k + ']';
+        if (!isObj(x)) { v.add(pp + ' must be { text, cite }.'); return; }
+        v.str(x.text, pp + '.text', 300);
+        if (!isStr(x.cite)) v.add(pp + '.cite must say where the point comes from in his sources ("Slides p.18", "BS 7671 411.3.2.2").');
+      });
+      if (w.need != null && (!isInt(w.need) || w.need < 1 || !Array.isArray(w.points) || w.need > w.points.length)) v.add(p + '.need must be a whole number from 1 to the number of points, or left out (every point).');
+      v.str(w.model, p + '.model', 900);
+    });
+    return v.list;
+  }
+  // lesson.summary = {title, for, rule, traps: [{text, cite}], where, figures?: [case-file id | {label, value}]}:
+  // the Keep this card. opts.caseFile: the course's case file, so a figure named by id must be in it.
+  function vSummary(o, opts) {
+    opts = opts || {};
+    var v = V();
+    if (!isObj(o)) return ['summary must be an object { title, for, rule, traps, where, figures }.'];
+    v.str(o.title, 'summary.title', 90);
+    v.str(o.for, 'summary.for', 400);
+    v.str(o.rule, 'summary.rule', 600);
+    v.str(o.where, 'summary.where', 300);
+    if (!Array.isArray(o.traps) || o.traps.length < 1 || o.traps.length > 5) v.add('summary.traps must list 1-5 traps, each { text, cite }.');
+    else o.traps.forEach(function (t, k) {
+      var p = 'summary.traps[' + k + ']';
+      if (!isObj(t)) { v.add(p + ' must be { text, cite }.'); return; }
+      v.str(t.text, p + '.text', 240);
+      if (!isStr(t.cite)) v.add(p + '.cite must say where the trap is shown in his sources.');
+    });
+    if (o.figures != null) {
+      if (!Array.isArray(o.figures) || o.figures.length > 8) v.add('summary.figures must be a list of at most 8 figures (case-file ids, or { label, value }).');
+      else {
+        var known = isObj(opts.caseFile) ? [].concat(opts.caseFile.givens || [], opts.caseFile.figures || []).map(function (f) { return isObj(f) ? f.id : null; }) : null;
+        o.figures.forEach(function (f, k) {
+          var p = 'summary.figures[' + k + ']';
+          if (typeof f === 'string') { if (known && known.indexOf(f) < 0) v.add(p + ' names "' + f + '", which is not in the case file.'); else if (!known) v.add(p + ' names a case-file figure, but no case file was given.'); }
+          else if (!isObj(f) || !isStr(f.label) || !(isStr(f.value) || isNum(f.value))) v.add(p + ' must be a case-file id or { label, value }.');
+        });
+      }
+    }
+    return v.list;
+  }
+  // topics/{tid}/case: {v, title, scenario?: {title, text, source}, givens: [{id, label, value, unit?, text?, cite}],
+  //   assumptions: [{id, text}], figures: [{id, lesson, part?, label, value, unit?, text?, work?}]}
+  function vCase(o) {
+    var v = V();
+    if (!isObj(o)) return ['The case file must be one JSON object { title, scenario?, givens, assumptions, figures }.'];
+    v.str(o.title, 'title', 90);
+    if (o.scenario != null) {
+      if (!isObj(o.scenario)) v.add('scenario must be { title, text, source }.');
+      else { v.str(o.scenario.title, 'scenario.title', 90); v.str(o.scenario.text, 'scenario.text', 900); v.str(o.scenario.source, 'scenario.source', 200); }
+    }
+    var seen = {};
+    function figure(f, p, given) {
+      if (!isObj(f)) { v.add(p + ' must be an object.'); return; }
+      if (!isStr(f.id) || !/^[A-Za-z0-9_.-]{1,40}$/.test(f.id)) v.add(p + '.id must be a short id (letters, digits, "_", "-" or ".").');
+      else if (seen[f.id]) v.add(p + '.id "' + f.id + '" is used twice.');
+      else seen[f.id] = true;
+      v.str(f.label, p + '.label', 80);
+      if (!(isNum(f.value) || isStr(f.value))) v.add(p + '.value must be a number or a short text.');
+      if (f.text != null && !isStr(f.text)) v.add(p + '.text, when given, is how the lessons print it ("23.08 A").');
+      if (given && !isStr(f.cite)) v.add(p + '.cite must say where the given comes from ("pack p.3").');
+      if (!given) {
+        if (!isStr(f.lesson) || !/^i\d+$/.test(f.lesson)) v.add(p + '.lesson must name the lesson that works it out ("i1").');
+        if (f.part != null && (!isStr(f.part) || !/^\d+[a-z]$/.test(f.part))) v.add(p + '.part must be a Section A question part such as "1a", or left out.');
+      }
+    }
+    if (!Array.isArray(o.givens)) v.add('givens must be a list ([] if none).');
+    else o.givens.forEach(function (f, k) { figure(f, 'givens[' + k + ']', true); });
+    if (!Array.isArray(o.figures)) v.add('figures must be a list ([] if none yet).');
+    else o.figures.forEach(function (f, k) { figure(f, 'figures[' + k + ']', false); });
+    if (o.assumptions != null && !Array.isArray(o.assumptions)) v.add('assumptions must be a list of { id, text }.');
+    else (o.assumptions || []).forEach(function (a, k) { if (!isObj(a) || !isStr(a.text)) v.add('assumptions[' + k + '] must be { id, text }: the course\'s own assumption, said as such.'); });
     return v.list;
   }
 
@@ -1681,6 +1799,7 @@
   // that are not soft (an empty list means only length problems are left).
   U.validate = {
     plan: vPlan, lesson: vLesson, grade: vGrade, research: vResearch, intake: vIntake, cover: vCover, SLACK: SLACK, allowed: allowed,
+    written: vWritten, summary: vSummary, caseFile: vCase,
     hard: function (problems) { var soft = (problems && problems.soft) || []; return (problems || []).filter(function (p) { return soft.indexOf(p) < 0; }); },
   };
 })();

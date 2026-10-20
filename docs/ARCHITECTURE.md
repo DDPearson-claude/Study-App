@@ -32,6 +32,7 @@ app/
   src/js/*.js          concatenated in filename order into one <script>, "use strict"
   kit/kit.js kit.css   the in-iframe house kit, inlined into the app as strings
   kit/KIT.md           the kit API, quoted whole in build and repair prompts
+  kit/REFRESHER.md     the refresher pieces (typed and written answers, case file, summary), added for refresher lessons
   kit/examples/*.html  exemplar bodies, each tagged <!-- kind: … --> (prompt anchors + tests)
 tools/build.mjs        app/ -> dist/my-university.html   (--out path; --only 32,50 for partial builds)
 tools/harness/         claude-stub.js (runtime stand-in), page.mjs (Playwright helper), png.mjs (reads screenshots)
@@ -168,7 +169,8 @@ U.research.tools(log?, {allow?}) -> Promise<[{name, description, inputSchema, ex
 ### Store (`20-store.js`)
 ```
 U.store.paths.topic(tid) / lesson(tid, iid) / research(tid, key) / profile() / progress(tid) / cards(tid)
-    / dossier(tid) / chapter(tid, iid)
+    / dossier(tid) / chapter(tid, iid) / guide(tid, iid) / caseFile(tid)
+U.store.guide.get(tid, iid)   U.store.caseFile.get(tid)   (ready-made courses; written only at build time)
 U.store.topics.watch(fn, onError) -> stop   fn(topic docs, newest updatedAt first);  .list()
 U.store.topic.get / watch(tid, fn, onError) / create(doc) / update(tid, patch) / remove(tid) -> {leftovers}
 U.store.lesson.get / watch / set(tid, iid, doc) / update(tid, iid, patch, {quiet?}) / remove(tid, iid) / list(tid)
@@ -222,7 +224,7 @@ U.memdb   in-memory db, same surface: used without the db capability, and for pr
   puts it right), the index with `dossier.patch` (held like any private patch). `topic.remove`
   leaves them: deleting a course asks first whether to keep its dossier (71-topic.js).
 - `topic.remove` deletes `topics/{tid}`, marks the tid removed (later writes for it are dropped),
-  then deletes its lessons, research, progress and cards. `lesson.remove` deletes one lesson doc.
+  then deletes its lessons, research, progress, cards and case file. `lesson.remove` deletes one lesson doc.
 - Progress rules, applied to the doc as it is when the write lands: within a round, stage only
   moves forward and `predict`, `startedAt`, `doneAt` and each `checks[id]` keep their first
   value; a write tagged with an older round loses its round fields (say entries still land); a
@@ -369,6 +371,21 @@ wait for it either. The screens that follow the next idea start such a prefetch 
 `topics/{tid}/research/{key}`   key `'topic'` (always written) or an idea id (when it has notes):
 `{ notes:[{ claim, sourceIds:[n], contested? }], sources:[Source], at }`
 
+`topics/{tid}/case/file`   a refresher course's case file (refresher format, Design and
+verification; the db's grammar needs an even path, so the doc is `file` in the `case` collection).
+One set of figures every lesson shows, written at build time by `tools/course/assemble.mjs` from
+`$D/case.json` (`U.validate.caseFile`) and deleted with the topic:
+```
+{ v:1, title,                                                   // the running case ("The showroom")
+  scenario?:{ title, text, source },                            // the Section A scenario as Dan reads it
+  givens:[{ id, label, value, unit?, text?, cite }],            // from his materials, each cited
+  assumptions:[{ id, text }],                                   // the course's own, said as such
+  figures:[{ id, lesson:'iN', part?:'1a', label, value, unit?, text?, work? }],   // each worked out in that lesson
+  updatedAt }
+```
+`text` is how every lesson prints the figure ("23.08 A"). The lesson screen reads it once with the
+lesson and passes it into the lesson's frame as `K_CASE` (section 6).
+
 Private, under `data/users/{uid}/`:
 ```
 profile   { prefs:{ theme:'light'|'dark'|'system', size:'s'|'m'|'l'|'xl', easy, cap:10|15|20|30, light, lightDay?, pictures? },
@@ -389,6 +406,7 @@ only its own minutes, under the study day (`U.studyDay`). Layout is not a pref (
     stage:'predict'|'play'|'explain'|'say'|'checks'|'done', startedAt, doneAt,
     predict:{ answer: string|null, at },                       // null: skipped
     say:{ [key]:{ text, at, verdict:'got-it'|'partly'|'not-yet'|null, met:[bool], nailed?, followUp?, model?, round } },
+    written:{ [qid]:{ [key]:{ text, at, go:1|2, met:[bool], nailed, followUp, wrong?, error?:true, self?:[bool], round } } },
     checks:{ [checkId]:{ correct, at } },
     past:{ [round]:{ stage, predict, checks, doneAt, at } },   // earlier rounds
     replays:{ [key]:{ at, predict, checks } },                 // "Go through it again" runs
@@ -396,6 +414,12 @@ only its own minutes, under the study day (`U.studyDay`). Layout is not a pref (
     readRound?,                                                // v9: the round finished as a read lesson
     againAt?, relearn?, relearnId?, relearnAt?, relearnNote?, known? } } }
 ```
+`written` holds a refresher lesson's written answers (Section B, `K.written`), each try keyed like
+say entries and never a round field: Claude's marks (`met` per point, `nailed`, `followUp`, `wrong`
+when a statement was wrong), or `error: true` when Claude could not be reached, with `self` the
+points Dan then ticked himself. Nothing reads them back yet (Keep it fresh, refresher.md item 6, is
+not built); like say entries they are never read into a dossier.
+
 `readRound` (v9) is written with `stage: 'done'` when Dan finishes a read lesson, with `cardsRound`
 set to the same round (it makes no cards, so nothing makes them later). An idea is **read** while
 `readRound` equals its `round` (`U.views.isRead`): the topic page's path says "Read", the Map gives it
@@ -501,7 +525,13 @@ of it to Atkinson. The page builders, in reading order (`model().leaves`):
 - **A chapter of a ready-made steps lesson** reads as a still guide instead of the plate (Dan, 11 Oct:
   "a re-read guide with visuals, not a test to move on"): `topics/{tid}/guide/{iid}` (public, beside
   the lesson; `U.store.guide.get`), made at build time by `tools/course/guide.mjs`, is
-  `{v, iid, pages: [{kind: 'show', text, svg, alt} | {kind: 'example', task, answer, why, svg?, alt}]}`.
+  `{v, iid, pages: [{kind: 'show', text, svg, alt} | {kind: 'example', task, answer, why, svg?, alt}
+  | {kind: 'summary', title, for, rule, traps: [{text, cite}], where, figures: [{label, value}], figuresLabel?}]}`.
+  A refresher lesson's Keep this card (`lesson.summary`, its case-file figures written out) is the
+  guide's first page, and the chapter opens on it: an emphasis tile "Keep this" straight after the
+  header, before Key idea (words only: the rule on a grey panel, each trap with the red edge mistakes
+  carry and its citation, the figures as small mono pairs, "Where it lives"); Save a copy keeps it
+  as text.
   The chapter shows "The lesson, step by step" (each demonstration's finished picture on a white well
   with its sentence), then "Worked examples" (question, solved picture when the build could press the
   answer, answer, why), with no plate, no plate notes and nothing to press, and ends with a small
@@ -634,6 +664,8 @@ Lesson = {
   contested: { views:[2+ { label, text }] } | null,
   mode: 'study'|'read',                          // the topic's mode it was written for (stamped by 31-generate)
   format?: 'steps'                               // read lessons only (rejected on a study lesson); absent: the usual layout
+  written?: { [id]: { q, points:[1-5 { text, cite }], need?, model } },   // refresher lessons: Section B (below)
+  summary?: { title, for, rule, traps:[1-5 { text, cite }], where, figures?:[case-file id | { label, value }] }
 }
 Control = { id, label, min, max, step, value, unit }  numeric: min < max, 0 < step <= max - min,
                                                       min <= value <= max, unit <= 10 chars ('' for none)
@@ -655,6 +687,16 @@ Check =
   in a collapsed "Sources (n)" there; explain, practice and sources stay in the JSON so the dossier
   and Library bind the chapter as before. With no frame to show (no interactive, a build note) it
   falls back to the usual read layout (section 10).
+- Refresher lessons (ready-made steps lessons built to `docs/courses/…/format/refresher.md`;
+  tools/course/RUNBOOK.md section 8) add `written` (each Section B question: three to five points
+  taken from Dan's sources, each with its citation, `need` of them a full answer, and a model answer
+  written from them; ids `/^[a-z][A-Za-z0-9_-]{0,31}$/`) and `summary` (the Keep this card, every trap
+  cited). `U.validate.written` / `.summary(o, {caseFile})` check them, and `U.validate.lesson` runs
+  them whenever the fields are there (a missing citation is hard; `{caseFile}` checks figures named
+  by id). The fact-check reads them and may fix `written.*.q`, `written.*.points[i].text`,
+  `written.*.model`, `summary.title|for|rule|where` and `summary.traps[i].text` (listed in its prompt
+  only for such a lesson); citations, ids and `need` are frozen. The frame reads them as `K_LESSON`
+  (section 6); the page names a question by id and never carries its points.
 - `practice.text` ("Put it into practice"), in both modes: steps in order or a checklist (a block of
   "- " lines), a rule of thumb or two, one worked example with real numbers or a real case, and the
   common mistakes, the other blocks opened by a bold label ("**Worked example:**"); for an idea that
@@ -704,8 +746,11 @@ word; or every word only the right option has, at least 2, within 15 words of on
 a note citing at least one source unless contested; `intake` {questions: 2-4 {id, q (soft: <= 15
 words, and not about his time or about tests, which the app and his mode settle), options: 2-5
 distinct (soft: <= 8 words each), multi: bool, other: bool}} (an "Other" option is only a warning:
-cleanIntake folds it into `other: true`); `grade` {met (one per rubric point), verdict
+cleanIntake folds it into `other: true`); `grade` {met (one per rubric point, 1-5), verdict
 (got-it = all met, partly = some, not-yet = none), nailed, followUp ('' only when got-it), model?};
+its written form (a refresher lesson's written answer: `U.validate.grade(o, {rubric, need, written})`)
+counts got-it from `need` points and adds `wrong` ('' or one sentence naming a statement that is
+wrong, not merely missing), and never asks for a model answer (the lesson's own is shown);
 `verify` (the fact-check, `U.validate.verify(o, {lesson, sources})` in `34-verify.js`) {issues: at
 most 12 {path, problem (<= 300 chars), severity 'fix'|'note', now (the whole new text of that
 field, required for a fix)}}. A fix's path names one string field the lesson has: `predict.reveal`,
@@ -742,8 +787,11 @@ and never model-written, replaces the kit's own data roles hl, amberLine and fil
 with a palette of its own (none today: the dossier's plates take the app's theme); without it the
 kit keeps its tuned roles; cat1-4 are always the
 kit's), `window.K_BODY_LINE` (for error line numbers),
-`window.K_TOKEN` (the frame's random token) and `window.K_QUIZ` (the output quiz mode hides, or
-null), and the kit JS; the body follows in `<body>`. CSP: `default-src 'none'; script-src 'unsafe-inline';
+`window.K_TOKEN` (the frame's random token), `window.K_QUIZ` (the output quiz mode hides, or
+null), `window.K_CASE` (a refresher course's case file, section 4, or null) and `window.K_LESSON`
+(the lesson's `{written, summary}` and nothing else of it, or null when it has neither), and the
+kit JS; the body follows in `<body>`. The kit keeps K_CASE and K_LESSON as frozen copies
+(`K.caseFile`, `K.lesson`). CSP: `default-src 'none'; script-src 'unsafe-inline';
 style-src 'unsafe-inline'; img-src data:; font-src data:; media-src data:; connect-src 'none';
 form-action 'none'; base-uri 'none'`. The frame is `sandbox="allow-scripts"` (never
 `allow-same-origin`). The CSP stops the requests a page makes, not the frame navigating itself
@@ -808,6 +856,10 @@ kit -> host  {type:'height', px}  {type:'ready', checks:[{label, ok, source?, er
              {type:'leaving'}   the page is navigating away (or was replaced): the host removes the frame
              {type:'complete'}  K.complete(): Dan finished the page (its last puzzle); the lesson screen
                  finishes a read lesson and celebrates (section 10); other frames ignore it
+             {type:'written', id, text, go:1|2}   K.written: Dan's words for lesson.written[id] (refresher
+                 lessons). The host marks them (onWritten; one at a time per id, at most 4 per mount, text
+                 clipped to 3000) and answers with 'marked'; without onWritten it answers {error:'unavailable'}
+             {type:'ticked', id, met:[bool]}       Claude could not mark it, and Dan ticked the points himself
 host -> kit  ping                    -> {type:'pong'}         the heartbeat
              quiz {hide}  reveal     (no reply)               quiz mode, below
              selftest {throwaway?}   -> {type:'report', report}
@@ -823,9 +875,11 @@ host -> kit  ping                    -> {type:'pong'}         the heartbeat
                  the output's readout rounds it (else the default rounding); −0 shows as 0. Every error result
                  (the kit's or the host's: too large, did not load, the page left) has exact: false
              theme {theme}           (no reply)
+             marked {id, met, nailed, followUp, wrong?} | {id, error}   (no reply) the written answer, marked
 Report = { ok, errors:[], overflow, overflowDetail?, clipped:[], checks:[{label, ok, source?, error?}],
            sweep:{ ok, problems:[] }, controls:[ids], readouts:[ids], outputs:[model keys],
-           inputs:[…], actions:[labels], ready, warnings:[], width, height, ms }
+           inputs:[…], actions:[labels], answers:[{id, answer, accept, ok}], written:[ids],
+           ready, warnings:[], width, height, ms }
 ```
 `ok` = no errors, no overflow, nothing clipped, at least one check and all pass, sweep ok,
 `K.ready()` called. A word split across two lines counts as clipped; words come from
@@ -871,6 +925,33 @@ A body that navigates its test frame away fails ("navigated its frame away"), ke
 self-test found if the report arrives first. On a phone a staged canvas whose height is capped
 keeps its shape (its width shrinks with it). SVG halos (`k-halo`, .25em of the page colour) skip
 text with a stroke of its own or a fill that is not a plain colour.
+
+Refresher pieces (`app/kit/REFRESHER.md`, added to the build prompt only for refresher lessons by
+`tools/eval/prompts.mjs`; KIT.md stays as the page's own builder reads it):
+```
+K.figure(id)   K.scenario({into, open?})   K.carried({parts, into}) -> {el, refresh()}
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+   -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state:'right'|'wrong'|'empty'|'unreadable', value?, accepted?, slip?, hint?, unit?}   pure
+K.written({id, into, onMark?}) -> {el, id, stage(), answered()}      K.summary({into, kept?})
+```
+A typed answer is a decimal-keypad field graded in the frame to the course's rounding: right within
+half a unit in the answer's last place (`decimals`, default 2, or more when the answer has more;
+`tolerance` overrides), or within it of an `accept` figure (worked from unrounded figures); a
+`slips` figure is wrong with its hint; a typed unit must be the answer's own. `K.carried` shows the
+case file's figure for each earlier part, ticked in ink, or a dashed ring and "carried forward" when
+that part's `K.answer` on this page was missed (wrong and never right, or revealed). `K.written` draws
+the lesson's question with a box for Dan's words; marked, each point gets an ink tick (made) or a
+dashed ring (not yet), with its citation, a wrong statement in red, the nailed and followUp lines on
+grey, then Another go and Model answer; the second go ends with the model answer; on `{error}` the
+points are a checklist he ticks himself (each tick posted). No marks, no grades, no colour but for
+meaning. `K.summary` draws the card and says it is the first page of the chapter in his Book. The
+self-test grades every K.answer (its figure and each accepted one, with the unit too, right; a 1%
+near miss and each slip refused; in throwaway frames the figure typed and checked on the step that
+shows it, moving a stepper there) and draws every K.written marked (with a wrong statement) and
+self-ticked, at the frame's size and at Text size XL; a figure, written question or summary the
+data lacks is a sweep problem. `U.interactive.problems` also fails a page using K.answer whose
+report graded none, an answer that failed, and a `lesson.written` id the page never shows.
 
 Quiz mode (contract Q), while Dan answers a target check on the interactive (a target check in a
 lesson and a target review card both mount it so, from `41-cards.js`, hiding the check's `output`;
@@ -1287,9 +1368,10 @@ rebuild, with Dan's note as feedback.
 
 `32-sandbox.js` (kit host)
 ```
-U.KIT_JS, U.KIT_CSS (build placeholders);  U.sandbox.MAX_BYTES (150 KB), CSP, srcdoc(body, {theme, token, quiz}) (throws {code:'too_large'})
+U.KIT_JS, U.KIT_CSS (build placeholders);  U.sandbox.MAX_BYTES (150 KB), CSP, srcdoc(body, {theme, token, quiz, kase, lesson}) (throws {code:'too_large'})
 U.sandbox.mount(container, {html, title, onReady(checks, {beside}), onError(msg), onChange({params, outputs}), onComplete(), minHeight = 320, loading,
-                            quiz: {hide: output id}, theme: () => K_THEME}) ->
+                            quiz: {hide: output id}, theme: () => K_THEME, kase, lesson,
+                            onWritten({id, text, go}) -> Promise<{met, nailed, followUp, wrong?} | {error}>, onTicked({id, met})}) ->
    { el, frame, ready: Promise<checks|null>, selftest(), get(), set(id, value), press(label?), inputs(), reach(spec), theme(t?),
      quiz(id | null), reveal(), destroy() }
    ready is null if K.ready() has not come after 12 s; follows the app's theme and text size;
@@ -1298,7 +1380,7 @@ U.sandbox.mount(container, {html, title, onReady(checks, {beside}), onError(msg)
    destroyed. quiz / reveal: quiz mode (section 6). theme: a function giving the K_THEME to use instead of
    the app's (none today: the dossier's plates take the app's, like a lesson), asked again on every theme
    or text-size change.
-U.sandbox.test(html, {widths = [340, 720, 1040], timeout = 8000, theme}) -> Promise<Report>   hidden frames, one width
+U.sandbox.test(html, {widths = [340, 720, 1040], timeout = 8000, theme, kase, lesson}) -> Promise<Report>   hidden frames, one width
    at a time, merged: a message seen at only some widths ends " [at 340 and 720 px wide]", a check
    passes only at every width whose page ran, ids / inputs / actions come from the first width that
    ran (one that timed out has none, and its error still fails the report), + widths:[{width, ok}]
@@ -1326,7 +1408,8 @@ U.prompts.planTopic(query, {level, mode, intake, known:[{title, topic}]})       
 U.prompts.research(topic, {ideas})                                               TASK: research
 U.prompts.writeLesson(topic, idea, {research, known, avoid, feedback, prior, mode})  TASK: write-lesson
    (mode default topic.mode; topic.intake is read from the topic)
-U.prompts.grade(say, answer, {attempt, previous:{text, followUp}, title})        TASK: grade
+U.prompts.grade(say, answer, {attempt, previous:{text, followUp}, title, written})  TASK: grade
+   say {prompt, rubric:[1-5], model, need?}; written: a refresher lesson's written answer (section 5)
 U.prompts.tutor(context) -> preamble (the pipeline adds the turns)              TASK: tutor
 U.prompts.lessonResearch(research, iid, deps?, ideas?) -> {notes, sources} | null   numbered 1..k for one lesson (section 7)
 U.prompts.priorSummary(lessons) -> [{iid, title, terms, analogy, brief, numbers, asked}]
@@ -1336,11 +1419,15 @@ U.verify.pathProblem(path, lesson, fix) -> string | null   U.verify.PATCHABLE   
 U.prompts.copyHost(url) -> why a source URL is a copy or a test server (section 7), or ''
 U.prompts.urlKey(url) / words(text) / footnotes(obj) / VOICE / voice(mode) / modeOf(m) ('read' | 'study') / KINDS / NUMBER_KINDS
 U.prompts.truthRules({sources, history, read})
-U.validate.plan(o) / .lesson(o, {iid, sources, final, kind, mode}) / .grade(o, {rubric, attempt}) / .research(o, {ideas}) / .intake(o) -> [problems]
+U.validate.plan(o) / .lesson(o, {iid, sources, final, kind, mode, caseFile}) / .grade(o, {rubric, attempt, need, written}) / .research(o, {ideas}) / .intake(o)
+   / .written(lesson.written) / .summary(lesson.summary, {caseFile}) / .caseFile(o) -> [problems]
    problems.soft: the length problems among them (section 5);  U.validate.hard(problems);  U.validate.allowed(max)
 U.gen.intake(query, {level, mode, signal}) -> Promise<{questions}>   (section 7)
 U.gen.createTopic(query, {level, mode, intake, onCreated}) / replan / research / ensureLesson / relearn / grade / tutor / status / knownIdeas   (section 7)
 U.gen.demote(tid, iid, {signal?}) -> bool   a foreground job Dan left becomes background work (aborting signal cancels it)
+U.gen.markWritten(written, answer, attempt, {previous, title}) -> Promise<{met, verdict, nailed, followUp, wrong}>
+   lesson.written[id] marked through the grade prompt's written form (default tier; blank words are not sent);
+   rejects like U.gen.grade. Only the lesson's question, points, need and model answer and his words go
 ```
 
 `35-art.js` (course pictures; data and flow in section 4)
@@ -1523,7 +1610,11 @@ topics started here are not source-checked); "Not connected." with the steps to 
   control does; when the done section is already showing it scrolls there and celebrates again;
   a study lesson ignores it. A steps lesson (`format: 'steps'`, section 5) has one step, Lesson:
   the frame alone, full width, then the done section with its sources in "Sources (n)"; if its
-  frame cannot be shown, or is closed, it opens as an ordinary read lesson.
+  frame cannot be shown, or is closed, it opens as an ordinary read lesson. Its frame gets the
+  course's case file (read with the lesson) and the lesson's `{written, summary}`; a written answer
+  the page sends is marked with `U.gen.markWritten` against `lesson.written[id]` (the previous try
+  passed on the second go) and each try saved under `progress.ideas[iid].written[id]` (section 4),
+  the self-ticks on the try they belong to.
 - Tabs Library / Today / Book (`#tabs`: `data-tab` library, today, book; since 18 Oct, when the
   Library became the home, Today carries no badge and the Map has no tab) sit at the bottom in
   the phone layout and in the top bar in the laptop layout. The Aa button opens `U.settings.open()`.

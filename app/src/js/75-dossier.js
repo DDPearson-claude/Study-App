@@ -807,6 +807,8 @@
           vh('Chapter ' + c.n + ' of ' + M.N + (idea.kind ? ', ' + idea.kind : '') + ':'),
           h('h1', { class: 'c-h1', tabindex: '-1' }, idea.title))]),
       // The field note: the explanation's closing all-bold paragraph. None, no tile.
+      // A refresher lesson's Keep this card opens the chapter (its guide's first page).
+      summaryTile(c, sid),
       ex.note ? tile('section', 'em', { span: 'full', cls: 'c-key', attrs: { 'aria-labelledby': sid + '-key' } }, [heading(sid + '-key', 'Key idea'), inl(h('p', { class: 'c-key-t' }), ex.note, fx)]) : null,
     ];
     if (c.guide) main.push.apply(main, guideTiles(c, fx));
@@ -859,6 +861,37 @@
   // puzzle as a worked example (question, picture once solved, answer, why). Nothing to press. The
   // pictures are plain SVG images (no script) the build drew from the lesson; they sit on a white
   // well in both themes, like a printed plate.
+  // A refresher lesson's summary card (Keep this), the guide's first page {kind: 'summary', title,
+  // for, rule, traps: [{text, cite}], where, figures: [{label, value}]}: what it is for, the rule,
+  // the traps (red: mistakes), the case's figures so far and where it lives in his materials.
+  // Words only, drawn as text; null when the chapter has none.
+  function summaryOf(c) {
+    var p = c.guide && Array.isArray(c.guide.pages) ? c.guide.pages.filter(function (x) { return isObj(x) && x.kind === 'summary'; })[0] : null;
+    return p && str(p.title) ? p : null;
+  }
+  function ruleLines(rule) {
+    return str(rule).split(/\n\s*\n/).map(function (b, k) { return b.split('\n').filter(function (l) { return l.trim(); }).map(function (l) { return { text: l.trim(), note: k > 0 }; }); })
+      .reduce(function (a, b) { return a.concat(b); }, []);
+  }
+  function summaryTile(c, sid) {
+    var p = summaryOf(c);
+    if (!p) return null;
+    var lab = function (t) { return h('p', { class: 'sm-l' }, t); };
+    var traps = arr(p.traps).filter(function (t) { return isObj(t) && str(t.text); });
+    var figs = arr(p.figures).filter(function (f) { return isObj(f) && str(f.label); });
+    return tile('section', 'em', { span: 'full', cls: 'c-sum', attrs: { 'aria-labelledby': sid + '-sum' } }, [
+      heading(sid + '-sum', 'Keep this'),
+      h('p', { class: 'sm-title' }, str(p.title)),
+      str(p.for) ? h('div', null, lab('What it is for'), U.inline(h('p'), str(p.for))) : null,
+      str(p.rule) ? h('div', { class: 'sm-rule' }, lab('The rule'), ruleLines(p.rule).map(function (l) { return U.inline(h('p', { class: l.note ? 'n' : null }), l.text); })) : null,
+      traps.length ? h('div', { class: 'sm-traps' }, lab('Traps'), traps.map(function (t) {
+        return h('p', { class: 'sm-trap' }, U.inline(h('span'), str(t.text)), str(t.cite) ? h('small', null, str(t.cite)) : null);
+      })) : null,
+      figs.length ? h('div', null, lab(str(p.figuresLabel) || 'Figures so far'), h('dl', { class: 'sm-figs' }, figs.map(function (f) {
+        return h('div', null, h('dt', null, str(f.label)), h('dd', null, str(f.value)));
+      }))) : null,
+      str(p.where) ? h('p', { class: 'sm-where' }, 'Where it lives: ' + str(p.where).replace(/^where it lives:\s*/i, '')) : null]);
+  }
   function guidePic(p) {
     if (!p.svg || !/^<svg[\s>]/.test(p.svg)) return null;
     return h('img', { class: 'gd-pic', src: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(p.svg), alt: p.alt || '', loading: 'lazy', decoding: 'async' });
@@ -1293,12 +1326,25 @@
   function xk(text, cls) { return h('p', { class: 'k' + (cls ? ' ' + cls : '') }, text); }
   // Tiles laid two to a row: an odd last one runs across.
   function halves(list) { return list.map(function (t, k) { if (list.length % 2 && k === list.length - 1) t.classList.add('full'); return t; }); }
+  // The Keep this card (a refresher lesson), as plain text in the saved copy.
+  function exportSummary(c) {
+    var p = summaryOf(c);
+    if (!p) return null;
+    var traps = arr(p.traps).filter(function (t) { return isObj(t) && str(t.text); }), figs = arr(p.figures).filter(function (f) { return isObj(f) && str(f.label); });
+    return h('div', { class: 't em full' }, xk('Keep this'), h('h3', null, str(p.title)),
+      str(p.for) ? h('p', null, h('b', null, 'What it is for. '), U.plain(str(p.for))) : null,
+      str(p.rule) ? h('div', null, ruleLines(p.rule).map(function (l) { return h('p', { class: l.note ? 'small' : null }, l.note ? U.plain(l.text) : h('b', null, U.plain(l.text))); })) : null,
+      traps.length ? h('ul', null, traps.map(function (t) { return h('li', null, h('b', null, 'Trap: '), U.plain(str(t.text)), str(t.cite) ? ' (' + str(t.cite) + ')' : ''); })) : null,
+      figs.length ? h('p', null, figs.map(function (f, k) { return (k ? ' · ' : '') + str(f.label) + ' ' + str(f.value); }).join('')) : null,
+      str(p.where) ? h('p', { class: 'small' }, 'Where it lives: ' + str(p.where).replace(/^where it lives:\s*/i, '')) : null);
+  }
   function exportChapter(M, c) {
     var L = c.lesson, it = L.interactive, sid = 'c' + c.n, fx = exportFx(sid, L);
     var ex = explainParts(L), clip = clipOf(ex.ps, fx.by), cert = certainOf(c), cmp = compareOf(M, c), views = viewsOf(L);
     var out = [
       h('div', { class: 't w full' }, xk(['Chapter ' + c.rn + ' of ' + roman(M.N), c.idea.kind ? h('span', { class: 'kind' }, c.idea.kind) : null]),
         h('h2', null, c.idea.title), h('p', { class: 'mono' }, 'Learned ' + shortDate(c.learned))),
+      exportSummary(c),
       ex.note ? h('div', { class: 't em full' }, xk('Key idea'), xInl(h('p', { class: 'key' }), ex.note, fx)) : null,
     ];
     if (c.hasPlate) {

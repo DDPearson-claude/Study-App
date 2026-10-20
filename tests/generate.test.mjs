@@ -1623,6 +1623,36 @@ test('grade: rubric-based, model answer withheld on attempt 1 and given on attem
   await assert.rejects(U.gen.grade(L_JET1.say, 'something', 1), (e) => e.code === 'invalid');
 });
 
+// A refresher lesson's written answer (lesson.written[id]) goes through the same grade prompt in its
+// written form: the points are the rubric, `need` of them a full answer, "wrong" comes back, and no
+// model answer is asked for (the lesson's own is shown after). Blank words are never sent.
+test('markWritten: the points as the rubric, need, wrong, no model answer; blank words not sent', async () => {
+  const W = { q: 'Explain why Ib is worked at the sub-board\'s voltage.', need: 3, model: 'The board is below 400 V, so more current flows.',
+    points: [{ text: 'The submain drops voltage', cite: 'Slides p.18' }, { text: 'Lower voltage needs more current', cite: 'Slides p.13' },
+      { text: 'Device and cable are chosen from Ib', cite: 'Slides p.22' }, { text: '28.87 A at 400 V, 29.38 A at 393 V', cite: 'Slides p.16, 19' }] };
+  let reply = { met: [true, true, false, false], verdict: 'partly', nailed: 'You have the cause.', followUp: 'What is chosen from Ib?', wrong: 'The cable does not set Ib.' };
+  const app = await boot({ handlers: { grade: () => reply } });
+  const { U } = app;
+  const g = plain(await U.gen.markWritten(W, 'The submain drops volts so the board is lower and the current is higher.', 1, { title: 'Design current' }));
+  assert.deepEqual(g, { met: [true, true, false, false], verdict: 'partly', nailed: 'You have the cause.', followUp: 'What is chosen from Ib?', wrong: 'The cable does not set Ib.' });
+  const p = String(firstUser(app.calls[0].input));
+  assert.ok(p.startsWith('TASK: grade\n'), 'the grade prompt');
+  assert.ok(p.includes('MARK SCHEME POINTS (from his sources; a full answer makes any 3 of the 4 points)') && p.includes('4. 28.87 A at 400 V, 29.38 A at 393 V'), 'the points as the rubric, with need');
+  assert.ok(p.includes('the board is lower and the current is higher') && p.includes('"wrong"') && !p.includes('"model": "…"'), 'his words; wrong asked for; no model answer');
+  assert.ok(!p.includes('Slides p.18'), 'the citations stay in the app');
+  // need: three met is a full answer (got-it), so no nudge.
+  reply = { met: [true, true, true, false], verdict: 'got-it', nailed: 'All three.', followUp: 'x', wrong: '' };
+  assert.equal(plain(await U.gen.markWritten(W, 'full answer', 2)).followUp, '');
+  // A got-it with fewer than need met is refused (one repair, then rejected).
+  reply = { met: [true, false, false, false], verdict: 'got-it', nailed: 'x', followUp: '', wrong: '' };
+  await assert.rejects(U.gen.markWritten(W, 'something', 1), (e) => e.code === 'invalid');
+  const n = app.calls.length;
+  const blank = plain(await U.gen.markWritten(W, ' . ', 1));
+  assert.deepEqual([blank.verdict, blank.met], ['not-yet', [false, false, false, false]]);
+  assert.equal(app.calls.length, n, 'blank words are not sent to Claude');
+  await assert.rejects(U.gen.markWritten({ q: 'x', points: [] }, 'words', 1), (e) => e.code === 'invalid');
+});
+
 test('tutor: preamble on the first user turn, streaming, tools and context loading', async () => {
   const app = await boot({ handlers: { tutor: (input, o) => 'Good question. ' + (o.tools ? o.tools.length : 0) + ' tools.' }, research: true });
   const { U } = app;

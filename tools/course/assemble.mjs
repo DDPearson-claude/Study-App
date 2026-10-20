@@ -16,6 +16,8 @@
 //       .lesson.final.json), <iid>.verify.result.json, <iid>.body.final.html, <iid>.verdict.final.json
 //       and <iid>.attempts.txt (and <iid>.guide.json, the dossier's still guide, when there is one),
 //       plus overview.check.json (the hook and In one breath checked: the topic gets overviewChecked), and
+//       case.json for a refresher course (the case file every lesson's page reads: checked with
+//       U.validate.caseFile and written as topics/{tid}/case/file), and
 //       writes <dir>/out/: topic.json, research-topic.json,
 //       research-<iid>.json, lesson-<iid>.json and manifest.json (collection, doc_id, file per
 //       document). The tid is read from <dir>/tid.txt, or made (U.slug(query) + '-' + 5 random
@@ -50,6 +52,11 @@ if (!cmd || !dir) { console.error('usage: assemble.mjs finalise|docs --dir <buil
 const topic = read(join(dir, 'topic.json'));
 const research = existsSync(join(dir, 'research.json')) ? read(join(dir, 'research.json')) : null;
 const mode = U.prompts.modeOf(topic.mode);
+// The validators return a list of problems (with .soft); an older caller read .problems off it.
+const listOf = (v) => (Array.isArray(v) ? v : (v && v.problems) || []);
+// A refresher course's case file (RUNBOOK section 8): givens, assumptions and the figures each
+// lesson works out, one doc every lesson's page reads.
+const caseFile = existsSync(join(dir, 'case.json')) ? read(join(dir, 'case.json')) : null;
 
 function finalise(iid) {
   const idea = (topic.ideas || []).find((i) => i.id === iid);
@@ -57,8 +64,8 @@ function finalise(iid) {
   const raw = lessonOf(read(join(dir, iid + '.lesson.json')));
   const lr = research ? U.prompts.lessonResearch(research, iid, idea.deps, topic.ideas) : null;
   const lesson = U.gen._finaliseLesson(raw, iid, lr, mode);
-  const v = U.validate.lesson(lesson, { iid, sources: lr && lr.sources.length ? lr.sources : null, final: true, mode, kind: idea.kind });
-  const problems = (v && v.problems) || [];
+  const v = U.validate.lesson(lesson, { iid, sources: lr && lr.sources.length ? lr.sources : null, final: true, mode, kind: idea.kind, caseFile });
+  const problems = listOf(v);
   return { lesson, problems, soft: Array.from(problems.soft || []), warnings: Array.from((v && v.warnings) || []) };
 }
 
@@ -118,8 +125,8 @@ if (cmd === 'docs') {
     if (!existsSync(vf) && !existsSync(ff)) { if (process.argv.includes('--partial')) { missing.push(iid); return; } problems.push(iid + ': no lesson (expected ' + vf + ' or ' + ff + ')'); return; }
     const lesson = lessonOf(read(existsSync(vf) ? vf : ff));
     const lr = research ? U.prompts.lessonResearch(research, iid, idea.deps, topic.ideas) : null;
-    const v = U.validate.lesson(lesson, { iid, sources: lr && lr.sources.length ? lr.sources : null, final: true, mode, kind: idea.kind });
-    const hard = U.validate.hard((v && v.problems) || []);
+    const v = U.validate.lesson(lesson, { iid, sources: lr && lr.sources.length ? lr.sources : null, final: true, mode, kind: idea.kind, caseFile });
+    const hard = U.validate.hard(listOf(v));
     if (hard.length) { problems.push(iid + ': ' + hard.join(' | ')); return; }
     if (lesson.mode !== mode) { problems.push(iid + ': lesson.mode is ' + lesson.mode + ', the course is ' + mode + ' (run finalise)'); return; }
     // A steps lesson that lost its format plays as a long reading lesson (Trigonometry 3-8 and Linear
@@ -139,6 +146,12 @@ if (cmd === 'docs') {
       if (Buffer.byteLength(html, 'utf8') > 150 * 1024) { problems.push(iid + ': interactive body over 150 KB'); return; }
       const verdict = existsSync(rf) ? read(rf) : null;
       if (!verdict || verdict.ok !== true) { problems.push(iid + ': no passing verdict in ' + rf); return; }
+      // A refresher lesson: its typed answers were graded by the self-test that passed (a verdict
+      // from before the kit knew K.answer has none), and its written questions are on the page.
+      const rep = verdict.report || verdict, answers = Array.isArray(rep.answers) ? rep.answers : [];
+      if (/\bK\.answer\s*\(/.test(html) && (!answers.length || answers.some((a) => !a.ok))) { problems.push(iid + ': the page has typed answers (K.answer) that the passing verdict did not self-test, or that failed it: run attempt.mjs again'); return; }
+      const missingW = Object.keys(lesson.written || {}).filter((w) => !(rep.written || []).includes(w));
+      if (missingW.length) { problems.push(iid + ': lesson.written ' + missingW.join(', ') + ' never shown on the page (K.written), by the passing verdict'); return; }
       // The first line: "7", or "3 + 2" after a brief fix and a fresh count (RUNBOOK section 5), the
       // total either way. Anything after the first line is a builder's note and is not counted.
       const attempts = existsSync(join(dir, iid + '.attempts.txt')) ? ((readFileSync(join(dir, iid + '.attempts.txt'), 'utf8').split('\n')[0]).match(/\d+/g) || []).map(Number).reduce((a, b) => a + b, 0) || 1 : 1;
@@ -155,8 +168,10 @@ if (cmd === 'docs') {
     if (Buffer.byteLength(text, 'utf8') > 250 * 1024) { problems.push(iid + ': lesson doc over 250 KB'); return; }
     writeFileSync(join(out, 'lesson-' + iid + '.json'), text + '\n');
     manifest.push({ collection: 'topics/' + tid + '/lessons', doc_id: iid, file: join(out, 'lesson-' + iid + '.json') });
-    // The still guide for its dossier chapter (tools/course/guide.mjs), when the build made one.
+    // The still guide for its dossier chapter (tools/course/guide.mjs), when the build made one. A
+    // lesson with a summary card needs one whose first page is that card (the chapter opens on it).
     const gf = join(dir, iid + '.guide.json');
+    if (lesson.summary && (!existsSync(gf) || (read(gf).pages || [])[0]?.kind !== 'summary')) { problems.push(iid + ': lesson.summary is not the first page of ' + gf + ': run guide.mjs --dir ' + dir + ' --idea ' + iid); return; }
     if (existsSync(gf)) {
       const g = readFileSync(gf, 'utf8').trim();
       if (Buffer.byteLength(g, 'utf8') > 250 * 1024) { problems.push(iid + ': guide over 250 KB'); return; }
@@ -165,6 +180,21 @@ if (cmd === 'docs') {
     }
     summary.push({ iid, title: lesson.title, sources: (lesson.sources || []).length, interactive: !!interactive, attempts: interactive ? interactive.attempts : 0, verified: verified.status, soft: Array.from(((v && v.problems) || {}).soft || []) });
   });
+
+  // The case file (a refresher course): checked, then written beside the lessons that read it.
+  if (caseFile) {
+    const cp = U.validate.hard(listOf(U.validate.caseFile(caseFile)));
+    if (cp.length) problems.push('case.json: ' + cp.join(' | '));
+    else {
+      const doc = { v: 1, ...caseFile, updatedAt: now };
+      const text = JSON.stringify(doc, null, 1);
+      if (Buffer.byteLength(text, 'utf8') > 250 * 1024) problems.push('case.json over 250 KB');
+      else {
+        writeFileSync(join(out, 'case.json'), text + '\n');
+        manifest.push({ collection: 'topics/' + tid + '/case', doc_id: 'file', file: join(out, 'case.json') });
+      }
+    }
+  }
 
   // The topic doc, as createTopic + the plan + research leave it.
   const plan = {};

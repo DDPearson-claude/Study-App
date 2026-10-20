@@ -8,6 +8,8 @@
 //
 // Shapes beyond docs/ARCHITECTURE.md section 4 (what this layer and its callers agree on):
 //   progress.ideas[iid].say   {[key]: {text, at, verdict, met:[bool], nailed?, followUp?, model?, round}}
+//   progress.ideas[iid].written {[qid]: {[key]: {text, at, go, met:[bool], nailed, followUp, wrong?, error?, self?:[bool], round}}}
+//       a refresher lesson's written answers (Section B), kept like say entries: never round fields
 //   progress.questions        {[key]: {q, iid, at}}          questions typed to Ask Claude, newest 20 kept
 //   lessons/{iid}.flags       {[key]: {note, at, stage}}     "This looks wrong" notes, newest 30 kept
 //       Keys come from U.key() (time + random), so entries added on two devices at once merge
@@ -620,6 +622,9 @@ U.store = (function () {
       lesson: function (tid, iid) { return 'topics/' + tid + '/lessons/' + iid; },
       // A ready-made steps lesson as a still guide for its dossier chapter (tools/course/guide.mjs).
       guide: function (tid, iid) { return 'topics/' + tid + '/guide/' + iid; },
+      // A refresher course's case file: the running case's givens, assumptions and worked figures,
+      // one doc every lesson reads (written at build time by tools/course/assemble.mjs).
+      caseFile: function (tid) { return 'topics/' + tid + '/case/file'; },
       research: function (tid, key) { return 'topics/' + tid + '/research/' + key; },
       profile: function () { return priv('profile'); },
       progress: function (tid) { return priv('profile/progress/' + tid); },
@@ -687,7 +692,7 @@ U.store = (function () {
           var jobs = [];
           r[0].forEach(function (d) { jobs.push(del(S.paths.lesson(tid, d.__id))); });
           r[1].forEach(function (d) { jobs.push(del(S.paths.research(tid, d.__id))); });
-          jobs.push(del(S.paths.progress(tid)), del(S.paths.cards(tid)));
+          jobs.push(del(S.paths.progress(tid)), del(S.paths.cards(tid)), del(S.paths.caseFile(tid)));
           return Promise.all(jobs);
         }).then(function () { return { leftovers: left }; });
       });
@@ -697,6 +702,7 @@ U.store = (function () {
   // This page's own job is on the lesson (U.gen.status: writing, waiting for another holder, building).
   function jobOn(live) { return live === 'writing' || live === 'waiting' || live === 'building'; }
   S.guide = { get: function (tid, iid) { return getDoc(S.paths.guide(tid, iid)); } };
+  S.caseFile = { get: function (tid) { return getDoc(S.paths.caseFile(tid)); } };
   S.lesson = {
     get: function (tid, iid) { return getDoc(S.paths.lesson(tid, iid)); },
     watch: function (tid, iid, fn, onError) { return watchDoc(S.paths.lesson(tid, iid), fn, onError); },

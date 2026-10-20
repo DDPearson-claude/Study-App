@@ -21,7 +21,7 @@ import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { loadPrompts, lessonOf } from '../eval/prompts.mjs';
-import { renderBody } from '../eval/render.mjs';
+import { renderBody, refresherContext } from '../eval/render.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 function arg(name, dflt) { const i = process.argv.indexOf('--' + name); return i > 0 ? process.argv[i + 1] : dflt; }
@@ -54,7 +54,11 @@ writeFileSync(bodyFile, body);
 
 // 2. Render: self-test at three widths, screenshots at 360 and 1280, light and dark, opening, moved and end.
 const out = join(D, `${iid}.a${n}`);
-const rendered = await renderBody(body, out, app, {});
+// A refresher lesson's page gets its written questions, summary and the course's case file
+// (<dir>/case.json), as the app passes them.
+const caseFile = existsSync(join(D, 'case.json')) ? join(D, 'case.json') : null;
+const context = refresherContext(lesson, caseFile ? read(caseFile) : null);
+const rendered = await renderBody(body, out, app, { context });
 
 // 3. Verdict: the app's own checks on top (foreign addresses, unreachable targets), as prompts.mjs does.
 async function unreachable() {
@@ -79,7 +83,7 @@ writeFileSync(`${out}.verdict.json`, JSON.stringify(verdict, null, 2) + '\n');
 const filmMode = arg('film', 'all');
 let film = null;
 if (filmMode !== 'none') {
-  const f = spawnSync(process.execPath, [join(root, 'tools', 'eval', 'filmstrip.mjs'), bodyFile, '--out', `${out}.film`, '--app', app], { encoding: 'utf8' });
+  const f = spawnSync(process.execPath, [join(root, 'tools', 'eval', 'filmstrip.mjs'), bodyFile, '--out', `${out}.film`, '--app', app, '--lesson', lessonFile].concat(caseFile ? ['--case', caseFile] : []), { encoding: 'utf8' });
   if (f.status === 0 && existsSync(`${out}.film.json`)) {
     film = read(`${out}.film.json`);
   } else {

@@ -289,6 +289,18 @@ U.interactive = (function () {
     var foreign = Array.isArray(report.foreign) ? report.foreign : html != null ? foreignUrls(html, lesson, report) : [];
     foreign.forEach(function (u) { out.push(urlProblem(u, lesson)); });
     (report.unreachable || []).forEach(function (x) { out.push(reachProblem(x)); });
+    return out.concat(refresherProblems(report, lesson, html));
+  }
+  // A refresher lesson (app/kit/REFRESHER.md): every typed answer was graded by the self-test (a
+  // report from before the kit knew K.answer has none) and passed it, and every written question
+  // the lesson has is on the page.
+  function refresherProblems(report, lesson, html) {
+    var out = [], typed = /\bK\.answer\s*\(/.test(String(html || '')), answers = Array.isArray(report.answers) ? report.answers : null;
+    if (typed && (!answers || !answers.length)) out.push('The page uses K.answer, but the self-test graded no typed answer: test it again with the current kit.');
+    (answers || []).forEach(function (a) { if (a && a.ok === false) out.push('The typed answer "' + a.id + '" did not pass its self-test (see the sweep problems).'); });
+    var written = lesson && lesson.written && typeof lesson.written === 'object' ? Object.keys(lesson.written) : [];
+    var shown = Array.isArray(report.written) ? report.written : [];
+    written.forEach(function (id) { if (shown.indexOf(id) < 0) out.push('The lesson has the written question "' + id + '", but the page never shows it: add K.written({ id: \'' + id + '\', into: … }) on its Section B step.'); });
     return out;
   }
   // A check cited to a source should restate what that source's quote says: one whose numbers

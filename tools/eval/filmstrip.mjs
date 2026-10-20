@@ -4,7 +4,9 @@
 // every --every ms for --for ms. Each step's frames go on one contact sheet with their times.
 //   node tools/eval/filmstrip.mjs body.html --out build/x/i3.film [--steps 0,2,4] [--every 200]
 //        [--for 5000] [--app tests/out/kit.html] [--theme dark] [--control step] [--eval "js"]
-//        [--crop "svg.scene"]
+//        [--crop "svg.scene"] [--lesson lesson.json --case case.json]
+// --lesson / --case: a refresher lesson's written questions, summary and the course's case file, as
+// the app passes them to its page.
 // --crop films only the lesson's picture (the first element matching the selector, e.g. svg.scene),
 // so a sheet's frames stay legible when read. The default, "none", films the whole card, which a
 // review needs to see text, buttons and hints clipped or overlapping; no match also films the card.
@@ -15,6 +17,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { openApp, ROOT } from '../harness/page.mjs';
+import { contextArgs } from './render.mjs';
 
 function arg(name, dflt) { const i = process.argv.indexOf('--' + name); return i > 0 ? process.argv[i + 1] : dflt; }
 const file = process.argv[2];
@@ -32,16 +35,16 @@ const app = await openApp({ width: 360, height: 900, file: arg('app') ? resolve(
 const { page } = app;
 await page.goto(app.url('#/__eval'));
 await page.evaluate((t) => { document.documentElement.dataset.muTheme = t; }, theme);
-await page.evaluate(async (html) => {
+await page.evaluate(async ([html, c]) => {
   await U.rt.ready;
   const shell = document.getElementById('app');
   if (shell) shell.style.display = 'none';
   const box = document.createElement('div');
   box.style.cssText = 'max-width:720px;margin:16px auto;padding:0 16px;background:var(--bg)';
   document.body.appendChild(box);
-  window.__film = U.sandbox.mount(box, { html });
+  window.__film = U.sandbox.mount(box, { html, kase: c.kase, lesson: c.lesson });
   await Promise.race([window.__film.ready, new Promise((r) => setTimeout(r, 6000))]);
-}, readFileSync(file, 'utf8'));
+}, [readFileSync(file, 'utf8'), contextArgs(arg)]);
 const info = await page.evaluate(() => window.__film.inputs());
 const ctl = info.inputs.find((c) => c.id === control);
 if (!ctl) { console.error('no control "' + control + '" (has: ' + info.inputs.map((c) => c.id).join(', ') + ')'); await app.close(); process.exit(1); }

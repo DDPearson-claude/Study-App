@@ -1,0 +1,26 @@
+{
+  "written": {
+    "b1": {
+      "q": "Explain why Ib for a final circuit fed from a sub-board is worked at the voltage at that board, not at 400 V.",
+      "need": 3,
+      "points": [
+        { "text": "The submain drops some voltage, so the sub-board sits below 400 V.", "cite": "Slides p.18" },
+        { "text": "For the same power, a lower voltage needs more current: Ib = P ÷ (√3 × U).", "cite": "Slides p.13, 19" },
+        { "text": "The device and the cable are chosen from Ib, so at 400 V both would be picked on too small a current.", "cite": "Slides p.22" },
+        { "text": "For example, 20 kW is 28.87 A at 400 V but 29.38 A at 393 V.", "cite": "Slides p.16, 19" }
+      ],
+      "model": "The submain drops voltage, so the sub-board is below 400 V. For the same power a lower voltage needs more current, and the device and cable are chosen from Ib: 20 kW is 28.87 A at 400 V but 29.38 A at 393 V."
+    }
+  },
+  "summary": {
+    "title": "Design current, Ib",
+    "for": "The current the circuit carries in normal service. The device, the cable and every check after them are sized from it.",
+    "rule": "Single-phase: Ib = P ÷ (U × eff × pf)\nThree-phase: Ib = P ÷ (√3 × UL × eff × pf)\n\nP is the output. U is the voltage at the board when you are given one.",
+    "traps": [
+      { "text": "**Output alone:** 28.87 A where the load draws 41.48 A.", "cite": "Slides p.17" },
+      { "text": "**230 or 400 V by habit** when the board's voltage is given.", "cite": "Slides p.18" }
+    ],
+    "where": "your slides p.10 to 19; the formula sheet, step 1.",
+    "figures": ["1a", "1b"]
+  }
+}

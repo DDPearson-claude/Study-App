@@ -38,6 +38,7 @@ $D/I.body.final.html        the body that passed; $D/I.verdict.final.json its ve
 $D/I.review.json            the reader's review of the whole lesson (text + screenshots)
 $D/out/                     assemble.mjs docs: the db documents and manifest.json
 $D/tid.txt                  the topic id, made once
+$D/case.json                a refresher course's case file (section 8): givens, assumptions, figures by lesson
 ```
 
 ## 0. The course brief (before anything is planned or built)
@@ -221,3 +222,55 @@ the live artifact (docs/DEPLOY.md has its URL): a `set` per manifest entry (`fil
 no `if_version`: they are new documents). Then read `shelves/<sid>`, set the course's `tid` in its
 JSON (docs/shelves-<sid>.json too), and `set` it back with `if_version`. Finally copy `$D` (without
 `tools/` and the PNGs) into `docs/courses/<shelf>/<course>/` and commit.
+
+## 8. Refresher lessons (a course Dan has done before: Design and verification)
+The design is `docs/courses/<shelf>/<course>/format/refresher.md`; it changes what a lesson holds,
+not the stages above. Each lesson is still a steps lesson (`format: 'steps'`, read mode), built and
+reviewed as in sections 3 to 6, with four pieces the app plays (`app/kit/REFRESHER.md`, which
+`prompts.mjs build-interactive` adds to the build prompt by itself for these lessons).
+
+**The case file, once per course: `$D/case.json`** `{title, scenario: {title, text, source},
+givens: [{id, label, value, unit, text, cite}], assumptions: [{id, text}], figures: [{id, lesson,
+part, label, value, unit, text, work}]}`. Every given is cited to his materials; the course's own
+assumptions say so; every worked figure names the lesson that works it out and, for a Section A
+part, its part ("1b"), printed as `text` ("13.33 A"). A page names figures by id (`K.figure`,
+`K.carried`), never retypes them. `node tools/eval/validate.mjs case $D/case.json`.
+
+**The lesson JSON adds two fields**, written with the lesson and fact-checked with it (the check
+may fix their words, never a citation):
+- `written: {b1: {q, points: [{text, cite}], need, model}}`: each Section B question, three to
+  five points taken from his slides, sheet, pack or guide, or a researched quote, each with where it
+  comes from ("Slides p.18"); `need` says how many make a full answer ("any three"); the model
+  answer is written from the points.
+- `summary: {title, for, rule, traps: [{text, cite}], where, figures: ['1a', '1b']}`: the Keep this
+  card. `rule` is one formula a line, a blank line, then the notes; every trap cited; figures by
+  case-file id.
+Validate with `--case $D/case.json` added to `validate.mjs lesson`: a point or trap without its
+citation is a hard problem.
+
+**Screens, in order** (refresher.md section 2 is lesson 1's): the recall opener, "Do you still
+have it?", a choice whose wrong options are the usual slips, each with its own feedback; right
+gives "Still there", the working, and two buttons, **Refresh the why** (on to step 2) and **Skip to
+the practice** (straight to the first Section A step); wrong names the slip and carries on. What it
+is for, and what goes wrong if it is skipped. The why, with its interactive. A check. The worked
+example from his slides, line by line, noting where a slide's figure is cut short. **Section A**:
+each part a step with `K.scenario`, `K.carried({parts})` for the earlier parts (always at the course's
+figures; a part missed on this page says it is carried forward), the part's question in C&G words
+("Determine…") and `K.answer({id: '<part>', unit, answer, accept, slips})`: two wrong tries, then the
+working and `reveal()`. **Section B**: `K.written({id: 'b1'})`; Continue once `answered()`. One
+changed-numbers item (a typed answer). **Keep this**: `K.summary()`, then Finish (`K.complete()`).
+STEPS entries name these for the Book: `want` on a typed step, `{kind: 'written', written: 'b1'}`,
+`{kind: 'summary'}`. No timers, marks or grades anywhere.
+
+**Numbers**: each line is worked from the rounded figures shown before it (2 places unless the
+material shows more), so the answer is the printed figure; the figure from unrounded working goes in
+`accept`. Put both in a `K.check`, with the rule.
+
+**Build, guide, assemble**: `attempt.mjs` gives the page `$D/case.json` and the lesson's
+`written` and `summary` (as the app does), and fails a typed answer the self-test refuses (its own
+figure, an accepted one, a slip that is too close, a near miss let through). `guide.mjs` writes the
+summary card as the guide's first page (the Book's chapter opens on it) and each written question
+as an example with its model answer. `assemble.mjs docs` checks the case file and writes it as
+`topics/{tid}/case/file`, keeps `written` and `summary` in the lesson doc, and refuses a lesson whose
+typed answers the passing verdict did not self-test, whose written questions are not on the page,
+or whose guide does not open on its summary.

@@ -263,12 +263,16 @@
       notice.hidden = false;
     }, 8000);
     U.rt.ready.then(function () {
-      return Promise.all([U.store.topic.get(tid), U.store.progress.get(tid), U.store.lesson.get(tid, iid), params.again ? stillSlipping() : null]);
+      // The course's case file (a refresher course, built in Claude Code): its figures go into the
+      // lesson's frame, so every lesson shows the same ones. Most courses have none.
+      var kase = U.store.caseFile ? U.store.caseFile.get(tid).catch(function () { return null; }) : null;
+      return Promise.all([U.store.topic.get(tid), U.store.progress.get(tid), U.store.lesson.get(tid, iid), params.again ? stillSlipping() : null, kase]);
     }).then(function (r) {
       loaded = true;
       if (!alive()) return;
       if (!st.gone) { U.clear(notice); notice.hidden = true; }
       var topic = r[0], doc = r[2];
+      st.kase = r[4] && typeof r[4] === 'object' ? r[4] : null;
       if (!topic) return missing('#/');
       st.topic = topic;
       st.index = (topic.ideas || []).map(function (i) { return i.id; }).indexOf(iid);
@@ -306,6 +310,7 @@
       ip = ip || {};
       ip.say = U.keyed(ip.say);
       ip.checks = ip.checks && typeof ip.checks === 'object' ? ip.checks : {};
+      ip.written = ip.written && typeof ip.written === 'object' ? ip.written : {};
       return ip;
     }
     // Fold the progress another device saved into what this screen knows.
@@ -323,6 +328,8 @@
       Object.keys(rc).forEach(function (k) { if (rc[k]) cks[k] = U.clone(rc[k]); });
       var says = st.ip.say || (st.ip.say = {}), rs = U.keyed(r.say);
       Object.keys(rs).forEach(function (k) { says[k] = rs[k]; });
+      var wr = st.ip.written || (st.ip.written = {}), rw = r.written && typeof r.written === 'object' ? r.written : {};
+      Object.keys(rw).forEach(function (q) { if (rw[q] && typeof rw[q] === 'object') wr[q] = Object.assign({}, wr[q] || {}, U.clone(rw[q])); });
       // A request is only ever opened or replaced within a round (the round that begins closes
       // it), so a snapshot from before this screen's own request landed never closes it here.
       if (r.relearn) st.ip.relearn = true;
@@ -1067,7 +1074,8 @@
       if (!U.sandbox || typeof U.sandbox.mount !== 'function') { trouble({ message: 'the interactive player is not loaded in this view' }); return null; }
       var m = null;
       try {
-        m = U.sandbox.mount(panel, { html: built.html, title: title, minHeight: reserve, onError: function (msg) { trouble({ message: msg }); }, onComplete: finished });
+        m = U.sandbox.mount(panel, { html: built.html, title: title, minHeight: reserve, onError: function (msg) { trouble({ message: msg }); }, onComplete: finished,
+          kase: st.kase, lesson: st.lesson, onWritten: markWritten, onTicked: tickedWritten });
       } catch (e) { trouble(e); return null; }
       st.mounts.push(m);
       st.liveMount = m;
@@ -1085,6 +1093,47 @@
           'Some of this interactive\'s exact numbers may be a little off. The pattern it shows still holds.'));
       }
     }
+    // ---- written answers (a refresher lesson's Section B, K.written in its page) ----
+    // The page names a question; its words and points come from the lesson doc (lesson.written),
+    // never from the frame. Claude marks Dan's words against the points (U.gen.markWritten), and
+    // each try is kept with the idea's progress, as his say-it-back answers are: written[qid][key].
+    // Without Claude (no signal, a failed call) the page shows the points to tick himself; the
+    // ticks land on that try (self).
+    var lastWritten = {};
+    function markWritten(m) {
+      var spec = st.lesson && st.lesson.written && st.lesson.written[m.id];
+      if (!spec || !Array.isArray(spec.points) || !spec.points.length) return Promise.resolve({ error: 'unknown' });
+      var tries = U.list(((st.ip.written || {})[m.id]) || {}).filter(function (a) { return (Number(a.round) || 0) === round(); });
+      var prev = m.go === 2 ? tries[tries.length - 1] : null, r0 = round(), at = U.now(), k = U.key();
+      function keep(rec) {
+        rec.text = m.text; rec.at = at; rec.go = m.go; rec.round = r0;
+        var w = st.ip.written || (st.ip.written = {});
+        w[m.id] = Object.assign({}, w[m.id]);
+        w[m.id][k] = rec;
+        lastWritten[m.id] = k;
+        var patch = {}; patch[m.id] = {}; patch[m.id][k] = rec;
+        saveIdea({ written: patch }, r0);
+      }
+      if (!U.gen || typeof U.gen.markWritten !== 'function') { keep({ error: true, met: [] }); return Promise.resolve({ error: 'unavailable' }); }
+      return U.gen.markWritten(spec, m.text, m.go, { previous: prev && !prev.error ? { text: prev.text, followUp: prev.followUp || '' } : null, title: st.lesson.title || (st.idea && st.idea.title) })
+        .then(function (g) {
+          keep({ met: g.met, nailed: g.nailed || '', followUp: g.followUp || '', wrong: g.wrong || '' });
+          return { met: g.met, nailed: g.nailed || '', followUp: g.followUp || '', wrong: g.wrong || '' };
+        }, function (e) {
+          console.warn('written answer not marked:', e && (e.code || e.message));
+          keep({ error: true, met: [] });
+          return { error: (e && e.code) || 'error' };
+        });
+    }
+    function tickedWritten(t) {
+      var k = lastWritten[t.id], rec = k && st.ip.written && st.ip.written[t.id] && st.ip.written[t.id][k];
+      if (!rec) return;
+      st.ip.written[t.id] = Object.assign({}, st.ip.written[t.id]);
+      st.ip.written[t.id][k] = Object.assign({}, rec, { self: t.met });
+      var patch = {}; patch[t.id] = {}; patch[t.id][k] = { self: t.met };
+      saveIdea({ written: patch }, Number(rec.round) || 0);
+    }
+
     // below: what happens is shown just below (a read lesson may have nothing to reveal).
     function noInteractive(spec, below) {
       var why = spec

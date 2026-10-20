@@ -16,6 +16,10 @@
 //       writer is asked to address; request = his request's token, stamped on the doc it writes
 //       (and kept by a job that picks the rewrite up), so any device knows the fresh lesson
 //   U.gen.grade(say, answer, attempt, {previous, title}) -> Promise<{met, verdict, nailed, followUp, model?}>
+//   U.gen.markWritten(written, answer, attempt, {previous, title}) -> Promise<{met, verdict, nailed, followUp, wrong}>
+//       a refresher lesson's written answer (lesson.written[id] = {q, points:[{text, cite}], need, model}),
+//       marked through the grade prompt with the points as its rubric; only his words and the
+//       lesson's question, points and model answer go to Claude
 //   U.gen.tutor(messages, context, {onText(textSoFar), signal}) -> Promise<string>
 //   U.gen.status(tid) -> {planning, research, lessons:{iid: status}}   this page's live work
 // A ready-made course (topic.readyMade) is never written here: ensureLesson and relearn reject
@@ -1182,6 +1186,32 @@
     }, function (e) { throw failure(e, 'check your answers'); });
   }
 
+  // A written answer (refresher lessons): the grade prompt in its written form. Blank or almost
+  // blank words are not sent: nothing met, and a nudge to have a go.
+  function markWritten(w, answer, attempt, opts) {
+    opts = opts || {};
+    w = w || {};
+    attempt = Math.min(2, Math.max(1, Number(attempt) || 1));
+    var points = (Array.isArray(w.points) ? w.points : []).map(function (p) { return p && typeof p === 'object' ? s(p.text).trim() : ''; }).filter(Boolean).slice(0, 5);
+    var text = s(answer).trim().slice(0, 3000);
+    if (!points.length) return Promise.reject({ code: 'invalid', message: 'This question has no points to mark against.' });
+    var need = Number.isInteger(w.need) && w.need > 0 && w.need < points.length ? w.need : points.length;
+    if (text.replace(/[^A-Za-z0-9À-￿]/g, '').length < 2) {
+      return Promise.resolve({ met: points.map(function () { return false; }), verdict: 'not-yet', nailed: '', followUp: 'Have a go in your own words: a rough sentence or two is plenty.', wrong: '' });
+    }
+    var say = { prompt: s(w.q), rubric: points, model: s(w.model), need: need };
+    return U.ask(U.prompts.grade(say, text, { attempt: attempt, previous: opts.previous, title: opts.title, written: true }), {
+      tier: 'default', json: true, label: 'mark-written',
+      schema: function (g) { return U.validate.grade(g, { rubric: points.length, attempt: attempt, need: need, written: true }); },
+    }).then(function (g) {
+      return {
+        met: points.map(function (_, i) { return g.met[i] === true; }),
+        verdict: g.verdict, nailed: one(g.nailed), followUp: g.verdict === 'got-it' ? '' : one(g.followUp),
+        wrong: typeof g.wrong === 'string' ? one(g.wrong) : '',
+      };
+    }, function (e) { throw failure(e, 'check your answers'); });
+  }
+
   // The tutor's tools: web_fetch opens pages from its own searches, plus `allow` (the checked
   // sources). None without the connector, or on a view that cannot run page tools.
   function researchTools(allow) {
@@ -1278,6 +1308,7 @@
     demote: demote,
     relearn: relearn,
     grade: grade,
+    markWritten: markWritten,
     tutor: tutor,
     status: status,
     knownIdeas: knownIdeas,

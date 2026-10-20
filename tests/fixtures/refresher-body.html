@@ -1,0 +1,48 @@
+<p class="lead">A small refresher lesson for the tests: one Section A part, one written answer, the card.</p>
+<div id="prog"></div>
+<section id="sA" class="k-stack">
+  <span class="k-label">Section A · Question 1</span>
+  <div id="scen"></div>
+  <div id="carry"></div>
+  <p class="task" id="taskA"><b>(b)</b> Determine the current each cable from the starter to the motor carries when the motor runs in delta.</p>
+  <div id="ans"></div>
+  <div class="row" id="actsA"></div>
+  <p class="say" id="fbA" aria-live="polite"></p>
+</section>
+<section id="sB" class="k-stack" hidden>
+  <span class="k-label">Section B · Short answer</span>
+  <div id="wr"></div>
+</section>
+<section id="sK" class="k-stack" hidden>
+  <span class="k-label">Keep this</span>
+  <div id="keep"></div>
+  <div class="row" id="fin"></div>
+</section>
+<p class="caption">The showroom's motor from the assignment; the figures are the course's case file.</p>
+<script>
+  const STEPS = [
+    { name: 'Delta current', task: '(b) Determine the current each cable from the starter to the motor carries when the motor runs in delta.', want: '13.33 A', why: 'In delta each winding carries the line current ÷ √3: 23.08 ÷ √3 = 13.33 A.' },
+    { name: 'Section B', kind: 'written', written: 'b1' },
+    { name: 'Keep this', kind: 'summary' },
+  ];
+  const S = STEPS.map(() => ({ res: null }));
+  K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  K.scenario({ into: '#scen' });
+  K.carried({ parts: ['1a'], into: '#carry' });
+  const a = K.answer({ id: '1b', unit: 'A', answer: 13.33, accept: [13.32], into: '#ans',
+    slips: [{ value: 23.08, hint: 'That is the line current. Each winding in delta carries it ÷ √3.' }],
+    onCheck: (r) => {
+      S[0].res = r.state;
+      K.$('#fbA').textContent = r.state === 'right' ? 'Right. 23.08 ÷ √3 = 13.33 A.' : r.state === 'wrong' ? (r.hint || 'Not quite. Divide the line current by √3.') : '';
+    } });
+  K.button({ label: 'Check', into: '#actsA', press: () => a.check() });
+  K.button({ label: 'Show me', secondary: true, into: '#actsA', press: () => { a.reveal(); K.$('#fbA').textContent = '23.08 ÷ √3 = 13.33 A.'; } });
+  K.written({ id: 'b1', into: '#wr' });
+  K.summary({ into: '#keep' });
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => K.complete() });
+  K.update((p) => { ['sA', 'sB', 'sK'].forEach((id, i) => { K.$('#' + id).hidden = p.step !== i; }); });
+  K.check('In delta each winding carries the line current ÷ √3: 23.08 ÷ √3 = 13.33 A', () => K.near(23.08 / Math.sqrt(3), 13.3253, 0.0001));
+  K.check('The case file gives Ib as 23.08 A', () => K.figure('1a').value === 23.08 && K.figure('1a').text === '23.08 A');
+  K.check('Worked from the unrounded Ib, 11 000 ÷ (√3 × 400 × 0.86 × 0.8) ÷ √3 = 13.32 A', () => K.near(11000 / (Math.sqrt(3) * 400 * 0.86 * 0.8) / Math.sqrt(3), 13.3236, 0.0001));
+  K.ready();
+</script>

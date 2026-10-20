@@ -3,8 +3,8 @@
  * and no access to the app. A model-written body uses the global K to build themed controls,
  * readouts, plots, buttons and sound, declares a pure model, known-answer checks, and calls K.ready().
  * The kit talks to the host (app/src/js/32-sandbox.js) with postMessage, every message tagged
- * src:'kit': height, ready, error, change, complete, and replies to selftest / get / set / press / inputs /
- * reach / theme.
+ * src:'kit': height, ready, error, change, complete, written, ticked, and replies to selftest / get / set /
+ * press / inputs / reach / theme; the host also sends marked (a written answer marked by Claude).
  * This file is inlined into a <script> element, so it never contains a closing script tag or an
  * HTML comment opener. */
 (function () {
@@ -2109,6 +2109,447 @@
   Object.defineProperty(K.sound, 'ready', { get: function () { return !!audio.ctx && audio.ctx.state === 'running'; }, enumerable: true });
   Object.defineProperty(K.sound, 'playing', { get: function () { return !!audio.ctx && audio.live.some(function (v) { return v.end > audio.ctx.currentTime; }); }, enumerable: true });
 
+  // ---------- refresher lessons: typed answers, written answers, the case file, the summary ----------
+  // (app/kit/REFRESHER.md.) A ready-made course's lesson page gets two pieces of host-written,
+  // checked data in its srcdoc, as K_THEME is passed: K_CASE, the course's case file (one set of
+  // figures every lesson shows), and K_LESSON, the lesson's own {written, summary}. The page names
+  // what it wants by id and the kit draws it, so a figure, a mark scheme point or a summary line is
+  // the same text the build checked. Written answers are marked by Claude through the host (the
+  // frame has no network): the kit posts {type:'written', id, text, go} and the host answers
+  // {type:'marked', id, met, nailed, followUp, wrong?} or {type:'marked', id, error}.
+  function dataCopy(v) {
+    if (v == null || typeof v !== 'object') return null;
+    try { return freezeAll(JSON.parse(JSON.stringify(v))); } catch (e) { return null; }
+  }
+  function freezeAll(o) { if (o && typeof o === 'object') { Object.freeze(o); keysOf(o).forEach(function (k) { freezeAll(o[k]); }); } return o; }
+  var CASE = dataCopy(window.K_CASE), LESSON = dataCopy(window.K_LESSON);
+  try { delete window.K_CASE; delete window.K_LESSON; } catch (e) { window.K_CASE = undefined; window.K_LESSON = undefined; }
+  K.caseFile = CASE;
+  K.lesson = LESSON;
+  var answers = [], answersById = Object.create(null), writtens = [], writtenById = Object.create(null), carriedList = [], summaries = [];
+  var TICK = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3.2 8.4 3 3 6.6-6.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function iconEl(svg, cls, label) { var s = K.el('span', { class: cls, role: label ? 'img' : null, 'aria-label': label || null }); s.innerHTML = svg || ''; return s; }
+  // Text with the lesson's key terms ([[term]], or *term* as a page writes them) highlighted and
+  // **bold** in bold, never as HTML; footnote markers are dropped.
+  function termText(node, s) {
+    s = String(s == null ? '' : s).replace(/\s?\[\^\d{1,3}\]/g, '');
+    var re = /\*\*([^*\n]+)\*\*|\[\[([^\]\n]+)\]\]|\*([^*\n]+)\*/g, from = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > from) node.appendChild(document.createTextNode(s.slice(from, m.index)));
+      node.appendChild(m[1] != null ? K.el('b', null, m[1]) : K.el('span', { class: 'term' }, m[2] != null ? m[2] : m[3]));
+      from = m.index + m[0].length;
+    }
+    if (from < s.length) node.appendChild(document.createTextNode(s.slice(from)));
+    return node;
+  }
+
+  // K.figure(id) -> {id, label, value, unit, text, part, lesson, cite}: a given or a worked figure
+  // from the case file. text is how every lesson prints it ("23.08 A").
+  function figureOf(id) {
+    var all = CASE ? [].concat(CASE.givens || [], CASE.figures || []) : [];
+    var f = all.filter(function (x) { return x && x.id === id; })[0];
+    if (!f) {
+      problem('K.figure("' + id + '"): ' + (CASE ? 'the case file has no figure "' + id + '"' : 'there is no case file (K_CASE): pass the course\'s case.json to the test'));
+      return { id: String(id), label: String(id), value: NaN, unit: '', text: '—', part: '', lesson: '', cite: '' };
+    }
+    var text = typeof f.text === 'string' && f.text ? f.text : (isNum(f.value) ? fmt(f.value) : String(f.value == null ? '' : f.value)) + unitText(f.unit || '');
+    return { id: f.id, label: String(f.label || f.id), value: f.value, unit: f.unit || '', text: text, part: f.part || '', lesson: f.lesson || '', cite: f.cite || '' };
+  }
+  K.figure = figureOf;
+
+  // ---- typed numeric answers ----
+  // A number as Dan types it: "13.33", "13,33", "20 000", "1,000.5", "−4.2", "13.33 A". A trailing
+  // unit is allowed (it must be the answer's own unit when one is given). -> {value} | {empty} |
+  // {unreadable, unit?}
+  function readTyped(text, unit) {
+    var s = String(text == null ? '' : text).replace(/[−‒–—]/g, '-').replace(/ /g, ' ').trim();
+    if (!s) return { empty: true };
+    var m = /^([+-]?)\s*((?:\d[\d ,]*)?(?:\.\d*)?)\s*(.*)$/.exec(s);
+    if (!m || !/\d/.test(m[2])) return { unreadable: true };
+    var digits = m[2].trim(), rest = m[3].trim();
+    if (rest && !/^[A-Za-zΩΩµμ°%²³\/·. ]+$/.test(rest)) return { unreadable: true };
+    if (rest && unit && rest.replace(/\s+/g, '').toLowerCase() !== String(unit).replace(/\s+/g, '').toLowerCase()) return { unreadable: true, unit: true };
+    if (/^\d{1,3}( \d{3})+(\.\d*)?$/.test(digits)) digits = digits.replace(/ /g, '');      // 20 000
+    if (/,/.test(digits)) {
+      if (/^\d{1,3}(,\d{3})+(\.\d*)?$/.test(digits)) digits = digits.replace(/,/g, '');     // 1,000 and 1,000.5
+      else if (/^\d+,\d+$/.test(digits)) digits = digits.replace(',', '.');                // 13,33
+      else return { unreadable: true };
+    }
+    if (!/^(\d+\.?\d*|\.\d+)$/.test(digits)) return { unreadable: true };
+    return { value: (m[1] === '-' ? -1 : 1) * parseFloat(digits) };
+  }
+  // The course's rounding: each line worked from the rounded figures shown, so the answer is the
+  // figure printed (`answer`), accepted within half a unit in its last place (`decimals`, default
+  // 2, or the answer's own when it has more); `accept` lists other figures accepted as right (the
+  // answer worked from unrounded figures); `slips` names wrong figures a usual slip gives, each
+  // with its hint.
+  function answerSpec(o) {
+    var dp = o.decimals != null && isNum(+o.decimals) ? clamp(Math.round(+o.decimals), 0, 12) : Math.max(2, decimalsOf(+o.answer));
+    var tol = o.tolerance != null && isNum(+o.tolerance) && +o.tolerance >= 0 ? +o.tolerance : 0.5 * Math.pow(10, -dp);
+    var list = function (x) { return x == null ? [] : Array.isArray(x) ? x : [x]; };
+    return {
+      answer: +o.answer, decimals: dp, tolerance: tol, unit: o.unit ? String(o.unit) : '',
+      accept: list(o.accept).map(Number),
+      slips: list(o.slips).map(function (s) { return s && typeof s === 'object' ? { value: +s.value, hint: s.hint ? String(s.hint) : '' } : { value: +s, hint: '' }; }),
+    };
+  }
+  // K.answer.grade(text, {answer, tolerance?, decimals?, accept?, slips?, unit?}) -> {state:
+  // 'right'|'wrong'|'empty'|'unreadable', value?, accepted?, slip?, hint?, unit?}. Pure.
+  function gradeTyped(text, o) { return gradeSpec(text, answerSpec(o || {})); }
+  function gradeSpec(text, sp) {
+    var r = readTyped(text, sp.unit);
+    if (r.empty) return { state: 'empty' };
+    if (r.unreadable) return r.unit ? { state: 'unreadable', unit: true } : { state: 'unreadable' };
+    var v = r.value;
+    function hits(x) { return isNum(x) && Math.abs(v - x) <= sp.tolerance + 1e-9 * Math.max(1, Math.abs(x)); }
+    if (hits(sp.answer)) return { state: 'right', value: v };
+    for (var i = 0; i < sp.accept.length; i++) if (hits(sp.accept[i])) return { state: 'right', value: v, accepted: i };
+    for (var j = 0; j < sp.slips.length; j++) if (hits(sp.slips[j].value)) return { state: 'wrong', value: v, slip: j, hint: sp.slips[j].hint };
+    return { state: 'wrong', value: v };
+  }
+  // K.answer({id, label?, unit?, answer, tolerance?, decimals?, accept?, slips?, into, onCheck?, onEnter?})
+  //   -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+  // A decimal-keypad field. check() grades what is typed (the page's own Check button calls it,
+  // and Enter does too unless onEnter is given) and colours the field; the page writes its own
+  // feedback from the result (r.hint for a named slip).
+  K.answer = function (o) {
+    o = o || {};
+    var who = 'K.answer "' + (o.id || '') + '"';
+    if (o.id == null || o.id === '') throw new Error('K.answer needs an id');
+    if (!isNum(+o.answer)) throw new Error(who + ': answer must be a number');
+    if (answersById[o.id]) fail('Two K.answer fields share the id "' + o.id + '": ids must be unique.');
+    var sp = answerSpec(o), fid = 'k-ans-' + String(o.id).replace(/[^A-Za-z0-9_-]/g, '_');
+    var input = K.el('input', { id: fid, class: 'k-answer-input', type: 'text', inputmode: 'decimal', enterkeyhint: 'done', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false',
+      'aria-label': o.label ? null : 'Your answer' + (sp.unit ? ', in ' + sp.unit : '') });
+    var msg = K.el('p', { class: 'k-answer-msg', 'aria-live': 'polite' });
+    var el = K.el('div', { class: 'k-answer', 'data-id': o.id },
+      o.label ? K.el('label', { class: 'k-field-label', for: fid }, o.label) : null,
+      K.el('div', { class: 'k-answer-row' }, input, sp.unit ? K.el('span', { class: 'k-answer-unit', 'aria-hidden': 'true' }, sp.unit) : null), msg);
+    var a = { id: String(o.id), el: el, input: input, spec: sp, result: null, wrongOnce: false, shown: false, rightOnce: false };
+    function paint() {
+      var r = a.result;
+      el.setAttribute('data-state', a.shown ? 'shown' : r ? r.state : '');
+      input.setAttribute('aria-invalid', r && r.state === 'wrong' ? 'true' : 'false');
+      msg.textContent = !r || a.shown ? '' : r.state === 'empty' ? 'Type your answer first.'
+        : r.state === 'unreadable' ? (r.unit ? 'Type the number in ' + sp.unit + '.' : 'Type a number, like ' + fmt(sp.answer > 0 ? 12.5 : -12.5, { dp: 1 }) + '.') : '';
+      heightSoon();
+    }
+    a.paint = paint;
+    a.check = function () {
+      var r = gradeSpec(input.value, sp);
+      a.result = r;
+      if (r.state === 'wrong') a.wrongOnce = true;
+      if (r.state === 'right') a.rightOnce = true;
+      paint();
+      if (o.onCheck) { try { o.onCheck(r); } catch (e) { fault(who + ' onCheck', e); } }
+      refreshCarried();
+      return r;
+    };
+    a.right = function () { return !!a.result && a.result.state === 'right'; };
+    // Got wrong and never right, or the answer shown: the next part carries the course's figure.
+    a.missed = function () { return a.shown || (a.wrongOnce && !a.rightOnce); };
+    a.reveal = function () { input.value = fmt(sp.answer, { dp: sp.decimals }).replace(/^−/, '-'); a.shown = true; a.result = { state: 'right', value: sp.answer, shown: true }; paint(); refreshCarried(); return a; };
+    a.reset = function () { input.value = ''; a.result = null; a.shown = false; a.wrongOnce = false; a.rightOnce = false; paint(); refreshCarried(); return a; };
+    a.set = function (t) { input.value = String(t == null ? '' : t); a.result = null; paint(); return a; };
+    input.addEventListener('input', function () { markMoved(); if (a.result && !a.shown) { a.result = null; paint(); } });
+    input.addEventListener('keydown', function (ev) {
+      if (ev.key !== 'Enter') return;
+      ev.preventDefault();
+      if (o.onEnter) { try { o.onEnter(); } catch (e) { fault(who + ' onEnter', e); } } else a.check();
+    });
+    answers.push(a);
+    answersById[a.id] = a;
+    paint();
+    place(el, o.into, who);
+    return a;
+  };
+  K.answer.grade = gradeTyped;
+  K.answer.read = readTyped;
+
+  // ---- the case file on the page ----
+  // K.scenario({into, open?}) -> {el}: the running case's scenario (case.scenario {title, text,
+  // source}) as a panel that folds.
+  K.scenario = function (o) {
+    o = o || {};
+    var sc = CASE && CASE.scenario;
+    if (!sc) problem('K.scenario: the case file has no scenario');
+    var el = K.el('details', { class: 'k-scen', open: o.open === false ? null : true },
+      K.el('summary', null, K.el('span', { class: 'k-scen-t' }, (sc && sc.title) || 'The scenario'), K.el('small', null, o.label || 'Scenario')),
+      sc && sc.text ? termText(K.el('p'), sc.text) : null,
+      sc && sc.source ? K.el('p', { class: 'k-scen-src' }, String(sc.source)) : null);
+    el.addEventListener('toggle', heightSoon);
+    place(el, o.into, 'K.scenario');
+    return { el: el };
+  };
+  // K.carried({parts: [figure ids], into, label?}) -> {el, refresh()}: earlier Section A parts,
+  // always at the course's figure. A part answered on this page and missed (wrong, never right, or
+  // shown) says so, so one slip never spoils the rest.
+  K.carried = function (o) {
+    o = o || {};
+    var ids = Array.isArray(o.parts) ? o.parts : [];
+    if (!ids.length) throw new Error('K.carried needs parts: the case-file ids of the earlier parts');
+    var box = K.el('div', { class: 'k-carried', role: 'group', 'aria-label': o.label || 'Carried forward' });
+    var c = { el: box };
+    c.refresh = function () {
+      box.textContent = '';
+      box.appendChild(K.el('span', { class: 'k-carried-h' }, o.label || 'Carried forward'));
+      var anyMissed = false;
+      ids.forEach(function (id) {
+        var f = figureOf(id), a = answersById[id], missed = !!a && a.missed();
+        anyMissed = anyMissed || missed;
+        var part = (String(f.part).match(/[a-z]+$/i) || [''])[0];
+        box.appendChild(K.el('div', { class: 'k-cr' + (missed ? ' missed' : '') },
+          K.el('span', { class: 'k-cr-part' }, part ? '(' + part + ')' : ''),
+          K.el('span', { class: 'k-cr-label' }, f.label),
+          K.el('b', { class: 'k-cr-value' }, f.text),
+          missed ? iconEl('', 'k-mk ring', 'Carried forward from the course\'s figure') : iconEl(TICK, 'k-mk tick', 'Done')));
+      });
+      if (anyMissed) box.appendChild(K.el('p', { class: 'k-cr-note' }, 'Carried forward at the course\'s figure, so one slip never spoils the rest.'));
+      heightSoon();
+      return c;
+    };
+    carriedList.push(c);
+    c.refresh();
+    place(box, o.into, 'K.carried');
+    return c;
+  };
+  function refreshCarried() { carriedList.forEach(function (c) { c.refresh(); }); }
+
+  // ---- written answers, marked by Claude against the lesson's points ----
+  // K.written({id, into, onMark?}) -> {el, id, stage(), answered()}: the question lesson.written[id]
+  // (q, points [{text, cite}], need, model) with a box for Dan's words. Check my answer sends them
+  // to the host, which has Claude mark them against the points; each point comes back with an ink
+  // tick (made) or a dashed ring (not yet), a statement that is wrong named in red, one line on what
+  // he did well and one nudge. One more go, then the model answer. Without Claude (no signal, a
+  // failed call) the points become a checklist he ticks himself. No marks, no grades.
+  var MARK_MS = 90000;
+  K.written = function (o) {
+    o = o || {};
+    var id = o.id == null ? '' : String(o.id), who = 'K.written "' + id + '"';
+    if (!id) throw new Error('K.written needs an id: the lesson\'s written question it shows');
+    if (writtenById[id]) fail('Two K.written boxes share the id "' + id + '": ids must be unique.');
+    var spec = LESSON && LESSON.written && LESSON.written[id];
+    var w = { id: id, go: 0, stage: 'writing', last: null, timer: 0, ticks: [] };
+    var el = K.el('div', { class: 'k-written', 'data-id': id });
+    if (!spec || !Array.isArray(spec.points) || !spec.points.length) {
+      problem(who + ': the lesson has no written question "' + id + '" (lesson.written.' + id + ' with its points)');
+      el.appendChild(K.el('p', { class: 'muted' }, 'This question is not available here.'));
+      w.stage = 'missing';
+      w.el = el; w.answered = function () { return true; }; w.stageNow = function () { return w.stage; };
+      writtens.push(w); writtenById[id] = w;
+      place(el, o.into, who);
+      return { el: el, id: id, stage: function () { return w.stage; }, answered: function () { return true; } };
+    }
+    var points = spec.points.map(function (p) { return { text: String(p && p.text || ''), cite: String(p && p.cite || '') }; });
+    var tid = 'k-wr-' + id.replace(/[^A-Za-z0-9_-]/g, '_');
+    var q = termText(K.el('p', { class: 'k-written-q', id: tid + '-q' }), spec.q || '');
+    var ta = K.el('textarea', { id: tid, class: 'k-written-input', rows: '4', maxlength: '3000', 'aria-labelledby': tid + '-l ' + tid + '-q', placeholder: 'In your own words…' });
+    var hint = K.el('p', { class: 'k-answer-msg', 'aria-live': 'polite' });
+    var send = K.el('button', { type: 'button', class: 'k-btn k-written-send' }, 'Check my answer');
+    var mark = K.el('div', { class: 'k-mark', role: 'status', hidden: true });
+    var model = K.el('div', { class: 'k-model', hidden: true }, K.el('span', { class: 'k-model-h' }, 'A model answer'), termText(K.el('p'), spec.model || ''));
+    append(el, [q, K.el('div', { class: 'k-mine' }, K.el('label', { class: 'k-mine-l', id: tid + '-l', for: tid }, 'Your answer'), ta), hint, K.el('div', { class: 'k-written-acts' }, send), mark, model]);
+    function need() { var n = Math.round(+spec.need); return isNum(n) && n > 0 && n < points.length ? n : 0; }
+    function aimLine(self) {
+      var n = need();
+      return self ? 'Claude could not be reached just now, so tick the points your answer made, as you would with a printed mark scheme.'
+        : 'Marked against points from your sources.' + (n ? ' A full answer makes any ' + (n === 1 ? 'one' : n === 2 ? 'two' : n === 3 ? 'three' : n === 4 ? 'four' : n) + '.' : ' A full answer makes them all.');
+    }
+    // Check my answer is there while he writes (and says Claude is reading while it marks).
+    function setStage(s) { w.stage = s; el.setAttribute('data-stage', s); send.hidden = s !== 'writing' && s !== 'marking'; heightSoon(); }
+    function sendNow() {
+      if (w.stage === 'marking') return;
+      var text = ta.value.trim();
+      if (text.replace(/[^A-Za-z0-9À-￿]/g, '').length < 2) { hint.textContent = 'Write a sentence or two first.'; heightSoon(); return; }
+      hint.textContent = '';
+      markMoved();
+      w.go = Math.min(2, w.go + 1);
+      w.text = text;
+      ta.readOnly = true; send.disabled = true; send.textContent = 'Claude is reading it…'; el.setAttribute('aria-busy', 'true');
+      setStage('marking');
+      clearTimeout(w.timer);
+      if (!hosted) { w.marked({ id: id, error: 'no_host' }); return; }
+      w.timer = setTimeout(function () { w.marked({ id: id, error: 'timeout' }); }, MARK_MS);
+      post({ type: 'written', id: id, text: text.slice(0, 3000), go: w.go });
+    }
+    send.addEventListener('click', sendNow);
+    function button(label, fn, secondary) { var b = K.el('button', { type: 'button', class: 'k-btn' + (secondary ? ' secondary' : '') }, label); b.addEventListener('click', fn); return b; }
+    function showModel() { model.hidden = false; heightSoon(); }
+    // Draw a result: {met, nailed, followUp, wrong} from Claude, or {error} (the self-tick list).
+    function draw(r) {
+      mark.textContent = '';
+      var self = !!r.error;
+      if (self) mark.setAttribute('data-self', ''); else mark.removeAttribute('data-self');
+      mark.appendChild(K.el('div', { class: 'k-by' }, self ? null : K.el('span', { class: 'k-av', 'aria-hidden': 'true' }, 'C'), K.el('b', null, self ? 'Your mark scheme' : 'Claude'), self ? null : K.el('span', null, '· on your answer')));
+      mark.appendChild(K.el('p', { class: 'k-aim' }, aimLine(self)));
+      var list = K.el('ul', { class: 'k-pts' });
+      points.forEach(function (p, i) {
+        var made = self ? !!w.ticks[i] : !!(r.met && r.met[i]);
+        var text = termText(K.el('p'), p.text);
+        if (p.cite) text.appendChild(K.el('small', null, p.cite));
+        if (self) {
+          var box = K.el('button', { type: 'button', class: 'k-pt-tick', role: 'checkbox', 'aria-checked': made ? 'true' : 'false', 'aria-label': 'I made this point' });
+          box.appendChild(iconEl(made ? TICK : '', 'k-mk ' + (made ? 'tick' : 'ring')));
+          box.addEventListener('click', function () {
+            w.ticks[i] = !w.ticks[i];
+            draw(r);
+            var f = mark.querySelectorAll('.k-pt-tick')[i];
+            if (f) f.focus();
+            post({ type: 'ticked', id: id, met: points.map(function (_, k) { return !!w.ticks[k]; }) });
+          });
+          list.appendChild(K.el('li', { class: made ? 'made' : 'miss' }, box, text));
+        } else {
+          list.appendChild(K.el('li', { class: made ? 'made' : 'miss' }, iconEl(made ? TICK : '', 'k-mk ' + (made ? 'tick' : 'ring'), made ? 'Made' : 'Not yet'), text));
+        }
+      });
+      mark.appendChild(list);
+      if (!self && r.wrong) mark.appendChild(K.el('p', { class: 'k-wrong' }, K.el('b', null, 'This part isn\'t right: '), String(r.wrong)));
+      var note = [r.nailed, r.followUp].filter(function (x) { return typeof x === 'string' && x.trim(); }).join(' ');
+      if (!self && note) mark.appendChild(K.el('p', { class: 'k-note' }, note));
+      var acts = K.el('div', { class: 'k-written-acts' });
+      if (!self && w.go < 2 && !allMade(r)) acts.appendChild(button('Another go', function () { ta.readOnly = false; send.disabled = false; send.textContent = 'Check my answer'; setStage('writing'); ta.focus(); }));
+      if (model.hidden && spec.model) acts.appendChild(button('Model answer', showModel, !self && w.go < 2 && !allMade(r)));
+      if (acts.childNodes.length) mark.appendChild(acts);
+      mark.hidden = false;
+      heightSoon();
+    }
+    function allMade(r) { var n = need() || points.length; return !!r.met && r.met.filter(function (x) { return x === true; }).length >= n; }
+    w.marked = function (d) {
+      if (w.stage !== 'marking') return;
+      clearTimeout(w.timer);
+      el.removeAttribute('aria-busy');
+      send.textContent = 'Check my answer';
+      var r = d && !d.error && Array.isArray(d.met)
+        ? { met: points.map(function (_, i) { return d.met[i] === true; }), nailed: typeof d.nailed === 'string' ? d.nailed.slice(0, 400) : '', followUp: typeof d.followUp === 'string' ? d.followUp.slice(0, 300) : '', wrong: typeof d.wrong === 'string' ? d.wrong.slice(0, 300) : '' }
+        : { error: (d && d.error) || 'error' };
+      w.last = r;
+      setStage(r.error ? 'ticking' : 'marked');
+      draw(r);
+      // The second go ends with the model answer.
+      if (!r.error && (w.go >= 2 || allMade(r))) showModel();
+      if (o.onMark) { try { o.onMark(r); } catch (e) { fault(who + ' onMark', e); } }
+    };
+    // The self-test sees each state at once (throwaway frames), then puts the box back.
+    w.preview = function (r) { if (r) { draw(r); if (!r.error) showModel(); setStage(r.error ? 'ticking' : 'marked'); } else { mark.hidden = true; model.hidden = true; setStage(w.last ? (w.last.error ? 'ticking' : 'marked') : 'writing'); if (w.last) { draw(w.last); } } };
+    w.points = points;
+    w.el = el;
+    w.stageNow = function () { return w.stage; };
+    w.answered = function () { return !!w.last; };
+    writtens.push(w);
+    writtenById[id] = w;
+    setStage('writing');
+    place(el, o.into, who);
+    return { el: el, id: id, stage: w.stageNow, answered: w.answered };
+  };
+  function markedMessage(d) { var w = writtenById[String(d.id)]; if (w && w.marked) w.marked(d); }
+
+  // ---- the summary card ----
+  // K.summary({into, kept?}) -> {el}: lesson.summary {title, for, rule, traps: [{text, cite}],
+  // where, figures: [case-file ids | {label, value}]}, drawn as the lesson's last screen. The same
+  // card is the first page of the lesson's chapter in Dan's Book.
+  K.summary = function (o) {
+    o = o || {};
+    var s = LESSON && LESSON.summary;
+    var el = K.el('article', { class: 'k-summary' });
+    if (!s) {
+      problem('K.summary: the lesson has no summary (lesson.summary)');
+      el.appendChild(K.el('p', { class: 'muted' }, 'This lesson\'s summary is not available here.'));
+      place(el, o.into, 'K.summary');
+      return { el: el };
+    }
+    var lab = function (t) { return K.el('span', { class: 'k-sum-l' }, t); };
+    el.appendChild(K.el('h2', null, String(s.title || '')));
+    if (s.for) el.appendChild(K.el('div', null, lab('What it is for'), termText(K.el('p'), s.for)));
+    if (s.rule) {
+      var blocks = String(s.rule).split(/\n\s*\n/), rule = K.el('div', { class: 'k-sum-rule' }, lab('The rule'));
+      blocks.forEach(function (b, k) { b.split('\n').forEach(function (line) { if (line.trim()) rule.appendChild(termText(K.el('p', { class: k ? 'n' : null }), line.trim())); }); });
+      el.appendChild(rule);
+    }
+    var traps = Array.isArray(s.traps) ? s.traps : [];
+    if (traps.length) {
+      var tb = K.el('div', { class: 'k-sum-traps' }, lab('Traps'));
+      traps.forEach(function (t) { var p = termText(K.el('p', { class: 'k-trap' }), t && t.text); if (t && t.cite) p.appendChild(K.el('small', null, String(t.cite))); tb.appendChild(p); });
+      el.appendChild(tb);
+    }
+    var figs = (Array.isArray(s.figures) ? s.figures : []).map(function (f) { return typeof f === 'string' ? figureOf(f) : { label: String(f && f.label || ''), text: String(f && (f.text || f.value) || '') }; });
+    if (figs.length) {
+      el.appendChild(K.el('div', null, lab(s.figuresLabel || (CASE && CASE.title ? CASE.title + ' so far' : 'Figures so far')),
+        K.el('div', { class: 'k-sum-figs' }, figs.map(function (f) { return K.el('div', null, K.el('span', null, f.label), K.el('b', null, f.text)); }))));
+    }
+    if (s.where) el.appendChild(termText(K.el('p', { class: 'k-sum-where' }), 'Where it lives: ' + String(s.where).replace(/^where it lives:\s*/i, '')));
+    summaries.push(el);
+    place(el, o.into, 'K.summary');
+    if (o.kept !== false && el.parentNode) el.parentNode.insertBefore(K.el('p', { class: 'k-kept' }, 'This card is the first page of this lesson\'s chapter in your Book.'), el.nextSibling);
+    return { el: el };
+  };
+
+  // The self-test's look at these pieces. Every K.answer: its own figure, each accepted figure and
+  // each with its unit accepted; a near miss (1% off) and each named slip refused;
+  // in a throwaway frame the figure typed into the field and checked, on the step that shows it.
+  // Every K.written: its question in the lesson, and (throwaway frames) its marked state (with a
+  // wrong statement) and its self-tick state drawn and looked at, at the frame's size and at Text
+  // size XL. -> [{id, answer, accept, ok}]
+  function shownEl(el) { return !!el && el.isConnected && !!el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden'; }
+  // Brings an element into view the way Dan reaches it: a stepper (a steps lesson's step control)
+  // moved until it shows. -> true when it is shown.
+  function reachEl(el) {
+    if (shownEl(el)) return true;
+    for (var i = 0; i < controls.length; i++) {
+      var c = controls[i];
+      if (c.kind !== 'stepper') continue;
+      var vals = c.sweep();
+      for (var j = 0; j < vals.length; j++) { c.set(vals[j], true); run(); if (shownEl(el)) return true; }
+    }
+    return false;
+  }
+  async function sweepRefresher(throwaway, step, init) {
+    var out = [];
+    function home() { controls.forEach(function (c, k) { c.set(init[k], true); }); run(); }
+    for (var i = 0; i < answers.length; i++) {
+      var a = answers[i], sp = a.spec, who = 'K.answer "' + a.id + '"', bad = [];
+      var shown = function (x) { return fmt(x, { dp: sp.decimals }).replace(/^−/, '-').replace(/,/g, ''); };
+      [sp.answer].concat(sp.accept).forEach(function (x, k) {
+        var r = gradeSpec(shown(x), sp);
+        if (r.state !== 'right') bad.push((k ? 'the accepted figure ' : 'its own answer ') + shown(x) + ' is not accepted (' + r.state + ')');
+        if (sp.unit && gradeSpec(shown(x) + ' ' + sp.unit, sp).state !== 'right') bad.push(shown(x) + ' ' + sp.unit + ' (with its unit) is not accepted');
+      });
+      // A near miss: 1% off, or two units in the last place the course rounds to, whichever is more.
+      var miss = sp.answer + Math.max(Math.abs(sp.answer) * 0.01, 2 * Math.pow(10, -sp.decimals));
+      if (gradeSpec(String(miss), sp).state === 'right' && !sp.accept.some(function (x) { return Math.abs(miss - x) <= 0.5 * Math.pow(10, -sp.decimals); })) bad.push('a near miss, ' + shown(miss) + ', is accepted: the tolerance is too wide');
+      sp.slips.forEach(function (s) { if (gradeSpec(shown(s.value), sp).state !== 'wrong') bad.push('the slip ' + shown(s.value) + ' is accepted as right: a slip must differ from the answer and the accepted figures'); });
+      if (throwaway) {
+        var keep = { v: a.input.value, r: a.result, s: a.shown, w: a.wrongOnce, t: a.rightOnce };
+        if (!reachEl(a.el)) bad.push('no step shows it');
+        a.input.value = shown(sp.answer);
+        if (a.check().state !== 'right') bad.push('typing ' + shown(sp.answer) + ' and checking did not give right');
+        await step(who + ', answered');
+        a.input.value = keep.v; a.result = keep.r; a.shown = keep.s; a.wrongOnce = keep.w; a.rightOnce = keep.t;
+        a.paint(); refreshCarried(); home();
+      }
+      bad.forEach(function (b) { problem(who + ': ' + b); });
+      out.push({ id: a.id, answer: sp.answer, accept: sp.accept.slice(), ok: !bad.length });
+    }
+    if (throwaway) {
+      for (var j = 0; j < writtens.length; j++) {
+        var w = writtens[j];
+        if (!w.preview) continue;
+        if (!reachEl(w.el)) { problem('K.written "' + w.id + '": no step shows it'); continue; }
+        var sizes = K.theme.size < SIZE_XL ? [K.theme.size, SIZE_XL] : [K.theme.size], size0 = K.theme.size;
+        try {
+          for (var z = 0; z < sizes.length; z++) {
+            if (sizes[z] !== K.theme.size) setTextSize(sizes[z]);
+            var at = z ? ' at Text size XL' : '';
+            w.preview({ met: w.points.map(function (_, k) { return k % 2 === 0; }), nailed: 'You have the cause, in your own words.', followUp: 'What are the device and the cable chosen from?', wrong: 'The cable is not chosen from the voltage alone.' });
+            await step('K.written "' + w.id + '", marked' + at);
+            w.preview({ error: 'test' });
+            await step('K.written "' + w.id + '", ticked by hand' + at);
+          }
+        } finally { if (K.theme.size !== size0) setTextSize(size0); w.preview(null); home(); }
+      }
+    }
+    return out;
+  }
+
   // ---------- checks and ready ----------
   // K.check(label, fn, {source}) -> fn() must return true. Use K.at({...}) to ask the model.
   K.check = function (label, fn, o) {
@@ -2734,7 +3175,9 @@
   // Exercise every control across its range, show what waits for a move, press every K.button,
   // play every K.anim for a burst, timing each update and checking for faults, sideways
   // overflow and cut-off text at each setting; then restore the opening state.
+  var refresherOut = [];
   async function sweep(throwaway) {
+    refresherOut = [];
     var s = { seen: Object.create(null), order: [], ctx: '' }, overflow = null;
     var clip = { seen: Object.create(null), order: [] }, shown = { seen: Object.create(null), order: [] }, crowd = { seen: Object.create(null), order: [] };
     var echo = { seen: Object.create(null), order: [] };
@@ -2836,6 +3279,8 @@
           startedBy('The button "' + actions[b].label + '"');
         }
       }
+      // Typed answers and written answers (refresher lessons), on the steps that show them.
+      refresherOut = await sweepRefresher(throwaway, step, init);
       // Each animation plays for 3 seconds of its own time (90 frames).
       for (var a = 0; a < anims.length; a++) {
         var an = anims[a], where = 'playing "' + an.label + '"', t = 0;
@@ -2918,6 +3363,9 @@
       outputs: Object.keys(lastOutputs || {}),
       inputs: controls.map(function (c) { return c.info(); }),
       actions: actions.map(function (a) { return a.label; }).concat(anims.map(function (a) { return a.label; })),
+      // Refresher lessons: each typed answer as the self-test graded it, and the written questions shown.
+      answers: refresherOut.slice(),
+      written: writtens.map(function (w) { return w.id; }),
       ready: readyCalled,
       warnings: warnings.slice(),
       width: document.documentElement.clientWidth,
@@ -3100,6 +3548,9 @@
         function (e) { post({ type: 'reach', rid: rid, result: { reachable: false, exact: false, best: null, error: errText(e), tried: 0 } }); });
     } else if (d.type === 'theme') {
       retheme(d.theme);
+    } else if (d.type === 'marked') {
+      // The host's answer to a written answer Dan sent (K.written).
+      markedMessage(d);
     }
   }, true);
 })();

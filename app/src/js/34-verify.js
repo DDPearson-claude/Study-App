@@ -30,16 +30,20 @@
     'interactive.whatAmILookingAt', 'interactive.ignores', 'say.model', 'say.rubric[#]',
     'checks[#].q', 'checks[#].why', 'checks[#].options[#]', 'checks[#].misconception[#]', 'checks[#].items[#]',
     'contested.views[#].text',
+    // A refresher lesson's written questions (written.<id>, any id) and its summary card.
+    'written.*.q', 'written.*.points[#].text', 'written.*.model',
+    'summary.title', 'summary.for', 'summary.rule', 'summary.where', 'summary.traps[#].text',
   ];
   // "checks[1].options[2]" -> ['checks', 1, 'options', 2]; null when it is not a field path.
   function parse(path) {
     var p = one(path);
-    if (!/^[A-Za-z]+(?:\.[A-Za-z]+|\[\d{1,2}\])*$/.test(p)) return null;
+    if (!/^[A-Za-z]+(?:\.[A-Za-z][A-Za-z0-9_-]*|\[\d{1,2}\])*$/.test(p)) return null;
     var segs = [];
-    p.replace(/([A-Za-z]+)|\[(\d{1,2})\]/g, function (m, name, idx) { segs.push(name != null ? name : Number(idx)); return m; });
+    p.replace(/([A-Za-z][A-Za-z0-9_-]*)|\[(\d{1,2})\]/g, function (m, name, idx) { segs.push(name != null ? name : Number(idx)); return m; });
     return segs;
   }
-  function shape(segs) { return segs.map(function (x) { return typeof x === 'number' ? '[#]' : '.' + x; }).join('').slice(1); }
+  // A written question's id is any name: written.b1.q has the shape written.*.q.
+  function shape(segs) { return segs.map(function (x, i) { return typeof x === 'number' ? '[#]' : i === 1 && segs[0] === 'written' ? '.*' : '.' + x; }).join('').slice(1); }
   function at(o, segs) {
     var cur = o;
     for (var i = 0; i < segs.length; i++) {
@@ -234,7 +238,7 @@
       '- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).',
       '- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".',
       '- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.',
-      '- Fields you may fix (i and j count from 0): ' + PATCHABLE.map(function (p) { return p.replace('[#]', '[i]').replace('[#]', '[j]'); }).join(', ') + '.',
+      '- Fields you may fix (i and j count from 0' + (isObj(lesson.written) ? '; * is a written question\'s id' : '') + '): ' + PATCHABLE.filter(function (p) { return /^written\./.test(p) ? isObj(lesson.written) : /^summary\./.test(p) ? isObj(lesson.summary) : true; }).map(function (p) { return p.replace('[#]', '[i]').replace('[#]', '[j]'); }).join(', ') + '.',
       '- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive\'s brief, title, controls, outputs and numbers (it is built from them); every check\'s id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.',
       '- The fixed lesson must still pass the writer\'s checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson\'s sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.',
       '- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most ' + MAX_ISSUES + ' issues, the most important first. A sound lesson gets { "issues": [] }.',

@@ -9,7 +9,8 @@
 //   node tools/eval/prompts.mjs verify-lesson --topic topic.json --idea i2 --lesson lesson.json [--research research.json]
 //   node tools/eval/prompts.mjs build-interactive --topic topic.json --idea i2 --lesson lesson.json
 //   node tools/eval/prompts.mjs repair-interactive --topic t.json --idea i2 --lesson l.json --html body.html --report report.json
-//   node tools/eval/prompts.mjs grade --lesson lesson.json --answer "..." [--attempt 1]
+//   node tools/eval/prompts.mjs grade --lesson lesson.json --answer "..." [--attempt 1] [--written b1]
+//        (--written: a refresher lesson's written question lesson.written.b1, marked as the app marks it)
 //   node tools/eval/prompts.mjs verdict --lesson lesson.json --html body.html --report a1-report.json [--app tests/out/kit.html]
 //
 // topic.json is the plan plus the topic's "query" and "level" (as the app stores it); --level
@@ -64,6 +65,15 @@ function json(name) { const p = arg(name); return p ? JSON.parse(readFileSync(p,
 // A lesson, given as the lesson JSON itself or as a saved lesson doc ({status, lesson, …}).
 export function lessonOf(x) { return x && x.lesson && typeof x.lesson === 'object' && !Array.isArray(x.lesson) && 'status' in x ? x.lesson : x; }
 
+// A refresher lesson (lesson.written or lesson.summary): the build prompt also carries the kit's
+// refresher pieces (app/kit/REFRESHER.md), which KIT.md leaves out to stay short for the page's own
+// lessons. The page's own builder never gets them.
+export function refresherKit(lesson) {
+  if (!lesson || (!lesson.written && !lesson.summary)) return '';
+  const f = join(app, 'kit', 'REFRESHER.md');
+  return existsSync(f) ? '\n\n' + readFileSync(f, 'utf8').trim() + '\n' : '';
+}
+
 // In the browser: which target checks the body can't reach (needs U.sandbox.reach from the kit host).
 async function unreachable(lesson, html, appFile) {
   const { openApp } = await import('../harness/page.mjs');
@@ -97,9 +107,22 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     case 'research': out = U.prompts.research(topic, { ideas: topic.ideas }); break;
     case 'write-lesson': out = U.prompts.writeLesson(topic, idea, { research: json('research'), known: [], prior }); break;
     case 'verify-lesson': out = U.prompts.verifyLesson(topic, idea, lessonOf(json('lesson')), { research: json('research') }); break;
-    case 'build-interactive': out = U.interactive.prompt(topic, idea, json('lesson'), {}); break;
+    case 'build-interactive': {
+      out = U.interactive.prompt(topic, idea, json('lesson'), {});
+      const extra = refresherKit(lessonOf(json('lesson'))), at = out.lastIndexOf('\n## Output');
+      if (extra) out = at >= 0 ? out.slice(0, at) + extra + out.slice(at) : out + extra;
+      break;
+    }
     case 'repair-interactive': out = U.interactive.repairPrompt(topic, idea, json('lesson'), readFileSync(arg('html'), 'utf8'), json('report'), { noBody: process.argv.includes('--no-body'), bodyFile: arg('html') }); break;
-    case 'grade': out = U.prompts.grade(json('lesson').say, arg('answer'), { attempt: Number(arg('attempt', '1')) }); break;
+    case 'grade': {
+      const L = lessonOf(json('lesson')), wid = arg('written');
+      if (wid) {
+        const w = (L.written || {})[wid];
+        if (!w) { console.error('no written question ' + wid + ' in the lesson'); process.exit(2); }
+        out = U.prompts.grade({ prompt: w.q, rubric: w.points.map((p) => p.text), model: w.model, need: w.need }, arg('answer'), { attempt: Number(arg('attempt', '1')), title: L.title, written: true });
+      } else out = U.prompts.grade(L.say, arg('answer'), { attempt: Number(arg('attempt', '1')) });
+      break;
+    }
     case 'verdict': {
       const lesson = json('lesson'), html = readFileSync(arg('html'), 'utf8');
       let report = json('report') || {};

@@ -2570,6 +2570,85 @@ async function stepsScenario() {
   await app.close();
 }
 
+// ---------- a refresher lesson (ready-made, steps): the case file in the frame, written answers marked by Claude ----------
+// The real app (full build) with only the model stubbed: the page's K.written posts Dan's words, the
+// host marks them through U.gen.markWritten (TASK: grade, its written form) against the lesson doc's
+// points, the frame shows the ticks and rings, and each try is saved with the idea's progress. With
+// the model failing, the points come back as a checklist and his ticks are saved on that try.
+async function refresherScenario() {
+  const FULL = fullBuild();
+  if (!FULL) return;
+  const FXD = join(ROOT, 'tests', 'fixtures');
+  const kase = JSON.parse(readFileSync(join(FXD, 'refresher-case.json'), 'utf8'));
+  const parts = JSON.parse(readFileSync(join(FXD, 'refresher-parts.json'), 'utf8'));
+  const d = readLesson({ reveal: false });
+  d.lesson.format = 'steps';
+  d.lesson.written = parts.written;
+  d.lesson.summary = parts.summary;
+  d.interactive.html = readFileSync(join(FXD, 'refresher-body.html'), 'utf8');
+  const db = { 'topics/pendulums': { ...TOPIC, mode: 'read', readyMade: { shelf: 'electrical', course: 'pendulums' } }, [LESSON('i1')]: d, 'topics/pendulums/case/file': kase };
+  for (const online of [true, false]) {
+    current = 'refresher ' + (online ? 'marked by Claude' : 'no Claude') + ' 360-light';
+    console.log('\n' + current);
+    const prompts = [];
+    const app = await openApp({
+      width: 360, height: 760, file: FULL, config: { db },
+      sample: (input) => {
+        const t = taskOf(input);
+        prompts.push({ t, text: typeof input === 'string' ? input : JSON.stringify(input) });
+        if (t !== 'grade') return new Promise(() => {});
+        if (!online) throw new Error('offline');
+        return { met: [true, true, false, false], verdict: 'partly', nailed: 'You have the cause.', followUp: 'What are the device and the cable chosen from?', wrong: 'The cable size does not set the voltage at the board.' };
+      },
+    });
+    const { page } = app;
+    try {
+      await page.goto(app.url('#/t/pendulums/i1'));
+      const fr = page.frameLocator('.lsn-steps-play iframe');
+      await fr.locator('.k-cr').waitFor({ timeout: 20000 });
+      ok(/23\.08 A/.test(await fr.locator('.k-cr').textContent()) && /Your showroom: the motor/.test(await fr.locator('.k-scen').textContent()), 'the case file reached the frame: the carried part and the scenario');
+      await fr.locator('.k-answer-input').fill('13.33');
+      await fr.getByRole('button', { name: 'Check', exact: true }).click();
+      ok((await fr.locator('.k-answer').getAttribute('data-state')) === 'right', 'the typed answer is graded in the frame');
+      await fr.getByRole('button', { name: 'Next' }).click();
+      await fr.locator('.k-written-input').fill('The submain drops volts, so the sub-board is below 400 V and needs more current.');
+      await fr.getByRole('button', { name: 'Check my answer' }).click();
+      if (online) {
+        await fr.locator('.k-mark li.made').first().waitFor({ timeout: 15000 });
+        ok(await fr.locator('.k-mark li.made .k-mk.tick').count() === 2 && await fr.locator('.k-mark li.miss .k-mk.ring').count() === 2, 'two points ticked in ink, two dashed rings');
+        ok(/isn't right: The cable size/.test(await fr.locator('.k-wrong').textContent()), 'the wrong statement in red');
+        const g = prompts.filter((x) => x.t === 'grade');
+        const gp = g.length ? g[0].text : '';
+        ok(g.length === 1 && gp.includes('MARK SCHEME POINTS') && gp.includes('The device and the cable are chosen from Ib') && gp.includes('needs more current') && !gp.includes('Slides p.22') && !gp.includes('13.33'),
+          'one grade call: the lesson\'s points and his words, not the citations or anything else he did');
+        await page.waitForTimeout(800);
+        const pr = (await doc(app, PROGRESS)).ideas.i1;
+        const tries = vals(pr.written && pr.written.b1);
+        ok(tries.length === 1 && tries[0].go === 1 && tries[0].met.join() === 'true,true,false,false' && /cable size/.test(tries[0].wrong) && /sub-board/.test(tries[0].text) && tries[0].round === 0, 'the try saved with the idea\'s progress: ' + JSON.stringify(tries));
+        await shot(app, 'refresher-marked-360', true);
+      } else {
+        await fr.locator('.k-mark[data-self]').waitFor({ timeout: 20000 });
+        ok(/could not be reached/.test(await fr.locator('.k-aim').textContent()) && await fr.getByRole('checkbox', { name: 'I made this point' }).count() === 4, 'no Claude: the points as a checklist');
+        await fr.getByRole('checkbox', { name: 'I made this point' }).nth(1).click();
+        await page.waitForTimeout(800);
+        const tries = vals(((await doc(app, PROGRESS)).ideas.i1.written || {}).b1);
+        ok(tries.length === 1 && tries[0].error === true && JSON.stringify(tries[0].self) === '[false,true,false,false]', 'the failed try and his own ticks saved: ' + JSON.stringify(tries));
+        await shot(app, 'refresher-selftick-360', true);
+      }
+      await fr.getByRole('button', { name: 'Next' }).click();
+      ok(/Design current, Ib/.test(await fr.locator('.k-summary h2').textContent()) && /13\.33 A/.test(await fr.locator('.k-summary').textContent()), 'the summary card, with the case\'s figures');
+      await fr.getByRole('button', { name: 'Finish the lesson' }).click();
+      await page.locator('.lsn-done').waitFor({ timeout: 10000 });
+      ok(await page.locator('.lsn-done .lsn-h').textContent() === 'Lesson complete', 'Finish: Lesson complete');
+    } catch (e) {
+      ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+      await shot(app, 'refresher-error').catch(() => {});
+    }
+    ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+    await app.close();
+  }
+}
+
 const scenarios = [
   ['walk-360-light', () => walk(360, false)],
   ['walk-360-dark', () => walk(360, true)],
@@ -2622,6 +2701,7 @@ const scenarios = [
   ['read-lesson-1280-dark', () => readScenario(1280, true, true)],
   ['practice-study', practiceStudy],
   ['steps-lesson', stepsScenario],
+  ['refresher', refresherScenario],
 ];
 for (const [name, run] of scenarios) if (name.includes(filter)) await run();
 

@@ -767,5 +767,49 @@ await test('a ready-made steps lesson reads as a still guide: pictures and sente
   await shot(app, 'guide-phone', true);
 });
 
+// A refresher lesson's Keep this card (tools/course/guide.mjs writes it as the guide's first page):
+// the chapter opens on it, words only, its traps in red, and the saved copy keeps it.
+await test('a refresher lesson\'s summary card opens its chapter, and the saved copy keeps it', async () => {
+  for (const [width, dark] of [[390, false], [1280, true]]) {
+    const db = seed({ finished: false });
+    db['topics/pendulums/guide/i1'] = { v: 1, iid: 'i1', pages: [
+      { kind: 'summary', title: 'Design current, Ib', for: 'The current the circuit carries in normal service.', rule: 'Three-phase: Ib = P ÷ (√3 × UL × eff × pf)\n\nU is the voltage at the [[board]].',
+        traps: [{ text: '**Output alone:** 28.87 A where the load draws 41.48 A.', cite: 'Slides p.17' }, { text: '<img src=x onerror=alert(1)>', cite: 'Slides p.18' }], where: 'your slides p.10 to 19.',
+        figures: [{ label: 'Design current, Ib', value: '23.08 A' }, { label: 'Delta, per cable', value: '13.33 A' }], figuresLabel: 'The showroom so far' },
+      { kind: 'example', name: 'Words only', task: 'Which is bigger, 1/3 or 1/4?', answer: '1/3', why: 'Thirds are bigger pieces.', svg: null, alt: '' },
+    ] };
+    const app = await open({ db, width, dark, hash: '#/book/pendulums/i1' });
+    await app.page.locator('.c-sum').waitFor({ timeout: 20000 });
+    const r = await app.page.evaluate(() => {
+      const sum = document.querySelector('.c-sum'), tiles = [...document.querySelectorAll('.dos-page > .t, .dos-page > .c-main > .t')];
+      return {
+        first: tiles.indexOf(sum) === 1 && tiles[0].classList.contains('c-head'), label: sum.querySelector('h2').textContent, title: sum.querySelector('.sm-title').textContent,
+        traps: [...sum.querySelectorAll('.sm-trap')].map((t) => t.textContent), bold: !!sum.querySelector('.sm-trap strong'), img: !!sum.querySelector('img'),
+        figs: [...sum.querySelectorAll('.sm-figs > div')].map((d) => d.textContent), term: !!sum.querySelector('.sm-rule .term, .sm-rule mark'),
+        red: getComputedStyle(sum.querySelector('.sm-trap')).boxShadow, where: sum.querySelector('.sm-where').textContent,
+        scroll: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+      };
+    });
+    assert(r.first, 'the chapter opens on the card, straight after its header');
+    eq(r.label, 'Keep this', 'its label');
+    eq(r.title, 'Design current, Ib', 'its title');
+    assert(r.traps.length === 2 && /Output alone: 28\.87 A.*Slides p\.17/.test(r.traps[0]) && r.bold && !r.img && /onerror/.test(r.traps[1]), 'traps with their citations, as text only: ' + JSON.stringify(r.traps));
+    assert(r.figs.join('|') === 'Design current, Ib23.08 A|Delta, per cable13.33 A', 'the case figures ' + JSON.stringify(r.figs));
+    assert(r.term && /^Where it lives: your slides/.test(r.where) && r.scroll, 'key term, where it lives, no sideways scroll');
+    await noDan(app, 'summary');
+    await shot(app, 'summary-' + (width < 700 ? 'phone' : 'laptop-dark'), true);
+    if (width < 700) {
+      await app.page.goto(app.url('#/book/pendulums'));
+      await app.page.locator('.d-save').waitFor({ timeout: 20000 });
+      await app.page.evaluate(() => { window.__saved = []; U.saveFile = function (n, t) { window.__saved.push(t); return Promise.resolve(true); }; });
+      await app.page.locator('.d-save').click();
+      await app.page.waitForFunction(() => window.__saved.length === 1);
+      const h = await app.page.evaluate(() => window.__saved[0]);
+      assert(/Keep this/.test(h) && /Design current, Ib/.test(h) && /Trap: /.test(h) && /Delta, per cable 13\.33 A/.test(h) && !/<img/i.test(h), 'the saved copy keeps the card, as text');
+    }
+    await app.close();
+  }
+});
+
 console.log('\n' + results.map((r) => `${r.ok ? 'PASS' : 'FAIL'}  ${r.name}`).join('\n'));
 process.exit(results.every((r) => r.ok) ? 0 : 1);

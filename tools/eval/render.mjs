@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Self-tests and screenshots a model-written interactive body exactly as the app would run it.
 //   node tools/eval/render.mjs body.html --out tests/out/eval/<name> [--app dist/my-university.html] [--no-moved]
+//        [--lesson lesson.json --case case.json]   a refresher lesson: its written questions, summary and case file
 // Writes <out>-report.json, <out>-{360,1280}-{light,dark}.png (the opening state) and
 // <out>-{360,1280}-{light,dark}-moved.png: every control set to another value through the host's
 // set() (a slider to 75% of its range, or to its top or middle if it opens near 75%; a choice or
@@ -38,7 +39,26 @@ export function endValue(c) {
   return c.value >= c.max ? c.min : c.max;
 }
 
+// A refresher lesson's checked data for its page, as the app passes it (K_CASE, K_LESSON): the
+// course's case file and the lesson's {written, summary}. {} when there is neither, so the page is
+// tested exactly as the app would show it.
+export function refresherContext(lesson, caseFile) {
+  const L = lesson && lesson.lesson && typeof lesson.lesson === 'object' && 'status' in lesson ? lesson.lesson : lesson;
+  const ctx = {};
+  if (L && (L.written || L.summary)) ctx.lesson = { written: L.written || null, summary: L.summary || null };
+  if (caseFile && typeof caseFile === 'object') ctx.kase = caseFile;
+  return ctx;
+}
+// --lesson <file> --case <file> on the command line -> refresherContext.
+export function contextArgs(argOf) {
+  const L = argOf('lesson') ? JSON.parse(readFileSync(argOf('lesson'), 'utf8')) : null;
+  const C = argOf('case') ? JSON.parse(readFileSync(argOf('case'), 'utf8')) : null;
+  return refresherContext(L, C);
+}
+
+// o.context: refresherContext(...) for a refresher lesson's page.
 export async function renderBody(body, out, appFile, o = {}) {
+  const ctx = o.context || {};
   mkdirSync(dirname(out), { recursive: true });
   const shots = [];
   let report = null, moves = null;
@@ -50,9 +70,9 @@ export async function renderBody(body, out, appFile, o = {}) {
       await app.page.goto(app.url('#/__eval'));
       await app.page.evaluate((t) => { document.documentElement.dataset.muTheme = t; }, theme);
       if (!report) {
-        report = await app.page.evaluate(async (html) => { await U.rt.ready; return U.sandbox.test(html, { widths: [340, 720, 1040], timeout: 9000 }); }, body);
+        report = await app.page.evaluate(async ([html, c]) => { await U.rt.ready; return U.sandbox.test(html, { widths: [340, 720, 1040], timeout: 9000, kase: c.kase, lesson: c.lesson }); }, [body, ctx]);
       }
-      await app.page.evaluate(async (html) => {
+      await app.page.evaluate(async ([html, c]) => {
         await U.rt.ready;
         // Our own host outside the app shell, so the app's router can't clear it.
         const shell = document.getElementById('app');
@@ -63,10 +83,10 @@ export async function renderBody(body, out, appFile, o = {}) {
         const box = document.createElement('div');
         box.style.cssText = 'max-width:' + (window.innerWidth >= 1000 ? 1080 : 720) + 'px;margin:16px auto;padding:0 16px';
         host.appendChild(box);
-        window.__render = U.sandbox.mount(box, { html });
+        window.__render = U.sandbox.mount(box, { html, kase: c.kase, lesson: c.lesson });
         await Promise.race([window.__render.ready, new Promise((r) => setTimeout(r, 6000))]);
         await new Promise((r) => setTimeout(r, 500));
-      }, body);
+      }, [body, ctx]);
       const path = `${out}-${width}-${theme}.png`;
       await app.page.screenshot({ path, fullPage: true });
       shots.push(path);
@@ -111,6 +131,6 @@ export async function renderBody(body, out, appFile, o = {}) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const file = process.argv[2];
   const out = resolve(arg('out', `${ROOT}/tests/out/eval/render`));
-  const r = await renderBody(readFileSync(file, 'utf8'), out, arg('app') ? resolve(arg('app')) : undefined, { moved: !process.argv.includes('--no-moved') });
+  const r = await renderBody(readFileSync(file, 'utf8'), out, arg('app') ? resolve(arg('app')) : undefined, { moved: !process.argv.includes('--no-moved'), context: contextArgs(arg) });
   console.log(JSON.stringify(r, null, 2));
 }

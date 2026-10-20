@@ -1689,6 +1689,121 @@ section('exemplars and the host API');
 }
 
 // ---------- screenshots: every exemplar at 360 and 1280, light and dark ----------
+section('refresher pieces: typed answers, written answers, the case file, the summary');
+{
+  const FX = join(ROOT, 'tests', 'fixtures');
+  const rbody = readFileSync(join(FX, 'refresher-body.html'), 'utf8');
+  const kase = JSON.parse(readFileSync(join(FX, 'refresher-case.json'), 'utf8'));
+  const parts = JSON.parse(readFileSync(join(FX, 'refresher-parts.json'), 'utf8'));
+  const app = await openApp({ width: 360, height: 800, file: PAGE });
+  await app.page.goto(app.url('#/'));
+  await app.page.evaluate(() => U.rt.ready);
+  const rep = await app.page.evaluate(([h, k, l]) => U.sandbox.test(h, { kase: k, lesson: l }), [rbody, kase, parts]);
+  expect('with its case file and lesson parts the refresher page passes, its typed answer graded and its written question shown',
+    rep.ok && rep.answers.length === 1 && rep.answers[0].id === '1b' && rep.answers[0].ok && rep.written.join() === 'b1', { ok: rep.ok, sweep: rep.sweep, errors: rep.errors, clipped: rep.clipped, answers: rep.answers, written: rep.written });
+  const bare = await app.page.evaluate((h) => U.sandbox.test(h, { widths: [340] }), rbody);
+  const bp = bare.sweep.problems.join(' | ');
+  expect('without them it fails, naming the written question, the figure and the summary it could not find',
+    !bare.ok && /K\.written "b1": the lesson has no written question "b1"/.test(bp) && /K\.figure\("1a"\)/.test(bp) && /K\.summary: the lesson has no summary/.test(bp), bp);
+  const slipBody = rbody.replace("slips: [{ value: 23.08,", "slips: [{ value: 13.331,").replace("accept: [13.32]", "accept: [13.32], tolerance: 0.5");
+  const sr = await app.page.evaluate(([h, k, l]) => U.sandbox.test(h, { widths: [340], kase: k, lesson: l }), [slipBody, kase, parts]);
+  const sp = sr.sweep.problems.join(' | ');
+  expect('a slip the answer\'s own tolerance accepts, and a tolerance wide enough to pass a near miss, fail the sweep',
+    !sr.ok && /the slip 13\.33 is accepted as right/.test(sp) && /a near miss, .* is accepted: the tolerance is too wide/.test(sp) && sr.answers[0].ok === false, sp);
+
+  // Live: typed answers in the frame, carried forward, the written answer with and without Claude.
+  const marks = [];
+  await app.page.exposeFunction('__mark', (w) => { marks.push(w); });
+  async function mountR(withClaude) {
+    await app.page.evaluate(async ([h, k, l, c]) => {
+      if (window.rm) window.rm.destroy();
+      const box = document.body.appendChild(document.createElement('div'));
+      box.style.cssText = 'max-width:720px;margin:16px auto;padding:0 16px';
+      window.rm = U.sandbox.mount(box, { html: h, kase: k, lesson: l, onWritten: c ? (w) => { window.__mark(w); return new Promise((r) => setTimeout(() => r({ met: w.go === 2 ? [true, true, true, false] : [true, false, true, false], nailed: 'You have the cause.', followUp: 'What is chosen from Ib?', wrong: w.go === 1 ? 'The cable does not set the voltage at the board.' : '' }), 200)); } : undefined });
+      await window.rm.ready;
+    }, [rbody, kase, parts, withClaude]);
+    return app.page.frameLocator('iframe.kit-iframe').last();
+  }
+  let fr = await mountR(true);
+  const inp = fr.locator('.k-answer-input');
+  expect('the typed answer is a decimal keypad field with its unit', (await inp.getAttribute('inputmode')) === 'decimal' && (await fr.locator('.k-answer-unit').textContent()) === 'A');
+  await inp.fill('23.08');
+  await fr.getByRole('button', { name: 'Check', exact: true }).click();
+  const st1 = await fr.locator('.k-answer').getAttribute('data-state');
+  const fb1 = await fr.locator('#fbA').textContent();
+  await inp.fill('13.32');
+  await inp.press('Enter');
+  const st2 = await fr.locator('.k-answer').getAttribute('data-state');
+  expect('a named slip is wrong with its hint; the figure from unrounded working is right; Enter checks', st1 === 'wrong' && /line current/.test(fb1) && st2 === 'right', { st1, fb1, st2 });
+  expect('the earlier part is carried forward at the case file\'s figure, ticked', /\(a\)\s*Design current, Ib\s*23\.08 A/.test(await fr.locator('.k-cr').textContent()) && await fr.locator('.k-cr .k-mk.tick').count() === 1);
+  // Written: marked by "Claude" (the host), ticks and rings, the wrong statement in red, one more go, then the model answer.
+  await app.page.evaluate(() => window.rm.set('step', 1));
+  await fr.locator('.k-written-input').fill('x');
+  await fr.getByRole('button', { name: 'Check my answer' }).click();
+  expect('too few words are not sent', marks.length === 0 && /Write a sentence/.test(await fr.locator('.k-written .k-answer-msg').textContent()));
+  await fr.locator('.k-written-input').fill('The submain drops volts, so the board is below 400 V.');
+  await fr.getByRole('button', { name: 'Check my answer' }).click();
+  await fr.locator('.k-mark .k-pts').waitFor({ timeout: 5000 });
+  const m1 = await fr.locator('.k-mark').evaluate((el) => ({ made: el.querySelectorAll('li.made .k-mk.tick').length, miss: el.querySelectorAll('li.miss .k-mk.ring').length, wrong: (el.querySelector('.k-wrong') || {}).textContent || '',
+    aim: el.querySelector('.k-aim').textContent, cite: el.querySelector('li small').textContent, model: !el.closest('.k-written').querySelector('.k-model').hidden, send: el.closest('.k-written').querySelector('.k-written-send').hidden }));
+  expect('marked: two ink ticks, two dashed rings, the citations, "any three", the wrong statement named, no model answer yet',
+    marks.length === 1 && marks[0].go === 1 && m1.made === 2 && m1.miss === 2 && /isn't right: The cable/.test(m1.wrong) && /any three/.test(m1.aim) && m1.cite === 'Slides p.18' && !m1.model && m1.send, { marks, m1 });
+  await fr.getByRole('button', { name: 'Another go' }).click();
+  await fr.locator('.k-written-input').fill('The submain drops volts, so the board is lower, more current flows, and the device and cable are chosen from Ib.');
+  await fr.getByRole('button', { name: 'Check my answer' }).click();
+  await app.page.waitForFunction(() => true);
+  await fr.locator('.k-model:not([hidden])').waitFor({ timeout: 5000 });
+  expect('the second go is marked as go 2 with his earlier words gone, then the model answer shows; no third go',
+    marks.length === 2 && marks[1].go === 2 && await fr.locator('.k-mark li.made').count() === 3 && await fr.getByRole('button', { name: 'Another go' }).count() === 0 && await fr.locator('.k-wrong').count() === 0);
+  await app.page.screenshot({ path: join(SHOTS, 'refresher-written-360-light.png'), fullPage: true });
+  // Without Claude: the points as a checklist he ticks himself; each tick goes to the host.
+  fr = await mountR(false);
+  await app.page.evaluate(() => window.rm.set('step', 1));
+  await fr.locator('.k-written-input').fill('The submain drops volts, so the board is below 400 V.');
+  await fr.getByRole('button', { name: 'Check my answer' }).click();
+  await fr.locator('.k-mark[data-self]').waitFor({ timeout: 5000 });
+  const boxes = fr.getByRole('checkbox', { name: 'I made this point' });
+  const n0 = await boxes.count();
+  await boxes.nth(0).click();
+  const ticked = await fr.locator('.k-pt-tick[aria-checked="true"]').count();
+  await fr.getByRole('button', { name: 'Model answer' }).click();
+  expect('no Claude: the four points to tick, a tick sticks, the model answer on request, no red',
+    n0 === 4 && ticked === 1 && /could not be reached/.test(await fr.locator('.k-aim').textContent()) && await fr.locator('.k-model:not([hidden])').count() === 1 && await fr.locator('.k-wrong').count() === 0);
+  // The summary card, with the case file's figures.
+  await app.page.evaluate(() => window.rm.set('step', 2));
+  const card = await fr.locator('.k-summary').textContent();
+  expect('the summary card: title, rule, traps with citations, the case figures, where it lives',
+    /Design current, Ib/.test(card) && /Three-phase: Ib = P/.test(card) && /Output alone:.*Slides p\.17/.test(card) && /Delta, per cable\s*13\.33 A/.test(card) && /Where it lives: your slides/.test(card), card);
+  // Shown answer: carried forward at the course's figure, and said so.
+  await app.page.evaluate(() => window.rm.set('step', 0));
+  await fr.getByRole('button', { name: 'Show me' }).click();
+  expect('a shown answer is dashed', (await fr.locator('.k-answer').getAttribute('data-state')) === 'shown');
+  expect('no page errors in the refresher frames', !app.errors.length, app.errors);
+  await app.close();
+  for (const theme of ['light', 'dark']) {
+    const a2 = await openApp({ width: 360, height: 780, file: PAGE });
+    await a2.page.goto(a2.url('#/'));
+    await a2.page.evaluate(async ([h, k, l, t]) => {
+      await U.rt.ready;
+      document.documentElement.dataset.muTheme = t;
+      document.getElementById('app').style.display = 'none';
+      document.body.style.background = 'var(--bg)';
+      const box = document.body.appendChild(document.createElement('div'));
+      box.style.cssText = 'max-width:720px;margin:16px auto;padding:0 16px';
+      window.rm = U.sandbox.mount(box, { html: h, kase: k, lesson: l });
+      await window.rm.ready;
+    }, [rbody, kase, parts, theme]);
+    for (const step of [0, 2]) {
+      await a2.page.evaluate((s) => window.rm.set('step', s), step);
+      await a2.page.waitForTimeout(300);
+      await a2.page.screenshot({ path: join(SHOTS, `refresher-s${step}-360-${theme}.png`), fullPage: true });
+    }
+    const scroll = await a2.page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+    expect(`refresher screenshots 360 ${theme}: no sideways scroll, no page errors`, scroll && !a2.errors.length, a2.errors);
+    await a2.close();
+  }
+}
+
 section('screenshots (review them in tests/out/kit/)');
 for (const ex of examples) {
   for (const width of [360, 1280]) {

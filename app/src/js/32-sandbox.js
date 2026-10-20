@@ -11,8 +11,9 @@
 // leaving (document.open() wipes the kit's listeners, and a page it then navigates to may never
 // finish loading), so the host pings every mounted frame and removes one that stops answering.
 //
-//   U.sandbox.srcdoc(body, {theme, token, quiz}) -> string
-//   U.sandbox.mount(container, {html, title, onReady, onError, onChange, onComplete, minHeight, loading, quiz, theme}) ->
+//   U.sandbox.srcdoc(body, {theme, token, quiz, kase, lesson}) -> string
+//   U.sandbox.mount(container, {html, title, onReady, onError, onChange, onComplete, minHeight, loading, quiz, theme,
+//                               kase, lesson, onWritten, onTicked}) ->
 //     { el, frame, ready, selftest(), get(), set(id, value), press(label?), inputs(), reach(spec), theme(t),
 //       quiz(hide), reveal(), destroy() }
 //       set() counts as a move (it reveals the body's .k-after-move parts), and takes a slider value,
@@ -23,7 +24,13 @@
 //       kit shows that readout as "?", hides the .say line and any plot or bar label giving its
 //       value; get() and onChange still carry the real outputs. reveal() (or quiz(null)) ends it.
 //       theme: a function returning the K_THEME to use (asked again on every theme or size change).
-//   U.sandbox.test(html, {widths:[340, 720, 1040], timeout:8000}) -> Promise<Report>   hidden, merged
+//       kase, lesson: a refresher lesson's checked data, passed in as K_CASE (the course's case file,
+//       topics/{tid}/case) and K_LESSON ({written, summary} from the lesson), as K_THEME is.
+//       onWritten({id, text, go}) -> Promise<{met, nailed, followUp, wrong?} | {error}>: the page sent
+//       Dan's written answer (K.written); the reply goes back to it as {type:'marked', id, …}. Without
+//       onWritten the page is told {error:'unavailable'} at once (it shows the self-tick list).
+//       onTicked({id, met}): Dan ticked the points himself (no Claude).
+//   U.sandbox.test(html, {widths:[340, 720, 1040], timeout:8000, kase, lesson}) -> Promise<Report>   hidden, merged
 //   U.sandbox.reach(mounted | html, {control, output, target, tolerance, decimals?}) ->
 //       Promise<{reachable, exact, best:{value, output} | null, tried, error?}>
 //     Can moving that one control (every setting it has, every option of a choice; the others at
@@ -82,6 +89,13 @@ U.sandbox = (function () {
     return /r?em$/i.test(v) ? n * (parseFloat(cs.fontSize) || 16) : n;
   }
 
+  function isObj(v) { return !!v && typeof v === 'object' && !Array.isArray(v); }
+  // What a refresher lesson's page may read of its lesson: its written questions and its summary
+  // (checked at build time), nothing else. null when it has neither.
+  function lessonData(l) {
+    if (!isObj(l) || (!isObj(l.written) && !isObj(l.summary))) return null;
+    return { written: isObj(l.written) ? l.written : null, summary: isObj(l.summary) ? l.summary : null };
+  }
   function byteLength(s) { try { return new TextEncoder().encode(s).length; } catch (e) { return s.length * 2; } }
   function tooBig(body) {
     var n = byteLength(String(body || ''));
@@ -120,7 +134,8 @@ U.sandbox = (function () {
 
   // The full document for one body: CSP first, then kit CSS, theme (and the frame's token and
   // quiz: the output it opens with hidden, so the value never shows before the host's 'quiz'
-  // message lands), kit JS, then the body. Throws {code:'too_large'}.
+  // message lands; and a refresher lesson's case file and {written, summary}), kit JS, then the
+  // body. Throws {code:'too_large'}.
   function srcdoc(body, o) {
     o = o || {};
     body = String(body || '');
@@ -133,7 +148,8 @@ U.sandbox = (function () {
       '<meta name="viewport" content="width=device-width, initial-scale=1">' +
       '<style>' + U.KIT_CSS + '</style>' +
       '<script>window.K_THEME=' + inlineJson(o.theme || theme()) + ';window.K_BODY_LINE=@@LINE@@;window.K_TOKEN=' + inlineJson(String(o.token || '')) +
-        ';window.K_QUIZ=' + inlineJson(o.quiz ? String(o.quiz) : null) + ';</' + 'script>' +
+        ';window.K_QUIZ=' + inlineJson(o.quiz ? String(o.quiz) : null) +
+        ';window.K_CASE=' + inlineJson(isObj(o.kase) ? o.kase : null) + ';window.K_LESSON=' + inlineJson(lessonData(o.lesson)) + ';</' + 'script>' +
       '<script>' + U.KIT_JS + '</' + 'script></head><body>\n';
     // Error line numbers are reported relative to the body (the kit counts from this line).
     var line = head.split('\n').length;
@@ -249,7 +265,8 @@ U.sandbox = (function () {
   // tasks, so only a page frozen for seconds on end is taken out. One that has never said anything
   // gets FIRST_MS (the time K.ready() is waited for) and is removed, never shown. The clock runs
   // only while the app is visible (visibleTimeout).
-  var PING_MS = 2000, MISSES = 2, FIRST_MS = 12000;
+  var PING_MS = 2000, MISSES = 2, FIRST_MS = 12000, MARKS_PER_ID = 4;
+  function cleanId(v) { return typeof v === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(v) ? v : ''; }
   var SILENT = 'The interactive stopped answering, so it was closed.';
   function mount(container, o) {
     o = o || {};
@@ -315,8 +332,33 @@ U.sandbox = (function () {
         if (o.onChange) try { o.onChange({ params: d.params, outputs: d.outputs }); } catch (e) { console.error(e); }
       } else if (d.type === 'complete') {
         if (o.onComplete) try { o.onComplete(); } catch (e) { console.error(e); }
+      } else if (d.type === 'written') {
+        written(d);
+      } else if (d.type === 'ticked') {
+        var tk = cleanId(d.id);
+        if (tk && Array.isArray(d.met) && o.onTicked) try { o.onTicked({ id: tk, met: d.met.slice(0, 5).map(function (x) { return x === true; }) }); } catch (e) { console.error(e); }
       }
     }, function () { api.destroy(); });
+    // A written answer from the page (K.written): marked by the host (o.onWritten), one at a time per
+    // question and at most MARKS_PER_ID per mount, and the result sent back. Only an id the lesson
+    // names, Dan's words (clipped) and which try it is come from the frame.
+    var marking = {}, marks = {};
+    function written(d) {
+      var id = cleanId(d.id);
+      if (!id || marking[id]) return;
+      var text = typeof d.text === 'string' ? d.text.slice(0, 3000) : '';
+      var go = d.go === 2 ? 2 : 1;
+      function reply(r) { if (!destroyed) ch.send('marked', Object.assign({ id: id }, r)); }
+      if (!o.onWritten || !text.trim() || (marks[id] = (marks[id] || 0) + 1) > MARKS_PER_ID) { reply({ error: 'unavailable' }); return; }
+      marking[id] = true;
+      Promise.resolve().then(function () { return o.onWritten({ id: id, text: text, go: go }); }).then(function (r) {
+        marking[id] = false;
+        reply(isObj(r) ? r : { error: 'error' });
+      }, function (e) {
+        marking[id] = false;
+        reply({ error: (e && e.code) || 'error' });
+      });
+    }
     // A frame that has said nothing at all by now is not the kit: it is removed, never shown.
     var readyTimer = visibleTimeout(function () { settle(null); if (ch.heard()) uncover(); else stop(SILENT); }, FIRST_MS);
     // The kit says when its page starts to leave ('leaving'); a second load in the same window is
@@ -364,7 +406,7 @@ U.sandbox = (function () {
     try {
       var t0 = themeOf();
       lastTheme = JSON.stringify(t0);
-      frame.setAttribute('srcdoc', srcdoc(o.html, { theme: t0, token: token, quiz: quiz }));
+      frame.setAttribute('srcdoc', srcdoc(o.html, { theme: t0, token: token, quiz: quiz, kase: o.kase, lesson: o.lesson }));
     } catch (e) {
       shown = false;
       wrap.dataset.state = 'failed';
@@ -404,7 +446,7 @@ U.sandbox = (function () {
   // A frame in the viewport (so the browser doesn't throttle it) but invisible and inert.
   // onMessage gets the kit's unsolicited messages (a 'leaving' one means the body navigated the
   // frame away: the caller stops waiting for it); returns {frame, ch, close}.
-  function hiddenFrame(html, width, th, onMessage) {
+  function hiddenFrame(html, width, th, onMessage, ctx) {
     var frame = document.createElement('iframe');
     frame.setAttribute('sandbox', 'allow-scripts');
     frame.setAttribute('aria-hidden', 'true');
@@ -418,7 +460,7 @@ U.sandbox = (function () {
       if (d.type === 'height' && d.px > 0) frame.style.height = Math.min(4000, Math.ceil(d.px)) + 'px';
       if (onMessage) onMessage(d);
     });
-    frame.setAttribute('srcdoc', srcdoc(html, { theme: th, token: token }));
+    frame.setAttribute('srcdoc', srcdoc(html, { theme: th, token: token, kase: ctx && ctx.kase, lesson: ctx && ctx.lesson }));
     document.body.appendChild(frame);
     return { frame: frame, ch: ch, close: function () { ch.close(); frame.remove(); } };
   }
@@ -429,7 +471,7 @@ U.sandbox = (function () {
     return { ok: false, errors: [message], overflow: false, clipped: [], checks: [], sweep: { ok: false, problems: [] }, controls: [], readouts: [], ready: false, warnings: [], width: width };
   }
   // One hidden frame at one width -> the kit's Report (or a failing one on timeout).
-  function testOne(html, width, timeout, th) {
+  function testOne(html, width, timeout, th, ctx) {
     return new Promise(function (resolve) {
       var finished = false, asked = false, graceTimer = null, hf = null, t0 = Date.now(), timer = null, leaving = null;
       function finish(report) {
@@ -458,7 +500,7 @@ U.sandbox = (function () {
           if (d.type === 'ready') setTimeout(ask, 30);
           // The body navigated the frame away: its report may still come before the page goes.
           else if (d.type === 'leaving' && !leaving) leaving = visibleTimeout(function () { finish(failing(LEFT, width)); }, 1000);
-        });
+        }, ctx);
       } catch (e) { return finish(failing(e.message || String(e), width)); }
       // After load, give a body that calls K.ready() late a moment, then test whatever is there.
       hf.frame.addEventListener('load', function () { graceTimer = visibleTimeout(ask, 1000); });
@@ -502,6 +544,8 @@ U.sandbox = (function () {
       outputs: first.outputs || [],
       inputs: first.inputs || [],
       actions: first.actions || [],
+      answers: first.answers || [],
+      written: first.written || [],
       ready: reports.every(function (r) { return r.ready; }),
       warnings: union(function (r) { return r.warnings; }),
       widths: reports.map(function (r) { return { width: r.width, ok: !!r.ok }; }),
@@ -522,7 +566,7 @@ U.sandbox = (function () {
     // One width at a time with a breath in between, so the app stays responsive.
     return widths.reduce(function (p, w) {
       return p.then(function () { return new Promise(function (r) { setTimeout(r, 16); }); })
-        .then(function () { return testOne(html, w, timeout, th).then(function (r) { reports.push(r); }); });
+        .then(function () { return testOne(html, w, timeout, th, o).then(function (r) { reports.push(r); }); });
     }, Promise.resolve()).then(function () { return merge(reports); });
   }
 
