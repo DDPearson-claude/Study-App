@@ -52,6 +52,116 @@
       "sourceIds": [
         43
       ]
+    },
+    {
+      "claim": "The Ct formula, as printed in text by a reader on a cable-sizing page that attributes it to BS 7671 (Appendix 4 itself was not found in text): Ct = (230 + tp - (Ca² Cg² - Ib²/It²)(tp - 30)) / (230 + tp), with tp 70 °C for PVC and 90 °C for XLPE and It the tabulated current rating at 30 °C. TiSoft prints the same definitions of tp, Ib and It with the formula as a picture, and an IET EngX thread points to \"the formula in 6.1 of Appendix 4\" for it.",
+      "sourceIds": [
+        302,
+        303,
+        304,
+        306,
+        307,
+        308
+      ]
+    },
+    {
+      "claim": "Why Ct exists: the tabulated mV/A/m are for the conductor at its maximum operating temperature, so a cable well below its rating runs cooler and drops less; TiSoft puts the saving at up to 20% for lightly loaded circuits, and the slides make the same point for the 6.0 mm² heater cable carrying 13.04 A of its 41 A.",
+      "sourceIds": [
+        305,
+        311,
+        283,
+        280,
+        281
+      ]
+    },
+    {
+      "claim": "Ct is worth applying only when Ib is well below It; with a heavy grouping factor and nothing else it comes to about 0.99 and is not worth the trouble (IET Electrical Installation Design Guide, quoted on EngX). The slides say it may let a smaller CSA than 6.0 mm² pass.",
+      "sourceIds": [
+        308,
+        309,
+        282
+      ]
+    },
+    {
+      "claim": "Contested or unsettled: which factors go into the Ct formula. The reader-quoted formula uses Ca and Cg (not Ci), and an EngX contributor says their design guide also counts only ambient temperature and grouping; the EngX thread asks why Ci is left out and gets the answer that Ci has already been used to choose It. The lesson uses Ca and Cg only and says so.",
+      "sourceIds": [
+        302,
+        310,
+        311
+      ]
+    },
+    {
+      "claim": "The slides' own heater example for the Ct step: 3 kW, 70 °C thermoplastic singles, Ca 0.94, 85 m, 29 mV/A/m in 1.5 mm² gives 32.14 V; 6.0 mm² (Iz 41 A in Table 4D1A, 7.3 mV/A/m in Table 4D1B) gives 8.09 V. Worked here (computed, not quoted): Ct for 6.0 mm² = (300 - (0.94² - 13.04²/41²) x 40) / 300 = 0.8957, so 8.09 V falls to 7.25 V; for 4.0 mm² (32 A in Table 4D1A, 11 mV/A/m in Table 4D1B) Ct = 0.9043, so 12.19 V tabulated falls to 11.03 V, under the 11.50 V limit.",
+      "sourceIds": [
+        284,
+        285,
+        286,
+        280,
+        298,
+        299,
+        300,
+        301
+      ]
+    },
+    {
+      "claim": "The r, x and z columns appear only for cables over 16 mm² (the tables start them at 25 mm²); where the power factor is not known the z values are used, and where it is known the r and x values give a more accurate drop, because using z alone can give a drop higher than the actual one (Appendix 4 paragraph 6, as NICEIC reports it).",
+      "sourceIds": [
+        289,
+        290,
+        312,
+        313,
+        314,
+        315,
+        316,
+        288
+      ]
+    },
+    {
+      "claim": "The power-factor expression, from a calculator site and from the impedance triangle Dan already has: drop per amp per metre = (mV/A/m)r x cos φ + (mV/A/m)x x sin φ, with sin φ = √(1 - cos² φ). NICEIC's worked 144 A, 0.75 lagging, 120 m motor in 70 mm² aluminium (r 0.90, x 0.14, z 0.92) comes to 16 V by z and 13.3 V by r and x, so the final circuit passes the 20 V limit once 5 V upstream is added.",
+      "sourceIds": [
+        318,
+        319,
+        317,
+        287
+      ]
+    },
+    {
+      "claim": "Not found in text from any source: how Ct and the power factor combine (whether Ct multiplies only the r term). The lesson shows the two refinements separately and does not print a combined figure.",
+      "sourceIds": [
+        302,
+        314
+      ]
+    },
+    {
+      "claim": "Table values from Dan's own copy, confirmed against the page images. Table 4E1B (90 °C thermosetting singles, voltage drop): in conduit, 2.5 mm² three-phase 16 mV/A/m; 1.5 mm² 27 three-phase and 31 for two cables single-phase; 25 mm² in conduit, three-phase, r 1.60, x 0.27, z 1.65. Table 4E1A (current-carrying capacity, Reference Method B, three or four cables): 1.5 mm² 20 A, 2.5 mm² 28 A.",
+      "sourceIds": [
+        292,
+        293,
+        294,
+        295,
+        296,
+        297
+      ]
+    },
+    {
+      "claim": "A star-delta motor has six conductors from starter to motor, and in delta running its windings are three single-phase loads, so each conductor carries the winding current, line current ÷ √3. Turning that into a voltage drop is unsettled: one forum poster uses √3 x 58% of FLC x 2L x (R cos φ + X sin φ), another each conductor's impedance times its current. The course takes the first-principles reading (two conductors in series feed each winding: single-phase two-cable mV/A/m x winding current x length) and says it is its own reading, not BS 7671's.",
+      "sourceIds": [
+        325,
+        326,
+        321,
+        322,
+        323,
+        324
+      ]
+    },
+    {
+      "claim": "The percentage limit for a three-phase circuit is taken of the three-phase voltage: 3% or 5% of 400 V is 12 V or 20 V, and a three-phase drop stays three-phase when the load is three-phase; only a three-phase submain feeding a single-phase final circuit is divided by √3.",
+      "sourceIds": [
+        291,
+        34,
+        35,
+        73
+      ]
     }
   ],
   "sources": [
@@ -162,7 +272,283 @@
       "title": "TiSoft - Voltage drop calculation according to BS 7671",
       "url": "https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs",
       "quote": "At lower loads, the temperature and the resistance of the cable are lower."
+    },
+    {
+      "n": 280,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p43",
+      "quote": "According to table 4D1A, 6.0mm² has an Iz of 41A."
+    },
+    {
+      "n": 281,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p43",
+      "quote": "There will still be just 13.04A in the 6.0mm² conductors."
+    },
+    {
+      "n": 282,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p43",
+      "quote": "And by applying it, we may be able to use a smaller CSA cable than 6.0mm²"
+    },
+    {
+      "n": 283,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p43",
+      "quote": "Because so little current is present in the now 6.0mm² conductors (13.04A), the heat caused will dissipate far quicker, keeping conductor resistance lower and voltage drop lower than the previously calculated 8.09V."
+    },
+    {
+      "n": 284,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p42",
+      "quote": "A 3kW heater circuit wired in 70C thermoplastic single core cable is installed at an ambient temperature of 35C,in reference method B, circuit length is 85m."
+    },
+    {
+      "n": 285,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p42",
+      "quote": "Ca = 0.94"
+    },
+    {
+      "n": 286,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p42",
+      "quote": "Voltage drop = 29 x 13.04 x 85 / 1000"
+    },
+    {
+      "n": 287,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p44",
+      "quote": "Correcting voltage drop for power factor is another consideration we need to make."
+    },
+    {
+      "n": 288,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p44",
+      "quote": "In appendix 4, it’s noticeable that some of the ‘(mV/A/m)’ tables have three options:"
+    },
+    {
+      "n": 289,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p45",
+      "quote": "which is why the option for R, X or Z only appears on 25.0mm² and above."
+    },
+    {
+      "n": 290,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p45",
+      "quote": "Where one is known then a calculation using both the R and X values needs to be used."
+    },
+    {
+      "n": 291,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p40",
+      "quote": "3-phase voltage drop is calculated using the equivalent percentage (3% or 5%) of the 3-phase voltage value."
+    },
+    {
+      "n": 292,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p459",
+      "quote": "VOLTAGE DROP (per ampere per metre): Conductor operating temperature: 90°C"
+    },
+    {
+      "n": 293,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p459",
+      "quote": "2.5 19 19 19 19 16 16 16 16"
+    },
+    {
+      "n": 294,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p459",
+      "quote": "1.5 31 31 31 31 27 27 27 27"
+    },
+    {
+      "n": 295,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p459",
+      "quote": "25 1.85 1.85 0.31 1.90 | 1.85 0.190 1.85 | 1.85 0.28 1.85 | 1.60 0.27 1.65 | 1.60 0.165 1.60 | 1.60 0.190 1.60 | 1.60 0.27 1.65"
+    },
+    {
+      "n": 296,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p458",
+      "quote": "2.5 26 23 31 28 34 31"
+    },
+    {
+      "n": 297,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p458",
+      "quote": "1.5 19 17 23 20 25 23"
+    },
+    {
+      "n": 298,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p448",
+      "quote": "4 26 24 32 28 37 33"
+    },
+    {
+      "n": 299,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p448",
+      "quote": "6 34 31 41 36 47 43"
+    },
+    {
+      "n": 300,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p449",
+      "quote": "4 11 11 11 11 9.5 9.5 9.5 9.5"
+    },
+    {
+      "n": 301,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p449",
+      "quote": "6 7.3 7.3 7.3 7.3 6.4 6.4 6.4 6.4"
+    },
+    {
+      "n": 302,
+      "title": "Cable Sizing Tool - myElectrical (a reader comment quoting the BS 7671 formula)",
+      "url": "https://myelectrical.com/notes/entryid/182/cable-sizing-tool",
+      "quote": "Ct = (230 + Tp - (Ca2 x Cg2 - Ib2/It2)x(Tp - 30))/ (230 + Tp)"
+    },
+    {
+      "n": 303,
+      "title": "Cable Sizing Tool - myElectrical (a reader comment quoting the BS 7671 formula)",
+      "url": "https://myelectrical.com/notes/entryid/182/cable-sizing-tool",
+      "quote": "Tp = Maximum Operating Temperature of the conductor (for PVC = 70 deg C and for XLPE = 90 deg C)."
+    },
+    {
+      "n": 304,
+      "title": "Cable Sizing Tool - myElectrical (a reader comment quoting the BS 7671 formula)",
+      "url": "https://myelectrical.com/notes/entryid/182/cable-sizing-tool",
+      "quote": "Ca = Ambient Temperature Correction Factor."
+    },
+    {
+      "n": 305,
+      "title": "Voltage drop calculation according to BS 7671 - TiSoft",
+      "url": "https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs",
+      "quote": "Thus for lightly loaded circuits this can reduce the tabulated rating (mV/A/m) by up to 20%."
+    },
+    {
+      "n": 306,
+      "title": "Voltage drop calculation according to BS 7671 - TiSoft",
+      "url": "https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs",
+      "quote": "tp is the rated maximum conductor operating temperature"
+    },
+    {
+      "n": 307,
+      "title": "Voltage drop calculation according to BS 7671 - TiSoft",
+      "url": "https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs",
+      "quote": "It is the tabulated current rating of the cable."
+    },
+    {
+      "n": 308,
+      "title": "Correction for operating temperature - Wiring and the Regulations BS 7671 - IET EngX",
+      "url": "https://engx.theiet.org/f/wiring-and-regulations/31168/correction-for-operating-temperature",
+      "quote": "The real advantage is when there are no correction factors and there is a significant difference between Ib and It."
+    },
+    {
+      "n": 309,
+      "title": "Correction for operating temperature - Wiring and the Regulations BS 7671 - IET EngX",
+      "url": "https://engx.theiet.org/f/wiring-and-regulations/31168/correction-for-operating-temperature",
+      "quote": "Say in the example above, Cg was 0.78 and no other correction factors applied, Ct would approximate to 0.99, and not worth employing."
+    },
+    {
+      "n": 310,
+      "title": "Correction for operating temperature - Wiring and the Regulations BS 7671 - IET EngX",
+      "url": "https://engx.theiet.org/f/wiring-and-regulations/31168/correction-for-operating-temperature",
+      "quote": "the calculations for the correction factor (Ct) consider only the ambient temperature and grouping factors."
+    },
+    {
+      "n": 311,
+      "title": "Correction for operating temperature - Wiring and the Regulations BS 7671 - IET EngX",
+      "url": "https://engx.theiet.org/f/wiring-and-regulations/31168/correction-for-operating-temperature",
+      "quote": "if the cable is operating well below its capacity, it won't be at 70 deg C for an ambient temperature of 30 deg C, so some account can be made of this."
+    },
+    {
+      "n": 312,
+      "title": "Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC)",
+      "url": "https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables",
+      "quote": "Where circuit cable conductors exceed 16 mm², which is common in distribution circuits used in industrial or commercial type installations, the tables for current-carrying capacity and voltage-drop in Appendix 4 of BS 7671 give separate values"
+    },
+    {
+      "n": 313,
+      "title": "Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC)",
+      "url": "https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables",
+      "quote": "then using equation 1 (z value), the calculated voltage drop for the final circuit is 16 V"
+    },
+    {
+      "n": 314,
+      "title": "Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC)",
+      "url": "https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables",
+      "quote": "However, if the load power factor is known, then using the tabulated (mV/A/m)r and (mV/A/m)x values will provide a more accurate assessment of voltage-drop"
+    },
+    {
+      "n": 315,
+      "title": "Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC)",
+      "url": "https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables",
+      "quote": "the use of the tabulated values of mv/A/m may lead to a calculated value of voltage drop which is higher than the actual value."
+    },
+    {
+      "n": 316,
+      "title": "Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC)",
+      "url": "https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables",
+      "quote": "The intention of BS 7671 in providing individual values of r, x and z in these tables is to allow for an accurate assessment of voltage-drop to accommodate loads having a large inductive element"
+    },
+    {
+      "n": 317,
+      "title": "Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC)",
+      "url": "https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables",
+      "quote": "Using equation 2 demonstrates that the final circuit would conform without unnecessarily upsizing the conductor CSA when the load power factor is known."
+    },
+    {
+      "n": 318,
+      "title": "Voltage Drop Calculation Guide - Formulas, Methods & Limits (ECalPro, a calculator site, not a standard)",
+      "url": "https://ecalpro.com/docs/voltage-drop-calculation-guide",
+      "quote": "mV/A/m = mV/A/m R × cosφ + mV/A/m X × sinφ"
+    },
+    {
+      "n": 319,
+      "title": "Voltage Drop Calculation Guide - Formulas, Methods & Limits (ECalPro, a calculator site, not a standard)",
+      "url": "https://ecalpro.com/docs/voltage-drop-calculation-guide",
+      "quote": "sinφ | Reactive factor (= √(1 − cos²φ))"
+    },
+    {
+      "n": 321,
+      "title": "Cable Sizing Calculation for Star Delta Starter - Eng-Tips (forum thread)",
+      "url": "https://www.eng-tips.com/threads/cable-sizing-calculation-for-star-delta-starter.519269",
+      "quote": "There are six conductors from the Starter (in the MCC) to the motor."
+    },
+    {
+      "n": 322,
+      "title": "Cable Sizing Calculation for Star Delta Starter - Eng-Tips (forum thread)",
+      "url": "https://www.eng-tips.com/threads/cable-sizing-calculation-for-star-delta-starter.519269",
+      "quote": "The voltage drop (VD) of each conductor is calculated (impedance of the length of the conductor x current)."
+    },
+    {
+      "n": 323,
+      "title": "Cable Sizing Calculation for Star Delta Starter - Eng-Tips (forum thread)",
+      "url": "https://www.eng-tips.com/threads/cable-sizing-calculation-for-star-delta-starter.519269",
+      "quote": "For Delta Connection, Running VD = √3 x (58% of FLC) x (2xL) x (RcosØ + XsinØ) / (No.of runs X V)"
+    },
+    {
+      "n": 324,
+      "title": "Cable Sizing Calculation for Star Delta Starter - Eng-Tips (forum thread)",
+      "url": "https://www.eng-tips.com/threads/cable-sizing-calculation-for-star-delta-starter.519269",
+      "quote": "Six leads, two cables per phase, each cable ampacity 58% of nameplate delta running current."
+    },
+    {
+      "n": 325,
+      "title": "Wye-Delta Motor Starters - PDH Online",
+      "url": "https://pdhonline.com/courses/e413/e413content.pdf",
+      "quote": "There are six power conductors from a wye-delta starter to the motor, rather than three power conductors as from a full-voltage starter to the motor."
+    },
+    {
+      "n": 326,
+      "title": "Wye-Delta Motor Starters - PDH Online",
+      "url": "https://pdhonline.com/courses/e413/e413content.pdf",
+      "quote": "because the three windings of a wye- start/delta-run motor are actually three single-phase loads."
     }
   ],
-  "at": "2026-10-20T13:21:24.241Z"
+  "at": "2026-10-20T14:34:32.393Z"
 }

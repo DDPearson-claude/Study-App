@@ -1,0 +1,625 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .scene, .strip { display: block; width: 100%; }
+  .scene .lb, .strip .lb { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tk, .strip .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .over { font: 700 13px var(--k-font); fill: var(--k-warn); }
+  .scene .zero { stroke: var(--k-line); stroke-width: 1; }
+  .scene .wv { fill: none; stroke-width: 2; stroke-linejoin: round; }
+  .scene .key { stroke-width: 3; stroke-linecap: round; }
+  .scene .rp { fill: none; stroke-width: 2.6; stroke-dasharray: 6 12; }
+  .scene .c1 { stroke: var(--k-cat1); }
+  .scene .c2 { stroke: var(--k-cat2); }
+  .scene .c3 { stroke: var(--k-cat3); }
+  .scene .br { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .gd { stroke: var(--k-muted); stroke-width: 1; stroke-dasharray: 2 3; }
+  .scene .nw { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; }
+  .scene .track, .strip .track { fill: var(--k-sunk); }
+  .scene .bl { fill: var(--k-strong); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .bn { fill: var(--k-fill1); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .bn.hot { fill: var(--k-warn); stroke: var(--k-warn); }
+  .strip .seg { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }
+  .strip .seg.on { fill: var(--k-strong); }
+  .strip .mk { stroke: var(--k-accent2); stroke-width: 3; }
+  .strip .mkh { fill: var(--k-accent2); }
+  .ctl { display: grid; gap: 8px; }
+  .replay { display: flex; justify-content: flex-end; }
+  .replay .k-btn { min-height: 44px; padding-inline: 16px; white-space: nowrap; }
+  /* Every wording of a changing sentence is laid out in the same place, only the live one seen,
+     so the sentence keeps its space and nothing below it jumps as it changes. */
+  .held { display: grid; }
+  .held > span { grid-area: 1 / 1; }
+  .held > .ghost { visibility: hidden; }
+  .rule1 { display: grid; gap: 4px; padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1px solid var(--k-line); }
+  .rule1 .eq { font-size: 1.1rem; font-weight: 800; line-height: 1.4; }
+  .rows4 { display: grid; gap: 8px; }
+  .rows4 .k-btn { width: 100%; min-height: 48px; white-space: normal; text-align: left; justify-content: flex-start; line-height: 1.35; }
+  .rows4 .k-btn.is-on { border-color: var(--k-accent2); box-shadow: inset 0 0 0 1px var(--k-accent2); }
+  .rowwhy { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.55; }
+  .w { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .wl .w { margin-top: 6px; }
+  .given { line-height: 1.55; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; font-size: 1.15rem; }
+  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  .why { line-height: 1.6; }
+  .foot { font-size: .92rem; color: var(--k-muted); line-height: 1.5; }
+  #stepbox.enter, .wl .w.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing .wl .w.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .w.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="scen"></div>
+    <div id="carryD"></div>
+    <div id="carryE"></div>
+    <p class="given" id="given"></p>
+    <p class="note" id="givenNote"></p>
+    <p class="task" id="task"></p>
+    <p class="sub" id="sub"></p>
+    <div id="wrap"><svg class="scene" id="scene" viewBox="0 0 340 334" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctl"></div>
+    <div class="replay" id="replay"></div>
+    <div class="say" id="say"></div>
+    <div class="k-readouts" id="outs"></div>
+    <div class="warn-note" id="warn1"></div>
+    <div class="rows4" id="rows4"></div>
+    <p class="rowwhy" id="rowwhy"></p>
+    <div class="rule1" id="rule1"></div>
+    <p class="note" id="maker"></p>
+    <div id="worked"></div>
+    <div class="row" id="workedgo"></div>
+    <div class="picks" id="picks"></div>
+    <div id="ans-3d"></div>
+    <div id="ans-3e"></div>
+    <div id="ans-ch"></div>
+    <div class="row" id="acts"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div class="note why" id="why"></div>
+    <p class="note" id="whatif"></p>
+    <div class="row" id="go"></div>
+    <div id="wr"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+    <p class="foot" id="foot"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Figures from your slides, assignment and BS 7671; practice values marked; each worked from the rounded figures before it.</p>
+
+<script>
+  // ---------- the rule, and the course's figures ----------
+  const RT2 = Math.SQRT2;
+  // Half up to 2 places, as the course rounds (each line worked from the rounded figure shown).
+  const r2 = (x) => Math.round(x * 100 + 1e-7) / 100;
+  const f2 = (x) => r2(x).toFixed(2);
+  const F = (id) => K.figure(id);
+  const el = (id) => document.getElementById(id);
+
+  const IL = 150;                       // A in each line: your slides' example (p.35)
+  const EDGES = [0, 15, 33, 45, 50];    // Table 4Aa's row edges (slides p.34); the slider stops at 50%
+  const FAC = [1, 0.86, 0.86, 1];
+  const FAC_T = ['1.0', '0.86', '0.86', '1.0'];
+  // On a row's edge the lower row, as the IET's answer reads "exceeding 33 %".
+  const rowOf = (hp) => (hp <= 15 ? 0 : hp <= 33 ? 1 : hp <= 45 ? 2 : 3);
+  const ibnOf = (hp, il) => r2(3 * hp / 100 * il);                    // Ibn = 3 × h × IL
+  const setsOf = (hp, il) => (rowOf(hp) >= 2 ? ibnOf(hp, il) : il);   // the current that sets the cable
+  const designOf = (hp, il) => r2(setsOf(hp, il) / FAC[rowOf(hp)]);   // ÷ Table 4Aa's factor
+
+  // The picture: each line is a fundamental plus a third harmonic, its rms held at IL,
+  // so as the third harmonic's share h grows the fundamental's shrinks (√(1 − h²) of IL).
+  const SHIFT = 2 * Math.PI / 3;        // 120° between the lines' fundamentals
+  function parts(hp) { const h = hp / 100; return { a1: RT2 * IL * Math.sqrt(1 - h * h), a3: RT2 * IL * h }; }
+  const lineAt = (k, deg, hp) => { const p = parts(hp), t = deg * Math.PI / 180 - k * SHIFT; return p.a1 * Math.sin(t) - p.a3 * Math.sin(3 * t); };
+  const rippleAt = (k, deg, hp) => { const p = parts(hp), t = deg * Math.PI / 180 - k * SHIFT; return -p.a3 * Math.sin(3 * t); };
+  const neutralAt = (deg, hp) => lineAt(0, deg, hp) + lineAt(1, deg, hp) + lineAt(2, deg, hp);
+  function rmsOf(fn) { let s = 0; const N = 3600; for (let j = 0; j < N; j++) { const v = fn(j * 360 / N); s += v * v; } return Math.sqrt(s / N); }
+
+  const fR = F('l4.recall'), fR1 = F('l4.recall.slip1'), fR2 = F('l4.recall.slip2');
+  const fC = F('l4.check'), fC1 = F('l4.check.slip1'), fC2 = F('l4.check.slip2');
+  const fW = F('l4.worked.ibn'), fIt = F('l4.worked.it'), fProd = F('l4.worked.cacg'), fIz = F('l4.worked.iz');
+  const f3a = F('3a'), f3b = F('3b'), f3d = F('3d'), f3e = F('3e');
+  const fI35 = F('l4.A.ibn35'), fE35 = F('l4.A.eq35');
+  const fCh = F('l4.A.changed'), fChN = F('l4.A.changed.ibn');
+  const RC = { il: 60, h: 35 };          // the recall's load
+  const CHK = { il: 100, h: 50 };        // the check's circuit
+  const H_SR = 20;                       // the course's practice third harmonic for DBL2's lighting, %
+  const CH = { il: 37, h: 40 };          // the changed-numbers circuit, the Schneider guide's own
+  const pcOf = (hp) => Math.round(3 * hp);   // the neutral as a % of the line, 3 × h
+
+  // The worked example (slides p.35, 36), each line from the rounded figure before it.
+  const CA = 0.94, CG = 0.65, IN = 160, TAB = 346;
+  const CACG = Math.round(CA * CG * 1000) / 1000;            // 0.611
+  const PROD = Math.round(CACG * 0.86 * 1e5) / 1e5;          // 0.52546
+  const IT = r2(IN / PROD), IZ = r2(TAB * PROD), IBN_W = ibnOf(35, IL);
+
+  // ---------- the lesson: SHOW steps teach, DO steps ask ----------
+  const CH_Q = 'A three-phase four-wire circuit carries ' + CH.il + ' A in each line, and the maker\'s data gives a third harmonic of ' + CH.h + '%. Determine the current its cable must be chosen to carry once Table 4Aa\'s factor is applied.';
+  const Q3D = '(d) Using your slides\' rule and the heaviest line current, determine the neutral current of DBL2\'s submain.';
+  const Q3E = '(e) Determine the current DBL2\'s submain cable must be chosen to carry once Table 4Aa\'s factor is applied.';
+  const STEPS = [
+    { name: 'Do you still have it?', label: 'Do you still have it?',
+      task: 'A balanced three-phase load on a four-wire supply draws ' + RC.il + ' A in each line. Its maker states a third harmonic of ' + RC.h + '% of the line current. What current flows in the neutral?',
+      opts: [fR1.text, fR2.text, fR.text], want: fR.text, why: fR.work,
+      read: 'The neutral carries ' + fR.work + '.' },
+    { show: true, name: 'What it is for', label: 'What it is for',
+      text: 'A three-phase circuit is normally designed on its line current. Some circuits, supplying rectifiers, variable-speed motor drives or fluorescent lighting banks, draw currents that are not sinusoidal (your slides p.33), and then the circuit may need designing on the *neutral current*, not the line current (p.34). The On-Site Guide asks the same of a discharge-lighting final circuit: it must carry its *harmonic currents* as well as the lamps\' current (OSG p.136).' },
+    { show: true, name: 'The why', label: 'The why',
+      text: 'Each line current is drawn as two parts: a wave at the supply frequency, the *fundamental*, and a smaller wave at three times that frequency, the *third harmonic*.',
+      read: 'At 0% the neutral carries ' + fR1.text + '; it passes the ' + IL + ' A line near a third, and at 35% carries ' + fW.work + '.' },
+    { show: true, name: 'Which current, which factor', label: 'Which current, which factor',
+      text: 'The current tables are worked for three loaded conductors (the Schneider guide). A neutral carrying harmonic current is a *fourth loaded conductor* in the same cable or conduit: BS 7671 counts it as one where the third harmonic and its multiples pass 15% (Regulation 523.6.1, as NICEIC words it). A neutral carrying only the lines\' imbalance is offset by less heat in a line; harmonic current gets no such offset (NICEIC).',
+      read: 'Up to 33%, the line current sets the cable (factor 1.0 to 15%, 0.86 above); over 33%, the neutral current (0.86 to 45%, 1.0 above).' },
+    { name: 'Check', label: 'Check',
+      task: 'A three-phase four-wire circuit carries ' + CHK.il + ' A in each line, and the maker\'s data gives a third harmonic of ' + CHK.h + '%. What current must its cable be chosen to carry, the current that sets it divided by Table 4Aa\'s factor?',
+      opts: [fC2.text, fC.text, fC1.text], want: fC.text,
+      why: 'Ibn = 3 × 0.50 × ' + CHK.il + ' = ' + fC.text + ', over 45%: the neutral current with a factor of 1.0 (your slides p.34), so ' + fC.text + '.',
+      hints: { [fC1.text]: 'Not quite. ' + fC1.work + ' keeps the 0.86, which belongs to the 33 to 45% row; above 45% the lines are not fully loaded, so the factor is 1.0.',
+        [fC2.text]: 'Not quite. ' + fC2.work + ' is the 15 to 33% row. At 50% the neutral carries ' + pcOf(CHK.h) + '% of the line, and the cable is selected on it.' },
+      read: 'Ibn = 3 × 0.50 × ' + CHK.il + ' = ' + fC.text + ', over 45%, factor 1.0: ' + fC.text + '.' },
+    { show: true, name: 'Worked example', label: 'Worked example',
+      text: 'Your slides\' example (p.35, 36), a line at each press. Work each step yourself first, then press Show the next step and check yours against it.',
+      read: 'Your slides\' example (p.35, 36): Ibn = ' + fW.text + ' is Ib; In ' + IN + ' A; It ≥ ' + fIt.work + '; 240 mm², Iz ' + fIz.text + '.' },
+    { name: 'Section A (d)', label: 'Section A · Question 3', part: Q3D,
+      task: 'Your showroom\'s DBL2 submain, three-phase and four-wire, on a practice third harmonic of ' + H_SR + '%. ' + Q3D,
+      want: f3d.text, why: f3d.work, read: 'Ibn = ' + f3d.work + ' (on a practice ' + H_SR + '%).' },
+    { name: 'Section A (e)', label: 'Section A · Question 3', part: Q3E,
+      task: 'The same submain, its neutral current ' + f3d.text + ' from part (d). ' + Q3E,
+      want: f3e.text, why: f3e.work, read: H_SR + '% is the 15 to 33% row: ' + f3e.work + ' (on a practice ' + H_SR + '%).' },
+    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer',
+      task: 'A short written answer, in your own words.' },
+    { name: 'Changed numbers', label: 'Section A · Changed numbers', part: CH_Q, task: CH_Q,
+      want: fCh.text, why: fCh.work, read: fCh.work + '.' },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, why: false, fb: null }));
+  const iWhy = 2, iRows = 3, iChk = 4, iWk = 5, iD = 6, iE = 7, iW = 8, iCh = 9, iK = 10;
+  const WORKING = [iWhy, iRows, iChk, iWk, iD, iE, iCh];   // the screens with working, where the caption belongs
+  let lastStep = -1, finished = false, lines = 0, selRow = 0, rowTapped = false;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  // Text with key terms (*term*) highlighted in amber (the <mark> element), built with K.el, never innerHTML.
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').split(/(\*[^*]+\*)/).forEach((b) => {
+      if (!b) return;
+      if (b.length > 2 && b.charAt(0) === '*' && b.charAt(b.length - 1) === '*') node.appendChild(K.el('mark', null, b.slice(1, -1)));
+      else node.appendChild(document.createTextNode(b));
+    });
+  }
+  // Every wording laid out in one place, only wording k seen (see .held).
+  function held(node, wordings, k) {
+    node.textContent = '';
+    const box = K.el('div', { class: 'held' });
+    wordings.forEach((ws, j) => {
+      const s = K.el('span', j === k ? null : { class: 'ghost', 'aria-hidden': 'true' });
+      ws.forEach((x) => s.appendChild(typeof x === 'string' ? document.createTextNode(x) : x));
+      box.appendChild(s);
+    });
+    node.appendChild(box);
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const ctlH = K.control({ id: 'h', label: 'Third harmonic', hint: 'As a share of the line current', min: 0, max: 50, step: 1, value: 0,
+    fmt: (v) => Math.round(v) + '%', snap: [15, 20, 33, 34, 35, 45], into: '#ctl' });
+  const strip = K.svg('svg', { class: 'strip', viewBox: '0 0 340 64', width: '100%', role: 'img', 'aria-label': '' });
+  el('ctl').appendChild(strip);
+  let shownH = ctlH.get();
+
+  // The demonstration on The why: the third harmonic glides up from 0% to your slides' 35%,
+  // so the ripples grow in step and the neutral climbs past the line.
+  let demoT = 0, demoOn = false, demoSeen = false;
+  const DEMO_END = 3.6;
+  const demoAt = (t) => Math.round(35 * K.ease(K.clamp((t - 0.6) / 2.8, 0, 1)));
+  function setQuiet(v) { ctlH.set(v, true); shownH = ctlH.get(); }
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    demoT += dt;
+    setQuiet(demoAt(demoT));
+    K.refresh();
+    if (demoT >= DEMO_END) { demoOn = false; return false; }
+  } });
+  function startDemo() {
+    demoT = 0;
+    if (REDUCE) { setQuiet(demoAt(DEMO_END)); demoOn = false; return; }
+    setQuiet(demoAt(0)); demoOn = true; anim.pause(); anim.play();
+  }
+  function stopDemo() { if (demoOn) { demoOn = false; anim.pause(); } }
+  const replayBtn = K.button({ label: 'Replay', secondary: true, into: '#replay', press: () => { if (at() === iWhy) startDemo(); } });
+
+  K.readout({ id: 'ibn', label: 'Neutral current, Ibn', unit: 'A', decimals: 2, into: '#outs' });
+  K.readout({ id: 'sets', label: 'Current that sets the cable', into: '#outs' });
+  K.readout({ id: 'fac', label: 'Table 4Aa factor', into: '#outs' });
+
+  // Picks: one tap answers.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length) return;
+    if (i === 0) {
+      if (st.res) return;     // a recall gets one go
+      st.pick = d.opts[k];
+      if (st.pick === d.want) {
+        st.res = 'right';
+        st.fb = { ok: true, v: 'Still there.', w: fR.work, p: 'So the neutral current, not the line current, sets the cable (your slides p.34): 35% is row 3 of Table 4Aa, the neutral current with a factor of 0.86. The slips: ' + fR1.text + ' is true of the fundamentals alone, which cancel; ' + fR2.text + ' is one line\'s third harmonic, 0.35 × ' + RC.il + ', and the three lines\' third harmonics add.' };
+      } else {
+        st.res = 'wrong';
+        st.fb = st.pick === fR1.text
+          ? { ok: false, v: 'The usual slip: the fundamentals alone.', p0: 'A balanced load\'s fundamentals do cancel in the neutral (your slides p.33), but *third harmonic* currents are additive there (IET Wiring Matters).', w: 'The working: ' + fR.work, p: 'Continue, and the refresh starts from here.' }
+          : { ok: false, v: 'The usual slip: one line only.', p0: fR2.text + ' is one line\'s third harmonic. The neutral carries the sum of the three lines\' third harmonic content (IET Wiring Matters), three times it.', w: 'The working: ' + fR.work, p: 'Continue, and the refresh starts from here.' };
+      }
+    } else if (i === iChk) {
+      if (st.res === 'right') return;
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'That\'s it.', w: d.why }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: d.hints[st.pick] || 'Not quite.' }; }
+    }
+  }
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => { if (at() === iChk) S[iChk].why = !S[iChk].why; } });
+
+  // Recall right: on to the why, or straight to the practice.
+  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === 0 && S[0].res === 'right') stepper.set(1); } });
+  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === 0 && S[0].res === 'right') stepper.set(iD); } });
+
+  // ---------- Table 4Aa's rows, tapped to read each one's line ----------
+  const ROW_LABELS = ['0 to 15%: line current, factor 1.0', '15 to 33%: line current, factor 0.86', '33 to 45%: neutral current, factor 0.86', 'Over 45%: neutral current, factor 1.0'];
+  const ROW_WHY = [
+    'Row 1, 0 to 15%: up to 15%, BS 7671 does not count the neutral as a *loaded conductor* (Regulation 523.6.1, as NICEIC words it), so the line current and a factor of 1.0 stand (your slides p.34).',
+    'Row 2, 15 to 33%: the neutral is now a loaded conductor, but the line is still the larger, so the line current is Ib. The 0.86 is a *rating factor*, heat the table did not allow for (lesson 3), here the fourth loaded conductor\'s.',
+    'Row 3, 33 to 45%: the neutral is now the larger, so the cable is selected on the *neutral current* (the Schneider guide; the IET\'s answer reads "exceeding 33 %"), still with 0.86.',
+    'Row 4, over 45%: by 45% the neutral carries ' + pcOf(45) + '% of the line, and with the cable sized on it the three lines are not fully loaded (the Schneider guide), so the factor goes back to 1.0.',
+  ];
+  const rowBtns = ROW_LABELS.map((t, k) => K.button({ label: t, secondary: true, into: '#rows4', press: () => { if (at() === iRows) { selRow = k; rowTapped = true; } } }));
+
+  // ---------- Section A: typed answers on the course's figures ----------
+  const scen = K.scenario({ into: '#scen', open: true });
+  K.carried({ parts: ['3a', '3b', '3c'], into: '#carryD' });
+  K.carried({ parts: ['3a', '3b', '3c', '3d'], into: '#carryE' });
+  const differs = (r, f) => r.value != null && Math.abs(r.value - f.value) > 0.004;
+  const GUIDE = 'The Schneider guide works the same circuit and prints 51.6 A, to one place.';
+  const SPEC = {
+    [iD]: { id: '3d', fig: f3d, accept: [], lead: '',
+      slips: [
+        { value: r2(H_SR / 100 * f3b.value), hint: 'That is one line\'s third harmonic, 0.20 × ' + f3b.text + '. The three lines\' third harmonics add in the neutral.' },
+        { value: 0, hint: 'The fundamentals cancel in the neutral; the third harmonics do not.' },
+        { value: r2(3 * f3b.value), hint: 'That leaves out the share: only the ' + H_SR + '% third harmonic adds in the neutral.' },
+        { value: f3b.value, hint: 'That is the line current. The neutral carries the three lines\' third harmonics added together.' },
+      ],
+      hint: 'Not quite. The neutral carries three times one line\'s third harmonic.',
+      rightNote: () => '', missNote: 'Part (e) starts from the course\'s figure, ' + f3d.text + '.' },
+    [iE]: { id: '3e', fig: f3e, accept: [], lead: H_SR + '% is the 15 to 33% row: the line current, with 0.86. ',
+      slips: [
+        { value: f3b.value, hint: 'That leaves out the factor. At ' + H_SR + '% the neutral is a loaded conductor, so Table 4Aa\'s 0.86 applies.' },
+        { value: r2(f3d.value / 0.86), hint: 'That divides the neutral current, the smaller here: only above 33% does the neutral set the cable.' },
+        { value: r2(f3b.value * 0.86), hint: 'That multiplies by 0.86. Rating factors divide (your slides p.25).' },
+      ],
+      hint: 'Not quite. Find ' + H_SR + '% in Table 4Aa: which current does its row use, and what factor?',
+      rightNote: () => '', missNote: '' },
+    [iCh]: { id: 'l4.A.changed', fig: fCh, accept: [51.6], lead: '',
+      slips: [
+        { value: fChN.value, hint: 'That leaves out the 0.86: ' + CH.h + '% is in the 33 to 45% row.' },
+        { value: r2(CH.il / 0.86), hint: 'That divides the line current. Over 33% the neutral current sets the cable.' },
+        { value: r2(fChN.value * 0.86), hint: 'That multiplies by 0.86. Rating factors divide.' },
+      ],
+      hint: 'Not quite. Work the neutral current first, then find ' + CH.h + '% in Table 4Aa.',
+      rightNote: () => GUIDE, missNote: GUIDE },
+  };
+  const BOX = { [iD]: '#ans-3d', [iE]: '#ans-3e', [iCh]: '#ans-ch' };
+  const ANS = {};
+  Object.keys(SPEC).forEach((key) => {
+    const i = +key, sp = SPEC[i];
+    const a = K.answer({ id: sp.id, unit: 'A', answer: sp.fig.value, tolerance: 0.005, accept: sp.accept, slips: sp.slips, into: BOX[i],
+      onCheck: (r) => {
+        const st = S[i];
+        if (st.shown) return;
+        if (r.state === 'right') {
+          st.res = 'right';
+          const p = (differs(r, sp.fig) ? 'That is within rounding of the course\'s ' + sp.fig.text + '. ' : '') + sp.rightNote(r);
+          st.fb = { ok: true, v: 'Right.', w: sp.lead + sp.fig.work, p };
+        } else if (r.state === 'wrong') {
+          st.tries += 1;
+          if (st.tries >= 2) {
+            st.shown = true; st.res = 'shown';
+            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.lead + sp.fig.work, p: sp.missNote };
+            a.reveal();
+          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }
+        } else { st.res = r.state; st.fb = null; }
+        K.refresh();
+      } });
+    ANS[i] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });
+
+  // ---------- Section B and Keep this ----------
+  const wB = K.written({ id: 'b1', into: '#wr', onMark: () => K.refresh() });
+  el('wr').addEventListener('click', () => K.refresh());
+  K.summary({ into: '#keep' });
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+
+  // ---------- the worked example, a line at each press ----------
+  const WLINES = [
+    '35% is row ' + (rowOf(35) + 1) + ' of Table 4Aa: the cable is sized on the neutral current',
+    'Ibn = ' + fW.work + ', more than ' + IL + ' A, so Ibn is Ib',
+    'In: ' + IN + ' A, from Fig 3A3(b)',
+    'Ca ' + CA + ' at 35 °C; Cg ' + CG + ', four circuits bunched (Table 4C1); Table 4Aa 0.86',
+    CA + ' × ' + CG + ' = ' + CACG.toFixed(3) + '; ' + CACG.toFixed(3) + ' × 0.86 = ' + PROD.toFixed(5),
+    'It ≥ ' + IN + ' ÷ ' + PROD.toFixed(5) + ' = ' + f2(IT) + ' A',
+    'Table 4D1A, column 5: 240 mm², ' + TAB + ' A in that column (your copy p.448)',
+    'Iz = ' + TAB + ' × ' + PROD.toFixed(5) + ' = ' + f2(IZ) + ' A, so ' + f2(IBN_W) + ' ≤ ' + IN + ' ≤ ' + f2(IZ),
+  ];
+  const wbox = K.el('div', { class: 'wl' }, K.el('p', null, 'A three-phase circuit with a harmonic content of 35% and a load of ' + IL + ' A: single-core 70 °C thermoplastic cable on Reference Method B, grouped with three other circuits at an ambient of 35 °C, protected by a BS 88-2 fuse.'));
+  const wlines = WLINES.map((t) => { const w = K.el('p', { class: 'w' }, t); wbox.appendChild(w); return w; });
+  el('worked').appendChild(wbox);
+  const cutNote = K.el('p', { class: 'foot' }, 'Your slides print 304.4 A, cut short; the cable is the same.');
+  el('worked').appendChild(cutNote);
+  const nextLine = K.button({ label: 'Show the next step', into: '#workedgo', press: () => {
+    if (at() !== iWk || lines >= wlines.length) return;
+    const w = wlines[lines]; lines += 1;
+    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');
+  } });
+
+  // ---------- fixed words on their screens ----------
+  (function fixed() {
+    const wn = el('warn1');
+    wn.appendChild(K.el('b', null, 'If it is skipped: '));
+    wn.appendChild(document.createTextNode('the neutral current gives rise to additional heating of the cables (IET Wiring Matters 23), and it comes without any matching fall in the line currents (NICEIC, Regulation 523.6.3), so a cable sized on the line current alone does not allow for it.'));
+    const r = el('rule1');
+    r.appendChild(K.el('span', { class: 'k-label' }, 'Your slides p.36'));
+    r.appendChild(K.el('p', { class: 'eq' }, 'It ≥ In ÷ (Ca × Cg × the Table 4Aa factor)'));
+    r.appendChild(K.el('p', { class: 'sub' }, 'The factor goes in with the others. Before a device is chosen, the Schneider guide divides the current that sets the cable by it, giving the design load.'));
+    write(el('maker'), 'No neutral, no neutral current: a three-phase motor often has no neutral connected (your slides p.33).');
+    write(el('given'), 'DBL2\'s submain is fed three-phase and four-wire, as the course\'s split of its lighting circuits across L1 to L3 (lesson 2) needs, and most of its load is the key\'s fluorescent modular and twin fittings. The course takes their *third harmonic as ' + H_SR + '%*, a practice value.');
+    write(el('givenNote'), 'The maker\'s figure: your slides consider harmonics only when the maker\'s data states one, and then its percentage goes into these sums (p.37). No datasheet exists for the drawing\'s own fittings; on the job, no maker\'s figure means none is applied, so this part shows the method on a practice value. Makers often print *total harmonic distortion* (THD), which counts every harmonic, not the third alone (a Thorn luminaire datasheet: THD 15.00%), so read which figure the datasheet gives, and say which you used. For scale, IEC 61000-3-2 limits the third harmonic of lighting equipment (Class C) to 30 × the circuit power factor, in percent (Advanced Energy\'s note). The course applies the ' + H_SR + '% to the whole of the heaviest line, L1, though an LED circuit shares it: a cautious simplification, its own.');
+    write(el('whatif'), f3e.work + ' is what the Schneider guide calls the *design load*. Once a device is chosen, In takes Ib\'s place: It ≥ In ÷ (Ca × Cg × 0.86) (your slides p.36), as lesson 8 does for this submain, so ' + f3e.text + ' is a floor, not the It the cable is finally chosen on. If the maker\'s figure were 35% (your slides\' example percentage, not a showroom figure): ' + fI35.work + ', and ' + fE35.work + '.');
+  })();
+
+  // ---------- the pictures ----------
+  const svg = el('scene');
+  function add(tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; svg.appendChild(n); return n; }
+  function txt(x, y, s, cls, anchor) { return add('text', { x, y, class: cls, 'text-anchor': anchor || 'start' }, s); }
+  const X0 = 30, XW = 306, KA = 0.1, YL = 56, YR = 140, YN = 214, BW = 336 / 240;
+  const xOf = (deg) => X0 + deg / 360 * XW;
+  function wave(fn, y0) { let d = ''; for (let g = 0; g <= 360; g += 3) d += (g ? ' L' : 'M') + xOf(g).toFixed(1) + ' ' + (y0 - fn(g) * KA).toFixed(1); return d; }
+  function drawWhy(hp) {
+    svg.setAttribute('viewBox', '0 0 340 334');
+    txt(2, 14, 'Line currents over one cycle', 'lb');
+    [0, 1, 2].forEach((k) => { const x = 226 + k * 38; add('line', { x1: x, y1: 10, x2: x + 12, y2: 10, class: 'key c' + (k + 1) }); txt(x + 16, 14, 'L' + (k + 1), 'lb'); });
+    [YL, YR, YN].forEach((y) => { add('line', { x1: X0, y1: y, x2: 336, y2: y, class: 'zero' }); txt(26, y + 4, '0 A', 'tk', 'end'); });
+    [0, 1, 2].forEach((k) => add('path', { d: wave((g) => lineAt(k, g, hp), YL), class: 'wv c' + (k + 1) }));
+    // The 120° between L1's and L2's peaks: one whole cycle of the ripple, so the ripples line up.
+    const bx1 = xOf(90), bx2 = xOf(210), by = 92;
+    [bx1, bx2].forEach((x) => add('line', { x1: x.toFixed(1), y1: YL, x2: x.toFixed(1), y2: by - 5, class: 'gd' }));
+    add('path', { d: 'M' + bx1.toFixed(1) + ' ' + (by - 5) + ' L' + bx1.toFixed(1) + ' ' + by + ' L' + bx2.toFixed(1) + ' ' + by + ' L' + bx2.toFixed(1) + ' ' + (by - 5), class: 'br' });
+    txt((bx1 + bx2) / 2, by + 12, hp > 0 ? '120° = one ripple cycle' : '120° between L1 and L2', 'tk', 'middle');
+    txt(2, 120, hp > 0 ? 'Each line\'s ripple: all three lie on one wave' : 'Each line\'s ripple: none at 0%', 'lb');
+    [0, 1, 2].forEach((k) => add('path', { d: wave((g) => rippleAt(k, g, hp), YR), class: 'rp c' + (k + 1), style: 'stroke-dashoffset:' + k * 6 }));
+    txt(2, 176, 'Neutral: the three lines added at each instant', 'lb');
+    add('path', { d: wave((g) => neutralAt(g, hp), YN), class: 'nw' });
+    const n = ibnOf(hp, IL), over = n > IL;
+    txt(2, 268, 'Line, each: ' + IL + ' A', 'lb');
+    add('rect', { x: 2, y: 274, width: 336, height: 14, rx: 3, class: 'track' });
+    add('rect', { x: 2, y: 274, width: (IL * BW).toFixed(1), height: 14, rx: 3, class: 'bl' });
+    txt(2, 308, 'Neutral', 'lb');
+    if (over) txt(338, 308, 'more than a line', 'over', 'end');
+    add('rect', { x: 2, y: 314, width: 336, height: 14, rx: 3, class: 'track' });
+    if (n > 0) add('rect', { x: 2, y: 314, width: Math.max(2, n * BW).toFixed(1), height: 14, rx: 3, class: 'bn' + (over ? ' hot' : '') });
+    svg.setAttribute('aria-label', 'Three line currents over one cycle, ' + (hp > 0 ? 'each with a ripple at three times the frequency, the three ripples in step; a bracket marks the 120° between L1 and L2 as one whole ripple cycle' : 'plain waves a third of a cycle apart') +
+      '; below, the neutral, their sum at each instant; bars compare the neutral with the ' + IL + ' A line: the neutral is ' + (over ? 'larger' : n === 0 ? 'empty' : 'smaller'));
+  }
+  function sAdd(tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; strip.appendChild(n); return n; }
+  function drawStrip(hp) {
+    strip.textContent = '';
+    const xs = (p) => 10 + p * 6.4, r = rowOf(hp);
+    sAdd('text', { x: 2, y: 13, class: 'lb' }, 'Table 4Aa\'s rows, by third harmonic (%)');
+    for (let k = 0; k < 4; k++) sAdd('rect', { x: xs(EDGES[k]).toFixed(1), y: 20, width: (xs(EDGES[k + 1]) - xs(EDGES[k])).toFixed(1), height: 14, class: 'seg' + (k === r ? ' on' : '') });
+    const x = xs(hp);
+    sAdd('line', { x1: x.toFixed(1), y1: 18, x2: x.toFixed(1), y2: 36, class: 'mk' });
+    sAdd('path', { d: 'M' + x.toFixed(1) + ' 36 L' + (x - 6).toFixed(1) + ' 46 L' + (x + 6).toFixed(1) + ' 46 Z', class: 'mkh' });
+    sAdd('text', { x: 10, y: 60, class: 'tk', 'text-anchor': 'start' }, '0');
+    [15, 33, 45].forEach((p) => sAdd('text', { x: xs(p).toFixed(1), y: 60, class: 'tk', 'text-anchor': 'middle' }, String(p)));
+    sAdd('text', { x: 330, y: 60, class: 'tk', 'text-anchor': 'end' }, '50');
+    strip.setAttribute('aria-label', 'Table 4Aa\'s four rows along the third harmonic, edges at 15, 33 and 45%; the setting is in row ' + (r + 1));
+  }
+
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) { const p = K.el('p'); write(p, f.p0); fb.appendChild(p); }
+    if (f.w) fb.appendChild(K.el('p', { class: 'w' }, f.w));
+    if (f.p) { const p = K.el('p'); write(p, f.p); fb.appendChild(p); }
+  }
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) {
+    const d = STEPS[i], st = S[i];
+    if (d.show) return true;
+    if (i === 0) return st.res === 'wrong';
+    if (i === iChk) return st.res === 'right';
+    if (ANS[i]) return st.res === 'right' || st.shown;
+    if (i === iW) return !!(wB && wB.answered && wB.answered());
+    return false;
+  }
+
+  K.model((p) => { const r = rowOf(p.h); return { ibn: ibnOf(p.h, IL), sets: r >= 2 ? 'Neutral current' : 'Line current', fac: FAC_T[r] + ', row ' + (r + 1), row: r + 1 }; });
+
+  const ON = { scen: [iD, iE], carryD: [iD], carryE: [iE], given: [iD, iE], givenNote: [iD], wrap: [iWhy], ctl: [iWhy], replay: [iWhy], say: [iWhy], outs: [iWhy],
+    warn1: [1], rows4: [iRows], rowwhy: [iRows], rule1: [iRows], maker: [iRows], worked: [iWk], workedgo: [iWk], picks: [0, iChk],
+    'ans-3d': [iD], 'ans-3e': [iE], 'ans-ch': [iCh], wr: [iW], keep: [iK], fin: [iK] };
+
+  K.update(() => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) {
+      if (lastStep !== -1) enter();
+      lastStep = i;
+      if (i === iWhy) { if (!demoSeen) { demoSeen = true; startDemo(); } } else stopDemo();
+      if (i === iRows && !rowTapped) selRow = rowOf(ctlH.get());
+      if (scen && scen.el) scen.el.open = i === iD;
+    } else if (i === iWhy) {
+      const ph = ctlH.get();
+      if (ph !== shownH) { stopDemo(); shownH = ph; }
+    }
+    if (i !== iWhy) shownH = ctlH.get();
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+    el('cap').hidden = WORKING.indexOf(i) < 0;
+
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.part || (d.kind ? '' : d.task));
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    sub.textContent = i === iWhy ? 'Your slides\' ' + IL + ' A in each line (p.35), held as the third harmonic grows. ' + (REDUCE ? 'Drag the third harmonic.' : 'Drag the third harmonic, or Replay.')
+      : i === iRows ? 'Table 4Aa, as your slides give it (p.34). Tap a row to read why.'
+      : i === iCh ? 'A City & Guilds question shape with new numbers: the Schneider guide\'s own circuit.' : i === iK ? 'One card to come back to on a real job.' : '';
+    sub.hidden = !sub.textContent;
+
+    // The picture for The why.
+    svg.textContent = '';
+    if (i === iWhy) {
+      const hp = ctlH.get();
+      drawWhy(hp);
+      drawStrip(hp);
+      const n = ibnOf(hp, IL), r = rowOf(hp), nt = f2(n) + ' A';
+      held(el('say'), [
+        ['No third harmonic: plain waves a third of a cycle apart, adding to nothing at every instant. The neutral carries ' + f2(0) + ' A.'],
+        ['Each line gains a ripple at three times the frequency. The three rise and fall together and add: ' + nt + ' in the neutral, under the ' + IL + ' A line, which sets the cable.'],
+        ['The ripples add to ' + nt + ' in the neutral, under the ' + IL + ' A line, which still sets the cable; the neutral\'s own heat now counts too.'],
+        ['The ripples add to ' + nt + ' in the neutral, more than the ' + IL + ' A line, so now the neutral current sets the cable.'],
+        ['The ripples add to ' + nt + ' in the neutral, ' + pcOf(hp) + '% of the line: the neutral sets the cable, and the lines are no longer fully loaded.'],
+      ], hp === 0 ? 0 : r + 1);
+    }
+    replayBtn.el.hidden = REDUCE;
+    if (REDUCE) el('replay').hidden = true;
+
+    // Table 4Aa's rows.
+    rowBtns.forEach((b, k) => { b.el.classList.toggle('is-on', k === selRow); b.el.setAttribute('aria-pressed', k === selRow ? 'true' : 'false'); });
+    write(el('rowwhy'), ROW_WHY[selRow]);
+
+    // Picks.
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      const done = st.res === 'right' || (i === 0 && st.res === 'wrong');
+      b.el.classList.toggle('is-right', done && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    // The worked example's lines.
+    wlines.forEach((w, k) => { w.hidden = k >= lines; });
+    cutNote.hidden = lines < wlines.length;
+    nextLine.el.hidden = lines >= wlines.length;
+    if (i === iWk) el('workedgo').hidden = lines >= wlines.length;
+
+    // Check and Why?
+    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);
+    checkBtn.el.hidden = !typed || typedDone;
+    whyBtn.el.hidden = i !== iChk || !st.pick;
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    el('acts').hidden = checkBtn.el.hidden && whyBtn.el.hidden;
+    paintFb(st.fb);
+    const why = el('why');
+    why.hidden = i !== iChk || !st.why;
+    write(why, i === iChk ? d.why : '');
+    el('whatif').hidden = !(i === iE && (S[iE].res === 'right' || S[iE].shown));
+    el('go').hidden = !(i === 0 && st.res === 'right');
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+    el('foot').textContent = i === iWhy ? 'The other triple harmonics (the 9th, the 15th) add the same way (IET Wiring Matters 23). How high a real neutral goes depends on the load: a maker\'s note gives up to 173% of phase current (Wired IN, 2007), a paper up to three times the phase current at the fundamental frequency (IJEAT).'
+      : i === iD || i === iE ? 'Shaped like a City & Guilds 2396 Section A question, on your own assignment\'s DBL2 lighting (lesson 2).' : '';
+    el('foot').hidden = !el('foot').textContent;
+
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i) || (i === 0 && st.res === 'right');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const near = (a, b) => K.near(a, b, 1e-9);
+  K.check('At 0% the 120° shift makes the three line currents cancel in the neutral at every instant', () => {
+    for (let g = 0; g <= 360; g += 5) if (Math.abs(neutralAt(g, 0)) > 1e-9) return false;
+    return K.at({ h: 0 }).ibn === 0;
+  }, { source: 'https://federalpacific.com/wp-content/uploads/2026/04/Wired-IN-Triplen-Harmonics.pdf' });
+  K.check('The neutral\'s current equals the sum of the three lines\' third harmonic content: at 35%, 3 × 52.50 = 157.50 A', () => {
+    const one = rmsOf((g) => rippleAt(0, g, 35)), all = rmsOf((g) => neutralAt(g, 35));
+    return K.near(one, 52.5, 0.01) && K.near(all, 3 * one, 0.01) && K.near(all, K.at({ h: 35 }).ibn, 0.01);
+  }, { source: 'https://electrical.theiet.org/media/1076/2016_62_autumn_wiring_matters.pdf' });
+  K.check('Each line stays at 150 A as the third harmonic grows: the fundamental shrinks to make room', () =>
+    [0, 20, 35, 50].every((hp) => K.near(rmsOf((g) => lineAt(1, g, hp)), IL, 0.01)));
+  K.check('The rule gives the case file\'s figures: 0, 67.50, 90.00, 148.50, 153.00, 157.50, 202.50 and 225.00 A at 0, 15, 20, 33, 34, 35, 45 and 50%', () =>
+    K.at({ h: 0 }).ibn === fR1.value && near(K.at({ h: 15 }).ibn, F('l4.why.15').value) && near(K.at({ h: 20 }).ibn, F('l4.why.20').value) &&
+    near(K.at({ h: 33 }).ibn, F('l4.why.33').value) && near(K.at({ h: 34 }).ibn, F('l4.why.34').value) && near(K.at({ h: 35 }).ibn, fW.value) &&
+    near(K.at({ h: 45 }).ibn, F('l4.why.45').value) && near(K.at({ h: 50 }).ibn, F('l4.why.50').value));
+  K.check('The neutral rises at every step and passes the 150 A line between 33% and 34%', () => {
+    for (let hp = 0; hp < 50; hp++) if (!(K.at({ h: hp + 1 }).ibn > K.at({ h: hp }).ibn)) return false;
+    return K.at({ h: 33 }).ibn < IL && K.at({ h: 34 }).ibn > IL;
+  });
+  K.check('Table 4Aa\'s rows: 15% row 1, 16% and 33% row 2 on the line, 34% and 45% row 3 on the neutral, 46% row 4', () => {
+    const o = (hp) => K.at({ h: hp });
+    return o(15).row === 1 && o(16).row === 2 && o(33).row === 2 && o(33).sets === 'Line current' && o(34).row === 3 && o(34).sets === 'Neutral current' &&
+      o(45).row === 3 && o(46).row === 4 && o(46).fac === '1.0, row 4' && o(20).fac === '0.86, row 2';
+  });
+  K.check('If the neutral current is more than 135% of the phase current the phases are not fully loaded: 45% gives exactly 135%', () =>
+    near(K.at({ h: 45 }).ibn / IL, 1.35) && pcOf(45) === 135,
+  { source: 'https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor' });
+  K.check('37 A at 40% third harmonic: neutral 37 × 0.4 × 3 = 44.4 A, design load 44.4 ÷ 0.86 = 51.6 A', () =>
+    near(ibnOf(CH.h, CH.il), 44.4) && K.near(44.4 / 0.86, 51.6, 0.05),
+  { source: 'https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor' });
+  K.check('The recall and check: 63.00, 0.00 and 21.00 A; 150.00, 174.42 and 116.28 A, as the case file works them', () =>
+    near(ibnOf(RC.h, RC.il), fR.value) && fR1.value === 0 && near(r2(RC.h / 100 * RC.il), fR2.value) &&
+    near(designOf(CHK.h, CHK.il), fC.value) && near(r2(ibnOf(CHK.h, CHK.il) / 0.86), fC1.value) && near(r2(CHK.il / 0.86), fC2.value) && pcOf(CHK.h) === 150);
+  K.check('The worked example: 0.611 and 0.52546, It 304.50 A, Iz 181.81 A, as the case file works it', () =>
+    near(CACG, 0.611) && near(PROD, fProd.value) && near(IT, fIt.value) && near(IZ, fIz.value) && near(IBN_W, fW.value) && rowOf(35) === 2);
+  K.check('Section A from the rule: 4.93, 1.64, 24.66; 9.56, 5.73, 7.07; what-if 8.63 and 10.03; changed 44.40, 51.63, 43.02, 38.18 A', () =>
+    near(ibnOf(H_SR, f3b.value), f3d.value) && near(r2(H_SR / 100 * f3b.value), F('3d.slip1').value) && near(r2(3 * f3b.value), F('3d.slip2').value) &&
+    near(designOf(H_SR, f3b.value), f3e.value) && near(r2(f3d.value / 0.86), F('3e.slip2').value) && near(r2(f3b.value * 0.86), F('3e.slip3').value) &&
+    near(ibnOf(35, f3b.value), fI35.value) && near(designOf(35, f3b.value), fE35.value) &&
+    near(ibnOf(CH.h, CH.il), fChN.value) && near(designOf(CH.h, CH.il), fCh.value) && near(r2(CH.il / 0.86), F('l4.A.changed.slip2').value) &&
+    near(r2(fChN.value * 0.86), F('l4.A.changed.slip3').value));
+  K.check('The demonstration opens at 0% and settles on your slides\' 35%', () => demoAt(0) === 0 && demoAt(DEMO_END) === 35);
+  K.check('Every slip lies outside its answer\'s accepted range', () => Object.keys(SPEC).every((k) => {
+    const sp = SPEC[k];
+    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > 0.01 && sp.accept.every((x) => Math.abs(s.value - x) > 0.01));
+  }));
+
+  K.ready();
+</script>

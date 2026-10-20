@@ -1,0 +1,985 @@
+{
+  "iid": "i3",
+  "title": "Device and cable: Ib ≤ In ≤ Iz, the factors and overload",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the fuse's I2 pass the cable's 1.45 Iz in red, then meet it at 20.00 A as the Iz needed rises to 13.79 A, when you choose the fuse and apply Cf.",
+    "title": "The device, the cable, the overload",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A refresher lesson in twelve screens, with Back and Continue between them, on choosing the protective device and the cable it protects. Screen 1, Do you still have it?: “Your slides' heater circuit (p.26, 27): In 16 A, in a warm room all along the run (Ca 0.94). The cable is clipped direct, then runs in trunking with another circuit (Cg 0.8), then leaves the trunking to pass through a cavity wall with 50 mm of thermal insulation (Ci 0.88). What tabulated current It must the cable have?” Three choices, in this order: 19.34 A, 21.28 A, 24.18 A. Right: “Still there.”, the working 16 ÷ (0.94 × 0.8) = 21.28 A, the worse of the two places (your slides print 21.2 A, cut short),[^1] and a line each on the slips: 24.18 A multiplies factors that never act together; 19.34 A is the easier place. Two buttons: Refresh the why (on to screen 2) and Skip to the practice (straight to screen 7). Wrong, 24.18 A: rating factors need only be applied when happening together,[^2] and the trunking and the insulation are in different places, so each place is worked on its own. Wrong, 19.34 A: that is the insulated part, 16 ÷ (0.94 × 0.88);[^3] the trunking runs hotter and needs 21.28 A, and the cable must survive its worst place. Then the right working and on to screen 2, with no skip. Read: It is 21.28 A, the worse of the two places; all three multiplied gives 24.18 A. Screen 2, What it is for: the chain Ib ≤ In ≤ Iz (Regulation 433.1.1, slides p.22):[^4] the device's rating or current setting at least the design current,[^5] and the cable's current-carrying capacity where it is installed at least the device's. The table's figure, It, is for a single circuit at the table's ambient;[^6] Iz is what the cable carries continuously where it actually runs.[^7] One more condition: the current that finally operates the device, I2, no more than 1.45 Iz.[^8] In red, if it is skipped or wrong: a cable carrying more than it can shed runs hot, and over time that damages insulation, joints, terminations and their surroundings.[^9] Screen 3, The why: the run in sections. Opening text: anything that makes the cable artificially warm needs a rating factor;[^10] Ca for the ambient, Cg for grouping,[^11] Ci for insulation. Each means the cable reaches its limit at a lower current, so the factors divide In to give the It the table must show.[^12] The picture: your slides' heater circuit (p.26) drawn as its route in three sections, left to right, named short on the drawing: Clipped (clipped direct), Trunking (in trunking with another circuit), Insulated wall (through the wall's insulation). Each section shows the factors acting there and the It it needs, worked from the figures shown: clipped, Ca 0.94: 16 ÷ 0.94 = 17.02 A; trunking, 0.94 × 0.8 = 0.752: 16 ÷ 0.752 = 21.28 A; wall, 0.94 × 0.88 = 0.8272: 16 ÷ 0.8272 = 19.34 A. The section needing the highest It is outlined in ink and named: it sets the cable, and its reference method sets the column:[^13] your slides count only two methods in this run, B in the trunking and C clipped direct, and design to B; the wall has no column of its own here (slides p.28). Under the picture: the trunking needs the most, as the warm room starts the cable warmer and the other circuit stops it shedding its heat. “Tap a section to read its working.” A switch, Insulation inside the trunking too: on, the trunking section has all three, 16 ÷ (0.94 × 0.8 × 0.88) = 24.18 A, the one place where multiplying all three is right, and the outline stays on it. Two lines under it: Cg always counts the circuit being installed (slides p.25); and a cable expected to carry not more than 30% of its grouped rating may be ignored when finding the factor for the rest of the group (Table 4C1 note 9).[^14] Read: the trunking section sets the cable at 21.28 A; only where all three act in one place is it 24.18 A. Screen 4, The why: overload, two marks on one current line. Opening text: I2 is the current causing effective operation of the device; most devices have an I2 of 1.45 times In.[^15] How long that takes, the sources differ: a maker gives its type B breakers from 6 to 63 A,[^59] like its C and D,[^16][^17] operation within 1 hour at 1.45 In, its conventional time; your slides say it can take 10,000 s, about 2.8 hours.[^60] The design does not hang on the time: the cable must carry I2 for as long as the device takes, so I2 ≤ 1.45 Iz,[^18] a factor that keeps small overloads from deteriorating the cable.[^19] The picture: one horizontal current axis from 0 to 25 A, the device's marks above it (In, and I2 in ink), the cable's below it (Iz, and 1.45 Iz). A named choice, Device: 10 A type B breaker, 10 A rewireable fuse; and a switch, Apply Cf = 0.725, live only for the fuse. Breaker: I2 = 10 × 1.45 = 14.50 A;[^20] the cable is your slides' 1.0 mm² twin and earth, Iz 13 A (p.31),[^21] and 1.45 × 13 = 18.85 A: I2 sits below it, “Passes”. Fuse: a BS 3036 fuse's I2 can be up to twice, with its rating matched to the cable,[^22] 2 × 10 = 20.00 A, past 18.85 A, the I2 mark in red, “Fails: the cable could carry 20.00 A until the fuse opens”. Cf on: In must not exceed 0.725 Iz,[^23] so the cable needs Iz ≥ 10 ÷ 0.725 = 13.79 A,[^24] and 1.45 × 13.79 = 20.00 A: the cable's marks rise and 1.45 Iz meets the fuse's I2, “Passes with Iz 13.79 A: the 13 A cable is too small behind this fuse”. Two lines: 0.725 is 1.45 ÷ 2, the breaker's 1.45 over the fuse's 2; and breakers to BS EN 60898 and fuses to BS 88 meet I2 ≤ 1.45 Iz whenever Ib ≤ In ≤ Iz holds (Regulation 433.1.201),[^51] as the breaker here does, while a rewireable fuse needs Cf and a motor's thermal relay is checked on its maker's curve.[^52] The status line and the I2 and Iz figures change when the marks arrive. Read: a 10 A breaker's 14.50 A is within the 13 A cable's 18.85 A; a 10 A rewireable fuse reaches 20.00 A and needs a cable with Iz of 13.79 A. Screen 5, Check: “Seven circuits are bunched in one trunking. Four will each carry not more than 30% of their grouped rating. For the Cg of the other three, what is the fewest circuits you may count?” Choices: 7 (counting all seven is allowed and cautious, but note 9 lets the light ones go), 3 (right), 2 (the circuit being installed always counts, slides p.25). Why?: the four may be ignored;[^14] each of the other three counts itself and the other two, and three circuits bunched take 0.70 (Table 4C1 item 1).[^25] Read: three circuits count, Cg 0.70. Screen 6, Worked example, a line at each press: your slides p.27, 0.94 × 0.8 = 0.752; 16 ÷ 0.752 = 21.28 A;[^1] 0.94 × 0.88 = 0.8272; 16 ÷ 0.8272 = 19.34 A;[^3] design to 21.28 A, on Reference Method B, the one with the biggest impact;[^13] 2.5 mm² from column 7 of Table 4D5 (p.28). Then p.30 to 32: I2 = 10 × 1.45 = 14.50 A;[^20] Iz 13 A;[^21] 13 × 1.45 = 18.85 A, above 14.50 A: the cable lasts.[^18] One line: your slides print 21.2 A, cut short (21.28 A rounds to 21.3 A); their 19.3 A and 14.5 A are right; nothing changes. Screen 7, Section A, question 1 (c): the scenario panel (pack p.3, 4)[^26][^27][^28] and (a) and (b) carried forward. Given: the standard ratings near it, 16, 20, 25 and 32 A (On-Site Guide p.145).[^29] “(c) Determine the smallest standard rating of the circuit-breaker at DBP2 for the motor circuit.” A typed answer (part 1c, whole amperes): 25 A, the smallest not below Ib, 23.08 A.[^5] Slips: 16 A (below Ib: the breaker carries the line current, not the output's 15.88 A or a winding's 13.33 A), 20 A (below Ib), 32 A (it would do, but 25 A is the smallest). After it, the type, as a choice: a motor takes much more current starting than running;[^30][^31] a star-delta start draws roughly 2 to 2.7 times full-load current, against 6 to 8 times direct-on-line (a calculator site's table, not a standard);[^32][^33] the course takes 2.7, a practice value: 2.7 × 23.08 = 62.32 A (the motor's maker gives the real figure). Instantaneous trip at 25 A: type B 3 to 5 In, 75 to 125 A;[^34] type C 5 to 10 In, 125 to 250 A, the type the On-Site Guide names for small motors;[^35] type D 10 to 20 In, 250 to 500 A.[^36] “Which type of breaker, for the practice start of 62.32 A?” Type B, Type C, Type D, each with its trip at 25 A. Right, C: the On-Site Guide names it for small motors, and the course chooses it, its own assumption: clear of the start with more room than B. B: it clears 62.32 A too, but its trip starts at 75 A, little room, and the real start may be higher. D: it clears the start by far more than it needs; the On-Site Guide names D for transformers, X-ray machines and industrial welding. One more go after a miss. Then the overload: the course puts the starter's thermal relay in the delta circuit (its assumption), where it is set to 0.58 × the motor's full-load (nameplate) current[^37] (0.58 is 1 ÷ √3, rounded) and never higher than the phase current,[^38] 23.08 ÷ √3 = 13.33 A; that setting is the In of the starter-to-motor cables.[^5] After two misses the working ends and part (d) starts from the course's figures. Read: 25 A, type C (the course's choice); the relay at 13.33 A guards the motor's cables against overload. Screen 8, Section A, question 1 (d): (a) to (c) carried forward. Given: the room at 20 °C;[^27] six 90 °C thermosetting singles from the starter to the motor,[^39] sized on the delta running conditions,[^40] in one conduit on the consultation bay's wall, clear of insulation (the course's assumption: Ci and Cf are 1). First a choice, “How many circuits do the six singles count as for Cg?”: 6 (note 5 counts singles in threes), 3 (n/2 is for circuits of two loaded conductors; these are three-phase), 2 (right). Its feedback: in delta running all six carry winding current,[^41] and n singles count as n/3 circuits of three loaded conductors for three-phase circuits:[^42][^43] two circuits, bunched and enclosed, Cg 0.80 (Table 4C1 item 1).[^25] Then Ca, labelled a practice value: Table 4B1 is for ambients other than 30 °C,[^44] and its first row, 25 °C, gives 1.02 for 90 °C thermosetting;[^45] the course takes 1.00 at 20 °C, which takes no credit for the cool room: read the real treatment from your copy of Table 4B1. “(d) Taking Ca as 1.00, determine the minimum tabulated current-carrying capacity, It, of the starter-to-motor cables.” A typed answer (part 1d): 13.33 ÷ (1.00 × 0.80) = 16.66 A; 16.65 A (from the unrounded winding current) and 16.68 or 16.69 A (√3 taken as 1.73) also accepted. Slips: 13.33 A (Cg left out), 23.08 A (the line current, and Cg left out), 28.85 A (the line current: these cables carry a winding's), 31.25 A (the breaker's 25 A: the relay is their overload device), 16.34 A (Ca 1.02, the 25 °C row: fair in a design, but the question takes 1.00; the cable comes out the same). Read: It ≥ 13.33 ÷ (1.00 × 0.80) = 16.66 A. Screen 9, Section A, question 1 (e) and (f): (a) to (d) carried forward. “(e) State the table and the column.” A choice: Table 4E1A, column 5 (Reference Method B, 3 or 4 cables, three-phase AC) (right); Table 4E1A, column 4 (Method B, 2 cables: single-phase); Table 4E1A, column 3 (Method A: conduit in a thermally insulating wall). Feedback: 90 °C thermosetting singles, non-armoured, are Table 4E1A;[^46] conduit on a wall is Reference Method B;[^47][^48] two three-phase circuits read the 3 or 4 cables column. “(f) Determine the minimum CSA of the starter-to-motor cables.” Under it: read column 5 in your copy (p.458). A typed answer (part 1f, mm²): 1.5. Slips: 1 (Cg left out: 13.33 A fits it), 2.5 (sized on the line current, 23.08 A), 4 (the line current ÷ 0.80, 28.85 A). Feedback: 1 mm² carries 15 A, under 16.66 A;[^49] 1.5 mm² carries 20 A, the smallest that passes.[^50] Then a line: these are 90 °C ratings, fair only if the starter's and motor's terminals are designed for 90 °C; if they are designed for less, the cables are rated at the terminals' temperature (Table 4E1A note 1),[^61] and at 70 °C Table 4D1A[^62] column 5 gives 1.5 mm² only 15.5 A, under 16.66 A:[^63] check the terminals before settling on 1.5 mm². Iz = 20 × 1.00 × 0.80 = 16.00 A, so 13.33 ≤ 13.33 ≤ 16.00. Iz 16.00 A is below the 25 A breaker at DBP2: for these cables that breaker gives protection against fault current only, which lesson 7 checks. A thermal relay is not one of the devices Regulation 433.1.201 lists (screen 4),[^51] so its own curve is read from its maker:[^52] it must operate by 1.45 × 16.00 = 23.20 A. A conduit fixed to a masonry wall may carry more;[^53] the course takes no credit for it. Read: Table 4E1A, column 5; 1.5 mm², Iz 16.00 A. Screen 10, Section B: “State a hazard of an overload current in a circuit, and explain how the design keeps a small overload from harming the cable.” Your written answer, marked against four points (a full answer makes any three, so at least one hazard and one design point), one more go, then the model answer. Screen 11, Section A, changed numbers: “An older circuit is protected by a 15 A semi-enclosed (rewireable) fuse to BS 3036, and no other rating factor applies. Determine the minimum tabulated current-carrying capacity, It, of its cable.” A typed answer: 15 ÷ 0.725 = 20.69 A.[^24] Slips: 15.00 A (Cf left out), 10.88 A (multiplied by 0.725), 21.75 A (1.45 × 15: a breaker's I2, not It). Read: It ≥ 15 ÷ 0.725 = 20.69 A. Screen 12, Keep this: the summary card, then Finish the lesson. The line under the lesson (figures from your slides, your assignment and your copy of BS 7671; practice values marked; each line worked from the rounded figures before it) shows on screens 3, 4, 6 to 9 and 11.",
+    "ignores": "The sections are drawn by the factors acting in them, not by a measured temperature. The marks on the current line are single figures: a real device operates within a band, and sooner the further the current is above In. The fuse's I2 is drawn at twice In, the figure Cf allows for; a particular fuse's may be lower. Ca, Cg and Ci are treated as separate causes of heat, as the tables treat them. The 90 °C ratings assume the starter's and motor's terminals can run that hot; if they are designed for less, Table 4E1A note 1 rates the cables at the lower temperature. Short circuits and earth faults are other lessons: a device that protects against overload must still be checked for those.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 12 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Slides' heater circuit: In, A",
+        "value": 16,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Slides' heater circuit: Ca",
+        "value": 0.94,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Slides' heater circuit: Cg",
+        "value": 0.8,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Slides' heater circuit: Ci",
+        "value": 0.88,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "It for Ca and Cg, 16 ÷ 0.752, A",
+        "value": 21.28,
+        "kind": "computed"
+      },
+      {
+        "label": "It for Ca and Ci, 16 ÷ 0.8272, A",
+        "value": 19.34,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, all three multiplied, A",
+        "value": 24.18,
+        "kind": "computed"
+      },
+      {
+        "label": "Slides' printed It for Ca and Cg, A",
+        "value": 21.2,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Slides' printed It for Ca and Ci, A",
+        "value": 19.3,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Ca × Cg",
+        "value": 0.752,
+        "kind": "computed"
+      },
+      {
+        "label": "Ca × Ci",
+        "value": 0.8272,
+        "kind": "computed"
+      },
+      {
+        "label": "It clipped direct, 16 ÷ 0.94, A",
+        "value": 17.02,
+        "kind": "computed"
+      },
+      {
+        "label": "Lightly loaded limit, % of grouped rating",
+        "value": 30,
+        "kind": "constant",
+        "source": 14
+      },
+      {
+        "label": "Most devices' I2, × In",
+        "value": 1.45,
+        "kind": "constant",
+        "source": 15
+      },
+      {
+        "label": "Maker's breakers covered, up to, A",
+        "value": 63,
+        "kind": "constant",
+        "source": 16
+      },
+      {
+        "label": "Maker's time at 1.45 In, within, hours",
+        "value": 1,
+        "kind": "constant",
+        "source": 16
+      },
+      {
+        "label": "Slides' time at I2 (p.30), s",
+        "value": 10000,
+        "kind": "constant",
+        "source": 60
+      },
+      {
+        "label": "Slides' breaker rating, A",
+        "value": 10,
+        "kind": "constant",
+        "source": 20
+      },
+      {
+        "label": "Breaker I2, 10 × 1.45, A",
+        "value": 14.5,
+        "kind": "computed",
+        "source": 20
+      },
+      {
+        "label": "Slides' cable: 1.0 mm² twin and earth, Iz, A",
+        "value": 13,
+        "kind": "constant",
+        "source": 21
+      },
+      {
+        "label": "Cable limit, 1.45 × 13, A",
+        "value": 18.85,
+        "kind": "computed"
+      },
+      {
+        "label": "Current axis, 0 to, A",
+        "value": 25,
+        "kind": "assumed"
+      },
+      {
+        "label": "BS 3036 fuse's I2, up to × (Cf's figure)",
+        "value": 2,
+        "kind": "constant",
+        "source": 22
+      },
+      {
+        "label": "Fuse I2, 2 × 10, A",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Cf for a BS 3036 fuse",
+        "value": 0.725,
+        "kind": "constant",
+        "source": 24
+      },
+      {
+        "label": "Iz needed behind the fuse, 10 ÷ 0.725, A",
+        "value": 13.79,
+        "kind": "computed"
+      },
+      {
+        "label": "Its limit, 1.45 × 13.79, A",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Check: circuits bunched",
+        "value": 7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Check: circuits lightly loaded",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Check: circuits to count",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Cg, three circuits bunched (Table 4C1)",
+        "value": 0.7,
+        "kind": "constant",
+        "source": 25
+      },
+      {
+        "label": "Slides' cable for the heater, mm²",
+        "value": 2.5,
+        "kind": "constant",
+        "source": 13
+      },
+      {
+        "label": "Slides' column in Table 4D5",
+        "value": 7,
+        "kind": "constant",
+        "source": 13
+      },
+      {
+        "label": "Slides' printed I2, A",
+        "value": 14.5,
+        "kind": "constant",
+        "source": 20
+      },
+      {
+        "label": "Showroom supply, V",
+        "value": 400,
+        "kind": "constant",
+        "source": 26
+      },
+      {
+        "label": "Showroom Ze, Ω",
+        "value": 0.1,
+        "kind": "constant",
+        "source": 26
+      },
+      {
+        "label": "Showroom prospective fault current, kA",
+        "value": 4.6,
+        "kind": "constant",
+        "source": 26
+      },
+      {
+        "label": "Showroom ambient, °C",
+        "value": 20,
+        "kind": "constant",
+        "source": 27
+      },
+      {
+        "label": "Motor output, kW",
+        "value": 11,
+        "kind": "constant",
+        "source": 28
+      },
+      {
+        "label": "Motor power factor",
+        "value": 0.8,
+        "kind": "constant",
+        "source": 28
+      },
+      {
+        "label": "Motor efficiency, %",
+        "value": 86,
+        "kind": "constant",
+        "source": 28
+      },
+      {
+        "label": "Part 1a: motor Ib, A",
+        "value": 23.08,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1b: each winding in delta, A",
+        "value": 13.33,
+        "kind": "computed"
+      },
+      {
+        "label": "Output-only current from lesson 1, A",
+        "value": 15.88,
+        "kind": "computed"
+      },
+      {
+        "label": "Standard ratings shown, A",
+        "value": "16, 20, 25, 32",
+        "kind": "constant",
+        "source": 29
+      },
+      {
+        "label": "Part 1c: breaker rating, A",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "Star-delta start, × full-load current (range)",
+        "value": "2 to 2.7",
+        "kind": "constant",
+        "source": 32
+      },
+      {
+        "label": "Direct-on-line start, × full-load current",
+        "value": "6 to 8",
+        "kind": "constant",
+        "source": 33
+      },
+      {
+        "label": "Star start multiple used (practice value)",
+        "value": 2.7,
+        "kind": "constant",
+        "source": 32
+      },
+      {
+        "label": "Practice star start, 2.7 × 23.08, A",
+        "value": 62.32,
+        "kind": "computed"
+      },
+      {
+        "label": "Type B instantaneous trip, × In",
+        "value": "3 to 5",
+        "kind": "constant",
+        "source": 34
+      },
+      {
+        "label": "Type C instantaneous trip, × In",
+        "value": "5 to 10",
+        "kind": "constant",
+        "source": 35
+      },
+      {
+        "label": "Type D instantaneous trip, × In",
+        "value": "10 to 20",
+        "kind": "constant",
+        "source": 36
+      },
+      {
+        "label": "Type B at 25 A, A",
+        "value": "75 to 125",
+        "kind": "computed"
+      },
+      {
+        "label": "Type C at 25 A, A",
+        "value": "125 to 250",
+        "kind": "computed"
+      },
+      {
+        "label": "Type D at 25 A, A",
+        "value": "250 to 500",
+        "kind": "computed"
+      },
+      {
+        "label": "Relay setting, × motor In",
+        "value": 0.58,
+        "kind": "constant",
+        "source": 37
+      },
+      {
+        "label": "Starter-to-motor singles",
+        "value": 6,
+        "kind": "constant",
+        "source": 39
+      },
+      {
+        "label": "Cable temperature rating, °C",
+        "value": 90,
+        "kind": "constant",
+        "source": 46
+      },
+      {
+        "label": "Circuits the six singles count as",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Cg, two circuits bunched and enclosed",
+        "value": 0.8,
+        "kind": "constant",
+        "source": 25
+      },
+      {
+        "label": "Table 4B1's base ambient, °C",
+        "value": 30,
+        "kind": "constant",
+        "source": 44
+      },
+      {
+        "label": "Table 4B1's first row, °C",
+        "value": 25,
+        "kind": "constant",
+        "source": 45
+      },
+      {
+        "label": "Ca at 25 °C, 90 °C thermosetting",
+        "value": 1.02,
+        "kind": "constant",
+        "source": 45
+      },
+      {
+        "label": "Ca at 20 °C (practice value)",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Part 1d: It, 13.33 ÷ 0.80, A",
+        "value": 16.66,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1d from the unrounded winding current, A",
+        "value": 16.65,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1d with √3 as 1.73, A",
+        "value": "16.68 or 16.69",
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1d slip, line current ÷ 0.80, A",
+        "value": 28.85,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1d slip, the breaker's 25 A ÷ 0.80, A",
+        "value": 31.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1d slip, Ca 1.02, A",
+        "value": 16.34,
+        "kind": "computed"
+      },
+      {
+        "label": "Table 4E1A columns offered",
+        "value": "3, 4, 5",
+        "kind": "constant",
+        "source": 47
+      },
+      {
+        "label": "Column 5: 1 mm², A",
+        "value": 15,
+        "kind": "constant",
+        "source": 49
+      },
+      {
+        "label": "Column 5: 1.5 mm², A",
+        "value": 20,
+        "kind": "constant",
+        "source": 50
+      },
+      {
+        "label": "Part 1f: minimum CSA, mm²",
+        "value": 1.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1f slips, mm²",
+        "value": "1, 2.5, 4",
+        "kind": "computed"
+      },
+      {
+        "label": "Iz, 20 × 1.00 × 0.80, A",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Relay must operate by, 1.45 × 16.00, A",
+        "value": 23.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Your copy of BS 7671, page",
+        "value": 458,
+        "kind": "constant",
+        "source": 46
+      },
+      {
+        "label": "Changed numbers: fuse rating, A",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Changed numbers: It, 15 ÷ 0.725, A",
+        "value": 20.69,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed numbers slip, Cf left out, A",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed numbers slip, 15 × 0.725, A",
+        "value": 10.88,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed numbers slip, 1.45 × 15, A",
+        "value": 21.75,
+        "kind": "computed"
+      },
+      {
+        "label": "Slides' wall insulation, mm",
+        "value": 50,
+        "kind": "constant"
+      },
+      {
+        "label": "Maker's type B breakers covered, from, A",
+        "value": 6,
+        "kind": "constant",
+        "source": 59
+      },
+      {
+        "label": "Slides' time in hours, 10,000 ÷ 3600",
+        "value": 2.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Slides' 21.28 A to one place, A",
+        "value": 21.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Terminals at the lower temperature (Table 4D1A), °C",
+        "value": 70,
+        "kind": "constant",
+        "source": 62
+      },
+      {
+        "label": "Table 4D1A column 5: 1.5 mm², A",
+        "value": 15.5,
+        "kind": "constant",
+        "source": 63
+      }
+    ]
+  },
+  "explain": {
+    "text": "The device protects the cable, so the device is chosen from the load and the cable from the device: Ib ≤ In ≤ Iz.[^4] The device's rating or setting must be at least the design current,[^5] and the cable must carry at least that much where it runs hottest. A device also lets more than its rating flow for a while before it opens, so the cable must survive that too: I2 ≤ 1.45 Iz.[^8]\n\nStart with heat. The table's figure, It, is for one circuit at the table's ambient;[^6] what the cable can carry where it is actually installed is its [[current-carrying capacity]], Iz.[^7] Anything that makes the cable artificially warm, a hotter room or thermal insulation, needs a [[rating factor]],[^10] and so do other circuits beside it: Ca for the ambient, Cg for grouping,[^11] Ci for insulation. A warm room starts the conductor warmer, and neighbours or insulation stop it shedding its heat, so a smaller current takes it to its maximum temperature: the cable can carry less there. To carry In in that place it needs a bigger table figure, which is why the factors divide: It ≥ In ÷ (Ca × Cg × Ci × Cf).[^12] A factor only counts where its heat is: they are applied together only when they happen together.[^2] On your slides' heater circuit the ambient acts everywhere, the grouping in the trunking and the insulation in the wall, so It is 16 ÷ (0.94 × 0.8) = 21.28 A in one place and 16 ÷ (0.94 × 0.88) = 19.34 A in the other, and the cable is designed to the higher,[^1][^3] on the reference method that cuts Iz the most.[^13]\n\nThen the overload. I2 is the current that makes the device operate, and most devices have an I2 of 1.45 times In:[^15] a 10 A breaker, 14.50 A.[^20] Your slides' 1.0 mm² cable has an Iz of 13 A,[^21] so it can take up to 1.45 × 13 = 18.85 A,[^18] and 14.50 A is inside that; the 1.45 keeps small overloads from deteriorating the cable.[^19] A rewireable fuse to BS 3036 has a much higher I2, up to twice, with its rating matched to the cable,[^22] so 2 × 10 = 20.00 A would pass the cable's 18.85 A. Keep the fuse's In to 0.725 Iz[^23] (your slides' Cf = 0.725)[^24] and the cable needs Iz ≥ 10 ÷ 0.725 = 13.79 A, whose 1.45 × 13.79 = 20.00 A meets the fuse's I2 exactly, because 0.725 is 1.45 ÷ 2.\n\nOn the showroom, the motor's line current, 23.08 A, sets a 25 A breaker, but the six cables from the starter carry a winding's current, and the starter's relay is set to it, 13.33 A;[^37] counted as two circuits, Cg 0.80,[^42][^43][^25] and with Ca taken as 1.00, a practice value, they need It ≥ 16.66 A: 1.5 mm². **Size the cable for its hottest place and for the current that finally operates its device: It ≥ In ÷ (the factors acting together), and I2 ≤ 1.45 Iz.**[^12][^18]"
+  },
+  "analogy": {
+    "text": "Think of a hoist whose overload cut-out lets the load run 45% past the plate rating before it stops it. The rope has to hold that 45% for as long as the cut-out takes, so you check the rope against the cut-out's point, not the plate. Fit a cut-out that lets the load reach twice the plate rating and you either fit a heavier rope or lower the plate rating, to 0.725 of what the rope is good for. A warm, crowded or lagged run is a rope that has lost some strength: you size for its weakest length.",
+    "breaks": "A rope fails by force, at once. A cable fails by heat, over time: a small overload for a long time can do the damage a large one does quickly, which is why I2 comes with a time and why the cable is allowed 1.45 Iz rather than Iz while the device decides."
+  },
+  "practice": {
+    "text": "- Start from Ib (lesson 1). Choose In: the smallest standard rating, or the setting, not below Ib.[^5] Choose the device type for the starting current:[^54] instantaneous trip at 3 to 5 In for type B,[^34] 5 to 10 In for type C[^35] and 10 to 20 In for type D;[^36] a motor or discharge lighting takes much more current starting than running,[^30] and the starting characteristics may need a higher In.[^55]\n- Walk the route and list, for each part of it, the factors acting there: Ca for the ambient of that part; Cg where it is grouped, counting the circuit itself (slides p.25); Ci where it passes through insulation; Cf = 0.725 behind a BS 3036 rewireable fuse.[^24] A cable expected to carry not more than 30% of its grouped rating may be left out of the group.[^14]\n- Work It ≥ In ÷ (the factors acting together) for each part, and design to the highest;[^2] read the column of the reference method that cuts Iz the most.[^13]\n- Pick the smallest CSA whose tabulated figure is at least It; then Iz = that figure × the same factors except Cf, and check Ib ≤ In ≤ Iz.[^4]\n- Check I2 ≤ 1.45 Iz.[^8] For breakers to BS EN 60898 and fuses to BS 88 it is met once Ib ≤ In ≤ Iz holds (a BS 3036 fuse needs Cf);[^51] for a thermal relay in a motor circuit, read its own curve from the maker.[^52]\n\n**Rule of thumb:** each factor is heat the table did not allow for, so it belongs to a place on the run; multiply only the ones that share a place. The tables are in Appendix 4 of BS 7671, which is informative:[^56][^57] they are the usual way to show the cable will not overheat.\n\n**Worked example:** the showroom motor (Ib 23.08 A, star-delta, 20 °C). The breaker: 25 A, type C, the course's choice.[^35] The six starter-to-motor singles carry a winding's current, 13.33 A, which the starter's thermal relay is set to[^37][^38] and the cables are sized on.[^40] Six singles are two three-phase circuits,[^43] bunched in one conduit: Cg 0.80.[^25] With Ca taken as 1.00 (a practice value: Table 4B1 starts at 25 °C, where it gives 1.02),[^45] It ≥ 13.33 ÷ (1.00 × 0.80) = 16.66 A. Table 4E1A, Reference Method B, 3 or 4 cables: 1 mm² carries 15 A, too little; 1.5 mm² carries 20 A.[^49][^50] Iz = 20 × 1.00 × 0.80 = 16.00 A, so the relay must operate by 1.45 × 16.00 = 23.20 A, read from its maker.[^52]\n\n**Common mistakes**\n- Multiplying factors that never act together: 24.18 A where 21.28 A is right.[^2]\n- Designing to the easier section or reference method.[^13]\n- Leaving the circuit itself out of Cg (slides p.25).\n- A rewireable fuse without Cf: its I2 passes the cable's 1.45 Iz.[^22]\n- Sizing a star-delta motor's six cables on the line current: they carry a winding's.[^41]\n- An overload left unchecked heats the conductors and, over time, damages insulation, joints and terminations;[^9] it can lead to fire.[^58]"
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "written": {
+    "b1": {
+      "q": "State a hazard of an overload current in a circuit, and explain how the design keeps a small overload from harming the cable.",
+      "points": [
+        {
+          "text": "An overload heats the circuit conductors well above the temperature they were chosen for.",
+          "cite": "Professional Electrician (NICEIC), how the overload requirements of BS 7671 are applied, in research"
+        },
+        {
+          "text": "Over time that heat damages the insulation, joints and terminations and what surrounds them, and it can lead to fire.",
+          "cite": "Professional Electrician (NICEIC); IET Wiring Matters, Mythbuster #11 (November 2024), in research"
+        },
+        {
+          "text": "The current that finally operates the device, I2, must not exceed 1.45 Iz, so a small overload does not deteriorate the cable before the device opens.",
+          "cite": "Slides p.29 to 32; IET, changes to Appendix 4, in research"
+        },
+        {
+          "text": "A rewireable BS 3036 fuse needs more current to operate (a fusing factor above 1.45), so its rating is kept to 0.725 Iz (Cf = 0.725).",
+          "cite": "Slides p.25"
+        }
+      ],
+      "need": 3,
+      "model": "An overload makes the circuit conductors run hotter than the temperature they were chosen for, and over time that damages the insulation, joints and terminations and what surrounds them; it can lead to fire. The design guards the cable first with Ib ≤ In ≤ Iz, and then with I2 ≤ 1.45 Iz: the current that finally makes the device operate must not exceed 1.45 times the cable's current-carrying capacity, so a small overload that lasts until the device opens does not deteriorate the cable (your slides p.32). A rewireable fuse to BS 3036 can need up to about twice its rating to operate, so its rating is kept to 0.725 Iz, your slides' Cf (p.25)."
+    }
+  },
+  "summary": {
+    "title": "Device and cable",
+    "for": "The device protects the cable, so it is chosen from Ib and the cable from the device, where the cable runs hottest: Ib ≤ In ≤ Iz. The cable must also take the current that finally operates the device: I2 ≤ 1.45 Iz (Regulation 433.1.1; slides p.22, 32).",
+    "rule": "Ib ≤ In ≤ Iz, and I2 ≤ 1.45 Iz\nIt ≥ In ÷ (Ca × Cg × Ci × Cf), only the factors that act together\nIz = tabulated figure × the same factors, except Cf\nBS 3036 fuse: Cf = 0.725 (1.45 ÷ 2)\n\nWork It for each part of the run and design to the highest, on the reference method that cuts Iz most (slides p.25, 27, 28).\nCg counts the circuit itself; a cable at no more than 30% of its grouped rating may be left out (Table 4C1 note 9).\nBS EN 60898 breakers, BS 88 fuses: I2 ≤ 1.45 Iz is met once Ib ≤ In ≤ Iz holds (Regulation 433.1.201).\nA motor's thermal relay: In is its setting; check its own curve.",
+    "traps": [
+      {
+        "text": "Multiplying factors that never act together (24.18 A where 21.28 A is right), or designing to the easier section or reference method.",
+        "cite": "Slides p.25, 27, 28"
+      },
+      {
+        "text": "Leaving the circuit being installed out of Cg.",
+        "cite": "Slides p.25"
+      },
+      {
+        "text": "A rewireable fuse without Cf: its I2 can pass the cable's 1.45 Iz.",
+        "cite": "Slides p.25; Professional Electrician (NICEIC), in research"
+      },
+      {
+        "text": "Sizing a star-delta motor's six cables on the line current: they carry a winding's current.",
+        "cite": "Pack p.4 (delta running conditions); Schneider Electric and Siemens, in research"
+      },
+      {
+        "text": "Reading 90 °C ratings when the starter's or motor's terminals are designed for less: rate the cables at the terminals' temperature (at 70 °C, 1.5 mm² carries only 15.5 A).",
+        "cite": "Table 4E1A note 1; Table 4D1A column 5 (your copy p.448, 458)"
+      }
+    ],
+    "where": "Your slides p.20 to 32; the flowchart, steps 2 to 6; the formula sheet, step 4; BS 7671 Regulation 433.1.1 and Tables 4B1, 4C1 and 4E1A (your copy p.441 to 458); the On-Site Guide p.90 for breaker types.",
+    "figures": [
+      "1a",
+      "1b",
+      "1c",
+      "1d",
+      "1e",
+      "1f"
+    ]
+  },
+  "sources": [
+    {
+      "n": 1,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p27",
+      "quote": "16 / 0.94 x 0.8 = 21.2A (this is the It of the cable for Ca and Cg)"
+    },
+    {
+      "n": 2,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p25",
+      "quote": "rating factors need only be applied when happening TOGETHER."
+    },
+    {
+      "n": 3,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p27",
+      "quote": "16 / 0.94 x 0.88 = 19.3A (this is the It of the cable for Ca and Ci)"
+    },
+    {
+      "n": 4,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p22",
+      "quote": "Regulation 433.1.1 explains the following: Ib ≤ In ≤ Iz"
+    },
+    {
+      "n": 5,
+      "title": "Requirements for Protection Against Overload - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/requirements-protection-overload",
+      "quote": "The rated current or current setting of the protective device (In) should not be less than the design current (Ib) of the circuit."
+    },
+    {
+      "n": 6,
+      "title": "2008 28 Autumn Wiring Matters",
+      "url": "https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf",
+      "quote": "The value of current tabulated in this appendix for the type of cable and installation method concerned, for a single circuit in the ambient temperature stated in the current-carrying capacity tables."
+    },
+    {
+      "n": 7,
+      "title": "2008 28 Autumn Wiring Matters",
+      "url": "https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf",
+      "quote": "The current-carrying capacity of a cable for continuous service, under the particular installation conditions concerned."
+    },
+    {
+      "n": 8,
+      "title": "Requirements for Protection Against Overload - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/requirements-protection-overload",
+      "quote": "The current (I2) causing effective operation of the protective device should not exceed 1.45 times the lowest current-carrying capacity (Iz) of any of the conductors of the circuit."
+    },
+    {
+      "n": 9,
+      "title": "How are the requirements for overload current in BS 7671 to be applied? - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/how-are-the-requirements-for-overload-current-in-bs-7671-to-be-applied",
+      "quote": "Should an overload occur in a circuit where there is no overload protection provided, the temperature of the circuit conductors is liable to increase significantly which, over time, may lead to damage of insulation, joints and terminations of the conductors and/or their surroundings."
+    },
+    {
+      "n": 10,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p24",
+      "quote": "Anything that causes the cable to be artificially warm, such as running through thermal insulation, or a higher ambient temperature will mean the cable will need downrating through an appropriate rating factor."
+    },
+    {
+      "n": 11,
+      "title": "2008 28 Autumn Wiring Matters",
+      "url": "https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf",
+      "quote": "Ca is rating factor for ambient temperature, see Table 4B1 of BS 7671 Cg is rating factor for grouping see, Table 4C1 of BS 7671"
+    },
+    {
+      "n": 12,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p25",
+      "quote": "Rating factors are applied as divisors to the rating or setting of the protective device (In)"
+    },
+    {
+      "n": 13,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p28",
+      "quote": "We need to design to the reference method which has the biggest impact on the cables maximum current carrying capacity (Iz)."
+    },
+    {
+      "n": 14,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p443",
+      "quote": "a cable is expected to carry not more than 30 % of its grouped rating, it may be ignored for the purpose of obtaining the rating factor for the rest of the group"
+    },
+    {
+      "n": 15,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p30",
+      "quote": "Most devices have an I2 of 1.45 times their In…."
+    },
+    {
+      "n": 16,
+      "title": "— Electrical installation solutions for buildings – Technical details MCBs",
+      "url": "https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj",
+      "quote": "C 0.5 to 63 A 1.13 · In > 1 h 5 · In > 0.1 s 1.45 · In < 1 h 10 · In < 0.1 s"
+    },
+    {
+      "n": 17,
+      "title": "— Electrical installation solutions for buildings – Technical details MCBs",
+      "url": "https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj",
+      "quote": "D 0.5 to 63 A 1.13 · In > 1 h 10 · In > 0.1 s 1.45 · In < 1 h 20 · In < 0.1 s"
+    },
+    {
+      "n": 18,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p32",
+      "quote": "I2 ≤ Iz x 1.45"
+    },
+    {
+      "n": 19,
+      "title": "ChAnges to Appendix 4 of Amendment 1 of Bs 7671:2008",
+      "url": "https://electrical.theiet.org/media/1522/changes-to-appendix-4-of-amendment-1-of-bs7671-2008.pdf",
+      "quote": "the factor of 1.45 ensures that deterioration of cables does not result from small overloads."
+    },
+    {
+      "n": 20,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p30",
+      "quote": "So, a 10A type B circuit breaker has an I2 of 10 x 1.45 = 14.5A."
+    },
+    {
+      "n": 21,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p31",
+      "quote": "it has an Iz of 13A."
+    },
+    {
+      "n": 22,
+      "title": "Requirements for Protection Against Overload - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/requirements-protection-overload",
+      "quote": "This is to compensate for the high value of I2 of a BS 3036 fuse, which can be up to 2 × Iz."
+    },
+    {
+      "n": 23,
+      "title": "Requirements for Protection Against Overload - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/requirements-protection-overload",
+      "quote": "Where the protective device is a semienclosed (rewireable) fuse to BS 3036, the requirement of condition 3 is met where In does not exceed 0.725 times the current-carrying capacity of the circuit conductors (Iz)"
+    },
+    {
+      "n": 24,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p25",
+      "quote": "Cf = Rating factor when overload protection is provided by devices with fusing factors greater than 1.45 (ie: Cf = 0.725 for semi enclosed fuses to BS 3036)"
+    },
+    {
+      "n": 25,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p443",
+      "quote": "Bunched in air, on a | 1.00 | 0.80 | 0.70 | 0.65 | 0.60 | 0.57 | 0.54 | 0.52 | 0.50 | 0.45 | 0.41 | 0.38 A to F"
+    },
+    {
+      "n": 26,
+      "title": "ED4-01A learner pack: car showroom assignment",
+      "url": "material:learner-pack#p3",
+      "quote": "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+    },
+    {
+      "n": 27,
+      "title": "ED4-01A learner pack: car showroom assignment",
+      "url": "material:learner-pack#p3",
+      "quote": "Ambient temperature is 20 degrees Celsius."
+    },
+    {
+      "n": 28,
+      "title": "ED4-01A learner pack: car showroom assignment",
+      "url": "material:learner-pack#p4",
+      "quote": "Within the consultation bay there will be an additional requirement for a 400 V three-phase 11 kW motor which operates at a power factor of 0.8 lagging and efficiency of 86%."
+    },
+    {
+      "n": 29,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p145",
+      "quote": "10 15 16 20 25 30 32 40 45 50"
+    },
+    {
+      "n": 30,
+      "title": "Requirements for Protection Against Overload - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/requirements-protection-overload",
+      "quote": "In particular, certain types of electrical load such as discharge lighting, AC induction motors and transformers take a much higher current during starting than during normal operation."
+    },
+    {
+      "n": 31,
+      "title": "Asynchronous motors - Electrical Installation Guide",
+      "url": "https://www.electrical-installation.org/enwiki/Asynchronous_motors",
+      "quote": "The high start-up current means that motor overload protective devices must have operating characteristics which avoid tripping during the starting period."
+    },
+    {
+      "n": 32,
+      "title": "Star Delta Starter Calculator (Contactor Sizing) | ElectroMechCalc",
+      "url": "https://www.electromechcalc.com/electrical/star-delta-starter",
+      "quote": "Star-delta | ≈ 2–2.7 × FLC"
+    },
+    {
+      "n": 33,
+      "title": "Star Delta Starter Calculator (Contactor Sizing) | ElectroMechCalc",
+      "url": "https://www.electromechcalc.com/electrical/star-delta-starter",
+      "quote": "Direct on line (DOL) | 6–8 × FLC"
+    },
+    {
+      "n": 34,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p90",
+      "quote": "B 3 to 5 In switching surge"
+    },
+    {
+      "n": 35,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p90",
+      "quote": "C 5 to 10 In the use of fluorescent lighting, small motors, etc., can"
+    },
+    {
+      "n": 36,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p90",
+      "quote": "D 10 to 20 In Suitable for transformers, X-ray machines, industrial welding"
+    },
+    {
+      "n": 37,
+      "title": "In a star-delta starter, how can I incorporate a thermal overload relay as per Type 1 or Type 2 coordination? | Schneider Electric UK",
+      "url": "https://www.se.com/uk/en/faqs/FA86594/",
+      "quote": "Type 1 coordination The thermal overload relay is placed in the delta circuit and must be set to 0.58 x motor In."
+    },
+    {
+      "n": 38,
+      "title": "Direct-On-Line and Automatic Star – Delta Starter",
+      "url": "https://assets.new.siemens.com/siemens/assets/api/uuid:0439c3a6-f14d-4b93-bf1b-a874d46b4dd3/industrial-new-dol-11-55kwand-asd-22-55kw-operating-instruction.pdf",
+      "quote": "under no circumstances should the relay be set higher than phase current i.e. 0.58 times the rated current on the motor nameplate."
+    },
+    {
+      "n": 39,
+      "title": "Wye Delta Wire Sizing | PLCtalk - Interactive Q & A",
+      "url": "https://www.plctalk.net/forums/threads/wye-delta-wire-sizing.7577",
+      "quote": "When wiring a motor to a Wye-Delta starter, 6 wires are run to the motor and connected to the motor terminals T1-T6. Each end of each winding has its own wire connected to it."
+    },
+    {
+      "n": 40,
+      "title": "ED4-01A learner pack: car showroom assignment",
+      "url": "material:learner-pack#p4",
+      "quote": "Base your selection on the delta running conditions and any other factors present."
+    },
+    {
+      "n": 41,
+      "title": "Star Delta Starter Calculator (Contactor Sizing) | ElectroMechCalc",
+      "url": "https://www.electromechcalc.com/electrical/star-delta-starter",
+      "quote": "In delta running the supply reaches each winding from two directions — one end through KM1, the other through KM3 — which is why both carry winding current rather than line current."
+    },
+    {
+      "n": 42,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p443",
+      "quote": "it may either be considered as n/2 circuits of two loaded conductors or n/3 circuits of three loaded conductors"
+    },
+    {
+      "n": 43,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p170",
+      "quote": "n/3 circuits of three loaded conductors (for three-phase circuits)"
+    },
+    {
+      "n": 44,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p441",
+      "quote": "TABLE 4B1 — Rating factors (C,) for ambient air temperatures other than 30 °C"
+    },
+    {
+      "n": 45,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p441",
+      "quote": "25 1.04 1.03 1.02 1.07 1.04"
+    },
+    {
+      "n": 46,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p458",
+      "quote": "TABLE 4E1A — Single-core 90 °C thermosetting insulated cables, non-armoured,"
+    },
+    {
+      "n": 47,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p458",
+      "quote": "Reference Method A Reference Method B Reference Method C Reference Method F Reference Method G"
+    },
+    {
+      "n": 48,
+      "title": "2008 28 Autumn Wiring Matters",
+      "url": "https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf",
+      "quote": "Non-sheathed cables in conduit mounted on a wooden or masonry wall"
+    },
+    {
+      "n": 49,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p458",
+      "quote": "1 14 13 17 15 19 17.5"
+    },
+    {
+      "n": 50,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p458",
+      "quote": "1.5 19 17 23 20 25 23"
+    },
+    {
+      "n": 51,
+      "title": "BS 7671: Protection against overload current | NICEIC & ELECSA - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/bs-7671-protection-against-overload-current-niceic-elecsa",
+      "quote": "Regulation 433.1.201 states, where conditions (i) and (ii) are met (and I b ≤ I n ≤ I z ), condition (iii) will also be met where the following protective devices are employed:"
+    },
+    {
+      "n": 52,
+      "title": "Requirements for Protection Against Overload - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/requirements-protection-overload",
+      "quote": "such as a thermal overload protective device in a motor circuit, it will be necessary for the electrical installation designer to refer to the device characteristics in order to ensure compliance with all aspects of Regulation 433.1.1."
+    },
+    {
+      "n": 53,
+      "title": "2008 28 Autumn Wiring Matters",
+      "url": "https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf",
+      "quote": "Where the conduit is fixed to a masonry wall the current-carrying capacity of the non-sheathed or sheathed cable may be higher."
+    },
+    {
+      "n": 54,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p20",
+      "quote": "The different ‘types’ are in relation to the start up current of a circuit."
+    },
+    {
+      "n": 55,
+      "title": "Requirements for Protection Against Overload - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/requirements-protection-overload",
+      "quote": "However, due to the starting characteristics of the load a higher value of In may be necessary for certain loads (Regulation 533.2.1 refers)"
+    },
+    {
+      "n": 56,
+      "title": "2011 40 Autumn Wiring Matters",
+      "url": "https://electrical.theiet.org/media/1053/2011_40_autumn_wiring_matters__complete_adverts.pdf",
+      "quote": "Appendix 4 is an informative appendix within BS 7671."
+    },
+    {
+      "n": 57,
+      "title": "Ambient Temperature Correction Factor - Wiring and the Regulations BS 7671 - IET EngX - IET EngX",
+      "url": "https://engx.theiet.org/f/wiring-and-regulations/31281/ambient-temperature-correction-factor",
+      "quote": "which is only Informative rather than normative"
+    },
+    {
+      "n": 58,
+      "title": "Mythbuster #11 - Adapting for change",
+      "url": "https://electrical.theiet.org/wiring-matters/years/2024/103-november-2024/mythbuster-11-adapting-for-change",
+      "quote": "the lack of which could give rise to damage to wiring accessories or detrimental thermal effects, including fire"
+    },
+    {
+      "n": 59,
+      "title": "— Electrical installation solutions for buildings – Technical details MCBs",
+      "url": "https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj",
+      "quote": "B 6 to 63 A 1.13 · In > 1 h 3 · In > 0.1 s 1.45 · In < 1 h 5 · In < 0.1 s"
+    },
+    {
+      "n": 60,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p30",
+      "quote": "even then it’ll take 10,000s before it does."
+    },
+    {
+      "n": 61,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p458",
+      "quote": "maximum operating temperature of the cable, the cables should be rated at the maximum"
+    },
+    {
+      "n": 62,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p448",
+      "quote": "TABLE 4D1A — Single-core 70 °C thermoplastic insulated cables, non-armoured,"
+    },
+    {
+      "n": 63,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p448",
+      "quote": "15 14.5 13.5 17.5 15.5 20 18"
+    }
+  ]
+}

@@ -1,0 +1,533 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Design and verification, a Level 4 refresher
+Idea: Device and cable: Ib ≤ In ≤ Iz, the factors and overload (Each rating factor is heat the table did not allow for, so It = In ÷ (the factors that act together), and the worst section sets the cable; a device may let about 1.45 In flow before it opens, so I2 ≤ 1.45 Iz, which is why a rewireable fuse needs Cf = 0.725.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the fuse's I2 pass the cable's 1.45 Iz in red, then meet it at 20.00 A as the Iz needed rises to 13.79 A, when you choose the fuse and apply Cf.
+Title (the app shows it above the frame, so do not repeat it): The device, the cable, the overload
+The rule (the app shows it just above the frame, under "What you're looking at"): A refresher lesson in twelve screens, with Back and Continue between them, on choosing the protective device and the cable it protects. Screen 1, Do you still have it?: “Your slides' heater circuit (p.27): In 16 A; a warm room all along the run (Ca 0.94); one part of the run in trunking with another circuit (Cg 0.8), another part through insulation (Ci 0.88), never both in one place. What tabulated current It must the cable have?” Three choices, in this order: 19.34 A, 21.28 A, 24.18 A. Right: “Still there.”, the working 16 ÷ (0.94 × 0.8) = 21.28 A, the worse of the two places (your slides print 21.2 A, cut short),[^1] and a line each on the slips: 24.18 A multiplies factors that never act together; 19.34 A is the easier place. Two buttons: Refresh the why (on to screen 2) and Skip to the practice (straight to screen 7). Wrong, 24.18 A: rating factors need only be applied when happening together,[^2] and the trunking and the insulation are in different places, so each place is worked on its own. Wrong, 19.34 A: that is the insulated part, 16 ÷ (0.94 × 0.88);[^3] the trunking runs hotter and needs 21.28 A, and the cable must survive its worst place. Then the right working and on to screen 2, with no skip. Read: It is 21.28 A, the worse of the two places; all three multiplied gives 24.18 A. Screen 2, What it is for: the chain Ib ≤ In ≤ Iz (Regulation 433.1.1, slides p.22):[^4] the device's rating or current setting at least the design current,[^5] and the cable's current-carrying capacity where it is installed at least the device's. The table's figure, It, is for a single circuit at the table's ambient;[^6] Iz is what the cable carries continuously where it actually runs.[^7] One more condition: the current that finally operates the device, I2, no more than 1.45 Iz.[^8] In red, if it is skipped or wrong: a cable carrying more than it can shed runs hot, and over time that damages insulation, joints, terminations and their surroundings.[^9] Screen 3, The why: the run in sections. Opening text: anything that makes the cable artificially warm needs a rating factor;[^10] Ca for the ambient, Cg for grouping,[^11] Ci for insulation. Each means the cable reaches its limit at a lower current, so the factors divide In to give the It the table must show.[^12] The picture: your slides' heater circuit (p.26) drawn as its route in three sections, left to right, named short on the drawing: Clipped (clipped direct), Trunking (in trunking with another circuit), Insulated wall (through the wall's insulation). Each section shows the factors acting there and the It it needs, worked from the figures shown: clipped, Ca 0.94: 16 ÷ 0.94 = 17.02 A; trunking, 0.94 × 0.8 = 0.752: 16 ÷ 0.752 = 21.28 A; wall, 0.94 × 0.88 = 0.8272: 16 ÷ 0.8272 = 19.34 A. The section needing the highest It is outlined in ink and named: it sets the cable, and its reference method sets the column,[^13] Reference Method B in the trunking against C clipped direct (slides p.28). “Tap a section to read its working.” A switch, Insulation inside the trunking too: on, the trunking section has all three, 16 ÷ (0.94 × 0.8 × 0.88) = 24.18 A, the one place where multiplying all three is right, and the outline stays on it. Two lines under it: Cg always counts the circuit being installed (slides p.25); and a cable expected to carry not more than 30% of its grouped rating may be ignored when finding the factor for the rest of the group (Table 4C1 note 9).[^14] Read: the trunking section sets the cable at 21.28 A; only where all three act in one place is it 24.18 A. Screen 4, The why: overload, two marks on one current line. Opening text: I2 is the current causing effective operation of the device; most devices have an I2 of 1.45 times In.[^15] A maker gives its type C and D breakers up to 63 A operation within 1 hour at 1.45 In;[^16][^17] your slides say it can take 10,000 s (p.30). The cable must take that current for that long: I2 ≤ 1.45 Iz,[^18] a factor that keeps small overloads from deteriorating the cable.[^19] The picture: one horizontal current axis from 0 to 25 A, the device's marks above it (In, and I2 in ink), the cable's below it (Iz, and 1.45 Iz). A named choice, Device: 10 A type B breaker, 10 A rewireable fuse; and a switch, Apply Cf = 0.725, live only for the fuse. Breaker: I2 = 10 × 1.45 = 14.50 A;[^20] the cable is your slides' 1.0 mm² twin and earth, Iz 13 A (p.31),[^21] and 1.45 × 13 = 18.85 A: I2 sits below it, “Passes”. Fuse: a BS 3036 fuse's I2 can be up to twice, with its rating matched to the cable,[^22] 2 × 10 = 20.00 A, past 18.85 A, the I2 mark in red, “Fails: the cable could carry 20.00 A until the fuse opens”. Cf on: In must not exceed 0.725 Iz,[^23] so the cable needs Iz ≥ 10 ÷ 0.725 = 13.79 A,[^24] and 1.45 × 13.79 = 20.00 A: the cable's marks rise and 1.45 Iz meets the fuse's I2, “Passes with Iz 13.79 A: the 13 A cable is too small behind this fuse”. One line: 0.725 is 1.45 ÷ 2, the breaker's 1.45 over the fuse's 2. Read: a 10 A breaker's 14.50 A is within the 13 A cable's 18.85 A; a 10 A rewireable fuse reaches 20.00 A and needs a cable with Iz of 13.79 A. Screen 5, Check: “Seven circuits are bunched in one trunking. Four will each carry not more than 30% of their grouped rating. For the Cg of the other three, what is the fewest circuits you may count?” Choices: 7 (counting all seven is allowed and cautious, but note 9 lets the light ones go), 3 (right), 2 (the circuit being installed always counts, slides p.25). Why?: the four may be ignored;[^14] each of the other three counts itself and the other two, and three circuits bunched take 0.70 (Table 4C1 item 1).[^25] Read: three circuits count, Cg 0.70. Screen 6, Worked example, a line at each press: your slides p.27, 0.94 × 0.8 = 0.752; 16 ÷ 0.752 = 21.28 A;[^1] 0.94 × 0.88 = 0.8272; 16 ÷ 0.8272 = 19.34 A;[^3] design to 21.28 A, on Reference Method B, the one with the biggest impact;[^13] 2.5 mm² from column 7 of Table 4D5 (p.28). Then p.30 to 32: I2 = 10 × 1.45 = 14.50 A;[^20] Iz 13 A;[^21] 13 × 1.45 = 18.85 A, above 14.50 A: the cable lasts.[^18] One line: your slides print 21.2 A, 19.3 A and 14.5 A, cut short; nothing changes. Screen 7, Section A, question 1 (c): the scenario panel (pack p.3, 4)[^26][^27][^28] and (a) and (b) carried forward. Given: the standard ratings near it, 16, 20, 25 and 32 A (On-Site Guide p.145).[^29] “(c) Determine the smallest standard rating of the circuit-breaker at DBP2 for the motor circuit.” A typed answer (part 1c, whole amperes): 25 A, the smallest not below Ib, 23.08 A.[^5] Slips: 16 A (below Ib: the breaker carries the line current, not the output's 15.88 A or a winding's 13.33 A), 20 A (below Ib), 32 A (it would do, but 25 A is the smallest). After it, the type: a motor takes much more current starting than running;[^30][^31] a star-delta start draws roughly 2 to 2.7 times full-load current, against 6 to 8 times direct-on-line (a calculator site's table, not a standard);[^32][^33] the course takes 2.7, a practice value: 2.7 × 23.08 = 62.32 A (the motor's maker gives the real figure). Instantaneous trip at 25 A: type B 3 to 5 In, 75 to 125 A;[^34] type C 5 to 10 In, 125 to 250 A, the type the On-Site Guide names for small motors;[^35] type D 10 to 20 In, 250 to 500 A.[^36] The course chooses type C, its own assumption: clear of the start with more room than B. Then the overload: the course puts the starter's thermal relay in the delta circuit (its assumption), where it is set to 0.58 × the motor's In[^37] (0.58 is 1 ÷ √3, rounded) and never higher than the phase current,[^38] 23.08 ÷ √3 = 13.33 A; that setting is the In of the starter-to-motor cables.[^5] After two misses the working ends and part (d) starts from the course's figures. Read: 25 A, type C (the course's choice); the relay at 13.33 A guards the motor's cables against overload. Screen 8, Section A, question 1 (d): (a) to (c) carried forward. Given: the room at 20 °C;[^27] six 90 °C thermosetting singles from the starter to the motor,[^39] sized on the delta running conditions,[^40] in one conduit on the consultation bay's wall, clear of insulation (the course's assumption: Ci and Cf are 1). First a choice, “How many circuits do the six singles count as for Cg?”: 6 (note 5 counts singles in threes), 3 (n/2 is for circuits of two loaded conductors; these are three-phase), 2 (right). Its feedback: in delta running all six carry winding current,[^41] and n singles count as n/3 circuits of three loaded conductors for three-phase circuits:[^42][^43] two circuits, bunched and enclosed, Cg 0.80 (Table 4C1 item 1).[^25] Then Ca, labelled a practice value: Table 4B1 is for ambients other than 30 °C,[^44] and its first row, 25 °C, gives 1.02 for 90 °C thermosetting;[^45] the course takes 1.00 at 20 °C, which takes no credit for the cool room: read the real treatment from your copy of Table 4B1. “(d) Taking Ca as 1.00, determine the minimum tabulated current-carrying capacity, It, of the starter-to-motor cables.” A typed answer (part 1d): 13.33 ÷ (1.00 × 0.80) = 16.66 A; 16.65 A (from the unrounded winding current) and 16.68 or 16.69 A (√3 taken as 1.73) also accepted. Slips: 13.33 A (Cg left out), 23.08 A (the line current, and Cg left out), 28.85 A (the line current: these cables carry a winding's), 31.25 A (the breaker's 25 A: the relay is their overload device), 16.34 A (Ca 1.02, the 25 °C row: fair in a design, but the question takes 1.00; the cable comes out the same). Read: It ≥ 13.33 ÷ (1.00 × 0.80) = 16.66 A. Screen 9, Section A, question 1 (e) and (f): (a) to (d) carried forward. “(e) State the table and the column.” A choice: Table 4E1A, column 5 (Reference Method B, 3 or 4 cables, three-phase AC) (right); Table 4E1A, column 4 (Method B, 2 cables: single-phase); Table 4E1A, column 3 (Method A: conduit in a thermally insulating wall). Feedback: 90 °C thermosetting singles, non-armoured, are Table 4E1A;[^46] conduit on a wall is Reference Method B;[^47][^48] two three-phase circuits read the 3 or 4 cables column. “(f) Determine the minimum CSA of the starter-to-motor cables.” Under it: read column 5 in your copy (p.458). A typed answer (part 1f, mm²): 1.5. Slips: 1 (Cg left out: 13.33 A fits it), 2.5 (sized on the line current, 23.08 A), 4 (the line current ÷ 0.80, 28.85 A). Feedback: 1 mm² carries 15 A, under 16.66 A;[^49] 1.5 mm² carries 20 A, the smallest that passes;[^50] Iz = 20 × 1.00 × 0.80 = 16.00 A, so 13.33 ≤ 13.33 ≤ 16.00. A thermal relay is not one of the devices for which I2 ≤ 1.45 Iz is taken as met,[^51] so its own curve is read from its maker:[^52] it must operate by 1.45 × 16.00 = 23.20 A. A conduit fixed to a masonry wall may carry more;[^53] the course takes no credit for it. Read: Table 4E1A, column 5; 1.5 mm², Iz 16.00 A. Screen 10, Section B: “State a hazard of an overload current in a circuit, and explain how the design keeps a small overload from harming the cable.” Your written answer, marked against five points (a full answer makes any three), one more go, then the model answer. Screen 11, Section A, changed numbers: “An older circuit is protected by a 15 A semi-enclosed (rewireable) fuse to BS 3036, and no other rating factor applies. Determine the minimum tabulated current-carrying capacity, It, of its cable.” A typed answer: 15 ÷ 0.725 = 20.69 A.[^24] Slips: 15.00 A (Cf left out), 10.88 A (multiplied by 0.725), 21.75 A (1.45 × 15: a breaker's I2, not It). Read: It ≥ 15 ÷ 0.725 = 20.69 A. Screen 12, Keep this: the summary card, then Finish the lesson. The line under the lesson (figures from your slides, your assignment and your copy of BS 7671; practice values marked; each line worked from the rounded figures before it) shows on screens 3, 4, 6 to 9 and 11.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The sections are drawn by the factors acting in them, not by a measured temperature. The marks on the current line are single figures: a real device operates within a band, and sooner the further the current is above In. The fuse's I2 is drawn at twice In, the figure Cf allows for; a particular fuse's may be lower. Ca, Cg and Ci are treated as separate causes of heat, as the tables treat them. The 90 °C ratings assume the starter's and motor's terminals can run that hot; if they are designed for less, Table 4E1A note 1 rates the cables at the lower temperature. Short circuits and earth faults are other lessons: a device that protects against overload must still be checked for those.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 11 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 12 (the stepper): 0 (control)
+- Slides' heater circuit: In, A: 16 (constant, source [1])
+- Slides' heater circuit: Ca: 0.94 (constant, source [1])
+- Slides' heater circuit: Cg: 0.8 (constant, source [1])
+- Slides' heater circuit: Ci: 0.88 (constant, source [3])
+- It for Ca and Cg, 16 ÷ 0.752, A: 21.28 (computed)
+- It for Ca and Ci, 16 ÷ 0.8272, A: 19.34 (computed)
+- Slip, all three multiplied, A: 24.18 (computed)
+- Slides' printed It for Ca and Cg, A: 21.2 (constant, source [1])
+- Slides' printed It for Ca and Ci, A: 19.3 (constant, source [3])
+- Ca × Cg: 0.752 (computed)
+- Ca × Ci: 0.8272 (computed)
+- It clipped direct, 16 ÷ 0.94, A: 17.02 (computed)
+- Lightly loaded limit, % of grouped rating: 30 (constant, source [14])
+- Most devices' I2, × In: 1.45 (constant, source [15])
+- Maker's breakers covered, up to, A: 63 (constant, source [16])
+- Maker's time at 1.45 In, within, hours: 1 (constant, source [16])
+- Slides' time at I2 (p.30), s: 10000 (constant)
+- Slides' breaker rating, A: 10 (constant, source [20])
+- Breaker I2, 10 × 1.45, A: 14.5 (computed, source [20])
+- Slides' cable: 1.0 mm² twin and earth, Iz, A: 13 (constant, source [21])
+- Cable limit, 1.45 × 13, A: 18.85 (computed)
+- Current axis, 0 to, A: 25 (assumed)
+- BS 3036 fuse's I2, up to × (Cf's figure): 2 (constant, source [22])
+- Fuse I2, 2 × 10, A: 20 (computed)
+- Cf for a BS 3036 fuse: 0.725 (constant, source [24])
+- Iz needed behind the fuse, 10 ÷ 0.725, A: 13.79 (computed)
+- Its limit, 1.45 × 13.79, A: 20 (computed)
+- Check: circuits bunched: 7 (assumed)
+- Check: circuits lightly loaded: 4 (assumed)
+- Check: circuits to count: 3 (computed)
+- Cg, three circuits bunched (Table 4C1): 0.7 (constant, source [25])
+- Slides' cable for the heater, mm²: 2.5 (constant, source [13])
+- Slides' column in Table 4D5: 7 (constant, source [13])
+- Slides' printed I2, A: 14.5 (constant, source [20])
+- Showroom supply, V: 400 (constant, source [26])
+- Showroom Ze, Ω: 0.1 (constant, source [26])
+- Showroom prospective fault current, kA: 4.6 (constant, source [26])
+- Showroom ambient, °C: 20 (constant, source [27])
+- Motor output, kW: 11 (constant, source [28])
+- Motor power factor: 0.8 (constant, source [28])
+- Motor efficiency, %: 86 (constant, source [28])
+- Part 1a: motor Ib, A: 23.08 (computed)
+- Part 1b: each winding in delta, A: 13.33 (computed)
+- Output-only current from lesson 1, A: 15.88 (computed)
+- Standard ratings shown, A: 16, 20, 25, 32 (constant, source [29])
+- Part 1c: breaker rating, A: 25 (computed)
+- Star-delta start, × full-load current (range): 2 to 2.7 (constant, source [32])
+- Direct-on-line start, × full-load current: 6 to 8 (constant, source [33])
+- Star start multiple used (practice value): 2.7 (constant, source [32])
+- Practice star start, 2.7 × 23.08, A: 62.32 (computed)
+- Type B instantaneous trip, × In: 3 to 5 (constant, source [34])
+- Type C instantaneous trip, × In: 5 to 10 (constant, source [35])
+- Type D instantaneous trip, × In: 10 to 20 (constant, source [36])
+- Type B at 25 A, A: 75 to 125 (computed)
+- Type C at 25 A, A: 125 to 250 (computed)
+- Type D at 25 A, A: 250 to 500 (computed)
+- Relay setting, × motor In: 0.58 (constant, source [37])
+- Starter-to-motor singles: 6 (constant, source [39])
+- Cable temperature rating, °C: 90 (constant, source [46])
+- Circuits the six singles count as: 2 (computed)
+- Cg, two circuits bunched and enclosed: 0.8 (constant, source [25])
+- Table 4B1's base ambient, °C: 30 (constant, source [44])
+- Table 4B1's first row, °C: 25 (constant, source [45])
+- Ca at 25 °C, 90 °C thermosetting: 1.02 (constant, source [45])
+- Ca at 20 °C (practice value): 1 (assumed)
+- Part 1d: It, 13.33 ÷ 0.80, A: 16.66 (computed)
+- Part 1d from the unrounded winding current, A: 16.65 (computed)
+- Part 1d with √3 as 1.73, A: 16.68 or 16.69 (computed)
+- Part 1d slip, line current ÷ 0.80, A: 28.85 (computed)
+- Part 1d slip, the breaker's 25 A ÷ 0.80, A: 31.25 (computed)
+- Part 1d slip, Ca 1.02, A: 16.34 (computed)
+- Table 4E1A columns offered: 3, 4, 5 (constant, source [47])
+- Column 5: 1 mm², A: 15 (constant, source [49])
+- Column 5: 1.5 mm², A: 20 (constant, source [50])
+- Part 1f: minimum CSA, mm²: 1.5 (computed)
+- Part 1f slips, mm²: 1, 2.5, 4 (computed)
+- Iz, 20 × 1.00 × 0.80, A: 16 (computed)
+- Relay must operate by, 1.45 × 16.00, A: 23.2 (computed)
+- Your copy of BS 7671, page: 458 (constant, source [46])
+- Changed numbers: fuse rating, A: 15 (assumed)
+- Changed numbers: It, 15 ÷ 0.725, A: 20.69 (computed)
+- Changed numbers slip, Cf left out, A: 15 (computed)
+- Changed numbers slip, 15 × 0.725, A: 10.88 (computed)
+- Changed numbers slip, 1.45 × 15, A: 21.75 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+The device protects the cable, so the device is chosen from the load and the cable from the device: Ib ≤ In ≤ Iz. The device's rating or setting must be at least the design current, and the cable must carry at least that much where it runs hottest. A device also lets more than its rating flow for a while before it opens, so the cable must survive that too: I2 ≤ 1.45 Iz.
+
+Start with heat. The table's figure, It, is for one circuit at the table's ambient; what the cable can carry where it is actually installed is its current-carrying capacity, Iz. Anything that makes the cable artificially warm, a hotter room or thermal insulation, needs a rating factor, and so do other circuits beside it: Ca for the ambient, Cg for grouping, Ci for insulation. A warm room starts the conductor warmer, and neighbours or insulation stop it shedding its heat, so a smaller current takes it to its maximum temperature: the cable can carry less there. To carry In in that place it needs a bigger table figure, which is why the factors divide: It ≥ In ÷ (Ca × Cg × Ci × Cf). A factor only counts where its heat is: they are applied together only when they happen together. On your slides' heater circuit the ambient acts everywhere, the grouping in the trunking and the insulation in the wall, so It is 16 ÷ (0.94 × 0.8) = 21.28 A in one place and 16 ÷ (0.94 × 0.88) = 19.34 A in the other, and the cable is desi…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] EAL Level 4 Design and Verification: course slides (material:eal-slides#p27): "16 / 0.94 x 0.8 = 21.2A (this is the It of the cable for Ca and Cg)"
+[2] EAL Level 4 Design and Verification: course slides (material:eal-slides#p25): "rating factors need only be applied when happening TOGETHER."
+[3] EAL Level 4 Design and Verification: course slides (material:eal-slides#p27): "16 / 0.94 x 0.88 = 19.3A (this is the It of the cable for Ca and Ci)"
+[4] EAL Level 4 Design and Verification: course slides (material:eal-slides#p22): "Regulation 433.1.1 explains the following: Ib ≤ In ≤ Iz"
+[5] Requirements for Protection Against Overload - Professional Electrician (https://professional-electrician.com/technical/requirements-protection-overload): "The rated current or current setting of the protective device (In) should not be less than the design current (Ib) of the circuit."
+[6] 2008 28 Autumn Wiring Matters (https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf): "The value of current tabulated in this appendix for the type of cable and installation method concerned, for a single circuit in the ambient temperature stated in the current-carrying capacity tables."
+[7] 2008 28 Autumn Wiring Matters (https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf): "The current-carrying capacity of a cable for continuous service, under the particular installation conditions concerned."
+[8] Requirements for Protection Against Overload - Professional Electrician (https://professional-electrician.com/technical/requirements-protection-overload): "The current (I2) causing effective operation of the protective device should not exceed 1.45 times the lowest current-carrying capacity (Iz) of any of the conductors of the circuit."
+[9] How are the requirements for overload current in BS 7671 to be applied? - Professional Electrician (https://professional-electrician.com/technical/how-are-the-requirements-for-overload-current-in-bs-7671-to-be-applied): "Should an overload occur in a circuit where there is no overload protection provided, the temperature of the circuit conductors is liable to increase significantly which, over time, may lead to damage of insulation, joints and terminations…"
+[10] EAL Level 4 Design and Verification: course slides (material:eal-slides#p24): "Anything that causes the cable to be artificially warm, such as running through thermal insulation, or a higher ambient temperature will mean the cable will need downrating through an appropriate rating factor."
+[11] 2008 28 Autumn Wiring Matters (https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf): "Ca is rating factor for ambient temperature, see Table 4B1 of BS 7671 Cg is rating factor for grouping see, Table 4C1 of BS 7671"
+[12] EAL Level 4 Design and Verification: course slides (material:eal-slides#p25): "Rating factors are applied as divisors to the rating or setting of the protective device (In)"
+[13] EAL Level 4 Design and Verification: course slides (material:eal-slides#p28): "We need to design to the reference method which has the biggest impact on the cables maximum current carrying capacity (Iz)."
+[14] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p443): "a cable is expected to carry not more than 30 % of its grouped rating, it may be ignored for the purpose of obtaining the rating factor for the rest of the group"
+[15] EAL Level 4 Design and Verification: course slides (material:eal-slides#p30): "Most devices have an I2 of 1.45 times their In…."
+[16] — Electrical installation solutions for buildings – Technical details MCBs (https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj): "C 0.5 to 63 A 1.13 · In > 1 h 5 · In > 0.1 s 1.45 · In < 1 h 10 · In < 0.1 s"
+[17] — Electrical installation solutions for buildings – Technical details MCBs (https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj): "D 0.5 to 63 A 1.13 · In > 1 h 10 · In > 0.1 s 1.45 · In < 1 h 20 · In < 0.1 s"
+[18] EAL Level 4 Design and Verification: course slides (material:eal-slides#p32): "I2 ≤ Iz x 1.45"
+[19] ChAnges to Appendix 4 of Amendment 1 of Bs 7671:2008 (https://electrical.theiet.org/media/1522/changes-to-appendix-4-of-amendment-1-of-bs7671-2008.pdf): "the factor of 1.45 ensures that deterioration of cables does not result from small overloads."
+[20] EAL Level 4 Design and Verification: course slides (material:eal-slides#p30): "So, a 10A type B circuit breaker has an I2 of 10 x 1.45 = 14.5A."
+[21] EAL Level 4 Design and Verification: course slides (material:eal-slides#p31): "it has an Iz of 13A."
+[22] Requirements for Protection Against Overload - Professional Electrician (https://professional-electrician.com/technical/requirements-protection-overload): "This is to compensate for the high value of I2 of a BS 3036 fuse, which can be up to 2 × Iz."
+[23] Requirements for Protection Against Overload - Professional Electrician (https://professional-electrician.com/technical/requirements-protection-overload): "Where the protective device is a semienclosed (rewireable) fuse to BS 3036, the requirement of condition 3 is met where In does not exceed 0.725 times the current-carrying capacity of the circuit conductors (Iz)"
+[24] EAL Level 4 Design and Verification: course slides (material:eal-slides#p25): "Cf = Rating factor when overload protection is provided by devices with fusing factors greater than 1.45 (ie: Cf = 0.725 for semi enclosed fuses to BS 3036)"
+[25] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p443): "Bunched in air, on a | 1.00 | 0.80 | 0.70 | 0.65 | 0.60 | 0.57 | 0.54 | 0.52 | 0.50 | 0.45 | 0.41 | 0.38 A to F"
+[26] ED4-01A learner pack: car showroom assignment (material:learner-pack#p3): "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+[27] ED4-01A learner pack: car showroom assignment (material:learner-pack#p3): "Ambient temperature is 20 degrees Celsius."
+[28] ED4-01A learner pack: car showroom assignment (material:learner-pack#p4): "Within the consultation bay there will be an additional requirement for a 400 V three-phase 11 kW motor which operates at a power factor of 0.8 lagging and efficiency of 86%."
+[29] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p145): "10 15 16 20 25 30 32 40 45 50"
+[30] Requirements for Protection Against Overload - Professional Electrician (https://professional-electrician.com/technical/requirements-protection-overload): "In particular, certain types of electrical load such as discharge lighting, AC induction motors and transformers take a much higher current during starting than during normal operation."
+[31] Asynchronous motors - Electrical Installation Guide (https://www.electrical-installation.org/enwiki/Asynchronous_motors): "The high start-up current means that motor overload protective devices must have operating characteristics which avoid tripping during the starting period."
+[32] Star Delta Starter Calculator (Contactor Sizing) | ElectroMechCalc (https://www.electromechcalc.com/electrical/star-delta-starter): "Star-delta | ≈ 2–2.7 × FLC"
+[33] Star Delta Starter Calculator (Contactor Sizing) | ElectroMechCalc (https://www.electromechcalc.com/electrical/star-delta-starter): "Direct on line (DOL) | 6–8 × FLC"
+[34] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p90): "B 3 to 5 In switching surge"
+[35] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p90): "C 5 to 10 In the use of fluorescent lighting, small motors, etc., can"
+[36] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p90): "D 10 to 20 In Suitable for transformers, X-ray machines, industrial welding"
+[37] In a star-delta starter, how can I incorporate a thermal overload relay as per Type 1 or Type 2 coordination? | Schneid… (https://www.se.com/uk/en/faqs/FA86594/): "Type 1 coordination The thermal overload relay is placed in the delta circuit and must be set to 0.58 x motor In."
+[38] Direct-On-Line and Automatic Star – Delta Starter (https://assets.new.siemens.com/siemens/assets/api/uuid:0439c3a6-f14d-4b93-bf1b-a874d46b4dd3/industrial-new-dol-11-55kwand-asd-22-55kw-operating-instruction.pdf): "under no circumstances should the relay be set higher than phase current i.e. 0.58 times the rated current on the motor nameplate."
+[39] Wye Delta Wire Sizing | PLCtalk - Interactive Q & A (https://www.plctalk.net/forums/threads/wye-delta-wire-sizing.7577): "When wiring a motor to a Wye-Delta starter, 6 wires are run to the motor and connected to the motor terminals T1-T6. Each end of each winding has its own wire connected to it."
+[40] ED4-01A learner pack: car showroom assignment (material:learner-pack#p4): "Base your selection on the delta running conditions and any other factors present."
+[41] Star Delta Starter Calculator (Contactor Sizing) | ElectroMechCalc (https://www.electromechcalc.com/electrical/star-delta-starter): "In delta running the supply reaches each winding from two directions — one end through KM1, the other through KM3 — which is why both carry winding current rather than line current."
+[42] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p443): "it may either be considered as n/2 circuits of two loaded conductors or n/3 circuits of three loaded conductors"
+[43] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p170): "n/3 circuits of three loaded conductors (for three-phase circuits)"
+[44] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p441): "TABLE 4B1 — Rating factors (C,) for ambient air temperatures other than 30 °C"
+[45] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p441): "25 1.04 1.03 1.02 1.07 1.04"
+[46] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p458): "TABLE 4E1A — Single-core 90 °C thermosetting insulated cables, non-armoured,"
+[47] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p458): "Reference Method A Reference Method B Reference Method C Reference Method F Reference Method G"
+[48] 2008 28 Autumn Wiring Matters (https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf): "Non-sheathed cables in conduit mounted on a wooden or masonry wall"
+[49] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p458): "1 14 13 17 15 19 17.5"
+[50] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p458): "1.5 19 17 23 20 25 23"
+[51] BS 7671: Protection against overload current | NICEIC & ELECSA - Professional Electrician (https://professional-electrician.com/technical/bs-7671-protection-against-overload-current-niceic-elecsa): "Regulation 433.1.201 states, where conditions (i) and (ii) are met (and I b ≤ I n ≤ I z ), condition (iii) will also be met where the following protective devices are employed:"
+[52] Requirements for Protection Against Overload - Professional Electrician (https://professional-electrician.com/technical/requirements-protection-overload): "such as a thermal overload protective device in a motor circuit, it will be necessary for the electrical installation designer to refer to the device characteristics in order to ensure compliance with all aspects of Regulation 433.1.1."
+[53] 2008 28 Autumn Wiring Matters (https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf): "Where the conduit is fixed to a masonry wall the current-carrying capacity of the non-sheathed or sheathed cable may be higher."
+[54] EAL Level 4 Design and Verification: course slides (material:eal-slides#p20): "The different ‘types’ are in relation to the start up current of a circuit."
+[55] Requirements for Protection Against Overload - Professional Electrician (https://professional-electrician.com/technical/requirements-protection-overload): "However, due to the starting characteristics of the load a higher value of In may be necessary for certain loads (Regulation 533.2.1 refers)"
+[56] 2011 40 Autumn Wiring Matters (https://electrical.theiet.org/media/1053/2011_40_autumn_wiring_matters__complete_adverts.pdf): "Appendix 4 is an informative appendix within BS 7671."
+[57] Ambient Temperature Correction Factor - Wiring and the Regulations BS 7671 - IET EngX - IET EngX (https://engx.theiet.org/f/wiring-and-regulations/31281/ambient-temperature-correction-factor): "which is only Informative rather than normative"
+[58] Mythbuster #11 - Adapting for change (https://electrical.theiet.org/wiring-matters/years/2024/103-november-2024/mythbuster-11-adapting-for-change): "the lack of which could give rise to damage to wiring accessories or detrimental thermal effects, including fire"
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+
+## Refresher lessons: typed answers, written answers, the case file, the summary
+
+A refresher course's steps lesson (a ready-made course built in Claude Code) has four more kit
+pieces. The app passes the page two pieces of checked data, as it passes the theme: the course's
+case file (`K.caseFile`) and the lesson's own `{written, summary}` (`K.lesson`). Name what you want
+by id; the kit draws the checked words, so never retype a figure, a point or a summary line.
+
+```
+K.figure(id) -> {id, label, value, unit, text, part, lesson, rule, work}   a given or worked figure; print f.text ("23.08 A"), f.work its working
+K.scenario({into, open?})                                        the case's scenario panel (folds)
+K.carried({parts: ['1a'], into})  -> {el, refresh()}             earlier Section A parts at the course's figures
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+    -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state: 'right'|'wrong'|'empty'|'unreadable', value, accepted?, slip?, hint?}
+K.written({id, into, onMark?}) -> {el, id, stage(), answered()}
+K.summary({into, kept?})
+```
+
+**Typed answers** (Section A, where a C&G paper has him write a figure). A decimal-keypad field;
+your Check button calls `a.check()` (Enter does too) and you write the feedback from the result.
+`answer` is the course's figure, each line worked from the rounded figures shown; it is accepted
+within half a unit in its last place (`decimals`, default 2). `accept: [13.32]` adds the answer
+worked from unrounded figures; `slips: [{value: 50, hint: 'You left out √3.'}]` names a usual slip
+and its hint (`r.hint`). A unit typed after the number ("13.33 A") is fine. Give the part's
+case-file id as the answer's id ('1b'), so `K.carried` knows when he missed it: a part got wrong
+and never right, or shown with `a.reveal()`, is carried forward at the course's figure and says so.
+After two wrong tries, show the working and `reveal()`; Continue once `right()`.
+The self-test grades every answer: its figure and each accepted one right (with the unit too), a
+near miss and each slip refused, and the figure typed into the field and checked on its step.
+
+**Written answers** (Section B: "Explain why…", "State two…"). `K.written({id: 'b1', into})` shows
+`lesson.written.b1`'s question, a box for his words and Check my answer. Claude marks them against
+the lesson's points through the app (never from the page): each point comes back with an ink tick
+or a dashed ring, a statement that is wrong named in red, one line on what he did well and one
+nudge; one more go, then the model answer. Without Claude, the points are a checklist he ticks.
+No marks, no grades, nothing to score. `onMark(r)` runs when a result is drawn; let him Continue
+once `answered()`.
+
+**The summary** (Keep this, the last step). `K.summary({into: '#keep'})` draws `lesson.summary`
+as a card (what it is for, the rule, the traps, the case's figures so far, where it lives) and says
+it is the first page of the chapter in his Book. Then the Finish button calls `K.complete()`.
+
+**STEPS entries** (tools/course/guide.mjs reads them for the Book): a typed-answer step keeps
+`want` (the answer as printed, '13.33 A'); a written step is `{kind: 'written', written: 'b1',
+name, task}`; the summary step is `{kind: 'summary', name: 'Keep this'}`; the recall opener is a
+DO step like any other. The Book and the read-through show each step as it looks finished (a step
+drawn in HTML is kept as still HTML), with its own words; when those words ask him to do something
+("Drag…", "Work each step yourself first, then show it"), give the entry a `read` sentence that
+says the same for reading it through.
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

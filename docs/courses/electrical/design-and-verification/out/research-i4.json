@@ -49,6 +49,85 @@
       "sourceIds": [
         32
       ]
+    },
+    {
+      "claim": "Table 4Aa, as the slides give it, has four bands by the third harmonic of the line current: 0 to 15% line current with factor 1.0, 15 to 33% line current with 0.86, 33 to 45% neutral current with 0.86, and over 45% neutral current with 1.0; the same table appears in IEC 60364-5-52 (E.52.1) as set out in the Schneider guide, and an IET forum answer ties it to Appendix 4 of BS 7671:2018+A2:2022.",
+      "sourceIds": [
+        250,
+        30,
+        251,
+        252,
+        270,
+        271
+      ]
+    },
+    {
+      "claim": "The neutral current is 3 × h × IL: the third and other triple harmonics of the three lines add in the neutral to a magnitude equal to the sum of the third harmonic content of each phase, which is why the slides call the neutral higher than the line at 35% (row 3) and take Ibn as Ib.",
+      "sourceIds": [
+        266,
+        264,
+        260,
+        253,
+        254
+      ]
+    },
+    {
+      "claim": "Above 33% the neutral current is the larger, so the cable is sized on it; at 45% it is 135% of the line current and the three line conductors are then not fully loaded, which is why the factor goes back to 1.0 above 45%; the Schneider guide works 40% (37 × 0.4 × 3 = 44.4 A, ÷ 0.86 = 51.6 A) as an example.",
+      "sourceIds": [
+        261,
+        262,
+        252,
+        263
+      ]
+    },
+    {
+      "claim": "The ordinary current tables assume three loaded conductors; a harmonic neutral makes a fourth, and BS 7671 treats a neutral as a loaded conductor where a third harmonic or its multiples present a distortion above 15% of the line current (523.6.1) or where it carries current without a matching fall in the line conductors (523.6.3). NICEIC words the 15% as total harmonic distortion where the slides say the third harmonic.",
+      "sourceIds": [
+        265,
+        267,
+        269,
+        250
+      ],
+      "contested": "The slides and Table 4Aa speak of the third harmonic content of the line current; NICEIC's summary of Regulation 523.6.1 speaks of total harmonic distortion greater than 15% of the fundamental. Makers usually print a THD figure, so the figure the lesson uses is a practice value for the third harmonic, said so."
+    },
+    {
+      "claim": "Where the neutral current comes only from an imbalance in the line currents, the neutral's heat is offset by less heat in a line conductor, so the cable is sized on the highest line current (NICEIC on 523.6.2); harmonic current is the case where there is no such offset.",
+      "sourceIds": [
+        268,
+        269
+      ]
+    },
+    {
+      "claim": "The slides' worked example runs from the neutral current to the cable: Ibn 157.5 A is Ib, In 160 A from Fig 3A3(b), It = 160 ÷ (0.94 × 0.65 × 0.86), and Table 4D1A column 5 gives 240 mm² at 346 A (his copy of the table, p.448, row 240: Reference Method B, three or four loaded cables, 346 A).",
+      "sourceIds": [
+        31,
+        255,
+        32,
+        256,
+        257
+      ]
+    },
+    {
+      "claim": "Harmonics are considered only when the maker's data says there are some, and then the maker's percentage goes into the same sums; makers print THD, not the third harmonic alone: a Thorn luminaire datasheet gives THD 15.00 %, and a Philips Advance (US, 60 Hz) ballast table gives fluorescent ballasts as less than 25% THD (conventional magnetic), less than 20% (standard electronic) and less than 10% (Centium electronic).",
+      "sourceIds": [
+        33,
+        258,
+        279,
+        274,
+        273
+      ]
+    },
+    {
+      "claim": "No limit is quoted here for a fluorescent fitting's third harmonic in the showroom's drawing: the ANSI standard for electronic ballasts allows a maximum THD of 32%; IEC 61000-3-2 Class C (lighting, input current up to 16 A per phase) limits the third harmonic to 30 × the circuit power factor in percent; the absolute harmonic current matters more than the percentage; and the On-Site Guide says discharge-lighting final circuits must carry the lamps' and controlgear's harmonic currents (its ×1.8 volt-ampere rule includes harmonic current).",
+      "sourceIds": [
+        272,
+        276,
+        277,
+        278,
+        275,
+        259,
+        188
+      ]
     }
   ],
   "sources": [
@@ -141,7 +220,193 @@
       "title": "Harmonic Distortion limite and Neutral cable sizing - Wiring and the Regulations BS 7671 - IET EngX - IET EngX",
       "url": "https://engx.theiet.org/f/wiring-and-regulations/30778/harmonic-distortion-limite-and-neutral-cable-sizing",
       "quote": "there can't be current in the N if there's no N conductor."
+    },
+    {
+      "n": 188,
+      "title": "6.2.1 - Maximum demand (The Electricians Guide, Whitfield, via TLC)",
+      "url": "https://www.tlc-direct.co.uk/Book/6.2.1.htm",
+      "quote": "So long as the power factor of a discharge lighting circuit is not less than 0.85"
+    },
+    {
+      "n": 250,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p34",
+      "quote": "If the 3rd harmonic of line current is 0-15% = use LINE current Ib with a rating factor of 1.0"
+    },
+    {
+      "n": 251,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p34",
+      "quote": "If the 3rd harmonic of line current is 33=45% = use NEUTRAL current Ib with a rating factor of 0.86"
+    },
+    {
+      "n": 252,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p34",
+      "quote": "If the 3rd harmonic of line current is >45% = use NEUTRAL current Ib with a rating factor of 1.0"
+    },
+    {
+      "n": 253,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p35",
+      "quote": "Because the harmonic is 35%, we’ll use row 3 of table 4Aa, this means we calculate cable size based on neutral current:"
+    },
+    {
+      "n": 254,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p36",
+      "quote": "So we will need to use Ibn as our Ib."
+    },
+    {
+      "n": 255,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p36",
+      "quote": "Using figure 3A3(b) we can see an In of 160A would be suitable."
+    },
+    {
+      "n": 256,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p36",
+      "quote": "We would take the above value into table 4D1A to find the Iz and read down column 5 to find a 240mm² conductor"
+    },
+    {
+      "n": 257,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p448",
+      "quote": "240 321 286 400 346"
+    },
+    {
+      "n": 258,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p37",
+      "quote": "It would then be a case of using the percentage given by the manufacturer to carry out the equations in the earlier slides."
+    },
+    {
+      "n": 259,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p136",
+      "quote": "Final circuits for discharge lighting must be arranged so as to be capable of carrying the total steady current, which is made up of the lamp(s) and any associated controlgear and also their harmonic currents."
+    },
+    {
+      "n": 260,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p33",
+      "quote": "will cause more current to be present in the neutral than in the line."
+    },
+    {
+      "n": 261,
+      "title": "Sizing the neutral conductor - Electrical Installation Guide",
+      "url": "https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor",
+      "quote": "Where the neutral current is expected to be higher than the phase current, then the cable size should be selected on the basis of the neutral current"
+    },
+    {
+      "n": 262,
+      "title": "Sizing the neutral conductor - Electrical Installation Guide",
+      "url": "https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor",
+      "quote": "If the neutral current is more than 135 % of the phase current and the cable size is selected on the basis of the neutral current then the three phase conductors will not be fully loaded."
+    },
+    {
+      "n": 263,
+      "title": "Sizing the neutral conductor - Electrical Installation Guide",
+      "url": "https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor",
+      "quote": "If 40 % third harmonic is present, the cable size selection is based on the neutral current which is: 37 x 0,4 x 3 = 44,4 A and a reduction factor of 0,86 is applied, leading to a design load of: 44.4/0.86 = 51.6 A."
+    },
+    {
+      "n": 264,
+      "title": "Sizing the neutral conductor - Electrical Installation Guide",
+      "url": "https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor",
+      "quote": "Fig. G64 – Triplen harmonics are in phase and cumulate in the Neutral"
+    },
+    {
+      "n": 265,
+      "title": "Sizing the neutral conductor - Electrical Installation Guide",
+      "url": "https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor",
+      "quote": "The basic calculation of a cable concerns only cables with three loaded conductors i.e there is no current in the neutral conductor."
+    },
+    {
+      "n": 266,
+      "title": "2016 62 Autumn Wiring Matters (IET)",
+      "url": "https://electrical.theiet.org/media/1076/2016_62_autumn_wiring_matters.pdf",
+      "quote": "The third and other triple harmonics combine in the neutral to give a neutral current that has a magnitude equal to the sum of the third harmonic content of each phase."
+    },
+    {
+      "n": 267,
+      "title": "Factors affecting the current-carrying capacity of live conductors | NICEIC - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/factors-affecting-the-current-carrying-capacity-of-live-conductors-niceic",
+      "quote": "A neutral conductor should be considered as a loaded conductor where the third harmonic, or multiple of third harmonic, presents a total harmonic distortion greater than 15 % of the fundamental line current (523.6.1)."
+    },
+    {
+      "n": 268,
+      "title": "Factors affecting the current-carrying capacity of live conductors | NICEIC - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/factors-affecting-the-current-carrying-capacity-of-live-conductors-niceic",
+      "quote": "the temperature rise due to the neutral current is offset by the reduction in the heat generated by one or more of the line conductors. In this case the conductor size should be chosen based of the highest line current."
+    },
+    {
+      "n": 269,
+      "title": "Factors affecting the current-carrying capacity of live conductors | NICEIC - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/factors-affecting-the-current-carrying-capacity-of-live-conductors-niceic",
+      "quote": "Situations, such as where there is significant harmonic current in a three-phase circuit, where the neutral conductor carries current without a corresponding reduction in current in the associated live conductors (523.6.3)."
+    },
+    {
+      "n": 270,
+      "title": "Harmonic Distortion limite and Neutral cable sizing - Wiring and the Regulations BS 7671 - IET EngX - IET EngX",
+      "url": "https://engx.theiet.org/f/wiring-and-regulations/30778/harmonic-distortion-limite-and-neutral-cable-sizing",
+      "quote": "Table 4Aa of BS 7671:2018+A2:2022 indicates that the neutral can be sized simply for (line current x 1.0) with 3rd harmonic content of 5 %."
+    },
+    {
+      "n": 271,
+      "title": "Harmonic Distortion limite and Neutral cable sizing - Wiring and the Regulations BS 7671 - IET EngX - IET EngX",
+      "url": "https://engx.theiet.org/f/wiring-and-regulations/30778/harmonic-distortion-limite-and-neutral-cable-sizing",
+      "quote": "Example calculations are given in 5.5.2 in Appendix 4 to BS 7671:2018+A2:2022."
+    },
+    {
+      "n": 272,
+      "title": "Electronic Ballast Fundamentals",
+      "url": "https://www.villalighting.com/assets/docs/ABTFRME00596_3_7-3_14_3_16_3_30_3_31.pdf",
+      "quote": "The ANSI standard for electronic ballasts specifies a maximum THD of 32% for commercial applications."
+    },
+    {
+      "n": 273,
+      "title": "Electronic Ballast Fundamentals",
+      "url": "https://www.villalighting.com/assets/docs/ABTFRME00596_3_7-3_14_3_16_3_30_3_31.pdf",
+      "quote": "Almost all Philips Advance electronic ballasts are rated for either less than 20% THD or less than 10% THD."
+    },
+    {
+      "n": 274,
+      "title": "Electronic Ballast Fundamentals",
+      "url": "https://www.villalighting.com/assets/docs/ABTFRME00596_3_7-3_14_3_16_3_30_3_31.pdf",
+      "quote": "RQM-2S40-TP Conventional Magnetic 100% (Ballast Factor is 0.98) (2) F40T12 0.84A <25% 0.20A"
+    },
+    {
+      "n": 275,
+      "title": "Electronic Ballast Fundamentals",
+      "url": "https://www.villalighting.com/assets/docs/ABTFRME00596_3_7-3_14_3_16_3_30_3_31.pdf",
+      "quote": "This is because the absolute value of harmonic current, not the percentage, affects the electrical power distribution system."
+    },
+    {
+      "n": 276,
+      "title": "IEC 61000-3-2:2018+AMD1:2020+AMD2:2024 CSV | IEC",
+      "url": "https://webstore.iec.ch/en/publication/92799",
+      "quote": "It is applicable to electrical and electronic equipment having a rated input current up to and including 16 A per phase, and intended to be connected to public low-voltage distribution systems."
+    },
+    {
+      "n": 277,
+      "title": "Regulation of Harmonics",
+      "url": "https://www.advancedenergy.com/getmedia/a63dd662-0291-43d8-89d4-44b8d834e546/en-lv-regulation-of-harmonics-application-note.pdf",
+      "quote": "The limits imposed on the harmonic content of Class C equipment (lighting equipment) are shown in Table 1 below:"
+    },
+    {
+      "n": 278,
+      "title": "Regulation of Harmonics",
+      "url": "https://www.advancedenergy.com/getmedia/a63dd662-0291-43d8-89d4-44b8d834e546/en-lv-regulation-of-harmonics-application-note.pdf",
+      "quote": "3 30-λ* 5 10 7 7 9 5"
+    },
+    {
+      "n": 279,
+      "title": "96631263_product_datasheet.pdf (Thorn luminaire datasheet)",
+      "url": "https://resources.thornlighting.com/object/PDF/DataSheet.aspx?ArticleID=337726&CompanyID=4&DataSheetType=1&ModeID=21&SubCompanyID=44&lang=en",
+      "quote": "Total harmonic distortion (THD): 15.00 %"
     }
   ],
-  "at": "2026-10-20T13:21:24.241Z"
+  "at": "2026-10-20T14:34:32.393Z"
 }

@@ -1,0 +1,1065 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Design and verification, a Level 4 refresher
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i4 "A neutral that carries more than the line" — Balanced fundamentals cancel in the neutral but third harmonics on the three lines are in step and add, so above about a third the neutral current, 3 × h × IL, sets the cable; only when the maker's data gives a harmonic figure. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i5 Voltage drop from the intake, refined — Voltage drop is mV/A/m × Ib × L ÷ 1000, added along the whole path from the origin and judged against 3% or 5% of the voltage you were given; a lightly loaded cable runs cooler (Ct) and, with a known power factor, only the parts of the r a…
+- i6 Shock protection, and when Zs is too high — Every metre adds to the earth fault loop, the loop limits the fault current at the lowest supply voltage (Cmin), and that current decides whether the device opens in time; when Zs is too high, a bigger cpc or an RCD.
+- i7 Surviving the fault: heat, short circuits, breaking capacity — A conductor can take k²S² of fault energy, so it survives if I²t is smaller: S = √(I²t) ÷ k for the cpc with I at Cmax, t = k²S² ÷ I² for the live conductors, and every device must break the largest fault (IPF ≤ Icn).
+- i8 The showroom, end to end — The assignment's DBL2 submain and its longest circuit designed as one chain, every result carried forward, checked against the project guide's key points: all lengths, thermal constraints, Zs against the device, all drops from the intake.
+- i9 Verification and handover — The design predicts the readings: a cold reading is compared after correcting it to running temperature, installed values usually come in lower, and the designer hands over what the inspector and the client need, with a first inspection in…
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] 2007 23 Summer Wiring Matters — https://electrical.theiet.org/media/1036/2007_23_summer_wiring_matters__complete_no_adverts.pdf
+    "It is well know that when a 3-phase load current includes third or other triple harmonic currents these currents are additive in the neutral."
+[R2] 2007 23 Summer Wiring Matters — https://electrical.theiet.org/media/1036/2007_23_summer_wiring_matters__complete_no_adverts.pdf
+    "This neutral current will give rise to additional heating of the cables and other equipment in the circuit."
+[R3] [PDF] Triplen Harmonics in Electrical Distribution Systems — https://www.ijeat.org/wp-content/uploads/papers/v5i2/B4372125215.pdf
+    "Unlike the positive and negative sequence harmonic currents that cancel each other out, third order or triplen harmonics do not cancel out."
+[R4] Wired IN Mar-Apr 2007 — https://federalpacific.com/wp-content/uploads/2026/04/Wired-IN-Triplen-Harmonics.pdf
+    "In a distribution system with only linear loads, the 120 deg phase shift between linear phase currents results in their balanced portions instantaneously cancelling out in the neutral."
+[R5] EAL Level 4 Design and Verification: course slides — material:eal-slides#p33
+    "Some circuits supplying equipment such as rectifiers, variable-speed motor drives or fluorescent lighting banks draw currents that are not necessarily sinusoidal."
+[R6] EAL Level 4 Design and Verification: course slides — material:eal-slides#p33
+    "a balanced 3-phase load (such as a motor) will not have current in the neutral at all, so often motors do not have neutrals connected."
+[R7] Wired IN Mar-Apr 2007 — https://federalpacific.com/wp-content/uploads/2026/04/Wired-IN-Triplen-Harmonics.pdf
+    "These current pulses add together in the neutral conductor, which can result in up to 173% of phase current levels, even if all phases are completely balanced."
+[R8] [PDF] Triplen Harmonics in Electrical Distribution Systems — https://www.ijeat.org/wp-content/uploads/papers/v5i2/B4372125215.pdf
+    "current amplitude in the neutral wire due to these triplen harmonics could be up to 3 times the amplitude of the phase current at the fundamental frequency"
+[R9] EAL Level 4 Design and Verification: course slides — material:eal-slides#p34
+    "The issue with the 3rd harmonic is that we may need to design our circuits based on neutral current NOT line current."
+[R10] EAL Level 4 Design and Verification: course slides — material:eal-slides#p35
+    "Ibn = 3 x 0.35 x 150 = 157.5A"
+[R11] EAL Level 4 Design and Verification: course slides — material:eal-slides#p34
+    "If the 3rd harmonic of line current is 15-33% = use LINE current Ib with a rating factor of 0.86"
+[R12] Harmonic Distortion limite and Neutral cable sizing - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/30778/harmonic-distortion-limite-and-neutral-cable-sizing
+    "For triple-n harmonics exceeding 33 %, the factor is applied to a calculated neutral current, not the line current."
+[R13] EAL Level 4 Design and Verification: course slides — material:eal-slides#p37
+    "Harmonics are only to be considered if the manufacturers data explains that there will be one present."
+[R14] Harmonic Distortion limite and Neutral cable sizing - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/30778/harmonic-distortion-limite-and-neutral-cable-sizing
+    "there can't be current in the N if there's no N conductor."
+[R15] EAL Level 4 Design and Verification: course slides — material:eal-slides#p36
+    "It ≥ 160 / 0.94 x 0.65 x 0.86"
+[R16] EAL Level 4 Design and Verification: course slides — material:eal-slides#p34
+    "If the 3rd harmonic of line current is 0-15% = use LINE current Ib with a rating factor of 1.0"
+[R17] EAL Level 4 Design and Verification: course slides — material:eal-slides#p34
+    "If the 3rd harmonic of line current is 33=45% = use NEUTRAL current Ib with a rating factor of 0.86"
+[R18] EAL Level 4 Design and Verification: course slides — material:eal-slides#p34
+    "If the 3rd harmonic of line current is >45% = use NEUTRAL current Ib with a rating factor of 1.0"
+[R19] Harmonic Distortion limite and Neutral cable sizing - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/30778/harmonic-distortion-limite-and-neutral-cable-sizing
+    "Table 4Aa of BS 7671:2018+A2:2022 indicates that the neutral can be sized simply for (line current x 1.0) with 3rd harmonic content of 5 %."
+[R20] Harmonic Distortion limite and Neutral cable sizing - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/30778/harmonic-distortion-limite-and-neutral-cable-sizing
+    "Example calculations are given in 5.5.2 in Appendix 4 to BS 7671:2018+A2:2022."
+[R21] 2016 62 Autumn Wiring Matters (IET) — https://electrical.theiet.org/media/1076/2016_62_autumn_wiring_matters.pdf
+    "The third and other triple harmonics combine in the neutral to give a neutral current that has a magnitude equal to the sum of the third harmonic content of each phase."
+[R22] Sizing the neutral conductor - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor
+    "Fig. G64 – Triplen harmonics are in phase and cumulate in the Neutral"
+[R23] EAL Level 4 Design and Verification: course slides — material:eal-slides#p33
+    "will cause more current to be present in the neutral than in the line."
+[R24] EAL Level 4 Design and Verification: course slides — material:eal-slides#p35
+    "Because the harmonic is 35%, we’ll use row 3 of table 4Aa, this means we calculate cable size based on neutral current:"
+[R25] EAL Level 4 Design and Verification: course slides — material:eal-slides#p36
+    "So we will need to use Ibn as our Ib."
+[R26] Sizing the neutral conductor - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor
+    "Where the neutral current is expected to be higher than the phase current, then the cable size should be selected on the basis of the neutral current"
+[R27] Sizing the neutral conductor - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor
+    "If the neutral current is more than 135 % of the phase current and the cable size is selected on the basis of the neutral current then the three phase conductors will not be fully loaded."
+[R28] Sizing the neutral conductor - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor
+    "If 40 % third harmonic is present, the cable size selection is based on the neutral current which is: 37 x 0,4 x 3 = 44,4 A and a reduction factor of 0,86 is applied, leading to a design load of: 44.4/0.86 = 51.6 A."
+[R29] Sizing the neutral conductor - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor
+    "The basic calculation of a cable concerns only cables with three loaded conductors i.e there is no current in the neutral conductor."
+[R30] Factors affecting the current-carrying capacity of live conductors | NICEIC - Professional Electrician — https://professional-electrician.com/technical/factors-affecting-the-current-carrying-capacity-of-live-conductors-niceic
+    "A neutral conductor should be considered as a loaded conductor where the third harmonic, or multiple of third harmonic, presents a total harmonic distortion greater than 15 % of the fundamental line current (523.6.1)."
+[R31] Factors affecting the current-carrying capacity of live conductors | NICEIC - Professional Electrician — https://professional-electrician.com/technical/factors-affecting-the-current-carrying-capacity-of-live-conductors-niceic
+    "Situations, such as where there is significant harmonic current in a three-phase circuit, where the neutral conductor carries current without a corresponding reduction in current in the associated live conductors (523.6.3)."
+[R32] Factors affecting the current-carrying capacity of live conductors | NICEIC - Professional Electrician — https://professional-electrician.com/technical/factors-affecting-the-current-carrying-capacity-of-live-conductors-niceic
+    "the temperature rise due to the neutral current is offset by the reduction in the heat generated by one or more of the line conductors. In this case the conductor size should be chosen based of the highest line current."
+[R33] EAL Level 4 Design and Verification: course slides — material:eal-slides#p36
+    "Using figure 3A3(b) we can see an In of 160A would be suitable."
+[R34] EAL Level 4 Design and Verification: course slides — material:eal-slides#p36
+    "We would take the above value into table 4D1A to find the Iz and read down column 5 to find a 240mm² conductor"
+[R35] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p448
+    "240 321 286 400 346"
+[R36] EAL Level 4 Design and Verification: course slides — material:eal-slides#p37
+    "It would then be a case of using the percentage given by the manufacturer to carry out the equations in the earlier slides."
+[R37] 96631263_product_datasheet.pdf (Thorn luminaire datasheet) — https://resources.thornlighting.com/object/PDF/DataSheet.aspx?ArticleID=337726&CompanyID=4&DataSheetType=1&ModeID=21&SubCompanyID=44&lang=en
+    "Total harmonic distortion (THD): 15.00 %"
+[R38] Electronic Ballast Fundamentals — https://www.villalighting.com/assets/docs/ABTFRME00596_3_7-3_14_3_16_3_30_3_31.pdf
+    "RQM-2S40-TP Conventional Magnetic 100% (Ballast Factor is 0.98) (2) F40T12 0.84A <25% 0.20A"
+[R39] Electronic Ballast Fundamentals — https://www.villalighting.com/assets/docs/ABTFRME00596_3_7-3_14_3_16_3_30_3_31.pdf
+    "Almost all Philips Advance electronic ballasts are rated for either less than 20% THD or less than 10% THD."
+[R40] Electronic Ballast Fundamentals — https://www.villalighting.com/assets/docs/ABTFRME00596_3_7-3_14_3_16_3_30_3_31.pdf
+    "The ANSI standard for electronic ballasts specifies a maximum THD of 32% for commercial applications."
+[R41] IEC 61000-3-2:2018+AMD1:2020+AMD2:2024 CSV | IEC — https://webstore.iec.ch/en/publication/92799
+    "It is applicable to electrical and electronic equipment having a rated input current up to and including 16 A per phase, and intended to be connected to public low-voltage distribution systems."
+[R42] Regulation of Harmonics — https://www.advancedenergy.com/getmedia/a63dd662-0291-43d8-89d4-44b8d834e546/en-lv-regulation-of-harmonics-application-note.pdf
+    "The limits imposed on the harmonic content of Class C equipment (lighting equipment) are shown in Table 1 below:"
+[R43] Regulation of Harmonics — https://www.advancedenergy.com/getmedia/a63dd662-0291-43d8-89d4-44b8d834e546/en-lv-regulation-of-harmonics-application-note.pdf
+    "3 30-λ* 5 10 7 7 9 5"
+[R44] Electronic Ballast Fundamentals — https://www.villalighting.com/assets/docs/ABTFRME00596_3_7-3_14_3_16_3_30_3_31.pdf
+    "This is because the absolute value of harmonic current, not the percentage, affects the electrical power distribution system."
+[R45] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p136
+    "Final circuits for discharge lighting must be arranged so as to be capable of carrying the total steady current, which is made up of the lamp(s) and any associated controlgear and also their harmonic currents."
+[R46] 6.2.1 - Maximum demand (The Electricians Guide, Whitfield, via TLC) — https://www.tlc-direct.co.uk/Book/6.2.1.htm
+    "So long as the power factor of a discharge lighting circuit is not less than 0.85"
+[R47] EAL Level 4 Design and Verification: course slides — material:eal-slides#p22
+    "Regulation 433.1.1 explains the following: Ib ≤ In ≤ Iz"
+[R48] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "The rated current or current setting of the protective device (In) should not be less than the design current (Ib) of the circuit."
+[R49] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "The current (I2) causing effective operation of the protective device should not exceed 1.45 times the lowest current-carrying capacity (Iz) of any of the conductors of the circuit."
+[R50] EAL Level 4 Design and Verification: course slides — material:eal-slides#p24
+    "Anything that causes the cable to be artificially warm, such as running through thermal insulation, or a higher ambient temperature will mean the cable will need downrating through an appropriate rating factor."
+[R51] 2008 28 Autumn Wiring Matters — https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf
+    "Ca is rating factor for ambient temperature, see Table 4B1 of BS 7671 Cg is rating factor for grouping see, Table 4C1 of BS 7671"
+[R52] EAL Level 4 Design and Verification: course slides — material:eal-slides#p25
+    "Rating factors are applied as divisors to the rating or setting of the protective device (In)"
+[R53] 2008 28 Autumn Wiring Matters — https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf
+    "The value of current tabulated in this appendix for the type of cable and installation method concerned, for a single circuit in the ambient temperature stated in the current-carrying capacity tables."
+[R54] 2008 28 Autumn Wiring Matters — https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf
+    "The current-carrying capacity of a cable for continuous service, under the particular installation conditions concerned."
+[R55] EAL Level 4 Design and Verification: course slides — material:eal-slides#p25
+    "rating factors need only be applied when happening TOGETHER."
+[R56] EAL Level 4 Design and Verification: course slides — material:eal-slides#p27
+    "16 / 0.94 x 0.8 = 21.2A (this is the It of the cable for Ca and Cg)"
+[R57] EAL Level 4 Design and Verification: course slides — material:eal-slides#p27
+    "16 / 0.94 x 0.88 = 19.3A (this is the It of the cable for Ca and Ci)"
+[R58] EAL Level 4 Design and Verification: course slides — material:eal-slides#p28
+    "We need to design to the reference method which has the biggest impact on the cables maximum current carrying capacity (Iz)."
+[R59] EAL Level 4 Design and Verification: course slides — material:eal-slides#p30
+    "Most devices have an I2 of 1.45 times their In…."
+[R60] EAL Level 4 Design and Verification: course slides — material:eal-slides#p30
+    "So, a 10A type B circuit breaker has an I2 of 10 x 1.45 = 14.5A."
+[R61] EAL Level 4 Design and Verification: course slides — material:eal-slides#p31
+    "it has an Iz of 13A."
+[R62] EAL Level 4 Design and Verification: course slides — material:eal-slides#p32
+    "I2 ≤ Iz x 1.45"
+[R63] ChAnges to Appendix 4 of Amendment 1 of Bs 7671:2008 — https://electrical.theiet.org/media/1522/changes-to-appendix-4-of-amendment-1-of-bs7671-2008.pdf
+    "the factor of 1.45 ensures that deterioration of cables does not result from small overloads."
+[R64] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "This is to compensate for the high value of I2 of a BS 3036 fuse, which can be up to 2 × Iz."
+[R65] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "Where the protective device is a semienclosed (rewireable) fuse to BS 3036, the requirement of condition 3 is met where In does not exceed 0.725 times the current-carrying capacity of the circuit conductors (Iz)"
+[R66] EAL Level 4 Design and Verification: course slides — material:eal-slides#p25
+    "Cf = Rating factor when overload protection is provided by devices with fusing factors greater than 1.45 (ie: Cf = 0.725 for semi enclosed fuses to BS 3036)"
+[R67] EAL Level 4 Design and Verification: course slides — material:eal-slides#p20
+    "The different ‘types’ are in relation to the start up current of a circuit."
+[R68] ED4-01A learner pack: car showroom assignment — material:learner-pack#p4
+    "Base your selection on the delta running conditions and any other factors present."
+[R69] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p441
+    "TABLE 4B1 — Rating factors (C,) for ambient air temperatures other than 30 °C"
+[R70] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p441
+    "25 1.04 1.03 1.02 1.07 1.04"
+[R71] 2011 40 Autumn Wiring Matters — https://electrical.theiet.org/media/1053/2011_40_autumn_wiring_matters__complete_adverts.pdf
+    "Appendix 4 is an informative appendix within BS 7671."
+[R72] Ambient Temperature Correction Factor - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/31281/ambient-temperature-correction-factor
+    "which is only Informative rather than normative"
+[R73] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p443
+    "it may either be considered as n/2 circuits of two loaded conductors or n/3 circuits of three loaded conductors"
+[R74] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p170
+    "n/3 circuits of three loaded conductors (for three-phase circuits)"
+[R75] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p443
+    "Bunched in air, on a | 1.00 | 0.80 | 0.70 | 0.65 | 0.60 | 0.57 | 0.54 | 0.52 | 0.50 | 0.45 | 0.41 | 0.38 A to F"
+[R76] Thermal Overload Relays — https://www.rkcontrols.com/pdf/configuration-support/Siemens_Industrial_Controls/Siemens-Overload-Relays.pdf
+    "When overload relays are used in WYE-delta combinations, it is important to note that only 1/√3 of the motor current flows through the mains contactor."
+[R77] In a star-delta starter, how can I incorporate a thermal overload relay as per Type 1 or Type 2 coordination? | Schneider Electric UK — https://www.se.com/uk/en/faqs/FA86594/
+    "Type 1 coordination The thermal overload relay is placed in the delta circuit and must be set to 0.58 x motor In."
+[R78] Direct-On-Line and Automatic Star – Delta Starter — https://assets.new.siemens.com/siemens/assets/api/uuid:0439c3a6-f14d-4b93-bf1b-a874d46b4dd3/industrial-new-dol-11-55kwand-asd-22-55kw-operating-instruction.pdf
+    "under no circumstances should the relay be set higher than phase current i.e. 0.58 times the rated current on the motor nameplate."
+[R79] Star Delta Starter Calculator (Contactor Sizing) | ElectroMechCalc — https://www.electromechcalc.com/electrical/star-delta-starter
+    "In delta running the supply reaches each winding from two directions — one end through KM1, the other through KM3 — which is why both carry winding current rather than line current."
+[R80] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p458
+    "TABLE 4E1A — Single-core 90 °C thermosetting insulated cables, non-armoured,"
+[R81] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p458
+    "Reference Method A Reference Method B Reference Method C Reference Method F Reference Method G"
+[R82] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p458
+    "1 14 13 17 15 19 17.5"
+[R83] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p458
+    "1.5 19 17 23 20 25 23"
+[R84] 2008 28 Autumn Wiring Matters — https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf
+    "Where the conduit is fixed to a masonry wall the current-carrying capacity of the non-sheathed or sheathed cable may be higher."
+[R85] 2008 28 Autumn Wiring Matters — https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf
+    "Non-sheathed cables in conduit mounted on a wooden or masonry wall"
+[R86] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p90
+    "B 3 to 5 In switching surge"
+[R87] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p90
+    "C 5 to 10 In the use of fluorescent lighting, small motors, etc., can"
+[R88] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p90
+    "D 10 to 20 In Suitable for transformers, X-ray machines, industrial welding"
+[R89] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "In particular, certain types of electrical load such as discharge lighting, AC induction motors and transformers take a much higher current during starting than during normal operation."
+[R90] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "However, due to the starting characteristics of the load a higher value of In may be necessary for certain loads (Regulation 533.2.1 refers)"
+[R91] Asynchronous motors - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Asynchronous_motors
+    "The high start-up current means that motor overload protective devices must have operating characteristics which avoid tripping during the starting period."
+[R92] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p145
+    "10 15 16 20 25 30 32 40 45 50"
+[R93] Star Delta Starter Calculator (Contactor Sizing) | ElectroMechCalc — https://www.electromechcalc.com/electrical/star-delta-starter
+    "Direct on line (DOL) | 6–8 × FLC"
+[R94] Star Delta Starter Calculator (Contactor Sizing) | ElectroMechCalc — https://www.electromechcalc.com/electrical/star-delta-starter
+    "Star-delta | ≈ 2–2.7 × FLC"
+[R95] — Electrical installation solutions for buildings – Technical details MCBs — https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj
+    "C 0.5 to 63 A 1.13 · In > 1 h 5 · In > 0.1 s 1.45 · In < 1 h 10 · In < 0.1 s"
+[R96] — Electrical installation solutions for buildings – Technical details MCBs — https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj
+    "D 0.5 to 63 A 1.13 · In > 1 h 10 · In > 0.1 s 1.45 · In < 1 h 20 · In < 0.1 s"
+[R97] BS 7671: Protection against overload current | NICEIC & ELECSA - Professional Electrician — https://professional-electrician.com/technical/bs-7671-protection-against-overload-current-niceic-elecsa
+    "Regulation 433.1.201 states, where conditions (i) and (ii) are met (and I b ≤ I n ≤ I z ), condition (iii) will also be met where the following protective devices are employed:"
+[R98] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "such as a thermal overload protective device in a motor circuit, it will be necessary for the electrical installation designer to refer to the device characteristics in order to ensure compliance with all aspects of Regulation 433.1.1."
+[R99] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p443
+    "a cable is expected to carry not more than 30 % of its grouped rating, it may be ignored for the purpose of obtaining the rating factor for the rest of the group"
+[R100] How are the requirements for overload current in BS 7671 to be applied? - Professional Electrician — https://professional-electrician.com/technical/how-are-the-requirements-for-overload-current-in-bs-7671-to-be-applied
+    "Should an overload occur in a circuit where there is no overload protection provided, the temperature of the circuit conductors is liable to increase significantly which, over time, may lead to damage of insulation, joints and terminations of the conductors and/or their surroundings."
+[R101] Mythbuster #11 - Adapting for change — https://electrical.theiet.org/wiring-matters/years/2024/103-november-2024/mythbuster-11-adapting-for-change
+    "the lack of which could give rise to damage to wiring accessories or detrimental thermal effects, including fire"
+[R102] Mythbuster #11 - Adapting for change — https://electrical.theiet.org/wiring-matters/years/2024/103-november-2024/mythbuster-11-adapting-for-change
+    "Circuits should also be designed to prevent small overloads of a long duration."
+[R103] EAL Level 4 Design and Verification: project guide — material:project-guide#p7
+    "See section 4.7 of The Electrical Installation Guide for guidance."
+[R104] — Electrical installation solutions for buildings – Technical details MCBs — https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj
+    "B 6 to 63 A 1.13 · In > 1 h 3 · In > 0.1 s 1.45 · In < 1 h 5 · In < 0.1 s"
+[R105] EAL Level 4 Design and Verification: course slides — material:eal-slides#p30
+    "even then it’ll take 10,000s before it does."
+[R106] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p458
+    "maximum operating temperature of the cable, the cables should be rated at the maximum"
+[R107] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p448
+    "TABLE 4D1A — Single-core 70 °C thermoplastic insulated cables, non-armoured,"
+[R108] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p448
+    "15 14.5 13.5 17.5 15.5 20 18"
+[R109] Circuit design calculation process: the 20-step flowchart — material:flowchart#p1
+    "Electrical Circuit Design Calculation Process - BS7671:2018 + Amd2:2022"
+[R110] Circuit design calculation process: the 20-step flowchart — material:flowchart#p1
+    "Note 2: Suitable protective conductor size and minimum protective conductor size are not the same thing."
+[R111] ED4-01A learner pack: car showroom assignment — material:learner-pack#p3
+    "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+[R112] ED4-01A learner pack: car showroom assignment — material:learner-pack#p3
+    "Ambient temperature is 20 degrees Celsius."
+[R113] ED4-01A learner pack: car showroom assignment — material:learner-pack#p4
+    "Within the consultation bay there will be an additional requirement for a 400 V three-phase 11 kW motor which operates at a power factor of 0.8 lagging and efficiency of 86%."
+[R114] EAL Level 4 Design and Verification: course slides — material:eal-slides#p13
+    "√3 = Square root of 3 (1.73)"
+[R115] EAL Level 4 Design and Verification: course slides — material:eal-slides#p16
+    "Ib = 20,000 / 400 x √3"
+A source whose address begins "material:" is a page of Dan's own course materials ("#p16": the page), checked word for word against that page: judge the lesson against its quote as you would a web source's.
+Notes (claims, and the sources that support them):
+- Third and other triple harmonic currents of a three-phase load are additive in the neutral and give additional heating of the cables, while the fundamentals of a balanced load cancel there. [R1][R2][R3][R4]
+- Loads such as rectifiers, variable-speed drives and fluorescent lighting banks draw non-sinusoidal currents, so current can appear in the neutral where a balanced motor load would have none. [R5][R6]
+- The neutral current can reach about 173% of phase current in a balanced system with these pulses, and one paper puts triplen neutral current at up to 3 times the phase fundamental, depending on how the percentage is referred. [R7][R8]
+- The slides take the neutral current as Ibn = 3 × h × IL (3 × 0.35 × 150 = 157.5 A at 35%), which exceeds the 150 A line current, so Ibn becomes Ib. [R9][R10]
+- The Table 4Aa bands in the slides: line current governs with factor 0.86 for 15 to 33% third harmonic, and above 33% the factor is applied to a calculated neutral current, not the line current. [R11][R12]
+- Harmonics are only considered when the manufacturer's data says one is present; with no neutral conductor there can be no current in it. [R13][R14]
+- The slides' worked example uses It ≥ 160 / (0.94 × 0.65 × 0.86) with the harmonic rating factor included in the divisor. [R15]
+- Table 4Aa, as the slides give it, has four bands by the third harmonic of the line current: 0 to 15% line current with factor 1.0, 15 to 33% line current with 0.86, 33 to 45% neutral current with 0.86, and over 45% neutral current with 1.0; the same table appears in IEC 60364-5-52 (E.52.1) as set o… [R16][R11][R17][R18][R19][R20]
+- The neutral current is 3 × h × IL: the third and other triple harmonics of the three lines add in the neutral to a magnitude equal to the sum of the third harmonic content of each phase, which is why the slides call the neutral higher than the line at 35% (row 3) and take Ibn as Ib. [R21][R22][R23][R24][R25]
+- Above 33% the neutral current is the larger, so the cable is sized on it; at 45% it is 135% of the line current and the three line conductors are then not fully loaded, which is why the factor goes back to 1.0 above 45%; the Schneider guide works 40% (37 × 0.4 × 3 = 44.4 A, ÷ 0.86 = 51.6 A) as an e… [R26][R27][R18][R28]
+- The ordinary current tables assume three loaded conductors; a harmonic neutral makes a fourth, and BS 7671 treats a neutral as a loaded conductor where a third harmonic or its multiples present a distortion above 15% of the line current (523.6.1) or where it carries current without a matching fall … [R29][R30][R31][R16]  [CONTESTED: The slides and Table 4Aa speak of the third harmonic content of the line current; NICEIC's summary of Regulation 523.6.1 speaks of total harmonic distortion greater than 15% of the fundamental. Makers usually print a THD figure, so the figure the lesson uses is a practice value for the third harmon…]
+- Where the neutral current comes only from an imbalance in the line currents, the neutral's heat is offset by less heat in a line conductor, so the cable is sized on the highest line current (NICEIC on 523.6.2); harmonic current is the case where there is no such offset. [R32][R31]
+- The slides' worked example runs from the neutral current to the cable: Ibn 157.5 A is Ib, In 160 A from Fig 3A3(b), It = 160 ÷ (0.94 × 0.65 × 0.86), and Table 4D1A column 5 gives 240 mm² at 346 A (his copy of the table, p.448, row 240: Reference Method B, three or four loaded cables, 346 A). [R10][R33][R15][R34][R35]
+- Harmonics are considered only when the maker's data says there are some, and then the maker's percentage goes into the same sums; makers print THD, not the third harmonic alone: a Thorn luminaire datasheet gives THD 15.00 %, and a Philips Advance (US, 60 Hz) ballast table gives fluorescent ballasts… [R13][R36][R37][R38][R39]
+- No limit is quoted here for a fluorescent fitting's third harmonic in the showroom's drawing: the ANSI standard for electronic ballasts allows a maximum THD of 32%; IEC 61000-3-2 Class C (lighting, input current up to 16 A per phase) limits the third harmonic to 30 × the circuit power factor in per… [R40][R41][R42][R43][R44][R45][R46]
+- Regulation 433.1.1 requires In not less than Ib, In not above the lowest Iz of the circuit conductors, and I2 not above 1.45 Iz; the slides write the first two as Ib ≤ In ≤ Iz. [R47][R48][R49]  (from an idea this one builds on)
+- Anything that makes the cable artificially warm, such as thermal insulation or a higher ambient temperature, needs a rating factor; Ca is for ambient temperature, Cg for grouping and Ci for thermal insulation. [R50][R51]  (from an idea this one builds on)
+- Rating factors are applied as divisors to In, giving the tabulated current It the cable needs; It is the tabulated figure for a single circuit at the table's ambient, while Iz is the capacity as installed. [R52][R53][R54]  (from an idea this one builds on)
+- Only factors that act together are combined; the slides' 3 kW heater gives It = 21.2 A (Ca and Cg) and 19.3 A (Ca and Ci) and designs to the higher, on the reference method with the lowest Iz. [R55][R56][R57][R58]  (from an idea this one builds on)
+- A device's I2 is typically 1.45 times In (a 10 A type B breaker: 14.5 A), and the cable must withstand it: for Iz = 13 A the check is I2 ≤ 1.45 Iz, that is 14.5 against 18.85 A. [R59][R60][R61][R62][R63]  (from an idea this one builds on)
+- A semi-enclosed (rewireable) BS 3036 fuse has an I2 that can be up to 2 × Iz, so its In must not exceed 0.725 × Iz, which the slides put in as Cf = 0.725. [R64][R65][R66]  (from an idea this one builds on)
+- Circuit-breaker types B, C and D relate to the start-up current of the circuit; the assignment asks for cables from the starter to the motor to be chosen on delta running conditions and other factors present. [R67][R68]  (from an idea this one builds on)
+- Table 4B1 in his copy of BS 7671 has no 20 °C row: it starts at 25 °C, where the factor for 90 °C thermosetting cable is 1.02 (1.00 at 30 °C). Below 30 °C the factor is above 1; a 20 °C ambient has no value in the book, so the lesson uses a labelled practice value (1.00, which takes no credit for t… [R69][R70]  (from an idea this one builds on)
+- Appendix 4 of BS 7671 is informative, and other methods (for example a cable maker's own data) are legitimate, so the tables are taught as the usual way to show compliance, not the only one. [R71][R72]  (from an idea this one builds on)
+- Six single-core conductors from a star-delta starter all carry the winding current in delta running; Table 4C1 treats n single-core cables as n/3 circuits of three loaded conductors, so six singles are two three-phase circuits, and bunched and enclosed, two circuits give Cg = 0.80. [R73][R74][R75][R76]  (from an idea this one builds on)
+- A thermal overload relay in the delta circuit of a star-delta starter is set to 0.58 times the motor In (the winding current) and must not be set higher than it, so the starter-to-motor cables are sized on 23.08 A ÷ √3 = 13.33 A, not on the line current (a relay in the incoming line, as in the Schn… [R77][R78][R76][R79]  (from an idea this one builds on)
+- Table 4E1A (90 °C thermosetting singles, copper), Reference Method B, the column for 3 or 4 loaded cables on three-phase AC, gives 15 A for 1 mm² and 20 A for 1.5 mm²; Reference Method B is conduit on a wall or in trunking, and the IET adds that a conduit fixed to a masonry wall may carry more than… [R80][R81][R82][R83][R84][R85]  (from an idea this one builds on)
+- Circuit-breaker type follows the starting current: type B trips instantaneously at 3 to 5 In, type C at 5 to 10 In (suited to small motors and fluorescent-lighting surges) and type D at 10 to 20 In (high inrush); a motor takes a much higher current starting than running, so a device must be chosen … [R86][R87][R88][R89][R90][R91][R92]  (from an idea this one builds on)
+- A star-delta start draws roughly 2 to 2.7 times full-load current against 6 to 8 times for direct-on-line (a calculator site's table, not a standard); the motor's nameplate or maker gives the true figure, so the lesson uses it only as a labelled practice value. [R93][R94]  (from an idea this one builds on)
+- A breaker to BS EN 60898 has a conventional tripping current of 1.45 In within 1 hour (up to 63 A), so I2 = 1.45 In; a thermal overload relay is not one of those devices, so its own characteristic must be checked against Iz; the slides (p.30) say it takes 10,000 s, which is where Appendix 3's curve… [R95][R96][R97][R98]  (from an idea this one builds on)
+- Lightly loaded cables leave the group: a cable expected to carry no more than 30 % of its grouped rating may be ignored when finding the group factor for the rest of the group (Table 4C1 note 9), the point of C&G practice paper 1 question 10b. [R99]  (from an idea this one builds on)
+- A hazard of overload is overheating of the circuit conductors, which over time damages insulation, joints and terminations and their surroundings and can lead to fire; BS 7671 also expects a circuit to be designed so that a small overload of long duration is unlikely. [R100][R101][R102]  (from an idea this one builds on)
+- His project guide points to "section 4.7 of The Electrical Installation Guide" for the motor question; which book that is could not be established, so the lesson cites the starter makers and Table 4C1 instead. [R103]  (from an idea this one builds on)
+- For i3 (review fixes): the maker's catalogue gives type B breakers to IEC/EN 60898-1 from 6 to 63 A operation within 1 hour at 1.45 In, while the slides (p.30) say a device at I2 can take 10,000 s: the sources differ on the time. Table 4E1A note 1 (his copy p.458) rates 90 °C cables at the lower te… [R104][R105][R106][R107][R108]  (from an idea this one builds on)
+- Dan's course flowchart is headed "Electrical Circuit Design Calculation Process" for BS 7671:2018 + Amd2:2022, and its note 2 separates a suitable protective conductor size from the minimum protective conductor size. [R109][R110]  (whole topic)
+- The showroom supply is three phase four wire 400 V, TN-C-S, with Ze declared as 0.1 ohm and a prospective fault current of 4.6 kA; the ambient temperature is 20 degrees Celsius. [R111][R112]  (whole topic)
+- The showroom adds a 400 V three-phase 11 kW motor at power factor 0.8 lagging and efficiency 86%, controlled by a star-delta starter. [R113]  (whole topic)
+- Overload protection is the condition Ib ≤ In ≤ Iz (Regulation 433.1.1), plus I2 ≤ 1.45 Iz, where I2 is the current causing effective operation of the protective device. [R47][R48][R49]  (whole topic)
+- The course slides take √3 as 1.73, so their printed answers can differ in the last decimal places from the same sum worked with the calculator's √3. [R114][R115]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i4",
+ "title": "A neutral that carries more than the line",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the three lines' ripples fall into step and the neutral bar climb from 0 A past the 150 A line bar near a third, when you drag the third harmonic up.",
+  "title": "Three line currents and their neutral",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 10,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A refresher lesson in eleven screens, with Back and Continue between them, on the neutral of a three-phase four-wire circuit whose loads draw harmonic currents. Screen 1, Do you still have it?: “A balanced three-phase load on a four-wire supply draws 60 A in each line. Its maker states a third harmonic of 35% of the line current. What current flows in the neutral?” Three choices, in this order: 0.00 A, 21.00 A, 63.00 A. Right: “Still there.”, the working 3 × 0.35 × 60 = 63.00 A,[^1] more than the 60 A in each line, so the neutral current, not the line current, sets the cable,[^2] and a line each on the slips: 0.00 A is true of the fundamentals alone, which cancel;[^3] 21.00 A is one line's third harmonic, 0.35 × 60, and the three lines' add.[^4] Two buttons: Refresh the why (on to screen 2) and Skip to the practice (straight to screen 7). Wrong, 0.00 A: a balanced load's fundamentals do cancel in the neutral,[^3][^5] but third harmonic currents are additive there.[^4] Wrong, 21.00 A: that is one line's third harmonic; the neutral carries the sum of the three lines' third harmonic content,[^6] three times it. Then the right working and on to screen 2, with no skip. Read: the neutral carries 3 × 0.35 × 60 = 63.00 A, more than a line's 60 A. Screen 2, What it is for: a three-phase circuit is normally designed on its line current. Some circuits, supplying rectifiers, variable-speed motor drives or fluorescent lighting banks, draw currents that are not sinusoidal,[^7] and then the circuit may need designing on the neutral current, not the line current.[^2] The On-Site Guide asks the same of a discharge-lighting final circuit: it must carry its harmonic currents as well as the lamps' current.[^8] In red, if it is skipped: the neutral current gives rise to additional heating of the cables,[^9] and it comes without any matching fall in the line currents,[^10] so a cable sized on the line current alone does not allow for it. Screen 3, The why (why piece B): three line currents and their neutral. Opening text: each line current is drawn as two parts, a wave at the supply frequency (the fundamental) and a smaller wave at three times that frequency (the third harmonic). The picture: at the top, the three line currents, L1, L2 and L3, over one cycle of the supply; under them the neutral, their sum at each instant; under that two bars on one scale in amperes, Line and Neutral. A slider, Third harmonic, from 0 to 50% of the line current in steps of 1%, opening at 0%, with the edges of Table 4Aa's four rows as ticks under it, labelled 15, 33 and 45.[^11][^12][^13][^14] The line current is held at your slides' 150 A (p.35),[^1] so as the third harmonic's share grows the fundamental's shrinks. At 0% the three waves are plain sine waves a third of a cycle (120°) apart, and the neutral is flat at 0 A: balanced fundamentals cancel.[^3] Drag it up and each wave gains a ripple at three times the frequency. The 120° between the lines is a whole cycle of that ripple, so the three ripples rise and fall together, in phase,[^15] and the neutral becomes a wave at three times the supply frequency, the sum of the three.[^6] Readouts: Neutral current, Ibn = 3 × h × IL;[^1] Current that sets the cable (the line's 150 A, or the neutral's once it is larger); Table 4Aa factor, by row. At 15%, 67.50 A; at 20%, 90.00 A; at 33%, 148.50 A; at 34%, 153.00 A, and the neutral bar passes the line bar and turns red; at 35%, 157.50 A; at 45%, 202.50 A, 135% of the line; at 50%, 225.00 A. On a row's edge (15, 33 or 45% exactly) the picture takes the lower row, as the IET's answer reads “exceeding 33 %”.[^16] One line under it: the other triple harmonics (the 9th, the 15th) add the same way;[^4] how high a real neutral goes depends on the load: a maker's note gives up to 173% of phase current,[^17] a paper up to three times the phase current at the fundamental frequency.[^18] Read: at 0% the neutral carries 0 A; it passes the 150 A line near a third, and at 35% carries 3 × 0.35 × 150 = 157.50 A. Screen 4, Which current, which factor: the current tables are worked for three loaded conductors.[^19] A neutral carrying harmonic current is a fourth loaded conductor in the same cable: BS 7671 counts it as one where the third harmonic and its multiples pass 15% (Regulation 523.6.1, which NICEIC words as total harmonic distortion of the fundamental line current).[^20] Where a neutral carries only the lines' imbalance, its heat is offset by less heat in a line, and the cable is sized on the highest line current;[^21] harmonic current gets no such offset.[^10] Table 4Aa, as your slides give it (p.34), drawn as four rows stacked one above the other, each with its range, its current and its factor, and tapped to read its line: 0 to 15%, the line current with a factor of 1.0;[^11] 15 to 33%, the line current with 0.86;[^12] 33 to 45%, the neutral current with 0.86;[^13] over 45%, the neutral current with 1.0.[^14] Under the rows, why: up to 33% the line is still the larger, so it is Ib; above it the neutral is, and the cable is selected on the neutral current;[^22] the 0.86 is a rating factor, heat the table did not allow for (lesson 3),[^23] here the fourth loaded conductor's; by 45% the neutral carries 135% of the line, and with the cable sized on it the three lines are not fully loaded,[^24] so the factor goes back to 1.0. The factor goes in with the others: It ≥ In ÷ (Ca × Cg × the Table 4Aa factor).[^25] Before a device is chosen, the Schneider guide divides the current that sets the cable by the factor to give the design load it is chosen for.[^26] Then the maker's figure: your slides say harmonics are only to be considered if the manufacturer's data says one will be present,[^27] and then the maker's percentage goes into these sums.[^28] Makers often print total harmonic distortion: a Thorn luminaire datasheet gives THD 15.00%;[^29] almost all of one US maker's electronic ballasts are rated at less than 20% or less than 10% THD.[^30] THD counts every harmonic, not the third alone, so read which figure the datasheet gives, and say which you used. No neutral, no neutral current:[^31] a three-phase motor often has no neutral connected (p.33).[^5] Read: up to 33%, the line current sets the cable (factor 1.0 to 15%, 0.86 above); over 33%, the neutral current (0.86 to 45%, 1.0 above). Screen 5, Check: “A three-phase four-wire circuit carries 100 A in each line, and the maker's data gives a third harmonic of 50%. What current must its cable be chosen to carry, the current that sets it divided by Table 4Aa's factor?” Choices: 116.28 A, 150.00 A, 174.42 A. Right, 150.00 A: Ibn = 3 × 0.50 × 100 = 150.00 A, over 45%: the neutral current with a factor of 1.0.[^14] Wrong, 174.42 A (150.00 ÷ 0.86): the 0.86 belongs to the 33 to 45% row; above 45% the lines are not fully loaded.[^24] Wrong, 116.28 A (100 ÷ 0.86): that is the 15 to 33% row; at 50% the neutral carries 150% of the line, and the cable is selected on it.[^22] Read: 3 × 0.50 × 100 = 150.00 A, over 45%, factor 1.0: 150.00 A. Screen 6, Worked example, a line at each press (Work each step yourself first, then press Show), your slides p.35 and 36: a three-phase circuit with a harmonic content of 35% and a load of 150 A, single-core 70 °C thermoplastic cable on Reference Method B, grouped with three other circuits at an ambient of 35 °C, protected by a BS 88-2 fuse. 35% is row 3 of Table 4Aa, so the cable size is calculated on the neutral current.[^32] Ibn = 3 × 0.35 × 150 = 157.50 A,[^1] more than 150 A, so Ibn is Ib.[^33] In: 160 A, from Fig 3A3(b).[^34] Ca 0.94 at 35 °C; Cg 0.65 for four circuits bunched;[^35] the factor 0.86.[^25] 0.94 × 0.65 = 0.611; 0.611 × 0.86 = 0.52546. It ≥ 160 ÷ 0.52546 = 304.50 A.[^25] Table 4D1A, column 5: 240 mm²,[^36] whose row in your copy (p.448) gives 346 A in that column.[^37] Iz = 346 × 0.52546 = 181.81 A, so 157.50 ≤ 160 ≤ 181.81. One line: your slides print 304.4 A, cut short; the cable is the same. Read: Ibn = 157.50 A is Ib; In 160 A; It ≥ 160 ÷ (0.94 × 0.65 × 0.86) = 304.50 A; 240 mm², Iz 181.81 A. Screen 7, Section A, the course's question 3 (d): the showroom's scenario panel, and (a) and (b) carried forward (4594 W; 8.22 A on L1). Given: DBL2's submain is fed three-phase and four-wire, as the course's split of its lighting circuits across L1 to L3 (lesson 2) needs, and most of its fittings are the key's fluorescent modular and twin fittings. No maker's data exists for the drawing's own fittings, so the course takes a third harmonic of 20%, a practice value: read the real one from the maker's datasheet for each fitting and its control gear. For scale, one US maker rates almost all its electronic ballasts at less than 20% or less than 10% THD,[^30] and the ANSI standard allows electronic ballasts a maximum THD of 32%.[^38] The course applies the 20% to the whole of the heaviest line, L1, 8.22 A, though an LED circuit shares it: a cautious simplification, its own. “(d) Using your slides' rule and the heaviest line current, determine the neutral current of DBL2's submain.” A typed answer (part 3d): 3 × 0.20 × 8.22 = 4.93 A.[^1] Slips: 1.64 A (0.20 × 8.22, one line's third harmonic: the three add[^6]), 0 A (the fundamentals cancel; the third harmonics do not[^4]), 24.66 A (3 × 8.22: the share h left out), 8.22 A (the line current). After two misses the working, and part (e) starts from the course's figure. Read: Ibn = 3 × 0.20 × 8.22 = 4.93 A (on a practice 20%), less than the line's 8.22 A. Screen 8, Section A, question 3 (e): (a), (b) and (d) carried forward. “(e) Determine the current DBL2's submain cable must be chosen to carry once Table 4Aa's factor is applied.” A typed answer (part 3e): 20% is the 15 to 33% row, the line current with 0.86,[^12] so 8.22 ÷ 0.86 = 9.56 A. Slips: 8.22 A (the factor left out: at 20% the neutral is a loaded conductor[^20]), 5.73 A (4.93 ÷ 0.86: the neutral is the smaller, and only above 33% does it set the cable[^16]), 7.07 A (8.22 × 0.86: rating factors divide[^39]). After it, a what-if: if the maker's figure were 35% (the slides' example percentage, not a showroom figure), 3 × 0.35 × 8.22 = 8.63 A, more than 8.22 A, so the neutral would set the cable: 8.63 ÷ 0.86 = 10.03 A. In lesson 8's design of the submain the 0.86 goes in with Ca and Cg, dividing In.[^25] Read: 20% is the 15 to 33% row: 8.22 ÷ 0.86 = 9.56 A (on a practice 20%). Screen 9, Section B: “Explain why third harmonic currents add in the neutral of a three-phase four-wire circuit, and what that means for the cable.” Your written answer, marked against five points (a full answer makes any three), one more go, then the model answer. Screen 10, Section A, changed numbers: “A three-phase four-wire circuit carries 37 A in each line, and the maker's data gives a third harmonic of 40%. Determine the current its cable must be chosen to carry once Table 4Aa's factor is applied.” A typed answer: 3 × 0.40 × 37 = 44.40 A, more than 37 A, so the 33 to 45% row: 44.40 ÷ 0.86 = 51.63 A; the Schneider guide works the same circuit and prints 51.6 A.[^26] Slips: 44.40 A (the 0.86 left out), 43.02 A (37 ÷ 0.86: the line current, but over 33% the neutral sets the cable), 38.18 A (44.40 × 0.86: the factor divides). Read: 3 × 0.40 × 37 = 44.40 A; 44.40 ÷ 0.86 = 51.63 A. Screen 11, Keep this: the summary card, then Finish the lesson. The line under the lesson (figures from your slides, your assignment and your copy of BS 7671; practice values marked; each line worked from the rounded figures before it) shows on screens 3 to 8 and 10.",
+  "ignores": "Each line current is drawn as a fundamental and a third harmonic only; real loads also draw the 5th, 7th and higher harmonics, and of those only the triple ones (9th, 15th) add in the neutral. The three lines are drawn equal; real ones differ a little, and the neutral then also carries a small part of the fundamentals. Where the ripple sits against the fundamental is chosen for the drawing: the size of each part, not the shape of the wave, sets the readouts. Table 4Aa's rows are steps, so a figure just across an edge changes the factor at once.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 11 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Recall: line current, A",
+    "value": 60,
+    "kind": "assumed"
+   },
+   {
+    "label": "Recall: third harmonic, %",
+    "value": 35,
+    "kind": "assumed"
+   },
+   {
+    "label": "Recall: neutral, 3 × 0.35 × 60, A",
+    "value": 63,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall slip: one line's, 0.35 × 60, A",
+    "value": 21,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall slip: fundamentals only, A",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Angle between the lines' fundamentals, degrees",
+    "value": 120,
+    "kind": "constant",
+    "source": 3
+   },
+   {
+    "label": "Slides' line current, A",
+    "value": 150,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Slides' third harmonic, %",
+    "value": 35,
+    "kind": "constant",
+    "source": 32
+   },
+   {
+    "label": "Third harmonic slider, 0 to, %",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slider opens at, %",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Table 4Aa row edge, %",
+    "value": 15,
+    "kind": "constant",
+    "source": 11
+   },
+   {
+    "label": "Table 4Aa row edge, %",
+    "value": 33,
+    "kind": "constant",
+    "source": 12
+   },
+   {
+    "label": "Table 4Aa row edge, %",
+    "value": 45,
+    "kind": "constant",
+    "source": 13
+   },
+   {
+    "label": "Table 4Aa factor, rows 1 and 4",
+    "value": 1,
+    "kind": "constant",
+    "source": 11
+   },
+   {
+    "label": "Table 4Aa factor, rows 2 and 3",
+    "value": 0.86,
+    "kind": "constant",
+    "source": 12
+   },
+   {
+    "label": "Neutral at 15%, A",
+    "value": 67.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Neutral at 20%, A",
+    "value": 90,
+    "kind": "computed"
+   },
+   {
+    "label": "Neutral at 33%, A",
+    "value": 148.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Neutral at 34%, A",
+    "value": 153,
+    "kind": "computed"
+   },
+   {
+    "label": "Neutral at 35%, 3 × 0.35 × 150, A",
+    "value": 157.5,
+    "kind": "computed",
+    "source": 1
+   },
+   {
+    "label": "Neutral at 45%, A",
+    "value": 202.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Neutral at 45%, % of the line",
+    "value": 135,
+    "kind": "constant",
+    "source": 24
+   },
+   {
+    "label": "Neutral at 50%, A",
+    "value": 225,
+    "kind": "computed"
+   },
+   {
+    "label": "Maker's note: neutral up to, % of phase current",
+    "value": 173,
+    "kind": "constant",
+    "source": 17
+   },
+   {
+    "label": "Paper: neutral up to, × phase fundamental",
+    "value": 3,
+    "kind": "constant",
+    "source": 18
+   },
+   {
+    "label": "523.6.1 threshold, %",
+    "value": 15,
+    "kind": "constant",
+    "source": 20
+   },
+   {
+    "label": "Thorn datasheet THD, %",
+    "value": 15,
+    "kind": "constant",
+    "source": 29
+   },
+   {
+    "label": "US maker's electronic ballasts, THD under, %",
+    "value": "20 or 10",
+    "kind": "constant",
+    "source": 30
+   },
+   {
+    "label": "ANSI maximum THD, electronic ballasts, %",
+    "value": 32,
+    "kind": "constant",
+    "source": 38
+   },
+   {
+    "label": "Check: line current, A",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Check: third harmonic, %",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Check: neutral, 3 × 0.50 × 100, A",
+    "value": 150,
+    "kind": "computed"
+   },
+   {
+    "label": "Check slip, 150.00 ÷ 0.86, A",
+    "value": 174.42,
+    "kind": "computed"
+   },
+   {
+    "label": "Check slip, 100 ÷ 0.86, A",
+    "value": 116.28,
+    "kind": "computed"
+   },
+   {
+    "label": "Check: neutral as % of the line",
+    "value": 150,
+    "kind": "computed"
+   },
+   {
+    "label": "Slides' cable temperature rating, °C",
+    "value": 70,
+    "kind": "constant"
+   },
+   {
+    "label": "Slides' ambient, °C",
+    "value": 35,
+    "kind": "constant"
+   },
+   {
+    "label": "Slides' circuits bunched (three others and itself)",
+    "value": 4,
+    "kind": "constant"
+   },
+   {
+    "label": "Slides' In from Fig 3A3(b), A",
+    "value": 160,
+    "kind": "constant",
+    "source": 34
+   },
+   {
+    "label": "Slides' Ca at 35 °C",
+    "value": 0.94,
+    "kind": "constant",
+    "source": 25
+   },
+   {
+    "label": "Cg, four circuits bunched (Table 4C1)",
+    "value": 0.65,
+    "kind": "constant",
+    "source": 35
+   },
+   {
+    "label": "Ca × Cg",
+    "value": 0.611,
+    "kind": "computed"
+   },
+   {
+    "label": "Ca × Cg × 0.86",
+    "value": 0.52546,
+    "kind": "computed"
+   },
+   {
+    "label": "It, 160 ÷ 0.52546, A",
+    "value": 304.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Slides' printed It, A",
+    "value": 304.4,
+    "kind": "constant"
+   },
+   {
+    "label": "Slides' cable, mm²",
+    "value": 240,
+    "kind": "constant",
+    "source": 36
+   },
+   {
+    "label": "Table 4D1A column read",
+    "value": 5,
+    "kind": "constant",
+    "source": 36
+   },
+   {
+    "label": "240 mm², Reference Method B, 3 or 4 cables, A",
+    "value": 346,
+    "kind": "constant",
+    "source": 37
+   },
+   {
+    "label": "Your copy of BS 7671, page",
+    "value": 448,
+    "kind": "constant",
+    "source": 37
+   },
+   {
+    "label": "Iz, 346 × 0.52546, A",
+    "value": 181.81,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 3a: DBL2's connected lighting load, W",
+    "value": 4594,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 3b: DBL2's current on L1, A",
+    "value": 8.22,
+    "kind": "computed"
+   },
+   {
+    "label": "Showroom third harmonic (practice value), %",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Part 3d: neutral, 3 × 0.20 × 8.22, A",
+    "value": 4.93,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 3d slip, 0.20 × 8.22, A",
+    "value": 1.64,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 3d slip, 3 × 8.22, A",
+    "value": 24.66,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 3e: 8.22 ÷ 0.86, A",
+    "value": 9.56,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 3e slip, 4.93 ÷ 0.86, A",
+    "value": 5.73,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 3e slip, 8.22 × 0.86, A",
+    "value": 7.07,
+    "kind": "computed"
+   },
+   {
+    "label": "What-if: neutral at 35%, 3 × 0.35 × 8.22, A",
+    "value": 8.63,
+    "kind": "computed"
+   },
+   {
+    "label": "What-if: 8.63 ÷ 0.86, A",
+    "value": 10.03,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers: line current, A",
+    "value": 37,
+    "kind": "constant",
+    "source": 26
+   },
+   {
+    "label": "Changed numbers: third harmonic, %",
+    "value": 40,
+    "kind": "constant",
+    "source": 26
+   },
+   {
+    "label": "Changed numbers: neutral, 3 × 0.40 × 37, A",
+    "value": 44.4,
+    "kind": "computed",
+    "source": 26
+   },
+   {
+    "label": "Changed numbers: 44.40 ÷ 0.86, A",
+    "value": 51.63,
+    "kind": "computed"
+   },
+   {
+    "label": "Schneider guide's printed design load, A",
+    "value": 51.6,
+    "kind": "constant",
+    "source": 26
+   },
+   {
+    "label": "Changed numbers slip, 37 ÷ 0.86, A",
+    "value": 43.02,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers slip, 44.40 × 0.86, A",
+    "value": 38.18,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "In a balanced three-phase circuit the three line currents cancel in the neutral, so a balanced motor may have no neutral connected at all.[^3][^5] Some loads, such as fluorescent lighting banks, rectifiers and variable-speed drives, draw currents that are not sinusoidal,[^7] and part of what they draw does not cancel: the third harmonics of the three lines add in the neutral,[^4] and can make it carry more than any line.[^40] Then the neutral current, not the line current, may have to set the cable.[^2]\n\nPicture each line current as two waves added together: one at the supply frequency, the fundamental, and a smaller one at three times that frequency, the [[third harmonic]]. The three fundamentals are a third of a cycle, 120°, apart, so at every instant they sum to nothing in the neutral.[^3] The third harmonic runs three times as fast, so that same 120° delay is a whole cycle of it: the three lines' third harmonics rise and fall together, in phase,[^15] and the neutral carries their sum.[^6] If each line's third harmonic is a share h of its line current IL, the neutral carries Ibn = 3 × h × IL.[^1] That passes IL once 3h passes 1, near a third: your slides' 150 A load at 35% puts 3 × 0.35 × 150 = 157.50 A in the neutral.[^1] This is a simplified picture, three equal lines and the third harmonic alone; the other triple harmonics add in the same way.[^4]\n\nThe current tables are worked for three loaded conductors,[^19] and a neutral carrying harmonic current is a fourth [[loaded conductor]] heating the same cable;[^9] BS 7671 counts it as one once the third harmonic and its multiples pass 15% of the fundamental line current (in NICEIC's summary of Regulation 523.6.1).[^20] More heat in the same cable means each conductor reaches its limit at a lower current, so the cable is derated: that is Table 4Aa's 0.86. A neutral that carries only the lines' imbalance is offset by less heat in a line;[^21] a harmonic neutral current comes with no such fall in the lines.[^10] So Table 4Aa, as your slides give it, picks the current and a rating factor by the third harmonic: up to 15%, the line current with 1.0;[^11] 15 to 33%, the line current with 0.86;[^12] 33 to 45%, the neutral current with 0.86;[^13] over 45%, the neutral current with 1.0,[^14] because by then the neutral carries over 135% of the line and the three lines are not fully loaded.[^24] The factor divides In with the others: It ≥ In ÷ (Ca × Cg × the Table 4Aa factor).[^25] Your slides start all of this from the maker's data: harmonics are considered only when it says one is present, and its percentage goes into the sums (p.37).[^27][^28]\n\n**Where the maker's data gives a third harmonic of more than about a third of the line current, the neutral carries more than the line, and the neutral current, Ibn = 3 × h × IL, sets the cable.**[^2][^1][^13]"
+ },
+ "analogy": {
+  "text": "Picture three watches on a ship whose days start eight hours apart. Anything each watch does once in its own day, such as taking over, falls at three different times, spread evenly round the clock. But anything each watch does every eight hours of its own day falls at the same times for all three, because an eight-hour stagger is a whole lap of an eight-hour routine: at those times the galley serves all three watches at once, three times one watch's queue.",
+  "breaks": "People spread out but never subtract, while the fundamentals, being signed currents, cancel to nothing. And how big each line's third harmonic is comes from the load's electronics, not a rota: the picture shows why they line up, not how large they are."
+ },
+ "practice": {
+  "text": "- Ask for the maker's data on each load that draws non-sinusoidal current: fluorescent fittings with their control gear, rectifiers, variable-speed drives.[^7] Your slides consider harmonics only if it says one will be present, and then its percentage goes into the sums (p.37).[^27][^28] Note whether it gives the third harmonic or THD.[^29]\n- Work the neutral current with the heaviest line current: Ibn = 3 × h × IL.[^1]\n- Read Table 4Aa's row: up to 15%, the line current with 1.0;[^11] 15 to 33%, the line current with 0.86;[^12] 33 to 45%, the neutral current with 0.86;[^13] over 45%, the neutral current with 1.0.[^14]\n- Choose In from that current, then It ≥ In ÷ (Ca × Cg × the Table 4Aa factor),[^25] and read the column for three or four loaded cables.[^36]\n- Check Ib ≤ In ≤ Iz, with Iz worked from the same factors.[^41]\n\n**Rule of thumb:** the neutral overtakes the line near a third, where 3 × h passes 1. A circuit with no neutral carries no neutral current,[^31] so a three-phase motor's cable without one has no neutral to size.[^5]\n\n**Worked example:** your slides' 150 A circuit at 35% (p.35, 36). Ibn = 3 × 0.35 × 150 = 157.50 A, more than 150 A, so it is Ib.[^1][^33] In 160 A.[^34] It ≥ 160 ÷ (0.94 × 0.65 × 0.86) = 160 ÷ 0.52546 = 304.50 A (your slides print 304.4 A, cut short).[^25] Table 4D1A column 5: 240 mm² at 346 A,[^36][^37] so Iz = 346 × 0.52546 = 181.81 A and 157.50 ≤ 160 ≤ 181.81. On the showroom, with a third harmonic of 20% (a practice value: read the real one from the maker's datasheet), DBL2's submain has Ibn = 3 × 0.20 × 8.22 = 4.93 A, below the line's 8.22 A, so the line current sets it: 8.22 ÷ 0.86 = 9.56 A.\n\n**Common mistakes**\n- Expecting no neutral current because the load is balanced: true of the fundamentals only.[^3][^4]\n- Leaving out the × 3: h × IL is one line's third harmonic, and the neutral carries all three.[^6]\n- Sizing on the line current when the third harmonic exceeds 33%.[^16]\n- Leaving out the 0.86 between 15 and 45%, or keeping it above 45%.[^12][^13][^14]\n- Reading a THD figure as the third harmonic without saying so.[^20]"
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "written": {
+  "b1": {
+   "q": "Explain why third harmonic currents add in the neutral of a three-phase four-wire circuit, and what that means for the cable.",
+   "points": [
+    {
+     "text": "The fundamental currents of a balanced load are 120° apart and cancel in the neutral.",
+     "cite": "Slides p.33; Wired IN (Federal Pacific), Mar-Apr 2007, in research"
+    },
+    {
+     "text": "The third harmonics of the three lines are in phase with one another (a 120° shift is a whole cycle of a wave three times as fast), so they do not cancel.",
+     "cite": "Schneider Electrical Installation Guide, sizing the neutral conductor, Fig. G64, in research; IJEAT paper on triplen harmonics, in research"
+    },
+    {
+     "text": "They add: the neutral carries the sum of the three lines' third harmonic content, Ibn = 3 × h × IL.",
+     "cite": "IET Wiring Matters 62 (Autumn 2016), in research; slides p.35"
+    },
+    {
+     "text": "Above about a third (33%) of the line current the neutral current is the larger, so the cable is sized on the neutral current.",
+     "cite": "Slides p.34 to 36; IET EngX answer on Table 4Aa, in research"
+    },
+    {
+     "text": "The neutral becomes a loaded conductor that heats the cable, which the tables (three loaded conductors) do not allow for, so Table 4Aa applies a factor of 0.86 between 15% and 45%.",
+     "cite": "IET Wiring Matters 23 (Summer 2007); NICEIC on Regulation 523.6.1; Schneider guide, in research; slides p.34"
+    }
+   ],
+   "need": 3,
+   "model": "In a balanced load the three fundamental currents are 120° apart, so they cancel in the neutral (your slides p.33). The third harmonic runs at three times the supply frequency, so the same 120° between the lines is a whole cycle of it: the three lines' third harmonics are in phase and do not cancel. They add, and the neutral carries the sum of the three lines' third harmonic content, 3 × h × IL (slides p.35). Above about a third of the line current that is more than the line current, so the cable is sized on the neutral current (Table 4Aa, slides p.34 to 36). Either way the neutral is now a fourth loaded conductor heating the cable, which the current tables, worked for three, do not allow for, so Table 4Aa applies a factor of 0.86 between 15% and 45%."
+  }
+ },
+ "summary": {
+  "title": "A neutral that carries more than the line",
+  "for": "Loads such as fluorescent lighting banks, rectifiers and drives draw non-sinusoidal current; the three lines' third harmonics add in the neutral, which can then carry more than a line. Table 4Aa says which current sets the cable and by what factor (slides p.33, 34).",
+  "rule": "Ibn = 3 × h × IL (h: the third harmonic as a share of the line current)\n0 to 15%: line current, factor 1.0\n15 to 33%: line current, factor 0.86\n33 to 45%: neutral current, factor 0.86\nover 45%: neutral current, factor 1.0\nIt ≥ In ÷ (Ca × Cg × the Table 4Aa factor)\n\nOnly when the maker's data gives a harmonic figure (slides p.37); say whether it is the third harmonic or THD.\nBalanced fundamentals cancel in the neutral; third harmonics add.\nNo neutral, no neutral current.",
+  "traps": [
+   {
+    "text": "Expecting no neutral current from a balanced load: true of the fundamentals only.",
+    "cite": "Slides p.33; IET Wiring Matters 23 (Summer 2007), in research"
+   },
+   {
+    "text": "Leaving out the × 3: h × IL is one line's third harmonic.",
+    "cite": "Slides p.35; IET Wiring Matters 62 (Autumn 2016), in research"
+   },
+   {
+    "text": "Sizing on the line current above 33%: at 35% your slides' 150 A circuit has 157.50 A in the neutral.",
+    "cite": "Slides p.35, 36"
+   },
+   {
+    "text": "Leaving out the 0.86 between 15 and 45%, or keeping it above 45%.",
+    "cite": "Slides p.34"
+   },
+   {
+    "text": "Reading a datasheet's THD as the third harmonic without saying so.",
+    "cite": "Slides p.34; NICEIC on Regulation 523.6.1, in research"
+   }
+  ],
+  "where": "Your slides p.33 to 37; BS 7671 Appendix 4, Table 4Aa, and Regulation 523.6; the Schneider Electrical Installation Guide, sizing the neutral conductor.",
+  "figures": [
+   "3a",
+   "3b",
+   "3d",
+   "3e"
+  ]
+ },
+ "sources": [
+  {
+   "n": 1,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p35",
+   "quote": "Ibn = 3 x 0.35 x 150 = 157.5A"
+  },
+  {
+   "n": 2,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p34",
+   "quote": "The issue with the 3rd harmonic is that we may need to design our circuits based on neutral current NOT line current."
+  },
+  {
+   "n": 3,
+   "title": "Wired IN Mar-Apr 2007",
+   "url": "https://federalpacific.com/wp-content/uploads/2026/04/Wired-IN-Triplen-Harmonics.pdf",
+   "quote": "In a distribution system with only linear loads, the 120 deg phase shift between linear phase currents results in their balanced portions instantaneously cancelling out in the neutral."
+  },
+  {
+   "n": 4,
+   "title": "2007 23 Summer Wiring Matters",
+   "url": "https://electrical.theiet.org/media/1036/2007_23_summer_wiring_matters__complete_no_adverts.pdf",
+   "quote": "It is well know that when a 3-phase load current includes third or other triple harmonic currents these currents are additive in the neutral."
+  },
+  {
+   "n": 5,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p33",
+   "quote": "a balanced 3-phase load (such as a motor) will not have current in the neutral at all, so often motors do not have neutrals connected."
+  },
+  {
+   "n": 6,
+   "title": "2016 62 Autumn Wiring Matters (IET)",
+   "url": "https://electrical.theiet.org/media/1076/2016_62_autumn_wiring_matters.pdf",
+   "quote": "The third and other triple harmonics combine in the neutral to give a neutral current that has a magnitude equal to the sum of the third harmonic content of each phase."
+  },
+  {
+   "n": 7,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p33",
+   "quote": "Some circuits supplying equipment such as rectifiers, variable-speed motor drives or fluorescent lighting banks draw currents that are not necessarily sinusoidal."
+  },
+  {
+   "n": 8,
+   "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+   "url": "material:osg#p136",
+   "quote": "Final circuits for discharge lighting must be arranged so as to be capable of carrying the total steady current, which is made up of the lamp(s) and any associated controlgear and also their harmonic currents."
+  },
+  {
+   "n": 9,
+   "title": "2007 23 Summer Wiring Matters",
+   "url": "https://electrical.theiet.org/media/1036/2007_23_summer_wiring_matters__complete_no_adverts.pdf",
+   "quote": "This neutral current will give rise to additional heating of the cables and other equipment in the circuit."
+  },
+  {
+   "n": 10,
+   "title": "Factors affecting the current-carrying capacity of live conductors | NICEIC - Professional Electrician",
+   "url": "https://professional-electrician.com/technical/factors-affecting-the-current-carrying-capacity-of-live-conductors-niceic",
+   "quote": "Situations, such as where there is significant harmonic current in a three-phase circuit, where the neutral conductor carries current without a corresponding reduction in current in the associated live conductors (523.6.3)."
+  },
+  {
+   "n": 11,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p34",
+   "quote": "If the 3rd harmonic of line current is 0-15% = use LINE current Ib with a rating factor of 1.0"
+  },
+  {
+   "n": 12,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p34",
+   "quote": "If the 3rd harmonic of line current is 15-33% = use LINE current Ib with a rating factor of 0.86"
+  },
+  {
+   "n": 13,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p34",
+   "quote": "If the 3rd harmonic of line current is 33=45% = use NEUTRAL current Ib with a rating factor of 0.86"
+  },
+  {
+   "n": 14,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p34",
+   "quote": "If the 3rd harmonic of line current is >45% = use NEUTRAL current Ib with a rating factor of 1.0"
+  },
+  {
+   "n": 15,
+   "title": "Sizing the neutral conductor - Electrical Installation Guide",
+   "url": "https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor",
+   "quote": "Fig. G64 – Triplen harmonics are in phase and cumulate in the Neutral"
+  },
+  {
+   "n": 16,
+   "title": "Harmonic Distortion limite and Neutral cable sizing - Wiring and the Regulations BS 7671 - IET EngX - IET EngX",
+   "url": "https://engx.theiet.org/f/wiring-and-regulations/30778/harmonic-distortion-limite-and-neutral-cable-sizing",
+   "quote": "For triple-n harmonics exceeding 33 %, the factor is applied to a calculated neutral current, not the line current."
+  },
+  {
+   "n": 17,
+   "title": "Wired IN Mar-Apr 2007",
+   "url": "https://federalpacific.com/wp-content/uploads/2026/04/Wired-IN-Triplen-Harmonics.pdf",
+   "quote": "These current pulses add together in the neutral conductor, which can result in up to 173% of phase current levels, even if all phases are completely balanced."
+  },
+  {
+   "n": 18,
+   "title": "[PDF] Triplen Harmonics in Electrical Distribution Systems",
+   "url": "https://www.ijeat.org/wp-content/uploads/papers/v5i2/B4372125215.pdf",
+   "quote": "current amplitude in the neutral wire due to these triplen harmonics could be up to 3 times the amplitude of the phase current at the fundamental frequency"
+  },
+  {
+   "n": 19,
+   "title": "Sizing the neutral conductor - Electrical Installation Guide",
+   "url": "https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor",
+   "quote": "The basic calculation of a cable concerns only cables with three loaded conductors i.e there is no current in the neutral conductor."
+  },
+  {
+   "n": 20,
+   "title": "Factors affecting the current-carrying capacity of live conductors | NICEIC - Professional Electrician",
+   "url": "https://professional-electrician.com/technical/factors-affecting-the-current-carrying-capacity-of-live-conductors-niceic",
+   "quote": "A neutral conductor should be considered as a loaded conductor where the third harmonic, or multiple of third harmonic, presents a total harmonic distortion greater than 15 % of the fundamental line current (523.6.1)."
+  },
+  {
+   "n": 21,
+   "title": "Factors affecting the current-carrying capacity of live conductors | NICEIC - Professional Electrician",
+   "url": "https://professional-electrician.com/technical/factors-affecting-the-current-carrying-capacity-of-live-conductors-niceic",
+   "quote": "the temperature rise due to the neutral current is offset by the reduction in the heat generated by one or more of the line conductors. In this case the conductor size should be chosen based of the highest line current."
+  },
+  {
+   "n": 22,
+   "title": "Sizing the neutral conductor - Electrical Installation Guide",
+   "url": "https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor",
+   "quote": "Where the neutral current is expected to be higher than the phase current, then the cable size should be selected on the basis of the neutral current"
+  },
+  {
+   "n": 23,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p24",
+   "quote": "Anything that causes the cable to be artificially warm, such as running through thermal insulation, or a higher ambient temperature will mean the cable will need downrating through an appropriate rating factor."
+  },
+  {
+   "n": 24,
+   "title": "Sizing the neutral conductor - Electrical Installation Guide",
+   "url": "https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor",
+   "quote": "If the neutral current is more than 135 % of the phase current and the cable size is selected on the basis of the neutral current then the three phase conductors will not be fully loaded."
+  },
+  {
+   "n": 25,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p36",
+   "quote": "It ≥ 160 / 0.94 x 0.65 x 0.86"
+  },
+  {
+   "n": 26,
+   "title": "Sizing the neutral conductor - Electrical Installation Guide",
+   "url": "https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor",
+   "quote": "If 40 % third harmonic is present, the cable size selection is based on the neutral current which is: 37 x 0,4 x 3 = 44,4 A and a reduction factor of 0,86 is applied, leading to a design load of: 44.4/0.86 = 51.6 A."
+  },
+  {
+   "n": 27,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p37",
+   "quote": "Harmonics are only to be considered if the manufacturers data explains that there will be one present."
+  },
+  {
+   "n": 28,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p37",
+   "quote": "It would then be a case of using the percentage given by the manufacturer to carry out the equations in the earlier slides."
+  },
+  {
+   "n": 29,
+   "title": "96631263_product_datasheet.pdf (Thorn luminaire datasheet)",
+   "url": "https://resources.thornlighting.com/object/PDF/DataSheet.aspx?ArticleID=337726&CompanyID=4&DataSheetType=1&ModeID=21&SubCompanyID=44&lang=en",
+   "quote": "Total harmonic distortion (THD): 15.00 %"
+  },
+  {
+   "n": 30,
+   "title": "Electronic Ballast Fundamentals",
+   "url": "https://www.villalighting.com/assets/docs/ABTFRME00596_3_7-3_14_3_16_3_30_3_31.pdf",
+   "quote": "Almost all Philips Advance electronic ballasts are rated for either less than 20% THD or less than 10% THD."
+  },
+  {
+   "n": 31,
+   "title": "Harmonic Distortion limite and Neutral cable sizing - Wiring and the Regulations BS 7671 - IET EngX - IET EngX",
+   "url": "https://engx.theiet.org/f/wiring-and-regulations/30778/harmonic-distortion-limite-and-neutral-cable-sizing",
+   "quote": "there can't be current in the N if there's no N conductor."
+  },
+  {
+   "n": 32,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p35",
+   "quote": "Because the harmonic is 35%, we’ll use row 3 of table 4Aa, this means we calculate cable size based on neutral current:"
+  },
+  {
+   "n": 33,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p36",
+   "quote": "So we will need to use Ibn as our Ib."
+  },
+  {
+   "n": 34,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p36",
+   "quote": "Using figure 3A3(b) we can see an In of 160A would be suitable."
+  },
+  {
+   "n": 35,
+   "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+   "url": "material:bs7671#p443",
+   "quote": "Bunched in air, on a | 1.00 | 0.80 | 0.70 | 0.65 | 0.60 | 0.57 | 0.54 | 0.52 | 0.50 | 0.45 | 0.41 | 0.38 A to F"
+  },
+  {
+   "n": 36,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p36",
+   "quote": "We would take the above value into table 4D1A to find the Iz and read down column 5 to find a 240mm² conductor"
+  },
+  {
+   "n": 37,
+   "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+   "url": "material:bs7671#p448",
+   "quote": "240 321 286 400 346"
+  },
+  {
+   "n": 38,
+   "title": "Electronic Ballast Fundamentals",
+   "url": "https://www.villalighting.com/assets/docs/ABTFRME00596_3_7-3_14_3_16_3_30_3_31.pdf",
+   "quote": "The ANSI standard for electronic ballasts specifies a maximum THD of 32% for commercial applications."
+  },
+  {
+   "n": 39,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p25",
+   "quote": "Rating factors are applied as divisors to the rating or setting of the protective device (In)"
+  },
+  {
+   "n": 40,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p33",
+   "quote": "will cause more current to be present in the neutral than in the line."
+  },
+  {
+   "n": 41,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p22",
+   "quote": "Regulation 433.1.1 explains the following: Ib ≤ In ≤ Iz"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0; * is a written question's id): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text, written.*.q, written.*.points[i].text, written.*.model, summary.title, summary.for, summary.rule, summary.where, summary.traps[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

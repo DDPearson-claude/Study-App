@@ -1,0 +1,23 @@
+{
+  "draft": "i3.lesson.draft1.txt",
+  "validator": "passes with no problems (with --case); case.json validates",
+  "faults": [
+    {"fault": "causal step skipped", "where": "explain, paragraph 2", "finding": "'Each one means the conductor reaches its maximum temperature at a lower current' is asserted, not shown. The step that makes it obvious: a warm room starts the conductor warmer, and neighbouring circuits or insulation stop it shedding its heat, so less current takes it to its limit.", "fix": "Add that step in one clause before 'so the cable can carry less there'."},
+    {"fault": "false absolute", "where": "practice, step 2", "finding": "'Ca everywhere' reads as one ambient for the whole run; the ambient is present everywhere, but a run through a hotter plant room has a different Ca there.", "fix": "Say 'Ca for the ambient of each part'."},
+    {"fault": "qualifier dropped from a quote", "where": "screen 4 and explain, paragraph 3", "finding": "The source says a BS 3036 fuse's I2 can be up to 2 × Iz, that is, when its rating is matched to the cable's Iz; the draft says 'up to twice' as if of In without saying so. And the maker's 1 hour is quoted for its type C and D breakers, while the slides' example is type B.", "fix": "Say 'up to twice, with its rating matched to the cable' and 'for its type C and D breakers up to 63 A'."},
+    {"fault": "practice value not labelled where it appears", "where": "explain, paragraph 4", "finding": "16.66 A and 1.5 mm² rest on the practice Ca of 1.00; the explanation prints them without saying so.", "fix": "Add 'with Ca taken as 1.00, a practice value'."},
+    {"fault": "unreadable labels at 340 px", "where": "screen 3", "finding": "Three section names such as 'Through the insulated wall' in a third of a phone's width will wrap to three lines over the drawing.", "fix": "Short names on the drawing (Clipped, Trunking, Insulated wall), the full ones in the working under it."},
+    {"fault": "citation narrower than its claim", "where": "explain, paragraph 4", "finding": "'Counted as two circuits' cites the Table 4C1 note that allows n/2 or n/3; the n/3 reading for three-phase circuits is the On-Site Guide's.", "fix": "Cite [28] beside [27]."},
+    {"fault": "interactive brief: cause only implied", "where": "interactive.brief", "finding": "It names the cable's mark rising but not why: Cf raises the Iz the cable needs.", "fix": "Name it as the Iz needed rising to 13.79 A, within 40 words."}
+  ],
+  "checked_and_sound": [
+    "Refresher pattern: recall opener with Refresh the why and Skip to the practice (to screen 7, the first Section A step); what it is for, with the red consequence; the why with two pictures (the run in sections; why piece A, two marks on one current line); a check; the worked example from slides p.27, 28 and 30 to 32 line by line, with the cut-short 21.2, 19.3 and 14.5 A noted; Section A 1(c) to 1(f) on the showroom with the scenario, carried parts and typed answers; Section B b1 written; one changed-numbers item; Keep this. Twelve screens. No timers, marks or grades.",
+    "No recall-only checks: read mode, checks []; the screen 5 check applies Table 4C1 note 9 and 'Cg counts the circuit itself' to new numbers.",
+    "Every figure recomputed by script and by hand: 21.28, 19.34, 24.18, 17.02, 0.752, 0.8272; 14.50, 18.85, 20.00, 13.79, 20.00; 25 A; 62.32 A; 75-125, 125-250, 250-500 A; 2 circuits; 16.66 A (16.65 unrounded, 16.68 and 16.69 at 1.73); slips 13.33, 23.08, 28.85, 31.25, 16.34; 1.5 mm² (slips 1, 2.5, 4); Iz 16.00 A; 23.20 A; 20.69 A (slips 15.00, 10.88, 21.75). All are in case.json with rule, inputs and work.",
+    "Practice values labelled wherever they appear: Ca 1.00 at 20 °C (p.Ca) on screen 8, in practice and the case; the 2.7 star start (p.start) on screen 7. No BS 7671 table reproduced: only the single values each question needs (Cg 0.80 and 0.70, Ca 1.02, 15 A and 20 A in column 5), each quoted from his copy, and 'read column 5 in your copy'.",
+    "Lesson 1 not re-taught: Ib and the delta winding current are carried forward, not worked again.",
+    "Left out on purpose: refresher.md's two recall screens (containment sizing, external influences) have no quoted source in research and his Level 3 awards cover them; the screen count stays at twelve.",
+    "The slides' '10,000s' (p.30) is said as the slides say it, beside a maker's 1 hour, and the check I2 ≤ 1.45 Iz is shown not to depend on it, as case.json's caution asks."
+  ],
+  "verdict": "rewrite as draft 2 with the fixes above"
+}
