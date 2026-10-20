@@ -40,10 +40,24 @@ once `answered()`.
 as a card (what it is for, the rule, the traps, the case's figures so far, where it lives) and says
 it is the first page of the chapter in his Book. Then the Finish button calls `K.complete()`.
 
-**STEPS entries** (tools/course/guide.mjs reads them for the Book): a typed-answer step keeps
-`want` (the answer as printed, '13.33 A'); a written step is `{kind: 'written', written: 'b1',
-name, task}`; the summary step is `{kind: 'summary', name: 'Keep this'}`; the recall opener is a
-DO step like any other. The Book and the read-through show each step as it looks finished (a step
-drawn in HTML is kept as still HTML), with its own words; when those words ask him to do something
-("Drag…", "Work each step yourself first, then show it"), give the entry a `read` sentence that
-says the same for reading it through.
+**STEPS entries** (tools/course/guide.mjs reads them for the Book and the read-through): a
+typed-answer step keeps `want` (the answer as printed, '13.33 A'); a written step is `{kind:
+'written', written: 'b1', name, task}`; the summary step is `{kind: 'summary', name: 'Keep this'}`;
+the recall opener is a DO step like any other. The read-through (and the Book) shows each step as
+it looks finished, as a still picture with no controls, and its words in its place. Three fields
+make that read as plain sense (Dan, 20 Oct: "some of the text doesn't make sense… the images are
+blank"):
+- `read` on a SHOW step: its sentence for reading, when its own words ask him to act ("Drag…",
+  "Work each step yourself first, then show it"). Say what the finished picture shows.
+- `read` on a DO step only when its task asks him to act on the screen: the same question, asked
+  for reading. Never the answer: the read-through shows the question, the choices, the answer
+  and why on their own (guide.mjs keeps the task and warns when a `read` gives the answer away).
+- `still`: the state the picture shows, when the step's end needs his moves: `{control id: value}`
+  (`{h: 35}`), or a function that sets it (`still: () => runTo(SPLIT)`, cards placed in their
+  phases; `still: () => pick(...)`, a second question on the step answered too). The state is the
+  one its sentence ends on. `still: false` leaves the picture out. guide.mjs leaves out a still
+  that would show an empty box (a lane with no cards), and warns about it and about choices on
+  the screen that nobody chose, so give those steps a `still`.
+The guide drops a sentence that tells him to drag, tap, press or choose, a "Right." or "Still
+there." verdict, and the scenario after its first showing; write the step so it still reads
+whole without them.

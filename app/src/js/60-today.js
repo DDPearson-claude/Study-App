@@ -1016,7 +1016,7 @@
   }
 
   // A puzzle's worked example in its guide, as the card shows it with the answer: {svg, html, alt,
-  // style} | null (no guide here, a page that is not that example any more, or a read over 5 s).
+  // style, w, h (a still's size, 53-read.js)} | null (no guide here, a page that is not that example any more, or a read over 5 s).
   function pageFor(card) {
     var RT = U.readThrough, sp = card.spec || {};
     if (!RT || typeof RT.guide !== 'function' || typeof sp.page !== 'number') return Promise.resolve(null);
@@ -1024,7 +1024,7 @@
       RT.guide(card.tid, card.iid).then(function (g) {
         var p = g && Array.isArray(g.pages) ? g.pages[sp.page] : null;
         if (!p || p.kind !== 'example' || str(p.task).trim() !== sp.q) return null;
-        return p.svg || p.html ? { svg: p.svg || null, html: p.html || null, alt: str(p.alt), style: str(g.style) } : null;
+        return p.svg || p.html ? { svg: p.svg || null, html: p.html || null, alt: str(p.alt), style: str(g.style), w: Number(g.stillW) || 0, h: Number(p.h) || 0 } : null;
       }, function () { return null; }),
       U.sleep(5000).then(function () { return null; }),
     ]);

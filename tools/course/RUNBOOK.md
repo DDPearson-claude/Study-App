@@ -60,7 +60,13 @@ with him before planning. It is cheap; building the wrong course is not.
      Every lesson of such a course must carry `format: 'steps'`: without it the app plays the lesson as
      a long reading lesson (Trigonometry 3-8 and Linear systems 5-6 shipped that way until 18 Oct).
      `assemble.mjs docs` refuses a lesson with a still guide but no steps format, and a course that mixes
-     the two.
+     the two. Every steps lesson is also read through, as stills with its words (section 6b), so its
+     STEPS entries must read as plain sense off the screen: a SHOW step whose words ask him to act
+     ("Drag…", "Tap a row…") gets `read`, saying what its finished picture shows; a DO step's `read`
+     only restates its question, never the answer; a step whose picture needs his moves gets `still`
+     (`{control: value}` or a function that sets the state its sentence ends on), or `still: false`.
+     Keep a picture's own pieces (cards, tiles) out of `K.button`: kit buttons are controls and are
+     left out of the still. Details: `app/kit/REFRESHER.md`, STEPS entries.
    - **Partly** (calculus, probability, vectors): steps lessons whose SHOW screens carry a little
      more explanation, up to a short paragraph.
    - **No** (how things work, science mechanisms, history, AI): reading lessons with a mechanism
@@ -245,13 +251,20 @@ round (steps 3-5 for what changed). Saved as `$D/I.review.json`.
 ```
 node tools/course/guide.mjs --dir $D            # writes $D/iN.guide.json for every built lesson
 ```
-Each demonstration's finished picture and sentence, and each puzzle as a worked example; assemble
-writes them as `topics/{tid}/guide/{iid}`. Re-run it whenever a lesson body changes. A step drawn
-in HTML (a panel, worked lines, a recall's options, a Section A scenario) is kept as still HTML,
-finished (every "Show…" pressed, the puzzle answered right) without its controls; the guide holds
-the lesson's styles once (`style`). Its summary line prints how many and how many bytes; the doc
-must stay under 250 KB. A step whose words ask Dan to act takes its STEPS entry's `read` sentence
-in the guide (section 8).
+Each demonstration's finished picture and sentence, and each puzzle as a worked example (its
+question, its choices, the answer with its unit, why); assemble writes them as
+`topics/{tid}/guide/{iid}`, and the read-through (`#/t/:tid/:iid/read`) and the Book draw them.
+Re-run it whenever a lesson body changes. A step drawn in HTML (a panel, worked lines, a Section A
+scenario) is kept as still HTML, finished (every "Show…" pressed, the puzzle answered right, the
+step's `still` applied) without its controls, its choices or quiz-only words, laid out at 328 px
+(a 360 px phone's column) and measured (`h`); the app draws it in a frame that runs no script and
+scales it like a picture. The guide holds the lesson's styles once (`style`). Its summary line
+prints how many and how many bytes; the doc must stay under 250 KB.
+**Read every warning it prints** and fix the lesson, not the guide: "gives the answer" (a DO step's
+`read`), "empty box" and "choices nobody chose" (give the step a `still`), "quiz-only words left
+out" (give the step a `read`), "do not read as words" (markup, ids or code in a page). Then look
+at the read-through at 360 px, one contact sheet, as Dan would: every picture shows something, no
+sentence asks him to tap or drag, no example lacks its question (section 8, STEPS entries).
 
 ## 7. Assemble, write to the db, mark the shelf
 ```
@@ -303,8 +316,12 @@ figures; a part missed on this page says it is carried forward), the part's ques
 working and `reveal()`. **Section B**: `K.written({id: 'b1'})`; Continue once `answered()`. One
 changed-numbers item (a typed answer). **Keep this**: `K.summary()`, then Finish (`K.complete()`).
 STEPS entries name these for the Book: `want` on a typed step, `{kind: 'written', written: 'b1'}`,
-`{kind: 'summary'}`. Give a step whose words ask him to do something ("Work each step yourself
-first…") a `read` sentence for the read-through and the Book. No timers, marks or grades anywhere.
+`{kind: 'summary'}`. Give a SHOW step whose words ask him to do something ("Work each step yourself
+first…") a `read` sentence for the read-through and the Book, saying what its finished picture
+shows; a DO step keeps its task as the question (a `read` there restates the question, never the
+answer). Give a step whose picture needs his moves a `still` (`app/kit/REFRESHER.md`, STEPS
+entries): Dan read lesson 2's phase cards as empty lanes under "Drag a card…" (20 Oct). No timers,
+marks or grades anywhere.
 
 **Numbers**: each line is worked from the rounded figures shown before it (2 places unless the
 material shows more), so the answer is the printed figure; the figure from unrounded working goes in

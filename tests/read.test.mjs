@@ -63,3 +63,55 @@ test('U.readThrough.stillHtml: a still step for a sandboxed frame, with no scrip
   const p = JSON.parse(JSON.stringify(U.readThrough.parts({ pages: [{ kind: 'show', text: '', html: '<p>panel</p>' }] })));
   assert.equal(p.pages.length, 1, 'a step that is all still HTML is a page');
 });
+
+test('U.readThrough.stillDoc: a whole still document that needs no script, and refuses what could load or leave', () => {
+  const U = load(['00-core.js', '53-read.js']);
+  U.KIT_CSS = ':root{--k-bg:#FFFFFF}';
+  const d = U.readThrough.stillDoc('<div class="rule1"><p>Ib ≤ In ≤ Iz</p></div>', '.rule1{padding:12px}');
+  assert.match(d, /^<!doctype html><html lang="en" data-theme="light"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:; form-action 'none'">/);
+  assert.match(d, /<style>:root\{--k-bg:#FFFFFF\}<\/style><\/head><body><style>[^]*\.rule1\{padding:12px\}<\/style><div class="rule1">/, 'kit CSS, then the lesson\'s, then the step');
+  assert.ok(!/<script/i.test(d), 'no script at all');
+  for (const bad of ['<iframe src="x"></iframe>', '<form><button>Go</button></form>', '<meta http-equiv="refresh" content="0;url=x">', '<link rel="stylesheet" href="x">', '<base href="x">', '<a href="javascript:alert(1)">x</a>', '<object data="x"></object>', '<embed src="x">'])
+    assert.equal(U.readThrough.stillDoc(bad, ''), null, bad);
+});
+
+test('U.readThrough.answerOf and choicesOf: an answer with its unit, and a choice example\'s options', () => {
+  const U = load(['00-core.js', '53-read.js']);
+  const R = U.readThrough;
+  assert.equal(R.answerOf({ answer: '23.08', unit: 'A' }), '23.08 A', 'its unit added');
+  assert.equal(R.answerOf({ answer: '23.08 A', unit: 'A' }), '23.08 A', 'not twice');
+  assert.equal(R.answerOf({ answer: '1.5 mm²', unit: 'mm²' }), '1.5 mm²');
+  assert.equal(R.answerOf({ answer: '3 circuits' }), '3 circuits');
+  assert.equal(R.answerOf({ answer: '' }), '');
+  assert.deepEqual(plain(R.choicesOf({ input: 'pick', options: ['12.03 A', '14.15 A'], answer: '14.15 A' })), ['12.03 A', '14.15 A']);
+  assert.deepEqual(plain(R.choicesOf({ input: 'pick', options: ['12.03 A', '14.15 A'], answer: '9 A' })), [], 'the answer must be among them');
+  assert.deepEqual(plain(R.choicesOf({ input: 'typed', options: ['a', 'b'], answer: 'a' })), [], 'a typed example lists none');
+});
+
+// The live D&V guides (docs/courses/.../out, what is published): every page reads as words, with no
+// quiz-only instruction, verdict or leftover markup, and every still carries its size.
+test('the published Design and verification guides read as plain sense', () => {
+  const dir = join(root, 'docs', 'courses', 'electrical', 'design-and-verification', 'out');
+  const QUIZ = /(^|[.!?]\s+)(Drag|Tap|Press|Click|Choose|Pick|Work each|Check yours)\b|Skip to the practice|Refresh the why|two wrong tries|on to screen \d/;
+  for (const iid of ['i1', 'i2', 'i3', 'i4']) {
+    const g = JSON.parse(readFileSync(join(dir, 'guide-' + iid + '.json'), 'utf8'));
+    assert.ok(g.v >= 3 && g.stillW > 0, iid + ': version 3, with the stills\' width');
+    for (const p of g.pages) {
+      const words = [p.text, p.task, p.answer, p.why].filter(Boolean).join(' ');
+      assert.ok(!QUIZ.test(words), iid + ' ' + p.name + ': quiz-only words: ' + words);
+      assert.ok(!/\bundefined\b|\bNaN\b|&[a-z]+;|\[object|\bK\.[a-z]+\(/.test(words), iid + ' ' + p.name + ': leftovers');
+      if (p.kind === 'example' && !p.written) {
+        assert.ok(/\?|\b(Determine|State|Explain|Calculate|Find)\b/i.test(p.task), iid + ' ' + p.name + ': the task is a question: ' + p.task);
+        assert.ok(!p.answer || !p.task.includes(p.answer), iid + ' ' + p.name + ': the task does not give the answer');
+      }
+      if (p.html) {
+        assert.ok(p.h > 40, iid + ' ' + p.name + ': a still with its height');
+        const text = p.html.replace(/<style[^]*?<\/style>/g, '').replace(/<[^>]+>/g, ' ');
+        assert.ok(!/\b(Drag|Tap) (a|the|either|it)\b/.test(text), iid + ' ' + p.name + ': no instruction in its still');
+        assert.ok(!/>\s*(Right|Still there|That's it)\.\s*</.test(p.html), iid + ' ' + p.name + ': no verdict in its still');
+      }
+    }
+    const scen = g.pages.filter((p) => p.html && /\bk-scen\b/.test(p.html)).length;
+    assert.ok(scen <= 1, iid + ': the scenario once, not on every Section A page (' + scen + ')');
+  }
+});
