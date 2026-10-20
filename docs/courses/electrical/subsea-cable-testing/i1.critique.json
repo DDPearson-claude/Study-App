@@ -1,0 +1,28 @@
+{
+ "iid": "i1",
+ "draft": "i1.lesson.draft1.txt",
+ "validator": "passes (no problems, no soft, no warnings)",
+ "faults": [
+  {"fault": "explanation skips the causal step", "where": "explain para 3; screen 5", "finding": "\"Earth one end and the far end sits at the induced voltage. Earth both ends and both are held at earth\" states the result without the step between: the induced voltage stands between the two ends of the core, so an earth at one end puts all of it at the other; an earth at each end ties both ends down and the voltage drives a current round the loop instead.", "fix": "Add that step in two short sentences, in explain and on screen 5."},
+  {"fault": "interactive shows only the effect", "where": "screen 3; screen 5", "finding": "Screen 3 shows the voltage bar creeping back, but nothing on the picture is the charge held in the insulation, so the recharge has no visible cause. Screen 5 draws String A's current arrows but not the magnetic field that does the inducing.", "fix": "Screen 3: draw marks inside the XLPE band that stay when the earth is closed briefly and drift back to the conductor when it is lifted. Screen 5: draw field rings round String A, linking String B along the parallel run, more of them over a longer run."},
+  {"fault": "interactive brief names two changes", "where": "interactive.brief", "finding": "The brief names the drain and creep-back and also the energy growing with length: two changes from two actions.", "fix": "One change, one action: the voltage creeping back from charge held in the insulation when he lifts the earth straight after a discharge."},
+  {"fault": "false absolutes", "where": "whole draft", "finding": "None found that a source or a later lesson contradicts. 'String A's voltage does not set it' is the induced-voltage rule as researched. 'Every test starts and ends the same way' is the procedure, not a claim about physics.", "fix": "None."},
+  {"fault": "checks test recall", "where": "screen 4", "finding": "The check asks him to apply the recharge mechanism to a new case (a cable with no neighbours after an IR test), not to repeat a line. Passes.", "fix": "None."},
+  {"fault": "thin or decorative research", "where": "sources", "finding": "Every number has a kind; cited constants are his notes (55 V, 10 000 Ohm, 50 mA) and the maker's 0.22 uF/km and 2.6 A/km; the coupling rule is researched. Passes.", "fix": "None."},
+  {"fault": "unreadable labels", "where": "screens 2, 3, 5", "finding": "Labels are short words. The Charge it button does not say what state it leaves the core in.", "fix": "Name the button 'Switch off at the peak', the worst case the readout works."},
+  {"fault": "text talks about the idea instead of teaching it", "where": "explain para 3", "finding": "'The pictures here are simplified: one capacitance per km, a practice figure for the induced voltage, and perfect earths.' is a colon list about the pictures.", "fix": "Two plain sentences on what the picture takes as perfect and what is a practice figure."}
+ ],
+ "refresherPattern": [
+  {"finding": "The brief's second recall, the confirm sequence in order, appears only in the right-answer working. Screen 2 never sets out the five steps and what each confirms.", "fix": "Put the five steps on screen 2, each with its one-line meaning (test points known; energy sources disconnected; no voltage verified; lock off and access controlled; earths applied)."},
+  {"finding": "All other screens are in the pattern: recall with Refresh the why / Skip to the practice (to screen 7), what it is for with the red consequence, the why with its picture, a check, the worked example from his notes (55 V across 10 000 Ohm) plus one core worked line by line, Section A 1a and 1b with the scenario, carried part and typed answers, Section B b1, one changed-numbers item, Keep this. Eleven screens.", "fix": "None."}
+ ],
+ "plainWriting": [
+  {"where": "screen 7", "finding": "'a maker's typical figure' and 'The maker lists 2.6 A per km' tell him where the numbers come from.", "fix": "'a typical figure for this cable' and 'A typical charging current for this cable is 2.6 A per km'."},
+  {"where": "explain para 1", "finding": "'It can hold charge after it is switched off or tested, and a live cable beside it can drive a voltage onto it.' carries two ideas.", "fix": "Split into two sentences."},
+  {"where": "explain para 2", "finding": "'about half a microfarad' gives away part 1a before he works it.", "fix": "Drop the sentence."},
+  {"where": "takeaway", "finding": "27 words in one sentence.", "fix": "Shorten to about 20."}
+ ],
+ "safety": "No screen shows an unsafe step as a method. Screen 3 lifts the earth too soon only to show the recharge, with the red line telling him to earth it again; screen 5 opens on one end earthed, glowing red, and its words say to earth both ends. Every DC test in the practice ends with discharge and re-earthing.",
+ "numbers": "All figures re-worked by hand and in case.json: 0.22 x 1.00 = 0.220 uF, 0.22e-6 x 38000^2 = 317.68 J; 0.088 uF, 127.07 J; 0.176 uF, 254.14 J (half 127.07 J); 1a 0.528 uF (slips 1.584, 10.91); 1b 762.43 J (slips 381.22, 1524.86); 6.30 A against 6.24 A; 96 V and 16 V at 40 V/km; changed 0.396 uF, 571.82 J (slips 285.91, 1143.65). case.check.py: 0 problems.",
+ "verdict": "rewrite as draft 2 with the fixes above"
+}

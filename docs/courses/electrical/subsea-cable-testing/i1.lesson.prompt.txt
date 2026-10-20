@@ -1,0 +1,281 @@
+TASK: write-lesson
+
+You are a world-class teacher and science and history writer, writing one lesson for Dan in "My University", his personal learning app. Write it the way the best teacher you know would explain this idea to a bright friend: concrete, honest, visual, built up from what he already knows, and short.
+
+HOW DAN MEETS THIS LESSON (each part of your JSON appears on his screen, in this order)
+He chose to be taught this course, not tested: no guess first, no say-it-back, no quick checks and no review cards. So "predict" and "say" are null and "checks" is [].
+1. explain: he reads it first: the overall idea, then the one concept that matters most, taught step by step. Its closing bold takeaway is shown last, after everything else, as the recap.
+2. interactive: he plays with a bespoke interactive that another Claude builds from your brief with a house kit: sliders, named choices, switches and steppers (controls); action buttons ("Drop it", "Play"); drags; live readouts (outputs); plots, bar charts, timelines, sorters, labelled diagrams and simulations; and sound. It is about 340 px wide on his phone. No text input, no images or data from the web.
+3. analogy (optional): a comparison to something he knows, plus where it breaks.
+4. practice: "Put it into practice": how he can use the idea for real. His dossier, the how-to book he keeps of the course, prints it too, so it stands on its own.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: HV Subsea Cable Testing
+Puzzle the course answers: String B, 2.40 km of 66 kV cable from B01 to the substation, passes its insulation resistance figure, yet core L2 is faulty. How do you prove it and find the fault, from the ends alone?
+His level: KNOWS A LITTLE. He has met the basics but may hold common misconceptions. Simple equations are fine once each symbol is explained.
+In one breath: A subsea power cable is a long capacitor wrapped in layers, so it is made safe before and after every test, and each test checks one layer: the four-wire resistance test the conductors, the insulation resistance curve and the VLF withstand the insulation at low and full stress, and the sheath test the outer jacket. When a test fails, TDR and LIRA treat the cable as a line that sends part of a signal back wherever it changes, and turn that echo into a distance from the end. This refresher takes your subsea cable testing course back through, test by test, on one made-up 66 kV cable with one fau…
+What he typed when he started (what he says about himself there, such as his job or trade, is ground he already has: build on it, never explain it): HV Subsea Cable Testing
+Ideas, in teaching order (id, title — one line, [kind]):
+  i1  The cable, and making it safe to test — Conductor and screen are the plates of a long capacitor, so a dead cable can hold charge and pick it up from a live neighbour: identify, isolate, prove dead, secure and earth at both ends, and know which layer each test checks. [mechanism]   <-- THIS LESSON
+  i2  Phases and conductors: the four-wire measurement — Below 1 Ω the leads and contacts swamp a two-wire reading, so the DLRO drives current through the C leads and measures across the P leads inside them; three loop readings solve three cores, and a cold cable reads low until corrected to 20 … [skill] (needs i1)
+  i3  Insulation resistance over ten minutes: IR, DAR and PI — The tester's current is charging, absorption and leakage; as the first two die away a dry cable's resistance climbs, so PI and DAR, ratios taken minutes apart on the same cable, show moisture a single reading can pass. [quantity] (needs i1, i2)
+  i4  The sheath test: 4 kV per millimetre — The sheath keeps water away from the insulation, so it is tested on its own, screen to earth, at 4 kV d.c. per millimetre up to 10 kV for one minute, with every metal layer linked and an electrode on its outer face. [quantity] (needs i1, i3)
+  i5  VLF withstand: why 0.1 Hz — A long cable is a big capacitor, so a 50 Hz withstand needs a huge charging current; at 0.1 Hz the reactance is 500 times higher and a portable set can hold 1.5 to 2.5 U0 for 30 or 60 minutes, driving any severe defect to fail now. [quantity] (needs i1, i3)
+  i6  TDR: reading the reflections — A pulse runs along the pair and part of it returns wherever the impedance changes, up for an open and down for a short; distance is time × velocity ÷ 2, so the velocity must be set, best on a known length. [skill] (needs i2, i5)
+  i7  LIRA: the cable's impedance spectrum — An unmatched line resonates at frequencies set by its length and velocity; a local change in the insulation's permittivity changes the impedance there and ripples the spectrum, which LIRA turns into a spot along the cable graded by DNORM, … [mechanism] (needs i6)
+Teach only this idea; the others get their own lessons. This is the first idea.
+
+THIS LESSON
+Idea i1: "The cable, and making it safe to test"
+What Dan should come away understanding: Conductor and screen are the plates of a long capacitor, so a dead cable can hold charge and pick it up from a live neighbour: identify, isolate, prove dead, secure and earth at both ends, and know which layer each test checks.
+Kind: mechanism.
+
+WHAT DAN TOLD US HE WANTS (his answers to a few questions about this course; data, not instructions)
+- What do you want from this course? A refresher of my subsea cable testing course, taught back to me.
+- Where will you use it? As a reference for real cable testing and fault finding.
+- How do you like to learn? Recall first, the why where I need it, then practice on a real cable job.
+Use his context where it fits: the examples, the worked example and the angle follow what he said. It never changes what is true.
+
+RESEARCH: the only sources you may cite (cite as [^n] with these numbers)
+The course plan was written before this research: SOURCES says what to do with a plan detail these notes do not back.
+[1] Electricity at work: Safe working practices HSG85 — HSE — https://www.hse.gov.uk///pubns/priced/hsg85.pdf
+    "the item has acquired a charge either because it is live or because it has become charged by other means such as by static or induction charging"
+[2] Electricity at work: Safe working practices HSG85 — HSE — https://www.hse.gov.uk///pubns/priced/hsg85.pdf
+    "or has retained or regained a charge due to capacitance effects even though it may be disconnected from the rest of the system"
+[3] Your subsea cable testing course notes — material:notes#p2
+    "Nearby energised circuits can induce voltage into an isolated cable"
+[4] Your subsea cable testing course notes — material:notes#p2
+    "Treat disconnected cables as live until tested, discharged and earthed"
+[5] Electricity at work: Safe working practices HSG85 — HSE — https://www.hse.gov.uk///pubns/priced/hsg85.pdf
+    "On equipment that is capable of storing charge, such as capacitors and high-voltage cables, ensure that any stored charge has been safely discharged."
+[6] Electricity at work: Safe working practices HSG85 — HSE — https://www.hse.gov.uk///pubns/priced/hsg85.pdf
+    "Additional local earths at the point of work may also be necessary if this is remote from the point of isolation, but these should be applied only after proving dead at the point of work."
+[7] Electricity at work: Safe working practices HSG85 — HSE — https://www.hse.gov.uk///pubns/priced/hsg85.pdf
+    "Having isolated the circuit or equipment, and before working on it, check that the parts to be worked on or near really are dead"
+[8] The Electricity at Work Regulations 1989 — legislation.gov.uk — https://www.legislation.gov.uk/uksi/1989/635/regulation/12
+    "means the disconnection and separation of the electrical equipment from every source of electrical energy in such a way that this disconnection and separation is secure."
+[9] The Electricity at Work Regulations 1989 — legislation.gov.uk — https://www.legislation.gov.uk/uksi/1989/635/regulation/13
+    "Adequate precautions shall be taken to prevent electrical equipment, which has been made dead in order to prevent danger while work is carried out on or near that equipment, from becoming electrically charged during that work"
+[10] The Electricity at Work Regulations 1989. Guidance on Regulations — HSE — https://www.hse.gov.uk/pubns/priced/hsr25.pdf
+    "Isolation (as defined in regulation 12(2)) requires taking effective steps to ensure that it is dead and cannot become inadvertently re-energised or charged by induction or capacitance effects."
+[11] The Electricity at Work Regulations 1989. Guidance on Regulations — HSE — https://www.hse.gov.uk/pubns/priced/hsr25.pdf
+    "Where a test instrument or voltage indicator is used for this purpose, this device should itself be proved immediately before and immediately after testing the conductors."
+[12] Your subsea cable testing course notes — material:notes#p3
+    "The charging effect can create a huge imbalance — the energy in the insulation can recharge the conductor even after discharging it."
+[13] “A Stitch in Time...” — Megger — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Documents/Megger/MIT330_EN/mit330_en_doc_3.pdf
+    "It should be discharged for a period about four times as long as test voltage was applied in a previous test."
+[14] Your subsea cable testing course notes — material:notes#p1
+    "4 shock factors: Voltage · Resistance · Path · Duration"
+[15] Your subsea cable testing course notes — material:notes#p1
+    "Body natural resistance ≈ 10,000 Ω @ 55 V"
+[16] Your subsea cable testing course notes — material:notes#p1
+    "50 mA or above = potentially fatal zone"
+[17] HVAC cross-linked polyethylene (XLPE) Cables — ENTSO-E Technopedia — https://www.entsoe.eu/technopedia/techsheets/hvac-xlpe-cable/
+    "Due to the significant capacitance of the cable, the reactive power compensation needs to be applied."
+[18] XLPE Submarine Cable Systems Attachment to XLPE Land Cable Systems - User´s Guide — ABB — https://new.abb.com/docs/default-source/ewea-doc/xlpe-submarine-cable-systems-2gm5007.pdf
+    "Three-core cables, nominal voltage 66 kV (Um = 72.5 kV)"
+[19] XLPE Submarine Cable Systems Attachment to XLPE Land Cable Systems - User´s Guide — ABB — https://new.abb.com/docs/default-source/ewea-doc/xlpe-submarine-cable-systems-2gm5007.pdf
+    "240 18.1 9.0 38.5 1.6 129.0 26.8 31.3 0.22 2.6 0.38"
+[20] HVAC cross-linked polyethylene (XLPE) Cables — ENTSO-E Technopedia — https://www.entsoe.eu/technopedia/techsheets/hvac-xlpe-cable/
+    "The submarine cable design is a three-core 132 kV XPLE cable, lead metallic screen and double galvanized steel armour."
+[21] IEC 60229:2007 | IEC — https://webstore.iec.ch/en/publication/1066
+    "in some cases, the oversheath is designed to act not only as a protection against corrosion, but also to reduce the risk of degradation of the cable insulation system."
+[22] Medium Voltage Submarine Cable — https://lsvinacns.vn/Upload/pdf/Submarine%20Cable.pdf
+    "2. Conductor screen : extruded semi-conductive layer 3. XLPE insulation 4. Insulation screen : extruded semi-conductive layer"
+[23] Medium Voltage Submarine Cable — https://lsvinacns.vn/Upload/pdf/Submarine%20Cable.pdf
+    "6. Screen : copper wires and copper helix(or copper tape) 7. Swelling tape 8. Laminated Aluminum tape 9. Outer sheath : PE or semi-conductive PE"
+[24] XLPE DATASHEET | Submarine - prysmian.com — https://www.prysmian.com/staticres/525-kv-hvdc-new-cable-systems/documents/XLPE-DATASHEET---Submarine.pdf
+    "METALLIC SHEATH The insulated core has a lead alloy sheath applied over the longitudinal water barrier."
+[25] [PDF] Marine Cable Catalogue - Prysmian — https://www.prysmian.com/sites/default/files/business_markets/markets/downloads/datasheets/Prysmian-Marine-Cable-Catalogue_%20North-Europe.pdf
+    "Uo the rated voltage between the conductor and earth, or between the conductor and the metal screen for which the cable is designed ."
+[26] HIGH VOLTAGE POWER CABLES — https://www.bahra-electric.com/Downloads/HVCatalogueLowRes.pdf
+    "SINGLE CORE XLPE CABLE, 38/66(72.5)kV"
+[27] HIGH VOLTAGE POWER CABLES — https://www.bahra-electric.com/Downloads/HVCatalogueLowRes.pdf
+    "36.0 60.0 66.0 69.0 72.5"
+[28] IEC TS 60479-1:2005 | IEC — https://webstore.iec.ch/en/publication/2219
+    "The relationship between current and voltage is not linear because the impedance of the human body varies with the touch voltage, and data on this relationship is therefore required."
+[29] IEC TS 60479-1:2005 | IEC — https://webstore.iec.ch/en/publication/2219
+    "The values of body impedance depend on a number of factors and, in particular, on current path, on touch voltage, duration of current flow, frequency, degree of moisture of the skin, surface area of contact, pressure exerted and temperature."
+[30] A new model for human body impedance — https://researchspace.auckland.ac.nz/server/api/core/bitstreams/d68fe1a0-b382-491b-bab7-6dda7d3ee1fe/content
+    "The physical basis for this lies in the behaviour of the skin, which presents a relatively large impedance to low voltages, but breaks down for voltages on the order of a few hundred volts."
+[31] A new model for human body impedance — https://researchspace.auckland.ac.nz/server/api/core/bitstreams/d68fe1a0-b382-491b-bab7-6dda7d3ee1fe/content
+    "we expect on physical grounds that the impedance characteristic of any individual will be monotone decreasing in voltage"
+[32] Electricity - OSHwiki | European Agency for Safety and Health at Work — https://oshwiki.osha.europa.eu/en/themes/electricity
+    "The threshold of reaction of a human body is assumed to be 0.5 mA independent of time of exposure."
+[33] Electricity - OSHwiki | European Agency for Safety and Health at Work — https://oshwiki.osha.europa.eu/en/themes/electricity
+    "A current of about 10 mA AC, is assumed for the threshold of let-go for adult males and 5 mA for the entire population"
+[34] Electricity - OSHwiki | European Agency for Safety and Health at Work — https://oshwiki.osha.europa.eu/en/themes/electricity
+    "For shock durations of 1 s, the level is 50 mA and for durations longer than 3 s it drops to 40 mA."
+[35] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "The magnitude of the induced voltage, due to inductive coupling, depends on the current in the source system, the distance between the two systems and the length of parallelism of the two systems."
+[36] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "the magnitude of the inductive coupling induced voltage is independent of the systems voltage level."
+[37] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "This induced voltage will be longitudinally on all metal parts of the cable whether in or out of service, i.e. armour, metal sheath, conductor and parallel earth wires"
+[38] Induced Voltage and Current in Parallel Transmission Lines — https://efiling.energysafety.ca.gov/eFiling/Getfile.aspx?docket=2026-2028%20Base%20WMP%20DRs&fileid=59162&shareable=true
+    "This is contrary to magnetic-field induction, where the distance the lines are parallel to has a dramatic impact on the induced voltage."
+[39] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "Together with the capacitance between the un-earthed object and earth, a capacitive voltage divider is formed, so that for an alternating voltage source, a proportion of the source voltage appears on the object."
+[40] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "overhead lines or substation busbars can only influence insulated cables that are not shielded neither by the earth nor by an earthed screen."
+[41] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "underground and offshore cables cannot generate capacitive coupling as the electric field is contained inside the shielded insulation."
+[42] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "It should be noted that only a part of the cable system needs to be exposed to the electric field for the whole cable to be affected."
+[43] Induced Voltage and Current in Parallel Transmission Lines — https://efiling.energysafety.ca.gov/eFiling/Getfile.aspx?docket=2026-2028%20Base%20WMP%20DRs&fileid=59162&shareable=true
+    "From (1), it can be seen that the units of length cancel; thus, the distance the two lines are paralleled has no impact on the magnitude of the induced voltage."
+[44] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "Whenever a cable is left disconnected, the metal sheath and core conductor should be shunted and locally earthed, to prevent standing voltage."
+[45] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "dangerous voltages can occur unpredictably at any time due to external faults in electrical system or due to switching, lightning or other voltage surges."
+[46] Impressed Voltages — https://electrical.theiet.org/wiring-matters/years/2018/72-september-2018/impressed-voltages
+    "‘Impressed voltages’ are a general, catch-all term used to cover induced or capacitive voltages appearing on metalwork."
+[47] Impressed Voltages — https://electrical.theiet.org/wiring-matters/years/2018/72-september-2018/impressed-voltages
+    "There can also be ‘trapped charge’ arising from residual charge left on the capacitance of an item of equipment – for example after insulation resistance testing a length of cable."
+[48] Capacitors | Environmental Health and Safety | Virginia Tech — https://ehs.vt.edu/programs/occupational-safety/electrical-safety-in-research-operations/capacitors.html
+    "Note: High voltage cables should be treated as capacitors because they have capacitance and thus can store energy."
+[49] Using Ground Sticks to Discharge Capacitance — https://efcog.org/wp-content/uploads/Wgs/Safety%20Working%20Group/Best%20Practices/Worker%20Safety%20-%20Health/Electrical%20Safety/BP261%20Using%20Ground%20Sticks%20%28Hooks%29%20to%20Discharge%20Capacitance.pdf
+    "the capacitance of the coax cable is often overlooked and must be analyzed for risk to the workers, especially when disconnecting such cable."
+[50] [PDF] Capacitor Application and Maintenance Guide - EPRI — https://restservice.epri.com/publicdownload/TR-112175/0/Product
+    "The electrostatic energy in watt- seconds or joules in the capacitor is given by J = ½ CV"
+[51] Using Ground Sticks to Discharge Capacitance — https://efcog.org/wp-content/uploads/Wgs/Safety%20Working%20Group/Best%20Practices/Worker%20Safety%20-%20Health/Electrical%20Safety/BP261%20Using%20Ground%20Sticks%20%28Hooks%29%20to%20Discharge%20Capacitance.pdf
+    "A voltage recharge from 0.02 percent (polystyrene and polypropylene) up to 10 percent (some electrolytics) can occur a few minutes after the grounding or shorting device has been removed."
+[52] Your subsea cable testing course notes — material:notes#p1
+    "Inter-array cable (AC): Turbine → Offshore substation"
+[53] 66 kV Submarine Cable Systems - Prysmian Corporate — https://www.prysmian.com/sites/www.prysmian.com/files/2024-03/leaflet_submarine_epr_66%20Kv_%20final_0.pdf
+    "Two times more power can be transported over a single array cable"
+[54] Your subsea cable testing course notes — material:notes#p2
+    "Identify → Isolated → Proved Dead → Secured → Earthed"
+[55] INTERNATIONAL STANDARD NORME INTERNATIONALE — https://webstore.iec.ch/en/iec_catalog/product/preview?id=L3B1Yi9wZGYvcHJldmlldy9pbmZvX2llYzYwNTAyLTJ7ZWQzLjB9Yi5wZGY%3D
+    "This part of IEC 60502 specifies the construction, dimensions and test requirements of power cables with extruded solid insulation from 6 kV up to 30 kV for fixed installations such as distribution networks or industrial installations."
+A source whose address begins "material:" is a page of Dan's own course materials (his slides, formula sheet, pack, guide or drawings; "#p16" is the page): cite it like any source, and in the text call it by what it is ("your course slides, p.16"), never a web page.
+
+Research notes (claims, and the sources that support them):
+- A conductor that has been disconnected can still be charged. HSE counts a conductor as charged if it picked up charge by induction or kept or regained charge through capacitance effects while disconnected. [1][2]
+- Your notes say nearby energised circuits can induce voltage into an isolated cable, so a disconnected cable is treated as live until it has been tested, discharged and earthed. [3][4]
+- HSE says equipment that stores charge, such as high-voltage cables, must have the charge safely discharged, and that local earths at the point of work go on only after proving dead there. [5][6][7]
+- The regulations require isolation to be secure, and precautions to stop dead equipment from becoming charged during the work. HSE guidance says isolation includes guarding against charge by induction or capacitance effects. [8][9][10]
+- The voltage indicator used to prove dead is itself proved immediately before and immediately after testing the conductors. [11]
+- Your notes warn that the energy stored in the insulation can recharge the conductor after it has been discharged, and Megger says that absorbed energy takes a while to release. [12][13]
+- Your notes give the shock factors as voltage, resistance, path and duration, with body resistance about 10,000 Ω at 55 V and 50 mA or more potentially fatal. [14][15][16]
+- A long cable has significant capacitance. For a three-core 66 kV XLPE submarine cable at 240 mm², ABB lists 0.22 µF/km and 2.6 A/km charging current per phase at 50 Hz, in its 66 kV table. [17][18][19]
+- A real three-core submarine design can carry a lead metallic screen and steel armour over the cores, which the notes' layer list leaves out. The oversheath can have a protective function for the insulation. [20][21]
+- A maker's three-core medium-voltage submarine cable lists, middle out: conductor screen, XLPE insulation, insulation screen, swelling tape, copper wires, laminated aluminium tape and a PE or semi-conductive PE outer sheath, so your notes' layer list matches a real build; the same maker's lead-sheat… [22][23][24][20][21]
+- U0 is the rated voltage between the conductor and earth or the metal screen. For a 72.5 kV highest voltage, one maker names the cable 38/66 (72.5) kV while a rated-voltage table in another pairs 72.5 kV with U0 = 36 kV, so U0 is read from the cable's own data sheet (the case uses 38 kV, a practice … [25][26][27]
+- The body's impedance is not a fixed number. It varies with the touch voltage, path, duration, skin moisture, contact area and temperature, and it falls as voltage rises because the skin breaks down at a few hundred volts. Your notes' 10 000 Ω at 55 V is the notes' figure; no source here gives a val… [28][29][30][31]
+- The effects thresholds: about 0.5 mA to react, about 10 mA AC as the let-go threshold for adult males (5 mA for the whole population), and ventricular fibrillation at 50 mA for a one-second shock, falling to 40 mA beyond 3 s. Your notes put 50 mA or more as potentially fatal. [32][33][34]
+- For a screened cable the coupling that matters is inductive. It lands on all the metal parts of the cable, in or out of service (armour, sheath, conductor), depends on the neighbour's current, the distance and the length of parallelism, and not on the neighbour's voltage. So your notes' 'the longer… [35][36][37][38]
+- Capacitive coupling forms a voltage divider, so part of a live neighbour's voltage appears on an unearthed conductor. But overhead lines and busbars influence only conductors not screened by earth or an earthed screen, and offshore cables hold their field inside the shielded insulation. So the 'cap… [39][40][41][42][43]
+- The rule that follows: a disconnected cable's sheath and core are shunted and earthed locally to prevent a standing voltage, and dangerous voltages can arrive unpredictably from faults, switching or lightning even when it is safe under normal conditions. [44][45]
+- 'Impressed voltages' is the term for induced or capacitive voltage on metalwork, and 'trapped charge' is residual charge left on the capacitance of equipment, for example after insulation resistance testing a length of cable. [46][47]
+- A high-voltage cable should be treated as a capacitor that can store energy, and its capacitance is easy to overlook when disconnecting it. The energy in a capacitor is ½CV². A capacitor can also recharge a few minutes after the shorting device is removed (dielectric absorption), which is why the e… [48][49][50][51]
+- Wind-farm inter-array cables run from a turbine to the offshore substation, and a 66 kV array cable carries two times the power of a 33 kV one, according to one maker. [52][53]  (whole topic)
+- Every test starts from the same safe sequence: identify, isolate, prove dead, secure and earth. The earths come off only under control for a test, and go back on at the end. [54][4]  (whole topic)
+- IEC 60502-2 covers extruded-insulation cables only up to 30 kV, so it does not cover a 66 kV cable such as String B. [55]  (whole topic)
+
+WRITING EACH PART
+
+interactive
+- Its form, for a mechanism idea: a moving diagram he drives himself, with the cause drawn: what your explanation's "because" says happens on the picture (heat creeping along a spoon), set off by an action he performs (a button, a drag), not a switch he flips and watches. Include a setting where the cause does not produce the effect, so he sees both sides of the rule.
+- Sound only when hearing teaches what the picture cannot (a string's note rising as it is tightened): one button starts a sound that plays on while he moves the control. Say how much a slowed picture is slowed.
+- Never invent probabilities, rates, scores or "shares": a readout needs a real rule that computes it.
+- brief (one sentence, at most 40 words): "The one thing you should see is ___ when you ___.": one visible change at the heart of the idea (not a step towards it), caused by one action, naming the cause as well as the change. It drives the build. The app shows the whole sentence above the interactive, as what to watch for.
+- title: at most 6 words.
+- controls: one. Add a second only if the idea cannot be seen without it. Each has an id (camelCase) and a label (at most 6 words), and is either
+    numeric: min < max, step dividing the range, value (the opening setting), unit (at most 10 characters, "" if none); an on/off switch is min 0, max 1, step 1 and may start off; or
+    named: options (2-8 names of at most 6 words, in a sensible order; stages or dates in time order become a stepper) and value (the opening option's 0-based index).
+  Open on a realistic case (zero when zero is the real case). Ranges make the effect unmistakable but stay on the side of it the idea is about (past a turning point only when that is the lesson).
+- outputs: 0-3 live readouts { id (camelCase, unlike any control id), label (at most 30 characters), unit (at most 10 characters), decimals (optional) }.
+- whatAmILookingAt (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded), shown open above the interactive as "What you're looking at": first name each thing drawn ("Water from a 5 m drop hits a wheel's blades"), then the rule in words, step by step from what he can see, each step with its reason in a clause (why it doubles, why it is squared), then any short equation, each symbol named. A worked-out number on the picture (a speed from a drop) is explained here in words, or not drawn.
+- ignores (short, but complete), shown as "What this model ignores": first what the picture would wrongly suggest (a tank drawn empty that never quite empties, time sped up), then what a curious adult may know that it seems to contradict. Textbook-certain only: it has no footnotes. A condition the result needs goes with the result, not here.
+- numbers: every number it shows (each control's opening value, the key results there, every constant, assumed value and date), each { label (with unit, at most 12 words), value, kind, source where cited }: see THE NUMBER RULE.
+- "interactive": null only when nothing at all can be played with (rare).
+
+explain (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded; no word limit: Dan, 7 Oct, "the limit is: is it enough for me to learn the thing"): it must
+- Open with the overall explanation: the idea in one or two plain sentences he could repeat to a friend, not a list of results. Then teach the one concept that matters most. Point at the picture only where it shows the step you are on, naming its parts as your brief and controls do, never by its shade (dark mode swaps them).
+- Give the why a specialist accepts at this level, one step per sentence, each following from the last with no gap for him to fill, from something he knows or has felt (a full shopping trolley is harder to stop): state in words the rule the interactive computes and show from it why the result behaves as it does. Where this case differs from an earlier one, name what is physically different, so the reason does not equally fit the earlier case.
+- Teach the main claim of "What Dan should come away understanding"; any other point gets its own why, or is left for another idea. Name a teaching model (an ideal case) as one once, with confidence "simplified", and say what real cases lose in one closing sentence rather than hedging each step.
+- Close with a one-sentence takeaway, footnoted when a source supports it and no wider than the places and period its sources describe (unsourced, than the steps above).
+- Also: just before the takeaway, one sentence on the part this idea plays in answering the course's puzzle, without teaching the next idea.
+- 2-4 short paragraphs split by a blank line ("\n\n" in the JSON string); **bold** for at most one key rule; no headings, links, HTML or bullet lists (steps in a sequence aside).
+
+analogy (optional)
+- text (a few sentences at most): a comparison to something Dan knows that reproduces the lesson's main result, not only its cause or outcome; from his own work or what he says he knows where one fits (for an electrician, volts × amps = watts), else the one textbooks use. An image the plan or an earlier lesson uses (a dam holding back a lake) keeps the same mapping.
+- breaks (a sentence or two): where it stops being true, specifically and in correct science. Use "analogy": null if no honest analogy helps.
+
+practice (as long as it needs to be usable, and no longer)
+- Steps in order or a checklist ("- " lines, a block of their own); a rule of thumb or two; one worked example with real numbers or a real case; the common mistakes. Other blocks open with a bold label ("**Worked example:**"). Not a skill (history, a concept)? Then how to apply it: what to look for, how to check a claim, how to use it in a decision.
+- Where safety matters, the safe way comes first.
+
+confidence
+- "settled": mainstream and uncontroversial at this level.
+- "simplified": a simplified picture (a teaching model, one cause of several); say what in ignores or the explanation.
+- "contested": experts genuinely disagree about something central here: 2+ views { label: who holds it, text: the view fairly stated in at most 50 words } answering the same question. The explanation says plainly it is debated; the interactive takes no side.
+
+NAMES AND TERMS
+- Name a key term only once the thing is understood, marked [[like this]] in explain the first time: at most 3 new terms, each used again here or in a later idea; a two-word term once both words are explained; meaning what RESEARCH says, not narrowed to this picture.
+- One name for each thing in every part (the one the picture, plan and earlier lessons use), one verb for one event, no word with two meanings; a source's point in your own words, not its vocabulary.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+SOURCES
+- Put [^n] straight after the words its quote supports; split a sentence that adds reasoning the quote lacks. Footnote what he would check, one per sentence; never name a source in a sentence ("your slides say", "(p.16)").
+- Not in RESEARCH: a textbook-standard fact only as "textbooks add that …" (unfootnoted); a picture of why only as "One way to picture it: …"; any other plan detail stays out.
+- "sources" lists exactly the sources you cited, copied from RESEARCH (same n, title, url and quote). No web addresses anywhere else in the lesson.
+
+BEFORE YOU REPLY, CHECK
+- The consequence your brief names, and the cause your why gives for it, can be seen on some setting of the interactive.
+- Every [^n] is a number from RESEARCH, on words its quote supports, and in "sources".
+
+OUTPUT
+Reply with one JSON object only, no commentary, exactly this shape:
+{
+  "iid": "i1",
+  "title": "<lesson title, at most 8 words>",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is … when you ….",
+    "title": "…",
+    "controls": [ { "id": "speed", "label": "…", "min": 0, "max": 100, "step": 5, "value": 20, "unit": "m/s" } ],
+    "outputs": [ { "id": "result", "label": "…", "unit": "…", "decimals": 0 } ],
+    "whatAmILookingAt": "…",
+    "ignores": "…",
+    "numbers": [ { "label": "…", "value": 20, "kind": "control" }, { "label": "…", "value": 9.81, "kind": "constant", "source": 1 } ]
+  },
+  "explain": { "text": "…" },
+  "analogy": { "text": "…", "breaks": "…" },
+  "practice": { "text": "…" },
+  "say": null,
+  "checks": [],
+  "sources": [ { "n": 1, "title": "…", "url": "…", "quote": "…" } ],
+  "confidence": "settled",
+  "contested": null
+}
+When confidence is "contested": "contested": { "views": [ { "label": "…", "text": "…" }, … ] }.

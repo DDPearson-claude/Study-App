@@ -1,0 +1,867 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .task > p + p, .why > p + p, .note > p + p, .assume > p + p { margin-top: 10px; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .sub.ask { font-size: 1rem; font-weight: 700; color: var(--k-ink); }
+  .assume, .why { line-height: 1.6; }
+  .ctl { display: grid; gap: 12px; }
+  .five { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .five li { position: relative; padding-left: 1.3rem; line-height: 1.5; }
+  .five li::before { content: ""; position: absolute; left: .25rem; top: .62em; width: .45rem; height: .45rem; border-radius: 50%; background: var(--k-accent2); }
+  .warn-note .wh { font-weight: 700; }
+  .warn-note p + p { margin-top: 6px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips .k-btn { flex: 0 0 auto; min-height: 44px; border-radius: 999px; }
+  .chips .k-btn.on { background: var(--k-accent2); border-color: var(--k-accent2); color: var(--k-on-accent2); }
+  .chipline { line-height: 1.5; }
+  #carry1b .k-cr { grid-template-columns: 2rem minmax(0, 1fr) 24px; }
+  #carry1b .k-cr-value { grid-column: 2; grid-row: 2; }
+  .chipline > p + p { margin-top: 6px; }
+  .scene { display: block; width: 100%; }
+  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .wt { font: 600 13px var(--k-font); fill: var(--k-warn); }
+  .scene .cond { fill: var(--k-fill1); stroke: var(--k-strong); stroke-width: .8; }
+  .scene .xl { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: .8; }
+  .scene .scr { fill: var(--k-line); stroke: var(--k-strong); stroke-width: .8; }
+  .scene .mk { stroke: var(--k-accent2); stroke-width: 2.2; fill: none; stroke-linecap: round; }
+  .scene .soak { fill: var(--k-accent2); }
+  .scene .wire { stroke: var(--k-strong); stroke-width: 2; fill: none; }
+  .scene .node { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .blade { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .brk { stroke: var(--k-muted); stroke-width: 1.5; fill: none; }
+  .scene .vbox { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .vf { fill: var(--k-accent2); }
+  .scene .vf.back { fill: var(--k-warn); }
+  .scene .l-cond { fill: var(--k-fill1); stroke: var(--k-strong); stroke-width: .6; }
+  .scene .l-semi { fill: var(--k-strong); stroke: var(--k-strong); stroke-width: .6; }
+  .scene .l-xlpe { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: .6; }
+  .scene .l-scr { fill: var(--k-muted); stroke: var(--k-strong); stroke-width: .6; }
+  .scene .l-foil { fill: var(--k-line); stroke: var(--k-strong); stroke-width: .6; }
+  .scene .l-over { fill: var(--k-fill3); stroke: var(--k-strong); stroke-width: .6; }
+  .scene circle.lit { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.2; }
+  .scene .lead { stroke: var(--k-muted); stroke-width: 1; }
+  .scene .ldot { fill: var(--k-ink); }
+  .scene .path { stroke: var(--k-accent2); stroke-width: 2.5; fill: none; stroke-linecap: round; }
+  .scene .path.dash { stroke-dasharray: 5 4; }
+  .scene .head { fill: var(--k-accent2); }
+  .scene .lineA { stroke: var(--k-ink); stroke-width: 7; fill: none; stroke-linejoin: round; }
+  .scene .chev { stroke: var(--k-bg); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .lineB { stroke: var(--k-accent2); stroke-width: 6; stroke-linecap: round; }
+  .scene .ring { fill: none; stroke: var(--k-accent); stroke-width: 1.5; }
+  .scene .glow { fill: var(--k-warn); fill-opacity: .22; stroke: var(--k-warn); stroke-width: 2; }
+  .scene .circ { stroke: var(--k-accent2); stroke-width: 2.5; fill: none; stroke-dasharray: 7 7; }
+  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .wl .line + .line { margin-top: 10px; }
+  .w { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.5; }
+  .wl .sub { margin-top: 4px; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; justify-content: flex-start; padding: 10px 14px; }
+  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  #stepbox.enter, .wl .line.enter, .fade { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing .wl .line.enter, html.k-testing .fade { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .line.enter, .fade { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="scen"></div>
+    <div id="carry1b"></div>
+    <div class="assume" id="assume"></div>
+    <div class="task" id="task"></div>
+    <p class="sub" id="qnote"></p>
+    <ul class="five" id="five"></ul>
+    <div class="warn-note" id="warn1"></div>
+    <div class="why" id="under2"></div>
+    <p class="sub" id="sub"></p>
+    <div id="wrap1"><svg class="scene" id="xsec" viewBox="0 0 340 206" width="100%" role="img" aria-label=""></svg></div>
+    <p class="sub" id="armour"></p>
+    <div class="chips" id="chips"></div>
+    <div class="chipline" id="chipline"></div>
+    <div id="wrap2">
+      <svg class="scene" id="core" viewBox="0 0 340 232" width="100%" role="img" aria-label="">
+        <rect class="cond" x="6" y="4" width="14" height="10"/><text class="tk" x="25" y="13">Conductor</text>
+        <rect class="xl" x="108" y="4" width="14" height="10"/><text class="tk" x="127" y="13">XLPE</text>
+        <rect class="scr" x="176" y="4" width="14" height="10"/><text class="tk" x="195" y="13">Screen</text>
+        <path class="mk" d="M6 26h8M10 22v8M18 26h8"/><text class="tk" x="32" y="31">Charge on the plates</text>
+        <circle class="soak" cx="180" cy="26" r="2.2"/><text class="tk" x="188" y="31">Charge in the XLPE</text>
+        <text class="lb" id="lenlab" x="150" y="50" text-anchor="middle"></text>
+        <path class="brk" id="brk" d=""/>
+        <rect class="scr bar" x="34" y="68" width="216" height="8"/>
+        <rect class="xl bar" x="34" y="76" width="216" height="18"/>
+        <rect class="cond bar" x="34" y="94" width="216" height="16"/>
+        <rect class="xl bar" x="34" y="110" width="216" height="18"/>
+        <rect class="scr bar" x="34" y="128" width="216" height="8"/>
+        <text class="lb" id="b01" x="29" y="107" text-anchor="end">B01</text>
+        <text class="lb" x="256" y="92">OSS</text>
+        <path class="wire" d="M250 102H282V114"/>
+        <path class="wire" d="M244 136V160H282M282 152V168"/>
+        <path class="wire" d="M270 168h24M274 173h16M278 178h8"/>
+        <line class="blade" id="blade" x1="282" y1="152" x2="264" y2="124"/>
+        <circle class="node" cx="282" cy="116" r="2.5"/>
+        <circle class="node" cx="282" cy="152" r="3"/>
+        <circle class="node" cx="282" cy="160" r="2.5"/>
+        <text class="lb" x="292" y="124">Earth</text>
+        <text class="lb" x="292" y="139">switch</text>
+        <g id="dots"></g>
+        <g id="marks"></g>
+        <text class="lb" x="6" y="202">Core voltage</text>
+        <text class="tk" id="vst" x="334" y="202" text-anchor="end"></text>
+        <rect class="vbox" x="6" y="210" width="328" height="14" rx="3"/>
+        <rect class="vf" id="vfill" x="6" y="210" width="0" height="14" rx="3"/>
+      </svg>
+    </div>
+    <div class="ctl" id="ctl2"></div>
+    <div class="row" id="ctl2b"></div>
+    <div class="ctl" id="ctl2c"></div>
+    <div class="k-readouts" id="outs2"></div>
+    <p class="say" id="say2"></p>
+    <div class="warn-note" id="creep"></div>
+    <div id="wrap4">
+      <svg class="scene" id="line4" viewBox="0 0 340 246" width="100%" role="img" aria-label="">
+        <path class="wire" d="M14 3v5M6 8h16M9 12h10M12 16h4"/><text class="tk" x="28" y="16">Earth switch</text>
+        <circle class="glow" cx="134" cy="11" r="6"/><text class="tk" x="146" y="16">Standing at a voltage</text>
+        <path class="circ" d="M6 30h20"/><text class="tk" x="32" y="34">Current through the earths</text>
+        <text class="tk" id="brklab4" x="172" y="52" text-anchor="middle">Parallel run</text>
+        <path class="brk" id="brk4" d=""/>
+        <text class="lb" x="34" y="88" text-anchor="middle">B01</text>
+        <text class="lb" x="170" y="88" text-anchor="middle">String B core</text>
+        <text class="lb" x="306" y="88" text-anchor="middle">OSS</text>
+        <g id="rings"></g>
+        <path class="lineA" id="lineA" d=""/>
+        <g id="chev"></g>
+        <circle class="glow" id="glow" cx="34" cy="110" r="11"/>
+        <path class="wire" d="M34 110V122M34 152V162M24 162h20M28 167h12M32 172h4"/>
+        <path class="wire" d="M306 110V122M306 152V162M296 162h20M300 167h12M304 172h4"/>
+        <line class="lineB" x1="34" y1="110" x2="306" y2="110"/>
+        <line class="blade" id="bladeL" x1="34" y1="152" x2="18" y2="128"/>
+        <line class="blade" x1="306" y1="152" x2="306" y2="124"/>
+        <circle class="node" cx="34" cy="124" r="2.5"/><circle class="node" cx="34" cy="152" r="3"/>
+        <circle class="node" cx="306" cy="124" r="2.5"/><circle class="node" cx="306" cy="152" r="3"/>
+        <path class="circ" id="circ" d="M40 162V116H300V162"/>
+        <text class="lb" x="4" y="238">String A, live</text>
+      </svg>
+    </div>
+    <div class="ctl" id="ctl4"></div>
+    <div class="k-readouts" id="outs4"></div>
+    <p class="say" id="say4"></p>
+    <div class="note why" id="under4"></div>
+    <div class="warn-note" id="warn4"></div>
+    <div id="worked"></div>
+    <div class="row" id="workedgo"></div>
+    <div class="picks" id="picks"></div>
+    <div id="ans-1a"></div>
+    <div id="ans-1b"></div>
+    <div id="ans-ch"></div>
+    <div class="row" id="acts"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div class="note why" id="after"></div>
+    <div class="row" id="go"></div>
+    <div id="wr1"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Each line is worked from the rounded figures shown before it.</p>
+
+<script>
+  // ---------- rounding, the rule, and the course's figures ----------
+  const r2 = (x) => Math.round(x * 100 + 1e-7) / 100;
+  const r3 = (x) => Math.round(x * 1000 + 1e-6) / 1000;
+  const f2 = (x) => r2(x).toFixed(2), f3 = (x) => r3(x).toFixed(3);
+  const F = (id) => K.figure(id);
+  const el = (id) => document.getElementById(id);
+  const NB = ' ';
+  // Non-breaking spaces: before an operator, inside 10 000, and between a number and its unit.
+  const nb = (s) => String(s == null ? '' : s)
+    .replace(/ ([×÷+=]) /g, NB + '$1 ')
+    .replace(/(\d) (?=\d{3}(?!\d))/g, '$1' + NB)
+    .replace(/(\d) (?=(?:µF|mA|kV|km|Hz|J|V|Ω|A)(?![A-Za-z]))/g, '$1' + NB);
+  const k10 = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  const vis = (e, on) => { if (on) e.removeAttribute('display'); else e.setAttribute('display', 'none'); };
+  const clamp01 = (x) => K.clamp(x, 0, 1);
+
+  const fRec = F('l1.recall'), fWC = F('l1.wex.C'), fWE = F('l1.wex.E'), fWH = F('l1.wex.half');
+  const f1a = F('1a'), f1b = F('1b'), fIch = F('l1.Ich'), fIchC = F('l1.Ich.check');
+  const fCh = F('l1.changed'), fChE = F('l1.changed.E');
+  const CPK = F('t.C66').value, ICH = F('t.Ich66').value, U0 = F('p.U0').value, LEN = F('p.len').value, VPK = F('p.induce').value;
+  const BODY = F('n.body').value, FATAL = F('n.fatal').value;
+  const V55 = 55, HZ = 50, WLEN = 0.8, LCH = 1.8, CREEP_SHARE = 0.35;
+  // C = C per km × length (3 places); worst case off at the peak, E = ½ × C × (√2 × U0)² = C × U0² (2 places).
+  const capAt = (len) => r3(CPK * len);
+  const energyAt = (C) => r2(C * 1e-6 * Math.pow(U0 * 1000, 2));
+  const halfAt = (C) => r2(0.5 * C * 1e-6 * Math.pow(U0 * 1000, 2));
+  const root2At = (C) => r2(0.5 * C * 1e-6 * Math.pow(1.414 * U0 * 1000, 2));
+  const snapKm = (v) => K.clamp(Math.round((+v || 0) * 5) / 5, 0.4, 2.4);
+
+  // ---------- the lesson's words ----------
+  const R_TASK = "String A is live in the same corridor. String B's cable from B01 to the OSS is isolated, and you have proved it dead at the OSS end. What must happen before anyone touches its cores?";
+  const R_O1 = 'Nothing more: it has been proved dead', R_O2 = 'Discharge it, then apply earths at both ends', R_O3 = 'Open the isolator at B01 as well, then start';
+  const R_WORK = 'Proved dead means no voltage at that moment. The core is still a capacitor, and String A can still induce a voltage on it. Discharging empties it. Earths at both ends hold it at earth while you work. The whole sequence is Identify, Isolated, Proved dead, Secured, Earthed.';
+  const R_W1 = 'Proved dead is a snapshot. The core can still hold charge, regain it from its insulation, or pick it up from String A. It is safe to touch only once it is discharged and earthed.';
+  const R_W3 = 'Isolating stops energy from the system. It does not stop String A inducing a voltage, or charge creeping back out of the insulation.';
+  const FOR_TEXT = 'Every test assumes a cable that cannot hurt you. The IR, sheath and VLF sets charge it to a high voltage. So the same discipline comes back at the end of every test.';
+  const FIVE = [['Identify', 'the test points are known.'], ['Isolated', 'every energy source is disconnected.'], ['Proved dead', 'no voltage is verified.'],
+    ['Secured', 'it is locked off and access is controlled.'], ['Earthed', 'earths are applied.']];
+  const WARN1 = 'Four main things set how badly a shock hurts: voltage, resistance, path and duration. At ' + V55 + ' V your body is about ' + k10(BODY) + ' Ω. So ' + V55 + ' V drives ' + fRec.text + '. ' + FATAL + " mA or more is potentially fatal. Your body's resistance falls as the voltage rises. So a charged HV core drives far more current than that sum suggests.";
+  const ARMOUR = 'In a three-core subsea cable, armour wraps all three cores. Some designs use a lead sheath in place of the copper wires and foil.';
+  const FOR_READ = "From the middle out, the core's layers are conductor, inner semi-con, XLPE, outer semi-con, metal screen, aluminium foil and oversheath. Core resistance checks the conductor. IR and VLF check the XLPE between conductor and screen. The sheath test checks the oversheath, screen to earth. TDR uses conductor and screen as a pair.";
+  const WHY_TEXT = 'The conductor and the screen are two metal plates, with the XLPE between them. So every core is a capacitor. Capacitance grows with the area of the plates, so it grows with length. This cable has about ' + CPK + ' µF per km in each core.\n\n'
+    + 'A charged core keeps its charge after it is disconnected. Its charge is Q = C × V. The energy it holds is E = ½ × C × V². While the core sits charged, some charge soaks into the insulation itself. An earth drains the conductor quickly. The charge in the insulation comes back out slowly. So a core earthed for a moment can build a voltage again.';
+  const UNDER2 = "A breaker breaks a cable's charging current as it passes through zero. That moment falls at the peak of the voltage. So a core switched off is usually left charged at the peak of U0.\n\n"
+    + 'U0 is its voltage between conductor and screen. The peak is √2 × U0, so E = ½ × C × (√2 × U0)² = C × U0². U0 is ' + U0 + ' kV for this 38/66 kV cable.';
+  const WHY_READ = 'A ' + f2(1) + ' km core holds ' + f3(capAt(1)) + ' µF. Switched off at the peak of U0, ' + U0 + ' kV, it could hold ' + f2(energyAt(capAt(1))) + ' J. A longer core holds more. An earth drains it to zero. Lift the earth too soon and some charge creeps back from the insulation.';
+  const CREEP_LINE = 'It has recharged from the insulation. Earth it again and leave the earth on.';
+  const C_TASK = 'A cable with no live neighbours has just had an insulation resistance test. You earth it for a moment, then lift the earth to connect the next lead. What can its core do?';
+  const C_O1 = 'Stay at zero: the earth emptied it', C_O2 = 'Build a voltage again from charge in the insulation', C_O3 = 'Recharge only if its far end is still connected';
+  const C_RIGHT = 'The earth empties the conductor quickly. Charge soaked into the insulation comes out slowly and builds a voltage again. So re-earth it, and keep the earth on until the next lead is connected.';
+  const C_W1 = 'The earth empties the conductor, not the insulation. Its charge comes back out after the earth is lifted.';
+  const C_W3 = 'Nothing outside is needed. The charge comes back out of the insulation itself.';
+  const IND_TEXT = "String A runs live in the same corridor. Its load current sets up a magnetic field. Where the cables run side by side, that field induces a voltage along String B's core. It works the way a transformer's primary drives its secondary. No connection is needed.\n\n"
+    + "The voltage grows with String A's current, how close the cables run and how far they run together. String A's voltage does not set it. The earthed screen keeps String A's electric field away from the core. So the magnetic coupling is the one that matters here.\n\n"
+    + 'The induced voltage stands between the two ends of the core. Earth one end, and all of it appears at the other. Earth both ends, and it drives a current round through the earths instead.';
+  const UNDER4 = 'Take ' + VPK + ' V per km as a practice value for String A at full load. It only gives the picture a number.';
+  const WARN4 = 'A fault or switching on String A can push this far higher without warning. Earth both ends before anyone works on the cable.\n\n'
+    + 'Lift an earth to connect a test, and that end stands at the induced voltage again. Treat the test end as live while String A runs.';
+  const IND_READ = 'With only the OSS end earthed, the B01 end sits at the induced voltage. That is ' + Math.round(VPK * LEN) + ' V over ' + f2(LEN) + ' km, at the practice ' + VPK + ' V per km. Earth both ends and both are held at earth. A current circulates through the earths instead.';
+  const WL = [
+    { w: 'Your body at ' + V55 + ' V: I = V ÷ R = ' + fRec.work, post: 'That is under ' + FATAL + ' mA. But the ' + k10(BODY) + " Ω holds only near " + V55 + " V. At HV your body's resistance is lower." },
+    { pre: 'A charged core is what would drive that current. Take a ' + f2(WLEN) + ' km core of this cable, a practice length.', w: 'C = ' + fWC.work },
+    { pre: 'Switched off at the peak of U0:', w: 'E = C × U0² = ' + fWE.work },
+  ];
+  const WK_NOTE = 'Leave out the peak and you get ½ × C × U0² = ' + fWH.text + ', half the energy at the peak.';
+  const WK_READ = 'At ' + V55 + ' V your body takes ' + V55 + ' ÷ ' + k10(BODY) + ' = ' + fRec.text + '. That is under ' + FATAL + ' mA, but the figure holds only near ' + V55 + ' V. A ' + f2(WLEN) + ' km core holds ' + fWC.work + '. At the peak of U0, ' + U0 + ' kV, it could hold ' + fWE.work + '.';
+  const Q1A = '(a) Determine the capacitance of one core of String B, from B01 to the OSS.';
+  const NOTE_1A = 'Take ' + CPK + " µF per km, a typical figure for this cable. On a real job, use the cable's own data sheet.";
+  const AS_1B = 'Once String B is in service, it will be switched off for maintenance.';
+  const Q1B = '(b) Determine the most energy one core could hold if it were switched off at the peak of its phase voltage. U0 is ' + U0 + ' kV for this 38/66 kV cable.';
+  const Q_CH = 'A core of the same type of cable runs ' + f2(LCH) + ' km. U0 is again ' + U0 + ' kV. Determine the most energy it could hold if it were switched off at the peak of U0.';
+
+  let lines = 0, chip = null, lastStep = -1, finished = false;
+  const STEPS = [
+    { name: 'Do you still have it?', label: 'Do you still have it?', task: R_TASK, opts: [R_O1, R_O2, R_O3], want: R_O2, why: R_WORK },
+    { show: true, name: 'What it is for', label: 'What it is for', text: FOR_TEXT, read: FOR_READ,
+      still: () => { chip = 'all'; K.refresh(); } },
+    { show: true, name: 'The why', label: 'The why: a capacitor kilometres long', text: WHY_TEXT, terms: ['a capacitor', 'soaks into the insulation'], read: WHY_READ,
+      still: () => creptStill() },
+    { name: 'Check', label: 'Check', task: C_TASK, opts: [C_O1, C_O2, C_O3], want: C_O2, why: C_RIGHT },
+    { show: true, name: 'The live string beside it', label: 'The live string beside it', text: IND_TEXT, terms: ['induces a voltage'], read: IND_READ,
+      still: { run: 2.4, earths: 'OSS end only' } },
+    { show: true, name: 'Worked example', label: 'Worked example: your body, then a core', text: '', read: WK_READ,
+      still: () => { lines = WL.length; K.refresh(); } },
+    { name: 'Section A 1(a)', label: 'Section A · Question 1', part: Q1A, task: Q1A + ' ' + NOTE_1A, want: f1a.text, why: 'C = ' + f1a.work },
+    { name: 'Section A 1(b)', label: 'Section A · Question 1', assume: AS_1B, part: Q1B, task: AS_1B + ' ' + Q1B, want: f1b.text, why: 'E = C × U0² = ' + f1b.work },
+    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },
+    { name: 'Changed numbers', label: 'Section A · Changed numbers', part: Q_CH, task: Q_CH, want: fChE.text, why: 'C = ' + fCh.work + '. E = ' + fChE.work },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const iR = 0, iFor = 1, iWhy = 2, iChk = 3, iInd = 4, iWk = 5, i1A = 6, i1B = 7, iB1 = 8, iCh = 9, iK = 10;
+  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, fb: null }));
+  const WORKING = [iWk, i1A, i1B, iCh];
+
+  // Words with key terms in amber (the <mark> element), built with K.el, never innerHTML.
+  function write(node, s, terms) {
+    node.textContent = '';
+    let rest = String(s || '');
+    const list = (terms || []).slice();
+    while (rest) {
+      let at0 = -1, hit = null;
+      list.forEach((t) => { const k = rest.indexOf(t); if (k >= 0 && (at0 < 0 || k < at0)) { at0 = k; hit = t; } });
+      if (at0 < 0) { node.appendChild(document.createTextNode(nb(rest))); break; }
+      if (at0 > 0) node.appendChild(document.createTextNode(nb(rest.slice(0, at0))));
+      node.appendChild(K.el('mark', null, nb(hit)));
+      list.splice(list.indexOf(hit), 1);
+      rest = rest.slice(at0 + hit.length);
+    }
+    return node;
+  }
+  function paras(node, s, terms) {
+    node.textContent = '';
+    String(s || '').split('\n\n').forEach((t) => { if (t) node.appendChild(write(K.el('p'), t, terms)); });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const lenCtl = K.control({ id: 'len', label: 'Length', min: 0.4, max: 2.4, step: 0.2, value: 1, fmt: (v) => f2(snapKm(v)) + ' km', into: '#ctl2' });
+  const earthCtl = K.toggle({ id: 'earth', label: 'Earth switch closed', value: false, into: '#ctl2c' });
+  K.readout({ id: 'C', label: 'Capacitance', unit: 'µF', decimals: 3, into: '#outs2' });
+  K.readout({ id: 'E', label: 'Most energy, off at the peak', unit: 'J', decimals: 2, into: '#outs2' });
+  K.control({ id: 'run', label: 'Parallel run', min: 0.4, max: 2.4, step: 0.2, value: 2.4, fmt: (v) => f2(snapKm(v)) + ' km', into: '#ctl4' });
+  K.choice({ id: 'earths', label: 'Earths', options: ['OSS end only', 'Both ends'], value: 'OSS end only', into: '#ctl4' });
+  K.readout({ id: 'V', label: 'Voltage at the B01 end', unit: 'V', decimals: 0, into: '#outs4' });
+
+  K.model((p) => {
+    const C = capAt(snapKm(p.len));
+    return { C, E: energyAt(C), V: p.earths === 'Both ends' ? 0 : Math.round(VPK * snapKm(p.run)) };
+  });
+
+  // ---------- the charge on one core: plates, and charge soaked into the XLPE ----------
+  // A sketch with no scale, sped up: the plates fill on Switch off at the peak; an earth drains
+  // them; charge soaked into the XLPE drifts out afterwards, down the earth while it is on, or
+  // back onto the plates once it is lifted.
+  const NSEG = 12, SC = 90, XR = 250, XS = 282, YCD = 102, YE = 168, SEGW = 0.2 * SC;
+  const ARR = 1, LEAVE = 1.4, STAG = 0.04, OUT_T = 0.7, DLEAVE = 1.1, HOLD = 7, CREEP = 2.6;
+  function freshSim() {
+    const s = { pl: 'off', t: 0, charge: 9, cAt: Infinity, drained: false, h: 0, dots: [] };
+    for (let j = 0; j < NSEG * 2; j++) {
+      const seg = j >> 1, top = j % 2 === 0;
+      s.dots.push({ seg, top, x: XR - (seg + (top ? 0.28 : 0.72)) * SEGW, y: top ? 85 : 119, k: 0.04 + ((j * 0.618034) % 1) * 0.92, st: 'none', t: 0, from: false });
+    }
+    return s;
+  }
+  // Left charged, each mark soaks in at its own moment; an earth stops any more soaking in.
+  const soakA = (s, d) => clamp01((Math.min(s.charge, s.cAt) - 0.6 - d.k * 2.2) / 0.4);
+  function charge(s) { s.pl = 'arriving'; s.t = 0; s.charge = 0; s.cAt = Infinity; s.drained = false; s.h = 0; s.dots.forEach((d) => { d.st = 'in'; d.t = 0; d.from = false; }); }
+  function tick(s, dt, earth) {
+    s.charge += dt;
+    if (earth && (s.pl === 'on' || s.pl === 'arriving')) {
+      s.pl = 'leaving'; s.t = 0; s.drained = true; s.cAt = s.charge;
+      s.dots.forEach((d) => { if (d.st === 'in' && soakA(s, d) <= 0.01) d.st = 'none'; });
+    }
+    else if (s.pl === 'arriving') { s.t += dt; if (s.t >= ARR + STAG * NSEG) s.pl = 'on'; }
+    else if (s.pl === 'leaving') { s.t += dt; if (s.t >= LEAVE + STAG * NSEG) s.pl = 'off'; }
+    if (s.drained && s.dots.some((d) => d.st === 'in')) s.h = Math.min(1, s.h + dt / (earth ? HOLD : CREEP));
+    s.dots.forEach((d) => {
+      if (d.st === 'in') { if (s.drained && d.k < s.h) { d.st = 'out'; d.t = 0; } }
+      else if (d.st === 'out') { d.t += dt; if (d.t >= OUT_T) { d.t = 0; d.from = false; d.st = earth ? 'leave' : 'plate'; } }
+      else if (d.st === 'plate') { if (earth) { d.st = 'leave'; d.t = 0; d.from = true; } }
+      else if (d.st === 'leave') { d.t += dt; if (d.t >= DLEAVE) d.st = 'gone'; }
+    });
+  }
+  function busy(s, earth) {
+    return s.pl === 'arriving' || s.pl === 'leaving' || (earth && s.pl === 'on') || s.charge < 3.3
+      || s.dots.some((d) => d.st === 'out' || d.st === 'leave' || (earth && d.st === 'plate') || (s.drained && d.st === 'in'));
+  }
+  const plateLevel = (s) => s.pl === 'on' ? 1 : s.pl === 'arriving' ? K.ease(clamp01(s.t / ARR)) : s.pl === 'leaving' ? 1 - K.ease(clamp01(s.t / LEAVE)) : 0;
+  function creepLevel(s, n) {
+    let c = 0;
+    s.dots.forEach((d) => { if (d.seg >= n) return; if (d.st === 'plate') c += 1; else if (d.st === 'leave' && d.from) c += 1 - K.ease(clamp01(d.t / DLEAVE)); });
+    return CREEP_SHARE * c / (2 * n);
+  }
+  // Along the conductor to the switch, then down the lead to earth.
+  function along(x, y, q) {
+    const L1 = XS - x, L2 = YE - y, d = q * (L1 + L2);
+    return d <= L1 ? [x + d, y] : [XS, y + d - L1];
+  }
+  let sim = freshSim();
+  function creptStill() {
+    lenCtl.set(1); earthCtl.set(false);
+    sim = freshSim(); sim.drained = true; sim.h = 1;
+    sim.dots.forEach((d) => { d.st = 'plate'; });
+    K.refresh();
+  }
+
+  const BAR = Array.from(document.querySelectorAll('#core .bar'));
+  const plus = [], minT = [], minB = [], dotEl = [];
+  for (let i = 0; i < NSEG; i++) {
+    plus.push(el('marks').appendChild(K.svg('path', { class: 'mk' })));
+    minT.push(el('marks').appendChild(K.svg('path', { class: 'mk' })));
+    minB.push(el('marks').appendChild(K.svg('path', { class: 'mk' })));
+  }
+  for (let j = 0; j < NSEG * 2; j++) dotEl.push(el('dots').appendChild(K.svg('circle', { class: 'soak', r: 2.2 })));
+  function mark(e, d, a) { if (a <= 0.01) { vis(e, false); return; } vis(e, true); e.setAttribute('d', d); e.setAttribute('opacity', a.toFixed(2)); }
+  el('creep').appendChild(K.el('p', null, CREEP_LINE));
+
+  function drawCore(p) {
+    const len = snapKm(p.len), n = Math.round(len * 5), x0 = XR - SC * len, earth = !!p.earth;
+    BAR.forEach((r) => { r.setAttribute('x', x0.toFixed(1)); r.setAttribute('width', (XR - x0).toFixed(1)); });
+    el('brk').setAttribute('d', 'M' + x0.toFixed(1) + ' 54v8M' + x0.toFixed(1) + ' 58H' + XR + 'M' + XR + ' 54v8');
+    const lab = el('lenlab');
+    lab.setAttribute('x', ((x0 + XR) / 2).toFixed(1));
+    lab.textContent = nb(f2(len) + ' km');
+    el('b01').setAttribute('x', (x0 - 5).toFixed(1));
+    el('blade').setAttribute('x2', earth ? XS : 264);
+    el('blade').setAttribute('y2', earth ? 116 : 124);
+    for (let i = 0; i < NSEG; i++) {
+      const xi = XR - (i + 0.5) * SEGW;
+      let a = 0, am = 0, pos = [xi, YCD];
+      if (i < n) {
+        if (sim.pl === 'on') { a = 1; am = 1; }
+        else if (sim.pl === 'arriving') { a = am = K.ease(clamp01((sim.t - i * STAG) / ARR)); }
+        else if (sim.pl === 'leaving') { const q = clamp01((sim.t - i * STAG) / LEAVE); pos = along(xi, YCD, K.ease(q)); a = q < 0.75 ? 1 : (1 - q) / 0.25; am = 1 - K.ease(q); }
+      }
+      mark(plus[i], 'M' + (pos[0] - 4).toFixed(1) + ' ' + pos[1].toFixed(1) + 'h8M' + pos[0].toFixed(1) + ' ' + (pos[1] - 4).toFixed(1) + 'v8', a);
+      mark(minT[i], 'M' + (xi - 4).toFixed(1) + ' 72h8', am);
+      mark(minB[i], 'M' + (xi - 4).toFixed(1) + ' 132h8', am);
+    }
+    sim.dots.forEach((d, j) => {
+      const c = dotEl[j];
+      if (d.seg >= n || d.st === 'none' || d.st === 'gone') { vis(c, false); return; }
+      const edge = d.top ? 97 : 107;
+      let x = d.x, y = d.y, a = 1;
+      if (d.st === 'in') a = soakA(sim, d);
+      else if (d.st === 'out') y = d.y + (edge - d.y) * K.ease(clamp01(d.t / OUT_T));
+      else if (d.st === 'plate') y = edge;
+      else if (d.st === 'leave') { const q = clamp01(d.t / DLEAVE); const pt = along(d.x, edge, K.ease(q)); x = pt[0]; y = pt[1]; a = q < 0.7 ? 1 : (1 - q) / 0.3; }
+      if (a <= 0.01) { vis(c, false); return; }
+      vis(c, true);
+      c.setAttribute('cx', x.toFixed(1)); c.setAttribute('cy', y.toFixed(1)); c.setAttribute('opacity', a.toFixed(2));
+    });
+    // The core's voltage: the plates, plus whatever has crept back from the XLPE.
+    const pl = plateLevel(sim), cr = creepLevel(sim, n), V = Math.min(1, pl + cr), back = pl < 0.02 && cr > 0.002;
+    el('vfill').setAttribute('width', (328 * V).toFixed(1));
+    el('vfill').setAttribute('class', back ? 'vf back' : 'vf');
+    const mine = sim.dots.filter((d) => d.seg < n);
+    const moving = mine.some((d) => d.st === 'in' || d.st === 'out');
+    const crept = sim.drained && !earth && sim.pl === 'off' && !moving && mine.some((d) => d.st === 'plate');
+    let stt = 'zero', warned = false;
+    if (V > 0.004) {
+      if (sim.pl === 'arriving') stt = 'rising';
+      else if (sim.pl === 'on') stt = 'full';
+      else if (sim.pl === 'leaving' || earth) stt = 'falling';
+      else if (back) { warned = true; stt = moving ? 'creeping back' : 'back up'; }
+    }
+    const vst = el('vst');
+    vst.textContent = stt;
+    vst.setAttribute('class', warned ? 'wt' : 'tk');
+    const L = f2(len) + ' km', Ct = f3(capAt(len)) + ' µF', Et = f2(energyAt(capAt(len))) + ' J';
+    let s;
+    if (sim.pl === 'arriving' || sim.pl === 'on') s = 'Switched off at the peak, this ' + L + ' core keeps ' + Et + ' on its ' + Ct + '.' + (mine.some((d) => d.st === 'in' && soakA(sim, d) > 0.01) ? ' Left charged, some of it soaks into the XLPE.' : '');
+    else if (sim.pl === 'leaving') s = 'The earth lets the charge on the plates flow away. The charge in the XLPE stays put for now.';
+    else if (!sim.drained) s = (earth ? 'The earth is on, and this ' : 'This ') + L + ' core holds no charge yet. Switched off at the peak, its ' + Ct + ' would hold ' + Et + '.';
+    else if (crept) s = 'The charge that soaked into the XLPE has come back out. It has built a voltage on the core again.';
+    else if (!earth && moving) s = 'The earth is off. Charge from the XLPE drifts back onto the plates, so the voltage creeps up again.';
+    else if (earth && mine.some((d) => d.st !== 'gone' && d.st !== 'none')) s = 'The plates are empty. Charge from the XLPE drifts out, and the earth carries it straight away.';
+    else s = earth ? 'The earth stayed on until the XLPE had emptied. Now the core holds no charge.' : 'Nothing is left in the XLPE to come back. The core holds no charge.';
+    el('say2').textContent = nb(s);
+    const cw = el('creep'), showW = at() === iWhy && crept;
+    if (showW && cw.hidden) { cw.classList.remove('fade'); void cw.offsetWidth; cw.classList.add('fade'); }
+    cw.hidden = !showW;
+    el('core').setAttribute('aria-label', 'One core drawn lengthwise, ' + L + ' from B01 to the OSS, with the earth switch ' + (earth ? 'closed' : 'open') + '. '
+      + (V > 0.004 ? (back ? 'Charge from the XLPE has put a voltage back on the core.' : 'The core is charged.') : 'The core holds no voltage.'));
+  }
+  const coreAnim = K.anim({ button: false, label: 'Charge on the core', step: (dt) => {
+    if (at() !== iWhy) return false;
+    const p = K.params();
+    tick(sim, Math.min(dt, 0.1), !!p.earth);
+    drawCore(p);
+    return busy(sim, !!p.earth);
+  } });
+  K.button({ label: 'Switch off at the peak', into: '#ctl2b', press: () => {
+    if (at() !== iWhy) return;
+    if (earthCtl.get()) earthCtl.set(false);
+    charge(sim);
+    K.refresh();
+    if (!coreAnim.playing()) coreAnim.play();
+  } });
+
+  // ---------- what it is for: one core in cross-section ----------
+  const XC = 96, YC1 = 108;
+  const LAYERS = [
+    { id: 'cond', name: 'Conductor', r: 24, cls: 'l-cond' }, { id: 'isemi', name: 'Inner semi-con', r: 28, cls: 'l-semi' },
+    { id: 'xlpe', name: 'XLPE insulation', r: 52, cls: 'l-xlpe' }, { id: 'osemi', name: 'Outer semi-con', r: 56, cls: 'l-semi' },
+    { id: 'scr', name: 'Metal screen', r: 62, cls: 'l-scr' }, { id: 'foil', name: 'Aluminium foil', r: 65, cls: 'l-foil' },
+    { id: 'over', name: 'Oversheath', r: 76, cls: 'l-over' },
+  ];
+  const TESTS = [
+    { name: 'Core resistance', line: 'The conductor, end to end.', lit: ['cond'], paths: ['dot'], where: 'the conductor' },
+    { name: 'IR', line: 'Conductor to screen, through the XLPE, at a steady d.c. voltage.', lit: ['xlpe'], paths: ['ir'], where: 'the XLPE' },
+    { name: 'Sheath test', line: 'Screen to earth, through the oversheath.', lit: ['over'], paths: ['sheath'], where: 'the oversheath' },
+    { name: 'VLF', line: 'Conductor to screen again, well above the working voltage.', lit: ['xlpe'], paths: ['vlf'], where: 'the XLPE' },
+    { name: 'TDR', line: 'Conductor and screen together, as a line a pulse runs along.', lit: ['cond', 'scr'], paths: ['dot', 'ring'], where: 'the conductor and screen' },
+  ];
+  const PATHS = {};
+  (function xsec() {
+    const svg = el('xsec'), fx = (v) => v.toFixed(1);
+    for (let k = LAYERS.length - 1; k >= 0; k--) LAYERS[k].circle = svg.appendChild(K.svg('circle', { cx: XC, cy: YC1, r: LAYERS[k].r, class: LAYERS[k].cls }));
+    function radial(r0, r1, deg) {
+      const a = deg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a), g = K.svg('g');
+      g.appendChild(K.svg('line', { class: 'path', x1: fx(XC + r0 * c), y1: fx(YC1 + r0 * s), x2: fx(XC + (r1 - 7) * c), y2: fx(YC1 + (r1 - 7) * s) }));
+      const bx = XC + (r1 - 9) * c, by = YC1 + (r1 - 9) * s, nx = -s * 5, ny = c * 5;
+      g.appendChild(K.svg('path', { class: 'head', d: 'M' + fx(XC + r1 * c) + ' ' + fx(YC1 + r1 * s) + 'L' + fx(bx + nx) + ' ' + fx(by + ny) + 'L' + fx(bx - nx) + ' ' + fx(by - ny) + 'Z' }));
+      return g;
+    }
+    const dot = K.svg('g');
+    dot.appendChild(K.svg('circle', { class: 'path', cx: XC, cy: YC1, r: 7 }));
+    dot.appendChild(K.svg('circle', { class: 'head', cx: XC, cy: YC1, r: 2.5 }));
+    PATHS.ring = svg.appendChild(K.svg('circle', { class: 'path dash', cx: XC, cy: YC1, r: 59 }));
+    PATHS.dot = svg.appendChild(dot);
+    PATHS.ir = svg.appendChild(radial(25, 58, 200));
+    PATHS.vlf = svg.appendChild(radial(25, 58, 240));
+    PATHS.sheath = svg.appendChild(radial(60, 92, 160));
+    LAYERS.forEach((L, k) => {
+      const rm = ((k ? LAYERS[k - 1].r : 0) + L.r) / 2, ang = (-60 + 20 * k) * Math.PI / 180;
+      const px = XC + rm * Math.cos(ang), py = YC1 + rm * Math.sin(ang), ly = 32 + 26 * k;
+      svg.appendChild(K.svg('line', { class: 'lead', x1: fx(px), y1: fx(py), x2: 190, y2: ly - 4 }));
+      svg.appendChild(K.svg('circle', { class: 'ldot', cx: fx(px), cy: fx(py), r: 2 }));
+      const t = svg.appendChild(K.svg('text', { class: 'lb', x: 194, y: ly }));
+      t.textContent = L.name;
+    });
+  })();
+  const chipBtns = TESTS.map((x) => K.button({ label: x.name, secondary: true, into: '#chips', press: () => { chip = x.name; K.refresh(); } }));
+  function drawXsec() {
+    const t = chip === 'all' ? TESTS : TESTS.filter((x) => x.name === chip);
+    const lit = {}, on = {};
+    t.forEach((x) => { x.lit.forEach((l) => { lit[l] = 1; }); x.paths.forEach((q) => { on[q] = 1; }); });
+    LAYERS.forEach((L) => L.circle.setAttribute('class', L.cls + (lit[L.id] ? ' lit' : '')));
+    Object.keys(PATHS).forEach((k) => vis(PATHS[k], !!on[k]));
+    chipBtns.forEach((b, k) => { const pressed = chip === TESTS[k].name; b.el.classList.toggle('on', pressed); b.el.setAttribute('aria-pressed', pressed ? 'true' : 'false'); });
+    const box = el('chipline');
+    box.textContent = '';
+    t.forEach((x) => box.appendChild(K.el('p', null, K.el('b', null, x.name + ': '), nb(x.line))));
+    box.hidden = at() !== iFor || !t.length;
+    el('xsec').setAttribute('aria-label', 'One core in cross-section: seven layers from the conductor in the middle out to the oversheath.'
+      + (t.length ? ' Lit: ' + t.map((x) => x.name + ' on ' + x.where).join('; ') + '.' : ''));
+  }
+
+  // ---------- the live string beside it ----------
+  const XA1 = 286, SC4 = 95, rings = [], chev = [];
+  for (let k = 0; k < NSEG; k++) rings.push(el('rings').appendChild(K.svg('ellipse', { class: 'ring', rx: 6, ry: 34, cy: 138, cx: 0 })));
+  for (let k = 0; k < 14; k++) chev.push(el('chev').appendChild(K.svg('path', { class: 'chev' })));
+  let flowT = 0, flowLeft = 0, flowKey = '', xa0 = XA1 - SC4 * 2.4;
+  const FLOW_RUN = 4;
+  function drawFlow() {
+    const span = XA1 - xa0 - 12, gap = 19, m = Math.floor(span / gap) + 1;
+    chev.forEach((c, k) => {
+      if (k >= m) { vis(c, false); return; }
+      const x = xa0 + 6 + ((flowT * 16 + k * gap) % (m * gap));
+      if (x > XA1 - 4) { vis(c, false); return; }
+      vis(c, true);
+      c.setAttribute('d', 'M' + (x - 2.5).toFixed(1) + ' 149L' + (x + 2).toFixed(1) + ' 152L' + (x - 2.5).toFixed(1) + ' 155');
+    });
+    el('circ').setAttribute('stroke-dashoffset', (-(flowT * 16) % 14).toFixed(1));
+  }
+  function drawLine(p) {
+    const run = snapKm(p.run), n = Math.round(run * 5), both = p.earths === 'Both ends', vRun = Math.round(VPK * run);
+    xa0 = XA1 - SC4 * run;
+    el('lineA').setAttribute('d', 'M0 216H' + (xa0 - 12).toFixed(1) + 'L' + xa0.toFixed(1) + ' 152H' + XA1 + 'L292 216H340');
+    rings.forEach((r, k) => { vis(r, k < n); if (k < n) r.setAttribute('cx', (XA1 - (k + 0.5) * SC4 * 0.2).toFixed(1)); });
+    el('brk4').setAttribute('d', 'M' + xa0.toFixed(1) + ' 58v8M' + xa0.toFixed(1) + ' 62H' + XA1 + 'M' + XA1 + ' 58v8');
+    el('brklab4').setAttribute('x', K.clamp((xa0 + XA1) / 2, 46, 290).toFixed(1));
+    vis(el('glow'), !both);
+    vis(el('circ'), both);
+    el('bladeL').setAttribute('x2', both ? 34 : 18);
+    el('bladeL').setAttribute('y2', both ? 124 : 128);
+    drawFlow();
+    el('say4').textContent = nb(both
+      ? 'Both ends are earthed, so neither end can stand at a voltage. The ' + vRun + ' V induced along the run drives a current round through the two earths instead.'
+      : "String A's field induces " + vRun + ' V along the ' + f2(run) + ' km run. Only the OSS end is earthed, so the B01 end stands at all ' + vRun + ' V.');
+    el('line4').setAttribute('aria-label', 'String A runs live below String B for a ' + f2(run) + ' km parallel run, with field rings round it that reach String B. '
+      + (both ? 'Both ends of String B are earthed, and a current circulates through the earths.' : 'Only the OSS end of String B is earthed, so the B01 end stands at the induced voltage.'));
+  }
+  const flowAnim = K.anim({ button: false, label: 'Current in String A', step: (dt) => {
+    if (at() !== iInd) return false;
+    const d = Math.min(dt, 0.1);
+    flowT += d; flowLeft -= d;
+    drawFlow();
+    return flowLeft > 0;
+  } });
+
+  // ---------- picks: one tap answers ----------
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length) return;
+    if (i === iR) {
+      if (st.res) return;     // a recall gets one go
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Still there.', p0: R_WORK }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === R_O1 ? R_W1 : R_W3, p: R_WORK }; }
+    } else if (i === iChk) {
+      if (st.res === 'right') return;
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: "That's it.", p0: C_RIGHT }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === C_O1 ? C_W1 : C_W3 }; }
+    }
+    K.refresh();
+  }
+  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iFor); } });
+  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(i1A); } });
+
+  // ---------- Section A: typed answers on the course's figures ----------
+  const scen = K.scenario({ into: '#scen', open: true });
+  K.carried({ parts: ['1a'], into: '#carry1b' });
+  const C1A = capAt(LEN), CCH = capAt(LCH);
+  const SPEC = {
+    [i1A]: { id: '1a', fig: f1a, unit: 'µF', decimals: 3, accept: [],
+      work: () => ['C = ' + f1a.work],
+      slips: [
+        { value: F('1a.slip3').value, hint: 'That is all three cores. Each core has its own screen, so each is a capacitor of its own.' },
+        { value: CPK, hint: 'That is one km. Multiply by the ' + f2(LEN) + ' km run.' },
+        { value: F('1a.slipDiv').value, hint: "Multiply the per-km figure by the length. Don't divide." },
+      ],
+      hint: 'Not quite. Multiply the per-km figure by the length of the run.',
+      after: 'The ' + f1a.text + " agrees with the maker's charging current. In service at " + HZ + ' Hz, ' + fIch.work + ". This cable's charging current is typically " + ICH + ' A per km. ' + fIchC.work + '.' },
+    [i1B]: { id: '1b', fig: f1b, unit: 'J', decimals: 2, accept: [root2At(C1A)],
+      work: () => ['E = ½ × C × (√2 × U0)² = C × U0²', 'E = ' + f1b.work],
+      slips: [
+        { value: F('1b.slip').value, hint: 'That is ½ × C × U0². The peak is √2 × U0, and squaring √2 doubles the energy.' },
+        { value: F('1b.slip2').value, hint: 'You left out the half in ½ × C × V².' },
+      ],
+      hint: 'Not quite. Use E = C × U0², with C in farads and U0 in volts.',
+      after: 'That much energy can sit on a core that has been switched off and isolated. That is why the core is discharged and earthed before anyone touches it.' },
+    [iCh]: { id: 'l1.changed.E', fig: fChE, unit: 'J', decimals: 2, accept: [root2At(CCH)],
+      work: () => ['C = ' + fCh.work, 'E = ' + fChE.work],
+      slips: [
+        { value: F('l1.changed.slip1').value, hint: 'That leaves out the peak. Use C × U0².' },
+        { value: F('l1.changed.slip2').value, hint: 'You left out the half.' },
+        { value: f1b.value, hint: "That is String B's " + f2(LEN) + ' km. This core is ' + f2(LCH) + ' km.' },
+      ],
+      hint: 'Not quite. Work out C for this length first, then E = C × U0².',
+      after: 'A shorter core has less capacitance, so it stores less. The discipline is the same.' },
+  };
+  const BOX = { [i1A]: '#ans-1a', [i1B]: '#ans-1b', [iCh]: '#ans-ch' };
+  const ANS = {};
+  Object.keys(SPEC).forEach((key) => {
+    const i = +key, sp = SPEC[i];
+    const a = K.answer({ id: sp.id, unit: sp.unit, answer: sp.fig.value, decimals: sp.decimals, accept: sp.accept, slips: sp.slips, into: BOX[i],
+      onCheck: (r) => {
+        const st = S[i];
+        if (st.shown) return;
+        if (r.state === 'right') {
+          st.res = 'right';
+          st.fb = { ok: true, v: 'Right.', w: sp.work(), p: r.accepted != null ? 'That rounds √2 to 1.414 first. Worked as C × U0², it is ' + sp.fig.text + '.' : '' };
+        } else if (r.state === 'wrong') {
+          st.tries += 1;
+          if (st.tries >= 2) {
+            st.shown = true; st.res = 'shown';
+            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.work() };
+            a.reveal();
+          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }
+        } else { st.res = r.state; st.fb = null; }
+        K.refresh();
+      } });
+    ANS[i] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });
+
+  // ---------- Section B and Keep this ----------
+  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];
+  function markLine(id) {
+    const w = K.lesson && K.lesson.written && K.lesson.written[id];
+    const n = w && Array.isArray(w.points) ? w.points.length : 0, need = w ? +w.need : 0;
+    return n && need ? 'You write the answer. It is marked against ' + (WORDS[n] || n) + ' points, and any ' + (WORDS[need] || need) + ' make a full answer. You get one more go, then the model answer.'
+      : 'You write the answer, in your own words. You get one more go, then the model answer.';
+  }
+  const wB1 = K.written({ id: 'b1', into: '#wr1', onMark: () => K.refresh() });
+  el('wr1').addEventListener('click', () => K.refresh());
+  K.summary({ into: '#keep' });
+  (function () {
+    const tw = document.createTreeWalker(el('keep'), NodeFilter.SHOW_TEXT), ns = [];
+    while (tw.nextNode()) ns.push(tw.currentNode);
+    ns.forEach((n) => { n.nodeValue = nb(n.nodeValue); });
+  })();
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+    K.refresh();
+  } });
+
+  // ---------- the worked example, a line at each press ----------
+  const wbox = K.el('div', { class: 'wl' }, K.el('p', { class: 'k-label' }, 'Your body, then a ' + f2(WLEN) + ' km core'));
+  const wl = WL.map((x) => {
+    const box = K.el('div', { class: 'line' });
+    if (x.pre) box.appendChild(K.el('p', null, nb(x.pre)));
+    box.appendChild(K.el('p', { class: 'w' }, nb(x.w)));
+    if (x.post) box.appendChild(K.el('p', { class: 'sub' }, nb(x.post)));
+    wbox.appendChild(box);
+    return box;
+  });
+  const wnote = K.el('p', { class: 'sub' }, nb(WK_NOTE));
+  wbox.appendChild(wnote);
+  el('worked').appendChild(wbox);
+  const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {
+    if (at() !== iWk || lines >= wl.length) return;
+    const w = wl[lines]; lines += 1;
+    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');
+    K.refresh();
+  } });
+
+  // ---------- fixed words on their screens ----------
+  (function fixed() {
+    FIVE.forEach(([h, t]) => el('five').appendChild(K.el('li', null, K.el('b', null, h), ': ' + t)));
+    el('warn1').appendChild(K.el('p', { class: 'wh' }, 'If it is skipped'));
+    el('warn1').appendChild(K.el('p', null, nb(WARN1)));
+    el('armour').textContent = ARMOUR;
+    el('qnote').textContent = nb(NOTE_1A);
+    paras(el('under2'), UNDER2, ['the peak of U0']);
+    paras(el('under4'), UNDER4);
+    paras(el('warn4'), WARN4);
+  })();
+
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+  const faded = {};
+  function fade(node, key) {
+    if (node.hidden) { faded[node.id] = ''; return; }
+    if (faded[node.id] === key) return;
+    faded[node.id] = key;
+    node.classList.remove('fade'); void node.offsetWidth; node.classList.add('fade');
+  }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) fb.appendChild(K.el('p', null, nb(f.p0)));
+    (f.w || []).forEach((t) => fb.appendChild(K.el('p', { class: 'w' }, nb(t))));
+    if (f.p) fb.appendChild(K.el('p', null, nb(f.p)));
+  }
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) {
+    const d = STEPS[i], st = S[i];
+    if (d.show) return true;
+    if (i === iR) return st.res === 'wrong';
+    if (i === iChk) return st.res === 'right';
+    if (ANS[i]) return st.res === 'right' || st.shown;
+    if (i === iB1) return !!(wB1 && wB1.answered && wB1.answered());
+    return false;
+  }
+
+  const ON = { scen: [i1A, i1B], carry1b: [i1B], assume: [i1B], qnote: [i1A],
+    five: [iFor], warn1: [iFor], wrap1: [iFor], armour: [iFor], chips: [iFor], chipline: [iFor],
+    wrap2: [iWhy], ctl2: [iWhy], ctl2b: [iWhy], ctl2c: [iWhy], outs2: [iWhy], say2: [iWhy], creep: [iWhy], under2: [iWhy],
+    wrap4: [iInd], ctl4: [iInd], outs4: [iInd], say4: [iInd], under4: [iInd], warn4: [iInd],
+    worked: [iWk], workedgo: [iWk], picks: [iR, iChk],
+    'ans-1a': [i1A], 'ans-1b': [i1B], 'ans-ch': [iCh], wr1: [iB1], keep: [iK], fin: [iK] };
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; if (i === i1A || i === i1B) scen.el.open = i === i1A; }
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+    el('cap').hidden = WORKING.indexOf(i) < 0;
+
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+    paras(el('assume'), d.assume || '');
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    if (d.show) paras(task, d.text, d.terms);
+    else write(task, d.part || (d.kind ? '' : d.task));
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    sub.className = 'sub' + (i === iFor || i === iWhy || i === iInd || i === iWk ? ' ask' : '');
+    sub.textContent = i === iFor ? 'Tap a test to light its layer.'
+      : i === iWhy ? 'Press Switch off at the peak, close the earth, then open it again.'
+      : i === iInd ? 'Drag the run shorter, then earth both ends.'
+      : i === iWk ? 'Work each line yourself first, then press Show.'
+      : i === i1A ? nb('Give it in µF, to 3 places.')
+      : i === i1B ? 'Give it in joules.'
+      : i === iB1 ? markLine('b1')
+      : i === iCh ? 'Same method, new numbers. Give it in joules.'
+      : i === iK ? 'One card to come back to on a real job.' : '';
+    sub.hidden = !sub.textContent;
+
+    drawXsec();
+    drawCore(p);
+    drawLine(p);
+    if (i === iWhy && busy(sim, !!p.earth) && !coreAnim.playing()) coreAnim.play();
+    const fk = i === iInd ? snapKm(p.run) + '|' + p.earths : '';
+    if (fk && fk !== flowKey) { flowLeft = FLOW_RUN; if (!flowAnim.playing()) flowAnim.play(); }
+    flowKey = fk;
+
+    // Picks.
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(nb(opts[k]));
+      const done = st.res === 'right' || (i === iR && st.res === 'wrong');
+      b.el.classList.toggle('is-right', done && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    // The worked example's lines, and the note once they are all shown.
+    wl.forEach((w, k) => { w.hidden = k >= lines; });
+    wnote.hidden = lines < wl.length;
+    nextLine.el.hidden = lines >= wl.length;
+    if (i === iWk) el('workedgo').hidden = lines >= wl.length;
+
+    // Check, the feedback, and what follows a finished typed answer.
+    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);
+    checkBtn.el.hidden = !typed || typedDone;
+    el('acts').hidden = checkBtn.el.hidden;
+    paintFb(st.fb);
+    const after = el('after');
+    paras(after, typedDone ? SPEC[i].after : '');
+    after.hidden = !after.textContent;
+    el('go').hidden = !(i === iR && st.res === 'right');
+    [['fb', JSON.stringify(st.fb)], ['after', i + after.textContent], ['go', String(i)]].forEach(([id, key]) => fade(el(id), key));
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i) || (i === iR && st.res === 'right');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const near = (a, b, t) => K.near(a, b, t == null ? 1e-9 : t);
+  K.check('At 1.00 km a core holds 0.220 µF, and off at the peak of 38 kV, 317.68 J', () => {
+    const o = K.at({ len: 1 });
+    return near(o.C, 0.22) && near(o.E, 317.68) && near(o.E, F('l1.perkm').value);
+  });
+  K.check('At 0.40 km: 0.088 µF and 127.07 J. Over the whole 2.40 km: 0.528 µF and 762.43 J, parts 1a and 1b', () => {
+    const a = K.at({ len: 0.4 }), b = K.at({ len: 2.4 });
+    return near(a.C, 0.088) && near(a.E, 127.07) && near(b.C, f1a.value) && near(b.E, f1b.value) && near(C1A, f1a.value);
+  });
+  K.check('Capacitance and energy rise with every step in length, and twice the length holds twice the capacitance', () => {
+    let prev = -1;
+    for (let k = 2; k <= 12; k++) { const o = K.at({ len: k / 5 }); if (!(o.E > prev)) return false; prev = o.E; }
+    return near(K.at({ len: 2.4 }).C, 2 * K.at({ len: 1.2 }).C);
+  });
+  K.check('Off at the peak, ½ × C × (√2 × U0)² equals C × U0², twice ½ × C × U0²', () => {
+    const C = 0.528e-6, U = 38000;
+    return near(0.5 * C * Math.pow(Math.SQRT2 * U, 2), C * U * U, 1e-6) && near(f1b.value, 2 * F('1b.slip').value, 0.02);
+  });
+  K.check('One end earthed: 96 V at the B01 end over 2.40 km, 16 V over 0.40 km. Both ends earthed: 0 V', () =>
+    near(K.at({ run: 2.4, earths: 'OSS end only' }).V, F('l1.induced').value) && near(K.at({ run: 0.4 }).V, F('l1.induced.short').value)
+    && K.at({ run: 2.4, earths: 'Both ends' }).V === 0 && K.at({ run: 0.4, earths: 'Both ends' }).V === 0);
+  K.check('Earthed then lifted at once, the core creeps back up from the XLPE. Left earthed long enough, it stays at zero', () => {
+    const go = (s, secs, earth) => { for (let t = 0; t < secs; t += 1 / 30) tick(s, 1 / 30, earth); };
+    const a = freshSim(); charge(a); go(a, 3.5, false); const full = plateLevel(a) + creepLevel(a, 5);
+    go(a, 2.5, true); const low = plateLevel(a) + creepLevel(a, 5);
+    go(a, 5, false); const back = plateLevel(a) + creepLevel(a, 5);
+    const b = freshSim(); charge(b); go(b, 3.5, false); go(b, 12, true); go(b, 5, false);
+    const stay = plateLevel(b) + creepLevel(b, 5);
+    return near(full, 1) && low < 1e-9 && back > 0.15 && back <= CREEP_SHARE && stay < 1e-9;
+  });
+  K.check('The worked example: 5.50 mA at 55 V, under 50 mA; 0.176 µF and 254.14 J at 0.80 km; 127.07 J with the peak left out', () =>
+    near(r2(V55 / BODY * 1000), fRec.value) && fRec.value < FATAL && near(capAt(WLEN), fWC.value) && near(energyAt(capAt(WLEN)), fWE.value) && near(halfAt(capAt(WLEN)), fWH.value));
+  K.check('The charging current agrees: 2π × 50 × 0.528 µF × 38 kV = 6.30 A, and 2.6 × 2.40 = 6.24 A', () =>
+    near(r2(2 * Math.PI * HZ * f1a.value * 1e-6 * U0 * 1000), fIch.value) && near(r2(ICH * LEN), fIchC.value));
+  K.check('Slips: 1.584 µF for three cores, 10.91 for 2.40 ÷ 0.22, 381.22 J and 1524.86 J. Changed numbers: 0.396 µF and 571.82 J, slips 285.91 J and 1143.65 J', () =>
+    near(r3(3 * C1A), F('1a.slip3').value) && near(r2(LEN / CPK), F('1a.slipDiv').value) && near(halfAt(C1A), F('1b.slip').value) && near(r2(2 * energyAt(C1A)), F('1b.slip2').value, 0.011)
+    && near(CCH, fCh.value) && near(energyAt(CCH), fChE.value) && near(halfAt(CCH), F('l1.changed.slip1').value) && near(r2(2 * energyAt(CCH)), F('l1.changed.slip2').value, 0.011));
+  K.check('Every slip lies outside its answer\'s accepted figures', () => Object.keys(SPEC).every((k) => {
+    const sp = SPEC[k], tol = 0.5 * Math.pow(10, -sp.decimals);
+    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > tol && sp.accept.every((x) => Math.abs(s.value - x) > tol));
+  }));
+  K.check('The 240 mm² row of the 66 kV three-core table: 0.22 µF per km and 2.6 A per km', () => CPK === 0.22 && ICH === 2.6,
+    { source: 'https://new.abb.com/docs/default-source/ewea-doc/xlpe-submarine-cable-systems-2gm5007.pdf' });
+  K.check('The induced voltage depends on the source current, the distance between the systems and the length of parallelism', () =>
+    K.at({ run: 2.4 }).V > K.at({ run: 1.2 }).V && K.at({ run: 1.2 }).V > K.at({ run: 0.4 }).V,
+    { source: 'https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html' });
+  K.check('Body natural resistance about 10,000 Ω at 55 V', () => BODY === 10000 && V55 === 55, { source: 'material:notes#p1' });
+
+  K.ready();
+</script>

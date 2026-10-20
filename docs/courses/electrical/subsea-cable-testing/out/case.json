@@ -1,0 +1,2771 @@
+{
+ "v": 1,
+ "title": "String B: the cable from B01 to the substation",
+ "course": "subsea-cable-testing",
+ "courseTitle": "HV Subsea Cable Testing",
+ "updated": "2026-10-20",
+ "about": "The running case for HV Subsea Cable Testing, a refresher in the format Dan approved for Design and verification (format/refresher.md there). A made-up commissioning job: every given is cited to Dan's notes (notes p.N, the PDF page), marked as a practice value, or marked as a typical value research must quote. Every figure is worked by a script from the inputs shown with it. Items marked ➕ in his notes are background to check, not sources.",
+ "rounding": "Each figure is worked from the inputs shown with it, rounded half up: currents, energies and resistances in mΩ to 2 decimal places (3 where the notes print 3), voltages in kV and distances in m to 1, ratios to 2. A typed answer is accepted within \"accept\" where given.",
+ "cites": {
+  "notes": "source/subsea-cable-testing-notes.pdf, PDF page (Dan's own notes, 10 pages)",
+  "practice value": "made up for the running case; said so on screen",
+  "to research": "a typical value the research stage must quote word for word before a lesson uses it"
+ },
+ "scenario": {
+  "title": "String B: the cable from B01 to the substation",
+  "text": "Commissioning tests on a newly laid 66 kV inter-array cable on an offshore wind farm. It runs 2.40 km from turbine B01 to the offshore substation (OSS), the last cable of string B. Three-core, 3 × 240 mm² copper, XLPE, 38/66 (72.5) kV, copper wire screens, armoured, with one field joint 1620 m from the OSS. A technician at each end, talking before every change. The live string A runs in the same corridor. One fault waits to be found. Every figure is a practice value unless it is cited.",
+  "source": "A practice job, made up for this course; the test methods and limits are from Dan's notes."
+ },
+ "givens": [
+  {
+   "id": "n.route",
+   "label": "Inter-array cable",
+   "value": "AC, turbine to offshore substation",
+   "text": "AC, turbine to offshore substation",
+   "cite": "notes p.1"
+  },
+  {
+   "id": "n.export",
+   "label": "Export cable",
+   "value": "offshore substation to onshore substation",
+   "text": "offshore substation to onshore substation",
+   "cite": "notes p.1"
+  },
+  {
+   "id": "n.voltages",
+   "label": "Typical voltages (added background)",
+   "value": "array 33 kV or 66 kV; export roughly 132-275 kV AC",
+   "text": "array 33 kV or 66 kV; export roughly 132-275 kV AC",
+   "cite": "notes p.1 (➕ added background, a claim to check)",
+   "check": "maker brochures (Prysmian 66 kV, NKT, ABB)"
+  },
+  {
+   "id": "n.layers",
+   "label": "Core build, middle out (added background)",
+   "value": "conductor; inner semi-con; XLPE; outer semi-con; metallic screen; aluminium foil; oversheath",
+   "text": "conductor; inner semi-con; XLPE; outer semi-con; metallic screen; aluminium foil; oversheath",
+   "cite": "notes p.1 (➕ added background, a claim to check)",
+   "check": "a maker's three-core submarine cable data sheet; the notes leave out the armour and lead sheath that their LIRA part names"
+  },
+  {
+   "id": "n.body",
+   "label": "Body natural resistance",
+   "value": 10000,
+   "unit": "Ω",
+   "text": "about 10 000 Ω at 55 V",
+   "cite": "notes p.1"
+  },
+  {
+   "id": "n.fatal",
+   "label": "Potentially fatal current",
+   "value": 50,
+   "unit": "mA",
+   "text": "50 mA or above",
+   "cite": "notes p.1"
+  },
+  {
+   "id": "n.confirm",
+   "label": "Confirm before testing",
+   "value": "Identify, Isolated, Proved dead, Secured, Earthed",
+   "text": "Identify, Isolated, Proved dead, Secured, Earthed",
+   "cite": "notes p.2"
+  },
+  {
+   "id": "n.colours",
+   "label": "Phase colours",
+   "value": "Red L1, Yellow L2, Blue L3",
+   "text": "Red L1, Yellow L2, Blue L3",
+   "cite": "notes p.2"
+  },
+  {
+   "id": "n.lowR",
+   "label": "Low resistance",
+   "value": 1,
+   "unit": "Ω",
+   "text": "under 1 Ω",
+   "cite": "notes p.2"
+  },
+  {
+   "id": "n.tol",
+   "label": "Core resistance against factory values",
+   "value": 2,
+   "unit": "%",
+   "text": "within 2%",
+   "cite": "notes p.3"
+  },
+  {
+   "id": "n.cuTemp",
+   "label": "Copper resistance with temperature (added background)",
+   "value": 0.4,
+   "unit": "% per °C",
+   "text": "about 0.4% per °C",
+   "cite": "notes p.3 (➕ added background, a claim to check)",
+   "check": "IEC 60228 temperature correction (Annex B), or a maker's data"
+  },
+  {
+   "id": "n.loopRule",
+   "label": "Cores from loops",
+   "value": "L1 = (A + C − B) ÷ 2; L2 = (B + A − C) ÷ 2; L3 = (C + B − A) ÷ 2",
+   "text": "L1 = (A + C − B) ÷ 2; L2 = (B + A − C) ÷ 2; L3 = (C + B − A) ÷ 2",
+   "cite": "notes p.3"
+  },
+  {
+   "id": "n.wexA",
+   "label": "Worked example loop L1-L2",
+   "value": 76.9,
+   "unit": "mΩ",
+   "text": "76.90 mΩ",
+   "cite": "notes p.3"
+  },
+  {
+   "id": "n.wexB",
+   "label": "Worked example loop L2-L3",
+   "value": 80.49,
+   "unit": "mΩ",
+   "text": "80.49 mΩ",
+   "cite": "notes p.3"
+  },
+  {
+   "id": "n.wexC",
+   "label": "Worked example loop L3-L1",
+   "value": 81.16,
+   "unit": "mΩ",
+   "text": "81.16 mΩ",
+   "cite": "notes p.3"
+  },
+  {
+   "id": "n.discharge",
+   "label": "Discharge after an IR test",
+   "value": 5,
+   "unit": "× charging time",
+   "text": "at least 5 × the charging time",
+   "cite": "notes p.3"
+  },
+  {
+   "id": "n.pi",
+   "label": "PI bands",
+   "value": "<1 poor; 1-2 questionable; 2-4 okay; >4 good",
+   "text": "<1 poor; 1-2 questionable; 2-4 okay; >4 good",
+   "cite": "notes p.4"
+  },
+  {
+   "id": "n.dar",
+   "label": "DAR bands",
+   "value": "<1.25 inadequate; 1.25-1.6 satisfactory; >1.6 excellent",
+   "text": "<1.25 inadequate; 1.25-1.6 satisfactory; >1.6 excellent",
+   "cite": "notes p.4"
+  },
+  {
+   "id": "n.sheath",
+   "label": "Sheath test",
+   "value": "4 kV per mm of sheath thickness, maximum 10 kV, for 1 minute, screen to earth",
+   "text": "4 kV per mm of sheath thickness, maximum 10 kV, for 1 minute, screen to earth",
+   "cite": "notes p.4"
+  },
+  {
+   "id": "n.liraPairs",
+   "label": "LIRA test regime",
+   "value": "18 tests, typically core to screen and core to core, bi-directional; no acceptance criteria",
+   "text": "18 tests, typically core to screen and core to core, bi-directional; no acceptance criteria",
+   "cite": "notes p.5"
+  },
+  {
+   "id": "n.liraOnline",
+   "label": "LIRA online monitoring",
+   "value": 33,
+   "unit": "kV",
+   "text": "energised cables up to 33 kV",
+   "cite": "notes p.5"
+  },
+  {
+   "id": "n.dnorm",
+   "label": "DNORM sign",
+   "value": "negative: thermal degradation, water penetration, mechanical; positive: bends, breaks in the shield",
+   "text": "negative: thermal degradation, water penetration, mechanical; positive: bends, breaks in the shield",
+   "cite": "notes p.6"
+  },
+  {
+   "id": "n.dnormCol",
+   "label": "DNORM severity",
+   "value": "green mild; amber intermediate; red significant",
+   "text": "green mild; amber intermediate; red significant",
+   "cite": "notes p.6"
+  },
+  {
+   "id": "n.vlfF",
+   "label": "VLF frequencies",
+   "value": "0.1 Hz standard; 0.01 Hz also used",
+   "text": "0.1 Hz (0.01 Hz also used)",
+   "cite": "notes p.6, p.7"
+  },
+  {
+   "id": "n.vlfU",
+   "label": "VLF test voltage range",
+   "value": "1.5-2.5 U0",
+   "text": "1.5-2.5 U0",
+   "cite": "notes p.7 (contested: see toResearch r.vlfU)"
+  },
+  {
+   "id": "n.vlf30",
+   "label": "Simple withstand",
+   "value": 30,
+   "unit": "min",
+   "text": "30 min at 0.1 Hz",
+   "cite": "notes p.7"
+  },
+  {
+   "id": "n.vlf60",
+   "label": "Installation or acceptance",
+   "value": 60,
+   "unit": "min",
+   "text": "60 min at 0.1 Hz",
+   "cite": "notes p.7"
+  },
+  {
+   "id": "n.u0ex",
+   "label": "U0 worked example (added background)",
+   "value": 12,
+   "unit": "kV",
+   "text": "a 12/20 kV cable has U0 = 12 kV",
+   "cite": "notes p.7 (➕ added background, a claim to check)"
+  },
+  {
+   "id": "n.tdrRule",
+   "label": "TDR distance",
+   "value": "L = t × v ÷ 2",
+   "text": "L = t × v ÷ 2",
+   "cite": "notes p.7"
+  },
+  {
+   "id": "n.tdrAcc",
+   "label": "TDR accuracy",
+   "value": "±0-1% of cable length",
+   "text": "±0-1% of cable length",
+   "cite": "notes p.7"
+  },
+  {
+   "id": "n.tdrPulse",
+   "label": "TDR pulse amplitude",
+   "value": 50,
+   "unit": "V",
+   "text": "fixed at 50 V",
+   "cite": "notes p.7"
+  },
+  {
+   "id": "n.tdrLimit",
+   "label": "Faults TDR can see",
+   "value": 100,
+   "unit": "Ω",
+   "text": "under about 100 Ω (200 Ω for Teleflex)",
+   "cite": "notes p.7"
+  },
+  {
+   "id": "n.vfEx",
+   "label": "Velocity error example (added background)",
+   "value": "2 km cable, 5% VF error: 100 m out",
+   "text": "2 km cable, 5% VF error: 100 m out",
+   "cite": "notes p.7 (➕ added background, a claim to check)"
+  },
+  {
+   "id": "n.traces",
+   "label": "TDR trace shapes",
+   "value": "up = open; down = short; small up-down = joint; down then broad hump = T joint; up then dip = bridge tap; sharp up-down = wet splice; ragged tail = water ingress",
+   "text": "up = open; down = short; small up-down = joint; down then broad hump = T joint; up then dip = bridge tap; sharp up-down = wet splice; ragged tail = water ingress",
+   "cite": "notes p.8"
+  },
+  {
+   "id": "t.C66",
+   "label": "Capacitance per core, 66 kV three-core XLPE, 240 mm² (typical)",
+   "value": 0.22,
+   "unit": "µF/km",
+   "text": "0.22 µF/km",
+   "cite": "ABB, XLPE Submarine Cable Systems (2GM5007), three-core 66 kV (Um 72.5 kV) table, 240 mm² row (quoted: research sources 87 and 88)",
+   "note": "A typical published value, used until the case cable's own data sheet is quoted."
+  },
+  {
+   "id": "t.Ich66",
+   "label": "Charging current per phase at 50 Hz, same row (typical)",
+   "value": 2.6,
+   "unit": "A/km",
+   "text": "2.6 A/km",
+   "cite": "ABB, XLPE Submarine Cable Systems (2GM5007), same row: to research"
+  },
+  {
+   "id": "t.vfXLPE",
+   "label": "TDR velocity factor, power XLPE (typical range)",
+   "value": "0.54 to 0.62 (162 to 186 m/µs)",
+   "text": "0.54 to 0.62 (162 to 186 m/µs)",
+   "cite": "Megger application note TDR_AN58 'Basic TDR operation', typical VFs: to research"
+  },
+  {
+   "id": "t.sheathIEC",
+   "label": "Oversheath test after installation",
+   "value": "4 kV d.c. per mm of specified thickness, maximum 10 kV d.c., 1 min, all metallic layers under the oversheath connected together",
+   "text": "4 kV d.c. per mm of specified thickness, maximum 10 kV d.c., 1 min, all metallic layers under the oversheath connected together",
+   "cite": "IEC 60229:2007 clause 5 (public preview): to research"
+  },
+  {
+   "id": "p.farm",
+   "label": "The job",
+   "value": "commissioning tests on string B of an offshore wind farm",
+   "text": "commissioning tests on string B of an offshore wind farm",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)"
+  },
+  {
+   "id": "p.cable",
+   "label": "The cable",
+   "value": "B01 to the offshore substation (OSS): the string's last cable",
+   "text": "B01 to the offshore substation (OSS): the string's last cable",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)"
+  },
+  {
+   "id": "p.len",
+   "label": "Route length, B01 to OSS (installation record)",
+   "value": 2.4,
+   "unit": "km",
+   "text": "2.40 km",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)"
+  },
+  {
+   "id": "p.design",
+   "label": "Cable",
+   "value": "three-core, 3 × 240 mm² copper, XLPE, 38/66 (72.5) kV, copper wire screens, armoured",
+   "text": "three-core, 3 × 240 mm² copper, XLPE, 38/66 (72.5) kV, copper wire screens, armoured",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)",
+   "note": "Some makers write 36/66 kV. Read U0 off the cable's own data sheet."
+  },
+  {
+   "id": "p.U0",
+   "label": "U0, phase to earth",
+   "value": 38,
+   "unit": "kV",
+   "text": "38 kV",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)",
+   "note": "A maker names this rating 38/66 (72.5) kV (research source 196); another maker's table pairs a highest voltage of 72.5 kV with U0 = 36 kV (source 197). ABB's 2.6 A/km at 0.22 µF/km implies about 38 kV. Read U0 off the cable's own data sheet."
+  },
+  {
+   "id": "p.induce",
+   "label": "Voltage induced on an isolated B core by string A's load, per km",
+   "value": 40,
+   "unit": "V/km",
+   "text": "40 V/km",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)",
+   "note": "Only to give lesson 1's coupling picture a number. The real value comes from the CIGRE guideline's calculation (inductive coupling grows with the neighbour's current, closeness and length of parallelism, not its voltage: research sources 175-176), and a fault on string A would give kilovolts, not volts. For a screened core the coupling that matters is inductive (source 179), so no capacitive coupling ratio is set."
+  },
+  {
+   "id": "p.joint",
+   "label": "Field joint, from the OSS end (installation record)",
+   "value": 1620,
+   "unit": "m",
+   "text": "1620 m",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)"
+  },
+  {
+   "id": "p.temp",
+   "label": "Cable temperature at test",
+   "value": 12,
+   "unit": "°C",
+   "text": "12 °C",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)"
+  },
+  {
+   "id": "p.fac1",
+   "label": "Factory core resistance L1 at 20 °C",
+   "value": 174.7,
+   "unit": "mΩ",
+   "text": "174.70 mΩ",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); from the factory test certificate",
+   "note": "Real values come from the factory test certificate. For scale: a copper class 2 conductor of 240 mm² is limited to 0.0754 Ω/km at 20 °C (research sources 213-214), which is 181 mΩ over 2.40 km, and these sit about 3% under that."
+  },
+  {
+   "id": "p.fac2",
+   "label": "Factory core resistance L2 at 20 °C",
+   "value": 174.9,
+   "unit": "mΩ",
+   "text": "174.90 mΩ",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); from the factory test certificate",
+   "note": "Real values come from the factory test certificate. For scale: a copper class 2 conductor of 240 mm² is limited to 0.0754 Ω/km at 20 °C (research sources 213-214), which is 181 mΩ over 2.40 km, and these sit about 3% under that."
+  },
+  {
+   "id": "p.fac3",
+   "label": "Factory core resistance L3 at 20 °C",
+   "value": 174.6,
+   "unit": "mΩ",
+   "text": "174.60 mΩ",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); from the factory test certificate",
+   "note": "Real values come from the factory test certificate. For scale: a copper class 2 conductor of 240 mm² is limited to 0.0754 Ω/km at 20 °C (research sources 213-214), which is 181 mΩ over 2.40 km, and these sit about 3% under that."
+  },
+  {
+   "id": "p.loopA",
+   "label": "Loop L1-L2 (A)",
+   "value": 339.31,
+   "unit": "mΩ",
+   "text": "339.31 mΩ",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); DLRO reading"
+  },
+  {
+   "id": "p.loopB",
+   "label": "Loop L2-L3 (B)",
+   "value": 339.21,
+   "unit": "mΩ",
+   "text": "339.21 mΩ",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); DLRO reading"
+  },
+  {
+   "id": "p.loopC",
+   "label": "Loop L1-L3 (C)",
+   "value": 338.32,
+   "unit": "mΩ",
+   "text": "338.32 mΩ",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); DLRO reading"
+  },
+  {
+   "id": "p.dlroRange",
+   "label": "DLRO10HD range for the loops",
+   "value": "1 A, 0 to 2.5 Ω (the 10 A range stops at 250 mΩ)",
+   "text": "1 A, 0 to 2.5 Ω (the 10 A range stops at 250 mΩ)",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)",
+   "note": "A loop of about 340 mΩ is beyond the 10 A range's 250 mΩ, so it sits on the 1 A range at 2.5 W (Megger DLRO10HD data sheet, research sources 198, 201 and 202). Read the range off the instrument in use."
+  },
+  {
+   "id": "p.leadR",
+   "label": "Resistance of each current (C) lead",
+   "value": 30,
+   "unit": "mΩ",
+   "text": "30 mΩ",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)",
+   "note": "Only so lesson 2's picture can show what a two-wire reading would add. Real leads vary; the DLRO10HD data sheet gives a maximum lead resistance of under 100 mΩ at 10 A (research source 220)."
+  },
+  {
+   "id": "p.contactR",
+   "label": "Contact resistance at each current (C) clamp",
+   "value": 15,
+   "unit": "mΩ",
+   "text": "15 mΩ",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)",
+   "note": "Only so lesson 2's picture can show what joins the reading when a P probe sits outside its C clamp. A real clamp on a clean termination is lower or higher by the day."
+  },
+  {
+   "id": "p.irV",
+   "label": "IR test voltage",
+   "value": 5,
+   "unit": "kV d.c.",
+   "text": "5 kV d.c.",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); the client's test specification"
+  },
+  {
+   "id": "p.irCrit",
+   "label": "Client's IR criterion",
+   "value": 1,
+   "unit": "GΩ",
+   "text": "at least 1 GΩ at 1 minute",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); the client's test specification"
+  },
+  {
+   "id": "p.ir1.30s",
+   "label": "L1 IR at 30 s",
+   "value": 18,
+   "unit": "GΩ",
+   "text": "18.0 GΩ",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)"
+  },
+  {
+   "id": "p.ir1.1m",
+   "label": "L1 IR at 1 min",
+   "value": 24,
+   "unit": "GΩ",
+   "text": "24.0 GΩ",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)"
+  },
+  {
+   "id": "p.ir1.10m",
+   "label": "L1 IR at 10 min",
+   "value": 62,
+   "unit": "GΩ",
+   "text": "62.0 GΩ",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)"
+  },
+  {
+   "id": "p.ir2.30s",
+   "label": "L2 IR at 30 s",
+   "value": 2.1,
+   "unit": "GΩ",
+   "text": "2.10 GΩ",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)"
+  },
+  {
+   "id": "p.ir2.1m",
+   "label": "L2 IR at 1 min",
+   "value": 2.2,
+   "unit": "GΩ",
+   "text": "2.20 GΩ",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)"
+  },
+  {
+   "id": "p.ir2.10m",
+   "label": "L2 IR at 10 min",
+   "value": 2.4,
+   "unit": "GΩ",
+   "text": "2.40 GΩ",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)"
+  },
+  {
+   "id": "p.ir3.30s",
+   "label": "L3 IR at 30 s",
+   "value": 17.5,
+   "unit": "GΩ",
+   "text": "17.5 GΩ",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)"
+  },
+  {
+   "id": "p.ir3.1m",
+   "label": "L3 IR at 1 min",
+   "value": 23,
+   "unit": "GΩ",
+   "text": "23.0 GΩ",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)"
+  },
+  {
+   "id": "p.ir3.10m",
+   "label": "L3 IR at 10 min",
+   "value": 60,
+   "unit": "GΩ",
+   "text": "60.0 GΩ",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)"
+  },
+  {
+   "id": "p.piTime",
+   "label": "PI test duration",
+   "value": 10,
+   "unit": "min",
+   "text": "10 min",
+   "cite": "notes p.4 (PI is the 10-minute reading over the 1-minute reading)"
+  },
+  {
+   "id": "p.sheathT",
+   "label": "Core oversheath, specified thickness",
+   "value": 2.2,
+   "unit": "mm",
+   "text": "2.2 mm",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); the cable data sheet"
+  },
+  {
+   "id": "p.sheathL2",
+   "label": "L2 sheath result",
+   "value": "the test set tripped at 3.2 kV after 20 s; L1 and L3 held for 1 minute",
+   "text": "the test set tripped at 3.2 kV after 20 s; L1 and L3 held for 1 minute",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)"
+  },
+  {
+   "id": "p.vlfSpec",
+   "label": "VLF test in the client's specification",
+   "value": "2 U0, sinusoidal, 0.1 Hz, 60 min, each core",
+   "text": "2 U0, sinusoidal, 0.1 Hz, 60 min, each core",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); inside the notes' 1.5-2.5 U0 (notes p.7)"
+  },
+  {
+   "id": "p.vlfL2",
+   "label": "L2 VLF result",
+   "value": "broke down at minute 12; L1 and L3 held 60 min",
+   "text": "broke down at minute 12; L1 and L3 held 60 min",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)"
+  },
+  {
+   "id": "p.Rf",
+   "label": "L2 core to screen after the breakdown",
+   "value": 35,
+   "unit": "Ω",
+   "text": "35 Ω",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm)"
+  },
+  {
+   "id": "p.tEnd",
+   "label": "TDR, end of cable, open, from the OSS",
+   "value": 28.57,
+   "unit": "µs",
+   "text": "28.57 µs",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); TDR reading"
+  },
+  {
+   "id": "p.tFault",
+   "label": "TDR, downward peak on L2, from the OSS",
+   "value": 11.43,
+   "unit": "µs",
+   "text": "11.43 µs",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); TDR reading"
+  },
+  {
+   "id": "p.liraOSS",
+   "label": "LIRA spot on L2, from the OSS end",
+   "value": 961,
+   "unit": "m",
+   "text": "961 m, DNORM negative, red",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); LIRA reading"
+  },
+  {
+   "id": "p.liraB01",
+   "label": "LIRA spot on L2, from the B01 end",
+   "value": 1441,
+   "unit": "m",
+   "text": "1441 m, DNORM negative, red",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); LIRA reading"
+  }
+ ],
+ "assumptions": [
+  {
+   "id": "a.alpha",
+   "label": "Copper's resistance rises 0.00393 of its 20 °C value per °C",
+   "value": 0.00393,
+   "unit": "per °C",
+   "why": "Linear rule R_t = R20 × (1 + 0.00393 × (t − 20)). The notes say about 0.4% per °C; Quoted: the standard temperature coefficient of copper is 0.00393 per °C at 20 °C (NIST copper wire tables, research source 210), and IEC 60228 has the measured resistance corrected to 20 °C by the factors in its Table A.1 (source 211). The linear form is the course's own working from that coefficient.",
+   "status": "assumption",
+   "text": "Assumed: Copper's resistance rises 0.00393 of its 20 °C value per °C. Linear rule R_t = R20 × (1 + 0.00393 × (t − 20)). The notes say about 0.4% per °C; Quoted: the standard temperature coefficient of copper is 0.00393 per °C at 20 °C (NIST copper wire tables, research source 210), and IEC 60228 has the measured resistance corrected to 20 °C by the factors in its Table A.1 (source 211). The linear form is the course's own working from that coefficient."
+  },
+  {
+   "id": "a.phaseOrder",
+   "label": "Phase ID: each core is tested to the screen in turn, with only that core joined to the screen at the far end",
+   "why": "The notes say the cable is earthed at both ends to start, with conductor and screen disconnected and a technician at each end, and that each core is proved by a core-to-screen continuity test from both ends (p.2). A utility's procedure tests each conductor in turn using the screen as the return (research: SSEN 9.1). No source found gives the earthing order, so the lesson assumes: every core earthed at both ends to start; the far end keeps one core joined to the screen through its earth and lifts the other two under control; your end lifts its earths under control and tests each core to the screen, and only the joined core reads continuity; the earths go back on, and the ends swap.",
+   "status": "assumption",
+   "text": "Assumed: Phase ID: each core is tested to the screen in turn, with only that core joined to the screen at the far end. The notes say the cable is earthed at both ends to start, with conductor and screen disconnected and a technician at each end, and that each core is proved by a core-to-screen continuity test from both ends (p.2). A utility's procedure tests each conductor in turn using the screen as the return (research: SSEN 9.1). No source found gives the earthing order, so the lesson assumes: every core earthed at both ends to start; the far end keeps one core joined to the screen through its earth and lifts the other two under control; your end lifts its earths under control and tests each core to the screen, and only the joined core reads continuity; the earths go back on, and the ends swap."
+  },
+  {
+   "id": "a.chargeTime",
+   "label": "The 'charging time' in the 5× discharge rule is the time the test voltage was applied",
+   "why": "The notes do not say. Research must quote the test-set maker's discharge guidance.",
+   "status": "assumption",
+   "text": "Assumed: The 'charging time' in the 5× discharge rule is the time the test voltage was applied. The notes do not say. Research must quote the test-set maker's discharge guidance."
+  },
+  {
+   "id": "a.order",
+   "label": "The tests run in the order of the notes' test sequence",
+   "why": "Phase ID, core resistance, IR with PI and DAR, sheath, VLF, then LIRA (notes p.9, added background). TDR comes in when the VLF test breaks down.",
+   "status": "assumption",
+   "text": "Assumed: The tests run in the order of the notes' test sequence. Phase ID, core resistance, IR with PI and DAR, sheath, VLF, then LIRA (notes p.9, added background). TDR comes in when the VLF test breaks down."
+  },
+  {
+   "id": "a.vlfAfterSheath",
+   "label": "The client asks for the VLF test on all three cores despite L2's sheath result",
+   "why": "A story choice so one fault shows up in four tests. On a real job the engineer stops and reports first (notes p.10: figure out why before submitting).",
+   "status": "assumption",
+   "text": "Assumed: The client asks for the VLF test on all three cores despite L2's sheath result. A story choice so one fault shows up in four tests. On a real job the engineer stops and reports first (notes p.10: figure out why before submitting)."
+  },
+  {
+   "id": "a.semicon",
+   "label": "The core oversheaths are semi-conductive",
+   "why": "So the positive lead goes to the sheath's semi-con layer through the roll spring (notes p.4). Read it off the cable data sheet.",
+   "status": "assumption",
+   "text": "Assumed: The core oversheaths are semi-conductive. So the positive lead goes to the sheath's semi-con layer through the roll spring (notes p.4). Read it off the cable data sheet."
+  },
+  {
+   "id": "a.trapped",
+   "label": "Worst case trapped charge: switched off at the peak of U0",
+   "why": "A de-energised cable can be left charged. The case works the most it could hold. Sourced: 'trapped charge' left on the capacitance of equipment, for example after insulation resistance testing a length of cable (IET Wiring Matters, research source 186); high-voltage cables are to be treated as capacitors that store energy (source 188); E = ½CV² (source 191). The peak-of-U0 worst case itself is the course's own.",
+   "status": "assumption",
+   "text": "Assumed: Worst case trapped charge: switched off at the peak of U0. A de-energised cable can be left charged. The case works the most it could hold. Sourced: 'trapped charge' left on the capacitance of equipment, for example after insulation resistance testing a length of cable (IET Wiring Matters, research source 186); high-voltage cables are to be treated as capacitors that store energy (source 188); E = ½CV² (source 191). The peak-of-U0 worst case itself is the course's own."
+  },
+  {
+   "id": "a.vCal",
+   "label": "The TDR velocity is set from the known route length",
+   "why": "The open-end reflection and the 2.40 km installation record give v (Megger TDR_AN58: test a known length and adjust the VF).",
+   "status": "assumption",
+   "text": "Assumed: The TDR velocity is set from the known route length. The open-end reflection and the 2.40 km installation record give v (Megger TDR_AN58: test a known length and adjust the VF)."
+  }
+ ],
+ "lessons": [
+  {
+   "n": 1,
+   "title": "The cable, and making it safe to test",
+   "sectionA": [
+    "1a",
+    "1b"
+   ]
+  },
+  {
+   "n": 2,
+   "title": "Phases and conductors: the four-wire measurement",
+   "sectionA": [
+    "2a",
+    "2b",
+    "2c"
+   ]
+  },
+  {
+   "n": 3,
+   "title": "Insulation resistance over ten minutes: IR, DAR and PI",
+   "sectionA": [
+    "3a",
+    "3b",
+    "3c"
+   ]
+  },
+  {
+   "n": 4,
+   "title": "The sheath test: 4 kV per millimetre",
+   "sectionA": [
+    "4a"
+   ]
+  },
+  {
+   "n": 5,
+   "title": "VLF withstand: why 0.1 Hz",
+   "sectionA": [
+    "5a",
+    "5b",
+    "5c"
+   ]
+  },
+  {
+   "n": 6,
+   "title": "TDR: reading the reflections",
+   "sectionA": [
+    "6a",
+    "6b",
+    "6c"
+   ]
+  },
+  {
+   "n": 7,
+   "title": "LIRA: the cable's impedance spectrum",
+   "sectionA": [
+    "7a",
+    "7b"
+   ]
+  }
+ ],
+ "figures": [
+  {
+   "id": "l1.recall",
+   "label": "Recall: body current at 55 V through 10 000 Ω",
+   "value": 5.5,
+   "unit": "mA",
+   "rule": "I = V ÷ R",
+   "inputs": {
+    "V": "55 V",
+    "R": "10 000 Ω"
+   },
+   "cite": "notes p.1",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "5.50 mA",
+   "work": "55 ÷ 10 000 = 0.0055 A = 5.50 mA"
+  },
+  {
+   "id": "l1.recall.slip1",
+   "label": "Recall slip: 10 000 Ω read as 1000 Ω",
+   "value": 55,
+   "unit": "mA",
+   "rule": "I = V ÷ R",
+   "inputs": {
+    "V": "55 V",
+    "R": "1000 Ω"
+   },
+   "cite": "notes p.1 (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "55.00 mA",
+   "work": "55 ÷ 1000 = 55.00 mA"
+  },
+  {
+   "id": "1a",
+   "label": "Capacitance of one core, B01 to OSS",
+   "value": 0.528,
+   "unit": "µF",
+   "rule": "C = C per km × length",
+   "inputs": {
+    "C per km": "0.22 µF/km",
+    "length": "2.40 km"
+   },
+   "cite": "t.C66 (to research); p.len",
+   "kind": "case",
+   "status": "worked",
+   "lesson": "i1",
+   "part": "1a",
+   "practice": true,
+   "text": "0.528 µF",
+   "work": "0.22 × 2.40 = 0.528 µF"
+  },
+  {
+   "id": "1b",
+   "label": "Most energy one core could hold if switched off at the peak",
+   "value": 762.43,
+   "unit": "J",
+   "rule": "E = ½ × C × (√2 × U0)² = C × U0²",
+   "inputs": {
+    "C": "0.528 µF",
+    "U0": "38 kV"
+   },
+   "cite": "a.trapped; p.U0; 1a",
+   "kind": "case",
+   "status": "worked",
+   "lesson": "i1",
+   "part": "1b",
+   "practice": true,
+   "accept": {
+    "min": 762,
+    "max": 762.9,
+    "why": "unrounded working"
+   },
+   "text": "762.43 J",
+   "work": "0.528 × 10⁻⁶ × 38 000² = 762.43 J"
+  },
+  {
+   "id": "1b.slip",
+   "label": "Slip: the peak left out (½ C U0²)",
+   "value": 381.22,
+   "unit": "J",
+   "rule": "½ × C × U0²",
+   "inputs": {
+    "C": "0.528 µF",
+    "U0": "38 kV"
+   },
+   "cite": "the rule it breaks",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "381.22 J",
+   "work": "0.5 × 0.528 × 10⁻⁶ × 38 000² = 381.22 J"
+  },
+  {
+   "id": "l1.Ich",
+   "label": "Charging current of one core in service, 50 Hz",
+   "value": 6.3,
+   "unit": "A",
+   "rule": "I = 2πfC × U0",
+   "inputs": {
+    "f": "50 Hz",
+    "C": "0.528 µF",
+    "U0": "38 kV"
+   },
+   "cite": "AC circuits lesson 5; 1a; p.U0",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i1",
+   "practice": true,
+   "note": "Cross-check: 2.6 A/km × 2.40 km = 6.24 A from the maker's table (t.Ich66).",
+   "text": "6.30 A",
+   "work": "2π × 50 × 0.528 × 10⁻⁶ × 38 000 = 6.30 A"
+  },
+  {
+   "id": "l1.Ich.check",
+   "label": "Charging current from the maker's per-km figure",
+   "value": 6.24,
+   "unit": "A",
+   "rule": "I = A/km × length",
+   "inputs": {
+    "A/km": "2.6 A/km",
+    "length": "2.40 km"
+   },
+   "cite": "t.Ich66 (to research); p.len",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "6.24 A",
+   "work": "2.6 × 2.40 = 6.24 A"
+  },
+  {
+   "id": "l1.induced",
+   "label": "Induced voltage on the isolated B core over the 2.40 km parallel run (illustration)",
+   "value": 96,
+   "unit": "V",
+   "rule": "V = V per km × parallel length",
+   "inputs": {
+    "V per km": "40 V/km",
+    "length": "2.40 km"
+   },
+   "cite": "p.induce; p.len",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i1",
+   "practice": true,
+   "note": "A practice value for the picture. It is why a dead cable beside a live string is proved dead and earthed, not a measurement.",
+   "text": "96 V",
+   "work": "40 × 2.40 = 96 V"
+  },
+  {
+   "id": "l1.changed",
+   "label": "Changed numbers: capacitance of a 1.80 km core at 0.22 µF/km",
+   "value": 0.396,
+   "unit": "µF",
+   "rule": "C = C per km × length",
+   "inputs": {
+    "C per km": "0.22 µF/km",
+    "length": "1.80 km"
+   },
+   "cite": "t.C66",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i1",
+   "practice": true,
+   "text": "0.396 µF",
+   "work": "0.22 × 1.80 = 0.396 µF"
+  },
+  {
+   "id": "l1.wex.C",
+   "label": "Worked example: capacitance of a 0.80 km core",
+   "value": 0.176,
+   "unit": "µF",
+   "rule": "C = C per km × length",
+   "inputs": {
+    "C per km": "0.22 µF/km",
+    "length": "0.80 km"
+   },
+   "cite": "t.C66; a practice length",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i1",
+   "practice": true,
+   "text": "0.176 µF",
+   "work": "0.22 × 0.80 = 0.176 µF"
+  },
+  {
+   "id": "l1.wex.E",
+   "label": "Worked example: most energy in the 0.80 km core, off at the peak",
+   "value": 254.14,
+   "unit": "J",
+   "rule": "E = ½ × C × (√2 × U0)² = C × U0²",
+   "inputs": {
+    "C": "0.176 µF",
+    "U0": "38 kV"
+   },
+   "cite": "a.trapped; p.U0; l1.wex.C",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i1",
+   "practice": true,
+   "text": "254.14 J",
+   "work": "0.176 × 10⁻⁶ × 38 000² = 254.14 J"
+  },
+  {
+   "id": "l1.wex.half",
+   "label": "Worked example: the peak left out (½ C U0²)",
+   "value": 127.07,
+   "unit": "J",
+   "rule": "½ × C × U0²",
+   "inputs": {
+    "C": "0.176 µF",
+    "U0": "38 kV"
+   },
+   "cite": "a.trapped; l1.wex.C",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i1",
+   "practice": true,
+   "text": "127.07 J",
+   "work": "0.5 × 0.176 × 10⁻⁶ × 38 000² = 127.07 J"
+  },
+  {
+   "id": "l1.perkm",
+   "label": "Most energy one 1.00 km core could hold, off at the peak",
+   "value": 317.68,
+   "unit": "J",
+   "rule": "E = ½ × C × (√2 × U0)² = C × U0²",
+   "inputs": {
+    "C": "0.220 µF",
+    "U0": "38 kV"
+   },
+   "cite": "a.trapped; p.U0; t.C66",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i1",
+   "practice": true,
+   "text": "317.68 J",
+   "work": "0.220 × 10⁻⁶ × 38 000² = 317.68 J"
+  },
+  {
+   "id": "l1.induced.short",
+   "label": "Induced voltage on the isolated B core over a 0.40 km parallel run (illustration)",
+   "value": 16,
+   "unit": "V",
+   "rule": "V = V per km × parallel length",
+   "inputs": {
+    "V per km": "40 V/km",
+    "length": "0.40 km"
+   },
+   "cite": "p.induce",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i1",
+   "practice": true,
+   "note": "A practice value for the picture, like l1.induced, not a measurement.",
+   "text": "16 V",
+   "work": "40 × 0.40 = 16 V"
+  },
+  {
+   "id": "1a.slip3",
+   "label": "Slip: all three cores counted",
+   "value": 1.584,
+   "unit": "µF",
+   "rule": "3 × C",
+   "inputs": {
+    "C": "0.528 µF"
+   },
+   "cite": "1a (the rule it breaks: each core is a capacitor of its own)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "1.584 µF",
+   "work": "3 × 0.528 = 1.584 µF"
+  },
+  {
+   "id": "1a.slipDiv",
+   "label": "Slip: the length divided by the per-km figure",
+   "value": 10.91,
+   "unit": "",
+   "rule": "length ÷ C per km",
+   "inputs": {
+    "length": "2.40 km",
+    "C per km": "0.22 µF/km"
+   },
+   "cite": "1a (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "10.91",
+   "work": "2.40 ÷ 0.22 = 10.91"
+  },
+  {
+   "id": "1b.slip2",
+   "label": "Slip: the half left out (2 × C × U0²)",
+   "value": 1524.86,
+   "unit": "J",
+   "rule": "2 × C × U0²",
+   "inputs": {
+    "C": "0.528 µF",
+    "U0": "38 kV"
+   },
+   "cite": "the rule it breaks",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "1524.86 J",
+   "work": "2 × 0.528 × 10⁻⁶ × 38 000² = 1524.86 J"
+  },
+  {
+   "id": "l1.changed.E",
+   "label": "Changed numbers: most energy in a 1.80 km core, off at the peak",
+   "value": 571.82,
+   "unit": "J",
+   "rule": "E = ½ × C × (√2 × U0)² = C × U0²",
+   "inputs": {
+    "C": "0.396 µF",
+    "U0": "38 kV"
+   },
+   "cite": "a.trapped; p.U0; l1.changed",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i1",
+   "practice": true,
+   "text": "571.82 J",
+   "work": "0.396 × 10⁻⁶ × 38 000² = 571.82 J"
+  },
+  {
+   "id": "l1.changed.slip1",
+   "label": "Changed numbers slip: the peak left out",
+   "value": 285.91,
+   "unit": "J",
+   "rule": "½ × C × U0²",
+   "inputs": {
+    "C": "0.396 µF",
+    "U0": "38 kV"
+   },
+   "cite": "the rule it breaks",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "285.91 J",
+   "work": "0.5 × 0.396 × 10⁻⁶ × 38 000² = 285.91 J"
+  },
+  {
+   "id": "l1.changed.slip2",
+   "label": "Changed numbers slip: the half left out",
+   "value": 1143.65,
+   "unit": "J",
+   "rule": "2 × C × U0²",
+   "inputs": {
+    "C": "0.396 µF",
+    "U0": "38 kV"
+   },
+   "cite": "the rule it breaks",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "1143.65 J",
+   "work": "2 × 0.396 × 10⁻⁶ × 38 000² = 1143.65 J"
+  },
+  {
+   "id": "l2.recall",
+   "label": "Recall: L1 from the notes' worked example",
+   "value": 38.785,
+   "unit": "mΩ",
+   "rule": "L1 = (A + C − B) ÷ 2",
+   "inputs": {
+    "A": "76.90 mΩ",
+    "B": "80.49 mΩ",
+    "C": "81.16 mΩ"
+   },
+   "cite": "notes p.3",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "38.785 mΩ",
+   "work": "(76.90 + 81.16 − 80.49) ÷ 2 = 77.57 ÷ 2 = 38.785 mΩ"
+  },
+  {
+   "id": "l2.recall.slip1",
+   "label": "Recall slip: the L2 formula used for L1",
+   "value": 38.115,
+   "unit": "mΩ",
+   "rule": "(B + A − C) ÷ 2",
+   "inputs": {
+    "A": "76.90 mΩ",
+    "B": "80.49 mΩ",
+    "C": "81.16 mΩ"
+   },
+   "cite": "notes p.3 (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "38.115 mΩ",
+   "work": "(80.49 + 76.90 − 81.16) ÷ 2 = 38.115 mΩ"
+  },
+  {
+   "id": "l2.recall.slip2",
+   "label": "Recall slip: half the L1-L2 loop",
+   "value": 38.45,
+   "unit": "mΩ",
+   "rule": "A ÷ 2",
+   "inputs": {
+    "A": "76.90 mΩ"
+   },
+   "cite": "notes p.3 (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "38.45 mΩ",
+   "work": "76.90 ÷ 2 = 38.45 mΩ"
+  },
+  {
+   "id": "l2.wex.L2",
+   "label": "Worked example: L2",
+   "value": 38.115,
+   "unit": "mΩ",
+   "rule": "L2 = (B + A − C) ÷ 2",
+   "inputs": {
+    "A": "76.90",
+    "B": "80.49",
+    "C": "81.16"
+   },
+   "cite": "notes p.3",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "38.115 mΩ",
+   "work": "(80.49 + 76.90 − 81.16) ÷ 2 = 76.23 ÷ 2 = 38.115 mΩ"
+  },
+  {
+   "id": "l2.wex.L3",
+   "label": "Worked example: L3",
+   "value": 42.375,
+   "unit": "mΩ",
+   "rule": "L3 = (C + B − A) ÷ 2",
+   "inputs": {
+    "A": "76.90",
+    "B": "80.49",
+    "C": "81.16"
+   },
+   "cite": "notes p.3",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "note": "L3 reads about 9-11% above L1 and L2 in the notes' own example. Three cores of one cable should read close together, so this is the kind of deviation to explain before submitting (notes p.3).",
+   "text": "42.375 mΩ",
+   "work": "(81.16 + 80.49 − 76.90) ÷ 2 = 84.75 ÷ 2 = 42.375 mΩ"
+  },
+  {
+   "id": "l2.wex.check",
+   "label": "Worked example check: (A + B + C) ÷ 2 = L1 + L2 + L3",
+   "value": 119.275,
+   "unit": "mΩ",
+   "rule": "(A + B + C) ÷ 2",
+   "inputs": {
+    "A": "76.90",
+    "B": "80.49",
+    "C": "81.16"
+   },
+   "cite": "notes p.3",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "119.275 mΩ",
+   "work": "(76.90 + 80.49 + 81.16) ÷ 2 = 238.55 ÷ 2 = 119.275 mΩ = 38.785 + 38.115 + 42.375"
+  },
+  {
+   "id": "l2.L1",
+   "label": "L1 core resistance at 12 °C",
+   "value": 169.21,
+   "unit": "mΩ",
+   "rule": "L1 = (A + C − B) ÷ 2",
+   "inputs": {
+    "A": "339.31",
+    "B": "339.21",
+    "C": "338.32"
+   },
+   "cite": "n.loopRule; p.loopA-C",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "text": "169.21 mΩ",
+   "work": "(339.31 + 338.32 − 339.21) ÷ 2 = 169.21 mΩ"
+  },
+  {
+   "id": "2a",
+   "label": "L2 core resistance at 12 °C",
+   "value": 170.1,
+   "unit": "mΩ",
+   "rule": "L2 = (B + A − C) ÷ 2",
+   "inputs": {
+    "A": "339.31",
+    "B": "339.21",
+    "C": "338.32"
+   },
+   "cite": "n.loopRule; p.loopA-C",
+   "kind": "case",
+   "status": "worked",
+   "lesson": "i2",
+   "part": "2a",
+   "practice": true,
+   "text": "170.10 mΩ",
+   "work": "(339.21 + 339.31 − 338.32) ÷ 2 = 340.20 ÷ 2 = 170.10 mΩ"
+  },
+  {
+   "id": "l2.L3",
+   "label": "L3 core resistance at 12 °C",
+   "value": 169.11,
+   "unit": "mΩ",
+   "rule": "L3 = (C + B − A) ÷ 2",
+   "inputs": {
+    "A": "339.31",
+    "B": "339.21",
+    "C": "338.32"
+   },
+   "cite": "n.loopRule; p.loopA-C",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "text": "169.11 mΩ",
+   "work": "(338.32 + 339.21 − 339.31) ÷ 2 = 169.11 mΩ"
+  },
+  {
+   "id": "l2.k",
+   "label": "Temperature factor at 12 °C",
+   "value": 0.96856,
+   "unit": "",
+   "rule": "k = 1 + 0.00393 × (t − 20)",
+   "inputs": {
+    "t": "12 °C"
+   },
+   "cite": "a.alpha (quoted: research sources 210-212); p.temp",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "0.96856",
+   "work": "1 + 0.00393 × (12 − 20) = 1 − 0.03144 = 0.96856"
+  },
+  {
+   "id": "2b",
+   "label": "L2 corrected to 20 °C",
+   "value": 175.62,
+   "unit": "mΩ",
+   "rule": "R20 = R_t ÷ k",
+   "inputs": {
+    "R_t": "170.10 mΩ",
+    "k": "0.96856"
+   },
+   "cite": "a.alpha (quoted: research sources 210-212); 2a",
+   "kind": "case",
+   "status": "worked",
+   "lesson": "i2",
+   "part": "2b",
+   "practice": true,
+   "accept": {
+    "min": 175.55,
+    "max": 175.75,
+    "why": "0.004 per °C (the notes' about 0.4%) gives 170.10 ÷ 0.968 = 175.72 mΩ"
+   },
+   "text": "175.62 mΩ",
+   "work": "170.10 ÷ 0.96856 = 175.62 mΩ"
+  },
+  {
+   "id": "2c",
+   "label": "L2's deviation from its factory value",
+   "value": 0.41,
+   "unit": "%",
+   "rule": "(R20 − factory) ÷ factory × 100",
+   "inputs": {
+    "R20": "175.62 mΩ",
+    "factory": "174.90 mΩ"
+   },
+   "cite": "n.tol; p.fac2; 2b",
+   "kind": "case",
+   "status": "worked",
+   "lesson": "i2",
+   "part": "2c",
+   "practice": true,
+   "accept": {
+    "min": 0.4,
+    "max": 0.48,
+    "why": "the notes' about 0.4% per °C gives 175.72 mΩ and 0.47%; unrounded working gives 0.41%"
+   },
+   "text": "+0.41%",
+   "work": "(175.62 − 174.90) ÷ 174.90 × 100 = +0.41%, inside 2%: passes"
+  },
+  {
+   "id": "2c.slip",
+   "label": "Slip: compared without the temperature correction",
+   "value": -2.74,
+   "unit": "%",
+   "rule": "(R_t − factory) ÷ factory × 100",
+   "inputs": {
+    "R_t": "170.10 mΩ",
+    "factory": "174.90 mΩ"
+   },
+   "cite": "notes p.3 (figure out why before submitting); a.alpha",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "-2.74%",
+   "work": "(170.10 − 174.90) ÷ 174.90 × 100 = -2.74%, looks like a fail"
+  },
+  {
+   "id": "l2.L1.20",
+   "label": "L1 corrected to 20 °C",
+   "value": 174.7,
+   "unit": "mΩ",
+   "rule": "R20 = R_t ÷ k",
+   "inputs": {
+    "R_t": "169.21 mΩ",
+    "k": "0.96856"
+   },
+   "cite": "a.alpha; p.temp",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "text": "174.70 mΩ",
+   "work": "169.21 ÷ 0.96856 = 174.70 mΩ"
+  },
+  {
+   "id": "l2.L1.dev",
+   "label": "L1 deviation from factory",
+   "value": 0,
+   "unit": "%",
+   "rule": "(R20 − factory) ÷ factory × 100",
+   "inputs": {
+    "R20": "174.70",
+    "factory": "174.70"
+   },
+   "cite": "n.tol",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "text": "0.00%",
+   "work": "(174.70 − 174.70) ÷ 174.70 × 100 = 0.00%"
+  },
+  {
+   "id": "l2.L3.20",
+   "label": "L3 corrected to 20 °C",
+   "value": 174.6,
+   "unit": "mΩ",
+   "rule": "R20 = R_t ÷ k",
+   "inputs": {
+    "R_t": "169.11 mΩ",
+    "k": "0.96856"
+   },
+   "cite": "a.alpha; p.temp",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "text": "174.60 mΩ",
+   "work": "169.11 ÷ 0.96856 = 174.60 mΩ"
+  },
+  {
+   "id": "l2.L3.dev",
+   "label": "L3 deviation from factory",
+   "value": 0,
+   "unit": "%",
+   "rule": "(R20 − factory) ÷ factory × 100",
+   "inputs": {
+    "R20": "174.60",
+    "factory": "174.60"
+   },
+   "cite": "n.tol",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "text": "0.00%",
+   "work": "(174.60 − 174.60) ÷ 174.60 × 100 = 0.00%"
+  },
+  {
+   "id": "l2.changed",
+   "label": "Changed numbers: L3 from loops 120.40, 121.10, 120.90 mΩ",
+   "value": 60.8,
+   "unit": "mΩ",
+   "rule": "L3 = (C + B − A) ÷ 2",
+   "inputs": {
+    "A": "120.40",
+    "B": "121.10",
+    "C": "120.90"
+   },
+   "cite": "n.loopRule",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "text": "60.80 mΩ",
+   "work": "(120.90 + 121.10 − 120.40) ÷ 2 = 60.80 mΩ"
+  },
+  {
+   "id": "l2.twoWire",
+   "label": "Two-wire reading of loop A: both C leads and both C contacts added",
+   "value": 429.31,
+   "unit": "mΩ",
+   "rule": "reading = loop + 2 × lead + 2 × contact",
+   "inputs": {
+    "loop": "339.31 mΩ",
+    "lead": "30 mΩ",
+    "contact": "15 mΩ"
+   },
+   "cite": "p.loopA; p.leadR; p.contactR",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "note": "A practice illustration: a two-wire meter adds the total lead resistance to the reading (Keithley, research); the lead and contact values are practice values.",
+   "text": "429.31 mΩ",
+   "work": "339.31 + 2 × 30 + 2 × 15 = 429.31 mΩ"
+  },
+  {
+   "id": "l2.twoWire.pct",
+   "label": "Two-wire reading above the loop",
+   "value": 26.52,
+   "unit": "%",
+   "rule": "(reading − loop) ÷ loop × 100",
+   "inputs": {
+    "reading": "429.31 mΩ",
+    "loop": "339.31 mΩ"
+   },
+   "cite": "l2.twoWire",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "text": "26.52%",
+   "work": "(429.31 − 339.31) ÷ 339.31 × 100 = 26.52%"
+  },
+  {
+   "id": "l2.onClamps",
+   "label": "Four wires with the P probes clipped on the C clamps, outside their contacts",
+   "value": 369.31,
+   "unit": "mΩ",
+   "rule": "reading = loop + 2 × contact",
+   "inputs": {
+    "loop": "339.31 mΩ",
+    "contact": "15 mΩ"
+   },
+   "cite": "p.loopA; p.contactR",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "note": "The reading is whatever carries the current between the two P points (Seaward, research), so the C contacts join it.",
+   "text": "369.31 mΩ",
+   "work": "339.31 + 2 × 15 = 369.31 mΩ"
+  },
+  {
+   "id": "l2.onClamps.pct",
+   "label": "P on the clamps: reading above the loop",
+   "value": 8.84,
+   "unit": "%",
+   "rule": "(reading − loop) ÷ loop × 100",
+   "inputs": {
+    "reading": "369.31 mΩ",
+    "loop": "339.31 mΩ"
+   },
+   "cite": "l2.onClamps",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "text": "8.84%",
+   "work": "(369.31 − 339.31) ÷ 339.31 × 100 = 8.84%"
+  },
+  {
+   "id": "l2.cold.L1",
+   "label": "L1 (certificate 174.70 mΩ at 20 °C) as read at 12 °C",
+   "value": 169.21,
+   "unit": "mΩ",
+   "rule": "R_t = R20 × k",
+   "inputs": {
+    "R20": "174.70 mΩ",
+    "k": "0.96856"
+   },
+   "cite": "a.alpha; p.fac1; p.temp",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "text": "169.21 mΩ",
+   "work": "174.70 × 0.96856 = 169.21 mΩ"
+  },
+  {
+   "id": "l2.cold.pct",
+   "label": "L1 at 12 °C against its 20 °C certificate, uncorrected",
+   "value": -3.14,
+   "unit": "%",
+   "rule": "(R_t − certificate) ÷ certificate × 100",
+   "inputs": {
+    "R_t": "169.21 mΩ",
+    "certificate": "174.70 mΩ"
+   },
+   "cite": "a.alpha; n.tol",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "text": "-3.14%",
+   "work": "(169.21 − 174.70) ÷ 174.70 × 100 = -3.14%, outside 2%: a sound core that looks like a fail"
+  },
+  {
+   "id": "l2.k4",
+   "label": "Temperature factor at 4 °C",
+   "value": 0.93712,
+   "unit": "",
+   "rule": "k = 1 + 0.00393 × (t − 20)",
+   "inputs": {
+    "t": "4 °C"
+   },
+   "cite": "a.alpha",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "0.93712",
+   "work": "1 + 0.00393 × (4 − 20) = 0.93712"
+  },
+  {
+   "id": "l2.read4",
+   "label": "L1 (certificate 174.70 mΩ) as read at 4 °C",
+   "value": 163.71,
+   "unit": "mΩ",
+   "rule": "R_t = R20 × k",
+   "inputs": {
+    "R20": "174.70 mΩ",
+    "k": "0.93712"
+   },
+   "cite": "a.alpha; p.fac1",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "text": "163.71 mΩ",
+   "work": "174.70 × 0.93712 = 163.71 mΩ"
+  },
+  {
+   "id": "l2.read4.pct",
+   "label": "L1 at 4 °C against its certificate, uncorrected",
+   "value": -6.29,
+   "unit": "%",
+   "rule": "(R_t − certificate) ÷ certificate × 100",
+   "inputs": {
+    "R_t": "163.71 mΩ",
+    "certificate": "174.70 mΩ"
+   },
+   "cite": "a.alpha; n.tol",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "text": "-6.29%",
+   "work": "(163.71 − 174.70) ÷ 174.70 × 100 = -6.29%"
+  },
+  {
+   "id": "l2.k30",
+   "label": "Temperature factor at 30 °C",
+   "value": 1.0393,
+   "unit": "",
+   "rule": "k = 1 + 0.00393 × (t − 20)",
+   "inputs": {
+    "t": "30 °C"
+   },
+   "cite": "a.alpha",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "1.03930",
+   "work": "1 + 0.00393 × (30 − 20) = 1.03930"
+  },
+  {
+   "id": "l2.read30",
+   "label": "L1 (certificate 174.70 mΩ) as read at 30 °C",
+   "value": 181.57,
+   "unit": "mΩ",
+   "rule": "R_t = R20 × k",
+   "inputs": {
+    "R20": "174.70 mΩ",
+    "k": "1.03930"
+   },
+   "cite": "a.alpha; p.fac1",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "text": "181.57 mΩ",
+   "work": "174.70 × 1.03930 = 181.57 mΩ"
+  },
+  {
+   "id": "l2.read30.pct",
+   "label": "L1 at 30 °C against its certificate, uncorrected",
+   "value": 3.93,
+   "unit": "%",
+   "rule": "(R_t − certificate) ÷ certificate × 100",
+   "inputs": {
+    "R_t": "181.57 mΩ",
+    "certificate": "174.70 mΩ"
+   },
+   "cite": "a.alpha; n.tol",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "text": "3.93%",
+   "work": "(181.57 − 174.70) ÷ 174.70 × 100 = 3.93%"
+  },
+  {
+   "id": "l2.band",
+   "label": "Degrees from 20 °C that use up the whole 2%",
+   "value": 5.09,
+   "unit": "°C",
+   "rule": "Δt = 2% ÷ 0.393% per °C",
+   "inputs": {
+    "tolerance": "2%",
+    "per °C": "0.393%"
+   },
+   "cite": "n.tol; a.alpha",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "5.09 °C",
+   "work": "2 ÷ 0.393 = 5.09 °C"
+  },
+  {
+   "id": "l2.wex.gap1",
+   "label": "Worked example: L3 above L1",
+   "value": 9.26,
+   "unit": "%",
+   "rule": "(L3 − L1) ÷ L1 × 100",
+   "inputs": {
+    "L1": "38.785 mΩ",
+    "L3": "42.375 mΩ"
+   },
+   "cite": "notes p.3",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "9.26%",
+   "work": "(42.375 − 38.785) ÷ 38.785 × 100 = 9.26%"
+  },
+  {
+   "id": "l2.wex.gap2",
+   "label": "Worked example: L3 above L2",
+   "value": 11.18,
+   "unit": "%",
+   "rule": "(L3 − L2) ÷ L2 × 100",
+   "inputs": {
+    "L2": "38.115 mΩ",
+    "L3": "42.375 mΩ"
+   },
+   "cite": "notes p.3",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "11.18%",
+   "work": "(42.375 − 38.115) ÷ 38.115 × 100 = 11.18%"
+  },
+  {
+   "id": "2a.slip",
+   "label": "Slip: the loop sum not halved",
+   "value": 340.2,
+   "unit": "mΩ",
+   "rule": "B + A − C",
+   "inputs": {
+    "A": "339.31",
+    "B": "339.21",
+    "C": "338.32"
+   },
+   "cite": "n.loopRule (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "340.20 mΩ",
+   "work": "339.21 + 339.31 − 338.32 = 340.20 mΩ"
+  },
+  {
+   "id": "2a.slip2",
+   "label": "Slip: half of loop A taken as L2",
+   "value": 169.66,
+   "unit": "mΩ",
+   "rule": "A ÷ 2",
+   "inputs": {
+    "A": "339.31"
+   },
+   "cite": "n.loopRule (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "169.66 mΩ",
+   "work": "339.31 ÷ 2 = 169.66 mΩ"
+  },
+  {
+   "id": "2b.alt",
+   "label": "Accepted: L2 corrected with the notes' about 0.4% per °C",
+   "value": 175.72,
+   "unit": "mΩ",
+   "rule": "R20 = R_t ÷ (1 + 0.004 × (t − 20))",
+   "inputs": {
+    "R_t": "170.10 mΩ",
+    "t": "12 °C"
+   },
+   "cite": "n.cuTemp; 2a",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "text": "175.72 mΩ",
+   "work": "170.10 ÷ (1 + 0.004 × (12 − 20)) = 175.72 mΩ"
+  },
+  {
+   "id": "2b.slip",
+   "label": "Slip: multiplied by the factor instead of dividing",
+   "value": 164.75,
+   "unit": "mΩ",
+   "rule": "R_t × k",
+   "inputs": {
+    "R_t": "170.10 mΩ",
+    "k": "0.96856"
+   },
+   "cite": "a.alpha (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "164.75 mΩ",
+   "work": "170.10 × 0.96856 = 164.75 mΩ"
+  },
+  {
+   "id": "2c.alt",
+   "label": "Accepted: deviation from the 0.4% per °C figure",
+   "value": 0.47,
+   "unit": "%",
+   "rule": "(R20 − factory) ÷ factory × 100",
+   "inputs": {
+    "R20": "175.72 mΩ",
+    "factory": "174.90 mΩ"
+   },
+   "cite": "2b.alt; p.fac2",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "text": "0.47%",
+   "work": "(175.72 − 174.90) ÷ 174.90 × 100 = 0.47%"
+  },
+  {
+   "id": "2c.slip2",
+   "label": "Slip: the difference taken the wrong way round",
+   "value": -0.41,
+   "unit": "%",
+   "rule": "(factory − R20) ÷ factory × 100",
+   "inputs": {
+    "R20": "175.62 mΩ",
+    "factory": "174.90 mΩ"
+   },
+   "cite": "n.tol (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "-0.41%",
+   "work": "(174.90 − 175.62) ÷ 174.90 × 100 = -0.41%"
+  },
+  {
+   "id": "l2.changed.slip",
+   "label": "Changed numbers slip: not halved",
+   "value": 121.6,
+   "unit": "mΩ",
+   "rule": "C + B − A",
+   "inputs": {
+    "A": "120.40",
+    "B": "121.10",
+    "C": "120.90"
+   },
+   "cite": "n.loopRule (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "121.60 mΩ",
+   "work": "120.90 + 121.10 − 120.40 = 121.60 mΩ"
+  },
+  {
+   "id": "l2.changed.slip2",
+   "label": "Changed numbers slip: L1's formula",
+   "value": 60.1,
+   "unit": "mΩ",
+   "rule": "(A + C − B) ÷ 2",
+   "inputs": {
+    "A": "120.40",
+    "B": "121.10",
+    "C": "120.90"
+   },
+   "cite": "n.loopRule (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "60.10 mΩ",
+   "work": "(120.40 + 120.90 − 121.10) ÷ 2 = 60.10 mΩ"
+  },
+  {
+   "id": "l2.changed.check",
+   "label": "Changed numbers check: (A + B + C) ÷ 2",
+   "value": 181.2,
+   "unit": "mΩ",
+   "rule": "(A + B + C) ÷ 2",
+   "inputs": {
+    "A": "120.40",
+    "B": "121.10",
+    "C": "120.90"
+   },
+   "cite": "n.loopRule",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "practice": true,
+   "note": "L1 60.10 + L2 60.30 + L3 60.80 = 181.20 mΩ.",
+   "text": "181.20 mΩ",
+   "work": "(120.40 + 121.10 + 120.90) ÷ 2 = 181.20 mΩ"
+  },
+  {
+   "id": "l3.recall",
+   "label": "Recall: PI with 2.0 GΩ at 1 min and 6.0 GΩ at 10 min",
+   "value": 3,
+   "unit": "",
+   "rule": "PI = R10 ÷ R1",
+   "inputs": {
+    "R1": "2.0 GΩ",
+    "R10": "6.0 GΩ"
+   },
+   "cite": "notes p.4",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "3.00",
+   "work": "6.0 ÷ 2.0 = 3.00, 'okay' (2-4)"
+  },
+  {
+   "id": "l3.recall.slip1",
+   "label": "Recall slip: the ratio upside down",
+   "value": 0.33,
+   "unit": "",
+   "rule": "R1 ÷ R10",
+   "inputs": {
+    "R1": "2.0",
+    "R10": "6.0"
+   },
+   "cite": "notes p.4 (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "0.33",
+   "work": "2.0 ÷ 6.0 = 0.33"
+  },
+  {
+   "id": "3a",
+   "label": "L1 polarisation index",
+   "value": 2.58,
+   "unit": "",
+   "rule": "PI = R10 ÷ R1",
+   "inputs": {
+    "R10": "62.00 GΩ",
+    "R1": "24.00 GΩ"
+   },
+   "cite": "n.pi; p.ir1",
+   "kind": "case",
+   "status": "worked",
+   "lesson": "i3",
+   "part": "3a",
+   "practice": true,
+   "text": "2.58",
+   "work": "62.00 ÷ 24.00 = 2.58"
+  },
+  {
+   "id": "l3.L1.DAR",
+   "label": "L1 dielectric absorption ratio",
+   "value": 1.33,
+   "unit": "",
+   "rule": "DAR = R60s ÷ R30s",
+   "inputs": {
+    "R60s": "24.00 GΩ",
+    "R30s": "18.00 GΩ"
+   },
+   "cite": "n.dar; p.ir1",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i3",
+   "practice": true,
+   "text": "1.33",
+   "work": "24.00 ÷ 18.00 = 1.33"
+  },
+  {
+   "id": "3b",
+   "label": "L2 polarisation index",
+   "value": 1.09,
+   "unit": "",
+   "rule": "PI = R10 ÷ R1",
+   "inputs": {
+    "R10": "2.40 GΩ",
+    "R1": "2.20 GΩ"
+   },
+   "cite": "n.pi; p.ir2",
+   "kind": "case",
+   "status": "worked",
+   "lesson": "i3",
+   "part": "3b",
+   "practice": true,
+   "text": "1.09",
+   "work": "2.40 ÷ 2.20 = 1.09"
+  },
+  {
+   "id": "l3.L2.DAR",
+   "label": "L2 dielectric absorption ratio",
+   "value": 1.05,
+   "unit": "",
+   "rule": "DAR = R60s ÷ R30s",
+   "inputs": {
+    "R60s": "2.20 GΩ",
+    "R30s": "2.10 GΩ"
+   },
+   "cite": "n.dar; p.ir2",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i3",
+   "practice": true,
+   "text": "1.05",
+   "work": "2.20 ÷ 2.10 = 1.05"
+  },
+  {
+   "id": "l3.L3.PI",
+   "label": "L3 polarisation index",
+   "value": 2.61,
+   "unit": "",
+   "rule": "PI = R10 ÷ R1",
+   "inputs": {
+    "R10": "60.00 GΩ",
+    "R1": "23.00 GΩ"
+   },
+   "cite": "n.pi; p.ir3",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i3",
+   "practice": true,
+   "text": "2.61",
+   "work": "60.00 ÷ 23.00 = 2.61"
+  },
+  {
+   "id": "l3.L3.DAR",
+   "label": "L3 dielectric absorption ratio",
+   "value": 1.31,
+   "unit": "",
+   "rule": "DAR = R60s ÷ R30s",
+   "inputs": {
+    "R60s": "23.00 GΩ",
+    "R30s": "17.50 GΩ"
+   },
+   "cite": "n.dar; p.ir3",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i3",
+   "practice": true,
+   "text": "1.31",
+   "work": "23.00 ÷ 17.50 = 1.31"
+  },
+  {
+   "id": "3c",
+   "label": "Least discharge time after the 10-minute PI test",
+   "value": 50,
+   "unit": "min",
+   "rule": "5 × the time the voltage was applied",
+   "inputs": {
+    "time": "10 min"
+   },
+   "cite": "n.discharge; a.chargeTime (to research)",
+   "kind": "case",
+   "status": "worked",
+   "lesson": "i3",
+   "part": "3c",
+   "practice": true,
+   "text": "50 min",
+   "work": "5 × 10 = 50 min"
+  },
+  {
+   "id": "l3.energy",
+   "label": "Energy stored in one core at 5 kV",
+   "value": 6.6,
+   "unit": "J",
+   "rule": "E = ½ × C × V²",
+   "inputs": {
+    "C": "0.528 µF",
+    "V": "5 kV"
+   },
+   "cite": "1a; p.irV",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i3",
+   "practice": true,
+   "text": "6.60 J",
+   "work": "0.5 × 0.528 × 10⁻⁶ × 5000² = 6.60 J"
+  },
+  {
+   "id": "l3.charge",
+   "label": "Charge in one core at 5 kV",
+   "value": 2.64,
+   "unit": "mC",
+   "rule": "Q = C × V",
+   "inputs": {
+    "C": "0.528 µF",
+    "V": "5 kV"
+   },
+   "cite": "1a; p.irV",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i3",
+   "practice": true,
+   "text": "2.64 mC",
+   "work": "0.528 × 10⁻⁶ × 5000 = 0.00264 C = 2.64 mC"
+  },
+  {
+   "id": "l3.changed",
+   "label": "Changed numbers: PI with 8.0 GΩ at 1 min, 9.6 GΩ at 10 min",
+   "value": 1.2,
+   "unit": "",
+   "rule": "PI = R10 ÷ R1",
+   "inputs": {
+    "R1": "8.0",
+    "R10": "9.6"
+   },
+   "cite": "n.pi",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i3",
+   "practice": true,
+   "text": "1.20",
+   "work": "9.6 ÷ 8.0 = 1.20, questionable"
+  },
+  {
+   "id": "l4.recall",
+   "label": "Recall: sheath test voltage for a 2.0 mm sheath",
+   "value": 8,
+   "unit": "kV",
+   "rule": "V = 4 kV/mm × t, at most 10 kV",
+   "inputs": {
+    "t": "2.0 mm"
+   },
+   "cite": "notes p.4",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "8.0 kV",
+   "work": "4 × 2.0 = 8.0 kV, under the 10 kV cap"
+  },
+  {
+   "id": "4a",
+   "label": "Sheath test voltage for the case cable's 2.2 mm sheath",
+   "value": 8.8,
+   "unit": "kV",
+   "rule": "V = 4 kV/mm × t, at most 10 kV",
+   "inputs": {
+    "t": "2.2 mm"
+   },
+   "cite": "n.sheath; t.sheathIEC; p.sheathT",
+   "kind": "case",
+   "status": "worked",
+   "lesson": "i4",
+   "part": "4a",
+   "practice": true,
+   "text": "8.8 kV",
+   "work": "4 × 2.2 = 8.8 kV, under the 10 kV cap, held 1 minute"
+  },
+  {
+   "id": "l4.stressL2",
+   "label": "Stress across L2's sheath when it tripped",
+   "value": 1.45,
+   "unit": "kV/mm",
+   "rule": "stress = V ÷ t",
+   "inputs": {
+    "V": "3.2 kV",
+    "t": "2.2 mm"
+   },
+   "cite": "p.sheathL2; p.sheathT",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i4",
+   "practice": true,
+   "text": "1.45 kV/mm",
+   "work": "3.2 ÷ 2.2 = 1.45 kV/mm"
+  },
+  {
+   "id": "l4.changed",
+   "label": "Changed numbers: a 3.0 mm sheath",
+   "value": 10,
+   "unit": "kV",
+   "rule": "V = 4 kV/mm × t, at most 10 kV",
+   "inputs": {
+    "t": "3.0 mm"
+   },
+   "cite": "n.sheath",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i4",
+   "practice": true,
+   "text": "10.0 kV",
+   "work": "4 × 3.0 = 12.0 kV, over the cap, so 10.0 kV"
+  },
+  {
+   "id": "l4.changed.slip",
+   "label": "Slip: the 10 kV cap ignored",
+   "value": 12,
+   "unit": "kV",
+   "rule": "4 × t",
+   "inputs": {
+    "t": "3.0 mm"
+   },
+   "cite": "n.sheath (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "12.0 kV",
+   "work": "4 × 3.0 = 12.0 kV"
+  },
+  {
+   "id": "l4.changed.stress",
+   "label": "Stress across the 3.0 mm sheath at the cap",
+   "value": 3.33,
+   "unit": "kV/mm",
+   "rule": "stress = V ÷ t",
+   "inputs": {
+    "V": "10 kV",
+    "t": "3.0 mm"
+   },
+   "cite": "n.sheath",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i4",
+   "practice": true,
+   "text": "3.33 kV/mm",
+   "work": "10 ÷ 3.0 = 3.33 kV/mm"
+  },
+  {
+   "id": "l5.recall.lo",
+   "label": "Recall: lowest VLF test voltage, 12/20 kV cable",
+   "value": 18,
+   "unit": "kV",
+   "rule": "1.5 × U0",
+   "inputs": {
+    "U0": "12 kV"
+   },
+   "cite": "notes p.7",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "18.0 kV",
+   "work": "1.5 × 12 = 18.0 kV"
+  },
+  {
+   "id": "l5.recall.hi",
+   "label": "Recall: highest VLF test voltage, 12/20 kV cable",
+   "value": 30,
+   "unit": "kV",
+   "rule": "2.5 × U0",
+   "inputs": {
+    "U0": "12 kV"
+   },
+   "cite": "notes p.7",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "30.0 kV",
+   "work": "2.5 × 12 = 30.0 kV"
+  },
+  {
+   "id": "l5.recall.slip1",
+   "label": "Recall slip: 20 kV taken as U0 (low end)",
+   "value": 30,
+   "unit": "kV",
+   "rule": "1.5 × U",
+   "inputs": {
+    "U": "20 kV"
+   },
+   "cite": "notes p.7 (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "30.0 kV",
+   "work": "1.5 × 20 = 30.0 kV"
+  },
+  {
+   "id": "5a",
+   "label": "VLF test voltage, case cable",
+   "value": 76,
+   "unit": "kV",
+   "rule": "V = 2 × U0",
+   "inputs": {
+    "U0": "38 kV"
+   },
+   "cite": "p.vlfSpec; p.U0",
+   "kind": "case",
+   "status": "worked",
+   "lesson": "i5",
+   "part": "5a",
+   "practice": true,
+   "text": "76.0 kV",
+   "work": "2 × 38 = 76.0 kV rms"
+  },
+  {
+   "id": "l5.range.lo",
+   "label": "1.5 U0 for the case cable",
+   "value": 57,
+   "unit": "kV",
+   "rule": "1.5 × U0",
+   "inputs": {
+    "U0": "38 kV"
+   },
+   "cite": "n.vlfU",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "practice": true,
+   "text": "57.0 kV",
+   "work": "1.5 × 38 = 57.0 kV"
+  },
+  {
+   "id": "l5.range.hi",
+   "label": "2.5 U0 for the case cable",
+   "value": 95,
+   "unit": "kV",
+   "rule": "2.5 × U0",
+   "inputs": {
+    "U0": "38 kV"
+   },
+   "cite": "n.vlfU",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "practice": true,
+   "text": "95.0 kV",
+   "work": "2.5 × 38 = 95.0 kV"
+  },
+  {
+   "id": "5b",
+   "label": "Charging current of one core at 0.1 Hz and 76 kV",
+   "value": 25.21,
+   "unit": "mA",
+   "rule": "I = 2πfC × V",
+   "inputs": {
+    "f": "0.1 Hz",
+    "C": "0.528 µF",
+    "V": "76 kV"
+   },
+   "cite": "1a; 5a",
+   "kind": "case",
+   "status": "worked",
+   "lesson": "i5",
+   "part": "5b",
+   "practice": true,
+   "text": "25.21 mA",
+   "work": "2π × 0.1 × 0.528 × 10⁻⁶ × 76 000 = 0.02521 A = 25.21 mA"
+  },
+  {
+   "id": "5c",
+   "label": "Charging current of one core at 50 Hz and 76 kV",
+   "value": 12.61,
+   "unit": "A",
+   "rule": "I = 2πfC × V",
+   "inputs": {
+    "f": "50 Hz",
+    "C": "0.528 µF",
+    "V": "76 kV"
+   },
+   "cite": "1a; 5a",
+   "kind": "case",
+   "status": "worked",
+   "lesson": "i5",
+   "part": "5c",
+   "practice": true,
+   "text": "12.61 A",
+   "work": "2π × 50 × 0.528 × 10⁻⁶ × 76 000 = 12.61 A"
+  },
+  {
+   "id": "l5.ratio",
+   "label": "How many times smaller at 0.1 Hz",
+   "value": 500,
+   "unit": "",
+   "rule": "50 ÷ 0.1",
+   "inputs": {},
+   "cite": "notes p.6 (added background, checked by arithmetic)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "500",
+   "work": "50 ÷ 0.1 = 500"
+  },
+  {
+   "id": "l5.kva50",
+   "label": "Reactive power the test set must supply at 50 Hz",
+   "value": 958.1,
+   "unit": "kVA",
+   "rule": "S = V × I",
+   "inputs": {
+    "V": "76 kV",
+    "I": "12.61 A"
+   },
+   "cite": "5c",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "practice": true,
+   "text": "958.1 kVA",
+   "work": "76 × 12.606 = 958.1 kVA"
+  },
+  {
+   "id": "l5.kva01",
+   "label": "Reactive power at 0.1 Hz",
+   "value": 1.92,
+   "unit": "kVA",
+   "rule": "S = V × I",
+   "inputs": {
+    "V": "76 kV",
+    "I": "25.21 mA"
+   },
+   "cite": "5b",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "practice": true,
+   "text": "1.92 kVA",
+   "work": "76 × 0.025213 = 1.92 kVA"
+  },
+  {
+   "id": "l5.changed",
+   "label": "Changed numbers: a 3.10 km core at 0.1 Hz and 76 kV",
+   "value": 32.57,
+   "unit": "mA",
+   "rule": "I = 2πfC × V",
+   "inputs": {
+    "f": "0.1 Hz",
+    "C": "0.22 × 3.10 = 0.682 µF",
+    "V": "76 kV"
+   },
+   "cite": "t.C66",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "practice": true,
+   "text": "32.57 mA",
+   "work": "2π × 0.1 × 0.682 × 10⁻⁶ × 76 000 = 32.57 mA"
+  },
+  {
+   "id": "l6.recall",
+   "label": "Recall: distance for 20.0 µs at 160 m/µs",
+   "value": 1600,
+   "unit": "m",
+   "rule": "L = t × v ÷ 2",
+   "inputs": {
+    "t": "20.0 µs",
+    "v": "160 m/µs"
+   },
+   "cite": "notes p.7",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "1600 m",
+   "work": "20.0 × 160 ÷ 2 = 1600 m"
+  },
+  {
+   "id": "l6.recall.slip1",
+   "label": "Recall slip: the ÷ 2 left out",
+   "value": 3200,
+   "unit": "m",
+   "rule": "t × v",
+   "inputs": {
+    "t": "20.0",
+    "v": "160"
+   },
+   "cite": "notes p.7 (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "3200 m",
+   "work": "20.0 × 160 = 3200 m"
+  },
+  {
+   "id": "l6.wex",
+   "label": "Worked example: 5% of a 2 km cable",
+   "value": 100,
+   "unit": "m",
+   "rule": "error = VF error × length",
+   "inputs": {
+    "VF error": "5%",
+    "length": "2000 m"
+   },
+   "cite": "notes p.7",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "100 m",
+   "work": "0.05 × 2000 = 100 m"
+  },
+  {
+   "id": "6a",
+   "label": "Velocity from the open-end reflection",
+   "value": 168,
+   "unit": "m/µs",
+   "rule": "v = 2L ÷ t",
+   "inputs": {
+    "L": "2400 m",
+    "t": "28.57 µs"
+   },
+   "cite": "a.vCal; p.len; p.tEnd",
+   "kind": "case",
+   "status": "worked",
+   "lesson": "i6",
+   "part": "6a",
+   "practice": true,
+   "note": "VF = 168.0 ÷ 299.8 = 0.56, inside Megger's 0.54-0.62 for XLPE (t.vfXLPE).",
+   "text": "168.0 m/µs",
+   "work": "2 × 2400 ÷ 28.57 = 168.0 m/µs"
+  },
+  {
+   "id": "l6.VF",
+   "label": "Velocity factor",
+   "value": 0.56,
+   "unit": "",
+   "rule": "VF = v ÷ c",
+   "inputs": {
+    "v": "168.0 m/µs",
+    "c": "299.8 m/µs"
+   },
+   "cite": "6a; t.vfXLPE",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "practice": true,
+   "text": "0.56",
+   "work": "168.0 ÷ 299.8 = 0.56"
+  },
+  {
+   "id": "6b",
+   "label": "Distance to L2's fault from the OSS",
+   "value": 960.1,
+   "unit": "m",
+   "rule": "L = t × v ÷ 2",
+   "inputs": {
+    "t": "11.43 µs",
+    "v": "168.0 m/µs"
+   },
+   "cite": "n.tdrRule; p.tFault; 6a",
+   "kind": "case",
+   "status": "worked",
+   "lesson": "i6",
+   "part": "6b",
+   "practice": true,
+   "accept": {
+    "min": 960,
+    "max": 960.2,
+    "why": "v unrounded (168.008 m/µs) gives 960.17 m"
+   },
+   "text": "960.1 m",
+   "work": "11.43 × 168.0 ÷ 2 = 960.1 m"
+  },
+  {
+   "id": "6b.slip",
+   "label": "Slip: a default 160 m/µs left set",
+   "value": 914.4,
+   "unit": "m",
+   "rule": "L = t × v ÷ 2",
+   "inputs": {
+    "t": "11.43",
+    "v": "160"
+   },
+   "cite": "notes p.7 (set the velocity first)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "914.4 m",
+   "work": "11.43 × 160 ÷ 2 = 914.4 m"
+  },
+  {
+   "id": "6b.slip2",
+   "label": "Slip: the ÷ 2 left out",
+   "value": 1920.2,
+   "unit": "m",
+   "rule": "t × v",
+   "inputs": {
+    "t": "11.43",
+    "v": "168.0"
+   },
+   "cite": "notes p.7 (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "1920.2 m",
+   "work": "11.43 × 168.0 = 1920.2 m"
+  },
+  {
+   "id": "6c",
+   "label": "Distance to the fault from B01",
+   "value": 1439.9,
+   "unit": "m",
+   "rule": "B01 distance = length − OSS distance",
+   "inputs": {
+    "length": "2400 m",
+    "OSS distance": "960.1 m"
+   },
+   "cite": "p.len; 6b",
+   "kind": "case",
+   "status": "worked",
+   "lesson": "i6",
+   "part": "6c",
+   "practice": true,
+   "text": "1439.9 m",
+   "work": "2400 − 960.1 = 1439.9 m"
+  },
+  {
+   "id": "l6.joint.t",
+   "label": "Where the field joint should show, from the OSS",
+   "value": 19.29,
+   "unit": "µs",
+   "rule": "t = 2L ÷ v",
+   "inputs": {
+    "L": "1620 m",
+    "v": "168.0 m/µs"
+   },
+   "cite": "p.joint; 6a",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "practice": true,
+   "text": "19.29 µs",
+   "work": "2 × 1620 ÷ 168.0 = 19.29 µs"
+  },
+  {
+   "id": "l6.changed",
+   "label": "Changed numbers: 15.00 µs at 172 m/µs",
+   "value": 1290,
+   "unit": "m",
+   "rule": "L = t × v ÷ 2",
+   "inputs": {
+    "t": "15.00 µs",
+    "v": "172 m/µs"
+   },
+   "cite": "n.tdrRule",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "practice": true,
+   "text": "1290.0 m",
+   "work": "15.00 × 172 ÷ 2 = 1290.0 m"
+  },
+  {
+   "id": "7a",
+   "label": "Spacing of the resonances in L2's impedance spectrum",
+   "value": 35,
+   "unit": "kHz",
+   "rule": "Δf = v ÷ 2L",
+   "inputs": {
+    "v": "168.0 m/µs",
+    "L": "2400 m"
+   },
+   "cite": "6a; p.len; research: transmission-line resonance (LIRA papers)",
+   "kind": "case",
+   "status": "worked",
+   "lesson": "i7",
+   "part": "7a",
+   "practice": true,
+   "text": "35.0 kHz",
+   "work": "168.0 × 10⁶ ÷ (2 × 2400) = 35 000 Hz = 35.0 kHz"
+  },
+  {
+   "id": "7b",
+   "label": "The B01 reading measured from the OSS end",
+   "value": 959,
+   "unit": "m",
+   "rule": "from OSS = length − from B01",
+   "inputs": {
+    "length": "2400 m",
+    "from B01": "1441 m"
+   },
+   "cite": "p.liraOSS; p.liraB01",
+   "kind": "case",
+   "status": "worked",
+   "lesson": "i7",
+   "part": "7b",
+   "practice": true,
+   "text": "959 m",
+   "work": "2400 − 1441 = 959 m; the OSS reading is 961 m and TDR said 960.1 m"
+  },
+  {
+   "id": "l7.changed",
+   "label": "Changed numbers: length from 25.0 kHz spacing at 168 m/µs",
+   "value": 3360,
+   "unit": "m",
+   "rule": "L = v ÷ 2Δf",
+   "inputs": {
+    "v": "168 m/µs",
+    "Δf": "25.0 kHz"
+   },
+   "cite": "7a (rule rearranged)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i7",
+   "practice": true,
+   "text": "3360 m",
+   "work": "168 × 10⁶ ÷ (2 × 25 000) = 3360 m"
+  }
+ ],
+ "pending": [],
+ "toResearch": [
+  {
+   "id": "r.C",
+   "needs": [
+    "capacitance per core and charging current for a 66 kV three-core XLPE submarine cable, quoted from a maker (t.C66, t.Ich66)"
+   ],
+   "for": [
+    "1a",
+    "1b",
+    "l1.Ich",
+    "l3.energy",
+    "5b",
+    "5c"
+   ]
+  },
+  {
+   "id": "r.alpha",
+   "needs": [
+    "copper's temperature correction (IEC 60228 Annex B or a maker), to replace the notes' 'about 0.4% per °C' (quoted in the i2 research: sources 210-212)"
+   ],
+   "for": [
+    "l2.k",
+    "2b",
+    "2c"
+   ]
+  },
+  {
+   "id": "r.discharge",
+   "needs": [
+    "the test-set maker's discharge rule after an IR test, and what 'charging time' means"
+   ],
+   "for": [
+    "3c"
+   ]
+  },
+  {
+   "id": "r.pi",
+   "needs": [
+    "Megger 'A Stitch in Time' Table I (PI and DAR bands), and whether PI is meaningful on long XLPE cables with very high IR (contested)"
+   ],
+   "for": [
+    "3a",
+    "3b"
+   ]
+  },
+  {
+   "id": "r.sheath",
+   "needs": [
+    "IEC 60229:2007 clause 5 word for word (t.sheathIEC)"
+   ],
+   "for": [
+    "4a"
+   ]
+  },
+  {
+   "id": "r.vlfU",
+   "needs": [
+    "IEEE 400.2-2024 Table 3 (or the 2013 table) for the 69 kV row and the U0 multiples; the notes' 1.5-2.5 U0 against the guide's '2 U0 to 3 U0' for installation and acceptance (contested)"
+   ],
+   "for": [
+    "5a",
+    "l5.range.lo",
+    "l5.range.hi"
+   ]
+  },
+  {
+   "id": "r.vf",
+   "needs": [
+    "Megger TDR_AN58 typical VF for power XLPE (t.vfXLPE)"
+   ],
+   "for": [
+    "6a",
+    "l6.VF"
+   ]
+  },
+  {
+   "id": "r.lira",
+   "needs": [
+    "a LIRA paper on the input-impedance resonances of an unterminated line and the spot signature (Fantoni; Wirescan white paper WP01)"
+   ],
+   "for": [
+    "7a"
+   ]
+  }
+ ],
+ "updatedAt": "2026-10-20T23:00:35.109Z"
+}

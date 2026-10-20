@@ -1,0 +1,349 @@
+{
+  "iid": "i1",
+  "title": "The cable, and making it safe to test",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the core's voltage creeping back, as charge held in the XLPE drifts out to the conductor, when you lift the earth straight after a discharge.",
+    "title": "A capacitor kilometres long",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Eleven screens, with Back and Continue, on making a subsea cable safe to test and safe to touch after.\n\nScreen 1, Do you still have it? The question: “String A is live in the same corridor. String B's cable from B01 to the OSS is isolated, and you have proved it dead at the OSS end. What must happen before anyone touches its cores?” Three choices, in this order: “Nothing more: it has been proved dead”; “Discharge it, then apply earths at both ends”; “Open the isolator at B01 as well, then start”. Right, the second: “Still there.” Then the working: “Proved dead means no voltage at that moment. The core is still a capacitor, and String A can still induce a voltage on it. Discharging empties it. Earths at both ends hold it at earth while you work. The whole sequence is Identify, Isolated, Proved dead, Secured, Earthed.” Then two buttons. Refresh the why goes to screen 2. Skip to the practice goes to screen 7. Wrong, the first: “Proved dead is a snapshot. The core can still hold charge, regain it from its insulation, or pick it up from String A. It is safe to touch only once it is discharged and earthed.” Wrong, the third: “Isolating stops energy from the system. It does not stop String A inducing a voltage, or charge creeping back out of the insulation.” Then the right working, and on to screen 2.\n\nScreen 2, What it is for. “Every test assumes a cable that cannot hurt you. The IR, sheath and VLF sets charge it to a high voltage. So the same discipline comes back at the end of every test.” Then the five steps, each with what it confirms. Identify: the test points are known. Isolated: every energy source is disconnected. Proved dead: no voltage is verified. Secured: it is locked off and access is controlled. Earthed: earths are applied. The picture: one core in cross-section, seven rings from the middle out, each labelled: Conductor; Inner semi-con; XLPE insulation; Outer semi-con; Metal screen; Aluminium foil; Oversheath. A line under it: “In a three-core subsea cable, armour wraps all three cores. Some designs use a lead sheath in place of the copper wires and foil.” Five chips: Core resistance, IR, Sheath test, VLF, TDR. Tapping a chip lights its layer, draws its path in ink and shows one line. Core resistance: “The conductor, end to end.” IR: “Conductor to screen, through the XLPE, at a steady d.c. voltage.” Sheath test: “Screen to earth, through the oversheath.” VLF: “Conductor to screen again, well above the working voltage.” TDR: “Conductor and screen together, as a line a pulse runs along.” In red, what goes wrong if it is skipped: “Four main things set how badly a shock hurts: voltage, resistance, path and duration. At 55 V your body is about 10 000 Ω. So 55 V drives 5.50 mA. 50 mA or more is potentially fatal. Your body's resistance falls as the voltage rises. So a charged HV core drives far more current than that sum suggests.” The prompt above the picture: “Tap a test to light its layer.” Read: from the middle out, the core's layers are conductor, inner semi-con, XLPE, outer semi-con, metal screen, aluminium foil and oversheath. Core resistance checks the conductor. IR and VLF check the XLPE between conductor and screen. The sheath test checks the oversheath, screen to earth. TDR uses conductor and screen as a pair. Still: every test labelled against its layer at once.\n\nScreen 3, The why: a capacitor kilometres long. “The conductor and the screen are two metal plates, with the XLPE between them. So every core is a capacitor. Capacitance grows with the area of the plates, so it grows with length. This cable has about 0.22 µF per km in each core.[^1] A charged core keeps its charge after it is disconnected. Its charge is Q = C × V. The energy it holds is E = ½ × C × V². While the core sits charged, some charge soaks into the insulation itself. An earth drains the conductor quickly. The charge in the insulation comes back out slowly. So a core earthed for a moment can build a voltage again.” The picture: one core drawn as a long bar from B01 to the OSS. The conductor runs along the middle, the screen along the outside, the XLPE band between them. An earth switch at the OSS end, with its lead to earth. A voltage bar beside it. There are three controls. A Length slider runs from 0.40 to 2.40 km in steps of 0.20 km, and opens at 1.00 km. A Switch off at the peak button. An Earth switch, which starts open. The readouts: Capacitance = 0.22 × length, in µF to 3 places. Most energy = C × U0², in J to 2 places. Switch off at the peak fills the plates with + and − marks, and fills the voltage bar. A longer core gets more marks. Left charged, faint marks build up inside the XLPE band over a few seconds: charge the insulation takes up. Close the earth sooner and fewer soak in. The line under the picture says “Left charged, some of it soaks into the XLPE.” Closing the earth sends the plate marks down the earth lead and empties the bar. The faint marks in the XLPE stay put. Open the earth straight after, and the faint marks drift back out to the plates. The bar creeps back up over a few seconds. A red line says: “It has recharged from the insulation. Earth it again and leave the earth on.” With the earth left closed, the drifting marks go straight down the lead and the bar stays at zero. The bar is a sketch with no scale, and the creep is sped up. What it shows: 0.220 µF and 317.68 J at 1.00 km. At 0.40 km, 0.088 µF and 127.07 J. Above the prompt, the words: “A breaker breaks a cable's charging current as it passes through zero. That moment falls at the peak of the voltage. So a core switched off is usually left charged at the peak of U0.[^5] U0 is its voltage between conductor and screen. The peak is √2 × U0, so E = ½ × C × (√2 × U0)² = C × U0². U0 is 38 kV for this 38/66 kV cable.” The prompt: “Press Switch off at the peak, close the earth, then open it again.” Read: a 1.00 km core holds 0.220 µF. Switched off at the peak of U0, 38 kV, it could hold 317.68 J. A longer core holds more. An earth drains it to zero. Lift the earth too soon and some charge creeps back from the insulation. Still: 1.00 km, charged, earthed, then opened, with the bar crept back and the red line showing.\n\nScreen 4, Check. “A cable with no live neighbours has just had an insulation resistance test. You earth it for a moment, then lift the earth to connect the next lead. What can its core do?” Choices: “Stay at zero: the earth emptied it”; “Build a voltage again from charge in the insulation”; “Recharge only if its far end is still connected”. Right, the second: “The earth empties the conductor quickly. Charge soaked into the insulation comes out slowly and builds a voltage again. So re-earth it, and keep the earth on until the next lead is connected.” Wrong, the first: “The earth empties the conductor, not the insulation. Its charge comes back out after the earth is lifted.” Wrong, the third: “Nothing outside is needed. The charge comes back out of the insulation itself.”\n\nScreen 5, The live string beside it. “String A runs live in the same corridor. Its load current sets up a magnetic field. Where the cables run side by side, that field induces a voltage along String B's core. It works the way a transformer's primary drives its secondary. No connection is needed. The voltage grows with String A's current, how close the cables run and how far they run together.[^2] String A's voltage does not set it. The earthed screen keeps String A's electric field away from the core. So the magnetic coupling is the one that matters here. The induced voltage stands between the two ends of the core. Earth one end, and all of it appears at the other. Earth both ends, and it drives a current round through the earths instead.” The picture: String A along the bottom, with arrows for its current and field rings round it. The rings link String B along the parallel run. A longer run has more of them. String B's core above it, B01 on the left and the OSS on the right, with an earth switch at each end. There are two controls. A Parallel run slider runs from 0.40 to 2.40 km in steps of 0.20 km, and opens at 2.40 km. An Earths choice offers OSS end only or Both ends, and opens on OSS end only. The readout: Voltage at the B01 end = 40 V per km × parallel run. Take 40 V per km as a practice value for String A at full load. It only gives the picture a number. With OSS end only, the B01 end glows red at the full voltage: 96 V at 2.40 km, 16 V at 0.40 km. With Both ends, both ends read 0 V. Arrows show a current circulating through the two earths instead. The current marks and the circulating dashes run for a few seconds after each change, then rest. The words under it: “A fault or switching on String A can push this far higher without warning. Earth both ends before anyone works on the cable. Lift an earth to connect a test, and that end stands at the induced voltage again. Treat the test end as live while String A runs.” The prompt: “Drag the run shorter, then earth both ends.” Read: with only the OSS end earthed, the B01 end sits at the induced voltage. That is 96 V over 2.40 km, at the practice 40 V per km. Earth both ends and both are held at earth. A current circulates through the earths instead. Still: 2.40 km, OSS end only.\n\nScreen 6, Worked example, a line at each press. The prompt: “Work each line yourself first, then press Show.” Line 1: “Your body at 55 V: I = V ÷ R = 55 ÷ 10 000 = 0.0055 A = 5.50 mA. That is under 50 mA. But the 10 000 Ω holds only near 55 V. At HV your body's resistance is lower.” Line 2: “A charged core is what would drive that current. Take a 0.80 km core of this cable, a practice length. C = 0.22 × 0.80 = 0.176 µF.” Line 3: “Switched off at the peak of U0: E = C × U0² = 0.176 × 10⁻⁶ × 38 000² = 254.14 J.” A note under the lines: “Leave out the peak and you get ½ × C × U0² = 127.07 J, half the energy at the peak.” Read: at 55 V your body takes 55 ÷ 10 000 = 5.50 mA. That is under 50 mA, but the figure holds only near 55 V. A 0.80 km core holds 0.22 × 0.80 = 0.176 µF. At the peak of U0, 38 kV, it could hold 0.176 × 10⁻⁶ × 38 000² = 254.14 J. Still: all three lines shown.\n\nScreen 7, Section A, question 1 (a). The scenario panel. The question: “(a) Determine the capacitance of one core of String B, from B01 to the OSS.” Under it: “Take 0.22 µF per km, a typical figure for this cable. On a real job, use the cable's own data sheet.” A typed answer, part 1a: 0.22 × 2.40 = 0.528 µF, to 3 places. Slips: 1.584 µF, “That is all three cores. Each core has its own screen, so each is a capacitor of its own.” 0.22 µF, “That is one km. Multiply by the 2.40 km run.” 10.91, “Multiply the per-km figure by the length. Don't divide.” After two misses, the working. Then one line: “The 0.528 µF agrees with the maker's charging current. In service at 50 Hz, 2π × 50 × 0.528 × 10⁻⁶ × 38 000 = 6.30 A. This cable's charging current is typically 2.6 A per km. 2.6 × 2.40 = 6.24 A.”\n\nScreen 8, Section A, question 1 (b). Part (a) carried forward. The question: “Once String B is in service, it will be switched off for maintenance. (b) Determine the most energy one core could hold if it were switched off at the peak of its phase voltage. U0 is 38 kV for this 38/66 kV cable.” A typed answer, part 1b: E = C × U0² = 0.528 × 10⁻⁶ × 38 000² = 762.43 J. Slips: 381.22 J, “That is ½ × C × U0². The peak is √2 × U0, and squaring √2 doubles the energy.” 1524.86 J, “You left out the half in ½ × C × V².” After two misses, the working. Then: “That much energy can sit on a core that has been switched off and isolated. That is why the core is discharged and earthed before anyone touches it.”\n\nScreen 9, Section B: “Explain why a disconnected cable is treated as live until it has been tested, discharged and earthed.” A written answer, marked against five points. Any three make a full answer. One more go, then the model answer.\n\nScreen 10, Section A, changed numbers. “A core of the same type of cable runs 1.80 km. U0 is again 38 kV. Determine the most energy it could hold if it were switched off at the peak of U0.” A typed answer: C = 0.22 × 1.80 = 0.396 µF, then E = 0.396 × 10⁻⁶ × 38 000² = 571.82 J. Slips: 285.91 J, “That leaves out the peak. Use C × U0².” 1143.65 J, “You left out the half.” 762.43 J, “That is String B's 2.40 km. This core is 1.80 km.” Then: “A shorter core has less capacitance, so it stores less. The discipline is the same.”\n\nScreen 11, Keep this: the summary card, then Finish the lesson.\n\nOn the screens with working, a caption says each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.",
+    "ignores": "Each core is drawn as two flat plates with one capacitance per km. In the cable the plates are a conductor inside a tube-shaped screen, and the charge sits along the whole length. The voltage bar on screen 3 is a sketch with no scale, and the creep back is sped up. The induced voltage is a practice value, made to grow in step with the parallel run. A real figure comes from a calculation for the route and String A's current. The earths are drawn as perfect. Real earths have some resistance. So both ends are held close to earth, not exactly at it. Only one core is drawn. The cable has three, and its armour and screens pick up induced voltage too. String A is drawn as one conductor with one current. In a three-core cable the three phase currents largely cancel outside it, so an unbalance or a fault drives most of the real induced voltage.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 11 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Body resistance at 55 V, Ω",
+        "value": 10000,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Voltage for that resistance, V",
+        "value": 55,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Body current, 55 ÷ 10 000, mA",
+        "value": 5.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Potentially fatal current, mA",
+        "value": 50,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Capacitance per core per km, µF/km",
+        "value": 0.22,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Charging current per core per km at 50 Hz, A/km",
+        "value": 2.6,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Supply frequency, Hz",
+        "value": 50,
+        "kind": "constant"
+      },
+      {
+        "label": "U0 of String B's 38/66 kV cable, kV",
+        "value": 38,
+        "kind": "assumed"
+      },
+      {
+        "label": "String B route length (practice value), km",
+        "value": 2.4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Length slider: from, km",
+        "value": 0.4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Length slider: to, km",
+        "value": 2.4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Length slider step, km",
+        "value": 0.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Length slider opens at, km",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "1.00 km: capacitance, µF",
+        "value": 0.22,
+        "kind": "computed"
+      },
+      {
+        "label": "1.00 km: most energy at the peak of 38 kV, J",
+        "value": 317.68,
+        "kind": "computed"
+      },
+      {
+        "label": "0.40 km: capacitance, µF",
+        "value": 0.088,
+        "kind": "computed"
+      },
+      {
+        "label": "0.40 km: most energy, J",
+        "value": 127.07,
+        "kind": "computed"
+      },
+      {
+        "label": "Peak factor, √2",
+        "value": "√2",
+        "kind": "constant"
+      },
+      {
+        "label": "Induced voltage per km of parallel run (practice value), V/km",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Parallel run slider opens at, km",
+        "value": 2.4,
+        "kind": "control"
+      },
+      {
+        "label": "Induced at B01, 2.40 km, V",
+        "value": 96,
+        "kind": "computed"
+      },
+      {
+        "label": "Induced at B01, 0.40 km, V",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Both ends earthed: voltage at each end, V",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example core length (practice value), km",
+        "value": 0.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: capacitance, µF",
+        "value": 0.176,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: most energy, J",
+        "value": 254.14,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: peak left out, J",
+        "value": 127.07,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1a: capacitance of one core, µF",
+        "value": 0.528,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1a slip: three cores, µF",
+        "value": 1.584,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1a slip: 2.40 ÷ 0.22",
+        "value": 10.91,
+        "kind": "computed"
+      },
+      {
+        "label": "Charging current from 0.528 µF at 38 kV, A",
+        "value": 6.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Charging current from 2.6 A/km × 2.40 km, A",
+        "value": 6.24,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1b: most energy, J",
+        "value": 762.43,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1b slip: peak left out, J",
+        "value": 381.22,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1b slip: half left out, J",
+        "value": 1524.86,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed numbers: core length (practice value), km",
+        "value": 1.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Changed numbers: capacitance, µF",
+        "value": 0.396,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed numbers: most energy, J",
+        "value": 571.82,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed numbers slip: peak left out, J",
+        "value": 285.91,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed numbers slip: half left out, J",
+        "value": 1143.65,
+        "kind": "computed"
+      },
+      {
+        "label": "Section B: points, of which any make a full answer",
+        "value": "5, any 3",
+        "kind": "constant"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A subsea cable can hurt you while it is dead. In each core, the conductor and the screen are two long metal plates with XLPE between them. So each core is a capacitor kilometres long. It can hold charge after it is switched off or tested. A live cable beside it can also drive a voltage onto it. So every test starts and ends the same way: identify, isolate, prove dead, secure, and earth at both ends.\n\nCapacitance grows with the area of the plates, so it grows with length. A typical 66 kV cable like this has about 0.22 µF per km in each core.[^1] A charged capacitor keeps its charge when you disconnect it. A breaker breaks a cable's charging current as it passes through zero. That falls at the peak of the voltage. So a cable switched off is usually left charged at its peak.[^5] The charge it holds is Q = C × V. The energy it holds is E = ½ × C × V². An earth lets that charge flow away. But the insulation itself soaks up charge while the core is charged. That comes back out slowly. Lift the earth too soon and it builds a voltage on the conductor again. So the earths stay on until a test is connected, and go back on as soon as it ends.\n\nString A runs live in the same corridor. Its load current sets up a magnetic field. Where the two run side by side, that field induces a voltage along String B's core. It works the way a transformer's primary drives its secondary. The voltage grows with String A's current, how close the cables are and how far they run together.[^2] String A's voltage does not set it. You will sometimes hear it put down to capacitive coupling too. On a screened cable, the electric field stays inside the screen. So the magnetic coupling is the one that matters. The induced voltage stands between the two ends of the core. Earth one end, and all of it appears at the other end. Earth both ends, and it drives a current round through the earths instead. Then neither end is left standing at that voltage. A fault on String A can push the voltage far higher without warning. The pictures here are simplified. They take the earths as perfect. The induced voltage in them is a practice figure.\n\nEvery test on String B starts from a core made safe this way. Each one ends by making it safe again, from core resistance through to LIRA.\n\n**Treat a disconnected cable as live until it is discharged and earthed at both ends. Do it again after every test.**"
+  },
+  "analogy": {
+    "text": "Think of a large capacitor bank you have isolated. You would not touch its terminals until it had been discharged and shorted to earth. You would leave the short on while you worked. A cable core is the same kind of capacitor, stretched out over kilometres.",
+    "breaks": "A capacitor bank sits in one cabinet. A cable's capacitance is spread along its whole length, beside other cables. So a live cable running beside it can induce a voltage on it, all along its length."
+  },
+  "practice": {
+    "text": "- Before any test: identify the test points. Isolate every energy source. Prove dead, with the tester proved before and after. Secure it with locks and controlled access at both ends. Then apply earths at both ends.\n- Talk to the far end before every change.\n- Treat a disconnected cable as live until it has been tested, discharged and earthed. That includes one running beside a live string.\n- Lift an earth only to connect a test, under control. Put it back the moment the test ends.\n- After every test, discharge the core to earth through the test set or a rated resistive device. Then re-apply the earths and leave them on.\n\n**Rule of thumb:** each km of this cable adds about 0.22 µF per core. Switched off at the peak of U0, as a breaker usually leaves it, a core holds C × U0². So the energy grows in step with length. A test at a higher voltage can leave more.\n\n**Worked example:** String B's core is 2.40 km. C = 0.22 × 2.40 = 0.528 µF. U0 is 38 kV for this 38/66 kV cable. Switched off at the peak, E = 0.528 × 10⁻⁶ × 38 000² = 762.43 J.\n\n**Common mistakes**\n- Taking proved dead as safe to touch.\n- Earthing one end only. The far end then sits at the induced voltage.\n- Lifting the earth straight after a discharge. Charge creeps back from the insulation.\n- Working a core switched off at the peak as ½ × C × U0². That leaves out the peak and halves the energy.\n- Judging the risk from String A's voltage. Its current, closeness and parallel length set the induced voltage."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "written": {
+    "b1": {
+      "q": "Explain why a disconnected cable is treated as live until it has been tested, discharged and earthed.",
+      "points": [
+        {
+          "text": "A live circuit nearby can induce a voltage on an isolated cable, with no connection to it.",
+          "cite": "Notes p.2; CIGRE TB 'Guidelines for safe work on cable systems under induced voltages or currents' (research)"
+        },
+        {
+          "text": "Each core and its screen form a capacitor. So the cable can hold charge after it is switched off or tested.",
+          "cite": "Notes p.1, p.3; HSE HSG85; IET Wiring Matters 'Impressed voltages' (research)"
+        },
+        {
+          "text": "Charge held in the insulation can recharge the conductor even after it has been discharged.",
+          "cite": "Notes p.3"
+        },
+        {
+          "text": "Proving dead only shows there is no voltage at that moment. It does not stop charge returning or being induced.",
+          "cite": "Notes p.2; HSE HSR25 on isolation against induction or capacitance effects (research)"
+        },
+        {
+          "text": "Earths at both ends drain the charge and hold the core at earth while the work goes on.",
+          "cite": "Notes p.2; CIGRE TB: shunted and locally earthed to prevent standing voltage (research)"
+        }
+      ],
+      "need": 3,
+      "model": "A disconnected cable can still be dangerous. Each core and its screen form a long capacitor. So the cable can hold charge after it has been switched off or tested. Charge soaked into the insulation can come back out and recharge the conductor, even after it has been discharged. A live circuit running nearby can also induce a voltage on the cable with no connection to it. Proving dead only shows there is no voltage at that moment. It does not stop charge returning or being induced. So the cable is discharged, and earths are applied at both ends. They drain the charge and hold the core at earth while the work goes on."
+    }
+  },
+  "summary": {
+    "title": "Making a cable safe to test",
+    "for": "Making a subsea cable safe to test, and safe to touch after every test. Each core is a long capacitor, and it may run beside a live string. So dead is not the same as safe.",
+    "rule": "Identify → Isolated → Proved dead → Secured → Earthed\nTalk to the far end before every change.\nEarth both ends. Lift an earth only to connect a test.\nAfter a test, check the set reads discharged. Use the discharge stick, then fit the earths.\nInduced voltage grows with the neighbour's current, closeness and parallel length.\n\nC = C per km × length\nQ = C × V\nE = ½ × C × V²\nOff at the peak of U0, the usual trapped charge: E = C × U0²",
+    "traps": [
+      {
+        "text": "Taking proved dead as safe to touch. It only shows no voltage at that moment.",
+        "cite": "Notes p.2"
+      },
+      {
+        "text": "Forgetting that a cable beside a live one picks up voltage along its length.",
+        "cite": "Notes p.2; CIGRE TB on induced voltages (research)"
+      },
+      {
+        "text": "Lifting the earth straight after a discharge. Charge creeps back from the insulation.",
+        "cite": "Notes p.3"
+      },
+      {
+        "text": "Earthing one end only. The far end sits at the induced voltage.",
+        "cite": "CIGRE TB: shunted and locally earthed (research); notes p.2"
+      },
+      {
+        "text": "Leaving out the peak. ½ × C × U0² is half the energy at the peak.",
+        "cite": "Case assumption a.trapped; EPRI capacitor guide, J = ½CV² (research); IEEE TechNav, capacitive current breaks at a current zero, near peak charge (research)"
+      }
+    ],
+    "where": "Before and after every test, at both ends of the cable. Your HV safety rules and the permit say who applies and lifts the earths.",
+    "figures": [
+      "1a",
+      "1b"
+    ]
+  },
+  "sources": [
+    {
+      "n": 1,
+      "title": "XLPE Submarine Cable Systems Attachment to XLPE Land Cable Systems - User´s Guide — ABB",
+      "url": "https://new.abb.com/docs/default-source/ewea-doc/xlpe-submarine-cable-systems-2gm5007.pdf",
+      "quote": "240 18.1 9.0 38.5 1.6 129.0 26.8 31.3 0.22 2.6 0.38"
+    },
+    {
+      "n": 2,
+      "title": "Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA",
+      "url": "https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html",
+      "quote": "The magnitude of the induced voltage, due to inductive coupling, depends on the current in the source system, the distance between the two systems and the length of parallelism of the two systems."
+    },
+    {
+      "n": 3,
+      "title": "Your subsea cable testing course notes",
+      "url": "material:notes#p1",
+      "quote": "Body natural resistance ≈ 10,000 Ω @ 55 V"
+    },
+    {
+      "n": 4,
+      "title": "Your subsea cable testing course notes",
+      "url": "material:notes#p1",
+      "quote": "50 mA or above = potentially fatal zone"
+    },
+    {
+      "n": 5,
+      "title": "Capacitance Current Switching | IEEE Technology Navigator",
+      "url": "https://technav.ieee.org/topic/capacitance-current-switching/",
+      "quote": "When a circuit breaker opens a capacitive current, the current passes through zero at a moment when the capacitor is near its peak charge, leaving a sustained voltage across the open contacts."
+    }
+  ]
+}

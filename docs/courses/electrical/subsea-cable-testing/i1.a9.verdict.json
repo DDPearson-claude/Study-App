@@ -1,0 +1,227 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "At 1.00 km a core holds 0.220 µF, and off at the peak of 38 kV, 317.68 J",
+        "ok": true
+      },
+      {
+        "label": "At 0.40 km: 0.088 µF and 127.07 J. Over the whole 2.40 km: 0.528 µF and 762.43 J, parts 1a and 1b",
+        "ok": true
+      },
+      {
+        "label": "Capacitance and energy rise with every step in length, and twice the length holds twice the capacitance",
+        "ok": true
+      },
+      {
+        "label": "Off at the peak, ½ × C × (√2 × U0)² equals C × U0², twice ½ × C × U0²",
+        "ok": true
+      },
+      {
+        "label": "One end earthed: 96 V at the B01 end over 2.40 km, 16 V over 0.40 km. Both ends earthed: 0 V",
+        "ok": true
+      },
+      {
+        "label": "Earthed then lifted at once, the core creeps back up from the XLPE. Left earthed long enough, it stays at zero",
+        "ok": true
+      },
+      {
+        "label": "The worked example: 5.50 mA at 55 V, under 50 mA; 0.176 µF and 254.14 J at 0.80 km; 127.07 J with the peak left out",
+        "ok": true
+      },
+      {
+        "label": "The charging current agrees: 2π × 50 × 0.528 µF × 38 kV = 6.30 A, and 2.6 × 2.40 = 6.24 A",
+        "ok": true
+      },
+      {
+        "label": "Slips: 1.584 µF for three cores, 10.91 for 2.40 ÷ 0.22, 381.22 J and 1524.86 J. Changed numbers: 0.396 µF and 571.82 J, slips 285.91 J and 1143.65 J",
+        "ok": true
+      },
+      {
+        "label": "Every slip lies outside its answer's accepted figures",
+        "ok": true
+      },
+      {
+        "label": "The 240 mm² row of the 66 kV three-core table: 0.22 µF per km and 2.6 A per km",
+        "ok": true,
+        "source": "https://new.abb.com/docs/default-source/ewea-doc/xlpe-submarine-cable-systems-2gm5007.pdf"
+      },
+      {
+        "label": "The induced voltage depends on the source current, the distance between the systems and the length of parallelism",
+        "ok": true,
+        "source": "https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html"
+      },
+      {
+        "label": "Body natural resistance about 10,000 Ω at 55 V",
+        "ok": true,
+        "source": "material:notes#p1"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "len",
+      "earth",
+      "run",
+      "earths"
+    ],
+    "readouts": [
+      "C",
+      "E",
+      "V"
+    ],
+    "outputs": [
+      "C",
+      "E",
+      "V"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "What it is for",
+          "The why",
+          "Check",
+          "The live string beside it",
+          "Worked example",
+          "Section A 1(a)",
+          "Section A 1(b)",
+          "Section B",
+          "Changed numbers",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "len",
+        "kind": "control",
+        "label": "Length",
+        "min": 0.4,
+        "max": 2.4,
+        "step": 0.2,
+        "log": false,
+        "value": 1,
+        "shown": false
+      },
+      {
+        "id": "earth",
+        "kind": "toggle",
+        "label": "Earth switch closed",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "run",
+        "kind": "control",
+        "label": "Parallel run",
+        "min": 0.4,
+        "max": 2.4,
+        "step": 0.2,
+        "log": false,
+        "value": 2.4,
+        "shown": false
+      },
+      {
+        "id": "earths",
+        "kind": "choice",
+        "label": "Earths",
+        "options": [
+          "OSS end only",
+          "Both ends"
+        ],
+        "labels": [
+          "OSS end only",
+          "Both ends"
+        ],
+        "value": "OSS end only",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Switch off at the peak",
+      "Core resistance",
+      "IR",
+      "Sheath test",
+      "VLF",
+      "TDR",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Refresh the why",
+      "Skip to the practice",
+      "Check",
+      "Finish the lesson",
+      "Show",
+      "Back",
+      "Continue",
+      "Charge on the core",
+      "Current in String A"
+    ],
+    "answers": [
+      {
+        "id": "1a",
+        "answer": 0.528,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "1b",
+        "answer": 762.43,
+        "accept": [
+          762.2
+        ],
+        "ok": true
+      },
+      {
+        "id": "l1.changed.E",
+        "answer": 571.82,
+        "accept": [
+          571.65
+        ],
+        "ok": true
+      }
+    ],
+    "written": [
+      "b1"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

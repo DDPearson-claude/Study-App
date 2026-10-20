@@ -1,0 +1,97 @@
+{
+  "scores": {
+    "lands": 4,
+    "why": 4,
+    "cause": 4,
+    "trade": 4,
+    "honest": 4,
+    "pleasure": 4
+  },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Screen 10, Changed numbers, the question",
+      "what": "\"Another core of the same cable runs 1.80 km\" cannot be true, because all three cores of String B's cable run the same 2.40 km. Make it a core of another cable of the same type, for example \"A core of the same type of cable runs 1.80 km\", and keep the slip hint about String B's 2.40 km."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 3, the picture and its line \"Some of the charge has soaked into the XLPE too\"",
+      "what": "The soaked charge appears the moment he presses Switch off at the peak, but the words say a test soaks charge into the insulation. Absorbed charge builds while a d.c. voltage sits on the XLPE, so the motion suggests an a.c. switch-off loads the insulation instantly. Either build the faint marks up while the core sits charged and say so (\"Left charged, some of it soaks into the XLPE\"), or start the creep from a d.c. test, to match screen 4's IR test."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 2, What it is for, the opening text",
+      "what": "\"Every test after this one\" reads as if making the cable safe were a test, and \"Each test set also charges the cable\" is absolute, since a DLRO or a 50 V TDR pulse leaves little charge. Say \"Every test assumes a cable that cannot hurt you. The IR, sheath and VLF sets charge it to a high voltage. So the same discipline comes back at the end of every test.\""
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 2, the line under the cross-section",
+      "what": "\"Some designs add a lead sheath\" does not match the researched maker's data, where the lead sheath replaces the copper wires and foil. Say \"Some designs use a lead sheath in place of the copper wires and foil.\""
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3, the readouts",
+      "what": "\"Most energy, off at the peak: 635.36 J\" appears before he is told that U0 is 38 kV, because that line sits under the readouts. Move \"Take U0 as 38 kV...\" above the controls, or into the prompt."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 5, the words under the picture",
+      "what": "Add the real-job consequence of the rule just shown, in one short sentence: lifting an earth to connect a test leaves that end standing at the induced voltage again, so treat the test end as live while String A runs."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 5, the picture of String A",
+      "what": "String A is drawn as one conductor carrying one current. In a three-core cable the balanced phase currents largely cancel outside it, so faults and unbalance drive most of the induced voltage. Either add one sourced sentence on this, or leave the existing warning that a fault can push it far higher as the main point. The 40 V/km is labelled as a practice value, so nothing on screen is wrong as it stands."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 5, the animation",
+      "what": "The current chevrons and the circulating dashes never stop moving (the film never settled), on a screen that has three paragraphs to read. Run them for a few seconds after each change, then let them rest."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 7, Section A 1(a), the line after the answer",
+      "what": "\"It agrees with the charging current\" makes him work out what \"It\" means. Lead with the subject: \"The 0.528 µF agrees with the maker's charging current.\""
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3 under-text and the Keep this card, \"worst case\"",
+      "what": "Calling the switch-off at the peak the \"worst case\" can read as a rare event. A breaker usually breaks a cable's charging current at a current zero, which falls at the voltage peak. If research can quote that, say it is the usual trapped charge. Otherwise drop \"worst case\" and say \"off at the peak of U0\"."
+    },
+    {
+      "severity": "polish",
+      "where": "Screens 3, 8 and 10, \"Take U0 as 38 kV, a practice value\"",
+      "what": "38 kV is the conductor-to-screen rating of the 38/66 kV cable named in the scenario, so it follows from the case's cable. Say \"U0 is 38 kV for this 38/66 kV cable\". Only the job itself is made up."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 11, Keep this card",
+      "what": "Add two things the lesson already teaches that he would reach for on a job. First, talk to the far end before every change. Second, after a test, check that the set reads discharged, use the discharge stick, then fit the earths. The three formula lines matter less on site than these steps."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 1, Do you still have it?",
+      "what": "The brief promised a second quick recall on the order of the five steps. That order now appears only in the working. This is fine for a refresher, but the Check on screen 4 could pair with it if a second recall is wanted."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 6, Worked example",
+      "what": "The body-current line and the two core lines are unrelated sums under one heading, \"Your body, then a core\". One linking sentence would join them, for example: \"A core holding hundreds of joules can drive that current many times over.\" Only add it if it can be said without a new figure."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3, the caption under the page",
+      "what": "\"Each line is worked from the rounded figures shown before it\" shows on screen 3, which has no worked lines. Show it only on screens 6, 7, 8 and 10."
+    },
+    {
+      "severity": "polish",
+      "where": "i1.lesson.verified.json, interactive.whatAmILookingAt, screen 5",
+      "what": "The spec says \"Drag the run longer\", but the page says \"Drag the run shorter\". The page is right, because the slider opens at its 2.40 km maximum. Update the JSON so a rebuild keeps the right prompt."
+    },
+    {
+      "severity": "polish",
+      "where": "case.json, given t.Ich66 and figure 1a cite",
+      "what": "Both still say \"to research\", but the ABB 240 mm² row with 0.22 and 2.6 is quoted as the lesson's source 1. Update the case file's citations."
+    }
+  ]
+}

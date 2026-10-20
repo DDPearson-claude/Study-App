@@ -1,0 +1,614 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-20T23:00:35.109Z",
+ "startedAt": "2026-10-20T23:00:35.109Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i1",
+  "title": "The cable, and making it safe to test",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the core's voltage creeping back, as charge held in the XLPE drifts out to the conductor, when you lift the earth straight after a discharge.",
+   "title": "A capacitor kilometres long",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 10,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Eleven screens, with Back and Continue, on making a subsea cable safe to test and safe to touch after.\n\nScreen 1, Do you still have it? The question: “String A is live in the same corridor. String B's cable from B01 to the OSS is isolated, and you have proved it dead at the OSS end. What must happen before anyone touches its cores?” Three choices, in this order: “Nothing more: it has been proved dead”; “Discharge it, then apply earths at both ends”; “Open the isolator at B01 as well, then start”. Right, the second: “Still there.” Then the working: “Proved dead means no voltage at that moment. The core is still a capacitor, and String A can still induce a voltage on it. Discharging empties it. Earths at both ends hold it at earth while you work. The whole sequence is Identify, Isolated, Proved dead, Secured, Earthed.” Then two buttons. Refresh the why goes to screen 2. Skip to the practice goes to screen 7. Wrong, the first: “Proved dead is a snapshot. The core can still hold charge, regain it from its insulation, or pick it up from String A. It is safe to touch only once it is discharged and earthed.” Wrong, the third: “Isolating stops energy from the system. It does not stop String A inducing a voltage, or charge creeping back out of the insulation.” Then the right working, and on to screen 2.\n\nScreen 2, What it is for. “Every test assumes a cable that cannot hurt you. The IR, sheath and VLF sets charge it to a high voltage. So the same discipline comes back at the end of every test.” Then the five steps, each with what it confirms. Identify: the test points are known. Isolated: every energy source is disconnected. Proved dead: no voltage is verified. Secured: it is locked off and access is controlled. Earthed: earths are applied. The picture: one core in cross-section, seven rings from the middle out, each labelled: Conductor; Inner semi-con; XLPE insulation; Outer semi-con; Metal screen; Aluminium foil; Oversheath. A line under it: “In a three-core subsea cable, armour wraps all three cores. Some designs use a lead sheath in place of the copper wires and foil.” Five chips: Core resistance, IR, Sheath test, VLF, TDR. Tapping a chip lights its layer, draws its path in ink and shows one line. Core resistance: “The conductor, end to end.” IR: “Conductor to screen, through the XLPE, at a steady d.c. voltage.” Sheath test: “Screen to earth, through the oversheath.” VLF: “Conductor to screen again, well above the working voltage.” TDR: “Conductor and screen together, as a line a pulse runs along.” In red, what goes wrong if it is skipped: “Four main things set how badly a shock hurts: voltage, resistance, path and duration. At 55 V your body is about 10 000 Ω. So 55 V drives 5.50 mA. 50 mA or more is potentially fatal. Your body's resistance falls as the voltage rises. So a charged HV core drives far more current than that sum suggests.” The prompt above the picture: “Tap a test to light its layer.” Read: from the middle out, the core's layers are conductor, inner semi-con, XLPE, outer semi-con, metal screen, aluminium foil and oversheath. Core resistance checks the conductor. IR and VLF check the XLPE between conductor and screen. The sheath test checks the oversheath, screen to earth. TDR uses conductor and screen as a pair. Still: every test labelled against its layer at once.\n\nScreen 3, The why: a capacitor kilometres long. “The conductor and the screen are two metal plates, with the XLPE between them. So every core is a capacitor. Capacitance grows with the area of the plates, so it grows with length. This cable has about 0.22 µF per km in each core.[^1] A charged core keeps its charge after it is disconnected. Its charge is Q = C × V. The energy it holds is E = ½ × C × V². While the core sits charged, some charge soaks into the insulation itself. An earth drains the conductor quickly. The charge in the insulation comes back out slowly. So a core earthed for a moment can build a voltage again.” The picture: one core drawn as a long bar from B01 to the OSS. The conductor runs along the middle, the screen along the outside, the XLPE band between them. An earth switch at the OSS end, with its lead to earth. A voltage bar beside it. There are three controls. A Length slider runs from 0.40 to 2.40 km in steps of 0.20 km, and opens at 1.00 km. A Switch off at the peak button. An Earth switch, which starts open. The readouts: Capacitance = 0.22 × length, in µF to 3 places. Most energy = C × U0², in J to 2 places. Switch off at the peak fills the plates with + and − marks, and fills the voltage bar. A longer core gets more marks. Left charged, faint marks build up inside the XLPE band over a few seconds: charge the insulation takes up. Close the earth sooner and fewer soak in. The line under the picture says “Left charged, some of it soaks into the XLPE.” Closing the earth sends the plate marks down the earth lead and empties the bar. The faint marks in the XLPE stay put. Open the earth straight after, and the faint marks drift back out to the plates. The bar creeps back up over a few seconds. A red line says: “It has recharged from the insulation. Earth it again and leave the earth on.” With the earth left closed, the drifting marks go straight down the lead and the bar stays at zero. The bar is a sketch with no scale, and the creep is sped up. What it shows: 0.220 µF and 317.68 J at 1.00 km. At 0.40 km, 0.088 µF and 127.07 J. Above the prompt, the words: “A breaker breaks a cable's charging current as it passes through zero. That moment falls at the peak of the voltage. So a core switched off is usually left charged at the peak of U0.[^5] U0 is its voltage between conductor and screen. The peak is √2 × U0, so E = ½ × C × (√2 × U0)² = C × U0². U0 is 38 kV for this 38/66 kV cable.” The prompt: “Press Switch off at the peak, close the earth, then open it again.” Read: a 1.00 km core holds 0.220 µF. Switched off at the peak of U0, 38 kV, it could hold 317.68 J. A longer core holds more. An earth drains it to zero. Lift the earth too soon and some charge creeps back from the insulation. Still: 1.00 km, charged, earthed, then opened, with the bar crept back and the red line showing.\n\nScreen 4, Check. “A cable with no live neighbours has just had an insulation resistance test. You earth it for a moment, then lift the earth to connect the next lead. What can its core do?” Choices: “Stay at zero: the earth emptied it”; “Build a voltage again from charge in the insulation”; “Recharge only if its far end is still connected”. Right, the second: “The earth empties the conductor quickly. Charge soaked into the insulation comes out slowly and builds a voltage again. So re-earth it, and keep the earth on until the next lead is connected.” Wrong, the first: “The earth empties the conductor, not the insulation. Its charge comes back out after the earth is lifted.” Wrong, the third: “Nothing outside is needed. The charge comes back out of the insulation itself.”\n\nScreen 5, The live string beside it. “String A runs live in the same corridor. Its load current sets up a magnetic field. Where the cables run side by side, that field induces a voltage along String B's core. It works the way a transformer's primary drives its secondary. No connection is needed. The voltage grows with String A's current, how close the cables run and how far they run together.[^2] String A's voltage does not set it. The earthed screen keeps String A's electric field away from the core. So the magnetic coupling is the one that matters here. The induced voltage stands between the two ends of the core. Earth one end, and all of it appears at the other. Earth both ends, and it drives a current round through the earths instead.” The picture: String A along the bottom, with arrows for its current and field rings round it. The rings link String B along the parallel run. A longer run has more of them. String B's core above it, B01 on the left and the OSS on the right, with an earth switch at each end. There are two controls. A Parallel run slider runs from 0.40 to 2.40 km in steps of 0.20 km, and opens at 2.40 km. An Earths choice offers OSS end only or Both ends, and opens on OSS end only. The readout: Voltage at the B01 end = 40 V per km × parallel run. Take 40 V per km as a practice value for String A at full load. It only gives the picture a number. With OSS end only, the B01 end glows red at the full voltage: 96 V at 2.40 km, 16 V at 0.40 km. With Both ends, both ends read 0 V. Arrows show a current circulating through the two earths instead. The current marks and the circulating dashes run for a few seconds after each change, then rest. The words under it: “A fault or switching on String A can push this far higher without warning. Earth both ends before anyone works on the cable. Lift an earth to connect a test, and that end stands at the induced voltage again. Treat the test end as live while String A runs.” The prompt: “Drag the run shorter, then earth both ends.” Read: with only the OSS end earthed, the B01 end sits at the induced voltage. That is 96 V over 2.40 km, at the practice 40 V per km. Earth both ends and both are held at earth. A current circulates through the earths instead. Still: 2.40 km, OSS end only.\n\nScreen 6, Worked example, a line at each press. The prompt: “Work each line yourself first, then press Show.” Line 1: “Your body at 55 V: I = V ÷ R = 55 ÷ 10 000 = 0.0055 A = 5.50 mA. That is under 50 mA. But the 10 000 Ω holds only near 55 V. At HV your body's resistance is lower.” Line 2: “A charged core is what would drive that current. Take a 0.80 km core of this cable, a practice length. C = 0.22 × 0.80 = 0.176 µF.” Line 3: “Switched off at the peak of U0: E = C × U0² = 0.176 × 10⁻⁶ × 38 000² = 254.14 J.” A note under the lines: “Leave out the peak and you get ½ × C × U0² = 127.07 J, half the energy at the peak.” Read: at 55 V your body takes 55 ÷ 10 000 = 5.50 mA. That is under 50 mA, but the figure holds only near 55 V. A 0.80 km core holds 0.22 × 0.80 = 0.176 µF. At the peak of U0, 38 kV, it could hold 0.176 × 10⁻⁶ × 38 000² = 254.14 J. Still: all three lines shown.\n\nScreen 7, Section A, question 1 (a). The scenario panel. The question: “(a) Determine the capacitance of one core of String B, from B01 to the OSS.” Under it: “Take 0.22 µF per km, a typical figure for this cable. On a real job, use the cable's own data sheet.” A typed answer, part 1a: 0.22 × 2.40 = 0.528 µF, to 3 places. Slips: 1.584 µF, “That is all three cores. Each core has its own screen, so each is a capacitor of its own.” 0.22 µF, “That is one km. Multiply by the 2.40 km run.” 10.91, “Multiply the per-km figure by the length. Don't divide.” After two misses, the working. Then one line: “The 0.528 µF agrees with the maker's charging current. In service at 50 Hz, 2π × 50 × 0.528 × 10⁻⁶ × 38 000 = 6.30 A. This cable's charging current is typically 2.6 A per km. 2.6 × 2.40 = 6.24 A.”\n\nScreen 8, Section A, question 1 (b). Part (a) carried forward. The question: “Once String B is in service, it will be switched off for maintenance. (b) Determine the most energy one core could hold if it were switched off at the peak of its phase voltage. U0 is 38 kV for this 38/66 kV cable.” A typed answer, part 1b: E = C × U0² = 0.528 × 10⁻⁶ × 38 000² = 762.43 J. Slips: 381.22 J, “That is ½ × C × U0². The peak is √2 × U0, and squaring √2 doubles the energy.” 1524.86 J, “You left out the half in ½ × C × V².” After two misses, the working. Then: “That much energy can sit on a core that has been switched off and isolated. That is why the core is discharged and earthed before anyone touches it.”\n\nScreen 9, Section B: “Explain why a disconnected cable is treated as live until it has been tested, discharged and earthed.” A written answer, marked against five points. Any three make a full answer. One more go, then the model answer.\n\nScreen 10, Section A, changed numbers. “A core of the same type of cable runs 1.80 km. U0 is again 38 kV. Determine the most energy it could hold if it were switched off at the peak of U0.” A typed answer: C = 0.22 × 1.80 = 0.396 µF, then E = 0.396 × 10⁻⁶ × 38 000² = 571.82 J. Slips: 285.91 J, “That leaves out the peak. Use C × U0².” 1143.65 J, “You left out the half.” 762.43 J, “That is String B's 2.40 km. This core is 1.80 km.” Then: “A shorter core has less capacitance, so it stores less. The discipline is the same.”\n\nScreen 11, Keep this: the summary card, then Finish the lesson.\n\nOn the screens with working, a caption says each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.",
+   "ignores": "Each core is drawn as two flat plates with one capacitance per km. In the cable the plates are a conductor inside a tube-shaped screen, and the charge sits along the whole length. The voltage bar on screen 3 is a sketch with no scale, and the creep back is sped up. The induced voltage is a practice value, made to grow in step with the parallel run. A real figure comes from a calculation for the route and String A's current. The earths are drawn as perfect. Real earths have some resistance. So both ends are held close to earth, not exactly at it. Only one core is drawn. The cable has three, and its armour and screens pick up induced voltage too. String A is drawn as one conductor with one current. In a three-core cable the three phase currents largely cancel outside it, so an unbalance or a fault drives most of the real induced voltage.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 11 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Body resistance at 55 V, Ω",
+     "value": 10000,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Voltage for that resistance, V",
+     "value": 55,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Body current, 55 ÷ 10 000, mA",
+     "value": 5.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Potentially fatal current, mA",
+     "value": 50,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Capacitance per core per km, µF/km",
+     "value": 0.22,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Charging current per core per km at 50 Hz, A/km",
+     "value": 2.6,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Supply frequency, Hz",
+     "value": 50,
+     "kind": "constant"
+    },
+    {
+     "label": "U0 of String B's 38/66 kV cable, kV",
+     "value": 38,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B route length (practice value), km",
+     "value": 2.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Length slider: from, km",
+     "value": 0.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Length slider: to, km",
+     "value": 2.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Length slider step, km",
+     "value": 0.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Length slider opens at, km",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "1.00 km: capacitance, µF",
+     "value": 0.22,
+     "kind": "computed"
+    },
+    {
+     "label": "1.00 km: most energy at the peak of 38 kV, J",
+     "value": 317.68,
+     "kind": "computed"
+    },
+    {
+     "label": "0.40 km: capacitance, µF",
+     "value": 0.088,
+     "kind": "computed"
+    },
+    {
+     "label": "0.40 km: most energy, J",
+     "value": 127.07,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak factor, √2",
+     "value": "√2",
+     "kind": "constant"
+    },
+    {
+     "label": "Induced voltage per km of parallel run (practice value), V/km",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Parallel run slider opens at, km",
+     "value": 2.4,
+     "kind": "control"
+    },
+    {
+     "label": "Induced at B01, 2.40 km, V",
+     "value": 96,
+     "kind": "computed"
+    },
+    {
+     "label": "Induced at B01, 0.40 km, V",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Both ends earthed: voltage at each end, V",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example core length (practice value), km",
+     "value": 0.8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: capacitance, µF",
+     "value": 0.176,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: most energy, J",
+     "value": 254.14,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: peak left out, J",
+     "value": 127.07,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 1a: capacitance of one core, µF",
+     "value": 0.528,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 1a slip: three cores, µF",
+     "value": 1.584,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 1a slip: 2.40 ÷ 0.22",
+     "value": 10.91,
+     "kind": "computed"
+    },
+    {
+     "label": "Charging current from 0.528 µF at 38 kV, A",
+     "value": 6.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Charging current from 2.6 A/km × 2.40 km, A",
+     "value": 6.24,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 1b: most energy, J",
+     "value": 762.43,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 1b slip: peak left out, J",
+     "value": 381.22,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 1b slip: half left out, J",
+     "value": 1524.86,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers: core length (practice value), km",
+     "value": 1.8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Changed numbers: capacitance, µF",
+     "value": 0.396,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers: most energy, J",
+     "value": 571.82,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers slip: peak left out, J",
+     "value": 285.91,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers slip: half left out, J",
+     "value": 1143.65,
+     "kind": "computed"
+    },
+    {
+     "label": "Section B: points, of which any make a full answer",
+     "value": "5, any 3",
+     "kind": "constant"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A subsea cable can hurt you while it is dead. In each core, the conductor and the screen are two long metal plates with XLPE between them. So each core is a capacitor kilometres long. It can hold charge after it is switched off or tested. A live cable beside it can also drive a voltage onto it. So every test starts and ends the same way: identify, isolate, prove dead, secure, and earth at both ends.\n\nCapacitance grows with the area of the plates, so it grows with length. A typical 66 kV cable like this has about 0.22 µF per km in each core.[^1] A charged capacitor keeps its charge when you disconnect it. A breaker breaks a cable's charging current as it passes through zero. That falls at the peak of the voltage. So a cable switched off is usually left charged at its peak.[^5] The charge it holds is Q = C × V. The energy it holds is E = ½ × C × V². An earth lets that charge flow away. But the insulation itself soaks up charge while the core is charged. That comes back out slowly. Lift the earth too soon and it builds a voltage on the conductor again. So the earths stay on until a test is connected, and go back on as soon as it ends.\n\nString A runs live in the same corridor. Its load current sets up a magnetic field. Where the two run side by side, that field induces a voltage along String B's core. It works the way a transformer's primary drives its secondary. The voltage grows with String A's current, how close the cables are and how far they run together.[^2] String A's voltage does not set it. You will sometimes hear it put down to capacitive coupling too. On a screened cable, the electric field stays inside the screen. So the magnetic coupling is the one that matters. The induced voltage stands between the two ends of the core. Earth one end, and all of it appears at the other end. Earth both ends, and it drives a current round through the earths instead. Then neither end is left standing at that voltage. A fault on String A can push the voltage far higher without warning. The pictures here are simplified. They take the earths as perfect. The induced voltage in them is a practice figure.\n\nEvery test on String B starts from a core made safe this way. Each one ends by making it safe again, from core resistance through to LIRA.\n\n**Treat a disconnected cable as live until it is discharged and earthed at both ends. Do it again after every test.**"
+  },
+  "analogy": {
+   "text": "Think of a large capacitor bank you have isolated. You would not touch its terminals until it had been discharged and shorted to earth. You would leave the short on while you worked. A cable core is the same kind of capacitor, stretched out over kilometres.",
+   "breaks": "A capacitor bank sits in one cabinet. A cable's capacitance is spread along its whole length, beside other cables. So a live cable running beside it can induce a voltage on it, all along its length."
+  },
+  "practice": {
+   "text": "- Before any test: identify the test points. Isolate every energy source. Prove dead, with the tester proved before and after. Secure it with locks and controlled access at both ends. Then apply earths at both ends.\n- Talk to the far end before every change.\n- Treat a disconnected cable as live until it has been tested, discharged and earthed. That includes one running beside a live string.\n- Lift an earth only to connect a test, under control. Put it back the moment the test ends.\n- After every test, discharge the core to earth through the test set or a rated resistive device. Then re-apply the earths and leave them on.\n\n**Rule of thumb:** each km of this cable adds about 0.22 µF per core. Switched off at the peak of U0, as a breaker usually leaves it, a core holds C × U0². So the energy grows in step with length. A test at a higher voltage can leave more.\n\n**Worked example:** String B's core is 2.40 km. C = 0.22 × 2.40 = 0.528 µF. U0 is 38 kV for this 38/66 kV cable. Switched off at the peak, E = 0.528 × 10⁻⁶ × 38 000² = 762.43 J.\n\n**Common mistakes**\n- Taking proved dead as safe to touch.\n- Earthing one end only. The far end then sits at the induced voltage.\n- Lifting the earth straight after a discharge. Charge creeps back from the insulation.\n- Working a core switched off at the peak as ½ × C × U0². That leaves out the peak and halves the energy.\n- Judging the risk from String A's voltage. Its current, closeness and parallel length set the induced voltage."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "written": {
+   "b1": {
+    "q": "Explain why a disconnected cable is treated as live until it has been tested, discharged and earthed.",
+    "points": [
+     {
+      "text": "A live circuit nearby can induce a voltage on an isolated cable, with no connection to it.",
+      "cite": "Notes p.2; CIGRE TB 'Guidelines for safe work on cable systems under induced voltages or currents' (research)"
+     },
+     {
+      "text": "Each core and its screen form a capacitor. So the cable can hold charge after it is switched off or tested.",
+      "cite": "Notes p.1, p.3; HSE HSG85; IET Wiring Matters 'Impressed voltages' (research)"
+     },
+     {
+      "text": "Charge held in the insulation can recharge the conductor even after it has been discharged.",
+      "cite": "Notes p.3"
+     },
+     {
+      "text": "Proving dead only shows there is no voltage at that moment. It does not stop charge returning or being induced.",
+      "cite": "Notes p.2; HSE HSR25 on isolation against induction or capacitance effects (research)"
+     },
+     {
+      "text": "Earths at both ends drain the charge and hold the core at earth while the work goes on.",
+      "cite": "Notes p.2; CIGRE TB: shunted and locally earthed to prevent standing voltage (research)"
+     }
+    ],
+    "need": 3,
+    "model": "A disconnected cable can still be dangerous. Each core and its screen form a long capacitor. So the cable can hold charge after it has been switched off or tested. Charge soaked into the insulation can come back out and recharge the conductor, even after it has been discharged. A live circuit running nearby can also induce a voltage on the cable with no connection to it. Proving dead only shows there is no voltage at that moment. It does not stop charge returning or being induced. So the cable is discharged, and earths are applied at both ends. They drain the charge and hold the core at earth while the work goes on."
+   }
+  },
+  "summary": {
+   "title": "Making a cable safe to test",
+   "for": "Making a subsea cable safe to test, and safe to touch after every test. Each core is a long capacitor, and it may run beside a live string. So dead is not the same as safe.",
+   "rule": "Identify → Isolated → Proved dead → Secured → Earthed\nTalk to the far end before every change.\nEarth both ends. Lift an earth only to connect a test.\nAfter a test, check the set reads discharged. Use the discharge stick, then fit the earths.\nInduced voltage grows with the neighbour's current, closeness and parallel length.\n\nC = C per km × length\nQ = C × V\nE = ½ × C × V²\nOff at the peak of U0, the usual trapped charge: E = C × U0²",
+   "traps": [
+    {
+     "text": "Taking proved dead as safe to touch. It only shows no voltage at that moment.",
+     "cite": "Notes p.2"
+    },
+    {
+     "text": "Forgetting that a cable beside a live one picks up voltage along its length.",
+     "cite": "Notes p.2; CIGRE TB on induced voltages (research)"
+    },
+    {
+     "text": "Lifting the earth straight after a discharge. Charge creeps back from the insulation.",
+     "cite": "Notes p.3"
+    },
+    {
+     "text": "Earthing one end only. The far end sits at the induced voltage.",
+     "cite": "CIGRE TB: shunted and locally earthed (research); notes p.2"
+    },
+    {
+     "text": "Leaving out the peak. ½ × C × U0² is half the energy at the peak.",
+     "cite": "Case assumption a.trapped; EPRI capacitor guide, J = ½CV² (research); IEEE TechNav, capacitive current breaks at a current zero, near peak charge (research)"
+    }
+   ],
+   "where": "Before and after every test, at both ends of the cable. Your HV safety rules and the permit say who applies and lifts the earths.",
+   "figures": [
+    "1a",
+    "1b"
+   ]
+  },
+  "sources": [
+   {
+    "n": 1,
+    "title": "XLPE Submarine Cable Systems Attachment to XLPE Land Cable Systems - User´s Guide — ABB",
+    "url": "https://new.abb.com/docs/default-source/ewea-doc/xlpe-submarine-cable-systems-2gm5007.pdf",
+    "quote": "240 18.1 9.0 38.5 1.6 129.0 26.8 31.3 0.22 2.6 0.38"
+   },
+   {
+    "n": 2,
+    "title": "Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA",
+    "url": "https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html",
+    "quote": "The magnitude of the induced voltage, due to inductive coupling, depends on the current in the source system, the distance between the two systems and the length of parallelism of the two systems."
+   },
+   {
+    "n": 3,
+    "title": "Your subsea cable testing course notes",
+    "url": "material:notes#p1",
+    "quote": "Body natural resistance ≈ 10,000 Ω @ 55 V"
+   },
+   {
+    "n": 4,
+    "title": "Your subsea cable testing course notes",
+    "url": "material:notes#p1",
+    "quote": "50 mA or above = potentially fatal zone"
+   },
+   {
+    "n": 5,
+    "title": "Capacitance Current Switching | IEEE Technology Navigator",
+    "url": "https://technav.ieee.org/topic/capacitance-current-switching/",
+    "quote": "When a circuit breaker opens a capacitive current, the current passes through zero at a moment when the capacitor is near its peak charge, leaving a sustained voltage across the open contacts."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: mechanism -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .task > p + p, .why > p + p, .note > p + p, .assume > p + p { margin-top: 10px; }\n  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }\n  .sub.ask { font-size: 1rem; font-weight: 700; color: var(--k-ink); }\n  .assume, .why { line-height: 1.6; }\n  .ctl { display: grid; gap: 12px; }\n  .five { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }\n  .five li { position: relative; padding-left: 1.3rem; line-height: 1.5; }\n  .five li::before { content: \"\"; position: absolute; left: .25rem; top: .62em; width: .45rem; height: .45rem; border-radius: 50%; background: var(--k-accent2); }\n  .warn-note .wh { font-weight: 700; }\n  .warn-note p + p { margin-top: 6px; }\n  .chips { display: flex; flex-wrap: wrap; gap: 8px; }\n  .chips .k-btn { flex: 0 0 auto; min-height: 44px; border-radius: 999px; }\n  .chips .k-btn.on { background: var(--k-accent2); border-color: var(--k-accent2); color: var(--k-on-accent2); }\n  .chipline { line-height: 1.5; }\n  #carry1b .k-cr { grid-template-columns: 2rem minmax(0, 1fr) 24px; }\n  #carry1b .k-cr-value { grid-column: 2; grid-row: 2; }\n  .chipline > p + p { margin-top: 6px; }\n  .scene { display: block; width: 100%; }\n  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .wt { font: 600 13px var(--k-font); fill: var(--k-warn); }\n  .scene .cond { fill: var(--k-fill1); stroke: var(--k-strong); stroke-width: .8; }\n  .scene .xl { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: .8; }\n  .scene .scr { fill: var(--k-line); stroke: var(--k-strong); stroke-width: .8; }\n  .scene .mk { stroke: var(--k-accent2); stroke-width: 2.2; fill: none; stroke-linecap: round; }\n  .scene .soak { fill: var(--k-accent2); }\n  .scene .wire { stroke: var(--k-strong); stroke-width: 2; fill: none; }\n  .scene .node { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .blade { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }\n  .scene .brk { stroke: var(--k-muted); stroke-width: 1.5; fill: none; }\n  .scene .vbox { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }\n  .scene .vf { fill: var(--k-accent2); }\n  .scene .vf.back { fill: var(--k-warn); }\n  .scene .l-cond { fill: var(--k-fill1); stroke: var(--k-strong); stroke-width: .6; }\n  .scene .l-semi { fill: var(--k-strong); stroke: var(--k-strong); stroke-width: .6; }\n  .scene .l-xlpe { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: .6; }\n  .scene .l-scr { fill: var(--k-muted); stroke: var(--k-strong); stroke-width: .6; }\n  .scene .l-foil { fill: var(--k-line); stroke: var(--k-strong); stroke-width: .6; }\n  .scene .l-over { fill: var(--k-fill3); stroke: var(--k-strong); stroke-width: .6; }\n  .scene circle.lit { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.2; }\n  .scene .lead { stroke: var(--k-muted); stroke-width: 1; }\n  .scene .ldot { fill: var(--k-ink); }\n  .scene .path { stroke: var(--k-accent2); stroke-width: 2.5; fill: none; stroke-linecap: round; }\n  .scene .path.dash { stroke-dasharray: 5 4; }\n  .scene .head { fill: var(--k-accent2); }\n  .scene .lineA { stroke: var(--k-ink); stroke-width: 7; fill: none; stroke-linejoin: round; }\n  .scene .chev { stroke: var(--k-bg); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .lineB { stroke: var(--k-accent2); stroke-width: 6; stroke-linecap: round; }\n  .scene .ring { fill: none; stroke: var(--k-accent); stroke-width: 1.5; }\n  .scene .glow { fill: var(--k-warn); fill-opacity: .22; stroke: var(--k-warn); stroke-width: 2; }\n  .scene .circ { stroke: var(--k-accent2); stroke-width: 2.5; fill: none; stroke-dasharray: 7 7; }\n  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }\n  .wl .line + .line { margin-top: 10px; }\n  .w { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.5; }\n  .wl .sub { margin-top: 4px; }\n  .picks { display: flex; flex-direction: column; gap: 10px; }\n  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; justify-content: flex-start; padding: 10px 14px; }\n  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }\n  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }\n  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }\n  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }\n  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }\n  .fb > * + * { margin-top: 6px; }\n  .fb .v { font-weight: 700; font-size: 1.05rem; }\n  .fb.ok .v { color: var(--k-good); }\n  #stepbox.enter, .wl .line.enter, .fade { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing .wl .line.enter, html.k-testing .fade { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .line.enter, .fade { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <p class=\"k-label count\" id=\"count\"></p>\n  <div id=\"stepbox\">\n    <div id=\"scen\"></div>\n    <div id=\"carry1b\"></div>\n    <div class=\"assume\" id=\"assume\"></div>\n    <div class=\"task\" id=\"task\"></div>\n    <p class=\"sub\" id=\"qnote\"></p>\n    <ul class=\"five\" id=\"five\"></ul>\n    <div class=\"warn-note\" id=\"warn1\"></div>\n    <div class=\"why\" id=\"under2\"></div>\n    <p class=\"sub\" id=\"sub\"></p>\n    <div id=\"wrap1\"><svg class=\"scene\" id=\"xsec\" viewBox=\"0 0 340 206\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <p class=\"sub\" id=\"armour\"></p>\n    <div class=\"chips\" id=\"chips\"></div>\n    <div class=\"chipline\" id=\"chipline\"></div>\n    <div id=\"wrap2\">\n      <svg class=\"scene\" id=\"core\" viewBox=\"0 0 340 232\" width=\"100%\" role=\"img\" aria-label=\"\">\n        <rect class=\"cond\" x=\"6\" y=\"4\" width=\"14\" height=\"10\"/><text class=\"tk\" x=\"25\" y=\"13\">Conductor</text>\n        <rect class=\"xl\" x=\"108\" y=\"4\" width=\"14\" height=\"10\"/><text class=\"tk\" x=\"127\" y=\"13\">XLPE</text>\n        <rect class=\"scr\" x=\"176\" y=\"4\" width=\"14\" height=\"10\"/><text class=\"tk\" x=\"195\" y=\"13\">Screen</text>\n        <path class=\"mk\" d=\"M6 26h8M10 22v8M18 26h8\"/><text class=\"tk\" x=\"32\" y=\"31\">Charge on the plates</text>\n        <circle class=\"soak\" cx=\"180\" cy=\"26\" r=\"2.2\"/><text class=\"tk\" x=\"188\" y=\"31\">Charge in the XLPE</text>\n        <text class=\"lb\" id=\"lenlab\" x=\"150\" y=\"50\" text-anchor=\"middle\"></text>\n        <path class=\"brk\" id=\"brk\" d=\"\"/>\n        <rect class=\"scr bar\" x=\"34\" y=\"68\" width=\"216\" height=\"8\"/>\n        <rect class=\"xl bar\" x=\"34\" y=\"76\" width=\"216\" height=\"18\"/>\n        <rect class=\"cond bar\" x=\"34\" y=\"94\" width=\"216\" height=\"16\"/>\n        <rect class=\"xl bar\" x=\"34\" y=\"110\" width=\"216\" height=\"18\"/>\n        <rect class=\"scr bar\" x=\"34\" y=\"128\" width=\"216\" height=\"8\"/>\n        <text class=\"lb\" id=\"b01\" x=\"29\" y=\"107\" text-anchor=\"end\">B01</text>\n        <text class=\"lb\" x=\"256\" y=\"92\">OSS</text>\n        <path class=\"wire\" d=\"M250 102H282V114\"/>\n        <path class=\"wire\" d=\"M244 136V160H282M282 152V168\"/>\n        <path class=\"wire\" d=\"M270 168h24M274 173h16M278 178h8\"/>\n        <line class=\"blade\" id=\"blade\" x1=\"282\" y1=\"152\" x2=\"264\" y2=\"124\"/>\n        <circle class=\"node\" cx=\"282\" cy=\"116\" r=\"2.5\"/>\n        <circle class=\"node\" cx=\"282\" cy=\"152\" r=\"3\"/>\n        <circle class=\"node\" cx=\"282\" cy=\"160\" r=\"2.5\"/>\n        <text class=\"lb\" x=\"292\" y=\"124\">Earth</text>\n        <text class=\"lb\" x=\"292\" y=\"139\">switch</text>\n        <g id=\"dots\"></g>\n        <g id=\"marks\"></g>\n        <text class=\"lb\" x=\"6\" y=\"202\">Core voltage</text>\n        <text class=\"tk\" id=\"vst\" x=\"334\" y=\"202\" text-anchor=\"end\"></text>\n        <rect class=\"vbox\" x=\"6\" y=\"210\" width=\"328\" height=\"14\" rx=\"3\"/>\n        <rect class=\"vf\" id=\"vfill\" x=\"6\" y=\"210\" width=\"0\" height=\"14\" rx=\"3\"/>\n      </svg>\n    </div>\n    <div class=\"ctl\" id=\"ctl2\"></div>\n    <div class=\"row\" id=\"ctl2b\"></div>\n    <div class=\"ctl\" id=\"ctl2c\"></div>\n    <div class=\"k-readouts\" id=\"outs2\"></div>\n    <p class=\"say\" id=\"say2\"></p>\n    <div class=\"warn-note\" id=\"creep\"></div>\n    <div id=\"wrap4\">\n      <svg class=\"scene\" id=\"line4\" viewBox=\"0 0 340 246\" width=\"100%\" role=\"img\" aria-label=\"\">\n        <path class=\"wire\" d=\"M14 3v5M6 8h16M9 12h10M12 16h4\"/><text class=\"tk\" x=\"28\" y=\"16\">Earth switch</text>\n        <circle class=\"glow\" cx=\"134\" cy=\"11\" r=\"6\"/><text class=\"tk\" x=\"146\" y=\"16\">Standing at a voltage</text>\n        <path class=\"circ\" d=\"M6 30h20\"/><text class=\"tk\" x=\"32\" y=\"34\">Current through the earths</text>\n        <text class=\"tk\" id=\"brklab4\" x=\"172\" y=\"52\" text-anchor=\"middle\">Parallel run</text>\n        <path class=\"brk\" id=\"brk4\" d=\"\"/>\n        <text class=\"lb\" x=\"34\" y=\"88\" text-anchor=\"middle\">B01</text>\n        <text class=\"lb\" x=\"170\" y=\"88\" text-anchor=\"middle\">String B core</text>\n        <text class=\"lb\" x=\"306\" y=\"88\" text-anchor=\"middle\">OSS</text>\n        <g id=\"rings\"></g>\n        <path class=\"lineA\" id=\"lineA\" d=\"\"/>\n        <g id=\"chev\"></g>\n        <circle class=\"glow\" id=\"glow\" cx=\"34\" cy=\"110\" r=\"11\"/>\n        <path class=\"wire\" d=\"M34 110V122M34 152V162M24 162h20M28 167h12M32 172h4\"/>\n        <path class=\"wire\" d=\"M306 110V122M306 152V162M296 162h20M300 167h12M304 172h4\"/>\n        <line class=\"lineB\" x1=\"34\" y1=\"110\" x2=\"306\" y2=\"110\"/>\n        <line class=\"blade\" id=\"bladeL\" x1=\"34\" y1=\"152\" x2=\"18\" y2=\"128\"/>\n        <line class=\"blade\" x1=\"306\" y1=\"152\" x2=\"306\" y2=\"124\"/>\n        <circle class=\"node\" cx=\"34\" cy=\"124\" r=\"2.5\"/><circle class=\"node\" cx=\"34\" cy=\"152\" r=\"3\"/>\n        <circle class=\"node\" cx=\"306\" cy=\"124\" r=\"2.5\"/><circle class=\"node\" cx=\"306\" cy=\"152\" r=\"3\"/>\n        <path class=\"circ\" id=\"circ\" d=\"M40 162V116H300V162\"/>\n        <text class=\"lb\" x=\"4\" y=\"238\">String A, live</text>\n      </svg>\n    </div>\n    <div class=\"ctl\" id=\"ctl4\"></div>\n    <div class=\"k-readouts\" id=\"outs4\"></div>\n    <p class=\"say\" id=\"say4\"></p>\n    <div class=\"note why\" id=\"under4\"></div>\n    <div class=\"warn-note\" id=\"warn4\"></div>\n    <div id=\"worked\"></div>\n    <div class=\"row\" id=\"workedgo\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div id=\"ans-1a\"></div>\n    <div id=\"ans-1b\"></div>\n    <div id=\"ans-ch\"></div>\n    <div class=\"row\" id=\"acts\"></div>\n    <div class=\"fb\" id=\"fb\" aria-live=\"polite\"></div>\n    <div class=\"note why\" id=\"after\"></div>\n    <div class=\"row\" id=\"go\"></div>\n    <div id=\"wr1\"></div>\n    <div id=\"keep\"></div>\n    <div class=\"row\" id=\"fin\"></div>\n    <p class=\"say\" id=\"donefb\"></p>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\">Each line is worked from the rounded figures shown before it.</p>\n\n<script>\n  // ---------- rounding, the rule, and the course's figures ----------\n  const r2 = (x) => Math.round(x * 100 + 1e-7) / 100;\n  const r3 = (x) => Math.round(x * 1000 + 1e-6) / 1000;\n  const f2 = (x) => r2(x).toFixed(2), f3 = (x) => r3(x).toFixed(3);\n  // A figure this page works that the case file lacks is worked here from its own rule, with the\n  // course's rounding and working, so the page reads the same with or without it in the case file.\n  const CASE_IDS = new Set([].concat((K.caseFile && K.caseFile.givens) || [], (K.caseFile && K.caseFile.figures) || []).map((x) => x && x.id));\n  const FALL = {};\n  const made = (id) => { const o = FALL[id](), t = o.value.toFixed(o.dp) + ' ' + o.unit;\n    return { id, label: id, value: o.value, unit: o.unit, text: t, part: '', lesson: 'i1', cite: '', rule: '', work: o.work ? o.work + ' = ' + t : '', practice: true }; };\n  const F = (id) => (FALL[id] && !CASE_IDS.has(id) ? made(id) : K.figure(id));\n  const el = (id) => document.getElementById(id);\n  const NB = ' ';\n  // Non-breaking spaces: before an operator, inside 10 000, and between a number and its unit.\n  const nb = (s) => String(s == null ? '' : s)\n    .replace(/ ([×÷+=]) /g, NB + '$1 ')\n    .replace(/(\\d) (?=\\d{3}(?!\\d))/g, '$1' + NB)\n    .replace(/(\\d) (?=(?:µF|mA|kV|km|Hz|J|V|Ω|A)(?![A-Za-z]))/g, '$1' + NB);\n  const k10 = (n) => String(n).replace(/\\B(?=(\\d{3})+(?!\\d))/g, ' ');\n  const vis = (e, on) => { if (on) e.removeAttribute('display'); else e.setAttribute('display', 'none'); };\n  const clamp01 = (x) => K.clamp(x, 0, 1);\n\n  const CPK = F('t.C66').value, ICH = F('t.Ich66').value, U0 = F('p.U0').value, LEN = F('p.len').value, VPK = F('p.induce').value;\n  const BODY = F('n.body').value, FATAL = F('n.fatal').value;\n  const V55 = 55, HZ = 50, WLEN = 0.8, LCH = 1.8, CREEP_SHARE = 0.35;\n  // C = C per km × length (3 places); worst case off at the peak, E = ½ × C × (√2 × U0)² = C × U0² (2 places).\n  const capAt = (len) => r3(CPK * len);\n  const energyAt = (C) => r2(C * 1e-6 * Math.pow(U0 * 1000, 2));\n  const halfAt = (C) => r2(0.5 * C * 1e-6 * Math.pow(U0 * 1000, 2));\n  const root2At = (C) => r2(0.5 * C * 1e-6 * Math.pow(1.414 * U0 * 1000, 2));\n  const snapKm = (v) => K.clamp(Math.round((+v || 0) * 5) / 5, 0.4, 2.4);\n\n  const kE = (C) => f3(C) + ' × 10⁻⁶ × ' + k10(U0 * 1000) + '²';\n  Object.assign(FALL, {\n    'l1.wex.C': () => ({ value: capAt(WLEN), unit: 'µF', dp: 3, work: CPK + ' × ' + f2(WLEN) }),\n    'l1.wex.E': () => ({ value: energyAt(capAt(WLEN)), unit: 'J', dp: 2, work: kE(capAt(WLEN)) }),\n    'l1.wex.half': () => ({ value: halfAt(capAt(WLEN)), unit: 'J', dp: 2, work: '0.5 × ' + kE(capAt(WLEN)) }),\n    'l1.perkm': () => ({ value: energyAt(capAt(1)), unit: 'J', dp: 2, work: kE(capAt(1)) }),\n    'l1.induced.short': () => ({ value: Math.round(VPK * 0.4), unit: 'V', dp: 0, work: VPK + ' × ' + f2(0.4) }),\n    '1a.slip3': () => ({ value: r3(3 * capAt(LEN)), unit: 'µF', dp: 3, work: '' }),\n    '1a.slipDiv': () => ({ value: r2(LEN / CPK), unit: '', dp: 2, work: '' }),\n    '1b.slip2': () => ({ value: r2(2 * energyAt(capAt(LEN))), unit: 'J', dp: 2, work: '' }),\n    'l1.changed.E': () => ({ value: energyAt(capAt(LCH)), unit: 'J', dp: 2, work: kE(capAt(LCH)) }),\n    'l1.changed.slip1': () => ({ value: halfAt(capAt(LCH)), unit: 'J', dp: 2, work: '' }),\n    'l1.changed.slip2': () => ({ value: r2(2 * energyAt(capAt(LCH))), unit: 'J', dp: 2, work: '' }),\n  });\n  const fRec = F('l1.recall'), fWC = F('l1.wex.C'), fWE = F('l1.wex.E'), fWH = F('l1.wex.half');\n  const f1a = F('1a'), f1b = F('1b'), fIch = F('l1.Ich'), fIchC = F('l1.Ich.check');\n  const fCh = F('l1.changed'), fChE = F('l1.changed.E');\n\n  // ---------- the lesson's words ----------\n  const R_TASK = \"String A is live in the same corridor. String B's cable from B01 to the OSS is isolated, and you have proved it dead at the OSS end. What must happen before anyone touches its cores?\";\n  const R_O1 = 'Nothing more: it has been proved dead', R_O2 = 'Discharge it, then apply earths at both ends', R_O3 = 'Open the isolator at B01 as well, then start';\n  const R_WORK = 'Proved dead means no voltage at that moment. The core is still a capacitor, and String A can still induce a voltage on it. Discharging empties it. Earths at both ends hold it at earth while you work. The whole sequence is Identify, Isolated, Proved dead, Secured, Earthed.';\n  const R_W1 = 'Proved dead is a snapshot. The core can still hold charge, regain it from its insulation, or pick it up from String A. It is safe to touch only once it is discharged and earthed.';\n  const R_W3 = 'Isolating stops energy from the system. It does not stop String A inducing a voltage, or charge creeping back out of the insulation.';\n  const FOR_TEXT = 'Every test assumes a cable that cannot hurt you. The IR, sheath and VLF sets charge it to a high voltage. So the same discipline comes back at the end of every test.';\n  const FIVE = [['Identify', 'the test points are known.'], ['Isolated', 'every energy source is disconnected.'], ['Proved dead', 'no voltage is verified.'],\n    ['Secured', 'it is locked off and access is controlled.'], ['Earthed', 'earths are applied.']];\n  const WARN1 = 'Four main things set how badly a shock hurts: voltage, resistance, path and duration. At ' + V55 + ' V your body is about ' + k10(BODY) + ' Ω. So ' + V55 + ' V drives ' + fRec.text + '. ' + FATAL + \" mA or more is potentially fatal. Your body's resistance falls as the voltage rises. So a charged HV core drives far more current than that sum suggests.\";\n  const ARMOUR = 'In a three-core subsea cable, armour wraps all three cores. Some designs use a lead sheath in place of the copper wires and foil.';\n  const FOR_READ = \"From the middle out, the core's layers are conductor, inner semi-con, XLPE, outer semi-con, metal screen, aluminium foil and oversheath. Core resistance checks the conductor. IR and VLF check the XLPE between conductor and screen. The sheath test checks the oversheath, screen to earth. TDR uses conductor and screen as a pair.\";\n  const WHY_TEXT = 'The conductor and the screen are two metal plates, with the XLPE between them. So every core is a capacitor. Capacitance grows with the area of the plates, so it grows with length. This cable has about ' + CPK + ' µF per km in each core.\\n\\n'\n    + 'A charged core keeps its charge after it is disconnected. Its charge is Q = C × V. The energy it holds is E = ½ × C × V². While the core sits charged, some charge soaks into the insulation itself. An earth drains the conductor quickly. The charge in the insulation comes back out slowly. So a core earthed for a moment can build a voltage again.';\n  const UNDER2 = \"A breaker breaks a cable's charging current as it passes through zero. That moment falls at the peak of the voltage. So a core switched off is usually left charged at the peak of U0.\\n\\n\"\n    + 'U0 is its voltage between conductor and screen. The peak is √2 × U0, so E = ½ × C × (√2 × U0)² = C × U0². U0 is ' + U0 + ' kV for this 38/66 kV cable.';\n  const WHY_READ = 'A ' + f2(1) + ' km core holds ' + f3(capAt(1)) + ' µF. Switched off at the peak of U0, ' + U0 + ' kV, it could hold ' + f2(energyAt(capAt(1))) + ' J. A longer core holds more. An earth drains it to zero. Lift the earth too soon and some charge creeps back from the insulation.';\n  const CREEP_LINE = 'It has recharged from the insulation. Earth it again and leave the earth on.';\n  const C_TASK = 'A cable with no live neighbours has just had an insulation resistance test. You earth it for a moment, then lift the earth to connect the next lead. What can its core do?';\n  const C_O1 = 'Stay at zero: the earth emptied it', C_O2 = 'Build a voltage again from charge in the insulation', C_O3 = 'Recharge only if its far end is still connected';\n  const C_RIGHT = 'The earth empties the conductor quickly. Charge soaked into the insulation comes out slowly and builds a voltage again. So re-earth it, and keep the earth on until the next lead is connected.';\n  const C_W1 = 'The earth empties the conductor, not the insulation. Its charge comes back out after the earth is lifted.';\n  const C_W3 = 'Nothing outside is needed. The charge comes back out of the insulation itself.';\n  const IND_TEXT = \"String A runs live in the same corridor. Its load current sets up a magnetic field. Where the cables run side by side, that field induces a voltage along String B's core. It works the way a transformer's primary drives its secondary. No connection is needed.\\n\\n\"\n    + \"The voltage grows with String A's current, how close the cables run and how far they run together. String A's voltage does not set it. The earthed screen keeps String A's electric field away from the core. So the magnetic coupling is the one that matters here.\\n\\n\"\n    + 'The induced voltage stands between the two ends of the core. Earth one end, and all of it appears at the other. Earth both ends, and it drives a current round through the earths instead.';\n  const UNDER4 = 'Take ' + VPK + ' V per km as a practice value for String A at full load. It only gives the picture a number.';\n  const WARN4 = 'A fault or switching on String A can push this far higher without warning. Earth both ends before anyone works on the cable.\\n\\n'\n    + 'Lift an earth to connect a test, and that end stands at the induced voltage again. Treat the test end as live while String A runs.';\n  const IND_READ = 'With only the OSS end earthed, the B01 end sits at the induced voltage. That is ' + Math.round(VPK * LEN) + ' V over ' + f2(LEN) + ' km, at the practice ' + VPK + ' V per km. Earth both ends and both are held at earth. A current circulates through the earths instead.';\n  const WL = [\n    { w: 'Your body at ' + V55 + ' V: I = V ÷ R = ' + fRec.work, post: 'That is under ' + FATAL + ' mA. But the ' + k10(BODY) + \" Ω holds only near \" + V55 + \" V. At HV your body's resistance is lower.\" },\n    { pre: 'A charged core is what would drive that current. Take a ' + f2(WLEN) + ' km core of this cable, a practice length.', w: 'C = ' + fWC.work },\n    { pre: 'Switched off at the peak of U0:', w: 'E = C × U0² = ' + fWE.work },\n  ];\n  const WK_NOTE = 'Leave out the peak and you get ½ × C × U0² = ' + fWH.text + ', half the energy at the peak.';\n  const WK_READ = 'At ' + V55 + ' V your body takes ' + V55 + ' ÷ ' + k10(BODY) + ' = ' + fRec.text + '. That is under ' + FATAL + ' mA, but the figure holds only near ' + V55 + ' V. A ' + f2(WLEN) + ' km core holds ' + fWC.work + '. At the peak of U0, ' + U0 + ' kV, it could hold ' + fWE.work + '.';\n  const Q1A = '(a) Determine the capacitance of one core of String B, from B01 to the OSS.';\n  const NOTE_1A = 'Take ' + CPK + \" µF per km, a typical figure for this cable. On a real job, use the cable's own data sheet.\";\n  const AS_1B = 'Once String B is in service, it will be switched off for maintenance.';\n  const Q1B = '(b) Determine the most energy one core could hold if it were switched off at the peak of its phase voltage. U0 is ' + U0 + ' kV for this 38/66 kV cable.';\n  const Q_CH = 'A core of the same type of cable runs ' + f2(LCH) + ' km. U0 is again ' + U0 + ' kV. Determine the most energy it could hold if it were switched off at the peak of U0.';\n\n  let lines = 0, chip = null, lastStep = -1, finished = false;\n  const STEPS = [\n    { name: 'Do you still have it?', label: 'Do you still have it?', task: R_TASK, opts: [R_O1, R_O2, R_O3], want: R_O2, why: R_WORK, still: () => stillRight(iR) },\n    { show: true, name: 'What it is for', label: 'What it is for', text: FOR_TEXT, read: FOR_READ,\n      still: () => { chip = 'all'; K.refresh(); } },\n    { show: true, name: 'The why', label: 'The why: a capacitor kilometres long', text: WHY_TEXT, terms: ['a capacitor', 'soaks into the insulation'], read: WHY_READ,\n      still: () => creptStill() },\n    { name: 'Check', label: 'Check', task: C_TASK, opts: [C_O1, C_O2, C_O3], want: C_O2, why: C_RIGHT, still: () => stillRight(iChk) },\n    { show: true, name: 'The live string beside it', label: 'The live string beside it', text: IND_TEXT, terms: ['induces a voltage'], read: IND_READ,\n      still: { run: 2.4, earths: 'OSS end only' } },\n    { show: true, name: 'Worked example', label: 'Worked example: your body, then a core', text: '', read: WK_READ,\n      still: () => { lines = WL.length; K.refresh(); } },\n    { name: 'Section A 1(a)', label: 'Section A · Question 1', part: Q1A, task: Q1A + ' ' + NOTE_1A, want: f1a.text, why: 'C = ' + f1a.work, still: () => stillRight(i1A) },\n    { name: 'Section A 1(b)', label: 'Section A · Question 1', assume: AS_1B, part: Q1B, task: AS_1B + ' ' + Q1B, want: f1b.text, why: 'E = C × U0² = ' + f1b.work, still: () => stillRight(i1B) },\n    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },\n    { name: 'Changed numbers', label: 'Section A · Changed numbers', part: Q_CH, task: Q_CH, want: fChE.text, why: 'C = ' + fCh.work + '. E = ' + fChE.work, still: () => stillRight(iCh) },\n    { kind: 'summary', name: 'Keep this', label: 'Keep this' },\n  ];\n  const iR = 0, iFor = 1, iWhy = 2, iChk = 3, iInd = 4, iWk = 5, i1A = 6, i1B = 7, iB1 = 8, iCh = 9, iK = 10;\n  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, fb: null }));\n  const WORKING = [iWk, i1A, i1B, iCh];\n\n  // Words with key terms in amber (the <mark> element), built with K.el, never innerHTML.\n  function write(node, s, terms) {\n    node.textContent = '';\n    let rest = String(s || '');\n    const list = (terms || []).slice();\n    while (rest) {\n      let at0 = -1, hit = null;\n      list.forEach((t) => { const k = rest.indexOf(t); if (k >= 0 && (at0 < 0 || k < at0)) { at0 = k; hit = t; } });\n      if (at0 < 0) { node.appendChild(document.createTextNode(nb(rest))); break; }\n      if (at0 > 0) node.appendChild(document.createTextNode(nb(rest.slice(0, at0))));\n      node.appendChild(K.el('mark', null, nb(hit)));\n      list.splice(list.indexOf(hit), 1);\n      rest = rest.slice(at0 + hit.length);\n    }\n    return node;\n  }\n  function paras(node, s, terms) {\n    node.textContent = '';\n    String(s || '').split('\\n\\n').forEach((t) => { if (t) node.appendChild(write(K.el('p'), t, terms)); });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const lenCtl = K.control({ id: 'len', label: 'Length', min: 0.4, max: 2.4, step: 0.2, value: 1, fmt: (v) => f2(snapKm(v)) + ' km', into: '#ctl2' });\n  const earthCtl = K.toggle({ id: 'earth', label: 'Earth switch closed', value: false, into: '#ctl2c' });\n  K.readout({ id: 'C', label: 'Capacitance', unit: 'µF', decimals: 3, into: '#outs2' });\n  K.readout({ id: 'E', label: 'Most energy, off at the peak', unit: 'J', decimals: 2, into: '#outs2' });\n  K.control({ id: 'run', label: 'Parallel run', min: 0.4, max: 2.4, step: 0.2, value: 2.4, fmt: (v) => f2(snapKm(v)) + ' km', into: '#ctl4' });\n  K.choice({ id: 'earths', label: 'Earths', options: ['OSS end only', 'Both ends'], value: 'OSS end only', into: '#ctl4' });\n  K.readout({ id: 'V', label: 'Voltage at the B01 end', unit: 'V', decimals: 0, into: '#outs4' });\n\n  K.model((p) => {\n    const C = capAt(snapKm(p.len));\n    return { C, E: energyAt(C), V: p.earths === 'Both ends' ? 0 : Math.round(VPK * snapKm(p.run)) };\n  });\n\n  // ---------- the charge on one core: plates, and charge soaked into the XLPE ----------\n  // A sketch with no scale, sped up: the plates fill on Switch off at the peak; an earth drains\n  // them; charge soaked into the XLPE drifts out afterwards, down the earth while it is on, or\n  // back onto the plates once it is lifted.\n  const NSEG = 12, SC = 90, XR = 250, XS = 282, YCD = 102, YE = 168, SEGW = 0.2 * SC;\n  const ARR = 1, LEAVE = 1.4, STAG = 0.04, OUT_T = 0.7, DLEAVE = 1.1, HOLD = 7, CREEP = 2.6;\n  function freshSim() {\n    const s = { pl: 'off', t: 0, charge: 9, cAt: Infinity, drained: false, h: 0, dots: [] };\n    for (let j = 0; j < NSEG * 2; j++) {\n      const seg = j >> 1, top = j % 2 === 0;\n      s.dots.push({ seg, top, x: XR - (seg + (top ? 0.28 : 0.72)) * SEGW, y: top ? 85 : 119, k: 0.04 + ((j * 0.618034) % 1) * 0.92, st: 'none', t: 0, from: false });\n    }\n    return s;\n  }\n  // Left charged, each mark soaks in at its own moment; an earth stops any more soaking in.\n  const soakA = (s, d) => clamp01((Math.min(s.charge, s.cAt) - 0.6 - d.k * 2.2) / 0.4);\n  function charge(s) { s.pl = 'arriving'; s.t = 0; s.charge = 0; s.cAt = Infinity; s.drained = false; s.h = 0; s.dots.forEach((d) => { d.st = 'in'; d.t = 0; d.from = false; }); }\n  function tick(s, dt, earth) {\n    s.charge += dt;\n    if (earth && (s.pl === 'on' || s.pl === 'arriving')) {\n      s.pl = 'leaving'; s.t = 0; s.drained = true; s.cAt = s.charge;\n      s.dots.forEach((d) => { if (d.st === 'in' && soakA(s, d) <= 0.01) d.st = 'none'; });\n    }\n    else if (s.pl === 'arriving') { s.t += dt; if (s.t >= ARR + STAG * NSEG) s.pl = 'on'; }\n    else if (s.pl === 'leaving') { s.t += dt; if (s.t >= LEAVE + STAG * NSEG) s.pl = 'off'; }\n    if (s.drained && s.dots.some((d) => d.st === 'in')) s.h = Math.min(1, s.h + dt / (earth ? HOLD : CREEP));\n    s.dots.forEach((d) => {\n      if (d.st === 'in') { if (s.drained && d.k < s.h) { d.st = 'out'; d.t = 0; } }\n      else if (d.st === 'out') { d.t += dt; if (d.t >= OUT_T) { d.t = 0; d.from = false; d.st = earth ? 'leave' : 'plate'; } }\n      else if (d.st === 'plate') { if (earth) { d.st = 'leave'; d.t = 0; d.from = true; } }\n      else if (d.st === 'leave') { d.t += dt; if (d.t >= DLEAVE) d.st = 'gone'; }\n    });\n  }\n  function busy(s, earth) {\n    return s.pl === 'arriving' || s.pl === 'leaving' || (earth && s.pl === 'on') || s.charge < 3.3\n      || s.dots.some((d) => d.st === 'out' || d.st === 'leave' || (earth && d.st === 'plate') || (s.drained && d.st === 'in'));\n  }\n  const plateLevel = (s) => s.pl === 'on' ? 1 : s.pl === 'arriving' ? K.ease(clamp01(s.t / ARR)) : s.pl === 'leaving' ? 1 - K.ease(clamp01(s.t / LEAVE)) : 0;\n  function creepLevel(s, n) {\n    let c = 0;\n    s.dots.forEach((d) => { if (d.seg >= n) return; if (d.st === 'plate') c += 1; else if (d.st === 'leave' && d.from) c += 1 - K.ease(clamp01(d.t / DLEAVE)); });\n    return CREEP_SHARE * c / (2 * n);\n  }\n  // Along the conductor to the switch, then down the lead to earth.\n  function along(x, y, q) {\n    const L1 = XS - x, L2 = YE - y, d = q * (L1 + L2);\n    return d <= L1 ? [x + d, y] : [XS, y + d - L1];\n  }\n  let sim = freshSim();\n  function creptStill() {\n    lenCtl.set(1); earthCtl.set(false);\n    sim = freshSim(); sim.drained = true; sim.h = 1;\n    sim.dots.forEach((d) => { d.st = 'plate'; });\n    K.refresh();\n  }\n\n  const BAR = Array.from(document.querySelectorAll('#core .bar'));\n  const plus = [], minT = [], minB = [], dotEl = [];\n  for (let i = 0; i < NSEG; i++) {\n    plus.push(el('marks').appendChild(K.svg('path', { class: 'mk' })));\n    minT.push(el('marks').appendChild(K.svg('path', { class: 'mk' })));\n    minB.push(el('marks').appendChild(K.svg('path', { class: 'mk' })));\n  }\n  for (let j = 0; j < NSEG * 2; j++) dotEl.push(el('dots').appendChild(K.svg('circle', { class: 'soak', r: 2.2 })));\n  function mark(e, d, a) { if (a <= 0.01) { vis(e, false); return; } vis(e, true); e.setAttribute('d', d); e.setAttribute('opacity', a.toFixed(2)); }\n  el('creep').appendChild(K.el('p', null, CREEP_LINE));\n\n  function drawCore(p) {\n    const len = snapKm(p.len), n = Math.round(len * 5), x0 = XR - SC * len, earth = !!p.earth;\n    BAR.forEach((r) => { r.setAttribute('x', x0.toFixed(1)); r.setAttribute('width', (XR - x0).toFixed(1)); });\n    el('brk').setAttribute('d', 'M' + x0.toFixed(1) + ' 54v8M' + x0.toFixed(1) + ' 58H' + XR + 'M' + XR + ' 54v8');\n    const lab = el('lenlab');\n    lab.setAttribute('x', ((x0 + XR) / 2).toFixed(1));\n    lab.textContent = nb(f2(len) + ' km');\n    el('b01').setAttribute('x', (x0 - 5).toFixed(1));\n    el('blade').setAttribute('x2', earth ? XS : 264);\n    el('blade').setAttribute('y2', earth ? 116 : 124);\n    for (let i = 0; i < NSEG; i++) {\n      const xi = XR - (i + 0.5) * SEGW;\n      let a = 0, am = 0, pos = [xi, YCD];\n      if (i < n) {\n        if (sim.pl === 'on') { a = 1; am = 1; }\n        else if (sim.pl === 'arriving') { a = am = K.ease(clamp01((sim.t - i * STAG) / ARR)); }\n        else if (sim.pl === 'leaving') { const q = clamp01((sim.t - i * STAG) / LEAVE); pos = along(xi, YCD, K.ease(q)); a = q < 0.75 ? 1 : (1 - q) / 0.25; am = 1 - K.ease(q); }\n      }\n      mark(plus[i], 'M' + (pos[0] - 4).toFixed(1) + ' ' + pos[1].toFixed(1) + 'h8M' + pos[0].toFixed(1) + ' ' + (pos[1] - 4).toFixed(1) + 'v8', a);\n      mark(minT[i], 'M' + (xi - 4).toFixed(1) + ' 72h8', am);\n      mark(minB[i], 'M' + (xi - 4).toFixed(1) + ' 132h8', am);\n    }\n    sim.dots.forEach((d, j) => {\n      const c = dotEl[j];\n      if (d.seg >= n || d.st === 'none' || d.st === 'gone') { vis(c, false); return; }\n      const edge = d.top ? 97 : 107;\n      let x = d.x, y = d.y, a = 1;\n      if (d.st === 'in') a = soakA(sim, d);\n      else if (d.st === 'out') y = d.y + (edge - d.y) * K.ease(clamp01(d.t / OUT_T));\n      else if (d.st === 'plate') y = edge;\n      else if (d.st === 'leave') { const q = clamp01(d.t / DLEAVE); const pt = along(d.x, edge, K.ease(q)); x = pt[0]; y = pt[1]; a = q < 0.7 ? 1 : (1 - q) / 0.3; }\n      if (a <= 0.01) { vis(c, false); return; }\n      vis(c, true);\n      c.setAttribute('cx', x.toFixed(1)); c.setAttribute('cy', y.toFixed(1)); c.setAttribute('opacity', a.toFixed(2));\n    });\n    // The core's voltage: the plates, plus whatever has crept back from the XLPE.\n    const pl = plateLevel(sim), cr = creepLevel(sim, n), V = Math.min(1, pl + cr), back = pl < 0.02 && cr > 0.002;\n    el('vfill').setAttribute('width', (328 * V).toFixed(1));\n    el('vfill').setAttribute('class', back ? 'vf back' : 'vf');\n    const mine = sim.dots.filter((d) => d.seg < n);\n    const moving = mine.some((d) => d.st === 'in' || d.st === 'out');\n    const crept = sim.drained && !earth && sim.pl === 'off' && !moving && mine.some((d) => d.st === 'plate');\n    let stt = 'zero', warned = false;\n    if (V > 0.004) {\n      if (sim.pl === 'arriving') stt = 'rising';\n      else if (sim.pl === 'on') stt = 'full';\n      else if (sim.pl === 'leaving' || earth) stt = 'falling';\n      else if (back) { warned = true; stt = moving ? 'creeping back' : 'back up'; }\n    }\n    const vst = el('vst');\n    vst.textContent = stt;\n    vst.setAttribute('class', warned ? 'wt' : 'tk');\n    const L = f2(len) + ' km', Ct = f3(capAt(len)) + ' µF', Et = f2(energyAt(capAt(len))) + ' J';\n    let s;\n    if (sim.pl === 'arriving' || sim.pl === 'on') s = 'Switched off at the peak, this ' + L + ' core keeps ' + Et + ' on its ' + Ct + '.' + (mine.some((d) => d.st === 'in' && soakA(sim, d) > 0.01) ? ' Left charged, some of it soaks into the XLPE.' : '');\n    else if (sim.pl === 'leaving') s = 'The earth lets the charge on the plates flow away. The charge in the XLPE stays put for now.';\n    else if (!sim.drained) s = (earth ? 'The earth is on, and this ' : 'This ') + L + ' core holds no charge yet. Switched off at the peak, its ' + Ct + ' would hold ' + Et + '.';\n    else if (crept) s = 'The charge that soaked into the XLPE has come back out. It has built a voltage on the core again.';\n    else if (!earth && moving) s = 'The earth is off. Charge from the XLPE drifts back onto the plates, so the voltage creeps up again.';\n    else if (earth && mine.some((d) => d.st !== 'gone' && d.st !== 'none')) s = 'The plates are empty. Charge from the XLPE drifts out, and the earth carries it straight away.';\n    else s = earth ? 'The earth stayed on until the XLPE had emptied. Now the core holds no charge.' : 'Nothing is left in the XLPE to come back. The core holds no charge.';\n    el('say2').textContent = nb(s);\n    const cw = el('creep'), showW = at() === iWhy && crept;\n    if (showW && cw.hidden) { cw.classList.remove('fade'); void cw.offsetWidth; cw.classList.add('fade'); }\n    cw.hidden = !showW;\n    el('core').setAttribute('aria-label', 'One core drawn lengthwise, ' + L + ' from B01 to the OSS, with the earth switch ' + (earth ? 'closed' : 'open') + '. '\n      + (V > 0.004 ? (back ? 'Charge from the XLPE has put a voltage back on the core.' : 'The core is charged.') : 'The core holds no voltage.'));\n  }\n  const coreAnim = K.anim({ button: false, label: 'Charge on the core', step: (dt) => {\n    if (at() !== iWhy) return false;\n    const p = K.params();\n    tick(sim, Math.min(dt, 0.1), !!p.earth);\n    drawCore(p);\n    return busy(sim, !!p.earth);\n  } });\n  K.button({ label: 'Switch off at the peak', into: '#ctl2b', press: () => {\n    if (at() !== iWhy) return;\n    if (earthCtl.get()) earthCtl.set(false);\n    charge(sim);\n    K.refresh();\n    if (!coreAnim.playing()) coreAnim.play();\n  } });\n\n  // ---------- what it is for: one core in cross-section ----------\n  const XC = 96, YC1 = 108;\n  const LAYERS = [\n    { id: 'cond', name: 'Conductor', r: 24, cls: 'l-cond' }, { id: 'isemi', name: 'Inner semi-con', r: 28, cls: 'l-semi' },\n    { id: 'xlpe', name: 'XLPE insulation', r: 52, cls: 'l-xlpe' }, { id: 'osemi', name: 'Outer semi-con', r: 56, cls: 'l-semi' },\n    { id: 'scr', name: 'Metal screen', r: 62, cls: 'l-scr' }, { id: 'foil', name: 'Aluminium foil', r: 65, cls: 'l-foil' },\n    { id: 'over', name: 'Oversheath', r: 76, cls: 'l-over' },\n  ];\n  const TESTS = [\n    { name: 'Core resistance', line: 'The conductor, end to end.', lit: ['cond'], paths: ['dot'], where: 'the conductor' },\n    { name: 'IR', line: 'Conductor to screen, through the XLPE, at a steady d.c. voltage.', lit: ['xlpe'], paths: ['ir'], where: 'the XLPE' },\n    { name: 'Sheath test', line: 'Screen to earth, through the oversheath.', lit: ['over'], paths: ['sheath'], where: 'the oversheath' },\n    { name: 'VLF', line: 'Conductor to screen again, well above the working voltage.', lit: ['xlpe'], paths: ['vlf'], where: 'the XLPE' },\n    { name: 'TDR', line: 'Conductor and screen together, as a line a pulse runs along.', lit: ['cond', 'scr'], paths: ['dot', 'ring'], where: 'the conductor and screen' },\n  ];\n  const PATHS = {};\n  (function xsec() {\n    const svg = el('xsec'), fx = (v) => v.toFixed(1);\n    for (let k = LAYERS.length - 1; k >= 0; k--) LAYERS[k].circle = svg.appendChild(K.svg('circle', { cx: XC, cy: YC1, r: LAYERS[k].r, class: LAYERS[k].cls }));\n    function radial(r0, r1, deg) {\n      const a = deg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a), g = K.svg('g');\n      g.appendChild(K.svg('line', { class: 'path', x1: fx(XC + r0 * c), y1: fx(YC1 + r0 * s), x2: fx(XC + (r1 - 7) * c), y2: fx(YC1 + (r1 - 7) * s) }));\n      const bx = XC + (r1 - 9) * c, by = YC1 + (r1 - 9) * s, nx = -s * 5, ny = c * 5;\n      g.appendChild(K.svg('path', { class: 'head', d: 'M' + fx(XC + r1 * c) + ' ' + fx(YC1 + r1 * s) + 'L' + fx(bx + nx) + ' ' + fx(by + ny) + 'L' + fx(bx - nx) + ' ' + fx(by - ny) + 'Z' }));\n      return g;\n    }\n    const dot = K.svg('g');\n    dot.appendChild(K.svg('circle', { class: 'path', cx: XC, cy: YC1, r: 7 }));\n    dot.appendChild(K.svg('circle', { class: 'head', cx: XC, cy: YC1, r: 2.5 }));\n    PATHS.ring = svg.appendChild(K.svg('circle', { class: 'path dash', cx: XC, cy: YC1, r: 59 }));\n    PATHS.dot = svg.appendChild(dot);\n    PATHS.ir = svg.appendChild(radial(25, 58, 200));\n    PATHS.vlf = svg.appendChild(radial(25, 58, 240));\n    PATHS.sheath = svg.appendChild(radial(60, 92, 160));\n    LAYERS.forEach((L, k) => {\n      const rm = ((k ? LAYERS[k - 1].r : 0) + L.r) / 2, ang = (-60 + 20 * k) * Math.PI / 180;\n      const px = XC + rm * Math.cos(ang), py = YC1 + rm * Math.sin(ang), ly = 32 + 26 * k;\n      svg.appendChild(K.svg('line', { class: 'lead', x1: fx(px), y1: fx(py), x2: 190, y2: ly - 4 }));\n      svg.appendChild(K.svg('circle', { class: 'ldot', cx: fx(px), cy: fx(py), r: 2 }));\n      const t = svg.appendChild(K.svg('text', { class: 'lb', x: 194, y: ly }));\n      t.textContent = L.name;\n    });\n  })();\n  const chipBtns = TESTS.map((x) => K.button({ label: x.name, secondary: true, into: '#chips', press: () => { chip = x.name; K.refresh(); } }));\n  function drawXsec() {\n    const t = chip === 'all' ? TESTS : TESTS.filter((x) => x.name === chip);\n    const lit = {}, on = {};\n    t.forEach((x) => { x.lit.forEach((l) => { lit[l] = 1; }); x.paths.forEach((q) => { on[q] = 1; }); });\n    LAYERS.forEach((L) => L.circle.setAttribute('class', L.cls + (lit[L.id] ? ' lit' : '')));\n    Object.keys(PATHS).forEach((k) => vis(PATHS[k], !!on[k]));\n    chipBtns.forEach((b, k) => { const pressed = chip === TESTS[k].name; b.el.classList.toggle('on', pressed); b.el.setAttribute('aria-pressed', pressed ? 'true' : 'false'); });\n    const box = el('chipline');\n    box.textContent = '';\n    t.forEach((x) => box.appendChild(K.el('p', null, K.el('b', null, x.name + ': '), nb(x.line))));\n    box.hidden = at() !== iFor || !t.length;\n    el('xsec').setAttribute('aria-label', 'One core in cross-section: seven layers from the conductor in the middle out to the oversheath.'\n      + (t.length ? ' Lit: ' + t.map((x) => x.name + ' on ' + x.where).join('; ') + '.' : ''));\n  }\n\n  // ---------- the live string beside it ----------\n  const XA1 = 286, SC4 = 95, rings = [], chev = [];\n  for (let k = 0; k < NSEG; k++) rings.push(el('rings').appendChild(K.svg('ellipse', { class: 'ring', rx: 6, ry: 34, cy: 138, cx: 0 })));\n  for (let k = 0; k < 14; k++) chev.push(el('chev').appendChild(K.svg('path', { class: 'chev' })));\n  let flowT = 0, flowLeft = 0, flowKey = '', xa0 = XA1 - SC4 * 2.4;\n  const FLOW_RUN = 4;\n  function drawFlow() {\n    const span = XA1 - xa0 - 12, gap = 19, m = Math.floor(span / gap) + 1;\n    chev.forEach((c, k) => {\n      if (k >= m) { vis(c, false); return; }\n      const x = xa0 + 6 + ((flowT * 16 + k * gap) % (m * gap));\n      if (x > XA1 - 4) { vis(c, false); return; }\n      vis(c, true);\n      c.setAttribute('d', 'M' + (x - 2.5).toFixed(1) + ' 149L' + (x + 2).toFixed(1) + ' 152L' + (x - 2.5).toFixed(1) + ' 155');\n    });\n    el('circ').setAttribute('stroke-dashoffset', (-(flowT * 16) % 14).toFixed(1));\n  }\n  function drawLine(p) {\n    const run = snapKm(p.run), n = Math.round(run * 5), both = p.earths === 'Both ends', vRun = Math.round(VPK * run);\n    xa0 = XA1 - SC4 * run;\n    el('lineA').setAttribute('d', 'M0 216H' + (xa0 - 12).toFixed(1) + 'L' + xa0.toFixed(1) + ' 152H' + XA1 + 'L292 216H340');\n    rings.forEach((r, k) => { vis(r, k < n); if (k < n) r.setAttribute('cx', (XA1 - (k + 0.5) * SC4 * 0.2).toFixed(1)); });\n    el('brk4').setAttribute('d', 'M' + xa0.toFixed(1) + ' 58v8M' + xa0.toFixed(1) + ' 62H' + XA1 + 'M' + XA1 + ' 58v8');\n    el('brklab4').setAttribute('x', K.clamp((xa0 + XA1) / 2, 46, 290).toFixed(1));\n    vis(el('glow'), !both);\n    vis(el('circ'), both);\n    el('bladeL').setAttribute('x2', both ? 34 : 18);\n    el('bladeL').setAttribute('y2', both ? 124 : 128);\n    drawFlow();\n    el('say4').textContent = nb(both\n      ? 'Both ends are earthed, so neither end can stand at a voltage. The ' + vRun + ' V induced along the run drives a current round through the two earths instead.'\n      : \"String A's field induces \" + vRun + ' V along the ' + f2(run) + ' km run. Only the OSS end is earthed, so the B01 end stands at all ' + vRun + ' V.');\n    el('line4').setAttribute('aria-label', 'String A runs live below String B for a ' + f2(run) + ' km parallel run, with field rings round it that reach String B. '\n      + (both ? 'Both ends of String B are earthed, and a current circulates through the earths.' : 'Only the OSS end of String B is earthed, so the B01 end stands at the induced voltage.'));\n  }\n  const flowAnim = K.anim({ button: false, label: 'Current in String A', step: (dt) => {\n    if (at() !== iInd) return false;\n    const d = Math.min(dt, 0.1);\n    flowT += d; flowLeft -= d;\n    drawFlow();\n    return flowLeft > 0;\n  } });\n\n  // ---------- picks: one tap answers ----------\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));\n  function pick(k) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.opts || k >= d.opts.length) return;\n    if (i === iR) {\n      if (st.res) return;     // a recall gets one go\n      st.pick = d.opts[k];\n      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Still there.', p0: R_WORK }; }\n      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === R_O1 ? R_W1 : R_W3, p: R_WORK }; }\n    } else if (i === iChk) {\n      if (st.res === 'right') return;\n      st.pick = d.opts[k];\n      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: \"That's it.\", p0: C_RIGHT }; }\n      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === C_O1 ? C_W1 : C_W3 }; }\n    }\n    K.refresh();\n  }\n  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iFor); } });\n  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(i1A); } });\n\n  // ---------- Section A: typed answers on the course's figures ----------\n  const scen = K.scenario({ into: '#scen', open: true });\n  K.carried({ parts: ['1a'], into: '#carry1b' });\n  const C1A = capAt(LEN), CCH = capAt(LCH);\n  const SPEC = {\n    [i1A]: { id: '1a', fig: f1a, unit: 'µF', decimals: 3, accept: [],\n      work: () => ['C = ' + f1a.work],\n      slips: [\n        { value: F('1a.slip3').value, hint: 'That is all three cores. Each core has its own screen, so each is a capacitor of its own.' },\n        { value: CPK, hint: 'That is one km. Multiply by the ' + f2(LEN) + ' km run.' },\n        { value: F('1a.slipDiv').value, hint: \"Multiply the per-km figure by the length. Don't divide.\" },\n      ],\n      hint: 'Not quite. Multiply the per-km figure by the length of the run.',\n      after: 'The ' + f1a.text + \" agrees with the maker's charging current. In service at \" + HZ + ' Hz, ' + fIch.work + \". This cable's charging current is typically \" + ICH + ' A per km. ' + fIchC.work + '.' },\n    [i1B]: { id: '1b', fig: f1b, unit: 'J', decimals: 2, accept: [root2At(C1A)],\n      work: () => ['E = ½ × C × (√2 × U0)² = C × U0²', 'E = ' + f1b.work],\n      slips: [\n        { value: F('1b.slip').value, hint: 'That is ½ × C × U0². The peak is √2 × U0, and squaring √2 doubles the energy.' },\n        { value: F('1b.slip2').value, hint: 'You left out the half in ½ × C × V².' },\n      ],\n      hint: 'Not quite. Use E = C × U0², with C in farads and U0 in volts.',\n      after: 'That much energy can sit on a core that has been switched off and isolated. That is why the core is discharged and earthed before anyone touches it.' },\n    [iCh]: { id: 'l1.changed.E', fig: fChE, unit: 'J', decimals: 2, accept: [root2At(CCH)],\n      work: () => ['C = ' + fCh.work, 'E = ' + fChE.work],\n      slips: [\n        { value: F('l1.changed.slip1').value, hint: 'That leaves out the peak. Use C × U0².' },\n        { value: F('l1.changed.slip2').value, hint: 'You left out the half.' },\n        { value: f1b.value, hint: \"That is String B's \" + f2(LEN) + ' km. This core is ' + f2(LCH) + ' km.' },\n      ],\n      hint: 'Not quite. Work out C for this length first, then E = C × U0².',\n      after: 'A shorter core has less capacitance, so it stores less. The discipline is the same.' },\n  };\n  const BOX = { [i1A]: '#ans-1a', [i1B]: '#ans-1b', [iCh]: '#ans-ch' };\n  const ANS = {};\n  Object.keys(SPEC).forEach((key) => {\n    const i = +key, sp = SPEC[i];\n    const a = K.answer({ id: sp.id, unit: sp.unit, answer: sp.fig.value, decimals: sp.decimals, accept: sp.accept, slips: sp.slips, into: BOX[i],\n      onCheck: (r) => {\n        const st = S[i];\n        if (st.shown) return;\n        if (r.state === 'right') {\n          st.res = 'right';\n          st.fb = { ok: true, v: 'Right.', w: sp.work(), p: r.accepted != null ? 'That rounds √2 to 1.414 first. Worked as C × U0², it is ' + sp.fig.text + '.' : '' };\n        } else if (r.state === 'wrong') {\n          st.tries += 1;\n          if (st.tries >= 2) {\n            st.shown = true; st.res = 'shown';\n            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.work() };\n            a.reveal();\n          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }\n        } else { st.res = r.state; st.fb = null; }\n        K.refresh();\n      } });\n    ANS[i] = a;\n  });\n  // A still (the read-through's picture of a question): the step answered right, as he would answer it.\n  function stillRight(i) {\n    const d = STEPS[i], st = S[i], a = ANS[i];\n    if (d.opts) {\n      if (st.res === 'right') return;\n      Object.assign(st, { res: null, pick: null, fb: null });\n      pick(d.opts.indexOf(d.want));\n    } else if (a && st.res !== 'right') {\n      Object.assign(st, { res: null, tries: 0, shown: false, fb: null });\n      a.set(String(SPEC[i].fig.value));\n      a.check();\n    }\n    K.refresh();\n  }\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });\n\n  // ---------- Section B and Keep this ----------\n  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];\n  function markLine(id) {\n    const w = K.lesson && K.lesson.written && K.lesson.written[id];\n    const n = w && Array.isArray(w.points) ? w.points.length : 0, need = w ? +w.need : 0;\n    return n && need ? 'You write the answer. It is marked against ' + (WORDS[n] || n) + ' points, and any ' + (WORDS[need] || need) + ' make a full answer. You get one more go, then the model answer.'\n      : 'You write the answer, in your own words. You get one more go, then the model answer.';\n  }\n  const wB1 = K.written({ id: 'b1', into: '#wr1', onMark: () => K.refresh() });\n  el('wr1').addEventListener('click', () => K.refresh());\n  K.summary({ into: '#keep' });\n  (function () {\n    const tw = document.createTreeWalker(el('keep'), NodeFilter.SHOW_TEXT), ns = [];\n    while (tw.nextNode()) ns.push(tw.currentNode);\n    ns.forEach((n) => { n.nodeValue = nb(n.nodeValue); });\n  })();\n  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {\n    if (at() !== iK) return;\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n    K.refresh();\n  } });\n\n  // ---------- the worked example, a line at each press ----------\n  const wbox = K.el('div', { class: 'wl' }, K.el('p', { class: 'k-label' }, 'Your body, then a ' + f2(WLEN) + ' km core'));\n  const wl = WL.map((x) => {\n    const box = K.el('div', { class: 'line' });\n    if (x.pre) box.appendChild(K.el('p', null, nb(x.pre)));\n    box.appendChild(K.el('p', { class: 'w' }, nb(x.w)));\n    if (x.post) box.appendChild(K.el('p', { class: 'sub' }, nb(x.post)));\n    wbox.appendChild(box);\n    return box;\n  });\n  const wnote = K.el('p', { class: 'sub' }, nb(WK_NOTE));\n  wbox.appendChild(wnote);\n  el('worked').appendChild(wbox);\n  const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {\n    if (at() !== iWk || lines >= wl.length) return;\n    const w = wl[lines]; lines += 1;\n    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');\n    K.refresh();\n  } });\n\n  // ---------- fixed words on their screens ----------\n  (function fixed() {\n    FIVE.forEach(([h, t]) => el('five').appendChild(K.el('li', null, K.el('b', null, h), ': ' + t)));\n    el('warn1').appendChild(K.el('p', { class: 'wh' }, 'If it is skipped'));\n    el('warn1').appendChild(K.el('p', null, nb(WARN1)));\n    el('armour').textContent = ARMOUR;\n    el('qnote').textContent = nb(NOTE_1A);\n    paras(el('under2'), UNDER2, ['the peak of U0']);\n    paras(el('under4'), UNDER4);\n    paras(el('warn4'), WARN4);\n  })();\n\n  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }\n  const faded = {};\n  function fade(node, key) {\n    if (node.hidden) { faded[node.id] = ''; return; }\n    if (faded[node.id] === key) return;\n    faded[node.id] = key;\n    node.classList.remove('fade'); void node.offsetWidth; node.classList.add('fade');\n  }\n  function paintFb(f) {\n    const fb = el('fb');\n    fb.textContent = '';\n    fb.hidden = !f;\n    if (!f) return;\n    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');\n    fb.appendChild(K.el('p', { class: 'v' }, f.v));\n    if (f.p0) fb.appendChild(K.el('p', null, nb(f.p0)));\n    (f.w || []).forEach((t) => fb.appendChild(K.el('p', { class: 'w' }, nb(t))));\n    if (f.p) fb.appendChild(K.el('p', null, nb(f.p)));\n  }\n\n  // ---------- nav ----------\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });\n  function canGo(i) {\n    const d = STEPS[i], st = S[i];\n    if (d.show) return true;\n    if (i === iR) return st.res === 'wrong';\n    if (i === iChk) return st.res === 'right';\n    if (ANS[i]) return st.res === 'right' || st.shown;\n    if (i === iB1) return !!(wB1 && wB1.answered && wB1.answered());\n    return false;\n  }\n\n  const ON = { scen: [i1A, i1B], carry1b: [i1B], assume: [i1B], qnote: [i1A],\n    five: [iFor], warn1: [iFor], wrap1: [iFor], armour: [iFor], chips: [iFor], chipline: [iFor],\n    wrap2: [iWhy], ctl2: [iWhy], ctl2b: [iWhy], ctl2c: [iWhy], outs2: [iWhy], say2: [iWhy], creep: [iWhy], under2: [iWhy],\n    wrap4: [iInd], ctl4: [iInd], outs4: [iInd], say4: [iInd], under4: [iInd], warn4: [iInd],\n    worked: [iWk], workedgo: [iWk], picks: [iR, iChk],\n    'ans-1a': [i1A], 'ans-1b': [i1B], 'ans-ch': [iCh], wr1: [iB1], keep: [iK], fin: [iK] };\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; if (i === i1A || i === i1B) scen.el.open = i === i1A; }\n    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });\n    el('cap').hidden = WORKING.indexOf(i) < 0;\n\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;\n    paras(el('assume'), d.assume || '');\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    if (d.show) paras(task, d.text, d.terms);\n    else write(task, d.part || (d.kind ? '' : d.task));\n    task.hidden = !task.textContent;\n    const sub = el('sub');\n    sub.className = 'sub' + (i === iFor || i === iWhy || i === iInd || i === iWk ? ' ask' : '');\n    sub.textContent = i === iFor ? 'Tap a test to light its layer.'\n      : i === iWhy ? 'Press Switch off at the peak, close the earth, then open it again.'\n      : i === iInd ? 'Drag the run shorter, then earth both ends.'\n      : i === iWk ? 'Work each line yourself first, then press Show.'\n      : i === i1A ? nb('Give it in µF, to 3 places.')\n      : i === i1B ? 'Give it in joules.'\n      : i === iB1 ? markLine('b1')\n      : i === iCh ? 'Same method, new numbers. Give it in joules.'\n      : i === iK ? 'One card to come back to on a real job.' : '';\n    sub.hidden = !sub.textContent;\n\n    drawXsec();\n    drawCore(p);\n    drawLine(p);\n    if (i === iWhy && busy(sim, !!p.earth) && !coreAnim.playing()) coreAnim.play();\n    const fk = i === iInd ? snapKm(p.run) + '|' + p.earths : '';\n    if (fk && fk !== flowKey) { flowLeft = FLOW_RUN; if (!flowAnim.playing()) flowAnim.play(); }\n    flowKey = fk;\n\n    // Picks.\n    const opts = d.opts || [];\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(nb(opts[k]));\n      const done = st.res === 'right' || (i === iR && st.res === 'wrong');\n      b.el.classList.toggle('is-right', done && opts[k] === d.want);\n      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    // The worked example's lines, and the note once they are all shown.\n    wl.forEach((w, k) => { w.hidden = k >= lines; });\n    wnote.hidden = lines < wl.length;\n    nextLine.el.hidden = lines >= wl.length;\n    if (i === iWk) el('workedgo').hidden = lines >= wl.length;\n\n    // Check, the feedback, and what follows a finished typed answer.\n    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);\n    checkBtn.el.hidden = !typed || typedDone;\n    el('acts').hidden = checkBtn.el.hidden;\n    paintFb(st.fb);\n    const after = el('after');\n    paras(after, typedDone ? SPEC[i].after : '');\n    after.hidden = !after.textContent;\n    el('go').hidden = !(i === iR && st.res === 'right');\n    [['fb', JSON.stringify(st.fb)], ['after', i + after.textContent], ['go', String(i)]].forEach(([id, key]) => fade(el(id), key));\n\n    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';\n    el('donefb').hidden = !el('donefb').textContent;\n\n    backBtn.el.hidden = i === 0;\n    nextBtn.el.hidden = i === iK || !canGo(i) || (i === iR && st.res === 'right');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const near = (a, b, t) => K.near(a, b, t == null ? 1e-9 : t);\n  K.check('At 1.00 km a core holds 0.220 µF, and off at the peak of 38 kV, 317.68 J', () => {\n    const o = K.at({ len: 1 });\n    return near(o.C, 0.22) && near(o.E, 317.68) && near(o.E, F('l1.perkm').value);\n  });\n  K.check('At 0.40 km: 0.088 µF and 127.07 J. Over the whole 2.40 km: 0.528 µF and 762.43 J, parts 1a and 1b', () => {\n    const a = K.at({ len: 0.4 }), b = K.at({ len: 2.4 });\n    return near(a.C, 0.088) && near(a.E, 127.07) && near(b.C, f1a.value) && near(b.E, f1b.value) && near(C1A, f1a.value);\n  });\n  K.check('Capacitance and energy rise with every step in length, and twice the length holds twice the capacitance', () => {\n    let prev = -1;\n    for (let k = 2; k <= 12; k++) { const o = K.at({ len: k / 5 }); if (!(o.E > prev)) return false; prev = o.E; }\n    return near(K.at({ len: 2.4 }).C, 2 * K.at({ len: 1.2 }).C);\n  });\n  K.check('Off at the peak, ½ × C × (√2 × U0)² equals C × U0², twice ½ × C × U0²', () => {\n    const C = 0.528e-6, U = 38000;\n    return near(0.5 * C * Math.pow(Math.SQRT2 * U, 2), C * U * U, 1e-6) && near(f1b.value, 2 * F('1b.slip').value, 0.02);\n  });\n  K.check('One end earthed: 96 V at the B01 end over 2.40 km, 16 V over 0.40 km. Both ends earthed: 0 V', () =>\n    near(K.at({ run: 2.4, earths: 'OSS end only' }).V, F('l1.induced').value) && near(K.at({ run: 0.4 }).V, F('l1.induced.short').value)\n    && K.at({ run: 2.4, earths: 'Both ends' }).V === 0 && K.at({ run: 0.4, earths: 'Both ends' }).V === 0);\n  K.check('Earthed then lifted at once, the core creeps back up from the XLPE. Left earthed long enough, it stays at zero', () => {\n    const go = (s, secs, earth) => { for (let t = 0; t < secs; t += 1 / 30) tick(s, 1 / 30, earth); };\n    const a = freshSim(); charge(a); go(a, 3.5, false); const full = plateLevel(a) + creepLevel(a, 5);\n    go(a, 2.5, true); const low = plateLevel(a) + creepLevel(a, 5);\n    go(a, 5, false); const back = plateLevel(a) + creepLevel(a, 5);\n    const b = freshSim(); charge(b); go(b, 3.5, false); go(b, 12, true); go(b, 5, false);\n    const stay = plateLevel(b) + creepLevel(b, 5);\n    return near(full, 1) && low < 1e-9 && back > 0.15 && back <= CREEP_SHARE && stay < 1e-9;\n  });\n  K.check('The worked example: 5.50 mA at 55 V, under 50 mA; 0.176 µF and 254.14 J at 0.80 km; 127.07 J with the peak left out', () =>\n    near(r2(V55 / BODY * 1000), fRec.value) && fRec.value < FATAL && near(capAt(WLEN), fWC.value) && near(energyAt(capAt(WLEN)), fWE.value) && near(halfAt(capAt(WLEN)), fWH.value));\n  K.check('The charging current agrees: 2π × 50 × 0.528 µF × 38 kV = 6.30 A, and 2.6 × 2.40 = 6.24 A', () =>\n    near(r2(2 * Math.PI * HZ * f1a.value * 1e-6 * U0 * 1000), fIch.value) && near(r2(ICH * LEN), fIchC.value));\n  K.check('Slips: 1.584 µF for three cores, 10.91 for 2.40 ÷ 0.22, 381.22 J and 1524.86 J. Changed numbers: 0.396 µF and 571.82 J, slips 285.91 J and 1143.65 J', () =>\n    near(r3(3 * C1A), F('1a.slip3').value) && near(r2(LEN / CPK), F('1a.slipDiv').value) && near(halfAt(C1A), F('1b.slip').value) && near(r2(2 * energyAt(C1A)), F('1b.slip2').value, 0.011)\n    && near(CCH, fCh.value) && near(energyAt(CCH), fChE.value) && near(halfAt(CCH), F('l1.changed.slip1').value) && near(r2(2 * energyAt(CCH)), F('l1.changed.slip2').value, 0.011));\n  K.check('Every slip lies outside its answer\\'s accepted figures', () => Object.keys(SPEC).every((k) => {\n    const sp = SPEC[k], tol = 0.5 * Math.pow(10, -sp.decimals);\n    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > tol && sp.accept.every((x) => Math.abs(s.value - x) > tol));\n  }));\n  K.check('The 240 mm² row of the 66 kV three-core table: 0.22 µF per km and 2.6 A per km', () => CPK === 0.22 && ICH === 2.6,\n    { source: 'https://new.abb.com/docs/default-source/ewea-doc/xlpe-submarine-cable-systems-2gm5007.pdf' });\n  K.check('The induced voltage depends on the source current, the distance between the systems and the length of parallelism', () =>\n    K.at({ run: 2.4 }).V > K.at({ run: 1.2 }).V && K.at({ run: 1.2 }).V > K.at({ run: 0.4 }).V,\n    { source: 'https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html' });\n  K.check('Body natural resistance about 10,000 Ω at 55 V', () => BODY === 10000 && V55 === 55, { source: 'material:notes#p1' });\n\n  K.ready();\n</script>",
+  "title": "A capacitor kilometres long",
+  "brief": "The one thing you should see is the core's voltage creeping back, as charge held in the XLPE drifts out to the conductor, when you lift the earth straight after a discharge.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "At 1.00 km a core holds 0.220 µF, and off at the peak of 38 kV, 317.68 J",
+     "ok": true
+    },
+    {
+     "label": "At 0.40 km: 0.088 µF and 127.07 J. Over the whole 2.40 km: 0.528 µF and 762.43 J, parts 1a and 1b",
+     "ok": true
+    },
+    {
+     "label": "Capacitance and energy rise with every step in length, and twice the length holds twice the capacitance",
+     "ok": true
+    },
+    {
+     "label": "Off at the peak, ½ × C × (√2 × U0)² equals C × U0², twice ½ × C × U0²",
+     "ok": true
+    },
+    {
+     "label": "One end earthed: 96 V at the B01 end over 2.40 km, 16 V over 0.40 km. Both ends earthed: 0 V",
+     "ok": true
+    },
+    {
+     "label": "Earthed then lifted at once, the core creeps back up from the XLPE. Left earthed long enough, it stays at zero",
+     "ok": true
+    },
+    {
+     "label": "The worked example: 5.50 mA at 55 V, under 50 mA; 0.176 µF and 254.14 J at 0.80 km; 127.07 J with the peak left out",
+     "ok": true
+    },
+    {
+     "label": "The charging current agrees: 2π × 50 × 0.528 µF × 38 kV = 6.30 A, and 2.6 × 2.40 = 6.24 A",
+     "ok": true
+    },
+    {
+     "label": "Slips: 1.584 µF for three cores, 10.91 for 2.40 ÷ 0.22, 381.22 J and 1524.86 J. Changed numbers: 0.396 µF and 571.82 J, slips 285.91 J and 1143.65 J",
+     "ok": true
+    },
+    {
+     "label": "Every slip lies outside its answer's accepted figures",
+     "ok": true
+    },
+    {
+     "label": "The 240 mm² row of the 66 kV three-core table: 0.22 µF per km and 2.6 A per km",
+     "ok": true,
+     "source": "https://new.abb.com/docs/default-source/ewea-doc/xlpe-submarine-cable-systems-2gm5007.pdf"
+    },
+    {
+     "label": "The induced voltage depends on the source current, the distance between the systems and the length of parallelism",
+     "ok": true,
+     "source": "https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html"
+    },
+    {
+     "label": "Body natural resistance about 10,000 Ω at 55 V",
+     "ok": true,
+     "source": "material:notes#p1"
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "len",
+    "earth",
+    "run",
+    "earths"
+   ],
+   "readouts": [
+    "C",
+    "E",
+    "V"
+   ],
+   "outputs": [
+    "C",
+    "E",
+    "V"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Lesson",
+     "min": 0,
+     "max": 10,
+     "step": 1,
+     "steps": [
+      "Do you still have it?",
+      "What it is for",
+      "The why",
+      "Check",
+      "The live string beside it",
+      "Worked example",
+      "Section A 1(a)",
+      "Section A 1(b)",
+      "Section B",
+      "Changed numbers",
+      "Keep this"
+     ],
+     "value": 0
+    },
+    {
+     "id": "len",
+     "kind": "control",
+     "label": "Length",
+     "min": 0.4,
+     "max": 2.4,
+     "step": 0.2,
+     "log": false,
+     "value": 1,
+     "shown": false
+    },
+    {
+     "id": "earth",
+     "kind": "toggle",
+     "label": "Earth switch closed",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    },
+    {
+     "id": "run",
+     "kind": "control",
+     "label": "Parallel run",
+     "min": 0.4,
+     "max": 2.4,
+     "step": 0.2,
+     "log": false,
+     "value": 2.4,
+     "shown": false
+    },
+    {
+     "id": "earths",
+     "kind": "choice",
+     "label": "Earths",
+     "options": [
+      "OSS end only",
+      "Both ends"
+     ],
+     "labels": [
+      "OSS end only",
+      "Both ends"
+     ],
+     "value": "OSS end only",
+     "index": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Switch off at the peak",
+    "Core resistance",
+    "IR",
+    "Sheath test",
+    "VLF",
+    "TDR",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Refresh the why",
+    "Skip to the practice",
+    "Check",
+    "Finish the lesson",
+    "Show",
+    "Back",
+    "Continue",
+    "Charge on the core",
+    "Current in String A"
+   ],
+   "answers": [
+    {
+     "id": "1a",
+     "answer": 0.528,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "1b",
+     "answer": 762.43,
+     "accept": [
+      762.2
+     ],
+     "ok": true
+    },
+    {
+     "id": "l1.changed.E",
+     "answer": 571.82,
+     "accept": [
+      571.65
+     ],
+     "ok": true
+    }
+   ],
+   "written": [
+    "b1"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-20T23:00:35.109Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "The 0.22 µF/km is a maker's typical figure for a 240 mm² 66 kV three-core cable, not String B's own data; and 'often described as capacitive' is a usage claim no source backs. Worded as typical, and as 'sometimes'."
+   },
+   {
+    "path": "practice.text",
+    "problem": "C × U0² is the most a core holds when switched off at the peak of U0 in service, not the worst case overall: a VLF test at 1.5-2.5 U0 (lesson 5) or a high d.c. test can leave more. 'Peak of 38 kV' also reads as 38 kV peak; 38 kV is the r.m.s. U0."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 3 calls C × U0² 'the worst case' without saying in service (a VLF or high d.c. test can leave more); 'peak of 38 kV' reads as a 38 kV peak; and 'Four things set how badly a shock hurts' is absolute where frequency, skin moisture and contact area also matter."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

@@ -1,0 +1,99 @@
+{
+  "title": "HV Subsea Cable Testing",
+  "hook": "String B, 2.40 km of 66 kV cable from B01 to the substation, passes its insulation resistance figure, yet core L2 is faulty. How do you prove it and find the fault, from the ends alone?",
+  "oneBreath": "A subsea power cable is a long capacitor wrapped in layers, so it is made safe before and after every test, and each test checks one layer: the four-wire resistance test the conductors, the insulation resistance curve and the VLF withstand the insulation at low and full stress, and the sheath test the outer jacket. When a test fails, TDR and LIRA treat the cable as a line that sends part of a signal back wherever it changes, and turn that echo into a distance from the end. This refresher takes your subsea cable testing course back through, test by test, on one made-up 66 kV cable with one fault to find.",
+  "ideas": [
+    {
+      "id": "i1",
+      "title": "The cable, and making it safe to test",
+      "oneLine": "Conductor and screen are the plates of a long capacitor, so a dead cable can hold charge and pick it up from a live neighbour: identify, isolate, prove dead, secure and earth at both ends, and know which layer each test checks.",
+      "deps": [],
+      "kind": "mechanism"
+    },
+    {
+      "id": "i2",
+      "title": "Phases and conductors: the four-wire measurement",
+      "oneLine": "Below 1 Ω the leads and contacts swamp a two-wire reading, so the DLRO drives current through the C leads and measures across the P leads inside them; three loop readings solve three cores, and a cold cable reads low until corrected to 20 °C.",
+      "deps": [
+        "i1"
+      ],
+      "kind": "skill"
+    },
+    {
+      "id": "i3",
+      "title": "Insulation resistance over ten minutes: IR, DAR and PI",
+      "oneLine": "The tester's current is charging, absorption and leakage; as the first two die away a dry cable's resistance climbs, so PI and DAR, ratios taken minutes apart on the same cable, show moisture a single reading can pass.",
+      "deps": [
+        "i1",
+        "i2"
+      ],
+      "kind": "quantity"
+    },
+    {
+      "id": "i4",
+      "title": "The sheath test: 4 kV per millimetre",
+      "oneLine": "The sheath keeps water away from the insulation, so it is tested on its own, screen to earth, at 4 kV d.c. per millimetre up to 10 kV for one minute, with every metal layer linked and an electrode on its outer face.",
+      "deps": [
+        "i1",
+        "i3"
+      ],
+      "kind": "quantity"
+    },
+    {
+      "id": "i5",
+      "title": "VLF withstand: why 0.1 Hz",
+      "oneLine": "A long cable is a big capacitor, so a 50 Hz withstand needs a huge charging current; at 0.1 Hz the reactance is 500 times higher and a portable set can hold 1.5 to 2.5 U0 for 30 or 60 minutes, driving any severe defect to fail now.",
+      "deps": [
+        "i1",
+        "i3"
+      ],
+      "kind": "quantity"
+    },
+    {
+      "id": "i6",
+      "title": "TDR: reading the reflections",
+      "oneLine": "A pulse runs along the pair and part of it returns wherever the impedance changes, up for an open and down for a short; distance is time × velocity ÷ 2, so the velocity must be set, best on a known length.",
+      "deps": [
+        "i2",
+        "i5"
+      ],
+      "kind": "skill"
+    },
+    {
+      "id": "i7",
+      "title": "LIRA: the cable's impedance spectrum",
+      "oneLine": "An unmatched line resonates at frequencies set by its length and velocity; a local change in the insulation's permittivity changes the impedance there and ripples the spectrum, which LIRA turns into a spot along the cable graded by DNORM, from one end.",
+      "deps": [
+        "i6"
+      ],
+      "kind": "mechanism"
+    }
+  ],
+  "calibration": [
+    {
+      "id": "c1",
+      "iid": "i1",
+      "q": "A long cable is discharged and earthed for a moment, then the earth is removed. Nothing live runs nearby. Can its cores show a voltage again?",
+      "options": [
+        "No: once discharged, it stays at zero",
+        "Yes: charge held in the insulation can creep back onto the conductor",
+        "Only if the far end is left connected to a load"
+      ],
+      "answer": 1,
+      "why": "Yes. Some charge soaks into the insulation during a test and seeps back out after a brief discharge, so the core can recharge on its own. That is why earths stay on. Discharged once is not discharged for good."
+    },
+    {
+      "id": "c2",
+      "iid": "i2",
+      "q": "Each reading is two cores in series: L1 with L2 reads 10 mΩ, L2 with L3 reads 12 mΩ, L3 with L1 reads 12 mΩ. Which core reads high?",
+      "options": [
+        "L2, because it is in a 12 mΩ reading",
+        "None: pairs cannot tell single cores apart",
+        "L3",
+        "L1"
+      ],
+      "answer": 2,
+      "why": "L3. The three readings add to twice the three cores, 34 ÷ 2 = 17 mΩ, so L3 = 17 − 10 = 7 mΩ and L1 = L2 = 5 mΩ. L2 sits in one 12 mΩ reading, but only because L3 is with it."
+    }
+  ]
+}
