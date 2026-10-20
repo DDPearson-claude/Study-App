@@ -2144,17 +2144,19 @@
     return node;
   }
 
-  // K.figure(id) -> {id, label, value, unit, text, part, lesson, cite}: a given or a worked figure
-  // from the case file. text is how every lesson prints it ("23.08 A").
+  // K.figure(id) -> {id, label, value, unit, text, part, lesson, cite, rule, work}: a given or a worked
+  // figure from the case file. text is how every lesson prints it ("23.08 A"); work is its working
+  // ("23.08 ÷ √3 = 13.33 A"), '' for a given.
   function figureOf(id) {
     var all = CASE ? [].concat(CASE.givens || [], CASE.figures || []) : [];
     var f = all.filter(function (x) { return x && x.id === id; })[0];
     if (!f) {
       problem('K.figure("' + id + '"): ' + (CASE ? 'the case file has no figure "' + id + '"' : 'there is no case file (K_CASE): pass the course\'s case.json to the test'));
-      return { id: String(id), label: String(id), value: NaN, unit: '', text: '—', part: '', lesson: '', cite: '' };
+      return { id: String(id), label: String(id), value: NaN, unit: '', text: '—', part: '', lesson: '', cite: '', rule: '', work: '' };
     }
     var text = typeof f.text === 'string' && f.text ? f.text : (isNum(f.value) ? fmt(f.value) : String(f.value == null ? '' : f.value)) + unitText(f.unit || '');
-    return { id: f.id, label: String(f.label || f.id), value: f.value, unit: f.unit || '', text: text, part: f.part || '', lesson: f.lesson || '', cite: f.cite || '' };
+    return { id: f.id, label: String(f.label || f.id), value: f.value, unit: f.unit || '', text: text, part: f.part || '', lesson: f.lesson || '', cite: f.cite || '',
+      rule: typeof f.rule === 'string' ? f.rule : '', work: typeof f.work === 'string' ? f.work : '' };
   }
   K.figure = figureOf;
 

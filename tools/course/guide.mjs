@@ -111,6 +111,8 @@ const SNAP = `(() => {
   copy.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
   if (vb && vb.width) { copy.setAttribute('viewBox', [vb.x, vb.y, vb.width, vb.height].join(' ')); copy.setAttribute('width', vb.width); copy.setAttribute('height', vb.height); }
   copy.querySelectorAll('rect.hit, [fill="transparent"]').forEach((n) => n.remove());
+  // Nothing left to see (a step whose picture is all HTML, as a refresher's recall question is): no picture.
+  if (!copy.querySelector('path, rect, circle, ellipse, line, polyline, polygon, text, image, use')) return null;
   // XMLSerializer, not outerHTML: outerHTML writes &nbsp;, which a standalone SVG image cannot parse.
   const svg = new XMLSerializer().serializeToString(copy).replace(/\\s{2,}/g, ' ').replace(/(\\d+\\.\\d{2})\\d+/g, '$1');
   const bad = new DOMParser().parseFromString(svg, 'image/svg+xml').querySelector('parsererror');
@@ -206,6 +208,9 @@ for (const iid of ideas) {
   // Written as hex, with no spaces between tags, a guide stays under the db's document limit
   // (assemble.mjs: 250 KB) without changing what is drawn; plotted curves are written as short relative steps.
   for (const p of pages) if (p.svg) p.svg = compactSvg(p.svg);
+  // A page must read as words: a figure the lesson looked up but never got prints as undefined or NaN.
+  const broken = pages.filter((p) => /\bundefined\b|\bNaN\b/.test([p.text, p.task, p.answer, p.why, p.title].join(' ')));
+  if (broken.length) { console.error(iid, 'pages reading "undefined" or "NaN":', broken.map((p) => p.name || p.kind).join(', ')); process.exitCode = 1; }
   const guide = { v: 1, iid, pages };
   const bytes = Buffer.byteLength(JSON.stringify(guide));
   writeFileSync(join(dir, iid + '.guide.json'), JSON.stringify(guide) + '\n');

@@ -6,7 +6,7 @@ case file (`K.caseFile`) and the lesson's own `{written, summary}` (`K.lesson`).
 by id; the kit draws the checked words, so never retype a figure, a point or a summary line.
 
 ```
-K.figure(id) -> {id, label, value, unit, text, part, lesson}     a given or worked figure; print f.text ("23.08 A")
+K.figure(id) -> {id, label, value, unit, text, part, lesson, rule, work}   a given or worked figure; print f.text ("23.08 A"), f.work its working
 K.scenario({into, open?})                                        the case's scenario panel (folds)
 K.carried({parts: ['1a'], into})  -> {el, refresh()}             earlier Section A parts at the course's figures
 K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
