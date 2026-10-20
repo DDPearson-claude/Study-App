@@ -1,0 +1,216 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "At 0.646 Ω: Cmin 338.24 A, Cmax 391.64 A, 15338 A²s and a cpc of 1.08 mm², as the case file works them",
+        "ok": true
+      },
+      {
+        "label": "At 0.43 Ω: Cmin 508.14 A asks for 1.40 mm², a pass; Cmax 588.37 A puts in 34618 A²s and asks for 1.62 mm², a fail",
+        "ok": true
+      },
+      {
+        "label": "What 1.5 mm² can take: 115² × 1.5² = 29756.25 A²s, printed 29756",
+        "ok": true
+      },
+      {
+        "label": "The Cmax dot crosses the line between 0.464 and 0.462 Ω, near 0.46; the Cmin dot between 0.402 and 0.400 Ω, near 0.40",
+        "ok": true
+      },
+      {
+        "label": "As Zs falls both currents rise; the Cmax dot always sits higher, so it is never under the line while the Cmin dot is over it",
+        "ok": true
+      },
+      {
+        "label": "The recall: 230 × 1.1 ÷ 0.50 = 506.00 A; 437.00 A at Cmin, 460.00 A with no factor",
+        "ok": true
+      },
+      {
+        "label": "The check: 665.79 A gives 1.83 mm² for 0.1 s, 3.66 mm² for 0.4 s; the Cmin 575.00 A gives 1.58 mm²",
+        "ok": true
+      },
+      {
+        "label": "The short circuit: 0.767 Ω, 0.474 Ω, 1.241 Ω, 176.07 A, 203.87 A and 3.08 s",
+        "ok": true
+      },
+      {
+        "label": "Part 2c: 691.26 A and 1.53 mm²; 1.51 mm² from 0.37 Ω; slips 1.32, 3.06 and 1.90 mm²; the leg 551.20 A and 1.22 mm²",
+        "ok": true
+      },
+      {
+        "label": "Part 2e: 4.6 kA; one line to earth gives 2.30, 2.53 and 2.19 kA",
+        "ok": true
+      },
+      {
+        "label": "Part 3f: 0.248 Ω, 0.348 Ω, 627.87 A, 727.01 A and 5.00 mm²; 4.99 mm² unrounded; slips 1.61, 4.32 and 5.92 mm²; 3.16 kA",
+        "ok": true
+      },
+      {
+        "label": "Changed numbers: 0.814 Ω, 268.43 A, 310.81 A and 3.39 s; slips 4.54, 0.85 and 2.78 s",
+        "ok": true
+      },
+      {
+        "label": "Every slip lies outside its answer's accepted figures",
+        "ok": true
+      },
+      {
+        "label": "For a low voltage supply under the ESQCR, Cmin is 0.95",
+        "ok": true,
+        "source": "https://electrical.theiet.org/media/1442/maximum-zs-values.pdf"
+      },
+      {
+        "label": "For 90 °C thermosetting insulation the final temperature is 250 °C, and k is 143",
+        "ok": true,
+        "source": "https://electrical.theiet.org/media/3023/wiring-matters-issue-93-november-2022.pdf"
+      },
+      {
+        "label": "Steel wire armour on 90 °C XLPE cable has a k of 46",
+        "ok": true,
+        "source": "https://tmuk.org/free-adiabatic-equation-calculator-cpc-sizer/"
+      },
+      {
+        "label": "Type B and C breakers to BS EN 60898 up to 63 A come rated 3000, 4500, 6000 and 10000 A",
+        "ok": true,
+        "source": "https://www.beama.org.uk/static/2a6f44a3-2e72-4870-870fb0958c63c470/BEAMA-Guide-Low-Voltage-Circuit-breaker-Standards.pdf"
+      },
+      {
+        "label": "The three-phase fault is approximated by doubling the line-to-neutral figure: 2 × 230 ÷ 0.1 = 4600 A",
+        "ok": true,
+        "source": "https://engx.theiet.org/f/wiring-and-regulations/29667/ipf-3ph-simultaneous-fault"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "zs"
+    ],
+    "readouts": [
+      "icmin",
+      "icmax",
+      "s"
+    ],
+    "outputs": [
+      "icmin",
+      "icmax",
+      "heat",
+      "heatmin",
+      "s",
+      "smin"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "What it is for",
+          "The why",
+          "Check",
+          "Worked example",
+          "Section A 2(c)",
+          "Section A 2(e)",
+          "Section A 3(f)",
+          "Section B",
+          "Changed numbers",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "zs",
+        "kind": "control",
+        "label": "Zs of the circuit",
+        "min": 0.2,
+        "max": 1,
+        "step": 0.002,
+        "log": false,
+        "value": 0.646,
+        "shown": false,
+        "snap": [
+          0.646,
+          0.464,
+          0.46,
+          0.43,
+          0.4
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Refresh the why",
+      "Skip to the practice",
+      "Check",
+      "Finish the lesson",
+      "Show",
+      "Back",
+      "Continue"
+    ],
+    "answers": [
+      {
+        "id": "2c",
+        "answer": 1.53,
+        "accept": [
+          1.51
+        ],
+        "ok": true
+      },
+      {
+        "id": "2e",
+        "answer": 4.6,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "3f",
+        "answer": 5,
+        "accept": [
+          4.99
+        ],
+        "ok": true
+      },
+      {
+        "id": "l7.A.changed",
+        "answer": 3.39,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [
+      "b1"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

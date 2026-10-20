@@ -1,0 +1,72 @@
+{
+  "scores": {
+    "lands": 4,
+    "why": 4,
+    "cause": 4,
+    "trade": 4,
+    "honest": 4,
+    "pleasure": 4
+  },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Screen 3 (the why): the red state, its sentence under the plot and the step's read sentence",
+      "what": "With t fixed at 0.1 s, the plot calls the heater's 1.5 mm² cpc a fail below about 0.46 Ω and says \"A check at Cmin would pass this cpc wrongly\". Nothing on the screen says 0.1 s is an upper bound, or that close to the board the breaker clears faster and the maker's let-through I²t decides. That caveat is only in interactive.ignores, which a steps lesson never shows. Add one short sentence under the plot: \"This takes the breaker's time as 0.1 s. Close to the board it opens faster, so check the maker's let-through figure there.\""
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 3 plot, 360 px light and dark (moved state)",
+      "what": "Only one dot is labelled. The kit drops the Cmin label for lack of room, and the Cmax label sits up and to the right, near where the curve meets the dashed line rather than on its dot. The page says \"watch the two dots\", but they can only be told apart by colour, and the label reads as if it marks the crossing. Give the plot room for both labels, or label the dots in the legend."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 5 (worked example), the note under the lines",
+      "what": "\"You may have 341.4 A, 395.3 A, 0.93 mm² and 1.08 mm² written down … Those figures were rounded down partway through\" includes 1.08 mm², the same figure the lesson has just printed. It also includes 0.93 mm², a size worked from the Cmin current that this screen never works. A tired reader has to read it twice. Rewrite as: \"Your notes may show 341.4 A and 395.3 A. They come from Zs cut to 0.64 Ω. The cpc still passes.\""
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 7, Section A 2(e): the typed answer",
+      "what": "\"Determine the least rated short-circuit breaking capacity (Icn)\" can fairly be answered 6 kA, the smallest standard rating that covers 4.6 kA. Typing 6 gets only the general \"Not quite\" hint and is then marked wrong. Accept 6 kA with a note (\"Right as the breaker to buy. The least Icn is 4.6 kA.\"), or reword the question to ask for the fault current the MDB's breakers must be able to break."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 11, Keep this card: the rule",
+      "what": "One line uses PSCC as the line-to-neutral value (\"Ze(l/n) = 230 ÷ PSCC\"). The next line says IPF is \"the larger of PEFC and PSCC\". Read that way on a three-phase board, IPF comes out at 2.3 kA, which is the very trap listed below it. Add: \"On a three-phase board, IPF is the fault across all three lines, about twice the line-to-neutral figure.\""
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 8, Section A 3(f): the setup text",
+      "what": "\"The armour runs a little cooler than the cores, so this overstates its resistance a little. That is safe for Zs. It does trim the fault current slightly, but 22 mm² leaves plenty of room for that.\" is three sentences of caveat that change nothing he does. Cut them to one short sentence or drop them. The screen also ends with its point (\"SWA armour can be the cpc if a calculation justifies it. This is that calculation.\"). Move that to the top."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 9, Section B point 3 and the model answer",
+      "what": "\"When the worked minimum comes out bigger than the size chosen, the next size up is the minimum.\" has to be read twice. Say: \"If the smaller size fails the heat check, the size above it is the minimum.\""
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 7, Section A 2(e): the setup",
+      "what": "Before the question, the setup states IPF ≤ Icn and says the stated 4.6 kA \"is the biggest fault there\". That gives the answer away, so the 2.3, 2.53 and 2.19 kA slips can never fire. Give only the supply data (Ze 0.1 Ω, stated fault current 4.6 kA). Move the three-phase sentence to the text that follows the answer."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 4 (check): feedback for the Cmin choice",
+      "what": "\"So it puts in less heat than the fault can.\" is unclear. Say: \"So it understates the heat the fault puts in.\""
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 2 (what it is for)",
+      "what": "\"The exception is a device covered by one upstream.\" is too compressed. Say: \"A device may be rated lower only if one upstream can break that fault for it.\""
+    },
+    {
+      "severity": "polish",
+      "where": "Screens 1 and 3 at 360 px",
+      "what": "Formulas and number–unit pairs break across lines: \"S\" and \"= √(I²t) ÷ k\" on screen 1; \"A 16\" and \"A type B\", and \"I² × R ×\" and \"t\", on screen 3. Use non-breaking spaces inside formulas and between a number and its unit."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3 setup against the screen 5 worked example",
+      "what": "Screen 3 puts the heater's cpc \"in 70 °C thermoplastic cable\". Screen 5 describes the same circuit as \"singles in conduit\". Use one description."
+    }
+  ]
+}

@@ -1,0 +1,457 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Design and verification, a Level 4 refresher
+Idea: Surviving the fault: heat, short circuits, breaking capacity (A conductor can take k²S² of fault energy, so it survives if I²t is smaller: S = √(I²t) ÷ k for the cpc with I at Cmax, t = k²S² ÷ I² for the live conductors, and every device must break the largest fault (IPF ≤ Icn).)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the Cmax dot crossing the 1.5 mm² cpc's heat limit near 0.46 Ω, before the Cmin dot does, when you drag Zs down to let more fault current flow.
+Title (the app shows it above the frame, so do not repeat it): The heat a conductor can take
+The rule (the app shows it just above the frame, under "What you're looking at"): Eleven screens, with Back and Continue. They cover the heat a fault puts into a conductor, and the biggest fault a device must break.
+
+Screen 1, Do you still have it? The question: “A circuit's Zs is 0.50 Ω. Which fault current do you put into S = √(I²t) ÷ k to check its cpc can take the heat?” Three choices, in this order: “437.00 A: 230 × 0.95 ÷ 0.50”; “506.00 A: 230 × 1.1 ÷ 0.50”; “460.00 A: 230 ÷ 0.50”. Right: “Still there.” Then the working, 230 × 1.1 ÷ 0.50 = 506.00 A. The supply can rise to 253 V. More voltage pushes more current round the same loop, and more current means more heat. Each slip gets its own line. Then come two buttons. Refresh the why goes to screen 2, and Skip to the practice goes to screen 6. Wrong, 437.00 A: “That is Cmin. It gives the smallest current. That one decides whether the breaker opens in time. The heat check wants the largest.” Wrong, 460.00 A: “The supply can rise to 253 V. Cmax, 1.1, allows for that. The heat check wants the largest current.” Then the right working, and on to screen 2.
+
+Screen 2, What it is for. “A fault current heats every conductor it flows through until the device opens. A fault that clears quickly gives the heat no time to leave. Copper that gets too hot damages its insulation. So three checks follow Zs. The cpc must take the heat of an earth fault. The live conductors must take the heat of a short circuit. And each device must be able to break the biggest fault where it sits. The exception is a device covered by one upstream.” In red, what goes wrong if it is skipped: “A cpc that passes on Zs can still get hot enough to damage its insulation before the breaker opens. A device asked to break more current than it is rated for may destroy itself.”
+
+Screen 3, The why: the heat a cpc can take. At the top: “Take the immersion heater from lesson 6. Its cpc is 1.5 mm² in 70 °C thermoplastic cable, so k is 115. A 16 A type B breaker protects it. It opens within 0.1 s once the fault current reaches 80 A.” The picture plots the heat put in, I²t in A²s, against fault current from 0 to 1300 A. The curve is I² × 0.1. That is the heat put in during the breaker's 0.1 s. A level line crosses it at 29756 A²s, labelled “What 1.5 mm² can take: k²S²”. Two dots sit on the curve. Cmin is at 230 × 0.95 ÷ Zs, and Cmax at 230 × 1.1 ÷ Zs. A dot turns red above the line. Under the plot, a bar shows the smallest cpc that copes at the Cmax current. A mark on the bar shows 1.5 mm².
+
+The control is a slider labelled Zs of the circuit. It runs from 0.20 to 1.00 Ω in steps of 0.002 Ω and opens on 0.646 Ω. Three readouts sit beside it: the fault current at Cmin, the fault current at Cmax, and the smallest cpc. The smallest cpc is S = √(I²t) ÷ k at the Cmax current. The words beside it: “A fault heats the copper faster than the heat can leave it. So the heat stays in the conductor while the fault lasts. The heat is I² × R × t. Halve the area and the resistance doubles, with half the copper to warm. So the temperature climbs four times as fast. That is why the area is squared. k sums up the copper, the insulation, the temperature it starts at and the temperature it must not pass. The conductor survives if the fault's I²t is no more than k²S². Turn that round and the smallest area is S = √(I²t) ÷ k.”
+
+What you see. At 0.646 Ω, Cmin gives 338.24 A and Cmax gives 391.64 A. At Cmax the heat is 15338 A²s, under the line. The smallest cpc is 1.08 mm², so 1.5 mm² holds. Drag Zs down. That is like a shorter run, or one nearer the origin. Both dots climb the curve, because a smaller loop lets more current through. The Cmax dot always sits higher, so it crosses the line first, near 0.46 Ω. The Cmin dot crosses near 0.40 Ω. At 0.43 Ω the Cmin current is 508.14 A. It needs a cpc of 1.40 mm², a pass. The Cmax current is 588.37 A and puts in 34618 A²s. It needs 1.62 mm², a fail. The words under it: “Lesson 6 wanted the smallest current, to be sure the breaker opens in time. The heat check wants the largest, because more current puts in more heat in the same 0.1 s. One Zs, two currents, two questions. Turn the same sum round and you get how long the live conductors last in a short circuit: t = k²S² ÷ I². If that is longer than the device takes, the cable holds out.” The prompt above the picture: “Drag Zs down and watch the two dots.” Read: at 0.646 Ω the Cmax current is 391.64 A. The cpc needs 1.08 mm², so 1.5 mm² holds. At 0.43 Ω the Cmin current asks for 1.40 mm², a pass. The Cmax current asks for 1.62 mm², a fail. Still: the slider at 0.43 Ω.
+
+Screen 4, Check. “A 32 A type C breaker protects a circuit with Zs 0.38 Ω. Its cpc is 2.5 mm² in 70 °C thermoplastic cable, so k is 115. It is a final circuit, so 0.4 s is allowed. At the Cmax current, 665.79 A, the breaker opens within 0.1 s. What is the smallest cpc that copes?” Choices: “1.83 mm²: the Cmax current for 0.1 s”; “3.66 mm²: the Cmax current for 0.4 s”; “1.58 mm²: the Cmin current for 0.1 s”. Right, the first: “t is how long the device takes at that current. √(665.79² × 0.1) ÷ 115 = 1.83 mm², so the 2.5 mm² cpc holds.” Wrong, the second: “0.4 s is the longest time allowed, not how long the breaker takes. Using it fails a cpc that is fine.” Wrong, the third: “That is the Cmin current, 575.00 A. It is the smaller current. So it puts in less heat than the fault can.”
+
+Screen 5, Worked example, one line at each press. The prompt: “Work each step yourself first, then press Show.” First, the heater's cpc from lesson 6: “15 m of 1.5 mm² 70 °C thermoplastic singles in conduit, with a 1.5 mm² cpc. A 16 A type B breaker. Zs is 0.646 Ω.” The lines: Cmin current = 230 × 0.95 ÷ 0.646 = 338.24 A. That is over the breaker's Ia, 80 A, so it opens within 0.1 s. Cmax current = 230 × 1.1 ÷ 0.646 = 391.64 A. The breaker still opens within 0.1 s. k for the cpc is 115. S = √(391.64² × 0.1) ÷ 115 = 1.08 mm². That is under 1.5 mm², so the cpc holds. Second, a short circuit on the live conductors: “A single-phase circuit in 2.5 mm² twin and earth, 90 °C thermosetting, with a 1.5 mm² cpc. It runs 25 m. A 20 A RCBO protects it, opening within 0.1 s at 100 A. The short-circuit current at the origin is measured as 300 A.” The lines: Ze(l/n) = 230 ÷ 300 = 0.767 Ω. That is the supply's own loop, line to neutral. R1+Rn = 14.82 × 1.28 × 25 ÷ 1000 = 0.474 Ω. Zs(l/n) = 0.767 + 0.474 = 1.241 Ω. Least current = 230 × 0.95 ÷ 1.241 = 176.07 A. That is over 100 A, so the RCBO opens within 0.1 s. Greatest current = 230 × 1.1 ÷ 1.241 = 203.87 A. k for 90 °C thermosetting copper is 143. t = 143² × 2.5² ÷ 203.87² = 3.08 s. The conductors can carry it for 3.08 s. The RCBO opens within 0.1 s. So they are safe. A note under the lines: “You may have 341.4 A, 395.3 A, 0.93 mm² and 1.08 mm² written down for the heater. For the short circuit you may have 0.76 Ω, 0.47 Ω, 1.23 Ω, 177.6 A, 205.6 A and 3.02 s. Those figures were rounded down partway through. Both passes stand.” Read: the heater's Cmax current is 391.64 A. Its cpc needs 1.08 mm², under the 1.5 mm² fitted. In the short circuit the greatest current is 203.87 A. The 2.5 mm² conductors can carry it for 3.08 s, far longer than the 0.1 s the RCBO takes.
+
+Screen 6, Section A, question 2 (c). It shows the scenario panel, with parts 1(c), 2(a) and 2(b) carried forward. Then: “The motor circuit's cpc is 2.5 mm². It runs in the same conduit as the 90 °C thermosetting singles, so k is 143. Take Zs at DBP2 as 0.15 Ω for practice. Zs at the starter is then 0.366 Ω.” The question: “(c) Determine, for the motor circuit, whether the copper circuit protective conductor satisfies the thermal constraints under fault conditions. First, the minimum cpc size.” A typed answer, part 2c: the Cmax current is 230 × 1.1 ÷ 0.366 = 691.26 A. That is past 250 A, so the 25 A type C opens within 0.1 s. S = √(691.26² × 0.1) ÷ 143 = 1.53 mm². Accepted too: 1.51 mm², from Zs taken as 0.37 Ω. Slips: 1.32 mm², “You used the Cmin current. The heat check wants the largest current, at Cmax.” 3.06 mm², “You used 0.4 s. That is the longest time allowed. At 691.26 A the breaker opens within 0.1 s.” 1.90 mm², “115 is the k for 70 °C thermoplastic. These are 90 °C thermosetting, so k is 143.” After two misses, the working. Then the judgement: “1.53 mm² is under the 2.5 mm² fitted, so the cpc satisfies the thermal constraints.” One line under it: “Take the starter-to-motor leg as 3.0 m for practice. Zs at the motor is then 0.459 Ω. 230 × 1.1 ÷ 0.459 = 551.20 A, so S = √(551.20² × 0.1) ÷ 143 = 1.22 mm². Its 1.5 mm² cpc holds too.”
+
+Screen 7, Section A, question 2 (e). Part 2(c) carried forward. First the rule: “Every device must break the biggest fault current where it sits. That current is IPF, the larger of the earth fault current and the short-circuit current. The device's breaking capacity, Icn, is marked on it, usually in a small box. The rule is IPF ≤ Icn. Assume the showroom's stated 4.6 kA is a fault across all three lines at the origin. That is the biggest fault there.” The question: “(e) Determine the least rated short-circuit breaking capacity (Icn) for the circuit-breakers in the MDB.” A typed answer, part 2e: 4.6 kA. Slips: 2.3 kA, “That is 230 ÷ 0.1, one line to earth at 230 V. A fault across all three lines is bigger. The stated 4.6 kA covers it.” 2.53 kA, “That is one line to earth at Cmax. The stated 4.6 kA is bigger, so it sets the device.” 2.19 kA, “That is the Cmin earth fault, the smallest. Breaking capacity is checked against the biggest.” After two misses, the working. Then: “A breaker marked 6 kA passes. One marked 4.5 kA does not. Why is 4.6 kA about twice 230 ÷ 0.1? In a fault across all three lines, the neutral carries no current. So the fault current meets one line's impedance, not a line and a return. That roughly halves the loop and doubles the current. A common rule of thumb simply doubles the line-neutral figure.[^1] That rule overstates the real current. For Icn, that is the safe way round. A lower Icn is allowed only where a device on the supply side has the breaking capacity needed.[^2]”
+
+Screen 8, Section A, question 3 (f). Parts 3(b) and 3(e) carried forward. Then, said once: “Assume the DBL2 submain is four-core 4 mm² 90 °C thermosetting XLPE/SWA cable, 17.0 m on plan. A 10 A type C breaker at the MDB protects it. The armour is its cpc. Treat the cable size and the breaker as practice values. Lesson 8 sizes them properly. Each core is 4.61 mΩ/m and the armour 6.8 mΩ/m, both at 20 °C. The armour area is 22 mm². Use the 1.28 multiplier on both. The armour runs a little cooler than the cores, so this overstates its resistance a little. That is safe for Zs. It does trim the fault current slightly, but 22 mm² leaves plenty of room for that. Take k for the steel armour as 46 for practice.[^3] On a real job, read k from Table 54.4.” The words: “SWA armour can be the cpc if a calculation justifies it. This is that calculation.” The question: “(f) Determine the minimum cross-sectional area the armour needs to serve as the DBL2 submain's cpc.” A typed answer, part 3f: R1+R2 = (4.61 + 6.8) × 1.28 × 17.0 ÷ 1000 = 0.248 Ω. Zs at DBL2 = 0.1 + 0.248 = 0.348 Ω. Cmin current = 230 × 0.95 ÷ 0.348 = 627.87 A. That is far past 100 A, so the breaker opens within 0.1 s. Cmax current = 230 × 1.1 ÷ 0.348 = 727.01 A. S = √(727.01² × 0.1) ÷ 46 = 5.00 mm². Accepted too: 4.99 mm², from unrounded working. Slips: 1.61 mm², “143 is copper's k. Steel armour has a far lower k, 46 here.” 4.32 mm², “You used the Cmin current. Use Cmax for the heat.” 5.92 mm², “You left out the 1.28 multiplier. The conductors are warm when the fault comes.” After two misses, the working. Then the judgement: “The armour is 22 mm², far more than 5.00 mm². So it is justified as the cpc.” One line under it: “As a cross-check, the armour is rated 1.0 kA for 1 s. The same I²t over 0.1 s is 1.0 × √10 = 3.16 kA, well above 727.01 A. Carry Zs at DBL2, 0.348 Ω, into lesson 8.”
+
+Screen 9, Section B: “Explain the difference between a suitable cpc and a minimum cpc.” You write the answer. It is marked against five points, and any three make a full answer. You get one more go, then the model answer.
+
+Screen 10, Section A, changed numbers. “A single-phase circuit is wired in 4 mm² twin and earth, 90 °C thermosetting, 30 m long. A 32 A type B breaker protects it, opening within 0.1 s once the current reaches 160 A. The short-circuit current at the origin is 500 A. Use 9.22 mΩ/m for the line and neutral together, and the 1.28 multiplier. Determine whether the breaker protects the live conductors in a short circuit. First, how long can they carry the greatest short-circuit current?” A typed answer: Ze(l/n) = 230 ÷ 500 = 0.460 Ω. R1+Rn = 9.22 × 1.28 × 30 ÷ 1000 = 0.354 Ω. Zs(l/n) = 0.460 + 0.354 = 0.814 Ω. Least current = 230 × 0.95 ÷ 0.814 = 268.43 A. That is over 160 A, so the breaker opens within 0.1 s. Greatest current = 230 × 1.1 ÷ 0.814 = 310.81 A. t = 143² × 4² ÷ 310.81² = 3.39 s. Slips: 4.54 s, “You used the least current. The heat check uses the greatest.” 0.85 s, “Square the area as well: k² × S².” 2.78 s, “You left out the 1.28 multiplier.” After it: “3.39 s is far longer than the 0.1 s the breaker takes. So the live conductors are protected.”
+
+Screen 11, Keep this: the summary card, then Finish the lesson.
+
+On every screen, each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The plot holds the breaker's time at 0.1 s at every current on it. A real breaker often opens faster at high currents. It also limits the energy it lets through. So 0.1 s is an upper bound. Where you have the maker's let-through figure, use it. The plot moves Zs on its own, as if the run changed. The cpc stays 1.5 mm² throughout. The heat is taken to stay in the conductor for the whole fault. That holds for faults that clear quickly, and is why the sum is not used beyond 5 s. That matters most for a fault near the board, where Zs is smallest and the current largest. A red dot there means: check the maker's let-through figure.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 10 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 11 (the stepper): 0 (control)
+- Recall: Zs of the circuit, Ω: 0.5 (assumed)
+- Recall: 230 × 1.1 ÷ 0.50, A: 506 (computed)
+- Recall slip: 230 × 0.95 ÷ 0.50, A: 437 (computed)
+- Recall slip: 230 ÷ 0.50, A: 460 (computed)
+- Nominal voltage to earth, V: 230 (constant, source [4])
+- Cmin: 0.95 (constant, source [5])
+- Lowest supply voltage, V: 218.5 (constant, source [4])
+- Cmax: 1.1 (constant, source [6])
+- Highest supply voltage, V: 253 (constant, source [7])
+- Heater cpc, mm²: 1.5 (constant)
+- k, 70 °C thermoplastic copper cpc: 115 (constant, source [8])
+- Heater breaker: 16 A type B, A: 16 (constant)
+- 16 A type B: current that opens it within 0.1 s, A: 80 (constant, source [9])
+- Breaker opening time used, s: 0.1 (constant, source [9])
+- Zs slider: lowest, Ω: 0.2 (assumed)
+- Zs slider: highest, Ω: 1 (assumed)
+- Zs slider step, Ω: 0.002 (assumed)
+- Zs slider opens at: the heater from lesson 6, Ω: 0.646 (control)
+- Current axis: 0 to, A: 1300 (assumed)
+- What 1.5 mm² can take: 115² × 1.5², A²s: 29756 (computed)
+- 0.646 Ω: Cmin current, A: 338.24 (computed)
+- 0.646 Ω: Cmax current, A: 391.64 (computed)
+- 0.646 Ω: heat at Cmax, A²s: 15338 (computed)
+- 0.646 Ω: smallest cpc at Cmax, mm²: 1.08 (computed)
+- Cmax dot crosses the line near, Ω: 0.46 (computed)
+- Cmin dot crosses the line near, Ω: 0.4 (computed)
+- Still: the slider at, Ω: 0.43 (control)
+- 0.43 Ω: Cmin current, A: 508.14 (computed)
+- 0.43 Ω: smallest cpc at Cmin, mm²: 1.4 (computed)
+- 0.43 Ω: Cmax current, A: 588.37 (computed)
+- 0.43 Ω: heat at Cmax, A²s: 34618 (computed)
+- 0.43 Ω: smallest cpc at Cmax, mm²: 1.62 (computed)
+- Check: breaker rating, 32 A type C, A: 32 (constant)
+- Check: Zs, Ω: 0.38 (assumed)
+- Check: cpc, mm²: 2.5 (constant)
+- Maximum disconnection time, final circuit, s: 0.4 (constant)
+- Check: Cmax current, A: 665.79 (computed)
+- Check: smallest cpc, 0.1 s, mm²: 1.83 (computed)
+- Check slip: 0.4 s, mm²: 3.66 (computed)
+- Check slip: Cmin current, A: 575 (computed)
+- Check slip: Cmin, mm²: 1.58 (computed)
+- Worked heater: length, m: 15 (constant)
+- Worked heater: Zs (lesson 6), Ω: 0.646 (constant)
+- Worked heater: S at Cmax, mm²: 1.08 (computed)
+- Short circuit: conductor size, mm²: 2.5 (constant)
+- Short circuit: cpc, mm²: 1.5 (constant)
+- Short circuit: length, m: 25 (constant)
+- Short circuit: RCBO rating, A: 20 (constant)
+- Short circuit: RCBO opens within 0.1 s at, A: 100 (constant)
+- Short circuit: PSCC at the origin, A: 300 (constant)
+- Ze(l/n): 230 ÷ 300, Ω: 0.767 (computed)
+- 2.5 mm² line and neutral, mΩ/m: 14.82 (constant, source [10])
+- Multiplier, 90 °C thermosetting (Table I3): 1.28 (constant, source [11])
+- R1+Rn, Ω: 0.474 (computed)
+- Zs(l/n), Ω: 1.241 (computed)
+- Least short-circuit current, A: 176.07 (computed)
+- Greatest short-circuit current, A: 203.87 (computed)
+- k, 90 °C thermosetting copper: 143 (constant, source [12])
+- Time the 2.5 mm² conductors can take it, s: 3.08 (computed)
+- Rounded-down heater Cmin current, A: 341.4 (constant, source [13])
+- Rounded-down heater Cmax current, A: 395.3 (constant, source [7])
+- Rounded-down heater S at Cmin, mm²: 0.93 (constant)
+- Rounded-down Ze(l/n), Ω: 0.76 (constant)
+- Rounded-down R1+Rn, Ω: 0.47 (constant)
+- Rounded-down Zs(l/n), Ω: 1.23 (constant)
+- Rounded-down least current, A: 177.6 (constant, source [14])
+- Rounded-down greatest current, A: 205.6 (constant, source [6])
+- Rounded-down time, s: 3.02 (constant)
+- Motor circuit cpc, mm²: 2.5 (constant)
+- Part 2a: Zs at the starter (practice), Ω: 0.366 (computed)
+- Zs at DBP2 (practice value), Ω: 0.15 (assumed)
+- Part 2c: Cmax current, A: 691.26 (computed)
+- 25 A type C: 10 × In, A: 250 (computed)
+- Motor breaker rating, A: 25 (constant)
+- Part 2c: minimum cpc, mm²: 1.53 (computed)
+- Part 2c accepted: from 0.37 Ω, mm²: 1.51 (computed)
+- Part 2c accepted: Zs rounded, Ω: 0.37 (computed)
+- Part 2c slip: Cmin, mm²: 1.32 (computed)
+- Part 2c slip: 0.4 s, mm²: 3.06 (computed)
+- Part 2c slip: k 115, mm²: 1.9 (computed)
+- Starter-to-motor leg (practice value), m: 3 (assumed)
+- Zs at the motor, Ω: 0.459 (computed)
+- Leg: Cmax current, A: 551.2 (computed)
+- Leg: minimum cpc, mm²: 1.22 (computed)
+- Showroom stated prospective fault current, kA: 4.6 (constant, source [15])
+- Showroom Ze, Ω: 0.1 (constant, source [15])
+- Part 2e: least Icn at the MDB, kA: 4.6 (computed)
+- Part 2e slip: 230 ÷ 0.1, kA: 2.3 (computed)
+- Part 2e slip: Cmax earth fault, kA: 2.53 (computed)
+- Part 2e slip: Cmin earth fault, kA: 2.19 (computed)
+- A standard breaker Icn, kA: 6 (constant, source [16])
+- A lower standard breaker Icn, kA: 4.5 (constant, source [16])
+- Submain: core size (practice value), mm²: 4 (assumed)
+- Submain: length on plan, m: 17 (assumed)
+- Submain breaker: 10 A type C (practice value), A: 10 (assumed)
+- Submain core resistance at 20 °C, mΩ/m: 4.61 (constant, source [17])
+- Armour resistance at 20 °C, mΩ/m: 6.8 (constant, source [18])
+- Armour area, mm²: 22 (constant, source [18])
+- k, steel armour (practice value): 46 (constant, source [3])
+- Part 3f: R1+R2, Ω: 0.248 (computed)
+- Part 3f: Zs at DBL2, Ω: 0.348 (computed)
+- Part 3f: Cmin current, A: 627.87 (computed)
+- 10 A type C: 10 × In, A: 100 (computed)
+- Part 3f: Cmax current, A: 727.01 (computed)
+- Part 3f: minimum armour area, mm²: 5 (computed)
+- Part 3f accepted: unrounded, mm²: 4.99 (computed)
+- Part 3f slip: copper k, mm²: 1.61 (computed)
+- Part 3f slip: Cmin, mm²: 4.32 (computed)
+- Part 3f slip: no multiplier, mm²: 5.92 (computed)
+- Armour rating for 1 s, kA: 1 (constant, source [19])
+- Armour rating time, s: 1 (constant, source [19])
+- Same I²t over 0.1 s: 1.0 × √10, kA: 3.16 (computed)
+- Section B: points, of which any make a full answer: 5, any 3 (constant)
+- Table 54.7: cpc same as line below, mm²: 16 (constant)
+- Changed: conductor size, mm²: 4 (constant)
+- Changed: length, m: 30 (assumed)
+- Changed: breaker rating, A: 32 (constant)
+- Changed: 32 A type B opens within 0.1 s at, A: 160 (computed)
+- Changed: PSCC at the origin, A: 500 (assumed)
+- 4 mm² line and neutral, mΩ/m: 9.22 (constant, source [20])
+- Changed: Ze(l/n), Ω: 0.46 (computed)
+- Changed: R1+Rn, Ω: 0.354 (computed)
+- Changed: Zs(l/n), Ω: 0.814 (computed)
+- Changed: least current, A: 268.43 (computed)
+- Changed: greatest current, A: 310.81 (computed)
+- Changed: time the conductors can take it, s: 3.39 (computed)
+- Changed slip: least current, s: 4.54 (computed)
+- Changed slip: S not squared, s: 0.85 (computed)
+- Changed slip: no multiplier, s: 2.78 (computed)
+- Longest fault the sum holds for, s: 5 (constant, source [21])
+- Rule of thumb: √0.1: 0.316 (computed)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Error: At 0.8 Ω the Cmax pill sits on the level line, so the plot still drops the line's label 'What 1.5 mm² can take: k²S²': name the level line in the plot's key instead (draw it as a dashed, labelled series), so it is always named.
+- The page uses K.answer, but the self-test graded no typed answer: test it again with the current kit.
+- The lesson has the written question "b1", but the page never shows it: add K.written({ id: 'b1', into: … }) on its Section B step.
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Ipf : 3ph simultaneous fault - Wiring and the Regulations BS 7671 - IET EngX - IET EngX (https://engx.theiet.org/f/wiring-and-regulations/29667/ipf-3ph-simultaneous-fault): "From BS7671 Appendix 14 it states, in a 3ph system, the highest prospective fault current occurs with a simultaneous fault across all 3 phases and that an 'approximation' of this is determined by measurement between live and neutral multip…"
+[2] Breaking Capacity (https://scolmore.com/article/breaking-capacity/news): "Regulation 434.5.1 recognises this eventuality and permits a lower breaking capacity if another protective device having the necessary rated short-circuit breaking capacity is installed on the supply side."
+[3] Free Adiabatic Equation Calculator & CPC Sizer - TMUK GROUP LTD (https://tmuk.org/free-adiabatic-equation-calculator-cpc-sizer/): "46 - Steel Wire Armour (SWA - 90°C XLPE)"
+[4] EAL Level 4 Design and Verification: course slides (material:eal-slides#p48): "voltage fluctuates as it’s produced, which means it can drop below the nominal voltage of 230V to as low as 218.5V."
+[5] REDUCTION IN MAXIMUM VALUES OF EARTH FAULT LOOP IMPEDANCE IN BS 7671 (https://electrical.theiet.org/media/1442/maximum-zs-values.pdf): "NOTE 1: For a low voltage supply given in accordance with ESQCR, Cmin is given the value 0.95."
+[6] EAL Level 4 Design and Verification: course slides (material:eal-slides#p67): "230 x 1.1 / 1.23 = 205.6A"
+[7] EAL Level 4 Design and Verification: course slides (material:eal-slides#p60): "A larger voltage of 253V would mean the fault current could reach 395.3A."
+[8] EAL Level 4 Design and Verification: course slides (material:eal-slides#p59): "S = √341.4² x 0.1 / 115"
+[9] EAL Level 4 Design and Verification: course slides (material:eal-slides#p55): "The Ia of the device is 80A, and because our PEFC exceeds this, the device will operate in 0.1s."
+[10] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p218): "2.5 2.5 14.82"
+[11] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p220): "Incorporated in a cable or bunched (NOTE 2) 1.20 1.28 1.28"
+[12] Thermoplastic (PVC) or Thermosetting (XLPE) SWA cable? (https://electrical.theiet.org/media/3023/wiring-matters-issue-93-november-2022.pdf): "the final temperature for 90 °C thermosetting insulation is 250 °C (k =143)"
+[13] EAL Level 4 Design and Verification: course slides (material:eal-slides#p55): "230 x 0.95 / 0.64 = 341.4A"
+[14] EAL Level 4 Design and Verification: course slides (material:eal-slides#p66): "230 x 0.95 / 1.23 = 177.6A"
+[15] ED4-01A learner pack: car showroom assignment (material:learner-pack#p3): "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+[16] [PDF] BEAMA Guide - Low Voltage Circuit-breaker Standards (https://www.beama.org.uk/static/2a6f44a3-2e72-4870-870fb0958c63c470/BEAMA-Guide-Low-Voltage-Circuit-breaker-Standards.pdf): "Circuit-breakers to BS EN 60898 of B-type and C-type, having rated current up to and including 63 A and a rated short-circuit capacity of 3 000 A, 4 500 A, 6 000 A and 10 000 A"
+[17] Standard Power Cables BS5467 - Prysmian United Kingdom (https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf): "4 15.7 11.1 0.9 580 4.61 0.57 1.0 55 45 47 10"
+[18] Standard Power Cables BS5467 - Prysmian United Kingdom (https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf): "4 4.61 - - 19 7.9 20 7.5 22 6.8 25 6.2"
+[19] Standard Power Cables BS5467 - Prysmian United Kingdom (https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf): "Armour short circuit rating (1sec)"
+[20] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p218): "4 4 9.22"
+[21] Adiabatic Equation Calculator: CPC Sizing UK (Free) | Elec-Mate (https://www.elec-mate.com/tools/adiabatic-equation-calculator): "5-second limit (Reg 543.1.3): The adiabatic equation is only valid for disconnection times not exceeding 5 seconds."
+[22] Overcurrent and short-circuit current: how the requirements of BS 7671 are applied - Professional Electrician (https://professional-electrician.com/technical/overcurrent-and-short-circuit-current-how-the-requirements-of-bs-7671-are-applied/): "Regulation 434.5.1 requires that the rated short-circuit breaking capacity of each circuit protective device shall normally not be less than the maximum prospective fault current at the point at which the device is installed."
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (build/electrical/design-and-verification/i7.body2.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

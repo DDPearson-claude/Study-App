@@ -1,0 +1,927 @@
+{
+  "iid": "i7",
+  "title": "Surviving the fault: heat, short circuits, breaking capacity",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the Cmax dot crossing the 1.5 mm² cpc's heat limit near 0.46 Ω, before the Cmin dot does, when you drag Zs down to let more fault current flow.",
+    "title": "The heat a conductor can take",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Eleven screens, with Back and Continue. They cover the heat a fault puts into a conductor, and the biggest fault a device must break.\n\nScreen 1, Do you still have it? The question: “A circuit's Zs is 0.50 Ω. Which fault current do you put into S = √(I²t) ÷ k to check its cpc can take the heat?” Three choices, in this order: “437.00 A: 230 × 0.95 ÷ 0.50”; “506.00 A: 230 × 1.1 ÷ 0.50”; “460.00 A: 230 ÷ 0.50”. Right: “Still there.” Then the working, 230 × 1.1 ÷ 0.50 = 506.00 A. The supply can rise to 253 V. More voltage pushes more current round the same loop, and more current means more heat. Each slip gets its own line. Then come two buttons. Refresh the why goes to screen 2, and Skip to the practice goes to screen 6. Wrong, 437.00 A: “That is Cmin. It gives the smallest current. That one decides whether the breaker opens in time. The heat check wants the largest.” Wrong, 460.00 A: “The supply can rise to 253 V. Cmax, 1.1, allows for that. The heat check wants the largest current.” Then the right working, and on to screen 2.\n\nScreen 2, What it is for. “A fault current heats every conductor it flows through until the device opens. A fault that clears quickly gives the heat no time to leave. Copper that gets too hot damages its insulation. So three checks follow Zs. The cpc must take the heat of an earth fault. The live conductors must take the heat of a short circuit. And each device must be able to break the biggest fault where it sits. A device may be rated lower only if one upstream can break that fault for it.” In red, what goes wrong if it is skipped: “A cpc that passes on Zs can still get hot enough to damage its insulation before the breaker opens. A device asked to break more current than it is rated for may destroy itself.”\n\nScreen 3, The why: the heat a cpc can take. At the top: “Take the immersion heater from lesson 6. It is wired in 70 °C thermoplastic singles in conduit, with a 1.5 mm² cpc, so k is 115. A 16 A type B breaker protects it. It opens within 0.1 s once the fault current reaches 80 A.” The picture plots the heat put in, I²t in A²s, against fault current from 0 to 1300 A. The curve is I² × 0.1. That is the heat put in during the breaker's 0.1 s. A level line crosses it at 29756 A²s, labelled “What 1.5 mm² can take: k²S²”. Two dots sit on the curve. Cmin is at 230 × 0.95 ÷ Zs, and Cmax at 230 × 1.1 ÷ Zs. A dot turns red above the line. A key under the plot names them: “Cmax current: the right-hand dot” and “Cmin current: the left-hand dot”. Under the key: “This takes the breaker's time as 0.1 s. Close to the board it opens faster, so check the maker's let-through figure there.” Under the plot, a bar shows the smallest cpc that copes at the Cmax current. A mark on the bar shows 1.5 mm².\n\nThe control is a slider labelled Zs of the circuit. It runs from 0.20 to 1.00 Ω in steps of 0.002 Ω and opens on 0.646 Ω. Three readouts sit beside it: the fault current at Cmin, the fault current at Cmax, and the smallest cpc. The smallest cpc is S = √(I²t) ÷ k at the Cmax current. The words beside it: “A fault heats the copper faster than the heat can leave it. So the heat stays in the conductor while the fault lasts. The heat is I² × R × t. Halve the area and the resistance doubles, with half the copper to warm. So the temperature climbs four times as fast. That is why the area is squared. k sums up the copper, the insulation, the temperature it starts at and the temperature it must not pass. The conductor survives if the fault's I²t is no more than k²S². Turn that round and the smallest area is S = √(I²t) ÷ k.”\n\nWhat you see. At 0.646 Ω, Cmin gives 338.24 A and Cmax gives 391.64 A. At Cmax the heat is 15338 A²s, under the line. The smallest cpc is 1.08 mm², so 1.5 mm² holds. Drag Zs down. That is like a shorter run, or one nearer the origin. Both dots climb the curve, because a smaller loop lets more current through. The Cmax dot always sits higher, so it crosses the line first, near 0.46 Ω. The Cmin dot crosses near 0.40 Ω. At 0.43 Ω the Cmin current is 508.14 A. It needs a cpc of 1.40 mm², a pass. The Cmax current is 588.37 A and puts in 34618 A²s. It needs 1.62 mm², a fail. The words under it: “Lesson 6 wanted the smallest current, to be sure the breaker opens in time. The heat check wants the largest, because more current puts in more heat in the same 0.1 s. One Zs, two currents, two questions. Turn the same sum round and you get how long the live conductors last in a short circuit: t = k²S² ÷ I². If that is longer than the device takes, the cable holds out.” The prompt above the picture: “Drag Zs down and watch the two dots.” Read: at 0.646 Ω the Cmax current is 391.64 A. The cpc needs 1.08 mm², so 1.5 mm² holds. At 0.43 Ω the Cmin current asks for 1.40 mm², a pass. The Cmax current asks for 1.62 mm², a fail. This takes the breaker's time as 0.1 s. Close to the board it opens faster, so check the maker's let-through figure there. Still: the slider at 0.43 Ω.\n\nScreen 4, Check. “A 32 A type C breaker protects a circuit with Zs 0.38 Ω. Its cpc is 2.5 mm² in 70 °C thermoplastic cable, so k is 115. It is a final circuit, so 0.4 s is allowed. At the Cmax current, 665.79 A, the breaker opens within 0.1 s. What is the smallest cpc that copes?” Choices: “1.83 mm²: the Cmax current for 0.1 s”; “3.66 mm²: the Cmax current for 0.4 s”; “1.58 mm²: the Cmin current for 0.1 s”. Right, the first: “t is how long the device takes at that current. √(665.79² × 0.1) ÷ 115 = 1.83 mm², so the 2.5 mm² cpc holds.” Wrong, the second: “0.4 s is the longest time allowed, not how long the breaker takes. Using it fails a cpc that is fine.” Wrong, the third: “That is the Cmin current, 575.00 A. It is the smaller current. So it understates the heat the fault puts in.”\n\nScreen 5, Worked example, one line at each press. The prompt: “Work each step yourself first, then press Show.” First, the heater's cpc from lesson 6: “15 m of 1.5 mm² 70 °C thermoplastic singles in conduit, with a 1.5 mm² cpc. A 16 A type B breaker. Zs is 0.646 Ω.” The lines: Cmin current = 230 × 0.95 ÷ 0.646 = 338.24 A. That is over the breaker's Ia, 80 A, so it opens within 0.1 s. Cmax current = 230 × 1.1 ÷ 0.646 = 391.64 A. The breaker still opens within 0.1 s. k for the cpc is 115. S = √(391.64² × 0.1) ÷ 115 = 1.08 mm². That is under 1.5 mm², so the cpc holds. Second, a short circuit on the live conductors: “A single-phase circuit in 2.5 mm² twin and earth, 90 °C thermosetting, with a 1.5 mm² cpc. It runs 25 m. A 20 A RCBO protects it, opening within 0.1 s at 100 A. The short-circuit current at the origin is measured as 300 A.” The lines: Ze(l/n) = 230 ÷ 300 = 0.767 Ω. That is the supply's own loop, line to neutral. R1+Rn = 14.82 × 1.28 × 25 ÷ 1000 = 0.474 Ω. Zs(l/n) = 0.767 + 0.474 = 1.241 Ω. Least current = 230 × 0.95 ÷ 1.241 = 176.07 A. That is over 100 A, so the RCBO opens within 0.1 s. Greatest current = 230 × 1.1 ÷ 1.241 = 203.87 A. k for 90 °C thermosetting copper is 143. t = 143² × 2.5² ÷ 203.87² = 3.08 s. The conductors can carry it for 3.08 s. The RCBO opens within 0.1 s. So they are safe. A note under the lines: “Your notes may show 341.4 A and 395.3 A for the heater. They come from Zs cut to 0.64 Ω. The cpc still passes. For the short circuit they may show 177.6 A, 205.6 A and 3.02 s. They come from Zs(l/n) worked as 1.23 Ω. The conductors still pass.” Read: the heater's Cmax current is 391.64 A. Its cpc needs 1.08 mm², under the 1.5 mm² fitted. In the short circuit the greatest current is 203.87 A. The 2.5 mm² conductors can carry it for 3.08 s, far longer than the 0.1 s the RCBO takes.\n\nScreen 6, Section A, question 2 (c). It shows the scenario panel, with parts 1(c), 2(a) and 2(b) carried forward. Then: “The motor circuit's cpc is 2.5 mm². It runs in the same conduit as the 90 °C thermosetting singles, so k is 143. Take Zs at DBP2 as 0.15 Ω for practice. Zs at the starter is then 0.366 Ω.” The question: “(c) Determine, for the motor circuit, whether the copper circuit protective conductor satisfies the thermal constraints under fault conditions. First, the minimum cpc size.” A typed answer, part 2c: the Cmax current is 230 × 1.1 ÷ 0.366 = 691.26 A. That is past 250 A, so the 25 A type C opens within 0.1 s. S = √(691.26² × 0.1) ÷ 143 = 1.53 mm². Accepted too: 1.51 mm², from Zs taken as 0.37 Ω. Slips: 1.32 mm², “You used the Cmin current. The heat check wants the largest current, at Cmax.” 3.06 mm², “You used 0.4 s. That is the longest time allowed. At 691.26 A the breaker opens within 0.1 s.” 1.90 mm², “115 is the k for 70 °C thermoplastic. These are 90 °C thermosetting, so k is 143.” After two misses, the working. Then the judgement: “1.53 mm² is under the 2.5 mm² fitted, so the cpc satisfies the thermal constraints.” One line under it: “Take the starter-to-motor leg as 3.0 m for practice. Zs at the motor is then 0.459 Ω. 230 × 1.1 ÷ 0.459 = 551.20 A, so S = √(551.20² × 0.1) ÷ 143 = 1.22 mm². Its 1.5 mm² cpc holds too.”\n\nScreen 7, Section A, question 2 (e). Part 2(c) carried forward. First the rule: “Every device must break the biggest fault current where it sits. That current is IPF, the larger of the earth fault current and the short-circuit current. The device's breaking capacity, Icn, is marked on it, usually in a small box. The rule is IPF ≤ Icn. The showroom's supply has Ze 0.1 Ω. Its stated fault current is 4.6 kA.” The question: “(e) Determine the least rated short-circuit breaking capacity (Icn) for the circuit-breakers in the MDB.” A typed answer, part 2e: 4.6 kA. Accepted too: 6 kA, with the note “Right as the breaker to buy. The least Icn is 4.6 kA.” Slips: 2.3 kA, “That is 230 ÷ 0.1, one line to earth at 230 V. A fault across all three lines is bigger. The stated 4.6 kA covers it.” 2.53 kA, “That is one line to earth at Cmax. The stated 4.6 kA is bigger, so it sets the device.” 2.19 kA, “That is the Cmin earth fault, the smallest. Breaking capacity is checked against the biggest.” After two misses, the working. Then: “Take the stated 4.6 kA as a fault across all three lines at the origin. That is the biggest fault there, so it sets Icn. A breaker marked 6 kA passes. One marked 4.5 kA does not. Why is 4.6 kA about twice 230 ÷ 0.1? In a fault across all three lines, the neutral carries no current. So the fault current meets one line's impedance, not a line and a return. That roughly halves the loop and doubles the current. A common rule of thumb simply doubles the line-neutral figure.[^1] That rule overstates the real current. For Icn, that is the safe way round. A lower Icn is allowed only where a device on the supply side has the breaking capacity needed.[^2]”\n\nScreen 8, Section A, question 3 (f). Parts 3(b) and 3(e) carried forward. Then, said once: “SWA armour can be the cpc if a calculation justifies it. This is that calculation. Assume the DBL2 submain is four-core 4 mm² 90 °C thermosetting XLPE/SWA cable, 17.0 m on plan. A 10 A type C breaker at the MDB protects it. The armour is its cpc. Treat the cable size and the breaker as practice values. Lesson 8 sizes them properly. Each core is 4.61 mΩ/m and the armour 6.8 mΩ/m, both at 20 °C. The armour area is 22 mm². Use the 1.28 multiplier on both. Take k for the steel armour as 46 for practice.[^3] On a real job, read k from Table 54.4.” The question: “(f) Determine the minimum cross-sectional area the armour needs to serve as the DBL2 submain's cpc.” A typed answer, part 3f: R1+R2 = (4.61 + 6.8) × 1.28 × 17.0 ÷ 1000 = 0.248 Ω. Zs at DBL2 = 0.1 + 0.248 = 0.348 Ω. Cmin current = 230 × 0.95 ÷ 0.348 = 627.87 A. That is far past 100 A, so the breaker opens within 0.1 s. Cmax current = 230 × 1.1 ÷ 0.348 = 727.01 A. S = √(727.01² × 0.1) ÷ 46 = 5.00 mm². Accepted too: 4.99 mm², from unrounded working. Slips: 1.61 mm², “143 is copper's k. Steel armour has a far lower k, 46 here.” 4.32 mm², “You used the Cmin current. Use Cmax for the heat.” 5.92 mm², “You left out the 1.28 multiplier. The conductors are warm when the fault comes.” After two misses, the working. Then the judgement: “The armour is 22 mm², far more than 5.00 mm². So it is justified as the cpc.” One line under it: “As a cross-check, the armour is rated 1.0 kA for 1 s. The same I²t over 0.1 s is 1.0 × √10 = 3.16 kA, well above 727.01 A. Carry Zs at DBL2, 0.348 Ω, into lesson 8.”\n\nScreen 9, Section B: “Explain the difference between a suitable cpc and a minimum cpc.” You write the answer. It is marked against five points, and any three make a full answer. You get one more go, then the model answer.\n\nScreen 10, Section A, changed numbers. “A single-phase circuit is wired in 4 mm² twin and earth, 90 °C thermosetting, 30 m long. A 32 A type B breaker protects it, opening within 0.1 s once the current reaches 160 A. The short-circuit current at the origin is 500 A. Use 9.22 mΩ/m for the line and neutral together, and the 1.28 multiplier. Determine whether the breaker protects the live conductors in a short circuit. First, how long can they carry the greatest short-circuit current?” A typed answer: Ze(l/n) = 230 ÷ 500 = 0.460 Ω. R1+Rn = 9.22 × 1.28 × 30 ÷ 1000 = 0.354 Ω. Zs(l/n) = 0.460 + 0.354 = 0.814 Ω. Least current = 230 × 0.95 ÷ 0.814 = 268.43 A. That is over 160 A, so the breaker opens within 0.1 s. Greatest current = 230 × 1.1 ÷ 0.814 = 310.81 A. t = 143² × 4² ÷ 310.81² = 3.39 s. Slips: 4.54 s, “You used the least current. The heat check uses the greatest.” 0.85 s, “Square the area as well: k² × S².” 2.78 s, “You left out the 1.28 multiplier.” After it: “3.39 s is far longer than the 0.1 s the breaker takes. So the live conductors are protected.”\n\nScreen 11, Keep this: the summary card, then Finish the lesson.\n\nOn every screen, each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.",
+    "ignores": "The plot holds the breaker's time at 0.1 s at every current on it. A real breaker often opens faster at high currents. It also limits the energy it lets through. So 0.1 s is an upper bound. Where you have the maker's let-through figure, use it. The plot moves Zs on its own, as if the run changed. The cpc stays 1.5 mm² throughout. The heat is taken to stay in the conductor for the whole fault. That holds for faults that clear quickly, and is why the sum is not used beyond 5 s.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 11 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Recall: Zs of the circuit, Ω",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Recall: 230 × 1.1 ÷ 0.50, A",
+        "value": 506,
+        "kind": "computed"
+      },
+      {
+        "label": "Recall slip: 230 × 0.95 ÷ 0.50, A",
+        "value": 437,
+        "kind": "computed"
+      },
+      {
+        "label": "Recall slip: 230 ÷ 0.50, A",
+        "value": 460,
+        "kind": "computed"
+      },
+      {
+        "label": "Nominal voltage to earth, V",
+        "value": 230,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Cmin",
+        "value": 0.95,
+        "kind": "constant",
+        "source": 5
+      },
+      {
+        "label": "Lowest supply voltage, V",
+        "value": 218.5,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Cmax",
+        "value": 1.1,
+        "kind": "constant",
+        "source": 6
+      },
+      {
+        "label": "Highest supply voltage, V",
+        "value": 253,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "Heater cpc, mm²",
+        "value": 1.5,
+        "kind": "constant"
+      },
+      {
+        "label": "k, 70 °C thermoplastic copper cpc",
+        "value": 115,
+        "kind": "constant",
+        "source": 8
+      },
+      {
+        "label": "Heater breaker: 16 A type B, A",
+        "value": 16,
+        "kind": "constant"
+      },
+      {
+        "label": "16 A type B: current that opens it within 0.1 s, A",
+        "value": 80,
+        "kind": "constant",
+        "source": 9
+      },
+      {
+        "label": "Breaker opening time used, s",
+        "value": 0.1,
+        "kind": "constant",
+        "source": 9
+      },
+      {
+        "label": "Zs slider: lowest, Ω",
+        "value": 0.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Zs slider: highest, Ω",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Zs slider step, Ω",
+        "value": 0.002,
+        "kind": "assumed"
+      },
+      {
+        "label": "Zs slider opens at: the heater from lesson 6, Ω",
+        "value": 0.646,
+        "kind": "control"
+      },
+      {
+        "label": "Current axis: 0 to, A",
+        "value": 1300,
+        "kind": "assumed"
+      },
+      {
+        "label": "What 1.5 mm² can take: 115² × 1.5², A²s",
+        "value": 29756,
+        "kind": "computed"
+      },
+      {
+        "label": "0.646 Ω: Cmin current, A",
+        "value": 338.24,
+        "kind": "computed"
+      },
+      {
+        "label": "0.646 Ω: Cmax current, A",
+        "value": 391.64,
+        "kind": "computed"
+      },
+      {
+        "label": "0.646 Ω: heat at Cmax, A²s",
+        "value": 15338,
+        "kind": "computed"
+      },
+      {
+        "label": "0.646 Ω: smallest cpc at Cmax, mm²",
+        "value": 1.08,
+        "kind": "computed"
+      },
+      {
+        "label": "Cmax dot crosses the line near, Ω",
+        "value": 0.46,
+        "kind": "computed"
+      },
+      {
+        "label": "Cmin dot crosses the line near, Ω",
+        "value": 0.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Still: the slider at, Ω",
+        "value": 0.43,
+        "kind": "control"
+      },
+      {
+        "label": "0.43 Ω: Cmin current, A",
+        "value": 508.14,
+        "kind": "computed"
+      },
+      {
+        "label": "0.43 Ω: smallest cpc at Cmin, mm²",
+        "value": 1.4,
+        "kind": "computed"
+      },
+      {
+        "label": "0.43 Ω: Cmax current, A",
+        "value": 588.37,
+        "kind": "computed"
+      },
+      {
+        "label": "0.43 Ω: heat at Cmax, A²s",
+        "value": 34618,
+        "kind": "computed"
+      },
+      {
+        "label": "0.43 Ω: smallest cpc at Cmax, mm²",
+        "value": 1.62,
+        "kind": "computed"
+      },
+      {
+        "label": "Check: breaker rating, 32 A type C, A",
+        "value": 32,
+        "kind": "constant"
+      },
+      {
+        "label": "Check: Zs, Ω",
+        "value": 0.38,
+        "kind": "assumed"
+      },
+      {
+        "label": "Check: cpc, mm²",
+        "value": 2.5,
+        "kind": "constant"
+      },
+      {
+        "label": "Maximum disconnection time, final circuit, s",
+        "value": 0.4,
+        "kind": "constant"
+      },
+      {
+        "label": "Check: Cmax current, A",
+        "value": 665.79,
+        "kind": "computed"
+      },
+      {
+        "label": "Check: smallest cpc, 0.1 s, mm²",
+        "value": 1.83,
+        "kind": "computed"
+      },
+      {
+        "label": "Check slip: 0.4 s, mm²",
+        "value": 3.66,
+        "kind": "computed"
+      },
+      {
+        "label": "Check slip: Cmin current, A",
+        "value": 575,
+        "kind": "computed"
+      },
+      {
+        "label": "Check slip: Cmin, mm²",
+        "value": 1.58,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked heater: length, m",
+        "value": 15,
+        "kind": "constant"
+      },
+      {
+        "label": "Worked heater: Zs (lesson 6), Ω",
+        "value": 0.646,
+        "kind": "constant"
+      },
+      {
+        "label": "Worked heater: S at Cmax, mm²",
+        "value": 1.08,
+        "kind": "computed"
+      },
+      {
+        "label": "Short circuit: conductor size, mm²",
+        "value": 2.5,
+        "kind": "constant"
+      },
+      {
+        "label": "Short circuit: cpc, mm²",
+        "value": 1.5,
+        "kind": "constant"
+      },
+      {
+        "label": "Short circuit: length, m",
+        "value": 25,
+        "kind": "constant"
+      },
+      {
+        "label": "Short circuit: RCBO rating, A",
+        "value": 20,
+        "kind": "constant"
+      },
+      {
+        "label": "Short circuit: RCBO opens within 0.1 s at, A",
+        "value": 100,
+        "kind": "constant"
+      },
+      {
+        "label": "Short circuit: PSCC at the origin, A",
+        "value": 300,
+        "kind": "constant"
+      },
+      {
+        "label": "Ze(l/n): 230 ÷ 300, Ω",
+        "value": 0.767,
+        "kind": "computed"
+      },
+      {
+        "label": "2.5 mm² line and neutral, mΩ/m",
+        "value": 14.82,
+        "kind": "constant",
+        "source": 10
+      },
+      {
+        "label": "Multiplier, 90 °C thermosetting (Table I3)",
+        "value": 1.28,
+        "kind": "constant",
+        "source": 11
+      },
+      {
+        "label": "R1+Rn, Ω",
+        "value": 0.474,
+        "kind": "computed"
+      },
+      {
+        "label": "Zs(l/n), Ω",
+        "value": 1.241,
+        "kind": "computed"
+      },
+      {
+        "label": "Least short-circuit current, A",
+        "value": 176.07,
+        "kind": "computed"
+      },
+      {
+        "label": "Greatest short-circuit current, A",
+        "value": 203.87,
+        "kind": "computed"
+      },
+      {
+        "label": "k, 90 °C thermosetting copper",
+        "value": 143,
+        "kind": "constant",
+        "source": 12
+      },
+      {
+        "label": "Time the 2.5 mm² conductors can take it, s",
+        "value": 3.08,
+        "kind": "computed"
+      },
+      {
+        "label": "Rounded-down heater Cmin current, A",
+        "value": 341.4,
+        "kind": "constant",
+        "source": 13
+      },
+      {
+        "label": "Rounded-down heater Cmax current, A",
+        "value": 395.3,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "Rounded-down heater S at Cmin, mm²",
+        "value": 0.93,
+        "kind": "constant"
+      },
+      {
+        "label": "Rounded-down Ze(l/n), Ω",
+        "value": 0.76,
+        "kind": "constant"
+      },
+      {
+        "label": "Rounded-down R1+Rn, Ω",
+        "value": 0.47,
+        "kind": "constant"
+      },
+      {
+        "label": "Rounded-down Zs(l/n), Ω",
+        "value": 1.23,
+        "kind": "constant"
+      },
+      {
+        "label": "Rounded-down least current, A",
+        "value": 177.6,
+        "kind": "constant",
+        "source": 14
+      },
+      {
+        "label": "Rounded-down greatest current, A",
+        "value": 205.6,
+        "kind": "constant",
+        "source": 6
+      },
+      {
+        "label": "Rounded-down time, s",
+        "value": 3.02,
+        "kind": "constant"
+      },
+      {
+        "label": "Motor circuit cpc, mm²",
+        "value": 2.5,
+        "kind": "constant"
+      },
+      {
+        "label": "Part 2a: Zs at the starter (practice), Ω",
+        "value": 0.366,
+        "kind": "computed"
+      },
+      {
+        "label": "Zs at DBP2 (practice value), Ω",
+        "value": 0.15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Part 2c: Cmax current, A",
+        "value": 691.26,
+        "kind": "computed"
+      },
+      {
+        "label": "25 A type C: 10 × In, A",
+        "value": 250,
+        "kind": "computed"
+      },
+      {
+        "label": "Motor breaker rating, A",
+        "value": 25,
+        "kind": "constant"
+      },
+      {
+        "label": "Part 2c: minimum cpc, mm²",
+        "value": 1.53,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 2c accepted: from 0.37 Ω, mm²",
+        "value": 1.51,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 2c accepted: Zs rounded, Ω",
+        "value": 0.37,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 2c slip: Cmin, mm²",
+        "value": 1.32,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 2c slip: 0.4 s, mm²",
+        "value": 3.06,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 2c slip: k 115, mm²",
+        "value": 1.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Starter-to-motor leg (practice value), m",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Zs at the motor, Ω",
+        "value": 0.459,
+        "kind": "computed"
+      },
+      {
+        "label": "Leg: Cmax current, A",
+        "value": 551.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Leg: minimum cpc, mm²",
+        "value": 1.22,
+        "kind": "computed"
+      },
+      {
+        "label": "Showroom stated prospective fault current, kA",
+        "value": 4.6,
+        "kind": "constant",
+        "source": 15
+      },
+      {
+        "label": "Showroom Ze, Ω",
+        "value": 0.1,
+        "kind": "constant",
+        "source": 15
+      },
+      {
+        "label": "Part 2e: least Icn at the MDB, kA",
+        "value": 4.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 2e slip: 230 ÷ 0.1, kA",
+        "value": 2.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 2e slip: Cmax earth fault, kA",
+        "value": 2.53,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 2e slip: Cmin earth fault, kA",
+        "value": 2.19,
+        "kind": "computed"
+      },
+      {
+        "label": "A standard breaker Icn, kA",
+        "value": 6,
+        "kind": "constant",
+        "source": 16
+      },
+      {
+        "label": "A lower standard breaker Icn, kA",
+        "value": 4.5,
+        "kind": "constant",
+        "source": 16
+      },
+      {
+        "label": "Submain: core size (practice value), mm²",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Submain: length on plan, m",
+        "value": 17,
+        "kind": "assumed"
+      },
+      {
+        "label": "Submain breaker: 10 A type C (practice value), A",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Submain core resistance at 20 °C, mΩ/m",
+        "value": 4.61,
+        "kind": "constant",
+        "source": 17
+      },
+      {
+        "label": "Armour resistance at 20 °C, mΩ/m",
+        "value": 6.8,
+        "kind": "constant",
+        "source": 18
+      },
+      {
+        "label": "Armour area, mm²",
+        "value": 22,
+        "kind": "constant",
+        "source": 18
+      },
+      {
+        "label": "k, steel armour (practice value)",
+        "value": 46,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Part 3f: R1+R2, Ω",
+        "value": 0.248,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3f: Zs at DBL2, Ω",
+        "value": 0.348,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3f: Cmin current, A",
+        "value": 627.87,
+        "kind": "computed"
+      },
+      {
+        "label": "10 A type C: 10 × In, A",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3f: Cmax current, A",
+        "value": 727.01,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3f: minimum armour area, mm²",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3f accepted: unrounded, mm²",
+        "value": 4.99,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3f slip: copper k, mm²",
+        "value": 1.61,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3f slip: Cmin, mm²",
+        "value": 4.32,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3f slip: no multiplier, mm²",
+        "value": 5.92,
+        "kind": "computed"
+      },
+      {
+        "label": "Armour rating for 1 s, kA",
+        "value": 1,
+        "kind": "constant",
+        "source": 19
+      },
+      {
+        "label": "Armour rating time, s",
+        "value": 1,
+        "kind": "constant",
+        "source": 19
+      },
+      {
+        "label": "Same I²t over 0.1 s: 1.0 × √10, kA",
+        "value": 3.16,
+        "kind": "computed"
+      },
+      {
+        "label": "Section B: points, of which any make a full answer",
+        "value": "5, any 3",
+        "kind": "constant"
+      },
+      {
+        "label": "Table 54.7: cpc same as line below, mm²",
+        "value": 16,
+        "kind": "constant"
+      },
+      {
+        "label": "Changed: conductor size, mm²",
+        "value": 4,
+        "kind": "constant"
+      },
+      {
+        "label": "Changed: length, m",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Changed: breaker rating, A",
+        "value": 32,
+        "kind": "constant"
+      },
+      {
+        "label": "Changed: 32 A type B opens within 0.1 s at, A",
+        "value": 160,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed: PSCC at the origin, A",
+        "value": 500,
+        "kind": "assumed"
+      },
+      {
+        "label": "4 mm² line and neutral, mΩ/m",
+        "value": 9.22,
+        "kind": "constant",
+        "source": 20
+      },
+      {
+        "label": "Changed: Ze(l/n), Ω",
+        "value": 0.46,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed: R1+Rn, Ω",
+        "value": 0.354,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed: Zs(l/n), Ω",
+        "value": 0.814,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed: least current, A",
+        "value": 268.43,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed: greatest current, A",
+        "value": 310.81,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed: time the conductors can take it, s",
+        "value": 3.39,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed slip: least current, s",
+        "value": 4.54,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed slip: S not squared, s",
+        "value": 0.85,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed slip: no multiplier, s",
+        "value": 2.78,
+        "kind": "computed"
+      },
+      {
+        "label": "Longest fault the sum holds for, s",
+        "value": 5,
+        "kind": "constant",
+        "source": 21
+      },
+      {
+        "label": "Rule of thumb: √0.1",
+        "value": 0.316,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A fault current heats every conductor it flows through until the device opens. A conductor survives if the fault's heat, I²t, is no more than the conductor can take, k²S². So the smallest safe area is S = √(I²t) ÷ k. Turned round, the time a conductor can carry a current is t = k²S² ÷ I².\n\nA fault that clears quickly gives the heat no time to leave the copper. The heat is I² × R × t. Halve the area and the resistance doubles, with half the copper to warm. So the temperature climbs four times as fast. That is why the area comes in squared. k sums up the copper, the insulation, the temperature it starts at and the temperature it must not pass. For copper in 90 °C thermosetting cable, k is 143.[^12] Steel armour has a far lower k, so armour needs much more area.\n\nOne Zs gives two fault currents, because the supply voltage varies. In lesson 6 we took the smallest, at Cmin, to be sure the device opens in time. The heat check takes the largest, at Cmax, because more current puts in more heat in the same time. For t, use how long the device takes at that current, read from its curve. The 0.4 s or 5 s allowed is a limit, not the time it takes. The sum holds for faults that clear within 5 s.[^21]\n\nLast, each device must break the biggest fault where it sits: IPF ≤ Icn. IPF is the larger of the earth fault current and the short-circuit current. A device with a lower Icn is allowed only when one upstream has the breaking capacity needed. The picture is simplified. It takes the breaker's time as 0.1 s, an upper bound. A real breaker is often faster.\n\n**Check the heat at the Cmax current for the time the device really takes, and normally give each device an Icn of at least the fault level where it sits.**"
+  },
+  "analogy": {
+    "text": "Think of a soldering iron on a cable lug. A thin tail gets hot fast. A heavy lug soaks up the heat. Hold the iron on twice as long and twice the heat goes in. The lug is fine if you take the iron off before it gets too hot. The iron is the fault current. The time it stays on is t. The lug's size is S. Taking the iron off is the device opening.",
+    "breaks": "An iron's heat flows in from outside and spreads through the metal. Fault heat is made inside the copper itself, as I²R. It grows with the square of the current. So a little more current makes a lot more heat."
+  },
+  "practice": {
+    "text": "- Work Zs to the far end of the circuit, hot, as in lesson 6.\n- Work the largest fault current: 230 × 1.1 ÷ Zs.\n- Read the device's time at that current from its curve. Past the top of its instant-trip band, a breaker opens within 0.1 s. For a type C, that top is 10 × In.\n- Take k for the cpc's material and insulation from Tables 54.2 to 54.6.\n- Work S = √(I²t) ÷ k. The cpc fitted must be at least that.\n- For the live conductors, work Zs(l/n) from the short-circuit current at the origin. Then t = k²S² ÷ I², with k from Table 43.1. It must be longer than the device's time.\n- Check each device's Icn against IPF where it sits. Its breaking capacity should normally be at least the largest prospective fault current at that point.[^22]\n\n**Rule of thumb:** with t at 0.1 s, the smallest cpc is the Cmax current × 0.316 ÷ k.\n\n**Worked example:** the showroom motor circuit. Take Zs at DBP2 as 0.15 Ω for practice. Zs at the starter is then 0.366 Ω. The Cmax current is 230 × 1.1 ÷ 0.366 = 691.26 A. S = √(691.26² × 0.1) ÷ 143 = 1.53 mm². The 2.5 mm² cpc holds.\n\n**Common mistakes**\n- Using the Cmin current. It is the smaller current, so it gives too little heat.\n- Putting the 0.4 s or 5 s allowed in for t. Use the device's time at that current.\n- Using copper's k for steel armour.\n- Checking Icn against one line to earth when the three-phase fault is bigger.\n- Taking Table 54.7's cpc as proven without the heat check."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "written": {
+    "b1": {
+      "q": "Explain the difference between a suitable cpc and a minimum cpc.",
+      "points": [
+        {
+          "text": "A suitable cpc is the size Table 54.7 gives from the line conductor. Below 16 mm² that is the same size as the line.",
+          "cite": "Flowchart note 2"
+        },
+        {
+          "text": "The minimum cpc is the smallest size that still passes the heat check, S = √(I²t) ÷ k. It may be smaller than the suitable one.",
+          "cite": "Flowchart note 2 and steps 18, 19; slides p.58"
+        },
+        {
+          "text": "To find it, choose a smaller cpc and redo the steps from R1+R2 to the heat check. If the smaller size fails the heat check, the size above it is the minimum.",
+          "cite": "Flowchart note 2"
+        },
+        {
+          "text": "A smaller cpc raises R1+R2 and Zs. So Zs must still be within the device's maximum, and the fault current must still open it in time.",
+          "cite": "Flowchart steps 10 to 15; slides p.49"
+        },
+        {
+          "text": "The heat check uses the largest fault current, at Cmax, the device's time at that current, and k for the cpc's material and insulation.",
+          "cite": "Slides p.58, 59, 62"
+        }
+      ],
+      "need": 3,
+      "model": "A suitable cpc is the size Table 54.7 gives from the line conductor. Below 16 mm² that is the same size as the line. The minimum cpc is the smallest size that still passes the heat check, S = √(I²t) ÷ k. It may be smaller than the suitable one. The heat check uses the largest fault current, at Cmax, the device's time at that current, and k for the cpc's material and insulation. To find the minimum, choose a smaller cpc and redo the steps from R1+R2 to the heat check. A smaller cpc raises R1+R2 and Zs. So Zs must still be within the device's maximum, and the fault current must still open it in time. If the smaller size fails the heat check, the size above it is the minimum."
+    }
+  },
+  "summary": {
+    "title": "Surviving the fault: heat and breaking capacity",
+    "for": "A fault heats every conductor it flows through until the device opens. Check that the cpc and the live conductors can take that heat. Check that each device can break the biggest fault where it sits. If it cannot, a device upstream must.",
+    "rule": "Fault current for the heat check = Uo × Cmax ÷ Zs, with Cmax 1.1\ncpc: the size fitted must be at least S = √(I² × t) ÷ k\nLive conductors: Zs(l/n) = Ze(l/n) + (R1+Rn), with Ze(l/n) = 230 ÷ PSCC\nThen t = k² × S² ÷ I² must be longer than the device takes\nBreaking capacity: IPF ≤ Icn, with IPF the larger of PEFC and PSCC\nOn a three-phase board, IPF is the three-line fault, about twice the line-to-neutral figure.\n\nt is the device's time at that current, not the 0.4 s or 5 s allowed. The sum holds up to 5 s.\nk: 115 for 70 °C thermoplastic copper, 143 for 90 °C thermosetting. Steel armour is far lower.\nSWA armour may be the cpc if a calculation justifies it.",
+    "traps": [
+      {
+        "text": "Using the Cmin current for the heat check. It is the smaller current, so it gives too little heat.",
+        "cite": "Slides p.60, 62"
+      },
+      {
+        "text": "Putting the 0.4 s or 5 s limit in for t. Use the device's time at that current.",
+        "cite": "Slides p.50, 59; flowchart step 16"
+      },
+      {
+        "text": "Using copper's k for steel armour.",
+        "cite": "Slides p.59 (Tables 54.2 to 54.6); TMUK adiabatic calculator, in research"
+      },
+      {
+        "text": "Checking Icn against one line to earth when the three-phase fault is bigger.",
+        "cite": "Slides p.69; pack p.3"
+      },
+      {
+        "text": "Taking Table 54.7's cpc as proven. A suitable cpc and the minimum cpc are not the same thing.",
+        "cite": "Flowchart note 2"
+      }
+    ],
+    "where": "BS 7671 Regulations 434.5.1, 434.5.2 and 543.1.3. Tables 43.1 and 54.2 to 54.7. The device maker's data for Icn and let-through energy.",
+    "figures": [
+      "1c",
+      "2a",
+      "2b",
+      "2c",
+      "2e",
+      "3f"
+    ]
+  },
+  "sources": [
+    {
+      "n": 1,
+      "title": "Ipf : 3ph simultaneous fault - Wiring and the Regulations BS 7671 - IET EngX - IET EngX",
+      "url": "https://engx.theiet.org/f/wiring-and-regulations/29667/ipf-3ph-simultaneous-fault",
+      "quote": "From BS7671 Appendix 14 it states, in a 3ph system, the highest prospective fault current occurs with a simultaneous fault across all 3 phases and that an 'approximation' of this is determined by measurement between live and neutral multiplied by 2..."
+    },
+    {
+      "n": 2,
+      "title": "Breaking Capacity",
+      "url": "https://scolmore.com/article/breaking-capacity/news",
+      "quote": "Regulation 434.5.1 recognises this eventuality and permits a lower breaking capacity if another protective device having the necessary rated short-circuit breaking capacity is installed on the supply side."
+    },
+    {
+      "n": 3,
+      "title": "Free Adiabatic Equation Calculator & CPC Sizer - TMUK GROUP LTD",
+      "url": "https://tmuk.org/free-adiabatic-equation-calculator-cpc-sizer/",
+      "quote": "46 - Steel Wire Armour (SWA - 90°C XLPE)"
+    },
+    {
+      "n": 4,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p48",
+      "quote": "voltage fluctuates as it’s produced, which means it can drop below the nominal voltage of 230V to as low as 218.5V."
+    },
+    {
+      "n": 5,
+      "title": "REDUCTION IN MAXIMUM VALUES OF EARTH FAULT LOOP IMPEDANCE IN BS 7671",
+      "url": "https://electrical.theiet.org/media/1442/maximum-zs-values.pdf",
+      "quote": "NOTE 1: For a low voltage supply given in accordance with ESQCR, Cmin is given the value 0.95."
+    },
+    {
+      "n": 6,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p67",
+      "quote": "230 x 1.1 / 1.23 = 205.6A"
+    },
+    {
+      "n": 7,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p60",
+      "quote": "A larger voltage of 253V would mean the fault current could reach 395.3A."
+    },
+    {
+      "n": 8,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p59",
+      "quote": "S = √341.4² x 0.1 / 115"
+    },
+    {
+      "n": 9,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p55",
+      "quote": "The Ia of the device is 80A, and because our PEFC exceeds this, the device will operate in 0.1s."
+    },
+    {
+      "n": 10,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p218",
+      "quote": "2.5 2.5 14.82"
+    },
+    {
+      "n": 11,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p220",
+      "quote": "Incorporated in a cable or bunched (NOTE 2) 1.20 1.28 1.28"
+    },
+    {
+      "n": 12,
+      "title": "Thermoplastic (PVC) or Thermosetting (XLPE) SWA cable?",
+      "url": "https://electrical.theiet.org/media/3023/wiring-matters-issue-93-november-2022.pdf",
+      "quote": "the final temperature for 90 °C thermosetting insulation is 250 °C (k =143)"
+    },
+    {
+      "n": 13,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p55",
+      "quote": "230 x 0.95 / 0.64 = 341.4A"
+    },
+    {
+      "n": 14,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p66",
+      "quote": "230 x 0.95 / 1.23 = 177.6A"
+    },
+    {
+      "n": 15,
+      "title": "ED4-01A learner pack: car showroom assignment",
+      "url": "material:learner-pack#p3",
+      "quote": "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+    },
+    {
+      "n": 16,
+      "title": "[PDF] BEAMA Guide - Low Voltage Circuit-breaker Standards",
+      "url": "https://www.beama.org.uk/static/2a6f44a3-2e72-4870-870fb0958c63c470/BEAMA-Guide-Low-Voltage-Circuit-breaker-Standards.pdf",
+      "quote": "Circuit-breakers to BS EN 60898 of B-type and C-type, having rated current up to and including 63 A and a rated short-circuit capacity of 3 000 A, 4 500 A, 6 000 A and 10 000 A"
+    },
+    {
+      "n": 17,
+      "title": "Standard Power Cables BS5467 - Prysmian United Kingdom",
+      "url": "https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf",
+      "quote": "4 15.7 11.1 0.9 580 4.61 0.57 1.0 55 45 47 10"
+    },
+    {
+      "n": 18,
+      "title": "Standard Power Cables BS5467 - Prysmian United Kingdom",
+      "url": "https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf",
+      "quote": "4 4.61 - - 19 7.9 20 7.5 22 6.8 25 6.2"
+    },
+    {
+      "n": 19,
+      "title": "Standard Power Cables BS5467 - Prysmian United Kingdom",
+      "url": "https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf",
+      "quote": "Armour short circuit rating (1sec)"
+    },
+    {
+      "n": 20,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p218",
+      "quote": "4 4 9.22"
+    },
+    {
+      "n": 21,
+      "title": "Adiabatic Equation Calculator: CPC Sizing UK (Free) | Elec-Mate",
+      "url": "https://www.elec-mate.com/tools/adiabatic-equation-calculator",
+      "quote": "5-second limit (Reg 543.1.3): The adiabatic equation is only valid for disconnection times not exceeding 5 seconds."
+    },
+    {
+      "n": 22,
+      "title": "Overcurrent and short-circuit current: how the requirements of BS 7671 are applied - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/overcurrent-and-short-circuit-current-how-the-requirements-of-bs-7671-are-applied/",
+      "quote": "Regulation 434.5.1 requires that the rated short-circuit breaking capacity of each circuit protective device shall normally not be less than the maximum prospective fault current at the point at which the device is installed."
+    }
+  ]
+}

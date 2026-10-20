@@ -496,7 +496,7 @@
    "unit": "A√s/mm²",
    "text": "46 A√s/mm²",
    "practice": true,
-   "cite": "one trade cable-sizing page lists \"46 - Steel Wire Armour (SWA - 90°C XLPE)\" (research source 394); the page of Table 54.4 is not among the pages saved from your copy: read the real k from your copy of Table 54.4 before relying on it",
+   "cite": "one trade cable-sizing page lists \"46 - Steel Wire Armour (SWA - 90°C XLPE)\" (research source 394); the page of Table 54.4 is not among the pages saved from your copy: read the real k from your copy of Table 54.4 before relying on it; Table 54.4 as printed in a Certsure pocket guide gives steel armour 51 (70 °C thermoplastic), 46 (90 °C thermoplastic) and 46 (90 °C thermosetting) (research sources 437, 438), a page hosted on a website CDN, so still a practice value until read from your copy",
    "note": "Table 54.4 (steel armour). A practice value: sourced to one trade calculator only, not to the table or a maker. Far below copper's 143, which is why armour needs a large area."
   },
   {
@@ -549,7 +549,7 @@
    "text": "four-core 4 mm² 90 °C thermosetting XLPE/SWA/PVC, armour as the cpc, 17.0 m on plan",
    "practice": true,
    "cite": "no source: lesson 8 sizes the submain from its Ib, factors, voltage drop and the vertical runs; lesson 7 needs a cable to check, and 4 mm² is one whose rows are in the maker's data (g.swa4.*)",
-   "note": "A practice value shared by lessons 7 and 8. If lesson 8's sizing lands on another size, change this entry and the armour rows used (the maker's rows for 1.5, 2.5, 6 and 10 mm² are in g.swa4.armour's note), then recompute l7.armour. The length is the plan length (l8.submain.plan); lesson 8 adds the vertical runs and re-checks."
+   "note": "A practice value shared by lessons 7 and 8. If lesson 8's sizing lands on another size, change this entry and the armour rows used (the maker's rows for 1.5, 2.5, 6 and 10 mm² are in g.swa4.armour's note), then recompute l7.armour. The length is the plan length (l8.submain.plan); lesson 8 adds the vertical runs and re-checks. Lesson 8 keeps 4 mm² (a.subChoice) and adds the vertical runs: 20.0 m, not the 17.0 m on plan (a.vert)."
   },
   {
    "id": "p.sub.dev",
@@ -569,6 +569,135 @@
    "practice": true,
    "cite": "BS EN 60898 standard values of Icn include 4 500 A, 6 000 A and 10 000 A (BEAMA, research sources 408, 409); MCBs are commonly marked 6 kA or 10 kA (research source 411); the pack gives no device data",
    "note": "A practice value: 6 kA is at least the stated 4.6 kA (IPF ≤ Icn holds). The what-if is a breaker marked 4.5 kA, a standard Icn value, which fails: 4.5 kA is less than 4.6 kA. Read the real Icn from the device's marking or the maker's data. The 4.6 kA is the figure at the origin; the fault level falls along the submains, but the check is made at each device's own point."
+  },
+  {
+   "id": "g.it.swa4.E",
+   "label": "It, 4 mm² four-core XLPE/SWA, Method E (tray), three loaded cores",
+   "value": 44,
+   "unit": "A",
+   "text": "44 A",
+   "cite": "BS 7671 Table 4E4A, your copy p.464 (OCR garbled three cells; corrected from the page image), column 5 (research sources 422, 423, 424)",
+   "note": "Reference Method C (clipped direct) is column 3: 42 A (g.it.swa4.C). Table 4E4A states an air ambient of 30 °C."
+  },
+  {
+   "id": "g.it.swa4.C",
+   "label": "It, 4 mm² four-core XLPE/SWA, Method C (clipped), three loaded cores",
+   "value": 42,
+   "unit": "A",
+   "text": "42 A",
+   "cite": "BS 7671 Table 4E4A, your copy p.464 (OCR garbled three cells; corrected from the page image), column 3 (research source 424)"
+  },
+  {
+   "id": "g.it.swa2p5.E",
+   "label": "It, 2.5 mm² four-core XLPE/SWA, Method E, three loaded (size chase)",
+   "value": 33,
+   "unit": "A",
+   "text": "33 A",
+   "cite": "BS 7671 Table 4E4A, your copy p.464 (OCR garbled three cells; corrected from the page image), column 5 (research source 426)"
+  },
+  {
+   "id": "g.it.swa1p5.E",
+   "label": "It, 1.5 mm² four-core XLPE/SWA, Method E, three loaded (size chase)",
+   "value": 25,
+   "unit": "A",
+   "text": "25 A",
+   "cite": "BS 7671 Table 4E4A, your copy p.464 (OCR garbled three cells; corrected from the page image), column 5 (research source 425)"
+  },
+  {
+   "id": "g.vd.swa4",
+   "label": "mV/A/m, 4 mm² four-core 90 °C thermosetting XLPE/SWA, three-phase",
+   "value": 10,
+   "unit": "mV/A/m",
+   "text": "10 mV/A/m",
+   "cite": "BS 7671 Table 4E4B, your copy p.465 (checked against the page image), column 4, three- or four-core three-phase AC (research source 428)",
+   "note": "Column 3, two-core single-phase AC, is 12 mV/A/m (the same source): used only for the second route in a.vdRoutes."
+  },
+  {
+   "id": "g.vd.swa2p5",
+   "label": "mV/A/m, 2.5 mm² four-core XLPE/SWA, three-phase (the size chase)",
+   "value": 16,
+   "unit": "mV/A/m",
+   "text": "16 mV/A/m",
+   "cite": "BS 7671 Table 4E4B, your copy p.465 (checked against the page image), column 4 (research source 430)"
+  },
+  {
+   "id": "g.vd.swa1p5",
+   "label": "mV/A/m, 1.5 mm² four-core XLPE/SWA, three-phase (the size chase)",
+   "value": 27,
+   "unit": "mV/A/m",
+   "text": "27 mV/A/m",
+   "cite": "BS 7671 Table 4E4B, your copy p.465 (checked against the page image), column 4 (research source 429)"
+  },
+  {
+   "id": "g.it.1p5.1ph",
+   "label": "It, 1.5 mm² 90 °C singles, Reference Method B, two loaded cables (single-phase)",
+   "value": 23,
+   "unit": "A",
+   "text": "23 A",
+   "cite": "BS 7671 Table 4E1A, your copy p.458, column 4 (research source 297; the same row gives 20 A in column 5, g.it.1p5)"
+  },
+  {
+   "id": "g.zmax.C10",
+   "label": "Maximum Zs, 10 A type C circuit-breaker to BS EN 60898, 0.4 s, U0 230 V",
+   "value": 2.19,
+   "unit": "Ω",
+   "text": "2.19 Ω",
+   "cite": "BS 7671 Table 41.3 (pages not among those saved from your copy: read the figure from your copy); a trade app prints it as C10 2.19 Ω (research source 434), with the rule behind it in g.zmax.C25 (a.iaC)",
+   "note": "A limit for the hot conductors; the course compares the Zs it calculates (at 70 or 90 °C resistances) with it as printed."
+  },
+  {
+   "id": "g.zmax.C6",
+   "label": "Maximum Zs, 6 A type C circuit-breaker to BS EN 60898, 0.4 s, U0 230 V",
+   "value": 3.64,
+   "unit": "Ω",
+   "text": "3.64 Ω",
+   "cite": "BS 7671 Table 41.3 (read the figure from your copy); a trade app prints it as C6 3.64 Ω (research source 433)",
+   "note": "Type B 6 A is 7.28 Ω (research source 345). The same app says type C should be used only where the load's inrush needs it, because it leaves less Zs margin (research sources 435, 436)."
+  },
+  {
+   "id": "g.swa2p5.rows",
+   "label": "Four-core 2.5 mm² XLPE/SWA/PVC: line conductor, armour area, armour resistance, at 20 °C",
+   "value": "7.41 mΩ/m; 20 mm²; 7.7 mΩ/m",
+   "unit": "",
+   "text": "line 7.41 mΩ/m, armour 20 mm², armour 7.7 mΩ/m",
+   "cite": "Prysmian BS 5467 data sheet, 2.5 mm² rows (research sources 387, 385 for the layout as g.swa4.*)"
+  },
+  {
+   "id": "g.swa1p5.rows",
+   "label": "Four-core 1.5 mm² XLPE/SWA/PVC: line conductor, armour area, armour resistance, at 20 °C",
+   "value": "12.1 mΩ/m; 17 mm²; 8.8 mΩ/m",
+   "unit": "",
+   "text": "line 12.1 mΩ/m, armour 17 mm², armour 8.8 mΩ/m",
+   "cite": "Prysmian BS 5467 data sheet, 1.5 mm² rows (research source 386)"
+  },
+  {
+   "id": "g.len.circuits",
+   "label": "DBL2 lighting circuits: far end on plan from DBL2 (scaled)",
+   "value": "C7 20.8 m (farthest bollard); C1 17.3 m; C6 16.7 m; C5 14.3 m; C2, C3, C4 under 11 m",
+   "unit": "m",
+   "text": "C7 20.8 m, C1 17.3 m, C6 16.7 m, C5 14.3 m; C2 to C4 under 11 m",
+   "cite": "lighting dwg and power dwg, 1:50 at A1, no dimensions printed (research sources 431, 432); luminaire positions from the lighting drawing's vector layer, DBL2 at (1545, 695.5) pt, 1 pt = 17.64 mm on site, 20 Oct 2026",
+   "note": "Approximate: each is the drawing distance from the board to the circuit's farthest luminaire along an orthogonal route (east-west plus north-south), without the vertical runs (p.vert). The bollard positions were read from the picture to about 0.1 m. A real run goes through the luminaires and is longer."
+  },
+  {
+   "id": "p.vert",
+   "label": "Vertical run at each end of a cable (practice value)",
+   "value": 1.5,
+   "unit": "m",
+   "text": "1.5 m",
+   "practice": true,
+   "cite": "no source: the drawings give no heights (brief section 2; assumption a.drops); 2.2 m ceilings (pack p.3)",
+   "note": "A practice value: measure the real drops on site. It is added at both ends of the DBL2 submain and of the final circuit (a.vert)."
+  },
+  {
+   "id": "p.dev.final",
+   "label": "Device at DBL2 for the longest lighting circuit (practice value)",
+   "value": "6 A type C circuit-breaker to BS EN 60898, single-pole",
+   "unit": "",
+   "text": "6 A type C circuit-breaker to BS EN 60898",
+   "practice": true,
+   "cite": "no source for the choice: 6 A is the smallest standard rating, above Ib 1.21 A; type C because LED drivers and ballasts draw an inrush at switch-on (BEAMA, ABB; research sources 446, 447, 448) and type C suits discharge lighting (research source 435)",
+   "note": "The drawing gives no driver data, so the real number of fittings per breaker comes from the maker's inrush figures. Type B 6 A would give a maximum Zs of 7.28 Ω instead of 3.64 Ω."
   }
  ],
  "assumptions": [
@@ -771,6 +900,34 @@
    "status": "assumption",
    "why": "The course finds R1+R2 as a tabulated value × length × a multiplier (formula sheet step 12; OSG Table I3, 1.28 for 90 °C thermosetting). For the armour as cpc there is no such table in the course's materials, so the line (4.61 mΩ/m) and the armour (6.8 mΩ/m) are added and the 1.28 applied to both. A maker says the armour runs about 10 °C cooler than the cores (research source 392), so this is cautious for the armour.",
    "text": "The course's own assumption: for the DBL2 submain with its armour as the cpc, R1+R2 = (4.61 + 6.8) mΩ/m × 1.28 × length, the Table I3 multiplier (g.mult.90ts) applied to the armour as well as the line. A little cautious: the armour runs cooler than the cores. Not BS 7671's wording."
+  },
+  {
+   "id": "a.vert",
+   "text": "The course's own assumption: every cable has a vertical run at each end, from the board or luminaire up into the ceiling void (p.vert, 1.5 m each). The DBL2 submain is the 17.0 m on plan plus 2 × 1.5 m = 20.0 m; the longest lighting circuit (C7) is its 20.8 m on plan plus 2 × 1.5 m = 23.8 m. Lesson 7's armour figures (17.0 m: R1+R2 0.248 Ω, Zs 0.348 Ω) were on the plan length; lesson 8 re-works them on all the lengths, as the project guide asks (\"include all lengths of the cable run\", research source 87)."
+  },
+  {
+   "id": "a.longest",
+   "text": "The course's own assumption: the longest circuit from DBL2 is C7 (the foyer's six LED fittings and the six walkway bollards, a.dbl2circuits): its farthest bollard is about 20.8 m on plan from DBL2, against 17.3 m for C1 (the consultation bay) and 16.7 m for C6 (service reception). The question says \"the longest circuit\" (pack question 3b, research source 81). C7 has the worst Zs because it is longest, but not the biggest voltage drop: C1 (4.89 A, 20.3 m with its verticals) drops 3.08 V on the same cable, against C7's 0.89 V. The lesson names both and designs C7. The bollards are outdoors: the cable run to them is treated as the same singles in conduit (a.lightCable), a simplification a real design would not make (a buried or surface armoured cable would serve them)."
+  },
+  {
+   "id": "a.subRoute",
+   "text": "The course's own assumption: the DBL2 submain is one three-phase cable alone on a perforated cable tray in the ceiling void (Reference Method E), so Table 4E4A's Method E column for a three- or four-core cable is used (column 5, g.it.swa4.E, 44 A for 4 mm²); Ca 1 (p.Ca), Cg 1 (no other cable on the tray), Ci 1 (not in thermal insulation). The lesson says that clipped direct (Method C) would give 42 A. The four-core cable's neutral is not counted as loaded because the neutral current is small (the line current governs, figure 3e; research source 453)."
+  },
+  {
+   "id": "a.subChoice",
+   "text": "The course's own assumption: the submain is 4 mm² (p.sub.size) although the smallest size that passes is smaller: 10 A is far under It for 1.5 mm² (25 A) and 2.5 mm² (33 A), the three-phase drop on 1.5 mm² is 4.44 V (2.56 V single-phase equivalent) and Zs at DBL2 on 1.5 mm² is 0.635 Ω, all inside their limits. What separates the sizes is the armour read as the cpc at the near end (a.thermalWhere): the 1.5 mm² cable's 17 mm² armour is under the 17.39 mm² that 2 530 A for 0.1 s needs (k 46, practice values), while 2.5 mm² (20 mm²) and 4 mm² (22 mm²) pass. The course keeps 4 mm² (lessons 7 and 8) and says the choice is its own: a designer may also add room for later luminaires (an opinion argued on the IET forum, research source 454)."
+  },
+  {
+   "id": "a.lightCable",
+   "text": "The course's own assumption: the longest lighting circuit (C7) is 1.5 mm² 90 °C thermosetting singles in conduit with a 1.5 mm² cpc in the same conduit (Reference Method B, one circuit per conduit so Cg 1, not in thermal insulation so Ci 1, Ca 1 as p.Ca), two loaded cables single-phase: It 23 A (Table 4E1A column 4, g.it.1p5.1ph), 31 mV/A/m (Table 4E1B column 3, g.vd.1p5.1ph), R1+R2 24.2 mΩ/m (slides p.51, research source 52) with the Table I3 multiplier 1.28 (g.mult.90ts). Device p.dev.final, 6 A type C, 0.4 s (g.zmax.C6, research sources 51, 48 for the 0.4 s rule)."
+  },
+  {
+   "id": "a.thermalWhere",
+   "text": "The course's own assumption: the thermal check of a cable's cpc takes the fault current at the far end of the cable being checked, as lesson 7 does (figure 2c, l7.armour). One IET forum contributor argues the worst case for the adiabatic check is further up the cable, at higher fault current and shorter length (research sources 443, 444); taught as contested. At the near end the current is higher: the final circuit's cpc sees 253 ÷ 0.392 = 645.41 A at DBL2 (S = 1.43 mm² against 1.5 mm², a slim pass) against 224.09 A at its far end (0.50 mm²); the submain armour sees 253 ÷ 0.1 = 2 530 A at the MDB (17.39 mm² against 22 mm²) against 645.41 A at DBL2 (4.44 mm²). The same poster says a circuit-breaker needs the maker's let-through energy compared with k²S² (research source 445), which the course does not have: it uses 0.1 s (g.t.thermal)."
+  },
+  {
+   "id": "a.vdRoutes",
+   "text": "The course's own assumption: the submain's drop is worked as your formula sheet says: three-phase mV/A/m × the heaviest phase's Ib × length ÷ 1000 (10 × 8.22 × 20.0 ÷ 1000 = 1.64 V), divided by √3 (1.73) to join the single-phase final circuit (0.95 V). One trade source says that for an unbalanced load you work phase by phase with the single-phase values (research source 452): the two-core single-phase column gives 12 × 8.22 × 20.0 ÷ 1000 = 1.97 V. Both are far inside the 6.90 V (3% of 230 V) the lighting allows; taught as two routes."
   }
  ],
  "lessons": [
@@ -838,7 +995,10 @@
    "n": 8,
    "title": "The showroom, end to end",
    "sectionA": [
-    "the DBL2 submain and its longest circuit, in full"
+    "3(g)",
+    "3(h)",
+    "3(i)",
+    "3(j)"
    ]
   },
   {
@@ -4957,55 +5117,874 @@
    "cite": "slides p.65",
    "text": "2.78 s",
    "work": "9.22 × 30 ÷ 1000 = 0.277 Ω; 0.460 + 0.277 = 0.737 Ω; 230 × 1.1 ÷ 0.737 = 343.28 A; 143² × 4² ÷ 343.28² = 2.78 s"
+  },
+  {
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.recall",
+   "label": "Recall: Zs at the far end, Ze 0.10, submain 0.30, circuit 0.50 Ω",
+   "value": 0.9,
+   "unit": "Ω",
+   "rule": "Zs at the end = Ze + submain R1+R2 + circuit R1+R2 (formula sheet: Zs = Zs@db + (R1+R2))",
+   "inputs": {
+    "Ze": "0.10 Ω",
+    "submain R1+R2": "0.30 Ω",
+    "circuit R1+R2": "0.50 Ω"
+   },
+   "cite": "formula sheet steps 12, 13 (research source: \"Zs = Zs@db + (R1+R2)\")",
+   "text": "0.90 Ω",
+   "work": "0.10 + 0.30 = 0.40 Ω at the sub-board; 0.40 + 0.50 = 0.90 Ω"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.recall.slip1",
+   "label": "Recall slip: the submain left out",
+   "value": 0.6,
+   "unit": "Ω",
+   "rule": "Ze + circuit only",
+   "inputs": {},
+   "cite": "formula sheet step 13 (the rule it breaks)",
+   "text": "0.60 Ω",
+   "work": "0.10 + 0.50 = 0.60 Ω"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.recall.slip2",
+   "label": "Recall slip: Ze left out",
+   "value": 0.8,
+   "unit": "Ω",
+   "rule": "submain + circuit only",
+   "inputs": {},
+   "cite": "formula sheet step 13 (the rule it breaks)",
+   "text": "0.80 Ω",
+   "work": "0.30 + 0.50 = 0.80 Ω"
+  },
+  {
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.why.open",
+   "label": "The why: 23.8 m at 1.21 A from a board at 0.40 Ω and 1.00 V",
+   "value": 1.89,
+   "unit": "V",
+   "rule": "drop = 1.00 + 31 × I × L ÷ 1000; Zs = 0.40 + 24.2 × 1.28 × L ÷ 1000",
+   "inputs": {
+    "board Zs": "0.40 Ω (assumed for the picture)",
+    "submain share": "1.00 V (assumed for the picture)",
+    "I": "1.21 A (C7, l2.c7)",
+    "L": "23.8 m"
+   },
+   "cite": "Table 4E1B 31 mV/A/m; slides p.51 24.2 mΩ/m; OSG Table I3 1.28",
+   "text": "1.89 V",
+   "work": "31 × 1.21 × 23.8 ÷ 1000 = 0.89 V; 1.00 + 0.89 = 1.89 V. 24.2 × 1.28 × 23.8 ÷ 1000 = 0.737 Ω; 0.40 + 0.737 = 1.137 Ω"
+  },
+  {
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.why.zsmax",
+   "label": "The why: length where Zs reaches 3.64 Ω (either load)",
+   "value": 104.5,
+   "unit": "m",
+   "rule": "L = (3.64 − 0.40) × 1000 ÷ (24.2 × 1.28), rounded down",
+   "inputs": {
+    "max Zs": "3.64 Ω (6 A type C)",
+    "board Zs": "0.40 Ω"
+   },
+   "cite": "Table 41.3 via research (C6 3.64 Ω)",
+   "text": "104.5 m",
+   "work": "24.2 × 1.28 = 30.976 mΩ/m; 3.24 × 1000 ÷ 30.976 = 104.59, rounded down to 104.5 m; there the drop at 1.21 A is 1.00 + 3.92 = 4.92 V"
+  },
+  {
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.why.c7drop",
+   "label": "The why: length where the drop reaches 6.90 V at 1.21 A",
+   "value": 157.2,
+   "unit": "m",
+   "rule": "L = (6.90 − 1.00) × 1000 ÷ (31 × 1.21), rounded down",
+   "inputs": {},
+   "cite": "slides p.38 (6.9 V)",
+   "text": "157.2 m",
+   "work": "5.90 × 1000 ÷ 37.51 = 157.29, rounded down to 157.2 m: beyond the 140 m slider, so Zs sets the limit"
+  },
+  {
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.why.c1drop",
+   "label": "The why: length where the drop reaches 6.90 V at 4.89 A",
+   "value": 38.9,
+   "unit": "m",
+   "rule": "L = (6.90 − 1.00) × 1000 ÷ (31 × 4.89), rounded down",
+   "inputs": {
+    "I": "4.89 A (C1, l2.c1)"
+   },
+   "cite": "slides p.38 (6.9 V)",
+   "text": "38.9 m",
+   "work": "5.90 × 1000 ÷ 151.59 = 38.92, rounded down to 38.9 m; Zs there is 0.40 + 1.205 = 1.605 Ω"
+  },
+  {
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.why.still",
+   "label": "The why, still: 45.0 m at 4.89 A",
+   "value": 7.82,
+   "unit": "V",
+   "rule": "as l8.why.open",
+   "inputs": {
+    "L": "45.0 m",
+    "I": "4.89 A"
+   },
+   "cite": "computed",
+   "text": "7.82 V",
+   "work": "31 × 4.89 × 45.0 ÷ 1000 = 6.82 V; 1.00 + 6.82 = 7.82 V > 6.90 V. 24.2 × 1.28 × 45.0 ÷ 1000 = 1.394 Ω; 0.40 + 1.394 = 1.794 Ω ≤ 3.64 Ω"
+  },
+  {
+   "kind": "practice",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.check",
+   "label": "Check: 6.00 V three-phase submain + 4.00 V single-phase lighting",
+   "value": 7.46,
+   "unit": "V",
+   "rule": "total = submain ÷ √3 + circuit, against 3% of 230 V",
+   "inputs": {
+    "submain": "6.00 V",
+    "circuit": "4.00 V"
+   },
+   "cite": "formula sheet step 7 note; slides p.38",
+   "text": "7.46 V",
+   "work": "6.00 ÷ √3 = 3.46 V; 3.46 + 4.00 = 7.46 V > 6.90 V: fails"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.check.slip1",
+   "label": "Check slip: the submain left out",
+   "value": 4,
+   "unit": "V",
+   "rule": "circuit only",
+   "inputs": {},
+   "cite": "guide p.6 (the rule it breaks)",
+   "text": "4.00 V",
+   "work": "4.00 V < 6.90 V, a pass in error"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.check.slip2",
+   "label": "Check slip: no ÷ √3, against the three-phase 12 V",
+   "value": 10,
+   "unit": "V",
+   "rule": "submain + circuit against 12.00 V",
+   "inputs": {},
+   "cite": "slides p.38; guide p.6 (the rule it breaks)",
+   "text": "10.00 V",
+   "work": "6.00 + 4.00 = 10.00 V < 12.00 V, a pass in error"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.sub.ib",
+   "label": "DBL2 submain: design current, the heaviest phase",
+   "value": 8.22,
+   "unit": "A",
+   "rule": "the largest of the three phase currents, no diversity (a.lightNoDiv)",
+   "inputs": {
+    "L1": "8.22 A (3b)",
+    "L2": "8.21 A (l2.L2)",
+    "L3": "7.92 A (l2.L3)"
+   },
+   "cite": "pack question 3a; figures 3b, l2.L2, l2.L3",
+   "practice": true,
+   "text": "8.22 A",
+   "work": "L1 8.22 A > L2 8.21 A > L3 7.92 A, so 8.22 A"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.sub.len",
+   "label": "DBL2 submain: length with the vertical runs",
+   "value": 20,
+   "unit": "m",
+   "rule": "plan length + a vertical run at each end",
+   "inputs": {
+    "plan": "17.0 m (l8.submain.plan)",
+    "vertical": "1.5 m each end (p.vert, practice value)"
+   },
+   "cite": "guide p.5 (\"include all lengths of the cable run\"); a.vert",
+   "practice": true,
+   "text": "20.0 m",
+   "work": "17.0 + 1.5 + 1.5 = 20.0 m"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.sub.it",
+   "label": "DBL2 submain: minimum It with Table 4Aa's 0.86",
+   "value": 11.63,
+   "unit": "A",
+   "rule": "It ≥ In ÷ (Ca × Cg × Ci × 0.86)",
+   "inputs": {
+    "In": "10 A (p.sub.dev)",
+    "Ca": "1.00 (p.Ca)",
+    "Cg": "1 (alone on its tray, a.subRoute)",
+    "Ci": "1",
+    "harmonic": "0.86 (third harmonic 15 to 33%, p.h3.fluo 20%)"
+   },
+   "cite": "slides p.34, 36; lesson 4 (3e)",
+   "practice": true,
+   "text": "11.63 A",
+   "work": "10 ÷ (1.00 × 1 × 1 × 0.86) = 11.63 A ≤ 44 A (4 mm², Table 4E4A Method E, g.it.swa4.E)"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.sub.iz",
+   "label": "DBL2 submain: Iz of the 4 mm² SWA",
+   "value": 37.84,
+   "unit": "A",
+   "rule": "Iz = It × factors",
+   "inputs": {
+    "It": "44 A",
+    "factors": "0.86"
+   },
+   "cite": "g.it.swa4.E; slides p.34",
+   "practice": true,
+   "text": "37.84 A",
+   "work": "44 × 0.86 = 37.84 A; 8.22 ≤ 10 ≤ 37.84"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.sub.vd",
+   "label": "DBL2 submain: voltage drop, three-phase, all lengths",
+   "value": 1.64,
+   "unit": "V",
+   "rule": "VD = mV/A/m × Ib × L ÷ 1000",
+   "inputs": {
+    "mV/A/m": "10 (g.vd.swa4)",
+    "Ib": "8.22 A",
+    "L": "20.0 m"
+   },
+   "cite": "g.vd.swa4; formula sheet step 7",
+   "practice": true,
+   "text": "1.64 V",
+   "work": "10 × 8.22 × 20.0 ÷ 1000 = 1.64 V"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.sub.vd1",
+   "label": "DBL2 submain: its drop as a share for a single-phase circuit",
+   "value": 0.95,
+   "unit": "V",
+   "rule": "three-phase drop ÷ √3",
+   "inputs": {
+    "drop": "1.64 V"
+   },
+   "cite": "formula sheet step 7 note; guide p.6",
+   "practice": true,
+   "text": "0.95 V",
+   "work": "1.64 ÷ √3 = 0.95 V (0.95 V with √3 as 1.73 too)"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.sub.vdalt",
+   "label": "DBL2 submain: the other route, phase by phase, two-core 12 mV/A/m",
+   "value": 1.97,
+   "unit": "V",
+   "rule": "single-phase mV/A/m × Ib × L ÷ 1000",
+   "inputs": {
+    "mV/A/m": "12 (Table 4E4B, two-core single-phase)"
+   },
+   "cite": "a.vdRoutes; trade source on unbalanced loads (research)",
+   "practice": true,
+   "text": "1.97 V",
+   "work": "12 × 8.22 × 20.0 ÷ 1000 = 1.97 V"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.sub.r12",
+   "label": "DBL2 submain: R1+R2, core plus armour, hot, all lengths",
+   "value": 0.292,
+   "unit": "Ω",
+   "rule": "R1+R2 = (core + armour mΩ/m) × 1.28 × L ÷ 1000 (a.armourR)",
+   "inputs": {
+    "core": "4.61 mΩ/m",
+    "armour": "6.8 mΩ/m",
+    "multiplier": "1.28",
+    "L": "20.0 m"
+   },
+   "cite": "g.swa4.line, g.swa4.armourR, g.mult.90ts",
+   "practice": true,
+   "text": "0.292 Ω",
+   "work": "(4.61 + 6.8) × 1.28 × 20.0 ÷ 1000 = 0.292 Ω"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "3g",
+   "part": "3g",
+   "label": "Section A 3(g): Zs at DBL2, every length of the submain",
+   "value": 0.392,
+   "unit": "Ω",
+   "rule": "Zs at DBL2 = Ze + submain R1+R2",
+   "inputs": {
+    "Ze": "0.1 Ω (pack p.3)",
+    "R1+R2": "0.292 Ω (l8.sub.r12)"
+   },
+   "cite": "pack p.3; formula sheet steps 12, 13; guide p.5",
+   "practice": true,
+   "accept": {
+    "min": 0.391,
+    "max": 0.393,
+    "why": "unrounded working gives 0.392 Ω too"
+   },
+   "text": "0.392 Ω",
+   "work": "(4.61 + 6.8) × 1.28 × 20.0 ÷ 1000 = 0.292 Ω; 0.1 + 0.292 = 0.392 Ω ≤ 2.19 Ω (C10)"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "3g.slip1",
+   "label": "3(g) slip: the plan length only (lesson 7)",
+   "value": 0.348,
+   "unit": "Ω",
+   "rule": "every length counts",
+   "inputs": {},
+   "cite": "guide p.5 (the rule it breaks)",
+   "text": "0.348 Ω",
+   "work": "(4.61 + 6.8) × 1.28 × 17.0 ÷ 1000 = 0.248 Ω; 0.1 + 0.248 = 0.348 Ω"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "3g.slip2",
+   "label": "3(g) slip: the multiplier left out",
+   "value": 0.328,
+   "unit": "Ω",
+   "rule": "R1+R2 is worked hot",
+   "inputs": {},
+   "cite": "formula sheet step 12 (the rule it breaks)",
+   "text": "0.328 Ω",
+   "work": "(4.61 + 6.8) × 20.0 ÷ 1000 = 0.228 Ω; 0.1 + 0.228 = 0.328 Ω"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "3g.slip3",
+   "label": "3(g) slip: Ze left out",
+   "value": 0.292,
+   "unit": "Ω",
+   "rule": "the supply is in the loop",
+   "inputs": {},
+   "cite": "formula sheet step 13 (the rule it breaks)",
+   "text": "0.292 Ω",
+   "work": "0.292 Ω, the submain alone"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.A.3g.imin",
+   "label": "3(g): Cmin fault current at DBL2",
+   "value": 557.4,
+   "unit": "A",
+   "rule": "I = 230 × 0.95 ÷ Zs",
+   "inputs": {
+    "Zs": "0.392 Ω"
+   },
+   "cite": "slides p.47, 48",
+   "practice": true,
+   "text": "557.40 A",
+   "work": "230 × 0.95 ÷ 0.392 = 557.40 A ≥ 100 A (10 × In)"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.A.3g.imax",
+   "label": "3(g): Cmax fault current at DBL2",
+   "value": 645.41,
+   "unit": "A",
+   "rule": "I = 230 × 1.1 ÷ Zs",
+   "inputs": {
+    "Zs": "0.392 Ω"
+   },
+   "cite": "slides p.60, 62",
+   "practice": true,
+   "text": "645.41 A",
+   "work": "230 × 1.1 ÷ 0.392 = 645.41 A"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.A.armour",
+   "label": "Submain armour: minimum area at DBL2, all lengths",
+   "value": 4.44,
+   "unit": "mm²",
+   "rule": "S = √(I² × t) ÷ k",
+   "inputs": {
+    "I": "645.41 A",
+    "t": "0.1 s (g.t.thermal)",
+    "k": "46 (p.k.steel, practice value)"
+   },
+   "cite": "guide p.5 (SWA as cpc justified by calculation); slides p.58, 59",
+   "practice": true,
+   "text": "4.44 mm²",
+   "work": "√(645.41² × 0.1) ÷ 46 = 4.44 mm² ≤ 22 mm²: justified"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.A.armourMDB",
+   "label": "Submain armour: minimum area for a fault at the MDB end",
+   "value": 17.39,
+   "unit": "mm²",
+   "rule": "S = √(I² × t) ÷ k, I = 230 × 1.1 ÷ Ze",
+   "inputs": {
+    "I": "2530.00 A (l6.showroom.pefcmax)",
+    "k": "46 (practice value)"
+   },
+   "cite": "a.thermalWhere (contested)",
+   "practice": true,
+   "text": "17.39 mm²",
+   "work": "√(2530² × 0.1) ÷ 46 = 17.39 mm² ≤ 22 mm²"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.c7.len",
+   "label": "C7, the longest circuit: length with the vertical runs",
+   "value": 23.8,
+   "unit": "m",
+   "rule": "plan length + a vertical run at each end",
+   "inputs": {
+    "plan": "20.8 m (g.len.circuits)",
+    "vertical": "1.5 m each end (p.vert)"
+   },
+   "cite": "pack question 3b; a.longest, a.vert",
+   "practice": true,
+   "text": "23.8 m",
+   "work": "20.8 + 1.5 + 1.5 = 23.8 m"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.c7.vd",
+   "label": "C7: its own voltage drop",
+   "value": 0.89,
+   "unit": "V",
+   "rule": "VD = mV/A/m × Ib × L ÷ 1000",
+   "inputs": {
+    "mV/A/m": "31 (g.vd.1p5.1ph)",
+    "Ib": "1.21 A (l2.c7)",
+    "L": "23.8 m"
+   },
+   "cite": "g.vd.1p5.1ph; a.lightCable",
+   "practice": true,
+   "text": "0.89 V",
+   "work": "31 × 1.21 × 23.8 ÷ 1000 = 0.89 V"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "3h",
+   "part": "3h",
+   "label": "Section A 3(h): total voltage drop, intake to C7's farthest bollard",
+   "value": 1.84,
+   "unit": "V",
+   "rule": "total = submain drop ÷ √3 + circuit drop",
+   "inputs": {
+    "submain": "0.95 V (l8.sub.vd1)",
+    "circuit": "0.89 V (l8.c7.vd)"
+   },
+   "cite": "formula sheet (\"Total Voltage Drop = VDrop of Submain + VDrop of final circuit\"); guide p.6",
+   "practice": true,
+   "accept": {
+    "min": 1.83,
+    "max": 1.85,
+    "why": "unrounded working gives 1.84 V; √3 as 1.73 gives 1.84 V"
+   },
+   "text": "1.84 V",
+   "work": "31 × 1.21 × 23.8 ÷ 1000 = 0.89 V; 0.95 + 0.89 = 1.84 V ≤ 6.90 V (0.80% of 230 V)"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "3h.slip1",
+   "label": "3(h) slip: the submain not divided by √3",
+   "value": 2.53,
+   "unit": "V",
+   "rule": "three-phase to single-phase",
+   "inputs": {},
+   "cite": "guide p.6 (the rule it breaks)",
+   "text": "2.53 V",
+   "work": "1.64 + 0.89 = 2.53 V"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "3h.slip2",
+   "label": "3(h) slip: the submain left out",
+   "value": 0.89,
+   "unit": "V",
+   "rule": "every drop from the intake",
+   "inputs": {},
+   "cite": "guide p.6 (the rule it breaks)",
+   "text": "0.89 V",
+   "work": "0.89 V, the circuit alone"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "3h.slip3",
+   "label": "3(h) slip: the plan lengths only",
+   "value": 1.59,
+   "unit": "V",
+   "rule": "every length counts",
+   "inputs": {},
+   "cite": "guide p.5 (the rule it breaks)",
+   "text": "1.59 V",
+   "work": "10 × 8.22 × 17.0 ÷ 1000 = 1.40 V; 1.40 ÷ √3 = 0.81 V; 31 × 1.21 × 20.8 ÷ 1000 = 0.78 V; 0.81 + 0.78 = 1.59 V"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.A.3h.pct",
+   "label": "3(h): the total as a share of 230 V",
+   "value": 0.8,
+   "unit": "%",
+   "rule": "total ÷ 230 × 100",
+   "inputs": {},
+   "cite": "slides p.38",
+   "practice": true,
+   "text": "0.80%",
+   "work": "1.84 ÷ 230 × 100 = 0.80%, inside 3%"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.A.c1",
+   "label": "C1 (4.89 A, 20.3 m): its drop and the total from the intake",
+   "value": 4.03,
+   "unit": "V",
+   "rule": "as 3(h)",
+   "inputs": {
+    "I": "4.89 A (l2.c1)",
+    "L": "17.3 + 3.0 = 20.3 m"
+   },
+   "cite": "a.longest",
+   "practice": true,
+   "text": "4.03 V",
+   "work": "31 × 4.89 × 20.3 ÷ 1000 = 3.08 V; 0.95 + 3.08 = 4.03 V ≤ 6.90 V"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.c7.r12",
+   "label": "C7: R1+R2, 1.5/1.5, hot",
+   "value": 0.737,
+   "unit": "Ω",
+   "rule": "R1+R2 = mΩ/m × 1.28 × L ÷ 1000",
+   "inputs": {
+    "mΩ/m": "24.2 (slides p.51)",
+    "multiplier": "1.28",
+    "L": "23.8 m"
+   },
+   "cite": "slides p.51, 52; g.mult.90ts",
+   "practice": true,
+   "text": "0.737 Ω",
+   "work": "24.2 × 1.28 × 23.8 ÷ 1000 = 0.737 Ω"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "3i",
+   "part": "3i",
+   "label": "Section A 3(i): Zs at C7's farthest bollard",
+   "value": 1.129,
+   "unit": "Ω",
+   "rule": "Zs = Zs at DBL2 + circuit R1+R2",
+   "inputs": {
+    "Zs at DBL2": "0.392 Ω (3g)",
+    "R1+R2": "0.737 Ω (l8.c7.r12)"
+   },
+   "cite": "formula sheet (\"Zs = Zs@db + (R1+R2)\"); guide p.5",
+   "practice": true,
+   "accept": {
+    "min": 1.128,
+    "max": 1.13,
+    "why": "unrounded working gives 1.129 Ω"
+   },
+   "text": "1.129 Ω",
+   "work": "24.2 × 1.28 × 23.8 ÷ 1000 = 0.737 Ω; 0.392 + 0.737 = 1.129 Ω ≤ 3.64 Ω (C6)"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "3i.slip1",
+   "label": "3(i) slip: started from Ze, not Zs at DBL2",
+   "value": 0.837,
+   "unit": "Ω",
+   "rule": "Zs = Zs@db + (R1+R2)",
+   "inputs": {},
+   "cite": "formula sheet step 13 (the rule it breaks)",
+   "text": "0.837 Ω",
+   "work": "0.1 + 0.737 = 0.837 Ω"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "3i.slip2",
+   "label": "3(i) slip: the multiplier left out",
+   "value": 0.968,
+   "unit": "Ω",
+   "rule": "R1+R2 is worked hot",
+   "inputs": {},
+   "cite": "formula sheet step 12 (the rule it breaks)",
+   "text": "0.968 Ω",
+   "work": "24.2 × 23.8 ÷ 1000 = 0.576 Ω; 0.392 + 0.576 = 0.968 Ω"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "3i.slip3",
+   "label": "3(i) slip: the circuit alone",
+   "value": 0.737,
+   "unit": "Ω",
+   "rule": "Zs = Zs@db + (R1+R2)",
+   "inputs": {},
+   "cite": "formula sheet step 13 (the rule it breaks)",
+   "text": "0.737 Ω",
+   "work": "0.737 Ω"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.A.3i.imin",
+   "label": "3(i): Cmin fault current at the far end",
+   "value": 193.53,
+   "unit": "A",
+   "rule": "I = 230 × 0.95 ÷ Zs",
+   "inputs": {
+    "Zs": "1.129 Ω"
+   },
+   "cite": "slides p.47, 48",
+   "practice": true,
+   "text": "193.53 A",
+   "work": "230 × 0.95 ÷ 1.129 = 193.53 A ≥ 60 A (10 × 6 A)"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.A.3j.imax",
+   "label": "3(j): Cmax fault current at the far end",
+   "value": 224.09,
+   "unit": "A",
+   "rule": "I = 230 × 1.1 ÷ Zs",
+   "inputs": {
+    "Zs": "1.129 Ω"
+   },
+   "cite": "slides p.60, 62",
+   "practice": true,
+   "text": "224.09 A",
+   "work": "230 × 1.1 ÷ 1.129 = 224.09 A"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "3j",
+   "part": "3j",
+   "label": "Section A 3(j): minimum cpc for C7, thermal constraints",
+   "value": 0.5,
+   "unit": "mm²",
+   "rule": "S = √(I² × t) ÷ k, I at Cmax",
+   "inputs": {
+    "I": "224.09 A",
+    "t": "0.1 s (g.t.thermal)",
+    "k": "143 (g.k.cu90)"
+   },
+   "cite": "guide p.5 (\"Include calculations for thermal constraints\"); slides p.58 to 62",
+   "practice": true,
+   "accept": {
+    "min": 0.49,
+    "max": 0.51,
+    "why": "unrounded working gives 0.4954, 0.50 mm²"
+   },
+   "text": "0.50 mm²",
+   "work": "230 × 1.1 ÷ 1.129 = 224.09 A; √(224.09² × 0.1) ÷ 143 = 0.50 mm² ≤ 1.5 mm²: satisfies"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "3j.slip1",
+   "label": "3(j) slip: the Cmin current",
+   "value": 0.43,
+   "unit": "mm²",
+   "rule": "the heat check uses Cmax",
+   "inputs": {},
+   "cite": "slides p.60, 62 (the rule it breaks)",
+   "text": "0.43 mm²",
+   "work": "√(193.53² × 0.1) ÷ 143 = 0.43 mm²"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "3j.slip2",
+   "label": "3(j) slip: k 115 (70 °C thermoplastic)",
+   "value": 0.62,
+   "unit": "mm²",
+   "rule": "k for 90 °C thermosetting is 143",
+   "inputs": {},
+   "cite": "slides p.59 (the rule it breaks)",
+   "text": "0.62 mm²",
+   "work": "√(224.09² × 0.1) ÷ 115 = 0.62 mm²"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "3j.slip3",
+   "label": "3(j) slip: t taken as the 0.4 s allowed",
+   "value": 0.99,
+   "unit": "mm²",
+   "rule": "t is the device's time at that current",
+   "inputs": {},
+   "cite": "slides p.50, 59 (the rule it breaks)",
+   "text": "0.99 mm²",
+   "work": "√(224.09² × 0.4) ÷ 143 = 0.99 mm²"
+  },
+  {
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.A.3j.near",
+   "label": "3(j): C7's cpc for a fault at the DBL2 end",
+   "value": 1.43,
+   "unit": "mm²",
+   "rule": "S = √(I² × t) ÷ k, I = 230 × 1.1 ÷ Zs at DBL2",
+   "inputs": {
+    "I": "645.41 A (l8.A.3g.imax)",
+    "k": "143"
+   },
+   "cite": "a.thermalWhere (contested; research: IET forum on where the adiabatic worst case lies)",
+   "practice": true,
+   "text": "1.43 mm²",
+   "work": "√(645.41² × 0.1) ÷ 143 = 1.43 mm² ≤ 1.5 mm²: a slim pass"
+  },
+  {
+   "kind": "practice",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.A.changed",
+   "label": "Changed numbers: longest 1.5 mm² lighting run meeting drop and Zs",
+   "value": 40.5,
+   "unit": "m",
+   "rule": "L = the smaller of (6.90 − submain share) × 1000 ÷ (31 × Ib) and (3.64 − Zs at the board) × 1000 ÷ (24.2 × 1.28), rounded down",
+   "inputs": {
+    "board Zs": "0.45 Ω",
+    "submain share": "2.50 V",
+    "Ib": "3.50 A"
+   },
+   "cite": "shape: C&G 2396 (maximum length; numbers new); rules slides p.38, 51, 52; formula sheet",
+   "accept": {
+    "min": 40.5,
+    "max": 40.6,
+    "why": "40.55 m to the nearest 0.1 m; a maximum is rounded down"
+   },
+   "text": "40.5 m",
+   "work": "(6.90 − 2.50) × 1000 ÷ (31 × 3.50) = 4400 ÷ 108.5 = 40.55, rounded down to 40.5 m; (3.64 − 0.45) × 1000 ÷ 30.976 = 102.98, rounded down to 102.9 m; the drop sets it: 40.5 m"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.A.changed.slip1",
+   "label": "Changed slip: Zs only",
+   "value": 102.9,
+   "unit": "m",
+   "rule": "both limits apply",
+   "inputs": {},
+   "cite": "guide p.5, 6 (the rule it breaks)",
+   "text": "102.9 m",
+   "work": "(3.64 − 0.45) × 1000 ÷ 30.976 = 102.9 m"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.A.changed.slip2",
+   "label": "Changed slip: the submain's drop left out",
+   "value": 63.5,
+   "unit": "m",
+   "rule": "every drop from the intake",
+   "inputs": {},
+   "cite": "guide p.6 (the rule it breaks)",
+   "text": "63.5 m",
+   "work": "6.90 × 1000 ÷ 108.5 = 63.59, rounded down to 63.5 m"
+  },
+  {
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i8",
+   "id": "l8.A.changed.slip3",
+   "label": "Changed slip: the 5% limit for a lighting circuit",
+   "value": 82.9,
+   "unit": "m",
+   "rule": "lighting is 3%",
+   "inputs": {},
+   "cite": "slides p.38 (the rule it breaks)",
+   "text": "82.9 m",
+   "work": "(11.50 − 2.50) × 1000 ÷ 108.5 = 82.95, rounded down to 82.9 m"
   }
  ],
  "pending": [
-  {
-   "id": "l8.dbl2.ib",
-   "label": "The DBL2 submain's design current",
-   "value": null,
-   "unit": "A per phase",
-   "rule": "the heaviest phase of DBL2's lighting (lesson 2: L1 8.22 A, part 3b; L2 8.21 A; L3 7.92 A), with no diversity (assumption a.lightNoDiv)",
-   "needs": [
-    "3b",
-    "l2.L2",
-    "l2.L3"
-   ],
-   "cite": "pack question 3a",
-   "kind": "showroom",
-   "status": "to work",
-   "lesson": "i8"
-  },
-  {
-   "id": "l8.longest",
-   "label": "DBL2's longest circuit",
-   "value": null,
-   "unit": "m",
-   "rule": "the course's own circuit split (assumption a.dbl2split), scaled",
-   "needs": [
-    "assumption a.dbl2split",
-    "routes"
-   ],
-   "cite": "pack question 3b; brief section 2",
-   "kind": "showroom",
-   "status": "to research",
-   "lesson": "i8"
-  },
-  {
-   "id": "l8.chain",
-   "label": "The end-to-end checks (Ib, In, factors, CSA, voltage drop from the intake, Zs at DBL2 and at the end, thermal, Icn)",
-   "value": null,
-   "unit": "",
-   "rule": "flowchart steps 1 to 20 twice, submain then final circuit",
-   "needs": [
-    "every table value for the chosen sizes",
-    "l7.armour"
-   ],
-   "cite": "pack question 3a, 3b; guide p.5, 6",
-   "kind": "showroom",
-   "status": "to research",
-   "lesson": "i8"
-  },
   {
    "id": "l9.compare",
    "label": "Comparing a measured Zs with the maximum",
@@ -5125,19 +6104,21 @@
   },
   {
    "id": "l8.longest",
-   "status": "to research",
+   "status": "researched",
    "needs": [
     "assumption a.dbl2split",
     "routes"
-   ]
+   ],
+   "researched": "i8 top-up, 20 Oct 2026: C7 (foyer and walkway bollards) is the longest circuit, about 20.8 m on plan to the farthest bollard, plus the two verticals of p.vert = 23.8 m (assumptions a.longest, a.vert; given g.len.circuits). C1 17.3 m, C6 16.7 m, C5 14.3 m; C2 to C4 under 11 m. Scaled from the drawings, approximate."
   },
   {
    "id": "l8.chain",
-   "status": "to research",
+   "status": "researched",
    "needs": [
     "every table value for the chosen sizes",
     "l7.armour"
-   ]
+   ],
+   "researched": "i8 top-up, 20 Oct 2026: givens g.it.swa4.E, g.vd.swa4, g.it.1p5.1ph, g.vd.1p5.1ph, g.zmax.C10, g.zmax.C6, g.swa4.*, g.swa1p5.rows, g.swa2p5.rows, g.len.circuits, p.vert, p.dev.final, p.sub.size, p.sub.dev; assumptions a.vert, a.longest, a.subRoute, a.subChoice, a.lightCable, a.thermalWhere, a.vdRoutes. Working (for the writer, to be re-worked from the rule, 3 decimal places for ohms, 2 for the rest): SUBMAIN (MDB to DBL2, 17.0 + 3.0 = 20.0 m, 4 mm² four-core XLPE/SWA on tray, Method E): Ib 8.22 A (heaviest phase, 3b), 9.56 A with the 0.86 factor (3e); In 10 A type C (p.sub.dev), 8.22 and 9.56 both ≤ 10; Ca Cg Ci = 1, so It ≥ 10 A, table value 44 A passes (1.5 mm² 25 A and 2.5 mm² 33 A also pass); VD = 10 × 8.22 × 20.0 ÷ 1000 = 1.64 V three-phase, ÷ 1.73 = 0.95 V single-phase equivalent; R1+R2 = (4.61 + 6.8) × 1.28 × 20.0 ÷ 1000 = 0.292 Ω; Zs at DBL2 = 0.1 + 0.292 = 0.392 Ω against 2.19 Ω (C10, 0.4 s), passes; Cmin 218.5 ÷ 0.392 = 557.40 A against 10 × 10 = 100 A; Cmax 253 ÷ 0.392 = 645.41 A, armour S = √(645.41² × 0.1) ÷ 46 = 4.44 mm² against 22 mm² (the near-end reading, 2 530 A, gives 17.39 mm²: a.thermalWhere); breaking capacity: the 4.6 kA at the origin is the most any point can see, so 6 kA devices (p.icn.mcb) pass. FINAL CIRCUIT C7 (DBL2 to the farthest bollard, 20.8 + 3.0 = 23.8 m, 1.5 mm² singles in conduit with a 1.5 mm² cpc): Ib 1.21 A (l2.c7); In 6 A type C (p.dev.final); It 23 A ≥ 6 A; VD = 31 × 1.21 × 23.8 ÷ 1000 = 0.89 V; total from the intake 0.95 + 0.89 = 1.84 V = 0.80% of 230 V against 6.90 V (3%), passes; R1+R2 = 24.2 × 1.28 × 23.8 ÷ 1000 = 0.737 Ω; Zs at the end = 0.392 + 0.737 = 1.129 Ω against 3.64 Ω (C6), passes; Cmin 218.5 ÷ 1.129 = 193.53 A against 6 × 10 = 60 A; cpc: at DBL2 253 ÷ 0.392 = 645.41 A, S = 1.43 mm² against 1.5 mm² (a slim pass, 0.50 mm² at the far end). THE LONGEST VERSUS THE HEAVIEST: C1 (4.89 A, 17.3 + 3.0 = 20.3 m) drops 31 × 4.89 × 20.3 ÷ 1000 = 3.08 V, total 4.03 V, still inside 6.90 V. LESSON 7: its 17.0 m figures (R1+R2 0.248 Ω, Zs 0.348 Ω, S 5.00 mm²) are on the plan length; lesson 8 adds the verticals. Not sourced: p.vert, p.dev.final, the t of 0.1 s and k 46 are practice values; the lengths are scaled from the drawings (approximate)."
   },
   {
    "id": "l9.compare",
@@ -5171,5 +6152,5 @@
    "worked": "figure l6.showroom.nominal, 2e"
   }
  ],
- "updatedAt": "2026-10-20T17:35:56.182Z"
+ "updatedAt": "2026-10-20T18:38:52.217Z"
 }
