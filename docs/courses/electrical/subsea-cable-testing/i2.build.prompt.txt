@@ -1,0 +1,529 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: HV Subsea Cable Testing
+Idea: Phases and conductors: the four-wire measurement (Below 1 Ω the leads and contacts swamp a two-wire reading, so the DLRO drives current through the C leads and measures across the P leads inside them; three loop readings solve three cores, and a cold cable reads low until corrected to 20 °C.)
+Kind: skill
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the lead and contact resistance dropping out of the reading when you move the voltage measurement from the meter's own leads to P probes inside the C clamps.
+Title (the app shows it above the frame, so do not repeat it): Four wires, three loops
+The rule (the app shows it just above the frame, under "What you're looking at"): Thirteen screens, with Back and Continue, on phase ID and proving each conductor with a four-wire meter.
+
+Screen 1, Do you still have it? The question: “Three loop readings on one cable: L1 to L2, A = 76.90 mΩ. L2 to L3, B = 80.49 mΩ. L3 to L1, C = 81.16 mΩ. What is L1?” Three choices, in this order: “38.115 mΩ”; “38.785 mΩ”; “38.45 mΩ”. Right, the second: “Still there.” Then the working: “Each loop is two cores in series. L1 = (A + C − B) ÷ 2 = (76.90 + 81.16 − 80.49) ÷ 2 = 77.57 ÷ 2 = 38.785 mΩ.” A last line names the slips: 38.115 mΩ is L2's formula, and 38.45 mΩ is half of loop A. Then two buttons. Refresh the why goes to screen 2, and Skip to the practice goes to screen 8. Wrong, the first: “That is L2's formula, (B + A − C) ÷ 2. For L1, add the two loops that hold L1, A and C, then take away B.” Wrong, the third: “That is half of loop A. It is right only if L1 and L2 are equal. Use all three loops.” Then the right working, and on to screen 2.
+
+Screen 2, What it is for. “Phase ID makes sure L1, L2 and L3 are identified, labelled and terminated in the right order. Core resistance proves each conductor end to end, its joints and terminations included. Corrected to 20 °C, each core should be within 2% of its factory value.[^1]” Then phase ID. Assume this order: “Every core starts earthed at both ends, with a technician at each end. Each core is tested in turn to the screen, from both ends.[^2] The far end keeps one core joined to the screen. Under control, it lifts the other two earths. Your end lifts its earths and tests each core to the screen. Only the joined core reads continuity. Then the earths go back on.” The colours: red L1, yellow L2, blue L3. The picture shows three cores side by side. The OSS, your end, is on the left. B01, the far end, is on the right. Each is labelled with its name and colour in words. A screen line runs along each core. At B01, the chosen core is drawn joined to its screen. At the OSS, a continuity tester sits on each core. A control named Far end joins offers L1, L2 and L3. It opens on L1. The joined core reads “continuity” at the OSS, and the other two read “open”. In red, what goes wrong if it is skipped: “Phases terminated in the wrong order can give a short when the cable is energised. A poor joint or termination goes unseen.” The prompt: “Pick which core the far end joins to the screen.” Read: with L1 joined to the screen at B01, only L1 reads continuity at the OSS. So the core marked red at one end is the core marked red at the other. Still: L1 joined, L1 reading continuity, L2 and L3 open.
+
+Screen 3, The why: four wires. “Low resistance usually means under 1 Ω. Down there, the test leads and their contacts can add a big share of what you read. A meter works out resistance as the voltage it sees ÷ the current it sends. On two wires, the same leads do both jobs. The current runs through each lead and each contact, and each drops a little voltage. The meter adds those drops to the core's own. Four wires split the jobs. The C leads carry the current, but the meter does not measure across them. The P leads are measured, but almost no current flows in them. So neither the P leads nor their contacts drop any voltage worth counting.[^3] The reading is whatever carries the current between the two P points.[^4]” The picture shows the DLRO on the left, with four terminals: C1, P1, P2 and C2. Loop A of String B is two cores linked at B01. It is drawn as one long resistor of 339.31 mΩ. Each C lead is drawn with a small resistor of 30 mΩ, and each C clamp's contact with one of 15 mΩ. These are practice values. A stepper named Measure with has three settings: Two wires, P on the C clamps, and P inside the C clamps. The last two use four wires. It opens on Two wires. Current arrows run round the C path. A bracket marked “the meter measures across this” spans everything between the two points where the voltage is taken. The P leads carry no arrow, and a label says “almost no current”. There are two readouts. Meter reads is in mΩ to 2 places. Above the loop is in % to 2 places. On two wires, both leads and both contacts sit inside the bracket. So the meter reads 339.31 + 2 × 30 + 2 × 15 = 429.31 mΩ, 26.52% high. With the P probes clipped on the C clamps, outside their contacts, the leads drop out. The two contacts stay inside. So it reads 339.31 + 2 × 15 = 369.31 mΩ, 8.84% high. With the P probes inside the C clamps, facing each other, only the loop is inside. So it reads 339.31 mΩ, 0.00% above. The words under it: “8.84% is far more than the 2% a core is allowed.” The prompt: “Step from two wires to four, then move the P probes inside the C clamps.” Read: two wires read 429.31 mΩ, 26.52% high. Both leads and both contacts carry the current inside the measured stretch. P probes clipped on the C clamps leave the leads out, but the contacts still add 8.84%. P probes inside the C clamps, facing each other, read the loop alone: 339.31 mΩ. Still: P inside the C clamps, reading 339.31 mΩ.
+
+Screen 4, Check. “You measure loop A, 339.31 mΩ, with four wires. Then you swap the 5 m P leads for 30 m ones, so the meter can sit further back. What does the reading do?” Choices: “It rises by the extra lead resistance”; “It stays at 339.31 mΩ”; “It rises, unless the C leads are lengthened too”. Right, the second: “Almost no current flows in the P leads. So even 30 m of lead drops almost no voltage, and the reading holds.” Wrong, the first: “That is a two-wire meter. The P leads carry almost no current, so their resistance drops almost no voltage.” Wrong, the third: “The C leads carry the current, but the meter does not measure across them. Neither set of leads joins the reading.”
+
+Screen 5, Three loops, three cores. “Your leads cannot reach both ends of a 2.40 km core. So the far end links two cores, and you read the loop they make. Each loop is two cores in series: A = L1 + L2, B = L2 + L3 and C = L1 + L3. Add A and C, and you have L1 twice, plus L2 and L3 once each. Take B away, and L2 and L3 cancel. So L1 = (A + C − B) ÷ 2. L2 = (B + A − C) ÷ 2 and L3 = (C + B − A) ÷ 2 follow the same way. Add all three loops and every core appears twice. So A + B + C = 2 × (L1 + L2 + L3), a quick check on your sums.” The picture: three cores from the OSS on the left to B01 on the right. A stepper named Loop has three settings. A is L1 to L2, B is L2 to L3, and C is L3 to L1. It opens on A. The two cores of the chosen loop carry current arrows out and back, through a link at B01. The third core is drawn earthed at both ends. Under the picture sit the three formulas. The chosen loop's letter is lit in each. The prompt: “Step through the three loops.” Read: loop A links L1 and L2 at B01, so it reads L1 + L2. Loop B reads L2 + L3, and loop C reads L1 + L3. So L1 = (A + C − B) ÷ 2, L2 = (B + A − C) ÷ 2 and L3 = (C + B − A) ÷ 2. Still: all three loops drawn at once, each labelled with its pair of cores.
+
+Screen 6, Worked example, a line at each press. The loops: A = 76.90, B = 80.49 and C = 81.16 mΩ. The prompt: “Work each line yourself first, then press Show.” Line 1: “L1 = (76.90 + 81.16 − 80.49) ÷ 2 = 77.57 ÷ 2 = 38.785 mΩ.” Line 2: “L2 = (80.49 + 76.90 − 81.16) ÷ 2 = 76.23 ÷ 2 = 38.115 mΩ.” Line 3: “L3 = (81.16 + 80.49 − 76.90) ÷ 2 = 84.75 ÷ 2 = 42.375 mΩ.” Line 4: “Check: (76.90 + 80.49 + 81.16) ÷ 2 = 238.55 ÷ 2 = 119.275 mΩ. And 38.785 + 38.115 + 42.375 = 119.275 mΩ.” A note under the lines: “Call the results L1, L2 and L3. A, B and C are the loops.” Then: “L3 reads 9.26% above L1 and 11.18% above L2. Three cores of one cable have the same size and length, so they should read close together. Find out why before you submit a gap like this.” Read: L1 = 38.785 mΩ, L2 = 38.115 mΩ and L3 = 42.375 mΩ. They add to 119.275 mΩ, half of A + B + C. L3 sits 9.26% above L1 and 11.18% above L2. Explain a gap like that before you submit. Still: all four lines shown, with the note.
+
+Screen 7, A cold cable reads low. “Copper's resistance rises as it warms, by 0.00393 of its 20 °C value for each degree.[^5] That is about 0.4% per °C. Factory values are given at 20 °C. So a cable on the seabed at 12 °C reads low, even when it is sound. Correct the reading to 20 °C before you compare it: R20 = R_t ÷ (1 + 0.00393 × (t − 20)).” The picture: a thermometer and two bars. The first bar is L1's factory value, 174.70 mΩ at 20 °C, a practice value. The second bar is what the DLRO reads on that same sound core at the slider's temperature. A band round the first bar marks 2% either side. A Cable temperature slider runs from 4 to 30 °C in steps of 1 °C. It opens at 20 °C. There are two readouts. DLRO reads = 174.70 × (1 + 0.00393 × (t − 20)), in mΩ to 2 places. Against the certificate = 0.393 × (t − 20), in % to 2 places. At 20 °C it reads 174.70 mΩ, 0.00%. At 12 °C it reads 169.21 mΩ, −3.14%, outside the band. A red line says “A sound core that looks like a fail.” At 4 °C it reads 163.71 mΩ, −6.29%. At 30 °C it reads 181.57 mΩ, +3.93%. The reading leaves the band near 15 °C and near 25 °C. A line under it at 12 °C: “Corrected: 169.21 ÷ 0.96856 = 174.70 mΩ, right on its certificate.” The prompt: “Drag the temperature down to 12 °C.” Read: L1's factory value is 174.70 mΩ at 20 °C. At 12 °C the same sound core reads 169.21 mΩ, 3.14% low and outside 2%. Divide by 1 + 0.00393 × (12 − 20) = 0.96856 and it is back to 174.70 mΩ. About 5 °C either side of 20 °C uses up the whole 2%. Still: 12 °C, reading 169.21 mΩ, −3.14%, with the corrected line shown.
+
+Screen 8, Section A, question 2 (a). The scenario panel. Then the test, said once: “String B is at 12 °C. Your end is the OSS. Each pair is linked at B01 in turn, and the DLRO reads: L1 to L2, A = 339.31 mΩ. L2 to L3, B = 339.21 mΩ. L1 to L3, C = 338.32 mΩ. These are practice values.” The question: “(a) Determine the resistance of core L2 at 12 °C.” A typed answer, part 2a: (339.21 + 339.31 − 338.32) ÷ 2 = 340.20 ÷ 2 = 170.10 mΩ, to 2 places. Slips: 340.20 mΩ, “That is two cores' worth. Halve it.” 169.21 mΩ, “That is L1's formula. For L2, add the two loops that hold L2, A and B, then take away C.” 169.66 mΩ, “That is half of loop A. It assumes L1 and L2 are equal.” After two misses, the working. Then one line: “L1 and L3 work out the same way, at 169.21 and 169.11 mΩ.”
+
+Screen 9, Section A, question 2 (b). Part (a) carried forward: 170.10 mΩ. “The factory certificate gives each core at 20 °C: L1 174.70, L2 174.90 and L3 174.60 mΩ. These are practice values. Take copper's coefficient as 0.00393 per °C. (b) Determine L2's resistance corrected to 20 °C.” A typed answer, part 2b: 1 + 0.00393 × (12 − 20) = 0.96856, then 170.10 ÷ 0.96856 = 175.62 mΩ. 175.72 mΩ is accepted too. It comes from about 0.4% per °C: 170.10 ÷ 0.968. Slips: 164.75 mΩ, “You multiplied by 0.96856. A cold core reads low, so its 20 °C value is higher. Divide.” 170.10 mΩ, “That is the reading at 12 °C. Correct it to 20 °C first.” After two misses, the working.
+
+Screen 10, Section A, question 2 (c). Parts (a) and (b) carried forward. “(c) Determine L2's deviation from its factory value of 174.90 mΩ, as a percentage. Is it acceptable?” A typed answer, part 2c: (175.62 − 174.90) ÷ 174.90 × 100 = 0.41%. That is inside 2%, so it is acceptable. 0.47% is accepted too, from 175.72 mΩ. Slips: −2.74%, “That sets the 12 °C reading against a 20 °C value. Use the corrected 175.62 mΩ.” −0.41%, “That is the factory value minus the reading. Take the reading minus the factory value.” After two misses, the working. Then: “Uncorrected, L2 looks 2.74% low, a false fail. Corrected, it is 0.41% high and passes. L1 and L3 match their certificates exactly. So L2's conductor passes, joints and all. This test does not look at its insulation.”
+
+Screen 11, Section B: “Explain why the P probes must sit inside the C clamps, facing each other.” A written answer, marked against five points. Any three make a full answer. One more go, then the model answer.
+
+Screen 12, Section A, changed numbers. “Another three-core cable is read at 20 °C, so no correction is needed. Its loops: L1 to L2, A = 120.40 mΩ. L2 to L3, B = 121.10 mΩ. L1 to L3, C = 120.90 mΩ. Determine the resistance of core L3.” A typed answer: (120.90 + 121.10 − 120.40) ÷ 2 = 121.60 ÷ 2 = 60.80 mΩ. Slips: 121.60 mΩ, “Halve it. Each loop holds two cores.” 60.10 mΩ, “That is L1's formula. For L3, add B and C, then take away A.” Then: “Check: (120.40 + 121.10 + 120.90) ÷ 2 = 181.20 mΩ. The three cores, 60.10, 60.30 and 60.80 mΩ, add to the same.”
+
+Screen 13, Keep this: the summary card, then Finish the lesson.
+
+On the screens with working, a caption says each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The leads and contacts are drawn as fixed resistors, with practice values. Real contact resistance changes each time a clamp goes on. The P leads are drawn with no current. In fact a tiny current flows, far too small to move the reading. Each core is drawn as a plain resistor. The meter also reverses its current and averages the two readings, which cancels small thermal voltages. That is not shown. The temperature rule is a straight line from 20 °C. That suits the few degrees either side that a cable sees on a job. Phase ID is drawn with perfect continuity and perfect opens. A real reading has some resistance either way.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 12 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 13 (the stepper): 0 (control)
+- Low resistance, below, Ω: 1 (constant, source [6])
+- Worked example loop A, L1 to L2, mΩ: 76.9 (assumed)
+- Worked example loop B, L2 to L3, mΩ: 80.49 (assumed)
+- Worked example loop C, L3 to L1, mΩ: 81.16 (assumed)
+- Worked example: A + C − B, mΩ: 77.57 (computed)
+- Worked example: L1, mΩ: 38.785 (computed)
+- Worked example: B + A − C, mΩ: 76.23 (computed)
+- Worked example: L2, also the recall slip, mΩ: 38.115 (computed)
+- Recall slip: half of loop A, mΩ: 38.45 (computed)
+- Worked example: C + B − A, mΩ: 84.75 (computed)
+- Worked example: L3, mΩ: 42.375 (computed)
+- Worked example: A + B + C, mΩ: 238.55 (computed)
+- Worked example: half the sum, mΩ: 119.275 (computed)
+- Worked example: L3 above L1, %: 9.26 (computed)
+- Worked example: L3 above L2, %: 11.18 (computed)
+- Allowed deviation from factory value, %: 2 (constant, source [1])
+- Reference temperature of conductor resistance, °C: 20 (constant, source [7])
+- String B loop A, L1 to L2 (practice value), mΩ: 339.31 (assumed)
+- String B loop B, L2 to L3 (practice value), mΩ: 339.21 (assumed)
+- String B loop C, L1 to L3 (practice value), mΩ: 338.32 (assumed)
+- Each C lead (practice value), mΩ: 30 (assumed)
+- Each C clamp contact (practice value), mΩ: 15 (assumed)
+- Two wires: meter reads, mΩ: 429.31 (computed)
+- Two wires: above the loop, %: 26.52 (computed)
+- P on the C clamps: meter reads, mΩ: 369.31 (computed)
+- P on the C clamps: above the loop, %: 8.84 (computed)
+- P inside the C clamps: above the loop, %: 0 (computed)
+- P leads before the swap (practice value), m: 5 (assumed)
+- P leads after the swap (practice value), m: 30 (assumed)
+- String B route length (practice value), km: 2.4 (assumed)
+- Copper's temperature coefficient at 20 °C, per °C: 0.00393 (constant, source [5])
+- Same coefficient as a percentage, % per °C: 0.393 (computed)
+- Rounded coefficient, % per °C: 0.4 (computed)
+- Temperature slider: from, °C: 4 (assumed)
+- Temperature slider: to, °C: 30 (assumed)
+- Temperature slider step, °C: 1 (assumed)
+- Temperature slider opens at, °C: 20 (control)
+- L1 factory value at 20 °C (practice value), mΩ: 174.7 (assumed)
+- L2 factory value at 20 °C (practice value), mΩ: 174.9 (assumed)
+- L3 factory value at 20 °C (practice value), mΩ: 174.6 (assumed)
+- String B cable temperature (practice value), °C: 12 (assumed)
+- Factor at 12 °C: 0.96856 (computed)
+- Sound L1 read at 12 °C, mΩ: 169.21 (computed)
+- Sound L1 at 12 °C against certificate, %: -3.14 (computed)
+- Sound L1 read at 4 °C, mΩ: 163.71 (computed)
+- Sound L1 at 4 °C against certificate, %: -6.29 (computed)
+- Sound L1 read at 30 °C, mΩ: 181.57 (computed)
+- Sound L1 at 30 °C against certificate, %: 3.93 (computed)
+- Band left near, °C (low side): 15 (computed)
+- Band left near, °C (high side): 25 (computed)
+- Degrees from 20 °C that use the whole 2%, about, °C: 5 (computed)
+- Part 2a: B + A − C, mΩ: 340.2 (computed)
+- Part 2a: L2 at 12 °C, mΩ: 170.1 (computed)
+- Part 2a slip: half of loop A, mΩ: 169.66 (computed)
+- String B L1 at 12 °C, also a 2a slip, mΩ: 169.21 (computed)
+- String B L3 at 12 °C, mΩ: 169.11 (computed)
+- Part 2b: L2 at 20 °C, mΩ: 175.62 (computed)
+- Part 2b with 0.4% per °C: factor: 0.968 (computed)
+- Part 2b with 0.4% per °C, mΩ: 175.72 (computed)
+- Part 2b slip: multiplied by the factor, mΩ: 164.75 (computed)
+- Part 2c: L2's deviation, %: 0.41 (computed)
+- Part 2c with 0.4% per °C, %: 0.47 (computed)
+- Part 2c slip: uncorrected, %: -2.74 (computed)
+- Part 2c slip: wrong way round, %: -0.41 (computed)
+- Worked example in practice: L1 at 20 °C, mΩ: 174.7 (computed)
+- Worked example in practice: deviation, %: 0 (computed)
+- Changed numbers loop A (practice value), mΩ: 120.4 (assumed)
+- Changed numbers loop B (practice value), mΩ: 121.1 (assumed)
+- Changed numbers loop C (practice value), mΩ: 120.9 (assumed)
+- Changed numbers: C + B − A, mΩ: 121.6 (computed)
+- Changed numbers: L3, mΩ: 60.8 (computed)
+- Changed numbers: L1, also a slip, mΩ: 60.1 (computed)
+- Changed numbers: L2, mΩ: 60.3 (computed)
+- Changed numbers check: half the sum, mΩ: 181.2 (computed)
+- DLRO10HD 10 A range, up to, mΩ: 250 (constant, source [8])
+- DLRO10HD lower range test current, A: 1 (constant, source [9])
+- String B loop, about, mΩ: 340 (computed)
+- DLRO10HD higher range test current, A: 10 (constant, source [8])
+- DLRO10HD green ranges: output power limit, W: 0.25 (constant, source [10])
+- DLRO10HD red ranges: power into the test piece, up to, W: 25 (constant, source [10])
+- Section B: points, of which any make a full answer: 5, any 3 (constant)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+Below 1 Ω, the test leads and their contacts can add a big share of what you read. So a DLRO uses four wires. Two C leads carry the test current through the core. Two P leads measure the voltage across it, from inside the C clamps. Three loop readings then give you the three cores. Correct each one to 20 °C, then set it against its factory value.
+
+A meter works out resistance as the voltage it sees divided by the current it sends. On two wires, the same leads do both jobs. The current runs through each lead and each contact, and each drops a little voltage. The meter adds those drops to the core's own. Four wires split the jobs. The C leads still carry the current, but the meter does not measure across them. The P leads are measured, but almost no current flows in them. So neither the P leads nor their contacts drop any voltage worth counting. The reading is whatever carries the current between the two P points. That is why the P probes sit inside the C clamps, facing each other. Only the core lies between them.
+
+Your leads cannot reach both ends of a core kilometres long. So the far end links two cores, and you read the loop they make. Each loop is two cores in series: A = L1 + L2, B = L2 + L3 and C = L1 + L3. Add A and C and you have L1 twice, plus L2 and L3 once each. Take away B and those two cancel. So L1 = (A + C − B) ÷ 2, and L2 and L3 follow the same way.
+
+Copper's res…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Your subsea cable testing course notes (material:notes#p3): "Measured resistance should be within 2% of factory values"
+[2] [PDF] 9.1 Testing of High Voltage Apparatus - SSEN (https://www.ssen.co.uk/globalassets/safety/s9/pr-net-osm-065.pdf): "On three phase cables, each Conductor Shall be tested in turn using the screen as the return. Phase to phase continuity tests are not required."
+[3] DLRO Guide Final2 (https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Documents/Megger/DLRO10/dlro10_doc_4.pdf): "Since no current flows, the contact resistance of the P1 and P2 contacts produces no voltage and thus has no effect on the potential difference (voltage) detected by the probes. Furthermore, since no current flows through the P leads their…"
+[4] Kelvin Bridges | Low Resistance Measurement | Seaward (https://www.seaward.com/gb/support/resistance/faqs/76198-kelvin-bridges): "The current wires must always be placed outside the potential although the exact placement is not critical. The potential wires must be connected exactly at the points you want to measure between. The measured value will be between the pot…"
+[5] Copper wire tables (https://nvlpubs.nist.gov/nistpubs/Legacy/hb/nbshandbook100.pdf): "specified the temperature coefficient of standard copper to be 0.00393 at 20 °C"
+[6] Your subsea cable testing course notes (material:notes#p2): "Low resistance is generally considered under 1 Ω"
+[7] IEC 60228:2004 - IEC 60228:2004 (https://preview.sist.si/sist-preview/12024/921fee9a88c24612b68340a7330c2262/IEC-60228-2004.pdf): "The resistance of each conductor at 20 °C, when determined in accordance with Clause 7, shall not exceed the appropriate maximum value given in Table 1."
+[8] DLRO10HD 10 Amp Digital Low Resistance (https://cdn.prod.website-files.com/6084b5020067e3fdada93f11/6458941f83dff086e0db661c_Megger%20DLRO10.pdf): "10 A ** 0 - 250 mΩ 0.01 mΩ ±0.2% ±50 µΩ 2.5 V 25 W"
+[9] DLRO10HD 10 Amp Digital Low Resistance (https://cdn.prod.website-files.com/6084b5020067e3fdada93f11/6458941f83dff086e0db661c_Megger%20DLRO10.pdf): "1 A** 0 - 2.5 Ω 0.1 mΩ ±0.2% ±200 µΩ 2.5 V 2.5 W"
+[10] DLRO10_DLRO10X_DS_en_V10.qxp (Page 1) (https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Documents/Megger/DLRO10HD/dlro10hd_doc_6.pdf): "The yellow band contains the test current. The green ranges indicate ranges where the output power is limited to 0.25 W, and the red ranges indicate the high power ranges that will dissipate up to 25 W into the test piece."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+
+## Refresher lessons: typed answers, written answers, the case file, the summary
+
+A refresher course's steps lesson (a ready-made course built in Claude Code) has four more kit
+pieces. The app passes the page two pieces of checked data, as it passes the theme: the course's
+case file (`K.caseFile`) and the lesson's own `{written, summary}` (`K.lesson`). Name what you want
+by id; the kit draws the checked words, so never retype a figure, a point or a summary line.
+
+```
+K.figure(id) -> {id, label, value, unit, text, part, lesson, rule, work, practice}   a given or worked figure; print f.text ("23.08 A"), f.work its working; practice is true for a practice value
+K.scenario({into, open?, title?, text?})                         the case's scenario panel (folds); a lesson may give its own
+K.carried({parts: ['1a'], into})  -> {el, refresh()}             earlier Section A parts at the course's figures
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+    -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state: 'right'|'wrong'|'empty'|'unreadable', value, accepted?, slip?, hint?}
+K.written({id, into, onMark?}) -> {el, id, stage(), answered()}
+K.summary({into, kept?})
+```
+
+**Typed answers** (Section A, where a C&G paper has him write a figure). A decimal-keypad field;
+your Check button calls `a.check()` (Enter does too) and you write the feedback from the result.
+`answer` is the course's figure, each line worked from the rounded figures shown; it is accepted
+within half a unit in its last place (`decimals`, default 2). `accept: [13.32]` adds the answer
+worked from unrounded figures; `slips: [{value: 50, hint: 'You left out √3.'}]` names a usual slip
+and its hint (`r.hint`). A unit typed after the number ("13.33 A") is fine. Give the part's
+case-file id as the answer's id ('1b'), so `K.carried` knows when he missed it: a part got wrong
+and never right, or shown with `a.reveal()`, is carried forward at the course's figure and says so.
+After two wrong tries, show the working and `reveal()`; Continue once `right()`.
+The self-test grades every answer: its figure and each accepted one right (with the unit too), a
+near miss and each slip refused, and the figure typed into the field and checked on its step.
+
+**Written answers** (Section B: "Explain why…", "State two…"). `K.written({id: 'b1', into})` shows
+`lesson.written.b1`'s question, a box for his words and Check my answer. Claude marks them against
+the lesson's points through the app (never from the page): each point comes back with an ink tick
+or a dashed ring, a statement that is wrong named in red, one line on what he did well and one
+nudge; one more go, then the model answer. Without Claude, the points are a checklist he ticks.
+No marks, no grades, nothing to score. `onMark(r)` runs when a result is drawn; let him Continue
+once `answered()`.
+
+**The summary** (Keep this, the last step). `K.summary({into: '#keep'})` draws `lesson.summary`
+as a card (what it is for, the rule, the traps, the case's figures so far, where it lives) and says
+it is the first page of the chapter in his Book. A figure resting on a practice value is tagged so; the
+traps' and points' cites stay as data and are never shown. Then the Finish button calls `K.complete()`.
+
+**STEPS entries** (tools/course/guide.mjs reads them for the Book and the read-through): a
+typed-answer step keeps `want` (the answer as printed, '13.33 A'); a written step is `{kind:
+'written', written: 'b1', name, task}`; the summary step is `{kind: 'summary', name: 'Keep this'}`;
+the recall opener is a DO step like any other. The read-through (and the Book) shows each step as
+it looks finished, as a still picture with no controls, and its words in its place. Three fields
+make that read as plain sense (Dan, 20 Oct: "some of the text doesn't make sense… the images are
+blank"):
+- `read` on a SHOW step: its sentence for reading, when its own words ask him to act ("Drag…",
+  "Work each step yourself first, then show it"). Say what the finished picture shows.
+- `read` on a DO step only when its task asks him to act on the screen: the same question, asked
+  for reading. Never the answer: the read-through shows the question, the choices, the answer
+  and why on their own (guide.mjs keeps the task and warns when a `read` gives the answer away).
+- `still`: the state the picture shows, when the step's end needs his moves: `{control id: value}`
+  (`{h: 35}`), or a function that sets it (`still: () => runTo(SPLIT)`, cards placed in their
+  phases; `still: () => pick(...)`, a second question on the step answered too). The state is the
+  one its sentence ends on. `still: false` leaves the picture out. guide.mjs leaves out a still
+  that would show an empty box (a lane with no cards), and warns about it and about choices on
+  the screen that nobody chose, so give those steps a `still`.
+The guide drops a sentence that tells him to drag, tap, press or choose, a "Right." or "Still
+there." verdict, and the scenario after its first showing; write the step so it still reads
+whole without them.
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

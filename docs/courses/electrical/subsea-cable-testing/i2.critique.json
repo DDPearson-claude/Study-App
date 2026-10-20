@@ -1,0 +1,26 @@
+{
+ "iid": "i2",
+ "draft": "i2.lesson.draft1.txt",
+ "validator": "passes (no problems, no soft, no warnings)",
+ "faults": [
+  {"fault": "explanation skips the causal step", "where": "explain; screens 3 and 5", "finding": "The chain holds: a meter divides the voltage it sees by the current it sends; on two wires every lead and contact carrying the current drops voltage inside what is measured; on four wires the measured P leads carry almost no current, so they drop nothing; the reading is whatever carries the current between the P points. The loop algebra is shown step by step (A + C has L1 twice, B cancels the rest). Passes.", "fix": "None."},
+  {"fault": "false absolutes", "where": "explain para 1; screen 3", "finding": "'The test leads and their contacts can add as much as the core you are measuring' and 'can add more than the thing you are measuring' overstate it for String B's own picture, where 90 mΩ of leads and contacts sit on a 339.31 mΩ loop. 'Neither set of leads joins the reading' holds within the meter's lead limit and is kept.", "fix": "Say the leads and contacts can add a big share of what you read."},
+  {"fault": "interactive shows only the effect", "where": "screen 3", "finding": "The picture draws the cause: current arrows on the C path, no arrow on the P leads, and a bracket over everything the meter measures across, so each setting shows which pieces are inside the bracket and carrying current. Passes.", "fix": "None."},
+  {"fault": "checks test recall", "where": "screen 4", "finding": "The check asks what longer P leads do to a four-wire reading, a new case that needs the mechanism, not a repeated line. Passes.", "fix": "None."},
+  {"fault": "thin or decorative research", "where": "numbers; screen 2", "finding": "The number 'factory values at 20 °C' is sourced to the copper coefficient's quote, which says nothing about where conductor resistance is specified. The DLRO10HD's colour bands, which a job uses and the research quotes, are left out.", "fix": "Source the 20 °C reference to IEC 60228's 'resistance of each conductor at 20 °C' (source 31). Add the range switch's yellow, green and red bands to the practice, with their 0.25 W and 25 W from the data sheet (source 17)."},
+  {"fault": "unreadable labels", "where": "screen 3 control", "finding": "The stepper's settings 'Four wires, P on the C clamps' and 'Four wires, P inside the C clamps' run to seven words, too long for a 340 px stepper.", "fix": "Two wires; P on the C clamps; P inside the C clamps."},
+  {"fault": "text talks about the idea instead of teaching it", "where": "screen 2; explain para 4", "finding": "'Then phase ID, in the order we assume' talks about the screen rather than stating the assumption plainly. 'Real contacts change each time a clamp goes on, and the lead and contact values are practice ones' joins two caveats in one sentence.", "fix": "Open with 'Assume this order for phase ID.' Split the caveat into two short sentences."}
+ ],
+ "pattern": [
+  {"check": "recall opener with its slips, Refresh the why and Skip to the practice", "finding": "Present; Skip goes to screen 8, the first Section A part."},
+  {"check": "what it is for, and what goes wrong if skipped", "finding": "Screen 2, with the red line."},
+  {"check": "the why with its interactive, then a check", "finding": "Screens 3 and 4, then the loop algebra on 5 and the temperature why on 7."},
+  {"check": "worked example from his notes", "finding": "Screen 6, line by line, naming L3's 9.26% and 11.18% gap as one to explain before submitting."},
+  {"check": "Section A parts 2a, 2b, 2c with scenario, carried figures and typed answers", "finding": "Screens 8 to 10; 2b and 2c accept the 0.4% per °C working (175.72 mΩ, 0.47%)."},
+  {"check": "Section B, changed numbers, Keep this", "finding": "Screens 11 to 13. The Section B question says 'C connections' while every screen says 'C clamps': one name for one thing.", "fix": "Ask about the C clamps, and say C clamps in its points."},
+  {"check": "reads and stills", "finding": "Every SHOW screen that asks him to act (2, 3, 5, 6, 7) has a read and a still; DO screens keep their question."},
+  {"check": "plain writing", "finding": "Explain para 1's last sentence carries two ideas. 'So their resistance, and their contacts', drops almost no voltage' reads as an aside.", "fix": "Split the sentence; say 'So neither the P leads nor their contacts drop any voltage worth counting.'"},
+  {"check": "screen count", "finding": "Thirteen screens, as Design and verification lesson 9. Phase ID shares screen 2; the three-loop why and the temperature why each need their own picture.", "fix": "None."}
+ ],
+ "verdict": "Rewrite as draft 2 with the fixes above."
+}

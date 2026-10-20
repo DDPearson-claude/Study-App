@@ -1,0 +1,903 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-20T23:45:15.798Z",
+ "startedAt": "2026-10-20T23:45:15.798Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i2",
+  "title": "Phases and conductors: the four-wire measurement",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the lead and contact resistance dropping out of the reading when you move the voltage measurement from the meter's own leads to P probes inside the C clamps.",
+   "title": "Four wires, three loops",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Thirteen screens, with Back and Continue, on phase ID and proving each conductor with a four-wire meter.\n\nScreen 1, Do you still have it? The question: “Three loop readings on one cable: L1 to L2, A = 76.90 mΩ. L2 to L3, B = 80.49 mΩ. L3 to L1, C = 81.16 mΩ. What is L1?” Three choices, in this order: “38.115 mΩ”; “38.785 mΩ”; “38.45 mΩ”. Right, the second: “Still there.” Then the working: “Each loop is two cores in series. L1 = (A + C − B) ÷ 2 = (76.90 + 81.16 − 80.49) ÷ 2 = 77.57 ÷ 2 = 38.785 mΩ.” A last line names the slips: “38.115 mΩ comes from L2's formula, and 38.45 mΩ is half of loop A.” Then two buttons. Refresh the why goes to screen 2, and Skip to the practice goes to screen 8. Wrong, the first: “That comes from L2's formula, (B + A − C) ÷ 2. For L1, add A and C, the two loops that hold L1, then take away B.” Wrong, the third: “That is half of loop A. It is right only if L1 and L2 are equal. Use all three loops.” Then the right working, and on to screen 2.\n\nScreen 2, What it is for. “Phase ID makes sure L1, L2 and L3 are identified, labelled and terminated in the right order. Core resistance proves each conductor end to end, its joints and terminations included. Corrected to 20 °C, each core should be within 2% of its factory value.[^1]” Then phase ID. Assume this order: “Every core starts earthed at both ends, with a technician at each end. Each core is tested in turn to the screen, from both ends.[^2] The far end keeps one core joined to the screen. Under control, it lifts the other two earths. Your end lifts its earths and tests each core to the screen. Only the joined core reads continuity. Then the earths go back on. The two ends then swap jobs and repeat.” The colours: red L1, yellow L2, blue L3. The picture shows three cores side by side. The OSS, your end, is on the left. B01, the far end, is on the right. Each is labelled with its name and colour in words. A screen line runs along each core. At B01, the chosen core is drawn joined to its screen. At the OSS, a continuity tester sits on each core. A control named Far end joins offers L1, L2 and L3. It opens on L1. The joined core reads “continuity” at the OSS, and the other two read “open”. In red, what goes wrong if it is skipped: “Phases terminated in the wrong order can give a short when the cable is energised. A poor joint or termination goes unseen.” The prompt: “Pick which core the far end joins to the screen.” Read: with L1 joined to the screen at B01, only L1 reads continuity at the OSS. So the core marked red at one end is the core marked red at the other. Still: L1 joined, L1 reading continuity, L2 and L3 open.\n\nScreen 3, The why: four wires. “Low resistance usually means under 1 Ω. Down there, the test leads and their contacts can add a big share of what you read. A meter works out resistance as the voltage it sees divided by the current it sends. On two wires, the same leads do both jobs. The current runs through each lead and each contact, and each drops a little voltage. The meter adds those drops to the core's own. Four wires split the jobs. The C leads carry the current, but the meter does not measure across them. The meter measures the voltage on the P leads, but almost no current flows in them. So neither the P leads nor their contacts drop any voltage worth counting.[^3] The reading is whatever carries the current between the two P points.[^4]” The picture shows the DLRO on the left, with four terminals: C1, P1, P2 and C2. Loop A of String B is two cores linked at B01. It is drawn as one long resistor of 339.31 mΩ. Each C lead is drawn with a small resistor of 30 mΩ, and each C clamp's contact with one of 15 mΩ. These are practice values. A stepper named Measure with has three settings: Two wires, P on the C clamps, and P inside the C clamps. The last two use four wires. It opens on Two wires. Current arrows run round the C path. A bracket marked “the meter measures across this” spans everything between the two points where the voltage is taken. The P leads carry no arrow, and a label says “almost no current”. There are two readouts. Meter reads is in mΩ to 2 places. Above the loop is in % to 2 places. On two wires, both leads and both contacts sit inside the bracket. So the meter reads 339.31 + 2 × 30 + 2 × 15 = 429.31 mΩ, 26.52% high. With the P probes clipped on the C clamps, outside their contacts, the leads drop out. The two contacts stay inside. So it reads 339.31 + 2 × 15 = 369.31 mΩ, 8.84% high. With the P probes inside the C clamps, facing each other, only the loop is inside. So it reads 339.31 mΩ, 0.00% above. The words under it: “P on the C clamps still reads 8.84% high. That is far more than the 2% a core is allowed.” The prompt: “Step from two wires to four, then move the P probes inside the C clamps.” Read: two wires read 429.31 mΩ, 26.52% high. Both leads and both contacts carry the current inside the measured stretch. P probes clipped on the C clamps leave the leads out, but the contacts still add 8.84%. P probes inside the C clamps, facing each other, read the loop alone: 339.31 mΩ. Still: P inside the C clamps, reading 339.31 mΩ.\n\nScreen 4, Check. “You measure loop A, 339.31 mΩ, with four wires. Then you swap all four 5 m leads for 30 m ones, so the meter can sit further back. What does the reading do?” Choices: “It rises by the extra lead resistance”; “It stays at 339.31 mΩ”; “It rises by the extra C lead resistance only”. Right, the second: “Almost no current flows in the P leads, so 30 m of P lead drops almost no voltage. The C leads carry the current, but the meter does not measure across them. So the reading holds.” Wrong, the first: “That is a two-wire meter. The P leads carry almost no current, and the meter does not measure across the C leads.” Wrong, the third: “The C leads carry the current, but the meter does not measure across them. So their extra length does not join the reading.”\n\nScreen 5, Three loops, three cores. “Your leads cannot reach both ends of a 2.40 km core. So the far end links two cores, and you read the loop they make. Each loop is two cores in series: A = L1 + L2, B = L2 + L3 and C = L1 + L3. Add A and C, and you have L1 twice, plus L2 and L3 once each. Take B away, and L2 and L3 cancel. So L1 = (A + C − B) ÷ 2. L2 = (B + A − C) ÷ 2 and L3 = (C + B − A) ÷ 2 follow the same way. Add all three loops and every core appears twice. So A + B + C = 2 × (L1 + L2 + L3), a quick check on your sums. The link at B01 and its contacts sit between your P points in every loop. Four wires at the OSS cannot leave them out. So each core you work out carries half the link. Fit it short, firm and clean.” The picture: three cores from the OSS on the left to B01 on the right. A stepper named Loop has three settings. A is L1 to L2, B is L2 to L3, and C is L3 to L1. It opens on A. The two cores of the chosen loop carry current arrows out and back, through a link at B01. Each loop's name gives its worked-example reading: A = 76.90, B = 80.49 and C = 81.16 mΩ. The third core is drawn earthed at both ends. Under the picture sit the three formulas. The chosen loop's letter is lit in each. The prompt: “Step through the three loops.” Read: loop A links L1 and L2 at B01, so it reads L1 + L2. Loop B reads L2 + L3, and loop C reads L1 + L3. So L1 = (A + C − B) ÷ 2, L2 = (B + A − C) ÷ 2 and L3 = (C + B − A) ÷ 2. With the worked example's readings, A + B + C = 238.55 mΩ, twice the three cores together. Still: all three loops drawn at once, each labelled with its pair of cores.\n\nScreen 6, Worked example, a line at each press. The loops: A = 76.90, B = 80.49 and C = 81.16 mΩ. The prompt: “Work each line yourself first, then press Show.” Line 1: “L1 = (76.90 + 81.16 − 80.49) ÷ 2 = 77.57 ÷ 2 = 38.785 mΩ.” Line 2: “L2 = (80.49 + 76.90 − 81.16) ÷ 2 = 76.23 ÷ 2 = 38.115 mΩ.” Line 3: “L3 = (81.16 + 80.49 − 76.90) ÷ 2 = 84.75 ÷ 2 = 42.375 mΩ.” Line 4: “Check: (76.90 + 80.49 + 81.16) ÷ 2 = 238.55 ÷ 2 = 119.275 mΩ. And 38.785 + 38.115 + 42.375 = 119.275 mΩ.” A note under the lines: “Name each result by its core, never by a loop letter.” Then: “L3 reads 9.26% above L1 and 11.18% above L2. Three cores of one cable have the same size and length, so they should read close together. Find out why before you submit a gap like this.” Read: L1 = 38.785 mΩ, L2 = 38.115 mΩ and L3 = 42.375 mΩ. They add to 119.275 mΩ, half of A + B + C. L3 sits 9.26% above L1 and 11.18% above L2. Explain a gap like that before you submit. Still: all four lines shown, with the note.\n\nScreen 7, A cold cable reads low. “Copper's resistance rises as it warms, by 0.00393 of its 20 °C value for each degree.[^5] That is about 0.4% per °C. Factory values are given at 20 °C. So a cable on the seabed at 12 °C reads low, even when it is sound. Correct the reading to 20 °C before you compare it: R20 = R_t ÷ (1 + 0.00393 × (t − 20)).” The picture: a thermometer and two bars. The first bar is L1's factory value, 174.70 mΩ at 20 °C, a practice value. The second bar is what the DLRO reads on that same sound core at the slider's temperature. A band round the first bar marks 2% either side. A Cable temperature slider runs from 4 to 30 °C in steps of 1 °C. It opens at 20 °C. There are two readouts. DLRO reads = 174.70 × (1 + 0.00393 × (t − 20)), in mΩ to 2 places. Against the certificate = 0.393 × (t − 20), in % to 2 places. At 20 °C it reads 174.70 mΩ, 0.00%. At 12 °C it reads 169.21 mΩ, −3.14%, outside the band. A red line says “A sound core that looks like a fail.” At 4 °C it reads 163.71 mΩ, −6.29%. At 30 °C it reads 181.57 mΩ, +3.93%. The reading leaves the band near 15 °C and near 25 °C. A line under it at 12 °C: “Corrected: 169.21 ÷ 0.96856 = 174.70 mΩ, right on its certificate.” The prompt: “Drag the temperature down to 12 °C.” Read: L1's factory value is 174.70 mΩ at 20 °C. At 12 °C the same sound core reads 169.21 mΩ, 3.14% low and outside 2%. Divide by 1 + 0.00393 × (12 − 20) = 0.96856 and it is back to 174.70 mΩ. About 5 °C either side of 20 °C uses up the whole 2%. Still: 12 °C, reading 169.21 mΩ, −3.14%, with the corrected line shown.\n\nScreen 8, Section A, question 2 (a). The scenario panel. Then the test, said once: “String B is at 12 °C. Your end is the OSS. Each pair is linked at B01 in turn, and the DLRO reads: L1 to L2, A = 339.31 mΩ. L2 to L3, B = 339.21 mΩ. L1 to L3, C = 338.32 mΩ. These are practice values, kept to 0.01 mΩ for the working.” The question: “(a) Determine the resistance of core L2 at 12 °C.” A typed answer, part 2a: (339.21 + 339.31 − 338.32) ÷ 2 = 340.20 ÷ 2 = 170.10 mΩ, to 2 places. Slips: 340.20 mΩ, “That is two cores' worth. Halve it.” 169.21 mΩ, “That comes from L1's formula. For L2, add A and B, the two loops that hold L2, then take away C.” 169.66 mΩ, “That is half of loop A. It assumes L1 and L2 are equal.” After two misses, the working. Then one line: “L1 and L3 work out the same way, at 169.21 and 169.11 mΩ.”\n\nScreen 9, Section A, question 2 (b). Part (a) carried forward: 170.10 mΩ. “The factory certificate gives each core at 20 °C: L1 174.70, L2 174.90 and L3 174.60 mΩ. These are practice values. Take copper's coefficient as 0.00393 per °C. (b) Determine L2's resistance corrected to 20 °C.” A typed answer, part 2b: 1 + 0.00393 × (12 − 20) = 0.96856, then 170.10 ÷ 0.96856 = 175.62 mΩ. 175.72 mΩ is accepted too. It comes from about 0.4% per °C: 170.10 ÷ 0.968. Slips: 164.75 mΩ, “You multiplied by 0.96856. A cold core reads low, so its 20 °C value is higher. Divide.” 170.10 mΩ, “That is the reading at 12 °C. Correct it to 20 °C first.” After two misses, the working.\n\nScreen 10, Section A, question 2 (c). Parts (a) and (b) carried forward. “(c) Determine L2's deviation from its factory value of 174.90 mΩ, as a percentage.” A typed answer, part 2c: (175.62 − 174.90) ÷ 174.90 × 100 = +0.41%. That is inside 2%, so it is acceptable. 0.47% is accepted too, from 175.72 mΩ. Slips: −2.74%, “That sets the 12 °C reading against a 20 °C value. Use the corrected 175.62 mΩ.” −0.41%, “That is the factory value minus the reading. Take the reading minus the factory value.” After two misses, the working. Then: “Uncorrected, L2 looks 2.74% low, a false fail. Corrected, it is 0.41% high and passes. L1 and L3 match their certificates exactly. So L2's conductor passes, joints and all. This test does not look at its insulation.”\n\nScreen 11, Section B: “Explain why the P probes must sit inside the C clamps, facing each other.” A written answer, marked against five points. Any three make a full answer. One more go, then the model answer.\n\nScreen 12, Section A, changed numbers. “Another three-core cable is read at 20 °C, so no correction is needed. Its loops: L1 to L2, A = 120.40 mΩ. L2 to L3, B = 121.10 mΩ. L1 to L3, C = 120.90 mΩ. Determine the resistance of core L3.” A typed answer: (120.90 + 121.10 − 120.40) ÷ 2 = 121.60 ÷ 2 = 60.80 mΩ. Slips: 121.60 mΩ, “Halve it. Each loop holds two cores.” 60.10 mΩ, “That comes from L1's formula. For L3, add B and C, then take away A.” Then: “Check: (120.40 + 121.10 + 120.90) ÷ 2 = 181.20 mΩ. The three cores, 60.10, 60.30 and 60.80 mΩ, add to the same.”\n\nScreen 13, Keep this: the summary card, then Finish the lesson.\n\nOn the screens with working, a caption says each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.",
+   "ignores": "The leads and contacts are drawn as fixed resistors, with practice values. Real contact resistance changes each time a clamp goes on. The P leads are drawn with no current. In fact a tiny current flows, far too small to move the reading. Each core is drawn as a plain resistor. The meter also reverses its current and averages the two readings, which cancels small thermal voltages. That is not shown. The temperature rule is a straight line from 20 °C. That suits the few degrees either side that a cable sees on a job. Phase ID is drawn with perfect continuity and perfect opens. A real reading has some resistance either way.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 13 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Low resistance, below, Ω",
+     "value": 1,
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "Worked example loop A, L1 to L2, mΩ",
+     "value": 76.9,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example loop B, L2 to L3, mΩ",
+     "value": 80.49,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example loop C, L3 to L1, mΩ",
+     "value": 81.16,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: A + C − B, mΩ",
+     "value": 77.57,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: L1, mΩ",
+     "value": 38.785,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: B + A − C, mΩ",
+     "value": 76.23,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: L2, also the recall slip, mΩ",
+     "value": 38.115,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall slip: half of loop A, mΩ",
+     "value": 38.45,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: C + B − A, mΩ",
+     "value": 84.75,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: L3, mΩ",
+     "value": 42.375,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: A + B + C, mΩ",
+     "value": 238.55,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: half the sum, mΩ",
+     "value": 119.275,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: L3 above L1, %",
+     "value": 9.26,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: L3 above L2, %",
+     "value": 11.18,
+     "kind": "computed"
+    },
+    {
+     "label": "Allowed deviation from factory value, %",
+     "value": 2,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Reference temperature of conductor resistance, °C",
+     "value": 20,
+     "kind": "constant",
+     "source": 7
+    },
+    {
+     "label": "String B loop A, L1 to L2 (practice value), mΩ",
+     "value": 339.31,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B loop B, L2 to L3 (practice value), mΩ",
+     "value": 339.21,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B loop C, L1 to L3 (practice value), mΩ",
+     "value": 338.32,
+     "kind": "assumed"
+    },
+    {
+     "label": "Each C lead (practice value), mΩ",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Each C clamp contact (practice value), mΩ",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Two wires: meter reads, mΩ",
+     "value": 429.31,
+     "kind": "computed"
+    },
+    {
+     "label": "Two wires: above the loop, %",
+     "value": 26.52,
+     "kind": "computed"
+    },
+    {
+     "label": "P on the C clamps: meter reads, mΩ",
+     "value": 369.31,
+     "kind": "computed"
+    },
+    {
+     "label": "P on the C clamps: above the loop, %",
+     "value": 8.84,
+     "kind": "computed"
+    },
+    {
+     "label": "P inside the C clamps: above the loop, %",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Test leads before the swap (practice value), m",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Test leads after the swap (practice value), m",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B route length (practice value), km",
+     "value": 2.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Copper's temperature coefficient at 20 °C, per °C",
+     "value": 0.00393,
+     "kind": "constant",
+     "source": 5
+    },
+    {
+     "label": "Same coefficient as a percentage, % per °C",
+     "value": 0.393,
+     "kind": "computed"
+    },
+    {
+     "label": "Rounded coefficient, % per °C",
+     "value": 0.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Temperature slider: from, °C",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Temperature slider: to, °C",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Temperature slider step, °C",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Temperature slider opens at, °C",
+     "value": 20,
+     "kind": "control"
+    },
+    {
+     "label": "L1 factory value at 20 °C (practice value), mΩ",
+     "value": 174.7,
+     "kind": "assumed"
+    },
+    {
+     "label": "L2 factory value at 20 °C (practice value), mΩ",
+     "value": 174.9,
+     "kind": "assumed"
+    },
+    {
+     "label": "L3 factory value at 20 °C (practice value), mΩ",
+     "value": 174.6,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B cable temperature (practice value), °C",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Factor at 12 °C",
+     "value": 0.96856,
+     "kind": "computed"
+    },
+    {
+     "label": "Sound L1 read at 12 °C, mΩ",
+     "value": 169.21,
+     "kind": "computed"
+    },
+    {
+     "label": "Sound L1 at 12 °C against certificate, %",
+     "value": -3.14,
+     "kind": "computed"
+    },
+    {
+     "label": "Sound L1 read at 4 °C, mΩ",
+     "value": 163.71,
+     "kind": "computed"
+    },
+    {
+     "label": "Sound L1 at 4 °C against certificate, %",
+     "value": -6.29,
+     "kind": "computed"
+    },
+    {
+     "label": "Sound L1 read at 30 °C, mΩ",
+     "value": 181.57,
+     "kind": "computed"
+    },
+    {
+     "label": "Sound L1 at 30 °C against certificate, %",
+     "value": 3.93,
+     "kind": "computed"
+    },
+    {
+     "label": "Band left near, °C (low side)",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Band left near, °C (high side)",
+     "value": 25,
+     "kind": "computed"
+    },
+    {
+     "label": "Degrees from 20 °C that use the whole 2%, about, °C",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2a: B + A − C, mΩ",
+     "value": 340.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2a: L2 at 12 °C, mΩ",
+     "value": 170.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2a slip: half of loop A, mΩ",
+     "value": 169.66,
+     "kind": "computed"
+    },
+    {
+     "label": "String B L1 at 12 °C, also a 2a slip, mΩ",
+     "value": 169.21,
+     "kind": "computed"
+    },
+    {
+     "label": "String B L3 at 12 °C, mΩ",
+     "value": 169.11,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2b: L2 at 20 °C, mΩ",
+     "value": 175.62,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2b with 0.4% per °C: factor",
+     "value": 0.968,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2b with 0.4% per °C, mΩ",
+     "value": 175.72,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2b slip: multiplied by the factor, mΩ",
+     "value": 164.75,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2c: L2's deviation, %",
+     "value": 0.41,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2c with 0.4% per °C, %",
+     "value": 0.47,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2c slip: uncorrected, %",
+     "value": -2.74,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 2c slip: wrong way round, %",
+     "value": -0.41,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example in practice: L1 at 20 °C, mΩ",
+     "value": 174.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example in practice: deviation, %",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers loop A (practice value), mΩ",
+     "value": 120.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Changed numbers loop B (practice value), mΩ",
+     "value": 121.1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Changed numbers loop C (practice value), mΩ",
+     "value": 120.9,
+     "kind": "assumed"
+    },
+    {
+     "label": "Changed numbers: C + B − A, mΩ",
+     "value": 121.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers: L3, mΩ",
+     "value": 60.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers: L1, also a slip, mΩ",
+     "value": 60.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers: L2, mΩ",
+     "value": 60.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers check: half the sum, mΩ",
+     "value": 181.2,
+     "kind": "computed"
+    },
+    {
+     "label": "DLRO10HD 10 A range, up to, mΩ",
+     "value": 250,
+     "kind": "constant",
+     "source": 8
+    },
+    {
+     "label": "DLRO10HD lower range test current, A",
+     "value": 1,
+     "kind": "constant",
+     "source": 9
+    },
+    {
+     "label": "DLRO10HD 1 A range resolution, mΩ",
+     "value": 0.1,
+     "kind": "constant",
+     "source": 9
+    },
+    {
+     "label": "Practice loop readings kept to, mΩ",
+     "value": 0.01,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B loop, about, mΩ",
+     "value": 340,
+     "kind": "computed"
+    },
+    {
+     "label": "DLRO10HD higher range test current, A",
+     "value": 10,
+     "kind": "constant",
+     "source": 8
+    },
+    {
+     "label": "DLRO10HD green ranges: output power limit, W",
+     "value": 0.25,
+     "kind": "constant",
+     "source": 10
+    },
+    {
+     "label": "DLRO10HD red ranges: power into the test piece, up to, W",
+     "value": 25,
+     "kind": "constant",
+     "source": 10
+    },
+    {
+     "label": "Section B: points, of which any make a full answer",
+     "value": "5, any 3",
+     "kind": "constant"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Below 1 Ω, the test leads and their contacts can add a big share of what you read. So a DLRO uses four wires. Two C leads carry the test current through the core. Two P leads measure the voltage across it, from inside the C clamps. Three loop readings then give you the three cores. Correct each one to 20 °C, then set it against its factory value.\n\nA meter works out resistance as the voltage it sees divided by the current it sends. On two wires, the same leads do both jobs. The current runs through each lead and each contact, and each drops a little voltage. The meter adds those drops to the core's own. Four wires split the jobs. The C leads still carry the current, but the meter does not measure across them. The meter measures the voltage on the P leads, but almost no current flows in them. So neither the P leads nor their contacts drop any voltage worth counting.[^3] The reading is whatever carries the current between the two P points. That is why the P probes sit inside the C clamps, facing each other. Only the core lies between them.\n\nYour leads cannot reach both ends of a core kilometres long. So the far end links two cores, and you read the loop they make. Each loop is two cores in series: A = L1 + L2, B = L2 + L3 and C = L1 + L3. Add A and C and you have L1 twice, plus L2 and L3 once each. Take away B and those two cancel. So L1 = (A + C − B) ÷ 2, and L2 and L3 follow the same way.\n\nCopper's resistance rises by 0.00393 of its 20 °C value for each degree warmer.[^5] Factory values are given at 20 °C. At 12 °C, a core right on its certificate reads 3.14% low. That looks like a fail. So correct each reading first: R20 = R_t ÷ (1 + 0.00393 × (t − 20)). The pictures are simplified. Real contacts change each time a clamp goes on. The lead and contact values are practice ones.\n\n**Four wires keep the leads out. Three loops give three cores. Corrected to 20 °C, each core should be within 2% of its factory value.[^1]**"
+  },
+  "analogy": {
+   "text": "You null your low-resistance ohmmeter's leads before an R1+R2 test. That takes the leads' own resistance off every reading. Four wires do the same job without nulling, and they leave out the contacts as well.",
+   "breaks": "Nulling removes the leads as they were at the moment you nulled them. The contacts change each time you clip on. A two-wire meter still counts them. Four wires leave out the leads and the contacts on every reading. That is because the P leads carry almost no current."
+  },
+  "practice": {
+   "text": "- Start with every core earthed at both ends, and a technician at each end. Talk to the far end before every change.\n- Phase ID: test each core in turn to the screen, from both ends.[^2] With one core joined to the screen at the far end, only that core should read continuity. Check its colour: red L1, yellow L2, blue L3.\n- Core resistance, one loop at a time. At the far end, lift the earths on the loop's two cores and link them. Keep the third core earthed. At your end, connect the leads first. Then lift the same two earths, read the loop and earth them again.\n- Put the C clamps on the outside and the P probes inside them, facing each other.\n- Read loop A, L1 to L2. Then read B, L2 to L3, and C, L3 to L1. After the last loop, remove the link and put every earth back on.\n- Work out each core. Check that A + B + C = 2 × (L1 + L2 + L3).\n- Note the cable's temperature. Correct each core to 20 °C, then compare it with its factory value.\n- If a core is out, find out why before you submit it. Rule out temperature and your connections first.\n\n**Rule of thumb:** copper changes about 0.4% per °C. So about 5 °C away from 20 °C uses up the whole 2%.\n\n**Rule of thumb:** on a DLRO10HD the 10 A range stops at 250 mΩ.[^8] A loop of about 340 mΩ goes on the 1 A range, which reads to 0.1 mΩ. The practice readings keep 0.01 mΩ for the working.\n\n**The range switch:** yellow marks the test current. Green ranges limit the output to 0.25 W. Red ranges can put up to 25 W into what you are testing.\n\n**Worked example:** take String B at 12 °C. Its practice readings are A = 339.31, B = 339.21 and C = 338.32 mΩ. L1 = (339.31 + 338.32 − 339.21) ÷ 2 = 169.21 mΩ. The factor is 1 + 0.00393 × (12 − 20) = 0.96856. So L1 at 20 °C is 169.21 ÷ 0.96856 = 174.70 mΩ. Its certificate says 174.70 mΩ, a deviation of 0.00%.\n\n**Common mistakes**\n- P probes clipped onto the C clamps instead of the core inside them. The clamps' contact resistance then joins the reading.\n- The wrong loop formula, or half a loop taken as one core.\n- A cold reading set against a 20 °C certificate.\n- Submitting a core that is out before finding why.\n- Lifting an earth without telling the far end."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "written": {
+   "b1": {
+    "q": "Explain why the P probes must sit inside the C clamps, facing each other.",
+    "points": [
+     {
+      "text": "Below 1 Ω, the resistance of the leads and of their contacts can swamp a two-wire reading.",
+      "cite": "Notes p.2; Keithley, two-wire and four-wire resistance measurements (research)"
+     },
+     {
+      "text": "The test current flows through the C leads, and the voltage is measured on the separate P leads.",
+      "cite": "Megger, Q&A on low resistance measurement (research)"
+     },
+     {
+      "text": "Almost no current flows in the P leads. So neither their resistance nor the P contacts' resistance affects the reading.",
+      "cite": "Megger, DLRO guide (research); Seaward, Kelvin bridges (research)"
+     },
+     {
+      "text": "The meter reads the resistance between the two P points.",
+      "cite": "Seaward, Kelvin bridges (research); notes p.2"
+     },
+     {
+      "text": "Placed inside the C clamps, facing each other, the P probes leave the clamps' contact resistance outside the measured stretch.",
+      "cite": "Notes p.2; Megger, DLRO guide: P contacts positioned towards each other (research)"
+     }
+    ],
+    "need": 3,
+    "model": "Below 1 Ω, the leads and their contacts can add as much resistance as the core itself. So a two-wire reading can be well out. A four-wire meter splits the jobs. The test current flows through the C leads, and the voltage is measured on the separate P leads. Almost no current flows in the P leads. So their resistance and their contacts' resistance drop almost no voltage. They do not affect the reading. The meter reads the resistance between the two P points. So the P probes go inside the C clamps, facing each other. Then only the core lies between them, and the C clamps' contact resistance is left outside."
+   }
+  },
+  "summary": {
+   "title": "Proving the conductors",
+   "for": "Phase ID, then proving each conductor and its joints end to end with a four-wire DLRO, against its factory value.",
+   "rule": "A = L1 + L2\nB = L2 + L3\nC = L1 + L3\nL1 = (A + C − B) ÷ 2\nL2 = (B + A − C) ÷ 2\nL3 = (C + B − A) ÷ 2\nCheck: L1 + L2 + L3\n= (A + B + C) ÷ 2\nR20 = Rt ÷ k\nk = 1 + 0.00393 × (t − 20)\nDeviation = (R20 − F) ÷ F × 100\nF is the factory value. Within 2% passes.\n\nFour wires: current through the C leads, voltage on the P leads.\nP probes inside the C clamps, facing each other.\nPhase ID: each core to the screen in turn, from both ends. Red L1, yellow L2, blue L3.\nAbout 5 °C away from 20 °C uses up the whole 2%.",
+   "traps": [
+    {
+     "text": "P probes clipped onto the C clamps, not the core inside them. The clamps' contact resistance joins the reading.",
+     "cite": "Notes p.2; Seaward, Kelvin bridges (research)"
+    },
+    {
+     "text": "Setting a cold reading against a 20 °C certificate. At 12 °C a core right on its certificate reads 3.14% low.",
+     "cite": "Notes p.3; NIST copper wire tables, 0.00393 per °C (research)"
+    },
+    {
+     "text": "The wrong loop formula, or half a loop taken as one core.",
+     "cite": "Notes p.3"
+    },
+    {
+     "text": "Submitting a core that is out before finding why.",
+     "cite": "Notes p.3"
+    },
+    {
+     "text": "Lifting an earth without telling the far end.",
+     "cite": "Notes p.2 (a technician at each end); notes p.3 (the link-and-earth sequence)"
+    }
+   ],
+   "where": "After phase ID and before the IR test. Have a technician at each end, and follow the link-and-earth sequence for each loop.",
+   "figures": [
+    "2a",
+    "2b",
+    "2c"
+   ]
+  },
+  "sources": [
+   {
+    "n": 1,
+    "title": "Your subsea cable testing course notes",
+    "url": "material:notes#p3",
+    "quote": "Measured resistance should be within 2% of factory values"
+   },
+   {
+    "n": 2,
+    "title": "[PDF] 9.1 Testing of High Voltage Apparatus - SSEN",
+    "url": "https://www.ssen.co.uk/globalassets/safety/s9/pr-net-osm-065.pdf",
+    "quote": "On three phase cables, each Conductor Shall be tested in turn using the screen as the return. Phase to phase continuity tests are not required."
+   },
+   {
+    "n": 3,
+    "title": "DLRO Guide Final2",
+    "url": "https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Documents/Megger/DLRO10/dlro10_doc_4.pdf",
+    "quote": "Since no current flows, the contact resistance of the P1 and P2 contacts produces no voltage and thus has no effect on the potential difference (voltage) detected by the probes. Furthermore, since no current flows through the P leads their resistance has no effect."
+   },
+   {
+    "n": 4,
+    "title": "Kelvin Bridges | Low Resistance Measurement | Seaward",
+    "url": "https://www.seaward.com/gb/support/resistance/faqs/76198-kelvin-bridges",
+    "quote": "The current wires must always be placed outside the potential although the exact placement is not critical. The potential wires must be connected exactly at the points you want to measure between. The measured value will be between the potential points."
+   },
+   {
+    "n": 5,
+    "title": "Copper wire tables",
+    "url": "https://nvlpubs.nist.gov/nistpubs/Legacy/hb/nbshandbook100.pdf",
+    "quote": "specified the temperature coefficient of standard copper to be 0.00393 at 20 °C"
+   },
+   {
+    "n": 6,
+    "title": "Your subsea cable testing course notes",
+    "url": "material:notes#p2",
+    "quote": "Low resistance is generally considered under 1 Ω"
+   },
+   {
+    "n": 7,
+    "title": "IEC 60228:2004 - IEC 60228:2004",
+    "url": "https://preview.sist.si/sist-preview/12024/921fee9a88c24612b68340a7330c2262/IEC-60228-2004.pdf",
+    "quote": "The resistance of each conductor at 20 °C, when determined in accordance with Clause 7, shall not exceed the appropriate maximum value given in Table 1."
+   },
+   {
+    "n": 8,
+    "title": "DLRO10HD 10 Amp Digital Low Resistance",
+    "url": "https://cdn.prod.website-files.com/6084b5020067e3fdada93f11/6458941f83dff086e0db661c_Megger%20DLRO10.pdf",
+    "quote": "10 A ** 0 - 250 mΩ 0.01 mΩ ±0.2% ±50 µΩ 2.5 V 25 W"
+   },
+   {
+    "n": 9,
+    "title": "DLRO10HD 10 Amp Digital Low Resistance",
+    "url": "https://cdn.prod.website-files.com/6084b5020067e3fdada93f11/6458941f83dff086e0db661c_Megger%20DLRO10.pdf",
+    "quote": "1 A** 0 - 2.5 Ω 0.1 mΩ ±0.2% ±200 µΩ 2.5 V 2.5 W"
+   },
+   {
+    "n": 10,
+    "title": "DLRO10_DLRO10X_DS_en_V10.qxp (Page 1)",
+    "url": "https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Documents/Megger/DLRO10HD/dlro10hd_doc_6.pdf",
+    "quote": "The yellow band contains the test current. The green ranges indicate ranges where the output power is limited to 0.25 W, and the red ranges indicate the high power ranges that will dissipate up to 25 W into the test piece."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  #prog .k-label, #prog .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .task > p + p, .why > p + p, .assume > p + p, .pre > p + p { margin-top: 10px; }\n  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }\n  .sub.ask { font-size: 1rem; font-weight: 700; color: var(--k-ink); }\n  .assume, .why, .pre { line-height: 1.6; }\n  .ctl { display: grid; gap: 12px; }\n  .warn-note .wh { font-weight: 700; }\n  .warn-note p + p { margin-top: 6px; }\n  .carry .k-cr { grid-template-columns: 2rem minmax(0, 1fr) 24px; }\n  .carry .k-cr-value { grid-column: 2; grid-row: 2; }\n  .sym { white-space: nowrap; }\n  .scene { display: block; width: 100%; }\n  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  #phase .lb, #phase .tk { font-size: 14px; }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .lbA { font: 700 13px var(--k-font); fill: var(--k-accent2); }\n  .scene .core { stroke: var(--k-strong); stroke-width: 5; stroke-linecap: round; }\n  .scene .scrn { stroke: var(--k-muted); stroke-width: 2; }\n  .scene .core.on, .scene .scrn.on, .scene .link { stroke: var(--k-accent2); }\n  .scene .scrn.on { stroke-width: 5; }\n  .scene .link { stroke-width: 5; stroke-linecap: round; }\n  .scene .tst { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .wire { stroke: var(--k-strong); stroke-width: 1.5; fill: none; }\n  .scene .cpath { stroke: var(--k-accent2); stroke-width: 5; fill: none; stroke-linejoin: round; }\n  .scene .plead { stroke: var(--k-muted); stroke-width: 2; fill: none; }\n  .scene .tip { fill: var(--k-muted); }\n  .scene .res { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .res.loop { fill: var(--k-fill1); stroke: var(--k-accent2); }\n  .scene .clamp { fill: var(--k-strong); }\n  .scene .meter { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .node { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .brk { stroke: var(--k-amber-line); stroke-width: 2.5; fill: none; }\n  .scene .chev { stroke: var(--k-bg); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .lc { stroke: var(--k-strong); stroke-width: 2.5; fill: none; stroke-linejoin: round; }\n  .scene .lit .lc { stroke: var(--k-accent2); stroke-width: 5; }\n  .scene .dim .lc { stroke: var(--k-muted); stroke-width: 2; }\n  .scene .le { stroke: var(--k-strong); stroke-width: 2; fill: none; }\n  .scene .dim .le { stroke: var(--k-muted); }\n  .scene .tdot { fill: var(--k-accent2); }\n  .scene .dim .tdot { fill: var(--k-muted); }\n  .scene .band { fill: var(--k-fill3); }\n  .scene .bar1 { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .bar2 { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene .bar2.out { stroke: var(--k-warn); stroke-width: 2.5; }\n  .scene .tube { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .merc { fill: var(--k-accent2); }\n  .scene .axis { stroke: var(--k-strong); stroke-width: 1.5; fill: none; }\n  .forms { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); }\n  .forms p { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.6; }\n  .forms .lt { padding: 0 3px; border-radius: 4px; }\n  .forms .lt.on { background: var(--k-hl); font-weight: 800; }\n  .corr { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.5; }\n  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }\n  .wl .line + .line, .wl .line + .sub, .wl .sub + .sub { margin-top: 10px; }\n  .w { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.5; }\n  .picks { display: flex; flex-direction: column; gap: 10px; }\n  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; justify-content: flex-start; padding: 10px 14px; }\n  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }\n  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }\n  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }\n  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }\n  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }\n  .fb > * + * { margin-top: 6px; }\n  .fb .v { font-weight: 700; font-size: 1.05rem; }\n  .fb.ok .v { color: var(--k-good); }\n  #stepbox.enter, .wl .line.enter, .fade { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing .wl .line.enter, html.k-testing .fade { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .line.enter, .fade { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <p class=\"k-label count\" id=\"count\"></p>\n  <div id=\"stepbox\">\n    <div id=\"scen\"></div>\n    <div class=\"carry\" id=\"carry2b\"></div>\n    <div class=\"carry\" id=\"carry2c\"></div>\n    <div class=\"pre\" id=\"pre\"></div>\n    <div class=\"task\" id=\"task\"></div>\n    <div class=\"warn-note\" id=\"warnFor\"></div>\n    <p class=\"k-label\" id=\"phHead\">Phase ID</p>\n    <div class=\"assume\" id=\"assume\"></div>\n    <p class=\"sub\" id=\"sub\"></p>\n\n    <div id=\"wrapP\"><svg class=\"scene\" id=\"phase\" viewBox=\"0 0 340 200\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"ctl\" id=\"ctlP\"></div>\n    <p class=\"say\" id=\"sayP\"></p>\n\n    <div id=\"wrapW\">\n      <svg class=\"scene\" id=\"wires\" viewBox=\"0 0 340 258\" width=\"100%\" role=\"img\" aria-label=\"\">\n        <rect class=\"meter\" x=\"96\" y=\"6\" width=\"148\" height=\"40\" rx=\"6\"/>\n        <text class=\"lb\" x=\"170\" y=\"22\" text-anchor=\"middle\">DLRO</text>\n        <text class=\"tk\" x=\"108\" y=\"39\" text-anchor=\"middle\">C1</text>\n        <text class=\"tk\" x=\"146\" y=\"39\" text-anchor=\"middle\">P1</text>\n        <text class=\"tk\" x=\"194\" y=\"39\" text-anchor=\"middle\">P2</text>\n        <text class=\"tk\" x=\"232\" y=\"39\" text-anchor=\"middle\">C2</text>\n        <path class=\"cpath\" d=\"M108 46V62H14V150H326V62H232V46\"/>\n        <g id=\"wchev\"></g>\n        <rect class=\"res\" x=\"20\" y=\"144\" width=\"42\" height=\"12\"/>\n        <rect class=\"clamp\" x=\"66\" y=\"140\" width=\"8\" height=\"20\" rx=\"1.5\"/>\n        <rect class=\"res\" x=\"78\" y=\"145\" width=\"24\" height=\"10\"/>\n        <rect class=\"res loop\" x=\"120\" y=\"142\" width=\"100\" height=\"16\"/>\n        <rect class=\"res\" x=\"238\" y=\"145\" width=\"24\" height=\"10\"/>\n        <rect class=\"clamp\" x=\"266\" y=\"140\" width=\"8\" height=\"20\" rx=\"1.5\"/>\n        <rect class=\"res\" x=\"278\" y=\"144\" width=\"42\" height=\"12\"/>\n        <circle class=\"node\" cx=\"108\" cy=\"46\" r=\"3.5\"/><circle class=\"node\" cx=\"146\" cy=\"46\" r=\"3.5\"/>\n        <circle class=\"node\" cx=\"194\" cy=\"46\" r=\"3.5\"/><circle class=\"node\" cx=\"232\" cy=\"46\" r=\"3.5\"/>\n        <g id=\"pleads\">\n          <path class=\"plead\" id=\"p1\" d=\"\"/><path class=\"tip\" id=\"t1\" d=\"\"/>\n          <path class=\"plead\" id=\"p2\" d=\"\"/><path class=\"tip\" id=\"t2\" d=\"\"/>\n          <text class=\"tk\" x=\"170\" y=\"104\" text-anchor=\"middle\">almost no current</text>\n        </g>\n        <text class=\"lb\" x=\"41\" y=\"178\" text-anchor=\"middle\">C lead</text>\n        <text class=\"lb\" x=\"90\" y=\"178\" text-anchor=\"middle\">contact</text>\n        <text class=\"lb\" x=\"170\" y=\"178\" text-anchor=\"middle\">Loop A</text>\n        <text class=\"lb\" x=\"250\" y=\"178\" text-anchor=\"middle\">contact</text>\n        <text class=\"lb\" x=\"299\" y=\"178\" text-anchor=\"middle\">C lead</text>\n        <text class=\"tk\" id=\"vL1\" x=\"41\" y=\"193\" text-anchor=\"middle\"></text>\n        <text class=\"tk\" id=\"vC1\" x=\"90\" y=\"193\" text-anchor=\"middle\"></text>\n        <text class=\"tk\" id=\"vLp\" x=\"170\" y=\"193\" text-anchor=\"middle\"></text>\n        <text class=\"tk\" id=\"vC2\" x=\"250\" y=\"193\" text-anchor=\"middle\"></text>\n        <text class=\"tk\" id=\"vL2\" x=\"299\" y=\"193\" text-anchor=\"middle\"></text>\n        <path class=\"brk\" id=\"brk\" d=\"\"/>\n        <text class=\"lb\" x=\"170\" y=\"226\" text-anchor=\"middle\">the meter measures across this</text>\n        <rect class=\"clamp\" x=\"8\" y=\"238\" width=\"7\" height=\"16\" rx=\"1.5\"/><text class=\"tk\" x=\"21\" y=\"250\">C clamp</text>\n        <path class=\"tip\" d=\"M86 240H96L91 249Z\"/><text class=\"tk\" x=\"102\" y=\"250\">P probe</text>\n        <path class=\"cpath\" d=\"M168 246H198\"/><path class=\"chev\" d=\"M181.5 243L185.5 246L181.5 249\"/><text class=\"tk\" x=\"206\" y=\"250\">Test current</text>\n      </svg>\n    </div>\n    <p class=\"sub\" id=\"noteW\"></p>\n    <div class=\"ctl\" id=\"ctlW\"></div>\n    <div class=\"k-readouts\" id=\"outsW\"></div>\n    <p class=\"say\" id=\"sayW\"></p>\n    <p class=\"why\" id=\"underW\"></p>\n\n    <div id=\"wrapL\"><svg class=\"scene\" id=\"loops\" viewBox=\"0 0 340 248\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <p class=\"sub\" id=\"noteL\"></p>\n    <div class=\"ctl\" id=\"ctlL\"></div>\n    <div class=\"forms\" id=\"forms\"></div>\n    <p class=\"say\" id=\"sayL\"></p>\n\n    <div id=\"wrapT\"><svg class=\"scene\" id=\"cold\" viewBox=\"0 0 340 192\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <p class=\"sub\" id=\"noteT\"></p>\n    <div class=\"ctl\" id=\"ctlT\"></div>\n    <div class=\"k-readouts\" id=\"outsT\"></div>\n    <p class=\"say\" id=\"sayT\"></p>\n    <div class=\"warn-note\" id=\"warnT\"></div>\n    <p class=\"corr\" id=\"corrT\"></p>\n\n    <div id=\"worked\"></div>\n    <div class=\"row\" id=\"workedgo\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div id=\"ans-2a\"></div>\n    <div id=\"ans-2b\"></div>\n    <div id=\"ans-2c\"></div>\n    <div id=\"ans-ch\"></div>\n    <div class=\"row\" id=\"acts\"></div>\n    <div class=\"fb\" id=\"fb\" aria-live=\"polite\"></div>\n    <div class=\"note why\" id=\"after\"></div>\n    <div class=\"row\" id=\"go\"></div>\n    <div id=\"wr1\"></div>\n    <div id=\"keep\"></div>\n    <div class=\"row\" id=\"fin\"></div>\n    <p class=\"say\" id=\"donefb\"></p>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\">Each line is worked from the rounded figures shown before it.</p>\n\n<script>\n  // ---------- rounding, helpers and the course's figures ----------\n  const r2 = (x) => Math.round(x * 100 + 1e-7) / 100;\n  const r3 = (x) => Math.round(x * 1000 + 1e-6) / 1000;\n  const f2 = (x) => r2(x).toFixed(2);\n  const F = (id) => K.figure(id);\n  const el = (id) => document.getElementById(id);\n  const NB = ' ';\n  // Non-breaking spaces: before an operator, and between a number and its unit.\n  const nb = (s) => String(s == null ? '' : s)\n    .replace(/ ([×÷+=−]) /g, NB + '$1 ')\n    .replace(/(\\d) (?=(?:mΩ|°C|km|Ω|m)(?![A-Za-z]))/g, '$1' + NB);\n  const vis = (e, on) => { if (on) e.removeAttribute('display'); else e.setAttribute('display', 'none'); };\n  function txt(parent, x, y, s, cls, anchor) {\n    const t = parent.appendChild(K.svg('text', { x: x, y: y, class: cls || 'lb', 'text-anchor': anchor || 'start' }));\n    t.textContent = s;\n    return t;\n  }\n\n  const fA = F('n.wexA'), fB = F('n.wexB'), fC = F('n.wexC');\n  const fRec = F('l2.recall'), fS1 = F('l2.recall.slip1'), fS2 = F('l2.recall.slip2');\n  const fW2 = F('l2.wex.L2'), fW3 = F('l2.wex.L3'), fWk = F('l2.wex.check'), fG1 = F('l2.wex.gap1'), fG2 = F('l2.wex.gap2');\n  const fLA = F('p.loopA'), fLB = F('p.loopB'), fLC = F('p.loopC');\n  const LOOP = fLA.value, LEAD = F('p.leadR').value, CONT = F('p.contactR').value;\n  const fTwo = F('l2.twoWire'), fTwoP = F('l2.twoWire.pct'), fOn = F('l2.onClamps'), fOnP = F('l2.onClamps.pct');\n  const LOWR = F('n.lowR').value, TOL = F('n.tol').value, fLen = F('p.len');\n  const fF1 = F('p.fac1'), fF2 = F('p.fac2'), fF3 = F('p.fac3'), TEMP = F('p.temp').value, FAC1 = fF1.value;\n  const fK = F('l2.k'), fCold = F('l2.cold.L1'), fColdP = F('l2.cold.pct'), fBand = F('l2.band');\n  const f2a = F('2a'), f2b = F('2b'), f2c = F('2c'), fL1 = F('l2.L1'), fL3 = F('l2.L3');\n  const fChg = F('l2.changed'), fChgK = F('l2.changed.check');\n  const UNIT_R = f2a.unit;\n  const ALPHA = 0.00393, ALPHA_ROUND = 0.004;\n  // The changed-numbers cable's loops, practice values.\n  const CH = { A: 120.40, B: 121.10, C: 120.90 };\n  const P_SHORT = 5, P_LONG = 30;\n\n  // The rules.\n  const MEAS = ['Two wires', 'P on the C clamps', 'P inside the C clamps'];\n  const mi = (v) => K.clamp(Math.round(+v || 0), 0, 2);\n  const tv = (v) => { const t = Math.round(+v); return isFinite(t) ? K.clamp(t, 4, 30) : 20; };\n  const meterAt = (m) => r2(LOOP + (m === 0 ? 2 * LEAD : 0) + (m <= 1 ? 2 * CONT : 0));\n  const aboveAt = (m) => r2((meterAt(m) - LOOP) / LOOP * 100);\n  const kAt = (t) => 1 + ALPHA * (t - 20);\n  const k5 = (t) => Math.round(kAt(t) * 1e5) / 1e5;\n  const readAt = (t) => r2(FAC1 * kAt(t));\n  const devAt = (t) => r2(ALPHA * 100 * (t - 20));\n  const L1of = (a, b, c) => (a + c - b) / 2, L2of = (a, b, c) => (b + a - c) / 2, L3of = (a, b, c) => (c + b - a) / 2;\n  const contAt = (far, core) => far === core;\n\n  // ---------- the lesson's words ----------\n  const R_TASK = 'Three loop readings on one cable: L1 to L2, A = ' + fA.text + '. L2 to L3, B = ' + fB.text + '. L3 to L1, C = ' + fC.text + '. What is L1?';\n  const R_WORK = 'L1 = (A + C − B) ÷ 2 = ' + fRec.work;\n  const R_SLIPS = fS1.text + \" comes from L2's formula, and \" + fS2.text + ' is half of loop A.';\n  const R_W1 = \"That comes from L2's formula, (B + A − C) ÷ 2. For L1, add A and C, the two loops that hold L1, then take away B.\";\n  const R_W3 = 'That is half of loop A. It is right only if L1 and L2 are equal. Use all three loops.';\n  const FOR_TEXT = 'Phase ID makes sure L1, L2 and L3 are identified, labelled and terminated in the right order. Core resistance proves each conductor end to end, its joints and terminations included. Corrected to 20 °C, each core should be within ' + TOL + '% of its factory value.';\n  const ASSUME = 'Assume this order. Every core starts earthed at both ends, with a technician at each end. Each core is tested in turn to the screen, from both ends.\\n\\n'\n    + 'The far end keeps one core joined to the screen. Under control, it lifts the other two earths. Your end lifts its earths and tests each core to the screen. Only the joined core reads continuity. Then the earths go back on. The two ends then swap jobs and repeat.\\n\\n'\n    + 'The colours are red L1, yellow L2 and blue L3.';\n  const WARN_FOR = 'Phases terminated in the wrong order can give a short when the cable is energised. A poor joint or termination goes unseen.';\n  const PCOL = ['red', 'yellow', 'blue'];\n  const PH_READ = 'With L1 joined to the screen at B01, only L1 reads continuity at the OSS. So the core marked red at one end is the core marked red at the other.';\n  const WHY_TEXT = 'Low resistance usually means under ' + LOWR + ' Ω. Down there, the test leads and their contacts can add a big share of what you read.\\n\\n'\n    + \"A meter works out resistance as the voltage it sees divided by the current it sends. On two wires, the same leads do both jobs. The current runs through each lead and each contact, and each drops a little voltage. The meter adds those drops to the core's own.\\n\\n\"\n    + 'Four wires split the jobs. The C leads carry the current, but the meter does not measure across them. The meter measures the voltage on the P leads, but almost no current flows in them. So neither the P leads nor their contacts drop any voltage worth counting. The reading is whatever carries the current between the two P points.';\n  const NOTE_W = 'Loop A of String B is two cores linked at B01, drawn as one resistor. The loop, lead and contact values are practice values.';\n  const UNDER_W = 'P on the C clamps still reads ' + fOnP.text + ' high. That is far more than the ' + TOL + '% a core is allowed.';\n  const WHY_READ = 'Two wires read ' + fTwo.text + ', ' + fTwoP.text + ' high. Both leads and both contacts carry the current inside the measured stretch. '\n    + 'P probes clipped on the C clamps leave the leads out, but the contacts still add ' + fOnP.text + '. P probes inside the C clamps, facing each other, read the loop alone: ' + fLA.text + '.';\n  const C_TASK = 'You measure loop A, ' + fLA.text + ', with four wires. Then you swap all four ' + P_SHORT + ' m leads for ' + P_LONG + ' m ones, so the meter can sit further back. What does the reading do?';\n  const C_O1 = 'It rises by the extra lead resistance', C_O2 = 'It stays at ' + fLA.text, C_O3 = 'It rises by the extra C lead resistance only';\n  const C_RIGHT = 'Almost no current flows in the P leads, so ' + P_LONG + ' m of P lead drops almost no voltage. The C leads carry the current, but the meter does not measure across them. So the reading holds.';\n  const C_W1 = 'That is a two-wire meter. The P leads carry almost no current, and the meter does not measure across the C leads.';\n  const C_W3 = 'The C leads carry the current, but the meter does not measure across them. So their extra length does not join the reading.';\n  const LOOP_TEXT = 'Your leads cannot reach both ends of a ' + fLen.text + ' core. So the far end links two cores, and you read the loop they make. Each loop is two cores in series: A = L1 + L2, B = L2 + L3 and C = L1 + L3.\\n\\n'\n    + 'Add A and C, and you have L1 twice, plus L2 and L3 once each. Take B away, and L2 and L3 cancel. So L1 = (A + C − B) ÷ 2. L2 = (B + A − C) ÷ 2 and L3 = (C + B − A) ÷ 2 follow the same way.\\n\\n'\n    + 'Add all three loops and every core appears twice. So A + B + C = 2 × (L1 + L2 + L3), a quick check on your sums.\\n\\n'\n    + 'The link at B01 and its contacts sit between your P points in every loop. Four wires at the OSS cannot leave them out. So each core you work out carries half the link. Fit it short, firm and clean.';\n  const NOTE_L = \"String B's \" + fLen.text + ' is a practice value.';\n  const LOOP_READ = 'Loop A links L1 and L2 at B01, so it reads L1 + L2. Loop B reads L2 + L3, and loop C reads L1 + L3. So L1 = (A + C − B) ÷ 2, L2 = (B + A − C) ÷ 2 and L3 = (C + B − A) ÷ 2. With the worked example\\'s readings, A + B + C = ' + f2(fA.value + fB.value + fC.value) + ' ' + fA.unit + ', twice the three cores together.';\n  const wkLoops = 'A = ' + f2(fA.value) + ', B = ' + f2(fB.value) + ' and C = ' + f2(fC.value) + ' ' + fA.unit;\n  const chkAt = fWk.work.indexOf(fWk.text);\n  const WK4a = fWk.work.slice(0, chkAt + fWk.text.length);\n  const WK4b = fWk.work.slice(chkAt + fWk.text.length).replace(/^\\s*=\\s*/, '') + ' = ' + fWk.text;\n  const WL = [\n    { w: 'L1 = ' + fRec.work + '.' },\n    { w: 'L2 = ' + fW2.work + '.' },\n    { w: 'L3 = ' + fW3.work + '.' },\n    { w: 'Check: ' + WK4a + '.', w2: 'And ' + WK4b + '.' },\n  ];\n  const WK_NOTE = 'Name each result by its core, never by a loop letter.';\n  const WK_GAP = 'L3 reads ' + fG1.text + ' above L1 and ' + fG2.text + ' above L2. Three cores of one cable have the same size and length, so they should read close together. Find out why before you submit a gap like this.';\n  const WK_READ = 'The loops read ' + wkLoops + '. L1 = ' + fRec.text + ', L2 = ' + fW2.text + ' and L3 = ' + fW3.text + '. They add to ' + fWk.text + ', half of A + B + C. '\n    + 'L3 sits ' + fG1.text + ' above L1 and ' + fG2.text + ' above L2. Explain a gap like that before you submit.';\n  const COLD_TEXT = \"Copper's resistance rises as it warms, by \" + ALPHA + ' of its 20 °C value for each degree. That is about ' + (ALPHA_ROUND * 100) + '% per °C. Factory values are given at 20 °C. So a cable on the seabed at ' + TEMP + ' °C reads low, even when it is sound.\\n\\n'\n    + 'Correct the reading to 20 °C before you compare it: R20 = R_t ÷ (1 + ' + ALPHA + ' × (t − 20)).';\n  const NOTE_T = \"L1's certificate value, \" + fF1.text + ', is a practice value.';\n  const COLD_READ = \"L1's factory value is \" + fF1.text + ' at 20 °C. At ' + TEMP + ' °C the same sound core reads ' + fCold.text + ', ' + f2(Math.abs(fColdP.value)) + '% low and outside ' + TOL + '%. '\n    + 'Divide by 1 + ' + ALPHA + ' × (' + TEMP + ' − 20) = ' + fK.text + ' and it is back to ' + fF1.text + '. About ' + Math.round(fBand.value) + ' °C either side of 20 °C uses up the whole ' + TOL + '%.';\n  const TEST_TEXT = 'String B is at ' + TEMP + ' °C. Your end is the OSS. Each pair is linked at B01 in turn, and the DLRO reads: L1 to L2, A = ' + fLA.text + '. L2 to L3, B = ' + fLB.text + '. L1 to L3, C = ' + fLC.text + '. These are practice values, kept to 0.01 mΩ for the working.';\n  const Q2A = '(a) Determine the resistance of core L2 at ' + TEMP + ' °C.';\n  const CERT_TEXT = 'The factory certificate gives each core at 20 °C: L1 ' + f2(fF1.value) + ', L2 ' + f2(fF2.value) + ' and L3 ' + f2(fF3.value) + ' ' + fF1.unit + '. These are practice values. '\n    + \"Take copper's coefficient as \" + ALPHA + ' per °C.';\n  const Q2B = \"(b) Determine L2's resistance corrected to 20 °C.\";\n  const Q2C = \"(c) Determine L2's deviation from its factory value of \" + fF2.text + ', as a percentage.';\n  const Q_CH = 'Another three-core cable is read at 20 °C, so no correction is needed. Its loops: L1 to L2, A = ' + f2(CH.A) + ' mΩ. L2 to L3, B = ' + f2(CH.B) + ' mΩ. L1 to L3, C = ' + f2(CH.C) + ' mΩ. Determine the resistance of core L3.';\n  const CH_SUM = r2(CH.C + CH.B - CH.A);\n  const CH_WORK = 'L3 = (C + B − A) ÷ 2 = (' + f2(CH.C) + ' + ' + f2(CH.B) + ' − ' + f2(CH.A) + ') ÷ 2 = ' + f2(CH_SUM) + ' ÷ 2 = ' + fChg.text;\n  const CH_L2 = r2(L2of(CH.A, CH.B, CH.C));\n  const W2C = f2c.work.split(', ')[0];\n\n  let lines = 0, lastStep = -1, finished = false;\n  const STEPS = [\n    { name: 'Do you still have it?', label: 'Do you still have it?', task: R_TASK, opts: [fS1.text, fRec.text, fS2.text], want: fRec.text,\n      why: 'Each loop is two cores in series. ' + R_WORK + '. ' + R_SLIPS },\n    { show: true, name: 'What it is for', label: 'What it is for', text: FOR_TEXT, terms: ['Phase ID', 'Core resistance'], read: FOR_TEXT + ' ' + PH_READ,\n      still: { far: 'L1' } },\n    { show: true, name: 'The why', label: 'The why: four wires', text: WHY_TEXT, terms: ['C leads', 'P leads'], read: WHY_READ, still: { meas: 2 } },\n    { name: 'Check', label: 'Check', task: C_TASK, opts: [C_O1, C_O2, C_O3], want: C_O2, why: C_RIGHT },\n    { show: true, name: 'Three loops, three cores', label: 'Three loops, three cores', text: LOOP_TEXT, terms: ['two cores in series'], read: LOOP_READ, still: { loop: 3 } },\n    { show: true, name: 'Worked example', label: 'Worked example: three loops', text: '', read: WK_READ,\n      still: () => { lines = WL.length; K.refresh(); } },\n    { show: true, name: 'A cold cable reads low', label: 'A cold cable reads low', text: COLD_TEXT, terms: ['Correct the reading to 20 °C'], read: COLD_READ, still: { temp: TEMP } },\n    { name: 'Section A 2(a)', label: 'Section A · Question 2', pre: TEST_TEXT, part: Q2A, task: TEST_TEXT + ' ' + Q2A, want: f2a.text, why: 'L2 = (B + A − C) ÷ 2 = ' + f2a.work + '.' },\n    { name: 'Section A 2(b)', label: 'Section A · Question 2', pre: CERT_TEXT, part: Q2B, task: CERT_TEXT + ' ' + Q2B, want: f2b.text, why: fK.work + '. R20 = ' + f2b.work + '.' },\n    { name: 'Section A 2(c)', label: 'Section A · Question 2', part: Q2C, task: Q2C, want: f2c.text, why: W2C + '. That is inside ' + TOL + '%, so it is acceptable.' },\n    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },\n    { name: 'Changed numbers', label: 'Section A · Changed numbers', part: Q_CH, task: Q_CH, want: fChg.text, why: CH_WORK + '.' },\n    { kind: 'summary', name: 'Keep this', label: 'Keep this' },\n  ];\n  const iR = 0, iFor = 1, iWhy = 2, iChk = 3, iLp = 4, iWk = 5, iCold = 6, i2A = 7, i2B = 8, i2C = 9, iB1 = 10, iCh = 11, iK = 12;\n  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, fb: null }));\n  const WORKING = [iWk, i2A, i2B, i2C, iCh];\n\n  // Words with key terms in amber (the <mark> element) and R20 / R_t with subscripts, built with\n  // K.el, never innerHTML.\n  function addText(node, s) {\n    String(s).split(/(R20|R_t)/).forEach((part) => {\n      if (part === 'R20') node.appendChild(K.el('span', { class: 'sym' }, 'R', K.el('sub', null, '20')));\n      else if (part === 'R_t') node.appendChild(K.el('span', { class: 'sym' }, 'R', K.el('sub', null, 't')));\n      else if (part) node.appendChild(document.createTextNode(nb(part)));\n    });\n  }\n  function write(node, s, terms) {\n    node.textContent = '';\n    let rest = String(s || '');\n    const list = (terms || []).slice();\n    while (rest) {\n      let at0 = -1, hit = null;\n      list.forEach((t) => { const k = rest.indexOf(t); if (k >= 0 && (at0 < 0 || k < at0)) { at0 = k; hit = t; } });\n      if (at0 < 0) { addText(node, rest); break; }\n      if (at0 > 0) addText(node, rest.slice(0, at0));\n      node.appendChild(K.el('mark', null, nb(hit)));\n      list.splice(list.indexOf(hit), 1);\n      rest = rest.slice(at0 + hit.length);\n    }\n    return node;\n  }\n  function paras(node, s, terms) {\n    node.textContent = '';\n    String(s || '').split('\\n\\n').forEach((t) => { if (t) node.appendChild(write(K.el('p'), t, terms)); });\n  }\n\n  // ---------- controls and readouts ----------\n  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  K.choice({ id: 'far', label: 'Far end joins', options: ['L1', 'L2', 'L3'], value: 'L1', into: '#ctlP' });\n  K.stepper({ id: 'meas', label: 'Measure with', steps: MEAS, value: 0, compact: true, into: '#ctlW' });\n  K.readout({ id: 'meter', label: 'Meter reads', unit: 'mΩ', decimals: 2, into: '#outsW' });\n  K.readout({ id: 'above', label: 'Above the loop', unit: '%', decimals: 2, into: '#outsW' });\n  K.stepper({ id: 'loop', label: 'Loop', steps: ['A is L1 to L2', 'B is L2 to L3', 'C is L3 to L1', 'All three'], value: 0, compact: true, into: '#ctlL' });\n  K.control({ id: 'temp', label: 'Cable temperature', min: 4, max: 30, step: 1, value: 20, unit: '°C', snap: [TEMP], into: '#ctlT' });\n  K.readout({ id: 'rd', label: 'DLRO reads', unit: 'mΩ', decimals: 2, into: '#outsT' });\n  K.readout({ id: 'dev', label: 'Against the certificate', fmt: (v) => (v > 0 ? '+' : '') + K.fmt(v, { decimals: 2 }) + '%', into: '#outsT' });\n\n  K.model((p) => {\n    const m = mi(p.meas), t = tv(p.temp);\n    return { meter: meterAt(m), above: aboveAt(m), rd: readAt(t), dev: devAt(t) };\n  });\n\n  // ---------- flowing current: chevrons along a path ----------\n  function pathLen(pts) { let L = 0; for (let i = 1; i < pts.length; i++) L += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); return L; }\n  function pointOn(pts, d) {\n    for (let i = 1; i < pts.length; i++) {\n      const dx = pts[i][0] - pts[i - 1][0], dy = pts[i][1] - pts[i - 1][1], s = Math.hypot(dx, dy);\n      if (d <= s || i === pts.length - 1) { const q = s ? Math.min(d, s) / s : 0; return [pts[i - 1][0] + dx * q, pts[i - 1][1] + dy * q, Math.atan2(dy, dx) * 180 / Math.PI]; }\n      d -= s;\n    }\n    return [pts[0][0], pts[0][1], 0];\n  }\n  function chevrons(pool, group, pts, phase, skip) {\n    const L = pathLen(pts), gap = 18, n = Math.floor(L / gap);\n    let used = 0;\n    for (let k = 0; k < n; k++) {\n      const d = (phase + k * gap) % L;\n      if (d < 5 || d > L - 5) continue;\n      const pt = pointOn(pts, d);\n      if (skip && skip(pt[0], pt[1])) continue;\n      let c = pool[used];\n      if (!c) { c = group.appendChild(K.svg('path', { class: 'chev', d: 'M-2.5 -3L1.5 0L-2.5 3' })); pool.push(c); }\n      c.setAttribute('transform', 'translate(' + pt[0].toFixed(1) + ' ' + pt[1].toFixed(1) + ') rotate(' + Math.round(pt[2]) + ')');\n      vis(c, true);\n      used += 1;\n    }\n    for (let k = used; k < pool.length; k++) vis(pool[k], false);\n  }\n  let flowT = 0, flowLeft = 0, flowKey = '';\n  const FLOW_RUN = 4, FLOW_V = 20;\n\n  // ---------- phase ID: three cores, OSS on the left, B01 on the right ----------\n  const PY = [44, 96, 148], PX0 = 116, PX1 = 288;\n  const phEl = el('phase');\n  txt(phEl, 8, 16, 'OSS, your end');\n  txt(phEl, 332, 16, 'B01, far end', 'lb', 'end');\n  const PR = PY.map((y, k) => {\n    const g = phEl.appendChild(K.svg('g'));\n    const core = g.appendChild(K.svg('line', { class: 'core', x1: PX0, y1: y, x2: PX1, y2: y }));\n    const scr = g.appendChild(K.svg('line', { class: 'scrn', x1: PX0, y1: y + 12, x2: PX1, y2: y + 12 }));\n    g.appendChild(K.svg('path', { class: 'wire', d: 'M105 ' + (y + 2) + 'L' + PX0 + ' ' + y + 'M105 ' + (y + 10) + 'L' + PX0 + ' ' + (y + 12) }));\n    g.appendChild(K.svg('circle', { class: 'tst', cx: 98, cy: y + 6, r: 9 }));\n    txt(g, 98, y + 10.5, 'Ω', 'tk', 'middle');\n    txt(g, 8, y + 4, 'L' + (k + 1) + ', ' + PCOL[k]);\n    const rt = txt(g, 8, y + 22, '', 'tk');\n    const link = g.appendChild(K.svg('line', { class: 'link', x1: PX1, y1: y, x2: PX1, y2: y + 12 }));\n    const jl = txt(g, PX1 + 6, y + 10.5, 'joined', 'tk');\n    const ch = g.appendChild(K.svg('g'));\n    return { core, scr, rt, link, jl, ch, pool: [], pts: [[PX0, y], [PX1, y], [PX1, y + 12], [PX0, y + 12]] };\n  });\n  (function key() {\n    phEl.appendChild(K.svg('line', { class: 'core', x1: 10, y1: 190, x2: 26, y2: 190 })); txt(phEl, 32, 194.5, 'Core', 'tk');\n    phEl.appendChild(K.svg('line', { class: 'scrn', x1: 76, y1: 190, x2: 92, y2: 190 })); txt(phEl, 98, 194.5, 'Screen', 'tk');\n    phEl.appendChild(K.svg('circle', { class: 'tst', cx: 164, cy: 190, r: 8 })); txt(phEl, 164, 194.5, 'Ω', 'tk', 'middle');\n    txt(phEl, 178, 194.5, 'Continuity tester', 'tk');\n  })();\n  const farIdx = (p) => Math.max(0, ['L1', 'L2', 'L3'].indexOf(p.far));\n  function drawPhase(p) {\n    const j = farIdx(p);\n    PR.forEach((r, k) => {\n      const on = contAt(j, k);\n      r.core.setAttribute('class', 'core' + (on ? ' on' : ''));\n      r.scr.setAttribute('class', 'scrn' + (on ? ' on' : ''));\n      vis(r.link, on); vis(r.jl, on);\n      r.rt.textContent = on ? 'continuity' : 'open';\n      r.rt.setAttribute('class', on ? 'lbA' : 'tk');\n      if (on) chevrons(r.pool, r.ch, r.pts, flowT * FLOW_V); else r.pool.forEach((c) => vis(c, false));\n    });\n    const L = 'L' + (j + 1), others = ['L1', 'L2', 'L3'].filter((x) => x !== L).join(' and ');\n    el('sayP').textContent = nb('With ' + L + ' joined to the screen at B01, only ' + L + ' reads continuity at the OSS. ' + others + ' read open. So the core marked '\n      + PCOL[j] + ' at the OSS is the core marked ' + PCOL[j] + ' at B01.');\n    phEl.setAttribute('aria-label', 'Three cores, each with its screen, from the OSS on the left to B01 on the right. At B01, ' + L + ' is joined to its screen. At the OSS, '\n      + L + ' reads continuity and ' + others + ' read open.');\n  }\n\n  // ---------- the why: two wires, then four ----------\n  const wiresEl = el('wires');\n  el('vL1').textContent = el('vL2').textContent = nb(LEAD + ' mΩ');\n  el('vC1').textContent = el('vC2').textContent = nb(CONT + ' mΩ');\n  el('vLp').textContent = nb(fLA.text);\n  const W_PTS = [[108, 46], [108, 62], [14, 62], [14, 150], [326, 150], [326, 62], [232, 62], [232, 46]];\n  const W_BLOCK = [[16, 66], [62, 78], [74, 106], [116, 224], [234, 266], [262, 278], [274, 324]];\n  const wSkip = (x, y) => Math.abs(y - 150) < 1 && W_BLOCK.some((b) => x >= b[0] && x <= b[1]);\n  const wPool = [];\n  // Where the P probes touch: on the C clamps, or on the core inside them.\n  const P_AT = [null, [[70, 140], [270, 140]], [[110, 147], [230, 147]]];\n  function drawWires(p) {\n    const m = mi(p.meas);\n    vis(el('pleads'), m > 0);\n    let x1 = 14, x2 = 326;\n    if (m > 0) {\n      const a = P_AT[m][0], b = P_AT[m][1];\n      el('p1').setAttribute('d', 'M146 46V80H' + a[0] + 'V' + (a[1] - 8));\n      el('p2').setAttribute('d', 'M194 46V80H' + b[0] + 'V' + (b[1] - 8));\n      el('t1').setAttribute('d', 'M' + (a[0] - 5) + ' ' + (a[1] - 8) + 'H' + (a[0] + 5) + 'L' + a[0] + ' ' + a[1] + 'Z');\n      el('t2').setAttribute('d', 'M' + (b[0] - 5) + ' ' + (b[1] - 8) + 'H' + (b[0] + 5) + 'L' + b[0] + ' ' + b[1] + 'Z');\n      x1 = a[0]; x2 = b[0];\n    }\n    el('brk').setAttribute('d', 'M' + x1 + ' 200V212M' + x1 + ' 206H' + x2 + 'M' + x2 + ' 200V212');\n    chevrons(wPool, el('wchev'), W_PTS, flowT * FLOW_V, wSkip);\n    const rd = f2(meterAt(m)) + ' mΩ', up = f2(aboveAt(m)) + '%';\n    el('sayW').textContent = nb(m === 0\n      ? 'On two wires, both leads and both contacts carry the current inside the measured stretch. So the meter reads ' + rd + ', ' + up + ' above the loop.'\n      : m === 1 ? 'With the P probes on the C clamps, the leads drop out. The two contacts still carry the current inside the measured stretch, so it reads ' + rd + ', ' + up + ' high.'\n      : 'With the P probes inside the C clamps, facing each other, only the loop carries current between them. The meter reads the loop alone, ' + rd + '.');\n    wiresEl.setAttribute('aria-label', 'A DLRO with terminals C1, P1, P2 and C2. The test current runs from C1 through a C lead, a C clamp and its contact, the loop, then the other contact, clamp and lead to C2. '\n      + (m === 0 ? 'Two wires: the meter measures across both leads, both contacts and the loop.'\n        : m === 1 ? 'The P probes sit on the C clamps, so the meter measures across both contacts and the loop.'\n        : 'The P probes sit on the core inside the C clamps, so the meter measures across the loop alone.'));\n  }\n\n  // ---------- three loops, three cores ----------\n  const LOOPS = [[0, 1], [1, 2], [0, 2]], LNAME = [['A', 'L1 + L2', fA], ['B', 'L2 + L3', fB], ['C', 'L1 + L3', fC]].map((x) => nb('Loop ' + x[0] + ': ' + x[1] + ' = ' + x[2].text)), LETTER = ['A', 'B', 'C'];\n  const lpEl = el('loops');\n  txt(lpEl, 48, 14, 'OSS', 'lb', 'middle');\n  txt(lpEl, 297, 14, 'B01', 'lb', 'middle');\n  const LR = LOOPS.map((pair, r) => {\n    const top = 24 + r * 76, ys = [top + 28, top + 44, top + 60];\n    const g = lpEl.appendChild(K.svg('g', { class: 'lrow' }));\n    const name = txt(g, 8, top + 12, LNAME[r]);\n    ys.forEach((y, k) => {\n      txt(g, 8, y + 4.5, 'L' + (k + 1), 'tk');\n      if (pair.indexOf(k) >= 0) {\n        g.appendChild(K.svg('line', { class: 'lc', x1: 48, y1: y, x2: 290, y2: y }));\n        g.appendChild(K.svg('circle', { class: 'tdot', cx: 48, cy: y, r: 3.5 }));\n      } else {\n        g.appendChild(K.svg('path', { class: 'le', d: 'M48 ' + y + 'H280M48 ' + y + 'H44M44 ' + (y - 6) + 'V' + (y + 6) + 'M40 ' + (y - 4) + 'V' + (y + 4) + 'M36 ' + (y - 2) + 'V' + (y + 2)\n          + 'M280 ' + y + 'H284M284 ' + (y - 6) + 'V' + (y + 6) + 'M288 ' + (y - 4) + 'V' + (y + 4) + 'M292 ' + (y - 2) + 'V' + (y + 2) }));\n      }\n    });\n    const ya = ys[pair[0]], yb = ys[pair[1]];\n    g.appendChild(K.svg('path', { class: 'lc', d: 'M290 ' + ya + 'H304V' + yb + 'H290' }));\n    const ch = g.appendChild(K.svg('g'));\n    return { g, name, ch, pool: [], pts: [[48, ya], [290, ya], [304, ya], [304, yb], [290, yb], [48, yb]] };\n  });\n  const FORMS = ['L1 = (A + C − B) ÷ 2', 'L2 = (B + A − C) ÷ 2', 'L3 = (C + B − A) ÷ 2'];\n  const formLetters = [];\n  FORMS.forEach((f) => {\n    const p = K.el('p');\n    f.split(/\\b([ABC])\\b/).forEach((part) => {\n      if (part === 'A' || part === 'B' || part === 'C') { const s = K.el('span', { class: 'lt' }, part); s.dataset.l = part; formLetters.push(s); p.appendChild(s); }\n      else if (part) p.appendChild(document.createTextNode(nb(part)));\n    });\n    el('forms').appendChild(p);\n  });\n  function drawLoops(p) {\n    const s = K.clamp(Math.round(+p.loop || 0), 0, 3);\n    LR.forEach((r, k) => {\n      const lit = s === 3 || s === k;\n      r.g.setAttribute('class', 'lrow ' + (lit ? 'lit' : 'dim'));\n      r.name.setAttribute('class', lit ? 'lb' : 'tk');\n      if (lit) chevrons(r.pool, r.ch, r.pts, flowT * FLOW_V); else r.pool.forEach((c) => vis(c, false));\n    });\n    formLetters.forEach((sp) => sp.classList.toggle('on', s === 3 || sp.dataset.l === LETTER[s]));\n    const SAY = [\n      'Loop A: the far end links L1 and L2 at B01. The current goes out on L1 and back on L2, so the meter reads L1 + L2. L3 stays earthed at both ends.',\n      'Loop B: the far end links L2 and L3 at B01. The current goes out on L2 and back on L3, so the meter reads L2 + L3. L1 stays earthed at both ends.',\n      'Loop C: the far end links L1 and L3 at B01. The current goes out on L1 and back on L3, so the meter reads L1 + L3. L2 stays earthed at both ends.',\n      'Each loop holds two cores, and each core sits in two loops. So A + B + C counts every core twice: ' + f2(fA.value + fB.value + fC.value) + ' ' + fA.unit + ' is twice the three cores together.',\n    ];\n    el('sayL').textContent = nb(SAY[s]);\n    lpEl.setAttribute('aria-label', 'Three loop tests, one row each, with the cores running from the OSS on the left to B01 on the right. '\n      + (s === 3 ? 'All three loops are lit: A is L1 + L2, B is L2 + L3 and C is L1 + L3.' : LNAME[s] + ' is lit, its two cores linked at B01 and the third core earthed at both ends.'));\n  }\n\n  // ---------- a cold cable reads low ----------\n  const coldEl = el('cold');\n  const TX0 = 92, TX1 = 326, TLO = 160, THI = 185;\n  const txs = (v) => TX0 + (v - TLO) * (TX1 - TX0) / (THI - TLO);\n  const ty = (t) => 140 - (t - 4) / 26 * 104;\n  const tLab = txt(coldEl, 6, 14, '');\n  const bandX0 = txs(FAC1 * (1 - TOL / 100)), bandX1 = txs(FAC1 * (1 + TOL / 100));\n  coldEl.appendChild(K.svg('rect', { class: 'band', x: bandX0.toFixed(1), y: 32, width: (bandX1 - bandX0).toFixed(1), height: 118 }));\n  txt(coldEl, ((bandX0 + bandX1) / 2).toFixed(1), 27, 'within ' + TOL + '%', 'tk', 'middle');\n  coldEl.appendChild(K.svg('rect', { class: 'tube', x: 18, y: 28, width: 12, height: 124, rx: 6 }));\n  coldEl.appendChild(K.svg('circle', { class: 'tube', cx: 24, cy: 158, r: 11 }));\n  coldEl.appendChild(K.svg('circle', { class: 'merc', cx: 24, cy: 158, r: 8 }));\n  const merc = coldEl.appendChild(K.svg('rect', { class: 'merc', x: 21, width: 6, y: 100, height: 52 }));\n  coldEl.appendChild(K.svg('path', { class: 'axis', d: 'M30 ' + ty(20).toFixed(1) + 'H37' }));\n  txt(coldEl, 40, (ty(20) + 4.5).toFixed(1), '20 °C', 'tk');\n  txt(coldEl, TX0, 50, 'R20, certificate at 20 °C');\n  coldEl.appendChild(K.svg('rect', { class: 'bar1', x: TX0, y: 56, width: (txs(FAC1) - TX0).toFixed(1), height: 20 }));\n  const bar2Lab = txt(coldEl, TX0, 104, '');\n  const bar2 = coldEl.appendChild(K.svg('rect', { class: 'bar2', x: TX0, y: 110, width: 10, height: 20 }));\n  coldEl.appendChild(K.svg('path', { class: 'axis', d: 'M' + TX0 + ' 150H' + TX1 + 'M95 153L100 147M99 153L104 147' }));\n  for (let v = TLO; v <= THI; v += 5) {\n    coldEl.appendChild(K.svg('path', { class: 'axis', d: 'M' + txs(v).toFixed(1) + ' 150V155' }));\n    txt(coldEl, txs(v).toFixed(1), 168, String(v), 'tk', 'middle');\n  }\n  txt(coldEl, ((TX0 + TX1) / 2).toFixed(1), 186, 'Core resistance (mΩ)', 'tk', 'middle');\n  function drawCold(p) {\n    const t = tv(p.temp), rd = readAt(t), dev = devAt(t), out = Math.abs(dev) > TOL;\n    tLab.textContent = 't = ' + t + ' °C';\n    const yt = ty(t);\n    merc.setAttribute('y', yt.toFixed(1));\n    merc.setAttribute('height', (158 - yt).toFixed(1));\n    bar2Lab.textContent = 'Rt, DLRO reads at ' + t + ' °C';\n    bar2.setAttribute('width', Math.max(2, txs(rd) - TX0).toFixed(1));\n    bar2.setAttribute('class', 'bar2' + (out ? ' out' : ''));\n    const here = at() === iCold;\n    let s;\n    if (t === 20) s = 'At 20 °C the DLRO reads ' + f2(rd) + ' mΩ, the same as the certificate.';\n    else s = 'At ' + t + ' °C the ' + (t < 20 ? 'cold' : 'warm') + ' core reads ' + f2(rd) + ' mΩ, ' + f2(Math.abs(dev)) + '% ' + (t < 20 ? 'low' : 'high') + '. '\n      + (out ? 'It is sound, but it sits outside ' + TOL + '%.' : 'That is still inside ' + TOL + '%.');\n    el('sayT').textContent = nb(s);\n    const w = el('warnT');\n    w.hidden = !(here && out);\n    const c = el('corrT');\n    if (t === 20) c.textContent = '';\n    else {\n      const back = r2(rd / k5(t));\n      c.textContent = nb('Corrected: ' + f2(rd) + ' ÷ ' + k5(t).toFixed(5) + ' = ' + f2(back) + ' mΩ, ' + (back === FAC1 ? 'right on its certificate.' : 'on its certificate once rounding is allowed for.'));\n    }\n    c.hidden = !here || !c.textContent;\n    coldEl.setAttribute('aria-label', 'A thermometer at ' + t + ' °C, and two bars on a resistance scale: the certificate value at 20 °C, and what the DLRO reads now. A band marks '\n      + TOL + '% either side of the certificate. The reading is ' + (out ? 'outside' : 'inside') + ' the band.');\n  }\n\n  function drawFlows() {\n    const i = at(), p = K.params();\n    if (i === iFor) drawPhase(p);\n    else if (i === iWhy) chevrons(wPool, el('wchev'), W_PTS, flowT * FLOW_V, wSkip);\n    else if (i === iLp) drawLoops(p);\n  }\n  const flowAnim = K.anim({ button: false, label: 'Test current', step: (dt) => {\n    const i = at();\n    if (i !== iFor && i !== iWhy && i !== iLp) return false;\n    const d = Math.min(dt, 0.1);\n    flowT += d; flowLeft -= d;\n    drawFlows();\n    return flowLeft > 0;\n  } });\n\n  // ---------- picks: one tap answers ----------\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));\n  function pick(k) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.opts || k >= d.opts.length) return;\n    if (i === iR) {\n      if (st.res) return;     // a recall gets one go\n      st.pick = d.opts[k];\n      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Still there.', p0: 'Each loop is two cores in series.', w: [R_WORK + '.'], p: R_SLIPS }; }\n      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === fS1.text ? R_W1 : R_W3, w: [R_WORK + '.'] }; }\n    } else if (i === iChk) {\n      if (st.res === 'right') return;\n      st.pick = d.opts[k];\n      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: \"That's it.\", p0: C_RIGHT }; }\n      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === C_O1 ? C_W1 : C_W3 }; }\n    }\n    K.refresh();\n  }\n  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iFor); } });\n  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(i2A); } });\n\n  // ---------- Section A: typed answers on the course's figures ----------\n  const scen = K.scenario({ into: '#scen', open: true });\n  K.carried({ parts: ['2a'], into: '#carry2b' });\n  K.carried({ parts: ['2a', '2b'], into: '#carry2c' });\n  const K_ROUND = 1 + ALPHA_ROUND * (TEMP - 20);\n  const SPEC = {\n    [i2A]: { id: '2a', fig: f2a, accept: [],\n      work: () => ['L2 = (B + A − C) ÷ 2', '= ' + f2a.work],\n      slips: [\n        { value: F('2a.slip').value, hint: \"That is two cores' worth. Halve it.\" },\n        { value: fL1.value, hint: \"That comes from L1's formula. For L2, add A and B, the two loops that hold L2, then take away C.\" },\n        { value: F('2a.slip2').value, hint: 'That is half of loop A. It assumes L1 and L2 are equal.' },\n      ],\n      hint: 'Not quite. L2 sits in loops A and B. Add those two, take away C, then halve.',\n      after: 'L1 and L3 work out the same way, at ' + f2(fL1.value) + ' and ' + f2(fL3.value) + ' ' + UNIT_R + '.' },\n    [i2B]: { id: '2b', fig: f2b, accept: [F('2b.alt').value],\n      work: () => [fK.work, 'R20 = ' + f2b.work],\n      acc: 'That uses about ' + (ALPHA_ROUND * 100) + '% per °C: ' + f2(f2a.value) + ' ÷ ' + K_ROUND.toFixed(3) + ' = ' + F('2b.alt').text + '. With ' + ALPHA + ' it is ' + f2b.text + '.',\n      slips: [\n        { value: F('2b.slip').value, hint: 'You multiplied by ' + fK.text + '. A cold core reads low, so its 20 °C value is higher. Divide.' },\n        { value: f2a.value, hint: 'That is the reading at ' + TEMP + ' °C. Correct it to 20 °C first.' },\n      ],\n      hint: 'Not quite. Work out 1 + ' + ALPHA + ' × (' + TEMP + ' − 20), then divide the ' + TEMP + ' °C reading by it.',\n      after: '' },\n    [i2C]: { id: '2c', fig: f2c, accept: [F('2c.alt').value],\n      work: () => ['Deviation = (R20 − factory) ÷ factory × 100', '= ' + W2C],\n      post: 'That is inside ' + TOL + '%, so it is acceptable.',\n      acc: 'That uses ' + F('2b.alt').text + ', from about ' + (ALPHA_ROUND * 100) + '% per °C. With ' + f2b.text + ' it is ' + f2c.text + '.',\n      slips: [\n        { value: F('2c.slip').value, hint: 'That sets the ' + TEMP + ' °C reading against a 20 °C value. Use the corrected ' + f2b.text + '.' },\n        { value: F('2c.slip2').value, hint: 'That is the factory value minus the reading. Take the reading minus the factory value.' },\n      ],\n      hint: 'Not quite. Take the corrected value minus the factory value, divide by the factory value, then times 100.',\n      after: 'Uncorrected, L2 looks ' + f2(Math.abs(F('2c.slip').value)) + '% low, a false fail. Corrected, it is ' + f2(f2c.value) + '% high and passes. '\n        + \"L1 and L3 match their certificates exactly. So L2's conductor passes, joints and all. This test does not look at its insulation.\" },\n    [iCh]: { id: 'l2.changed', fig: fChg, accept: [],\n      work: () => [CH_WORK],\n      slips: [\n        { value: F('l2.changed.slip').value, hint: 'Halve it. Each loop holds two cores.' },\n        { value: F('l2.changed.slip2').value, hint: \"That comes from L1's formula. For L3, add B and C, then take away A.\" },\n      ],\n      hint: 'Not quite. L3 sits in loops B and C. Add those two, take away A, then halve.',\n      after: 'Check: ' + fChgK.work + '. The three cores, ' + f2(F('l2.changed.slip2').value) + ', ' + f2(CH_L2) + ' and ' + f2(fChg.value) + ' mΩ, add to the same.' },\n  };\n  const BOX = { [i2A]: '#ans-2a', [i2B]: '#ans-2b', [i2C]: '#ans-2c', [iCh]: '#ans-ch' };\n  const ANS = {};\n  Object.keys(SPEC).forEach((key) => {\n    const i = +key, sp = SPEC[i];\n    const a = K.answer({ id: sp.id, unit: sp.fig.unit, answer: sp.fig.value, decimals: 2, accept: sp.accept, slips: sp.slips, into: BOX[i],\n      onCheck: (r) => {\n        const st = S[i];\n        if (st.shown) return;\n        if (r.state === 'right') {\n          st.res = 'right';\n          st.fb = { ok: true, v: 'Right.', w: sp.work(), p: [r.accepted != null ? sp.acc : '', sp.post || ''].filter(Boolean).join(' ') };\n        } else if (r.state === 'wrong') {\n          st.tries += 1;\n          if (st.tries >= 2) {\n            st.shown = true; st.res = 'shown';\n            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.work(), p: sp.post || '' };\n            a.reveal();\n          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }\n        } else { st.res = r.state; st.fb = null; }\n        K.refresh();\n      } });\n    ANS[i] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });\n\n  // ---------- Section B and Keep this ----------\n  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];\n  function markLine(id) {\n    const w = K.lesson && K.lesson.written && K.lesson.written[id];\n    const n = w && Array.isArray(w.points) ? w.points.length : 0, need = w ? +w.need : 0;\n    return n && need ? 'You write the answer. It is marked against ' + (WORDS[n] || n) + ' points, and any ' + (WORDS[need] || need) + ' make a full answer. You get one more go, then the model answer.'\n      : 'You write the answer, in your own words. You get one more go, then the model answer.';\n  }\n  const wB1 = K.written({ id: 'b1', into: '#wr1', onMark: () => K.refresh() });\n  el('wr1').addEventListener('click', () => K.refresh());\n  K.summary({ into: '#keep' });\n  (function () {\n    const tw = document.createTreeWalker(el('keep'), NodeFilter.SHOW_TEXT), ns = [];\n    while (tw.nextNode()) ns.push(tw.currentNode);\n    ns.forEach((n) => { n.nodeValue = nb(n.nodeValue); });\n  })();\n  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {\n    if (at() !== iK) return;\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n    K.refresh();\n  } });\n\n  // ---------- the worked example, a line at each press ----------\n  const wbox = K.el('div', { class: 'wl' }, K.el('p', { class: 'k-label' }, nb('The loops: ' + wkLoops)));\n  const wl = WL.map((x) => {\n    const box = K.el('div', { class: 'line' });\n    box.appendChild(K.el('p', { class: 'w' }, nb(x.w)));\n    if (x.w2) box.appendChild(K.el('p', { class: 'w' }, nb(x.w2)));\n    wbox.appendChild(box);\n    return box;\n  });\n  const wnote = K.el('p', { class: 'sub' }, nb(WK_NOTE));\n  const wgap = K.el('p', { class: 'sub ask' }, nb(WK_GAP));\n  wbox.appendChild(wnote);\n  wbox.appendChild(wgap);\n  el('worked').appendChild(wbox);\n  const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {\n    if (at() !== iWk || lines >= wl.length) return;\n    const w = wl[lines]; lines += 1;\n    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');\n    K.refresh();\n  } });\n\n  // ---------- fixed words on their screens ----------\n  (function fixed() {\n    el('warnFor').appendChild(K.el('p', { class: 'wh' }, 'If it is skipped'));\n    el('warnFor').appendChild(K.el('p', null, nb(WARN_FOR)));\n    paras(el('assume'), ASSUME);\n    el('noteW').textContent = nb(NOTE_W);\n    write(el('underW'), UNDER_W);\n    el('noteL').textContent = nb(NOTE_L);\n    el('noteT').textContent = nb(NOTE_T);\n    el('warnT').appendChild(K.el('p', { class: 'wh' }, 'A sound core that looks like a fail.'));\n  })();\n\n  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }\n  const faded = {};\n  function fade(node, key) {\n    if (node.hidden) { faded[node.id] = ''; return; }\n    if (faded[node.id] === key) return;\n    faded[node.id] = key;\n    node.classList.remove('fade'); void node.offsetWidth; node.classList.add('fade');\n  }\n  function paintFb(f) {\n    const fb = el('fb');\n    fb.textContent = '';\n    fb.hidden = !f;\n    if (!f) return;\n    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');\n    fb.appendChild(K.el('p', { class: 'v' }, f.v));\n    if (f.p0) fb.appendChild(write(K.el('p'), f.p0));\n    (f.w || []).forEach((t) => fb.appendChild(write(K.el('p', { class: 'w' }), t)));\n    if (f.p) fb.appendChild(write(K.el('p'), f.p));\n  }\n\n  // ---------- nav ----------\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });\n  function canGo(i) {\n    const d = STEPS[i], st = S[i];\n    if (d.show) return true;\n    if (i === iR) return st.res === 'wrong';\n    if (i === iChk) return st.res === 'right';\n    if (ANS[i]) return st.res === 'right' || st.shown;\n    if (i === iB1) return !!(wB1 && wB1.answered && wB1.answered());\n    return false;\n  }\n\n  const ON = { scen: [i2A, i2B, i2C], carry2b: [i2B], carry2c: [i2C], pre: [i2A, i2B],\n    warnFor: [iFor], phHead: [iFor], assume: [iFor], wrapP: [iFor], ctlP: [iFor], sayP: [iFor],\n    wrapW: [iWhy], noteW: [iWhy], ctlW: [iWhy], outsW: [iWhy], sayW: [iWhy], underW: [iWhy],\n    wrapL: [iLp], noteL: [iLp], ctlL: [iLp], forms: [iLp], sayL: [iLp],\n    wrapT: [iCold], noteT: [iCold], ctlT: [iCold], outsT: [iCold], sayT: [iCold],\n    worked: [iWk], workedgo: [iWk], picks: [iR, iChk],\n    'ans-2a': [i2A], 'ans-2b': [i2B], 'ans-2c': [i2C], 'ans-ch': [iCh], wr1: [iB1], keep: [iK], fin: [iK] };\n  const ASK = {\n    [iFor]: 'Pick which core the far end joins to the screen.',\n    [iWhy]: 'Step from two wires to four, then move the P probes inside the C clamps.',\n    [iLp]: 'Step through the three loops.',\n    [iWk]: 'Work each line yourself first, then press Show.',\n    [iCold]: 'Drag the temperature down to ' + TEMP + ' °C.',\n  };\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; if (i === i2A || i === i2B || i === i2C) scen.el.open = i === i2A; }\n    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });\n    el('cap').hidden = WORKING.indexOf(i) < 0;\n\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;\n    paras(el('pre'), d.pre || '');\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    if (d.show) paras(task, d.text, d.terms);\n    else write(task, d.part || (d.kind ? '' : d.task));\n    task.hidden = !task.textContent;\n    const sub = el('sub');\n    sub.className = 'sub' + (ASK[i] ? ' ask' : '');\n    sub.textContent = nb(ASK[i] ? ASK[i]\n      : i === i2A || i === i2B ? 'Give it in mΩ, to 2 places.'\n      : i === i2C ? 'Give it as a percentage, to 2 places.'\n      : i === iB1 ? markLine('b1')\n      : i === iCh ? 'Same method, new numbers. These are practice values. Give it in mΩ, to 2 places.'\n      : i === iK ? 'One card to come back to on a real job.' : '');\n    sub.hidden = !sub.textContent;\n\n    drawPhase(p);\n    drawWires(p);\n    drawLoops(p);\n    drawCold(p);\n    const fk = i === iFor ? 'P' + p.far : i === iWhy ? 'W' + mi(p.meas) : i === iLp ? 'L' + p.loop : '';\n    if (fk && fk !== flowKey) { flowLeft = FLOW_RUN; if (!flowAnim.playing()) flowAnim.play(); }\n    flowKey = fk;\n    fade(el('warnT'), String(el('warnT').hidden));\n    fade(el('corrT'), el('corrT').textContent);\n\n    // Picks.\n    const opts = d.opts || [];\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(nb(opts[k]));\n      const done = st.res === 'right' || (i === iR && st.res === 'wrong');\n      b.el.classList.toggle('is-right', done && opts[k] === d.want);\n      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    // The worked example's lines, and the notes once they are all shown.\n    wl.forEach((w, k) => { w.hidden = k >= lines; });\n    wnote.hidden = wgap.hidden = lines < wl.length;\n    nextLine.el.hidden = lines >= wl.length;\n    if (i === iWk) el('workedgo').hidden = lines >= wl.length;\n    fade(wgap, String(wgap.hidden));\n\n    // Check, the feedback, and what follows a finished typed answer.\n    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);\n    checkBtn.el.hidden = !typed || typedDone;\n    el('acts').hidden = checkBtn.el.hidden;\n    paintFb(st.fb);\n    const after = el('after');\n    paras(after, typedDone ? SPEC[i].after : '');\n    after.hidden = !after.textContent;\n    el('go').hidden = !(i === iR && st.res === 'right');\n    [['fb', JSON.stringify(st.fb)], ['after', i + after.textContent], ['go', String(i)]].forEach(([id, key]) => fade(el(id), key));\n\n    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';\n    el('donefb').hidden = !el('donefb').textContent;\n\n    backBtn.el.hidden = i === 0;\n    nextBtn.el.hidden = i === iK || !canGo(i) || (i === iR && st.res === 'right');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const near = (a, b, t) => K.near(a, b, t == null ? 1e-6 : t);\n  K.check('Two wires read 429.31 mΩ (26.52% high), P on the C clamps 369.31 mΩ (8.84%), P inside the C clamps 339.31 mΩ (0.00%)', () =>\n    near(K.at({ meas: 0 }).meter, fTwo.value) && near(K.at({ meas: 0 }).above, fTwoP.value) && near(K.at({ meas: 1 }).meter, fOn.value)\n    && near(K.at({ meas: 1 }).above, fOnP.value) && near(K.at({ meas: 2 }).meter, LOOP) && near(K.at({ meas: 2 }).above, 0));\n  K.check('Each move of the voltage points inward lowers the reading, and it never reads below the loop', () =>\n    K.at({ meas: 0 }).meter > K.at({ meas: 1 }).meter && K.at({ meas: 1 }).meter > K.at({ meas: 2 }).meter && K.at({ meas: 2 }).meter >= LOOP);\n  K.check('Each conductor is tested in turn using the screen as the return: only the core joined at the far end reads continuity', () =>\n    [0, 1, 2].every((j) => [0, 1, 2].every((k) => contAt(j, k) === (j === k))),\n    { source: 'https://www.ssen.co.uk/globalassets/safety/s9/pr-net-osm-065.pdf' });\n  K.check('Worked example: L1 38.785, L2 38.115, L3 42.375 mΩ; they add to 119.275 mΩ, half of A + B + C; L3 is 9.26% and 11.18% above; half of A is 38.45 mΩ', () => {\n    const a = fA.value, b = fB.value, c = fC.value, l1 = L1of(a, b, c), l2 = L2of(a, b, c), l3 = L3of(a, b, c);\n    return near(r3(l1), fRec.value) && near(r3(l2), fW2.value) && near(r3(l2), fS1.value) && near(r3(l3), fW3.value)\n      && near(r3((a + b + c) / 2), fWk.value) && near(r3(l1 + l2 + l3), fWk.value) && near(r2(a / 2), fS2.value)\n      && near(r2((l3 - l1) / l1 * 100), fG1.value) && near(r2((l3 - l2) / l2 * 100), fG2.value);\n  });\n  K.check('String B at 12 °C: L1 169.21, L2 170.10, L3 169.11 mΩ; A + B + C is twice their sum; slips 340.20 and 169.66 mΩ', () => {\n    const a = LOOP, b = fLB.value, c = fLC.value;\n    return near(r2(L1of(a, b, c)), fL1.value) && near(r2(L2of(a, b, c)), f2a.value) && near(r2(L3of(a, b, c)), fL3.value)\n      && near(a + b + c, 2 * (L1of(a, b, c) + L2of(a, b, c) + L3of(a, b, c)), 1e-9) && near(r2(b + a - c), F('2a.slip').value) && near(r2(a / 2), F('2a.slip2').value);\n  });\n  K.check('A sound L1 (174.70 mΩ at 20 °C) reads 169.21 mΩ (−3.14%) at 12 °C, 163.71 mΩ (−6.29%) at 4 °C and 181.57 mΩ (+3.93%) at 30 °C', () =>\n    near(K.at({ temp: 20 }).rd, FAC1) && near(K.at({ temp: 20 }).dev, 0) && near(K.at({ temp: 12 }).rd, fCold.value) && near(K.at({ temp: 12 }).dev, fColdP.value)\n    && near(K.at({ temp: 4 }).rd, F('l2.read4').value) && near(K.at({ temp: 4 }).dev, F('l2.read4.pct').value)\n    && near(K.at({ temp: 30 }).rd, F('l2.read30').value) && near(K.at({ temp: 30 }).dev, F('l2.read30.pct').value));\n  K.check('The reading leaves the 2% band between 14 and 15 °C and between 25 and 26 °C; about 5 °C either side uses it up', () =>\n    Math.abs(devAt(15)) <= TOL && Math.abs(devAt(14)) > TOL && Math.abs(devAt(25)) <= TOL && Math.abs(devAt(26)) > TOL && Math.round(TOL / (ALPHA * 100)) === Math.round(fBand.value));\n  K.check('Corrected at 12 °C: 169.21 ÷ 0.96856 = 174.70 mΩ, and the reading rises with every degree', () => {\n    for (let t = 4; t < 30; t++) if (!(readAt(t + 1) > readAt(t))) return false;\n    return near(k5(TEMP), fK.value, 1e-9) && near(r2(fCold.value / k5(TEMP)), FAC1) && near(F('l2.L1.20').value, FAC1);\n  });\n  K.check('2(b): 170.10 ÷ 0.96856 = 175.62 mΩ; with 0.968, 175.72 mΩ; multiplied, 164.75 mΩ. 2(c): 0.41%, or 0.47% from 175.72; slips −2.74% and −0.41%', () =>\n    near(r2(f2a.value / k5(TEMP)), f2b.value) && near(r2(f2a.value / K_ROUND), F('2b.alt').value) && near(r2(f2a.value * k5(TEMP)), F('2b.slip').value)\n    && near(r2((f2b.value - fF2.value) / fF2.value * 100), f2c.value) && near(r2((F('2b.alt').value - fF2.value) / fF2.value * 100), F('2c.alt').value)\n    && near(r2((f2a.value - fF2.value) / fF2.value * 100), F('2c.slip').value) && near(r2((fF2.value - f2b.value) / fF2.value * 100), F('2c.slip2').value)\n    && f2c.value < TOL && near(F('l2.L1.dev').value, 0) && near(F('l2.L3.dev').value, 0) && near(r2(fL3.value / k5(TEMP)), fF3.value));\n  K.check('Changed numbers: L3 = 60.80 mΩ, slips 121.60 and 60.10 mΩ; the three cores, 60.10 + 60.30 + 60.80, make 181.20 mΩ', () =>\n    near(r2(L3of(CH.A, CH.B, CH.C)), fChg.value) && near(CH_SUM, F('l2.changed.slip').value) && near(r2(L1of(CH.A, CH.B, CH.C)), F('l2.changed.slip2').value)\n    && near(r2((CH.A + CH.B + CH.C) / 2), fChgK.value) && near(r2(F('l2.changed.slip2').value + CH_L2 + fChg.value), fChgK.value));\n  K.check('Every slip lies outside its answer\\'s accepted figures', () => Object.keys(SPEC).every((k) => {\n    const sp = SPEC[k], tol = 0.005;\n    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > tol && sp.accept.every((x) => Math.abs(s.value - x) > tol));\n  }));\n  K.check('The measured value is between the potential connections: with the P probes inside the C clamps it is the loop alone', () =>\n    near(K.at({ meas: 2 }).meter, LOOP) && K.at({ meas: 1 }).meter > LOOP,\n    { source: 'https://www.seaward.com/gb/support/resistance/faqs/76198-kelvin-bridges' });\n  K.check('Since no current flows in the P leads, the P contacts produce no voltage: the reading holds whatever the P leads are', () =>\n    near(K.at({ meas: 2 }).meter, LOOP) && near(K.at({ meas: 1 }).meter, LOOP + 2 * CONT),\n    { source: 'https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Documents/Megger/DLRO10/dlro10_doc_4.pdf' });\n  K.check('The temperature coefficient of standard copper is 0.00393 at 20 °C', () => ALPHA === 0.00393 && near(kAt(20), 1, 1e-12),\n    { source: 'https://nvlpubs.nist.gov/nistpubs/Legacy/hb/nbshandbook100.pdf' });\n  K.check('Low resistance is generally considered under 1 Ω', () => LOWR === 1 && LOOP / 1000 < LOWR, { source: 'material:notes#p2' });\n  K.check('Measured resistance should be within 2% of factory values', () => TOL === 2, { source: 'material:notes#p3' });\n\n  K.ready();\n</script>",
+  "title": "Four wires, three loops",
+  "brief": "The one thing you should see is the lead and contact resistance dropping out of the reading when you move the voltage measurement from the meter's own leads to P probes inside the C clamps.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Two wires read 429.31 mΩ (26.52% high), P on the C clamps 369.31 mΩ (8.84%), P inside the C clamps 339.31 mΩ (0.00%)",
+     "ok": true
+    },
+    {
+     "label": "Each move of the voltage points inward lowers the reading, and it never reads below the loop",
+     "ok": true
+    },
+    {
+     "label": "Each conductor is tested in turn using the screen as the return: only the core joined at the far end reads continuity",
+     "ok": true,
+     "source": "https://www.ssen.co.uk/globalassets/safety/s9/pr-net-osm-065.pdf"
+    },
+    {
+     "label": "Worked example: L1 38.785, L2 38.115, L3 42.375 mΩ; they add to 119.275 mΩ, half of A + B + C; L3 is 9.26% and 11.18% above; half of A is 38.45 mΩ",
+     "ok": true
+    },
+    {
+     "label": "String B at 12 °C: L1 169.21, L2 170.10, L3 169.11 mΩ; A + B + C is twice their sum; slips 340.20 and 169.66 mΩ",
+     "ok": true
+    },
+    {
+     "label": "A sound L1 (174.70 mΩ at 20 °C) reads 169.21 mΩ (−3.14%) at 12 °C, 163.71 mΩ (−6.29%) at 4 °C and 181.57 mΩ (+3.93%) at 30 °C",
+     "ok": true
+    },
+    {
+     "label": "The reading leaves the 2% band between 14 and 15 °C and between 25 and 26 °C; about 5 °C either side uses it up",
+     "ok": true
+    },
+    {
+     "label": "Corrected at 12 °C: 169.21 ÷ 0.96856 = 174.70 mΩ, and the reading rises with every degree",
+     "ok": true
+    },
+    {
+     "label": "2(b): 170.10 ÷ 0.96856 = 175.62 mΩ; with 0.968, 175.72 mΩ; multiplied, 164.75 mΩ. 2(c): 0.41%, or 0.47% from 175.72; slips −2.74% and −0.41%",
+     "ok": true
+    },
+    {
+     "label": "Changed numbers: L3 = 60.80 mΩ, slips 121.60 and 60.10 mΩ; the three cores, 60.10 + 60.30 + 60.80, make 181.20 mΩ",
+     "ok": true
+    },
+    {
+     "label": "Every slip lies outside its answer's accepted figures",
+     "ok": true
+    },
+    {
+     "label": "The measured value is between the potential connections: with the P probes inside the C clamps it is the loop alone",
+     "ok": true,
+     "source": "https://www.seaward.com/gb/support/resistance/faqs/76198-kelvin-bridges"
+    },
+    {
+     "label": "Since no current flows in the P leads, the P contacts produce no voltage: the reading holds whatever the P leads are",
+     "ok": true,
+     "source": "https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Documents/Megger/DLRO10/dlro10_doc_4.pdf"
+    },
+    {
+     "label": "The temperature coefficient of standard copper is 0.00393 at 20 °C",
+     "ok": true,
+     "source": "https://nvlpubs.nist.gov/nistpubs/Legacy/hb/nbshandbook100.pdf"
+    },
+    {
+     "label": "Low resistance is generally considered under 1 Ω",
+     "ok": true,
+     "source": "material:notes#p2"
+    },
+    {
+     "label": "Measured resistance should be within 2% of factory values",
+     "ok": true,
+     "source": "material:notes#p3"
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "far",
+    "meas",
+    "loop",
+    "temp"
+   ],
+   "readouts": [
+    "meter",
+    "above",
+    "rd",
+    "dev"
+   ],
+   "outputs": [
+    "meter",
+    "above",
+    "rd",
+    "dev"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Lesson",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "Do you still have it?",
+      "What it is for",
+      "The why",
+      "Check",
+      "Three loops, three cores",
+      "Worked example",
+      "A cold cable reads low",
+      "Section A 2(a)",
+      "Section A 2(b)",
+      "Section A 2(c)",
+      "Section B",
+      "Changed numbers",
+      "Keep this"
+     ],
+     "value": 0
+    },
+    {
+     "id": "far",
+     "kind": "choice",
+     "label": "Far end joins",
+     "options": [
+      "L1",
+      "L2",
+      "L3"
+     ],
+     "labels": [
+      "L1",
+      "L2",
+      "L3"
+     ],
+     "value": "L1",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "meas",
+     "kind": "stepper",
+     "label": "Measure with",
+     "min": 0,
+     "max": 2,
+     "step": 1,
+     "steps": [
+      "Two wires",
+      "P on the C clamps",
+      "P inside the C clamps"
+     ],
+     "value": 0
+    },
+    {
+     "id": "loop",
+     "kind": "stepper",
+     "label": "Loop",
+     "min": 0,
+     "max": 3,
+     "step": 1,
+     "steps": [
+      "A is L1 to L2",
+      "B is L2 to L3",
+      "C is L3 to L1",
+      "All three"
+     ],
+     "value": 0
+    },
+    {
+     "id": "temp",
+     "kind": "control",
+     "label": "Cable temperature",
+     "min": 4,
+     "max": 30,
+     "step": 1,
+     "log": false,
+     "value": 20,
+     "shown": false,
+     "snap": [
+      12
+     ]
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Refresh the why",
+    "Skip to the practice",
+    "Check",
+    "Finish the lesson",
+    "Show",
+    "Back",
+    "Continue",
+    "Test current"
+   ],
+   "answers": [
+    {
+     "id": "2a",
+     "answer": 170.1,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "2b",
+     "answer": 175.62,
+     "accept": [
+      175.72
+     ],
+     "ok": true
+    },
+    {
+     "id": "2c",
+     "answer": 0.41,
+     "accept": [
+      0.47
+     ],
+     "ok": true
+    },
+    {
+     "id": "l2.changed",
+     "answer": 60.8,
+     "accept": [],
+     "ok": true
+    }
+   ],
+   "written": [
+    "b1"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-20T23:45:15.798Z",
+  "applied": [
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Three absolutes: the notes say low resistance is 'generally' under 1 Ω; crossed phases give a short only where the cable closes onto another supply (otherwise reversed rotation); and 'whatever is wrong with L2' presumes a fault the passing test has not shown."
+   },
+   {
+    "path": "explain.text",
+    "problem": "'A sound core at 12 °C reads 3.14% low' holds only for a core exactly on its certificate (a sound core can sit anywhere within 2%); and the 2.40 km is the practice case's length, unlabelled in a sentence read alone."
+   },
+   {
+    "path": "practice.text",
+    "problem": "Safety order: the notes clamp on before removing the earths, so an unearthed core with induced voltage is never handled; and P probes on the core beyond the C clamps see no current there, so it is P on the clamps, not 'outside', that adds contact resistance."
+   },
+   {
+    "path": "summary.traps[0].text",
+    "problem": "With the P probes on the core outside the C clamps no current flows between P and C, so the clamps' contact resistance does not join; it joins when the P probes are clipped on the C clamps, as the lesson's own picture shows."
+   },
+   {
+    "path": "summary.traps[1].text",
+    "problem": "Only a core exactly on its 20 °C certificate reads 3.14% low at 12 °C; a sound core can sit anywhere within 2% of it."
+   }
+  ],
+  "notes": [
+   {
+    "path": "interactive.numbers",
+    "problem": "String B's loops (339.31 mΩ etc.) are given to 0.01 mΩ, but the DLRO10HD's 2.5 Ω ranges resolve 0.1 mΩ at ±0.2% ±200 µΩ (about ±0.9 mΩ here), so L2's 0.72 mΩ gap and 'L1 and L3 match exactly' sit inside the meter's accuracy; a 10 mA 2.5 Ω green range also exists."
+   }
+  ]
+ },
+ "error": null,
+ "flags": {}
+}

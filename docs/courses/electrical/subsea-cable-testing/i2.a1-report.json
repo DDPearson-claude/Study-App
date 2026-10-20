@@ -1,0 +1,271 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Two wires read 429.31 mΩ (26.52% high), P on the C clamps 369.31 mΩ (8.84%), P inside the C clamps 339.31 mΩ (0.00%)",
+        "ok": true
+      },
+      {
+        "label": "Each move of the voltage points inward lowers the reading, and it never reads below the loop",
+        "ok": true
+      },
+      {
+        "label": "Each conductor is tested in turn using the screen as the return: only the core joined at the far end reads continuity",
+        "ok": true,
+        "source": "https://www.ssen.co.uk/globalassets/safety/s9/pr-net-osm-065.pdf"
+      },
+      {
+        "label": "Worked example: L1 38.785, L2 38.115, L3 42.375 mΩ; they add to 119.275 mΩ, half of A + B + C; L3 is 9.26% and 11.18% above; half of A is 38.45 mΩ",
+        "ok": true
+      },
+      {
+        "label": "String B at 12 °C: L1 169.21, L2 170.10, L3 169.11 mΩ; A + B + C is twice their sum; slips 340.20 and 169.66 mΩ",
+        "ok": true
+      },
+      {
+        "label": "A sound L1 (174.70 mΩ at 20 °C) reads 169.21 mΩ (−3.14%) at 12 °C, 163.71 mΩ (−6.29%) at 4 °C and 181.57 mΩ (+3.93%) at 30 °C",
+        "ok": true
+      },
+      {
+        "label": "The reading leaves the 2% band between 14 and 15 °C and between 25 and 26 °C; about 5 °C either side uses it up",
+        "ok": true
+      },
+      {
+        "label": "Corrected at 12 °C: 169.21 ÷ 0.96856 = 174.70 mΩ, and the reading rises with every degree",
+        "ok": true
+      },
+      {
+        "label": "2(b): 170.10 ÷ 0.96856 = 175.62 mΩ; with 0.968, 175.72 mΩ; multiplied, 164.75 mΩ. 2(c): 0.41%, or 0.47% from 175.72; slips −2.74% and −0.41%",
+        "ok": true
+      },
+      {
+        "label": "Changed numbers: L3 = 60.80 mΩ, slips 121.60 and 60.10 mΩ; the three cores, 60.10 + 60.30 + 60.80, make 181.20 mΩ",
+        "ok": true
+      },
+      {
+        "label": "Every slip lies outside its answer's accepted figures",
+        "ok": true
+      },
+      {
+        "label": "The measured value is between the potential connections: with the P probes inside the C clamps it is the loop alone",
+        "ok": true,
+        "source": "https://www.seaward.com/gb/support/resistance/faqs/76198-kelvin-bridges"
+      },
+      {
+        "label": "Since no current flows in the P leads, the P contacts produce no voltage: the reading holds whatever the P leads are",
+        "ok": true,
+        "source": "https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Documents/Megger/DLRO10/dlro10_doc_4.pdf"
+      },
+      {
+        "label": "The temperature coefficient of standard copper is 0.00393 at 20 °C",
+        "ok": true,
+        "source": "https://nvlpubs.nist.gov/nistpubs/Legacy/hb/nbshandbook100.pdf"
+      },
+      {
+        "label": "Low resistance is generally considered under 1 Ω",
+        "ok": true,
+        "source": "material:notes#p2"
+      },
+      {
+        "label": "Measured resistance should be within 2% of factory values",
+        "ok": true,
+        "source": "material:notes#p3"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "far",
+      "meas",
+      "loop",
+      "temp"
+    ],
+    "readouts": [
+      "meter",
+      "above",
+      "rd",
+      "dev"
+    ],
+    "outputs": [
+      "meter",
+      "above",
+      "rd",
+      "dev"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "What it is for",
+          "The why",
+          "Check",
+          "Three loops, three cores",
+          "Worked example",
+          "A cold cable reads low",
+          "Section A 2(a)",
+          "Section A 2(b)",
+          "Section A 2(c)",
+          "Section B",
+          "Changed numbers",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "far",
+        "kind": "choice",
+        "label": "Far end joins",
+        "options": [
+          "L1",
+          "L2",
+          "L3"
+        ],
+        "labels": [
+          "L1",
+          "L2",
+          "L3"
+        ],
+        "value": "L1",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "meas",
+        "kind": "stepper",
+        "label": "Measure with",
+        "min": 0,
+        "max": 2,
+        "step": 1,
+        "steps": [
+          "Two wires",
+          "P on the C clamps",
+          "P inside the C clamps"
+        ],
+        "value": 0
+      },
+      {
+        "id": "loop",
+        "kind": "stepper",
+        "label": "Loop",
+        "min": 0,
+        "max": 3,
+        "step": 1,
+        "steps": [
+          "A is L1 to L2",
+          "B is L2 to L3",
+          "C is L3 to L1",
+          "All three"
+        ],
+        "value": 0
+      },
+      {
+        "id": "temp",
+        "kind": "control",
+        "label": "Cable temperature",
+        "min": 4,
+        "max": 30,
+        "step": 1,
+        "log": false,
+        "value": 20,
+        "shown": false,
+        "snap": [
+          12
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Refresh the why",
+      "Skip to the practice",
+      "Check",
+      "Finish the lesson",
+      "Show",
+      "Back",
+      "Continue",
+      "Test current"
+    ],
+    "answers": [
+      {
+        "id": "2a",
+        "answer": 170.1,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "2b",
+        "answer": 175.62,
+        "accept": [
+          175.72
+        ],
+        "ok": true
+      },
+      {
+        "id": "2c",
+        "answer": 0.41,
+        "accept": [
+          0.47
+        ],
+        "ok": true
+      },
+      {
+        "id": "l2.changed",
+        "answer": 60.8,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [
+      "b1"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1 (the first step that shows a control)",
+    "far = \"L2\"",
+    "temp = 23.5"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i2.a1-360-light.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i2.a1-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i2.a1-360-light-end.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i2.a1-360-dark.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i2.a1-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i2.a1-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i2.a1-1280-light.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i2.a1-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i2.a1-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i2.a1-1280-dark.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i2.a1-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i2.a1-1280-dark-end.png"
+  ]
+}

@@ -1,0 +1,911 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  #prog .k-label, #prog .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .task > p + p, .why > p + p, .assume > p + p, .pre > p + p { margin-top: 10px; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .sub.ask { font-size: 1rem; font-weight: 700; color: var(--k-ink); }
+  .assume, .why, .pre { line-height: 1.6; }
+  .ctl { display: grid; gap: 12px; }
+  .warn-note .wh { font-weight: 700; }
+  .warn-note p + p { margin-top: 6px; }
+  .carry .k-cr { grid-template-columns: 2rem minmax(0, 1fr) 24px; }
+  .carry .k-cr-value { grid-column: 2; grid-row: 2; }
+  .sym { white-space: nowrap; }
+  .scene { display: block; width: 100%; }
+  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .lbA { font: 700 13px var(--k-font); fill: var(--k-accent2); }
+  .scene .core { stroke: var(--k-strong); stroke-width: 5; stroke-linecap: round; }
+  .scene .scrn { stroke: var(--k-muted); stroke-width: 2; }
+  .scene .core.on, .scene .scrn.on, .scene .link { stroke: var(--k-accent2); }
+  .scene .scrn.on { stroke-width: 5; }
+  .scene .link { stroke-width: 5; stroke-linecap: round; }
+  .scene .tst { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .wire { stroke: var(--k-strong); stroke-width: 1.5; fill: none; }
+  .scene .cpath { stroke: var(--k-accent2); stroke-width: 5; fill: none; stroke-linejoin: round; }
+  .scene .plead { stroke: var(--k-muted); stroke-width: 2; fill: none; }
+  .scene .tip { fill: var(--k-muted); }
+  .scene .res { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .res.loop { fill: var(--k-fill1); stroke: var(--k-accent2); }
+  .scene .clamp { fill: var(--k-strong); }
+  .scene .meter { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .node { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .brk { stroke: var(--k-amber-line); stroke-width: 2.5; fill: none; }
+  .scene .chev { stroke: var(--k-bg); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .lc { stroke: var(--k-strong); stroke-width: 2.5; fill: none; stroke-linejoin: round; }
+  .scene .lit .lc { stroke: var(--k-accent2); stroke-width: 5; }
+  .scene .dim .lc { stroke: var(--k-muted); stroke-width: 2; }
+  .scene .le { stroke: var(--k-strong); stroke-width: 2; fill: none; }
+  .scene .dim .le { stroke: var(--k-muted); }
+  .scene .tdot { fill: var(--k-accent2); }
+  .scene .dim .tdot { fill: var(--k-muted); }
+  .scene .band { fill: var(--k-fill3); }
+  .scene .bar1 { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .bar2 { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .bar2.out { stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .tube { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .merc { fill: var(--k-accent2); }
+  .scene .axis { stroke: var(--k-strong); stroke-width: 1.5; fill: none; }
+  .forms { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); }
+  .forms p { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.6; }
+  .forms .lt { padding: 0 3px; border-radius: 4px; }
+  .forms .lt.on { background: var(--k-hl); font-weight: 800; }
+  .corr { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.5; }
+  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .wl .line + .line, .wl .line + .sub, .wl .sub + .sub { margin-top: 10px; }
+  .w { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.5; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; justify-content: flex-start; padding: 10px 14px; }
+  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  #stepbox.enter, .wl .line.enter, .fade { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing .wl .line.enter, html.k-testing .fade { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .line.enter, .fade { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="scen"></div>
+    <div class="carry" id="carry2b"></div>
+    <div class="carry" id="carry2c"></div>
+    <div class="pre" id="pre"></div>
+    <div class="task" id="task"></div>
+    <div class="warn-note" id="warnFor"></div>
+    <p class="k-label" id="phHead">Phase ID</p>
+    <div class="assume" id="assume"></div>
+    <p class="sub" id="sub"></p>
+
+    <div id="wrapP"><svg class="scene" id="phase" viewBox="0 0 340 190" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctlP"></div>
+    <p class="say" id="sayP"></p>
+
+    <div id="wrapW">
+      <svg class="scene" id="wires" viewBox="0 0 340 258" width="100%" role="img" aria-label="">
+        <rect class="meter" x="96" y="6" width="148" height="40" rx="6"/>
+        <text class="lb" x="170" y="22" text-anchor="middle">DLRO</text>
+        <text class="tk" x="108" y="39" text-anchor="middle">C1</text>
+        <text class="tk" x="146" y="39" text-anchor="middle">P1</text>
+        <text class="tk" x="194" y="39" text-anchor="middle">P2</text>
+        <text class="tk" x="232" y="39" text-anchor="middle">C2</text>
+        <path class="cpath" d="M108 46V62H14V150H326V62H232V46"/>
+        <g id="wchev"></g>
+        <rect class="res" x="20" y="144" width="42" height="12"/>
+        <rect class="clamp" x="66" y="140" width="8" height="20" rx="1.5"/>
+        <rect class="res" x="78" y="145" width="24" height="10"/>
+        <rect class="res loop" x="120" y="142" width="100" height="16"/>
+        <rect class="res" x="238" y="145" width="24" height="10"/>
+        <rect class="clamp" x="266" y="140" width="8" height="20" rx="1.5"/>
+        <rect class="res" x="278" y="144" width="42" height="12"/>
+        <circle class="node" cx="108" cy="46" r="3.5"/><circle class="node" cx="146" cy="46" r="3.5"/>
+        <circle class="node" cx="194" cy="46" r="3.5"/><circle class="node" cx="232" cy="46" r="3.5"/>
+        <g id="pleads">
+          <path class="plead" id="p1" d=""/><path class="tip" id="t1" d=""/>
+          <path class="plead" id="p2" d=""/><path class="tip" id="t2" d=""/>
+          <text class="tk" x="170" y="104" text-anchor="middle">almost no current</text>
+        </g>
+        <text class="lb" x="41" y="178" text-anchor="middle">C lead</text>
+        <text class="lb" x="90" y="178" text-anchor="middle">contact</text>
+        <text class="lb" x="170" y="178" text-anchor="middle">Loop A</text>
+        <text class="lb" x="250" y="178" text-anchor="middle">contact</text>
+        <text class="lb" x="299" y="178" text-anchor="middle">C lead</text>
+        <text class="tk" id="vL1" x="41" y="193" text-anchor="middle"></text>
+        <text class="tk" id="vC1" x="90" y="193" text-anchor="middle"></text>
+        <text class="tk" id="vLp" x="170" y="193" text-anchor="middle"></text>
+        <text class="tk" id="vC2" x="250" y="193" text-anchor="middle"></text>
+        <text class="tk" id="vL2" x="299" y="193" text-anchor="middle"></text>
+        <path class="brk" id="brk" d=""/>
+        <text class="lb" x="170" y="226" text-anchor="middle">the meter measures across this</text>
+        <rect class="clamp" x="8" y="238" width="7" height="16" rx="1.5"/><text class="tk" x="21" y="250">C clamp</text>
+        <path class="tip" d="M86 240H96L91 249Z"/><text class="tk" x="102" y="250">P probe</text>
+        <path class="cpath" d="M168 246H198"/><path class="chev" d="M181.5 243L185.5 246L181.5 249"/><text class="tk" x="206" y="250">Test current</text>
+      </svg>
+    </div>
+    <p class="sub" id="noteW"></p>
+    <div class="ctl" id="ctlW"></div>
+    <div class="k-readouts" id="outsW"></div>
+    <p class="say" id="sayW"></p>
+    <p class="why" id="underW"></p>
+
+    <div id="wrapL"><svg class="scene" id="loops" viewBox="0 0 340 248" width="100%" role="img" aria-label=""></svg></div>
+    <p class="sub" id="noteL"></p>
+    <div class="ctl" id="ctlL"></div>
+    <div class="forms" id="forms"></div>
+    <p class="say" id="sayL"></p>
+
+    <div id="wrapT"><svg class="scene" id="cold" viewBox="0 0 340 192" width="100%" role="img" aria-label=""></svg></div>
+    <p class="sub" id="noteT"></p>
+    <div class="ctl" id="ctlT"></div>
+    <div class="k-readouts" id="outsT"></div>
+    <p class="say" id="sayT"></p>
+    <div class="warn-note" id="warnT"></div>
+    <p class="corr" id="corrT"></p>
+
+    <div id="worked"></div>
+    <div class="row" id="workedgo"></div>
+    <div class="picks" id="picks"></div>
+    <div id="ans-2a"></div>
+    <div id="ans-2b"></div>
+    <div id="ans-2c"></div>
+    <div id="ans-ch"></div>
+    <div class="row" id="acts"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div class="note why" id="after"></div>
+    <div class="row" id="go"></div>
+    <div id="wr1"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Each line is worked from the rounded figures shown before it.</p>
+
+<script>
+  // ---------- rounding, helpers and the course's figures ----------
+  const r2 = (x) => Math.round(x * 100 + 1e-7) / 100;
+  const r3 = (x) => Math.round(x * 1000 + 1e-6) / 1000;
+  const f2 = (x) => r2(x).toFixed(2);
+  const F = (id) => K.figure(id);
+  const el = (id) => document.getElementById(id);
+  const NB = ' ';
+  // Non-breaking spaces: before an operator, and between a number and its unit.
+  const nb = (s) => String(s == null ? '' : s)
+    .replace(/ ([×÷+=−]) /g, NB + '$1 ')
+    .replace(/(\d) (?=(?:mΩ|°C|km|Ω|m)(?![A-Za-z]))/g, '$1' + NB);
+  const vis = (e, on) => { if (on) e.removeAttribute('display'); else e.setAttribute('display', 'none'); };
+  function txt(parent, x, y, s, cls, anchor) {
+    const t = parent.appendChild(K.svg('text', { x: x, y: y, class: cls || 'lb', 'text-anchor': anchor || 'start' }));
+    t.textContent = s;
+    return t;
+  }
+
+  const fA = F('n.wexA'), fB = F('n.wexB'), fC = F('n.wexC');
+  const fRec = F('l2.recall'), fS1 = F('l2.recall.slip1'), fS2 = F('l2.recall.slip2');
+  const fW2 = F('l2.wex.L2'), fW3 = F('l2.wex.L3'), fWk = F('l2.wex.check'), fG1 = F('l2.wex.gap1'), fG2 = F('l2.wex.gap2');
+  const fLA = F('p.loopA'), fLB = F('p.loopB'), fLC = F('p.loopC');
+  const LOOP = fLA.value, LEAD = F('p.leadR').value, CONT = F('p.contactR').value;
+  const fTwo = F('l2.twoWire'), fTwoP = F('l2.twoWire.pct'), fOn = F('l2.onClamps'), fOnP = F('l2.onClamps.pct');
+  const LOWR = F('n.lowR').value, TOL = F('n.tol').value, fLen = F('p.len');
+  const fF1 = F('p.fac1'), fF2 = F('p.fac2'), fF3 = F('p.fac3'), TEMP = F('p.temp').value, FAC1 = fF1.value;
+  const fK = F('l2.k'), fCold = F('l2.cold.L1'), fColdP = F('l2.cold.pct'), fBand = F('l2.band');
+  const f2a = F('2a'), f2b = F('2b'), f2c = F('2c'), fL1 = F('l2.L1'), fL3 = F('l2.L3');
+  const fChg = F('l2.changed'), fChgK = F('l2.changed.check');
+  const UNIT_R = f2a.unit;
+  const ALPHA = 0.00393, ALPHA_ROUND = 0.004;
+  // The changed-numbers cable's loops, practice values.
+  const CH = { A: 120.40, B: 121.10, C: 120.90 };
+  const P_SHORT = 5, P_LONG = 30;
+
+  // The rules.
+  const MEAS = ['Two wires', 'P on the C clamps', 'P inside the C clamps'];
+  const mi = (v) => K.clamp(Math.round(+v || 0), 0, 2);
+  const tv = (v) => { const t = Math.round(+v); return isFinite(t) ? K.clamp(t, 4, 30) : 20; };
+  const meterAt = (m) => r2(LOOP + (m === 0 ? 2 * LEAD : 0) + (m <= 1 ? 2 * CONT : 0));
+  const aboveAt = (m) => r2((meterAt(m) - LOOP) / LOOP * 100);
+  const kAt = (t) => 1 + ALPHA * (t - 20);
+  const k5 = (t) => Math.round(kAt(t) * 1e5) / 1e5;
+  const readAt = (t) => r2(FAC1 * kAt(t));
+  const devAt = (t) => r2(ALPHA * 100 * (t - 20));
+  const L1of = (a, b, c) => (a + c - b) / 2, L2of = (a, b, c) => (b + a - c) / 2, L3of = (a, b, c) => (c + b - a) / 2;
+  const contAt = (far, core) => far === core;
+
+  // ---------- the lesson's words ----------
+  const R_TASK = 'Three loop readings on one cable: L1 to L2, A = ' + fA.text + '. L2 to L3, B = ' + fB.text + '. L3 to L1, C = ' + fC.text + '. What is L1?';
+  const R_WORK = 'L1 = (A + C − B) ÷ 2 = ' + fRec.work;
+  const R_SLIPS = fS1.text + " is L2's formula, and " + fS2.text + ' is half of loop A.';
+  const R_W1 = "That is L2's formula, (B + A − C) ÷ 2. For L1, add the two loops that hold L1, A and C, then take away B.";
+  const R_W3 = 'That is half of loop A. It is right only if L1 and L2 are equal. Use all three loops.';
+  const FOR_TEXT = 'Phase ID makes sure L1, L2 and L3 are identified, labelled and terminated in the right order. Core resistance proves each conductor end to end, its joints and terminations included. Corrected to 20 °C, each core should be within ' + TOL + '% of its factory value.';
+  const ASSUME = 'Assume this order. Every core starts earthed at both ends, with a technician at each end. Each core is tested in turn to the screen, from both ends.\n\n'
+    + 'The far end keeps one core joined to the screen. Under control, it lifts the other two earths. Your end lifts its earths and tests each core to the screen. Only the joined core reads continuity. Then the earths go back on.\n\n'
+    + 'The colours are red L1, yellow L2 and blue L3.';
+  const WARN_FOR = 'Phases terminated in the wrong order can give a short when the cable is energised. A poor joint or termination goes unseen.';
+  const PCOL = ['red', 'yellow', 'blue'];
+  const PH_READ = 'With L1 joined to the screen at B01, only L1 reads continuity at the OSS. So the core marked red at one end is the core marked red at the other.';
+  const WHY_TEXT = 'Low resistance usually means under ' + LOWR + ' Ω. Down there, the test leads and their contacts can add a big share of what you read.\n\n'
+    + "A meter works out resistance as the voltage it sees ÷ the current it sends. On two wires, the same leads do both jobs. The current runs through each lead and each contact, and each drops a little voltage. The meter adds those drops to the core's own.\n\n"
+    + 'Four wires split the jobs. The C leads carry the current, but the meter does not measure across them. The P leads are measured, but almost no current flows in them. So neither the P leads nor their contacts drop any voltage worth counting. The reading is whatever carries the current between the two P points.';
+  const NOTE_W = 'Loop A of String B is two cores linked at B01, drawn as one resistor. The loop, lead and contact values are practice values.';
+  const UNDER_W = fOnP.text + ' is far more than the ' + TOL + '% a core is allowed.';
+  const WHY_READ = 'Two wires read ' + fTwo.text + ', ' + fTwoP.text + ' high. Both leads and both contacts carry the current inside the measured stretch. '
+    + 'P probes clipped on the C clamps leave the leads out, but the contacts still add ' + fOnP.text + '. P probes inside the C clamps, facing each other, read the loop alone: ' + fLA.text + '.';
+  const C_TASK = 'You measure loop A, ' + fLA.text + ', with four wires. Then you swap the ' + P_SHORT + ' m P leads for ' + P_LONG + ' m ones, so the meter can sit further back. What does the reading do?';
+  const C_O1 = 'It rises by the extra lead resistance', C_O2 = 'It stays at ' + fLA.text, C_O3 = 'It rises, unless the C leads are lengthened too';
+  const C_RIGHT = 'Almost no current flows in the P leads. So even ' + P_LONG + ' m of lead drops almost no voltage, and the reading holds.';
+  const C_W1 = 'That is a two-wire meter. The P leads carry almost no current, so their resistance drops almost no voltage.';
+  const C_W3 = 'The C leads carry the current, but the meter does not measure across them. Neither set of leads joins the reading.';
+  const LOOP_TEXT = 'Your leads cannot reach both ends of a ' + fLen.text + ' core. So the far end links two cores, and you read the loop they make. Each loop is two cores in series: A = L1 + L2, B = L2 + L3 and C = L1 + L3.\n\n'
+    + 'Add A and C, and you have L1 twice, plus L2 and L3 once each. Take B away, and L2 and L3 cancel. So L1 = (A + C − B) ÷ 2. L2 = (B + A − C) ÷ 2 and L3 = (C + B − A) ÷ 2 follow the same way.\n\n'
+    + 'Add all three loops and every core appears twice. So A + B + C = 2 × (L1 + L2 + L3), a quick check on your sums.';
+  const NOTE_L = "String B's " + fLen.text + ' is a practice value.';
+  const LOOP_READ = 'Loop A links L1 and L2 at B01, so it reads L1 + L2. Loop B reads L2 + L3, and loop C reads L1 + L3. So L1 = (A + C − B) ÷ 2, L2 = (B + A − C) ÷ 2 and L3 = (C + B − A) ÷ 2.';
+  const wkLoops = 'A = ' + f2(fA.value) + ', B = ' + f2(fB.value) + ' and C = ' + f2(fC.value) + ' ' + fA.unit;
+  const chkAt = fWk.work.indexOf(fWk.text);
+  const WK4a = fWk.work.slice(0, chkAt + fWk.text.length);
+  const WK4b = fWk.work.slice(chkAt + fWk.text.length).replace(/^\s*=\s*/, '') + ' = ' + fWk.text;
+  const WL = [
+    { w: 'L1 = ' + fRec.work + '.' },
+    { w: 'L2 = ' + fW2.work + '.' },
+    { w: 'L3 = ' + fW3.work + '.' },
+    { w: 'Check: ' + WK4a + '.', w2: 'And ' + WK4b + '.' },
+  ];
+  const WK_NOTE = 'Call the results L1, L2 and L3. A, B and C are the loops.';
+  const WK_GAP = 'L3 reads ' + fG1.text + ' above L1 and ' + fG2.text + ' above L2. Three cores of one cable have the same size and length, so they should read close together. Find out why before you submit a gap like this.';
+  const WK_READ = 'The loops read ' + wkLoops + '. L1 = ' + fRec.text + ', L2 = ' + fW2.text + ' and L3 = ' + fW3.text + '. They add to ' + fWk.text + ', half of A + B + C. '
+    + 'L3 sits ' + fG1.text + ' above L1 and ' + fG2.text + ' above L2. Explain a gap like that before you submit.';
+  const COLD_TEXT = "Copper's resistance rises as it warms, by " + ALPHA + ' of its 20 °C value for each degree. That is about ' + (ALPHA_ROUND * 100) + '% per °C. Factory values are given at 20 °C. So a cable on the seabed at ' + TEMP + ' °C reads low, even when it is sound.\n\n'
+    + 'Correct the reading to 20 °C before you compare it: R20 = R_t ÷ (1 + ' + ALPHA + ' × (t − 20)).';
+  const NOTE_T = "L1's certificate value, " + fF1.text + ', is a practice value.';
+  const COLD_READ = "L1's factory value is " + fF1.text + ' at 20 °C. At ' + TEMP + ' °C the same sound core reads ' + fCold.text + ', ' + f2(Math.abs(fColdP.value)) + '% low and outside ' + TOL + '%. '
+    + 'Divide by 1 + ' + ALPHA + ' × (' + TEMP + ' − 20) = ' + fK.text + ' and it is back to ' + fF1.text + '. About ' + Math.round(fBand.value) + ' °C either side of 20 °C uses up the whole ' + TOL + '%.';
+  const TEST_TEXT = 'String B is at ' + TEMP + ' °C. Your end is the OSS. Each pair is linked at B01 in turn, and the DLRO reads: L1 to L2, A = ' + fLA.text + '. L2 to L3, B = ' + fLB.text + '. L1 to L3, C = ' + fLC.text + '. These are practice values.';
+  const Q2A = '(a) Determine the resistance of core L2 at ' + TEMP + ' °C.';
+  const CERT_TEXT = 'The factory certificate gives each core at 20 °C: L1 ' + f2(fF1.value) + ', L2 ' + f2(fF2.value) + ' and L3 ' + f2(fF3.value) + ' ' + fF1.unit + '. These are practice values. '
+    + "Take copper's coefficient as " + ALPHA + ' per °C.';
+  const Q2B = "(b) Determine L2's resistance corrected to 20 °C.";
+  const Q2C = "(c) Determine L2's deviation from its factory value of " + fF2.text + ', as a percentage. Is it acceptable?';
+  const Q_CH = 'Another three-core cable is read at 20 °C, so no correction is needed. Its loops: L1 to L2, A = ' + f2(CH.A) + ' mΩ. L2 to L3, B = ' + f2(CH.B) + ' mΩ. L1 to L3, C = ' + f2(CH.C) + ' mΩ. Determine the resistance of core L3.';
+  const CH_SUM = r2(CH.C + CH.B - CH.A);
+  const CH_WORK = 'L3 = (C + B − A) ÷ 2 = (' + f2(CH.C) + ' + ' + f2(CH.B) + ' − ' + f2(CH.A) + ') ÷ 2 = ' + f2(CH_SUM) + ' ÷ 2 = ' + fChg.text;
+  const CH_L2 = r2(L2of(CH.A, CH.B, CH.C));
+  const W2C = f2c.work.split(', ')[0];
+
+  let lines = 0, lastStep = -1, finished = false;
+  const STEPS = [
+    { name: 'Do you still have it?', label: 'Do you still have it?', task: R_TASK, opts: [fS1.text, fRec.text, fS2.text], want: fRec.text,
+      why: 'Each loop is two cores in series. ' + R_WORK + '. ' + R_SLIPS },
+    { show: true, name: 'What it is for', label: 'What it is for', text: FOR_TEXT, terms: ['Phase ID', 'Core resistance'], read: FOR_TEXT + ' ' + PH_READ,
+      still: { far: 'L1' } },
+    { show: true, name: 'The why', label: 'The why: four wires', text: WHY_TEXT, terms: ['C leads', 'P leads'], read: WHY_READ, still: { meas: 2 } },
+    { name: 'Check', label: 'Check', task: C_TASK, opts: [C_O1, C_O2, C_O3], want: C_O2, why: C_RIGHT },
+    { show: true, name: 'Three loops, three cores', label: 'Three loops, three cores', text: LOOP_TEXT, terms: ['two cores in series'], read: LOOP_READ, still: { loop: 3 } },
+    { show: true, name: 'Worked example', label: 'Worked example: three loops', text: '', read: WK_READ,
+      still: () => { lines = WL.length; K.refresh(); } },
+    { show: true, name: 'A cold cable reads low', label: 'A cold cable reads low', text: COLD_TEXT, terms: ['Correct the reading to 20 °C'], read: COLD_READ, still: { temp: TEMP } },
+    { name: 'Section A 2(a)', label: 'Section A · Question 2', pre: TEST_TEXT, part: Q2A, task: TEST_TEXT + ' ' + Q2A, want: f2a.text, why: 'L2 = (B + A − C) ÷ 2 = ' + f2a.work + '.' },
+    { name: 'Section A 2(b)', label: 'Section A · Question 2', pre: CERT_TEXT, part: Q2B, task: CERT_TEXT + ' ' + Q2B, want: f2b.text, why: fK.work + '. R20 = ' + f2b.work + '.' },
+    { name: 'Section A 2(c)', label: 'Section A · Question 2', part: Q2C, task: Q2C, want: f2c.text, why: W2C + '. That is inside ' + TOL + '%, so it is acceptable.' },
+    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },
+    { name: 'Changed numbers', label: 'Section A · Changed numbers', part: Q_CH, task: Q_CH, want: fChg.text, why: CH_WORK + '.' },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const iR = 0, iFor = 1, iWhy = 2, iChk = 3, iLp = 4, iWk = 5, iCold = 6, i2A = 7, i2B = 8, i2C = 9, iB1 = 10, iCh = 11, iK = 12;
+  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, fb: null }));
+  const WORKING = [iWk, i2A, i2B, i2C, iCh];
+
+  // Words with key terms in amber (the <mark> element) and R20 / R_t with subscripts, built with
+  // K.el, never innerHTML.
+  function addText(node, s) {
+    String(s).split(/(R20|R_t)/).forEach((part) => {
+      if (part === 'R20') node.appendChild(K.el('span', { class: 'sym' }, 'R', K.el('sub', null, '20')));
+      else if (part === 'R_t') node.appendChild(K.el('span', { class: 'sym' }, 'R', K.el('sub', null, 't')));
+      else if (part) node.appendChild(document.createTextNode(nb(part)));
+    });
+  }
+  function write(node, s, terms) {
+    node.textContent = '';
+    let rest = String(s || '');
+    const list = (terms || []).slice();
+    while (rest) {
+      let at0 = -1, hit = null;
+      list.forEach((t) => { const k = rest.indexOf(t); if (k >= 0 && (at0 < 0 || k < at0)) { at0 = k; hit = t; } });
+      if (at0 < 0) { addText(node, rest); break; }
+      if (at0 > 0) addText(node, rest.slice(0, at0));
+      node.appendChild(K.el('mark', null, nb(hit)));
+      list.splice(list.indexOf(hit), 1);
+      rest = rest.slice(at0 + hit.length);
+    }
+    return node;
+  }
+  function paras(node, s, terms) {
+    node.textContent = '';
+    String(s || '').split('\n\n').forEach((t) => { if (t) node.appendChild(write(K.el('p'), t, terms)); });
+  }
+
+  // ---------- controls and readouts ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  K.choice({ id: 'far', label: 'Far end joins', options: ['L1', 'L2', 'L3'], value: 'L1', into: '#ctlP' });
+  K.stepper({ id: 'meas', label: 'Measure with', steps: MEAS, value: 0, compact: true, into: '#ctlW' });
+  K.readout({ id: 'meter', label: 'Meter reads', unit: 'mΩ', decimals: 2, into: '#outsW' });
+  K.readout({ id: 'above', label: 'Above the loop', unit: '%', decimals: 2, into: '#outsW' });
+  K.stepper({ id: 'loop', label: 'Loop', steps: ['A is L1 to L2', 'B is L2 to L3', 'C is L3 to L1', 'All three'], value: 0, compact: true, into: '#ctlL' });
+  K.control({ id: 'temp', label: 'Cable temperature', min: 4, max: 30, step: 1, value: 20, unit: '°C', snap: [TEMP], into: '#ctlT' });
+  K.readout({ id: 'rd', label: 'DLRO reads', unit: 'mΩ', decimals: 2, into: '#outsT' });
+  K.readout({ id: 'dev', label: 'Against the certificate', fmt: (v) => (v > 0 ? '+' : '') + K.fmt(v, { decimals: 2 }) + '%', into: '#outsT' });
+
+  K.model((p) => {
+    const m = mi(p.meas), t = tv(p.temp);
+    return { meter: meterAt(m), above: aboveAt(m), rd: readAt(t), dev: devAt(t) };
+  });
+
+  // ---------- flowing current: chevrons along a path ----------
+  function pathLen(pts) { let L = 0; for (let i = 1; i < pts.length; i++) L += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); return L; }
+  function pointOn(pts, d) {
+    for (let i = 1; i < pts.length; i++) {
+      const dx = pts[i][0] - pts[i - 1][0], dy = pts[i][1] - pts[i - 1][1], s = Math.hypot(dx, dy);
+      if (d <= s || i === pts.length - 1) { const q = s ? Math.min(d, s) / s : 0; return [pts[i - 1][0] + dx * q, pts[i - 1][1] + dy * q, Math.atan2(dy, dx) * 180 / Math.PI]; }
+      d -= s;
+    }
+    return [pts[0][0], pts[0][1], 0];
+  }
+  function chevrons(pool, group, pts, phase, skip) {
+    const L = pathLen(pts), gap = 18, n = Math.floor(L / gap);
+    let used = 0;
+    for (let k = 0; k < n; k++) {
+      const d = (phase + k * gap) % L;
+      if (d < 5 || d > L - 5) continue;
+      const pt = pointOn(pts, d);
+      if (skip && skip(pt[0], pt[1])) continue;
+      let c = pool[used];
+      if (!c) { c = group.appendChild(K.svg('path', { class: 'chev', d: 'M-2.5 -3L1.5 0L-2.5 3' })); pool.push(c); }
+      c.setAttribute('transform', 'translate(' + pt[0].toFixed(1) + ' ' + pt[1].toFixed(1) + ') rotate(' + Math.round(pt[2]) + ')');
+      vis(c, true);
+      used += 1;
+    }
+    for (let k = used; k < pool.length; k++) vis(pool[k], false);
+  }
+  let flowT = 0, flowLeft = 0, flowKey = '';
+  const FLOW_RUN = 4, FLOW_V = 20;
+
+  // ---------- phase ID: three cores, OSS on the left, B01 on the right ----------
+  const PY = [44, 96, 148], PX0 = 108, PX1 = 288;
+  const phEl = el('phase');
+  txt(phEl, 8, 16, 'OSS, your end');
+  txt(phEl, 332, 16, 'B01, far end', 'lb', 'end');
+  const PR = PY.map((y, k) => {
+    const g = phEl.appendChild(K.svg('g'));
+    const core = g.appendChild(K.svg('line', { class: 'core', x1: PX0, y1: y, x2: PX1, y2: y }));
+    const scr = g.appendChild(K.svg('line', { class: 'scrn', x1: PX0, y1: y + 12, x2: PX1, y2: y + 12 }));
+    g.appendChild(K.svg('path', { class: 'wire', d: 'M97 ' + (y + 2) + 'L' + PX0 + ' ' + y + 'M97 ' + (y + 10) + 'L' + PX0 + ' ' + (y + 12) }));
+    g.appendChild(K.svg('circle', { class: 'tst', cx: 90, cy: y + 6, r: 9 }));
+    txt(g, 90, y + 10.5, 'Ω', 'tk', 'middle');
+    txt(g, 8, y + 4, 'L' + (k + 1) + ', ' + PCOL[k]);
+    const rt = txt(g, 8, y + 22, '', 'tk');
+    const link = g.appendChild(K.svg('line', { class: 'link', x1: PX1, y1: y, x2: PX1, y2: y + 12 }));
+    const jl = txt(g, PX1 + 6, y + 10.5, 'joined', 'tk');
+    const ch = g.appendChild(K.svg('g'));
+    return { core, scr, rt, link, jl, ch, pool: [], pts: [[PX0, y], [PX1, y], [PX1, y + 12], [PX0, y + 12]] };
+  });
+  (function key() {
+    phEl.appendChild(K.svg('line', { class: 'core', x1: 10, y1: 180, x2: 26, y2: 180 })); txt(phEl, 32, 184.5, 'Core', 'tk');
+    phEl.appendChild(K.svg('line', { class: 'scrn', x1: 76, y1: 180, x2: 92, y2: 180 })); txt(phEl, 98, 184.5, 'Screen', 'tk');
+    phEl.appendChild(K.svg('circle', { class: 'tst', cx: 164, cy: 180, r: 8 })); txt(phEl, 164, 184.5, 'Ω', 'tk', 'middle');
+    txt(phEl, 178, 184.5, 'Continuity tester', 'tk');
+  })();
+  const farIdx = (p) => Math.max(0, ['L1', 'L2', 'L3'].indexOf(p.far));
+  function drawPhase(p) {
+    const j = farIdx(p);
+    PR.forEach((r, k) => {
+      const on = contAt(j, k);
+      r.core.setAttribute('class', 'core' + (on ? ' on' : ''));
+      r.scr.setAttribute('class', 'scrn' + (on ? ' on' : ''));
+      vis(r.link, on); vis(r.jl, on);
+      r.rt.textContent = on ? 'continuity' : 'open';
+      r.rt.setAttribute('class', on ? 'lbA' : 'tk');
+      if (on) chevrons(r.pool, r.ch, r.pts, flowT * FLOW_V); else r.pool.forEach((c) => vis(c, false));
+    });
+    const L = 'L' + (j + 1), others = ['L1', 'L2', 'L3'].filter((x) => x !== L).join(' and ');
+    el('sayP').textContent = nb('With ' + L + ' joined to the screen at B01, only ' + L + ' reads continuity at the OSS. ' + others + ' read open. So the core marked '
+      + PCOL[j] + ' at the OSS is the core marked ' + PCOL[j] + ' at B01.');
+    phEl.setAttribute('aria-label', 'Three cores, each with its screen, from the OSS on the left to B01 on the right. At B01, ' + L + ' is joined to its screen. At the OSS, '
+      + L + ' reads continuity and ' + others + ' read open.');
+  }
+
+  // ---------- the why: two wires, then four ----------
+  const wiresEl = el('wires');
+  el('vL1').textContent = el('vL2').textContent = nb(LEAD + ' mΩ');
+  el('vC1').textContent = el('vC2').textContent = nb(CONT + ' mΩ');
+  el('vLp').textContent = nb(fLA.text);
+  const W_PTS = [[108, 46], [108, 62], [14, 62], [14, 150], [326, 150], [326, 62], [232, 62], [232, 46]];
+  const W_BLOCK = [[16, 66], [62, 78], [74, 106], [116, 224], [234, 266], [262, 278], [274, 324]];
+  const wSkip = (x, y) => Math.abs(y - 150) < 1 && W_BLOCK.some((b) => x >= b[0] && x <= b[1]);
+  const wPool = [];
+  // Where the P probes touch: on the C clamps, or on the core inside them.
+  const P_AT = [null, [[70, 140], [270, 140]], [[110, 147], [230, 147]]];
+  function drawWires(p) {
+    const m = mi(p.meas);
+    vis(el('pleads'), m > 0);
+    let x1 = 14, x2 = 326;
+    if (m > 0) {
+      const a = P_AT[m][0], b = P_AT[m][1];
+      el('p1').setAttribute('d', 'M146 46V80H' + a[0] + 'V' + (a[1] - 8));
+      el('p2').setAttribute('d', 'M194 46V80H' + b[0] + 'V' + (b[1] - 8));
+      el('t1').setAttribute('d', 'M' + (a[0] - 5) + ' ' + (a[1] - 8) + 'H' + (a[0] + 5) + 'L' + a[0] + ' ' + a[1] + 'Z');
+      el('t2').setAttribute('d', 'M' + (b[0] - 5) + ' ' + (b[1] - 8) + 'H' + (b[0] + 5) + 'L' + b[0] + ' ' + b[1] + 'Z');
+      x1 = a[0]; x2 = b[0];
+    }
+    el('brk').setAttribute('d', 'M' + x1 + ' 200V212M' + x1 + ' 206H' + x2 + 'M' + x2 + ' 200V212');
+    chevrons(wPool, el('wchev'), W_PTS, flowT * FLOW_V, wSkip);
+    const rd = f2(meterAt(m)) + ' mΩ', up = f2(aboveAt(m)) + '%';
+    el('sayW').textContent = nb(m === 0
+      ? 'On two wires, both leads and both contacts carry the current inside the measured stretch. So the meter reads ' + rd + ', ' + up + ' above the loop.'
+      : m === 1 ? 'With the P probes on the C clamps, the leads drop out. The two contacts still carry the current inside the measured stretch, so it reads ' + rd + ', ' + up + ' high.'
+      : 'With the P probes inside the C clamps, facing each other, only the loop carries current between them. The meter reads the loop alone, ' + rd + '.');
+    wiresEl.setAttribute('aria-label', 'A DLRO with terminals C1, P1, P2 and C2. The test current runs from C1 through a C lead, a C clamp and its contact, the loop, then the other contact, clamp and lead to C2. '
+      + (m === 0 ? 'Two wires: the meter measures across both leads, both contacts and the loop.'
+        : m === 1 ? 'The P probes sit on the C clamps, so the meter measures across both contacts and the loop.'
+        : 'The P probes sit on the core inside the C clamps, so the meter measures across the loop alone.'));
+  }
+
+  // ---------- three loops, three cores ----------
+  const LOOPS = [[0, 1], [1, 2], [0, 2]], LNAME = ['Loop A: L1 + L2', 'Loop B: L2 + L3', 'Loop C: L1 + L3'], LETTER = ['A', 'B', 'C'];
+  const lpEl = el('loops');
+  txt(lpEl, 48, 14, 'OSS', 'lb', 'middle');
+  txt(lpEl, 297, 14, 'B01', 'lb', 'middle');
+  const LR = LOOPS.map((pair, r) => {
+    const top = 24 + r * 76, ys = [top + 28, top + 44, top + 60];
+    const g = lpEl.appendChild(K.svg('g', { class: 'lrow' }));
+    const name = txt(g, 8, top + 12, LNAME[r]);
+    ys.forEach((y, k) => {
+      txt(g, 8, y + 4.5, 'L' + (k + 1), 'tk');
+      if (pair.indexOf(k) >= 0) {
+        g.appendChild(K.svg('line', { class: 'lc', x1: 48, y1: y, x2: 290, y2: y }));
+        g.appendChild(K.svg('circle', { class: 'tdot', cx: 48, cy: y, r: 3.5 }));
+      } else {
+        g.appendChild(K.svg('path', { class: 'le', d: 'M48 ' + y + 'H280M48 ' + y + 'H44M44 ' + (y - 6) + 'V' + (y + 6) + 'M40 ' + (y - 4) + 'V' + (y + 4) + 'M36 ' + (y - 2) + 'V' + (y + 2)
+          + 'M280 ' + y + 'H284M284 ' + (y - 6) + 'V' + (y + 6) + 'M288 ' + (y - 4) + 'V' + (y + 4) + 'M292 ' + (y - 2) + 'V' + (y + 2) }));
+      }
+    });
+    const ya = ys[pair[0]], yb = ys[pair[1]];
+    g.appendChild(K.svg('path', { class: 'lc', d: 'M290 ' + ya + 'H304V' + yb + 'H290' }));
+    const ch = g.appendChild(K.svg('g'));
+    return { g, name, ch, pool: [], pts: [[48, ya], [290, ya], [304, ya], [304, yb], [290, yb], [48, yb]] };
+  });
+  const FORMS = ['L1 = (A + C − B) ÷ 2', 'L2 = (B + A − C) ÷ 2', 'L3 = (C + B − A) ÷ 2'];
+  const formLetters = [];
+  FORMS.forEach((f) => {
+    const p = K.el('p');
+    f.split(/\b([ABC])\b/).forEach((part) => {
+      if (part === 'A' || part === 'B' || part === 'C') { const s = K.el('span', { class: 'lt' }, part); s.dataset.l = part; formLetters.push(s); p.appendChild(s); }
+      else if (part) p.appendChild(document.createTextNode(nb(part)));
+    });
+    el('forms').appendChild(p);
+  });
+  function drawLoops(p) {
+    const s = K.clamp(Math.round(+p.loop || 0), 0, 3);
+    LR.forEach((r, k) => {
+      const lit = s === 3 || s === k;
+      r.g.setAttribute('class', 'lrow ' + (lit ? 'lit' : 'dim'));
+      r.name.setAttribute('class', lit ? 'lb' : 'tk');
+      if (lit) chevrons(r.pool, r.ch, r.pts, flowT * FLOW_V); else r.pool.forEach((c) => vis(c, false));
+    });
+    formLetters.forEach((sp) => sp.classList.toggle('on', s === 3 || sp.dataset.l === LETTER[s]));
+    const SAY = [
+      'Loop A: the far end links L1 and L2 at B01. The current goes out on L1 and back on L2, so the meter reads L1 + L2. L3 stays earthed at both ends.',
+      'Loop B: the far end links L2 and L3 at B01. The current goes out on L2 and back on L3, so the meter reads L2 + L3. L1 stays earthed at both ends.',
+      'Loop C: the far end links L1 and L3 at B01. The current goes out on L1 and back on L3, so the meter reads L1 + L3. L2 stays earthed at both ends.',
+      'Each loop holds two cores, and each core sits in two loops. So A + B + C counts every core twice.',
+    ];
+    el('sayL').textContent = nb(SAY[s]);
+    lpEl.setAttribute('aria-label', 'Three loop tests, one row each, with the cores running from the OSS on the left to B01 on the right. '
+      + (s === 3 ? 'All three loops are lit: A is L1 + L2, B is L2 + L3 and C is L1 + L3.' : LNAME[s] + ' is lit, its two cores linked at B01 and the third core earthed at both ends.'));
+  }
+
+  // ---------- a cold cable reads low ----------
+  const coldEl = el('cold');
+  const TX0 = 92, TX1 = 326, TLO = 160, THI = 185;
+  const txs = (v) => TX0 + (v - TLO) * (TX1 - TX0) / (THI - TLO);
+  const ty = (t) => 140 - (t - 4) / 26 * 104;
+  const tLab = txt(coldEl, 6, 14, '');
+  const bandX0 = txs(FAC1 * (1 - TOL / 100)), bandX1 = txs(FAC1 * (1 + TOL / 100));
+  coldEl.appendChild(K.svg('rect', { class: 'band', x: bandX0.toFixed(1), y: 32, width: (bandX1 - bandX0).toFixed(1), height: 118 }));
+  txt(coldEl, ((bandX0 + bandX1) / 2).toFixed(1), 27, 'within ' + TOL + '%', 'tk', 'middle');
+  coldEl.appendChild(K.svg('rect', { class: 'tube', x: 18, y: 28, width: 12, height: 124, rx: 6 }));
+  coldEl.appendChild(K.svg('circle', { class: 'tube', cx: 24, cy: 158, r: 11 }));
+  coldEl.appendChild(K.svg('circle', { class: 'merc', cx: 24, cy: 158, r: 8 }));
+  const merc = coldEl.appendChild(K.svg('rect', { class: 'merc', x: 21, width: 6, y: 100, height: 52 }));
+  coldEl.appendChild(K.svg('path', { class: 'axis', d: 'M30 ' + ty(20).toFixed(1) + 'H37' }));
+  txt(coldEl, 40, (ty(20) + 4.5).toFixed(1), '20 °C', 'tk');
+  txt(coldEl, TX0, 50, 'R20, certificate at 20 °C');
+  coldEl.appendChild(K.svg('rect', { class: 'bar1', x: TX0, y: 56, width: (txs(FAC1) - TX0).toFixed(1), height: 20 }));
+  const bar2Lab = txt(coldEl, TX0, 104, '');
+  const bar2 = coldEl.appendChild(K.svg('rect', { class: 'bar2', x: TX0, y: 110, width: 10, height: 20 }));
+  coldEl.appendChild(K.svg('path', { class: 'axis', d: 'M' + TX0 + ' 150H' + TX1 + 'M95 153L100 147M99 153L104 147' }));
+  for (let v = TLO; v <= THI; v += 5) {
+    coldEl.appendChild(K.svg('path', { class: 'axis', d: 'M' + txs(v).toFixed(1) + ' 150V155' }));
+    txt(coldEl, txs(v).toFixed(1), 168, String(v), 'tk', 'middle');
+  }
+  txt(coldEl, ((TX0 + TX1) / 2).toFixed(1), 186, 'Core resistance (mΩ)', 'tk', 'middle');
+  function drawCold(p) {
+    const t = tv(p.temp), rd = readAt(t), dev = devAt(t), out = Math.abs(dev) > TOL;
+    tLab.textContent = 't = ' + t + ' °C';
+    const yt = ty(t);
+    merc.setAttribute('y', yt.toFixed(1));
+    merc.setAttribute('height', (158 - yt).toFixed(1));
+    bar2Lab.textContent = 'Rt, DLRO reads at ' + t + ' °C';
+    bar2.setAttribute('width', Math.max(2, txs(rd) - TX0).toFixed(1));
+    bar2.setAttribute('class', 'bar2' + (out ? ' out' : ''));
+    const here = at() === iCold;
+    let s;
+    if (t === 20) s = 'At 20 °C the DLRO reads ' + f2(rd) + ' mΩ, the same as the certificate.';
+    else s = 'At ' + t + ' °C the ' + (t < 20 ? 'cold' : 'warm') + ' core reads ' + f2(rd) + ' mΩ, ' + f2(Math.abs(dev)) + '% ' + (t < 20 ? 'low' : 'high') + '. '
+      + (out ? 'It is sound, but it sits outside ' + TOL + '%.' : 'That is still inside ' + TOL + '%.');
+    el('sayT').textContent = nb(s);
+    const w = el('warnT');
+    w.hidden = !(here && out);
+    const c = el('corrT');
+    if (t === 20) c.textContent = '';
+    else {
+      const back = r2(rd / k5(t));
+      c.textContent = nb('Corrected: ' + f2(rd) + ' ÷ ' + k5(t).toFixed(5) + ' = ' + f2(back) + ' mΩ, ' + (back === FAC1 ? 'right on its certificate.' : 'on its certificate once rounding is allowed for.'));
+    }
+    c.hidden = !here || !c.textContent;
+    coldEl.setAttribute('aria-label', 'A thermometer at ' + t + ' °C, and two bars on a resistance scale: the certificate value at 20 °C, and what the DLRO reads now. A band marks '
+      + TOL + '% either side of the certificate. The reading is ' + (out ? 'outside' : 'inside') + ' the band.');
+  }
+
+  function drawFlows() {
+    const i = at(), p = K.params();
+    if (i === iFor) drawPhase(p);
+    else if (i === iWhy) chevrons(wPool, el('wchev'), W_PTS, flowT * FLOW_V, wSkip);
+    else if (i === iLp) drawLoops(p);
+  }
+  const flowAnim = K.anim({ button: false, label: 'Test current', step: (dt) => {
+    const i = at();
+    if (i !== iFor && i !== iWhy && i !== iLp) return false;
+    const d = Math.min(dt, 0.1);
+    flowT += d; flowLeft -= d;
+    drawFlows();
+    return flowLeft > 0;
+  } });
+
+  // ---------- picks: one tap answers ----------
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length) return;
+    if (i === iR) {
+      if (st.res) return;     // a recall gets one go
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Still there.', p0: 'Each loop is two cores in series.', w: [R_WORK + '.'], p: R_SLIPS }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === fS1.text ? R_W1 : R_W3, w: [R_WORK + '.'] }; }
+    } else if (i === iChk) {
+      if (st.res === 'right') return;
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: "That's it.", p0: C_RIGHT }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === C_O1 ? C_W1 : C_W3 }; }
+    }
+    K.refresh();
+  }
+  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iFor); } });
+  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(i2A); } });
+
+  // ---------- Section A: typed answers on the course's figures ----------
+  const scen = K.scenario({ into: '#scen', open: true });
+  K.carried({ parts: ['2a'], into: '#carry2b' });
+  K.carried({ parts: ['2a', '2b'], into: '#carry2c' });
+  const K_ROUND = 1 + ALPHA_ROUND * (TEMP - 20);
+  const SPEC = {
+    [i2A]: { id: '2a', fig: f2a, accept: [],
+      work: () => ['L2 = (B + A − C) ÷ 2', '= ' + f2a.work],
+      slips: [
+        { value: F('2a.slip').value, hint: "That is two cores' worth. Halve it." },
+        { value: fL1.value, hint: "That is L1's formula. For L2, add the two loops that hold L2, A and B, then take away C." },
+        { value: F('2a.slip2').value, hint: 'That is half of loop A. It assumes L1 and L2 are equal.' },
+      ],
+      hint: 'Not quite. L2 sits in loops A and B. Add those two, take away C, then halve.',
+      after: 'L1 and L3 work out the same way, at ' + f2(fL1.value) + ' and ' + f2(fL3.value) + ' ' + UNIT_R + '.' },
+    [i2B]: { id: '2b', fig: f2b, accept: [F('2b.alt').value],
+      work: () => [fK.work, 'R20 = ' + f2b.work],
+      acc: 'That uses about ' + (ALPHA_ROUND * 100) + '% per °C: ' + f2(f2a.value) + ' ÷ ' + K_ROUND.toFixed(3) + ' = ' + F('2b.alt').text + '. With ' + ALPHA + ' it is ' + f2b.text + '.',
+      slips: [
+        { value: F('2b.slip').value, hint: 'You multiplied by ' + fK.text + '. A cold core reads low, so its 20 °C value is higher. Divide.' },
+        { value: f2a.value, hint: 'That is the reading at ' + TEMP + ' °C. Correct it to 20 °C first.' },
+      ],
+      hint: 'Not quite. Work out 1 + ' + ALPHA + ' × (' + TEMP + ' − 20), then divide the ' + TEMP + ' °C reading by it.',
+      after: '' },
+    [i2C]: { id: '2c', fig: f2c, accept: [F('2c.alt').value],
+      work: () => ['Deviation = (R20 − factory) ÷ factory × 100', '= ' + W2C],
+      post: 'That is inside ' + TOL + '%, so it is acceptable.',
+      acc: 'That uses ' + F('2b.alt').text + ', from about ' + (ALPHA_ROUND * 100) + '% per °C. With ' + f2b.text + ' it is ' + f2c.text + '.',
+      slips: [
+        { value: F('2c.slip').value, hint: 'That sets the ' + TEMP + ' °C reading against a 20 °C value. Use the corrected ' + f2b.text + '.' },
+        { value: F('2c.slip2').value, hint: 'That is the factory value minus the reading. Take the reading minus the factory value.' },
+      ],
+      hint: 'Not quite. Take the corrected value minus the factory value, divide by the factory value, then times 100.',
+      after: 'Uncorrected, L2 looks ' + f2(Math.abs(F('2c.slip').value)) + '% low, a false fail. Corrected, it is ' + f2c.text + ' high and passes. '
+        + "L1 and L3 match their certificates exactly. So L2's conductor passes, joints and all. This test does not look at its insulation." },
+    [iCh]: { id: 'l2.changed', fig: fChg, accept: [],
+      work: () => [CH_WORK],
+      slips: [
+        { value: F('l2.changed.slip').value, hint: 'Halve it. Each loop holds two cores.' },
+        { value: F('l2.changed.slip2').value, hint: "That is L1's formula. For L3, add B and C, then take away A." },
+      ],
+      hint: 'Not quite. L3 sits in loops B and C. Add those two, take away A, then halve.',
+      after: 'Check: ' + fChgK.work + '. The three cores, ' + f2(F('l2.changed.slip2').value) + ', ' + f2(CH_L2) + ' and ' + f2(fChg.value) + ' mΩ, add to the same.' },
+  };
+  const BOX = { [i2A]: '#ans-2a', [i2B]: '#ans-2b', [i2C]: '#ans-2c', [iCh]: '#ans-ch' };
+  const ANS = {};
+  Object.keys(SPEC).forEach((key) => {
+    const i = +key, sp = SPEC[i];
+    const a = K.answer({ id: sp.id, unit: sp.fig.unit, answer: sp.fig.value, decimals: 2, accept: sp.accept, slips: sp.slips, into: BOX[i],
+      onCheck: (r) => {
+        const st = S[i];
+        if (st.shown) return;
+        if (r.state === 'right') {
+          st.res = 'right';
+          st.fb = { ok: true, v: 'Right.', w: sp.work(), p: [r.accepted != null ? sp.acc : '', sp.post || ''].filter(Boolean).join(' ') };
+        } else if (r.state === 'wrong') {
+          st.tries += 1;
+          if (st.tries >= 2) {
+            st.shown = true; st.res = 'shown';
+            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.work(), p: sp.post || '' };
+            a.reveal();
+          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }
+        } else { st.res = r.state; st.fb = null; }
+        K.refresh();
+      } });
+    ANS[i] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });
+
+  // ---------- Section B and Keep this ----------
+  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];
+  function markLine(id) {
+    const w = K.lesson && K.lesson.written && K.lesson.written[id];
+    const n = w && Array.isArray(w.points) ? w.points.length : 0, need = w ? +w.need : 0;
+    return n && need ? 'You write the answer. It is marked against ' + (WORDS[n] || n) + ' points, and any ' + (WORDS[need] || need) + ' make a full answer. You get one more go, then the model answer.'
+      : 'You write the answer, in your own words. You get one more go, then the model answer.';
+  }
+  const wB1 = K.written({ id: 'b1', into: '#wr1', onMark: () => K.refresh() });
+  el('wr1').addEventListener('click', () => K.refresh());
+  K.summary({ into: '#keep' });
+  (function () {
+    const tw = document.createTreeWalker(el('keep'), NodeFilter.SHOW_TEXT), ns = [];
+    while (tw.nextNode()) ns.push(tw.currentNode);
+    ns.forEach((n) => { n.nodeValue = nb(n.nodeValue); });
+  })();
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+    K.refresh();
+  } });
+
+  // ---------- the worked example, a line at each press ----------
+  const wbox = K.el('div', { class: 'wl' }, K.el('p', { class: 'k-label' }, nb('The loops: ' + wkLoops)));
+  const wl = WL.map((x) => {
+    const box = K.el('div', { class: 'line' });
+    box.appendChild(K.el('p', { class: 'w' }, nb(x.w)));
+    if (x.w2) box.appendChild(K.el('p', { class: 'w' }, nb(x.w2)));
+    wbox.appendChild(box);
+    return box;
+  });
+  const wnote = K.el('p', { class: 'sub' }, nb(WK_NOTE));
+  const wgap = K.el('p', { class: 'sub ask' }, nb(WK_GAP));
+  wbox.appendChild(wnote);
+  wbox.appendChild(wgap);
+  el('worked').appendChild(wbox);
+  const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {
+    if (at() !== iWk || lines >= wl.length) return;
+    const w = wl[lines]; lines += 1;
+    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');
+    K.refresh();
+  } });
+
+  // ---------- fixed words on their screens ----------
+  (function fixed() {
+    el('warnFor').appendChild(K.el('p', { class: 'wh' }, 'If it is skipped'));
+    el('warnFor').appendChild(K.el('p', null, nb(WARN_FOR)));
+    paras(el('assume'), ASSUME);
+    el('noteW').textContent = nb(NOTE_W);
+    write(el('underW'), UNDER_W);
+    el('noteL').textContent = nb(NOTE_L);
+    el('noteT').textContent = nb(NOTE_T);
+    el('warnT').appendChild(K.el('p', { class: 'wh' }, 'A sound core that looks like a fail.'));
+  })();
+
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+  const faded = {};
+  function fade(node, key) {
+    if (node.hidden) { faded[node.id] = ''; return; }
+    if (faded[node.id] === key) return;
+    faded[node.id] = key;
+    node.classList.remove('fade'); void node.offsetWidth; node.classList.add('fade');
+  }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) fb.appendChild(write(K.el('p'), f.p0));
+    (f.w || []).forEach((t) => fb.appendChild(write(K.el('p', { class: 'w' }), t)));
+    if (f.p) fb.appendChild(write(K.el('p'), f.p));
+  }
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) {
+    const d = STEPS[i], st = S[i];
+    if (d.show) return true;
+    if (i === iR) return st.res === 'wrong';
+    if (i === iChk) return st.res === 'right';
+    if (ANS[i]) return st.res === 'right' || st.shown;
+    if (i === iB1) return !!(wB1 && wB1.answered && wB1.answered());
+    return false;
+  }
+
+  const ON = { scen: [i2A, i2B, i2C], carry2b: [i2B], carry2c: [i2C], pre: [i2A, i2B],
+    warnFor: [iFor], phHead: [iFor], assume: [iFor], wrapP: [iFor], ctlP: [iFor], sayP: [iFor],
+    wrapW: [iWhy], noteW: [iWhy], ctlW: [iWhy], outsW: [iWhy], sayW: [iWhy], underW: [iWhy],
+    wrapL: [iLp], noteL: [iLp], ctlL: [iLp], forms: [iLp], sayL: [iLp],
+    wrapT: [iCold], noteT: [iCold], ctlT: [iCold], outsT: [iCold], sayT: [iCold],
+    worked: [iWk], workedgo: [iWk], picks: [iR, iChk],
+    'ans-2a': [i2A], 'ans-2b': [i2B], 'ans-2c': [i2C], 'ans-ch': [iCh], wr1: [iB1], keep: [iK], fin: [iK] };
+  const ASK = {
+    [iFor]: 'Pick which core the far end joins to the screen.',
+    [iWhy]: 'Step from two wires to four, then move the P probes inside the C clamps.',
+    [iLp]: 'Step through the three loops.',
+    [iWk]: 'Work each line yourself first, then press Show.',
+    [iCold]: 'Drag the temperature down to ' + TEMP + ' °C.',
+  };
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; if (i === i2A || i === i2B || i === i2C) scen.el.open = i === i2A; }
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+    el('cap').hidden = WORKING.indexOf(i) < 0;
+
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+    paras(el('pre'), d.pre || '');
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    if (d.show) paras(task, d.text, d.terms);
+    else write(task, d.part || (d.kind ? '' : d.task));
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    sub.className = 'sub' + (ASK[i] ? ' ask' : '');
+    sub.textContent = nb(ASK[i] ? ASK[i]
+      : i === i2A || i === i2B ? 'Give it in mΩ, to 2 places.'
+      : i === i2C ? 'Give it as a percentage, to 2 places.'
+      : i === iB1 ? markLine('b1')
+      : i === iCh ? 'Same method, new numbers. These are practice values. Give it in mΩ, to 2 places.'
+      : i === iK ? 'One card to come back to on a real job.' : '');
+    sub.hidden = !sub.textContent;
+
+    drawPhase(p);
+    drawWires(p);
+    drawLoops(p);
+    drawCold(p);
+    const fk = i === iFor ? 'P' + p.far : i === iWhy ? 'W' + mi(p.meas) : i === iLp ? 'L' + p.loop : '';
+    if (fk && fk !== flowKey) { flowLeft = FLOW_RUN; if (!flowAnim.playing()) flowAnim.play(); }
+    flowKey = fk;
+    fade(el('warnT'), String(el('warnT').hidden));
+    fade(el('corrT'), el('corrT').textContent);
+
+    // Picks.
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(nb(opts[k]));
+      const done = st.res === 'right' || (i === iR && st.res === 'wrong');
+      b.el.classList.toggle('is-right', done && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    // The worked example's lines, and the notes once they are all shown.
+    wl.forEach((w, k) => { w.hidden = k >= lines; });
+    wnote.hidden = wgap.hidden = lines < wl.length;
+    nextLine.el.hidden = lines >= wl.length;
+    if (i === iWk) el('workedgo').hidden = lines >= wl.length;
+    fade(wgap, String(wgap.hidden));
+
+    // Check, the feedback, and what follows a finished typed answer.
+    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);
+    checkBtn.el.hidden = !typed || typedDone;
+    el('acts').hidden = checkBtn.el.hidden;
+    paintFb(st.fb);
+    const after = el('after');
+    paras(after, typedDone ? SPEC[i].after : '');
+    after.hidden = !after.textContent;
+    el('go').hidden = !(i === iR && st.res === 'right');
+    [['fb', JSON.stringify(st.fb)], ['after', i + after.textContent], ['go', String(i)]].forEach(([id, key]) => fade(el(id), key));
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i) || (i === iR && st.res === 'right');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const near = (a, b, t) => K.near(a, b, t == null ? 1e-6 : t);
+  K.check('Two wires read 429.31 mΩ (26.52% high), P on the C clamps 369.31 mΩ (8.84%), P inside the C clamps 339.31 mΩ (0.00%)', () =>
+    near(K.at({ meas: 0 }).meter, fTwo.value) && near(K.at({ meas: 0 }).above, fTwoP.value) && near(K.at({ meas: 1 }).meter, fOn.value)
+    && near(K.at({ meas: 1 }).above, fOnP.value) && near(K.at({ meas: 2 }).meter, LOOP) && near(K.at({ meas: 2 }).above, 0));
+  K.check('Each move of the voltage points inward lowers the reading, and it never reads below the loop', () =>
+    K.at({ meas: 0 }).meter > K.at({ meas: 1 }).meter && K.at({ meas: 1 }).meter > K.at({ meas: 2 }).meter && K.at({ meas: 2 }).meter >= LOOP);
+  K.check('Each conductor is tested in turn using the screen as the return: only the core joined at the far end reads continuity', () =>
+    [0, 1, 2].every((j) => [0, 1, 2].every((k) => contAt(j, k) === (j === k))),
+    { source: 'https://www.ssen.co.uk/globalassets/safety/s9/pr-net-osm-065.pdf' });
+  K.check('Worked example: L1 38.785, L2 38.115, L3 42.375 mΩ; they add to 119.275 mΩ, half of A + B + C; L3 is 9.26% and 11.18% above; half of A is 38.45 mΩ', () => {
+    const a = fA.value, b = fB.value, c = fC.value, l1 = L1of(a, b, c), l2 = L2of(a, b, c), l3 = L3of(a, b, c);
+    return near(r3(l1), fRec.value) && near(r3(l2), fW2.value) && near(r3(l2), fS1.value) && near(r3(l3), fW3.value)
+      && near(r3((a + b + c) / 2), fWk.value) && near(r3(l1 + l2 + l3), fWk.value) && near(r2(a / 2), fS2.value)
+      && near(r2((l3 - l1) / l1 * 100), fG1.value) && near(r2((l3 - l2) / l2 * 100), fG2.value);
+  });
+  K.check('String B at 12 °C: L1 169.21, L2 170.10, L3 169.11 mΩ; A + B + C is twice their sum; slips 340.20 and 169.66 mΩ', () => {
+    const a = LOOP, b = fLB.value, c = fLC.value;
+    return near(r2(L1of(a, b, c)), fL1.value) && near(r2(L2of(a, b, c)), f2a.value) && near(r2(L3of(a, b, c)), fL3.value)
+      && near(a + b + c, 2 * (L1of(a, b, c) + L2of(a, b, c) + L3of(a, b, c)), 1e-9) && near(r2(b + a - c), F('2a.slip').value) && near(r2(a / 2), F('2a.slip2').value);
+  });
+  K.check('A sound L1 (174.70 mΩ at 20 °C) reads 169.21 mΩ (−3.14%) at 12 °C, 163.71 mΩ (−6.29%) at 4 °C and 181.57 mΩ (+3.93%) at 30 °C', () =>
+    near(K.at({ temp: 20 }).rd, FAC1) && near(K.at({ temp: 20 }).dev, 0) && near(K.at({ temp: 12 }).rd, fCold.value) && near(K.at({ temp: 12 }).dev, fColdP.value)
+    && near(K.at({ temp: 4 }).rd, F('l2.read4').value) && near(K.at({ temp: 4 }).dev, F('l2.read4.pct').value)
+    && near(K.at({ temp: 30 }).rd, F('l2.read30').value) && near(K.at({ temp: 30 }).dev, F('l2.read30.pct').value));
+  K.check('The reading leaves the 2% band between 14 and 15 °C and between 25 and 26 °C; about 5 °C either side uses it up', () =>
+    Math.abs(devAt(15)) <= TOL && Math.abs(devAt(14)) > TOL && Math.abs(devAt(25)) <= TOL && Math.abs(devAt(26)) > TOL && Math.round(TOL / (ALPHA * 100)) === Math.round(fBand.value));
+  K.check('Corrected at 12 °C: 169.21 ÷ 0.96856 = 174.70 mΩ, and the reading rises with every degree', () => {
+    for (let t = 4; t < 30; t++) if (!(readAt(t + 1) > readAt(t))) return false;
+    return near(k5(TEMP), fK.value, 1e-9) && near(r2(fCold.value / k5(TEMP)), FAC1) && near(F('l2.L1.20').value, FAC1);
+  });
+  K.check('2(b): 170.10 ÷ 0.96856 = 175.62 mΩ; with 0.968, 175.72 mΩ; multiplied, 164.75 mΩ. 2(c): 0.41%, or 0.47% from 175.72; slips −2.74% and −0.41%', () =>
+    near(r2(f2a.value / k5(TEMP)), f2b.value) && near(r2(f2a.value / K_ROUND), F('2b.alt').value) && near(r2(f2a.value * k5(TEMP)), F('2b.slip').value)
+    && near(r2((f2b.value - fF2.value) / fF2.value * 100), f2c.value) && near(r2((F('2b.alt').value - fF2.value) / fF2.value * 100), F('2c.alt').value)
+    && near(r2((f2a.value - fF2.value) / fF2.value * 100), F('2c.slip').value) && near(r2((fF2.value - f2b.value) / fF2.value * 100), F('2c.slip2').value)
+    && f2c.value < TOL && near(F('l2.L1.dev').value, 0) && near(F('l2.L3.dev').value, 0) && near(r2(fL3.value / k5(TEMP)), fF3.value));
+  K.check('Changed numbers: L3 = 60.80 mΩ, slips 121.60 and 60.10 mΩ; the three cores, 60.10 + 60.30 + 60.80, make 181.20 mΩ', () =>
+    near(r2(L3of(CH.A, CH.B, CH.C)), fChg.value) && near(CH_SUM, F('l2.changed.slip').value) && near(r2(L1of(CH.A, CH.B, CH.C)), F('l2.changed.slip2').value)
+    && near(r2((CH.A + CH.B + CH.C) / 2), fChgK.value) && near(r2(F('l2.changed.slip2').value + CH_L2 + fChg.value), fChgK.value));
+  K.check('Every slip lies outside its answer\'s accepted figures', () => Object.keys(SPEC).every((k) => {
+    const sp = SPEC[k], tol = 0.005;
+    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > tol && sp.accept.every((x) => Math.abs(s.value - x) > tol));
+  }));
+  K.check('The measured value is between the potential connections: with the P probes inside the C clamps it is the loop alone', () =>
+    near(K.at({ meas: 2 }).meter, LOOP) && K.at({ meas: 1 }).meter > LOOP,
+    { source: 'https://www.seaward.com/gb/support/resistance/faqs/76198-kelvin-bridges' });
+  K.check('Since no current flows in the P leads, the P contacts produce no voltage: the reading holds whatever the P leads are', () =>
+    near(K.at({ meas: 2 }).meter, LOOP) && near(K.at({ meas: 1 }).meter, LOOP + 2 * CONT),
+    { source: 'https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Documents/Megger/DLRO10/dlro10_doc_4.pdf' });
+  K.check('The temperature coefficient of standard copper is 0.00393 at 20 °C', () => ALPHA === 0.00393 && near(kAt(20), 1, 1e-12),
+    { source: 'https://nvlpubs.nist.gov/nistpubs/Legacy/hb/nbshandbook100.pdf' });
+  K.check('Low resistance is generally considered under 1 Ω', () => LOWR === 1 && LOOP / 1000 < LOWR, { source: 'material:notes#p2' });
+  K.check('Measured resistance should be within 2% of factory values', () => TOL === 2, { source: 'material:notes#p3' });
+
+  K.ready();
+</script>

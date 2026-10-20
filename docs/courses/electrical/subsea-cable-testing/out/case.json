@@ -646,6 +646,45 @@
    "text": "1441 m, DNORM negative, red",
    "practice": true,
    "cite": "practice value (the running case is made up for practice; no real wind farm); LIRA reading"
+  },
+  {
+   "id": "p.irTau",
+   "label": "Absorption time constant of the IR curve (interactive model)",
+   "value": 70,
+   "unit": "s",
+   "text": "70 s",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); drives the curve in the lesson 3 picture only: 1/R(t) = 1/R∞ + A × e^(−t/τ), where 1/R∞ is the steady leakage and A the absorption. Fitted through the 30 s and 1 min readings, it lands within 7 per cent of the 10 min readings: L1 R∞ 63.7 GΩ (model gives 63.6 GΩ at 10 min against the 62 GΩ read); L2 R∞ 2.4 GΩ (model gives 2.4 GΩ at 10 min against the 2.4 GΩ read); L3 R∞ 55.7 GΩ (model gives 55.7 GΩ at 10 min against the 60 GΩ read). The picture marks the case readings themselves. Moisture adds to the steady leakage and nothing else. No standard gives a τ; the real one differs with every cable."
+  },
+  {
+   "id": "p.irTauC",
+   "label": "Charging current time constant of the IR curve (interactive model)",
+   "value": 3,
+   "unit": "s",
+   "text": "3 s",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); the charging current dies in seconds (Megger: it \"falls to negligible values\"; research source 236). Drawn before the first reading at 30 s, so no figure depends on it."
+  },
+  {
+   "id": "t.IRtemp",
+   "label": "Rule of thumb: insulation resistance halves for every 10 °C rise",
+   "value": "halve per +10 °C; double per −10 °C",
+   "text": "halve per +10 °C; double per −10 °C",
+   "cite": "Megger, \"Can we beat the heat?\" (research source 234) and \"A Stitch in Time\" (source 235); a rule of thumb, each insulation differs"
+  },
+  {
+   "id": "t.polarity",
+   "label": "Test lead polarity on a cable",
+   "value": "positive (red) to the screen; negative (black) to the core",
+   "text": "positive (red) to the screen; negative (black) to the core",
+   "cite": "notes p.4; Megger above-1 kV guide: positive terminal to the grounded outside of a cable (research source 226). Megger adds that polarity rarely matters for a plain IR test, but on older wet insulation the reading is lower with the positive terminal on the grounded side (source 227)."
+  },
+  {
+   "id": "t.discharge",
+   "label": "Discharge time after an IR test",
+   "value": "5 × the time the voltage was applied (50 min after a 10 min PI test)",
+   "text": "5 × the time the voltage was applied; 50 min after a 10 min PI test",
+   "cite": "Megger, A guide to diagnostic insulation testing above 1 kV (research source 223); Fluke application note: about five times the testing charge time (source 222). Megger's older guide says about four times (research source 107)."
   }
  ],
  "assumptions": [
@@ -668,9 +707,9 @@
   {
    "id": "a.chargeTime",
    "label": "The 'charging time' in the 5× discharge rule is the time the test voltage was applied",
-   "why": "The notes do not say. Research must quote the test-set maker's discharge guidance.",
-   "status": "assumption",
-   "text": "Assumed: The 'charging time' in the 5× discharge rule is the time the test voltage was applied. The notes do not say. Research must quote the test-set maker's discharge guidance."
+   "why": "The notes do not define it. Megger's guide to testing above 1 kV says to discharge the item for five times as long as it was tested and gives the example: after a 10-minute PI test, allow the unit to discharge for 50 minutes (research source 223). A Fluke application note says the discharge time should be about five times the testing charge time (source 222). The same Megger guide also uses 'charging time' for the time a test set takes to charge the sample, a separate figure that depends on capacitance (source 224). Megger's older guide gives about four times (source 107): the lesson uses five.",
+   "status": "sourced",
+   "text": "Sourced: the charging time in the 5× rule is the time the test voltage was applied. The notes do not define it. Megger's guide to testing above 1 kV says to discharge the item for five times as long as it was tested and gives the example: after a 10-minute PI test, allow the unit to discharge for 50 minutes (research source 223). A Fluke application note says the discharge time should be about five times the testing charge time (source 222). The same Megger guide also uses 'charging time' for the time a test set takes to charge the sample, a separate figure that depends on capacitance (source 224). Megger's older guide gives about four times (source 107): the lesson uses five."
   },
   {
    "id": "a.order",
@@ -706,6 +745,20 @@
    "why": "The open-end reflection and the 2.40 km installation record give v (Megger TDR_AN58: test a known length and adjust the VF).",
    "status": "assumption",
    "text": "Assumed: The TDR velocity is set from the known route length. The open-end reflection and the 2.40 km installation record give v (Megger TDR_AN58: test a known length and adjust the VF)."
+  },
+  {
+   "id": "a.piHigh",
+   "label": "The lesson teaches PI as the notes do, though String B's 1-minute readings are far above 5000 MΩ",
+   "status": "contested",
+   "why": "IEEE 43 (a rotating-machine practice, quoted through AEMC, research source 233) does not recommend PI as an assessment tool when the 1-minute reading is above 5000 MΩ. L1 reads 24 GΩ and L3 23 GΩ at 1 minute. The notes and Megger apply PI to cables with no such limit, and Fluke says cabling shows little absorption current (source 238). The lesson works PI on the case readings as the notes teach it, says the high reading makes the ratio less trustworthy, and tells him the client's criterion and the trend settle the matter. The readings are not changed.",
+   "text": "Contested: the lesson teaches PI as the notes do, though String B's 1-minute readings are far above 5000 MΩ. IEEE 43 (a rotating-machine practice, research source 233) does not recommend PI above 5000 MΩ at 1 minute; the notes and Megger set no such limit for cables. The lesson says so, and the client's criterion and the trend settle it."
+  },
+  {
+   "id": "a.bands",
+   "label": "PI and DAR bands: the notes' names are used",
+   "status": "contested",
+   "why": "Megger's Table I names PI below 1 dangerous, 1 to 2 questionable, 2 to 4 good, above 4 excellent, and DAR 1.0 to 1.25 questionable, 1.4 to 1.6 good, above 1.6 excellent with a gap between 1.25 and 1.4 (research sources 239, 240); a Megger Q&A calls PI 2.0 or higher and DAR 1.4 or higher good (sources 96, 97). The notes use poor, questionable, okay, good and DAR 1.25 and 1.6 with no gap (sources 26, 27). Practice readings are placed on the notes' bands; the others are shown as a maker's view.",
+   "text": "Contested: the lesson places String B on the notes' PI and DAR bands and shows Megger's Table I as a maker's different view (research sources 239, 240, 96, 97). The client's criterion settles pass or fail."
   }
  ],
  "lessons": [
@@ -2047,7 +2100,7 @@
    "inputs": {
     "time": "10 min"
    },
-   "cite": "n.discharge; a.chargeTime (to research)",
+   "cite": "n.discharge; t.discharge; a.chargeTime (Megger, research source 223)",
    "kind": "case",
    "status": "worked",
    "lesson": "i3",
@@ -2109,6 +2162,193 @@
    "practice": true,
    "text": "1.20",
    "work": "9.6 ÷ 8.0 = 1.20, questionable"
+  },
+  {
+   "id": "l3.recall.slip2",
+   "label": "Recall slip: the rise taken for the index",
+   "value": 4,
+   "unit": "GΩ",
+   "rule": "R10 − R1",
+   "inputs": {
+    "R10": "6.0 GΩ",
+    "R1": "2.0 GΩ"
+   },
+   "cite": "notes p.4 (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "4.0 GΩ",
+   "work": "6.0 − 2.0 = 4.0 GΩ"
+  },
+  {
+   "id": "3a.slip",
+   "label": "Slip: L1's ratio upside down",
+   "value": 0.39,
+   "unit": "",
+   "rule": "R1 ÷ R10",
+   "inputs": {
+    "R1": "24.00",
+    "R10": "62.00"
+   },
+   "cite": "n.pi (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "0.39",
+   "work": "24.00 ÷ 62.00 = 0.39"
+  },
+  {
+   "id": "3a.slip2",
+   "label": "Slip: L1's rise taken for the index",
+   "value": 38,
+   "unit": "GΩ",
+   "rule": "R10 − R1",
+   "inputs": {
+    "R10": "62.0",
+    "R1": "24.0"
+   },
+   "cite": "n.pi (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "38.0 GΩ",
+   "work": "62.0 − 24.0 = 38.0 GΩ"
+  },
+  {
+   "id": "3b.slip",
+   "label": "Slip: L2's ratio upside down",
+   "value": 0.92,
+   "unit": "",
+   "rule": "R1 ÷ R10",
+   "inputs": {
+    "R1": "2.20",
+    "R10": "2.40"
+   },
+   "cite": "n.pi (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "0.92",
+   "work": "2.20 ÷ 2.40 = 0.92"
+  },
+  {
+   "id": "3b.slip2",
+   "label": "Slip: L2's rise taken for the index",
+   "value": 0.2,
+   "unit": "GΩ",
+   "rule": "R10 − R1",
+   "inputs": {
+    "R10": "2.40",
+    "R1": "2.20"
+   },
+   "cite": "n.pi (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "0.20 GΩ",
+   "work": "2.40 − 2.20 = 0.20 GΩ"
+  },
+  {
+   "id": "3c.slip",
+   "label": "Slip: the test time taken for the discharge time",
+   "value": 10,
+   "unit": "min",
+   "rule": "1 × the time the voltage was applied",
+   "inputs": {
+    "time": "10 min"
+   },
+   "cite": "n.discharge (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "10 min",
+   "work": "1 × 10 = 10 min"
+  },
+  {
+   "id": "3c.slip2",
+   "label": "Slip: four times, an older rule, where the lesson uses five",
+   "value": 40,
+   "unit": "min",
+   "rule": "4 × the time the voltage was applied",
+   "inputs": {
+    "time": "10 min"
+   },
+   "cite": "t.discharge (Megger's older guide says about four times; the lesson uses five)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "40 min",
+   "work": "4 × 10 = 40 min"
+  },
+  {
+   "id": "l3.changed.slip",
+   "label": "Changed numbers slip: the ratio upside down",
+   "value": 0.83,
+   "unit": "",
+   "rule": "R1 ÷ R10",
+   "inputs": {
+    "R1": "8.0",
+    "R10": "9.6"
+   },
+   "cite": "n.pi (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "0.83",
+   "work": "8.0 ÷ 9.6 = 0.83"
+  },
+  {
+   "id": "l3.changed.slip2",
+   "label": "Changed numbers slip: the rise taken for the index",
+   "value": 1.6,
+   "unit": "GΩ",
+   "rule": "R10 − R1",
+   "inputs": {
+    "R10": "9.6",
+    "R1": "8.0"
+   },
+   "cite": "n.pi (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "1.6 GΩ",
+   "work": "9.6 − 8.0 = 1.6 GΩ"
+  },
+  {
+   "id": "l3.check.X",
+   "label": "Check: core X's PI, 3.00 GΩ at 1 min and 3.20 GΩ at 10 min",
+   "value": 1.07,
+   "unit": "",
+   "rule": "PI = R10 ÷ R1",
+   "inputs": {
+    "R10": "3.20 GΩ",
+    "R1": "3.00 GΩ"
+   },
+   "cite": "n.pi",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i3",
+   "practice": true,
+   "text": "1.07",
+   "work": "3.20 ÷ 3.00 = 1.07, questionable"
+  },
+  {
+   "id": "l3.check.Y",
+   "label": "Check: core Y's PI, 3.00 GΩ at 1 min and 9.00 GΩ at 10 min",
+   "value": 3,
+   "unit": "",
+   "rule": "PI = R10 ÷ R1",
+   "inputs": {
+    "R10": "9.00 GΩ",
+    "R1": "3.00 GΩ"
+   },
+   "cite": "n.pi",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i3",
+   "practice": true,
+   "text": "3.00",
+   "work": "9.00 ÷ 3.00 = 3.00, okay"
   },
   {
    "id": "l4.recall",
@@ -2715,7 +2955,9 @@
    ],
    "for": [
     "3c"
-   ]
+   ],
+   "resolved": true,
+   "found": "Megger, A guide to diagnostic insulation testing above 1 kV: discharge for five times as long as the item was tested; 50 minutes after a 10-minute PI test (source 223). Fluke application note (source 222). Older Megger guide says four times (source 107). The 'charging time' reading is settled in a.chargeTime."
   },
   {
    "id": "r.pi",
@@ -2725,7 +2967,9 @@
    "for": [
     "3a",
     "3b"
-   ]
+   ],
+   "resolved": true,
+   "found": "Megger Table I (sources 239, 240) and Q&A (96, 97) against the notes' bands: contested (a.bands). PI on a very high reading: IEEE 43 says not recommended above 5000 MΩ at 1 minute (source 233): contested (a.piHigh)."
   },
   {
    "id": "r.sheath",
@@ -2767,5 +3011,5 @@
    ]
   }
  ],
- "updatedAt": "2026-10-20T23:00:35.109Z"
+ "updatedAt": "2026-10-20T23:45:15.798Z"
 }
