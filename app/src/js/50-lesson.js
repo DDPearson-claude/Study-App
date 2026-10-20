@@ -171,7 +171,7 @@
           : U.h('p', { class: 'muted small' }, 'There is no link for this source.'));
     return U.sheet({ title: src.title || 'Source', body: body, autofocus: false });
   }
-  U.lesson = { sourceSheet: sourceSheet };
+  U.lesson = { sourceSheet: sourceSheet, backLink: backLink };
 
   // ---------- the screen ----------
   function lessonScreen(params, ctx) {
@@ -233,6 +233,8 @@
     var eb = U.h('p', { class: 'eyebrow lsn-eb' }, U.h('span', { class: 'skeleton lsn-sk-eb' }));
     var h1 = U.h('h1', { class: 'lsn-title' }, U.h('span', { class: 'skeleton lsn-sk-h1' }));
     var one = U.h('p', { class: 'lsn-one' });
+    // A ready-made steps lesson with a still guide can be read through instead (53-read.js).
+    var wayLine = U.h('p', { class: 'lsn-way', hidden: true });
     var notice = U.h('div', { class: 'lsn-notice', hidden: true });
     var flow = U.h('div', { class: 'lsn-flow' });
     var prepSlot = U.h('div', { class: 'lsn-prep-slot' });
@@ -242,7 +244,7 @@
     var foot = U.h('footer', { class: 'lsn-foot', hidden: true }, linkBtn('This looks wrong', flagSheet, 'lsn-flag-link'), flagKept);
     // The one place results are said to a screen reader (politely, as they come).
     var voice = U.h('p', { class: 'visually-hidden lsn-said', role: 'status' });
-    var root = U.h('div', { class: 'lsn' }, bar, U.h('header', { class: 'lsn-head' }, eb, h1, one), notice, flow, prepSlot, foot, voice);
+    var root = U.h('div', { class: 'lsn' }, bar, U.h('header', { class: 'lsn-head' }, eb, h1, one, wayLine), notice, flow, prepSlot, foot, voice);
     ctx.view.appendChild(root);
     paintBar();
     var sayTimer = 0;
@@ -405,6 +407,20 @@
       setDoc(doc); st.ready = true;
       begin();
       prefetchNext();
+      offerReading();
+    }
+    // "Read it through instead": for a ready-made steps lesson (built, so it has a guide; its guide
+    // is read only when the read-through opens, which falls back to this lesson without one).
+    function offerReading() {
+      if (!st.topic || !st.topic.readyMade || !U.readThrough || !stepsLesson()) return;
+      Promise.resolve().then(function () {
+        // Its read-through found no guide in this page load (it opened this lesson instead).
+        if (!alive() || !stepsLesson() || U.readThrough.known(tid, iid) === false) return;
+        var href = '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(iid) + '/read';
+        U.append(U.clear(wayLine), [U.h('span', null, 'Quizzing you through it. '),
+          U.h('a', { class: 'linkish lsn-way-link', href: href, on: { click: function () { if (U.views && U.views.setWay) U.views.setWay(tid, 'read', st.progress); } } }, 'Read it through instead')]);
+        wayLine.hidden = false;
+      });
     }
     function prepare(doc) {
       st.prep = makePrep();
@@ -1607,6 +1623,9 @@
         // A read lesson makes no review cards: the round is marked read (Today, review and the
         // badge never count it) and its cards as made, none (so nothing makes them later).
         if (first && read) f.readRound = f.cardsRound = st.ip.readRound = round();
+        // Quizzed through (a steps lesson finished in its frame), whenever it is: the course page
+        // tells it from a read-through (53-read.js, V.readThrough).
+        if (stepsLesson() && (st.ip.quizRound == null || Number(st.ip.quizRound) !== round())) f.quizRound = st.ip.quizRound = round();
         st.ip.stage = 'done';
         saveIdea(f);
         // Review cards come from the first time through (or a fresh round of Learn it again). The
@@ -1620,9 +1639,11 @@
       }
       if (live && st.replay) {
         // Going through it again is recorded on its own: the first guess and results stay as they were.
-        var rp = {}, rk = U.key();
+        var rp = {}, rk = U.key(), again = { replays: rp };
         rp[rk] = { at: U.now(), predict: st.replay.predict || null, checks: st.replay.checks };
-        saveIdea({ replays: rp });
+        // A steps lesson read through first and quizzed through now is quizzed (V.readThrough).
+        if (stepsLesson() && (st.ip.quizRound == null || Number(st.ip.quizRound) !== round())) again.quizRound = st.ip.quizRound = round();
+        saveIdea(again);
       }
       st.stage = 'done';
       var res = run().checks || {};

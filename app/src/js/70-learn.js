@@ -283,6 +283,28 @@
     var s = progress && progress.ideas && progress.ideas[iid];
     return !!(s && s.stage === 'done' && s.readRound != null && Number(s.readRound) === (Number(s.round) || 0));
   };
+  // A ready-made steps lesson with a still guide can be taken two ways (53-read.js): quizzed
+  // through (the steps lesson, #/t/:tid/:iid) or read through (its guide, #/t/:tid/:iid/read). His
+  // last choice is kept per course in his progress (progress.way: 'quiz' | 'read'; absent: quiz)
+  // and is the way offered first.
+  V.way = function (progress) { return progress && progress.way === 'read' ? 'read' : 'quiz'; };
+  V.lessonHref = function (tid, iid, progress, way) {
+    return '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(iid) + ((way || V.way(progress)) === 'read' ? '/read' : '');
+  };
+  V.setWay = function (tid, way, progress) {
+    // Always written: the screen's copy of his progress may be a moment behind another screen's choice.
+    way = way === 'read' ? 'read' : 'quiz';
+    // The screen's own copy follows at once (a doc from the db is frozen: then the watch brings it).
+    if (progress && !Object.isFrozen(progress)) progress.way = way;
+    return U.store.progress.patch(tid, { way: way }).catch(function () { /* the store already told Dan */ });
+  };
+  // Read through, not quizzed: finished this round by its read-through only (readThrough is the
+  // round; quizRound, written when the steps lesson itself is finished, wins). A lesson finished
+  // before the two ways existed has neither and counts as quizzed.
+  V.readThrough = function (progress, iid) {
+    var s = progress && progress.ideas && progress.ideas[iid], r = s ? (Number(s.round) || 0) : 0;
+    return V.isRead(progress, iid) && s.readThrough != null && Number(s.readThrough) === r && !(s.quizRound != null && Number(s.quizRound) === r);
+  };
   // What a topic's finished ideas are called: 'read' when every one was read, 'learned' when none
   // was, else 'done'.
   V.doneWord = function (topic, progress) {

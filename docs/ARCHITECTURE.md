@@ -401,6 +401,7 @@ only its own minutes, under the study day (`U.studyDay`). Layout is not a pref (
 `profile/progress/{tid}`
 ```
 { updatedAt, lastIdea, calibration:{ [qid]: optionIndex }, calibrationSkipped?,
+  way?:'quiz'|'read',                                          // his last way into a lesson with a guide (absent: quiz)
   questions:{ [key]:{ q, iid, at } },                         // asked in Ask Claude, newest 20
   ideas:{ [iid]:{
     round,                                                     // 0, then +1 per Learn it again
@@ -413,8 +414,21 @@ only its own minutes, under the study day (`U.studyDay`). Layout is not a pref (
     replays:{ [key]:{ at, predict, checks } },                 // "Go through it again" runs
     cardsRound?,                                               // the round whose review cards were made
     readRound?,                                                // v9: the round finished as a read lesson
+    quizRound?, readThrough?,                                  // a guided steps lesson: the round quizzed through / read through
     againAt?, relearn?, relearnId?, relearnAt?, relearnNote?, known? } } }
 ```
+**Two ways into a ready-made steps lesson** (53-read.js; Dan, 20 Oct). A lesson with a still guide
+(`topics/{tid}/guide/{iid}`, section 4 Dossiers) can be quizzed through (the steps lesson,
+`#/t/:tid/:iid`) or read through (its guide, `#/t/:tid/:iid/read`). `way` is his last choice for
+the course, written when he picks a way (the course page's buttons and links, the switch in each
+way) and offered first next time. Both finish as read (`readRound` and `cardsRound`: a steps lesson
+is a read lesson and makes no review cards); `quizRound` is written when the steps lesson itself is
+finished (also on Start again), `readThrough` when Finished reading is pressed in a round not
+quizzed through. `V.readThrough(progress, iid)`: read through only (finished this round,
+`readThrough` this round, no `quizRound` this round); a lesson finished before the two ways
+existed has neither and counts as quizzed. Both are round fields (section 3: an older round's write
+loses them).
+
 `written` holds a refresher lesson's written answers (Section B, `K.written`), each try keyed like
 say entries and never a round field: Claude's marks (`met` per point, `nailed`, `followUp`, `wrong`
 when a statement was wrong), or `error: true` when Claude could not be reached, with `self` the
@@ -1443,6 +1457,37 @@ U.gen.markWritten(written, answer, attempt, {previous, title}) -> Promise<{met, 
    rejects like U.gen.grade. Only the lesson's question, points, need and model answer and his words go
 ```
 
+`53-read.js` (the read-through) and the course page's two ways in (71-topic.js, 70-learn.js)
+```
+U.readThrough.guide(tid, iid) -> Promise<guide | null>   read once per page load (a failed read is tried again); null: no usable guide
+U.readThrough.known(tid, iid) -> true | false | undefined   U.readThrough.parts(guide) -> {pages, summary}   U.readThrough.pic(svg) -> data: URL | null
+V.way(progress) -> 'quiz'|'read'   V.lessonHref(tid, iid, progress, way?)   V.setWay(tid, way, progress?)   V.readThrough(progress, iid)
+U.lesson.backLink(tid)   the lesson bar's back arrow (U._from), shared with the read-through
+```
+The course page never reads guides (100-240 KB each) to decide: in a ready-made course every built
+steps lesson has one (assemble.mjs), so a lesson can be read through when `topic.readyMade` and it
+is built: done, before the current lesson, or the current lesson with its lesson ready (not
+V.soonState's 'soon'). A guide is read only when the read-through opens (and the current lesson's
+first picture, as before); one that turns out to be missing opens the lesson in its place, quietly,
+and the lesson then shows no switch to it (U.readThrough.known is false). Such a lesson shows both ways: the current lesson's card holds two buttons, "Quiz me through it" and
+"Just read it through", his last choice first (filled), the other outlined; any other row opens his
+last choice and has the other as a quiet link under it ("or just read it through"). A lesson with
+no guide keeps its one way in. The kicker of a finished guided lesson says "Quizzed · date" or
+"Read · date" (V.readThrough), both with the green tick; a read one still offers "or quiz me
+through it" (or opens the quiz when that is his choice). The steps lesson of a ready-made course says under its title
+"Quizzing you through it. Read it through instead". The read-through, in
+the lesson's column under the lesson bar ("Read-through", the back arrow as the lesson's): the
+eyebrow (course · Lesson n of N), the title and the idea's one line, "Just reading it through. Quiz
+me through it instead", each demonstration's picture (a plain SVG image on a white well, the
+column's width) with its sentence, each worked example in an outlined card with its picture,
+"Answer" and why shown, a written question with its model answer, footnotes opening the lesson's
+source sheet, then a refresher lesson's Keep this card (the rule on grey, each trap on the red
+tint with its citation, the case's figures, where it lives), and "Finished reading" with "Quiz me
+through it". Opening it begins the idea (startedAt, stage 'play', lastIdea); Finished reading
+writes stage 'done', doneAt, readRound, cardsRound and readThrough, binds the dossier chapter on the
+first finish, and shows "Lesson read" with the next open lesson (its read-through when it has a
+read-through), Back to the course and Quiz me through it.
+
 `35-art.js` (course pictures; data and flow in section 4)
 ```
 U.art.shown()  wanted()  asked()   prefs.pictures !== false / === true / is a boolean
@@ -1552,6 +1597,8 @@ topics started here are not source-checked); "Not connected." with the steps to 
 #/t/:tid               topic    tab library  71-topic.js
 #/t/:tid/:iid          lesson   focus        50-lesson.js
 #/t/:tid/:iid/again    lesson   focus        Learn it again (while the idea is slipping); the address becomes #/t/:tid/:iid
+#/t/:tid/:iid/read     lesson   focus        53-read.js   a ready-made steps lesson read through (its guide); without a
+                                             guide (or a whole lesson) it opens #/t/:tid/:iid in its place
 #/today                today    tab today    60-today.js
 #/review               review   focus        60-today.js
 #/review/more          review   focus        one batch beyond the daily cap

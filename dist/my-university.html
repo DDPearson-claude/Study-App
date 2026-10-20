@@ -1197,6 +1197,51 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .lsn-recap .eyebrow { margin: 0 0 4px; }
 .lsn-recap-text { margin: 0; font-size: 1.05rem; line-height: 1.55; font-weight: 600; }
 
+/* src/css/53-read.css */
+/* Read-through (53-read.js): a ready-made steps lesson's guide read in the lesson's column. The
+   lesson's own bar and heading (50-lesson.css), then each demonstration's picture on a white well
+   at the column's width with its sentence, each worked example in a white card with its answer
+   shown, the Keep this card (traps red: mistakes) and Finished reading. */
+.rd-bar { grid-template-columns: auto minmax(0, 1fr) auto; }
+.rd-bar-label { font: 600 .75rem/1.2 var(--cond, var(--sans)); letter-spacing: .08em; text-transform: uppercase; color: var(--teal); }
+.rd-body { display: flex; flex-direction: column; gap: 18px; }
+.rd-wait { padding: 28px 0; }
+.rd-switch, .lsn-way { color: var(--muted); font-size: .9375rem; line-height: 1.5; }
+.rd-switch .linkish, .lsn-way .linkish, .rd-end-alt .linkish { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; color: var(--ink); }
+.rd-pages { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 22px; }
+.rd-show { display: flex; flex-direction: column; gap: 10px; }
+.rd-well { padding: 10px; border-radius: 10px; background: #FFFFFF; border: 1px solid var(--line); }
+.rd-pic { display: block; width: 100%; height: auto; margin: 0 auto; }
+.rd-text { font-size: 1.0625rem; line-height: 1.6; }
+.rd-ex { display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: var(--r-lg); background: var(--surface); border: 2px solid var(--edge); }
+.rd-ex-q { font: 600 1.0625rem/1.45 var(--sans); }
+.rd-ex-a { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-size: 1.0625rem; }
+.rd-ex-k { font: 500 .75rem/1 var(--mono); text-transform: uppercase; color: var(--muted); }
+.rd-ex-why { color: var(--muted); font-size: .9688rem; line-height: 1.5; }
+.rd-sum { display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: var(--r-lg); background: var(--surface); border: 2px solid var(--edge); box-shadow: 3px 3px 0 var(--edge); }
+.rd-sum-t { font-size: 1.375rem; }
+.rd-sum-l { margin-bottom: 2px; }
+.rd-sum-rule { padding: 10px 12px; border-radius: 8px; background: var(--sunk); }
+.rd-sum-rule p { font-weight: 600; }
+.rd-sum-rule p.n { font-weight: 400; font-size: .9375rem; margin-top: 4px; }
+.rd-sum-traps { display: flex; flex-direction: column; gap: 6px; }
+.rd-trap { padding: 8px 10px; border-radius: 6px; background: var(--red-tint); box-shadow: inset 4px 0 0 var(--red); font-size: .9375rem; }
+.rd-trap small, .rd-sum small { display: block; margin-top: 2px; font: 500 .75rem/1.3 var(--mono); color: var(--teal); }
+.rd-figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: 6px; margin: 0; }
+.rd-figs > div { padding: 6px 10px; border-radius: 6px; background: var(--sunk); }
+.rd-figs dt { font-size: .8125rem; color: var(--muted); }
+.rd-figs dd { margin: 0; font: 700 1rem/1.3 var(--mono); }
+.rd-sum-where { font-size: .875rem; color: var(--muted); }
+.rd-end { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 18px; padding-top: 20px; border-top: 1px solid var(--line); text-align: center; }
+.rd-finish { min-width: min(100%, 16rem); }
+.rd-end-alt { color: var(--muted); font-size: .9375rem; }
+.rd-done { border-top: 0; }
+.rd-done .lsn-next { align-self: stretch; text-align: left; }
+.rd-next-go { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+@container view (min-width: 900px) {
+  .rd-body > * { width: 100%; max-width: var(--measure); margin-inline: auto; }
+}
+
 /* src/css/70-views.css */
 /* Views: Learn (home), topic page, Map, Book, reading settings and the boot notice.
    Calm by design: generous space, soft cards, colour only for meaning (navy = progress and
@@ -1507,6 +1552,13 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .pnode-prep { display: flex; align-items: center; gap: 6px; font: 600 .875rem/1.4 var(--sans); color: var(--muted); }
 .pnode-prep .v-dot { margin: 0 2px 0 0; }
 .pnode-btn.btn { align-self: flex-start; margin-top: 12px; }
+/* A lesson that can be taken two ways (53-read.js): the current card holds both as buttons, his
+   last choice first; another row opens his last choice, with the other way as a quiet link. */
+.pnode-ways { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.pnode-ways .btn { flex: 1 1 11rem; justify-content: center; }
+.pnode-static { cursor: default; }
+.pnode-alt { margin: -2px 0 6px 58px; padding-left: 16px; font-size: .875rem; }
+.pnode-alt .linkish { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); font-weight: 600; }
 /* The current lesson's first drawing (its guide's first picture), between its one line and its
    button: a white well in both themes, as the dossier's plates are (the pictures are drawn in ink
    on white), about 118 px tall and sized by the drawing's own proportions. */
@@ -2722,7 +2774,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-20-e6c90dc";
+U.BUILD = "2026-10-20-0835c69";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -4394,7 +4446,7 @@ U.store = (function () {
     });
   }
   var STAGE = { predict: 0, play: 1, explain: 2, say: 3, checks: 4, done: 5 };
-  var ROUND_FIELDS = ['round', 'stage', 'predict', 'checks', 'doneAt', 'startedAt', 'how', 'relearn', 'relearnId', 'relearnAt', 'relearnNote', 'againAt', 'past'];
+  var ROUND_FIELDS = ['round', 'stage', 'predict', 'checks', 'doneAt', 'startedAt', 'how', 'relearn', 'relearnId', 'relearnAt', 'relearnNote', 'againAt', 'past', 'quizRound', 'readThrough'];
   function guardProgress(cur, body) {
     var bi = body.ideas, ci = (cur && cur.ideas) || {};
     if (!isObj(bi)) return;
@@ -10976,7 +11028,7 @@ U.interactive = (function () {
           : U.h('p', { class: 'muted small' }, 'There is no link for this source.'));
     return U.sheet({ title: src.title || 'Source', body: body, autofocus: false });
   }
-  U.lesson = { sourceSheet: sourceSheet };
+  U.lesson = { sourceSheet: sourceSheet, backLink: backLink };
 
   // ---------- the screen ----------
   function lessonScreen(params, ctx) {
@@ -11038,6 +11090,8 @@ U.interactive = (function () {
     var eb = U.h('p', { class: 'eyebrow lsn-eb' }, U.h('span', { class: 'skeleton lsn-sk-eb' }));
     var h1 = U.h('h1', { class: 'lsn-title' }, U.h('span', { class: 'skeleton lsn-sk-h1' }));
     var one = U.h('p', { class: 'lsn-one' });
+    // A ready-made steps lesson with a still guide can be read through instead (53-read.js).
+    var wayLine = U.h('p', { class: 'lsn-way', hidden: true });
     var notice = U.h('div', { class: 'lsn-notice', hidden: true });
     var flow = U.h('div', { class: 'lsn-flow' });
     var prepSlot = U.h('div', { class: 'lsn-prep-slot' });
@@ -11047,7 +11101,7 @@ U.interactive = (function () {
     var foot = U.h('footer', { class: 'lsn-foot', hidden: true }, linkBtn('This looks wrong', flagSheet, 'lsn-flag-link'), flagKept);
     // The one place results are said to a screen reader (politely, as they come).
     var voice = U.h('p', { class: 'visually-hidden lsn-said', role: 'status' });
-    var root = U.h('div', { class: 'lsn' }, bar, U.h('header', { class: 'lsn-head' }, eb, h1, one), notice, flow, prepSlot, foot, voice);
+    var root = U.h('div', { class: 'lsn' }, bar, U.h('header', { class: 'lsn-head' }, eb, h1, one, wayLine), notice, flow, prepSlot, foot, voice);
     ctx.view.appendChild(root);
     paintBar();
     var sayTimer = 0;
@@ -11210,6 +11264,20 @@ U.interactive = (function () {
       setDoc(doc); st.ready = true;
       begin();
       prefetchNext();
+      offerReading();
+    }
+    // "Read it through instead": for a ready-made steps lesson (built, so it has a guide; its guide
+    // is read only when the read-through opens, which falls back to this lesson without one).
+    function offerReading() {
+      if (!st.topic || !st.topic.readyMade || !U.readThrough || !stepsLesson()) return;
+      Promise.resolve().then(function () {
+        // Its read-through found no guide in this page load (it opened this lesson instead).
+        if (!alive() || !stepsLesson() || U.readThrough.known(tid, iid) === false) return;
+        var href = '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(iid) + '/read';
+        U.append(U.clear(wayLine), [U.h('span', null, 'Quizzing you through it. '),
+          U.h('a', { class: 'linkish lsn-way-link', href: href, on: { click: function () { if (U.views && U.views.setWay) U.views.setWay(tid, 'read', st.progress); } } }, 'Read it through instead')]);
+        wayLine.hidden = false;
+      });
     }
     function prepare(doc) {
       st.prep = makePrep();
@@ -12412,6 +12480,9 @@ U.interactive = (function () {
         // A read lesson makes no review cards: the round is marked read (Today, review and the
         // badge never count it) and its cards as made, none (so nothing makes them later).
         if (first && read) f.readRound = f.cardsRound = st.ip.readRound = round();
+        // Quizzed through (a steps lesson finished in its frame), whenever it is: the course page
+        // tells it from a read-through (53-read.js, V.readThrough).
+        if (stepsLesson() && (st.ip.quizRound == null || Number(st.ip.quizRound) !== round())) f.quizRound = st.ip.quizRound = round();
         st.ip.stage = 'done';
         saveIdea(f);
         // Review cards come from the first time through (or a fresh round of Learn it again). The
@@ -12425,9 +12496,11 @@ U.interactive = (function () {
       }
       if (live && st.replay) {
         // Going through it again is recorded on its own: the first guess and results stay as they were.
-        var rp = {}, rk = U.key();
+        var rp = {}, rk = U.key(), again = { replays: rp };
         rp[rk] = { at: U.now(), predict: st.replay.predict || null, checks: st.replay.checks };
-        saveIdea({ replays: rp });
+        // A steps lesson read through first and quizzed through now is quizzed (V.readThrough).
+        if (stepsLesson() && (st.ip.quizRound == null || Number(st.ip.quizRound) !== round())) again.quizRound = st.ip.quizRound = round();
+        saveIdea(again);
       }
       st.stage = 'done';
       var res = run().checks || {};
@@ -13141,6 +13214,220 @@ U.interactive = (function () {
   }
 
   U.notes = { avatar: avatar, byline: byline, reply: reply, card: card, list: list };
+})();
+
+// ---- src/js/53-read.js ----
+// Read-through (#/t/:tid/:iid/read): a ready-made steps lesson taken as a read-through instead of
+// a quiz (Dan, 20 Oct: "two options: quiz me through the read through, or just a read through
+// using the same material"). The material is the lesson's still guide (topics/{tid}/guide/{iid},
+// written by tools/course/guide.mjs and drawn by the dossier as its chapter): each demonstration's
+// sentence with its finished picture, each puzzle as a worked example with its answer and why, and
+// a refresher lesson's Keep this card. The guide is read only when the read-through opens (the
+// course page offers it for every built lesson of a ready-made course, never reading guides to
+// decide). Shown in the lesson's reading column, nothing hidden and
+// nothing to answer. "Finished reading" records the idea as read (readRound, as any read lesson:
+// no review cards), and readThrough, so the course page can tell a lesson read through from one
+// quizzed through (V.readThrough in 70-learn.js). A lesson without a guide has no read-through:
+// its address opens the lesson as it is.
+//
+//   U.readThrough.guide(tid, iid) -> Promise<guide | null>   read once per page load, then cached
+//   U.readThrough.known(tid, iid) -> true | false | undefined (not read yet)
+//   U.readThrough.parts(guide) -> {pages: [show | example], summary: summary page | null}   pure
+//   U.readThrough.pic(svg) -> data: URL of an SVG image, or null for anything that is not one
+// Contract: docs/ARCHITECTURE.md sections 4 (progress), 9 and 10.
+(function () {
+  'use strict';
+
+  function isObj(v) { return !!v && typeof v === 'object' && !Array.isArray(v); }
+  function str(v) { return typeof v === 'string' ? v : v == null ? '' : String(v); }
+
+  // ---------- pure parts ----------
+  // The guide's pages in reading order, the summary card apart (the Book opens a chapter on it;
+  // the read-through ends with it, where the lesson keeps it).
+  function parts(g) {
+    var list = isObj(g) && Array.isArray(g.pages) ? g.pages.filter(isObj) : [];
+    var summary = list.filter(function (p) { return p.kind === 'summary' && str(p.title); })[0] || null;
+    var pages = list.filter(function (p) { return (p.kind === 'show' && str(p.text)) || (p.kind === 'example' && str(p.task)); });
+    return { pages: pages, summary: summary };
+  }
+  // Only a string that is an SVG becomes a picture, as a plain image (an <img> runs no script).
+  function pic(svg) { return typeof svg === 'string' && /^<svg[\s>]/.test(svg) ? 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg) : null; }
+  function usable(g) { var p = parts(g); return p.pages.length > 0 || !!p.summary; }
+
+  // ---------- the guide, read once per page load ----------
+  var cache = {}, seen = {};
+  function guide(tid, iid) {
+    var k = tid + '/' + iid;
+    if (!cache[k]) {
+      cache[k] = Promise.resolve().then(function () { return U.store && U.store.guide ? U.store.guide.get(tid, iid) : null; }).then(function (g) {
+        seen[k] = usable(g);
+        return seen[k] ? g : null;
+      }, function () { delete cache[k]; return null; });   // a failed read is tried again next time
+    }
+    return cache[k];
+  }
+  function known(tid, iid) { var k = tid + '/' + iid; return k in seen ? seen[k] : undefined; }
+  U.readThrough = { guide: guide, known: known, parts: parts, pic: pic };
+  if (!U.routes) return;
+
+  // ---------- the screen ----------
+  function readScreen(params, ctx) {
+    var tid = params.tid, iid = params.iid, V = U.views || {};
+    var quizHref = '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(iid), topicHref = '#/t/' + encodeURIComponent(tid);
+    var root = U.h('div', { class: 'lsn rd' });
+    ctx.view.appendChild(root);
+    var back = U.lesson && U.lesson.backLink ? U.lesson.backLink(tid) : U.h('a', { class: 'icon-btn lsn-close lsn-back', href: topicHref, 'aria-label': 'Back to the course' }, U.icon('back'));
+    root.appendChild(U.h('div', { class: 'lsn-bar rd-bar' }, back, U.h('span', { class: 'rd-bar-label' }, 'Read-through'), U.h('span')));
+    var body = U.h('div', { class: 'rd-body' }, U.h('p', { class: 'muted rd-wait', role: 'status' }, 'Opening the read-through…'));
+    root.appendChild(body);
+    var st = { topic: null, idea: null, index: -1, doc: null, guide: null, progress: null };
+    function alive() { return ctx.alive(); }
+    // His choice, kept with the course's progress, so the course page offers it first next time.
+    function choose(way) { if (V.setWay) V.setWay(tid, way, st.progress); }
+
+    U.rt.ready.then(function () {
+      return Promise.all([U.store.topic.get(tid), U.store.progress.get(tid), U.store.lesson.get(tid, iid), guide(tid, iid)]);
+    }).then(function (r) {
+      if (!alive()) return;
+      st.topic = r[0]; st.progress = U.clone(r[1]) || { ideas: {} }; st.doc = r[2]; st.guide = r[3];
+      var ideas = st.topic && Array.isArray(st.topic.ideas) ? st.topic.ideas : [];
+      st.index = ideas.map(function (i) { return i.id; }).indexOf(iid);
+      st.idea = st.index >= 0 ? ideas[st.index] : null;
+      // No guide (an older lesson, a course written in the page) or no whole lesson: the lesson
+      // as it is, at its own address.
+      if (!st.topic || !st.idea || !st.guide || !(st.doc && st.doc.status === 'ready' && st.doc.lesson)) {
+        try { history.replaceState(null, '', quizHref); } catch (e) { /* fine */ }
+        U.go(quizHref);
+        return;
+      }
+      U.setTitle((st.doc.lesson.title || st.idea.title) + ' · Read-through');
+      start();
+      draw();
+    }).catch(function (e) { if (alive()) U.fail(body, e); });
+
+    // Opening it begins the idea (as opening the lesson does), once.
+    function start() {
+      var ip = (st.progress.ideas || {})[iid] || {};
+      var f = {};
+      if (!ip.startedAt) { f.startedAt = U.now(); f.stage = 'play'; }
+      if (!Object.keys(f).length && st.progress.lastIdea === iid) return;
+      save(f);
+    }
+    function round() { var ip = (st.progress.ideas || {})[iid] || {}; return Number(ip.round) || 0; }
+    function save(fields) {
+      fields.round = round();
+      var p = { lastIdea: iid, ideas: {} };
+      p.ideas[iid] = fields;
+      return U.store.progress.patch(tid, p).catch(function () { /* the store already told Dan */ });
+    }
+
+    function sources() { return st.doc && st.doc.lesson && Array.isArray(st.doc.lesson.sources) ? st.doc.lesson.sources : []; }
+    function sourceOf(n) { return sources().filter(function (s) { return Number(s.n) === Number(n); })[0] || null; }
+    var fx = { footnotes: { has: function (n) { return !!sourceOf(n); }, open: function (n) { if (U.lesson && U.lesson.sourceSheet) U.lesson.sourceSheet(sourceOf(n)); } } };
+    function words(tag, cls, text) { return U.inline(U.h(tag, { class: cls }), str(text), fx); }
+    function picture(p) {
+      var src = pic(p.svg);
+      return src ? U.h('div', { class: 'rd-well' }, U.h('img', { class: 'rd-pic', src: src, alt: str(p.alt), decoding: 'async' })) : null;
+    }
+    function quizLink(label, cls) {
+      return U.h('a', { class: cls || 'linkish rd-quiz', href: quizHref, on: { click: function () { choose('quiz'); } } }, label);
+    }
+
+    function draw() {
+      var L = st.doc.lesson, n = (st.topic.ideas || []).length, p = parts(st.guide);
+      U.clear(body);
+      body.appendChild(U.h('header', { class: 'lsn-head rd-head' },
+        U.h('p', { class: 'eyebrow lsn-eb is-filled' }, U.h('span', { class: 'lsn-eb-topic' }, st.topic.title || 'Course'), U.h('span', { class: 'lsn-eb-n' }, 'Lesson ' + (st.index + 1) + ' of ' + n)),
+        U.h('h1', { class: 'lsn-title', tabindex: '-1' }, L.title || st.idea.title),
+        st.idea.oneLine ? U.line(U.h('p', { class: 'lsn-one' }), st.idea.oneLine) : null,
+        U.h('p', { class: 'rd-switch' }, U.h('span', null, 'Just reading it through. '), quizLink('Quiz me through it instead'))));
+      var list = U.h('ol', { class: 'rd-pages' });
+      p.pages.forEach(function (pg) {
+        if (pg.kind === 'show') {
+          list.appendChild(U.h('li', { class: 'rd-show' }, picture(pg), words('p', 'rd-text', pg.text)));
+        } else {
+          list.appendChild(U.h('li', { class: 'rd-ex' },
+            U.h('p', { class: 'eyebrow rd-ex-l' }, 'Worked example'),
+            words('p', 'rd-ex-q', pg.task),
+            picture(pg),
+            str(pg.answer) ? U.h('p', { class: 'rd-ex-a' }, U.h('span', { class: 'rd-ex-k' }, 'Answer'), U.h('b', null, str(pg.answer))) : null,
+            str(pg.why) ? words('p', 'rd-ex-why', pg.why) : null));
+        }
+      });
+      body.appendChild(list);
+      if (p.summary) body.appendChild(summaryCard(p.summary));
+      body.appendChild(endPart());
+    }
+    // The Keep this card, words only: what it is for, the rule, the traps (red: mistakes), the
+    // case's figures and where it lives in his materials.
+    function summaryCard(s) {
+      var lab = function (t) { return U.h('p', { class: 'eyebrow rd-sum-l' }, t); };
+      var rule = str(s.rule).split(/\n\s*\n/).map(function (b, k) {
+        return b.split('\n').filter(function (l) { return l.trim(); }).map(function (l) { return U.inline(U.h('p', { class: k ? 'n' : null }), l.trim()); });
+      });
+      var traps = (Array.isArray(s.traps) ? s.traps : []).filter(function (t) { return isObj(t) && str(t.text); });
+      var figs = (Array.isArray(s.figures) ? s.figures : []).filter(function (f) { return isObj(f) && str(f.label); });
+      return U.h('section', { class: 'rd-sum', 'aria-labelledby': 'rd-sum-h' },
+        U.h('p', { class: 'eyebrow', id: 'rd-sum-h' }, 'Keep this'),
+        U.h('h2', { class: 'rd-sum-t' }, str(s.title)),
+        str(s.for) ? U.h('div', null, lab('What it is for'), U.inline(U.h('p'), str(s.for))) : null,
+        str(s.rule) ? U.h('div', { class: 'rd-sum-rule' }, lab('The rule'), rule) : null,
+        traps.length ? U.h('div', { class: 'rd-sum-traps' }, lab('Traps'), traps.map(function (t) {
+          return U.h('p', { class: 'rd-trap' }, U.inline(U.h('span'), str(t.text)), str(t.cite) ? U.h('small', null, str(t.cite)) : null);
+        })) : null,
+        figs.length ? U.h('div', null, lab(str(s.figuresLabel) || 'Figures so far'), U.h('dl', { class: 'rd-figs' }, figs.map(function (f) { return U.h('div', null, U.h('dt', null, str(f.label)), U.h('dd', null, str(f.value))); }))) : null,
+        str(s.where) ? U.h('p', { class: 'rd-sum-where' }, 'Where it lives: ' + str(s.where).replace(/^where it lives:\s*/i, '')) : null);
+    }
+    // The end: Finished reading records it as read; quizzing through it stays one tap away.
+    var endBox = null;
+    function endPart() {
+      endBox = U.h('section', { class: 'rd-end', 'aria-label': 'Finish' },
+        U.h('button', { class: 'btn lsn-main rd-finish', type: 'button', on: { click: finish } }, 'Finished reading'),
+        U.h('p', { class: 'rd-end-alt' }, U.h('span', null, 'Want to test yourself on it? '), quizLink('Quiz me through it')));
+      return endBox;
+    }
+    function nextIdea() {
+      var ideas = st.topic.ideas || [], prog = st.progress.ideas || {};
+      function open(i) { var p = prog[i.id] || {}; return i.id !== iid && p.stage !== 'done' && !p.known && !i.known; }
+      for (var k = st.index + 1; k < ideas.length; k++) if (open(ideas[k])) return ideas[k];
+      for (var j = 0; j < st.index; j++) if (open(ideas[j])) return ideas[j];
+      return null;
+    }
+    // Read, as any read lesson is (readRound: no review cards, cardsRound with it), and marked as a
+    // read-through (readThrough), unless he has already quizzed through this round.
+    function finish() {
+      var ip = (st.progress.ideas || {})[iid] || {}, r = round(), first = !ip.doneAt;
+      var f = { stage: 'done' };
+      if (first) f.doneAt = U.now();
+      if (Number(ip.readRound) !== r || ip.readRound == null) f.readRound = r;
+      if (ip.cardsRound == null || Number(ip.cardsRound) < r) f.cardsRound = r;
+      if (Number(ip.quizRound) !== r || ip.quizRound == null) f.readThrough = r;
+      save(f);
+      var ideas = st.progress.ideas || (st.progress.ideas = {});
+      ideas[iid] = Object.assign({}, ip, f);
+      // The course's dossier binds the lesson as a chapter, as finishing the lesson does.
+      if (first && U.dossier && typeof U.dossier.bind === 'function') U.dossier.bind(tid, iid, { doc: st.doc, doneAt: f.doneAt });
+      var nx = nextIdea();
+      var done = U.h('section', { class: 'rd-end rd-done', 'aria-label': 'Lesson read', tabindex: '-1' },
+        U.h('div', { class: 'lsn-done-mark', 'aria-hidden': 'true' }, U.icon('tick')),
+        U.h('h2', { class: 'lsn-h' }, 'Lesson read'),
+        U.h('p', { class: 'lsn-done-text' }, 'Marked as read on your course page. You can quiz yourself through it whenever you like.'),
+        nx ? U.h('div', { class: 'lsn-next' }, U.h('p', { class: 'eyebrow' }, 'Next'), U.h('h3', null, str(nx.title)),
+          U.h('div', { class: 'rd-next-go' },
+            // Read through too (a lesson without a guide opens as it is, from its read-through).
+            U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) + '/read' }, 'Next lesson', U.icon('arrow')),
+            U.h('a', { class: 'btn secondary', href: topicHref }, 'Back to the course')))
+          : U.h('div', { class: 'lsn-next' }, U.h('h3', null, 'That was the last lesson in ' + (st.topic.title || 'this course')),
+            U.h('a', { class: 'btn lsn-main', href: topicHref }, 'Back to the course')),
+        U.h('p', { class: 'rd-end-alt' }, quizLink('Quiz me through it')));
+      endBox.replaceWith(done);
+      endBox = done;
+      try { done.focus({ preventScroll: true }); } catch (e) { done.focus(); }
+      done.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+    return function () { /* nothing to stop */ };
+  }
+  U.routes.add('#/t/:tid/:iid/read', readScreen, { focus: true, title: 'Read-through' });
 })();
 
 // ---- src/js/60-today.js ----
@@ -14387,6 +14674,28 @@ U.interactive = (function () {
     var s = progress && progress.ideas && progress.ideas[iid];
     return !!(s && s.stage === 'done' && s.readRound != null && Number(s.readRound) === (Number(s.round) || 0));
   };
+  // A ready-made steps lesson with a still guide can be taken two ways (53-read.js): quizzed
+  // through (the steps lesson, #/t/:tid/:iid) or read through (its guide, #/t/:tid/:iid/read). His
+  // last choice is kept per course in his progress (progress.way: 'quiz' | 'read'; absent: quiz)
+  // and is the way offered first.
+  V.way = function (progress) { return progress && progress.way === 'read' ? 'read' : 'quiz'; };
+  V.lessonHref = function (tid, iid, progress, way) {
+    return '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(iid) + ((way || V.way(progress)) === 'read' ? '/read' : '');
+  };
+  V.setWay = function (tid, way, progress) {
+    // Always written: the screen's copy of his progress may be a moment behind another screen's choice.
+    way = way === 'read' ? 'read' : 'quiz';
+    // The screen's own copy follows at once (a doc from the db is frozen: then the watch brings it).
+    if (progress && !Object.isFrozen(progress)) progress.way = way;
+    return U.store.progress.patch(tid, { way: way }).catch(function () { /* the store already told Dan */ });
+  };
+  // Read through, not quizzed: finished this round by its read-through only (readThrough is the
+  // round; quizRound, written when the steps lesson itself is finished, wins). A lesson finished
+  // before the two ways existed has neither and counts as quizzed.
+  V.readThrough = function (progress, iid) {
+    var s = progress && progress.ideas && progress.ideas[iid], r = s ? (Number(s.round) || 0) : 0;
+    return V.isRead(progress, iid) && s.readThrough != null && Number(s.readThrough) === r && !(s.quizRound != null && Number(s.quizRound) === r);
+  };
   // What a topic's finished ideas are called: 'read' when every one was read, 'learned' when none
   // was, else 'done'.
   V.doneWord = function (topic, progress) {
@@ -15464,6 +15773,7 @@ U.interactive = (function () {
       // tools/course/assemble.mjs from a fresh reader's check), and then the note says so.
       var checked = !!topic.overviewChecked;
       wantBack(); wantPic(s); wantBox();
+      var ways = ideas.map(function (i, k) { return [guided(i.id, k, s, next), V.readThrough(progress, i.id)]; });
       var mine = ui.box ? ui.box.courses.filter(function (c) { return c.tid === tid; })[0] : null;
       return [
         ['head', sig(topic.title, topic.query, topic.hook, !!topic.oneBreath, checked, topic.hue, ui.mode || V.modeOf(topic), s.current && s.current.id, s.current && s.current.title, s.index, s.started, s.allDone, next, ui.back), function () { return head(s, next); }, 'top'],
@@ -15476,7 +15786,7 @@ U.interactive = (function () {
               : (hookIs ? 'This summary and the ' + hookIs + ' above are' : 'This summary is') + ' Claude\'s overview from what it already knows, not checked against sources.'));
         }] : null,
         ['warm', sig(topic.calibration, cal, progress.calibrationSkipped, ui.reveal, ui.pick, s.done > 0 || s.started), warmup],
-        ['path', sig(ideaState, cal, topic.calibration, progress.lastIdea, busy, ui.pic && ui.pic.iid), function () {
+        ['path', sig(ideaState, cal, topic.calibration, progress.lastIdea, busy, ui.pic && ui.pic.iid, ways, V.way(progress)), function () {
           var prog = (s.done > 0 || s.started) ? U.h('div', { class: 'tp-progress' },
             U.h('div', { class: 'row' },
               s.allDone ? U.h('span', { class: 'done-note' }, U.icon('tick'), 'All ' + s.total + ' ideas done')
@@ -15550,6 +15860,17 @@ U.interactive = (function () {
         schedule();
       }, function () { /* the path stays as text */ });
     }
+    // Which lessons can be read through (53-read.js), from what the page already knows, never by
+    // reading the guides (100-240 KB each): in a ready-made course every built steps lesson has
+    // one (tools/course/assemble.mjs), and a lesson is built when it is done, comes before the
+    // current one, or is the current one with its lesson ready (not V.soonState's 'soon'). Should
+    // its guide turn out to be missing, the read-through opens the lesson instead, quietly.
+    function guided(iid, k, s, next) {
+      if (!topic || !topic.readyMade || !U.readThrough) return false;
+      if (V.isDone(progress, iid)) return true;
+      if (!s.current || s.allDone) return false;
+      return k < s.index || (s.current.id === iid && next === 'ready');
+    }
     function wantBox() {
       if (ui.box || ui.boxAsked || !U.review || typeof U.review.box !== 'function') return;
       ui.boxAsked = true;
@@ -15604,24 +15925,42 @@ U.interactive = (function () {
         var x = ideas.filter(function (k) { return k.id === d; })[0];
         return x ? x.title : null;
       }).filter(Boolean);
-      // A finished idea he chose only to read says "Read", never "Done" as if tested.
-      var kicker = done ? (V.isRead(progress, idea.id) ? 'Read' : 'Done') + (st.doneAt ? ' · ' + V.day(st.doneAt) : '')
+      // A finished idea he chose only to read says "Read", never "Done" as if tested. A lesson that
+      // can be taken two ways (a guide) says "Quizzed" when he quizzed through it and "Read" when he
+      // only read it through (V.readThrough).
+      var two = guided(idea.id, i, s, V.soonState(topic, lw.state())), way = V.way(progress), other = way === 'read' ? 'quiz' : 'read';
+      var kicker = done ? (two ? (V.readThrough(progress, idea.id) ? 'Read' : 'Quizzed') : V.isRead(progress, idea.id) ? 'Read' : 'Done') + (st.doneAt ? ' · ' + V.day(st.doneAt) : '')
         : current ? (s.started ? 'In progress' : (s.done === 0 ? 'Start here' : 'Up next'))
         : started ? 'Started' : 'Idea ' + (i + 1);
-      var cls = 'pnode' + (done ? ' is-done' : '') + (current ? ' is-current' : '');
+      var cls = 'pnode' + (done ? ' is-done' : '') + (current ? ' is-current' : '') + (two ? ' has-ways' : '');
+      var inner = [
+        U.h('span', { class: 'pnode-mark', 'aria-hidden': 'true' }, done ? U.icon('tick') : String(i + 1)),
+        U.h('span', { class: 'pnode-body' },
+          U.h('span', { class: 'pnode-kicker' }, kicker),
+          U.h('span', { class: 'pnode-title' }, idea.title),
+          idea.oneLine ? U.line(U.h('span', { class: 'pnode-line' }), idea.oneLine) : null,
+          preparing === 'soon' ? U.h('span', { class: 'pnode-prep is-soon' }, 'Coming soon')
+            : preparing ? U.h('span', { class: 'pnode-prep' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Being prepared…') : null,
+          mayKnow(idea, st) && !done ? U.h('span', { class: 'pnode-known' }, 'You may already know this') : null,
+          deps.length ? U.h('span', { class: 'pnode-deps' }, 'Builds on ' + deps.map(function (t) { return '“' + t + '”'; }).join(' and ')) : null,
+          current && ui.pic && ui.pic.iid === idea.id ? U.h('span', { class: 'pnode-pic', 'aria-hidden': 'true' }, U.h('img', { src: ui.pic.src, alt: '', decoding: 'async' })) : null,
+          current && !two ? U.h('span', { class: 'btn small pnode-btn' }, s.started ? 'Continue' : topic.readyMade ? 'Start this lesson' : 'Start this idea', U.icon('arrow')) : null,
+          current && two ? wayButtons(idea, way, other) : null)];
+      if (!two) return U.h('li', { class: cls }, U.h('a', { class: 'pnode-link', href: V.lessonHref(tid, idea.id, null, 'quiz'), 'data-key': 'idea-' + idea.id }, inner));
+      // Two ways in: the current lesson's card holds both as buttons (his last choice first);
+      // another lesson's row opens his last choice, with the other way as a quiet link under it.
+      if (current) return U.h('li', { class: cls }, U.h('div', { class: 'pnode-link pnode-static' }, inner));
       return U.h('li', { class: cls },
-        U.h('a', { class: 'pnode-link', href: '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(idea.id), 'data-key': 'idea-' + idea.id },
-          U.h('span', { class: 'pnode-mark', 'aria-hidden': 'true' }, done ? U.icon('tick') : String(i + 1)),
-          U.h('span', { class: 'pnode-body' },
-            U.h('span', { class: 'pnode-kicker' }, kicker),
-            U.h('span', { class: 'pnode-title' }, idea.title),
-            idea.oneLine ? U.line(U.h('span', { class: 'pnode-line' }), idea.oneLine) : null,
-            preparing === 'soon' ? U.h('span', { class: 'pnode-prep is-soon' }, 'Coming soon')
-              : preparing ? U.h('span', { class: 'pnode-prep' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Being prepared…') : null,
-            mayKnow(idea, st) && !done ? U.h('span', { class: 'pnode-known' }, 'You may already know this') : null,
-            deps.length ? U.h('span', { class: 'pnode-deps' }, 'Builds on ' + deps.map(function (t) { return '“' + t + '”'; }).join(' and ')) : null,
-            current && ui.pic && ui.pic.iid === idea.id ? U.h('span', { class: 'pnode-pic', 'aria-hidden': 'true' }, U.h('img', { src: ui.pic.src, alt: '', decoding: 'async' })) : null,
-            current ? U.h('span', { class: 'btn small pnode-btn' }, s.started ? 'Continue' : topic.readyMade ? 'Start this lesson' : 'Start this idea', U.icon('arrow')) : null)));
+        U.h('a', { class: 'pnode-link', href: V.lessonHref(tid, idea.id, null, way), 'data-key': 'idea-' + idea.id, 'aria-label': idea.title + ', ' + kicker + ': ' + WAYS[way] }, inner),
+        U.h('p', { class: 'pnode-alt' }, wayLink(idea, other, 'linkish', 'or ' + WAYS[other].charAt(0).toLowerCase() + WAYS[other].slice(1))));
+    }
+    var WAYS = { quiz: 'Quiz me through it', read: 'Just read it through' };
+    function wayLink(idea, way, cls, label) {
+      return U.h('a', { class: cls, href: V.lessonHref(tid, idea.id, null, way), 'data-key': 'way-' + way + '-' + idea.id, dataset: { way: way },
+        on: { click: function () { V.setWay(tid, way, progress); } } }, label || WAYS[way], cls === 'linkish' ? null : U.icon('arrow'));
+    }
+    function wayButtons(idea, way, other) {
+      return U.h('span', { class: 'pnode-ways' }, wayLink(idea, way, 'btn small pnode-way'), wayLink(idea, other, 'btn small secondary pnode-way'));
     }
 
     // Known from the plan, from progress, or from a right warm-up answer about this idea.

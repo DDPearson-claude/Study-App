@@ -367,6 +367,7 @@
       // tools/course/assemble.mjs from a fresh reader's check), and then the note says so.
       var checked = !!topic.overviewChecked;
       wantBack(); wantPic(s); wantBox();
+      var ways = ideas.map(function (i, k) { return [guided(i.id, k, s, next), V.readThrough(progress, i.id)]; });
       var mine = ui.box ? ui.box.courses.filter(function (c) { return c.tid === tid; })[0] : null;
       return [
         ['head', sig(topic.title, topic.query, topic.hook, !!topic.oneBreath, checked, topic.hue, ui.mode || V.modeOf(topic), s.current && s.current.id, s.current && s.current.title, s.index, s.started, s.allDone, next, ui.back), function () { return head(s, next); }, 'top'],
@@ -379,7 +380,7 @@
               : (hookIs ? 'This summary and the ' + hookIs + ' above are' : 'This summary is') + ' Claude\'s overview from what it already knows, not checked against sources.'));
         }] : null,
         ['warm', sig(topic.calibration, cal, progress.calibrationSkipped, ui.reveal, ui.pick, s.done > 0 || s.started), warmup],
-        ['path', sig(ideaState, cal, topic.calibration, progress.lastIdea, busy, ui.pic && ui.pic.iid), function () {
+        ['path', sig(ideaState, cal, topic.calibration, progress.lastIdea, busy, ui.pic && ui.pic.iid, ways, V.way(progress)), function () {
           var prog = (s.done > 0 || s.started) ? U.h('div', { class: 'tp-progress' },
             U.h('div', { class: 'row' },
               s.allDone ? U.h('span', { class: 'done-note' }, U.icon('tick'), 'All ' + s.total + ' ideas done')
@@ -453,6 +454,17 @@
         schedule();
       }, function () { /* the path stays as text */ });
     }
+    // Which lessons can be read through (53-read.js), from what the page already knows, never by
+    // reading the guides (100-240 KB each): in a ready-made course every built steps lesson has
+    // one (tools/course/assemble.mjs), and a lesson is built when it is done, comes before the
+    // current one, or is the current one with its lesson ready (not V.soonState's 'soon'). Should
+    // its guide turn out to be missing, the read-through opens the lesson instead, quietly.
+    function guided(iid, k, s, next) {
+      if (!topic || !topic.readyMade || !U.readThrough) return false;
+      if (V.isDone(progress, iid)) return true;
+      if (!s.current || s.allDone) return false;
+      return k < s.index || (s.current.id === iid && next === 'ready');
+    }
     function wantBox() {
       if (ui.box || ui.boxAsked || !U.review || typeof U.review.box !== 'function') return;
       ui.boxAsked = true;
@@ -507,24 +519,42 @@
         var x = ideas.filter(function (k) { return k.id === d; })[0];
         return x ? x.title : null;
       }).filter(Boolean);
-      // A finished idea he chose only to read says "Read", never "Done" as if tested.
-      var kicker = done ? (V.isRead(progress, idea.id) ? 'Read' : 'Done') + (st.doneAt ? ' · ' + V.day(st.doneAt) : '')
+      // A finished idea he chose only to read says "Read", never "Done" as if tested. A lesson that
+      // can be taken two ways (a guide) says "Quizzed" when he quizzed through it and "Read" when he
+      // only read it through (V.readThrough).
+      var two = guided(idea.id, i, s, V.soonState(topic, lw.state())), way = V.way(progress), other = way === 'read' ? 'quiz' : 'read';
+      var kicker = done ? (two ? (V.readThrough(progress, idea.id) ? 'Read' : 'Quizzed') : V.isRead(progress, idea.id) ? 'Read' : 'Done') + (st.doneAt ? ' · ' + V.day(st.doneAt) : '')
         : current ? (s.started ? 'In progress' : (s.done === 0 ? 'Start here' : 'Up next'))
         : started ? 'Started' : 'Idea ' + (i + 1);
-      var cls = 'pnode' + (done ? ' is-done' : '') + (current ? ' is-current' : '');
+      var cls = 'pnode' + (done ? ' is-done' : '') + (current ? ' is-current' : '') + (two ? ' has-ways' : '');
+      var inner = [
+        U.h('span', { class: 'pnode-mark', 'aria-hidden': 'true' }, done ? U.icon('tick') : String(i + 1)),
+        U.h('span', { class: 'pnode-body' },
+          U.h('span', { class: 'pnode-kicker' }, kicker),
+          U.h('span', { class: 'pnode-title' }, idea.title),
+          idea.oneLine ? U.line(U.h('span', { class: 'pnode-line' }), idea.oneLine) : null,
+          preparing === 'soon' ? U.h('span', { class: 'pnode-prep is-soon' }, 'Coming soon')
+            : preparing ? U.h('span', { class: 'pnode-prep' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Being prepared…') : null,
+          mayKnow(idea, st) && !done ? U.h('span', { class: 'pnode-known' }, 'You may already know this') : null,
+          deps.length ? U.h('span', { class: 'pnode-deps' }, 'Builds on ' + deps.map(function (t) { return '“' + t + '”'; }).join(' and ')) : null,
+          current && ui.pic && ui.pic.iid === idea.id ? U.h('span', { class: 'pnode-pic', 'aria-hidden': 'true' }, U.h('img', { src: ui.pic.src, alt: '', decoding: 'async' })) : null,
+          current && !two ? U.h('span', { class: 'btn small pnode-btn' }, s.started ? 'Continue' : topic.readyMade ? 'Start this lesson' : 'Start this idea', U.icon('arrow')) : null,
+          current && two ? wayButtons(idea, way, other) : null)];
+      if (!two) return U.h('li', { class: cls }, U.h('a', { class: 'pnode-link', href: V.lessonHref(tid, idea.id, null, 'quiz'), 'data-key': 'idea-' + idea.id }, inner));
+      // Two ways in: the current lesson's card holds both as buttons (his last choice first);
+      // another lesson's row opens his last choice, with the other way as a quiet link under it.
+      if (current) return U.h('li', { class: cls }, U.h('div', { class: 'pnode-link pnode-static' }, inner));
       return U.h('li', { class: cls },
-        U.h('a', { class: 'pnode-link', href: '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(idea.id), 'data-key': 'idea-' + idea.id },
-          U.h('span', { class: 'pnode-mark', 'aria-hidden': 'true' }, done ? U.icon('tick') : String(i + 1)),
-          U.h('span', { class: 'pnode-body' },
-            U.h('span', { class: 'pnode-kicker' }, kicker),
-            U.h('span', { class: 'pnode-title' }, idea.title),
-            idea.oneLine ? U.line(U.h('span', { class: 'pnode-line' }), idea.oneLine) : null,
-            preparing === 'soon' ? U.h('span', { class: 'pnode-prep is-soon' }, 'Coming soon')
-              : preparing ? U.h('span', { class: 'pnode-prep' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Being prepared…') : null,
-            mayKnow(idea, st) && !done ? U.h('span', { class: 'pnode-known' }, 'You may already know this') : null,
-            deps.length ? U.h('span', { class: 'pnode-deps' }, 'Builds on ' + deps.map(function (t) { return '“' + t + '”'; }).join(' and ')) : null,
-            current && ui.pic && ui.pic.iid === idea.id ? U.h('span', { class: 'pnode-pic', 'aria-hidden': 'true' }, U.h('img', { src: ui.pic.src, alt: '', decoding: 'async' })) : null,
-            current ? U.h('span', { class: 'btn small pnode-btn' }, s.started ? 'Continue' : topic.readyMade ? 'Start this lesson' : 'Start this idea', U.icon('arrow')) : null)));
+        U.h('a', { class: 'pnode-link', href: V.lessonHref(tid, idea.id, null, way), 'data-key': 'idea-' + idea.id, 'aria-label': idea.title + ', ' + kicker + ': ' + WAYS[way] }, inner),
+        U.h('p', { class: 'pnode-alt' }, wayLink(idea, other, 'linkish', 'or ' + WAYS[other].charAt(0).toLowerCase() + WAYS[other].slice(1))));
+    }
+    var WAYS = { quiz: 'Quiz me through it', read: 'Just read it through' };
+    function wayLink(idea, way, cls, label) {
+      return U.h('a', { class: cls, href: V.lessonHref(tid, idea.id, null, way), 'data-key': 'way-' + way + '-' + idea.id, dataset: { way: way },
+        on: { click: function () { V.setWay(tid, way, progress); } } }, label || WAYS[way], cls === 'linkish' ? null : U.icon('arrow'));
+    }
+    function wayButtons(idea, way, other) {
+      return U.h('span', { class: 'pnode-ways' }, wayLink(idea, way, 'btn small pnode-way'), wayLink(idea, other, 'btn small secondary pnode-way'));
     }
 
     // Known from the plan, from progress, or from a right warm-up answer about this idea.
