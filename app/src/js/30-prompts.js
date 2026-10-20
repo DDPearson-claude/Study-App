@@ -1403,7 +1403,7 @@
       // A finalised lesson's sources are renumbered in order of first citation (_finaliseLesson), so
       // they no longer carry the research numbering: match them by address instead.
       if (opts.final) {
-        if (!opts.sources.some(function (y) { return urlKey(y.url) === urlKey(x.url); })) v.add('sources[' + k + '] (' + str(x.url) + ') is not one of the supplied research sources; cite only those.');
+        if (!opts.sources.some(function (y) { return urlKey(y.url) === urlKey(x.url); })) v.add('sources[' + k + '] (' + s(x.url) + ') is not one of the supplied research sources; cite only those.');
         return;
       }
       var a = opts.sources.filter(function (y) { return y.n === x.n; })[0];
