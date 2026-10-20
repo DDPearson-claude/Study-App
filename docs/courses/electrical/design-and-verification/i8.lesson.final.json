@@ -1,0 +1,928 @@
+{
+  "iid": "i8",
+  "title": "The showroom, end to end",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is which limit goes first when you drag the circuit longer: Zs near 104.5 m for the light load, and the drop near 38.9 m for the heavy load.",
+    "title": "What the far end inherits",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Twelve screens, with Back and Continue. Together they design the DBL2 submain and its longest circuit as one chain, from the intake to the last luminaire.\n\nScreen 1, Do you still have it? The question: “A lighting circuit runs from a sub-board. Ze at the origin is 0.10 Ω. The submain's R1+R2 is 0.30 Ω. The circuit's own R1+R2 is 0.50 Ω. What is Zs at the far end of the circuit?” Three choices, in this order: “0.60 Ω: Ze + the circuit”; “0.90 Ω: Ze + the submain + the circuit”; “0.80 Ω: the submain + the circuit”. Right: “Still there.” Then the working, 0.10 + 0.30 = 0.40 Ω at the sub-board and 0.40 + 0.50 = 0.90 Ω at the far end, and why: a fault at the far end drives current back through every cable to the supply. Then two buttons: Refresh the why, to screen 2, and Skip to the practice, to screen 6. Wrong: a line saying it leaves out the submain, or Ze, then the right working, and on to screen 2.\n\nScreen 2, What it is for. “The design ends at the last luminaire, but it starts at the intake. A fault at the far end flows back through the circuit, the submain and the supply. The voltage drops along all of them too. So every check at the far end carries everything upstream with it. Design the submain first, then the circuit, and carry each result forward.” Then the checklist for calling the design done, seven lines with empty boxes: every length of the run, Ib ≤ In ≤ Iz for each cable, every drop from the intake, a three-phase drop turned into its single-phase share, Zs against the device's maximum, the thermal constraints with SWA armour as the cpc, and breaking capacity at each device. In red: “Leave out a length or the submain and the far end looks better on paper than it will measure. The breaker may not open in time.”\n\nScreen 3, The why: what the far end inherits. Said once at the top: “Take a sub-board where Zs is 0.40 Ω and the submain adds 1.00 V to a single-phase circuit. These two figures are chosen for the picture. The circuit is 1.5 mm² 90 °C thermosetting singles with a 1.5 mm² cpc, on a 6 A type C breaker.” The picture: a one-line diagram from the supply to the last luminaire, with two bars at the far end. The drop bar starts with a fixed 1.00 V for the submain. The circuit's own drop stacks on top, and a line marks 6.90 V. The Zs bar starts with a fixed 0.40 Ω for the board. The circuit's R1+R2 stacks on top, and a line marks 3.64 Ω. A bar turns red past its line.\n\nTwo controls: a length slider, 1 to 140 m in 0.1 m steps, opening on 23.8 m, and a load choice, “1.21 A, like C7” or “4.89 A, like C1”, opening on 1.21 A. The readouts: the voltage drop from the intake and Zs at the far end. The words beside it: “Each metre of the circuit adds to both bars. It adds 31 mV for every amp it carries, so the drop grows with the load. It adds 24.2 × 1.28 = 30.976 mΩ to the fault loop, whatever the load. The load in service makes no difference to Zs. So on this board a light load runs out of Zs first. A heavy one runs out of voltage first. Both start from what the board hands on.”\n\nAt 23.8 m and 1.21 A the drop is 1.00 + 0.89 = 1.89 V and Zs is 0.40 + 0.737 = 1.137 Ω, both far inside. The words under it: “The longest circuit is not always the worst. Check every long or heavily loaded circuit against both limits.” The prompt above the picture: “Drag the length, then switch the load.” Read: at 1.21 A the Zs bar is the first to cross its line, near 104.5 m, where the drop is only 4.92 V. The drop bar's label reads “Reaches its line: beyond 140 m”. At 4.89 A the drop bar crosses first, near 38.9 m, where Zs is only 1.605 Ω. The load never moves the Zs bar. At 45.0 m and 4.89 A the drop is 7.82 V and shows red. Zs is 1.794 Ω, still inside. Still: 4.89 A at 45.0 m.\n\nScreen 4, Check. “A three-phase submain drops 6.00 V. A single-phase lighting circuit from its board drops 4.00 V. The supply is 230 V single-phase and 400 V three-phase. Does the lighting circuit meet its voltage drop limit?” Choices: “Yes: 4.00 V is under 6.90 V”; “Yes: 10.00 V is under 12.00 V”; “No: 3.46 + 4.00 = 7.46 V, over 6.90 V”. Right, the third: “The submain's 6.00 V is the drop between lines. A single-phase circuit sees only the line-to-neutral part: 6.00 ÷ √3 = 3.46 V. Add the circuit's 4.00 V: 7.46 V. Lighting is allowed 3% of 230 V, 6.90 V. So it fails.” Wrong, the first: “That leaves out the submain. The limit runs from the intake to the end of the circuit.” Wrong, the second: 12.00 V is the three-phase limit, so divide the submain's drop by √3 and use 6.90 V.\n\nScreen 5, Worked example: the DBL2 submain, a line at each press. The prompt: “Work each step yourself first, then press Show.” Said once: “Assume the submain is four-core 4 mm² 90 °C thermosetting SWA cable, alone on a perforated tray in the ceiling void. A 10 A type C breaker at the MDB protects it. Both are practice choices. The lighting currents rest on assumed power factors. The route is 17.0 m on plan. Take 1.5 m at each end for the runs up into the ceiling void and down to the board. Measure those on a real job.” The lines: Length = 17.0 + 1.5 + 1.5 = 20.0 m. Ib is the heaviest phase, L1: 8.22 A. In is 10 A, so Ib ≤ In. Take the third harmonic as 20% here. At that level, size the cable on the line current, with the 0.86 factor from Table 4Aa. The building is at 20 °C. Take Ca as 1.00 anyway and claim nothing for the cooler air. Cg is 1, because the cable is alone on its tray. Ci is 1. It ≥ 10 ÷ (1.00 × 1 × 1 × 0.86) = 11.63 A. Table 4E4A, Method E, three loaded cores: 4 mm² carries 44 A.[^1] Iz = 44 × 0.86 = 37.84 A, so 8.22 ≤ 10 ≤ 37.84. Voltage drop = 10 × 8.22 × 20.0 ÷ 1000 = 1.64 V, three-phase.[^2] Its share on a single-phase circuit = 1.64 ÷ √3 = 0.95 V. A note under the lines: “Smaller sizes pass too. 4 mm² is kept for its armour, checked next. The 20% harmonic puts current in the neutral. So some designers work the submain one phase at a time, with the two-core 12 mV/A/m.[^3] That gives 1.97 V. It is already a single-phase drop, so add it to the circuit's drop as it is, with no ÷ √3. Either way it is far inside the limit.”\n\nScreen 6, Section A, question 3 (g). At the top, the scenario panel “Your showroom: the supply and DBL2”, open here and folded on screens 7 to 9. It gives the supply, 230/400 V TN-C-S with Ze 0.1 Ω, 4.6 kA and 20 °C, and the submain from the MDB to DBL2, the lighting board that feeds C7. Under it, a plan, not to scale: the submain runs 11.2 m east and 5.8 m south from the MDB in the plant room to DBL2 in the tools and warranty store, then C7 runs to the bollards. Zs at DBL2, the drop and Zs at the bollards read “?” until worked. Under the plan: 17.0 + 1.5 + 1.5 = 20.0 m for the submain, and from screen 7, 20.8 + 1.5 + 1.5 = 23.8 m for C7. Parts 3(b), 3(e) and 3(f) are carried forward. Said once: “Each core is 4.61 mΩ/m and the armour is 6.8 mΩ/m, both at 20 °C. Use the 1.28 multiplier on both.” The question: “(g) Determine the earth fault loop impedance at DBL2, using every length of the submain.” A typed answer, part 3g: R1+R2 = (4.61 + 6.8) × 1.28 × 20.0 ÷ 1000 = 0.292 Ω. Zs at DBL2 = 0.1 + 0.292 = 0.392 Ω. Slips, each with a one-line hint: 0.348 Ω, the 17.0 m plan length; 0.328 Ω, no 1.28 multiplier; 0.292 Ω, Ze left out. After two misses, the working. Then: “0.392 Ω is far under the 10 A type C's 2.19 Ω.[^4] The least fault current is 230 × 0.95 ÷ 0.392 = 557.40 A. That is well past 100 A, so the breaker opens within 0.1 s. Now re-check the armour. The greatest fault current at DBL2 is 230 × 1.1 ÷ 0.392 = 645.41 A. Take k as 46 here.[^5] On a real job, read k for steel armour from Table 54.4. S = √(645.41² × 0.1) ÷ 46 = 4.44 mm². The armour is 22 mm², so it is justified as the cpc. The extra length lets less fault current through. So it needs less armour than the 5.00 mm² worked on the plan length alone. A fault at the MDB end sees 2530 A. That needs 17.39 mm². That still passes. At fault currents this high, an MCB clears well inside 0.1 s. So 17.39 mm² is a cautious figure. On a real job, the maker's let-through energy, I²t, gives the real need: k²S² must be at least that.[^24] Carry Zs at DBL2, 0.392 Ω, to the circuit.”\n\nScreen 7, Section A, question 3 (h). Part 3(g) carried forward. Said once: “Assume the longest circuit is C7: the foyer's six LED fittings and the six walkway bollards. Its farthest bollard is about 20.8 m from DBL2 on plan. With 1.5 m up and 1.5 m down, it runs 23.8 m. It carries 1.21 A on 1.5 mm² 90 °C thermosetting singles in conduit, with a 1.5 mm² cpc. Its 1.21 A rests on assumed power factors. A 6 A type C breaker protects it, because LED drivers draw a surge at switch-on. In conduit on a wall, Method B, two loaded cables carry 23 A. So 1.21 ≤ 6 ≤ 23. The bollards are outdoors, so a real design would pick a cable fit for that run. Here, assume the same singles run all the way.” The question: “(h) Determine the total voltage drop from the intake to the farthest bollard, and state whether it complies.” A typed answer, part 3h: the circuit's drop = 31 × 1.21 × 23.8 ÷ 1000 = 0.89 V. Total = 0.95 + 0.89 = 1.84 V. Slips: 2.53 V, “The submain's 1.64 V is the drop between lines. A single-phase circuit sees only the line-to-neutral part: 1.64 ÷ √3 = 0.95 V.” Also 0.89 V, the circuit alone, and 1.59 V, the plan lengths. After two misses, the working. Then: “1.84 V is 0.80% of 230 V, far under the 6.90 V allowed for lighting. So it complies. Now check C1, the consultation bay. It is shorter but carries 4.89 A, also from assumed power factors. Over its 20.3 m it drops 3.08 V. From the intake that makes 4.03 V. That passes too. But C1, not C7, has the bigger drop.”\n\nScreen 8, Section A, question 3 (i). Parts 3(g) and 3(h) carried forward. Said once: “C7 runs 23.8 m. Its line and cpc are both 1.5 mm². Together they are 24.2 mΩ/m at 20 °C. Use the 1.28 multiplier.” The question: “(i) Determine the earth fault loop impedance at the farthest bollard, and state whether it is acceptable.” A typed answer, part 3i: R1+R2 = 24.2 × 1.28 × 23.8 ÷ 1000 = 0.737 Ω. Zs = 0.392 + 0.737 = 1.129 Ω. Slips, each with a one-line hint: 0.837 Ω, started from Ze; 0.968 Ω, no multiplier; 0.737 Ω, the circuit alone. After two misses, the working. Then: “1.129 Ω is under the 6 A type C's maximum of 3.64 Ω.[^6] So it is acceptable. The least fault current is 230 × 0.95 ÷ 1.129 = 193.53 A. That is past 60 A, so the breaker opens within 0.1 s.”\n\nScreen 9, Section A, question 3 (j). Parts 3(g) to 3(i) carried forward. Said once: “The cpc is copper and runs in the same conduit as the 90 °C thermosetting singles. So k is 143.” The question: “(j) Determine whether the circuit protective conductor satisfies the thermal constraints. First, its minimum size.” A typed answer, part 3j: the greatest fault current = 230 × 1.1 ÷ 1.129 = 224.09 A. S = √(224.09² × 0.1) ÷ 143 = 0.50 mm². Slips, each with a one-line hint: 0.43 mm², the Cmin current; 0.62 mm², k as 115; 0.99 mm², 0.4 s. Its general hint: “Not quite. Work the Cmax current first, 230 × 1.1 ÷ Zs. Then S = √(I² × t) ÷ k. Read t where the breaker trips instantly: 0.1 s.” After two misses, the working. Then: “0.50 mm² is under the 1.5 mm² fitted, so the cpc satisfies the thermal constraints. Check the DBL2 end too. A fault there sees 230 × 1.1 ÷ 0.392 = 645.41 A. Then S = √(645.41² × 0.1) ÷ 143 = 1.43 mm². That is a slim pass. Designers disagree about which end sets the thermal check.[^7] Checking both ends is the safe way. At 645.41 A the breaker clears well inside 0.1 s, so the real margin is wider. On a real job, check the maker's let-through energy, I²t, against k²S².” Then a panel headed “Breaking capacity”: “The fault level is highest at the origin, at 4.6 kA. It falls along each cable. Take the breakers at the MDB and DBL2 as marked 6 kA for practice. That passes. Read the real Icn from each breaker.” Last, the checklist from screen 2, each box ticked with the figure that met it: 20.0 m and 23.8 m; 8.22 ≤ 10 ≤ 37.84 A and 1.21 ≤ 6 ≤ 23 A; 1.84 V against 6.90 V; 1.64 V counted as 0.95 V; 0.392 Ω against 2.19 Ω, 1.129 Ω against 3.64 Ω; “Armour needs 17.39 mm² at the MDB end and 4.44 mm² at DBL2, of 22 mm². The cpc needs 1.43 mm² at the DBL2 end and 0.50 mm² at the far end, of 1.5 mm².”; 6 kA against 4.6 kA.\n\nScreen 10, Section B: “Explain why every length of the cable run must be included in the design calculations.” He writes his answer, marked against five points, any three a full answer, with one more go before the model answer.\n\nScreen 11, Section A, changed numbers. “A lighting circuit runs from a sub-board where Zs is 0.45 Ω. The submain adds 2.50 V to a single-phase circuit. The circuit is 1.5 mm² 90 °C thermosetting singles with a 1.5 mm² cpc: 31 mV/A/m, 24.2 mΩ/m and the 1.28 multiplier. It carries 3.50 A on a 6 A type C breaker, whose maximum Zs is 3.64 Ω. Determine the longest the circuit can run and still meet both the 6.90 V limit and the maximum Zs.” Under the label: “Same method, new numbers. Give the length in metres.” A typed answer, in metres: the drop allows (6.90 − 2.50) × 1000 ÷ (31 × 3.50) = 4400 ÷ 108.5 = 40.5 m, rounded down. Zs allows (3.64 − 0.45) × 1000 ÷ 30.976 = 102.9 m, rounded down. The shorter one sets it: 40.5 m. Accepted too: 40.6 m, rounded to the nearest. Then he is told the answer is 40.5 m: at 40.6 m the drop just passes 6.90 V. Slips, each with a one-line hint: 102.9 m, the Zs limit alone; 63.5 m, the submain's 2.50 V left out; 82.9 m, the 5% limit. After it: “At 3.50 A the drop runs out long before Zs does.”\n\nScreen 12, Keep this: the summary card, then Finish the lesson.\n\nFeedback and after notes fade in. On every screen, each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.",
+    "ignores": "The picture adds the drops as plain numbers, the usual hand method. Strictly they are phasors. Where the power factors differ, they add to a little less. It also takes the whole load current to the far end. Each luminaire along the way really takes its share sooner, so the real drop is a little less. It holds the board's Zs and drop fixed while the circuit changes. And it takes the breaker's time as 0.1 s at every fault current shown, an upper bound: a real breaker is often faster.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 12 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Recall: Ze at the origin, Ω",
+        "value": 0.1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Recall: submain R1+R2, Ω",
+        "value": 0.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Recall: circuit R1+R2, Ω",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Recall: Zs at the sub-board, Ω",
+        "value": 0.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Recall: Zs at the far end, Ω",
+        "value": 0.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Recall slip: submain left out, Ω",
+        "value": 0.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Recall slip: Ze left out, Ω",
+        "value": 0.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Why: board Zs, chosen for the picture, Ω",
+        "value": 0.4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Why: submain share, chosen for the picture, V",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Lighting drop limit, single-phase, V",
+        "value": 6.9,
+        "kind": "constant",
+        "source": 8
+      },
+      {
+        "label": "Lighting drop limit, three-phase, V",
+        "value": 12,
+        "kind": "constant",
+        "source": 8
+      },
+      {
+        "label": "6 A type C maximum Zs, Ω",
+        "value": 3.64,
+        "kind": "constant",
+        "source": 6
+      },
+      {
+        "label": "6 A type C rating, A",
+        "value": 6,
+        "kind": "constant"
+      },
+      {
+        "label": "Lighting cable size, mm²",
+        "value": 1.5,
+        "kind": "constant"
+      },
+      {
+        "label": "Why: circuit length slider, lowest, m",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Why: circuit length slider, highest, m",
+        "value": 140,
+        "kind": "assumed"
+      },
+      {
+        "label": "Why: slider step, m",
+        "value": 0.1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Why: slider opens at C7's 23.8 m",
+        "value": 23.8,
+        "kind": "control"
+      },
+      {
+        "label": "Load choice: C7, A",
+        "value": 1.21,
+        "kind": "control"
+      },
+      {
+        "label": "Load choice: C1, A",
+        "value": 4.89,
+        "kind": "control"
+      },
+      {
+        "label": "1.5 mm² singles, two cables, mV/A/m",
+        "value": 31,
+        "kind": "constant",
+        "source": 9
+      },
+      {
+        "label": "1.5 mm² line and 1.5 mm² cpc, mΩ/m",
+        "value": 24.2,
+        "kind": "constant",
+        "source": 10
+      },
+      {
+        "label": "Multiplier, 90 °C thermosetting, bunched",
+        "value": 1.28,
+        "kind": "constant",
+        "source": 11
+      },
+      {
+        "label": "Why: 24.2 × 1.28, mΩ/m",
+        "value": 30.976,
+        "kind": "computed"
+      },
+      {
+        "label": "Why at 23.8 m, 1.21 A: circuit drop, V",
+        "value": 0.89,
+        "kind": "computed"
+      },
+      {
+        "label": "Why at 23.8 m, 1.21 A: drop from the intake, V",
+        "value": 1.89,
+        "kind": "computed"
+      },
+      {
+        "label": "Why at 23.8 m: circuit R1+R2, Ω",
+        "value": 0.737,
+        "kind": "computed"
+      },
+      {
+        "label": "Why at 23.8 m: Zs at the far end, Ω",
+        "value": 1.137,
+        "kind": "computed"
+      },
+      {
+        "label": "Why: Zs reaches 3.64 Ω near, m",
+        "value": 104.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Why: drop at 104.5 m, 1.21 A, V",
+        "value": 4.92,
+        "kind": "computed"
+      },
+      {
+        "label": "Why: drop reaches 6.90 V at 4.89 A near, m",
+        "value": 38.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Why: Zs at 38.9 m, Ω",
+        "value": 1.605,
+        "kind": "computed"
+      },
+      {
+        "label": "Why still: length, m",
+        "value": 45,
+        "kind": "control"
+      },
+      {
+        "label": "Why still: drop at 45.0 m, 4.89 A, V",
+        "value": 7.82,
+        "kind": "computed"
+      },
+      {
+        "label": "Why still: Zs at 45.0 m, Ω",
+        "value": 1.794,
+        "kind": "computed"
+      },
+      {
+        "label": "Check: submain drop, three-phase, V",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Check: lighting circuit drop, V",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Check: 6.00 ÷ √3, V",
+        "value": 3.46,
+        "kind": "computed"
+      },
+      {
+        "label": "Check: total, V",
+        "value": 7.46,
+        "kind": "computed"
+      },
+      {
+        "label": "Check slip: 6.00 + 4.00, V",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Supply, single-phase, V",
+        "value": 230,
+        "kind": "constant",
+        "source": 12
+      },
+      {
+        "label": "Supply, three-phase, V",
+        "value": 400,
+        "kind": "constant",
+        "source": 12
+      },
+      {
+        "label": "Lighting drop limit, %",
+        "value": 3,
+        "kind": "constant",
+        "source": 8
+      },
+      {
+        "label": "Submain cable size (practice value), mm²",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Submain breaker: 10 A type C (practice value), A",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Submain length on plan, m",
+        "value": 17,
+        "kind": "constant"
+      },
+      {
+        "label": "Vertical run at each end (practice value), m",
+        "value": 1.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Submain length with vertical runs, m",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3b: DBL2 L1 current, A",
+        "value": 8.22,
+        "kind": "computed"
+      },
+      {
+        "label": "Third harmonic (practice value), %",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Table 4Aa factor, 15 to 33% third harmonic",
+        "value": 0.86,
+        "kind": "constant",
+        "source": 13
+      },
+      {
+        "label": "Ca, no credit for the 20 °C room",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Cg and Ci",
+        "value": 1,
+        "kind": "constant"
+      },
+      {
+        "label": "Submain It needed, 10 ÷ 0.86, A",
+        "value": 11.63,
+        "kind": "computed"
+      },
+      {
+        "label": "4 mm² SWA, Method E, three loaded cores, A",
+        "value": 44,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Submain Iz, 44 × 0.86, A",
+        "value": 37.84,
+        "kind": "computed"
+      },
+      {
+        "label": "4 mm² SWA, three-phase, mV/A/m",
+        "value": 10,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Submain drop, three-phase, V",
+        "value": 1.64,
+        "kind": "computed"
+      },
+      {
+        "label": "Submain share on single-phase, V",
+        "value": 0.95,
+        "kind": "computed"
+      },
+      {
+        "label": "4 mm² SWA, two-core single-phase, mV/A/m",
+        "value": 12,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Submain drop, phase by phase, V",
+        "value": 1.97,
+        "kind": "computed"
+      },
+      {
+        "label": "SWA core resistance at 20 °C, mΩ/m",
+        "value": 4.61,
+        "kind": "constant",
+        "source": 14
+      },
+      {
+        "label": "SWA armour resistance at 20 °C, mΩ/m",
+        "value": 6.8,
+        "kind": "constant",
+        "source": 14
+      },
+      {
+        "label": "Armour area, 4 mm² four-core, mm²",
+        "value": 22,
+        "kind": "constant",
+        "source": 14
+      },
+      {
+        "label": "Showroom Ze, Ω",
+        "value": 0.1,
+        "kind": "constant",
+        "source": 12
+      },
+      {
+        "label": "Part 3g: submain R1+R2, Ω",
+        "value": 0.292,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3g: Zs at DBL2, Ω",
+        "value": 0.392,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3g slip: plan length, Ω",
+        "value": 0.348,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3g slip: no multiplier, Ω",
+        "value": 0.328,
+        "kind": "computed"
+      },
+      {
+        "label": "10 A type C maximum Zs, Ω",
+        "value": 2.19,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Cmin",
+        "value": 0.95,
+        "kind": "constant",
+        "source": 15
+      },
+      {
+        "label": "Cmax",
+        "value": 1.1,
+        "kind": "constant",
+        "source": 16
+      },
+      {
+        "label": "Part 3g: least fault current, A",
+        "value": 557.4,
+        "kind": "computed"
+      },
+      {
+        "label": "10 A type C: 10 × In, A",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Breaker opening time used, s",
+        "value": 0.1,
+        "kind": "constant",
+        "source": 17
+      },
+      {
+        "label": "Part 3g: greatest fault current, A",
+        "value": 645.41,
+        "kind": "computed"
+      },
+      {
+        "label": "k, steel armour (practice value)",
+        "value": 46,
+        "kind": "constant",
+        "source": 5
+      },
+      {
+        "label": "Armour area needed at DBL2, mm²",
+        "value": 4.44,
+        "kind": "computed"
+      },
+      {
+        "label": "Lesson 7: armour area on the plan length, mm²",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Greatest fault current at the MDB, A",
+        "value": 2530,
+        "kind": "computed"
+      },
+      {
+        "label": "Armour area needed at the MDB end, mm²",
+        "value": 17.39,
+        "kind": "computed"
+      },
+      {
+        "label": "C7 length on plan, m",
+        "value": 20.8,
+        "kind": "constant"
+      },
+      {
+        "label": "C7 length with vertical runs, m",
+        "value": 23.8,
+        "kind": "computed"
+      },
+      {
+        "label": "C7: LED fittings in the foyer",
+        "value": 6,
+        "kind": "constant"
+      },
+      {
+        "label": "C7: walkway bollards",
+        "value": 6,
+        "kind": "constant"
+      },
+      {
+        "label": "C7 current, A",
+        "value": 1.21,
+        "kind": "computed"
+      },
+      {
+        "label": "1.5 mm² singles, two loaded cables, It, A",
+        "value": 23,
+        "kind": "constant",
+        "source": 18
+      },
+      {
+        "label": "Part 3h: C7 drop, V",
+        "value": 0.89,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3h: total from the intake, V",
+        "value": 1.84,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3h slip: no ÷ √3, V",
+        "value": 2.53,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3h slip: plan lengths, V",
+        "value": 1.59,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3h: share of 230 V, %",
+        "value": 0.8,
+        "kind": "computed"
+      },
+      {
+        "label": "C1 length with vertical runs, m",
+        "value": 20.3,
+        "kind": "computed"
+      },
+      {
+        "label": "C1 current, A",
+        "value": 4.89,
+        "kind": "computed"
+      },
+      {
+        "label": "C1 drop, V",
+        "value": 3.08,
+        "kind": "computed"
+      },
+      {
+        "label": "C1 total from the intake, V",
+        "value": 4.03,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3i: C7 R1+R2, Ω",
+        "value": 0.737,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3i: Zs at the far end, Ω",
+        "value": 1.129,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3i slip: from Ze, Ω",
+        "value": 0.837,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3i slip: no multiplier, Ω",
+        "value": 0.968,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3i: least fault current, A",
+        "value": 193.53,
+        "kind": "computed"
+      },
+      {
+        "label": "6 A type C: 10 × In, A",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "k, 90 °C thermosetting copper",
+        "value": 143,
+        "kind": "constant",
+        "source": 19
+      },
+      {
+        "label": "k, 70 °C thermoplastic copper",
+        "value": 115,
+        "kind": "constant",
+        "source": 20
+      },
+      {
+        "label": "Maximum disconnection time, final circuit, s",
+        "value": 0.4,
+        "kind": "constant",
+        "source": 21
+      },
+      {
+        "label": "Part 3j: greatest fault current, A",
+        "value": 224.09,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3j: minimum cpc, mm²",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3j slip: Cmin, mm²",
+        "value": 0.43,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3j slip: k 115, mm²",
+        "value": 0.62,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3j slip: 0.4 s, mm²",
+        "value": 0.99,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 3j: cpc needed at the DBL2 end, mm²",
+        "value": 1.43,
+        "kind": "computed"
+      },
+      {
+        "label": "Showroom prospective fault current, kA",
+        "value": 4.6,
+        "kind": "constant",
+        "source": 12
+      },
+      {
+        "label": "Breaker breaking capacity (practice value), kA",
+        "value": 6,
+        "kind": "constant",
+        "source": 22
+      },
+      {
+        "label": "Section B: points, of which any make a full answer",
+        "value": "5, any 3",
+        "kind": "constant"
+      },
+      {
+        "label": "Changed: Zs at the board, Ω",
+        "value": 0.45,
+        "kind": "assumed"
+      },
+      {
+        "label": "Changed: submain share, V",
+        "value": 2.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Changed: circuit current, A",
+        "value": 3.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Changed: 31 × 3.50, mV/m",
+        "value": 108.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed: 4.40 × 1000, mV",
+        "value": 4400,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed: longest run, drop, m",
+        "value": 40.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed: accepted, rounded to nearest, m",
+        "value": 40.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed: longest run, Zs, m",
+        "value": 102.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed slip: submain left out, m",
+        "value": 63.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed slip: 5% limit, m",
+        "value": 82.9,
+        "kind": "computed"
+      },
+      {
+        "label": "5% of 230 V, V",
+        "value": 11.5,
+        "kind": "constant",
+        "source": 23
+      },
+      {
+        "label": "Submain route on plan, east, m",
+        "value": 11.2,
+        "kind": "constant"
+      },
+      {
+        "label": "Submain route on plan, south, m",
+        "value": 5.8,
+        "kind": "constant"
+      },
+      {
+        "label": "Other circuits drop limit, three-phase, 5% of 400 V, V",
+        "value": 20,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A design is one chain, from the intake to the last luminaire. Design the submain first, then the circuit, and carry every result forward. The far end inherits everything upstream. Zs at the end is Zs at the board plus the circuit's R1+R2. The drop at the end is the submain's share plus the circuit's own drop.\n\nEach metre of cable adds to both. It adds to the drop in proportion to the current it carries. It adds to the fault loop whatever the current. So a lightly loaded circuit usually runs out of Zs first, and a heavily loaded one runs out of voltage first. That is why the longest circuit is not always the worst. In the showroom, C7 is the longest, but C1 drops more. Lengths read off a plan also miss the runs up into ceiling voids and down to boards and fittings. Leave those out and every check looks better than the cable will measure.\n\nTwo more things carry forward. A three-phase submain's drop is divided by √3 before it joins a single-phase circuit. And the fault current at each point sets the heat check there. Work it at Cmax, for the cpc and for any SWA armour used as the cpc. Some figures here are practice values: the vertical runs, the cable sizes and breakers, k for steel armour, the third harmonic and the lighting's power factors. On a real job, measure them or look them up.\n\n**Design from the intake outwards, carry every figure forward, and check the far end against everything upstream: every length, every drop, Zs against the device and the heat in the cpc.**"
+  },
+  "analogy": {
+    "text": "Think of a tolerance stack-up on an engineering drawing. Each part passes its own tolerance. The assembly can still fail, because the tolerances add up from the datum. The intake is the datum. The supply, the submain and the circuit are the parts. The drop and Zs at the far end are the stack-up you check, not each cable on its own.",
+    "breaks": "A tolerance can go plus or minus, so some can cancel. Every metre of cable only adds resistance, so the drop and Zs only grow along the run."
+  },
+  "practice": {
+    "text": "- Scale every route, then add the runs up and down at each end. Measure them on site when you can.\n- Design the submain: Ib from the heaviest phase, In, the factors, It, the cable, and its drop.\n- Work Zs at the board: Ze + the submain's R1+R2, hot. With SWA armour as the cpc, include the armour.\n- Check the armour or cpc of the submain for heat, at Cmax.\n- Design each long or heavily loaded circuit from that board.\n- Add the drops: the submain's share plus the circuit's own. Divide the submain's drop by √3 if the circuit is single-phase. Compare with 3% or 5%.\n- Work Zs at the end: Zs at the board + the circuit's R1+R2. Compare with the device's maximum.\n- Check the cpc for heat at both ends of the circuit.\n- Check each device's breaking capacity against the fault level where it sits.\n\n**Rule of thumb:** a lightly loaded circuit usually runs out of Zs first. A heavily loaded one runs out of voltage first. Check both.\n\n**Worked example:** the showroom. The submain runs 20.0 m. Zs at DBL2 is 0.1 + 0.292 = 0.392 Ω. C7 runs 23.8 m. Its drop from the intake is 0.95 + 0.89 = 1.84 V, against 6.90 V. Zs at its end is 0.392 + 0.737 = 1.129 Ω, against 3.64 Ω. Its cpc needs 0.50 mm² at the far end and 1.43 mm² at the DBL2 end. It has 1.5 mm².\n\n**Common mistakes**\n- Using the plan length without the vertical runs.\n- Starting the circuit's Zs from Ze instead of Zs at the board.\n- Adding a three-phase submain's drop to a single-phase circuit without dividing by √3.\n- Checking only the longest circuit when a shorter one carries more current.\n- Checking the cpc's heat only at the far end, where the fault current is smallest."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "written": {
+    "b1": {
+      "q": "Explain why every length of the cable run must be included in the design calculations.",
+      "points": [
+        {
+          "text": "Every metre adds to the voltage drop, which is mV/A/m × Ib × length.",
+          "cite": "Slides p.38, 39; formula sheet step 7"
+        },
+        {
+          "text": "Every metre adds to R1+R2, and so to Zs at the end of the circuit.",
+          "cite": "Formula sheet steps 12, 13"
+        },
+        {
+          "text": "A higher Zs lets less fault current flow, so the device may not open within the time allowed.",
+          "cite": "Slides p.46, 55"
+        },
+        {
+          "text": "The drop is judged from the intake to the end of the circuit, so the submain and every length before the circuit count too.",
+          "cite": "Guide p.6; formula sheet"
+        },
+        {
+          "text": "A route measured on plan misses the runs up and down to boards and fittings, so the real cable is longer than the plan shows.",
+          "cite": "Guide p.5"
+        }
+      ],
+      "need": 3,
+      "model": "Every metre of cable adds resistance. It adds to the voltage drop, which is mV/A/m × Ib × length. It also adds to R1+R2, and so to Zs at the end of the circuit. A higher Zs lets less fault current flow, so the device may not open within the time allowed. The drop is judged from the intake to the end of the circuit, so the submain and every length before the circuit count too. A route measured on plan misses the runs up and down to boards and fittings, so the real cable is longer than the plan shows. Leave any length out and the design looks better than the installation will measure."
+    }
+  },
+  "summary": {
+    "title": "The whole design, end to end",
+    "for": "Design the submain first, then each long or heavily loaded circuit, and carry every result forward. The far end inherits everything upstream: the supply, the submain and the circuit. Check it against every length, every drop from the intake, the device's maximum Zs, the heat in the cpc and breaking capacity.",
+    "rule": "Length = plan length + every vertical run\nIb ≤ In ≤ Iz, with It ≥ In ÷ the factors\nTotal drop = submain drop (÷ √3 onto a single-phase circuit) + circuit drop\nZs at the end = Zs at the board + circuit R1+R2\nR1+R2 = mΩ/m × multiplier × length ÷ 1000\ncpc or armour: S = √(I² × t) ÷ k, with I = 230 × 1.1 ÷ Zs\nIcn ≥ the fault level at the device\n\nRead t from the device's curve. An MCB tripping instantly clears within 0.1 s.\nLighting may drop 3%: 6.90 V single-phase, 12 V three-phase.\nOther circuits may drop 5%: 11.50 V single-phase, 20 V three-phase.\nA light load usually runs out of Zs first. A heavy load runs out of voltage first.\nCheck the cpc's heat at both ends.",
+    "traps": [
+      {
+        "text": "Using the plan length without the runs up and down at each end.",
+        "cite": "Guide p.5"
+      },
+      {
+        "text": "Starting a circuit's Zs from Ze instead of Zs at its board.",
+        "cite": "Formula sheet step 13"
+      },
+      {
+        "text": "Adding a three-phase submain's drop to a single-phase circuit without dividing by √3.",
+        "cite": "Guide p.6; formula sheet step 7 note"
+      },
+      {
+        "text": "Checking only the longest circuit when a shorter one carries more current.",
+        "cite": "Pack question 3b; slides p.38, 39"
+      },
+      {
+        "text": "Checking the cpc's heat only at the far end, where the fault current is smallest.",
+        "cite": "IET EngX forum on the adiabatic check, in research (contested)"
+      }
+    ],
+    "where": "BS 7671 Appendix 4 for It and mV/A/m. Table 41.3 for maximum Zs. Tables 43.1 and 54.2 to 54.4 for k. The maker's data for armour resistance and Icn.",
+    "figures": [
+      "l8.sub.len",
+      "l8.sub.vd1",
+      "3g",
+      "l8.A.armourMDB",
+      "3h",
+      "3i",
+      "3j",
+      "l8.A.3j.near"
+    ]
+  },
+  "sources": [
+    {
+      "n": 1,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p464",
+      "quote": "4 49 42 52 44 43 36"
+    },
+    {
+      "n": 2,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p465",
+      "quote": "4 12 12 10"
+    },
+    {
+      "n": 3,
+      "title": "3-Phase Voltage Drop Calculator: Free BS 7671 Check (Elec-Mate, a trade app)",
+      "url": "https://www.elec-mate.com/tools/cable-volt-drop-three-phase",
+      "quote": "For an unbalanced load, work phase by phase using the single-phase mV/A/m values, and assess the neutral separately where third harmonic content is significant."
+    },
+    {
+      "n": 4,
+      "title": "Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app; its page prints Table 41.3)",
+      "url": "https://www.elec-mate.com/guides/maximum-zs-values-bs-7671",
+      "quote": "C10 2.19 Ω 1.75 Ω"
+    },
+    {
+      "n": 5,
+      "title": "Pocket Guide 14: Sizing of protective conductors by selection (Certsure LLP, 2019; the copy is on a website CDN, so read k from your own Table 54.4)",
+      "url": "https://irp.cdn-website.com/e7a421eb/files/uploaded/PG14_Sizing_Of_Protective_Conductors_By_Selection.pdf",
+      "quote": "Steel 51 46 46"
+    },
+    {
+      "n": 6,
+      "title": "Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app; its page prints Table 41.3)",
+      "url": "https://www.elec-mate.com/guides/maximum-zs-values-bs-7671",
+      "quote": "C6 3.64 Ω 2.91 Ω"
+    },
+    {
+      "n": 7,
+      "title": "adiabatic equation - 2.5 2c SWA (a forum thread) - Wiring and the Regulations BS 7671 - IET EngX",
+      "url": "https://engx.theiet.org/f/wiring-and-regulations/20816/adiabatic-equation---2-5-2c-swa",
+      "quote": "The worst-case is often further up the cable, at a point where, if you choose too small a CSA, the line corresponding to k ² S ² meets the overcurrent protective device curve, i.e. at higher fault currents / shorter circuit length."
+    },
+    {
+      "n": 8,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p38",
+      "quote": "Lighting circuits have upto 3% allowed: 6.9V single phase and 12V 3-phase"
+    },
+    {
+      "n": 9,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p459",
+      "quote": "1.5 31 31 31 31 27 27 27 27"
+    },
+    {
+      "n": 10,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p51",
+      "quote": "For the (mΩ/m) of a 1.5mm² line and a 1.5mm² cpc, the value to use is: 24.2."
+    },
+    {
+      "n": 11,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p220",
+      "quote": "Incorporated in a cable or bunched (NOTE 2) 1.20 1.28 1.28"
+    },
+    {
+      "n": 12,
+      "title": "ED4-01A learner pack: car showroom assignment",
+      "url": "material:learner-pack#p3",
+      "quote": "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+    },
+    {
+      "n": 13,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p34",
+      "quote": "If the 3rd harmonic of line current is 15-33% = use LINE current Ib with a rating factor of 0.86"
+    },
+    {
+      "n": 14,
+      "title": "Standard Power Cables BS5467 - Prysmian United Kingdom",
+      "url": "https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf",
+      "quote": "4 4.61 - - 19 7.9 20 7.5 22 6.8 25 6.2"
+    },
+    {
+      "n": 15,
+      "title": "REDUCTION IN MAXIMUM VALUES OF EARTH FAULT LOOP IMPEDANCE IN BS 7671",
+      "url": "https://electrical.theiet.org/media/1442/maximum-zs-values.pdf",
+      "quote": "NOTE 1: For a low voltage supply given in accordance with ESQCR, Cmin is given the value 0.95."
+    },
+    {
+      "n": 16,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p67",
+      "quote": "230 x 1.1 / 1.23 = 205.6A"
+    },
+    {
+      "n": 17,
+      "title": "— Electrical installation solutions for buildings – Technical details MCBs",
+      "url": "https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj",
+      "quote": "C 0.5 to 63 A 1.13 · In > 1 h 5 · In > 0.1 s 1.45 · In < 1 h 10 · In < 0.1 s"
+    },
+    {
+      "n": 18,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p458",
+      "quote": "1.5 19 17 23 20 25 23"
+    },
+    {
+      "n": 19,
+      "title": "Thermoplastic (PVC) or Thermosetting (XLPE) SWA cable?",
+      "url": "https://electrical.theiet.org/media/3023/wiring-matters-issue-93-november-2022.pdf",
+      "quote": "the final temperature for 90 °C thermosetting insulation is 250 °C (k =143)"
+    },
+    {
+      "n": 20,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p59",
+      "quote": "S = √341.4² x 0.1 / 115"
+    },
+    {
+      "n": 21,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p51",
+      "quote": "This circuit means that table 41.1 will be used, which explains it needs to disconnect within 0.4s."
+    },
+    {
+      "n": 22,
+      "title": "[PDF] BEAMA Guide - Low Voltage Circuit-breaker Standards",
+      "url": "https://www.beama.org.uk/static/2a6f44a3-2e72-4870-870fb0958c63c470/BEAMA-Guide-Low-Voltage-Circuit-breaker-Standards.pdf",
+      "quote": "Circuit-breakers to BS EN 60898 of B-type and C-type, having rated current up to and including 63 A and a rated short-circuit capacity of 3 000 A, 4 500 A, 6 000 A and 10 000 A"
+    },
+    {
+      "n": 23,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p40",
+      "quote": "We work on a maximum voltage drop of 3% of supply for lighting and 5% for all other circuits; therefore if the supply voltage is given (ie 395V) then your calculations must be based on the percentage of this value."
+    },
+    {
+      "n": 24,
+      "title": "adiabatic equation - 2.5 2c SWA (a forum thread) - Wiring and the Regulations BS 7671 - IET EngX",
+      "url": "https://engx.theiet.org/f/wiring-and-regulations/20816/adiabatic-equation---2-5-2c-swa",
+      "quote": "use the let-through energy from either the product standard, or let-through energy provided by the manufacturer, and simply compare against k ² S ²"
+    }
+  ]
+}

@@ -1,0 +1,1205 @@
+TASK: write-lesson
+
+You are a world-class teacher and science and history writer, writing one lesson for Dan in "My University", his personal learning app. Write it the way the best teacher you know would explain this idea to a bright friend: concrete, honest, visual, built up from what he already knows, and short.
+
+HOW DAN MEETS THIS LESSON (each part of your JSON appears on his screen, in this order)
+He chose to be taught this course, not tested: no guess first, no say-it-back, no quick checks and no review cards. So "predict" and "say" are null and "checks" is [].
+1. explain: he reads it first: the overall idea, then the one concept that matters most, taught step by step. Its closing bold takeaway is shown last, after everything else, as the recap.
+2. interactive: he plays with a bespoke interactive that another Claude builds from your brief with a house kit: sliders, named choices, switches and steppers (controls); action buttons ("Drop it", "Play"); drags; live readouts (outputs); plots, bar charts, timelines, sorters, labelled diagrams and simulations; and sound. It is about 340 px wide on his phone. No text input, no images or data from the web.
+3. analogy (optional): a comparison to something he knows, plus where it breaks.
+4. practice: "Put it into practice": how he can use the idea for real. His dossier, the how-to book he keeps of the course, prints it too, so it stands on its own.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Design and verification, a Level 4 refresher
+Puzzle the course answers: The showroom motor is 11 kW at 400 V, and 11 kW ÷ (√3 × 400 V) is about 16 A, yet the circuit that feeds it is designed on about 23 A. Why, and what else must its cables pass before they are right?
+His level: KNOWS A LITTLE. He has met the basics but may hold common misconceptions. Simple equations are fine once each symbol is explained.
+In one breath: A design starts from what each load really draws from the supply, adds the loads up into what the whole building draws, and picks a protective device and a cable that will not overheat where it runs. It then checks that enough voltage reaches the far end, that an earth fault opens the device in time and every conductor survives the fault, and that the readings at verification come in within what the design predicted. The showroom job runs through it all, each figure carried forward to the next.
+What he typed when he started (what he says about himself there, such as his job or trade, is ground he already has: build on it, never explain it): Design and verification
+Ideas, in teaching order (id, title — one line, [kind]):
+  i1  Design current: what the circuit really draws — The cable carries what the load draws from the supply, so Ib comes from the input, not the output: P ÷ (√3 × UL × efficiency × power factor), at the voltage actually at the board, with diversity only as guidance. [quantity]
+  i2  Maximum demand: what the whole building draws — Maximum demand sizes the supply and every submain; diversity is common-sense guidance from the On-Site Guide, not a rule, and balancing loads across the three phases keeps the neutral current down. [quantity] (needs i1)
+  i3  Device and cable: Ib ≤ In ≤ Iz, the factors and overload — Each rating factor is heat the table did not allow for, so It = In ÷ (the factors that act together), and the worst section sets the cable; a device may let about 1.45 In flow before it opens, so I2 ≤ 1.45 Iz, which is why a rewireable fus… [quantity] (needs i1)
+  i4  A neutral that carries more than the line — Balanced fundamentals cancel in the neutral but third harmonics on the three lines are in step and add, so above about a third the neutral current, 3 × h × IL, sets the cable; only when the maker's data gives a harmonic figure. [quantity] (needs i3)
+  i5  Voltage drop from the intake, refined — Voltage drop is mV/A/m × Ib × L ÷ 1000, added along the whole path from the origin and judged against 3% or 5% of the voltage you were given; a lightly loaded cable runs cooler (Ct) and, with a known power factor, only the parts of the r a… [quantity] (needs i1, i3)
+  i6  Shock protection, and when Zs is too high — Every metre adds to the earth fault loop, the loop limits the fault current at the lowest supply voltage (Cmin), and that current decides whether the device opens in time; when Zs is too high, a bigger cpc or an RCD. [mechanism] (needs i3)
+  i7  Surviving the fault: heat, short circuits, breaking capacity — A conductor can take k²S² of fault energy, so it survives if I²t is smaller: S = √(I²t) ÷ k for the cpc with I at Cmax, t = k²S² ÷ I² for the live conductors, and every device must break the largest fault (IPF ≤ Icn). [quantity] (needs i6)
+  i8  The showroom, end to end — The assignment's DBL2 submain and its longest circuit designed as one chain, every result carried forward, checked against the project guide's key points: all lengths, thermal constraints, Zs against the device, all drops from the intake. [skill] (needs i1, i2, i3, i4, i5, i6, i7)   <-- THIS LESSON
+  i9  Verification and handover — The design predicts the readings: a cold reading is compared after correcting it to running temperature, installed values usually come in lower, and the designer hands over what the inspector and the client need, with a first inspection in… [process] (needs i6, i7, i8)
+Teach only this idea; the others get their own lessons. EARLIER LESSONS below shows what Dan has already met.
+
+THIS LESSON
+Idea i8: "The showroom, end to end"
+What Dan should come away understanding: The assignment's DBL2 submain and its longest circuit designed as one chain, every result carried forward, checked against the project guide's key points: all lengths, thermal constraints, Zs against the device, all drops from the intake.
+Kind: skill. Builds on: i1 "Design current: what the circuit really draws", i2 "Maximum demand: what the whole building draws", i3 "Device and cable: Ib ≤ In ≤ Iz, the factors and overload", i4 "A neutral that carries more than the line", i5 "Voltage drop from the intake, refined", i6 "Shock protection, and when Zs is too high", i7 "Surviving the fault: heat, short circuits, breaking capacity".
+
+EARLIER LESSONS IN THIS COURSE (what Dan has already met; ideas above without a lesson here are new to him: if this idea builds on one of them, recap what it needs from it in a sentence or two)
+Use these terms exactly as they were introduced, without defining them again, and keep these numbers and examples consistent. Refer back by name where it helps ("remember the …?"). Choose a different analogy and a different predict question.
+- i1 "Design current: what the circuit really draws"
+  Terms: Efficiency, power factor
+  Analogy: Think of ordering cable for a run. The run on the drawing is the output. What you order also has to cover the offcuts and the tails. So the order is the run divided by the share of the drum that ends…
+  Interactive: The one thing you should see is the input bar stretch past the fixed 20 kW output, then the apparent-power bar past the input, as Ib climbs from 28.87 A to 41.48 A, when you drag the efficiency and the power factor down.
+  Numbers: Screen, 1 to 11 (the stepper) = 0; Recall heater output, your slides p.16, kW = 20 (constant); Supply line voltage, V = 400 (constant); Recall Ib, 20 000 ÷ (√3 × 400), A = 28.87; Slip, √3 left out, A = 50; Slip, single-phase rule at 230 V, A = 86.96
+- i2 "Maximum demand: what the whole building draws"
+  Terms: Maximum demand, diversity
+  Analogy: Think of a dockyard canteen. The cooks plan for the busiest sitting, not for everyone on the base eating at once: that is diversity. And they split the diners evenly between three serving counters, d…
+  Interactive: The one thing you should see is the neutral bar fall from 24.35 A to 0.30 A, as the phase bars even out, when you move DBL2’s circuits off L1 and share them across all three phases.
+  Numbers: Screen, 1 to 12 (the stepper) = 0; Slides' lamps on the example circuit = 10 (constant); Each lamp, W = 100 (constant); Domestic lighting allowance, % = 66 (constant); Designed load with diversity, W = 660 (constant); Designed load without diversity, W = 1000 (constant)
+- i3 "Device and cable: Ib ≤ In ≤ Iz, the factors and overload"
+  Terms: current-carrying capacity, rating factor
+  Analogy: Think of a hoist whose overload cut-out lets the load run 45% past the plate rating before it stops it. The rope has to hold that 45% for as long as the cut-out takes. So you check the rope against t…
+  Interactive: The one thing you should see is the fuse's I2 pass the cable's 1.45 Iz in red, then meet it at 20.00 A as the cable's Iz rises to 13.79 A, when you choose the fuse and then apply Cf.
+  Numbers: Screen, 1 to 12 (the stepper) = 0; Slides' heater circuit: In, A = 16 (constant); Slides' heater circuit: Ca = 0.94 (constant); Slides' heater circuit: Cg = 0.8 (constant); Slides' heater circuit: Ci = 0.88 (constant); It for Ca and Cg, 16 ÷ 0.752, A = 21.28
+- i4 "A neutral that carries more than the line"
+  Terms: third harmonic, loaded conductor
+  Analogy: Picture three watches on a ship, each with a day that starts eight hours after the last. Anything each watch does once a day, like taking over, falls at three different times, spread evenly round the…
+  Interactive: The one thing you should see is the three lines' ripples fall into step and the neutral bar climb from 0 A past the 150 A line bar near a third, when you drag the third harmonic up.
+  Numbers: Screen, 1 to 11 (the stepper) = 0; Recall: line current, A = 60 (assumed); Recall: third harmonic, % = 35 (assumed); Recall: neutral, 3 × 0.35 × 60, A = 63; Recall slip: one line's, 0.35 × 60, A = 21; Recall slip: fundamentals only, A = 0
+- i5 "Voltage drop from the intake, refined"
+  Terms: Ct
+  Analogy: Think of a ship's fresh-water main. The pressure at a shower on the far deck is the pump's pressure less what is lost in every length of pipe on the way, the ring main as well as the branch. A branch…
+  Interactive: The one thing you should see is the total from the origin cross the 11.50 V limit near 60 m, when you drag the heater circuit's length. That total is the submain's 5.77 V plus the heater circuit's own drop.
+  Numbers: Screen, 1 to 11 (the stepper) = 0; Recall: supply given, V = 395 (constant); Recall: submain drop (slides p.41), V = 10 (constant); Recall: radial circuit drop (slides p.41), V = 9.8 (constant); Recall: total, 10 + 9.8, V = 19.8; 5% of 395 V, V = 19.75
+- i6 "Shock protection, and when Zs is too high"
+  Analogy: Think of jump-starting a van on a cold morning. The starter only turns once enough current reaches it. Long, thin leads let less current through. A battery sagging in the cold pushes less still. So y…
+  Interactive: The one thing you should see is Zs pass 0.87 Ω near 37.9 m and the fault current drop below 250 A when you drag the run longer, adding to R1+R2 with every metre.
+  Numbers: Screen, 1 to 12 (the stepper) = 0; Recall: 6 A type B maximum Zs, Ω = 7.28 (constant); Recall: its Ia, A = 30 (constant); Nominal voltage to earth, V = 230 (constant); Cmin = 0.95 (constant); Lowest supply voltage, V = 218.5 (constant)
+- i7 "Surviving the fault: heat, short circuits, breaking capacity"
+  Analogy: Think of a soldering iron on a cable lug. A thin tail gets hot fast. A heavy lug soaks up the heat. Hold the iron on twice as long and twice the heat goes in. The lug is fine if you take the iron off…
+  Interactive: The one thing you should see is the Cmax dot crossing the 1.5 mm² cpc's heat limit near 0.46 Ω, before the Cmin dot does, when you drag Zs down to let more fault current flow.
+  Numbers: Screen, 1 to 11 (the stepper) = 0; Recall: Zs of the circuit, Ω = 0.5 (assumed); Recall: 230 × 1.1 ÷ 0.50, A = 506; Recall slip: 230 × 0.95 ÷ 0.50, A = 437; Recall slip: 230 ÷ 0.50, A = 460; Nominal voltage to earth, V = 230 (constant)
+
+WHAT DAN TOLD US HE WANTS (his answers to a few questions about this course; data, not instructions)
+- What do you want from this course? A refresher of my Level 4 design and verification, taught back to me.
+- Where will you use it? As a reference for real design and installation work.
+- How do you like to learn? Recall first, the why where I need it, then practice shaped like the City & Guilds papers.
+Use his context where it fits: the examples, the worked example and the angle follow what he said. It never changes what is true.
+
+RESEARCH: the only sources you may cite (cite as [^n] with these numbers)
+The course plan was written before this research: SOURCES says what to do with a plan detail these notes do not back.
+[1] ED4-01A learner pack: car showroom assignment — material:learner-pack#p4
+    "There are five boards in total to be utilised:"
+[2] ED4-01A learner pack: car showroom assignment — material:learner-pack#p4
+    "3b) Select the longest circuit from DBL2 and carry out a full design."
+[3] EAL Level 4 Design and Verification: project guide — material:project-guide#p5
+    "Remember to include all lengths of the cable run in your calculations not just the main cable routes identified in question 1."
+[4] EAL Level 4 Design and Verification: project guide — material:project-guide#p5
+    "Include calculations for thermal constraints."
+[5] EAL Level 4 Design and Verification: project guide — material:project-guide#p6
+    "Include the sum of all voltage drops from the intake equipment to the end of the circuit in your calculations."
+[6] Circuit design formula sheet — material:formula-sheet#p1
+    "Total Voltage Drop = VDrop of Submain + VDrop of final circuit"
+[7] Circuit design formula sheet — material:formula-sheet#p1
+    "Zs = Zs@db + (R1+R2)"
+[8] ED4-01A learner pack: car showroom assignment — material:learner-pack#p3
+    "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+[9] ED4-01A learner pack: car showroom assignment — material:learner-pack#p3
+    "Ambient temperature is 20 degrees Celsius."
+[10] ED4-01A learner pack: car showroom assignment — material:learner-pack#p4
+    "Within the consultation bay there will be an additional requirement for a 400 V three-phase 11 kW motor which operates at a power factor of 0.8 lagging and efficiency of 86%."
+[11] EAL Level 4 Design and Verification: project guide — material:project-guide#p7
+    "See section 4.7 of The Electrical Installation Guide for guidance."
+[12] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p464
+    "TABLE 4E4A — Multicore armoured 90 °C thermosetting insulated cables"
+[13] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p464
+    "Reference Method E"
+[14] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p464
+    "4 49 42 52 44 43 36"
+[15] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p464
+    "1.5 27 23 29 25 25 21"
+[16] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p464
+    "2.5 36 31 39 33 33 28"
+[17] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p465
+    "TABLE 4E4B"
+[18] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p465
+    "4 12 12 10"
+[19] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p465
+    "1.5 31 31 27"
+[20] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p465
+    "2.5 19 19 16"
+[21] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app; its page prints Table 41.3) — https://www.elec-mate.com/guides/maximum-zs-values-bs-7671
+    "C6 3.64 Ω 2.91 Ω"
+[22] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app; its page prints Table 41.3) — https://www.elec-mate.com/guides/maximum-zs-values-bs-7671
+    "C10 2.19 Ω 1.75 Ω"
+[23] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app; its page prints Table 41.3) — https://www.elec-mate.com/guides/maximum-zs-values-bs-7671
+    "This higher trip threshold makes them suitable for circuits with high inrush currents (motors, discharge lighting, transformers) but results in lower maximum Zs values because more fault current is needed to achieve rapid disconnection."
+[24] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app; its page prints Table 41.3) — https://www.elec-mate.com/guides/maximum-zs-values-bs-7671
+    "using Type C unnecessarily on a lighting or socket circuit significantly reduces the available Zs margin and may cause the circuit to fail."
+[25] Guide to circuit-breaker selection for LED lighting (BEAMA) — https://www.beama.org.uk/static/b40aa7b9-f1c4-487a-a8f172067978517b/BEAMA-Guide-to-Circuit-breaker-Selection-for-LED-Lighting.pdf
+    "This guide relates to selection of circuit-breakers when supplying LED lighting so as to avoid unintentional operation by inrush currents."
+[26] How to protect lighting circuits for LED lights (ABB News center) — https://new.abb.com/news/detail/67528/how-to-protect-lighting-circuits-for-led-lights
+    "All drivers contain capacitors. This causes inrush currents when switching on."
+[27] How to protect lighting circuits for LED lights (ABB News center) — https://new.abb.com/news/detail/67528/how-to-protect-lighting-circuits-for-led-lights
+    "The peak value and duration of the inrush current of a LED driver is shown in the technical datasheet."
+[28] Pocket Guide 14: Sizing of protective conductors by selection (Certsure LLP, 2019; the copy is on a website CDN, so read k from your own Table 54.4) — https://irp.cdn-website.com/e7a421eb/files/uploaded/PG14_Sizing_Of_Protective_Conductors_By_Selection.pdf
+    "54.4 Values of k for protective conductor as a sheath or armour of a cable."
+[29] Pocket Guide 14: Sizing of protective conductors by selection (Certsure LLP, 2019; the copy is on a website CDN, so read k from your own Table 54.4) — https://irp.cdn-website.com/e7a421eb/files/uploaded/PG14_Sizing_Of_Protective_Conductors_By_Selection.pdf
+    "Steel 51 46 46"
+[30] Armouring of a cable as a protective conductor (NICEIC & ELECSA, Professional Electrician) — https://professional-electrician.com/technical/armouring-of-a-cable-as-a-protective-conductor/
+    "Although the main purpose of the metallic armouring is to provide mechanical protection, it may also be used as a protective conductor if all the relevant requirements of BS 7671 for such use are satisfied."
+[31] Armouring of a cable as a protective conductor (NICEIC & ELECSA, Professional Electrician) — https://professional-electrician.com/technical/armouring-of-a-cable-as-a-protective-conductor/
+    "Where the armouring of a cable is used as a cpc it is likely to experience some thermal stress (heating effects) when subjected to earth fault current."
+[32] Armouring of a cable as a protective conductor (NICEIC & ELECSA, Professional Electrician) — https://professional-electrician.com/technical/armouring-of-a-cable-as-a-protective-conductor/
+    "Using Table 54.7 of BS 7671 for selection, when permitted, and as an alternative to calculation."
+[33] Wiring Matters 2025 annual (IET), quoting the Electrical Installation Design Guide, 5th edition — https://electrical.theiet.org/media/ypagqrrl/iet-wiring-matters-2025-annual-1.pdf
+    "Circuits are designed to meet the shock protection requirements by limiting the earth fault loop impedances to the end of the circuit (Zs) to the maximum values given in Tables 41.2 to 41.4 of BS 7671 (Z41)"
+[34] adiabatic equation - 2.5 2c SWA (a forum thread) - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/20816/adiabatic-equation---2-5-2c-swa
+    "Well, the worst-case condition for electric shock is indeed at the remote end of the cable - the furthest point in the circuit."
+[35] adiabatic equation - 2.5 2c SWA (a forum thread) - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/20816/adiabatic-equation---2-5-2c-swa
+    "The worst-case is often further up the cable, at a point where, if you choose too small a CSA, the line corresponding to k ² S ² meets the overcurrent protective device curve, i.e. at higher fault currents / shorter circuit length."
+[36] adiabatic equation - 2.5 2c SWA (a forum thread) - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/20816/adiabatic-equation---2-5-2c-swa
+    "use the let-through energy from either the product standard, or let-through energy provided by the manufacturer, and simply compare against k ² S ²"
+[37] 3-Phase Voltage Drop Calculator: Free BS 7671 Check (Elec-Mate, a trade app) — https://www.elec-mate.com/tools/cable-volt-drop-three-phase
+    "The √3 is already inside the tabulated value."
+[38] 3-Phase Voltage Drop Calculator: Free BS 7671 Check (Elec-Mate, a trade app) — https://www.elec-mate.com/tools/cable-volt-drop-three-phase
+    "Appendix 4, Section 6 is explicit about what the tabulated number already contains: for three-phase circuits the tabulated mV/A/m values relate to the line voltage, and balanced conditions have been assumed."
+[39] 3-Phase Voltage Drop Calculator: Free BS 7671 Check (Elec-Mate, a trade app) — https://www.elec-mate.com/tools/cable-volt-drop-three-phase
+    "For an unbalanced load, work phase by phase using the single-phase mV/A/m values, and assess the neutral separately where third harmonic content is significant."
+[40] General method for cable sizing - Electrical Installation Guide (Schneider Electric) — https://www.electrical-installation.org/enwiki/General_method_for_cable_sizing
+    "The current-carrying capacity of three-phase, 4-core or 5-core cables is based on the assumption that only 3 conductors are fully loaded."
+[41] Ib or In for cable calculations (a forum thread) - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/21942/ib-or-in-for-cable-calculations
+    "it seems counter-intuitive to put 6A as the design current, if alterations occur is it not up to the next designer to asses the situation before sticking new luminaires on the circuit?"
+[42] Car showroom drawing: lighting — material:drawing-lighting#p1
+    "Scale: 1:50 @ A1"
+[43] Car showroom drawing: power — material:drawing-power#p1
+    "Scale: 1:50 @ A1"
+[44] EAL Level 4 Design and Verification: course slides — material:eal-slides#p38
+    "Lighting circuits have upto 3% allowed: 6.9V single phase and 12V 3-phase"
+[45] EAL Level 4 Design and Verification: course slides — material:eal-slides#p40
+    "We work on a maximum voltage drop of 3% of supply for lighting and 5% for all other circuits; therefore if the supply voltage is given (ie 395V) then your calculations must be based on the percentage of this value."
+[46] EAL Level 4 Design and Verification: project guide — material:project-guide#p6
+    "If going from 3 phase to single phase make sure voltage drops are calculated correctly."
+[47] Volt Drop Calculation: Formula, 3% & 5% Limits (BS 7671) | Total Skills UK — https://www.totalskills.co.uk/guides/volt-drop-calculations
+    "They apply from the origin of the installation to the most distant point of the circuit."
+[48] 3-Phase Voltage Drop Calculator: Free BS 7671 Check (Elec-Mate, a trade app) — https://www.elec-mate.com/tools/cable-volt-drop-three-phase
+    "On a 400 V three-phase supply taken from the public distribution network the limit is 5% = 20 V for power and 3% = 12 V for lighting."
+[49] EAL Level 4 Design and Verification: course slides — material:eal-slides#p11
+    "Design current is defined as ‘the magnitude of the current to be carried by a circuit in normal service’."
+[50] 2008 28 Autumn Wiring Matters — https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf
+    "The design current of the circuit, i.e. the current intended to be carried by the circuit in normal service."
+[51] EAL Level 4 Design and Verification: course slides — material:eal-slides#p13
+    "Ib = P / VL x Eff% x PF x √3"
+[52] EAL Level 4 Design and Verification: course slides — material:eal-slides#p12
+    "P = Power in watts (the output of the load)"
+[53] EAL Level 4 Design and Verification: course slides — material:eal-slides#p13
+    "VL = Line to line voltage (400V)"
+[54] EAL Level 4 Design and Verification: course slides — material:eal-slides#p15
+    "Some equipment (such as motors) require more than expected current to provide the output required, this is due to something called ‘reactance’."
+[55] Power Factor — https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf
+    "Power factor (pf) is a term used to express the relationship between the Real Power (kW) required for a load and the Total or Apparent Power (kVa) supplied."
+[56] Power Factor — https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf
+    "If the circuit contains an electric induction motor or other inductive load, then the power factor is less than 1.0 and kVa will be greater than kW"
+[57] Determining Electric Motor Load and Efficiency — https://www.energy.gov/sites/prod/files/2014/04/f15/10097517.pdf
+    "The NEMA definition of energy efficiency is the ratio of its useful power output to its total power input and is usually expressed in percentage"
+[58] How to measure the power output of an electric motor — https://www.futek.com/electric-motor-output-power
+    "The efficiency of the motor is calculated as mechanical output power divided by electrical input power"
+[59] EAL Level 4 Design and Verification: course slides — material:eal-slides#p17
+    "their cable design is based on 28.86A rather than 41.47A, this would cause big implications for the operation and safety of the circuit."
+[60] Power Factor — https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf
+    "kW = Volts RMS x Amps RMS x Pf x √3 / 1,000"
+[61] EAL Level 4 Design and Verification: course slides — material:eal-slides#p18
+    "If (when during design or in your exam) you are given a separate value for voltage (U), then this must be used."
+[62] EAL Level 4 Design and Verification: course slides — material:eal-slides#p18
+    "This new voltage (which will be lower than 230V or 400V) must used for the Ib of the final circuits from the sub board."
+[63] EAL Level 4 Design and Verification: course slides — material:eal-slides#p19
+    "Ib = 20,000 / 393 x √3"
+[64] Three-phase Y and Delta Configurations | Polyphase AC Circuits | Electronics Textbook — https://www.allaboutcircuits.com/textbook/alternating-current/chpt-10/three-phase-y-delta-configurations
+    "In balanced Δ circuits, the line voltage is equal to phase voltage, while the line current is equal to phase current times the square root of 3."
+[65] 7.5: Three-phase Y and Delta Configurations - Workforce LibreTexts — https://workforce.libretexts.org/Bookshelves/Electronics_Technology/Electric_Circuits_II_-_Alternating_Current_(Kuphaldt)/07:_Polyphase_AC_Circuits/7.05:_Three-phase_Y_and_Delta_Configurations
+    "In balanced Δ circuits, line voltage is equal to phase voltage, while line current is equal to phase current times the square root of 3."
+[66] Three-phase Y and Delta Configurations | Polyphase AC Circuits | Electronics Textbook — https://www.allaboutcircuits.com/textbook/alternating-current/chpt-10/three-phase-y-delta-configurations
+    "because each line conductor attaches at a node between two windings, the line current will be the vector sum of the two joining phase currents."
+[67] Three-phase Y and Delta Configurations | Polyphase AC Circuits | Electronics Textbook — https://www.allaboutcircuits.com/textbook/alternating-current/chpt-10/three-phase-y-delta-configurations
+    "Y-connected sources and loads always have line voltages greater than phase voltages, and line currents equal to phase currents."
+[68] EAL Level 4 Design and Verification: course slides — material:eal-slides#p10
+    "The percentages to apply for diversity are only found in the OnSite Guide. This means, it’s guidance and doesn’t have to be applied."
+[69] EAL Level 4 Design and Verification: course slides — material:eal-slides#p10
+    "then it could be designed to 660W as the Ib rather than 1000W."
+[70] Electrical Diversity Calculator — IET On-Site Guide (BS 7671) | TradeCalculator — https://tradecalculator.co.uk/electrical/diversity-calculator/
+    "BS 7671 itself contains no diversity table — Regulation 311.1 requires the designer to assess maximum demand and permits diversity to be taken into account; the On-Site Guide gives the recognised figures."
+[71] EAL Level 4 Design and Verification: course slides — material:eal-slides#p10
+    "For example, in appendix A of the OSG, a domestic lighting circuit can have 66% diversity applied."
+[72] Resistive Load Wattage: Is Power Rating Constant? - Engineering Guide – Industrial Monitor Direct — https://industrialmonitordirect.com/blogs/knowledgebase/resistive-heating-element-power-calculation-at-different-voltages
+    "Power drops by V². Current drops proportionally. Fixed resistance."
+[73] Resistive Load Wattage: Is Power Rating Constant? - Engineering Guide – Industrial Monitor Direct — https://industrialmonitordirect.com/blogs/knowledgebase/resistive-heating-element-power-calculation-at-different-voltages
+    "Motor draws more current to maintain torque."
+[74] ED4-01A learner pack: car showroom assignment — material:learner-pack#p4
+    "It will be controlled by a star-delta starter."
+[75] Wye Delta Wire Sizing | PLCtalk - Interactive Q & A — https://www.plctalk.net/forums/threads/wye-delta-wire-sizing.7577
+    "When wiring a motor to a Wye-Delta starter, 6 wires are run to the motor and connected to the motor terminals T1-T6. Each end of each winding has its own wire connected to it."
+[76] Maximum demand - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/29562/maximum-demand
+    "Regulation 311.1 accepts that it may be necessary to determine maximum demand for the whole installation, or a part of it."
+[77] How to Calculate Maximum Demand: Diversity Table | Elec-Mate — https://www.elec-mate.com/guides/max-demand-calculation-guide
+    "Maximum demand is the largest current an installation draws at any one time"
+[78] Electrical Diversity Calculator — IET On-Site Guide (BS 7671) | TradeCalculator — https://tradecalculator.co.uk/electrical/diversity-calculator/
+    "Lighting: 66% of total current demand"
+[79] Diversity Factors Explained: A Practical Guide for Electricians | Total Skills UK — https://www.totalskills.co.uk/guides/diversity-factors-explained
+    "Diversity applies to the aggregate demand at the origin of the installation, not to individual circuits."
+[80] ED4-01A learner pack: car showroom assignment — material:learner-pack#p4
+    "Taking into account balancing of loads; indicate how the installation can be divided across a suitable provision of circuits."
+[81] EAL Level 4 Design and Verification: project guide — material:project-guide#p3
+    "Use Section 3 of The Electrical Installation Guide to determine the maximum demand and diversity factors."
+[82] EAL Level 4 Design and Verification: project guide — material:project-guide#p3
+    "This question will link in to question 10."
+[83] ED4-01A learner pack: car showroom assignment — material:learner-pack#p5
+    "Based on the information in the drawings and your answer from question 4a, determine the maximum demand of the installation making informed assumptions where necessary."
+[84] EAL Level 4 Design and Verification: course slides — material:eal-slides#p33
+    "a balanced 3-phase load (such as a motor) will not have current in the neutral at all, so often motors do not have neutrals connected."
+[85] Diversity - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/21742/diversity
+    "remembering if it is 3 phase, you would ideally like some balance across the phases, so assume 33% of demand is on each phase"
+[86] EAL Level 4 Design and Verification: project guide — material:project-guide#p9
+    "You may wish to consider load management to help reduce maximum demand figures but this is not compulsory."
+[87] Electrical Diversity Calculator — IET On-Site Guide (BS 7671) | TradeCalculator — https://tradecalculator.co.uk/electrical/diversity-calculator/
+    "Regulation 722.311 allows load curtailment, reduction or disconnection to be taken into account when determining the maximum demand"
+[88] Car showroom drawing: lighting — material:drawing-lighting#p1
+    "4 x 1200mm Modular Fluo 4 x 36W"
+[89] Car showroom drawing: lighting — material:drawing-lighting#p1
+    "Twin 1700mm Fluo Luminaire 58W"
+[90] Car showroom drawing: lighting — material:drawing-lighting#p1
+    "Column Mounted Luminaire 3m from FFL 70W"
+[91] Car showroom drawing: power — material:drawing-power#p1
+    "63A TPN Rotary Isolator 2x32a each"
+[92] Qualification Specification — https://assets-us-01.kc-usercontent.com/b5487b04-0555-0014-d9f8-268f1a54c305/aa26696e-dea9-4aa4-9d39-1561d56b7666/EAL_610-3907-X_QS_1.pdf
+    "State the purpose of diversity factors"
+[93] Qualification Specification — https://assets-us-01.kc-usercontent.com/b5487b04-0555-0014-d9f8-268f1a54c305/aa26696e-dea9-4aa4-9d39-1561d56b7666/EAL_610-3907-X_QS_1.pdf
+    "Determine the maximum demand (of an installation) after the application of diversity"
+[94] Qualification Specification — https://assets-us-01.kc-usercontent.com/b5487b04-0555-0014-d9f8-268f1a54c305/aa26696e-dea9-4aa4-9d39-1561d56b7666/EAL_610-3907-X_QS_1.pdf
+    "Application of the IET On-Site Guide."
+[95] EAL Level 4 Design and Verification: course slides — material:eal-slides#p10
+    "The point of applying diversity is to design a circuit using ‘common sense’ rather than it’s maximum demand."
+[96] EAL Level 4 Design and Verification: course slides — material:eal-slides#p10
+    "This will help keep cable sizes smaller and costs lower."
+[97] How Should Maximum Demand and Diversity Be Calculated for Different Premises Types? — https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses
+    "Lighting |66% of total current demand |90% of total current demand |75% of total current demand"
+[98] How Should Maximum Demand and Diversity Be Calculated for Different Premises Types? — https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses
+    "100% f.l. of largest appliance +75% f.l. of remaining appliances"
+[99] How Should Maximum Demand and Diversity Be Calculated for Different Premises Types? — https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses
+    "4 Motors (other than lift motors, which are subject to special consideration) |Not applicable |100% f.l. of largest motor +80% f.l. of second largest motor +60% f.l. of remaining motors"
+[100] How Should Maximum Demand and Diversity Be Calculated for Different Premises Types? — https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses
+    "100% of current demand of largest point of utilization +70% of current demand of every other point of utilization"
+[101] How Should Maximum Demand and Diversity Be Calculated for Different Premises Types? — https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses
+    "100% of current demand of largest circuit +50% of current demand of every other circuit"
+[102] 6.2.3 - Applied diversity (The Electricians Guide, Whitfield, via TLC) — https://www.tlc-direct.co.uk/Book/6.2.3.htm
+    "Sockets and stationary equip. |100%X + 40%(Y+Z) |100%X + 75%(Y+Z)"
+[103] [PDF] ELECTRICAL VEHICLE CHARGING - Rackcdn.com (NICEIC) — https://04646a9cf351cc0d3888-b8b406d15fe93f790abb5bf0e9ab7ab3.ssl.cf3.rackcdn.com/misc/NICEIC-EV-Brochure.pdf
+    "The regulation also requires that no diversity be allowed where a final circuit supplies more than one charging point."
+[104] Amendment 1: how does it affect EV charging requirements? | NAPIT - Professional Electrician — https://professional-electrician.com/technical/amendment-1-how-does-it-affect-ev-charging-requirements-napit/
+    "Amendment 1 removes this requirement and introduces 722.311.201"
+[105] EV charging - electrical installation design - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/EV_charging_-_electrical_installation_design
+    "The diversity factor to consider for several EV chargers in parallel is equal to 1 unless a Load Management System (LMS) is used to control these EV chargers."
+[106] Estimation of actual maximum kVA demand - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Estimation_of_actual_maximum_kVA_demand
+    "For Electric Vehicle the utilization factor will be systematically estimated to 1, as it takes a long time to load completely the batteries (several hours) and a dedicated circuit feeding the charging station or wall box will be required by standards."
+[107] Electrical Vehicle Chargers - No Diversity? - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/28352/electrical-vehicle-chargers---no-diversity/122831
+    "BS 7671 does not prohibit diversity for EV charging points."
+[108] Electrical Vehicle Chargers - No Diversity? - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/28352/electrical-vehicle-chargers---no-diversity/122831
+    "Yes, but in the absence of a load management system it's still zero diversity."
+[109] Estimation of actual maximum kVA demand - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Estimation_of_actual_maximum_kVA_demand
+    "The factor ks is applied to each group of loads (e.g. being supplied from a distribution or sub-distribution board)."
+[110] Estimation of actual maximum kVA demand - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Estimation_of_actual_maximum_kVA_demand
+    "The determination of ks factors is the responsibility of the designer, since it requires a detailed knowledge of the installation and the conditions in which the individual circuits are to be exploited."
+[111] Electrical Diversity and Load Curtailment (EVC) webinar questions and answers — https://electrical.theiet.org/bs-7671-18th-edition-wiring-regulations/faqs/webinar-questions-and-answers/electrical-diversity-and-load-curtailment-evc-webinar/
+    "(a) For an individual circuit to determine the design current, diversity might only be rarely appropriate"
+[112] 6.2.3 - Applied diversity (The Electricians Guide, Whitfield, via TLC) — https://www.tlc-direct.co.uk/Book/6.2.3.htm
+    "Distribution boards must not have diversity applied so that they can carry the total load connected to them."
+[113] Estimation of actual maximum kVA demand - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Estimation_of_actual_maximum_kVA_demand
+    "If the circuits are mainly for lighting loads, it is prudent to adopt ks values close to unity."
+[114] 6.2.1 - Maximum demand (The Electricians Guide, Whitfield, via TLC) — https://www.tlc-direct.co.uk/Book/6.2.1.htm
+    "Maximum demand (often referred to as MD) is the largest current normally carried by circuits, switches and protective devices"
+[115] Electrical Diversity and Load Curtailment (EVC) webinar questions and answers — https://electrical.theiet.org/bs-7671-18th-edition-wiring-regulations/faqs/webinar-questions-and-answers/electrical-diversity-and-load-curtailment-evc-webinar/
+    "The maximum demand is the sum of the connected loads multiplied by a factor for diversity."
+[116] Electrical Diversity and Load Curtailment (EVC) webinar questions and answers — https://electrical.theiet.org/bs-7671-18th-edition-wiring-regulations/faqs/webinar-questions-and-answers/electrical-diversity-and-load-curtailment-evc-webinar/
+    "It is acknowledged that in any installation with diversity applied, it may be possible to exceed the maximum demand on occasion."
+[117] Maximum demand on Electrical installation certificates - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/28982/maximum-demand-on-electrical-installation-certificates
+    "maximum demand is the rating of the supply fuse, because any sustained significant overload will cause failure."
+[118] Diversity Factors Explained: A Practical Guide for Electricians | Total Skills UK — https://www.totalskills.co.uk/guides/diversity-factors-explained
+    "For commercial and industrial installations, maximum demand assessment requires a different engineering approach, often based on actual load measurements, process knowledge, or building services design standards such as CIBSE guides."
+[119] Fluorescent lamps - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Fluorescent_lamps
+    "The power Pn (watts) indicated on the tube of a fluorescent lamp does not include the power dissipated in the ballast."
+[120] Fluorescent lamps - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Fluorescent_lamps
+    "If no power-loss value is indicated for the ballast, a figure of 25% of Pn may be used."
+[121] Fluorescent lamps - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Fluorescent_lamps
+    "cos φ = 0.96 for electronic ballast."
+[122] 6.2.1 - Maximum demand (The Electricians Guide, Whitfield, via TLC) — https://www.tlc-direct.co.uk/Book/6.2.1.htm
+    "lamp power (W) x 1.8"
+[123] 6.2.1 - Maximum demand (The Electricians Guide, Whitfield, via TLC) — https://www.tlc-direct.co.uk/Book/6.2.1.htm
+    "So long as the power factor of a discharge lighting circuit is not less than 0.85"
+[124] 6.2.1 - Maximum demand (The Electricians Guide, Whitfield, via TLC) — https://www.tlc-direct.co.uk/Book/6.2.1.htm
+    "Each lamp-holder must be assumed to carry the current required by the connected load, subject to a minimum loading of 100 W per lampholder"
+[125] LED lamps and fixtures - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/LED_lamps_and_fixtures
+    "with a separated driver doesn’t include the power dissipated in the driver."
+[126] Sylvania START PANEL UGR19 600 4000K G4 datasheet (36 W LED panel) — https://datasheet.sylvania-group.com/en-gb/Datasheet/0047785.pdf
+    "Lamp power factor 0.97"
+[127] [PDF] Backlight Panel 70085 - Beghelli (36 W LED panel) — https://www.beghelli.it/hu-hu/media/family/documents/d634b714-d322-4d73-803d-51ea8328770d
+    "Power factor 0.95"
+[128] Regulation 314 | Division of Installation Into Circuits ... | Elec-Mate — https://www.elec-mate.com/guides/regulation-314-division-of-circuits
+    "Unbalanced loads cause excessive neutral current and voltage imbalance, so allocate single-phase circuits approximately equally across L1, L2 and L3."
+[129] Votlage Drop for Unbalanced three phase - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/21657/votlage-drop-for-unbalanced-three-phase
+    "So, in terms of the unbalanced system, what's going on is that the line currents don't cancel in the Neutral."
+[130] Maximum Demand Calculator BS 7671 | Diversity Factors | Elec-Mate — https://www.elec-mate.com/tools/max-demand-calculator
+    "the highest phase determines the supply requirement."
+[131] 6.2.3 - Applied diversity (The Electricians Guide, Whitfield, via TLC) — https://www.tlc-direct.co.uk/Book/6.2.3.htm
+    "Since a perfect balance is assumed, three phase line current"
+[132] EAL Level 4 Design and Verification: project guide — material:project-guide#p3
+    "Present as a Schedule of circuits."
+[133] Estimation of actual maximum kVA demand - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Estimation_of_actual_maximum_kVA_demand
+    "In an industrial installation this factor may be estimated on an average at 0.75 for motors."
+[134] Car showroom drawing: power — material:drawing-power#p1
+    "Twin Switched Socket"
+[135] Car showroom drawing: power — material:drawing-power#p1
+    "20A DP Switch"
+[136] Car showroom drawing: power — material:drawing-power#p1
+    "32A Rotary Isolator"
+[137] ED4-01A learner pack: car showroom assignment — material:learner-pack#p5
+    "Design the circuit/s incorporating the electric vehicle charging points."
+[138] Car showroom drawing: lighting — material:drawing-lighting#p1
+    "Led Lighting 26W"
+[139] Car showroom drawing: lighting — material:drawing-lighting#p1
+    "Wall Spot Light 2 x 35W"
+[140] Car showroom drawing: lighting — material:drawing-lighting#p1
+    "Walkway Bollard 18W"
+[141] Car showroom drawing: lighting — material:drawing-lighting#p1
+    "IP65 2D Bulkhead 18W"
+[142] EAL Level 4 Design and Verification: course slides — material:eal-slides#p22
+    "Regulation 433.1.1 explains the following: Ib ≤ In ≤ Iz"
+[143] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "The rated current or current setting of the protective device (In) should not be less than the design current (Ib) of the circuit."
+[144] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "The current (I2) causing effective operation of the protective device should not exceed 1.45 times the lowest current-carrying capacity (Iz) of any of the conductors of the circuit."
+[145] EAL Level 4 Design and Verification: course slides — material:eal-slides#p24
+    "Anything that causes the cable to be artificially warm, such as running through thermal insulation, or a higher ambient temperature will mean the cable will need downrating through an appropriate rating factor."
+[146] 2008 28 Autumn Wiring Matters — https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf
+    "Ca is rating factor for ambient temperature, see Table 4B1 of BS 7671 Cg is rating factor for grouping see, Table 4C1 of BS 7671"
+[147] EAL Level 4 Design and Verification: course slides — material:eal-slides#p25
+    "Rating factors are applied as divisors to the rating or setting of the protective device (In)"
+[148] 2008 28 Autumn Wiring Matters — https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf
+    "The value of current tabulated in this appendix for the type of cable and installation method concerned, for a single circuit in the ambient temperature stated in the current-carrying capacity tables."
+[149] 2008 28 Autumn Wiring Matters — https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf
+    "The current-carrying capacity of a cable for continuous service, under the particular installation conditions concerned."
+[150] EAL Level 4 Design and Verification: course slides — material:eal-slides#p25
+    "rating factors need only be applied when happening TOGETHER."
+[151] EAL Level 4 Design and Verification: course slides — material:eal-slides#p27
+    "16 / 0.94 x 0.8 = 21.2A (this is the It of the cable for Ca and Cg)"
+[152] EAL Level 4 Design and Verification: course slides — material:eal-slides#p27
+    "16 / 0.94 x 0.88 = 19.3A (this is the It of the cable for Ca and Ci)"
+[153] EAL Level 4 Design and Verification: course slides — material:eal-slides#p28
+    "We need to design to the reference method which has the biggest impact on the cables maximum current carrying capacity (Iz)."
+[154] EAL Level 4 Design and Verification: course slides — material:eal-slides#p30
+    "Most devices have an I2 of 1.45 times their In…."
+[155] EAL Level 4 Design and Verification: course slides — material:eal-slides#p30
+    "So, a 10A type B circuit breaker has an I2 of 10 x 1.45 = 14.5A."
+[156] EAL Level 4 Design and Verification: course slides — material:eal-slides#p31
+    "it has an Iz of 13A."
+[157] EAL Level 4 Design and Verification: course slides — material:eal-slides#p32
+    "I2 ≤ Iz x 1.45"
+[158] ChAnges to Appendix 4 of Amendment 1 of Bs 7671:2008 — https://electrical.theiet.org/media/1522/changes-to-appendix-4-of-amendment-1-of-bs7671-2008.pdf
+    "the factor of 1.45 ensures that deterioration of cables does not result from small overloads."
+[159] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "This is to compensate for the high value of I2 of a BS 3036 fuse, which can be up to 2 × Iz."
+[160] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "Where the protective device is a semienclosed (rewireable) fuse to BS 3036, the requirement of condition 3 is met where In does not exceed 0.725 times the current-carrying capacity of the circuit conductors (Iz)"
+[161] EAL Level 4 Design and Verification: course slides — material:eal-slides#p25
+    "Cf = Rating factor when overload protection is provided by devices with fusing factors greater than 1.45 (ie: Cf = 0.725 for semi enclosed fuses to BS 3036)"
+[162] EAL Level 4 Design and Verification: course slides — material:eal-slides#p20
+    "The different ‘types’ are in relation to the start up current of a circuit."
+[163] ED4-01A learner pack: car showroom assignment — material:learner-pack#p4
+    "Base your selection on the delta running conditions and any other factors present."
+[164] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p441
+    "TABLE 4B1 — Rating factors (C,) for ambient air temperatures other than 30 °C"
+[165] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p441
+    "25 1.04 1.03 1.02 1.07 1.04"
+[166] 2011 40 Autumn Wiring Matters — https://electrical.theiet.org/media/1053/2011_40_autumn_wiring_matters__complete_adverts.pdf
+    "Appendix 4 is an informative appendix within BS 7671."
+[167] Ambient Temperature Correction Factor - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/31281/ambient-temperature-correction-factor
+    "which is only Informative rather than normative"
+[168] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p443
+    "it may either be considered as n/2 circuits of two loaded conductors or n/3 circuits of three loaded conductors"
+[169] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p170
+    "n/3 circuits of three loaded conductors (for three-phase circuits)"
+[170] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p443
+    "Bunched in air, on a | 1.00 | 0.80 | 0.70 | 0.65 | 0.60 | 0.57 | 0.54 | 0.52 | 0.50 | 0.45 | 0.41 | 0.38 A to F"
+[171] Thermal Overload Relays — https://www.rkcontrols.com/pdf/configuration-support/Siemens_Industrial_Controls/Siemens-Overload-Relays.pdf
+    "When overload relays are used in WYE-delta combinations, it is important to note that only 1/√3 of the motor current flows through the mains contactor."
+[172] In a star-delta starter, how can I incorporate a thermal overload relay as per Type 1 or Type 2 coordination? | Schneider Electric UK — https://www.se.com/uk/en/faqs/FA86594/
+    "Type 1 coordination The thermal overload relay is placed in the delta circuit and must be set to 0.58 x motor In."
+[173] Direct-On-Line and Automatic Star – Delta Starter — https://assets.new.siemens.com/siemens/assets/api/uuid:0439c3a6-f14d-4b93-bf1b-a874d46b4dd3/industrial-new-dol-11-55kwand-asd-22-55kw-operating-instruction.pdf
+    "under no circumstances should the relay be set higher than phase current i.e. 0.58 times the rated current on the motor nameplate."
+[174] Star Delta Starter Calculator (Contactor Sizing) | ElectroMechCalc — https://www.electromechcalc.com/electrical/star-delta-starter
+    "In delta running the supply reaches each winding from two directions — one end through KM1, the other through KM3 — which is why both carry winding current rather than line current."
+[175] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p458
+    "TABLE 4E1A — Single-core 90 °C thermosetting insulated cables, non-armoured,"
+[176] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p458
+    "Reference Method A Reference Method B Reference Method C Reference Method F Reference Method G"
+[177] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p458
+    "1 14 13 17 15 19 17.5"
+[178] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p458
+    "1.5 19 17 23 20 25 23"
+[179] 2008 28 Autumn Wiring Matters — https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf
+    "Where the conduit is fixed to a masonry wall the current-carrying capacity of the non-sheathed or sheathed cable may be higher."
+[180] 2008 28 Autumn Wiring Matters — https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf
+    "Non-sheathed cables in conduit mounted on a wooden or masonry wall"
+[181] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p90
+    "B 3 to 5 In switching surge"
+[182] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p90
+    "C 5 to 10 In the use of fluorescent lighting, small motors, etc., can"
+[183] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p90
+    "D 10 to 20 In Suitable for transformers, X-ray machines, industrial welding"
+[184] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "In particular, certain types of electrical load such as discharge lighting, AC induction motors and transformers take a much higher current during starting than during normal operation."
+[185] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "However, due to the starting characteristics of the load a higher value of In may be necessary for certain loads (Regulation 533.2.1 refers)"
+[186] Asynchronous motors - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Asynchronous_motors
+    "The high start-up current means that motor overload protective devices must have operating characteristics which avoid tripping during the starting period."
+[187] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p145
+    "10 15 16 20 25 30 32 40 45 50"
+[188] Star Delta Starter Calculator (Contactor Sizing) | ElectroMechCalc — https://www.electromechcalc.com/electrical/star-delta-starter
+    "Direct on line (DOL) | 6–8 × FLC"
+[189] Star Delta Starter Calculator (Contactor Sizing) | ElectroMechCalc — https://www.electromechcalc.com/electrical/star-delta-starter
+    "Star-delta | ≈ 2–2.7 × FLC"
+[190] — Electrical installation solutions for buildings – Technical details MCBs — https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj
+    "C 0.5 to 63 A 1.13 · In > 1 h 5 · In > 0.1 s 1.45 · In < 1 h 10 · In < 0.1 s"
+[191] — Electrical installation solutions for buildings – Technical details MCBs — https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj
+    "D 0.5 to 63 A 1.13 · In > 1 h 10 · In > 0.1 s 1.45 · In < 1 h 20 · In < 0.1 s"
+[192] BS 7671: Protection against overload current | NICEIC & ELECSA - Professional Electrician — https://professional-electrician.com/technical/bs-7671-protection-against-overload-current-niceic-elecsa
+    "Regulation 433.1.201 states, where conditions (i) and (ii) are met (and I b ≤ I n ≤ I z ), condition (iii) will also be met where the following protective devices are employed:"
+[193] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "such as a thermal overload protective device in a motor circuit, it will be necessary for the electrical installation designer to refer to the device characteristics in order to ensure compliance with all aspects of Regulation 433.1.1."
+[194] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p443
+    "a cable is expected to carry not more than 30 % of its grouped rating, it may be ignored for the purpose of obtaining the rating factor for the rest of the group"
+[195] How are the requirements for overload current in BS 7671 to be applied? - Professional Electrician — https://professional-electrician.com/technical/how-are-the-requirements-for-overload-current-in-bs-7671-to-be-applied
+    "Should an overload occur in a circuit where there is no overload protection provided, the temperature of the circuit conductors is liable to increase significantly which, over time, may lead to damage of insulation, joints and terminations of the conductors and/or their surroundings."
+[196] Mythbuster #11 - Adapting for change — https://electrical.theiet.org/wiring-matters/years/2024/103-november-2024/mythbuster-11-adapting-for-change
+    "the lack of which could give rise to damage to wiring accessories or detrimental thermal effects, including fire"
+[197] Mythbuster #11 - Adapting for change — https://electrical.theiet.org/wiring-matters/years/2024/103-november-2024/mythbuster-11-adapting-for-change
+    "Circuits should also be designed to prevent small overloads of a long duration."
+[198] — Electrical installation solutions for buildings – Technical details MCBs — https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj
+    "B 6 to 63 A 1.13 · In > 1 h 3 · In > 0.1 s 1.45 · In < 1 h 5 · In < 0.1 s"
+[199] EAL Level 4 Design and Verification: course slides — material:eal-slides#p30
+    "even then it’ll take 10,000s before it does."
+[200] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p458
+    "maximum operating temperature of the cable, the cables should be rated at the maximum"
+[201] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p448
+    "TABLE 4D1A — Single-core 70 °C thermoplastic insulated cables, non-armoured,"
+[202] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p448
+    "15 14.5 13.5 17.5 15.5 20 18"
+[203] 2007 23 Summer Wiring Matters — https://electrical.theiet.org/media/1036/2007_23_summer_wiring_matters__complete_no_adverts.pdf
+    "It is well know that when a 3-phase load current includes third or other triple harmonic currents these currents are additive in the neutral."
+[204] 2007 23 Summer Wiring Matters — https://electrical.theiet.org/media/1036/2007_23_summer_wiring_matters__complete_no_adverts.pdf
+    "This neutral current will give rise to additional heating of the cables and other equipment in the circuit."
+[205] [PDF] Triplen Harmonics in Electrical Distribution Systems — https://www.ijeat.org/wp-content/uploads/papers/v5i2/B4372125215.pdf
+    "Unlike the positive and negative sequence harmonic currents that cancel each other out, third order or triplen harmonics do not cancel out."
+[206] Wired IN Mar-Apr 2007 — https://federalpacific.com/wp-content/uploads/2026/04/Wired-IN-Triplen-Harmonics.pdf
+    "In a distribution system with only linear loads, the 120 deg phase shift between linear phase currents results in their balanced portions instantaneously cancelling out in the neutral."
+[207] EAL Level 4 Design and Verification: course slides — material:eal-slides#p33
+    "Some circuits supplying equipment such as rectifiers, variable-speed motor drives or fluorescent lighting banks draw currents that are not necessarily sinusoidal."
+[208] Wired IN Mar-Apr 2007 — https://federalpacific.com/wp-content/uploads/2026/04/Wired-IN-Triplen-Harmonics.pdf
+    "These current pulses add together in the neutral conductor, which can result in up to 173% of phase current levels, even if all phases are completely balanced."
+[209] [PDF] Triplen Harmonics in Electrical Distribution Systems — https://www.ijeat.org/wp-content/uploads/papers/v5i2/B4372125215.pdf
+    "current amplitude in the neutral wire due to these triplen harmonics could be up to 3 times the amplitude of the phase current at the fundamental frequency"
+[210] EAL Level 4 Design and Verification: course slides — material:eal-slides#p34
+    "The issue with the 3rd harmonic is that we may need to design our circuits based on neutral current NOT line current."
+[211] EAL Level 4 Design and Verification: course slides — material:eal-slides#p35
+    "Ibn = 3 x 0.35 x 150 = 157.5A"
+[212] EAL Level 4 Design and Verification: course slides — material:eal-slides#p34
+    "If the 3rd harmonic of line current is 15-33% = use LINE current Ib with a rating factor of 0.86"
+[213] Harmonic Distortion limite and Neutral cable sizing - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/30778/harmonic-distortion-limite-and-neutral-cable-sizing
+    "For triple-n harmonics exceeding 33 %, the factor is applied to a calculated neutral current, not the line current."
+[214] EAL Level 4 Design and Verification: course slides — material:eal-slides#p37
+    "Harmonics are only to be considered if the manufacturers data explains that there will be one present."
+[215] Harmonic Distortion limite and Neutral cable sizing - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/30778/harmonic-distortion-limite-and-neutral-cable-sizing
+    "there can't be current in the N if there's no N conductor."
+[216] EAL Level 4 Design and Verification: course slides — material:eal-slides#p36
+    "It ≥ 160 / 0.94 x 0.65 x 0.86"
+[217] EAL Level 4 Design and Verification: course slides — material:eal-slides#p34
+    "If the 3rd harmonic of line current is 0-15% = use LINE current Ib with a rating factor of 1.0"
+[218] EAL Level 4 Design and Verification: course slides — material:eal-slides#p34
+    "If the 3rd harmonic of line current is 33=45% = use NEUTRAL current Ib with a rating factor of 0.86"
+[219] EAL Level 4 Design and Verification: course slides — material:eal-slides#p34
+    "If the 3rd harmonic of line current is >45% = use NEUTRAL current Ib with a rating factor of 1.0"
+[220] Harmonic Distortion limite and Neutral cable sizing - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/30778/harmonic-distortion-limite-and-neutral-cable-sizing
+    "Table 4Aa of BS 7671:2018+A2:2022 indicates that the neutral can be sized simply for (line current x 1.0) with 3rd harmonic content of 5 %."
+[221] Harmonic Distortion limite and Neutral cable sizing - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/30778/harmonic-distortion-limite-and-neutral-cable-sizing
+    "Example calculations are given in 5.5.2 in Appendix 4 to BS 7671:2018+A2:2022."
+[222] 2016 62 Autumn Wiring Matters (IET) — https://electrical.theiet.org/media/1076/2016_62_autumn_wiring_matters.pdf
+    "The third and other triple harmonics combine in the neutral to give a neutral current that has a magnitude equal to the sum of the third harmonic content of each phase."
+[223] Sizing the neutral conductor - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor
+    "Fig. G64 – Triplen harmonics are in phase and cumulate in the Neutral"
+[224] EAL Level 4 Design and Verification: course slides — material:eal-slides#p33
+    "will cause more current to be present in the neutral than in the line."
+[225] EAL Level 4 Design and Verification: course slides — material:eal-slides#p35
+    "Because the harmonic is 35%, we’ll use row 3 of table 4Aa, this means we calculate cable size based on neutral current:"
+[226] EAL Level 4 Design and Verification: course slides — material:eal-slides#p36
+    "So we will need to use Ibn as our Ib."
+[227] Sizing the neutral conductor - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor
+    "Where the neutral current is expected to be higher than the phase current, then the cable size should be selected on the basis of the neutral current"
+[228] Sizing the neutral conductor - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor
+    "If the neutral current is more than 135 % of the phase current and the cable size is selected on the basis of the neutral current then the three phase conductors will not be fully loaded."
+[229] Sizing the neutral conductor - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor
+    "If 40 % third harmonic is present, the cable size selection is based on the neutral current which is: 37 x 0,4 x 3 = 44,4 A and a reduction factor of 0,86 is applied, leading to a design load of: 44.4/0.86 = 51.6 A."
+[230] Sizing the neutral conductor - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor
+    "The basic calculation of a cable concerns only cables with three loaded conductors i.e there is no current in the neutral conductor."
+[231] Factors affecting the current-carrying capacity of live conductors | NICEIC - Professional Electrician — https://professional-electrician.com/technical/factors-affecting-the-current-carrying-capacity-of-live-conductors-niceic
+    "A neutral conductor should be considered as a loaded conductor where the third harmonic, or multiple of third harmonic, presents a total harmonic distortion greater than 15 % of the fundamental line current (523.6.1)."
+[232] Factors affecting the current-carrying capacity of live conductors | NICEIC - Professional Electrician — https://professional-electrician.com/technical/factors-affecting-the-current-carrying-capacity-of-live-conductors-niceic
+    "Situations, such as where there is significant harmonic current in a three-phase circuit, where the neutral conductor carries current without a corresponding reduction in current in the associated live conductors (523.6.3)."
+[233] Factors affecting the current-carrying capacity of live conductors | NICEIC - Professional Electrician — https://professional-electrician.com/technical/factors-affecting-the-current-carrying-capacity-of-live-conductors-niceic
+    "the temperature rise due to the neutral current is offset by the reduction in the heat generated by one or more of the line conductors. In this case the conductor size should be chosen based of the highest line current."
+[234] EAL Level 4 Design and Verification: course slides — material:eal-slides#p36
+    "Using figure 3A3(b) we can see an In of 160A would be suitable."
+[235] EAL Level 4 Design and Verification: course slides — material:eal-slides#p36
+    "We would take the above value into table 4D1A to find the Iz and read down column 5 to find a 240mm² conductor"
+[236] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p448
+    "240 321 286 400 346"
+[237] EAL Level 4 Design and Verification: course slides — material:eal-slides#p37
+    "It would then be a case of using the percentage given by the manufacturer to carry out the equations in the earlier slides."
+[238] 96631263_product_datasheet.pdf (Thorn luminaire datasheet) — https://resources.thornlighting.com/object/PDF/DataSheet.aspx?ArticleID=337726&CompanyID=4&DataSheetType=1&ModeID=21&SubCompanyID=44&lang=en
+    "Total harmonic distortion (THD): 15.00 %"
+[239] Electronic Ballast Fundamentals — https://www.villalighting.com/assets/docs/ABTFRME00596_3_7-3_14_3_16_3_30_3_31.pdf
+    "RQM-2S40-TP Conventional Magnetic 100% (Ballast Factor is 0.98) (2) F40T12 0.84A <25% 0.20A"
+[240] Electronic Ballast Fundamentals — https://www.villalighting.com/assets/docs/ABTFRME00596_3_7-3_14_3_16_3_30_3_31.pdf
+    "Almost all Philips Advance electronic ballasts are rated for either less than 20% THD or less than 10% THD."
+[241] Electronic Ballast Fundamentals — https://www.villalighting.com/assets/docs/ABTFRME00596_3_7-3_14_3_16_3_30_3_31.pdf
+    "The ANSI standard for electronic ballasts specifies a maximum THD of 32% for commercial applications."
+[242] IEC 61000-3-2:2018+AMD1:2020+AMD2:2024 CSV | IEC — https://webstore.iec.ch/en/publication/92799
+    "It is applicable to electrical and electronic equipment having a rated input current up to and including 16 A per phase, and intended to be connected to public low-voltage distribution systems."
+[243] Regulation of Harmonics — https://www.advancedenergy.com/getmedia/a63dd662-0291-43d8-89d4-44b8d834e546/en-lv-regulation-of-harmonics-application-note.pdf
+    "The limits imposed on the harmonic content of Class C equipment (lighting equipment) are shown in Table 1 below:"
+[244] Regulation of Harmonics — https://www.advancedenergy.com/getmedia/a63dd662-0291-43d8-89d4-44b8d834e546/en-lv-regulation-of-harmonics-application-note.pdf
+    "3 30-λ* 5 10 7 7 9 5"
+[245] Electronic Ballast Fundamentals — https://www.villalighting.com/assets/docs/ABTFRME00596_3_7-3_14_3_16_3_30_3_31.pdf
+    "This is because the absolute value of harmonic current, not the percentage, affects the electrical power distribution system."
+[246] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p136
+    "Final circuits for discharge lighting must be arranged so as to be capable of carrying the total steady current, which is made up of the lamp(s) and any associated controlgear and also their harmonic currents."
+[247] EAL Level 4 Design and Verification: course slides — material:eal-slides#p38
+    "(mV/A/m) means milli-volts dropped for every ampere of design current for every metre of conductor length."
+[248] EAL Level 4 Design and Verification: course slides — material:eal-slides#p39
+    "Voltage drop = 11 x 31 x 35 / 1000"
+[249] EAL Level 4 Design and Verification: course slides — material:eal-slides#p38
+    "Power circuits have upto 5% allowed: 11.5V single phase and 20V 3-phase"
+[250] How to determine voltage drop limits within electrical installations | NAPIT - Professional Electrician — https://professional-electrician.com/technical/how-to-determine-voltage-drop-limits-within-electrical-installations-napit
+    "for a DNO supply, lighting circuits are at 3% of the nominal 230 V single-phase supply voltage, and the voltage drop must not exceed 6.9 V. All other circuits are at 5% and the voltage drop must not exceed 11.5 V."
+[251] EAL Level 4 Design and Verification: course slides — material:eal-slides#p41
+    "5% of 395V = 19.75V as a maximum voltage drop, so the circuit does not comply."
+[252] Circuit design formula sheet — material:formula-sheet#p1
+    "Divide the three phase value of voltage drop by root 3 to give equivalent single phase value of voltage drop to add"
+[253] EAL Level 4 Design and Verification: course slides — material:eal-slides#p42
+    "This means gradually increasing conductor CSA and repeating the voltage drop calculation, until it complies."
+[254] EAL Level 4 Design and Verification: course slides — material:eal-slides#p42
+    "You’ll find that a 6.0mm² works here, as it has a voltage drop of 8.09V"
+[255] TiSoft - Voltage drop calculation according to BS 7671 — https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs
+    "The values of (mV/A/m) given in the Appendix 4 tables are at the maximum conductor operating temperature of, say, 70°C or 90°C, and these temperatures are only reached when the conductor is carrying its full load."
+[256] TiSoft - Voltage drop calculation according to BS 7671 — https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs
+    "At lower loads, the temperature and the resistance of the cable are lower."
+[257] EAL Level 4 Design and Verification: course slides — material:eal-slides#p43
+    "Current causes conductors to heat up, which in turn increases their resistance, which in turn increases voltage drop."
+[258] EAL Level 4 Design and Verification: course slides — material:eal-slides#p45
+    "As a simple rule of thumb, if the circuit contains no known power factor, then simply using the Z (mV/A/m) is acceptable."
+[259] Cable Sizing Tool - myElectrical (a reader comment quoting the BS 7671 formula) — https://myelectrical.com/notes/entryid/182/cable-sizing-tool
+    "Ct = (230 + Tp - (Ca2 x Cg2 - Ib2/It2)x(Tp - 30))/ (230 + Tp)"
+[260] Cable Sizing Tool - myElectrical (a reader comment quoting the BS 7671 formula) — https://myelectrical.com/notes/entryid/182/cable-sizing-tool
+    "Tp = Maximum Operating Temperature of the conductor (for PVC = 70 deg C and for XLPE = 90 deg C)."
+[261] Cable Sizing Tool - myElectrical (a reader comment quoting the BS 7671 formula) — https://myelectrical.com/notes/entryid/182/cable-sizing-tool
+    "Ca = Ambient Temperature Correction Factor."
+[262] Voltage drop calculation according to BS 7671 - TiSoft — https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs
+    "tp is the rated maximum conductor operating temperature"
+[263] Voltage drop calculation according to BS 7671 - TiSoft — https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs
+    "It is the tabulated current rating of the cable."
+[264] Correction for operating temperature - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/31168/correction-for-operating-temperature
+    "The real advantage is when there are no correction factors and there is a significant difference between Ib and It."
+[265] Voltage drop calculation according to BS 7671 - TiSoft — https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs
+    "Thus for lightly loaded circuits this can reduce the tabulated rating (mV/A/m) by up to 20%."
+[266] Correction for operating temperature - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/31168/correction-for-operating-temperature
+    "if the cable is operating well below its capacity, it won't be at 70 deg C for an ambient temperature of 30 deg C, so some account can be made of this."
+[267] EAL Level 4 Design and Verification: course slides — material:eal-slides#p43
+    "Because so little current is present in the now 6.0mm² conductors (13.04A), the heat caused will dissipate far quicker, keeping conductor resistance lower and voltage drop lower than the previously calculated 8.09V."
+[268] EAL Level 4 Design and Verification: course slides — material:eal-slides#p43
+    "According to table 4D1A, 6.0mm² has an Iz of 41A."
+[269] EAL Level 4 Design and Verification: course slides — material:eal-slides#p43
+    "There will still be just 13.04A in the 6.0mm² conductors."
+[270] Correction for operating temperature - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/31168/correction-for-operating-temperature
+    "Say in the example above, Cg was 0.78 and no other correction factors applied, Ct would approximate to 0.99, and not worth employing."
+[271] EAL Level 4 Design and Verification: course slides — material:eal-slides#p43
+    "And by applying it, we may be able to use a smaller CSA cable than 6.0mm²"
+[272] Correction for operating temperature - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/31168/correction-for-operating-temperature
+    "the calculations for the correction factor (Ct) consider only the ambient temperature and grouping factors."
+[273] EAL Level 4 Design and Verification: course slides — material:eal-slides#p42
+    "A 3kW heater circuit wired in 70C thermoplastic single core cable is installed at an ambient temperature of 35C,in reference method B, circuit length is 85m."
+[274] EAL Level 4 Design and Verification: course slides — material:eal-slides#p42
+    "Ca = 0.94"
+[275] EAL Level 4 Design and Verification: course slides — material:eal-slides#p42
+    "Voltage drop = 29 x 13.04 x 85 / 1000"
+[276] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p448
+    "4 26 24 32 28 37 33"
+[277] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p448
+    "6 34 31 41 36 47 43"
+[278] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p449
+    "4 11 11 11 11 9.5 9.5 9.5 9.5"
+[279] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p449
+    "6 7.3 7.3 7.3 7.3 6.4 6.4 6.4 6.4"
+[280] EAL Level 4 Design and Verification: course slides — material:eal-slides#p45
+    "which is why the option for R, X or Z only appears on 25.0mm² and above."
+[281] EAL Level 4 Design and Verification: course slides — material:eal-slides#p45
+    "Where one is known then a calculation using both the R and X values needs to be used."
+[282] Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC) — https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables
+    "Where circuit cable conductors exceed 16 mm², which is common in distribution circuits used in industrial or commercial type installations, the tables for current-carrying capacity and voltage-drop in Appendix 4 of BS 7671 give separate values"
+[283] Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC) — https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables
+    "then using equation 1 (z value), the calculated voltage drop for the final circuit is 16 V"
+[284] Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC) — https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables
+    "However, if the load power factor is known, then using the tabulated (mV/A/m)r and (mV/A/m)x values will provide a more accurate assessment of voltage-drop"
+[285] Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC) — https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables
+    "the use of the tabulated values of mv/A/m may lead to a calculated value of voltage drop which is higher than the actual value."
+[286] Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC) — https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables
+    "The intention of BS 7671 in providing individual values of r, x and z in these tables is to allow for an accurate assessment of voltage-drop to accommodate loads having a large inductive element"
+[287] EAL Level 4 Design and Verification: course slides — material:eal-slides#p44
+    "In appendix 4, it’s noticeable that some of the ‘(mV/A/m)’ tables have three options:"
+[288] Voltage Drop Calculation Guide - Formulas, Methods & Limits (ECalPro, a calculator site, not a standard) — https://ecalpro.com/docs/voltage-drop-calculation-guide
+    "mV/A/m = mV/A/m R × cosφ + mV/A/m X × sinφ"
+[289] Voltage Drop Calculation Guide - Formulas, Methods & Limits (ECalPro, a calculator site, not a standard) — https://ecalpro.com/docs/voltage-drop-calculation-guide
+    "sinφ | Reactive factor (= √(1 − cos²φ))"
+[290] Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC) — https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables
+    "Using equation 2 demonstrates that the final circuit would conform without unnecessarily upsizing the conductor CSA when the load power factor is known."
+[291] EAL Level 4 Design and Verification: course slides — material:eal-slides#p44
+    "Correcting voltage drop for power factor is another consideration we need to make."
+[292] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p459
+    "VOLTAGE DROP (per ampere per metre): Conductor operating temperature: 90°C"
+[293] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p459
+    "2.5 19 19 19 19 16 16 16 16"
+[294] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p459
+    "1.5 31 31 31 31 27 27 27 27"
+[295] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p459
+    "25 1.85 1.85 0.31 1.90 | 1.85 0.190 1.85 | 1.85 0.28 1.85 | 1.60 0.27 1.65 | 1.60 0.165 1.60 | 1.60 0.190 1.60 | 1.60 0.27 1.65"
+[296] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p458
+    "2.5 26 23 31 28 34 31"
+[297] Wye-Delta Motor Starters - PDH Online — https://pdhonline.com/courses/e413/e413content.pdf
+    "There are six power conductors from a wye-delta starter to the motor, rather than three power conductors as from a full-voltage starter to the motor."
+[298] Wye-Delta Motor Starters - PDH Online — https://pdhonline.com/courses/e413/e413content.pdf
+    "because the three windings of a wye- start/delta-run motor are actually three single-phase loads."
+[299] Cable Sizing Calculation for Star Delta Starter - Eng-Tips (forum thread) — https://www.eng-tips.com/threads/cable-sizing-calculation-for-star-delta-starter.519269
+    "There are six conductors from the Starter (in the MCC) to the motor."
+[300] Cable Sizing Calculation for Star Delta Starter - Eng-Tips (forum thread) — https://www.eng-tips.com/threads/cable-sizing-calculation-for-star-delta-starter.519269
+    "The voltage drop (VD) of each conductor is calculated (impedance of the length of the conductor x current)."
+[301] Cable Sizing Calculation for Star Delta Starter - Eng-Tips (forum thread) — https://www.eng-tips.com/threads/cable-sizing-calculation-for-star-delta-starter.519269
+    "For Delta Connection, Running VD = √3 x (58% of FLC) x (2xL) x (RcosØ + XsinØ) / (No.of runs X V)"
+[302] Cable Sizing Calculation for Star Delta Starter - Eng-Tips (forum thread) — https://www.eng-tips.com/threads/cable-sizing-calculation-for-star-delta-starter.519269
+    "Six leads, two cables per phase, each cable ampacity 58% of nameplate delta running current."
+[303] EAL Level 4 Design and Verification: course slides — material:eal-slides#p40
+    "3-phase voltage drop is calculated using the equivalent percentage (3% or 5%) of the 3-phase voltage value."
+[304] EAL Level 4 Design and Verification: course slides — material:eal-slides#p42
+    "In= 16A"
+[305] EAL Level 4 Design and Verification: course slides — material:eal-slides#p42
+    "It = 17.02A"
+[306] EAL Level 4 Design and Verification: course slides — material:eal-slides#p42
+    "Iz = 17.5A"
+[307] EAL Level 4 Design and Verification: course slides — material:eal-slides#p50
+    "Zs = Ze + (R1+R2)"
+[308] Earth fault loop impedance by calculation / maximum disconnection time - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/30752/earth-fault-loop-impedance-by-calculation-maximum-disconnection-time
+    "The basic formula is Zs = Ze + R1 + R2"
+[309] EAL Level 4 Design and Verification: course slides — material:eal-slides#p51
+    "For the (mΩ/m) of a 1.5mm² line and a 1.5mm² cpc, the value to use is: 24.2."
+[310] EAL Level 4 Design and Verification: course slides — material:eal-slides#p52
+    "This multiplier simply corrects the answer to as if the circuit were operating."
+[311] EAL Level 4 Design and Verification: course slides — material:eal-slides#p52
+    "(mΩ/m) x multiplier x length / 1000"
+[312] EAL Level 4 Design and Verification: course slides — material:eal-slides#p53
+    "24.2 x 1.2 x 15 / 1000"
+[313] EAL Level 4 Design and Verification: course slides — material:eal-slides#p54
+    "Our Zs will be calculated as: 0.21 + 0.43 = 0.64Ω"
+[314] IET Wiring Regulations Explained: Loop Impedance Testing | Megger — https://www.megger.com/en/knowledge-hub/IET-wiring-regulations
+    "Loop impedance testing verifies that, in the event of an earth fault, sufficient fault current will flow to operate the protective device within the required disconnection time specified by BS 7671."
+[315] IET Wiring Regulations Explained: Loop Impedance Testing | Megger — https://www.megger.com/en/knowledge-hub/IET-wiring-regulations
+    "A lower earth fault loop impedance (Zs) allows a higher prospective fault current (PFC) to flow."
+[316] EAL Level 4 Design and Verification: course slides — material:eal-slides#p55
+    "230 x 0.95 / 0.64 = 341.4A"
+[317] REDUCTION IN MAXIMUM VALUES OF EARTH FAULT LOOP IMPEDANCE IN BS 7671 — https://electrical.theiet.org/media/1442/maximum-zs-values.pdf
+    "Cmin is the minimum voltage factor to take account of voltage variations depending on time and place, changing of transformer taps and other considerations."
+[318] REDUCTION IN MAXIMUM VALUES OF EARTH FAULT LOOP IMPEDANCE IN BS 7671 — https://electrical.theiet.org/media/1442/maximum-zs-values.pdf
+    "NOTE 1: For a low voltage supply given in accordance with ESQCR, Cmin is given the value 0.95."
+[319] EAL Level 4 Design and Verification: course slides — material:eal-slides#p48
+    "voltage fluctuates as it’s produced, which means it can drop below the nominal voltage of 230V to as low as 218.5V."
+[320] EAL Level 4 Design and Verification: course slides — material:eal-slides#p49
+    "Regulation 411.3.2.2 explains the following circuits are supposed to disconnect in accordance with table 41.1:"
+[321] EAL Level 4 Design and Verification: course slides — material:eal-slides#p51
+    "This circuit means that table 41.1 will be used, which explains it needs to disconnect within 0.4s."
+[322] EAL Level 4 Design and Verification: course slides — material:eal-slides#p50
+    "These are MAXIMUM disconnection times, not actual disconnection times."
+[323] Verifi cation of Automatic Disconnection of Supply — https://dms.niceic.com/0000003345.pdf
+    "Therefore, to verify that under earth fault conditions the device will disconnect the circuit within the required time (0.4 s given a TN system), the measured value of earth fault loop impedance should not exceed:"
+[324] EAL Level 4 Design and Verification: course slides — material:eal-slides#p48
+    "Cmax and Cmin cannot be used together, instead it’s wise to do separate calculations with each being used."
+[325] EAL Level 4 Design and Verification: course slides — material:eal-slides#p47
+    "230 x 0.95 / 7.28 = 30A"
+[326] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p217
+    "it is necessary to establish the relevant impedances of the circuit conductors concerned at their operating temperature"
+[327] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p217
+    "These values are at 20 °C."
+[328] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p219
+    "calculating the resistance at maximum operating temperature of the line conductors and/or circuit protective conductors"
+[329] Circuit design formula sheet — material:formula-sheet#p1
+    "Step 12. R1+R2 = Tabulated value of R1+R2 x circuit length x multiplier"
+[330] Circuit design calculation process: the 20-step flowchart — material:flowchart#p1
+    "OSG Table I1"
+[331] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p218
+    "2.5 2.5 14.82"
+[332] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p218
+    "4 4 9.22"
+[333] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p218
+    "6 6 6.16"
+[334] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p220
+    "Incorporated in a cable or bunched (NOTE 2) 1.20 1.28 1.28"
+[335] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p220
+    "Not incorporated in a cable 1.04 1.04 1.04"
+[336] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p220
+    "See Table 54.3 of BS 7671, which applies where the protective conductor is a core in a cable or is bunched with cables."
+[337] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app site, not a standard) — https://www.elec-mate.com/guides/maximum-zs-values-bs-7671
+    "C25 0.87 Ω 0.70 Ω"
+[338] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app site, not a standard) — https://www.elec-mate.com/guides/maximum-zs-values-bs-7671
+    "Type C MCBs have a higher magnetic trip point than Type B — they trip at 5 to 10 times their rated current (compared to 3 to 5 times for Type B)."
+[339] Table 41.3 Max Zs for MCB and disconnection times - IET EngX forum (an IET committee member's answer) — https://engx.theiet.org/f/wiring-and-regulations/32358/table-41-3-max-zs-for-mcb-and-disconnection-times
+    "The values in Table 41.3 are simply calculated from the formula in Regulation 411.4.4 using the current causing the relevant disconnection time listed in Appendix 3 to BS 7671."
+[340] Determining the maximum earth fault loop impedance for protective devices to BS EN 60898 & BS EN 60947-2 — https://electrical.theiet.org/wiring-matters/years/2023/94-march-2023/determining-the-maximum-earth-fault-loop-impedance-for-protective-devices-to-bs-en-60898-bs-en-60947-2
+    "Wherever possible designers should use the manufacturer’s specific data."
+[341] EAL Level 4 Design and Verification: course slides — material:eal-slides#p47
+    "According to table 41.3 it has a maximum tabulated Zs of 7.28Ω."
+[342] EAL Level 4 Design and Verification: course slides — material:eal-slides#p47
+    "According to Fig 3A4 it has an Ia of 30A."
+[343] Circuit design formula sheet — material:formula-sheet#p1
+    "Step 15. Ia = Uo x Cmin"
+[344] Maximum earth fault loop impedance values for overcurrent protective devices in common use - Electrical Safety First — https://www.electricalsafetyfirst.org.uk/media/1627/master_earthfaultlooptable.pdf
+    "The values given in those tables are the limits that apply under earth fault conditions, when the temperature of the conductors can be expected to be higher than when testing is undertaken (usually under no-load conditions)."
+[345] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p145
+    "3&C 5.82 3.49 2.91 1.75 1.16 1.09 0.87 0.7 0.58 0.55 0.44 0.38 0.35 0.27 0.17"
+[346] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p145
+    "Maximum measured earth fault loop impedance (in"
+[347] EAL Level 4 Design and Verification: project guide — material:project-guide#p5
+    "Compare your calculated Zs value to the maximum permitted for the"
+[348] EAL Level 4 Design and Verification: course slides — material:eal-slides#p46
+    "If ADS is used (most likely) to deal with shock risk, then we need to consider if it’ll actually happen."
+[349] EAL Level 4 Design and Verification: course slides — material:eal-slides#p49
+    "Our circuits Zs must not exceed 7.28Ω if we want ADS to happen in the required time."
+[350] EAL Level 4 Design and Verification: course slides — material:eal-slides#p54
+    "The maximum Zs of the device is 2.73Ω"
+[351] EAL Level 4 Design and Verification: course slides — material:eal-slides#p55
+    "The Ia of the device is 80A, and because our PEFC exceeds this, the device will operate in 0.1s."
+[352] EAL Level 4 Design and Verification: course slides — material:eal-slides#p56
+    "It actually disconnects in 0.1s!"
+[353] EAL Level 4 Design and Verification: course slides — material:eal-slides#p49
+    "All final circuits up to 63A if supplying socket outlets"
+[354] EAL Level 4 Design and Verification: course slides — material:eal-slides#p49
+    "Then it can disconnect according to either regulation 411.3.2.3 or 411.3.2.4 depending on the earthing arrangement."
+[355] IET: 17th Edition requirements for the testing of RCDs (written for the 17th Edition) — https://electrical.theiet.org/media/1627/17th-edition-requirements-for-the-testing-of-rcds.pdf
+    "A disconnection time of 5 seconds for distribution equipment and final circuits of rating exceeding 32A is permitted by 411.3.2.3."
+[356] Verifi cation of Automatic Disconnection of Supply — https://dms.niceic.com/0000003345.pdf
+    "TN 0.4 s 5 s ( 411.3.2.3 )"
+[357] TN Systems - Gt-Engineering (quotes IEC 60364-4-41, which BS 7671 follows) — https://www.gt-engineering.it/en/technical-standards/en-iec-standards/iec-60364-4-41/tn-systems
+    "[IEC 60364-4-41] 411.3.2.3 In TN systems, a disconnection time not exceeding 5 s is permitted for distribution circuits, and for circuits not covered by 411.3.2.2."
+[358] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app site, not a standard) — https://www.elec-mate.com/guides/maximum-zs-values-bs-7671
+    "Increase the cable size (lower resistance per metre), install a larger CPC, or shorten the cable run."
+[359] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app site, not a standard) — https://www.elec-mate.com/guides/maximum-zs-values-bs-7671
+    "disconnects on residual current rather than on fault current, so it needs far less of an earth path than an MCB does."
+[360] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app site, not a standard) — https://www.elec-mate.com/guides/maximum-zs-values-bs-7671
+    "Regulation 411.5.3 and Table 41.5 give 1667 Ω for a 30 mA device and 500 Ω for a 100 mA device"
+[361] RCD Handbook 2018 — https://www.beama.org.uk/static/dd77ff1b-da20-440a-bc338a083127ca46/RCD_GUIDE.pdf
+    "The use of a suitably rated RCD for indirect contact shock protection will permit much higher values of Zs than could be expected by using overcurrent protective devices."
+[362] BS 7671:2018+A2:2022 MODEL FORMS FOR CERTIFICATION AND REPORTING — https://electrical.theiet.org/media/2819/bs7671-eicr.pdf
+    "RCD’s provided for fault protection - includes RCBOs (411.4.204; 411.5.2; 531.2)"
+[363] TN system - Max Zs Vs tripping time in the Presence of RCD protection - IET EngX forum (a forum answer) — https://engx.theiet.org/f/wiring-and-regulations/31645/tn-system---max-zs-vs-tripping-time-in-the-presence-of-rcd-protection
+    "E.g. to guarantee a 30mA device will trip in 0.4s you need at least 30mA to flow and hence max Zs needs to be below 230V/30mA = 7666Ω."
+[364] IET: 17th Edition requirements for the testing of RCDs (written for the 17th Edition) — https://electrical.theiet.org/media/1627/17th-edition-requirements-for-the-testing-of-rcds.pdf
+    "411.4.9 states that where an RCD is used to meet the requirements of 411.3.2.2, that is, to provide the required disconnection time, the maximum values of earth fault loop impedance in Table 41.5 may be applied."
+[365] RCDs in socket-outlet circuits of IT systems - Bender (a maker; quotes IEC 60364-4-41:2005+AMD1:2017) — https://www.bender.de/fileadmin/content/BenderGroup/Documents/Article/en/RCDs_in_Steckosenstromkreisen_von_IT-Systemen_EN.pdf
+    "subclause 411.3.2.6 points out that if the maximum disconnection times cannot be achieved, supplementary protective equi- potential bonding shall be provided in accordance with subclause 415.2."
+[366] TN system - Max Zs Vs tripping time in the Presence of RCD protection - IET EngX forum (a forum answer, contested point) — https://engx.theiet.org/f/wiring-and-regulations/31645/tn-system---max-zs-vs-tripping-time-in-the-presence-of-rcd-protection
+    "where supplementary protective equipotential bonding is applied in cases where a disconnection time < 5 s cannot be met (e.g. 0.4 s), but a higher disconnection time of 1 s or 5 s could be met, the touch-voltage is not guaranteed to be limited to 50 V."
+[367] TN system - Max Zs Vs tripping time in the Presence of RCD protection - IET EngX forum (a forum answer, contested point) — https://engx.theiet.org/f/wiring-and-regulations/31645/tn-system---max-zs-vs-tripping-time-in-the-presence-of-rcd-protection
+    "Using this method (Regulations 415.2 and 419.3), the voltage is not actually limited to 50 V for every possible fault."
+[368] BS 7671:2018 with Amendment 1 (IET), Section 722 — https://electrical.theiet.org/media/2422/bs-7671-2018_a1_2020-inc-corrigendum-may-2020_read-only.pdf
+    "A circuit supplying charging equipment for electric vehicles shall not include a PEN conductor."
+[369] BS 7671:2018 with Amendment 1 (IET), Section 722 — https://electrical.theiet.org/media/2422/bs-7671-2018_a1_2020-inc-corrigendum-may-2020_read-only.pdf
+    "722.411.4.1 A PME earthing facility shall not be used as the means of earthing for the protective conductor contact of a charging point located outdoors"
+[370] BS 7671:2018 with Amendment 1 (IET), Section 722 — https://electrical.theiet.org/media/2422/bs-7671-2018_a1_2020-inc-corrigendum-may-2020_read-only.pdf
+    "in the event of an open-circuit fault in the PEN conductor of the low voltage network supplying the installation does not exceed 70 V rms."
+[371] IET Code of Practice for Electric Vehicle Charging ... — https://electrical.theiet.org/media/2418/wiring-matters-issue-80-may-2020.pdf
+    "permits the direct connection of EV charging equipment to the PME earthing terminal in installations where the loading on the phases will be sufficiently well-balanced to prevent the PME earthing terminal rising above 70 V rms"
+[372] IET Code of Practice for Electric Vehicle Charging ... — https://electrical.theiet.org/media/2418/wiring-matters-issue-80-may-2020.pdf
+    "Regulation 722.411.4.1 (iii), (iv) and (v) of BS 7671 relate to the different technologies currently available for such devices."
+[373] [PDF] ELECTRICAL VEHICLE CHARGING - Rackcdn.com — https://04646a9cf351cc0d3888-b8b406d15fe93f790abb5bf0e9ab7ab3.ssl.cf3.rackcdn.com/misc/NICEIC-EV-Brochure.pdf
+    "An RCD offers no protection in these circumstances as the shock current flows in both the line and neutral conductors passing through the core balance of the device"
+[374] [PDF] ELECTRICAL VEHICLE CHARGING - Rackcdn.com — https://04646a9cf351cc0d3888-b8b406d15fe93f790abb5bf0e9ab7ab3.ssl.cf3.rackcdn.com/misc/NICEIC-EV-Brochure.pdf
+    "Options to satisfy the requirements for protection against electric shock could include converting the EV charging point to a TT earthing arrangement or using the protective measure of electrical separation."
+[375] EAL Level 4 Design and Verification: project guide — material:project-guide#p9
+    "This may include considering PEN Fault protection."
+[376] RCDs for electric vehicle supply equipment (EVSE) — https://electrical.theiet.org/wiring-matters/years/2024/100-may-2024/rcds-for-electric-vehicle-supply-equipment-evse
+    "Where no protection against DC residual current is provided in the EVSE, Regulation 722.531.3.101 of BS 7671:2018+A2:2022 requires a Type B RCD to be installed."
+[377] RCDs for electric vehicle supply equipment (EVSE) — https://electrical.theiet.org/wiring-matters/years/2024/100-may-2024/rcds-for-electric-vehicle-supply-equipment-evse
+    "Regulation 722.531.3.101 of BS 7671:2018+A2:2022 requires RCDs to protect the charging point, i.e. the socket-outlet or connector and not, necessarily, the circuit supplying it."
+[378] GUIDE TO RESIDUAL CURRENT DEVICE (RCD) PROTECTION OF ELECTRIC VEHICLE (EV) CHARGING INSTALLATIONS — https://www.beama.org.uk/static/9fa28e39-62fe-4ba6-a5e6e571d731b3f0/BEAMA-Guide-RCD-selection-for-protection-of-Electric-Vehicle-charging-installations.pdf
+    "In addition, protection shall be provided against DC fault currents exceeding 6 mA."
+[379] EAL Level 4 Design and Verification: project guide — material:project-guide#p9
+    "Be mindful of the required RCD protection."
+[380] Adiabatic Calculation - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/21709/adiabatic-calculation
+    "This calculation is a check to ensure that the cross-section of the CPC is sufficient to allow it to withstand the energy let-through of the Circuit Protective Device (CPD), i.e., fuse or circuit-breaker under earth fault conditions."
+[381] EAL Level 4 Design and Verification: course slides — material:eal-slides#p58
+    "S = √I² x t / K"
+[382] Adiabatic Equation Calculator: CPC Sizing UK (Free) | Elec-Mate — https://www.elec-mate.com/tools/adiabatic-equation-calculator
+    "k = A factor dependent on the conductor material, insulation type, and initial/final temperatures"
+[383] EAL Level 4 Design and Verification: course slides — material:eal-slides#p59
+    "To find k we need to use one the following tables: 54.2, 54.3, 54.4, 54.5 or 54.6"
+[384] EAL Level 4 Design and Verification: course slides — material:eal-slides#p59
+    "S = √341.4² x 0.1 / 115"
+[385] EAL Level 4 Design and Verification: course slides — material:eal-slides#p60
+    "A larger voltage of 253V would mean the fault current could reach 395.3A."
+[386] EAL Level 4 Design and Verification: course slides — material:eal-slides#p48
+    "It’s advisable to use Cmax when we’re determining the fault current carrying capacity of conductors."
+[387] EAL Level 4 Design and Verification: course slides — material:eal-slides#p62
+    "Cmax is best used when deciding on conductor sizing under the above conditions."
+[388] Adiabatic Equation Calculator: CPC Sizing UK (Free) | Elec-Mate — https://www.elec-mate.com/tools/adiabatic-equation-calculator
+    "5-second limit (Reg 543.1.3): The adiabatic equation is only valid for disconnection times not exceeding 5 seconds."
+[389] Adiabatic Equation Calculator: CPC Sizing UK (Free) | Elec-Mate — https://www.elec-mate.com/tools/adiabatic-equation-calculator
+    "The expression I²t (I squared t) represents the energy let-through — the total energy dissipated in the conductor during the fault."
+[390] EAL Level 4 Design and Verification: course slides — material:eal-slides#p63
+    "Like the protective conductor under earth fault conditions, will the live conductors handle short circuit current before the device disconnects?"
+[391] EAL Level 4 Design and Verification: course slides — material:eal-slides#p66
+    "230 x 0.95 / 1.23 = 177.6A"
+[392] EAL Level 4 Design and Verification: course slides — material:eal-slides#p67
+    "230 x 1.1 / 1.23 = 205.6A"
+[393] EAL Level 4 Design and Verification: course slides — material:eal-slides#p68
+    "t = k² x S² / I²"
+[394] EAL Level 4 Design and Verification: course slides — material:eal-slides#p69
+    "IPF is whatever is highest of either PEFC or PSCC."
+[395] EAL Level 4 Design and Verification: course slides — material:eal-slides#p69
+    "Icn is best described as ‘breaking capacity of the device’."
+[396] EAL Level 4 Design and Verification: course slides — material:eal-slides#p70
+    "If the IPF exceeds the Icn of a device, then there is a chance the device may destroy itself during a short circuit or earth fault."
+[397] EAL Level 4 Design and Verification: project guide — material:project-guide#p5
+    "If using SWA it is acceptable to use the SWA as the CPC as long as it is justified by calculation."
+[398] Circuit design calculation process: the 20-step flowchart — material:flowchart#p1
+    "Note 2: Suitable protective conductor size and minimum protective conductor size are not the same thing."
+[399] EAL Level 4 Design and Verification: formula sheet — material:formula-sheet#p1
+    "Step 18/19. S = √I2 x t"
+[400] Thermoplastic (PVC) or Thermosetting (XLPE) SWA cable? — https://electrical.theiet.org/media/3023/wiring-matters-issue-93-november-2022.pdf
+    "the final temperature for 90 °C thermosetting insulation is 250 °C (k =143)"
+[401] Free Adiabatic Equation Calculator & CPC Sizer - TMUK GROUP LTD — https://tmuk.org/free-adiabatic-equation-calculator-cpc-sizer/
+    "143 - Cu / 90°C XLPE (In Cable)"
+[402] Free Adiabatic Equation Calculator & CPC Sizer - TMUK GROUP LTD — https://tmuk.org/free-adiabatic-equation-calculator-cpc-sizer/
+    "46 - Steel Wire Armour (SWA - 90°C XLPE)"
+[403] Adiabatic Equation - different starting temperature - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/23539/adiabatic-equation---different-starting-temperature
+    "where it's not incorporated into the same cable, or bunched with the same, it's taken to be ambient temperature (30 degrees). It's all incorporated into the "k" value. E.g. check tables 54.2 vs 54.3."
+[404] Adiabatic Equation - different starting temperature - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/23539/adiabatic-equation---different-starting-temperature
+    "The last rows of tables 54.2 or 54.3 might be a reasonable starting point - i.e. 160°C for thermoplastic (e.g. PVC) insulation, 250°C for thermosetting (e.g. XLPE) insulation."
+[405] Standard Power Cables BS5467 - Prysmian United Kingdom — https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf
+    "Single Core* Two Core Three Core Four Core Five Core"
+[406] Standard Power Cables BS5467 - Prysmian United Kingdom — https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf
+    "1.5 12.1 - - 15 10.2 16 9.5 17 8.8 19 8.2"
+[407] Standard Power Cables BS5467 - Prysmian United Kingdom — https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf
+    "2.5 7.41 - - 17 8.8 19 8.2 20 7.7 22 6.8"
+[408] Standard Power Cables BS5467 - Prysmian United Kingdom — https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf
+    "4 4.61 - - 19 7.9 20 7.5 22 6.8 25 6.2"
+[409] Standard Power Cables BS5467 - Prysmian United Kingdom — https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf
+    "6 3.08 - - 22 7.0 23 6.7 36 4.3 40 3.9"
+[410] Standard Power Cables BS5467 - Prysmian United Kingdom — https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf
+    "10 1.83 - - 26 6.0 39 4.0 42 3.7 46 3.4"
+[411] Standard Power Cables BS5467 - Prysmian United Kingdom — https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf
+    "4 15.7 11.1 0.9 580 4.61 0.57 1.0 55 45 47 10"
+[412] Standard Power Cables BS5467 - Prysmian United Kingdom — https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf
+    "Armour short circuit rating (1sec)"
+[413] Cable Short Circuit Ratings | Prysmian — https://uk.prysmian.com/media/news/short-circuit
+    "For armoured or screened cables this will normally be 90°C with the temperature in the screen/armour approximately 10°C lower."
+[414] Cable Short Circuit Ratings | Prysmian — https://uk.prysmian.com/media/news/short-circuit
+    "Values published are adiabatic."
+[415] Overcurrent and short-circuit current: how the requirements of BS 7671 are applied - Professional Electrician — https://professional-electrician.com/technical/overcurrent-and-short-circuit-current-how-the-requirements-of-bs-7671-are-applied/
+    "For any applicable disconnection time the maximum energy withstand of the cable must be equal to or greater than the let-through energy of the protective device."
+[416] Overcurrent and short-circuit current: how the requirements of BS 7671 are applied - Professional Electrician — https://professional-electrician.com/technical/overcurrent-and-short-circuit-current-how-the-requirements-of-bs-7671-are-applied/
+    "regulation 434.5.2 is concerned with limiting the heat that will be added to the current-carrying conductor while such a fault exists."
+[417] Overcurrent and short-circuit current: how the requirements of BS 7671 are applied - Professional Electrician — https://professional-electrician.com/technical/overcurrent-and-short-circuit-current-how-the-requirements-of-bs-7671-are-applied/
+    "The time (t), in which a given fault current will raise the live conductors from the highest permissible temperature in normal duty to the limiting temperature, can, as an approximation, be calculated from the adiabatic equation given in regulation 434.5.2"
+[418] [PDF] BEAMA Guide - Low Voltage Circuit-breaker Standards — https://www.beama.org.uk/static/2a6f44a3-2e72-4870-870fb0958c63c470/BEAMA-Guide-Low-Voltage-Circuit-breaker-Standards.pdf
+    "is proportional to the energy let-through by the circuit-breaker under short-circuit conditions."
+[419] Prospective Fault Current: How To Determine Values - Professional Electrician — https://professional-electrician.com/technical/prospective-fault-current
+    "Either by enquiry, measurement or calculation, prospective fault current (Ipf) should be determined at every relevant point within an installation (Regulation 434.1)."
+[420] Overcurrent and short-circuit current: how the requirements of BS 7671 are applied - Professional Electrician — https://professional-electrician.com/technical/overcurrent-and-short-circuit-current-how-the-requirements-of-bs-7671-are-applied/
+    "Regulation 434.5.1 requires that the rated short-circuit breaking capacity of each circuit protective device shall normally not be less than the maximum prospective fault current at the point at which the device is installed."
+[421] Guide to Commercial Installations Distribution Boards & Panelboards — https://storage.electrika.com/flips/0330-comm-inst-guide-15/files/assets/common/downloads/Guide%20to%20Commercial%20Installations%20-%20Distribution%20Boards%20&%20Panelboards.pdf
+    "434.5.1 states that the short circuit capacity of devices in the distribution board shall not be less than the prospective fault current where the device is installed."
+[422] Breaking Capacity — https://scolmore.com/article/breaking-capacity/news
+    "Regulation 434.5.1 recognises this eventuality and permits a lower breaking capacity if another protective device having the necessary rated short-circuit breaking capacity is installed on the supply side."
+[423] Breaking Capacity — https://scolmore.com/article/breaking-capacity/news
+    "However, if the intake device is a HRC fuse having a breaking capacity of 50 kA, an MCB having a breaking capacity of 10 kA may be installed (lower than the 15 kA) because the HRC fuse has sufficient breaking capacity (434.5.1)."
+[424] Short Circuit Ratings: The Cable Nobody Checks (Until It Fails) — https://ecalpro.com/blog/short-circuit-ratings-cable-nobody-checks
+    "The prospective fault current of 16 kA exceeds the MCB's 6 kA breaking capacity. The MCB may fail to interrupt the fault, sustaining an arc that can destroy the distribution"
+[425] [PDF] BEAMA Guide - Low Voltage Circuit-breaker Standards — https://www.beama.org.uk/static/2a6f44a3-2e72-4870-870fb0958c63c470/BEAMA-Guide-Low-Voltage-Circuit-breaker-Standards.pdf
+    "The manufacturer must declare the short-circuit capacity of the circuit-breaker."
+[426] [PDF] BEAMA Guide - Low Voltage Circuit-breaker Standards — https://www.beama.org.uk/static/2a6f44a3-2e72-4870-870fb0958c63c470/BEAMA-Guide-Low-Voltage-Circuit-breaker-Standards.pdf
+    "Circuit-breakers to BS EN 60898 of B-type and C-type, having rated current up to and including 63 A and a rated short-circuit capacity of 3 000 A, 4 500 A, 6 000 A and 10 000 A"
+[427] 6kA vs 10kA MCB: Breaking Capacity Selection Guide — https://viox.com/mcb-breaking-capacity-6ka-vs-10ka-selection-guide
+    "A 6kA marking therefore refers to 6,000A, and a 10kA marking refers to 10,000A."
+[428] Ipf : 3ph simultaneous fault - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/29667/ipf-3ph-simultaneous-fault
+    "From BS7671 Appendix 14 it states, in a 3ph system, the highest prospective fault current occurs with a simultaneous fault across all 3 phases and that an 'approximation' of this is determined by measurement between live and neutral multiplied by 2..."
+[429] Ipf : 3ph simultaneous fault - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/29667/ipf-3ph-simultaneous-fault
+    "so the current is now set by the full phase voltage dropped over just the impedance of the live path, as the return path voltage drop has been cancelled."
+[430] Ipf : 3ph simultaneous fault - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/29667/ipf-3ph-simultaneous-fault
+    "that is set by the series resistance of one live path and one neutral path, and at the point of fault the voltage rises to approx half the single phase voltage."
+[431] IET EngX® Wiring Regulations Discussions — https://engx.theiet.org/f/wiring-and-regulations/22831/pfc-for-andy-j/86716
+    "The guidance in Appendix 14 of BS 7671 are rules of thumb which will overstate the actual fault current."
+[432] IET EngX® Wiring Regulations Discussions — https://engx.theiet.org/f/wiring-and-regulations/22831/pfc-for-andy-j/86716
+    "The IET provides additional guidance of fault current measurement, advising measuring PFC line to Line and dividing by 0.87."
+[433] City & Guilds 2396 practice paper 1 (Mar 2016) — material:cg-paper-1#p4
+    "ii) thermal constraints under fault conditions."
+[434] City & Guilds 2396 practice paper 1 (Mar 2016) — material:cg-paper-1#p9
+    "c) Determine whether the circuit breaker offers adequate protection to the live conductors in the event of a short circuit, in order to comply with Regulation 434.5.2."
+[435] City & Guilds 2396 practice paper 2 (Jun 2017) — material:cg-paper-2#p4
+    "constraints under earth fault conditions."
+[436] City & Guilds 2396 practice paper 2 (Jun 2017) — material:cg-paper-2#p9
+    "Determine if this circuit has adequate short-circuit protection."
+[437] Circuit design calculation process: the 20-step flowchart — material:flowchart#p1
+    "Electrical Circuit Design Calculation Process - BS7671:2018 + Amd2:2022"
+[438] EAL Level 4 Design and Verification: course slides — material:eal-slides#p13
+    "√3 = Square root of 3 (1.73)"
+[439] EAL Level 4 Design and Verification: course slides — material:eal-slides#p16
+    "Ib = 20,000 / 400 x √3"
+A source whose address begins "material:" is a page of Dan's own course materials (his slides, formula sheet, pack, guide or drawings; "#p16" is the page): cite it like any source, and in the text call it by what it is ("your course slides, p.16"), never a web page.
+
+Research notes (claims, and the sources that support them):
+- The assignment has five boards (MDB, DBL1, DBL2, DBP1, DBP2) and asks for a full design of the longest circuit from DBL2 and from DBP2, with relevant protective devices. [1][2]
+- The project guide says to include all lengths of the cable run, calculations for thermal constraints, a comparison of Zs with the device's maximum, and the sum of all voltage drops from the intake equipment. [3][4][5]
+- The formula sheet totals voltage drop as the submain's drop plus the final circuit's, and for a final circuit from a sub-board uses Zs = Zs@db + (R1+R2). [6][7]
+- The showroom supply gives Ze 0.1 ohm, 4.6 kA prospective fault current and 20 degrees Celsius ambient; the motor and its cables are question 4. [8][9][10][11]
+- Table 4E4A in your copy (p.464) gives the current-carrying capacity of multicore armoured 90 °C thermosetting cables: for four-core 4 mm² 42 A clipped direct (Reference Method C) and 44 A on a perforated tray in free air (Method E), three-phase; 1.5 mm² 23 A and 25 A; 2.5 mm² 31 A and 33 A. [12][13][14][15][16]
+- Table 4E4B in your copy (p.465), three- or four-core three-phase column: 27 mV/A/m for 1.5 mm², 16 for 2.5 mm² and 10 for 4 mm²; the same table gives 31, 19 and 12 for two-core single-phase. [17][18][19][20]
+- Table 41.3 maximum Zs for 0.4 s: type C 3.64 ohm at 6 A and 2.19 ohm at 10 A (a trade app printing the table; the pages are not among those saved from your copy). Type C suits high inrush loads including discharge lighting but leaves less Zs margin, so it should be chosen only where the load needs … [21][22][23][24]
+- LED drivers contain capacitors and draw an inrush current at switch-on that can trip a circuit-breaker; BEAMA and ABB set out how the breaker type and the driver datasheet decide how many drivers one breaker can carry. [25][26][27]
+- Table 54.4 gives k for steel armour as 51 (70 °C thermoplastic) and 46 (90 °C thermoplastic or thermosetting) in a Certsure pocket guide; armour used as a cpc is thermally stressed in a fault, and the Zs must include the armour, glands and terminations. Read the real k from Table 54.4 in your copy:… [28][29][30][31][32]
+- The Electrical Installation Design Guide limits the Zs at the end of the circuit to the maximum values of Tables 41.2 to 41.4, and the Zs of a circuit from a sub-board is built from the Zs at the board plus the circuit's own R1+R2 (your formula sheet, step 13). [33]
+- Where along a cable the thermal worst case lies is argued on the IET forum: shock protection is worst at the remote end, but the adiabatic check is not, so the fault current near the origin of the cable is the one that sets the cpc size. Taught as contested; Dan's own course checks the end of the c… [34][35][36]
+- The tabulated three-phase mV/A/m values already contain the root 3 and assume balanced loads; for an unbalanced load one trade source says to work phase by phase with the single-phase values (a different route from your formula sheet, which divides the three-phase drop by root 3), taught as two rou… [37][38][39][40]
+- Whether the design current of a lighting circuit is the connected load or the breaker's rating, with room left for later luminaires, is argued on the IET forum; the course sizes on its calculated figures and says so. [41]
+- Both of Dan's drawings are 1:50 at A1 with no printed dimensions, so every length scaled from them is approximate. [42][43]
+- Lighting must not drop more than 3% of the supply voltage (6.9 V single-phase, 12 V three-phase); the limit runs from the origin to the most distant point, and the submain's drop is added to the final circuit's (a three-phase drop is divided by root 3 to join a single-phase one). [44][45][5][46][47][48]
+- Design current is the magnitude of the current to be carried by a circuit in normal service; the course slides and an IET article give the same meaning. [49][50]  (from an idea this one builds on)
+- For a three-phase load with known power factor and efficiency, Ib = P / (VL × Eff × PF × √3), where P is the output of the load and VL is the line-to-line voltage (400 V). [51][52][53]  (from an idea this one builds on)
+- Motors need more current than expected for their output because of reactance, so power factor matters: a lower power factor means more apparent power, and so more current, for the same real power. [54][55][56]  (from an idea this one builds on)
+- Efficiency is useful output power divided by input power, so the supply must provide more than the output; the slides show an efficiency and power factor left out would size the cable on 28.86 A rather than 41.47 A. [57][58][59]  (from an idea this one builds on)
+- Three-phase real power is √3 × line voltage × line current × power factor, which is why Ib divides by √3 × VL × Eff × PF. [60][51]  (from an idea this one builds on)
+- If a separate voltage is given, for example at a sub-board, that value is used in place of 230 V or 400 V; the slides work 20 kW at 393 V as 29.38 A. [61][62][63]  (from an idea this one builds on)
+- In a balanced delta load the line current is the phase (winding) current times the square root of 3, so each winding carries the line current divided by √3; in star the line and phase currents are equal. [64][65][66][67]  (from an idea this one builds on)
+- Diversity percentages are only found in the On-Site Guide and are guidance that need not be applied; the slides' example designs ten 100 W lamps at 66%, or 660 W, rather than 1000 W. [68][69][70]  (from an idea this one builds on)
+- For i1 (review fix): the slides' 66% diversity example is for a domestic lighting circuit, from the On-Site Guide's Appendix A. [71]  (from an idea this one builds on)
+- For i1 (review fix): at a reduced voltage a resistive heater draws proportionally less current, while a motor draws more to keep its torque, so the slides' same-power working at a sub-board's voltage errs on the safe side for a heater. [72][73]  (from an idea this one builds on)
+- For i1 (review fix): the showroom's motor is controlled by a star-delta starter, which runs six wires to the motor, one to each end of each winding, so in delta each of those cables carries one winding's current. [74][75]  (from an idea this one builds on)
+- BS 7671 itself has no diversity table; Regulation 311.1 asks the designer to assess maximum demand (of the whole installation or a part of it), and the On-Site Guide gives the recognised figures. [70][76]  (from an idea this one builds on)
+- Maximum demand is the largest current an installation draws at any one time, which is why the supply and every submain are sized from it. [77]  (from an idea this one builds on)
+- Diversity is common-sense guidance from the On-Site Guide's Appendix A, not a rule; the slides give 66% for a domestic lighting circuit as the example. [68][69][78]  (from an idea this one builds on)
+- Sources differ on where diversity is applied: the course slides apply 66% to the Ib of a lighting circuit, while a training provider says diversity applies to the aggregate demand at the origin, not to individual circuits. [69][79]  [CONTESTED: Dan's slides apply diversity to the design current of a lighting circuit; Total Skills says to size each circuit on its full design current and apply diversity only to the aggregate demand.]  (from an idea this one builds on)
+- The assignment asks for loads to be balanced across circuits (question 1b), links this to the maximum-demand question 10, and points to Section 3 of The Electrical Installation Guide for demand and diversity factors. [80][81][82][83]  (from an idea this one builds on)
+- Balanced fundamental currents leave no current in the neutral (a balanced motor load needs no neutral), and an IET forum contributor suggests spreading demand about one third to each phase. [84][85]  (from an idea this one builds on)
+- For the EV charge points the guide says load management may be considered to reduce maximum demand but is not compulsory, and Regulation 722.311 lets load curtailment be taken into account. [86][87]  (from an idea this one builds on)
+- The lighting drawing's key gives each fitting's wattage (for example 4 × 36 W modular fluorescent, 58 W twin fluorescent, 70 W column luminaires), to be recounted by hand; the power drawing marks 63 A isolators and 2 × 32 A EV points. [88][89][90][91]  (from an idea this one builds on)
+- Dan's Level 4 specification asks him to state the purpose of diversity factors and to determine the maximum demand of an installation after diversity, covering the application of the IET On-Site Guide. [92][93][94]  (from an idea this one builds on)
+- The slides give the purpose of diversity as designing with 'common sense' rather than the maximum demand, which keeps cable sizes smaller and costs lower (the points for the Section B answer). [95][96][68][69]  (from an idea this one builds on)
+- For small shops, stores, offices and business premises the On-Site Guide's diversity table gives: lighting 90% of total current demand; heating and power 100% of the largest appliance plus 75% of the remaining appliances; motors (not lifts) 100% of the largest motor plus 80% of the second and 60% o… [97][98][99][100][101]  (from an idea this one builds on)
+- Sources differ on the small-shop socket-outlet allowance: the table as printed by an electrician's page gives 70% of every other point, an older book (16th Edition era) gives 75%, and the table is numbered A2, H2 or 1B depending on the source and edition, so the lesson names the rule and sends him … [100][102]  [CONTESTED: One page prints 100% of the largest point plus 70% of every other point for small shops; an older book prints 100%X + 75%(Y+Z). Table numbering also differs between sources.]  (from an idea this one builds on)
+- For electric vehicle charging: the original 2018 text allowed no diversity on a final circuit with more than one charging point and diversity on a dedicated distribution circuit only with load control; Amendment 1 replaced that with Regulation 722.311.201, which lets load curtailment be taken into … [103][104][105][106][87]  (from an idea this one builds on)
+- Whether Amendment 1 allows any diversity on EV charging is argued on the IET forum: one contributor says BS 7671 does not prohibit it, another that without load management it is still zero diversity; the lesson takes none without load management. [107][108]  [CONTESTED: gkenyon (IET EngX): BS 7671 does not prohibit diversity for EV charging points. pww235: in the absence of a load management system it is still zero diversity.]  (from an idea this one builds on)
+- Where diversity is applied is argued: the On-Site Guide table is applied by type of final circuit; the Schneider guide applies its simultaneity factor to a group of loads fed from a distribution board and says the designer is responsible for it; an IET webinar answer says for a single circuit's des… [109][110][111][112][79][113]  [CONTESTED: Sources disagree on whether diversity belongs on each circuit's design current (the slides' 66% example), on a group of circuits at a board, or only on the aggregate at the origin.]  (from an idea this one builds on)
+- Maximum demand is the largest current normally carried by circuits, switches and protective devices; the IET describes it as the sum of the connected loads multiplied by a factor for diversity, and accepts that with diversity applied it may occasionally be exceeded; a forum contributor says the 'of… [114][115][116][117]  [CONTESTED: IET webinar: maximum demand is the connected load multiplied by a diversity factor. An IET EngX contributor: the official maximum demand is the supply fuse rating. The lesson uses the designer's assessment (Regulation 311.1) and says so.]  (from an idea this one builds on)
+- A page on diversity warns that the On-Site Guide's table is aimed at small domestic and similar installations and that commercial and industrial maximum demand may need load measurements or building-services standards, so a showroom with an 11 kW motor and EV points rests on informed assumptions, a… [118][83]  (from an idea this one builds on)
+- For a lighting load from a key wattage: the tube power marked on a fluorescent lamp excludes the ballast, 25% of Pn may be used when no ballast loss is given, and cos φ is 0.96 with an electronic ballast; an older book gives current = lamp power x 1.8 / voltage for discharge lighting when the power… [119][120][121][122][123][124][125][126][127]  (from an idea this one builds on)
+- To balance a three-phase board, single-phase circuits are spread about equally over L1, L2 and L3 because unbalanced line currents do not cancel in the neutral; the most heavily loaded phase fixes the supply requirement; and with a perfect balance the three-phase line current is the total single-ph… [128][129][130][131][132][84][80][81][82]  (from an idea this one builds on)
+- The motor is the only motor on the case, so in the small-shop column it counts at 100% of its full-load current (23.08 A); the Schneider guide instead applies a utilisation factor of about 0.75 to motors in an industrial installation, a different method that the lesson names but does not use. [99][133]  [CONTESTED: On-Site Guide small-shop column: 100% of the largest motor. Schneider guide: utilisation factor ku about 0.75 for motors in industrial installations, plus a separate simultaneity factor.]  (from an idea this one builds on)
+- The power drawing's key marks twin switched sockets, 20 A DP switches, a 32 A rotary isolator, 63 A TPN isolators and EV points of 2 x 32 A each, with each charging point having two outlets; the equipment behind the 20 A and 32 A switches is not stated, so the loads there are practice values. [134][135][136][137][91]  (from an idea this one builds on)
+- The lighting drawing's key adds a 26 W LED fitting, a wall spot light of 2 x 35 W, an 18 W walkway bollard and an 18 W IP65 bulkhead to the fluorescent and column fittings already noted; the lamp types behind the spot and column fittings are not stated. [138][139][140][141][88][89][90]  (from an idea this one builds on)
+- Regulation 433.1.1 requires In not less than Ib, In not above the lowest Iz of the circuit conductors, and I2 not above 1.45 Iz; the slides write the first two as Ib ≤ In ≤ Iz. [142][143][144]  (from an idea this one builds on)
+- Anything that makes the cable artificially warm, such as thermal insulation or a higher ambient temperature, needs a rating factor; Ca is for ambient temperature, Cg for grouping and Ci for thermal insulation. [145][146]  (from an idea this one builds on)
+- Rating factors are applied as divisors to In, giving the tabulated current It the cable needs; It is the tabulated figure for a single circuit at the table's ambient, while Iz is the capacity as installed. [147][148][149]  (from an idea this one builds on)
+- Only factors that act together are combined; the slides' 3 kW heater gives It = 21.2 A (Ca and Cg) and 19.3 A (Ca and Ci) and designs to the higher, on the reference method with the lowest Iz. [150][151][152][153]  (from an idea this one builds on)
+- A device's I2 is typically 1.45 times In (a 10 A type B breaker: 14.5 A), and the cable must withstand it: for Iz = 13 A the check is I2 ≤ 1.45 Iz, that is 14.5 against 18.85 A. [154][155][156][157][158]  (from an idea this one builds on)
+- A semi-enclosed (rewireable) BS 3036 fuse has an I2 that can be up to 2 × Iz, so its In must not exceed 0.725 × Iz, which the slides put in as Cf = 0.725. [159][160][161]  (from an idea this one builds on)
+- Circuit-breaker types B, C and D relate to the start-up current of the circuit; the assignment asks for cables from the starter to the motor to be chosen on delta running conditions and other factors present. [162][163]  (from an idea this one builds on)
+- Table 4B1 in his copy of BS 7671 has no 20 °C row: it starts at 25 °C, where the factor for 90 °C thermosetting cable is 1.02 (1.00 at 30 °C). Below 30 °C the factor is above 1; a 20 °C ambient has no value in the book, so the lesson uses a labelled practice value (1.00, which takes no credit for t… [164][165]  (from an idea this one builds on)
+- Appendix 4 of BS 7671 is informative, and other methods (for example a cable maker's own data) are legitimate, so the tables are taught as the usual way to show compliance, not the only one. [166][167]  (from an idea this one builds on)
+- Six single-core conductors from a star-delta starter all carry the winding current in delta running; Table 4C1 treats n single-core cables as n/3 circuits of three loaded conductors, so six singles are two three-phase circuits, and bunched and enclosed, two circuits give Cg = 0.80. [168][169][170][171]  (from an idea this one builds on)
+- A thermal overload relay in the delta circuit of a star-delta starter is set to 0.58 times the motor In (the winding current) and must not be set higher than it, so the starter-to-motor cables are sized on 23.08 A ÷ √3 = 13.33 A, not on the line current (a relay in the incoming line, as in the Schn… [172][173][171][174]  (from an idea this one builds on)
+- Table 4E1A (90 °C thermosetting singles, copper), Reference Method B, the column for 3 or 4 loaded cables on three-phase AC, gives 15 A for 1 mm² and 20 A for 1.5 mm²; Reference Method B is conduit on a wall or in trunking, and the IET adds that a conduit fixed to a masonry wall may carry more than… [175][176][177][178][179][180]  (from an idea this one builds on)
+- Circuit-breaker type follows the starting current: type B trips instantaneously at 3 to 5 In, type C at 5 to 10 In (suited to small motors and fluorescent-lighting surges) and type D at 10 to 20 In (high inrush); a motor takes a much higher current starting than running, so a device must be chosen … [181][182][183][184][185][186][187]  (from an idea this one builds on)
+- A star-delta start draws roughly 2 to 2.7 times full-load current against 6 to 8 times for direct-on-line (a calculator site's table, not a standard); the motor's nameplate or maker gives the true figure, so the lesson uses it only as a labelled practice value. [188][189]  (from an idea this one builds on)
+- A breaker to BS EN 60898 has a conventional tripping current of 1.45 In within 1 hour (up to 63 A), so I2 = 1.45 In; a thermal overload relay is not one of those devices, so its own characteristic must be checked against Iz; the slides (p.30) say it takes 10,000 s, which is where Appendix 3's curve… [190][191][192][193]  (from an idea this one builds on)
+- Lightly loaded cables leave the group: a cable expected to carry no more than 30 % of its grouped rating may be ignored when finding the group factor for the rest of the group (Table 4C1 note 9), the point of C&G practice paper 1 question 10b. [194]  (from an idea this one builds on)
+- A hazard of overload is overheating of the circuit conductors, which over time damages insulation, joints and terminations and their surroundings and can lead to fire; BS 7671 also expects a circuit to be designed so that a small overload of long duration is unlikely. [195][196][197]  (from an idea this one builds on)
+- His project guide points to "section 4.7 of The Electrical Installation Guide" for the motor question; which book that is could not be established, so the lesson cites the starter makers and Table 4C1 instead. [11]  (from an idea this one builds on)
+- For i3 (review fixes): the maker's catalogue gives type B breakers to IEC/EN 60898-1 from 6 to 63 A operation within 1 hour at 1.45 In, while the slides (p.30) say a device at I2 can take 10,000 s: the sources differ on the time. Table 4E1A note 1 (his copy p.458) rates 90 °C cables at the lower te… [198][199][200][201][202]  (from an idea this one builds on)
+- Third and other triple harmonic currents of a three-phase load are additive in the neutral and give additional heating of the cables, while the fundamentals of a balanced load cancel there. [203][204][205][206]  (from an idea this one builds on)
+- Loads such as rectifiers, variable-speed drives and fluorescent lighting banks draw non-sinusoidal currents, so current can appear in the neutral where a balanced motor load would have none. [207][84]  (from an idea this one builds on)
+- The neutral current can reach about 173% of phase current in a balanced system with these pulses, and one paper puts triplen neutral current at up to 3 times the phase fundamental, depending on how the percentage is referred. [208][209]  (from an idea this one builds on)
+- The slides take the neutral current as Ibn = 3 × h × IL (3 × 0.35 × 150 = 157.5 A at 35%), which exceeds the 150 A line current, so Ibn becomes Ib. [210][211]  (from an idea this one builds on)
+- The Table 4Aa bands in the slides: line current governs with factor 0.86 for 15 to 33% third harmonic, and above 33% the factor is applied to a calculated neutral current, not the line current. [212][213]  (from an idea this one builds on)
+- Harmonics are only considered when the manufacturer's data says one is present; with no neutral conductor there can be no current in it. [214][215]  (from an idea this one builds on)
+- The slides' worked example uses It ≥ 160 / (0.94 × 0.65 × 0.86) with the harmonic rating factor included in the divisor. [216]  (from an idea this one builds on)
+- Table 4Aa, as the slides give it, has four bands by the third harmonic of the line current: 0 to 15% line current with factor 1.0, 15 to 33% line current with 0.86, 33 to 45% neutral current with 0.86, and over 45% neutral current with 1.0; the same table appears in IEC 60364-5-52 (E.52.1) as set o… [217][212][218][219][220][221]  (from an idea this one builds on)
+- The neutral current is 3 × h × IL: the third and other triple harmonics of the three lines add in the neutral to a magnitude equal to the sum of the third harmonic content of each phase, which is why the slides call the neutral higher than the line at 35% (row 3) and take Ibn as Ib. [222][223][224][225][226]  (from an idea this one builds on)
+- Above 33% the neutral current is the larger, so the cable is sized on it; at 45% it is 135% of the line current and the three line conductors are then not fully loaded, which is why the factor goes back to 1.0 above 45%; the Schneider guide works 40% (37 × 0.4 × 3 = 44.4 A, ÷ 0.86 = 51.6 A) as an e… [227][228][219][229]  (from an idea this one builds on)
+- The ordinary current tables assume three loaded conductors; a harmonic neutral makes a fourth, and BS 7671 treats a neutral as a loaded conductor where a third harmonic or its multiples present a distortion above 15% of the line current (523.6.1) or where it carries current without a matching fall … [230][231][232][217]  [CONTESTED: The slides and Table 4Aa speak of the third harmonic content of the line current; NICEIC's summary of Regulation 523.6.1 speaks of total harmonic distortion greater than 15% of the fundamental. Makers usually print a THD figure, so the figure the lesson uses is a practice value for the third harmon…]  (from an idea this one builds on)
+- Where the neutral current comes only from an imbalance in the line currents, the neutral's heat is offset by less heat in a line conductor, so the cable is sized on the highest line current (NICEIC on 523.6.2); harmonic current is the case where there is no such offset. [233][232]  (from an idea this one builds on)
+- The slides' worked example runs from the neutral current to the cable: Ibn 157.5 A is Ib, In 160 A from Fig 3A3(b), It = 160 ÷ (0.94 × 0.65 × 0.86), and Table 4D1A column 5 gives 240 mm² at 346 A (his copy of the table, p.448, row 240: Reference Method B, three or four loaded cables, 346 A). [211][234][216][235][236]  (from an idea this one builds on)
+- Harmonics are considered only when the maker's data says there are some, and then the maker's percentage goes into the same sums; makers print THD, not the third harmonic alone: a Thorn luminaire datasheet gives THD 15.00 %, and a Philips Advance (US, 60 Hz) ballast table gives fluorescent ballasts… [214][237][238][239][240]  (from an idea this one builds on)
+- No limit is quoted here for a fluorescent fitting's third harmonic in the showroom's drawing: the ANSI standard for electronic ballasts allows a maximum THD of 32%; IEC 61000-3-2 Class C (lighting, input current up to 16 A per phase) limits the third harmonic to 30 × the circuit power factor in per… [241][242][243][244][245][246][123]  (from an idea this one builds on)
+- Voltage drop is (mV/A/m) × Ib × length / 1000, where mV/A/m is millivolts dropped per ampere of design current per metre, taken from the Appendix 4 cable tables. [247][248]  (from an idea this one builds on)
+- The limits are 3% of the supply voltage for lighting and 5% for other circuits (6.9 V and 11.5 V on 230 V); the slides say to use a given supply voltage, so 5% of 395 V is 19.75 V. [44][249][250][45][251]  (from an idea this one builds on)
+- The drop counts from the origin to the most distant point, so the submain's drop is added to the final circuit's; the formula sheet and project guide both say so. [47][6][5]  (from an idea this one builds on)
+- When a three-phase submain feeds a single-phase final circuit, the formula sheet divides the submain's three-phase voltage drop by root 3 before adding it, and the project guide warns to calculate this correctly. [252][46]  (from an idea this one builds on)
+- If the first cable fails, the slides increase the conductor CSA and repeat ("chasing the volt drop"); 1.5 mm² over 85 m fails, and 6.0 mm² gives 8.09 V. [253][254]  (from an idea this one builds on)
+- The tabulated mV/A/m values are for the maximum conductor operating temperature, reached only at full load; at lower loads the cable is cooler and its resistance lower, which the factor Ct corrects (the Ct formula itself was not captured). [255][256][257]  (from an idea this one builds on)
+- For cables above 16 mm² the tables give R, X and Z; the slides use Z where no power factor is known and R and X where one is. [258]  (from an idea this one builds on)
+- The Ct formula, as printed in text by a reader on a cable-sizing page that attributes it to BS 7671 (Appendix 4 itself was not found in text): Ct = (230 + tp - (Ca² Cg² - Ib²/It²)(tp - 30)) / (230 + tp), with tp 70 °C for PVC and 90 °C for XLPE and It the tabulated current rating at 30 °C. TiSoft p… [259][260][261][262][263][264]  (from an idea this one builds on)
+- Why Ct exists: the tabulated mV/A/m are for the conductor at its maximum operating temperature, so a cable well below its rating runs cooler and drops less; TiSoft puts the saving at up to 20% for lightly loaded circuits, and the slides make the same point for the 6.0 mm² heater cable carrying 13.0… [265][266][267][268][269]  (from an idea this one builds on)
+- Ct is worth applying only when Ib is well below It; with a heavy grouping factor and nothing else it comes to about 0.99 and is not worth the trouble (IET Electrical Installation Design Guide, quoted on EngX). The slides say it may let a smaller CSA than 6.0 mm² pass. [264][270][271]  (from an idea this one builds on)
+- Contested or unsettled: which factors go into the Ct formula. The reader-quoted formula uses Ca and Cg (not Ci), and an EngX contributor says their design guide also counts only ambient temperature and grouping; the EngX thread asks why Ci is left out and gets the answer that Ci has already been us… [259][272][266]  (from an idea this one builds on)
+- The slides' own heater example for the Ct step: 3 kW, 70 °C thermoplastic singles, Ca 0.94, 85 m, 29 mV/A/m in 1.5 mm² gives 32.14 V; 6.0 mm² (Iz 41 A in Table 4D1A, 7.3 mV/A/m in Table 4D1B) gives 8.09 V. Worked here (computed, not quoted): Ct for 6.0 mm² = (300 - (0.94² - 13.04²/41²) x 40) / 300 … [273][274][275][268][276][277][278][279]  (from an idea this one builds on)
+- The r, x and z columns appear only for cables over 16 mm² (the tables start them at 25 mm²); where the power factor is not known the z values are used, and where it is known the r and x values give a more accurate drop, because using z alone can give a drop higher than the actual one (Appendix 4 pa… [280][281][282][283][284][285][286][287]  (from an idea this one builds on)
+- The power-factor expression, from a calculator site and from the impedance triangle Dan already has: drop per amp per metre = (mV/A/m)r x cos φ + (mV/A/m)x x sin φ, with sin φ = √(1 - cos² φ). NICEIC's worked 144 A, 0.75 lagging, 120 m motor in 70 mm² aluminium (r 0.90, x 0.14, z 0.92) comes to 16 … [288][289][290][291]  (from an idea this one builds on)
+- Not found in text from any source: how Ct and the power factor combine (whether Ct multiplies only the r term). The lesson shows the two refinements separately and does not print a combined figure. [259][284]  (from an idea this one builds on)
+- Table values from Dan's own copy, confirmed against the page images. Table 4E1B (90 °C thermosetting singles, voltage drop): in conduit, 2.5 mm² three-phase 16 mV/A/m; 1.5 mm² 27 three-phase and 31 for two cables single-phase; 25 mm² in conduit, three-phase, r 1.60, x 0.27, z 1.65. Table 4E1A (curr… [292][293][294][295][296][178]  (from an idea this one builds on)
+- A star-delta motor has six conductors from starter to motor, and in delta running its windings are three single-phase loads, so each conductor carries the winding current, line current ÷ √3. Turning that into a voltage drop is unsettled: one forum poster uses √3 x 58% of FLC x 2L x (R cos φ + X sin… [297][298][299][300][301][302]  (from an idea this one builds on)
+- The percentage limit for a three-phase circuit is taken of the three-phase voltage: 3% or 5% of 400 V is 12 V or 20 V, and a three-phase drop stays three-phase when the load is three-phase; only a three-phase submain feeding a single-phase final circuit is divided by √3. [303][44][249][252]  (from an idea this one builds on)
+- BS 7671's Table 4Ab limits for a public (DNO) supply are percentages of the nominal voltage: 3% of the nominal 230 V is 6.9 V and 5% is 11.5 V. The course's rule, taking the percentage of a stated supply voltage such as 395 V (slides p.40), is its own convention, stricter when the stated voltage is… [250]  (from an idea this one builds on)
+- The slides' heater example (p.42) chooses its starting cable before the voltage drop: Ib 13.04 A, In 16 A, Ca 0.94, It ≥ 16 ÷ 0.94 = 17.02 A, so 1.5 mm², whose Iz is 17.5 A. [304][305][306][274]  (from an idea this one builds on)
+- Zs = Ze + (R1+R2): Ze is the external impedance of the supply and R1+R2 the circuit's own line and protective conductor resistance, which grows with length. [307][308][7]  (from an idea this one builds on)
+- Calculated R1+R2 is (mΩ/m) × multiplier × length / 1000; the slides' 1.5 mm² line and cpc at 24.2 mΩ/m, multiplier 1.2 and 15 m gives 0.43 Ω, and Zs 0.64 Ω with Ze 0.21 Ω. [309][310][311][312][313]  (from an idea this one builds on)
+- Loop impedance is limited because a lower Zs lets a higher fault current flow, which operates the device within the required time; the slides find 341.4 A at Cmin 0.95. [314][315][316]  (from an idea this one builds on)
+- Cmin is the minimum voltage factor allowing for supply voltage variation, 0.95 for a low voltage supply under the ESQCR; the slides explain 230 V can fall to 218.5 V. [317][318][319]  (from an idea this one builds on)
+- Final circuits to 32 A must disconnect in accordance with Table 41.1 (0.4 s in the slides' TN example), and these are maximum disconnection times, not actual ones. [320][321][322][323]  (from an idea this one builds on)
+- Cmin is best used when deciding the fault current that operates a protective device, and Cmax and Cmin are not used together but in separate calculations. [324][325]  (from an idea this one builds on)
+- Zs = Ze + (R1+R2), where R1+R2 is the tabulated milliohms per metre x the multiplier x the length / 1000 (formula sheet, step 12). The On-Site Guide's Table I1 values are at 20 °C, and Table I3's multiplier brings them to the conductors' operating temperature, which the limiting Zs values assume. [326][327][328][329][330]  (from an idea this one builds on)
+- For the showroom motor's supply cable (2.5 mm² line and 2.5 mm² cpc, 90 °C thermosetting singles in conduit) the On-Site Guide's Table I1 gives 14.82 mΩ/m and Table I3 gives the multiplier 1.28 for a conductor in a cable or bunched (1.04 where it is neither); the 4 mm² and 6 mm² rows read 9.22 and … [331][332][333][334][335][336]  (from an idea this one builds on)
+- The device's maximum Zs comes from its fault current: Table 41.3's values are calculated from the Regulation 411.4.4 formula with the current that opens the device in the time (Appendix 3), a type C breaker trips instantaneously at 5 to 10 times In and the table uses the worst case, so a 25 A type … [337][338][339][340][341][342][343]  (from an idea this one builds on)
+- The calculated Zs is compared with the tabulated maximum, which is the limit when the conductors are hot; a reading taken cold is compared with the On-Site Guide's measured values instead (80% of the tabulated, so 0.7 ohm for a 25 A type C), which is lesson 9's business. [344][345][346][347]  (from an idea this one builds on)
+- The course's own framing: the circuit works as a circuit before its shock risk is judged; Zs must not exceed the device's maximum for the required time; in the slides' heater the fault current clears the device's Ia of 80 A, so it disconnects in 0.1 s against the 0.4 s allowed. [348][349][350][351][352]  (from an idea this one builds on)
+- Which time applies: Table 41.1's maximum times (0.4 s on a 230 V TN supply) apply to final circuits up to 32 A, and up to 63 A if they supply socket-outlets (Regulation 411.3.2.2); distribution circuits and other final circuits may take up to 5 s under 411.3.2.3 (and these are maximums, not actual … [353][354][355][356][357]  (from an idea this one builds on)
+- When Zs is too high the designer can reduce R1+R2 (larger line or cpc, or a shorter run), change the device type (a type B passes a longer run than a type C), or add an RCD. This is a trade site's list, not a regulation. [358][359][360]  (from an idea this one builds on)
+- An RCD needs far less of an earth path than an overcurrent device: its Zs limits (Table 41.5, from the 50 V condition of Regulation 411.5.3) are in the hundreds or thousands of ohms, and RCDs provided for fault protection are covered by Regulation 411.4.204. It does not remove the need to check Zs:… [359][360][361][362][363][364]  (from an idea this one builds on)
+- Where the disconnection times cannot be met, supplementary protective equipotential bonding is the other route (IEC 60364-4-41 411.3.2.6 and 415.2, which BS 7671 follows); it is contested whether it limits the touch voltage to 50 V when the time is relaxed to 1 s or 5 s. [365][366][367]  (from an idea this one builds on)
+- An EV charging point on a TN-C-S (PME) supply: the final circuit must not include a PEN conductor, and a PME earthing facility must not be used as the earth of an outdoor charging point unless one of the Regulation 722.411.4.1 methods is used (each rests on the earth-to-main-earthing-terminal volta… [368][369][370][371][372][373][374][375]  (from an idea this one builds on)
+- EV RCD protection (Regulation 722.531.3.101): a 30 mA RCD per charging point, with protection against DC residual current by a Type B RCD or a Type A or F with a residual direct-current detecting device (6 mA), unless the charging equipment provides it; the RCD protects the charging point rather th… [376][377][378][379]  (from an idea this one builds on)
+- The adiabatic check ensures the protective conductor can withstand the energy let-through of the device under earth fault conditions: S = √(I²t) / k, with k depending on conductor material, insulation and temperatures. [380][381][382]  (from an idea this one builds on)
+- The slides take k from Tables 54.2 to 54.6 and, for the 1.5 mm² cpc, S = √(341.4² × 0.1) / 115 = 0.93 mm², and with Cmax at 395.3 A, 1.08 mm². [383][384][385]  (from an idea this one builds on)
+- Cmax is advised when determining the fault current carrying capacity of conductors and Cmin for the current that operates the device. [386][387]  (from an idea this one builds on)
+- The adiabatic equation is only valid for disconnection times not exceeding 5 seconds, and I²t is the energy let-through in A²s. [388][389]  (from an idea this one builds on)
+- The live conductors must also withstand short circuit current: the slides find the minimum fault at Cmin (177.6 A), the maximum at Cmax (205.6 A), and t = k²S²/I² = 3.02 s for k = 143 and 2.5 mm². [390][391][392][393]  (from an idea this one builds on)
+- IPF is whichever is highest of PEFC and PSCC, and the device's breaking capacity Icn must exceed it (IPF ≤ Icn) or the device may destroy itself in a short circuit or earth fault. [394][395][396]  (from an idea this one builds on)
+- The project guide allows the SWA to be used as the cpc if justified by calculation, and flowchart note 2 separates a suitable cpc size from the minimum cpc size. [397][398]  (from an idea this one builds on)
+- A cable's armour may serve as the cpc where it is justified by calculation (the project guide); the calculation is the adiabatic equation on the armour's steel area, and the armour's resistance goes into Zs = Ze + (R1+R2) like any other conductor. [397][399][7]  (from an idea this one builds on)
+- The k for a 90 °C thermosetting copper conductor is 143 (Table 43.1, also a copper cpc in the cable); for steel armour of an XLPE cable one trade calculator lists 46, far below copper, so the armour must have the larger area; the k depends on the starting temperature, so a cpc in the cable (Table 5… [400][401][402][403][404][393]  (from an idea this one builds on)
+- A maker states the armour of a four-core XLPE/SWA/PVC cable in mm² and Ω/km at 20 °C by core size (for the 4 mm² cable 22 mm² and 6.8 Ω/km; 1.5 mm²: 17 mm², 8.8 Ω/km; 2.5 mm²: 20 mm², 7.7 Ω/km; 6 mm²: 36 mm², 4.3 Ω/km; 10 mm²: 42 mm², 3.7 Ω/km), and an armour short-circuit rating for 1 s (1.0 kA fo… [405][406][407][408][409][410][411][412]  (from an idea this one builds on)
+- The armour runs about 10 °C cooler than the cores at full load, so a resistance worked at the cores' temperature is cautious; the maker's ratings are adiabatic. [413][414]  (from an idea this one builds on)
+- For a short circuit the live conductors must take the let-through energy (Reg 434.5.2): the time to reach the limiting temperature is t = k²S² ÷ I², and the cable's energy withstand must be at least the device's let-through; I at Cmax and the time from the device. [415][416][417][393][387]  (from an idea this one builds on)
+- A circuit-breaker's let-through energy I²t is limited by its energy-limiting class; a type C breaker opens in under 0.1 s at 10 In or more. [418][190]  (from an idea this one builds on)
+- Prospective fault current is determined at every relevant point (Reg 434.1) and every device's rated short-circuit breaking capacity must not be less than it where the device is installed (Reg 434.5.1); a lower rating is allowed only if a device on the supply side has the necessary rating; above it… [419][420][421][422][423][424][394][396]  (from an idea this one builds on)
+- The maker declares Icn; BS EN 60898 standard values run from 1 500 A to 25 000 A and include 4 500 A, 6 000 A and 10 000 A; MCBs are commonly marked 6 kA or 10 kA. [425][426][427]  (from an idea this one builds on)
+- The 4.6 kA in the assignment is about twice 230 V ÷ 0.1 Ω = 2 300 A: on a three-phase supply the highest prospective fault current is the simultaneous three-phase fault, approximated from the line-neutral reading multiplied by 2, because the line-neutral loop is one line plus one return while in th… [8][428][429][430][431][432]  (from an idea this one builds on)
+- The formula sheet gives step 18/19 as S = √I²t ÷ k; C&G papers ask for the cpc's thermal constraints under fault conditions and for the live conductors' adequacy in a short circuit to Reg 434.5.2, and for a short-circuit check on a small cable. [399][433][434][435][436]  (from an idea this one builds on)
+- Dan's course flowchart is headed "Electrical Circuit Design Calculation Process" for BS 7671:2018 + Amd2:2022, and its note 2 separates a suitable protective conductor size from the minimum protective conductor size. [437][398]  (whole topic)
+- The showroom supply is three phase four wire 400 V, TN-C-S, with Ze declared as 0.1 ohm and a prospective fault current of 4.6 kA; the ambient temperature is 20 degrees Celsius. [8][9]  (whole topic)
+- The showroom adds a 400 V three-phase 11 kW motor at power factor 0.8 lagging and efficiency 86%, controlled by a star-delta starter. [10]  (whole topic)
+- Overload protection is the condition Ib ≤ In ≤ Iz (Regulation 433.1.1), plus I2 ≤ 1.45 Iz, where I2 is the current causing effective operation of the protective device. [142][143][144]  (whole topic)
+- The course slides take √3 as 1.73, so their printed answers can differ in the last decimal places from the same sum worked with the calculator's √3. [438][439]  (whole topic)
+
+WRITING EACH PART
+
+interactive
+- Its form, for a skill idea: a worked example whose inputs he changes while every step of the working recomputes.
+- Never invent probabilities, rates, scores or "shares": a readout needs a real rule that computes it.
+- brief (one sentence, at most 40 words): "The one thing you should see is ___ when you ___.": one visible change at the heart of the idea (not a step towards it), caused by one action. It drives the build. The app shows the whole sentence above the interactive, as what to watch for.
+- title: at most 6 words.
+- controls: one. Add a second only if the idea cannot be seen without it. Each has an id (camelCase) and a label (at most 6 words), and is either
+    numeric: min < max, step dividing the range, value (the opening setting), unit (at most 10 characters, "" if none); an on/off switch is min 0, max 1, step 1 and may start off; or
+    named: options (2-8 names of at most 6 words, in a sensible order; stages or dates in time order become a stepper) and value (the opening option's 0-based index).
+  Open on a realistic case (zero when zero is the real case). Ranges make the effect unmistakable but stay on the side of it the idea is about (past a turning point only when that is the lesson).
+- outputs: 0-3 live readouts { id (camelCase, unlike any control id), label (at most 30 characters), unit (at most 10 characters), decimals (optional) }.
+- whatAmILookingAt (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded), shown open above the interactive as "What you're looking at": first name each thing drawn ("Water from a 5 m drop hits a wheel's blades"), then the rule in words, step by step from what he can see, each step with its reason in a clause (why it doubles, why it is squared), then any short equation, each symbol named. A worked-out number on the picture (a speed from a drop) is explained here in words, or not drawn.
+- ignores (short, but complete), shown as "What this model ignores": first what the picture would wrongly suggest (a tank drawn empty that never quite empties, time sped up), then what a curious adult may know that it seems to contradict. Textbook-certain only: it has no footnotes. A condition the result needs goes with the result, not here.
+- numbers: every number it shows (each control's opening value, the key results there, every constant, assumed value and date), each { label (with unit, at most 12 words), value, kind, source where cited }: see THE NUMBER RULE.
+- "interactive": null only when nothing at all can be played with (rare).
+
+explain (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded; no word limit: Dan, 7 Oct, "the limit is: is it enough for me to learn the thing"): it must
+- Open with the overall explanation: the idea in one or two plain sentences he could repeat to a friend, not a list of results. Then teach the one concept that matters most. Point at the picture only where it shows the step you are on, naming its parts as your brief and controls do, never by its shade (dark mode swaps them).
+- Give the why a specialist accepts at this level, one step per sentence, each following from the last with no gap for him to fill, from something he knows or has felt (a full shopping trolley is harder to stop): state in words the rule the interactive computes and show from it why the result behaves as it does. Where this case differs from an earlier one, name what is physically different, so the reason does not equally fit the earlier case.
+- Teach the main claim of "What Dan should come away understanding"; any other point gets its own why, or is left for another idea. Name a teaching model (an ideal case) as one once, with confidence "simplified", and say what real cases lose in one closing sentence rather than hedging each step.
+- Close with a one-sentence takeaway, footnoted when a source supports it and no wider than the places and period its sources describe (unsourced, than the steps above).
+- 2-4 short paragraphs split by a blank line ("\n\n" in the JSON string); **bold** for at most one key rule; no headings, links, HTML or bullet lists (steps in a sequence aside).
+
+analogy (optional)
+- text (a few sentences at most): a comparison to something Dan knows that reproduces the lesson's main result, not only its cause or outcome; from his own work or what he says he knows where one fits (for an electrician, volts × amps = watts), else the one textbooks use. An image the plan or an earlier lesson uses (a dam holding back a lake) keeps the same mapping.
+- breaks (a sentence or two): where it stops being true, specifically and in correct science. Use "analogy": null if no honest analogy helps.
+
+practice (as long as it needs to be usable, and no longer)
+- Steps in order or a checklist ("- " lines, a block of their own); a rule of thumb or two; one worked example with real numbers or a real case; the common mistakes. Other blocks open with a bold label ("**Worked example:**"). Not a skill (history, a concept)? Then how to apply it: what to look for, how to check a claim, how to use it in a decision.
+- Where safety matters, the safe way comes first.
+
+confidence
+- "settled": mainstream and uncontroversial at this level.
+- "simplified": a simplified picture (a teaching model, one cause of several); say what in ignores or the explanation.
+- "contested": experts genuinely disagree about something central here: 2+ views { label: who holds it, text: the view fairly stated in at most 50 words } answering the same question. The explanation says plainly it is debated; the interactive takes no side.
+
+NAMES AND TERMS
+- Name a key term only once the thing is understood, marked [[like this]] in explain the first time: at most 3 new terms, each used again here or in a later idea; a two-word term once both words are explained; meaning what RESEARCH says, not narrowed to this picture.
+- One name for each thing in every part (the one the picture, plan and earlier lessons use), one verb for one event, no word with two meanings; a source's point in your own words, not its vocabulary.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+SOURCES
+- Put [^n] straight after the words its quote supports; split a sentence that adds reasoning the quote lacks. Footnote what he would check, one per sentence; never name a source in a sentence ("your slides say", "(p.16)").
+- Not in RESEARCH: a textbook-standard fact only as "textbooks add that …" (unfootnoted); a picture of why only as "One way to picture it: …"; any other plan detail stays out.
+- "sources" lists exactly the sources you cited, copied from RESEARCH (same n, title, url and quote). No web addresses anywhere else in the lesson.
+
+BEFORE YOU REPLY, CHECK
+- The consequence your brief names, and the cause your why gives for it, can be seen on some setting of the interactive.
+- Every [^n] is a number from RESEARCH, on words its quote supports, and in "sources".
+
+OUTPUT
+Reply with one JSON object only, no commentary, exactly this shape:
+{
+  "iid": "i8",
+  "title": "<lesson title, at most 8 words>",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is … when you ….",
+    "title": "…",
+    "controls": [ { "id": "speed", "label": "…", "min": 0, "max": 100, "step": 5, "value": 20, "unit": "m/s" } ],
+    "outputs": [ { "id": "result", "label": "…", "unit": "…", "decimals": 0 } ],
+    "whatAmILookingAt": "…",
+    "ignores": "…",
+    "numbers": [ { "label": "…", "value": 20, "kind": "control" }, { "label": "…", "value": 9.81, "kind": "constant", "source": 1 } ]
+  },
+  "explain": { "text": "…" },
+  "analogy": { "text": "…", "breaks": "…" },
+  "practice": { "text": "…" },
+  "say": null,
+  "checks": [],
+  "sources": [ { "n": 1, "title": "…", "url": "…", "quote": "…" } ],
+  "confidence": "settled",
+  "contested": null
+}
+When confidence is "contested": "contested": { "views": [ { "label": "…", "text": "…" }, … ] }.

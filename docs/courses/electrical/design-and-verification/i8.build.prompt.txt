@@ -1,0 +1,588 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Design and verification, a Level 4 refresher
+Idea: The showroom, end to end (The assignment's DBL2 submain and its longest circuit designed as one chain, every result carried forward, checked against the project guide's key points: all lengths, thermal constraints, Zs against the device, all drops from the intake.)
+Kind: skill
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is which limit goes first when you drag the circuit longer: Zs near 104.5 m for the light load, and the drop near 38.9 m for the heavy load.
+Title (the app shows it above the frame, so do not repeat it): What the far end inherits
+The rule (the app shows it just above the frame, under "What you're looking at"): Twelve screens, with Back and Continue. Together they design the DBL2 submain and its longest circuit as one chain, from the intake to the last luminaire.
+
+Screen 1, Do you still have it? The question: “A lighting circuit runs from a sub-board. Ze at the origin is 0.10 Ω. The submain's R1+R2 is 0.30 Ω. The circuit's own R1+R2 is 0.50 Ω. What is Zs at the far end of the circuit?” Three choices, in this order: “0.60 Ω: Ze + the circuit”; “0.90 Ω: Ze + the submain + the circuit”; “0.80 Ω: the submain + the circuit”. Right: “Still there.” Then the working. Zs at the sub-board = 0.10 + 0.30 = 0.40 Ω. Zs at the far end = 0.40 + 0.50 = 0.90 Ω. A fault at the far end drives current back through every cable to the supply, so every one of them is in the loop. Then come two buttons. Refresh the why goes to screen 2. Skip to the practice goes to screen 6. Wrong, 0.60 Ω: “That leaves out the submain. The fault current flows through it too.” Wrong, 0.80 Ω: “That leaves out Ze. The supply's own loop is part of every fault path.” Then the right working, and on to screen 2.
+
+Screen 2, What it is for. “The design ends at the last luminaire, but it starts at the intake. A fault at the far end flows back through the circuit, the submain and the supply. The voltage drops along all of them too. So every check at the far end carries everything upstream with it. Design the submain first, then the circuit, and carry each result forward.” Then the checklist for calling the design done, seven lines with empty boxes. “Every length of the run, not just the route on plan.” “Ib ≤ In ≤ Iz for each cable.” “Every voltage drop from the intake to the end.” “A three-phase drop turned into its single-phase share.” “Zs at the end against the device's maximum.” “The thermal constraints, with SWA armour as the cpc justified by calculation.” “Breaking capacity at each device.” In red, what goes wrong if it is skipped: “Leave out a length or the submain and the far end looks better on paper than it will measure. The breaker may not open in time.”
+
+Screen 3, The why: what the far end inherits. Said once at the top: “Take a sub-board where Zs is 0.40 Ω and the submain adds 1.00 V to a single-phase circuit. These two figures are chosen for the picture. The circuit is 1.5 mm² 90 °C thermosetting singles with a 1.5 mm² cpc, on a 6 A type C breaker.” The picture: a one-line diagram, supply to MDB to submain to board to circuit to the last luminaire. At the far end stand two bars. The first bar is the voltage drop from the intake. It starts with a fixed block of 1.00 V for the submain. The circuit's own drop stacks on top, and a line marks 6.90 V. The second bar is Zs at the far end. It starts with a fixed block of 0.40 Ω for the board. The circuit's R1+R2 stacks on top, and a line marks 3.64 Ω. A bar turns red past its line.
+
+There are two controls. A slider sets the circuit length, from 1 to 140 m in steps of 0.1 m, and opens on 23.8 m. A choice sets the load, “1.21 A, like C7” or “4.89 A, like C1”, and opens on 1.21 A. The readouts: the voltage drop from the intake and Zs at the far end. The words beside it: “Each metre of the circuit adds to both bars. It adds 31 mV for every amp it carries, so the drop grows with the load. It adds 24.2 × 1.28 = 30.976 mΩ to the fault loop, whatever the load. The load in service makes no difference to Zs. So on this board a light load runs out of Zs first. A heavy one runs out of voltage first. Both start from what the board hands on.”
+
+What he sees. At 23.8 m and 1.21 A the drop is 1.00 + 0.89 = 1.89 V and Zs is 0.40 + 0.737 = 1.137 Ω. Both are far inside. Drag the length up. The Zs bar reaches 3.64 Ω near 104.5 m. The drop is still only 4.92 V. Switch to 4.89 A. Now the drop bar crosses 6.90 V near 38.9 m. Zs is only 1.605 Ω. The Zs bar does not move when the load changes. The words under it: “The longest circuit is not always the worst. Check every long or heavily loaded circuit against both limits.” The prompt above the picture: “Drag the length, then switch the load.” Read: at 1.21 A the Zs bar is the first to cross its line, near 104.5 m. At 4.89 A the drop bar crosses first, near 38.9 m. At 45.0 m and 4.89 A the drop is 7.82 V and shows red. Zs is 1.794 Ω, still inside. Still: 4.89 A at 45.0 m.
+
+Screen 4, Check. “A three-phase submain drops 6.00 V. A single-phase lighting circuit from its board drops 4.00 V. The supply is 230 V single-phase and 400 V three-phase. Does the lighting circuit meet its voltage drop limit?” Choices: “Yes: 4.00 V is under 6.90 V”; “Yes: 10.00 V is under 12.00 V”; “No: 3.46 + 4.00 = 7.46 V, over 6.90 V”. Right, the third: “The submain's drop is three-phase. Its share on a single-phase circuit is 6.00 ÷ √3 = 3.46 V. Add the circuit's 4.00 V: 7.46 V. Lighting is allowed 3% of 230 V, 6.90 V. So it fails.” Wrong, the first: “That leaves out the submain. The limit runs from the intake to the end of the circuit.” Wrong, the second: “12.00 V is 3% of 400 V, the limit for a three-phase circuit. This circuit is single-phase, so divide the submain's drop by √3 and use 6.90 V.”
+
+Screen 5, Worked example: the DBL2 submain, a line at each press. The prompt: “Work each step yourself first, then press Show.” Said once: “Assume the submain is four-core 4 mm² 90 °C thermosetting SWA cable, alone on a perforated tray in the ceiling void. A 10 A type C breaker at the MDB protects it. Both are practice choices. The route is 17.0 m on plan. Take 1.5 m at each end for the runs up into the ceiling void and down to the board. Measure those on a real job.” The lines: Length = 17.0 + 1.5 + 1.5 = 20.0 m. Ib is the heaviest phase, L1: 8.22 A. In is 10 A, so Ib ≤ In. Take the third harmonic as 20% here. At that level, size the cable on the line current, with the 0.86 factor from Table 4Aa. Take Ca as 1.00, with no credit for the cool room. Cg is 1, because the cable is alone on its tray. Ci is 1. It ≥ 10 ÷ (1.00 × 1 × 1 × 0.86) = 11.63 A. Table 4E4A, Method E, three loaded cores: 4 mm² carries 44 A.[^1] Iz = 44 × 0.86 = 37.84 A, so 8.22 ≤ 10 ≤ 37.84. Voltage drop = 10 × 8.22 × 20.0 ÷ 1000 = 1.64 V, three-phase.[^2] Its share on a single-phase circuit = 1.64 ÷ √3 = 0.95 V. A note under the lines: “Smaller sizes pass too. 4 mm² is kept for its armour, checked next. Some designers work an unbalanced submain one phase at a time, with the two-core 12 mV/A/m.[^3] That gives 1.97 V. Either way it is far inside the limit.” Read: the submain runs 20.0 m with its vertical runs. It needs an It of 11.63 A. The 4 mm² cable carries 44 A. It drops 1.64 V, which is 0.95 V on a single-phase circuit.
+
+Screen 6, Section A, question 3 (g). The scenario panel shows, with parts 3(b), 3(e) and 3(f) carried forward. The submain's 20.0 m and its 0.95 V share come from screen 5. Said once: “Each core is 4.61 mΩ/m and the armour is 6.8 mΩ/m, both at 20 °C. Use the 1.28 multiplier on both.” The question: “(g) Determine the earth fault loop impedance at DBL2, using every length of the submain.” A typed answer, part 3g: R1+R2 = (4.61 + 6.8) × 1.28 × 20.0 ÷ 1000 = 0.292 Ω. Zs at DBL2 = 0.1 + 0.292 = 0.392 Ω. Slips: 0.348 Ω, “That is the 17.0 m on plan. The cable also runs up and down at each end: 20.0 m in all.” 0.328 Ω, “You left out the 1.28 multiplier. Design for the conductors as hot as they may run when the fault comes.” 0.292 Ω, “That is the submain alone. Add Ze, 0.1 Ω. The supply is part of the loop.” After two misses, the working. Then: “0.392 Ω is far under the 10 A type C's 2.19 Ω.[^4] The least fault current is 230 × 0.95 ÷ 0.392 = 557.40 A. That is well past 100 A, so the breaker opens within 0.1 s. Now re-check the armour. The greatest fault current at DBL2 is 230 × 1.1 ÷ 0.392 = 645.41 A. Take k as 46 here.[^5] On a real job, read k for steel armour from Table 54.4. S = √(645.41² × 0.1) ÷ 46 = 4.44 mm². The armour is 22 mm², so it is justified as the cpc. The extra length lets less fault current through. So it needs less armour than the 5.00 mm² from the plan length in lesson 7. A fault at the MDB end sees 2530.00 A. That needs 17.39 mm². That still passes. Carry Zs at DBL2, 0.392 Ω, to the circuit.”
+
+Screen 7, Section A, question 3 (h). Part 3(g) carried forward. Said once: “Assume the longest circuit is C7: the foyer's six LED fittings and the six walkway bollards. Its farthest bollard is about 20.8 m from DBL2 on plan. With 1.5 m up and 1.5 m down, it runs 23.8 m. It carries 1.21 A on 1.5 mm² 90 °C thermosetting singles in conduit, with a 1.5 mm² cpc. A 6 A type C breaker protects it, because LED drivers draw a surge at switch-on. Table 4E1A gives 23 A in conduit for two loaded cables, so 1.21 ≤ 6 ≤ 23. The bollards are outdoors, so a real design would pick a cable fit for that run. Here, assume the same singles run all the way.” The question: “(h) Determine the total voltage drop from the intake to the farthest bollard, and state whether it complies.” A typed answer, part 3h: the circuit's drop = 31 × 1.21 × 23.8 ÷ 1000 = 0.89 V. Total = 0.95 + 0.89 = 1.84 V. Slips: 2.53 V, “The submain's 1.64 V is three-phase. Divide it by √3 before adding it to a single-phase circuit: 0.95 V.” 0.89 V, “That is the circuit alone. The limit runs from the intake, so add the submain's share.” 1.59 V, “That uses the plan lengths. Add the runs up and down at each end of both cables.” After two misses, the working. Then: “1.84 V is 0.80% of 230 V, far under the 6.90 V allowed for lighting. So it complies. Now check C1, the consultation bay. It is shorter but carries 4.89 A. Over its 20.3 m it drops 3.08 V. From the intake that makes 4.03 V. That passes too. But C1, not C7, has the bigger drop.”
+
+Screen 8, Section A, question 3 (i). Parts 3(g) and 3(h) carried forward. The question: “(i) Determine the earth fault loop impedance at the farthest bollard, and state whether it is acceptable.” A typed answer, part 3i: R1+R2 = 24.2 × 1.28 × 23.8 ÷ 1000 = 0.737 Ω. Zs = 0.392 + 0.737 = 1.129 Ω. Slips: 0.837 Ω, “You started from Ze, 0.1 Ω. The circuit starts at DBL2, where Zs is already 0.392 Ω.” 0.968 Ω, “You left out the 1.28 multiplier.” 0.737 Ω, “That is the circuit alone. Add Zs at DBL2.” After two misses, the working. Then: “1.129 Ω is under the 6 A type C's maximum of 3.64 Ω.[^6] So it is acceptable. The least fault current is 230 × 0.95 ÷ 1.129 = 193.53 A. That is past 60 A, so the breaker opens within 0.1 s.”
+
+Screen 9, Section A, question 3 (j). Parts 3(g) to 3(i) carried forward. Said once: “The cpc is copper and runs in the same conduit as the 90 °C thermosetting singles. So k is 143.” The question: “(j) Determine whether the circuit protective conductor satisfies the thermal constraints. First, its minimum size.” A typed answer, part 3j: the greatest fault current = 230 × 1.1 ÷ 1.129 = 224.09 A. S = √(224.09² × 0.1) ÷ 143 = 0.50 mm². Slips: 0.43 mm², “You used the Cmin current. The heat check wants the largest current, at Cmax.” 0.62 mm², “115 is the k for 70 °C thermoplastic. These are 90 °C thermosetting, so k is 143.” 0.99 mm², “You used 0.4 s. That is the longest time allowed. At 224.09 A the breaker opens within 0.1 s.” After two misses, the working. Then: “0.50 mm² is under the 1.5 mm² fitted, so the cpc satisfies the thermal constraints. Check the DBL2 end too. A fault there sees 230 × 1.1 ÷ 0.392 = 645.41 A. Then S = √(645.41² × 0.1) ÷ 143 = 1.43 mm². That is a slim pass. Designers disagree about which end sets the thermal check.[^7] Checking both ends is the safe way.” Then breaking capacity: “The fault level is highest at the origin, at 4.6 kA. It falls along each cable. Take the breakers at the MDB and DBL2 as marked 6 kA for practice. That passes. Read the real Icn from each breaker.” Last, the checklist from screen 2, each box ticked with the figure that met it. “20.0 m and 23.8 m.” “8.22 ≤ 10 ≤ 37.84 A and 1.21 ≤ 6 ≤ 23 A.” “1.84 V against 6.90 V.” “1.64 V counted as 0.95 V.” “0.392 Ω against 2.19 Ω, 1.129 Ω against 3.64 Ω.” “4.44 mm² of 22 mm² armour, 0.50 mm² of a 1.5 mm² cpc.” “6 kA against 4.6 kA.”
+
+Screen 10, Section B: “Explain why every length of the cable run must be included in the design calculations.” He writes his answer. It is marked against five points, and any three make a full answer. He gets one more go, then sees the model answer.
+
+Screen 11, Section A, changed numbers. “A lighting circuit runs from a sub-board where Zs is 0.45 Ω. The submain adds 2.50 V to a single-phase circuit. The circuit is 1.5 mm² 90 °C thermosetting singles with a 1.5 mm² cpc: 31 mV/A/m, 24.2 mΩ/m and the 1.28 multiplier. It carries 3.50 A on a 6 A type C breaker, whose maximum Zs is 3.64 Ω. Determine the longest the circuit can run and still meet both the 6.90 V limit and the maximum Zs.” A typed answer, in metres: the drop allows (6.90 − 2.50) × 1000 ÷ (31 × 3.50) = 4400 ÷ 108.5 = 40.5 m, rounded down. Zs allows (3.64 − 0.45) × 1000 ÷ 30.976 = 102.9 m, rounded down. The shorter one sets it: 40.5 m. Accepted too: 40.6 m, rounded to the nearest. Slips: 102.9 m, “That is the Zs limit. The voltage drop limit is shorter here, and both must be met.” 63.5 m, “You left out the submain's 2.50 V. The limit runs from the intake.” 82.9 m, “That uses 5%. Lighting is allowed 3%, 6.90 V.” After it: “At 3.50 A the drop runs out long before Zs does.”
+
+Screen 12, Keep this: the summary card, then Finish the lesson.
+
+On every screen, each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The picture adds the drops as plain numbers, the usual hand method. Strictly they are phasors. Where the power factors differ, they add to a little less. It also takes the whole load current to the far end. Each luminaire along the way really takes its share sooner, so the real drop is a little less. It holds the board's Zs and drop fixed while the circuit changes. And it takes the breaker's time as 0.1 s at every fault current shown, an upper bound: a real breaker is often faster. It also uses the hot resistances for the Cmax heat check. Cooler conductors let more current flow. At the DBL2 end, that is enough to push C7's cpc past 1.5 mm² at 0.1 s. So near the board, the let-through energy from the breaker maker's data decides.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 11 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 12 (the stepper): 0 (control)
+- Recall: Ze at the origin, Ω: 0.1 (assumed)
+- Recall: submain R1+R2, Ω: 0.3 (assumed)
+- Recall: circuit R1+R2, Ω: 0.5 (assumed)
+- Recall: Zs at the sub-board, Ω: 0.4 (computed)
+- Recall: Zs at the far end, Ω: 0.9 (computed)
+- Recall slip: submain left out, Ω: 0.6 (computed)
+- Recall slip: Ze left out, Ω: 0.8 (computed)
+- Why: board Zs, chosen for the picture, Ω: 0.4 (assumed)
+- Why: submain share, chosen for the picture, V: 1 (assumed)
+- Lighting drop limit, single-phase, V: 6.9 (constant, source [8])
+- Lighting drop limit, three-phase, V: 12 (constant, source [8])
+- 6 A type C maximum Zs, Ω: 3.64 (constant, source [6])
+- 6 A type C rating, A: 6 (constant)
+- Lighting cable size, mm²: 1.5 (constant)
+- Why: circuit length slider, lowest, m: 1 (assumed)
+- Why: circuit length slider, highest, m: 140 (assumed)
+- Why: slider step, m: 0.1 (assumed)
+- Why: slider opens at C7's 23.8 m: 23.8 (control)
+- Load choice: C7, A: 1.21 (control)
+- Load choice: C1, A: 4.89 (control)
+- 1.5 mm² singles, two cables, mV/A/m: 31 (constant, source [9])
+- 1.5 mm² line and 1.5 mm² cpc, mΩ/m: 24.2 (constant, source [10])
+- Multiplier, 90 °C thermosetting, bunched: 1.28 (constant, source [11])
+- Why: 24.2 × 1.28, mΩ/m: 30.976 (computed)
+- Why at 23.8 m, 1.21 A: circuit drop, V: 0.89 (computed)
+- Why at 23.8 m, 1.21 A: drop from the intake, V: 1.89 (computed)
+- Why at 23.8 m: circuit R1+R2, Ω: 0.737 (computed)
+- Why at 23.8 m: Zs at the far end, Ω: 1.137 (computed)
+- Why: Zs reaches 3.64 Ω near, m: 104.5 (computed)
+- Why: drop at 104.5 m, 1.21 A, V: 4.92 (computed)
+- Why: drop reaches 6.90 V at 4.89 A near, m: 38.9 (computed)
+- Why: Zs at 38.9 m, Ω: 1.605 (computed)
+- Why still: length, m: 45 (control)
+- Why still: drop at 45.0 m, 4.89 A, V: 7.82 (computed)
+- Why still: Zs at 45.0 m, Ω: 1.794 (computed)
+- Check: submain drop, three-phase, V: 6 (assumed)
+- Check: lighting circuit drop, V: 4 (assumed)
+- Check: 6.00 ÷ √3, V: 3.46 (computed)
+- Check: total, V: 7.46 (computed)
+- Check slip: 6.00 + 4.00, V: 10 (computed)
+- Supply, single-phase, V: 230 (constant, source [12])
+- Supply, three-phase, V: 400 (constant, source [12])
+- Lighting drop limit, %: 3 (constant, source [8])
+- Submain cable size (practice value), mm²: 4 (assumed)
+- Submain breaker: 10 A type C (practice value), A: 10 (assumed)
+- Submain length on plan, m: 17 (constant)
+- Vertical run at each end (practice value), m: 1.5 (assumed)
+- Submain length with vertical runs, m: 20 (computed)
+- Part 3b: DBL2 L1 current, A: 8.22 (computed)
+- Third harmonic (practice value), %: 20 (assumed)
+- Table 4Aa factor, 15 to 33% third harmonic: 0.86 (constant, source [13])
+- Ca, no credit for the 20 °C room: 1 (assumed)
+- Cg and Ci: 1 (constant)
+- Submain It needed, 10 ÷ 0.86, A: 11.63 (computed)
+- 4 mm² SWA, Method E, three loaded cores, A: 44 (constant, source [1])
+- Submain Iz, 44 × 0.86, A: 37.84 (computed)
+- 4 mm² SWA, three-phase, mV/A/m: 10 (constant, source [2])
+- Submain drop, three-phase, V: 1.64 (computed)
+- Submain share on single-phase, V: 0.95 (computed)
+- 4 mm² SWA, two-core single-phase, mV/A/m: 12 (constant, source [2])
+- Submain drop, phase by phase, V: 1.97 (computed)
+- SWA core resistance at 20 °C, mΩ/m: 4.61 (constant, source [14])
+- SWA armour resistance at 20 °C, mΩ/m: 6.8 (constant, source [14])
+- Armour area, 4 mm² four-core, mm²: 22 (constant, source [14])
+- Showroom Ze, Ω: 0.1 (constant, source [12])
+- Part 3g: submain R1+R2, Ω: 0.292 (computed)
+- Part 3g: Zs at DBL2, Ω: 0.392 (computed)
+- Part 3g slip: plan length, Ω: 0.348 (computed)
+- Part 3g slip: no multiplier, Ω: 0.328 (computed)
+- 10 A type C maximum Zs, Ω: 2.19 (constant, source [4])
+- Cmin: 0.95 (constant, source [15])
+- Cmax: 1.1 (constant, source [16])
+- Part 3g: least fault current, A: 557.4 (computed)
+- 10 A type C: 10 × In, A: 100 (computed)
+- Breaker opening time used, s: 0.1 (constant, source [17])
+- Part 3g: greatest fault current, A: 645.41 (computed)
+- k, steel armour (practice value): 46 (constant, source [5])
+- Armour area needed at DBL2, mm²: 4.44 (computed)
+- Lesson 7: armour area on the plan length, mm²: 5 (computed)
+- Greatest fault current at the MDB, A: 2530 (computed)
+- Armour area needed at the MDB end, mm²: 17.39 (computed)
+- C7 length on plan, m: 20.8 (constant)
+- C7 length with vertical runs, m: 23.8 (computed)
+- C7: LED fittings in the foyer: 6 (constant)
+- C7: walkway bollards: 6 (constant)
+- C7 current, A: 1.21 (computed)
+- 1.5 mm² singles, two loaded cables, It, A: 23 (constant, source [18])
+- Part 3h: C7 drop, V: 0.89 (computed)
+- Part 3h: total from the intake, V: 1.84 (computed)
+- Part 3h slip: no ÷ √3, V: 2.53 (computed)
+- Part 3h slip: plan lengths, V: 1.59 (computed)
+- Part 3h: share of 230 V, %: 0.8 (computed)
+- C1 length with vertical runs, m: 20.3 (computed)
+- C1 current, A: 4.89 (computed)
+- C1 drop, V: 3.08 (computed)
+- C1 total from the intake, V: 4.03 (computed)
+- Part 3i: C7 R1+R2, Ω: 0.737 (computed)
+- Part 3i: Zs at the far end, Ω: 1.129 (computed)
+- Part 3i slip: from Ze, Ω: 0.837 (computed)
+- Part 3i slip: no multiplier, Ω: 0.968 (computed)
+- Part 3i: least fault current, A: 193.53 (computed)
+- 6 A type C: 10 × In, A: 60 (computed)
+- k, 90 °C thermosetting copper: 143 (constant, source [19])
+- k, 70 °C thermoplastic copper: 115 (constant, source [20])
+- Maximum disconnection time, final circuit, s: 0.4 (constant, source [21])
+- Part 3j: greatest fault current, A: 224.09 (computed)
+- Part 3j: minimum cpc, mm²: 0.5 (computed)
+- Part 3j slip: Cmin, mm²: 0.43 (computed)
+- Part 3j slip: k 115, mm²: 0.62 (computed)
+- Part 3j slip: 0.4 s, mm²: 0.99 (computed)
+- Part 3j: cpc needed at the DBL2 end, mm²: 1.43 (computed)
+- Showroom prospective fault current, kA: 4.6 (constant, source [12])
+- Breaker breaking capacity (practice value), kA: 6 (constant, source [22])
+- Section B: points, of which any make a full answer: 5, any 3 (constant)
+- Changed: Zs at the board, Ω: 0.45 (assumed)
+- Changed: submain share, V: 2.5 (assumed)
+- Changed: circuit current, A: 3.5 (assumed)
+- Changed: 31 × 3.50, mV/m: 108.5 (computed)
+- Changed: 4.40 × 1000, mV: 4400 (computed)
+- Changed: longest run, drop, m: 40.5 (computed)
+- Changed: accepted, rounded to nearest, m: 40.6 (computed)
+- Changed: longest run, Zs, m: 102.9 (computed)
+- Changed slip: submain left out, m: 63.5 (computed)
+- Changed slip: 5% limit, m: 82.9 (computed)
+- 5% of 230 V, V: 11.5 (constant, source [23])
+
+## The explanation Dan reads after playing (use the same words for the same things)
+A design is one chain, from the intake to the last luminaire. Design the submain first, then the circuit, and carry every result forward. The far end inherits everything upstream. Zs at the end is Zs at the board plus the circuit's R1+R2. The drop at the end is the submain's share plus the circuit's own drop.
+
+Each metre of cable adds to both. It adds to the drop in proportion to the current it carries. It adds to the fault loop whatever the current. So a lightly loaded circuit usually runs out of Zs first, and a heavily loaded one runs out of voltage first. That is why the longest circuit is not always the worst. In the showroom, C7 is the longest, but C1 drops more. Lengths read off a plan also miss the runs up into ceiling voids and down to boards and fittings. Leave those out and the drop and Zs look better than the cable will measure.
+
+Two more things carry forward. A three-phase submain's drop is divided by √3 before it joins a single-phase circuit. And the fault current at each point sets the heat check there. Work it at Cmax, for the cpc and for any SWA armour used as the cpc. Some figures here are practice values: the vertical runs, the cable sizes and breakers, k for steel armour, the third harmonic and the lighting's power factors. On a real job, measure them or look them up.
+
+Design from the intake outwards, carry every figure forward, and check the far end against…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p464): "4 49 42 52 44 43 36"
+[2] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p465): "4 12 12 10"
+[3] 3-Phase Voltage Drop Calculator: Free BS 7671 Check (Elec-Mate, a trade app) (https://www.elec-mate.com/tools/cable-volt-drop-three-phase): "For an unbalanced load, work phase by phase using the single-phase mV/A/m values, and assess the neutral separately where third harmonic content is significant."
+[4] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app; its page prints Table 41.3) (https://www.elec-mate.com/guides/maximum-zs-values-bs-7671): "C10 2.19 Ω 1.75 Ω"
+[5] Pocket Guide 14: Sizing of protective conductors by selection (Certsure LLP, 2019; the copy is on a website CDN, so rea… (https://irp.cdn-website.com/e7a421eb/files/uploaded/PG14_Sizing_Of_Protective_Conductors_By_Selection.pdf): "Steel 51 46 46"
+[6] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app; its page prints Table 41.3) (https://www.elec-mate.com/guides/maximum-zs-values-bs-7671): "C6 3.64 Ω 2.91 Ω"
+[7] adiabatic equation - 2.5 2c SWA (a forum thread) - Wiring and the Regulations BS 7671 - IET EngX (https://engx.theiet.org/f/wiring-and-regulations/20816/adiabatic-equation---2-5-2c-swa): "The worst-case is often further up the cable, at a point where, if you choose too small a CSA, the line corresponding to k ² S ² meets the overcurrent protective device curve, i.e. at higher fault currents / shorter circuit length."
+[8] EAL Level 4 Design and Verification: course slides (material:eal-slides#p38): "Lighting circuits have upto 3% allowed: 6.9V single phase and 12V 3-phase"
+[9] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p459): "1.5 31 31 31 31 27 27 27 27"
+[10] EAL Level 4 Design and Verification: course slides (material:eal-slides#p51): "For the (mΩ/m) of a 1.5mm² line and a 1.5mm² cpc, the value to use is: 24.2."
+[11] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p220): "Incorporated in a cable or bunched (NOTE 2) 1.20 1.28 1.28"
+[12] ED4-01A learner pack: car showroom assignment (material:learner-pack#p3): "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+[13] EAL Level 4 Design and Verification: course slides (material:eal-slides#p34): "If the 3rd harmonic of line current is 15-33% = use LINE current Ib with a rating factor of 0.86"
+[14] Standard Power Cables BS5467 - Prysmian United Kingdom (https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf): "4 4.61 - - 19 7.9 20 7.5 22 6.8 25 6.2"
+[15] REDUCTION IN MAXIMUM VALUES OF EARTH FAULT LOOP IMPEDANCE IN BS 7671 (https://electrical.theiet.org/media/1442/maximum-zs-values.pdf): "NOTE 1: For a low voltage supply given in accordance with ESQCR, Cmin is given the value 0.95."
+[16] EAL Level 4 Design and Verification: course slides (material:eal-slides#p67): "230 x 1.1 / 1.23 = 205.6A"
+[17] — Electrical installation solutions for buildings – Technical details MCBs (https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj): "C 0.5 to 63 A 1.13 · In > 1 h 5 · In > 0.1 s 1.45 · In < 1 h 10 · In < 0.1 s"
+[18] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p458): "1.5 19 17 23 20 25 23"
+[19] Thermoplastic (PVC) or Thermosetting (XLPE) SWA cable? (https://electrical.theiet.org/media/3023/wiring-matters-issue-93-november-2022.pdf): "the final temperature for 90 °C thermosetting insulation is 250 °C (k =143)"
+[20] EAL Level 4 Design and Verification: course slides (material:eal-slides#p59): "S = √341.4² x 0.1 / 115"
+[21] EAL Level 4 Design and Verification: course slides (material:eal-slides#p51): "This circuit means that table 41.1 will be used, which explains it needs to disconnect within 0.4s."
+[22] [PDF] BEAMA Guide - Low Voltage Circuit-breaker Standards (https://www.beama.org.uk/static/2a6f44a3-2e72-4870-870fb0958c63c470/BEAMA-Guide-Low-Voltage-Circuit-breaker-Standards.pdf): "Circuit-breakers to BS EN 60898 of B-type and C-type, having rated current up to and including 63 A and a rated short-circuit capacity of 3 000 A, 4 500 A, 6 000 A and 10 000 A"
+[23] EAL Level 4 Design and Verification: course slides (material:eal-slides#p40): "We work on a maximum voltage drop of 3% of supply for lighting and 5% for all other circuits; therefore if the supply voltage is given (ie 395V) then your calculations must be based on the percentage of this value."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+
+## Refresher lessons: typed answers, written answers, the case file, the summary
+
+A refresher course's steps lesson (a ready-made course built in Claude Code) has four more kit
+pieces. The app passes the page two pieces of checked data, as it passes the theme: the course's
+case file (`K.caseFile`) and the lesson's own `{written, summary}` (`K.lesson`). Name what you want
+by id; the kit draws the checked words, so never retype a figure, a point or a summary line.
+
+```
+K.figure(id) -> {id, label, value, unit, text, part, lesson, rule, work, practice}   a given or worked figure; print f.text ("23.08 A"), f.work its working; practice is true for a practice value
+K.scenario({into, open?})                                        the case's scenario panel (folds)
+K.carried({parts: ['1a'], into})  -> {el, refresh()}             earlier Section A parts at the course's figures
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+    -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state: 'right'|'wrong'|'empty'|'unreadable', value, accepted?, slip?, hint?}
+K.written({id, into, onMark?}) -> {el, id, stage(), answered()}
+K.summary({into, kept?})
+```
+
+**Typed answers** (Section A, where a C&G paper has him write a figure). A decimal-keypad field;
+your Check button calls `a.check()` (Enter does too) and you write the feedback from the result.
+`answer` is the course's figure, each line worked from the rounded figures shown; it is accepted
+within half a unit in its last place (`decimals`, default 2). `accept: [13.32]` adds the answer
+worked from unrounded figures; `slips: [{value: 50, hint: 'You left out √3.'}]` names a usual slip
+and its hint (`r.hint`). A unit typed after the number ("13.33 A") is fine. Give the part's
+case-file id as the answer's id ('1b'), so `K.carried` knows when he missed it: a part got wrong
+and never right, or shown with `a.reveal()`, is carried forward at the course's figure and says so.
+After two wrong tries, show the working and `reveal()`; Continue once `right()`.
+The self-test grades every answer: its figure and each accepted one right (with the unit too), a
+near miss and each slip refused, and the figure typed into the field and checked on its step.
+
+**Written answers** (Section B: "Explain why…", "State two…"). `K.written({id: 'b1', into})` shows
+`lesson.written.b1`'s question, a box for his words and Check my answer. Claude marks them against
+the lesson's points through the app (never from the page): each point comes back with an ink tick
+or a dashed ring, a statement that is wrong named in red, one line on what he did well and one
+nudge; one more go, then the model answer. Without Claude, the points are a checklist he ticks.
+No marks, no grades, nothing to score. `onMark(r)` runs when a result is drawn; let him Continue
+once `answered()`.
+
+**The summary** (Keep this, the last step). `K.summary({into: '#keep'})` draws `lesson.summary`
+as a card (what it is for, the rule, the traps, the case's figures so far, where it lives) and says
+it is the first page of the chapter in his Book. A figure resting on a practice value is tagged so; the
+traps' and points' cites stay as data and are never shown. Then the Finish button calls `K.complete()`.
+
+**STEPS entries** (tools/course/guide.mjs reads them for the Book and the read-through): a
+typed-answer step keeps `want` (the answer as printed, '13.33 A'); a written step is `{kind:
+'written', written: 'b1', name, task}`; the summary step is `{kind: 'summary', name: 'Keep this'}`;
+the recall opener is a DO step like any other. The read-through (and the Book) shows each step as
+it looks finished, as a still picture with no controls, and its words in its place. Three fields
+make that read as plain sense (Dan, 20 Oct: "some of the text doesn't make sense… the images are
+blank"):
+- `read` on a SHOW step: its sentence for reading, when its own words ask him to act ("Drag…",
+  "Work each step yourself first, then show it"). Say what the finished picture shows.
+- `read` on a DO step only when its task asks him to act on the screen: the same question, asked
+  for reading. Never the answer: the read-through shows the question, the choices, the answer
+  and why on their own (guide.mjs keeps the task and warns when a `read` gives the answer away).
+- `still`: the state the picture shows, when the step's end needs his moves: `{control id: value}`
+  (`{h: 35}`), or a function that sets it (`still: () => runTo(SPLIT)`, cards placed in their
+  phases; `still: () => pick(...)`, a second question on the step answered too). The state is the
+  one its sentence ends on. `still: false` leaves the picture out. guide.mjs leaves out a still
+  that would show an empty box (a lane with no cards), and warns about it and about choices on
+  the screen that nobody chose, so give those steps a `still`.
+The guide drops a sentence that tells him to drag, tap, press or choose, a "Right." or "Still
+there." verdict, and the scenario after its first showing; write the step so it still reads
+whole without them.
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

@@ -1,0 +1,248 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "At 23.8 m and 1.21 A: the drop is 1.00 + 0.89 = 1.89 V and Zs is 0.40 + 0.737 = 1.137 Ω, as the case file works them",
+        "ok": true
+      },
+      {
+        "label": "Zs reaches 3.64 Ω near 104.5 m at either load (3.637 Ω there, past the line by 104.7 m); the drop at 1.21 A is then only 4.92 V",
+        "ok": true
+      },
+      {
+        "label": "At 4.89 A the drop reaches 6.90 V near 38.9 m, where Zs is only 1.605 Ω; at 1.21 A not until 157.2 m, past the slider",
+        "ok": true
+      },
+      {
+        "label": "The still: at 45.0 m and 4.89 A the drop is 7.82 V, past its line, and Zs is 1.794 Ω, inside",
+        "ok": true
+      },
+      {
+        "label": "The load never moves the Zs bar, and a longer circuit never lowers either bar",
+        "ok": true
+      },
+      {
+        "label": "The recall: 0.10 + 0.30 = 0.40 Ω, then 0.90 Ω; the slips 0.60 and 0.80 Ω. The check: 6.00 ÷ √3 = 3.46 V, 7.46 V over 6.90 V; 3% of 400 V is 12.00 V",
+        "ok": true
+      },
+      {
+        "label": "The worked example: 20.0 m, 11.63 A, 37.84 A, 1.64 V, 0.95 V on a single-phase circuit, and 1.97 V phase by phase",
+        "ok": true
+      },
+      {
+        "label": "Part 3g: 0.292 Ω and 0.392 Ω; slips 0.348, 0.328 and 0.292 Ω; 557.40 A and 645.41 A; 4.44 mm² of armour, under the plan length's 5.00 mm²; 2530 A and 17.39 mm² at the MDB end",
+        "ok": true
+      },
+      {
+        "label": "Part 3h: 23.8 m, 0.89 V and 1.84 V, 0.80% of 230 V; slips 2.53, 0.89 and 1.59 V; C1 over 20.3 m drops 3.08 V, 4.03 V from the intake",
+        "ok": true
+      },
+      {
+        "label": "Part 3i: 0.737 Ω and 1.129 Ω; slips 0.837, 0.968 and 0.737 Ω; 193.53 A, past 60 A",
+        "ok": true
+      },
+      {
+        "label": "Part 3j: 224.09 A and 0.50 mm²; slips 0.43, 0.62 and 0.99 mm²; 1.43 mm² for a fault at the DBL2 end",
+        "ok": true
+      },
+      {
+        "label": "Changed numbers: 4400 ÷ 108.5 = 40.55, rounded down to 40.5 m (40.6 m to the nearest); Zs allows 102.9 m; slips 63.5 and 82.9 m",
+        "ok": true
+      },
+      {
+        "label": "Every slip lies outside its answer's accepted figures",
+        "ok": true
+      },
+      {
+        "label": "For a low voltage supply under the ESQCR, Cmin is 0.95",
+        "ok": true,
+        "source": "https://electrical.theiet.org/media/1442/maximum-zs-values.pdf"
+      },
+      {
+        "label": "For 90 °C thermosetting insulation the final temperature is 250 °C, and k is 143",
+        "ok": true,
+        "source": "https://electrical.theiet.org/media/3023/wiring-matters-issue-93-november-2022.pdf"
+      },
+      {
+        "label": "Table 41.3: a 6 A type C breaker's maximum Zs is 3.64 Ω, and a 10 A type C's is 2.19 Ω",
+        "ok": true,
+        "source": "https://www.elec-mate.com/guides/maximum-zs-values-bs-7671"
+      },
+      {
+        "label": "Four-core 4 mm² SWA: 4.61 mΩ/m a core, and 22 mm² of armour at 6.8 mΩ/m",
+        "ok": true,
+        "source": "https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf"
+      },
+      {
+        "label": "Type B and C breakers to BS EN 60898 up to 63 A come rated 3000, 4500, 6000 and 10000 A",
+        "ok": true,
+        "source": "https://www.beama.org.uk/static/2a6f44a3-2e72-4870-870fb0958c63c470/BEAMA-Guide-Low-Voltage-Circuit-breaker-Standards.pdf"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "len",
+      "load"
+    ],
+    "readouts": [
+      "vd",
+      "zs"
+    ],
+    "outputs": [
+      "vd",
+      "zs",
+      "cvd",
+      "cr"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "What it is for",
+          "The why",
+          "Check",
+          "Worked example",
+          "Section A 3(g)",
+          "Section A 3(h)",
+          "Section A 3(i)",
+          "Section A 3(j)",
+          "Section B",
+          "Changed numbers",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "len",
+        "kind": "control",
+        "label": "Circuit length",
+        "min": 1,
+        "max": 140,
+        "step": 0.1,
+        "log": false,
+        "value": 23.8,
+        "shown": false,
+        "snap": [
+          23.8,
+          38.9,
+          45,
+          104.5
+        ]
+      },
+      {
+        "id": "load",
+        "kind": "choice",
+        "label": "Load",
+        "options": [
+          1.21,
+          4.89
+        ],
+        "labels": [
+          "1.21 A, like C7",
+          "4.89 A, like C1"
+        ],
+        "value": 1.21,
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Refresh the why",
+      "Skip to the practice",
+      "Check",
+      "Finish the lesson",
+      "Show",
+      "Back",
+      "Continue"
+    ],
+    "answers": [
+      {
+        "id": "3g",
+        "answer": 0.392,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "3h",
+        "answer": 1.84,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "3i",
+        "answer": 1.129,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "3j",
+        "answer": 0.5,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "l8.A.changed",
+        "answer": 40.5,
+        "accept": [
+          40.6
+        ],
+        "ok": true
+      }
+    ],
+    "written": [
+      "b1"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 2 (the first step that shows a control)",
+    "len = 105.25",
+    "load = 4.89"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/design-and-verification/i8.a9-360-light.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i8.a9-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i8.a9-360-light-end.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i8.a9-360-dark.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i8.a9-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i8.a9-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i8.a9-1280-light.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i8.a9-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i8.a9-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i8.a9-1280-dark.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i8.a9-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i8.a9-1280-dark-end.png"
+  ]
+}
