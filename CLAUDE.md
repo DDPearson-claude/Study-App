@@ -9,6 +9,9 @@ changing code; it is the contract between modules.
 - First principles, warm plain words, starting from what Dan already knows. Jargon only once earned, always explained.
 - Faithful to sources: nothing invented; numbers are controls, computed from a shown rule, or cited constants.
   Contested points are taught as contested. Unsourced content is labelled as such, never dressed up.
+- Explain in your own words (Dan, 20 Oct): the sources are for getting it right, not for showing. Never narrate
+  where something comes from ("your slides say", "(p.16)", "one site warns"); footnotes sparingly, on figures he
+  would look up on a job. Short sentences, one idea each, no bracketed asides, never talk about "the course".
 - Learn by doing: every idea that can be manipulated gets an interactive. A visual earns its place by teaching.
 - Learning that sticks: predict, play, explain, say it back, quick checks, spaced review of what he answered.
 - Calm reading: narrow column, generous space, key terms highlighted in amber, colour only for meaning

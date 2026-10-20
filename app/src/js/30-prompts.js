@@ -790,7 +790,7 @@
       '',
       'SOURCES',
       hasSources ? [
-        '- Put [^n] straight after the words its quote supports; split a sentence that adds reasoning the quote lacks. Every fact or number a source covers gets its footnote.',
+        '- Put [^n] straight after the words its quote supports; split a sentence that adds reasoning the quote lacks. Footnote what he would check, one per sentence; never name a source in a sentence ("your slides say", "(p.16)").',
         '- Not in RESEARCH: a textbook-standard fact only as "textbooks add that …" (unfootnoted' + (read ? '' : ', never the only support for the predict\'s answer') + '); a picture of why only as "One way to picture it: …"; any other plan detail stays out.',
         '- "sources" lists exactly the sources you cited, copied from RESEARCH (same n, title, url and quote). No web addresses anywhere else in the lesson.',
       ].join('\n') : '- No footnotes: there are no checked sources for this lesson. "sources": [], no [^n] markers and no "source" fields, and no web addresses anywhere in the lesson.',

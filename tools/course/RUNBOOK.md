@@ -144,6 +144,15 @@ checked with `node tools/eval/sources.mjs --quotes <dir>/quotes.json --tools <di
 it reports `failed: 0`. The build's research can start from those tool files.
 
 ## 3. Write each lesson (in order: i1 first, each later one with --prior)
+**How it reads (Dan, 20 Oct).** Teach in your own words, as a good instructor talks to a qualified
+electrician. Never tell him where something comes from in the sentence (no "your slides say", "(p.16)",
+"pack p.4", "one forum contributor"): the sources are fact-checked behind the scenes, and a footnote
+goes only on a figure or rule he would look up on a job, never more than one in a sentence. One idea
+per sentence, mostly under 20 words, active voice, no semicolon chains or bracketed asides, and
+never talk about "the course" ("the course's reasoning"): state an assumption once, plainly, then use
+it. A practice value is still named as one, simply. A refresher's Section B points and Keep this card
+read the same way: their `cite` fields stay as data, and the words do not mention sources.
+
 ```
 node tools/eval/prompts.mjs write-lesson --topic $D/topic.json --idea I --research $D/research.json --prior $D/i1.lesson.final.json,$D/i2.lesson.final.json > $D/I.lesson.prompt.txt
 node tools/eval/validate.mjs lesson $D/I.lesson.draftN.txt --iid I --sources $D/research.json --topic $D/topic.json
