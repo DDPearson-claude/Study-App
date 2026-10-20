@@ -266,7 +266,8 @@ Shared content (the artifact is private, so "shared" means Dan's devices).
   calibration:[{ id, iid?, q, options:[3-4], answer, why }],     // exactly 2
   research:{ status:'none'|'running'|'done'|'unavailable'|'failed', at, sources, dropped?, error?,
              reason?:'none_confirmed'|'error'|null, tries? },
-  readyMade?:{ shelf, course } }                                 // a ready-made course (below)
+  readyMade?:{ shelf, course },                                  // a ready-made course (below)
+  guideV? }                                                      // ready-made: its guides' version, from 2 (puzzles, below)
   // done only with sources >= 1: a run that kept none is failed ("No source could be confirmed…")
   // with reason 'none_confirmed' (it finished: lessons never re-run it, and Sources says no
   // source could be confirmed); 'error': it did not.
@@ -415,6 +416,7 @@ only its own minutes, under the study day (`U.studyDay`). Layout is not a pref (
     cardsRound?,                                               // the round whose review cards were made
     readRound?,                                                // v9: the round finished as a read lesson
     quizRound?, readThrough?,                                  // a guided steps lesson: the round quizzed through / read through
+    puzzleRound?, puzzleV?,                                    // its puzzles were made for this round, from this guide version
     againAt?, relearn?, relearnId?, relearnAt?, relearnNote?, known? } } }
 ```
 **Two ways into a ready-made steps lesson** (53-read.js; Dan, 20 Oct). A lesson with a still guide
@@ -422,7 +424,8 @@ only its own minutes, under the study day (`U.studyDay`). Layout is not a pref (
 `#/t/:tid/:iid`) or read through (its guide, `#/t/:tid/:iid/read`). `way` is his last choice for
 the course, written when he picks a way (the course page's buttons and links, the switch in each
 way) and offered first next time. Both finish as read (`readRound` and `cardsRound`: a steps lesson
-is a read lesson and makes no review cards); `quizRound` is written when the steps lesson itself is
+is a read lesson and makes no check cards); only quizzing through it makes its puzzles (below,
+`puzzleRound`), never a read-through; `quizRound` is written when the steps lesson itself is
 finished (also on Start again), `readThrough` when Finished reading is pressed in a round not
 quizzed through. `V.readThrough(progress, iid)`: read through only (finished this round,
 `readThrough` this round, no `quizRound` this round); a lesson finished before the two ways
@@ -452,12 +455,61 @@ the round unchanged, until the fresh lesson is whole; the round that begins then
 
 `profile/cards/{tid}`
 ```
-{ cards:{ [cardId]: Card } }        cardId = iid_checkId, or iid_say for the recall card
-Card = { id, tid, iid, type:'choice'|'order'|'estimate'|'target'|'recall', spec, createdAt, learnedAt,
+{ cards:{ [cardId]: Card } }        cardId = iid_checkId, iid_say for the recall card, iid_x<n> for a puzzle, iid_w_<qid> for a written card
+Card = { id, tid, iid, type:'choice'|'order'|'estimate'|'target'|'recall'|'puzzle'|'written', spec, createdAt, learnedAt,
          s:{ due, stability, difficulty, reps, lapses, last }, hist:[{ at, grade:1-4, ok }], retired? }
+puzzle spec  = { q, answer, why, input:'typed'|'pick', options?:[2-8 strings], page, name? }
+written spec = { qid, q, points:[{ text, cite }], need?, model, title?, mine? }
 ```
 `hist` keeps the newest 40. `retired`: unusable (its interactive is gone, or it was skipped in
 review); learning the idea again clears it.
+
+**Puzzles** (phase 6, Dan's yes 20 Oct; 60-today.js, 41-cards.js). A ready-made steps lesson is a read
+lesson and has no checks, so its review cards come from its guide (`topics/{tid}/guide/{iid}`, Dossiers
+below) and, for a refresher lesson, its written questions:
+- **Made** when Dan finishes the lesson by quizzing through it (50-lesson.js: the first finish, or a
+  Start again that makes a read-through a quiz; `U.review.puzzlesFor`), never by "Just read it
+  through" (53-read.js makes none). Each `example` page of a version 2 guide becomes `iid_x<n>` (n: its
+  place among the guide's examples) when it can be asked: `input` 'typed' with an answer that is a
+  figure (a number and at most a unit: "28.87 A", "1,000,000 mm²", "−3"), or 'pick' with 2-8
+  `options` holding its answer. A picked figure is typed in review (a stronger test), unless the task
+  names its options ("Which of these…"); anything else is picked from the lesson's own options. An
+  example answered by dragging or colouring (no `input`), with no answer, or from a version 1 guide
+  makes none. Each `lesson.written[qid]` becomes `iid_w_<qid>` with Dan's latest words for it (`mine`).
+  Unchanged questions keep their schedule when made again; new ones are first in the box the next
+  study day. Saved, the round is recorded as `puzzleRound` (and `puzzleV`, the guide's version); both
+  only move forward (section 3). A version 1 guide records nothing and writes only the written cards.
+  The lesson's done section then says "Its 6 puzzles go in your puzzle box, ready from tomorrow.".
+- **Backfill** (`U.review.mendPuzzles`, with `mendCards` at boot and when Today opens; at most once a
+  minute after a clean run): every lesson of a course whose topic says `guideV >= 2` that is
+  `quizzed` (done, not read through only; finished before the two ways counts as quizzed) with no
+  `puzzleRound` for its round, or a `puzzleV` older than `guideV`, gets its puzzles once. Guides are
+  read one at a time, oldest finished lesson first (a refresher's lesson doc too, for its written
+  questions); a course without `guideV` reads none. The new cards' first days are spread
+  (`U.fsrs.init(day, due)`): a puzzle from each lesson in turn, at most half the daily limit
+  (`prefs.cap`, at least 3; Light days in settings: 3) of new, never-reviewed cards a day, counting
+  those already waiting, from tomorrow. `learnedAt` is when he finished the lesson.
+- **Counted** like any card in Today, the box (`U.review.box`), the Library's puzzle row, a course's
+  "Puzzles from this course" and `#/review?topic=`, except while the lesson was read through only
+  (`readIdea` leaves out a read lesson's other cards; puzzles go by read-through-only). Never in
+  slipping or Learn it again (a ready-made lesson is never rewritten in the page). Today's time: 40 s a
+  puzzle, 2 minutes a written card.
+- **Asked** (41-cards.js): the task, then a typed field with the answer's unit beside it (a number as
+  K.answer reads it, "13,33" and "20 000" too, the unit optional and, typed, it must be the answer's:
+  "ohms", "uF", "mm2" are fine; right within half a unit in the last decimal the answer shows; words
+  get "Type a number, like 12.5 A." and no mark), or the lesson's options as a choice card. After the
+  answer: the answer when wrong, the `why` (Claude's note, with its byline and reply row), and the
+  example's solved picture ("Worked through": an SVG as a plain image on a white well, or still HTML
+  in a sandboxed frame, `U.readThrough.still`), read from the guide by the review (once per page load,
+  the next puzzle's while he answers; none after 5 s, or when the page is not that example any more).
+  The picture is never copied into the card, and never shown before the answer: it is the solved
+  state. Auto grades as other objective cards (a typed right answer counts as instant within 9 s plus
+  reading time). A written card is the recall card's flow with the question's points: Claude marks it
+  (`U.gen.markWritten`, as the lesson does) and its verdict picks the grade (got-it Good, partly Hard,
+  not-yet Again); when Claude cannot mark it the points become a checklist Dan ticks and his ticks
+  pick the grade (as many as `need`, Good; some, Hard; none, Again), which he can change.
+- **Size**: a course's puzzles come to about 110 KB of cards doc; new cards that would take the doc past
+  230 KB are left out (said in the console).
 
 **Dossiers** (75-dossier.js). A course "keeps a dossier" unless Dan turns it off on its topic page:
 `progress.dossier === false` (absent or true: on; private, so turning it on or off never moves the
@@ -540,8 +592,13 @@ of it to Atkinson. The page builders, in reading order (`model().leaves`):
 - **A chapter of a ready-made steps lesson** reads as a still guide instead of the plate (Dan, 11 Oct:
   "a re-read guide with visuals, not a test to move on"): `topics/{tid}/guide/{iid}` (public, beside
   the lesson; `U.store.guide.get`), made at build time by `tools/course/guide.mjs`, is
-  `{v, iid, pages: [{kind: 'show', text, svg, alt} | {kind: 'example', task, answer, why, svg?, alt}
+  `{v, iid, pages: [{kind: 'show', text, svg, alt} | {kind: 'example', task, answer, why, svg?, alt, input?, options?, unit?, written?}
   | {kind: 'summary', title, for, rule, traps: [{text, cite}], where, figures: [{label, value}], figuresLabel?}], style?}`.
+  Version 2 (20 Oct, for puzzles): an example says how the lesson asks it, `input` 'pick' with
+  `options` (the buttons he chose from, in screen order, the answer among them) or 'typed' (a K.answer
+  field, with its `unit`); none for a drag or a colouring; a written step's page names its question
+  (`written`). `guide.mjs --answers` brings a version 1 guide to version 2 without drawing it again;
+  assemble.mjs stamps the topic's `guideV` (the oldest of its guides, from 2).
   A show or example page may carry `html` instead of `svg`: a step drawn in HTML (a panel, a
   worked example's lines all shown, a recall's options answered, a Section A scenario and its
   carried parts), kept by guide.mjs as still HTML (no script, no handler, no input or control; a
@@ -1346,7 +1403,7 @@ FSRS-4.5 at day granularity (`40-fsrs.js`): published default weights, target re
 intervals 1-365 days with a small fuzz keyed on the card id, Hard <= Good < Easy. A new card is
 first due the next day; Again brings a card back tomorrow.
 ```
-U.fsrs.init(day) -> s      U.fsrs.review(s, grade 1-4, day, cardId?) -> s
+U.fsrs.init(day, due?) -> s   (due: a later first day, for backfilled puzzles)      U.fsrs.review(s, grade 1-4, day, cardId?) -> s
 U.fsrs.preview(s, day, cardId?) -> {1..4: next state + interval}      ("back in N days" hints)
 U.fsrs.retrievability(s, day) -> 0..1      U.fsrs.band(s, day) -> 'new'|'fragile'|'growing'|'strong'
 ```
@@ -1385,7 +1442,10 @@ control has gone. Finishing the new lesson makes the idea's cards afresh (`addFr
 
 Grades: in review, objective cards grade themselves (wrong = Again, right = Good, right within
 reading time plus a beat = Easy; a target hit on a second try = Hard, never Easy) and Dan can
-change the grade. Recall cards are graded by Claude while Dan moves on: got-it = Good (Claude
+change the grade. Puzzles (section 4) are objective cards: a typed one is right within half a unit
+in the last decimal its answer shows, and counts as instant within 9 s plus reading time. Written
+cards are graded like recall cards, by `U.gen.markWritten`'s verdict, or by Dan's own ticks of the
+points when Claude cannot mark them. Recall cards are graded by Claude while Dan moves on: got-it = Good (Claude
 never awards Easy, whatever `nailed` says; Dan can choose it with Change), partly = Hard, not-yet =
 Again; no grade (failure, or 30 s) = Hard. Saving re-reads the card inside the write and merges
 `hist`, so reviews on two devices both count.
@@ -1494,8 +1554,8 @@ column's width) with its sentence, each worked example in an outlined card with 
 source sheet, then a refresher lesson's Keep this card (the rule on grey, each trap on the red
 tint with its citation, the case's figures, where it lives), and "Finished reading" with "Quiz me
 through it". Opening it begins the idea (startedAt, stage 'play', lastIdea); Finished reading
-writes stage 'done', doneAt, readRound, cardsRound and readThrough, binds the dossier chapter on the
-first finish, and shows "Lesson read" with the next open lesson (its read-through when it has a
+writes stage 'done', doneAt, readRound, cardsRound and readThrough (no puzzles: only quizzing through
+makes them, section 4), binds the dossier chapter on the first finish, and shows "Lesson read" with the next open lesson (its read-through when it has a
 read-through), Back to the course and Quiz me through it.
 
 `35-art.js` (course pictures; data and flow in section 4)
@@ -1521,10 +1581,16 @@ U.cards.render(card, {mode:'lesson'|'review', lesson?, ask?(text, {chip, about})
    Check), a recall card to its panel's heading
    result {correct, grade, answer, ms, auto?, verdict?, skipped?, pending?: Promise<{grade, correct, verdict}>}
 U.cards.types / interactiveOf(doc) / controlOf(doc, id) / outputOf(doc, id) / verdictGrade(gradeResult)
+U.cards.figureOf(answer) -> {value, decimals, unit} | null   U.cards.gradeTyped(text, {answer}) -> {state: 'right'|'wrong'|'empty'|'unreadable', value?, unit?}
+   a puzzle card's typed answer (section 4, Puzzles); render's opts.page: its guide page {svg, html, alt, style}, shown with the answer
    a target card names its readout and unit from outputOf ("make Time for one swing read 3 s")
 U.review.addFromLesson(tid, iid, lesson, outcome, {round?, at?}) -> Promise<[cardId]>   outcome {checks:{id:{correct}}, say:{text, verdict}};
    round: recorded as cardsRound once saved; at: when he finished (else now)
-U.review.mendCards(force?) -> Promise<[{tid, iid}]>   never rejects; at most once a minute after a clean run
+U.review.mendCards(force?) -> Promise<[{tid, iid}]>   never rejects; at most once a minute after a clean run (then mendPuzzles)
+U.review.puzzlesFrom(tid, iid, guide, lesson, idea) -> {[cardId]: card}   pure (section 4, Puzzles)
+U.review.addPuzzles(tid, iid, made, {round?, guideV?, at?, due?, only?}) -> Promise<[cardId]>   records puzzleRound/puzzleV with round
+U.review.puzzlesFor(tid, iid, {guide, lesson, idea, round}) -> Promise<n>   the lesson screen, quizzed through
+U.review.mendPuzzles(force?) -> Promise<[{tid, iid}]>   the backfill, never rejects
 U.review.queue({cap, light, extra}) -> Promise<[card]>;  dueCount() -> Promise<n>;  refreshBadge();  setBadge(n)
 U.review.ideaBands() -> Promise<{tid:{iid: band}}>;  slipping() -> Promise<[{tid, iid, lapses, last}]>
 U.review.outlook() -> Promise<{size, done, cards, minutes, head, lead, next}>   size = dueCount (same read); minutes = the

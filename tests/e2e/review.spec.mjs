@@ -5,14 +5,16 @@
 // checks that FSRS state and history were written, and screenshots every screen to tests/out/.
 // Also covers addFromLesson, lesson-mode cards, ideaBands and the Learn-it-again flag, and (v9)
 // that an idea finished as a read lesson ("Just teach me") is never counted: not in Today, a
-// review or the badge, even with cards left from an earlier, studied round.
+// review or the badge, even with cards left from an earlier, studied round. Phase 6: a ready-made
+// course's puzzles in the box (typed right and wrong, picked, a written answer marked by Claude or
+// ticked by Dan), their pictures shown with the answer, a read-through's left out, and the backfill.
 // Run: node tests/e2e/review.spec.mjs   (exits non-zero on any failure or page error)
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { openApp, ROOT } from '../../tools/harness/page.mjs';
 
 const OUT = join(ROOT, 'tests', 'out', 'review.html');
-execFileSync(process.execPath, [join(ROOT, 'tools', 'build.mjs'), '--only', '40,41,60,70-views', '--out', OUT], { stdio: 'inherit' });
+execFileSync(process.execPath, [join(ROOT, 'tools', 'build.mjs'), '--only', '40,41,53,60,70-views', '--out', OUT], { stdio: 'inherit' });
 
 const UID = 'u_stubuser0000000000000000';
 const P = (rest) => `data/users/${UID}/${rest}`;
@@ -321,7 +323,7 @@ async function runSession({ width, theme, full }) {
   const summary = await page.locator('.rv-done').innerText();
   check(/Review done/.test(summary) && /6 puzzles/.test(summary), `${tag}: summary says 6 puzzles`);
   check(/Remembered\s*4/i.test(summary) && /Back tomorrow\s*2/i.test(summary), `${tag}: summary counts remembered and back tomorrow`);
-  check(/2 cards, from 2 ideas:/.test(summary), `${tag}: summary says how the cards coming back map to ideas`);
+  check(/2 puzzles, from 2 lessons:/.test(summary), `${tag}: summary says how the puzzles coming back map to lessons`);
   const widths = await page.evaluate(() => [...document.querySelectorAll('.rv-done > .rv-stats, .rv-done > .rv-back, .rv-done > .td-relearn, .rv-done > .td-actions')].map((e) => Math.round(e.getBoundingClientRect().width)));
   check(widths.length === 4 && new Set(widths).size === 1, `${tag}: summary blocks share one width (${widths})`);
   const bleed = await page.evaluate(() => { const b = document.querySelector('.rv-top').getBoundingClientRect(), v = document.getElementById('view').getBoundingClientRect(); return Math.abs(b.left - v.left) + Math.abs(b.right - v.right); });
@@ -834,6 +836,179 @@ async function courseOnly() {
   await app.close();
 }
 
+// ---------- phase 6: puzzles from a ready-made course ----------
+// A ready-made steps course (readyMade, guides of version 2): lesson i1 quizzed through, its four
+// puzzles ready now (two typed, one picked, one written); lesson i2 only read through, its puzzle
+// never counted; lesson i3 quizzed before puzzles existed, given its puzzles by the backfill.
+const PSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 40"><rect x="5" y="5" width="50" height="30" fill="#fde68a" stroke="#111"/><text x="30" y="24" font-size="8" text-anchor="middle">6 m × 4 m</text></svg>';
+const PGUIDE = { v: 2, iid: 'i1', style: '.panel{padding:8px}', pages: [
+  { kind: 'show', text: 'Area counts the squares inside.', svg: PSVG, alt: 'A floor' },
+  { kind: 'example', name: 'Area', task: 'A plant room floor is 6 m by 4 m. What is its area?', answer: '24 m²', why: 'Area counts the squares: 4 rows of 6, so 6 × 4 = 24 m².', input: 'typed', svg: PSVG, alt: 'The floor, 24 squares shaded' },
+  { kind: 'example', name: 'Which floor', task: 'Both floors are 16 m around. Which covers more floor?', answer: 'Floor B', why: 'A covers 12 m² and B covers 16 m²: the same distance around can hold different areas.', input: 'pick', options: ['Floor A', 'Floor B', 'The same'], html: '<div class="panel"><p>Floor B covers 16 m²</p></div>', alt: 'Floor B covers 16 m²' },
+  { kind: 'example', name: 'Motor', task: 'A 7.5 kW three-phase motor on 400 V, power factor 0.85, efficiency 90%. What is its design current, Ib?', answer: '14.15 A', why: 'Ib = P ÷ (√3 × U × eff × pf) = 7 500 ÷ (√3 × 400 × 0.9 × 0.85) = 14.15 A.', input: 'pick', options: ['12.03 A', '12.74 A', '14.15 A'] },
+  { kind: 'example', name: 'Section B', task: 'Explain why Ib at a sub-board is worked at that board\'s voltage.', answer: '', why: 'A model answer: …', written: 'b1' },
+] };
+const PWRITTEN = { q: 'Explain why Ib at a sub-board is worked at that board\'s voltage.', points: [{ text: 'The submain drops some voltage', cite: 'slides p.18' }, { text: 'A lower voltage means more current for the same power', cite: 'slides p.19' }], need: 2,
+  model: 'The submain drops some voltage, so the sub-board sits below 400 V; the same power at a lower voltage takes more current.' };
+function puzzleDb() {
+  const db = {}, now = new Date().toISOString();
+  db['topics/tP'] = { id: 'tP', title: 'Area and current', status: 'ready', createdAt: now, updatedAt: now, hue: 120, readyMade: { shelf: 'maths', course: 'area' }, guideV: 2, mode: 'read',
+    ideas: [{ id: 'i1', title: 'Area from unit squares' }, { id: 'i2', title: 'Perimeter' }, { id: 'i3', title: 'Triangles' }] };
+  db['topics/tP/guide/i1'] = PGUIDE;
+  db['topics/tP/guide/i3'] = { v: 2, iid: 'i3', pages: [1, 2, 3].map((k) => ({ kind: 'example', task: 'Triangle ' + k + ': base 6 cm, height ' + (k + 1) + ' cm. What is its area?', answer: 3 * (k + 1) + ' cm²', why: 'Half of base × height.', input: 'typed' })) };
+  const made = (id, iid, type, spec) => ({ id, tid: 'tP', iid, type, spec, createdAt: isoDaysAgo(9), learnedAt: isoDaysAgo(9),
+    s: { due: TODAY, stability: 2.5, difficulty: 5, reps: 1, lapses: 0, last: addDays(TODAY, -3) }, hist: [{ at: isoDaysAgo(3), grade: 3, ok: true }] });
+  const pz = (k) => { const p = PGUIDE.pages[k]; const sp = { q: p.task, answer: p.answer, why: p.why, input: p.input, page: k, name: p.name }; if (p.name === 'Which floor') sp.options = p.options; if (p.name === 'Motor') sp.input = 'typed'; return sp; };
+  db[P('profile/cards/tP')] = { cards: {
+    i1_x1: made('i1_x1', 'i1', 'puzzle', pz(1)),
+    i1_x2: made('i1_x2', 'i1', 'puzzle', pz(2)),
+    i1_x3: made('i1_x3', 'i1', 'puzzle', pz(3)),
+    i1_w_b1: made('i1_w_b1', 'i1', 'written', { qid: 'b1', q: PWRITTEN.q, points: PWRITTEN.points, need: 2, model: PWRITTEN.model, title: 'Design current', mine: 'Because the voltage is lower there.' }),
+    i2_x1: made('i2_x1', 'i2', 'puzzle', { q: 'Read-through puzzle?', answer: '22 m', why: 'w', input: 'typed', page: 1 }),
+  } };
+  db[P('profile/progress/tP')] = { lastIdea: 'i3', ideas: {
+    i1: { round: 0, stage: 'done', doneAt: isoDaysAgo(9), readRound: 0, cardsRound: 0, quizRound: 0, puzzleRound: 0, puzzleV: 2 },
+    i2: { round: 0, stage: 'done', doneAt: isoDaysAgo(8), readRound: 0, cardsRound: 0, readThrough: 0 },
+    i3: { round: 0, stage: 'done', doneAt: isoDaysAgo(2), readRound: 0, cardsRound: 0, quizRound: 0 },
+  } };
+  db[P('profile')] = { prefs: { size: 'm', easy: false, theme: 'light', cap: 15, light: false }, days: {}, createdAt: isoDaysAgo(30) };
+  return db;
+}
+async function puzzleBox() {
+  for (const width of [360, 1280]) {
+    const tag = 'puzzles ' + width;
+    console.log(`\n== ${tag}`);
+    const app = await openApp({ file: OUT, width, height: width < 700 ? 707 : 900, config: { db: puzzleDb() } });
+    const { page } = app;
+    const vshot = (name) => page.screenshot({ path: join(ROOT, 'tests', 'out', `review-puzzles-${width}-${name}.png`) });
+    await page.goto(app.url('#/today'));
+    await page.evaluate(setup, 'light');
+    await page.evaluate(() => {
+      window.__marks = [];
+      U.gen.markWritten = (w, answer, attempt, o) => { window.__marks.push({ w, answer, attempt, o }); return new Promise((r) => setTimeout(() => r({ met: [true, false], verdict: 'partly', nailed: '', followUp: 'Why does a lower voltage mean more current?', wrong: '' }), 400)); };
+    });
+    await page.waitForSelector('.td-plan');
+    const todayText = await page.locator('.td').innerText();
+    check(/^4 puzzles in the box$/m.test(todayText), `${tag}: Today counts the course's 4 puzzles, not the read-through's (${todayText.split('\n').slice(0, 3).join(' | ')})`);
+    check(/From Area and current\./.test(todayText) && !/\bdue\b/i.test(todayText), `${tag}: from its course, never "due"`);
+    const box = await page.evaluate(() => U.review.box());
+    check(box.size === 4 && box.courses.length === 1 && box.courses[0].tid === 'tP' && box.courses[0].n === 4, `${tag}: the box ${JSON.stringify(box)}`);
+    const o = await page.evaluate(() => U.review.outlook());
+    check(o.size === 4 && o.minutes === 4, `${tag}: about 4 minutes (40 s a puzzle, 2 minutes a written answer: ${o.minutes})`);
+    await vshot('00-today');
+    // The backfill, run as Today opens: lesson i3 (quizzed before puzzles) gets its three, ready from tomorrow.
+    let db = await app.stub();
+    for (let k = 0; k < 40 && !(db[P('profile/progress/tP')].ideas.i3.puzzleRound === 0); k++) { await page.waitForTimeout(200); db = await app.stub(); }
+    const back = Object.values(db[P('profile/cards/tP')].cards).filter((c) => c.iid === 'i3');
+    check(back.length === 3 && back.every((c) => c.type === 'puzzle' && c.spec.input === 'typed' && c.s.due === addDays(TODAY, 1)), `${tag}: the backfill gave lesson i3 its 3 puzzles, from tomorrow (${back.map((c) => c.s.due)})`);
+    check(db[P('profile/progress/tP')].ideas.i3.puzzleRound === 0 && db[P('profile/progress/tP')].ideas.i2.puzzleRound === undefined, `${tag}: recorded for i3, none for the read-through i2`);
+    check(!Object.keys(db[P('profile/cards/tP')].cards).some((id) => id.startsWith('i2_') && id !== 'i2_x1'), `${tag}: the read-through made none`);
+
+    await page.locator('.td-start').click();
+    const seen = [];
+    for (let step = 0; step < 6; step++) {
+      await page.waitForSelector('.rv-stage > .qc:not(.qc-finished), .rv-done, .rv-wait', { timeout: 8000 });
+      if (await page.locator('.rv-done, .rv-wait').count()) break;
+      const q = await page.locator('.rv-stage .qc-q').innerText();
+      const kind = await page.locator('.rv-stage .qc-kind').innerText();
+      check(await page.locator('.rv-stage .qc-pic').count() === 0, `${tag}: no picture before the answer (${q.slice(0, 30)})`);
+      if (/plant room/.test(q)) {                                   // typed: words first, then wrong
+        seen.push('typed-wrong');
+        check(/A PUZZLE FROM THE LESSON/i.test(kind), `${tag}: a puzzle says where it is from (${kind})`);
+        check(await page.locator('.qc-typed-unit').innerText() === 'm²', `${tag}: the unit sits beside the field`);
+        await page.locator('.qc-typed-input').fill('about 25');
+        await page.locator('.qc-primary').click();
+        check(/Type a number, like 12\.5 m²/.test(await page.locator('.qc-typed-msg').innerText()) && !(await page.locator('.qc-typed-input').evaluate((e) => e.readOnly)), `${tag}: words get a gentle note, not a mark`);
+        await page.locator('.qc-typed-input').fill('25');
+        await page.locator('.qc-typed-input').press('Enter');
+        await page.waitForSelector('.qc-fb.is-wrong');
+        const fb = await page.locator('.qc-fb').innerText();
+        check(/Not quite/.test(fb) && /You said 25\. The answer: 24 m²/.test(fb) && /4 rows of 6/.test(fb), `${tag}: typed wrong: his answer, the answer and the why (${fb.replace(/\n/g, ' ').slice(0, 160)})`);
+        check(await page.locator('.qc-fb .qc-pic img.rd-pic[src^="data:image/svg+xml"]').count() === 1, `${tag}: the worked picture comes with the answer, as a plain image`);
+        check(/Coming back tomorrow · Again/.test(await page.locator('.qc-grade-line').innerText()), `${tag}: wrong is Again`);
+      } else if (/Which covers more floor/.test(q)) {               // picked from the lesson's options, right
+        seen.push('pick-right');
+        check(await page.locator('.rv-stage .qc-opt').count() === 3, `${tag}: the lesson's three options`);
+        await page.locator('.qc-opt', { hasText: 'Floor B' }).click();
+        await page.locator('.qc-primary').click();
+        await page.waitForSelector('.qc-fb.is-right');
+        await page.waitForSelector('.qc-fb .qc-still .fake-kit', { timeout: 4000 }).catch(() => {});
+        check(/12 m² and B covers 16 m²/.test(await page.locator('.qc-fb').innerText()), `${tag}: picked right, with the why`);
+        check(await page.locator('.qc-fb .qc-still .fake-kit').count() === 1 && !(await page.locator('.qc-fb').innerHTML()).includes('class="panel"'), `${tag}: a still-HTML step goes into the sandboxed frame, never the page`);
+      } else if (/7\.5 kW/.test(q)) {                              // a figure picked in the lesson, typed here: right
+        seen.push('typed-right');
+        await page.locator('.qc-typed-input').fill('14.15');
+        await page.locator('.qc-primary').click();
+        await page.waitForSelector('.qc-fb.is-right');
+        check(/√3 × 400/.test(await page.locator('.qc-fb').innerText()) && await page.locator('.qc-typed.is-right').count() === 1, `${tag}: typed right, the unit left off`);
+        check(/· (Good|Easy)/.test(await page.locator('.qc-grade-line').innerText()), `${tag}: right is Good or Easy`);
+      } else if (/sub-board/.test(q)) {                            // written: marked by Claude against its points
+        seen.push('written');
+        check(/ANSWER IN WRITING/i.test(kind), `${tag}: a written card (${kind})`);
+        await page.locator('.qc-recall-input').fill('The submain drops voltage on the way so the board is lower than 400 V.');
+        await page.locator('.qc-primary').click();
+        await page.waitForSelector('.qc-verdict');
+        await page.waitForTimeout(400);
+        const fb = await page.locator('.qc-fb').innerText();
+        check(/Partly there/.test(fb) && /The submain drops some voltage, so the sub-board/.test(fb), `${tag}: Claude's verdict and the model answer`);
+        check(await page.locator('.qc-point.met').count() === 1 && await page.locator('.qc-point.missed').count() === 1, `${tag}: each point marked`);
+        check(await page.locator('.qc-g2[aria-pressed="true"] .qc-g-claude').count() === 1, `${tag}: Claude's pick (Hard)`);
+        check(await page.locator('.qc-mine').count() === 1, `${tag}: his words from the lesson are there to look back at`);
+      } else check(false, `${tag}: unexpected card ${q}`);
+      await page.waitForTimeout(300);
+      await vshot(String(seen.length).padStart(2, '0') + '-' + seen[seen.length - 1]);
+      await page.locator('.rv-stage .qc-continue').click();
+    }
+    await page.waitForSelector('.rv-done', { timeout: 25000 });
+    check(seen.slice().sort().join() === 'pick-right,typed-right,typed-wrong,written', `${tag}: every puzzle came once (${seen})`);
+    const summary = await page.locator('.rv-done').innerText();
+    check(/4 puzzles/.test(summary) && /One puzzle, from this lesson:/.test(summary), `${tag}: the summary counts puzzles (${summary.replace(/\n/g, ' ').slice(0, 200)})`);
+    await page.waitForTimeout(600);
+    db = await app.stub();
+    const cards = db[P('profile/cards/tP')].cards;
+    check(['i1_x1', 'i1_x2', 'i1_x3', 'i1_w_b1'].every((id) => cards[id].hist.length === 2 && cards[id].s.reps === 2 && cards[id].s.due > TODAY), `${tag}: each puzzle's history and schedule moved on`);
+    check(cards.i1_x1.hist[1].grade === 1 && cards.i1_x1.s.due === addDays(TODAY, 1) && cards.i1_w_b1.hist[1].grade === 2, `${tag}: wrong back tomorrow; written graded Hard`);
+    const marks = await page.evaluate(() => window.__marks);
+    check(marks.length === 1 && marks[0].w.points.length === 2 && marks[0].attempt === 1 && /submain drops voltage/.test(marks[0].answer), `${tag}: U.gen.markWritten called once with the question's points`);
+    check(cards.i2_x1.hist.length === 1, `${tag}: the read-through's puzzle untouched`);
+    check(app.errors.length === 0, `${tag}: no page errors ${app.errors.join(' | ')}`);
+    await app.close();
+  }
+}
+// A written card Claude cannot mark: Dan ticks the points he covered, and his ticks set the grade.
+async function writtenSelfTick() {
+  const tag = 'written, ticked';
+  console.log(`\n== ${tag}`);
+  const db = puzzleDb();
+  const cs = db[P('profile/cards/tP')].cards;
+  for (const id of Object.keys(cs)) if (id !== 'i1_w_b1') delete cs[id];
+  db[P('profile/progress/tP')].ideas.i3.puzzleRound = 0;
+  const app = await openApp({ file: OUT, width: 360, height: 707, config: { db } });
+  const { page } = app;
+  await page.goto(app.url('#/today'));
+  await page.evaluate(setup, 'light');
+  await page.evaluate(() => { U.gen.markWritten = () => Promise.reject({ code: 'unavailable', message: 'offline' }); U.go('#/review'); });
+  await page.waitForSelector('.rv-stage .qc-recall-input');
+  await page.locator('.qc-recall-input').fill('The voltage is lower at the sub-board.');
+  await page.locator('.qc-primary').click();
+  await page.waitForSelector('.qc-tick');
+  const fb = await page.locator('.qc-fb').innerText();
+  check(/Tick the points your answer covers/i.test(fb) && /Claude could not mark this one just now/.test(fb), `${tag}: the points become a checklist (${fb.replace(/\n/g, ' ').slice(0, 140)})`);
+  check(await page.locator('.qc-g1[aria-pressed="true"]').count() === 1, `${tag}: nothing ticked: Again`);
+  await page.locator('.qc-tick').first().click();
+  check(await page.locator('.qc-tick[aria-checked="true"]').count() === 1 && await page.locator('.qc-g2[aria-pressed="true"]').count() === 1, `${tag}: one of two points: Hard`);
+  await page.locator('.qc-tick').nth(1).click();
+  check(await page.locator('.qc-g3[aria-pressed="true"]').count() === 1, `${tag}: both: Good`);
+  await page.screenshot({ path: join(ROOT, 'tests', 'out', 'review-written-ticked.png') });
+  await page.locator('.rv-stage .qc-continue').click();
+  await page.waitForSelector('.rv-done', { timeout: 15000 });
+  await page.waitForTimeout(500);
+  const c = (await app.stub())[P('profile/cards/tP')].cards.i1_w_b1;
+  check(c.hist.length === 2 && c.hist[1].grade === 3, `${tag}: saved as Good from his ticks`);
+  check(app.errors.length === 0, `${tag}: no page errors ${app.errors.join(' | ')}`);
+  await app.close();
+}
+
 // ONLY=360-light node tests/e2e/review.spec.mjs runs a single combination while iterating.
 const RUNS = [{ width: 360, theme: 'light', full: true }, { width: 360, theme: 'dark' }, { width: 1280, theme: 'light' }, { width: 1280, theme: 'dark' }]
   .filter((r) => !process.env.ONLY || process.env.ONLY === `${r.width}-${r.theme}`);
@@ -849,6 +1024,7 @@ try {
   }
   if (!process.env.ONLY || process.env.ONLY === 'v9') await readIdeas();
   if (!process.env.ONLY || process.env.ONLY === 'course') await courseOnly();
+  if (!process.env.ONLY || process.env.ONLY === 'puzzles') { await puzzleBox(); await writtenSelfTick(); }
 } catch (e) {
   failures.push('crashed: ' + (e.stack || e));
   console.error(e);

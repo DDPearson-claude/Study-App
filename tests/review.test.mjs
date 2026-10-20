@@ -28,11 +28,11 @@ test('a target card finds the readout it reads, in a lesson doc or a bare lesson
   assert.equal(U.cards.outputOf(null, 'T'), null);
 });
 
-test('the summary says how the cards coming back map to ideas', () => {
-  assert.equal(U.review._backCount(4, 2), '4 cards, from 2 ideas:');
-  assert.equal(U.review._backCount(2, 2), '2 cards, from 2 ideas:');
-  assert.equal(U.review._backCount(3, 1), '3 cards, all from this idea:');
-  assert.equal(U.review._backCount(1, 1), 'One card, from this idea:');
+test('the summary says how the puzzles coming back map to lessons', () => {
+  assert.equal(U.review._backCount(4, 2), '4 puzzles, from 2 lessons:');
+  assert.equal(U.review._backCount(2, 2), '2 puzzles, from 2 lessons:');
+  assert.equal(U.review._backCount(3, 1), '3 puzzles, all from this lesson:');
+  assert.equal(U.review._backCount(1, 1), 'One puzzle, from this lesson:');
 });
 
 // Cards for U.review._plan(opts, data): `due` due today, `doneToday` reviewed today (due in four

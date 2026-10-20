@@ -459,6 +459,20 @@ test('finishing an idea records the round its cards were made for; that record n
   assert.equal(srv.get(PROG1).ideas.i1.cardsRound, 2);
 });
 
+test('the round whose puzzles were made, and their guide version, never go back', async () => {
+  const srv = await topicWith({ i1: finished({ round: 1 }) }, {});
+  const A = await page(srv, { review: true });
+  await A.U.store.progress.patch('t1', { ideas: { i1: { puzzleRound: 1, puzzleV: 3 } } });
+  await sleep(50);
+  await A.U.store.progress.patch('t1', { ideas: { i1: { puzzleRound: 0, puzzleV: 2 } } });   // a late write from an older round
+  await sleep(50);
+  assert.equal(srv.get(PROG1).ideas.i1.puzzleRound, 1);
+  assert.equal(srv.get(PROG1).ideas.i1.puzzleV, 3);
+  await A.U.store.progress.patch('t1', { ideas: { i1: { puzzleV: 2 } } });   // an older guide's
+  await sleep(50);
+  assert.equal(srv.get(PROG1).ideas.i1.puzzleV, 3);
+});
+
 // Learn it again on two devices: both open the fresh lesson at the same moment and both start
 // the new round. The first start stands (with what Dan has done in it since); the second, late,
 // loses its round fields, so his guess is not wiped and the round does not move twice.

@@ -820,6 +820,24 @@ mark.term {
 .td-by-text strong { color: var(--heading); }
 .td-by-go.btn { flex: none; min-height: 44px; }
 
+/* A puzzle from a ready-made lesson (phase 6): typed, a figure in the course's rounding with its
+   unit beside the field, as the lesson's own K.answer field; or picked, as a choice card. Its
+   worked example's picture (the guide's still step, 53-read.css's white well or sandboxed frame)
+   comes with the answer, under Claude's note. */
+.qc-typed { display: flex; flex-direction: column; gap: 6px; }
+.qc-typed-row { display: flex; align-items: center; gap: 10px; }
+.qc-typed-input.input { flex: 1 1 auto; min-width: 0; max-width: 16rem; min-height: 52px; font: 600 1.25rem/1.2 var(--mono); }
+.qc-typed-unit { font: 700 1.0625rem/1 var(--mono); color: var(--muted); }
+.qc-typed.is-right .qc-typed-input.input { border-color: var(--green); }
+.qc-typed.is-wrong .qc-typed-input.input { border-color: var(--red); }
+.qc-typed-input.input[readonly] { background: var(--sunk); }
+.qc-typed-msg:empty { display: none; }
+.qc-pic { display: flex; flex-direction: column; gap: 6px; }
+/* A written answer Claude could not mark: each point a row he ticks himself. */
+.qc-point.is-tick { display: block; }
+.qc-tick { display: flex; align-items: flex-start; gap: 10px; width: 100%; min-height: 44px; padding: 6px 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.qc-tick:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 6px; }
+
 /* src/css/50-lesson.css */
 /* Lesson screen (50-lesson.js) and the Ask Claude sheet (51-tutor.js).
    One focus per stage: generous vertical rhythm, chunky actions, the interactive in a rounded
@@ -2777,7 +2795,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-20-ff33c31";
+U.BUILD = "2026-10-20-d8a3623";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -4472,6 +4490,10 @@ U.store = (function () {
     Object.keys(bi).forEach(function (iid) {
       var b = bi[iid], c = ci[iid];
       if (isObj(b) && isObj(c) && b.cardsRound != null && c.cardsRound != null && Number(b.cardsRound) < Number(c.cardsRound)) delete b.cardsRound;
+      // So does the round whose puzzles were made (a ready-made steps lesson quizzed through), and
+      // the guide version they came from.
+      if (isObj(b) && isObj(c) && b.puzzleRound != null && c.puzzleRound != null && Number(b.puzzleRound) < Number(c.puzzleRound)) { delete b.puzzleRound; delete b.puzzleV; }
+      if (isObj(b) && isObj(c) && b.puzzleV != null && c.puzzleV != null && Number(b.puzzleV) < Number(c.puzzleV)) delete b.puzzleV;
     });
   }
   function prepare(path, cur, body) {
@@ -9902,7 +9924,8 @@ U.interactive = (function () {
 // card answered late at night is not due again just after midnight). `day` defaults to today's.
 // Grades: 1 Again, 2 Hard, 3 Good, 4 Easy.
 //
-//   U.fsrs.init(day)                       new card, first due the day after `day`
+//   U.fsrs.init(day, due?)                 new card, first due the day after `day` (or on `due`, a later
+//                                          day: puzzles backfilled for lessons finished earlier are spread out)
 //   U.fsrs.review(s, grade, day, cardId?)  state after a review on `day`
 //   U.fsrs.preview(s, day, cardId?)        {1..4: next state} for "back in N days" hints
 //   U.fsrs.retrievability(s, day)          0..1 chance of recall today (0 for an unreviewed card)
@@ -9956,9 +9979,10 @@ U.interactive = (function () {
   }
   function reviewed(s) { return !!(s && s.reps > 0 && s.stability > 0 && s.last); }
 
-  function init(day) {
+  function init(day, due) {
     day = day || U.studyDay();
-    return { due: U.addDays(day, 1), stability: 0, difficulty: 0, reps: 0, lapses: 0, last: null };
+    var first = U.addDays(day, 1);
+    return { due: typeof due === 'string' && due > first ? due : first, stability: 0, difficulty: 0, reps: 0, lapses: 0, last: null };
   }
 
   // Next state for every grade at once, so intervals can be kept in order (Hard <= Good < Easy).
@@ -10020,13 +10044,20 @@ U.interactive = (function () {
 // Check and review cards: one interactive question per card (docs/ARCHITECTURE.md sections 5, 8, 9).
 //
 //   U.cards.render(card, {mode, lesson, onDone}) -> Element
-//     card   {id, type, spec, s?}   type: choice | order | estimate | target | recall
+//     card   {id, type, spec, s?}   type: choice | order | estimate | target | recall | puzzle | written
 //            In a lesson the player passes {id, type, spec: <the Check object>}; in review it is a
 //            stored Card (with its FSRS state `s`, used for "back in N days" hints).
 //     mode   'lesson' (no rating) | 'review' (objective cards auto-grade, Dan can override)
 //     lesson the lesson doc (topics/{tid}/lessons/{iid}); needed only by 'target' cards, which mount
 //            its interactive in quiz mode (the readout aimed at shows "?" and .say lines are hidden
 //            until Check, which sends reveal; docs/ARCHITECTURE.md section 6)
+//     page   a puzzle card's guide page as the review read it ({svg, html, alt, style}: its still
+//            step, the picture once solved), shown with the answer; none, the card is words only
+//   A puzzle (a worked example of a ready-made steps lesson's guide, 60-today.js) is typed (a
+//   figure, graded to the course's rounding: half a unit in the last decimal shown, the unit
+//   optional) or picked from the lesson's own options. A written card (a refresher lesson's
+//   Section B question) is marked by Claude against its points (U.gen.markWritten); when Claude
+//   cannot be reached Dan ticks the points his answer covers.
 //     onDone(result) once Dan taps Continue:
 //            {correct: bool|null, grade: 1-4|null, answer, ms}
 //            + auto (review, the grade the app picked), verdict (recall), skipped (card unusable),
@@ -10043,7 +10074,8 @@ U.interactive = (function () {
   var GRADES = [{ g: 1, label: 'Again' }, { g: 2, label: 'Hard' }, { g: 3, label: 'Good' }, { g: 4, label: 'Easy' }];
   var KIND = {
     choice: 'Choose one', order: 'Put these in order', estimate: 'Make an estimate',
-    target: 'Hit the target', recall: 'In your own words',
+    target: 'Hit the target', recall: 'In your own words', puzzle: 'A puzzle from the lesson',
+    written: 'Answer in writing',
   };
   var RIGHT = ['That\'s right', 'Yes, that\'s it', 'Spot on', 'Exactly right'];
   var VERDICT = {
@@ -10154,7 +10186,8 @@ U.interactive = (function () {
     var s = c.spec, text = String(s.q || '');
     if (Array.isArray(s.options)) text += s.options.join(' ');
     if (Array.isArray(s.items)) text += s.items.join(' ');
-    var base = c.type === 'order' ? 4000 + 1000 * (s.items || []).length : c.type === 'estimate' ? 5000 : 2500;
+    // A typed puzzle is worked out, not recognised: more time before a right answer counts as instant.
+    var base = c.type === 'order' ? 4000 + 1000 * (s.items || []).length : c.type === 'estimate' ? 5000 : c.typed ? 9000 : 2500;
     return Math.min(30000, base + text.length * 30);
   }
   function autoGrade(c, correct, opts) {
@@ -10341,6 +10374,7 @@ U.interactive = (function () {
       if (mis) parts.push(h('div', { class: 'qc-mis' }, label('A common mix-up', 'bad'), richBlock('qc-prose', toYou(mis))));
       if (!correct) parts.push(h('p', { class: 'qc-answer' }, 'The answer: ', inline('strong', null, options[answer])));
       parts.push(why(s.why));
+      if (c.extra) parts.push(c.extra());
       feedback(c, {
         correct: correct, title: correct ? RIGHT[U.hash(c.card.id) % RIGHT.length] : 'Not quite',
         parts: parts, grade: autoGrade(c, correct), result: { answer: picked },
@@ -10681,9 +10715,19 @@ U.interactive = (function () {
     var v = VERDICT[r && r.verdict];
     return v ? v.grade : null;
   }
+  // A written card (a refresher lesson's Section B question, lesson.written[id]: {q, points:[{text,
+  // cite}], need, model}) runs the same way, marked by U.gen.markWritten against its points as the
+  // lesson marks it. When Claude cannot mark it, the points become a checklist Dan ticks himself
+  // (as the lesson's own fallback does) and his ticks suggest the grade: as many as the question
+  // needs, Good; some, Hard; none, Again.
+  function pointsOf(s) {
+    return (Array.isArray(s.points) ? s.points : []).map(function (p) { return p && typeof p === 'object' ? String(p.text || '') : String(p || ''); }).filter(Boolean);
+  }
   function recall(c) {
-    var s = c.spec, rubric = Array.isArray(s.rubric) ? s.rubric : [];
-    var ta = h('textarea', { class: 'textarea qc-recall-input', rows: '5', maxlength: '2000', placeholder: 'Explain it in your own words…', 'aria-label': 'Your answer' });
+    var s = c.spec, isWritten = c.type === 'written';
+    var rubric = isWritten ? pointsOf(s) : Array.isArray(s.rubric) ? s.rubric : [];
+    var need = isWritten && Number.isInteger(s.need) && s.need > 0 && s.need < rubric.length ? s.need : rubric.length;
+    var ta = h('textarea', { class: 'textarea qc-recall-input', rows: '5', maxlength: '3000', placeholder: isWritten ? 'Write your answer…' : 'Explain it in your own words…', 'aria-label': 'Your answer' });
     var tip = h('p', { class: 'qc-tip muted small' }, 'Tip: tap the microphone on your keyboard to say it out loud instead of typing.');
     c.body.append(ta, tip);
     var submitBtn = primary('Check my answer', submit);
@@ -10701,18 +10745,44 @@ U.interactive = (function () {
       ta.classList.add('qc-locked');
       tip.remove();
 
-      var grading = U.gen && typeof U.gen.grade === 'function'
-        ? Promise.resolve().then(function () { return U.gen.grade({ prompt: s.prompt, rubric: rubric, model: s.model }, answer, 1); })
-        : null;
-      var graded = null, failed = !grading, picked = null, claudeGrade = null;
+      var grading = isWritten
+        ? (U.gen && typeof U.gen.markWritten === 'function' && rubric.length
+          ? Promise.resolve().then(function () { return U.gen.markWritten({ q: s.q, points: s.points, need: s.need, model: s.model }, answer, 1, { title: s.title || '' }); })
+          : null)
+        : U.gen && typeof U.gen.grade === 'function'
+          ? Promise.resolve().then(function () { return U.gen.grade({ prompt: s.prompt, rubric: rubric, model: s.model }, answer, 1); })
+          : null;
+      var graded = null, failed = !grading, picked = null, claudeGrade = null, ticks = rubric.map(function () { return false; }), ticking = false;
 
+      var rubricLabel = null;
       var points = rubric.map(function (p) { return h('li', { class: 'qc-point' }, h('span', { class: 'qc-dot', 'aria-hidden': 'true' }), inline('span', null, p)); });
+      // The self-tick fallback (written cards): each point a toggle he presses for what he covered.
+      function selfGrade() { var n = ticks.filter(Boolean).length; return n >= need ? 3 : n > 0 ? 2 : 1; }
+      function tickable() {
+        if (ticking || !isWritten || !points.length) return;
+        ticking = true;
+        points.forEach(function (li, i) {
+          var b = h('button', { class: 'qc-tick', type: 'button', role: 'checkbox', 'aria-checked': 'false', on: { click: function () {
+            if (c.done) return;
+            ticks[i] = !ticks[i];
+            b.setAttribute('aria-checked', String(ticks[i]));
+            li.classList.toggle('met', ticks[i]);
+            var dot = li.querySelector('.qc-dot');
+            U.clear(dot);
+            if (ticks[i]) dot.appendChild(U.icon('tick'));
+            refresh();
+          } } });
+          while (li.firstChild) b.appendChild(li.firstChild);
+          li.appendChild(b);
+          li.classList.add('is-tick');
+        });
+      }
       var status = h('div', { class: 'qc-claude', role: 'status' });
       var replySlot = h('div', { class: 'qc-reply-slot' });
       var panel = h('div', { class: 'qc-fb is-neutral qc-fb-recall' },
         h('div', { class: 'qc-fb-head' }, h('h3', null, 'Compare with a model answer')),
         richBlock('qc-model qc-prose', s.model),
-        points.length ? h('div', { class: 'qc-rubric' }, label('A good answer covers'), h('ul', { class: 'qc-points' }, points)) : null,
+        points.length ? h('div', { class: 'qc-rubric' }, rubricLabel = label(isWritten ? 'The points it is marked on' : 'A good answer covers'), h('ul', { class: 'qc-points' }, points)) : null,
         status, replySlot,
         c.mode === 'review' && s.mine ? h('details', { class: 'qc-mine' },
           h('summary', null, h('span', null, 'What you wrote when you learned it'), h('span', { class: 'qc-chev', 'aria-hidden': 'true' }, U.icon('back'))),
@@ -10743,6 +10813,10 @@ U.interactive = (function () {
           // The answer box is locked by now, so Claude's follow-up question is something to mull
           // over (the model answer above usually settles it), not a prompt to type again.
           if (graded.followUp) status.appendChild(h('div', { class: 'qc-follow' }, label('Something to think over'), richBlock('qc-prose', graded.followUp)));
+        } else if (failed && isWritten && points.length) {
+          tickable();
+          if (rubricLabel) rubricLabel.textContent = 'Tick the points your answer covers';
+          status.appendChild(h('p', { class: 'muted small' }, grading ? 'Claude could not mark this one just now. Tick the points you covered and your ticks set the grade.' : 'Tick the points you covered and your ticks set the grade.'));
         } else if (failed) {
           status.appendChild(h('p', { class: 'muted small' }, grading ? 'Claude could not check this one just now. Compare it yourself.' : 'Compare your answer with the model answer.'));
         } else {
@@ -10752,7 +10826,7 @@ U.interactive = (function () {
       function refresh() {
         drawStatus();
         if (!picker) return;
-        var g = picked || claudeGrade;
+        var g = picked || claudeGrade || (ticking ? selfGrade() : null);
         picker.set(g);
         picker.btns.forEach(function (b) {
           var tag = b.querySelector('.qc-g-claude');
@@ -10764,8 +10838,9 @@ U.interactive = (function () {
         pickNote.hidden = !(claudeGrade && !picked);
       }
       function done() {
-        var g = picked || claudeGrade;
+        var g = picked || claudeGrade || (ticking ? selfGrade() : null);
         var base = { answer: answer, ms: c.ms };
+        if (ticking) base.self = ticks.slice();
         if (c.mode !== 'review') {
           base.correct = graded ? graded.verdict === 'got-it' : null;
           base.grade = null;
@@ -10832,7 +10907,126 @@ U.interactive = (function () {
     }
   }
 
-  var TYPES = { choice: choice, order: order, estimate: estimate, target: target, recall: recall };
+  // ---------- puzzle (a worked example from a ready-made steps lesson's guide) ----------
+  // Typed answers are read as the kit's K.answer reads them (app/kit/REFRESHER.md): "13.33",
+  // "13,33", "20 000", "1,000.5", "−4.2", "13.33 A". A unit after the number is optional, and when
+  // one is typed it must be the answer's own ("ohms" for Ω, "u" for µ, "mm2" for mm² are fine).
+  var PREFIX = '[pnµumckMG]?', BASE = '(?:A|V|W|Ω|F|H|Hz|s|m|g|t|L|l|J|N|Pa|VA|VAr|var|Wh|h|S|T|Wb|C|K|lx|lm|dB|bar|rad|rpm|min)';
+  var UNIT = new RegExp('^(?:' + PREFIX + BASE + '(?:²|³)?(?:/' + PREFIX + '(?:s|m|h|min|A|V|W|Ω|g|L|K|°C)(?:²|³)?)?|%|°|°C|°F)$');
+  function unitKey(u) {
+    return String(u || '').replace(/\s+/g, '').replace(/μ/g, 'µ').replace(/Ω/g, 'Ω').replace(/ohms?$/i, 'Ω')
+      .replace(/^u([A-Za-zΩ])/, 'µ$1').replace(/\^2/g, '²').replace(/\^3/g, '³').replace(/([A-Za-z])2$/, '$1²').replace(/([A-Za-z])3$/, '$1³')
+      .replace(/^deg(rees?)?$/i, '°').toLowerCase();
+  }
+  function readTyped(text, unit) {
+    var str = String(text == null ? '' : text).replace(/[−‒–—]/g, '-').replace(/[  ]/g, ' ').trim();
+    if (!str) return { empty: true };
+    var m = /^([+-]?)\s*((?:\d[\d ,]*)?(?:\.\d*)?)\s*(.*)$/.exec(str);
+    if (!m || !/\d/.test(m[2])) return { unreadable: true };
+    var digits = m[2].trim(), rest = m[3].trim();
+    if (rest && !/^[A-Za-zΩΩµμ°%²³\/·.^23 ]+$/.test(rest)) return { unreadable: true };
+    if (rest && (!unit || unitKey(rest) !== unitKey(unit))) return { unreadable: true, unit: true };
+    if (/^\d{1,3}( \d{3})+(\.\d*)?$/.test(digits)) digits = digits.replace(/ /g, '');
+    if (/,/.test(digits)) {
+      if (/^\d{1,3}(,\d{3})+(\.\d*)?$/.test(digits)) digits = digits.replace(/,/g, '');
+      else if (/^\d+,\d+$/.test(digits)) digits = digits.replace(',', '.');
+      else return { unreadable: true };
+    }
+    if (!/^(\d+\.?\d*|\.\d+)$/.test(digits)) return { unreadable: true };
+    return { value: (m[1] === '-' ? -1 : 1) * parseFloat(digits) };
+  }
+  // An answer as the guide prints it, when it is a figure: a number and, at most, a unit
+  // ("28.87 A", "1,000,000 mm²", "−3", "0.5 m") -> {value, decimals, unit}; anything else (a
+  // fraction, a power, words, "about 2.8") -> null. decimals: the places shown (the course's rounding).
+  function figureOf(answer) {
+    var str = String(answer == null ? '' : answer).replace(/[−‒–—]/g, '-').replace(/[  ]/g, ' ').trim();
+    var m = /^([+-]?\d[\d ,]*(?:\.\d+)?)\s*([^\s\d][^\s]*)?$/.exec(str);
+    if (!m) return null;
+    var num = m[1].trim(), unit = m[2] || '';
+    if (unit && !UNIT.test(unit.replace(/μ/g, 'µ').replace(/Ω/g, 'Ω'))) return null;
+    var r = readTyped(num, '');
+    if (r.value == null) return null;
+    var decimals = /\.(\d+)$/.test(num) ? num.split('.')[1].length : /^[+-]?\d+,\d{1,2}$/.test(num) ? num.split(',')[1].length : 0;
+    return { value: r.value, decimals: decimals, unit: unit };
+  }
+  // -> {state: 'right'|'wrong'|'empty'|'unreadable', value?, unit?}: right within half a unit in
+  // the last decimal the answer shows (the course's rounding).
+  function gradeTyped(text, spec) {
+    var f = figureOf(spec && spec.answer);
+    if (!f) return { state: 'unreadable' };
+    var r = readTyped(text, f.unit);
+    if (r.empty) return { state: 'empty' };
+    if (r.unreadable) return r.unit ? { state: 'unreadable', unit: true } : { state: 'unreadable' };
+    var tol = 0.5 * Math.pow(10, -f.decimals);
+    return { state: Math.abs(r.value - f.value) <= tol + 1e-9 * Math.max(1, Math.abs(f.value)) ? 'right' : 'wrong', value: r.value };
+  }
+  // The worked example's picture once solved (the guide's still step: an SVG as a plain image, or
+  // still HTML in a sandboxed frame, 53-read.js), shown with the answer: before it, it would give
+  // the answer away. None when the review could not read the guide.
+  function solvedPicture(c) {
+    var pg = c.opts.page, RT = U.readThrough;
+    if (!pg || !RT) return null;
+    if (pg.html && RT.stillHtml(pg.html, pg.style)) {
+      var box = h('div', { class: 'rd-still qc-still' });
+      requestAnimationFrame(function () {
+        if (!box.isConnected || c.stillMounted) return;
+        c.stillMounted = true;
+        var m = RT.still(box, pg.html, pg.style);
+        if (m) c.cleanups.push(function () { try { m.destroy(); } catch (e) { /* gone */ } });
+      });
+      return h('div', { class: 'qc-pic' }, label('Worked through'), box);
+    }
+    var src = RT.pic(pg.svg);
+    return src ? h('div', { class: 'qc-pic' }, label('Worked through'), h('div', { class: 'rd-well' }, h('img', { class: 'rd-pic', src: src, alt: String(pg.alt || ''), decoding: 'async' }))) : null;
+  }
+  function puzzle(c) {
+    var s = c.spec, options = Array.isArray(s.options) ? s.options.map(String) : [], at = options.indexOf(String(s.answer));
+    c.extra = function () { return solvedPicture(c); };
+    if (s.input === 'pick' && options.length >= 2 && at >= 0) {
+      c.spec = { q: s.q, options: options, answer: at, why: s.why };
+      return choice(c);
+    }
+    if (!figureOf(s.answer)) { unavailable(c, 'This puzzle cannot be answered here, so it is skipped.'); return; }
+    typed(c);
+  }
+  function typed(c) {
+    var s = c.spec, f = figureOf(s.answer), unit = f.unit;
+    c.typed = true;
+    var msg = h('p', { class: 'qc-typed-msg muted small', id: U.id('qcmsg'), 'aria-live': 'polite' });
+    var input = h('input', { class: 'input qc-typed-input', type: 'text', inputmode: 'decimal', enterkeyhint: 'done', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', maxlength: '40',
+      'aria-label': 'Your answer' + (unit ? ', in ' + unit : ''), 'aria-describedby': msg.id });
+    var check = primary('Check', submit);
+    check.disabled = true;
+    input.addEventListener('input', function () { check.disabled = !input.value.trim(); msg.textContent = ''; });
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
+    var box = h('div', { class: 'qc-typed' }, h('div', { class: 'qc-typed-row' }, input, unit ? h('span', { class: 'qc-typed-unit', 'aria-hidden': 'true' }, unit) : null), msg);
+    c.body.appendChild(box);
+    c.setFoot(check);
+    if (finePointer()) setTimeout(function () { if (!c.done) try { input.focus({ preventScroll: true }); } catch (e) {} }, 80);
+    function submit() {
+      if (c.locked) return;
+      var r = gradeTyped(input.value, s);
+      if (r.state === 'empty') { msg.textContent = 'Type your answer first.'; return; }
+      if (r.state === 'unreadable') { msg.textContent = r.unit ? (unit ? 'Type the number in ' + unit + '.' : 'Type just the number.') : 'Type a number, like ' + (f.value < 0 ? '−' : '') + '12.5' + (unit ? ' ' + unit : '') + '.'; return; }
+      c.locked = true;
+      c.answered();
+      input.readOnly = true;
+      check.disabled = true;
+      var correct = r.state === 'right', said = input.value.trim();
+      box.classList.add(correct ? 'is-right' : 'is-wrong');
+      var parts = [];
+      if (!correct) parts.push(h('p', { class: 'qc-answer' }, 'You said ' + said + '. The answer: ', inline('strong', null, String(s.answer)), '.'));
+      parts.push(why(s.why));
+      parts.push(c.extra());
+      feedback(c, {
+        correct: correct, title: correct ? RIGHT[U.hash(c.card.id) % RIGHT.length] : 'Not quite',
+        parts: parts, grade: autoGrade(c, correct), result: { answer: said },
+        about: { picked: said, answer: String(s.answer) },
+      });
+    }
+  }
+
+  var TYPES = { choice: choice, order: order, estimate: estimate, target: target, recall: recall, puzzle: puzzle, written: recall };
 
   U.cards = {
     types: Object.keys(TYPES),
@@ -10856,6 +11050,8 @@ U.interactive = (function () {
     controlOf: controlOf,
     outputOf: outputOf,
     verdictGrade: verdictGrade,
+    figureOf: figureOf,
+    gradeTyped: gradeTyped,
   };
 })();
 
@@ -11203,6 +11399,8 @@ U.interactive = (function () {
       if (r.relearn) st.ip.relearn = true;
       if (r.relearn && r.relearnId) ['relearnId', 'relearnAt', 'relearnNote'].forEach(function (k) { st.ip[k] = r[k] == null ? null : r[k]; });
       if (r.againAt) st.ip.againAt = r.againAt;
+      // Puzzles made on another device (or by the backfill) are not made again here.
+      if (r.puzzleRound != null && !(Number(st.ip.puzzleRound) >= Number(r.puzzleRound))) { st.ip.puzzleRound = r.puzzleRound; st.ip.puzzleV = r.puzzleV; }
       return null;
     }
     function watchProgress() {
@@ -12476,6 +12674,26 @@ U.interactive = (function () {
       return src.length ? sourcesDisc(src, checked) : checked ? U.h('p', { class: 'lsn-checked' }, checked) : null;
     }
 
+    // ---- Puzzles (a ready-made steps lesson quizzed through; 60-today.js) ----
+    // Its guide's worked examples (and a refresher lesson's written questions) become puzzles in
+    // the box, once for the round (puzzleRound), or again when the guide is a newer version. A
+    // read-through makes none (53-read.js). Saved in the background; a failure is made good by the
+    // next mendPuzzles, at the next open.
+    function makePuzzles() {
+      if (!st.topic || !st.topic.readyMade || st.gone || !U.review || typeof U.review.puzzlesFor !== 'function') return;
+      var gv = Number(st.topic.guideV) || 1, r0 = round();
+      if (st.ip.puzzleRound != null && Number(st.ip.puzzleRound) >= r0 && (Number(st.ip.puzzleV) || 1) >= gv) return;
+      var ip = U.clone(st.ip);
+      Promise.resolve().then(function () { return U.readThrough ? U.readThrough.guide(tid, iid) : null; }).then(function (g) {
+        return U.review.puzzlesFor(tid, iid, { guide: g, lesson: st.lesson, idea: ip, round: r0 }).then(function (n) {
+          if (g && Number(g.v) >= 2) { st.ip.puzzleRound = r0; st.ip.puzzleV = Number(g.v); }
+          if (!n) return;
+          st.puzzleText = (n === 1 ? 'Its puzzle goes' : 'Its ' + n + ' puzzles go') + ' in your puzzle box, ready from tomorrow.';
+          if (alive() && st.puzzleNote) { st.puzzleNote.textContent = st.puzzleText; st.puzzleNote.hidden = false; }
+        });
+      }).catch(function (e) { if (!(e && e.queued)) U.toast('Your puzzles could not be saved: ' + U.errText(e), { kind: 'bad' }); });
+    }
+
     // ---- Done ----
     function addDone(live) {
       var first = live && !st.replay && !st.ip.doneAt, read = reading();
@@ -12490,6 +12708,8 @@ U.interactive = (function () {
         if (stepsLesson() && (st.ip.quizRound == null || Number(st.ip.quizRound) !== round())) f.quizRound = st.ip.quizRound = round();
         st.ip.stage = 'done';
         saveIdea(f);
+        // Quizzed through: its worked examples become puzzles in the box (never by a read-through).
+        if (stepsLesson()) makePuzzles();
         // Review cards come from the first time through (or a fresh round of Learn it again). The
         // round is recorded with them, so cards lost with a closed app are made at the next open.
         if (first && !read && U.review && typeof U.review.addFromLesson === 'function' && !st.gone) {
@@ -12506,6 +12726,7 @@ U.interactive = (function () {
         // A steps lesson read through first and quizzed through now is quizzed (V.readThrough).
         if (stepsLesson() && (st.ip.quizRound == null || Number(st.ip.quizRound) !== round())) again.quizRound = st.ip.quizRound = round();
         saveIdea(again);
+        if (stepsLesson()) makePuzzles();
       }
       st.stage = 'done';
       var res = run().checks || {};
@@ -12522,8 +12743,10 @@ U.interactive = (function () {
         ? U.h('section', { class: 'lsn-stage lsn-done' + (party ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': 'Idea read' },
           U.h('div', { class: 'lsn-done-mark', 'aria-hidden': 'true' }, U.icon('tick')),
           heading('Lesson complete'),
-          // A steps lesson was done, not read: no "just for reading" line under its heading.
-          stepsLesson() ? null : U.h('p', { class: 'lsn-done-text' }, U.h('span', null, 'This one was just for reading, so nothing comes back in review.')),
+          // A steps lesson was done, not read: no "just for reading" line under its heading; once
+          // its puzzles are saved, a line says where they went.
+          stepsLesson() ? (st.puzzleNote = U.h('p', { class: 'lsn-done-text lsn-puzzles', role: 'status', hidden: !st.puzzleText }, st.puzzleText || ''))
+            : U.h('p', { class: 'lsn-done-text' }, U.h('span', null, 'This one was just for reading, so nothing comes back in review.')),
           nx
             ? U.h('div', { class: 'lsn-next' }, eyebrow('Next'), U.h('h3', null, String(nx.title || 'The next idea')), nextStatus(nx),
               go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Next lesson', U.icon('arrow')),
@@ -13232,7 +13455,8 @@ U.interactive = (function () {
 // decide). Shown in the lesson's reading column, nothing hidden and
 // nothing to answer. "Finished reading" records the idea as read (readRound, as any read lesson:
 // no review cards), and readThrough, so the course page can tell a lesson read through from one
-// quizzed through (V.readThrough in 70-learn.js). A lesson without a guide has no read-through:
+// quizzed through (V.readThrough in 70-learn.js). Only quizzing through it puts its puzzles in the
+// box (60-today.js, puzzleRound): reading it through makes none. A lesson without a guide has no read-through:
 // its address opens the lesson as it is.
 //
 //   U.readThrough.guide(tid, iid) -> Promise<guide | null>   read once per page load, then cached
@@ -13490,6 +13714,23 @@ U.interactive = (function () {
 //   Ideas read, not studied ("Just teach me": progress readRound is the idea's round) have no
 //   cards, and any left from an earlier round are never counted anywhere (loadCards).
 //
+// Puzzles (phase 6, Dan 20 Oct): a ready-made steps lesson is a read lesson and makes no check
+// cards, but finishing it by quizzing through it (not by "Just read it through") turns its guide's
+// worked examples into cards of type 'puzzle' and a refresher lesson's Section B questions into
+// cards of type 'written', in the same cards doc, scheduled by FSRS like the rest:
+//   U.review.puzzlesFrom(tid, iid, guide, lesson, idea) -> {[cardId]: card without a schedule}   pure
+//       iid_x<n>: the n-th example page with an answer it can be asked by (typed: a figure;
+//       pick: the guide's own options, version 2 guides); iid_w_<qid>: each lesson.written question
+//   U.review.addPuzzles(tid, iid, made, {round, at, due, guideV}) -> Promise<[cardId]>   writes them
+//       (unchanged questions keep their schedule), then records puzzleRound (and puzzleV) on progress
+//   U.review.puzzlesFor(tid, iid, {guide, lesson, idea, round}) -> Promise<n>   the lesson screen's
+//       call when Dan finishes a steps lesson by quizzing through it
+//   U.review.mendPuzzles() -> Promise<[{tid, iid}]>   the backfill: lessons quizzed through before
+//       (or whose puzzles could not be saved) get theirs once, their first days spread out
+//   A puzzle or written card is left out only while its lesson was read through and not quizzed
+//   (V.readThrough); Learn it again and slipping never count them (ready-made lessons are never
+//   rewritten in the page).
+//
 // Routes: '#/today' (tab), '#/review' and '#/review/more' (focus mode, one card per screen); either
 // review with ?topic=<tid> takes that course's puzzles only, and closes back to where it was opened.
 // Today is the puzzle box (Dan, 18 Oct: the Library home design): it counts the puzzles in the box
@@ -13507,8 +13748,11 @@ U.interactive = (function () {
   var h = U.h;
   var DEFAULT_CAP = 15, LIGHT_CAP = 5, MORE = 5;
   var LAPSE_DAYS = 30, LAPSE_LIMIT = 2, HIST_MAX = 40;
-  var SECONDS = { choice: 25, order: 40, estimate: 30, target: 60, recall: 90 };
+  var SECONDS = { choice: 25, order: 40, estimate: 30, target: 60, recall: 90, puzzle: 40, written: 120 };
   var TYPES = { choice: 1, order: 1, estimate: 1, target: 1 };
+  // Cards made from a ready-made lesson's guide and its written questions, never from its checks.
+  var GUIDED = { puzzle: 1, written: 1 };
+  function guided(c) { return !!c && GUIDED[c.type] === 1; }
 
   // ---------- data ----------
   function flatten(all) {
@@ -13532,15 +13776,29 @@ U.interactive = (function () {
   function readIdea(idea) {
     return !!idea && typeof idea === 'object' && idea.readRound != null && Number(idea.readRound) === (Number(idea.round) || 0);
   }
+  // A ready-made steps lesson finished this round by its read-through only (readThrough is the
+  // round, quizRound is not; V.readThrough in 70-learn.js). Quizzed through, or finished before
+  // there were two ways (neither field), it keeps its puzzles: a steps lesson is a read lesson
+  // either way, so its puzzle and written cards go by this, not by readIdea.
+  function readThroughOnly(idea) {
+    if (!readIdea(idea) || idea.stage !== 'done') return false;
+    var r = Number(idea.round) || 0;
+    return idea.readThrough != null && Number(idea.readThrough) === r && !(idea.quizRound != null && Number(idea.quizRound) === r);
+  }
+  function quizzed(idea) { return !!idea && typeof idea === 'object' && idea.stage === 'done' && !readThroughOnly(idea); }
   // Every usable card; the cards of topics deleted (here or on another device) are dropped and
-  // their leftover docs removed; the cards of ideas he chose only to read are left out.
+  // their leftover docs removed; the cards of ideas he chose only to read are left out (puzzles:
+  // of lessons only read through).
   function loadCards() {
     return Promise.all([U.store.cards.all(), U.store.progress.all().catch(function () { return {}; })]).then(function (r) {
       var all = r[0], prog = r[1] || {};
       var tids = Object.keys(all);
       if (!tids.length) return [];
       function usable(list) {
-        return list.filter(function (c) { var p = prog[c.tid], ideas = p && p.ideas; return !(ideas && readIdea(ideas[c.iid])); });
+        return list.filter(function (c) {
+          var p = prog[c.tid], ideas = p && p.ideas, idea = ideas && ideas[c.iid];
+          return guided(c) ? !(idea && readThroughOnly(idea)) : !(idea && readIdea(idea));
+        });
       }
       return U.store.topicsExist(tids).then(function (ok) {
         var keep = {};
@@ -13666,11 +13924,12 @@ U.interactive = (function () {
   }
 
   // The Agains (their times) on each idea's cards in the last 30 days, since its lesson was last
-  // finished; only ideas with enough of them to be slipping.
+  // finished; only ideas with enough of them to be slipping. Puzzles never count: their lessons are
+  // ready-made, never rewritten in the page, so there is no Learn it again to offer.
   function slippingIn(cards, day) {
     var since = U.addDays(day, -LAPSE_DAYS), groups = {};
     cards.forEach(function (c) {
-      if (c.retired) return;
+      if (c.retired || guided(c)) return;
       hist(c).forEach(function (e) {
         if (e.grade !== 1 || !e.at || dayOf(e.at) <= since) return;
         if (c.learnedAt && e.at < c.learnedAt) return;
@@ -13752,10 +14011,37 @@ U.interactive = (function () {
     return doc.status === 'writing' && isFinite(t) && Date.now() - t < WRITING_MS;
   }
 
+  // A puzzle's or written card's question without what may change around it (his latest words,
+  // where its page sits in the guide, its name), keys in order.
+  var LOOSE = { mine: 1, page: 1, name: 1, title: 1 };
+  function core(sp) { var o = {}; Object.keys(sp).sort().forEach(function (k) { if (!LOOSE[k]) o[k] = sp[k]; }); return JSON.stringify(o); }
   function sameQuestion(a, b, type) {
     if (!a || !b) return false;
     if (type === 'recall') return a.prompt === b.prompt && a.model === b.model;
+    if (GUIDED[type]) return core(a) === core(b);
     return JSON.stringify(a) === JSON.stringify(b);
+  }
+  // The patch that gives this idea `made` as its cards of one kind (own(card): check cards or
+  // guided ones): unchanged questions keep their schedule (Dan's latest words refreshed), changed
+  // ones start afresh, ones no longer made are removed. due[id]: a later first day for a new card.
+  function ideaPatch(cards, iid, made, own, now, day, due) {
+    var patch = { cards: {} };
+    Object.keys(cards).forEach(function (id) { var c = cards[id]; if (c && c.iid === iid && own(c) && !made[id]) patch.cards[id] = null; });
+    Object.keys(made).forEach(function (id) {
+      var m = made[id], old = cards[id];
+      if (old && old.s && old.type === m.type && sameQuestion(old.spec, m.spec, m.type)) {
+        var keep = { spec: U.store.replacing(old.spec, m.spec), learnedAt: now };
+        if (old.retired != null) keep.retired = null;
+        patch.cards[id] = keep;
+      } else {
+        m.createdAt = now;
+        m.learnedAt = now;
+        m.s = U.fsrs.init(day, due && due[id]);
+        m.hist = [];
+        patch.cards[id] = old && typeof old === 'object' ? U.store.replacing(old, m) : m;
+      }
+    });
+    return patch;
   }
 
   // opts.round: the round Dan finished; once the cards are saved it is recorded on the idea's
@@ -13785,23 +14071,10 @@ U.interactive = (function () {
     // Only this idea's cards change: unchanged questions keep their schedule (Dan's latest words
     // refreshed), changed ones start afresh, ones the lesson no longer has are removed. A re-learned
     // lesson reuses check ids (c1, c2...), so a card is kept only when its question is the same.
+    // (A ready-made lesson's puzzles are not this idea's check cards: they are left as they are.)
     return U.store.cards.get(tid).then(function (doc) {
-      var cards = (doc && doc.cards) || {}, patch = { cards: {} };
-      Object.keys(cards).forEach(function (id) { var c = cards[id]; if (c && c.iid === iid && !made[id]) patch.cards[id] = null; });
-      Object.keys(made).forEach(function (id) {
-        var m = made[id], old = cards[id];
-        if (old && old.s && old.type === m.type && sameQuestion(old.spec, m.spec, m.type)) {
-          var keep = { spec: U.store.replacing(old.spec, m.spec), learnedAt: now };
-          if (old.retired != null) keep.retired = null;
-          patch.cards[id] = keep;
-        } else {
-          m.createdAt = now;
-          m.learnedAt = now;
-          m.s = U.fsrs.init(day);
-          m.hist = [];
-          patch.cards[id] = old && typeof old === 'object' ? U.store.replacing(old, m) : m;
-        }
-      });
+      var cards = (doc && doc.cards) || {};
+      var patch = ideaPatch(cards, iid, made, function (c) { return !guided(c); }, now, day, null);
       changed();
       return Object.keys(patch.cards).length ? U.store.cards.patch(tid, patch) : null;
     }).then(function () {
@@ -13820,6 +14093,212 @@ U.interactive = (function () {
       if (e && e.queued) throw e;
       throw U.store.retryLater(e, function () { return addFromLesson(tid, iid, lesson, outcome, opts); });
     });
+  }
+
+  // ---------- puzzles: a ready-made steps lesson's worked examples ----------
+  // A guide's example page (tools/course/guide.mjs) becomes a puzzle when it can be asked here:
+  // version 2 guides say how each was answered in the lesson (`input`: 'typed' into a K.answer
+  // field, or 'pick' from `options`, the lesson's own buttons). A figure ("28.87 A") is typed,
+  // a stronger test than spotting it, unless the task names the options ("Which of these…");
+  // anything else is picked from the lesson's options. Examples answered by dragging or colouring
+  // (no input), and every example of an older guide, make none.
+  function str(v) { return typeof v === 'string' ? v : v == null ? '' : String(v); }
+  var NAMES_OPTIONS = /\b(these|the options|which one)\b/i;
+  function puzzleSpec(p, at) {
+    var task = str(p.task).trim(), answer = str(p.answer).trim();
+    if (!task || !answer || !U.cards || typeof U.cards.figureOf !== 'function') return null;
+    var options = Array.isArray(p.options) ? p.options.map(function (o) { return str(o).trim(); }).filter(Boolean) : [];
+    var pick = p.input === 'pick' && options.length >= 2 && options.length <= 8 && options.indexOf(answer) >= 0;
+    var fig = !!U.cards.figureOf(answer);
+    var input = p.input === 'typed' && fig ? 'typed' : pick && fig && !NAMES_OPTIONS.test(task) ? 'typed' : pick ? 'pick' : null;
+    if (!input) return null;
+    var spec = { q: task, answer: answer, why: str(p.why).trim(), input: input, page: at };
+    if (input === 'pick') spec.options = options;
+    if (str(p.name)) spec.name = str(p.name).slice(0, 80);
+    return spec;
+  }
+  // -> {[cardId]: {id, tid, iid, type, spec}} (no schedule yet). Pure.
+  //   iid_x<n>   the n-th example page of the guide, when it can be asked (puzzleSpec)
+  //   iid_w_<q>  each written question of a refresher lesson (lesson.written[q]: {q, points, need,
+  //              model}), with Dan's latest words for it (idea.written) as `mine`
+  function puzzlesFrom(tid, iid, guide, lesson, idea) {
+    var made = {}, pages = guide && Array.isArray(guide.pages) ? guide.pages : [], n = 0;
+    pages.forEach(function (p, at) {
+      if (!p || typeof p !== 'object' || p.kind !== 'example') return;
+      n++;
+      var spec = puzzleSpec(p, at), id = iid + '_x' + n;
+      if (spec) made[id] = { id: id, tid: tid, iid: iid, type: 'puzzle', spec: spec };
+    });
+    var written = lesson && lesson.written && typeof lesson.written === 'object' ? lesson.written : {};
+    Object.keys(written).forEach(function (qid) {
+      var w = written[qid];
+      if (!w || typeof w !== 'object' || !str(w.q).trim() || !U.validId(qid)) return;
+      var points = (Array.isArray(w.points) ? w.points : []).filter(function (p) { return p && str(p.text).trim(); })
+        .map(function (p) { return { text: str(p.text).trim(), cite: str(p.cite).trim() }; });
+      if (!points.length) return;
+      var spec = { qid: qid, q: str(w.q).trim(), points: points, model: str(w.model).trim() };
+      if (Number.isInteger(w.need) && w.need > 0) spec.need = w.need;
+      if (str(lesson.title)) spec.title = str(lesson.title);
+      var tries = U.list(idea && idea.written && idea.written[qid]).filter(function (t) { return t && str(t.text).trim(); });
+      if (tries.length) spec.mine = str(tries[tries.length - 1].text).slice(0, 3000);
+      var id = iid + '_w_' + qid;
+      made[id] = { id: id, tid: tid, iid: iid, type: 'written', spec: spec };
+    });
+    return made;
+  }
+  // The cards doc stays under the db's limit (256 KiB): new cards that would take it past this are
+  // left out (and said in the console); a course's puzzles come to about 110 KB.
+  var CARDS_LIMIT = 230 * 1024;
+  function fit(cards, patch) {
+    var after = Object.assign({}, cards);
+    Object.keys(patch.cards).forEach(function (id) { var v = patch.cards[id]; if (v === null) delete after[id]; else after[id] = cards[id] ? Object.assign({}, cards[id], v) : v; });
+    var size = JSON.stringify({ cards: after }).length;
+    var fresh = Object.keys(patch.cards).filter(function (id) { return patch.cards[id] && !cards[id]; });
+    while (size > CARDS_LIMIT && fresh.length) {
+      var id = fresh.pop();
+      size -= JSON.stringify(patch.cards[id]).length + id.length + 4;
+      delete patch.cards[id];
+      console.warn('puzzle left out: the cards doc is full', id);
+    }
+    return patch;
+  }
+  // opts.round: the round he quizzed through, recorded as puzzleRound once saved (with puzzleV, the
+  // guide version they came from), so mendPuzzles can tell a lesson whose puzzles were never made.
+  // opts.only 'written': an older guide, whose examples cannot be asked yet: only the written
+  // questions are written, and nothing is recorded (the guide's next version makes the rest).
+  // opts.due {[cardId]: day}: later first days (the backfill's spread). opts.at: when he finished.
+  function addPuzzles(tid, iid, made, opts) {
+    opts = opts || {};
+    var now = opts.at || U.now(), day = U.studyDay(), mk = tid + '/' + iid;
+    making[mk] = (making[mk] || 0) + 1;
+    function done() { if (!--making[mk]) delete making[mk]; }
+    var own = opts.only ? function (c) { return c.type === opts.only; } : guided;
+    return U.store.cards.get(tid).then(function (doc) {
+      var cards = (doc && doc.cards) || {};
+      var patch = fit(cards, ideaPatch(cards, iid, made, own, now, day, opts.due));
+      changed();
+      return Object.keys(patch.cards).length ? U.store.cards.patch(tid, patch) : null;
+    }).then(function () {
+      done();
+      U.review.refreshBadge();
+      if (typeof opts.round !== 'number') return Object.keys(made);
+      var mark = { ideas: {} };
+      mark.ideas[iid] = { puzzleRound: opts.round };
+      if (opts.guideV) mark.ideas[iid].puzzleV = opts.guideV;
+      return U.store.progress.patch(tid, mark).catch(function () {}).then(function () { return Object.keys(made); });
+    }, function (e) {
+      done();
+      if (e && e.queued) throw e;
+      throw U.store.retryLater(e, function () { return addPuzzles(tid, iid, made, opts); });
+    });
+  }
+  // The lesson screen, when Dan finishes a steps lesson by quizzing through it: its puzzles, first
+  // in the box the next study day. -> Promise<number of cards>
+  function puzzlesFor(tid, iid, o) {
+    o = o || {};
+    var v = o.guide && Number(o.guide.v) || 1, made = puzzlesFrom(tid, iid, o.guide, o.lesson, o.idea);
+    if (v < 2 && !Object.keys(made).length) return Promise.resolve(0);
+    return addPuzzles(tid, iid, made, v >= 2 ? { round: Number(o.round) || 0, guideV: v } : { only: 'written' })
+      .then(function (ids) { return ids.length; });
+  }
+
+  // ---------- the backfill: puzzles for lessons quizzed through before ----------
+  // At boot and when Today opens (with mendCards): every lesson of a ready-made course whose guides
+  // can be asked (topic.guideV >= 2, stamped by tools/course/assemble.mjs) that Dan finished by
+  // quizzing through it, in a round with no puzzles made (puzzleRound) or from an older guide
+  // (puzzleV), gets them now, once. The guides are read one at a time, oldest finished lesson
+  // first. So that a long list does not land in the box at once, the new cards' first days are
+  // spread: round the lessons, a puzzle from each in turn, at most half the daily limit of new
+  // cards a day (counting new cards already waiting), from tomorrow.
+  var puzzling = null, puzzledAt = 0;
+  function newPerDay(prefs) {
+    var cap = prefs && prefs.cap > 0 ? prefs.cap : DEFAULT_CAP;
+    if (prefs && prefs.light) cap = Math.min(cap, LIGHT_CAP);
+    return Math.max(3, Math.round(cap / 2));
+  }
+  // -> {tid: {cardId: day}} for the cards new to the box (a question already there keeps its day).
+  function spread(list, all, day, perDay) {
+    var count = {}, due = {}, d = U.addDays(day, 1);
+    Object.keys(all || {}).forEach(function (tid) {
+      var cs = (all[tid] && all[tid].cards) || {};
+      Object.keys(cs).forEach(function (id) {
+        var c = cs[id];
+        if (c && c.s && c.s.due && !c.retired && !(Number(c.s.reps) > 0) && c.s.due >= d) count[c.s.due] = (count[c.s.due] || 0) + 1;
+      });
+    });
+    var lists = list.map(function (t) {
+      var cs = (all[t.tid] && all[t.tid].cards) || {};
+      return Object.keys(t.made).filter(function (id) {
+        var old = cs[id], m = t.made[id];
+        return !(old && old.s && old.type === m.type && sameQuestion(old.spec, m.spec, m.type));
+      });
+    });
+    for (var r = 0, more = true; more; r++) {
+      more = false;
+      lists.forEach(function (ids, k) {
+        if (r >= ids.length) return;
+        more = true;
+        while ((count[d] || 0) >= perDay) d = U.addDays(d, 1);
+        var tid = list[k].tid;
+        (due[tid] = due[tid] || {})[ids[r]] = d;
+        count[d] = (count[d] || 0) + 1;
+      });
+    }
+    return due;
+  }
+  // -> Promise<[{tid, iid}]> the lessons given puzzles now. Never rejects; at most once a minute
+  // after a clean run (force: run anyway), never twice at once.
+  function mendPuzzles(force) {
+    if (puzzling) return puzzling;
+    if (!force && Date.now() - puzzledAt < MEND_EVERY) return Promise.resolve([]);
+    if (!U.store.guide || typeof U.store.guide.get !== 'function') return Promise.resolve([]);
+    var out = [], ok = true;
+    puzzling = Promise.all([U.store.progress.all(), U.store.topics.list(), U.store.profile.get().catch(function () { return null; })]).then(function (r) {
+      var prog = r[0] || {}, topics = {}, prefs = (r[2] && r[2].prefs) || {}, todo = [];
+      (r[1] || []).forEach(function (t) { if (t) topics[t.__id || t.id] = t; });
+      Object.keys(prog).forEach(function (tid) {
+        var t = topics[tid], gv = t && Number(t.guideV) || 0;
+        if (!t || !t.readyMade || gv < 2) return;
+        var ideas = (prog[tid] && prog[tid].ideas) || {};
+        Object.keys(ideas).forEach(function (iid) {
+          var idea = ideas[iid], round = Number(idea && idea.round) || 0;
+          if (!quizzed(idea) || making[tid + '/' + iid]) return;
+          if (idea.puzzleRound != null && Number(idea.puzzleRound) >= round && (Number(idea.puzzleV) || 1) >= gv) return;
+          todo.push({ tid: tid, iid: iid, idea: idea, round: round, gv: gv, at: str(idea.doneAt) });
+        });
+      });
+      if (!todo.length) return null;
+      todo.sort(function (a, b) { return a.at < b.at ? -1 : a.at > b.at ? 1 : 0; });
+      return todo.reduce(function (chain, t) {
+        return chain.then(function () {
+          return U.store.guide.get(t.tid, t.iid).then(function (g) {
+            // A refresher lesson (its guide opens on the Keep this card) has written questions:
+            // the lesson doc holds them. Other lessons need only the guide.
+            var refresher = !!(g && Array.isArray(g.pages) && g.pages.some(function (p) { return p && (p.kind === 'summary' || p.written); }));
+            return (refresher ? U.store.lesson.get(t.tid, t.iid).then(function (d) { return (d && d.lesson) || null; }) : Promise.resolve(null)).then(function (lesson) {
+              t.made = puzzlesFrom(t.tid, t.iid, g, lesson, t.idea);
+            });
+          }).catch(function (e) { ok = false; t.skip = true; console.warn('puzzles', t.tid, t.iid, e); });
+        });
+      }, Promise.resolve()).then(function () {
+        var ready = todo.filter(function (t) { return !t.skip; });
+        if (!ready.length) return null;
+        return U.store.cards.all().then(function (all) {
+          var due = spread(ready, all, U.studyDay(), newPerDay(prefs));
+          return ready.reduce(function (chain, t) {
+            return chain.then(function () {
+              if (making[t.tid + '/' + t.iid]) return null;
+              return addPuzzles(t.tid, t.iid, t.made, { round: t.round, guideV: t.gv, at: t.at || null, due: due[t.tid] || {} })
+                .then(function () { out.push({ tid: t.tid, iid: t.iid }); });
+            }).catch(function (e) { ok = false; console.warn('puzzles', t.tid, t.iid, e); });
+          }, Promise.resolve());
+        });
+      });
+    }).then(function () { if (ok) puzzledAt = Date.now(); return out; }, function (e) {
+      console.warn('mend puzzles', e);
+      return out;
+    }).then(function (x) { puzzling = null; if (x.length) U.review.refreshBadge(); return x; });
+    return puzzling;
   }
 
   // ---------- cards that were never made ----------
@@ -13862,7 +14341,11 @@ U.interactive = (function () {
   }
   // -> Promise<[{tid, iid}]> the ideas whose cards were made now. Never rejects. Runs at most
   // once a minute after one that went through (force: run anyway), and never twice at once.
+  // The check cards of studied ideas, then the puzzles of quizzed ready-made lessons (mendPuzzles).
   function mendCards(force) {
+    return mendChecks(force).then(function (a) { return mendPuzzles(force).then(function (b) { return a.concat(b); }); });
+  }
+  function mendChecks(force) {
     if (mending) return mending;
     if (!force && Date.now() - mendedAt < MEND_EVERY) return Promise.resolve([]);
     var out = [], ok = true;
@@ -13962,6 +14445,11 @@ U.interactive = (function () {
     _hold: holding,
     _clearWords: clearWords,
     _backCount: backCount,
+    puzzlesFrom: puzzlesFrom,
+    addPuzzles: addPuzzles,
+    puzzlesFor: puzzlesFor,
+    mendPuzzles: mendPuzzles,
+    _spread: spread,
   };
 
   // ---------- shared view bits ----------
@@ -13976,10 +14464,10 @@ U.interactive = (function () {
     return Math.max(1, Math.round(s / 60));
   }
   function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many || one + 's'); }
-  // "4 cards, from 2 ideas:" above the list of ideas coming back.
+  // "4 puzzles, from 2 lessons:" above the list of lessons coming back (a review says puzzles).
   function backCount(cards, ideas) {
-    if (ideas === 1) return cards === 1 ? 'One card, from this idea:' : plural(cards, 'card') + ', all from this idea:';
-    return plural(cards, 'card') + ', from ' + ideas + ' ideas:';
+    if (ideas === 1) return cards === 1 ? 'One puzzle, from this lesson:' : plural(cards, 'puzzle') + ', all from this lesson:';
+    return plural(cards, 'puzzle') + ', from ' + ideas + ' lessons:';
   }
   function longDate(day) {
     var p = day.split('-').map(Number);
@@ -14214,6 +14702,21 @@ U.interactive = (function () {
     }
   }
 
+  // A puzzle's worked example in its guide, as the card shows it with the answer: {svg, html, alt,
+  // style} | null (no guide here, a page that is not that example any more, or a read over 5 s).
+  function pageFor(card) {
+    var RT = U.readThrough, sp = card.spec || {};
+    if (!RT || typeof RT.guide !== 'function' || typeof sp.page !== 'number') return Promise.resolve(null);
+    return Promise.race([
+      RT.guide(card.tid, card.iid).then(function (g) {
+        var p = g && Array.isArray(g.pages) ? g.pages[sp.page] : null;
+        if (!p || p.kind !== 'example' || str(p.task).trim() !== sp.q) return null;
+        return p.svg || p.html ? { svg: p.svg || null, html: p.html || null, alt: str(p.alt), style: str(g.style) } : null;
+      }, function () { return null; }),
+      U.sleep(5000).then(function () { return null; }),
+    ]);
+  }
+
   // ---------- #/review ----------
   function reviewView(extra) {
     return function (params, ctx) {
@@ -14266,6 +14769,9 @@ U.interactive = (function () {
       //               makes the idea's cards afresh), as for a card whose control has gone;
       //   'later'     the lesson could not be read just now: still due, for the next session.
       function lessonFor(card) {
+        // A puzzle shows its worked example's picture with the answer: the guide's page, read once
+        // per page load (U.readThrough.guide); without it, the puzzle is words only.
+        if (card.type === 'puzzle') return pageFor(card).then(function (page) { return { use: 'ok', doc: null, page: page }; });
         if (card.type !== 'target') return Promise.resolve({ use: 'ok', doc: null });
         return U.store.lesson.get(card.tid, card.iid).then(function (doc) {
           if (!doc) return { use: 'retire' };
@@ -14296,12 +14802,15 @@ U.interactive = (function () {
             return showCard();
           }
           where.textContent = topicTitle(S.topics, card.tid) + ' · ' + ideaTitle(S.topics, card.tid, card.iid);
-          var el = U.cards.render(card, { mode: 'review', lesson: l.doc, ask: function (text, o) { askAbout(card, text, o); }, onDone: function (r) { answered(card, r); } });
+          var el = U.cards.render(card, { mode: 'review', lesson: l.doc, page: l.page || null, ask: function (text, o) { askAbout(card, text, o); }, onDone: function (r) { answered(card, r); } });
           S.el = el;
           U.clear(stage).appendChild(el);
           window.scrollTo(0, 0);
           var q = el.querySelector('.qc-q');
           if (q) { q.setAttribute('tabindex', '-1'); try { q.focus({ preventScroll: true }); } catch (e) {} }
+          // The next puzzle's guide is read while he answers this one.
+          var nx = S.queue[S.i + 1];
+          if (nx && nx.type === 'puzzle') pageFor(nx);
         });
       }
       // A reply to Claude's note on an answer (D4): Ask Claude about this card's idea, opened with

@@ -16,10 +16,30 @@ and the shelves (planned shelves and courses folded away); a picture on the less
 the course's puzzles on its page; Today as the puzzle box with By course and Just these;
 #/review?topic=. Learn's screen is unhooked, not deleted (V.learnScreen).
 
+Phase 6, puzzles as review cards (built 20 Oct 2026 on Dan's yes; not yet published): finishing a
+ready-made steps lesson by quizzing through it (never by "Just read it through") turns each
+worked example of its guide into a `puzzle` card (typed when the answer is a figure, graded to the
+course's rounding; picked from the lesson's own options otherwise; the solved picture and the why,
+as Claude's note, after the answer) and each Section B question of a refresher lesson into a
+`written` card (marked by Claude against its points, Dan's own ticks when Claude cannot be
+reached). Lessons quizzed through before get theirs once, at the next open, spread over days
+(half the daily limit of new puzzles a day). guide.mjs writes version 2 guides (how each example
+is asked: `input`, `options`, `unit`; `written` on a written page; `--answers` adds them to an
+existing guide without redrawing it), and assemble.mjs stamps `topic.guideV`. Every course's guide
+in docs/courses has been brought to version 2 with `--answers`.
+
 ## The Library home: still open
-- Phase 6 (puzzles as review cards from each finished steps lesson's guide examples) waits for
-  Dan's yes. Until then ready-made courses make no cards, so the puzzle row, a course's puzzles
-  and Today's box show only what study-mode topics left.
+- Phase 6 goes live in two steps, either order: publish the app; and re-run `assemble.mjs docs`
+  for every built course and write its guide docs and topic doc (the topic doc now carries
+  `guideV: 2`). Until a course's topic doc says `guideV: 2`, the app makes none of its puzzles
+  (old guides cannot say how an example is asked) and the backfill reads none of its guides; a
+  lesson quizzed in the meantime gets its written questions only, and the rest once guideV lands.
+- Puzzle pictures are the guide's solved state, so they show only with the answer. A task that
+  needs its picture to be answered ("What is this triangle's area?") is answered from its words
+  alone; a version 3 guide could keep the unsolved picture for such examples (guides are near the
+  250 KB limit, so only where the task needs it).
+- Examples answered by dragging or colouring (no `input`) make no puzzle; nor do complex numbers
+  2-8, whose examples carry no answer.
 - Deleting Learn's unhooked code (the ask box, intake, planning states, the welcome) and its
   CSS waits for Dan to confirm (docs/HANDOFF-redesign.md section 4).
 - Look-up reads up to twelve lesson docs per search to say "ready to browse" or "coming soon". If

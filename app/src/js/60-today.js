@@ -27,6 +27,23 @@
 //   Ideas read, not studied ("Just teach me": progress readRound is the idea's round) have no
 //   cards, and any left from an earlier round are never counted anywhere (loadCards).
 //
+// Puzzles (phase 6, Dan 20 Oct): a ready-made steps lesson is a read lesson and makes no check
+// cards, but finishing it by quizzing through it (not by "Just read it through") turns its guide's
+// worked examples into cards of type 'puzzle' and a refresher lesson's Section B questions into
+// cards of type 'written', in the same cards doc, scheduled by FSRS like the rest:
+//   U.review.puzzlesFrom(tid, iid, guide, lesson, idea) -> {[cardId]: card without a schedule}   pure
+//       iid_x<n>: the n-th example page with an answer it can be asked by (typed: a figure;
+//       pick: the guide's own options, version 2 guides); iid_w_<qid>: each lesson.written question
+//   U.review.addPuzzles(tid, iid, made, {round, at, due, guideV}) -> Promise<[cardId]>   writes them
+//       (unchanged questions keep their schedule), then records puzzleRound (and puzzleV) on progress
+//   U.review.puzzlesFor(tid, iid, {guide, lesson, idea, round}) -> Promise<n>   the lesson screen's
+//       call when Dan finishes a steps lesson by quizzing through it
+//   U.review.mendPuzzles() -> Promise<[{tid, iid}]>   the backfill: lessons quizzed through before
+//       (or whose puzzles could not be saved) get theirs once, their first days spread out
+//   A puzzle or written card is left out only while its lesson was read through and not quizzed
+//   (V.readThrough); Learn it again and slipping never count them (ready-made lessons are never
+//   rewritten in the page).
+//
 // Routes: '#/today' (tab), '#/review' and '#/review/more' (focus mode, one card per screen); either
 // review with ?topic=<tid> takes that course's puzzles only, and closes back to where it was opened.
 // Today is the puzzle box (Dan, 18 Oct: the Library home design): it counts the puzzles in the box
@@ -44,8 +61,11 @@
   var h = U.h;
   var DEFAULT_CAP = 15, LIGHT_CAP = 5, MORE = 5;
   var LAPSE_DAYS = 30, LAPSE_LIMIT = 2, HIST_MAX = 40;
-  var SECONDS = { choice: 25, order: 40, estimate: 30, target: 60, recall: 90 };
+  var SECONDS = { choice: 25, order: 40, estimate: 30, target: 60, recall: 90, puzzle: 40, written: 120 };
   var TYPES = { choice: 1, order: 1, estimate: 1, target: 1 };
+  // Cards made from a ready-made lesson's guide and its written questions, never from its checks.
+  var GUIDED = { puzzle: 1, written: 1 };
+  function guided(c) { return !!c && GUIDED[c.type] === 1; }
 
   // ---------- data ----------
   function flatten(all) {
@@ -69,15 +89,29 @@
   function readIdea(idea) {
     return !!idea && typeof idea === 'object' && idea.readRound != null && Number(idea.readRound) === (Number(idea.round) || 0);
   }
+  // A ready-made steps lesson finished this round by its read-through only (readThrough is the
+  // round, quizRound is not; V.readThrough in 70-learn.js). Quizzed through, or finished before
+  // there were two ways (neither field), it keeps its puzzles: a steps lesson is a read lesson
+  // either way, so its puzzle and written cards go by this, not by readIdea.
+  function readThroughOnly(idea) {
+    if (!readIdea(idea) || idea.stage !== 'done') return false;
+    var r = Number(idea.round) || 0;
+    return idea.readThrough != null && Number(idea.readThrough) === r && !(idea.quizRound != null && Number(idea.quizRound) === r);
+  }
+  function quizzed(idea) { return !!idea && typeof idea === 'object' && idea.stage === 'done' && !readThroughOnly(idea); }
   // Every usable card; the cards of topics deleted (here or on another device) are dropped and
-  // their leftover docs removed; the cards of ideas he chose only to read are left out.
+  // their leftover docs removed; the cards of ideas he chose only to read are left out (puzzles:
+  // of lessons only read through).
   function loadCards() {
     return Promise.all([U.store.cards.all(), U.store.progress.all().catch(function () { return {}; })]).then(function (r) {
       var all = r[0], prog = r[1] || {};
       var tids = Object.keys(all);
       if (!tids.length) return [];
       function usable(list) {
-        return list.filter(function (c) { var p = prog[c.tid], ideas = p && p.ideas; return !(ideas && readIdea(ideas[c.iid])); });
+        return list.filter(function (c) {
+          var p = prog[c.tid], ideas = p && p.ideas, idea = ideas && ideas[c.iid];
+          return guided(c) ? !(idea && readThroughOnly(idea)) : !(idea && readIdea(idea));
+        });
       }
       return U.store.topicsExist(tids).then(function (ok) {
         var keep = {};
@@ -203,11 +237,12 @@
   }
 
   // The Agains (their times) on each idea's cards in the last 30 days, since its lesson was last
-  // finished; only ideas with enough of them to be slipping.
+  // finished; only ideas with enough of them to be slipping. Puzzles never count: their lessons are
+  // ready-made, never rewritten in the page, so there is no Learn it again to offer.
   function slippingIn(cards, day) {
     var since = U.addDays(day, -LAPSE_DAYS), groups = {};
     cards.forEach(function (c) {
-      if (c.retired) return;
+      if (c.retired || guided(c)) return;
       hist(c).forEach(function (e) {
         if (e.grade !== 1 || !e.at || dayOf(e.at) <= since) return;
         if (c.learnedAt && e.at < c.learnedAt) return;
@@ -289,10 +324,37 @@
     return doc.status === 'writing' && isFinite(t) && Date.now() - t < WRITING_MS;
   }
 
+  // A puzzle's or written card's question without what may change around it (his latest words,
+  // where its page sits in the guide, its name), keys in order.
+  var LOOSE = { mine: 1, page: 1, name: 1, title: 1 };
+  function core(sp) { var o = {}; Object.keys(sp).sort().forEach(function (k) { if (!LOOSE[k]) o[k] = sp[k]; }); return JSON.stringify(o); }
   function sameQuestion(a, b, type) {
     if (!a || !b) return false;
     if (type === 'recall') return a.prompt === b.prompt && a.model === b.model;
+    if (GUIDED[type]) return core(a) === core(b);
     return JSON.stringify(a) === JSON.stringify(b);
+  }
+  // The patch that gives this idea `made` as its cards of one kind (own(card): check cards or
+  // guided ones): unchanged questions keep their schedule (Dan's latest words refreshed), changed
+  // ones start afresh, ones no longer made are removed. due[id]: a later first day for a new card.
+  function ideaPatch(cards, iid, made, own, now, day, due) {
+    var patch = { cards: {} };
+    Object.keys(cards).forEach(function (id) { var c = cards[id]; if (c && c.iid === iid && own(c) && !made[id]) patch.cards[id] = null; });
+    Object.keys(made).forEach(function (id) {
+      var m = made[id], old = cards[id];
+      if (old && old.s && old.type === m.type && sameQuestion(old.spec, m.spec, m.type)) {
+        var keep = { spec: U.store.replacing(old.spec, m.spec), learnedAt: now };
+        if (old.retired != null) keep.retired = null;
+        patch.cards[id] = keep;
+      } else {
+        m.createdAt = now;
+        m.learnedAt = now;
+        m.s = U.fsrs.init(day, due && due[id]);
+        m.hist = [];
+        patch.cards[id] = old && typeof old === 'object' ? U.store.replacing(old, m) : m;
+      }
+    });
+    return patch;
   }
 
   // opts.round: the round Dan finished; once the cards are saved it is recorded on the idea's
@@ -322,23 +384,10 @@
     // Only this idea's cards change: unchanged questions keep their schedule (Dan's latest words
     // refreshed), changed ones start afresh, ones the lesson no longer has are removed. A re-learned
     // lesson reuses check ids (c1, c2...), so a card is kept only when its question is the same.
+    // (A ready-made lesson's puzzles are not this idea's check cards: they are left as they are.)
     return U.store.cards.get(tid).then(function (doc) {
-      var cards = (doc && doc.cards) || {}, patch = { cards: {} };
-      Object.keys(cards).forEach(function (id) { var c = cards[id]; if (c && c.iid === iid && !made[id]) patch.cards[id] = null; });
-      Object.keys(made).forEach(function (id) {
-        var m = made[id], old = cards[id];
-        if (old && old.s && old.type === m.type && sameQuestion(old.spec, m.spec, m.type)) {
-          var keep = { spec: U.store.replacing(old.spec, m.spec), learnedAt: now };
-          if (old.retired != null) keep.retired = null;
-          patch.cards[id] = keep;
-        } else {
-          m.createdAt = now;
-          m.learnedAt = now;
-          m.s = U.fsrs.init(day);
-          m.hist = [];
-          patch.cards[id] = old && typeof old === 'object' ? U.store.replacing(old, m) : m;
-        }
-      });
+      var cards = (doc && doc.cards) || {};
+      var patch = ideaPatch(cards, iid, made, function (c) { return !guided(c); }, now, day, null);
       changed();
       return Object.keys(patch.cards).length ? U.store.cards.patch(tid, patch) : null;
     }).then(function () {
@@ -357,6 +406,212 @@
       if (e && e.queued) throw e;
       throw U.store.retryLater(e, function () { return addFromLesson(tid, iid, lesson, outcome, opts); });
     });
+  }
+
+  // ---------- puzzles: a ready-made steps lesson's worked examples ----------
+  // A guide's example page (tools/course/guide.mjs) becomes a puzzle when it can be asked here:
+  // version 2 guides say how each was answered in the lesson (`input`: 'typed' into a K.answer
+  // field, or 'pick' from `options`, the lesson's own buttons). A figure ("28.87 A") is typed,
+  // a stronger test than spotting it, unless the task names the options ("Which of these…");
+  // anything else is picked from the lesson's options. Examples answered by dragging or colouring
+  // (no input), and every example of an older guide, make none.
+  function str(v) { return typeof v === 'string' ? v : v == null ? '' : String(v); }
+  var NAMES_OPTIONS = /\b(these|the options|which one)\b/i;
+  function puzzleSpec(p, at) {
+    var task = str(p.task).trim(), answer = str(p.answer).trim();
+    if (!task || !answer || !U.cards || typeof U.cards.figureOf !== 'function') return null;
+    var options = Array.isArray(p.options) ? p.options.map(function (o) { return str(o).trim(); }).filter(Boolean) : [];
+    var pick = p.input === 'pick' && options.length >= 2 && options.length <= 8 && options.indexOf(answer) >= 0;
+    var fig = !!U.cards.figureOf(answer);
+    var input = p.input === 'typed' && fig ? 'typed' : pick && fig && !NAMES_OPTIONS.test(task) ? 'typed' : pick ? 'pick' : null;
+    if (!input) return null;
+    var spec = { q: task, answer: answer, why: str(p.why).trim(), input: input, page: at };
+    if (input === 'pick') spec.options = options;
+    if (str(p.name)) spec.name = str(p.name).slice(0, 80);
+    return spec;
+  }
+  // -> {[cardId]: {id, tid, iid, type, spec}} (no schedule yet). Pure.
+  //   iid_x<n>   the n-th example page of the guide, when it can be asked (puzzleSpec)
+  //   iid_w_<q>  each written question of a refresher lesson (lesson.written[q]: {q, points, need,
+  //              model}), with Dan's latest words for it (idea.written) as `mine`
+  function puzzlesFrom(tid, iid, guide, lesson, idea) {
+    var made = {}, pages = guide && Array.isArray(guide.pages) ? guide.pages : [], n = 0;
+    pages.forEach(function (p, at) {
+      if (!p || typeof p !== 'object' || p.kind !== 'example') return;
+      n++;
+      var spec = puzzleSpec(p, at), id = iid + '_x' + n;
+      if (spec) made[id] = { id: id, tid: tid, iid: iid, type: 'puzzle', spec: spec };
+    });
+    var written = lesson && lesson.written && typeof lesson.written === 'object' ? lesson.written : {};
+    Object.keys(written).forEach(function (qid) {
+      var w = written[qid];
+      if (!w || typeof w !== 'object' || !str(w.q).trim() || !U.validId(qid)) return;
+      var points = (Array.isArray(w.points) ? w.points : []).filter(function (p) { return p && str(p.text).trim(); })
+        .map(function (p) { return { text: str(p.text).trim(), cite: str(p.cite).trim() }; });
+      if (!points.length) return;
+      var spec = { qid: qid, q: str(w.q).trim(), points: points, model: str(w.model).trim() };
+      if (Number.isInteger(w.need) && w.need > 0) spec.need = w.need;
+      if (str(lesson.title)) spec.title = str(lesson.title);
+      var tries = U.list(idea && idea.written && idea.written[qid]).filter(function (t) { return t && str(t.text).trim(); });
+      if (tries.length) spec.mine = str(tries[tries.length - 1].text).slice(0, 3000);
+      var id = iid + '_w_' + qid;
+      made[id] = { id: id, tid: tid, iid: iid, type: 'written', spec: spec };
+    });
+    return made;
+  }
+  // The cards doc stays under the db's limit (256 KiB): new cards that would take it past this are
+  // left out (and said in the console); a course's puzzles come to about 110 KB.
+  var CARDS_LIMIT = 230 * 1024;
+  function fit(cards, patch) {
+    var after = Object.assign({}, cards);
+    Object.keys(patch.cards).forEach(function (id) { var v = patch.cards[id]; if (v === null) delete after[id]; else after[id] = cards[id] ? Object.assign({}, cards[id], v) : v; });
+    var size = JSON.stringify({ cards: after }).length;
+    var fresh = Object.keys(patch.cards).filter(function (id) { return patch.cards[id] && !cards[id]; });
+    while (size > CARDS_LIMIT && fresh.length) {
+      var id = fresh.pop();
+      size -= JSON.stringify(patch.cards[id]).length + id.length + 4;
+      delete patch.cards[id];
+      console.warn('puzzle left out: the cards doc is full', id);
+    }
+    return patch;
+  }
+  // opts.round: the round he quizzed through, recorded as puzzleRound once saved (with puzzleV, the
+  // guide version they came from), so mendPuzzles can tell a lesson whose puzzles were never made.
+  // opts.only 'written': an older guide, whose examples cannot be asked yet: only the written
+  // questions are written, and nothing is recorded (the guide's next version makes the rest).
+  // opts.due {[cardId]: day}: later first days (the backfill's spread). opts.at: when he finished.
+  function addPuzzles(tid, iid, made, opts) {
+    opts = opts || {};
+    var now = opts.at || U.now(), day = U.studyDay(), mk = tid + '/' + iid;
+    making[mk] = (making[mk] || 0) + 1;
+    function done() { if (!--making[mk]) delete making[mk]; }
+    var own = opts.only ? function (c) { return c.type === opts.only; } : guided;
+    return U.store.cards.get(tid).then(function (doc) {
+      var cards = (doc && doc.cards) || {};
+      var patch = fit(cards, ideaPatch(cards, iid, made, own, now, day, opts.due));
+      changed();
+      return Object.keys(patch.cards).length ? U.store.cards.patch(tid, patch) : null;
+    }).then(function () {
+      done();
+      U.review.refreshBadge();
+      if (typeof opts.round !== 'number') return Object.keys(made);
+      var mark = { ideas: {} };
+      mark.ideas[iid] = { puzzleRound: opts.round };
+      if (opts.guideV) mark.ideas[iid].puzzleV = opts.guideV;
+      return U.store.progress.patch(tid, mark).catch(function () {}).then(function () { return Object.keys(made); });
+    }, function (e) {
+      done();
+      if (e && e.queued) throw e;
+      throw U.store.retryLater(e, function () { return addPuzzles(tid, iid, made, opts); });
+    });
+  }
+  // The lesson screen, when Dan finishes a steps lesson by quizzing through it: its puzzles, first
+  // in the box the next study day. -> Promise<number of cards>
+  function puzzlesFor(tid, iid, o) {
+    o = o || {};
+    var v = o.guide && Number(o.guide.v) || 1, made = puzzlesFrom(tid, iid, o.guide, o.lesson, o.idea);
+    if (v < 2 && !Object.keys(made).length) return Promise.resolve(0);
+    return addPuzzles(tid, iid, made, v >= 2 ? { round: Number(o.round) || 0, guideV: v } : { only: 'written' })
+      .then(function (ids) { return ids.length; });
+  }
+
+  // ---------- the backfill: puzzles for lessons quizzed through before ----------
+  // At boot and when Today opens (with mendCards): every lesson of a ready-made course whose guides
+  // can be asked (topic.guideV >= 2, stamped by tools/course/assemble.mjs) that Dan finished by
+  // quizzing through it, in a round with no puzzles made (puzzleRound) or from an older guide
+  // (puzzleV), gets them now, once. The guides are read one at a time, oldest finished lesson
+  // first. So that a long list does not land in the box at once, the new cards' first days are
+  // spread: round the lessons, a puzzle from each in turn, at most half the daily limit of new
+  // cards a day (counting new cards already waiting), from tomorrow.
+  var puzzling = null, puzzledAt = 0;
+  function newPerDay(prefs) {
+    var cap = prefs && prefs.cap > 0 ? prefs.cap : DEFAULT_CAP;
+    if (prefs && prefs.light) cap = Math.min(cap, LIGHT_CAP);
+    return Math.max(3, Math.round(cap / 2));
+  }
+  // -> {tid: {cardId: day}} for the cards new to the box (a question already there keeps its day).
+  function spread(list, all, day, perDay) {
+    var count = {}, due = {}, d = U.addDays(day, 1);
+    Object.keys(all || {}).forEach(function (tid) {
+      var cs = (all[tid] && all[tid].cards) || {};
+      Object.keys(cs).forEach(function (id) {
+        var c = cs[id];
+        if (c && c.s && c.s.due && !c.retired && !(Number(c.s.reps) > 0) && c.s.due >= d) count[c.s.due] = (count[c.s.due] || 0) + 1;
+      });
+    });
+    var lists = list.map(function (t) {
+      var cs = (all[t.tid] && all[t.tid].cards) || {};
+      return Object.keys(t.made).filter(function (id) {
+        var old = cs[id], m = t.made[id];
+        return !(old && old.s && old.type === m.type && sameQuestion(old.spec, m.spec, m.type));
+      });
+    });
+    for (var r = 0, more = true; more; r++) {
+      more = false;
+      lists.forEach(function (ids, k) {
+        if (r >= ids.length) return;
+        more = true;
+        while ((count[d] || 0) >= perDay) d = U.addDays(d, 1);
+        var tid = list[k].tid;
+        (due[tid] = due[tid] || {})[ids[r]] = d;
+        count[d] = (count[d] || 0) + 1;
+      });
+    }
+    return due;
+  }
+  // -> Promise<[{tid, iid}]> the lessons given puzzles now. Never rejects; at most once a minute
+  // after a clean run (force: run anyway), never twice at once.
+  function mendPuzzles(force) {
+    if (puzzling) return puzzling;
+    if (!force && Date.now() - puzzledAt < MEND_EVERY) return Promise.resolve([]);
+    if (!U.store.guide || typeof U.store.guide.get !== 'function') return Promise.resolve([]);
+    var out = [], ok = true;
+    puzzling = Promise.all([U.store.progress.all(), U.store.topics.list(), U.store.profile.get().catch(function () { return null; })]).then(function (r) {
+      var prog = r[0] || {}, topics = {}, prefs = (r[2] && r[2].prefs) || {}, todo = [];
+      (r[1] || []).forEach(function (t) { if (t) topics[t.__id || t.id] = t; });
+      Object.keys(prog).forEach(function (tid) {
+        var t = topics[tid], gv = t && Number(t.guideV) || 0;
+        if (!t || !t.readyMade || gv < 2) return;
+        var ideas = (prog[tid] && prog[tid].ideas) || {};
+        Object.keys(ideas).forEach(function (iid) {
+          var idea = ideas[iid], round = Number(idea && idea.round) || 0;
+          if (!quizzed(idea) || making[tid + '/' + iid]) return;
+          if (idea.puzzleRound != null && Number(idea.puzzleRound) >= round && (Number(idea.puzzleV) || 1) >= gv) return;
+          todo.push({ tid: tid, iid: iid, idea: idea, round: round, gv: gv, at: str(idea.doneAt) });
+        });
+      });
+      if (!todo.length) return null;
+      todo.sort(function (a, b) { return a.at < b.at ? -1 : a.at > b.at ? 1 : 0; });
+      return todo.reduce(function (chain, t) {
+        return chain.then(function () {
+          return U.store.guide.get(t.tid, t.iid).then(function (g) {
+            // A refresher lesson (its guide opens on the Keep this card) has written questions:
+            // the lesson doc holds them. Other lessons need only the guide.
+            var refresher = !!(g && Array.isArray(g.pages) && g.pages.some(function (p) { return p && (p.kind === 'summary' || p.written); }));
+            return (refresher ? U.store.lesson.get(t.tid, t.iid).then(function (d) { return (d && d.lesson) || null; }) : Promise.resolve(null)).then(function (lesson) {
+              t.made = puzzlesFrom(t.tid, t.iid, g, lesson, t.idea);
+            });
+          }).catch(function (e) { ok = false; t.skip = true; console.warn('puzzles', t.tid, t.iid, e); });
+        });
+      }, Promise.resolve()).then(function () {
+        var ready = todo.filter(function (t) { return !t.skip; });
+        if (!ready.length) return null;
+        return U.store.cards.all().then(function (all) {
+          var due = spread(ready, all, U.studyDay(), newPerDay(prefs));
+          return ready.reduce(function (chain, t) {
+            return chain.then(function () {
+              if (making[t.tid + '/' + t.iid]) return null;
+              return addPuzzles(t.tid, t.iid, t.made, { round: t.round, guideV: t.gv, at: t.at || null, due: due[t.tid] || {} })
+                .then(function () { out.push({ tid: t.tid, iid: t.iid }); });
+            }).catch(function (e) { ok = false; console.warn('puzzles', t.tid, t.iid, e); });
+          }, Promise.resolve());
+        });
+      });
+    }).then(function () { if (ok) puzzledAt = Date.now(); return out; }, function (e) {
+      console.warn('mend puzzles', e);
+      return out;
+    }).then(function (x) { puzzling = null; if (x.length) U.review.refreshBadge(); return x; });
+    return puzzling;
   }
 
   // ---------- cards that were never made ----------
@@ -399,7 +654,11 @@
   }
   // -> Promise<[{tid, iid}]> the ideas whose cards were made now. Never rejects. Runs at most
   // once a minute after one that went through (force: run anyway), and never twice at once.
+  // The check cards of studied ideas, then the puzzles of quizzed ready-made lessons (mendPuzzles).
   function mendCards(force) {
+    return mendChecks(force).then(function (a) { return mendPuzzles(force).then(function (b) { return a.concat(b); }); });
+  }
+  function mendChecks(force) {
     if (mending) return mending;
     if (!force && Date.now() - mendedAt < MEND_EVERY) return Promise.resolve([]);
     var out = [], ok = true;
@@ -499,6 +758,11 @@
     _hold: holding,
     _clearWords: clearWords,
     _backCount: backCount,
+    puzzlesFrom: puzzlesFrom,
+    addPuzzles: addPuzzles,
+    puzzlesFor: puzzlesFor,
+    mendPuzzles: mendPuzzles,
+    _spread: spread,
   };
 
   // ---------- shared view bits ----------
@@ -513,10 +777,10 @@
     return Math.max(1, Math.round(s / 60));
   }
   function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many || one + 's'); }
-  // "4 cards, from 2 ideas:" above the list of ideas coming back.
+  // "4 puzzles, from 2 lessons:" above the list of lessons coming back (a review says puzzles).
   function backCount(cards, ideas) {
-    if (ideas === 1) return cards === 1 ? 'One card, from this idea:' : plural(cards, 'card') + ', all from this idea:';
-    return plural(cards, 'card') + ', from ' + ideas + ' ideas:';
+    if (ideas === 1) return cards === 1 ? 'One puzzle, from this lesson:' : plural(cards, 'puzzle') + ', all from this lesson:';
+    return plural(cards, 'puzzle') + ', from ' + ideas + ' lessons:';
   }
   function longDate(day) {
     var p = day.split('-').map(Number);
@@ -751,6 +1015,21 @@
     }
   }
 
+  // A puzzle's worked example in its guide, as the card shows it with the answer: {svg, html, alt,
+  // style} | null (no guide here, a page that is not that example any more, or a read over 5 s).
+  function pageFor(card) {
+    var RT = U.readThrough, sp = card.spec || {};
+    if (!RT || typeof RT.guide !== 'function' || typeof sp.page !== 'number') return Promise.resolve(null);
+    return Promise.race([
+      RT.guide(card.tid, card.iid).then(function (g) {
+        var p = g && Array.isArray(g.pages) ? g.pages[sp.page] : null;
+        if (!p || p.kind !== 'example' || str(p.task).trim() !== sp.q) return null;
+        return p.svg || p.html ? { svg: p.svg || null, html: p.html || null, alt: str(p.alt), style: str(g.style) } : null;
+      }, function () { return null; }),
+      U.sleep(5000).then(function () { return null; }),
+    ]);
+  }
+
   // ---------- #/review ----------
   function reviewView(extra) {
     return function (params, ctx) {
@@ -803,6 +1082,9 @@
       //               makes the idea's cards afresh), as for a card whose control has gone;
       //   'later'     the lesson could not be read just now: still due, for the next session.
       function lessonFor(card) {
+        // A puzzle shows its worked example's picture with the answer: the guide's page, read once
+        // per page load (U.readThrough.guide); without it, the puzzle is words only.
+        if (card.type === 'puzzle') return pageFor(card).then(function (page) { return { use: 'ok', doc: null, page: page }; });
         if (card.type !== 'target') return Promise.resolve({ use: 'ok', doc: null });
         return U.store.lesson.get(card.tid, card.iid).then(function (doc) {
           if (!doc) return { use: 'retire' };
@@ -833,12 +1115,15 @@
             return showCard();
           }
           where.textContent = topicTitle(S.topics, card.tid) + ' · ' + ideaTitle(S.topics, card.tid, card.iid);
-          var el = U.cards.render(card, { mode: 'review', lesson: l.doc, ask: function (text, o) { askAbout(card, text, o); }, onDone: function (r) { answered(card, r); } });
+          var el = U.cards.render(card, { mode: 'review', lesson: l.doc, page: l.page || null, ask: function (text, o) { askAbout(card, text, o); }, onDone: function (r) { answered(card, r); } });
           S.el = el;
           U.clear(stage).appendChild(el);
           window.scrollTo(0, 0);
           var q = el.querySelector('.qc-q');
           if (q) { q.setAttribute('tabindex', '-1'); try { q.focus({ preventScroll: true }); } catch (e) {} }
+          // The next puzzle's guide is read while he answers this one.
+          var nx = S.queue[S.i + 1];
+          if (nx && nx.type === 'puzzle') pageFor(nx);
         });
       }
       // A reply to Claude's note on an answer (D4): Ask Claude about this card's idea, opened with

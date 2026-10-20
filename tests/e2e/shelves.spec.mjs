@@ -54,7 +54,9 @@ const MADE = { ...base, 'topics/how-tides-work-ab12': { ...SEED.topics['how-tide
 for (const [tid, v] of Object.entries(SEED.progress)) MADE[`data/users/${UID}/profile/progress/${tid}`] = v;
 // Tides' third lesson is built; the rest are not (so they are coming soon).
 MADE['topics/how-tides-work-ab12/lessons/i3'] = { status: 'ready', updatedAt: '2026-10-01T08:00:00.000Z', lesson: { iid: 'i3', title: 'Two bulges, not one' }, interactive: null, note: 'No interactive.' };
-MADE[`data/users/${UID}/profile/cards/how-tides-work-ab12`] = { cards: { i1_c1: CARD('i1_c1', '2026-10-02'), i1_c2: CARD('i1_c2', '2026-10-03'), i1_c3: CARD('i1_c3', '2099-01-01') } };
+// One of the two is a puzzle (phase 6: a ready-made lesson's worked example); the box counts both.
+const PUZZLE = { ...CARD('i1_x1', '2026-10-02'), id: 'i1_x1', type: 'puzzle', spec: { q: 'How many high tides do most coasts get in a day?', answer: '2', why: 'Two bulges.', input: 'typed', page: 0 } };
+MADE[`data/users/${UID}/profile/cards/how-tides-work-ab12`] = { cards: { i1_x1: PUZZLE, i1_c2: CARD('i1_c2', '2026-10-03'), i1_c3: CARD('i1_c3', '2099-01-01') } };
 
 let app = await open({ ...MADE, 'shelves/maths': SHELF, 'shelves/science': LATER });
 const { page } = app;
@@ -165,8 +167,10 @@ await page.locator('.lsn-back').click();
 await page.waitForSelector('.lib-home .lib-open');
 ok((await page.evaluate(() => location.hash)) === '#/', 'and it does');
 await page.evaluate(() => U.go('#/t/how-tides-work-ab12'));
-await page.waitForSelector('.pnode.is-current .pnode-btn');
-await page.locator('.pnode.is-current a.pnode-link').click();
+// A ready-made lesson whose lesson is ready offers its two ways on the current card (Quiz me
+// through it first, 20 Oct), once the page knows the lesson is ready.
+await page.waitForSelector('.pnode.is-current .pnode-ways a');
+await page.locator('.pnode.is-current .pnode-ways a').first().click();
 await page.waitForSelector('.lsn-back');
 ok((await page.getAttribute('.lsn-back', 'aria-label')) === 'Back to the course' && (await page.getAttribute('.lsn-back', 'href')) === '#/t/how-tides-work-ab12', 'opened from the course, back to the course');
 await page.evaluate(() => { location.hash = '#/t/how-tides-work-ab12/i4'; });
@@ -202,6 +206,11 @@ await wide.page.waitForSelector('.lib-box');
 const side = await wide.page.evaluate(() => { const a = document.querySelector('.lib-open').getBoundingClientRect(), b = document.querySelector('.lib-box').getBoundingClientRect(); return { dy: Math.round(Math.abs(a.top - b.top)), beside: b.left >= a.right - 1 }; });
 ok(side.dy < 2 && side.beside, 'on a laptop the two rows sit side by side (' + JSON.stringify(side) + ')');
 await wide.page.screenshot({ path: join(SHOTS, 'home-1280.png') });
+// The course page's row counts its puzzles too, and opens a review of just these.
+await wide.page.evaluate(() => U.go('#/t/how-tides-work-ab12'));
+await wide.page.waitForSelector('.tp-box');
+ok((await wide.page.locator('.tp-box strong').textContent()) === '2 puzzles from lesson 1', 'the course page: its puzzles, from which lesson (' + await wide.page.locator('.tp-box strong').textContent() + ')');
+ok((await wide.page.getAttribute('.tp-box', 'href')) === '#/review?topic=how-tides-work-ab12', 'opening just these');
 await wide.page.evaluate(() => U.go('#/shelf/maths'));
 await wide.page.waitForSelector('.shelf-page .shelf-card');
 await wide.page.screenshot({ path: join(SHOTS, 'shelf-1280.png') });
