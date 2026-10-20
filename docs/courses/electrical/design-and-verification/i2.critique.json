@@ -1,0 +1,26 @@
+{
+  "draft": "i2.lesson.draft1.txt",
+  "validator": "passes with no problems (with --case)",
+  "faults": [
+    {"fault": "causal step skipped", "where": "explain, paragraph 2", "finding": "It goes from 'the three line voltages are a third of a cycle apart' straight to 'equal currents add up to nothing'. The step between is that each circuit's current keeps step with its own line voltage, so the three currents are a third of a cycle apart too, and three equal quantities a third of a cycle apart sum to nothing.", "fix": "Add that step in one clause."},
+    {"fault": "false absolute / contested point stated flat", "where": "explain, paragraph 3", "finding": "'For EV charge points without load management the factor is 1' states as settled what the research marks as argued on the IET forum; the source is the IEC wording.", "fix": "Say the IEC wording sets it at 1 and the course follows it; the screen 5 fold already gives both forum views."},
+    {"fault": "qualifier dropped", "where": "explain paragraph 3; screen 5", "finding": "The IET answer says diversity 'might only be rarely appropriate' for one circuit's design current; the draft says 'is rarely right'.", "fix": "Keep the source's 'might only rarely be appropriate'."},
+    {"fault": "citation wider than its quote", "where": "screen 2 (red line); explain paragraph 1", "finding": "Slides p.10 supports smaller cables and lower costs, not switchgear; source [2] supports working maximum demand out for the whole installation or a part, not 'the supply and every submain are sized from it'.", "fix": "Red line: cables bigger and dearer, footnoted to p.10. Explain: cite [2] for 'the whole installation or a part of it', and [42] (the largest current normally carried by circuits, switches and protective devices) for what is chosen from it."},
+    {"fault": "practice value not labelled where it appears", "where": "explain, paragraph 2", "finding": "24.35 A, 8.22, 8.21, 7.92 and 0.30 A rest on practice values for ballast loss and power factor; the explanation prints them without saying so.", "fix": "Say 'with the course's practice values for the fittings'."},
+    {"fault": "interactive brief shows only the effect", "where": "interactive.brief", "finding": "It names the neutral falling but not what the picture shows causing it: the three phase bars evening out.", "fix": "Add 'as the three phase bars even out', within 40 words."},
+    {"fault": "unreadable labels at 340 px", "where": "screen 3 cards", "finding": "Cards named 'C3 cleaner, male toilets and tea bay 5.71 A' will wrap badly in a third of a phone's width.", "fix": "Give each card a short name (C1 Consultation, C2 Toilets W, C3 Toilets E and tea, C4 Stores, C5 Showroom E, C6 Reception, C7 Foyer) with its current; the full names stay on screen 8."},
+    {"fault": "analogy maps the wrong thing", "where": "analogy.text", "finding": "'Send people to whichever queue is shortest' is balancing on the fly; circuits are put on a phase once, at design time.", "fix": "Split the diners evenly between the counters in advance."},
+    {"fault": "read sentences missing", "where": "screens 1 and 4", "finding": "Both ask him to choose; the read-through and the Book need a sentence each.", "fix": "Add 'Read:' sentences."},
+    {"fault": "accepted answer not stated", "where": "screen 9", "finding": "The page builder needs to know unrounded working gives the same 160.44 A, and the case accepts the last place either side.", "fix": "Say so in the screen 9 description."}
+  ],
+  "checked_and_sound": [
+    "Refresher pattern: recall opener with Refresh the why and Skip to the practice (to screen 7); what it is for with the red consequence; the why with its interactive; a check that applies the rule with named slips; the worked example from slides p.10 line by line; Section A 3(a) to 3(c) on the showroom with the scenario, carried parts (3a; 1a and 3b) and typed answers with slips; Section B b1 written; one changed-numbers item; Keep this.",
+    "No recall-only checks: read mode, checks []; the screen 4 check needs the rule, with new numbers (10, 10, 4 A).",
+    "Every figure is in case.json with its rule and working, each line from the rounded figures before it; worked again by script (case-l2 asserts) and by hand: 4594 W; 4.89, 4.08, 5.71, 2.63, 3.33, 2.50, 1.21 A; 8.22, 8.21, 7.92 A; 0.30 A; 38.74 A; 63.09, 144.00, 77.00, 128.00, 412.09, 137.36, 160.44 A; 6.00 A; 2.87, 4.35, 0.82, 0.12 A; 112.20 A.",
+    "Practice values (ballast 25%, power factors 0.96, 0.95 and the unsourced 0.9, the socket, fixed-point and EV loads) are labelled on screens 3, 6, 8 and 9 and in the case file.",
+    "Contested points taught as contested: where diversity is applied (slides, Total Skills, IET answer, Schneider), EV diversity (two forum views), the twin fitting's wattage reading (said as the course's reading), the ×1.8 method named as another estimate.",
+    "No OSG or BS 7671 table reproduced: only the four allowances the questions use, each cited, with 'read the rest in your copy'.",
+    "Lesson 1's teaching not repeated: the 660 W example is extended to its currents and to why (smaller cable), not re-taught."
+  ],
+  "verdict": "rewrite as draft 2 with the fixes above"
+}

@@ -127,6 +127,174 @@
    "label": "EV charging (question 6)",
    "value": "each charging point has two outlets; the 63 A TPN isolators in the consultation bay are not part of the circuit",
    "cite": "pack p.5"
+  },
+  {
+   "id": "g.osg.light",
+   "label": "Lighting diversity, small shops column",
+   "value": 90,
+   "text": "90% of total current demand",
+   "cite": "On-Site Guide Appendix A, Table A2, small shops, stores, offices and business premises column (research source 165); read the figure from your own copy of the On-Site Guide"
+  },
+  {
+   "id": "g.osg.heat",
+   "label": "Heating and power diversity, small shops column",
+   "value": "100% of the largest appliance + 75% of the remaining appliances",
+   "text": "100% of the largest appliance + 75% of the remaining appliances",
+   "cite": "On-Site Guide Appendix A, Table A2, small shops, stores, offices and business premises column (research source 167); read the figure from your own copy of the On-Site Guide"
+  },
+  {
+   "id": "g.osg.motor",
+   "label": "Motors diversity, small shops column",
+   "value": "100% of the largest motor + 80% of the second + 60% of the rest",
+   "text": "100% of the largest motor + 80% of the second + 60% of the rest",
+   "cite": "On-Site Guide Appendix A, Table A2, small shops, stores, offices and business premises column (research source 166); read the figure from your own copy of the On-Site Guide",
+   "note": "The showroom has one motor, so it counts at 100% of 23.08 A (l1 figure 1a)."
+  },
+  {
+   "id": "g.osg.sock",
+   "label": "Socket-outlets diversity, small shops column",
+   "value": "100% of the largest point + 70% of every other point",
+   "text": "100% of the largest point + 70% of every other point",
+   "cite": "On-Site Guide Appendix A, Table A2, small shops, stores, offices and business premises column (research source 168); read the figure from your own copy of the On-Site Guide",
+   "note": "Sources differ: one page prints 70%, an older book (Whitfield, research source 192) 75%. The lesson says it is contested and tells him to read his own copy."
+  },
+  {
+   "id": "g.osg.std",
+   "label": "Standard final circuits diversity, small shops column",
+   "value": "100% of the largest circuit + 50% of every other circuit",
+   "text": "100% of the largest circuit + 50% of every other circuit",
+   "cite": "On-Site Guide Appendix A, Table A2, small shops, stores, offices and business premises column (research source 169); read the figure from your own copy of the On-Site Guide"
+  },
+  {
+   "id": "g.osg.ev",
+   "label": "EV charging circuits: diversity",
+   "value": "none (100%) unless load management is installed",
+   "text": "no diversity unless load management is installed",
+   "cite": "BS 7671 Regulation 722.311.201 and the IEC 60364-7-722 wording (research sources 118, 170, 171, 172); contested on the forum (sources 173, 174)"
+  },
+  {
+   "id": "g.dwg.counts",
+   "label": "Power drawing: labelled items counted from its text layer",
+   "value": "20 A DP switch x3; 32 A rotary isolator x1; 63 A TPN isolator x2 (consultation bay, not part of the circuit); EV charging point x2; ceiling-void socket x2",
+   "text": "20 A DP switch x3, 32 A rotary isolator x1, EV charging point x2 (each 2 x 32 A), ceiling-void socket x2",
+   "cite": "power dwg (pdftotext -bbox label positions: 20 A at (1003,581), (1003,638), (1339,702); 32 A at (1339,609); 63 A at (1976,289), (2141,289); EV at (1996,265), (2106,265); CV at (749,566), (749,740)); confirm on the picture. Twin switched sockets and luminaires are symbols with no text and are recounted by hand at build"
+  },
+  {
+   "id": "p.pf.fluo",
+   "label": "Power factor of the fluorescent fittings (practice value)",
+   "value": 0.96,
+   "text": "0.96",
+   "practice": true,
+   "cite": "Schneider Electrical Installation Guide, cos φ 0.96 for electronic ballast (research source 180)",
+   "note": "A practice value: the drawing does not say what control gear the 4 x 36 W and 58 W fittings have. Read the real one from the maker's datasheet for the fitting."
+  },
+  {
+   "id": "p.ballast",
+   "label": "Ballast loss on fluorescent tube watts (practice value)",
+   "value": 25,
+   "unit": "%",
+   "text": "25% of the tube power",
+   "practice": true,
+   "cite": "Schneider Electrical Installation Guide: 25% of Pn when no ballast loss is indicated (research source 181)",
+   "note": "A practice value: tube power on the drawing key excludes the ballast (source 182). The real loss is on the maker's datasheet for the fitting."
+  },
+  {
+   "id": "p.pf.led",
+   "label": "Power factor of the LED fittings, 26 W and 18 W (practice value)",
+   "value": 0.95,
+   "text": "0.95",
+   "practice": true,
+   "cite": "makers' datasheets for 36 W LED panels state 0.97 and 0.95 (research sources 184, 185); Schneider guide notes a separated driver's own power is not in the marked watts (183)",
+   "note": "A practice value: no datasheet for the drawing's own fittings. Read the real one, and the driver-inclusive watts, from the maker's datasheet."
+  },
+  {
+   "id": "p.pf.other",
+   "label": "Power factor of the wall spot (2 x 35 W) and column (70 W) fittings (practice value)",
+   "value": 0.9,
+   "text": "0.9",
+   "practice": true,
+   "cite": "no source: the lamp type behind these two key entries is not on the drawing",
+   "note": "A practice value, not a sourced one. Read the real one from the maker's datasheet once the lamp type is known."
+  },
+  {
+   "id": "p.load.20A",
+   "label": "Load behind each 20 A DP switch (practice value)",
+   "value": 20,
+   "unit": "A",
+   "text": "20 A each",
+   "practice": true,
+   "cite": "power dwg key: 20A DP Switch (research source 203)",
+   "note": "A practice value: the equipment behind the switch is not on the drawing, so the switch rating is taken as the load (cautious). Read the real one from the equipment's nameplate."
+  },
+  {
+   "id": "p.load.32A",
+   "label": "Load behind the 32 A rotary isolator (practice value)",
+   "value": 32,
+   "unit": "A",
+   "text": "32 A",
+   "practice": true,
+   "cite": "power dwg key: 32A Rotary Isolator (research source 204)",
+   "note": "A practice value: the equipment behind the isolator is not on the drawing, so the isolator rating is taken as the load (cautious). Read the real one from the equipment's nameplate."
+  },
+  {
+   "id": "p.ev.outlet",
+   "label": "EV charging outlet (practice value)",
+   "value": 32,
+   "unit": "A",
+   "text": "32 A single-phase outlet, 4 outlets in all (2 points x 2 outlets), no diversity",
+   "practice": true,
+   "cite": "power dwg key: Electrical Vehicle Charging Points 2x32a each (research source 97); pack p.5: each charging point has two outlets",
+   "note": "A practice value for the phase arrangement: the drawing gives 2 x 32 A per point but not whether the outlets are single-phase or three-phase. Read the real one from the charging equipment's datasheet."
+  },
+  {
+   "id": "p.load.sockcircuit",
+   "label": "Current demand of one socket-outlet circuit (practice value)",
+   "value": 32,
+   "unit": "A",
+   "text": "32 A per circuit, eight circuits (the course's own split by area: assumption a.sockCircuits)",
+   "practice": true,
+   "cite": "On-Site Guide standard-circuit row (research source 169)",
+   "note": "A practice value: each socket circuit is taken at its 32 A device rating (cautious), counted as a standard circuit. The socket symbols are too small on the PDF to recount reliably, so the number of circuits is set by area, not by socket count. Read the real ones from the schedule of circuits."
+  },
+  {
+   "id": "g.dwg.lum",
+   "label": "Luminaires on the lighting drawing, counted",
+   "value": "158 LED 26 W; 34 modular 4 x 36 W; 16 twin 58 W; 9 wall spots 2 x 35 W; 6 bollards 18 W; 6 columns 70 W; 6 bulkheads 18 W",
+   "text": "158 LED 26 W, 34 modular 4 x 36 W, 16 twin 58 W, 9 wall spots 2 x 35 W, 6 bollards 18 W, 6 columns 70 W, 6 bulkheads 18 W",
+   "cite": "lighting dwg: each key symbol counted from the drawing's vector layer (the key's own symbols left out), and the counts checked by eye on one marked-up sheet, 20 Oct 2026",
+   "note": "Close to the brief's rough image count (about 160 LED, about 35 modular, 16 twin, six columns, six bollards). A recount on paper may differ by one or two."
+  },
+  {
+   "id": "g.q5a",
+   "label": "Showroom lights on hours (question 5a)",
+   "value": "on between 7.30 am and 9 pm",
+   "text": "7.30 am to 9 pm",
+   "cite": "pack p.4 question 5a (\"The internal showroom lights are required to be on between 7.30 am and 9 pm\")"
+  },
+  {
+   "id": "g.dwg.fixed",
+   "label": "Fixed points on the power drawing",
+   "value": "three 20 A DP switches and one 32 A rotary isolator; the two 63 A TPN isolators are not part of the circuit",
+   "text": "3 x 20 A DP switch, 1 x 32 A rotary isolator",
+   "cite": "power dwg key and labels; pack p.5 (the 63 A TPN isolators)"
+  },
+  {
+   "id": "p.Ca",
+   "label": "Ca for the starter-to-motor singles at 20 °C (practice value)",
+   "value": 1,
+   "text": "1.00",
+   "practice": true,
+   "cite": "BS 7671 Table 4B1, your copy p.441: its first row is 25 °C (1.02 for 90 °C thermosetting) and 30 °C is 1.00 (research sources 210, 211)",
+   "note": "A practice value: Table 4B1 in your copy has no 20 °C row, so 1.00 takes no credit for the cool room. Read the real treatment in your copy of Table 4B1 and Appendix 4. It does not change the answer: with Cg 0.80, any Ca up to about 1.11 leaves 1.5 mm² the smallest that passes (Ca 1.02 gives 16.34 A, still above the 15 A of 1 mm²)."
+  },
+  {
+   "id": "p.start",
+   "label": "Star starting current as a multiple of full-load current (practice value)",
+   "value": 2.7,
+   "text": "2.7 × the full-load line current, 62.32 A for the showroom motor",
+   "practice": true,
+   "cite": "a star-delta start draws roughly 2 to 2.7 times full-load current, against 6 to 8 times direct-on-line (ElectroMechCalc, a calculator site, not a standard; research sources 228, 229)",
+   "note": "A practice value, taken at the top of that range (2.7 × 23.08 A = 62.32 A): the motor's own nameplate or maker gives the real starting current, and the changeover from star to delta can surge higher still (research source 244 and its page). Used only to choose the breaker type, never as a design current."
   }
  ],
  "assumptions": [
@@ -165,19 +333,107 @@
    "text": "The course's own assumption: Vertical runs into the ceiling voids: to set at build from board and equipment heights; the drawings give none. The guide asks for \"all lengths of the cable run\" (guide p.5)."
   },
   {
-   "id": "a.dbl2split",
-   "label": "Which luminaires DBL2 feeds, and its circuits",
-   "value": "to set at build, said on screen",
-   "why": "Question 1b leaves the split to the designer (pack p.4).",
-   "status": "assumption to set",
-   "text": "The course's own assumption: Which luminaires DBL2 feeds, and its circuits: to set at build, said on screen. Question 1b leaves the split to the designer (pack p.4)."
-  },
-  {
    "id": "a.slidesJob",
    "label": "The worked examples",
    "value": "the slides' own examples (3 kW heaters, 20 kW load, 150 A harmonic load, short circuit on 2.5 mm²) are used as printed, outside the showroom",
    "status": "assumption",
    "text": "The course's own assumption: The worked examples: the slides' own examples (3 kW heaters, 20 kW load, 150 A harmonic load, short circuit on 2.5 mm²) are used as printed, outside the showroom"
+  },
+  {
+   "id": "a.osgColumn",
+   "label": "Which column of the On-Site Guide diversity table fits a showroom",
+   "value": "small shops, stores, offices and business premises",
+   "status": "assumption",
+   "why": "The table has columns for households, small shops/stores/offices/business premises, and small hotels/guest houses; a car showroom is closest to the second. One source warns the table is aimed at small domestic and similar installations (research source 193), so question 10's \"informed assumptions\" are said on screen.",
+   "text": "The course's own assumption: a car showroom is read as the On-Site Guide's small shops, stores, offices and business premises column. One source warns the table suits small domestic and similar installations, so the allowance is an informed assumption, as question 10 asks."
+  },
+  {
+   "id": "a.lightFormula",
+   "label": "How the lighting current is worked from the key watts",
+   "value": "I = (tube watts x (1 + ballast loss)) / (230 V x power factor) for fluorescent fittings; (watts) / (230 V x power factor) for the others",
+   "status": "assumption",
+   "why": "The Schneider guide says the tube power excludes the ballast and gives 25% and a power factor to use; an older book (Whitfield, sources 188, 189) instead multiplies discharge lighting by 1.8. The lesson uses the first and names the second.",
+   "text": "The course's own assumption: lighting current = key watts (plus the ballast loss for fluorescent fittings) / (230 V x power factor), using the practice values p.pf.fluo, p.ballast, p.pf.led and p.pf.other. An older book multiplies discharge lighting by 1.8 instead."
+  },
+  {
+   "id": "a.dbl2split",
+   "label": "Which luminaires DBL2 feeds",
+   "value": "the east of the building",
+   "status": "assumption",
+   "why": "Question 1b leaves the split to the designer (pack p.4). DBL2 is in the tools and warranty store, so it takes the rooms around it; DBL1, in the plant room, takes the west and north, the external column luminaires and the door bulkheads.",
+   "text": "The course's own assumption: DBL2 (tools and warranty store) feeds the east of the building: the consultation bay, the toilets, cleaner and tea bay, the two stores, the showroom east of the welcome desk, service reception, the foyer and the six walkway bollards: 55 LED 26 W, 18 modular 4 x 36 W, 4 twin 58 W and 6 bollards 18 W. DBL1 (plant room) feeds the rest: 103 LED, 16 modular, 12 twin, the 9 wall spots, the 6 columns and the 6 bulkheads."
+  },
+  {
+   "id": "a.twin",
+   "label": "Reading of the twin fitting's 58 W",
+   "value": "two 58 W tubes, 116 W a fitting",
+   "status": "assumption",
+   "why": "The key says \"Twin 1700mm Fluo Luminaire 58W\" without saying whether 58 W is each tube or the fitting. Two tubes at 58 W is the larger, cautious reading.",
+   "text": "The course's own assumption: a \"Twin 1700mm Fluo Luminaire 58W\" holds two 58 W tubes, 116 W a fitting (the cautious reading; the key does not say)."
+  },
+  {
+   "id": "a.dbl2circuits",
+   "label": "DBL2's lighting circuits and their phases",
+   "value": "C1 + C5 on L1; C3 + C6 on L2; C2 + C4 + C7 on L3",
+   "status": "assumption",
+   "why": "Question 1b asks for the loads balanced across circuits (pack p.4); the circuits follow the rooms, and the phases are chosen to share the current about equally.",
+   "text": "The course's own assumption: DBL2 has seven lighting circuits. C1 consultation bay (6 modular); C2 uni-sex and female toilets (5 modular); C3 cleaner, male toilets and tea bay (7 modular); C4 tools and warranty store and oil store (4 twin); C5 showroom east of the welcome desk (28 LED); C6 service reception (21 LED); C7 foyer (6 LED) and the walkway bollards (6). L1: C1 and C5; L2: C3 and C6; L3: C2, C4 and C7."
+  },
+  {
+   "id": "a.sockCircuits",
+   "label": "Socket circuits for maximum demand",
+   "value": "eight 32 A circuits, one per area",
+   "status": "assumption",
+   "why": "The drawing does not give circuits (brief section 2); question 10 asks for informed assumptions (pack p.5).",
+   "text": "The course's own assumption: the sockets are eight 32 A circuits, one per area: the trade parts counter; the parts manager and service and parts admin; Sales and the west desks; the other desks; Hospitality and parts sale with the ceiling-void sockets; the west floor boxes; the east floor boxes and welcome desk; the consultation bay, service reception, stores and plant room."
+  },
+  {
+   "id": "a.lightNoDiv",
+   "label": "Diversity on the lighting",
+   "value": "none (100%)",
+   "status": "assumption",
+   "why": "The showroom lights are on together from 7.30 am to 9 pm (pack p.4, question 5a), and the Schneider guide advises factors close to unity for mainly lighting circuits (research source 177). The On-Site Guide's small-shop column would allow 90%.",
+   "text": "The course's own assumption: no diversity on the lighting, because the showroom lights are on together through opening hours (question 5a). The On-Site Guide would allow 90% for a shop; a designer could take it."
+  },
+  {
+   "id": "a.mdBalance",
+   "label": "Spreading the single-phase loads for maximum demand",
+   "value": "single-phase total ÷ 3",
+   "status": "assumption",
+   "why": "An older book works a three-phase line current as the single-phase total divided by three when a perfect balance is assumed (research source 191). Real circuits do not share out exactly, so the heaviest phase will be a little higher.",
+   "text": "The course's own assumption: for the whole installation's maximum demand the single-phase loads are taken as shared evenly, so each phase carries their total ÷ 3, plus the motor's line current. An estimate: the heaviest phase will be a little higher."
+  },
+  {
+   "id": "a.device",
+   "label": "The motor circuit's device: type C, 25 A",
+   "value": "a type C circuit-breaker to BS EN 60898, 25 A, at DBP2",
+   "why": "In must not be less than Ib (23.08 A): 25 A is the smallest standard rating that is not (the rating columns of On-Site Guide Table B6, source 223). Type C trips instantaneously at 5 to 10 In (125 to 250 A at 25 A; On-Site Guide Table 7.2.7(ii), sources 220-222), clear of the practice star start (62.32 A) with room for the changeover surge; type B (75 to 125 A) clears it by little. The breaker gives short-circuit protection and back-up; the motor and the starter-to-motor cables are protected against overload by the starter's thermal relay (a thermal relay is not a device Regulation 433.1.201 covers, so its own characteristic is checked, source 243).",
+   "status": "assumption set",
+   "text": "The course's own assumption: the motor circuit is protected at DBP2 by a type C circuit-breaker to BS EN 60898, 25 A: the smallest standard rating not below Ib (23.08 A). Type C trips instantaneously at 5 to 10 In (125 to 250 A), clear of the practice star start (62.32 A); the starter's thermal relay protects the motor and the starter-to-motor cables against overload."
+  },
+  {
+   "id": "a.relay",
+   "label": "The overload relay is in the delta circuit, set at the winding current",
+   "value": "13.33 A (23.08 A ÷ √3; 0.58 × the motor's In)",
+   "why": "In the standard star-delta arrangement the thermal relay sits between the main contactor and the motor, carrying the winding current, so it is set at 0.58 × the motor In (Schneider Electric and Siemens, sources 225, 226; ElectroMechCalc, source 244). A relay in the incoming line is set at the full motor In instead (Schneider type 2 coordination), and the six starter-to-motor cables would still carry the winding current in delta running (source 227).",
+   "status": "assumption set",
+   "text": "The course's own assumption: the starter's thermal overload relay sits in the delta circuit and is set at the winding current, 13.33 A (23.08 A ÷ √3, which is 0.58 × the motor's In). This is the \"In\" (current setting) of the protective device for the starter-to-motor cables."
+  },
+  {
+   "id": "a.motorConduit",
+   "label": "The starter-to-motor conduit is on a wall: Reference Method B",
+   "value": "surface conduit on the consultation bay wall, no thermal insulation (Ci = 1, Cf = 1)",
+   "why": "The pack says only \"in conduit\". Reference Method B is conduit on a wall or in trunking (Table 4E1A heading, source 216; IET Wiring Matters, source 239). If it ran in a thermally insulating wall (Reference Method A, column 3) 1.5 mm² still passes: 17 A against 16.66 A.",
+   "status": "assumption set",
+   "text": "The course's own assumption: the starter-to-motor conduit is surface mounted on the consultation bay's wall (Reference Method B), clear of thermal insulation, so Ci and Cf are 1. In a thermally insulating wall (Reference Method A) 1.5 mm² would still pass (17 A against 16.66 A)."
+  },
+  {
+   "id": "a.sixSingles",
+   "label": "Six singles in one conduit are two three-phase circuits: Cg = 0.80",
+   "value": "Cg 0.80 (Table 4C1 item 1, two circuits, bunched and enclosed)",
+   "why": "In delta running every one of the six conductors carries the winding current (source 244), and Table 4C1 note 5 treats n single-core cables as n/3 circuits of three loaded conductors (sources 213, 219): six singles are two circuits, and bunched and enclosed two circuits give 0.80 (source 212). The three-phase column of Table 4E1A (3 or 4 loaded cables) is then used, not the two-cable column.",
+   "status": "assumption set",
+   "text": "The course's own assumption: the six singles from the starter to the motor, all loaded in delta running, are two three-phase circuits in one conduit: Table 4C1 item 1, two circuits, Cg = 0.80, read in Table 4E1A's column for 3 or 4 loaded cables."
   }
  ],
  "lessons": [
@@ -192,7 +448,11 @@
   {
    "n": 2,
    "title": "Maximum demand: what the whole building draws",
-   "sectionA": []
+   "sectionA": [
+    "3(a)",
+    "3(b)",
+    "3(c)"
+   ]
   },
   {
    "n": 3,
@@ -740,7 +1000,7 @@
    "kind": "worked",
    "status": "worked",
    "lesson": "i3",
-   "text": "20 A",
+   "text": "20.00 A",
    "work": "1.45 × 13.79 = 20.00 A, the fuse's 2 × 10 = 20 A"
   },
   {
@@ -1292,119 +1552,1194 @@
    "lesson": "i9",
    "text": "0.573 Ω",
    "work": "0.21 + 0.363 = 0.573 Ω"
+  },
+  {
+   "id": "l2.check",
+   "label": "Check: neutral current with 10 A, 10 A and 4 A on L1, L2, L3",
+   "value": 6,
+   "unit": "A",
+   "rule": "IN = √(I1² + I2² + I3² − I1·I2 − I2·I3 − I3·I1), currents at about the same power factor",
+   "inputs": {
+    "I1": "10 A",
+    "I2": "10 A",
+    "I3": "4 A"
+   },
+   "cite": "phasor sum of three currents 120° apart (AC circuits lesson 10); slides p.33",
+   "kind": "practice",
+   "text": "6.00 A",
+   "work": "√(100 + 100 + 16 − 100 − 40 − 40) = √36 = 6.00 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.check.slip1",
+   "label": "Check slip: the three currents simply added",
+   "value": 24,
+   "unit": "A",
+   "rule": "I1 + I2 + I3",
+   "inputs": {},
+   "cite": "slides p.33 (the rule it breaks)",
+   "kind": "slip",
+   "text": "24.00 A",
+   "work": "10 + 10 + 4 = 24.00 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.check.slip2",
+   "label": "Check slip: taken as cancelling completely",
+   "value": 0,
+   "unit": "A",
+   "rule": "only balanced currents cancel",
+   "inputs": {},
+   "cite": "research source 200 (unbalanced line currents do not cancel in the neutral)",
+   "kind": "slip",
+   "text": "0.00 A",
+   "work": "none",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.worked.ib660",
+   "label": "The slides' lighting circuit at 660 W: Ib",
+   "value": 2.87,
+   "unit": "A",
+   "rule": "Ib = P ÷ U0",
+   "inputs": {
+    "P": "660 W (l2.worked.diversity)",
+    "U0": "230 V"
+   },
+   "cite": "slides p.10 (660 W as the Ib rather than 1000 W)",
+   "kind": "worked",
+   "text": "2.87 A",
+   "work": "660 ÷ 230 = 2.87 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.worked.ib1000",
+   "label": "The same circuit at 1000 W: Ib",
+   "value": 4.35,
+   "unit": "A",
+   "rule": "Ib = P ÷ U0",
+   "inputs": {
+    "P": "1000 W",
+    "U0": "230 V"
+   },
+   "cite": "slides p.10",
+   "kind": "worked",
+   "text": "4.35 A",
+   "work": "1000 ÷ 230 = 4.35 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.worked.fluo",
+   "label": "One 4 x 36 W modular fitting: current (practice values)",
+   "value": 0.82,
+   "unit": "A",
+   "rule": "I = tube watts × 1.25 ÷ (230 × 0.96)",
+   "inputs": {
+    "tubes": "4 x 36 = 144 W (lighting dwg key)",
+    "ballast": "25% (p.ballast, practice value)",
+    "pf": "0.96 (p.pf.fluo, practice value)"
+   },
+   "cite": "lighting dwg key; research sources 180, 181, 182; assumption a.lightFormula",
+   "kind": "worked",
+   "practice": true,
+   "text": "0.82 A",
+   "work": "144 × 1.25 = 180 W; 180 ÷ (230 × 0.96) = 180 ÷ 220.8 = 0.82 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.worked.led",
+   "label": "One 26 W LED fitting: current (practice value)",
+   "value": 0.12,
+   "unit": "A",
+   "rule": "I = watts ÷ (230 × 0.95)",
+   "inputs": {
+    "watts": "26 W (lighting dwg key)",
+    "pf": "0.95 (p.pf.led, practice value)"
+   },
+   "cite": "lighting dwg key; research sources 184, 185",
+   "kind": "worked",
+   "practice": true,
+   "text": "0.12 A",
+   "work": "26 ÷ (230 × 0.95) = 26 ÷ 218.5 = 0.12 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "3a",
+   "part": "3a",
+   "label": "DBL2's connected lighting load",
+   "value": 4594,
+   "unit": "W",
+   "rule": "sum of (count × key watts) for the luminaires DBL2 feeds",
+   "inputs": {
+    "LED": "55 × 26 W",
+    "modular": "18 × 4 x 36 W",
+    "twin": "4 × 2 x 58 W (assumption a.twin)",
+    "bollard": "6 × 18 W"
+   },
+   "cite": "lighting dwg key and counts (g.dwg.lum); assumption a.dbl2split",
+   "kind": "showroom",
+   "text": "4594 W",
+   "work": "55 × 26 = 1430 W; 18 × 144 = 2592 W; 4 × 116 = 464 W; 6 × 18 = 108 W; 1430 + 2592 + 464 + 108 = 4594 W",
+   "accept": {
+    "min": 4594,
+    "max": 4594,
+    "why": "a count of whole watts"
+   },
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "3a.slip1",
+   "label": "3a slip: each modular fitting taken as 36 W",
+   "value": 2650,
+   "unit": "W",
+   "rule": "the 4 x 36 W fitting has four tubes",
+   "inputs": {},
+   "cite": "lighting dwg key (the rule it breaks)",
+   "kind": "slip",
+   "text": "2650 W",
+   "work": "1430 + 18 × 36 + 464 + 108 = 2650 W",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "3a.slip2",
+   "label": "3a reading: the twin fitting taken as 58 W in all",
+   "value": 4362,
+   "unit": "W",
+   "rule": "the other reading of the key (assumption a.twin)",
+   "inputs": {},
+   "cite": "lighting dwg key",
+   "kind": "slip",
+   "text": "4362 W",
+   "work": "1430 + 2592 + 4 × 58 + 108 = 4362 W",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "3a.slip3",
+   "label": "3a slip: the bollards left out",
+   "value": 4486,
+   "unit": "W",
+   "rule": "every luminaire DBL2 feeds counts",
+   "inputs": {},
+   "cite": "assumption a.dbl2split",
+   "kind": "slip",
+   "text": "4486 W",
+   "work": "1430 + 2592 + 464 = 4486 W",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.c1",
+   "label": "C1, consultation bay: 6 modular 4 x 36 W: current (practice values)",
+   "value": 4.89,
+   "unit": "A",
+   "rule": "I = tube watts × 1.25 ÷ (230 × 0.96)",
+   "inputs": {
+    "circuit": "assumption a.dbl2circuits"
+   },
+   "cite": "lighting dwg key; assumptions a.dbl2circuits, a.lightFormula; practice values p.ballast, p.pf.fluo",
+   "kind": "showroom",
+   "practice": true,
+   "text": "4.89 A",
+   "work": "6 × 144 = 864 W; 864 × 1.25 = 1080 W; 1080 ÷ 220.8 = 4.89 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.c2",
+   "label": "C2, uni-sex and female toilets: 5 modular: current (practice values)",
+   "value": 4.08,
+   "unit": "A",
+   "rule": "I = tube watts × 1.25 ÷ (230 × 0.96)",
+   "inputs": {
+    "circuit": "assumption a.dbl2circuits"
+   },
+   "cite": "lighting dwg key; assumptions a.dbl2circuits, a.lightFormula; practice values p.ballast, p.pf.fluo",
+   "kind": "showroom",
+   "practice": true,
+   "text": "4.08 A",
+   "work": "5 × 144 = 720 W; 720 × 1.25 = 900 W; 900 ÷ 220.8 = 4.08 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.c3",
+   "label": "C3, cleaner, male toilets and tea bay: 7 modular: current (practice values)",
+   "value": 5.71,
+   "unit": "A",
+   "rule": "I = tube watts × 1.25 ÷ (230 × 0.96)",
+   "inputs": {
+    "circuit": "assumption a.dbl2circuits"
+   },
+   "cite": "lighting dwg key; assumptions a.dbl2circuits, a.lightFormula; practice values p.ballast, p.pf.fluo",
+   "kind": "showroom",
+   "practice": true,
+   "text": "5.71 A",
+   "work": "7 × 144 = 1008 W; 1008 × 1.25 = 1260 W; 1260 ÷ 220.8 = 5.71 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.c4",
+   "label": "C4, the two stores: 4 twin 58 W: current (practice values)",
+   "value": 2.63,
+   "unit": "A",
+   "rule": "I = tube watts × 1.25 ÷ (230 × 0.96)",
+   "inputs": {
+    "circuit": "assumption a.dbl2circuits"
+   },
+   "cite": "lighting dwg key; assumptions a.dbl2circuits, a.lightFormula; practice values p.ballast, p.pf.fluo",
+   "kind": "showroom",
+   "practice": true,
+   "text": "2.63 A",
+   "work": "4 × 116 = 464 W; 464 × 1.25 = 580 W; 580 ÷ 220.8 = 2.63 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.c5",
+   "label": "C5, showroom east of the welcome desk: 28 LED: current (practice values)",
+   "value": 3.33,
+   "unit": "A",
+   "rule": "I = watts ÷ (230 × 0.95)",
+   "inputs": {
+    "circuit": "assumption a.dbl2circuits"
+   },
+   "cite": "lighting dwg key; assumptions a.dbl2circuits, a.lightFormula; practice values p.pf.led",
+   "kind": "showroom",
+   "practice": true,
+   "text": "3.33 A",
+   "work": "28 × 26 = 728 W; 728 ÷ 218.5 = 3.33 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.c6",
+   "label": "C6, service reception: 21 LED: current (practice values)",
+   "value": 2.5,
+   "unit": "A",
+   "rule": "I = watts ÷ (230 × 0.95)",
+   "inputs": {
+    "circuit": "assumption a.dbl2circuits"
+   },
+   "cite": "lighting dwg key; assumptions a.dbl2circuits, a.lightFormula; practice values p.pf.led",
+   "kind": "showroom",
+   "practice": true,
+   "text": "2.50 A",
+   "work": "21 × 26 = 546 W; 546 ÷ 218.5 = 2.50 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.c7",
+   "label": "C7, foyer (6 LED) and walkway bollards (6): current (practice values)",
+   "value": 1.21,
+   "unit": "A",
+   "rule": "I = watts ÷ (230 × 0.95)",
+   "inputs": {
+    "circuit": "assumption a.dbl2circuits"
+   },
+   "cite": "lighting dwg key; assumptions a.dbl2circuits, a.lightFormula; practice values p.pf.led",
+   "kind": "showroom",
+   "practice": true,
+   "text": "1.21 A",
+   "work": "6 × 26 + 6 × 18 = 264 W; 264 ÷ 218.5 = 1.21 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "3b",
+   "part": "3b",
+   "label": "DBL2's lighting: current on L1",
+   "value": 8.22,
+   "unit": "A",
+   "rule": "phase current = sum of its circuits' currents; I = tube watts × 1.25 ÷ (230 × 0.96) for fluorescent, watts ÷ (230 × 0.95) for LED",
+   "inputs": {
+    "C1": "4.89 A",
+    "C5": "3.33 A"
+   },
+   "cite": "assumptions a.dbl2circuits, a.lightFormula; practice values p.ballast, p.pf.fluo, p.pf.led",
+   "kind": "showroom",
+   "practice": true,
+   "note": "Built on practice values (ballast loss and power factors): read the real ones from the makers' datasheets. 8.22 A unrounded too.",
+   "text": "8.22 A",
+   "work": "C1: 864 × 1.25 = 1080 W; 1080 ÷ 220.8 = 4.89 A. C5: 728 ÷ 218.5 = 3.33 A. L1 = 4.89 + 3.33 = 8.22 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "3b.slip1",
+   "label": "3b slip: ballast loss left out",
+   "value": 7.24,
+   "unit": "A",
+   "rule": "tube watts exclude the ballast",
+   "inputs": {},
+   "cite": "research source 182 (the rule it breaks)",
+   "kind": "slip",
+   "text": "7.24 A",
+   "work": "864 ÷ 220.8 = 3.91 A; 3.91 + 3.33 = 7.24 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "3b.slip2",
+   "label": "3b slip: power factor left out",
+   "value": 7.87,
+   "unit": "A",
+   "rule": "I = W ÷ (U × pf)",
+   "inputs": {},
+   "cite": "slides p.15 (the rule it breaks)",
+   "kind": "slip",
+   "text": "7.87 A",
+   "work": "1080 ÷ 230 = 4.70 A; 728 ÷ 230 = 3.17 A; 4.70 + 3.17 = 7.87 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "3b.slip3",
+   "label": "3b other method: the older ×1.8 rule for the fluorescent circuit",
+   "value": 10.09,
+   "unit": "A",
+   "rule": "I = lamp watts × 1.8 ÷ U (research source 189)",
+   "inputs": {},
+   "cite": "research sources 188, 189",
+   "kind": "slip",
+   "text": "10.09 A",
+   "work": "864 × 1.8 ÷ 230 = 6.76 A; 6.76 + 3.33 = 10.09 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "3b.slip4",
+   "label": "3b slip: the whole board, all three phases",
+   "value": 24.35,
+   "unit": "A",
+   "rule": "L1 carries only its own circuits",
+   "inputs": {},
+   "cite": "assumption a.dbl2circuits",
+   "kind": "slip",
+   "text": "24.35 A",
+   "work": "8.22 + 8.21 + 7.92 = 24.35 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.L2",
+   "label": "DBL2's lighting: current on L2",
+   "value": 8.21,
+   "unit": "A",
+   "rule": "C3 + C6",
+   "inputs": {
+    "C3": "5.71 A",
+    "C6": "2.50 A"
+   },
+   "cite": "assumption a.dbl2circuits",
+   "kind": "showroom",
+   "practice": true,
+   "text": "8.21 A",
+   "work": "5.71 + 2.50 = 8.21 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.L3",
+   "label": "DBL2's lighting: current on L3",
+   "value": 7.92,
+   "unit": "A",
+   "rule": "C2 + C4 + C7",
+   "inputs": {
+    "C2": "4.08 A",
+    "C4": "2.63 A",
+    "C7": "1.21 A"
+   },
+   "cite": "assumption a.dbl2circuits",
+   "kind": "showroom",
+   "practice": true,
+   "text": "7.92 A",
+   "work": "4.08 + 2.63 + 1.21 = 7.92 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.dbl2.total",
+   "label": "DBL2's lighting current, all three phases",
+   "value": 24.35,
+   "unit": "A",
+   "rule": "L1 + L2 + L3",
+   "inputs": {},
+   "cite": "assumption a.dbl2circuits",
+   "kind": "showroom",
+   "practice": true,
+   "text": "24.35 A",
+   "work": "8.22 + 8.21 + 7.92 = 24.35 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.neutral",
+   "label": "DBL2's lighting: neutral current with the course's split",
+   "value": 0.3,
+   "unit": "A",
+   "rule": "IN = √(I1² + I2² + I3² − I1·I2 − I2·I3 − I3·I1), currents at about the same power factor",
+   "inputs": {
+    "I1": "8.22 A",
+    "I2": "8.21 A",
+    "I3": "7.92 A"
+   },
+   "cite": "phasor sum (AC circuits lesson 10)",
+   "kind": "showroom",
+   "practice": true,
+   "text": "0.30 A",
+   "work": "√(8.22² + 8.21² + 7.92² − 8.22 × 8.21 − 8.21 × 7.92 − 7.92 × 8.22) = 0.30 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.neutral.allL1",
+   "label": "DBL2's lighting all on L1: neutral current",
+   "value": 24.35,
+   "unit": "A",
+   "rule": "one phase only: the neutral carries all of it",
+   "inputs": {},
+   "cite": "slides p.33",
+   "kind": "showroom",
+   "practice": true,
+   "text": "24.35 A",
+   "work": "√(24.35²) = 24.35 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.dbl1",
+   "label": "DBL1's lighting current, all three phases (practice values)",
+   "value": 38.74,
+   "unit": "A",
+   "rule": "as DBL2, by type; wall spots and columns at power factor 0.9 (p.pf.other)",
+   "inputs": {
+    "fluorescent": "16 × 144 + 12 × 116 = 3696 W",
+    "LED": "103 × 26 + 6 × 18 = 2786 W (bulkheads with the LEDs, p.pf.led)",
+    "other": "9 × 70 + 6 × 70 = 1050 W"
+   },
+   "cite": "g.dwg.lum; assumption a.dbl2split; practice values p.ballast, p.pf.fluo, p.pf.led, p.pf.other",
+   "kind": "showroom",
+   "practice": true,
+   "text": "38.74 A",
+   "work": "3696 × 1.25 = 4620 W; 4620 ÷ 220.8 = 20.92 A. 2786 ÷ 218.5 = 12.75 A. 1050 ÷ (230 × 0.9) = 1050 ÷ 207 = 5.07 A. 20.92 + 12.75 + 5.07 = 38.74 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.md.light",
+   "label": "MD: all the lighting, no diversity",
+   "value": 63.09,
+   "unit": "A",
+   "rule": "DBL2 + DBL1, at 100% (assumption a.lightNoDiv)",
+   "inputs": {
+    "DBL2": "24.35 A",
+    "DBL1": "38.74 A"
+   },
+   "cite": "assumption a.lightNoDiv; pack p.4 question 5a",
+   "kind": "showroom",
+   "practice": true,
+   "text": "63.09 A",
+   "work": "24.35 + 38.74 = 63.09 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.md.sock",
+   "label": "MD: eight 32 A socket circuits as standard circuits",
+   "value": 144,
+   "unit": "A",
+   "rule": "100% of the largest circuit + 50% of every other (On-Site Guide, small shops column)",
+   "inputs": {
+    "circuits": "8 × 32 A (p.load.sockcircuit, practice value; assumption a.sockCircuits)"
+   },
+   "cite": "g.osg.std (research source 169)",
+   "kind": "showroom",
+   "practice": true,
+   "text": "144.00 A",
+   "work": "32 + 0.5 × 7 × 32 = 32 + 112 = 144.00 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.md.fixed",
+   "label": "MD: the 32 A and three 20 A fixed points",
+   "value": 77,
+   "unit": "A",
+   "rule": "100% of the largest + 75% of the remaining (heating and power, small shops column)",
+   "inputs": {
+    "loads": "32 A (p.load.32A) and 3 × 20 A (p.load.20A), practice values"
+   },
+   "cite": "g.osg.heat (research source 167); g.dwg.fixed",
+   "kind": "showroom",
+   "practice": true,
+   "text": "77.00 A",
+   "work": "32 + 0.75 × 3 × 20 = 32 + 45 = 77.00 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.md.ev",
+   "label": "MD: four 32 A EV outlets, no diversity",
+   "value": 128,
+   "unit": "A",
+   "rule": "no diversity without load management",
+   "inputs": {
+    "outlets": "2 points × 2 outlets × 32 A (p.ev.outlet, practice value)"
+   },
+   "cite": "g.osg.ev; pack p.5",
+   "kind": "showroom",
+   "practice": true,
+   "text": "128.00 A",
+   "work": "4 × 32 = 128.00 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.md.single",
+   "label": "MD: all the single-phase loads",
+   "value": 412.09,
+   "unit": "A",
+   "rule": "lighting + sockets + fixed points + EV",
+   "inputs": {},
+   "cite": "figures l2.md.*",
+   "kind": "showroom",
+   "practice": true,
+   "text": "412.09 A",
+   "work": "63.09 + 144.00 + 77.00 + 128.00 = 412.09 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.md.perphase",
+   "label": "MD: single-phase loads per phase, shared evenly",
+   "value": 137.36,
+   "unit": "A",
+   "rule": "single-phase total ÷ 3 (assumption a.mdBalance)",
+   "inputs": {},
+   "cite": "research source 191; assumption a.mdBalance",
+   "kind": "showroom",
+   "practice": true,
+   "text": "137.36 A",
+   "work": "412.09 ÷ 3 = 137.36 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "3c",
+   "part": "3c",
+   "label": "Maximum demand of the installation, per phase",
+   "value": 160.44,
+   "unit": "A",
+   "rule": "single-phase loads after diversity ÷ 3, plus the motor's line current (100%, the only motor)",
+   "inputs": {
+    "single-phase per phase": "137.36 A",
+    "motor": "23.08 A (part 1a; g.osg.motor)"
+   },
+   "cite": "pack p.5 question 10; guide p.3; assumptions a.lightNoDiv, a.sockCircuits, a.mdBalance; practice values p.load.*, p.ev.outlet, p.pf.*, p.ballast",
+   "kind": "showroom",
+   "practice": true,
+   "note": "An estimate built on practice values and the course's assumptions, as question 10 allows (\"making informed assumptions where necessary\"). 160.44 A unrounded too.",
+   "text": "160.44 A",
+   "work": "63.09 + 144.00 + 77.00 + 128.00 = 412.09 A; 412.09 ÷ 3 = 137.36 A; 137.36 + 23.08 = 160.44 A",
+   "accept": {
+    "min": 160.4,
+    "max": 160.48,
+    "why": "DBL2's lighting worked by type (24.34 A) or from unrounded figures still gives 160.44 A; allow the last place"
+   },
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "3c.slip1",
+   "label": "3c slip: no diversity anywhere",
+   "value": 202.78,
+   "unit": "A",
+   "rule": "every load at its full figure",
+   "inputs": {},
+   "cite": "slides p.10 (the purpose it misses)",
+   "kind": "slip",
+   "text": "202.78 A",
+   "work": "63.09 + 8 × 32 + 32 + 60 + 128 = 539.09 A; ÷ 3 = 179.70 A; + 23.08 = 202.78 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "3c.slip2",
+   "label": "3c slip: the motor left out",
+   "value": 137.36,
+   "unit": "A",
+   "rule": "question 10 uses answer 4a",
+   "inputs": {},
+   "cite": "pack p.5",
+   "kind": "slip",
+   "text": "137.36 A",
+   "work": "412.09 ÷ 3 = 137.36 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "3c.slip3",
+   "label": "3c slip: the motor's current divided by 3 as well",
+   "value": 145.05,
+   "unit": "A",
+   "rule": "Ib of a three-phase load is already a line current",
+   "inputs": {},
+   "cite": "slides p.13",
+   "kind": "slip",
+   "text": "145.05 A",
+   "work": "137.36 + 23.08 ÷ 3 = 137.36 + 7.69 = 145.05 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "3c.slip4",
+   "label": "3c slip: single-phase total not shared over three phases",
+   "value": 435.17,
+   "unit": "A",
+   "rule": "the single-phase loads are spread over L1, L2 and L3",
+   "inputs": {},
+   "cite": "research source 191",
+   "kind": "slip",
+   "text": "435.17 A",
+   "work": "412.09 + 23.08 = 435.17 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "3c.slip5",
+   "label": "3c reading: the lighting at the On-Site Guide's 90%",
+   "value": 158.34,
+   "unit": "A",
+   "rule": "lighting 90% (small shops column)",
+   "inputs": {},
+   "cite": "g.osg.light; the question takes it at 100% (assumption a.lightNoDiv)",
+   "kind": "slip",
+   "text": "158.34 A",
+   "work": "0.9 × 63.09 = 56.78 A; 56.78 + 144 + 77 + 128 = 405.78 A; ÷ 3 = 135.26 A; + 23.08 = 158.34 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.A.changed",
+   "label": "Section A, changed numbers: a small office board's maximum demand",
+   "value": 112.2,
+   "unit": "A",
+   "rule": "standard circuits 100% of the largest + 50% of every other; lighting 90% (small shops, stores, offices column)",
+   "inputs": {
+    "circuits": "5 × 32 A",
+    "lighting": "18.00 A"
+   },
+   "cite": "shape: C&G \"Determine…\" (Section A); allowances research sources 165, 169",
+   "kind": "practice",
+   "text": "112.20 A",
+   "work": "32 + 0.5 × 4 × 32 = 96.00 A; 0.9 × 18.00 = 16.20 A; 96.00 + 16.20 = 112.20 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.A.changed.slip1",
+   "label": "Changed numbers slip: no diversity",
+   "value": 178,
+   "unit": "A",
+   "rule": "every circuit at 32 A, lighting at 100%",
+   "inputs": {},
+   "cite": "slides p.10",
+   "kind": "slip",
+   "text": "178.00 A",
+   "work": "5 × 32 + 18 = 178.00 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.A.changed.slip2",
+   "label": "Changed numbers slip: lighting at 100%",
+   "value": 114,
+   "unit": "A",
+   "rule": "the lighting allowance left out",
+   "inputs": {},
+   "cite": "research source 165",
+   "kind": "slip",
+   "text": "114.00 A",
+   "work": "96.00 + 18.00 = 114.00 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "id": "l2.A.changed.slip3",
+   "label": "Changed numbers slip: 50% on every circuit, the largest too",
+   "value": 96.2,
+   "unit": "A",
+   "rule": "the largest circuit counts in full",
+   "inputs": {},
+   "cite": "research source 169",
+   "kind": "slip",
+   "text": "96.20 A",
+   "work": "0.5 × 5 × 32 + 16.20 = 96.20 A",
+   "lesson": "i2",
+   "status": "worked"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "l3.sections.clipped",
+   "label": "Slides' heater circuit, clipped direct: Ca only",
+   "value": 17.02,
+   "unit": "A",
+   "rule": "It ≥ In ÷ Ca",
+   "inputs": {
+    "In": "16 A",
+    "Ca": "0.94"
+   },
+   "cite": "slides p.26, 27 (Ca always present)",
+   "kind": "worked",
+   "text": "17.02 A",
+   "work": "16 ÷ 0.94 = 17.02 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "l3.overload.fusei2",
+   "label": "A 10 A rewireable fuse's I2, at twice In",
+   "value": 20,
+   "unit": "A",
+   "rule": "I2 up to 2 × In for a BS 3036 fuse (the figure Cf = 0.725 allows for: 1.45 ÷ 0.725)",
+   "inputs": {
+    "In": "10 A"
+   },
+   "cite": "research source 109 (up to 2 ×); slides p.25",
+   "kind": "worked",
+   "text": "20.00 A",
+   "work": "2 × 10 = 20.00 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "l3.check",
+   "label": "Check: circuits counted for Cg, seven bunched, four lightly loaded",
+   "value": 3,
+   "unit": "circuits",
+   "rule": "a cable at not more than 30% of its grouped rating may be ignored (Table 4C1 note 9); Cg counts the circuit itself",
+   "inputs": {
+    "bunched": "7",
+    "light": "4"
+   },
+   "cite": "research source 214; slides p.25; Cg 0.70 for three circuits bunched, Table 4C1 item 1 (research source 212)",
+   "kind": "practice",
+   "text": "3 circuits (Cg 0.70)",
+   "work": "7 − 4 = 3 circuits; Table 4C1 item 1, three circuits: 0.70"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "1c",
+   "part": "1c",
+   "label": "Breaker rating at DBP2 for the motor circuit",
+   "value": 25,
+   "unit": "A",
+   "rule": "Ib ≤ In: the smallest standard rating not below Ib; type for the starting current",
+   "inputs": {
+    "Ib": "23.08 A (part a)",
+    "ratings": "16, 20, 25, 32 A (On-Site Guide p.145)"
+   },
+   "cite": "research sources 107 (In ≥ Ib), 223 (ratings), 220-222 (types); assumption a.device (type C)",
+   "kind": "showroom",
+   "note": "Type C to BS EN 60898 is the course's own choice (a.device): instantaneous trip 125 to 250 A, clear of the practice star start, 62.32 A.",
+   "text": "25 A",
+   "work": "23.08 A ≤ 25 A, the smallest standard rating not below it (20 A is below)"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "1c.slip1",
+   "label": "1c slip: below Ib (output-only or winding current)",
+   "value": 16,
+   "unit": "A",
+   "rule": "In ≥ Ib",
+   "inputs": {},
+   "cite": "research source 107 (the rule it breaks)",
+   "kind": "slip",
+   "text": "16 A",
+   "work": "15.88 A or 13.33 A rounded up to 16 A, below Ib 23.08 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "1c.slip2",
+   "label": "1c slip: below Ib",
+   "value": 20,
+   "unit": "A",
+   "rule": "In ≥ Ib",
+   "inputs": {},
+   "cite": "research source 107 (the rule it breaks)",
+   "kind": "slip",
+   "text": "20 A",
+   "work": "20 A < 23.08 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "1c.slip3",
+   "label": "1c slip: not the smallest",
+   "value": 32,
+   "unit": "A",
+   "rule": "the smallest standard rating not below Ib",
+   "inputs": {},
+   "cite": "research source 223",
+   "kind": "slip",
+   "text": "32 A",
+   "work": "32 A passes Ib ≤ In but 25 A is smaller"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "l3.A.start",
+   "label": "Showroom motor's star start (practice value)",
+   "value": 62.32,
+   "unit": "A",
+   "rule": "start = 2.7 × full-load line current (practice value p.start)",
+   "inputs": {
+    "Ib": "23.08 A",
+    "multiple": "2.7"
+   },
+   "cite": "practice value p.start (research sources 228, 229)",
+   "kind": "showroom",
+   "practice": true,
+   "note": "A practice value, used only to choose the breaker type: the motor's maker gives the real starting current.",
+   "text": "62.32 A",
+   "work": "2.7 × 23.08 = 62.32 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "l3.A.tripB",
+   "label": "Type B instantaneous trip at 25 A",
+   "value": "75 to 125",
+   "unit": "A",
+   "rule": "3 to 5 In",
+   "inputs": {
+    "In": "25 A"
+   },
+   "cite": "On-Site Guide p.90 (research source 222)",
+   "kind": "worked",
+   "text": "75 to 125 A",
+   "work": "3 × 25 = 75 A; 5 × 25 = 125 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "l3.A.tripC",
+   "label": "Type C instantaneous trip at 25 A",
+   "value": "125 to 250",
+   "unit": "A",
+   "rule": "5 to 10 In",
+   "inputs": {
+    "In": "25 A"
+   },
+   "cite": "On-Site Guide p.90 (research source 220)",
+   "kind": "worked",
+   "text": "125 to 250 A",
+   "work": "5 × 25 = 125 A; 10 × 25 = 250 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "l3.A.tripD",
+   "label": "Type D instantaneous trip at 25 A",
+   "value": "250 to 500",
+   "unit": "A",
+   "rule": "10 to 20 In",
+   "inputs": {
+    "In": "25 A"
+   },
+   "cite": "On-Site Guide p.90 (research source 221)",
+   "kind": "worked",
+   "text": "250 to 500 A",
+   "work": "10 × 25 = 250 A; 20 × 25 = 500 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "l3.A.circuits",
+   "label": "Circuits the six starter-to-motor singles count as",
+   "value": 2,
+   "unit": "circuits",
+   "rule": "n single-core cables = n/3 circuits of three loaded conductors (three-phase)",
+   "inputs": {
+    "n": "6"
+   },
+   "cite": "Table 4C1 note 5 (research source 213); On-Site Guide p.170 (research source 219); assumption a.sixSingles",
+   "kind": "showroom",
+   "text": "2 circuits (Cg 0.80)",
+   "work": "6 ÷ 3 = 2 circuits; Table 4C1 item 1, two circuits bunched and enclosed: Cg 0.80"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "1d",
+   "part": "1d",
+   "label": "Minimum It of the starter-to-motor singles",
+   "value": 16.66,
+   "unit": "A",
+   "rule": "It ≥ In ÷ (Ca × Cg), In = the relay setting (the winding current)",
+   "inputs": {
+    "In": "13.33 A (relay setting, part b; assumption a.relay)",
+    "Ca": "1.00 (practice value p.Ca)",
+    "Cg": "0.80 (two circuits, a.sixSingles)"
+   },
+   "cite": "slides p.25 (the rule); research sources 212, 213, 219, 225, 226; practice value p.Ca",
+   "kind": "showroom",
+   "practice": true,
+   "accept": {
+    "min": 16.65,
+    "max": 16.69,
+    "why": "16.65 A from the unrounded winding current (13.32 A); √3 as 1.73 gives 13.34 or 13.35 A, so 16.68 or 16.69 A"
+   },
+   "note": "Rests on the practice Ca of 1.00 (Table 4B1 starts at 25 °C, 1.02): read the real treatment from your copy. With 1.02, 16.34 A: the same cable.",
+   "text": "16.66 A",
+   "work": "13.33 ÷ (1.00 × 0.80) = 16.66 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "1d.slip1",
+   "label": "1d slip: Cg left out",
+   "value": 13.33,
+   "unit": "A",
+   "rule": "Cg counts the group",
+   "inputs": {},
+   "cite": "slides p.25",
+   "kind": "slip",
+   "text": "13.33 A",
+   "work": "13.33 ÷ 1.00 = 13.33 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "1d.slip2",
+   "label": "1d slip: line current, Cg left out",
+   "value": 23.08,
+   "unit": "A",
+   "rule": "the singles carry the winding current in delta",
+   "inputs": {},
+   "cite": "research source 244",
+   "kind": "slip",
+   "text": "23.08 A",
+   "work": "23.08 ÷ 1.00 = 23.08 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "1d.slip3",
+   "label": "1d slip: line current ÷ Cg",
+   "value": 28.85,
+   "unit": "A",
+   "rule": "the singles carry the winding current in delta",
+   "inputs": {},
+   "cite": "research source 244",
+   "kind": "slip",
+   "text": "28.85 A",
+   "work": "23.08 ÷ 0.80 = 28.85 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "1d.slip4",
+   "label": "1d slip: the breaker's 25 A as In",
+   "value": 31.25,
+   "unit": "A",
+   "rule": "the relay is the overload device for these cables",
+   "inputs": {},
+   "cite": "research sources 225, 243",
+   "kind": "slip",
+   "text": "31.25 A",
+   "work": "25 ÷ 0.80 = 31.25 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "1d.slip5",
+   "label": "1d slip: Ca 1.02 (the 25 °C row) for the practice 1.00",
+   "value": 16.34,
+   "unit": "A",
+   "rule": "the question takes Ca 1.00",
+   "inputs": {},
+   "cite": "research source 211",
+   "kind": "slip",
+   "text": "16.34 A",
+   "work": "13.33 ÷ (1.02 × 0.80) = 13.33 ÷ 0.816 = 16.34 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "1e",
+   "part": "1e",
+   "label": "The table and column for the starter-to-motor singles",
+   "value": "Table 4E1A, column 5",
+   "unit": "",
+   "rule": "90 °C thermosetting singles, non-armoured: Table 4E1A; conduit on a wall: Reference Method B; two three-phase circuits: 3 or 4 cables, three-phase AC",
+   "inputs": {
+    "cable": "90 °C thermosetting singles (pack p.4)",
+    "method": "conduit on the bay wall (assumption a.motorConduit)"
+   },
+   "cite": "your copy of BS 7671 p.458 (research sources 215, 216); IET Wiring Matters (research source 239)",
+   "kind": "showroom",
+   "text": "Table 4E1A, column 5",
+   "work": "Table 4E1A; Reference Method B; 3 or 4 cables, three-phase AC: column 5"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "1f",
+   "part": "1f",
+   "label": "Minimum CSA of the starter-to-motor cables",
+   "value": 1.5,
+   "unit": "mm²",
+   "rule": "the smallest CSA whose tabulated current is at least It",
+   "inputs": {
+    "It": "16.66 A (part d)",
+    "column": "Table 4E1A column 5: 1 mm² 15 A, 1.5 mm² 20 A"
+   },
+   "cite": "your copy of BS 7671 p.458 (research sources 217, 218)",
+   "kind": "showroom",
+   "practice": true,
+   "note": "Rests on the practice Ca (p.Ca); any Ca up to about 1.11 leaves 1.5 mm² the smallest that passes.",
+   "text": "1.5 mm²",
+   "work": "1 mm²: 15 A < 16.66 A, no; 1.5 mm²: 20 A ≥ 16.66 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "1f.slip1",
+   "label": "1f slip: Cg left out (13.33 A)",
+   "value": 1,
+   "unit": "mm²",
+   "rule": "Cg counts",
+   "inputs": {},
+   "cite": "slides p.25",
+   "kind": "slip",
+   "text": "1 mm²",
+   "work": "13.33 A ≤ 15 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "1f.slip2",
+   "label": "1f slip: sized on the line current (23.08 A)",
+   "value": 2.5,
+   "unit": "mm²",
+   "rule": "the singles carry the winding current",
+   "inputs": {},
+   "cite": "research source 244",
+   "kind": "slip",
+   "text": "2.5 mm²",
+   "work": "23.08 A read in column 5"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "1f.slip3",
+   "label": "1f slip: line current ÷ Cg (28.85 A)",
+   "value": 4,
+   "unit": "mm²",
+   "rule": "the singles carry the winding current",
+   "inputs": {},
+   "cite": "research source 244",
+   "kind": "slip",
+   "text": "4 mm²",
+   "work": "28.85 A read in column 5"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "l3.A.iz",
+   "label": "Iz of the 1.5 mm² starter-to-motor singles",
+   "value": 16,
+   "unit": "A",
+   "rule": "Iz = tabulated × Ca × Cg",
+   "inputs": {
+    "tabulated": "20 A",
+    "Ca": "1.00 (practice)",
+    "Cg": "0.80"
+   },
+   "cite": "research sources 218, 212; practice value p.Ca",
+   "kind": "showroom",
+   "practice": true,
+   "text": "16.00 A",
+   "work": "20 × 1.00 × 0.80 = 16.00 A; Ib 13.33 ≤ In 13.33 ≤ Iz 16.00"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "l3.A.relay",
+   "label": "The relay must operate by 1.45 Iz",
+   "value": 23.2,
+   "unit": "A",
+   "rule": "I2 ≤ 1.45 Iz, from the relay's own characteristic",
+   "inputs": {
+    "Iz": "16.00 A"
+   },
+   "cite": "research sources 107, 243",
+   "kind": "showroom",
+   "practice": true,
+   "text": "23.20 A",
+   "work": "1.45 × 16.00 = 23.20 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "l3.practice.cf.slip1",
+   "label": "Changed numbers slip: Cf left out",
+   "value": 15,
+   "unit": "A",
+   "rule": "It ≥ In ÷ Cf",
+   "inputs": {},
+   "cite": "slides p.25",
+   "kind": "slip",
+   "text": "15.00 A",
+   "work": "15 ÷ 1 = 15.00 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "l3.practice.cf.slip2",
+   "label": "Changed numbers slip: multiplied by Cf",
+   "value": 10.88,
+   "unit": "A",
+   "rule": "factors divide",
+   "inputs": {},
+   "cite": "slides p.25",
+   "kind": "slip",
+   "text": "10.88 A",
+   "work": "15 × 0.725 = 10.88 A"
+  },
+  {
+   "status": "worked",
+   "lesson": "i3",
+   "id": "l3.practice.cf.slip3",
+   "label": "Changed numbers slip: 1.45 × In",
+   "value": 21.75,
+   "unit": "A",
+   "rule": "that is a breaker's I2, not It",
+   "inputs": {},
+   "cite": "slides p.30",
+   "kind": "slip",
+   "text": "21.75 A",
+   "work": "1.45 × 15 = 21.75 A"
   }
  ],
  "pending": [
-  {
-   "id": "l2.dbl2.load",
-   "label": "DBL2's connected lighting load",
-   "value": null,
-   "unit": "W",
-   "rule": "sum of the luminaires DBL2 feeds × their key wattages",
-   "needs": [
-    "luminaire counts recounted by hand from the lighting drawing",
-    "which luminaires DBL2 feeds (assumption a.dbl2split)"
-   ],
-   "cite": "lighting dwg key",
-   "kind": "showroom",
-   "status": "to count",
-   "lesson": "i2"
-  },
-  {
-   "id": "l2.balance",
-   "label": "DBL2's lighting split across L1, L2, L3",
-   "value": null,
-   "unit": "A per phase",
-   "rule": "phase current = phase load ÷ 230 V (resistive and LED loads need their power factors: to research)",
-   "needs": [
-    "l2.dbl2.load",
-    "the luminaires' power factors (maker's data)"
-   ],
-   "cite": "pack question 1b",
-   "kind": "showroom",
-   "status": "to research",
-   "lesson": "i2"
-  },
-  {
-   "id": "l2.md",
-   "label": "Maximum demand of the installation (question 10)",
-   "value": null,
-   "unit": "A per phase",
-   "rule": "connected loads with diversity allowances, plus the motor's 23.08 A",
-   "needs": [
-    "OSG Appendix A allowances for each load type",
-    "loads for the sockets, the 20 A and 32 A points and the EV points (not on the drawings)",
-    "l2.dbl2.load"
-   ],
-   "cite": "pack question 10; guide p.3",
-   "kind": "showroom",
-   "status": "to research",
-   "lesson": "i2"
-  },
-  {
-   "id": "l3.A.1c",
-   "label": "Section A 1(c): the device for the motor circuit and its rating",
-   "value": null,
-   "unit": "A",
-   "rule": "Ib ≤ In; device type for the starting current; overload relay in a star-delta starter",
-   "needs": [
-    "B, C, D instantaneous-trip multiples (Appendix 3)",
-    "how the starter's overload protects the delta-connected windings and cables (the guide points to its 4.7, guide p.7)"
-   ],
-   "cite": "slides p.20, 22; pack p.4",
-   "kind": "showroom",
-   "status": "to research",
-   "lesson": "i3",
-   "part": "1c"
-  },
-  {
-   "id": "l3.A.1d",
-   "label": "Section A 1(d): rating factors for the starter-to-motor singles",
-   "value": null,
-   "unit": "",
-   "rule": "Ca for 20 °C, 90 °C thermosetting; Cg for the six singles in one conduit",
-   "needs": [
-    "Ca at 20 °C for 90 °C thermosetting (Table 4B1)",
-    "how Cg counts a star-delta motor's six cores"
-   ],
-   "cite": "pack p.3 (20 °C), p.4 (question 4b)",
-   "kind": "showroom",
-   "status": "to research",
-   "lesson": "i3",
-   "part": "1d"
-  },
-  {
-   "id": "l3.A.1e",
-   "label": "Section A 1(e): the table and column",
-   "value": null,
-   "unit": "",
-   "rule": "the table for 90 °C thermosetting singles; the column for singles enclosed in conduit (Reference Method B, as slides p.42 treat singles in conduit)",
-   "needs": [
-    "the table number and the column heading for the edition used (Tables 4D1A to 4J4A, flowchart step 6)"
-   ],
-   "cite": "flowchart step 6; slides p.23, 28",
-   "kind": "showroom",
-   "status": "to research",
-   "lesson": "i3",
-   "part": "1e"
-  },
-  {
-   "id": "l3.A.1f",
-   "label": "Section A 1(f): minimum CSA of the starter-to-motor cables",
-   "value": null,
-   "unit": "mm²",
-   "rule": "smallest CSA with It(tab) ≥ the winding current ÷ factors",
-   "needs": [
-    "l3.A.1d",
-    "l3.A.1e",
-    "the table value for that CSA"
-   ],
-   "cite": "pack p.4 question 4b",
-   "kind": "showroom",
-   "status": "to research",
-   "lesson": "i3",
-   "part": "1f"
-  },
   {
    "id": "l4.A",
    "label": "The showroom's fluorescent lighting: line or neutral current?",
@@ -1477,7 +2812,7 @@
    "unit": "Ω",
    "rule": "Zs ≤ maximum Zs for the device (Tables 41.2 to 41.4)",
    "needs": [
-    "l3.A.1c (the device)",
+    "1c (the device)",
     "that device's maximum Zs"
    ],
    "cite": "guide p.5 (\"Compare your calculated Zs value to the maximum permitted for the device\")",
@@ -1523,13 +2858,15 @@
    "label": "The DBL2 submain's design current",
    "value": null,
    "unit": "A per phase",
-   "rule": "the DBL2 load per phase (lesson 2)",
+   "rule": "the heaviest phase of DBL2's lighting (lesson 2: L1 8.22 A, part 3b; L2 8.21 A; L3 7.92 A), with no diversity (assumption a.lightNoDiv)",
    "needs": [
-    "l2.balance"
+    "3b",
+    "l2.L2",
+    "l2.L3"
    ],
    "cite": "pack question 3a",
    "kind": "showroom",
-   "status": "to research",
+   "status": "to work",
    "lesson": "i8"
   },
   {
@@ -1608,63 +2945,6 @@
  ],
  "toResearch": [
   {
-   "id": "l2.dbl2.load",
-   "status": "to count",
-   "needs": [
-    "luminaire counts recounted by hand from the lighting drawing",
-    "which luminaires DBL2 feeds (assumption a.dbl2split)"
-   ]
-  },
-  {
-   "id": "l2.balance",
-   "status": "to research",
-   "needs": [
-    "l2.dbl2.load",
-    "the luminaires' power factors (maker's data)"
-   ]
-  },
-  {
-   "id": "l2.md",
-   "status": "to research",
-   "needs": [
-    "OSG Appendix A allowances for each load type",
-    "loads for the sockets, the 20 A and 32 A points and the EV points (not on the drawings)",
-    "l2.dbl2.load"
-   ]
-  },
-  {
-   "id": "l3.A.1c",
-   "status": "to research",
-   "needs": [
-    "B, C, D instantaneous-trip multiples (Appendix 3)",
-    "how the starter's overload protects the delta-connected windings and cables (the guide points to its 4.7, guide p.7)"
-   ]
-  },
-  {
-   "id": "l3.A.1d",
-   "status": "to research",
-   "needs": [
-    "Ca at 20 °C for 90 °C thermosetting (Table 4B1)",
-    "how Cg counts a star-delta motor's six cores"
-   ]
-  },
-  {
-   "id": "l3.A.1e",
-   "status": "to research",
-   "needs": [
-    "the table number and the column heading for the edition used (Tables 4D1A to 4J4A, flowchart step 6)"
-   ]
-  },
-  {
-   "id": "l3.A.1f",
-   "status": "to research",
-   "needs": [
-    "l3.A.1d",
-    "l3.A.1e",
-    "the table value for that CSA"
-   ]
-  },
-  {
    "id": "l4.A",
    "status": "to research",
    "needs": [
@@ -1703,7 +2983,7 @@
    "id": "l6.A.2b",
    "status": "to research",
    "needs": [
-    "l3.A.1c (the device)",
+    "1c (the device)",
     "that device's maximum Zs"
    ]
   },
@@ -1726,9 +3006,11 @@
   },
   {
    "id": "l8.dbl2.ib",
-   "status": "to research",
+   "status": "to work",
    "needs": [
-    "l2.balance"
+    "3b",
+    "l2.L2",
+    "l2.L3"
    ]
   },
   {
@@ -1770,5 +3052,5 @@
    ]
   }
  ],
- "updatedAt": "2026-10-20T10:28:22.158Z"
+ "updatedAt": "2026-10-20T13:21:24.241Z"
 }

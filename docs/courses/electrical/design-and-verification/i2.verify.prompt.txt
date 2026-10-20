@@ -1,0 +1,1321 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Design and verification, a Level 4 refresher
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i2 "Maximum demand: what the whole building draws" — Maximum demand sizes the supply and every submain; diversity is common-sense guidance from the On-Site Guide, not a rule, and balancing loads across the three phases keeps the neutral current down. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i3 Device and cable: Ib ≤ In ≤ Iz, the factors and overload — Each rating factor is heat the table did not allow for, so It = In ÷ (the factors that act together), and the worst section sets the cable; a device may let about 1.45 In flow before it opens, so I2 ≤ 1.45 Iz, which is why a rewireable fus…
+- i4 A neutral that carries more than the line — Balanced fundamentals cancel in the neutral but third harmonics on the three lines are in step and add, so above about a third the neutral current, 3 × h × IL, sets the cable; only when the maker's data gives a harmonic figure.
+- i5 Voltage drop from the intake, refined — Voltage drop is mV/A/m × Ib × L ÷ 1000, added along the whole path from the origin and judged against 3% or 5% of the voltage you were given; a lightly loaded cable runs cooler (Ct) and, with a known power factor, only the parts of the r a…
+- i6 Shock protection, and when Zs is too high — Every metre adds to the earth fault loop, the loop limits the fault current at the lowest supply voltage (Cmin), and that current decides whether the device opens in time; when Zs is too high, a bigger cpc or an RCD.
+- i7 Surviving the fault: heat, short circuits, breaking capacity — A conductor can take k²S² of fault energy, so it survives if I²t is smaller: S = √(I²t) ÷ k for the cpc with I at Cmax, t = k²S² ÷ I² for the live conductors, and every device must break the largest fault (IPF ≤ Icn).
+- i8 The showroom, end to end — The assignment's DBL2 submain and its longest circuit designed as one chain, every result carried forward, checked against the project guide's key points: all lengths, thermal constraints, Zs against the device, all drops from the intake.
+- i9 Verification and handover — The design predicts the readings: a cold reading is compared after correcting it to running temperature, installed values usually come in lower, and the designer hands over what the inspector and the client need, with a first inspection in…
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Electrical Diversity Calculator — IET On-Site Guide (BS 7671) | TradeCalculator — https://tradecalculator.co.uk/electrical/diversity-calculator/
+    "BS 7671 itself contains no diversity table — Regulation 311.1 requires the designer to assess maximum demand and permits diversity to be taken into account; the On-Site Guide gives the recognised figures."
+[R2] Maximum demand - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/29562/maximum-demand
+    "Regulation 311.1 accepts that it may be necessary to determine maximum demand for the whole installation, or a part of it."
+[R3] How to Calculate Maximum Demand: Diversity Table | Elec-Mate — https://www.elec-mate.com/guides/max-demand-calculation-guide
+    "Maximum demand is the largest current an installation draws at any one time"
+[R4] EAL Level 4 Design and Verification: course slides — material:eal-slides#p10
+    "The percentages to apply for diversity are only found in the OnSite Guide. This means, it’s guidance and doesn’t have to be applied."
+[R5] EAL Level 4 Design and Verification: course slides — material:eal-slides#p10
+    "then it could be designed to 660W as the Ib rather than 1000W."
+[R6] Electrical Diversity Calculator — IET On-Site Guide (BS 7671) | TradeCalculator — https://tradecalculator.co.uk/electrical/diversity-calculator/
+    "Lighting: 66% of total current demand"
+[R7] Diversity Factors Explained: A Practical Guide for Electricians | Total Skills UK — https://www.totalskills.co.uk/guides/diversity-factors-explained
+    "Diversity applies to the aggregate demand at the origin of the installation, not to individual circuits."
+[R8] ED4-01A learner pack: car showroom assignment — material:learner-pack#p4
+    "Taking into account balancing of loads; indicate how the installation can be divided across a suitable provision of circuits."
+[R9] EAL Level 4 Design and Verification: project guide — material:project-guide#p3
+    "Use Section 3 of The Electrical Installation Guide to determine the maximum demand and diversity factors."
+[R10] EAL Level 4 Design and Verification: project guide — material:project-guide#p3
+    "This question will link in to question 10."
+[R11] ED4-01A learner pack: car showroom assignment — material:learner-pack#p5
+    "Based on the information in the drawings and your answer from question 4a, determine the maximum demand of the installation making informed assumptions where necessary."
+[R12] EAL Level 4 Design and Verification: course slides — material:eal-slides#p33
+    "a balanced 3-phase load (such as a motor) will not have current in the neutral at all, so often motors do not have neutrals connected."
+[R13] Diversity - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/21742/diversity
+    "remembering if it is 3 phase, you would ideally like some balance across the phases, so assume 33% of demand is on each phase"
+[R14] EAL Level 4 Design and Verification: project guide — material:project-guide#p9
+    "You may wish to consider load management to help reduce maximum demand figures but this is not compulsory."
+[R15] Electrical Diversity Calculator — IET On-Site Guide (BS 7671) | TradeCalculator — https://tradecalculator.co.uk/electrical/diversity-calculator/
+    "Regulation 722.311 allows load curtailment, reduction or disconnection to be taken into account when determining the maximum demand"
+[R16] Car showroom drawing: lighting — material:drawing-lighting#p1
+    "4 x 1200mm Modular Fluo 4 x 36W"
+[R17] Car showroom drawing: lighting — material:drawing-lighting#p1
+    "Twin 1700mm Fluo Luminaire 58W"
+[R18] Car showroom drawing: lighting — material:drawing-lighting#p1
+    "Column Mounted Luminaire 3m from FFL 70W"
+[R19] Car showroom drawing: power — material:drawing-power#p1
+    "63A TPN Rotary Isolator 2x32a each"
+[R20] Qualification Specification — https://assets-us-01.kc-usercontent.com/b5487b04-0555-0014-d9f8-268f1a54c305/aa26696e-dea9-4aa4-9d39-1561d56b7666/EAL_610-3907-X_QS_1.pdf
+    "State the purpose of diversity factors"
+[R21] Qualification Specification — https://assets-us-01.kc-usercontent.com/b5487b04-0555-0014-d9f8-268f1a54c305/aa26696e-dea9-4aa4-9d39-1561d56b7666/EAL_610-3907-X_QS_1.pdf
+    "Determine the maximum demand (of an installation) after the application of diversity"
+[R22] Qualification Specification — https://assets-us-01.kc-usercontent.com/b5487b04-0555-0014-d9f8-268f1a54c305/aa26696e-dea9-4aa4-9d39-1561d56b7666/EAL_610-3907-X_QS_1.pdf
+    "Application of the IET On-Site Guide."
+[R23] EAL Level 4 Design and Verification: course slides — material:eal-slides#p10
+    "The point of applying diversity is to design a circuit using ‘common sense’ rather than it’s maximum demand."
+[R24] EAL Level 4 Design and Verification: course slides — material:eal-slides#p10
+    "This will help keep cable sizes smaller and costs lower."
+[R25] How Should Maximum Demand and Diversity Be Calculated for Different Premises Types? — https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses
+    "Lighting |66% of total current demand |90% of total current demand |75% of total current demand"
+[R26] How Should Maximum Demand and Diversity Be Calculated for Different Premises Types? — https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses
+    "100% f.l. of largest appliance +75% f.l. of remaining appliances"
+[R27] How Should Maximum Demand and Diversity Be Calculated for Different Premises Types? — https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses
+    "4 Motors (other than lift motors, which are subject to special consideration) |Not applicable |100% f.l. of largest motor +80% f.l. of second largest motor +60% f.l. of remaining motors"
+[R28] How Should Maximum Demand and Diversity Be Calculated for Different Premises Types? — https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses
+    "100% of current demand of largest point of utilization +70% of current demand of every other point of utilization"
+[R29] How Should Maximum Demand and Diversity Be Calculated for Different Premises Types? — https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses
+    "100% of current demand of largest circuit +50% of current demand of every other circuit"
+[R30] 6.2.3 - Applied diversity (The Electricians Guide, Whitfield, via TLC) — https://www.tlc-direct.co.uk/Book/6.2.3.htm
+    "Sockets and stationary equip. |100%X + 40%(Y+Z) |100%X + 75%(Y+Z)"
+[R31] [PDF] ELECTRICAL VEHICLE CHARGING - Rackcdn.com (NICEIC) — https://04646a9cf351cc0d3888-b8b406d15fe93f790abb5bf0e9ab7ab3.ssl.cf3.rackcdn.com/misc/NICEIC-EV-Brochure.pdf
+    "The regulation also requires that no diversity be allowed where a final circuit supplies more than one charging point."
+[R32] Amendment 1: how does it affect EV charging requirements? | NAPIT - Professional Electrician — https://professional-electrician.com/technical/amendment-1-how-does-it-affect-ev-charging-requirements-napit/
+    "Amendment 1 removes this requirement and introduces 722.311.201"
+[R33] EV charging - electrical installation design - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/EV_charging_-_electrical_installation_design
+    "The diversity factor to consider for several EV chargers in parallel is equal to 1 unless a Load Management System (LMS) is used to control these EV chargers."
+[R34] Estimation of actual maximum kVA demand - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Estimation_of_actual_maximum_kVA_demand
+    "For Electric Vehicle the utilization factor will be systematically estimated to 1, as it takes a long time to load completely the batteries (several hours) and a dedicated circuit feeding the charging station or wall box will be required by standards."
+[R35] Electrical Vehicle Chargers - No Diversity? - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/28352/electrical-vehicle-chargers---no-diversity/122831
+    "BS 7671 does not prohibit diversity for EV charging points."
+[R36] Electrical Vehicle Chargers - No Diversity? - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/28352/electrical-vehicle-chargers---no-diversity/122831
+    "Yes, but in the absence of a load management system it's still zero diversity."
+[R37] Estimation of actual maximum kVA demand - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Estimation_of_actual_maximum_kVA_demand
+    "The factor ks is applied to each group of loads (e.g. being supplied from a distribution or sub-distribution board)."
+[R38] Estimation of actual maximum kVA demand - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Estimation_of_actual_maximum_kVA_demand
+    "The determination of ks factors is the responsibility of the designer, since it requires a detailed knowledge of the installation and the conditions in which the individual circuits are to be exploited."
+[R39] Electrical Diversity and Load Curtailment (EVC) webinar questions and answers — https://electrical.theiet.org/bs-7671-18th-edition-wiring-regulations/faqs/webinar-questions-and-answers/electrical-diversity-and-load-curtailment-evc-webinar/
+    "(a) For an individual circuit to determine the design current, diversity might only be rarely appropriate"
+[R40] 6.2.3 - Applied diversity (The Electricians Guide, Whitfield, via TLC) — https://www.tlc-direct.co.uk/Book/6.2.3.htm
+    "Distribution boards must not have diversity applied so that they can carry the total load connected to them."
+[R41] Estimation of actual maximum kVA demand - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Estimation_of_actual_maximum_kVA_demand
+    "If the circuits are mainly for lighting loads, it is prudent to adopt ks values close to unity."
+[R42] 6.2.1 - Maximum demand (The Electricians Guide, Whitfield, via TLC) — https://www.tlc-direct.co.uk/Book/6.2.1.htm
+    "Maximum demand (often referred to as MD) is the largest current normally carried by circuits, switches and protective devices"
+[R43] Electrical Diversity and Load Curtailment (EVC) webinar questions and answers — https://electrical.theiet.org/bs-7671-18th-edition-wiring-regulations/faqs/webinar-questions-and-answers/electrical-diversity-and-load-curtailment-evc-webinar/
+    "The maximum demand is the sum of the connected loads multiplied by a factor for diversity."
+[R44] Electrical Diversity and Load Curtailment (EVC) webinar questions and answers — https://electrical.theiet.org/bs-7671-18th-edition-wiring-regulations/faqs/webinar-questions-and-answers/electrical-diversity-and-load-curtailment-evc-webinar/
+    "It is acknowledged that in any installation with diversity applied, it may be possible to exceed the maximum demand on occasion."
+[R45] Maximum demand on Electrical installation certificates - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/28982/maximum-demand-on-electrical-installation-certificates
+    "maximum demand is the rating of the supply fuse, because any sustained significant overload will cause failure."
+[R46] Diversity Factors Explained: A Practical Guide for Electricians | Total Skills UK — https://www.totalskills.co.uk/guides/diversity-factors-explained
+    "For commercial and industrial installations, maximum demand assessment requires a different engineering approach, often based on actual load measurements, process knowledge, or building services design standards such as CIBSE guides."
+[R47] Fluorescent lamps - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Fluorescent_lamps
+    "The power Pn (watts) indicated on the tube of a fluorescent lamp does not include the power dissipated in the ballast."
+[R48] Fluorescent lamps - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Fluorescent_lamps
+    "If no power-loss value is indicated for the ballast, a figure of 25% of Pn may be used."
+[R49] Fluorescent lamps - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Fluorescent_lamps
+    "cos φ = 0.96 for electronic ballast."
+[R50] 6.2.1 - Maximum demand (The Electricians Guide, Whitfield, via TLC) — https://www.tlc-direct.co.uk/Book/6.2.1.htm
+    "lamp power (W) x 1.8"
+[R51] 6.2.1 - Maximum demand (The Electricians Guide, Whitfield, via TLC) — https://www.tlc-direct.co.uk/Book/6.2.1.htm
+    "So long as the power factor of a discharge lighting circuit is not less than 0.85"
+[R52] 6.2.1 - Maximum demand (The Electricians Guide, Whitfield, via TLC) — https://www.tlc-direct.co.uk/Book/6.2.1.htm
+    "Each lamp-holder must be assumed to carry the current required by the connected load, subject to a minimum loading of 100 W per lampholder"
+[R53] LED lamps and fixtures - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/LED_lamps_and_fixtures
+    "with a separated driver doesn’t include the power dissipated in the driver."
+[R54] Sylvania START PANEL UGR19 600 4000K G4 datasheet (36 W LED panel) — https://datasheet.sylvania-group.com/en-gb/Datasheet/0047785.pdf
+    "Lamp power factor 0.97"
+[R55] [PDF] Backlight Panel 70085 - Beghelli (36 W LED panel) — https://www.beghelli.it/hu-hu/media/family/documents/d634b714-d322-4d73-803d-51ea8328770d
+    "Power factor 0.95"
+[R56] Regulation 314 | Division of Installation Into Circuits ... | Elec-Mate — https://www.elec-mate.com/guides/regulation-314-division-of-circuits
+    "Unbalanced loads cause excessive neutral current and voltage imbalance, so allocate single-phase circuits approximately equally across L1, L2 and L3."
+[R57] Votlage Drop for Unbalanced three phase - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/21657/votlage-drop-for-unbalanced-three-phase
+    "So, in terms of the unbalanced system, what's going on is that the line currents don't cancel in the Neutral."
+[R58] Maximum Demand Calculator BS 7671 | Diversity Factors | Elec-Mate — https://www.elec-mate.com/tools/max-demand-calculator
+    "the highest phase determines the supply requirement."
+[R59] 6.2.3 - Applied diversity (The Electricians Guide, Whitfield, via TLC) — https://www.tlc-direct.co.uk/Book/6.2.3.htm
+    "Since a perfect balance is assumed, three phase line current"
+[R60] EAL Level 4 Design and Verification: project guide — material:project-guide#p3
+    "Present as a Schedule of circuits."
+[R61] Estimation of actual maximum kVA demand - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Estimation_of_actual_maximum_kVA_demand
+    "In an industrial installation this factor may be estimated on an average at 0.75 for motors."
+[R62] Car showroom drawing: power — material:drawing-power#p1
+    "Twin Switched Socket"
+[R63] Car showroom drawing: power — material:drawing-power#p1
+    "20A DP Switch"
+[R64] Car showroom drawing: power — material:drawing-power#p1
+    "32A Rotary Isolator"
+[R65] ED4-01A learner pack: car showroom assignment — material:learner-pack#p5
+    "Design the circuit/s incorporating the electric vehicle charging points."
+[R66] Car showroom drawing: lighting — material:drawing-lighting#p1
+    "Led Lighting 26W"
+[R67] Car showroom drawing: lighting — material:drawing-lighting#p1
+    "Wall Spot Light 2 x 35W"
+[R68] Car showroom drawing: lighting — material:drawing-lighting#p1
+    "Walkway Bollard 18W"
+[R69] Car showroom drawing: lighting — material:drawing-lighting#p1
+    "IP65 2D Bulkhead 18W"
+[R70] EAL Level 4 Design and Verification: course slides — material:eal-slides#p11
+    "Design current is defined as ‘the magnitude of the current to be carried by a circuit in normal service’."
+[R71] 2008 28 Autumn Wiring Matters — https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf
+    "The design current of the circuit, i.e. the current intended to be carried by the circuit in normal service."
+[R72] EAL Level 4 Design and Verification: course slides — material:eal-slides#p13
+    "Ib = P / VL x Eff% x PF x √3"
+[R73] EAL Level 4 Design and Verification: course slides — material:eal-slides#p12
+    "P = Power in watts (the output of the load)"
+[R74] EAL Level 4 Design and Verification: course slides — material:eal-slides#p13
+    "VL = Line to line voltage (400V)"
+[R75] EAL Level 4 Design and Verification: course slides — material:eal-slides#p15
+    "Some equipment (such as motors) require more than expected current to provide the output required, this is due to something called ‘reactance’."
+[R76] Power Factor — https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf
+    "Power factor (pf) is a term used to express the relationship between the Real Power (kW) required for a load and the Total or Apparent Power (kVa) supplied."
+[R77] Power Factor — https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf
+    "If the circuit contains an electric induction motor or other inductive load, then the power factor is less than 1.0 and kVa will be greater than kW"
+[R78] Determining Electric Motor Load and Efficiency — https://www.energy.gov/sites/prod/files/2014/04/f15/10097517.pdf
+    "The NEMA definition of energy efficiency is the ratio of its useful power output to its total power input and is usually expressed in percentage"
+[R79] How to measure the power output of an electric motor — https://www.futek.com/electric-motor-output-power
+    "The efficiency of the motor is calculated as mechanical output power divided by electrical input power"
+[R80] EAL Level 4 Design and Verification: course slides — material:eal-slides#p17
+    "their cable design is based on 28.86A rather than 41.47A, this would cause big implications for the operation and safety of the circuit."
+[R81] Power Factor — https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf
+    "kW = Volts RMS x Amps RMS x Pf x √3 / 1,000"
+[R82] EAL Level 4 Design and Verification: course slides — material:eal-slides#p18
+    "If (when during design or in your exam) you are given a separate value for voltage (U), then this must be used."
+[R83] EAL Level 4 Design and Verification: course slides — material:eal-slides#p18
+    "This new voltage (which will be lower than 230V or 400V) must used for the Ib of the final circuits from the sub board."
+[R84] EAL Level 4 Design and Verification: course slides — material:eal-slides#p19
+    "Ib = 20,000 / 393 x √3"
+[R85] Three-phase Y and Delta Configurations | Polyphase AC Circuits | Electronics Textbook — https://www.allaboutcircuits.com/textbook/alternating-current/chpt-10/three-phase-y-delta-configurations
+    "In balanced Δ circuits, the line voltage is equal to phase voltage, while the line current is equal to phase current times the square root of 3."
+[R86] 7.5: Three-phase Y and Delta Configurations - Workforce LibreTexts — https://workforce.libretexts.org/Bookshelves/Electronics_Technology/Electric_Circuits_II_-_Alternating_Current_(Kuphaldt)/07:_Polyphase_AC_Circuits/7.05:_Three-phase_Y_and_Delta_Configurations
+    "In balanced Δ circuits, line voltage is equal to phase voltage, while line current is equal to phase current times the square root of 3."
+[R87] Three-phase Y and Delta Configurations | Polyphase AC Circuits | Electronics Textbook — https://www.allaboutcircuits.com/textbook/alternating-current/chpt-10/three-phase-y-delta-configurations
+    "because each line conductor attaches at a node between two windings, the line current will be the vector sum of the two joining phase currents."
+[R88] Three-phase Y and Delta Configurations | Polyphase AC Circuits | Electronics Textbook — https://www.allaboutcircuits.com/textbook/alternating-current/chpt-10/three-phase-y-delta-configurations
+    "Y-connected sources and loads always have line voltages greater than phase voltages, and line currents equal to phase currents."
+[R89] EAL Level 4 Design and Verification: course slides — material:eal-slides#p10
+    "For example, in appendix A of the OSG, a domestic lighting circuit can have 66% diversity applied."
+[R90] Resistive Load Wattage: Is Power Rating Constant? - Engineering Guide – Industrial Monitor Direct — https://industrialmonitordirect.com/blogs/knowledgebase/resistive-heating-element-power-calculation-at-different-voltages
+    "Power drops by V². Current drops proportionally. Fixed resistance."
+[R91] Resistive Load Wattage: Is Power Rating Constant? - Engineering Guide – Industrial Monitor Direct — https://industrialmonitordirect.com/blogs/knowledgebase/resistive-heating-element-power-calculation-at-different-voltages
+    "Motor draws more current to maintain torque."
+[R92] ED4-01A learner pack: car showroom assignment — material:learner-pack#p4
+    "It will be controlled by a star-delta starter."
+[R93] Wye Delta Wire Sizing | PLCtalk - Interactive Q & A — https://www.plctalk.net/forums/threads/wye-delta-wire-sizing.7577
+    "When wiring a motor to a Wye-Delta starter, 6 wires are run to the motor and connected to the motor terminals T1-T6. Each end of each winding has its own wire connected to it."
+[R94] Circuit design calculation process: the 20-step flowchart — material:flowchart#p1
+    "Electrical Circuit Design Calculation Process - BS7671:2018 + Amd2:2022"
+[R95] Circuit design calculation process: the 20-step flowchart — material:flowchart#p1
+    "Note 2: Suitable protective conductor size and minimum protective conductor size are not the same thing."
+[R96] ED4-01A learner pack: car showroom assignment — material:learner-pack#p3
+    "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+[R97] ED4-01A learner pack: car showroom assignment — material:learner-pack#p3
+    "Ambient temperature is 20 degrees Celsius."
+[R98] ED4-01A learner pack: car showroom assignment — material:learner-pack#p4
+    "Within the consultation bay there will be an additional requirement for a 400 V three-phase 11 kW motor which operates at a power factor of 0.8 lagging and efficiency of 86%."
+[R99] EAL Level 4 Design and Verification: course slides — material:eal-slides#p22
+    "Regulation 433.1.1 explains the following: Ib ≤ In ≤ Iz"
+[R100] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "The rated current or current setting of the protective device (In) should not be less than the design current (Ib) of the circuit."
+[R101] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "The current (I2) causing effective operation of the protective device should not exceed 1.45 times the lowest current-carrying capacity (Iz) of any of the conductors of the circuit."
+[R102] EAL Level 4 Design and Verification: course slides — material:eal-slides#p13
+    "√3 = Square root of 3 (1.73)"
+[R103] EAL Level 4 Design and Verification: course slides — material:eal-slides#p16
+    "Ib = 20,000 / 400 x √3"
+A source whose address begins "material:" is a page of Dan's own course materials ("#p16": the page), checked word for word against that page: judge the lesson against its quote as you would a web source's.
+Notes (claims, and the sources that support them):
+- BS 7671 itself has no diversity table; Regulation 311.1 asks the designer to assess maximum demand (of the whole installation or a part of it), and the On-Site Guide gives the recognised figures. [R1][R2]
+- Maximum demand is the largest current an installation draws at any one time, which is why the supply and every submain are sized from it. [R3]
+- Diversity is common-sense guidance from the On-Site Guide's Appendix A, not a rule; the slides give 66% for a domestic lighting circuit as the example. [R4][R5][R6]
+- Sources differ on where diversity is applied: the course slides apply 66% to the Ib of a lighting circuit, while a training provider says diversity applies to the aggregate demand at the origin, not to individual circuits. [R5][R7]  [CONTESTED: Dan's slides apply diversity to the design current of a lighting circuit; Total Skills says to size each circuit on its full design current and apply diversity only to the aggregate demand.]
+- The assignment asks for loads to be balanced across circuits (question 1b), links this to the maximum-demand question 10, and points to Section 3 of The Electrical Installation Guide for demand and diversity factors. [R8][R9][R10][R11]
+- Balanced fundamental currents leave no current in the neutral (a balanced motor load needs no neutral), and an IET forum contributor suggests spreading demand about one third to each phase. [R12][R13]
+- For the EV charge points the guide says load management may be considered to reduce maximum demand but is not compulsory, and Regulation 722.311 lets load curtailment be taken into account. [R14][R15]
+- The lighting drawing's key gives each fitting's wattage (for example 4 × 36 W modular fluorescent, 58 W twin fluorescent, 70 W column luminaires), to be recounted by hand; the power drawing marks 63 A isolators and 2 × 32 A EV points. [R16][R17][R18][R19]
+- Dan's Level 4 specification asks him to state the purpose of diversity factors and to determine the maximum demand of an installation after diversity, covering the application of the IET On-Site Guide. [R20][R21][R22]
+- The slides give the purpose of diversity as designing with 'common sense' rather than the maximum demand, which keeps cable sizes smaller and costs lower (the points for the Section B answer). [R23][R24][R4][R5]
+- For small shops, stores, offices and business premises the On-Site Guide's diversity table gives: lighting 90% of total current demand; heating and power 100% of the largest appliance plus 75% of the remaining appliances; motors (not lifts) 100% of the largest motor plus 80% of the second and 60% o… [R25][R26][R27][R28][R29]
+- Sources differ on the small-shop socket-outlet allowance: the table as printed by an electrician's page gives 70% of every other point, an older book (16th Edition era) gives 75%, and the table is numbered A2, H2 or 1B depending on the source and edition, so the lesson names the rule and sends him … [R28][R30]  [CONTESTED: One page prints 100% of the largest point plus 70% of every other point for small shops; an older book prints 100%X + 75%(Y+Z). Table numbering also differs between sources.]
+- For electric vehicle charging: the original 2018 text allowed no diversity on a final circuit with more than one charging point and diversity on a dedicated distribution circuit only with load control; Amendment 1 replaced that with Regulation 722.311.201, which lets load curtailment be taken into … [R31][R32][R33][R34][R15]
+- Whether Amendment 1 allows any diversity on EV charging is argued on the IET forum: one contributor says BS 7671 does not prohibit it, another that without load management it is still zero diversity; the lesson takes none without load management. [R35][R36]  [CONTESTED: gkenyon (IET EngX): BS 7671 does not prohibit diversity for EV charging points. pww235: in the absence of a load management system it is still zero diversity.]
+- Where diversity is applied is argued: the On-Site Guide table is applied by type of final circuit; the Schneider guide applies its simultaneity factor to a group of loads fed from a distribution board and says the designer is responsible for it; an IET webinar answer says for a single circuit's des… [R37][R38][R39][R40][R7][R41]  [CONTESTED: Sources disagree on whether diversity belongs on each circuit's design current (the slides' 66% example), on a group of circuits at a board, or only on the aggregate at the origin.]
+- Maximum demand is the largest current normally carried by circuits, switches and protective devices; the IET describes it as the sum of the connected loads multiplied by a factor for diversity, and accepts that with diversity applied it may occasionally be exceeded; a forum contributor says the 'of… [R42][R43][R44][R45]  [CONTESTED: IET webinar: maximum demand is the connected load multiplied by a diversity factor. An IET EngX contributor: the official maximum demand is the supply fuse rating. The lesson uses the designer's assessment (Regulation 311.1) and says so.]
+- A page on diversity warns that the On-Site Guide's table is aimed at small domestic and similar installations and that commercial and industrial maximum demand may need load measurements or building-services standards, so a showroom with an 11 kW motor and EV points rests on informed assumptions, a… [R46][R11]
+- For a lighting load from a key wattage: the tube power marked on a fluorescent lamp excludes the ballast, 25% of Pn may be used when no ballast loss is given, and cos φ is 0.96 with an electronic ballast; an older book gives current = lamp power x 1.8 / voltage for discharge lighting when the power… [R47][R48][R49][R50][R51][R52][R53][R54][R55]
+- To balance a three-phase board, single-phase circuits are spread about equally over L1, L2 and L3 because unbalanced line currents do not cancel in the neutral; the most heavily loaded phase fixes the supply requirement; and with a perfect balance the three-phase line current is the total single-ph… [R56][R57][R58][R59][R60][R12][R8][R9][R10]
+- The motor is the only motor on the case, so in the small-shop column it counts at 100% of its full-load current (23.08 A); the Schneider guide instead applies a utilisation factor of about 0.75 to motors in an industrial installation, a different method that the lesson names but does not use. [R27][R61]  [CONTESTED: On-Site Guide small-shop column: 100% of the largest motor. Schneider guide: utilisation factor ku about 0.75 for motors in industrial installations, plus a separate simultaneity factor.]
+- The power drawing's key marks twin switched sockets, 20 A DP switches, a 32 A rotary isolator, 63 A TPN isolators and EV points of 2 x 32 A each, with each charging point having two outlets; the equipment behind the 20 A and 32 A switches is not stated, so the loads there are practice values. [R62][R63][R64][R65][R19]
+- The lighting drawing's key adds a 26 W LED fitting, a wall spot light of 2 x 35 W, an 18 W walkway bollard and an 18 W IP65 bulkhead to the fluorescent and column fittings already noted; the lamp types behind the spot and column fittings are not stated. [R66][R67][R68][R69][R16][R17][R18]
+- Design current is the magnitude of the current to be carried by a circuit in normal service; the course slides and an IET article give the same meaning. [R70][R71]  (from an idea this one builds on)
+- For a three-phase load with known power factor and efficiency, Ib = P / (VL × Eff × PF × √3), where P is the output of the load and VL is the line-to-line voltage (400 V). [R72][R73][R74]  (from an idea this one builds on)
+- Motors need more current than expected for their output because of reactance, so power factor matters: a lower power factor means more apparent power, and so more current, for the same real power. [R75][R76][R77]  (from an idea this one builds on)
+- Efficiency is useful output power divided by input power, so the supply must provide more than the output; the slides show an efficiency and power factor left out would size the cable on 28.86 A rather than 41.47 A. [R78][R79][R80]  (from an idea this one builds on)
+- Three-phase real power is √3 × line voltage × line current × power factor, which is why Ib divides by √3 × VL × Eff × PF. [R81][R72]  (from an idea this one builds on)
+- If a separate voltage is given, for example at a sub-board, that value is used in place of 230 V or 400 V; the slides work 20 kW at 393 V as 29.38 A. [R82][R83][R84]  (from an idea this one builds on)
+- In a balanced delta load the line current is the phase (winding) current times the square root of 3, so each winding carries the line current divided by √3; in star the line and phase currents are equal. [R85][R86][R87][R88]  (from an idea this one builds on)
+- Diversity percentages are only found in the On-Site Guide and are guidance that need not be applied; the slides' example designs ten 100 W lamps at 66%, or 660 W, rather than 1000 W. [R4][R5][R1]  (from an idea this one builds on)
+- For i1 (review fix): the slides' 66% diversity example is for a domestic lighting circuit, from the On-Site Guide's Appendix A. [R89]  (from an idea this one builds on)
+- For i1 (review fix): at a reduced voltage a resistive heater draws proportionally less current, while a motor draws more to keep its torque, so the slides' same-power working at a sub-board's voltage errs on the safe side for a heater. [R90][R91]  (from an idea this one builds on)
+- For i1 (review fix): the showroom's motor is controlled by a star-delta starter, which runs six wires to the motor, one to each end of each winding, so in delta each of those cables carries one winding's current. [R92][R93]  (from an idea this one builds on)
+- Dan's course flowchart is headed "Electrical Circuit Design Calculation Process" for BS 7671:2018 + Amd2:2022, and its note 2 separates a suitable protective conductor size from the minimum protective conductor size. [R94][R95]  (whole topic)
+- The showroom supply is three phase four wire 400 V, TN-C-S, with Ze declared as 0.1 ohm and a prospective fault current of 4.6 kA; the ambient temperature is 20 degrees Celsius. [R96][R97]  (whole topic)
+- The showroom adds a 400 V three-phase 11 kW motor at power factor 0.8 lagging and efficiency 86%, controlled by a star-delta starter. [R98]  (whole topic)
+- Overload protection is the condition Ib ≤ In ≤ Iz (Regulation 433.1.1), plus I2 ≤ 1.45 Iz, where I2 is the current causing effective operation of the protective device. [R99][R100][R101]  (whole topic)
+- The course slides take √3 as 1.73, so their printed answers can differ in the last decimal places from the same sum worked with the calculator's √3. [R102][R103]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i2",
+ "title": "Maximum demand: what the whole building draws",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the neutral bar fall from 24.35 A to 0.30 A as the three phase bars even out, when you drag DBL2's circuits off L1 and share them across L1, L2 and L3.",
+  "title": "What the whole building draws",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A refresher lesson in twelve screens, with Back and Continue between them, on maximum demand: what the whole building draws, how it is shared across the three phases, and diversity. Screen 1, Do you still have it?: \"Your slides give a diversity percentage for a lighting circuit. Is diversity a rule you must apply?\" Three choices, in this order: \"Yes: BS 7671 sets the percentages for every design\"; \"No: it is guidance, used where common sense allows\"; \"Yes for lighting: always 66%\". Right: \"Still there.\", with your slides p.10: the percentages are only found in the On-Site Guide, so they are guidance and do not have to be applied,[^1] and ten 100 W lamps could be designed at 660 W rather than 1000 W;[^2] then the two slips in a line each, and two buttons: Refresh the why (on to screen 2) and Skip to the practice (straight to screen 7). Wrong, the first: BS 7671 itself has no diversity table; Regulation 311.1 has the designer assess maximum demand and lets diversity be taken into account, and the On-Site Guide gives the recognised figures.[^3] Wrong, the third: 66% is the On-Site Guide's figure for a domestic lighting circuit;[^4] its column for shops gives 90%,[^5] and either may be left off.[^1] Then the right answer and on to screen 2, with no skip. Read: diversity is guidance, not a rule (slides p.10). Screen 2, What it is for: maximum demand is the largest current an installation draws at any one time.[^6] The supply and each submain are sized from it: Regulation 311.1 accepts it may be worked out for the whole installation or a part of it,[^7] so each board gets its own figure. Your assignment asks for it in question 10, \"making informed assumptions where necessary\",[^8] linked to question 1b's balancing.[^9][^10] In red, if it is skipped or wrong: too low, the supply and submains are chosen for less than the building draws; too high, the cables are bigger and dearer than they need be.[^11] One line: a figure with diversity is an estimate, which the IET accepts may occasionally be exceeded.[^12] Screen 3, The why: the opening text says each of DBL2's lighting circuits runs between one line and the neutral; equal currents on L1, L2 and L3 cancel in the neutral, as your slides say of a balanced three-phase load (p.33),[^13] but unequal ones do not,[^14] so the neutral carries the imbalance; and the heaviest phase sets what the supply must carry.[^15] The picture: three columns, L1, L2 and L3, each holding the circuit cards on it, and four bars on one scale that fits 24.35 A: L1, L2, L3 and N, each with its current. Seven cards, the course's own circuits for DBL2 (screen 8 gives what each feeds), each with a short name and its current: C1 Consultation 4.89 A; C2 Toilets W 4.08 A; C3 Toilets E and tea 5.71 A; C4 Stores 2.63 A; C5 Showroom E 3.33 A; C6 Reception 2.50 A; C7 Foyer 1.21 A. It opens with all seven on L1: L1 24.35 A, N 24.35 A. \"Drag a card to another phase, or tap it to move it on.\" Two buttons: All on L1, and The course's split (L1: C1 and C5, 8.22 A; L2: C3 and C6, 8.21 A; L3: C2, C4 and C7, 7.92 A; N 0.30 A). Two readouts: Heaviest phase, and Neutral. Under them the rule: for currents at about the same power factor, IN = √(I1² + I2² + I3² − I1·I2 − I2·I3 − I3·I1), the sum of three currents a third of a cycle apart (the AC circuits course). One line: the card currents rest on practice values (screen 6). Read: with all seven on L1 the neutral carries 24.35 A, as much as L1; shared as the course shares them it carries 0.30 A, and the heaviest phase is 8.22 A. Screen 4, Check: \"A board's lighting circuits carry 10 A on L1, 10 A on L2 and 4 A on L3, at about the same power factor. What does the neutral carry?\" Choices 24.00 A (added as if on one line: they are a third of a cycle apart, so they partly cancel), 6.00 A (right) and 0 A (only equal currents cancel), and a Why?: the 4 A on each phase cancels, leaving 6 A on L1 and 6 A on L2, whose sum is 6 A; by the rule, √(100 + 100 + 16 − 100 − 40 − 40) = √36 = 6.00 A. Read: the neutral carries 6.00 A. Screen 5, Diversity, as common sense: not every load runs flat out at once, so a building draws less than its connected load; your slides call diversity designing with common sense rather than the maximum.[^16] The allowances this lesson uses, from the On-Site Guide's column for small shops, stores, offices and business premises (the course reads a showroom into it, its own assumption; a training provider warns that commercial work may need measured loads instead[^17]): lighting 90% of the total current demand;[^5] heating and power 100% of the largest appliance plus 75% of the rest;[^18] motors 100% of the largest;[^19] standard circuits 100% of the largest circuit plus 50% of every other.[^20] Only these; read the rest in your copy. EV charge points: the IEC wording sets the factor at 1 unless a load management system is used;[^21] Regulation 722.311 lets load curtailment count,[^22] and your guide makes load management optional.[^23] In a fold, Where it's argued: on the IET forum one contributor says BS 7671 does not prohibit diversity on EV points,[^24] another that without load management it is still none;[^25] your slides apply 66% to one lighting circuit's Ib,[^2] a training provider applies diversity only to the total at the origin,[^26] an IET answer says it might only rarely be appropriate for one circuit,[^27] and the Schneider guide applies its factor to the loads on a board[^28] and advises close to 1 for mainly lighting.[^29] Then the course's choice: the lighting at 100%, because question 5a has the showroom lights on together from 7.30 am to 9 pm (pack p.4); the On-Site Guide would allow 90%, a designer's call. Screen 6, Worked example, a line at each press: your slides' circuit (p.10), 10 × 100 = 1000 W; 1000 × 0.66 = 660 W;[^2] Ib 660 ÷ 230 = 2.87 A against 1000 ÷ 230 = 4.35 A, the smaller cable your slides mean.[^11] Then one 4 × 36 W modular fitting from the drawing's key:[^30] 4 × 36 = 144 W of tubes; tube watts leave out the ballast,[^31] and 25% may be allowed when no loss is given,[^32] so 144 × 1.25 = 180 W; at 0.96, an electronic ballast's power factor,[^33] 180 ÷ (230 × 0.96) = 180 ÷ 220.8 = 0.82 A. One 26 W LED fitting:[^34] at 0.95, as a maker states for a similar panel[^35] (another states 0.97[^36]), 26 ÷ (230 × 0.95) = 26 ÷ 218.5 = 0.12 A. Labelled: 25%, 0.96 and 0.95 are practice values, since the drawing does not name the fittings' gear; read the real ones from the maker, whose watts for a separate driver are extra.[^37] One line: an older book instead takes lamp watts × 1.8 ÷ voltage for discharge lighting at a power factor of at least 0.85;[^38][^39] the course uses the first method. Screen 7, Section A, question 3 (a): the showroom's scenario panel, from your assignment (pack p.3 and 4),[^40][^41] and the course's split, said as its own: DBL2, in the tools and warranty store, feeds the east of the building (the consultation bay, the toilets, cleaner and tea bay, the two stores, the showroom east of the welcome desk, service reception, the foyer and the walkway bollards); DBL1 the rest. Counted on your lighting drawing, DBL2's share: 55 LED 26 W, 18 modular 4 × 36 W, 4 twin 58 W and 6 walkway bollards 18 W.[^34][^30][^42][^43] The key does not say whether a twin's 58 W is each tube or the fitting: the course takes two 58 W tubes, 116 W, the cautious reading. \"(a) Determine the connected lighting load of DBL2, from the key's wattages.\" A typed answer (part 3a, in W, whole watts): 55 × 26 = 1430 W; 18 × 144 = 2592 W; 4 × 116 = 464 W; 6 × 18 = 108 W; 4594 W. Slips: 2650 W (each modular fitting as 36 W: it holds four tubes), 4486 W (the bollards left out), 4362 W (the twin as 58 W in all: the other reading; the course takes two tubes). Read: DBL2's connected lighting load is 4594 W. Screen 8, Section A, question 3 (b): (a) carried forward at 4594 W. DBL2's seven circuits, the course's own, with what each feeds and its watts: C1 consultation bay, 6 modular, 864 W; C2 uni-sex and female toilets, 5 modular, 720 W; C3 cleaner, male toilets and tea bay, 7 modular, 1008 W; C4 the two stores, 4 twin, 464 W; C5 showroom east, 28 LED, 728 W; C6 service reception, 21 LED, 546 W; C7 foyer, 6 LED and 6 bollards, 264 W. The phases: L1 C1 and C5; L2 C3 and C6; L3 C2, C4 and C7. The rules from screen 6 with their practice values. \"(b) Determine the current on L1.\" A typed answer (part 3b): C1, 864 × 1.25 = 1080 W, 1080 ÷ 220.8 = 4.89 A; C5, 728 ÷ 218.5 = 3.33 A; 4.89 + 3.33 = 8.22 A. Slips: 7.24 A (the ballast left out), 7.87 A (the power factor left out), 10.09 A (the older × 1.8 rule: another method; the question uses the 25% allowance), 24.35 A (the whole board: L1 carries only its own circuits). After it: L2, 5.71 + 2.50 = 8.21 A; L3, 4.08 + 2.63 + 1.21 = 7.92 A; the neutral 0.30 A; lesson 8 sizes DBL2's submain on the heaviest, 8.22 A. Read: L1 carries 8.22 A. Screen 9, Section A, question 3 (c): 1(a) and 3(b) carried forward (23.08 A, 8.22 A). Given, each practice value labelled: the lighting at 100% (screen 5): DBL2 8.22 + 8.21 + 7.92 = 24.35 A, and DBL1 38.74 A, worked the same way from its 103 LED, 16 modular, 12 twin and 6 bulkheads, and its 9 wall spots (2 × 35 W)[^44] and 6 columns (70 W)[^45] taken at a power factor of 0.9 (a practice value with no source: the lamps are not named). Sockets: eight 32 A circuits, one per area, each taken at its rating, as standard circuits. Fixed points: three 20 A DP switches[^46] and a 32 A rotary isolator,[^47] each taken at its rating, as heating and power. EV: two charging points of two 32 A outlets[^48][^49] taken as four single-phase outlets, no diversity; the 63 A TPN isolators are not part of the circuit (pack p.5). The motor at 100%, the only one.[^19] The single-phase loads shared evenly, ÷ 3, as an older book works a balanced line current.[^50] \"(c) Determine the maximum demand of the installation, per phase.\" A typed answer (part 3c): 63.09 + 144.00 + 77.00 + 128.00 = 412.09 A; 412.09 ÷ 3 = 137.36 A; 137.36 + 23.08 = 160.44 A (unrounded working gives 160.44 A too; the last place either side is accepted). Slips: 202.78 A (no diversity), 137.36 A (the motor left out), 145.05 A (the motor divided by 3: its Ib is already a line current), 435.17 A (not shared over three phases), 158.34 A (the lighting at 90%: fair as a designer, but the question takes 100%). After it: about 160 A a phase, an estimate on practice values, as question 10 allows; a real split leaves one phase a little heavier. Read: about 160.44 A a phase. Screen 10, Section B: \"State two reasons a designer applies diversity.\" Your written answer, marked against four points (a full answer makes any two), one more go, then the model answer. Screen 11, Section A, changed numbers: \"A small office's single-phase board feeds five 32 A socket circuits, arranged as standard circuits, and lighting with a total current demand of 18.00 A. Using the small shops, stores and offices allowances (standard circuits: 100% of the largest plus 50% of every other; lighting 90%), determine its maximum demand.\" A typed answer: 32 + 0.5 × 4 × 32 = 96.00 A; 0.9 × 18.00 = 16.20 A; 112.20 A. Slips: 178.00 A (no diversity), 114.00 A (the lighting at 100%), 96.20 A (50% on the largest circuit too). Read: 112.20 A. Screen 12, Keep this: the summary card, then Finish the lesson. The line under the lesson (figures from your slides, your assignment and the drawings; practice values marked; each line worked from the rounded figure before it) shows only on screens 3, 4, 6 to 9 and 11.",
+  "ignores": "The bars treat each circuit's current as in step with its own line voltage, as if every fitting had the same power factor; theirs differ a little (0.95 and 0.96 here), which changes the neutral current very little. The circuit currents rest on practice values for ballast loss and power factor, not on the makers' data for the drawing's own fittings. Harmonics are left out: fluorescent and LED fittings can draw third-harmonic currents, which add in the neutral instead of cancelling; that is lesson 4. The bars show steady currents with every fitting on, not switching on, dimming or a lamp failing.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 12 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Slides' lamps on the example circuit",
+    "value": 10,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Each lamp, W",
+    "value": 100,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Domestic lighting allowance, %",
+    "value": 66,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Designed load with diversity, W",
+    "value": 660,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Designed load without diversity, W",
+    "value": 1000,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Shops lighting allowance, % of total current demand",
+    "value": 90,
+    "kind": "constant",
+    "source": 5
+   },
+   {
+    "label": "Heating and power: largest appliance, %",
+    "value": 100,
+    "kind": "constant",
+    "source": 18
+   },
+   {
+    "label": "Heating and power: remaining appliances, %",
+    "value": 75,
+    "kind": "constant",
+    "source": 18
+   },
+   {
+    "label": "Motors: largest motor, %",
+    "value": 100,
+    "kind": "constant",
+    "source": 19
+   },
+   {
+    "label": "Standard circuits: every other circuit, %",
+    "value": 50,
+    "kind": "constant",
+    "source": 20
+   },
+   {
+    "label": "EV diversity factor without load management",
+    "value": 1,
+    "kind": "constant",
+    "source": 21
+   },
+   {
+    "label": "Single-phase voltage, V",
+    "value": 230,
+    "kind": "constant"
+   },
+   {
+    "label": "Ib at 660 W, A",
+    "value": 2.87,
+    "kind": "computed"
+   },
+   {
+    "label": "Ib at 1000 W, A",
+    "value": 4.35,
+    "kind": "computed"
+   },
+   {
+    "label": "Modular fitting tubes, 4 x 36 W",
+    "value": 36,
+    "kind": "constant",
+    "source": 30
+   },
+   {
+    "label": "Tube watts in one modular fitting, W",
+    "value": 144,
+    "kind": "computed"
+   },
+   {
+    "label": "Ballast allowance when none given, % (practice value)",
+    "value": 25,
+    "kind": "constant",
+    "source": 32
+   },
+   {
+    "label": "Electronic ballast power factor (practice value)",
+    "value": 0.96,
+    "kind": "constant",
+    "source": 33
+   },
+   {
+    "label": "230 × 0.96",
+    "value": 220.8,
+    "kind": "computed"
+   },
+   {
+    "label": "One modular fitting with ballast, W",
+    "value": 180,
+    "kind": "computed"
+   },
+   {
+    "label": "One modular fitting, A",
+    "value": 0.82,
+    "kind": "computed"
+   },
+   {
+    "label": "LED fitting, W",
+    "value": 26,
+    "kind": "constant",
+    "source": 34
+   },
+   {
+    "label": "LED power factor (practice value)",
+    "value": 0.95,
+    "kind": "constant",
+    "source": 35
+   },
+   {
+    "label": "Another maker's LED power factor",
+    "value": 0.97,
+    "kind": "constant",
+    "source": 36
+   },
+   {
+    "label": "230 × 0.95",
+    "value": 218.5,
+    "kind": "computed"
+   },
+   {
+    "label": "One LED fitting, A",
+    "value": 0.12,
+    "kind": "computed"
+   },
+   {
+    "label": "Older book's discharge lighting multiplier",
+    "value": 1.8,
+    "kind": "constant",
+    "source": 38
+   },
+   {
+    "label": "Older book's least power factor for it",
+    "value": 0.85,
+    "kind": "constant",
+    "source": 39
+   },
+   {
+    "label": "Twin fitting tube, W",
+    "value": 58,
+    "kind": "constant",
+    "source": 42
+   },
+   {
+    "label": "Bollard, W",
+    "value": 18,
+    "kind": "constant",
+    "source": 43
+   },
+   {
+    "label": "DBL2 LED fittings, counted on the drawing",
+    "value": 55,
+    "kind": "constant"
+   },
+   {
+    "label": "DBL2 modular fittings, counted on the drawing",
+    "value": 18,
+    "kind": "constant"
+   },
+   {
+    "label": "DBL2 twin fittings, counted on the drawing",
+    "value": 4,
+    "kind": "constant"
+   },
+   {
+    "label": "DBL2 bollards, counted on the drawing",
+    "value": 6,
+    "kind": "constant"
+   },
+   {
+    "label": "Twin fitting as two tubes, W (the course's reading)",
+    "value": 116,
+    "kind": "assumed"
+   },
+   {
+    "label": "3a: LED watts, W",
+    "value": 1430,
+    "kind": "computed"
+   },
+   {
+    "label": "3a: modular watts, W",
+    "value": 2592,
+    "kind": "computed"
+   },
+   {
+    "label": "3a: twin watts, W",
+    "value": 464,
+    "kind": "computed"
+   },
+   {
+    "label": "3a: bollard watts, W",
+    "value": 108,
+    "kind": "computed"
+   },
+   {
+    "label": "3a: DBL2 connected lighting load, W",
+    "value": 4594,
+    "kind": "computed"
+   },
+   {
+    "label": "3a slip, modular as 36 W, W",
+    "value": 2650,
+    "kind": "computed"
+   },
+   {
+    "label": "3a slip, bollards left out, W",
+    "value": 4486,
+    "kind": "computed"
+   },
+   {
+    "label": "3a reading, twin as 58 W in all, W",
+    "value": 4362,
+    "kind": "computed"
+   },
+   {
+    "label": "C1 consultation bay: 6 modular, W",
+    "value": 864,
+    "kind": "computed"
+   },
+   {
+    "label": "C1 with ballast, W",
+    "value": 1080,
+    "kind": "computed"
+   },
+   {
+    "label": "C1 current, A",
+    "value": 4.89,
+    "kind": "computed"
+   },
+   {
+    "label": "C2 toilets: 5 modular, W",
+    "value": 720,
+    "kind": "computed"
+   },
+   {
+    "label": "C2 current, A",
+    "value": 4.08,
+    "kind": "computed"
+   },
+   {
+    "label": "C3 cleaner, male toilets, tea bay: 7 modular, W",
+    "value": 1008,
+    "kind": "computed"
+   },
+   {
+    "label": "C3 current, A",
+    "value": 5.71,
+    "kind": "computed"
+   },
+   {
+    "label": "C4 stores: 4 twin, W",
+    "value": 464,
+    "kind": "computed"
+   },
+   {
+    "label": "C4 current, A",
+    "value": 2.63,
+    "kind": "computed"
+   },
+   {
+    "label": "C5 showroom east: 28 LED, W",
+    "value": 728,
+    "kind": "computed"
+   },
+   {
+    "label": "C5 current, A",
+    "value": 3.33,
+    "kind": "computed"
+   },
+   {
+    "label": "C6 service reception: 21 LED, W",
+    "value": 546,
+    "kind": "computed"
+   },
+   {
+    "label": "C6 current, A",
+    "value": 2.5,
+    "kind": "computed"
+   },
+   {
+    "label": "C7 foyer, 6 LED and 6 bollards, W",
+    "value": 264,
+    "kind": "computed"
+   },
+   {
+    "label": "C7 current, A",
+    "value": 1.21,
+    "kind": "computed"
+   },
+   {
+    "label": "All seven on L1: L1 and neutral, A",
+    "value": 24.35,
+    "kind": "computed"
+   },
+   {
+    "label": "3b: L1 (C1 + C5), A",
+    "value": 8.22,
+    "kind": "computed"
+   },
+   {
+    "label": "L2 (C3 + C6), A",
+    "value": 8.21,
+    "kind": "computed"
+   },
+   {
+    "label": "L3 (C2 + C4 + C7), A",
+    "value": 7.92,
+    "kind": "computed"
+   },
+   {
+    "label": "Neutral with the course's split, A",
+    "value": 0.3,
+    "kind": "computed"
+   },
+   {
+    "label": "3b slip, ballast left out, A",
+    "value": 7.24,
+    "kind": "computed"
+   },
+   {
+    "label": "3b slip, power factor left out, A",
+    "value": 7.87,
+    "kind": "computed"
+   },
+   {
+    "label": "3b other method, × 1.8, A",
+    "value": 10.09,
+    "kind": "computed"
+   },
+   {
+    "label": "Check: L1 and L2 currents, A",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Check: L3 current, A",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Check: neutral, A",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Check slip, added, A",
+    "value": 24,
+    "kind": "computed"
+   },
+   {
+    "label": "Check slip, cancelled, A",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Showroom lights on from (question 5a), am",
+    "value": "7.30",
+    "kind": "constant"
+   },
+   {
+    "label": "Showroom lights on until (question 5a), pm",
+    "value": 9,
+    "kind": "constant"
+   },
+   {
+    "label": "DBL1 lighting, A",
+    "value": 38.74,
+    "kind": "computed"
+   },
+   {
+    "label": "DBL1 LED fittings, counted",
+    "value": 103,
+    "kind": "constant"
+   },
+   {
+    "label": "DBL1 modular fittings, counted",
+    "value": 16,
+    "kind": "constant"
+   },
+   {
+    "label": "DBL1 twin fittings, counted",
+    "value": 12,
+    "kind": "constant"
+   },
+   {
+    "label": "Wall spots, counted",
+    "value": 9,
+    "kind": "constant"
+   },
+   {
+    "label": "Wall spot lamps, 2 x 35 W",
+    "value": 35,
+    "kind": "constant",
+    "source": 44
+   },
+   {
+    "label": "Column luminaire, W",
+    "value": 70,
+    "kind": "constant",
+    "source": 45
+   },
+   {
+    "label": "Columns and bulkheads, counted (each)",
+    "value": 6,
+    "kind": "constant"
+   },
+   {
+    "label": "Spot and column power factor (practice value, unsourced)",
+    "value": 0.9,
+    "kind": "assumed"
+   },
+   {
+    "label": "Socket circuits (the course's split)",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Each socket circuit, A (practice value)",
+    "value": 32,
+    "kind": "assumed"
+   },
+   {
+    "label": "DP switch rating, A",
+    "value": 20,
+    "kind": "constant",
+    "source": 46
+   },
+   {
+    "label": "DP switches on the drawing",
+    "value": 3,
+    "kind": "constant"
+   },
+   {
+    "label": "Rotary isolator rating, A",
+    "value": 32,
+    "kind": "constant",
+    "source": 47
+   },
+   {
+    "label": "EV outlets, 2 points × 2, each 32 A",
+    "value": 4,
+    "kind": "constant",
+    "source": 49
+   },
+   {
+    "label": "TPN isolators not in the circuit, A",
+    "value": 63,
+    "kind": "constant",
+    "source": 48
+   },
+   {
+    "label": "MD: all lighting, A",
+    "value": 63.09,
+    "kind": "computed"
+   },
+   {
+    "label": "MD: socket circuits, A",
+    "value": 144,
+    "kind": "computed"
+   },
+   {
+    "label": "MD: fixed points, A",
+    "value": 77,
+    "kind": "computed"
+   },
+   {
+    "label": "MD: EV outlets, A",
+    "value": 128,
+    "kind": "computed"
+   },
+   {
+    "label": "MD: single-phase total, A",
+    "value": 412.09,
+    "kind": "computed"
+   },
+   {
+    "label": "MD: single-phase per phase, A",
+    "value": 137.36,
+    "kind": "computed"
+   },
+   {
+    "label": "Motor Ib, part 1a, A",
+    "value": 23.08,
+    "kind": "computed"
+   },
+   {
+    "label": "3c: maximum demand per phase, A",
+    "value": 160.44,
+    "kind": "computed"
+   },
+   {
+    "label": "3c slip, no diversity, A",
+    "value": 202.78,
+    "kind": "computed"
+   },
+   {
+    "label": "3c slip, motor divided by 3, A",
+    "value": 145.05,
+    "kind": "computed"
+   },
+   {
+    "label": "3c slip, not shared over phases, A",
+    "value": 435.17,
+    "kind": "computed"
+   },
+   {
+    "label": "3c reading, lighting at 90%, A",
+    "value": 158.34,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers: socket circuits",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Changed numbers: lighting demand, A",
+    "value": 18,
+    "kind": "assumed"
+   },
+   {
+    "label": "Changed numbers: socket circuits after diversity, A",
+    "value": 96,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers: lighting at 90%, A",
+    "value": 16.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers: maximum demand, A",
+    "value": 112.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers slip, no diversity, A",
+    "value": 178,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers slip, lighting at 100%, A",
+    "value": 114,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers slip, 50% on all, A",
+    "value": 96.2,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "[[Maximum demand]] is the largest current an installation draws at any one time.[^6] It may be worked out for the whole installation or for a part of it,[^7] and it is the current the circuits, switches and protective devices that feed that part normally carry,[^51] so the supply and each submain are chosen for it. It is less than the connected load, because not everything runs flat out together: allowing for that with common sense rather than designing for the maximum is [[diversity]],[^16] and its figures are guidance from the On-Site Guide, not a rule.[^1] On a three-phase board there is a second question as well: which phase each single-phase circuit goes on.\n\nEach lighting circuit runs between one line and the neutral, so its current comes back along the neutral. The three line voltages are a third of a cycle apart, and each circuit's current keeps step with its own line voltage, so the three currents are a third of a cycle apart too; three equal currents spaced like that add up to nothing in the neutral: the balanced three-phase load your slides describe has no neutral current at all.[^13] Make them unequal and they no longer cancel;[^14] what is left over flows in the neutral, so the neutral carries the imbalance, not the total. With the course's practice values for the fittings, put DBL2's seven lighting circuits all on L1, and L1 and the neutral both carry 24.35 A; share them as the course does, and the phases carry 8.22, 8.21 and 7.92 A and the neutral 0.30 A. That is why single-phase circuits are spread about equally across the three phases,[^52] and why the heaviest phase, not the average, sets what the supply must carry.[^15] The picture treats all the fittings as having the same power factor, a simplified case; real fittings differ a little, which moves the neutral current very little.\n\nDiversity takes the total down by type of load. For small shops, stores and offices, for example, the On-Site Guide allows 100% of the largest standard circuit and 50% of every other.[^20] BS 7671 itself has no such table and leaves the assessment to the designer.[^3] Where diversity belongs is argued: your slides apply 66% to one lighting circuit's Ib,[^2] a training provider applies it only to the total at the origin,[^26] and an IET answer says it might only rarely be appropriate for a single circuit's design current.[^27] For EV charge points without load management the IEC wording sets the factor at 1,[^21] which the course follows, though it is argued. Common sense can also say none: the showroom's lights are all on from 7.30 am to 9 pm (your assignment, question 5a), so the course takes them at 100%.\n\n**Maximum demand is the connected load with diversity only where common sense allows, shared across L1, L2 and L3 so that the heaviest phase is as light as it can be.**[^53][^52]"
+ },
+ "analogy": {
+  "text": "Think of a dockyard canteen. The cooks plan for the busiest sitting, not for everyone on the base eating at once: that is diversity. And they split the diners evenly between three serving counters, decided in advance, so that no one queue sets the pace for the whole room: that is sharing the circuits across L1, L2 and L3.",
+  "breaks": "Hungry people can wait; current cannot. If everything does come on together, the installation carries it there and then, which is why a figure with diversity may occasionally be exceeded[^12] and why EV points without load management get none.[^21] And three uneven queues just leave one long one, whereas uneven phase currents also send the difference down the neutral."
+ },
+ "practice": {
+  "text": "- List every load on a schedule of circuits, as your guide asks:[^54] each board's circuits, what they feed and their current.\n- Work each load's current from what it really draws: lighting from the key's watts with the ballast loss and power factor from the maker's data (practice values until you have it),[^31][^32] and a motor's Ib as in lesson 1.\n- Share the single-phase circuits about equally across L1, L2 and L3[^52] and add up each phase. The heaviest phase sets the size.[^15]\n- Apply diversity by type of load where common sense allows, from the On-Site Guide's Appendix A, and write down why. Leave it off where the loads run together, such as the showroom's lighting, and on EV points without load management.[^21]\n- Add each three-phase load's line current to every phase, and compare the heaviest phase with the supply.\n\n**Rule of thumb:** when you cannot tell whether loads run together, take them at 100%. Too high a figure costs money; too low a figure leaves the supply and submains carrying more than they were chosen for.\n\n**Worked example:** the showroom (question 10), with the course's practice values. Lighting, 24.35 + 38.74 = 63.09 A. Eight 32 A socket circuits as standard circuits, 32 + 0.5 × 7 × 32 = 144.00 A.[^20] The 32 A and three 20 A points as heating and power, 32 + 0.75 × 3 × 20 = 77.00 A.[^18] Four 32 A EV outlets, 128.00 A. Together 412.09 A, which is 137.36 A a phase when shared evenly; with the motor's 23.08 A on every line, 160.44 A a phase.\n\n**Common mistakes**\n- Treating diversity as a rule: it is guidance and need not be applied.[^1]\n- Every single-phase circuit on one phase: the neutral then carries the lot.\n- Fluorescent tube watts alone: the ballast's loss is extra.[^31]\n- Dividing the motor's current by three with the rest: a three-phase load's Ib is already a line current.\n- Diversity on EV charge points without load management.[^25]"
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "written": {
+  "b1": {
+   "q": "State two reasons a designer applies diversity.",
+   "points": [
+    {
+     "text": "Not every load runs at full current at the same time, so the real demand is less than the connected load: diversity designs with common sense rather than for the maximum.",
+     "cite": "Slides p.10"
+    },
+    {
+     "text": "It keeps cable sizes smaller.",
+     "cite": "Slides p.10"
+    },
+    {
+     "text": "It keeps costs lower.",
+     "cite": "Slides p.10"
+    },
+    {
+     "text": "The supply, submains and switchgear can be chosen for the demand they will really carry, not for every load at once.",
+     "cite": "The Electrician's Guide (Whitfield) 6.2.1, in research: maximum demand is the largest current normally carried by circuits, switches and protective devices"
+    }
+   ],
+   "need": 2,
+   "model": "Not every load runs at full current at the same time, so designing for every load at once overstates what the installation draws; your slides call diversity designing with common sense rather than for the maximum (p.10). Allowing for it keeps cable sizes smaller and costs lower (p.10), and lets the supply, submains and switchgear be chosen for the maximum demand they will really carry. It is guidance from the On-Site Guide, applied with judgement, not a rule."
+  }
+ },
+ "summary": {
+  "title": "Maximum demand and diversity",
+  "for": "The largest current the installation, or one board, draws at any one time. The supply and every submain are sized from it; Regulation 311.1 leaves the assessment to the designer.",
+  "rule": "Lighting: I = W ÷ (230 × pf), fluorescent tube W × 1.25 first if no ballast loss is given\nNeutral, same pf: IN = √(I1² + I2² + I3² − I1·I2 − I2·I3 − I3·I1)\nPer phase: single-phase total after diversity ÷ 3, + each three-phase line current\n\nShare single-phase circuits about equally over L1, L2 and L3: the heaviest phase sets the size.\nDiversity: On-Site Guide Appendix A, guidance (slides p.10). None on EV points without load management.",
+  "traps": [
+   {
+    "text": "Diversity treated as a rule: it is guidance and need not be applied.",
+    "cite": "Slides p.10"
+   },
+   {
+    "text": "Every single-phase circuit on one phase: the neutral carries the lot.",
+    "cite": "Slides p.33; IET EngX forum, in research (unbalanced currents do not cancel)"
+   },
+   {
+    "text": "Fluorescent tube watts alone: the ballast's loss is extra.",
+    "cite": "Schneider Electrical Installation Guide, fluorescent lamps, in research"
+   },
+   {
+    "text": "The motor's line current divided by three with the single-phase loads.",
+    "cite": "Slides p.13 (Ib of a three-phase load is a line current)"
+   },
+   {
+    "text": "Diversity on EV charge points without load management.",
+    "cite": "BS 7671 722.311.201 (NAPIT); the IEC wording in the Schneider guide; argued on the IET EngX forum, in research"
+   }
+  ],
+  "where": "Your slides p.10; your assignment, questions 1b and 10 (pack p.4, 5) and 5a (the lighting hours); your guide p.3 (schedule of circuits); the On-Site Guide, Appendix A, for the allowances.",
+  "figures": [
+   "1a",
+   "3a",
+   "3b",
+   "3c"
+  ]
+ },
+ "sources": [
+  {
+   "n": 1,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p10",
+   "quote": "The percentages to apply for diversity are only found in the OnSite Guide. This means, it’s guidance and doesn’t have to be applied."
+  },
+  {
+   "n": 2,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p10",
+   "quote": "then it could be designed to 660W as the Ib rather than 1000W."
+  },
+  {
+   "n": 3,
+   "title": "Electrical Diversity Calculator — IET On-Site Guide (BS 7671) | TradeCalculator",
+   "url": "https://tradecalculator.co.uk/electrical/diversity-calculator/",
+   "quote": "BS 7671 itself contains no diversity table — Regulation 311.1 requires the designer to assess maximum demand and permits diversity to be taken into account; the On-Site Guide gives the recognised figures."
+  },
+  {
+   "n": 4,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p10",
+   "quote": "For example, in appendix A of the OSG, a domestic lighting circuit can have 66% diversity applied."
+  },
+  {
+   "n": 5,
+   "title": "How Should Maximum Demand and Diversity Be Calculated for Different Premises Types?",
+   "url": "https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses",
+   "quote": "Lighting |66% of total current demand |90% of total current demand |75% of total current demand"
+  },
+  {
+   "n": 6,
+   "title": "How to Calculate Maximum Demand: Diversity Table | Elec-Mate",
+   "url": "https://www.elec-mate.com/guides/max-demand-calculation-guide",
+   "quote": "Maximum demand is the largest current an installation draws at any one time"
+  },
+  {
+   "n": 7,
+   "title": "Maximum demand - Wiring and the Regulations BS 7671 - IET EngX - IET EngX",
+   "url": "https://engx.theiet.org/f/wiring-and-regulations/29562/maximum-demand",
+   "quote": "Regulation 311.1 accepts that it may be necessary to determine maximum demand for the whole installation, or a part of it."
+  },
+  {
+   "n": 8,
+   "title": "ED4-01A learner pack: car showroom assignment",
+   "url": "material:learner-pack#p5",
+   "quote": "Based on the information in the drawings and your answer from question 4a, determine the maximum demand of the installation making informed assumptions where necessary."
+  },
+  {
+   "n": 9,
+   "title": "ED4-01A learner pack: car showroom assignment",
+   "url": "material:learner-pack#p4",
+   "quote": "Taking into account balancing of loads; indicate how the installation can be divided across a suitable provision of circuits."
+  },
+  {
+   "n": 10,
+   "title": "EAL Level 4 Design and Verification: project guide",
+   "url": "material:project-guide#p3",
+   "quote": "This question will link in to question 10."
+  },
+  {
+   "n": 11,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p10",
+   "quote": "This will help keep cable sizes smaller and costs lower."
+  },
+  {
+   "n": 12,
+   "title": "Electrical Diversity and Load Curtailment (EVC) webinar questions and answers",
+   "url": "https://electrical.theiet.org/bs-7671-18th-edition-wiring-regulations/faqs/webinar-questions-and-answers/electrical-diversity-and-load-curtailment-evc-webinar/",
+   "quote": "It is acknowledged that in any installation with diversity applied, it may be possible to exceed the maximum demand on occasion."
+  },
+  {
+   "n": 13,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p33",
+   "quote": "a balanced 3-phase load (such as a motor) will not have current in the neutral at all, so often motors do not have neutrals connected."
+  },
+  {
+   "n": 14,
+   "title": "Votlage Drop for Unbalanced three phase - Wiring and the Regulations BS 7671 - IET EngX",
+   "url": "https://engx.theiet.org/f/wiring-and-regulations/21657/votlage-drop-for-unbalanced-three-phase",
+   "quote": "So, in terms of the unbalanced system, what's going on is that the line currents don't cancel in the Neutral."
+  },
+  {
+   "n": 15,
+   "title": "Maximum Demand Calculator BS 7671 | Diversity Factors | Elec-Mate",
+   "url": "https://www.elec-mate.com/tools/max-demand-calculator",
+   "quote": "the highest phase determines the supply requirement."
+  },
+  {
+   "n": 16,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p10",
+   "quote": "The point of applying diversity is to design a circuit using ‘common sense’ rather than it’s maximum demand."
+  },
+  {
+   "n": 17,
+   "title": "Diversity Factors Explained: A Practical Guide for Electricians | Total Skills UK",
+   "url": "https://www.totalskills.co.uk/guides/diversity-factors-explained",
+   "quote": "For commercial and industrial installations, maximum demand assessment requires a different engineering approach, often based on actual load measurements, process knowledge, or building services design standards such as CIBSE guides."
+  },
+  {
+   "n": 18,
+   "title": "How Should Maximum Demand and Diversity Be Calculated for Different Premises Types?",
+   "url": "https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses",
+   "quote": "100% f.l. of largest appliance +75% f.l. of remaining appliances"
+  },
+  {
+   "n": 19,
+   "title": "How Should Maximum Demand and Diversity Be Calculated for Different Premises Types?",
+   "url": "https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses",
+   "quote": "4 Motors (other than lift motors, which are subject to special consideration) |Not applicable |100% f.l. of largest motor +80% f.l. of second largest motor +60% f.l. of remaining motors"
+  },
+  {
+   "n": 20,
+   "title": "How Should Maximum Demand and Diversity Be Calculated for Different Premises Types?",
+   "url": "https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses",
+   "quote": "100% of current demand of largest circuit +50% of current demand of every other circuit"
+  },
+  {
+   "n": 21,
+   "title": "EV charging - electrical installation design - Electrical Installation Guide",
+   "url": "https://www.electrical-installation.org/enwiki/EV_charging_-_electrical_installation_design",
+   "quote": "The diversity factor to consider for several EV chargers in parallel is equal to 1 unless a Load Management System (LMS) is used to control these EV chargers."
+  },
+  {
+   "n": 22,
+   "title": "Electrical Diversity Calculator — IET On-Site Guide (BS 7671) | TradeCalculator",
+   "url": "https://tradecalculator.co.uk/electrical/diversity-calculator/",
+   "quote": "Regulation 722.311 allows load curtailment, reduction or disconnection to be taken into account when determining the maximum demand"
+  },
+  {
+   "n": 23,
+   "title": "EAL Level 4 Design and Verification: project guide",
+   "url": "material:project-guide#p9",
+   "quote": "You may wish to consider load management to help reduce maximum demand figures but this is not compulsory."
+  },
+  {
+   "n": 24,
+   "title": "Electrical Vehicle Chargers - No Diversity? - IET EngX",
+   "url": "https://engx.theiet.org/f/wiring-and-regulations/28352/electrical-vehicle-chargers---no-diversity/122831",
+   "quote": "BS 7671 does not prohibit diversity for EV charging points."
+  },
+  {
+   "n": 25,
+   "title": "Electrical Vehicle Chargers - No Diversity? - IET EngX",
+   "url": "https://engx.theiet.org/f/wiring-and-regulations/28352/electrical-vehicle-chargers---no-diversity/122831",
+   "quote": "Yes, but in the absence of a load management system it's still zero diversity."
+  },
+  {
+   "n": 26,
+   "title": "Diversity Factors Explained: A Practical Guide for Electricians | Total Skills UK",
+   "url": "https://www.totalskills.co.uk/guides/diversity-factors-explained",
+   "quote": "Diversity applies to the aggregate demand at the origin of the installation, not to individual circuits."
+  },
+  {
+   "n": 27,
+   "title": "Electrical Diversity and Load Curtailment (EVC) webinar questions and answers",
+   "url": "https://electrical.theiet.org/bs-7671-18th-edition-wiring-regulations/faqs/webinar-questions-and-answers/electrical-diversity-and-load-curtailment-evc-webinar/",
+   "quote": "(a) For an individual circuit to determine the design current, diversity might only be rarely appropriate"
+  },
+  {
+   "n": 28,
+   "title": "Estimation of actual maximum kVA demand - Electrical Installation Guide",
+   "url": "https://www.electrical-installation.org/enwiki/Estimation_of_actual_maximum_kVA_demand",
+   "quote": "The factor ks is applied to each group of loads (e.g. being supplied from a distribution or sub-distribution board)."
+  },
+  {
+   "n": 29,
+   "title": "Estimation of actual maximum kVA demand - Electrical Installation Guide",
+   "url": "https://www.electrical-installation.org/enwiki/Estimation_of_actual_maximum_kVA_demand",
+   "quote": "If the circuits are mainly for lighting loads, it is prudent to adopt ks values close to unity."
+  },
+  {
+   "n": 30,
+   "title": "Car showroom drawing: lighting",
+   "url": "material:drawing-lighting#p1",
+   "quote": "4 x 1200mm Modular Fluo 4 x 36W"
+  },
+  {
+   "n": 31,
+   "title": "Fluorescent lamps - Electrical Installation Guide",
+   "url": "https://www.electrical-installation.org/enwiki/Fluorescent_lamps",
+   "quote": "The power Pn (watts) indicated on the tube of a fluorescent lamp does not include the power dissipated in the ballast."
+  },
+  {
+   "n": 32,
+   "title": "Fluorescent lamps - Electrical Installation Guide",
+   "url": "https://www.electrical-installation.org/enwiki/Fluorescent_lamps",
+   "quote": "If no power-loss value is indicated for the ballast, a figure of 25% of Pn may be used."
+  },
+  {
+   "n": 33,
+   "title": "Fluorescent lamps - Electrical Installation Guide",
+   "url": "https://www.electrical-installation.org/enwiki/Fluorescent_lamps",
+   "quote": "cos φ = 0.96 for electronic ballast."
+  },
+  {
+   "n": 34,
+   "title": "Car showroom drawing: lighting",
+   "url": "material:drawing-lighting#p1",
+   "quote": "Led Lighting 26W"
+  },
+  {
+   "n": 35,
+   "title": "[PDF] Backlight Panel 70085 - Beghelli (36 W LED panel)",
+   "url": "https://www.beghelli.it/hu-hu/media/family/documents/d634b714-d322-4d73-803d-51ea8328770d",
+   "quote": "Power factor 0.95"
+  },
+  {
+   "n": 36,
+   "title": "Sylvania START PANEL UGR19 600 4000K G4 datasheet (36 W LED panel)",
+   "url": "https://datasheet.sylvania-group.com/en-gb/Datasheet/0047785.pdf",
+   "quote": "Lamp power factor 0.97"
+  },
+  {
+   "n": 37,
+   "title": "LED lamps and fixtures - Electrical Installation Guide",
+   "url": "https://www.electrical-installation.org/enwiki/LED_lamps_and_fixtures",
+   "quote": "with a separated driver doesn’t include the power dissipated in the driver."
+  },
+  {
+   "n": 38,
+   "title": "6.2.1 - Maximum demand (The Electricians Guide, Whitfield, via TLC)",
+   "url": "https://www.tlc-direct.co.uk/Book/6.2.1.htm",
+   "quote": "lamp power (W) x 1.8"
+  },
+  {
+   "n": 39,
+   "title": "6.2.1 - Maximum demand (The Electricians Guide, Whitfield, via TLC)",
+   "url": "https://www.tlc-direct.co.uk/Book/6.2.1.htm",
+   "quote": "So long as the power factor of a discharge lighting circuit is not less than 0.85"
+  },
+  {
+   "n": 40,
+   "title": "ED4-01A learner pack: car showroom assignment",
+   "url": "material:learner-pack#p3",
+   "quote": "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+  },
+  {
+   "n": 41,
+   "title": "ED4-01A learner pack: car showroom assignment",
+   "url": "material:learner-pack#p4",
+   "quote": "Within the consultation bay there will be an additional requirement for a 400 V three-phase 11 kW motor which operates at a power factor of 0.8 lagging and efficiency of 86%."
+  },
+  {
+   "n": 42,
+   "title": "Car showroom drawing: lighting",
+   "url": "material:drawing-lighting#p1",
+   "quote": "Twin 1700mm Fluo Luminaire 58W"
+  },
+  {
+   "n": 43,
+   "title": "Car showroom drawing: lighting",
+   "url": "material:drawing-lighting#p1",
+   "quote": "Walkway Bollard 18W"
+  },
+  {
+   "n": 44,
+   "title": "Car showroom drawing: lighting",
+   "url": "material:drawing-lighting#p1",
+   "quote": "Wall Spot Light 2 x 35W"
+  },
+  {
+   "n": 45,
+   "title": "Car showroom drawing: lighting",
+   "url": "material:drawing-lighting#p1",
+   "quote": "Column Mounted Luminaire 3m from FFL 70W"
+  },
+  {
+   "n": 46,
+   "title": "Car showroom drawing: power",
+   "url": "material:drawing-power#p1",
+   "quote": "20A DP Switch"
+  },
+  {
+   "n": 47,
+   "title": "Car showroom drawing: power",
+   "url": "material:drawing-power#p1",
+   "quote": "32A Rotary Isolator"
+  },
+  {
+   "n": 48,
+   "title": "Car showroom drawing: power",
+   "url": "material:drawing-power#p1",
+   "quote": "63A TPN Rotary Isolator 2x32a each"
+  },
+  {
+   "n": 49,
+   "title": "ED4-01A learner pack: car showroom assignment",
+   "url": "material:learner-pack#p5",
+   "quote": "Design the circuit/s incorporating the electric vehicle charging points."
+  },
+  {
+   "n": 50,
+   "title": "6.2.3 - Applied diversity (The Electricians Guide, Whitfield, via TLC)",
+   "url": "https://www.tlc-direct.co.uk/Book/6.2.3.htm",
+   "quote": "Since a perfect balance is assumed, three phase line current"
+  },
+  {
+   "n": 51,
+   "title": "6.2.1 - Maximum demand (The Electricians Guide, Whitfield, via TLC)",
+   "url": "https://www.tlc-direct.co.uk/Book/6.2.1.htm",
+   "quote": "Maximum demand (often referred to as MD) is the largest current normally carried by circuits, switches and protective devices"
+  },
+  {
+   "n": 52,
+   "title": "Regulation 314 | Division of Installation Into Circuits ... | Elec-Mate",
+   "url": "https://www.elec-mate.com/guides/regulation-314-division-of-circuits",
+   "quote": "Unbalanced loads cause excessive neutral current and voltage imbalance, so allocate single-phase circuits approximately equally across L1, L2 and L3."
+  },
+  {
+   "n": 53,
+   "title": "Electrical Diversity and Load Curtailment (EVC) webinar questions and answers",
+   "url": "https://electrical.theiet.org/bs-7671-18th-edition-wiring-regulations/faqs/webinar-questions-and-answers/electrical-diversity-and-load-curtailment-evc-webinar/",
+   "quote": "The maximum demand is the sum of the connected loads multiplied by a factor for diversity."
+  },
+  {
+   "n": 54,
+   "title": "EAL Level 4 Design and Verification: project guide",
+   "url": "material:project-guide#p3",
+   "quote": "Present as a Schedule of circuits."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0; * is a written question's id): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text, written.*.q, written.*.points[i].text, written.*.model, summary.title, summary.for, summary.rule, summary.where, summary.traps[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

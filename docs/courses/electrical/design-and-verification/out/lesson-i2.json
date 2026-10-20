@@ -1,0 +1,1271 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-20T13:21:24.241Z",
+ "startedAt": "2026-10-20T13:21:24.241Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i2",
+  "title": "Maximum demand: what the whole building draws",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the neutral bar fall from 24.35 A to 0.30 A as the three phase bars even out, when you drag DBL2's circuits off L1 and share them across L1, L2 and L3.",
+   "title": "What the whole building draws",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A refresher lesson in twelve screens, with Back and Continue between them, on maximum demand: what the whole building draws, how it is shared across the three phases, and diversity. Screen 1, Do you still have it?: \"Your slides give a diversity percentage for a lighting circuit. Is diversity a rule you must apply?\" Three choices, in this order: \"Yes: BS 7671 sets the percentages\"; \"No: it is guidance, used where common sense allows\"; \"Yes, wherever the On-Site Guide gives a percentage\". Right: \"Still there.\", with your slides p.10: the percentages are only found in the On-Site Guide, so they are guidance and do not have to be applied,[^1] and ten 100 W lamps could be designed at 660 W rather than 1000 W;[^2] then the two slips in a line each, and two buttons: Refresh the why (on to screen 2) and Skip to the practice (straight to screen 7). Wrong, the first: BS 7671 itself has no diversity table; Regulation 311.1 has the designer assess maximum demand and lets diversity be taken into account, and the On-Site Guide gives the recognised figures.[^3] Wrong, the third: even where it gives one, it may be left off: 66% for a domestic lighting circuit[^4] and 90% for a shop's lighting[^5] are On-Site Guide figures, applied only where the loads really do not all run together.[^1] Then the right answer and on to screen 2, with no skip. Read: diversity is guidance, not a rule (slides p.10). Screen 2, What it is for: maximum demand is the largest current an installation draws at any one time.[^6] The supply and each submain are sized from it: Regulation 311.1 accepts it may be worked out for the whole installation or a part of it,[^7] so each board gets its own figure. Your assignment asks for it in question 10, \"making informed assumptions where necessary\",[^8] linked to question 1b's balancing.[^9][^10] In red, if it is skipped or wrong: too low, the supply fuse, or a submain's device and cable, carries more than it was chosen for (the course's reasoning); too high, the cables are bigger and dearer than they need be.[^11] One line: a figure with diversity is an estimate, which the IET accepts may occasionally be exceeded.[^12] Screen 3, The why: the opening text says each of DBL2's lighting circuits runs between one line and the neutral; equal currents on L1, L2 and L3 cancel in the neutral, as your slides say of a balanced three-phase load (p.33),[^13] but unequal ones do not,[^14] so the neutral carries the imbalance; and the heaviest phase sets what the supply must carry.[^15] The picture: three columns, L1, L2 and L3, each holding the circuit cards on it, and four bars on one scale that fits 24.35 A: L1, L2, L3 and N, each with its current. Seven cards, the course's own circuits for DBL2 (screen 8 gives what each feeds), each with a short name and its current: C1 Consultation 4.89 A; C2 Toilets W 4.08 A; C3 Toilets E and tea 5.71 A; C4 Stores 2.63 A; C5 Showroom E 3.33 A; C6 Reception 2.50 A; C7 Foyer 1.21 A. It opens with all seven on L1: L1 24.35 A, N 24.35 A. \"Drag a card to another phase, or tap it to move it on.\" Two buttons: All on L1, and The course's split (L1: C1 and C5, 8.22 A; L2: C3 and C6, 8.21 A; L3: C2, C4 and C7, 7.92 A; N 0.30 A). Two readouts: Heaviest phase (its label names the phase), and Neutral. Under them the rule: for currents at about the same power factor, IN = √(I1² + I2² + I3² − I1·I2 − I2·I3 − I3·I1), the sum of three currents a third of a cycle apart (the AC circuits course); under it, mains-frequency currents only: fluorescent and LED fittings also draw third-harmonic currents, which add in the neutral instead of cancelling (lesson 4). One line: the card currents rest on practice values (screen 6). Read: with all seven on L1 the neutral carries 24.35 A, as much as L1; shared as the course shares them it carries 0.30 A, harmonics aside, and the heaviest phase is 8.22 A. Screen 4, Check: \"A board's lighting circuits carry 10 A on L1, 10 A on L2 and 4 A on L3, at about the same power factor. What does the neutral carry?\" Choices 24.00 A (added as if on one line: they are a third of a cycle apart, so they partly cancel), 6.00 A (right) and 0.00 A (only equal currents cancel), and a Why?: the 4 A on each phase cancels, leaving 6 A on L1 and 6 A on L2, whose sum is 6 A; by the rule, √(100 + 100 + 16 − 100 − 40 − 40) = √36 = 6.00 A. Read: the neutral carries 6.00 A. Screen 5, Diversity, as common sense: not every load runs flat out at once, so a building draws less than its connected load; your slides call diversity designing with common sense rather than the maximum.[^16] The allowances this lesson uses, from the On-Site Guide's column for small shops, stores, offices and business premises (the course reads a showroom into it, its own assumption; a training provider warns that commercial work may need measured loads instead[^17]): lighting 90% of the total current demand;[^5] heating and power 100% of the largest appliance plus 75% of the rest;[^18] motors 100% of the largest, 80% of the second largest and 60% of the rest (the showroom has only one);[^19] standard circuits 100% of the largest circuit plus 50% of every other.[^20] Only these; read the rest in your copy. EV charge points: the IEC wording sets the factor at 1 unless a load management system is used;[^21] Regulation 722.311 lets load curtailment count,[^22] and your guide makes load management optional.[^23] In a fold, Where it's argued: on the IET forum one contributor says BS 7671 does not prohibit diversity on EV points,[^24] another that without load management it is still none;[^25] your slides apply 66% to one lighting circuit's Ib,[^2] a training provider applies diversity only to the total at the origin,[^26] an IET answer says it might only rarely be appropriate for one circuit,[^27] and the Schneider guide applies its factor to the loads on a board[^28] and advises close to 1 for mainly lighting.[^29] Then the course's choice: the lighting at 100%, because question 5a has the internal showroom lights on from 7.30 am to 9 pm (pack p.4), and the course takes the rest of the lighting with them; the On-Site Guide would allow 90%, a designer's call. Screen 6, Worked example, a line at each press: your slides' circuit (p.10), 10 × 100 = 1000 W; 1000 × 0.66 = 660 W;[^2] Ib 660 ÷ 230 = 2.87 A against 1000 ÷ 230 = 4.35 A, the smaller cable your slides mean.[^11] Then one 4 × 36 W modular fitting from the drawing's key:[^30] 4 × 36 = 144 W of tubes; tube watts leave out the ballast,[^31] and 25% may be allowed when no loss is given,[^32] so 144 × 1.25 = 180 W; at 0.96, an electronic ballast's power factor,[^33] 180 ÷ (230 × 0.96) = 180 ÷ 220.8 = 0.82 A. One 26 W LED fitting:[^34] at 0.95, as a maker states for a similar panel[^35] (another states 0.97[^36]), 26 ÷ (230 × 0.95) = 26 ÷ 218.5 = 0.12 A. Labelled: 25%, 0.96 and 0.95 are practice values, since the drawing does not name the fittings' gear; read the real ones from the maker, whose watts for a separate driver are extra.[^37] One line: an older book instead takes lamp watts × 1.8 ÷ voltage for discharge lighting at a power factor of at least 0.85;[^38][^39] the course uses the first method. Screen 7, Section A, the course's question 3 (a): the showroom's scenario panel, from your assignment (pack p.3 and 4),[^40][^41] and the course's split, said as its own: DBL2, in the tools and warranty store, feeds the east of the building (the consultation bay, the toilets, cleaner and tea bay, the two stores, the showroom east of the welcome desk, service reception, the foyer and the walkway bollards); DBL1 the rest. Counted on your lighting drawing, DBL2's share: 55 LED 26 W, 18 modular 4 × 36 W, 4 twin 58 W and 6 walkway bollards 18 W.[^34][^30][^42][^43] The key does not say whether a twin's 58 W is each tube or the fitting: the course takes two 58 W tubes, 116 W, the cautious reading. \"(a) Determine the connected lighting load of DBL2, from the key's wattages.\" A typed answer (part 3a, in W, whole watts): 55 × 26 = 1430 W; 18 × 144 = 2592 W; 4 × 116 = 464 W; 6 × 18 = 108 W; 4594 W. Slips: 2650 W (each modular fitting as 36 W: it holds four tubes), 4486 W (the bollards left out), 4362 W (the twin as 58 W in all: the other reading; the course takes two tubes). Read: DBL2's connected lighting load is 4594 W. Screen 8, Section A, the course's question 3 (b): (a) carried forward at 4594 W. DBL2's seven circuits, the course's own, with what each feeds and its watts: C1 consultation bay, 6 modular, 864 W; C2 uni-sex and female toilets, 5 modular, 720 W; C3 cleaner, male toilets and tea bay, 7 modular, 1008 W; C4 the two stores, 4 twin, 464 W; C5 showroom east, 28 LED, 728 W; C6 service reception, 21 LED, 546 W; C7 foyer, 6 LED and 6 bollards, 264 W. The phases: L1 C1 and C5; L2 C3 and C6; L3 C2, C4 and C7. The rules from screen 6 with their practice values. \"(b) Determine the current on L1.\" A typed answer (part 3b): C1, 864 × 1.25 = 1080 W, 1080 ÷ 220.8 = 4.89 A; C5, 728 ÷ 218.5 = 3.33 A; 4.89 + 3.33 = 8.22 A. Slips: 7.24 A (the ballast left out), 7.87 A (the power factor left out), 10.09 A (the older × 1.8 rule: another method; the question uses the 25% allowance), 24.35 A (the whole board: L1 carries only its own circuits). After it: L2, 5.71 + 2.50 = 8.21 A; L3, 4.08 + 2.63 + 1.21 = 7.92 A; the neutral 0.30 A; lesson 8 sizes DBL2's submain on the heaviest, 8.22 A. After two misses the working ends: part (c) carries the course's 8.22 A. Read: L1 carries 8.22 A. Screen 9, Section A, the course's question 3 (c): 1(a) and 3(b) carried forward (23.08 A, 8.22 A). Given, each practice value labelled: the lighting at 100%, the course's choice, as question 5a has the showroom lights on from 7.30 am to 9 pm: DBL2 8.22 + 8.21 + 7.92 = 24.35 A, and DBL1 38.74 A, worked the same way from its 103 LED, 16 modular, 12 twin and 6 bulkheads (the bulkheads with the LEDs, no ballast allowance), and its 9 wall spots (2 × 35 W)[^44] and 6 columns (70 W)[^45] taken at a power factor of 0.9 (a practice value with no source: the lamps are not named). Sockets: eight 32 A circuits, one per area, each taken at its rating, as standard circuits: 100% of the largest plus 50% of every other. Fixed points: three 20 A DP switches[^46] and a 32 A rotary isolator,[^47] each taken at its rating, as heating and power: 100% of the largest plus 75% of the rest. EV: two charging points of two 32 A outlets[^48][^49] taken as four single-phase outlets (a practice value: the drawing does not say whether the outlets are single- or three-phase), no diversity; the 63 A TPN isolators are not part of the circuit (pack p.5). The motor at 100%, the only one.[^19] The single-phase loads shared evenly, ÷ 3, as an older book works a balanced line current.[^50] \"(c) Determine the maximum demand of the installation, per phase.\" A typed answer (part 3c): 63.09 + 144.00 + 77.00 + 128.00 = 412.09 A; 412.09 ÷ 3 = 137.36 A; 137.36 + 23.08 = 160.44 A (unrounded working gives 160.44 A too; the last place either side is accepted). Slips: 202.78 A (no diversity), 137.36 A (the motor left out), 145.05 A (the motor divided by 3: its Ib is already a line current), 435.17 A (not shared over three phases), 158.34 A (the lighting at 90%: fair as a designer, but the question takes 100%). After it: about 160 A a phase, an estimate on practice values, as question 10 allows; a real split is heavier on one phase: four 32 A EV outlets cannot share evenly over three phases, so one phase carries two, 2 × 32 = 64 A, against an even share of 128 ÷ 3 = 42.67 A, unless other circuits move off it. Read: about 160.44 A a phase. Screen 10, Section B: \"State two reasons a designer applies diversity.\" Your written answer, marked against four points (a full answer makes any two), one more go, then the model answer. Screen 11, Section A, changed numbers: \"A small office's single-phase board feeds five 32 A socket circuits, arranged as standard circuits, and lighting with a total current demand of 18.00 A. Using the small shops, stores and offices allowances (standard circuits: 100% of the largest plus 50% of every other; lighting 90%), determine its maximum demand.\" A typed answer: 32 + 0.5 × 4 × 32 = 96.00 A; 0.9 × 18.00 = 16.20 A; 112.20 A. Slips: 178.00 A (no diversity), 114.00 A (the lighting at 100%), 96.20 A (50% on the largest circuit too). Read: 112.20 A. Screen 12, Keep this: the summary card, then Finish the lesson. The line under the lesson (figures from your slides, your assignment and the drawings; practice values marked; each line worked from the rounded figure before it) shows only on screens 3, 4, 6 to 9 and 11.",
+   "ignores": "The bars treat each circuit's current as in step with its own line voltage, as if every fitting had the same power factor; theirs differ a little (0.95 and 0.96 here), which changes the neutral current very little. The circuit currents rest on practice values for ballast loss and power factor, not on the makers' data for the drawing's own fittings. Harmonics are left out: fluorescent and LED fittings can draw third-harmonic currents, which add in the neutral instead of cancelling; that is lesson 4. The bars show steady currents with every fitting on, not switching on, dimming or a lamp failing.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 12 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Slides' lamps on the example circuit",
+     "value": 10,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Each lamp, W",
+     "value": 100,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Domestic lighting allowance, %",
+     "value": 66,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Designed load with diversity, W",
+     "value": 660,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Designed load without diversity, W",
+     "value": 1000,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Shops lighting allowance, % of total current demand",
+     "value": 90,
+     "kind": "constant",
+     "source": 5
+    },
+    {
+     "label": "Heating and power: largest appliance, %",
+     "value": 100,
+     "kind": "constant",
+     "source": 18
+    },
+    {
+     "label": "Heating and power: remaining appliances, %",
+     "value": 75,
+     "kind": "constant",
+     "source": 18
+    },
+    {
+     "label": "Motors: largest motor, %",
+     "value": 100,
+     "kind": "constant",
+     "source": 19
+    },
+    {
+     "label": "Standard circuits: every other circuit, %",
+     "value": 50,
+     "kind": "constant",
+     "source": 20
+    },
+    {
+     "label": "EV diversity factor without load management",
+     "value": 1,
+     "kind": "constant",
+     "source": 21
+    },
+    {
+     "label": "Single-phase voltage, V",
+     "value": 230,
+     "kind": "constant"
+    },
+    {
+     "label": "Ib at 660 W, A",
+     "value": 2.87,
+     "kind": "computed"
+    },
+    {
+     "label": "Ib at 1000 W, A",
+     "value": 4.35,
+     "kind": "computed"
+    },
+    {
+     "label": "Modular fitting tubes, 4 x 36 W",
+     "value": 36,
+     "kind": "constant",
+     "source": 30
+    },
+    {
+     "label": "Tube watts in one modular fitting, W",
+     "value": 144,
+     "kind": "computed"
+    },
+    {
+     "label": "Ballast allowance when none given, % (practice value)",
+     "value": 25,
+     "kind": "constant",
+     "source": 32
+    },
+    {
+     "label": "Electronic ballast power factor (practice value)",
+     "value": 0.96,
+     "kind": "constant",
+     "source": 33
+    },
+    {
+     "label": "230 × 0.96",
+     "value": 220.8,
+     "kind": "computed"
+    },
+    {
+     "label": "One modular fitting with ballast, W",
+     "value": 180,
+     "kind": "computed"
+    },
+    {
+     "label": "One modular fitting, A",
+     "value": 0.82,
+     "kind": "computed"
+    },
+    {
+     "label": "LED fitting, W",
+     "value": 26,
+     "kind": "constant",
+     "source": 34
+    },
+    {
+     "label": "LED power factor (practice value)",
+     "value": 0.95,
+     "kind": "constant",
+     "source": 35
+    },
+    {
+     "label": "Another maker's LED power factor",
+     "value": 0.97,
+     "kind": "constant",
+     "source": 36
+    },
+    {
+     "label": "230 × 0.95",
+     "value": 218.5,
+     "kind": "computed"
+    },
+    {
+     "label": "One LED fitting, A",
+     "value": 0.12,
+     "kind": "computed"
+    },
+    {
+     "label": "Older book's discharge lighting multiplier",
+     "value": 1.8,
+     "kind": "constant",
+     "source": 38
+    },
+    {
+     "label": "Older book's least power factor for it",
+     "value": 0.85,
+     "kind": "constant",
+     "source": 39
+    },
+    {
+     "label": "Twin fitting tube, W",
+     "value": 58,
+     "kind": "constant",
+     "source": 42
+    },
+    {
+     "label": "Bollard, W",
+     "value": 18,
+     "kind": "constant",
+     "source": 43
+    },
+    {
+     "label": "DBL2 LED fittings, counted on the drawing",
+     "value": 55,
+     "kind": "constant"
+    },
+    {
+     "label": "DBL2 modular fittings, counted on the drawing",
+     "value": 18,
+     "kind": "constant"
+    },
+    {
+     "label": "DBL2 twin fittings, counted on the drawing",
+     "value": 4,
+     "kind": "constant"
+    },
+    {
+     "label": "DBL2 bollards, counted on the drawing",
+     "value": 6,
+     "kind": "constant"
+    },
+    {
+     "label": "Twin fitting as two tubes, W (the course's reading)",
+     "value": 116,
+     "kind": "assumed"
+    },
+    {
+     "label": "3a: LED watts, W",
+     "value": 1430,
+     "kind": "computed"
+    },
+    {
+     "label": "3a: modular watts, W",
+     "value": 2592,
+     "kind": "computed"
+    },
+    {
+     "label": "3a: twin watts, W",
+     "value": 464,
+     "kind": "computed"
+    },
+    {
+     "label": "3a: bollard watts, W",
+     "value": 108,
+     "kind": "computed"
+    },
+    {
+     "label": "3a: DBL2 connected lighting load, W",
+     "value": 4594,
+     "kind": "computed"
+    },
+    {
+     "label": "3a slip, modular as 36 W, W",
+     "value": 2650,
+     "kind": "computed"
+    },
+    {
+     "label": "3a slip, bollards left out, W",
+     "value": 4486,
+     "kind": "computed"
+    },
+    {
+     "label": "3a reading, twin as 58 W in all, W",
+     "value": 4362,
+     "kind": "computed"
+    },
+    {
+     "label": "C1 consultation bay: 6 modular, W",
+     "value": 864,
+     "kind": "computed"
+    },
+    {
+     "label": "C1 with ballast, W",
+     "value": 1080,
+     "kind": "computed"
+    },
+    {
+     "label": "C1 current, A",
+     "value": 4.89,
+     "kind": "computed"
+    },
+    {
+     "label": "C2 toilets: 5 modular, W",
+     "value": 720,
+     "kind": "computed"
+    },
+    {
+     "label": "C2 current, A",
+     "value": 4.08,
+     "kind": "computed"
+    },
+    {
+     "label": "C3 cleaner, male toilets, tea bay: 7 modular, W",
+     "value": 1008,
+     "kind": "computed"
+    },
+    {
+     "label": "C3 current, A",
+     "value": 5.71,
+     "kind": "computed"
+    },
+    {
+     "label": "C4 stores: 4 twin, W",
+     "value": 464,
+     "kind": "computed"
+    },
+    {
+     "label": "C4 current, A",
+     "value": 2.63,
+     "kind": "computed"
+    },
+    {
+     "label": "C5 showroom east: 28 LED, W",
+     "value": 728,
+     "kind": "computed"
+    },
+    {
+     "label": "C5 current, A",
+     "value": 3.33,
+     "kind": "computed"
+    },
+    {
+     "label": "C6 service reception: 21 LED, W",
+     "value": 546,
+     "kind": "computed"
+    },
+    {
+     "label": "C6 current, A",
+     "value": 2.5,
+     "kind": "computed"
+    },
+    {
+     "label": "C7 foyer, 6 LED and 6 bollards, W",
+     "value": 264,
+     "kind": "computed"
+    },
+    {
+     "label": "C7 current, A",
+     "value": 1.21,
+     "kind": "computed"
+    },
+    {
+     "label": "All seven on L1: L1 and neutral, A",
+     "value": 24.35,
+     "kind": "computed"
+    },
+    {
+     "label": "3b: L1 (C1 + C5), A",
+     "value": 8.22,
+     "kind": "computed"
+    },
+    {
+     "label": "L2 (C3 + C6), A",
+     "value": 8.21,
+     "kind": "computed"
+    },
+    {
+     "label": "L3 (C2 + C4 + C7), A",
+     "value": 7.92,
+     "kind": "computed"
+    },
+    {
+     "label": "Neutral with the course's split, A",
+     "value": 0.3,
+     "kind": "computed"
+    },
+    {
+     "label": "3b slip, ballast left out, A",
+     "value": 7.24,
+     "kind": "computed"
+    },
+    {
+     "label": "3b slip, power factor left out, A",
+     "value": 7.87,
+     "kind": "computed"
+    },
+    {
+     "label": "3b other method, × 1.8, A",
+     "value": 10.09,
+     "kind": "computed"
+    },
+    {
+     "label": "Check: L1 and L2 currents, A",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Check: L3 current, A",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Check: neutral, A",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Check slip, added, A",
+     "value": 24,
+     "kind": "computed"
+    },
+    {
+     "label": "Check slip, cancelled, A",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Showroom lights on from (question 5a), am",
+     "value": "7.30",
+     "kind": "constant"
+    },
+    {
+     "label": "Showroom lights on until (question 5a), pm",
+     "value": 9,
+     "kind": "constant"
+    },
+    {
+     "label": "DBL1 lighting, A",
+     "value": 38.74,
+     "kind": "computed"
+    },
+    {
+     "label": "DBL1 LED fittings, counted",
+     "value": 103,
+     "kind": "constant"
+    },
+    {
+     "label": "DBL1 modular fittings, counted",
+     "value": 16,
+     "kind": "constant"
+    },
+    {
+     "label": "DBL1 twin fittings, counted",
+     "value": 12,
+     "kind": "constant"
+    },
+    {
+     "label": "Wall spots, counted",
+     "value": 9,
+     "kind": "constant"
+    },
+    {
+     "label": "Wall spot lamps, 2 x 35 W",
+     "value": 35,
+     "kind": "constant",
+     "source": 44
+    },
+    {
+     "label": "Column luminaire, W",
+     "value": 70,
+     "kind": "constant",
+     "source": 45
+    },
+    {
+     "label": "Columns and bulkheads, counted (each)",
+     "value": 6,
+     "kind": "constant"
+    },
+    {
+     "label": "Spot and column power factor (practice value, unsourced)",
+     "value": 0.9,
+     "kind": "assumed"
+    },
+    {
+     "label": "Socket circuits (the course's split)",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Each socket circuit, A (practice value)",
+     "value": 32,
+     "kind": "assumed"
+    },
+    {
+     "label": "DP switch rating, A",
+     "value": 20,
+     "kind": "constant",
+     "source": 46
+    },
+    {
+     "label": "DP switches on the drawing",
+     "value": 3,
+     "kind": "constant"
+    },
+    {
+     "label": "Rotary isolator rating, A",
+     "value": 32,
+     "kind": "constant",
+     "source": 47
+    },
+    {
+     "label": "EV outlets, 2 points × 2, each 32 A",
+     "value": 4,
+     "kind": "constant",
+     "source": 49
+    },
+    {
+     "label": "TPN isolators not in the circuit, A",
+     "value": 63,
+     "kind": "constant",
+     "source": 48
+    },
+    {
+     "label": "MD: all lighting, A",
+     "value": 63.09,
+     "kind": "computed"
+    },
+    {
+     "label": "MD: socket circuits, A",
+     "value": 144,
+     "kind": "computed"
+    },
+    {
+     "label": "MD: fixed points, A",
+     "value": 77,
+     "kind": "computed"
+    },
+    {
+     "label": "MD: EV outlets, A",
+     "value": 128,
+     "kind": "computed"
+    },
+    {
+     "label": "MD: single-phase total, A",
+     "value": 412.09,
+     "kind": "computed"
+    },
+    {
+     "label": "MD: single-phase per phase, A",
+     "value": 137.36,
+     "kind": "computed"
+    },
+    {
+     "label": "Motor Ib, part 1a, A",
+     "value": 23.08,
+     "kind": "computed"
+    },
+    {
+     "label": "3c: maximum demand per phase, A",
+     "value": 160.44,
+     "kind": "computed"
+    },
+    {
+     "label": "3c slip, no diversity, A",
+     "value": 202.78,
+     "kind": "computed"
+    },
+    {
+     "label": "3c slip, motor divided by 3, A",
+     "value": 145.05,
+     "kind": "computed"
+    },
+    {
+     "label": "3c slip, not shared over phases, A",
+     "value": 435.17,
+     "kind": "computed"
+    },
+    {
+     "label": "3c reading, lighting at 90%, A",
+     "value": 158.34,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers: socket circuits",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Changed numbers: lighting demand, A",
+     "value": 18,
+     "kind": "assumed"
+    },
+    {
+     "label": "Changed numbers: socket circuits after diversity, A",
+     "value": 96,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers: lighting at 90%, A",
+     "value": 16.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers: maximum demand, A",
+     "value": 112.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers slip, no diversity, A",
+     "value": 178,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers slip, lighting at 100%, A",
+     "value": 114,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers slip, 50% on all, A",
+     "value": 96.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Motors: second largest motor, %",
+     "value": 80,
+     "kind": "constant",
+     "source": 19
+    },
+    {
+     "label": "Motors: remaining motors, %",
+     "value": 60,
+     "kind": "constant",
+     "source": 19
+    },
+    {
+     "label": "Two 32 A EV outlets on one phase, A",
+     "value": 64,
+     "kind": "computed"
+    },
+    {
+     "label": "EV outlets shared evenly, 128 ÷ 3, A",
+     "value": 42.67,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "[[Maximum demand]] is the largest current an installation draws at any one time.[^6] It may be worked out for the whole installation or for a part of it,[^7] and it is the current the circuits, switches and protective devices that feed that part normally carry,[^51] so the supply and each submain are chosen for it. It is usually less than the connected load, because not everything runs flat out together: allowing for that with common sense rather than designing for the maximum is [[diversity]],[^16] and its figures are guidance from the On-Site Guide, not a rule.[^1] On a three-phase board there is a second question as well: which phase each single-phase circuit goes on.\n\nEach lighting circuit runs between one line and the neutral, so its current comes back along the neutral. The three line voltages are a third of a cycle apart, and each circuit's current keeps step with its own line voltage, so the three currents are a third of a cycle apart too; three equal currents spaced like that add up to nothing in the neutral: the balanced three-phase load your slides describe has no neutral current at all.[^13] Make them unequal and they no longer cancel;[^14] what is left over flows in the neutral, so the neutral carries the imbalance, not the total. With the course's practice values for the fittings, put DBL2's seven lighting circuits all on L1, and L1 and the neutral both carry 24.35 A; share them as the course does, and the phases carry 8.22, 8.21 and 7.92 A and the neutral 0.30 A. That is why single-phase circuits are spread about equally across the three phases,[^52] and why the heaviest phase, not the average, sets what the supply must carry.[^15] The picture treats all the fittings as having the same power factor and drawing smooth currents, a simplified case; real power factors differ a little, which moves the neutral current very little, but fluorescent and LED fittings can also draw third-harmonic currents, which add in the neutral instead of cancelling (lesson 4).\n\nDiversity takes the total down by type of load. For small shops, stores and offices, for example, the On-Site Guide allows 100% of the largest standard circuit and 50% of every other.[^20] BS 7671 itself has no such table and leaves the assessment to the designer.[^3] Where diversity belongs is argued: your slides apply 66% to one lighting circuit's Ib,[^2] a training provider applies it only to the total at the origin,[^26] and an IET answer says it might only rarely be appropriate for a single circuit's design current.[^27] For EV charge points without load management the IEC wording sets the factor at 1,[^21] which the course follows, though it is argued. Common sense can also say none: the internal showroom lights are required to be on from 7.30 am to 9 pm (your assignment, question 5a), so the course takes all the lighting at 100%, a designer's call.\n\n**Maximum demand is the connected load with diversity only where common sense allows, shared across L1, L2 and L3 so that the heaviest phase is as light as it can be.**[^53][^52]"
+  },
+  "analogy": {
+   "text": "Think of a dockyard canteen. The cooks plan for the busiest sitting, not for everyone on the base eating at once: that is diversity. And they split the diners evenly between three serving counters, decided in advance, so that no one queue sets the pace for the whole room: that is sharing the circuits across L1, L2 and L3.",
+   "breaks": "Hungry people can wait; current cannot. If everything does come on together, the installation carries it there and then, which is why a figure with diversity may occasionally be exceeded[^12] and why the course gives EV points without load management none.[^21] And three uneven queues just leave one long one, whereas uneven phase currents also send the difference down the neutral."
+  },
+  "practice": {
+   "text": "- List every load on a schedule of circuits, as your guide asks:[^54] each board's circuits, what they feed and their current.\n- Work each load's current from what it really draws: lighting from the key's watts with the ballast loss and power factor from the maker's data (practice values until you have it),[^31][^32] and a motor's Ib as in lesson 1.\n- Share the single-phase circuits about equally across L1, L2 and L3[^52] and add up each phase. The heaviest phase sets the size.[^15]\n- Apply diversity by type of load where common sense allows, from the On-Site Guide's Appendix A, and write down why. Leave it off where the loads run together, such as the showroom's lighting, and on EV points without load management.[^21]\n- Add each three-phase load's line current to every phase, and compare the heaviest phase with the supply.\n\n**Rule of thumb:** when you cannot tell whether loads run together, take them at 100%. Too high a figure costs money; too low a figure leaves the supply and submains carrying more than they were chosen for.\n\n**Worked example:** the showroom (question 10), with the course's practice values. Lighting, 24.35 + 38.74 = 63.09 A. Eight 32 A socket circuits as standard circuits, 32 + 0.5 × 7 × 32 = 144.00 A.[^20] The 32 A and three 20 A points as heating and power, 32 + 0.75 × 3 × 20 = 77.00 A.[^18] Four 32 A EV outlets, 128.00 A. Together 412.09 A, which is 137.36 A a phase when shared evenly; with the motor's 23.08 A on every line, 160.44 A a phase.\n\n**Common mistakes**\n- Treating diversity as a rule: it is guidance and need not be applied.[^1]\n- Every single-phase circuit on one phase: the neutral then carries the lot.\n- Fluorescent tube watts alone: the ballast's loss is extra.[^31]\n- Dividing the motor's current by three with the rest: a three-phase load's Ib is already a line current.\n- Diversity on EV charge points without load management: the course takes none, though it is argued.[^25]"
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "written": {
+   "b1": {
+    "q": "State two reasons a designer applies diversity.",
+    "points": [
+     {
+      "text": "Not every load runs at full current at the same time, so the real demand is less than the connected load: diversity designs with common sense rather than for the maximum.",
+      "cite": "Slides p.10"
+     },
+     {
+      "text": "It keeps cable sizes smaller.",
+      "cite": "Slides p.10"
+     },
+     {
+      "text": "It keeps costs lower.",
+      "cite": "Slides p.10"
+     },
+     {
+      "text": "The supply, submains and switchgear can be chosen for the demand they will really carry, not for every load at once.",
+      "cite": "Slides p.10 (design using 'common sense' rather than the maximum demand)"
+     }
+    ],
+    "need": 2,
+    "model": "Not every load runs at full current at the same time, so designing for every load at once overstates what the installation draws; your slides call diversity designing with common sense rather than for the maximum (p.10). Allowing for it keeps cable sizes smaller and costs lower (p.10), and lets the supply, submains and switchgear be chosen for the maximum demand they will really carry. It is guidance from the On-Site Guide, applied with judgement, not a rule."
+   }
+  },
+  "summary": {
+   "title": "Maximum demand and diversity",
+   "for": "The largest current the installation, or one board, draws at any one time. The supply and every submain are sized from it; Regulation 311.1 leaves the assessment to the designer.",
+   "rule": "Lighting: I = W ÷ (230 × pf), fluorescent tube W × 1.25 first if no ballast loss is given\nNeutral, same pf, no harmonics: IN = √(I1² + I2² + I3² − I1·I2 − I2·I3 − I3·I1)\nPer phase, shared evenly: single-phase total after diversity ÷ 3, + each three-phase line current\n\nShare single-phase circuits about equally over L1, L2 and L3: the heaviest phase sets the size.\nDiversity: On-Site Guide Appendix A, guidance (slides p.10). None on EV points without load management: the course's choice, argued.",
+   "traps": [
+    {
+     "text": "Diversity treated as a rule: it is guidance and need not be applied.",
+     "cite": "Slides p.10"
+    },
+    {
+     "text": "Every single-phase circuit on one phase: the neutral carries the lot.",
+     "cite": "Slides p.33; IET EngX forum, in research (unbalanced currents do not cancel)"
+    },
+    {
+     "text": "Fluorescent tube watts alone: the ballast's loss is extra.",
+     "cite": "Schneider Electrical Installation Guide, fluorescent lamps, in research"
+    },
+    {
+     "text": "The motor's line current divided by three with the single-phase loads.",
+     "cite": "Slides p.13 (Ib of a three-phase load is a line current)"
+    },
+    {
+     "text": "Diversity on EV charge points without load management: the course takes none, though it is argued.",
+     "cite": "The IEC wording in the Schneider guide (factor 1 without load management); BS 7671 722.311.201 (NAPIT) is the regulation that lets load curtailment count; argued on the IET EngX forum, in research"
+    }
+   ],
+   "where": "Your slides p.10; your assignment, questions 1b and 10 (pack p.4, 5) and 5a (the lighting hours); your guide p.3 (schedule of circuits); the On-Site Guide, Appendix A, for the allowances.",
+   "figures": [
+    "1a",
+    "3a",
+    "3b",
+    "3c"
+   ]
+  },
+  "sources": [
+   {
+    "n": 1,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p10",
+    "quote": "The percentages to apply for diversity are only found in the OnSite Guide. This means, it’s guidance and doesn’t have to be applied."
+   },
+   {
+    "n": 2,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p10",
+    "quote": "then it could be designed to 660W as the Ib rather than 1000W."
+   },
+   {
+    "n": 3,
+    "title": "Electrical Diversity Calculator — IET On-Site Guide (BS 7671) | TradeCalculator",
+    "url": "https://tradecalculator.co.uk/electrical/diversity-calculator/",
+    "quote": "BS 7671 itself contains no diversity table — Regulation 311.1 requires the designer to assess maximum demand and permits diversity to be taken into account; the On-Site Guide gives the recognised figures."
+   },
+   {
+    "n": 4,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p10",
+    "quote": "For example, in appendix A of the OSG, a domestic lighting circuit can have 66% diversity applied."
+   },
+   {
+    "n": 5,
+    "title": "How Should Maximum Demand and Diversity Be Calculated for Different Premises Types?",
+    "url": "https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses",
+    "quote": "Lighting |66% of total current demand |90% of total current demand |75% of total current demand"
+   },
+   {
+    "n": 6,
+    "title": "How to Calculate Maximum Demand: Diversity Table | Elec-Mate",
+    "url": "https://www.elec-mate.com/guides/max-demand-calculation-guide",
+    "quote": "Maximum demand is the largest current an installation draws at any one time"
+   },
+   {
+    "n": 7,
+    "title": "Maximum demand - Wiring and the Regulations BS 7671 - IET EngX - IET EngX",
+    "url": "https://engx.theiet.org/f/wiring-and-regulations/29562/maximum-demand",
+    "quote": "Regulation 311.1 accepts that it may be necessary to determine maximum demand for the whole installation, or a part of it."
+   },
+   {
+    "n": 8,
+    "title": "ED4-01A learner pack: car showroom assignment",
+    "url": "material:learner-pack#p5",
+    "quote": "Based on the information in the drawings and your answer from question 4a, determine the maximum demand of the installation making informed assumptions where necessary."
+   },
+   {
+    "n": 9,
+    "title": "ED4-01A learner pack: car showroom assignment",
+    "url": "material:learner-pack#p4",
+    "quote": "Taking into account balancing of loads; indicate how the installation can be divided across a suitable provision of circuits."
+   },
+   {
+    "n": 10,
+    "title": "EAL Level 4 Design and Verification: project guide",
+    "url": "material:project-guide#p3",
+    "quote": "This question will link in to question 10."
+   },
+   {
+    "n": 11,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p10",
+    "quote": "This will help keep cable sizes smaller and costs lower."
+   },
+   {
+    "n": 12,
+    "title": "Electrical Diversity and Load Curtailment (EVC) webinar questions and answers",
+    "url": "https://electrical.theiet.org/bs-7671-18th-edition-wiring-regulations/faqs/webinar-questions-and-answers/electrical-diversity-and-load-curtailment-evc-webinar/",
+    "quote": "It is acknowledged that in any installation with diversity applied, it may be possible to exceed the maximum demand on occasion."
+   },
+   {
+    "n": 13,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p33",
+    "quote": "a balanced 3-phase load (such as a motor) will not have current in the neutral at all, so often motors do not have neutrals connected."
+   },
+   {
+    "n": 14,
+    "title": "Votlage Drop for Unbalanced three phase - Wiring and the Regulations BS 7671 - IET EngX",
+    "url": "https://engx.theiet.org/f/wiring-and-regulations/21657/votlage-drop-for-unbalanced-three-phase",
+    "quote": "So, in terms of the unbalanced system, what's going on is that the line currents don't cancel in the Neutral."
+   },
+   {
+    "n": 15,
+    "title": "Maximum Demand Calculator BS 7671 | Diversity Factors | Elec-Mate",
+    "url": "https://www.elec-mate.com/tools/max-demand-calculator",
+    "quote": "the highest phase determines the supply requirement."
+   },
+   {
+    "n": 16,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p10",
+    "quote": "The point of applying diversity is to design a circuit using ‘common sense’ rather than it’s maximum demand."
+   },
+   {
+    "n": 17,
+    "title": "Diversity Factors Explained: A Practical Guide for Electricians | Total Skills UK",
+    "url": "https://www.totalskills.co.uk/guides/diversity-factors-explained",
+    "quote": "For commercial and industrial installations, maximum demand assessment requires a different engineering approach, often based on actual load measurements, process knowledge, or building services design standards such as CIBSE guides."
+   },
+   {
+    "n": 18,
+    "title": "How Should Maximum Demand and Diversity Be Calculated for Different Premises Types?",
+    "url": "https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses",
+    "quote": "100% f.l. of largest appliance +75% f.l. of remaining appliances"
+   },
+   {
+    "n": 19,
+    "title": "How Should Maximum Demand and Diversity Be Calculated for Different Premises Types?",
+    "url": "https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses",
+    "quote": "4 Motors (other than lift motors, which are subject to special consideration) |Not applicable |100% f.l. of largest motor +80% f.l. of second largest motor +60% f.l. of remaining motors"
+   },
+   {
+    "n": 20,
+    "title": "How Should Maximum Demand and Diversity Be Calculated for Different Premises Types?",
+    "url": "https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses",
+    "quote": "100% of current demand of largest circuit +50% of current demand of every other circuit"
+   },
+   {
+    "n": 21,
+    "title": "EV charging - electrical installation design - Electrical Installation Guide",
+    "url": "https://www.electrical-installation.org/enwiki/EV_charging_-_electrical_installation_design",
+    "quote": "The diversity factor to consider for several EV chargers in parallel is equal to 1 unless a Load Management System (LMS) is used to control these EV chargers."
+   },
+   {
+    "n": 22,
+    "title": "Electrical Diversity Calculator — IET On-Site Guide (BS 7671) | TradeCalculator",
+    "url": "https://tradecalculator.co.uk/electrical/diversity-calculator/",
+    "quote": "Regulation 722.311 allows load curtailment, reduction or disconnection to be taken into account when determining the maximum demand"
+   },
+   {
+    "n": 23,
+    "title": "EAL Level 4 Design and Verification: project guide",
+    "url": "material:project-guide#p9",
+    "quote": "You may wish to consider load management to help reduce maximum demand figures but this is not compulsory."
+   },
+   {
+    "n": 24,
+    "title": "Electrical Vehicle Chargers - No Diversity? - IET EngX",
+    "url": "https://engx.theiet.org/f/wiring-and-regulations/28352/electrical-vehicle-chargers---no-diversity/122831",
+    "quote": "BS 7671 does not prohibit diversity for EV charging points."
+   },
+   {
+    "n": 25,
+    "title": "Electrical Vehicle Chargers - No Diversity? - IET EngX",
+    "url": "https://engx.theiet.org/f/wiring-and-regulations/28352/electrical-vehicle-chargers---no-diversity/122831",
+    "quote": "Yes, but in the absence of a load management system it's still zero diversity."
+   },
+   {
+    "n": 26,
+    "title": "Diversity Factors Explained: A Practical Guide for Electricians | Total Skills UK",
+    "url": "https://www.totalskills.co.uk/guides/diversity-factors-explained",
+    "quote": "Diversity applies to the aggregate demand at the origin of the installation, not to individual circuits."
+   },
+   {
+    "n": 27,
+    "title": "Electrical Diversity and Load Curtailment (EVC) webinar questions and answers",
+    "url": "https://electrical.theiet.org/bs-7671-18th-edition-wiring-regulations/faqs/webinar-questions-and-answers/electrical-diversity-and-load-curtailment-evc-webinar/",
+    "quote": "(a) For an individual circuit to determine the design current, diversity might only be rarely appropriate"
+   },
+   {
+    "n": 28,
+    "title": "Estimation of actual maximum kVA demand - Electrical Installation Guide",
+    "url": "https://www.electrical-installation.org/enwiki/Estimation_of_actual_maximum_kVA_demand",
+    "quote": "The factor ks is applied to each group of loads (e.g. being supplied from a distribution or sub-distribution board)."
+   },
+   {
+    "n": 29,
+    "title": "Estimation of actual maximum kVA demand - Electrical Installation Guide",
+    "url": "https://www.electrical-installation.org/enwiki/Estimation_of_actual_maximum_kVA_demand",
+    "quote": "If the circuits are mainly for lighting loads, it is prudent to adopt ks values close to unity."
+   },
+   {
+    "n": 30,
+    "title": "Car showroom drawing: lighting",
+    "url": "material:drawing-lighting#p1",
+    "quote": "4 x 1200mm Modular Fluo 4 x 36W"
+   },
+   {
+    "n": 31,
+    "title": "Fluorescent lamps - Electrical Installation Guide",
+    "url": "https://www.electrical-installation.org/enwiki/Fluorescent_lamps",
+    "quote": "The power Pn (watts) indicated on the tube of a fluorescent lamp does not include the power dissipated in the ballast."
+   },
+   {
+    "n": 32,
+    "title": "Fluorescent lamps - Electrical Installation Guide",
+    "url": "https://www.electrical-installation.org/enwiki/Fluorescent_lamps",
+    "quote": "If no power-loss value is indicated for the ballast, a figure of 25% of Pn may be used."
+   },
+   {
+    "n": 33,
+    "title": "Fluorescent lamps - Electrical Installation Guide",
+    "url": "https://www.electrical-installation.org/enwiki/Fluorescent_lamps",
+    "quote": "cos φ = 0.96 for electronic ballast."
+   },
+   {
+    "n": 34,
+    "title": "Car showroom drawing: lighting",
+    "url": "material:drawing-lighting#p1",
+    "quote": "Led Lighting 26W"
+   },
+   {
+    "n": 35,
+    "title": "[PDF] Backlight Panel 70085 - Beghelli (36 W LED panel)",
+    "url": "https://www.beghelli.it/hu-hu/media/family/documents/d634b714-d322-4d73-803d-51ea8328770d",
+    "quote": "Power factor 0.95"
+   },
+   {
+    "n": 36,
+    "title": "Sylvania START PANEL UGR19 600 4000K G4 datasheet (36 W LED panel)",
+    "url": "https://datasheet.sylvania-group.com/en-gb/Datasheet/0047785.pdf",
+    "quote": "Lamp power factor 0.97"
+   },
+   {
+    "n": 37,
+    "title": "LED lamps and fixtures - Electrical Installation Guide",
+    "url": "https://www.electrical-installation.org/enwiki/LED_lamps_and_fixtures",
+    "quote": "with a separated driver doesn’t include the power dissipated in the driver."
+   },
+   {
+    "n": 38,
+    "title": "6.2.1 - Maximum demand (The Electricians Guide, Whitfield, via TLC)",
+    "url": "https://www.tlc-direct.co.uk/Book/6.2.1.htm",
+    "quote": "lamp power (W) x 1.8"
+   },
+   {
+    "n": 39,
+    "title": "6.2.1 - Maximum demand (The Electricians Guide, Whitfield, via TLC)",
+    "url": "https://www.tlc-direct.co.uk/Book/6.2.1.htm",
+    "quote": "So long as the power factor of a discharge lighting circuit is not less than 0.85"
+   },
+   {
+    "n": 40,
+    "title": "ED4-01A learner pack: car showroom assignment",
+    "url": "material:learner-pack#p3",
+    "quote": "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+   },
+   {
+    "n": 41,
+    "title": "ED4-01A learner pack: car showroom assignment",
+    "url": "material:learner-pack#p4",
+    "quote": "Within the consultation bay there will be an additional requirement for a 400 V three-phase 11 kW motor which operates at a power factor of 0.8 lagging and efficiency of 86%."
+   },
+   {
+    "n": 42,
+    "title": "Car showroom drawing: lighting",
+    "url": "material:drawing-lighting#p1",
+    "quote": "Twin 1700mm Fluo Luminaire 58W"
+   },
+   {
+    "n": 43,
+    "title": "Car showroom drawing: lighting",
+    "url": "material:drawing-lighting#p1",
+    "quote": "Walkway Bollard 18W"
+   },
+   {
+    "n": 44,
+    "title": "Car showroom drawing: lighting",
+    "url": "material:drawing-lighting#p1",
+    "quote": "Wall Spot Light 2 x 35W"
+   },
+   {
+    "n": 45,
+    "title": "Car showroom drawing: lighting",
+    "url": "material:drawing-lighting#p1",
+    "quote": "Column Mounted Luminaire 3m from FFL 70W"
+   },
+   {
+    "n": 46,
+    "title": "Car showroom drawing: power",
+    "url": "material:drawing-power#p1",
+    "quote": "20A DP Switch"
+   },
+   {
+    "n": 47,
+    "title": "Car showroom drawing: power",
+    "url": "material:drawing-power#p1",
+    "quote": "32A Rotary Isolator"
+   },
+   {
+    "n": 48,
+    "title": "Car showroom drawing: power",
+    "url": "material:drawing-power#p1",
+    "quote": "63A TPN Rotary Isolator 2x32a each"
+   },
+   {
+    "n": 49,
+    "title": "ED4-01A learner pack: car showroom assignment",
+    "url": "material:learner-pack#p5",
+    "quote": "Design the circuit/s incorporating the electric vehicle charging points."
+   },
+   {
+    "n": 50,
+    "title": "6.2.3 - Applied diversity (The Electricians Guide, Whitfield, via TLC)",
+    "url": "https://www.tlc-direct.co.uk/Book/6.2.3.htm",
+    "quote": "Since a perfect balance is assumed, three phase line current"
+   },
+   {
+    "n": 51,
+    "title": "6.2.1 - Maximum demand (The Electricians Guide, Whitfield, via TLC)",
+    "url": "https://www.tlc-direct.co.uk/Book/6.2.1.htm",
+    "quote": "Maximum demand (often referred to as MD) is the largest current normally carried by circuits, switches and protective devices"
+   },
+   {
+    "n": 52,
+    "title": "Regulation 314 | Division of Installation Into Circuits ... | Elec-Mate",
+    "url": "https://www.elec-mate.com/guides/regulation-314-division-of-circuits",
+    "quote": "Unbalanced loads cause excessive neutral current and voltage imbalance, so allocate single-phase circuits approximately equally across L1, L2 and L3."
+   },
+   {
+    "n": 53,
+    "title": "Electrical Diversity and Load Curtailment (EVC) webinar questions and answers",
+    "url": "https://electrical.theiet.org/bs-7671-18th-edition-wiring-regulations/faqs/webinar-questions-and-answers/electrical-diversity-and-load-curtailment-evc-webinar/",
+    "quote": "The maximum demand is the sum of the connected loads multiplied by a factor for diversity."
+   },
+   {
+    "n": 54,
+    "title": "EAL Level 4 Design and Verification: project guide",
+    "url": "material:project-guide#p3",
+    "quote": "Present as a Schedule of circuits."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }\n  .bars { display: block; width: 100%; }\n  .bars .lb, .bars .vl { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .bars .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .bars .track { fill: var(--k-sunk); }\n  .bars .bp { fill: var(--k-fill1); stroke: var(--k-strong); stroke-width: 1; }\n  .bars .bn { fill: var(--k-fill2); stroke: var(--k-strong); stroke-width: 1; }\n  .lanes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; min-height: 23rem; }\n  .lane { display: flex; flex-direction: column; gap: 5px; padding: 4px 3px 8px; border-radius: 12px; background: var(--k-sunk); }\n  .lane.over { box-shadow: inset 0 0 0 2px var(--k-accent2); }\n  .lh { text-align: center; font-weight: 800; font-size: 1rem; line-height: 1.6; }\n  .drop { display: flex; flex-direction: column; gap: 5px; }\n  .card { display: block; position: relative; width: 100%; box-sizing: border-box; min-height: 44px; margin: 0; padding: 4px 5px;\n    border-radius: 9px; border: 1px solid var(--k-strong); background: var(--k-bg); color: var(--k-ink); font: inherit; text-align: left;\n    cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; }\n  .card.lift, .card.fly { z-index: 3; }\n  .card.lift { outline: 2px solid var(--k-accent2); cursor: grabbing; }\n  .card .ct { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 4px; font-size: .85rem; line-height: 1.3; }\n  .card .ca { white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }\n  /* On a phone the name keeps one size, so \"Consultation\" still fits its card at the largest text size. */\n  .card .cn { display: block; font-size: min(.78rem, 3.4vw); line-height: 1.25; color: var(--k-muted); }\n  .ro { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }\n  .ro > div { padding: 10px 12px; border-radius: var(--k-r); background: var(--k-panel); }\n  .ro .rl { display: block; font-size: .85rem; font-weight: 600; color: var(--k-muted); line-height: 1.3; }\n  .ro .rv { display: block; font-size: 1.25rem; font-weight: 800; line-height: 1.25; font-variant-numeric: tabular-nums; }\n  .nw { white-space: nowrap; }\n  .rule1 { display: grid; gap: 4px; padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1px solid var(--k-line); }\n  .rule1 .eq { font-size: 1.1rem; font-weight: 800; line-height: 1.5; }\n  .rows { display: grid; gap: 8px; }\n  .rows > p, .rows > div { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }\n  .rows b { display: block; font-weight: 700; }\n  .rows > p.note { background: var(--k-amber); border-color: var(--k-amber); }\n  .rows > div.plain { padding: 0; background: none; border: 0; }\n  .cl { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; font-size: .95rem; line-height: 1.45; }\n  .fold { padding: 4px 12px 10px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }\n  .fold summary { font-weight: 700; cursor: pointer; padding: 8px 0; }\n  .fold ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }\n  .w { font-weight: 600; font-variant-numeric: tabular-nums; }\n  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }\n  .wl > * + * { margin-top: 6px; }\n  .wl .wt { display: block; font-size: .95rem; color: var(--k-muted); }\n  .picks { display: flex; flex-direction: column; gap: 10px; }\n  .picks .k-btn { width: 100%; min-height: 56px; font-size: 1.05rem; line-height: 1.35; justify-content: flex-start; text-align: left; padding: 10px 16px; }\n  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }\n  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }\n  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }\n  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }\n  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }\n  .fb > * + * { margin-top: 6px; }\n  .fb .v { font-weight: 700; font-size: 1.05rem; }\n  .fb.ok .v { color: var(--k-good); }\n  .why { line-height: 1.6; }\n  .foot { font-size: .92rem; color: var(--k-muted); line-height: 1.5; }\n  #stepbox.enter, .wl p.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing .wl p.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl p.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <p class=\"k-label count\" id=\"count\"></p>\n  <div id=\"stepbox\">\n    <div id=\"scen\"></div>\n    <div class=\"rows\" id=\"share\"></div>\n    <div id=\"carry1\"></div>\n    <div id=\"carry2\"></div>\n    <div class=\"rows\" id=\"circ\"></div>\n    <div class=\"rows\" id=\"given\"></div>\n    <p class=\"task\" id=\"task\"></p>\n    <p class=\"sub\" id=\"sub\"></p>\n    <div class=\"warn-note\" id=\"warn1\"></div>\n    <div id=\"barwrap\"><svg class=\"bars\" id=\"bars\" viewBox=\"0 0 340 160\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"lanes\" id=\"lanes\"></div>\n    <div class=\"row\" id=\"moves\"></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"ro\" id=\"ro\"></div>\n    <div class=\"rule1\" id=\"rule1\"></div>\n    <div class=\"rows\" id=\"divb\"></div>\n    <div class=\"rows\" id=\"worked\"></div>\n    <div class=\"row\" id=\"workedgo\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div id=\"ans-3a\"></div>\n    <div id=\"ans-3b\"></div>\n    <div id=\"ans-3c\"></div>\n    <div id=\"ans-ch\"></div>\n    <div class=\"row\" id=\"acts\"></div>\n    <div class=\"fb\" id=\"fb\" aria-live=\"polite\"></div>\n    <div class=\"note why\" id=\"why\"></div>\n    <div class=\"row\" id=\"go\"></div>\n    <div id=\"wr\"></div>\n    <div id=\"keep\"></div>\n    <div class=\"row\" id=\"fin\"></div>\n    <p class=\"say\" id=\"donefb\"></p>\n    <p class=\"foot\" id=\"foot\"></p>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\">Figures from your slides, assignment and drawings; practice values marked; each line worked from the rounded figure before it.</p>\n\n<script>\n  // ---------- the rule, and the course's figures ----------\n  // Half up to 2 places, as the course rounds (each line worked from the rounded figure shown).\n  const r2 = (x) => Math.round(x * 100 + 1e-7) / 100;\n  const a2 = (v) => r2(v).toFixed(2) + ' A';\n  const F = (id) => K.figure(id);\n  const el = (id) => document.getElementById(id);\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n\n  // A lighting circuit's current: fluorescent tube watts × 1.25 for the ballast, ÷ (230 × 0.96);\n  // LED watts ÷ (230 × 0.95). 1.25, 0.96 and 0.95 are the course's practice values (step 6).\n  const U0 = 230, BALLAST = 1.25, PF_FL = 0.96, PF_LED = 0.95, PF_OTHER = 0.9;\n  const DFL = r2(U0 * PF_FL), DLED = r2(U0 * PF_LED);\n  const MOD_W = 4 * 36, TWIN_W = 2 * 58, LED_W = 26, BOL_W = 18, SPOT_W = 2 * 35, COL_W = 70;\n  const flAmps = (w) => r2(r2(w * BALLAST) / DFL);\n  const ledAmps = (w) => r2(w / DLED);\n  // The neutral: three currents a third of a cycle apart, at about the same power factor.\n  const inOf = (a, b, c) => r2(Math.sqrt(Math.max(0, a * a + b * b + c * c - a * b - b * c - c * a)));\n\n  // DBL2's seven lighting circuits, the course's own split (assumption a.dbl2circuits).\n  const CIRC = [\n    { n: 'C1', name: 'Consultation', feeds: 'consultation bay', what: '6 modular', W: 6 * MOD_W, fl: true, fid: 'l2.c1' },\n    { n: 'C2', name: 'Toilets W', feeds: 'uni-sex and female toilets', what: '5 modular', W: 5 * MOD_W, fl: true, fid: 'l2.c2' },\n    { n: 'C3', name: 'Toilets E and tea', feeds: 'cleaner, male toilets and tea bay', what: '7 modular', W: 7 * MOD_W, fl: true, fid: 'l2.c3' },\n    { n: 'C4', name: 'Stores', feeds: 'the two stores', what: '4 twin', W: 4 * TWIN_W, fl: true, fid: 'l2.c4' },\n    { n: 'C5', name: 'Showroom E', feeds: 'showroom east', what: '28 LED', W: 28 * LED_W, fl: false, fid: 'l2.c5' },\n    { n: 'C6', name: 'Reception', feeds: 'service reception', what: '21 LED', W: 21 * LED_W, fl: false, fid: 'l2.c6' },\n    { n: 'C7', name: 'Foyer', feeds: 'foyer', what: '6 LED and 6 bollards', W: 6 * LED_W + 6 * BOL_W, fl: false, fid: 'l2.c7' },\n  ];\n  const AMPS = CIRC.map((c) => (c.fl ? flAmps(c.W) : ledAmps(c.W)));\n  const TOTAL = r2(AMPS.reduce((s, v) => s + v, 0));\n  const ALL1 = [0, 0, 0, 0, 0, 0, 0];\n  const SPLIT = [0, 2, 1, 2, 0, 1, 2];          // L1: C1, C5; L2: C3, C6; L3: C2, C4, C7\n  const sumsOf = (ph) => { const s = [0, 0, 0]; ph.forEach((p, k) => { s[p] += AMPS[k]; }); return s.map(r2); };\n  const loadOf = (ph) => { const s = sumsOf(ph); return { s, n: inOf(s[0], s[1], s[2]) }; };\n  // Moves that take one arrangement to another, a card at a time, in circuit order.\n  const planMoves = (from, to) => from.map((p, k) => [k, to[k]]).filter((m) => from[m[0]] !== m[1]);\n\n  // Section A: DBL2's share, counted on the lighting drawing; the whole installation (question 10).\n  const N_LED = 55, N_MOD = 18, N_TWIN = 4, N_BOL = 6;\n  const SOCK_N = 8, SOCK_A = 32, DP_N = 3, DP_A = 20, ROT_A = 32, EV_N = 4, EV_A = 32;\n  const std = (n, a) => r2(a + 0.5 * (n - 1) * a);                 // standard circuits: 100% + 50% of every other\n  const heat = (big, n, a) => r2(big + 0.75 * n * a);               // heating and power: 100% + 75% of the rest\n  const dbl1 = r2(flAmps(16 * MOD_W + 12 * TWIN_W) + ledAmps(103 * LED_W + 6 * BOL_W) + r2((9 * SPOT_W + 6 * COL_W) / r2(U0 * PF_OTHER)));\n  const f1a = F('1a');\n  const mdOf = (light) => { const tot = r2(light + std(SOCK_N, SOCK_A) + heat(ROT_A, DP_N, DP_A) + EV_N * EV_A), per = r2(tot / 3); return { tot, per, ans: r2(per + f1a.value) }; };\n  const LIGHT = r2(TOTAL + dbl1);\n  const CH = { n: 5, a: 32, light: 18 };\n  const chOf = (lf) => r2(std(CH.n, CH.a) + r2(lf * CH.light));\n\n  const fAll = F('l2.neutral.allL1'), fTot = F('l2.dbl2.total'), fN = F('l2.neutral'), fL2 = F('l2.L2'), fL3 = F('l2.L3');\n  const fK = F('l2.check'), fK1 = F('l2.check.slip1'), fK2 = F('l2.check.slip2');\n  const fDv = F('l2.worked.diversity'), fI660 = F('l2.worked.ib660'), fI1000 = F('l2.worked.ib1000'), fFl = F('l2.worked.fluo'), fLed = F('l2.worked.led');\n  const f3a = F('3a'), f3b = F('3b'), f3c = F('3c'), fCh = F('l2.A.changed');\n  const fD1 = F('l2.dbl1'), fML = F('l2.md.light'), fMS = F('l2.md.sock'), fMF = F('l2.md.fixed'), fME = F('l2.md.ev');\n  // The accepted range is the case file's (its accept min to max), centred on the course's figure.\n  const caseAccept = (id) => { const f = ((K.caseFile && K.caseFile.figures) || []).filter((x) => x && x.id === id)[0]; return f && f.accept; };\n  const tolOf = (id, f) => { const a = caseAccept(id); return a ? r2(Math.max(f.value - a.min, a.max - f.value)) : 0.005; };\n\n  // ---------- the lesson: SHOW steps teach, DO steps ask ----------\n  const R_OPTS = ['Yes: BS 7671 sets the percentages', 'No: it is guidance, used where common sense allows', 'Yes, wherever the On-Site Guide gives a percentage'];\n  const GUIDANCE = 'The percentages are only found in the On-Site Guide, so they are guidance and do not have to be applied (your slides p.10).';\n  const CH_Q = 'A small office\\'s single-phase board feeds five 32 A socket circuits, arranged as standard circuits, and lighting with a total current demand of 18.00 A. Using the small shops, stores and offices allowances (standard circuits: 100% of the largest plus 50% of every other; lighting 90%), determine its maximum demand.';\n  const STEPS = [\n    { name: 'Do you still have it?', label: 'Do you still have it?',\n      task: 'Your slides give a diversity percentage for a lighting circuit. Is diversity a rule you must apply?',\n      opts: R_OPTS, want: R_OPTS[1], why: GUIDANCE,\n      read: 'Your slides give a diversity percentage for a lighting circuit, but diversity is guidance, not a rule (your slides p.10).' },\n    { show: true, name: 'What it is for', label: 'What it is for',\n      text: '*Maximum demand* is the largest current an installation draws at any one time. The supply and each submain are sized from it: Regulation 311.1 accepts it may be worked out for the whole installation or a part of it, so each board gets its own figure. Your assignment asks for it in question 10, \"making informed assumptions where necessary\", linked to question 1b\\'s balancing.' },\n    { show: true, name: 'The why', label: 'The why',\n      text: 'Each of DBL2\\'s lighting circuits runs between one line and the neutral. Equal currents on L1, L2 and L3 cancel in the neutral, as your slides say of a balanced three-phase load (p.33), but unequal ones do not: the *neutral* carries the imbalance, and the *heaviest phase* sets what the supply must carry.',\n      read: 'With all seven of DBL2\\'s lighting circuits on L1 the neutral carries ' + fAll.text + ', as much as L1; shared as the course shares them it carries ' + fN.text + ', harmonics aside, and the heaviest phase is ' + f3b.text + '.' },\n    { name: 'Check', label: 'Check',\n      task: 'A board\\'s lighting circuits carry 10 A on L1, 10 A on L2 and 4 A on L3, at about the same power factor. What does the neutral carry?',\n      opts: [fK1.text, fK.text, fK2.text], want: fK.text,\n      why: 'The 4 A on each phase cancels, leaving 6 A on L1 and 6 A on L2, a third of a cycle apart, whose sum is 6 A. By the rule: ' + fK.work + '.',\n      hints: { [fK1.text]: 'Not quite. That adds them as if they were on one line: they are a third of a cycle apart, so they partly cancel.',\n        [fK2.text]: 'Not quite. Only equal currents cancel completely, and these are not equal.' },\n      read: 'With 10 A on L1, 10 A on L2 and 4 A on L3, at about the same power factor, the neutral carries ' + fK.text + '.' },\n    { show: true, name: 'Diversity', label: 'Diversity, as common sense',\n      text: 'Not every load runs flat out at once, so a building draws less than its connected load. Your slides call *diversity* designing with common sense rather than for the maximum (p.10).' },\n    { show: true, name: 'Worked example', label: 'Worked example',\n      text: 'Your slides\\' lighting circuit, then one of each kind of fitting from your drawing\\'s key. Work each step yourself first, then show it and check yours against it.',\n      read: 'Your slides\\' lighting circuit, then one of each kind of fitting from your drawing\\'s key, a step at a time.' },\n    { name: 'Section A (a)', label: 'Section A · Course question 3', part: '(a) Determine the connected lighting load of DBL2, from the key\\'s wattages.',\n      task: 'DBL2\\'s share of your lighting drawing: 55 LED 26 W, 18 modular 4 × 36 W, 4 twin 58 W (two tubes, the course\\'s reading) and 6 walkway bollards 18 W. (a) Determine the connected lighting load of DBL2, from the key\\'s wattages.',\n      want: f3a.text, why: f3a.work, read: 'DBL2\\'s connected lighting load is ' + f3a.text + '.' },\n    { name: 'Section A (b)', label: 'Section A · Course question 3', part: '(b) Determine the current on L1.',\n      task: 'DBL2\\'s seven lighting circuits, shared as L1: C1 and C5; L2: C3 and C6; L3: C2, C4 and C7. (b) Determine the current on L1.',\n      want: f3b.text, why: f3b.work, read: 'L1 carries ' + f3b.text + '.' },\n    { name: 'Section A (c)', label: 'Section A · Course question 3', part: '(c) Determine the maximum demand of the installation, per phase.',\n      task: 'The showroom\\'s lighting at 100%, eight 32 A socket circuits as standard circuits, the fixed points as heating and power, four 32 A EV outlets with no diversity, and the motor\\'s ' + f1a.text + '. (c) Determine the maximum demand of the installation, per phase.',\n      want: f3c.text, why: f3c.work, read: 'About ' + f3c.text + ' a phase.' },\n    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer',\n      task: 'A short written answer, in your own words.' },\n    { name: 'Changed numbers', label: 'Section A · Changed numbers', part: CH_Q, task: CH_Q, want: fCh.text, why: fCh.work,\n      read: CH_Q.replace(', determine its maximum demand.', ', its maximum demand is ') + fCh.text + '.' },\n    { kind: 'summary', name: 'Keep this', label: 'Keep this' },\n  ];\n  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, why: false, fb: null }));\n  const iY = 2, iChk = 3, iWk = 5, iA = 6, iB = 7, iC = 8, iW = 9, iCh = 10, iK = 11;\n  const WORKING = [iY, iChk, iWk, iA, iB, iC, iCh];      // the screens with working, where the caption belongs\n  let lastStep = -1, finished = false, lines = 0;\n\n  // Text with key terms (*term*) highlighted in amber (the <mark> element), built with K.el, never innerHTML.\n  function write(node, s) {\n    node.textContent = '';\n    String(s || '').split(/(\\*[^*]+\\*)/).forEach((b) => {\n      if (!b) return;\n      if (b.length > 2 && b.charAt(0) === '*' && b.charAt(b.length - 1) === '*') node.appendChild(K.el('mark', null, b.slice(1, -1)));\n      else node.appendChild(document.createTextNode(b));\n    });\n    return node;\n  }\n  const para = (s, cls) => write(K.el('p', cls ? { class: cls } : null), s);\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n\n  // ---------- the why: seven circuit cards on three phases, and the four currents ----------\n  const PH = ALL1.slice();\n  const lanesEl = el('lanes');\n  const LANES = [0, 1, 2].map((p) => {\n    const drop = K.el('div', { class: 'drop' });\n    const lane = K.el('div', { class: 'lane', role: 'group', 'aria-label': 'L' + (p + 1) }, K.el('p', { class: 'lh' }, 'L' + (p + 1)), drop);\n    lanesEl.appendChild(lane);\n    return { lane, drop };\n  });\n  const cards = CIRC.map((c, k) => {\n    const b = K.el('button', { class: 'card', type: 'button' },\n      K.el('span', { class: 'ct' }, K.el('b', null, c.n), K.el('span', { class: 'ca' }, a2(AMPS[k]))),\n      K.el('span', { class: 'cn' }, c.name));\n    b.addEventListener('click', () => onTap(k));\n    b.addEventListener('pointerdown', (e) => onDown(k, e));\n    b.addEventListener('pointermove', (e) => onMove(k, e));\n    b.addEventListener('pointerup', (e) => onUp(k, e, false));\n    b.addEventListener('pointercancel', (e) => onUp(k, e, true));\n    return b;\n  });\n  function placeCards() {\n    const f = document.activeElement;\n    LANES.forEach((L, p) => cards.forEach((c, k) => { if (PH[k] === p) L.drop.appendChild(c); }));\n    cards.forEach((c) => { c.style.transform = ''; });\n    if (cards.indexOf(f) >= 0) f.focus({ preventScroll: true });\n  }\n  placeCards();\n\n  // One clock for the motion: cards glide to their new phase, the bars ease to their new lengths.\n  let T = 0, queue = [], bFrom = [0, 0, 0, 0], bTo = [0, 0, 0, 0], bt0 = 0, bdur = 0;\n  const fl = new Map();\n  const FLY = 0.45, GAP = 0.6, EASE_BARS = 0.5, ARRIVE = 1.2;\n  const targets = () => { const o = loadOf(PH); return [o.s[0], o.s[1], o.s[2], o.n]; };\n  const shownBars = () => { const p = bdur > 0 ? K.ease(K.clamp((T - bt0) / bdur, 0, 1)) : 1; return bFrom.map((f, k) => f + (bTo[k] - f) * p); };\n  function retarget(dur) { bFrom = shownBars(); bTo = targets(); bt0 = T; bdur = REDUCE ? 0 : dur; }\n  function moveCard(k, to) {\n    if (PH[k] === to) return;\n    const first = cards.map((c) => c.getBoundingClientRect());\n    PH[k] = to;\n    placeCards();\n    if (!REDUCE) cards.forEach((c, j) => {\n      const r = c.getBoundingClientRect(), dx = first[j].left - r.left, dy = first[j].top - r.top;\n      if (Math.abs(dx) + Math.abs(dy) > 0.5) { fl.set(j, { dx, dy, t0: T }); c.classList.add('fly'); }\n    });\n    retarget(EASE_BARS);\n    K.refresh();\n  }\n  function settleBack(k) {\n    const c = cards[k], r0 = c.getBoundingClientRect();\n    c.style.transform = '';\n    const r1 = c.getBoundingClientRect();\n    if (!REDUCE && Math.abs(r0.left - r1.left) + Math.abs(r0.top - r1.top) > 0.5) { fl.set(k, { dx: r0.left - r1.left, dy: r0.top - r1.top, t0: T }); c.classList.add('fly'); }\n  }\n  function paintFlights() {\n    fl.forEach((f, k) => {\n      const p = K.clamp((T - f.t0) / FLY, 0, 1), e = 1 - K.ease(p);\n      cards[k].style.transform = p >= 1 ? '' : 'translate(' + (f.dx * e).toFixed(1) + 'px, ' + (f.dy * e).toFixed(1) + 'px)';\n      if (p >= 1) { fl.delete(k); cards[k].classList.remove('fly'); }\n    });\n  }\n  const busy = () => queue.length > 0 || fl.size > 0 || T < bt0 + bdur;\n  const anim = K.anim({ button: false, label: 'Moving the circuits', step: (dt) => {\n    T += dt;\n    while (queue.length && queue[0].at <= T) { const q = queue.shift(); moveCard(q.k, q.to); }\n    paintFlights();\n    drawBars();\n    if (!busy()) return false;\n  } });\n  function kick() { if (REDUCE) { settleAll(); K.refresh(); return; } if (!anim.playing()) anim.play(); }\n  function settleAll() {\n    queue.forEach((q) => { PH[q.k] = q.to; });\n    queue = []; fl.clear();\n    cards.forEach((c) => c.classList.remove('fly', 'lift'));\n    placeCards();\n    bFrom = targets(); bTo = bFrom.slice(); bdur = 0;\n  }\n  function runTo(to) {\n    if (at() !== iY) return;\n    queue = planMoves(PH, to).map((m, j) => ({ at: T + 0.15 + j * GAP, k: m[0], to: m[1] }));\n    kick();\n  }\n  K.button({ label: 'All on L1', secondary: true, into: '#moves', press: () => runTo(ALL1) });\n  K.button({ label: 'The course\\'s split', into: '#moves', press: () => runTo(SPLIT) });\n\n  // A tap moves a card on (L1, L2, L3, L1); a drag drops it on the phase under the finger.\n  let drag = null, suppress = false;\n  function laneAt(x) {\n    const rs = LANES.map((L) => L.lane.getBoundingClientRect());\n    let best = 0, bd = Infinity;\n    rs.forEach((r, j) => { const d = x < r.left ? r.left - x : x > r.right ? x - r.right : 0; if (d < bd) { bd = d; best = j; } });\n    return best;\n  }\n  function onTap(k) {\n    if (at() !== iY) return;\n    if (suppress) { suppress = false; return; }\n    queue = [];\n    moveCard(k, (PH[k] + 1) % 3);\n    kick();\n  }\n  function onDown(k, e) {\n    if (at() !== iY) return;\n    suppress = false;\n    drag = { k, id: e.pointerId, x0: e.clientX, y0: e.clientY, on: false };\n    try { cards[k].setPointerCapture(e.pointerId); } catch (err) { /* capture is a nicety */ }\n  }\n  function onMove(k, e) {\n    if (!drag || drag.k !== k || drag.id !== e.pointerId) return;\n    const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;\n    if (!drag.on) {\n      if (Math.hypot(dx, dy) < 8) return;\n      drag.on = true; queue = []; fl.delete(k); cards[k].classList.remove('fly'); cards[k].classList.add('lift');\n    }\n    cards[k].style.transform = 'translate(' + dx.toFixed(1) + 'px, ' + dy.toFixed(1) + 'px)';\n    const p = laneAt(e.clientX);\n    LANES.forEach((L, j) => L.lane.classList.toggle('over', j === p && j !== PH[k]));\n  }\n  function onUp(k, e, cancelled) {\n    if (!drag || drag.k !== k) return;\n    const d = drag; drag = null;\n    LANES.forEach((L) => L.lane.classList.remove('over'));\n    cards[k].classList.remove('lift');\n    if (!d.on) return;\n    suppress = true;\n    const p = cancelled ? PH[k] : laneAt(e.clientX);\n    if (p !== PH[k]) moveCard(k, p); else settleBack(k);\n    kick();\n  }\n\n  // The four bars, on one scale that fits the whole board's current.\n  const svg = el('bars');\n  const sv = (tag, attrs, text) => { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; svg.appendChild(n); return n; };\n  const ROWS = [['L1', 22, 'bp'], ['L2', 54, 'bp'], ['L3', 86, 'bp'], ['Neutral', 130, 'bn']];\n  const X0 = 66, TRACK = 196;\n  sv('text', { x: 2, y: 12, class: 'tk' }, 'Current in each conductor, on one scale');\n  const BARS = [], VALS = [];\n  ROWS.forEach((r) => {\n    sv('text', { x: 2, y: r[1] + 14, class: 'lb' }, r[0]);\n    sv('rect', { x: X0, y: r[1], width: TRACK, height: 18, rx: 4, class: 'track' });\n    BARS.push(sv('rect', { x: X0, y: r[1], width: 0, height: 18, rx: 4, class: r[2] }));\n    VALS.push(sv('text', { x: 338, y: r[1] + 14, class: 'vl', 'text-anchor': 'end' }, ''));\n  });\n  // Each value label prints the bar's eased length, so the number and the bar always agree.\n  function drawBars() {\n    const d = shownBars();\n    BARS.forEach((b, k) => { b.setAttribute('width', (K.clamp(d[k], 0, TOTAL) / TOTAL * TRACK).toFixed(1)); VALS[k].textContent = a2(K.clamp(d[k], 0, TOTAL)); });\n  }\n  function sayOf(o) {\n    const used = [0, 1, 2].filter((p) => PH.indexOf(p) >= 0), L = (p) => 'L' + (p + 1);\n    const hk = o.s.indexOf(Math.max(o.s[0], o.s[1], o.s[2]));\n    if (used.length === 1) return 'All seven circuits are on ' + L(used[0]) + ', so every amp they draw comes back along the neutral: it carries ' + a2(o.n) + ', the same as ' + L(used[0]) + '.';\n    const list = a2(o.s[0]) + ' on L1, ' + a2(o.s[1]) + ' on L2 and ' + a2(o.s[2]) + ' on L3';\n    if (o.n < 1) return 'With ' + list + ', nearly equal, the three currents all but cancel, so the neutral carries only ' + a2(o.n) + ', harmonics aside.';\n    return 'With ' + list + ', the currents are unequal and do not cancel: the neutral carries the ' + a2(o.n) + ' left over, and ' + L(hk) + ', the heaviest, carries ' + a2(o.s[hk]) + '.';\n  }\n  // The phase rides in the label, so the value keeps to one line beside the neutral's at 360 px.\n  const rlH = K.el('span', { class: 'rl' }, 'Heaviest phase'), roH = K.el('span', { class: 'rv' }), roN = K.el('span', { class: 'rv' });\n  el('ro').appendChild(K.el('div', null, rlH, roH));\n  el('ro').appendChild(K.el('div', null, K.el('span', { class: 'rl' }, 'Neutral'), roN));\n  function paintWhy() {\n    const o = loadOf(PH), hk = o.s.indexOf(Math.max(o.s[0], o.s[1], o.s[2]));\n    drawBars();\n    svg.setAttribute('aria-label', 'Currents on one scale: L1 ' + a2(o.s[0]) + ', L2 ' + a2(o.s[1]) + ', L3 ' + a2(o.s[2]) + ', neutral ' + a2(o.n));\n    rlH.textContent = 'Heaviest phase, L' + (hk + 1);\n    roH.textContent = a2(o.s[hk]);\n    roN.textContent = a2(o.n);\n    el('say').textContent = sayOf(o);\n    LANES.forEach((L, p) => { const n = PH.filter((q) => q === p).length; L.lane.setAttribute('aria-label', 'L' + (p + 1) + ': ' + (n ? n + ' of 7 circuits' : 'none of the 7 circuits')); });\n    cards.forEach((c, k) => c.setAttribute('aria-label', CIRC[k].n + ', ' + CIRC[k].name + ', ' + a2(AMPS[k]) + ', on L' + (PH[k] + 1) + '. Press to move it to L' + ((PH[k] + 1) % 3 + 1) + '.'));\n  }\n\n  // ---------- picks: the recall and the check ----------\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));\n  const ON_GUIDE = 'It is guidance, used where common sense allows: ' + GUIDANCE.charAt(0).toLowerCase() + GUIDANCE.slice(1) + ' Continue, and the refresh starts from here.';\n  function pick(k) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.opts || k >= d.opts.length) return;\n    if (i === 0) {\n      if (st.res) return;     // a recall gets one go\n      st.pick = d.opts[k];\n      if (k === 1) {\n        st.res = 'right';\n        st.fb = { ok: true, v: 'Still there.', p0: 'Your slides p.10: the percentages are only found in the On-Site Guide, so they are guidance and do not have to be applied, and ten 100 W lamps could be designed at ' + fDv.text + ' rather than 1000 W.',\n          l: ['\"BS 7671 sets them\": it has no diversity table; the On-Site Guide gives the recognised figures.', '\"Wherever the On-Site Guide gives one\": its figures, such as 66% for domestic lighting or 90% for a shop\\'s lighting, may still be left off.'] };\n      } else if (k === 0) {\n        st.res = 'wrong';\n        st.fb = { ok: false, v: 'Not quite: BS 7671 has no diversity table.', p0: 'Regulation 311.1 has the designer assess maximum demand and lets diversity be taken into account; the On-Site Guide gives the recognised figures.', p: ON_GUIDE };\n      } else {\n        st.res = 'wrong';\n        st.fb = { ok: false, v: 'Not quite: even where it gives one, it may be left off.', p0: '66% for a domestic lighting circuit (your slides p.10) and 90% for a shop\\'s lighting are On-Site Guide figures, applied only where the loads really do not all run together.', p: ON_GUIDE };\n      }\n    } else if (i === iChk) {\n      if (st.res === 'right') return;\n      st.pick = d.opts[k];\n      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'That\\'s it.', w: [fK.work] }; }\n      else { st.res = 'wrong'; st.fb = { ok: false, v: d.hints[st.pick] || 'Not quite.' }; }\n    }\n  }\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => { if (at() === iChk) S[iChk].why = !S[iChk].why; } });\n  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === 0 && S[0].res === 'right') stepper.set(1); } });\n  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === 0 && S[0].res === 'right') stepper.set(iA); } });\n\n  // ---------- Section A: typed answers on the course's figures ----------\n  const scen = K.scenario({ into: '#scen', open: true });\n  K.carried({ parts: ['3a'], into: '#carry1' });\n  K.carried({ parts: ['1a', '3b'], into: '#carry2' });\n  const differs = (r, f) => r.value != null && Math.abs(r.value - f.value) > 0.004;\n  const slip = (id, hint) => ({ value: F(id).value, hint });\n  const SPEC = {\n    [iA]: { id: '3a', unit: 'W', fig: f3a, decimals: 0, tolerance: 0, accept: [],\n      slips: [slip('3a.slip1', 'That counts each modular fitting as 36 W: it holds four tubes, 4 × 36 W.'),\n        slip('3a.slip3', 'That leaves out the bollards: DBL2 feeds the six walkway bollards too.'),\n        slip('3a.slip2', 'That takes each twin as 58 W in all, the other reading of the key. The course takes two 58 W tubes, 116 W.')],\n      hint: 'Not quite. Count × watts for each kind, then add them; a modular fitting is 4 × 36 W.',\n      work: [f3a.work], missNote: 'Part (b) carries the course\\'s ' + f3a.text + '.', after: [] },\n    [iB]: { id: '3b', unit: 'A', fig: f3b, accept: [],\n      slips: [slip('3b.slip1', 'That leaves out the ballast: tube watts leave out its loss, so allow 25% (× 1.25).'),\n        slip('3b.slip2', 'That leaves out the power factor: divide by 230 × 0.96 for the fluorescent circuit, 230 × 0.95 for the LEDs.'),\n        slip('3b.slip3', 'That is the older × 1.8 rule, another method: this question uses the 25% allowance and the power factor.'),\n        slip('3b.slip4', 'That is the whole board: L1 carries only its own circuits, C1 and C5.')],\n      hint: 'Not quite. Work C1 and C5 from their rules, then add them.',\n      work: [f3b.work], missNote: 'Part (c) carries the course\\'s ' + f3b.text + '.',\n      after: ['L2: ' + fL2.work + '. L3: ' + fL3.work + '. The neutral: ' + fN.text + '.', 'Lesson 8 sizes DBL2\\'s submain on the heaviest, ' + f3b.text + '.'] },\n    [iC]: { id: '3c', unit: 'A', fig: f3c, tolerance: tolOf('3c', f3c), accept: [],\n      slips: [slip('3c.slip1', 'That has no diversity anywhere: the sockets are standard circuits and the fixed points heating and power.'),\n        slip('3c.slip2', 'That leaves out the motor: add its line current on every phase.'),\n        slip('3c.slip3', 'That divides the motor\\'s current by 3 as well: its Ib is already a line current, on every phase.'),\n        slip('3c.slip4', 'That is not shared over the three phases: divide the single-phase total by 3.'),\n        slip('3c.slip5', 'That takes the lighting at 90%: fair as a designer, but this question takes it at 100%.')],\n      hint: 'Not quite. Add the lighting, sockets, fixed points and EV outlets after diversity, share them over three phases, then add the motor\\'s line current.',\n      work: ['Lighting: ' + fML.work, 'Sockets: ' + fMS.work, 'Fixed points: ' + fMF.work, 'EV: ' + fME.work, f3c.work], missNote: '',\n      after: ['About 160 A a phase: an estimate on practice values, as question 10 allows. A real split is heavier on one phase: four 32 A EV outlets cannot share evenly over three phases, so one phase carries two, 2 × 32 = 64 A, against an even share of 128 ÷ 3 = 42.67 A, unless other circuits move off it.'] },\n    [iCh]: { id: 'l2.A.changed', unit: 'A', fig: fCh, accept: [],\n      slips: [slip('l2.A.changed.slip1', 'That has no diversity: apply the allowances.'),\n        slip('l2.A.changed.slip2', 'That takes the lighting at 100%: the column allows 90%.'),\n        slip('l2.A.changed.slip3', 'That takes 50% of the largest circuit too: the largest counts in full.')],\n      hint: 'Not quite. 100% of the largest circuit + 50% of the other four, then 90% of the lighting.',\n      work: fCh.work.split('; '), missNote: '', after: [] },\n  };\n  const BOX = { [iA]: '#ans-3a', [iB]: '#ans-3b', [iC]: '#ans-3c', [iCh]: '#ans-ch' };\n  const ANS = {};\n  Object.keys(SPEC).forEach((key) => {\n    const i = +key, sp = SPEC[i];\n    const o = { id: sp.id, unit: sp.unit, answer: sp.fig.value, accept: sp.accept, slips: sp.slips, into: BOX[i],\n      onCheck: (r) => {\n        const st = S[i];\n        if (st.shown) return;\n        if (r.state === 'right') {\n          st.res = 'right';\n          st.fb = { ok: true, v: 'Right.', w: sp.work, p: differs(r, sp.fig) ? 'That is within rounding of the course\\'s ' + sp.fig.text + ', so it is accepted.' : '', l: sp.after };\n        } else if (r.state === 'wrong') {\n          st.tries += 1;\n          if (st.tries >= 2) {\n            st.shown = true; st.res = 'shown';\n            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.work, p: sp.missNote, l: sp.after };\n            a.reveal();\n          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }\n        } else { st.res = r.state; st.fb = null; }\n        K.refresh();\n      } };\n    if (sp.decimals != null) o.decimals = sp.decimals;\n    if (sp.tolerance != null) o.tolerance = sp.tolerance;\n    const a = K.answer(o);\n    ANS[i] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });\n\n  // ---------- Section B and Keep this ----------\n  const wB = K.written({ id: 'b1', into: '#wr', onMark: () => K.refresh() });\n  el('wr').addEventListener('click', () => K.refresh());\n  K.summary({ into: '#keep' });\n  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {\n    if (at() !== iK) return;\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n\n  // ---------- the worked example, a step at a time ----------\n  const fl2 = fFl.work.split('; ');\n  const WORKED = [\n    { h: 'Your slides\\' circuit: ten 100 W lamps, at the On-Site Guide\\'s 66% for domestic lighting (p.10)', s: [\n      ['Connected load', '10 × 100 = ' + (10 * 100) + ' W'],\n      ['With 66% diversity', fDv.work],\n      ['Ib, against the full load: the smaller cable your slides mean', fI660.work + ', against ' + fI1000.work]] },\n    { h: 'One 4 × 36 W modular fitting, from your drawing\\'s key', s: [\n      ['Tube watts', '4 × 36 = ' + MOD_W + ' W'],\n      ['Tube watts leave out the ballast; 25% may be allowed when no loss is given', fl2[0]],\n      ['At 0.96, an electronic ballast\\'s power factor', fl2[1]]] },\n    { h: 'One 26 W LED fitting, from your drawing\\'s key', s: [\n      ['At 0.95, as a maker states for a similar panel (another states 0.97)', fLed.work]] },\n  ];\n  const wlines = [];\n  WORKED.forEach((x) => {\n    const box = K.el('div', { class: 'wl' }, K.el('p', null, K.el('b', null, x.h)));\n    x.s.forEach((t) => { const w = K.el('p', null, K.el('span', { class: 'wt' }, t[0]), K.el('span', { class: 'w' }, t[1])); box.appendChild(w); wlines.push(w); });\n    el('worked').appendChild(box);\n  });\n  const wEnd = K.el('div', { class: 'plain' });\n  wEnd.appendChild(para('*Practice values*: 25%, 0.96 and 0.95, since the drawing does not name the fittings\\' gear. Read the real ones from the maker, whose watts for a separate driver are extra.', 'note'));\n  wEnd.appendChild(para('An older book instead takes lamp watts × 1.8 ÷ voltage for discharge lighting, at a power factor of at least 0.85. The course uses the first method.', 'foot'));\n  el('worked').appendChild(wEnd);\n  const nextLine = K.button({ label: 'Show the next step', into: '#workedgo', press: () => {\n    if (at() !== iWk || lines >= wlines.length) return;\n    const w = wlines[lines]; lines += 1;\n    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');\n  } });\n\n  // ---------- fixed words on their screens ----------\n  (function fixed() {\n    const hp = (h, s, cls) => { const p = K.el('p', cls ? { class: cls } : null); p.appendChild(K.el('b', null, h)); p.appendChild(write(K.el('span'), s)); return p; };\n    const wn = el('warn1');\n    wn.appendChild(K.el('b', null, 'If it is skipped or wrong: '));\n    wn.appendChild(document.createTextNode('too low, and the supply fuse, or a submain\\'s device and cable, carries more than it was chosen for (the course\\'s reasoning); too high, and the cables are bigger and dearer than they need be (your slides p.10).'));\n\n    const r = el('rule1');\n    r.appendChild(K.el('span', { class: 'k-label' }, 'The neutral, for currents at about the same power factor'));\n    r.appendChild(K.el('p', { class: 'eq' }, 'IN = √(I1² + I2² + I3² − I1·I2 − I2·I3 − I3·I1)'));\n    r.appendChild(K.el('p', { class: 'sub' }, 'I1, I2 and I3 are the L1, L2 and L3 bars; IN is the neutral\\'s. It adds three currents a third of a cycle apart (the AC circuits course).'));\n    r.appendChild(K.el('p', { class: 'sub' }, 'Mains-frequency currents only: fluorescent and LED fittings also draw third-harmonic currents, which add in the neutral instead of cancelling (lesson 4).'));\n\n    const dv = el('divb');\n    const al = K.el('div');\n    al.appendChild(para('The allowances this lesson uses, from the On-Site Guide\\'s column for small shops, stores, offices and business premises. The course reads a showroom into that column, its own assumption; a training provider warns that commercial work may need measured loads instead.'));\n    const ul = K.el('ul', { class: 'cl' });\n    [['Lighting', '90% of the total current demand'], ['Heating and power', '100% of the largest appliance + 75% of the rest'], ['Motors', '100% of the largest + 80% of the second largest + 60% of the rest (the showroom has only one)'],\n      ['Standard circuits', '100% of the largest circuit + 50% of every other']].forEach((x) => ul.appendChild(K.el('li', null, K.el('b', null, x[0] + ': '), x[1])));\n    al.appendChild(ul);\n    al.appendChild(K.el('p', { class: 'foot' }, 'Only these; read the rest in your copy.'));\n    dv.appendChild(al);\n    dv.appendChild(para('*EV charge points*: the IEC wording sets the factor at 1 unless a load management system is used. Regulation 722.311 lets load curtailment count, and your guide makes load management optional (p.9).'));\n    const fold = K.el('details', { class: 'fold' }, K.el('summary', null, 'Where it\\'s argued'));\n    const fu = K.el('ul');\n    ['On the IET forum, one contributor says BS 7671 does not prohibit diversity on EV points; another, that without load management it is still none.',\n      'Your slides apply 66% to one lighting circuit\\'s Ib (p.10); a training provider applies diversity only to the total at the origin; an IET answer says it might only rarely be appropriate for one circuit.',\n      'The Schneider guide applies its factor to the loads on a board, and advises close to 1 for mainly lighting.'].forEach((t) => fu.appendChild(K.el('li', null, t)));\n    fold.appendChild(fu);\n    fold.addEventListener('toggle', () => K.refresh());\n    dv.appendChild(fold);\n    dv.appendChild(hp('The course\\'s choice: ', 'the lighting at 100%, because question 5a has the internal showroom lights on from 7.30 am to 9 pm (pack p.4), and the course takes the rest of the lighting with them. The On-Site Guide would allow 90%: a designer\\'s call.', 'note'));\n\n    const sh = el('share');\n    const sd = K.el('div');\n    sd.appendChild(K.el('span', { class: 'k-label' }, 'DBL2\\'s share: the course\\'s own split'));\n    sd.appendChild(para('DBL2, in the tools and warranty store, feeds the east of the building: the consultation bay, the toilets, cleaner and tea bay, the two stores, the showroom east of the welcome desk, service reception, the foyer and the walkway bollards. DBL1 feeds the rest.'));\n    sd.appendChild(para('Counted on your lighting drawing: ' + N_LED + ' LED 26 W, ' + N_MOD + ' modular 4 × 36 W, ' + N_TWIN + ' twin 58 W and ' + N_BOL + ' walkway bollards 18 W.'));\n    sd.appendChild(para('The key does not say whether a twin\\'s 58 W is each tube or the fitting: the course takes two 58 W tubes, ' + TWIN_W + ' W, the cautious reading.', 'foot'));\n    sh.appendChild(sd);\n\n    const ci = el('circ');\n    const cd = K.el('div');\n    cd.appendChild(K.el('span', { class: 'k-label' }, 'DBL2\\'s seven circuits, the course\\'s own'));\n    const cl = K.el('ul', { class: 'cl' });\n    CIRC.forEach((c) => cl.appendChild(K.el('li', null, K.el('b', null, c.n + ' '), c.feeds + ': ' + c.what + ', ' + c.W + ' W')));\n    cd.appendChild(cl);\n    ci.appendChild(cd);\n    ci.appendChild(hp('The phases: ', 'L1 C1 and C5; L2 C3 and C6; L3 C2, C4 and C7.'));\n    ci.appendChild(hp('The rules from step 6, with their practice values: ', 'fluorescent, tube watts × 1.25 ÷ (230 × 0.96); LED and bollards, watts ÷ (230 × 0.95).'));\n\n    const gv = el('given');\n    gv.appendChild(K.el('span', { class: 'k-label' }, 'Given, each practice value marked'));\n    gv.appendChild(hp('Lighting, at 100%: ', 'the course\\'s choice, as question 5a has the showroom lights on from 7.30 am to 9 pm. DBL2 ' + fTot.work + '; DBL1 ' + fD1.text + ', worked the same way from its 103 LED, 16 modular, 12 twin and 6 bulkheads (the bulkheads with the LEDs: watts ÷ (230 × 0.95), no ballast allowance), and its 9 wall spots (2 × 35 W) and 6 columns (70 W) taken at a power factor of 0.9 (a practice value with no source: the lamps are not named).'));\n    gv.appendChild(hp('Sockets: ', 'eight 32 A circuits, one per area, each taken at its rating (a practice value), as standard circuits: 100% of the largest + 50% of every other.'));\n    gv.appendChild(hp('Fixed points: ', 'three 20 A DP switches and a 32 A rotary isolator, each taken at its rating (a practice value), as heating and power: 100% of the largest + 75% of the rest.'));\n    gv.appendChild(hp('EV charging: ', 'two charging points of two 32 A outlets, taken as four single-phase outlets (a practice value: the drawing does not say whether the outlets are single- or three-phase), no diversity. The 63 A TPN isolators are not part of the circuit (pack p.5).'));\n    gv.appendChild(hp('The motor: ', 'at 100%, the only one: its line current from 1(a), on every phase.'));\n    gv.appendChild(hp('Sharing: ', 'the single-phase loads shared evenly over the three phases, ÷ 3, as an older book works a balanced line current.'));\n  })();\n\n  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }\n  function paintFb(f) {\n    const fb = el('fb');\n    fb.textContent = '';\n    fb.hidden = !f;\n    if (!f) return;\n    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');\n    fb.appendChild(K.el('p', { class: 'v' }, f.v));\n    if (f.p0) fb.appendChild(para(f.p0));\n    (f.w || []).forEach((t) => fb.appendChild(K.el('p', { class: 'w' }, t)));\n    if (f.p) fb.appendChild(para(f.p));\n    (f.l || []).forEach((t) => fb.appendChild(para(t)));\n  }\n\n  // ---------- nav ----------\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });\n  function canGo(i) {\n    const d = STEPS[i], st = S[i];\n    if (d.show) return true;\n    if (i === 0) return st.res === 'wrong';\n    if (i === iChk) return st.res === 'right';\n    if (ANS[i]) return st.res === 'right' || st.shown;\n    if (i === iW) return !!(wB && wB.answered && wB.answered());\n    return false;\n  }\n\n  K.model(() => ({}));\n\n  const ON = { scen: [iA, iB, iC], share: [iA], carry1: [iB], carry2: [iC], circ: [iB], given: [iC], warn1: [1],\n    barwrap: [iY], lanes: [iY], moves: [iY], say: [iY], ro: [iY], rule1: [iY], divb: [4], worked: [iWk], workedgo: [iWk],\n    picks: [0, iChk], 'ans-3a': [iA], 'ans-3b': [iB], 'ans-3c': [iC], 'ans-ch': [iCh], wr: [iW], keep: [iK], fin: [iK] };\n\n  K.update(() => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) {\n      if (lastStep !== -1) enter();\n      if (lastStep === iY) { anim.pause(); settleAll(); }\n      if (i === iY) { settleAll(); bFrom = [0, 0, 0, 0]; bt0 = T; bdur = REDUCE ? 0 : ARRIVE; if (!REDUCE) anim.play(); }\n      if (i >= iA && i <= iC) scen.el.open = i === iA;\n      lastStep = i;\n    }\n    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });\n    el('cap').hidden = WORKING.indexOf(i) < 0;\n\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.part || (d.kind ? '' : d.task));\n    task.hidden = !task.textContent;\n    const sub = el('sub');\n    sub.textContent = i === iY ? 'Drag a card to another phase, or tap it to move it on.'\n      : i === iCh ? 'A City & Guilds Section A shape, with new numbers.' : i === iK ? 'One card to come back to on a real job.' : '';\n    sub.hidden = !sub.textContent;\n    if (i === iY) paintWhy();\n\n    // Picks.\n    const opts = d.opts || [];\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      const done = st.res === 'right' || (i === 0 && st.res === 'wrong');\n      b.el.classList.toggle('is-right', done && opts[k] === d.want);\n      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    // The worked example's steps.\n    wlines.forEach((w, k) => { w.hidden = k >= lines; });\n    wEnd.hidden = lines < wlines.length;\n    nextLine.el.hidden = lines >= wlines.length;\n    if (i === iWk) el('workedgo').hidden = lines >= wlines.length;\n\n    // Check and Why?\n    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);\n    checkBtn.el.hidden = !typed || typedDone;\n    whyBtn.el.hidden = i !== iChk;\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    el('acts').hidden = checkBtn.el.hidden && whyBtn.el.hidden;\n    paintFb(st.fb);\n    const why = el('why');\n    why.hidden = i !== iChk || !st.why;\n    write(why, i === iChk ? d.why : '');\n    el('go').hidden = !(i === 0 && st.res === 'right');\n\n    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';\n    el('donefb').hidden = !el('donefb').textContent;\n    el('foot').textContent = i === 1 ? 'A figure with diversity is an estimate, which the IET accepts may occasionally be exceeded.'\n      : i === iY ? 'The card currents rest on practice values for ballast loss and power factor (step 6).'\n      : i >= iA && i <= iC ? 'Shaped like a City & Guilds Section A question, on your own assignment\\'s drawings: the course\\'s question 3, from your pack\\'s questions 1b and 10.' : '';\n    el('foot').hidden = !el('foot').textContent;\n\n    backBtn.el.hidden = i === 0;\n    nextBtn.el.hidden = i === iK || !canGo(i) || (i === 0 && st.res === 'right');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const near = (a, b) => K.near(a, b, 1e-9);\n  const OW = 'https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses';\n  const FLUO = 'https://www.electrical-installation.org/enwiki/Fluorescent_lamps';\n  K.check('The rule gives the case file\\'s seven circuit currents: 4.89, 4.08, 5.71, 2.63, 3.33, 2.50 and 1.21 A', () =>\n    near(DFL, 220.8) && near(DLED, 218.5) && CIRC.every((c, k) => near(AMPS[k], F(c.fid).value)));\n  K.check('All seven on L1: L1 and the neutral both carry 24.35 A, the whole board', () => {\n    const o = loadOf(ALL1); return near(o.s[0], fTot.value) && near(o.s[1], 0) && near(o.s[2], 0) && near(o.n, fAll.value) && near(TOTAL, fTot.value);\n  });\n  K.check('The course\\'s split: 8.22, 8.21 and 7.92 A on the phases, 0.30 A in the neutral', () => {\n    const o = loadOf(SPLIT); return near(o.s[0], f3b.value) && near(o.s[1], fL2.value) && near(o.s[2], fL3.value) && near(o.n, fN.value);\n  });\n  K.check('Three equal currents leave nothing in the neutral; one phase alone sends it all back', () => near(inOf(5, 5, 5), 0) && near(inOf(7, 0, 0), 7) && near(inOf(0, 3.5, 0), 3.5));\n  K.check('Whatever the arrangement, the neutral never carries more than the heaviest phase', () => {\n    for (let m = 0; m < 2187; m++) {\n      const ph = [], x = { v: m };\n      for (let k = 0; k < 7; k++) { ph.push(x.v % 3); x.v = Math.floor(x.v / 3); }\n      const o = loadOf(ph);\n      if (o.n > Math.max(o.s[0], o.s[1], o.s[2]) + 1e-9) return false;\n    }\n    return true;\n  });\n  K.check('The course\\'s split from all on L1 takes five moves, one card at a time, and ends on the split', () => {\n    const ph = ALL1.slice(), mv = planMoves(ph, SPLIT); mv.forEach((m) => { ph[m[0]] = m[1]; });\n    return mv.length === 5 && ph.join() === SPLIT.join() && planMoves(SPLIT, SPLIT).length === 0;\n  });\n  K.check('The check: 10, 10 and 4 A leave 6.00 A in the neutral; added, 24.00 A', () =>\n    near(inOf(10, 10, 4), fK.value) && near(10 + 10 + 4, fK1.value) && near(fK2.value, 0));\n  K.check('The worked example: 660 W, 2.87 A against 4.35 A; 180 W and 0.82 A for a modular fitting; 0.12 A for an LED', () =>\n    near(r2(1000 * 0.66), fDv.value) && near(r2(660 / U0), fI660.value) && near(r2(1000 / U0), fI1000.value) &&\n    near(r2(MOD_W * BALLAST), 180) && near(flAmps(MOD_W), fFl.value) && near(ledAmps(LED_W), fLed.value));\n  K.check('3(a): 1430 + 2592 + 464 + 108 = 4594 W; its slips 2650, 4486 and 4362 W', () => {\n    const led = N_LED * LED_W, mod = N_MOD * MOD_W, tw = N_TWIN * TWIN_W, bol = N_BOL * BOL_W;\n    return led === 1430 && mod === 2592 && tw === 464 && bol === 108 && near(led + mod + tw + bol, f3a.value) &&\n      near(led + N_MOD * 36 + tw + bol, F('3a.slip1').value) && near(led + mod + N_TWIN * 58 + bol, F('3a.slip2').value) && near(led + mod + tw, F('3a.slip3').value) &&\n      near(CIRC.reduce((s, c) => s + c.W, 0), f3a.value);\n  });\n  K.check('3(b): 4.89 + 3.33 = 8.22 A; its slips 7.24, 7.87, 10.09 and 24.35 A', () =>\n    near(r2(AMPS[0] + AMPS[4]), f3b.value) && near(r2(r2(CIRC[0].W / DFL) + AMPS[4]), F('3b.slip1').value) &&\n    near(r2(r2(r2(CIRC[0].W * BALLAST) / U0) + r2(CIRC[4].W / U0)), F('3b.slip2').value) &&\n    near(r2(r2(CIRC[0].W * 1.8 / U0) + AMPS[4]), F('3b.slip3').value) && near(TOTAL, F('3b.slip4').value));\n  K.check('3(c): 63.09 + 144.00 + 77.00 + 128.00 = 412.09 A; ÷ 3 = 137.36 A; + 23.08 = 160.44 A, and its slips', () => {\n    const m = mdOf(LIGHT), nd = r2(r2(r2(LIGHT + SOCK_N * SOCK_A + ROT_A + DP_N * DP_A + EV_N * EV_A) / 3) + f1a.value);\n    return near(dbl1, fD1.value) && near(LIGHT, fML.value) && near(std(SOCK_N, SOCK_A), fMS.value) && near(heat(ROT_A, DP_N, DP_A), fMF.value) &&\n      near(EV_N * EV_A, fME.value) && near(m.tot, F('l2.md.single').value) && near(m.per, F('l2.md.perphase').value) && near(m.ans, f3c.value) &&\n      near(nd, F('3c.slip1').value) && near(m.per, F('3c.slip2').value) && near(r2(m.per + r2(f1a.value / 3)), F('3c.slip3').value) &&\n      near(r2(m.tot + f1a.value), F('3c.slip4').value) && near(mdOf(r2(0.9 * LIGHT)).ans, F('3c.slip5').value);\n  });\n  K.check('Changed numbers: 96.00 + 16.20 = 112.20 A; slips 178.00, 114.00 and 96.20 A', () =>\n    near(chOf(0.9), fCh.value) && near(CH.n * CH.a + CH.light, F('l2.A.changed.slip1').value) && near(chOf(1), F('l2.A.changed.slip2').value) &&\n    near(r2(0.5 * CH.n * CH.a + r2(0.9 * CH.light)), F('l2.A.changed.slip3').value));\n  K.check('Every slip lies outside its answer\\'s accepted range', () => Object.keys(SPEC).every((k) => {\n    const sp = SPEC[k], tol = sp.tolerance != null ? sp.tolerance : 0.005;\n    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > tol + 0.005);\n  }));\n  K.check('Lighting in a shop: 90% of the total current demand', () => near(chOf(0.9) - std(CH.n, CH.a), 16.2), { source: OW });\n  K.check('Standard circuits: 100% of the largest circuit + 50% of every other', () => near(std(2, 10), 15) && near(std(SOCK_N, SOCK_A), fMS.value), { source: OW });\n  K.check('Heating and power: 100% of the largest appliance + 75% of the remaining', () => near(heat(10, 2, 4), 16) && near(heat(ROT_A, DP_N, DP_A), fMF.value), { source: OW });\n  K.check('If no power-loss value is given for the ballast, 25% of the tube watts may be used', () => near(BALLAST, 1.25) && near(r2(144 * BALLAST), 180), { source: FLUO });\n  K.check('cos φ = 0.96 for an electronic ballast', () => near(PF_FL, 0.96) && near(DFL, 220.8), { source: FLUO });\n\n  K.ready();\n</script>",
+  "title": "What the whole building draws",
+  "brief": "The one thing you should see is the neutral bar fall from 24.35 A to 0.30 A as the three phase bars even out, when you drag DBL2's circuits off L1 and share them across L1, L2 and L3.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The rule gives the case file's seven circuit currents: 4.89, 4.08, 5.71, 2.63, 3.33, 2.50 and 1.21 A",
+     "ok": true
+    },
+    {
+     "label": "All seven on L1: L1 and the neutral both carry 24.35 A, the whole board",
+     "ok": true
+    },
+    {
+     "label": "The course's split: 8.22, 8.21 and 7.92 A on the phases, 0.30 A in the neutral",
+     "ok": true
+    },
+    {
+     "label": "Three equal currents leave nothing in the neutral; one phase alone sends it all back",
+     "ok": true
+    },
+    {
+     "label": "Whatever the arrangement, the neutral never carries more than the heaviest phase",
+     "ok": true
+    },
+    {
+     "label": "The course's split from all on L1 takes five moves, one card at a time, and ends on the split",
+     "ok": true
+    },
+    {
+     "label": "The check: 10, 10 and 4 A leave 6.00 A in the neutral; added, 24.00 A",
+     "ok": true
+    },
+    {
+     "label": "The worked example: 660 W, 2.87 A against 4.35 A; 180 W and 0.82 A for a modular fitting; 0.12 A for an LED",
+     "ok": true
+    },
+    {
+     "label": "3(a): 1430 + 2592 + 464 + 108 = 4594 W; its slips 2650, 4486 and 4362 W",
+     "ok": true
+    },
+    {
+     "label": "3(b): 4.89 + 3.33 = 8.22 A; its slips 7.24, 7.87, 10.09 and 24.35 A",
+     "ok": true
+    },
+    {
+     "label": "3(c): 63.09 + 144.00 + 77.00 + 128.00 = 412.09 A; ÷ 3 = 137.36 A; + 23.08 = 160.44 A, and its slips",
+     "ok": true
+    },
+    {
+     "label": "Changed numbers: 96.00 + 16.20 = 112.20 A; slips 178.00, 114.00 and 96.20 A",
+     "ok": true
+    },
+    {
+     "label": "Every slip lies outside its answer's accepted range",
+     "ok": true
+    },
+    {
+     "label": "Lighting in a shop: 90% of the total current demand",
+     "ok": true,
+     "source": "https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses"
+    },
+    {
+     "label": "Standard circuits: 100% of the largest circuit + 50% of every other",
+     "ok": true,
+     "source": "https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses"
+    },
+    {
+     "label": "Heating and power: 100% of the largest appliance + 75% of the remaining",
+     "ok": true,
+     "source": "https://www.owelectric.co.uk/posts/maximum-demand-and-diversity-shops-household-offices-businesses"
+    },
+    {
+     "label": "If no power-loss value is given for the ballast, 25% of the tube watts may be used",
+     "ok": true,
+     "source": "https://www.electrical-installation.org/enwiki/Fluorescent_lamps"
+    },
+    {
+     "label": "cos φ = 0.96 for an electronic ballast",
+     "ok": true,
+     "source": "https://www.electrical-installation.org/enwiki/Fluorescent_lamps"
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Lesson",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "Do you still have it?",
+      "What it is for",
+      "The why",
+      "Check",
+      "Diversity",
+      "Worked example",
+      "Section A (a)",
+      "Section A (b)",
+      "Section A (c)",
+      "Section B",
+      "Changed numbers",
+      "Keep this"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "All on L1",
+    "The course's split",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Why?",
+    "Refresh the why",
+    "Skip to the practice",
+    "Check",
+    "Finish the lesson",
+    "Show the next step",
+    "Back",
+    "Continue",
+    "Moving the circuits"
+   ],
+   "answers": [
+    {
+     "id": "3a",
+     "answer": 4594,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "3b",
+     "answer": 8.22,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "3c",
+     "answer": 160.44,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "l2.A.changed",
+     "answer": 112.2,
+     "accept": [],
+     "ok": true
+    }
+   ],
+   "written": [
+    "b1"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-20T13:21:24.241Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "Three overstatements: maximum demand is not always less than the connected load (the lesson itself takes the lighting and EV points at 100%); the 0.30 A neutral ignores the third harmonics that slides p.33 say fluorescent banks draw; and question 5a covers only the internal showroom lights, not all…"
+   },
+   {
+    "path": "summary.rule",
+    "problem": "The card states 'None on EV points without load management' as a rule, though since Amendment 1 BS 7671 lets load curtailment count and the forum argues it; the neutral formula and the ÷ 3 line hold only without harmonics and for an even share."
+   },
+   {
+    "path": "summary.traps[4].text",
+    "problem": "Called a trap outright, but whether EV points may take diversity without load management is argued (gkenyon: BS 7671 does not prohibit it); the card should say it is the course's choice."
+   },
+   {
+    "path": "practice.text",
+    "problem": "The last common mistake states as settled that EV points take no diversity without load management; the lesson's own sources argue it ([^24] against [^25]), so it should say this is the course's choice."
+   },
+   {
+    "path": "analogy.breaks",
+    "problem": "'why EV points without load management get none' states a contested point as fact; it is the course's choice (the IEC wording), argued on the IET forum."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 5 says question 5a has 'the showroom lights on together', but 5a (pack p.4) covers only the internal showroom lights; the course takes all the lighting, toilets, stores and outside lights too, at 100% as its own call."
+   }
+  ],
+  "notes": [
+   {
+    "path": "summary.traps[4].cite",
+    "problem": "The trap's cite leads with 'BS 7671 722.311.201 (NAPIT)', but that regulation (Amendment 1) lets load curtailment count and does not itself forbid diversity on EV points; the no-diversity wording is the IEC text in the Schneider guide. Cites are frozen here: worth re-pointing at review."
+   },
+   {
+    "path": "interactive.numbers",
+    "problem": "C7's walkway bollards (and DBL1's 18 W bulkheads) are worked at the LED power factor 0.95, while the wall spots and columns, equally unnamed, take 0.9; the screens never say which practice value the bollards use. The figures are right as worked (264 ÷ 218.5 = 1.21 A); worth one word on screen 8."
+   }
+  ]
+ },
+ "error": null,
+ "flags": {}
+}
