@@ -130,6 +130,14 @@ rule, line current = √3 × phase current, is in none of them), still with a qu
 material with `[^n]` like any source and name it in words ("your course slides, p.16"); the app
 shows it as its title and "Your course materials, p.16", never as a link.
 
+**Scanned materials** (his BS 7671 and On-Site Guide pages, the C&G papers) are read by OCR
+(`input.method: "ocr"`; the page number is the book's own), and OCR misreads digits in faint table
+rows. Before quoting a figure from such a page, look at its page image (`input.image`, Read tool)
+and confirm every digit. Where the OCR line you need is garbled, correct that line in the tool file's
+`output` from the image, and add it to `input.corrected` (`[{"line": "<corrected text>", "by": "<stage>"}]`),
+so the quote is on the page and the change is on record. Correct only what the image shows. BS 7671
+and the OSG are copyright: quote the one value or rule a lesson needs, never a table.
+
 A course brief's research works the same way: notes plus a `quotes.json` list of
 `{section, claim, title, url, quote}`, harvested into `docs/courses/<shelf>/<course>/tools/` and
 checked with `node tools/eval/sources.mjs --quotes <dir>/quotes.json --tools <dir>/tools` until
@@ -160,6 +168,8 @@ Craft rules, on top of the prompt's own:
   never teach him his own trade.
 
 ## 4. Fact-check each lesson (a fresh reader, never the writer)
+A figure quoted from a scanned material page (`input.method: "ocr"`) is checked against its page
+image (`input.image`), not only its text.
 ```
 node tools/eval/prompts.mjs verify-lesson --topic $D/topic.json --idea I --lesson $D/I.lesson.final.json --research $D/research.json > $D/I.verify.prompt.txt
 node tools/eval/validate.mjs verify $D/I.verify.reply.txt --lesson $D/I.lesson.final.json --out $D/I.lesson.verified.json
