@@ -1,0 +1,182 @@
+{
+ "title": "Design and verification, a Level 4 refresher",
+ "hook": "The showroom motor is 11 kW at 400 V, and 11 kW ÷ (√3 × 400 V) is about 16 A, yet the circuit that feeds it is designed on about 23 A. Why, and what else must its cables pass before they are right?",
+ "oneBreath": "A design starts from what each load really draws from the supply, adds the loads up into what the whole building draws, and picks a protective device and a cable that will not overheat where it runs. It then checks that enough voltage reaches the far end, that an earth fault opens the device in time and every conductor survives the fault, and that the readings at verification come in within what the design predicted. The showroom job runs through it all, each figure carried forward to the next.",
+ "ideas": [
+  {
+   "id": "i1",
+   "title": "Design current: what the circuit really draws",
+   "oneLine": "The cable carries what the load draws from the supply, so Ib comes from the input, not the output: P ÷ (√3 × UL × efficiency × power factor), at the voltage actually at the board, with diversity only as guidance.",
+   "deps": [],
+   "kind": "quantity"
+  },
+  {
+   "id": "i2",
+   "title": "Maximum demand: what the whole building draws",
+   "oneLine": "Maximum demand sizes the supply and every submain; diversity is common-sense guidance from the On-Site Guide, not a rule, and balancing loads across the three phases keeps the neutral current down.",
+   "deps": [
+    "i1"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i3",
+   "title": "Device and cable: Ib ≤ In ≤ Iz, the factors and overload",
+   "oneLine": "Each rating factor is heat the table did not allow for, so It = In ÷ (the factors that act together), and the worst section sets the cable; a device may let about 1.45 In flow before it opens, so I2 ≤ 1.45 Iz, which is why a rewireable fuse needs Cf = 0.725.",
+   "deps": [
+    "i1"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i4",
+   "title": "A neutral that carries more than the line",
+   "oneLine": "Balanced fundamentals cancel in the neutral but third harmonics on the three lines are in step and add, so above about a third the neutral current, 3 × h × IL, sets the cable; only when the maker's data gives a harmonic figure.",
+   "deps": [
+    "i3"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i5",
+   "title": "Voltage drop from the intake, refined",
+   "oneLine": "Voltage drop is mV/A/m × Ib × L ÷ 1000, added along the whole path from the origin and judged against 3% or 5% of the voltage you were given; a lightly loaded cable runs cooler (Ct) and, with a known power factor, only the parts of the r and x drops along the voltage count.",
+   "deps": [
+    "i1",
+    "i3"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i6",
+   "title": "Shock protection, and when Zs is too high",
+   "oneLine": "Every metre adds to the earth fault loop, the loop limits the fault current at the lowest supply voltage (Cmin), and that current decides whether the device opens in time; when Zs is too high, a bigger cpc or an RCD.",
+   "deps": [
+    "i3"
+   ],
+   "kind": "mechanism"
+  },
+  {
+   "id": "i7",
+   "title": "Surviving the fault: heat, short circuits, breaking capacity",
+   "oneLine": "A conductor can take k²S² of fault energy, so it survives if I²t is smaller: S = √(I²t) ÷ k for the cpc with I at Cmax, t = k²S² ÷ I² for the live conductors, and every device must break the largest fault (IPF ≤ Icn).",
+   "deps": [
+    "i6"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i8",
+   "title": "The showroom, end to end",
+   "oneLine": "The assignment's DBL2 submain and its longest circuit designed as one chain, every result carried forward, checked against the project guide's key points: all lengths, thermal constraints, Zs against the device, all drops from the intake.",
+   "deps": [
+    "i1",
+    "i2",
+    "i3",
+    "i4",
+    "i5",
+    "i6",
+    "i7"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i9",
+   "title": "Verification and handover",
+   "oneLine": "The design predicts the readings: a cold reading is compared after correcting it to running temperature, installed values usually come in lower, and the designer hands over what the inspector and the client need, with a first inspection interval from industry guidance.",
+   "deps": [
+    "i6",
+    "i7",
+    "i8"
+   ],
+   "kind": "process"
+  }
+ ],
+ "calibration": [
+  {
+   "id": "c1",
+   "iid": "i1",
+   "q": "A motor drives the same machine at full load, but its board voltage has sagged a little below 400 V. Compared with at 400 V, the current it draws is…",
+   "options": [
+    "a little lower, as a heater’s would be",
+    "a little higher",
+    "exactly the same, because the power is the same"
+   ],
+   "answer": 1,
+   "why": "A motor doing the same work needs nearly the same power in, so at a lower voltage it takes more current. A heater is a fixed resistance, so its current falls with the voltage, but a loaded motor is not a fixed resistance."
+  },
+  {
+   "id": "c2",
+   "iid": "i2",
+   "q": "Three identical heaters, one on each phase to neutral, each draw 20 A. One is switched off. Roughly what current now flows in the neutral?",
+   "options": [
+    "0 A",
+    "40 A",
+    "20 A",
+    "10 A"
+   ],
+   "answer": 2,
+   "why": "The three currents are a third of a cycle apart, so together they cancel in the neutral. Switch one off and the neutral carries what that one used to cancel: 20 A. Adding the two to get 40 A forgets they are out of step."
+  }
+ ],
+ "query": "Design and verification",
+ "level": "some",
+ "mode": "read",
+ "intake": {
+  "questions": [
+   {
+    "id": "q1",
+    "q": "What do you want from this course?",
+    "options": [
+     "A refresher of my Level 4 design and verification, taught back to me",
+     "To learn design from scratch",
+     "Exam practice"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q2",
+    "q": "Where will you use it?",
+    "options": [
+     "As a reference for real design and installation work",
+     "For further study",
+     "Just curiosity"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q3",
+    "q": "How do you like to learn?",
+    "options": [
+     "Recall first, the why where I need it, then practice shaped like the City & Guilds papers",
+     "Rules and worked examples only",
+     "Lots of practice questions"
+    ],
+    "multi": false,
+    "other": false
+   }
+  ],
+  "answers": {
+   "q1": {
+    "picked": [
+     "A refresher of my Level 4 design and verification, taught back to me"
+    ],
+    "other": null
+   },
+   "q2": {
+    "picked": [
+     "As a reference for real design and installation work"
+    ],
+    "other": null
+   },
+   "q3": {
+    "picked": [
+     "Recall first, the why where I need it, then practice shaped like the City & Guilds papers"
+    ],
+    "other": null
+   }
+  }
+ }
+}

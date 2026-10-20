@@ -1,0 +1,601 @@
+{
+  "iid": "i1",
+  "title": "Design current: what the circuit really draws",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the input bar stretch past the fixed 20 kW output, the apparent-power bar past the input, and Ib climb from 28.87 A to 41.48 A, when you drag efficiency and power factor down.",
+    "title": "What the circuit really draws",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A refresher lesson in eleven screens, with Back and Continue between them, on the design current Ib. Screen 1, Do you still have it?: \"A 20 kW three-phase heater on a 400 V supply, power factor 1, efficiency 100%. What is its design current, Ib?\" Three choices, in this order: 28.87 A, 50.00 A, 86.96 A. Right: \"Still there.\", the working 20 000 ÷ (√3 × 400) = 28.87 A, a line saying it is your slides' own heater (p.16) and that the other two are the usual slips (50.00 A leaves out √3; 86.96 A works it at 230 V), and two buttons: Refresh the why (on to screen 2) and Skip to the practice (straight to screen 7). Wrong: the slip named (50.00 A treats the heater as one line at 400 V carrying all of it, but three-phase power is √3 × UL × IL × power factor, so the rule divides by √3 × the line voltage, your slides p.13; 86.96 A: that treats the heater as a single-phase load on 230 V), the right working, and on to screen 2, with no skip offered. Screen 2, What it is for: design current is the magnitude of the current to be carried by a circuit in normal service (slides p.11).[^1] The device and the cable are chosen from it, Ib ≤ In ≤ Iz (slides p.22),[^2] and every check after them starts from that choice. If it is skipped or wrong, every later step starts from the wrong current. Screen 3, The why: the same 20 kW output at 400 V. Two sliders, Power factor and Efficiency, each from 0.70 to 1.00 in steps of 0.01, both opening at 1.00, with \"Drag either one, or Replay\". The opening text: the cable carries what the load draws from the supply; your slides take P as the load's output and put the efficiency in the rule (p.12, 13),[^18][^17] and reactance, behind the power factor, adds to the draw too (p.15).[^21] The three bars are filled in the kit's area colours, not the teal kept for labels. The sentence under them says what stretched which, and keeps the same space as it changes, as does the red note. Three bars on one scale that fits the largest, 40.81 kVA at the lowest settings, each with its value: Output, 20.00 kW, fixed; Input = output ÷ efficiency, in kW; Apparent = input ÷ power factor, in kVA. A large readout, Ib = apparent × 1000 ÷ (√3 × 400), with its working under it. Each figure is worked from the rounded figure above it, to 2 decimal places. At 1.00 and 1.00: 20.00 kW, 20.00 kVA, 28.87 A. At efficiency 0.87 and power factor 0.80: 22.99 kW, 28.74 kVA, 41.48 A (your slides print 41.47 A). At 0.70 and 0.70: 28.57 kW, 40.81 kVA, 58.90 A. Under it, in red: if it's skipped, the cable is sized on 28.87 A when the load draws the readout's Ib, which your slides say \"would cause big implications for the operation and safety of the circuit\" (p.17).[^3] One line: real, apparent and reactive power are the AC circuits course's lesson 8; here they only show where the extra current comes from. Screen 4, Check, with new numbers so it cannot be answered from the readout just seen: a 7.5 kW three-phase motor on a 400 V supply, power factor 0.85, efficiency 90%: what is Ib? Choices 12.03 A (power factor left out), 12.74 A (efficiency left out) and 14.15 A (right: 7 500 ÷ (√3 × 400 × 0.9 × 0.85)), each wrong one with a hint naming the factor left out, and a Why? giving the rule (slides p.13).[^17] Screen 5, The voltage at the board, and diversity: a sub-board given as 393 V, 20 000 ÷ (√3 × 393) = 29.38 A, against 28.87 A at 400 V (slides p.19).[^4] A given voltage must be used, and at a sub-board it is lower than 400 V because of the submain's voltage drop (slides p.18).[^5][^6] One line: your slides work it as if the load still takes its full power; that is near enough for a motor driving its load, which draws more current at a lower voltage,[^29] and for a plain heater, which really draws a little less,[^28] the figure errs on the safe side. Diversity in two lines: the On-Site Guide's percentages are guidance and need not be applied (slides p.10);[^7] on a domestic lighting circuit its Appendix A allows 66%,[^27] so ten 100 W lamps may be designed at 10 × 100 × 0.66 = 660 W rather than 1000 W.[^8] Lesson 2 does more. Screen 6, Worked example: your slides' three cases, each built a step at a time as the rule builds it, one step shown at each press: 20 kW at 400 V (p.16), √3 × 400 = 692.82, then 20 000 ÷ 692.82 = 28.87 A; the same at power factor 0.8 and efficiency 87% (p.17), √3 × 400 = 692.82, × 0.87 × 0.8 = 482.20, then 20 000 ÷ 482.20 = 41.48 A; the same at a 393 V sub-board (p.19), √3 × 393 = 680.70, then 20 000 ÷ 680.70 = 29.38 A. Then one line: your slides print 28.86 A and 41.47 A, cut short rather than rounded; nothing changes. Screen 7, Section A, question 1 (a): the showroom's scenario panel, from your assignment (pack p.3 and question 4, p.4),[^9][^10][^11] and \"(a) Determine the design current.\" A typed answer (part 1a): 11 000 ÷ (√3 × 400 × 0.86 × 0.8) = 23.08 A, with 23.10 A (√3 taken as 1.73) also accepted; any accepted answer other than 23.08 A is told it is within rounding and that part (b) starts from 23.08 A. Each usual slip gets its own hint: 15.88 A (efficiency and power factor left out), 18.46 A (power factor left out), 19.85 A (efficiency left out), 39.97 A (√3 left out), 69.51 A (the single-phase rule at 230 V). After two wrong tries, the working is shown. Screen 8, Section A, question 1 (b): (a) carried forward at 23.08 A, and \"(b) Determine the current in each winding when the motor runs in delta.\" A small drawing: three windings joined in a triangle, the line current, 23.08 A, coming in on L1 at one corner, with L2 and L3 at the other two, one winding marked \"?\". A typed answer (part 1b): 23.08 ÷ √3 = 13.33 A, with 13.32 A (from the unrounded Ib), 13.34 A and 13.35 A (√3 taken as 1.73) also accepted. Slips: 39.98 A (multiplied by √3), 7.69 A (divided by 3). The feedback: in a balanced delta the line current is the winding current × √3,[^12] so each winding carries the line current ÷ √3. The showroom's motor is controlled by a star-delta starter (pack p.4),[^30] which runs six wires to the motor, one to each end of each winding,[^31] so in delta each of those cables carries one winding's current; lesson 3 sizes them, as question 4b asks. An accepted answer other than 13.33 A is told it is within rounding. Screen 9, Section B: \"Explain why Ib for a final circuit fed from a sub-board is worked at the voltage at that board, not at 400 V.\" Your written answer, marked against four points from your slides (a full answer makes any three), one more go, then the model answer. Screen 10, Section A, changed numbers: \"A three-phase 15 kW oven is fed from a sub-board whose voltage is given as 396 V. Determine the design current.\" A typed answer: 15 000 ÷ (√3 × 396) = 21.87 A, with 21.90 A (√3 taken as 1.73) also accepted. Slips: 21.65 A (worked at 400 V, not the board's 396 V), 37.88 A (√3 left out). Screen 11, Keep this: the summary card (what it is for, the rule with each formula kept on one line, the voltage to use when none is given and the delta rule, the traps, the showroom's figures so far, where it lives), then Finish the lesson. The line under the lesson, figures from your slides and your assignment, each line worked from the rounded figure before it, shows only on the screens with working (3 to 8 and 10).",
+    "ignores": "The bars treat the load as balanced across the three lines, as the three-phase rule does; an unbalanced load draws a different current in each line. Efficiency and power factor are fixed numbers here, as a nameplate gives them at full load; a motor running lightly loaded has a lower power factor and efficiency than its nameplate's. Ib is the steady running current: a motor draws much more for a moment as it starts, which is taken up when the device is chosen, in lesson 3. The bars show sizes only, not the power triangle: the apparent power is the input divided by the power factor, not the input with something added end to end. At a sub-board, Ib is worked as your slides work it, as if the load still takes its full power at the lower voltage: near enough true of a motor driving the same load, but a plain heater really draws a little less there, so the figure errs on the safe side.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 11 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Recall heater output, your slides p.16, kW",
+        "value": 20,
+        "kind": "constant",
+        "source": 13
+      },
+      {
+        "label": "Supply line voltage, V",
+        "value": 400,
+        "kind": "constant",
+        "source": 14
+      },
+      {
+        "label": "Recall Ib, 20 000 ÷ (√3 × 400), A",
+        "value": 28.87,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, √3 left out, A",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, single-phase rule at 230 V, A",
+        "value": 86.96,
+        "kind": "computed"
+      },
+      {
+        "label": "Single-phase voltage, V",
+        "value": 230,
+        "kind": "constant",
+        "source": 6
+      },
+      {
+        "label": "Power factor slider, lowest to highest",
+        "value": "0.70 to 1.00",
+        "kind": "control"
+      },
+      {
+        "label": "Efficiency slider, lowest to highest",
+        "value": "0.70 to 1.00",
+        "kind": "control"
+      },
+      {
+        "label": "Both sliders open at",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Input at efficiency 0.87, kW",
+        "value": 22.99,
+        "kind": "computed"
+      },
+      {
+        "label": "Apparent power at power factor 0.80, kVA",
+        "value": 28.74,
+        "kind": "computed"
+      },
+      {
+        "label": "Ib at 0.87 and 0.80, A",
+        "value": 41.48,
+        "kind": "computed"
+      },
+      {
+        "label": "Input at efficiency 0.70, kW",
+        "value": 28.57,
+        "kind": "computed"
+      },
+      {
+        "label": "Apparent at power factor 0.70, kVA",
+        "value": 40.81,
+        "kind": "computed"
+      },
+      {
+        "label": "Ib at 0.70 and 0.70, A",
+        "value": 58.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Slides' printed Ib at 400 V, A",
+        "value": 28.86,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Slides' printed Ib at 0.8 and 87%, A",
+        "value": 41.47,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Check: motor output, kW",
+        "value": 7.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Check: power factor",
+        "value": 0.85,
+        "kind": "assumed"
+      },
+      {
+        "label": "Check: efficiency",
+        "value": 0.9,
+        "kind": "assumed"
+      },
+      {
+        "label": "Check: Ib, 7 500 ÷ (√3 × 400 × 0.9 × 0.85), A",
+        "value": 14.15,
+        "kind": "computed"
+      },
+      {
+        "label": "Check slip, efficiency left out, A",
+        "value": 12.74,
+        "kind": "computed"
+      },
+      {
+        "label": "Check slip, power factor left out, A",
+        "value": 12.03,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: √3 × 400",
+        "value": 692.82,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: 692.82 × 0.87 × 0.8",
+        "value": 482.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: √3 × 393",
+        "value": 680.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Sub-board voltage in the slides, V",
+        "value": 393,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Ib at the 393 V sub-board, A",
+        "value": 29.38,
+        "kind": "computed"
+      },
+      {
+        "label": "Diversity example: lamps",
+        "value": 10,
+        "kind": "constant",
+        "source": 8
+      },
+      {
+        "label": "Diversity example: each lamp, W",
+        "value": 100,
+        "kind": "constant",
+        "source": 8
+      },
+      {
+        "label": "Diversity allowance for the example, %",
+        "value": 66,
+        "kind": "constant",
+        "source": 8
+      },
+      {
+        "label": "Designed load with diversity, W",
+        "value": 660,
+        "kind": "computed",
+        "source": 8
+      },
+      {
+        "label": "Designed load without diversity, W",
+        "value": 1000,
+        "kind": "computed",
+        "source": 8
+      },
+      {
+        "label": "Motor output, kW",
+        "value": 11,
+        "kind": "constant",
+        "source": 11
+      },
+      {
+        "label": "Motor power factor",
+        "value": 0.8,
+        "kind": "constant",
+        "source": 11
+      },
+      {
+        "label": "Motor efficiency, %",
+        "value": 86,
+        "kind": "constant",
+        "source": 11
+      },
+      {
+        "label": "Showroom Ze, Ω",
+        "value": 0.1,
+        "kind": "constant",
+        "source": 9
+      },
+      {
+        "label": "Showroom prospective fault current, kA",
+        "value": 4.6,
+        "kind": "constant",
+        "source": 9
+      },
+      {
+        "label": "Showroom ambient temperature, °C",
+        "value": 20,
+        "kind": "constant",
+        "source": 10
+      },
+      {
+        "label": "Starter-to-motor singles, thermosetting, pack p.4, °C",
+        "value": 90,
+        "kind": "constant"
+      },
+      {
+        "label": "Part 1a: motor Ib, A",
+        "value": 23.08,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1a with √3 as 1.73, A",
+        "value": 23.1,
+        "kind": "computed"
+      },
+      {
+        "label": "√3 as your slides take it",
+        "value": 1.73,
+        "kind": "constant",
+        "source": 15
+      },
+      {
+        "label": "Part 1a slip, both factors left out, A",
+        "value": 15.88,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1a slip, power factor left out, A",
+        "value": 18.46,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1a slip, efficiency left out, A",
+        "value": 19.85,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1a slip, √3 left out, A",
+        "value": 39.97,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1a slip, single-phase rule at 230 V, A",
+        "value": 69.51,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1b: each winding in delta, A",
+        "value": 13.33,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1b from the unrounded Ib, A",
+        "value": 13.32,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1b with √3 as 1.73, A",
+        "value": 13.34,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1b from 23.10 A with √3 as 1.73, A",
+        "value": 13.35,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1b slip, multiplied by √3, A",
+        "value": 39.98,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 1b slip, divided by 3, A",
+        "value": 7.69,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed numbers: oven output, kW",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Changed numbers: board voltage, V",
+        "value": 396,
+        "kind": "assumed"
+      },
+      {
+        "label": "Changed numbers: Ib, A",
+        "value": 21.87,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed numbers with √3 as 1.73, A",
+        "value": 21.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed numbers slip, worked at 400 V, A",
+        "value": 21.65,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed numbers slip, √3 left out, A",
+        "value": 37.88,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "The design current, Ib, is the current a circuit carries in normal service.[^1][^16] The cable carries what the load draws from the supply, not what it gives out, so Ib is worked from the load's input: Ib = P ÷ (√3 × UL × efficiency × power factor), where P is the output in watts and UL the line voltage.[^17][^18][^14]\n\nStart from the output, because that is the figure on the nameplate: your course slides take P as the output of the load.[^18] [[Efficiency]] is the output divided by the input,[^19][^20] so the input is the output divided by the efficiency. At 87%, 20 kW out needs 20 ÷ 0.87 = 22.99 kW in: the difference is lost inside the machine, but it comes down the cable first. Then the [[power factor]]. A motor needs more current than its output suggests, because of reactance.[^21] The power factor is the ratio of the real power in kW to the apparent power in kVA that the supply gives,[^22] and with an inductive load such as a motor it is below 1, so the kVA is bigger than the kW.[^23] So the apparent power is the input divided by the power factor: 22.99 ÷ 0.8 = 28.74 kVA. The line current follows the apparent power, because three-phase real power is √3 × line voltage × line current × power factor;[^24] turned round, 28.74 × 1000 ÷ (√3 × 400) = 41.48 A. Do both divisions at once and you have your slides' rule.[^17] Sized on the output alone, the same load would be designed on 28.87 A, and your slides say that 'would cause big implications for the operation and safety of the circuit'.[^3]\n\nTwo more things set the number. The voltage is the one at the board: if you are given a separate value, it must be used,[^5] and at a sub-board it is lower than 400 V because the submain drops some on the way.[^6] Your slides work the load at the same power, and since the power is √3 × voltage × current × power factor, the same power at a lower voltage needs more current: their 20 kW at a 393 V sub-board is 20 000 ÷ (√3 × 393) = 29.38 A,[^4] against 28.87 A at 400 V.[^13] That is near enough for a motor driving its load, which draws more current at a lower voltage;[^29] a plain heater really draws a little less there,[^28] so for a heater the figure errs on the safe side. Diversity is a different kind of thing: its percentages come from the On-Site Guide and are guidance that need not be applied.[^7] On a domestic lighting circuit the On-Site Guide's Appendix A allows 66%,[^27] so ten 100 W lamps could be designed at 660 W rather than 1000 W.[^8] BS 7671 itself has no diversity table; it has the designer assess maximum demand and allows diversity to be taken into account.[^25]\n\nThat is the first half of the course's puzzle. The showroom motor's 11 kW at 400 V is 15.88 A on its output alone, but at its 86% efficiency and power factor of 0.8 it draws 11 000 ÷ (√3 × 400 × 0.86 × 0.8) = 23.08 A.[^11] **Size from what the circuit draws: Ib = P ÷ (√3 × UL × efficiency × power factor), at the voltage at the board.**[^17][^5]"
+  },
+  "analogy": {
+    "text": "Think of ordering cable for a run. The distance between the boxes on the drawing is the output; what you order has to cover the offcuts and the tails as well, so the order is the run divided by the share of the drum that ends up in place. Ib works the same way: what the cable carries is the output divided by the share that comes out as useful power, the efficiency, and again by the power factor.",
+    "breaks": "Offcuts are gone for good, like the losses inside a motor. The reactive power behind a low power factor is not used up: it surges between the supply and the motor's magnetic field each cycle. The current that carries it still flows in the cable and heats it, which is why Ib counts it."
+  },
+  "practice": {
+    "text": "- Find the output P in watts, and the motor's efficiency and power factor from its nameplate or the maker's data. A load with nothing to allow for, such as your slides' 20 kW heater, is worked with both as 1.[^13]\n- Find the voltage at the board that feeds the circuit: 400 V three-phase or 230 V single-phase, unless you are given another value, which must then be used.[^5]\n- Apply the rule: three-phase, Ib = P ÷ (√3 × UL × efficiency × power factor);[^17] single-phase, the same without the √3, at the single-phase voltage.\n- Apply diversity only where it is common sense, with the On-Site Guide's figures, as guidance.[^7]\n- Carry Ib forward: the device's rating In and the cable's capacity Iz are chosen from it, Ib ≤ In ≤ Iz.[^2][^26]\n\n**Rule of thumb:** the cable carries the input, not the output. Whenever the efficiency or the power factor is below 1, Ib is bigger than P ÷ (√3 × UL).\n\n**Worked example:** the showroom's 400 V three-phase 11 kW motor, power factor 0.8 lagging, efficiency 86%.[^11] Ib = 11 000 ÷ (√3 × 400 × 0.86 × 0.8) = 23.08 A. In a balanced delta the line current is the winding current × √3,[^12] so each winding carries 23.08 ÷ √3 = 13.33 A. With √3 taken as 1.73, as your slides take it,[^15] Ib comes to 23.10 A: the same answer to a few hundredths.\n\n**Common mistakes**\n- Sizing on the output alone: 28.87 A for a load that draws 41.48 A.[^3]\n- 230 V or 400 V by habit when the board's voltage is given: 20 kW is 29.38 A at 393 V.[^4]\n- Leaving out √3: 20 000 ÷ 400 = 50.00 A.\n- Working a three-phase load at 230 V: 20 000 ÷ 230 = 86.96 A.\n- Treating diversity as a rule: it is guidance.[^7]"
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "written": {
+    "b1": {
+      "q": "Explain why Ib for a final circuit fed from a sub-board is worked at the voltage at that board, not at 400 V.",
+      "points": [
+        {
+          "text": "The submain drops some voltage, so the sub-board sits below 400 V.",
+          "cite": "Slides p.18"
+        },
+        {
+          "text": "Worked at the same power, a lower voltage gives a larger current: Ib = P ÷ (√3 × U).",
+          "cite": "Slides p.13, 19"
+        },
+        {
+          "text": "The device and the cable are chosen from Ib (Ib ≤ In ≤ Iz), so worked at 400 V both would be picked on too small a current.",
+          "cite": "Slides p.22"
+        },
+        {
+          "text": "For example, 20 kW is 28.87 A at 400 V but 29.38 A at 393 V.",
+          "cite": "Slides p.16, 19"
+        }
+      ],
+      "need": 3,
+      "model": "The submain between the main board and the sub-board drops some voltage, so the sub-board sits below 400 V (your slides p.18). Your slides work the load at the same power, so a lower voltage gives a larger current, since Ib = P ÷ (√3 × U): their 20 kW load is 28.87 A at 400 V but 29.38 A at 393 V (p.16, 19). That is near enough for a motor and errs on the safe side for a plain heater, which really draws a little less. The device and the cable are chosen from Ib (Ib ≤ In ≤ Iz, p.22), so working at 400 V would pick both on too small a current."
+    }
+  },
+  "summary": {
+    "title": "Design current, Ib",
+    "for": "The current the circuit carries in normal service (slides p.11). The device and the cable are chosen from it, and every check after them starts from that choice.",
+    "rule": "Single-phase: Ib = P ÷ (U × eff × pf)\nThree-phase: Ib = P ÷ (√3 × UL × eff × pf)\n\nP is the output in watts. U is the voltage at the board when you are given one; otherwise 230 V single-phase or 400 V three-phase (slides p.12, 13, 18).\nA heater like the slides' 20 kW one is worked with both as 1 (p.16); a motor's come from its nameplate or the maker's data (p.14).\nIn delta, each winding carries the line current ÷ √3.",
+    "traps": [
+      {
+        "text": "Sizing on the output alone: 28.87 A where the load draws 41.48 A.",
+        "cite": "Slides p.17"
+      },
+      {
+        "text": "230 V or 400 V by habit when the board's voltage is given.",
+        "cite": "Slides p.18"
+      },
+      {
+        "text": "Diversity treated as a rule: it is guidance, from the On-Site Guide.",
+        "cite": "Slides p.10"
+      }
+    ],
+    "where": "your slides p.10 to 19; the formula sheet, step 1; the flowchart, step 1; diversity in the On-Site Guide, Appendix A (slides p.10).",
+    "figures": [
+      "1a",
+      "1b"
+    ]
+  },
+  "sources": [
+    {
+      "n": 1,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p11",
+      "quote": "Design current is defined as ‘the magnitude of the current to be carried by a circuit in normal service’."
+    },
+    {
+      "n": 2,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p22",
+      "quote": "Regulation 433.1.1 explains the following: Ib ≤ In ≤ Iz"
+    },
+    {
+      "n": 3,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p17",
+      "quote": "their cable design is based on 28.86A rather than 41.47A, this would cause big implications for the operation and safety of the circuit."
+    },
+    {
+      "n": 4,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p19",
+      "quote": "Ib = 20,000 / 393 x √3"
+    },
+    {
+      "n": 5,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p18",
+      "quote": "If (when during design or in your exam) you are given a separate value for voltage (U), then this must be used."
+    },
+    {
+      "n": 6,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p18",
+      "quote": "This new voltage (which will be lower than 230V or 400V) must used for the Ib of the final circuits from the sub board."
+    },
+    {
+      "n": 7,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p10",
+      "quote": "The percentages to apply for diversity are only found in the OnSite Guide. This means, it’s guidance and doesn’t have to be applied."
+    },
+    {
+      "n": 8,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p10",
+      "quote": "then it could be designed to 660W as the Ib rather than 1000W."
+    },
+    {
+      "n": 9,
+      "title": "ED4-01A learner pack: car showroom assignment",
+      "url": "material:learner-pack#p3",
+      "quote": "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+    },
+    {
+      "n": 10,
+      "title": "ED4-01A learner pack: car showroom assignment",
+      "url": "material:learner-pack#p3",
+      "quote": "Ambient temperature is 20 degrees Celsius."
+    },
+    {
+      "n": 11,
+      "title": "ED4-01A learner pack: car showroom assignment",
+      "url": "material:learner-pack#p4",
+      "quote": "Within the consultation bay there will be an additional requirement for a 400 V three-phase 11 kW motor which operates at a power factor of 0.8 lagging and efficiency of 86%."
+    },
+    {
+      "n": 12,
+      "title": "Three-phase Y and Delta Configurations | Polyphase AC Circuits | Electronics Textbook",
+      "url": "https://www.allaboutcircuits.com/textbook/alternating-current/chpt-10/three-phase-y-delta-configurations",
+      "quote": "In balanced Δ circuits, the line voltage is equal to phase voltage, while the line current is equal to phase current times the square root of 3."
+    },
+    {
+      "n": 13,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p16",
+      "quote": "Ib = 20,000 / 400 x √3"
+    },
+    {
+      "n": 14,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p13",
+      "quote": "VL = Line to line voltage (400V)"
+    },
+    {
+      "n": 15,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p13",
+      "quote": "√3 = Square root of 3 (1.73)"
+    },
+    {
+      "n": 16,
+      "title": "2008 28 Autumn Wiring Matters",
+      "url": "https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf",
+      "quote": "The design current of the circuit, i.e. the current intended to be carried by the circuit in normal service."
+    },
+    {
+      "n": 17,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p13",
+      "quote": "Ib = P / VL x Eff% x PF x √3"
+    },
+    {
+      "n": 18,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p12",
+      "quote": "P = Power in watts (the output of the load)"
+    },
+    {
+      "n": 19,
+      "title": "Determining Electric Motor Load and Efficiency",
+      "url": "https://www.energy.gov/sites/prod/files/2014/04/f15/10097517.pdf",
+      "quote": "The NEMA definition of energy efficiency is the ratio of its useful power output to its total power input and is usually expressed in percentage"
+    },
+    {
+      "n": 20,
+      "title": "How to measure the power output of an electric motor",
+      "url": "https://www.futek.com/electric-motor-output-power",
+      "quote": "The efficiency of the motor is calculated as mechanical output power divided by electrical input power"
+    },
+    {
+      "n": 21,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p15",
+      "quote": "Some equipment (such as motors) require more than expected current to provide the output required, this is due to something called ‘reactance’."
+    },
+    {
+      "n": 22,
+      "title": "Power Factor",
+      "url": "https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf",
+      "quote": "Power factor (pf) is a term used to express the relationship between the Real Power (kW) required for a load and the Total or Apparent Power (kVa) supplied."
+    },
+    {
+      "n": 23,
+      "title": "Power Factor",
+      "url": "https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf",
+      "quote": "If the circuit contains an electric induction motor or other inductive load, then the power factor is less than 1.0 and kVa will be greater than kW"
+    },
+    {
+      "n": 24,
+      "title": "Power Factor",
+      "url": "https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf",
+      "quote": "kW = Volts RMS x Amps RMS x Pf x √3 / 1,000"
+    },
+    {
+      "n": 25,
+      "title": "Electrical Diversity Calculator — IET On-Site Guide (BS 7671) | TradeCalculator",
+      "url": "https://tradecalculator.co.uk/electrical/diversity-calculator/",
+      "quote": "BS 7671 itself contains no diversity table — Regulation 311.1 requires the designer to assess maximum demand and permits diversity to be taken into account; the On-Site Guide gives the recognised figures."
+    },
+    {
+      "n": 26,
+      "title": "Requirements for Protection Against Overload - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/requirements-protection-overload",
+      "quote": "The rated current or current setting of the protective device (In) should not be less than the design current (Ib) of the circuit."
+    },
+    {
+      "n": 27,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p10",
+      "quote": "For example, in appendix A of the OSG, a domestic lighting circuit can have 66% diversity applied."
+    },
+    {
+      "n": 28,
+      "title": "Resistive Load Wattage: Is Power Rating Constant? - Engineering Guide – Industrial Monitor Direct",
+      "url": "https://industrialmonitordirect.com/blogs/knowledgebase/resistive-heating-element-power-calculation-at-different-voltages",
+      "quote": "Power drops by V². Current drops proportionally. Fixed resistance."
+    },
+    {
+      "n": 29,
+      "title": "Resistive Load Wattage: Is Power Rating Constant? - Engineering Guide – Industrial Monitor Direct",
+      "url": "https://industrialmonitordirect.com/blogs/knowledgebase/resistive-heating-element-power-calculation-at-different-voltages",
+      "quote": "Motor draws more current to maintain torque."
+    },
+    {
+      "n": 30,
+      "title": "ED4-01A learner pack: car showroom assignment",
+      "url": "material:learner-pack#p4",
+      "quote": "It will be controlled by a star-delta starter."
+    },
+    {
+      "n": 31,
+      "title": "Wye Delta Wire Sizing | PLCtalk - Interactive Q & A",
+      "url": "https://www.plctalk.net/forums/threads/wye-delta-wire-sizing.7577",
+      "quote": "When wiring a motor to a Wye-Delta starter, 6 wires are run to the motor and connected to the motor terminals T1-T6. Each end of each winding has its own wire connected to it."
+    }
+  ]
+}

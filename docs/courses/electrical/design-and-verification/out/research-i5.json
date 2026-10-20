@@ -1,0 +1,168 @@
+{
+  "notes": [
+    {
+      "claim": "Voltage drop is (mV/A/m) × Ib × length / 1000, where mV/A/m is millivolts dropped per ampere of design current per metre, taken from the Appendix 4 cable tables.",
+      "sourceIds": [
+        36,
+        37
+      ]
+    },
+    {
+      "claim": "The limits are 3% of the supply voltage for lighting and 5% for other circuits (6.9 V and 11.5 V on 230 V); the slides say to use a given supply voltage, so 5% of 395 V is 19.75 V.",
+      "sourceIds": [
+        34,
+        35,
+        131,
+        38,
+        39
+      ]
+    },
+    {
+      "claim": "The drop counts from the origin to the most distant point, so the submain's drop is added to the final circuit's; the formula sheet and project guide both say so.",
+      "sourceIds": [
+        132,
+        72,
+        89
+      ]
+    },
+    {
+      "claim": "When a three-phase submain feeds a single-phase final circuit, the formula sheet divides the submain's three-phase voltage drop by root 3 before adding it, and the project guide warns to calculate this correctly.",
+      "sourceIds": [
+        73,
+        90
+      ]
+    },
+    {
+      "claim": "If the first cable fails, the slides increase the conductor CSA and repeat (\"chasing the volt drop\"); 1.5 mm² over 85 m fails, and 6.0 mm² gives 8.09 V.",
+      "sourceIds": [
+        40,
+        41
+      ]
+    },
+    {
+      "claim": "The tabulated mV/A/m values are for the maximum conductor operating temperature, reached only at full load; at lower loads the cable is cooler and its resistance lower, which the factor Ct corrects (the Ct formula itself was not captured).",
+      "sourceIds": [
+        133,
+        134,
+        42
+      ]
+    },
+    {
+      "claim": "For cables above 16 mm² the tables give R, X and Z; the slides use Z where no power factor is known and R and X where one is.",
+      "sourceIds": [
+        43
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "n": 34,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p38",
+      "quote": "Lighting circuits have upto 3% allowed: 6.9V single phase and 12V 3-phase"
+    },
+    {
+      "n": 35,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p38",
+      "quote": "Power circuits have upto 5% allowed: 11.5V single phase and 20V 3-phase"
+    },
+    {
+      "n": 36,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p38",
+      "quote": "(mV/A/m) means milli-volts dropped for every ampere of design current for every metre of conductor length."
+    },
+    {
+      "n": 37,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p39",
+      "quote": "Voltage drop = 11 x 31 x 35 / 1000"
+    },
+    {
+      "n": 38,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p40",
+      "quote": "We work on a maximum voltage drop of 3% of supply for lighting and 5% for all other circuits; therefore if the supply voltage is given (ie 395V) then your calculations must be based on the percentage of this value."
+    },
+    {
+      "n": 39,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p41",
+      "quote": "5% of 395V = 19.75V as a maximum voltage drop, so the circuit does not comply."
+    },
+    {
+      "n": 40,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p42",
+      "quote": "This means gradually increasing conductor CSA and repeating the voltage drop calculation, until it complies."
+    },
+    {
+      "n": 41,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p42",
+      "quote": "You’ll find that a 6.0mm² works here, as it has a voltage drop of 8.09V"
+    },
+    {
+      "n": 42,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p43",
+      "quote": "Current causes conductors to heat up, which in turn increases their resistance, which in turn increases voltage drop."
+    },
+    {
+      "n": 43,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p45",
+      "quote": "As a simple rule of thumb, if the circuit contains no known power factor, then simply using the Z (mV/A/m) is acceptable."
+    },
+    {
+      "n": 72,
+      "title": "Circuit design formula sheet",
+      "url": "material:formula-sheet#p1",
+      "quote": "Total Voltage Drop = VDrop of Submain + VDrop of final circuit"
+    },
+    {
+      "n": 73,
+      "title": "Circuit design formula sheet",
+      "url": "material:formula-sheet#p1",
+      "quote": "Divide the three phase value of voltage drop by root 3 to give equivalent single phase value of voltage drop to add"
+    },
+    {
+      "n": 89,
+      "title": "EAL Level 4 Design and Verification: project guide",
+      "url": "material:project-guide#p6",
+      "quote": "Include the sum of all voltage drops from the intake equipment to the end of the circuit in your calculations."
+    },
+    {
+      "n": 90,
+      "title": "EAL Level 4 Design and Verification: project guide",
+      "url": "material:project-guide#p6",
+      "quote": "If going from 3 phase to single phase make sure voltage drops are calculated correctly."
+    },
+    {
+      "n": 131,
+      "title": "How to determine voltage drop limits within electrical installations | NAPIT - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/how-to-determine-voltage-drop-limits-within-electrical-installations-napit",
+      "quote": "for a DNO supply, lighting circuits are at 3% of the nominal 230 V single-phase supply voltage, and the voltage drop must not exceed 6.9 V. All other circuits are at 5% and the voltage drop must not exceed 11.5 V."
+    },
+    {
+      "n": 132,
+      "title": "Volt Drop Calculation: Formula, 3% & 5% Limits (BS 7671) | Total Skills UK",
+      "url": "https://www.totalskills.co.uk/guides/volt-drop-calculations",
+      "quote": "They apply from the origin of the installation to the most distant point of the circuit."
+    },
+    {
+      "n": 133,
+      "title": "TiSoft - Voltage drop calculation according to BS 7671",
+      "url": "https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs",
+      "quote": "The values of (mV/A/m) given in the Appendix 4 tables are at the maximum conductor operating temperature of, say, 70°C or 90°C, and these temperatures are only reached when the conductor is carrying its full load."
+    },
+    {
+      "n": 134,
+      "title": "TiSoft - Voltage drop calculation according to BS 7671",
+      "url": "https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs",
+      "quote": "At lower loads, the temperature and the resistance of the cable are lower."
+    }
+  ],
+  "at": "2026-10-20T08:19:24.708Z"
+}

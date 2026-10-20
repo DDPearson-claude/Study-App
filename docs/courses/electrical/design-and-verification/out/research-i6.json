@@ -1,0 +1,177 @@
+{
+  "notes": [
+    {
+      "claim": "Zs = Ze + (R1+R2): Ze is the external impedance of the supply and R1+R2 the circuit's own line and protective conductor resistance, which grows with length.",
+      "sourceIds": [
+        50,
+        143,
+        74
+      ]
+    },
+    {
+      "claim": "Calculated R1+R2 is (mΩ/m) × multiplier × length / 1000; the slides' 1.5 mm² line and cpc at 24.2 mΩ/m, multiplier 1.2 and 15 m gives 0.43 Ω, and Zs 0.64 Ω with Ze 0.21 Ω.",
+      "sourceIds": [
+        52,
+        53,
+        54,
+        55,
+        56
+      ]
+    },
+    {
+      "claim": "Loop impedance is limited because a lower Zs lets a higher fault current flow, which operates the device within the required time; the slides find 341.4 A at Cmin 0.95.",
+      "sourceIds": [
+        139,
+        140,
+        57
+      ]
+    },
+    {
+      "claim": "Cmin is the minimum voltage factor allowing for supply voltage variation, 0.95 for a low voltage supply under the ESQCR; the slides explain 230 V can fall to 218.5 V.",
+      "sourceIds": [
+        135,
+        136,
+        45
+      ]
+    },
+    {
+      "claim": "Final circuits to 32 A must disconnect in accordance with Table 41.1 (0.4 s in the slides' TN example), and these are maximum disconnection times, not actual ones.",
+      "sourceIds": [
+        48,
+        51,
+        49,
+        138
+      ]
+    },
+    {
+      "claim": "Cmin is best used when deciding the fault current that operates a protective device, and Cmax and Cmin are not used together but in separate calculations.",
+      "sourceIds": [
+        46,
+        44
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "n": 44,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p47",
+      "quote": "230 x 0.95 / 7.28 = 30A"
+    },
+    {
+      "n": 45,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p48",
+      "quote": "voltage fluctuates as it’s produced, which means it can drop below the nominal voltage of 230V to as low as 218.5V."
+    },
+    {
+      "n": 46,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p48",
+      "quote": "Cmax and Cmin cannot be used together, instead it’s wise to do separate calculations with each being used."
+    },
+    {
+      "n": 48,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p49",
+      "quote": "Regulation 411.3.2.2 explains the following circuits are supposed to disconnect in accordance with table 41.1:"
+    },
+    {
+      "n": 49,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p50",
+      "quote": "These are MAXIMUM disconnection times, not actual disconnection times."
+    },
+    {
+      "n": 50,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p50",
+      "quote": "Zs = Ze + (R1+R2)"
+    },
+    {
+      "n": 51,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p51",
+      "quote": "This circuit means that table 41.1 will be used, which explains it needs to disconnect within 0.4s."
+    },
+    {
+      "n": 52,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p51",
+      "quote": "For the (mΩ/m) of a 1.5mm² line and a 1.5mm² cpc, the value to use is: 24.2."
+    },
+    {
+      "n": 53,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p52",
+      "quote": "This multiplier simply corrects the answer to as if the circuit were operating."
+    },
+    {
+      "n": 54,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p52",
+      "quote": "(mΩ/m) x multiplier x length / 1000"
+    },
+    {
+      "n": 55,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p53",
+      "quote": "24.2 x 1.2 x 15 / 1000"
+    },
+    {
+      "n": 56,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p54",
+      "quote": "Our Zs will be calculated as: 0.21 + 0.43 = 0.64Ω"
+    },
+    {
+      "n": 57,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p55",
+      "quote": "230 x 0.95 / 0.64 = 341.4A"
+    },
+    {
+      "n": 74,
+      "title": "Circuit design formula sheet",
+      "url": "material:formula-sheet#p1",
+      "quote": "Zs = Zs@db + (R1+R2)"
+    },
+    {
+      "n": 135,
+      "title": "REDUCTION IN MAXIMUM VALUES OF EARTH FAULT LOOP IMPEDANCE IN BS 7671",
+      "url": "https://electrical.theiet.org/media/1442/maximum-zs-values.pdf",
+      "quote": "Cmin is the minimum voltage factor to take account of voltage variations depending on time and place, changing of transformer taps and other considerations."
+    },
+    {
+      "n": 136,
+      "title": "REDUCTION IN MAXIMUM VALUES OF EARTH FAULT LOOP IMPEDANCE IN BS 7671",
+      "url": "https://electrical.theiet.org/media/1442/maximum-zs-values.pdf",
+      "quote": "NOTE 1: For a low voltage supply given in accordance with ESQCR, Cmin is given the value 0.95."
+    },
+    {
+      "n": 138,
+      "title": "Verifi cation of Automatic Disconnection of Supply",
+      "url": "https://dms.niceic.com/0000003345.pdf",
+      "quote": "Therefore, to verify that under earth fault conditions the device will disconnect the circuit within the required time (0.4 s given a TN system), the measured value of earth fault loop impedance should not exceed:"
+    },
+    {
+      "n": 139,
+      "title": "IET Wiring Regulations Explained: Loop Impedance Testing | Megger",
+      "url": "https://www.megger.com/en/knowledge-hub/IET-wiring-regulations",
+      "quote": "Loop impedance testing verifies that, in the event of an earth fault, sufficient fault current will flow to operate the protective device within the required disconnection time specified by BS 7671."
+    },
+    {
+      "n": 140,
+      "title": "IET Wiring Regulations Explained: Loop Impedance Testing | Megger",
+      "url": "https://www.megger.com/en/knowledge-hub/IET-wiring-regulations",
+      "quote": "A lower earth fault loop impedance (Zs) allows a higher prospective fault current (PFC) to flow."
+    },
+    {
+      "n": 143,
+      "title": "Earth fault loop impedance by calculation / maximum disconnection time - Wiring and the Regulations BS 7671 - IET EngX - IET EngX",
+      "url": "https://engx.theiet.org/f/wiring-and-regulations/30752/earth-fault-loop-impedance-by-calculation-maximum-disconnection-time",
+      "quote": "The basic formula is Zs = Ze + R1 + R2"
+    }
+  ],
+  "at": "2026-10-20T08:19:24.708Z"
+}

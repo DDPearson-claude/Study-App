@@ -6,6 +6,8 @@
 // <out>-{360,1280}-{light,dark}-moved.png: every control set to another value through the host's
 // set() (a slider to 75% of its range, or to its top or middle if it opens near 75%; a choice or
 // stepper to its next option; a toggle flipped), then the first K.button pressed or K.anim played.
+// A steps lesson whose controls are all hidden on its opening step is first walked on to the first
+// step that shows one, and its controls are moved there (nothing pressed).
 // Then <out>-{360,1280}-{light,dark}-end.png: every control at its far end (a slider's top, or its
 // bottom if it opens there; a choice's or stepper's last option) after 2.5 s, so an answer at the
 // end of a process or a slow animation is seen. Prints the merged report plus what was moved.
@@ -94,16 +96,28 @@ export async function renderBody(body, out, appFile, o = {}) {
         const did = await app.page.evaluate(async () => {
           const m = window.__render, done = [];
           if (!m || typeof m.inputs !== 'function') return done;
-          const info = await m.inputs().catch(() => null);
+          let info = await m.inputs().catch(() => null);
           if (!info) return done;
+          // A steps lesson whose controls are all hidden on the opening step: walk the stepper on to
+          // the first step that shows one, then move the controls there, where they can be seen.
+          const stp = info.inputs.find((c) => c.kind === 'stepper'), rest = info.inputs.filter((c) => c.kind !== 'stepper');
+          let walked = false;
+          if (stp && rest.length && rest.every((c) => c.shown === false)) {
+            for (let s = stp.value + 1; s <= stp.max && !walked; s++) {
+              try { await m.set(stp.id, s); } catch (e) { break; }
+              const now = await m.inputs().catch(() => null);
+              if (now && now.inputs.some((c) => c.kind !== 'stepper' && c.shown)) { info = now; walked = true; done.push(stp.id + ' = ' + s + ' (the first step that shows a control)'); }
+            }
+          }
           for (const c of info.inputs) {
+            if (walked && c.kind === 'stepper') continue;
             const v = window.__movedValue(c);
             try { await m.set(c.id, v); done.push(c.id + ' = ' + JSON.stringify(v)); } catch (e) { done.push(c.id + ': ' + (e && e.message)); }
           }
-          if (info.actions.length) {
+          if (info.actions.length && !walked) {
             try { await m.press(); done.push('pressed "' + info.actions[0] + '"'); } catch (e) { done.push('press: ' + (e && e.message)); }
           }
-          await new Promise((r) => setTimeout(r, info.actions.length ? 1500 : 500));
+          await new Promise((r) => setTimeout(r, info.actions.length && !walked ? 1500 : 500));
           return done;
         }).catch((e) => ['could not move: ' + e.message]);
         if (!moves) moves = did;

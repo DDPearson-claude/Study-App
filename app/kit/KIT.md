@@ -135,7 +135,7 @@ Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` 
 Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
 changes them.
 
-Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note` (amber box),
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
 `warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
 `<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
 <span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.

@@ -1,8 +1,9 @@
 {
  "v": 1,
+ "title": "The showroom",
  "course": "design-and-verification",
  "updated": "2026-10-20",
- "about": "The running case for the refresher (format/refresher.md section 4): the showroom givens, the course's own assumptions, and every figure each lesson works out, with its rule and inputs. Built by a script that works each figure from the inputs shown with it.",
+ "about": "The running case for the refresher (format/refresher.md section 4): the showroom givens, the course's own assumptions, and every figure each lesson works out, with its rule and inputs. Built by a script that works each figure from the inputs shown with it. Reshaped 20 Oct for the app (RUNBOOK section 8): a flat figures list, each naming its lesson and, for a Section A part, its part; figures still to be worked are in pending (see case.notes.md).",
  "edition": "BS 7671:2018+A2:2022, as Dan's course taught it (flowchart title). Whether A3:2024 changes anything here is not checked.",
  "rounding": "Each figure is worked from the inputs shown with it, rounded half up: currents, voltages, powers and kW to 2 decimal places, impedances to 3, CSA to 2, lengths to 1. A maximum is rounded down. A typed answer is accepted within \"accept\" where given (it covers √3 taken as 1.73, as slides p.13 do, and unrounded working).",
  "cites": {
@@ -13,6 +14,11 @@
   "guide": "source/eal-l4-project-presentation.pptx (pptx-pdf/), slide",
   "power dwg": "source/eal-l4-drawing-power.pdf",
   "lighting dwg": "source/eal-l4-drawing-lighting.pdf"
+ },
+ "scenario": {
+  "title": "Your showroom: the motor",
+  "text": "A newly built car retailer; cars are driven over the showroom's concrete floor. Supply: three phase four wire 400 V, TN-C-S, Ze declared as 0.1 Ω, prospective fault current 4.6 kA; ambient 20 °C. Five boards: MDB, DBL1, DBL2, DBP1 and DBP2. In the consultation bay, a 400 V three-phase 11 kW motor, power factor 0.8 lagging, efficiency 86%, controlled by a star-delta starter and not subject to frequent starting and stopping. The cables from the starter to the motor are 90 °C thermosetting singles in conduit.",
+  "source": "Your assignment ED4-01A: pack p.3, and question 4 on p.4."
  },
  "givens": [
   {
@@ -129,7 +135,8 @@
    "label": "The motor is fed from DBP2",
    "value": "DBP2",
    "why": "The motor is not drawn (brief section 2). DBP2 is the nearer power board to the consultation bay: about 11.4 m on plan against about 15 m from DBP1 in the plant room.",
-   "status": "assumption"
+   "status": "assumption",
+   "text": "The course's own assumption: The motor is fed from DBP2. The motor is not drawn (brief section 2). DBP2 is the nearer power board to the consultation bay: about 11.4 m on plan against about 15 m from DBP1 in the plant room."
   },
   {
    "id": "a.motorRun",
@@ -138,34 +145,39 @@
    "unit": "m",
    "working": "4.5 m east + 6.9 m north = 11.4 m, from DBP2 (1615.5, 695.5) to the consultation bay label (1869.5, 303), at 17.64 mm a point",
    "why": "The motor's position is taken as the room label's centre. Approximate.",
-   "status": "assumption"
+   "status": "assumption",
+   "text": "The course's own assumption: DBP2 to the motor, along the walls on plan: 11.4 m. The motor's position is taken as the room label's centre. Approximate."
   },
   {
    "id": "a.starter",
    "label": "The starter sits beside the motor",
    "value": "starter-to-motor run to be set at build (a few metres), said on screen",
    "why": "Question 4b sizes only the starter-to-motor cables; their length matters for voltage drop only.",
-   "status": "assumption to set"
+   "status": "assumption to set",
+   "text": "The course's own assumption: The starter sits beside the motor: starter-to-motor run to be set at build (a few metres), said on screen. Question 4b sizes only the starter-to-motor cables; their length matters for voltage drop only."
   },
   {
    "id": "a.drops",
    "label": "Vertical runs into the ceiling voids",
    "value": "to set at build from board and equipment heights; the drawings give none",
    "why": "The guide asks for \"all lengths of the cable run\" (guide p.5).",
-   "status": "assumption to set"
+   "status": "assumption to set",
+   "text": "The course's own assumption: Vertical runs into the ceiling voids: to set at build from board and equipment heights; the drawings give none. The guide asks for \"all lengths of the cable run\" (guide p.5)."
   },
   {
    "id": "a.dbl2split",
    "label": "Which luminaires DBL2 feeds, and its circuits",
    "value": "to set at build, said on screen",
    "why": "Question 1b leaves the split to the designer (pack p.4).",
-   "status": "assumption to set"
+   "status": "assumption to set",
+   "text": "The course's own assumption: Which luminaires DBL2 feeds, and its circuits: to set at build, said on screen. Question 1b leaves the split to the designer (pack p.4)."
   },
   {
    "id": "a.slidesJob",
    "label": "The worked examples",
    "value": "the slides' own examples (3 kW heaters, 20 kW load, 150 A harmonic load, short circuit on 2.5 mm²) are used as printed, outside the showroom",
-   "status": "assumption"
+   "status": "assumption",
+   "text": "The course's own assumption: The worked examples: the slides' own examples (3 kW heaters, 20 kW load, 150 A harmonic load, short circuit on 2.5 mm²) are used as printed, outside the showroom"
   }
  ],
  "lessons": [
@@ -175,317 +187,12 @@
    "sectionA": [
     "1(a)",
     "1(b)"
-   ],
-   "figures": [
-    {
-     "id": "l1.recall",
-     "label": "Recall: Ib of a 20 kW three-phase heater at 400 V, pf 1, 100%",
-     "value": 28.87,
-     "unit": "A",
-     "rule": "Ib = P ÷ (√3 × UL)",
-     "inputs": {
-      "P": "20 000 W",
-      "UL": "400 V"
-     },
-     "working": "20 000 ÷ (√3 × 400) = 28.87 A",
-     "cite": "slides p.16 (printed 28.86 A, cut short)",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l1.recall.slip1",
-     "label": "Recall slip: √3 left out",
-     "value": 50.0,
-     "unit": "A",
-     "rule": "P ÷ UL",
-     "inputs": {
-      "P": "20 000 W",
-      "UL": "400 V"
-     },
-     "working": "20 000 ÷ 400 = 50.00 A",
-     "cite": "slides p.13 (the rule it breaks)",
-     "kind": "slip",
-     "status": "worked"
-    },
-    {
-     "id": "l1.recall.slip2",
-     "label": "Recall slip: single-phase formula at 230 V",
-     "value": 86.96,
-     "unit": "A",
-     "rule": "P ÷ U0",
-     "inputs": {
-      "P": "20 000 W",
-      "U0": "230 V"
-     },
-     "working": "20 000 ÷ 230 = 86.96 A",
-     "cite": "slides p.12, 13 (the rule it breaks)",
-     "kind": "slip",
-     "status": "worked"
-    },
-    {
-     "id": "l1.reteach.in",
-     "label": "Input power at efficiency 0.87",
-     "value": 22.99,
-     "unit": "kW",
-     "rule": "input = output ÷ efficiency",
-     "inputs": {
-      "output": "20 kW",
-      "efficiency": "0.87"
-     },
-     "working": "20 ÷ 0.87 = 22.99 kW",
-     "cite": "slides p.12, 15, 17",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l1.reteach.app",
-     "label": "Apparent power at pf 0.8",
-     "value": 28.74,
-     "unit": "kVA",
-     "rule": "apparent = input ÷ power factor",
-     "inputs": {
-      "input": "22.99 kW",
-      "pf": "0.8"
-     },
-     "working": "22.99 ÷ 0.8 = 28.74 kVA",
-     "cite": "slides p.15, 17",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l1.reteach.ib",
-     "label": "Ib from the apparent power",
-     "value": 41.48,
-     "unit": "A",
-     "rule": "Ib = apparent × 1000 ÷ (√3 × UL)",
-     "inputs": {
-      "apparent": "28.74 kVA",
-      "UL": "400 V"
-     },
-     "working": "28.74 × 1000 ÷ (√3 × 400) = 41.48 A",
-     "cite": "slides p.17 (printed 41.47 A, cut short)",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l1.reteach.low",
-     "label": "Ib at pf 0.70 and efficiency 0.70 (the sliders at their lowest)",
-     "value": 58.9,
-     "unit": "A",
-     "rule": "as above",
-     "inputs": {
-      "input": "20 ÷ 0.70 = 28.57 kW",
-      "apparent": "28.57 ÷ 0.70 = 40.81 kVA"
-     },
-     "working": "40.81 × 1000 ÷ (√3 × 400) = 58.90 A",
-     "cite": "computed",
-     "kind": "worked",
-     "status": "worked",
-     "note": "Worked from the shown 40.81 kVA; 58.91 A unrounded."
-    },
-    {
-     "id": "l1.check",
-     "label": "Check: Ib at pf 0.8 and efficiency 87%",
-     "value": 41.48,
-     "unit": "A",
-     "rule": "Ib = P ÷ (√3 × UL × eff × pf)",
-     "inputs": {
-      "P": "20 000 W",
-      "UL": "400 V",
-      "eff": "0.87",
-      "pf": "0.8"
-     },
-     "working": "20 000 ÷ (√3 × 400 × 0.87 × 0.8) = 41.48 A",
-     "cite": "slides p.13, 17",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l1.check.slip1",
-     "label": "Check slip: efficiency left out",
-     "value": 36.08,
-     "unit": "A",
-     "rule": "P ÷ (√3 × UL × pf)",
-     "inputs": {
-      "pf": "0.8"
-     },
-     "working": "20 000 ÷ (√3 × 400 × 0.8) = 36.08 A",
-     "cite": "slides p.17 (the rule it breaks)",
-     "kind": "slip",
-     "status": "worked"
-    },
-    {
-     "id": "l1.check.slip2",
-     "label": "Check slip: power factor left out",
-     "value": 33.18,
-     "unit": "A",
-     "rule": "P ÷ (√3 × UL × eff)",
-     "inputs": {
-      "eff": "0.87"
-     },
-     "working": "20 000 ÷ (√3 × 400 × 0.87) = 33.18 A",
-     "cite": "slides p.17 (the rule it breaks)",
-     "kind": "slip",
-     "status": "worked"
-    },
-    {
-     "id": "l1.board",
-     "label": "Ib at a sub-board measured at 393 V",
-     "value": 29.38,
-     "unit": "A",
-     "rule": "Ib = P ÷ (√3 × U at the board)",
-     "inputs": {
-      "P": "20 000 W",
-      "U": "393 V"
-     },
-     "working": "20 000 ÷ (√3 × 393) = 29.38 A",
-     "cite": "slides p.18, 19",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l1.diversity",
-     "label": "Ten 100 W lamps at 66% diversity",
-     "value": 660.0,
-     "unit": "W",
-     "rule": "design load = total × diversity",
-     "inputs": {
-      "total": "10 × 100 W",
-      "diversity": "66%"
-     },
-     "working": "10 × 100 × 0.66 = 660 W",
-     "cite": "slides p.10 (OSG Appendix A; guidance, not a rule)",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l1.A.1a",
-     "label": "Section A 1(a): the motor's design current",
-     "value": 23.08,
-     "unit": "A",
-     "rule": "Ib = P ÷ (√3 × UL × eff × pf)",
-     "inputs": {
-      "P": "11 000 W",
-      "UL": "400 V",
-      "eff": "0.86",
-      "pf": "0.8"
-     },
-     "working": "11 000 ÷ (√3 × 400 × 0.86 × 0.8) = 23.08 A",
-     "cite": "pack p.4 question 4a; slides p.13",
-     "kind": "showroom",
-     "status": "worked",
-     "accept": {
-      "min": 23.05,
-      "max": 23.11,
-      "why": "√3 taken as 1.73 (slides p.13) gives 23.10 A"
-     }
-    },
-    {
-     "id": "l1.A.1b",
-     "label": "Section A 1(b): the current in each winding when the motor runs in delta",
-     "value": 13.33,
-     "unit": "A",
-     "rule": "In delta, phase (winding) current = line current ÷ √3",
-     "inputs": {
-      "line current": "23.08 A (part a)"
-     },
-     "working": "23.08 ÷ √3 = 13.33 A",
-     "cite": "rule: AC circuits lesson 10 (a quote is still to be found, see toResearch); pack p.4 question 4b asks for \"delta running conditions\"",
-     "kind": "showroom",
-     "status": "worked",
-     "note": "13.32 A from the unrounded Ib.",
-     "accept": {
-      "min": 13.3,
-      "max": 13.36,
-      "why": "13.32 A from the unrounded Ib; √3 as 1.73 gives 13.34 A"
-     }
-    },
-    {
-     "id": "l1.A.changed",
-     "label": "Section A, changed numbers: a three-phase 15 kW water heater at a board measured at 396 V",
-     "value": 21.87,
-     "unit": "A",
-     "rule": "Ib = P ÷ (√3 × U at the board)",
-     "inputs": {
-      "P": "15 000 W",
-      "U": "396 V"
-     },
-     "working": "15 000 ÷ (√3 × 396) = 21.87 A",
-     "cite": "shape: C&G 2396 P1 question 1 (numbers changed); rule slides p.18, 19",
-     "kind": "practice",
-     "status": "worked",
-     "accept": {
-      "min": 21.84,
-      "max": 21.9,
-      "why": "√3 as 1.73 gives 21.90 A"
-     }
-    }
    ]
   },
   {
    "n": 2,
    "title": "Maximum demand: what the whole building draws",
-   "sectionA": [],
-   "figures": [
-    {
-     "id": "l2.worked.diversity",
-     "label": "Ten 100 W lamps at 66%",
-     "value": 660.0,
-     "unit": "W",
-     "rule": "design load = total × diversity",
-     "inputs": {
-      "total": "1000 W",
-      "diversity": "66%"
-     },
-     "working": "1000 × 0.66 = 660 W",
-     "cite": "slides p.10",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l2.dbl2.load",
-     "label": "DBL2's connected lighting load",
-     "value": null,
-     "unit": "W",
-     "rule": "sum of the luminaires DBL2 feeds × their key wattages",
-     "needs": [
-      "luminaire counts recounted by hand from the lighting drawing",
-      "which luminaires DBL2 feeds (assumption a.dbl2split)"
-     ],
-     "cite": "lighting dwg key",
-     "kind": "showroom",
-     "status": "to count"
-    },
-    {
-     "id": "l2.balance",
-     "label": "DBL2's lighting split across L1, L2, L3",
-     "value": null,
-     "unit": "A per phase",
-     "rule": "phase current = phase load ÷ 230 V (resistive and LED loads need their power factors: to research)",
-     "needs": [
-      "l2.dbl2.load",
-      "the luminaires' power factors (maker's data)"
-     ],
-     "cite": "pack question 1b",
-     "kind": "showroom",
-     "status": "to research"
-    },
-    {
-     "id": "l2.md",
-     "label": "Maximum demand of the installation (question 10)",
-     "value": null,
-     "unit": "A per phase",
-     "rule": "connected loads with diversity allowances, plus the motor's 23.08 A",
-     "needs": [
-      "OSG Appendix A allowances for each load type",
-      "loads for the sockets, the 20 A and 32 A points and the EV points (not on the drawings)",
-      "l2.dbl2.load"
-     ],
-     "cite": "pack question 10; guide p.3",
-     "kind": "showroom",
-     "status": "to research"
-    }
-   ]
+   "sectionA": []
   },
   {
    "n": 3,
@@ -495,427 +202,18 @@
     "1(d)",
     "1(e)",
     "1(f)"
-   ],
-   "figures": [
-    {
-     "id": "l3.worked.ib",
-     "label": "The slides' 3 kW heater: Ib",
-     "value": 13.04,
-     "unit": "A",
-     "rule": "Ib = P ÷ U0",
-     "inputs": {
-      "P": "3000 W",
-      "U0": "230 V"
-     },
-     "working": "3000 ÷ 230 = 13.04 A",
-     "cite": "slides p.26",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l3.recall",
-     "label": "Recall: It where Ca and Cg act together (the worse section)",
-     "value": 21.28,
-     "unit": "A",
-     "rule": "It ≥ In ÷ (factors acting together)",
-     "inputs": {
-      "In": "16 A",
-      "Ca": "0.94",
-      "Cg": "0.8"
-     },
-     "working": "16 ÷ (0.94 × 0.8) = 21.28 A",
-     "cite": "slides p.26, 27 (printed 21.2 A, cut short)",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l3.recall.ci",
-     "label": "The other section: Ca and Ci together",
-     "value": 19.34,
-     "unit": "A",
-     "rule": "as above",
-     "inputs": {
-      "In": "16 A",
-      "Ca": "0.94",
-      "Ci": "0.88"
-     },
-     "working": "16 ÷ (0.94 × 0.88) = 19.34 A",
-     "cite": "slides p.27",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l3.recall.slip",
-     "label": "Recall slip: all three multiplied",
-     "value": 24.18,
-     "unit": "A",
-     "rule": "factors that never act together multiplied",
-     "inputs": {
-      "Ca": "0.94",
-      "Cg": "0.8",
-      "Ci": "0.88"
-     },
-     "working": "16 ÷ (0.94 × 0.8 × 0.88) = 24.18 A",
-     "cite": "slides p.25 (\"only be applied when happening TOGETHER\")",
-     "kind": "slip",
-     "status": "worked"
-    },
-    {
-     "id": "l3.overload.i2",
-     "label": "A 10 A breaker's I2",
-     "value": 14.5,
-     "unit": "A",
-     "rule": "I2 = 1.45 × In for most devices",
-     "inputs": {
-      "In": "10 A"
-     },
-     "working": "1.45 × 10 = 14.50 A",
-     "cite": "slides p.30",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l3.overload.lim",
-     "label": "What a cable with Iz 13 A can take",
-     "value": 18.85,
-     "unit": "A",
-     "rule": "I2 ≤ 1.45 × Iz",
-     "inputs": {
-      "Iz": "13 A (slides p.31, flagged in brief)"
-     },
-     "working": "1.45 × 13 = 18.85 A",
-     "cite": "slides p.31, 32",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l3.overload.ff",
-     "label": "The rewireable fuse's factor implied by Cf",
-     "value": 2.0,
-     "unit": "",
-     "rule": "fusing factor = 1.45 ÷ Cf",
-     "inputs": {
-      "Cf": "0.725 (BS 3036)"
-     },
-     "working": "1.45 ÷ 0.725 = 2",
-     "cite": "slides p.25",
-     "kind": "worked",
-     "status": "worked",
-     "note": "Derived from Cf; the BS 3036 fusing factor itself is to research."
-    },
-    {
-     "id": "l3.overload.it",
-     "label": "It needed behind a 10 A rewireable fuse",
-     "value": 13.79,
-     "unit": "A",
-     "rule": "It ≥ In ÷ Cf",
-     "inputs": {
-      "In": "10 A",
-      "Cf": "0.725"
-     },
-     "working": "10 ÷ 0.725 = 13.79 A",
-     "cite": "slides p.25",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l3.overload.check",
-     "label": "And that cable's limit",
-     "value": 20.0,
-     "unit": "A",
-     "rule": "1.45 × Iz",
-     "inputs": {
-      "Iz": "13.79 A"
-     },
-     "working": "1.45 × 13.79 = 20.00 A, the fuse's 2 × 10 = 20 A",
-     "cite": "slides p.25, 32",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l3.practice.cf",
-     "label": "Practice (changed numbers): It behind a 15 A rewireable fuse",
-     "value": 20.69,
-     "unit": "A",
-     "rule": "It ≥ In ÷ Cf",
-     "inputs": {
-      "In": "15 A",
-      "Cf": "0.725"
-     },
-     "working": "15 ÷ 0.725 = 20.69 A",
-     "cite": "shape: C&G B; rule slides p.25",
-     "kind": "practice",
-     "status": "worked"
-    },
-    {
-     "id": "l3.A.1c",
-     "label": "Section A 1(c): the device for the motor circuit and its rating",
-     "value": null,
-     "unit": "A",
-     "rule": "Ib ≤ In; device type for the starting current; overload relay in a star-delta starter",
-     "needs": [
-      "B, C, D instantaneous-trip multiples (Appendix 3)",
-      "how the starter's overload protects the delta-connected windings and cables (the guide points to its 4.7, guide p.7)"
-     ],
-     "cite": "slides p.20, 22; pack p.4",
-     "kind": "showroom",
-     "status": "to research"
-    },
-    {
-     "id": "l3.A.1d",
-     "label": "Section A 1(d): rating factors for the starter-to-motor singles",
-     "value": null,
-     "unit": "",
-     "rule": "Ca for 20 °C, 90 °C thermosetting; Cg for the six singles in one conduit",
-     "needs": [
-      "Ca at 20 °C for 90 °C thermosetting (Table 4B1)",
-      "how Cg counts a star-delta motor's six cores"
-     ],
-     "cite": "pack p.3 (20 °C), p.4 (question 4b)",
-     "kind": "showroom",
-     "status": "to research"
-    },
-    {
-     "id": "l3.A.1e",
-     "label": "Section A 1(e): the table and column",
-     "value": null,
-     "unit": "",
-     "rule": "the table for 90 °C thermosetting singles; the column for singles enclosed in conduit (Reference Method B, as slides p.42 treat singles in conduit)",
-     "needs": [
-      "the table number and the column heading for the edition used (Tables 4D1A to 4J4A, flowchart step 6)"
-     ],
-     "cite": "flowchart step 6; slides p.23, 28",
-     "kind": "showroom",
-     "status": "to research"
-    },
-    {
-     "id": "l3.A.1f",
-     "label": "Section A 1(f): minimum CSA of the starter-to-motor cables",
-     "value": null,
-     "unit": "mm²",
-     "rule": "smallest CSA with It(tab) ≥ the winding current ÷ factors",
-     "needs": [
-      "l3.A.1d",
-      "l3.A.1e",
-      "the table value for that CSA"
-     ],
-     "cite": "pack p.4 question 4b",
-     "kind": "showroom",
-     "status": "to research"
-    }
    ]
   },
   {
    "n": 4,
    "title": "A neutral that carries more than the line",
-   "sectionA": [],
-   "figures": [
-    {
-     "id": "l4.recall",
-     "label": "Recall: neutral current of a balanced three-phase load (no harmonics)",
-     "value": 0.0,
-     "unit": "A",
-     "rule": "balanced currents cancel in the neutral",
-     "inputs": {},
-     "working": "none",
-     "cite": "slides p.33",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l4.worked.ibn",
-     "label": "Neutral current at 35% third harmonic, 150 A line",
-     "value": 157.5,
-     "unit": "A",
-     "rule": "Ibn = 3 × h × IL",
-     "inputs": {
-      "h": "0.35",
-      "IL": "150 A"
-     },
-     "working": "3 × 0.35 × 150 = 157.50 A",
-     "cite": "slides p.35",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l4.worked.it",
-     "label": "It for the neutral-sized cable",
-     "value": 304.5,
-     "unit": "A",
-     "rule": "It ≥ In ÷ (Ca × Cg × harmonic factor)",
-     "inputs": {
-      "In": "160 A (Fig 3A3(b), slides p.36)",
-      "Ca": "0.94",
-      "Cg": "0.65",
-      "harmonic factor": "0.86 (Table 4Aa, slides p.34)"
-     },
-     "working": "160 ÷ (0.94 × 0.65 × 0.86) = 304.50 A",
-     "cite": "slides p.36 (printed 304.4 A, cut short); 240 mm² at Iz 346 A, Table 4D1A column 5",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l4.A",
-     "label": "The showroom's fluorescent lighting: line or neutral current?",
-     "value": null,
-     "unit": "A",
-     "rule": "Table 4Aa band from the maker's harmonic figure",
-     "needs": [
-      "a maker's stated third-harmonic figure for one of the drawing's fluorescent fittings (slides p.37: only if the maker gives one)"
-     ],
-     "cite": "lighting dwg key; slides p.37",
-     "kind": "showroom",
-     "status": "to research"
-    }
-   ]
+   "sectionA": []
   },
   {
    "n": 5,
    "title": "Voltage drop from the intake, refined",
    "sectionA": [
     "1(g)"
-   ],
-   "figures": [
-    {
-     "id": "l5.limits",
-     "label": "The limits as volts",
-     "value": 11.5,
-     "unit": "V",
-     "rule": "3% lighting, 5% other circuits, of the voltage you were given",
-     "inputs": {
-      "3% of 230 V": "6.90",
-      "3% of 400 V": "12.00",
-      "5% of 230 V": "11.50",
-      "5% of 400 V": "20.00"
-     },
-     "working": "230 × 3% = 6.90 V; 400 × 3% = 12.00 V; 230 × 5% = 11.50 V; 400 × 5% = 20.00 V",
-     "cite": "slides p.38 (Table 4Ab)",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l5.recall",
-     "label": "Recall: 5% of a stated 395 V",
-     "value": 19.75,
-     "unit": "V",
-     "rule": "5% of the voltage given",
-     "inputs": {
-      "U": "395 V"
-     },
-     "working": "395 × 0.05 = 19.75 V, so 19.8 V fails",
-     "cite": "slides p.41",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l5.worked.p39",
-     "label": "The slides' 4.0 mm² circuit, 35 m, 31 A",
-     "value": 11.94,
-     "unit": "V",
-     "rule": "VD = mV/A/m × Ib × L ÷ 1000",
-     "inputs": {
-      "mV/A/m": "11 (slides p.39)",
-      "Ib": "31 A",
-      "L": "35 m"
-     },
-     "working": "11 × 31 × 35 ÷ 1000 = 11.94 V",
-     "cite": "slides p.39 (printed 11.93 V, cut short); fails 11.50 V",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l5.worked.85",
-     "label": "The slides' heater at 85 m in 1.5 mm²",
-     "value": 32.14,
-     "unit": "V",
-     "rule": "VD = mV/A/m × Ib × L ÷ 1000",
-     "inputs": {
-      "mV/A/m": "29 (slides p.42)",
-      "Ib": "13.04 A",
-      "L": "85 m"
-     },
-     "working": "29 × 13.04 × 85 ÷ 1000 = 32.14 V",
-     "cite": "slides p.42 (printed 32.1 V); fails 11.50 V",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l5.worked.max",
-     "label": "The most mV/A/m that passes at 85 m",
-     "value": 10.37,
-     "unit": "mV/A/m",
-     "rule": "mV/A/m ≤ limit × 1000 ÷ (Ib × L), rounded down",
-     "inputs": {
-      "limit": "11.50 V",
-      "Ib": "13.04 A",
-      "L": "85 m"
-     },
-     "working": "11.50 × 1000 ÷ (13.04 × 85) = 10.375, rounded down",
-     "cite": "computed from slides p.39, 42",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l5.worked.6",
-     "label": "The same run in 6.0 mm²",
-     "value": 8.09,
-     "unit": "V",
-     "rule": "as above",
-     "inputs": {
-      "mV/A/m": "7.3 (worked back from the slide's 8.09 V)",
-      "Ib": "13.04 A",
-      "L": "85 m"
-     },
-     "working": "7.3 × 13.04 × 85 ÷ 1000 = 8.09 V",
-     "cite": "slides p.42",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l5.worked.root3",
-     "label": "A three-phase submain's 10 V as a single-phase drop",
-     "value": 5.77,
-     "unit": "V",
-     "rule": "divide the three-phase drop by √3",
-     "inputs": {
-      "submain drop": "10 V (the figure in slides p.41)"
-     },
-     "working": "10.00 ÷ √3 = 5.77 V; with the 6.0 mm² circuit, 5.77 + 8.09 = 13.86 V > 11.50 V",
-     "cite": "formula sheet step 7 note; used in \"Check a design\"",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l5.A.1g",
-     "label": "Section A 1(g): actual voltage drop of the motor circuit, from the intake",
-     "value": null,
-     "unit": "V",
-     "rule": "VD = mV/A/m × Ib × L ÷ 1000 for each cable on the path, three-phase drops kept three-phase (motor is three-phase)",
-     "needs": [
-      "mV/A/m for the chosen sizes",
-      "the DBP2 submain's drop (its own design)",
-      "assumption a.motorRun lengths and drops",
-      "how to treat the star-delta starter-to-motor leg"
-     ],
-     "cite": "guide p.6; formula sheet step 7",
-     "kind": "showroom",
-     "status": "to research"
-    },
-    {
-     "id": "l5.ct",
-     "label": "Ct and the refined drop",
-     "value": null,
-     "unit": "",
-     "rule": "BS 7671 Appendix 4 (not in the slides: \"Let's go to the drawing board\", p.43)",
-     "needs": [
-      "the Ct formula",
-      "the power-factor voltage-drop expression with r and x",
-      "one r, x row from 25 mm²"
-     ],
-     "cite": "slides p.43 to 45",
-     "kind": "showroom",
-     "status": "to research"
-    }
    ]
   },
   {
@@ -925,167 +223,6 @@
     "2(a)",
     "2(b)",
     "Section B: why Cmin (C&G 2(d))"
-   ],
-   "figures": [
-    {
-     "id": "l6.recall",
-     "label": "Recall: the fault current a 6 A type B's maximum Zs guarantees",
-     "value": 30.01,
-     "unit": "A",
-     "rule": "If = Uo × Cmin ÷ Zs",
-     "inputs": {
-      "Uo": "230 V",
-      "Cmin": "0.95",
-      "max Zs": "7.28 Ω (Table 41.3, slides p.47)"
-     },
-     "working": "230 × 0.95 ÷ 7.28 = 30.01 A, the device's Ia of 30 A",
-     "cite": "slides p.47",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l6.recall.slip1",
-     "label": "Recall slip: Cmin left out",
-     "value": 31.59,
-     "unit": "A",
-     "rule": "Uo ÷ Zs",
-     "inputs": {},
-     "working": "230 ÷ 7.28 = 31.59 A",
-     "cite": "slides p.48 (the rule it breaks)",
-     "kind": "slip",
-     "status": "worked"
-    },
-    {
-     "id": "l6.recall.slip2",
-     "label": "Recall slip: Cmax used",
-     "value": 34.75,
-     "unit": "A",
-     "rule": "Uo × Cmax ÷ Zs",
-     "inputs": {},
-     "working": "230 × 1.1 ÷ 7.28 = 34.75 A",
-     "cite": "slides p.48, 62 (the rule it breaks)",
-     "kind": "slip",
-     "status": "worked"
-    },
-    {
-     "id": "l6.worked.r12",
-     "label": "The slides' immersion heater: R1+R2",
-     "value": 0.436,
-     "unit": "Ω",
-     "rule": "R1+R2 = mΩ/m × multiplier × L ÷ 1000",
-     "inputs": {
-      "mΩ/m": "24.2 (1.5/1.5, slides p.51)",
-      "multiplier": "1.2 (slides p.52)",
-      "L": "15 m"
-     },
-     "working": "24.2 × 1.2 × 15 ÷ 1000 = 0.436 Ω",
-     "cite": "slides p.53 (printed 0.43 Ω, cut short)",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l6.worked.zs",
-     "label": "Its Zs",
-     "value": 0.646,
-     "unit": "Ω",
-     "rule": "Zs = Ze + R1+R2",
-     "inputs": {
-      "Ze": "0.21 Ω (slides p.50)",
-      "R1+R2": "0.436 Ω"
-     },
-     "working": "0.21 + 0.436 = 0.646 Ω ≤ 2.73 Ω (Table 41.3, slides p.54)",
-     "cite": "slides p.54 (printed 0.64 Ω)",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l6.worked.pefc",
-     "label": "Its fault current",
-     "value": 338.24,
-     "unit": "A",
-     "rule": "If = Uo × Cmin ÷ Zs",
-     "inputs": {
-      "Zs": "0.646 Ω"
-     },
-     "working": "230 × 0.95 ÷ 0.646 = 338.24 A ≥ Ia 80 A, so 0.1 s",
-     "cite": "slides p.55 (printed 341.4 A from 0.64 Ω)",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l6.showroom.pefc",
-     "label": "Showroom: earth fault current at the origin, at Cmin",
-     "value": 2185.0,
-     "unit": "A",
-     "rule": "If = Uo × Cmin ÷ Ze",
-     "inputs": {
-      "Uo": "230 V",
-      "Cmin": "0.95",
-      "Ze": "0.1 Ω (pack p.3)"
-     },
-     "working": "230 × 0.95 ÷ 0.1 = 2185.00 A",
-     "cite": "pack p.3; slides p.55",
-     "kind": "showroom",
-     "status": "worked"
-    },
-    {
-     "id": "l6.showroom.pefcmax",
-     "label": "Showroom: the same at Cmax",
-     "value": 2530.0,
-     "unit": "A",
-     "rule": "If = Uo × Cmax ÷ Ze",
-     "inputs": {
-      "Cmax": "1.1"
-     },
-     "working": "230 × 1.1 ÷ 0.1 = 2530.00 A",
-     "cite": "pack p.3; slides p.48, 60",
-     "kind": "showroom",
-     "status": "worked"
-    },
-    {
-     "id": "l6.showroom.nominal",
-     "label": "Showroom: 230 V ÷ Ze, against the stated 4.6 kA",
-     "value": 2300.0,
-     "unit": "A",
-     "rule": "Uo ÷ Ze",
-     "inputs": {
-      "Ze": "0.1 Ω"
-     },
-     "working": "230 ÷ 0.1 = 2300.00 A, half the stated 4.6 kA",
-     "cite": "pack p.3",
-     "kind": "showroom",
-     "status": "worked",
-     "note": "Why the stated prospective fault current is about twice this is to research (three-phase against single-phase fault)."
-    },
-    {
-     "id": "l6.A.2a",
-     "label": "Section A 2(a): Zs at the motor's starter",
-     "value": null,
-     "unit": "Ω",
-     "rule": "Zs = Zs at DBP2 + R1+R2 (formula sheet step 13)",
-     "needs": [
-      "Zs at DBP2 (the DBP2 submain's R1+R2 or armour)",
-      "R1+R2 per metre and multiplier for the circuit's sizes (OSG Tables I1, I3)",
-      "assumption a.motorRun"
-     ],
-     "cite": "formula sheet step 13; pack p.3",
-     "kind": "showroom",
-     "status": "to research"
-    },
-    {
-     "id": "l6.A.2b",
-     "label": "Section A 2(b): is it acceptable?",
-     "value": null,
-     "unit": "Ω",
-     "rule": "Zs ≤ maximum Zs for the device (Tables 41.2 to 41.4)",
-     "needs": [
-      "l3.A.1c (the device)",
-      "that device's maximum Zs"
-     ],
-     "cite": "guide p.5 (\"Compare your calculated Zs value to the maximum permitted for the device\")",
-     "kind": "showroom",
-     "status": "to research"
-    }
    ]
   },
   {
@@ -1093,177 +230,6 @@
    "title": "Surviving the fault: heat, short circuits, breaking capacity",
    "sectionA": [
     "2(c)"
-   ],
-   "figures": [
-    {
-     "id": "l7.worked.smin",
-     "label": "S from the slides' 341.4 A for 0.1 s, k 115",
-     "value": 0.94,
-     "unit": "mm²",
-     "rule": "S = √(I² × t) ÷ k",
-     "inputs": {
-      "I": "341.4 A",
-      "t": "0.1 s",
-      "k": "115 (slides p.59)"
-     },
-     "working": "√(341.4² × 0.1) ÷ 115 = 0.94 mm²",
-     "cite": "slides p.59 (printed 0.93 mm², cut short)",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l7.worked.smax",
-     "label": "S from the slides' 395.3 A at Cmax",
-     "value": 1.09,
-     "unit": "mm²",
-     "rule": "as above, I at Cmax",
-     "inputs": {
-      "I": "395.3 A (slides p.60)"
-     },
-     "working": "√(395.3² × 0.1) ÷ 115 = 1.09 mm²",
-     "cite": "slides p.61 (printed 1.08 mm², cut short)",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l7.worked.ours",
-     "label": "S worked from this course's Zs 0.646 Ω",
-     "value": 1.08,
-     "unit": "mm²",
-     "rule": "I = Uo × Cmax ÷ Zs, then S",
-     "inputs": {
-      "Zs": "0.646 Ω"
-     },
-     "working": "230 × 1.1 ÷ 0.646 = 391.64 A; √(391.64² × 0.1) ÷ 115 = 1.08 mm²",
-     "cite": "slides p.58 to 61",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l7.worked.zeln",
-     "label": "Short circuit: Ze(l/n)",
-     "value": 0.767,
-     "unit": "Ω",
-     "rule": "Ze(l/n) = U ÷ PSCC",
-     "inputs": {
-      "PSCC": "300 A"
-     },
-     "working": "230 ÷ 300 = 0.767 Ω",
-     "cite": "slides p.64 (printed 0.76 Ω)",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l7.worked.r1rn",
-     "label": "R1+Rn, 2.5/2.5 at 90 °C, 25 m",
-     "value": 0.474,
-     "unit": "Ω",
-     "rule": "mΩ/m × multiplier × L ÷ 1000",
-     "inputs": {
-      "mΩ/m": "14.82 (slides p.65)",
-      "multiplier": "1.28",
-      "L": "25 m"
-     },
-     "working": "14.82 × 1.28 × 25 ÷ 1000 = 0.474 Ω",
-     "cite": "slides p.65 (printed 0.47 Ω)",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l7.worked.zsln",
-     "label": "Zs(l/n)",
-     "value": 1.241,
-     "unit": "Ω",
-     "rule": "Ze(l/n) + R1+Rn",
-     "inputs": {},
-     "working": "0.767 + 0.474 = 1.241 Ω",
-     "cite": "slides p.66 (printed 1.23 Ω)",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l7.worked.iscmin",
-     "label": "Least short-circuit current (Cmin)",
-     "value": 176.07,
-     "unit": "A",
-     "rule": "U × Cmin ÷ Zs(l/n)",
-     "inputs": {},
-     "working": "230 × 0.95 ÷ 1.241 = 176.07 A ≥ Ia 100 A",
-     "cite": "slides p.66 (printed 177.6 A)",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l7.worked.iscmax",
-     "label": "Greatest short-circuit current (Cmax)",
-     "value": 203.87,
-     "unit": "A",
-     "rule": "U × Cmax ÷ Zs(l/n)",
-     "inputs": {},
-     "working": "230 × 1.1 ÷ 1.241 = 203.87 A",
-     "cite": "slides p.67 (printed 205.6 A)",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l7.worked.t",
-     "label": "How long the 2.5 mm² live conductors can take it",
-     "value": 3.08,
-     "unit": "s",
-     "rule": "t = k² × S² ÷ I²",
-     "inputs": {
-      "k": "143 (Table 43.1, slides p.68)",
-      "S": "2.5 mm²",
-      "I": "203.87 A"
-     },
-     "working": "143² × 2.5² ÷ 203.87² = 3.08 s, longer than 0.1 s",
-     "cite": "slides p.68 (printed 3.02 s)",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l7.showroom.icn",
-     "label": "Showroom: the least breaking capacity for devices at the origin",
-     "value": 4.6,
-     "unit": "kA",
-     "rule": "IPF ≤ Icn",
-     "inputs": {
-      "IPF": "4.6 kA (pack p.3)"
-     },
-     "working": "Icn ≥ 4.6 kA",
-     "cite": "pack p.3; slides p.69, 70",
-     "kind": "showroom",
-     "status": "worked"
-    },
-    {
-     "id": "l7.A.2c",
-     "label": "Section A 2(c): thermal constraints on the motor circuit's cpc",
-     "value": null,
-     "unit": "mm²",
-     "rule": "S = √(I² t) ÷ k, I at Cmax",
-     "needs": [
-      "l6.A.2a",
-      "the device's time at that current",
-      "k for the cpc (Tables 54.2 to 54.6)"
-     ],
-     "cite": "guide p.5 (\"Include calculations for thermal constraints\")",
-     "kind": "showroom",
-     "status": "to research"
-    },
-    {
-     "id": "l7.armour",
-     "label": "DBL2 submain: SWA armour as the cpc",
-     "value": null,
-     "unit": "mm²",
-     "rule": "adiabatic check on the armour",
-     "needs": [
-      "armour CSA and resistance from a maker",
-      "k for steel armour"
-     ],
-     "cite": "guide p.5 (\"as long as it is justified by calculation\")",
-     "kind": "showroom",
-     "status": "to research"
-    }
    ]
   },
   {
@@ -1271,143 +237,1373 @@
    "title": "The showroom, end to end",
    "sectionA": [
     "the DBL2 submain and its longest circuit, in full"
-   ],
-   "figures": [
-    {
-     "id": "l8.submain.plan",
-     "label": "MDB to DBL2, along the walls on plan",
-     "value": 17.0,
-     "unit": "m",
-     "rule": "orthogonal route = east run + south run, scaled at 1:50 (1 pt on the sheet = 17.64 mm on site)",
-     "inputs": {
-      "MDB label": "(907.5, 364) pt",
-      "DBL2 label": "(1545, 695.5) pt"
-     },
-     "working": "11.2 m east + 5.8 m south = 17.0 m",
-     "cite": "power dwg (positions from pdftotext -bbox); brief section 2",
-     "kind": "showroom",
-     "status": "worked",
-     "note": "Approximate: label centres, not the boards' exact points; plus the vertical runs (assumption a.drops)."
-    },
-    {
-     "id": "l8.dbl2.ib",
-     "label": "The DBL2 submain's design current",
-     "value": null,
-     "unit": "A per phase",
-     "rule": "the DBL2 load per phase (lesson 2)",
-     "needs": [
-      "l2.balance"
-     ],
-     "cite": "pack question 3a",
-     "kind": "showroom",
-     "status": "to research"
-    },
-    {
-     "id": "l8.longest",
-     "label": "DBL2's longest circuit",
-     "value": null,
-     "unit": "m",
-     "rule": "the course's own circuit split (assumption a.dbl2split), scaled",
-     "needs": [
-      "assumption a.dbl2split",
-      "routes"
-     ],
-     "cite": "pack question 3b; brief section 2",
-     "kind": "showroom",
-     "status": "to research"
-    },
-    {
-     "id": "l8.chain",
-     "label": "The end-to-end checks (Ib, In, factors, CSA, voltage drop from the intake, Zs at DBL2 and at the end, thermal, Icn)",
-     "value": null,
-     "unit": "",
-     "rule": "flowchart steps 1 to 20 twice, submain then final circuit",
-     "needs": [
-      "every table value for the chosen sizes",
-      "l7.armour"
-     ],
-     "cite": "pack question 3a, 3b; guide p.5, 6",
-     "kind": "showroom",
-     "status": "to research"
-    }
    ]
   },
   {
    "n": 9,
    "title": "Verification and handover",
-   "sectionA": [],
-   "figures": [
-    {
-     "id": "l9.worked.r12cold",
-     "label": "The immersion heater's expected R1+R2 at test, before the ×1.2",
-     "value": 0.363,
-     "unit": "Ω",
-     "rule": "R1+R2 = mΩ/m × L ÷ 1000 (no multiplier)",
-     "inputs": {
-      "mΩ/m": "24.2",
-      "L": "15 m"
-     },
-     "working": "24.2 × 15 ÷ 1000 = 0.363 Ω",
-     "cite": "slides p.51 to 53",
-     "kind": "worked",
-     "status": "worked",
-     "note": "Assumes the OSG's mΩ/m are at 20 °C: to research."
-    },
-    {
-     "id": "l9.worked.zscold",
-     "label": "Its expected Zs at test, with the declared Ze",
-     "value": 0.573,
-     "unit": "Ω",
-     "rule": "Ze + R1+R2",
-     "inputs": {
-      "Ze": "0.21 Ω"
-     },
-     "working": "0.21 + 0.363 = 0.573 Ω",
-     "cite": "slides p.50",
-     "kind": "worked",
-     "status": "worked"
-    },
-    {
-     "id": "l9.compare",
-     "label": "Comparing a measured Zs with the maximum",
-     "value": null,
-     "unit": "",
-     "rule": "the rule BS 7671 Appendix 3 and GN3 give for a reading at test temperature",
-     "needs": [
-      "that rule, quoted"
-     ],
-     "cite": "C&G P1 Q10c, P3 Q9a (shapes)",
-     "kind": "showroom",
-     "status": "to research"
-    },
-    {
-     "id": "l9.showroom",
-     "label": "The showroom as built",
-     "value": null,
-     "unit": "",
-     "rule": "readings set at build as labelled example readings, compared by l9.compare",
-     "needs": [
-      "l8.chain",
-      "l9.compare"
-     ],
-     "cite": "pack question 9",
-     "kind": "showroom",
-     "status": "to set at build"
-    },
-    {
-     "id": "l9.interval",
-     "label": "The showroom's first periodic inspection interval; the handover documents",
-     "value": null,
-     "unit": "",
-     "rule": "industry guidance (pack question 9a says \"Using Industry guidance\")",
-     "needs": [
-      "GN3 or OSG guidance for a showroom; BS 7671 Part 6 on certificates and handover"
-     ],
-     "cite": "pack question 9a, 9b",
-     "kind": "showroom",
-     "status": "to research"
-    }
-   ]
+   "sectionA": []
+  }
+ ],
+ "figures": [
+  {
+   "id": "l1.recall",
+   "label": "Recall: Ib of a 20 kW three-phase heater at 400 V, pf 1, 100%",
+   "value": 28.87,
+   "unit": "A",
+   "rule": "Ib = P ÷ (√3 × UL)",
+   "inputs": {
+    "P": "20 000 W",
+    "UL": "400 V"
+   },
+   "cite": "slides p.16 (printed 28.86 A, cut short)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "28.87 A",
+   "work": "20 000 ÷ (√3 × 400) = 28.87 A"
+  },
+  {
+   "id": "l1.recall.slip1",
+   "label": "Recall slip: √3 left out",
+   "value": 50.0,
+   "unit": "A",
+   "rule": "P ÷ UL",
+   "inputs": {
+    "P": "20 000 W",
+    "UL": "400 V"
+   },
+   "cite": "slides p.13 (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "50.00 A",
+   "work": "20 000 ÷ 400 = 50.00 A"
+  },
+  {
+   "id": "l1.recall.slip2",
+   "label": "Recall slip: single-phase formula at 230 V",
+   "value": 86.96,
+   "unit": "A",
+   "rule": "P ÷ U0",
+   "inputs": {
+    "P": "20 000 W",
+    "U0": "230 V"
+   },
+   "cite": "slides p.12, 13 (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "86.96 A",
+   "work": "20 000 ÷ 230 = 86.96 A"
+  },
+  {
+   "id": "l1.reteach.in",
+   "label": "Input power at efficiency 0.87",
+   "value": 22.99,
+   "unit": "kW",
+   "rule": "input = output ÷ efficiency",
+   "inputs": {
+    "output": "20 kW",
+    "efficiency": "0.87"
+   },
+   "cite": "slides p.12, 15, 17",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "22.99 kW",
+   "work": "20 ÷ 0.87 = 22.99 kW"
+  },
+  {
+   "id": "l1.reteach.app",
+   "label": "Apparent power at pf 0.8",
+   "value": 28.74,
+   "unit": "kVA",
+   "rule": "apparent = input ÷ power factor",
+   "inputs": {
+    "input": "22.99 kW",
+    "pf": "0.8"
+   },
+   "cite": "slides p.15, 17",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "28.74 kVA",
+   "work": "22.99 ÷ 0.8 = 28.74 kVA"
+  },
+  {
+   "id": "l1.reteach.ib",
+   "label": "Ib from the apparent power",
+   "value": 41.48,
+   "unit": "A",
+   "rule": "Ib = apparent × 1000 ÷ (√3 × UL)",
+   "inputs": {
+    "apparent": "28.74 kVA",
+    "UL": "400 V"
+   },
+   "cite": "slides p.17 (printed 41.47 A, cut short)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "41.48 A",
+   "work": "28.74 × 1000 ÷ (√3 × 400) = 41.48 A"
+  },
+  {
+   "id": "l1.reteach.low",
+   "label": "Ib at pf 0.70 and efficiency 0.70 (the sliders at their lowest)",
+   "value": 58.9,
+   "unit": "A",
+   "rule": "as above",
+   "inputs": {
+    "input": "20 ÷ 0.70 = 28.57 kW",
+    "apparent": "28.57 ÷ 0.70 = 40.81 kVA"
+   },
+   "cite": "computed",
+   "kind": "worked",
+   "status": "worked",
+   "note": "Worked from the shown 40.81 kVA; 58.91 A unrounded.",
+   "lesson": "i1",
+   "text": "58.90 A",
+   "work": "40.81 × 1000 ÷ (√3 × 400) = 58.90 A"
+  },
+  {
+   "id": "l1.check",
+   "label": "Check: Ib of the slides' 20 kW load at pf 0.8 and efficiency 87%",
+   "value": 41.48,
+   "unit": "A",
+   "rule": "Ib = P ÷ (√3 × UL × eff × pf)",
+   "inputs": {
+    "P": "20 000 W",
+    "UL": "400 V",
+    "eff": "0.87",
+    "pf": "0.8"
+   },
+   "cite": "slides p.13, 17",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "41.48 A",
+   "work": "20 000 ÷ (√3 × 400 × 0.87 × 0.8) = 41.48 A",
+   "note": "Slides p.17 call this load \"the same pump\"; with a power factor of 0.8 and an efficiency of 87% it is a motor load, so the lesson calls it a 20 kW motor load, not the heater of p.16."
+  },
+  {
+   "id": "l1.check.slip1",
+   "label": "Check slip: efficiency left out",
+   "value": 36.08,
+   "unit": "A",
+   "rule": "P ÷ (√3 × UL × pf)",
+   "inputs": {
+    "pf": "0.8"
+   },
+   "cite": "slides p.17 (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "36.08 A",
+   "work": "20 000 ÷ (√3 × 400 × 0.8) = 36.08 A"
+  },
+  {
+   "id": "l1.check.slip2",
+   "label": "Check slip: power factor left out",
+   "value": 33.18,
+   "unit": "A",
+   "rule": "P ÷ (√3 × UL × eff)",
+   "inputs": {
+    "eff": "0.87"
+   },
+   "cite": "slides p.17 (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "33.18 A",
+   "work": "20 000 ÷ (√3 × 400 × 0.87) = 33.18 A"
+  },
+  {
+   "id": "l1.check.motor",
+   "label": "Check: Ib of a 7.5 kW three-phase motor at 400 V, pf 0.85, efficiency 90% (new numbers)",
+   "value": 14.15,
+   "unit": "A",
+   "rule": "Ib = P ÷ (√3 × UL × eff × pf)",
+   "inputs": {
+    "P": "7 500 W",
+    "UL": "400 V",
+    "eff": "0.9",
+    "pf": "0.85"
+   },
+   "cite": "rule slides p.13; numbers new, so the check cannot be answered from the why's readout",
+   "kind": "practice",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "14.15 A",
+   "work": "7 500 ÷ (√3 × 400 × 0.9 × 0.85) = 14.15 A"
+  },
+  {
+   "id": "l1.check.motor.slip1",
+   "label": "Check slip: efficiency left out",
+   "value": 12.74,
+   "unit": "A",
+   "rule": "P ÷ (√3 × UL × pf)",
+   "inputs": {
+    "pf": "0.85"
+   },
+   "cite": "slides p.13 (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "12.74 A",
+   "work": "7 500 ÷ (√3 × 400 × 0.85) = 12.74 A"
+  },
+  {
+   "id": "l1.check.motor.slip2",
+   "label": "Check slip: power factor left out",
+   "value": 12.03,
+   "unit": "A",
+   "rule": "P ÷ (√3 × UL × eff)",
+   "inputs": {
+    "eff": "0.9"
+   },
+   "cite": "slides p.13 (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "12.03 A",
+   "work": "7 500 ÷ (√3 × 400 × 0.9) = 12.03 A"
+  },
+  {
+   "id": "l1.board",
+   "label": "Ib at a sub-board given as 393 V",
+   "value": 29.38,
+   "unit": "A",
+   "rule": "Ib = P ÷ (√3 × U at the board)",
+   "inputs": {
+    "P": "20 000 W",
+    "U": "393 V"
+   },
+   "cite": "slides p.18, 19",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "29.38 A",
+   "work": "20 000 ÷ (√3 × 393) = 29.38 A"
+  },
+  {
+   "id": "l1.diversity",
+   "label": "Ten 100 W lamps at 66% diversity",
+   "value": 660.0,
+   "unit": "W",
+   "rule": "design load = total × diversity",
+   "inputs": {
+    "total": "10 × 100 W",
+    "diversity": "66%"
+   },
+   "cite": "slides p.10 (OSG Appendix A; guidance, not a rule)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i1",
+   "text": "660 W",
+   "work": "10 × 100 × 0.66 = 660 W"
+  },
+  {
+   "id": "1a",
+   "label": "Motor's design current, Ib",
+   "value": 23.08,
+   "unit": "A",
+   "rule": "Ib = P ÷ (√3 × UL × eff × pf)",
+   "inputs": {
+    "P": "11 000 W",
+    "UL": "400 V",
+    "eff": "0.86",
+    "pf": "0.8"
+   },
+   "cite": "pack p.4 question 4a; slides p.13",
+   "kind": "showroom",
+   "status": "worked",
+   "accept": {
+    "min": 23.05,
+    "max": 23.11,
+    "why": "√3 taken as 1.73 (slides p.13) gives 23.10 A"
+   },
+   "lesson": "i1",
+   "part": "1a",
+   "text": "23.08 A",
+   "work": "11 000 ÷ (√3 × 400 × 0.86 × 0.8) = 23.08 A"
+  },
+  {
+   "id": "1b",
+   "label": "Each winding, in delta",
+   "value": 13.33,
+   "unit": "A",
+   "rule": "In delta, phase (winding) current = line current ÷ √3",
+   "inputs": {
+    "line current": "23.08 A (part a)"
+   },
+   "cite": "rule: balanced delta, line current = phase current × √3 (All About Circuits / Kuphaldt, Lessons in Electric Circuits, AC ch.10, in research.json); pack p.4 question 4b asks for the \"delta running conditions\"",
+   "kind": "showroom",
+   "status": "worked",
+   "note": "13.32 A from the unrounded Ib.",
+   "accept": {
+    "min": 13.3,
+    "max": 13.36,
+    "why": "13.32 A from the unrounded Ib; √3 as 1.73 gives 13.34 A (13.35 A from 23.10 A)"
+   },
+   "lesson": "i1",
+   "part": "1b",
+   "text": "13.33 A",
+   "work": "23.08 ÷ √3 = 13.33 A"
+  },
+  {
+   "id": "l1.A.changed",
+   "label": "Section A, changed numbers: a three-phase 15 kW oven at a board given as 396 V",
+   "value": 21.87,
+   "unit": "A",
+   "rule": "Ib = P ÷ (√3 × U at the board)",
+   "inputs": {
+    "P": "15 000 W",
+    "U": "396 V"
+   },
+   "cite": "shape: C&G 2396 P1 question 1 (load and numbers changed); rule slides p.18, 19",
+   "kind": "practice",
+   "status": "worked",
+   "accept": {
+    "min": 21.84,
+    "max": 21.9,
+    "why": "√3 as 1.73 gives 21.90 A"
+   },
+   "lesson": "i1",
+   "text": "21.87 A",
+   "work": "15 000 ÷ (√3 × 396) = 21.87 A"
+  },
+  {
+   "id": "l2.worked.diversity",
+   "label": "Ten 100 W lamps at 66%",
+   "value": 660.0,
+   "unit": "W",
+   "rule": "design load = total × diversity",
+   "inputs": {
+    "total": "1000 W",
+    "diversity": "66%"
+   },
+   "cite": "slides p.10",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i2",
+   "text": "660 W",
+   "work": "1000 × 0.66 = 660 W"
+  },
+  {
+   "id": "l3.worked.ib",
+   "label": "The slides' 3 kW heater: Ib",
+   "value": 13.04,
+   "unit": "A",
+   "rule": "Ib = P ÷ U0",
+   "inputs": {
+    "P": "3000 W",
+    "U0": "230 V"
+   },
+   "cite": "slides p.26",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "13.04 A",
+   "work": "3000 ÷ 230 = 13.04 A"
+  },
+  {
+   "id": "l3.recall",
+   "label": "Recall: It where Ca and Cg act together (the worse section)",
+   "value": 21.28,
+   "unit": "A",
+   "rule": "It ≥ In ÷ (factors acting together)",
+   "inputs": {
+    "In": "16 A",
+    "Ca": "0.94",
+    "Cg": "0.8"
+   },
+   "cite": "slides p.26, 27 (printed 21.2 A, cut short)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "21.28 A",
+   "work": "16 ÷ (0.94 × 0.8) = 21.28 A"
+  },
+  {
+   "id": "l3.recall.ci",
+   "label": "The other section: Ca and Ci together",
+   "value": 19.34,
+   "unit": "A",
+   "rule": "as above",
+   "inputs": {
+    "In": "16 A",
+    "Ca": "0.94",
+    "Ci": "0.88"
+   },
+   "cite": "slides p.27",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "19.34 A",
+   "work": "16 ÷ (0.94 × 0.88) = 19.34 A"
+  },
+  {
+   "id": "l3.recall.slip",
+   "label": "Recall slip: all three multiplied",
+   "value": 24.18,
+   "unit": "A",
+   "rule": "factors that never act together multiplied",
+   "inputs": {
+    "Ca": "0.94",
+    "Cg": "0.8",
+    "Ci": "0.88"
+   },
+   "cite": "slides p.25 (\"only be applied when happening TOGETHER\")",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "24.18 A",
+   "work": "16 ÷ (0.94 × 0.8 × 0.88) = 24.18 A"
+  },
+  {
+   "id": "l3.overload.i2",
+   "label": "A 10 A breaker's I2",
+   "value": 14.5,
+   "unit": "A",
+   "rule": "I2 = 1.45 × In for most devices",
+   "inputs": {
+    "In": "10 A"
+   },
+   "cite": "slides p.30",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "14.50 A",
+   "work": "1.45 × 10 = 14.50 A"
+  },
+  {
+   "id": "l3.overload.lim",
+   "label": "What a cable with Iz 13 A can take",
+   "value": 18.85,
+   "unit": "A",
+   "rule": "I2 ≤ 1.45 × Iz",
+   "inputs": {
+    "Iz": "13 A (slides p.31, flagged in brief)"
+   },
+   "cite": "slides p.31, 32",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "18.85 A",
+   "work": "1.45 × 13 = 18.85 A"
+  },
+  {
+   "id": "l3.overload.ff",
+   "label": "The rewireable fuse's factor implied by Cf",
+   "value": 2.0,
+   "unit": "",
+   "rule": "fusing factor = 1.45 ÷ Cf",
+   "inputs": {
+    "Cf": "0.725 (BS 3036)"
+   },
+   "cite": "slides p.25",
+   "kind": "worked",
+   "status": "worked",
+   "note": "Derived from Cf; the BS 3036 fusing factor itself is to research.",
+   "lesson": "i3",
+   "text": "2",
+   "work": "1.45 ÷ 0.725 = 2"
+  },
+  {
+   "id": "l3.overload.it",
+   "label": "It needed behind a 10 A rewireable fuse",
+   "value": 13.79,
+   "unit": "A",
+   "rule": "It ≥ In ÷ Cf",
+   "inputs": {
+    "In": "10 A",
+    "Cf": "0.725"
+   },
+   "cite": "slides p.25",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "13.79 A",
+   "work": "10 ÷ 0.725 = 13.79 A"
+  },
+  {
+   "id": "l3.overload.check",
+   "label": "And that cable's limit",
+   "value": 20.0,
+   "unit": "A",
+   "rule": "1.45 × Iz",
+   "inputs": {
+    "Iz": "13.79 A"
+   },
+   "cite": "slides p.25, 32",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "20 A",
+   "work": "1.45 × 13.79 = 20.00 A, the fuse's 2 × 10 = 20 A"
+  },
+  {
+   "id": "l3.practice.cf",
+   "label": "Practice (changed numbers): It behind a 15 A rewireable fuse",
+   "value": 20.69,
+   "unit": "A",
+   "rule": "It ≥ In ÷ Cf",
+   "inputs": {
+    "In": "15 A",
+    "Cf": "0.725"
+   },
+   "cite": "shape: C&G B; rule slides p.25",
+   "kind": "practice",
+   "status": "worked",
+   "lesson": "i3",
+   "text": "20.69 A",
+   "work": "15 ÷ 0.725 = 20.69 A"
+  },
+  {
+   "id": "l4.recall",
+   "label": "Recall: neutral current of a balanced three-phase load (no harmonics)",
+   "value": 0.0,
+   "unit": "A",
+   "rule": "balanced currents cancel in the neutral",
+   "inputs": {},
+   "cite": "slides p.33",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "0 A",
+   "work": "none"
+  },
+  {
+   "id": "l4.worked.ibn",
+   "label": "Neutral current at 35% third harmonic, 150 A line",
+   "value": 157.5,
+   "unit": "A",
+   "rule": "Ibn = 3 × h × IL",
+   "inputs": {
+    "h": "0.35",
+    "IL": "150 A"
+   },
+   "cite": "slides p.35",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "157.50 A",
+   "work": "3 × 0.35 × 150 = 157.50 A"
+  },
+  {
+   "id": "l4.worked.it",
+   "label": "It for the neutral-sized cable",
+   "value": 304.5,
+   "unit": "A",
+   "rule": "It ≥ In ÷ (Ca × Cg × harmonic factor)",
+   "inputs": {
+    "In": "160 A (Fig 3A3(b), slides p.36)",
+    "Ca": "0.94",
+    "Cg": "0.65",
+    "harmonic factor": "0.86 (Table 4Aa, slides p.34)"
+   },
+   "cite": "slides p.36 (printed 304.4 A, cut short); 240 mm² at Iz 346 A, Table 4D1A column 5",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "304.50 A",
+   "work": "160 ÷ (0.94 × 0.65 × 0.86) = 304.50 A"
+  },
+  {
+   "id": "l5.limits",
+   "label": "The limit as volts: 5% of 230 V",
+   "value": 11.5,
+   "unit": "V",
+   "rule": "3% lighting, 5% other circuits, of the voltage you were given",
+   "inputs": {
+    "3% of 230 V": "6.90",
+    "3% of 400 V": "12.00",
+    "5% of 230 V": "11.50",
+    "5% of 400 V": "20.00"
+   },
+   "cite": "slides p.38 (Table 4Ab)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "11.50 V",
+   "work": "230 × 3% = 6.90 V; 400 × 3% = 12.00 V; 230 × 5% = 11.50 V; 400 × 5% = 20.00 V"
+  },
+  {
+   "id": "l5.recall",
+   "label": "Recall: 5% of a stated 395 V",
+   "value": 19.75,
+   "unit": "V",
+   "rule": "5% of the voltage given",
+   "inputs": {
+    "U": "395 V"
+   },
+   "cite": "slides p.41",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "19.75 V",
+   "work": "395 × 0.05 = 19.75 V, so 19.8 V fails"
+  },
+  {
+   "id": "l5.worked.p39",
+   "label": "The slides' 4.0 mm² circuit, 35 m, 31 A",
+   "value": 11.94,
+   "unit": "V",
+   "rule": "VD = mV/A/m × Ib × L ÷ 1000",
+   "inputs": {
+    "mV/A/m": "11 (slides p.39)",
+    "Ib": "31 A",
+    "L": "35 m"
+   },
+   "cite": "slides p.39 (printed 11.93 V, cut short); fails 11.50 V",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "11.94 V",
+   "work": "11 × 31 × 35 ÷ 1000 = 11.94 V"
+  },
+  {
+   "id": "l5.worked.85",
+   "label": "The slides' heater at 85 m in 1.5 mm²",
+   "value": 32.14,
+   "unit": "V",
+   "rule": "VD = mV/A/m × Ib × L ÷ 1000",
+   "inputs": {
+    "mV/A/m": "29 (slides p.42)",
+    "Ib": "13.04 A",
+    "L": "85 m"
+   },
+   "cite": "slides p.42 (printed 32.1 V); fails 11.50 V",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "32.14 V",
+   "work": "29 × 13.04 × 85 ÷ 1000 = 32.14 V"
+  },
+  {
+   "id": "l5.worked.max",
+   "label": "The most mV/A/m that passes at 85 m",
+   "value": 10.37,
+   "unit": "mV/A/m",
+   "rule": "mV/A/m ≤ limit × 1000 ÷ (Ib × L), rounded down",
+   "inputs": {
+    "limit": "11.50 V",
+    "Ib": "13.04 A",
+    "L": "85 m"
+   },
+   "cite": "computed from slides p.39, 42",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "10.37 mV/A/m",
+   "work": "11.50 × 1000 ÷ (13.04 × 85) = 10.375, rounded down"
+  },
+  {
+   "id": "l5.worked.6",
+   "label": "The same run in 6.0 mm²",
+   "value": 8.09,
+   "unit": "V",
+   "rule": "as above",
+   "inputs": {
+    "mV/A/m": "7.3 (worked back from the slide's 8.09 V)",
+    "Ib": "13.04 A",
+    "L": "85 m"
+   },
+   "cite": "slides p.42",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "8.09 V",
+   "work": "7.3 × 13.04 × 85 ÷ 1000 = 8.09 V"
+  },
+  {
+   "id": "l5.worked.root3",
+   "label": "A three-phase submain's 10 V as a single-phase drop",
+   "value": 5.77,
+   "unit": "V",
+   "rule": "divide the three-phase drop by √3",
+   "inputs": {
+    "submain drop": "10 V (the figure in slides p.41)"
+   },
+   "cite": "formula sheet step 7 note; used in \"Check a design\"",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "5.77 V",
+   "work": "10.00 ÷ √3 = 5.77 V; with the 6.0 mm² circuit, 5.77 + 8.09 = 13.86 V > 11.50 V"
+  },
+  {
+   "id": "l6.recall",
+   "label": "Recall: the fault current a 6 A type B's maximum Zs guarantees",
+   "value": 30.01,
+   "unit": "A",
+   "rule": "If = Uo × Cmin ÷ Zs",
+   "inputs": {
+    "Uo": "230 V",
+    "Cmin": "0.95",
+    "max Zs": "7.28 Ω (Table 41.3, slides p.47)"
+   },
+   "cite": "slides p.47",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "30.01 A",
+   "work": "230 × 0.95 ÷ 7.28 = 30.01 A, the device's Ia of 30 A"
+  },
+  {
+   "id": "l6.recall.slip1",
+   "label": "Recall slip: Cmin left out",
+   "value": 31.59,
+   "unit": "A",
+   "rule": "Uo ÷ Zs",
+   "inputs": {},
+   "cite": "slides p.48 (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "31.59 A",
+   "work": "230 ÷ 7.28 = 31.59 A"
+  },
+  {
+   "id": "l6.recall.slip2",
+   "label": "Recall slip: Cmax used",
+   "value": 34.75,
+   "unit": "A",
+   "rule": "Uo × Cmax ÷ Zs",
+   "inputs": {},
+   "cite": "slides p.48, 62 (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "34.75 A",
+   "work": "230 × 1.1 ÷ 7.28 = 34.75 A"
+  },
+  {
+   "id": "l6.worked.r12",
+   "label": "The slides' immersion heater: R1+R2",
+   "value": 0.436,
+   "unit": "Ω",
+   "rule": "R1+R2 = mΩ/m × multiplier × L ÷ 1000",
+   "inputs": {
+    "mΩ/m": "24.2 (1.5/1.5, slides p.51)",
+    "multiplier": "1.2 (slides p.52)",
+    "L": "15 m"
+   },
+   "cite": "slides p.53 (printed 0.43 Ω, cut short)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "0.436 Ω",
+   "work": "24.2 × 1.2 × 15 ÷ 1000 = 0.436 Ω"
+  },
+  {
+   "id": "l6.worked.zs",
+   "label": "Its Zs",
+   "value": 0.646,
+   "unit": "Ω",
+   "rule": "Zs = Ze + R1+R2",
+   "inputs": {
+    "Ze": "0.21 Ω (slides p.50)",
+    "R1+R2": "0.436 Ω"
+   },
+   "cite": "slides p.54 (printed 0.64 Ω)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "0.646 Ω",
+   "work": "0.21 + 0.436 = 0.646 Ω ≤ 2.73 Ω (Table 41.3, slides p.54)"
+  },
+  {
+   "id": "l6.worked.pefc",
+   "label": "Its fault current",
+   "value": 338.24,
+   "unit": "A",
+   "rule": "If = Uo × Cmin ÷ Zs",
+   "inputs": {
+    "Zs": "0.646 Ω"
+   },
+   "cite": "slides p.55 (printed 341.4 A from 0.64 Ω)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "338.24 A",
+   "work": "230 × 0.95 ÷ 0.646 = 338.24 A ≥ Ia 80 A, so 0.1 s"
+  },
+  {
+   "id": "l6.showroom.pefc",
+   "label": "Showroom: earth fault current at the origin, at Cmin",
+   "value": 2185.0,
+   "unit": "A",
+   "rule": "If = Uo × Cmin ÷ Ze",
+   "inputs": {
+    "Uo": "230 V",
+    "Cmin": "0.95",
+    "Ze": "0.1 Ω (pack p.3)"
+   },
+   "cite": "pack p.3; slides p.55",
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "2185.00 A",
+   "work": "230 × 0.95 ÷ 0.1 = 2185.00 A"
+  },
+  {
+   "id": "l6.showroom.pefcmax",
+   "label": "Showroom: the same at Cmax",
+   "value": 2530.0,
+   "unit": "A",
+   "rule": "If = Uo × Cmax ÷ Ze",
+   "inputs": {
+    "Cmax": "1.1"
+   },
+   "cite": "pack p.3; slides p.48, 60",
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "2530.00 A",
+   "work": "230 × 1.1 ÷ 0.1 = 2530.00 A"
+  },
+  {
+   "id": "l6.showroom.nominal",
+   "label": "Showroom: 230 V ÷ Ze, against the stated 4.6 kA",
+   "value": 2300.0,
+   "unit": "A",
+   "rule": "Uo ÷ Ze",
+   "inputs": {
+    "Ze": "0.1 Ω"
+   },
+   "cite": "pack p.3",
+   "kind": "showroom",
+   "status": "worked",
+   "note": "Why the stated prospective fault current is about twice this is to research (three-phase against single-phase fault).",
+   "lesson": "i6",
+   "text": "2300 A",
+   "work": "230 ÷ 0.1 = 2300.00 A, half the stated 4.6 kA"
+  },
+  {
+   "id": "l7.worked.smin",
+   "label": "S from the slides' 341.4 A for 0.1 s, k 115",
+   "value": 0.94,
+   "unit": "mm²",
+   "rule": "S = √(I² × t) ÷ k",
+   "inputs": {
+    "I": "341.4 A",
+    "t": "0.1 s",
+    "k": "115 (slides p.59)"
+   },
+   "cite": "slides p.59 (printed 0.93 mm², cut short)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i7",
+   "text": "0.94 mm²",
+   "work": "√(341.4² × 0.1) ÷ 115 = 0.94 mm²"
+  },
+  {
+   "id": "l7.worked.smax",
+   "label": "S from the slides' 395.3 A at Cmax",
+   "value": 1.09,
+   "unit": "mm²",
+   "rule": "as above, I at Cmax",
+   "inputs": {
+    "I": "395.3 A (slides p.60)"
+   },
+   "cite": "slides p.61 (printed 1.08 mm², cut short)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i7",
+   "text": "1.09 mm²",
+   "work": "√(395.3² × 0.1) ÷ 115 = 1.09 mm²"
+  },
+  {
+   "id": "l7.worked.ours",
+   "label": "S worked from this course's Zs 0.646 Ω",
+   "value": 1.08,
+   "unit": "mm²",
+   "rule": "I = Uo × Cmax ÷ Zs, then S",
+   "inputs": {
+    "Zs": "0.646 Ω"
+   },
+   "cite": "slides p.58 to 61",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i7",
+   "text": "1.08 mm²",
+   "work": "230 × 1.1 ÷ 0.646 = 391.64 A; √(391.64² × 0.1) ÷ 115 = 1.08 mm²"
+  },
+  {
+   "id": "l7.worked.zeln",
+   "label": "Short circuit: Ze(l/n)",
+   "value": 0.767,
+   "unit": "Ω",
+   "rule": "Ze(l/n) = U ÷ PSCC",
+   "inputs": {
+    "PSCC": "300 A"
+   },
+   "cite": "slides p.64 (printed 0.76 Ω)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i7",
+   "text": "0.767 Ω",
+   "work": "230 ÷ 300 = 0.767 Ω"
+  },
+  {
+   "id": "l7.worked.r1rn",
+   "label": "R1+Rn, 2.5/2.5 at 90 °C, 25 m",
+   "value": 0.474,
+   "unit": "Ω",
+   "rule": "mΩ/m × multiplier × L ÷ 1000",
+   "inputs": {
+    "mΩ/m": "14.82 (slides p.65)",
+    "multiplier": "1.28",
+    "L": "25 m"
+   },
+   "cite": "slides p.65 (printed 0.47 Ω)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i7",
+   "text": "0.474 Ω",
+   "work": "14.82 × 1.28 × 25 ÷ 1000 = 0.474 Ω"
+  },
+  {
+   "id": "l7.worked.zsln",
+   "label": "Zs(l/n)",
+   "value": 1.241,
+   "unit": "Ω",
+   "rule": "Ze(l/n) + R1+Rn",
+   "inputs": {},
+   "cite": "slides p.66 (printed 1.23 Ω)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i7",
+   "text": "1.241 Ω",
+   "work": "0.767 + 0.474 = 1.241 Ω"
+  },
+  {
+   "id": "l7.worked.iscmin",
+   "label": "Least short-circuit current (Cmin)",
+   "value": 176.07,
+   "unit": "A",
+   "rule": "U × Cmin ÷ Zs(l/n)",
+   "inputs": {},
+   "cite": "slides p.66 (printed 177.6 A)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i7",
+   "text": "176.07 A",
+   "work": "230 × 0.95 ÷ 1.241 = 176.07 A ≥ Ia 100 A"
+  },
+  {
+   "id": "l7.worked.iscmax",
+   "label": "Greatest short-circuit current (Cmax)",
+   "value": 203.87,
+   "unit": "A",
+   "rule": "U × Cmax ÷ Zs(l/n)",
+   "inputs": {},
+   "cite": "slides p.67 (printed 205.6 A)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i7",
+   "text": "203.87 A",
+   "work": "230 × 1.1 ÷ 1.241 = 203.87 A"
+  },
+  {
+   "id": "l7.worked.t",
+   "label": "How long the 2.5 mm² live conductors can take it",
+   "value": 3.08,
+   "unit": "s",
+   "rule": "t = k² × S² ÷ I²",
+   "inputs": {
+    "k": "143 (Table 43.1, slides p.68)",
+    "S": "2.5 mm²",
+    "I": "203.87 A"
+   },
+   "cite": "slides p.68 (printed 3.02 s)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i7",
+   "text": "3.08 s",
+   "work": "143² × 2.5² ÷ 203.87² = 3.08 s, longer than 0.1 s"
+  },
+  {
+   "id": "l7.showroom.icn",
+   "label": "Showroom: the least breaking capacity for devices at the origin",
+   "value": 4.6,
+   "unit": "kA",
+   "rule": "IPF ≤ Icn",
+   "inputs": {
+    "IPF": "4.6 kA (pack p.3)"
+   },
+   "cite": "pack p.3; slides p.69, 70",
+   "kind": "showroom",
+   "status": "worked",
+   "lesson": "i7",
+   "text": "4.6 kA",
+   "work": "Icn ≥ 4.6 kA"
+  },
+  {
+   "id": "l8.submain.plan",
+   "label": "MDB to DBL2, along the walls on plan",
+   "value": 17.0,
+   "unit": "m",
+   "rule": "orthogonal route = east run + south run, scaled at 1:50 (1 pt on the sheet = 17.64 mm on site)",
+   "inputs": {
+    "MDB label": "(907.5, 364) pt",
+    "DBL2 label": "(1545, 695.5) pt"
+   },
+   "cite": "power dwg (positions from pdftotext -bbox); brief section 2",
+   "kind": "showroom",
+   "status": "worked",
+   "note": "Approximate: label centres, not the boards' exact points; plus the vertical runs (assumption a.drops).",
+   "lesson": "i8",
+   "text": "17.0 m",
+   "work": "11.2 m east + 5.8 m south = 17.0 m"
+  },
+  {
+   "id": "l9.worked.r12cold",
+   "label": "The immersion heater's expected R1+R2 at test, before the ×1.2",
+   "value": 0.363,
+   "unit": "Ω",
+   "rule": "R1+R2 = mΩ/m × L ÷ 1000 (no multiplier)",
+   "inputs": {
+    "mΩ/m": "24.2",
+    "L": "15 m"
+   },
+   "cite": "slides p.51 to 53",
+   "kind": "worked",
+   "status": "worked",
+   "note": "Assumes the OSG's mΩ/m are at 20 °C: to research.",
+   "lesson": "i9",
+   "text": "0.363 Ω",
+   "work": "24.2 × 15 ÷ 1000 = 0.363 Ω"
+  },
+  {
+   "id": "l9.worked.zscold",
+   "label": "Its expected Zs at test, with the declared Ze",
+   "value": 0.573,
+   "unit": "Ω",
+   "rule": "Ze + R1+R2",
+   "inputs": {
+    "Ze": "0.21 Ω"
+   },
+   "cite": "slides p.50",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i9",
+   "text": "0.573 Ω",
+   "work": "0.21 + 0.363 = 0.573 Ω"
+  }
+ ],
+ "pending": [
+  {
+   "id": "l2.dbl2.load",
+   "label": "DBL2's connected lighting load",
+   "value": null,
+   "unit": "W",
+   "rule": "sum of the luminaires DBL2 feeds × their key wattages",
+   "needs": [
+    "luminaire counts recounted by hand from the lighting drawing",
+    "which luminaires DBL2 feeds (assumption a.dbl2split)"
+   ],
+   "cite": "lighting dwg key",
+   "kind": "showroom",
+   "status": "to count",
+   "lesson": "i2"
+  },
+  {
+   "id": "l2.balance",
+   "label": "DBL2's lighting split across L1, L2, L3",
+   "value": null,
+   "unit": "A per phase",
+   "rule": "phase current = phase load ÷ 230 V (resistive and LED loads need their power factors: to research)",
+   "needs": [
+    "l2.dbl2.load",
+    "the luminaires' power factors (maker's data)"
+   ],
+   "cite": "pack question 1b",
+   "kind": "showroom",
+   "status": "to research",
+   "lesson": "i2"
+  },
+  {
+   "id": "l2.md",
+   "label": "Maximum demand of the installation (question 10)",
+   "value": null,
+   "unit": "A per phase",
+   "rule": "connected loads with diversity allowances, plus the motor's 23.08 A",
+   "needs": [
+    "OSG Appendix A allowances for each load type",
+    "loads for the sockets, the 20 A and 32 A points and the EV points (not on the drawings)",
+    "l2.dbl2.load"
+   ],
+   "cite": "pack question 10; guide p.3",
+   "kind": "showroom",
+   "status": "to research",
+   "lesson": "i2"
+  },
+  {
+   "id": "l3.A.1c",
+   "label": "Section A 1(c): the device for the motor circuit and its rating",
+   "value": null,
+   "unit": "A",
+   "rule": "Ib ≤ In; device type for the starting current; overload relay in a star-delta starter",
+   "needs": [
+    "B, C, D instantaneous-trip multiples (Appendix 3)",
+    "how the starter's overload protects the delta-connected windings and cables (the guide points to its 4.7, guide p.7)"
+   ],
+   "cite": "slides p.20, 22; pack p.4",
+   "kind": "showroom",
+   "status": "to research",
+   "lesson": "i3",
+   "part": "1c"
+  },
+  {
+   "id": "l3.A.1d",
+   "label": "Section A 1(d): rating factors for the starter-to-motor singles",
+   "value": null,
+   "unit": "",
+   "rule": "Ca for 20 °C, 90 °C thermosetting; Cg for the six singles in one conduit",
+   "needs": [
+    "Ca at 20 °C for 90 °C thermosetting (Table 4B1)",
+    "how Cg counts a star-delta motor's six cores"
+   ],
+   "cite": "pack p.3 (20 °C), p.4 (question 4b)",
+   "kind": "showroom",
+   "status": "to research",
+   "lesson": "i3",
+   "part": "1d"
+  },
+  {
+   "id": "l3.A.1e",
+   "label": "Section A 1(e): the table and column",
+   "value": null,
+   "unit": "",
+   "rule": "the table for 90 °C thermosetting singles; the column for singles enclosed in conduit (Reference Method B, as slides p.42 treat singles in conduit)",
+   "needs": [
+    "the table number and the column heading for the edition used (Tables 4D1A to 4J4A, flowchart step 6)"
+   ],
+   "cite": "flowchart step 6; slides p.23, 28",
+   "kind": "showroom",
+   "status": "to research",
+   "lesson": "i3",
+   "part": "1e"
+  },
+  {
+   "id": "l3.A.1f",
+   "label": "Section A 1(f): minimum CSA of the starter-to-motor cables",
+   "value": null,
+   "unit": "mm²",
+   "rule": "smallest CSA with It(tab) ≥ the winding current ÷ factors",
+   "needs": [
+    "l3.A.1d",
+    "l3.A.1e",
+    "the table value for that CSA"
+   ],
+   "cite": "pack p.4 question 4b",
+   "kind": "showroom",
+   "status": "to research",
+   "lesson": "i3",
+   "part": "1f"
+  },
+  {
+   "id": "l4.A",
+   "label": "The showroom's fluorescent lighting: line or neutral current?",
+   "value": null,
+   "unit": "A",
+   "rule": "Table 4Aa band from the maker's harmonic figure",
+   "needs": [
+    "a maker's stated third-harmonic figure for one of the drawing's fluorescent fittings (slides p.37: only if the maker gives one)"
+   ],
+   "cite": "lighting dwg key; slides p.37",
+   "kind": "showroom",
+   "status": "to research",
+   "lesson": "i4"
+  },
+  {
+   "id": "l5.A.1g",
+   "label": "Section A 1(g): actual voltage drop of the motor circuit, from the intake",
+   "value": null,
+   "unit": "V",
+   "rule": "VD = mV/A/m × Ib × L ÷ 1000 for each cable on the path, three-phase drops kept three-phase (motor is three-phase)",
+   "needs": [
+    "mV/A/m for the chosen sizes",
+    "the DBP2 submain's drop (its own design)",
+    "assumption a.motorRun lengths and drops",
+    "how to treat the star-delta starter-to-motor leg"
+   ],
+   "cite": "guide p.6; formula sheet step 7",
+   "kind": "showroom",
+   "status": "to research",
+   "lesson": "i5",
+   "part": "1g"
+  },
+  {
+   "id": "l5.ct",
+   "label": "Ct and the refined drop",
+   "value": null,
+   "unit": "",
+   "rule": "BS 7671 Appendix 4 (not in the slides: \"Let's go to the drawing board\", p.43)",
+   "needs": [
+    "the Ct formula",
+    "the power-factor voltage-drop expression with r and x",
+    "one r, x row from 25 mm²"
+   ],
+   "cite": "slides p.43 to 45",
+   "kind": "showroom",
+   "status": "to research",
+   "lesson": "i5"
+  },
+  {
+   "id": "l6.A.2a",
+   "label": "Section A 2(a): Zs at the motor's starter",
+   "value": null,
+   "unit": "Ω",
+   "rule": "Zs = Zs at DBP2 + R1+R2 (formula sheet step 13)",
+   "needs": [
+    "Zs at DBP2 (the DBP2 submain's R1+R2 or armour)",
+    "R1+R2 per metre and multiplier for the circuit's sizes (OSG Tables I1, I3)",
+    "assumption a.motorRun"
+   ],
+   "cite": "formula sheet step 13; pack p.3",
+   "kind": "showroom",
+   "status": "to research",
+   "lesson": "i6",
+   "part": "2a"
+  },
+  {
+   "id": "l6.A.2b",
+   "label": "Section A 2(b): is it acceptable?",
+   "value": null,
+   "unit": "Ω",
+   "rule": "Zs ≤ maximum Zs for the device (Tables 41.2 to 41.4)",
+   "needs": [
+    "l3.A.1c (the device)",
+    "that device's maximum Zs"
+   ],
+   "cite": "guide p.5 (\"Compare your calculated Zs value to the maximum permitted for the device\")",
+   "kind": "showroom",
+   "status": "to research",
+   "lesson": "i6",
+   "part": "2b"
+  },
+  {
+   "id": "l7.A.2c",
+   "label": "Section A 2(c): thermal constraints on the motor circuit's cpc",
+   "value": null,
+   "unit": "mm²",
+   "rule": "S = √(I² t) ÷ k, I at Cmax",
+   "needs": [
+    "l6.A.2a",
+    "the device's time at that current",
+    "k for the cpc (Tables 54.2 to 54.6)"
+   ],
+   "cite": "guide p.5 (\"Include calculations for thermal constraints\")",
+   "kind": "showroom",
+   "status": "to research",
+   "lesson": "i7",
+   "part": "2c"
+  },
+  {
+   "id": "l7.armour",
+   "label": "DBL2 submain: SWA armour as the cpc",
+   "value": null,
+   "unit": "mm²",
+   "rule": "adiabatic check on the armour",
+   "needs": [
+    "armour CSA and resistance from a maker",
+    "k for steel armour"
+   ],
+   "cite": "guide p.5 (\"as long as it is justified by calculation\")",
+   "kind": "showroom",
+   "status": "to research",
+   "lesson": "i7"
+  },
+  {
+   "id": "l8.dbl2.ib",
+   "label": "The DBL2 submain's design current",
+   "value": null,
+   "unit": "A per phase",
+   "rule": "the DBL2 load per phase (lesson 2)",
+   "needs": [
+    "l2.balance"
+   ],
+   "cite": "pack question 3a",
+   "kind": "showroom",
+   "status": "to research",
+   "lesson": "i8"
+  },
+  {
+   "id": "l8.longest",
+   "label": "DBL2's longest circuit",
+   "value": null,
+   "unit": "m",
+   "rule": "the course's own circuit split (assumption a.dbl2split), scaled",
+   "needs": [
+    "assumption a.dbl2split",
+    "routes"
+   ],
+   "cite": "pack question 3b; brief section 2",
+   "kind": "showroom",
+   "status": "to research",
+   "lesson": "i8"
+  },
+  {
+   "id": "l8.chain",
+   "label": "The end-to-end checks (Ib, In, factors, CSA, voltage drop from the intake, Zs at DBL2 and at the end, thermal, Icn)",
+   "value": null,
+   "unit": "",
+   "rule": "flowchart steps 1 to 20 twice, submain then final circuit",
+   "needs": [
+    "every table value for the chosen sizes",
+    "l7.armour"
+   ],
+   "cite": "pack question 3a, 3b; guide p.5, 6",
+   "kind": "showroom",
+   "status": "to research",
+   "lesson": "i8"
+  },
+  {
+   "id": "l9.compare",
+   "label": "Comparing a measured Zs with the maximum",
+   "value": null,
+   "unit": "",
+   "rule": "the rule BS 7671 Appendix 3 and GN3 give for a reading at test temperature",
+   "needs": [
+    "that rule, quoted"
+   ],
+   "cite": "C&G P1 Q10c, P3 Q9a (shapes)",
+   "kind": "showroom",
+   "status": "to research",
+   "lesson": "i9"
+  },
+  {
+   "id": "l9.showroom",
+   "label": "The showroom as built",
+   "value": null,
+   "unit": "",
+   "rule": "readings set at build as labelled example readings, compared by l9.compare",
+   "needs": [
+    "l8.chain",
+    "l9.compare"
+   ],
+   "cite": "pack question 9",
+   "kind": "showroom",
+   "status": "to set at build",
+   "lesson": "i9"
+  },
+  {
+   "id": "l9.interval",
+   "label": "The showroom's first periodic inspection interval; the handover documents",
+   "value": null,
+   "unit": "",
+   "rule": "industry guidance (pack question 9a says \"Using Industry guidance\")",
+   "needs": [
+    "GN3 or OSG guidance for a showroom; BS 7671 Part 6 on certificates and handover"
+   ],
+   "cite": "pack question 9a, 9b",
+   "kind": "showroom",
+   "status": "to research",
+   "lesson": "i9"
   }
  ],
  "toResearch": [
@@ -1571,13 +1767,6 @@
    "status": "to research",
    "needs": [
     "GN3 or OSG guidance for a showroom; BS 7671 Part 6 on certificates and handover"
-   ]
-  },
-  {
-   "id": "r.delta",
-   "status": "to research",
-   "needs": [
-    "a quoted source for line current = √3 × phase current in a balanced delta (for 1(b)); the AC circuits research has the star half of it (Kuphaldt, AC chapter 10)"
    ]
   }
  ]

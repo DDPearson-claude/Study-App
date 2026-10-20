@@ -1,0 +1,192 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "At efficiency and power factor 1, nothing is added: 20.00 kVA and Ib 28.87 A, the output alone",
+        "ok": true
+      },
+      {
+        "label": "At efficiency 0.87 and power factor 0.80: 22.99 kW, 28.74 kVA and 41.48 A, as the case file works it",
+        "ok": true
+      },
+      {
+        "label": "At 0.70 and 0.70: 28.57 kW, 40.81 kVA and 58.90 A, the largest bar",
+        "ok": true
+      },
+      {
+        "label": "Lowering either the efficiency or the power factor never lowers Ib",
+        "ok": true
+      },
+      {
+        "label": "The rule gives the case file's figures: 28.87, 50.00, 86.96, 36.08, 33.18, 29.38, 23.08, 13.33 and 21.87 A",
+        "ok": true
+      },
+      {
+        "label": "The check: 7 500 ÷ (√3 × 400 × 0.9 × 0.85) = 14.15 A; 12.74 A without the efficiency, 12.03 A without the power factor",
+        "ok": true
+      },
+      {
+        "label": "The worked example's steps: 692.82, 482.20 and 680.70 give 28.87, 41.48 and 29.38 A",
+        "ok": true
+      },
+      {
+        "label": "kW = volts × amps × pf × √3 ÷ 1,000: 400 V and 28.87 A at pf 1 make the 20 kW",
+        "ok": true,
+        "source": "https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf"
+      },
+      {
+        "label": "In balanced delta the line current is the phase current times √3: 13.33 A × √3 is the line's 23.08 A",
+        "ok": true,
+        "source": "https://www.allaboutcircuits.com/textbook/alternating-current/chpt-10/three-phase-y-delta-configurations"
+      },
+      {
+        "label": "The demonstration opens at 1 and 1 and settles on your slides' 0.87 and 0.80",
+        "ok": true
+      },
+      {
+        "label": "Every slip lies outside its answer's accepted range",
+        "ok": true
+      },
+      {
+        "label": "An accepted answer away from the printed figure gets its note: 23.10, 13.35 and 21.90 A",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "eff",
+      "pf"
+    ],
+    "readouts": [],
+    "outputs": [
+      "inp",
+      "app",
+      "ib"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "What it is for",
+          "The why",
+          "Check",
+          "The voltage at the board",
+          "Worked example",
+          "Section A (a)",
+          "Section A (b)",
+          "Section B",
+          "Changed numbers",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "eff",
+        "kind": "control",
+        "label": "Efficiency",
+        "min": 0.7,
+        "max": 1,
+        "step": 0.01,
+        "log": false,
+        "value": 1,
+        "snap": [
+          0.87
+        ]
+      },
+      {
+        "id": "pf",
+        "kind": "control",
+        "label": "Power factor",
+        "min": 0.7,
+        "max": 1,
+        "step": 0.01,
+        "log": false,
+        "value": 1,
+        "snap": [
+          0.8
+        ]
+      }
+    ],
+    "actions": [
+      "Replay",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Why?",
+      "Refresh the why",
+      "Skip to the practice",
+      "Check",
+      "Finish the lesson",
+      "Show the next step",
+      "Back",
+      "Continue",
+      "Demonstration"
+    ],
+    "answers": [
+      {
+        "id": "1a",
+        "answer": 23.08,
+        "accept": [
+          23.1
+        ],
+        "ok": true
+      },
+      {
+        "id": "1b",
+        "answer": 13.33,
+        "accept": [
+          13.32,
+          13.34,
+          13.35
+        ],
+        "ok": true
+      },
+      {
+        "id": "l1.A.changed",
+        "answer": 21.87,
+        "accept": [
+          21.9
+        ],
+        "ok": true
+      }
+    ],
+    "written": [
+      "b1"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

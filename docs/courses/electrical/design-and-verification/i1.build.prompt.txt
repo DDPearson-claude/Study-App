@@ -1,0 +1,467 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Design and verification, a Level 4 refresher
+Idea: Design current: what the circuit really draws (The cable carries what the load draws from the supply, so Ib comes from the input, not the output: P ÷ (√3 × UL × efficiency × power factor), at the voltage actually at the board, with diversity only as guidance.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the input bar stretch past the fixed 20 kW output, the apparent-power bar past the input, and Ib climb from 28.87 A to 41.48 A, when you drag efficiency and power factor down.
+Title (the app shows it above the frame, so do not repeat it): What the circuit really draws
+The rule (the app shows it just above the frame, under "What you're looking at"): A refresher lesson in eleven screens, with Back and Continue between them, on the design current Ib. Screen 1, Do you still have it?: "A 20 kW three-phase heater on a 400 V supply, power factor 1, efficiency 100%. What is its design current, Ib?" Three choices, in this order: 28.87 A, 50.00 A, 86.96 A. Right: "Still there.", the working 20 000 ÷ (√3 × 400) = 28.87 A, a line saying it is your slides' own heater (p.16) and that the other two are the usual slips (50.00 A leaves out √3; 86.96 A works it at 230 V), and two buttons: Refresh the why (on to screen 2) and Skip to the practice (straight to screen 7). Wrong: the slip named (50.00 A treats the heater as one line at 400 V carrying all of it, but three-phase power is √3 × UL × IL × power factor, so the rule divides by √3 × the line voltage, your slides p.13; 86.96 A: that treats the heater as a single-phase load on 230 V), the right working, and on to screen 2, with no skip offered. Screen 2, What it is for: design current is the magnitude of the current to be carried by a circuit in normal service (slides p.11).[^1] The device and the cable are chosen from it, Ib ≤ In ≤ Iz (slides p.22),[^2] and every check after them starts from that choice. If it is skipped or wrong, every later step starts from the wrong current. Screen 3, The why: the same 20 kW output at 400 V. Two sliders, Power factor and Efficiency, each from 0.70 to 1.00 in steps of 0.01, both opening at 1.00, with "Drag both down from 1". Three bars on one scale that fits the largest, 40.81 kVA at the lowest settings, each with its value: Output, 20.00 kW, fixed; Input = output ÷ efficiency, in kW; Apparent = input ÷ power factor, in kVA. A large readout, Ib = apparent × 1000 ÷ (√3 × 400), with its working under it. Each figure is worked from the rounded figure above it, to 2 decimal places. At 1.00 and 1.00: 20.00 kW, 20.00 kVA, 28.87 A. At efficiency 0.87 and power factor 0.80: 22.99 kW, 28.74 kVA, 41.48 A (your slides print 41.47 A). At 0.70 and 0.70: 28.57 kW, 40.81 kVA, 58.90 A. Under it, in red: if it's skipped, the cable is sized on 28.87 A when the load draws the readout's Ib, which your slides say "would cause big implications for the operation and safety of the circuit" (p.17).[^3] One line: real, apparent and reactive power are the AC circuits course's lesson 8; here they only show where the extra current comes from. Screen 4, Check: your slides' 20 kW worked again as a motor load (they call it a pump) at power factor 0.8 and efficiency 87%: what is Ib? Choices 41.48 A (right: 20 000 ÷ (√3 × 400 × 0.87 × 0.8)), 36.08 A (efficiency left out) and 33.18 A (power factor left out), each wrong one with a hint naming the factor left out, and a Why? giving the rule (slides p.13, 17). Screen 5, The voltage at the board, and diversity: a sub-board measured at 393 V, 20 000 ÷ (√3 × 393) = 29.38 A, against 28.87 A at 400 V (slides p.19).[^4] A given voltage must be used, and at a sub-board it is lower than 400 V because of the submain's voltage drop (slides p.18).[^5][^6] Diversity in two lines: the On-Site Guide's percentages are guidance and need not be applied (slides p.10);[^7] ten 100 W lamps at 66% may be designed at 10 × 100 × 0.66 = 660 W rather than 1000 W.[^8] Lesson 2 does more. Screen 6, Worked example: your slides' three cases, revealed one line at a time: 20 kW at 400 V, 20 000 ÷ (√3 × 400) = 28.87 A (p.16); the same at power factor 0.8 and efficiency 87%, 20 000 ÷ (√3 × 400 × 0.87 × 0.8) = 41.48 A (p.17); the same at a 393 V sub-board, 20 000 ÷ (√3 × 393) = 29.38 A (p.19). Then one line: your slides print 28.86 A and 41.47 A, cut short rather than rounded; nothing changes. Screen 7, Section A, question 1 (a): the showroom's scenario panel, from your assignment (pack p.3 and question 4, p.4),[^9][^10][^11] and "(a) Determine the design current." A typed answer (part 1a): 11 000 ÷ (√3 × 400 × 0.86 × 0.8) = 23.08 A, with 23.10 A (√3 taken as 1.73) also accepted. Each usual slip gets its own hint: 15.88 A (efficiency and power factor left out), 18.46 A (power factor left out), 19.85 A (efficiency left out), 39.97 A (√3 left out), 69.51 A (the single-phase rule at 230 V). After two wrong tries, the working is shown. Screen 8, Section A, question 1 (b): (a) carried forward at 23.08 A, and "(b) Determine the current in each winding when the motor runs in delta." A small drawing: three windings joined in a triangle, the line current, 23.08 A, coming in at one corner, one winding marked "?". A typed answer (part 1b): 23.08 ÷ √3 = 13.33 A, with 13.32 A (from the unrounded Ib), 13.34 A and 13.35 A (√3 taken as 1.73) also accepted. Slips: 39.98 A (multiplied by √3), 7.69 A (divided by 3). The feedback: in a balanced delta the line current is the winding current × √3,[^12] so each winding carries the line current ÷ √3; lesson 3 sizes the starter-to-motor cables on it, as question 4b asks. Screen 9, Section B: "Explain why Ib for a final circuit fed from a sub-board is worked at the voltage at that board, not at 400 V." Your written answer, marked against four points from your slides (a full answer makes any three), one more go, then the model answer. Screen 10, Section A, changed numbers: "A three-phase 15 kW water heater is fed from a sub-board whose voltage is measured at 396 V. Determine the design current." A typed answer: 15 000 ÷ (√3 × 396) = 21.87 A, with 21.90 A (√3 taken as 1.73) also accepted. Slips: 21.65 A (worked at 400 V, not the board's 396 V), 37.88 A (√3 left out). Screen 11, Keep this: the summary card (what it is for, the rule, the traps, the showroom's figures so far, where it lives), then Finish the lesson.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The bars treat the load as balanced across the three lines, as the three-phase rule does; an unbalanced load draws a different current in each line. Efficiency and power factor are fixed numbers here, as a nameplate gives them at full load; a motor running lightly loaded has a lower power factor and efficiency than its nameplate's. Ib is the steady running current: a motor draws much more for a moment as it starts, which is taken up when the device is chosen, in lesson 3. The bars show sizes only, not the power triangle: the apparent power is the input divided by the power factor, not the input with something added end to end. At a sub-board, Ib is worked as your slides work it, as if the load still takes its full power at the lower voltage: near enough true of a motor driving the same load, but a plain heater really draws a little less there, so the figure errs on the safe side.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 10 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 11 (the stepper): 0 (control)
+- Recall heater output, your slides p.16, kW: 20 (constant, source [13])
+- Supply line voltage, V: 400 (constant, source [14])
+- Recall Ib, 20 000 ÷ (√3 × 400), A: 28.87 (computed)
+- Slip, √3 left out, A: 50 (computed)
+- Slip, single-phase rule at 230 V, A: 86.96 (computed)
+- Single-phase voltage, V: 230 (constant, source [6])
+- Power factor slider, lowest to highest: 0.70 to 1.00 (control)
+- Efficiency slider, lowest to highest: 0.70 to 1.00 (control)
+- Both sliders open at: 1 (control)
+- Input at efficiency 0.87, kW: 22.99 (computed)
+- Apparent power at power factor 0.80, kVA: 28.74 (computed)
+- Ib at 0.87 and 0.80, A: 41.48 (computed)
+- Input at efficiency 0.70, kW: 28.57 (computed)
+- Apparent at power factor 0.70, kVA: 40.81 (computed)
+- Ib at 0.70 and 0.70, A: 58.9 (computed)
+- Slides' printed Ib at 400 V, A: 28.86 (constant, source [3])
+- Slides' printed Ib at 0.8 and 87%, A: 41.47 (constant, source [3])
+- Check slip, efficiency left out, A: 36.08 (computed)
+- Check slip, power factor left out, A: 33.18 (computed)
+- Sub-board voltage in the slides, V: 393 (constant, source [4])
+- Ib at the 393 V sub-board, A: 29.38 (computed)
+- Diversity example: lamps: 10 (constant, source [8])
+- Diversity example: each lamp, W: 100 (constant, source [8])
+- Diversity allowance for the example, %: 66 (constant, source [8])
+- Designed load with diversity, W: 660 (computed, source [8])
+- Designed load without diversity, W: 1000 (computed, source [8])
+- Motor output, kW: 11 (constant, source [11])
+- Motor power factor: 0.8 (constant, source [11])
+- Motor efficiency, %: 86 (constant, source [11])
+- Showroom Ze, Ω: 0.1 (constant, source [9])
+- Showroom prospective fault current, kA: 4.6 (constant, source [9])
+- Showroom ambient temperature, °C: 20 (constant, source [10])
+- Starter-to-motor singles, thermosetting, pack p.4, °C: 90 (constant)
+- Part 1a: motor Ib, A: 23.08 (computed)
+- Part 1a with √3 as 1.73, A: 23.1 (computed)
+- √3 as your slides take it: 1.73 (constant, source [15])
+- Part 1a slip, both factors left out, A: 15.88 (computed)
+- Part 1a slip, power factor left out, A: 18.46 (computed)
+- Part 1a slip, efficiency left out, A: 19.85 (computed)
+- Part 1a slip, √3 left out, A: 39.97 (computed)
+- Part 1a slip, single-phase rule at 230 V, A: 69.51 (computed)
+- Part 1b: each winding in delta, A: 13.33 (computed)
+- Part 1b from the unrounded Ib, A: 13.32 (computed)
+- Part 1b with √3 as 1.73, A: 13.34 (computed)
+- Part 1b from 23.10 A with √3 as 1.73, A: 13.35 (computed)
+- Part 1b slip, multiplied by √3, A: 39.98 (computed)
+- Part 1b slip, divided by 3, A: 7.69 (computed)
+- Changed numbers: heater output, kW: 15 (assumed)
+- Changed numbers: board voltage, V: 396 (assumed)
+- Changed numbers: Ib, A: 21.87 (computed)
+- Changed numbers with √3 as 1.73, A: 21.9 (computed)
+- Changed numbers slip, worked at 400 V, A: 21.65 (computed)
+- Changed numbers slip, √3 left out, A: 37.88 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+The design current, Ib, is the current a circuit carries in normal service. The cable carries what the load draws from the supply, not what it gives out, so Ib is worked from the load's input: Ib = P ÷ (√3 × UL × efficiency × power factor), where P is the output in watts and UL the line voltage.
+
+Start from the output, because that is the figure on the nameplate: your course slides take P as the output of the load. Efficiency is the output divided by the input, so the input is the output divided by the efficiency. At 87%, 20 kW out needs 20 ÷ 0.87 = 22.99 kW in: the difference is lost inside the machine, but it comes down the cable first. Then the power factor. A motor needs more current than its output suggests, because of reactance. The power factor is the ratio of the real power in kW to the apparent power in kVA that the supply gives, and with an inductive load such as a motor it is below 1, so the kVA is bigger than the kW. So the apparent power is the input divided by the power factor: 22.99 ÷ 0.8 = 28.74 kVA. The line current follows the apparent power, because three-phase real power is √3 × line voltage × line current × power factor; turned round, 28.74 × 1000 ÷ (√3 × 400) = 41.48 A. Do both divisions at once and you have your slides' rule. Sized on the output alone, the same load would be designed on 28.87 A, and your slides say that 'would cause big implications for …
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] EAL Level 4 Design and Verification: course slides (material:eal-slides#p11): "Design current is defined as ‘the magnitude of the current to be carried by a circuit in normal service’."
+[2] EAL Level 4 Design and Verification: course slides (material:eal-slides#p22): "Regulation 433.1.1 explains the following: Ib ≤ In ≤ Iz"
+[3] EAL Level 4 Design and Verification: course slides (material:eal-slides#p17): "their cable design is based on 28.86A rather than 41.47A, this would cause big implications for the operation and safety of the circuit."
+[4] EAL Level 4 Design and Verification: course slides (material:eal-slides#p19): "Ib = 20,000 / 393 x √3"
+[5] EAL Level 4 Design and Verification: course slides (material:eal-slides#p18): "If (when during design or in your exam) you are given a separate value for voltage (U), then this must be used."
+[6] EAL Level 4 Design and Verification: course slides (material:eal-slides#p18): "This new voltage (which will be lower than 230V or 400V) must used for the Ib of the final circuits from the sub board."
+[7] EAL Level 4 Design and Verification: course slides (material:eal-slides#p10): "The percentages to apply for diversity are only found in the OnSite Guide. This means, it’s guidance and doesn’t have to be applied."
+[8] EAL Level 4 Design and Verification: course slides (material:eal-slides#p10): "then it could be designed to 660W as the Ib rather than 1000W."
+[9] ED4-01A learner pack: car showroom assignment (material:learner-pack#p3): "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+[10] ED4-01A learner pack: car showroom assignment (material:learner-pack#p3): "Ambient temperature is 20 degrees Celsius."
+[11] ED4-01A learner pack: car showroom assignment (material:learner-pack#p4): "Within the consultation bay there will be an additional requirement for a 400 V three-phase 11 kW motor which operates at a power factor of 0.8 lagging and efficiency of 86%."
+[12] Three-phase Y and Delta Configurations | Polyphase AC Circuits | Electronics Textbook (https://www.allaboutcircuits.com/textbook/alternating-current/chpt-10/three-phase-y-delta-configurations): "In balanced Δ circuits, the line voltage is equal to phase voltage, while the line current is equal to phase current times the square root of 3."
+[13] EAL Level 4 Design and Verification: course slides (material:eal-slides#p16): "Ib = 20,000 / 400 x √3"
+[14] EAL Level 4 Design and Verification: course slides (material:eal-slides#p13): "VL = Line to line voltage (400V)"
+[15] EAL Level 4 Design and Verification: course slides (material:eal-slides#p13): "√3 = Square root of 3 (1.73)"
+[16] 2008 28 Autumn Wiring Matters (https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf): "The design current of the circuit, i.e. the current intended to be carried by the circuit in normal service."
+[17] EAL Level 4 Design and Verification: course slides (material:eal-slides#p13): "Ib = P / VL x Eff% x PF x √3"
+[18] EAL Level 4 Design and Verification: course slides (material:eal-slides#p12): "P = Power in watts (the output of the load)"
+[19] Determining Electric Motor Load and Efficiency (https://www.energy.gov/sites/prod/files/2014/04/f15/10097517.pdf): "The NEMA definition of energy efficiency is the ratio of its useful power output to its total power input and is usually expressed in percentage"
+[20] How to measure the power output of an electric motor (https://www.futek.com/electric-motor-output-power): "The efficiency of the motor is calculated as mechanical output power divided by electrical input power"
+[21] EAL Level 4 Design and Verification: course slides (material:eal-slides#p15): "Some equipment (such as motors) require more than expected current to provide the output required, this is due to something called ‘reactance’."
+[22] Power Factor (https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf): "Power factor (pf) is a term used to express the relationship between the Real Power (kW) required for a load and the Total or Apparent Power (kVa) supplied."
+[23] Power Factor (https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf): "If the circuit contains an electric induction motor or other inductive load, then the power factor is less than 1.0 and kVa will be greater than kW"
+[24] Power Factor (https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf): "kW = Volts RMS x Amps RMS x Pf x √3 / 1,000"
+[25] Electrical Diversity Calculator — IET On-Site Guide (BS 7671) | TradeCalculator (https://tradecalculator.co.uk/electrical/diversity-calculator/): "BS 7671 itself contains no diversity table — Regulation 311.1 requires the designer to assess maximum demand and permits diversity to be taken into account; the On-Site Guide gives the recognised figures."
+[26] Requirements for Protection Against Overload - Professional Electrician (https://professional-electrician.com/technical/requirements-protection-overload): "The rated current or current setting of the protective device (In) should not be less than the design current (Ib) of the circuit."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+
+## Refresher lessons: typed answers, written answers, the case file, the summary
+
+A refresher course's steps lesson (a ready-made course built in Claude Code) has four more kit
+pieces. The app passes the page two pieces of checked data, as it passes the theme: the course's
+case file (`K.caseFile`) and the lesson's own `{written, summary}` (`K.lesson`). Name what you want
+by id; the kit draws the checked words, so never retype a figure, a point or a summary line.
+
+```
+K.figure(id) -> {id, label, value, unit, text, part, lesson}     a given or worked figure; print f.text ("23.08 A")
+K.scenario({into, open?})                                        the case's scenario panel (folds)
+K.carried({parts: ['1a'], into})  -> {el, refresh()}             earlier Section A parts at the course's figures
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+    -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state: 'right'|'wrong'|'empty'|'unreadable', value, accepted?, slip?, hint?}
+K.written({id, into, onMark?}) -> {el, id, stage(), answered()}
+K.summary({into, kept?})
+```
+
+**Typed answers** (Section A, where a C&G paper has him write a figure). A decimal-keypad field;
+your Check button calls `a.check()` (Enter does too) and you write the feedback from the result.
+`answer` is the course's figure, each line worked from the rounded figures shown; it is accepted
+within half a unit in its last place (`decimals`, default 2). `accept: [13.32]` adds the answer
+worked from unrounded figures; `slips: [{value: 50, hint: 'You left out √3.'}]` names a usual slip
+and its hint (`r.hint`). A unit typed after the number ("13.33 A") is fine. Give the part's
+case-file id as the answer's id ('1b'), so `K.carried` knows when he missed it: a part got wrong
+and never right, or shown with `a.reveal()`, is carried forward at the course's figure and says so.
+After two wrong tries, show the working and `reveal()`; Continue once `right()`.
+The self-test grades every answer: its figure and each accepted one right (with the unit too), a
+near miss and each slip refused, and the figure typed into the field and checked on its step.
+
+**Written answers** (Section B: "Explain why…", "State two…"). `K.written({id: 'b1', into})` shows
+`lesson.written.b1`'s question, a box for his words and Check my answer. Claude marks them against
+the lesson's points through the app (never from the page): each point comes back with an ink tick
+or a dashed ring, a statement that is wrong named in red, one line on what he did well and one
+nudge; one more go, then the model answer. Without Claude, the points are a checklist he ticks.
+No marks, no grades, nothing to score. `onMark(r)` runs when a result is drawn; let him Continue
+once `answered()`.
+
+**The summary** (Keep this, the last step). `K.summary({into: '#keep'})` draws `lesson.summary`
+as a card (what it is for, the rule, the traps, the case's figures so far, where it lives) and says
+it is the first page of the chapter in his Book. Then the Finish button calls `K.complete()`.
+
+**STEPS entries** (tools/course/guide.mjs reads them for the Book): a typed-answer step keeps
+`want` (the answer as printed, '13.33 A'); a written step is `{kind: 'written', written: 'b1',
+name, task}`; the summary step is `{kind: 'summary', name: 'Keep this'}`; the recall opener is a
+DO step like any other.
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

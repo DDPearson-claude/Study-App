@@ -1,0 +1,21 @@
+{
+  "draft": "i1.lesson.draft1.txt",
+  "validator": "passes with no problems",
+  "faults": [
+    {"fault": "causal step skipped", "where": "explain, paragraph 3; written model answer", "finding": "\"For the same power a lower voltage needs more current\" is asserted, not shown. The step that makes it obvious is the rule already taught: the power is √3 × voltage × current × power factor, so with the power fixed, a smaller voltage leaves a larger current.", "fix": "Add that step in one clause in explain; the written point already carries the rule."},
+    {"fault": "false absolute", "where": "practice step 1; summary.rule", "finding": "\"With neither given, work with both as 1\" is wrong for a motor: a motor has an efficiency and a power factor whether or not someone has handed them over, and without the nameplate or maker's data its true Ib cannot be found. Only a load with nothing to allow for (the slides' heater) is worked at 1 and 1.", "fix": "Say a heater like the slides' is worked at 1 and 1, and a motor's figures come from its nameplate or the maker's data (slides p.14 on the card)."},
+    {"fault": "interactive brief shows only the effect", "where": "interactive.brief", "finding": "The brief names Ib climbing but not the cause the bars draw: the input bar stretching past the output, then the apparent bar past the input.", "fix": "Name the two bars stretching as the cause of the climb."},
+    {"fault": "wrong why in a slip's feedback", "where": "screen 1, the 50.00 A slip", "finding": "\"Three-phase power is shared by three lines, so the rule divides by √3 × the line voltage\" invites dividing by 3, not √3; it does not explain the √3.", "fix": "Say what 50.00 A treats the heater as (one line at 400 V carrying all of it) and give the rule, P = √3 × UL × IL × pf (slides p.13), without a false reason."},
+    {"fault": "number kinds", "where": "interactive.numbers", "finding": "The recall heater's 20 kW is the slides' own example (p.16), not an assumed value; the 90 °C cable is a given from the pack with no research quote.", "fix": "Make 20 kW a constant cited to [32]; label 90 °C as the pack's given."},
+    {"fault": "unreadable picture at the extremes", "where": "screen 3", "finding": "The three bars share one scale, but the draft does not say what the scale must fit; at 0.70 and 0.70 the apparent bar is 40.81 kVA, twice the output, and could run off a 340 px frame.", "fix": "Say the scale fits the largest bar, 40.81 kVA, at the lowest settings."},
+    {"fault": "analogy breaks: loose science", "where": "analogy.breaks", "finding": "\"The extra current ... flows back and forth\": it is the reactive power that surges between supply and the motor's magnetic field each cycle; the current that carries it is what heats the cable.", "fix": "Reword in correct terms."}
+  ],
+  "checked_and_sound": [
+    "No recall-only checks: read mode, checks [] (the screen 4 check applies the rule with named slips).",
+    "Research is not decorative: each point carries a quote from his slides or a researched page; the delta relation now has its quote ([16]).",
+    "The explanation teaches the idea (output to input to apparent power to current) rather than describing it.",
+    "Every figure recomputed: 28.87, 50.00, 86.96, 22.99, 28.74, 41.48, 58.90 (58.91 unrounded), 36.08, 33.18, 29.38, 660, 23.08 (23.10 at 1.73), 13.33 (13.32 unrounded; 13.34 and 13.35 at 1.73), 21.87 (21.90 at 1.73); slips 15.88, 18.46, 19.85, 39.97, 69.51, 39.98, 7.69, 21.65, 37.88. All match case.json.",
+    "Refresher pattern: recall with Refresh the why / Skip to the practice (skip only on a right answer, landing on screen 7); what it is for; the why with its interactive; a check; the worked example with the slides' cut-short figures noted; Section A 1(a) and 1(b) with the scenario, carried part and typed answers; Section B with K.written b1; one changed-numbers item; Keep this with the summary. Eleven screens. No timers, marks or grades.",
+    "Source slip not copied: slides p.17 call the 20 kW load 'the same pump'; at power factor 0.8 and 87% it is a motor load, so the lesson says so rather than calling it the heater (case.json l1.check note)."
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "scores": { "lands": 4, "why": 4, "cause": 4, "trade": 4, "honest": 4, "pleasure": 4 },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Screen 5 (The voltage at the board), with screen 6's third line, the Section B model answer and screen 10",
+      "what": "The page says flatly that the same power at a lower voltage needs more current, and applies it to loads it calls heaters (the slides' 20 kW industrial heater at 393 V, a water heater at 396 V). A resistive heater actually draws less at a lower voltage: the 20 kW one draws about 28.87 × 393 ÷ 400 = 28.36 A, not 29.38 A. So the rule is the slides' safe-side convention, not 'what the circuit really draws'. The lesson's own interactive.ignores says this, but a steps lesson shows only the frame, so Dan never sees it. Add one plain line on screen 5: your slides work it as if the load still takes its full power; that is near enough for a motor driving its load, and for a plain heater the figure errs on the safe side."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 5, the diversity note",
+      "what": "'Ten 100 W lamps at 66% may be designed at 660 W' leaves out the slides' scope. Slides p.10 say 'a domestic lighting circuit can have 66% diversity applied' (OSG Appendix A). In a course built on a commercial showroom, the figure reads as general. Say 'on a domestic lighting circuit'."
+    },
+    {
+      "severity": "polish",
+      "where": "Screens 2, 3 and 5: key terms written as *term*",
+      "what": "write() wraps key terms in <span class=\"mark\">, but kit.css styles only the <mark> element and the .term class. So Ib, draws from the supply, efficiency, power factor and Diversity show as plain text, with no amber highlight (screen 2's 'Ib' is plain in both 360 px stills). Use K.el('mark', …) or the class 'term'. KIT.md line 138 names the class 'mark', which is where the mistake comes from, and AC circuits i2 to i4 copy it."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3 (The why), its opening text",
+      "what": "'Losses (efficiency) and reactance (power factor) both add to the draw (your slides p.15)': p.15 covers reactance only. Cite p.12 and 13 (P is the output of the load, and Eff% is in the rule) for the efficiency half."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3, the line under the text",
+      "what": "'Drag both down from 1' is out of date by the time he reads it: the opening demonstration has already left the sliders at 0.87 and 0.80. Say 'Drag either one, or Replay'."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3, the say sentence and the red 'If it's skipped' note during the demonstration",
+      "what": "During the 4 s demo the sentence switches between three wordings of different lengths (about 130, 190 and 196 characters), and the red note changes length too. At 360 px the note, the footnote and Continue below probably jump a line while the bars move. Give #say and #warn2 a min-height, or keep one sentence shape."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 4 (Check)",
+      "what": "The check asks for Ib at exactly 0.87 and 0.80, the state the demonstration has just left on screen with 41.48 A in large type. He can answer from memory of the readout without using the rule. Any new pair of values would have to be added to case.json first."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 6 (Worked example)",
+      "what": "Each revealed 'line' is a whole case with its answer, and all three answers were already worked on screens 1, 4 and 5, so nothing is shown step by step and the screen mostly repeats. Show the denominator as the slides' rule builds it, for example √3 × 400 = 692.82; × 0.87 × 0.8 = 482.20; 20 000 ÷ 482.20 = 41.48 A (checked by hand), so he can check his own working against each step."
+    },
+    {
+      "severity": "polish",
+      "where": "Screens 7, 8 and 10: the typed answers' right-answer notes",
+      "what": "The case file's accept range gives a ±0.03 A tolerance, which already takes in 23.10, 13.32, 13.34, 13.35 and 21.90 A. K.answer grades these as straight hits on the answer, so r.accepted is never set. As a result the 'with √3 as 1.73 … the course carries 23.08 A forward' and 'from the unrounded Ib' notes never show, and an answer of 23.10 A gets no word that part (b) starts from 23.08 A. Show the note whenever the value typed differs from the printed figure."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 8 (Section A (b)), the delta note",
+      "what": "It says lesson 3 sizes the starter-to-motor cables on the winding current 'as question 4b asks', but never says why those cables carry it: a star-delta starter runs six conductors to the motor, each in series with one winding. That is the step he would use on a real job; add it as one sourced line."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 8, the delta drawing",
+      "what": "The two lower lines are labelled L2 and L3, but the top one only 'Line current: 23.08 A'. Label it L1 as well."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 11 (Keep this), the card's content",
+      "what": "The card prints 'Each winding, in delta 13.33 A' but gives no rule for it (in delta, winding current = line current ÷ √3). It also says U is the voltage at the board 'when you are given one' without saying what to use otherwise (230 V or 400 V nominal, formula sheet). Add both lines. 'Where it lives: Your slides' should have a lower-case 'your'."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 11 (Keep this) at 360 px",
+      "what": "The single-phase rule wraps mid-bracket ('Ib = P ÷ (U × eff' / '× pf)'), and so does the three-phase one ('(√3 × UL' / '× eff × pf)'). Keep each formula on one line (white-space: nowrap on the formula, or a slightly smaller size)."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 10 (Section A, changed numbers)",
+      "what": "The load is a three-phase water heater, the same kind of load as C&G P1 question 1 (a three-phase 12 kW water heater, brief.md) with only the numbers changed. Pick a different load to keep clear of the paper's scenario. 'Measured at 396 V' is also off for design work: slides p.18 have the sub-board's voltage worked out from the submain's drop. Say 'given as 396 V'."
+    },
+    {
+      "severity": "polish",
+      "where": "Every screen, the caption under the card",
+      "what": "'Figures from your slides and your assignment, each line worked from the rounded figure before it' shows under the recall question and the What it is for screen, where nothing has been worked. Show it only on screens that have working."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3, the bar colours",
+      "what": "The input bar is teal (--k-accent), which the house rules keep for small labels, and the apparent bar is the controls' ink. Use the kit's fill1, fill2 and fill3 area tokens (KIT.md) so colour keeps its meaning."
+    },
+    {
+      "severity": "polish",
+      "where": "The attempt's stills and self-test (process)",
+      "what": "The 'moved' stills were taken after setting step to 1, so efficiency and power factor were moved on screen 2, where they are hidden. The why's bars were never captured moved, or in dark mode at 360 px. The only view of them is film-s2, a 3000 × 23000 sheet that cannot be read once scaled down. Separately, the self-test warning 'page height keeps growing with the frame [at 340 px]' was left unexplained. Have render.mjs move the sliders on the screen that shows them, and run down the warning."
+    }
+  ]
+}

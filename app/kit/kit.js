@@ -662,7 +662,8 @@
     };
     c.settle = settle;
     c.info = function () {
-      var i = { id: c.id, kind: 'control', label: o.label || c.id, min: min, max: max, step: step || null, log: log, value: value };
+      var i = { id: c.id, kind: 'control', label: o.label || c.id, min: min, max: max, step: step || null, log: log, value: value,
+        shown: !!(el.isConnected && el.getClientRects().length) };
       if (snaps.length) i.snap = snaps.slice();
       return i;
     };

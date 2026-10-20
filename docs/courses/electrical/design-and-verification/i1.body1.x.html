@@ -1,0 +1,550 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .scene { display: block; width: 100%; }
+  .scene .lb { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .scene .hd { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .vl { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .ibv { font: 800 24px var(--k-font); fill: var(--k-ink); }
+  .scene .track { fill: var(--k-sunk); }
+  .scene .b0 { fill: var(--k-muted); }
+  .scene .b1 { fill: var(--k-accent); }
+  .scene .b2 { fill: var(--k-accent2); }
+  .scene .ibox { fill: var(--k-sunk); }
+  .scene .box { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .coil { fill: none; stroke: var(--k-strong); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .coil.ask { stroke: var(--k-accent2); stroke-width: 3.6; }
+  .scene .dot, .scene .head { fill: var(--k-ink); }
+  .ctl { display: grid; gap: 12px; }
+  .replay { display: flex; justify-content: flex-end; }
+  .replay .k-btn { min-height: 44px; padding-inline: 16px; white-space: nowrap; }
+  .rule1 { display: grid; gap: 4px; padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1px solid var(--k-line); }
+  .rule1 .eq { font-size: 1.35rem; font-weight: 800; letter-spacing: .02em; }
+  .rows { display: grid; gap: 8px; }
+  .rows p { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .rows b { display: block; font-weight: 700; }
+  .w { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .wl .w { margin-top: 4px; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; font-size: 1.15rem; }
+  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  .why { line-height: 1.6; }
+  .foot { font-size: .92rem; color: var(--k-muted); line-height: 1.5; }
+  #stepbox.enter, .wl .w.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing .wl .w.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .w.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="scen"></div>
+    <div id="carry"></div>
+    <p class="task" id="task"></p>
+    <p class="sub" id="sub"></p>
+    <div id="wrap"><svg class="scene" id="scene" viewBox="0 0 340 236" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctl"></div>
+    <div class="replay" id="replay"></div>
+    <p class="say" id="say"></p>
+    <div class="warn-note" id="warn2"></div>
+    <div class="rule1" id="rule1"></div>
+    <div class="rows" id="board"></div>
+    <div class="rows" id="worked"></div>
+    <div class="row" id="workedgo"></div>
+    <div class="picks" id="picks"></div>
+    <div id="ans-1a"></div>
+    <div id="ans-1b"></div>
+    <div id="ans-ch"></div>
+    <div class="row" id="acts"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div class="note why" id="why"></div>
+    <div class="row" id="go"></div>
+    <div id="wr"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+    <p class="foot" id="foot"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Figures from your slides and your assignment, each line worked from the rounded figure before it.</p>
+
+<script>
+  // ---------- the rule, and the course's figures ----------
+  const R3 = Math.sqrt(3);
+  // Half up to 2 places, as the course rounds (each line worked from the rounded figure shown).
+  const r2 = (x) => Math.round(x * 100 + 1e-7) / 100;
+  const f2 = (x) => r2(x).toFixed(2);
+  const F = (id) => K.figure(id);
+  const el = (id) => document.getElementById(id);
+
+  const OUT = 20;                 // kW: your slides' 20 kW load (p.16, 17)
+  const UL = 400, U0 = 230, UB = 393;
+  const ibOf = (kva, u) => r2(kva * 1000 / (R3 * u));
+  // The why: input = output ÷ efficiency, apparent = input ÷ power factor, Ib = apparent × 1000 ÷ (√3 × 400).
+  function drawOf(eff, pf) { const inp = r2(OUT / eff), app = r2(inp / pf); return { inp, app, ib: ibOf(app, UL) }; }
+  const BASE = ibOf(OUT, UL);                       // the output alone, 28.87 A
+  const SCALE = drawOf(0.7, 0.7).app;               // the largest bar, 40.81 kVA, fills the width
+
+  // Section A: the showroom's motor (pack p.4), and the changed-numbers heater.
+  const MOTOR = { P: 11000, eff: 0.86, pf: 0.8 };
+  const ib1a = (r3) => r2(MOTOR.P / (r3 * UL * MOTOR.eff * MOTOR.pf));
+  const ib1aRaw = MOTOR.P / (R3 * UL * MOTOR.eff * MOTOR.pf);
+  const HEAT = { P: 15000, U: 396 };
+  const ibCh = (r3, u) => r2(HEAT.P / (r3 * u));
+  // The accepted range is the case file's (its accept min to max), centred on the course's figure.
+  const tolOf = (f) => (f.accept ? r2(Math.max(f.value - f.accept.min, f.accept.max - f.value)) : 0.005);
+
+  const fR = F('l1.recall'), fR1 = F('l1.recall.slip1'), fR2 = F('l1.recall.slip2');
+  const fC = F('l1.check'), fC1 = F('l1.check.slip1'), fC2 = F('l1.check.slip2');
+  const fB = F('l1.board'), fD = F('l1.diversity');
+  const f1a = F('1a'), f1b = F('1b'), fCh = F('l1.A.changed');
+
+  // ---------- the lesson: SHOW steps teach, DO steps ask ----------
+  const DELTA_NOTE = 'In a balanced delta the line current is the winding current × √3 (Lessons in Electric Circuits, AC chapter 10), so each winding carries the line current ÷ √3. Lesson 3 sizes the starter-to-motor cables on it, as question 4b asks.';
+  const STEPS = [
+    { name: 'Do you still have it?', label: 'Do you still have it?',
+      task: 'A 20 kW three-phase heater on a 400 V supply, power factor 1, efficiency 100%. What is its design current, Ib?',
+      opts: [fR.text, fR1.text, fR2.text], want: fR.text, why: fR.work },
+    { show: true, name: 'What it is for', label: 'What it is for',
+      text: 'Design current, *Ib*, is "the magnitude of the current to be carried by a circuit in normal service" (your slides p.11). The device and the cable are chosen from it, and every check after them starts from that choice.' },
+    { show: true, name: 'The why', label: 'The why',
+      text: 'The cable carries what the load *draws from the supply*, not what it gives out. Losses (*efficiency*) and reactance (*power factor*) both add to the draw (your slides p.15).' },
+    { name: 'Check', label: 'Check',
+      task: 'Your slides\' 20 kW again, worked as a motor load (they call it a pump), at power factor 0.8 and efficiency 87%. What is Ib?',
+      opts: [fC.text, fC1.text, fC2.text].sort((a, b) => parseFloat(a) - parseFloat(b)), want: fC.text,
+      why: 'Ib = P ÷ (√3 × UL × eff × pf) (your slides p.13): ' + fC.work + ', printed 41.47 A on p.17. Leave out the efficiency and you get ' + fC1.text + '; leave out the power factor and you get ' + fC2.text + '.',
+      hints: { [fC1.text]: 'Not quite. That leaves out the efficiency: the losses come down the cable too.',
+        [fC2.text]: 'Not quite. That leaves out the power factor: the supply gives kVA, not just kW.' } },
+    { show: true, name: 'The voltage at the board', label: 'The voltage at the board',
+      text: 'If you are given a voltage for the board, that voltage must be used (your slides p.18). At a sub-board it is lower than 400 V, because the submain drops some on the way, and the same power at a lower voltage needs more current.' },
+    { show: true, name: 'Worked example', label: 'Worked example',
+      text: 'Your slides\' three cases, one line at a time. Work each in your head first, then show it.' },
+    { name: 'Section A (a)', label: 'Section A · Question 1', part: '(a) Determine the design current.',
+      task: 'Your showroom\'s motor: 400 V three-phase, 11 kW, power factor 0.8 lagging, efficiency 86%. (a) Determine the design current.',
+      want: f1a.text, why: f1a.work },
+    { name: 'Section A (b)', label: 'Section A · Question 1', part: '(b) Determine the current in each winding when the motor runs in delta.',
+      task: 'The same motor, its line current ' + f1a.text + ' from part (a). (b) Determine the current in each winding when the motor runs in delta.',
+      want: f1b.text, why: f1b.work + '. ' + DELTA_NOTE },
+    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer',
+      task: 'A short written answer, in your own words.' },
+    { name: 'Changed numbers', label: 'Section A · Changed numbers',
+      part: 'A three-phase 15 kW water heater is fed from a sub-board whose voltage is measured at 396 V. Determine the design current.',
+      task: 'A three-phase 15 kW water heater is fed from a sub-board whose voltage is measured at 396 V. Determine the design current.',
+      want: fCh.text, why: fCh.work },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, why: false, fb: null }));
+  const iA = 6, iB = 7, iW = 8, iCh = 9, iK = 10;
+  let lastStep = -1, finished = false, lines = 0;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  // Text with key terms (*term*) highlighted, built with K.el, never innerHTML.
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').split(/(\*[^*]+\*)/).forEach((b) => {
+      if (!b) return;
+      if (b.length > 2 && b.charAt(0) === '*' && b.charAt(b.length - 1) === '*') node.appendChild(K.el('span', { class: 'mark' }, b.slice(1, -1)));
+      else node.appendChild(document.createTextNode(b));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const two = (v) => K.fmt(v, { decimals: 2 });
+  const ctlEff = K.control({ id: 'eff', label: 'Efficiency', min: 0.7, max: 1, step: 0.01, value: 1, fmt: two, snap: [0.87], into: '#ctl' });
+  const ctlPf = K.control({ id: 'pf', label: 'Power factor', min: 0.7, max: 1, step: 0.01, value: 1, fmt: two, snap: [0.8], into: '#ctl' });
+  const shown = { eff: ctlEff.get(), pf: ctlPf.get() };
+
+  // The demonstration on The why: efficiency glides down to your slides' 0.87, then the power
+  // factor to 0.80, so the input bar stretches past the output, then the apparent past the input.
+  let demoT = 0, demoOn = false;
+  const DEMO_END = 4.3;
+  function demoAt(t) {
+    const a = K.ease(K.clamp((t - 0.4) / 1.6, 0, 1)), b = K.ease(K.clamp((t - 2.4) / 1.6, 0, 1));
+    return { eff: r2(1 - 0.13 * a), pf: r2(1 - 0.2 * b) };
+  }
+  function setQuiet(v) { ctlEff.set(v.eff, true); ctlPf.set(v.pf, true); shown.eff = ctlEff.get(); shown.pf = ctlPf.get(); }
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    demoT += dt;
+    setQuiet(demoAt(demoT));
+    K.refresh();
+    if (demoT >= DEMO_END) { demoOn = false; return false; }
+  } });
+  function startDemo() {
+    demoT = 0;
+    if (REDUCE) { setQuiet(demoAt(DEMO_END)); demoOn = false; return; }
+    setQuiet(demoAt(0)); demoOn = true; anim.pause(); anim.play();
+  }
+  function stopDemo() { if (demoOn) { demoOn = false; anim.pause(); } }
+  const replayBtn = K.button({ label: 'Replay', secondary: true, into: '#replay', press: () => { if (at() === 2) startDemo(); } });
+
+  // Picks: one tap answers.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length) return;
+    if (i === 0) {
+      if (st.res) return;     // a recall gets one go
+      st.pick = d.opts[k];
+      if (st.pick === d.want) {
+        st.res = 'right';
+        st.fb = { ok: true, v: 'Still there.', w: fR.work, p: 'Your slides\' own heater (p.16). The other two are the usual slips: ' + fR1.text + ' leaves out √3, and ' + fR2.text + ' works it at 230 V.' };
+      } else {
+        st.res = 'wrong';
+        st.fb = st.pick === fR1.text
+          ? { ok: false, v: 'The usual slip: √3 left out.', p0: fR1.text + ' treats the heater as one line at 400 V carrying all of it. Three-phase power is √3 × UL × IL × power factor, so the rule divides by √3 × the line voltage (your slides p.13).', w: 'The working: ' + fR.work, p: 'Continue, and the refresh starts from here.' }
+          : { ok: false, v: 'The usual slip: the single-phase rule.', p0: fR2.text + ' treats the three-phase heater as a single-phase load on 230 V. Use √3 × 400 V (your slides p.13).', w: 'The working: ' + fR.work, p: 'Continue, and the refresh starts from here.' };
+      }
+    } else if (i === 3) {
+      if (st.res === 'right') return;
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'That\'s it.', w: fC.work }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: d.hints[st.pick] || 'Not quite.' }; }
+    }
+  }
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => { if (at() === 3) S[3].why = !S[3].why; } });
+
+  // Recall right: on to the why, or straight to the practice.
+  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === 0 && S[0].res === 'right') stepper.set(1); } });
+  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === 0 && S[0].res === 'right') stepper.set(iA); } });
+
+  // ---------- Section A: typed answers on the course's figures ----------
+  K.scenario({ into: '#scen', open: true });
+  K.carried({ parts: ['1a'], into: '#carry' });
+  const SPEC = {
+    [iA]: { id: '1a', fig: f1a, accept: [ib1a(1.73)],
+      slips: [
+        { value: r2(MOTOR.P / (R3 * UL)), hint: 'That leaves out both the efficiency and the power factor. The cable carries the input, not the output.' },
+        { value: r2(MOTOR.P / (R3 * UL * MOTOR.eff)), hint: 'That leaves out the power factor, 0.8.' },
+        { value: r2(MOTOR.P / (R3 * UL * MOTOR.pf)), hint: 'That leaves out the efficiency, 86%.' },
+        { value: r2(MOTOR.P / (UL * MOTOR.eff * MOTOR.pf)), hint: 'That leaves out √3: three-phase divides by √3 × the line voltage.' },
+        { value: r2(MOTOR.P / (U0 * MOTOR.eff * MOTOR.pf)), hint: 'That is the single-phase rule at 230 V. This motor is three-phase at 400 V.' },
+      ],
+      hint: 'Not quite. Ib = P ÷ (√3 × UL × eff × pf), with P in watts.',
+      rightNote: (r) => (r.accepted != null ? 'That is it with √3 as 1.73, as your slides take it. The course carries ' + f1a.text + ' forward.' : ''),
+      missNote: 'Part (b) starts from ' + f1a.text + ', the course\'s figure.' },
+    [iB]: { id: '1b', fig: f1b, accept: [r2(ib1aRaw / R3), r2(f1a.value / 1.73), r2(ib1a(1.73) / 1.73)],
+      slips: [
+        { value: r2(f1a.value * R3), hint: 'That multiplies by √3. In delta each winding carries less than the line, so divide.' },
+        { value: r2(f1a.value / 3), hint: 'That divides by 3. In delta the line current is the winding current × √3, so divide by √3.' },
+        { value: f1a.value, hint: 'That is the line current. Each winding carries less than the line in delta.' },
+      ],
+      hint: 'Not quite. In delta, each winding carries the line current ÷ √3.',
+      rightNote: (r) => (r.accepted === 0 ? 'That is it from the unrounded Ib; either is accepted. ' : r.accepted != null ? 'That is it with √3 as 1.73; either is accepted. ' : '') + DELTA_NOTE,
+      missNote: DELTA_NOTE },
+    [iCh]: { id: 'l1.A.changed', fig: fCh, accept: [ibCh(1.73, HEAT.U)],
+      slips: [
+        { value: ibCh(R3, UL), hint: 'That is worked at 400 V. Use the board\'s own 396 V (your slides p.18).' },
+        { value: r2(HEAT.P / HEAT.U), hint: 'That leaves out √3.' },
+      ],
+      hint: 'Not quite. Ib = P ÷ (√3 × U), with U the voltage at the board.',
+      rightNote: (r) => (r.accepted != null ? 'That is it with √3 as 1.73; either is accepted.' : ''),
+      missNote: '' },
+  };
+  const BOX = { [iA]: '#ans-1a', [iB]: '#ans-1b', [iCh]: '#ans-ch' };
+  const ANS = {};
+  Object.keys(SPEC).forEach((key) => {
+    const i = +key, sp = SPEC[i];
+    const a = K.answer({ id: sp.id, unit: 'A', answer: sp.fig.value, tolerance: tolOf(sp.fig), accept: sp.accept, slips: sp.slips, into: BOX[i],
+      onCheck: (r) => {
+        const st = S[i];
+        if (st.shown) return;
+        if (r.state === 'right') { st.res = 'right'; st.fb = { ok: true, v: 'Right.', w: sp.fig.work, p: sp.rightNote(r) }; }
+        else if (r.state === 'wrong') {
+          st.tries += 1;
+          if (st.tries >= 2) {
+            st.shown = true; st.res = 'shown';
+            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.fig.work, p: sp.missNote };
+            a.reveal();
+          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }
+        } else { st.res = r.state; st.fb = null; }
+        K.refresh();
+      } });
+    ANS[i] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });
+
+  // ---------- Section B and Keep this ----------
+  const wB = K.written({ id: 'b1', into: '#wr', onMark: () => K.refresh() });
+  el('wr').addEventListener('click', () => K.refresh());
+  K.summary({ into: '#keep' });
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+
+  // ---------- the worked example, one line at a time ----------
+  const WORKED = [
+    { h: '20 kW at 400 V (p.16)', w: fR.work },
+    { h: 'The same at power factor 0.8 and efficiency 87% (p.17)', w: fC.work },
+    { h: 'The same at a 393 V sub-board (p.19)', w: fB.work },
+  ];
+  const wlines = WORKED.map((x) => {
+    const w = K.el('p', { class: 'w' }, x.w);
+    const box = K.el('div', { class: 'wl' }, K.el('p', null, x.h), w);
+    el('worked').appendChild(box);
+    return w;
+  });
+  const cutNote = K.el('p', { class: 'foot' }, 'Your slides print 28.86 A and 41.47 A: cut short rather than rounded. Nothing changes.');
+  el('worked').appendChild(cutNote);
+  const nextLine = K.button({ label: 'Show the working', into: '#workedgo', press: () => {
+    if (at() !== 5 || lines >= WORKED.length) return;
+    const w = wlines[lines]; lines += 1;
+    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');
+  } });
+
+  // ---------- fixed words on their screens ----------
+  (function fixed() {
+    const r = el('rule1');
+    r.appendChild(K.el('span', { class: 'k-label' }, 'Your slides p.22'));
+    r.appendChild(K.el('p', { class: 'eq' }, 'Ib ≤ In ≤ Iz'));
+    r.appendChild(K.el('p', { class: 'sub' }, 'The design current, no more than the device\'s rating, no more than what the cable can carry.'));
+    const wn = K.el('p'); wn.appendChild(K.el('b', null, 'If it is skipped or wrong: ')); wn.appendChild(document.createTextNode('every later step starts from the wrong current.'));
+    r.appendChild(wn);
+    const b = el('board');
+    const row = (head, work) => { const p = K.el('p'); p.appendChild(K.el('b', null, head)); p.appendChild(K.el('span', { class: 'w' }, work)); return p; };
+    b.appendChild(row('Worked at 400 V (p.16)', fR.work));
+    b.appendChild(row('Worked at the board\'s 393 V (p.19)', fB.work));
+    const dv = K.el('p', { class: 'note' });
+    write(dv, '*Diversity*, in two lines: the On-Site Guide\'s percentages are guidance and need not be applied (your slides p.10). Ten 100 W lamps at 66% may be designed at ' + fD.work + ' rather than ' + (10 * 100) + ' W. Lesson 2 does more.');
+    b.appendChild(dv);
+  })();
+
+  // ---------- the pictures: one scene, drawn for the screen it is on ----------
+  const svg = el('scene');
+  function add(tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; svg.appendChild(n); return n; }
+  function txt(x, y, s, cls, anchor) { return add('text', { x, y, class: cls, 'text-anchor': anchor || 'start' }, s); }
+  function drawBars(o) {
+    svg.setAttribute('viewBox', '0 0 340 236');
+    const rows = [['Output', OUT, 'kW', 'b0'], ['Input = output ÷ efficiency', o.inp, 'kW', 'b1'], ['Apparent = input ÷ power factor', o.app, 'kVA', 'b2']];
+    rows.forEach((r, k) => {
+      const y = 16 + k * 44;
+      txt(2, y, r[0], 'lb'); txt(338, y, f2(r[1]) + ' ' + r[2], 'vl', 'end');
+      add('rect', { x: 2, y: y + 8, width: 336, height: 14, rx: 3, class: 'track' });
+      add('rect', { x: 2, y: y + 8, width: Math.max(2, r[1] / SCALE * 336).toFixed(1), height: 14, rx: 3, class: r[3] });
+    });
+    add('rect', { x: 0, y: 140, width: 340, height: 94, rx: 10, class: 'ibox' });
+    txt(12, 164, 'Ib, from the apparent power', 'hd');
+    txt(12, 196, f2(o.ib) + ' A', 'ibv');
+    txt(12, 222, f2(o.app) + ' kVA × 1000 ÷ (√3 × 400)', 'tk');
+    svg.setAttribute('aria-label', 'Output ' + f2(OUT) + ' kW, input ' + f2(o.inp) + ' kW, apparent ' + f2(o.app) + ' kVA: Ib ' + f2(o.ib) + ' A');
+  }
+  function drawBoard() {
+    svg.setAttribute('viewBox', '0 0 340 142');
+    add('rect', { x: 2, y: 12, width: 92, height: 52, rx: 8, class: 'box' });
+    txt(48, 34, 'MDB', 'hd', 'middle'); txt(48, 54, UL + ' V', 'vl', 'middle');
+    add('line', { x1: 94, y1: 38, x2: 214, y2: 38, class: 'wire' });
+    txt(154, 29, 'submain', 'tk', 'middle'); txt(154, 57, 'voltage drop', 'tk', 'middle');
+    add('rect', { x: 214, y: 12, width: 124, height: 52, rx: 8, class: 'box' });
+    txt(276, 34, 'Sub-board', 'hd', 'middle'); txt(276, 54, UB + ' V', 'vl', 'middle');
+    add('line', { x1: 276, y1: 64, x2: 276, y2: 98, class: 'wire' });
+    txt(266, 86, 'final circuit', 'tk', 'end');
+    add('rect', { x: 214, y: 98, width: 124, height: 40, rx: 8, class: 'box' });
+    txt(276, 123, OUT + ' kW load', 'hd', 'middle');
+    svg.setAttribute('aria-label', 'The main board at ' + UL + ' V feeds a sub-board at ' + UB + ' V through a submain; the ' + OUT + ' kW load is on a final circuit from the sub-board');
+  }
+  function coil(x1, y1, x2, y2, ask) {
+    const L = Math.hypot(x2 - x1, y2 - y1), ang = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI, n = 4, r = 6, a = (L - n * 2 * r) / 2;
+    let d = 'M0 0 H' + a.toFixed(1);
+    for (let k = 0; k < n; k++) d += ' a' + r + ' ' + r + ' 0 0 1 ' + 2 * r + ' 0';
+    d += ' H' + L.toFixed(1);
+    add('path', { d, class: 'coil' + (ask ? ' ask' : ''), transform: 'translate(' + x1 + ' ' + y1 + ') rotate(' + ang.toFixed(2) + ')' });
+  }
+  function drawDelta() {
+    svg.setAttribute('viewBox', '0 0 340 222');
+    const A = [170, 34], B = [255, 181], C = [85, 181];
+    coil(C[0], C[1], A[0], A[1], true); coil(A[0], A[1], B[0], B[1], false); coil(B[0], B[1], C[0], C[1], false);
+    add('line', { x1: 330, y1: 34, x2: 184, y2: 34, class: 'wire' });
+    add('path', { d: 'M174 34 L186 28 L186 40 Z', class: 'head' });
+    txt(336, 20, 'Line current: ' + f1a.text, 'vl', 'end');
+    add('line', { x1: 255, y1: 181, x2: 305, y2: 181, class: 'wire' }); txt(312, 186, 'L2', 'tk');
+    add('line', { x1: 85, y1: 181, x2: 35, y2: 181, class: 'wire' }); txt(28, 186, 'L3', 'tk', 'end');
+    [A, B, C].forEach((p) => add('circle', { cx: p[0], cy: p[1], r: 4.5, class: 'dot' }));
+    const done = S[iB].res === 'right' || S[iB].shown;
+    txt(104, 94, 'Winding', 'vl', 'end');
+    txt(104, 112, done ? f1b.text : '? A', 'vl', 'end');
+    txt(170, 214, 'Three windings joined in delta', 'tk', 'middle');
+    svg.setAttribute('aria-label', 'Three windings joined in delta; the line current, ' + f1a.text + ', comes in at the top corner; one winding is marked ' + (done ? f1b.text : 'with a question mark'));
+  }
+
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) { const p = K.el('p'); write(p, f.p0); fb.appendChild(p); }
+    if (f.w) fb.appendChild(K.el('p', { class: 'w' }, f.w));
+    if (f.p) { const p = K.el('p'); write(p, f.p); fb.appendChild(p); }
+  }
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) {
+    const d = STEPS[i], st = S[i];
+    if (d.show) return true;
+    if (i === 0) return st.res === 'wrong';
+    if (i === 3) return st.res === 'right';
+    if (ANS[i]) return st.res === 'right' || st.shown;
+    if (i === iW) return !!(wB && wB.answered && wB.answered());
+    return false;
+  }
+
+  K.model((p) => drawOf(p.eff, p.pf));
+
+  const ON = { scen: [iA, iB], carry: [iB], wrap: [2, 4, iB], ctl: [2], replay: [2], say: [2], warn2: [2], rule1: [1], board: [4],
+    worked: [5], workedgo: [5], picks: [0, 3], 'ans-1a': [iA], 'ans-1b': [iB], 'ans-ch': [iCh], wr: [iW], keep: [iK], fin: [iK] };
+
+  K.update(() => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) {
+      if (lastStep !== -1) enter();
+      lastStep = i;
+      if (i === 2) startDemo(); else stopDemo();
+    } else if (i === 2) {
+      const pe = ctlEff.get(), pp = ctlPf.get();
+      if (pe !== shown.eff || pp !== shown.pf) { stopDemo(); shown.eff = pe; shown.pf = pp; }
+    }
+    if (i !== 2) { shown.eff = ctlEff.get(); shown.pf = ctlPf.get(); }
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.part || (d.kind ? '' : d.task));
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    sub.textContent = i === 2 ? 'The same 20 kW output at 400 V. Drag both down from 1.' : i === iCh ? 'A City & Guilds question 1 shape, with new numbers.' : i === iK ? 'One card to come back to on a real job.' : '';
+    sub.hidden = !sub.textContent;
+
+    // The picture for this screen.
+    svg.textContent = '';
+    if (i === 2) {
+      const o = drawOf(ctlEff.get(), ctlPf.get());
+      drawBars(o);
+      const more = r2(o.ib - BASE), lossy = o.inp > OUT, react = o.app > o.inp;
+      el('say').textContent = !lossy && !react
+        ? 'With efficiency and power factor both at 1, nothing is lost and nothing extra is drawn: the cable carries the output\'s own current.'
+        : (lossy && react ? 'Losses stretch the input past the output, and reactance stretches the apparent power past the input. '
+          : lossy ? 'Losses inside the load stretch the input past the output; at power factor 1 the apparent power is the input. '
+          : 'Nothing is lost, but reactance stretches the apparent power past the input. ')
+          + 'The line current follows the apparent power: ' + f2(more) + ' A more than the output alone needs.';
+      const wn = el('warn2');
+      wn.textContent = '';
+      wn.appendChild(K.el('b', null, 'If it\'s skipped: '));
+      wn.appendChild(document.createTextNode(o.ib > BASE
+        ? 'the cable is sized on ' + f2(BASE) + ' A when the load draws ' + f2(o.ib) + ' A, which your slides say "would cause big implications for the operation and safety of the circuit" (p.17).'
+        : 'at 1 and 1 nothing changes, but below them the cable would be sized on ' + f2(BASE) + ' A while the load draws more, which your slides say "would cause big implications for the operation and safety of the circuit" (p.17).'));
+    } else if (i === 4) drawBoard();
+    else if (i === iB) drawDelta();
+    replayBtn.el.hidden = REDUCE;
+    if (REDUCE) el('replay').hidden = true;
+
+    // Picks.
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      const done = st.res === 'right' || (i === 0 && st.res === 'wrong');
+      b.el.classList.toggle('is-right', done && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    // The worked example's lines.
+    wlines.forEach((w, k) => { w.hidden = k >= lines; });
+    cutNote.hidden = lines < WORKED.length;
+    nextLine.el.hidden = lines >= WORKED.length;
+    if (i === 5) el('workedgo').hidden = lines >= WORKED.length;
+
+    // Check and Why?
+    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);
+    checkBtn.el.hidden = !typed || typedDone;
+    whyBtn.el.hidden = i !== 3;
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    el('acts').hidden = checkBtn.el.hidden && whyBtn.el.hidden;
+    paintFb(st.fb);
+    const why = el('why');
+    why.hidden = i !== 3 || !st.why;
+    write(why, i === 3 ? d.why : '');
+    el('go').hidden = !(i === 0 && st.res === 'right');
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+    el('foot').textContent = i === 2 ? 'Real, apparent and reactive power are the AC circuits course\'s lesson 8; here they only show where the extra current comes from.'
+      : i === iA || i === iB ? 'Shaped like a City & Guilds 2396 Section A question, on your own assignment\'s motor (pack p.4).' : '';
+    el('foot').hidden = !el('foot').textContent;
+
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i) || (i === 0 && st.res === 'right');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const near = (a, b) => K.near(a, b, 1e-9);
+  K.check('At efficiency and power factor 1, nothing is added: 20.00 kVA and Ib 28.87 A, the output alone', () => {
+    const o = K.at({ eff: 1, pf: 1 }); return near(o.inp, 20) && near(o.app, 20) && near(o.ib, 28.87) && near(BASE, fR.value);
+  });
+  K.check('At efficiency 0.87 and power factor 0.80: 22.99 kW, 28.74 kVA and 41.48 A, as the case file works it', () => {
+    const o = K.at({ eff: 0.87, pf: 0.8 });
+    return near(o.inp, F('l1.reteach.in').value) && near(o.app, F('l1.reteach.app').value) && near(o.ib, F('l1.reteach.ib').value) && near(o.ib, fC.value);
+  });
+  K.check('At 0.70 and 0.70: 28.57 kW, 40.81 kVA and 58.90 A, the largest bar', () => {
+    const o = K.at({ eff: 0.7, pf: 0.7 }); return near(o.inp, 28.57) && near(o.app, 40.81) && near(o.ib, F('l1.reteach.low').value) && near(SCALE, 40.81);
+  });
+  K.check('Lowering either the efficiency or the power factor never lowers Ib', () => {
+    for (let e = 70; e <= 100; e += 3) for (let p = 70; p <= 100; p += 3) {
+      const o = K.at({ eff: e / 100, pf: p / 100 });
+      if (e > 70 && K.at({ eff: (e - 3) / 100, pf: p / 100 }).ib < o.ib) return false;
+      if (p > 70 && K.at({ eff: e / 100, pf: (p - 3) / 100 }).ib < o.ib) return false;
+    }
+    return true;
+  });
+  K.check('The rule gives the case file\'s figures: 28.87, 50.00, 86.96, 36.08, 33.18, 29.38, 23.08, 13.33 and 21.87 A', () =>
+    near(ibOf(OUT, UL), fR.value) && near(r2(OUT * 1000 / UL), fR1.value) && near(r2(OUT * 1000 / U0), fR2.value) &&
+    near(r2(OUT * 1000 / (R3 * UL * 0.8)), fC1.value) && near(r2(OUT * 1000 / (R3 * UL * 0.87)), fC2.value) &&
+    near(ibOf(OUT, UB), fB.value) && near(ib1a(R3), f1a.value) && near(r2(f1a.value / R3), f1b.value) && near(ibCh(R3, HEAT.U), fCh.value) &&
+    near(r2(10 * 100 * 0.66), fD.value));
+  K.check('kW = volts × amps × pf × √3 ÷ 1,000: 400 V and 28.87 A at pf 1 make the 20 kW', () => K.near(UL * BASE * 1 * R3 / 1000, OUT, 0.005),
+    { source: 'https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf' });
+  K.check('In balanced delta the line current is the phase current times √3: 13.33 A × √3 is the line\'s 23.08 A', () => K.near(f1b.value * R3, f1a.value, 0.01),
+    { source: 'https://www.allaboutcircuits.com/textbook/alternating-current/chpt-10/three-phase-y-delta-configurations' });
+  K.check('The demonstration opens at 1 and 1 and settles on your slides\' 0.87 and 0.80', () => {
+    const a = demoAt(0), b = demoAt(DEMO_END); return a.eff === 1 && a.pf === 1 && b.eff === 0.87 && b.pf === 0.8;
+  });
+  K.check('Every slip lies outside its answer\'s accepted range', () => Object.keys(SPEC).every((k) => {
+    const sp = SPEC[k], tol = tolOf(sp.fig);
+    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > tol + 0.005 && sp.accept.every((x) => Math.abs(s.value - x) > 0.01));
+  }));
+
+  K.ready();
+</script>

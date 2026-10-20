@@ -236,12 +236,15 @@ test('a tab still open sends its own held writes: a page opening beside it leave
   void B;
 });
 
+// An outbox written an hour ago: within the fortnight the store restores (RESTORE_MAX_MS), whatever today is.
+const hourAgo = () => new Date(Date.now() - 3600 * 1000).toISOString();
+
 test('what an earlier page left goes out under this page\'s own newer writes, never after them', async () => {
   const srv = await server();
   const local = storage(), locks = lockManager();
   srv.seed('data/users/u1/profile', { prefs: { size: 'm', theme: 'light' }, days: {} });
   // A page closed during an outage left a size and a theme on the device.
-  local.setItem('mu.outbox.u1.pGone1', JSON.stringify({ at: '2026-10-06T08:00:00Z', docs: { 'data/users/u1/profile': { prefs: { size: 'l', theme: 'dark' } } } }));
+  local.setItem('mu.outbox.u1.pGone1', JSON.stringify({ at: hourAgo(), docs: { 'data/users/u1/profile': { prefs: { size: 'l', theme: 'dark' } } } }));
   let release;
   const gate = new Promise((r) => { release = r; });
   const B = await page(srv, { local, locks, uidGate: gate, wait: false });
@@ -260,7 +263,7 @@ test('when Dan\'s user id answers only after the app opened, what earlier pages 
   const srv = await server();
   const local = storage();
   srv.seed('data/users/u1/profile', { prefs: { size: 'm' }, days: {} });
-  local.setItem('mu.outbox.u1.pGone2', JSON.stringify({ at: '2026-10-06T08:00:00Z', docs: { 'data/users/u1/profile': { prefs: { size: 'l', theme: 'dark' } } } }));
+  local.setItem('mu.outbox.u1.pGone2', JSON.stringify({ at: hourAgo(), docs: { 'data/users/u1/profile': { prefs: { size: 'l', theme: 'dark' } } } }));
   const A = await page(srv, { local, uid: null });
   await sleep(200);
   assert.equal(srv.get('data/users/u1/profile').prefs.size, 'm', 'nothing can be sent without the user id');
