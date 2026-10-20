@@ -4,7 +4,7 @@
  "course": "design-and-verification",
  "updated": "2026-10-20",
  "about": "The running case for the refresher (format/refresher.md section 4): the showroom givens, the course's own assumptions, and every figure each lesson works out, with its rule and inputs. Built by a script that works each figure from the inputs shown with it. Reshaped 20 Oct for the app (RUNBOOK section 8): a flat figures list, each naming its lesson and, for a Section A part, its part; figures still to be worked are in pending (see case.notes.md).",
- "edition": "BS 7671:2018+A2:2022, as Dan's course taught it (flowchart title). Whether A3:2024 changes anything here is not checked.",
+ "edition": "Worked to BS 7671:2018+A2:2022, as Dan's course taught it (flowchart title). Checked against A3:2024 and A4:2026 on 20 Oct 2026 (build/electrical/bs7671-amendments/dv-audit.md). No figure changes. Word fixes in lessons 2, 6, 7, 8 and 9.",
  "rounding": "Each figure is worked from the inputs shown with it, rounded half up: currents, voltages, powers and kW to 2 decimal places, impedances to 3, CSA to 2, lengths to 1. A maximum is rounded down. A typed answer is accepted within \"accept\" where given (it covers √3 taken as 1.73, as slides p.13 do, and unrounded working).",
  "cites": {
   "slides": "source/eal-l4-design-and-verification-spec.pdf, PDF page",
@@ -652,7 +652,7 @@
    "unit": "Ω",
    "text": "3.64 Ω",
    "cite": "BS 7671 Table 41.3 (read the figure from your copy); a trade app prints it as C6 3.64 Ω (research source 433)",
-   "note": "Type B 6 A is 7.28 Ω (research source 345). The same app says type C should be used only where the load's inrush needs it, because it leaves less Zs margin (research sources 435, 436)."
+   "note": "Type B 6 A is 7.28 Ω (research source 345). The same app says type C should be used only where the load's inrush needs it, because it leaves less Zs margin (research sources 435, 436). Table 41.3 gives the overcurrent part of a 6 A type C RCBO to BS EN 61009-1 the same 3.64 Ω (research sources 527, 528): C7's device (p.dev.final)."
   },
   {
    "id": "g.swa2p5.rows",
@@ -692,12 +692,12 @@
   {
    "id": "p.dev.final",
    "label": "Device at DBL2 for the longest lighting circuit (practice value)",
-   "value": "6 A type C circuit-breaker to BS EN 60898, single-pole",
+   "value": "6 A type C RCBO to BS EN 61009-1, 30 mA, single-pole",
    "unit": "",
-   "text": "6 A type C circuit-breaker to BS EN 60898",
+   "text": "6 A type C RCBO to BS EN 61009-1, 30 mA",
    "practice": true,
-   "cite": "no source for the choice: 6 A is the smallest standard rating, above Ib 1.21 A; type C because LED drivers and ballasts draw an inrush at switch-on (BEAMA, ABB; research sources 446, 447, 448) and type C suits discharge lighting (research source 435)",
-   "note": "The drawing gives no driver data, so the real number of fittings per breaker comes from the maker's inrush figures. Type B 6 A would give a maximum Zs of 7.28 Ω instead of 3.64 Ω."
+   "cite": "no source for the choice: 6 A is the smallest standard rating, above Ib 1.21 A; type C because LED drivers and ballasts draw an inrush at switch-on (BEAMA, ABB; research sources 446, 447, 448) and type C suits discharge lighting (research source 435); an RCBO because the walkway bollards are lighting the public can reach and are not SELV (Regulation 714.411.3.4, research source 523; a.c7rcd)",
+   "note": "The drawing gives no driver data, so the real number of fittings per breaker comes from the maker's inrush figures. Type B 6 A would give a maximum Zs of 7.28 Ω instead of 3.64 Ω. The RCBO's overcurrent part has the same maximum Zs as the breaker, 3.64 Ω (research sources 527, 528)."
   },
   {
    "id": "g.osg.meas6",
@@ -1024,7 +1024,11 @@
   },
   {
    "id": "a.lightCable",
-   "text": "The course's own assumption: the longest lighting circuit (C7) is 1.5 mm² 90 °C thermosetting singles in conduit with a 1.5 mm² cpc in the same conduit (Reference Method B, one circuit per conduit so Cg 1, not in thermal insulation so Ci 1, Ca 1 as p.Ca), two loaded cables single-phase: It 23 A (Table 4E1A column 4, g.it.1p5.1ph), 31 mV/A/m (Table 4E1B column 3, g.vd.1p5.1ph), R1+R2 24.2 mΩ/m (slides p.51, research source 52) with the Table I3 multiplier 1.28 (g.mult.90ts). Device p.dev.final, 6 A type C, 0.4 s (g.zmax.C6, research sources 51, 48 for the 0.4 s rule)."
+   "text": "The course's own assumption: the longest lighting circuit (C7) is 1.5 mm² 90 °C thermosetting singles in conduit with a 1.5 mm² cpc in the same conduit (Reference Method B, one circuit per conduit so Cg 1, not in thermal insulation so Ci 1, Ca 1 as p.Ca), two loaded cables single-phase: It 23 A (Table 4E1A column 4, g.it.1p5.1ph), 31 mV/A/m (Table 4E1B column 3, g.vd.1p5.1ph), R1+R2 24.2 mΩ/m (slides p.51, research source 52) with the Table I3 multiplier 1.28 (g.mult.90ts). Device p.dev.final, a 6 A type C RCBO with a 30 mA residual rating (a.c7rcd), 0.4 s (g.zmax.C6, research sources 51, 48 for the 0.4 s rule). Any buried length to the bollards would need earthed armour, or a duct of equal strength such as N750 conduit. The sums take the singles all the way."
+  },
+  {
+   "id": "a.c7rcd",
+   "text": "Assume the walkway bollards can be reached by the public and are not SELV, so C7 is on a 6 A type C RCBO with a 30 mA residual rating. Its overcurrent part has the same maximum Zs as a 6 A type C breaker, 3.64 Ω. So every C7 sum stands."
   },
   {
    "id": "a.thermalWhere",
@@ -1058,6 +1062,10 @@
    "id": "a.handover",
    "status": "assumption",
    "text": "The course's own assumption: the handover list for pack question 9b is the certificate with its schedules of inspections and test results (valid only together, research source 149, 150), circuit charts and diagrams (OSG 6.10, research sources 470, 471, 472), the periodic inspection notice and other notices (OSG p.67), the O&M manual and building logbook the specification calls for (OSG p.10, EAL checklist 4.3, research sources 476, 478), the CDM health and safety file, which takes a copy of the certificate with schedules (OSG p.190, research sources 511, 513), and, for a building other than a dwelling, a commissioning notice and log book under Approved Document L volume 2 where its controls need commissioning (research sources 487, 488; the lesson says the building control body decides). Whether an O&M manual is a legal duty is argued; the lesson teaches it as a contract and specification requirement. BS 7671 Regulation 611.2's wording was not found in a quotable source, so the list is not attributed to it."
+  },
+  {
+   "id": "a.pme",
+   "text": "Assume the TN-C-S supply is PME, the usual public supply. The certificate now asks whether a TN-C-S supply is PME or PNB."
   }
  ],
  "lessons": [
@@ -6787,5 +6795,5 @@
    "worked": "figure l6.showroom.nominal, 2e"
   }
  ],
- "updatedAt": "2026-10-20T20:17:06.081Z"
+ "updatedAt": "2026-10-20T21:44:09.138Z"
 }

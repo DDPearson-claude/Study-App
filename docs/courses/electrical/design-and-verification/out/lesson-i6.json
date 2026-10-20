@@ -1,7 +1,7 @@
 {
  "status": "ready",
- "updatedAt": "2026-10-20T20:17:06.081Z",
- "startedAt": "2026-10-20T20:17:06.081Z",
+ "updatedAt": "2026-10-20T21:44:09.138Z",
+ "startedAt": "2026-10-20T21:44:09.138Z",
  "by": {
   "device": "claude-code",
   "tab": "course-build",
@@ -604,8 +604,8 @@
     "q": "State what a designer must consider for the showroom's EV charging points on its TN-C-S supply.",
     "points": [
      {
-      "text": "The circuit supplying the charging equipment must not include a PEN conductor.",
-      "cite": "BS 7671 Section 722 (A1:2020 text), in research"
+      "text": "The circuit supplying the charging equipment must not include a PEN conductor. It needs no AFDD where the charger has standard charging sockets or connectors.",
+      "cite": "BS 7671 Section 722 (A1:2020 text), in research; BS 7671:2018+A4:2026 Regulation 722.421.1.7.201 (SELECT A4 overview, in research)"
      },
      {
       "text": "A PME earth must not serve an outdoor charge point on its own. One of three measures must hold the open-PEN voltage within 70 V. They are balanced loading, an added earth electrode, or a device that detects the fault. Making the point TT takes it off the PME earth altogether.",
@@ -616,8 +616,8 @@
       "cite": "NICEIC EV guide, in research; project guide p.9"
      },
      {
-      "text": "Each charging point needs RCD protection, including protection against DC fault currents over 6 mA. That means a Type B RCD, or a Type A or F RCD with a device that detects them, unless the charger provides it.",
-      "cite": "IET Wiring Matters 100 on Regulation 722.531.3.101; BEAMA RCD guide, in research; project guide p.9"
+      "text": "Each charging point needs its own RCD of 30 mA or less, Type A, F or B. An RDC-PD to BS IEC 62955 may take its place. Each point also needs protection against DC fault current of 6 mA or more. That is a Type B RCD, or a Type A or F RCD with a device that detects DC, unless the charger provides it.",
+      "cite": "IET Wiring Matters 100 on Regulation 722.531.3.101; BEAMA RCD guide, in research; project guide p.9; BS 7671:2018+A4:2026 Regulation 722.531.3.101 (BEAMA A4 presentation, in research)"
      },
      {
       "text": "Load management can be added to bring the maximum demand down, but it is optional.",
@@ -625,7 +625,7 @@
      }
     ],
     "need": 3,
-    "model": "The circuit to the charging equipment must not include a PEN conductor. A PME earth must not serve an outdoor charge point on its own. One of three measures must hold the open-PEN voltage within 70 V. They are well-balanced loading across the phases, an added earth electrode, or a device that detects the fault. Making the point TT takes it off the PME earth altogether. An RCD is no protection against that fault. The load current goes out on the line and back on the neutral through it, so it sees no imbalance. PEN fault protection has to be designed in. Each charging point needs RCD protection, including protection against DC fault currents over 6 mA. That means a Type B RCD, or a Type A or F RCD with a detecting device, unless the charger provides it. Load management can be added to bring the maximum demand down, but it is optional. Section 722 has changed in recent amendments. Check it against the amendment you work to."
+    "model": "The circuit to the charging equipment must not include a PEN conductor. A PME earth must not serve an outdoor charge point on its own. One of three measures must hold the open-PEN voltage within 70 V. They are well-balanced loading across the phases, an added earth electrode, or a device that detects the fault. Making the point TT takes it off the PME earth altogether. An RCD is no protection against that fault. The load current goes out on the line and back on the neutral through it, so it sees no imbalance. PEN fault protection has to be designed in. Each charging point needs its own RCD of 30 mA or less, or an RDC-PD in its place. It also needs protection against DC fault current. That is a Type B RCD, or a Type A or F RCD with a device that detects DC, unless the charger provides it. No AFDD is needed on the charging circuit. Load management can be added to bring the maximum demand down, but it is optional."
    }
   },
   "summary": {
@@ -1067,7 +1067,7 @@
  "request": null,
  "verified": {
   "status": "done",
-  "at": "2026-10-20T20:17:06.081Z",
+  "at": "2026-10-20T21:44:09.138Z",
   "applied": [
    {
     "path": "explain.text",

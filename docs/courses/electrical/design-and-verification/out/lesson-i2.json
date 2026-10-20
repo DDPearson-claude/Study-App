@@ -1,7 +1,7 @@
 {
  "status": "ready",
- "updatedAt": "2026-10-20T20:17:06.081Z",
- "startedAt": "2026-10-20T20:17:06.081Z",
+ "updatedAt": "2026-10-20T21:44:09.138Z",
+ "startedAt": "2026-10-20T21:44:09.138Z",
  "by": {
   "device": "claude-code",
   "tab": "course-build",
@@ -639,7 +639,7 @@
    "breaks": "Hungry people can wait. Current cannot. If everything does come on together, the installation carries it there and then. That is why a figure with diversity may occasionally be exceeded.[^12] It is also why EV points without load management get no diversity.[^21] And three uneven queues just leave one long one. Uneven phase currents also send the difference down the neutral."
   },
   "practice": {
-   "text": "- List every load on a schedule of circuits:[^54] each board's circuits, what they feed and their current.\n- Work each load's current from what it really draws. For lighting, use the key's watts with the ballast loss and power factor from the maker's data.[^31] Until you have that data, use practice values.[^32] Work a motor's Ib as in lesson 1.\n- Share the single-phase circuits about equally across L1, L2 and L3,[^52] and add up each phase. The heaviest phase sets the size.[^15]\n- Apply diversity by type of load where common sense allows, from Appendix A of the On-Site Guide. Write down why. Leave it off where the loads run together, such as the showroom's lighting. Leave it off EV points without load management too.[^21]\n- Add each three-phase load's line current to every phase. Then compare the heaviest phase with the supply.\n\n**Rule of thumb:** when you cannot tell whether loads run together, take them at 100%. Too high a figure costs money. Too low a figure leaves the supply and submains carrying more than they were chosen for.\n\n**Worked example:** the showroom, question 10, using the practice values. Lighting: 24.35 + 38.74 = 63.09 A. Eight 32 A socket circuits as standard circuits: 32 + 0.5 × 7 × 32 = 144.00 A.[^20] The 32 A point and three 20 A points as heating and power: 32 + 0.75 × 3 × 20 = 77.00 A.[^18] Four 32 A EV outlets: 128.00 A. Together that is 412.09 A, or 137.36 A a phase when shared evenly. Add the motor's 23.08 A on every line, and you get 160.44 A a phase.\n\n**Common mistakes**\n- Treating diversity as a rule. It is guidance and need not be applied.[^1]\n- Putting every single-phase circuit on one phase. The neutral then carries the lot.\n- Using fluorescent tube watts alone. The ballast's loss is extra.[^31]\n- Dividing the motor's current by three with the rest. A three-phase load's Ib is already a line current.\n- Applying diversity to EV charge points without load management. We take none, though it is argued.[^25]"
+   "text": "- List every load on a schedule of circuits:[^54] each board's circuits, what they feed and their current.\n- Work each load's current from what it really draws. For lighting, use the key's watts with the ballast loss and power factor from the maker's data.[^31] Until you have that data, use practice values.[^32] Work a motor's Ib as in lesson 1.\n- Share the single-phase circuits about equally across L1, L2 and L3,[^52] and add up each phase. The heaviest phase sets the size.[^15]\n- Apply diversity by type of load where common sense allows, from Appendix A of the On-Site Guide. Write down why. Leave it off where the loads run together, such as the showroom's lighting. Leave it off EV points without load management too.[^21]\n- Add each three-phase load's line current to every phase. Then compare the heaviest phase with the supply.\n- Check each board against the device that feeds it. The board's rating must be at least that device's, or its full connected load must fit. Diversity sizes the supply and submains, never the board.\n\n**Rule of thumb:** when you cannot tell whether loads run together, take them at 100%. Too high a figure costs money. Too low a figure leaves the supply and submains carrying more than they were chosen for.\n\n**Worked example:** the showroom, question 10, using the practice values. Lighting: 24.35 + 38.74 = 63.09 A. Eight 32 A socket circuits as standard circuits: 32 + 0.5 × 7 × 32 = 144.00 A.[^20] The 32 A point and three 20 A points as heating and power: 32 + 0.75 × 3 × 20 = 77.00 A.[^18] Four 32 A EV outlets: 128.00 A. Together that is 412.09 A, or 137.36 A a phase when shared evenly. Add the motor's 23.08 A on every line, and you get 160.44 A a phase.\n\n**Common mistakes**\n- Treating diversity as a rule. It is guidance and need not be applied.[^1]\n- Putting every single-phase circuit on one phase. The neutral then carries the lot.\n- Using fluorescent tube watts alone. The ballast's loss is extra.[^31]\n- Dividing the motor's current by three with the rest. A three-phase load's Ib is already a line current.\n- Applying diversity to EV charge points without load management. We take none, though it is argued.[^25]"
   },
   "say": null,
   "checks": [],
@@ -664,22 +664,22 @@
       "cite": "Slides p.10"
      },
      {
-      "text": "You can choose the supply, submains and switchgear for the demand they will really carry, not for every load at once.",
-      "cite": "Slides p.10 (design using 'common sense' rather than the maximum demand)"
+      "text": "You can choose the supply and submains for the demand they will really carry, not for every load at once. A board is different. Its rating must cover the device that feeds it, or its whole connected load taken at 100%. Otherwise load management must cap its demand.",
+      "cite": "Slides p.10 (design using 'common sense' rather than the maximum demand); BS 7671:2018+A4:2026 Regulation 536.4.202 (SELECT A4 overview, in research)"
      }
     ],
     "need": 2,
-    "model": "Not every load runs at full current at the same time. So designing for every load at once overstates what the installation draws. Diversity means designing with common sense rather than for the maximum. It keeps cable sizes smaller and costs lower. It also lets you choose the supply, submains and switchgear for the demand they will really carry. The figures come from the On-Site Guide. They are guidance, used with judgement, not a rule."
+    "model": "Not every load runs at full current at the same time. So designing for every load at once overstates what the installation draws. Diversity means designing with common sense rather than for the maximum. It keeps cable sizes smaller and costs lower. It also lets you choose the supply and submains for the demand they will really carry. A board's own rating is not cut by diversity. It must cover the device that feeds it, or its whole connected load, unless load management caps the demand. The figures come from the On-Site Guide. They are guidance, used with judgement, not a rule."
    }
   },
   "summary": {
    "title": "Maximum demand and diversity",
    "for": "The largest current the installation, or one board, draws at any one time. You size the supply and every submain from it. Under Regulation 311.1 the designer assesses it.",
-   "rule": "Lighting: I = W ÷ (230 × pf), fluorescent tube W × 1.25 first if no ballast loss is given\nNeutral, same pf, no harmonics: IN = √(I1² + I2² + I3² − I1·I2 − I2·I3 − I3·I1)\nPer phase, shared evenly: single-phase total after diversity ÷ 3, + each three-phase line current\n\nShare single-phase circuits about equally over L1, L2 and L3. The heaviest phase sets the size.\nDiversity figures are guidance, not a rule. Use them only where common sense allows.\nEV points without load management: take no diversity. Some argue otherwise.",
+   "rule": "Lighting: I = W ÷ (230 × pf), fluorescent tube W × 1.25 first if no ballast loss is given\nNeutral, same pf, no harmonics: IN = √(I1² + I2² + I3² − I1·I2 − I2·I3 − I3·I1)\nPer phase, shared evenly: single-phase total after diversity ÷ 3, + each three-phase line current\n\nShare single-phase circuits about equally over L1, L2 and L3. The heaviest phase sets the size.\nDiversity figures are guidance, not a rule. Use them only where common sense allows.\nA board is never sized by diversity. The device feeding it is no bigger than its rating, or its full connected load fits, or load management caps it.\nEV points without load management: take no diversity. Some argue otherwise.",
    "traps": [
     {
-     "text": "Diversity treated as a rule. It is guidance and need not be applied.",
-     "cite": "Slides p.10"
+     "text": "Diversity treated as a rule. It is guidance and need not be applied. Nor does it ever keep a board, or an RCCB in it, from overload.",
+     "cite": "Slides p.10; BS 7671:2018+A4:2026 Regulation 536.4.202 (SELECT A4 overview, in research)"
     },
     {
      "text": "Every single-phase circuit on one phase. The neutral then carries the lot.",
@@ -1228,7 +1228,7 @@
  "request": null,
  "verified": {
   "status": "done",
-  "at": "2026-10-20T20:17:06.081Z",
+  "at": "2026-10-20T21:44:09.138Z",
   "applied": [
    {
     "path": "explain.text",

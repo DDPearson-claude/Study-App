@@ -212,6 +212,7 @@
     "Zs at the end against the device's maximum.",
     'The thermal constraints, with SWA armour as the cpc justified by calculation.',
     'Breaking capacity at each device.',
+    'Each board rated at least the device that feeds it.',
   ];
   const MET = [
     F('l8.sub.len').text + ' and ' + F('l8.c7.len').text + '.',
@@ -221,6 +222,7 @@
     f3g.text + ' against ' + f2(ZC10) + ' Ω, ' + f3i.text + ' against ' + f2(ZC6) + ' Ω.',
     'Armour needs ' + fArmM.text + ' at the MDB end and ' + fArm.text + ' at DBL2, of ' + AARM + ' mm². The cpc needs ' + fNear.text + ' at the DBL2 end and ' + f3j.text + ' at the far end, of ' + CPC + ' mm².',
     ICN + ' kA against ' + PFC + ' kA.',
+    'DBL2 on a ' + IN_SUB + ' A breaker, far inside its rating.',
   ];
   const WHY_TEXT = 'Take a sub-board where Zs is ' + f2(ZB) + ' Ω and the submain adds ' + f2(SHARE) + ' V to a single-phase circuit. These two figures are chosen for the picture. The circuit is 1.5 mm² 90 °C thermosetting singles with a 1.5 mm² cpc, on a 6 A type C breaker.';
   const WHY_READ = 'At ' + f2(I7) + ' A the Zs bar is the first to cross its line, near ' + fZmax.text + '. At ' + f2(I1) + ' A the drop bar crosses first, near ' + fC1d.text + '. At 45.0 m and ' + f2(I1) + ' A the drop is ' + fStill.text + ', past its line. Zs is ' + f3(STILL.zs) + ' Ω, still inside.';
@@ -237,7 +239,7 @@
   const SCEN_TITLE = 'Your showroom: the supply and DBL2';
   const SCEN_TEXT = 'A newly built car showroom, on a ' + U0 + '/' + UL + ' V three-phase four-wire TN-C-S supply. Ze is ' + ZE + ' Ω and the prospective fault current is ' + PFC + ' kA. The building is at ' + AMB + " °C. A four-core SWA submain runs from the MDB in the plant room to DBL2, the lighting board in the tools and warranty store. DBL2's circuits include C7, for the foyer lights and the walkway bollards.";
   const Q3G = '(g) Determine the earth fault loop impedance at DBL2, using every length of the submain.';
-  const AS_3H = FROM_WK + "\n\nAssume the longest circuit is C7: the foyer's six LED fittings and the six walkway bollards. Its farthest bollard is about " + f1(C7PLAN) + ' m from DBL2 on plan. With ' + VERT + ' m up and ' + VERT + ' m down, it runs ' + f1(C7.len) + ' m. It carries ' + f2(I7) + ' A on 1.5 mm² 90 °C thermosetting singles in conduit, with a 1.5 mm² cpc. Its ' + f2(I7) + ' A rests on assumed power factors. The singles drop ' + VD15 + ' mV/A/m.\n\nA 6 A type C breaker protects it, because LED drivers draw a surge at switch-on. In conduit on a wall, Method B, two loaded cables carry ' + IT15 + ' A. So ' + f2(I7) + ' ≤ ' + IN_C + ' ≤ ' + IT15 + '.\n\nThe bollards are outdoors, so a real design would pick a cable fit for that run. Here, assume the same singles run all the way.';
+  const AS_3H = FROM_WK + "\n\nAssume the longest circuit is C7: the foyer's six LED fittings and the six walkway bollards. Its farthest bollard is about " + f1(C7PLAN) + ' m from DBL2 on plan. With ' + VERT + ' m up and ' + VERT + ' m down, it runs ' + f1(C7.len) + ' m. It carries ' + f2(I7) + ' A on 1.5 mm² 90 °C thermosetting singles in conduit, with a 1.5 mm² cpc. Its ' + f2(I7) + ' A rests on assumed power factors. The singles drop ' + VD15 + ' mV/A/m.\n\nA 6 A type C RCBO protects it. LED drivers draw a surge at switch-on, so it is type C. The public can reach the bollards and they are not SELV, so it needs a 30 mA RCD. Its overcurrent part has a 6 A type C breaker\'s maximum Zs, ' + f2(ZC6) + ' Ω. In conduit on a wall, Method B, two loaded cables carry ' + IT15 + ' A. So ' + f2(I7) + ' ≤ ' + IN_C + ' ≤ ' + IT15 + '.\n\nThe bollards are outdoors. A buried cable to them needs earthed armour, or an equally strong duct. Here, assume the same singles run all the way.';
   const Q3H = '(h) Determine the total voltage drop from the intake to the farthest bollard, and state whether it complies.';
   const AS_3I = 'C7 runs ' + f1(C7.len) + " m. Its line and cpc are both 1.5 mm². Together they are " + R15 + ' mΩ/m at 20 °C. Use the ' + M + ' multiplier.';
   const Q3I = '(i) Determine the earth fault loop impedance at the farthest bollard, and state whether it is acceptable.';
@@ -370,7 +372,7 @@
         { value: f3g3.value, hint: 'That is the submain alone. Add Ze, ' + ZE + ' Ω. The supply is part of the loop.' },
       ],
       hint: 'Not quite. Work R1+R2 for a core and the armour, hot, over every length. Then add Ze.',
-      after: f3g.text + " is far under the 10 A type C's " + f2(ZC10) + ' Ω. The least fault current is ' + cut(fGimin.work) + '. That is well past ' + 10 * IN_SUB + ' A, so the breaker opens within 0.1 s.\n\nNow re-check the armour. The greatest fault current at DBL2 is ' + cut(fGimax.work) + '. Take k as ' + KST + ' here. On a real job, read k for steel armour from Table 54.4. S = ' + cut(fArm.work) + '. The armour is ' + AARM + ' mm², so it is justified as the cpc.\n\nThe extra length lets less fault current through. So it needs less armour than the ' + f3f.text + ' worked on the plan length alone. A fault at the MDB end sees ' + Math.round(A3G.mdbI) + ' A. That needs ' + fArmM.text + '. That still passes.\n\nAt fault currents this high, an MCB clears well inside 0.1 s. So ' + fArmM.text + " is a cautious figure. On a real job, the maker's let-through energy, I²t, gives the real need: k²S² must be at least that.\n\nCarry Zs at DBL2, ' + f3g.text + ', to the circuit.' },
+      after: f3g.text + " is far under the 10 A type C's " + f2(ZC10) + ' Ω. The least fault current is ' + cut(fGimin.work) + '. That is well past ' + 10 * IN_SUB + ' A, so the breaker opens within 0.1 s.\n\nNow re-check the armour. The greatest fault current at DBL2 is ' + cut(fGimax.work) + '. Take k as ' + KST + ' here. On a real job, read k for steel armour from Table 54.4. S = ' + cut(fArm.work) + '. The armour is ' + AARM + ' mm², so it is justified as the cpc.\n\nThe extra length lets less fault current through. So it needs less armour than the ' + f3f.text + ' worked on the plan length alone. A fault at the MDB end sees ' + Math.round(A3G.mdbI) + ' A. That needs ' + fArmM.text + '. That still passes.\n\nAt fault currents this high, an MCB clears well inside 0.1 s. So ' + fArmM.text + " is a cautious figure. On a real job, the maker's let-through energy, I²t, gives the real need: k²S² must be at least that.\n\nCarry Zs at DBL2, " + f3g.text + ', to the circuit.' },
     [i3H]: { id: '3h', fig: f3h, unit: 'V', accept: [],
       work: () => named(f3h.work, ['Circuit drop = ', 'Total = ']).map(cut),
       slips: [
@@ -388,16 +390,16 @@
         { value: f3i3.value, hint: 'That is the circuit alone. Add Zs at DBL2.' },
       ],
       hint: "Not quite. Work the circuit's R1+R2, hot, then add Zs at DBL2.",
-      after: f3i.text + " is under the 6 A type C's maximum of " + f2(ZC6) + ' Ω. So it is acceptable. The least fault current is ' + cut(fIimin.work) + '. That is past ' + 10 * IN_C + ' A, so the breaker opens within 0.1 s.' },
+      after: f3i.text + " is under the 6 A type C's maximum of " + f2(ZC6) + ' Ω. So it is acceptable. The least fault current is ' + cut(fIimin.work) + '. That is past ' + 10 * IN_C + ' A, so the RCBO opens within 0.1 s.' },
     [i3J]: { id: '3j', fig: f3j, unit: 'mm²', accept: [],
       work: () => named(f3j.work, ['Greatest fault current = ', 'S = ']).map(cut),
       slips: [
         { value: f3j1.value, hint: 'You used the Cmin current. The heat check wants the largest current, at Cmax.' },
         { value: f3j2.value, hint: K70 + ' is the k for 70 °C thermoplastic. These are 90 °C thermosetting, so k is ' + K90 + '.' },
-        { value: f3j3.value, hint: 'You used 0.4 s. That is the longest time allowed. At ' + fJimax.text + ' the breaker opens within 0.1 s.' },
+        { value: f3j3.value, hint: 'You used 0.4 s. That is the longest time allowed. At ' + fJimax.text + ' the RCBO opens within 0.1 s.' },
       ],
-      hint: 'Not quite. Work the Cmax current first, 230 × 1.1 ÷ Zs. Then S = √(I² × t) ÷ k. Read t where the breaker trips instantly: 0.1 s.',
-      after: f3j.text + ' is under the ' + CPC + ' mm² fitted, so the cpc satisfies the thermal constraints.\n\nCheck the DBL2 end too. A fault there sees ' + cut(fGimax.work) + '. Then S = ' + cut(fNear.work) + '. That is a slim pass. Designers disagree about which end sets the thermal check. Checking both ends is the safe way.\n\nAt ' + fGimax.text + " the breaker clears well inside 0.1 s, so the real margin is wider. On a real job, check the maker's let-through energy, I²t, against k²S².",
+      hint: 'Not quite. Work the Cmax current first, 230 × 1.1 ÷ Zs. Then S = √(I² × t) ÷ k. Read t where the RCBO trips instantly: 0.1 s.',
+      after: f3j.text + ' is under the ' + CPC + ' mm² fitted, so the cpc satisfies the thermal constraints.\n\nCheck the DBL2 end too. A fault there sees ' + cut(fGimax.work) + '. Then S = ' + cut(fNear.work) + '. That is a slim pass. Designers disagree about which end sets the thermal check. Checking both ends is the safe way.\n\nAt ' + fGimax.text + " the RCBO clears well inside 0.1 s, so the real margin is wider. On a real job, check the maker's let-through energy, I²t, against k²S².",
       bc: 'The fault level is highest at the origin, at ' + PFC + ' kA. It falls along each cable. Take the breakers at the MDB and DBL2 as marked ' + ICN + ' kA for practice. That passes. Read the real Icn from each breaker.' },
     [iCh]: { id: 'l8.A.changed', fig: fCh, unit: 'm', decimals: 1, accept: [CH.ldn],
       work: () => named(fCh.work, ['The drop allows ', 'Zs allows ', '']).map((s, k) => (k === 2 ? cap(s) : s)),
@@ -471,7 +473,7 @@
   const wbox = K.el('div', { class: 'wl' }, K.el('p', { class: 'k-label' }, 'The DBL2 submain'));
   const wlines = WLINES.map((t) => { const w = K.el('p', { class: 'w' }, nb(t)); wbox.appendChild(w); return w; });
   const WCOUNT = wlines.length;
-  const wnote = K.el('p', { class: 'sub' }, nb('Smaller sizes pass too. 4 mm² is kept for its armour, checked next. The ' + Math.round(H3 * 100) + '% harmonic puts current in the neutral. So some designers work the submain one phase at a time, with the two-core ' + VD2C + ' mV/A/m. That gives ' + f2(SUB.vdalt) + " V. It is already a single-phase drop, so add it to the circuit's drop as it is, with no ÷ √3. Either way it is far inside the limit.'));
+  const wnote = K.el('p', { class: 'sub' }, nb('Smaller sizes pass too. 4 mm² is kept for its armour, checked next. The ' + Math.round(H3 * 100) + '% harmonic puts current in the neutral. So some designers work the submain one phase at a time, with the two-core ' + VD2C + ' mV/A/m. That gives ' + f2(SUB.vdalt) + " V. It is already a single-phase drop, so add it to the circuit's drop as it is, with no ÷ √3. Either way it is far inside the limit."));
   wbox.appendChild(wnote);
   el('worked').appendChild(wbox);
   const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {

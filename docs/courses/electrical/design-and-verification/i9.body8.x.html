@@ -190,7 +190,7 @@
   const WK_TEXT = 'The heater circuit: Ze ' + H.ze + ' Ω, ' + H.len + ' m of 1.5 mm² line and cpc at ' + R15 + ' mΩ/m, and a device whose Table 41.3 maximum is ' + H.zmax + ' Ω. The design gave R1+R2 ' + f3(H.hot) + ' Ω and Zs ' + f3(W.dzs) + ' Ω, both hot. You test on a ' + TREF + ' °C day.';
   const WK_READ = 'On a ' + TREF + ' °C day the heater should read about ' + f3(W.zs) + ' Ω, and the most it may read is ' + f3(W.l20) + ' Ω.';
   const SCEN_TITLE = 'Your showroom: DBL2 and C7, ready to test';
-  const SCEN_TEXT = 'A newly built car showroom, on a three-phase four-wire TN-C-S supply. Ze is declared as ' + ZE + ' Ω. A four-core SWA submain runs ' + fSubLen.text + ' from the MDB to DBL2, the lighting board, on a 10 A type C breaker. Its armour is the cpc. C7 runs ' + fC7Len.text + ' from DBL2 to the farthest walkway bollard. It is 1.5 mm² singles with a 1.5 mm² cpc, on a 6 A type C breaker. The installation is finished and ready for its tests.';
+  const SCEN_TEXT = 'A newly built car showroom, on a three-phase four-wire TN-C-S supply. Ze is declared as ' + ZE + ' Ω. A four-core SWA submain runs ' + fSubLen.text + ' from the MDB to DBL2, the lighting board, on a 10 A type C breaker. Its armour is the cpc. C7 runs ' + fC7Len.text + ' from DBL2 to the farthest walkway bollard. It is 1.5 mm² singles with a 1.5 mm² cpc, on a 6 A type C RCBO. The installation is finished and ready for its tests.';
   const AS_4A = 'Parts 3(g) and 3(i) are both worked hot.\n\nAssume the tests are done on a ' + TDAY + " °C day. Take that as a practice value. On a real job, record the day's temperature.\n\nAt " + TREF + " °C the submain's core is " + RCORE + ' mΩ/m and its armour ' + RARM + ' mΩ/m, over ' + fSubLen.text + ". C7's 1.5 mm² line and cpc are " + R15 + ' mΩ/m over its ' + fC7Len.text + '.';
   const Q4A = "(a) Determine the earth fault loop impedance you expect at C7's farthest bollard on the test day.";
   const READS = [['Ze at the MDB', AZE], ['R1+R2 of the submain', ASUB], ['R1+R2 of C7', AC7], ['Zs read directly at DBL2', AZDB], ['Zs read directly at the farthest bollard', AZC7]];
@@ -200,7 +200,7 @@
   const AS_4C = 'Use Ze + (R1+R2) from the readings, not the direct reading. Ze belongs to the supply, so correct only R1+R2.';
   const Q4C = "(c) Correct the as-built Zs at C7's farthest bollard to operating temperature, and compare it with the design.";
   const INSPECTOR = ["Each circuit's expected R1+R2 at the test temperature.", "Each circuit's maximum permitted Zs, and where it comes from if not Table 41.3.",
-    'A chart or schedule of each circuit, with its points, its cable size and type, and its protective device.', 'Anything a test could damage, such as SELV equipment.', "The supply's characteristics."];
+    'A chart or schedule of each circuit, with its points, its cable size and type, and its protective device.', 'Anything a test could damage, such as SELV equipment.', "The supply's characteristics, including PME or PNB."];
   const CLIENT = ['The Electrical Installation Certificate, which is valid only with its schedule of inspections and schedules of test results.', 'The circuit charts and diagrams.',
     'The notices, including the periodic inspection notice at the origin.', 'The O&M manual and building log book, where the contract asks for them.',
     'On a project under CDM, a copy of the certificate in the health and safety file.', 'Where fixed building services need commissioning, a commissioning notice to building control and the owner.'];

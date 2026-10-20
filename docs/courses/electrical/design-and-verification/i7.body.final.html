@@ -296,7 +296,7 @@
       ],
       hint: 'Not quite. Work the Cmax current first, 230 × 1.1 ÷ Zs. Then S = √(I² × t) ÷ k.',
       rightNote: (r) => (differs(r, f2c) ? f2(A2c.acc) + ' mm² comes from Zs taken as 0.37 Ω. Worked from ' + f2a.text + ' it is ' + f2c.text + '.' : ''),
-      after: f2c.text + ' is under the 2.5 mm² fitted, so the cpc satisfies the thermal constraints.\n\nTake the starter-to-motor leg as ' + F('p.legLen').value.toFixed(1) + ' m for practice. Zs at the motor is then ' + fAtM.text + '. ' + UO + ' × ' + CMAX + ' ÷ ' + f3(fAtM.value) + ' = ' + f2(LEG.i) + ' A, so S = √(' + f2(LEG.i) + '² × 0.1) ÷ ' + K90 + ' = ' + f2(LEG.s) + ' mm². Its 1.5 mm² cpc holds too.' },
+      after: f2c.text + ' is under the 2.5 mm² fitted, so the cpc satisfies the thermal constraints.\n\nTake the starter-to-motor leg as ' + F('p.legLen').value.toFixed(1) + ' m for practice. Zs at the motor is then ' + fAtM.text + '. ' + UO + ' × ' + CMAX + ' ÷ ' + f3(fAtM.value) + ' = ' + f2(LEG.i) + ' A, so S = √(' + f2(LEG.i) + '² × 0.1) ÷ ' + K90 + ' = ' + f2(LEG.s) + ' mm². Its 1.5 mm² cpc holds too. The 25 A breaker at DBP2 guards this smaller leg against fault current. That works because the leg can take the fault\'s heat. Regulation 434.2.1 sets the conditions for a device placed upstream of a step down in size.' },
     [i2e]: { id: '2e', fig: f2e, unit: 'kA', accept: [ICN],
       work: () => named(f2e.work, []),
       slips: [
