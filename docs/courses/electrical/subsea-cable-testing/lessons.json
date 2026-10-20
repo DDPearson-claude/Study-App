@@ -1,0 +1,150 @@
+[
+ {
+  "n": 1,
+  "unit": "The cable and safety",
+  "title": "The cable, and making it safe to test",
+  "oneLine": "Conductor and screen are the plates of a long capacitor, so a dead cable can hold charge and pick it up from a live neighbour: identify, isolate, prove dead, secure and earth at both ends, and know which layer each test checks.",
+  "skill": "Name the layers and the test that checks each; apply the confirm sequence and the discharge order; work a core's capacitance and the most energy it could hold; explain induced charging.",
+  "specRefs": [
+   "City & Guilds Assured Subsea Cable Testing and Fault Location (Sept 2026, at a wind academy), refreshed as HV Subsea Cable Testing; no public syllabus found (brief section 8)"
+  ],
+  "materialRefs": [
+   "subsea-cable-testing-notes.pdf p.1 (system, ➕ layers, shock factors, 10 000 Ω at 55 V, 50 mA)",
+   "subsea-cable-testing-notes.pdf p.2 (HV safety rules, confirm sequence, induced charging)",
+   "subsea-cable-testing-notes.pdf p.3 (the charging effect can recharge the conductor)",
+   "case.json lesson 1 (1a 0.528 µF; 1b 762.43 J; t.C66 to research)"
+  ],
+  "picture": "The core in cross-section, each test lighting the layer it stresses; then the isolated core as a capacitor beside a live one: lengthen the run and its charge grows, close the earth and its voltage falls to zero.",
+  "builds_on": [
+   "AC circuits lesson 5 (capacitance: the store that fills and empties)",
+   "Your HV safety rules and BS 7671 inspection and testing awards"
+  ]
+ },
+ {
+  "n": 2,
+  "unit": "Conductors",
+  "title": "Phases and conductors: the four-wire measurement",
+  "oneLine": "Below 1 Ω the leads and contacts swamp a two-wire reading, so the DLRO drives current through the C leads and measures across the P leads inside them; three loop readings solve three cores, and a cold cable reads low until corrected to 20 °C.",
+  "skill": "Run phase ID from both ends; place C and P leads; solve core resistances from three loops; correct to 20 °C and compare with factory values within 2%.",
+  "specRefs": [
+   "City & Guilds Assured Subsea Cable Testing and Fault Location (Sept 2026, at a wind academy), refreshed as HV Subsea Cable Testing; no public syllabus found (brief section 8)"
+  ],
+  "materialRefs": [
+   "subsea-cable-testing-notes.pdf p.2 (phase ID, colours, DLRO, lead and contact resistance, ➕ four-wire)",
+   "subsea-cable-testing-notes.pdf p.3 (2% of factory, ➕ 0.4% per °C, loop formulas, worked example 76.90, 80.49, 81.16 mΩ, the test procedure)",
+   "case.json lesson 2 (2a 170.10 mΩ; 2b 175.62 mΩ; 2c +0.41%)"
+  ],
+  "picture": "The four-wire bridge: a current source on the C leads, a voltmeter on the P leads, lead and contact resistances drawn in; drag a P probe outside its C clamp and they join the reading.",
+  "builds_on": [
+   1,
+   "Your L3 Initial Verification (continuity, R1+R2)"
+  ]
+ },
+ {
+  "n": 3,
+  "unit": "Insulation and sheath",
+  "title": "Insulation resistance over ten minutes: IR, DAR and PI",
+  "oneLine": "The tester's current is charging, absorption and leakage; as the first two die away a dry cable's resistance climbs, so PI and DAR, ratios taken minutes apart on the same cable, show moisture a single reading can pass.",
+  "skill": "Run an IR test core to screen; work DAR and PI and rate them; recognise a flat curve that still passes the client's figure; discharge the cable safely and for long enough.",
+  "specRefs": [
+   "City & Guilds Assured Subsea Cable Testing and Fault Location (Sept 2026, at a wind academy), refreshed as HV Subsea Cable Testing; no public syllabus found (brief section 8)"
+  ],
+  "materialRefs": [
+   "subsea-cable-testing-notes.pdf p.3 (before and after the test, discharge, 5 × charging time, connections, ➕ what IR shows)",
+   "subsea-cable-testing-notes.pdf p.4 (PI and DAR bands, ➕ why ratios beat a single reading)",
+   "subsea-cable-testing-notes.pdf p.10 (the discharge order)",
+   "case.json lesson 3 (3a 2.58; 3b 1.09; 3c 50 min; Megger Table I to research)"
+  ],
+  "picture": "IR against time over 10 minutes for one core: sliders for moisture (leakage) and polarisation; the 30 s, 1 min and 10 min readings marked, DAR and PI worked from them and placed on the notes' bands.",
+  "builds_on": [
+   1,
+   2,
+   "Your L3 Initial Verification (insulation resistance)",
+   "AC circuits lesson 5 (a capacitor charging and discharging)"
+  ]
+ },
+ {
+  "n": 4,
+  "unit": "Insulation and sheath",
+  "title": "The sheath test: 4 kV per millimetre",
+  "oneLine": "The sheath keeps water away from the insulation, so it is tested on its own, screen to earth, at 4 kV d.c. per millimetre up to 10 kV for one minute, with every metal layer linked and an electrode on its outer face.",
+  "skill": "Work the test voltage from the sheath's thickness, with the cap; connect for semi-conductive and non-semi-conductive sheaths; explain why a sheath fault matters.",
+  "specRefs": [
+   "City & Guilds Assured Subsea Cable Testing and Fault Location (Sept 2026, at a wind academy), refreshed as HV Subsea Cable Testing; no public syllabus found (brief section 8)"
+  ],
+  "materialRefs": [
+   "subsea-cable-testing-notes.pdf p.4 (why test, 4 kV per mm, max 10 kV, 1 min, both connection methods, ➕ water treeing)",
+   "subsea-cable-testing-notes.pdf p.1 (➕ layers 5 to 7)",
+   "case.json lesson 4 (4a 8.8 kV; IEC 60229 clause 5 to research)"
+  ],
+  "picture": "A slice of sheath between screen and outer electrode: drag the thickness and the test voltage rises at 4 kV per mm to the 10 kV cap; a gauge shows the stress per mm; toggle the sheath type to move the positive lead.",
+  "builds_on": [
+   1,
+   3
+  ]
+ },
+ {
+  "n": 5,
+  "unit": "Insulation and sheath",
+  "title": "VLF withstand: why 0.1 Hz",
+  "oneLine": "A long cable is a big capacitor, so a 50 Hz withstand needs a huge charging current; at 0.1 Hz the reactance is 500 times higher and a portable set can hold 1.5 to 2.5 U0 for 30 or 60 minutes, driving any severe defect to fail now.",
+  "skill": "Work U0 and the test voltage; work a core's charging current at 0.1 Hz and 50 Hz; choose the duration; explain why VLF and not 50 Hz or DC.",
+  "specRefs": [
+   "City & Guilds Assured Subsea Cable Testing and Fault Location (Sept 2026, at a wind academy), refreshed as HV Subsea Cable Testing; no public syllabus found (brief section 8)"
+  ],
+  "materialRefs": [
+   "subsea-cable-testing-notes.pdf p.6 (VLF, pressure testing, why low frequency, ➕ Xc and DC, purpose, discharge at the end)",
+   "subsea-cable-testing-notes.pdf p.7 (➕ U0, 1.5-2.5 U0, IEEE 400.2, 30 and 60 min, 0.1 Hz)",
+   "case.json lesson 5 (5a 76.0 kV; 5b 25.21 mA; 5c 12.61 A; IEEE 400.2 range contested)"
+  ],
+  "picture": "One core's voltage and charging current against time: a 0.1 Hz sine beside 50 Hz at the same voltage, with current bars (25.21 mA against 12.61 A) and the test set's kVA; sliders for frequency and length.",
+  "builds_on": [
+   1,
+   3,
+   "AC circuits lesson 5 (Xc = 1 ÷ 2πfC)",
+   "AC circuits lesson 10 (phase and line voltage, for U0)"
+  ]
+ },
+ {
+  "n": 6,
+  "unit": "Fault location and condition",
+  "title": "TDR: reading the reflections",
+  "oneLine": "A pulse runs along the pair and part of it returns wherever the impedance changes, up for an open and down for a short; distance is time × velocity ÷ 2, so the velocity must be set, best on a known length.",
+  "skill": "Set the velocity from a known length; read opens, shorts, joints and water on a trace; prove the end with open and linked tests; work the distance to a fault from both ends.",
+  "specRefs": [
+   "City & Guilds Assured Subsea Cable Testing and Fault Location (Sept 2026, at a wind academy), refreshed as HV Subsea Cable Testing; no public syllabus found (brief section 8)"
+  ],
+  "materialRefs": [
+   "subsea-cable-testing-notes.pdf p.7 (TDR, under 100 Ω, purpose, velocity, L = t × v ÷ 2, ±0-1%, 50 V, red and black, open and linked)",
+   "subsea-cable-testing-notes.pdf p.8 (trace profiles, ➕ polarity logic)",
+   "case.json lesson 6 (6a 168.0 m/µs; 6b 960.1 m; 6c 1439.9 m; Megger TDR_AN58 to research)"
+  ],
+  "picture": "A TDR trace of String B's L2: launch, the field joint's small up-down, the fault's downward peak and the end; toggle the far end open and linked; a velocity slider rescales the distances; a fault-resistance slider fades the dip past about 100 Ω.",
+  "builds_on": [
+   2,
+   5,
+   "AC circuits lesson 6 (impedance)"
+  ]
+ },
+ {
+  "n": 7,
+  "unit": "Fault location and condition",
+  "title": "LIRA: the cable's impedance spectrum",
+  "oneLine": "An unmatched line resonates at frequencies set by its length and velocity; a local change in the insulation's permittivity changes the impedance there and ripples the spectrum, which LIRA turns into a spot along the cable graded by DNORM, from one end.",
+  "skill": "Say what LIRA measures and when it is used; work the resonance spacing; read DNORM's sign and colour; check a spot from both ends; keep the baseline and raw traces.",
+  "specRefs": [
+   "City & Guilds Assured Subsea Cable Testing and Fault Location (Sept 2026, at a wind academy), refreshed as HV Subsea Cable Testing; no public syllabus found (brief section 8)"
+  ],
+  "materialRefs": [
+   "subsea-cable-testing-notes.pdf p.5 (LIRA, pairs, ➕ SWA, what it finds, when, how it works, the kit, 18 tests)",
+   "subsea-cable-testing-notes.pdf p.6 (DNORM sign, severity colours, procedure)",
+   "subsea-cable-testing-notes.pdf p.9 (➕ the test sequence)",
+   "case.json lesson 7 (7a 35.0 kHz; 7b 959 m; Wirescan WP01 and Fantoni to research)"
+  ],
+  "picture": "The impedance spectrum of String B's L2, resonances 35.0 kHz apart; drag a local change along the cable and its ripple and its spot move; flip its sign and DNORM's bar changes sign and colour.",
+  "builds_on": [
+   6,
+   "AC circuits lesson 7 (resonance)"
+  ]
+ }
+]
