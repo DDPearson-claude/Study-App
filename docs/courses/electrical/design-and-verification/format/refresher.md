@@ -145,8 +145,9 @@ scenario and numbers changed. Every number below is in `../case.json`, worked fr
   the r and x drops along the voltage count (p.44, 45).
 - Practises: worked, the slides' heater at 85 m: 29 × 13.04 × 85 ÷ 1000 = 32.14 V fails 11.50 V; the
   most mV/A/m that passes is 10.37; at 6.0 mm² 8.09 V passes (p.42). A, part (g) of the motor
-  question, the actual drop from the intake. B, "Explain why the submain's voltage drop must be
-  included"; "Explain why a lightly loaded cable drops less than the table says".
+  question, the actual drop from the intake. B, "Explain why a lightly loaded cable drops less
+  than the table says". (Dropped from B, 20 Oct: "Explain why the submain's voltage drop must be
+  included"; the recall, the why's picture and the first trap on the card already teach it.)
 - Main pictures: the voltage falling along the run from the origin through the board to the load,
   with the limit as a band; then why piece C.
 - To source: the Ct formula and the power-factor voltage-drop expression (BS 7671 Appendix 4) and one
