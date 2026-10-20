@@ -7,7 +7,7 @@ by id; the kit draws the checked words, so never retype a figure, a point or a s
 
 ```
 K.figure(id) -> {id, label, value, unit, text, part, lesson, rule, work, practice}   a given or worked figure; print f.text ("23.08 A"), f.work its working; practice is true for a practice value
-K.scenario({into, open?})                                        the case's scenario panel (folds)
+K.scenario({into, open?, title?, text?})                         the case's scenario panel (folds); a lesson may give its own
 K.carried({parts: ['1a'], into})  -> {el, refresh()}             earlier Section A parts at the course's figures
 K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
     -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}

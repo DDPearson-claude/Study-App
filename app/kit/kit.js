@@ -2270,16 +2270,17 @@
   K.answer.read = readTyped;
 
   // ---- the case file on the page ----
-  // K.scenario({into, open?}) -> {el}: the running case's scenario (case.scenario {title, text,
-  // source}) as a panel that folds.
+  // K.scenario({into, open?, title?, text?}) -> {el}: the running case's scenario (case.scenario
+  // {title, text, source}) as a panel that folds. A lesson may give its own title and text for the
+  // part of the case it works on. The source stays in the case file, never on the page (Dan, 20 Oct).
   K.scenario = function (o) {
     o = o || {};
     var sc = CASE && CASE.scenario;
+    if (o.title || o.text) sc = { title: o.title || (sc && sc.title), text: o.text || (sc && sc.text) };
     if (!sc) problem('K.scenario: the case file has no scenario');
     var el = K.el('details', { class: 'k-scen', open: o.open === false ? null : true },
       K.el('summary', null, K.el('span', { class: 'k-scen-t' }, (sc && sc.title) || 'The scenario'), K.el('small', null, o.label || 'Scenario')),
-      sc && sc.text ? termText(K.el('p'), sc.text) : null,
-      sc && sc.source ? K.el('p', { class: 'k-scen-src' }, String(sc.source)) : null);
+      sc && sc.text ? termText(K.el('p'), sc.text) : null);
     el.addEventListener('toggle', heightSoon);
     place(el, o.into, 'K.scenario');
     return { el: el };
@@ -2305,9 +2306,9 @@
           K.el('span', { class: 'k-cr-part' }, part ? '(' + part + ')' : ''),
           K.el('span', { class: 'k-cr-label' }, f.label),
           K.el('b', { class: 'k-cr-value' }, f.text),
-          missed ? iconEl('', 'k-mk ring', 'Carried forward from the course\'s figure') : iconEl(TICK, 'k-mk tick', 'Done')));
+          missed ? iconEl('', 'k-mk ring', 'Carried forward at the right figure') : iconEl(TICK, 'k-mk tick', 'Done')));
       });
-      if (anyMissed) box.appendChild(K.el('p', { class: 'k-cr-note' }, 'Carried forward at the course\'s figure, so one slip never spoils the rest.'));
+      if (anyMissed) box.appendChild(K.el('p', { class: 'k-cr-note' }, 'Carried forward at the right figure, so one slip does not spoil the rest.'));
       heightSoon();
       return c;
     };
@@ -2478,7 +2479,7 @@
     var figs = (Array.isArray(s.figures) ? s.figures : []).map(function (f) { return typeof f === 'string' ? figureOf(f) : { label: String(f && f.label || ''), text: String(f && (f.text || f.value) || '') }; });
     if (figs.length) {
       el.appendChild(K.el('div', null, lab(s.figuresLabel || (CASE && CASE.title ? CASE.title + ' so far' : 'Figures so far')),
-        K.el('div', { class: 'k-sum-figs' }, figs.map(function (f) { return K.el('div', null, K.el('span', null, f.label), K.el('b', null, f.text), f.practice ? K.el('small', null, 'practice value') : null); }))));
+        K.el('div', { class: 'k-sum-figs' }, figs.map(function (f) { return K.el('div', null, K.el('span', null, f.label), K.el('b', null, f.text), f.practice ? K.el('small', null, f.work ? 'worked from practice values' : 'practice value') : null); }))));
     }
     if (s.where) el.appendChild(termText(K.el('p', { class: 'k-sum-where' }), 'Where it lives: ' + String(s.where).replace(/^where it lives:\s*/i, '')));
     summaries.push(el);
