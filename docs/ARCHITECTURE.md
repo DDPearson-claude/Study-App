@@ -541,7 +541,16 @@ of it to Atkinson. The page builders, in reading order (`model().leaves`):
   "a re-read guide with visuals, not a test to move on"): `topics/{tid}/guide/{iid}` (public, beside
   the lesson; `U.store.guide.get`), made at build time by `tools/course/guide.mjs`, is
   `{v, iid, pages: [{kind: 'show', text, svg, alt} | {kind: 'example', task, answer, why, svg?, alt}
-  | {kind: 'summary', title, for, rule, traps: [{text, cite}], where, figures: [{label, value}], figuresLabel?}]}`.
+  | {kind: 'summary', title, for, rule, traps: [{text, cite}], where, figures: [{label, value}], figuresLabel?}], style?}`.
+  A show or example page may carry `html` instead of `svg`: a step drawn in HTML (a panel, a
+  worked example's lines all shown, a recall's options answered, a Section A scenario and its
+  carried parts), kept by guide.mjs as still HTML (no script, no handler, no input or control; a
+  canvas as its picture), with the lesson's own CSS once in the guide's `style`. It is model-written,
+  so it is only ever drawn by `U.readThrough.still` in a sandboxed kit frame (`U.sandbox.mount`, the
+  light palette from `U.sandbox.theme({light: true})` at the app's text size, every animation off),
+  after the page's words: a light card in both themes, as the SVG pictures are on their white well.
+  A STEPS entry's `read` sentence replaces the step's words in the guide (words that ask him to act).
+  Lesson 1 of Design and verification: 9 still steps, 12.7 KB of HTML, 26 KB in all.
   A refresher lesson's Keep this card (`lesson.summary`, its case-file figures written out) is the
   guide's first page, and the chapter opens on it: an emphasis tile "Keep this" straight after the
   header, before Key idea (words only: the rule on a grey panel, each trap with the red edge mistakes
@@ -1412,7 +1421,7 @@ U.sandbox.test(html, {widths = [340, 720, 1040], timeout = 8000, theme, kase, le
    passes only at every width whose page ran, ids / inputs / actions come from the first width that
    ran (one that timed out has none, and its error still fails the report), + widths:[{width, ok}]
 U.sandbox.reach(mounted | html, {control, output, target, tolerance, decimals?}) -> Promise<{reachable, exact, best, tried, error?}>
-U.sandbox.theme() -> {dark, size, c:{bg, panel, sunk, ink, muted, line, strong, accent, accent2, onAccent2, warn, good, amber}}
+U.sandbox.theme({light?}) -> {dark, size, c:{bg, panel, sunk, ink, muted, line, strong, accent, accent2, onAccent2, warn, good, amber}}   light: Dan's light palette
 U.sandbox.visibleTimeout(fn, ms) -> {cancel()}   time with the page hidden does not count
 ```
 `33-interactive.js`
@@ -1461,6 +1470,7 @@ U.gen.markWritten(written, answer, attempt, {previous, title}) -> Promise<{met, 
 ```
 U.readThrough.guide(tid, iid) -> Promise<guide | null>   read once per page load (a failed read is tried again); null: no usable guide
 U.readThrough.known(tid, iid) -> true | false | undefined   U.readThrough.parts(guide) -> {pages, summary}   U.readThrough.pic(svg) -> data: URL | null
+U.readThrough.stillHtml(html, style) -> srcdoc body | null (null with a script or a handler)   U.readThrough.still(container, html, style) -> mount api | null
 V.way(progress) -> 'quiz'|'read'   V.lessonHref(tid, iid, progress, way?)   V.setWay(tid, way, progress?)   V.readThrough(progress, iid)
 U.lesson.backLink(tid)   the lesson bar's back arrow (U._from), shared with the read-through
 ```

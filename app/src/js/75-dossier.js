@@ -818,7 +818,7 @@
       summaryTile(c, sid),
       ex.note ? tile('section', 'em', { span: 'full', cls: 'c-key', attrs: { 'aria-labelledby': sid + '-key' } }, [heading(sid + '-key', 'Key idea'), inl(h('p', { class: 'c-key-t' }), ex.note, fx)]) : null,
     ];
-    if (c.guide) main.push.apply(main, guideTiles(c, fx));
+    if (c.guide) main.push.apply(main, guideTiles(c, fx, S));
     else if (c.hasPlate) main.push(plateTile(S, M, c, fx));
     var prose = h('div', { class: 't-prose c-prose' });
     ex.ps.forEach(function (p, k) {
@@ -899,22 +899,34 @@
       }))) : null,
       str(p.where) ? h('p', { class: 'sm-where' }, 'Where it lives: ' + str(p.where).replace(/^where it lives:\s*/i, '')) : null]);
   }
-  function guidePic(p) {
+  // A step kept as still HTML (a refresher lesson's panels and worked lines): a placeholder the page
+  // fills with a sandboxed frame once it is on the screen (U.readThrough.still), destroyed with it.
+  function guidePic(p, g, S) {
+    if (p.html && U.readThrough && U.readThrough.stillHtml(p.html, g && g.style)) {
+      var box = h('div', { class: 'gd-still' });
+      setTimeout(function () {
+        if (!box.isConnected) return;
+        var m = U.readThrough.still(box, p.html, g && g.style);
+        if (m && S && S.offs) S.offs.push(function () { m.destroy(); });
+      });
+      return box;
+    }
     if (!p.svg || !/^<svg[\s>]/.test(p.svg)) return null;
     return h('img', { class: 'gd-pic', src: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(p.svg), alt: p.alt || '', loading: 'lazy', decoding: 'async' });
   }
-  function guideTiles(c, fx) {
+  function guideTiles(c, fx, S) {
     var sid = 'c' + c.n, shows = [], examples = [];
     c.guide.pages.filter(isObj).forEach(function (p) {
-      if (p.kind === 'show' && p.text) {
-        var pic = guidePic(p);
-        shows.push(h('li', { class: 'gd-show' }, pic ? h('div', { class: 'gd-well' }, pic) : null, inl(h('p', { class: 'gd-text' }), str(p.text), fx)));
+      if (p.kind === 'show' && (p.text || p.html)) {
+        var pic = guidePic(p, c.guide, S), isStill = pic && pic.className === 'gd-still';
+        var said = p.text ? inl(h('p', { class: 'gd-text' }), str(p.text), fx) : null;
+        shows.push(h('li', { class: 'gd-show' }, isStill ? [said, pic] : [pic ? h('div', { class: 'gd-well' }, pic) : null, said]));
       } else if (p.kind === 'example' && p.task) {
-        var epic = guidePic(p);
+        var epic = guidePic(p, c.guide, S);
         examples.push(tile('li', 'white', { span: 'full', cls: 'gd-ex' }, [
           h('p', { class: 't-label' }, 'Worked example'),
           inl(h('p', { class: 'gd-q' }), str(p.task), fx),
-          epic ? h('div', { class: 'gd-well' }, epic) : null,
+          epic ? (epic.className === 'gd-still' ? epic : h('div', { class: 'gd-well' }, epic)) : null,
           p.answer ? h('p', { class: 'gd-a' }, h('span', { class: 'gd-a-k' }, 'Answer '), h('b', null, str(p.answer))) : null,
           p.why ? inl(h('p', { class: 'gd-why' }), str(p.why), fx) : null]));
       }

@@ -227,7 +227,12 @@ round (steps 3-5 for what changed). Saved as `$D/I.review.json`.
 node tools/course/guide.mjs --dir $D            # writes $D/iN.guide.json for every built lesson
 ```
 Each demonstration's finished picture and sentence, and each puzzle as a worked example; assemble
-writes them as `topics/{tid}/guide/{iid}`. Re-run it whenever a lesson body changes.
+writes them as `topics/{tid}/guide/{iid}`. Re-run it whenever a lesson body changes. A step drawn
+in HTML (a panel, worked lines, a recall's options, a Section A scenario) is kept as still HTML,
+finished (every "Show…" pressed, the puzzle answered right) without its controls; the guide holds
+the lesson's styles once (`style`). Its summary line prints how many and how many bytes; the doc
+must stay under 250 KB. A step whose words ask Dan to act takes its STEPS entry's `read` sentence
+in the guide (section 8).
 
 ## 7. Assemble, write to the db, mark the shelf
 ```
@@ -279,7 +284,8 @@ figures; a part missed on this page says it is carried forward), the part's ques
 working and `reveal()`. **Section B**: `K.written({id: 'b1'})`; Continue once `answered()`. One
 changed-numbers item (a typed answer). **Keep this**: `K.summary()`, then Finish (`K.complete()`).
 STEPS entries name these for the Book: `want` on a typed step, `{kind: 'written', written: 'b1'}`,
-`{kind: 'summary'}`. No timers, marks or grades anywhere.
+`{kind: 'summary'}`. Give a step whose words ask him to do something ("Work each step yourself
+first…") a `read` sentence for the read-through and the Book. No timers, marks or grades anywhere.
 
 **Numbers**: each line is worked from the rounded figures shown before it (2 places unless the
 material shows more), so the answer is the printed figure; the figure from unrounded working goes in

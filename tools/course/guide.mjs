@@ -16,6 +16,14 @@
 // the lesson's written questions, summary and the case file, as the app mounts it.
 // Pictures are the lesson's own <svg id="scene">, cloned with every computed style inlined, so they
 // draw the same as a plain image (no script, no lesson CSS). Lesson markup *term* becomes [[term]].
+// A step that shows more than its scene (drawn in HTML: a panel, a worked example's lines, a recall
+// question's options, a Section A scenario and the parts carried forward) is kept as still HTML
+// instead ({html}; alt: the words it shows): a copy of the step's area as it looks finished (a
+// worked example's lines all shown, a demonstration at its end, a puzzle answered right), with its
+// controls, inputs and its own sentence left out, no script and no handler, a canvas as its picture.
+// The app draws it in a sandboxed frame on the kit's styles (53-read.js), in light, so it reads
+// like the lesson and scales with the text size. A step whose STEPS entry has `read` (a sentence for
+// reading it through, when its own words ask him to do something) takes that as its text.
 //   node tools/course/guide.mjs --dir build/maths/fractions [--idea i3] [--app tests/out/kit-d4.html]
 // Writes <dir>/<iid>.guide.json for each idea with a body.final.html (or just --idea).
 import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
@@ -120,6 +128,89 @@ const SNAP = `(() => {
   return { svg, alt: src.getAttribute('aria-label') || '' };
 })()`;
 
+// Runs in the lesson frame (after the step is set and finished): hides what is not to be read
+// (controls, inputs, the step's own words), and says whether the step shows anything beyond its
+// scene, and where. -> {need, rect: {x, y, width, height} in the frame, alt}. __gRestore() undoes it.
+const CAPTURE = `(([texts, show, sceneEmpty]) => {
+  const norm = (x) => String(x || '').replace(/\\*\\*?|\\[\\[|\\]\\]/g, '').replace(/\\s+/g, ' ').trim().toLowerCase();
+  const own = texts.map(norm).filter(Boolean);
+  const CTRL = /^(check|why\\??|back|continue|next|replay|play|pause|carry on|spin|start again|done|finish( the lesson)?|show me|refresh the why|skip to the practice|another go|model answer|check my answer|show the next step|show the next line)$/i;
+  const gone = [];
+  const hide = (el) => { if (!el || el.dataset.gHid) return; el.dataset.gHid = el.style.getPropertyValue('display') || '-'; el.style.setProperty('display', 'none', 'important'); gone.push(el); };
+  window.__gRestore = () => { gone.forEach((el) => { const v = el.dataset.gHid; delete el.dataset.gHid; if (v === '-') el.style.removeProperty('display'); else el.style.setProperty('display', v); }); };
+  const seen = (el) => !!el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden';
+  document.querySelectorAll('.k-stepper, .k-field, .k-controls, .k-answer, .k-written, .k-summary, .k-kept, input, textarea, select, .caption, .lead').forEach(hide);
+  document.querySelectorAll('button').forEach((b) => { if (show || CTRL.test(b.textContent.replace(/\\s+/g, ' ').trim())) hide(b); });
+  // The step's own words are the guide page's text; a step counter is the read-through's own.
+  [...document.body.querySelectorAll('*')].forEach((el) => {
+    if (!seen(el) || el.closest('svg')) return;
+    const t = norm(el.textContent);
+    if (t && (own.includes(t) || /^(step|lesson|screen) \\d+ of \\d+\\b/.test(t))) hide(el);
+  });
+  // A row of controls left empty goes too, so no blank band is kept.
+  document.querySelectorAll('.row, .k-anim').forEach((el) => { if (seen(el) && ![...el.querySelectorAll('*')].some((x) => seen(x) && (x.children.length === 0 ? (x.textContent.trim() || /^(svg|img|canvas)$/i.test(x.tagName)) : false))) hide(el); });
+  const scene = document.getElementById('scene');
+  let extra = false, any = false, box = null;
+  const add = (r) => { if (!r.width || !r.height) return; box = box ? { l: Math.min(box.l, r.left), t: Math.min(box.t, r.top), r: Math.max(box.r, r.right), b: Math.max(box.b, r.bottom) } : { l: r.left, t: r.top, r: r.right, b: r.bottom }; };
+  const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+    const el = n.parentElement;
+    if (!n.textContent.trim() || !el || !seen(el) || el.closest('script, style')) continue;
+    if (el.closest('svg') && scene && scene.contains(el)) continue;
+    const range = document.createRange(); range.selectNodeContents(n);
+    [...range.getClientRects()].forEach(add);
+    any = true;
+    if (!el.closest('[aria-live], .why, button')) extra = true;
+  }
+  // Pictures and panels: graphics other than an empty scene, and boxes with a fill or a border.
+  [...document.body.querySelectorAll('*')].forEach((el) => {
+    if (!seen(el) || el.closest('script, style')) return;
+    if (/^(svg|img|canvas)$/i.test(el.tagName) && !el.closest('svg svg')) { if (!(el === scene && sceneEmpty)) { add(el.getBoundingClientRect()); if (el !== scene && !el.closest('#scene')) extra = true; } return; }
+    const cs = getComputedStyle(el);
+    if (el.closest('svg')) return;
+    if ((cs.backgroundColor && !/rgba\\(0, 0, 0, 0\\)|transparent/.test(cs.backgroundColor) && el !== document.body) || parseFloat(cs.borderTopWidth) > 0) add(el.getBoundingClientRect());
+  });
+  const need = !!box && (show ? (sceneEmpty ? any : extra) : (sceneEmpty ? any : extra));
+  const W = document.documentElement.clientWidth, pad = 8;
+  const rect = box ? { x: Math.max(0, box.l - pad), y: Math.max(0, box.t - pad), width: Math.min(W, box.r + pad) - Math.max(0, box.l - pad), height: box.b - box.t + 2 * pad } : null;
+  let html = '';
+  if (need) {
+    // The step as still HTML: a copy of what is shown, nothing else (another step's parts, what was
+    // hidden above), no script and no handler; a canvas becomes its picture. The app draws it in a
+    // sandboxed frame on the kit's styles (53-read.js), never in its own page.
+    const src = [document.body].concat([...document.body.querySelectorAll('*')]);
+    const copy = document.body.cloneNode(true), dst = [copy].concat([...copy.querySelectorAll('*')]), drop = [];
+    src.forEach((el, i) => {
+      const out = dst[i], tag = el.tagName.toLowerCase();
+      if (tag === 'script' || tag === 'noscript' || tag === 'template' || tag === 'iframe' || tag === 'style') { drop.push(out); return; }
+      if (el !== document.body && !el.closest('svg') && !el.getClientRects().length) { drop.push(out); return; }
+      if (tag === 'canvas') {
+        try {
+          const r = el.getBoundingClientRect(), im = document.createElement('img');
+          im.src = el.toDataURL('image/png'); im.alt = el.getAttribute('aria-label') || '';
+          im.setAttribute('style', 'display:block;width:' + Math.round(r.width) + 'px;height:' + Math.round(r.height) + 'px;max-width:100%');
+          drop.push([out, im]);
+        } catch (e) { drop.push(out); }
+        return;
+      }
+      [...out.attributes].forEach((a) => { const n = a.name.toLowerCase(); if (n.indexOf('on') === 0 || n === 'tabindex' || n === 'data-g-hid' || n === 'contenteditable' || n === 'href') out.removeAttribute(a.name); });
+      if (tag === 'button' || tag === 'a') out.setAttribute('tabindex', '-1');
+    });
+    drop.forEach((x) => { if (Array.isArray(x)) x[0].replaceWith(x[1]); else x.remove(); });
+    html = copy.innerHTML.replace(/<!--[\\s\\S]*?-->/g, '').replace(/>\\s+</g, '><').trim();
+  }
+  return { need, rect, html, alt: need ? document.body.innerText.replace(/\\s+/g, ' ').trim().slice(0, 900) : '' };
+})`;
+// A step finished as the lesson shows it at its end: every "Show…" button pressed until none is left.
+const FINISH = `(async () => {
+  for (let k = 0; k < 24; k++) {
+    const b = [...document.querySelectorAll('button')].find((x) => x.offsetParent !== null && !x.disabled && /^(show|reveal)\\b/i.test(x.textContent.trim()) && !/^show me$/i.test(x.textContent.trim()));
+    if (!b) break;
+    b.click();
+    await new Promise((r) => setTimeout(r, 120));
+  }
+})()`;
+
 const app = await openApp({ width: 390, height: 900, file: appFile });
 await app.page.emulateMedia({ reducedMotion: 'reduce' });
 await app.page.goto(app.url('#/__eval'));
@@ -141,7 +232,15 @@ for (const iid of ideas) {
   // A puzzle names its answer either as `want` (the right option's words) or as `opts`, a list of
   // option keys in button order with 'right' marking the answer (the calculus lessons' way, where
   // the words are worked out at render time).
-  const steps = await frame().evaluate(() => STEPS.map((d) => ({ show: !!d.show, text: d.text || '', task: d.task || d.ask || '', why: d.why || '', want: d.want, name: d.name || '', rightIndex: Array.isArray(d.opts) ? d.opts.indexOf('right') : -1, kind: d.kind || '', written: d.written || '' })));
+  const steps = await frame().evaluate(() => STEPS.map((d) => ({ show: !!d.show, text: d.text || '', task: d.task || d.ask || '', part: d.part || '', why: d.why || '', want: d.want, name: d.name || '', rightIndex: Array.isArray(d.opts) ? d.opts.indexOf('right') : -1, kind: d.kind || '', written: d.written || '', read: typeof d.read === 'string' ? d.read : '' })));
+  // Kept as an image when the step shows more than its scene (see CAPTURE).
+  async function capture(d, show, sceneEmpty) {
+    const c = await frame().evaluate(CAPTURE + '(' + JSON.stringify([[d.text, d.task, d.read, d.part], show, sceneEmpty]) + ')');
+    await frame().evaluate(() => window.__gRestore && window.__gRestore());
+    if (!c.need || !c.html || !c.rect || c.rect.height < 12) return null;
+    if (/<script|\son[a-z]+=/i.test(c.html)) throw new Error(d.name + ': its still HTML kept a script or a handler');
+    return { html: c.html, alt: c.alt };
+  }
   const pages = [];
   const sp = summaryPage(lesson.summary);
   if (sp) pages.push(sp);
@@ -158,8 +257,12 @@ for (const iid of ideas) {
     await app.page.evaluate((v) => window.__g.set('step', v), i);
     await app.page.waitForTimeout(400);
     if (d.show) {
-      const snap = await frame().evaluate(SNAP);
-      pages.push({ kind: 'show', name: d.name, text: terms(d.text), svg: snap && snap.svg, alt: snap ? snap.alt : '' });
+      await frame().evaluate(FINISH);
+      await app.page.waitForTimeout(300);
+      const snap = await frame().evaluate(SNAP), shot = await capture(d, true, !snap);
+      const page = { kind: 'show', name: d.name, text: terms(d.read || d.text), svg: shot ? null : snap && snap.svg, alt: shot ? shot.alt : snap ? snap.alt : '' };
+      if (shot) page.html = shot.html;
+      pages.push(page);
       continue;
     }
     let answer = typeof d.want === 'string' || typeof d.want === 'number' ? String(d.want) : '';
@@ -202,7 +305,15 @@ for (const iid of ideas) {
         if (right) snap = await f.evaluate(SNAP);
       }
     }
-    pages.push({ kind: 'example', name: d.name, task: terms(d.task), answer, why: terms(d.why), svg: snap && snap.svg, alt: snap ? snap.alt : '' });
+    const shot = await capture(d, false, !snap);
+    const ex = { kind: 'example', name: d.name, task: terms(d.read || d.task), answer, why: terms(d.why), svg: shot ? null : snap && snap.svg, alt: shot ? shot.alt : snap ? snap.alt : '' };
+    if (shot) {
+      ex.html = shot.html;
+      // The lesson's own feedback already says why (it is in the still): not said twice.
+      const flat = (x) => String(x || '').replace(/\[\[|\]\]|\*/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+      if (ex.why && flat(shot.alt).includes(flat(ex.why))) ex.why = '';
+    }
+    pages.push(ex);
   }
   // The pictures carry the page's computed styles inline: the same colours in rgb() on every label.
   // Written as hex, with no spaces between tags, a guide stays under the db's document limit
@@ -211,10 +322,12 @@ for (const iid of ideas) {
   // A page must read as words: a figure the lesson looked up but never got prints as undefined or NaN.
   const broken = pages.filter((p) => /\bundefined\b|\bNaN\b/.test([p.text, p.task, p.answer, p.why, p.title].join(' ')));
   if (broken.length) { console.error(iid, 'pages reading "undefined" or "NaN":', broken.map((p) => p.name || p.kind).join(', ')); process.exitCode = 1; }
-  const guide = { v: 1, iid, pages };
+  // The lesson's own styles, once for every page kept as still HTML.
+  const style = pages.some((p) => p.html) ? await frame().evaluate(() => [...document.body.querySelectorAll('style')].map((x) => x.textContent).join('\n').replace(/\s+/g, ' ').trim()) : '';
+  const guide = style ? { v: 1, iid, style, pages } : { v: 1, iid, pages };
   const bytes = Buffer.byteLength(JSON.stringify(guide));
   writeFileSync(join(dir, iid + '.guide.json'), JSON.stringify(guide) + '\n');
-  console.log(iid, 'pages', pages.length, 'summary', pages.filter((p) => p.kind === 'summary').length, 'show', pages.filter((p) => p.kind === 'show').length, 'examples with pictures', pages.filter((p) => p.kind === 'example' && p.svg).length, 'of', pages.filter((p) => p.kind === 'example').length, 'bytes', bytes);
+  console.log(iid, 'still HTML', pages.filter((p) => p.html).length, 'bytes', pages.reduce((a, p) => a + (p.html ? p.html.length : 0), 0), 'pages', pages.length, 'summary', pages.filter((p) => p.kind === 'summary').length, 'show', pages.filter((p) => p.kind === 'show').length, 'examples with pictures', pages.filter((p) => p.kind === 'example' && p.svg).length, 'of', pages.filter((p) => p.kind === 'example').length, 'bytes', bytes);
 }
 if (app.errors.length) console.log('page errors:', app.errors.slice(0, 5).join('\n'));
 await app.close();

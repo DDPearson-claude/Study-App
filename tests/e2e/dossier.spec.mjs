@@ -811,6 +811,20 @@ await test('a refresher lesson\'s summary card opens its chapter, and the saved 
   }
 });
 
+// A step kept as still HTML (guide.mjs, a refresher's HTML-drawn step): the chapter draws it in a
+// sandboxed frame, after its words, and nothing to press.
+await test('a guide\'s still step is drawn in a sandboxed frame in the chapter', async () => {
+  const db = seed({ finished: false });
+  db['topics/pendulums/guide/i1'] = { v: 1, iid: 'i1', style: '.rule1 { padding: 12px; }', pages: [
+    { kind: 'show', name: 'Panel', text: 'The rule, as your slides put it.', html: '<div class="rule1"><p class="eq">Ib ≤ In ≤ Iz</p></div>', svg: null, alt: 'Ib ≤ In ≤ Iz' },
+  ] };
+  const app = await open({ db, hash: '#/book/pendulums/i1' });
+  await app.page.locator('.gd-still iframe').waitFor({ timeout: 20000 });
+  const r = await app.page.evaluate(() => { const fr = document.querySelector('.gd-still iframe'); return { sandbox: fr.getAttribute('sandbox'), first: fr.closest('li').firstElementChild.className, wake: document.querySelectorAll('.dos .wake').length }; });
+  eq(JSON.stringify([r.sandbox, r.first, r.wake]), JSON.stringify(['allow-scripts', 'gd-text', 0]), 'sandboxed, after its words, nothing to wake');
+  await app.page.frameLocator('.gd-still iframe').locator('.eq').waitFor({ timeout: 10000 });
+});
+
 // A source from Dan's own course materials ("material:<slug>#p<page>"): in the chapter's footnote,
 // the sources page and the bibliography it is its title and "Your course materials, p.16", never a link.
 await test('a course-material source is named with its page and never linked', async () => {

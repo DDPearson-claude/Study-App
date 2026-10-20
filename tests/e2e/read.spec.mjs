@@ -64,8 +64,9 @@ const GUIDE1 = { v: 1, iid: 'i1', pages: [
   { kind: 'example', name: 'Delta', task: 'Determine the current in each cable in delta.', answer: '13.33 A', why: '23.08 ÷ √3 = 13.33 A.', svg: SVG, alt: 'Solved.' },
   { kind: 'example', name: 'Section B', task: parts.written.b1.q, answer: '', why: 'A model answer: ' + parts.written.b1.model, svg: null, alt: '' },
 ] };
-const GUIDE2 = { v: 1, iid: 'i2', pages: [
+const GUIDE2 = { v: 1, iid: 'i2', style: '.rule1 { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); }', pages: [
   { kind: 'show', name: 'Pull', text: 'Gravity pulls the bob back towards the middle.', svg: SVG, alt: 'A bar.' },
+  { kind: 'show', name: 'Panel', text: 'The rule, as your slides put it.', html: '<div class="rule1"><span class="k-label">Your slides p.22</span><p class="eq">Ib ≤ In ≤ Iz</p></div>', svg: null, alt: 'Your slides p.22 Ib ≤ In ≤ Iz' },
   { kind: 'example', name: 'Which', task: 'Which is faster, a short or a long string?', answer: 'The short one', why: 'A shorter arc.', svg: null, alt: '' },
 ] };
 function db(progress) {
@@ -192,6 +193,50 @@ await test('the remembered choice comes first on the current card; a lesson with
   await app.page.locator('.lsn-steps-play iframe').waitFor({ timeout: 20000 });
   eq(await app.page.evaluate(() => location.hash), '#/t/pendulums/i3', 'no guide: the lesson at its own address');
   eq(await app.page.locator('.lsn-way:not([hidden])').count(), 0, 'and no switch to a read-through it does not have');
+});
+
+// A step drawn in HTML (a panel, worked lines, a recall's options) is kept as still HTML by
+// guide.mjs and drawn in a sandboxed frame: the plain lesson's read-through shows it.
+await test('a still step is drawn in a sandboxed frame, light, after its words', async () => {
+  const app = await open({ hash: '#/t/pendulums/i2/read' });
+  await app.page.locator('.rd-still iframe').waitFor({ timeout: 20000 });
+  const f = await app.page.evaluate(() => { const fr = document.querySelector('.rd-still iframe'); const li = fr.closest('li'); return { sandbox: fr.getAttribute('sandbox'), first: li.firstElementChild.className, n: document.querySelectorAll('.rd-show').length }; });
+  eq([f.sandbox, f.first, f.n], ['allow-scripts', 'rd-text', 2], 'sandboxed (scripts only, never same-origin), its sentence first');
+  const frame = app.page.frameLocator('.rd-still iframe');
+  await frame.locator('.eq').waitFor({ timeout: 10000 });
+  eq(await frame.locator('.eq').textContent(), 'Ib ≤ In ≤ Iz', 'the lesson\'s own panel');
+  const bg = await frame.locator('.rule1').evaluate((e) => getComputedStyle(e).backgroundColor);
+  assert(bg !== 'rgba(0, 0, 0, 0)', 'the guide\'s style applies inside: ' + bg);
+});
+
+// guide.mjs on a refresher body drawn in HTML: its Section A step (scenario, carried part, answered
+// right) is kept as still HTML with no script or handler and no input; a step's `read` sentence
+// takes the place of its words.
+await test('guide.mjs keeps an HTML-drawn step as still HTML, and a step\'s read sentence', async () => {
+  const { mkdtempSync, writeFileSync: wf, copyFileSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const dir = mkdtempSync(join(tmpdir(), 'mu-guide-'));
+  const FX = join(ROOT, 'tests', 'fixtures');
+  const body = readFileSync(join(FX, 'refresher-body.html'), 'utf8').replace("{ name: 'Delta current', task:", "{ name: 'Delta current', read: 'Each cable carries the current of one winding.', task:");
+  wf(join(dir, 'i1.body.final.html'), body);
+  copyFileSync(join(FX, 'refresher-case.json'), join(dir, 'case.json'));
+  const L = stepsLesson('i1').lesson; Object.assign(L, fx('refresher-parts.json'));
+  wf(join(dir, 'i1.lesson.verified.json'), JSON.stringify(L));
+  wf(join(dir, 'topic.json'), JSON.stringify(fx('lesson-ui-topic.json')));
+  // The kit's own test page, as the build tools use it.
+  const KIT = join(ROOT, 'tests', 'out', 'read-kit.html');
+  const b = spawnSync(process.execPath, [join(ROOT, 'tools', 'build.mjs'), '--only', '32,33', '--out', KIT], { encoding: 'utf8' });
+  assert(b.status === 0, b.stderr);
+  const r = spawnSync(process.execPath, [join(ROOT, 'tools', 'course', 'guide.mjs'), '--dir', dir, '--idea', 'i1', '--app', KIT], { encoding: 'utf8' });
+  assert(r.status === 0, (r.stderr + r.stdout).split('\n').filter((l) => /Error|error|at /.test(l)).slice(0, 6).join(' | '));
+  const g = JSON.parse(readFileSync(join(dir, 'i1.guide.json'), 'utf8'));
+  const a = g.pages.find((p) => p.name === 'Delta current');
+  assert(a && a.html && !a.svg, 'kept as still HTML: ' + JSON.stringify(a && Object.keys(a)));
+  assert(/Your showroom: the motor/.test(a.html) && /23\.08 A/.test(a.html), 'the scenario and the carried part');
+  assert(!/<script|\son[a-z]+=|<input|<textarea/i.test(a.html) && !/>Check</.test(a.html), 'no script, handler, input or Check button');
+  eq(a.task, 'Each cable carries the current of one winding.', 'its read sentence');
+  assert(!('style' in g) || !/<\/?style/i.test(g.style), 'the lesson\'s styles, once (this body has none of its own)');
+  assert(Buffer.byteLength(JSON.stringify(g)) < 250 * 1024, 'under the db limit');
 });
 
 console.log('\n' + results.map((r) => `${r.ok ? 'PASS' : 'FAIL'}  ${r.name}`).join('\n'));

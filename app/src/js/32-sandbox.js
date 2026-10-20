@@ -37,7 +37,7 @@
 //     their opening values) bring the output within tolerance of the target? exact: some setting
 //     shows the target exactly at `decimals` (else as the page's readout rounds it). For lesson
 //     target checks. Given html it runs in a hidden frame; given a mounted frame it uses that one.
-//   U.sandbox.theme() -> {dark, size, c:{...}}
+//   U.sandbox.theme({light?}) -> {dark, size, c:{...}}   light: Dan's light palette at the app's text size
 U.KIT_JS = "@@KIT_JS@@";
 U.KIT_CSS = "@@KIT_CSS@@";
 
@@ -71,12 +71,14 @@ U.sandbox = (function () {
     try { return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch (e) { return false; }
   }
 
-  // The app's current palette for the kit: {dark, size, c:{bg, panel, ..., amber}}.
-  function theme() {
+  // The app's current palette for the kit: {dark, size, c:{bg, panel, ..., amber}}. o.light: Dan's
+  // light palette whatever the app shows (a still step of a lesson, drawn on a light card in both
+  // themes, as its pictures are), at the app's text size.
+  function theme(o) {
     var cs = getComputedStyle(document.documentElement);
-    var dark = isDark();
+    var light = !!(o && o.light), dark = !light && isDark();
     var base = FALLBACK[dark ? 'dark' : 'light'], c = {};
-    Object.keys(TOKENS).forEach(function (k) { c[k] = cs.getPropertyValue(TOKENS[k]).trim() || base[k]; });
+    Object.keys(TOKENS).forEach(function (k) { c[k] = light ? base[k] : cs.getPropertyValue(TOKENS[k]).trim() || base[k]; });
     // Reading size (Aa setting): the app's 18px default maps to the kit's 16px, so L and XL give 18
     // and 20.
     return { dark: dark, size: Math.max(16, Math.round(readingPx(cs) * 0.9)), c: c };

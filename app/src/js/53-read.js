@@ -15,6 +15,9 @@
 //   U.readThrough.known(tid, iid) -> true | false | undefined (not read yet)
 //   U.readThrough.parts(guide) -> {pages: [show | example], summary: summary page | null}   pure
 //   U.readThrough.pic(svg) -> data: URL of an SVG image, or null for anything that is not one
+//   U.readThrough.still(container, html, style) -> mount api | null   a step kept as still HTML (a
+//       guide page's html, its guide's style): drawn in a sandboxed kit frame (32-sandbox.js), never
+//       in the app's page, in the light palette at the app's text size, with no script of its own
 // Contract: docs/ARCHITECTURE.md sections 4 (progress), 9 and 10.
 (function () {
   'use strict';
@@ -28,7 +31,7 @@
   function parts(g) {
     var list = isObj(g) && Array.isArray(g.pages) ? g.pages.filter(isObj) : [];
     var summary = list.filter(function (p) { return p.kind === 'summary' && str(p.title); })[0] || null;
-    var pages = list.filter(function (p) { return (p.kind === 'show' && str(p.text)) || (p.kind === 'example' && str(p.task)); });
+    var pages = list.filter(function (p) { return (p.kind === 'show' && (str(p.text) || str(p.html))) || (p.kind === 'example' && str(p.task)); });
     return { pages: pages, summary: summary };
   }
   // Only a string that is an SVG becomes a picture, as a plain image (an <img> runs no script).
@@ -48,7 +51,23 @@
     return cache[k];
   }
   function known(tid, iid) { var k = tid + '/' + iid; return k in seen ? seen[k] : undefined; }
-  U.readThrough = { guide: guide, known: known, parts: parts, pic: pic };
+  // A step kept as still HTML (tools/course/guide.mjs): the lesson's own markup and styles, shown
+  // as it looked finished. Model-written, so only ever inside a sandboxed frame; no script runs but
+  // the kit's (for its height and the text size), and the light palette keeps its fixed colours
+  // (drawn in light) readable in dark mode too, on a light card as the pictures are.
+  function stillHtml(html, style) {
+    if (typeof html !== 'string' || !html.trim() || /<script|\son[a-z]+\s*=/i.test(html)) return null;
+    // Still: no motion (a frame off the screen may never play an entrance, so it would stay unseen).
+    var css = '.k-after-move{visibility:visible!important}*,*::before,*::after{animation:none!important;transition:none!important}body{padding:10px 12px 14px}' + (typeof style === 'string' ? style : '');
+    return '<style>' + css.replace(/<\//g, '<\\/') + '</style>' + html;
+  }
+  function still(container, html, style) {
+    var body = stillHtml(html, style);
+    if (!body || !U.sandbox || typeof U.sandbox.mount !== 'function') return null;
+    try { return U.sandbox.mount(container, { html: body, title: 'A step of the lesson, as it looks', minHeight: 120, loading: false, theme: function () { return U.sandbox.theme({ light: true }); } }); }
+    catch (e) { console.warn('still step', e); return null; }
+  }
+  U.readThrough = { guide: guide, known: known, parts: parts, pic: pic, still: still, stillHtml: stillHtml };
   if (!U.routes) return;
 
   // ---------- the screen ----------
@@ -106,7 +125,10 @@
     function sourceOf(n) { return sources().filter(function (s) { return Number(s.n) === Number(n); })[0] || null; }
     var fx = { footnotes: { has: function (n) { return !!sourceOf(n); }, open: function (n) { if (U.lesson && U.lesson.sourceSheet) U.lesson.sourceSheet(sourceOf(n)); } } };
     function words(tag, cls, text) { return U.inline(U.h(tag, { class: cls }), str(text), fx); }
+    // A step's picture: its still HTML in a frame (mounted once the list is on the page), else its SVG.
+    var stills = [], mounts = [];
     function picture(p) {
+      if (stillHtml(p.html, st.guide.style)) { var box = U.h('div', { class: 'rd-still' }); stills.push([box, p.html]); return box; }
       var src = pic(p.svg);
       return src ? U.h('div', { class: 'rd-well' }, U.h('img', { class: 'rd-pic', src: src, alt: str(p.alt), decoding: 'async' })) : null;
     }
@@ -125,7 +147,9 @@
       var list = U.h('ol', { class: 'rd-pages' });
       p.pages.forEach(function (pg) {
         if (pg.kind === 'show') {
-          list.appendChild(U.h('li', { class: 'rd-show' }, picture(pg), words('p', 'rd-text', pg.text)));
+          // A still step reads as the lesson does: its words, then what it shows; a picture comes first.
+          var shown = picture(pg), said = str(pg.text) ? words('p', 'rd-text', pg.text) : null;
+          list.appendChild(U.h('li', { class: 'rd-show' }, shown && shown.classList.contains('rd-still') ? [said, shown] : [shown, said]));
         } else {
           list.appendChild(U.h('li', { class: 'rd-ex' },
             U.h('p', { class: 'eyebrow rd-ex-l' }, 'Worked example'),
@@ -136,6 +160,7 @@
         }
       });
       body.appendChild(list);
+      stills.forEach(function (x) { var m = still(x[0], x[1], st.guide.style); if (m) mounts.push(m); });
       if (p.summary) body.appendChild(summaryCard(p.summary));
       body.appendChild(endPart());
     }
@@ -206,7 +231,7 @@
       try { done.focus({ preventScroll: true }); } catch (e) { done.focus(); }
       done.scrollIntoView({ block: 'start', behavior: 'smooth' });
     }
-    return function () { /* nothing to stop */ };
+    return function () { mounts.forEach(function (m) { try { m.destroy(); } catch (e) { /* gone */ } }); };
   }
   U.routes.add('#/t/:tid/:iid/read', readScreen, { focus: true, title: 'Read-through' });
 })();

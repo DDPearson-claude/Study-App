@@ -52,3 +52,14 @@ test('V.way, V.lessonHref and V.readThrough: his choice per course, and read-thr
   assert.equal(V.readThrough(P({ readThrough: 0, stage: 'play' }), 'i1'), false, 'not finished');
   assert.equal(V.isRead(P({ readThrough: 0 }), 'i1'), true, 'read, as any read lesson');
 });
+
+test('U.readThrough.stillHtml: a still step for a sandboxed frame, with no script, no handler and no motion', () => {
+  const U = load(['00-core.js', '53-read.js']);
+  const s = U.readThrough.stillHtml('<div class="rule1"><p>Ib ≤ In ≤ Iz</p></div>', '.rule1{padding:12px}</style><script>x()</script>');
+  assert.match(s, /^<style>[^]*animation:none!important[^]*\.rule1\{padding:12px\}<\\\/style><script>x\(\)<\\\/script><\/style><div class="rule1">/, 'the lesson\'s style cannot close its own element');
+  assert.equal(U.readThrough.stillHtml('<p>x</p><script>alert(1)</script>', ''), null, 'a script is refused');
+  assert.equal(U.readThrough.stillHtml('<img src=x onerror="alert(1)">', ''), null, 'a handler is refused');
+  assert.equal(U.readThrough.stillHtml('  ', ''), null);
+  const p = JSON.parse(JSON.stringify(U.readThrough.parts({ pages: [{ kind: 'show', text: '', html: '<p>panel</p>' }] })));
+  assert.equal(p.pages.length, 1, 'a step that is all still HTML is a page');
+});

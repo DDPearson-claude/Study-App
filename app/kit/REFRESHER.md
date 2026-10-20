@@ -43,4 +43,7 @@ it is the first page of the chapter in his Book. Then the Finish button calls `K
 **STEPS entries** (tools/course/guide.mjs reads them for the Book): a typed-answer step keeps
 `want` (the answer as printed, '13.33 A'); a written step is `{kind: 'written', written: 'b1',
 name, task}`; the summary step is `{kind: 'summary', name: 'Keep this'}`; the recall opener is a
-DO step like any other.
+DO step like any other. The Book and the read-through show each step as it looks finished (a step
+drawn in HTML is kept as still HTML), with its own words; when those words ask him to do something
+("Drag…", "Work each step yourself first, then show it"), give the entry a `read` sentence that
+says the same for reading it through.
