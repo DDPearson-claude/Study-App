@@ -1,0 +1,668 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: AC circuits, from turning coil to three-phase
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i6 "Series RL and RC: impedance you can measure" — In series, the resistor's and the reactance's voltages add as arrows at right angles, so three meter readings give the impedance triangle and an unknown coil's inductance. [skill]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i7 Series RLC and resonance — In series, a coil's and a capacitor's reactances subtract and cancel at one frequency, where the current peaks and each can carry more voltage than the supply.
+- i8 Real, reactive and apparent power — Out of step, the power wave dips below zero, so watts used, vars sloshing back and volt-amps supplied form a triangle whose ratio is the power factor.
+- i9 Power factor correction — Size a capacitor across an inductive load from the power triangle, so it supplies the load's vars locally and cuts the supply current while the watts stay put.
+- i10 Three-phase: star and delta — Three windings 120° apart connect in star, where line voltage is √3 times phase voltage, or delta, where line current is; power is √3 V_L I_L cos φ.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] AC circuits, alternating current electricity — https://www.animations.physics.unsw.edu.au/jw/AC.html
+    "Because the phasors for reactances are 90° out of phase with the current, the series impedance of a resistor R and a reactance X are given by Pythagoras' law:"
+[R2] Lessons In Electric Circuits -- Volume II (AC) - Chapter 2 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_2.html
+    "a 6 volt source at 0 o added to an 8 volt source at 90 o results in 10 volts at a phase angle of 53.13 o"
+[R3] Lessons In Electric Circuits -- Volume II (AC) - Chapter 3 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html
+    "Inductive reactance can be calculated using this formula: X L = 2πfL"
+[R4] Lessons In Electric Circuits -- Volume II (AC) - Chapter 3 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html
+    "Looking at the graph, the voltage wave seems to have a “head start” on the current wave; the voltage “leads” the current, and the current “lags” behind the voltage."
+[R5] Lessons In Electric Circuits -- Volume II (AC) - Chapter 3 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html
+    "What this means is that reactance in ohms for any inductor is directly proportional to the frequency of the alternating current."
+[R6] Lessons In Electric Circuits -- Volume II (AC) - Chapter 3 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html
+    "Whereas resistors simply oppose the flow of electrons through them (by dropping a voltage directly proportional to the current), inductors oppose changes in current through them, by dropping a voltage directly proportional to the rate of change of current."
+[R7] Lessons In Electric Circuits -- Volume II (AC) - Chapter 3 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html
+    "Reactance of a 10 mH inductor: | Frequency (Hertz) | Reactance (Ohms) | | 60 | 3.7699 | | 120 | 7.5398 | | 2500 | 157.0796 |"
+[R8] Teacher Guide — https://matrixtsl.com/wp-content/uploads/2025/05/CP0295T-Electrical-installation-circuit-principles-level-3-Teacher-Guide.pdf
+    "Inductive loads, such as high power electric motors, use added capacitors for power factor correction."
+[R9] City & Guilds 2366-350 sample multiple-choice exam — https://www.cityandguilds.com/-/media/productdocuments/building_services_engineering/electrical_installation/2366/assessment-documents/sample-assessments/2366-350_mcq_exam_sample_v1-1-090326-pdf.pdf
+    "What is the inductive reactance (X L ) of an inductor of 20 milli-Henrys connected to a 50 Hz supply?"
+[R10] Lessons In Electric Circuits -- Volume II (AC) - Chapter 4 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html
+    "capacitors oppose changes in voltage by drawing or supplying current as they charge or discharge to the new voltage level."
+[R11] Lessons In Electric Circuits -- Volume II (AC) - Chapter 4 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html
+    "Looking at the graph, the current wave seems to have a “head start” on the voltage wave; the current “leads” the voltage, and the voltage “lags” behind the current."
+[R12] Lessons In Electric Circuits -- Volume II (AC) - Chapter 4 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html
+    "Capacitive reactance can be calculated using this formula: X C = 1/(2πfC) * Capacitive reactance decreases with increasing frequency. In other words, the higher the frequency, the less it opposes (the more it “conducts”) the AC flow of electrons."
+[R13] 15.3 RLC Series Circuits with AC - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/15-3-rlc-series-circuits-with-ac
+    "A mnemonic device of “ELI the ICE man” is sometimes used to remember that the emf (E) leads the current (I) in an inductor (L) and the current (I) leads the emf (E) in a capacitor (C)."
+[R14] Statutory Voltage Limits – Energy Networks Association (ENA) — https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits
+    "UK mains electricity operates at a nominal voltage of 230V, and can operate within limits of 253V and 216V set by the Electricity Safety, Quality and Continuity Regulations (ESQCR)"
+[R15] maritime electrical installations - notes on design ... — http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf
+    "60 Hz is the most common frequency adopted for use on board ship; the higher frequency enabling motors and generators to run at higher speeds with a consequent reduction in size for a given power rating."
+Notes (claims, and the sources that support them):
+- The phasors for a resistor and a reactance are 90 degrees apart, so the series impedance comes from Pythagoras' law. [R1]
+- Voltages 90 degrees apart do not add arithmetically: a 6 V source and an 8 V source at 90 degrees give 10 V. [R2]
+- Inductive reactance is X_L = 2πfL, so a measured reactance at a known frequency gives the inductance. [R3]
+- In a pure inductor the voltage leads the current, that is, the current lags behind the voltage. [R4]  (from an idea this one builds on)
+- Inductive reactance is X_L = 2πfL, in ohms, and is directly proportional to the frequency of the alternating current. [R3][R5]  (from an idea this one builds on)
+- Inductors oppose changes in current through them by dropping a voltage directly proportional to the rate of change of current, where resistors drop one proportional to the current. [R6]  (from an idea this one builds on)
+- A 10 mH inductor has a reactance of 3.7699 ohms at 60 Hz, 7.5398 ohms at 120 Hz and 157.0796 ohms at 2500 Hz. [R7]  (from an idea this one builds on)
+- High power electric motors are inductive loads (Matrix electrical installation Level 3 teacher guide, SECONDARY). [R8]  (from an idea this one builds on)
+- A City & Guilds 2366 sample question asks for the inductive reactance of a 20 mH inductor on a 50 Hz supply (6.28 ohms, computed from X_L = 2πfL). [R9]  (from an idea this one builds on)
+- A capacitor opposes changes in voltage by drawing or supplying current as it charges or discharges to the new voltage level. [R10]  (from an idea this one builds on)
+- In a capacitor the current leads the voltage, so the voltage lags behind the current. [R11]  (from an idea this one builds on)
+- Capacitive reactance is X_C = 1/(2πfC) and decreases as frequency rises, the opposite of inductive reactance. [R12]  (from an idea this one builds on)
+- For i5: the memory aid ELI the ICE man: the emf (E) leads the current (I) in an inductor (L), and the current leads the emf in a capacitor (C) (screen 9's rows and the practice). [R13]  (from an idea this one builds on)
+- UK domestic supply is nominally 230 V, 50 Hz, kept within 216 V to 253 V by the Electricity Safety, Quality and Continuity Regulations. [R14]  (whole topic)
+- Ships mostly run 60 Hz, because higher frequency lets motors and generators run faster and so be smaller for a given power. [R15]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i6",
+ "title": "Series RL and RC: impedance you can measure",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the 12 V and 16 V arrows, a quarter cycle apart, at right angles, closing a triangle whose long side matches the 20 V supply meter, when you lay them tip to tail.",
+  "title": "Three meters, one triangle",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "vr",
+    "label": "Across the resistor",
+    "unit": "V",
+    "decimals": 1
+   },
+   {
+    "id": "vx",
+    "label": "Across coil or capacitor",
+    "unit": "V",
+    "decimals": 1
+   },
+   {
+    "id": "vs",
+    "label": "Across the supply",
+    "unit": "V",
+    "decimals": 1
+   }
+  ],
+  "whatAmILookingAt": "A short lesson in twelve small screens on one picture, three meters and one triangle. At the top, a 6 Ω resistor and an ideal coil of about 25.5 mH sit in series on an AC supply of 20 V at 50 Hz, example values picked so the coil's reactance is 8 Ω and the numbers come out whole. An ammeter in the loop reads the current, 2 A, and three voltmeters read across the resistor, across the coil and across the supply; like any AC meter, they read rms. Under the circuit, each part's voltage is drawn as an arrow whose length is its meter reading. One current flows through every part of a series loop, so the current is the reference and its arrow lies flat. The resistor's arrow, V_R, lies flat with it, because a resistor's voltage is in step with its current (lesson 3). The coil's arrow, V_L, starts at V_R's tip and points straight up, because an ideal coil's voltage peaks a quarter cycle before its current (lesson 4). The arrow from V_R's tail to V_L's tip closes a right-angled triangle; by Pythagoras its length is √(V_R² + V_L²), and it lands on the supply meter's reading. The angle between it and the flat side is the phase angle φ, by which the supply's voltage leads the current, with tan φ = V_L ÷ V_R. Beside the triangle, a bar shows V_R + V_L added as plain numbers, struck through, next to the supply's own bar. Readouts give the three meter readings. Screen 1 opens on the meters: 12 V across the resistor, 16 V across the coil and 20 V across the supply, with the 28 V plain-sum bar struck through. Screen 2 asks why 12 V and 16 V make 20 V, not 28 V: the two voltages peak a quarter cycle apart, so they are never both at full size together; the coil wastes 8 V as heat (an ideal coil takes no watts, lesson 4); or a smaller current flows in the coil (one series loop carries one current). A right Check plays both voltage waves on one time axis with their instant-by-instant sum, the supply's wave: the parts peak at 17.0 V and 22.6 V, but at different instants, and the sum peaks at 28.3 V, which is 20 V rms. Screen 3 turns each wave into its arrow, as in Trigonometry lesson 7, and lays them tip to tail: V_R flat, V_L straight up, and the closing side, √(12² + 16²) = 20 V, swings onto the supply meter's reading at φ = 53.13°. Screen 4 gives readings of 10 V across a resistor and 24 V across a coil in series and asks for the supply meter: 26 V; 34 V (the plain sum); or 14 V (the difference). A right Check redraws the triangle with those sides. Screen 5 turns every side from volts into ohms by dividing it by the current, 2 A: 12 V becomes R = 6 Ω, 16 V becomes X_L = 8 Ω and 20 V becomes Z = 10 Ω, the impedance. The triangle shrinks but keeps its shape and its 53.13° angle, because every side is divided by the same number. A row reads Z = √(R² + X_L²) = √(6² + 8²) = 10 Ω and I = V ÷ Z = 20 ÷ 10 = 2 A. Screen 6: a 30 Ω resistor and a coil of 40 Ω reactance in series on 230 V, 50 Hz mains; what current flows? 4.6 A, through Z = 50 Ω; 3.29 A (30 Ω and 40 Ω added as plain numbers to 70 Ω); or 7.67 A (the coil left out). Screen 7 frees a frequency slider, 0 to 100 Hz in steps of 5, opening at 50, with the supply held at 20 V. The flat R side stays 6 Ω while the X_L side follows X_L = 2πfL: at 100 Hz it doubles to 16 Ω, Z reads 17.1 Ω, the current falls to 1.17 A and φ rises to 69.4°; at 25 Hz X_L is 4 Ω, Z is 7.21 Ω, the current 2.77 A and φ 33.7°; at 0 Hz, steady DC, X_L is 0 Ω, the triangle lies flat on R and the current is 20 V ÷ 6 Ω = 3.33 A. Then, back at 50 Hz, the resistor and the coil slide together into one real coil whose wire has the 6 Ω. An ohmmeter's steady current makes no back-emf, so it reads only the 6 Ω; the AC meters give Z = 20 V ÷ 2 A = 10 Ω; and the triangle gives X_L = √(10² − 6²) = 8 Ω and L = 8 ÷ (2π × 50) = 25.5 mH. Screen 8: an unknown coil reads 8 Ω on an ohmmeter and draws 2 A from a 34 V, 50 Hz test supply; what is its inductance? 47.7 mH, from Z = 17 Ω and X_L = 15 Ω; 54.1 mH (all 17 Ω taken as X_L); or 28.6 mH (8 Ω taken from 17 Ω as plain numbers, leaving 9 Ω). Screen 9, back on the screen 1 bench, swaps the coil for a capacitor of about 398 µF, whose reactance at 50 Hz is also 8 Ω. The meters still read 12 V, 16 V and 20 V, but the capacitor's arrow, V_C, points straight down, because its voltage peaks a quarter cycle after its current (lesson 5). The triangle flips below the line and φ reads −53.13°: the supply's voltage lags the current. On the frequency slider, now from 5 to 100 Hz, the X_C side shrinks as the frequency rises, to 4 Ω at 100 Hz, where φ reads −33.7°, and grows as it falls, to 80 Ω at 5 Hz, where the triangle stands almost on end. Screens 10 to 12 are mixed. Screen 10 sets out four ohm figures from the screen 1 bench, the ohmmeter's 6 Ω across the resistor, 16 V ÷ 2 A = 8 Ω across the coil, 16 V ÷ 2 A = 8 Ω across the capacitor and 20 V ÷ 2 A = 10 Ω across the supply, and asks which naming is right: resistance, inductive reactance, capacitive reactance and impedance; the same, but with the 10 Ω named as the coil's reactance (the biggest figure given to the coil); or the same, but with the 6 Ω named as the impedance (the ohmmeter taken as the opposition to AC). Screen 11: a 30 Ω resistor and a capacitor in series on a 50 V test supply; the resistor's meter reads 30 V; what does the capacitor's meter read? 40 V, from √(50² − 30²); 20 V (30 V taken from 50 V as plain numbers); or −40 V (the arrow below the line read as a negative reading). Screen 12: the screen 1 resistor and coil on a 20 V, 60 Hz supply, the frequency most common on board ship. The current is 1.77 A, lagging by 58.0°, from X_L = 9.6 Ω and Z = 11.3 Ω; or 1.67 A, lagging by 53.1° (the whole 10 Ω scaled up with the frequency, resistance and all); or 2 A, lagging by 53.1° (the frequency ignored). Each puzzle offers three answers; a wrong pick gets a one-line hint naming its slip, Why? explains in words, and a right Check draws the answer on the picture. The closing line says the meters disagree with plain arithmetic because the part voltages peak a quarter cycle apart, and that lesson 7 puts a coil and a capacitor in one loop, where their arrows point opposite ways.",
+  "ignores": "The resistor is a pure resistance and the coil and the capacitor are ideal, so the arrows sit at exactly right angles; a real coil's own wire resistance tips its arrow a little off the vertical, which is why screen 7 treats a real coil as a resistance and an ideal coil in one body. The meters are ideal: they draw nothing and read the true rms of a pure sine. The arrows are drawn to the rms readings where Trigonometry drew peaks; both give the same triangle, because every side is scaled by the same √2. Nothing physical points up or down: the directions stand for timing, and only the angles between arrows mean anything. A coil with an iron core also loses some energy in the iron on AC, which acts like extra resistance an ohmmeter cannot see, and its inductance changes with its current. The switch-on surge is left out. The parts, the supplies and the readings are example values.",
+  "numbers": [
+   {
+    "label": "Number of screens",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Resistor's resistance, in ohms",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Coil's reactance at 50 Hz, in ohms",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Coil's inductance, in millihenries",
+    "value": 25.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Supply voltage, rms, in volts",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Opening frequency, in hertz",
+    "value": 50,
+    "kind": "control"
+   },
+   {
+    "label": "Current, in amps",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Resistor's meter, in volts",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil's meter, in volts",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "Plain sum of the part meters, in volts",
+    "value": 28,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, volts thought lost as heat",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Resistor's voltage peak, in volts",
+    "value": 17,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil's voltage peak, in volts",
+    "value": 22.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Supply's voltage peak, in volts",
+    "value": 28.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Phase angle at 50 Hz, in degrees",
+    "value": 53.13,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 resistor's meter, in volts",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 4 coil's meter, in volts",
+    "value": 24,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 4 supply meter, in volts",
+    "value": 26,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, screen 4 plain sum, in volts",
+    "value": 34,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, screen 4 difference, in volts",
+    "value": 14,
+    "kind": "computed"
+   },
+   {
+    "label": "Impedance at 50 Hz, in ohms",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 resistor, in ohms",
+    "value": 30,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 6 coil's reactance, in ohms",
+    "value": 40,
+    "kind": "assumed"
+   },
+   {
+    "label": "UK mains nominal voltage, in volts",
+    "value": 230,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "UK mains frequency, in hertz",
+    "value": 50,
+    "kind": "constant"
+   },
+   {
+    "label": "Screen 6 impedance, in ohms",
+    "value": 50,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 current, in amps",
+    "value": 4.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, screen 6 plain-sum ohms",
+    "value": 70,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, screen 6 current through 70 Ω, in amps",
+    "value": 3.29,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, screen 6 current with the coil left out, in amps",
+    "value": 7.67,
+    "kind": "computed"
+   },
+   {
+    "label": "Frequency slider, lowest, in hertz",
+    "value": 0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Frequency slider, highest, in hertz",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Frequency slider step, in hertz",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Coil's reactance at 100 Hz, in ohms",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "Impedance at 100 Hz, in ohms",
+    "value": 17.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Current at 100 Hz, in amps",
+    "value": 1.17,
+    "kind": "computed"
+   },
+   {
+    "label": "Phase angle at 100 Hz, in degrees",
+    "value": 69.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Lower frequency shown, in hertz",
+    "value": 25,
+    "kind": "assumed"
+   },
+   {
+    "label": "Coil's reactance at 25 Hz, in ohms",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Impedance at 25 Hz, in ohms",
+    "value": 7.21,
+    "kind": "computed"
+   },
+   {
+    "label": "Current at 25 Hz, in amps",
+    "value": 2.77,
+    "kind": "computed"
+   },
+   {
+    "label": "Phase angle at 25 Hz, in degrees",
+    "value": 33.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil's reactance at 0 Hz, in ohms",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Current on steady 20 V DC, in amps",
+    "value": 3.33,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 coil's ohmmeter reading, in ohms",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 test supply, in volts",
+    "value": 34,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 current, in amps",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 impedance, in ohms",
+    "value": 17,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 coil's reactance, in ohms",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 coil's inductance, in millihenries",
+    "value": 47.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, all 17 Ω as reactance, in millihenries",
+    "value": 54.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, plain-number reactance, in ohms",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, plain-number inductance, in millihenries",
+    "value": 28.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacitor's capacitance, in microfarads",
+    "value": 398,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacitor's reactance at 50 Hz, in ohms",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Capacitor circuit's phase angle, in degrees",
+    "value": -53.13,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacitor's reactance at 100 Hz, in ohms",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacitor circuit's phase angle at 100 Hz, in degrees",
+    "value": -33.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacitor slider, lowest, in hertz",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Capacitor's reactance at 5 Hz, in ohms",
+    "value": 80,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 resistor, in ohms",
+    "value": 30,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 test supply, in volts",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 resistor's meter, in volts",
+    "value": 30,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 capacitor's meter, in volts",
+    "value": 40,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, screen 11 plain difference, in volts",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, screen 11 negative reading, in volts",
+    "value": -40,
+    "kind": "computed"
+   },
+   {
+    "label": "Most common ship frequency, in hertz",
+    "value": 60,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Coil's reactance at 60 Hz, in ohms",
+    "value": 9.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Impedance at 60 Hz, in ohms",
+    "value": 11.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Current at 60 Hz, in amps",
+    "value": 1.77,
+    "kind": "computed"
+   },
+   {
+    "label": "Phase angle at 60 Hz, in degrees",
+    "value": 58,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, whole impedance scaled, current in amps",
+    "value": 1.67,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, unchanged phase angle, in degrees",
+    "value": 53.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Textbook's first voltage, in volts",
+    "value": 6,
+    "kind": "constant",
+    "source": 3
+   },
+   {
+    "label": "Textbook's second voltage, in volts",
+    "value": 8,
+    "kind": "constant",
+    "source": 3
+   },
+   {
+    "label": "Textbook's sum, in volts",
+    "value": 10,
+    "kind": "constant",
+    "source": 3
+   },
+   {
+    "label": "Textbook's phase angle, in degrees",
+    "value": 53.13,
+    "kind": "constant",
+    "source": 3
+   },
+   {
+    "label": "Analogy's first cable leg, in metres",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Analogy's second cable leg, in metres",
+    "value": 16,
+    "kind": "assumed"
+   },
+   {
+    "label": "Analogy's tape along the cable, in metres",
+    "value": 28,
+    "kind": "computed"
+   },
+   {
+    "label": "Analogy's straight line, in metres",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example coil's ohmmeter reading, in ohms",
+    "value": 30,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example coil's current, in amps",
+    "value": 4.6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example impedance, in ohms",
+    "value": 50,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example reactance at 50 Hz, in ohms",
+    "value": 40,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example inductance, in henries",
+    "value": 0.127,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example inductance, in millihenries",
+    "value": 127,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example reactance at 60 Hz, in ohms",
+    "value": 48,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example impedance at 60 Hz, in ohms",
+    "value": 56.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example current at 60 Hz, in amps",
+    "value": 4.06,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, worked example plain difference, in ohms",
+    "value": 20,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Put a resistor and a coil in series on AC and meter each one, and the two readings add up to more than the supply meter shows: 12 V across the resistor, 16 V across the coil, yet 20 V across the supply. Nothing is lost. The two voltages peak a quarter cycle apart, so they add as arrows at right angles, and the supply's voltage is the long side of the right-angled triangle they make. Divide every side by the current and the same triangle gives the circuit's resistance, its reactance and its whole opposition to AC, which is how an ohmmeter, a voltmeter and an ammeter find an unknown coil's inductance.\n\nIn a series loop one current flows through every part, so the current is what the parts share. The resistor's voltage is in step with that current (lesson 3). The ideal coil's voltage peaks a quarter cycle earlier, because its back-emf follows how fast the current is changing (lesson 4), and a quarter cycle is a quarter turn of Trigonometry's arm, a right angle. At every instant the supply's voltage is the resistor's plus the coil's at that instant, just as on DC. But when the resistor's voltage is at its peak the coil's is passing through zero, and the other way round, so the two are never both at full size together, and their sum peaks lower than their two peaks added. Trigonometry lesson 7 showed how to add two such waves: their sum is itself a sine wave of the same frequency, and drawing each as an arrow and laying them tip to tail gives it, because the closing arrow is the sum. With the current's arrow lying flat, the resistor's arrow lies flat too and the coil's points straight up, so the closing arrow is the long side of a right-angled triangle, and Pythagoras gives its length. A meter reads rms, and all three are sine waves, so every reading is its wave's peak ÷ √2; shrinking every side by the same √2 keeps the triangle's shape, so the readings make the same triangle: √(12² + 16²) = 20 V. A textbook adds a 6 V source to an 8 V source a quarter cycle apart the same way, and gets 10 V at a phase angle of 53.13°.[^3] The 12 V and 16 V here are those doubled, so the closing arrow sits at the same 53.13° above the flat side: the supply's voltage leads the current by that angle, φ.\n\nEach side is the current times something. The resistor's voltage is I × R, the coil's is I × X_L, and the supply's is I × the circuit's whole opposition to AC, its [[impedance]], Z, in ohms. Divide every side by the same 2 A and the triangle shrinks without changing shape: 6 Ω of resistance lying flat, 8 Ω of inductive reactance standing up, and Z = √(R² + X_L²) = 10 Ω along the long side,[^4] still at 53.13°. This is the [[impedance triangle]] of Complex numbers lesson 7's Z = R + jX, here 6 + j8 = 10∠53.13°, now read off meters. It turns an unknown coil into numbers. A real coil's wire resistance and inductance sit in one body, so no meter can be put across one without the other. But an ohmmeter's steady current makes no back-emf, so it reads the wire's resistance alone (lesson 4); a voltmeter and an ammeter on AC give Z = V ÷ I; Pythagoras gives X_L = √(Z² − R²); and X_L = 2πfL[^5] gives L. In this model only the reactance side depends on the frequency, so a higher frequency stands the coil's triangle taller and a lower one lays it flatter, until on steady DC only R is left.\n\nSwap the coil for a capacitor of the same reactance and the meters read exactly the same, but its voltage peaks a quarter cycle after the current (lesson 5), so its arrow points straight down and the triangle flips below the line: φ is −53.13°, and the supply's voltage lags the current. Its side runs the other way with frequency too, shrinking as the frequency rises and growing as it falls (lesson 5), so towards steady DC the capacitor's triangle stands almost on end. This is a simplified model, with a pure resistor and an ideal coil or capacitor on a pure sine; an iron-cored coil also loses some energy in its iron on AC, which an ohmmeter cannot see, so the inductance found this way can come out a little high. **In series, a resistor's voltage and a coil's or a capacitor's add as arrows at right angles, so the supply meter reads √(V_R² + V_X²), and dividing every side by the current turns the same triangle into R, X and the impedance Z = √(R² + X²).[^4]**"
+ },
+ "analogy": {
+  "text": "Run a cable 12 m along one wall of a plant room and then 16 m along the next wall, round the corner. The tape along the cable reads 28 m, yet the straight line from start to finish, across the room, is 20 m, because the two runs are at right angles. The meters across the resistor and the coil are the tape on each run; the supply meter measures the straight line.",
+  "breaks": "The cable's runs are at right angles in space, and you could walk them. The voltage arrows are at right angles in time: the angle stands for the quarter cycle between their peaks, and nothing physical points up. Swap in a capacitor and that run turns the other way, which no tape would show."
+ },
+ "practice": {
+  "text": "- Isolate and prove dead before the ohmmeter test. On a large coil, keep clear of the terminals as the leads come off: cutting even the meter's small current quickly can give a sharp kick of back-emf (lesson 4).\n- Ohmmeter across the coil: its wire's resistance, R.\n- On AC, read the voltage across the coil and the current through it, both rms: Z = V ÷ I.\n- The reactance: X_L = √(Z² − R²). Square both, take one from the other, then take the square root.[^4]\n- The inductance: L = X_L ÷ (2πf), with f in hertz, gives henries.[^5]\n- The angle: tan φ = X ÷ R, with X the coil's or the capacitor's reactance. For a coil the current lags by φ; for a capacitor it leads.\n\n**Rule of thumb:** With a resistor and one coil or one capacitor in series, the supply meter reads less than the two part readings added and more than either one. Square, add, square root.\n\n**Worked example:** An example coil reads 30 Ω on an ohmmeter and draws 4.6 A from 230 V, 50 Hz mains.[^1] Z = 230 ÷ 4.6 = 50 Ω. X_L = √(50² − 30²) = 40 Ω. L = 40 ÷ (2 × π × 50) = 0.127 H, or 127 mH. The current lags the voltage by the angle whose tangent is 40 ÷ 30, which is 53.13°. On a 230 V, 60 Hz supply (60 Hz is the frequency most common on board ship[^2]), X_L rises to 48 Ω while R stays 30 Ω, so Z = √(30² + 48²) = 56.6 Ω and the current falls to 4.06 A.\n\nLesson 7 puts a coil and a capacitor in one loop, where their arrows point opposite ways, and lesson 8 turns the angle φ into the power factor.\n\n**Common mistakes**\n- Adding the part voltages, or the ohms, as plain numbers. 12 V and 16 V at right angles make 20 V, and 6 Ω and 8 Ω make 10 Ω.\n- Taking Z = V ÷ I as the coil's reactance. Take the resistance out first, by Pythagoras.\n- Taking R from Z as plain numbers. In the worked example, 50 Ω less 30 Ω leaves 40 Ω of reactance by Pythagoras, not 20 Ω.\n- Reading a capacitor's arrow below the line as a negative meter reading. The meter shows the size; the arrow's direction shows the timing.\n- Scaling the whole impedance with the frequency. Only the reactance changes; the resistance stays put.\n- Taking an ohmmeter's reading as a coil's opposition to AC. It misses the reactance."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Statutory Voltage Limits – Energy Networks Association (ENA)",
+   "url": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits",
+   "quote": "UK mains electricity operates at a nominal voltage of 230V, and can operate within limits of 253V and 216V set by the Electricity Safety, Quality and Continuity Regulations (ESQCR)"
+  },
+  {
+   "n": 2,
+   "title": "maritime electrical installations - notes on design ...",
+   "url": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf",
+   "quote": "60 Hz is the most common frequency adopted for use on board ship; the higher frequency enabling motors and generators to run at higher speeds with a consequent reduction in size for a given power rating."
+  },
+  {
+   "n": 3,
+   "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 2",
+   "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_2.html",
+   "quote": "a 6 volt source at 0 o added to an 8 volt source at 90 o results in 10 volts at a phase angle of 53.13 o"
+  },
+  {
+   "n": 4,
+   "title": "AC circuits, alternating current electricity",
+   "url": "https://www.animations.physics.unsw.edu.au/jw/AC.html",
+   "quote": "Because the phasors for reactances are 90° out of phase with the current, the series impedance of a resistor R and a reactance X are given by Pythagoras' law:"
+  },
+  {
+   "n": 5,
+   "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 3",
+   "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html",
+   "quote": "Inductive reactance can be calculated using this formula: X L = 2πfL"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

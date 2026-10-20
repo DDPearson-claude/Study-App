@@ -1,0 +1,188 @@
+{
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [
+      "SVG text \"neutral ? A\" has a line through it (<path.wire>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 4, and 5 more settings)",
+      "SVG text \"L3\" is hard to read: 1.1:1 contrast with the shape behind it (it needs 3:1). Draw text in ink, muted, accent2, accent, warn or good (on-accent2 on a navy shape), with var(--k-…) or K.color in K.update, so it follows the theme (at step = step 5, and 1 more setting)",
+      "SVG text \"L3\" has a line through it (<line.vref>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 5, and 1 more setting)",
+      "SVG text \"L3\" has a line through it (<line.aB>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 5, and 1 more setting)",
+      "SVG text \"L3\" has a line through it (<line.a1>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at Text size XL, step = step 5) [at 720 and 1040 px wide]"
+    ],
+    "checks": [
+      {
+        "label": "For a three-phase generator, three coils of wire are placed at angles of 120° to each other: the three phase voltage arrows are drawn equal, 230 V each, 120° apart, and so are the three 10 A star currents",
+        "ok": true,
+        "source": "https://engineering.louisville.edu/raise/ECE252/L13B.htm"
+      },
+      {
+        "label": "UK mains electricity operates at a nominal voltage of 230V: the voltmeter across one winding reads V_ph = 230 V, and every star current drawn is 230 ÷ 23 = 10 A",
+        "ok": true,
+        "source": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits"
+      },
+      {
+        "label": "In balanced Y circuits, line voltage is equal to phase voltage times the square root of 3, while line current is equal to phase current: the bold arrow is 1.732 times a phase arrow, landing on the voltmeter's 398.4 V between L1 and L2, and the clamp on L1 reads the 10.00 A each phase carries",
+        "ok": true,
+        "source": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_10.html"
+      },
+      {
+        "label": "The line voltage can be found by taking the phasor sum of the voltage in two phases of the source: the bold arrow closes L1's arrow and L2's turned half round, laid on L1's tip, and is turned 30° from L1's",
+        "ok": true,
+        "source": "https://engineering.louisville.edu/raise/ECE252/L13B.htm"
+      },
+      {
+        "label": "The neutral conductor carries no current in a balanced three-phase network: three 10 A currents laid tip to tail close a triangle, so no neutral arrow is left and the neutral clamp reads 0.0 A",
+        "ok": true,
+        "source": "https://web.engr.oregonstate.edu/~webbky/ENGR202_files/SECTION%207%20Three%20Phase%20Circuit%20Fundamentals.pdf"
+      },
+      {
+        "label": "Unbalance: at every L3 current from 0 to 10 A the neutral arrow closes the gap and is 10 A minus L3's current (4.0 A at 6 A, 5.0 A at 5 A, 10.0 A with L3 off), and the clamp and the model agree",
+        "ok": true
+      },
+      {
+        "label": "P T = √3 V L I L cosθ where cosθ is the power factor: in star and in delta the readout 3 × V_ph × I_ph × cos φ equals √3 × V_L × I_L × cos φ (5520 W and 16,560 W), and on the board both ways give 11,778 W",
+        "ok": true,
+        "source": "https://engineering.louisville.edu/raise/ECE252/L13B.htm"
+      },
+      {
+        "label": "The average power can be expressed as P avg = VI cosφ: one load's drawn voltage and current are each √3 times longer in delta, the angle between them stays 36.9°, and V_ph × I_ph × cos φ goes from 1840 W to 5520 W, a third of each readout",
+        "ok": true,
+        "source": "http://www.hyperphysics.gsu.edu/hbase/electric/powerac.html"
+      },
+      {
+        "label": "Delta: L1's bold arrow is load L1–L2's current minus load L3–L1's, 17.32 × √3 = 30.00 A, which the clamp on L1 reads; and for the motor two 15.0 A winding currents differ by the clamp's 26 A",
+        "ok": true
+      },
+      {
+        "label": "Known answers and slips: 398.4 V and the slip 460 V; 30 A and 25 A added as numbers; 17.32 A, 30.0 A and the slip 34.6 A; 5.52 kW, 16.56 kW and the slip 9.56 kW; 11.8 kW and the slips 20.4 kW and 6.8 kW; 15.0 A and the slip 45.0 A",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle accepts only its right answer; before an answer its picture hides what is asked, and a right answer draws it",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "l3",
+      "conn"
+    ],
+    "readouts": [],
+    "outputs": [
+      "lineVolts",
+      "lineAmps",
+      "neutralAmps"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Star: where you measure",
+          "Between two lines",
+          "Star: the currents",
+          "The neutral",
+          "Unbalance",
+          "10, 10 and 5",
+          "Delta",
+          "Delta: the line current",
+          "Power, either way",
+          "Star to delta",
+          "Mixed: a board",
+          "Mixed: a delta motor"
+        ],
+        "value": 0
+      },
+      {
+        "id": "l3",
+        "kind": "control",
+        "label": "L3's load current",
+        "min": 0,
+        "max": 10,
+        "step": 0.5,
+        "log": false,
+        "value": 10,
+        "snap": [
+          5,
+          6
+        ]
+      },
+      {
+        "id": "conn",
+        "kind": "choice",
+        "label": "Loads joined in",
+        "options": [
+          "star",
+          "delta"
+        ],
+        "labels": [
+          "Star",
+          "Delta"
+        ],
+        "value": "star",
+        "index": 0
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Replay",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ]
+  },
+  "moved": [
+    "step = 1",
+    "l3 = 7.5",
+    "conn = \"delta\"",
+    "pressed \"Answer 1\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/ac-circuits/i10.a1-360-light.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i10.a1-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i10.a1-360-light-end.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i10.a1-360-dark.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i10.a1-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i10.a1-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i10.a1-1280-light.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i10.a1-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i10.a1-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i10.a1-1280-dark.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i10.a1-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i10.a1-1280-dark-end.png"
+  ]
+}

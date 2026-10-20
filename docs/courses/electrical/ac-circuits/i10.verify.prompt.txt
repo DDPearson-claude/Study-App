@@ -1,0 +1,488 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: AC circuits, from turning coil to three-phase
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i10 "Three-phase: star and delta" — Three windings 120° apart connect in star, where line voltage is √3 times phase voltage, or delta, where line current is; power is √3 V_L I_L cos φ. [skill]
+This is the last idea in the course.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Lesson 13B. Three-Phase Power — https://engineering.louisville.edu/raise/ECE252/L13B.htm
+    "For a three-phase generator, three coils of wire are placed at angles of 120° to each other"
+[R2] Lesson 13B. Three-Phase Power — https://engineering.louisville.edu/raise/ECE252/L13B.htm
+    "The line voltage can be found by taking the phasor sum of the voltage in two phases of the source."
+[R3] Lessons In Electric Circuits -- Volume II (AC) - Chapter 10 — http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_10.html
+    "In balanced “Y” circuits, line voltage is equal to phase voltage times the square root of 3, while line current is equal to phase current."
+[R4] ECE252 Lesson 13B — https://engineering.louisville.edu/raise/ECE252/L13B.htm
+    "P T = √ 3 V L I L cosθ where cosθ is the power factor."
+[R5] SECTION 7: THREE-PHASE CIRCUIT FUNDAMENTALS — https://web.engr.oregonstate.edu/~webbky/ENGR202_files/SECTION%207%20Three%20Phase%20Circuit%20Fundamentals.pdf
+    "The neutral conductor carries no current in a balanced three-phase network"
+[R6] Lessons In Electric Circuits -- Volume II (AC) - Chapter 10 — http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_10.html
+    "In a 4-wire Y-Y system, triplen harmonic currents add within the neutral conductor."
+[R7] 23.5 Electric Generators - College Physics 2e | OpenStax — https://openstax.org/books/college-physics-2e/pages/23-5-electric-generators
+    "A generator with a single rectangular coil rotated at constant angular velocity in a uniform magnetic field produces an emf that varies sinusoidally in time."
+[R8] 13.1 Faraday’s Law - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/13-1-faradays-law
+    "The emf induced is the negative change in the magnetic flux per unit time."
+[R9] EMF from rotating coil — https://web.pa.msu.edu/courses/2000fall/phy232/lectures/induction/rotatingcoil.html
+    "The magnitude of the voltage increases with higher rotation frequency, since that leads to a higher rate of change in the flux."
+[R10] maritime electrical installations - notes on design ... — http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf
+    "lagging power factor loads tend to demagnetize the field and terminal voltage is maintained only by increasing the d.c. field current. Therefore, a.c. generators are rated in terms of load current and voltage output, or kilovolt-ampere (kVA) output, at a specified frequency and power factor."
+[R11] AC circuits, alternating current electricity — https://www.animations.physics.unsw.edu.au/jw/AC.html
+    "Because the phasors for reactances are 90° out of phase with the current, the series impedance of a resistor R and a reactance X are given by Pythagoras' law:"
+[R12] Lessons In Electric Circuits -- Volume II (AC) - Chapter 2 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_2.html
+    "a 6 volt source at 0 o added to an 8 volt source at 90 o results in 10 volts at a phase angle of 53.13 o"
+[R13] Lessons In Electric Circuits -- Volume II (AC) - Chapter 3 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html
+    "Inductive reactance can be calculated using this formula: X L = 2πfL"
+[R14] 15.4 Power in an AC Circuit - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/15-4-power-in-an-ac-circuit
+    "Capacitors and inductors absorb energy from the circuit during one half-cycle and then discharge it back to the circuit during the other half-cycle."
+[R15] Lessons In Electric Circuits -- Volume II (AC) - Chapter 11 — http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html
+    "The actual amount of power being used, or dissipated, in a circuit is called true power , and it is measured in watts (symbolized by the capital letter P, as always)."
+[R16] Lessons In Electric Circuits -- Volume II (AC) - Chapter 11 — http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html
+    "This “phantom power” is called reactive power , and it is measured in a unit called Volt-Amps-Reactive (VAR), rather than watts. The mathematical symbol for reactive power is (unfortunately) the capital letter Q."
+[R17] Lessons In Electric Circuits -- Volume II (AC) - Chapter 11 — http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html
+    "Because true power and apparent power form the adjacent and hypotenuse sides of a right triangle, respectively, the power factor ratio is also equal to the cosine of that phase angle."
+[R18] Power in AC Circuits — http://www.hyperphysics.gsu.edu/hbase/electric/powerac.html
+    "the average power can be expressed as P avg = VI cosφ"
+[R19] Lessons In Electric Circuits -- Volume II (AC) - Chapter 11 — http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html
+    "any power factor less than 1 means that the circuit's wiring has to carry more current than what would be necessary with zero reactance"
+[R20] maritime electrical installations - notes on design ... — http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf
+    "a single phase a.c. generator designed to deliver 100 amperes at 1,000 volts is rated at 100 kVA. This machine would supply a 100 kW load at unity power factor or a 80 kW load at 80 percent power factor."
+[R21] AD630-6 DIESEL GENERATING SET 480/277V,440/254V,380/220V- 60 Hz — https://bnhgenerators.com/wp-content/uploads/2026/04/AD630-6.pdf
+    "MODEL AD630-6 Power Pf. 0.8 Standby kVA 630 kW 504"
+[R22] Statutory Voltage Limits – Energy Networks Association (ENA) — https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits
+    "UK mains electricity operates at a nominal voltage of 230V, and can operate within limits of 253V and 216V set by the Electricity Safety, Quality and Continuity Regulations (ESQCR)"
+[R23] maritime electrical installations - notes on design ... — http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf
+    "60 Hz is the most common frequency adopted for use on board ship; the higher frequency enabling motors and generators to run at higher speeds with a consequent reduction in size for a given power rating."
+Notes (claims, and the sources that support them):
+- A three-phase generator has three coils of wire placed at 120 degrees to each other and rotated in a magnetic field. [R1]
+- The line voltage is found by taking the phasor sum of the voltages in two phases, which gives the factor root 3. [R2]
+- In balanced star circuits line voltage is root 3 times phase voltage and line current equals phase current; in balanced delta the roles reverse. [R3]
+- Three-phase power equals the product of line-to-line voltage, line current, root 3 and the power factor. [R4]
+- The neutral conductor carries no current in a balanced three-phase network. [R5]
+- Triplen harmonic currents add within the neutral of a 4-wire Y-Y system, so 'balanced means no neutral current' holds for sine-wave loads. [R6]
+- A single coil turned at constant speed in a uniform magnetic field produces an emf that varies sinusoidally in time. [R7]  (from an idea this one builds on)
+- The induced emf depends on how quickly the flux through the coil is changing, so a faster-turning coil gives a larger voltage. [R8][R9]  (from an idea this one builds on)
+- For i1: a real a.c. generator holds its terminal voltage by adjusting its d.c. field current (screen 12's Why? and the explain). [R10]  (from an idea this one builds on)
+- The phasors for a resistor and a reactance are 90 degrees apart, so the series impedance comes from Pythagoras' law. [R11]  (from an idea this one builds on)
+- Voltages 90 degrees apart do not add arithmetically: a 6 V source and an 8 V source at 90 degrees give 10 V. [R12]  (from an idea this one builds on)
+- Inductive reactance is X_L = 2πfL, so a measured reactance at a known frequency gives the inductance. [R13]  (from an idea this one builds on)
+- Capacitors and inductors absorb energy during one half-cycle and return it in the other, so the power wave goes below zero. [R14]  (from an idea this one builds on)
+- True power is measured in watts, reactive power in volt-amps reactive (VAR), and their combination is apparent power in volt-amps. [R15][R16]  (from an idea this one builds on)
+- Power factor is true power divided by apparent power, which equals the cosine of the phase angle; average power is V I cos φ with rms values. [R17][R18]  (from an idea this one builds on)
+- Any power factor less than 1 means the wiring must carry more current to deliver the same true power. [R19]  (from an idea this one builds on)
+- For i8: a generator is rated in kVA at a stated power factor, with a kW figure as well, so it is checked against both: 100 kVA supplies 80 kW at 0.8, and a 60 Hz diesel set's data sheet reads 630 kVA and 504 kW at 0.8. [R10][R20][R21]  (from an idea this one builds on)
+- UK domestic supply is nominally 230 V, 50 Hz, kept within 216 V to 253 V by the Electricity Safety, Quality and Continuity Regulations. [R22]  (whole topic)
+- Ships mostly run 60 Hz, because higher frequency lets motors and generators run faster and so be smaller for a given power. [R23]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i10",
+ "title": "Three-phase: star and delta",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the arrow made by subtracting two phase arrows, √3 times as long, landing on the line voltage in star and on the line current in delta, when you flip the star–delta switch.",
+  "title": "Star and delta",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "lineVolts",
+    "label": "Line voltage",
+    "unit": "V",
+    "decimals": 1
+   },
+   {
+    "id": "lineAmps",
+    "label": "Line current",
+    "unit": "A",
+    "decimals": 2
+   },
+   {
+    "id": "neutralAmps",
+    "label": "Neutral current",
+    "unit": "A",
+    "decimals": 1
+   }
+  ],
+  "whatAmILookingAt": "A short lesson in twelve small screens on one picture. On the left, three supply windings, L1, L2 and L3, each with 230 V across it, feed three equal loads through three line conductors. A switch draws them joined in star, with one end of every winding and every load meeting at a star point and a neutral wire between the two star points, or in delta, with each load joined between two lines in a ring and no star point at all. A voltmeter and a clamp meter on the drawing are labelled line or phase by where they sit: phase across or through one winding or load, line between two line conductors or round one. On the right are the phasor arrows, frozen at one instant as in Trigonometry's Adding waves with phasors: three phase arrows of equal length, a third of a turn, 120°, apart, and a bold arrow made by subtracting one from the next, which is √3, about 1.732, times as long and turned 30° from them. Each load is a say 23 Ω impedance at a power factor of 0.8, so its current lags its own voltage by 36.9°. Two power readouts sit under the arrows: 3 × V_ph × I_ph × cos φ and √3 × V_L × I_L × cos φ. Screen 1 shows star: the voltmeter across one winding reads 230 V, and moved between L1 and L2 it reads the bold arrow, L1's arrow minus L2's, because going from L2 to L1 you pass back down L2's winding and up L1's: 230 × 1.732 = 398.4 V. Screen 2 asks what the voltmeter reads between L1 and L2: 398.4 V; 460 V, two phases added as plain numbers (hint: the two phases peak a third of a cycle apart, and the meter reads their difference, not their sum); or 230 V (hint: that is across one winding, line to star point). A right Check lays L2's arrow, turned half round, on the tip of L1's and draws the bold arrow closing them. Screen 3 adds the currents in star: each line runs straight into one winding and one load with nothing branching off, so the line current equals the phase current, 230 ÷ 23 = 10 A, drawn as three 10 A arrows each 36.9° behind its voltage. At the star point the three currents meet and return along the neutral, whose arrow is the three current arrows laid tip to tail. Screen 4 asks what the neutral carries with three 10 A phase currents: 0 A, because three equal arrows 120° apart close a triangle; 30 A (hint: the three currents peak at different moments, so they add as arrows, not as numbers); or 10 A (hint: lay them tip to tail; the last tip lands back on the first tail). A right Check slides the three arrows tip to tail into a closed triangle. Screen 5 frees a slider for L3's load current, from 0 to 10 A in steps of 0.5 A, opening at 10 A. As it falls, the triangle no longer closes and the neutral arrow grows from the gap. With L1 and L2 at 10 A, the three phases share an equal part, L3's current, which cancels as before, so what is left is L1's and L2's extra, two equal arrows 120° apart whose sum is one arrow of the same length: the neutral carries 10 A minus L3's current, 4 A when L3 is at 6 A and 10 A when L3 is off. At 10 A the neutral arrow vanishes, so a load that is always balanced could be fed by the three lines alone. Screen 6 asks what the neutral carries with 10 A, 10 A and 5 A: 5 A; 25 A, the three added as numbers (hint: they are 120° apart, so most of them cancel); or 0 A (hint: only equal currents cancel completely). A right Check sets L3 to 5 A on the slider. Screen 7 flips the switch to delta on the same supply. Each load now sits between two lines, so its phase voltage is the line voltage, 398.4 V, and it draws 398.4 ÷ 23 = 17.32 A. At the corner where L1 joins, L1 brings the current drawn by the load that starts there, less the current the other load delivers back into that corner, so the clamp on L1 reads the difference of two phase currents 120° apart: the same subtraction, the same bold arrow, now on the currents, 17.32 × 1.732 = 30.0 A. Screen 8 asks what the clamp on L1 reads: 30.0 A; 34.6 A, two phase currents added as plain numbers (hint: they are 120° apart, and L1 carries their difference); or 17.32 A (hint: that is star's rule; in delta two loads meet at every line). A right Check draws the bold arrow on the current arrows. Screen 9 lights the power readouts and lets the switch be flipped. Each load takes V_ph × I_ph × cos φ, so three take 3 × V_ph × I_ph × cos φ. In star V_ph = V_L ÷ √3 and I_ph = I_L; in delta V_ph = V_L and I_ph = I_L ÷ √3; either way one √3 cancels into the 3, so the two readouts always agree. Star: 3 × 230 × 10 × 0.8 = 5520 W. Delta: 3 × 398.4 × 17.32 × 0.8 = 16,560 W. Screen 10 asks what power the same three loads take moved from star to delta on the same supply, given 5.52 kW in star: 16.56 kW, three times, because each load has √3 times the voltage and so √3 times the current; 5.52 kW (hint: the loads are the same, but the voltage across each is not); or 9.56 kW, √3 times (hint: the current through each rises by √3 too). A right Check flips the switch with both readouts in view. Screens 11 and 12 are mixed. Screen 11 gives a load on a board whose line voltage reads, say, 400 V, drawing 20 A a line at a power factor of 0.85, connection unknown, and asks its power: 11.8 kW, from √3 × 400 × 20 × 0.85; 20.4 kW (hint: 3 goes with phase values; with line values the factor is √3); or 6.8 kW (hint: that is one phase's worth worked as single-phase). A right Check shows the readout giving the same 11.8 kW in star and in delta. Screen 12 gives a delta-connected motor whose clamp reads 26 A on one line and asks the current in each winding: 15.0 A, from 26 ÷ 1.732; 26 A (hint: that is star's rule); or 45.0 A (hint: in delta the line carries more than the winding, not less). A right Check draws the bold arrow from two 15.0 A winding currents. Each puzzle offers three answers; a wrong pick gets a one-line hint naming its slip, Why? explains in words, and a right Check draws the answer on the picture. The closing line says that the √3 comes from subtracting two equal arrows 120° apart, that a motor's windings are joined in star or delta too, and that the courses after this one take three-phase on to transformers, ships' systems and motors.",
+  "ignores": "The supply is drawn holding 230 V a phase whatever the load; a real one sags a little as current rises, and the cables add their own voltage drop. The loads are fixed impedances; a real motor's current and power factor change with how hard it is working. The waves are pure sines; currents with harmonics behave differently in the neutral, as the explanation says. The arrows are frozen at one instant and drawn with rms lengths; the real waves turn and swing. The loads and their readings are example values.",
+  "numbers": [
+   {
+    "label": "Number of screens",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Angle between the three windings, in degrees",
+    "value": 120,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "UK mains phase voltage, in volts",
+    "value": 230,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Square root of 3, to three decimal places",
+    "value": 1.732,
+    "kind": "constant"
+   },
+   {
+    "label": "Angle of the subtracted arrow from the phase arrows, in degrees",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "Each load's impedance, in ohms",
+    "value": 23,
+    "kind": "assumed"
+   },
+   {
+    "label": "Each load's power factor",
+    "value": 0.8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Each load's phase angle, in degrees",
+    "value": 36.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Line voltage in star, in volts",
+    "value": 398.4,
+    "kind": "computed"
+   },
+   {
+    "label": "UK three-phase line voltage, nominal, in volts",
+    "value": 400,
+    "kind": "constant"
+   },
+   {
+    "label": "Slip, two phase voltages added, in volts",
+    "value": 460,
+    "kind": "computed"
+   },
+   {
+    "label": "Phase and line current in star, in amps",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Neutral current, balanced, in amps",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, three phase currents added, in amps",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "L3 slider, lowest, in amps",
+    "value": 0,
+    "kind": "assumed"
+   },
+   {
+    "label": "L3 slider, highest, in amps",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "L3 slider step, in amps",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Opening L3 current, in amps",
+    "value": 10,
+    "kind": "control"
+   },
+   {
+    "label": "Screen 5 L3 current, in amps",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 5 neutral current, in amps",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 L3 current, in amps",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 6 neutral current, in amps",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, screen 6 currents added, in amps",
+    "value": 25,
+    "kind": "computed"
+   },
+   {
+    "label": "Phase voltage in delta, in volts",
+    "value": 398.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Phase current in delta, in amps",
+    "value": 17.32,
+    "kind": "computed"
+   },
+   {
+    "label": "Line current in delta, in amps",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, two delta phase currents added, in amps",
+    "value": 34.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Power in star, in watts",
+    "value": 5520,
+    "kind": "computed"
+   },
+   {
+    "label": "Power in star, in kilowatts",
+    "value": 5.52,
+    "kind": "computed"
+   },
+   {
+    "label": "Power in delta, in watts",
+    "value": 16560,
+    "kind": "computed"
+   },
+   {
+    "label": "Power in delta, in kilowatts",
+    "value": 16.56,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, star power times √3, in kilowatts",
+    "value": 9.56,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 line voltage, in volts",
+    "value": 400,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 line current, in amps",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 power factor",
+    "value": 0.85,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 power, in kilowatts",
+    "value": 11.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, screen 11 with 3, in kilowatts",
+    "value": 20.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, screen 11 as single-phase, in kilowatts",
+    "value": 6.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 line current, in amps",
+    "value": 26,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 winding current, in amps",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, screen 12 times √3, in amps",
+    "value": 45,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice line voltage, in volts",
+    "value": 400,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice line current, in amps",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice power factor",
+    "value": 0.9,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice phase voltage, in volts",
+    "value": 230.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice power from line values, in watts",
+    "value": 7482,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice power, in kilowatts",
+    "value": 7.48,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice power from phase values, in watts",
+    "value": 7481,
+    "kind": "computed"
+   },
+   {
+    "label": "UK mains frequency, in hertz",
+    "value": 50,
+    "kind": "constant"
+   }
+  ]
+ },
+ "explain": {
+  "text": "In its simplest form, a three-phase generator is three of lesson 1's coils on one shaft, set a third of a turn apart,[^1] so they make three equal voltage waves 120° apart. How you join the three windings, and three equal loads, decides which reading picks up a factor of √3. Join one end of each at a common point and the voltage between two lines is √3 times the voltage across one winding. Join them nose to tail in a ring and the current in each line is √3 times the current in one winding. Either way, the power is √3 × line voltage × line current × power factor.[^3]\n\nStart with the [[star]] connection: one end of every winding meets at the star point, and a line conductor runs from each free end, L1, L2 and L3. Now it matters where you measure. Across one winding, line to star point, a voltmeter reads the phase voltage, 230 V on UK mains.[^2] Between two lines it reads the [[line voltage]]. Going from L2 to L1 you pass back down L2's winding and up L1's, so the line voltage is L1's arrow minus L2's, found by adding L2's arrow turned half round,[^4] as in Trigonometry's Adding waves with phasors. Two equal arrows 120° apart differ by an arrow √3 times as long, so the line voltage is 230 × 1.732 = 398.4 V, which the trade rounds to the 400 V nominal of a UK three-phase board. Each line runs straight into one winding with nothing branching off, so the line current is the phase current.[^5] Say each load is 23 Ω at a power factor of 0.8: each phase carries 230 ÷ 23 = 10 A. The three currents meet at the star point and return along the neutral. Laid tip to tail, three equal arrows 120° apart close a triangle, so a balanced load leaves the neutral carrying nothing,[^6] and a load that is always balanced can be fed by the three lines alone. Drop L3 to 5 A and the equal part, 5 A in each phase, still cancels; what is left is L1's and L2's extra 5 A, two equal arrows 120° apart whose sum is one 5 A arrow. So the neutral carries 5 A, not 25 A. That cancelling is for sine-wave currents: currents with harmonics at three times the supply frequency add in the neutral instead.[^7]\n\nIn [[delta]], each load is joined between two lines, in a ring. So each has the line voltage across it: the phase voltage is the line voltage, 398.4 V, and each 23 Ω load draws 398.4 ÷ 23 = 17.32 A. At the corner where L1 joins, L1 brings the current drawn by the load that starts there, less the current the other load delivers back into that corner. So L1 carries the difference of two phase currents 120° apart. It is the same subtraction, now on currents: 17.32 × 1.732 = 30.0 A. The √3 has moved from the voltage to the current, and with no star point there is no neutral. A motor's three windings are joined in these same two ways, which the Machines and drives course takes up.\n\nEach load takes V_ph × I_ph × cos φ, lesson 8's true power,[^8] where φ is the angle inside that load between its own voltage and current. Three loads take 3 V_ph I_ph cos φ. In star, V_ph = V_L ÷ √3 and I_ph = I_L; in delta, V_ph = V_L and I_ph = I_L ÷ √3. Either way one √3 divides into the 3 and leaves √3 V_L I_L cos φ,[^3] so for a balanced load line readings give the power without your knowing the connection. Star: 3 × 230 × 10 × 0.8 = 5520 W. The same loads in delta take 3 × 398.4 × 17.32 × 0.8 = 16,560 W, three times as much, because each has √3 times the voltage and so √3 times the current. This is a simplified model, with balanced loads, pure sine waves and a supply that holds its voltage. For the course's puzzle, each phase has its own power triangle, so three-phase cables carry √3 V_L I_L volt-amps, of which only the cos φ share arrives as watts. **In star the line voltage is √3 times the phase voltage and the line current equals the phase current;[^5] in delta the √3 moves to the current; either way three equal loads take √3 V_L I_L cos φ.[^3]**"
+ },
+ "analogy": {
+  "text": "Three crew haul on lines shackled to one ring, a third of the way round from each other. Pulling equally, their pulls cancel and the ring's anchor feels nothing, as a balanced load leaves the neutral at zero. Ease off one line to half and the anchor takes a pull equal to that missing half, towards the other two, as the neutral takes the 5 A one phase has dropped.",
+  "breaks": "The crew pull steadily, while phase currents swing to and fro fifty times a second, so the neutral's current is a wave too, not a steady pull. And the ring tells you nothing about the √3 between star and delta, which comes from subtracting arrows, not from adding them."
+ },
+ "practice": {
+  "text": "- Safety first: between two lines there is the line voltage, about 400 V on a UK board, not 230 V. Prove dead between every pair of lines as well as each line to neutral and earth.\n- Say where you are measuring: line (between two line conductors, or the current in one) or phase (across one winding or load, or the current through it).\n- Find the connection. Star has a star point, often with a neutral; delta has none.\n- Star: V_ph = V_L ÷ √3 and I_ph = I_L. Delta: V_ph = V_L and I_ph = I_L ÷ √3.\n- Power: P = √3 × V_L × I_L × cos φ,[^3] with cos φ the load's own power factor.\n- Check it with phase values: 3 × V_ph × I_ph × cos φ gives the same.\n\n**Rules of thumb:** √3 is about 1.732. A balanced load of sine-wave currents leaves the neutral at nearly nothing;[^6] a large neutral current usually means unbalance or harmonics.[^7] The same loads moved from star to delta on the same supply take three times the power.\n\n**Worked example:** A star-connected load on a board reading 400 V between lines draws 12 A a line at a power factor of 0.9. Each phase has 400 ÷ 1.732 = 230.9 V across it and carries 12 A. Power: √3 × 400 × 12 × 0.9 = 7482 W, about 7.48 kW. Check: 3 × 230.9 × 12 × 0.9 = 7481 W, the same but for rounding.\n\n**Common mistakes**\n- Adding two phase voltages as numbers, 460 V. They are 120° apart; the line voltage is their difference, √3 times one.\n- Using 3 with line values, or √3 with phase values.\n- Taking cos φ as the angle between a line voltage and a line current. In star a line voltage is turned 30° from its phase voltages, so that angle is φ + 30°, not φ.\n- Expecting the neutral to carry the three currents added. It carries what fails to cancel.\n- Thinking star or delta makes no difference to the power. On the same supply, delta puts √3 times the voltage on each load."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Lesson 13B. Three-Phase Power",
+   "url": "https://engineering.louisville.edu/raise/ECE252/L13B.htm",
+   "quote": "For a three-phase generator, three coils of wire are placed at angles of 120° to each other"
+  },
+  {
+   "n": 2,
+   "title": "Statutory Voltage Limits – Energy Networks Association (ENA)",
+   "url": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits",
+   "quote": "UK mains electricity operates at a nominal voltage of 230V, and can operate within limits of 253V and 216V set by the Electricity Safety, Quality and Continuity Regulations (ESQCR)"
+  },
+  {
+   "n": 3,
+   "title": "ECE252 Lesson 13B",
+   "url": "https://engineering.louisville.edu/raise/ECE252/L13B.htm",
+   "quote": "P T = √ 3 V L I L cosθ where cosθ is the power factor."
+  },
+  {
+   "n": 4,
+   "title": "Lesson 13B. Three-Phase Power",
+   "url": "https://engineering.louisville.edu/raise/ECE252/L13B.htm",
+   "quote": "The line voltage can be found by taking the phasor sum of the voltage in two phases of the source."
+  },
+  {
+   "n": 5,
+   "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 10",
+   "url": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_10.html",
+   "quote": "In balanced “Y” circuits, line voltage is equal to phase voltage times the square root of 3, while line current is equal to phase current."
+  },
+  {
+   "n": 6,
+   "title": "SECTION 7: THREE-PHASE CIRCUIT FUNDAMENTALS",
+   "url": "https://web.engr.oregonstate.edu/~webbky/ENGR202_files/SECTION%207%20Three%20Phase%20Circuit%20Fundamentals.pdf",
+   "quote": "The neutral conductor carries no current in a balanced three-phase network"
+  },
+  {
+   "n": 7,
+   "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 10",
+   "url": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_10.html",
+   "quote": "In a 4-wire Y-Y system, triplen harmonic currents add within the neutral conductor."
+  },
+  {
+   "n": 8,
+   "title": "Power in AC Circuits",
+   "url": "http://www.hyperphysics.gsu.edu/hbase/electric/powerac.html",
+   "quote": "the average power can be expressed as P avg = VI cosφ"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

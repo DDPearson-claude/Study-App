@@ -1,0 +1,559 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: AC circuits, from turning coil to three-phase
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i9 "Power factor correction" — Size a capacitor across an inductive load from the power triangle, so it supplies the load's vars locally and cuts the supply current while the watts stay put. [skill]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i10 Three-phase: star and delta — Three windings 120° apart connect in star, where line voltage is √3 times phase voltage, or delta, where line current is; power is √3 V_L I_L cos φ.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Lessons In Electric Circuits -- Volume II (AC) - Chapter 11 — http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html
+    "Poor power factor can be corrected, paradoxically, by adding another load to the circuit drawing an equal and opposite amount of reactive power"
+[R2] Lessons In Electric Circuits -- Volume II (AC) - Chapter 11 — http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html
+    "This correction, of course, will not change the amount of true power consumed by the load, but it will result in a substantial reduction of apparent power, and of the total current drawn from the 240 Volt source"
+[R3] Lessons In Electric Circuits -- Volume II (AC) - Chapter 11 — http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html
+    "It should be noted that too much capacitance in an AC circuit will result in a low power factor just as well as too much inductance. You must be careful not to over-correct when adding capacitance to an AC circuit."
+[R4] Lessons In Electric Circuits -- Volume II (AC) - Chapter 4 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html
+    "capacitors oppose changes in voltage by drawing or supplying current as they charge or discharge to the new voltage level."
+[R5] Lessons In Electric Circuits -- Volume II (AC) - Chapter 4 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html
+    "Looking at the graph, the current wave seems to have a “head start” on the voltage wave; the current “leads” the voltage, and the voltage “lags” behind the current."
+[R6] Lessons In Electric Circuits -- Volume II (AC) - Chapter 4 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html
+    "Capacitive reactance can be calculated using this formula: X C = 1/(2πfC) * Capacitive reactance decreases with increasing frequency. In other words, the higher the frequency, the less it opposes (the more it “conducts”) the AC flow of electrons."
+[R7] 15.3 RLC Series Circuits with AC - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/15-3-rlc-series-circuits-with-ac
+    "A mnemonic device of “ELI the ICE man” is sometimes used to remember that the emf (E) leads the current (I) in an inductor (L) and the current (I) leads the emf (E) in a capacitor (C)."
+[R8] 15.4 Power in an AC Circuit - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/15-4-power-in-an-ac-circuit
+    "Capacitors and inductors absorb energy from the circuit during one half-cycle and then discharge it back to the circuit during the other half-cycle."
+[R9] Lessons In Electric Circuits -- Volume II (AC) - Chapter 11 — http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html
+    "The actual amount of power being used, or dissipated, in a circuit is called true power , and it is measured in watts (symbolized by the capital letter P, as always)."
+[R10] Lessons In Electric Circuits -- Volume II (AC) - Chapter 11 — http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html
+    "This “phantom power” is called reactive power , and it is measured in a unit called Volt-Amps-Reactive (VAR), rather than watts. The mathematical symbol for reactive power is (unfortunately) the capital letter Q."
+[R11] Lessons In Electric Circuits -- Volume II (AC) - Chapter 11 — http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html
+    "Because true power and apparent power form the adjacent and hypotenuse sides of a right triangle, respectively, the power factor ratio is also equal to the cosine of that phase angle."
+[R12] Power in AC Circuits — http://www.hyperphysics.gsu.edu/hbase/electric/powerac.html
+    "the average power can be expressed as P avg = VI cosφ"
+[R13] Lessons In Electric Circuits -- Volume II (AC) - Chapter 11 — http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html
+    "any power factor less than 1 means that the circuit's wiring has to carry more current than what would be necessary with zero reactance"
+[R14] maritime electrical installations - notes on design ... — http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf
+    "lagging power factor loads tend to demagnetize the field and terminal voltage is maintained only by increasing the d.c. field current. Therefore, a.c. generators are rated in terms of load current and voltage output, or kilovolt-ampere (kVA) output, at a specified frequency and power factor."
+[R15] maritime electrical installations - notes on design ... — http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf
+    "a single phase a.c. generator designed to deliver 100 amperes at 1,000 volts is rated at 100 kVA. This machine would supply a 100 kW load at unity power factor or a 80 kW load at 80 percent power factor."
+[R16] AD630-6 DIESEL GENERATING SET 480/277V,440/254V,380/220V- 60 Hz — https://bnhgenerators.com/wp-content/uploads/2026/04/AD630-6.pdf
+    "MODEL AD630-6 Power Pf. 0.8 Standby kVA 630 kW 504"
+[R17] Statutory Voltage Limits – Energy Networks Association (ENA) — https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits
+    "UK mains electricity operates at a nominal voltage of 230V, and can operate within limits of 253V and 216V set by the Electricity Safety, Quality and Continuity Regulations (ESQCR)"
+[R18] maritime electrical installations - notes on design ... — http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf
+    "60 Hz is the most common frequency adopted for use on board ship; the higher frequency enabling motors and generators to run at higher speeds with a consequent reduction in size for a given power rating."
+Notes (claims, and the sources that support them):
+- A poor power factor can be corrected by adding a load drawing equal and opposite reactive power, which means a capacitor for an inductive load. [R1]
+- Correction does not change the true power consumed, but cuts apparent power and the total current drawn from the source. [R2]
+- Too much capacitance gives a low power factor just as too much inductance does, so a correction must not over-correct. [R3]
+- A capacitor opposes changes in voltage by drawing or supplying current as it charges or discharges to the new voltage level. [R4]  (from an idea this one builds on)
+- In a capacitor the current leads the voltage, so the voltage lags behind the current. [R5]  (from an idea this one builds on)
+- Capacitive reactance is X_C = 1/(2πfC) and decreases as frequency rises, the opposite of inductive reactance. [R6]  (from an idea this one builds on)
+- For i5: the memory aid ELI the ICE man: the emf (E) leads the current (I) in an inductor (L), and the current leads the emf in a capacitor (C) (screen 9's rows and the practice). [R7]  (from an idea this one builds on)
+- Capacitors and inductors absorb energy during one half-cycle and return it in the other, so the power wave goes below zero. [R8]  (from an idea this one builds on)
+- True power is measured in watts, reactive power in volt-amps reactive (VAR), and their combination is apparent power in volt-amps. [R9][R10]  (from an idea this one builds on)
+- Power factor is true power divided by apparent power, which equals the cosine of the phase angle; average power is V I cos φ with rms values. [R11][R12]  (from an idea this one builds on)
+- Any power factor less than 1 means the wiring must carry more current to deliver the same true power. [R13]  (from an idea this one builds on)
+- For i8: a generator is rated in kVA at a stated power factor, with a kW figure as well, so it is checked against both: 100 kVA supplies 80 kW at 0.8, and a 60 Hz diesel set's data sheet reads 630 kVA and 504 kW at 0.8. [R14][R15][R16]  (from an idea this one builds on)
+- UK domestic supply is nominally 230 V, 50 Hz, kept within 216 V to 253 V by the Electricity Safety, Quality and Continuity Regulations. [R17]  (whole topic)
+- Ships mostly run 60 Hz, because higher frequency lets motors and generators run faster and so be smaller for a given power. [R18]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i9",
+ "title": "Power factor correction",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the capacitor's down arrow shortening the motor's upright, so the supply current falls while the true power stays put, then grows again in red past it, when you drag the capacitor's vars.",
+  "title": "The corrector",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "supplyAmps",
+    "label": "Supply current",
+    "unit": "A",
+    "decimals": 2
+   },
+   {
+    "id": "pf",
+    "label": "Power factor",
+    "unit": "",
+    "decimals": 2
+   },
+   {
+    "id": "capAmps",
+    "label": "Capacitor's current",
+    "unit": "A",
+    "decimals": 2
+   }
+  ],
+  "whatAmILookingAt": "A short lesson in twelve small screens on one picture, the corrector. On the left is lesson 8's motor on 230 V mains, drawing 10 A while its wattmeter reads 1.6 kW, with a capacitor wired across its terminals, in parallel, so both have the full supply voltage across them. On the right is the power triangle: the true power P along the floor, 1600 W; the motor's reactive power Q_L pointing up from the end of the floor, 1652 var; and the supply's apparent power S, the long side, 2300 VA. Under the triangle, a bar shows the supply cable's current, 10 A to start with. The capacitor's slider sets its reactive power, Q_C, from 0 to 3400 var in steps of 4 var, opening at 0. Its vars are drawn as an arrow pointing down from the tip of Q_L, because a capacitor's current leads the voltage where a coil's lags, so its vars point the other way, as lesson 8's capacitor hung its triangle below the floor. The supply's triangle is what is left: its upright is Q_L − Q_C, its long side is S = √(P² + (Q_L − Q_C)²), its power factor is P ÷ S, and the supply current is S ÷ 230. P does not move, because the motor still has 230 V across it, so it still draws 10 A and takes 1600 W; the capacitor changes only what the supply has to send. Readouts give the supply current, the power factor and the capacitor's current, Q_C ÷ 230. When Q_C passes Q_L, the upright points down, the power factor readout is marked leading, and the current bar turns red as it grows again. Screen 1 shows the motor alone: P = 1600 W, Q_L = 1652 var, S = 2300 VA, a power factor of 0.70 lagging, φ = 45.9°, and 10 A in the cable bar, as in lesson 8's puzzle. The capacitor then appears across the motor and its slider moves to 500 var: a short arrow points down from the tip of Q_L, the supply's upright shrinks to 1152 var, S to 1972 VA, and the cable bar falls to 8.57 A. Screen 2 asks what the motor's wattmeter reads now that the capacitor is fitted: 1.6 kW, unchanged; less than 1.6 kW (hint: the motor turns the same load with the same 230 V across it); or more than 1.6 kW (hint: the capacitor's power wave averages zero, as in lesson 8, so it takes no true power). A right Check slides the capacitor up and down while the floor stays at 1600 W. Screen 3 frees the slider up to 1652 var. Dragging it, the down arrow grows, the supply's upright shrinks, S shortens, the angle closes and the current bar falls. At 1000 var the upright is 652 var, S is 1728 VA, the power factor is 0.93 and the current is 7.51 A. Screen 4 asks how many vars the capacitor must supply for a power factor of 1: 1652 var, the motor's whole upright; 700 var, the gap between 2300 VA and 1600 W (hint: that gap is not a side of the triangle; the upright is); or 2300 var, the whole long side (hint: the floor, the watts, stays; only the upright is cancelled). A right Check sets 1652 var: the triangle lies flat, S = 1600 VA, the current is 1600 ÷ 230 = 6.96 A, and the cable's heat, which goes with the current squared, is (6.96 ÷ 10)² = 0.48 of what it was. Screen 5 opens the loop view: the supply, the motor and the capacitor as a small circuit, with moving dots for current. The motor still draws 10 A, split as in lesson 8 into its in-step part, 10 × cos 45.9° = 6.96 A, and its quarter-cycle part, 10 × sin 45.9° = 7.18 A. The capacitor's whole current is a quarter cycle out of step, so, as lesson 8's Q = V × I at 90°, it is its vars over the voltage, 1652 ÷ 230 = 7.18 A, a quarter cycle ahead of the voltage, while the motor's quarter-cycle part is a quarter cycle behind it. They are half a cycle apart, so at every instant one flows in as the other flows out, and a row of dots runs round the short loop between the capacitor and the motor while the supply cable carries only the in-step 6.96 A. Screen 6 asks what the supply cable carries, with the motor drawing 10 A and the capacitor 7.18 A: 6.96 A; 2.82 A, from 10 − 7.18 (hint: the capacitor's current cancels only the motor's quarter-cycle part, not the in-step part that does the work); or 17.18 A, the two added (hint: they are half a cycle apart, so they cancel rather than add). A right Check draws the motor's 10 A arrow, 45.9° below the floor, with the capacitor's 7.18 A arrow standing straight up from its tip, and the 6.96 A arrow that closes them lying along the floor. Screen 7 shows the sizing in three rows that recompute as the slider moves: Q_C = Q before − Q after; X_C = V² ÷ Q_C, because the capacitor has the full 230 V across it, so its current is V ÷ X_C and its vars are V × I_C = V² ÷ X_C; and C = 1 ÷ (2πf X_C), lesson 5's rule turned round, at 50 Hz. At full correction, X_C = 230² ÷ 1652 = 32.0 Ω and C = 1 ÷ (2π × 50 × 32.0), about 99 µF. Screen 8 sets an example target power factor of 0.95 and asks how many vars the capacitor must supply: 1126 var, because the angle whose cosine is 0.95 is 18.2°, so the vars left are P × tan 18.2° = 1600 × 0.329 = 526 var, and 1652 − 526 = 1126 var; about 1570 var (hint: that is 0.95 of the motor's vars, but the power factor is a ratio of the triangle's sides, not a share of the vars to cancel); or 526 var (hint: that is what stays; the capacitor supplies the difference). A right Check sets the slider near 1126 var and fills in the rows: X_C = 47.0 Ω, C about 68 µF, and a supply current of 1600 ÷ (230 × 0.95) = 7.32 A. Screen 9 frees the slider to 3400 var. Past 1652 var the down arrow overshoots the floor, the triangle swings below the line, the power factor is marked leading, and the current bar grows again, in red. At 2500 var the upright is −848 var, S is 1811 VA, the power factor is 0.88 leading and the current is 7.87 A. Screen 10 asks what the supply cable carries if someone fits twice the capacitor, 3304 var, to be sure: about 10 A, with a power factor of 0.70 leading; 6.96 A, as low as before (hint: past full correction the capacitor's spare vars have to come along the cable too); or nearly 0 A (hint: the cable still carries the motor's in-step 6.96 A, which does the work; correction cancels only vars). A right Check sets 3304 var: the triangle is the motor's own triangle flipped below the floor, with S = 2300 VA and 10.0 A. Screens 11 and 12 are mixed. Screen 11 takes a different example load, say a compressor motor taking 3 kW and 5 kVA on 230 V, so 21.7 A, and asks for the capacitor that corrects it fully and the current after: 4 kvar and 13.0 A, from √(5² − 3²) = 4 kvar and 3000 ÷ 230 = 13.0 A; 2 kvar and 13.0 A (hint: 5 − 3 is not a side of the triangle; square, subtract, then take the square root); or 4 kvar and 4.3 A (hint: the capacitor's 17.4 A cancels only the quarter-cycle part, so it cannot be taken from 21.7 A as a plain number). A right Check draws the triangle flattening and works the capacitor: X_C = 230² ÷ 4000 = 13.2 Ω and C = 1 ÷ (2π × 50 × 13.2), about 240 µF. Screen 12 puts the first motor 20 m from its distribution board and asks where the capacitor relieves the most cable: across the motor's terminals, so the whole run from the board carries 6.96 A; at the board, relieving the 20 m run to the motor as well (hint: the 7.18 A runs round the loop between the capacitor and the motor, so any cable inside that loop still carries the full 10 A); or anywhere, because the triangle at the supply is the same (hint: it is, but the cable between the capacitor and the motor is inside the loop). A right Check moves the capacitor to the board and shows the loop's dots running the full 20 m. Each puzzle offers three answers; a wrong pick gets a one-line hint naming its slip, Why? explains in words, and a right Check draws the answer on the picture. The closing line says the capacitor hands the motor its vars from close by, so the supply sends only the watts' share of current, and that lesson 10 takes the same triangle to three phases.",
+  "ignores": "The supply is drawn holding 230 V whatever the current; on a real installation the smaller current means a little less voltage drop, so the motor's voltage rises slightly. The capacitor is ideal and takes no true power; a real one takes a little. The motor's 1600 W and 1652 var are held fixed; a real motor's change with how hard it is working. The waves are pure sines; a load whose current is not a sine wave needs checks this picture leaves out. The circuit is single-phase. The moving dots show where the current flows and how big it is, not how fast charge moves. The motors and their readings are example values.",
+  "numbers": [
+   {
+    "label": "Number of screens",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "UK mains nominal voltage, in volts",
+    "value": 230,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "UK mains frequency, in hertz",
+    "value": 50,
+    "kind": "constant"
+   },
+   {
+    "label": "Motor's current, in amps",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Motor's true power, in kilowatts",
+    "value": 1.6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Motor's true power, in watts",
+    "value": 1600,
+    "kind": "assumed"
+   },
+   {
+    "label": "Motor's apparent power, in volt-amps",
+    "value": 2300,
+    "kind": "computed"
+   },
+   {
+    "label": "Motor's reactive power, in vars",
+    "value": 1652,
+    "kind": "computed"
+   },
+   {
+    "label": "Motor's power factor, lagging",
+    "value": 0.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Motor's phase angle, in degrees",
+    "value": 45.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacitor slider, lowest, in vars",
+    "value": 0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Capacitor slider, highest, in vars",
+    "value": 3400,
+    "kind": "assumed"
+   },
+   {
+    "label": "Capacitor slider step, in vars",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Opening capacitor setting, in vars",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Screen 1 capacitor, in vars",
+    "value": 500,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1 supply's reactive power, in vars",
+    "value": 1152,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 supply's apparent power, in volt-amps",
+    "value": 1972,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 supply current, in amps",
+    "value": 8.57,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 capacitor, in vars",
+    "value": 1000,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 3 supply's reactive power, in vars",
+    "value": 652,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 supply's apparent power, in volt-amps",
+    "value": 1728,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 power factor",
+    "value": 0.93,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 supply current, in amps",
+    "value": 7.51,
+    "kind": "computed"
+   },
+   {
+    "label": "Power factor at full correction",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, gap between S and P, in vars",
+    "value": 700,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, whole long side, in vars",
+    "value": 2300,
+    "kind": "computed"
+   },
+   {
+    "label": "Supply's apparent power at full correction, in volt-amps",
+    "value": 1600,
+    "kind": "computed"
+   },
+   {
+    "label": "Supply current at full correction, in amps",
+    "value": 6.96,
+    "kind": "computed"
+   },
+   {
+    "label": "Cable heat at full correction against before",
+    "value": 0.48,
+    "kind": "computed"
+   },
+   {
+    "label": "Motor's in-step current, in amps",
+    "value": 6.96,
+    "kind": "computed"
+   },
+   {
+    "label": "Motor's quarter-cycle current, in amps",
+    "value": 7.18,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacitor's reactance at full correction, in ohms",
+    "value": 32,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacitor's current at full correction, in amps",
+    "value": 7.18,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, currents taken as plain numbers, in amps",
+    "value": 2.82,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, currents added, in amps",
+    "value": 17.18,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacitance at full correction, in microfarads",
+    "value": 99,
+    "kind": "computed"
+   },
+   {
+    "label": "Example target power factor",
+    "value": 0.95,
+    "kind": "assumed"
+   },
+   {
+    "label": "Angle at the target, in degrees",
+    "value": 18.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Tangent of the target angle",
+    "value": 0.329,
+    "kind": "computed"
+   },
+   {
+    "label": "Vars left at the target, in vars",
+    "value": 526,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacitor for the target, in vars",
+    "value": 1126,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, 0.95 of the motor's vars, in vars",
+    "value": 1570,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacitor's reactance for the target, in ohms",
+    "value": 47,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacitance for the target, in microfarads",
+    "value": 68,
+    "kind": "computed"
+   },
+   {
+    "label": "Supply current at the target, in amps",
+    "value": 7.32,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 capacitor, in vars",
+    "value": 2500,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 9 supply's reactive power, in vars",
+    "value": -848,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 supply's apparent power, in volt-amps",
+    "value": 1811,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 power factor, leading",
+    "value": 0.88,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 supply current, in amps",
+    "value": 7.87,
+    "kind": "computed"
+   },
+   {
+    "label": "Twice the full capacitor, in vars",
+    "value": 3304,
+    "kind": "computed"
+   },
+   {
+    "label": "Supply current with twice the capacitor, in amps",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Compressor's true power, in kilowatts",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Compressor's apparent power, in kilovolt-amps",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Compressor's current, in amps",
+    "value": 21.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Compressor's reactive power, in kilovars",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Compressor's current after correction, in amps",
+    "value": 13,
+    "kind": "computed"
+   },
+   {
+    "label": "Compressor's true power, in watts",
+    "value": 3000,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slip, compressor's plain gap, in kilovars",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Compressor capacitor's current, in amps",
+    "value": 17.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, compressor currents as plain numbers, in amps",
+    "value": 4.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Compressor capacitor's reactance, in ohms",
+    "value": 13.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Compressor capacitance, in microfarads",
+    "value": 240,
+    "kind": "computed"
+   },
+   {
+    "label": "Cable run from board to motor, in metres",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Most common ship supply frequency, in hertz",
+    "value": 60,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Extra vars at 60 Hz against 50 Hz, in per cent",
+    "value": 20,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A motor's current has two parts: an in-step part that does the work, and a quarter-cycle part that carries vars out to its windings and back every cycle. Fit a capacitor across the motor and it draws a current a quarter cycle the other way, so it hands the motor those vars from close by. The supply then sends only what is left, so its current falls while the true power stays put. This is [[power factor correction]]: adding a load that draws an equal and opposite amount of reactive power.[^3]\n\nStart from lessons 4 and 5. The motor's quarter-cycle part lags the voltage by a quarter cycle, as lesson 4's coil did. A capacitor across the same voltage draws a current that leads it by a quarter cycle,[^4] as in lesson 5. So the two currents are half a cycle apart: whenever the motor's quarter-cycle current flows in, the capacitor's flows out, and the other way round. That is why, on the power triangle, the motor's vars, Q_L, point up and the capacitor's, Q_C, point down, and the supply sees only Q_L − Q_C. The motor barely notices: the capacitor sits beside it, not in its path, so it still has the supply's 230 V across it, still draws 10 A and still takes 1600 W. The correction does not change the true power.[^5] Take lesson 8's motor: 1600 W, 1652 var and 2300 VA. A capacitor of 1652 var cancels the upright completely, so the supply's apparent power drops to 1600 VA and its current to 1600 ÷ 230 = 6.96 A, from 10 A.[^5] The capacitor draws 7.18 A and the motor still draws 10 A, yet the supply carries 6.96 A, not 2.82 A or 17.18 A. Currents out of step add as arrows: the capacitor's 7.18 A cancels exactly the motor's quarter-cycle part, 10 × sin 45.9° = 7.18 A, and leaves its in-step part, 10 × cos 45.9° = 6.96 A. That 7.18 A now runs round the short loop between the capacitor and the motor instead of along the supply cable. Any power factor below 1 makes the wiring carry more current than it would with no reactance,[^6] and here the cable's heat, which goes with the current squared, falls to (6.96 ÷ 10)² = 0.48 of what it was.\n\nTo size the capacitor, read it off the triangle in three steps. First, the vars it must supply: Q_C = Q before − Q after. Second, its reactance: it has the full supply voltage across it, so its current is V ÷ X_C and its vars are V × I_C = V² ÷ X_C, which turns round to X_C = V² ÷ Q_C. Third, its capacitance, from lesson 5's X_C = 1/(2πfC)[^7] turned round: C = 1 ÷ (2πf X_C). For a power factor of 1 on this motor, X_C = 230² ÷ 1652 = 32.0 Ω, and at 50 Hz, C = 1 ÷ (2π × 50 × 32.0), about 99 µF. You need not go all the way. For an example target of 0.95, the angle whose cosine is 0.95 is 18.2°, so the vars left are Q after = P × tan 18.2° = 1600 × 0.329 = 526 var, and Q_C = 1652 − 526 = 1126 var. That needs 47.0 Ω, about 68 µF, and leaves 1600 ÷ (230 × 0.95) = 7.32 A in the supply.\n\nToo much is as bad as too little. Past 1652 var the capacitor's current outgrows the motor's quarter-cycle part, so the difference, a quarter cycle ahead of the voltage, has to come along the supply cable. The triangle swings below the floor: the power factor is now leading. Twice the capacitor, 3304 var, leaves 1652 var leading, so the supply is back to 2300 VA and 10 A, the same poor 0.70 the other way. Too much capacitance gives a low power factor just as too much inductance does,[^8] and adding more than the load's own vars is [[over-correction]]. This is a simplified model, with pure sine waves, an ideal capacitor and a steady 230 V; a real motor's vars also change with how hard it is working. **A capacitor across an inductive load supplies the load's vars from close by, so, sized to Q before − Q after, it cuts the supply's current while the true power stays the same; too big a capacitor makes the power factor poor again, leading.[^5][^8]**"
+ },
+ "analogy": {
+  "text": "A winch on the front of a recovery truck draws heavy current in bursts through a long cable from the battery at the back. Fit a second battery right beside the winch and the bursts come from it, while the long cable carries only a steadier current to keep it topped up. The winch does the same work, but the long cable runs cooler. The capacitor is the battery beside the winch, the motor's vars are the bursts, and the supply cable is the long run.",
+  "breaks": "The second battery evens out a demand that flows one way, from battery to winch. A motor's vars go truly out and back: each half cycle the motor hands energy to the capacitor and takes it back. And a bigger battery does no harm, where a capacitor bigger than the motor's vars sends its own to-and-fro along the supply cable."
+ },
+ "practice": {
+  "text": "- Safety first: work on a capacitor only once it is isolated and proved dead at its own terminals. It stores charge (lesson 5), so it can stay charged after the supply is switched off.\n- Measure the supply voltage V, the load's current I and its true power P with a wattmeter. Apparent power: S = V × I.\n- The load's vars: Q before = √(S² − P²).\n- Pick the target power factor your job sets; 0.95 below is only an example. Find the angle whose cosine it is, and Q after = P × tan of that angle. For a power factor of 1, Q after is 0.\n- The capacitor's vars: Q_C = Q before − Q after.\n- Its reactance: X_C = V² ÷ Q_C. Its capacitance: C = 1 ÷ (2πf X_C), at the supply's own frequency.[^7]\n- Connect it across the load, in parallel, as close to the load as you can.\n- Check: the motor's wattmeter reads the same, and the supply current is near P ÷ (V × target).\n\n**Rules of thumb:** Keep the capacitor's vars at or below the load's own; more over-corrects.[^8] Only the cable between the supply and the capacitor carries less; the cable from the capacitor to the load still carries the load's full current. A capacitor's vars are V² ÷ X_C = V² × 2πfC, so they go up with the frequency: one sized for 50 Hz gives 20% more vars on 60 Hz at the same voltage, and 60 Hz is the most common frequency on board ship.[^2]\n\n**Worked example:** Lesson 8's motor on 230 V mains[^1] draws 10 A and takes 1.6 kW. S = 2300 VA, so Q before = √(2300² − 1600²) = 1652 var. For a target of 0.95, the angle is 18.2°, Q after = 1600 × 0.329 = 526 var, and Q_C = 1652 − 526 = 1126 var. X_C = 230² ÷ 1126 = 47.0 Ω, and C = 1 ÷ (2π × 50 × 47.0), about 68 µF. The supply current falls from 10 A to 1600 ÷ (230 × 0.95) = 7.32 A, while the motor still takes 1.6 kW.[^5]\n\n**Common mistakes**\n- Expecting the watts to fall. The motor does the same work; only the supply's current and volt-amps fall.[^5]\n- Taking the vars as S − P, 700 var here. The upright is √(S² − P²).\n- Cancelling a share of the vars, such as 0.95 × 1652. Work out what stays, P × tan φ, and supply the difference.\n- Taking the capacitor's current off the load's as a plain number. It cancels only the quarter-cycle part.\n- Going too big. Past the load's own vars the power factor falls again, leading.[^8]\n- Fitting the capacitor at the board and expecting the load's own cable to carry less."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Statutory Voltage Limits – Energy Networks Association (ENA)",
+   "url": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits",
+   "quote": "UK mains electricity operates at a nominal voltage of 230V, and can operate within limits of 253V and 216V set by the Electricity Safety, Quality and Continuity Regulations (ESQCR)"
+  },
+  {
+   "n": 2,
+   "title": "maritime electrical installations - notes on design ...",
+   "url": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf",
+   "quote": "60 Hz is the most common frequency adopted for use on board ship; the higher frequency enabling motors and generators to run at higher speeds with a consequent reduction in size for a given power rating."
+  },
+  {
+   "n": 3,
+   "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 11",
+   "url": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html",
+   "quote": "Poor power factor can be corrected, paradoxically, by adding another load to the circuit drawing an equal and opposite amount of reactive power"
+  },
+  {
+   "n": 4,
+   "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 4",
+   "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html",
+   "quote": "Looking at the graph, the current wave seems to have a “head start” on the voltage wave; the current “leads” the voltage, and the voltage “lags” behind the current."
+  },
+  {
+   "n": 5,
+   "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 11",
+   "url": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html",
+   "quote": "This correction, of course, will not change the amount of true power consumed by the load, but it will result in a substantial reduction of apparent power, and of the total current drawn from the 240 Volt source"
+  },
+  {
+   "n": 6,
+   "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 11",
+   "url": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html",
+   "quote": "any power factor less than 1 means that the circuit's wiring has to carry more current than what would be necessary with zero reactance"
+  },
+  {
+   "n": 7,
+   "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 4",
+   "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html",
+   "quote": "Capacitive reactance can be calculated using this formula: X C = 1/(2πfC) * Capacitive reactance decreases with increasing frequency. In other words, the higher the frequency, the less it opposes (the more it “conducts”) the AC flow of electrons."
+  },
+  {
+   "n": 8,
+   "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 11",
+   "url": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html",
+   "quote": "It should be noted that too much capacitance in an AC circuit will result in a low power factor just as well as too much inductance. You must be careful not to over-correct when adding capacitance to an AC circuit."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

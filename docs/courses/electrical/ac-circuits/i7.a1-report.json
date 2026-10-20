@@ -1,0 +1,192 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Inductive reactance can be calculated using this formula: X_L = 2πfL. The bench coil is 10 Ω at 50 Hz, and the drawn X_L arrow follows the formula at every setting of the sweep",
+        "ok": true,
+        "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html"
+      },
+      {
+        "label": "Capacitive reactance can be calculated using this formula: X_C = 1/(2πfC), and it decreases with increasing frequency: the bench capacitor is 10 Ω at 50 Hz, and the drawn X_C arrow follows the formula and shrinks at every step up the sweep",
+        "ok": true,
+        "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html"
+      },
+      {
+        "label": "Because the phasors for reactances are 90° out of phase with the current, the series impedance of a resistor R and a reactance X is given by Pythagoras' law: with X = X_L − X_C, the drawn Z is √(R² + X²) on every screen, at every frequency and at every resistance",
+        "ok": true,
+        "source": "https://www.animations.physics.unsw.edu.au/jw/AC.html"
+      },
+      {
+        "label": "Resonance occurs at the frequency where the current has its maximum value, where the impedance is at its minimum, which occurs when X_L = X_C: for every resistance from 1 to 10 Ω the greatest current of the sweep is at 50 Hz, where the drawn X_L and X_C arrows are equal, Z = R and the trace peaks",
+        "ok": true,
+        "source": "https://condor.depaul.edu/~jmilton/152/ACCircuits.pdf"
+      },
+      {
+        "label": "A practical application of Q is that voltage across L or C in a series resonant circuit is Q times total applied voltage: at 50 Hz with 1, 2, 4 and 10 Ω, Q = X_L ÷ R is 10, 5, 2.5 and 1, and the coil's and the capacitor's meters read Q × 10 V",
+        "ok": true,
+        "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_6.html"
+      },
+      {
+        "label": "Because of the high currents which may be present in a series LC circuit at resonance, it is possible to produce dangerously high voltage drops: at 50 Hz the coil and the capacitor read 50 V each on the 10 V supply, and their bars turn red exactly when they pass the supply's, the capacitor's at every setting below 70 Hz and the coil's at every setting above 35 Hz",
+        "ok": true,
+        "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_6.html"
+      },
+      {
+        "label": "UK mains electricity operates at a nominal voltage of 230V: on 230 V, 6 Ω with 20 Ω and 12 Ω of reactance draws 23 A and puts 460 V across the coil and 276 V across the capacitor; 30 Ω, 50 mH and 100 µF draw 6.75 A",
+        "ok": true,
+        "source": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits"
+      },
+      {
+        "label": "Known answers: 0.21 A at 10 Hz, 2.03 A at 40 Hz, 5 A at 50 Hz, 2.39 A at 60 Hz and 0.66 A at 25 and 100 Hz; at 25 Hz X = −15 Ω and Z = 15.1 Ω; at 75 Hz X = 8.33 Ω and φ = 76.5°; at 60 Hz the coil reads 28.7 V; with 1 Ω and 10 Ω, 2.17 A and 0.91 A at 40 Hz; 100 mH and 10 µF resonate at 159.15 Hz; 50 mH and 100 µF at 71.2 Hz",
+        "ok": true
+      },
+      {
+        "label": "The note by the ammeter says the current leads the supply below 50 Hz, is in step with it at 50 Hz and lags above, at every setting of the sweep",
+        "ok": true
+      },
+      {
+        "label": "Screen 8's waves: the coil's and the capacitor's voltages each peak at 70.7 V, which is 50 V × √2, at opposite instants (0 and 10 ms), and their sum is zero at every drawn instant",
+        "ok": true
+      },
+      {
+        "label": "On the volts screen every arrow is its ohms times the current: at 50 Hz, 5 A turns 10 Ω into 50 V up and 50 V down, which cancel, and 2 Ω into the resistor's 10 V, equal to the supply's, at every setting",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle accepts only its right answer; before an answer its picture hides what is asked, a right answer draws it, and each wrong pick with a drawing draws what it claims, in red",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "f",
+      "res"
+    ],
+    "readouts": [],
+    "outputs": [
+      "amps",
+      "vl",
+      "vc"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Opposite arrows",
+          "The net reactance",
+          "Sweep the frequency",
+          "At 75 Hz",
+          "Where the peak sits",
+          "Another pair",
+          "Volts at resonance",
+          "Fifty volts on ten",
+          "Change the resistance",
+          "Double the resistance",
+          "Mixed: on the mains",
+          "Mixed: three parts"
+        ],
+        "value": 0
+      },
+      {
+        "id": "f",
+        "kind": "control",
+        "label": "Supply frequency",
+        "min": 10,
+        "max": 100,
+        "step": 5,
+        "log": false,
+        "value": 25,
+        "snap": [
+          10,
+          25,
+          40,
+          50,
+          60,
+          75,
+          100
+        ]
+      },
+      {
+        "id": "res",
+        "kind": "control",
+        "label": "Resistance",
+        "min": 1,
+        "max": 10,
+        "step": 1,
+        "log": false,
+        "value": 2,
+        "snap": [
+          1,
+          2,
+          4,
+          10
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Replay",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1",
+    "f = 77.5",
+    "res = 7.75",
+    "pressed \"Answer 1\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/ac-circuits/i7.a1-360-light.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i7.a1-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i7.a1-360-light-end.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i7.a1-360-dark.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i7.a1-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i7.a1-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i7.a1-1280-light.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i7.a1-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i7.a1-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i7.a1-1280-dark.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i7.a1-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i7.a1-1280-dark-end.png"
+  ]
+}

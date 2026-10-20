@@ -1,0 +1,27 @@
+{
+  "draft": "i9.lesson.draft1.txt",
+  "validator": "ok, no problems",
+  "faults": [
+    { "fault": "the explanation skipping the causal step", "where": "explain, paragraph 4", "finding": "'the capacitor's spare vars have to come along the supply cable' states over-correction's result without the step: past full correction the capacitor's current is bigger than the motor's quarter-cycle part, and the supply must make up the difference.", "fix": "Say the capacitor's current now outgrows the motor's quarter-cycle part, so the difference, a quarter cycle ahead of the voltage, comes along the supply cable." },
+    { "fault": "the explanation skipping the causal step", "where": "explain, paragraph 2", "finding": "It jumps from 'a coil's current lags' to 'the motor's quarter-cycle current' without saying the motor's quarter-cycle part is the part that lags like lesson 4's coil.", "fix": "Name the motor's quarter-cycle part as lagging the voltage by a quarter cycle, as lesson 4's coil did, and the capacitor's current as leading by one, as lesson 5's did." },
+    { "fault": "false absolute", "where": "explain, paragraph 2", "finding": "'The motor itself does not notice. It still has 230 V across it' is false of a real installation, where less supply current means less voltage drop and a slightly higher motor voltage; ignores says so, but explain is read without ignores.", "fix": "'The motor barely notices: the capacitor sits beside it, not in its path, so it still has the supply's voltage across it.'" },
+    { "fault": "false absolute", "where": "practice, check step", "finding": "'the wattmeter reads the same' is true of the motor's wattmeter, not of one on the supply side, which also counts the real capacitor's small losses.", "fix": "Say the motor's wattmeter reads the same." },
+    { "fault": "an interactive brief that shows only the effect, not the cause", "where": "interactive.brief", "finding": "The brief names the current falling and rising but not the capacitor's down arrow eating the motor's upright, which is the cause the picture draws.", "fix": "Name the down arrow shortening the motor's upright as the cause of the falling current." },
+    { "fault": "order of screens", "where": "interactive.whatAmILookingAt, screen 5", "finding": "Screen 5 uses X_C = 32.0 Ω before screen 7 teaches how to find it.", "fix": "On screen 5 give the capacitor's current as its vars over the voltage, 1652 ÷ 230 = 7.18 A, since its whole current is a quarter cycle out of step (lesson 8's Q = V × I at 90°)." },
+    { "fault": "unreadable labels", "where": "interactive.whatAmILookingAt, screen 11", "finding": "The Check gives C from 13.2 Ω without saying where 13.2 Ω comes from.", "fix": "Add X_C = 230² ÷ 4000 = 13.2 Ω." }
+  ],
+  "shape": {
+    "idea named up front": "yes, paragraph 1: the capacitor supplies the motor's vars from close by, so the supply current falls while the true power stays put",
+    "rule in words": "yes: supply's upright = Q_L − Q_C; Q_C = Q before − Q after, X_C = V² ÷ Q_C, C = 1 ÷ (2πf X_C)",
+    "worked example with real numbers": "yes: lesson 8's motor, 1600 W and 1652 var, corrected to 1 (99 µF, 6.96 A) and to an example 0.95 (1126 var, 68 µF, 7.32 A)",
+    "misconception shown failing": "yes: 10 − 7.18 = 2.82 A and 10 + 7.18 against the 6.96 A the arrows give; the watts falling; twice the capacitor bringing back 10 A",
+    "analogy from his trade with where it breaks": "yes: a second battery beside a winch on a long cable; breaks on one-way flow and on size",
+    "put it into practice": "yes: safety first, steps, rules of thumb, worked example, common mistakes",
+    "recap he could say back": "yes, the bold closing sentence"
+  },
+  "misconceptions from the brief": {
+    "over-correcting": "screens 9 and 10 (twice the capacitor brings back 10 A, leading)",
+    "correction changes the real power": "screen 2 (what the motor's wattmeter reads now)"
+  },
+  "verdict": "rewrite as draft 2 with the seven fixes"
+}

@@ -1,0 +1,441 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: AC circuits, from turning coil to three-phase
+Idea: Real, reactive and apparent power (Out of step, the power wave dips below zero, so watts used, vars sloshing back and volt-amps supplied form a triangle whose ratio is the power factor.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the power wave sinking below the line as the current slides out of step, so its average, the watts, falls while volts times amps stays put, when you drag the current wave.
+Title (the app shows it above the frame, so do not repeat it): The power slosh
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in twelve small screens on one picture, the power slosh. It is lesson 3's power scrubber with one change: the current wave can now slide. Above, a voltage wave with a 100 V peak and a current wave (dashed, as before) with a 10 A peak share one time axis, 0 to 40 ms, two cycles of a 50 Hz supply; these are the scrubber's example values, so the rms values are 70.7 V and 7.07 A. Drag the current wave left or right and it slides along the time axis by the phase angle φ, from 90° behind the voltage to 90° ahead of it in steps of 5°, opening at 0°. As in lesson 4, φ is the angle by which the voltage leads the current: positive when the current lags, as a coil's does, and negative when it leads, as a capacitor's does. Below, on the same time axis, is the power wave, voltage × current worked instant by instant, as in lesson 3. Where it is above the line, energy is flowing from the supply into the load, and that area is shaded strongly; where it is below the line, energy is flowing from the load back to the supply, and that area is shaded lightly. A flat dashed line marks the power wave's average, the true power. To the right, the power triangle draws itself from three readouts: true power P along the floor, in watts; reactive power Q upright, in vars, pointing up when the current lags and down when it leads; and apparent power S, the long side, in volt-amps, which is simply V_rms × I_rms, 70.7 × 7.07 = 500 VA, whatever the angle. The rules are P = V I cos φ and Q = V I sin φ, with V and I the rms values, so P² + Q² = S² and the three close a right-angled triangle. Why: the current splits into a part in step with the voltage, I cos φ, and a part a quarter cycle out of step, I sin φ, as Trigonometry lesson 8 split the current arrow into its two shadows. The in-step part times the voltage gives lesson 3's humps, which never dip below the line and average V I cos φ. The quarter-cycle part times the voltage gives lesson 4's slosh, which goes up and down equally and averages zero, with a peak of V I sin φ. The power wave is those two added, so it swings S either side of its average P. Readouts give P, Q and S; the Q readout shows a minus sign when the current leads. Screen 1 opens at φ = 0°, the heater of lesson 3: the power wave is two humps a cycle, all above the line, from 0 to 1000 W, averaging 500 W, with S = 500 VA and Q = 0. The current wave then slides 60° late: the power wave sinks, its top falls to 750 W and its bottom dips to −250 W, so for part of each cycle the voltage and the current have opposite signs and the product is negative. The lightly shaded areas appear below the line, and the dashed average drops to 250 W. Screen 2 holds φ at 60° and asks for the average: 250 W, the middle of a wave that swings from 750 W to −250 W; 500 W (rms volts × rms amps, the resistor's rule); or 375 W (half the 750 W top, lesson 3's rule used where the wave dips). A right Check shows the strongly shaded area above the dashed line matching the gap below it. Screen 3 splits the dashed current wave into two thinner waves that add up to it: the in-step part, with a 10 cos 60° = 5 A peak, and the quarter-cycle part, with a 10 sin 60° = 8.66 A peak. Under each, its own power wave: the in-step part's humps reach 500 W and average 250 W; the quarter-cycle part's slosh swings between 433 W and −433 W and averages 0 W. Added instant by instant they give the power wave above. A row states the rule: the average, with rms values, is P = V I cos φ = 70.7 × 7.07 × 0.5 = 250 W, the true power. Screen 4 returns to lesson 6's bench, 20 V across a 6 Ω resistor and an 8 Ω coil in series, drawing 2 A with the current lagging by 53.13°, and asks for its true power: 24 W, from 20 × 2 × cos 53.13° = 20 × 2 × 0.6; 40 W (volts × amps, the angle left out); or 32 W (the sine used, 20 × 2 × 0.8). A right Check adds the cross-check from the resistor alone: 2² × 6 = 24 W. Screen 5 names the three powers on the triangle at φ = 60°: P = 250 W along the floor, Q = 433 var upright, and S = 500 VA, the long side, with the power factor P ÷ S = 250 ÷ 500 = 0.5, which is cos 60°. Dragging the current wave, the floor and the upright trade length while the long side stays at 500 VA: at 0° the triangle lies flat, P = 500 W and Q = 0; at 90° it stands on end, P = 0 W and Q = 500 var, lesson 4's coil; at −90°, Q = −500 var, lesson 5's capacitor, and the triangle hangs below the floor. Screen 6: a load's wattmeter reads 4.8 kW, and its voltmeter and ammeter multiply to 6 kVA; how many kvar slosh? 3.6 kvar, from √(6² − 4.8²) = √12.96; 1.2 kvar (4.8 taken from 6 as plain numbers); or 10.8 kvar (the two added). A right Check draws the triangle with a power factor of 4.8 ÷ 6 = 0.8. Screen 7 multiplies lesson 6's impedance triangle by the current squared, 2² = 4: R = 6 Ω becomes P = 24 W, X_L = 8 Ω becomes Q = 32 var, and Z = 10 Ω becomes S = 40 VA, so P = I²R, Q = I²X and S = I²Z, and the power triangle has the same 53.13° angle. Each part's own meter gives the same: the resistor's 12 V × 2 A = 24 W, the coil's 16 V × 2 A = 32 var, the supply's 20 V × 2 A = 40 VA. Screen 8 takes lesson 6's screen 6 coil: on 230 V mains it draws 5 A, and its resistance is 40 Ω, so the resistor part reads 200 V; what is its true power? 1000 W, from 5² × 40, the same as 200 V × 5 A; 756 W (only the in-step part of the current squared, (5 × cos φ)² × 40, where I²R takes the whole current's size); or 1323 W (230² ÷ 40, the whole supply voltage put across the resistance). A right Check draws its triangle: S = 1150 VA, Q = 568 var, power factor 0.87, φ = 29.6°. Screen 9 frees a switch, Hold true power, which fixes P at 500 W. Now dragging the current wave out of step makes it grow taller, because the in-step part must keep its 7.07 A rms, and φ stops at 60° either way. At 60° the current peaks at 20 A, 14.1 A rms, twice the heater's; S grows to 1000 VA and Q to 866 var, while the dashed average stays at 500 W. A cable bar beside the current wave shows the heat in a supply cable of fixed resistance, which goes with the current squared, so at 60° it is 2² = 4 times the heater's. Screen 10 is the course's puzzle: a motor on 230 V draws 10 A while a wattmeter reads 1.6 kW; where has the rest of 2.3 kVA gone? It has not gone anywhere: S = 230 × 10 = 2300 VA, the power factor is 1600 ÷ 2300 = 0.70, and about 1.65 kvar flows out to the motor and back each cycle, so the cable carries all 10 A for 1.6 kW; or 700 W is lost as heat in the motor's windings (heat in the windings is real power, which the wattmeter already counts); or the wattmeter reads low (it reads the average of the power wave, which is all the motor takes). A right Check draws the triangle at φ = 45.9°. Screens 11 and 12 are mixed. Screen 11 slides the current wave 30° ahead of the voltage and asks which is true: P = 433 W and Q = 250 var leading, which the readout shows as −250 var, a power factor of 0.87 leading, with the power wave still dipping to −67 W; P = 250 W (the sine used for the true power); or nothing comes back, because the current leads (a leading current is as far out of step as a lagging one, and the wave dips just the same). Screen 12 takes lesson 7's bench at resonance, 10 V at 50 Hz across 2 Ω, a 10 Ω coil and a 10 Ω capacitor, drawing 5 A, and asks how many vars the supply provides: 0 var, because the coil's 5² × 10 = 250 var lagging and the capacitor's 250 var leading cancel, the two parts handing the energy to and fro between them, so P = 5² × 2 = 50 W, S = 10 V × 5 A = 50 VA and the power factor is 1; 500 var (the two added); or 250 var (the coil's alone). Each puzzle offers three answers; a wrong pick gets a one-line hint naming its slip, Why? explains in words, and a right Check draws the answer on the picture. The closing line says the energy below the line is not used, only lent and returned, but the current that carries it is real, and that lesson 9 puts a capacitor beside a motor so the motor's vars slosh locally instead of along the supply cable.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The waves are pure sines and the supply holds its voltage whatever the load. Dragging φ straight is a shortcut: in a real circuit the angle is set by the load's resistance and reactance, as in lesson 6, and the current's size changes with them. The energy shaded below the line is drawn going back to the supply; on a real installation it goes back towards the supply, and other loads on the same supply may take it on the way. The cable bar shows only the cable's heat, not its voltage drop. A load whose current is not a sine wave, as with many electronic loads, has a power factor that this triangle alone does not give. The circuits and readings are example values.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 11 in steps of 1, opening at 0
+Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id and the decimals given, which is how the explanation rounds it, or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):
+- id "watts": True power (W), decimals: 0
+- id "vars": Reactive power (var), decimals: 0
+- id "va": Apparent power (VA), decimals: 0
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Number of screens: 12 (assumed)
+- Voltage wave's peak, in volts: 100 (assumed)
+- Current wave's peak, in amps: 10 (assumed)
+- Scrubber supply frequency, in hertz: 50 (assumed)
+- Time axis length, in milliseconds: 40 (assumed)
+- Rms voltage on the scrubber, in volts: 70.7 (computed)
+- Rms current on the scrubber, in amps: 7.07 (computed)
+- Phase angle, lowest, in degrees: -90 (assumed)
+- Phase angle, highest, in degrees: 90 (assumed)
+- Phase angle step, in degrees: 5 (assumed)
+- Opening phase angle, in degrees: 0 (control)
+- Apparent power on the scrubber, in volt-amps: 500 (computed)
+- Power wave's top in step, in watts: 1000 (computed)
+- True power in step, in watts: 500 (computed)
+- Phase angle shown on screens 1 to 3 and 5, in degrees: 60 (assumed)
+- Power wave's top at 60°, in watts: 750 (computed)
+- Power wave's bottom at 60°, in watts: -250 (computed)
+- True power at 60°, in watts: 250 (computed)
+- Slip, half the top at 60°, in watts: 375 (computed)
+- In-step current peak at 60°, in amps: 5 (computed)
+- Quarter-cycle current peak at 60°, in amps: 8.66 (computed)
+- Reactive power at 60°, in vars: 433 (computed)
+- Power factor at 60°: 0.5 (computed)
+- Lesson 6 bench supply, in volts: 20 (assumed)
+- Lesson 6 bench resistor, in ohms: 6 (assumed)
+- Lesson 6 bench coil's reactance, in ohms: 8 (assumed)
+- Lesson 6 bench impedance, in ohms: 10 (computed)
+- Lesson 6 bench current, in amps: 2 (computed)
+- Lesson 6 bench phase angle, in degrees: 53.13 (computed)
+- Lesson 6 bench power factor: 0.6 (computed)
+- Lesson 6 bench sine of the angle: 0.8 (computed)
+- Lesson 6 bench true power, in watts: 24 (computed)
+- Lesson 6 bench reactive power, in vars: 32 (computed)
+- Lesson 6 bench apparent power, in volt-amps: 40 (computed)
+- Lesson 6 bench resistor's voltage, in volts: 12 (computed)
+- Lesson 6 bench coil's voltage, in volts: 16 (computed)
+- Lesson 6 bench current squared, in amps squared: 4 (computed)
+- Reactive power at 90°, in vars: 500 (computed)
+- Reactive power at −90°, in vars: -500 (computed)
+- Screen 6 wattmeter reading, in kilowatts: 4.8 (assumed)
+- Screen 6 volts times amps, in kilovolt-amps: 6 (assumed)
+- Screen 6 squares' difference: 12.96 (computed)
+- Screen 6 reactive power, in kilovars: 3.6 (computed)
+- Slip, screen 6 plain difference, in kilovars: 1.2 (computed)
+- Slip, screen 6 added, in kilovars: 10.8 (computed)
+- Screen 6 power factor: 0.8 (computed)
+- UK mains nominal voltage, in volts: 230 (constant, source [1])
+- Screen 8 coil's current, in amps: 5 (assumed)
+- Screen 8 coil's resistance, in ohms: 40 (computed)
+- Screen 8 resistor part's voltage, in volts: 200 (assumed)
+- Screen 8 true power, in watts: 1000 (computed)
+- Screen 8 apparent power, in volt-amps: 1150 (computed)
+- Slip, screen 8 whole supply across the resistance, in watts: 1323 (computed)
+- Screen 8 reactive power, in vars: 568 (computed)
+- Screen 8 power factor: 0.87 (computed)
+- Screen 8 phase angle, in degrees: 29.6 (computed)
+- Screen 8 in-step current, in amps: 4.35 (computed)
+- Slip, screen 8 in-step current only, in watts: 756 (computed)
+- Held true power, in watts: 500 (assumed)
+- Largest angle with true power held, in degrees: 60 (assumed)
+- Current peak at 60° with power held, in amps: 20 (computed)
+- Rms current at 60° with power held, in amps: 14.1 (computed)
+- Apparent power at 60° with power held, in volt-amps: 1000 (computed)
+- Reactive power at 60° with power held, in vars: 866 (computed)
+- Cable heat at 60° against the heater's, times: 4 (computed)
+- Motor's current, in amps: 10 (assumed)
+- Motor's wattmeter reading, in kilowatts: 1.6 (assumed)
+- Motor's wattmeter reading, in watts: 1600 (assumed)
+- Motor's apparent power, in volt-amps: 2300 (computed)
+- Motor's apparent power, in kilovolt-amps: 2.3 (computed)
+- Motor's power factor: 0.7 (computed)
+- Lesson 4 coil's power wave peak, in watts: 500 (computed)
+- Motor's reactive power, in vars: 1652 (computed)
+- Motor's reactive power, in kilovars: 1.65 (computed)
+- Motor's phase angle, in degrees: 45.9 (computed)
+- Slip, motor's gap taken as heat, in watts: 700 (computed)
+- Screen 11 phase angle, current ahead, in degrees: 30 (assumed)
+- Screen 11 true power, in watts: 433 (computed)
+- Screen 11 reactive power, leading, in vars: 250 (computed)
+- Screen 11 power factor, leading: 0.87 (computed)
+- Screen 11 power wave's bottom, in watts: -67 (computed)
+- Lesson 7 bench supply, in volts: 10 (assumed)
+- Lesson 7 bench resistor, in ohms: 2 (assumed)
+- Lesson 7 bench coil's and capacitor's reactance, in ohms: 10 (assumed)
+- Lesson 7 bench current at resonance, in amps: 5 (computed)
+- Lesson 7 coil's reactive power, in vars: 250 (computed)
+- Lesson 7 bench true power, in watts: 50 (computed)
+- Slip, lesson 7 vars added, in vars: 500 (computed)
+- Lesson 7 bench power factor: 1 (computed)
+- Most common ship frequency, in hertz: 60 (constant, source [2])
+
+## The explanation Dan reads after playing (use the same words for the same things)
+When a load's current runs out of step with the voltage, the power wave dips below zero for part of every cycle: energy flows out to the load and some of it flows straight back. What the load keeps on average is the true power, in watts. What flows out and back is the reactive power, in vars. Volts times amps is the apparent power, in volt-amps. The three make a right-angled triangle, and the cable and the generator have to carry the current that goes with the long side, not the watts.
+
+Start from lesson 3: the power at each instant is the voltage times the current at that instant. A resistor's voltage and current rise and fall together, so their product never goes below zero, and its power is never returned to the source, as it is with reactive loads. Now slide the current a phase angle φ behind the voltage, as a coil and a resistor in series do (lesson 6). For part of each cycle the voltage is already positive while the current is still negative, or the other way round, so their product is negative: energy is flowing from the load back towards the supply. A coil or a capacitor takes energy in during one part of the cycle and hands it back during another. To see how much is kept, split the current, as Trigonometry lesson 8 split the current arrow, into a part in step with the voltage, I cos φ, and a part a quarter cycle out of step, I sin φ. The in-step part times the voltage…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Statutory Voltage Limits – Energy Networks Association (ENA) (https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits): "UK mains electricity operates at a nominal voltage of 230V, and can operate within limits of 253V and 216V set by the Electricity Safety, Quality and Continuity Regulations (ESQCR)"
+[2] maritime electrical installations - notes on design ... (http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf): "60 Hz is the most common frequency adopted for use on board ship; the higher frequency enabling motors and generators to run at higher speeds with a consequent reduction in size for a given power rating."
+[3] Lessons In Electric Circuits -- Volume II (AC) - Chapter 11 (http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html): "Note that the waveform for power is always positive, never negative for this resistive circuit. This means that power is always being dissipated by the resistive load, and never returned to the source as it is with reactive loads."
+[4] 15.4 Power in an AC Circuit - University Physics Volume 2 | OpenStax (https://openstax.org/books/university-physics-volume-2/pages/15-4-power-in-an-ac-circuit): "Capacitors and inductors absorb energy from the circuit during one half-cycle and then discharge it back to the circuit during the other half-cycle."
+[5] Power in AC Circuits (http://www.hyperphysics.gsu.edu/hbase/electric/powerac.html): "the average power can be expressed as P avg = VI cosφ"
+[6] Lessons In Electric Circuits -- Volume II (AC) - Chapter 11 (http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html): "The actual amount of power being used, or dissipated, in a circuit is called true power , and it is measured in watts (symbolized by the capital letter P, as always)."
+[7] Lessons In Electric Circuits -- Volume II (AC) - Chapter 11 (http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html): "This “phantom power” is called reactive power , and it is measured in a unit called Volt-Amps-Reactive (VAR), rather than watts. The mathematical symbol for reactive power is (unfortunately) the capital letter Q."
+[8] Lessons In Electric Circuits -- Volume II (AC) - Chapter 11 (http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html): "Because true power and apparent power form the adjacent and hypotenuse sides of a right triangle, respectively, the power factor ratio is also equal to the cosine of that phase angle."
+[9] Lessons In Electric Circuits -- Volume II (AC) - Chapter 11 (http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html): "any power factor less than 1 means that the circuit's wiring has to carry more current than what would be necessary with zero reactance"
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

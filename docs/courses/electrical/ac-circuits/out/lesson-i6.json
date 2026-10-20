@@ -1,0 +1,794 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-20T01:47:06.115Z",
+ "startedAt": "2026-10-20T01:47:06.115Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i6",
+  "title": "Series RL and RC: impedance you can measure",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the 12 V and 16 V arrows, a quarter cycle apart, at right angles, closing a triangle whose long side matches the 20 V supply meter, when you lay them tip to tail.",
+   "title": "Three meters, one triangle",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "vr",
+     "label": "Across the resistor",
+     "unit": "V",
+     "decimals": 1
+    },
+    {
+     "id": "vx",
+     "label": "Across coil or capacitor",
+     "unit": "V",
+     "decimals": 1
+    },
+    {
+     "id": "vs",
+     "label": "Across the supply",
+     "unit": "V",
+     "decimals": 1
+    }
+   ],
+   "whatAmILookingAt": "A short lesson in twelve small screens on one picture, three meters and one triangle. At the top, a 6 Ω resistor and an ideal coil of about 25.5 mH sit in series on an AC supply of 20 V at 50 Hz, example values picked so the coil's reactance is 8 Ω and the numbers come out whole. An ammeter in the loop reads the current, 2 A, and three voltmeters read across the resistor, across the coil and across the supply; like ordinary AC meters on a sine wave, they read rms. Under the circuit, each part's voltage is drawn as an arrow whose length is its meter reading. One current flows through every part of a series loop, so the current is the reference and its arrow lies flat. The resistor's arrow, V_R, lies flat with it, because a resistor's voltage is in step with its current (lesson 3). The coil's arrow, V_L, starts at V_R's tip and points straight up, because an ideal coil's voltage peaks a quarter cycle before its current (lesson 4). The arrow from V_R's tail to V_L's tip closes a right-angled triangle; by Pythagoras its length is √(V_R² + V_L²), and it lands on the supply meter's reading. The angle between it and the flat side is the phase angle φ, by which the supply's voltage leads the current, with tan φ = V_L ÷ V_R. Beside the triangle, a bar shows V_R + V_L added as plain numbers, struck through, next to the supply's own bar. Readouts give the three meter readings. Screen 1 opens on the meters: 12 V across the resistor, 16 V across the coil and 20 V across the supply, with the 28 V plain-sum bar struck through. Screen 2 asks why 12 V and 16 V make 20 V, not 28 V: the two voltages peak a quarter cycle apart, so they are never both at full size together; the coil wastes 8 V as heat (an ideal coil takes no watts, lesson 4); or a smaller current flows in the coil (one series loop carries one current). A right Check plays both voltage waves on one time axis with their instant-by-instant sum, the supply's wave: the parts peak at 17.0 V and 22.6 V, but at different instants, and the sum peaks at 28.3 V, which is 20 V rms. Screen 3 turns each wave into its arrow, as in Trigonometry lesson 7, and lays them tip to tail: V_R flat, V_L straight up, and the closing side, √(12² + 16²) = 20 V, swings onto the supply meter's reading at φ = 53.13°. Screen 4 gives readings of 10 V across a resistor and 24 V across a coil in series and asks for the supply meter: 26 V; 34 V (the plain sum); or 14 V (the difference). A right Check redraws the triangle with those sides. Screen 5 turns every side from volts into ohms by dividing it by the current, 2 A: 12 V becomes R = 6 Ω, 16 V becomes X_L = 8 Ω and 20 V becomes Z = 10 Ω, the impedance. The triangle shrinks but keeps its shape and its 53.13° angle, because every side is divided by the same number. A row reads Z = √(R² + X_L²) = √(6² + 8²) = 10 Ω and I = V ÷ Z = 20 ÷ 10 = 2 A. Screen 6 starts from meters: a resistor and a coil in series on 230 V, 50 Hz mains, with the ammeter reading 5 A and the resistor's meter 200 V; what are R and X_L? 40 Ω and 22.7 Ω, from R = 200 V ÷ 5 A, Z = 230 V ÷ 5 A = 46 Ω and X_L = √(46² − 40²), and the coil's hidden meter then shows 113.6 V; 40 Ω and 6 Ω (200 V taken from 230 V as plain numbers, the 30 V divided by 5 A); or 40 Ω and 46 Ω (the whole impedance taken as the coil's reactance). Screen 7 frees a frequency slider, 0 to 100 Hz in steps of 5, opening at 50, and a resistance slider, 2 to 12 Ω in steps of 1, opening at 6 Ω, with the supply held at 20 V. Moving the resistance changes only the flat side, so Dan can see that only the reactance side depends on the frequency. The flat R side stays 6 Ω while the X_L side follows X_L = 2πfL: at 100 Hz it doubles to 16 Ω, Z reads 17.1 Ω, the current falls to 1.17 A and φ rises to 69.4°; at 25 Hz X_L is 4 Ω, Z is 7.21 Ω, the current 2.77 A and φ 33.7°; at 0 Hz, steady DC, X_L is 0 Ω, the triangle lies flat on R and the current is 20 V ÷ 6 Ω = 3.33 A. The demonstration then plays back to 50 Hz, and a dashed outline draws the resistor and the coil as one real coil whose wire has the 6 Ω. An ohmmeter's steady current makes no back-emf, so it reads only the 6 Ω; the AC meters give Z = 20 V ÷ 2 A = 10 Ω; and the triangle gives X_L = √(10² − 6²) = 8 Ω and L = 8 ÷ (2π × 50) = 25.5 mH. Screen 8: an unknown coil reads 8 Ω on an ohmmeter and draws 2 A from a 34 V, 50 Hz test supply; what is its inductance? 47.7 mH, from Z = 17 Ω and X_L = 15 Ω; 54.1 mH (all 17 Ω taken as X_L); or 28.6 mH (8 Ω taken from 17 Ω as plain numbers, leaving 9 Ω). Screen 9, back on the screen 1 bench, swaps the coil for a capacitor of about 398 µF, whose reactance at 50 Hz is also 8 Ω. The meters still read 12 V, 16 V and 20 V, but the capacitor's arrow, V_C, points straight down, because its voltage peaks a quarter cycle after its current (lesson 5). The triangle flips below the line and φ reads −53.13°: the supply's voltage lags the current. Here the triangle is drawn in volts, with the supply's side held at 20 V, so V_C shrinks and grows with X_C. On the frequency slider, now from 5 to 100 Hz, the X_C side shrinks as the frequency rises, to 4 Ω at 100 Hz, where φ reads −33.7°, and grows as it falls, to 80 Ω at 5 Hz, where the triangle stands almost on end. Screens 10 to 12 are mixed. Screen 10 sets out four ohm figures from the screen 1 bench, the ohmmeter's 6 Ω across the resistor, 16 V ÷ 2 A = 8 Ω across the coil, 16 V ÷ 2 A = 8 Ω across the capacitor and 20 V ÷ 2 A = 10 Ω across the supply, and asks which naming is right, each answer naming all three figures: resistance 6 Ω, reactances 8 Ω, impedance 10 Ω; resistance 6 Ω, reactances 10 Ω, impedance 8 Ω (the biggest figure given to the parts); or impedance 6 Ω, reactances 8 Ω, resistance 10 Ω (the ohmmeter taken as the opposition to AC). Screen 11: a 30 Ω resistor and a capacitor in series on a 50 V test supply; the resistor's meter reads 30 V; what does the capacitor's meter read? 40 V, from √(50² − 30²); 20 V (30 V taken from 50 V as plain numbers); or −40 V (the arrow below the line read as a negative reading). Screen 12: the screen 1 resistor and coil on a 20 V, 60 Hz supply, the frequency most common on board ship. The current is 1.77 A, lagging by 58.0°, from X_L = 9.6 Ω and Z = 11.3 Ω; or 1.67 A, lagging by 53.1° (the whole 10 Ω scaled up with the frequency, resistance and all); or 2 A, lagging by 53.1° (the frequency ignored). Each puzzle offers three answers; a wrong pick gets a one-line hint naming its slip, Why? explains in words, and a right Check draws the answer on the picture. The closing line says the meters disagree with plain arithmetic because the part voltages peak a quarter cycle apart, and that lesson 7 puts a coil and a capacitor in one loop, where their arrows point opposite ways.",
+   "ignores": "The resistor is a pure resistance and the coil and the capacitor are ideal, so the arrows sit at exactly right angles; a real coil's own wire resistance tips its arrow a little off the vertical, which is why screen 7 treats a real coil as a resistance and an ideal coil in one body. The meters are ideal: they draw nothing and read the true rms of a pure sine. The arrows are drawn to the rms readings where Trigonometry drew peaks; both give the same triangle, because every side is scaled by the same √2. Nothing physical points up or down: the directions stand for timing, and only the angles between arrows mean anything. A coil with an iron core also loses some energy in the iron on AC, and its inductance changes with its current; treating that loss as extra resistance an ohmmeter cannot see is our own reasoning from the triangle's rule, not from a source. The switch-on surge is left out. The parts, the supplies and the readings are example values.",
+   "numbers": [
+    {
+     "label": "Number of screens",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Resistor's resistance, in ohms",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Coil's reactance at 50 Hz, in ohms",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Coil's inductance, in millihenries",
+     "value": 25.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Supply voltage, rms, in volts",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Opening frequency, in hertz",
+     "value": 50,
+     "kind": "control"
+    },
+    {
+     "label": "Current, in amps",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Resistor's meter, in volts",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Coil's meter, in volts",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Plain sum of the part meters, in volts",
+     "value": 28,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, volts thought lost as heat",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Resistor's voltage peak, in volts",
+     "value": 17,
+     "kind": "computed"
+    },
+    {
+     "label": "Coil's voltage peak, in volts",
+     "value": 22.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Supply's voltage peak, in volts",
+     "value": 28.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Phase angle at 50 Hz, in degrees",
+     "value": 53.13,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 resistor's meter, in volts",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 4 coil's meter, in volts",
+     "value": 24,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 4 supply meter, in volts",
+     "value": 26,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, screen 4 plain sum, in volts",
+     "value": 34,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, screen 4 difference, in volts",
+     "value": 14,
+     "kind": "computed"
+    },
+    {
+     "label": "Impedance at 50 Hz, in ohms",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 current, in amps",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 6 resistor's meter, in volts",
+     "value": 200,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 6 resistance, in ohms",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 impedance, in ohms",
+     "value": 46,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 coil's reactance, in ohms",
+     "value": 22.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 coil's meter, in volts",
+     "value": 113.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, screen 6 plain voltage difference, in volts",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, screen 6 plain-difference reactance, in ohms",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, screen 6 impedance taken as reactance, in ohms",
+     "value": 46,
+     "kind": "computed"
+    },
+    {
+     "label": "UK mains nominal voltage, in volts",
+     "value": 230,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "UK mains frequency, in hertz",
+     "value": 50,
+     "kind": "constant"
+    },
+    {
+     "label": "Frequency slider, lowest, in hertz",
+     "value": 0,
+     "kind": "assumed"
+    },
+    {
+     "label": "Frequency slider, highest, in hertz",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Frequency slider step, in hertz",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Resistance slider, lowest, in ohms",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Resistance slider, highest, in ohms",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Resistance slider step, in ohms",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Coil's reactance at 100 Hz, in ohms",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Impedance at 100 Hz, in ohms",
+     "value": 17.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Current at 100 Hz, in amps",
+     "value": 1.17,
+     "kind": "computed"
+    },
+    {
+     "label": "Phase angle at 100 Hz, in degrees",
+     "value": 69.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Lower frequency shown, in hertz",
+     "value": 25,
+     "kind": "assumed"
+    },
+    {
+     "label": "Coil's reactance at 25 Hz, in ohms",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Impedance at 25 Hz, in ohms",
+     "value": 7.21,
+     "kind": "computed"
+    },
+    {
+     "label": "Current at 25 Hz, in amps",
+     "value": 2.77,
+     "kind": "computed"
+    },
+    {
+     "label": "Phase angle at 25 Hz, in degrees",
+     "value": 33.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Coil's reactance at 0 Hz, in ohms",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Current on steady 20 V DC, in amps",
+     "value": 3.33,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 coil's ohmmeter reading, in ohms",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 8 test supply, in volts",
+     "value": 34,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 8 current, in amps",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 8 impedance, in ohms",
+     "value": 17,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 coil's reactance, in ohms",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 coil's inductance, in millihenries",
+     "value": 47.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, all 17 Ω as reactance, in millihenries",
+     "value": 54.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, plain-number reactance, in ohms",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, plain-number inductance, in millihenries",
+     "value": 28.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Capacitor's capacitance, in microfarads",
+     "value": 398,
+     "kind": "computed"
+    },
+    {
+     "label": "Capacitor's reactance at 50 Hz, in ohms",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Capacitor circuit's phase angle, in degrees",
+     "value": -53.13,
+     "kind": "computed"
+    },
+    {
+     "label": "Capacitor's reactance at 100 Hz, in ohms",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Capacitor circuit's phase angle at 100 Hz, in degrees",
+     "value": -33.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Capacitor slider, lowest, in hertz",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Capacitor's reactance at 5 Hz, in ohms",
+     "value": 80,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 resistor, in ohms",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 11 test supply, in volts",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 11 resistor's meter, in volts",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 11 capacitor's meter, in volts",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, screen 11 plain difference, in volts",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, screen 11 negative reading, in volts",
+     "value": -40,
+     "kind": "computed"
+    },
+    {
+     "label": "Most common ship frequency, in hertz",
+     "value": 60,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Coil's reactance at 60 Hz, in ohms",
+     "value": 9.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Impedance at 60 Hz, in ohms",
+     "value": 11.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Current at 60 Hz, in amps",
+     "value": 1.77,
+     "kind": "computed"
+    },
+    {
+     "label": "Phase angle at 60 Hz, in degrees",
+     "value": 58,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, whole impedance scaled, current in amps",
+     "value": 1.67,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, unchanged phase angle, in degrees",
+     "value": 53.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Textbook's first voltage, in volts",
+     "value": 6,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Textbook's second voltage, in volts",
+     "value": 8,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Textbook's sum, in volts",
+     "value": 10,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Textbook's phase angle, in degrees",
+     "value": 53.13,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Analogy's first cable leg, in metres",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Analogy's second cable leg, in metres",
+     "value": 16,
+     "kind": "assumed"
+    },
+    {
+     "label": "Analogy's tape along the cable, in metres",
+     "value": 28,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy's straight line, in metres",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example coil's ohmmeter reading, in ohms",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example coil's current, in amps",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example impedance, in ohms",
+     "value": 23,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example reactance at 50 Hz, in ohms",
+     "value": 17.44,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example inductance, in henries",
+     "value": 0.0555,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example inductance, in millihenries",
+     "value": 55.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example phase angle, in degrees",
+     "value": 49.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example reactance at 60 Hz, in ohms",
+     "value": 20.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example impedance at 60 Hz, in ohms",
+     "value": 25.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example current at 60 Hz, in amps",
+     "value": 8.93,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, worked example plain difference, in ohms",
+     "value": 8,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Put a resistor and a coil in series on AC and meter each one, and the two readings add up to more than the supply meter shows: 12 V across the resistor, 16 V across the coil, yet 20 V across the supply. Nothing is lost. The two voltages peak a quarter cycle apart, so they add as arrows at right angles, and the supply's voltage is the long side of the right-angled triangle they make. Divide every side by the current and the same triangle gives the circuit's resistance, its reactance and its whole opposition to AC, which is how an ohmmeter, a voltmeter and an ammeter find an unknown coil's inductance.\n\nIn a series loop one current flows through every part, so the current is what the parts share. The resistor's voltage is in step with that current (lesson 3). The ideal coil's voltage peaks a quarter cycle earlier, because its back-emf follows how fast the current is changing (lesson 4), and a quarter cycle is a quarter turn of Trigonometry's arm, a right angle. At every instant the supply's voltage is the resistor's plus the coil's at that instant, just as on DC. But when the resistor's voltage is at its peak the coil's is passing through zero, and the other way round, so the two are never both at full size together, and their sum peaks lower than their two peaks added. Trigonometry lesson 7 showed how to add two such waves: their sum is itself a sine wave of the same frequency, and drawing each as an arrow and laying them tip to tail gives it, because the closing arrow is the sum. With the current's arrow lying flat, the resistor's arrow lies flat too and the coil's points straight up, so the closing arrow is the long side of a right-angled triangle, and Pythagoras gives its length. A meter reads rms, and all three are sine waves, so every reading is its wave's peak ÷ √2; shrinking every side by the same √2 keeps the triangle's shape, so the readings make the same triangle: √(12² + 16²) = 20 V. A textbook adds a 6 V source to an 8 V source a quarter cycle apart the same way, and gets 10 V at a phase angle of 53.13°.[^3] The 12 V and 16 V here are those doubled, so the closing arrow sits at the same 53.13° above the flat side: the supply's voltage leads the current by that angle, φ.\n\nEach side is the current times something. The resistor's voltage is I × R, the coil's is I × X_L, and the supply's is I × the circuit's whole opposition to AC, its [[impedance]], Z, in ohms. Divide every side by the same 2 A and the triangle shrinks without changing shape: 6 Ω of resistance lying flat, 8 Ω of inductive reactance standing up, and Z = √(R² + X_L²) = 10 Ω along the long side,[^4] still at 53.13°. This is the [[impedance triangle]] of Complex numbers lesson 7's Z = R + jX, here 6 + j8 = 10∠53.13°, now read off meters. It turns an unknown coil into numbers. A real coil's wire resistance and inductance sit in one body, so no meter can be put across one without the other. But an ohmmeter's steady current makes no back-emf, so it reads the wire's resistance alone (lesson 4); a voltmeter and an ammeter on AC give Z = V ÷ I; Pythagoras gives X_L = √(Z² − R²); and X_L = 2πfL[^5] gives L. In this model only the reactance side depends on the frequency, so a higher frequency stands the coil's triangle taller and a lower one lays it flatter, until on steady DC only R is left.\n\nSwap the coil for a capacitor of the same reactance and the meters read exactly the same, but its voltage peaks a quarter cycle after the current (lesson 5), so its arrow points straight down and the triangle flips below the line: φ is −53.13°, and the supply's voltage lags the current. Its side runs the other way with frequency too, shrinking as the frequency rises and growing as it falls (lesson 5), so towards steady DC the capacitor's triangle stands almost on end. This is a simplified model, with a pure resistor and an ideal coil or capacitor on a pure sine; an iron-cored coil also loses some energy in its iron on AC, which an ohmmeter cannot see. Reasoning from the triangle's own rule, not from a source: if that loss acts as extra resistance, the true R is larger, so the true X is smaller and the inductance found this way comes out a little high. **In series, a resistor's voltage and a coil's or a capacitor's add as arrows at right angles, so the supply meter reads √(V_R² + V_X²), and dividing every side by the current turns the same triangle into R, X and the impedance Z = √(R² + X²).[^4]**"
+  },
+  "analogy": {
+   "text": "Run a cable 12 m along one wall of a plant room and then 16 m along the next wall, round the corner. The tape along the cable reads 28 m, yet the straight line from start to finish, across the room, is 20 m, because the two runs are at right angles. The meters across the resistor and the coil are the tape on each run; the supply meter measures the straight line.",
+   "breaks": "The cable's runs are at right angles in space, and you could walk them. The voltage arrows are at right angles in time: the angle stands for the quarter cycle between their peaks, and nothing physical points up. And the meter readings change with the frequency, while a cable's runs stay the same length."
+  },
+  "practice": {
+   "text": "- Isolate and prove dead before the ohmmeter test. On a large coil, keep clear of the terminals as the leads come off: cutting even the meter's small current quickly can give a sharp kick of back-emf (lesson 4).\n- Ohmmeter across the coil: its wire's resistance, R.\n- On AC, read the voltage across the coil and the current through it, both rms: Z = V ÷ I.\n- The reactance: X_L = √(Z² − R²). Square both, take one from the other, then take the square root.[^4]\n- The inductance: L = X_L ÷ (2πf), with f in hertz, gives henries.[^5]\n- The angle: tan φ = X ÷ R, with X the coil's or the capacitor's reactance. For a coil the current lags by φ; for a capacitor it leads.\n\n**Rule of thumb:** With a resistor and one coil or one capacitor in series, the supply meter reads less than the two part readings added and more than either one. Square, add, square root.\n\n**Worked example:** An example coil reads 15 Ω on an ohmmeter and draws 10 A from 230 V, 50 Hz mains.[^1] Z = 230 ÷ 10 = 23 Ω. X_L = √(23² − 15²) = √304 ≈ 17.44 Ω. L = 17.44 ÷ (2 × π × 50) ≈ 0.0555 H, or 55.5 mH. The current lags the voltage by the angle whose tangent is 17.44 ÷ 15, which is 49.3°. On a 230 V, 60 Hz supply (60 Hz is the frequency most common on board ship[^2]), X_L rises to 20.9 Ω while R stays 15 Ω, so Z = √(15² + 20.9²) ≈ 25.7 Ω and the current falls to 8.93 A.\n\nLesson 7 puts a coil and a capacitor in one loop, where their arrows point opposite ways, and lesson 8 turns the angle φ into the power factor.\n\n**Common mistakes**\n- Adding the part voltages, or the ohms, as plain numbers. 12 V and 16 V at right angles make 20 V, and 6 Ω and 8 Ω make 10 Ω.\n- Taking Z = V ÷ I as the coil's reactance. Take the resistance out first, by Pythagoras.\n- Taking R from Z as plain numbers. In the worked example, 23 Ω less 15 Ω leaves 17.44 Ω of reactance by Pythagoras, not 8 Ω.\n- Reading a capacitor's arrow below the line as a negative meter reading. The meter shows the size; the arrow's direction shows the timing.\n- Scaling the whole impedance with the frequency. Only the reactance changes; the resistance stays put.\n- Taking an ohmmeter's reading as a coil's opposition to AC. It misses the reactance."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Statutory Voltage Limits – Energy Networks Association (ENA)",
+    "url": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits",
+    "quote": "UK mains electricity operates at a nominal voltage of 230V, and can operate within limits of 253V and 216V set by the Electricity Safety, Quality and Continuity Regulations (ESQCR)"
+   },
+   {
+    "n": 2,
+    "title": "maritime electrical installations - notes on design ...",
+    "url": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf",
+    "quote": "60 Hz is the most common frequency adopted for use on board ship; the higher frequency enabling motors and generators to run at higher speeds with a consequent reduction in size for a given power rating."
+   },
+   {
+    "n": 3,
+    "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 2",
+    "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_2.html",
+    "quote": "a 6 volt source at 0 o added to an 8 volt source at 90 o results in 10 volts at a phase angle of 53.13 o"
+   },
+   {
+    "n": 4,
+    "title": "AC circuits, alternating current electricity",
+    "url": "https://www.animations.physics.unsw.edu.au/jw/AC.html",
+    "quote": "Because the phasors for reactances are 90° out of phase with the current, the series impedance of a resistor R and a reactance X are given by Pythagoras' law:"
+   },
+   {
+    "n": 5,
+    "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 3",
+    "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html",
+    "quote": "Inductive reactance can be calculated using this formula: X L = 2πfL"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .wrap { position: relative; margin-inline: auto; }\n  .scene { display: block; width: 100%; }\n  .ctl { display: grid; gap: 12px; }\n  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }\n  .scene .res { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }\n  .scene .coilw { fill: none; stroke: var(--k-ink); stroke-width: 2.2; }\n  .scene .plate { fill: var(--k-ink); }\n  .scene .src { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .srcw { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; }\n  .scene .mbox { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.4; }\n  .scene .lead { fill: none; stroke: var(--k-muted); stroke-width: 1.4; }\n  .scene .jn { fill: var(--k-ink); }\n  .scene .body { fill: none; stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 5 4; }\n  .scene .ar { stroke: var(--k-cat1); stroke-width: 3.5; stroke-linecap: round; }\n  .scene .arh { fill: var(--k-cat1); }\n  .scene .al { stroke: var(--k-cat2); stroke-width: 3.5; stroke-linecap: round; }\n  .scene .alh { fill: var(--k-cat2); }\n  .scene .as { stroke: var(--k-accent2); stroke-width: 3.5; stroke-linecap: round; }\n  .scene .ash { fill: var(--k-accent2); }\n  .scene .badl { stroke: var(--k-warn); stroke-width: 3; stroke-dasharray: 6 4; }\n  .scene .badh { fill: var(--k-warn); }\n  .scene .bad { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }\n  .scene .badt { stroke: var(--k-warn); stroke-width: 2.5; }\n  .scene .badT { fill: none; stroke: var(--k-warn); stroke-width: 2.2; stroke-dasharray: 6 4; stroke-linejoin: round; }\n  .scene .swing { fill: none; stroke: var(--k-accent2); stroke-width: 2.2; stroke-dasharray: 6 4; }\n  .scene .swd { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .refl { stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 4 4; }\n  .scene .ghostT { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 3 3; stroke-linejoin: round; }\n  .scene .sq, .scene .arc { fill: none; stroke: var(--k-ink); stroke-width: 1.3; }\n  .scene .strike { stroke: var(--k-warn); stroke-width: 3; stroke-linecap: round; }\n  .scene .b1 { fill: var(--k-cat1); }\n  .scene .b2 { fill: var(--k-cat2); }\n  .scene .bs { fill: var(--k-accent2); }\n  .scene .wr { fill: none; stroke: var(--k-cat1); stroke-width: 2.2; stroke-linejoin: round; }\n  .scene .wl { fill: none; stroke: var(--k-cat2); stroke-width: 2.2; stroke-linejoin: round; }\n  .scene .ws { fill: none; stroke: var(--k-accent2); stroke-width: 2.8; stroke-linejoin: round; }\n  .scene .dR { fill: var(--k-cat1); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .dL { fill: var(--k-cat2); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .dS { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .axis { stroke: var(--k-muted); stroke-width: 1.3; }\n  .scene .zero { stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .guide { stroke: var(--k-muted); stroke-width: 1; stroke-dasharray: 3 3; }\n  .scene .ask { fill: var(--k-bg); stroke: var(--k-amber-line); stroke-width: 2; }\n  .scene .tt { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .lb, .scene .mt { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lbad, .scene .mtbad { font: 600 13px var(--k-font); fill: var(--k-warn); }\n  .scene .ml { font: 700 13px var(--k-font); fill: var(--k-ink); }\n  .scene .wk { font: 500 13px var(--k-font); fill: var(--k-ink); }\n  .scene .ky { font: 400 13px var(--k-font); fill: var(--k-ink); }\n  .scene .q { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .scene #art * { pointer-events: none; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.05rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why, .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div class=\"wrap\" id=\"wrap\">\n      <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 520\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n    </div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"ctl\" id=\"ctl\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Parts, supplies and readings are example values; each arrow is as long as its reading, in volts or ohms.</p>\n\n<script>\n  // ---------- the rule ----------\n  // One current flows through a series loop. The resistor's voltage is in step with it; an ideal\n  // coil's peaks a quarter cycle earlier, a capacitor's a quarter cycle later. So the part voltages\n  // add as arrows at right angles: the supply's is the closing side, √(V_R² + V_X²). Dividing every\n  // side by the current gives R, X and Z, with X_L = 2πfL and X_C = 1/(2πfC).\n  const TAU = 2 * Math.PI, RT2 = Math.SQRT2;\n  const L1 = 8 / (TAU * 50);        // the bench's coil, about 25.5 mH: X_L = 8 Ω at 50 Hz\n  const C1 = 1 / (TAU * 50 * 8);    // the bench's capacitor, about 398 µF: X_C = 8 Ω at 50 Hz\n  const L4 = 24 / (TAU * 50);       // screen 4's coil: with 10 Ω it reads 10 V and 24 V at 1 A\n  const LM = Math.sqrt(46 * 46 - 40 * 40) / (TAU * 50);  // the mains coil: with 40 Ω, Z = 230 V ÷ 5 A = 46 Ω, so X_L = √516 ≈ 22.7 Ω\n  const L8 = 15 / (TAU * 50);       // the unknown coil: X_L = 15 Ω at 50 Hz, about 47.7 mH\n  const C11 = 1 / (TAU * 50 * 40);  // screen 11's capacitor: X_C = 40 Ω at 50 Hz\n  const X0T = 72;                   // where every triangle's tail sits\n  const CARDS = {\n    bench: { R: 6, L: L1, V: 20, f: 50, rl: '6 Ω', xl: '25.5 mH', title: (f, r) => num(r == null ? 6 : r, 0) + ' Ω and 25.5 mH on 20 V, ' + num(f, 0) + ' Hz' },\n    b4: { R: 10, L: L4, V: Math.hypot(10, 24), f: 50, rl: '', xl: '', title: () => 'Another resistor and coil in series' },\n    mains: { R: 40, L: LM, V: 230, f: 50, rl: '', xl: '', title: () => 'A resistor and a coil on 230 V, 50 Hz mains' },\n    coil8: { R: 8, L: L8, V: 34, f: 50, real: true, rl: 'R', xl: '', title: () => 'An unknown coil on 34 V, 50 Hz' },\n    cap: { R: 6, C: C1, V: 20, f: 50, rl: '6 Ω', xl: '398 µF', title: (f) => '6 Ω and 398 µF on 20 V, ' + num(f, 0) + ' Hz' },\n    c11: { R: 30, C: C11, V: 50, f: 50, rl: '30 Ω', xl: '', title: () => '30 Ω and a capacitor on 50 V' },\n  };\n  // A card at frequency f: the reactance, impedance, current, the three meter readings and the phase angle.\n  function solve(c, f) {\n    const X = c.C ? 1 / (TAU * f * c.C) : TAU * f * c.L;\n    const Z = Math.hypot(c.R, X), I = c.V / Z, sg = c.C ? -1 : 1;\n    return { f, X, Z, I, vr: I * c.R, vx: I * X, vs: c.V, phi: sg * Math.atan2(X, c.R) * 180 / Math.PI, sg };\n  }\n  // A number as the lesson writes it: at most dp decimals, no trailing zeros, a true minus sign.\n  function num(v, dp) {\n    dp = dp == null ? 2 : dp;\n    const m = Math.pow(10, dp);\n    let r = Math.round(v * m) / m;\n    if (r === 0) r = 0;\n    let s = r.toFixed(dp);\n    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\\.$/, '');\n    return s.replace('-', '−');\n  }\n  // A reading with exactly dp decimals, a true minus sign.\n  function fx(v, dp) {\n    const m = Math.pow(10, dp);\n    let r = Math.round(v * m) / m;\n    if (r === 0) r = 0;\n    return r.toFixed(dp).replace('-', '−');\n  }\n  const zs = (z) => num(z, z < 10 ? 2 : 1);\n  // The phase angle as the lesson writes it: 53.13° for the 3-4-5 shape, otherwise one decimal.\n  const ps = (p) => (Math.abs(p) < 1e-9 ? '0' : Math.abs(Math.abs(p) - 53.1301) < 1e-3 ? num(p, 2) : fx(p, 1)) + '°';\n  const mix = (a, b, t) => (t >= 1 ? b : t <= 0 ? a : a + (b - a) * t);\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // card: the circuit; bars: the plain-sum and supply bars ('demo' grows them); waves: screen 2's\n  // waves; tri: the triangle {unit, k (drawing units per volt or ohm), up, down (room above and\n  // below its baseline)}; fsel: the frequency slider it frees ('f' or 'fc'); morph: the frequency's\n  // moves [start s, seconds, from, to]; ask: meters hidden until a right answer; slips: what each\n  // wrong pick claims, drawn in red.\n  const STEPS = [\n    { show: true, name: 'Three meters', card: 'bench', bars: 'demo', dur: 3.3, tl: { p1: [0.4, 0.6], p2: [1.0, 0.6], ps: [1.9, 0.6], strike: 2.7 },\n      text: 'An example bench: a 6 Ω resistor and an ideal 25.5 mH coil in series on a 20 V, 50 Hz supply. Like ordinary AC meters, the voltmeters read rms, and one current, 2 A, flows through both parts. The meter across the resistor reads 12 V and the one across the coil 16 V. Added as plain numbers that makes 28 V, yet the supply\\'s meter reads only 20 V.' },\n    { name: 'Where did 8 V go?', card: 'bench', bars: true, waves: true, rdur: 2.2, rowAt: 1.6,\n      task: 'The two parts share one current, yet their 12 V and 16 V make only 20 V on the supply\\'s meter, not 28 V. Why?',\n      opts: ['A smaller current flows in the coil', 'The two voltages peak a quarter cycle apart', 'The coil wastes 8 V as heat'],\n      want: 'The two voltages peak a quarter cycle apart',\n      why: 'At every instant the supply\\'s voltage is the resistor\\'s plus the coil\\'s, just as on DC. But the resistor\\'s voltage is in step with the current, and the coil\\'s peaks a quarter cycle earlier (lessons 3 and 4). When one is at its peak the other is passing through zero, so they are never both at full size together. Their sum peaks at 28.3 V, not 17.0 V + 22.6 V, and 28.3 V peak is 20 V rms. An ideal coil takes no watts, so nothing is lost as heat, and one series loop carries one current.',\n      hint: 'Not quite. Think about when each voltage reaches its peak.',\n      hints: { 'A smaller current flows in the coil': 'Not quite. A series loop has one path, so one current flows through every part.',\n        'The coil wastes 8 V as heat': 'Not quite. An ideal coil takes no watts (lesson 4). Nothing is lost.' } },\n    { show: true, name: 'Tip to tail', card: 'bench', bars: true, tri: { unit: 'V', k: 7, up: 126, down: 30, build: true, swing: true }, dur: 4.2,\n      tl: { r: [0.4, 0.6], l: [1.0, 0.5], sl: [1.6, 0.6], c: [2.3, 0.5], sw: [2.9, 0.7], gd: 3.5, phi: 3.6, rows: 3.6 },\n      text: 'As in Trigonometry lesson 7, each wave becomes an arrow, here as long as its meter reading. The current is the reference, so it lies flat. V_R lies flat with it, because a resistor\\'s voltage is in step with its current. V_L points straight up, a quarter turn ahead, because the coil\\'s voltage peaks a quarter cycle earlier. Laid tip to tail they make a right-angled triangle. Its closing side, √(12² + 16²) = 20 V, swings down onto the supply meter\\'s reading. The angle φ is the *phase angle*, how far the supply\\'s voltage leads the current.' },\n    { name: 'A second bench', card: 'b4', tri: { unit: 'V', k: 5.5, up: 146, down: 38, close: 'ask' }, ask: ['vs'], amm: 'none', rdur: 1.6, rowAt: 1.0,\n      slips: { '34 V': { flat: 34 }, '14 V': { flat: 14 } },\n      task: 'Another resistor and coil in series: 10 V across the resistor and 24 V across the coil. What does the supply\\'s meter read?',\n      opts: ['34 V', '14 V', '26 V'], want: '26 V',\n      why: 'Lay the arrows tip to tail: 10 V flat and 24 V straight up. The supply\\'s voltage is the closing side, √(10² + 24²) = √676 = 26 V. 34 V adds them as plain numbers, as if they peaked together. 14 V takes one from the other, as if they peaked half a cycle apart.',\n      hint: 'Not quite. Square each, add, then take the square root.',\n      hints: { '34 V': 'Not quite. That adds them as plain numbers. They peak a quarter cycle apart.',\n        '14 V': 'Not quite. That would need them half a cycle apart. These are a quarter cycle apart.' } },\n    { show: true, name: 'Divide by the current', card: 'bench', tri: { unit: 'V', k: 7, up: 126, down: 30, shrink: true }, dur: 3.3,\n      tl: { off: [0.4, 0.5], sh: [1.0, 1.2], on: 2.2, rows: 2.7 },\n      text: 'Every side of the triangle is a voltage, and the same 2 A flows through every part. Divide each side by 2 A and it becomes an opposition in ohms: 12 V becomes R = 6 Ω, 16 V becomes X_L = 8 Ω, and 20 V becomes the circuit\\'s whole opposition to AC, its *impedance*, Z = 10 Ω. The triangle shrinks but keeps its shape and its angle, because every side is divided by the same number. So Z = √(R² + X_L²), and I = V ÷ Z.' },\n    { name: 'On the mains', card: 'mains', tri: { unit: 'Ω', k: 2.8, up: 140, down: 38, rest: 'ask' }, ask: ['vx'], rdur: 1.8, rowAt: 1.2,\n      slips: { '40 Ω and 6 Ω': { up: 6 }, '40 Ω and 46 Ω': { up: 46 } },\n      task: 'A resistor and a coil in series on 230 V, 50 Hz mains. The ammeter reads 5 A and the meter across the resistor 200 V. What are the resistance R and the coil\\'s reactance X_L?',\n      opts: ['40 Ω and 6 Ω', '40 Ω and 22.7 Ω', '40 Ω and 46 Ω'], want: '40 Ω and 22.7 Ω',\n      why: 'Divide each reading by the 5 A. The resistor\\'s 200 V gives R = 40 Ω, the flat side, and the supply\\'s 230 V gives Z = 46 Ω, the closing side. The coil\\'s side is the upright: X_L = √(46² − 40²) = √516 ≈ 22.7 Ω, and its hidden meter reads √(230² − 200²) ≈ 113.6 V. 6 Ω takes 200 V from 230 V as plain numbers and divides the 30 V by 5 A. 46 Ω takes the whole circuit\\'s impedance as the coil\\'s reactance.',\n      hint: 'Not quite. Find R and Z from the meters, then the upright by Pythagoras.',\n      hints: { '40 Ω and 6 Ω': 'Not quite. Volts at right angles don\\'t subtract as plain numbers. Square, subtract, square root.',\n        '40 Ω and 46 Ω': 'Not quite. 230 V ÷ 5 A is the whole circuit\\'s impedance, and part of it is the resistor\\'s.' } },\n    { show: true, name: 'Slide the frequency', card: 'bench', fsel: 'f', rsel: true, tri: { unit: 'Ω', k: 8, up: 144, down: 30 }, dur: 4.2,\n      morph: [[0.5, 1.0, 50, 100], [1.6, 1.0, 100, 0], [2.7, 0.8, 0, 50]], tl: { rows: 0.4, real: 3.6 },\n      text: 'The supply stays at 20 V while the frequency plays up to 100 Hz, down to 0 Hz and back to 50 Hz. R stays put, but X_L = 2πfL grows with the frequency, so the triangle stands taller as it rises and lies flat on R at 0 Hz, steady DC. That is why an ohmmeter, whose steady current makes no back-emf, reads only a coil\\'s R. A real coil is a resistance and an ideal coil in one body, drawn dashed, and the last rows find its inductance. Slide the frequency or the resistance yourself.' },\n    { name: 'An unknown coil', card: 'coil8', tri: { unit: 'Ω', k: 8, up: 150, down: 30, rest: 'ask' }, ask: [], rdur: 1.8, rowAt: 1.2,\n      slips: { '54.1 mH': { up: 17 }, '28.6 mH': { up: 9 } },\n      task: 'An unknown coil reads 8 Ω on an ohmmeter. On a 34 V, 50 Hz test supply it draws 2 A. What is its inductance?',\n      opts: ['54.1 mH', '47.7 mH', '28.6 mH'], want: '47.7 mH',\n      why: 'The AC meters give Z = 34 V ÷ 2 A = 17 Ω, the closing side. The ohmmeter gives R = 8 Ω, the flat side. The upright is X_L = √(17² − 8²) = 15 Ω, and L = 15 ÷ (2π × 50) = 47.7 mH. 54.1 mH takes all 17 Ω as reactance and forgets the wire\\'s resistance. 28.6 mH takes 8 Ω from 17 Ω as plain numbers, leaving 9 Ω.',\n      hint: 'Not quite. Find Z, then X_L from the triangle, then L.',\n      hints: { '54.1 mH': 'Not quite. Part of the 17 Ω is the wire\\'s 8 Ω of resistance.',\n        '28.6 mH': 'Not quite. Ohms at right angles don\\'t subtract as plain numbers. Square, subtract, square root.' } },\n    { show: true, name: 'Swap in a capacitor', card: 'cap', fsel: 'fc', bars: true, tri: { unit: 'V', k: 7, up: 26, down: 156 }, dur: 3.9,\n      morph: [[2.6, 1.2, 50, 100]], tl: { l: [0.5, 0.6], c: [1.2, 0.5], phi: 1.8, rows: 1.8 },\n      text: 'Back on the first bench, the coil is swapped for a 398 µF capacitor, whose reactance at 50 Hz is also 8 Ω. The meters still read 12 V, 16 V and 20 V, but a capacitor\\'s voltage peaks a quarter cycle after its current (lesson 5), so its arrow, V_C, points straight down. The triangle flips below the line and φ reads −53.13°: the supply\\'s voltage lags the current. Here the triangle is drawn in volts, with the supply\\'s side held at 20 V, so V_C shrinks and grows with X_C. Then the frequency plays up to 100 Hz: X_C shrinks to 4 Ω and φ reads −33.7°. Slide it down to 5 Hz, where X_C is 80 Ω and the triangle stands almost on end.' },\n    { name: 'Name the ohms', card: 'bench', tri: { unit: 'Ω', k: 8, up: 92, down: 96, pair: true }, rdur: 1.0,\n      slips: { 'Resistance 6 Ω, reactances 10 Ω, impedance 8 Ω': { relabel: 'zl' }, 'Impedance 6 Ω, reactances 8 Ω, resistance 10 Ω': { relabel: 'rz' } },\n      task: 'From the first bench: the ohmmeter reads 6 Ω across the resistor. 16 V ÷ 2 A = 8 Ω across the coil, and 8 Ω across the capacitor. 20 V ÷ 2 A = 10 Ω across the supply. Which naming is right?',\n      opts: ['Resistance 6 Ω, reactances 10 Ω, impedance 8 Ω', 'Resistance 6 Ω, reactances 8 Ω, impedance 10 Ω', 'Impedance 6 Ω, reactances 8 Ω, resistance 10 Ω'],\n      want: 'Resistance 6 Ω, reactances 8 Ω, impedance 10 Ω',\n      why: 'The ohmmeter\\'s steady current makes no back-emf, so its 6 Ω is the resistance, R. The coil\\'s own V ÷ I is 8 Ω of inductive reactance, X_L, and the capacitor\\'s 8 Ω of capacitive reactance, X_C. The supply\\'s V ÷ I is the whole circuit\\'s opposition to AC, the impedance, Z = 10 Ω, the long side of each triangle. A part\\'s reactance comes from its own meter, not from the biggest figure, and an ohmmeter cannot see reactance at all.',\n      hint: 'Not quite. Which meter does each figure come from?',\n      hints: { 'Resistance 6 Ω, reactances 10 Ω, impedance 8 Ω': 'Not quite. The 10 Ω comes from the supply\\'s meter, so it belongs to the whole circuit.',\n        'Impedance 6 Ω, reactances 8 Ω, resistance 10 Ω': 'Not quite. An ohmmeter\\'s steady current sees no reactance, so its 6 Ω is not the opposition to AC.' } },\n    { name: 'Mixed: the capacitor\\'s meter', card: 'c11', tri: { unit: 'V', k: 2.8, up: 26, down: 128, vc: 'ask' }, ask: ['vx'], amm: 'none', rdur: 1.7, rowAt: 1.1,\n      slips: { '20 V': { down: 20 }, '−40 V': { meter: -40 } },\n      task: 'Mixed. A 30 Ω resistor and a capacitor are in series on a 50 V test supply. The resistor\\'s meter reads 30 V. What does the capacitor\\'s meter read?',\n      opts: ['40 V', '20 V', '−40 V'], want: '40 V',\n      why: 'The arrows make a right-angled triangle with the supply\\'s 50 V as its long side, so V_C = √(50² − 30²) = √1600 = 40 V. It points down because a capacitor\\'s voltage lags its current, but a meter reads the size of the voltage, so it shows 40 V, not −40 V. 20 V takes 30 V from 50 V as plain numbers.',\n      hint: 'Not quite. Square, subtract, then take the square root.',\n      hints: { '20 V': 'Not quite. Volts at right angles don\\'t subtract as plain numbers. Square, subtract, square root.',\n        '−40 V': 'Not quite. Down on the diagram means later in time. A meter reads the size, never minus.' } },\n    { name: 'Mixed: on board ship', card: 'bench', fAt: 60, fAns: true, tri: { unit: 'Ω', k: 8, up: 96, down: 30, ghost: true }, ask: ['vr', 'vx', 'amm'], rdur: 1.8, rowAt: 1.2,\n      slips: { '1.67 A, lagging 53.1°': { amm: 20 / 12, tri: 1.2 }, '2 A, lagging 53.1°': { amm: 2 } },\n      task: 'Mixed. A marine college\\'s notes (a secondary source) give 60 Hz as the frequency most common on board ship. The first bench\\'s 6 Ω resistor and 25.5 mH coil go on a 20 V, 60 Hz supply. What current flows, and by how much does it lag?',\n      opts: ['1.67 A, lagging 53.1°', '1.77 A, lagging 58.0°', '2 A, lagging 53.1°'], want: '1.77 A, lagging 58.0°',\n      why: 'Only the reactance follows the frequency: X_L = 8 Ω × 60 ÷ 50 = 9.6 Ω, while R stays 6 Ω. So Z = √(6² + 9.6²) = 11.3 Ω and I = 20 ÷ 11.3 = 1.77 A, lagging by the angle whose tangent is 9.6 ÷ 6, 58.0°. 1.67 A scales the whole 10 Ω up with the frequency, resistance and all, and 2 A leaves the frequency out.',\n      hint: 'Not quite. Work out X_L at 60 Hz first.',\n      hints: { '1.67 A, lagging 53.1°': 'Not quite. A resistance does not change with frequency. Only X_L scales.',\n        '2 A, lagging 53.1°': 'Not quite. X_L = 2πfL grows with the frequency.' } },\n  ];\n  const FINISH = 'The meters disagree with plain arithmetic because the part voltages peak a quarter cycle apart, so they add as arrows at right angles: square, add, square root. Divide every side by the current and the same triangle gives R, X and Z, which is how three meters and an ohmmeter find a coil\\'s inductance. Lesson 7 puts a coil and a capacitor in one loop, where their arrows point opposite ways. Next, Series RLC and resonance.';\n  // Sources the checks restate (the lesson's own).\n  const ENA = 'https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits';\n  const SHIP = 'http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf';\n  const KUPH2 = 'https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_2.html';\n  const UNSW = 'https://www.animations.physics.unsw.edu.au/jw/AC.html';\n  const KUPH3 = 'https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html';\n\n  const PICK = 'Tap one of the answers.';\n  const FADE = 0.35;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const el = (id) => document.getElementById(id);\n\n  // ---------- each step's state ----------\n  // pick, res ('right', 'wrong' or 'empty' once checked), why: the puzzle. f: the frequency Dan has\n  // set on a slider screen (null: the demonstration's).\n  function blank() { return { pick: null, res: null, why: false, f: null, R: null }; }\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, MODE = 'demo', motionEnd = 0;\n  let REC = {}, VBH = 520;\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n\n  // Text with highlighted key terms (*term*), and V_R, X_L and the like set with a lowered letter, built with K.el, never innerHTML.\n  function write(node, s) {\n    node.textContent = '';\n    String(s || '').split(/(\\*[^*]+\\*|[VX]_[RLC])/).forEach((b) => {\n      if (!b) return;\n      if (/^[VX]_[RLC]$/.test(b)) node.append(b.charAt(0), K.el('sub', {}, b.charAt(2)));\n      else if (b.charAt(0) === '*' && b.length > 2 && b.charAt(b.length - 1) === '*') node.appendChild(K.el('span', { class: 'mark' }, b.slice(1, -1)));\n      else node.appendChild(document.createTextNode(b));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => stepper.get();\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; }\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play('answer', st.res === 'right' ? d.rdur : 0.8);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  // Replay plays the screen's demonstration again from its start.\n  const replayBtn = K.button({ label: 'Replay', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()], st = S[at()];\n    if (!d.show || finished) return;\n    st.f = null; st.R = null;\n    play('demo', d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n  // The frequency sliders: 0 to 100 Hz with the coil, 5 to 100 Hz with the capacitor, each shown only on its screen.\n  const ctlF = K.control({ id: 'f', label: 'Supply frequency', min: 0, max: 100, step: 5, value: 50, unit: 'Hz', fmt: (v) => num(v, 0) + ' Hz', snap: [0, 25, 50, 100], into: '#ctl' });\n  const ctlC = K.control({ id: 'fc', label: 'Supply frequency', min: 5, max: 100, step: 5, value: 50, unit: 'Hz', fmt: (v) => num(v, 0) + ' Hz', snap: [5, 50, 100], into: '#ctl' });\n  // Screen 7's resistance: 2 to 12 Ω, so Dan can see that only the reactance side follows the frequency.\n  const ctlR = K.control({ id: 'res', label: 'Resistance', min: 2, max: 12, step: 1, value: 6, unit: 'Ω', fmt: (v) => num(v, 0) + ' Ω', snap: [6], into: '#ctl' });\n  const CTL = { f: { c: ctlF, lo: 0 }, fc: { c: ctlC, lo: 5 } };\n  const shown = { f: ctlF.get(), fc: ctlC.get(), res: ctlR.get() };\n  // A slider set to what the picture shows (quietly: this is not Dan moving it).\n  function syncF(which, v) {\n    if (v == null || !CTL[which]) return;\n    const o = CTL[which], s = K.clamp(Math.round(v / 5) * 5, o.lo, 100);\n    if (o.c.get() !== s) o.c.set(s, true);\n    shown[which] = o.c.get();\n  }\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && T !== Infinity) { T = Infinity; paint(); } });\n  // A demonstration waits until most of its picture is in view, so on a phone it does not play out\n  // while Dan is still reading the words above it.\n  let seen = true, waiting = false, waitDur = 0;\n  if (typeof IntersectionObserver === 'function') {\n    seen = false;\n    new IntersectionObserver((es) => {\n      const e = es[es.length - 1];\n      seen = e.isIntersecting && (e.intersectionRatio >= 0.6 || e.intersectionRect.height >= 0.6 * (window.innerHeight || 1));\n      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }\n    }, { threshold: [0, 0.3, 0.6, 0.8, 1] }).observe(el('scene'));\n  }\n  function play(mode, dur) {\n    MODE = mode; waiting = false;\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    if (mode === 'demo' && !seen) { waiting = true; waitDur = dur; T = 0; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  // Dan takes over: whatever was moving shows finished.\n  function stopMotion() { if (anim.playing()) anim.pause(); waiting = false; T = Infinity; }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing helpers ----------\n  const svg = el('scene'), art = el('art');\n  let into = null;\n  const add = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function arr(t0, dd) {\n    dd = dd == null ? K.SOFT : dd;\n    if (t0 + dd > latest) latest = t0 + dd;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(T, t0, dd);\n  }\n  // A steady motion from 0 to 1 between t0 and t0 + dd.\n  function lin(t0, dd) {\n    if (t0 + dd > latest) latest = t0 + dd;\n    if (t0 < earliest) earliest = t0;\n    return T === Infinity ? 1 : K.clamp((T - t0) / dd, 0, 1);\n  }\n  const grow = (t0, dd) => K.ease(lin(t0, dd));\n  function part(a, rise, draw) {\n    if (!(a > 0.001)) return;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g;\n    try { draw(); } finally { into = keep; }\n  }\n  const R = (v) => Math.round(v * 100) / 100;\n  const poly = (ps) => 'M' + ps.map((q) => R(q[0]) + ' ' + R(q[1])).join('L');\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: R(x1), y1: R(y1), x2: R(x2), y2: R(y2) }));\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: R(x), y: R(y), width: R(Math.max(0, w)), height: R(Math.max(0, h)), rx: rx || 0 }));\n  const circ = (cls, p, r) => add(K.svg('circle', { class: cls, cx: R(p[0]), cy: R(p[1]), r }));\n  const path = (cls, dd) => add(K.svg('path', { class: cls, d: dd }));\n  // A text; '_R', '_L' or '_C' in it is set as a lowered letter (V_R reads as V with R below the line).\n  function makeText(x, y, s, cls, anchor) {\n    const t = K.svg('text', { class: cls, x: R(x), y: R(y), 'text-anchor': anchor || 'middle' });\n    const bits = String(s).split(/(_[RLC])/);\n    bits.forEach((b, j) => {\n      if (!b) return;\n      if (/^_[RLC]$/.test(b)) t.appendChild(K.svg('tspan', { dy: 4 }, b.charAt(1)));\n      else if (j > 0 && /^_[RLC]$/.test(bits[j - 1])) t.appendChild(K.svg('tspan', { dy: -4 }, b));\n      else t.appendChild(document.createTextNode(b));\n    });\n    return t;\n  }\n  const text = (x, y, s, cls, anchor) => add(makeText(x, y, s, cls, anchor));\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(makeText(0, -50, s, cls, 'start'));\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 7;\n  }\n  function ask(x, y) { circ('ask', [x, y], 10); text(x, y + 5, '?', 'q'); }\n  // An arrow from (x1, y1) to (x2, y2): a shaft and a head.\n  function arrow(cls, hcls, x1, y1, x2, y2) {\n    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);\n    if (L < 0.5) return;\n    const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.6), hw = hl * 0.55;\n    if (L - hl > 0.5) line(cls, x1, y1, x2 - ux * hl * 0.8, y2 - uy * hl * 0.8);\n    path(hcls, 'M' + R(x2) + ' ' + R(y2) + 'L' + R(x2 - ux * hl - uy * hw) + ' ' + R(y2 - uy * hl + ux * hw) +\n      'L' + R(x2 - ux * hl + uy * hw) + ' ' + R(y2 - uy * hl - ux * hw) + 'Z');\n  }\n  // A key inside the drawing, in rows: each item a swatch and its name.\n  function keyRows(items, y) {\n    let x = 8, row = 0;\n    items.forEach((it) => {\n      const w = 18 + 6 + tw(it.label, 'ky');\n      if (x > 8 && x + w > 336) { x = 8; row++; }\n      const yy = y + row * 22, x0 = x;\n      part(it.a == null ? 1 : it.a, 0, () => { it.sw(x0, yy); text(x0 + 24, yy + 5, it.label, 'ky', 'start'); });\n      x += w + 14;\n    });\n    return y + row * 22 + 12;\n  }\n  const swLine = (cls) => (x, yy) => line(cls, x, yy, x + 18, yy);\n  // Where a frequency demonstration has got to (the last move started).\n  function morphF(segs, demo) {\n    let f = segs[0][2];\n    for (const s of segs) {\n      const p = lin(s[0], s[1]);\n      if (demo && T < s[0]) break;\n      f = mix(s[2], s[3], demo ? K.ease(p) : 1);\n    }\n    return f;\n  }\n\n  // ---------- the picture ----------\n  // Top: the series loop with its meters (V_R and V_L or V_C above the parts, the supply's below\n  // it, the ammeter on the left). Then the plain-sum and supply bars, screen 2's waves, and the\n  // triangle of arrows with its tail at X0T, each as long as its reading (or its ohms).\n  function drawCircuit(d, c, S0, right, slip, slipA) {\n    const capP = !!c.C, ask = d.ask || [];\n    const mA = (key) => (ask.indexOf(key) >= 0 ? (right ? arr(d.mAt == null ? 0.6 : d.mAt) : 0) : 1);\n    path('wire', 'M80 74H30V134H159M181 134H310V74H' + (capP ? '236' : '255') + 'M' + (capP ? '224' : '205') + ' 74H130');\n    rect('res', 80, 68, 50, 12, 2);\n    if (capP) { rect('plate', 224, 60, 3, 28, 0); rect('plate', 233, 60, 3, 28, 0); }\n    else { let p = 'M205 74'; for (let j = 0; j < 4; j++) p += 'a6.25 6.25 0 0 1 12.5 0'; path('coilw', p); }\n    circ('src', [170, 134], 11);\n    path('srcw', 'M163 134C165 127 167.5 127 170 134S175 141 177 134');\n    circ('src', [30, 104], 11);\n    text(30, 109, 'A', 'ml');\n    // A meter: a box with its reading; '?' until a puzzle is answered; a wrong pick's reading in red.\n    function meter(cx, w, y0, name, val, a, bad) {\n      rect('mbox', cx - w / 2, y0, w, 22, 5);\n      const q = name + ' = ?', s = name + ' = ' + val;\n      if (bad != null) {\n        if (slipA < 0.999) part(1 - slipA, 0, () => text(cx, y0 + 16, q, 'mt'));\n        part(slipA, 0, () => text(cx, y0 + 16, name + ' = ' + bad, 'mtbad'));\n        return q;\n      }\n      if (a < 0.999) part(1 - a, 0, () => text(cx, y0 + 16, q, 'mt'));\n      if (a > 0.001) part(a, 0, () => text(cx, y0 + 16, s, 'mt'));\n      return a >= 0.999 ? s : q;\n    }\n    if (c.real) {\n      // One real coil: its wire's resistance and an ideal coil in one body, met only from outside.\n      rect('body', 66, 54, 200, 52, 8);\n      text(166, 42, 'on an ohmmeter: ' + num(c.R, 2) + ' Ω', 'wk', 'middle');\n      text(105, 96, 'R', 'lb', 'middle');\n      const la = right ? arr(1.2) : 0;\n      if (la < 0.999) part(1 - la, 0, () => text(230, 96, 'L = ?', 'lb', 'middle'));\n      if (la > 0.001) part(la, 0, () => text(230, 96, 'L = ' + num(c.L * 1000, 1) + ' mH', 'lb', 'middle'));\n    } else {\n      path('lead', 'M80 74V48M130 74V48M205 74V48M255 74V48');\n      [80, 130, 205, 255].forEach((x) => circ('jn', [x, 74], 2.5));\n      REC.meters.vr = meter(105, 100, 26, 'V_R', fx(S0.vr, 1) + ' V', mA('vr'), null);\n      REC.meters.vx = meter(230, 100, 26, capP ? 'V_C' : 'V_L', fx(S0.vx, 1) + ' V', mA('vx'), slip && slip.meter != null ? fx(slip.meter, 1) + ' V' : null);\n      if (c.rl) text(105, 96, c.rl, 'lb', 'middle');\n      if (c.xl) text(230, 96, c.xl, 'lb', 'middle');\n    }\n    path('lead', 'M140 134V152M200 134V152');\n    [140, 200].forEach((x) => circ('jn', [x, 134], 2.5));\n    REC.meters.vs = meter(170, 120, 152, 'supply', fx(S0.vs, 1) + ' V', mA('vs'), null);\n    // The ammeter's reading, inside the loop.\n    if (d.amm !== 'none') {\n      const qI = 'I = ?', sI = 'I = ' + num(S0.I, 2) + ' A';\n      if (slip && slip.amm != null) {\n        if (slipA < 0.999) part(1 - slipA, 0, () => text(46, 126, qI, 'mt', 'start'));\n        part(slipA, 0, () => text(46, 126, 'I = ' + num(slip.amm, 2) + ' A', 'mtbad', 'start'));\n        REC.amm = qI;\n      } else {\n        const a = mA('amm');\n        if (a < 0.999) part(1 - a, 0, () => text(46, 126, qI, 'mt', 'start'));\n        if (a > 0.001) part(a, 0, () => text(46, 126, sI, 'mt', 'start'));\n        REC.amm = a >= 0.999 ? sI : qI;\n      }\n    }\n  }\n\n  // The plain sum, V_R + V_X laid end to end and crossed out, above the supply meter's own bar.\n  function drawBars(y, k, vr, vx, vs, A) {\n    const x0 = X0T, sum = vr + vx;\n    if (A.la1 > 0.001) part(A.la1, 0, () => text(x0, y + 13, 'plain sum: ' + num(vr, 1) + ' + ' + num(vx, 1) + ' = ' + num(sum, 1) + ' V', 'wk', 'start'));\n    if (A.p1 > 0.001) rect('b1', x0, y + 19, vr * k * A.p1, 10, 0);\n    if (A.p2 > 0.001) rect('b2', x0 + vr * k, y + 19, vx * k * A.p2, 10, 0);\n    if (A.strike > 0.001) part(A.strike, 0, () => line('strike', x0 - 6, y + 24, x0 + sum * k + 6, y + 24));\n    if (A.la2 > 0.001) part(A.la2, 0, () => text(x0, y + 45, 'supply meter', 'wk', 'start'));\n    if (A.ps > 0.001) rect('bs', x0, y + 51, vs * k * A.ps, 10, 0);\n    REC.bars = { sum: vr * k * A.p1 + vx * k * A.p2, supply: vs * k * A.ps, k, yS: y + 61 };\n  }\n\n  // Screen 2: both part voltages on one time axis, with their instant-by-instant sum, the supply's wave.\n  function drawWaves(y, right) {\n    const X0 = 48, X1 = 300, yW = y + 98, sc = 2.7, P = 20, NW = 200;\n    const xt = (t) => X0 + t / P * (X1 - X0), yv = (v) => yW - v * sc;\n    const w = TAU * 50 / 1000, pR = 12 * RT2, pL = 16 * RT2, pS = 20 * RT2;\n    const vR = (t) => pR * Math.sin(w * t), vL = (t) => pL * Math.cos(w * t), vS = (t) => vR(t) + vL(t);\n    line('axis', X0, yW - 84, X0, yW + 84);\n    line('axis', X0, yW + 84, X1, yW + 84);\n    line('zero', X0, yW, X1, yW);\n    text(X0 - 7, yW + 5, '0', 'tk', 'end');\n    text(X0 - 7, yW - 90, 'V', 'tk', 'end');\n    for (let t = 0; t <= P; t += 5) {\n      line('axis', xt(t), yW + 84, xt(t), yW + 89);\n      text(xt(t), yW + 104, t === P ? '20 ms' : String(t), 'tk', 'middle');\n    }\n    const up = right ? lin(0.1, 1.4) : 0, tA = right ? arr(1.3) : 0;\n    if (!right) ask((X0 + X1) / 2, yW - 30);\n    if (up > 0.001) {\n      const tr = (cls, fn) => {\n        const pts = [], data = [], n = Math.ceil(up * NW - 1e-9);\n        for (let j = 0; j <= n; j++) { const t = Math.min(up * P, j * P / NW), v = fn(t); data.push([t, v]); pts.push([xt(t), yv(v)]); }\n        path(cls, poly(pts));\n        return data;\n      };\n      REC.waves = { r: tr('wr', vR), l: tr('wl', vL), s: tr('ws', vS) };\n    }\n    if (tA > 0.001) part(tA, 0, () => {\n      const tS = (90 - Math.atan2(16, 12) * 180 / Math.PI) / 360 * P;\n      [[tS, pS, 'dS'], [5, pR, 'dR'], [0, pL, 'dL']].forEach((q) => {\n        if (xt(q[0]) - 6 > X0) line('guide', X0, yv(q[1]), xt(q[0]) - 6, yv(q[1]));\n        circ(q[2], [xt(q[0]), yv(q[1])], 4.5);\n        text(X0 - 7, yv(q[1]) + 5, fx(q[1], 1), 'tk', 'end');\n      });\n      REC.peaks = { r: pR, l: pL, s: pS };\n    });\n    return yW + 112;\n  }\n\n  // The arrows: V_R (or R) flat from the tail, V_X (or X) upright from its tip (down for a\n  // capacitor), and the closing side from the tail to the upright's tip. aG, bG, cG: how far each\n  // has grown; slide: the upright's foot travels from the tail to the flat arrow's tip.\n  function triArrows(o) {\n    const x0 = o.x0, yb = o.yb, k = o.k, a = o.a, b = o.b;\n    const aG = o.aG == null ? 1 : o.aG, bG = o.bG == null ? 1 : o.bG, cG = o.cG == null ? 1 : o.cG;\n    const slide = o.slide == null ? 1 : o.slide, bA = o.bA == null ? 1 : o.bA, cA = o.cA == null ? 1 : o.cA;\n    if (aG > 0.001) arrow('ar', 'arh', x0, yb, x0 + a * k * aG, yb);\n    const xb = x0 + a * k * slide;\n    if (bG > 0.001 && bA > 0.001) part(bA, 0, () => arrow('al', 'alh', xb, yb, xb, yb - b * k * bG));\n    const tx = x0 + a * k, ty = yb - b * k;\n    if (cG > 0.001 && cA > 0.001) part(cA, 0, () => arrow('as', 'ash', x0, yb, x0 + (tx - x0) * cG, yb + (ty - yb) * cG));\n    return { k, a, b, x0, yb, tipX: tx, tipY: ty,\n      flat: aG >= 0.999 ? a : null,\n      vert: bG >= 0.999 && bA > 0.001 && slide >= 0.999 ? Math.abs(b) : null,\n      c: cG >= 0.999 && cA > 0.001 ? Math.hypot(tx - x0, ty - yb) / k : null };\n  }\n  function rightMark(o, dir) {\n    if (o.a * o.k >= 14 && Math.abs(o.b) * o.k >= 14) path('sq', 'M' + R(o.tipX - 7) + ' ' + R(o.yb) + 'V' + R(o.yb - dir * 7) + 'H' + R(o.tipX));\n  }\n  // The phase angle's arc at the tail, and φ inside its wedge, beyond the arc, while the wedge is wide enough.\n  function phiArc(x0, yb, a, b, al, dir) {\n    const th = Math.atan2(Math.abs(b), a);\n    if (al > 0.001 && th >= 0.07) part(al, 0, () => {\n      const r = 22, ex = x0 + r * Math.cos(th), ey = yb - dir * r * Math.sin(th);\n      path('arc', 'M' + R(x0 + r) + ' ' + R(yb) + 'A' + r + ' ' + r + ' 0 0 ' + (dir > 0 ? 0 : 1) + ' ' + R(ex) + ' ' + R(ey));\n      if (th >= 28 * Math.PI / 180) text(x0 + 40 * Math.cos(th / 2), yb - dir * 40 * Math.sin(th / 2) + 5, 'φ', 'lb', 'middle');\n    });\n    return th;\n  }\n  // Names on the three sides: under (or over) the flat one, beside the upright, outside the closing side.\n  function triLabels(o, names, al, dir, cls) {\n    const x0 = o.x0, yb = o.yb, k = o.k, a = o.a, h = Math.abs(o.b) * k, xv = x0 + a * k;\n    const put = (key, x, y, anchor) => {\n      const s = names[key], A = al[key];\n      if (s == null || !(A > 0.001)) return;\n      part(A, 0, () => text(x, y, s, (cls && cls[key]) || 'lb', anchor));\n      if (A >= 0.999) REC.names.push(s);\n    };\n    put('a', x0 + a * k / 2, dir > 0 ? yb + 19 : yb - 9, 'middle');\n    if (h >= 26) put('b', xv + 8, yb - dir * h / 2 + 5, 'start');\n    else put('b', xv + 8, dir > 0 ? yb - h - 8 : yb + h + 18, 'start');\n    const mx = x0 + a * k / 2, my = yb - dir * h / 2, L = Math.hypot(a * k, h);\n    let nx = 0, ny = -dir;\n    if (L > 1 && h > 0.5) {\n      nx = -dir * h / L; ny = -a * k / L;\n      if (nx * (xv - mx) + ny * (yb - my) > 0) { nx = -nx; ny = -ny; }\n    }\n    if (nx < -0.35) put('c', mx + nx * 12, my + ny * 12 + 5, 'end');\n    else put('c', mx + 6, my + ny * 16 + 5, 'end');\n  }\n\n  function drawCard(d, st) {\n    const c0 = CARDS[d.card], tl = d.tl || {};\n    const c = d.rsel && st.R != null ? Object.assign({}, c0, { R: st.R, rl: num(st.R, 0) + ' Ω' }) : c0;\n    const right = !d.show && st.res === 'right';\n    const slip = !d.show && st.res === 'wrong' ? (d.slips || {})[st.pick] || null : null;\n    const demo = d.show && MODE === 'demo';\n    const slipA = slip ? arr(0.1) : 0;\n    const capP = !!c.C, dir = capP ? -1 : 1;\n\n    // ---- the supply's frequency: the screen's, the demonstration's, or Dan's ----\n    let f = d.fAt || c.f;\n    if (d.fsel && st.f != null) f = st.f;\n    else if (d.morph) f = morphF(d.morph, demo);\n    const S0 = solve(c, f);\n    // The ship screen draws its 50 Hz triangle until answered, then grows it to 60 Hz.\n    const fT = d.fAns ? (right ? mix(c.f, f, grow(0.3, 0.6)) : c.f) : f;\n    const ST = solve(c, fT);\n    Object.assign(REC, { f, fT, R: c.R, body: false, card: d.card, tri: null, pair: null, phi: null, meters: {}, amm: null, bars: null, waves: null, peaks: null,\n      swing: null, ghost: false, slip: slip && slipA > 0 ? slip : null, names: [], rows: [] });\n\n    text(8, 16, c.title(f, c.R), 'tt', 'start');\n    drawCircuit(d, c, S0, right, slip, slipA);\n    let y = 188;\n\n    // ---- the plain sum against the supply's reading ----\n    if (d.bars) {\n      let A = { p1: 1, p2: 1, ps: 1, la1: 1, la2: 1, strike: 1 };\n      if (d.bars === 'demo' && demo) {\n        A = { p1: grow(tl.p1[0], tl.p1[1]), p2: grow(tl.p2[0], tl.p2[1]), ps: grow(tl.ps[0], tl.ps[1]), la1: arr(tl.p1[0]), la2: arr(tl.ps[0]), strike: arr(tl.strike) };\n      }\n      drawBars(y, 7, S0.vr, S0.vx, S0.vs, A);\n      y += 70;\n    }\n    if (d.waves) y = drawWaves(y, right);\n\n    // ---- the triangle ----\n    let swOn = 0;\n    if (d.tri && d.tri.pair) {\n      // Screen 10: the bench's ohms with the coil (above the line) and with the capacitor (below it).\n      const t = d.tri, k = t.k, yb = y + t.up, SL = solve(CARDS.bench, 50), SC = solve(CARDS.cap, 50);\n      const o1 = triArrows({ x0: X0T, yb, k, a: SL.vr / SL.I, b: SL.X });\n      const o2 = triArrows({ x0: 200, yb, k, a: SC.vr / SC.I, b: -SC.X });\n      rightMark(o1, 1); rightMark(o2, -1);\n      const nA = right ? arr(0.3) : 0;\n      const v = (x) => num(x, 2) + ' Ω';\n      [[o1, 1, 'X_L'], [o2, -1, 'X_C']].forEach((q) => {\n        const o = q[0], dd = q[1], X = Math.abs(o.b), Z = Math.hypot(o.a, o.b);\n        // A wrong naming, in red: the 8 Ω as the impedance and the 10 Ω as the reactance, or the 6 Ω as the impedance and the 10 Ω as the resistance.\n        const bn = !slip ? {} : slip.relabel === 'zl' ? { b: 'Z = ' + v(X), c: q[2] + ' = ' + v(Z) } : { a: 'Z = ' + v(o.a), c: 'R = ' + v(Z) };\n        const ba = (key) => (bn[key] ? slipA : 0);\n        triLabels(o, { a: v(o.a), b: v(X), c: v(Z) }, { a: (1 - nA) * (1 - ba('a')), b: (1 - nA) * (1 - ba('b')), c: (1 - nA) * (1 - ba('c')) }, dd);\n        triLabels(o, { a: 'R = ' + v(o.a), b: q[2] + ' = ' + v(X), c: 'Z = ' + v(Z) }, { a: nA, b: nA, c: nA }, dd);\n        triLabels(o, { a: bn.a || null, b: bn.b || null, c: bn.c || null }, { a: ba('a'), b: ba('b'), c: ba('c') }, dd, { a: 'lbad', b: 'lbad', c: 'lbad' });\n      });\n      text(X0T, yb - 82, 'with the coil', 'ky', 'start');\n      text(200, yb + 86, 'with the capacitor', 'ky', 'start');\n      REC.tri = Object.assign(o1, { unit: 'Ω' }); REC.pair = [o1, o2];\n      y = yb + t.down;\n    } else if (d.tri) {\n      const t = d.tri, k = t.k, yb = y + t.up, x0 = X0T;\n      let a = t.unit === 'V' ? ST.vr : c.R, b = dir * (t.unit === 'V' ? ST.vx : ST.X);\n      if (t.shrink) { const s = 1 - 0.5 * (demo ? grow(tl.sh[0], tl.sh[1]) : 1); a *= s; b *= s; }\n      let aG = 1, bG = 1, cG = 1, slide = 1, bA = 1, cA = 1, lab = { a: 1, b: 1, c: 1 }, phiA = 1;\n      if (t.build && demo) {\n        aG = grow(tl.r[0], tl.r[1]); bG = grow(tl.l[0], tl.l[1]); slide = grow(tl.sl[0], tl.sl[1]); cG = grow(tl.c[0], tl.c[1]);\n        lab = { a: arr(tl.r[0] + 0.3), b: arr(tl.sl[0] + 0.6), c: arr(tl.c[0] + 0.4) }; phiA = arr(tl.phi);\n      } else if (demo && tl.l) {\n        bG = grow(tl.l[0], tl.l[1]); cG = grow(tl.c[0], tl.c[1]);\n        lab = { a: 1, b: arr(tl.l[0] + 0.3), c: arr(tl.c[0] + 0.3) }; phiA = arr(tl.phi);\n      }\n      if (t.close === 'ask') { cG = right ? grow(0.1, 0.7) : 0; lab.c = right ? arr(0.7) : 0; phiA = right ? arr(0.7) : 0; }\n      if (t.rest === 'ask') { cG = right ? grow(0.1, 0.6) : 0; bG = right ? grow(0.6, 0.6) : 0; lab.b = lab.c = phiA = right ? arr(1.1) : 0; }\n      if (t.vc === 'ask') { bG = right ? grow(0.1, 0.6) : 0; cG = right ? grow(0.6, 0.5) : 0; lab.b = lab.c = phiA = right ? arr(1.0) : 0; }\n      if (t.ghost) { bA = cA = right ? arr(0.1, 0.4) : 0; lab.b = lab.c = phiA = right ? arr(1.1) : 0; }\n\n      line('refl', x0 - 12, yb, 336, yb);\n      if (t.ghost) {\n        const g = solve(c, c.f);\n        path('ghostT', poly([[x0, yb], [x0 + c.R * k, yb], [x0 + c.R * k, yb - g.X * k], [x0, yb]]));\n        REC.ghost = true;\n      }\n      if (slip && slip.tri) part(slipA, 0, () => {\n        const sc = slip.tri, g = solve(c, c.f);\n        path('badT', poly([[x0, yb], [x0 + c.R * sc * k, yb], [x0 + c.R * sc * k, yb - g.X * sc * k], [x0, yb]]));\n      });\n      const o = triArrows({ x0, yb, k, a, b, aG, bG, cG, slide, bA, cA });\n      REC.tri = Object.assign(o, { unit: t.unit });\n      if (aG >= 0.999 && bG >= 0.999 && slide >= 0.999 && bA > 0.5) rightMark(o, dir);\n      const th = phiArc(x0, yb, a, b, phiA, dir);\n      if (phiA >= 0.999) REC.phi = (b < 0 ? -1 : 1) * th * 180 / Math.PI;\n\n      const vN = { a: 'V_R', b: capP ? 'V_C' : 'V_L', c: 'supply' };\n      const oN = { a: 'R = ' + num(c.R, 2) + ' Ω', b: (capP ? 'X_C' : 'X_L') + ' = ' + zs(ST.X) + ' Ω', c: 'Z = ' + zs(ST.Z) + ' Ω' };\n      if (t.shrink) {\n        const off = demo ? 1 - arr(tl.off[0], tl.off[1]) : 0, on = demo ? arr(tl.on) : 1;\n        triLabels(o, vN, { a: off, b: off, c: off }, dir);\n        triLabels(o, oN, { a: on, b: on, c: on }, dir);\n      } else triLabels(o, t.unit === 'V' ? vN : oN, lab, dir);\n\n      // What a wrong pick claims, in red: a plain-number length laid flat, or a wrong upright.\n      if (slip && slip.flat) part(slipA, 0, () => {\n        const L = slip.flat * k;\n        line('bad', x0, yb + 30, x0 + L, yb + 30); line('badt', x0, yb + 26, x0, yb + 34); line('badt', x0 + L, yb + 26, x0 + L, yb + 34);\n      });\n      if (slip && slip.up) part(slipA, 0, () => arrow('badl', 'badh', o.tipX, yb, o.tipX, yb - slip.up * k));\n      if (slip && slip.down) part(slipA, 0, () => arrow('badl', 'badh', o.tipX, yb, o.tipX, yb + slip.down * k));\n      // The asked side's mark.\n      if (t.close === 'ask' && !right) ask(x0 + a * k / 2 - 22, yb - dir * Math.abs(b) * k / 2);\n      if ((t.rest === 'ask' || t.vc === 'ask' || t.ghost) && !right) ask(o.tipX + 30, yb - dir * 40);\n\n      // Screen 3: the closing side swings down onto the line, as long as the supply meter's bar.\n      if (t.swing) {\n        const p = demo ? lin(tl.sw[0], tl.sw[1]) : 1;\n        swOn = demo ? arr(tl.sw[0]) : 1;\n        const cl = Math.hypot(a, b) * k;\n        part(swOn, 0, () => {\n          const ang = Math.atan2(Math.abs(b), a) * (1 - K.ease(p)), ex = x0 + cl * Math.cos(ang), ey = yb - dir * cl * Math.sin(ang);\n          path('swing', 'M' + R(x0) + ' ' + R(yb) + 'L' + R(ex) + ' ' + R(ey));\n          circ('swd', [ex, ey], 4);\n          REC.swing = { x: ex, y: ey };\n        });\n        const gA = demo ? arr(tl.gd) : 1;\n        if (gA > 0.001 && REC.bars) part(gA, 0, () => line('guide', x0 + cl, yb - 7, x0 + cl, REC.bars.yS + 3));\n      }\n      y = yb + t.down;\n    }\n\n    // ---- under the picture: the working ----\n    const row = (s, a) => {\n      y += 22; const yy = y;\n      if (a == null || a > 0.001) part(a == null ? 1 : a, 0, () => text(8, yy, s, 'wk', 'start'));\n      if (a == null || a >= 0.999) REC.rows.push(s);\n    };\n    // A puzzle's '?' rows fade out in place as its answer rows fade in, so nothing blinks out.\n    const swap = (qs, as, a) => {\n      for (let j = 0; j < Math.max(qs.length, as.length); j++) {\n        y += 22; const yy = y;\n        if (qs[j] != null && a < 0.999) part(1 - a, 0, () => text(8, yy, qs[j], 'wk', 'start'));\n        if (as[j] != null && a > 0.001) part(a, 0, () => text(8, yy, as[j], 'wk', 'start'));\n        if (a >= 0.999 && as[j] != null) REC.rows.push(as[j]); else if (a <= 0.001 && qs[j] != null) REC.rows.push(qs[j]);\n      }\n    };\n    const ra = right ? (d.rowAt != null ? arr(d.rowAt) : 1) : 0;\n    const rA = demo && tl.rows != null ? arr(tl.rows) : 1;\n    const fr = Math.round(f), Sx = solve(c, fr);\n    const eq = (z) => (Math.abs(z - Math.round(z)) < 1e-9 ? ' = ' : ' ≈ ');\n    switch (d.name) {\n      case 'Where did 8 V go?':\n        swap(['their sum, instant by instant: ?'], ['V_R peaks at ' + fx(12 * RT2, 1) + ' V, V_L at ' + fx(16 * RT2, 1) + ' V, 5 ms apart',\n          'their sum peaks at ' + fx(20 * RT2, 1) + ' V = 20 V × √2'], ra);\n        break;\n      case 'Tip to tail':\n        row('√(' + num(S0.vr, 1) + '² + ' + num(S0.vx, 1) + '²) = √' + num(S0.vr * S0.vr + S0.vx * S0.vx, 0) + ' = ' + num(S0.vs, 1) + ' V: the supply meter', rA);\n        row('tan φ = ' + num(S0.vx, 1) + ' ÷ ' + num(S0.vr, 1) + ', so φ = ' + ps(S0.phi), rA);\n        break;\n      case 'A second bench':\n        swap(['√(10² + 24²) = ?'], ['√(' + num(S0.vr, 1) + '² + ' + num(S0.vx, 1) + '²) = √' + num(S0.vr * S0.vr + S0.vx * S0.vx, 0) + ' = ' + num(S0.vs, 1) + ' V'], ra);\n        break;\n      case 'Divide by the current':\n        row('every side ÷ ' + num(S0.I, 2) + ' A: R = 6 Ω, X_L = 8 Ω, Z = 10 Ω', rA);\n        row('Z = √(6² + 8²) = ' + zs(S0.Z) + ' Ω; I = 20 ÷ 10 = ' + num(S0.I, 2) + ' A', rA);\n        row('the same shape: φ = ' + ps(S0.phi), rA);\n        break;\n      case 'On the mains':\n        swap(['R = ?', 'Z = ?', 'X_L = ?'], ['R = 200 V ÷ ' + num(S0.I, 2) + ' A = ' + num(c.R, 2) + ' Ω', 'Z = 230 V ÷ ' + num(S0.I, 2) + ' A = ' + zs(S0.Z) + ' Ω',\n          'X_L = √(46² − 40²) ≈ ' + zs(S0.X) + ' Ω'], ra);\n        break;\n      case 'Slide the frequency': {\n        const r = num(c.R, 0);\n        if (fr === 0) {\n          row('at 0 Hz, steady DC: X_L = 0 Ω', rA);\n          row('so Z = R = ' + zs(Sx.Z) + ' Ω', rA);\n          row('I = 20 V ÷ ' + r + ' Ω = ' + num(Sx.I, 2) + ' A; φ = 0°', rA);\n        } else {\n          row('X_L = 2π × ' + fr + ' Hz × 25.5 mH ≈ ' + num(Sx.X, 2) + ' Ω', rA);\n          row('Z = √(' + r + '² + ' + num(Sx.X, 2) + '²)' + eq(Sx.Z) + zs(Sx.Z) + ' Ω', rA);\n          row('I = 20 V ÷ ' + zs(Sx.Z) + ' Ω = ' + num(Sx.I, 2) + ' A; φ = ' + ps(Sx.phi), rA);\n        }\n        // A real coil: the resistor and the ideal coil in one body, drawn dashed, met only through its meters.\n        const rR = demo ? arr(tl.real) : 1, S5 = solve(c, 50);\n        part(rR, 0, () => rect('body', 66, 54, 200, 52, 8));\n        REC.body = rR >= 0.999;\n        row('a real coil: an ohmmeter sees only R = ' + r + ' Ω', rR);\n        row('AC meters at 50 Hz: Z = 20 V ÷ ' + num(S5.I, 2) + ' A' + eq(S5.Z) + zs(S5.Z) + ' Ω', rR);\n        row('X_L = √(' + zs(S5.Z) + '² − ' + r + '²)' + eq(S5.Z) + '8 Ω', rR);\n        row('L = 8 ÷ (2π × 50) = ' + num(L1 * 1000, 1) + ' mH', rR);\n        break;\n      }\n      case 'An unknown coil':\n        swap(['Z = ?', 'X_L = ?', 'L = ?'], ['Z = 34 V ÷ 2 A = ' + zs(S0.Z) + ' Ω', 'X_L = √(17² − 8²) = ' + num(S0.X, 2) + ' Ω',\n          'L = 15 ÷ (2π × 50) = ' + num(c.L * 1000, 1) + ' mH'], ra);\n        break;\n      case 'Swap in a capacitor':\n        row('X_C = 1 ÷ (2π × ' + fr + ' Hz × 398 µF) ≈ ' + num(Sx.X, 2) + ' Ω', rA);\n        row('Z = √(6² + ' + num(Sx.X, 2) + '²)' + eq(Sx.Z) + zs(Sx.Z) + ' Ω; I = ' + num(Sx.I, 2) + ' A', rA);\n        row('φ = ' + ps(Sx.phi) + ': the supply lags the current', rA);\n        break;\n      case 'Mixed: the capacitor\\'s meter':\n        swap(['V_C = ?'], ['V_C = √(50² − 30²) = √1600 = ' + num(S0.vx, 1) + ' V'], ra);\n        break;\n      case 'Mixed: on board ship':\n        swap(['on 60 Hz: X_L = ?', 'Z = ?', 'I = ?'], ['X_L = 8 Ω × 60 ÷ 50 = ' + num(S0.X, 2) + ' Ω', 'Z = √(6² + 9.6²) ≈ ' + zs(S0.Z) + ' Ω',\n          'I = 20 ÷ ' + zs(S0.Z) + ' = ' + num(S0.I, 2) + ' A, lagging ' + fx(S0.phi, 1) + '°'], ra);\n        break;\n      default: break;\n    }\n\n    // ---- the key ----\n    const items = [];\n    if (d.bars) items.push({ sw: swLine('strike'), label: 'crossed out: a plain sum' });\n    if (d.waves) items.push({ sw: swLine('wr'), label: 'V_R' }, { sw: swLine('wl'), label: 'V_L' }, { sw: swLine('ws'), label: 'supply: their sum' });\n    if (d.tri && !d.tri.pair) items.push({ sw: swLine('refl'), label: 'current, the reference' });\n    if (d.tri && d.tri.swing) items.push({ sw: swLine('swing'), label: 'closing side, swung flat', a: swOn });\n    if (d.tri && d.tri.ghost) items.push({ sw: (x, yy) => path('ghostT', 'M' + x + ' ' + (yy + 6) + 'H' + (x + 18) + 'V' + (yy - 7) + 'Z'), label: 'the 50 Hz triangle' });\n    if (!d.show && d.slips) items.push({ sw: swLine('bad'), label: 'that pick', a: slip ? slipA : 0 });\n    if (items.length) y = keyRows(items, y + 28);\n\n    // ---- in words, for a screen reader ----\n    const m = REC.meters;\n    let said = c.title(f, c.R) + '. ' + (m.vr ? m.vr + ', ' + m.vx + ', ' : '') + m.vs + '. ';\n    if (REC.tri) said += 'The part voltages, drawn as arrows at right angles, close a right-angled triangle.';\n    return { h: y + 4, said: said.replace(/_/g, '') };\n  }\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    art.textContent = '';\n    into = null;\n    REC = {};\n    const out = drawCard(d, st);\n    VBH = Math.ceil(out.h);\n    svg.setAttribute('viewBox', '0 0 340 ' + VBH);\n    svg.setAttribute('aria-label', out.said);\n    if (i === at() && d.fsel && !finished) syncF(d.fsel, REC.f);\n    if (i === at() && d.rsel && !finished) {\n      if (ctlR.get() !== REC.R) ctlR.set(REC.R, true);\n      shown.res = ctlR.get();\n    }\n  }\n\n  // ---------- the model: the three voltmeters on the screen's circuit at its frequency ----------\n  function modelOf(p) {\n    const d = STEPS[K.clamp(Math.round(p.step), 0, STEPS.length - 1)];\n    let c = CARDS[d.card], f = d.fAt || c.f;\n    if (d.rsel) { const r = Number(p.res); c = Object.assign({}, c, { R: K.clamp(isFinite(r) ? r : 6, 2, 12) }); }\n    if (d.fsel) { const v = Number(p[d.fsel]); f = K.clamp(isFinite(v) ? v : 50, CTL[d.fsel].lo, 100); }\n    const s = solve(c, f);\n    return { vr: s.vr, vx: s.vx, vs: s.vs };\n  }\n  K.model(modelOf);\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing() && !waiting) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      shown.f = p.f; shown.fc = p.fc; shown.res = p.res;\n      if (d.show) { st.f = null; st.R = null; play('demo', d.dur); }\n      else { waiting = false; anim.pause(); T = Infinity; MODE = 'answer'; }\n    } else {\n      // Dan moved a frequency slider: the demonstration stops where it ends, and the frequency is his.\n      ['f', 'fc'].forEach((w) => {\n        if (p[w] === shown[w]) return;\n        shown[w] = p[w];\n        if (d.fsel === w && !finished) { stopMotion(); st.f = K.clamp(Number(p[w]), CTL[w].lo, 100); }\n      });\n      // Dan moved the resistance: the same, and the resistance is his.\n      if (p.res !== shown.res) {\n        shown.res = p.res;\n        if (d.rsel && !finished) { stopMotion(); st.R = K.clamp(Number(p.res), 2, 12); }\n      }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const fOn = !finished && d.fsel === 'f', cOn = !finished && d.fsel === 'fc';\n    ctlF.el.hidden = !fOn;\n    ctlC.el.hidden = !cOn;\n    const rOn = !finished && !!d.rsel;\n    ctlR.el.hidden = !rOn;\n    el('ctl').hidden = !fOn && !cOn && !rOn;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const near = (a, b, tol) => typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) <= tol;\n  // A step painted in the state given, finished: what it draws.\n  function drawn(i, st, mode) {\n    const keepS = S[i], keepT = T, keepM = MODE;\n    S[i] = st; T = Infinity; MODE = mode || (STEPS[i].show ? 'demo' : 'answer');\n    try {\n      paint(i);\n      return Object.assign({}, REC);\n    } finally { S[i] = keepS; T = keepT; MODE = keepM; paint(); }\n  }\n  const settledOf = (i) => drawn(i, STEPS[i].show ? blank() : solvedSt(i));\n  const withF = (f) => Object.assign(blank(), { f });\n  const has = (g, s) => g.rows.indexOf(s) >= 0;\n  const FS = [];\n  for (let f = 0; f <= 100; f += 5) FS.push(f);\n\n  K.check('A 6 volt source at 0° added to an 8 volt source at 90° results in 10 volts at a phase angle of 53.13°: laid tip to tail at right angles, 6 V and 8 V close on 10 V at 53.13°, and the drawn 12 V and 16 V arrows close on the 20 V supply at the same angle', () => {\n    const g = settledOf(idx('Tip to tail'));\n    return near(Math.hypot(6, 8), 10, 1e-12) && near(Math.atan2(8, 6) * 180 / Math.PI, 53.13, 0.005) && !!g.tri &&\n      near(g.tri.c, 20, 1e-9) && near(g.tri.flat, 12, 1e-9) && near(g.tri.vert, 16, 1e-9) && near(g.phi, 53.13, 0.005) &&\n      has(g, '√(12² + 16²) = √400 = 20 V: the supply meter') && has(g, 'tan φ = 16 ÷ 12, so φ = 53.13°');\n  }, { source: KUPH2 });\n  K.check('Because the phasors for reactances are 90° out of phase with the current, the series impedance of a resistor R and a reactance X is given by Pythagoras\\' law: on every screen, and at every setting of both frequency sliders and the resistance slider, the drawn closing side is √(flat² + upright²) and the upright stands square on the flat side\\'s tip', () => {\n    const ok = (g) => !g.tri || ((g.tri.c == null || near(g.tri.c, Math.hypot(g.tri.a, g.tri.b), 1e-9)) && near(g.tri.tipX, g.tri.x0 + g.tri.a * g.tri.k, 1e-9));\n    const sf = idx('Slide the frequency'), sc = idx('Swap in a capacitor');\n    const zOk = FS.every((f) => { const g = drawn(sf, withF(f)); return ok(g) && g.f === f && near(g.tri.c, Math.hypot(6, TAU * f * L1), 1e-9); });\n    const cOk = FS.filter((f) => f >= 5).every((f) => {\n      const g = drawn(sc, withF(f)), s = solve(CARDS.cap, f);\n      return ok(g) && near(g.tri.c, 20, 1e-9) && near(g.tri.a, s.vr, 1e-9) && near(g.tri.b, -s.vx, 1e-9);\n    });\n    const rOk = [2, 10, 12].every((r) => {\n      const g = drawn(sf, Object.assign(withF(100), { R: r })), X = TAU * 100 * L1;\n      return ok(g) && near(g.tri.flat, r, 1e-9) && near(g.tri.vert, X, 1e-9) && near(g.tri.c, Math.hypot(r, X), 1e-9);\n    });\n    const p = settledOf(idx('Name the ohms'));\n    return STEPS.every((d, i) => ok(settledOf(i))) && zOk && rOk && cOk && !!p.pair && p.pair.every((o) => near(o.c, 10, 1e-9));\n  }, { source: UNSW });\n  K.check('Inductive reactance can be calculated using this formula: X_L = 2πfL. On the frequency screen the drawn X_L side, its rows and the meters agree with it at every setting from 0 to 100 Hz, and the demonstration ends back at 50 Hz, where a real coil\\'s rows find 25.5 mH', () => {\n    const s = idx('Slide the frequency'), g7 = settledOf(s);\n    const real = g7.f === 50 && g7.body === true && has(g7, 'AC meters at 50 Hz: Z = 20 V ÷ 2 A = 10 Ω') && has(g7, 'X_L = √(10² − 6²) = 8 Ω') && has(g7, 'L = 8 ÷ (2π × 50) = 25.5 mH');\n    return real && near(TAU * 50 * L1, 8, 1e-12) && num(L1 * 1000, 1) === '25.5' && FS.every((f) => {\n      const g = drawn(s, withF(f)), X = TAU * f * L1, m = K.at({ step: s, f });\n      const rowOk = f === 0 ? has(g, 'at 0 Hz, steady DC: X_L = 0 Ω') : has(g, 'X_L = 2π × ' + f + ' Hz × 25.5 mH ≈ ' + num(X, 2) + ' Ω');\n      return near(g.tri.b, X, 1e-9) && rowOk && near(m.vx, 20 * X / Math.hypot(6, X), 1e-9) && near(m.vr, 120 / Math.hypot(6, X), 1e-9) && near(m.vs, 20, 1e-12);\n    });\n  }, { source: KUPH3 });\n  K.check('60 Hz is the most common frequency adopted for use on board ship: answered, the ship screen runs the first bench at 60 Hz, where X_L is 9.6 Ω, Z is 11.3 Ω and 1.77 A flows, lagging 58.0°', () => {\n    const g = settledOf(idx('Mixed: on board ship'));\n    return g.f === 60 && near(g.fT, 60, 1e-12) && near(g.tri.b, 9.6, 1e-9) && near(g.phi, 57.99, 0.01) && g.amm === 'I = 1.77 A' &&\n      has(g, 'X_L = 8 Ω × 60 ÷ 50 = 9.6 Ω') && has(g, 'Z = √(6² + 9.6²) ≈ 11.3 Ω') && has(g, 'I = 20 ÷ 11.3 = 1.77 A, lagging 58.0°');\n  }, { source: SHIP });\n  K.check('UK mains electricity operates at a nominal voltage of 230V: on 230 V with 5 A flowing and 200 V across the resistor, R is 40 Ω, Z is 46 Ω and X_L is 22.7 Ω, and the coil\\'s meter reads 113.6 V', () => {\n    const s = idx('On the mains'), g = settledOf(s), m = K.at({ step: s });\n    return near(g.tri.c, 46, 1e-9) && near(g.tri.flat, 40, 1e-9) && fx(g.tri.vert, 1) === '22.7' && g.amm === 'I = 5 A' && g.meters.vs === 'supply = 230.0 V' &&\n      g.meters.vr === 'V_R = 200.0 V' && g.meters.vx === 'V_L = 113.6 V' && has(g, 'X_L = √(46² − 40²) ≈ 22.7 Ω') &&\n      near(m.vr, 200, 1e-9) && near(m.vs, 230, 1e-12) && fx(m.vx, 1) === '113.6';\n  }, { source: ENA });\n  K.check('Screen 2\\'s supply wave is the resistor\\'s plus the coil\\'s at every drawn instant: the parts peak at 17.0 V and 22.6 V a quarter cycle apart (the coil\\'s is at zero when the resistor\\'s peaks), and the sum peaks at 28.3 V, which is 20 V rms', () => {\n    const g = settledOf(idx('Where did 8 V go?'));\n    if (!g.waves) return false;\n    const r = g.waves.r, l = g.waves.l, s = g.waves.s;\n    const mx = (dd) => Math.max.apply(null, dd.map((q) => q[1]));\n    const sum = s.length === 201 && s.every((q, j) => near(q[0], r[j][0], 1e-12) && near(q[1], r[j][1] + l[j][1], 1e-9));\n    return sum && near(r[50][0], 5, 1e-12) && near(r[50][1], 12 * RT2, 1e-9) && near(l[50][1], 0, 1e-9) && near(l[0][1], 16 * RT2, 1e-9) &&\n      near(mx(s), 20 * RT2, 0.02) && near(mx(s) / RT2, 20, 0.02) && fx(12 * RT2, 1) === '17.0' && fx(16 * RT2, 1) === '22.6' && fx(20 * RT2, 1) === '28.3';\n  });\n  K.check('The bench reads 12 V, 16 V and 20 V at 50 Hz and draws 2 A; at 100 Hz Z is 17.1 Ω and 1.17 A flows at 69.4°; at 25 Hz 7.21 Ω, 2.77 A and 33.7°; at 0 Hz 3.33 A; with the 398 µF capacitor, 100 Hz gives X_C = 4 Ω at −33.7° and 5 Hz gives 80 Ω', () => {\n    const s = idx('Slide the frequency'), sc = idx('Swap in a capacitor'), m0 = K.at({ step: 0 });\n    const a = solve(CARDS.bench, 100), b = solve(CARDS.bench, 25), z = solve(CARDS.bench, 0), c1 = solve(CARDS.cap, 100), c5 = solve(CARDS.cap, 5);\n    return near(m0.vr, 12, 1e-9) && near(m0.vx, 16, 1e-9) && near(m0.vs, 20, 1e-12) && near(solve(CARDS.bench, 50).I, 2, 1e-12) &&\n      zs(a.Z) === '17.1' && num(a.I, 2) === '1.17' && fx(a.phi, 1) === '69.4' && zs(b.Z) === '7.21' && num(b.I, 2) === '2.77' && fx(b.phi, 1) === '33.7' &&\n      num(z.I, 2) === '3.33' && near(K.at({ step: s, f: 0 }).vr, 20, 1e-9) && near(K.at({ step: s, f: 0 }).vx, 0, 1e-12) &&\n      near(c1.X, 4, 1e-9) && fx(c1.phi, 1) === '−33.7' && near(c5.X, 80, 1e-9) && near(K.at({ step: sc, fc: 5 }).vx, 20 * 80 / Math.hypot(6, 80), 1e-9) &&\n      num(C1 * 1e6, 0) === '398';\n  });\n  K.check('Dividing every side by the 2 A current turns 12 V, 16 V and 20 V into R = 6 Ω, X_L = 8 Ω and Z = 10 Ω: the drawn triangle halves but keeps its 53.13° angle', () => {\n    const a = settledOf(idx('Tip to tail')), b = settledOf(idx('Divide by the current'));\n    return near(b.tri.flat, 6, 1e-9) && near(b.tri.vert, 8, 1e-9) && near(b.tri.c, 10, 1e-9) && near(b.tri.c * 2, a.tri.c, 1e-9) && near(a.phi, b.phi, 1e-9) &&\n      ['R = 6 Ω', 'X_L = 8 Ω', 'Z = 10 Ω'].every((s) => b.names.indexOf(s) >= 0) && has(b, 'Z = √(6² + 8²) = 10 Ω; I = 20 ÷ 10 = 2 A');\n  });\n  K.check('The plain-sum bar is V_R + V_X long and the supply bar the supply\\'s reading, on the arrows\\' scale; the swung closing side lands on the supply bar\\'s end; with the capacitor both bars follow the frequency', () => {\n    const g = settledOf(idx('Tip to tail')), sc = idx('Swap in a capacitor');\n    const barsOk = !!g.bars && near(g.bars.sum, 28 * 7, 1e-9) && near(g.bars.supply, 20 * 7, 1e-9) && !!g.swing &&\n      near(g.swing.x, X0T + g.bars.supply, 1e-6) && near(g.swing.y, g.tri.yb, 1e-6);\n    return barsOk && [5, 50, 100].every((f) => {\n      const h = drawn(sc, withF(f)), s = solve(CARDS.cap, f);\n      return !!h.bars && near(h.bars.sum, (s.vr + s.vx) * 7, 1e-9) && near(h.bars.supply, 140, 1e-9);\n    });\n  });\n  K.check('With the capacitor its arrow points down: at 50 Hz the meters still read 12.0 V, 16.0 V and 20.0 V and φ is −53.13°; at 5 Hz the triangle stands almost on end at −85.7°', () => {\n    const sc = idx('Swap in a capacitor'), g = drawn(sc, withF(50)), h = drawn(sc, withF(5));\n    return near(g.tri.b, -16, 1e-9) && near(g.phi, -53.13, 0.005) && g.meters.vr === 'V_R = 12.0 V' && g.meters.vx === 'V_C = 16.0 V' &&\n      g.meters.vs === 'supply = 20.0 V' && h.tri.a < 1.6 && h.tri.b < -19.9 && has(h, 'φ = −85.7°: the supply lags the current');\n  });\n  K.check('Each puzzle accepts only its right answer; before an answer its picture hides what is asked, a right answer draws it, and each wrong pick draws what it claims, in red', () => {\n    const PRE = {\n      'Where did 8 V go?': (g) => g.waves === null && has(g, 'their sum, instant by instant: ?'),\n      'A second bench': (g) => g.tri.c === null && g.meters.vs === 'supply = ?' && has(g, '√(10² + 24²) = ?'),\n      'On the mains': (g) => g.tri.c === null && g.tri.vert === null && g.meters.vx === 'V_L = ?' && g.amm === 'I = 5 A' && has(g, 'X_L = ?'),\n      'An unknown coil': (g) => g.tri.c === null && g.tri.vert === null && near(g.tri.flat, 8, 1e-9) && has(g, 'L = ?'),\n      'Name the ohms': (g) => ['6 Ω', '8 Ω', '10 Ω'].every((s) => g.names.indexOf(s) >= 0) && g.names.indexOf('Z = 10 Ω') < 0,\n      'Mixed: the capacitor\\'s meter': (g) => g.tri.vert === null && g.tri.c === null && g.meters.vx === 'V_C = ?' && has(g, 'V_C = ?'),\n      'Mixed: on board ship': (g) => g.tri.vert === null && g.tri.c === null && g.ghost === true && g.amm === 'I = ?' && has(g, 'Z = ?'),\n    };\n    const POST = {\n      'Where did 8 V go?': (g) => !!g.waves && !!g.peaks && has(g, 'their sum peaks at 28.3 V = 20 V × √2'),\n      'A second bench': (g) => near(g.tri.c, 26, 1e-9) && g.meters.vs === 'supply = 26.0 V' && has(g, '√(10² + 24²) = √676 = 26 V'),\n      'On the mains': (g) => near(g.tri.c, 46, 1e-9) && g.meters.vx === 'V_L = 113.6 V' && has(g, 'R = 200 V ÷ 5 A = 40 Ω') && has(g, 'Z = 230 V ÷ 5 A = 46 Ω'),\n      'An unknown coil': (g) => near(g.tri.c, 17, 1e-9) && near(g.tri.vert, 15, 1e-9) && has(g, 'L = 15 ÷ (2π × 50) = 47.7 mH'),\n      'Name the ohms': (g) => ['R = 6 Ω', 'X_L = 8 Ω', 'X_C = 8 Ω', 'Z = 10 Ω'].every((s) => g.names.indexOf(s) >= 0),\n      'Mixed: the capacitor\\'s meter': (g) => near(g.tri.vert, 40, 1e-9) && near(g.tri.c, 50, 1e-9) && g.meters.vx === 'V_C = 40.0 V' && has(g, 'V_C = √(50² − 30²) = √1600 = 40 V'),\n      'Mixed: on board ship': (g) => g.f === 60 && near(g.tri.b, 9.6, 1e-9) && near(g.tri.c, Math.hypot(6, 9.6), 1e-9) && g.amm === 'I = 1.77 A',\n    };\n    const only = DO.every((i) => { const d = STEPS[i]; return d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)); });\n    const hidden = DO.every((i) => !!PRE[STEPS[i].name] && PRE[STEPS[i].name](drawn(i, blank())) === true);\n    const shownOk = DO.every((i) => !!POST[STEPS[i].name] && POST[STEPS[i].name](settledOf(i)) === true);\n    const slips = DO.every((i) => !STEPS[i].slips || STEPS[i].opts.filter((o) => o !== STEPS[i].want).every((o) => {\n      const s = STEPS[i].slips[o], g = drawn(i, wrongSt(i, o));\n      return !!s && g.slip === s;\n    }));\n    return only && hidden && shownOk && slips;\n  });\n  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, within 2.5 s', () => {\n    const keepT = T, keepM = MODE;\n    const timed = (i, st, mode, limit) => {\n      const keepS = S[i];\n      T = Infinity; MODE = mode; latest = 0; earliest = Infinity; S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), 'demo', d.dur); return r && d.dur >= 3 && d.dur <= 4.5 && earliest >= FADE; }\n      return timed(i, solvedSt(i), 'answer', d.rdur) && d.rdur <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), 'answer', 0.8));\n    });\n    T = keepT; MODE = keepM; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "Three meters, one triangle",
+  "brief": "The one thing you should see is the 12 V and 16 V arrows, a quarter cycle apart, at right angles, closing a triangle whose long side matches the 20 V supply meter, when you lay them tip to tail.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "A 6 volt source at 0° added to an 8 volt source at 90° results in 10 volts at a phase angle of 53.13°: laid tip to tail at right angles, 6 V and 8 V close on 10 V at 53.13°, and the drawn 12 V and 16 V arrows close on the 20 V supply at the same angle",
+     "ok": true,
+     "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_2.html"
+    },
+    {
+     "label": "Because the phasors for reactances are 90° out of phase with the current, the series impedance of a resistor R and a reactance X is given by Pythagoras' law: on every screen, and at every setting of both frequency sliders and the resistance slider, the drawn closing side is √(flat² + upright²) and the upright stands square on the flat side's tip",
+     "ok": true,
+     "source": "https://www.animations.physics.unsw.edu.au/jw/AC.html"
+    },
+    {
+     "label": "Inductive reactance can be calculated using this formula: X_L = 2πfL. On the frequency screen the drawn X_L side, its rows and the meters agree with it at every setting from 0 to 100 Hz, and the demonstration ends back at 50 Hz, where a real coil's rows find 25.5 mH",
+     "ok": true,
+     "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html"
+    },
+    {
+     "label": "60 Hz is the most common frequency adopted for use on board ship: answered, the ship screen runs the first bench at 60 Hz, where X_L is 9.6 Ω, Z is 11.3 Ω and 1.77 A flows, lagging 58.0°",
+     "ok": true,
+     "source": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf"
+    },
+    {
+     "label": "UK mains electricity operates at a nominal voltage of 230V: on 230 V with 5 A flowing and 200 V across the resistor, R is 40 Ω, Z is 46 Ω and X_L is 22.7 Ω, and the coil's meter reads 113.6 V",
+     "ok": true,
+     "source": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits"
+    },
+    {
+     "label": "Screen 2's supply wave is the resistor's plus the coil's at every drawn instant: the parts peak at 17.0 V and 22.6 V a quarter cycle apart (the coil's is at zero when the resistor's peaks), and the sum peaks at 28.3 V, which is 20 V rms",
+     "ok": true
+    },
+    {
+     "label": "The bench reads 12 V, 16 V and 20 V at 50 Hz and draws 2 A; at 100 Hz Z is 17.1 Ω and 1.17 A flows at 69.4°; at 25 Hz 7.21 Ω, 2.77 A and 33.7°; at 0 Hz 3.33 A; with the 398 µF capacitor, 100 Hz gives X_C = 4 Ω at −33.7° and 5 Hz gives 80 Ω",
+     "ok": true
+    },
+    {
+     "label": "Dividing every side by the 2 A current turns 12 V, 16 V and 20 V into R = 6 Ω, X_L = 8 Ω and Z = 10 Ω: the drawn triangle halves but keeps its 53.13° angle",
+     "ok": true
+    },
+    {
+     "label": "The plain-sum bar is V_R + V_X long and the supply bar the supply's reading, on the arrows' scale; the swung closing side lands on the supply bar's end; with the capacitor both bars follow the frequency",
+     "ok": true
+    },
+    {
+     "label": "With the capacitor its arrow points down: at 50 Hz the meters still read 12.0 V, 16.0 V and 20.0 V and φ is −53.13°; at 5 Hz the triangle stands almost on end at −85.7°",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle accepts only its right answer; before an answer its picture hides what is asked, a right answer draws it, and each wrong pick draws what it claims, in red",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "f",
+    "fc",
+    "res"
+   ],
+   "readouts": [],
+   "outputs": [
+    "vr",
+    "vx",
+    "vs"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "Three meters",
+      "Where did 8 V go?",
+      "Tip to tail",
+      "A second bench",
+      "Divide by the current",
+      "On the mains",
+      "Slide the frequency",
+      "An unknown coil",
+      "Swap in a capacitor",
+      "Name the ohms",
+      "Mixed: the capacitor's meter",
+      "Mixed: on board ship"
+     ],
+     "value": 0
+    },
+    {
+     "id": "f",
+     "kind": "control",
+     "label": "Supply frequency",
+     "min": 0,
+     "max": 100,
+     "step": 5,
+     "log": false,
+     "value": 50,
+     "snap": [
+      0,
+      25,
+      50,
+      100
+     ]
+    },
+    {
+     "id": "fc",
+     "kind": "control",
+     "label": "Supply frequency",
+     "min": 5,
+     "max": 100,
+     "step": 5,
+     "log": false,
+     "value": 50,
+     "snap": [
+      5,
+      50,
+      100
+     ]
+    },
+    {
+     "id": "res",
+     "kind": "control",
+     "label": "Resistance",
+     "min": 2,
+     "max": 12,
+     "step": 1,
+     "log": false,
+     "value": 6,
+     "snap": [
+      6
+     ]
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Replay",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-20T01:47:06.115Z",
+  "applied": [
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "\"like any AC meter, they read rms\" is too absolute: average-responding meters only read rms correctly on a pure sine, and peak-reading instruments do not; narrowed to ordinary meters on a sine wave, as the ignores panel already says."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

@@ -1,0 +1,24 @@
+{
+  "draft": "i6.lesson.draft1.txt",
+  "validator": "ok, no problems",
+  "faults": [
+    { "fault": "the explanation skipping the causal step", "where": "explain, paragraph 2", "finding": "'the coil's points straight up' does not say why a quarter cycle becomes a right angle, and 'the readings make the same triangle' skips that the sum of two same-frequency sines is itself a sine, which is what lets its rms be its peak divided by root 2 too.", "fix": "Say a quarter cycle is a quarter turn of Trigonometry's arm, a right angle, and that the sum of the two waves is itself a sine of the same frequency, so every reading is its wave's peak divided by root 2." },
+    { "fault": "false absolute / a claim that fails in the real world", "where": "explain, paragraph 3", "finding": "'Only the reactance side depends on the frequency ... until on steady DC only R is left' read alone in the dossier is wrong for the capacitor (on DC it blocks) and too strong for a real coil, whose AC resistance rises a little with frequency.", "fix": "Make it the coil's triangle, say 'in this model', and give the capacitor its own frequency sentence (its side grows as the frequency falls)." },
+    { "fault": "the interactive brief shows only the effect, not the cause", "where": "interactive.brief", "finding": "The brief names the triangle matching the supply meter but not why the arrows are at right angles.", "fix": "Name the quarter cycle as the reason inside the brief, within 40 words." },
+    { "fault": "unreadable labels", "where": "interactive.outputs", "finding": "'Meter across coil or capacitor' is 30 characters, at the limit, and would wrap on a 340 px readout; the three labels are also uneven.", "fix": "'Across the resistor', 'Across coil or capacitor', 'Across the supply'." },
+    { "fault": "unsourced detail dressed as fact", "where": "explain, paragraph 3", "finding": "'the one Complex numbers lesson 7 wrote as 6 + j8 = 10∠53.13°' says that course used these figures; it used 8 + j6.", "fix": "'the triangle of Complex numbers lesson 7's Z = R + jX, here 6 + j8 = 10∠53.13°'." },
+    { "fault": "wrong in general", "where": "practice, the angle step", "finding": "'tan φ = X_L ÷ R' then 'for a capacitor it leads' uses the coil's symbol for both.", "fix": "'tan φ = X ÷ R, with X the coil's or the capacitor's reactance'." },
+    { "fault": "the explanation skipping the causal step", "where": "practice, safety step", "finding": "The reason given for isolating ('cutting a coil's current quickly makes a large back-emf') does not connect to the ohmmeter test.", "fix": "Isolate and prove dead first; then the kick comes from taking the leads off a large coil while the meter's current flows, so keep clear of the terminals then." },
+    { "fault": "thin research", "where": "sources", "finding": "Source 15 is cited only in the numbers list, not in the words.", "fix": "Footnote the 60 Hz step of the worked example with [^15]." }
+  ],
+  "shape": {
+    "idea named up front": "yes, paragraph 1: the readings do not add, the voltages add as arrows at right angles, and dividing by I gives R, X and Z",
+    "rule in words": "yes: the supply's voltage at each instant is the parts' sum; as arrows a quarter cycle apart, square, add, square root",
+    "worked example with real numbers": "yes: 12 V, 16 V and 20 V on screen 1; the 30 Ω coil on 230 V in practice; the unknown coil on screen 8",
+    "misconception shown failing": "yes: the struck-through 28 V bar (screens 1, 4), plain-sum ohms (screen 6), Z taken as X_L and plain-number subtraction (screen 8), four kinds of ohm (screen 10), a negative meter reading (screen 11), the whole Z scaled with frequency (screen 12)",
+    "analogy with where it breaks": "yes: a cable run round a corner versus the straight line; breaks on space versus time and the capacitor's leg turning the other way",
+    "put it into practice": "yes: steps with safety first, rule of thumb, worked example, mistakes",
+    "recap he could say back": "yes, the bold takeaway"
+  },
+  "verdict": "rewrite as draft 2 with the fixes above"
+}

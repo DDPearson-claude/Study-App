@@ -1,0 +1,180 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "The current wave has a \"head start\" on the voltage wave; the current leads the voltage, and the voltage lags behind the current: on every AC screen each top and bottom of the drawn current comes a quarter cycle before the drawn voltage's",
+        "ok": true,
+        "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html"
+      },
+      {
+        "label": "Capacitive reactance can be calculated using this formula: X_C = 1/(2πfC). The drawn X_C curve, its dot and the supply's peak ÷ the current's peak all agree with it at every setting of the frequency slider",
+        "ok": true,
+        "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html"
+      },
+      {
+        "label": "Capacitive reactance decreases with increasing frequency: the drawn X_C curve falls all the way from 25 Hz to 100 Hz, and twice the frequency gives half the reactance and twice the current",
+        "ok": true,
+        "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html"
+      },
+      {
+        "label": "Capacitors oppose changes in voltage by drawing or supplying current as they charge or discharge: while the drawn charge piles grow the current flows onto the charged plates, and while they shrink it flows back out",
+        "ok": true,
+        "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html"
+      },
+      {
+        "label": "Power is never returned to the source by a resistive load, as it is with reactive loads: the capacitor's drawn power, the drawn voltage × the drawn current at each instant, goes below zero and averages zero, while the heater's never goes below zero",
+        "ok": true,
+        "source": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html"
+      },
+      {
+        "label": "60 Hz is the most common frequency adopted for use on board ship: answered, the ship screen runs the capacitor at 60 Hz, where X_C is 8.33 Ω and the current peaks at 12 A",
+        "ok": true,
+        "source": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf"
+      },
+      {
+        "label": "UK mains electricity operates at a nominal voltage of 230V: a 100 µF capacitor on 230 V, 50 Hz has X_C ≈ 31.8 Ω and draws 7.23 A; the capacitor drawing 2 A has X_C = 115 Ω, and on 60 Hz 95.8 Ω and 2.4 A",
+        "ok": true,
+        "source": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits"
+      },
+      {
+        "label": "The capacitor's current is its capacitance × the steepness of its voltage: 10 A at 0 ms where the tangent is steepest, 0 A at 5 ms where it lies flat, −10 A at 10 ms; every drawn current point is C × the drawn voltage's slope there",
+        "ok": true
+      },
+      {
+        "label": "At 0 ms the tangent gets steeper as the frequency rises, so the current peaks at 5 A on 25 Hz, 10 A on 50 Hz, 12 A on 60 Hz and 20 A on 100 Hz, and the flow arrows grow with it",
+        "ok": true
+      },
+      {
+        "label": "The charge piles follow the voltage, as a capacitor holds C × its voltage, and the flow arrows follow the current: their length is its size, they turn round with it, and none crosses the gap",
+        "ok": true
+      },
+      {
+        "label": "On 50 Hz the capacitor's power rises to 500 W and dips to −500 W, two humps up and two down each 20 ms cycle",
+        "ok": true
+      },
+      {
+        "label": "On a steady 100 V the plates fill once and then draw no current: the drawn rush carries exactly C × 100 V of charge, the current ends at 0 A with the piles full, X_C climbs off the top of its graph and lesson 4's X_L reaches 0 Ω",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle accepts only its right answer; before an answer its picture hides what is asked, a right answer draws it, and each wrong pick draws what it claims, in red",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "t",
+      "f"
+    ],
+    "readouts": [],
+    "outputs": [
+      "volts",
+      "amps",
+      "xc"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "The filling tank",
+          "At the top",
+          "A quarter cycle ahead",
+          "Which leads?",
+          "A faster supply",
+          "On board ship",
+          "Down to steady DC",
+          "The ohmmeter",
+          "Taking and giving back",
+          "Mixed: a 100 µF capacitor",
+          "Mixed: a slower supply",
+          "Mixed: a mains capacitor"
+        ],
+        "value": 0
+      },
+      {
+        "id": "t",
+        "kind": "control",
+        "label": "Time cursor",
+        "min": 0,
+        "max": 40,
+        "step": 0.1,
+        "log": false,
+        "value": 0,
+        "snap": [
+          0,
+          5,
+          10,
+          15,
+          20
+        ]
+      },
+      {
+        "id": "f",
+        "kind": "control",
+        "label": "Supply frequency",
+        "min": 25,
+        "max": 100,
+        "step": 5,
+        "log": false,
+        "value": 50,
+        "snap": [
+          25,
+          60,
+          100
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Replay",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "ready": true,
+    "warnings": [
+      "SVG labels \"0\" and \"DC\" are only 3 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 7, and 1 more setting) [at 340 px wide]"
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

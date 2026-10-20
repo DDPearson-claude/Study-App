@@ -1,0 +1,341 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: AC circuits, from turning coil to three-phase
+Idea: Three-phase: star and delta (Three windings 120° apart connect in star, where line voltage is √3 times phase voltage, or delta, where line current is; power is √3 V_L I_L cos φ.)
+Kind: skill
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the arrow made by subtracting two phase arrows, √3 times as long, landing on the line voltage in star and on the line current in delta, when you flip the star–delta switch.
+Title (the app shows it above the frame, so do not repeat it): Star and delta
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in twelve small screens on one picture. On the left, three supply windings, L1, L2 and L3, each with 230 V across it, feed three equal loads through three line conductors. A switch draws them joined in star, with one end of every winding and every load meeting at a star point and a neutral wire between the two star points, or in delta, with each load joined between two lines in a ring and no star point at all. A voltmeter and a clamp meter on the drawing are labelled line or phase by where they sit: phase across or through one winding or load, line between two line conductors or round one. On the right are the phasor arrows, frozen at one instant as in Trigonometry's Adding waves with phasors: three phase arrows of equal length, a third of a turn, 120°, apart, and a bold arrow made by subtracting one from the next, which is √3, about 1.732, times as long and turned 30° from them. Each load is a say 23 Ω impedance at a power factor of 0.8, so its current lags its own voltage by 36.9°. Two power readouts sit under the arrows: 3 × V_ph × I_ph × cos φ and √3 × V_L × I_L × cos φ. Screen 1 shows star: the voltmeter across one winding reads 230 V, and moved between L1 and L2 it reads the bold arrow, L1's arrow minus L2's, because going from L2 to L1 you pass back down L2's winding and up L1's: 230 × 1.732 = 398.4 V. Screen 2 asks what the voltmeter reads between L1 and L2: 398.4 V; 460 V, two phases added as plain numbers (hint: the two phases peak a third of a cycle apart, and the meter reads their difference, not their sum); or 230 V (hint: that is across one winding, line to star point). A right Check lays L2's arrow, turned half round, on the tip of L1's and draws the bold arrow closing them. Screen 3 adds the currents in star: each line runs straight into one winding and one load with nothing branching off, so the line current equals the phase current, 230 ÷ 23 = 10 A, drawn as three 10 A arrows each 36.9° behind its voltage. At the star point the three currents meet and return along the neutral, whose arrow is the three current arrows laid tip to tail. Screen 4 asks what the neutral carries with three 10 A phase currents: 0 A, because three equal arrows 120° apart close a triangle; 30 A (hint: the three currents peak at different moments, so they add as arrows, not as numbers); or 10 A (hint: lay them tip to tail; the last tip lands back on the first tail). A right Check slides the three arrows tip to tail into a closed triangle. Screen 5 frees a slider for L3's load current, from 0 to 10 A in steps of 0.5 A, opening at 10 A. As it falls, the triangle no longer closes and the neutral arrow grows from the gap. With L1 and L2 at 10 A, the three phases share an equal part, L3's current, which cancels as before, so what is left is L1's and L2's extra, two equal arrows 120° apart whose sum is one arrow of the same length: the neutral carries 10 A minus L3's current, 4 A when L3 is at 6 A and 10 A when L3 is off. At 10 A the neutral arrow vanishes, so a load that is always balanced could be fed by the three lines alone. Screen 6 asks what the neutral carries with 10 A, 10 A and 5 A: 5 A; 25 A, the three added as numbers (hint: they are 120° apart, so most of them cancel); or 0 A (hint: only equal currents cancel completely). A right Check sets L3 to 5 A on the slider. Screen 7 flips the switch to delta on the same supply. Each load now sits between two lines, so its phase voltage is the line voltage, 398.4 V, and it draws 398.4 ÷ 23 = 17.32 A. At the corner where L1 joins, L1 brings the current drawn by the load that starts there, less the current the other load delivers back into that corner, so the clamp on L1 reads the difference of two phase currents 120° apart: the same subtraction, the same bold arrow, now on the currents, 17.32 × 1.732 = 30.0 A. Screen 8 asks what the clamp on L1 reads: 30.0 A; 34.6 A, two phase currents added as plain numbers (hint: they are 120° apart, and L1 carries their difference); or 17.32 A (hint: that is star's rule; in delta two loads meet at every line). A right Check draws the bold arrow on the current arrows. Screen 9 lights the power readouts and lets the switch be flipped. Each load takes V_ph × I_ph × cos φ, so three take 3 × V_ph × I_ph × cos φ. In star V_ph = V_L ÷ √3 and I_ph = I_L; in delta V_ph = V_L and I_ph = I_L ÷ √3; either way one √3 cancels into the 3, so the two readouts always agree. Star: 3 × 230 × 10 × 0.8 = 5520 W. Delta: 3 × 398.4 × 17.32 × 0.8 = 16,560 W. Screen 10 asks what power the same three loads take moved from star to delta on the same supply, given 5.52 kW in star: 16.56 kW, three times, because each load has √3 times the voltage and so √3 times the current; 5.52 kW (hint: the loads are the same, but the voltage across each is not); or 9.56 kW, √3 times (hint: the current through each rises by √3 too). A right Check flips the switch with both readouts in view. Screens 11 and 12 are mixed. Screen 11 gives a load on a board whose line voltage reads, say, 400 V, drawing 20 A a line at a power factor of 0.85, connection unknown, and asks its power: 11.8 kW, from √3 × 400 × 20 × 0.85; 20.4 kW (hint: 3 goes with phase values; with line values the factor is √3); or 6.8 kW (hint: that is the single-phase formula on line values; three phases need the √3). A right Check shows the readout giving the same 11.8 kW in star and in delta. Screen 12 gives a delta-connected motor whose clamp reads 26 A on one line and asks the current in each winding: 15.0 A, from 26 ÷ 1.732; 26 A (hint: that is star's rule); or 45.0 A (hint: in delta the line carries more than the winding, not less). A right Check draws the bold arrow from two 15.0 A winding currents. Each puzzle offers three answers; a wrong pick gets a one-line hint naming its slip, Why? explains in words, and a right Check draws the answer on the picture. The closing line says that the √3 comes from subtracting two equal arrows 120° apart, that a motor's windings are joined in star or delta too, and that the courses after this one take three-phase on to transformers, ships' systems and motors.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The supply is drawn holding 230 V a phase whatever the load; a real one sags a little as current rises, and the cables add their own voltage drop. The loads are fixed impedances; a real motor's current and power factor change with how hard it is working. The waves are pure sines; currents with harmonics behave differently in the neutral, as the explanation says. The arrows are frozen at one instant and drawn with rms lengths; the real waves turn and swing. The loads and their readings are example values.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 11 in steps of 1, opening at 0
+Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id and the decimals given, which is how the explanation rounds it, or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):
+- id "lineVolts": Line voltage (V), decimals: 1
+- id "lineAmps": Line current (A), decimals: 2
+- id "neutralAmps": Neutral current (A), decimals: 1
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Number of screens: 12 (assumed)
+- Angle between the three windings, in degrees: 120 (constant, source [1])
+- UK mains phase voltage, in volts: 230 (constant, source [2])
+- Square root of 3, to three decimal places: 1.732 (constant)
+- Angle of the subtracted arrow from the phase arrows, in degrees: 30 (computed)
+- Each load's impedance, in ohms: 23 (assumed)
+- Each load's power factor: 0.8 (assumed)
+- Each load's phase angle, in degrees: 36.9 (computed)
+- Line voltage in star, in volts: 398.4 (computed)
+- UK three-phase line voltage, nominal, in volts: 400 (constant)
+- Slip, two phase voltages added, in volts: 460 (computed)
+- Phase and line current in star, in amps: 10 (computed)
+- Neutral current, balanced, in amps: 0 (computed)
+- Slip, three phase currents added, in amps: 30 (computed)
+- L3 slider, lowest, in amps: 0 (assumed)
+- L3 slider, highest, in amps: 10 (assumed)
+- L3 slider step, in amps: 0.5 (assumed)
+- Opening L3 current, in amps: 10 (control)
+- Screen 5 L3 current, in amps: 6 (assumed)
+- Screen 5 neutral current, in amps: 4 (computed)
+- Screen 6 L3 current, in amps: 5 (assumed)
+- Screen 6 neutral current, in amps: 5 (computed)
+- Slip, screen 6 currents added, in amps: 25 (computed)
+- Phase voltage in delta, in volts: 398.4 (computed)
+- Phase current in delta, in amps: 17.32 (computed)
+- Line current in delta, in amps: 30 (computed)
+- Slip, two delta phase currents added, in amps: 34.6 (computed)
+- Power in star, in watts: 5520 (computed)
+- Power in star, in kilowatts: 5.52 (computed)
+- Power in delta, in watts: 16560 (computed)
+- Power in delta, in kilowatts: 16.56 (computed)
+- Slip, star power times √3, in kilowatts: 9.56 (computed)
+- Screen 11 line voltage, in volts: 400 (assumed)
+- Screen 11 line current, in amps: 20 (assumed)
+- Screen 11 power factor: 0.85 (assumed)
+- Screen 11 power, in kilowatts: 11.8 (computed)
+- Slip, screen 11 with 3, in kilowatts: 20.4 (computed)
+- Slip, screen 11 as single-phase, in kilowatts: 6.8 (computed)
+- Screen 12 line current, in amps: 26 (assumed)
+- Screen 12 winding current, in amps: 15 (computed)
+- Slip, screen 12 times √3, in amps: 45 (computed)
+- Practice line voltage, in volts: 400 (assumed)
+- Practice line current, in amps: 12 (assumed)
+- Practice power factor: 0.9 (assumed)
+- Practice phase voltage, in volts: 230.9 (computed)
+- Practice power from line values, in watts: 7482 (computed)
+- Practice power, in kilowatts: 7.48 (computed)
+- Practice power from phase values, in watts: 7481 (computed)
+- UK mains frequency, in hertz: 50 (constant)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Text cut off: SVG text "neutral ? A" has a line through it (<path.wire>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 4, and 5 more settings)
+- Text cut off: SVG text "L3" is hard to read: 1.1:1 contrast with the shape behind it (it needs 3:1). Draw text in ink, muted, accent2, accent, warn or good (on-accent2 on a navy shape), with var(--k-…) or K.color in K.update, so it follows the theme (at step = step 5, and 1 more setting)
+- Text cut off: SVG text "L3" has a line through it (<line.vref>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 5, and 1 more setting)
+- Text cut off: SVG text "L3" has a line through it (<line.aB>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 5, and 1 more setting)
+- Text cut off: SVG text "L3" has a line through it (<line.a1>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at Text size XL, step = step 5) [at 720 and 1040 px wide]
+- Advice: The check "The line voltage can be found by taking the phasor sum of the voltage in two phases of the source: the bold arrow close…" cites [1], but none of its numbers is in that source's quote: give a source only to a check that restates the quote; a result of your own rule takes none.
+- Advice: The check "The neutral conductor carries no current in a balanced three-phase network: three 10 A currents laid tip to tail close …" cites [6], but none of its numbers is in that source's quote: give a source only to a check that restates the quote; a result of your own rule takes none.
+- Advice: The check "P T = √3 V L I L cosθ where cosθ is the power factor: in star and in delta the readout 3 × V_ph × I_ph × cos φ equals √…" cites [1], but none of its numbers is in that source's quote: give a source only to a check that restates the quote; a result of your own rule takes none.
+- Advice: The check "The average power can be expressed as P avg = VI cosφ: one load's drawn voltage and current are each √3 times longer in…" cites [8], but none of its numbers is in that source's quote: give a source only to a check that restates the quote; a result of your own rule takes none.
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Lesson 13B. Three-Phase Power (https://engineering.louisville.edu/raise/ECE252/L13B.htm): "For a three-phase generator, three coils of wire are placed at angles of 120° to each other"
+[2] Statutory Voltage Limits – Energy Networks Association (ENA) (https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits): "UK mains electricity operates at a nominal voltage of 230V, and can operate within limits of 253V and 216V set by the Electricity Safety, Quality and Continuity Regulations (ESQCR)"
+[3] ECE252 Lesson 13B (https://engineering.louisville.edu/raise/ECE252/L13B.htm): "P T = √ 3 V L I L cosθ where cosθ is the power factor."
+[4] Lesson 13B. Three-Phase Power (https://engineering.louisville.edu/raise/ECE252/L13B.htm): "The line voltage can be found by taking the phasor sum of the voltage in two phases of the source."
+[5] Lessons In Electric Circuits -- Volume II (AC) - Chapter 10 (http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_10.html): "In balanced “Y” circuits, line voltage is equal to phase voltage times the square root of 3, while line current is equal to phase current."
+[6] SECTION 7: THREE-PHASE CIRCUIT FUNDAMENTALS (https://web.engr.oregonstate.edu/~webbky/ENGR202_files/SECTION%207%20Three%20Phase%20Circuit%20Fundamentals.pdf): "The neutral conductor carries no current in a balanced three-phase network"
+[7] Lessons In Electric Circuits -- Volume II (AC) - Chapter 10 (http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_10.html): "In a 4-wire Y-Y system, triplen harmonic currents add within the neutral conductor."
+[8] Power in AC Circuits (http://www.hyperphysics.gsu.edu/hbase/electric/powerac.html): "the average power can be expressed as P avg = VI cosφ"
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (/home/user/Study-App/build/electrical/ac-circuits/i10.body1.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

@@ -1,0 +1,188 @@
+{
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "The waveform for power is always positive, never negative, for a resistive circuit, so power is never returned to the source as it is with reactive loads: in step (0°) the drawn power wave never dips below the line, and at every other angle from −90° to 90° part of it does",
+        "ok": true,
+        "source": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html"
+      },
+      {
+        "label": "Capacitors and inductors absorb energy from the circuit during one half-cycle and then discharge it back to the circuit during the other half-cycle: at 90° (a coil) and −90° (a capacitor) the drawn power wave is above the line for as many instants as below it, and averages 0 W",
+        "ok": true,
+        "source": "https://openstax.org/books/university-physics-volume-2/pages/15-4-power-in-an-ac-circuit"
+      },
+      {
+        "label": "The average power can be expressed as P avg = V I cos φ: at every angle from −90° to 90° the average of the drawn power wave, sampled instant by instant, equals 70.7 V × 7.07 A × cos φ, as do the dashed line and the triangle's floor, and so on every other load drawn",
+        "ok": true,
+        "source": "http://www.hyperphysics.gsu.edu/hbase/electric/powerac.html"
+      },
+      {
+        "label": "The actual amount of power being used, or dissipated, in a circuit is called true power, measured in watts, P: on lesson 6's bench only the resistor dissipates it, 2² × 6 = 24 W, and on the mains coil 5² × 40 = 1000 W",
+        "ok": true,
+        "source": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html"
+      },
+      {
+        "label": "This phantom power is called reactive power, measured in volt-amps-reactive (var), with the symbol Q: on lesson 6's bench the coil's 2² × 8 = 32 var, on the scrubber at 60° 433 var, and at resonance the coil's 250 var and the capacitor's cancel to 0 var",
+        "ok": true,
+        "source": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html"
+      },
+      {
+        "label": "Because true power and apparent power form the adjacent and hypotenuse sides of a right triangle, the power factor is also equal to the cosine of the phase angle: on every screen, and at every angle on the sliding screens, the drawn triangle closes with P² + Q² = S² and P ÷ S = cos φ",
+        "ok": true,
+        "source": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html"
+      },
+      {
+        "label": "Any power factor less than 1 means that the wiring has to carry more current than would be necessary with zero reactance: with true power held at 500 W, the current is 7.07 A rms in step and more at every other angle, 14.1 A rms (20 A peak) at 60°, where S = 1000 VA, Q = 866 var and the cable bar shows 4 times the heater's heat",
+        "ok": true,
+        "source": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html"
+      },
+      {
+        "label": "UK mains electricity operates at a nominal voltage of 230V: on 230 V, lesson 6's coil at 5 A takes 1000 W of 1150 VA, with 568 var, a power factor of 0.87 and φ = 29.6°, and the motor at 10 A takes 1600 W of 2300 VA, a power factor of 0.70, with 1652 var at 45.9°",
+        "ok": true,
+        "source": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits"
+      },
+      {
+        "label": "Known answers: at 60° the power wave runs from 750 W to −250 W around 250 W; its in-step part peaks at 5 A with humps to 500 W averaging 250 W, its quarter-cycle part at 8.66 A with a 433 W slosh averaging 0 W; 4.8 kW of 6 kVA leaves 3.6 kvar; the slips give 375 W, 756 W and 1323 W; 30° ahead gives 433 W, −250 var, 0.87 and a dip to −67 W; S stays 500 VA at every angle",
+        "ok": false,
+        "error": "returned false"
+      },
+      {
+        "label": "On the average puzzle a right answer shades the area above the dashed 250 W line and the gap below it, and the two are equal, as an average makes them",
+        "ok": true
+      },
+      {
+        "label": "Lesson 6's impedance triangle times the current squared, 2² = 4, is the power triangle: the drawn sides start as 6, 8 and 10 Ω and end as 24 W, 32 var and 40 VA at the same 53.13°, and each part's meters agree, 12 V × 2 A, 16 V × 2 A and 20 V × 2 A",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle accepts only its right answer; before an answer its picture hides what is asked, a right answer draws it, and each wrong pick with a drawing draws what it claims, in red",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "phi",
+      "hold"
+    ],
+    "readouts": [],
+    "outputs": [
+      "watts",
+      "vars",
+      "va"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Out of step",
+          "The average",
+          "Two parts",
+          "The bench",
+          "Three powers",
+          "Two meters",
+          "Ohms to watts",
+          "The mains coil",
+          "Hold true power",
+          "The motor",
+          "Mixed: current ahead",
+          "Mixed: at resonance"
+        ],
+        "value": 0
+      },
+      {
+        "id": "phi",
+        "kind": "control",
+        "label": "Current's phase angle, φ",
+        "min": -90,
+        "max": 90,
+        "step": 5,
+        "log": false,
+        "value": 0,
+        "snap": [
+          -90,
+          -60,
+          -30,
+          0,
+          30,
+          60,
+          90
+        ]
+      },
+      {
+        "id": "hold",
+        "kind": "toggle",
+        "label": "Hold true power",
+        "options": [
+          false,
+          true
+        ],
+        "value": true
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Replay",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ]
+  },
+  "moved": [
+    "step = 1",
+    "phi = 45",
+    "hold = false",
+    "pressed \"Answer 1\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/ac-circuits/i8.a1-360-light.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i8.a1-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i8.a1-360-light-end.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i8.a1-360-dark.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i8.a1-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i8.a1-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i8.a1-1280-light.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i8.a1-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i8.a1-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i8.a1-1280-dark.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i8.a1-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/ac-circuits/i8.a1-1280-dark-end.png"
+  ]
+}

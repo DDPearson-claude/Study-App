@@ -1,0 +1,164 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "UK mains electricity operates at a nominal voltage of 230V: on 230 V the motor's 10 A makes S = 2300 VA, which with its 1600 W leaves Q_L = 1652 var, a power factor of 0.70 at φ = 45.9°, and every supply current drawn is S ÷ 230",
+        "ok": true,
+        "source": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits"
+      },
+      {
+        "label": "Poor power factor can be corrected, paradoxically, by adding another load to the circuit drawing an equal and opposite amount of reactive power: the capacitor's vars are drawn pointing down, the other way from the motor's, and at an equal amount the supply is left no upright and a power factor of one",
+        "ok": true,
+        "source": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html"
+      },
+      {
+        "label": "This correction, of course, will not change the amount of true power consumed by the load, but it will result in a substantial reduction of apparent power, and of the total current drawn from the source: at every capacitor setting from none to the motor's whole vars, the drawn floor keeps the same true power while the drawn long side and the current bar shrink at every step",
+        "ok": true,
+        "source": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html"
+      },
+      {
+        "label": "Any power factor less than 1 means that the circuit's wiring has to carry more current than what would be necessary with zero reactance: at every capacitor setting the supply current is more than P ÷ V, the in-step part, and equals it only where the upright is zero",
+        "ok": true,
+        "source": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html"
+      },
+      {
+        "label": "Too much capacitance in an AC circuit will result in a low power factor just as well as too much inductance, so be careful not to over-correct: past the motor's own vars the drawn power factor falls, marked leading, and the current bar grows again in red, and twice the capacitor gives the same poor power factor, leading",
+        "ok": true,
+        "source": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html"
+      },
+      {
+        "label": "Capacitive reactance can be calculated using this formula: X_C = 1/(2πfC), so turned round C = 1 ÷ (2πf X_C): with X_C = V² ÷ Q_C the sizing rows give 32.0 Ω and about 99 µF for a power factor of 1 on the motor, 47.0 Ω and about 68 µF for 0.95, and 13.2 Ω and about 240 µF for the compressor",
+        "ok": true,
+        "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html"
+      },
+      {
+        "label": "The current leads the voltage in a capacitor: in the current arrows the capacitor's arrow stands straight up, a quarter cycle ahead of the in-step floor, while the motor's points below it, behind, and on the triangle the capacitor's vars point down, the other way from the motor's",
+        "ok": true,
+        "source": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html"
+      },
+      {
+        "label": "Known answers: 500 var leaves 1152 var, 1972 VA and 8.57 A; 1000 var leaves 652 var, 1728 VA, 0.93 and 7.51 A; 2500 var gives −848 var, 1811 VA, 0.88 leading and 7.87 A; the 0.95 target needs 18.2°, tan 0.329, 526 var left and 1126 var, leaving 7.32 A; the motor splits into 6.96 A and 7.18 A; the compressor goes from 21.74 A to 13.04 A with 4 kvar and 17.39 A; the slips are 700, 2300, 2.82, 17.18, 1570 and 4.35; the cable heat falls to 0.48",
+        "ok": true
+      },
+      {
+        "label": "Where the current goes: at full correction the drawn quarter-cycle lane in the supply cable carries nothing, while the capacitor's branch and the motor carry 7.18 A each and the in-step 6.96 A runs all round; past full correction the cable's lane runs the other way, in red; and on the last puzzle the capacitor opens at the board, its quarter-cycle lane running the whole 20 m run, and a right answer moves it to the motor's terminals, so that lane leaves the run",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle accepts only its right answer; before an answer its picture hides what is asked, a right answer draws it, and each wrong pick with a drawing draws what it claims, in red",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "qc",
+      "qcx"
+    ],
+    "readouts": [],
+    "outputs": [
+      "supplyAmps",
+      "pf",
+      "capAmps"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Fit a capacitor",
+          "The wattmeter",
+          "Cancel the upright",
+          "Power factor 1",
+          "The loop",
+          "The supply cable",
+          "Sizing",
+          "A target of 0.95",
+          "Too far",
+          "Twice the capacitor",
+          "Mixed: a compressor",
+          "Mixed: where to fit it"
+        ],
+        "value": 0
+      },
+      {
+        "id": "qc",
+        "kind": "control",
+        "label": "Capacitor's vars, the down arrow",
+        "min": 0,
+        "max": 1652,
+        "step": 4,
+        "log": false,
+        "value": 0,
+        "snap": [
+          500,
+          1000,
+          1652
+        ]
+      },
+      {
+        "id": "qcx",
+        "kind": "control",
+        "label": "Capacitor's vars, the down arrow",
+        "min": 0,
+        "max": 3400,
+        "step": 4,
+        "log": false,
+        "value": 0,
+        "snap": [
+          1652,
+          2500,
+          3304
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Replay",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

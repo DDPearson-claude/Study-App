@@ -1,0 +1,376 @@
+{
+  "iid": "i5",
+  "title": "Capacitance: the store that fills and empties",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the current arrow largest as the voltage crosses zero and gone at its peak, because the plates' charge changes fastest there and holds still at the top, when you drag the time cursor.",
+    "title": "The filling tank",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "amps",
+        "label": "Current at the cursor",
+        "unit": "A",
+        "decimals": 2
+      },
+      {
+        "id": "volts",
+        "label": "Voltage at the cursor",
+        "unit": "V",
+        "decimals": 1
+      },
+      {
+        "id": "xc",
+        "label": "Reactance, X_C",
+        "unit": "Ω",
+        "decimals": 2
+      }
+    ],
+    "whatAmILookingAt": "A short lesson in twelve small screens on one picture, the filling tank. An ideal capacitor, two metal plates with a thin gap of insulation between them, sits straight across an AC supply with the 100 V peak used in lessons 3 and 4, at 50 Hz. Its capacitance is about 318.3 µF, an example value picked so its reactance at 50 Hz comes to 10 Ω, the same as lesson 4's coil. Charge dots pile up on one plate, plus signs, while as many leave the other, minus signs; the size of each pile follows the voltage, because the charge a capacitor holds is its capacitance × its voltage. A flow arrow in each lead shows the current: its length is the current's size and it turns round when the current does. No arrow crosses the gap, because in a healthy capacitor next to no charge does. Above, the voltage wave and the current wave (dashed, as on the scrubber) share one time axis, 0 to 40 ms, two cycles of 20 ms. A time cursor runs through the graphs, and where it meets the voltage wave a short tangent line lies along it, showing how steeply the voltage is changing at that instant. The current at each instant is the capacitance × that steepness, because the current is the charge arriving each second and the charge goes with the voltage. So the current wave is drawn from the tangent: tallest where the tangent is steepest, as the voltage crosses zero, and zero where the tangent lies flat, at the voltage's top or bottom. Below, on the same time axis, is lesson 3's power wave, voltage × current worked instant by instant, with a dot at the cursor; for this capacitor it rises to 500 W and dips to −500 W, two humps up and two down each cycle. To one side, a small graph plots the reactance X_C, the supply voltage ÷ the current, against frequency from 0 to 100 Hz: a curve falling as the frequency rises, with a dot at the present frequency, beside a faint copy of lesson 4's straight X_L line. Readouts give the current and the voltage at the cursor and X_C. Screen 1 opens with the cursor at 0 ms, where the voltage crosses zero rising: the tangent is steepest, the piles are empty but growing fastest, and the arrow is at its longest, 10 A. The cursor sweeps to 3 ms and stops short of the top; the piles grow, the tangent flattens as the voltage climbs towards its 100 V top, and the arrow shrinks. Screen 2 parks the cursor at 5 ms and asks for the current: 0 A; 10 A (the biggest voltage taken to give the biggest current, the resistor's rule); or −10 A. A right Check lays the tangent flat and the arrow vanishes. Screen 3 sweeps a whole cycle, 0 to 20 ms: after the peak the voltage falls, the piles drain and the arrow turns round. A bracket marks the 5 ms between the current's peak and the voltage's, a quarter cycle, so the current leads and the voltage lags, and the row under the graphs reads: current leads a quarter cycle; phase angle −90°, measured as in lesson 4 as the angle by which the voltage leads. Screen 4 shows a still pair of a capacitor's waves and asks which leads and by how much: the current, by a quarter cycle; the voltage, by a quarter cycle (the coil's answer carried over); or the current, by half a cycle, 10 ms. Screen 5 frees a frequency slider, 25 to 100 Hz in steps of 5, opening at 50, and plays it up to 100 Hz with the supply held at 100 V peak: the waves squeeze together, the piles fill to the same size in half the time, the arrow grows, the current's peak rises from 10 A to 20 A, and the X_C dot slides down the curve from 10 Ω to 5 Ω while lesson 4's line climbs to 20 Ω, with the row X_C = 1 ÷ (2π × 100 × 0.0003183) ≈ 5 Ω. Screen 6 asks for the current's peak at 60 Hz, the frequency most common on board ship: 12 A; 8.33 A (the coil's rule, reactance rising with frequency); or 10 A (the frequency ignored, as for a resistor). A right Check moves the slider to 60 Hz, where X_C reads 8.33 Ω. Screen 7 plays the slider down to 25 Hz, where X_C reads 20 Ω and the current peaks at 5 A, and the curve is drawn on towards 0 Hz, climbing ever more steeply off the top of the graph while lesson 4's line runs down to 0 Ω. Then the supply is switched to a steady 100 V: a brief rush of current, drawn only as a sketch, fills the piles, and the arrow stays gone at 0 A. Screen 8: an ohmmeter's reading across a healthy capacitor climbs while it fills and settles very high, yet on 50 Hz it lets 10 A peak flow for a 100 V peak; why? A steady test voltage fills the plates once and then drives no more current, while AC fills and empties them every cycle; the capacitor is open-circuit (a healthy one reads this too); or charge jumps the gap only at high voltage. Screen 9 returns to 50 Hz and sweeps a cycle with the power wave shaded: from 0 to 5 ms the voltage and current are both positive, the piles are growing and the dot climbs to 500 W, energy going into the capacitor; from 5 to 10 ms the voltage is still positive but the piles are draining, the current is negative and the dot dips to −500 W, energy coming back. A flat line marks the average, 0 W, beside a ghost of lesson 3's heater element, with the same 100 V and 10 A peaks, averaging 500 W. Its last two rows set the coil and the capacitor side by side with the memory aid OpenStax's University Physics gives, ELI the ICE man: in a coil, L, the voltage E comes before the current I; in a capacitor, C, the current I comes before the voltage E. Screens 10 to 12 are mixed. Screen 10: an example 100 µF capacitor on 230 V, 50 Hz mains draws 7.23 A, because X_C = 1 ÷ (2π × 50 × 0.0001) ≈ 31.8 Ω; 2.3 A (the 100 µF put in as 100 Ω); or 0 A (a capacitor taken to block current, as it does once filled on DC). Screen 11: at 25 Hz on the same 100 V peak, the current peaks at 5 A and still leads by a quarter cycle; at 20 A, leading (the coil's scaling); or at 5 A, in step with the voltage (the lead thought to fade at low frequency). Screen 12: a capacitor draws 2 A from 230 V, 50 Hz mains, so its X_C is 115 Ω; on a 230 V, 60 Hz supply its X_C falls to about 95.8 Ω and it draws 2.4 A and averages 0 W; 1.67 A and 0 W (the current scaled down, as for a coil); or 2.4 A and 552 W (volts × amps, 230 × 2.4, taken as watts). Each puzzle offers three answers; a wrong pick gets a one-line hint naming its slip, Why? explains in words, and a right Check draws the answer on the picture. The closing line says the capacitor's current runs a quarter cycle ahead of its voltage because the charge, and so the voltage, keeps building for as long as current flows in and peaks only as the current falls to zero, and that lesson 6 puts a resistor in series with a coil or a capacitor.",
+    "ignores": "The capacitor is ideal: it has no resistance and no leakage through its gap, so its current leads by a full quarter cycle and it takes no watts; a real capacitor takes a little real power and leads by a little less. The supply is a pure sine and has been on for a while, so the rush at switch-on is left out: the current never starts before the voltage is applied, and 'leads' describes where the settled waves peak. The rush on screen 7's steady DC is only a sketch: with truly nothing in its path an ideal capacitor would fill in an instant, and in a real circuit the small resistance of the leads sets how wide the rush is. Each charge dot stands for a vast number of electrons, and the dots on the plus plate are where electrons have been drawn off. The arrows show conventional current. Time is stretched so one 20 ms cycle fills half the screen. The capacitor, the supply and the meter readings are example values.",
+    "numbers": [
+      {
+        "label": "Number of screens",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitor's capacitance, in microfarads",
+        "value": 318.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitor's reactance at 50 Hz, in ohms",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Supply voltage peak, in volts",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Opening frequency, in hertz",
+        "value": 50,
+        "kind": "control"
+      },
+      {
+        "label": "Current peak at 50 Hz, in amps",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Time axis, lowest, in milliseconds",
+        "value": 0,
+        "kind": "assumed"
+      },
+      {
+        "label": "Time axis, highest, in milliseconds",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "One cycle at 50 Hz, in milliseconds",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "A quarter cycle at 50 Hz, in milliseconds",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Opening cursor time, in milliseconds",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Current at the opening cursor, in amps",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Current at the voltage peak, in amps",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, the negative peak, in amps",
+        "value": -10,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacitor's phase angle, voltage ahead, in degrees",
+        "value": -90,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, half a cycle at 50 Hz, in milliseconds",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Frequency slider, lowest, in hertz",
+        "value": 25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Frequency slider, highest, in hertz",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Frequency slider step, in hertz",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Reactance graph, lowest frequency, in hertz",
+        "value": 0,
+        "kind": "assumed"
+      },
+      {
+        "label": "Reactance at 100 Hz, in ohms",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Current peak at 100 Hz, in amps",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Lesson 4 coil's inductance, in millihenries",
+        "value": 31.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Lesson 4 coil's reactance at 100 Hz, in ohms",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Most common ship frequency, in hertz",
+        "value": 60,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Reactance at 60 Hz, in ohms",
+        "value": 8.33,
+        "kind": "computed"
+      },
+      {
+        "label": "Current peak at 60 Hz, in amps",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, coil's rule at 60 Hz, in amps",
+        "value": 8.33,
+        "kind": "computed"
+      },
+      {
+        "label": "Reactance at 25 Hz, in ohms",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Current peak at 25 Hz, in amps",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, coil's scaling at 25 Hz, in amps",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Lesson 4 coil's reactance at 0 Hz, in ohms",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Steady supply after the switch, in volts",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Current once filled on the steady supply, in amps",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacitor's power hump tops, in watts",
+        "value": 500,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacitor's power hump bottoms, in watts",
+        "value": -500,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacitor's average power, in watts",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Lesson 3 heater element's resistance, in ohms",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Lesson 3 heater element's average power, in watts",
+        "value": 500,
+        "kind": "computed"
+      },
+      {
+        "label": "UK mains nominal voltage, in volts",
+        "value": 230,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "UK mains frequency, in hertz",
+        "value": 50,
+        "kind": "constant"
+      },
+      {
+        "label": "Example capacitor, in microfarads",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example capacitor's reactance at 50 Hz, in ohms",
+        "value": 31.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Example capacitor's current at 50 Hz, in amps",
+        "value": 7.23,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, 100 µF put in as ohms, in amps",
+        "value": 2.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Example capacitor's reactance at 60 Hz, in ohms",
+        "value": 26.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Example capacitor's current at 60 Hz, in amps",
+        "value": 8.67,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 capacitor's current at 50 Hz, in amps",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 capacitor's reactance at 50 Hz, in ohms",
+        "value": 115,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 capacitor's reactance at 60 Hz, in ohms",
+        "value": 95.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 capacitor's current at 60 Hz, in amps",
+        "value": 2.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, screen 12 current scaled down, in amps",
+        "value": 1.67,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, screen 12 volts × amps, in watts",
+        "value": 552,
+        "kind": "computed"
+      },
+      {
+        "label": "Farads in one microfarad",
+        "value": 1e-06,
+        "kind": "constant"
+      }
+    ]
+  },
+  "explain": {
+    "text": "At its simplest, a capacitor is two metal plates with a thin gap of insulation between them. Current flows into it as it fills with charge and out as it empties, so its current follows how fast its voltage is changing, not how big the voltage is. On AC that puts an ideal capacitor's current a quarter cycle ahead of the voltage, and it makes the capacitor's opposition fall as the frequency rises: the mirror image of lesson 4's coil.\n\nConnect the plates across a supply and charge is pushed onto one plate and drawn off the other, through the leads. In a healthy capacitor next to no charge crosses the gap, but as much leaves one plate as arrives on the other, so the rest of the circuit carries a current just as if it went straight through. The charge piled on the plates sets up a voltage across the gap that pushes back against the supply, and twice the charge makes twice the voltage. The charge a capacitor holds for each volt across it is its [[capacitance]], C, in farads. The current is the charge arriving each second, so it is C times how fast the voltage is changing: Calculus fundamentals lesson 5's i = C dv/dt, now with its cause. Once the plates have filled to a steady voltage, an ideal capacitor draws no more current; a real one leaks only a trickle through its insulation. In short, capacitors oppose changes in voltage by drawing or supplying current as they charge or discharge to the new voltage level.[^3]\n\nOn the filling tank, a tangent line rides the voltage wave, and the current is C times its steepness. An ideal capacitor sits straight across the supply with nothing else in its path, so its voltage is the supply's at every instant. The supply's voltage therefore fixes the charge on the plates at each instant, and how fast that voltage changes fixes how fast the charge must arrive. A sine voltage is steepest as it crosses zero and flat for an instant at its top. So the current is largest as the voltage crosses zero, while the charge is changing fastest, and zero at the voltage's peak, when the charge holds still. Then the voltage falls, the plates drain and the current turns round. The current peaks a quarter cycle, 5 ms at 50 Hz, before the voltage: the current leads and the voltage lags,[^4] a phase angle of −90°. This is the coil's story turned inside out. In the coil, the supply set how fast the current changed, because a coil's back-emf comes from changing current; here the supply sets the charge, because a capacitor's voltage comes from stored charge, so the current follows how fast the voltage changes. The charge, and so the voltage, keeps building for as long as current flows in, so the voltage peaks only as the current falls to zero, a quarter cycle after the current's peak. The power wave swings between 500 W and −500 W and averages 0 W, because the capacitor stores energy as it fills and hands it back as it empties, as reactive loads do and a resistor never does.[^5]\n\nNow double the frequency and keep the supply's 100 V peak. The plates must still fill to the same charge, C × 100 V, but in half the time. Every part of the wave is squeezed into half the time, so the voltage is twice as steep at each point, and the current, C times that steepness, is twice as big at each point, its peak included. The capacitor's opposition to AC, the voltage ÷ the current, is its [[capacitive reactance]], X_C, in ohms. You met X_C = 1/(2πfC) in Complex numbers lesson 7;[^6] here is where it comes from. From lesson 4, a sine's steepest slope is 2π × f × its peak, so the current's peak is C × 2πf × the voltage's peak, and the voltage ÷ the current is 1/(2πfC). Capacitive reactance decreases with increasing frequency,[^6] the opposite of a coil. The example capacitor of about 318.3 µF has 10 Ω at 50 Hz, 8.33 Ω at the 60 Hz most common on board ship[^1] and 5 Ω at 100 Hz, so on the 100 V peak its current peaks at 10 A, 12 A and 20 A. Towards steady DC, X_C grows without limit, and once filled an ideal capacitor draws no current. This is a simplified model, an ideal capacitor on a pure sine; a real capacitor's small losses make the lead a little under a quarter cycle and take a little real power. **A capacitor's current follows how fast its voltage changes, so on AC an ideal capacitor's current leads the voltage by a quarter cycle[^4] and its reactance, X_C = 1/(2πfC), falls as the frequency rises.[^6]**"
+  },
+  "analogy": {
+    "text": "Picture a water pipe with a stretchy rubber sheet sealed across it, in a loop with a pump that drives the pressure up and down. No water passes the sheet, yet as it bulges, as much water flows out on the far side as comes in on the near side, so water moves all round the loop. The flow is fastest while the pressure is changing fastest, and stops for an instant as the pressure tops out with the sheet at its fullest stretch, so the flow peaks a quarter swing before the pressure, as a capacitor's current leads its voltage. Swing the pressure to the same top twice as fast and the sheet must bulge just as far in half the time, so the water flows twice as fast, as a capacitor's current rises with the frequency.",
+    "breaks": "A rubber sheet stiffens as it stretches, while an ideal capacitor's charge stays in proportion to its voltage. And a capacitor needs no material in its gap: plates with only a vacuum between them still hold charge, held by the electric field, while the sheet works only by stretching."
+  },
+  "practice": {
+    "text": "- Discharge a capacitor before you touch its terminals, as you already discharge a cable after an insulation test: once the supply is off, its plates can keep their charge, and so their voltage.\n- From its capacitance, X_C = 1/(2πfC), with f in hertz and C in farads (1 µF is 0.000001 F).[^6]\n- For the current, I = V ÷ X_C, with V and I both rms or both peak.\n- At another frequency, scale X_C the other way to the frequency: double the frequency, halve the reactance.[^6] At the same voltage the current scales with the frequency.\n- For watts, do not multiply a capacitor's volts by its amps. An ideal capacitor averages 0 W; lesson 8 gives the real power of a real load.\n\nThat cable is itself a capacitor of a sort, its cores the plates and its insulation the gap. This link is our own reading, not from a source, but it fits the way an insulation tester's reading climbs before it settles. Lesson 9 puts a capacitor beside a motor to correct its power factor.\n\n**Rule of thumb:** Double the frequency, halve the reactance, double the current: the coil's rule turned round. In a capacitor the current peaks close to a quarter cycle before the voltage.\n\n**Worked example:** An example 100 µF capacitor on 230 V, 50 Hz mains[^2] has X_C = 1 ÷ (2 × π × 50 × 0.0001) = 31.8 Ω, so it draws 230 ÷ 31.8 = 7.23 A. On a 230 V, 60 Hz supply, X_C = 1 ÷ (2 × π × 60 × 0.0001) = 26.5 Ω and the current rises to 8.67 A, worked from X_C before rounding. On an ohmmeter its reading climbs while it fills and settles very high, because the meter's steady voltage fills it once and then drives no more current.\n\n**Common mistakes**\n- Saying the current lags. That is the coil; in a capacitor the current leads and the voltage lags.[^4] OpenStax's memory aid, ELI the ICE man, keeps them apart: E before I in a coil, L; I before E in a capacitor, C.[^7]\n- Putting C into I = V ÷ X_C in place of X_C. Work out X_C first, in ohms.\n- Scaling the current down as the frequency rises. A capacitor's reactance falls with frequency, so its current rises.\n- Thinking a capacitor blocks AC because it blocks DC once filled. On AC it fills and empties every cycle, so current keeps flowing in the leads.\n- Calling a capacitor's volts × amps its watts. An ideal capacitor gives back each quarter cycle what it took in the one before."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "maritime electrical installations - notes on design ...",
+      "url": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf",
+      "quote": "60 Hz is the most common frequency adopted for use on board ship; the higher frequency enabling motors and generators to run at higher speeds with a consequent reduction in size for a given power rating."
+    },
+    {
+      "n": 2,
+      "title": "Statutory Voltage Limits – Energy Networks Association (ENA)",
+      "url": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits",
+      "quote": "UK mains electricity operates at a nominal voltage of 230V, and can operate within limits of 253V and 216V set by the Electricity Safety, Quality and Continuity Regulations (ESQCR)"
+    },
+    {
+      "n": 3,
+      "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 4",
+      "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html",
+      "quote": "capacitors oppose changes in voltage by drawing or supplying current as they charge or discharge to the new voltage level."
+    },
+    {
+      "n": 4,
+      "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 4",
+      "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html",
+      "quote": "Looking at the graph, the current wave seems to have a “head start” on the voltage wave; the current “leads” the voltage, and the voltage “lags” behind the current."
+    },
+    {
+      "n": 5,
+      "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 11",
+      "url": "http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html",
+      "quote": "Note that the waveform for power is always positive, never negative for this resistive circuit. This means that power is always being dissipated by the resistive load, and never returned to the source as it is with reactive loads."
+    },
+    {
+      "n": 6,
+      "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 4",
+      "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html",
+      "quote": "Capacitive reactance can be calculated using this formula: X C = 1/(2πfC) * Capacitive reactance decreases with increasing frequency. In other words, the higher the frequency, the less it opposes (the more it “conducts”) the AC flow of electrons."
+    },
+    {
+      "n": 7,
+      "title": "15.3 RLC Series Circuits with AC - University Physics Volume 2 | OpenStax",
+      "url": "https://openstax.org/books/university-physics-volume-2/pages/15-3-rlc-series-circuits-with-ac",
+      "quote": "A mnemonic device of “ELI the ICE man” is sometimes used to remember that the emf (E) leads the current (I) in an inductor (L) and the current (I) leads the emf (E) in a capacitor (C)."
+    }
+  ]
+}

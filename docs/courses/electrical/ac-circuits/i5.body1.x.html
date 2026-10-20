@@ -1,0 +1,1188 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .wrap { position: relative; margin-inline: auto; }
+  .scene { display: block; width: 100%; touch-action: pan-y; }
+  /* Dragging across the graphs moves the time cursor (an HTML layer: a sideways drag scrubs, an up-down swipe still scrolls). */
+  .tgrip { position: absolute; touch-action: pan-y; cursor: ew-resize; border-radius: 8px; }
+  .tgrip:focus { outline: none; }
+  .tgrip:focus-visible { outline: 2px solid var(--k-accent); outline-offset: 2px; }
+  .ctl { display: grid; gap: 12px; }
+  .scene { --pow: color-mix(in srgb, var(--k-accent2) 55%, var(--k-cat1)); }
+  .scene .axis { stroke: var(--k-muted); stroke-width: 1.3; }
+  .scene .zero { stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .vw { fill: none; stroke: var(--k-ink); stroke-width: 2.2; stroke-linejoin: round; }
+  .scene .cw { fill: none; stroke: var(--k-accent); stroke-width: 2.2; stroke-dasharray: 7 4; stroke-linejoin: round; }
+  .scene .pw { fill: none; stroke: var(--pow); stroke-width: 2.6; stroke-linejoin: round; }
+  .scene .avg { fill: none; stroke: var(--pow); stroke-width: 2.4; stroke-dasharray: 6 4; }
+  .scene .ghost { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 2 3; }
+  .scene .sin { fill: var(--k-fill1); stroke: none; }
+  .scene .sout { fill: var(--k-fill3); stroke: none; }
+  .scene .bad { fill: none; stroke: var(--k-warn); stroke-width: 2.2; stroke-dasharray: 6 4; stroke-linejoin: round; }
+  .scene .dbad { fill: var(--k-warn); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .tan { stroke: var(--k-amber-line); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .cur { stroke: var(--k-accent2); stroke-width: 1.6; }
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.4; }
+  .scene .guide { stroke: var(--k-muted); stroke-width: 1; stroke-dasharray: 3 3; }
+  .scene .dv { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .dc { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .dp { fill: var(--pow); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .pen { fill: var(--pow); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .ring { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .knob { fill: var(--k-accent2); }
+  .scene .ask { fill: var(--k-bg); stroke: var(--k-amber-line); stroke-width: 2; }
+  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }
+  .scene .plate { fill: var(--k-ink); }
+  .scene .gap { fill: var(--k-sunk); }
+  .scene .src { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .srcw { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; }
+  .scene .qp { fill: var(--k-cat2); }
+  .scene .qn { fill: var(--k-cat1); }
+  .scene .qg { fill: none; stroke: var(--k-bg); stroke-width: 1.6; stroke-linecap: round; }
+  .scene .flow { stroke: var(--k-accent); stroke-width: 4; stroke-linecap: round; }
+  .scene .flowh { fill: var(--k-accent); }
+  .scene .xc { fill: none; stroke: var(--k-accent2); stroke-width: 2.2; stroke-linejoin: round; }
+  .scene .xd { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .xlg { fill: none; stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 6 3; }
+  .scene .gdot { fill: var(--k-bg); stroke: var(--k-muted); stroke-width: 2; }
+  .scene .xcrun { fill: none; stroke: var(--k-amber-line); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .dcp, .scene .tip { fill: var(--k-amber-line); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .dcring { fill: var(--k-bg); stroke: var(--k-muted); stroke-width: 2.5; }
+  .scene .tt { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tkc { font: 400 13px var(--k-font); fill: var(--k-accent); }
+  .scene .ax { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .fl { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .wk { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .scene .ky { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  .scene .q { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene #art * { pointer-events: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.05rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">An example 318 µF capacitor on a 100 V peak, 50 Hz supply: its charge, its current, its power and its reactance.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="wrap" id="wrap">
+      <svg class="scene" id="scene" viewBox="0 0 340 520" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+      <div class="tgrip" id="grip" role="slider" tabindex="-1" aria-label="Time cursor" hidden></div>
+    </div>
+    <div class="replay" id="replay"></div>
+    <div class="ctl" id="ctl"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Capacitor, supply and meter readings are example values; the current is C × the voltage's steepness.</p>
+
+<script>
+  // ---------- the rule ----------
+  // An ideal capacitor sits straight across the supply, so its voltage is the supply's at every
+  // instant. The charge it holds is C × that voltage, and the current is the charge arriving each
+  // second: i = C dv/dt. For a sine voltage v = Vp sin(wt) that is i = C Vp w cos(wt): the current
+  // peaks a quarter cycle before the voltage. Its peak is Vp × wC, so X_C = 1/(2πfC) falls with f.
+  const TAU = 2 * Math.PI, SPAN = 40, NS = 400, RT2 = Math.SQRT2;
+  const C1 = 1 / (TAU * 50 * 10);      // the example capacitor, about 318 µF, picked so X_C = 10 Ω at 50 Hz
+  const C2 = 0.0001;                   // the example 100 µF capacitor on mains
+  const C3 = 1 / (TAU * 50 * 115);     // the mains capacitor: it draws 2 A from 230 V at 50 Hz, so X_C = 115 Ω
+  const L4 = 10 / (TAU * 50);          // lesson 4's coil, about 31.8 mH: X_L = 10 Ω at 50 Hz
+  const HR = 10;                       // lesson 3's heater element, Ω
+  const TD = 0.3;                      // ms: how wide the switch-on rush is drawn on steady DC (a sketch, no value shown)
+  const AL = 46;                       // drawing units of flow arrow for a current as big as the graph's half-height
+  // Each card: the capacitance C (F), the supply's peak Vp (V) and frequency f (Hz), and the scales:
+  // what the half-height of the voltage, current and power graphs stand for, and the top of the X_C graph.
+  const CARDS = {
+    cap: { C: C1, Vp: 100, f: 50, Vax: 110, Iax: 20, Pax: 1050, XCmax: 25, xt: [10, 20], ghostL: true,
+      lab: () => num(C1 * 1e6, 0) + ' µF', title: (f) => 'An ideal capacitor on ' + num(100, 0) + ' V peak, ' + num(f, 0) + ' Hz' },
+    ex: { C: C2, Vp: 230 * RT2, f: 50, Vax: 360, Iax: 12, Pax: 1800, XCmax: 80, xt: [40, 80],
+      lab: () => num(C2 * 1e6, 0) + ' µF', title: (f) => 'A capacitor on ' + num(230, 0) + ' V, ' + num(f, 0) + ' Hz mains' },
+    mains: { C: C3, Vp: 230 * RT2, f: 50, Vax: 360, Iax: 4, Pax: 600, XCmax: 250, xt: [100, 200],
+      lab: () => 'a mains capacitor', title: (f) => 'An ideal capacitor on ' + num(230, 0) + ' V, ' + num(f, 0) + ' Hz' },
+  };
+  // The waves at frequency f (t in ms): the voltage, its rate of change (V per second), the
+  // current C × that rate, and the power, voltage × current.
+  function waves(c, f) {
+    const w = TAU * f, XC = 1 / (w * c.C), Ip = c.Vp / XC, k = w / 1000;
+    const v = (t) => c.Vp * Math.sin(k * t);
+    const dv = (t) => c.Vp * w * Math.cos(k * t);
+    const i = (t) => c.C * dv(t);
+    return { f, w, XC, Ip, v, dv, i, p: (t) => v(t) * i(t) };
+  }
+  // Steady DC switched on at 0 ms: the voltage climbs to 100 V through a brief rush of current,
+  // and the current is still C × the voltage's steepness, so the rush carries exactly C × 100 V.
+  const vdc = (t) => 100 * (1 - Math.exp(-t / TD));
+  const idc = (t) => C1 * 100 / (TD / 1000) * Math.exp(-t / TD);
+  // A number as the lesson writes it: at most dp decimals, no trailing zeros, a true minus sign.
+  function num(v, dp) {
+    dp = dp == null ? 2 : dp;
+    const m = Math.pow(10, dp);
+    let r = Math.round(v * m) / m;
+    if (r === 0) r = 0;
+    let s = r.toFixed(dp);
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    return s.replace('-', '−');
+  }
+  // A reading with exactly dp decimals, a true minus sign.
+  function fx(v, dp) {
+    const m = Math.pow(10, dp);
+    let r = Math.round(v * m) / m;
+    if (r === 0) r = 0;
+    return r.toFixed(dp).replace('-', '−');
+  }
+  // A whole number with thousands commas and a true minus sign (31,416).
+  function grp(v) { const n = Math.round(v); return (n < 0 ? '−' : '') + String(Math.abs(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+  const mix = (a, b, t) => (t >= 1 ? b : t <= 0 ? a : a + (b - a) * t);
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // cur: 'live' (Dan drags the time cursor) or 'park' (fixed at t ms); sweep: the cursor's moves
+  // [start s, seconds, from ms, to ms]; trace: 'i' draws the current (and power) behind the sweep,
+  // 'p' the power, then the rest; work: the readings at the cursor. hideI, hideTan, hidePow, hideXC:
+  // hidden until a right answer. fsel: the frequency slider; morph: a frequency demonstration
+  // [start, to, s]; fAns: a right answer moves the supply to this frequency. brk, lead, fill, xcRows,
+  // ghost, eli, ohm, dcRun, ex, mains: the marks and rows of each screen. slips: what each wrong pick claims, in red.
+  const STEPS = [
+    { show: true, name: 'The filling tank', card: 'cap', cur: 'live', t: 5, sweep: [[0.5, 2.2, 0, 5]], work: true, dur: 3.2,
+      text: 'An ideal 318 µF capacitor, two metal plates with a thin gap of insulation, sits across a 100 V peak, 50 Hz supply. The charge piled on its plates follows the voltage, and the arrows in the leads show the current. The short *tangent* rides the voltage wave, and the current is the *capacitance* × the tangent\'s steepness. At 0 ms the voltage crosses zero at its steepest: the plates are empty but filling fastest, so the current is at its 10 A peak. Drag the time cursor.' },
+    { name: 'At the top', card: 'cap', cur: 'park', t: 5, hideI: true, hideTan: true, hidePow: true, pAt: 0.6, work: true, rdur: 1.8,
+      slips: { '10 A': { idot: 10 }, '−10 A': { idot: -10 } },
+      task: 'The cursor is parked at 5 ms, where the voltage is at its 100 V top and the plates are at their fullest. What current flows in the leads at that instant?',
+      opts: ['10 A', '0 A', '−10 A'], want: '0 A',
+      why: 'A capacitor\'s current follows how fast its voltage is changing, not how big it is. At its top the voltage has stopped rising and not yet started to fall, so for that instant the charge on the plates holds still: the tangent lies flat and the current is 0 A. 10 A is a resistor\'s rule, the biggest voltage with the biggest current. −10 A comes at 10 ms, where the voltage falls fastest and the plates drain fastest.',
+      hint: 'Not quite. How steeply is the voltage changing at its top?',
+      hints: { '10 A': 'Not quite. That is a resistor\'s rule. A capacitor\'s current follows how fast its voltage changes.',
+        '−10 A': 'Not quite. That comes where the voltage falls fastest. At its top it is not changing at all.' } },
+    { show: true, name: 'A quarter cycle ahead', card: 'cap', cur: 'live', t: 20, sweep: [[0.5, 2.2, 0, 20]], trace: 'i', work: true,
+      brk: 'show', lead: 'show', dur: 4.2, tl: { next: 2.8, nd: 0.8, brk: 3.0, row: 3.4 },
+      text: 'Now the cursor sweeps one whole 20 ms cycle, tracing the current from the tangent. After its top the voltage falls, the plates drain and the arrows turn round. The bracket marks the 5 ms from the current\'s top to the voltage\'s, a quarter cycle: the current *leads* and the voltage *lags*. Measured as in lesson 4, by how far the voltage leads, that is a *phase angle* of −90°. Drag the cursor to follow it.' },
+    { name: 'Which leads?', card: 'cap', brk: 'ask', brkAt: 0.1, lead: 'ask', rdur: 1.0,
+      slips: { 'The voltage, by a quarter cycle': { iwave: 'lag' }, 'The current, by half a cycle': { iwave: 'half' } },
+      task: 'Here are the capacitor\'s waves again, standing still. Which leads, and by how much?',
+      opts: ['The voltage, by a quarter cycle', 'The current, by half a cycle', 'The current, by a quarter cycle'], want: 'The current, by a quarter cycle',
+      why: 'Read along the time axis. The current tops out at 20 ms and the voltage 5 ms later, at 25 ms. Whichever peaks first is ahead, so the current leads by 5 ms, a quarter of the 20 ms cycle, and the voltage lags by the same: a *phase angle* of −90°. The voltage leading is the coil\'s answer from lesson 4, carried over. Half a cycle, 10 ms, would put the current\'s top where the voltage has its bottom.',
+      hint: 'Not quite. Find a current top, then the next voltage top.',
+      hints: { 'The voltage, by a quarter cycle': 'Not quite. That is the coil\'s answer. Which wave tops out first here?',
+        'The current, by half a cycle': 'Not quite. Measure from a current top to the very next voltage top.' } },
+    { show: true, name: 'A faster supply', card: 'cap', cur: 'park', t: 0, fsel: true, morph: [0.5, 100, 2.0], xcRows: 'show', fill: true, dur: 3.3, tl: { row: 2.6 },
+      text: 'The frequency plays from 50 Hz up to 100 Hz on the same 100 V peak. The plates still fill to the same charge, but in half the time, so at 0 ms the voltage is twice as steep and the current twice as big. The capacitor\'s opposition, the voltage ÷ the current, is its *capacitive reactance*, X_C. It falls as the frequency rises, while lesson 4\'s X_L climbs. Now slide the frequency yourself.' },
+    { name: 'On board ship', card: 'cap', fAns: 60, xcRows: 'ask', rowAt: 1.2, rdur: 2.0,
+      slips: { '8.33 A': { iline: 100 / 12 }, '10 A': { iline: 10 } },
+      task: 'A marine college\'s notes (a secondary source) give 60 Hz as the frequency most common on board ship. With the same 100 V peak, how high does this capacitor\'s current peak at 60 Hz?',
+      opts: ['12 A', '8.33 A', '10 A'], want: '12 A',
+      why: 'X_C falls as the frequency rises: 10 Ω × 50 ÷ 60 = 8.33 Ω, the same as 1 ÷ (2π × 60 × 0.000318). The supply\'s peak is still 100 V, so the current peaks at 100 ÷ 8.33 = 12 A. More frequency means less reactance and more current. 8.33 A is the coil\'s rule, reactance rising with the frequency, and 10 A leaves the frequency out, as for a resistor.',
+      hint: 'Not quite. Work out X_C at 60 Hz first.',
+      hints: { '8.33 A': 'Not quite. That is the coil\'s rule. A capacitor\'s reactance falls as the frequency rises.',
+        '10 A': 'Not quite. That is a resistor\'s answer. A capacitor\'s reactance changes with the frequency.' } },
+    { show: true, name: 'Down to steady DC', card: 'cap', dcRun: true, morph: [0.5, 25, 1.2], dur: 4.4,
+      tl: { r1: 1.8, run: [2.0, 0.6], tip: 2.6, ring: 2.6, r2: 2.9, sw: [3.0, 0.4], rush: [3.0, 1.0], r3: 3.7 },
+      text: 'The frequency plays down to 25 Hz: X_C rises to 20 Ω and the current peaks at only 5 A. Follow the X_C curve on towards 0 Hz and it climbs ever more steeply, off the top, while lesson 4\'s X_L runs down to 0 Ω. Then the supply switches to a steady 100 V. A brief rush of current fills the plates, and once they are full no more flows: the arrows stay gone at 0 A.' },
+    { name: 'The ohmmeter', card: 'cap', ohm: true, rdur: 1.9,
+      task: 'An ohmmeter\'s reading across a healthy capacitor climbs while it fills and settles very high. Yet on 50 Hz this one lets 10 A peak flow for a 100 V peak. Why the difference?',
+      opts: ['The capacitor is open-circuit', 'A steady voltage fills it once, then drives no more current', 'Charge jumps the gap only at high voltage'],
+      want: 'A steady voltage fills it once, then drives no more current',
+      why: 'An ohmmeter makes its reading with a small steady voltage. That fills the plates once, and then the charge holds still, so no more current flows and the reading settles very high: the 0 Hz end of the X_C curve. On 50 Hz the voltage never stops changing, so the plates fill and empty every cycle and current keeps flowing in the leads, with 10 Ω of reactance. A healthy capacitor reads like this, so it is not open-circuit, and next to no charge crosses its gap: the current comes from filling and emptying.',
+      hint: 'Not quite. What does the meter\'s steady voltage do once the plates are full?',
+      hints: { 'The capacitor is open-circuit': 'Not quite. A healthy capacitor reads very high on an ohmmeter too.',
+        'Charge jumps the gap only at high voltage': 'Not quite. Next to no charge crosses the gap. The current comes from filling and emptying.' } },
+    { show: true, name: 'Taking and giving back', card: 'cap', cur: 'live', t: 10, sweep: [[0.5, 2.4, 0, 10]], trace: 'p', work: true,
+      shade: true, avg: 'show', ghost: true, eli: true, dur: 4.3, tl: { next: 2.9, nd: 0.9, avg: 3.2, ghost: 3.2, row: 3.6 },
+      text: 'Back at 50 Hz, the power wave is the voltage × the current at each instant, as in lesson 3. From 0 to 5 ms both are positive and the plates fill: the dot climbs to 500 W as energy goes into the capacitor. From 5 to 10 ms the voltage is still positive, but the plates drain and the current is negative: the dot dips to −500 W as the energy comes back. It averages 0 W, where lesson 3\'s heater averages 500 W. Textbooks give a memory aid, ELI the ICE man: in a coil, L, the voltage E comes before the current I; in a capacitor, C, the current I comes before the voltage E.' },
+    { name: 'Mixed: a 100 µF capacitor', card: 'ex', hideI: true, hidePow: true, pAt: 0.4, hideXC: true, ex: true, rdur: 2.0,
+      slips: { '2.3 A': { iline: 2.3 * RT2 }, '0 A': { iline: 0 } },
+      task: 'Mixed. An example 100 µF capacitor goes on 230 V, 50 Hz mains. What current does it draw?',
+      opts: ['2.3 A', '0 A', '7.23 A'], want: '7.23 A',
+      why: 'First its reactance: X_C = 1 ÷ (2π × 50 × 0.0001) ≈ 31.8 Ω, with 100 µF written as 0.0001 F. Then 230 V ÷ 31.8 Ω = 7.23 A. 2.3 A puts the 100 µF in as if it were 100 Ω. 0 A treats the capacitor as blocking current, as it does once filled on steady DC; on AC it fills and empties every cycle.',
+      hint: 'Not quite. Work out X_C first, with 100 µF as 0.0001 F.',
+      hints: { '2.3 A': 'Not quite. Microfarads are not ohms. Work out X_C first.',
+        '0 A': 'Not quite. That is steady DC once the plates are full. On AC they fill and empty every cycle.' } },
+    { name: 'Mixed: a slower supply', card: 'cap', f: 25, hideI: true, hidePow: true, pAt: 0.4, hideXC: true, xcRows: 'ask', leadRow: true, rowAt: 1.4,
+      brk: 'ask', brkAt: 1.2, rdur: 2.2,
+      slips: { '20 A, leading a quarter cycle': { iwave: 'lead', amp: 20 }, '5 A, in step with the voltage': { iwave: 'inphase', amp: 5 } },
+      task: 'Mixed. The same 318 µF capacitor goes on a 25 Hz supply with the same 100 V peak. What does its current do?',
+      opts: ['5 A, leading a quarter cycle', '20 A, leading a quarter cycle', '5 A, in step with the voltage'], want: '5 A, leading a quarter cycle',
+      why: 'Half the frequency doubles the reactance: 10 Ω × 50 ÷ 25 = 20 Ω, so the current peaks at 100 ÷ 20 = 5 A. It still leads by a quarter cycle, 10 ms at 25 Hz, because the current still peaks where the voltage is steepest, at any frequency. 20 A scales the coil\'s way, and an ideal capacitor\'s current is never in step with its voltage.',
+      hint: 'Not quite. Work out X_C at 25 Hz, then think about the tangent.',
+      hints: { '20 A, leading a quarter cycle': 'Not quite. That is the coil\'s scaling. For a capacitor, lower frequency means more reactance.',
+        '5 A, in step with the voltage': 'Not quite. The current still peaks where the voltage is steepest, at any frequency.' } },
+    { name: 'Mixed: a mains capacitor', card: 'mains', fAns: 60, hidePow: true, pAt: 0.3, avg: 'ask', avgAt: 1.2, mains: true, rdur: 2.2,
+      slips: { '1.67 A and 0 W': { iline: 230 / (115 * 60 / 50) * RT2 }, '2.4 A and 552 W': { pline: 230 * 230 / (115 * 50 / 60) } },
+      task: 'Mixed. An ideal capacitor draws 2 A from 230 V, 50 Hz mains, so its X_C is 115 Ω. What does it draw on a 230 V, 60 Hz supply, and what power does it average?',
+      opts: ['1.67 A and 0 W', '2.4 A and 0 W', '2.4 A and 552 W'], want: '2.4 A and 0 W',
+      why: 'X_C falls as the frequency rises: 115 Ω × 50 ÷ 60 ≈ 95.8 Ω, so the current is 230 ÷ 95.8 = 2.4 A. An ideal capacitor still stores energy as it fills and hands it all back as it empties, so it averages 0 W. 1.67 A scales the current down, as for a coil, and 230 × 2.4 = 552 is volts × amps, which for a capacitor is not watts.',
+      hint: 'Not quite. Find X_C at 60 Hz, then think about the power wave.',
+      hints: { '1.67 A and 0 W': 'Not quite. That is the coil\'s way. A capacitor\'s reactance falls as the frequency rises.',
+        '2.4 A and 552 W': 'Not quite. Volts × amps is not a capacitor\'s watts. Its power dips below zero half the time.' } },
+  ];
+  const FINISH = 'A capacitor\'s current runs a quarter cycle ahead of its voltage because the charge, and so the voltage, keeps building for as long as current flows in, and peaks only as the current falls to zero. Its reactance, X_C = 1/(2πfC), falls as the frequency rises, so on the same supply its current grows: the mirror image of lesson 4\'s coil. It takes energy in as it fills and hands it back as it empties, so it averages 0 W. Lesson 6 puts a resistor in series with a coil or a capacitor. Next, Series RL and RC: impedance you can measure.';
+  // Sources the checks restate (the lesson's own).
+  const SHIP = 'http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf';
+  const ENA = 'https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits';
+  const KUPH4 = 'https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html';
+  const KUPH11 = 'http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html';
+
+  const PICK = 'Tap one of the answers.';
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong' or 'empty' once checked), why: the puzzle. t: the cursor time Dan
+  // has set (null: the demonstration's); f: the frequency he has set (null: the demonstration's).
+  function blank() { return { pick: null, res: null, why: false, t: null, f: null }; }
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, MODE = 'demo', motionEnd = 0;
+  let REC = {}, VBH = 520;
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+
+  // Text with highlighted key terms (*term*), and X_C and X_L set with a lowered letter, built with K.el, never innerHTML.
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').split(/(\*[^*]+\*|X_[CL])/).forEach((b) => {
+      if (!b) return;
+      if (b === 'X_C' || b === 'X_L') node.append('X', K.el('sub', {}, b.charAt(2)));
+      else if (b.charAt(0) === '*' && b.length > 2 && b.charAt(b.length - 1) === '*') node.appendChild(K.el('span', { class: 'mark' }, b.slice(1, -1)));
+      else node.appendChild(document.createTextNode(b));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play('answer', st.res === 'right' ? d.rdur : 0.8);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  // Replay plays the screen's demonstration again from its start.
+  const replayBtn = K.button({ label: 'Replay', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    Object.assign(st, { t: null, f: null });
+    play('demo', d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  // The time cursor and the frequency slider, shown only on the screens that free them.
+  const ctlT = K.control({ id: 't', label: 'Time cursor', min: 0, max: SPAN, step: 0.1, value: 0, unit: 'ms', fmt: (v) => fx(v, 1) + ' ms', snap: [0, 5, 10, 15, 20], into: '#ctl' });
+  const ctlF = K.control({ id: 'f', label: 'Supply frequency', min: 25, max: 100, step: 5, value: 50, unit: 'Hz', fmt: (v) => num(v, 0) + ' Hz', snap: [25, 60, 100], into: '#ctl' });
+  const shown = { t: ctlT.get(), f: ctlF.get() };
+  // The controls set to what the picture shows (quietly: this is not Dan moving them).
+  function syncT(v) { if (v == null) return; if (Math.abs(ctlT.get() - v) > 1e-9) ctlT.set(v, true); shown.t = ctlT.get(); }
+  function syncF(v) { if (v == null) return; const s = K.clamp(Math.round(v / 5) * 5, 25, 100); if (ctlF.get() !== s) ctlF.set(s, true); shown.f = ctlF.get(); }
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && T !== Infinity) { T = Infinity; paint(); } });
+  // A demonstration waits until most of its picture is in view, so on a phone it does not play out
+  // while Dan is still reading the words above it.
+  let seen = true, waiting = false, waitDur = 0;
+  if (typeof IntersectionObserver === 'function') {
+    seen = false;
+    new IntersectionObserver((es) => {
+      const e = es[es.length - 1];
+      seen = e.isIntersecting && (e.intersectionRatio >= 0.6 || e.intersectionRect.height >= 0.6 * (window.innerHeight || 1));
+      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }
+    }, { threshold: [0, 0.3, 0.6, 0.8, 1] }).observe(el('scene'));
+  }
+  function play(mode, dur) {
+    MODE = mode; waiting = false;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    if (mode === 'demo' && !seen) { waiting = true; waitDur = dur; T = 0; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // Dan takes over: whatever was moving shows finished.
+  function stopMotion() { if (anim.playing()) anim.pause(); waiting = false; T = Infinity; }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), grip = el('grip');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, dd) {
+    dd = dd == null ? K.SOFT : dd;
+    if (t0 + dd > latest) latest = t0 + dd;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, dd);
+  }
+  // A steady motion from 0 to 1 between t0 and t0 + dd.
+  function lin(t0, dd) {
+    if (t0 + dd > latest) latest = t0 + dd;
+    if (t0 < earliest) earliest = t0;
+    return T === Infinity ? 1 : K.clamp((T - t0) / dd, 0, 1);
+  }
+  function part(a, rise, draw) {
+    if (!(a > 0.001)) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  const R = (v) => Math.round(v * 100) / 100;
+  const poly = (ps) => 'M' + ps.map((q) => R(q[0]) + ' ' + R(q[1])).join('L');
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: R(x1), y1: R(y1), x2: R(x2), y2: R(y2) }));
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: R(x), y: R(y), width: R(Math.max(0, w)), height: R(Math.max(0, h)), rx: rx || 0 }));
+  const circ = (cls, p, r) => add(K.svg('circle', { class: cls, cx: R(p[0]), cy: R(p[1]), r }));
+  const path = (cls, dd) => add(K.svg('path', { class: cls, d: dd }));
+  // A text; '_C' or '_L' in it is set as a lowered letter (X_C reads as X with C below the line).
+  function makeText(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: R(x), y: R(y), 'text-anchor': anchor || 'middle' });
+    const bits = String(s).split(/(_[CL])/);
+    bits.forEach((b, j) => {
+      if (!b) return;
+      if (b === '_C' || b === '_L') t.appendChild(K.svg('tspan', { dy: 4 }, b.charAt(1)));
+      else if (j > 0 && (bits[j - 1] === '_C' || bits[j - 1] === '_L')) t.appendChild(K.svg('tspan', { dy: -4 }, b));
+      else t.appendChild(document.createTextNode(b));
+    });
+    return t;
+  }
+  const text = (x, y, s, cls, anchor) => add(makeText(x, y, s, cls, anchor));
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(makeText(0, -50, s, cls, 'start'));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 7;
+  }
+  function ask(x, y) { circ('ask', [x, y], 10); text(x, y + 5, '?', 'q'); }
+  // A key inside the drawing, in rows: each item a swatch and its name.
+  function keyRows(items, y) {
+    let x = 8, row = 0;
+    items.forEach((it) => {
+      const w = 18 + 6 + tw(it.label, 'ky');
+      if (x > 8 && x + w > 336) { x = 8; row++; }
+      const yy = y + row * 22, x0 = x;
+      part(it.a == null ? 1 : it.a, 0, () => { it.sw(x0, yy); text(x0 + 24, yy + 5, it.label, 'ky', 'start'); });
+      x += w + 14;
+    });
+    return y + row * 22 + 12;
+  }
+  const swLine = (cls) => (x, yy) => line(cls, x, yy, x + 18, yy);
+  const swRect = (cls) => (x, yy) => rect(cls, x, yy - 7, 18, 14, 2);
+
+  // ---------- the picture ----------
+  // Top band: the capacitor across its supply (left), X_C against frequency (right). Then the
+  // voltage and current on one time axis, and the power below it on the same axis.
+  const X0 = 44, X1 = 296, xT = (t) => X0 + t / SPAN * (X1 - X0);
+  const G = { title: 16, VY: 204, VH: 38, PY: 294, PH: 42, PN: 42 };
+  const XO = 224, XB = 106, XW = 96, XH = 62, xF = (f) => XO + f / 100 * XW;
+  function samples(upto) {
+    const out = [], n = Math.ceil(upto / SPAN * NS - 1e-9);
+    for (let j = 0; j <= n; j++) out.push(Math.min(upto, j * SPAN / NS));
+    return out;
+  }
+  // The steady-DC times: finely through the rush, then as the AC waves are sampled.
+  function dcTimes() {
+    const out = [];
+    for (let j = 0; j < 100; j++) out.push(j * 0.02);
+    for (let j = 20; j <= NS; j++) out.push(j * SPAN / NS);
+    return out;
+  }
+  function trace(cls, fn, upto, yf) {
+    const pts = [], data = [];
+    samples(upto).forEach((t) => { const v = fn(t); data.push([t, v]); pts.push([xT(t), yf(v)]); });
+    path(cls, poly(pts));
+    return data;
+  }
+  function traceT(cls, fn, ts, yf) {
+    const pts = [], data = [];
+    ts.forEach((t) => { const v = fn(t); data.push([t, v]); pts.push([xT(t), yf(v)]); });
+    path(cls, poly(pts));
+    return data;
+  }
+  const tickL = (y, s) => { line('axis', X0 - 4, y, X0, y); if (s != null) text(X0 - 7, y + 5, s, 'tk', 'end'); };
+  const tickR = (y, s) => { line('axis', X1, y, X1 + 4, y); if (s != null) text(X1 + 7, y + 5, s, 'tkc', 'start'); };
+  // Where the cursor is in a demonstration's sweep (the last move started).
+  function sweepPos(d, demo) {
+    if (!d.sweep) return d.t;
+    let pos = d.sweep[0][2];
+    for (const s of d.sweep) {
+      if (demo && T < s[0]) break;
+      pos = mix(s[2], s[3], demo ? K.ease(lin(s[0], s[1])) : 1);
+    }
+    return pos;
+  }
+  // The furthest the sweep has taken the cursor so far.
+  function sweepReach(d, demo) {
+    let r = 0;
+    for (const s of d.sweep || []) {
+      if (demo && T < s[0]) break;
+      r = Math.max(r, s[2], mix(s[2], s[3], demo ? K.ease(lin(s[0], s[1])) : 1));
+    }
+    return r;
+  }
+
+  // A flow arrow along a lead, centred at xc: its length is the current's size, its head the way it flows.
+  function flow(xc, y, len, dir) {
+    if (!(len > 0.5)) return;
+    const hl = Math.min(11, len * 0.7), hw = hl * 0.6, x0 = xc - dir * len / 2, x1 = xc + dir * len / 2;
+    if (len - hl > 0.5) line('flow', x0, y, x1 - dir * hl * 0.9, y);
+    path('flowh', 'M' + R(x1) + ' ' + y + 'L' + R(x1 - dir * hl) + ' ' + R(y - hw) + 'L' + R(x1 - dir * hl) + ' ' + R(y + hw) + 'Z');
+  }
+  // One charge dot: a plus or a minus sign in a disc.
+  function charge(x, y, sign) {
+    circ(sign > 0 ? 'qp' : 'qn', [x, y], 4.5);
+    path('qg', 'M' + R(x - 2.6) + ' ' + y + 'H' + R(x + 2.6) + (sign > 0 ? 'M' + x + ' ' + R(y - 2.6) + 'V' + R(y + 2.6) : ''));
+  }
+  // The capacitor: two plates with a gap of insulation, its leads to the supply below. With an
+  // instant (s), the charge piles on the plates' facing sides as big as the voltage, and a flow
+  // arrow in each lead as long as the current (none crosses the gap).
+  function drawCap(c, s) {
+    rect('gap', 72, 44, 40, 50, 0);
+    path('wire', 'M66 69H16V112H82'); path('wire', 'M118 69H168V112H102');
+    circ('src', [92, 112], 10);
+    path('srcw', 'M85 112C87.3 104.5 89.7 104.5 92 112S96.7 119.5 99 112');
+    rect('plate', 66, 42, 6, 54, 1); rect('plate', 112, 42, 6, 54, 1);
+    text(92, 34, c.lab(), 'lb', 'middle');
+    if (!s) return;
+    const n = 5 * Math.min(1, Math.abs(s.v) / c.Vp), plusLeft = s.v >= 0;
+    for (let k = 0; k < 5; k++) {
+      const a = K.clamp(n - k, 0, 1), y = 89 - 10 * k;
+      if (a > 0.001) part(a, 0, () => { charge(plusLeft ? 77.5 : 106.5, y, 1); charge(plusLeft ? 106.5 : 77.5, y, -1); });
+    }
+    const len = Math.min(48, AL * Math.abs(s.i) / s.Iax), dir = s.i >= 0 ? 1 : -1;
+    REC.pile = { n, plusLeft };
+    REC.arrow = { len, dir, xs: [41, 143] };
+    if (s.aI > 0.001) part(s.aI, 0, () => {
+      flow(41, 58, len, dir); flow(143, 58, len, dir);
+      const fi = Math.abs(s.i) / s.Ip, fv = Math.abs(s.v) / c.Vp;
+      text(92, 136, fi < 0.01 ? 'full: no current' : fv < 0.01 ? 'empty: most current' : s.v * s.i > 0 ? 'filling' : 'emptying', 'fl', 'middle');
+    });
+    if (s.ask && s.aI < 0.999) part(1 - s.aI, 0, () => ask(41, 45));
+  }
+
+  function drawCard(d, st) {
+    const tl = d.tl || {};
+    const c = CARDS[d.card];
+    const right = !d.show && st.res === 'right';
+    const slip = !d.show && st.res === 'wrong' ? (d.slips || {})[st.pick] || null : null;
+    const demo = d.show && MODE === 'demo';
+    const slipA = slip ? arr(0.1) : 0;
+
+    // ---- the supply's frequency now: the screen's, the demonstration's, Dan's, or a right answer's ----
+    let f = d.f || c.f;
+    if (d.fsel && st.f != null) f = st.f;
+    else if (d.morph) f = Math.round(f + (d.morph[1] - f) * (demo ? K.ease(lin(d.morph[0], d.morph[2])) : 1));
+    else if (d.fAns && right) f = Math.round(f + (d.fAns - f) * K.ease(lin(0.1, 1.0)));
+    const W = waves(c, f);
+    const top = c.Vp * W.Ip / 2;
+    // A large current stretches the graphs' scales, and the ticks give the peaks.
+    const Iax = Math.max(c.Iax, W.Ip), Pax = Math.max(c.Pax, 1.05 * top);
+    const yV = (v) => G.VY - v * G.VH / c.Vax, yI = (a) => G.VY - a * G.VH / Iax, yP = (w) => G.PY - w * G.PH / Pax;
+    const yIc = (a) => Math.max(G.VY - G.VH, yI(a)), yPc = (w) => Math.max(G.PY - G.PH, yP(w));
+    const yX = (x) => XB - x / c.XCmax * XH;
+    const XCs = num(W.XC, W.XC < 10 ? 2 : 1), Ips = num(W.Ip, 2), Vps = num(c.Vp, 0);
+    // The switch to steady DC: the AC waves give way to the DC lines.
+    const dcK = d.dcRun ? (demo ? K.ease(lin(tl.sw[0], tl.sw[1])) : 1) : 0, acA = 1 - dcK;
+
+    // ---- the cursor: Dan's, the sweep's, or parked ----
+    let tc = null;
+    if (d.cur === 'live') tc = st.t != null ? st.t : sweepPos(d, demo);
+    else if (d.cur === 'park') tc = d.t;
+    const live = d.cur === 'live' && !finished;
+
+    // ---- how much of each wave is drawn ----
+    let vUp = SPAN, iUp = SPAN, pUp = SPAN, iPen = false, pPen = false;
+    if (d.trace) {
+      const s0 = d.sweep[d.sweep.length - 1][3];
+      const u = demo && T < tl.next ? Math.max(sweepReach(d, demo), tc || 0) : s0 + (SPAN - s0) * (demo ? lin(tl.next, tl.nd) : 1);
+      if (d.trace === 'i') { iUp = u; pUp = u; iPen = pPen = true; } else { pUp = u; pPen = true; }
+    }
+    if (d.hideI) { iUp = right ? SPAN * lin(0.1, 1.0) : 0; iPen = true; }
+    if (d.hidePow) { pUp = right ? SPAN * lin(d.pAt, 1.0) : 0; pPen = true; }
+    const pA = d.hidePow ? (right ? arr(d.pAt + 0.2) : 0) : 1;
+    const iA = d.hideI ? (right ? arr(0.6) : 0) : 1;
+    const xcA = d.hideXC ? (right ? arr(0.6) : 0) : 1;
+
+    Object.assign(REC, { f, tc, Ip: W.Ip, xc: W.XC, top, card: d.card, wv: null, cu: null, pw: null, ghost: null, tan: null, brk: null, avg: null,
+      dc: false, xcDot: false, xcCurve: null, run: null, fill: null, ghostDot: null, iShown: false, pShown: false, pile: null, arrow: null,
+      slip: slip && slipA > 0 ? slip : null });
+
+    text(8, G.title, c.title(f), 'tt', 'start');
+
+    // ---- the capacitor: at the cursor's instant, or filling from steady DC ----
+    let cs = null;
+    if (tc != null) cs = { v: W.v(tc), i: W.i(tc), Ip: W.Ip, Iax, aI: d.hideI ? (right ? arr(0.3) : 0) : 1, ask: !!d.hideI };
+    else if (d.dcRun) {
+      const r = demo ? lin(tl.rush[0], tl.rush[1]) : 1, tdc = r < 1 ? 2.5 * r : Infinity, aI = demo ? lin(tl.rush[0], 0.25) : 1;
+      if (aI > 0.001) cs = { v: vdc(tdc), i: idc(tdc), Ip: W.Ip, Iax, aI, ask: false };
+    }
+    drawCap(c, cs);
+
+    // ---- X_C against frequency: the curve 1/(2πfC), a dot at the supply's frequency, lesson 4's X_L line ----
+    const xcY = yX(W.XC);
+    line('axis', XO, XB, XO + XW + 4, XB);
+    line('axis', XO, XB, XO, XB - XH - 6);
+    text(XO - 6, 34, 'X_C (Ω)', 'ax', 'end');
+    c.xt.forEach((v) => {
+      line('axis', XO - 4, yX(v), XO, yX(v));
+      const ta = Math.abs(yX(v) - xcY) < 13 ? 1 - xcA : 1;
+      if (ta > 0.001) part(ta, 0, () => text(XO - 6, yX(v) + 5, String(v), 'tk', 'end'));
+    });
+    [[0, '0', 'middle'], [50, '50', 'middle'], [100, '100 Hz', 'end']].forEach((q) => {
+      line('axis', xF(q[0]), XB, xF(q[0]), XB + 4);
+      text(q[0] === 100 ? 336 : xF(q[0]), 122, q[1], 'tk', q[2]);
+    });
+    if (c.ghostL) path('xlg', poly([[xF(0), yX(0)], [xF(100), yX(TAU * 100 * L4)]]));
+    const curve = [];
+    for (let g = 25; g <= 100; g += 1) curve.push([g, 1 / (TAU * g * c.C)]);
+    path('xc', poly(curve.map((q) => [xF(q[0]), yX(q[1])])));
+    REC.xcCurve = curve;
+    // On towards 0 Hz: the curve climbs ever more steeply, off the top (a demonstration, or a right answer).
+    let run = null;
+    if (d.dcRun) run = { f0: 25, k: demo ? K.ease(lin(tl.run[0], tl.run[1])) : 1, tipA: demo ? arr(tl.tip) : 1 };
+    else if (d.ohm && right) run = { f0: f, k: K.ease(lin(0.1, 0.9)), tipA: arr(1.0) };
+    const Xtop = (XH + 6) / XH * c.XCmax, fTop = 1 / (TAU * c.C * Xtop);
+    if (run && run.k > 0.001) {
+      const fp = run.f0 - (run.f0 - fTop) * run.k, pts = [];
+      for (let j = 0; j <= 40; j++) { const g = fp + (run.f0 - fp) * j / 40; pts.push([xF(g), yX(1 / (TAU * g * c.C))]); }
+      path('xcrun', poly(pts));
+      if (run.tipA < 0.999) part(1 - run.tipA, 0, () => circ('dcp', pts[0], 4.5));
+      REC.run = run.k >= 0.999 ? 'top' : run.k;
+    }
+    if (run && run.tipA > 0.001) part(run.tipA, 0, () => {
+      const x = xF(fTop), y = XB - XH - 6;
+      path('tip', 'M' + R(x) + ' ' + R(y - 8) + 'L' + R(x - 5.5) + ' ' + R(y + 1) + 'L' + R(x + 5.5) + ' ' + R(y + 1) + 'Z');
+    });
+    // Lesson 4's coil at the same frequency: down its line to 0 Ω at steady DC.
+    if (c.ghostL) {
+      if (d.dcRun && run) part(demo ? arr(tl.ring) : 1, 0, () => { circ('dcring', [XO, XB], 7); text(XO - 8, XB + 16, 'DC', 'lb', 'end'); REC.dc = true; });
+      const fg = d.dcRun && run ? 25 * (1 - run.k) : f;
+      circ('gdot', [xF(fg), yX(TAU * fg * L4)], 4);
+      REC.ghostDot = fg;
+    }
+    if (xcA > 0.001) part(xcA, 0, () => {
+      const px = xF(f);
+      line('guide', XO, xcY, px - 6, xcY);
+      circ('xd', [px, xcY], 5.5);
+      text(XO - 6, xcY + 5, XCs + ' Ω', 'lb', 'end');
+      REC.xcDot = true;
+    });
+    if (d.hideXC && !right) ask(xF(f) + 18, xcY - 16);
+
+    // ---- the voltage and the current, sharing one time axis ----
+    line('axis', X0, G.VY - G.VH - 4, X0, G.VY + G.VH + 4);
+    line('axis', X1, G.VY - G.VH - 4, X1, G.VY + G.VH + 4);
+    line('zero', X0, G.VY, X1, G.VY);
+    text(X0 - 7, G.VY + 5, '0', 'tk', 'end');
+    tickL(yV(c.Vp), Vps); tickL(yV(-c.Vp), '−' + Vps);
+    if (iA * acA > 0.001) part(iA * acA, 0, () => { tickR(yI(W.Ip), Ips); tickR(yI(-W.Ip), '−' + Ips); });
+    if (acA > 0.001 && vUp > 0.05) part(acA, 0, () => { REC.wv = trace('vw', W.v, vUp, yV); });
+    if (acA > 0.001 && iUp > 0.05) part(acA, 0, () => {
+      REC.cu = trace('cw', W.i, iUp, yI);
+      if (iPen && iUp < SPAN - 1e-9) circ('dc', [xT(iUp), yI(W.i(iUp))], 4.5);
+    });
+    // Steady DC: the voltage climbs to 100 V through a brief rush of current, then nothing flows.
+    if (dcK > 0.001) part(dcK, 0, () => {
+      const ts = dcTimes();
+      REC.wv = traceT('vw', vdc, ts, yV);
+      REC.cu = traceT('cw', idc, ts, yIc);
+      text(X0 + 12, G.VY - G.VH - 8, 'brief rush', 'ky', 'start');
+      text(X1 - 4, yV(100) - 6, 'steady ' + num(100, 0) + ' V', 'ky', 'end');
+      text(X1 - 4, G.VY - 6, 'once full: 0 A', 'ky', 'end');
+    });
+    // The asked current's mark sits clear of the voltage wave.
+    if (d.hideI && !right) { if (tc != null) ask(xT(tc) + 22, G.VY + 20); else ask(xT(750 / f), G.VY - 20); }
+
+    // ---- the bracket from a current top to the next voltage top: a quarter cycle ----
+    let brA = 0;
+    if (d.brk === 'show') brA = demo ? arr(tl.brk) : 1;
+    else if (d.brk === 'ask') brA = right ? arr(d.brkAt) : 0;
+    if (brA > 0) part(brA, 0, () => {
+      const P = 1000 / f, q = P / 4;
+      let tv = 0;
+      for (let k = 0; k * P + q <= SPAN - 5 + 1e-9; k++) tv = k * P;
+      const xa = xT(tv), xb = xT(tv + q), yb = G.VY - G.VH - 6;
+      line('guide', xa, yI(W.Ip) - 3, xa, yb); line('guide', xb, yV(c.Vp) - 3, xb, yb);
+      path('brk', 'M' + R(xa) + ' ' + (yb + 5) + 'V' + yb + 'H' + R(xb) + 'V' + (yb + 5));
+      text((xa + xb) / 2, yb - 6, num(q, 0) + ' ms', 'lb', 'middle');
+      REC.brk = [tv, tv + q];
+    });
+    // ---- how long the plates take to fill, from empty at 0 ms to the voltage's top ----
+    if (d.fill) {
+      const q = 250 / f, xa = xT(0), xb = xT(q), yb = G.VY - G.VH - 6;
+      line('guide', xb, yV(c.Vp) - 3, xb, yb);
+      path('brk', 'M' + R(xa) + ' ' + (yb + 5) + 'V' + yb + 'H' + R(xb) + 'V' + (yb + 5));
+      text(xa, yb - 6, 'fills in ' + num(q, 2) + ' ms', 'lb', 'start');
+      REC.fill = q;
+    }
+
+    // ---- the power, voltage × current at each instant ----
+    line('axis', X0, G.PY - G.PH - 4, X0, G.PY + G.PN);
+    line('axis', X0, G.PY + G.PN, X1, G.PY + G.PN);
+    line('zero', X0, G.PY, X1, G.PY);
+    text(X0 - 7, G.PY + 5, '0', 'tk', 'end');
+    if (pA * acA > 0.001) part(pA * acA, 0, () => {
+      const room = top * G.PH / Pax >= 15;
+      tickL(yP(top), room ? num(top, 0) : null); tickL(yP(-top), room ? '−' + num(top, 0) : null);
+    });
+    let ghA = 0;
+    if (d.ghost) {
+      ghA = demo ? arr(tl.ghost) : 1;
+      const hp = c.Vp * (c.Vp / HR);
+      part(ghA, 0, () => { REC.ghost = trace('ghost', (t) => hp * Math.pow(Math.sin(W.w / 1000 * t), 2), SPAN, yP); tickL(yP(hp), num(hp, 0)); });
+    }
+    if (d.shade && pUp > 0.05) {
+      const pts = samples(pUp).map((t) => [t, W.p(t)]);
+      const area = (sel) => poly(pts.map((q) => [xT(q[0]), yP(sel(q[1]))])) + 'L' + R(xT(pUp)) + ' ' + R(G.PY) + 'L' + R(xT(0)) + ' ' + R(G.PY) + 'Z';
+      path('sin', area((w) => Math.max(0, w)));
+      path('sout', area((w) => Math.min(0, w)));
+    }
+    let avgA = 0;
+    if (d.avg === 'show') avgA = demo ? arr(tl.avg) : 1;
+    else if (d.avg === 'ask') avgA = right ? arr(d.avgAt) : 0;
+    if (avgA > 0) { part(avgA, 0, () => line('avg', X0, G.PY, X1, G.PY)); REC.avg = 0; }
+    if (acA > 0.001 && pUp > 0.05) part(acA, 0, () => {
+      REC.pw = trace('pw', W.p, pUp, yP);
+      if (pPen && pUp < SPAN - 1e-9) circ('pen', [xT(pUp), yP(W.p(pUp))], 4.5);
+    });
+    if (dcK > 0.001) part(dcK, 0, () => { REC.pw = traceT('pw', (t) => vdc(t) * idc(t), dcTimes(), yPc); });
+    if (d.hidePow && !right) ask(xT(20), G.PY - G.PH / 2);
+    // The time axis, 0 to 40 ms.
+    const ty = G.PY + G.PN + 20;
+    for (let t = 0; t <= SPAN; t += 10) {
+      line('axis', xT(t), G.PY + G.PN, xT(t), G.PY + G.PN + 5);
+      text(xT(t), ty, t === SPAN ? SPAN + ' ms' : String(t), 'tk', 'middle');
+    }
+
+    // ---- what a wrong pick claims, in red ----
+    if (slip) part(slipA, 0, () => {
+      if (slip.idot != null) circ('dbad', [xT(tc), yI(slip.idot)], 6);
+      if (slip.iline != null) line('bad', X0, yI(slip.iline), X1, yI(slip.iline));
+      if (slip.pline != null) line('bad', X0, yP(slip.pline), X1, yP(slip.pline));
+      if (slip.iwave) {
+        const k = W.w / 1000, a = slip.amp || W.Ip;
+        const fn = { lead: (t) => a * Math.cos(k * t), lag: (t) => -a * Math.cos(k * t), half: (t) => -a * Math.sin(k * t), inphase: (t) => a * Math.sin(k * t) }[slip.iwave];
+        trace('bad', fn, SPAN, yI);
+      }
+    });
+
+    // ---- the time cursor through both graphs: the tangent on the voltage, and where it meets each wave ----
+    let vv = 0, ii = 0, tanA = 0;
+    if (tc != null) {
+      const x = xT(tc);
+      vv = W.v(tc); ii = W.i(tc);
+      const pp = vv * ii;
+      line('cur', x, G.VY - G.VH - 4, x, G.VY + G.VH + 4);
+      line('cur', x, G.PY - G.PH - 4, x, G.PY + G.PN);
+      tanA = d.hideTan ? (right ? arr(0.1) : 0) : 1;
+      if (tanA > 0) {
+        part(tanA, 0, () => {
+          // The tangent to the voltage wave at the cursor, 48 units long, cut at the graph's edges.
+          const m = -(W.dv(tc) / 1000) * (G.VH / c.Vax) / ((X1 - X0) / SPAN);
+          const n = Math.sqrt(1 + m * m), dx = 1 / n, dy = m / n, py = yV(vv);
+          const u0 = Math.max(-24, (X0 - x) / dx), u1 = Math.min(24, (X1 - x) / dx);
+          line('tan', x + u0 * dx, py + u0 * dy, x + u1 * dx, py + u1 * dy);
+        });
+        REC.tan = { t: tc, slope: W.dv(tc) };
+      }
+      circ('dv', [x, yV(vv)], 5);
+      const idA = d.hideI ? (right ? arr(0.3) : 0) : 1;
+      if (idA > 0) part(idA, 0, () => circ('dc', [x, yI(ii)], 4.5));
+      const pdA = pUp > 0.05 && pUp >= tc - 1e-9 ? pA : 0;
+      if (pdA > 0) part(pdA, 0, () => circ('dp', [x, yP(pp)], 6));
+      if (live) { circ('ring', [x, G.PY + G.PN], 9); circ('knob', [x, G.PY + G.PN], 4); }
+      Object.assign(REC, { volts: vv, amps: ii, watts: pp, iShown: idA > 0, pShown: pdA > 0 });
+    }
+
+    // ---- under the graphs: the working ----
+    let y = ty + 2;
+    const row = (s, a) => { y += 22; const yy = y; if (a == null || a > 0.001) part(a == null ? 1 : a, 0, () => text(8, yy, s, 'wk', 'start')); };
+    // A puzzle's '?' rows fade out in place as its answer rows (arrived a) fade in, so nothing blinks out.
+    const swap = (qs, as, a) => {
+      for (let k = 0; k < Math.max(qs.length, as.length); k++) {
+        y += 22; const yy = y;
+        if (qs[k] != null && a < 0.999) part(1 - a, 0, () => text(8, yy, qs[k], 'wk', 'start'));
+        if (as[k] != null) part(a, 0, () => text(8, yy, as[k], 'wk', 'start'));
+      }
+    };
+    const xcRow = 'X_C = 1 ÷ (2π × ' + num(f, 0) + ' × ' + num(c.C, 6) + ') ≈ ' + XCs + ' Ω';
+    if (d.work && tc != null) {
+      // The readings at the time the row shows (rounded to 0.1 ms, as the cursor's slider moves).
+      const tr = Math.round(tc * 10) / 10, vr = W.v(tr), ir = W.i(tr);
+      row('at ' + fx(tr, 1) + ' ms: ' + fx(vr, 1) + ' V and ' + (REC.iShown ? fx(ir, 2) + ' A' : '? A'));
+      row('C × steepness: ' + (REC.iShown ? num(c.C * 1e6, 0) + ' µF × ' + grp(W.dv(tr)) + ' V/s ≈ ' + fx(ir, 2) + ' A' : '?'));
+      row('power: ' + (REC.pShown ? fx(vr, 1) + ' V × ' + fx(ir, 2) + ' A = ' + fx(vr * ir, 0) + ' W' : '?'));
+    }
+    if (d.lead) {
+      const s = 'current leads by a quarter cycle: −' + num(360 / 4, 0) + '°';
+      if (d.lead === 'show') row(s, demo ? arr(tl.row) : 1); else swap(['which leads: ?'], [s], right ? arr(0.3) : 0);
+    }
+    if (d.xcRows) {
+      const ans = [xcRow, 'current peak: ' + Vps + ' V ÷ ' + XCs + ' Ω = ' + Ips + ' A'];
+      if (d.leadRow) ans.push('still a quarter cycle ahead: ' + num(250 / f, 0) + ' ms');
+      if (d.xcRows === 'show') {
+        const a = demo ? arr(tl.row) : 1;
+        ans.forEach((s) => row(s, a));
+      } else {
+        const qs = ['on ' + num(d.fAns || f, 0) + ' Hz: X_C = ?', 'current peak: ?'];
+        if (d.leadRow) qs.push('its timing: ?');
+        swap(qs, ans, right ? arr(d.rowAt) : 0);
+      }
+    }
+    if (d.ghost) {
+      const a = demo ? arr(tl.row) : 1;
+      row('the capacitor: dips match humps, average 0 W', a);
+      row('lesson 3\'s heater, same peaks: ' + num(c.Vp * c.Vp / HR / 2, 0) + ' W', a);
+      if (d.eli) { row('ELI, a coil: voltage E before current I', a); row('ICE, a capacitor: current I before voltage E', a); }
+    }
+    if (d.dcRun) {
+      row(num(f, 0) + ' Hz: X_C ≈ ' + XCs + ' Ω, current peak ' + Ips + ' A', demo ? arr(tl.r1) : 1);
+      row('towards 0 Hz: X_C climbs without limit', demo ? arr(tl.r2) : 1);
+      row('steady ' + num(100, 0) + ' V: once full, 0 A', demo ? arr(tl.r3) : 1);
+    }
+    if (d.ohm) {
+      row('ohmmeter: climbs as it fills, then very high');
+      row('on ' + num(f, 0) + ' Hz: X_C = ' + XCs + ' Ω, so ' + Ips + ' A peak');
+      swap(['steady voltage: ?'], ['steady voltage: fills once, then 0 A'], right ? arr(1.2) : 0);
+    }
+    if (d.ex) {
+      const V = c.Vp / RT2;
+      row('waves drawn at their peaks: ' + num(V, 0) + ' V × √2 ≈ ' + num(c.Vp, 0) + ' V');
+      swap(['X_C = ?', 'current: ?'], [xcRow, num(V, 0) + ' V ÷ ' + XCs + ' Ω = ' + num(V / W.XC, 2) + ' A'], right ? arr(1.2) : 0);
+    }
+    if (d.mains) {
+      const V = c.Vp / RT2, X50 = 1 / (TAU * c.f * c.C);
+      row('waves drawn at their peaks: ' + num(V, 0) + ' V × √2 ≈ ' + num(c.Vp, 0) + ' V');
+      row('on ' + num(c.f, 0) + ' Hz: ' + num(V, 0) + ' V ÷ ' + num(V / X50, 2) + ' A = ' + num(X50, 1) + ' Ω');
+      swap(['on ' + num(d.fAns, 0) + ' Hz: X_C = ?', 'current and average power: ?'],
+        ['on ' + num(f, 0) + ' Hz: ' + num(X50, 1) + ' Ω × ' + num(c.f, 0) + ' ÷ ' + num(f, 0) + ' ≈ ' + XCs + ' Ω',
+          num(V, 0) + ' V ÷ ' + XCs + ' Ω = ' + num(V / W.XC, 2) + ' A, averaging 0 W'], right ? arr(1.4) : 0);
+    }
+
+    // ---- the key ----
+    const items = [{ sw: swLine('vw'), label: 'voltage (V)' }, { sw: swLine('cw'), label: 'current (A)' }, { sw: swLine('pw'), label: 'power (W)' }];
+    if (tc != null) {
+      items.push({ sw: swLine('tan'), label: 'tangent', a: tanA });
+      items.push({ sw: (x, yy) => line('cur', x + 9, yy - 8, x + 9, yy + 8), label: 'time cursor' });
+    }
+    if (tc != null || d.dcRun) {
+      const ka = cs ? 1 : 0;
+      items.push({ sw: (x, yy) => { charge(x + 4, yy, 1); charge(x + 14, yy, -1); }, label: 'charge', a: d.dcRun ? (cs ? cs.aI : 0) : ka });
+      items.push({ sw: (x, yy) => flow(x + 9, yy, 18, 1), label: 'flow in the leads', a: d.dcRun ? (cs ? cs.aI : 0) : ka });
+    }
+    if (c.ghostL) items.push({ sw: swLine('xlg'), label: 'X_L, lesson 4' });
+    if (run) items.push({ sw: swLine('xcrun'), label: 'X_C on towards DC', a: run.k > 0.001 ? 1 : 0 });
+    if (d.avg) items.push({ sw: swLine('avg'), label: 'average', a: avgA });
+    if (d.ghost) items.push({ sw: swLine('ghost'), label: 'heater, lesson 3', a: ghA });
+    if (d.shade) items.push({ sw: swRect('sin'), label: 'energy into the plates' }, { sw: swRect('sout'), label: 'energy given back' });
+    // A puzzle keeps the place for 'that pick' from the start, so a wrong Check never moves the picture.
+    if (!d.show && d.slips) items.push({ sw: swLine('bad'), label: 'that pick', a: slip ? slipA : 0 });
+    y = keyRows(items, y + 30);
+
+    // ---- in words, for a screen reader ----
+    let said = c.title(f) + '. ';
+    if (tc != null) said += 'At ' + fx(tc, 1) + ' ms the voltage is ' + fx(vv, 1) + ' V' + (REC.iShown ? ' and the current ' + fx(ii, 2) + ' A. ' : '; the current there is asked. ');
+    if (dcK > 0.999) said += 'On steady DC the plates have filled and no current flows. ';
+    else said += REC.wv && REC.cu ? 'The current peaks a quarter cycle before the voltage. ' : '';
+    said += xcA > 0 ? 'Its reactance is ' + XCs + ' ohms.' : 'Its reactance is hidden.';
+    return { h: y + 4, said };
+  }
+
+  // ---------- dragging the time cursor across the graphs ----------
+  const liveOn = () => !finished && STEPS[at()].cur === 'live';
+  function placeGrip(d) {
+    const on = !finished && d.cur === 'live';
+    grip.hidden = !on;
+    grip.tabIndex = on ? 0 : -1;
+    if (!on) return;
+    const top = G.VY - G.VH - 8, bot = G.PY + G.PN + 12;
+    grip.style.left = ((X0 - 12) / 340 * 100).toFixed(3) + '%';
+    grip.style.width = ((X1 - X0 + 24) / 340 * 100).toFixed(3) + '%';
+    grip.style.top = (top / VBH * 100).toFixed(3) + '%';
+    grip.style.height = ((bot - top) / VBH * 100).toFixed(3) + '%';
+    const tv = REC.tc == null ? 0 : REC.tc;
+    grip.setAttribute('aria-valuemin', '0'); grip.setAttribute('aria-valuemax', String(SPAN));
+    grip.setAttribute('aria-valuenow', fx(tv, 1)); grip.setAttribute('aria-valuetext', 'time ' + fx(tv, 1) + ' ms');
+  }
+  function tFromX(clientX) {
+    const r = svg.getBoundingClientRect();
+    if (!r.width) return null;
+    const x = (clientX - r.left) / r.width * 340;
+    return K.clamp((x - X0) / (X1 - X0) * SPAN, 0, SPAN);
+  }
+  function setT(v) {
+    if (v == null || !isFinite(v)) return;
+    if (typeof ctlT.drag === 'function') ctlT.drag(v); else ctlT.set(Math.round(v * 10) / 10);
+    K.reveal();
+  }
+  // A sideways drag scrubs; a tap jumps the cursor there; an up-down swipe scrolls the page.
+  let held = null, slid = false;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!liveOn()) return;
+    held = e.pointerId; slid = false;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the graphs */ }
+    if (e.pointerType === 'mouse') { e.preventDefault(); slid = true; setT(tFromX(e.clientX)); }
+  });
+  grip.addEventListener('pointermove', (e) => { if (held !== e.pointerId || !liveOn()) return; slid = true; setT(tFromX(e.clientX)); });
+  grip.addEventListener('pointerup', (e) => {
+    if (held === e.pointerId && !slid && liveOn()) setT(tFromX(e.clientX));
+    if (held === e.pointerId) held = null;
+  });
+  grip.addEventListener('pointercancel', (e) => { if (held === e.pointerId) held = null; });
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    if (!liveOn()) return;
+    const by = { ArrowUp: 0.5, ArrowRight: 0.5, ArrowDown: -0.5, ArrowLeft: -0.5 }[e.key];
+    if (by == null) return;
+    e.preventDefault();
+    ctlT.set(K.clamp(Math.round((ctlT.get() + by) * 10) / 10, 0, SPAN));
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    REC = {};
+    const out = drawCard(d, st);
+    VBH = Math.ceil(out.h);
+    svg.setAttribute('viewBox', '0 0 340 ' + VBH);
+    svg.setAttribute('aria-label', out.said);
+    if (i === at()) {
+      placeGrip(d);
+      if (d.cur === 'live' && !finished && REC.tc != null) syncT(REC.tc);
+      if (d.fsel && !finished) syncF(REC.f);
+    }
+  }
+
+  // ---------- the model: the readings at the screen's cursor, and X_C at its frequency ----------
+  function modelOf(p) {
+    const d = STEPS[K.clamp(Math.round(p.step), 0, STEPS.length - 1)], c = CARDS[d.card];
+    if (d.dcRun) return { volts: 100, amps: 0, xc: 1 / (TAU * 25 * c.C) };
+    const f = d.fsel ? K.clamp(Number(p.f) || 50, 25, 100) : d.f || c.f;
+    const t = d.cur === 'live' ? K.clamp(Number(p.t) || 0, 0, SPAN) : d.cur === 'park' ? d.t : 0;
+    const W = waves(c, f);
+    return { volts: W.v(t), amps: W.i(t), xc: W.XC };
+  }
+  K.model(modelOf);
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing() && !waiting) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      shown.t = p.t; shown.f = p.f;
+      if (d.show) { Object.assign(st, { t: null, f: null }); play('demo', d.dur); }
+      else { waiting = false; anim.pause(); T = Infinity; MODE = 'answer'; }
+    } else {
+      // Dan moved the cursor: the demonstration stops where it ends, and the cursor is his.
+      if (p.t !== shown.t) {
+        shown.t = p.t;
+        if (d.cur === 'live' && !finished) { stopMotion(); st.t = p.t; }
+      }
+      // Dan moved the frequency: the waves, the plates, the current and the X_C dot follow it at once.
+      if (p.f !== shown.f) {
+        shown.f = p.f;
+        if (d.fsel && !finished) { stopMotion(); st.f = K.clamp(Number(p.f) || 50, 25, 100); }
+      }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const tOn = !finished && d.cur === 'live', fOn = !finished && !!d.fsel;
+    ctlT.el.hidden = !tOn;
+    ctlF.el.hidden = !fOn;
+    el('ctl').hidden = !tOn && !fOn;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const near = (a, b, tol) => Math.abs(a - b) <= tol;
+  // A step painted in the state given, finished: what it draws.
+  function drawn(i, st, mode) {
+    const keepS = S[i], keepT = T, keepM = MODE;
+    S[i] = st; T = Infinity; MODE = mode || (STEPS[i].show ? 'demo' : 'answer');
+    try {
+      paint(i);
+      return Object.assign({}, REC, { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) });
+    } finally { S[i] = keepS; T = keepT; MODE = keepM; paint(); }
+  }
+  const settledOf = (i) => drawn(i, STEPS[i].show ? blank() : solvedSt(i));
+  const withF = (f) => Object.assign(blank(), { f });
+  // The times of a drawn trace's tops (sign 1) or bottoms (sign −1).
+  function peaks(data, sign) {
+    const out = [];
+    for (let j = 1; j < data.length - 1; j++) {
+      const a = sign * data[j - 1][1], b = sign * data[j][1], c = sign * data[j + 1][1];
+      if (b > a && b >= c) out.push(data[j][0]);
+    }
+    return out;
+  }
+  // The mean of a drawn trace over [0, end] (trapezoids).
+  function mean(data, end) {
+    let area = 0;
+    for (let j = 1; j < data.length && data[j][0] <= end + 1e-9; j++) area += (data[j - 1][1] + data[j][1]) / 2 * (data[j][0] - data[j - 1][0]);
+    return area / end;
+  }
+  const FS = [25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
+
+  K.check('The current wave has a "head start" on the voltage wave; the current leads the voltage, and the voltage lags behind the current: on every AC screen each top and bottom of the drawn current comes a quarter cycle before the drawn voltage\'s', () =>
+    STEPS.every((d, i) => {
+      if (d.dcRun) return true;
+      const g = settledOf(i);
+      if (!g.wv || !g.cu || g.wv.length < 300 || g.cu.length !== g.wv.length) return false;
+      const q = 250 / g.f;
+      const ok = (sign) => peaks(g.cu, sign).every((t) => t + q > SPAN - 0.05 || peaks(g.wv, sign).some((u) => near(u, t + q, 0.11)));
+      return peaks(g.cu, 1).concat(peaks(g.cu, -1)).length >= 1 && ok(1) && ok(-1);
+    }), { source: KUPH4 });
+  K.check('Capacitive reactance can be calculated using this formula: X_C = 1/(2πfC). The drawn X_C curve, its dot and the supply\'s peak ÷ the current\'s peak all agree with it at every setting of the frequency slider', () => {
+    const s = idx('A faster supply');
+    return FS.every((f) => {
+      const g = drawn(s, withF(f)), want = 1 / (TAU * f * C1);
+      return g.f === f && g.xcDot === true && near(g.xc, want, 1e-9 * want) && near(K.at({ step: s, f }).xc, want, 1e-9 * want) &&
+        near(100 / g.Ip, want, 1e-9 * want) && g.xcCurve.every((q) => near(q[1], 1 / (TAU * q[0] * C1), 1e-9));
+    });
+  }, { source: KUPH4 });
+  K.check('Capacitive reactance decreases with increasing frequency: the drawn X_C curve falls all the way from 25 Hz to 100 Hz, and twice the frequency gives half the reactance and twice the current', () => {
+    const s = idx('A faster supply'), g = settledOf(s), a = K.at({ step: s, f: 50 }), b = K.at({ step: s, f: 100 }), c = K.at({ step: s, f: 25 });
+    const falls = g.xcCurve.every((q, j) => j === 0 || q[1] < g.xcCurve[j - 1][1]);
+    return falls && near(b.xc, a.xc / 2, 1e-9) && near(a.xc, c.xc / 2, 1e-9) && near(g.Ip, 20, 1e-9) && near(drawn(s, withF(50)).Ip, 10, 1e-9);
+  }, { source: KUPH4 });
+  K.check('Capacitors oppose changes in voltage by drawing or supplying current as they charge or discharge: while the drawn charge piles grow the current flows onto the charged plates, and while they shrink it flows back out', () => {
+    const s = idx('The filling tank');
+    const pileAt = (t) => drawn(s, Object.assign(blank(), { t }));
+    return [1, 3, 6, 8, 11, 13, 16, 18].every((t) => {
+      const g = pileAt(t), grows = pileAt(t + 0.1).pile.n > pileAt(t - 0.1).pile.n;
+      if (!g.pile || !g.arrow) return false;
+      const inward = g.pile.plusLeft ? g.arrow.dir === 1 : g.arrow.dir === -1;
+      return grows === inward;
+    });
+  }, { source: KUPH4 });
+  K.check('Power is never returned to the source by a resistive load, as it is with reactive loads: the capacitor\'s drawn power, the drawn voltage × the drawn current at each instant, goes below zero and averages zero, while the heater\'s never goes below zero', () => {
+    const g = settledOf(idx('Taking and giving back'));
+    if (!g.pw || !g.ghost || !g.wv || !g.cu) return false;
+    const prod = g.pw.every((q, j) => near(q[0], g.wv[j][0], 1e-12) && near(q[1], g.wv[j][1] * g.cu[j][1], 1e-9 * 500));
+    const below = STEPS.every((d, i) => { if (d.dcRun) return true; const h = settledOf(i); return !h.pw || h.pw.some((q) => q[1] < -1); });
+    return prod && below && Math.min.apply(null, g.pw.map((q) => q[1])) < -400 && near(mean(g.pw, SPAN), 0, 0.01) &&
+      g.ghost.every((q) => q[1] >= -1e-9) && near(mean(g.ghost, SPAN), 500, 0.01) && g.avg === 0;
+  }, { source: KUPH11 });
+  K.check('60 Hz is the most common frequency adopted for use on board ship: answered, the ship screen runs the capacitor at 60 Hz, where X_C is 8.33 Ω and the current peaks at 12 A', () => {
+    const g = settledOf(idx('On board ship'));
+    return g.f === 60 && num(g.xc, 2) === '8.33' && num(g.Ip, 2) === '12' &&
+      g.texts.indexOf('XC = 1 ÷ (2π × 60 × 0.000318) ≈ 8.33 Ω') >= 0 && g.texts.indexOf('current peak: 100 V ÷ 8.33 Ω = 12 A') >= 0;
+  }, { source: SHIP });
+  K.check('UK mains electricity operates at a nominal voltage of 230V: a 100 µF capacitor on 230 V, 50 Hz has X_C ≈ 31.8 Ω and draws 7.23 A; the capacitor drawing 2 A has X_C = 115 Ω, and on 60 Hz 95.8 Ω and 2.4 A', () => {
+    const e = settledOf(idx('Mixed: a 100 µF capacitor')), m = settledOf(idx('Mixed: a mains capacitor'));
+    return near(1 / (TAU * 50 * C3), 115, 1e-9) && e.texts.indexOf('XC = 1 ÷ (2π × 50 × 0.0001) ≈ 31.8 Ω') >= 0 && e.texts.indexOf('230 V ÷ 31.8 Ω = 7.23 A') >= 0 &&
+      m.f === 60 && m.texts.indexOf('on 50 Hz: 230 V ÷ 2 A = 115 Ω') >= 0 && m.texts.indexOf('on 60 Hz: 115 Ω × 50 ÷ 60 ≈ 95.8 Ω') >= 0 &&
+      m.texts.indexOf('230 V ÷ 95.8 Ω = 2.4 A, averaging 0 W') >= 0;
+  }, { source: ENA });
+  K.check('The capacitor\'s current is its capacitance × the steepness of its voltage: 10 A at 0 ms where the tangent is steepest, 0 A at 5 ms where it lies flat, −10 A at 10 ms; every drawn current point is C × the drawn voltage\'s slope there', () => {
+    const a = K.at({ step: 0, t: 0 }), b = K.at({ step: 0, t: 5 }), c = K.at({ step: 0, t: 10 });
+    const known = near(a.amps, 10, 1e-9) && near(a.volts, 0, 1e-9) && near(b.amps, 0, 1e-9) && near(b.volts, 100, 1e-9) && near(c.amps, -10, 1e-9);
+    const topG = settledOf(idx('At the top'));
+    const flat = !!topG.tan && near(topG.tan.slope, 0, 1e-6) && near(topG.amps, 0, 1e-9) && topG.iShown === true;
+    const drawnOk = STEPS.every((d, i) => {
+      const g = settledOf(i), C = CARDS[d.card].C;
+      if (!g.wv || !g.cu || g.wv.length !== g.cu.length) return false;
+      const tol = 2e-3 * Math.max.apply(null, g.cu.map((q) => Math.abs(q[1])));
+      for (let j = 1; j < g.wv.length - 1; j++) {
+        const slope = (g.wv[j + 1][1] - g.wv[j - 1][1]) / ((g.wv[j + 1][0] - g.wv[j - 1][0]) / 1000);
+        if (!near(C * slope, g.cu[j][1], tol)) return false;
+      }
+      return !g.tan || near(C * g.tan.slope, g.amps, 1e-9 * 100);
+    });
+    return known && flat && drawnOk;
+  });
+  K.check('At 0 ms the tangent gets steeper as the frequency rises, so the current peaks at 5 A on 25 Hz, 10 A on 50 Hz, 12 A on 60 Hz and 20 A on 100 Hz, and the flow arrows grow with it', () => {
+    const s = idx('A faster supply'), fs = [25, 50, 60, 100];
+    const gs = fs.map((f) => drawn(s, withF(f)));
+    return gs.every((g, k) => !!g.tan && near(g.tan.slope, 100 * TAU * fs[k], 1e-6) && !!g.arrow && near(g.arrow.len, AL * g.Ip / 20, 1e-9)) &&
+      ['5', '10', '12', '20'].every((v, k) => num(gs[k].Ip, 2) === v) && gs[3].arrow.len > gs[1].arrow.len;
+  });
+  K.check('The charge piles follow the voltage, as a capacitor holds C × its voltage, and the flow arrows follow the current: their length is its size, they turn round with it, and none crosses the gap', () => {
+    const s = idx('The filling tank');
+    return K.linspace(0, 20, 17).every((t) => {
+      const g = drawn(s, Object.assign(blank(), { t })), v = 100 * Math.sin(TAU * 50 * t / 1000), i = C1 * 100 * TAU * 50 * Math.cos(TAU * 50 * t / 1000);
+      if (!g.pile || !g.arrow) return false;
+      const okPile = near(g.pile.n, 5 * Math.abs(v) / 100, 1e-9) && (Math.abs(v) < 1e-6 || g.pile.plusLeft === (v > 0));
+      const okArrow = near(g.arrow.len, AL * Math.abs(i) / 20, 1e-9) && (Math.abs(i) < 1e-6 || g.arrow.dir === (i > 0 ? 1 : -1));
+      return okPile && okArrow && g.arrow.xs.every((x) => x + g.arrow.len / 2 < 72 || x - g.arrow.len / 2 > 112);
+    });
+  });
+  K.check('On 50 Hz the capacitor\'s power rises to 500 W and dips to −500 W, two humps up and two down each 20 ms cycle', () => {
+    const g = settledOf(idx('Taking and giving back'));
+    const hi = Math.max.apply(null, g.pw.map((q) => q[1])), lo = Math.min.apply(null, g.pw.map((q) => q[1]));
+    const up = peaks(g.pw, 1).filter((t) => t < 20), down = peaks(g.pw, -1).filter((t) => t < 20);
+    return near(hi, 500, 1e-6) && near(lo, -500, 1e-6) && up.length === 2 && down.length === 2;
+  });
+  K.check('On a steady 100 V the plates fill once and then draw no current: the drawn rush carries exactly C × 100 V of charge, the current ends at 0 A with the piles full, X_C climbs off the top of its graph and lesson 4\'s X_L reaches 0 Ω', () => {
+    const g = settledOf(idx('Down to steady DC'));
+    if (!g.cu || !g.pile || !g.arrow) return false;
+    let q = 0;
+    for (let j = 1; j < g.cu.length; j++) q += (g.cu[j - 1][1] + g.cu[j][1]) / 2 * (g.cu[j][0] - g.cu[j - 1][0]) / 1000;
+    return near(q, C1 * 100, 2e-3 * C1 * 100) && near(g.cu[g.cu.length - 1][1], 0, 1e-9) && near(g.pile.n, 5, 1e-9) && g.arrow.len === 0 &&
+      g.run === 'top' && g.dc === true && g.ghostDot === 0 && g.f === 25 &&
+      g.texts.indexOf('25 Hz: XC ≈ 20 Ω, current peak 5 A') >= 0 && g.texts.indexOf('steady 100 V: once full, 0 A') >= 0;
+  });
+  K.check('Each puzzle accepts only its right answer; before an answer its picture hides what is asked, a right answer draws it, and each wrong pick draws what it claims, in red', () => {
+    const PRE = {
+      'At the top': (g) => g.cu === null && g.pw === null && g.tan === null && g.texts.indexOf('power: ?') >= 0 && g.texts.indexOf('C × steepness: ?') >= 0,
+      'Which leads?': (g) => g.brk === null && g.texts.indexOf('which leads: ?') >= 0,
+      'On board ship': (g) => g.f === 50 && g.texts.indexOf('current peak: ?') >= 0,
+      'The ohmmeter': (g) => g.run === null && g.texts.indexOf('steady voltage: ?') >= 0,
+      'Mixed: a 100 µF capacitor': (g) => g.cu === null && g.pw === null && g.xcDot === false && g.texts.indexOf('current: ?') >= 0,
+      'Mixed: a slower supply': (g) => g.cu === null && g.pw === null && g.xcDot === false && g.texts.indexOf('its timing: ?') >= 0,
+      'Mixed: a mains capacitor': (g) => g.pw === null && g.f === 50 && g.texts.indexOf('current and average power: ?') >= 0,
+    };
+    const POST = {
+      'At the top': (g) => !!g.tan && near(g.tan.slope, 0, 1e-6) && !!g.cu && !!g.pw && !!g.arrow && g.arrow.len < 1e-9 && g.iShown === true,
+      'Which leads?': (g) => !!g.brk && near(g.brk[1] - g.brk[0], 5, 1e-9) && g.texts.indexOf('which leads: ?') < 0,
+      'On board ship': (g) => g.f === 60,
+      'The ohmmeter': (g) => g.run === 'top' && g.texts.indexOf('steady voltage: fills once, then 0 A') >= 0,
+      'Mixed: a 100 µF capacitor': (g) => !!g.cu && g.xcDot === true && near(g.Ip, 230 * RT2 * TAU * 50 * C2, 1e-9),
+      'Mixed: a slower supply': (g) => !!g.cu && near(g.Ip, 5, 1e-9) && g.xcDot === true && !!g.brk && near(g.brk[1] - g.brk[0], 10, 1e-9),
+      'Mixed: a mains capacitor': (g) => g.f === 60 && !!g.pw && g.avg === 0,
+    };
+    const only = DO.every((i) => { const d = STEPS[i]; return d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)); });
+    const hidden = DO.every((i) => !!PRE[STEPS[i].name] && PRE[STEPS[i].name](drawn(i, blank())) === true);
+    const shownOk = DO.every((i) => !!POST[STEPS[i].name] && POST[STEPS[i].name](settledOf(i)) === true);
+    const slips = DO.every((i) => !STEPS[i].slips || STEPS[i].opts.filter((o) => o !== STEPS[i].want).every((o) => {
+      const s = STEPS[i].slips[o], g = drawn(i, wrongSt(i, o));
+      return !!s && g.slip === s;
+    }));
+    return only && hidden && shownOk && slips;
+  });
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T, keepM = MODE;
+    const timed = (i, st, mode, limit) => {
+      const keepS = S[i];
+      T = Infinity; MODE = mode; latest = 0; earliest = Infinity; S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), 'demo', d.dur); return r && d.dur >= 3 && d.dur <= 4.5 && earliest >= FADE; }
+      return timed(i, solvedSt(i), 'answer', d.rdur) && d.rdur <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), 'answer', 0.8));
+    });
+    T = keepT; MODE = keepM; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

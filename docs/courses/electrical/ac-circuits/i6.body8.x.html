@@ -1,0 +1,1082 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .wrap { position: relative; margin-inline: auto; }
+  .scene { display: block; width: 100%; }
+  .ctl { display: grid; gap: 12px; }
+  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }
+  .scene .res { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .coilw { fill: none; stroke: var(--k-ink); stroke-width: 2.2; }
+  .scene .plate { fill: var(--k-ink); }
+  .scene .src { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .srcw { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; }
+  .scene .mbox { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.4; }
+  .scene .lead { fill: none; stroke: var(--k-muted); stroke-width: 1.4; }
+  .scene .jn { fill: var(--k-ink); }
+  .scene .body { fill: none; stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 5 4; }
+  .scene .ar { stroke: var(--k-cat1); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .arh { fill: var(--k-cat1); }
+  .scene .al { stroke: var(--k-cat2); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .alh { fill: var(--k-cat2); }
+  .scene .as { stroke: var(--k-accent2); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .ash { fill: var(--k-accent2); }
+  .scene .badl { stroke: var(--k-warn); stroke-width: 3; stroke-dasharray: 6 4; }
+  .scene .badh { fill: var(--k-warn); }
+  .scene .bad { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }
+  .scene .badt { stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .badT { fill: none; stroke: var(--k-warn); stroke-width: 2.2; stroke-dasharray: 6 4; stroke-linejoin: round; }
+  .scene .swing { fill: none; stroke: var(--k-accent2); stroke-width: 2.2; stroke-dasharray: 6 4; }
+  .scene .swd { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .refl { stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 4 4; }
+  .scene .ghostT { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 3 3; stroke-linejoin: round; }
+  .scene .sq, .scene .arc { fill: none; stroke: var(--k-ink); stroke-width: 1.3; }
+  .scene .strike { stroke: var(--k-warn); stroke-width: 3; stroke-linecap: round; }
+  .scene .b1 { fill: var(--k-cat1); }
+  .scene .b2 { fill: var(--k-cat2); }
+  .scene .bs { fill: var(--k-accent2); }
+  .scene .wr { fill: none; stroke: var(--k-cat1); stroke-width: 2.2; stroke-linejoin: round; }
+  .scene .wl { fill: none; stroke: var(--k-cat2); stroke-width: 2.2; stroke-linejoin: round; }
+  .scene .ws { fill: none; stroke: var(--k-accent2); stroke-width: 2.8; stroke-linejoin: round; }
+  .scene .dR { fill: var(--k-cat1); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .dL { fill: var(--k-cat2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .dS { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .axis { stroke: var(--k-muted); stroke-width: 1.3; }
+  .scene .zero { stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .guide { stroke: var(--k-muted); stroke-width: 1; stroke-dasharray: 3 3; }
+  .scene .ask { fill: var(--k-bg); stroke: var(--k-amber-line); stroke-width: 2; }
+  .scene .tt { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .lb, .scene .mt { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lbad, .scene .mtbad { font: 600 13px var(--k-font); fill: var(--k-warn); }
+  .scene .ml { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .wk { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .scene .ky { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  .scene .q { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene #art * { pointer-events: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.05rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="wrap" id="wrap">
+      <svg class="scene" id="scene" viewBox="0 0 340 520" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    </div>
+    <div class="replay" id="replay"></div>
+    <div class="ctl" id="ctl"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Parts, supplies and readings are example values; each arrow is as long as its reading, in volts or ohms.</p>
+
+<script>
+  // ---------- the rule ----------
+  // One current flows through a series loop. The resistor's voltage is in step with it; an ideal
+  // coil's peaks a quarter cycle earlier, a capacitor's a quarter cycle later. So the part voltages
+  // add as arrows at right angles: the supply's is the closing side, √(V_R² + V_X²). Dividing every
+  // side by the current gives R, X and Z, with X_L = 2πfL and X_C = 1/(2πfC).
+  const TAU = 2 * Math.PI, RT2 = Math.SQRT2;
+  const L1 = 8 / (TAU * 50);        // the bench's coil, about 25.5 mH: X_L = 8 Ω at 50 Hz
+  const C1 = 1 / (TAU * 50 * 8);    // the bench's capacitor, about 398 µF: X_C = 8 Ω at 50 Hz
+  const L4 = 24 / (TAU * 50);       // screen 4's coil: with 10 Ω it reads 10 V and 24 V at 1 A
+  const LM = Math.sqrt(46 * 46 - 40 * 40) / (TAU * 50);  // the mains coil: with 40 Ω, Z = 230 V ÷ 5 A = 46 Ω, so X_L = √516 ≈ 22.7 Ω
+  const L8 = 15 / (TAU * 50);       // the unknown coil: X_L = 15 Ω at 50 Hz, about 47.7 mH
+  const C11 = 1 / (TAU * 50 * 40);  // screen 11's capacitor: X_C = 40 Ω at 50 Hz
+  const X0T = 72;                   // where every triangle's tail sits
+  const CARDS = {
+    bench: { R: 6, L: L1, V: 20, f: 50, rl: '6 Ω', xl: '25.5 mH', title: (f, r) => num(r == null ? 6 : r, 0) + ' Ω and 25.5 mH on 20 V, ' + num(f, 0) + ' Hz' },
+    b4: { R: 10, L: L4, V: Math.hypot(10, 24), f: 50, rl: '', xl: '', title: () => 'Another resistor and coil in series' },
+    mains: { R: 40, L: LM, V: 230, f: 50, rl: '', xl: '', title: () => 'A resistor and a coil on 230 V, 50 Hz mains' },
+    coil8: { R: 8, L: L8, V: 34, f: 50, real: true, rl: 'R', xl: '', title: () => 'An unknown coil on 34 V, 50 Hz' },
+    cap: { R: 6, C: C1, V: 20, f: 50, rl: '6 Ω', xl: '398 µF', title: (f) => '6 Ω and 398 µF on 20 V, ' + num(f, 0) + ' Hz' },
+    c11: { R: 30, C: C11, V: 50, f: 50, rl: '30 Ω', xl: '', title: () => '30 Ω and a capacitor on 50 V' },
+  };
+  // A card at frequency f: the reactance, impedance, current, the three meter readings and the phase angle.
+  function solve(c, f) {
+    const X = c.C ? 1 / (TAU * f * c.C) : TAU * f * c.L;
+    const Z = Math.hypot(c.R, X), I = c.V / Z, sg = c.C ? -1 : 1;
+    return { f, X, Z, I, vr: I * c.R, vx: I * X, vs: c.V, phi: sg * Math.atan2(X, c.R) * 180 / Math.PI, sg };
+  }
+  // A number as the lesson writes it: at most dp decimals, no trailing zeros, a true minus sign.
+  function num(v, dp) {
+    dp = dp == null ? 2 : dp;
+    const m = Math.pow(10, dp);
+    let r = Math.round(v * m) / m;
+    if (r === 0) r = 0;
+    let s = r.toFixed(dp);
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    return s.replace('-', '−');
+  }
+  // A reading with exactly dp decimals, a true minus sign.
+  function fx(v, dp) {
+    const m = Math.pow(10, dp);
+    let r = Math.round(v * m) / m;
+    if (r === 0) r = 0;
+    return r.toFixed(dp).replace('-', '−');
+  }
+  const zs = (z) => num(z, z < 10 ? 2 : 1);
+  // The phase angle as the lesson writes it: 53.13° for the 3-4-5 shape, otherwise one decimal.
+  const ps = (p) => (Math.abs(p) < 1e-9 ? '0' : Math.abs(Math.abs(p) - 53.1301) < 1e-3 ? num(p, 2) : fx(p, 1)) + '°';
+  const mix = (a, b, t) => (t >= 1 ? b : t <= 0 ? a : a + (b - a) * t);
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // card: the circuit; bars: the plain-sum and supply bars ('demo' grows them); waves: screen 2's
+  // waves; tri: the triangle {unit, k (drawing units per volt or ohm), up, down (room above and
+  // below its baseline)}; fsel: the frequency slider it frees ('f' or 'fc'); morph: the frequency's
+  // moves [start s, seconds, from, to]; ask: meters hidden until a right answer; slips: what each
+  // wrong pick claims, drawn in red.
+  const STEPS = [
+    { show: true, name: 'Three meters', card: 'bench', bars: 'demo', dur: 3.3, tl: { p1: [0.4, 0.6], p2: [1.0, 0.6], ps: [1.9, 0.6], strike: 2.7 },
+      text: 'An example bench: a 6 Ω resistor and an ideal 25.5 mH coil in series on a 20 V, 50 Hz supply. Like ordinary AC meters, the voltmeters read rms, and one current, 2 A, flows through both parts. The meter across the resistor reads 12 V and the one across the coil 16 V. Added as plain numbers that makes 28 V, yet the supply\'s meter reads only 20 V.' },
+    { name: 'Where did 8 V go?', card: 'bench', bars: true, waves: true, rdur: 2.2, rowAt: 1.6,
+      task: 'The two parts share one current, yet their 12 V and 16 V make only 20 V on the supply\'s meter, not 28 V. Why?',
+      opts: ['A smaller current flows in the coil', 'The two voltages peak a quarter cycle apart', 'The coil wastes 8 V as heat'],
+      want: 'The two voltages peak a quarter cycle apart',
+      why: 'At every instant the supply\'s voltage is the resistor\'s plus the coil\'s, just as on DC. But the resistor\'s voltage is in step with the current, and the coil\'s peaks a quarter cycle earlier (lessons 3 and 4). When one is at its peak the other is passing through zero, so they are never both at full size together. Their sum peaks at 28.3 V, not 17.0 V + 22.6 V, and 28.3 V peak is 20 V rms. An ideal coil takes no watts, so nothing is lost as heat, and one series loop carries one current.',
+      hint: 'Not quite. Think about when each voltage reaches its peak.',
+      hints: { 'A smaller current flows in the coil': 'Not quite. A series loop has one path, so one current flows through every part.',
+        'The coil wastes 8 V as heat': 'Not quite. An ideal coil takes no watts (lesson 4). Nothing is lost.' } },
+    { show: true, name: 'Tip to tail', card: 'bench', bars: true, tri: { unit: 'V', k: 7, up: 126, down: 30, build: true, swing: true }, dur: 4.2,
+      tl: { r: [0.4, 0.6], l: [1.0, 0.5], sl: [1.6, 0.6], c: [2.3, 0.5], sw: [2.9, 0.7], gd: 3.5, phi: 3.6, rows: 3.6 },
+      text: 'As in Trigonometry lesson 7, each wave becomes an arrow, here as long as its meter reading. The current is the reference, so it lies flat. V_R lies flat with it, because a resistor\'s voltage is in step with its current. V_L points straight up, a quarter turn ahead, because the coil\'s voltage peaks a quarter cycle earlier. Laid tip to tail they make a right-angled triangle. Its closing side, √(12² + 16²) = 20 V, swings down onto the supply meter\'s reading. The angle φ is the *phase angle*, how far the supply\'s voltage leads the current.' },
+    { name: 'A second bench', card: 'b4', tri: { unit: 'V', k: 5.5, up: 146, down: 38, close: 'ask' }, ask: ['vs'], amm: 'none', rdur: 1.6, rowAt: 1.0,
+      slips: { '34 V': { flat: 34 }, '14 V': { flat: 14 } },
+      task: 'Another resistor and coil in series: 10 V across the resistor and 24 V across the coil. What does the supply\'s meter read?',
+      opts: ['34 V', '14 V', '26 V'], want: '26 V',
+      why: 'Lay the arrows tip to tail: 10 V flat and 24 V straight up. The supply\'s voltage is the closing side, √(10² + 24²) = √676 = 26 V. 34 V adds them as plain numbers, as if they peaked together. 14 V takes one from the other, as if they peaked half a cycle apart.',
+      hint: 'Not quite. Square each, add, then take the square root.',
+      hints: { '34 V': 'Not quite. That adds them as plain numbers. They peak a quarter cycle apart.',
+        '14 V': 'Not quite. That would need them half a cycle apart. These are a quarter cycle apart.' } },
+    { show: true, name: 'Divide by the current', card: 'bench', tri: { unit: 'V', k: 7, up: 126, down: 30, shrink: true }, dur: 3.3,
+      tl: { off: [0.4, 0.5], sh: [1.0, 1.2], on: 2.2, rows: 2.7 },
+      text: 'Every side of the triangle is a voltage, and the same 2 A flows through every part. Divide each side by 2 A and it becomes an opposition in ohms: 12 V becomes R = 6 Ω, 16 V becomes X_L = 8 Ω, and 20 V becomes the circuit\'s whole opposition to AC, its *impedance*, Z = 10 Ω. The triangle shrinks but keeps its shape and its angle, because every side is divided by the same number. So Z = √(R² + X_L²), and I = V ÷ Z.' },
+    { name: 'On the mains', card: 'mains', tri: { unit: 'Ω', k: 2.8, up: 140, down: 38, rest: 'ask' }, ask: ['vx'], rdur: 1.8, rowAt: 1.2,
+      slips: { '40 Ω and 6 Ω': { up: 6 }, '40 Ω and 46 Ω': { up: 46 } },
+      task: 'A resistor and a coil in series on 230 V, 50 Hz mains. The ammeter reads 5 A and the meter across the resistor 200 V. What are the resistance R and the coil\'s reactance X_L?',
+      opts: ['40 Ω and 6 Ω', '40 Ω and 22.7 Ω', '40 Ω and 46 Ω'], want: '40 Ω and 22.7 Ω',
+      why: 'Divide each reading by the 5 A. The resistor\'s 200 V gives R = 40 Ω, the flat side, and the supply\'s 230 V gives Z = 46 Ω, the closing side. The coil\'s side is the upright: X_L = √(46² − 40²) = √516 ≈ 22.7 Ω, and its hidden meter reads √(230² − 200²) ≈ 113.6 V. 6 Ω takes 200 V from 230 V as plain numbers and divides the 30 V by 5 A. 46 Ω takes the whole circuit\'s impedance as the coil\'s reactance.',
+      hint: 'Not quite. Find R and Z from the meters, then the upright by Pythagoras.',
+      hints: { '40 Ω and 6 Ω': 'Not quite. Volts at right angles don\'t subtract as plain numbers. Square, subtract, square root.',
+        '40 Ω and 46 Ω': 'Not quite. 230 V ÷ 5 A is the whole circuit\'s impedance, and part of it is the resistor\'s.' } },
+    { show: true, name: 'Slide the frequency', card: 'bench', fsel: 'f', rsel: true, tri: { unit: 'Ω', k: 8, up: 144, down: 30 }, dur: 4.2,
+      morph: [[0.5, 1.0, 50, 100], [1.6, 1.0, 100, 0], [2.7, 0.8, 0, 50]], tl: { rows: 0.4, real: 3.6 },
+      text: 'The supply stays at 20 V while the frequency plays up to 100 Hz, down to 0 Hz and back to 50 Hz. R stays put, but X_L = 2πfL grows with the frequency, so the triangle stands taller as it rises and lies flat on R at 0 Hz, steady DC. That is why an ohmmeter, whose steady current makes no back-emf, reads only a coil\'s R. A real coil is a resistance and an ideal coil in one body, drawn dashed, and the last rows find its inductance. Slide the frequency or the resistance yourself.' },
+    { name: 'An unknown coil', card: 'coil8', tri: { unit: 'Ω', k: 8, up: 150, down: 30, rest: 'ask' }, ask: [], rdur: 1.8, rowAt: 1.2,
+      slips: { '54.1 mH': { up: 17 }, '28.6 mH': { up: 9 } },
+      task: 'An unknown coil reads 8 Ω on an ohmmeter. On a 34 V, 50 Hz test supply it draws 2 A. What is its inductance?',
+      opts: ['54.1 mH', '47.7 mH', '28.6 mH'], want: '47.7 mH',
+      why: 'The AC meters give Z = 34 V ÷ 2 A = 17 Ω, the closing side. The ohmmeter gives R = 8 Ω, the flat side. The upright is X_L = √(17² − 8²) = 15 Ω, and L = 15 ÷ (2π × 50) = 47.7 mH. 54.1 mH takes all 17 Ω as reactance and forgets the wire\'s resistance. 28.6 mH takes 8 Ω from 17 Ω as plain numbers, leaving 9 Ω.',
+      hint: 'Not quite. Find Z, then X_L from the triangle, then L.',
+      hints: { '54.1 mH': 'Not quite. Part of the 17 Ω is the wire\'s 8 Ω of resistance.',
+        '28.6 mH': 'Not quite. Ohms at right angles don\'t subtract as plain numbers. Square, subtract, square root.' } },
+    { show: true, name: 'Swap in a capacitor', card: 'cap', fsel: 'fc', bars: true, tri: { unit: 'V', k: 7, up: 26, down: 156 }, dur: 3.9,
+      morph: [[2.6, 1.2, 50, 100]], tl: { l: [0.5, 0.6], c: [1.2, 0.5], phi: 1.8, rows: 1.8 },
+      text: 'Back on the first bench, the coil is swapped for a 398 µF capacitor, whose reactance at 50 Hz is also 8 Ω. The meters still read 12 V, 16 V and 20 V, but a capacitor\'s voltage peaks a quarter cycle after its current (lesson 5), so its arrow, V_C, points straight down. The triangle flips below the line and φ reads −53.13°: the supply\'s voltage lags the current. Here the triangle is drawn in volts, with the supply\'s side held at 20 V, so V_C shrinks and grows with X_C. Then the frequency plays up to 100 Hz: X_C shrinks to 4 Ω and φ reads −33.7°. Slide it down to 5 Hz, where X_C is 80 Ω and the triangle stands almost on end.' },
+    { name: 'Name the ohms', card: 'bench', tri: { unit: 'Ω', k: 8, up: 92, down: 96, pair: true }, rdur: 1.0,
+      slips: { 'Resistance 6 Ω, reactances 10 Ω, impedance 8 Ω': { relabel: 'zl' }, 'Impedance 6 Ω, reactances 8 Ω, resistance 10 Ω': { relabel: 'rz' } },
+      task: 'From the first bench: the ohmmeter reads 6 Ω across the resistor. 16 V ÷ 2 A = 8 Ω across the coil, and 8 Ω across the capacitor. 20 V ÷ 2 A = 10 Ω across the supply. Which naming is right?',
+      opts: ['Resistance 6 Ω, reactances 10 Ω, impedance 8 Ω', 'Resistance 6 Ω, reactances 8 Ω, impedance 10 Ω', 'Impedance 6 Ω, reactances 8 Ω, resistance 10 Ω'],
+      want: 'Resistance 6 Ω, reactances 8 Ω, impedance 10 Ω',
+      why: 'The ohmmeter\'s steady current makes no back-emf, so its 6 Ω is the resistance, R. The coil\'s own V ÷ I is 8 Ω of inductive reactance, X_L, and the capacitor\'s 8 Ω of capacitive reactance, X_C. The supply\'s V ÷ I is the whole circuit\'s opposition to AC, the impedance, Z = 10 Ω, the long side of each triangle. A part\'s reactance comes from its own meter, not from the biggest figure, and an ohmmeter cannot see reactance at all.',
+      hint: 'Not quite. Which meter does each figure come from?',
+      hints: { 'Resistance 6 Ω, reactances 10 Ω, impedance 8 Ω': 'Not quite. The 10 Ω comes from the supply\'s meter, so it belongs to the whole circuit.',
+        'Impedance 6 Ω, reactances 8 Ω, resistance 10 Ω': 'Not quite. An ohmmeter\'s steady current sees no reactance, so its 6 Ω is not the opposition to AC.' } },
+    { name: 'Mixed: the capacitor\'s meter', card: 'c11', tri: { unit: 'V', k: 2.8, up: 26, down: 128, vc: 'ask' }, ask: ['vx'], amm: 'none', rdur: 1.7, rowAt: 1.1,
+      slips: { '20 V': { down: 20 }, '−40 V': { meter: -40 } },
+      task: 'Mixed. A 30 Ω resistor and a capacitor are in series on a 50 V test supply. The resistor\'s meter reads 30 V. What does the capacitor\'s meter read?',
+      opts: ['40 V', '20 V', '−40 V'], want: '40 V',
+      why: 'The arrows make a right-angled triangle with the supply\'s 50 V as its long side, so V_C = √(50² − 30²) = √1600 = 40 V. It points down because a capacitor\'s voltage lags its current, but a meter reads the size of the voltage, so it shows 40 V, not −40 V. 20 V takes 30 V from 50 V as plain numbers.',
+      hint: 'Not quite. Square, subtract, then take the square root.',
+      hints: { '20 V': 'Not quite. Volts at right angles don\'t subtract as plain numbers. Square, subtract, square root.',
+        '−40 V': 'Not quite. Down on the diagram means later in time. A meter reads the size, never minus.' } },
+    { name: 'Mixed: on board ship', card: 'bench', fAt: 60, fAns: true, tri: { unit: 'Ω', k: 8, up: 96, down: 30, ghost: true }, ask: ['vr', 'vx', 'amm'], rdur: 1.8, rowAt: 1.2,
+      slips: { '1.67 A, lagging 53.1°': { amm: 20 / 12, tri: 1.2 }, '2 A, lagging 53.1°': { amm: 2 } },
+      task: 'Mixed. A marine college\'s notes (a secondary source) give 60 Hz as the frequency most common on board ship. The first bench\'s 6 Ω resistor and 25.5 mH coil go on a 20 V, 60 Hz supply. What current flows, and by how much does it lag?',
+      opts: ['1.67 A, lagging 53.1°', '1.77 A, lagging 58.0°', '2 A, lagging 53.1°'], want: '1.77 A, lagging 58.0°',
+      why: 'Only the reactance follows the frequency: X_L = 8 Ω × 60 ÷ 50 = 9.6 Ω, while R stays 6 Ω. So Z = √(6² + 9.6²) = 11.3 Ω and I = 20 ÷ 11.3 = 1.77 A, lagging by the angle whose tangent is 9.6 ÷ 6, 58.0°. 1.67 A scales the whole 10 Ω up with the frequency, resistance and all, and 2 A leaves the frequency out.',
+      hint: 'Not quite. Work out X_L at 60 Hz first.',
+      hints: { '1.67 A, lagging 53.1°': 'Not quite. A resistance does not change with frequency. Only X_L scales.',
+        '2 A, lagging 53.1°': 'Not quite. X_L = 2πfL grows with the frequency.' } },
+  ];
+  const FINISH = 'The meters disagree with plain arithmetic because the part voltages peak a quarter cycle apart, so they add as arrows at right angles: square, add, square root. Divide every side by the current and the same triangle gives R, X and Z, which is how three meters and an ohmmeter find a coil\'s inductance. Lesson 7 puts a coil and a capacitor in one loop, where their arrows point opposite ways. Next, Series RLC and resonance.';
+  // Sources the checks restate (the lesson's own).
+  const ENA = 'https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits';
+  const SHIP = 'http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf';
+  const KUPH2 = 'https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_2.html';
+  const UNSW = 'https://www.animations.physics.unsw.edu.au/jw/AC.html';
+  const KUPH3 = 'https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html';
+
+  const PICK = 'Tap one of the answers.';
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong' or 'empty' once checked), why: the puzzle. f: the frequency Dan has
+  // set on a slider screen (null: the demonstration's).
+  function blank() { return { pick: null, res: null, why: false, f: null, R: null }; }
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, MODE = 'demo', motionEnd = 0;
+  let REC = {}, VBH = 520;
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+
+  // Text with highlighted key terms (*term*), and V_R, X_L and the like set with a lowered letter, built with K.el, never innerHTML.
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').split(/(\*[^*]+\*|[VX]_[RLC])/).forEach((b) => {
+      if (!b) return;
+      if (/^[VX]_[RLC]$/.test(b)) node.append(b.charAt(0), K.el('sub', {}, b.charAt(2)));
+      else if (b.charAt(0) === '*' && b.length > 2 && b.charAt(b.length - 1) === '*') node.appendChild(K.el('span', { class: 'mark' }, b.slice(1, -1)));
+      else node.appendChild(document.createTextNode(b));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play('answer', st.res === 'right' ? d.rdur : 0.8);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  // Replay plays the screen's demonstration again from its start.
+  const replayBtn = K.button({ label: 'Replay', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    st.f = null; st.R = null;
+    play('demo', d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  // The frequency sliders: 0 to 100 Hz with the coil, 5 to 100 Hz with the capacitor, each shown only on its screen.
+  const ctlF = K.control({ id: 'f', label: 'Supply frequency', min: 0, max: 100, step: 5, value: 50, unit: 'Hz', fmt: (v) => num(v, 0) + ' Hz', snap: [0, 25, 50, 100], into: '#ctl' });
+  const ctlC = K.control({ id: 'fc', label: 'Supply frequency', min: 5, max: 100, step: 5, value: 50, unit: 'Hz', fmt: (v) => num(v, 0) + ' Hz', snap: [5, 50, 100], into: '#ctl' });
+  // Screen 7's resistance: 2 to 12 Ω, so Dan can see that only the reactance side follows the frequency.
+  const ctlR = K.control({ id: 'res', label: 'Resistance', min: 2, max: 12, step: 1, value: 6, unit: 'Ω', fmt: (v) => num(v, 0) + ' Ω', snap: [6], into: '#ctl' });
+  const CTL = { f: { c: ctlF, lo: 0 }, fc: { c: ctlC, lo: 5 } };
+  const shown = { f: ctlF.get(), fc: ctlC.get(), res: ctlR.get() };
+  // A slider set to what the picture shows (quietly: this is not Dan moving it).
+  function syncF(which, v) {
+    if (v == null || !CTL[which]) return;
+    const o = CTL[which], s = K.clamp(Math.round(v / 5) * 5, o.lo, 100);
+    if (o.c.get() !== s) o.c.set(s, true);
+    shown[which] = o.c.get();
+  }
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && T !== Infinity) { T = Infinity; paint(); } });
+  // A demonstration waits until most of its picture is in view, so on a phone it does not play out
+  // while Dan is still reading the words above it.
+  let seen = true, waiting = false, waitDur = 0;
+  if (typeof IntersectionObserver === 'function') {
+    seen = false;
+    new IntersectionObserver((es) => {
+      const e = es[es.length - 1];
+      seen = e.isIntersecting && (e.intersectionRatio >= 0.6 || e.intersectionRect.height >= 0.6 * (window.innerHeight || 1));
+      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }
+    }, { threshold: [0, 0.3, 0.6, 0.8, 1] }).observe(el('scene'));
+  }
+  function play(mode, dur) {
+    MODE = mode; waiting = false;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    if (mode === 'demo' && !seen) { waiting = true; waitDur = dur; T = 0; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // Dan takes over: whatever was moving shows finished.
+  function stopMotion() { if (anim.playing()) anim.pause(); waiting = false; T = Infinity; }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing helpers ----------
+  const svg = el('scene'), art = el('art');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, dd) {
+    dd = dd == null ? K.SOFT : dd;
+    if (t0 + dd > latest) latest = t0 + dd;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, dd);
+  }
+  // A steady motion from 0 to 1 between t0 and t0 + dd.
+  function lin(t0, dd) {
+    if (t0 + dd > latest) latest = t0 + dd;
+    if (t0 < earliest) earliest = t0;
+    return T === Infinity ? 1 : K.clamp((T - t0) / dd, 0, 1);
+  }
+  const grow = (t0, dd) => K.ease(lin(t0, dd));
+  function part(a, rise, draw) {
+    if (!(a > 0.001)) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  const R = (v) => Math.round(v * 100) / 100;
+  const poly = (ps) => 'M' + ps.map((q) => R(q[0]) + ' ' + R(q[1])).join('L');
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: R(x1), y1: R(y1), x2: R(x2), y2: R(y2) }));
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: R(x), y: R(y), width: R(Math.max(0, w)), height: R(Math.max(0, h)), rx: rx || 0 }));
+  const circ = (cls, p, r) => add(K.svg('circle', { class: cls, cx: R(p[0]), cy: R(p[1]), r }));
+  const path = (cls, dd) => add(K.svg('path', { class: cls, d: dd }));
+  // A text; '_R', '_L' or '_C' in it is set as a lowered letter (V_R reads as V with R below the line).
+  function makeText(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: R(x), y: R(y), 'text-anchor': anchor || 'middle' });
+    const bits = String(s).split(/(_[RLC])/);
+    bits.forEach((b, j) => {
+      if (!b) return;
+      if (/^_[RLC]$/.test(b)) t.appendChild(K.svg('tspan', { dy: 4 }, b.charAt(1)));
+      else if (j > 0 && /^_[RLC]$/.test(bits[j - 1])) t.appendChild(K.svg('tspan', { dy: -4 }, b));
+      else t.appendChild(document.createTextNode(b));
+    });
+    return t;
+  }
+  const text = (x, y, s, cls, anchor) => add(makeText(x, y, s, cls, anchor));
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(makeText(0, -50, s, cls, 'start'));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 7;
+  }
+  function ask(x, y) { circ('ask', [x, y], 10); text(x, y + 5, '?', 'q'); }
+  // An arrow from (x1, y1) to (x2, y2): a shaft and a head.
+  function arrow(cls, hcls, x1, y1, x2, y2) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    if (L < 0.5) return;
+    const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.6), hw = hl * 0.55;
+    if (L - hl > 0.5) line(cls, x1, y1, x2 - ux * hl * 0.8, y2 - uy * hl * 0.8);
+    path(hcls, 'M' + R(x2) + ' ' + R(y2) + 'L' + R(x2 - ux * hl - uy * hw) + ' ' + R(y2 - uy * hl + ux * hw) +
+      'L' + R(x2 - ux * hl + uy * hw) + ' ' + R(y2 - uy * hl - ux * hw) + 'Z');
+  }
+  // A key inside the drawing, in rows: each item a swatch and its name.
+  function keyRows(items, y) {
+    let x = 8, row = 0;
+    items.forEach((it) => {
+      const w = 18 + 6 + tw(it.label, 'ky');
+      if (x > 8 && x + w > 336) { x = 8; row++; }
+      const yy = y + row * 22, x0 = x;
+      part(it.a == null ? 1 : it.a, 0, () => { it.sw(x0, yy); text(x0 + 24, yy + 5, it.label, 'ky', 'start'); });
+      x += w + 14;
+    });
+    return y + row * 22 + 12;
+  }
+  const swLine = (cls) => (x, yy) => line(cls, x, yy, x + 18, yy);
+  // Where a frequency demonstration has got to (the last move started).
+  function morphF(segs, demo) {
+    let f = segs[0][2];
+    for (const s of segs) {
+      const p = lin(s[0], s[1]);
+      if (demo && T < s[0]) break;
+      f = mix(s[2], s[3], demo ? K.ease(p) : 1);
+    }
+    return f;
+  }
+
+  // ---------- the picture ----------
+  // Top: the series loop with its meters (V_R and V_L or V_C above the parts, the supply's below
+  // it, the ammeter on the left). Then the plain-sum and supply bars, screen 2's waves, and the
+  // triangle of arrows with its tail at X0T, each as long as its reading (or its ohms).
+  function drawCircuit(d, c, S0, right, slip, slipA) {
+    const capP = !!c.C, ask = d.ask || [];
+    const mA = (key) => (ask.indexOf(key) >= 0 ? (right ? arr(d.mAt == null ? 0.6 : d.mAt) : 0) : 1);
+    path('wire', 'M80 74H30V134H159M181 134H310V74H' + (capP ? '236' : '255') + 'M' + (capP ? '224' : '205') + ' 74H130');
+    rect('res', 80, 68, 50, 12, 2);
+    if (capP) { rect('plate', 224, 60, 3, 28, 0); rect('plate', 233, 60, 3, 28, 0); }
+    else { let p = 'M205 74'; for (let j = 0; j < 4; j++) p += 'a6.25 6.25 0 0 1 12.5 0'; path('coilw', p); }
+    circ('src', [170, 134], 11);
+    path('srcw', 'M163 134C165 127 167.5 127 170 134S175 141 177 134');
+    circ('src', [30, 104], 11);
+    text(30, 109, 'A', 'ml');
+    // A meter: a box with its reading; '?' until a puzzle is answered; a wrong pick's reading in red.
+    function meter(cx, w, y0, name, val, a, bad) {
+      rect('mbox', cx - w / 2, y0, w, 22, 5);
+      const q = name + ' = ?', s = name + ' = ' + val;
+      if (bad != null) {
+        if (slipA < 0.999) part(1 - slipA, 0, () => text(cx, y0 + 16, q, 'mt'));
+        part(slipA, 0, () => text(cx, y0 + 16, name + ' = ' + bad, 'mtbad'));
+        return q;
+      }
+      if (a < 0.999) part(1 - a, 0, () => text(cx, y0 + 16, q, 'mt'));
+      if (a > 0.001) part(a, 0, () => text(cx, y0 + 16, s, 'mt'));
+      return a >= 0.999 ? s : q;
+    }
+    if (c.real) {
+      // One real coil: its wire's resistance and an ideal coil in one body, met only from outside.
+      rect('body', 66, 54, 200, 52, 8);
+      text(166, 42, 'on an ohmmeter: ' + num(c.R, 2) + ' Ω', 'wk', 'middle');
+      text(105, 96, 'R', 'lb', 'middle');
+      const la = right ? arr(1.2) : 0;
+      if (la < 0.999) part(1 - la, 0, () => text(230, 96, 'L = ?', 'lb', 'middle'));
+      if (la > 0.001) part(la, 0, () => text(230, 96, 'L = ' + num(c.L * 1000, 1) + ' mH', 'lb', 'middle'));
+    } else {
+      path('lead', 'M80 74V48M130 74V48M205 74V48M255 74V48');
+      [80, 130, 205, 255].forEach((x) => circ('jn', [x, 74], 2.5));
+      REC.meters.vr = meter(105, 100, 26, 'V_R', fx(S0.vr, 1) + ' V', mA('vr'), null);
+      REC.meters.vx = meter(230, 100, 26, capP ? 'V_C' : 'V_L', fx(S0.vx, 1) + ' V', mA('vx'), slip && slip.meter != null ? fx(slip.meter, 1) + ' V' : null);
+      if (c.rl) text(105, 96, c.rl, 'lb', 'middle');
+      if (c.xl) text(230, 96, c.xl, 'lb', 'middle');
+    }
+    path('lead', 'M140 134V152M200 134V152');
+    [140, 200].forEach((x) => circ('jn', [x, 134], 2.5));
+    REC.meters.vs = meter(170, 120, 152, 'supply', fx(S0.vs, 1) + ' V', mA('vs'), null);
+    // The ammeter's reading, inside the loop.
+    if (d.amm !== 'none') {
+      const qI = 'I = ?', sI = 'I = ' + num(S0.I, 2) + ' A';
+      if (slip && slip.amm != null) {
+        if (slipA < 0.999) part(1 - slipA, 0, () => text(46, 126, qI, 'mt', 'start'));
+        part(slipA, 0, () => text(46, 126, 'I = ' + num(slip.amm, 2) + ' A', 'mtbad', 'start'));
+        REC.amm = qI;
+      } else {
+        const a = mA('amm');
+        if (a < 0.999) part(1 - a, 0, () => text(46, 126, qI, 'mt', 'start'));
+        if (a > 0.001) part(a, 0, () => text(46, 126, sI, 'mt', 'start'));
+        REC.amm = a >= 0.999 ? sI : qI;
+      }
+    }
+  }
+
+  // The plain sum, V_R + V_X laid end to end and crossed out, above the supply meter's own bar.
+  function drawBars(y, k, vr, vx, vs, A) {
+    const x0 = X0T, sum = vr + vx;
+    if (A.la1 > 0.001) part(A.la1, 0, () => text(x0, y + 13, 'plain sum: ' + num(vr, 1) + ' + ' + num(vx, 1) + ' = ' + num(sum, 1) + ' V', 'wk', 'start'));
+    if (A.p1 > 0.001) rect('b1', x0, y + 19, vr * k * A.p1, 10, 0);
+    if (A.p2 > 0.001) rect('b2', x0 + vr * k, y + 19, vx * k * A.p2, 10, 0);
+    if (A.strike > 0.001) part(A.strike, 0, () => line('strike', x0 - 6, y + 24, x0 + sum * k + 6, y + 24));
+    if (A.la2 > 0.001) part(A.la2, 0, () => text(x0, y + 45, 'supply meter', 'wk', 'start'));
+    if (A.ps > 0.001) rect('bs', x0, y + 51, vs * k * A.ps, 10, 0);
+    REC.bars = { sum: vr * k * A.p1 + vx * k * A.p2, supply: vs * k * A.ps, k, yS: y + 61 };
+  }
+
+  // Screen 2: both part voltages on one time axis, with their instant-by-instant sum, the supply's wave.
+  function drawWaves(y, right) {
+    const X0 = 48, X1 = 300, yW = y + 98, sc = 2.7, P = 20, NW = 200;
+    const xt = (t) => X0 + t / P * (X1 - X0), yv = (v) => yW - v * sc;
+    const w = TAU * 50 / 1000, pR = 12 * RT2, pL = 16 * RT2, pS = 20 * RT2;
+    const vR = (t) => pR * Math.sin(w * t), vL = (t) => pL * Math.cos(w * t), vS = (t) => vR(t) + vL(t);
+    line('axis', X0, yW - 84, X0, yW + 84);
+    line('axis', X0, yW + 84, X1, yW + 84);
+    line('zero', X0, yW, X1, yW);
+    text(X0 - 7, yW + 5, '0', 'tk', 'end');
+    text(X0 - 7, yW - 90, 'V', 'tk', 'end');
+    for (let t = 0; t <= P; t += 5) {
+      line('axis', xt(t), yW + 84, xt(t), yW + 89);
+      text(xt(t), yW + 104, t === P ? '20 ms' : String(t), 'tk', 'middle');
+    }
+    const up = right ? lin(0.1, 1.4) : 0, tA = right ? arr(1.3) : 0;
+    if (!right) ask((X0 + X1) / 2, yW - 30);
+    if (up > 0.001) {
+      const tr = (cls, fn) => {
+        const pts = [], data = [], n = Math.ceil(up * NW - 1e-9);
+        for (let j = 0; j <= n; j++) { const t = Math.min(up * P, j * P / NW), v = fn(t); data.push([t, v]); pts.push([xt(t), yv(v)]); }
+        path(cls, poly(pts));
+        return data;
+      };
+      REC.waves = { r: tr('wr', vR), l: tr('wl', vL), s: tr('ws', vS) };
+    }
+    if (tA > 0.001) part(tA, 0, () => {
+      const tS = (90 - Math.atan2(16, 12) * 180 / Math.PI) / 360 * P;
+      [[tS, pS, 'dS'], [5, pR, 'dR'], [0, pL, 'dL']].forEach((q) => {
+        if (xt(q[0]) - 6 > X0) line('guide', X0, yv(q[1]), xt(q[0]) - 6, yv(q[1]));
+        circ(q[2], [xt(q[0]), yv(q[1])], 4.5);
+        text(X0 - 7, yv(q[1]) + 5, fx(q[1], 1), 'tk', 'end');
+      });
+      REC.peaks = { r: pR, l: pL, s: pS };
+    });
+    return yW + 112;
+  }
+
+  // The arrows: V_R (or R) flat from the tail, V_X (or X) upright from its tip (down for a
+  // capacitor), and the closing side from the tail to the upright's tip. aG, bG, cG: how far each
+  // has grown; slide: the upright's foot travels from the tail to the flat arrow's tip.
+  function triArrows(o) {
+    const x0 = o.x0, yb = o.yb, k = o.k, a = o.a, b = o.b;
+    const aG = o.aG == null ? 1 : o.aG, bG = o.bG == null ? 1 : o.bG, cG = o.cG == null ? 1 : o.cG;
+    const slide = o.slide == null ? 1 : o.slide, bA = o.bA == null ? 1 : o.bA, cA = o.cA == null ? 1 : o.cA;
+    if (aG > 0.001) arrow('ar', 'arh', x0, yb, x0 + a * k * aG, yb);
+    const xb = x0 + a * k * slide;
+    if (bG > 0.001 && bA > 0.001) part(bA, 0, () => arrow('al', 'alh', xb, yb, xb, yb - b * k * bG));
+    const tx = x0 + a * k, ty = yb - b * k;
+    if (cG > 0.001 && cA > 0.001) part(cA, 0, () => arrow('as', 'ash', x0, yb, x0 + (tx - x0) * cG, yb + (ty - yb) * cG));
+    return { k, a, b, x0, yb, tipX: tx, tipY: ty,
+      flat: aG >= 0.999 ? a : null,
+      vert: bG >= 0.999 && bA > 0.001 && slide >= 0.999 ? Math.abs(b) : null,
+      c: cG >= 0.999 && cA > 0.001 ? Math.hypot(tx - x0, ty - yb) / k : null };
+  }
+  function rightMark(o, dir) {
+    if (o.a * o.k >= 14 && Math.abs(o.b) * o.k >= 14) path('sq', 'M' + R(o.tipX - 7) + ' ' + R(o.yb) + 'V' + R(o.yb - dir * 7) + 'H' + R(o.tipX));
+  }
+  // The phase angle's arc at the tail, and φ inside its wedge, beyond the arc, while the wedge is wide enough.
+  function phiArc(x0, yb, a, b, al, dir) {
+    const th = Math.atan2(Math.abs(b), a);
+    if (al > 0.001 && th >= 0.07) part(al, 0, () => {
+      const r = 22, ex = x0 + r * Math.cos(th), ey = yb - dir * r * Math.sin(th);
+      path('arc', 'M' + R(x0 + r) + ' ' + R(yb) + 'A' + r + ' ' + r + ' 0 0 ' + (dir > 0 ? 0 : 1) + ' ' + R(ex) + ' ' + R(ey));
+      if (th >= 28 * Math.PI / 180) text(x0 + 40 * Math.cos(th / 2), yb - dir * 40 * Math.sin(th / 2) + 5, 'φ', 'lb', 'middle');
+    });
+    return th;
+  }
+  // Names on the three sides: under (or over) the flat one, beside the upright, outside the closing side.
+  function triLabels(o, names, al, dir, cls) {
+    const x0 = o.x0, yb = o.yb, k = o.k, a = o.a, h = Math.abs(o.b) * k, xv = x0 + a * k;
+    const put = (key, x, y, anchor) => {
+      const s = names[key], A = al[key];
+      if (s == null || !(A > 0.001)) return;
+      part(A, 0, () => text(x, y, s, (cls && cls[key]) || 'lb', anchor));
+      if (A >= 0.999) REC.names.push(s);
+    };
+    put('a', x0 + a * k / 2, dir > 0 ? yb + 19 : yb - 9, 'middle');
+    if (h >= 26) put('b', xv + 8, yb - dir * h / 2 + 5, 'start');
+    else put('b', xv + 8, dir > 0 ? yb - h - 8 : yb + h + 18, 'start');
+    const mx = x0 + a * k / 2, my = yb - dir * h / 2, L = Math.hypot(a * k, h);
+    let nx = 0, ny = -dir;
+    if (L > 1 && h > 0.5) {
+      nx = -dir * h / L; ny = -a * k / L;
+      if (nx * (xv - mx) + ny * (yb - my) > 0) { nx = -nx; ny = -ny; }
+    }
+    if (nx < -0.35) put('c', mx + nx * 12, my + ny * 12 + 5, 'end');
+    else put('c', mx + 6, my + ny * 16 + 5, 'end');
+  }
+
+  function drawCard(d, st) {
+    const c0 = CARDS[d.card], tl = d.tl || {};
+    const c = d.rsel && st.R != null ? Object.assign({}, c0, { R: st.R, rl: num(st.R, 0) + ' Ω' }) : c0;
+    const right = !d.show && st.res === 'right';
+    const slip = !d.show && st.res === 'wrong' ? (d.slips || {})[st.pick] || null : null;
+    const demo = d.show && MODE === 'demo';
+    const slipA = slip ? arr(0.1) : 0;
+    const capP = !!c.C, dir = capP ? -1 : 1;
+
+    // ---- the supply's frequency: the screen's, the demonstration's, or Dan's ----
+    let f = d.fAt || c.f;
+    if (d.fsel && st.f != null) f = st.f;
+    else if (d.morph) f = morphF(d.morph, demo);
+    const S0 = solve(c, f);
+    // The ship screen draws its 50 Hz triangle until answered, then grows it to 60 Hz.
+    const fT = d.fAns ? (right ? mix(c.f, f, grow(0.3, 0.6)) : c.f) : f;
+    const ST = solve(c, fT);
+    Object.assign(REC, { f, fT, R: c.R, body: false, card: d.card, tri: null, pair: null, phi: null, meters: {}, amm: null, bars: null, waves: null, peaks: null,
+      swing: null, ghost: false, slip: slip && slipA > 0 ? slip : null, names: [], rows: [] });
+
+    text(8, 16, c.title(f, c.R), 'tt', 'start');
+    drawCircuit(d, c, S0, right, slip, slipA);
+    let y = 188;
+
+    // ---- the plain sum against the supply's reading ----
+    if (d.bars) {
+      let A = { p1: 1, p2: 1, ps: 1, la1: 1, la2: 1, strike: 1 };
+      if (d.bars === 'demo' && demo) {
+        A = { p1: grow(tl.p1[0], tl.p1[1]), p2: grow(tl.p2[0], tl.p2[1]), ps: grow(tl.ps[0], tl.ps[1]), la1: arr(tl.p1[0]), la2: arr(tl.ps[0]), strike: arr(tl.strike) };
+      }
+      drawBars(y, 7, S0.vr, S0.vx, S0.vs, A);
+      y += 70;
+    }
+    if (d.waves) y = drawWaves(y, right);
+
+    // ---- the triangle ----
+    let swOn = 0;
+    if (d.tri && d.tri.pair) {
+      // Screen 10: the bench's ohms with the coil (above the line) and with the capacitor (below it).
+      const t = d.tri, k = t.k, yb = y + t.up, SL = solve(CARDS.bench, 50), SC = solve(CARDS.cap, 50);
+      const o1 = triArrows({ x0: X0T, yb, k, a: SL.vr / SL.I, b: SL.X });
+      const o2 = triArrows({ x0: 200, yb, k, a: SC.vr / SC.I, b: -SC.X });
+      rightMark(o1, 1); rightMark(o2, -1);
+      const nA = right ? arr(0.3) : 0;
+      const v = (x) => num(x, 2) + ' Ω';
+      [[o1, 1, 'X_L'], [o2, -1, 'X_C']].forEach((q) => {
+        const o = q[0], dd = q[1], X = Math.abs(o.b), Z = Math.hypot(o.a, o.b);
+        // A wrong naming, in red: the 8 Ω as the impedance and the 10 Ω as the reactance, or the 6 Ω as the impedance and the 10 Ω as the resistance.
+        const bn = !slip ? {} : slip.relabel === 'zl' ? { b: 'Z = ' + v(X), c: q[2] + ' = ' + v(Z) } : { a: 'Z = ' + v(o.a), c: 'R = ' + v(Z) };
+        const ba = (key) => (bn[key] ? slipA : 0);
+        triLabels(o, { a: v(o.a), b: v(X), c: v(Z) }, { a: (1 - nA) * (1 - ba('a')), b: (1 - nA) * (1 - ba('b')), c: (1 - nA) * (1 - ba('c')) }, dd);
+        triLabels(o, { a: 'R = ' + v(o.a), b: q[2] + ' = ' + v(X), c: 'Z = ' + v(Z) }, { a: nA, b: nA, c: nA }, dd);
+        triLabels(o, { a: bn.a || null, b: bn.b || null, c: bn.c || null }, { a: ba('a'), b: ba('b'), c: ba('c') }, dd, { a: 'lbad', b: 'lbad', c: 'lbad' });
+      });
+      text(X0T, yb - 82, 'with the coil', 'ky', 'start');
+      text(200, yb + 86, 'with the capacitor', 'ky', 'start');
+      REC.tri = Object.assign(o1, { unit: 'Ω' }); REC.pair = [o1, o2];
+      y = yb + t.down;
+    } else if (d.tri) {
+      const t = d.tri, k = t.k, yb = y + t.up, x0 = X0T;
+      let a = t.unit === 'V' ? ST.vr : c.R, b = dir * (t.unit === 'V' ? ST.vx : ST.X);
+      if (t.shrink) { const s = 1 - 0.5 * (demo ? grow(tl.sh[0], tl.sh[1]) : 1); a *= s; b *= s; }
+      let aG = 1, bG = 1, cG = 1, slide = 1, bA = 1, cA = 1, lab = { a: 1, b: 1, c: 1 }, phiA = 1;
+      if (t.build && demo) {
+        aG = grow(tl.r[0], tl.r[1]); bG = grow(tl.l[0], tl.l[1]); slide = grow(tl.sl[0], tl.sl[1]); cG = grow(tl.c[0], tl.c[1]);
+        lab = { a: arr(tl.r[0] + 0.3), b: arr(tl.sl[0] + 0.6), c: arr(tl.c[0] + 0.4) }; phiA = arr(tl.phi);
+      } else if (demo && tl.l) {
+        bG = grow(tl.l[0], tl.l[1]); cG = grow(tl.c[0], tl.c[1]);
+        lab = { a: 1, b: arr(tl.l[0] + 0.3), c: arr(tl.c[0] + 0.3) }; phiA = arr(tl.phi);
+      }
+      if (t.close === 'ask') { cG = right ? grow(0.1, 0.7) : 0; lab.c = right ? arr(0.7) : 0; phiA = right ? arr(0.7) : 0; }
+      if (t.rest === 'ask') { cG = right ? grow(0.1, 0.6) : 0; bG = right ? grow(0.6, 0.6) : 0; lab.b = lab.c = phiA = right ? arr(1.1) : 0; }
+      if (t.vc === 'ask') { bG = right ? grow(0.1, 0.6) : 0; cG = right ? grow(0.6, 0.5) : 0; lab.b = lab.c = phiA = right ? arr(1.0) : 0; }
+      if (t.ghost) { bA = cA = right ? arr(0.1, 0.4) : 0; lab.b = lab.c = phiA = right ? arr(1.1) : 0; }
+
+      line('refl', x0 - 12, yb, 336, yb);
+      if (t.ghost) {
+        const g = solve(c, c.f);
+        path('ghostT', poly([[x0, yb], [x0 + c.R * k, yb], [x0 + c.R * k, yb - g.X * k], [x0, yb]]));
+        REC.ghost = true;
+      }
+      if (slip && slip.tri) part(slipA, 0, () => {
+        const sc = slip.tri, g = solve(c, c.f);
+        path('badT', poly([[x0, yb], [x0 + c.R * sc * k, yb], [x0 + c.R * sc * k, yb - g.X * sc * k], [x0, yb]]));
+      });
+      const o = triArrows({ x0, yb, k, a, b, aG, bG, cG, slide, bA, cA });
+      REC.tri = Object.assign(o, { unit: t.unit });
+      if (aG >= 0.999 && bG >= 0.999 && slide >= 0.999 && bA > 0.5) rightMark(o, dir);
+      const th = phiArc(x0, yb, a, b, phiA, dir);
+      if (phiA >= 0.999) REC.phi = (b < 0 ? -1 : 1) * th * 180 / Math.PI;
+
+      const vN = { a: 'V_R', b: capP ? 'V_C' : 'V_L', c: 'supply' };
+      const oN = { a: 'R = ' + num(c.R, 2) + ' Ω', b: (capP ? 'X_C' : 'X_L') + ' = ' + zs(ST.X) + ' Ω', c: 'Z = ' + zs(ST.Z) + ' Ω' };
+      if (t.shrink) {
+        const off = demo ? 1 - arr(tl.off[0], tl.off[1]) : 0, on = demo ? arr(tl.on) : 1;
+        triLabels(o, vN, { a: off, b: off, c: off }, dir);
+        triLabels(o, oN, { a: on, b: on, c: on }, dir);
+      } else triLabels(o, t.unit === 'V' ? vN : oN, lab, dir);
+
+      // What a wrong pick claims, in red: a plain-number length laid flat, or a wrong upright.
+      if (slip && slip.flat) part(slipA, 0, () => {
+        const L = slip.flat * k;
+        line('bad', x0, yb + 30, x0 + L, yb + 30); line('badt', x0, yb + 26, x0, yb + 34); line('badt', x0 + L, yb + 26, x0 + L, yb + 34);
+      });
+      if (slip && slip.up) part(slipA, 0, () => arrow('badl', 'badh', o.tipX, yb, o.tipX, yb - slip.up * k));
+      if (slip && slip.down) part(slipA, 0, () => arrow('badl', 'badh', o.tipX, yb, o.tipX, yb + slip.down * k));
+      // The asked side's mark.
+      if (t.close === 'ask' && !right) ask(x0 + a * k / 2 - 22, yb - dir * Math.abs(b) * k / 2);
+      if ((t.rest === 'ask' || t.vc === 'ask' || t.ghost) && !right) ask(o.tipX + 30, yb - dir * 40);
+
+      // Screen 3: the closing side swings down onto the line, as long as the supply meter's bar.
+      if (t.swing) {
+        const p = demo ? lin(tl.sw[0], tl.sw[1]) : 1;
+        swOn = demo ? arr(tl.sw[0]) : 1;
+        const cl = Math.hypot(a, b) * k;
+        part(swOn, 0, () => {
+          const ang = Math.atan2(Math.abs(b), a) * (1 - K.ease(p)), ex = x0 + cl * Math.cos(ang), ey = yb - dir * cl * Math.sin(ang);
+          path('swing', 'M' + R(x0) + ' ' + R(yb) + 'L' + R(ex) + ' ' + R(ey));
+          circ('swd', [ex, ey], 4);
+          REC.swing = { x: ex, y: ey };
+        });
+        const gA = demo ? arr(tl.gd) : 1;
+        if (gA > 0.001 && REC.bars) part(gA, 0, () => line('guide', x0 + cl, yb - 7, x0 + cl, REC.bars.yS + 3));
+      }
+      y = yb + t.down;
+    }
+
+    // ---- under the picture: the working ----
+    const row = (s, a) => {
+      y += 22; const yy = y;
+      if (a == null || a > 0.001) part(a == null ? 1 : a, 0, () => text(8, yy, s, 'wk', 'start'));
+      if (a == null || a >= 0.999) REC.rows.push(s);
+    };
+    // A puzzle's '?' rows fade out in place as its answer rows fade in, so nothing blinks out.
+    const swap = (qs, as, a) => {
+      for (let j = 0; j < Math.max(qs.length, as.length); j++) {
+        y += 22; const yy = y;
+        if (qs[j] != null && a < 0.999) part(1 - a, 0, () => text(8, yy, qs[j], 'wk', 'start'));
+        if (as[j] != null && a > 0.001) part(a, 0, () => text(8, yy, as[j], 'wk', 'start'));
+        if (a >= 0.999 && as[j] != null) REC.rows.push(as[j]); else if (a <= 0.001 && qs[j] != null) REC.rows.push(qs[j]);
+      }
+    };
+    const ra = right ? (d.rowAt != null ? arr(d.rowAt) : 1) : 0;
+    const rA = demo && tl.rows != null ? arr(tl.rows) : 1;
+    const fr = Math.round(f), Sx = solve(c, fr);
+    const eq = (z) => (Math.abs(z - Math.round(z)) < 1e-9 ? ' = ' : ' ≈ ');
+    switch (d.name) {
+      case 'Where did 8 V go?':
+        swap(['their sum, instant by instant: ?'], ['V_R peaks at ' + fx(12 * RT2, 1) + ' V, V_L at ' + fx(16 * RT2, 1) + ' V, 5 ms apart',
+          'their sum peaks at ' + fx(20 * RT2, 1) + ' V = 20 V × √2'], ra);
+        break;
+      case 'Tip to tail':
+        row('√(' + num(S0.vr, 1) + '² + ' + num(S0.vx, 1) + '²) = √' + num(S0.vr * S0.vr + S0.vx * S0.vx, 0) + ' = ' + num(S0.vs, 1) + ' V: the supply meter', rA);
+        row('tan φ = ' + num(S0.vx, 1) + ' ÷ ' + num(S0.vr, 1) + ', so φ = ' + ps(S0.phi), rA);
+        break;
+      case 'A second bench':
+        swap(['√(10² + 24²) = ?'], ['√(' + num(S0.vr, 1) + '² + ' + num(S0.vx, 1) + '²) = √' + num(S0.vr * S0.vr + S0.vx * S0.vx, 0) + ' = ' + num(S0.vs, 1) + ' V'], ra);
+        break;
+      case 'Divide by the current':
+        row('every side ÷ ' + num(S0.I, 2) + ' A: R = 6 Ω, X_L = 8 Ω, Z = 10 Ω', rA);
+        row('Z = √(6² + 8²) = ' + zs(S0.Z) + ' Ω; I = 20 ÷ 10 = ' + num(S0.I, 2) + ' A', rA);
+        row('the same shape: φ = ' + ps(S0.phi), rA);
+        break;
+      case 'On the mains':
+        swap(['R = ?', 'Z = ?', 'X_L = ?'], ['R = 200 V ÷ ' + num(S0.I, 2) + ' A = ' + num(c.R, 2) + ' Ω', 'Z = 230 V ÷ ' + num(S0.I, 2) + ' A = ' + zs(S0.Z) + ' Ω',
+          'X_L = √(46² − 40²) ≈ ' + zs(S0.X) + ' Ω'], ra);
+        break;
+      case 'Slide the frequency': {
+        const r = num(c.R, 0);
+        if (fr === 0) {
+          row('at 0 Hz, steady DC: X_L = 0 Ω', rA);
+          row('so Z = R = ' + zs(Sx.Z) + ' Ω', rA);
+          row('I = 20 V ÷ ' + r + ' Ω = ' + num(Sx.I, 2) + ' A; φ = 0°', rA);
+        } else {
+          row('X_L = 2π × ' + fr + ' Hz × 25.5 mH ≈ ' + num(Sx.X, 2) + ' Ω', rA);
+          row('Z = √(' + r + '² + ' + num(Sx.X, 2) + '²)' + eq(Sx.Z) + zs(Sx.Z) + ' Ω', rA);
+          row('I = 20 V ÷ ' + zs(Sx.Z) + ' Ω = ' + num(Sx.I, 2) + ' A; φ = ' + ps(Sx.phi), rA);
+        }
+        // A real coil: the resistor and the ideal coil in one body, drawn dashed, met only through its meters.
+        const rR = demo ? arr(tl.real) : 1, S5 = solve(c, 50);
+        part(rR, 0, () => rect('body', 66, 54, 200, 52, 8));
+        REC.body = rR >= 0.999;
+        row('a real coil: an ohmmeter sees only R = ' + r + ' Ω', rR);
+        row('AC meters at 50 Hz: Z = 20 V ÷ ' + num(S5.I, 2) + ' A' + eq(S5.Z) + zs(S5.Z) + ' Ω', rR);
+        row('X_L = √(' + zs(S5.Z) + '² − ' + r + '²)' + eq(S5.Z) + '8 Ω', rR);
+        row('L = 8 ÷ (2π × 50) = ' + num(L1 * 1000, 1) + ' mH', rR);
+        break;
+      }
+      case 'An unknown coil':
+        swap(['Z = ?', 'X_L = ?', 'L = ?'], ['Z = 34 V ÷ 2 A = ' + zs(S0.Z) + ' Ω', 'X_L = √(17² − 8²) = ' + num(S0.X, 2) + ' Ω',
+          'L = 15 ÷ (2π × 50) = ' + num(c.L * 1000, 1) + ' mH'], ra);
+        break;
+      case 'Swap in a capacitor':
+        row('X_C = 1 ÷ (2π × ' + fr + ' Hz × 398 µF) ≈ ' + num(Sx.X, 2) + ' Ω', rA);
+        row('Z = √(6² + ' + num(Sx.X, 2) + '²)' + eq(Sx.Z) + zs(Sx.Z) + ' Ω; I = ' + num(Sx.I, 2) + ' A', rA);
+        row('φ = ' + ps(Sx.phi) + ': the supply lags the current', rA);
+        break;
+      case 'Mixed: the capacitor\'s meter':
+        swap(['V_C = ?'], ['V_C = √(50² − 30²) = √1600 = ' + num(S0.vx, 1) + ' V'], ra);
+        break;
+      case 'Mixed: on board ship':
+        swap(['on 60 Hz: X_L = ?', 'Z = ?', 'I = ?'], ['X_L = 8 Ω × 60 ÷ 50 = ' + num(S0.X, 2) + ' Ω', 'Z = √(6² + 9.6²) ≈ ' + zs(S0.Z) + ' Ω',
+          'I = 20 ÷ ' + zs(S0.Z) + ' = ' + num(S0.I, 2) + ' A, lagging ' + fx(S0.phi, 1) + '°'], ra);
+        break;
+      default: break;
+    }
+
+    // ---- the key ----
+    const items = [];
+    if (d.bars) items.push({ sw: swLine('strike'), label: 'crossed out: a plain sum' });
+    if (d.waves) items.push({ sw: swLine('wr'), label: 'V_R' }, { sw: swLine('wl'), label: 'V_L' }, { sw: swLine('ws'), label: 'supply: their sum' });
+    if (d.tri && !d.tri.pair) items.push({ sw: swLine('refl'), label: 'current, the reference' });
+    if (d.tri && d.tri.swing) items.push({ sw: swLine('swing'), label: 'closing side, swung flat', a: swOn });
+    if (d.tri && d.tri.ghost) items.push({ sw: (x, yy) => path('ghostT', 'M' + x + ' ' + (yy + 6) + 'H' + (x + 18) + 'V' + (yy - 7) + 'Z'), label: 'the 50 Hz triangle' });
+    if (!d.show && d.slips) items.push({ sw: swLine('bad'), label: 'that pick', a: slip ? slipA : 0 });
+    if (items.length) y = keyRows(items, y + 28);
+
+    // ---- in words, for a screen reader ----
+    const m = REC.meters;
+    let said = c.title(f, c.R) + '. ' + (m.vr ? m.vr + ', ' + m.vx + ', ' : '') + m.vs + '. ';
+    if (REC.tri) said += 'The part voltages, drawn as arrows at right angles, close a right-angled triangle.';
+    return { h: y + 4, said: said.replace(/_/g, '') };
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    REC = {};
+    const out = drawCard(d, st);
+    VBH = Math.ceil(out.h);
+    svg.setAttribute('viewBox', '0 0 340 ' + VBH);
+    svg.setAttribute('aria-label', out.said);
+    if (i === at() && d.fsel && !finished) syncF(d.fsel, REC.f);
+    if (i === at() && d.rsel && !finished) {
+      if (ctlR.get() !== REC.R) ctlR.set(REC.R, true);
+      shown.res = ctlR.get();
+    }
+  }
+
+  // ---------- the model: the three voltmeters on the screen's circuit at its frequency ----------
+  function modelOf(p) {
+    const d = STEPS[K.clamp(Math.round(p.step), 0, STEPS.length - 1)];
+    let c = CARDS[d.card], f = d.fAt || c.f;
+    if (d.rsel) { const r = Number(p.res); c = Object.assign({}, c, { R: K.clamp(isFinite(r) ? r : 6, 2, 12) }); }
+    if (d.fsel) { const v = Number(p[d.fsel]); f = K.clamp(isFinite(v) ? v : 50, CTL[d.fsel].lo, 100); }
+    const s = solve(c, f);
+    return { vr: s.vr, vx: s.vx, vs: s.vs };
+  }
+  K.model(modelOf);
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing() && !waiting) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      shown.f = p.f; shown.fc = p.fc; shown.res = p.res;
+      if (d.show) { st.f = null; st.R = null; play('demo', d.dur); }
+      else { waiting = false; anim.pause(); T = Infinity; MODE = 'answer'; }
+    } else {
+      // Dan moved a frequency slider: the demonstration stops where it ends, and the frequency is his.
+      ['f', 'fc'].forEach((w) => {
+        if (p[w] === shown[w]) return;
+        shown[w] = p[w];
+        if (d.fsel === w && !finished) { stopMotion(); st.f = K.clamp(Number(p[w]), CTL[w].lo, 100); }
+      });
+      // Dan moved the resistance: the same, and the resistance is his.
+      if (p.res !== shown.res) {
+        shown.res = p.res;
+        if (d.rsel && !finished) { stopMotion(); st.R = K.clamp(Number(p.res), 2, 12); }
+      }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const fOn = !finished && d.fsel === 'f', cOn = !finished && d.fsel === 'fc';
+    ctlF.el.hidden = !fOn;
+    ctlC.el.hidden = !cOn;
+    const rOn = !finished && !!d.rsel;
+    ctlR.el.hidden = !rOn;
+    el('ctl').hidden = !fOn && !cOn && !rOn;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const near = (a, b, tol) => typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) <= tol;
+  // A step painted in the state given, finished: what it draws.
+  function drawn(i, st, mode) {
+    const keepS = S[i], keepT = T, keepM = MODE;
+    S[i] = st; T = Infinity; MODE = mode || (STEPS[i].show ? 'demo' : 'answer');
+    try {
+      paint(i);
+      return Object.assign({}, REC);
+    } finally { S[i] = keepS; T = keepT; MODE = keepM; paint(); }
+  }
+  const settledOf = (i) => drawn(i, STEPS[i].show ? blank() : solvedSt(i));
+  const withF = (f) => Object.assign(blank(), { f });
+  const has = (g, s) => g.rows.indexOf(s) >= 0;
+  const FS = [];
+  for (let f = 0; f <= 100; f += 5) FS.push(f);
+
+  K.check('A 6 volt source at 0° added to an 8 volt source at 90° results in 10 volts at a phase angle of 53.13°: laid tip to tail at right angles, 6 V and 8 V close on 10 V at 53.13°, and the drawn 12 V and 16 V arrows close on the 20 V supply at the same angle', () => {
+    const g = settledOf(idx('Tip to tail'));
+    return near(Math.hypot(6, 8), 10, 1e-12) && near(Math.atan2(8, 6) * 180 / Math.PI, 53.13, 0.005) && !!g.tri &&
+      near(g.tri.c, 20, 1e-9) && near(g.tri.flat, 12, 1e-9) && near(g.tri.vert, 16, 1e-9) && near(g.phi, 53.13, 0.005) &&
+      has(g, '√(12² + 16²) = √400 = 20 V: the supply meter') && has(g, 'tan φ = 16 ÷ 12, so φ = 53.13°');
+  }, { source: KUPH2 });
+  K.check('Because the phasors for reactances are 90° out of phase with the current, the series impedance of a resistor R and a reactance X is given by Pythagoras\' law: on every screen, and at every setting of both frequency sliders and the resistance slider, the drawn closing side is √(flat² + upright²) and the upright stands square on the flat side\'s tip', () => {
+    const ok = (g) => !g.tri || ((g.tri.c == null || near(g.tri.c, Math.hypot(g.tri.a, g.tri.b), 1e-9)) && near(g.tri.tipX, g.tri.x0 + g.tri.a * g.tri.k, 1e-9));
+    const sf = idx('Slide the frequency'), sc = idx('Swap in a capacitor');
+    const zOk = FS.every((f) => { const g = drawn(sf, withF(f)); return ok(g) && g.f === f && near(g.tri.c, Math.hypot(6, TAU * f * L1), 1e-9); });
+    const cOk = FS.filter((f) => f >= 5).every((f) => {
+      const g = drawn(sc, withF(f)), s = solve(CARDS.cap, f);
+      return ok(g) && near(g.tri.c, 20, 1e-9) && near(g.tri.a, s.vr, 1e-9) && near(g.tri.b, -s.vx, 1e-9);
+    });
+    const rOk = [2, 10, 12].every((r) => {
+      const g = drawn(sf, Object.assign(withF(100), { R: r })), X = TAU * 100 * L1;
+      return ok(g) && near(g.tri.flat, r, 1e-9) && near(g.tri.vert, X, 1e-9) && near(g.tri.c, Math.hypot(r, X), 1e-9);
+    });
+    const p = settledOf(idx('Name the ohms'));
+    return STEPS.every((d, i) => ok(settledOf(i))) && zOk && rOk && cOk && !!p.pair && p.pair.every((o) => near(o.c, 10, 1e-9));
+  }, { source: UNSW });
+  K.check('Inductive reactance can be calculated using this formula: X_L = 2πfL. On the frequency screen the drawn X_L side, its rows and the meters agree with it at every setting from 0 to 100 Hz, and the demonstration ends back at 50 Hz, where a real coil's rows find 25.5 mH', () => {
+    const s = idx('Slide the frequency'), g7 = settledOf(s);
+    const real = g7.f === 50 && g7.body === true && has(g7, 'AC meters at 50 Hz: Z = 20 V ÷ 2 A = 10 Ω') && has(g7, 'X_L = √(10² − 6²) = 8 Ω') && has(g7, 'L = 8 ÷ (2π × 50) = 25.5 mH');
+    return real && near(TAU * 50 * L1, 8, 1e-12) && num(L1 * 1000, 1) === '25.5' && FS.every((f) => {
+      const g = drawn(s, withF(f)), X = TAU * f * L1, m = K.at({ step: s, f });
+      const rowOk = f === 0 ? has(g, 'at 0 Hz, steady DC: X_L = 0 Ω') : has(g, 'X_L = 2π × ' + f + ' Hz × 25.5 mH ≈ ' + num(X, 2) + ' Ω');
+      return near(g.tri.b, X, 1e-9) && rowOk && near(m.vx, 20 * X / Math.hypot(6, X), 1e-9) && near(m.vr, 120 / Math.hypot(6, X), 1e-9) && near(m.vs, 20, 1e-12);
+    });
+  }, { source: KUPH3 });
+  K.check('60 Hz is the most common frequency adopted for use on board ship: answered, the ship screen runs the first bench at 60 Hz, where X_L is 9.6 Ω, Z is 11.3 Ω and 1.77 A flows, lagging 58.0°', () => {
+    const g = settledOf(idx('Mixed: on board ship'));
+    return g.f === 60 && near(g.fT, 60, 1e-12) && near(g.tri.b, 9.6, 1e-9) && near(g.phi, 57.99, 0.01) && g.amm === 'I = 1.77 A' &&
+      has(g, 'X_L = 8 Ω × 60 ÷ 50 = 9.6 Ω') && has(g, 'Z = √(6² + 9.6²) ≈ 11.3 Ω') && has(g, 'I = 20 ÷ 11.3 = 1.77 A, lagging 58.0°');
+  }, { source: SHIP });
+  K.check('UK mains electricity operates at a nominal voltage of 230V: on 230 V with 5 A flowing and 200 V across the resistor, R is 40 Ω, Z is 46 Ω and X_L is 22.7 Ω, and the coil\'s meter reads 113.6 V', () => {
+    const s = idx('On the mains'), g = settledOf(s), m = K.at({ step: s });
+    return near(g.tri.c, 46, 1e-9) && near(g.tri.flat, 40, 1e-9) && fx(g.tri.vert, 1) === '22.7' && g.amm === 'I = 5 A' && g.meters.vs === 'supply = 230.0 V' &&
+      g.meters.vr === 'V_R = 200.0 V' && g.meters.vx === 'V_L = 113.6 V' && has(g, 'X_L = √(46² − 40²) ≈ 22.7 Ω') &&
+      near(m.vr, 200, 1e-9) && near(m.vs, 230, 1e-12) && fx(m.vx, 1) === '113.6';
+  }, { source: ENA });
+  K.check('Screen 2\'s supply wave is the resistor\'s plus the coil\'s at every drawn instant: the parts peak at 17.0 V and 22.6 V a quarter cycle apart (the coil\'s is at zero when the resistor\'s peaks), and the sum peaks at 28.3 V, which is 20 V rms', () => {
+    const g = settledOf(idx('Where did 8 V go?'));
+    if (!g.waves) return false;
+    const r = g.waves.r, l = g.waves.l, s = g.waves.s;
+    const mx = (dd) => Math.max.apply(null, dd.map((q) => q[1]));
+    const sum = s.length === 201 && s.every((q, j) => near(q[0], r[j][0], 1e-12) && near(q[1], r[j][1] + l[j][1], 1e-9));
+    return sum && near(r[50][0], 5, 1e-12) && near(r[50][1], 12 * RT2, 1e-9) && near(l[50][1], 0, 1e-9) && near(l[0][1], 16 * RT2, 1e-9) &&
+      near(mx(s), 20 * RT2, 0.02) && near(mx(s) / RT2, 20, 0.02) && fx(12 * RT2, 1) === '17.0' && fx(16 * RT2, 1) === '22.6' && fx(20 * RT2, 1) === '28.3';
+  });
+  K.check('The bench reads 12 V, 16 V and 20 V at 50 Hz and draws 2 A; at 100 Hz Z is 17.1 Ω and 1.17 A flows at 69.4°; at 25 Hz 7.21 Ω, 2.77 A and 33.7°; at 0 Hz 3.33 A; with the 398 µF capacitor, 100 Hz gives X_C = 4 Ω at −33.7° and 5 Hz gives 80 Ω', () => {
+    const s = idx('Slide the frequency'), sc = idx('Swap in a capacitor'), m0 = K.at({ step: 0 });
+    const a = solve(CARDS.bench, 100), b = solve(CARDS.bench, 25), z = solve(CARDS.bench, 0), c1 = solve(CARDS.cap, 100), c5 = solve(CARDS.cap, 5);
+    return near(m0.vr, 12, 1e-9) && near(m0.vx, 16, 1e-9) && near(m0.vs, 20, 1e-12) && near(solve(CARDS.bench, 50).I, 2, 1e-12) &&
+      zs(a.Z) === '17.1' && num(a.I, 2) === '1.17' && fx(a.phi, 1) === '69.4' && zs(b.Z) === '7.21' && num(b.I, 2) === '2.77' && fx(b.phi, 1) === '33.7' &&
+      num(z.I, 2) === '3.33' && near(K.at({ step: s, f: 0 }).vr, 20, 1e-9) && near(K.at({ step: s, f: 0 }).vx, 0, 1e-12) &&
+      near(c1.X, 4, 1e-9) && fx(c1.phi, 1) === '−33.7' && near(c5.X, 80, 1e-9) && near(K.at({ step: sc, fc: 5 }).vx, 20 * 80 / Math.hypot(6, 80), 1e-9) &&
+      num(C1 * 1e6, 0) === '398';
+  });
+  K.check('Dividing every side by the 2 A current turns 12 V, 16 V and 20 V into R = 6 Ω, X_L = 8 Ω and Z = 10 Ω: the drawn triangle halves but keeps its 53.13° angle', () => {
+    const a = settledOf(idx('Tip to tail')), b = settledOf(idx('Divide by the current'));
+    return near(b.tri.flat, 6, 1e-9) && near(b.tri.vert, 8, 1e-9) && near(b.tri.c, 10, 1e-9) && near(b.tri.c * 2, a.tri.c, 1e-9) && near(a.phi, b.phi, 1e-9) &&
+      ['R = 6 Ω', 'X_L = 8 Ω', 'Z = 10 Ω'].every((s) => b.names.indexOf(s) >= 0) && has(b, 'Z = √(6² + 8²) = 10 Ω; I = 20 ÷ 10 = 2 A');
+  });
+  K.check('The plain-sum bar is V_R + V_X long and the supply bar the supply\'s reading, on the arrows\' scale; the swung closing side lands on the supply bar\'s end; with the capacitor both bars follow the frequency', () => {
+    const g = settledOf(idx('Tip to tail')), sc = idx('Swap in a capacitor');
+    const barsOk = !!g.bars && near(g.bars.sum, 28 * 7, 1e-9) && near(g.bars.supply, 20 * 7, 1e-9) && !!g.swing &&
+      near(g.swing.x, X0T + g.bars.supply, 1e-6) && near(g.swing.y, g.tri.yb, 1e-6);
+    return barsOk && [5, 50, 100].every((f) => {
+      const h = drawn(sc, withF(f)), s = solve(CARDS.cap, f);
+      return !!h.bars && near(h.bars.sum, (s.vr + s.vx) * 7, 1e-9) && near(h.bars.supply, 140, 1e-9);
+    });
+  });
+  K.check('With the capacitor its arrow points down: at 50 Hz the meters still read 12.0 V, 16.0 V and 20.0 V and φ is −53.13°; at 5 Hz the triangle stands almost on end at −85.7°', () => {
+    const sc = idx('Swap in a capacitor'), g = drawn(sc, withF(50)), h = drawn(sc, withF(5));
+    return near(g.tri.b, -16, 1e-9) && near(g.phi, -53.13, 0.005) && g.meters.vr === 'V_R = 12.0 V' && g.meters.vx === 'V_C = 16.0 V' &&
+      g.meters.vs === 'supply = 20.0 V' && h.tri.a < 1.6 && h.tri.b < -19.9 && has(h, 'φ = −85.7°: the supply lags the current');
+  });
+  K.check('Each puzzle accepts only its right answer; before an answer its picture hides what is asked, a right answer draws it, and each wrong pick draws what it claims, in red', () => {
+    const PRE = {
+      'Where did 8 V go?': (g) => g.waves === null && has(g, 'their sum, instant by instant: ?'),
+      'A second bench': (g) => g.tri.c === null && g.meters.vs === 'supply = ?' && has(g, '√(10² + 24²) = ?'),
+      'On the mains': (g) => g.tri.c === null && g.tri.vert === null && g.meters.vx === 'V_L = ?' && g.amm === 'I = 5 A' && has(g, 'X_L = ?'),
+      'An unknown coil': (g) => g.tri.c === null && g.tri.vert === null && near(g.tri.flat, 8, 1e-9) && has(g, 'L = ?'),
+      'Name the ohms': (g) => ['6 Ω', '8 Ω', '10 Ω'].every((s) => g.names.indexOf(s) >= 0) && g.names.indexOf('Z = 10 Ω') < 0,
+      'Mixed: the capacitor\'s meter': (g) => g.tri.vert === null && g.tri.c === null && g.meters.vx === 'V_C = ?' && has(g, 'V_C = ?'),
+      'Mixed: on board ship': (g) => g.tri.vert === null && g.tri.c === null && g.ghost === true && g.amm === 'I = ?' && has(g, 'Z = ?'),
+    };
+    const POST = {
+      'Where did 8 V go?': (g) => !!g.waves && !!g.peaks && has(g, 'their sum peaks at 28.3 V = 20 V × √2'),
+      'A second bench': (g) => near(g.tri.c, 26, 1e-9) && g.meters.vs === 'supply = 26.0 V' && has(g, '√(10² + 24²) = √676 = 26 V'),
+      'On the mains': (g) => near(g.tri.c, 46, 1e-9) && g.meters.vx === 'V_L = 113.6 V' && has(g, 'R = 200 V ÷ 5 A = 40 Ω') && has(g, 'Z = 230 V ÷ 5 A = 46 Ω'),
+      'An unknown coil': (g) => near(g.tri.c, 17, 1e-9) && near(g.tri.vert, 15, 1e-9) && has(g, 'L = 15 ÷ (2π × 50) = 47.7 mH'),
+      'Name the ohms': (g) => ['R = 6 Ω', 'X_L = 8 Ω', 'X_C = 8 Ω', 'Z = 10 Ω'].every((s) => g.names.indexOf(s) >= 0),
+      'Mixed: the capacitor\'s meter': (g) => near(g.tri.vert, 40, 1e-9) && near(g.tri.c, 50, 1e-9) && g.meters.vx === 'V_C = 40.0 V' && has(g, 'V_C = √(50² − 30²) = √1600 = 40 V'),
+      'Mixed: on board ship': (g) => g.f === 60 && near(g.tri.b, 9.6, 1e-9) && near(g.tri.c, Math.hypot(6, 9.6), 1e-9) && g.amm === 'I = 1.77 A',
+    };
+    const only = DO.every((i) => { const d = STEPS[i]; return d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)); });
+    const hidden = DO.every((i) => !!PRE[STEPS[i].name] && PRE[STEPS[i].name](drawn(i, blank())) === true);
+    const shownOk = DO.every((i) => !!POST[STEPS[i].name] && POST[STEPS[i].name](settledOf(i)) === true);
+    const slips = DO.every((i) => !STEPS[i].slips || STEPS[i].opts.filter((o) => o !== STEPS[i].want).every((o) => {
+      const s = STEPS[i].slips[o], g = drawn(i, wrongSt(i, o));
+      return !!s && g.slip === s;
+    }));
+    return only && hidden && shownOk && slips;
+  });
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T, keepM = MODE;
+    const timed = (i, st, mode, limit) => {
+      const keepS = S[i];
+      T = Infinity; MODE = mode; latest = 0; earliest = Infinity; S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), 'demo', d.dur); return r && d.dur >= 3 && d.dur <= 4.5 && earliest >= FADE; }
+      return timed(i, solvedSt(i), 'answer', d.rdur) && d.rdur <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), 'answer', 0.8));
+    });
+    T = keepT; MODE = keepM; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

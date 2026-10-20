@@ -1,0 +1,1102 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .wrap { position: relative; margin-inline: auto; max-width: 26rem; }
+  .scene { display: block; width: 100%; }
+  .ctl { display: grid; gap: 12px; }
+  .scene .wire, .scene .coil { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .load { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .jn { fill: var(--k-ink); }
+  .scene .lead { stroke: var(--k-ink); stroke-width: 1.1; }
+  .scene .meter { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.6; }
+  .scene .clamp { fill: none; stroke: var(--k-accent2); stroke-width: 2.4; }
+  .scene .unk { fill: var(--k-sunk); stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .scene .a1 { stroke: var(--k-cat1); stroke-width: 3.2; stroke-linecap: round; }
+  .scene .h1 { fill: var(--k-cat1); }
+  .scene .a2 { stroke: var(--k-cat2); stroke-width: 3.2; stroke-linecap: round; }
+  .scene .h2 { fill: var(--k-cat2); }
+  .scene .a3 { stroke: var(--k-cat3); stroke-width: 3.2; stroke-linecap: round; }
+  .scene .h3 { fill: var(--k-cat3); }
+  .scene .c2 { stroke: var(--k-cat2); stroke-width: 2.6; stroke-dasharray: 6 4; }
+  .scene .c3 { stroke: var(--k-cat3); stroke-width: 2.6; stroke-dasharray: 6 4; }
+  .scene .aB { stroke: var(--k-accent2); stroke-width: 4; stroke-linecap: round; }
+  .scene .hB { fill: var(--k-accent2); }
+  .scene .vref { stroke: var(--k-muted); stroke-width: 1.3; }
+  .scene .vrefh { fill: var(--k-muted); }
+  .scene .arc { fill: none; stroke: var(--k-muted); stroke-width: 1.3; }
+  .scene .wave { fill: none; stroke: var(--k-cat1); stroke-width: 2.6; }
+  .scene .rmsl { stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 5 4; }
+  .scene .mbox { fill: var(--k-panel); stroke: var(--k-line); stroke-width: 1.2; }
+  .scene .ask { fill: var(--k-bg); stroke: var(--k-amber-line); stroke-width: 2; }
+  .scene .tt { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .lb, .scene .mt { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .nv { font: 700 13px var(--k-font); fill: var(--k-accent2); }
+  .scene .wk { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .scene .ky { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  .scene .q { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene #art * { pointer-events: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.05rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="wrap" id="wrap">
+      <svg class="scene" id="scene" viewBox="0 0 340 520" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    </div>
+    <div class="replay" id="replay"></div>
+    <div class="ctl" id="ctl"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">The loads and their readings are example values; the arrows are drawn to scale, frozen at one instant.</p>
+
+<script>
+  // ---------- the rule ----------
+  // Three windings 120° apart each make 230 V (the phase voltage). Each phase is an arrow; the
+  // voltage between two lines is one arrow minus the other, |V1 − V2| = √3 × 230 = 398.4 V, turned
+  // 30° from V1. Each load is 23 Ω at a power factor of 0.8, so its current is V ÷ 23, φ = acos 0.8
+  // = 36.9° behind its own voltage. Star: I_ph = 230 ÷ 23 = 10 A = I_L; the neutral carries the
+  // three currents added as arrows. Delta: each load has V_L across it, I_ph = 398.4 ÷ 23 = 17.32 A,
+  // and L1 carries I(L1–L2) − I(L3–L1), √3 × 17.32 = 30 A. Power: 3 V_ph I_ph cos φ = √3 V_L I_L cos φ.
+  const DEG = Math.PI / 180, R3 = Math.sqrt(3);
+  const VPH = 230, ZL = 23, PF = 0.8;              // UK mains phase voltage; the example loads
+  const PHI = Math.acos(PF) / DEG;                 // 36.87°
+  const VLL = VPH * R3;                            // 398.37 V
+  const IS = VPH / ZL;                             // 10 A, star
+  const ID = VLL / ZL;                             // 17.32 A, delta, each load
+  const ILD = ID * R3;                             // 30 A, delta, each line
+  const BV = 400, BI = 20, BPF = 0.85;             // the board's readings (an example)
+  const MI = 26, MW = MI / R3;                     // the motor's clamp reading (an example) and its windings
+  const VSH = 254, IDO = 12, PK = Math.SQRT2;      // screen 2's supply, a winding, and screen 8's loads, each (examples); peak ÷ rms
+  const MAIN = { z: ZL, pf: PF }, HEAT = { z: VPH / 2.5, pf: 1 };   // the example loads; screen 10's heaters, 2.5 A each in star (an example)
+  const TH = [0, -120, 120];                       // L1, L2, L3: each a third of a turn behind the last
+  const KV = 0.23, KIS = 5, KID = 2.8;             // drawing units per volt, per amp (star), per amp (delta)
+
+  // The circuit, in drawing units: the lines' heights, the neutral's, the supply's star point, the
+  // windings' ends, the load corners, the loads' star point, the neutral's turn and the meters.
+  const YL = [78, 124, 170], YN = 198, SP = [48, 124], EW = [[104, 78], [104, 124], [104, 170]];
+  const CN = [[318, 78], [262, 124], [318, 170]], LP = [299, 124], NX = 326, CLX = 214, CNX = 190, UX = 250;
+  const VM_PH = { c: [34, 62], a: [104, 78], b: [48, 124] }, VM_L = { c: [150, 101], a: [150, 78], b: [150, 124] };
+
+  function num(v, dp) {
+    dp = dp == null ? 2 : dp;
+    const m = Math.pow(10, dp);
+    let r = Math.round(v * m) / m;
+    if (r === 0) r = 0;
+    let s = r.toFixed(dp);
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    return s.replace('-', '−');
+  }
+  function fx(v, dp) {
+    const m = Math.pow(10, dp);
+    let r = Math.round(v * m) / m;
+    if (r === 0) r = 0;
+    return r.toFixed(dp).replace('-', '−');
+  }
+  // Watts as the lesson writes them: 5520 W, 16,560 W.
+  function watts(v) {
+    const r = Math.round(v), s = String(r);
+    return (r >= 10000 ? s.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : s) + ' W';
+  }
+  const mix = (a, b, t) => (t >= 1 ? b : t <= 0 ? a : a + (b - a) * t);
+  const pol = (r, deg) => [r * Math.cos(deg * DEG), -r * Math.sin(deg * DEG)];   // an arrow, drawn (y down)
+  const vadd = (a, b) => [a[0] + b[0], a[1] + b[1]];
+  const vsub = (a, b) => [a[0] - b[0], a[1] - b[1]];
+  const vlen = (a) => Math.hypot(a[0], a[1]);
+  const vang = (a) => Math.atan2(-a[1], a[0]) / DEG;
+  const vmix = (a, b, t) => [mix(a[0], b[0], t), mix(a[1], b[1], t)];
+  const dip = (cv) => [cv < 0.5 ? 1 - 2 * cv : 0, cv > 0.5 ? 2 * cv - 1 : 0];   // star's words fade out, then delta's in
+  // The three star currents added as arrows: what the neutral carries.
+  const neutralOf = (l3) => [IS, IS, l3].reduce((s, I, k) => vadd(s, pol(I, TH[k] - PHI)), [0, 0]);
+  // The power both ways for a connection of the example loads.
+  // Each readout is worked from the factors it shows, so it can be checked by hand; P is the exact power.
+  function powerOf(conn, ld) {
+    ld = ld || MAIN;
+    const d = conn === 'delta', Vp = d ? VLL : VPH, Ip = Vp / ld.z, IL = d ? Ip * R3 : Ip, pf = ld.pf;
+    const sh = (v, dp) => Number(num(v, dp));
+    return { Vp, Ip, IL, pf, P: 3 * Vp * Ip * pf, Pp: 3 * sh(Vp, 1) * sh(Ip, 2) * pf, Pl: R3 * sh(VLL, 1) * sh(IL, 2) * pf };
+  }
+  const phStr = (w) => '3 × ' + num(w.Vp, 1) + ' × ' + num(w.Ip, 2) + ' × ' + num(w.pf, 2) + ' = ' + watts(w.Pp);
+  const lnStr = (w) => '√3 × ' + num(VLL, 1) + ' × ' + num(w.IL, 2) + ' × ' + num(w.pf, 2) + ' = ' + watts(w.Pl);
+  const grp = (v) => { const r = Math.round(v), t = String(r); return r >= 10000 ? t.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : t; };
+  const CL = (v) => 'I_L = ' + v + ' A';
+  const VL_LAB = 'V_L = ' + fx(VLL, 1) + ' V';
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const STEPS = [
+    { show: true, key: 'starV', name: 'Star: where you measure', card: 'main', dur: 4.2,
+      text: 'Three windings a third of a turn apart make three voltages 120° apart, 230 V each. The supply is in *star*: one end of every winding meets at the star point, and lines L1, L2 and L3 run from the free ends to three loads, joined the same way. Across one winding the voltmeter reads the *phase voltage*, 230 V. Between L1 and L2 it reads L1\'s arrow minus L2\'s, √3, about 1.732, times as long: 230 × 1.732 = 398.4 V, the *line voltage*.' },
+    { key: 'lineV', name: 'Between two lines', card: 'main', vph: VSH, rdur: 2.1,
+      task: 'Say a supply makes 254 V a winding, in star. What does the voltmeter between L1 and L2 read?',
+      opts: ['508 V', '440 V', '254 V'], want: '440 V',
+      hint: 'Not quite. Think about which way you pass through each winding.',
+      hints: { '508 V': 'Not quite. The two phases peak a third of a cycle apart, and the meter reads their difference, not their sum.',
+        '254 V': 'Not quite. That is across one winding, line to star point.' },
+      why: 'Going from L2 to L1 you pass back down L2\'s winding and up L1\'s, so the meter reads L1\'s arrow minus L2\'s. To take an arrow away, turn it half round and add it. L2\'s arrow, turned round, sits on the tip of L1\'s, and the arrow closing them is √3, about 1.732, times as long, turned 30° from L1\'s. So 254 × 1.732 = 439.9 V, about 440 V, the line voltage most ships run. 508 V adds the two as plain numbers, as if they peaked together.' },
+    { show: true, key: 'starI', name: 'Star: the currents', card: 'main', dur: 3.8,
+      text: 'Now the currents. Each line runs straight into one winding and one load, with nothing branching off, so the *line current* is the phase current. Each load is 23 Ω at a power factor of 0.8, so each phase carries 230 ÷ 23 = 10 A, 36.9° behind its own voltage. At the star point the three currents meet and go back along the *neutral*, which carries all three added as arrows.' },
+    { key: 'neutral', name: 'The neutral', card: 'main', rdur: 2.0,
+      task: 'Three 10 A phase currents meet at the star point. What does the neutral carry?',
+      opts: ['30 A', '10 A', '0 A'], want: '0 A',
+      hint: 'Not quite. Add them as arrows, tip to tail.',
+      hints: { '30 A': 'Not quite. The three currents peak at different moments, so they add as arrows, not as numbers.',
+        '10 A': 'Not quite. Lay them tip to tail: the last tip lands back on the first tail.' },
+      why: 'Laid tip to tail, three equal arrows 120° apart close a triangle. The last tip lands back on the first tail, so their sum is nothing: at every instant, what flows out along one line flows back along the other two. A balanced load leaves the neutral carrying nothing, so a load that is always balanced can be fed by the three lines alone. Most ships\' main supply is just that: three phases on three wires, with no neutral conductor.' },
+    { show: true, key: 'unbal', name: 'Unbalance', card: 'main', free: 'l3', dur: 3.8,
+      text: 'The slider is yours now: L3\'s load current. L1 and L2 stay at 10 A. As L3 falls, the triangle stops closing and the neutral\'s arrow grows across the gap. Each phase still shares an equal part, L3\'s current, which cancels as before. What is left is L1\'s and L2\'s extra, two equal arrows 120° apart, whose sum is one arrow just as long. So the neutral carries 10 A minus L3\'s current: 4 A with L3 at 6 A, and 10 A with L3 off.' },
+    { key: 'n5', name: '10, 10 and 7', card: 'main', free: 'l3', freeAfter: true, l3: 7, rdur: 2.1,
+      task: 'L1 and L2 carry 10 A, and L3 carries 7 A. What does the neutral carry?',
+      opts: ['3 A', '27 A', '0 A'], want: '3 A',
+      hint: 'Not quite. Find the equal part first.',
+      hints: { '27 A': 'Not quite. They are 120° apart, so most of them cancel.',
+        '0 A': 'Not quite. Only equal currents cancel completely.' },
+      why: 'The equal part, 7 A in each phase, closes a triangle and cancels. What is left is L1\'s and L2\'s extra 3 A, two equal arrows 120° apart, whose sum is one 3 A arrow. So the neutral carries 3 A, not 27 A. That cancelling holds for sine-wave currents; currents with harmonics at three times the supply frequency add in the neutral instead.' },
+    { show: true, key: 'delta', name: 'Delta', card: 'main', conn: 'delta', dur: 4.2,
+      text: 'The switch now joins the same loads in *delta*. The supply stays in star, so from here phase means one load. Each load sits between two lines, in a ring, with no star point and no neutral, so it has the line voltage across it, 398.4 V, and draws 398.4 ÷ 23 = 17.32 A. At L1\'s corner, L1 brings the current of the load that starts there, less the current the other load delivers back. That is the difference of two phase currents 120° apart, the same subtraction as before, now on the currents: 17.32 × 1.732 = 30.0 A.' },
+    { key: 'deltaI', name: 'Delta: the line current', card: 'main', conn: 'delta', id: IDO, sub: 'other loads, 12 A each, power factor 0.8', rdur: 2.0,
+      task: 'Other loads in delta each draw 12 A. What does the clamp on L1 read?',
+      opts: ['24 A', '12 A', '20.8 A'], want: '20.8 A',
+      hint: 'Not quite. Two loads meet at L1\'s corner.',
+      hints: { '24 A': 'Not quite. They are 120° apart, and L1 carries their difference.',
+        '12 A': 'Not quite. That is star\'s rule; in delta two loads meet at every line.' },
+      why: 'L1\'s corner joins two loads. L1 brings the current of the load that starts there, less the current of the load that ends there: two 12 A phase currents 120° apart. Turn the second half round and lay it on the tip of the first, and the arrow closing them is √3 times as long, 12 × 1.732 = 20.8 A. The √3 has moved from the voltage to the current. 24 A adds them as plain numbers, as if they peaked together.' },
+    { show: true, key: 'power', name: 'Power, either way', card: 'main', free: 'conn', dur: 3.2,
+      text: 'Each load takes V_ph × I_ph × cos φ, lesson 8\'s true power, so three take 3 × V_ph × I_ph × cos φ. In star, V_ph = V_L ÷ √3 and I_ph = I_L. In delta, V_ph = V_L and I_ph = I_L ÷ √3. Either way one √3 divides into the 3 and leaves √3 × V_L × I_L × cos φ, so the two readouts always agree. Flip the switch and watch both: 5520 W in star, 16,561 W in delta.' },
+    { key: 'p3', name: 'Heaters, star to delta', card: 'main', free: 'conn', freeAfter: true, ld: HEAT, sub: 'heaters, 92 Ω each, power factor 1', rdur: 2.1,
+      task: 'Three heaters take 1725 W in star, 2.5 A each. Joined in delta on the same supply, what do they take?',
+      opts: ['1725 W', '5175 W', '2988 W'], want: '5175 W',
+      hint: 'Not quite. Follow the voltage across one heater.',
+      hints: { '1725 W': 'Not quite. The heaters are the same, but the voltage across each is not.',
+        '2988 W': 'Not quite. The current through each rises by √3 too.' },
+      why: 'In delta each heater has √3 times the voltage across it, 398.4 V instead of 230 V, so it draws √3 times the current, 4.33 A instead of 2.5 A. Its power goes with both, so it rises √3 × √3 = 3 times: 3 × 1725 = 5175 W. Fixed loads such as heaters, moved from star to delta on the same supply, take three times the power.' },
+    { key: 'board', name: 'Mixed: a board', card: 'board', conn: 'unknown', rdur: 1.8,
+      task: 'Mixed. A board reads 400 V between lines. A balanced load draws 20 A a line at a power factor of 0.85, and you cannot see how it is joined. What apparent power, in volt-amps, do its cables carry?',
+      opts: ['11.8 kVA', '13.9 kVA', '24.0 kVA'], want: '13.9 kVA',
+      hint: 'Not quite. Which formula takes line values, and does apparent power take cos φ?',
+      hints: { '11.8 kVA': 'Not quite. That is the true power, the cos φ share; apparent power leaves cos φ out.',
+        '24.0 kVA': 'Not quite. 3 goes with phase values; with line values the factor is √3.' },
+      why: 'Apparent power is volts times amps with the angle left out, lesson 8\'s volt-amps. With line values, three phases\' worth is √3 × V_L × I_L, whatever the connection: √3 × 400 × 20 = 13,856 VA, about 13.9 kVA. Only the cos φ share arrives as watts: 13,856 × 0.85 = 11,778 W, about 11.8 kW.' },
+    { key: 'motor', name: 'Mixed: a delta motor', card: 'motor', conn: 'delta', rdur: 2.0,
+      task: 'Mixed. A motor\'s windings are joined in delta, and the clamp reads 26 A on one line. What current flows in each winding?',
+      opts: ['26 A', '45.0 A', '15.0 A'], want: '15.0 A',
+      hint: 'Not quite. In delta, where does the √3 go?',
+      hints: { '26 A': 'Not quite. 26 A is in the line; in delta each line feeds two windings.',
+        '45.0 A': 'Not quite. In delta the line carries more than the winding, not less.' },
+      why: 'In delta each line joins two windings and carries the difference of their currents, √3 times one of them. So each winding carries the line current ÷ √3: 26 ÷ 1.732 = 15.0 A. Two 15.0 A arrows 120° apart differ by an arrow 26 A long.' },
+    { key: 'peak', name: 'Mixed: the peak', card: 'peak', conn: 'unknown', rdur: 1.8,
+      task: 'Mixed. The meter reads 400 V between two lines. Like the 230 V on a label, that is rms. What peak voltage does the insulation between them see?',
+      opts: ['693 V', '400 V', '566 V'], want: '566 V',
+      hint: 'Not quite. Which factor goes from rms to peak?',
+      hints: { '693 V': 'Not quite. √3 turns a phase voltage into a line voltage; from rms to peak a sine needs √2.',
+        '400 V': 'Not quite. 400 V is the rms; the wave swings higher.' },
+      why: '400 V is rms, as lesson 2 showed for the 230 V label, and a sine peaks at √2, about 1.414, times its rms: 400 × 1.414 = 566 V. The connection does not matter here. √3 goes from phase to line; √2 goes from rms to peak. Choose the tool by what you are changing.' },
+  ];
+  const FINISH = 'The √3 comes from subtracting two equal arrows 120° apart: it lands on the voltage in star and on the current in delta. For a generator, star gives the same power with less line current, and delta copes better if a winding fails. A motor\'s windings are joined in star or delta too, and the courses after this one take three-phase on to transformers, ships\' systems and motors.';
+  // Sources the checks restate (the lesson's own).
+  const L13B = 'https://engineering.louisville.edu/raise/ECE252/L13B.htm';
+  const ENA = 'https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits';
+  const KUPH10 = 'http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_10.html';
+  const OSU = 'https://web.engr.oregonstate.edu/~webbky/ENGR202_files/SECTION%207%20Three%20Phase%20Circuit%20Fundamentals.pdf';
+  const HYPER = 'http://www.hyperphysics.gsu.edu/hbase/electric/powerac.html';
+
+  const PICK = 'Tap one of the answers.';
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong' or 'empty' once checked), why: the puzzle. l3, conn: what Dan has set
+  // on a screen with a free control (null: the screen's own).
+  function blank() { return { pick: null, res: null, why: false, l3: null, conn: null }; }
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, MODE = 'demo', motionEnd = 0;
+  let REC = {}, BOX = [];
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+
+  // Text with highlighted key terms (*term*), and V_ph, I_ph, V_L, I_L set with a lowered part, built with K.el.
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').split(/(\*[^*]+\*|[VI]_(?:ph|L))/).forEach((b) => {
+      if (!b) return;
+      if (/^[VI]_(ph|L)$/.test(b)) node.append(b.charAt(0), K.el('sub', {}, b.slice(2)));
+      else if (b.charAt(0) === '*' && b.length > 2 && b.charAt(b.length - 1) === '*') node.appendChild(K.el('mark', {}, b.slice(1, -1)));
+      else node.appendChild(document.createTextNode(b));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play('answer', st.res === 'right' ? d.rdur : 0.8);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Replay', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    st.l3 = null; st.conn = null;
+    play('demo', d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  // L3's load current (screens 5 and 6) and the star-delta switch (screens 9 and 10), each shown only there.
+  const CTL = {
+    l3: K.control({ id: 'l3', label: 'L3\'s load current', min: 0, max: 10, step: 0.5, value: 10, fmt: (v) => num(v, 1) + ' A', snap: [6, 7], into: '#ctl' }),
+    conn: K.choice({ id: 'conn', label: 'Loads joined in', options: [{ value: 'star', label: 'Star' }, { value: 'delta', label: 'Delta' }], value: 'star', into: '#ctl' }),
+  };
+  const shown = { l3: CTL.l3.get(), conn: CTL.conn.get() };
+  // The free control set to what the picture shows (quietly: this is not Dan moving it).
+  function syncCtl(d) {
+    if (!d.free) return;
+    const ctl = CTL[d.free];
+    const v = d.free === 'l3' ? K.clamp(Math.round(REC.l3 * 2) / 2, 0, 10) : (REC.cv >= 0.5 ? 'delta' : 'star');
+    if (ctl.get() !== v) ctl.set(v, true);
+    shown[d.free] = ctl.get();
+  }
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && T !== Infinity) { T = Infinity; paint(); } });
+  // A demonstration waits until most of its picture is in view.
+  let seen = true, waiting = false, waitDur = 0;
+  if (typeof IntersectionObserver === 'function') {
+    seen = false;
+    new IntersectionObserver((es) => {
+      const e = es[es.length - 1];
+      seen = e.isIntersecting && (e.intersectionRatio >= 0.6 || e.intersectionRect.height >= 0.6 * (window.innerHeight || 1));
+      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }
+    }, { threshold: [0, 0.3, 0.6, 0.8, 1] }).observe(el('scene'));
+  }
+  function play(mode, dur) {
+    MODE = mode; waiting = false;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    if (mode === 'demo' && !seen) { waiting = true; waitDur = dur; T = 0; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function stopMotion() { if (anim.playing()) anim.pause(); waiting = false; T = Infinity; }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing helpers ----------
+  const svg = el('scene'), art = el('art');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  let latest = 0, earliest = Infinity;
+  function arr(t0, dd) {
+    dd = dd == null ? K.SOFT : dd;
+    if (t0 + dd > latest) latest = t0 + dd;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, dd);
+  }
+  function lin(t0, dd) {
+    if (t0 + dd > latest) latest = t0 + dd;
+    if (t0 < earliest) earliest = t0;
+    return T === Infinity ? 1 : K.clamp((T - t0) / dd, 0, 1);
+  }
+  function part(a, rise, draw) {
+    if (!(a > 0.001)) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  const R2 = (v) => Math.round(v * 100) / 100;
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: R2(x1), y1: R2(y1), x2: R2(x2), y2: R2(y2) }));
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: R2(x), y: R2(y), width: R2(Math.max(0, w)), height: R2(Math.max(0, h)), rx: rx || 0 }));
+  const circ = (cls, p, r) => add(K.svg('circle', { class: cls, cx: R2(p[0]), cy: R2(p[1]), r }));
+  const path = (cls, dd) => add(K.svg('path', { class: cls, d: dd }));
+  // A text; '_ph' or '_L' in it is set lowered (V_ph reads as V with ph below the line).
+  function makeText(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: R2(x), y: R2(y), 'text-anchor': anchor || 'middle' });
+    const bits = String(s).split(/(_ph|_L)/);
+    bits.forEach((b, j) => {
+      if (!b) return;
+      if (/^_(ph|L)$/.test(b)) t.appendChild(K.svg('tspan', { dy: 4 }, b.slice(1)));
+      else if (j > 0 && /^_(ph|L)$/.test(bits[j - 1])) t.appendChild(K.svg('tspan', { dy: -4 }, b));
+      else t.appendChild(document.createTextNode(b));
+    });
+    return t;
+  }
+  const text = (x, y, s, cls, anchor) => add(makeText(x, y, s, cls, anchor));
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(makeText(0, -50, s, cls, 'start'));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 7.4;
+  }
+  function askMark(p) { circ('ask', p, 10); text(p[0], p[1] + 5, '?', 'q'); BOX.push([p[0] - 12, p[1] - 12, p[0] + 12, p[1] + 12]); }
+  function headOf(x1, y1, x2, y2) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.6), hw = hl * 0.55;
+    return { hl, ux, uy, b1: [x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw], b2: [x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw] };
+  }
+  function arrow(cls, hcls, x1, y1, x2, y2) {
+    const L = Math.hypot(x2 - x1, y2 - y1);
+    if (L < 0.5) return;
+    const h = headOf(x1, y1, x2, y2);
+    if (L - h.hl > 0.5) line(cls, x1, y1, x2 - h.ux * h.hl * 0.8, y2 - h.uy * h.hl * 0.8);
+    path(hcls, 'M' + R2(x2) + ' ' + R2(y2) + 'L' + R2(h.b1[0]) + ' ' + R2(h.b1[1]) + 'L' + R2(h.b2[0]) + ' ' + R2(h.b2[1]) + 'Z');
+  }
+  // Whether a box [x1, y1, x2, y2] keeps 3 units clear of every segment [x1, y1, x2, y2].
+  function clearOf(b, segs) {
+    return segs.every((g) => {
+      for (let j = 0; j <= 30; j++) {
+        const x = g[0] + (g[2] - g[0]) * j / 30, y = g[1] + (g[3] - g[1]) * j / 30;
+        if (x > b[0] - 3 && x < b[2] + 3 && y > b[1] - 3 && y < b[3] + 3) return false;
+      }
+      return true;
+    });
+  }
+  const apart = (b) => BOX.every((o) => b[2] < o[0] - 2 || b[0] > o[2] + 2 || b[3] < o[1] - 2 || b[1] > o[3] + 2);
+  function boxAt(x, y, w, anchor) { const x0 = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w : x; return [x0, y - 11, x0 + w, y + 4]; }
+  // How many points of the segments come within 3 units of a box (0: clear).
+  function hits(b, segs) {
+    let n = 0;
+    segs.forEach((g) => {
+      for (let j = 0; j <= 30; j++) {
+        const x = g[0] + (g[2] - g[0]) * j / 30, y = g[1] + (g[3] - g[1]) * j / 30;
+        if (x > b[0] - 3 && x < b[2] + 3 && y > b[1] - 3 && y < b[3] + 3) n++;
+      }
+    });
+    return n;
+  }
+  function spotFor(str, cls, cands, segs, ymin) {
+    const w = tw(str, cls);
+    let best = null, bestScore = Infinity;
+    for (const c of cands) {
+      const b = boxAt(c[0], c[1], w, c[2]);
+      if (b[0] < 4 || b[2] > 336 || b[1] < ymin) continue;
+      const sc = hits(b, segs) + (apart(b) ? 0 : 1000);
+      if (sc === 0) return { c, b };
+      if (sc < bestScore) { bestScore = sc; best = { c, b }; }
+    }
+    if (best) return best;
+    const c = cands[0];
+    return { c, b: boxAt(c[0], c[1], w, c[2]) };
+  }
+  // Places for an arrow's name: beyond its tip first, then beside its shaft.
+  function candsFor(s, e) {
+    const dx = e[0] - s[0], dy = e[1] - s[1], L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L;
+    const anc = (vx) => (vx > 0.35 ? 'start' : vx < -0.35 ? 'end' : 'middle');
+    const base = (y, vy) => y + 4.5 + (vy > 0.35 ? 7 : vy < -0.35 ? -3 : 0);
+    const out = [];
+    [8, 14, 22].forEach((d) => out.push([e[0] + ux * d, base(e[1] + uy * d, uy), anc(ux)]));
+    [[-uy, ux], [uy, -ux]].forEach((n) => [0.85, 0.6, 0.4].forEach((t) => [10, 18].forEach((o) => {
+      out.push([s[0] + dx * t + n[0] * o, base(s[1] + dy * t + n[1] * o, n[1]), anc(n[0])]);
+    })));
+    const m = [s[0] + dx / 2, s[1] + dy / 2];
+    [[e, 12], [e, 20], [e, 30], [m, 14], [m, 24]].forEach((pr) => {
+      for (let j = 0; j < 16; j++) {
+        const a = j * Math.PI / 8, cx = Math.cos(a), cy = Math.sin(a);
+        out.push([pr[0][0] + cx * pr[1], base(pr[0][1] + cy * pr[1], cy), anc(cx)]);
+      }
+    });
+    return out;
+  }
+  // A key inside the drawing, in rows: each item a swatch and its name.
+  function keyRows(items, y) {
+    let x = 8, row = 0;
+    items.forEach((it) => {
+      const w = 18 + 6 + tw(it.label, 'ky');
+      if (x > 8 && x + w > 336) { x = 8; row++; }
+      const yy = y + row * 22, x0 = x;
+      part(it.a == null ? 1 : it.a, 0, () => { it.sw(x0, yy); text(x0 + 24, yy + 5, it.label, 'ky', 'start'); });
+      x += w + 14;
+    });
+    return y + row * 22 + 12;
+  }
+  const swLine = (cls) => (x, yy) => line(cls, x, yy, x + 18, yy);
+  const swRing = (x, yy) => circ('clamp', [x + 9, yy], 6);
+
+  // ---------- each screen's picture state ----------
+  function leftRows(l3) {
+    if (l3 > 9.95) return ['all three are equal,', 'so the triangle closes'];
+    if (l3 < 0.05) return ['L3 is off: L1 and L2 are left,', 'two 10 A arrows 120° apart'];
+    return ['the equal ' + num(l3, 1) + ' A in each phase cancels', 'L1\'s and L2\'s extra ' + num(IS - l3, 1) + ' A is left'];
+  }
+  const lineRow = (l3) => 'L1 10 A · L2 10 A · L3 ' + num(l3, 1) + ' A';
+  function stateOf(i, st) {
+    const d = STEPS[i], right = !d.show && st.res === 'right', demo = d.show && MODE === 'demo';
+    const on = (t, dd) => (demo ? arr(t, dd) : 1);          // a demonstration's arrival
+    const mv = (t, dd) => (demo ? K.ease(lin(t, dd)) : 1);   // a demonstration's move
+    const rt = (t, dd) => (right ? arr(t, dd) : 0);          // a right answer's arrival
+    const rm = (t, dd) => (right ? K.ease(lin(t, dd)) : 0);  // a right answer's move
+    const s = { cv: d.conn === 'delta' ? 1 : 0, vm: null, vmLab: [], cl: [], cn: [], ph: null, rows: [], boxes: null, l3: IS };
+    const vph = d.vph || VPH, PHROW = [['phase: across one winding, V_ph = ' + num(vph, 1) + ' V', 1]];
+    switch (d.key) {
+      case 'starV':
+        s.vm = mv(0.6, 1.0);
+        s.vmLab = [['V_ph = 230 V', 'ph', demo ? 1 - arr(0.5, 0.4) : 0], [VL_LAB, 'L', on(1.4, 0.4)]];
+        s.ph = { type: 'v', copyA: on(1.8, 0.3), rot: mv(2.0, 0.6), slide: mv(2.6, 0.6), boldA: on(3.2, 0.4) };
+        s.rows = [PHROW, [['line: L1 − L2 = 230 × 1.732 = ' + fx(VLL, 1) + ' V', on(3.4, 0.5)]]];
+        break;
+      case 'lineV': {
+        const ra = rt(1.3, 0.4);
+        s.vm = 1; s.vmLab = [['V_L = ? V', 'L', 1 - ra], ['V_L = ' + fx(vph * R3, 1) + ' V', 'L', ra]];
+        s.ph = { type: 'v', vph, copyA: rt(0.1, 0.3), rot: rm(0.3, 0.5), slide: rm(0.8, 0.5), boldA: rt(1.3, 0.4), ask: !right };
+        const rw = rt(1.5, 0.5);
+        s.rows = [PHROW, [['line: L1 − L2 = ?', 1 - rw], ['line: L1 − L2 = ' + num(vph, 1) + ' × 1.732 = ' + fx(vph * R3, 1) + ' V', rw]]];
+        break;
+      }
+      case 'starI':
+        s.cl = [[CL(num(IS, 2)), on(2.4, 0.4)]];
+        s.ph = { type: 'i', l3: IS, lay: 0, aI: [on(0.5), on(1.0), on(1.5)], phiA: on(2.0, 0.4), nA: 0 };
+        s.rows = [[['each phase: 230 ÷ 23 = ' + num(IS, 2) + ' A', on(2.6, 0.5)]], [['each current ' + fx(PHI, 1) + '° behind its voltage', on(3.0, 0.5)]]];
+        break;
+      case 'neutral': {
+        const ra = rt(1.3, 0.4), rw = rt(1.4, 0.5), N = vlen(neutralOf(IS));
+        s.cl = [[CL(num(IS, 2)), 1]];
+        s.cn = [['neutral ? A', 1 - ra], ['neutral ' + fx(N, 1) + ' A', ra]];
+        s.ph = { type: 'i', l3: IS, lay: rm(0.2, 1.0), aI: [1, 1, 1], phiA: 1, nA: rt(1.2, 0.4) };
+        s.rows = [[[lineRow(IS), 1]], [['neutral: the three added as arrows = ?', 1 - rw], ['tip to tail they close: nothing is left', rw]]];
+        break;
+      }
+      case 'unbal': {
+        const l3 = st.l3 != null ? st.l3 : demo ? mix(IS, 6, K.ease(lin(0.6, 2.0))) : 6;
+        s.l3 = l3;
+        s.cl = [[CL(num(IS, 2)), 1]];
+        s.cn = [['neutral ' + fx(vlen(neutralOf(l3)), 1) + ' A', 1]];
+        s.ph = { type: 'i', l3, lay: 1, aI: [1, 1, 1], phiA: 1, nA: 1 };
+        const lr = leftRows(l3);
+        s.rows = [[[lineRow(l3), 1]], [[lr[0], 1]], [[lr[1], 1]]];
+        break;
+      }
+      case 'n5': {
+        const l3 = right && st.l3 != null ? st.l3 : d.l3;
+        const ra = rt(1.3, 0.4), rw = rt(1.5, 0.5), lr = leftRows(l3);
+        s.l3 = l3;
+        s.cl = [[CL(num(IS, 2)), 1]];
+        s.cn = [['neutral ? A', 1 - ra], ['neutral ' + fx(vlen(neutralOf(l3)), 1) + ' A', ra]];
+        s.ph = { type: 'i', l3, lay: rm(0.2, 1.0), aI: [1, 1, 1], phiA: 1, nA: rt(1.1, 0.4) };
+        s.rows = [[[lineRow(l3), 1]], [['neutral = ?', 1 - rw], [lr[0], rw]], [[lr[1], rw]]];
+        break;
+      }
+      case 'delta':
+        s.cv = mv(0.5, 1.0);
+        s.vm = 1; s.vmLab = [[VL_LAB, 'L', 1]];
+        s.cl = [[CL(num(IS, 2)), demo ? 1 - arr(0.5, 0.4) : 0], [CL(fx(ILD, 1)), on(3.2, 0.4)]];
+        s.ph = { type: 'd', aI: on(1.6), copyA: on(2.2, 0.3), rot: mv(2.3, 0.5), slide: mv(2.8, 0.5), boldA: on(3.3, 0.4) };
+        s.rows = [[['each load: V_ph = V_L = ' + fx(VLL, 1) + ' V', on(1.6, 0.5)]], [['each load: 398.4 ÷ 23 = ' + fx(ID, 2) + ' A', on(2.1, 0.5)]],
+          [['L1: 17.32 × 1.732 = ' + fx(ILD, 1) + ' A', on(3.5, 0.5)]]];
+        break;
+      case 'deltaI': {
+        const ra = rt(1.3, 0.4), rw = rt(1.4, 0.5);
+        s.vm = 1; s.vmLab = [[VL_LAB, 'L', 1]];
+        s.cl = [['I_L = ? A', 1 - ra], [CL(fx(IDO * R3, 1)), ra]];
+        s.ph = { type: 'd', id: IDO, aI: 1, copyA: rt(0.1, 0.3), rot: rm(0.3, 0.4), slide: rm(0.7, 0.5), boldA: rt(1.2, 0.4), ask: !right };
+        s.rows = [[['each load: ' + num(IDO, 2) + ' A', 1]], [['L1: load L1–L2 less load L3–L1 = ?', 1 - rw], ['L1: ' + num(IDO, 2) + ' × 1.732 = ' + fx(IDO * R3, 1) + ' A', rw]]];
+        break;
+      }
+      case 'power': case 'p3': {
+        let cv;
+        if (d.key === 'power') cv = st.conn != null ? (st.conn === 'delta' ? 1 : 0) : mv(1.4, 1.6);
+        else cv = right ? (st.conn != null ? (st.conn === 'delta' ? 1 : 0) : rm(0.2, 1.2)) : 0;
+        const [a0, a1] = dip(cv), ld = d.ld || MAIN, ws = powerOf('star', ld), wd = powerOf('delta', ld);
+        s.cv = cv;
+        s.vm = 1; s.vmLab = [[VL_LAB, 'L', 1]];
+        s.cl = [[CL(num(ws.IL, 2)), a0], [CL(fx(wd.IL, 1)), a1]];
+        s.ph = { type: 'p', cv, ws, wd };
+        s.boxes = { kind: 'main', cv, ws, wd, a: d.key === 'power' ? on(0.4, 0.5) : 1 };
+        s.rows = [[['star: V_ph = V_L ÷ √3 = 230 V', a0], ['delta: V_ph = V_L = ' + fx(VLL, 1) + ' V', a1]],
+          [['I_ph = I_L = ' + num(ws.Ip, 2) + ' A', a0], ['I_ph = I_L ÷ √3 = ' + fx(wd.Ip, 2) + ' A', a1]]];
+        if (d.key === 'p3') {
+          const rw = rt(1.5, 0.5);
+          s.rows.push([['in delta: ? W', 1 - rw], [grp(wd.Pl) + ' ÷ ' + grp(ws.Pl) + ' = 3, which is √3 × √3', rw]]);
+        }
+        break;
+      }
+      case 'board':
+        s.vm = 1; s.vmLab = [['V_L = ' + num(BV, 1) + ' V', 'L', 1]];
+        s.cl = [[CL(num(BI, 2)), 1]];
+        s.boxes = { kind: 'board', a: 1, la: rt(0.3, 0.4), ta: rt(0.8, 0.4) };
+        break;
+      case 'peak': {
+        const rw = rt(1.0, 0.5);
+        s.vm = 1; s.vmLab = [['V_L = ' + num(BV, 1) + ' V', 'L', 1]];
+        s.ph = { type: 'w', pa: rt(0.2, 0.5), ask: !right };
+        s.rows = [[['rms ' + num(BV, 1) + ' V; peak = ?', 1 - rw], ['peak: ' + num(BV, 1) + ' × 1.414 = ' + fx(BV * PK, 0) + ' V', rw]]];
+        break;
+      }
+      case 'motor': {
+        const rw = rt(1.5, 0.5);
+        s.cl = [[CL(num(MI, 2)), 1]];
+        s.ph = { type: 'm', aW: [rt(0.2), rt(0.5)], copyA: rt(0.8, 0.3), rot: rm(0.9, 0.4), slide: rm(1.3, 0.4), ask: !right };
+        s.rows = [[['each winding = ?', 1 - rw], ['each winding: 26 ÷ 1.732 = ' + fx(MW, 1) + ' A', rw]]];
+        break;
+      }
+      default: break;
+    }
+    return s;
+  }
+
+  // ---------- the circuit ----------
+  function winding(p, q) {
+    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy), u = [dx / L, dy / L];
+    const a = [p[0] + u[0] * L * 0.25, p[1] + u[1] * L * 0.25], b = [p[0] + u[0] * L * 0.75, p[1] + u[1] * L * 0.75], r = L * 0.5 / 6;
+    line('wire', p[0], p[1], a[0], a[1]);
+    let dd = 'M' + R2(a[0]) + ' ' + R2(a[1]);
+    for (let j = 1; j <= 3; j++) dd += 'A' + R2(r) + ' ' + R2(r) + ' 0 0 1 ' + R2(a[0] + u[0] * 2 * r * j) + ' ' + R2(a[1] + u[1] * 2 * r * j);
+    path('coil', dd);
+    line('wire', b[0], b[1], q[0], q[1]);
+  }
+  function loadBox(p, q) {
+    const m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], ang = Math.atan2(q[1] - p[1], q[0] - p[0]) / DEG;
+    line('wire', p[0], p[1], q[0], q[1]);
+    add(K.svg('rect', { class: 'load', x: -11, y: -5, width: 22, height: 10, transform: 'translate(' + R2(m[0]) + ' ' + R2(m[1]) + ') rotate(' + R2(ang) + ')' }));
+  }
+  function drawCircuit(d, s) {
+    const [a0, a1] = dip(s.cv), SUP = 'supply on the left, in star';
+    if (d.card === 'main') {
+      if (a0 > 0.001) part(a0, 0, () => text(8, 16, 'Loads joined in star', 'tt', 'start'));
+      if (a1 > 0.001) part(a1, 0, () => text(8, 16, 'Loads joined in delta', 'tt', 'start'));
+      text(8, 34, SUP + ', ' + num(d.vph || VPH, 1) + ' V a winding', 'tk', 'start');
+      text(8, 50, d.sub || 'loads 23 Ω, power factor 0.8', 'tk', 'start');
+    } else if (d.card === 'board' || d.card === 'peak') {
+      text(8, 16, d.card === 'board' ? 'A balanced load, star or delta' : 'Between two lines at a board', 'tt', 'start');
+      text(8, 34, SUP, 'tk', 'start');
+      text(8, 50, d.card === 'board' ? 'read at the board · power factor 0.85' : 'the meter reads 400 V rms', 'tk', 'start');
+    } else {
+      text(8, 16, 'A motor joined in delta', 'tt', 'start');
+      text(8, 34, SUP, 'tk', 'start');
+      text(8, 50, 'on the right, the motor\'s three windings', 'tk', 'start');
+    }
+    // The drawing sits below the three title lines.
+    const g0 = add(K.svg('g', { transform: 'translate(0 16)' })), keep = into;
+    into = g0;
+    try { wires(d, s); } finally { into = keep; }
+    return (s.cn.length ? 234 : 222) + 16;
+  }
+  function wires(d, s) {
+    // The supply: three windings meeting at its star point.
+    circ('jn', SP, 2.6);
+    EW.forEach((e) => winding(SP, e));
+    text(8, SP[1] - 6, 'star', 'tk', 'start');
+    text(8, SP[1] + 8, 'point', 'tk', 'start');
+    // The lines, from the windings' ends to the loads' corners.
+    const ends = d.conn === 'unknown' ? YL.map((y) => [UX, y]) : CN;
+    EW.forEach((e, k) => line('wire', e[0], e[1], ends[k][0], ends[k][1]));
+    if (d.conn === 'unknown') {
+      rect('unk', UX, 60, 84, 128, 6);
+      text(UX + 42, 120, 'star or', 'lb', 'middle');
+      text(UX + 42, 138, 'delta?', 'lb', 'middle');
+    } else {
+      // Star: one end of every load at the loads' star point, and the neutral back to the supply's.
+      part(1 - s.cv, 0, () => {
+        CN.forEach((c) => loadBox(c, LP));
+        circ('jn', LP, 2.6);
+        path('wire', 'M' + LP[0] + ' ' + LP[1] + 'L' + NX + ' ' + (LP[1] + 16) + 'V' + YN + 'H' + SP[0] + 'V' + SP[1]);
+        text(LP[0] - 3, LP[1] + 17, 'star point', 'tk', 'end');
+        text(108, YN + 16, 'N', 'lb', 'start');
+      });
+      // Delta: each load between two lines, in a ring.
+      part(s.cv, 0, () => {
+        [[0, 1], [1, 2], [2, 0]].forEach((pr) => (d.card === 'motor' ? winding : loadBox)(CN[pr[0]], CN[pr[1]]));
+        CN.forEach((c) => circ('jn', c, 2.6));
+      });
+    }
+    YL.forEach((y, k) => text(108, y + 16, 'L' + (k + 1), 'lb', 'start'));
+    REC.vm = null; REC.cl = null; REC.cn = null;
+    // The voltmeter: across one winding (phase) or between L1 and L2 (line).
+    if (s.vm != null) {
+      const c = vmix(VM_PH.c, VM_L.c, s.vm), a = vmix(VM_PH.a, VM_L.a, s.vm), b = vmix(VM_PH.b, VM_L.b, s.vm);
+      line('lead', c[0], c[1], a[0], a[1]); line('lead', c[0], c[1], b[0], b[1]);
+      circ('jn', a, 2.4); circ('jn', b, 2.4);
+      circ('meter', c, 11); text(c[0], c[1] + 5, 'V', 'mt', 'middle');
+      let lab = null;
+      s.vmLab.forEach((v) => {
+        if (!(v[2] > 0.001)) return;
+        part(v[2], 0, () => (v[1] === 'ph' ? text(50, 58, v[0], 'lb', 'start') : text(166, 106, v[0], 'nv', 'start')));
+        if (v[2] >= 0.999) lab = v[0];
+      });
+      REC.vm = { pos: s.vm, lab };
+    }
+    // The clamp meter round L1, and one round the neutral.
+    if (s.cl.length) {
+      circ('clamp', [CLX, YL[0]], 9);
+      s.cl.forEach((v) => { if (v[1] > 0.001) part(v[1], 0, () => text(CLX, YL[0] - 16, v[0], 'nv', 'middle')); if (v[1] >= 0.999) REC.cl = v[0]; });
+    }
+    if (s.cn.length) {
+      circ('clamp', [CNX, YN], 9);
+      s.cn.forEach((v) => { if (v[1] > 0.001) part(v[1], 0, () => text(CNX + 14, YN + 22, v[0], 'lb', 'start')); if (v[1] >= 0.999) REC.cn = v[0]; });
+    }
+  }
+
+  // ---------- the arrows ----------
+  function drawPanel(p, top) {
+    REC.ph = null;
+    if (!p) return top;
+    const items = [], arcs = [];
+    let O = [0, 0], bottom = top, askAt = null;
+    const ph = { type: p.type, arrows: {}, starts: {} };
+    const P = (o, v, k) => [o[0] + v[0] * k, o[1] + v[1] * k];
+    const put = (name, s0, e, cls, hcls, a, lab, lcls, k) => {
+      if (!(a > 0.001) || Math.hypot(e[0] - s0[0], e[1] - s0[1]) < 0.5) return;
+      items.push({ s: s0, e, cls, hcls, a, lab, lcls });
+      if (name === 'copy') { ph.copyA = a; ph.copyCls = cls; }
+      if (name && a >= 0.999) { ph.arrows[name] = [(e[0] - s0[0]) / k, (e[1] - s0[1]) / k]; ph.starts[name] = [(s0[0] - O[0]) / k, (s0[1] - O[1]) / k]; }
+    };
+    if (p.type === 'v') {
+      O = [120, top + 70]; bottom = top + 136;
+      const vph = p.vph || VPH, v = TH.map((t) => pol(vph, t)), tip1 = P(O, v[0], KV);
+      put('L1', O, tip1, 'a1', 'h1', 1, 'L1', 'lb', KV);
+      put('L2', O, P(O, v[1], KV), 'a2', 'h2', 1, 'L2', 'lb', KV);
+      put('L3', O, P(O, v[2], KV), 'a3', 'h3', 1, 'L3', 'lb', KV);
+      if (p.copyA > 0.001) { const cs = vmix(O, tip1, p.slide); put('copy', cs, P(cs, pol(vph, -120 + 180 * p.rot), KV), 'c2', 'h2', p.copyA, null, null, KV); }
+      put('bold', O, P(O, vsub(v[0], v[1]), KV), 'aB', 'hB', p.boldA, 'L1 − L2', 'nv', KV);
+      if (p.ask) askAt = P(O, vsub(v[0], v[1]), KV * 0.55);
+    } else if (p.type === 'i') {
+      O = [140, top + 72]; bottom = top + 138;
+      TH.forEach((t) => put(null, O, P(O, pol(VPH, t), KV), 'vref', 'vrefh', 1, null, null, KV));
+      const I = [pol(IS, -PHI), pol(IS, -120 - PHI), pol(p.l3, 120 - PHI)];
+      const st = [O, vmix(O, P(O, I[0], KIS), p.lay), vmix(O, P(O, vadd(I[0], I[1]), KIS), p.lay)];
+      st.forEach((s0, k) => put('L' + (k + 1), s0, P(s0, I[k], KIS), 'a' + (k + 1), 'h' + (k + 1), p.aI[k], 'L' + (k + 1), 'lb', KIS));
+      arcs.push({ r: 20, a0: 0, a1: -PHI, a: p.phiA, lab: 'φ' });
+      const N = vadd(vadd(I[0], I[1]), I[2]);
+      if (p.lay >= 0.999 && vlen(N) > 0.05) put('neutral', O, P(O, N, KIS), 'aB', 'hB', p.nA, 'neutral', 'nv', KIS);
+    } else if (p.type === 'd') {
+      O = [130, top + 68]; bottom = top + 134;
+      const id = p.id || ID, a = pol(id, 30 - PHI), b = pol(id, -90 - PHI), c = pol(id, 150 - PHI), tipA = P(O, a, KID);
+      put('a', O, tipA, 'a1', 'h1', p.aI, 'load L1–L2', 'lb', KID);
+      put('b', O, P(O, b, KID), 'a2', 'h2', p.aI, 'load L2–L3', 'lb', KID);
+      put('c', O, P(O, c, KID), 'a3', 'h3', p.aI, 'load L3–L1', 'lb', KID);
+      if (p.copyA > 0.001) { const cs = vmix(O, tipA, p.slide); put('copy', cs, P(cs, pol(id, 150 - PHI + 180 * p.rot), KID), 'c3', 'h3', p.copyA, null, null, KID); }
+      put('bold', O, P(O, vsub(a, c), KID), 'aB', 'hB', p.boldA, 'line L1', 'nv', KID);
+      if (p.ask) askAt = P(O, vsub(a, c), KID * 0.55);
+    } else if (p.type === 'p') {
+      O = [96, top + 18]; bottom = top + 66;
+      text(8, O[1] + 5, 'one load', 'tk', 'start');
+      // One load's voltage and current, the current drawn to this screen's own scale.
+      const phi = Math.acos(p.ws.pf) / DEG, KI = KID * ID / p.wd.Ip;
+      put('V', O, P(O, pol(mix(VPH, VLL, p.cv), 0), KV), 'a1', 'h1', 1, 'V_ph', 'lb', KV);
+      put('I', O, P(O, pol(mix(p.ws.Ip, p.wd.Ip, p.cv), -phi), KI), 'a2', 'h2', 1, 'I_ph', 'lb', KI);
+      if (phi > 1) arcs.push({ r: 16, a0: 0, a1: -phi, a: 1, lab: 'φ' });
+    } else if (p.type === 'm') {
+      O = [120, top + 60]; bottom = top + 116;
+      const w12 = pol(MW, 0), w31 = pol(MW, 120), tipA = P(O, w12, KID);
+      put('bold', O, P(O, vsub(w12, w31), KID), 'aB', 'hB', 1, 'line L1', 'nv', KID);
+      put('a', O, tipA, 'a1', 'h1', p.aW[0], 'winding 1–2', 'lb', KID);
+      put('c', O, P(O, w31, KID), 'a3', 'h3', p.aW[1], 'winding 3–1', 'lb', KID);
+      if (p.copyA > 0.001) { const cs = vmix(O, tipA, p.slide); put('copy', cs, P(cs, pol(MW, 120 + 180 * p.rot), KID), 'c3', 'h3', p.copyA, null, null, KID); }
+      if (p.ask) askAt = P(O, w31, KID * 0.5);
+    } else if (p.type === 'w') {
+      // One cycle of the line voltage: its rms level and, after a right answer, its peak.
+      O = [20, top + 72]; bottom = top + 134;
+      const A = 50, Pk = BV * PK, k = A / Pk, W = 300, Ar = BV * k, cx = O[0] + W / 4;
+      line('vref', O[0], O[1], O[0] + W, O[1]);
+      let dd = '';
+      for (let j = 0; j <= 60; j++) dd += (j ? 'L' : 'M') + R2(O[0] + W * j / 60) + ' ' + R2(O[1] - A * Math.sin(2 * Math.PI * j / 60));
+      path('wave', dd);
+      line('rmsl', O[0], O[1] - Ar, O[0] + W, O[1] - Ar);
+      const rl = 'rms ' + num(BV, 1) + ' V';
+      text(O[0] + W, O[1] - Ar - 6, rl, 'lb', 'end');
+      BOX.push(boxAt(O[0] + W, O[1] - Ar - 6, tw(rl, 'lb'), 'end'));
+      ph.rms = BV;
+      put('peak', [cx, O[1]], [cx, O[1] - A], 'aB', 'hB', p.pa, 'peak ' + fx(Pk, 0) + ' V', 'nv', k);
+      if (p.ask) askAt = [cx, O[1] - A * 0.3];
+    }
+    // Everything a name must keep clear of: the shafts, the heads and the arcs.
+    const segs = [];
+    items.forEach((it) => {
+      segs.push([it.s[0], it.s[1], it.e[0], it.e[1]]);
+      const h = headOf(it.s[0], it.s[1], it.e[0], it.e[1]);
+      segs.push([it.e[0], it.e[1], h.b1[0], h.b1[1]], [it.e[0], it.e[1], h.b2[0], h.b2[1]], [h.b1[0], h.b1[1], h.b2[0], h.b2[1]]);
+    });
+    const arcPt = (r, ang) => [O[0] + r * Math.cos(ang * DEG), O[1] - r * Math.sin(ang * DEG)];
+    arcs.forEach((ac) => { if (ac.a > 0.001) for (let j = 0; j < 8; j++) { const p0 = arcPt(ac.r, ac.a0 + (ac.a1 - ac.a0) * j / 8), p1 = arcPt(ac.r, ac.a0 + (ac.a1 - ac.a0) * (j + 1) / 8); segs.push([p0[0], p0[1], p1[0], p1[1]]); } });
+    items.forEach((it) => part(it.a, 0, () => arrow(it.cls, it.hcls, it.s[0], it.s[1], it.e[0], it.e[1])));
+    if (askAt) askMark(askAt);
+    arcs.forEach((ac) => {
+      if (!(ac.a > 0.001)) return;
+      const p0 = arcPt(ac.r, ac.a0), p1 = arcPt(ac.r, ac.a1);
+      part(ac.a, 0, () => path('arc', 'M' + R2(p0[0]) + ' ' + R2(p0[1]) + 'A' + ac.r + ' ' + ac.r + ' 0 0 ' + (ac.a1 > ac.a0 ? 0 : 1) + ' ' + R2(p1[0]) + ' ' + R2(p1[1])));
+      // The angle's name inside its wedge, beyond the arc, only where the wedge has room.
+      const mid = (ac.a0 + ac.a1) / 2, w = tw(ac.lab, 'lb');
+      for (let r = ac.r + 8; r <= ac.r + 40; r += 2) {
+        const c = arcPt(r, mid), b = [c[0] - w / 2, c[1] - 7, c[0] + w / 2, c[1] + 8];
+        if (clearOf(b, segs) && apart(b)) { BOX.push(b); part(ac.a, 0, () => text(c[0], c[1] + 4.5, ac.lab, 'lb', 'middle')); break; }
+      }
+    });
+    items.forEach((it) => {
+      if (!it.lab) return;
+      const f = spotFor(it.lab, it.lcls, candsFor(it.s, it.e), segs, top);
+      BOX.push(f.b);
+      part(it.a, 0, () => text(f.c[0], f.c[1], it.lab, it.lcls, f.c[2]));
+    });
+    ph.O = O;
+    REC.ph = ph;
+    return bottom;
+  }
+
+  // ---------- the working and the power readouts ----------
+  function drawRows(rows, y) {
+    rows.forEach((r) => {
+      y += 22; const yy = y;
+      r.forEach((v) => { if (v[1] > 0.001) part(v[1], 0, () => text(8, yy, v[0], 'wk', 'start')); if (v[1] >= 0.999) REC.rows.push(v[0]); });
+    });
+    return y;
+  }
+  function drawBoxes(b, y) {
+    if (!b) return y;
+    let boxes;
+    if (b.kind === 'main') {
+      const [a0, a1] = dip(b.cv), ws = b.ws, wd = b.wd;
+      REC.pw = b.cv >= 0.5 ? wd : ws;
+      boxes = [{ head: '3 × V_ph × I_ph × cos φ', slots: [[[phStr(ws), a0], [phStr(wd), a1]]] },
+        { head: '√3 × V_L × I_L × cos φ', slots: [[[lnStr(ws), a0], [lnStr(wd), a1]]] }];
+    } else {
+      // Apparent power from the line readings, then its cos φ share, each worked from what it shows.
+      const VA = R3 * BV * BI, Wt = Math.round(VA) * BPF;
+      REC.pw = { va: VA, w: Wt };
+      boxes = [{ head: '√3 × V_L × I_L, the apparent power', slots: [[['? VA', 1 - b.la], ['√3 × ' + num(BV, 1) + ' × ' + num(BI, 2) + ' = ' + grp(VA) + ' VA', b.la]]] },
+        { head: 'times cos φ, the share that arrives as watts', slots: [[['? W', 1 - b.ta], [grp(VA) + ' × ' + num(BPF, 2) + ' = ' + watts(Wt), b.ta]]] }];
+    }
+    y += 14;
+    boxes.forEach((bx) => {
+      const h = 28 + 19 * bx.slots.length, y0 = y;
+      part(b.a, 0, () => {
+        rect('mbox', 8, y0, 324, h, 6);
+        text(16, y0 + 19, bx.head, 'tk', 'start');
+        bx.slots.forEach((sl, j) => sl.forEach((v) => { if (v[1] > 0.001) part(v[1], 0, () => text(16, y0 + 39 + 19 * j, v[0], 'wk', 'start')); }));
+      });
+      bx.slots.forEach((sl) => sl.forEach((v) => { if (v[1] * b.a >= 0.999) REC.boxes.push(v[0]); }));
+      y += h + 8;
+    });
+    return y;
+  }
+
+  function drawScreen(d, st, i) {
+    const s = stateOf(i, st);
+    Object.assign(REC, { key: d.key, cv: s.cv, l3: s.l3, rows: [], boxes: [], pw: null });
+    BOX = [];
+    let y = drawCircuit(d, s);
+    y = drawPanel(s.ph, y + 4);
+    y = drawRows(s.rows, y);
+    y = drawBoxes(s.boxes, y);
+    const items = [];
+    if (s.cl.length || s.cn.length) items.push({ sw: swRing, label: 'clamp meter' });
+    // The dashed copy's key entry shows only once the copy is on the picture (its room is kept).
+    if (s.ph && (s.ph.type === 'v' || s.ph.type === 'd' || s.ph.type === 'm')) items.push({ sw: swLine(s.ph.type === 'v' ? 'c2' : 'c3'), label: 'an arrow turned half round', a: (REC.ph && REC.ph.copyA) || 0 });
+    if (s.ph && s.ph.type === 'i') items.push({ sw: swLine('vref'), label: 'phase voltages' });
+    if (s.ph && s.ph.type === 'w') items.push({ sw: swLine('rmsl'), label: 'the rms level' });
+    if (items.length) y = keyRows(items, y + 26);
+    // In words, for a screen reader.
+    let said = (d.card === 'main' ? 'Loads joined in ' + (s.cv >= 0.5 ? 'delta' : 'star') : d.card === 'board' ? 'A balanced load on a board' : d.card === 'peak' ? 'Between two lines at a board' : 'A motor joined in delta') + '. ';
+    if (REC.vm && REC.vm.lab) said += 'The voltmeter reads ' + REC.vm.lab + '. ';
+    if (REC.cl) said += 'The clamp on L1 reads ' + REC.cl + '. ';
+    if (REC.cn) said += 'The clamp on the neutral reads ' + REC.cn.replace('neutral ', '') + '. ';
+    if (REC.rows.length) said += REC.rows.join('; ') + '.';
+    return { h: y + 6, said: said.replace(/_/g, ' ') };
+  }
+
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    REC = {};
+    const out = drawScreen(d, st, i);
+    svg.setAttribute('viewBox', '0 0 340 ' + Math.ceil(out.h));
+    svg.setAttribute('aria-label', out.said);
+    if (i === at() && !finished) syncCtl(d);
+  }
+
+  // ---------- the model: line voltage, line current (L1) and neutral current ----------
+  function modelOf(p) {
+    const d = STEPS[K.clamp(Math.round(Number(p.step)) || 0, 0, STEPS.length - 1)];
+    if (d.card === 'board' || d.card === 'peak') return { lineVolts: BV, lineAmps: BI, neutralAmps: 0 };
+    if (d.card === 'motor') return { lineVolts: BV, lineAmps: MI, neutralAmps: 0 };
+    let conn = d.conn === 'delta' ? 'delta' : 'star';
+    if (d.free === 'conn') conn = p.conn === 'delta' ? 'delta' : 'star';
+    let l3 = d.l3 != null ? d.l3 : IS;
+    if (d.free === 'l3') { const v = Number(p.l3); l3 = K.clamp(isFinite(v) ? v : IS, 0, IS); }
+    const ld = d.ld || MAIN;
+    if (d.vph) return { lineVolts: d.vph * R3, lineAmps: d.vph / ld.z, neutralAmps: 0 };
+    if (conn === 'delta') return { lineVolts: VLL, lineAmps: (d.id || VLL / ld.z) * R3, neutralAmps: 0 };
+    return { lineVolts: VLL, lineAmps: VPH / ld.z, neutralAmps: vlen(neutralOf(l3)) };
+  }
+  K.model(modelOf);
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing() && !waiting) T = Infinity;
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      shown.l3 = p.l3; shown.conn = p.conn;
+      if (d.show) { st.l3 = null; st.conn = null; play('demo', d.dur); }
+      else { waiting = false; anim.pause(); T = Infinity; MODE = 'answer'; }
+    } else {
+      // Dan moved the free control: the motion stops where it ends, and that setting is his.
+      ['l3', 'conn'].forEach((key) => {
+        if (p[key] === shown[key]) return;
+        shown[key] = p[key];
+        if (d.free === key && !finished && (!d.freeAfter || st.res === 'right')) {
+          stopMotion();
+          st[key] = key === 'l3' ? K.clamp(Number(p[key]), 0, 10) : (p[key] === 'delta' ? 'delta' : 'star');
+        }
+      });
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const fOn = !finished && d.free && (!d.freeAfter || right) ? d.free : '';
+    CTL.l3.el.hidden = fOn !== 'l3';
+    CTL.conn.el.hidden = fOn !== 'conn';
+    el('ctl').hidden = !fOn;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const idx = (key) => STEPS.findIndex((d) => d.key === key);
+  const near = (a, b, tol) => typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) <= tol;
+  function drawn(i, st, mode, t) {
+    const keepS = S[i], keepT = T, keepM = MODE;
+    S[i] = st; T = t == null ? Infinity : t; MODE = mode || (STEPS[i].show ? 'demo' : 'answer');
+    try {
+      paint(i);
+      return Object.assign({}, REC);
+    } finally { S[i] = keepS; T = keepT; MODE = keepM; paint(); }
+  }
+  const settledOf = (i) => drawn(i, STEPS[i].show ? blank() : solvedSt(i));
+  const withL3 = (v) => Object.assign(blank(), { l3: v });
+  const withConn = (c) => Object.assign(blank(), { conn: c });
+  const has = (g, s) => g.rows.indexOf(s) >= 0;
+  const angBetween = (a, b) => Math.abs(((vang(a) - vang(b)) % 360 + 540) % 360 - 180);
+  const S_STARV = idx('starV'), S_LINEV = idx('lineV'), S_STARI = idx('starI'), S_NEUT = idx('neutral'), S_UNB = idx('unbal'), S_N5 = idx('n5');
+  const S_DELTA = idx('delta'), S_DELTAI = idx('deltaI'), S_POW = idx('power'), S_P3 = idx('p3'), S_BOARD = idx('board'), S_MOTOR = idx('motor'), S_PEAK = idx('peak');
+  // A readout 'a × b × c = N W' worked by hand from the factors it shows (√3 as itself) gives N.
+  const byHand = (t) => { const m = /^(?:\w+: )?(.+) = ([\d,]+(?:\.\d+)?) (W|VA)$/.exec(t); if (!m) return false;
+    const v = m[1].split(' × ').reduce((p, f) => p * (f === '√3' ? R3 : Number(f.replace(/,/g, ''))), 1); return Math.round(v) === Number(m[2].replace(/,/g, '')); };
+
+  K.check('For a three-phase generator, three coils of wire are placed at angles of 120° to each other: the three phase voltage arrows are drawn equal, 230 V each, 120° apart, and so are the three 10 A star currents', () => {
+    const g = settledOf(S_STARV).ph.arrows, h = settledOf(S_STARI).ph.arrows;
+    const eq = (A, n, v) => ['L1', 'L2', 'L3'].every((k) => !!A[k] && near(vlen(A[k]), v, 1e-9)) &&
+      near(angBetween(A.L1, A.L2), 120, 1e-9) && near(angBetween(A.L2, A.L3), 120, 1e-9) && near(angBetween(A.L3, A.L1), 120, 1e-9);
+    return eq(g, 3, 230) && eq(h, 3, 10);
+  }, { source: L13B });
+  K.check('UK mains electricity operates at a nominal voltage of 230V: the voltmeter across one winding reads V_ph = 230 V, and every star current drawn is 230 ÷ 23 = 10 A', () => {
+    const g0 = drawn(S_STARV, blank(), 'demo', 0), h = settledOf(S_STARI);
+    return !!g0.vm && g0.vm.lab === 'V_ph = 230 V' && near(g0.vm.pos, 0, 1e-12) && has(h, 'each phase: 230 ÷ 23 = 10 A') && near(vlen(h.ph.arrows.L1), VPH / ZL, 1e-9);
+  }, { source: ENA });
+  K.check('In balanced Y circuits, line voltage is equal to phase voltage times the square root of 3, while line current is equal to phase current: the bold arrow is 1.732 times a phase arrow, landing on the voltmeter\'s 398.4 V between L1 and L2, and the clamp on L1 reads the 10 A each phase carries', () => {
+    const g = settledOf(S_STARV), h = settledOf(S_STARI), m = K.at({ step: S_STARV }), n = K.at({ step: S_STARI });
+    return near(vlen(g.ph.arrows.bold) / vlen(g.ph.arrows.L1), R3, 1e-9) && fx(vlen(g.ph.arrows.bold), 1) === '398.4' && g.vm.lab === 'V_L = 398.4 V' && near(g.vm.pos, 1, 1e-12) &&
+      near(m.lineVolts, vlen(g.ph.arrows.bold), 1e-9) && h.cl === 'I_L = 10 A' && near(n.lineAmps, vlen(h.ph.arrows.L1), 1e-9);
+  }, { source: KUPH10 });
+  K.check('The line voltage can be found by taking the phasor sum of the voltage in two phases of the source: the bold arrow closes L1\'s arrow and L2\'s turned half round, laid on L1\'s tip, and is turned 30° from L1\'s', () => {
+    const g = settledOf(S_LINEV).ph, A = g.arrows, c = A.copy, s0 = g.starts.copy;
+    return !!c && !!A.bold && near(s0[0], A.L1[0], 1e-9) && near(s0[1], A.L1[1], 1e-9) && near(c[0], -A.L2[0], 1e-9) && near(c[1], -A.L2[1], 1e-9) &&
+      near(A.bold[0], A.L1[0] + c[0], 1e-9) && near(A.bold[1], A.L1[1] + c[1], 1e-9) && near(vang(A.bold) - vang(A.L1), 30, 1e-9);
+  }, { source: L13B });
+  K.check('The neutral conductor carries no current in a balanced three-phase network: three 10 A currents laid tip to tail close a triangle, so no neutral arrow is left and the neutral clamp reads 0.0 A', () => {
+    const g = settledOf(S_NEUT), A = g.ph.arrows, st = g.ph.starts;
+    const end3 = [st.L3[0] + A.L3[0], st.L3[1] + A.L3[1]];
+    return g.cn === 'neutral 0.0 A' && near(st.L2[0], A.L1[0], 1e-9) && near(st.L2[1], A.L1[1], 1e-9) && near(vlen(end3), 0, 1e-9) && !A.neutral &&
+      near(K.at({ step: S_NEUT }).neutralAmps, 0, 1e-9);
+  }, { source: OSU });
+  K.check('Unbalance: at every L3 current from 0 to 10 A the neutral arrow closes the gap and is 10 A minus L3\'s current (4.0 A at 6 A, 3.0 A at 7 A, 10.0 A with L3 off), and the clamp and the model agree', () => {
+    for (let v = 0; v <= 10; v += 0.5) {
+      const g = drawn(S_UNB, withL3(v)), N = IS - v, A = g.ph.arrows, nl = A.neutral ? vlen(A.neutral) : 0;
+      if (!(near(nl, N, 1e-9) && g.cn === 'neutral ' + fx(N, 1) + ' A' && near(K.at({ step: S_UNB, l3: v }).neutralAmps, N, 1e-9))) return false;
+      if (A.neutral && A.L3) { const e = [g.ph.starts.L3[0] + A.L3[0], g.ph.starts.L3[1] + A.L3[1]]; if (!(near(e[0], A.neutral[0], 1e-9) && near(e[1], A.neutral[1], 1e-9))) return false; }
+    }
+    return settledOf(S_UNB).cn === 'neutral 4.0 A' && drawn(S_UNB, withL3(0)).cn === 'neutral 10.0 A' && settledOf(S_N5).cn === 'neutral 3.0 A' &&
+      near(K.at({ step: S_N5, l3: 7 }).neutralAmps, 3, 1e-9);
+  });
+  K.check('P T = √3 V L I L cosθ where cosθ is the power factor: in star and in delta the readout 3 × V_ph × I_ph × cos φ equals √3 × V_L × I_L × cos φ (5520 W and 16,561 W; the heaters 1725 W and 5175 W), every readout worked from the factors it shows; on the board √3 × 400 × 20 = 13,856 VA, of which 11,778 W at 0.85', () => {
+    const s0 = drawn(S_POW, withConn('star')), s1 = drawn(S_POW, withConn('delta')), h0 = drawn(S_P3, Object.assign(solvedSt(S_P3), { conn: 'star' })), h1 = settledOf(S_P3), b = settledOf(S_BOARD);
+    const both = (g, a, c) => g.boxes.indexOf(a) >= 0 && g.boxes.indexOf(c) >= 0;
+    return both(s0, '3 × 230 × 10 × 0.8 = 5520 W', '√3 × 398.4 × 10 × 0.8 = 5520 W') && both(s1, '3 × 398.4 × 17.32 × 0.8 = 16,561 W', '√3 × 398.4 × 30 × 0.8 = 16,561 W') &&
+      both(h0, '3 × 230 × 2.5 × 1 = 1725 W', '√3 × 398.4 × 2.5 × 1 = 1725 W') && both(h1, '3 × 398.4 × 4.33 × 1 = 5175 W', '√3 × 398.4 × 7.5 × 1 = 5175 W') &&
+      near(s1.pw.P / s0.pw.P, 3, 1e-9) && near(powerOf('delta', HEAT).P / powerOf('star', HEAT).P, 3, 1e-9) &&
+      both(b, '√3 × 400 × 20 = 13,856 VA', '13,856 × 0.85 = 11,778 W') &&
+      [s0, s1, h0, h1, b].every((g) => g.boxes.length >= 2 && g.boxes.every(byHand));
+  }, { source: L13B });
+  K.check('The average power can be expressed as P avg = VI cosφ: one load\'s drawn voltage and current are each √3 times longer in delta, the angle between them stays 36.9°, and V_ph × I_ph × cos φ goes from 1840 W to 5520 W, a third of each readout', () => {
+    const a = drawn(S_POW, withConn('star')).ph.arrows, b = drawn(S_POW, withConn('delta')).ph.arrows;
+    const p = (A) => vlen(A.V) * vlen(A.I) * Math.cos(angBetween(A.V, A.I) * DEG);
+    return near(vlen(b.V) / vlen(a.V), R3, 1e-9) && near(vlen(b.I) / vlen(a.I), R3, 1e-9) && near(angBetween(a.V, a.I), PHI, 1e-9) && near(angBetween(b.V, b.I), PHI, 1e-9) &&
+      fx(PHI, 1) === '36.9' && near(p(a), 1840, 1e-6) && near(p(b), 5520, 1e-6) && near(3 * p(a), powerOf('star').P, 1e-6) && near(3 * p(b), powerOf('delta').P, 1e-6);
+  }, { source: HYPER });
+  K.check('Delta: L1\'s bold arrow is load L1–L2\'s current minus load L3–L1\'s, 17.32 × √3 = 30.0 A and 12 × √3 = 20.8 A, which the clamp on L1 reads; and for the motor two 15.0 A winding currents differ by the clamp\'s 26 A', () => {
+    const g = settledOf(S_DELTAI), A = g.ph.arrows, h = settledOf(S_DELTA), H = h.ph.arrows, m = settledOf(S_MOTOR), M = m.ph.arrows;
+    return !!A.bold && near(A.bold[0], A.a[0] - A.c[0], 1e-9) && near(A.bold[1], A.a[1] - A.c[1], 1e-9) && near(vlen(A.a), IDO, 1e-9) &&
+      fx(vlen(A.bold), 1) === '20.8' && g.cl === 'I_L = 20.8 A' && near(K.at({ step: S_DELTAI }).lineAmps, vlen(A.bold), 1e-9) && has(g, 'L1: 12 × 1.732 = 20.8 A') &&
+      !!H.bold && near(H.bold[0], H.a[0] - H.c[0], 1e-9) && fx(vlen(H.a), 2) === '17.32' && fx(vlen(H.bold), 1) === '30.0' && h.cl === 'I_L = 30.0 A' &&
+      near(K.at({ step: S_DELTA }).lineAmps, vlen(H.bold), 1e-9) && has(h, 'L1: 17.32 × 1.732 = 30.0 A') && has(h, 'each load: 398.4 ÷ 23 = 17.32 A') &&
+      !!M.a && !!M.c && near(vlen(M.a), MW, 1e-9) && near(M.bold[0], M.a[0] - M.c[0], 1e-9) && near(M.bold[1], M.a[1] - M.c[1], 1e-9) && near(vlen(M.bold), 26, 1e-9) &&
+      m.cl === 'I_L = 26 A' && has(m, 'each winding: 26 ÷ 1.732 = 15.0 A');
+  });
+  K.check('A sine peaks at √2 times its rms: the 400 V rms line voltage is drawn with its rms level at 400 V and, after a right answer, a peak arrow of 400 × 1.414 = 566 V', () => {
+    const g = settledOf(S_PEAK), A = g.ph.arrows;
+    return g.ph.rms === 400 && !!A.peak && near(vlen(A.peak), BV * PK, 1e-9) && fx(vlen(A.peak), 0) === '566' && has(g, 'peak: 400 × 1.414 = 566 V') && g.vm.lab === 'V_L = 400 V';
+  });
+  K.check('Known answers and slips: 398.4 V; 254 V a winding gives 439.9 V, about 440 V, and the slip 508 V; 30 A added as numbers; 3 A and the slip 27 A; 17.32 A and 30.0 A; 20.8 A and the slip 24 A; 1725 W, 5175 W and the slip 2988 W; 13.9 kVA and the slips 11.8 kVA and 24.0 kVA; 15.0 A and the slip 45.0 A; 566 V and the slip 693 V', () => {
+    return fx(VLL, 1) === '398.4' && fx(VSH * R3, 1) === '439.9' && fx(VSH * 1.732, 1) === '439.9' && fx(VSH * R3, 0) === '440' && 2 * VSH === 508 && 3 * IS === 30 &&
+      IS - 7 === 3 && IS + IS + 7 === 27 && fx(ID, 2) === '17.32' && fx(ILD, 1) === '30.0' && fx(17.32 * 1.732, 1) === '30.0' &&
+      fx(IDO * R3, 1) === '20.8' && fx(IDO * 1.732, 1) === '20.8' && 2 * IDO === 24 && near(HEAT.z, 92, 1e-9) &&
+      near(powerOf('star', HEAT).P, 1725, 1e-9) && near(powerOf('delta', HEAT).P, 5175, 1e-6) && fx(1725 * R3, 0) === '2988' && fx(1725 * 1.732, 0) === '2988' &&
+      fx(R3 * BV * BI / 1000, 1) === '13.9' && fx(R3 * BV * BI * BPF / 1000, 1) === '11.8' && fx(3 * BV * BI / 1000, 1) === '24.0' &&
+      fx(MI / R3, 1) === '15.0' && fx(MI * R3, 1) === '45.0' && fx(26 / 1.732, 1) === '15.0' &&
+      fx(BV * PK, 0) === '566' && fx(BV * 1.414, 0) === '566' && fx(BV * R3, 0) === '693' && fx(VPH * 1.732, 1) === '398.4';
+  });
+  K.check('Each puzzle accepts only its right answer; before an answer its picture hides what is asked, and a right answer draws it', () => {
+    const PRE = {
+      lineV: (g) => !!g.vm && g.vm.lab === 'V_L = ? V' && !g.ph.arrows.bold && !g.ph.arrows.copy && !g.ph.copyA && has(g, 'line: L1 − L2 = ?') && has(g, 'phase: across one winding, V_ph = 254 V'),
+      neutral: (g) => g.cn === 'neutral ? A' && near(vlen(g.ph.starts.L2), 0, 1e-9) && has(g, 'neutral: the three added as arrows = ?'),
+      n5: (g) => g.cn === 'neutral ? A' && !g.ph.arrows.neutral && near(vlen(g.ph.starts.L2), 0, 1e-9) && has(g, 'L1 10 A · L2 10 A · L3 7 A'),
+      deltaI: (g) => g.cl === 'I_L = ? A' && !g.ph.arrows.bold && has(g, 'L1: load L1–L2 less load L3–L1 = ?'),
+      p3: (g) => near(g.cv, 0, 1e-12) && g.boxes.indexOf('3 × 230 × 2.5 × 1 = 1725 W') >= 0 && g.boxes.every((b) => b.indexOf('5175') < 0) && has(g, 'in delta: ? W'),
+      board: (g) => g.boxes.length === 2 && g.boxes[0] === '? VA' && g.boxes[1] === '? W',
+      peak: (g) => !g.ph.arrows.peak && has(g, 'rms 400 V; peak = ?'),
+      motor: (g) => !g.ph.arrows.a && !g.ph.arrows.c && near(vlen(g.ph.arrows.bold), 26, 1e-9) && has(g, 'each winding = ?'),
+    };
+    const POST = {
+      lineV: (g) => g.vm.lab === 'V_L = 439.9 V' && !!g.ph.arrows.bold && near(vlen(g.ph.arrows.bold), VSH * R3, 1e-9) && has(g, 'line: L1 − L2 = 254 × 1.732 = 439.9 V'),
+      neutral: (g) => g.cn === 'neutral 0.0 A' && has(g, 'tip to tail they close: nothing is left'),
+      n5: (g) => g.cn === 'neutral 3.0 A' && !!g.ph.arrows.neutral && near(vlen(g.ph.arrows.neutral), 3, 1e-9) && has(g, 'L1\'s and L2\'s extra 3 A is left'),
+      deltaI: (g) => g.cl === 'I_L = 20.8 A' && !!g.ph.arrows.bold && has(g, 'L1: 12 × 1.732 = 20.8 A'),
+      p3: (g) => near(g.cv, 1, 1e-12) && g.boxes.indexOf('3 × 398.4 × 4.33 × 1 = 5175 W') >= 0 && g.cl === 'I_L = 7.5 A' && has(g, '5175 ÷ 1725 = 3, which is √3 × √3'),
+      board: (g) => g.boxes.length === 2 && g.boxes.indexOf('√3 × 400 × 20 = 13,856 VA') >= 0 && g.boxes.indexOf('13,856 × 0.85 = 11,778 W') >= 0,
+      peak: (g) => !!g.ph.arrows.peak && has(g, 'peak: 400 × 1.414 = 566 V'),
+      motor: (g) => !!g.ph.arrows.a && !!g.ph.arrows.c && !!g.ph.arrows.copy && has(g, 'each winding: 26 ÷ 1.732 = 15.0 A'),
+    };
+    const only = DO.every((i) => { const d = STEPS[i]; return d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)); });
+    const hidden = DO.every((i) => !!PRE[STEPS[i].key] && PRE[STEPS[i].key](drawn(i, blank())) === true);
+    const shownOk = DO.every((i) => !!POST[STEPS[i].key] && POST[STEPS[i].key](settledOf(i)) === true);
+    const wrongStill = DO.every((i) => STEPS[i].opts.filter((o) => o !== STEPS[i].want).every((o) => PRE[STEPS[i].key](drawn(i, wrongSt(i, o))) === true));
+    return only && hidden && shownOk && wrongStill;
+  });
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T, keepM = MODE;
+    const timed = (i, st, mode, limit) => {
+      const keepS = S[i];
+      T = Infinity; MODE = mode; latest = 0; earliest = Infinity; S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), 'demo', d.dur); return r && d.dur >= 3 && d.dur <= 4.5 && earliest >= FADE; }
+      return timed(i, solvedSt(i), 'answer', d.rdur) && d.rdur <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), 'answer', 0.8));
+    });
+    T = keepT; MODE = keepM; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

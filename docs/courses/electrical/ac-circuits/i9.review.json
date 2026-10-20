@@ -1,0 +1,55 @@
+{
+  "scores": { "lands": 5, "why": 4, "cause": 4, "trade": 5, "honest": 4, "pleasure": 4 },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "screen 12 (Mixed: where to fit it), the right answer's motion",
+      "what": "Before any pick the picture already shows the capacitor across the motor's terminals, which is the right answer, and a right Check then slides it away to the board, so Dan taps 'Across the motor's terminals', reads 'That's it.' and watches the capacitor move to the place he rejected. Open with the capacitor at the board, the orange loop running the whole 20 m, and let the right answer slide it to the motor so the loop shrinks off the run (or draw the board case only for the wrong pick, in red)."
+    },
+    {
+      "severity": "fix",
+      "where": "screen 6 (The supply cable), current arrows against the triangle above them; screen 1 text",
+      "what": "Screen 1 teaches 'its current leads where the motor's lags, so its vars, Q_C, point down', but screen 6's current arrows on the same picture draw the leading capacitor current pointing up and the lagging motor current below the floor ('down = behind, up = ahead'), the mirror image of the triangle above, and nothing says why the two pictures flip. Add one line that the triangle draws vars, where a coil's point up by convention, while the arrows draw the currents themselves, measured from the voltage, where behind is below, so the capacitor points down in one and up in the other."
+    },
+    {
+      "severity": "fix",
+      "where": "practice, Rules of thumb (and explain, 'a real motor's vars also change with how hard it is working')",
+      "what": "'Keep the capacitor's vars at or below the load's own at its lightest working, since a motor's vars change with its load; more over-corrects.[^8]' is not in the research notes: footnote 8 (Kuphaldt) supports only 'be careful not to over-correct', not the lightest-working rule or the claim that a motor's vars change with load. Source both, or label them as unsourced reading, or cut them to Kuphaldt's caution."
+    },
+    {
+      "severity": "fix",
+      "where": "screens 5 to 12, the current's moving dots",
+      "what": "The dots run steadily one way round each loop, and on screens 9 and 10 the spare leading current runs 'the other way' along the cable. That shows AC as a flow travelling round, the very misconception lesson 1 set out to undo ('what alternates is the direction ... not a flow that travels round', notes 5.3), and the 'ignores' line only says the dots do not show charge speed. Either make the dots surge back and forth with the wave, or add a line to the key and to 'ignores' that every current here reverses each half cycle and the dots show only where it runs and how much."
+    },
+    {
+      "severity": "polish",
+      "where": "screens 1 and 9, the key terms 'power factor correction' and 'over-correction'",
+      "what": "write() wraps *terms* in <span class=\"mark\">, but the kit styles only the mark element and .term (app/kit/kit.css line 106), so the amber highlight never shows: the 360 px screenshot of screen 1 shows 'power factor correction' in plain text. Use K.el('mark', ...) or the class 'term'."
+    },
+    {
+      "severity": "polish",
+      "where": "screen 7 (Sizing), text and first row",
+      "what": "'Q before' and 'Q after' appear here for the first time after six screens of Q_L and 'the supply's upright', and nothing ties them together; say once that Q before is the motor's Q_L and Q after is the upright you want left."
+    },
+    {
+      "severity": "polish",
+      "where": "screen 11 (Mixed: a compressor)",
+      "what": "The task and the answers say 21.7 A and 13.0 A, but the picture's bar and motor labels read 21.74 A and 13.04 A. Show the same rounding in both places."
+    },
+    {
+      "severity": "polish",
+      "where": "screen 1, opening text",
+      "what": "The brief opens this lesson from what Dan already knows ('You know the answer, install a capacitor in parallel', C&G 2366, notes 2.2; this lesson is the amount and the result), but the screen goes straight to the capacitor without that line. One clause would pitch it above his L3 recall answer."
+    },
+    {
+      "severity": "polish",
+      "where": "screens 2 and 3, the triangle at small Q_C (360 px, light and dark)",
+      "what": "At 500 var the magenta Q_C arrow is mostly arrowhead, and its shaft at tipX + 7 touches the orange Q_L arrowhead, so the two tips merge into one blob. Start Q_C a few units further right, or below the Q_L head."
+    },
+    {
+      "severity": "polish",
+      "where": "1280 px, the picture",
+      "what": "The SVG scales to the full reading column, so its labels (P = 1600 W, supply current, the key) render visibly larger than the body text. Cap the picture's width on desktop so its 13 px labels stay near body size."
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "draft": "i7.lesson.draft1.txt",
+  "validator": "ok, no problems",
+  "faults": [
+    { "fault": "the explanation skipping the causal step", "where": "explain, paragraph 3", "finding": "'it sets how tall the peak is, V ÷ R, and so how sharply the current rises to it' does not say why a taller peak is a sharper one: far from f₀ the net reactance, which R does not touch, sets the current, so a smaller R raises only the top.", "fix": "Say that away from f₀ the net reactance dominates Z whatever R is, so the flanks barely change and a smaller R lifts only the top, making the peak taller and narrower." },
+    { "fault": "the explanation skipping the causal step", "where": "explain, paragraph 4", "finding": "Q = X_L ÷ R is stated, not shown: the step that the supply's voltage at resonance is the resistor's, I × R, so the current cancels from (I × X_L) ÷ (I × R), is missing.", "fix": "Add that at resonance the supply's voltage equals the resistor's, I × R, while the coil's is I × X_L, so their ratio is X_L ÷ R." },
+    { "fault": "false absolute / a claim that fails in the real world", "where": "interactive.whatAmILookingAt, screen 7", "finding": "'the capacitor's still stands a little above the supply's at every setting below 70 Hz' is 'a little' only far out (10.4 V at 10 Hz); at 45 Hz it is 38.2 V. At 70 Hz it equals the supply exactly.", "fix": "Say it stays above the supply's at every setting below 70 Hz, only just at 10 Hz, and the coil's at every setting above 35 Hz." },
+    { "fault": "false absolute", "where": "analogy.text", "finding": "'half your pushes fight it' is a made-up fraction.", "fix": "'some of your pushes land against it'." },
+    { "fault": "false absolute", "where": "interactive.ignores", "finding": "'the first few cycles after switching on' understates it: with Q = 10 the build-up lasts many cycles.", "fix": "'the build-up after switching on is left out'." },
+    { "fault": "unreadable picture / one name for each thing", "where": "interactive.whatAmILookingAt", "finding": "The arrows are reactance arrows in ohms, yet screen 7 speaks of '50 V up and 50 V down' arrows without saying they have turned into volts.", "fix": "Say screen 7 multiplies every arrow by the 5 A current, turning ohms into volts, the reverse of lesson 6's step." },
+    { "fault": "thin research", "where": "sources", "finding": "Source 17 (230 V) is cited only in the numbers list, not in the words.", "fix": "Add screen 11's mains circuit to practice's safety step with [^17]: 23 A and 460 V across the coil on a 230 V supply." },
+    { "fault": "a claim that fails in the real world", "where": "interactive.ignores", "finding": "'would fail' is too certain of an overstressed part.", "fix": "'can fail'." }
+  ],
+  "shape": {
+    "idea named up front": "yes, paragraph 1: the reactances subtract, cancel at one frequency, the current peaks and each part can carry several times the supply",
+    "rule in words": "yes: X = X_L − X_C, then Z = √(R² + X²); f₀ from X_L = X_C",
+    "worked example with real numbers": "yes: the 25 Hz bench in explain; the 50 Hz and 60 Hz bench in practice; screens 11 and 12",
+    "misconception shown failing": "yes: reactances added plainly or by Pythagoras (screen 2), lead or lag (screen 4), C in microfarads and the square root (screen 6), 'no part can read more than the supply' (screen 8), R moving f₀ (screen 10), lesson 6's formula with one reactance (screens 11, 12), C put in as ohms (screen 12)",
+    "analogy with where it breaks": "yes: pushing a swing at its own rhythm; breaks on one object versus two parts and on shoves versus a smooth sine",
+    "put it into practice": "yes: safety first, steps, rule of thumb, worked example including a ship's 60 Hz, mistakes",
+    "recap he could say back": "yes, the bold takeaway"
+  },
+  "verdict": "rewrite as draft 2 with the eight fixes"
+}

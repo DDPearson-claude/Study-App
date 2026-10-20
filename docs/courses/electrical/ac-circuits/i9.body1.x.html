@@ -1,0 +1,1042 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .wrap { position: relative; margin-inline: auto; }
+  .scene { display: block; width: 100%; }
+  .ctl { display: grid; gap: 12px; }
+  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .plate { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .scene .part { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .jn { fill: var(--k-ink); }
+  .scene .d1 { fill: var(--k-cat1); }
+  .scene .d2 { fill: var(--k-cat2); }
+  .scene .dw { fill: var(--k-warn); }
+  .scene .aP { stroke: var(--k-cat1); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .hP { fill: var(--k-cat1); }
+  .scene .aQ { stroke: var(--k-cat2); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .hQ { fill: var(--k-cat2); }
+  .scene .aC { stroke: var(--k-cat3); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .hC { fill: var(--k-cat3); }
+  .scene .aS { stroke: var(--k-accent2); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .hS { fill: var(--k-accent2); }
+  .scene .aM { stroke: var(--k-ink); stroke-width: 2.6; stroke-linecap: round; }
+  .scene .hM { fill: var(--k-ink); }
+  .scene .sup { fill: var(--k-fill1); }
+  .scene .supU { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .arc { fill: none; stroke: var(--k-muted); stroke-width: 1.3; }
+  .scene .tgt { fill: none; stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 5 4; }
+  .scene .axis { stroke: var(--k-muted); stroke-width: 1.3; }
+  .scene .bar { fill: var(--k-accent2); }
+  .scene .barw { fill: var(--k-warn); }
+  .scene .ref { stroke: var(--k-muted); stroke-width: 2.2; }
+  .scene .bad { fill: none; stroke: var(--k-warn); stroke-width: 2.2; stroke-dasharray: 6 4; }
+  .scene .badl { stroke: var(--k-warn); stroke-width: 3; stroke-dasharray: 6 4; }
+  .scene .badh { fill: var(--k-warn); }
+  .scene .mbox { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.4; }
+  .scene .ask { fill: var(--k-bg); stroke: var(--k-amber-line); stroke-width: 2; }
+  .scene .brk { stroke: var(--k-muted); stroke-width: 1.4; }
+  .scene .tt { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .lb, .scene .mt { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .wk { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .scene .ky { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  .scene .q { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene #art * { pointer-events: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.05rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="wrap" id="wrap">
+      <svg class="scene" id="scene" viewBox="0 0 340 520" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    </div>
+    <div class="replay" id="replay"></div>
+    <div class="ctl" id="ctl"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">The motors and their readings are example values; the triangles and the current bars are drawn to scale.</p>
+
+<script>
+  // ---------- the rule ----------
+  // The motor takes P = 1600 W, and its 10 A on 230 V is S = 2300 VA, so its vars are
+  // Q_L = √(S² − P²). A capacitor across its terminals supplies vars the other way, Q_C, because
+  // its current leads where the motor's lags. The supply's triangle keeps P (the motor still has
+  // 230 V across it) and its upright is Q_L − Q_C: S = √(P² + (Q_L − Q_C)²), the power factor is
+  // P ÷ S and the supply current is S ÷ V. The capacitor's whole current is a quarter cycle out of
+  // step, so its vars are V × I: I_C = Q_C ÷ V. Split the motor's current as lesson 8 did: an
+  // in-step part P ÷ V and a quarter-cycle part Q_L ÷ V; the capacitor's current cancels the second,
+  // so the supply cable carries the in-step part plus whatever is left, Q_L ÷ V − Q_C ÷ V (negative:
+  // the capacitor's spare, leading, the other way). Sizing: X_C = V² ÷ Q_C, C = 1 ÷ (2πf X_C).
+  const DEG = Math.PI / 180, TAU = 2 * Math.PI;
+  const F = 50;             // UK mains frequency, Hz
+  // Layout in drawing units: the triangle's corner (TX) and the drawn length of the load's own
+  // vars (TQ); the current bar's start (BX) and the length of the load's own current (BW); the
+  // circuit's supply (SX), motor (MX), capacitor beside the motor (XC0) and at the board (XB).
+  const TX = 96, TQ = 74, BX = 104, BW = 130, SX = 26, MX = 300, XC0 = 220, XB = 72, LANE = 3.5, SPEED = 22;
+  const RUN = 20;           // metres of cable from the board to the motor, an example
+
+  // A number as the lesson writes it: at most dp decimals, no trailing zeros, a true minus sign.
+  function num(v, dp) {
+    dp = dp == null ? 2 : dp;
+    const m = Math.pow(10, dp);
+    let r = Math.round(v * m) / m;
+    if (r === 0) r = 0;
+    let s = r.toFixed(dp);
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    return s.replace('-', '−');
+  }
+  // A reading with exactly dp decimals, a true minus sign.
+  function fx(v, dp) {
+    const m = Math.pow(10, dp);
+    let r = Math.round(v * m) / m;
+    if (r === 0) r = 0;
+    return r.toFixed(dp).replace('-', '−');
+  }
+  const mix = (a, b, t) => (t >= 1 ? b : t <= 0 ? a : a + (b - a) * t);
+  const sig2 = (v) => Number(Number(v).toPrecision(2));   // a capacitance to two figures: "about 99 µF"
+
+  // The loads: lesson 8's motor, and a compressor motor for the mixed puzzle (both example values).
+  const CARDS = {
+    motor: { V: 230, I: 10, P: 1600, kilo: false },
+    comp: { V: 230, P: 3000, S: 5000, kilo: true },
+  };
+  (function () {
+    const m = CARDS.motor, c = CARDS.comp;
+    m.S = m.V * m.I;            // volts × amps
+    c.I = c.S / c.V;
+    [m, c].forEach((k) => {
+      k.QL = Math.sqrt(k.S * k.S - k.P * k.P);   // the upright of the load's own triangle
+      k.phi = Math.acos(k.P / k.S) / DEG;        // power factor = P ÷ S = cos φ
+      k.k = TQ / k.QL;                           // drawing units per volt-amp
+      k.kb = BW / k.I;                           // drawing units per amp on the bar
+    });
+    m.title = () => 'A motor on ' + num(m.V, 0) + ' V mains: ' + num(m.I, 0) + ' A, ' + num(m.P / 1000, 1) + ' kW';
+    c.title = () => 'A compressor on ' + num(c.V, 0) + ' V: ' + num(c.P / 1000, 0) + ' kW, ' + num(c.S / 1000, 0) + ' kVA';
+  })();
+  const M = CARDS.motor, CP = CARDS.comp, QLM = M.QL;
+  const TARGET = 0.95;                                          // an example target power factor
+  const T95 = QLM - M.P * Math.tan(Math.acos(TARGET));          // Q_C = Q before − Q after
+  // The supply's side of things with the capacitor at qc vars.
+  function solve(c, qc) {
+    const qs = c.QL - qc, S = Math.hypot(c.P, qs);
+    return { qc, qs, S, pf: c.P / S, I: S / c.V, Ic: qc / c.V, Ii: c.P / c.V, Iq: c.QL / c.V, phi: Math.atan2(qs, c.P) / DEG };
+  }
+  const pw = (v, c, u) => (c.kilo ? num(v / 1000, 2) + ' k' + u : num(v, 0) + ' ' + u);
+  // Sizing rows: Q_C, then X_C = V² ÷ Q_C, then C = 1 ÷ (2πf X_C).
+  function sizing(c, s) {
+    if (s.qc < 0.5) return ['Q_C = 0 var: no capacitor yet', 'X_C = V² ÷ Q_C: nothing to size', 'C = 0 µF'];
+    const xcv = c.V * c.V / s.qc, cf = 1e6 / (TAU * F * xcv);
+    return ['Q_C = Q before − Q after = ' + pw(s.qc, c, 'var'),
+      'X_C = V² ÷ Q_C = ' + num(c.V, 0) + '² ÷ ' + num(s.qc, 0) + ' = ' + fx(xcv, 1) + ' Ω',
+      'C = 1 ÷ (2π × ' + F + ' × ' + fx(xcv, 1) + ') ≈ ' + num(sig2(cf), 2) + ' µF'];
+  }
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // qc: the screen's capacitor vars (a puzzle's once answered); pre: before the answer; free: the
+  // slider Dan sets ('qc' up to the motor's vars, 'qcx' up to 3400); morph: a demonstration's moves
+  // [start s, seconds, from, to]; amorph: a right answer's moves; loop: the current's dots; ask:
+  // hidden until a right answer ('P', 'QL', 'QC', 'S', 'amps', 'pf', 'phasor', 'place'); qmax: the
+  // largest vars drawn (it sets the room below the floor); slips: what each wrong pick claims, in red.
+  const STEPS = [
+    { show: true, name: 'Fit a capacitor', card: 'motor', qc: 500, capIn: 0.6, morph: [[1.3, 2.2, 0, 500]], qmax: 500, dur: 4.0,
+      text: 'Lesson 8\'s motor on 230 V mains draws 10 A while its wattmeter reads 1.6 kW. Its triangle: P = 1600 W along the floor, Q_L = 1652 var upright and S = 2300 VA, a power factor of 0.70, lagging. Now a capacitor is wired across the motor\'s terminals. Its current leads where the motor\'s lags, so its vars, Q_C, point down from the tip of Q_L. The supply sees only what is left: at 500 var, an upright of 1152 var, S = 1972 VA and 8.57 A in the cable. This is *power factor correction*.' },
+    { name: 'The wattmeter', card: 'motor', qc: 500, pre: 500, qmax: 1300, ask: ['P'], pAt: 0.3, rdur: 2.3, rowAt: 0.6,
+      amorph: [[0.2, 0.7, 500, 1300], [0.9, 0.8, 1300, 0], [1.7, 0.5, 0, 500]],
+      task: 'The capacitor is fitted, at 500 var. What does the motor\'s wattmeter read now?',
+      opts: ['Less than 1.6 kW', '1.6 kW, unchanged', 'More than 1.6 kW'], want: '1.6 kW, unchanged',
+      why: 'The capacitor sits beside the motor, not in its path, so the motor still has 230 V across it, still draws 10 A and still takes 1600 W. A capacitor\'s power wave averages zero, as in lesson 8, so it takes no true power either. Only what the supply sends changes: the floor stays put while the upright shrinks.',
+      hint: 'Not quite. Think about what the motor itself has across it.',
+      hints: { 'Less than 1.6 kW': 'Not quite. The motor turns the same load with the same 230 V across it.',
+        'More than 1.6 kW': 'Not quite. The capacitor\'s power wave averages zero, so it takes no true power.' } },
+    { show: true, name: 'Cancel the upright', card: 'motor', free: 'qc', max: 1652, morph: [[0.6, 2.4, 500, 1000]], qmax: 1652, dur: 3.6,
+      text: 'The slider is yours now, up to the motor\'s whole 1652 var. As Q_C grows, its arrow eats into the upright, so the supply\'s upright, Q_L − Q_C, shrinks. S shortens, the angle closes and the cable\'s current falls, while P stays at 1600 W. At 1000 var the upright is 652 var, S is 1728 VA, the power factor is 0.93 and the cable carries 7.51 A.' },
+    { name: 'Power factor 1', card: 'motor', qc: QLM, pre: 0, qmax: 2300, ask: ['QC'], rdur: 2.2, rowAt: 1.4,
+      amorph: [[0.2, 1.4, 0, QLM]],
+      slips: { '700 var': { arrow: M.S - M.P }, '2300 var': { arrow: M.S } },
+      task: 'How many vars must the capacitor supply for a power factor of 1?',
+      opts: ['700 var', '2300 var', '1652 var'], want: '1652 var',
+      why: 'A power factor of 1 means S lies along the floor, so the supply\'s upright, Q_L − Q_C, must be zero: Q_C = Q_L = 1652 var. Then S = 1600 VA and the cable carries 1600 ÷ 230 = 6.96 A instead of 10 A. Its heat goes with the current squared, (6.96 ÷ 10)² = 0.48 of what it was. 700 var is the gap between 2300 VA and 1600 W, which is not a side of the triangle. 2300 var would cancel the long side, but the floor, the watts, stays.',
+      hint: 'Not quite. Which side of the triangle has to vanish?',
+      hints: { '700 var': 'Not quite. That gap is not a side of the triangle; the upright is.',
+        '2300 var': 'Not quite. The floor, the watts, stays. Only the upright is cancelled.' } },
+    { show: true, name: 'The loop', card: 'motor', qc: QLM, loop: true, qmax: QLM, dur: 4.4,
+      tl: { d1: 0.5, d2: 1.2, r1: 1.0, r2: 1.7, r3: 2.4, r4: 3.1 },
+      text: 'Where has the current gone? Split the motor\'s 10 A as lesson 8 did: an in-step part, 10 × cos 45.9° = 6.96 A, and a quarter-cycle part, 10 × sin 45.9° = 7.18 A, a quarter cycle behind the voltage. The capacitor\'s 1652 ÷ 230 = 7.18 A is a quarter cycle ahead. Half a cycle apart, one flows in as the other flows out, so that 7.18 A runs round the short loop between the capacitor and the motor. The supply cable carries only the in-step 6.96 A.' },
+    { name: 'The supply cable', card: 'motor', qc: QLM, pre: QLM, loop: true, phasor: true, qmax: QLM, ask: ['amps', 'phasor'], rdur: 2.4, rowAt: 1.2,
+      slips: { '2.82 A': { bar: (c) => c.I - c.QL / c.V }, '17.18 A': { bar: (c) => c.I + c.QL / c.V } },
+      task: 'With the capacitor at 1652 var, the motor draws 10 A and the capacitor 7.18 A. What does the supply cable carry?',
+      opts: ['6.96 A', '2.82 A', '17.18 A'], want: '6.96 A',
+      why: 'Currents out of step add as arrows. The motor\'s 10 A is 6.96 A in step plus 7.18 A a quarter cycle behind. The capacitor\'s 7.18 A is a quarter cycle ahead, so it cancels that part exactly and leaves the in-step 6.96 A, the arrow that closes the other two along the floor. 2.82 A takes 7.18 from 10 as plain numbers, but the capacitor cancels only the quarter-cycle part. 17.18 A adds them, but they are half a cycle apart.',
+      hint: 'Not quite. Split the motor\'s current into its two parts first.',
+      hints: { '2.82 A': 'Not quite. The capacitor cancels only the quarter-cycle part, not the in-step part that does the work.',
+        '17.18 A': 'Not quite. They are half a cycle apart, so they cancel rather than add.' } },
+    { show: true, name: 'Sizing', card: 'motor', free: 'qc', max: 1652, loop: true, sizing: true, morph: [[0.6, 2.2, 1000, QLM]], qmax: 1652, dur: 3.6,
+      text: 'To size the capacitor, read three rows off the triangle. Its vars: Q_C = Q before − Q after. It has the full 230 V across it, so its current is V ÷ X_C and its vars are V² ÷ X_C, which turns round to X_C = V² ÷ Q_C. Then lesson 5\'s rule turned round gives C = 1 ÷ (2πf X_C), at 50 Hz. For a power factor of 1 here, that is 32.0 Ω, about 99 µF. Set the slider and the rows follow.' },
+    { name: 'A target of 0.95', card: 'motor', qc: T95, pre: 0, loop: true, target: TARGET, qmax: QLM, ask: ['QC'], rdur: 2.0, rowAt: 1.0,
+      amorph: [[0.2, 1.2, 0, T95]],
+      slips: { 'About 1570 var': { arrow: TARGET * QLM }, '526 var': { arrow: QLM - T95 } },
+      task: 'An example target: a power factor of 0.95. How many vars must the capacitor supply?',
+      opts: ['About 1570 var', '1126 var', '526 var'], want: '1126 var',
+      why: 'The angle whose cosine is 0.95 is 18.2°, so the vars left are Q after = P × tan 18.2° = 1600 × 0.329 = 526 var. The capacitor supplies the rest: 1652 − 526 = 1126 var. That needs X_C = 230² ÷ 1126 = 47.0 Ω, about 68 µF, and leaves 1600 ÷ (230 × 0.95) = 7.32 A in the cable. 1570 var is 0.95 of the motor\'s vars, but the power factor is a ratio of the triangle\'s sides, not a share of the vars. 526 var is what stays.',
+      hint: 'Not quite. Find the vars left at 0.95 first.',
+      hints: { 'About 1570 var': 'Not quite. The power factor is a ratio of the triangle\'s sides, not a share of the vars to cancel.',
+        '526 var': 'Not quite. That is what stays. The capacitor supplies the difference.' } },
+    { show: true, name: 'Too far', card: 'motor', free: 'qcx', max: 3400, loop: true, morph: [[0.6, 2.6, QLM, 2500]], qmax: 3400, dur: 3.8,
+      text: 'Now the slider goes up to 3400 var. Past 1652 var the down arrow overshoots the floor and the triangle swings below it: the power factor is now leading. The capacitor\'s current has outgrown the motor\'s quarter-cycle part, so the difference comes along the supply cable, and the cable\'s current grows again, in red. At 2500 var the upright is −848 var, S is 1811 VA, the power factor is 0.88, leading, and the cable carries 7.87 A. Adding more than the load\'s own vars is *over-correction*.' },
+    { name: 'Twice the capacitor', card: 'motor', qc: 3304, pre: 0, loop: true, qmax: 3304, ask: ['QC', 'S', 'amps', 'pf'], rdur: 2.2, rowAt: 1.4,
+      amorph: [[0.2, 1.6, 0, 3304]],
+      slips: { '6.96 A, as low as before': { bar: (c) => c.P / c.V }, 'Nearly 0 A': { bar: () => 0 } },
+      task: 'To be sure, someone fits twice the capacitor: 3304 var. What does the supply cable carry?',
+      opts: ['6.96 A, as low as before', 'Nearly 0 A', 'About 10 A, at 0.70 leading'], want: 'About 10 A, at 0.70 leading',
+      why: 'Q_C now outgrows Q_L by 1652 var, so the upright points 1652 var down: the motor\'s own triangle, flipped below the floor. S is back to 2300 VA, so the cable carries 2300 ÷ 230 = 10 A again, at a power factor of 0.70, now leading. The capacitor\'s spare vars come along the cable, just as the motor\'s did. 6.96 A would need the upright at zero. Nearly 0 A forgets the in-step 6.96 A, which does the work.',
+      hint: 'Not quite. Compare Q_C with Q_L.',
+      hints: { '6.96 A, as low as before': 'Not quite. Past full correction the capacitor\'s spare vars have to come along the cable too.',
+        'Nearly 0 A': 'Not quite. The cable still carries the in-step 6.96 A. Correction cancels only vars.' } },
+    { name: 'Mixed: a compressor', card: 'comp', qc: CP.QL, pre: 0, loop: true, qmax: CP.QL, ask: ['QL', 'QC'], rdur: 2.2, rowAt: 1.2,
+      amorph: [[0.2, 1.4, 0, CP.QL]],
+      slips: { '2 kvar and 13.0 A': { arrow: CP.S - CP.P }, '4 kvar and 4.3 A': { bar: (c) => c.I - c.QL / c.V } },
+      task: 'Mixed. A compressor motor takes 3 kW and 5 kVA on 230 V, so 21.7 A. Which capacitor corrects it fully, and what current is left?',
+      opts: ['4 kvar and 13.0 A', '2 kvar and 13.0 A', '4 kvar and 4.3 A'], want: '4 kvar and 13.0 A',
+      why: 'Its vars are the upright: √(5² − 3²) = √16 = 4 kvar, so the capacitor supplies 4 kvar. The cable then carries only the watts\' share: 3000 ÷ 230 = 13.0 A. The capacitor itself is X_C = 230² ÷ 4000 = 13.2 Ω, and C = 1 ÷ (2π × 50 × 13.2), about 240 µF. 2 kvar takes 3 from 5, which is not a side of the triangle. 4.3 A takes the capacitor\'s 17.4 A from 21.7 A as plain numbers, but it cancels only the quarter-cycle part.',
+      hint: 'Not quite. Find the upright from the other two sides.',
+      hints: { '2 kvar and 13.0 A': 'Not quite. 5 − 3 is not a side of the triangle. Square, subtract, then take the square root.',
+        '4 kvar and 4.3 A': 'Not quite. The capacitor\'s 17.4 A cancels only the quarter-cycle part, so it cannot be taken from 21.7 A as a plain number.' } },
+    { name: 'Mixed: where to fit it', card: 'motor', qc: QLM, pre: QLM, loop: true, dist: true, qmax: QLM, ask: ['place'], move: [0.3, 1.0], rdur: 2.4, rowAt: 1.2,
+      task: 'Mixed. The first motor sits 20 m from its distribution board. Where does the capacitor relieve the most cable?',
+      opts: ['At the board', 'Across the motor\'s terminals', 'Anywhere: the triangle is the same'], want: 'Across the motor\'s terminals',
+      why: 'The capacitor\'s 7.18 A runs round the loop between the capacitor and the motor. Across the motor\'s terminals that loop is short, so the whole 20 m run from the board carries only the in-step 6.96 A. At the board, the loop is the 20 m run itself, so the run still carries the motor\'s full 10 A. The triangle at the supply is the same either way, but the cable inside the loop is not relieved.',
+      hint: 'Not quite. Follow the loop the capacitor\'s current runs round.',
+      hints: { 'At the board': 'Not quite. The 7.18 A runs round the loop between the capacitor and the motor, so any cable inside that loop still carries the full 10 A.',
+        'Anywhere: the triangle is the same': 'Not quite. The triangle at the supply is the same, but the cable between the capacitor and the motor is inside the loop.' } },
+  ];
+  const FINISH = 'The capacitor hands the motor its vars from close by, so the supply sends only the watts\' share of current while the true power stays put. Lesson 10 takes the same triangle to three phases.';
+  // Sources the checks restate (the lesson's own).
+  const ENA = 'https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits';
+  const KUPH11 = 'http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html';
+  const KUPH4 = 'https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html';
+
+  const PICK = 'Tap one of the answers.';
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong' or 'empty' once checked), why: the puzzle. qc: what Dan has set on
+  // a sliding screen (null: the demonstration's).
+  function blank() { return { pick: null, res: null, why: false, qc: null }; }
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, MODE = 'demo', motionEnd = 0, FLOW = 0;
+  let REC = {}, VBH = 520, BOX = [];
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+
+  // Text with highlighted key terms (*term*), and Q_L, Q_C, X_C set with a lowered letter, built with K.el, never innerHTML.
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').split(/(\*[^*]+\*|[QVX]_[RLC])/).forEach((b) => {
+      if (!b) return;
+      if (/^[QVX]_[RLC]$/.test(b)) node.append(b.charAt(0), K.el('sub', {}, b.charAt(2)));
+      else if (b.charAt(0) === '*' && b.length > 2 && b.charAt(b.length - 1) === '*') node.appendChild(K.el('span', { class: 'mark' }, b.slice(1, -1)));
+      else node.appendChild(document.createTextNode(b));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play('answer', st.res === 'right' ? d.rdur : 0.8);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  // Replay plays the screen's demonstration again from its start.
+  const replayBtn = K.button({ label: 'Replay', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    st.qc = null;
+    play('demo', d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  // The capacitor's vars, each slider shown only on its own screens: up to the motor's vars, then up to 3400.
+  const qFmt = (v) => num(v, 0) + ' var';
+  const CTL = {
+    qc: K.control({ id: 'qc', label: 'Capacitor\'s vars, the down arrow', min: 0, max: 1652, step: 4, value: 0, fmt: qFmt, snap: [500, 1000, 1652], into: '#ctl' }),
+    qcx: K.control({ id: 'qcx', label: 'Capacitor\'s vars, the down arrow', min: 0, max: 3400, step: 4, value: 0, fmt: qFmt, snap: [1652, 2500, 3304], into: '#ctl' }),
+  };
+  const shown = { qc: CTL.qc.get(), qcx: CTL.qcx.get() };
+  // The slider set to what the picture shows (quietly: this is not Dan moving it).
+  function syncSliders(d) {
+    if (!d.free) return;
+    const ctl = CTL[d.free], v = K.clamp(Math.round(REC.qc / 4) * 4, 0, d.max);
+    if (ctl.get() !== v) ctl.set(v, true);
+    shown[d.free] = ctl.get();
+  }
+
+  // One animation plays each demonstration, the motion after an answer and the current's dots
+  // after Dan moves a slider; with reduced motion (and while the self-test looks) all opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    if (STEPS[at()].loop) FLOW += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && T !== Infinity) { T = Infinity; paint(); } });
+  // A demonstration waits until most of its picture is in view, so on a phone it does not play out
+  // while Dan is still reading the words above it.
+  let seen = true, waiting = false, waitDur = 0;
+  if (typeof IntersectionObserver === 'function') {
+    seen = false;
+    new IntersectionObserver((es) => {
+      const e = es[es.length - 1];
+      seen = e.isIntersecting && (e.intersectionRatio >= 0.6 || e.intersectionRect.height >= 0.6 * (window.innerHeight || 1));
+      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }
+    }, { threshold: [0, 0.3, 0.6, 0.8, 1] }).observe(el('scene'));
+  }
+  function play(mode, dur) {
+    MODE = mode; waiting = false;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    if (mode === 'demo' && !seen) { waiting = true; waitDur = dur; T = 0; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // Dan takes over: whatever was moving shows finished.
+  function stopMotion() { if (anim.playing()) anim.pause(); waiting = false; T = Infinity; }
+  // The current's dots run on for a moment after Dan moves the slider, at the new setting.
+  function flow() {
+    if (REDUCE || testing()) return;
+    MODE = 'flow'; waiting = false; motionEnd = 1.6; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing helpers ----------
+  const svg = el('scene'), art = el('art');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, dd) {
+    dd = dd == null ? K.SOFT : dd;
+    if (t0 + dd > latest) latest = t0 + dd;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, dd);
+  }
+  // A steady motion from 0 to 1 between t0 and t0 + dd.
+  function lin(t0, dd) {
+    if (t0 + dd > latest) latest = t0 + dd;
+    if (t0 < earliest) earliest = t0;
+    return T === Infinity ? 1 : K.clamp((T - t0) / dd, 0, 1);
+  }
+  function part(a, rise, draw) {
+    if (!(a > 0.001)) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  const R2 = (v) => Math.round(v * 100) / 100;
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: R2(x1), y1: R2(y1), x2: R2(x2), y2: R2(y2) }));
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: R2(x), y: R2(y), width: R2(Math.max(0, w)), height: R2(Math.max(0, h)), rx: rx || 0 }));
+  const circ = (cls, p, r) => add(K.svg('circle', { class: cls, cx: R2(p[0]), cy: R2(p[1]), r }));
+  const path = (cls, dd) => add(K.svg('path', { class: cls, d: dd }));
+  // A text; '_L' or '_C' in it is set as a lowered letter (Q_L reads as Q with L below the line).
+  function makeText(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: R2(x), y: R2(y), 'text-anchor': anchor || 'middle' });
+    const bits = String(s).split(/(_[RLC])/);
+    bits.forEach((b, j) => {
+      if (!b) return;
+      if (/^_[RLC]$/.test(b)) t.appendChild(K.svg('tspan', { dy: 4 }, b.charAt(1)));
+      else if (j > 0 && /^_[RLC]$/.test(bits[j - 1])) t.appendChild(K.svg('tspan', { dy: -4 }, b));
+      else t.appendChild(document.createTextNode(b));
+    });
+    return t;
+  }
+  const text = (x, y, s, cls, anchor) => add(makeText(x, y, s, cls, anchor));
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(makeText(0, -50, s, cls, 'start'));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 7.4;
+  }
+  function askMark(x, y) { circ('ask', [x, y], 10); text(x, y + 5, '?', 'q'); }
+  // An arrow from (x1, y1) to (x2, y2): a shaft and a head.
+  function arrow(cls, hcls, x1, y1, x2, y2) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    if (L < 0.5) return;
+    const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.6), hw = hl * 0.55;
+    if (L - hl > 0.5) line(cls, x1, y1, x2 - ux * hl * 0.8, y2 - uy * hl * 0.8);
+    path(hcls, 'M' + R2(x2) + ' ' + R2(y2) + 'L' + R2(x2 - ux * hl - uy * hw) + ' ' + R2(y2 - uy * hl + ux * hw) +
+      'L' + R2(x2 - ux * hl + uy * hw) + ' ' + R2(y2 - uy * hl - ux * hw) + 'Z');
+  }
+  // Whether a box [x1, y1, x2, y2] keeps 3 units clear of every segment [x1, y1, x2, y2].
+  function clearOf(b, segs) {
+    return segs.every((g) => {
+      for (let j = 0; j <= 30; j++) {
+        const x = g[0] + (g[2] - g[0]) * j / 30, y = g[1] + (g[3] - g[1]) * j / 30;
+        if (x > b[0] - 3 && x < b[2] + 3 && y > b[1] - 3 && y < b[3] + 3) return false;
+      }
+      return true;
+    });
+  }
+  // A label placed at the first spot clear of the drawing's segments and of the labels already placed.
+  function boxAt(x, y, w, anchor) { const x0 = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w : x; return [x0, y - 11, x0 + w, y + 4]; }
+  function spotFor(str, cls, cands, segs) {
+    const w = tw(str, cls);
+    for (const c of cands) {
+      const b = boxAt(c[0], c[1], w, c[2]);
+      if (b[0] < 4 || b[2] > 336) continue;
+      if (!clearOf(b, segs)) continue;
+      if (!BOX.every((o) => b[2] < o[0] - 2 || b[0] > o[2] + 2 || b[3] < o[1] - 2 || b[1] > o[3] + 2)) continue;
+      return { c, b };
+    }
+    const c = cands[cands.length - 1];
+    return { c, b: boxAt(c[0], c[1], w, c[2]) };
+  }
+  // A key inside the drawing, in rows: each item a swatch and its name.
+  function keyRows(items, y) {
+    let x = 8, row = 0;
+    items.forEach((it) => {
+      const w = 18 + 6 + tw(it.label, 'ky');
+      if (x > 8 && x + w > 336) { x = 8; row++; }
+      const yy = y + row * 22, x0 = x;
+      part(it.a == null ? 1 : it.a, 0, () => { it.sw(x0, yy); text(x0 + 24, yy + 5, it.label, 'ky', 'start'); });
+      x += w + 14;
+    });
+    return y + row * 22 + 12;
+  }
+  const swLine = (cls) => (x, yy) => line(cls, x, yy, x + 18, yy);
+  const swRect = (cls) => (x, yy) => rect(cls, x + 2, yy - 6, 14, 12, 0);
+  const swDot = (cls) => (x, yy) => circ(cls, [x + 9, yy], 3.2);
+  const swTick = (cls) => (x, yy) => line(cls, x + 9, yy - 7, x + 9, yy + 7);
+  // Where a motion's value has got to: the last move started.
+  function morphV(segs, moving) {
+    let v = segs[0][2];
+    for (const s of segs) {
+      const p = lin(s[0], s[1]);
+      if (moving && T < s[0]) break;
+      v = mix(s[2], s[3], moving ? K.ease(p) : 1);
+    }
+    return v;
+  }
+
+  // ---------- the picture ----------
+  // The current's dots along one lane: as many as the current is big (closer together for more),
+  // moving while the picture moves.
+  function laneDots(pts, I, unit, cls, a) {
+    if (!(I > 0.05) || !(a > 0.001)) return;
+    const sp = Math.max(3.5, 7.2 * unit / I);
+    const seg = [];
+    let L = 0;
+    for (let j = 1; j < pts.length; j++) { const l = Math.hypot(pts[j][0] - pts[j - 1][0], pts[j][1] - pts[j - 1][1]); seg.push(l); L += l; }
+    const off = ((FLOW * SPEED) % sp + sp) % sp;
+    part(a, 0, () => {
+      let j = 0, acc = 0;
+      for (let p = off; p < L; p += sp) {
+        while (j < seg.length - 1 && p > acc + seg[j]) { acc += seg[j]; j++; }
+        const t = seg[j] ? (p - acc) / seg[j] : 0;
+        circ(cls, [pts[j][0] + (pts[j + 1][0] - pts[j][0]) * t, pts[j][1] + (pts[j + 1][1] - pts[j][1]) * t], 2.1);
+      }
+    });
+  }
+  // The in-step part runs round the outer lane; the motor's quarter-cycle part round the inner
+  // lane between the capacitor and the motor; the capacitor's current up its branch; and what the
+  // capacitor leaves uncancelled along the supply cable (red, and the other way, when it leads).
+  function drawDots(c, s, CT, xc, a1, a2) {
+    const CB = CT + 64, o = LANE, Isq = s.Iq - s.Ic;
+    laneDots([[SX - o, CB + o], [SX - o, CT - o], [MX + o, CT - o], [MX + o, CB + o], [SX - o, CB + o]], s.Ii, c.I, 'd1', a1);
+    laneDots([[xc, CT + o], [MX - o, CT + o], [MX - o, CB - o], [xc, CB - o]], s.Iq, c.I, 'd2', a2);
+    laneDots([[xc, CB], [xc, CT]], s.Ic, c.I, 'd2', a2);
+    const cab = [[xc, CB - o], [SX + o, CB - o], [SX + o, CT + o], [xc, CT + o]];
+    if (Isq >= 0) laneDots(cab, Isq, c.I, 'd2', a2);
+    else laneDots(cab.slice().reverse(), -Isq, c.I, 'dw', a2);
+    REC.lanes = { Ii: s.Ii, Iq: s.Iq, Ic: s.Ic, cable: Isq, warn: Isq < -0.05, xc, a: [a1, a2] };
+  }
+
+  // The circuit: the supply (or the board), the cable's two wires, the capacitor across them and the motor.
+  function drawCircuit(d, c, s, CT, xc, mv, capA, a1, a2, hideIc) {
+    const CB = CT + 64, CM = CT + 32;
+    if (d.dist) {
+      // The run from the board to the motor.
+      line('brk', 49, CT - 18, 154, CT - 18); line('brk', 194, CT - 18, MX, CT - 18);
+      line('brk', 49, CT - 23, 49, CT - 13); line('brk', MX, CT - 23, MX, CT - 13);
+      text(174, CT - 13, RUN + ' m', 'lb', 'middle');
+    }
+    line('wire', SX, CT, MX, CT); line('wire', SX, CB, MX, CB);
+    line('wire', SX, CT, SX, CB); line('wire', MX, CT, MX, CB);
+    if (d.loop) drawDots(c, s, CT, xc, a1, a2);
+    part(capA, 0, () => {
+      line('wire', xc, CT, xc, CM - 6); line('wire', xc, CM + 6, xc, CB);
+      line('plate', xc - 12, CM - 6, xc + 12, CM - 6); line('plate', xc - 12, CM + 6, xc + 12, CM + 6);
+      circ('jn', [xc, CT], 2.6); circ('jn', [xc, CB], 2.6);
+    });
+    if (d.dist) { rect('mbox', 2, CM - 16, 48, 32, 5); text(SX, CM + 5, 'board', 'mt', 'middle'); }
+    else {
+      circ('part', [SX, CM], 13);
+      path('wire', 'M' + (SX - 7) + ' ' + CM + 'Q' + (SX - 3.5) + ' ' + (CM - 7) + ' ' + SX + ' ' + CM + 'T' + (SX + 7) + ' ' + CM);
+      text(SX + 18, CM + 5, num(c.V, 0) + ' V', 'lb', 'start');
+      text(90, CT + 20, 'supply cable', 'tk', 'middle');
+    }
+    circ('part', [MX, CM], 15); text(MX, CM + 5, 'M', 'mt', 'middle');
+    text(MX - 20, CT + 20, num(c.I, 2) + ' A', 'lb', 'end');
+    // The capacitor's name and current, on the side away from the motor (moving to the board, they fade across).
+    const la = capA * (mv > 0 && mv < 1 ? Math.abs(2 * mv - 1) : 1), left = !(mv >= 0.5);
+    const ic = hideIc ? '? A' : fx(s.Ic, 2) + ' A';
+    part(la, 0, () => {
+      text(left ? xc - 18 : xc + 18, CM - 2, 'capacitor', 'lb', left ? 'end' : 'start');
+      text(left ? xc - 18 : xc + 18, CM + 15, ic, 'lb', left ? 'end' : 'start');
+    });
+    REC.capLabel = la >= 0.999 ? ic : null;
+  }
+
+  // The power triangle: P along the floor, the motor's Q_L up from its tip, the capacitor's Q_C
+  // down from Q_L's tip (just beside it), and the supply's triangle, shaded, whose long side S
+  // closes from the corner to Q_C's head. Lengths in volt-amps × k.
+  function drawTri(d, c, s, TY, A, slip, slipA) {
+    const k = c.k, Pl = c.P * k, tipX = TX + Pl, QLy = TY - c.QL * k, hy = TY - s.qs * k, qcx = tipX + 7, LX = tipX + 28, ph = s.phi * DEG;
+    const showQC = A.QC && s.qc > 0.5;
+    const segs = [[TX, TY, tipX, TY], [tipX, TY, tipX, QLy]];
+    if (showQC) segs.push([qcx, QLy, qcx, hy]);
+    if (A.sA > 0.001) { segs.push([TX, TY, tipX, hy]); if (s.qs < -0.5) segs.push([tipX, TY, tipX, hy]); }
+    const arcOn = A.sA > 0.001 && Math.abs(s.phi) >= 10;
+    const arcSegs = [];
+    if (arcOn) for (let j = 0; j < 12; j++) {
+      const a0 = ph * j / 12, a1 = ph * (j + 1) / 12;
+      arcSegs.push([TX + 16 * Math.cos(a0), TY - 16 * Math.sin(a0), TX + 16 * Math.cos(a1), TY - 16 * Math.sin(a1)]);
+    }
+    let tg = null;
+    if (d.target) { const a = Math.acos(d.target); tg = [TX, TY, tipX + 6, TY - (Pl + 6) * Math.tan(a)]; segs.push(tg); }
+    const slipX = tipX + 18;
+    if (slip && slip.arrow != null) segs.push([slipX, QLy, slipX, QLy + slip.arrow * k]);
+    const all = segs.concat(arcSegs);
+
+    if (A.sA > 0.001) part(A.sA, 0, () => {
+      path('sup', 'M' + R2(TX) + ' ' + R2(TY) + 'L' + R2(tipX) + ' ' + R2(TY) + 'L' + R2(tipX) + ' ' + R2(hy) + 'Z');
+      if (s.qs < -0.5) line('supU', tipX, TY, tipX, hy);
+      arrow('aS', 'hS', TX, TY, tipX, hy);
+      if (arcOn) path('arc', 'M' + R2(TX + 16) + ' ' + R2(TY) + 'A16 16 0 0 ' + (s.phi > 0 ? 0 : 1) + ' ' + R2(TX + 16 * Math.cos(ph)) + ' ' + R2(TY - 16 * Math.sin(ph)));
+    });
+    if (tg) line('tgt', tg[0], tg[1], tg[2], tg[3]);
+    arrow('aP', 'hP', TX, TY, tipX, TY);
+    arrow('aQ', 'hQ', tipX, TY, tipX, QLy);
+    if (showQC) arrow('aC', 'hC', qcx, QLy, qcx, hy);
+    if (slip && slip.arrow != null) part(slipA, 0, () => arrow('badl', 'badh', slipX, QLy, slipX, QLy + slip.arrow * k));
+    if (!A.QC) askMark(qcx + 6, (QLy + TY) / 2);
+
+    // Names: P at the floor's tail, Q_L and Q_C to the right, S outside the long side, φ in its wedge.
+    const lab = (str, cands, a) => {
+      if (!(a > 0.001)) return;
+      const f = spotFor(str, 'lb', cands, all);
+      BOX.push(f.b);
+      part(a, 0, () => text(f.c[0], f.c[1], str, 'lb', f.c[2]));
+      if (a >= 0.999) REC.labels.push(str);
+    };
+    lab(A.P ? 'P = ' + pw(c.P, c, 'W') : 'P = ?', [[TX - 8, TY + 5, 'end']], A.pA);
+    lab(A.QL ? 'Q_L = ' + pw(c.QL, c, 'var') : 'Q_L = ?', [[LX, QLy + 12, 'start'], [LX, (QLy + TY) / 2 + 5, 'start']], A.qlA);
+    if (showQC) lab('Q_C = ' + pw(s.qc, c, 'var'), [[LX, hy + 5, 'start'], [LX, hy + 20, 'start'], [LX, hy - 10, 'start'], [LX, hy + 35, 'start'], [LX, QLy + 30, 'start']], A.qcA);
+    if (A.sA > 0.001) {
+      const str = 'S = ' + pw(s.S, c, 'VA'), Ql = s.qs * k, Mx = TX + Pl / 2, My = (TY + hy) / 2;
+      let n = Ql >= 0 ? [-Ql, -Pl] : [Ql, Pl];
+      const L = Math.hypot(n[0], n[1]);
+      n = L > 1e-9 ? [n[0] / L, n[1] / L] : [0, -1];
+      const cands = [];
+      for (let o = Math.abs(Ql) < 14 ? 14 : 8; o <= 64; o += 2) [0, -12, -24, -36].forEach((dx) => cands.push([Mx + n[0] * o + dx, My + n[1] * o + 4.5, 'middle']));
+      cands.push([TX - 50, TY - 34, 'middle'], [TX - 50, TY + 40, 'middle']);
+      lab(str, cands, A.sA);
+      // φ inside its wedge, beyond the arc, only where the wedge has room.
+      const ad = Math.abs(s.phi);
+      if (arcOn && ad >= 25 && ad <= 70) {
+        for (let r = 26; r <= 60; r += 2) {
+          const cx = TX + r * Math.cos(ph / 2), cy = TY - r * Math.sin(ph / 2), b = [cx - 5, cy - 7, cx + 5, cy + 8];
+          if (b[2] < tipX - 4 && clearOf(b, all) && BOX.every((o2) => b[2] < o2[0] || b[0] > o2[2] || b[3] < o2[1] || b[1] > o2[3])) {
+            part(A.sA, 0, () => text(cx, cy + 4.5, 'φ', 'lb', 'middle'));
+            break;
+          }
+        }
+      }
+    }
+    const full = A.sA >= 0.999;
+    REC.tri = { P: Pl / k, QL: (TY - QLy) / k, QC: showQC ? (hy - QLy) / k : null, Qs: (TY - hy) / k, S: full ? Math.hypot(Pl, TY - hy) / k : null, down: showQC ? hy > QLy : null };
+  }
+
+  // The currents as arrows (screen 6's answer): the motor's, the capacitor's and the supply's.
+  function drawPhasor(c, s, y, A) {
+    const CX = 160, CY = y + 18, kp = 6.5;
+    const ex = CX + s.Ii * kp, ey = CY + s.Iq * kp, cy2 = ey - s.Ic * kp;
+    text(8, CY + 4, 'currents as arrows:', 'ky', 'start');
+    text(8, CY + 22, 'flat = in step', 'ky', 'start');
+    text(8, CY + 40, 'down = behind', 'ky', 'start');
+    text(8, CY + 58, 'up = ahead', 'ky', 'start');
+    if (!A.on) { askMark(CX + 22, CY + 22); REC.phasor = null; return CY + 64; }
+    part(A.m, 0, () => { arrow('aM', 'hM', CX, CY, ex, ey); text(CX + 16, CY + 34, 'motor ' + num(c.I, 2) + ' A', 'lb', 'end'); });
+    part(A.c, 0, () => { arrow('aC', 'hC', ex, ey, ex, cy2); text(ex + 8, CY + 28, 'capacitor ' + fx(s.Ic, 2) + ' A', 'lb', 'start'); });
+    part(A.s, 0, () => { arrow('aS', 'hS', CX, CY, ex, cy2); text((CX + ex) / 2, CY - 10, 'supply ' + fx(s.I, 2) + ' A', 'lb', 'middle'); });
+    REC.phasor = A.m >= 0.999 && A.c >= 0.999 && A.s >= 0.999 ? { motor: [s.Ii, -s.Iq], cap: [0, s.Ic], sup: [s.Ii, (CY - cy2) / kp] } : null;
+    return CY + 64;
+  }
+
+  function drawScreen(d, st) {
+    const c = CARDS[d.card];
+    const right = !d.show && st.res === 'right';
+    const slip = !d.show && st.res === 'wrong' ? (d.slips || {})[st.pick] || null : null;
+    const demo = d.show && MODE === 'demo';
+    const slipA = slip ? arr(0.1) : 0;
+    const ak = d.ask || [], asks = (q) => ak.indexOf(q) >= 0, asked = (q) => !right && asks(q);
+
+    // ---- the capacitor's vars: Dan's, the demonstration's, the answer's, or the screen's ----
+    let qc;
+    if (d.free && st.qc != null) qc = st.qc;
+    else if (d.show && d.morph) qc = morphV(d.morph, demo);
+    else if (right && d.amorph) qc = morphV(d.amorph, true);
+    else if (!right && d.pre != null) qc = d.pre;
+    else qc = d.qc;
+    const s = solve(c, qc), sf = solve(c, d.qc != null ? d.qc : qc);
+    Object.assign(REC, { card: d.card, qc, s, tri: null, bar: null, labels: [], rows: [], lanes: null, phasor: null, xc: null, capLabel: null, pfRow: null,
+      slip: slip && slipA > 0 ? slip : null, leading: s.qs < -0.5 });
+    BOX = [];
+
+    text(8, 16, d.dist ? 'The motor, ' + RUN + ' m from its board' : c.title(), 'tt', 'start');
+    // ---- the circuit ----
+    const CT = d.dist ? 58 : 40;
+    let xc = XC0, mv = 0;
+    if (d.dist && right) { mv = K.ease(lin(d.move[0], d.move[1])); xc = mix(XC0, XB, mv); }
+    REC.xc = xc;
+    const capA = d.show && d.capIn != null ? (demo ? arr(d.capIn) : 1) : 1;
+    let a1 = 0, a2 = 0;
+    if (d.loop) {
+      if (asked('amps')) { a1 = 0; a2 = 0; }
+      else if (right && asks('amps')) { a1 = arr(0.3); a2 = a1; }
+      else if (demo && d.tl) { a1 = arr(d.tl.d1); a2 = arr(d.tl.d2); }
+      else { a1 = 1; a2 = 1; }
+    }
+    drawCircuit(d, c, s, CT, xc, mv, capA, a1, a2, asked('QC'));
+
+    // ---- the triangle ----
+    const TY = CT + 64 + 12 + TQ + 22, down = Math.max(30, (d.qmax - c.QL) * c.k + 30);
+    const A = {
+      P: !asked('P'), QL: !asked('QL'), QC: !asked('QC'),
+      pA: right && asks('P') ? arr(d.pAt) : 1,
+      qlA: right && asks('QL') ? arr(0.2) : 1,
+      qcA: d.show && d.capIn != null ? (demo ? arr(d.morph[0][0]) : 1) : right && asks('QC') ? arr(0.3) : 1,
+      sA: asked('S') ? 0 : right && asks('S') ? arr(0.2) : 1,
+    };
+    drawTri(d, c, s, TY, A, slip, slipA);
+
+    // ---- the supply cable's current, S ÷ V ----
+    let y = TY + down;
+    const yb = y;
+    text(8, yb + 14, 'supply current', 'tk', 'start');
+    line('axis', BX, yb, BX, yb + 18);
+    if (!asked('amps')) {
+      const ba = right && asks('amps') ? arr(0.4) : 1, w = s.I * c.kb, lbl = fx(s.I, 2) + ' A';
+      part(ba, 0, () => { rect(s.qs < -0.5 ? 'barw' : 'bar', BX, yb + 2, w, 14, 2); text(BX + w + 6, yb + 14, lbl, 'lb', 'start'); });
+      REC.bar = ba >= 0.999 ? { I: s.I, w, warn: s.qs < -0.5, label: lbl } : null;
+    } else askMark(BX + 16, yb + 9);
+    line('ref', BX + BW, yb + 19, BX + BW, yb + 27);
+    y = yb + 28;
+    const barSlips = !!d.slips && Object.keys(d.slips).some((o) => d.slips[o].bar);
+    if (barSlips) {
+      if (slip && slip.bar) {
+        const v = slip.bar(c);
+        part(slipA, 0, () => { if (v > 0.05) rect('bad', BX, y + 1, v * c.kb, 10, 0); else line('badl', BX + 2, y - 1, BX + 2, y + 13); });
+      }
+      y += 16;
+    }
+    if (d.phasor) {
+      const on = !asked('phasor');
+      y = drawPhasor(c, s, y, { on, m: right ? arr(0.5) : 1, c: right ? arr(0.9) : 1, s: right ? arr(1.3) : 1 });
+    }
+
+    // ---- under the picture: the working ----
+    const row = (str, a) => {
+      y += 22; const yy = y;
+      if (a == null || a > 0.001) part(a == null ? 1 : a, 0, () => text(8, yy, str, 'wk', 'start'));
+      if (a == null || a >= 0.999) REC.rows.push(str);
+    };
+    const ra = right ? arr(d.rowAt) : 0;
+    // A puzzle's '?' rows fade out in place as its answer rows fade in.
+    const swap = (qs, as) => {
+      const n = Math.max(qs.length, as.length);
+      for (let j = 0; j < n; j++) {
+        y += 22; const yy = y, qa = 1 - ra;
+        if (qs[j] != null && qa > 0.001) part(qa, 0, () => text(8, yy, qs[j], 'wk', 'start'));
+        if (as[j] != null && ra > 0.001) part(ra, 0, () => text(8, yy, as[j], 'wk', 'start'));
+        if (ra >= 0.999 && as[j] != null) REC.rows.push(as[j]);
+        else if (qa >= 0.999 && qs[j] != null) REC.rows.push(qs[j]);
+      }
+    };
+    const upOf = (x) => 'supply\'s upright = Q_L − Q_C = ' + pw(x.qs, c, 'var');
+    const pfOf = (x) => 'power factor = P ÷ S = ' + fx(x.pf, 2) + (x.qs > 0.5 ? ', lagging' : x.qs < -0.5 ? ', leading' : '');
+    const std = () => { row(upOf(s)); row(pfOf(s)); REC.pfRow = pfOf(s); };
+    const tl = d.tl || {}, at0 = (t) => (demo ? arr(t) : 1);
+    switch (d.name) {
+      case 'Fit a capacitor': case 'Cancel the upright': case 'Too far':
+        std();
+        break;
+      case 'The wattmeter':
+        std();
+        swap(['the motor: ' + num(c.V, 0) + ' V, ' + num(c.I, 0) + ' A, ? W'], ['the motor: ' + num(c.V, 0) + ' V, ' + num(c.I, 0) + ' A, ' + num(c.P, 0) + ' W, as before']);
+        break;
+      case 'Power factor 1':
+        std();
+        swap(['Q_C for a power factor of 1 = ?'], ['Q_C = Q_L = ' + pw(c.QL, c, 'var'),
+          'cable heat: (' + fx(sf.I, 2) + ' ÷ ' + num(c.I, 0) + ')² = ' + fx(Math.pow(sf.I / c.I, 2), 2) + ' of before']);
+        break;
+      case 'The loop': {
+        const cs = Math.cos(c.phi * DEG), sn = Math.sin(c.phi * DEG);
+        row('in-step part: ' + num(c.I, 0) + ' × cos ' + fx(c.phi, 1) + '° = ' + fx(c.I * cs, 2) + ' A', at0(tl.r1));
+        row('quarter-cycle part: ' + num(c.I, 0) + ' × sin ' + fx(c.phi, 1) + '° = ' + fx(c.I * sn, 2) + ' A', at0(tl.r2));
+        row('capacitor: ' + num(s.qc, 0) + ' ÷ ' + num(c.V, 0) + ' = ' + fx(s.Ic, 2) + ' A, ahead', at0(tl.r3));
+        row('they cancel: the cable carries ' + fx(s.I, 2) + ' A', at0(tl.r4));
+        break;
+      }
+      case 'The supply cable':
+        std();
+        swap(['supply cable = ? A'], [num(c.I, 0) + ' A and ' + fx(sf.Ic, 2) + ' A, half a cycle apart,', 'leave the in-step ' + fx(sf.Ii, 2) + ' A in the cable']);
+        break;
+      case 'Sizing':
+        std();
+        sizing(c, s).forEach((r) => row(r));
+        break;
+      case 'A target of 0.95': {
+        const a = Math.acos(d.target);
+        row(pfOf(s)); REC.pfRow = pfOf(s);
+        swap(['target: power factor ' + fx(d.target, 2), 'Q_C = ?'], ['cos φ = ' + fx(d.target, 2) + ', so φ = ' + fx(a / DEG, 1) + '°, tan φ = ' + fx(Math.tan(a), 3),
+          'Q after = P × tan φ = ' + num(c.P, 0) + ' × ' + fx(Math.tan(a), 3) + ' = ' + pw(sf.qs, c, 'var')].concat(sizing(c, sf)));
+        break;
+      }
+      case 'Twice the capacitor':
+        swap(['supply\'s upright = ?', 'power factor = ?'], [upOf(sf), pfOf(sf), 'the motor\'s own triangle, flipped below']);
+        if (ra >= 0.999) REC.pfRow = pfOf(sf);
+        break;
+      case 'Mixed: a compressor':
+        row(pfOf(s)); REC.pfRow = pfOf(s);
+        swap(['Q_L = ?', 'current after = ?'], ['Q_L = √(' + num(c.S / 1000, 0) + '² − ' + num(c.P / 1000, 0) + '²) = ' + pw(c.QL, c, 'var') + ' = Q_C',
+          'after: ' + num(c.P, 0) + ' ÷ ' + num(c.V, 0) + ' = ' + fx(sf.I, 2) + ' A'].concat(sizing(c, sf).slice(1)));
+        break;
+      case 'Mixed: where to fit it':
+        swap(['the ' + RUN + ' m run: which end?'], ['at the motor: the ' + RUN + ' m run carries ' + fx(sf.Ii, 2) + ' A', 'at the board: it carries the full ' + num(c.I, 0) + ' A']);
+        break;
+      default: break;
+    }
+
+    // ---- the key ----
+    const items = [{ sw: swRect('sup'), label: 'the supply\'s triangle' }];
+    if (d.loop) {
+      items.push({ sw: swDot('d1'), label: 'in-step part' }, { sw: swDot('d2'), label: 'quarter-cycle part' });
+      if (d.qmax > c.QL + 1) items.push({ sw: swDot('dw'), label: 'spare, leading' });
+    }
+    items.push({ sw: swTick('ref'), label: 'no capacitor' });
+    if (d.target) items.push({ sw: swLine('tgt'), label: 'target ' + fx(d.target, 2) });
+    if (!d.show && d.slips) items.push({ sw: swLine('bad'), label: 'that pick', a: slip ? slipA : 0 });
+    y = keyRows(items, y + 28);
+
+    // ---- in words, for a screen reader ----
+    let said = (d.dist ? 'The motor, ' + RUN + ' m from its board' : c.title()) + '. ';
+    if (REC.labels.length) said += 'The power triangle: ' + REC.labels.join(', ') + '. ';
+    said += REC.leading ? 'The triangle hangs below the floor: leading.' : 'The capacitor\'s arrow points down from the tip of the motor\'s.';
+    return { h: y + 4, said: said.replace(/_/g, '') };
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    REC = {};
+    const out = drawScreen(d, st);
+    VBH = Math.ceil(out.h);
+    svg.setAttribute('viewBox', '0 0 340 ' + VBH);
+    svg.setAttribute('aria-label', out.said);
+    if (i === at() && !finished) syncSliders(d);
+  }
+
+  // ---------- the model: the supply's current and power factor, and the capacitor's current ----------
+  function modelOf(p) {
+    const d = STEPS[K.clamp(Math.round(Number(p.step)) || 0, 0, STEPS.length - 1)], c = CARDS[d.card];
+    let qc = d.qc;
+    if (d.free) { const v = Number(p[d.free]); qc = K.clamp(isFinite(v) ? v : 0, 0, d.max); }
+    const s = solve(c, qc);
+    return { supplyAmps: s.I, pf: s.pf, capAmps: s.Ic };
+  }
+  K.model(modelOf);
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing() && !waiting) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      shown.qc = p.qc; shown.qcx = p.qcx;
+      if (d.show) { st.qc = null; play('demo', d.dur); }
+      else { waiting = false; anim.pause(); T = Infinity; MODE = 'answer'; }
+    } else {
+      // Dan moved the capacitor's slider: the demonstration stops where it ends, and that setting is his.
+      ['qc', 'qcx'].forEach((key) => {
+        if (p[key] === shown[key]) return;
+        shown[key] = p[key];
+        if (d.free === key && !finished) {
+          stopMotion();
+          st.qc = K.clamp(Number(p[key]), 0, d.max);
+          if (d.loop) flow();
+        }
+      });
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const fOn = !finished && d.free ? d.free : '';
+    CTL.qc.el.hidden = fOn !== 'qc';
+    CTL.qcx.el.hidden = fOn !== 'qcx';
+    el('ctl').hidden = !fOn;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const near = (a, b, tol) => typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) <= tol;
+  // A step painted in the state given, finished (or at time t of its demonstration): what it draws.
+  function drawn(i, st, mode, t) {
+    const keepS = S[i], keepT = T, keepM = MODE;
+    S[i] = st; T = t == null ? Infinity : t; MODE = mode || (STEPS[i].show ? 'demo' : 'answer');
+    try {
+      paint(i);
+      return Object.assign({}, REC);
+    } finally { S[i] = keepS; T = keepT; MODE = keepM; paint(); }
+  }
+  const settledOf = (i) => drawn(i, STEPS[i].show ? blank() : solvedSt(i));
+  const withQ = (q) => Object.assign(blank(), { qc: q });
+  const has = (g, s) => g.rows.indexOf(s) >= 0;
+  const lab = (g, s) => g.labels.indexOf(s) >= 0;
+  const sweep = (lo, hi, by) => { const out = []; for (let q = lo; q <= hi; q += by) out.push(q); if (out[out.length - 1] !== hi) out.push(hi); return out; };
+  const S_FIT = idx('Fit a capacitor'), S_WAT = idx('The wattmeter'), S_CAN = idx('Cancel the upright'), S_PF1 = idx('Power factor 1'), S_LOOP = idx('The loop');
+  const S_SUP = idx('The supply cable'), S_SIZE = idx('Sizing'), S_TGT = idx('A target of 0.95'), S_FAR = idx('Too far'), S_TWICE = idx('Twice the capacitor');
+  const S_COMP = idx('Mixed: a compressor'), S_WHERE = idx('Mixed: where to fit it');
+
+  K.check('UK mains electricity operates at a nominal voltage of 230V: on 230 V the motor\'s 10 A makes S = 2300 VA, which with its 1600 W leaves Q_L = 1652 var, a power factor of 0.70 at φ = 45.9°, and every supply current drawn is S ÷ 230', () => {
+    const g0 = drawn(S_FIT, blank(), 'demo', 0);
+    return near(M.S, 2300, 1e-9) && num(M.QL, 0) === '1652' && fx(M.P / M.S, 2) === '0.70' && fx(M.phi, 1) === '45.9' &&
+      lab(g0, 'S = 2300 VA') && lab(g0, 'Q_L = 1652 var') && lab(g0, 'P = 1600 W') && !!g0.bar && g0.bar.label === '10.00 A' &&
+      STEPS.every((d, i) => { const g = settledOf(i); return !g.bar || near(g.bar.I, g.s.S / 230, 1e-9); });
+  }, { source: ENA });
+  K.check('Poor power factor can be corrected, paradoxically, by adding another load to the circuit drawing an equal and opposite amount of reactive power: the capacitor\'s vars are drawn pointing down, the other way from the motor\'s, and at an equal amount the supply is left no upright and a power factor of one', () => {
+    const g = settledOf(S_PF1), m = K.at({ step: S_PF1 }), g2 = drawn(S_CAN, withQ(1652));
+    return g.tri.down === true && near(g.tri.QC, g.tri.QL, 1e-9) && near(g.tri.Qs, 0, 1e-9) && near(m.pf, 1, 1e-12) && has(g, 'power factor = P ÷ S = 1.00') &&
+      g2.tri.down === true && fx(g2.s.pf, 2) === '1.00' && has(g2, 'power factor = P ÷ S = 1.00') &&
+      [500, 1000, 1652].every((q) => { const h = drawn(S_CAN, withQ(q)); return h.tri.down === true && near(h.tri.QL - h.tri.QC, h.tri.Qs, 1e-9); });
+  }, { source: KUPH11 });
+  K.check('This correction, of course, will not change the amount of true power consumed by the load, but it will result in a substantial reduction of apparent power, and of the total current drawn from the source: at every capacitor setting from none to the motor\'s whole vars, the drawn floor keeps the same true power while the drawn long side and the current bar shrink at every step', () => {
+    let prevS = Infinity, prevI = Infinity;
+    return sweep(0, 1652, 28).every((q) => {
+      const g = drawn(S_CAN, withQ(q)), m = K.at({ step: S_CAN, qc: q });
+      const ok = near(g.tri.P, M.P, 1e-9) && g.tri.S < prevS && !!g.bar && g.bar.I < prevI && near(m.supplyAmps, g.bar.I, 1e-12) && near(m.capAmps, q / M.V, 1e-12);
+      prevS = g.tri.S; prevI = g.bar ? g.bar.I : -1;
+      return ok;
+    });
+  }, { source: KUPH11 });
+  K.check('Any power factor less than 1 means that the circuit\'s wiring has to carry more current than what would be necessary with zero reactance: at every capacitor setting the supply current is more than P ÷ V, the in-step part, and equals it only where the upright is zero', () => {
+    const base = M.P / M.V, g1 = settledOf(S_PF1);
+    return sweep(0, 3400, 28).every((q) => {
+      const s = solve(M, q), g = drawn(S_FAR, withQ(q));
+      return !!g.bar && near(g.bar.I, s.I, 1e-12) && (s.pf < 1 - 1e-12 ? g.bar.I > base + 1e-9 : near(g.bar.I, base, 1e-9));
+    }) && !!g1.bar && near(g1.bar.I, base, 1e-12) && g1.bar.label === '6.96 A';
+  }, { source: KUPH11 });
+  K.check('Too much capacitance in an AC circuit will result in a low power factor just as well as too much inductance, so be careful not to over-correct: past the motor\'s own vars the drawn power factor falls, marked leading, and the current bar grows again in red, and twice the capacitor gives the same poor power factor, leading', () => {
+    let prevPf = Infinity, prevI = 0;
+    const ok = sweep(1680, 3400, 28).every((q) => {
+      const g = drawn(S_FAR, withQ(q));
+      const r = !!g.bar && g.s.pf < prevPf && g.bar.I > prevI && g.bar.warn && g.leading && g.pfRow.indexOf(', leading') > 0 && g.lanes.warn;
+      prevPf = g.s.pf; prevI = g.bar ? g.bar.I : Infinity;
+      return r;
+    });
+    const t = settledOf(S_TWICE), u = drawn(S_FAR, withQ(1000));
+    return ok && fx(t.s.pf, 2) === fx(M.P / M.S, 2) && has(t, 'power factor = P ÷ S = 0.70, leading') && !!t.bar && t.bar.label === '10.00 A' && t.bar.warn &&
+      !!u.bar && !u.bar.warn && u.pfRow.indexOf(', lagging') > 0;
+  }, { source: KUPH11 });
+  K.check('Capacitive reactance can be calculated using this formula: X_C = 1/(2πfC), so turned round C = 1 ÷ (2πf X_C): with X_C = V² ÷ Q_C the sizing rows give 32.0 Ω and about 99 µF for a power factor of 1 on the motor, 47.0 Ω and about 68 µF for 0.95, and 13.2 Ω and about 240 µF for the compressor', () => {
+    const a = settledOf(S_SIZE), b = settledOf(S_TGT), cp = settledOf(S_COMP);
+    const byHand = (q) => 1e6 / (TAU * 50 * (230 * 230 / q));
+    return has(a, 'X_C = V² ÷ Q_C = 230² ÷ 1652 = 32.0 Ω') && has(a, 'C = 1 ÷ (2π × 50 × 32.0) ≈ 99 µF') &&
+      has(b, 'X_C = V² ÷ Q_C = 230² ÷ 1126 = 47.0 Ω') && has(b, 'C = 1 ÷ (2π × 50 × 47.0) ≈ 68 µF') &&
+      has(cp, 'X_C = V² ÷ Q_C = 230² ÷ 4000 = 13.2 Ω') && has(cp, 'C = 1 ÷ (2π × 50 × 13.2) ≈ 240 µF') &&
+      near(byHand(QLM), 99.4, 0.05) && near(byHand(T95), 67.8, 0.05) && near(byHand(4000), 240.7, 0.05);
+  }, { source: KUPH4 });
+  K.check('The current leads the voltage in a capacitor: in the current arrows the capacitor\'s arrow stands straight up, a quarter cycle ahead of the in-step floor, while the motor\'s points below it, behind, and on the triangle the capacitor\'s vars point down, the other way from the motor\'s', () => {
+    const g = settledOf(S_SUP), p = g.phasor;
+    return !!p && near(p.cap[0], 0, 1e-12) && p.cap[1] > 0 && near(p.motor[0], M.P / M.V, 1e-9) && near(p.motor[1], -M.QL / M.V, 1e-9) &&
+      near(p.sup[1], 0, 1e-9) && near(p.sup[0], M.P / M.V, 1e-9) && near(Math.atan2(-p.motor[1], p.motor[0]) / DEG, M.phi, 1e-9) && g.tri.down === true;
+  }, { source: KUPH4 });
+  K.check('Known answers: 500 var leaves 1152 var, 1972 VA and 8.57 A; 1000 var leaves 652 var, 1728 VA, 0.93 and 7.51 A; 2500 var gives −848 var, 1811 VA, 0.88 leading and 7.87 A; the 0.95 target needs 18.2°, tan 0.329, 526 var left and 1126 var, leaving 7.32 A; the motor splits into 6.96 A and 7.18 A; the compressor goes from 21.74 A to 13.04 A with 4 kvar and 17.39 A; the slips are 700, 2300, 2.82, 17.18, 1570 and 4.35; the cable heat falls to 0.48', () => {
+    const a = solve(M, 500), b = solve(M, 1000), c2 = solve(M, 2500), t = solve(M, T95), cp0 = solve(CP, 0), cp = solve(CP, CP.QL);
+    const gF = settledOf(S_FIT), gC = drawn(S_CAN, withQ(1000)), gT = settledOf(S_TGT), gR = drawn(S_FAR, withQ(2500));
+    return num(a.qs, 0) === '1152' && num(a.S, 0) === '1972' && fx(a.I, 2) === '8.57' && has(gF, 'supply\'s upright = Q_L − Q_C = 1152 var') && lab(gF, 'S = 1972 VA') && !!gF.bar && gF.bar.label === '8.57 A' &&
+      num(b.qs, 0) === '652' && num(b.S, 0) === '1728' && fx(b.pf, 2) === '0.93' && fx(b.I, 2) === '7.51' && lab(gC, 'S = 1728 VA') && !!gC.bar && gC.bar.label === '7.51 A' &&
+      num(c2.qs, 0) === '−848' && num(c2.S, 0) === '1811' && fx(c2.pf, 2) === '0.88' && fx(c2.I, 2) === '7.87' && has(gR, 'power factor = P ÷ S = 0.88, leading') && !!gR.bar && gR.bar.label === '7.87 A' &&
+      fx(Math.acos(0.95) / DEG, 1) === '18.2' && fx(Math.tan(Math.acos(0.95)), 3) === '0.329' && num(M.QL - T95, 0) === '526' && num(T95, 0) === '1126' && fx(t.I, 2) === '7.32' && near(t.pf, 0.95, 1e-12) && !!gT.bar && gT.bar.label === '7.32 A' &&
+      fx(M.P / M.V, 2) === '6.96' && fx(M.QL / M.V, 2) === '7.18' && fx(cp0.I, 2) === '21.74' && fx(cp.I, 2) === '13.04' && near(CP.QL, 4000, 1e-9) && fx(cp.Ic, 2) === '17.39' &&
+      near(K.at({ step: S_FIT }).supplyAmps, a.I, 1e-12) && fx(K.at({ step: S_COMP }).capAmps, 2) === '17.39' &&
+      num(M.S - M.P, 0) === '700' && num(M.S, 0) === '2300' && fx(M.I - M.QL / M.V, 2) === '2.82' && fx(M.I + M.QL / M.V, 2) === '17.18' && num(0.95 * M.QL, 0) === '1570' && fx(CP.I - CP.QL / CP.V, 2) === '4.35' &&
+      fx(Math.pow(solve(M, M.QL).I / M.I, 2), 2) === '0.48';
+  });
+  K.check('Where the current goes: at full correction the drawn quarter-cycle lane in the supply cable carries nothing, while the capacitor\'s branch and the motor carry 7.18 A each and the in-step 6.96 A runs all round; past full correction the cable\'s lane runs the other way, in red; and on the last puzzle a right answer moves the capacitor to the board, so the quarter-cycle lane runs the whole 20 m run', () => {
+    const g = settledOf(S_LOOP), h = drawn(S_FAR, withQ(2500)), w0 = drawn(S_WHERE, blank()), w1 = settledOf(S_WHERE), pre = drawn(S_SUP, blank());
+    return near(g.lanes.cable, 0, 1e-9) && fx(g.lanes.Ic, 2) === '7.18' && fx(g.lanes.Iq, 2) === '7.18' && fx(g.lanes.Ii, 2) === '6.96' && g.lanes.a[0] === 1 && g.lanes.a[1] === 1 &&
+      h.lanes.cable < 0 && h.lanes.warn === true && w0.xc === XC0 && w1.xc === XB && w1.lanes.xc === XB && pre.lanes.a[0] === 0 && pre.lanes.a[1] === 0 &&
+      has(w1, 'at the board: it carries the full 10 A') && has(w1, 'at the motor: the 20 m run carries 6.96 A');
+  });
+  K.check('Each puzzle accepts only its right answer; before an answer its picture hides what is asked, a right answer draws it, and each wrong pick with a drawing draws what it claims, in red', () => {
+    const PRE = {
+      'The wattmeter': (g) => lab(g, 'P = ?') && !lab(g, 'P = 1600 W') && has(g, 'the motor: 230 V, 10 A, ? W') && near(g.qc, 500, 1e-9),
+      'Power factor 1': (g) => g.tri.QC === null && near(g.qc, 0, 1e-9) && has(g, 'Q_C for a power factor of 1 = ?') && g.capLabel === '? A',
+      'The supply cable': (g) => g.bar === null && g.phasor === null && has(g, 'supply cable = ? A') && g.lanes.a[0] === 0,
+      'A target of 0.95': (g) => g.tri.QC === null && has(g, 'Q_C = ?') && g.capLabel === '? A',
+      'Twice the capacitor': (g) => g.tri.QC === null && g.tri.S === null && g.bar === null && has(g, 'power factor = ?'),
+      'Mixed: a compressor': (g) => lab(g, 'Q_L = ?') && g.tri.QC === null && has(g, 'Q_L = ?') && !!g.bar && g.bar.label === '21.74 A',
+      'Mixed: where to fit it': (g) => g.xc === XC0 && has(g, 'the 20 m run: which end?'),
+    };
+    const POST = {
+      'The wattmeter': (g) => lab(g, 'P = 1600 W') && near(g.tri.P, 1600, 1e-9) && near(g.qc, 500, 1e-9) && has(g, 'the motor: 230 V, 10 A, 1600 W, as before'),
+      'Power factor 1': (g) => near(g.tri.Qs, 0, 1e-9) && lab(g, 'S = 1600 VA') && lab(g, 'Q_C = 1652 var') && !!g.bar && g.bar.label === '6.96 A' &&
+        has(g, 'Q_C = Q_L = 1652 var') && has(g, 'cable heat: (6.96 ÷ 10)² = 0.48 of before'),
+      'The supply cable': (g) => !!g.bar && g.bar.label === '6.96 A' && !!g.phasor && has(g, 'leave the in-step 6.96 A in the cable') && g.lanes.a[0] === 1,
+      'A target of 0.95': (g) => lab(g, 'Q_C = 1126 var') && has(g, 'Q after = P × tan φ = 1600 × 0.329 = 526 var') && has(g, 'power factor = P ÷ S = 0.95, lagging') && !!g.bar && g.bar.label === '7.32 A',
+      'Twice the capacitor': (g) => lab(g, 'S = 2300 VA') && !!g.bar && g.bar.label === '10.00 A' && g.bar.warn && has(g, 'power factor = P ÷ S = 0.70, leading') && g.tri.Qs < 0,
+      'Mixed: a compressor': (g) => lab(g, 'Q_L = 4 kvar') && lab(g, 'Q_C = 4 kvar') && !!g.bar && g.bar.label === '13.04 A' && has(g, 'C = 1 ÷ (2π × 50 × 13.2) ≈ 240 µF') && g.capLabel === '17.39 A',
+      'Mixed: where to fit it': (g) => g.xc === XB && has(g, 'at the motor: the 20 m run carries 6.96 A'),
+    };
+    const only = DO.every((i) => { const d = STEPS[i]; return d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want)); });
+    const hidden = DO.every((i) => !!PRE[STEPS[i].name] && PRE[STEPS[i].name](drawn(i, blank())) === true);
+    const shownOk = DO.every((i) => !!POST[STEPS[i].name] && POST[STEPS[i].name](settledOf(i)) === true);
+    const slips = DO.every((i) => !STEPS[i].slips || Object.keys(STEPS[i].slips).every((o) => {
+      const g = drawn(i, wrongSt(i, o));
+      return STEPS[i].opts.indexOf(o) >= 0 && o !== STEPS[i].want && g.slip === STEPS[i].slips[o];
+    }));
+    return only && hidden && shownOk && slips;
+  });
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T, keepM = MODE;
+    const timed = (i, st, mode, limit) => {
+      const keepS = S[i];
+      T = Infinity; MODE = mode; latest = 0; earliest = Infinity; S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), 'demo', d.dur); return r && d.dur >= 3 && d.dur <= 4.5 && earliest >= FADE; }
+      return timed(i, solvedSt(i), 'answer', d.rdur) && d.rdur <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), 'answer', 0.8));
+    });
+    T = keepT; MODE = keepM; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

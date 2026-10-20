@@ -1,0 +1,716 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: AC circuits, from turning coil to three-phase
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i7 "Series RLC and resonance" — In series, a coil's and a capacitor's reactances subtract and cancel at one frequency, where the current peaks and each can carry more voltage than the supply. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i8 Real, reactive and apparent power — Out of step, the power wave dips below zero, so watts used, vars sloshing back and volt-amps supplied form a triangle whose ratio is the power factor.
+- i9 Power factor correction — Size a capacitor across an inductive load from the power triangle, so it supplies the load's vars locally and cuts the supply current while the watts stay put.
+- i10 Three-phase: star and delta — Three windings 120° apart connect in star, where line voltage is √3 times phase voltage, or delta, where line current is; power is √3 V_L I_L cos φ.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Slide 1 — https://condor.depaul.edu/~jmilton/152/ACCircuits.pdf
+    "Resonance occurs at the frequency, ƒ o, where the current has its maximum value. # To achieve maximum current, the impedance must have a minimum value. This occurs when XL = XC"
+[R2] Lessons In Electric Circuits -- Volume II (AC) - Chapter 6 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_6.html
+    "A practical application of “Q” is that voltage across L or C in a series resonant circuit is Q times total applied voltage."
+[R3] Lessons In Electric Circuits -- Volume II (AC) - Chapter 6 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_6.html
+    "A word of caution is in order with series LC resonant circuits: because of the high currents which may be present in a series LC circuit at resonance, it is possible to produce dangerously high voltage drops"
+[R4] Lessons In Electric Circuits -- Volume II (AC) - Chapter 3 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html
+    "Looking at the graph, the voltage wave seems to have a “head start” on the current wave; the voltage “leads” the current, and the current “lags” behind the voltage."
+[R5] Lessons In Electric Circuits -- Volume II (AC) - Chapter 3 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html
+    "Inductive reactance can be calculated using this formula: X L = 2πfL"
+[R6] Lessons In Electric Circuits -- Volume II (AC) - Chapter 3 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html
+    "What this means is that reactance in ohms for any inductor is directly proportional to the frequency of the alternating current."
+[R7] Lessons In Electric Circuits -- Volume II (AC) - Chapter 3 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html
+    "Whereas resistors simply oppose the flow of electrons through them (by dropping a voltage directly proportional to the current), inductors oppose changes in current through them, by dropping a voltage directly proportional to the rate of change of current."
+[R8] Lessons In Electric Circuits -- Volume II (AC) - Chapter 3 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html
+    "Reactance of a 10 mH inductor: | Frequency (Hertz) | Reactance (Ohms) | | 60 | 3.7699 | | 120 | 7.5398 | | 2500 | 157.0796 |"
+[R9] Teacher Guide — https://matrixtsl.com/wp-content/uploads/2025/05/CP0295T-Electrical-installation-circuit-principles-level-3-Teacher-Guide.pdf
+    "Inductive loads, such as high power electric motors, use added capacitors for power factor correction."
+[R10] City & Guilds 2366-350 sample multiple-choice exam — https://www.cityandguilds.com/-/media/productdocuments/building_services_engineering/electrical_installation/2366/assessment-documents/sample-assessments/2366-350_mcq_exam_sample_v1-1-090326-pdf.pdf
+    "What is the inductive reactance (X L ) of an inductor of 20 milli-Henrys connected to a 50 Hz supply?"
+[R11] Lessons In Electric Circuits -- Volume II (AC) - Chapter 4 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html
+    "capacitors oppose changes in voltage by drawing or supplying current as they charge or discharge to the new voltage level."
+[R12] Lessons In Electric Circuits -- Volume II (AC) - Chapter 4 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html
+    "Looking at the graph, the current wave seems to have a “head start” on the voltage wave; the current “leads” the voltage, and the voltage “lags” behind the current."
+[R13] Lessons In Electric Circuits -- Volume II (AC) - Chapter 4 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html
+    "Capacitive reactance can be calculated using this formula: X C = 1/(2πfC) * Capacitive reactance decreases with increasing frequency. In other words, the higher the frequency, the less it opposes (the more it “conducts”) the AC flow of electrons."
+[R14] 15.3 RLC Series Circuits with AC - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/15-3-rlc-series-circuits-with-ac
+    "A mnemonic device of “ELI the ICE man” is sometimes used to remember that the emf (E) leads the current (I) in an inductor (L) and the current (I) leads the emf (E) in a capacitor (C)."
+[R15] AC circuits, alternating current electricity — https://www.animations.physics.unsw.edu.au/jw/AC.html
+    "Because the phasors for reactances are 90° out of phase with the current, the series impedance of a resistor R and a reactance X are given by Pythagoras' law:"
+[R16] Lessons In Electric Circuits -- Volume II (AC) - Chapter 2 — https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_2.html
+    "a 6 volt source at 0 o added to an 8 volt source at 90 o results in 10 volts at a phase angle of 53.13 o"
+[R17] Statutory Voltage Limits – Energy Networks Association (ENA) — https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits
+    "UK mains electricity operates at a nominal voltage of 230V, and can operate within limits of 253V and 216V set by the Electricity Safety, Quality and Continuity Regulations (ESQCR)"
+[R18] maritime electrical installations - notes on design ... — http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf
+    "60 Hz is the most common frequency adopted for use on board ship; the higher frequency enabling motors and generators to run at higher speeds with a consequent reduction in size for a given power rating."
+Notes (claims, and the sources that support them):
+- In a series RLC circuit the current is greatest at the resonant frequency, where impedance is minimum and X_L equals X_C. [R1]
+- At resonance the voltage across L or C in a series circuit is Q times the applied voltage, which can be dangerously high. [R2][R3]
+- In a pure inductor the voltage leads the current, that is, the current lags behind the voltage. [R4]  (from an idea this one builds on)
+- Inductive reactance is X_L = 2πfL, in ohms, and is directly proportional to the frequency of the alternating current. [R5][R6]  (from an idea this one builds on)
+- Inductors oppose changes in current through them by dropping a voltage directly proportional to the rate of change of current, where resistors drop one proportional to the current. [R7]  (from an idea this one builds on)
+- A 10 mH inductor has a reactance of 3.7699 ohms at 60 Hz, 7.5398 ohms at 120 Hz and 157.0796 ohms at 2500 Hz. [R8]  (from an idea this one builds on)
+- High power electric motors are inductive loads (Matrix electrical installation Level 3 teacher guide, SECONDARY). [R9]  (from an idea this one builds on)
+- A City & Guilds 2366 sample question asks for the inductive reactance of a 20 mH inductor on a 50 Hz supply (6.28 ohms, computed from X_L = 2πfL). [R10]  (from an idea this one builds on)
+- A capacitor opposes changes in voltage by drawing or supplying current as it charges or discharges to the new voltage level. [R11]  (from an idea this one builds on)
+- In a capacitor the current leads the voltage, so the voltage lags behind the current. [R12]  (from an idea this one builds on)
+- Capacitive reactance is X_C = 1/(2πfC) and decreases as frequency rises, the opposite of inductive reactance. [R13]  (from an idea this one builds on)
+- For i5: the memory aid ELI the ICE man: the emf (E) leads the current (I) in an inductor (L), and the current leads the emf in a capacitor (C) (screen 9's rows and the practice). [R14]  (from an idea this one builds on)
+- The phasors for a resistor and a reactance are 90 degrees apart, so the series impedance comes from Pythagoras' law. [R15]  (from an idea this one builds on)
+- Voltages 90 degrees apart do not add arithmetically: a 6 V source and an 8 V source at 90 degrees give 10 V. [R16]  (from an idea this one builds on)
+- Inductive reactance is X_L = 2πfL, so a measured reactance at a known frequency gives the inductance. [R5]  (from an idea this one builds on)
+- UK domestic supply is nominally 230 V, 50 Hz, kept within 216 V to 253 V by the Electricity Safety, Quality and Continuity Regulations. [R17]  (whole topic)
+- Ships mostly run 60 Hz, because higher frequency lets motors and generators run faster and so be smaller for a given power. [R18]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i7",
+ "title": "Series RLC and resonance",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the current peaking where the rising X_L arrow and the falling X_C arrow are equal and cancel, with both part voltages passing the supply's, when you drag the frequency.",
+  "title": "The frequency sweep",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "amps",
+    "label": "Current",
+    "unit": "A",
+    "decimals": 2
+   },
+   {
+    "id": "vl",
+    "label": "Across the coil",
+    "unit": "V",
+    "decimals": 1
+   },
+   {
+    "id": "vc",
+    "label": "Across the capacitor",
+    "unit": "V",
+    "decimals": 1
+   }
+  ],
+  "whatAmILookingAt": "A short lesson in twelve small screens on one picture, the frequency sweep. At the top, a 2 Ω resistor, lesson 4's coil of about 31.8 mH and lesson 5's capacitor of about 318.3 µF sit in series on a 10 V test supply whose frequency can be turned. They are example values, picked so the coil and the capacitor are each exactly 10 Ω at 50 Hz. An ammeter reads the current, and meters read the voltage across each part; like any AC meter, they read rms. In the middle, as in lesson 6, one current flows through every part, so its arrow is the reference and lies flat, and the resistor's arrow lies flat with it. The coil's reactance arrow, X_L, points straight up, because its voltage peaks a quarter cycle before the current (lesson 4). The capacitor's, X_C, points straight down, because its voltage peaks a quarter cycle after the current (lesson 5). The two lie on one line, so tip to tail they leave only their difference, the net reactance X = X_L − X_C, drawn as a third arrow: up when the coil's is longer, down when the capacitor's is. The net arrow and R close lesson 6's triangle, whose long side is the impedance, Z = √(R² + X²), and the current is 10 V ÷ Z. Below, a plot of current against frequency, from 10 to 100 Hz, has a dot at the present frequency that leaves a trace as it moves. Readouts give the current and the voltages across the coil and the capacitor, each the current times that part's reactance. Screen 1 opens at 25 Hz. X_L is 5 Ω, half its 50 Hz value, because X_L = 2πfL grows in step with the frequency. X_C is 20 Ω, double its 50 Hz value, because X_C = 1/(2πfC) shrinks as the frequency rises. The two arrows point opposite ways along one line. Screen 2 asks for the net reactance at 25 Hz: 15 Ω, pointing down; 25 Ω (the two added as plain numbers); or 20.6 Ω (the two added at right angles by Pythagoras, as lesson 6 added R and X). A right Check lays the arrows tip to tail, leaving 15 Ω pointing down, then closes the triangle: Z = √(2² + 15²) = 15.1 Ω, and the current is 0.66 A. Screen 3 frees a frequency slider, 10 to 100 Hz in steps of 5, opening at 25. As the frequency rises the X_L arrow grows and the X_C arrow shrinks, so the net arrow shortens, vanishes at 50 Hz and then grows upwards. Z swings down to the 2 Ω of R alone and up again, and the dot traces a peak: 0.21 A at 10 Hz, 2.03 A at 40 Hz, 5 A at 50 Hz, 2.39 A at 60 Hz and 0.66 A at 100 Hz. A small label by the current says it leads the supply's voltage below 50 Hz, is in step at 50 Hz and lags above. Screen 4 sets 75 Hz, where X_L is 15 Ω and X_C is 6.67 Ω, and asks how the current sits against the supply's voltage: it lags, because the net 8.33 Ω points up and the circuit acts like a resistor and a coil; it leads (the capacitor's way round); or it is in step. A right Check shows the net arrow up and φ = 76.5°. Screen 5 finds the peak's frequency without the slider. The current is greatest where X_L = X_C, so set 2πfL = 1/(2πfC). Multiply both sides by f, divide both by 2πL and take the square root: f₀ = 1/(2π√(LC)). With this coil and capacitor it gives 50 Hz, where the dot's peak sits. Screen 6: a 100 mH coil and a 10 µF capacitor in series; where do they resonate? Near 159 Hz; near 0.159 Hz (10 µF put in as 10 F); or near 159,000 Hz (the square root left out). A right Check works the line: L × C = 0.1 × 0.00001 = 0.000001, its square root is 0.001, so f₀ = 1/(2π × 0.001) = 159.15 Hz. Screen 7 stops at 50 Hz and multiplies every arrow by the 5 A current, turning ohms into volts, the reverse of lesson 6's step. Below the plot, four bars stand side by side: the supply's 10 V, the resistor's 10 V, the coil's 50 V and the capacitor's 50 V. The coil's and the capacitor's bars pass the supply's and turn red as a warning, because the 5 A peak current flows through each part's 10 Ω. Their arrows, 50 V up and 50 V down, cancel, leaving the resistor's 10 V to match the supply. A line names the ratio, 50 ÷ 10 = 5, as the Q factor, X_L ÷ R. Moving the slider shows the bars fall back either side of 50 Hz. With 2 Ω, though, the capacitor's stays above the supply's at every setting below 70 Hz, only just at 10 Hz, and the coil's at every setting above 35 Hz: the warning is greatest at resonance but not only there. Screen 8, at 50 Hz: the coil reads 50 V and the capacitor 50 V on a 10 V supply; how? Their voltages are half a cycle apart, so at every instant one cancels the other and the loop still adds up to the supply's; one meter must be faulty, since in series no part can read more than the supply; or the coil and the capacitor make voltage of their own, like a second supply. A right Check plays the coil's and the capacitor's voltage waves on one time axis: each peaks at 70.7 V, which is 50 V × √2, at opposite instants, and their sum stays at zero. Screen 9 frees an R slider, 1 to 10 Ω in steps of 1, opening at 2, beside the frequency slider, and the trace redraws for each R. The peak stays at 50 Hz, because R appears nowhere in f₀; R sets the peak's height, 10 V ÷ R, and its sharpness. At 1 Ω the peak is 10 A, the coil and the capacitor read 100 V each and Q is 10, while at 40 Hz the current is only 2.17 A. At 10 Ω the peak is 1 A, each part reads 10 V and Q is 1, while at 40 Hz the current is still 0.91 A: a low, broad hump. Screen 10 asks what doubling R from 2 Ω to 4 Ω does to the peak: it stays at 50 Hz, and the current there falls to 2.5 A and the coil's reading to 25 V; it moves to a lower frequency; or it moves to a higher frequency and stays at 5 A. A right Check draws both traces. Screens 11 and 12 are mixed. Screen 11: a 6 Ω resistor, a coil of 20 Ω reactance and a capacitor of 12 Ω reactance in series on 230 V, 50 Hz mains; what current flows? 23 A, through X = 8 Ω and Z = 10 Ω; 11.0 A (lesson 6's formula with the coil alone, Z = 20.9 Ω); or 7.06 A (the reactances added, Z = 32.6 Ω). A right Check adds that the coil then carries 23 × 20 = 460 V and the capacitor 23 × 12 = 276 V, both above the 230 V supply. Screen 12: a 30 Ω resistor, a 50 mH coil and a 100 µF capacitor in series on 230 V, 50 Hz; what current flows? 6.75 A, from X_L = 15.7 Ω, X_C = 31.8 Ω, X = −16.1 Ω and Z = 34.1 Ω; 5.26 A (the coil left out); or 2.57 A (100 µF put in as 100 Ω). A right Check adds that this circuit resonates near 71.2 Hz, so at 50 Hz it is below resonance, the capacitor's reactance is the larger and the current leads. The closing line says the coil and the capacitor cancel each other's voltage in the loop, but each part still carries its own, and that lesson 8 turns to power.",
+  "ignores": "The resistor is pure and the coil and the capacitor are ideal, so the arrows sit exactly up and down; a real coil's own wire resistance belongs in R, where it lowers and widens the peak. The supply is a pure sine held at 10 V at every frequency, and the meters are ideal and read rms. Nothing physical points up or down: the directions stand for timing. The picture shows the circuit once it has settled; the build-up after switching on is left out. An iron-cored coil's inductance changes with its current, so a real circuit's resonance can shift a little with the load. A coil or capacitor whose insulation cannot take its voltage at resonance can fail, which the red bars only warn of. A coil and a capacitor side by side, in parallel, behave differently and are not shown. The parts, the supplies and the readings are example values.",
+  "numbers": [
+   {
+    "label": "Number of screens",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Resistor's resistance, opening, in ohms",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Coil's inductance, in millihenries",
+    "value": 31.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacitor's capacitance, in microfarads",
+    "value": 318.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Test supply, rms, in volts",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Coil's reactance at 50 Hz, in ohms",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Capacitor's reactance at 50 Hz, in ohms",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Resonant frequency of the bench, in hertz",
+    "value": 50,
+    "kind": "computed"
+   },
+   {
+    "label": "Opening frequency, in hertz",
+    "value": 25,
+    "kind": "control"
+   },
+   {
+    "label": "Coil's reactance at 25 Hz, in ohms",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacitor's reactance at 25 Hz, in ohms",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Net reactance at 25 Hz, in ohms",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, reactances added as plain numbers, in ohms",
+    "value": 25,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, reactances added by Pythagoras, in ohms",
+    "value": 20.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Impedance at 25 Hz, in ohms",
+    "value": 15.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Current at 25 Hz, in amps",
+    "value": 0.66,
+    "kind": "computed"
+   },
+   {
+    "label": "Frequency slider, lowest, in hertz",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Frequency slider, highest, in hertz",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Frequency slider step, in hertz",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Current at 10 Hz, in amps",
+    "value": 0.21,
+    "kind": "computed"
+   },
+   {
+    "label": "Setting shown below resonance, in hertz",
+    "value": 40,
+    "kind": "assumed"
+   },
+   {
+    "label": "Current at 40 Hz, in amps",
+    "value": 2.03,
+    "kind": "computed"
+   },
+   {
+    "label": "Peak current with 2 Ω, in amps",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Setting shown above resonance, in hertz",
+    "value": 60,
+    "kind": "assumed"
+   },
+   {
+    "label": "Current at 60 Hz, in amps",
+    "value": 2.39,
+    "kind": "computed"
+   },
+   {
+    "label": "Current at 100 Hz, in amps",
+    "value": 0.66,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 frequency, in hertz",
+    "value": 75,
+    "kind": "assumed"
+   },
+   {
+    "label": "Coil's reactance at 75 Hz, in ohms",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacitor's reactance at 75 Hz, in ohms",
+    "value": 6.67,
+    "kind": "computed"
+   },
+   {
+    "label": "Net reactance at 75 Hz, in ohms",
+    "value": 8.33,
+    "kind": "computed"
+   },
+   {
+    "label": "Phase angle at 75 Hz, in degrees",
+    "value": 76.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 coil, in millihenries",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 6 coil, in henries",
+    "value": 0.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 capacitor, in microfarads",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 6 capacitor, in farads",
+    "value": 0.00001,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 L times C",
+    "value": 0.000001,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 square root of L times C",
+    "value": 0.001,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 resonant frequency, in hertz",
+    "value": 159.15,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 resonant frequency, rounded, in hertz",
+    "value": 159,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, 10 µF put in as 10 F, in hertz",
+    "value": 0.159,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, square root left out, in hertz",
+    "value": 159000,
+    "kind": "computed"
+   },
+   {
+    "label": "Resistor's voltage at 50 Hz, in volts",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil's voltage at 50 Hz, in volts",
+    "value": 50,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacitor's voltage at 50 Hz, in volts",
+    "value": 50,
+    "kind": "computed"
+   },
+   {
+    "label": "Q factor with 2 Ω",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Highest setting with the capacitor above the supply, in hertz",
+    "value": 70,
+    "kind": "computed"
+   },
+   {
+    "label": "Lowest setting with the coil above the supply, in hertz",
+    "value": 35,
+    "kind": "computed"
+   },
+   {
+    "label": "Peak of each part's voltage wave at 50 Hz, in volts",
+    "value": 70.7,
+    "kind": "computed"
+   },
+   {
+    "label": "R slider, lowest, in ohms",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "R slider, highest, in ohms",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "R slider step, in ohms",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Peak current with 1 Ω, in amps",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil's voltage at resonance with 1 Ω, in volts",
+    "value": 100,
+    "kind": "computed"
+   },
+   {
+    "label": "Q factor with 1 Ω",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Current at 40 Hz with 1 Ω, in amps",
+    "value": 2.17,
+    "kind": "computed"
+   },
+   {
+    "label": "Peak current with 10 Ω, in amps",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil's voltage at resonance with 10 Ω, in volts",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Q factor with 10 Ω",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Current at 40 Hz with 10 Ω, in amps",
+    "value": 0.91,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 doubled resistance, in ohms",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Peak current with 4 Ω, in amps",
+    "value": 2.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil's voltage at resonance with 4 Ω, in volts",
+    "value": 25,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 resistor, in ohms",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 coil's reactance, in ohms",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 capacitor's reactance, in ohms",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "UK mains nominal voltage, in volts",
+    "value": 230,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "UK mains frequency, in hertz",
+    "value": 50,
+    "kind": "constant"
+   },
+   {
+    "label": "Screen 11 net reactance, in ohms",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 impedance, in ohms",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 current, in amps",
+    "value": 23,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, screen 11 coil alone, impedance in ohms",
+    "value": 20.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, screen 11 coil alone, current in amps",
+    "value": 11,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, screen 11 reactances added, impedance in ohms",
+    "value": 32.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, screen 11 reactances added, current in amps",
+    "value": 7.06,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 coil's voltage, in volts",
+    "value": 460,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 capacitor's voltage, in volts",
+    "value": 276,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 resistor, in ohms",
+    "value": 30,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 coil, in millihenries",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 capacitor, in microfarads",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 coil's reactance, in ohms",
+    "value": 15.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 capacitor's reactance, in ohms",
+    "value": 31.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 net reactance, in ohms",
+    "value": -16.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 impedance, in ohms",
+    "value": 34.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 current, in amps",
+    "value": 6.75,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, screen 12 coil left out, current in amps",
+    "value": 5.26,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, screen 12 capacitor put in as ohms",
+    "value": 100,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, screen 12 capacitor as ohms, current in amps",
+    "value": 2.57,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 resonant frequency, in hertz",
+    "value": 71.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Most common ship frequency, in hertz",
+    "value": 60,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Coil's reactance at 60 Hz, in ohms",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacitor's reactance at 60 Hz, in ohms",
+    "value": 8.33,
+    "kind": "computed"
+   },
+   {
+    "label": "Net reactance at 60 Hz, in ohms",
+    "value": 3.67,
+    "kind": "computed"
+   },
+   {
+    "label": "Impedance at 60 Hz, in ohms",
+    "value": 4.18,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil's voltage at 60 Hz, in volts",
+    "value": 28.7,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Put a coil and a capacitor in the same series loop and their reactances do not add: one takes away from the other, because the coil's voltage peaks a quarter cycle before the current and the capacitor's a quarter cycle after it. As the frequency rises the coil's reactance grows and the capacitor's shrinks, so at one frequency they are equal and cancel. There the circuit's only opposition is its resistance, the current peaks, and the coil and the capacitor can each carry several times the supply's voltage.\n\nOne current flows through every part of a series loop, so, as in lesson 6, the current is the reference. The coil's voltage leads the current,[^3] by a quarter cycle (lesson 4), and the capacitor's voltage lags it,[^4] by a quarter cycle (lesson 5). So the two are half a cycle apart: whenever the coil's voltage pushes one way round the loop, the capacitor's pushes the other way. Drawn as arrows, the coil's points straight up and the capacitor's straight down, on one line, so tip to tail they leave only their difference. That difference is the net reactance, X = X_L − X_C, and it takes the place of the single reactance in lesson 6's triangle: Z = √(R² + X²).[^5] On the bench at 25 Hz, the coil's 5 Ω up and the capacitor's 20 Ω down leave 15 Ω pointing down, so with 2 Ω of resistance Z = √(2² + 15²) = 15.1 Ω. When the capacitor's reactance is the larger, the net arrow points down and the circuit behaves like lesson 6's resistor and capacitor, with the current leading; when the coil's is larger, it behaves like a resistor and a coil, with the current lagging.\n\nNow turn the frequency up. The coil's reactance, X_L = 2πfL,[^6] grows in step with the frequency, and the capacitor's, X_C = 1/(2πfC), shrinks as it rises,[^7] so the net arrow shortens, vanishes and then grows the other way. Where it vanishes, X_L = X_C, Z has fallen to R alone, its smallest, and the current is at its greatest.[^8] This is [[resonance]], and the frequency where it happens is the [[resonant frequency]], f₀. Setting 2πf₀L = 1/(2πf₀C) and solving for f₀ gives f₀ = 1/(2π√(LC)). Lesson 4's coil and lesson 5's capacitor are each 10 Ω at 50 Hz, so in series they resonate at 50 Hz, and with 2 Ω on a 10 V supply the current peaks at 10 ÷ 2 = 5 A, in step with the supply's voltage, as if the coil and the capacitor were not there. R appears nowhere in f₀, so changing it does not move the peak; it sets how tall the peak is, V ÷ R. Well away from f₀ the net reactance, which R does not touch, makes up most of Z, so there the current hardly changes with a small R; a smaller R lifts only the top, making the peak taller and narrower.\n\nThat peak current still flows through the coil and the capacitor, each still 10 Ω. So each carries 5 A × 10 Ω = 50 V, five times the supply's 10 V. The two 50 V voltages are half a cycle apart, so they cancel in the loop, leaving the resistor's 10 V to match the supply. At resonance the supply's voltage equals the resistor's, I × R, while the coil's is I × X_L, so the current cancels from their ratio: the ratio of either part's voltage to the supply's is the circuit's [[Q factor]], X_L ÷ R, here 10 ÷ 2 = 5: the voltage across the coil or the capacitor in a series resonant circuit is Q times the supply's,[^9] which can make it dangerously high.[^10] This is a simplified model, with ideal parts on a pure sine; a real coil's wire resistance adds to R, which lowers and widens the peak without moving it. **In series, a coil's and a capacitor's reactances subtract, so at the resonant frequency, where X_L = X_C, the impedance falls to R alone and the current peaks,[^8] and the voltage across each of them is Q times the supply's.[^9]**"
+ },
+ "analogy": {
+  "text": "Push a child on a swing. Small pushes timed to the swing's own rhythm build a big, fast swing; push faster or slower than that rhythm and some of your pushes land against it, so it stays small. More friction at the pivot keeps the swing slower, but the rhythm that builds the fastest swing is still set by the length of the chains. Your rhythm of pushing is the supply's frequency, the swing's speed is the current, and the friction is the resistance.",
+  "breaks": "A swing is one object trading height for speed; the circuit has two separate parts, the coil and the capacitor, and what grows is the voltage across each, which nothing on the swing matches. The swing also takes short shoves and many of them to build up, where the supply pushes smoothly all the time and the meters here show the circuit once it has settled."
+ },
+ "practice": {
+  "text": "- Safety first: near resonance the coil and the capacitor can each carry far more than the supply's voltage,[^10] so before a coil and a capacitor in series go live, check each one's voltage rating against Q times the supply, not the supply alone.[^9] A 6 Ω resistor with 20 Ω of coil reactance and 12 Ω of capacitor reactance on 230 V mains[^1] draws 23 A, and puts 23 × 20 = 460 V across the coil. Isolate, prove dead and discharge any capacitor before handling either part.\n- Each reactance: X_L = 2πfL[^6] and X_C = 1/(2πfC),[^7] with f in hertz, L in henries and C in farads (10 µF is 0.00001 F).\n- The net reactance: X = X_L − X_C. If it comes out positive the circuit is inductive and the current lags; negative, capacitive, and the current leads.\n- The impedance: Z = √(R² + X²).[^5]\n- The current: I = V ÷ Z. Each part's voltage is then I times its own R, X_L or X_C.\n- The resonant frequency: f₀ = 1/(2π√(LC)). There Z = R, the current is V ÷ R[^8] and Q = X_L ÷ R.\n\n**Rule of thumb:** With a coil and a capacitor in series, take the smaller reactance from the larger first, then use Pythagoras with R. Near resonance, expect the coil's and the capacitor's meters to read more than the supply's.\n\n**Worked example:** Lesson 4's coil and lesson 5's capacitor in series with 2 Ω, on a 10 V test supply at 50 Hz: X_L = X_C = 10 Ω, so X = 0, Z = 2 Ω and I = 5 A, in step with the supply. Each part reads 5 × 10 = 50 V, and Q = 10 ÷ 2 = 5. Move the same circuit to 60 Hz, the frequency most common on board ship:[^2] X_L rises to 12 Ω and X_C falls to 8.33 Ω, so X = 3.67 Ω, inductive. Z = √(2² + 3.67²) = 4.18 Ω, I = 10 ÷ 4.18 = 2.39 A, lagging, and the coil reads 2.39 × 12 = 28.7 V, still nearly three times the supply.\n\nLesson 8 turns to power, where the angle between the current and the voltage decides how much is really used.\n\n**Common mistakes**\n- Using lesson 6's formula with one reactance, leaving the coil or the capacitor out.\n- Adding X_L and X_C, or putting both under Pythagoras with R. They point opposite ways, so take one from the other first.\n- Putting C in as ohms or in microfarads. 100 µF is not 100 Ω; convert it to farads and work out X_C.\n- Thinking no part in series can read more than the supply. Usually true of resistors on DC, but not near resonance.\n- Thinking R moves the resonant frequency. It changes the peak's height and sharpness, not where it sits."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Statutory Voltage Limits – Energy Networks Association (ENA)",
+   "url": "https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits",
+   "quote": "UK mains electricity operates at a nominal voltage of 230V, and can operate within limits of 253V and 216V set by the Electricity Safety, Quality and Continuity Regulations (ESQCR)"
+  },
+  {
+   "n": 2,
+   "title": "maritime electrical installations - notes on design ...",
+   "url": "http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf",
+   "quote": "60 Hz is the most common frequency adopted for use on board ship; the higher frequency enabling motors and generators to run at higher speeds with a consequent reduction in size for a given power rating."
+  },
+  {
+   "n": 3,
+   "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 3",
+   "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html",
+   "quote": "Looking at the graph, the voltage wave seems to have a “head start” on the current wave; the voltage “leads” the current, and the current “lags” behind the voltage."
+  },
+  {
+   "n": 4,
+   "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 4",
+   "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html",
+   "quote": "Looking at the graph, the current wave seems to have a “head start” on the voltage wave; the current “leads” the voltage, and the voltage “lags” behind the current."
+  },
+  {
+   "n": 5,
+   "title": "AC circuits, alternating current electricity",
+   "url": "https://www.animations.physics.unsw.edu.au/jw/AC.html",
+   "quote": "Because the phasors for reactances are 90° out of phase with the current, the series impedance of a resistor R and a reactance X are given by Pythagoras' law:"
+  },
+  {
+   "n": 6,
+   "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 3",
+   "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html",
+   "quote": "Inductive reactance can be calculated using this formula: X L = 2πfL"
+  },
+  {
+   "n": 7,
+   "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 4",
+   "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html",
+   "quote": "Capacitive reactance can be calculated using this formula: X C = 1/(2πfC) * Capacitive reactance decreases with increasing frequency. In other words, the higher the frequency, the less it opposes (the more it “conducts”) the AC flow of electrons."
+  },
+  {
+   "n": 8,
+   "title": "Slide 1",
+   "url": "https://condor.depaul.edu/~jmilton/152/ACCircuits.pdf",
+   "quote": "Resonance occurs at the frequency, ƒ o, where the current has its maximum value. # To achieve maximum current, the impedance must have a minimum value. This occurs when XL = XC"
+  },
+  {
+   "n": 9,
+   "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 6",
+   "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_6.html",
+   "quote": "A practical application of “Q” is that voltage across L or C in a series resonant circuit is Q times total applied voltage."
+  },
+  {
+   "n": 10,
+   "title": "Lessons In Electric Circuits -- Volume II (AC) - Chapter 6",
+   "url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_6.html",
+   "quote": "A word of caution is in order with series LC resonant circuits: because of the high currents which may be present in a series LC circuit at resonance, it is possible to produce dangerously high voltage drops"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

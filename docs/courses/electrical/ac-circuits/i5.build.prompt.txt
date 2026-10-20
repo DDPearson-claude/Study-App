@@ -1,0 +1,437 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: AC circuits, from turning coil to three-phase
+Idea: Capacitance: the store that fills and empties (A capacitor draws current as it fills and empties, so its current leads the voltage by a quarter cycle and its reactance, X_C = 1/(2πfC), falls with frequency.)
+Kind: mechanism
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the current arrow largest as the voltage crosses zero and gone at its peak, because the plates' charge changes fastest there and holds still at the top, when you drag the time cursor.
+Title (the app shows it above the frame, so do not repeat it): The filling tank
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in twelve small screens on one picture, the filling tank. An ideal capacitor, two metal plates with a thin gap of insulation between them, sits straight across an AC supply with the 100 V peak used in lessons 3 and 4, at 50 Hz. Its capacitance is about 318 µF, an example value picked so its reactance at 50 Hz comes to 10 Ω, the same as lesson 4's coil. Charge dots pile up on one plate, plus signs, while as many leave the other, minus signs; the size of each pile follows the voltage, because the charge a capacitor holds is its capacitance × its voltage. A flow arrow in each lead shows the current: its length is the current's size and it turns round when the current does. No arrow crosses the gap, because in a healthy capacitor next to no charge does. Above, the voltage wave and the current wave (dashed, as on the scrubber) share one time axis, 0 to 40 ms, two cycles of 20 ms. A time cursor runs through the graphs, and where it meets the voltage wave a short tangent line lies along it, showing how steeply the voltage is changing at that instant. The current at each instant is the capacitance × that steepness, because the current is the charge arriving each second and the charge goes with the voltage. So the current wave is drawn from the tangent: tallest where the tangent is steepest, as the voltage crosses zero, and zero where the tangent lies flat, at the voltage's top or bottom. Below, on the same time axis, is lesson 3's power wave, voltage × current worked instant by instant, with a dot at the cursor; for this capacitor it rises to 500 W and dips to −500 W, two humps up and two down each cycle. To one side, a small graph plots the reactance X_C, the supply voltage ÷ the current, against frequency from 0 to 100 Hz: a curve falling as the frequency rises, with a dot at the present frequency, beside a faint copy of lesson 4's straight X_L line. Readouts give the current and the voltage at the cursor and X_C. Screen 1 opens with the cursor at 0 ms, where the voltage crosses zero rising: the tangent is steepest, the piles are empty but growing fastest, and the arrow is at its longest, 10 A. The cursor sweeps to 5 ms; the piles grow, the tangent flattens as the voltage reaches its 100 V top, and the arrow shrinks to nothing. Screen 2 parks the cursor at 5 ms and asks for the current: 0 A; 10 A (the biggest voltage taken to give the biggest current, the resistor's rule); or −10 A. A right Check lays the tangent flat and the arrow vanishes. Screen 3 sweeps a whole cycle, 0 to 20 ms: after the peak the voltage falls, the piles drain and the arrow turns round. A bracket marks the 5 ms between the current's peak and the voltage's, a quarter cycle, so the current leads and the voltage lags, a phase angle of −90°, measured as in lesson 4 as the angle by which the voltage leads. Screen 4 shows a still pair of a capacitor's waves and asks which leads and by how much: the current, by a quarter cycle; the voltage, by a quarter cycle (the coil's answer carried over); or the current, by half a cycle, 10 ms. Screen 5 frees a frequency slider, 25 to 100 Hz in steps of 5, opening at 50, and plays it up to 100 Hz with the supply held at 100 V peak: the waves squeeze together, the piles fill to the same size in half the time, the arrow grows, the current's peak rises from 10 A to 20 A, and the X_C dot slides down the curve from 10 Ω to 5 Ω while lesson 4's line climbs to 20 Ω, with the row X_C = 1 ÷ (2π × 100 × 0.000318) ≈ 5 Ω. Screen 6 asks for the current's peak at 60 Hz, the frequency most common on board ship: 12 A; 8.33 A (the coil's rule, reactance rising with frequency); or 10 A (the frequency ignored, as for a resistor). A right Check moves the slider to 60 Hz, where X_C reads 8.33 Ω. Screen 7 plays the slider down to 25 Hz, where X_C reads 20 Ω and the current peaks at 5 A, and the curve is drawn on towards 0 Hz, climbing ever more steeply off the top of the graph while lesson 4's line runs down to 0 Ω. Then the supply is switched to a steady 100 V: a brief rush of current fills the piles, and the arrow stays gone at 0 A. Screen 8: an ohmmeter's reading across a healthy capacitor climbs while it fills and settles very high, yet on 50 Hz it lets 10 A peak flow for a 100 V peak; why? A steady test voltage fills the plates once and then drives no more current, while AC fills and empties them every cycle; the capacitor is open-circuit (a healthy one reads this too); or charge jumps the gap only at high voltage. Screen 9 returns to 50 Hz and sweeps a cycle with the power wave shaded: from 0 to 5 ms the voltage and current are both positive, the piles are growing and the dot climbs to 500 W, energy going into the capacitor; from 5 to 10 ms the voltage is still positive but the piles are draining, the current is negative and the dot dips to −500 W, energy coming back. A flat line marks the average, 0 W, beside a ghost of lesson 3's heater element, with the same 100 V and 10 A peaks, averaging 500 W. Its closing line sets the coil and the capacitor side by side with the memory aid textbooks give, ELI the ICE man: in a coil, L, the voltage E comes before the current I; in a capacitor, C, the current I comes before the voltage E. Screens 10 to 12 are mixed. Screen 10: an example 100 µF capacitor on 230 V, 50 Hz mains draws 7.23 A, because X_C = 1 ÷ (2π × 50 × 0.0001) ≈ 31.8 Ω; 2.3 A (the 100 µF put in as 100 Ω); or 0 A (a capacitor taken to block current, as it does once filled on DC). Screen 11: at 25 Hz on the same 100 V peak, the current peaks at 5 A and still leads by a quarter cycle; at 20 A, leading (the coil's scaling); or at 5 A, in step with the voltage (the lead thought to fade at low frequency). Screen 12: a capacitor draws 2 A from 230 V, 50 Hz mains, so its X_C is 115 Ω; on a 230 V, 60 Hz supply its X_C falls to about 95.8 Ω and it draws 2.4 A and averages 0 W; 1.67 A and 0 W (the current scaled down, as for a coil); or 2.4 A and 552 W (volts × amps, 230 × 2.4, taken as watts). Each puzzle offers three answers; a wrong pick gets a one-line hint naming its slip, Why? explains in words, and a right Check draws the answer on the picture. The closing line says the capacitor's current runs a quarter cycle ahead of its voltage because the charge, and so the voltage, keeps building for as long as current flows in and peaks only as the current falls to zero, and that lesson 6 puts a resistor in series with a coil or a capacitor.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The capacitor is ideal: it has no resistance and no leakage through its gap, so its current leads by a full quarter cycle and it takes no watts; a real capacitor takes a little real power and leads by a little less. The supply is a pure sine and has been on for a while, so the rush at switch-on is left out: the current never starts before the voltage is applied, and 'leads' describes where the settled waves peak. Each charge dot stands for a vast number of electrons, and the dots on the plus plate are where electrons have been drawn off. The arrows show conventional current. Time is stretched so one 20 ms cycle fills half the screen. The capacitor, the supply and the meter readings are example values.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 11 in steps of 1, opening at 0
+Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id and the decimals given, which is how the explanation rounds it, or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):
+- id "amps": Current at the cursor (A), decimals: 2
+- id "volts": Voltage at the cursor (V), decimals: 1
+- id "xc": Reactance, X_C (Ω), decimals: 2
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Number of screens: 12 (assumed)
+- Capacitor's capacitance, in microfarads: 318 (assumed)
+- Capacitor's reactance at 50 Hz, in ohms: 10 (computed)
+- Supply voltage peak, in volts: 100 (assumed)
+- Opening frequency, in hertz: 50 (control)
+- Current peak at 50 Hz, in amps: 10 (computed)
+- Time axis, lowest, in milliseconds: 0 (assumed)
+- Time axis, highest, in milliseconds: 40 (assumed)
+- One cycle at 50 Hz, in milliseconds: 20 (computed)
+- A quarter cycle at 50 Hz, in milliseconds: 5 (computed)
+- Opening cursor time, in milliseconds: 0 (control)
+- Current at the opening cursor, in amps: 10 (computed)
+- Current at the voltage peak, in amps: 0 (computed)
+- Slip, the negative peak, in amps: -10 (computed)
+- Capacitor's phase angle, voltage ahead, in degrees: -90 (computed)
+- Slip, half a cycle at 50 Hz, in milliseconds: 10 (computed)
+- Frequency slider, lowest, in hertz: 25 (assumed)
+- Frequency slider, highest, in hertz: 100 (assumed)
+- Frequency slider step, in hertz: 5 (assumed)
+- Reactance graph, lowest frequency, in hertz: 0 (assumed)
+- Reactance at 100 Hz, in ohms: 5 (computed)
+- Current peak at 100 Hz, in amps: 20 (computed)
+- Lesson 4 coil's inductance, in millihenries: 31.8 (assumed)
+- Lesson 4 coil's reactance at 100 Hz, in ohms: 20 (computed)
+- Most common ship frequency, in hertz: 60 (constant, source [1])
+- Reactance at 60 Hz, in ohms: 8.33 (computed)
+- Current peak at 60 Hz, in amps: 12 (computed)
+- Slip, coil's rule at 60 Hz, in amps: 8.33 (computed)
+- Reactance at 25 Hz, in ohms: 20 (computed)
+- Current peak at 25 Hz, in amps: 5 (computed)
+- Slip, coil's scaling at 25 Hz, in amps: 20 (computed)
+- Lesson 4 coil's reactance at 0 Hz, in ohms: 0 (computed)
+- Steady supply after the switch, in volts: 100 (assumed)
+- Current once filled on the steady supply, in amps: 0 (computed)
+- Capacitor's power hump tops, in watts: 500 (computed)
+- Capacitor's power hump bottoms, in watts: -500 (computed)
+- Capacitor's average power, in watts: 0 (computed)
+- Lesson 3 heater element's resistance, in ohms: 10 (assumed)
+- Lesson 3 heater element's average power, in watts: 500 (computed)
+- UK mains nominal voltage, in volts: 230 (constant, source [2])
+- UK mains frequency, in hertz: 50 (constant)
+- Example capacitor, in microfarads: 100 (assumed)
+- Example capacitor's reactance at 50 Hz, in ohms: 31.8 (computed)
+- Example capacitor's current at 50 Hz, in amps: 7.23 (computed)
+- Slip, 100 µF put in as ohms, in amps: 2.3 (computed)
+- Example capacitor's reactance at 60 Hz, in ohms: 26.5 (computed)
+- Example capacitor's current at 60 Hz, in amps: 8.67 (computed)
+- Screen 12 capacitor's current at 50 Hz, in amps: 2 (assumed)
+- Screen 12 capacitor's reactance at 50 Hz, in ohms: 115 (computed)
+- Screen 12 capacitor's reactance at 60 Hz, in ohms: 95.8 (computed)
+- Screen 12 capacitor's current at 60 Hz, in amps: 2.4 (computed)
+- Slip, screen 12 current scaled down, in amps: 1.67 (computed)
+- Slip, screen 12 volts × amps, in watts: 552 (computed)
+- Farads in one microfarad: 0.000001 (constant)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+At its simplest, a capacitor is two metal plates with a thin gap of insulation between them. Current flows into it as it fills with charge and out as it empties, so its current follows how fast its voltage is changing, not how big the voltage is. On AC that puts an ideal capacitor's current a quarter cycle ahead of the voltage, and it makes the capacitor's opposition fall as the frequency rises: the mirror image of lesson 4's coil.
+
+Connect the plates across a supply and charge is pushed onto one plate and drawn off the other, through the leads. In a healthy capacitor next to no charge crosses the gap, but as much leaves one plate as arrives on the other, so the rest of the circuit carries a current just as if it went straight through. The charge piled on the plates sets up a voltage across the gap that pushes back against the supply, and twice the charge makes twice the voltage. The charge a capacitor holds for each volt across it is its capacitance, C, in farads. The current is the charge arriving each second, so it is C times how fast the voltage is changing: Calculus fundamentals lesson 5's i = C dv/dt, now with its cause. Once the plates have filled to a steady voltage, an ideal capacitor draws no more current; a real one leaks only a trickle through its insulation. In short, capacitors oppose changes in voltage by drawing or supplying current as they charge or discharge …
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] maritime electrical installations - notes on design ... (http://www.iqytechnicalcollege.com/JEE129-MarineElectricalSystems.pdf): "60 Hz is the most common frequency adopted for use on board ship; the higher frequency enabling motors and generators to run at higher speeds with a consequent reduction in size for a given power rating."
+[2] Statutory Voltage Limits – Energy Networks Association (ENA) (https://www.energynetworks.org/industry/engineering-and-technical-programmes/statutory-voltage-limits): "UK mains electricity operates at a nominal voltage of 230V, and can operate within limits of 253V and 216V set by the Electricity Safety, Quality and Continuity Regulations (ESQCR)"
+[3] Lessons In Electric Circuits -- Volume II (AC) - Chapter 4 (https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html): "capacitors oppose changes in voltage by drawing or supplying current as they charge or discharge to the new voltage level."
+[4] Lessons In Electric Circuits -- Volume II (AC) - Chapter 4 (https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html): "Looking at the graph, the current wave seems to have a “head start” on the voltage wave; the current “leads” the voltage, and the voltage “lags” behind the current."
+[5] Lessons In Electric Circuits -- Volume II (AC) - Chapter 11 (http://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html): "Note that the waveform for power is always positive, never negative for this resistive circuit. This means that power is always being dissipated by the resistive load, and never returned to the source as it is with reactive loads."
+[6] Lessons In Electric Circuits -- Volume II (AC) - Chapter 4 (https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html): "Capacitive reactance can be calculated using this formula: X C = 1/(2πfC) * Capacitive reactance decreases with increasing frequency. In other words, the higher the frequency, the less it opposes (the more it “conducts”) the AC flow of ele…"
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: mechanism). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: mechanism -->
+<style>
+  .push .floor { stroke: var(--k-strong); stroke-width: 2; }
+  .push .tick { stroke: var(--k-line); stroke-width: 2; }
+  .push .box { fill: var(--k-panel); stroke: var(--k-muted); stroke-width: 2; }
+  .push .mass { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .push .yours { stroke: var(--k-accent2); fill: var(--k-accent2); stroke-width: 4; }
+  .push .grip { stroke: var(--k-accent); fill: var(--k-accent); stroke-width: 4; }
+  .push .most { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .push .hand { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .push .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .push .lab.limit { fill: var(--k-muted); }
+</style>
+
+<p class="lead">Drag the round handle (or the slider) to push the box harder, and watch how hard the floor pushes back.</p>
+
+<svg class="push" id="scene" viewBox="0 0 340 170" role="img" aria-label="">
+  <g id="ticks"></g>
+  <line class="floor" x1="0" y1="100" x2="340" y2="100"/>
+  <rect class="box" id="box" x="150" y="40" width="80" height="60" rx="6"/>
+  <text class="mass" x="190" y="75" text-anchor="middle">20 kg</text>
+  <g id="yours"></g>
+  <line class="most" id="most" y1="122" y2="122" x2="232"/>
+  <g class="k-after-move" id="grip"></g>
+  <circle class="hand" id="hand" cy="70" r="10"/>
+  <g id="labels"></g>
+</svg>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<p class="caption">Example numbers: the floor grips with up to half the box's weight, kept while sliding (simplified: usually a little less).</p>
+
+<script>
+  // Source [1] of the lesson: static friction matches the push, up to a limit.
+  const SOURCE = 'https://en.wikipedia.org/wiki/Friction';
+  const M = 20, G = 9.81, GRIP = 0.5;          // the example box and floor (assumed values)
+  const MOST = GRIP * M * G;                   // the most the floor can grip with: 98.1 N
+  // A simplification, said in the caption: the grip stays at MOST while the box slides (real
+  // sliding friction is usually a little lower than the most a floor grips a box at rest).
+  const S = 0.75;                              // drawing units per newton, the same for both arrows
+  const N = (f) => K.fmt(f, { decimals: Number.isInteger(f) ? 0 : 1 }) + ' N';
+  // Sliding, what is left of the push after the grip speeds the box up (a negative one slows it).
+  const accel = (push) => (push - MOST) / M;
+
+  // The cause Dan controls: his push, by dragging the handle or the slider (they move together).
+  // A drag near the limit lands on it exactly (snap).
+  const push = K.control({ id: 'push', label: 'Your push', min: 0, max: 160, step: 1, value: 40, unit: 'N', snap: [MOST], into: '#controls' });
+  K.stage('#scene', '#controls');
+  const handX = (f) => 136 - f * S;
+  K.drag('#hand', { control: 'push', toValue: (x) => (136 - x) / S });   // its first touch reveals, like a slider move
+
+  // The pure model, for a box that starts at rest: the floor pushes back as hard as the push, up to its limit.
+  K.model((p) => ({ grip: Math.min(p.push, MOST), slides: p.push > MOST ? 'yes' : 'no' }));
+
+  // The box's own state while it slides. The motion runs whenever the push beats the grip, and
+  // stops when the box stands still again: no Play button, the push is what starts it.
+  let speed = 0, slid = 0;
+  const slide = K.anim({ button: false, step: (dt) => {
+    speed = Math.max(0, speed + accel(push.get()) * dt);
+    slid += speed * dt;
+    draw(K.params(), K.outputs());
+    return speed > 0 || push.get() > MOST;
+  } });
+
+  const svg = document.getElementById('scene');
+  // A straight arrow from x1 to x2 at height y: a line and a filled head.
+  function arrow(g, x1, x2, y, cls) {
+    g.textContent = '';
+    const dir = x2 > x1 ? 1 : -1;
+    if (Math.abs(x2 - x1) < 12) return null;
+    const line = K.svg('line', { class: cls, x1, y1: y, x2: x2 - dir * 9, y2: y });
+    g.append(line, K.svg('path', { class: cls, d: `M${x2} ${y}l${-dir * 11} -7v14z` }));
+    return line;
+  }
+  document.getElementById('most').setAttribute('x1', 232 - MOST * S);
+
+  function draw(p, o) {
+    // The floor's marks drift back while the box slides (the view follows the box).
+    const off = (slid * 40) % 20, ticks = document.getElementById('ticks');
+    ticks.textContent = '';
+    for (let x = 10 - off; x < 350; x += 20) ticks.appendChild(K.svg('line', { class: 'tick', x1: x, y1: 101, x2: x - 8, y2: 111 }));
+    const hx = handX(p.push), grip = speed > 0 ? MOST : o.grip;
+    document.getElementById('hand').setAttribute('cx', hx);
+    const yours = arrow(document.getElementById('yours'), hx + 10, 148, 70, 'yours');
+    const gripLine = arrow(document.getElementById('grip'), 232, 232 - grip * S, 122, 'grip');
+    // Labels move with their arrows; K.labels keeps them off the arrows, the box and the limit line.
+    K.labels('#labels', [
+      { x: (hx + 148) / 2, y: 56, text: p.push ? 'push ' + N(p.push) : 'no push', class: 'lab' },
+      { x: 152, y: 126, text: 'grip limit ' + N(MOST), anchor: 'end', class: 'lab limit' },
+    ].concat(K.moved && grip ? [{ x: 232 - grip * S / 2, y: 148, text: 'floor\'s grip ' + N(grip), class: 'lab' }] : []),
+      { avoid: [yours, gripLine, '#most', '#box', '#hand'].filter(Boolean) });
+    svg.setAttribute('aria-label', 'A 20 kg box on a floor, pushed with ' + N(p.push) + (K.moved ? '; the floor grips back with ' + N(grip) + (speed > 0 ? ', and the box is sliding.' : ', and the box stays put.') : '.'));
+
+    let text;
+    if (!K.moved) text = 'The hand pushes with ' + N(p.push) + ' and the box stays put. How hard is the floor pushing back? Make your guess, then drag the handle.';
+    else if (p.push > MOST) text = 'The push (' + N(p.push) + ') is more than the floor can grip with (' + N(MOST) + '), so the box slides and keeps speeding up: ' + K.fmt(speed, { decimals: 1 }) + ' m/s now.';
+    else if (speed > 0) text = 'The push is less than the grip again, so the grip slows the sliding box down: ' + K.fmt(speed, { decimals: 1 }) + ' m/s now.';
+    else if (p.push === 0) text = 'No push, so the floor pushes back with nothing: its grip only ever answers a push.';
+    else text = 'The floor pushes back with exactly ' + N(o.grip) + ', as hard as the hand pushes, so the box stays put. It can grip with up to ' + N(MOST) + '.';
+    document.getElementById('say').textContent = text;
+  }
+  K.update((p, o) => {
+    if (p.push > MOST && !slide.playing()) slide.play();
+    draw(p, o);
+  });
+
+  // Known answers, worked by hand, and the rule as the source states it.
+  K.check('A 40 N push: the floor pushes back with exactly 40 N, and the box stays put', () => K.at({ push: 40 }).grip === 40 && K.at({ push: 40 }).slides === 'no');
+  K.check('The most grip is half the weight: 0.5 × 20 kg × 9.81 m/s² = 98.1 N', () => K.near(MOST, 98.1, 1e-9));
+  K.check('Just past it (100 N) the box slides; in this simplified model the grip stays at 98.1 N', () => { const o = K.at({ push: 100 }); return o.slides === 'yes' && K.near(o.grip, 98.1, 1e-9); });
+  K.check('Pushing 20 N more than the grip speeds the 20 kg box up by 1 m/s every second', () => K.near(accel(MOST + 20), 1, 1e-9));
+  K.check('Static friction matches the push, up to a most of μ × the weight pressing down', () =>
+    [0, 30, 60, 98, 98.1, 120, 160].every((f) => K.near(K.at({ push: f }).grip, Math.min(f, GRIP * M * G), 1e-9)), { source: SOURCE });
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.
