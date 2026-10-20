@@ -112,51 +112,57 @@ The order of lessons 1 to 9 and the one-course decision do not change.
   its figures; each takes the shape of a question and changes the load, length, temperature and
   device. See "The practice papers, question by question" in section 2.
 
-## The short version
-**One course, ten lessons**, in your course's order (slides p.6, the flowchart):
-1. Design current: what the circuit really draws
-2. Choosing the device: Ib ≤ In and the time-current curve
-3. Rating factors: what makes a cable run hot
-4. Overload: why 1.45
-5. Harmonics: when the neutral carries more than the line
-6. Voltage drop: the volts left at the load
-7. Voltage drop, refined: hot conductors and power factor
-8. Shock protection: will it disconnect in time?
-9. Surviving the fault: the adiabatic check and breaking capacity
-10. The showroom: one design end to end, then verified
+## Changes (20 Oct): a taught refresher in nine lessons
+- **Dan, 19 Oct:** "I have no more exams on this, it's just to use as a reference for myself in the
+  real world." A tool-first design followed (`format/design.md`, kept as the alternative).
+- **Dan, 20 Oct:** "I don't want it as a job card, I want it taught back to me but in a refresher
+  way. Combining elements of the EAL course work and the C&G exams." The format is in
+  `format/refresher.md`. Then: "9 lessons, build pilot".
+- **What changed here:** the short version and the decisions below, `lessons.json` (nine lessons,
+  each with a unit) and the new `case.json` (the showroom running case, every figure worked). The
+  older notes above and sections 1 to 11 below are kept as history; where their lesson numbers
+  differ, the nine-lesson list below and `lessons.json` are current.
 
-**The main pictures** (one a lesson, each moved with your finger, each showing the cause):
-- **The nameplate and its triangle (1).** A motor's rating plate beside the power triangle. Drag the
-  power factor and the efficiency down from 1. The current bar for the same output grows, from the
-  slides' 28.87 A to 41.48 A.
-- **The device's curve (2).** A time-current curve on log axes, with B, C and D bands. Drag a
-  starting current along it and see which breaker would trip on start-up.
-- **The cable run in sections (3).** One circuit drawn as its real route: clipped, in trunking with
-  another circuit, through a wall with insulation. Each section shows its own factors and the It it
-  needs. The worst section lights up as the one that sets the cable.
-- **Two marks on one current line (4).** The device's I2 and the cable's 1.45 Iz on one axis. Drag In,
-  Iz and the fusing factor. The device mark passes the cable's mark when a semi-enclosed fuse goes in,
-  and Cf = 0.725 pulls it back.
-- **Three phases and the neutral (5).** Three line currents and their sum in the neutral. Drag a third
-  harmonic up. The fundamentals cancel, the third harmonics stack, and the neutral bar overtakes the
-  line bar near 33%.
-- **The voltage along the run (6).** Origin, sub-board, load, with the voltage drawn falling along the
-  cable. Drag length, CSA and Ib. A band marks 3% or 5% of the voltage you were given, not 400 V.
-- **Hot conductor, angled current (7).** A conductor-temperature gauge driven by Ib ÷ It, which sets
-  Ct. Beside it the current arrow at angle φ, with the cable's r and x drops as arrows. The drop that
-  counts is shorter than z times I.
-- **The fault loop (8).** The earth fault path drawn as a loop, Ze plus R1 plus R2. Drag the length and
-  CSA. The fault current falls, and on the device's curve the operating point slides from 0.1 s
-  towards the 0.4 s line, then past it, in red.
-- **Heat in against heat it can take (9).** Two bars: the fault's I²t and the conductor's k²S². Drag the
-  fault current, the time and S. Switch Cmin and Cmax and watch which check each one drives.
-- **The showroom's design card (10).** The app's own simplified plan of the showroom, rooms as
-  rectangles, with the MDB in the plant room and DBL2 in the tools and warranty store where the power
-  drawing puts them. Drag the cable route and its length reads out at 1:50. The submain to DBL2 and
-  DBL2's longest circuit, with the twenty flowchart steps beside each. Change one
-  input and every step recomputes. A failing check sends you round its loop, and the voltage drop is
-  summed from the intake. Then switch to "as built": put in measured readings and compare them with the
-  design's values.
+## The short version
+**One course, nine lessons, taught back to you as a refresher** (`format/refresher.md`), in five
+units that follow your course's order (slides p.6, the flowchart):
+1. Design current: what the circuit really draws (the load)
+2. Maximum demand: what the whole building draws (the load)
+3. Device and cable: Ib ≤ In ≤ Iz, the factors and overload (the cable; why piece A: 1.45 and Cf)
+4. A neutral that carries more than the line (the cable; why piece B: third harmonics)
+5. Voltage drop from the intake, refined (the volts; why piece C: Ct and the power-factor drop)
+6. Shock protection, and when Zs is too high (the fault)
+7. Surviving the fault: heat, short circuits, breaking capacity (the fault; why piece D: Cmin and
+   Cmax)
+8. The showroom, end to end (the whole job)
+9. Verification and handover (the whole job)
+
+**Every lesson has the same shape**, about eleven screens: a question from memory ("Do you still
+have it?", with Skip to the practice when he has); what the step is for and what goes wrong if it is
+skipped; the why, with an interactive; a worked example from your slides; Section A practice in the
+shape of the City & Guilds 2396 papers, on your own showroom; a Section B short written answer,
+marked by Claude against points from your sources; and a "Keep this" card, kept in your Book for real
+work. No timers, marks or grades.
+
+**The showroom runs through it** (`case.json`): the assignment's motor (question 4) is one Section A
+question built up across lessons 1, 3, 5, 6 and 7; lesson 2 does the building's maximum demand;
+lesson 8 designs the submain to DBL2 and its longest circuit end to end, with the project guide's key
+points as the checklist; lesson 9 verifies it.
+
+**The main pictures** (each moved with your finger, each showing the cause):
+- **Output to input to apparent power (1).** The same 20 kW output; drag efficiency and power factor
+  down and the draw stretches: 28.87 A to 41.48 A (slides p.16, 17).
+- **Three phases and the neutral current (2).** Drag circuits between phases; the neutral falls as
+  they balance.
+- **The cable run in sections, then two marks on one current line (3).** The worst section sets the
+  cable (21.28 A against 19.34 A); a rewireable fuse's I2 passes the cable's 1.45 Iz until Cf pulls it
+  back.
+- **Third harmonics in the neutral (4).** The neutral bar passes the line bar near a third.
+- **The voltage along the run, then a cooler conductor and an angled current (5).** The second waits
+  for the Ct and power-factor formulas to be quoted.
+- **The fault loop (6).** Lengthen the run and the fault current's point slides past the time limit.
+- **Heat in against heat it can take (7).** Cmin decides the time, Cmax the heat.
+- **The showroom's plan and one-line diagram (8)**, and **design against as built (9).**
 
 **Decisions taken for you** (say if you want any changed):
 - **One course, not two.** Your materials are all design calculation. Nothing in them covers
@@ -168,19 +174,6 @@ The order of lessons 1 to 9 and the one-course decision do not change.
   again. The second batch does not change this: the assignment's only verification question is the
   first inspection interval and the handover documents (question 9, pack p.5). See "One course or
   two?" below.
-- **Ten lessons, about 12 screens each, in the slides' order.** The slides' list (p.6) has nine design
-  stages. Overload (p.29 to 32) and harmonics (p.33 to 36) sit inside the cable-selection part of the
-  slides, and each needs its own picture, so they are lessons 4 and 5. Voltage drop is split in two,
-  because Ct and the power-factor correction (p.43 to 45) are the L4 part and need their own screens.
-  The adiabatic check, the short-circuit check and breaking capacity (p.57 to 70) share one equation
-  in two forms, so they share lesson 9. Lesson 10 is the assignment's showroom, designed end to end
-  and then verified. Nine is possible by joining
-  lessons 6 and 7. Lesson 7 would then get three screens, and Ct and the power-factor method are the
-  two things an L3 electrician has not met.
-- **Steps lessons, with a little more explaining ("Partly", RUNBOOK section 0, item 3).** Each lesson
-  is SHOW then DO, ending on two or three mixed puzzles. A SHOW screen may carry a short paragraph
-  where the why needs words: why the factors divide In, why 1.45, why Cmin for disconnection and Cmax
-  for the cable. Every DO screen is a step of a real calculation.
 - **Method and why, never whole tables.** BS 7671 tables are copyright. Lessons teach how to read a
   table and why its numbers are what they are. They use only the values your slides print, each with
   its page, plus a small set the research stage must quote (listed below). No screen reproduces a
@@ -203,13 +196,23 @@ The order of lessons 1 to 9 and the one-course decision do not change.
   published: EAL's 2025 L3 specification names "BS 7671:2018 (2024) Amendment 3" (web search, 19 Oct).
   The lessons teach your course as it was taught, and the research stage must check every cited table
   value against the current amendment and say where one has changed.
-- **The capstone is your assignment's job, not a new one.** Lesson 10 uses the showroom's stated
-  supply (pack p.3), the guide's key points (guide p.5 to 6), the board positions on the power drawing
-  and the luminaire wattages in the lighting drawing's key. Lengths are scaled from the drawings and
-  said to be approximate. Which luminaires DBL2 feeds is the lesson's own choice, said on screen,
-  because the assignment leaves the split to you (question 1b). It is a refresher on a job you have
-  done, not a model answer to the assignment.
-- **Not built yet.** You asked for a plan. When you say build, lesson 1 is built first for you to try.
+- **Nine lessons (Dan, 20 Oct), about eleven screens each.** Overload sits inside the device-and-cable
+  lesson and Ct and the power-factor drop inside the voltage-drop lesson, each keeping its why
+  interactive as screens there.
+- **Steps lessons in the refresher shape.** Each lesson is one steps lesson (`format: 'steps'`) whose
+  screens follow `format/refresher.md` section 2. The new pieces (typed answers, written answers marked
+  by Claude, the summary page, the case file) are app work, built separately.
+- **EAL and C&G together.** Your EAL materials give the content, the order and the running case; the
+  City & Guilds papers give only the shape of the practice, with every scenario and number changed.
+  Assignment questions 1b, 3, 4, 9 and 10 are taught; 6 (EV charging) is one written question; 1a and 8
+  are recall screens; 2, 5 and 7 are left out (`format/refresher.md` section 5).
+- **The capstone is your assignment's job, not a new one.** Lesson 8 uses the showroom's stated supply
+  (pack p.3), the guide's key points (guide p.5 to 6), the board positions on the power drawing and the
+  luminaire wattages in the lighting drawing's key. Lengths are scaled from the drawings and said to be
+  approximate. What the drawings do not give (the motor's position, which luminaires DBL2 feeds, the
+  routes) is the course's own assumption, said on screen (`case.json`, assumptions).
+- **Pilot first (Dan, 20 Oct: "build pilot").** The app pieces and lesson 1, for you to try on your
+  phone; lesson 1's build pack is `lesson-1-pack.md`.
 
 ## 1. The overall topic
 Designing a final circuit to BS 7671 is a chain of checks, and each one answers a different danger.
@@ -469,6 +472,8 @@ circuits) is lessons 1 and 6 (sub-board voltage, submain drop) and 9 (fault leve
 5.0 are not calculation and are left out (see "Left out").
 
 ## 3. What is truly useful to brush up, in an order that builds
+*(20 Oct: these are the ten-lesson plan's numbers. The nine lessons are in the short version and `lessons.json`: old 2, 3 and 4 are now lesson 3; old 5 is 4; old 6 and 7 are 5; old 8 is 6; old 9 is 7; old 10 is split into 8 and 9; maximum demand is the new lesson 2.)*
+
 The order is your course's (slides p.6, flowchart), because each check needs the one before it: Ib
 sets In, In sets It, the cable chosen sets voltage drop and R1+R2, R1+R2 sets Zs, Zs sets the fault
 current, and the fault current sets the thermal check. What is worth your time, as a qualified
@@ -510,6 +515,8 @@ electricians skip (Ct, the power-factor drop, harmonics, Cmin against Cmax, mini
   resistance and k to be sourced).
 
 ## 4. Can it be taught visually, through interaction?
+*(20 Oct: lesson numbers below are the ten-lesson plan's; see the note under section 3.)*
+
 **Partly** (RUNBOOK section 0, item 3). Every lesson is a steps lesson of about 12 screens, SHOW then
 DO, ending on two or three mixed puzzles. SHOW screens can carry a short paragraph where the why needs
 words. The calculations are numbers, but every one of them has a physical cause you can see: heat in
@@ -821,6 +828,8 @@ papers, if your course had them. The mark schemes may hold worked answers for th
 drop, and for the verification questions.
 
 ## 9. Size and cost
+*(20 Oct: superseded by `format/refresher.md` section 8, nine lessons.)*
+
 - 10 lessons of about 12 screens, plus the research stage and the plan.
 - The AC circuits brief estimates its lessons from the last measured courses, about 0.99M to 1.14M
   tokens a lesson (docs/plans/foundational-maths-roadmap.md, cited there). These pictures are live
