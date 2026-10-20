@@ -76,6 +76,7 @@ U.tab()   this tab's id (sessionStorage mu.tab: kept through a reload, never sha
     read the id as they start, and keep it (section 7)
 U.entries(v) -> [{key, value}]   U.list(v) -> [value]   U.keyed(v) -> map
     keyed lists: maps keyed by U.key() (time first), or old arrays read as L000, L001…; oldest first
+U.material(url) -> {slug, page} | null   a course-material locator "material:<slug>#p<page>" (section 5);  U.MATERIAL_LABEL
 U.validId(s) (one safe db path segment)   U.slug(text) (<= 40 chars)   U.hash(str) (FNV-1a)
 U.studyDay(d? Date|ISO) 'YYYY-MM-DD'   like U.today, but the day turns over at 4 am: every day in review (section 8)
 U.today(d?) 'YYYY-MM-DD' local   U.addDays   U.daysBetween   U.now() ISO   U.when(iso)   U.clone   U.sleep   U.shuffle
@@ -672,7 +673,7 @@ Control = { id, label, min, max, step, value, unit }  numeric: min < max, 0 < st
         | { id, label, options:[2-8], value }         named: value = the opening option's 0-based index
     ids (outputs too): /^[a-z][A-Za-z0-9]{0,31}$/, none shared; labels and option names <= 6 words
 number kind: 'control' | 'computed' | 'constant' | 'assumed' (an example value, never sourced) | 'date'
-Source = { n, title, url, quote }                // http(s) url; quote <= 30 words of exact page text
+Source = { n, title, url, quote }                // http(s) url, or a course-material locator (below); quote <= 30 words of exact page text
 Check =
   { id, type:'choice', q, options:[2-4 distinct], answer, why, misconception?:{ [wrongIndex]: sentence } }
 | { id, type:'order', q, items:[3-6 distinct, in the correct order], why }
@@ -732,6 +733,18 @@ Check =
   other options' average length in characters; a rubric point joining two ideas with ";"; a
   rubric point whose key words (2 or more) all appear in `say.prompt`; and, before renumbering
   (not `final`), a listed source nothing cites (with `final` that one is hard).
+- A source may be a page of Dan's own course materials (a ready-made refresher course): its `url`
+  is the locator `material:<slug>#p<page>` (`U.material`), its title the document as Dan knows it.
+  `tools/course/material.mjs` saves each page of a PDF verbatim as a tool file `{tool: 'material',
+  input: {file, page, title, slug, locator}, output: <page text>}`; `tools/eval/sources.mjs` puts it
+  in the checker (`U.gen._corpus().addMaterial(locator, text)`) and keeps such a source only when
+  its quote is on that very page (`U.prompts.urlKey` keeps the page, so each page is a source of its
+  own). The research and lesson validators accept the locator where a web address goes; the write
+  and fact-check prompts say what it is when a lesson has one. Screens show its title and "Your
+  course materials, p.16" (`U.MATERIAL_LABEL`), never a link: the lesson's source sheet and
+  Sources list, the topic page's Sources (`V.site`), the dossier's footnote, sources page and
+  bibliography (one work per material, its pages listed) and the saved copy; the tutor never
+  reopens one.
 - No web address anywhere but `sources`. With `sources: null` (no research) the list is `[]`
   with no `[^n]`; given a list, each source's n and url must match it. Every `[^n]` and
   `numbers[].source` names a listed source.

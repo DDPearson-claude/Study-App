@@ -84,6 +84,9 @@
   function go() { return U.h('div', { class: 'lsn-go' }, Array.prototype.slice.call(arguments)); }
   function safeUrl(u) { return /^https?:\/\/[^\s]+$/i.test(String(u || '')) ? String(u) : null; }
   function hostOf(u) { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return ''; } }
+  // Where a source lives in words: its site, or "Your course materials, p.16" for one of Dan's own
+  // course materials (U.material), which has no web address and is never a link.
+  function whereOf(u) { var m = U.material(u); return m ? U.MATERIAL_LABEL + ', p.' + m.page : hostOf(u); }
   function clip(text, n) {
     var t = U.plain(String(text == null ? '' : text)).replace(/\s+/g, ' ').trim();
     return t.length > n ? t.slice(0, n - 1).replace(/[\s,.;:]+\S*$/, '') + '…' : t;
@@ -164,7 +167,8 @@
         ? U.h('div', { class: 'lsn-src-go' },
           U.h('a', { class: 'btn secondary lsn-src-link', href: url, target: '_blank', rel: 'noopener' }, 'Open the page', U.icon('arrow')),
           host ? U.h('span', { class: 'lsn-src-host' }, host) : null)
-        : U.h('p', { class: 'muted small' }, 'There is no link for this source.'));
+        : U.material(src.url) ? U.h('p', { class: 'muted small lsn-src-mat' }, whereOf(src.url) + '. ', 'It is in your own copy, not on the web.')
+          : U.h('p', { class: 'muted small' }, 'There is no link for this source.'));
     return U.sheet({ title: src.title || 'Source', body: body, autofocus: false });
   }
   U.lesson = { sourceSheet: sourceSheet };
@@ -1584,7 +1588,7 @@
       return U.h('div', { class: 'lsn-discs' }, disc('Sources (' + src.length + ')', [U.h('ol', { class: 'lsn-sources' }, src.map(function (s) {
         return U.h('li', null, U.h('button', { class: 'lsn-source-btn', type: 'button', on: { click: function () { sourceSheet(s); } } },
           U.h('span', { class: 'lsn-source-n' }, String(s.n)),
-          U.h('span', { class: 'lsn-source-t' }, String(s.title || hostOf(s.url) || 'Source'), U.h('span', { class: 'lsn-source-host' }, hostOf(s.url)))));
+          U.h('span', { class: 'lsn-source-t' }, String(s.title || whereOf(s.url) || 'Source'), U.h('span', { class: 'lsn-source-host' }, whereOf(s.url)))));
       })), checked ? U.h('p', { class: 'lsn-checked' }, checked) : null]));
     }
     // A steps lesson's sources, in its done section (the frame holds everything else).

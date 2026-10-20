@@ -193,6 +193,15 @@ U.daysBetween = function (a, b) { var pa = a.split('-').map(Number), pb = b.spli
 // due again five minutes later. Spaced review counts every day this way (section 8).
 U.studyDay = function (d) { d = d ? new Date(d) : new Date(); return d.getHours() < 4 ? U.addDays(U.today(d), -1) : U.today(d); };
 U.now = function () { return new Date().toISOString(); };
+// A source from Dan's own course materials (a ready-made refresher course, tools/course/material.mjs):
+// its locator "material:<slug>#p<page>" stands where a web source has its address and names the
+// document and the page, never a web address. -> {slug, page} | null. Screens show the source's
+// title and page with MATERIAL_LABEL, and no link.
+U.material = function (u) {
+  var m = /^material:([a-z0-9][a-z0-9-]{0,63})#p([1-9]\d{0,3})$/.exec(String(u == null ? '' : u).trim());
+  return m ? { slug: m[1], page: Number(m[2]) } : null;
+};
+U.MATERIAL_LABEL = 'Your course materials';
 U.hash = function (str) { var h = 2166136261; str = String(str); for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
 U.clone = function (o) { return o == null ? o : JSON.parse(JSON.stringify(o)); };
 U.when = function (iso) {

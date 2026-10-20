@@ -19,7 +19,10 @@
 //       page) and prints every one that fails. Exits 1 if any fail.
 //
 // Tool files: <dir>/*.json (read in name order), each {"tool": "web_search"|"web_fetch",
-// "input": {...}, "output": <the connector's payload, verbatim>}.
+// "input": {...}, "output": <the connector's payload, verbatim>}, or a page of one of Dan's course
+// materials (tools/course/material.mjs): {"tool": "material", "input": {file, page, title, slug,
+// locator}, "output": "<the page's text>"}. A source whose url is that locator
+// ("material:<slug>#p<page>") is kept only when its quote is on that very page.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -43,7 +46,11 @@ function load() {
 
 function readTool(path) {
   const t = JSON.parse(readFileSync(path, 'utf8'));
-  if (!t || !MAX[t.tool] || t.output === undefined) throw new Error(path + ': expected {tool: "web_search"|"web_fetch", input, output}');
+  if (t && t.tool === 'material') {
+    if (!t.input || !U.material(t.input.locator) || typeof t.output !== 'string') throw new Error(path + ': expected {tool: "material", input: {locator: "material:<slug>#p<page>", …}, output: "<page text>"}');
+    return t;
+  }
+  if (!t || !MAX[t.tool] || t.output === undefined) throw new Error(path + ': expected {tool: "web_search"|"web_fetch"|"material", input, output}');
   const out = typeof t.output === 'string' ? (() => { try { return JSON.parse(t.output); } catch (e) { return t.output; } })() : t.output;
   return { tool: t.tool, input: t.input, output: out };
 }
@@ -53,6 +60,7 @@ const seen = (t) => U.research._fit(U.research._clean(t.output), MAX[t.tool]);
 
 if (arg('show')) {
   const t = readTool(arg('show'));
+  if (t.tool === 'material') { console.log(t.input.title + ', p.' + t.input.page + ' (' + t.input.locator + ')\n\n' + t.output); process.exit(0); }
   const s = seen(t);
   try { console.log(JSON.stringify(JSON.parse(s), null, 1)); } catch (e) { console.log(s); }
   process.exit(0);
@@ -64,6 +72,7 @@ const corpus = U.gen._corpus();
 for (const f of files) {
   const t = readTool(join(dir, f));
   corpus.calls++;
+  if (t.tool === 'material') { corpus.addMaterial(t.input.locator, t.output); continue; }
   const text = seen(t);
   if (!corpus.add(text) && t.tool === 'web_fetch' && t.input) corpus.add([].concat(t.input.urls || []).join('\n'));
 }

@@ -171,6 +171,7 @@
       lines.push('[R' + src.n + '] ' + data(src.title, 160) + ' — ' + data(src.url, 300));
       lines.push('    "' + data(src.quote, 400) + '"');
     });
+    if (lr.sources.some(function (src) { return U.material(src.url); })) lines.push('A source whose address begins "material:" is a page of Dan\'s own course materials ("#p16": the page), checked word for word against that page: judge the lesson against its quote as you would a web source\'s.');
     lines.push('Notes (claims, and the sources that support them):');
     lr.notes.forEach(function (n) {
       lines.push('- ' + data(n.claim, 300) + (n.sourceIds.length ? ' ' + n.sourceIds.map(function (k) { return '[R' + k + ']'; }).join('') : ' (no source)') +

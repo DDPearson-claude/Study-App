@@ -2649,6 +2649,45 @@ async function refresherScenario() {
   }
 }
 
+// ---------- a source from Dan's own course materials: a footnote with no link ----------
+// A lesson citing "material:<slug>#p<page>" (a page of his course slides): its footnote opens the
+// source sheet with the quote, the title and "Your course materials, p.16", and no link anywhere;
+// the Sources list says the same.
+async function materialSource() {
+  current = 'material-source 360-light';
+  console.log('\n' + current);
+  const at = '2026-10-04T18:00:00.000Z';
+  const d = JSON.parse(JSON.stringify(PENDULUM));
+  d.lesson.sources[0].url = 'material:eal-slides#p16';
+  d.lesson.sources[0].title = 'EAL Level 4 Design and Verification: course slides';
+  const seed = { 'topics/pendulums': TOPIC, [LESSON('i1')]: d,
+    [PROGRESS]: { updatedAt: at, lastIdea: 'i1', ideas: { i1: { stage: 'explain', startedAt: at, predict: { answer: 'It takes twice as long', at } } } } };
+  const app = await open({ width: 360, dark: false, hash: '#/t/pendulums/i1', seed, reduced: true });
+  const { page } = app;
+  try {
+    const ex = page.locator('.lsn-stage[data-stage="explain"]');
+    await ex.locator('.lsn-reading').waitFor({ timeout: 15000 });
+    const fn = ex.locator('button.fn', { hasText: '1' }).first();
+    ok(await fn.count() === 1, 'the material is footnoted like any source');
+    await fn.click();
+    const sheet = page.locator('.sheet').last();
+    await sheet.locator('.lsn-src').waitFor();
+    const txt = (await sheet.textContent()).replace(/\s+/g, ' ');
+    ok(/course slides/.test(txt) && /Your course materials, p\.16/.test(txt) && txt.includes(d.lesson.sources[0].quote.trim().slice(0, 20)), 'the sheet: title, quote and "Your course materials, p.16": ' + txt.slice(0, 200));
+    ok(await sheet.locator('a').count() === 0 && !/Open the page|There is no link/.test(txt), 'no link, and nothing tries to open it');
+    await page.keyboard.press('Escape');
+    await shot(app, 'material-source-360');
+    const list = await page.evaluate(() => [...document.querySelectorAll('.lsn-source-host')].map((x) => x.textContent));
+    ok(list.length === 0 || list[0] === 'Your course materials, p.16', 'the Sources list names it the same way: ' + JSON.stringify(list));
+    ok(await page.locator('a[href^="material:"]').count() === 0, 'no link to a material locator anywhere');
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, 'material-source-error').catch(() => {});
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
 const scenarios = [
   ['walk-360-light', () => walk(360, false)],
   ['walk-360-dark', () => walk(360, true)],
@@ -2702,6 +2741,7 @@ const scenarios = [
   ['practice-study', practiceStudy],
   ['steps-lesson', stepsScenario],
   ['refresher', refresherScenario],
+  ['material-source', materialSource],
 ];
 for (const [name, run] of scenarios) if (name.includes(filter)) await run();
 

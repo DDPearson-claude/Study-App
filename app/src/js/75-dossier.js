@@ -97,7 +97,7 @@
   function researchFrom(docs) {
     var sources = [], at = {}, ideas = {};
     function add(s) {
-      if (!isObj(s) || !/^https?:\/\//i.test(str(s.url))) return -1;
+      if (!isObj(s) || !(/^https?:\/\//i.test(str(s.url)) || U.material(s.url))) return -1;
       var k = at[s.url];
       if (k == null) { k = at[s.url] = sources.length; sources.push({ title: str(s.title), url: str(s.url), quotes: [] }); }
       var q = str(s.quote).trim();
@@ -225,9 +225,12 @@
     var byId = {}; chapters.forEach(function (c) { byId[c.idea.id] = c; });
     // Bibliography: one entry per web page the course's research and the bound lessons kept.
     var works = [], byUrl = {};
+    // A course material is one work, whichever of its pages are quoted (w.pages).
     function work(title, url) {
-      var w = byUrl[url];
-      if (!w) { var t = splitTitle(title); w = byUrl[url] = { title: t.title || url, pub: t.pub, url: url, quotes: [], ch: [] }; works.push(w); }
+      var m = U.material(url), key = m ? 'material:' + m.slug : url, w = byUrl[key];
+      if (!w) { var t = splitTitle(title); w = byUrl[key] = { title: t.title || url, pub: t.pub, url: m ? '' : url, quotes: [], ch: [], pages: m ? [] : null }; works.push(w); }
+      if (m && w.pages.indexOf(m.page) < 0) { w.pages.push(m.page); w.pages.sort(function (a, b) { return a - b; }); }
+      if (url !== key) byUrl[url] = w;
       return w;
     }
     function quote(w, q) { q = str(q).trim(); if (q && w.quotes.indexOf(q) < 0) w.quotes.push(q); }
@@ -495,6 +498,9 @@
   function vh(t) { return h('span', { class: 'vh' }, t); }
   function hostOf(url) { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return ''; } }
   function safeUrl(url) { return /^https?:\/\//i.test(str(url)) ? str(url) : null; }
+  // One of Dan's own course materials (U.material: "material:<slug>#p<page>"): no web address, so
+  // never a link; shown as the label and its page.
+  function matLine(url, cls) { var m = U.material(url); return m ? h('p', { class: cls || 'p-src-m' }, U.MATERIAL_LABEL + ', p.' + m.page) : null; }
   function day(iso, o) { var d = new Date(iso); return iso && !isNaN(d) ? d.toLocaleDateString('en-GB', o) : ''; }
   function longDate(iso) { return day(iso, { day: 'numeric', month: 'long', year: 'numeric' }); }
   function shortDate(iso) { return day(iso, { day: 'numeric', month: 'short', year: 'numeric' }); }
@@ -688,6 +694,7 @@
         h('p', { class: 'fp-n' }, 'Source ' + n),
         h('p', { class: 'fp-t' }, t.title, t.pub ? h('span', { class: 'pub' }, ' · ' + t.pub) : null),
         s.quote ? h('blockquote', null, unquote(s.quote)) : null,
+        matLine(s.url, 'fp-m'),
         h('p', { class: 'fp-l' }, url ? h('a', { href: url, target: '_blank', rel: 'noopener noreferrer' }, hostOf(url), icon('out'), vh(' (opens a new tab)')) : null,
           more ? h('a', { href: more }, 'All sources') : null));
       S.root.appendChild(S.pop);
@@ -1054,7 +1061,7 @@
       h('p', { class: 'p-src-top' }, h('span', { class: 'p-chip' }, vh('Source '), String(s.n)), h('span', { class: 'p-src-name' }, t.pub || t.title)),
       t.pub ? h('p', { class: 'p-src-work' }, t.title) : null,
       s.quote ? h('blockquote', { class: 'p-src-q' }, unquote(s.quote)) : null,
-      url ? h('a', { class: 'p-src-u', href: url, target: '_blank', rel: 'noopener noreferrer' }, hostOf(url), icon('out'), vh(' (opens a new tab)')) : null);
+      url ? h('a', { class: 'p-src-u', href: url, target: '_blank', rel: 'noopener noreferrer' }, hostOf(url), icon('out'), vh(' (opens a new tab)')) : matLine(s.url));
   }
   // One part of the practice page, in the lesson's own words.
   function practicePart(p, fx, id) {
@@ -1109,7 +1116,8 @@
       var url = safeUrl(w.url);
       return h('li', { class: 't t-grey b-work' },
         h('p', { class: 'b-w' }, w.pub ? h('span', { class: 'b-pub' }, w.pub) : null, h('cite', null, w.title)),
-        url ? h('a', { class: 'p-src-u', href: url, target: '_blank', rel: 'noopener noreferrer' }, hostOf(url), icon('out'), vh(' (opens a new tab)')) : null,
+        url ? h('a', { class: 'p-src-u', href: url, target: '_blank', rel: 'noopener noreferrer' }, hostOf(url), icon('out'), vh(' (opens a new tab)'))
+          : w.pages ? h('p', { class: 'p-src-m' }, U.MATERIAL_LABEL + ', ' + (w.pages.length === 1 ? 'p.' : 'pp.') + w.pages.join(', ')) : null,
         // The chapters that rest on it, a row each (its numeral and title; a 44 px tap target).
         w.ch.length ? h('p', { class: 'b-ch-h', id: 'b-ch-' + k }, w.ch.length === 1 ? 'Chapter' : 'Chapters') : null,
         w.ch.length ? h('ul', { class: 'b-ch', 'aria-labelledby': 'b-ch-' + k }, w.ch.map(function (n) {
@@ -1394,7 +1402,7 @@
       var t = splitTitle(s.title), url = safeUrl(s.url);
       return h('div', { class: 't', id: sid + '-s' + s.n }, h('p', null, h('span', { class: 'chip' }, String(s.n)), h('b', null, t.pub || t.title)),
         t.pub ? h('p', { class: 'small' }, t.title) : null, s.quote ? h('blockquote', { class: 'small' }, unquote(s.quote)) : null,
-        url ? h('p', { class: 'mono' }, h('a', { href: url }, url)) : null);
+        url ? h('p', { class: 'mono' }, h('a', { href: url }, url)) : matLine(s.url, 'small'));
     })) : h('p', { class: 't full small' }, c.doc.sourced === false ? UNSOURCED : 'This chapter lists no sources.'));
     return h('section', { id: 'ch-' + c.n, class: 'g' }, out);
   }
@@ -1435,7 +1443,8 @@
     })));
     if (w) x.appendChild(h('section', { id: 'bibliography', class: 'g' }, h('h2', { class: 'part' }, 'Bibliography'), M.works.map(function (wk) {
       var url = safeUrl(wk.url);
-      return h('div', { class: 't full' }, h('p', null, wk.pub ? h('b', null, wk.pub + '. ') : null, h('cite', null, wk.title), url ? ['. ', h('a', { class: 'mono', href: url }, hostOf(url))] : null),
+      return h('div', { class: 't full' }, h('p', null, wk.pub ? h('b', null, wk.pub + '. ') : null, h('cite', null, wk.title), url ? ['. ', h('a', { class: 'mono', href: url }, hostOf(url))]
+        : wk.pages ? '. ' + U.MATERIAL_LABEL + ', ' + (wk.pages.length === 1 ? 'p.' : 'pp.') + wk.pages.join(', ') : null),
         wk.ch.length ? h('p', { class: 'mono' }, (wk.ch.length === 1 ? 'Chapter ' : 'Chapters ') + wk.ch.map(roman).join(', ')) : null,
         wk.quotes.map(function (q) { return h('blockquote', { class: 'small' }, unquote(q)); }));
     })));

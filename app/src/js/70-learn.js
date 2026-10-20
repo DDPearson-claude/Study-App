@@ -388,7 +388,13 @@
   // question, typed however it came: "how black holes form" shows as "How black holes form".
   V.asTitle = function (q) { q = String(q || '').trim(); return q.charAt(0).toUpperCase() + q.slice(1); };
 
-  V.site = function (url) { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return ''; } };
+  // Where a source lives: its site, or for one of Dan's course materials (no web address) the
+  // label and its page ("Your course materials, p.16").
+  V.site = function (url) {
+    var m = U.material(url);
+    if (m) return U.MATERIAL_LABEL + ', p.' + m.page;
+    try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return ''; }
+  };
 
   // An outbound link: a real link, which the viewer opens in a new tab (window.open is refused
   // for many viewers, so the page never tries it). Only http(s) URLs become links.

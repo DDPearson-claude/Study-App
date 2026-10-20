@@ -2165,6 +2165,8 @@ a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
 .dos .fp-t { margin-top: 4px; font: 700 .9375rem/1.35 var(--sans); }
 .dos .fp-t .pub { font-weight: 400; color: var(--muted); }
 .dos .fn-pop blockquote { margin-top: 8px; font-size: .875rem; line-height: 1.45; font-style: italic; color: var(--muted); }
+/* A source from Dan's own course materials: no link, its label and page as a small teal label. */
+.dos .p-src-m, .dos .fp-m { margin-top: 6px; font: 500 .75rem/1.3 var(--mono); color: var(--teal); }
 .dos .fp-l { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; margin-top: 8px; }
 .dos .fp-l a { display: inline-flex; align-items: center; gap: 4px; min-height: 36px; color: var(--ink); font: 500 .75rem/1.3 var(--mono); }
 .dos .fp-l svg { width: 12px; height: 12px; }
@@ -2720,7 +2722,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-20-e9332b5";
+U.BUILD = "2026-10-20-1cefccc";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -2913,6 +2915,15 @@ U.daysBetween = function (a, b) { var pa = a.split('-').map(Number), pb = b.spli
 // due again five minutes later. Spaced review counts every day this way (section 8).
 U.studyDay = function (d) { d = d ? new Date(d) : new Date(); return d.getHours() < 4 ? U.addDays(U.today(d), -1) : U.today(d); };
 U.now = function () { return new Date().toISOString(); };
+// A source from Dan's own course materials (a ready-made refresher course, tools/course/material.mjs):
+// its locator "material:<slug>#p<page>" stands where a web source has its address and names the
+// document and the page, never a web address. -> {slug, page} | null. Screens show the source's
+// title and page with MATERIAL_LABEL, and no link.
+U.material = function (u) {
+  var m = /^material:([a-z0-9][a-z0-9-]{0,63})#p([1-9]\d{0,3})$/.exec(String(u == null ? '' : u).trim());
+  return m ? { slug: m[1], page: Number(m[2]) } : null;
+};
+U.MATERIAL_LABEL = 'Your course materials';
 U.hash = function (str) { var h = 2166136261; str = String(str); for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
 U.clone = function (o) { return o == null ? o : JSON.parse(JSON.stringify(o)); };
 U.when = function (iso) {
@@ -5393,7 +5404,9 @@ U.logStudy = (function () {
     var labels = host.split('.').slice(0, -1);
     return labels.some(function (l) { return l.split('-').some(function (w) { return TEST_LABEL[w]; }); }) ? 'a test server, not the published site' : '';
   }
+  // A course material's locator keeps its page: each page is a source of its own.
   function urlKey(u) {
+    if (U.material(u)) return s(u).trim().toLowerCase();
     return s(u).trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\d?\./, '').replace(/#.*$/, '').replace(/\/+$/, '');
   }
 
@@ -5487,6 +5500,7 @@ U.logStudy = (function () {
       out.push('[' + src.n + '] ' + data(src.title, 160) + ' — ' + data(src.url, 300));
       out.push('    "' + data(src.quote, 400) + '"');
     });
+    if (lr.sources.some(function (src) { return U.material(src.url); })) out.push('A source whose address begins "material:" is a page of Dan\'s own course materials (his slides, formula sheet, pack, guide or drawings; "#p16" is the page): cite it like any source, and in the text call it by what it is ("your course slides, p.16"), never a web page.');
     out.push('', 'Research notes (claims, and the sources that support them):');
     lr.notes.forEach(function (n) {
       out.push('- ' + data(n.claim, 300) + (n.sourceIds.length ? ' ' + n.sourceIds.map(function (k) { return '[' + k + ']'; }).join('') : ' (no source)') +
@@ -6314,7 +6328,7 @@ U.logStudy = (function () {
       else if (ns.indexOf(x.n) >= 0) v.add(p + '.n ' + x.n + ' is used twice.');
       else ns.push(x.n);
       v.str(x.title, p + '.title', 300);
-      if (!isStr(x.url) || !/^https?:\/\/\S+$/.test(x.url.trim())) v.add(p + '.url must be a full http(s) URL.');
+      if (!isStr(x.url) || !(/^https?:\/\/\S+$/.test(x.url.trim()) || U.material(x.url))) v.add(p + '.url must be a full http(s) URL, or a course material\'s locator ("material:<slug>#p<page>").');
       if (v.str(x.quote, p + '.quote')) v.long(words(x.quote), 40, p + '.quote has ' + words(x.quote) + ' words; quotes are at most 40.');
     });
     if (opts.sources === null && Array.isArray(o.sources) && o.sources.length) v.add('No research was supplied, so "sources" must be [] and the lesson must have no [^n] markers.');
@@ -6616,7 +6630,7 @@ U.logStudy = (function () {
       else if (ns.indexOf(x.n) >= 0) v.add(p + '.n ' + x.n + ' is used twice; give each quote its own n.');
       else ns.push(x.n);
       v.str(x.title, p + '.title', 300);
-      if (!isStr(x.url) || !/^https?:\/\/\S+$/.test(x.url.trim())) v.add(p + '.url must be the full http(s) URL you opened.');
+      if (!isStr(x.url) || !(/^https?:\/\/\S+$/.test(x.url.trim()) || U.material(x.url))) v.add(p + '.url must be the full http(s) URL you opened, or a course material\'s locator ("material:<slug>#p<page>").');
       if (v.str(x.quote, p + '.quote')) v.long(words(x.quote), 40, p + '.quote has ' + words(x.quote) + ' words; copy at most 40 words.');
     });
     function notes(list, p) {
@@ -7058,8 +7072,17 @@ U.logStudy = (function () {
         var t = unescape(text); raw.push(t.toLowerCase()); norm.push(normText(t));
         return false;
       },
+      // A page of one of Dan's course materials (tools/course/material.mjs): its text verbatim,
+      // under its locator ("material:<slug>#p<page>"), so a quote must be on that very page.
+      addMaterial: function (locator, text) {
+        if (!U.material(locator) || typeof text !== 'string') return false;
+        var key = U.prompts.urlKey(locator), list = pages[key] = pages[key] || [], t = normText(text);
+        if (t && list.indexOf(t) < 0) list.push(t);
+        return true;
+      },
       hasUrl: function (url) {
         var key = U.prompts.urlKey(url);
+        if (U.material(url)) return !!pages[key];
         if (!key || key.indexOf('.') < 0) return false;
         if (pages[key]) return true;
         var re = new RegExp(esc(key) + '/?(?=$|[\\s"\'<>\\\\)\\]},?#|])');
@@ -7116,7 +7139,7 @@ U.logStudy = (function () {
     (Array.isArray(raw && raw.sources) ? raw.sources : []).forEach(function (x) {
       if (!x || !isStr(x.url)) return;
       if (U.prompts.copyHost(x.url)) { dropped.push({ n: x.n, url: x.url, why: U.prompts.copyHost(x.url) }); return; }
-      if (!corpus.hasUrl(x.url)) { dropped.push({ n: x.n, url: x.url, why: 'not a page the tools returned' }); return; }
+      if (!corpus.hasUrl(x.url)) { dropped.push({ n: x.n, url: x.url, why: U.material(x.url) ? 'not a page of a course material the tools read' : 'not a page the tools returned' }); return; }
       if (!corpus.hasQuote(x.quote, x.url)) { dropped.push({ n: x.n, url: x.url, why: 'quote not found on that page' }); return; }
       keep[x.n] = sources.length + 1;
       sources.push({ n: sources.length + 1, title: one(x.title), url: one(x.url), quote: one(x.quote) });
@@ -7954,7 +7977,8 @@ U.logStudy = (function () {
   // Pages the tutor may reopen without searching: the lesson's sources and the checked research.
   function sourceUrls(ctx) {
     var out = [];
-    function add(list) { (Array.isArray(list) ? list : []).forEach(function (x) { if (x && isStr(x.url) && out.indexOf(x.url) < 0) out.push(x.url); }); }
+    // A course material is no web page: never one to reopen.
+    function add(list) { (Array.isArray(list) ? list : []).forEach(function (x) { if (x && isStr(x.url) && !U.material(x.url) && out.indexOf(x.url) < 0) out.push(x.url); }); }
     add(ctx.lesson && ctx.lesson.sources);
     if (ctx.research) { add(ctx.research.topic && ctx.research.topic.sources); add(ctx.research.idea && ctx.research.idea.sources); }
     return out;
@@ -9300,6 +9324,7 @@ U.interactive = (function () {
       lines.push('[R' + src.n + '] ' + data(src.title, 160) + ' — ' + data(src.url, 300));
       lines.push('    "' + data(src.quote, 400) + '"');
     });
+    if (lr.sources.some(function (src) { return U.material(src.url); })) lines.push('A source whose address begins "material:" is a page of Dan\'s own course materials ("#p16": the page), checked word for word against that page: judge the lesson against its quote as you would a web source\'s.');
     lines.push('Notes (claims, and the sources that support them):');
     lr.notes.forEach(function (n) {
       lines.push('- ' + data(n.claim, 300) + (n.sourceIds.length ? ' ' + n.sourceIds.map(function (k) { return '[R' + k + ']'; }).join('') : ' (no source)') +
@@ -10864,6 +10889,9 @@ U.interactive = (function () {
   function go() { return U.h('div', { class: 'lsn-go' }, Array.prototype.slice.call(arguments)); }
   function safeUrl(u) { return /^https?:\/\/[^\s]+$/i.test(String(u || '')) ? String(u) : null; }
   function hostOf(u) { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return ''; } }
+  // Where a source lives in words: its site, or "Your course materials, p.16" for one of Dan's own
+  // course materials (U.material), which has no web address and is never a link.
+  function whereOf(u) { var m = U.material(u); return m ? U.MATERIAL_LABEL + ', p.' + m.page : hostOf(u); }
   function clip(text, n) {
     var t = U.plain(String(text == null ? '' : text)).replace(/\s+/g, ' ').trim();
     return t.length > n ? t.slice(0, n - 1).replace(/[\s,.;:]+\S*$/, '') + '…' : t;
@@ -10944,7 +10972,8 @@ U.interactive = (function () {
         ? U.h('div', { class: 'lsn-src-go' },
           U.h('a', { class: 'btn secondary lsn-src-link', href: url, target: '_blank', rel: 'noopener' }, 'Open the page', U.icon('arrow')),
           host ? U.h('span', { class: 'lsn-src-host' }, host) : null)
-        : U.h('p', { class: 'muted small' }, 'There is no link for this source.'));
+        : U.material(src.url) ? U.h('p', { class: 'muted small lsn-src-mat' }, whereOf(src.url) + '. ', 'It is in your own copy, not on the web.')
+          : U.h('p', { class: 'muted small' }, 'There is no link for this source.'));
     return U.sheet({ title: src.title || 'Source', body: body, autofocus: false });
   }
   U.lesson = { sourceSheet: sourceSheet };
@@ -12364,7 +12393,7 @@ U.interactive = (function () {
       return U.h('div', { class: 'lsn-discs' }, disc('Sources (' + src.length + ')', [U.h('ol', { class: 'lsn-sources' }, src.map(function (s) {
         return U.h('li', null, U.h('button', { class: 'lsn-source-btn', type: 'button', on: { click: function () { sourceSheet(s); } } },
           U.h('span', { class: 'lsn-source-n' }, String(s.n)),
-          U.h('span', { class: 'lsn-source-t' }, String(s.title || hostOf(s.url) || 'Source'), U.h('span', { class: 'lsn-source-host' }, hostOf(s.url)))));
+          U.h('span', { class: 'lsn-source-t' }, String(s.title || whereOf(s.url) || 'Source'), U.h('span', { class: 'lsn-source-host' }, whereOf(s.url)))));
       })), checked ? U.h('p', { class: 'lsn-checked' }, checked) : null]));
     }
     // A steps lesson's sources, in its done section (the frame holds everything else).
@@ -14463,7 +14492,13 @@ U.interactive = (function () {
   // question, typed however it came: "how black holes form" shows as "How black holes form".
   V.asTitle = function (q) { q = String(q || '').trim(); return q.charAt(0).toUpperCase() + q.slice(1); };
 
-  V.site = function (url) { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return ''; } };
+  // Where a source lives: its site, or for one of Dan's course materials (no web address) the
+  // label and its page ("Your course materials, p.16").
+  V.site = function (url) {
+    var m = U.material(url);
+    if (m) return U.MATERIAL_LABEL + ', p.' + m.page;
+    try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return ''; }
+  };
 
   // An outbound link: a real link, which the viewer opens in a new tab (window.open is refused
   // for many viewers, so the page never tries it). Only http(s) URLs become links.
@@ -16666,7 +16701,7 @@ U.interactive = (function () {
   function researchFrom(docs) {
     var sources = [], at = {}, ideas = {};
     function add(s) {
-      if (!isObj(s) || !/^https?:\/\//i.test(str(s.url))) return -1;
+      if (!isObj(s) || !(/^https?:\/\//i.test(str(s.url)) || U.material(s.url))) return -1;
       var k = at[s.url];
       if (k == null) { k = at[s.url] = sources.length; sources.push({ title: str(s.title), url: str(s.url), quotes: [] }); }
       var q = str(s.quote).trim();
@@ -16794,9 +16829,12 @@ U.interactive = (function () {
     var byId = {}; chapters.forEach(function (c) { byId[c.idea.id] = c; });
     // Bibliography: one entry per web page the course's research and the bound lessons kept.
     var works = [], byUrl = {};
+    // A course material is one work, whichever of its pages are quoted (w.pages).
     function work(title, url) {
-      var w = byUrl[url];
-      if (!w) { var t = splitTitle(title); w = byUrl[url] = { title: t.title || url, pub: t.pub, url: url, quotes: [], ch: [] }; works.push(w); }
+      var m = U.material(url), key = m ? 'material:' + m.slug : url, w = byUrl[key];
+      if (!w) { var t = splitTitle(title); w = byUrl[key] = { title: t.title || url, pub: t.pub, url: m ? '' : url, quotes: [], ch: [], pages: m ? [] : null }; works.push(w); }
+      if (m && w.pages.indexOf(m.page) < 0) { w.pages.push(m.page); w.pages.sort(function (a, b) { return a - b; }); }
+      if (url !== key) byUrl[url] = w;
       return w;
     }
     function quote(w, q) { q = str(q).trim(); if (q && w.quotes.indexOf(q) < 0) w.quotes.push(q); }
@@ -17064,6 +17102,9 @@ U.interactive = (function () {
   function vh(t) { return h('span', { class: 'vh' }, t); }
   function hostOf(url) { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return ''; } }
   function safeUrl(url) { return /^https?:\/\//i.test(str(url)) ? str(url) : null; }
+  // One of Dan's own course materials (U.material: "material:<slug>#p<page>"): no web address, so
+  // never a link; shown as the label and its page.
+  function matLine(url, cls) { var m = U.material(url); return m ? h('p', { class: cls || 'p-src-m' }, U.MATERIAL_LABEL + ', p.' + m.page) : null; }
   function day(iso, o) { var d = new Date(iso); return iso && !isNaN(d) ? d.toLocaleDateString('en-GB', o) : ''; }
   function longDate(iso) { return day(iso, { day: 'numeric', month: 'long', year: 'numeric' }); }
   function shortDate(iso) { return day(iso, { day: 'numeric', month: 'short', year: 'numeric' }); }
@@ -17257,6 +17298,7 @@ U.interactive = (function () {
         h('p', { class: 'fp-n' }, 'Source ' + n),
         h('p', { class: 'fp-t' }, t.title, t.pub ? h('span', { class: 'pub' }, ' · ' + t.pub) : null),
         s.quote ? h('blockquote', null, unquote(s.quote)) : null,
+        matLine(s.url, 'fp-m'),
         h('p', { class: 'fp-l' }, url ? h('a', { href: url, target: '_blank', rel: 'noopener noreferrer' }, hostOf(url), icon('out'), vh(' (opens a new tab)')) : null,
           more ? h('a', { href: more }, 'All sources') : null));
       S.root.appendChild(S.pop);
@@ -17623,7 +17665,7 @@ U.interactive = (function () {
       h('p', { class: 'p-src-top' }, h('span', { class: 'p-chip' }, vh('Source '), String(s.n)), h('span', { class: 'p-src-name' }, t.pub || t.title)),
       t.pub ? h('p', { class: 'p-src-work' }, t.title) : null,
       s.quote ? h('blockquote', { class: 'p-src-q' }, unquote(s.quote)) : null,
-      url ? h('a', { class: 'p-src-u', href: url, target: '_blank', rel: 'noopener noreferrer' }, hostOf(url), icon('out'), vh(' (opens a new tab)')) : null);
+      url ? h('a', { class: 'p-src-u', href: url, target: '_blank', rel: 'noopener noreferrer' }, hostOf(url), icon('out'), vh(' (opens a new tab)')) : matLine(s.url));
   }
   // One part of the practice page, in the lesson's own words.
   function practicePart(p, fx, id) {
@@ -17678,7 +17720,8 @@ U.interactive = (function () {
       var url = safeUrl(w.url);
       return h('li', { class: 't t-grey b-work' },
         h('p', { class: 'b-w' }, w.pub ? h('span', { class: 'b-pub' }, w.pub) : null, h('cite', null, w.title)),
-        url ? h('a', { class: 'p-src-u', href: url, target: '_blank', rel: 'noopener noreferrer' }, hostOf(url), icon('out'), vh(' (opens a new tab)')) : null,
+        url ? h('a', { class: 'p-src-u', href: url, target: '_blank', rel: 'noopener noreferrer' }, hostOf(url), icon('out'), vh(' (opens a new tab)'))
+          : w.pages ? h('p', { class: 'p-src-m' }, U.MATERIAL_LABEL + ', ' + (w.pages.length === 1 ? 'p.' : 'pp.') + w.pages.join(', ')) : null,
         // The chapters that rest on it, a row each (its numeral and title; a 44 px tap target).
         w.ch.length ? h('p', { class: 'b-ch-h', id: 'b-ch-' + k }, w.ch.length === 1 ? 'Chapter' : 'Chapters') : null,
         w.ch.length ? h('ul', { class: 'b-ch', 'aria-labelledby': 'b-ch-' + k }, w.ch.map(function (n) {
@@ -17963,7 +18006,7 @@ U.interactive = (function () {
       var t = splitTitle(s.title), url = safeUrl(s.url);
       return h('div', { class: 't', id: sid + '-s' + s.n }, h('p', null, h('span', { class: 'chip' }, String(s.n)), h('b', null, t.pub || t.title)),
         t.pub ? h('p', { class: 'small' }, t.title) : null, s.quote ? h('blockquote', { class: 'small' }, unquote(s.quote)) : null,
-        url ? h('p', { class: 'mono' }, h('a', { href: url }, url)) : null);
+        url ? h('p', { class: 'mono' }, h('a', { href: url }, url)) : matLine(s.url, 'small'));
     })) : h('p', { class: 't full small' }, c.doc.sourced === false ? UNSOURCED : 'This chapter lists no sources.'));
     return h('section', { id: 'ch-' + c.n, class: 'g' }, out);
   }
@@ -18004,7 +18047,8 @@ U.interactive = (function () {
     })));
     if (w) x.appendChild(h('section', { id: 'bibliography', class: 'g' }, h('h2', { class: 'part' }, 'Bibliography'), M.works.map(function (wk) {
       var url = safeUrl(wk.url);
-      return h('div', { class: 't full' }, h('p', null, wk.pub ? h('b', null, wk.pub + '. ') : null, h('cite', null, wk.title), url ? ['. ', h('a', { class: 'mono', href: url }, hostOf(url))] : null),
+      return h('div', { class: 't full' }, h('p', null, wk.pub ? h('b', null, wk.pub + '. ') : null, h('cite', null, wk.title), url ? ['. ', h('a', { class: 'mono', href: url }, hostOf(url))]
+        : wk.pages ? '. ' + U.MATERIAL_LABEL + ', ' + (wk.pages.length === 1 ? 'p.' : 'pp.') + wk.pages.join(', ') : null),
         wk.ch.length ? h('p', { class: 'mono' }, (wk.ch.length === 1 ? 'Chapter ' : 'Chapters ') + wk.ch.map(roman).join(', ')) : null,
         wk.quotes.map(function (q) { return h('blockquote', { class: 'small' }, unquote(q)); }));
     })));

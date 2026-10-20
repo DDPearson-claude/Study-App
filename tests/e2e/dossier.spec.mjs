@@ -811,5 +811,30 @@ await test('a refresher lesson\'s summary card opens its chapter, and the saved 
   }
 });
 
+// A source from Dan's own course materials ("material:<slug>#p<page>"): in the chapter's footnote,
+// the sources page and the bibliography it is its title and "Your course materials, p.16", never a link.
+await test('a course-material source is named with its page and never linked', async () => {
+  const db = seed({ finished: false });
+  const L = db['topics/pendulums/lessons/i1'].lesson;
+  L.sources[0] = { ...L.sources[0], title: 'EAL Level 4 Design and Verification: course slides', url: 'material:eal-slides#p16' };
+  const app = await open({ db, hash: '#/book/pendulums/i1' });
+  const fn = app.page.locator('.c-explain button.fn', { hasText: /^1$/ }).first();
+  await fn.waitFor({ timeout: 20000 });
+  await fn.click();
+  await app.page.locator('.fn-pop').waitFor();
+  const pop = await app.page.evaluate(() => { const p = document.querySelector('.fn-pop'); return { t: p.textContent, links: [...p.querySelectorAll('a')].map((a) => a.getAttribute('href')) }; });
+  assert(/course slides/.test(pop.t) && /Your course materials, p\.16/.test(pop.t) && pop.links.every((h) => !/^material:|^https?:/.test(h)), 'the footnote: title and page, no link ' + JSON.stringify(pop));
+  await go(app, '#/book/pendulums/i1/practice');
+  await app.page.locator('.p-src').first().waitFor({ timeout: 20000 });
+  const tile = await app.page.evaluate(() => { const t = document.getElementById('c1-s1'); return { t: t.textContent, a: t.querySelectorAll('a').length }; });
+  assert(/Your course materials, p\.16/.test(tile.t) && tile.a === 0, 'the sources page: its label and page, no link ' + JSON.stringify(tile));
+  await go(app, '#/book/pendulums/bibliography');
+  await app.page.locator('.b-work').first().waitFor({ timeout: 20000 });
+  const work = await app.page.evaluate(() => [...document.querySelectorAll('.b-work')].map((w) => ({ t: w.textContent, a: w.querySelectorAll('a.p-src-u').length })).find((w) => /course slides/.test(w.t)));
+  assert(work && /Your course materials, p\.16/.test(work.t) && work.a === 0, 'the bibliography: one work, its page, no link ' + JSON.stringify(work));
+  assert(await app.page.locator('a[href^="material:"]').count() === 0, 'no link to a locator anywhere');
+  await shot(app, 'material-bibliography', true);
+});
+
 console.log('\n' + results.map((r) => `${r.ok ? 'PASS' : 'FAIL'}  ${r.name}`).join('\n'));
 process.exit(results.every((r) => r.ok) ? 0 : 1);

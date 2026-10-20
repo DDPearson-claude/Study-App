@@ -470,7 +470,9 @@
     var labels = host.split('.').slice(0, -1);
     return labels.some(function (l) { return l.split('-').some(function (w) { return TEST_LABEL[w]; }); }) ? 'a test server, not the published site' : '';
   }
+  // A course material's locator keeps its page: each page is a source of its own.
   function urlKey(u) {
+    if (U.material(u)) return s(u).trim().toLowerCase();
     return s(u).trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\d?\./, '').replace(/#.*$/, '').replace(/\/+$/, '');
   }
 
@@ -564,6 +566,7 @@
       out.push('[' + src.n + '] ' + data(src.title, 160) + ' — ' + data(src.url, 300));
       out.push('    "' + data(src.quote, 400) + '"');
     });
+    if (lr.sources.some(function (src) { return U.material(src.url); })) out.push('A source whose address begins "material:" is a page of Dan\'s own course materials (his slides, formula sheet, pack, guide or drawings; "#p16" is the page): cite it like any source, and in the text call it by what it is ("your course slides, p.16"), never a web page.');
     out.push('', 'Research notes (claims, and the sources that support them):');
     lr.notes.forEach(function (n) {
       out.push('- ' + data(n.claim, 300) + (n.sourceIds.length ? ' ' + n.sourceIds.map(function (k) { return '[' + k + ']'; }).join('') : ' (no source)') +
@@ -1391,7 +1394,7 @@
       else if (ns.indexOf(x.n) >= 0) v.add(p + '.n ' + x.n + ' is used twice.');
       else ns.push(x.n);
       v.str(x.title, p + '.title', 300);
-      if (!isStr(x.url) || !/^https?:\/\/\S+$/.test(x.url.trim())) v.add(p + '.url must be a full http(s) URL.');
+      if (!isStr(x.url) || !(/^https?:\/\/\S+$/.test(x.url.trim()) || U.material(x.url))) v.add(p + '.url must be a full http(s) URL, or a course material\'s locator ("material:<slug>#p<page>").');
       if (v.str(x.quote, p + '.quote')) v.long(words(x.quote), 40, p + '.quote has ' + words(x.quote) + ' words; quotes are at most 40.');
     });
     if (opts.sources === null && Array.isArray(o.sources) && o.sources.length) v.add('No research was supplied, so "sources" must be [] and the lesson must have no [^n] markers.');
@@ -1693,7 +1696,7 @@
       else if (ns.indexOf(x.n) >= 0) v.add(p + '.n ' + x.n + ' is used twice; give each quote its own n.');
       else ns.push(x.n);
       v.str(x.title, p + '.title', 300);
-      if (!isStr(x.url) || !/^https?:\/\/\S+$/.test(x.url.trim())) v.add(p + '.url must be the full http(s) URL you opened.');
+      if (!isStr(x.url) || !(/^https?:\/\/\S+$/.test(x.url.trim()) || U.material(x.url))) v.add(p + '.url must be the full http(s) URL you opened, or a course material\'s locator ("material:<slug>#p<page>").');
       if (v.str(x.quote, p + '.quote')) v.long(words(x.quote), 40, p + '.quote has ' + words(x.quote) + ' words; copy at most 40 words.');
     });
     function notes(list, p) {

@@ -114,6 +114,22 @@ It copies each Parallel Search call and the connector's payload exactly, numbers
 already there and skips results it already has, so it can be re-run after more searches. The
 researcher runs it and then sources.mjs itself, and fixes every dropped source before it finishes.
 
+**Dan's own course materials** (a refresher course: his slides, flowchart, formula sheet, learner
+pack, project guide, drawings, practice papers) are sources too. Before any search, turn every
+material into tool files, one per page, in the same `tools/` folder:
+```
+node tools/course/material.mjs --file <dir>/source/<file>.pdf --title "<title as Dan knows it>" --slug <short-name> --out $D/tools
+node tools/eval/sources.mjs --show $D/tools/material-<slug>-p016.json      # read a page as the checker holds it
+```
+(a .pptx is read from its PDF in `pptx-pdf/`; `empty` lists pages with no words, which cannot be
+quoted). A source from one has the page's locator as its url, `"url": "material:<slug>#p16"`, its
+title ("EAL Level 4 Design and Verification: course slides") and a quote copied from that page's
+text; sources.mjs keeps it only when the quote is on that very page. Quote the materials for
+everything the course states from them, and search the web only for what they lack (the delta
+rule, line current = √3 × phase current, is in none of them), still with a quote. Lessons cite a
+material with `[^n]` like any source and name it in words ("your course slides, p.16"); the app
+shows it as its title and "Your course materials, p.16", never as a link.
+
 A course brief's research works the same way: notes plus a `quotes.json` list of
 `{section, claim, title, url, quote}`, harvested into `docs/courses/<shelf>/<course>/tools/` and
 checked with `node tools/eval/sources.mjs --quotes <dir>/quotes.json --tools <dir>/tools` until
@@ -235,6 +251,9 @@ part, label, value, unit, text, work}]}`. Every given is cited to his materials;
 assumptions say so; every worked figure names the lesson that works it out and, for a Section A
 part, its part ("1b"), printed as `text` ("13.33 A"). A page names figures by id (`K.figure`,
 `K.carried`), never retypes them. `node tools/eval/validate.mjs case $D/case.json`.
+
+**Sources**: his materials first (section 2: `material.mjs` over every file in `source/`, cited by
+page), the web only for what they lack; the fact-checker reads a cited page with `sources.mjs --show`.
 
 **The lesson JSON adds two fields**, written with the lesson and fact-checked with it (the check
 may fix their words, never a citation):

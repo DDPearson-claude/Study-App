@@ -328,8 +328,17 @@
         var t = unescape(text); raw.push(t.toLowerCase()); norm.push(normText(t));
         return false;
       },
+      // A page of one of Dan's course materials (tools/course/material.mjs): its text verbatim,
+      // under its locator ("material:<slug>#p<page>"), so a quote must be on that very page.
+      addMaterial: function (locator, text) {
+        if (!U.material(locator) || typeof text !== 'string') return false;
+        var key = U.prompts.urlKey(locator), list = pages[key] = pages[key] || [], t = normText(text);
+        if (t && list.indexOf(t) < 0) list.push(t);
+        return true;
+      },
       hasUrl: function (url) {
         var key = U.prompts.urlKey(url);
+        if (U.material(url)) return !!pages[key];
         if (!key || key.indexOf('.') < 0) return false;
         if (pages[key]) return true;
         var re = new RegExp(esc(key) + '/?(?=$|[\\s"\'<>\\\\)\\]},?#|])');
@@ -386,7 +395,7 @@
     (Array.isArray(raw && raw.sources) ? raw.sources : []).forEach(function (x) {
       if (!x || !isStr(x.url)) return;
       if (U.prompts.copyHost(x.url)) { dropped.push({ n: x.n, url: x.url, why: U.prompts.copyHost(x.url) }); return; }
-      if (!corpus.hasUrl(x.url)) { dropped.push({ n: x.n, url: x.url, why: 'not a page the tools returned' }); return; }
+      if (!corpus.hasUrl(x.url)) { dropped.push({ n: x.n, url: x.url, why: U.material(x.url) ? 'not a page of a course material the tools read' : 'not a page the tools returned' }); return; }
       if (!corpus.hasQuote(x.quote, x.url)) { dropped.push({ n: x.n, url: x.url, why: 'quote not found on that page' }); return; }
       keep[x.n] = sources.length + 1;
       sources.push({ n: sources.length + 1, title: one(x.title), url: one(x.url), quote: one(x.quote) });
@@ -1224,7 +1233,8 @@
   // Pages the tutor may reopen without searching: the lesson's sources and the checked research.
   function sourceUrls(ctx) {
     var out = [];
-    function add(list) { (Array.isArray(list) ? list : []).forEach(function (x) { if (x && isStr(x.url) && out.indexOf(x.url) < 0) out.push(x.url); }); }
+    // A course material is no web page: never one to reopen.
+    function add(list) { (Array.isArray(list) ? list : []).forEach(function (x) { if (x && isStr(x.url) && !U.material(x.url) && out.indexOf(x.url) < 0) out.push(x.url); }); }
     add(ctx.lesson && ctx.lesson.sources);
     if (ctx.research) { add(ctx.research.topic && ctx.research.topic.sources); add(ctx.research.idea && ctx.research.idea.sources); }
     return out;
