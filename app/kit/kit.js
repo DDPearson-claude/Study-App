@@ -753,7 +753,7 @@
       return K.linspace(0, opts.length - 1, 24).map(function (i) { return opts[Math.round(i)].value; });
     };
     c.values = function () { return opts.map(function (x) { return x.value; }); };
-    c.info = function () { return { id: c.id, kind: 'choice', label: o.label || c.id, options: opts.map(function (x) { return x.value; }), labels: opts.map(function (x) { return x.label; }), value: value, index: c.index() }; };
+    c.info = function () { return { id: c.id, kind: 'choice', label: o.label || c.id, options: opts.map(function (x) { return x.value; }), labels: opts.map(function (x) { return x.label; }), value: value, index: c.index(), shown: !!(el.isConnected && el.getClientRects().length) }; };
     c.describe = function (v) { var x = find(v); return x ? '"' + x.label + '"' : String(v); };
     // Options that don't fit on one row stack into a tidy list instead of a lopsided wrap.
     c.fit = function () {
@@ -783,7 +783,7 @@
     c.accepts = function () { return true; };
     c.sweep = function () { return [false, true]; };
     c.values = c.sweep;
-    c.info = function () { return { id: c.id, kind: 'toggle', label: o.label || c.id, options: [false, true], value: value }; };
+    c.info = function () { return { id: c.id, kind: 'toggle', label: o.label || c.id, options: [false, true], value: value, shown: !!(el.isConnected && el.getClientRects().length) }; };
     c.describe = function (v) { return v ? 'on' : 'off'; };
     paint();
     place(el, o.into, 'K.toggle "' + c.id + '"');
@@ -2144,7 +2144,7 @@
     return node;
   }
 
-  // K.figure(id) -> {id, label, value, unit, text, part, lesson, cite, rule, work}: a given or a worked
+  // K.figure(id) -> {id, label, value, unit, text, part, lesson, cite, rule, work, practice}: a given or a worked
   // figure from the case file. text is how every lesson prints it ("23.08 A"); work is its working
   // ("23.08 ÷ √3 = 13.33 A"), '' for a given.
   function figureOf(id) {
@@ -2152,11 +2152,11 @@
     var f = all.filter(function (x) { return x && x.id === id; })[0];
     if (!f) {
       problem('K.figure("' + id + '"): ' + (CASE ? 'the case file has no figure "' + id + '"' : 'there is no case file (K_CASE): pass the course\'s case.json to the test'));
-      return { id: String(id), label: String(id), value: NaN, unit: '', text: '—', part: '', lesson: '', cite: '', rule: '', work: '' };
+      return { id: String(id), label: String(id), value: NaN, unit: '', text: '—', part: '', lesson: '', cite: '', rule: '', work: '', practice: false };
     }
     var text = typeof f.text === 'string' && f.text ? f.text : (isNum(f.value) ? fmt(f.value) : String(f.value == null ? '' : f.value)) + unitText(f.unit || '');
     return { id: f.id, label: String(f.label || f.id), value: f.value, unit: f.unit || '', text: text, part: f.part || '', lesson: f.lesson || '', cite: f.cite || '',
-      rule: typeof f.rule === 'string' ? f.rule : '', work: typeof f.work === 'string' ? f.work : '' };
+      rule: typeof f.rule === 'string' ? f.rule : '', work: typeof f.work === 'string' ? f.work : '', practice: !!f.practice };
   }
   K.figure = figureOf;
 
@@ -2478,7 +2478,7 @@
     var figs = (Array.isArray(s.figures) ? s.figures : []).map(function (f) { return typeof f === 'string' ? figureOf(f) : { label: String(f && f.label || ''), text: String(f && (f.text || f.value) || '') }; });
     if (figs.length) {
       el.appendChild(K.el('div', null, lab(s.figuresLabel || (CASE && CASE.title ? CASE.title + ' so far' : 'Figures so far')),
-        K.el('div', { class: 'k-sum-figs' }, figs.map(function (f) { return K.el('div', null, K.el('span', null, f.label), K.el('b', null, f.text)); }))));
+        K.el('div', { class: 'k-sum-figs' }, figs.map(function (f) { return K.el('div', null, K.el('span', null, f.label), K.el('b', null, f.text), f.practice ? K.el('small', null, 'practice value') : null); }))));
     }
     if (s.where) el.appendChild(termText(K.el('p', { class: 'k-sum-where' }), 'Where it lives: ' + String(s.where).replace(/^where it lives:\s*/i, '')));
     summaries.push(el);

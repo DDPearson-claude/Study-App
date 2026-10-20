@@ -6,7 +6,7 @@ case file (`K.caseFile`) and the lesson's own `{written, summary}` (`K.lesson`).
 by id; the kit draws the checked words, so never retype a figure, a point or a summary line.
 
 ```
-K.figure(id) -> {id, label, value, unit, text, part, lesson, rule, work}   a given or worked figure; print f.text ("23.08 A"), f.work its working
+K.figure(id) -> {id, label, value, unit, text, part, lesson, rule, work, practice}   a given or worked figure; print f.text ("23.08 A"), f.work its working; practice is true for a practice value
 K.scenario({into, open?})                                        the case's scenario panel (folds)
 K.carried({parts: ['1a'], into})  -> {el, refresh()}             earlier Section A parts at the course's figures
 K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
@@ -38,7 +38,8 @@ once `answered()`.
 
 **The summary** (Keep this, the last step). `K.summary({into: '#keep'})` draws `lesson.summary`
 as a card (what it is for, the rule, the traps, the case's figures so far, where it lives) and says
-it is the first page of the chapter in his Book. Then the Finish button calls `K.complete()`.
+it is the first page of the chapter in his Book. A figure resting on a practice value is tagged so; the
+traps' and points' cites stay as data and are never shown. Then the Finish button calls `K.complete()`.
 
 **STEPS entries** (tools/course/guide.mjs reads them for the Book and the read-through): a
 typed-answer step keeps `want` (the answer as printed, '13.33 A'); a written step is `{kind:
