@@ -1,0 +1,556 @@
+{
+ "section": "inspection-and-testing",
+ "title": "Inspection and testing",
+ "written": "20 Oct 2026",
+ "status": "plan only: nothing researched in full, written or built",
+ "edition": "Taught to BS 7671:2018+A4:2026 (A2 and A3 withdrawn 15 Oct 2026). Dan's courses taught A2:2022; where A4 differs, the lesson teaches A4 and says once, plainly, what changed.",
+ "format": "Refresher steps lessons (format: 'steps', read mode) in the shape of docs/courses/electrical/design-and-verification/format/refresher.md: Do you still have it?, what it is for, the why with its interactive, a check, the worked example, Section A on the running case, one changed-numbers item, Section B, Keep this. Every step carries its read-through sentence and still (app/kit/REFRESHER.md); worked examples and Section B questions become puzzles in his review box (guide v2).",
+ "lessonKeys": "n, unit, title, oneLine, skill, specRefs, materialRefs, picture and builds_on are the keys of design-and-verification/lessons.json. recall, why, practice and keep are added for this plan; the course build moves them into each lesson pack.",
+ "courses": [
+  {
+   "id": "initial-verification",
+   "title": "Initial verification and certification, a refresher",
+   "blurb": "Your Level 3 inspection and testing taught back to you: the dead and live tests in their order, why each reads what it reads, and a new unit tested and certified.",
+   "kind": "refresher",
+   "units": ["Before the tests", "Dead tests", "Live tests", "The certificate"],
+   "runningCase": "Unit 3, a new small commercial unit (trade counter, office, workshop) on a 400/230 V TN-C-S supply, tested and certified circuit by circuit (brief.md section 6.1).",
+   "lessons": [
+    {
+     "n": 1,
+     "unit": "Before the tests",
+     "title": "Before the first test: isolation and inspection",
+     "oneLine": "A voltage indicator proved before and after the test brackets the reading, every pair of conductors present is tested, and inspection comes first because every test assumes the installation is complete, correctly connected and safe to test.",
+     "skill": "Run safe isolation with prove-test-prove and count the tests (n(n-1)/2 pairs); say why inspection precedes testing; check basic protection by IP2X/IPXXB and IP4X/IPXXD.",
+     "specRefs": [
+      "EAL L3 Initial Verification and Certification (Oct 2025): outcomes 1 (safe isolation), 2 (requirements for initial verification), 3 (inspection before service), from the course structure in lesson-powerpoint-part1-inspection.txt",
+      "EAL L2 Fundamental Inspection, Testing and Initial Verification (Oct 2025): exam outcomes 1-3, fundamental-inspection-testing-slides.pdf p.6"
+     ],
+     "materialRefs": [
+      "fundamental-inspection-testing-slides.pdf p.9 (safety, GS 38), p.12, p.18-21 (initial inspection, the schedule), p.28 (safe isolation steps), p.86 (test finger, IP2X, IP4X)",
+      "lesson-powerpoint-part1-inspection.txt (structure only): safe isolation steps 1-4, 3 tests single-phase and 10 three-phase, IP codes table, the schedule of inspections headings",
+      "osg p.107-108 (9.1, 9.2: inspection precedes testing, purpose, checklist), p.111 (10.1 safety and equipment)",
+      "C&G 2391-050 sample (shapes only): isolation, GS 38, inspection-before-testing and IPXXB question shapes"
+     ],
+     "picture": "Every pair: the terminals present at a board (L, N, E; then L1, L2, L3, N, E); tap two to draw a test line between them; the count climbs to n(n-1)/2, 3 and then 10, and a missed pair is the one that could be live. A second, small picture: the 12 mm test finger and the 1.0 mm wire at a consumer unit's gaps, front (IP2X) and top surface (IP4X).",
+     "recall": "You proved the voltage indicator, tested every pair and read 0 V throughout. What is still missing before you touch it? Right: re-prove the indicator on the proving unit. Slips: 'nothing, 0 V means dead' (an indicator that failed during the test also reads 0 V); 'test N-E again' (already done).",
+     "why": "Prove-test-prove: the second proof shows the indicator was working when it read 0 V. The number of tests is every pairing of the conductors present, n(n-1)/2. Inspection first: the tests rely on correct selection, erection and connection, and inspection finds what would make testing unsafe.",
+     "practice": {
+      "A": "Unit 3's TPN board: (a) Determine the number of voltage tests to prove it dead: 10. (b) State the minimum IP rating for its readily accessible top surface: IP4X or IPXXD (choice).",
+      "changed": "A three-phase three-wire supply with an earth (L1, L2, L3, E): 4 x 3 / 2 = 6 tests.",
+      "B": "Explain why inspection is carried out before testing. Points: the installation is checked as correctly selected and erected (osg p.107); not damaged or defective (osg p.107); done disconnected from the supply (osg p.107); faults found before any test voltage or supply is applied (to quote from GN3 or the A4 text). Any three."
+     },
+     "keep": "Prove, test, prove. Tests = n(n-1)/2: 3 single-phase, 10 three-phase four-wire. IP2X/IPXXB: 12 mm finger, 80 mm long. IP4X/IPXXD: 1.0 mm wire, top surfaces. Inspection precedes testing, with the supply off.",
+     "builds_on": [
+      "Your L3 Initial Verification and Certification and L2 Fundamental Inspection (Oct 2025)",
+      "Design and verification lesson 9 (verification and handover)"
+     ]
+    },
+    {
+     "n": 2,
+     "unit": "Dead tests",
+     "title": "Continuity of protective conductors, and polarity",
+     "oneLine": "A low-resistance ohmmeter reads the whole loop, leads included, so the leads are nulled; a conductor's expected resistance is its length times its milliohms per metre; and one end of a bonding conductor is lifted so a parallel path cannot pass a broken conductor.",
+     "skill": "Null the leads; predict R1+R2 and R2 from Table I1 and a length; choose method 1 (R1+R2, which also proves polarity) or method 2 (wander lead, R2 and bonding); spot parallel paths; correct for temperature.",
+     "specRefs": [
+      "EAL L3 Initial Verification: outcome 5 (testing before circuits are energised), lesson-powerpoint-part2-testing.txt",
+      "EAL L2 Fundamental: exam outcome 5 (7 questions), slides p.6"
+     ],
+     "materialRefs": [
+      "fundamental-inspection-testing-slides.pdf p.30-35 (instrument, nulling: 1.51 ohm with 1.5 ohm leads, methods 1 and 2), p.36-37, p.62 (dead polarity)",
+      "lesson-powerpoint-part2-testing.txt (structure only): R1+R2 and wander-lead procedures, the factors that change a reading, the temperature table",
+      "osg p.112-115 (10.2 sequence; 10.3.1 methods 1 and 2; parallel paths; bonding with one end disconnected), p.121-122 (10.3.4 polarity), p.217-219 (Tables I1 and I2)",
+      "C&G 2391-051/052 samples (shapes only): bonding resistance from length, method choice, nulling, circuit length from R1+R2"
+     ],
+     "picture": "Nulling and the parallel path: an ohmmeter, its two leads and a 10 mm2 bonding conductor to a gas pipe. Slide the lead resistance and the reading carries it; press Null and only the conductor is left. Then bond the same pipe through the building's metalwork: the reading drops, and a break in the conductor hides until one end is lifted. A line marks the expected value, length x 1.83 mOhm/m.",
+     "recall": "Leads not nulled read 1.50 ohm. Across a bonding conductor you read 1.51 ohm. What is the conductor's resistance? 0.01 ohm. Slips: 1.51 ohm (leads left in); 3.01 ohm (leads added twice).",
+     "why": "The meter measures everything in the loop, so a few milliohms of conductor are lost under the leads unless they are nulled. R = length x mOhm/m / 1000 at 20 C, times Table I2's factor at other temperatures. Method 1 links line to cpc at the board, gives R1+R2 for Zs and proves polarity at each point; method 2 gives R2 alone and suits bonding. Steel conduit, trunking, MICC and SWA give parallel paths, so method 1's R1+R2 is only for all-insulated wiring.",
+     "practice": {
+      "A": "Unit 3: (a) Determine the expected resistance of the 10 mm2 main bonding conductor to the gas pipe, 7 m: 7 x 1.83 / 1000 = 0.01 ohm. (b) Determine the expected R1+R2 at the furthest point of the office lighting circuit, 28 m of 1.5/1.0 mm2: 28 x 30.20 / 1000 = 0.85 ohm.",
+      "changed": "A cooker radial in 6/2.5 mm2 reads R1+R2 = 0.21 ohm. Determine its length: 0.21 x 1000 / 10.49 = 20.02 m.",
+      "B": "Explain why one end of a main protective bonding conductor is disconnected for its continuity test. Points: to eliminate parallel paths (osg p.114); to confirm the actual continuity of the conductor (osg p.114); the installation is isolated while it is lifted (fit slides p.28; research for the safety reason). Any two."
+     },
+     "keep": "Null the leads. R = L x mOhm/m / 1000 (Table I1, 20 C) x Table I2 factor. Method 1: link L to cpc, read R1+R2 and polarity at every point, record the furthest. Method 2: wander lead, R2 and bonding. Lift one end of a bonding conductor. Parallel paths read low.",
+     "builds_on": [
+      1,
+      "Design and verification lesson 6 (Ze + R1 + R2) and lesson 9 (the design's expected readings)"
+     ]
+    },
+    {
+     "n": 3,
+     "unit": "Dead tests",
+     "title": "The ring final circuit: three steps and a figure of eight",
+     "oneLine": "Cross-connecting opposite ends of the ring makes every socket the same distance round the loop, so step 2 reads (r1+rn)/4 everywhere and step 3's highest reading is R1+R2; linking the wrong ends makes the readings climb to the middle and fall again.",
+     "skill": "Predict r1, rn, r2 from length and size; check the 0.05 ohm match and the about-1.67 ratio; predict steps 2 and 3; read the faults from the pattern (wrong cross-connection, reversed polarity, a broken loop, a spur).",
+     "specRefs": [
+      "EAL L3 Initial Verification: outcome 5, lesson-powerpoint-part2-testing.txt",
+      "EAL L2 Fundamental: exam outcome 5, slides p.6"
+     ],
+     "materialRefs": [
+      "fundamental-inspection-testing-slides.pdf p.38-49 (steps 1-3, expected values, 0.05 ohm, R1+R2 = (0.37 + 0.6) / 4 = 0.24 ohm on p.46, ring problems on p.47-49)",
+      "lesson-powerpoint-part2-testing.txt (structure only): steps 1-3 and the verifying formulas",
+      "osg p.115-117 (10.3.2: 0.05 ohm, 1.67 times for 2.5/1.5, step 2 constant, wrong ends rise to the midpoint, step 3 maximum at the midpoint for twin-and-earth, highest value recorded, polarity), p.218 (Table I1)",
+      "C&G 2391-050/052 samples (shapes only): expected r1 and r2 from length and size, step patterns and their faults"
+     ],
+     "picture": "The ring as a figure of eight: the loop drawn from the board and back, the two ends cross-connected at the board. Drag the test point round the sockets and the reading is plotted. Correctly cross-connected: two paths whose lengths always add to the whole loop, so a flat line at (r1+rn)/4. Link the same ends instead and the reading becomes x(1-x)(r1+rn): zero at the board, highest at the middle. In step 3 with a smaller cpc the line bows gently to (r1+r2)/4 at the middle. A spur adds its own leg. The rule is shown under the plot.",
+     "recall": "In step 2 the readings start low, rise to the middle of the ring and fall again. What has happened? The legs were linked the same way round (incoming to incoming), not across. Slips: a spur (it raises one socket only); a broken neutral (step 1 would show it).",
+     "why": "Across the cross-connection every socket sits on two paths that always add to the whole loop, so the parallel result is the same everywhere. Step 1 proves each loop is whole and matched (0.05 ohm, or about 1.67 times for a 1.5 mm2 cpc). Step 3's highest reading, often at a spur, is the circuit's R1+R2 and also proves polarity at each socket. Line and neutral reversed at one socket shows nothing in step 2 and an open circuit there in step 3.",
+     "practice": {
+      "A": "Unit 3's office ring, 60 m of 2.5/1.5 mm2: (a) Determine r1: 60 x 7.41 / 1000 = 0.44 ohm. (b) Determine r2: 60 x 12.10 / 1000 = 0.73 ohm. (c) Determine the expected step 2 reading: (0.44 + 0.44) / 4 = 0.22 ohm. (d) Determine R1+R2: (0.44 + 0.73) / 4 = 0.29 ohm.",
+      "changed": "A ring in 2.5 mm2 singles with a 2.5 mm2 cpc, 84 m loop: r1 = r2 = 84 x 7.41 / 1000 = 0.62 ohm; R1+R2 = (0.62 + 0.62) / 4 = 0.31 ohm.",
+      "B": "Explain why the step 2 readings are substantially the same at every socket on a correctly connected ring. Points: opposite ends are cross-connected (osg p.116); each socket then reads about (r1+rn)/4 (osg p.116); spurs read higher (osg p.116); linking the wrong ends gives readings rising to the midpoint (osg p.116, fit slides p.49). Any three."
+     },
+     "keep": "Step 1: r1, rn, r2 end to end; matched within 0.05 ohm; r2 about 1.67 x r1 for 2.5/1.5. Step 2: (r1+rn)/4 at every socket. Step 3: (r1+r2)/4; the highest reading is R1+R2. Rising to the middle: legs linked wrong. Open at one socket in step 3 only: L and N reversed there.",
+     "builds_on": [
+      2
+     ]
+    },
+    {
+     "n": 4,
+     "unit": "Dead tests",
+     "title": "Insulation resistance: many paths in parallel",
+     "oneLine": "Insulation leaks along its whole length, so a long cable or many circuits tested together read lower, as resistors in parallel do; anything connected across the conductors joins the reading or is damaged by the test voltage, so it is disconnected first.",
+     "skill": "Choose the test voltage and minimum from Table 64; combine circuit readings in parallel; prepare a circuit (equipment out, switches closed, two-way switches both ways, SPDs at 250 V); act on a whole-installation reading under 20 MOhm; test SELV, PELV and separation by insulation resistance.",
+     "specRefs": [
+      "EAL L3 Initial Verification: outcome 5, lesson-powerpoint-part2-testing.txt",
+      "EAL L2 Fundamental: exam outcome 5, slides p.6"
+     ],
+     "materialRefs": [
+      "fundamental-inspection-testing-slides.pdf p.50-61 (Table 64 values, precautions, test procedure, 8 x 10 MOhm = 1.25 MOhm on p.57, 2 and 3 MOhm = 1.2 MOhm on p.59, two 100 MOhm halves = 50 MOhm on p.61), p.84-86 (separation tests, barriers)",
+      "lesson-powerpoint-part2-testing.txt (structure only): precautions, SPDs at 250 V and still 1.0 MOhm, resistances in parallel, single- and three-phase procedure, SELV",
+      "osg p.117-121 (10.3.3: pre-test checks, Table 10.3.3, less than 20 MOhm means a possible latent defect, 250 V after connection, SELV/PELV/FELV)",
+      "C&G 2391-050/051/052 samples (shapes only): whole-board value from circuit readings, test voltage with SPDs, preparing a circuit"
+     ],
+     "picture": "Insulation resistance with devices disconnected: a board of circuits drawn as resistors between line and earth. Switch circuits into the test and the total falls (1/R = sum of 1/R); a number line marks 1 MOhm and 20 MOhm. Plug a lamp into one circuit and the line-neutral reading collapses to the lamp's own resistance; connect a dimmer and a red note says the test voltage would reach it.",
+     "recall": "Eight circuits each read 10 MOhm line to line. What does the board read with all eight tested together? 1.25 MOhm. Slips: 80 MOhm (added, as if in series); 10 MOhm (the lowest one).",
+     "why": "Insulation is countless high resistances in parallel, so more length or more circuits gives a lower reading. Table 64: 250 V and 0.5 MOhm for SELV and PELV; 500 V and 1.0 MOhm up to 500 V; 1000 V and 1.0 MOhm above. Equipment across the conductors joins the reading or is damaged, so it is disconnected, or line and neutral are linked and tested to earth. SPDs that cannot be removed: 250 V, still at least 1 MOhm. Under 20 MOhm for a whole installation: test each circuit.",
+     "practice": {
+      "A": "Unit 3, line to earth at 500 V: circuits read 300, 75, 150 and over 999 MOhm. (a) Determine the board's reading: 1 / (1/300 + 1/75 + 1/150) = 42.86 MOhm (the over-range circuit adds almost nothing). (b) Is a separate test of each circuit needed? No: it is above 20 MOhm (choice).",
+      "changed": "Three circuits read 30, 60 and 120 MOhm: 1 / (1/30 + 1/60 + 1/120) = 17.14 MOhm, so each circuit is tested separately.",
+      "B": "Explain why current-using equipment is disconnected before an insulation resistance test. Points: it would influence the measurement (osg p.117); it could be damaged by the test voltage (osg p.117); pilot lamps and capacitors give a misleading value (osg p.117); where it cannot be disconnected, L and N are linked and tested to earth (fit slides p.55). Any three."
+     },
+     "keep": "1/RT = 1/R1 + 1/R2 + ... Table 64: SELV/PELV 250 V, 0.5 MOhm; up to 500 V 500 V, 1.0 MOhm; above 500 V 1000 V, 1.0 MOhm. Equipment out; switches closed; two-way both ways. SPDs: 250 V, at least 1 MOhm. Whole installation under 20 MOhm: test circuits separately.",
+     "builds_on": [
+      2,
+      "Your L3 BS 7671 (Table 64)"
+     ]
+    },
+    {
+     "n": 5,
+     "unit": "Live tests",
+     "title": "The earth you're given: Ze and the earth electrode",
+     "oneLine": "Ze is measured with the installation isolated and its earthing conductor lifted, so only the supply's own path is read; a TT electrode is read with spikes far enough apart that their resistance areas do not overlap, and RA x Idn must stay within 50 V.",
+     "skill": "Run the Ze test safely and compare it with the declared maximum; measure an electrode by methods E1, E2 or E3 and judge three E1 readings; check RA x Idn <= 50 V and the 200 ohm guidance.",
+     "specRefs": [
+      "EAL L3 Initial Verification: outcomes 5 and 6 (testing energised installations), lesson-powerpoint-part2-testing.txt",
+      "EAL L2 Fundamental: exam outcomes 5 and 6, slides p.6"
+     ],
+     "materialRefs": [
+      "fundamental-inspection-testing-slides.pdf p.64-67 (E1, E2, E3; spike distances A 30 m, B 15 m, C 18 m, D 12 m on p.65), p.68-70 (Ze: isolated, earthing conductor disconnected, reconnect)",
+      "lesson-powerpoint-part2-testing.txt (structure only): E1 three readings and percentage deviation, E2 only with several electrodes, E3, declared Ze 0.35 ohm TN-C-S and 0.8 ohm TN-S, RA x Idn <= 50 V, 200 ohm",
+      "osg p.122-124 (10.3.5: loop method, 200 ohm, RA x Ia <= 50 V with the 250 mA example; spikes at ten times the electrode, T2 moved about 6 m; 10.3.6: Ze procedure)",
+      "C&G 2391-050/052 samples (shapes only): electrode instrument choice, maximum RA from Idn, recorded electrode value"
+     ],
+     "picture": "Resistance areas: an electrode, a current spike and a potential spike between them. Drag the potential spike along the line and the reading is plotted: a flat plateau in the middle when the spikes are far enough apart, a slope with no plateau when they are too close and their areas overlap. Three readings at the middle and either side give the average and the deviation.",
+     "recall": "A TT installation's fault protection is a 100 mA RCD. Under RA x Idn <= 50 V, what is the most the electrode can be? 500 ohm, though over 200 ohm may be unstable. Slips: 5 ohm (50 x 0.1); 2300 ohm (230 / 0.1).",
+     "why": "Lifting the earthing conductor removes the installation's parallel paths, so the reading is the supply's own loop; it is done with the installation isolated because its exposed parts have no earth meanwhile, and it is reconnected before the supply is restored. An electrode test needs the potential spike outside both resistance areas: ten times the electrode's length to the current spike, the reading taken midway, then either side. RA x Idn <= 50 V keeps the touch voltage on a fault within 50 V.",
+     "practice": {
+      "A": "Unit 3 (TN-C-S): (a) Ze measured 0.18 ohm: is it within the declared maximum? Yes, 0.35 ohm (choice). (b) Before the test: what must be done first and last? Isolate at the main switch, lift the earthing conductor; reconnect before restoring the supply (choice).",
+      "changed": "A TT site cabin, method E1: readings 61, 63 and 64 ohm (practice values). Determine the average, 62.67 ohm; the largest deviation, 1.67 ohm; as a percentage, 2.66%; and RA x Idn with a 100 mA RCD, 62.67 x 0.1 = 6.27 V.",
+      "B": "Explain why the earthing conductor is disconnected for the Ze test, and what must happen before and after. Points: the main switch is opened and secured first (osg p.124); disconnecting it removes parallel paths through the installation (research: GN3); it establishes the suitability of the supplied earth (fit slides p.68); it is reconnected before the supply is restored (osg p.124). Any three."
+     },
+     "keep": "Ze: isolate, lift the earthing conductor, test L-E at the supply, reconnect. Declared: TN-C-S 0.35 ohm, TN-S 0.8 ohm. E1: spikes at ten times the electrode, three readings, average. E2: several electrodes only. E3: loop tester. RA x Idn <= 50 V; over 200 ohm may be unstable.",
+     "builds_on": [
+      4,
+      "Design and verification lesson 6 (Ze in the fault loop)"
+     ]
+    },
+    {
+     "n": 6,
+     "unit": "Live tests",
+     "title": "Earth fault loop impedance: the build-up and the 0.8 rule",
+     "oneLine": "Zs is Ze plus R1 plus R2, and BS 7671's maximum is for conductors at their working temperature, so a reading taken cold must sit below about 0.8 of it; a measured Zs often comes in lower again because bonded metalwork adds parallel paths.",
+     "skill": "Build Zs from Ze and R1+R2; work a device's design maximum from U0 x Cmin / Ia and its measured maximum at 0.8; correct for ambient temperature; explain readings below Ze + R1+R2; test RCD circuits with a no-trip loop setting.",
+     "specRefs": [
+      "EAL L3 Initial Verification: outcome 6 (testing energised installations), lesson-powerpoint-part2-testing.txt",
+      "EAL L2 Fundamental: exam outcome 6, slides p.6"
+     ],
+     "materialRefs": [
+      "fundamental-inspection-testing-slides.pdf p.71, p.78-81 (Zs = Ze + (R1 + R2); the 0.8 rule; examples on p.79; the no-trip loop setting on p.81), p.83",
+      "lesson-powerpoint-part2-testing.txt (structure only): EFLI at the origin and the end of each circuit",
+      "osg p.124 (10.3.6: three ways to find Zs; measured usually below Ze + R1+R2 because of parallel paths; RCD: Idn x Zs <= 50 V), p.139-146 (Appendix B: measured values at 10 C, divisor 1.25; Table B6; Table B8 correction (t + 230) / 240)",
+      "Design and verification case.json lesson 6 (U0 x Cmin / Ia; 7.28 ohm for 6 A type B)",
+      "C&G 2391-050/051/052 samples (shapes only): maximum measured Zs for a device, expected Zs from Ze and R1+R2, why measured Zs comes in lower"
+     ],
+     "picture": "The Zs build-up: Ze, R1 and R2 stacked as one bar beside the device's line (its design maximum at 70 C) and the 0.8 line under it. Slide the conductor temperature from 10 C to 70 C and R1 and R2 grow (1 + 0.004 x rise): the reading that passes cold fails hot unless it was under the 0.8 line. Change the device and its rating and the lines move. A toggle adds the bonded pipework's parallel path and the measured bar drops below the sum.",
+     "recall": "A 32 A type B ring reads Zs 1.20 ohm. Is it acceptable? No: the measured maximum is about 1.10 ohm. Slips: 'yes, it is under 1.37 ohm' (the design value, not corrected for a cold test); 'cannot tell without Ze' (Zs already includes it).",
+     "why": "The device opens in time only if the fault current reaches Ia: Zs max = U0 x Cmin / Ia, 230 x 0.95 / (5 x 32) = 1.37 ohm for a 32 A type B. That is at the conductors' working temperature; tested near 10 C they read about a fifth lower, so the measured limit is 1.37 x 0.8 = 1.10 ohm. At other temperatures, multiply by (t + 230) / 240. Parallel paths make a measured Zs read below Ze + R1+R2. RCD circuits: the loop test current can trip the RCD, so the no-trip setting is used.",
+     "practice": {
+      "A": "Unit 3: (a) Determine Zs for the office ring: 0.18 + 0.29 = 0.47 ohm. (b) Is it acceptable against 1.10 ohm? Yes (choice). (c) Determine Zs for the workshop compressor circuit, 22 m of 6/6 mm2 (R1+R2 = 22 x 6.16 / 1000 = 0.14 ohm): 0.18 + 0.14 = 0.32 ohm, against 0.55 ohm for a 32 A type C.",
+      "changed": "A 20 A type B radial, Ze 0.35 ohm, R1+R2 0.95 ohm: Zs = 1.30 ohm; the measured maximum is 230 x 0.95 / (5 x 20) x 0.8 = 1.75 ohm, so it passes.",
+      "B": "Explain why a measured Zs is compared with a value lower than BS 7671's tabulated maximum. Points: BS 7671's values are for conductors at their maximum operating temperature (osg p.140); the test is done near ambient, about 10 C (osg p.140); conductor resistance rises with temperature (osg p.146, p.219); so the tabulated value is divided by 1.25, the 0.8 rule (osg p.140, fit slides p.79). Any three."
+     },
+     "keep": "Zs = Ze + (R1 + R2). Design max = U0 x Cmin / Ia. Measured max = 0.8 x design max (OSG Appendix B, at 10 C). At t C: x (t + 230) / 240. Measured often below Ze + R1+R2: parallel paths. RCD circuits: no-trip loop. TN with RCD: Idn x Zs <= 50 V.",
+     "builds_on": [
+      2,
+      3,
+      5,
+      "Design and verification lesson 6 (Cmin and the fault loop)"
+     ]
+    },
+    {
+     "n": 7,
+     "unit": "Live tests",
+     "title": "Fault current, RCDs and the functional tests",
+     "oneLine": "Every device must be able to break the largest current a fault could drive at its point, so the larger of PSCC and PEFC is recorded; an RCD is timed at its rated residual current on both half-cycles, and its own test button proves only its mechanism.",
+     "skill": "Find PFC by U / Z or measurement, record the larger and estimate the three-phase value; check breaking capacity; time RCDs at 1 x Idn at 0 and 180 degrees against 300 ms or the S-type window; run phase sequence and functional checks; say when voltage drop is verified.",
+     "specRefs": [
+      "EAL L3 Initial Verification: outcomes 6 and 10 (commissioning), lesson-powerpoint-part2-testing.txt",
+      "EAL L2 Fundamental: exam outcome 6, slides p.6"
+     ],
+     "materialRefs": [
+      "fundamental-inspection-testing-slides.pdf p.71-77 (PFC: measurement, calculation or enquiry; the larger recorded; 230 / 0.03 on p.77, printed 7666 A, worked 7666.67 A), p.82 (RCD table, both half-cycles, the slower recorded)",
+      "lesson-powerpoint-part2-testing.txt (structure only): RCD instrument and half-cycles, line-to-line PFC warning, phase sequence, functional testing, voltage drop not normally required",
+      "osg p.124-125 (10.3.7: three-phase about twice the single-phase value; 10.3.8-10.3.10), p.127-129 (Section 11: 300 ms, S-type 130-500 ms, BS 7288, integral test button, multipole RCDs)",
+      "C&G 2391-050/051/052 samples (shapes only): why PFC is measured, RCD test currents and times, phase sequence"
+     ],
+     "picture": "The RCD trip trace: the test's residual current drawn as a sine starting at 0 degrees or 180 degrees, the moment the device opens marked on a time axis with the 300 ms limit (or the S-type window from 130 to 500 ms). Switch between half-cycles and the trip moment shifts; the record is the slower. Switch to half rated current and the device must not open at all.",
+     "recall": "At the origin you measure PSCC and PEFC. Which goes on the certificate? The larger of the two. Slips: the smaller (it is the largest current a device must break); PEFC only.",
+     "why": "A device that cannot break the fault current at its point can fail violently, so its breaking capacity must be at least the PFC there; PFC = U / Z, and for three-phase the fault level is about twice the single-phase value. An RCD's tripping depends on where in the cycle the fault starts, so both half-cycles are tested and the slower time recorded. Its test button checks the device's parts only, not the earthing behind it.",
+     "practice": {
+      "A": "Unit 3: (a) Determine the PEFC at the origin: 230 / 0.18 = 1277.78 A. (b) PSCC line to neutral measured 1.45 kA (practice value): estimate the three-phase value, 2 x 1.45 = 2.90 kA, recorded as Ipf. (c) Are 6 kA devices adequate? Yes (choice; 6 kA is a practice value). (d) The ring's RCBO trips at 19 ms (0 degrees) and 23 ms (180 degrees): record 23 ms.",
+      "changed": "A supply with Ze 0.05 ohm: PEFC = 230 / 0.05 = 4600.00 A.",
+      "B": "Explain why pressing an RCD's test button does not replace an instrument test. Points: it checks the electrical and mechanical parts only (osg p.129); it does not check the earthing conductor or cpcs (osg p.129); nor the electrode or other means of earthing (osg p.129); it works only when energised and gives no operating time (osg p.129; research for the time point). Any three."
+     },
+     "keep": "PFC = U / Z; record the larger of PSCC and PEFC; three-phase about 2 x single-phase; breaking capacity >= PFC. RCD at 1 x Idn: general 300 ms, S-type 130-500 ms; both half-cycles, record the slower; half Idn must not trip. Test button: mechanism only. Phase sequence, functional checks. Voltage drop: not normally at initial verification.",
+     "builds_on": [
+      5,
+      6,
+      "Design and verification lesson 7 (breaking capacity)"
+     ]
+    },
+    {
+     "n": 8,
+     "unit": "The certificate",
+     "title": "The certificate: Unit 3, tested and signed",
+     "oneLine": "The certificate is the record that the installation met BS 7671 when it went into service: an EIC for new circuits, a Minor Works certificate for work without one, each with schedules whose columns are the tests just done, issued by the installer to the person ordering the work.",
+     "skill": "Choose EIC, MEIWC or EICR; read and fill the schedule of test results column by column; record departures and the next inspection recommendation; complete Unit 3's certificate.",
+     "specRefs": [
+      "EAL L3 Initial Verification: outcome 7 (certificates and associated documentation), lesson-powerpoint-part1-inspection.txt",
+      "EAL L2 Fundamental: exam outcome 7 and the practical's certificate, slides p.5-6, p.87"
+     ],
+     "materialRefs": [
+      "fundamental-inspection-testing-slides.pdf p.11-17 (certificates, required information), p.87 (forms for the practical)",
+      "osg p.107 (9.1: EIC with schedules to the person ordering the work), p.179-188 (G1-G4: certificates, accountability, the model EIC and schedules), p.194-195 (MEIWC)",
+      "IET model forms for BS 7671:2018+A4:2026 (public, to research): EIC, MEIWC, schedules, column 12 note, column 31 remarks",
+      "C&G 2391-050/052 samples (shapes only): which document for which work, where results are recorded"
+     ],
+     "picture": "The schedule of test results filling: its columns in a row, each lighting up with the test (and lesson) that produced it. Unit 3's figures fill circuit by circuit; a wrong entry (an R1+R2 from the wrong step, a design Zs in the measured column) turns red with the reason.",
+     "recall": "You install a new radial for a water heater in an existing office. Which document? An EIC: it is a new circuit. Slips: Minor Works (only where no new circuit is added); an EICR (it reports, it certifies nothing).",
+     "why": "The certificate is the evidence the work met BS 7671 when it went into service and the baseline every later inspection compares with. A new circuit needs an EIC with its schedules; work without a new circuit takes a Minor Works certificate. The installer issues it, even when another firm tested. The schedules map one to one onto the test sequence.",
+     "practice": {
+      "A": "Unit 3, capstone: complete the schedule rows for the four circuits (R1+R2, Zs, insulation resistance, RCD time, polarity) and the supply section (Ze 0.18 ohm, Ipf 2.90 kA), every figure carried from lessons 2 to 7.",
+      "changed": "A C&G shape with new facts: two sockets added to an existing radial; which certificate, and what it must still record? A Minor Works certificate, with its own test results.",
+      "B": "State three documents the person ordering the work receives on completion, and why they keep them. Points: the EIC (osg p.107); the schedule of circuit details (osg p.107); the schedule of test results (osg p.107); kept for anyone inspecting or working on it later (A4 guidance for recipients, to research). Any three."
+     },
+     "keep": "EIC: new installation or new circuit, with schedules of inspections, circuit details and test results. MEIWC: no new circuit. EICR: reports condition, certifies nothing. The installer issues the EIC. Departures and the next inspection go on the certificate. Each column has its test.",
+     "builds_on": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+     ]
+    }
+   ]
+  },
+  {
+   "id": "periodic-inspection",
+   "title": "Periodic inspection and the EICR, a refresher",
+   "blurb": "Your Level 3 periodic inspection taught back to you: what the inspection is for, how far it goes, testing an installation in use, coding what you find, and a 1970s house reported in full.",
+   "kind": "refresher",
+   "units": ["The job", "Testing in service", "Coding", "The report"],
+   "runningCase": "A 1975 semi-detached house on a TN-S supply, with its original rewireable-fuse board and later additions, inspected, tested, coded and reported (brief.md section 6.2).",
+   "lessons": [
+    {
+     "n": 1,
+     "unit": "The job",
+     "title": "What a periodic inspection is for",
+     "oneLine": "A periodic inspection asks one question, whether the installation is in a satisfactory condition for continued service, judged against the current BS 7671; it reports condition, finds no faults on purpose and certifies nothing.",
+     "skill": "State the purpose and how it differs from initial verification; name the triggers and the records to ask for; inspect with the senses and SADCOWES; tell a non-compliance that is unsafe from one that is not.",
+     "specRefs": [
+      "EAL L3 Periodic Inspection, Testing and Certification (Oct 2025): learning outcomes 2-4, condition-report-slides.pdf p.2-3"
+     ],
+     "materialRefs": [
+      "condition-report-slides.pdf p.6-10 (purpose, who requires it, reasons, records), p.12-19 (competence, inspection without dismantling, SADCOWES, senses, the inspection items), p.21-22 (651.1 compared with initial verification), p.72 (not fault finding; older installations), p.78-81 (the EICR)",
+      "osg p.180 (G3.1: the EICR certifies nothing; satisfactory or unsatisfactory)",
+      "C&G 2391-051/052 samples (shapes only): purpose, which process checks deterioration, triggers, senses"
+     ],
+     "picture": "Condition over time: an installation's condition as a line falling slowly with age and use, with steps down at events (an extension, a flood, a bigger load, a change of use) and the line 'satisfactory for continued service' across it. Each inspection is a dot on the line; tap an event to see why it calls for one.",
+     "recall": "Is an EICR a certificate? No: it reports the condition at the time and certifies nothing. Slips: 'yes, it certifies the installation is safe'; 'only when it is satisfactory'.",
+     "why": "Every installation deteriorates with use and age, so the question is not whether it met the regulations when built, but whether it is still safe to use. It is judged against the current edition, yet an older installation is not unsafe just because it differs. The report records condition; finding and fixing faults is separate work.",
+     "practice": {
+      "A": "The 1975 house, for a new owner: (a) State the purpose of the inspection (choice). (b) Which records should you ask to see first? Earlier certificates and reports, Minor Works certificates, drawings (choice, several).",
+      "changed": "A shop after a flood: which event-led reason applies, and what does that change? Environmental damage; the inspection concentrates where water reached (choice).",
+      "B": "Explain why an installation that does not comply with the current BS 7671 may still be satisfactory for continued service. Points: it is judged on safety for continued service (eicr slides p.21, p.80); non-compliance is not necessarily unsafe (eicr slides p.72, p.80); only C1 and C2 make it unsatisfactory (osg p.180; research for A4); improvements are recommended as C3 (eicr slides p.37). Any three."
+     },
+     "keep": "Purpose: satisfactory condition for continued service (651.1). Judged against the current BS 7671; older is not unsafe by itself. Inspect without dismantling; senses and SADCOWES. Ask for the records. It reports; it certifies nothing; it is not fault finding.",
+     "builds_on": [
+      "Initial verification lesson 8 (the certificate it compares with)",
+      "Your L3 Periodic Inspection, Testing and Certification (Oct 2025)"
+     ]
+    },
+    {
+     "n": 2,
+     "unit": "The job",
+     "title": "Extent, limitations and sampling",
+     "oneLine": "Before starting, the inspector and client agree what will be inspected and what will not and write it on the report; sampling is a judgement that records make possible, and what the sample finds can widen it to every circuit.",
+     "skill": "Write the extent and the agreed and operational limitations; set the sampling from the factors; refuse to sample tests where there are no earlier results; widen the sample when it finds defects.",
+     "specRefs": [
+      "EAL L3 Periodic Inspection: outcomes 2 and 4, condition-report-slides.pdf p.2-3"
+     ],
+     "materialRefs": [
+      "condition-report-slides.pdf p.23-28 (extent, limitations, operational limitations, sampling factors, no test sampling without results, at least 20% considered, back up to 100%), p.57 and p.70 (Section D's standard text)",
+      "IET EICR model form for BS 7671:2018+A4:2026 (public, to research): Section D's standard limitations, including the new line on safety alerts and product recalls",
+      "C&G 2391-051/052 samples (shapes only): what is a limitation, who sets the sample, circuits without records"
+     ],
+     "picture": "The sample grows: the house's circuits and points as a grid. Toggle 'earlier test results exist' and the sample slider unlocks; without them it locks at all of them. Inspect the sample and any defect it reveals widens the sample around it, up to every point.",
+     "recall": "There are no earlier test results. How much of the testing can be sampled? None: every circuit is tested. Slips: 20% (only considered when results exist); 10%.",
+     "why": "A sample stands in for the rest only when there is a record to compare it with. The sample depends on age and condition, use, environment, maintenance, time since the last inspection and size. Limitations not agreed and recorded leave the client and the next inspector believing more was checked than was.",
+     "practice": {
+      "A": "The 1975 house: (a) Sort the statements into extent, agreed limitation and operational limitation (choice per card). (b) The garage sub-board has no records: how is it tested? In full (choice).",
+      "changed": "A small office with full records from four years ago and no alterations: is sampling of tests possible? Yes, with the extent agreed and recorded (choice).",
+      "B": "Explain why tests cannot be sampled where there are no earlier test results. Points: sampling relies on earlier records (eicr slides p.25); without results there is nothing to compare the sample with (research: GN3); the sample may need to go to 100% (eicr slides p.26-27); the agreed sampling is recorded on the report (eicr slides p.27). Any three."
+     },
+     "keep": "Extent: what is covered. Agreed limitations: what is not, and why, agreed before starting. Operational limitations: found on site, recorded. Standard text: concealed cables not inspected; no recall checks (A4). Sampling: only with records; the factors; defects widen it.",
+     "builds_on": [
+      1
+     ]
+    },
+    {
+     "n": 3,
+     "unit": "Testing in service",
+     "title": "Testing an installation in service",
+     "oneLine": "An installation in use is live and occupied, so the inspector chooses which tests to run, in what order and with what disruption, lets a live test stand in for a dead one where it proves the same thing, and makes danger known the moment it is found.",
+     "skill": "Plan the tests for an occupied installation; say which live readings confirm what (Zs and cpc continuity); compare readings with expected values; act on danger at once, in writing, with the owner's agreement to make safe.",
+     "specRefs": [
+      "EAL L3 Periodic Inspection: outcomes 1, 5 and 6, condition-report-slides.pdf p.2-3"
+     ],
+     "materialRefs": [
+      "condition-report-slides.pdf p.12, p.28-35 (testing in service, safety, HSR25 regulations 4 and 14, dangers of testing), p.42 and p.70 (danger: immediately, in writing)",
+      "fundamental-inspection-testing-slides.pdf p.47 (no remit for fault finding on a periodic)",
+      "osg p.111 (EAWR regulation 14 and live testing), p.146 (Table B8), p.181 (G3.3 dangerous situations)",
+      "HSE HSR25 (public, to research): regulations 4(1), 4(3), 14",
+      "C&G 2391-051/052 samples (shapes only): tests out of sequence, what a Zs test confirms, which tests may be unnecessary"
+     ],
+     "picture": "Dead and live, in service: the initial sequence of tests as a row of tiles. Tap a tile to see what it needs (isolation, disruption to the occupants) and what it proves; tiles that prove the same thing link up (Zs with cpc continuity; ring step 3 with polarity), so the plan for the house can be read off the picture.",
+     "recall": "A Zs reading at the end of a radial matches Ze + R1+R2 from its records. What else has it shown? That the cpc is continuous. Slips: that the insulation is sound (only an IR test shows that); that the RCD works.",
+     "why": "In service, the order of tests can change: some live tests come first because the installation is energised, and isolating every circuit may be impractical or unsafe for the occupants. EAWR still governs: live working only where it is unreasonable to be dead, reasonable to be live, with precautions. Danger found is made known at once, isolation recommended in writing, and made safe with the owner's agreement.",
+     "practice": {
+      "A": "The house's ring, 70 m of 2.5/1.5 mm2 on a 30 A BS 3036 fuse, Ze 0.45 ohm (practice value): (a) Determine the expected R1+R2: (0.52 + 0.85) / 4 = 0.34 ohm. (b) Determine Zs: 0.45 + 0.34 = 0.79 ohm. (c) Is it acceptable against 0.83 ohm (OSG Table B1 at 10 C), or 0.83 x 1.04 = 0.86 ohm at 20 C? Yes (choice).",
+      "changed": "The upstairs lighting, 25 m of 1.0/1.0 mm2 on a 5 A BS 3036 fuse: R1+R2 = 25 x 36.20 / 1000 = 0.91 ohm; Zs = 0.45 + 0.91 = 1.36 ohm, against 7.3 ohm.",
+      "B": "State what the inspector must do on finding a dangerous situation during a periodic inspection. Points: tell the person ordering the work at once (eicr slides p.12, p.34, p.42); recommend immediate isolation of the defective part (eicr slides p.12, p.70); confirm it in writing (eicr slides p.70; osg p.181); agree action before carrying on, and make safe with the owner's agreement (eicr slides p.32, p.34; osg p.181). Any three."
+     },
+     "keep": "In service: plan the tests round the occupants; order may change. Zs confirms cpc continuity; step 3 confirms polarity. Live only where EAWR 14 allows. Danger: tell them now, recommend isolation, in writing, make safe with agreement.",
+     "builds_on": [
+      2,
+      "Initial verification lessons 3 and 6"
+     ]
+    },
+    {
+     "n": 4,
+     "unit": "Coding",
+     "title": "The codes: C1, C2, C3 and FI",
+     "oneLine": "Each observation answers one question at a time: is there danger now, would one foreseeable fault make it dangerous, would changing it simply improve safety, or can it not be judged within the inspection's limits; the answer is the code.",
+     "skill": "Code observations by the decision tree; tell missing basic protection (C1) from missing fault protection (C2); keep C3 for improvement only; use FI as A4 now intends; recognise the contested items and why they are contested.",
+     "specRefs": [
+      "EAL L3 Periodic Inspection: outcome 9 (observations and classifications), condition-report-slides.pdf p.3"
+     ],
+     "materialRefs": [
+      "condition-report-slides.pdf p.36-41 (observations, the codes, the plain distinctions), p.43-61 (examples of C1, C2 and C3), p.62-69 (eight code tests with answers)",
+      "osg p.180-181 (G3.2 examples of C1, C2, C3 and FI)",
+      "Electrical Safety First Best Practice Guide 4, issue 7.4 (public, to research): the codes, examples, 'NC only' and observations without a code",
+      "IET EICR model form notes for BS 7671:2018+A4:2026 and Regulation 653.1 (to research): the changed intent of FI and the observations section in two parts",
+      "C&G 2391-051/052 samples (shapes only): which code for which situation"
+     ],
+     "picture": "The coding decision tree you click through: an observation card enters at the top; answer 'Can a person touch a live part, or is metalwork live, now?', 'Would a single foreseeable fault make it dangerous?', 'Would changing it improve safety?', 'Can it be judged within the agreed extent?'; the card drops to C1, C2, C3 or FI and keeps the reason (basic protection missing, fault protection missing, improvement, unknown).",
+     "recall": "A blank is missing from a consumer unit and a finger can reach the busbar. Which code? C1. Slips: C2 (it is not waiting for a fault: the danger is there now); C3.",
+     "why": "C1 is danger now: basic protection is missing. C2 is danger after one foreseeable fault: fault protection is missing or ineffective. C3 is an improvement that would add safety, never a preference. FI is for something the agreed extent could not settle that might be C1 or C2. Some items depend on the conditions found, so the same defect can earn two codes: a sheath stopping short of a box is C2 where the cores can be touched or reach metal, C3 where they cannot.",
+     "practice": {
+      "A": "The house's observation list, one card at a time (choice, each slip with its own hint): missing blank (C1); no main bonding to the gas pipe (C2); a 30 A fuse carrier with heavier fuse wire (C2); kitchen sockets used for the garden, no RCD (C2); bedroom sockets, no RCD (C3); sheath short of a switch box, cores out of reach (C3); no circuit chart (C3); scorching at the immersion heater's spur (C2); a cable into an agreed-closed floor void that cannot be traced (FI, as A4 intends, to research).",
+      "changed": "A commercial kitchen: a socket with a cracked face plate exposing a terminal; which code and why? C1: basic protection is missing (choice).",
+      "B": "Explain the difference between C1 and C2, with an example of each. Points: C1 means danger present, immediate action (eicr slides p.37, osg p.180); C1 is basic protection missing, e.g. exposed live parts (eicr slides p.39, p.43); C2 means potentially dangerous, dangerous if a fault occurs (eicr slides p.37, p.40); C2 is fault protection missing, e.g. no earthing or bonding (eicr slides p.40, p.44-45). Any three."
+     },
+     "keep": "C1: danger now (basic protection missing); tell them at once. C2: dangerous after one fault (fault protection missing). C3: improvement only. FI: cannot be judged within the extent; A4's notes govern its effect on the outcome. Same defect, two codes: depends on reach and metalwork.",
+     "builds_on": [
+      3
+     ]
+    },
+    {
+     "n": 5,
+     "unit": "Coding",
+     "title": "Coding the readings",
+     "oneLine": "A reading earns a code only against its limit, so each is compared with the right figure at the right temperature: a Zs above its maximum, insulation under 1 MOhm at the board, an RCD too slow or a ring that does not match are fault protection at risk, and a voltage drop is judged by its effect.",
+     "skill": "Compare each reading with its limit (Zs with temperature correction, IR, RCD time, ring match, voltage drop from R1+Rn x Ib) and code the failures with their reasons.",
+     "specRefs": [
+      "EAL L3 Periodic Inspection: outcomes 7 and 9 (interpret test results; classifications), condition-report-slides.pdf p.3"
+     ],
+     "materialRefs": [
+      "condition-report-slides.pdf p.47-49 (RCD failing, Zs too high, ring faults: C2), p.51 (IR under 1 MOhm at the board with all final circuits connected: C2), p.73-76 (verification of voltage drop: 3% and 5%, mV/A/m x L x Ib / 1000)",
+      "fundamental-inspection-testing-slides.pdf p.50, p.79, p.82 (the limits)",
+      "osg p.125 (10.3.10 voltage drop by measured impedances), p.128-129 (RCD times), p.139-146 (Appendix B, Table B8)",
+      "Best Practice Guide 4 issue 7.4 and GN3 (to research): coding a voltage drop, a PFC above breaking capacity, IR between 1 and 2 MOhm",
+      "C&G 2391-051/052 samples (shapes only): coding an RCD time, a low IR, a voltage drop; VD from R1+Rn and Ib"
+     ],
+     "picture": "Each reading on its own number line with its limit band, and the limit's source under it; a temperature toggle moves Zs limits by (t + 230) / 240. A reading crossing its limit turns red and offers a code with its reason. For voltage drop, R1+Rn and Ib build the drop as a bar against 3% or 5% of 230 V.",
+     "recall": "A 30 mA RCD giving additional protection trips in 340 ms at its rated current. Which code? C2. Slips: C1 (nothing is dangerous until a fault); C3 (it fails its required time).",
+     "why": "A code needs a comparison, and the comparison needs the right limit: Zs at the test temperature, IR for the whole installation with every final circuit connected, the RCD's time for its type. Failed fault protection is C2; C1 only when danger is present, such as insulation fallen away from live conductors. Voltage drop is verified from measured impedance, (R1+Rn) x Ib, and judged by whether equipment works safely.",
+     "practice": {
+      "A": "The house: (a) circuits read line to earth 0.75, 50, 30, 8 and 20 MOhm: determine the whole-installation value, 0.64 MOhm, and code it, C2 (choice). (b) The immersion heater, 3 kW: Ib = 3000 / 230 = 13.04 A; R1+Rn 0.62 ohm (practice value); voltage drop 13.04 x 0.62 = 8.08 V, 3.51% of 230 V, within 5% (11.50 V): no code. (c) The shower RCD: 26 ms and 34 ms; record 34 ms, satisfactory.",
+      "changed": "A lighting circuit: R1+Rn 1.40 ohm, Ib 4.35 A: 6.09 V, within 3% of 230 V (6.90 V).",
+      "B": "Explain why a whole-installation insulation resistance below 1 MOhm is coded C2 rather than C1. Points: it is listed as C2 when measured at the board with all final circuits connected (eicr slides p.51); C2 means not dangerous now but could become so with a fault (eicr slides p.37); it becomes C1 only where live conductors are exposed (eicr slides p.51); research for a BPG4 point. Any three."
+     },
+     "keep": "Zs: measured max x (t + 230) / 240; above it: C2. IR at the board, all finals connected, under 1 MOhm: C2. RCD 1 x Idn over 300 ms (general): C2. Ring not matching or open: C2. VD = (R1+Rn) x Ib; 3% lighting, 5% other (public supply). Code the effect, with the reason.",
+     "builds_on": [
+      4,
+      "Initial verification lessons 4, 6 and 7"
+     ]
+    },
+    {
+     "n": 6,
+     "unit": "The report",
+     "title": "The report: the 1970s house, coded and signed",
+     "oneLine": "The EICR gathers the extent, the schedules and the coded observations into one judgement, satisfactory or unsatisfactory, with a next inspection date set by the installation's condition; any C1 or C2 makes it unsatisfactory.",
+     "skill": "Complete the EICR's sections; give the overall outcome from the codes; recommend the interval; know who keeps the original and how remedial work is then certified.",
+     "specRefs": [
+      "EAL L3 Periodic Inspection: outcome 8 (EICR and associated documentation) and the practical's report, condition-report-slides.pdf p.3-4"
+     ],
+     "materialRefs": [
+      "condition-report-slides.pdf p.42, p.77-81 (the EICR: purpose, contents, the original and the duplicate)",
+      "osg p.180-182 (G3.1-G3.5: outcomes, remedial work, consumer units in dwellings), p.198-206 (the model EICR and its schedules, A2 edition)",
+      "IET EICR model form for BS 7671:2018+A4:2026 and its notes (to research): sections, outcome wording, FI, the interval note (Regulation 652.1)",
+      "C&G 2391-051/052 samples (shapes only): where extent is recorded, outcome from codes"
+     ],
+     "picture": "The report assembling: observations drop into the observations section; the summary reads Satisfactory until the first C1 or C2 lands, then flips; a C3 never flips it; FI follows A4's rule once research has quoted it. The next-inspection slider shortens as the condition worsens.",
+     "recall": "A report carries only C3 observations. Satisfactory or unsatisfactory? Satisfactory. Slips: unsatisfactory (C3 is an improvement); 'it cannot be issued'.",
+     "why": "The client acts on one line, the outcome, so it must follow mechanically from the codes. The interval reflects what was found, not a habit. The original goes to the person ordering it and the inspector keeps a duplicate, because the next inspector starts from it. Work done afterwards is certified as new work.",
+     "practice": {
+      "A": "The 1975 house, capstone: enter the coded observations, the ring and lighting rows of the schedule (lessons 3 and 5), and the outcome, unsatisfactory (C1 and C2 present); recommend the interval once research gives the guidance.",
+      "changed": "A flat with one C3 and one item the client would not let you reach: what outcome, and where does the item go? Satisfactory; the item is a limitation (choice).",
+      "B": "State what happens after an unsatisfactory report is issued. Points: the onus is on the client to act (osg p.180); C1 items needed immediate action (eicr slides p.42); a duty of care exists to protect people from unacceptable risk (osg p.182); remedial work is certified as new work (osg p.182). Any three."
+     },
+     "keep": "Any C1 or C2: unsatisfactory. Only C3: satisfactory. FI: as A4's notes say. Sections: who ordered, why, extent and limitations, summary, schedules, observations. Original to the client, duplicate kept. Interval from condition (652.1). Remedial work certified separately.",
+     "builds_on": [
+      1,
+      2,
+      3,
+      4,
+      5
+     ]
+    }
+   ]
+  },
+  {
+   "id": "emergency-lighting",
+   "title": "Emergency lighting: design, testing and the logbook",
+   "blurb": "What the emergency lights must do when the mains fails, where they go and how bright, and the tests and records that keep them ready, on the same unit you certified.",
+   "kind": "new ground (no qualification of Dan's covers it), in the refresher shape; built last, after research has quoted BS 5266-1:2025, BS EN 50172:2024 and BS EN 1838:2024",
+   "units": ["The system", "Keeping it working"],
+   "runningCase": "Unit 3 again: its corridor to the final exit, its open workshop and its reception, lit for escape, tested for a year and logged (brief.md section 6.3).",
+   "lessons": [
+    {
+     "n": 1,
+     "unit": "The system",
+     "title": "What emergency lighting is for: types, modes and duration",
+     "oneLine": "When the normal lighting fails, emergency lighting lets people find the way out, cross open areas without panic and make dangerous tasks safe; maintained, non-maintained and combined luminaires differ only in what they do while the mains is healthy, and the duration follows how fast the building is cleared and reoccupied.",
+     "skill": "Name escape route, open area, high-risk task area and standby lighting; tell maintained, non-maintained and combined luminaires apart; choose 1 h or 3 h from the evacuation strategy; place the responsible person's duties.",
+     "specRefs": [
+      "No qualification of Dan's; BS 5266-1:2025 and BS EN 50172:2024 (to research)"
+     ],
+     "materialRefs": [
+      "emergency-lighting-pocket-guide.pdf p.3 (the four types, open areas over 60 m2), p.4 (legislation: structure only; the guide's list is out of date), p.9 (maintained, non-maintained, combined), p.15 (3 h and 1 h and the premises lists)",
+      "lesson-powerpoint-part1-inspection.txt (segregation of safety services, BS 5266)",
+      "BS 5266-1:2025 scope (public summary, to research): local area and standby lighting added"
+     ],
+     "picture": "Mains fails: Unit 3's plan with its normal lighting; cut the mains and the building goes dark except the emergency luminaires, each type lighting its part (the route, the open workshop, the compressor's controls). Toggle a luminaire between maintained, non-maintained and combined to see which lamps are on before and after the failure. A duration bar shows 1 h against 3 h and when the building could be reoccupied.",
+     "recall": "Which luminaire is lit all the time and stays lit when the mains fails? A maintained one. Slips: non-maintained (lit only on failure); combined (two lamps, one for emergency use).",
+     "why": "Darkness on a failure causes panic and falls, so the lighting must show the route, the hazards on it and the safety equipment. A 3 h duration is used where evacuation is not immediate or early reoccupation may be needed; 1 h only where evacuation is immediate and reoccupation waits for recharge.",
+     "practice": {
+      "A": "Unit 3: classify each area: corridor to the final exit (escape route); workshop 14 m x 9 m, 126 m2 (open area, over 60 m2); compressor controls (high-risk task area, if the risk assessment says so). Choice per area.",
+      "changed": "A 7 m x 8 m office, 56 m2, not on an escape route: open area lighting needed by area alone? No (choice; the risk assessment can still ask for it).",
+      "B": "Explain why a 3 h duration is chosen where early reoccupation may be needed. Points: the batteries need time to recharge after a failure (research: BS 5266-1:2025); a 1 h system leaves the building unprotected while it recharges (el guide p.15, research); 3 h covers evacuation that is not immediate (el guide p.15). Any two."
+     },
+     "keep": "Types: escape route, open area (over 60 m2), high-risk task, standby. Modes: maintained (always on), non-maintained (on failure), combined (two lamps). Duration: 3 h unless evacuation is immediate and reoccupation waits. The responsible person's risk assessment decides.",
+     "builds_on": [
+      "Initial verification lesson 8 (Unit 3)"
+     ]
+    },
+    {
+     "n": 2,
+     "unit": "The system",
+     "title": "Where the lights go: points of emphasis, lux and signs",
+     "oneLine": "Luminaires go first at the points of emphasis (exits, changes of direction and level, stairs, safety equipment), then wherever the levels still fall short: 1 lux along an escape route's centre line, 0.5 lux across an open area's core, and signs readable from as far as 200 times their height when lit from inside.",
+     "skill": "List the points of emphasis and the 2 m 'near'; apply the escape route, open area and high-risk levels; work an open area's core; size an exit sign from the viewing-distance rule.",
+     "specRefs": [
+      "No qualification of Dan's; BS 5266-1:2025, BS EN 1838:2024 (to research)"
+     ],
+     "materialRefs": [
+      "emergency-lighting-pocket-guide.pdf p.8 (viewing distance 200 x H and 100 x H; 175 mm gives 35 m and 17.5 m), p.9 (sign luminance), p.10 (points of emphasis, 'near' is within 2 m), p.12 (levels; high-risk 10% and at least 15 lux), p.13 (escape routes: the guide gives 2 lux and 1 lux, to settle), p.14 (open areas: 0.5 lux, the 0.5 m border; spacing tables are one maker's data), p.20 (checklist)",
+      "BS EN 1838:2024 (to research): current illuminance and uniformity values, sign viewing distances"
+     ],
+     "picture": "The open area's core: drag the room's length and width; the 0.5 m border is cut away and the core's area computed, with 0.5 lux to be met inside it. Beside it, a sign: drag its height and switch internally or externally lit; its viewing distance (200 or 100 times its height) is drawn down Unit 3's corridor and turns red where it falls short of the run.",
+     "recall": "A point of emphasis must have a luminaire 'near' it. How near? Within 2 m measured horizontally. Slips: 5 m; directly above it.",
+     "why": "People need to see the route's hazards and the equipment they may use, so those points are lit first, and spacing fills the rest. The open area's outer 0.5 m is left out because people seldom move along it. A sign must be read from where the decision is made, and an internally lit sign carries twice as far as one lit from outside.",
+     "practice": {
+      "A": "Unit 3: (a) Determine the workshop's core area: (14 - 1) x (9 - 1) = 104 m2. (b) Determine the viewing distance of the 150 mm internally lit exit sign: 150 x 200 = 30.00 m; the corridor is 18 m, so one sign is enough. (c) If it were externally lit: 15.00 m, too short (choice).",
+      "changed": "A 200 mm internally lit sign: 200 x 200 = 40.00 m.",
+      "B": "Explain why the outer 0.5 m of an open area is left out when checking its illuminance. Points: people do not often move through the outer border (el guide p.14); only the core area is considered (el guide p.14); a fixed partition moves the border with it (el guide p.14). Any two."
+     },
+     "keep": "Points of emphasis first; near = within 2 m. Escape route: 1 lux centre line (current figure from BS EN 1838:2024). Open area: 0.5 lux in the core, border 0.5 m. High-risk: 10% of the task level, at least 15 lux. Signs: 200 x H inside lit, 100 x H outside lit; one format per building.",
+     "builds_on": [
+      1
+     ]
+    },
+    {
+     "n": 3,
+     "unit": "Keeping it working",
+     "title": "Testing, the logbook and the certificate",
+     "oneLine": "A battery that lights a lamp for a minute may not last its rated duration, so a short monthly test proves each luminaire works and a yearly full-duration test proves it lasts; every test is logged, and a test by the wrong switch can leave people in the dark.",
+     "skill": "Plan the daily, monthly and annual tests; test without isolating the whole lighting circuit; act on a failed duration test; keep the logbook; know what the periodic certificate records and what an EICR checks of the system.",
+     "specRefs": [
+      "No qualification of Dan's; BS EN 50172:2024 (BS 5266-8:2024) clause 7 and BS 5266-1:2025 clauses 11-13 and Annex M (to research)"
+     ],
+     "materialRefs": [
+      "emergency-lighting-pocket-guide.pdf p.17 (testing requirements; isolating the whole lighting circuit by its breaker is not acceptable), p.18 (daily for central battery systems, monthly short test, annual full-duration test, phases, records), p.19 (fault reports: product examples only), p.20 (testing logged monthly and annually)",
+      "BS EN 50172:2024 foreword (public preview): initial verification, handover documentation and logbook requirements added; maintenance and verification modified",
+      "BS 5266-1:2025 contents (public preview): certificates and logbook, routine inspections and tests, Annex M model certificate",
+      "lesson-powerpoint-part1-inspection.txt (segregation of safety services on the schedule of inspections)"
+     ],
+     "picture": "The full-duration test: three luminaires' battery voltage over the rated duration; one sags and drops out at 2 h 10 min (a practice value) while the others reach 3 h. A monthly short test of the same three, drawn beside it, shows all three lit, which is the point. A timeline of the year marks the monthly tests, the annual test and the recharge window after it.",
+     "recall": "How long is the annual test for a 3 h system? The full rated 3 h. Slips: 10 minutes (that is the monthly short test); 1 h.",
+     "why": "Only a full discharge shows a battery that has lost capacity. The test is done by a test switch or key so the normal lighting stays on; a breaker that isolates the whole lighting circuit would put people in the dark during the test. After a full test the system is short of duration until it recharges, so it is done when the risk is low or in phases. The logbook is the evidence the system is maintained.",
+     "practice": {
+      "A": "Unit 3's first year: (a) Plan the tests (choice per month). (b) Luminaire 4 fails at 2 h 10 min in the annual test: record it, repair, retest (choice). (c) Fill the periodic record's items from the results (choice per item, once research quotes Annex M).",
+      "changed": "A school that cannot lose its emergency lighting overnight: test alternate luminaires in two phases (choice).",
+      "B": "Explain why a monthly functional test cannot replace the annual full-duration test. Points: the monthly test only shows the luminaire lights (el guide p.18); battery capacity and duration need the full test (el guide p.17); capacity falls with age (research: BS 5266-1:2025 or a maker's battery data). Any two."
+     },
+     "keep": "Daily: central battery indicators. Monthly: short functional test of every luminaire and sign. Annual: full rated duration. Test by test switch or key, never the lighting circuit's breaker. Log every test and fault. Retest after repair. Certificate: BS 5266-1 model.",
+     "builds_on": [
+      1,
+      2,
+      "Initial verification lesson 7 (functional tests)"
+     ]
+    }
+   ]
+  }
+ ],
+ "waiting": [
+  {
+   "id": "in-service-testing",
+   "title": "In-service inspection and testing of electrical equipment (PAT)",
+   "why": "Dan holds the EAL L3 In-Service Inspection and Testing award (Oct 2025), but none of its materials are in build/ yet. Without his slides, a refresher would be new teaching from public sources (the IET Code of Practice is paywalled; HSE INDG236 and HSG107 are free). It waits until he shares the course's slides or notes; then it is a short course of about four lessons (equipment classes and the user check; formal visual inspection; earth continuity, insulation and protective conductor current tests; records and intervals), in the same refresher shape.",
+   "tid": null
+  }
+ ]
+}
