@@ -1,0 +1,169 @@
+[
+ {
+  "n": 1,
+  "unit": "Three-phase",
+  "title": "The three-phase induction motor",
+  "oneLine": "Three windings 120° apart make one field that turns at ns = 120f ÷ p; it cuts the shorted rotor bars and drags the rotor round, always a little slower, because with no slip nothing is cut and there is no torque.",
+  "skill": "Explain the rotating field, slip and torque; work ns and slip from a nameplate (2950 rpm: two poles, 1.67%); know the starting current and torque, the light-load power factor, and the faults: single phasing, reversed rotation, insulation and winding balance.",
+  "specRefs": [
+   "No syllabus yet: Dan's leading rate and Level 3 marine engineering syllabi to be mapped when he shares them (brief section 10)"
+  ],
+  "materialRefs": [
+   "3-phase-induction-motor.pdf p.1 (rotating field, induction, torque, slip)",
+   "3-phase-induction-motor.pdf p.2 (cage and wound rotor; 5.5 kW 2950 rpm IE3 example)",
+   "3-phase-induction-motor.pdf p.3 (advantages and disadvantages: speed control, lagging power factor, starting current; 'explosion-proof' overclaim, brief section 7)",
+   "3-phase-induction-motor.pdf p.3-4 (applications; two diagrams, redrawn)",
+   "to research: ns = 120f ÷ p; ABB data sheet M3AA 80ME 4 (1437 r/min, Is/IN 5.9, TS/TN 3.5, pf 0.7 and 0.49); ABB Softstarter Handbook (6-8 times, 1.5-2.5 times torque); reversing by swapping two lines; Bussmann failure causes; Boldea and Nasar (marine); DTIC ADA417341 (Type 45)"
+  ],
+  "picture": "The rotating field and slip: the stator field as an arrow turning at ns and the rotor following; drag the load and slip, rotor current and torque grow, and at zero slip both are zero. Toggles for 50/60 Hz and 2/4 poles: 3000, 1500, 3600, 1800 rpm; the sheet's 2950 rpm motor at 1.67% slip (computed).",
+  "builds_on": [
+   "AC circuits lesson 10 (three phases 120° apart)",
+   "AC circuits lesson 8 (power factor; kVA and kW)",
+   "AC circuits lesson 9 (motors as the usual inductive load)"
+  ]
+ },
+ {
+  "n": 2,
+  "unit": "Three-phase",
+  "title": "The DOL starter",
+  "oneLine": "Start makes the coil circuit, the coil pulls in the contactor, and the latch across Start keeps the coil fed; Stop or the overload's release contact drops it all out, and so does a power cut, so it never restarts by itself; full voltage at once means 6 to 8 times full-load current.",
+  "skill": "Operate and fault-find a DOL starter from its drawing: the role of each part 1 to 10, no-volt protection, overload versus short-circuit protection, coil voltage; know the starting current and torque, why the supply sets the size limit, and what star-delta changes.",
+  "specRefs": [
+   "No syllabus yet: Dan's leading rate and Level 3 marine engineering syllabi to be mapped when he shares them (brief section 10)"
+  ],
+  "materialRefs": [
+   "dol-study-sheet.jpg (Dan's own: parts 1-10, component list, four answered questions, uses and limits; item 7 and the inrush line corrected kindly, brief section 7)",
+   "dol-starter.pdf p.1 (sequence), p.2 (components, 6-8 times inrush), p.3 (limits, 'under 4 kW', uses), p.4 (diagram: coil across two lines, no overload contact drawn)",
+   "to research: ABB Softstarter Handbook (6-8 times, over 10; 1.5-2.5 times torque; star-delta about 30% current, 25% torque); ABB Motor Starting Solutions (5.5 kW, 250 kW); Siemens pocket guide (contactor low-voltage protection; bimetal single-phasing protection); Siemens DOL/ASD instructions (coil voltage); Bussmann (worn contacts cause single phasing); short-circuit protection quote",
+   "Design and verification case.json (showroom motor Ib 23.08 A) for the star-delta screen: 138-185 A DOL, about 46-62 A star-delta (computed)"
+  ],
+  "picture": "Dan's DOL sheet as a live circuit, his numbers 1 to 10 kept: isolator, Start, Stop, coil, latch, main contacts, overload and its release contact, delta motor. Operate the isolator, press and release Start, Stop, raise the load until the bimetal trips, cut and restore the supply; the fed path lights, the coil glows, contacts move, and a meter shows the start surge falling as the motor runs up. Fault switches: worn latch, tripped overload.",
+  "builds_on": [
+   1,
+   "AC circuits lesson 10 (star and delta, √3) for the star-delta screen",
+   "Design and verification lesson 1 (the showroom motor's Ib)",
+   "Your trade: contactors, isolators, overloads"
+  ]
+ },
+ {
+  "n": 3,
+  "unit": "Three-phase",
+  "title": "The variable speed drive",
+  "oneLine": "A VSD rectifies the supply to DC, smooths it and switches it back to AC at the frequency asked for; the field speed follows 120f ÷ p, and the voltage follows the frequency (8 V per Hz on a 400 V 50 Hz motor) so the flux stays the same up to base speed; on fans and pumps power falls with speed cubed.",
+  "skill": "Explain rectifier, DC bus and inverter; set voltage from V/f for a given frequency; say what happens above base speed; estimate fan or pump power at reduced speed by the cube law and know when it does not apply; know the drive's usual trips and its limits.",
+  "specRefs": [
+   "No syllabus yet: Dan's leading rate and Level 3 marine engineering syllabi to be mapped when he shares them (brief section 10)"
+  ],
+  "materialRefs": [
+   "variable-speed-drive.pdf p.1 (rectifier, DC bus, inverter, PWM, IGBTs; diagram, redrawn)",
+   "variable-speed-drive.pdf p.1-2 (benefits; soft start; '6 to 12 months' payback left out, brief section 7)",
+   "variable-speed-drive.pdf p.2 (applications, including marine propulsion)",
+   "to research: Hughes and Drury ch. 7 (constant V/f to base speed, constant power region); ABB Technical guides 1 and 4; ABB Review 4/2004 (cube law: 42%, 12.5%); ABB energy plan ('theoretical'); Invertek marine page; trip list, bearing currents and harmonics (ABB technical guides 5 and 6); why the voltage falls with frequency; not insulation testing through a drive"
+  ],
+  "picture": "V/f control: drag the frequency from 0 to 60 Hz on a 400 V 50 Hz four-pole motor; the voltage follows 8 V per Hz to 400 V at 50 Hz then stays there, the field speed follows 120f ÷ p (750 rpm at 25 Hz, computed), and a flux bar stays level to base speed then falls. A fan-load switch shows power by the cube law (75% speed, about 42%).",
+  "builds_on": [
+   1,
+   2
+  ]
+ },
+ {
+  "n": 4,
+  "unit": "Single-phase",
+  "title": "The split-phase motor",
+  "oneLine": "One phase alone makes a field that only pulses, so a second winding of thin wire at 90° carries a current that lags less, about 30° out of step, and the field turns; at about 75% speed the centrifugal switch drops the start winding out and the motor runs on the main winding.",
+  "skill": "Explain why one winding cannot start a motor and how resistance makes the phase shift; know the low starting torque, the short-time-rated start winding, the switch's job, and the faults: hums but runs if spun, burnt start winding; reverse it by swapping the start winding's leads.",
+  "specRefs": [
+   "No syllabus yet: Dan's leading rate and Level 3 marine engineering syllabi to be mapped when he shares them (brief section 10)"
+  ],
+  "materialRefs": [
+   "split-phase-induction-motor.pdf p.1 (two windings at 90°, thin start winding, current leads, 75% switch, low starting torque)",
+   "split-phase-induction-motor.pdf p.2 (uses, fractional horsepower; diagram, redrawn)",
+   "to research: Kuphaldt, Lessons in Electric Circuits II ch. 13 (about 30°; 3/4 of synchronous speed; up to 1/3 hp, 250 W); MSU Tech Notes 313 and 314 (start winding not continuous rated; 80%; torque drops as the switch opens; reversing); Utah ECE 3600 (torque and sin of the angle); a source for 'hums, runs if spun'"
+  ],
+  "picture": "Two winding currents as waves and phasors, about 30° apart (from labelled example winding values through the impedance triangle); the field's tip traces an ellipse while both are in and a line once the switch opens; speed rises, the switch opens at 75% and the torque steps down. Fault switches: switch stuck open (no start), stuck closed (start winding heats).",
+  "builds_on": [
+   1,
+   "AC circuits lessons 4 and 6 (a coil's lag; the impedance angle)"
+  ]
+ },
+ {
+  "n": 5,
+  "unit": "Single-phase",
+  "title": "The capacitor-start motor",
+  "oneLine": "A capacitor in series with the start winding makes its current lead, opening the angle between the two currents towards 90°; starting torque goes with the sine of that angle, so it roughly doubles over split-phase, and the switch still drops it out at 75 to 80% speed.",
+  "skill": "Explain how the capacitor raises starting torque; compare split-phase, capacitor-start, capacitor-start capacitor-run and permanent split capacitor motors; recognise a failed start capacitor or switch and what to check.",
+  "specRefs": [
+   "No syllabus yet: Dan's leading rate and Level 3 marine engineering syllabi to be mapped when he shares them (brief section 10)"
+  ],
+  "materialRefs": [
+   "capacitor-start-motor.pdf p.1 (capacitor in series, phase shift, high starting torque, switch at 75-80%; 'momentum' line corrected, brief section 7)",
+   "capacitor-start-motor.pdf p.1-2 (CSIR and CSCR table, uses; diagram, redrawn)",
+   "to research: USNRC Power Plant Engineering ch. 8 (approaches 90°, better torque with lower current); IDC note (about 80° against 30°, 'nearly twice'); Utah ECE 3600 (sin of the angle; 90° at one speed only); Kuphaldt (multi-kilowatt sizes; 'once started the auxiliary winding is optional'); MSU Tech Note 313 (PSC); DigiKey (failed capacitor will not self-start, secondary); capacitor checks"
+  ],
+  "picture": "Lesson 4's picture with a capacitor slider: drag it and the angle between the two currents opens towards 90° and the starting torque bar climbs, best at one value and falling beyond it (computed from labelled example values); sin 30° = 0.50 against sin 80° = 0.98.",
+  "builds_on": [
+   4,
+   "AC circuits lesson 5 (a capacitor's current leads)"
+  ]
+ },
+ {
+  "n": 6,
+  "unit": "DC",
+  "title": "The DC series motor",
+  "oneLine": "One current runs through field and armature, so more load means more current, more field and torque rising with current squared (below saturation); a turning armature makes a back-emf, so at standstill only resistance limits the current, and with the load off the speed runs away.",
+  "skill": "Explain back-emf and the starting current; explain torque against current squared and why the speed falls with load; know never to run it unloaded or on a belt, and why it has a starter and overspeed protection.",
+  "specRefs": [
+   "No syllabus yet: Dan's leading rate and Level 3 marine engineering syllabi to be mapped when he shares them (brief section 10)"
+  ],
+  "materialRefs": [
+   "dc-series-motor.pdf p.1 (series connection, high starting torque, torque and current squared, poor regulation, runaway, thick field winding, uses; 'model trains' left out, brief section 7)",
+   "dc-series-motor.pdf p.2 (diagram, redrawn)",
+   "to research: OpenStax College Physics 23.6 (back-emf zero at start; 120 V, 10.0 A, 12 Ω; 1.67 A at 100 V, computed); Rose-Hulman lecture 25 (torque and current squared in the linear region; overspeed protection; starting current); IDC 'Classes, speed control and starting of DC motors' (only with the load permanently coupled); PEG-3722 part 7 (runaway sequence); universal motors"
+  ],
+  "picture": "Per-unit speed and torque against load current from the shown rule (torque ∝ I², speed ∝ 1 ÷ I, unsaturated, resistance ignored, said on screen): drag the load down and at half current the torque is a quarter and the speed doubles; at a quarter current the speed is four times, in red.",
+  "builds_on": [
+   "AC circuits lesson 1 (a turning coil makes an emf)",
+   "Your trade: starters and overloads"
+  ]
+ },
+ {
+  "n": 7,
+  "unit": "DC",
+  "title": "The DC shunt motor",
+  "oneLine": "The field sits across the supply, so its flux is steady; load it and the speed dips, the back-emf falls, more armature current flows and torque rises to match at a slightly lower speed; weaken the field and it runs faster, lose the field and it runs away.",
+  "skill": "Use E = V − Ia Ra, speed ∝ E ÷ flux and torque ∝ flux × Ia to explain speed regulation and speed control by field and armature; know loss-of-field protection, starting at full field and the starter's no-volt coil.",
+  "specRefs": [
+   "No syllabus yet: Dan's leading rate and Level 3 marine engineering syllabi to be mapped when he shares them (brief section 10)"
+  ],
+  "materialRefs": [
+   "dc-shunt-motor.pdf p.1 (parallel field, constant flux, self-regulation corrected, 10-20% contested, brief section 7)",
+   "dc-shunt-motor.pdf p.2 (starting torque, torque and armature current, field and armature speed control, maintenance)",
+   "dc-shunt-motor.pdf p.3 (field failure runaway; uses; diagram, redrawn)",
+   "to research: Rose-Hulman lecture 25 (E = KΦω, T = KΦIa; loss-of-field protection); IDC 'Classes, speed control and starting of DC motors' (7 to 10% regulation; faceplate starter, no-volt coil; full field at start); PEG-3722 part 7; ABB Technical guide No. 1 (DC drives and maintenance); a maker's regulation figure"
+  ],
+  "picture": "Back-emf at work: the supply voltage split into two bars, back-emf and the Ia Ra drop. Drag the load and the speed dips a little, the back-emf bar shrinks and the current rises; turn the field rheostat and the speed rises; open the field and the speed runs into the red.",
+  "builds_on": [
+   6
+  ]
+ },
+ {
+  "n": 8,
+  "unit": "DC",
+  "title": "The DC compound motor",
+  "oneLine": "A series and a shunt field together: cumulative, they add, giving high starting torque with a speed that falls with load but stays safe unloaded; differential, they oppose and it is unstable, which is what a reversed series field gives you after a repair.",
+  "skill": "Compare series, shunt and compound motors on starting torque, speed regulation and no-load behaviour; tell cumulative from differential and long from short shunt; diagnose a reversed series field.",
+  "specRefs": [
+   "No syllabus yet: Dan's leading rate and Level 3 marine engineering syllabi to be mapped when he shares them (brief section 10)"
+  ],
+  "materialRefs": [
+   "dc-compound-motor.pdf p.1 (both fields, cumulative and differential, high starting torque, good regulation, uses)",
+   "dc-compound-motor.pdf p.2 (uses; diagram, long shunt, redrawn)",
+   "to research: long and short shunt; a compound motor's safe no-load speed; a reversed series field giving differential action; IDC and PEG-3722 on compound motors"
+  ],
+  "picture": "Series, shunt and cumulative compound torque-speed curves side by side, per unit, from flux = shunt part ± series part × I and lesson 7's rules; a slider moves the series share from shunt to series, and a 'differential' switch flips the series field so the speed rises with load, in red.",
+  "builds_on": [
+   6,
+   7
+  ]
+ }
+]
