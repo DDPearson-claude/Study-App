@@ -97,7 +97,7 @@
   <div class="row nav" id="nav"></div>
 </div>
 
-<p class="caption" id="cap">Figures from your slides and your assignment, each line worked from the rounded figure before it.</p>
+<p class="caption" id="cap">Each line is worked from the rounded figure before it.</p>
 
 <script>
   // ---------- the rule, and the course's figures ----------
@@ -134,31 +134,31 @@
   const f1a = F('1a'), f1b = F('1b'), fCh = F('l1.A.changed');
 
   // ---------- the lesson: SHOW steps teach, DO steps ask ----------
-  const DELTA_NOTE = 'In a balanced delta the line current is the winding current × √3 (Lessons in Electric Circuits, AC chapter 10), so each winding carries the line current ÷ √3. Your showroom\'s motor has a star-delta starter (pack p.4), which runs six wires to the motor, one to each end of each winding (an answer on the PLCtalk forum), so in delta each of those cables carries one winding\'s current. Lesson 3 sizes them, as question 4b asks.';
+  const DELTA_NOTE = 'In a balanced delta, the line current is the winding current × √3. So each winding carries the line current ÷ √3. Your showroom\'s motor has a star-delta starter. A star-delta starter runs six wires to the motor, one to each end of each winding. So in delta, each of those cables carries one winding\'s current. Lesson 3 sizes them, for question 4b.';
   const STEPS = [
     { name: 'Do you still have it?', label: 'Do you still have it?',
       task: 'A 20 kW three-phase heater on a 400 V supply, power factor 1, efficiency 100%. What is its design current, Ib?',
       opts: [fR.text, fR1.text, fR2.text], want: fR.text, why: fR.work },
     { show: true, name: 'What it is for', label: 'What it is for',
-      text: 'Design current, *Ib*, is "the magnitude of the current to be carried by a circuit in normal service" (your slides p.11). The device and the cable are chosen from it, and every check after them starts from that choice.' },
+      text: 'Design current, *Ib*, is the current a circuit carries in normal service. You choose the protective device and the cable from it. Every later check starts from there.' },
     { show: true, name: 'The why', label: 'The why',
-      text: 'The cable carries what the load *draws from the supply*, not what it gives out. Your slides take P as the load\'s output and put the *efficiency* in the rule (p.12, 13), so the losses add to the draw; reactance, behind the *power factor*, adds to it too (p.15).' },
+      text: 'The cable carries what the load *draws from the supply*, not what it gives out. The rule starts from P, the load\'s output. It divides by the *efficiency* to add the losses back. Reactance adds to the draw too, so it also divides by the *power factor*.' },
     { name: 'Check', label: 'Check',
       task: 'A 7.5 kW three-phase motor on a 400 V supply, power factor 0.85, efficiency 90%. What is Ib?',
       opts: [fK.text, fK1.text, fK2.text].sort((a, b) => parseFloat(a) - parseFloat(b)), want: fK.text,
-      why: 'Ib = P ÷ (√3 × UL × eff × pf) (your slides p.13): ' + fK.work + '. Leave out the efficiency and you get ' + fK1.text + '; leave out the power factor and you get ' + fK2.text + '.',
-      hints: { [fK1.text]: 'Not quite. That leaves out the efficiency: the losses come down the cable too.',
-        [fK2.text]: 'Not quite. That leaves out the power factor: the supply gives kVA, not just kW.' } },
+      why: 'Ib = P ÷ (√3 × UL × eff × pf). ' + fK.work + '. Leave out the efficiency and you get ' + fK1.text + '. Leave out the power factor and you get ' + fK2.text + '.',
+      hints: { [fK1.text]: 'Not quite: you left out the efficiency. The losses come down the cable too.',
+        [fK2.text]: 'Not quite: you left out the power factor. The supply gives kVA, not just kW.' } },
     { show: true, name: 'The voltage at the board', label: 'The voltage at the board',
-      text: 'If you are given a voltage for the board, that voltage must be used (your slides p.18). At a sub-board it is lower than 400 V, because the submain drops some on the way, so the same power works out at more current. Your slides work it as if the load still takes its full power: near enough for a motor driving its load, and for a plain heater, which really draws a little less at a lower voltage, the figure errs on the safe side.' },
+      text: 'Work Ib at the voltage at the board. If you are given that voltage, use it. At a sub-board it is lower than 400 V, because the submain drops some on the way. We assume the load still takes its full power there. So the lower voltage means more current. That is near enough for a motor driving its load. A plain heater really draws a little less, so its figure errs on the safe side.' },
     { show: true, name: 'Worked example', label: 'Worked example',
-      text: 'Your slides\' three cases, built a step at a time as the rule builds them. Work each step yourself first, then show it and check yours against it.',
-      read: 'Your slides\' three cases, built a step at a time as the rule builds them.' },
+      text: 'Here is one 20 kW load worked three ways, one step at a time. Work each step yourself first. Then show it and check yours.',
+      read: 'Here is one 20 kW load worked three ways, one step at a time.' },
     { name: 'Section A (a)', label: 'Section A · Question 1', part: '(a) Determine the design current.',
       task: 'Your showroom\'s motor: 400 V three-phase, 11 kW, power factor 0.8 lagging, efficiency 86%. (a) Determine the design current.',
       want: f1a.text, why: f1a.work },
     { name: 'Section A (b)', label: 'Section A · Question 1', part: '(b) Determine the current in each winding when the motor runs in delta.',
-      task: 'The same motor, its line current ' + f1a.text + ' from part (a). (b) Determine the current in each winding when the motor runs in delta.',
+      task: 'The same motor. Its line current is ' + f1a.text + ' from part (a). (b) Determine the current in each winding when the motor runs in delta.',
       want: f1b.text, why: f1b.work + '. ' + DELTA_NOTE },
     { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer',
       task: 'A short written answer, in your own words.' },
@@ -236,12 +236,12 @@
       st.pick = d.opts[k];
       if (st.pick === d.want) {
         st.res = 'right';
-        st.fb = { ok: true, v: 'Still there.', w: fR.work, p: 'Your slides\' own heater (p.16). The other two are the usual slips: ' + fR1.text + ' leaves out √3, and ' + fR2.text + ' works it at 230 V.' };
+        st.fb = { ok: true, v: 'Still there.', w: fR.work, p: 'The other two are the usual slips. ' + fR1.text + ' leaves out √3. ' + fR2.text + ' works it at 230 V.' };
       } else {
         st.res = 'wrong';
         st.fb = st.pick === fR1.text
-          ? { ok: false, v: 'The usual slip: √3 left out.', p0: fR1.text + ' treats the heater as one line at 400 V carrying all of it. Three-phase power is √3 × UL × IL × power factor, so the rule divides by √3 × the line voltage (your slides p.13).', w: 'The working: ' + fR.work, p: 'Continue, and the refresh starts from here.' }
-          : { ok: false, v: 'The usual slip: the single-phase rule.', p0: fR2.text + ' treats the three-phase heater as a single-phase load on 230 V. Use √3 × 400 V (your slides p.13).', w: 'The working: ' + fR.work, p: 'Continue, and the refresh starts from here.' };
+          ? { ok: false, v: 'The usual slip: √3 left out.', p0: fR1.text + ' treats the heater as one line at 400 V carrying all of it. Three-phase power is √3 × UL × IL × power factor. So the rule divides by √3 × the line voltage.', w: 'The working: ' + fR.work, p: 'Continue for a quick refresh of the why.' }
+          : { ok: false, v: 'The usual slip: the single-phase rule.', p0: fR2.text + ' treats the three-phase heater as a single-phase load on 230 V. Use √3 × 400 V.', w: 'The working: ' + fR.work, p: 'Continue for a quick refresh of the why.' };
       }
     } else if (i === 3) {
       if (st.res === 'right') return;
@@ -267,28 +267,28 @@
         { value: r2(MOTOR.P / (R3 * UL)), hint: 'That leaves out both the efficiency and the power factor. The cable carries the input, not the output.' },
         { value: r2(MOTOR.P / (R3 * UL * MOTOR.eff)), hint: 'That leaves out the power factor, 0.8.' },
         { value: r2(MOTOR.P / (R3 * UL * MOTOR.pf)), hint: 'That leaves out the efficiency, 86%.' },
-        { value: r2(MOTOR.P / (UL * MOTOR.eff * MOTOR.pf)), hint: 'That leaves out √3: three-phase divides by √3 × the line voltage.' },
+        { value: r2(MOTOR.P / (UL * MOTOR.eff * MOTOR.pf)), hint: 'That leaves out √3. Three-phase divides by √3 × the line voltage.' },
         { value: r2(MOTOR.P / (U0 * MOTOR.eff * MOTOR.pf)), hint: 'That is the single-phase rule at 230 V. This motor is three-phase at 400 V.' },
       ],
-      hint: 'Not quite. Ib = P ÷ (√3 × UL × eff × pf), with P in watts.',
-      rightNote: (r) => (differs(r, f1a) ? 'That is within rounding of the course\'s ' + f1a.text + ' (with √3 as 1.73, as your slides take it, it comes to ' + f2(ib1a(1.73)) + ' A). Part (b) starts from ' + f1a.text + '.' : ''),
-      missNote: 'Part (b) starts from ' + f1a.text + ', the course\'s figure.' },
+      hint: 'Use Ib = P ÷ (√3 × UL × eff × pf), with P in watts.',
+      rightNote: (r) => (differs(r, f1a) ? 'That is within rounding of ' + f1a.text + '. With √3 as 1.73 it comes to ' + f2(ib1a(1.73)) + ' A. Part (b) starts from ' + f1a.text + '.' : ''),
+      missNote: 'Part (b) starts from ' + f1a.text + '.' },
     [iB]: { id: '1b', fig: f1b, accept: [r2(ib1aRaw / R3), r2(f1a.value / 1.73), r2(ib1a(1.73) / 1.73)],
       slips: [
         { value: r2(f1a.value * R3), hint: 'That multiplies by √3. In delta each winding carries less than the line, so divide.' },
-        { value: r2(f1a.value / 3), hint: 'That divides by 3. In delta the line current is the winding current × √3, so divide by √3.' },
-        { value: f1a.value, hint: 'That is the line current. Each winding carries less than the line in delta.' },
+        { value: r2(f1a.value / 3), hint: 'That divides by 3. In delta, the line current is the winding current × √3. So divide by √3.' },
+        { value: f1a.value, hint: 'That is the line current. In delta, each winding carries less than the line.' },
       ],
-      hint: 'Not quite. In delta, each winding carries the line current ÷ √3.',
-      rightNote: (r) => (differs(r, f1b) ? 'That is within rounding of the course\'s ' + f1b.text + ', so it is accepted. ' : '') + DELTA_NOTE,
+      hint: 'In delta, each winding carries the line current ÷ √3.',
+      rightNote: (r) => (differs(r, f1b) ? 'That is within rounding of ' + f1b.text + ', so it is accepted. ' : '') + DELTA_NOTE,
       missNote: DELTA_NOTE },
     [iCh]: { id: 'l1.A.changed', fig: fCh, accept: [ibCh(1.73, HEAT.U)],
       slips: [
-        { value: ibCh(R3, UL), hint: 'That is worked at 400 V. Use the board\'s own 396 V (your slides p.18).' },
+        { value: ibCh(R3, UL), hint: 'That is worked at 400 V. Use the board\'s own 396 V.' },
         { value: r2(HEAT.P / HEAT.U), hint: 'That leaves out √3.' },
       ],
-      hint: 'Not quite. Ib = P ÷ (√3 × U), with U the voltage at the board.',
-      rightNote: (r) => (differs(r, fCh) ? 'That is within rounding of the course\'s ' + fCh.text + ' (with √3 as 1.73 it comes to ' + f2(ibCh(1.73, HEAT.U)) + ' A).' : ''),
+      hint: 'Use Ib = P ÷ (√3 × U), with U the voltage at the board.',
+      rightNote: (r) => (differs(r, fCh) ? 'That is within rounding of ' + fCh.text + '. With √3 as 1.73 it comes to ' + f2(ibCh(1.73, HEAT.U)) + ' A.' : ''),
       missNote: '' },
   };
   const BOX = { [iA]: '#ans-1a', [iB]: '#ans-1b', [iCh]: '#ans-ch' };
@@ -335,9 +335,9 @@
   // ---------- the worked example, a step at a time as the rule builds it ----------
   const D400 = r2(R3 * UL), DPUMP = r2(D400 * 0.87 * 0.8), D393 = r2(R3 * UB);
   const WORKED = [
-    { h: '20 kW at 400 V (p.16)', s: ['√3 × 400 = ' + f2(D400), '20 000 ÷ ' + f2(D400) + ' = ' + fR.text] },
-    { h: 'The same at power factor 0.8 and efficiency 87% (p.17)', s: ['√3 × 400 = ' + f2(D400), '× 0.87 × 0.8 = ' + f2(DPUMP), '20 000 ÷ ' + f2(DPUMP) + ' = ' + fC.text] },
-    { h: 'The same at a 393 V sub-board (p.19)', s: ['√3 × 393 = ' + f2(D393), '20 000 ÷ ' + f2(D393) + ' = ' + fB.text] },
+    { h: '20 kW at 400 V', s: ['√3 × 400 = ' + f2(D400), '20 000 ÷ ' + f2(D400) + ' = ' + fR.text] },
+    { h: 'The same at power factor 0.8 and efficiency 87%', s: ['√3 × 400 = ' + f2(D400), '× 0.87 × 0.8 = ' + f2(DPUMP), '20 000 ÷ ' + f2(DPUMP) + ' = ' + fC.text] },
+    { h: 'The same at a 393 V sub-board', s: ['√3 × 393 = ' + f2(D393), '20 000 ÷ ' + f2(D393) + ' = ' + fB.text] },
   ];
   const wlines = [];
   WORKED.forEach((x) => {
@@ -345,7 +345,7 @@
     x.s.forEach((t) => { const w = K.el('p', { class: 'w' }, t); box.appendChild(w); wlines.push(w); });
     el('worked').appendChild(box);
   });
-  const cutNote = K.el('p', { class: 'foot' }, 'Your slides print 28.86 A and 41.47 A: cut short rather than rounded. Nothing changes.');
+  const cutNote = K.el('p', { class: 'foot' }, 'You may see 28.86 A and 41.47 A printed elsewhere. Those are cut short, not rounded. The answer is the same.');
   el('worked').appendChild(cutNote);
   const nextLine = K.button({ label: 'Show the next step', into: '#workedgo', press: () => {
     if (at() !== 5 || lines >= wlines.length) return;
@@ -356,17 +356,17 @@
   // ---------- fixed words on their screens ----------
   (function fixed() {
     const r = el('rule1');
-    r.appendChild(K.el('span', { class: 'k-label' }, 'Your slides p.22'));
+    r.appendChild(K.el('span', { class: 'k-label' }, 'The rule'));
     r.appendChild(K.el('p', { class: 'eq' }, 'Ib ≤ In ≤ Iz'));
-    r.appendChild(K.el('p', { class: 'sub' }, 'The design current, no more than the device\'s rating, no more than what the cable can carry.'));
+    r.appendChild(K.el('p', { class: 'sub' }, 'The design current is no more than the device\'s rating. The rating is no more than what the cable can carry.'));
     const wn = K.el('p'); wn.appendChild(K.el('b', null, 'If it is skipped or wrong: ')); wn.appendChild(document.createTextNode('every later step starts from the wrong current.'));
     r.appendChild(wn);
     const b = el('board');
     const row = (head, work) => { const p = K.el('p'); p.appendChild(K.el('b', null, head)); p.appendChild(K.el('span', { class: 'w' }, work)); return p; };
-    b.appendChild(row('Worked at 400 V (p.16)', fR.work));
-    b.appendChild(row('Worked at the board\'s 393 V (p.19)', fB.work));
+    b.appendChild(row('Worked at 400 V', fR.work));
+    b.appendChild(row('Worked at the board\'s 393 V', fB.work));
     const dv = K.el('p', { class: 'note' });
-    write(dv, '*Diversity*, in two lines: the On-Site Guide\'s percentages are guidance and need not be applied (your slides p.10). On a domestic lighting circuit its Appendix A allows 66%, so ten 100 W lamps may be designed at ' + fD.work + ' rather than ' + (10 * 100) + ' W. Lesson 2 does more.');
+    write(dv, '*Diversity* is guidance, not a rule, and you need not apply it. For domestic lighting, the On-Site Guide allows 66%. So ten 100 W lamps may be designed at ' + fD.work + ' rather than ' + (10 * 100) + ' W. Lesson 2 covers it in full.');
     b.appendChild(dv);
   })();
 
@@ -479,8 +479,8 @@
     write(task, d.show ? d.text : d.part || (d.kind ? '' : d.task));
     task.hidden = !task.textContent;
     const sub = el('sub');
-    sub.textContent = i === 2 ? 'The same 20 kW output at 400 V. ' + (REDUCE ? 'Drag either one.' : 'Drag either one, or Replay.')
-      : i === iCh ? 'A City & Guilds question 1 shape, with a new load and new numbers.' : i === iK ? 'One card to come back to on a real job.' : '';
+    sub.textContent = i === 2 ? 'The same 20 kW output at 400 V. ' + (REDUCE ? 'Drag the efficiency or the power factor.' : 'Drag the efficiency or the power factor, or press Replay.')
+      : i === iCh ? 'Like a City & Guilds question 1, with a new load and new numbers.' : i === iK ? 'One card to come back to on a real job.' : '';
     sub.hidden = !sub.textContent;
 
     // The picture for this screen.
@@ -489,17 +489,17 @@
       const o = drawOf(ctlEff.get(), ctlPf.get());
       drawBars(o);
       const more = r2(o.ib - BASE), lossy = o.inp > OUT, react = o.app > o.inp;
-      const tail = 'The line current follows the apparent power: ' + f2(more) + ' A more than the output alone needs.';
+      const tail = 'The line current follows the apparent power. It is ' + f2(more) + ' A more than the output alone needs.';
       held(el('say'), [
-        ['With efficiency and power factor both at 1, nothing is lost and nothing extra is drawn: the cable carries the output\'s own current.'],
-        ['Losses stretch the input past the output, and reactance stretches the apparent power past the input. ' + tail],
-        ['Losses inside the load stretch the input past the output; at power factor 1 the apparent power is the input. ' + tail],
+        ['With efficiency and power factor both at 1, nothing is lost and nothing extra is drawn. The cable carries the output\'s own current.'],
+        ['Losses stretch the input past the output. Reactance stretches the apparent power past the input. ' + tail],
+        ['Losses inside the load stretch the input past the output. At power factor 1, the apparent power is the input. ' + tail],
         ['Nothing is lost, but reactance stretches the apparent power past the input. ' + tail],
       ], !lossy && !react ? 0 : lossy && react ? 1 : lossy ? 2 : 3);
-      const q = 'which your slides say "would cause big implications for the operation and safety of the circuit" (p.17).';
+      const q = 'That puts the circuit\'s operation and safety at risk.';
       held(el('warn2'), [
-        [K.el('b', null, 'If it\'s skipped: '), 'the cable is sized on ' + f2(BASE) + ' A when the load draws ' + f2(o.ib) + ' A, ' + q],
-        [K.el('b', null, 'If it\'s skipped: '), 'at 1 and 1 nothing changes, but below them the cable would be sized on ' + f2(BASE) + ' A while the load draws more, ' + q],
+        [K.el('b', null, 'If it\'s skipped: '), 'the cable is sized on ' + f2(BASE) + ' A when the load draws ' + f2(o.ib) + ' A. ' + q],
+        [K.el('b', null, 'If it\'s skipped: '), 'with both at 1, nothing changes. Below 1, the cable would be sized on ' + f2(BASE) + ' A while the load draws more. ' + q],
       ], o.ib > BASE ? 0 : 1);
     } else if (i === 4) drawBoard();
     else if (i === iB) drawDelta();
@@ -538,8 +538,8 @@
 
     el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
     el('donefb').hidden = !el('donefb').textContent;
-    el('foot').textContent = i === 2 ? 'Real, apparent and reactive power are the AC circuits course\'s lesson 8; here they only show where the extra current comes from.'
-      : i === iA || i === iB ? 'Shaped like a City & Guilds 2396 Section A question, on your own assignment\'s motor (pack p.4).' : '';
+    el('foot').textContent = i === 2 ? 'Real, apparent and reactive power get their own lesson in AC circuits, lesson 8. Here they only show where the extra current comes from.'
+      : i === iA || i === iB ? 'Shaped like a City & Guilds 2396 Section A question, on your showroom\'s motor.' : '';
     el('foot').hidden = !el('foot').textContent;
 
     backBtn.el.hidden = i === 0;
@@ -581,7 +581,7 @@
     { source: 'https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf' });
   K.check('In balanced delta the line current is the phase current times √3: 13.33 A × √3 is the line\'s 23.08 A', () => K.near(f1b.value * R3, f1a.value, 0.01),
     { source: 'https://www.allaboutcircuits.com/textbook/alternating-current/chpt-10/three-phase-y-delta-configurations' });
-  K.check('The demonstration opens at 1 and 1 and settles on your slides\' 0.87 and 0.80', () => {
+  K.check('The demonstration opens at 1 and 1 and settles on 0.87 and 0.80', () => {
     const a = demoAt(0), b = demoAt(DEMO_END); return a.eff === 1 && a.pf === 1 && b.eff === 0.87 && b.pf === 0.8;
   });
   K.check('Every slip lies outside its answer\'s accepted range', () => Object.keys(SPEC).every((k) => {

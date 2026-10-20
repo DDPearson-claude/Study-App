@@ -132,7 +132,7 @@
   <div class="row nav" id="nav"></div>
 </div>
 
-<p class="caption" id="cap">Figures from your slides, your assignment and your copy of BS 7671; practice values marked; each line worked from the rounded figures before it.</p>
+<p class="caption" id="cap">Practice values are marked. Each line is worked from the rounded figures before it.</p>
 
 <script>
   // ---------- the rule, and the course's figures ----------
@@ -201,36 +201,36 @@
   const E5 = 'Table 4E1A, column 5: Method B, 3 or 4 cables', E4 = 'Table 4E1A, column 4: Method B, 2 cables', E3 = 'Table 4E1A, column 3: Method A';
   const STEPS = [
     { name: 'Do you still have it?', label: 'Do you still have it?',
-      task: "Your slides' heater circuit (p.26, 27): In 16 A, in a warm room all along the run (Ca 0.94). The cable is clipped direct, then runs in trunking with another circuit (Cg 0.8), then leaves the trunking to pass through a cavity wall with 50 mm of thermal insulation (Ci 0.88). What tabulated current It must the cable have?",
+      task: "A heater circuit has In 16 A. The whole run is in a warm room, Ca 0.94. The cable is clipped direct, then runs in trunking with another circuit, Cg 0.8. Then it leaves the trunking and passes through a cavity wall with 50 mm of thermal insulation, Ci 0.88. What tabulated current It must the cable have?",
       opts: [fRci.text, fR.text, fRs.text], want: fR.text, why: fR.work + ', the worse of the two places.' },
     { show: true, name: 'What it is for', label: 'What it is for',
-      text: 'The *device* protects the *cable*, so the device is chosen from the load, and the cable from the device.',
-      read: 'Ib ≤ In ≤ Iz: the device at least the design current, the cable where it runs at least the device; and the current that finally operates the device, I2, no more than 1.45 Iz.' },
+      text: 'The *device* protects the *cable*. So you choose the device from the load, and the cable from the device.',
+      read: 'Ib ≤ In ≤ Iz. The device\'s rating is at least the design current. Where it runs, the cable carries at least the device\'s rating. I2 is the current that finally operates the device. It is no more than 1.45 Iz.' },
     { show: true, name: 'The why: the run in sections', label: 'The why · Sections',
-      text: 'Anything that makes the cable artificially warm needs a *rating factor* (your slides p.24): Ca for the ambient, Cg for grouping, Ci for insulation. Each means the cable reaches its limit at a lower current, so the factors divide In to give the *It* the table must show (p.25).',
-      read: 'The trunking section sets the cable at ' + fR.text + '; only where all three act in one place is it ' + fRs.text + '.' },
+      text: 'Anything that makes the cable artificially warm needs a *rating factor*. Ca is for the ambient, Cg for grouping and Ci for insulation. Each one means the cable reaches its limit at a lower current. So the factors divide In to give the *It* the table must show.',
+      read: 'The trunking sets the cable at ' + fR.text + '. You get ' + fRs.text + ' only if all three factors act in one place.' },
     { show: true, name: 'The why: overload', label: 'The why · Overload',
-      text: "*I2* is the current causing effective operation of the device; most devices have an I2 of 1.45 times In (your slides p.30). How long that takes, the sources differ: a maker's catalogue gives its type B breakers from 6 to 63 A, like its C and D, operation within 1 hour at 1.45 In, its conventional time; your slides say it can take 10,000 s, about 2.8 hours (p.30). The design does not hang on the time: the cable must carry I2 for as long as the device takes, so *I2 ≤ 1.45 Iz*, a factor that keeps small overloads from deteriorating the cable.",
-      read: "A 10 A breaker's " + fI2.text + " is within the 13 A cable's " + fLim.text + '; a 10 A rewireable fuse reaches ' + fFuse.text + ' and needs a cable with Iz of ' + fIt.text + '.' },
+      text: "*I2* is the current that makes the device operate. Most devices have an I2 of 1.45 times In. How long they take to operate at that current varies. One maker's type B breakers, from 6 to 63 A, operate within 1 hour. Its C and D breakers do the same. That hour is called the conventional time. Other figures run to 10,000 s, about 2.8 hours. The design does not hang on the time. The cable must carry I2 for as long as the device takes, so *I2 ≤ 1.45 Iz*. That factor keeps small overloads from deteriorating the cable.",
+      read: "A 10 A breaker's " + fI2.text + " is within the 13 A cable's " + fLim.text + '. A 10 A rewireable fuse reaches ' + fFuse.text + ' and needs a cable with Iz of ' + fIt.text + '.' },
     { name: 'Check', label: 'Check',
       task: 'Seven circuits are bunched in one trunking. Four will each carry not more than 30% of their grouped rating. For the Cg of the other three, what is the fewest circuits you may count?',
       opts: ['7 circuits', '3 circuits', '2 circuits'], want: '3 circuits',
-      why: 'The four may be ignored (Table 4C1 note 9). Each of the other three counts itself and the other two, and three circuits bunched take 0.70 (Table 4C1 item 1): ' + fChk.work + '.' },
+      why: 'Table 4C1 note 9 lets you ignore the four. Each of the other three counts itself and the other two. Table 4C1 item 1 gives three circuits bunched 0.70: ' + fChk.work + '.' },
     { show: true, name: 'Worked example', label: 'Worked example',
-      text: "Your slides' own working, a line at a time. Work each line yourself first, then show it and check yours against it.",
-      read: "Your slides' heater circuit needs " + fR.text + ' in the trunking and ' + fRci.text + ' in the wall, so 2.5 mm² on Reference Method B; their 10 A breaker\'s ' + fI2.text + ' sits within the 13 A cable\'s ' + fLim.text + '.' },
+      text: "Here is the heater circuit, worked a line at a time. Work each line yourself first. Then show it and check yours.",
+      read: "The heater circuit needs " + fR.text + ' in the trunking and ' + fRci.text + ' in the wall. So it takes 2.5 mm² on Reference Method B. The 10 A breaker\'s ' + fI2.text + ' sits within the 13 A cable\'s ' + fLim.text + '.' },
     { name: 'Section A (c)', label: 'Section A · Question 1', part: '(c) Determine the smallest standard rating of the circuit-breaker at DBP2 for the motor circuit.',
-      task: "Your showroom's motor, its design current " + f1a.text + ' from part (a). (c) Determine the smallest standard rating of the circuit-breaker at DBP2 for the motor circuit.',
+      task: "The showroom's motor has a design current of " + f1a.text + ', from part (a). (c) Determine the smallest standard rating of the circuit-breaker at DBP2 for the motor circuit.',
       want: f1c.text, why: f1c.work,
       // The read-through's still: the breaker's type chosen too (type C, the course's choice).
       still: () => tBtns[1].el.click() },
     { name: 'Section A (d)', label: 'Section A · Question 1', part: '(d) Taking Ca as 1.00, determine the minimum tabulated current-carrying capacity, It, of the starter-to-motor cables.',
-      task: 'The six starter-to-motor singles, the relay set at ' + f1b.text + '. (d) Taking Ca as 1.00, determine the minimum tabulated current-carrying capacity, It, of the starter-to-motor cables.',
+      task: 'Six singles run from the starter to the motor. The relay is set at ' + f1b.text + '. (d) Taking Ca as 1.00, determine the minimum tabulated current-carrying capacity, It, of the starter-to-motor cables.',
       want: f1d.text, why: f1d.work,
       // The read-through's still: its first question (how many circuits) answered too.
       still: () => pick(PK[iD].opts.indexOf(PK[iD].want)) },
     { name: 'Section A (e) and (f)', label: 'Section A · Question 1', part: '(f) Determine the minimum CSA of the starter-to-motor cables.',
-      task: 'The same cables, It ' + f1d.text + ' from part (d). (e) State the table and the column. (f) Determine the minimum CSA of the starter-to-motor cables.',
+      task: 'The same cables need It of ' + f1d.text + ', from part (d). (e) State the table and the column. (f) Determine the minimum CSA of the starter-to-motor cables.',
       want: f1f.text, why: f1f.work,
       // The read-through's still: part (e), the table and column, answered too.
       still: () => pick(PK[iEF].opts.indexOf(PK[iEF].want)) },
@@ -326,16 +326,16 @@
     0: { opts: STEPS[0].opts, want: STEPS[0].want, once: true },
     4: { opts: STEPS[4].opts, want: STEPS[4].want,
       right: { ok: true, v: "That's it: three circuits.", w: fChk.work },
-      hints: { '7 circuits': 'Counting all seven is allowed, and cautious, but note 9 lets the four light ones go: you may count fewer.',
-        '2 circuits': 'The circuit being installed always counts in Cg (your slides p.25): each of the three counts itself and the other two.' } },
+      hints: { '7 circuits': 'Not quite. Counting all seven is allowed and cautious. But note 9 lets the four light ones go, so you may count fewer.',
+        '2 circuits': 'Not quite. The circuit being installed always counts in Cg. Each of the three counts itself and the other two.' } },
     [iD]: { q: 'First: how many circuits do the six singles count as for Cg?', opts: ['6 circuits', '3 circuits', '2 circuits'], want: '2 circuits',
-      right: { ok: true, v: "That's it: two circuits.", p0: 'In delta running all six carry winding current, and n singles count as n/3 circuits of three loaded conductors for three-phase circuits (Table 4C1 note 5; On-Site Guide p.170).', w: fCirc.work + '.' },
-      hints: { '6 circuits': 'Not quite. Note 5 counts singles in threes for three-phase circuits: six singles are not six circuits.',
-        '3 circuits': 'Not quite. n/2 is for circuits of two loaded conductors; these are three-phase, so they count in threes.' } },
+      right: { ok: true, v: "That's it: two circuits.", p0: 'In delta running, all six carry winding current. For three-phase circuits, n singles count as n/3 circuits of three loaded conductors (Table 4C1 note 5).', w: fCirc.work + '.' },
+      hints: { '6 circuits': 'Not quite. For three-phase circuits, note 5 counts singles in threes. Six singles are not six circuits.',
+        '3 circuits': 'Not quite. n/2 is for circuits of two loaded conductors. These are three-phase, so they count in threes.' } },
     [iEF]: { q: '(e) State the table and the column.', opts: [E5, E4, E3], want: E5,
-      right: { ok: true, v: "That's it.", p0: '90 °C thermosetting singles, non-armoured, are Table 4E1A; conduit on a wall is Reference Method B; two three-phase circuits read the 3 or 4 cables column.', w: f1e.text },
-      hints: { [E4]: 'Not quite. Column 4 is Method B with 2 cables, a single-phase circuit; these are two three-phase circuits.',
-        [E3]: "Not quite. Column 3 is Method A, conduit in a thermally insulating wall; this conduit is on the wall's surface, Method B." } },
+      right: { ok: true, v: "That's it.", p0: 'Non-armoured 90 °C thermosetting singles are in Table 4E1A. Conduit on a wall is Reference Method B. Two three-phase circuits read the 3 or 4 cables column.', w: f1e.text },
+      hints: { [E4]: 'Not quite. Column 4 is Method B with 2 cables, for a single-phase circuit. These are two three-phase circuits.',
+        [E3]: "Not quite. Column 3 is Method A, conduit in a thermally insulating wall. This conduit is on the wall's surface, which is Method B." } },
   };
   const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
   function pick(k) {
@@ -347,12 +347,12 @@
       if (st.ppick === pk.want) {
         st.pres = 'right';
         st.pfb = { ok: true, v: 'Still there.', w: fR.work + ', the worse of the two places.',
-          p: 'Your slides print 21.2 A, cut short. The usual slips: ' + fRs.text + ' multiplies factors that never act together; ' + fRci.text + ' is the easier place.' };
+          p: 'You may see it printed as 21.2 A, cut short. ' + fRs.text + ' is the usual slip: it multiplies factors that never act together. ' + fRci.text + ' is the easier place.' };
       } else {
         st.pres = 'wrong';
         st.pfb = st.ppick === fRs.text
-          ? { ok: false, v: 'The usual slip: factors that never act together.', p0: 'Rating factors need only be applied when happening together (your slides p.25), and the trunking and the insulation are in different places, so each place is worked on its own.', w: 'The working: ' + fR.work + ', the worse of the two places.', p: 'Continue, and the refresh starts from here.' }
-          : { ok: false, v: 'That is the easier place.', p0: 'That is the insulated part, ' + fRci.work + '. The trunking runs hotter and needs ' + fR.text + ', and the cable must survive its worst place.', w: 'The working: ' + fR.work + '.', p: 'Continue, and the refresh starts from here.' };
+          ? { ok: false, v: 'The usual slip: factors that never act together.', p0: 'Apply rating factors together only when they happen together. The trunking and the insulation are in different places, so work each place on its own.', w: 'The working: ' + fR.work + ', the worse of the two places.', p: 'Continue to go over the why again.' }
+          : { ok: false, v: 'That is the easier place.', p0: 'That is the insulated part, ' + fRci.work + '. The trunking runs hotter and needs ' + fR.text + '. The cable must survive its worst place.', w: 'The working: ' + fR.work + '.', p: 'Continue to go over the why again.' };
       }
     } else if (st.ppick === pk.want) { st.pres = 'right'; st.pfb = pk.right; }
     else { st.pres = 'wrong'; st.pfb = { ok: false, v: pk.hints[st.ppick] || 'Not quite.' }; }
@@ -363,9 +363,9 @@
   // After part (c): the breaker's type, chosen against the practice start (C is the course's choice).
   const TYPES = [['B', fTB], ['C', fTC], ['D', fTD]];
   const TFB = [
-    { ok: false, v: 'Type B clears it too, but with little room.', p0: 'Its instantaneous trip starts at ' + fTB.value.split(' to ')[0] + ' A, not far above the practice start of ' + fStart.text + ", and the real start may be higher (the motor's maker gives it). One more go." },
-    { ok: true, v: "That's it: type C.", p0: "The On-Site Guide names type C for small motors (p.90). The course chooses it, its own assumption: clear of the start, with more room than B." },
-    { ok: false, v: 'Type D clears it by far more than it needs.', p0: 'The On-Site Guide names type D for transformers, X-ray machines and industrial welding, and type C for small motors (p.90). One more go.' },
+    { ok: false, v: 'Type B clears it too, but with little room.', p0: 'Its instantaneous trip starts at ' + fTB.value.split(' to ')[0] + ' A, not far above the practice start of ' + fStart.text + ". The real start may be higher, so check the motor maker's figure. One more go." },
+    { ok: true, v: "That's it: type C.", p0: "Type C suits small motors. We take it here because it clears the start with more room than B." },
+    { ok: false, v: 'Type D clears it by far more than it needs.', p0: 'Type D is for transformers, X-ray machines and industrial welding. Type C is for small motors. One more go.' },
   ];
   const tBtns = TYPES.map((t, k) => K.button({ label: 'Type ' + t[0] + ': trips at ' + t[1].text, secondary: true, into: '#tpicks', press: () => {
     const st = S[iC];
@@ -388,25 +388,25 @@
   const SPEC = {
     [iC]: { id: '1c', fig: f1c, unit: 'A', decimals: 0, accept: [],
       slips: [
-        { value: F('1c.slip1').value, hint: "That is below Ib. The breaker carries the motor's line current, " + f1a.text + ", not the output's " + f2(OUT_ONLY) + " A or a winding's " + f1b.text + '.' },
-        { value: F('1c.slip2').value, hint: '20 A is below Ib, ' + f1a.text + ': In must be at least Ib.' },
+        { value: F('1c.slip1').value, hint: "That is below Ib. The breaker carries the motor's line current, " + f1a.text + ". That is more than the " + f2(OUT_ONLY) + " A from the output alone, or a winding's " + f1b.text + '.' },
+        { value: F('1c.slip2').value, hint: '20 A is below Ib, ' + f1a.text + '. In must be at least Ib.' },
         { value: F('1c.slip3').value, hint: '32 A would do, but 25 A is smaller and still not below Ib.' },
       ],
-      hint: 'Not quite. In must be at least Ib, ' + f1a.text + ': take the smallest standard rating not below it.',
-      missNote: "Part (d) starts from the course's figure, " + f1c.text + '.' },
+      hint: 'Not quite. In must be at least Ib, ' + f1a.text + '. Take the smallest standard rating not below it.',
+      missNote: 'Part (d) carries on from ' + f1c.text + '.' },
     [iD]: { id: '1d', fig: f1d, unit: 'A', accept: acceptOf(f1d),
       slips: [
-        { value: F('1d.slip1').value, hint: 'That leaves out Cg: the six singles share one conduit.' },
-        { value: F('1d.slip2').value, hint: "That is the line current, with Cg left out. These cables carry a winding's current, and the relay is set to it." },
+        { value: F('1d.slip1').value, hint: 'That leaves out Cg. The six singles share one conduit.' },
+        { value: F('1d.slip2').value, hint: "That is the line current, with Cg left out. These cables carry a winding's current. The relay is set to it." },
         { value: F('1d.slip3').value, hint: "That starts from the line current. In delta each of these cables carries a winding's current, " + f1b.text + '.' },
-        { value: F('1d.slip4').value, hint: "That starts from the breaker's 25 A. The relay, set at " + f1b.text + ', is the overload device for these cables.' },
-        { value: F('1d.slip5').value, hint: 'That takes Ca as 1.02, the 25 °C row: fair in a design, but the question takes 1.00. The cable comes out the same.' },
+        { value: F('1d.slip4').value, hint: "That starts from the breaker's 25 A. For these cables the overload device is the relay, set at " + f1b.text + '.' },
+        { value: F('1d.slip5').value, hint: 'That takes Ca as 1.02, from the 25 °C row. That is fair in a design, but the question takes 1.00. The cable comes out the same.' },
       ],
-      hint: "Not quite. It ≥ In ÷ (Ca × Cg), with In the relay's setting.",
-      missNote: "Parts (e) and (f) start from the course's figure, " + f1d.text + '.' },
+      hint: "Not quite. It ≥ In ÷ (Ca × Cg). Here In is the relay's setting.",
+      missNote: 'Parts (e) and (f) carry on from ' + f1d.text + '.' },
     [iEF]: { id: '1f', fig: f1f, unit: 'mm²', decimals: 1, accept: [],
       slips: [
-        { value: F('1f.slip1').value, hint: '1 mm² carries 15 A in column 5, under ' + f1d.text + ': that would size it without Cg.' },
+        { value: F('1f.slip1').value, hint: '1 mm² carries 15 A in column 5, under ' + f1d.text + '. That would size it without Cg.' },
         { value: F('1f.slip2').value, hint: 'That is sized on the line current, ' + f1a.text + ". These cables carry a winding's current." },
         { value: F('1f.slip3').value, hint: 'That is sized on the line current ÷ 0.80, ' + F('1d.slip3').text + ". These cables carry a winding's current." },
       ],
@@ -414,7 +414,7 @@
       missNote: '' },
     [iCh]: { id: 'l3.practice.cf', fig: fCh, unit: 'A', accept: [],
       slips: [
-        { value: F('l3.practice.cf.slip1').value, hint: 'That leaves out Cf: a rewireable fuse needs its rating divided by 0.725.' },
+        { value: F('l3.practice.cf.slip1').value, hint: 'That leaves out Cf. A rewireable fuse needs its rating divided by 0.725.' },
         { value: F('l3.practice.cf.slip2').value, hint: 'That multiplies by 0.725. Rating factors divide In.' },
         { value: F('l3.practice.cf.slip3').value, hint: "That is 1.45 × 15, a breaker's I2, not the It the cable needs." },
       ],
@@ -431,7 +431,7 @@
         if (st.shown) return;
         if (r.state === 'right') {
           st.res = 'right';
-          st.fb = { ok: true, v: 'Right.', w: sp.fig.work, p: differs(r, sp.fig) ? "That is within rounding of the course's " + sp.fig.text + ', so it is accepted. ' + sp.missNote : '' };
+          st.fb = { ok: true, v: 'Right.', w: sp.fig.work, p: differs(r, sp.fig) ? 'That is within rounding of ' + sp.fig.text + ', so it is accepted. ' + sp.missNote : '' };
         } else if (r.state === 'wrong') {
           st.tries += 1;
           if (st.tries >= 2) {
@@ -469,9 +469,9 @@
   // ---------- the worked example, a line at a time ----------
   const P1 = rp(CA * CG), P2 = rp(CA * CI);
   const WORKED = [
-    { h: "Your slides' heater circuit, In 16 A (p.27, 28)", s: [CA + ' × ' + CG + ' = ' + P1, IN + ' ÷ ' + P1 + ' = ' + f2(IN / P1) + ' A', CA + ' × ' + CI + ' = ' + P2, IN + ' ÷ ' + P2 + ' = ' + f2(IN / P2) + ' A',
-      'Design to ' + f2(IN / P1) + ' A, on Reference Method B, the one with the biggest impact', '2.5 mm² from column 7 of Table 4D5'] },
-    { h: 'The overload check (p.30 to 32)', s: ['I2 = 10 × 1.45 = ' + f2(1.45 * DEV_IN) + ' A', 'Iz 13 A, the 1.0 mm² twin and earth', '13 × 1.45 = ' + f2(1.45 * CAB_IZ) + ' A, above ' + f2(1.45 * DEV_IN) + ' A: the cable lasts'] },
+    { h: 'The heater circuit, In 16 A', s: [CA + ' × ' + CG + ' = ' + P1, IN + ' ÷ ' + P1 + ' = ' + f2(IN / P1) + ' A', CA + ' × ' + CI + ' = ' + P2, IN + ' ÷ ' + P2 + ' = ' + f2(IN / P2) + ' A',
+      'Design to ' + f2(IN / P1) + ' A, on Reference Method B, the method that cuts Iz most', '2.5 mm² from column 7 of Table 4D5'] },
+    { h: 'The overload check', s: ['I2 = 10 × 1.45 = ' + f2(1.45 * DEV_IN) + ' A', 'Iz 13 A, the 1.0 mm² twin and earth', '13 × 1.45 = ' + f2(1.45 * CAB_IZ) + ' A, above ' + f2(1.45 * DEV_IN) + ' A: the cable lasts'] },
   ];
   const wlines = [];
   WORKED.forEach((x) => {
@@ -479,7 +479,7 @@
     x.s.forEach((t) => { const w = K.el('p', { class: 'w' }, t); box.appendChild(w); wlines.push(w); });
     el('worked').appendChild(box);
   });
-  const cutNote = K.el('p', { class: 'foot' }, 'Your slides print 21.2 A, cut short: 21.28 A rounds to 21.3 A. Their 19.3 A and 14.5 A are right. Nothing changes.');
+  const cutNote = K.el('p', { class: 'foot' }, 'You may see 21.28 A printed as 21.2 A, cut short. Rounded, it is 21.3 A. 19.3 A and 14.5 A are rounded correctly. The cable size does not change.');
   el('worked').appendChild(cutNote);
   const nextLine = K.button({ label: 'Show the next line', into: '#workedgo', press: () => {
     if (at() !== 5 || lines >= wlines.length) return;
@@ -491,41 +491,41 @@
   // ---------- fixed words on their screens ----------
   (function fixed() {
     const r = el('rule1');
-    r.appendChild(K.el('span', { class: 'k-label' }, 'Regulation 433.1.1 · your slides p.22'));
+    r.appendChild(K.el('span', { class: 'k-label' }, 'Regulation 433.1.1'));
     r.appendChild(K.el('p', { class: 'eq' }, 'Ib ≤ In ≤ Iz'));
     r.appendChild(K.el('p', null, "In ≥ Ib: the device's rating or current setting is at least the design current."));
     r.appendChild(K.el('p', null, "Iz ≥ In: the cable's current-carrying capacity, where it is installed, is at least the device's."));
-    const t = K.el('p'); write(t, "The table's figure, *It*, is for a single circuit at the table's ambient; *Iz* is what the cable carries continuously where it actually runs."); r.appendChild(t);
+    const t = K.el('p'); write(t, "The table's figure, *It*, is for a single circuit at the table's ambient. *Iz* is what the cable carries continuously where it actually runs."); r.appendChild(t);
     r.appendChild(K.el('p', { class: 'eq' }, 'I2 ≤ 1.45 Iz'));
-    r.appendChild(K.el('p', null, 'One more condition: the current that finally operates the device, I2, is no more than 1.45 Iz.'));
+    r.appendChild(K.el('p', null, 'One more condition. I2, the current that finally operates the device, is no more than 1.45 Iz.'));
     const wn = el('warn2');
     wn.appendChild(K.el('b', null, 'If it is skipped or wrong: '));
-    wn.appendChild(document.createTextNode('a cable carrying more than it can shed runs hot, and over time that damages insulation, joints, terminations and their surroundings.'));
+    wn.appendChild(document.createTextNode('a cable that makes heat faster than it can shed runs hot. Over time that damages insulation, joints, terminations and their surroundings.'));
     const n2 = el('notes2');
-    n2.appendChild(K.el('p', null, 'Its reference method sets the column too: your slides count only two methods in this run, B in the trunking and C clipped direct, and design to B; the wall has no column of its own here (p.28).'));
-    n2.appendChild(K.el('p', null, 'Cg always counts the circuit being installed (your slides p.25).'));
-    n2.appendChild(K.el('p', null, 'A cable expected to carry not more than 30% of its grouped rating may be ignored when finding the factor for the rest of the group (Table 4C1 note 9).'));
+    n2.appendChild(K.el('p', null, 'The reference method sets the table column too. This run has two methods: B in the trunking and C clipped direct. Design to B, the one that cuts Iz most. The wall has no column of its own here.'));
+    n2.appendChild(K.el('p', null, 'Cg always counts the circuit being installed.'));
+    n2.appendChild(K.el('p', null, 'You may ignore a cable expected to carry not more than 30% of its grouped rating. Leave it out when finding the factor for the rest of the group (Table 4C1 note 9).'));
     el('notes3').appendChild(K.el('p', null, "0.725 is 1.45 ÷ 2: the breaker's 1.45 over the fuse's 2."));
-    el('notes3').appendChild(K.el('p', null, "Breakers to BS EN 60898 and fuses to BS 88 meet I2 ≤ 1.45 Iz whenever Ib ≤ In ≤ Iz holds (Regulation 433.1.201), as the breaker here does. A rewireable fuse needs Cf, and a motor's thermal relay is checked on its maker's curve."));
+    el('notes3').appendChild(K.el('p', null, "Breakers to BS EN 60898 and fuses to BS 88 meet I2 ≤ 1.45 Iz whenever Ib ≤ In ≤ Iz holds (Regulation 433.1.201). The breaker here does. A rewireable fuse needs Cf. A motor's thermal relay is checked on its maker's curve."));
     // After part (c): the type, then the overload.
     const m6 = el('more6');
-    const ty = K.el('p'); write(ty, '*The type.* A motor takes much more current starting than running. A star-delta start draws roughly 2 to 2.7 times full-load current, against 6 to 8 times direct-on-line (a calculator site\'s table, not a standard). The course takes 2.7, a practice value: ' + fStart.work + " (the motor's maker gives the real figure).");
+    const ty = K.el('p'); write(ty, '*The type.* A motor takes much more current starting than running. A star-delta start draws roughly 2 to 2.7 times full-load current. Direct-on-line draws 6 to 8 times. These are rough guide figures, not a standard. Take 2.7 here, a practice value: ' + fStart.work + ". Use the motor maker's figure on a real job.");
     m6.appendChild(ty);
     m6.appendChild(K.el('div', { class: 'trip' },
       K.el('p', { class: 'w' }, 'Type B, 3 to 5 In: ' + fTB.text),
       K.el('p', { class: 'w' }, 'Type C, 5 to 10 In: ' + fTC.text),
       K.el('p', { class: 'w' }, 'Type D, 10 to 20 In: ' + fTD.text)));
-    el('tq').textContent = 'Which type of breaker, for the practice start of ' + fStart.text + '?';
-    const ov = K.el('p'); write(ov, "*Then the overload.* The course puts the starter's thermal relay in the delta circuit (its assumption), where it is set to 0.58 × the motor's full-load (nameplate) current (0.58 is 1 ÷ √3, rounded) and never higher than the phase current: " + f1b.work + '. That setting is the In of the starter-to-motor cables.');
+    el('tq').textContent = 'Which type of breaker suits the practice start of ' + fStart.text + '?';
+    const ov = K.el('p'); write(ov, "*Then the overload.* We assume the starter's thermal relay sits in the delta circuit. There it is set to 0.58 × the motor's full-load current, from the nameplate. 0.58 is 1 ÷ √3, rounded. It is never set higher than the phase current: " + f1b.work + '. That setting is the In of the starter-to-motor cables.');
     el('more6b').appendChild(ov);
     // After part (f): the size, Iz, and the relay.
     const m8 = el('more8');
-    m8.appendChild(K.el('p', null, 'Column 5: 1 mm² carries 15 A, under ' + f1d.text + '; 1.5 mm² carries 20 A, the smallest that passes.'));
-    const tm = K.el('p'); write(tm, "*Check the terminals.* These are 90 °C ratings, fair only if the starter's and motor's terminals are designed for 90 °C. If they are designed for less, the cables are rated at the terminals' temperature (Table 4E1A note 1): at 70 °C, Table 4D1A column 5 gives 1.5 mm² only 15.5 A, under " + f1d.text + ' (your copy p.448, 458).'); m8.appendChild(tm);
+    m8.appendChild(K.el('p', null, 'Column 5: 1 mm² carries 15 A, under ' + f1d.text + '. 1.5 mm² carries 20 A, the smallest that passes.'));
+    const tm = K.el('p'); write(tm, "*Check the terminals.* These are 90 °C ratings. They hold only if the starter's and motor's terminals are designed for 90 °C. If they are designed for less, rate the cables at the terminals' temperature (Table 4E1A note 1). At 70 °C, Table 4D1A column 5 gives 1.5 mm² only 15.5 A, under " + f1d.text + '.'); m8.appendChild(tm);
     m8.appendChild(K.el('p', { class: 'w' }, 'Iz = ' + fIz.work));
-    m8.appendChild(K.el('p', null, 'Iz ' + fIz.text + ' is below the ' + f1c.text + ' breaker at DBP2: for these cables that breaker gives protection against fault current only, which lesson 7 checks.'));
-    m8.appendChild(K.el('p', null, 'A thermal relay is not one of the devices Regulation 433.1.201 lists (step 4), so its own curve is read from its maker: it must operate by ' + fRelay.work + '.'));
-    m8.appendChild(K.el('p', null, 'A conduit fixed to a masonry wall may carry more; the course takes no credit for it.'));
+    m8.appendChild(K.el('p', null, 'Iz ' + fIz.text + ' is below the ' + f1c.text + ' breaker at DBP2. So for these cables, that breaker gives protection against fault current only. Lesson 7 checks that.'));
+    m8.appendChild(K.el('p', null, 'Regulation 433.1.201 does not list thermal relays, as step 4 showed. So read the relay\'s curve from its maker. It must operate by ' + fRelay.work + '.'));
+    m8.appendChild(K.el('p', null, 'A conduit fixed to a masonry wall may carry more. We take no credit for that here.'));
   })();
 
   // ---------- the pictures: one scene, drawn for the screen it is on ----------
@@ -562,7 +562,7 @@
     txt(SX(worst) + SW / 2, 238, 'Sets the cable', 'hd', 'middle');
     SEC.forEach((s, k) => add('rect', { x: SX(k), y: 4, width: SW, height: 214, rx: 8, class: 'hit', tabindex: 0, role: 'button', 'data-sec': k,
       'aria-pressed': k === selSec ? 'true' : 'false', 'aria-label': s.name.join(' ') + ': It ' + f2(vals[k]) + ' A. Read its working.' }));
-    svg.setAttribute('aria-label', "Your slides' heater circuit in three sections: clipped direct needs " + f2(vals[0]) + ' A, the trunking ' + f2(vals[1]) + ' A, the insulated wall ' + f2(vals[2]) + ' A; the ' + SEC[worst].word.replace(/^(in |through the )/, '') + ' sets the cable');
+    svg.setAttribute('aria-label', 'The heater circuit in three sections: clipped direct needs ' + f2(vals[0]) + ' A, the trunking ' + f2(vals[1]) + ' A, the insulated wall ' + f2(vals[2]) + ' A; the ' + SEC[worst].word.replace(/^(in |through the )/, '') + ' sets the cable');
   }
   function pickSec(t) {
     const g = t && t.closest ? t.closest('[data-sec]') : null;
@@ -657,12 +657,12 @@
     write(task, d.show ? d.text : i === 0 || i === 4 || d.kind === 'written' ? d.task : '');
     task.hidden = !task.textContent;
     const sub = el('sub');
-    sub.textContent = i === 2 ? "Your slides' heater circuit (p.26), In 16 A, drawn as its route in three sections. Tap a section to read its working."
-      : i === 3 ? "Your slides' 10 A circuit and its 1.0 mm² twin and earth (p.30, 31), on one current line. Choose the device, then apply Cf" + (REDUCE ? '.' : ', or Replay.')
-      : i === iCh ? 'A City & Guilds Section A shape, with new numbers.' : i === iK ? 'One card to come back to on a real job.' : '';
+    sub.textContent = i === 2 ? 'The heater circuit, In 16 A, drawn as its route in three sections. Tap a section to read its working.'
+      : i === 3 ? 'A 10 A circuit and its 1.0 mm² twin and earth, on one current line. Choose the device, then apply Cf' + (REDUCE ? '.' : ', or Replay.')
+      : i === iCh ? 'A City & Guilds Section A question, with new numbers.' : i === iK ? 'One card to come back to on a real job.' : '';
     sub.hidden = !sub.textContent;
-    el('given').textContent = i === iC ? 'Given: the standard ratings near it, 16, 20, 25 and 32 A (On-Site Guide p.145).'
-      : i === iD ? 'Given: the room at ' + fAmb.text + " (pack p.3). Six 90 °C thermosetting singles run from the starter to the motor, sized on the delta running conditions (pack p.4), in one conduit on the consultation bay's wall, clear of insulation (the course's assumption: Ci and Cf are 1)." : '';
+    el('given').textContent = i === iC ? 'Given: the standard ratings near Ib are 16, 20, 25 and 32 A.'
+      : i === iD ? 'Given: the room is at ' + fAmb.text + ". Six 90 °C thermosetting singles run from the starter to the motor, sized on the delta running conditions. They share one conduit on the consultation bay's wall. We assume it is clear of insulation, so Ci and Cf are 1." : '';
 
     // The picture for this screen.
     svg.textContent = '';
@@ -674,8 +674,8 @@
       box.appendChild(K.el('p', null, K.el('b', null, selSec === 1 && ins ? 'In trunking, insulated too: all three act together here.' : HEADS[selSec])));
       workOf(selSec, ins).forEach((t) => box.appendChild(K.el('p', { class: 'w' }, t)));
       held(el('say'), [
-        ['The trunking needs the most, ' + f2(itOf(1, false)) + ' A: there the warm room starts the cable warmer and the other circuit stops it shedding its heat, so it sets the cable. The wall needs ' + f2(itOf(2, false)) + ' A and the clipped part ' + f2(itOf(0, false)) + ' A.'],
-        ['With insulation inside the trunking too, all three act in one place, so the trunking needs ' + f2(itOf(1, true)) + ' A: the one place where multiplying all three is right.'],
+        ['The trunking needs the most, ' + f2(itOf(1, false)) + ' A, so it sets the cable. There the warm room starts the cable warmer, and the other circuit stops it shedding its heat. The wall needs ' + f2(itOf(2, false)) + ' A and the clipped part ' + f2(itOf(0, false)) + ' A.'],
+        ['With insulation inside the trunking too, all three act in one place. So the trunking needs ' + f2(itOf(1, true)) + ' A. This is the one place where multiplying all three is right.'],
       ], ins ? 1 : 0);
     } else if (i === 3) {
       const dv0 = devC.get(), cv0 = cfT.get(), o0 = overloadOf(dv0, cv0);
@@ -687,10 +687,10 @@
       const k = !fuse ? (cv ? 3 : 0) : cv ? 2 : 1;
       const ob = overloadOf('breaker', false), of = overloadOf('fuse', false), oc = overloadOf('fuse', true);
       held(el('say'), [
-        ['A 10 A breaker can let ' + f2(ob.i2) + ' A flow before it opens, and the 13 A cable can take ' + f2(ob.lim) + ' A for that long, so the cable lasts.'],
-        ['A 10 A rewireable fuse can let ' + f2(of.i2) + ' A flow before it opens, past the ' + f2(of.lim) + ' A the 13 A cable can take, so the cable could run hot for as long as the fuse takes.'],
-        ["Dividing the fuse's 10 A by Cf asks for a cable with Iz " + f2(oc.iz) + ' A, whose 1.45 Iz, ' + f2(oc.lim) + " A, meets the fuse's " + f2(oc.i2) + ' A: the 13 A cable is too small behind this fuse.'],
-        ["Cf is only for a rewireable fuse: the breaker's " + f2(ob.i2) + " A is already within the 13 A cable's " + f2(ob.lim) + ' A, so nothing changes.'],
+        ['A 10 A breaker can let ' + f2(ob.i2) + ' A flow before it opens. The 13 A cable can take ' + f2(ob.lim) + ' A for that long, so the cable lasts.'],
+        ['A 10 A rewireable fuse can let ' + f2(of.i2) + ' A flow before it opens. That is past the ' + f2(of.lim) + ' A the 13 A cable can take. So the cable could run hot for as long as the fuse takes.'],
+        ["Divide the fuse's 10 A by Cf, and you need a cable with Iz " + f2(oc.iz) + ' A. Its 1.45 Iz, ' + f2(oc.lim) + " A, meets the fuse's " + f2(oc.i2) + ' A. So the 13 A cable is too small behind this fuse.'],
+        ["Cf is only for a rewireable fuse. The breaker's " + f2(ob.i2) + " A is already within the 13 A cable's " + f2(ob.lim) + ' A, so nothing changes.'],
       ], k);
       held(el('status'), [
         ['Passes'],
@@ -722,9 +722,9 @@
     el('go').hidden = !(i === 0 && st.pres === 'right');
 
     // Section A words around the typed answers.
-    el('mid').textContent = i === iD ? 'Ca, a practice value: Table 4B1 is for ambients other than 30 °C, and its first row, 25 °C, gives 1.02 for 90 °C thermosetting. The course takes 1.00 at 20 °C, which takes no credit for the cool room: read the real treatment from your copy of Table 4B1.' : '';
+    el('mid').textContent = i === iD ? 'Take Ca as 1.00 here, a practice value. It takes no credit for the cool 20 °C room. Table 4B1 covers ambients other than 30 °C. Its first row, 25 °C, gives 1.02 for 90 °C thermosetting. On a real job, check Table 4B1 for how to treat 20 °C.' : '';
     write(el('aq'), d.part || '');
-    el('aqsub').textContent = i === iEF ? (S[iEF].pres === 'right' ? 'Read column 5 in your copy (p.458).' : 'Read the column from (e) in your copy (p.458).') : '';
+    el('aqsub').textContent = i === iEF ? (S[iEF].pres === 'right' ? 'Read column 5 in your copy of the table.' : 'Read the column from (e) in your copy of the table.') : '';
 
     // Check and its feedback.
     const typed = !!ANS[i];
@@ -747,7 +747,7 @@
 
     el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
     el('donefb').hidden = !el('donefb').textContent;
-    el('foot').textContent = i === iC || i === iD || i === iEF ? "Shaped like a City & Guilds 2396 Section A question, on your own assignment's motor (pack p.4)." : '';
+    el('foot').textContent = i === iC || i === iD || i === iEF ? "Shaped like a City & Guilds 2396 Section A question, on your assignment's motor." : '';
     el('foot').hidden = !el('foot').textContent;
 
     backBtn.el.hidden = i === 0;

@@ -1,0 +1,1650 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Design and verification, a Level 4 refresher
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i5 "Voltage drop from the intake, refined" — Voltage drop is mV/A/m × Ib × L ÷ 1000, added along the whole path from the origin and judged against 3% or 5% of the voltage you were given; a lightly loaded cable runs cooler (Ct) and, with a known power factor, only the parts of the r and x drops along the voltage count. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i6 Shock protection, and when Zs is too high — Every metre adds to the earth fault loop, the loop limits the fault current at the lowest supply voltage (Cmin), and that current decides whether the device opens in time; when Zs is too high, a bigger cpc or an RCD.
+- i7 Surviving the fault: heat, short circuits, breaking capacity — A conductor can take k²S² of fault energy, so it survives if I²t is smaller: S = √(I²t) ÷ k for the cpc with I at Cmax, t = k²S² ÷ I² for the live conductors, and every device must break the largest fault (IPF ≤ Icn).
+- i8 The showroom, end to end — The assignment's DBL2 submain and its longest circuit designed as one chain, every result carried forward, checked against the project guide's key points: all lengths, thermal constraints, Zs against the device, all drops from the intake.
+- i9 Verification and handover — The design predicts the readings: a cold reading is compared after correcting it to running temperature, installed values usually come in lower, and the designer hands over what the inspector and the client need, with a first inspection in…
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] EAL Level 4 Design and Verification: course slides — material:eal-slides#p38
+    "(mV/A/m) means milli-volts dropped for every ampere of design current for every metre of conductor length."
+[R2] EAL Level 4 Design and Verification: course slides — material:eal-slides#p39
+    "Voltage drop = 11 x 31 x 35 / 1000"
+[R3] EAL Level 4 Design and Verification: course slides — material:eal-slides#p38
+    "Lighting circuits have upto 3% allowed: 6.9V single phase and 12V 3-phase"
+[R4] EAL Level 4 Design and Verification: course slides — material:eal-slides#p38
+    "Power circuits have upto 5% allowed: 11.5V single phase and 20V 3-phase"
+[R5] How to determine voltage drop limits within electrical installations | NAPIT - Professional Electrician — https://professional-electrician.com/technical/how-to-determine-voltage-drop-limits-within-electrical-installations-napit
+    "for a DNO supply, lighting circuits are at 3% of the nominal 230 V single-phase supply voltage, and the voltage drop must not exceed 6.9 V. All other circuits are at 5% and the voltage drop must not exceed 11.5 V."
+[R6] EAL Level 4 Design and Verification: course slides — material:eal-slides#p40
+    "We work on a maximum voltage drop of 3% of supply for lighting and 5% for all other circuits; therefore if the supply voltage is given (ie 395V) then your calculations must be based on the percentage of this value."
+[R7] EAL Level 4 Design and Verification: course slides — material:eal-slides#p41
+    "5% of 395V = 19.75V as a maximum voltage drop, so the circuit does not comply."
+[R8] Volt Drop Calculation: Formula, 3% & 5% Limits (BS 7671) | Total Skills UK — https://www.totalskills.co.uk/guides/volt-drop-calculations
+    "They apply from the origin of the installation to the most distant point of the circuit."
+[R9] Circuit design formula sheet — material:formula-sheet#p1
+    "Total Voltage Drop = VDrop of Submain + VDrop of final circuit"
+[R10] EAL Level 4 Design and Verification: project guide — material:project-guide#p6
+    "Include the sum of all voltage drops from the intake equipment to the end of the circuit in your calculations."
+[R11] Circuit design formula sheet — material:formula-sheet#p1
+    "Divide the three phase value of voltage drop by root 3 to give equivalent single phase value of voltage drop to add"
+[R12] EAL Level 4 Design and Verification: project guide — material:project-guide#p6
+    "If going from 3 phase to single phase make sure voltage drops are calculated correctly."
+[R13] EAL Level 4 Design and Verification: course slides — material:eal-slides#p42
+    "This means gradually increasing conductor CSA and repeating the voltage drop calculation, until it complies."
+[R14] EAL Level 4 Design and Verification: course slides — material:eal-slides#p42
+    "You’ll find that a 6.0mm² works here, as it has a voltage drop of 8.09V"
+[R15] TiSoft - Voltage drop calculation according to BS 7671 — https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs
+    "The values of (mV/A/m) given in the Appendix 4 tables are at the maximum conductor operating temperature of, say, 70°C or 90°C, and these temperatures are only reached when the conductor is carrying its full load."
+[R16] TiSoft - Voltage drop calculation according to BS 7671 — https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs
+    "At lower loads, the temperature and the resistance of the cable are lower."
+[R17] EAL Level 4 Design and Verification: course slides — material:eal-slides#p43
+    "Current causes conductors to heat up, which in turn increases their resistance, which in turn increases voltage drop."
+[R18] EAL Level 4 Design and Verification: course slides — material:eal-slides#p45
+    "As a simple rule of thumb, if the circuit contains no known power factor, then simply using the Z (mV/A/m) is acceptable."
+[R19] Cable Sizing Tool - myElectrical (a reader comment quoting the BS 7671 formula) — https://myelectrical.com/notes/entryid/182/cable-sizing-tool
+    "Ct = (230 + Tp - (Ca2 x Cg2 - Ib2/It2)x(Tp - 30))/ (230 + Tp)"
+[R20] Cable Sizing Tool - myElectrical (a reader comment quoting the BS 7671 formula) — https://myelectrical.com/notes/entryid/182/cable-sizing-tool
+    "Tp = Maximum Operating Temperature of the conductor (for PVC = 70 deg C and for XLPE = 90 deg C)."
+[R21] Cable Sizing Tool - myElectrical (a reader comment quoting the BS 7671 formula) — https://myelectrical.com/notes/entryid/182/cable-sizing-tool
+    "Ca = Ambient Temperature Correction Factor."
+[R22] Voltage drop calculation according to BS 7671 - TiSoft — https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs
+    "tp is the rated maximum conductor operating temperature"
+[R23] Voltage drop calculation according to BS 7671 - TiSoft — https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs
+    "It is the tabulated current rating of the cable."
+[R24] Correction for operating temperature - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/31168/correction-for-operating-temperature
+    "The real advantage is when there are no correction factors and there is a significant difference between Ib and It."
+[R25] Voltage drop calculation according to BS 7671 - TiSoft — https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs
+    "Thus for lightly loaded circuits this can reduce the tabulated rating (mV/A/m) by up to 20%."
+[R26] Correction for operating temperature - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/31168/correction-for-operating-temperature
+    "if the cable is operating well below its capacity, it won't be at 70 deg C for an ambient temperature of 30 deg C, so some account can be made of this."
+[R27] EAL Level 4 Design and Verification: course slides — material:eal-slides#p43
+    "Because so little current is present in the now 6.0mm² conductors (13.04A), the heat caused will dissipate far quicker, keeping conductor resistance lower and voltage drop lower than the previously calculated 8.09V."
+[R28] EAL Level 4 Design and Verification: course slides — material:eal-slides#p43
+    "According to table 4D1A, 6.0mm² has an Iz of 41A."
+[R29] EAL Level 4 Design and Verification: course slides — material:eal-slides#p43
+    "There will still be just 13.04A in the 6.0mm² conductors."
+[R30] Correction for operating temperature - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/31168/correction-for-operating-temperature
+    "Say in the example above, Cg was 0.78 and no other correction factors applied, Ct would approximate to 0.99, and not worth employing."
+[R31] EAL Level 4 Design and Verification: course slides — material:eal-slides#p43
+    "And by applying it, we may be able to use a smaller CSA cable than 6.0mm²"
+[R32] Correction for operating temperature - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/31168/correction-for-operating-temperature
+    "the calculations for the correction factor (Ct) consider only the ambient temperature and grouping factors."
+[R33] EAL Level 4 Design and Verification: course slides — material:eal-slides#p42
+    "A 3kW heater circuit wired in 70C thermoplastic single core cable is installed at an ambient temperature of 35C,in reference method B, circuit length is 85m."
+[R34] EAL Level 4 Design and Verification: course slides — material:eal-slides#p42
+    "Ca = 0.94"
+[R35] EAL Level 4 Design and Verification: course slides — material:eal-slides#p42
+    "Voltage drop = 29 x 13.04 x 85 / 1000"
+[R36] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p448
+    "4 26 24 32 28 37 33"
+[R37] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p448
+    "6 34 31 41 36 47 43"
+[R38] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p449
+    "4 11 11 11 11 9.5 9.5 9.5 9.5"
+[R39] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p449
+    "6 7.3 7.3 7.3 7.3 6.4 6.4 6.4 6.4"
+[R40] EAL Level 4 Design and Verification: course slides — material:eal-slides#p45
+    "which is why the option for R, X or Z only appears on 25.0mm² and above."
+[R41] EAL Level 4 Design and Verification: course slides — material:eal-slides#p45
+    "Where one is known then a calculation using both the R and X values needs to be used."
+[R42] Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC) — https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables
+    "Where circuit cable conductors exceed 16 mm², which is common in distribution circuits used in industrial or commercial type installations, the tables for current-carrying capacity and voltage-drop in Appendix 4 of BS 7671 give separate values"
+[R43] Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC) — https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables
+    "then using equation 1 (z value), the calculated voltage drop for the final circuit is 16 V"
+[R44] Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC) — https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables
+    "However, if the load power factor is known, then using the tabulated (mV/A/m)r and (mV/A/m)x values will provide a more accurate assessment of voltage-drop"
+[R45] Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC) — https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables
+    "the use of the tabulated values of mv/A/m may lead to a calculated value of voltage drop which is higher than the actual value."
+[R46] Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC) — https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables
+    "The intention of BS 7671 in providing individual values of r, x and z in these tables is to allow for an accurate assessment of voltage-drop to accommodate loads having a large inductive element"
+[R47] EAL Level 4 Design and Verification: course slides — material:eal-slides#p44
+    "In appendix 4, it’s noticeable that some of the ‘(mV/A/m)’ tables have three options:"
+[R48] Voltage Drop Calculation Guide - Formulas, Methods & Limits (ECalPro, a calculator site, not a standard) — https://ecalpro.com/docs/voltage-drop-calculation-guide
+    "mV/A/m = mV/A/m R × cosφ + mV/A/m X × sinφ"
+[R49] Voltage Drop Calculation Guide - Formulas, Methods & Limits (ECalPro, a calculator site, not a standard) — https://ecalpro.com/docs/voltage-drop-calculation-guide
+    "sinφ | Reactive factor (= √(1 − cos²φ))"
+[R50] Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC) — https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables
+    "Using equation 2 demonstrates that the final circuit would conform without unnecessarily upsizing the conductor CSA when the load power factor is known."
+[R51] EAL Level 4 Design and Verification: course slides — material:eal-slides#p44
+    "Correcting voltage drop for power factor is another consideration we need to make."
+[R52] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p459
+    "VOLTAGE DROP (per ampere per metre): Conductor operating temperature: 90°C"
+[R53] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p459
+    "2.5 19 19 19 19 16 16 16 16"
+[R54] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p459
+    "1.5 31 31 31 31 27 27 27 27"
+[R55] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p459
+    "25 1.85 1.85 0.31 1.90 | 1.85 0.190 1.85 | 1.85 0.28 1.85 | 1.60 0.27 1.65 | 1.60 0.165 1.60 | 1.60 0.190 1.60 | 1.60 0.27 1.65"
+[R56] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p458
+    "2.5 26 23 31 28 34 31"
+[R57] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p458
+    "1.5 19 17 23 20 25 23"
+[R58] Wye-Delta Motor Starters - PDH Online — https://pdhonline.com/courses/e413/e413content.pdf
+    "There are six power conductors from a wye-delta starter to the motor, rather than three power conductors as from a full-voltage starter to the motor."
+[R59] Wye-Delta Motor Starters - PDH Online — https://pdhonline.com/courses/e413/e413content.pdf
+    "because the three windings of a wye- start/delta-run motor are actually three single-phase loads."
+[R60] Cable Sizing Calculation for Star Delta Starter - Eng-Tips (forum thread) — https://www.eng-tips.com/threads/cable-sizing-calculation-for-star-delta-starter.519269
+    "There are six conductors from the Starter (in the MCC) to the motor."
+[R61] Cable Sizing Calculation for Star Delta Starter - Eng-Tips (forum thread) — https://www.eng-tips.com/threads/cable-sizing-calculation-for-star-delta-starter.519269
+    "The voltage drop (VD) of each conductor is calculated (impedance of the length of the conductor x current)."
+[R62] Cable Sizing Calculation for Star Delta Starter - Eng-Tips (forum thread) — https://www.eng-tips.com/threads/cable-sizing-calculation-for-star-delta-starter.519269
+    "For Delta Connection, Running VD = √3 x (58% of FLC) x (2xL) x (RcosØ + XsinØ) / (No.of runs X V)"
+[R63] Cable Sizing Calculation for Star Delta Starter - Eng-Tips (forum thread) — https://www.eng-tips.com/threads/cable-sizing-calculation-for-star-delta-starter.519269
+    "Six leads, two cables per phase, each cable ampacity 58% of nameplate delta running current."
+[R64] EAL Level 4 Design and Verification: course slides — material:eal-slides#p40
+    "3-phase voltage drop is calculated using the equivalent percentage (3% or 5%) of the 3-phase voltage value."
+[R65] EAL Level 4 Design and Verification: course slides — material:eal-slides#p11
+    "Design current is defined as ‘the magnitude of the current to be carried by a circuit in normal service’."
+[R66] 2008 28 Autumn Wiring Matters — https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf
+    "The design current of the circuit, i.e. the current intended to be carried by the circuit in normal service."
+[R67] EAL Level 4 Design and Verification: course slides — material:eal-slides#p13
+    "Ib = P / VL x Eff% x PF x √3"
+[R68] EAL Level 4 Design and Verification: course slides — material:eal-slides#p12
+    "P = Power in watts (the output of the load)"
+[R69] EAL Level 4 Design and Verification: course slides — material:eal-slides#p13
+    "VL = Line to line voltage (400V)"
+[R70] EAL Level 4 Design and Verification: course slides — material:eal-slides#p15
+    "Some equipment (such as motors) require more than expected current to provide the output required, this is due to something called ‘reactance’."
+[R71] Power Factor — https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf
+    "Power factor (pf) is a term used to express the relationship between the Real Power (kW) required for a load and the Total or Apparent Power (kVa) supplied."
+[R72] Power Factor — https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf
+    "If the circuit contains an electric induction motor or other inductive load, then the power factor is less than 1.0 and kVa will be greater than kW"
+[R73] Determining Electric Motor Load and Efficiency — https://www.energy.gov/sites/prod/files/2014/04/f15/10097517.pdf
+    "The NEMA definition of energy efficiency is the ratio of its useful power output to its total power input and is usually expressed in percentage"
+[R74] How to measure the power output of an electric motor — https://www.futek.com/electric-motor-output-power
+    "The efficiency of the motor is calculated as mechanical output power divided by electrical input power"
+[R75] EAL Level 4 Design and Verification: course slides — material:eal-slides#p17
+    "their cable design is based on 28.86A rather than 41.47A, this would cause big implications for the operation and safety of the circuit."
+[R76] Power Factor — https://bptraining.ornl.gov/wp-content/uploads/2023/08/VInPLT-Power-Factor-2023.pdf
+    "kW = Volts RMS x Amps RMS x Pf x √3 / 1,000"
+[R77] EAL Level 4 Design and Verification: course slides — material:eal-slides#p18
+    "If (when during design or in your exam) you are given a separate value for voltage (U), then this must be used."
+[R78] EAL Level 4 Design and Verification: course slides — material:eal-slides#p18
+    "This new voltage (which will be lower than 230V or 400V) must used for the Ib of the final circuits from the sub board."
+[R79] EAL Level 4 Design and Verification: course slides — material:eal-slides#p19
+    "Ib = 20,000 / 393 x √3"
+[R80] Three-phase Y and Delta Configurations | Polyphase AC Circuits | Electronics Textbook — https://www.allaboutcircuits.com/textbook/alternating-current/chpt-10/three-phase-y-delta-configurations
+    "In balanced Δ circuits, the line voltage is equal to phase voltage, while the line current is equal to phase current times the square root of 3."
+[R81] 7.5: Three-phase Y and Delta Configurations - Workforce LibreTexts — https://workforce.libretexts.org/Bookshelves/Electronics_Technology/Electric_Circuits_II_-_Alternating_Current_(Kuphaldt)/07:_Polyphase_AC_Circuits/7.05:_Three-phase_Y_and_Delta_Configurations
+    "In balanced Δ circuits, line voltage is equal to phase voltage, while line current is equal to phase current times the square root of 3."
+[R82] Three-phase Y and Delta Configurations | Polyphase AC Circuits | Electronics Textbook — https://www.allaboutcircuits.com/textbook/alternating-current/chpt-10/three-phase-y-delta-configurations
+    "because each line conductor attaches at a node between two windings, the line current will be the vector sum of the two joining phase currents."
+[R83] Three-phase Y and Delta Configurations | Polyphase AC Circuits | Electronics Textbook — https://www.allaboutcircuits.com/textbook/alternating-current/chpt-10/three-phase-y-delta-configurations
+    "Y-connected sources and loads always have line voltages greater than phase voltages, and line currents equal to phase currents."
+[R84] EAL Level 4 Design and Verification: course slides — material:eal-slides#p10
+    "The percentages to apply for diversity are only found in the OnSite Guide. This means, it’s guidance and doesn’t have to be applied."
+[R85] EAL Level 4 Design and Verification: course slides — material:eal-slides#p10
+    "then it could be designed to 660W as the Ib rather than 1000W."
+[R86] Electrical Diversity Calculator — IET On-Site Guide (BS 7671) | TradeCalculator — https://tradecalculator.co.uk/electrical/diversity-calculator/
+    "BS 7671 itself contains no diversity table — Regulation 311.1 requires the designer to assess maximum demand and permits diversity to be taken into account; the On-Site Guide gives the recognised figures."
+[R87] EAL Level 4 Design and Verification: course slides — material:eal-slides#p10
+    "For example, in appendix A of the OSG, a domestic lighting circuit can have 66% diversity applied."
+[R88] Resistive Load Wattage: Is Power Rating Constant? - Engineering Guide – Industrial Monitor Direct — https://industrialmonitordirect.com/blogs/knowledgebase/resistive-heating-element-power-calculation-at-different-voltages
+    "Power drops by V². Current drops proportionally. Fixed resistance."
+[R89] Resistive Load Wattage: Is Power Rating Constant? - Engineering Guide – Industrial Monitor Direct — https://industrialmonitordirect.com/blogs/knowledgebase/resistive-heating-element-power-calculation-at-different-voltages
+    "Motor draws more current to maintain torque."
+[R90] ED4-01A learner pack: car showroom assignment — material:learner-pack#p4
+    "It will be controlled by a star-delta starter."
+[R91] Wye Delta Wire Sizing | PLCtalk - Interactive Q & A — https://www.plctalk.net/forums/threads/wye-delta-wire-sizing.7577
+    "When wiring a motor to a Wye-Delta starter, 6 wires are run to the motor and connected to the motor terminals T1-T6. Each end of each winding has its own wire connected to it."
+[R92] EAL Level 4 Design and Verification: course slides — material:eal-slides#p22
+    "Regulation 433.1.1 explains the following: Ib ≤ In ≤ Iz"
+[R93] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "The rated current or current setting of the protective device (In) should not be less than the design current (Ib) of the circuit."
+[R94] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "The current (I2) causing effective operation of the protective device should not exceed 1.45 times the lowest current-carrying capacity (Iz) of any of the conductors of the circuit."
+[R95] EAL Level 4 Design and Verification: course slides — material:eal-slides#p24
+    "Anything that causes the cable to be artificially warm, such as running through thermal insulation, or a higher ambient temperature will mean the cable will need downrating through an appropriate rating factor."
+[R96] 2008 28 Autumn Wiring Matters — https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf
+    "Ca is rating factor for ambient temperature, see Table 4B1 of BS 7671 Cg is rating factor for grouping see, Table 4C1 of BS 7671"
+[R97] EAL Level 4 Design and Verification: course slides — material:eal-slides#p25
+    "Rating factors are applied as divisors to the rating or setting of the protective device (In)"
+[R98] 2008 28 Autumn Wiring Matters — https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf
+    "The value of current tabulated in this appendix for the type of cable and installation method concerned, for a single circuit in the ambient temperature stated in the current-carrying capacity tables."
+[R99] 2008 28 Autumn Wiring Matters — https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf
+    "The current-carrying capacity of a cable for continuous service, under the particular installation conditions concerned."
+[R100] EAL Level 4 Design and Verification: course slides — material:eal-slides#p25
+    "rating factors need only be applied when happening TOGETHER."
+[R101] EAL Level 4 Design and Verification: course slides — material:eal-slides#p27
+    "16 / 0.94 x 0.8 = 21.2A (this is the It of the cable for Ca and Cg)"
+[R102] EAL Level 4 Design and Verification: course slides — material:eal-slides#p27
+    "16 / 0.94 x 0.88 = 19.3A (this is the It of the cable for Ca and Ci)"
+[R103] EAL Level 4 Design and Verification: course slides — material:eal-slides#p28
+    "We need to design to the reference method which has the biggest impact on the cables maximum current carrying capacity (Iz)."
+[R104] EAL Level 4 Design and Verification: course slides — material:eal-slides#p30
+    "Most devices have an I2 of 1.45 times their In…."
+[R105] EAL Level 4 Design and Verification: course slides — material:eal-slides#p30
+    "So, a 10A type B circuit breaker has an I2 of 10 x 1.45 = 14.5A."
+[R106] EAL Level 4 Design and Verification: course slides — material:eal-slides#p31
+    "it has an Iz of 13A."
+[R107] EAL Level 4 Design and Verification: course slides — material:eal-slides#p32
+    "I2 ≤ Iz x 1.45"
+[R108] ChAnges to Appendix 4 of Amendment 1 of Bs 7671:2008 — https://electrical.theiet.org/media/1522/changes-to-appendix-4-of-amendment-1-of-bs7671-2008.pdf
+    "the factor of 1.45 ensures that deterioration of cables does not result from small overloads."
+[R109] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "This is to compensate for the high value of I2 of a BS 3036 fuse, which can be up to 2 × Iz."
+[R110] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "Where the protective device is a semienclosed (rewireable) fuse to BS 3036, the requirement of condition 3 is met where In does not exceed 0.725 times the current-carrying capacity of the circuit conductors (Iz)"
+[R111] EAL Level 4 Design and Verification: course slides — material:eal-slides#p25
+    "Cf = Rating factor when overload protection is provided by devices with fusing factors greater than 1.45 (ie: Cf = 0.725 for semi enclosed fuses to BS 3036)"
+[R112] EAL Level 4 Design and Verification: course slides — material:eal-slides#p20
+    "The different ‘types’ are in relation to the start up current of a circuit."
+[R113] ED4-01A learner pack: car showroom assignment — material:learner-pack#p4
+    "Base your selection on the delta running conditions and any other factors present."
+[R114] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p441
+    "TABLE 4B1 — Rating factors (C,) for ambient air temperatures other than 30 °C"
+[R115] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p441
+    "25 1.04 1.03 1.02 1.07 1.04"
+[R116] 2011 40 Autumn Wiring Matters — https://electrical.theiet.org/media/1053/2011_40_autumn_wiring_matters__complete_adverts.pdf
+    "Appendix 4 is an informative appendix within BS 7671."
+[R117] Ambient Temperature Correction Factor - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/31281/ambient-temperature-correction-factor
+    "which is only Informative rather than normative"
+[R118] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p443
+    "it may either be considered as n/2 circuits of two loaded conductors or n/3 circuits of three loaded conductors"
+[R119] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p170
+    "n/3 circuits of three loaded conductors (for three-phase circuits)"
+[R120] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p443
+    "Bunched in air, on a | 1.00 | 0.80 | 0.70 | 0.65 | 0.60 | 0.57 | 0.54 | 0.52 | 0.50 | 0.45 | 0.41 | 0.38 A to F"
+[R121] Thermal Overload Relays — https://www.rkcontrols.com/pdf/configuration-support/Siemens_Industrial_Controls/Siemens-Overload-Relays.pdf
+    "When overload relays are used in WYE-delta combinations, it is important to note that only 1/√3 of the motor current flows through the mains contactor."
+[R122] In a star-delta starter, how can I incorporate a thermal overload relay as per Type 1 or Type 2 coordination? | Schneider Electric UK — https://www.se.com/uk/en/faqs/FA86594/
+    "Type 1 coordination The thermal overload relay is placed in the delta circuit and must be set to 0.58 x motor In."
+[R123] Direct-On-Line and Automatic Star – Delta Starter — https://assets.new.siemens.com/siemens/assets/api/uuid:0439c3a6-f14d-4b93-bf1b-a874d46b4dd3/industrial-new-dol-11-55kwand-asd-22-55kw-operating-instruction.pdf
+    "under no circumstances should the relay be set higher than phase current i.e. 0.58 times the rated current on the motor nameplate."
+[R124] Star Delta Starter Calculator (Contactor Sizing) | ElectroMechCalc — https://www.electromechcalc.com/electrical/star-delta-starter
+    "In delta running the supply reaches each winding from two directions — one end through KM1, the other through KM3 — which is why both carry winding current rather than line current."
+[R125] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p458
+    "TABLE 4E1A — Single-core 90 °C thermosetting insulated cables, non-armoured,"
+[R126] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p458
+    "Reference Method A Reference Method B Reference Method C Reference Method F Reference Method G"
+[R127] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p458
+    "1 14 13 17 15 19 17.5"
+[R128] 2008 28 Autumn Wiring Matters — https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf
+    "Where the conduit is fixed to a masonry wall the current-carrying capacity of the non-sheathed or sheathed cable may be higher."
+[R129] 2008 28 Autumn Wiring Matters — https://electrical.theiet.org/media/1617/appendix-4-of-bs-7671.pdf
+    "Non-sheathed cables in conduit mounted on a wooden or masonry wall"
+[R130] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p90
+    "B 3 to 5 In switching surge"
+[R131] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p90
+    "C 5 to 10 In the use of fluorescent lighting, small motors, etc., can"
+[R132] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p90
+    "D 10 to 20 In Suitable for transformers, X-ray machines, industrial welding"
+[R133] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "In particular, certain types of electrical load such as discharge lighting, AC induction motors and transformers take a much higher current during starting than during normal operation."
+[R134] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "However, due to the starting characteristics of the load a higher value of In may be necessary for certain loads (Regulation 533.2.1 refers)"
+[R135] Asynchronous motors - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Asynchronous_motors
+    "The high start-up current means that motor overload protective devices must have operating characteristics which avoid tripping during the starting period."
+[R136] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p145
+    "10 15 16 20 25 30 32 40 45 50"
+[R137] Star Delta Starter Calculator (Contactor Sizing) | ElectroMechCalc — https://www.electromechcalc.com/electrical/star-delta-starter
+    "Direct on line (DOL) | 6–8 × FLC"
+[R138] Star Delta Starter Calculator (Contactor Sizing) | ElectroMechCalc — https://www.electromechcalc.com/electrical/star-delta-starter
+    "Star-delta | ≈ 2–2.7 × FLC"
+[R139] — Electrical installation solutions for buildings – Technical details MCBs — https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj
+    "C 0.5 to 63 A 1.13 · In > 1 h 5 · In > 0.1 s 1.45 · In < 1 h 10 · In < 0.1 s"
+[R140] — Electrical installation solutions for buildings – Technical details MCBs — https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj
+    "D 0.5 to 63 A 1.13 · In > 1 h 10 · In > 0.1 s 1.45 · In < 1 h 20 · In < 0.1 s"
+[R141] BS 7671: Protection against overload current | NICEIC & ELECSA - Professional Electrician — https://professional-electrician.com/technical/bs-7671-protection-against-overload-current-niceic-elecsa
+    "Regulation 433.1.201 states, where conditions (i) and (ii) are met (and I b ≤ I n ≤ I z ), condition (iii) will also be met where the following protective devices are employed:"
+[R142] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "such as a thermal overload protective device in a motor circuit, it will be necessary for the electrical installation designer to refer to the device characteristics in order to ensure compliance with all aspects of Regulation 433.1.1."
+[R143] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p443
+    "a cable is expected to carry not more than 30 % of its grouped rating, it may be ignored for the purpose of obtaining the rating factor for the rest of the group"
+[R144] How are the requirements for overload current in BS 7671 to be applied? - Professional Electrician — https://professional-electrician.com/technical/how-are-the-requirements-for-overload-current-in-bs-7671-to-be-applied
+    "Should an overload occur in a circuit where there is no overload protection provided, the temperature of the circuit conductors is liable to increase significantly which, over time, may lead to damage of insulation, joints and terminations of the conductors and/or their surroundings."
+[R145] Mythbuster #11 - Adapting for change — https://electrical.theiet.org/wiring-matters/years/2024/103-november-2024/mythbuster-11-adapting-for-change
+    "the lack of which could give rise to damage to wiring accessories or detrimental thermal effects, including fire"
+[R146] Mythbuster #11 - Adapting for change — https://electrical.theiet.org/wiring-matters/years/2024/103-november-2024/mythbuster-11-adapting-for-change
+    "Circuits should also be designed to prevent small overloads of a long duration."
+[R147] EAL Level 4 Design and Verification: project guide — material:project-guide#p7
+    "See section 4.7 of The Electrical Installation Guide for guidance."
+[R148] — Electrical installation solutions for buildings – Technical details MCBs — https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj
+    "B 6 to 63 A 1.13 · In > 1 h 3 · In > 0.1 s 1.45 · In < 1 h 5 · In < 0.1 s"
+[R149] EAL Level 4 Design and Verification: course slides — material:eal-slides#p30
+    "even then it’ll take 10,000s before it does."
+[R150] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p458
+    "maximum operating temperature of the cable, the cables should be rated at the maximum"
+[R151] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p448
+    "TABLE 4D1A — Single-core 70 °C thermoplastic insulated cables, non-armoured,"
+[R152] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p448
+    "15 14.5 13.5 17.5 15.5 20 18"
+[R153] Circuit design calculation process: the 20-step flowchart — material:flowchart#p1
+    "Electrical Circuit Design Calculation Process - BS7671:2018 + Amd2:2022"
+[R154] Circuit design calculation process: the 20-step flowchart — material:flowchart#p1
+    "Note 2: Suitable protective conductor size and minimum protective conductor size are not the same thing."
+[R155] ED4-01A learner pack: car showroom assignment — material:learner-pack#p3
+    "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+[R156] ED4-01A learner pack: car showroom assignment — material:learner-pack#p3
+    "Ambient temperature is 20 degrees Celsius."
+[R157] ED4-01A learner pack: car showroom assignment — material:learner-pack#p4
+    "Within the consultation bay there will be an additional requirement for a 400 V three-phase 11 kW motor which operates at a power factor of 0.8 lagging and efficiency of 86%."
+[R158] EAL Level 4 Design and Verification: course slides — material:eal-slides#p13
+    "√3 = Square root of 3 (1.73)"
+[R159] EAL Level 4 Design and Verification: course slides — material:eal-slides#p16
+    "Ib = 20,000 / 400 x √3"
+A source whose address begins "material:" is a page of Dan's own course materials ("#p16": the page), checked word for word against that page: judge the lesson against its quote as you would a web source's.
+Notes (claims, and the sources that support them):
+- Voltage drop is (mV/A/m) × Ib × length / 1000, where mV/A/m is millivolts dropped per ampere of design current per metre, taken from the Appendix 4 cable tables. [R1][R2]
+- The limits are 3% of the supply voltage for lighting and 5% for other circuits (6.9 V and 11.5 V on 230 V); the slides say to use a given supply voltage, so 5% of 395 V is 19.75 V. [R3][R4][R5][R6][R7]
+- The drop counts from the origin to the most distant point, so the submain's drop is added to the final circuit's; the formula sheet and project guide both say so. [R8][R9][R10]
+- When a three-phase submain feeds a single-phase final circuit, the formula sheet divides the submain's three-phase voltage drop by root 3 before adding it, and the project guide warns to calculate this correctly. [R11][R12]
+- If the first cable fails, the slides increase the conductor CSA and repeat ("chasing the volt drop"); 1.5 mm² over 85 m fails, and 6.0 mm² gives 8.09 V. [R13][R14]
+- The tabulated mV/A/m values are for the maximum conductor operating temperature, reached only at full load; at lower loads the cable is cooler and its resistance lower, which the factor Ct corrects (the Ct formula itself was not captured). [R15][R16][R17]
+- For cables above 16 mm² the tables give R, X and Z; the slides use Z where no power factor is known and R and X where one is. [R18]
+- The Ct formula, as printed in text by a reader on a cable-sizing page that attributes it to BS 7671 (Appendix 4 itself was not found in text): Ct = (230 + tp - (Ca² Cg² - Ib²/It²)(tp - 30)) / (230 + tp), with tp 70 °C for PVC and 90 °C for XLPE and It the tabulated current rating at 30 °C. TiSoft p… [R19][R20][R21][R22][R23][R24]
+- Why Ct exists: the tabulated mV/A/m are for the conductor at its maximum operating temperature, so a cable well below its rating runs cooler and drops less; TiSoft puts the saving at up to 20% for lightly loaded circuits, and the slides make the same point for the 6.0 mm² heater cable carrying 13.0… [R25][R26][R27][R28][R29]
+- Ct is worth applying only when Ib is well below It; with a heavy grouping factor and nothing else it comes to about 0.99 and is not worth the trouble (IET Electrical Installation Design Guide, quoted on EngX). The slides say it may let a smaller CSA than 6.0 mm² pass. [R24][R30][R31]
+- Contested or unsettled: which factors go into the Ct formula. The reader-quoted formula uses Ca and Cg (not Ci), and an EngX contributor says their design guide also counts only ambient temperature and grouping; the EngX thread asks why Ci is left out and gets the answer that Ci has already been us… [R19][R32][R26]
+- The slides' own heater example for the Ct step: 3 kW, 70 °C thermoplastic singles, Ca 0.94, 85 m, 29 mV/A/m in 1.5 mm² gives 32.14 V; 6.0 mm² (Iz 41 A in Table 4D1A, 7.3 mV/A/m in Table 4D1B) gives 8.09 V. Worked here (computed, not quoted): Ct for 6.0 mm² = (300 - (0.94² - 13.04²/41²) x 40) / 300 … [R33][R34][R35][R28][R36][R37][R38][R39]
+- The r, x and z columns appear only for cables over 16 mm² (the tables start them at 25 mm²); where the power factor is not known the z values are used, and where it is known the r and x values give a more accurate drop, because using z alone can give a drop higher than the actual one (Appendix 4 pa… [R40][R41][R42][R43][R44][R45][R46][R47]
+- The power-factor expression, from a calculator site and from the impedance triangle Dan already has: drop per amp per metre = (mV/A/m)r x cos φ + (mV/A/m)x x sin φ, with sin φ = √(1 - cos² φ). NICEIC's worked 144 A, 0.75 lagging, 120 m motor in 70 mm² aluminium (r 0.90, x 0.14, z 0.92) comes to 16 … [R48][R49][R50][R51]
+- Not found in text from any source: how Ct and the power factor combine (whether Ct multiplies only the r term). The lesson shows the two refinements separately and does not print a combined figure. [R19][R44]
+- Table values from Dan's own copy, confirmed against the page images. Table 4E1B (90 °C thermosetting singles, voltage drop): in conduit, 2.5 mm² three-phase 16 mV/A/m; 1.5 mm² 27 three-phase and 31 for two cables single-phase; 25 mm² in conduit, three-phase, r 1.60, x 0.27, z 1.65. Table 4E1A (curr… [R52][R53][R54][R55][R56][R57]
+- A star-delta motor has six conductors from starter to motor, and in delta running its windings are three single-phase loads, so each conductor carries the winding current, line current ÷ √3. Turning that into a voltage drop is unsettled: one forum poster uses √3 x 58% of FLC x 2L x (R cos φ + X sin… [R58][R59][R60][R61][R62][R63]
+- The percentage limit for a three-phase circuit is taken of the three-phase voltage: 3% or 5% of 400 V is 12 V or 20 V, and a three-phase drop stays three-phase when the load is three-phase; only a three-phase submain feeding a single-phase final circuit is divided by √3. [R64][R3][R4][R11]
+- Design current is the magnitude of the current to be carried by a circuit in normal service; the course slides and an IET article give the same meaning. [R65][R66]  (from an idea this one builds on)
+- For a three-phase load with known power factor and efficiency, Ib = P / (VL × Eff × PF × √3), where P is the output of the load and VL is the line-to-line voltage (400 V). [R67][R68][R69]  (from an idea this one builds on)
+- Motors need more current than expected for their output because of reactance, so power factor matters: a lower power factor means more apparent power, and so more current, for the same real power. [R70][R71][R72]  (from an idea this one builds on)
+- Efficiency is useful output power divided by input power, so the supply must provide more than the output; the slides show an efficiency and power factor left out would size the cable on 28.86 A rather than 41.47 A. [R73][R74][R75]  (from an idea this one builds on)
+- Three-phase real power is √3 × line voltage × line current × power factor, which is why Ib divides by √3 × VL × Eff × PF. [R76][R67]  (from an idea this one builds on)
+- If a separate voltage is given, for example at a sub-board, that value is used in place of 230 V or 400 V; the slides work 20 kW at 393 V as 29.38 A. [R77][R78][R79]  (from an idea this one builds on)
+- In a balanced delta load the line current is the phase (winding) current times the square root of 3, so each winding carries the line current divided by √3; in star the line and phase currents are equal. [R80][R81][R82][R83]  (from an idea this one builds on)
+- Diversity percentages are only found in the On-Site Guide and are guidance that need not be applied; the slides' example designs ten 100 W lamps at 66%, or 660 W, rather than 1000 W. [R84][R85][R86]  (from an idea this one builds on)
+- For i1 (review fix): the slides' 66% diversity example is for a domestic lighting circuit, from the On-Site Guide's Appendix A. [R87]  (from an idea this one builds on)
+- For i1 (review fix): at a reduced voltage a resistive heater draws proportionally less current, while a motor draws more to keep its torque, so the slides' same-power working at a sub-board's voltage errs on the safe side for a heater. [R88][R89]  (from an idea this one builds on)
+- For i1 (review fix): the showroom's motor is controlled by a star-delta starter, which runs six wires to the motor, one to each end of each winding, so in delta each of those cables carries one winding's current. [R90][R91]  (from an idea this one builds on)
+- Regulation 433.1.1 requires In not less than Ib, In not above the lowest Iz of the circuit conductors, and I2 not above 1.45 Iz; the slides write the first two as Ib ≤ In ≤ Iz. [R92][R93][R94]  (from an idea this one builds on)
+- Anything that makes the cable artificially warm, such as thermal insulation or a higher ambient temperature, needs a rating factor; Ca is for ambient temperature, Cg for grouping and Ci for thermal insulation. [R95][R96]  (from an idea this one builds on)
+- Rating factors are applied as divisors to In, giving the tabulated current It the cable needs; It is the tabulated figure for a single circuit at the table's ambient, while Iz is the capacity as installed. [R97][R98][R99]  (from an idea this one builds on)
+- Only factors that act together are combined; the slides' 3 kW heater gives It = 21.2 A (Ca and Cg) and 19.3 A (Ca and Ci) and designs to the higher, on the reference method with the lowest Iz. [R100][R101][R102][R103]  (from an idea this one builds on)
+- A device's I2 is typically 1.45 times In (a 10 A type B breaker: 14.5 A), and the cable must withstand it: for Iz = 13 A the check is I2 ≤ 1.45 Iz, that is 14.5 against 18.85 A. [R104][R105][R106][R107][R108]  (from an idea this one builds on)
+- A semi-enclosed (rewireable) BS 3036 fuse has an I2 that can be up to 2 × Iz, so its In must not exceed 0.725 × Iz, which the slides put in as Cf = 0.725. [R109][R110][R111]  (from an idea this one builds on)
+- Circuit-breaker types B, C and D relate to the start-up current of the circuit; the assignment asks for cables from the starter to the motor to be chosen on delta running conditions and other factors present. [R112][R113]  (from an idea this one builds on)
+- Table 4B1 in his copy of BS 7671 has no 20 °C row: it starts at 25 °C, where the factor for 90 °C thermosetting cable is 1.02 (1.00 at 30 °C). Below 30 °C the factor is above 1; a 20 °C ambient has no value in the book, so the lesson uses a labelled practice value (1.00, which takes no credit for t… [R114][R115]  (from an idea this one builds on)
+- Appendix 4 of BS 7671 is informative, and other methods (for example a cable maker's own data) are legitimate, so the tables are taught as the usual way to show compliance, not the only one. [R116][R117]  (from an idea this one builds on)
+- Six single-core conductors from a star-delta starter all carry the winding current in delta running; Table 4C1 treats n single-core cables as n/3 circuits of three loaded conductors, so six singles are two three-phase circuits, and bunched and enclosed, two circuits give Cg = 0.80. [R118][R119][R120][R121]  (from an idea this one builds on)
+- A thermal overload relay in the delta circuit of a star-delta starter is set to 0.58 times the motor In (the winding current) and must not be set higher than it, so the starter-to-motor cables are sized on 23.08 A ÷ √3 = 13.33 A, not on the line current (a relay in the incoming line, as in the Schn… [R122][R123][R121][R124]  (from an idea this one builds on)
+- Table 4E1A (90 °C thermosetting singles, copper), Reference Method B, the column for 3 or 4 loaded cables on three-phase AC, gives 15 A for 1 mm² and 20 A for 1.5 mm²; Reference Method B is conduit on a wall or in trunking, and the IET adds that a conduit fixed to a masonry wall may carry more than… [R125][R126][R127][R57][R128][R129]  (from an idea this one builds on)
+- Circuit-breaker type follows the starting current: type B trips instantaneously at 3 to 5 In, type C at 5 to 10 In (suited to small motors and fluorescent-lighting surges) and type D at 10 to 20 In (high inrush); a motor takes a much higher current starting than running, so a device must be chosen … [R130][R131][R132][R133][R134][R135][R136]  (from an idea this one builds on)
+- A star-delta start draws roughly 2 to 2.7 times full-load current against 6 to 8 times for direct-on-line (a calculator site's table, not a standard); the motor's nameplate or maker gives the true figure, so the lesson uses it only as a labelled practice value. [R137][R138]  (from an idea this one builds on)
+- A breaker to BS EN 60898 has a conventional tripping current of 1.45 In within 1 hour (up to 63 A), so I2 = 1.45 In; a thermal overload relay is not one of those devices, so its own characteristic must be checked against Iz; the slides (p.30) say it takes 10,000 s, which is where Appendix 3's curve… [R139][R140][R141][R142]  (from an idea this one builds on)
+- Lightly loaded cables leave the group: a cable expected to carry no more than 30 % of its grouped rating may be ignored when finding the group factor for the rest of the group (Table 4C1 note 9), the point of C&G practice paper 1 question 10b. [R143]  (from an idea this one builds on)
+- A hazard of overload is overheating of the circuit conductors, which over time damages insulation, joints and terminations and their surroundings and can lead to fire; BS 7671 also expects a circuit to be designed so that a small overload of long duration is unlikely. [R144][R145][R146]  (from an idea this one builds on)
+- His project guide points to "section 4.7 of The Electrical Installation Guide" for the motor question; which book that is could not be established, so the lesson cites the starter makers and Table 4C1 instead. [R147]  (from an idea this one builds on)
+- For i3 (review fixes): the maker's catalogue gives type B breakers to IEC/EN 60898-1 from 6 to 63 A operation within 1 hour at 1.45 In, while the slides (p.30) say a device at I2 can take 10,000 s: the sources differ on the time. Table 4E1A note 1 (his copy p.458) rates 90 °C cables at the lower te… [R148][R149][R150][R151][R152]  (from an idea this one builds on)
+- Dan's course flowchart is headed "Electrical Circuit Design Calculation Process" for BS 7671:2018 + Amd2:2022, and its note 2 separates a suitable protective conductor size from the minimum protective conductor size. [R153][R154]  (whole topic)
+- The showroom supply is three phase four wire 400 V, TN-C-S, with Ze declared as 0.1 ohm and a prospective fault current of 4.6 kA; the ambient temperature is 20 degrees Celsius. [R155][R156]  (whole topic)
+- The showroom adds a 400 V three-phase 11 kW motor at power factor 0.8 lagging and efficiency 86%, controlled by a star-delta starter. [R157]  (whole topic)
+- Overload protection is the condition Ib ≤ In ≤ Iz (Regulation 433.1.1), plus I2 ≤ 1.45 Iz, where I2 is the current causing effective operation of the protective device. [R92][R93][R94]  (whole topic)
+- The course slides take √3 as 1.73, so their printed answers can differ in the last decimal places from the same sum worked with the calculator's √3. [R158][R159]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i5",
+ "title": "Voltage drop from the intake, refined",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the total from the origin, the submain's 5.77 V plus the heater circuit's drop, cross the 11.50 V limit near 60 m, when you drag the heater circuit's length.",
+  "title": "The volts lost from the intake",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 10,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Eleven screens, with Back and Continue, on voltage drop from the origin to the load. Screen 1, Do you still have it? (your slides p.41): “A supply is given as 395 V. A submain feeding a second board has a calculated voltage drop of 10 V, and a radial power circuit from that board 9.8 V. Does the circuit comply?” Three choices, in this order: “Yes: 19.8 V is inside 5% of 400 V, 20.00 V”; “Yes: the radial's 9.8 V is inside the limit on its own”; “No: 19.8 V is over 5% of 395 V, 19.75 V”. Right: “Still there.”, the working 10 + 9.8 = 19.8 V; 395 × 0.05 = 19.75 V, so it does not comply;[^1] a line each on the slips. Two buttons: Refresh the why (screen 2), Skip to the practice (screen 8). Wrong, the first: with 395 V given, your slides take 5% of 395 V.[^2] Wrong, the second: the limit covers every drop from the intake, the submain's 10 V too.[^3] Then the right working and on to screen 2. Read: 10 + 9.8 = 19.8 V, over 5% of the given 395 V, 19.75 V: it does not comply.\n\nScreen 2, What it is for: the cable's resistance uses up some of the supply's voltage on the way, and the load gets what is left: VD = mV/A/m × Ib × L ÷ 1000,[^4][^5] within Table 4Ab's limits, as your slides give them (p.38): lighting up to 3%, 6.9 V single-phase and 12 V three-phase;[^6] other circuits up to 5%, 11.5 V and 20 V,[^7] from the origin to the most distant point of the circuit.[^8] In red, if it is skipped or worked on one cable only: the load runs on less than it was designed for. A heater's power falls with the square of its voltage,[^9] and a motor draws more current to keep its torque.[^10] Your slides' 3 kW heater on 85 m of 1.5 mm² drops 32.14 V,[^11] nearly three times the 11.50 V allowed.[^7] Read: VD = mV/A/m × Ib × L ÷ 1000, within 3% (lighting) or 5% (other circuits) from the origin to the far end.\n\nScreen 3, The why: the drop from the origin. The picture, left to right, short labels: Origin, Submain, Board, Heater circuit, Heater; under it the voltage along the path, a step down across the submain and a slope along the heater circuit; below 218.50 V (230 V less the 11.50 V limit) a band shaded red. The course joins two of your slides' examples (its own combination): a 10 V submain drop (p.41, taken here as three-phase) and, from that board, the single-phase 3 kW heater (p.42), 13.04 A in 6.0 mm², 7.3 mV/A/m (Table 4D1B, your copy p.449, column 3).[^12] No supply voltage is given, so the origin is the nominal 230 V. The submain's drop is line to line and the heater circuit runs line to neutral, a √3 smaller, so the formula sheet divides it by √3 before adding:[^13] 10.00 ÷ √3 = 5.77 V, leaving 224.23 V at the board. A slider, Heater circuit length, 0 to 120 m in 5 m steps, opening at 85 m. Readouts: Heater circuit's drop (7.3 × 13.04 × length ÷ 1000); Total from the origin (5.77 V plus that); Limit, 11.50 V.[^7] At 85 m: 8.09 V,[^14] inside the limit on its own; total 13.86 V, over, and the heater's 216.14 V sits in the red band. At 60 m: 5.71 V, total 11.48 V, inside; at 65 m: 6.19 V, total 11.96 V, over. The total crosses the limit near 60 m; the heater circuit alone stays inside it to 120 m (11.42 V). Under it, why: the heater gets what the origin's voltage leaves after every cable it is fed through, so the drops add.[^15][^3] Read: at 85 m the heater circuit drops 8.09 V; with the submain's 5.77 V the total is 13.86 V, over 11.50 V; it reaches the limit near 60 m.\n\nScreen 4, Check: “A three-phase motor circuit has a calculated voltage drop of 7.2 V. Its board is fed by a three-phase submain with a calculated drop of 9.0 V. No supply voltage is given. What is the total, and does it comply?” Choices: “12.40 V: the submain's drop ÷ √3 first, so it complies”; “16.20 V, over 11.50 V: it does not comply”; “16.20 V, inside 20.00 V: it complies”. Right, the third: 7.2 + 9.0 = 16.20 V, three-phase all the way, against 5% of 400 V.[^16][^7] Wrong, 12.40 V (9.0 ÷ √3 = 5.20 V; 7.2 + 5.20): the ÷ √3 is for a three-phase submain feeding a single-phase circuit;[^13] this load is three-phase. Wrong, 11.50 V: that is 5% of 230 V; a three-phase circuit takes 5% of the three-phase voltage.[^16] Read: 7.2 + 9.0 = 16.20 V, inside 20.00 V.\n\nScreen 5, Worked example, a line at each press (Work each step yourself first, then press Show), your slides p.42: a 3 kW heater, 70 °C thermoplastic singles, 35 °C, Reference Method B, 85 m.[^17] Ib = 3000 ÷ 230 = 13.04 A (lesson 3), Ca 0.94,[^18] 1.5 mm². VD = 29 × 13.04 × 85 ÷ 1000 = 32.14 V,[^11] over 11.50 V (the slides print 32.1 V, cut short). Chasing the volt drop: a bigger CSA, and the sum again, until it complies.[^19] The most mV/A/m that can pass at 85 m: 11.50 × 1000 ÷ (13.04 × 85) = 10.37 (rounded down). 4.0 mm², 11 mV/A/m (Table 4D1B, your copy p.449, column 3),[^20] is over it: 11 × 13.04 × 85 ÷ 1000 = 12.19 V, fails. 6.0 mm², 7.3 mV/A/m:[^12] 7.3 × 13.04 × 85 ÷ 1000 = 8.09 V, passes.[^14] Last line, the slides' next question (p.43): the 6.0 mm² still carries just 13.04 A,[^21] and Table 4D1A rates it at 41 A.[^22] Read: 1.5 mm² 32.14 V and 4.0 mm² 12.19 V fail; 6.0 mm² 8.09 V passes; the most that can pass is 10.37 mV/A/m.\n\nScreen 6, The why, refined (why piece C): a lightly loaded cable. Opening text: Appendix 4's mV/A/m are for the conductor at its maximum operating temperature, 70 °C or 90 °C, reached only at full load.[^23] Current heats a conductor, raising its resistance and so the drop;[^24] at lower loads its temperature and resistance are lower.[^25] Ct corrects the drop for it. The picture: the slides' heater, 13.04 A on 85 m; a named choice, Cable: 1.5 mm², 4.0 mm², 6.0 mm², opening on 6.0 mm²; a switch, Apply Ct, opening off; a bar for Ib as a share of It; two bars in volts, the drop (red when over) and the 11.50 V limit. Under it, as a fraction on two lines: Ct = (230 + tp − (Ca² Cg² − Ib²/It²)(tp − 30)) ÷ (230 + tp),[^26] tp the conductor's maximum operating temperature, 70 °C for PVC (thermoplastic), 90 °C for XLPE,[^27] Ca the ambient temperature factor,[^28] It the tabulated current rating.[^29] One way to picture Ib²/It²: heat goes with the square of the current, so 13.04 A in a cable rated 41 A makes about a tenth of its full-load heat. Here tp 70 °C, Ca 0.94 (0.94² = 0.8836), Cg 1. Readouts: Ib ÷ It; Ct; Drop. Each cable's working is in the case file (l5.ct.15, l5.ct.4, l5.ct.6). 1.5 mm², 29 mV/A/m, It 17.5 A (Table 4D1A, your copy p.448, column 4):[^30] Ct 0.96, 30.85 V; near its rating a cable gains little. 4.0 mm², 11 mV/A/m, It 32 A:[^31] (13.04 ÷ 32)² = 0.1661; 0.8836 − 0.1661 = 0.7175; × 40 = 28.70; (300 − 28.70) ÷ 300 = 0.9043, Ct 0.90; 12.19 × 0.90 = 10.97 V, inside. 6.0 mm², 7.3 mV/A/m, It 41 A:[^32] Ct 0.90, 7.28 V. The moment to see: Ct on with 4.0 mm², and its bar falls under the limit: with Ct a smaller CSA than 6.0 mm² may pass.[^33] A box headed Debated: the formula is as a reader quoted it, attributing it to BS 7671[^26] (check it against Appendix 4 in your copy); one IET forum contributor counts only the ambient temperature and grouping factors in it,[^34] so Ci is left out here. Ct earns its keep where Ib is well below It and few correction factors apply;[^35] with a grouping factor of 0.78 alone it comes to about 0.99.[^36] Read: in 4.0 mm² the heater circuit drops 12.19 V, over 11.50 V; with Ct 0.90, 10.97 V, inside.\n\nScreen 7, The why, refined: a known power factor. From 25 mm² up the tables give r, x and z;[^37][^38] with no known power factor z is acceptable,[^39] with one, r and x are used.[^40] The picture: the r drop as an arrow along the current, the x drop a quarter-cycle ahead of it at right angles, z their sum as the long side; the load's voltage as a line at the angle φ from the current, each drop's shadow along it. A slider, Power factor, 0.50 to 1.00 in steps of 0.05, opening at 0.80 (the showroom motor's). The cable: 25 mm² 90 °C singles in conduit, three-phase, r 1.60, x 0.27, z 1.65 mV/A/m (Table 4E1B, your copy p.459).[^41] Readouts: sin φ = √(1 − cos² φ);[^42] Drop per amp per metre, r × cos φ + x × sin φ;[^43] z, 1.65. At 1.00: 1.60. At 0.80: 1.60 × 0.8 + 0.27 × 0.6 = 1.28 + 0.16 = 1.44 mV/A/m, about 13% under z. At 0.50 (sin φ 0.87): 0.80 + 0.23 = 1.03. Why: the r drop is in step with the current and the x drop a quarter-cycle ahead, so only their parts along the load's voltage take away from its size. Taking z as if all of it lay along the voltage may give a drop higher than the actual one;[^44] r and x allow an accurate assessment for loads with a large inductive element,[^45] so a circuit may conform without being upsized.[^46] This lesson does not combine Ct with r and x. Read: at power factor 0.8, 1.60 × 0.8 + 0.27 × 0.6 = 1.44 mV/A/m, against z's 1.65.\n\nScreen 8, Section A, question 1 (g): the scenario panel, and parts (a) to (f) carried forward. Given, each the course's own: the motor fed from DBP2, about 11.4 m along the walls on plan (approximate; a real design adds the vertical runs, guide p.5); DBP2 to the starter, 2.5 mm² 90 °C thermosetting singles in conduit, one three-phase circuit, 16 mV/A/m (Table 4E1B, your copy p.459, column 6);[^47] starter to motor, part (f)'s six 1.5 mm² singles, 3.0 m, a practice value (measure the real run), 31 mV/A/m for two cables single-phase (column 3);[^48] the DBP2 submain's three-phase drop, 4.00 V, a practice value. The leg: in delta running the windings are three single-phase loads,[^49] each fed through two of the six conductors, one at each end,[^50] carrying the winding current, 13.33 A (part b). The course takes its drop as 31 × 13.33 × 3.0 ÷ 1000, line to line, added to the rest: its own reading, not BS 7671's, and debated: a forum poster multiplies by √3 as well,[^51] 2.15 V here. “(g) Determine the actual voltage drop of the motor circuit, from the intake to the motor.” A typed answer (part 1g): 16 × 23.08 × 11.4 ÷ 1000 = 4.21 V; 31 × 13.33 × 3.0 ÷ 1000 = 1.24 V; 4.00 + 4.21 + 1.24 = 9.45 V (on practice values), inside 5% of 400 V, 20.00 V:[^7] 2.36%. No ÷ √3: the motor is three-phase.[^16] Accepted too, each with its own line: 10.36 V (the forum's reading; the line current, 31 × 23.08 × 3.0 ÷ 1000, gives the same 2.15 V, though each conductor carries the winding current[^52]) and 9.15 V (with Ct). Slips: 5.45 V (the submain left out[^3]); 8.21 V (the leg left out: all lengths count, guide p.5); 7.76 V (the submain ÷ √3, 2.31 V: that is for a single-phase circuit[^13]). After two misses, the working. Then a fold, Refined with Ct (working: l5.A.1g.ct): the 2.5 mm² cable carries 23.08 A of its 28 A (Table 4E1A, column 5);[^53] tp 90 °C, Ca 1.00 (lesson 3's practice value), Cg 1: Ct 0.94, 3.96 V; the leg, Cg 0.80, It 20 A:[^54] Ct 0.96, 1.19 V; in all 9.15 V, not needed since 9.45 V passes. Under 25 mm² the power factor does not enter.[^37] Read: 4.00 + 4.21 + 1.24 = 9.45 V (on practice values), inside 20.00 V.\n\nScreen 9, Section B: “Explain why a cable carrying well under its rating drops less voltage than Appendix 4's mV/A/m gives, and how a designer can take credit for it.” Written, marked against five points (any three make a full answer); one more go, then the model answer.\n\nScreen 10, Section A, changed numbers: “A single-phase power circuit, 32 m of 1.5 mm² 90 °C singles in conduit (31 mV/A/m), Ib 9 A, is fed from a sub-board whose three-phase submain drops 7.5 V. No supply voltage is given. Determine the total voltage drop from the origin.”[^48] A typed answer: 31 × 9 × 32 ÷ 1000 = 8.93 V; 7.5 ÷ √3 = 4.33 V;[^13] 4.33 + 8.93 = 13.26 V, over 11.50 V: it fails, though the circuit alone would pass. Accepted: 13.27 V (√3 as 1.73, as your slides take it).[^55] Slips: 16.43 V (no ÷ √3), 21.92 V (7.5 × √3 = 12.99 V), 8.93 V (the submain left out[^3]). Read: 8.93 V; 7.5 ÷ √3 = 4.33 V; 4.33 + 8.93 = 13.26 V, over 11.50 V.\n\nScreen 11, Keep this: the summary card, then Finish the lesson. The line under screens 3 to 8 and 10: figures from your slides, formula sheet, assignment and copy of BS 7671; practice values marked; each line worked from the rounded figures before it.",
+  "ignores": "The path on screen 3 is drawn as one straight run with two cables; a real installation branches, and each circuit is checked to its own far end. The submain and the heater are two of your slides' examples joined by the course, not one job. The heater's current is held at 13.04 A whatever the length, as the drop rule takes Ib as fixed; a real heater draws a little less on a lower voltage. On screen 6 the cable's temperature is shown only as Ib's share of It, not in degrees. On screen 7 the shadows of the r and x drops along the voltage are the usual close approximation, very near the exact figure while the drop is small beside the supply voltage.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 11 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Recall: supply given, V",
+    "value": 395,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Recall: submain drop (slides p.41), V",
+    "value": 10,
+    "kind": "constant"
+   },
+   {
+    "label": "Recall: radial circuit drop (slides p.41), V",
+    "value": 9.8,
+    "kind": "constant"
+   },
+   {
+    "label": "Recall: total, 10 + 9.8, V",
+    "value": 19.8,
+    "kind": "computed"
+   },
+   {
+    "label": "5% of 395 V, V",
+    "value": 19.75,
+    "kind": "computed",
+    "source": 1
+   },
+   {
+    "label": "5% of 400 V, V",
+    "value": 20,
+    "kind": "computed",
+    "source": 7
+   },
+   {
+    "label": "Lighting limit, %",
+    "value": 3,
+    "kind": "constant",
+    "source": 6
+   },
+   {
+    "label": "Other circuits limit, %",
+    "value": 5,
+    "kind": "constant",
+    "source": 7
+   },
+   {
+    "label": "Lighting limit, single-phase, V",
+    "value": 6.9,
+    "kind": "constant",
+    "source": 6
+   },
+   {
+    "label": "Lighting limit, three-phase, V",
+    "value": 12,
+    "kind": "constant",
+    "source": 6
+   },
+   {
+    "label": "Other circuits limit, single-phase, V",
+    "value": 11.5,
+    "kind": "constant",
+    "source": 7
+   },
+   {
+    "label": "Other circuits limit, three-phase, V",
+    "value": 20,
+    "kind": "constant",
+    "source": 7
+   },
+   {
+    "label": "Nominal single-phase voltage, V",
+    "value": 230,
+    "kind": "constant"
+   },
+   {
+    "label": "Nominal three-phase voltage, V",
+    "value": 400,
+    "kind": "constant"
+   },
+   {
+    "label": "Slides heater: power, kW",
+    "value": 3,
+    "kind": "constant",
+    "source": 17
+   },
+   {
+    "label": "Slides heater: length, m",
+    "value": 85,
+    "kind": "constant",
+    "source": 17
+   },
+   {
+    "label": "Slides heater: Ib, 3000 ÷ 230, A",
+    "value": 13.04,
+    "kind": "computed",
+    "source": 11
+   },
+   {
+    "label": "Slides heater: Ca at 35 °C",
+    "value": 0.94,
+    "kind": "constant",
+    "source": 18
+   },
+   {
+    "label": "1.5 mm² 70 °C, mV/A/m (slides)",
+    "value": 29,
+    "kind": "constant",
+    "source": 11
+   },
+   {
+    "label": "1.5 mm² drop, 29 × 13.04 × 85 ÷ 1000, V",
+    "value": 32.14,
+    "kind": "computed",
+    "source": 11
+   },
+   {
+    "label": "Slides printed drop, V",
+    "value": 32.1,
+    "kind": "constant"
+   },
+   {
+    "label": "Screen 3: submain drop, taken as three-phase, V",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Submain drop ÷ √3, V",
+    "value": 5.77,
+    "kind": "computed",
+    "source": 13
+   },
+   {
+    "label": "Voltage at the board, 230 − 5.77, V",
+    "value": 224.23,
+    "kind": "computed"
+   },
+   {
+    "label": "Red band below, 230 − 11.50, V",
+    "value": 218.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Length slider: 0 to, m",
+    "value": 120,
+    "kind": "assumed"
+   },
+   {
+    "label": "Length slider step, m",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Length slider opens at, m",
+    "value": 85,
+    "kind": "control"
+   },
+   {
+    "label": "6.0 mm² 70 °C, mV/A/m (Table 4D1B col 3)",
+    "value": 7.3,
+    "kind": "constant",
+    "source": 12
+   },
+   {
+    "label": "Heater circuit drop at 85 m, V",
+    "value": 8.09,
+    "kind": "computed",
+    "source": 14
+   },
+   {
+    "label": "Total from the origin at 85 m, V",
+    "value": 13.86,
+    "kind": "computed"
+   },
+   {
+    "label": "Voltage at the heater at 85 m, V",
+    "value": 216.14,
+    "kind": "computed"
+   },
+   {
+    "label": "Heater circuit drop at 60 m, V",
+    "value": 5.71,
+    "kind": "computed"
+   },
+   {
+    "label": "Total at 60 m, V",
+    "value": 11.48,
+    "kind": "computed"
+   },
+   {
+    "label": "Heater circuit drop at 65 m, V",
+    "value": 6.19,
+    "kind": "computed"
+   },
+   {
+    "label": "Total at 65 m, V",
+    "value": 11.96,
+    "kind": "computed"
+   },
+   {
+    "label": "Total reaches the limit near, m",
+    "value": 60,
+    "kind": "computed"
+   },
+   {
+    "label": "Heater circuit drop at 120 m, V",
+    "value": 11.42,
+    "kind": "computed"
+   },
+   {
+    "label": "Check: motor circuit drop, V",
+    "value": 7.2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Check: submain drop, V",
+    "value": 9,
+    "kind": "assumed"
+   },
+   {
+    "label": "Check: total, 7.2 + 9.0, V",
+    "value": 16.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Check slip: 9.0 ÷ √3, V",
+    "value": 5.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Check slip: 7.2 + 5.20, V",
+    "value": 12.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Most mV/A/m that passes at 85 m",
+    "value": 10.37,
+    "kind": "computed"
+   },
+   {
+    "label": "4.0 mm² 70 °C, mV/A/m (Table 4D1B col 3)",
+    "value": 11,
+    "kind": "constant",
+    "source": 20
+   },
+   {
+    "label": "4.0 mm² drop at 85 m, V",
+    "value": 12.19,
+    "kind": "computed"
+   },
+   {
+    "label": "tp, PVC (thermoplastic), °C",
+    "value": 70,
+    "kind": "constant",
+    "source": 27
+   },
+   {
+    "label": "tp, XLPE, °C",
+    "value": 90,
+    "kind": "constant",
+    "source": 27
+   },
+   {
+    "label": "Ct formula constant",
+    "value": 230,
+    "kind": "constant",
+    "source": 26
+   },
+   {
+    "label": "Ct formula: reference temperature, °C",
+    "value": 30,
+    "kind": "constant",
+    "source": 26
+   },
+   {
+    "label": "1.5 mm² 70 °C It, Table 4D1A col 4, A",
+    "value": 17.5,
+    "kind": "constant",
+    "source": 30
+   },
+   {
+    "label": "4.0 mm² It, Table 4D1A col 4, A",
+    "value": 32,
+    "kind": "constant",
+    "source": 31
+   },
+   {
+    "label": "6.0 mm² It, Table 4D1A col 4, A",
+    "value": 41,
+    "kind": "constant",
+    "source": 22
+   },
+   {
+    "label": "Ca squared, 0.94²",
+    "value": 0.8836,
+    "kind": "computed"
+   },
+   {
+    "label": "1.5 mm²: (13.04 ÷ 17.5)²",
+    "value": 0.5552,
+    "kind": "computed"
+   },
+   {
+    "label": "1.5 mm²: 0.8836 − 0.5552",
+    "value": 0.3284,
+    "kind": "computed"
+   },
+   {
+    "label": "1.5 mm²: × 40",
+    "value": 13.14,
+    "kind": "computed"
+   },
+   {
+    "label": "1.5 mm²: (300 − 13.14) ÷ 300",
+    "value": 0.9562,
+    "kind": "computed"
+   },
+   {
+    "label": "1.5 mm²: Ct",
+    "value": 0.96,
+    "kind": "computed"
+   },
+   {
+    "label": "1.5 mm² drop with Ct, V",
+    "value": 30.85,
+    "kind": "computed"
+   },
+   {
+    "label": "4.0 mm²: (13.04 ÷ 32)²",
+    "value": 0.1661,
+    "kind": "computed"
+   },
+   {
+    "label": "4.0 mm²: 0.8836 − 0.1661",
+    "value": 0.7175,
+    "kind": "computed"
+   },
+   {
+    "label": "4.0 mm²: × 40",
+    "value": 28.7,
+    "kind": "computed"
+   },
+   {
+    "label": "4.0 mm²: (300 − 28.70) ÷ 300",
+    "value": 0.9043,
+    "kind": "computed"
+   },
+   {
+    "label": "4.0 and 6.0 mm²: Ct",
+    "value": 0.9,
+    "kind": "computed"
+   },
+   {
+    "label": "4.0 mm² drop with Ct, V",
+    "value": 10.97,
+    "kind": "computed"
+   },
+   {
+    "label": "6.0 mm²: (13.04 ÷ 41)²",
+    "value": 0.1012,
+    "kind": "computed"
+   },
+   {
+    "label": "6.0 mm²: 0.8836 − 0.1012",
+    "value": 0.7824,
+    "kind": "computed"
+   },
+   {
+    "label": "6.0 mm²: × 40",
+    "value": 31.3,
+    "kind": "computed"
+   },
+   {
+    "label": "6.0 mm²: (300 − 31.30) ÷ 300",
+    "value": 0.8957,
+    "kind": "computed"
+   },
+   {
+    "label": "6.0 mm² drop with Ct, V",
+    "value": 7.28,
+    "kind": "computed"
+   },
+   {
+    "label": "EngX: grouping factor in the example",
+    "value": 0.78,
+    "kind": "constant",
+    "source": 36
+   },
+   {
+    "label": "EngX: Ct comes to about",
+    "value": 0.99,
+    "kind": "constant",
+    "source": 36
+   },
+   {
+    "label": "Smallest size with r, x and z columns, mm²",
+    "value": 25,
+    "kind": "constant",
+    "source": 37
+   },
+   {
+    "label": "25 mm² three-phase in conduit: r, mV/A/m",
+    "value": 1.6,
+    "kind": "constant",
+    "source": 41
+   },
+   {
+    "label": "25 mm² three-phase in conduit: x, mV/A/m",
+    "value": 0.27,
+    "kind": "constant",
+    "source": 41
+   },
+   {
+    "label": "25 mm² three-phase in conduit: z, mV/A/m",
+    "value": 1.65,
+    "kind": "constant",
+    "source": 41
+   },
+   {
+    "label": "Power factor slider: 0.50 to 1.00, step",
+    "value": 0.05,
+    "kind": "assumed"
+   },
+   {
+    "label": "Power factor slider opens at (the motor’s)",
+    "value": 0.8,
+    "kind": "control"
+   },
+   {
+    "label": "sin φ at power factor 0.8",
+    "value": 0.6,
+    "kind": "computed",
+    "source": 42
+   },
+   {
+    "label": "r × 0.8",
+    "value": 1.28,
+    "kind": "computed"
+   },
+   {
+    "label": "x × 0.6",
+    "value": 0.16,
+    "kind": "computed"
+   },
+   {
+    "label": "Drop per amp per metre at 0.8, mV/A/m",
+    "value": 1.44,
+    "kind": "computed"
+   },
+   {
+    "label": "Under z at 0.8, about %",
+    "value": 13,
+    "kind": "computed"
+   },
+   {
+    "label": "Drop per amp per metre at 1.00, mV/A/m",
+    "value": 1.6,
+    "kind": "computed"
+   },
+   {
+    "label": "sin φ at power factor 0.5",
+    "value": 0.87,
+    "kind": "computed"
+   },
+   {
+    "label": "r × 0.5 and x × 0.87",
+    "value": "0.80 and 0.23",
+    "kind": "computed"
+   },
+   {
+    "label": "Drop per amp per metre at 0.5, mV/A/m",
+    "value": 1.03,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 1a: the motor’s Ib, A",
+    "value": 23.08,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 1b: winding current, A",
+    "value": 13.33,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 1c: breaker rating, A",
+    "value": 25,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 1d: minimum It, A",
+    "value": 16.66,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 1f: starter-to-motor singles, mm²",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "DBP2 to the motor on plan (course’s own), m",
+    "value": 11.4,
+    "kind": "assumed"
+   },
+   {
+    "label": "DBP2 to starter cable, mm²",
+    "value": 2.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "2.5 mm² 90 °C three-phase, mV/A/m (col 6)",
+    "value": 16,
+    "kind": "constant",
+    "source": 47
+   },
+   {
+    "label": "Starter-to-motor run (practice value), m",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "1.5 mm² 90 °C single-phase, mV/A/m (col 3)",
+    "value": 31,
+    "kind": "constant",
+    "source": 48
+   },
+   {
+    "label": "DBP2 submain drop (practice value), V",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Forum: share of full-load current per lead, %",
+    "value": 58,
+    "kind": "constant",
+    "source": 51
+   },
+   {
+    "label": "Six conductors, starter to motor",
+    "value": 6,
+    "kind": "constant",
+    "source": 56
+   },
+   {
+    "label": "Part 1g: DBP2 to starter, V",
+    "value": 4.21,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 1g: starter to motor, V",
+    "value": 1.24,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 1g: total from the intake, V",
+    "value": 9.45,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 1g: as a share of 400 V, %",
+    "value": 2.36,
+    "kind": "computed"
+   },
+   {
+    "label": "Forum reading or line current: the leg, V",
+    "value": 2.15,
+    "kind": "computed"
+   },
+   {
+    "label": "Accepted: 4.00 + 4.21 + 2.15, V",
+    "value": 10.36,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: submain left out, V",
+    "value": 5.45,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: leg left out, V",
+    "value": 8.21,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: 4.00 ÷ √3, V",
+    "value": 2.31,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: submain ÷ √3, total, V",
+    "value": 7.76,
+    "kind": "computed"
+   },
+   {
+    "label": "2.5 mm² 90 °C It, Table 4E1A col 5, A",
+    "value": 28,
+    "kind": "constant",
+    "source": 53
+   },
+   {
+    "label": "1.5 mm² 90 °C It, Table 4E1A col 5, A",
+    "value": 20,
+    "kind": "constant",
+    "source": 54
+   },
+   {
+    "label": "Ca for the motor’s cables (practice value)",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cg for the six singles (lesson 3)",
+    "value": 0.8,
+    "kind": "constant"
+   },
+   {
+    "label": "DBP2 cable: (23.08 ÷ 28)²",
+    "value": 0.6794,
+    "kind": "computed"
+   },
+   {
+    "label": "DBP2 cable: 1 − 0.6794",
+    "value": 0.3206,
+    "kind": "computed"
+   },
+   {
+    "label": "DBP2 cable: × 60",
+    "value": 19.24,
+    "kind": "computed"
+   },
+   {
+    "label": "DBP2 cable: (320 − 19.24) ÷ 320",
+    "value": 0.9399,
+    "kind": "computed"
+   },
+   {
+    "label": "DBP2 cable: Ct",
+    "value": 0.94,
+    "kind": "computed"
+   },
+   {
+    "label": "DBP2 cable drop with Ct, V",
+    "value": 3.96,
+    "kind": "computed"
+   },
+   {
+    "label": "Leg: Ca² Cg², 0.80²",
+    "value": 0.64,
+    "kind": "computed"
+   },
+   {
+    "label": "Leg: (13.33 ÷ 20)²",
+    "value": 0.4442,
+    "kind": "computed"
+   },
+   {
+    "label": "Leg: 0.64 − 0.4442",
+    "value": 0.1958,
+    "kind": "computed"
+   },
+   {
+    "label": "Leg: × 60",
+    "value": 11.75,
+    "kind": "computed"
+   },
+   {
+    "label": "Leg: (320 − 11.75) ÷ 320",
+    "value": 0.9633,
+    "kind": "computed"
+   },
+   {
+    "label": "Leg: Ct",
+    "value": 0.96,
+    "kind": "computed"
+   },
+   {
+    "label": "Leg drop with Ct, V",
+    "value": 1.19,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 1g with Ct, V",
+    "value": 9.15,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers: length, m",
+    "value": 32,
+    "kind": "assumed"
+   },
+   {
+    "label": "Changed numbers: Ib, A",
+    "value": 9,
+    "kind": "assumed"
+   },
+   {
+    "label": "Changed numbers: submain drop, V",
+    "value": 7.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Changed numbers: circuit drop, V",
+    "value": 8.93,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers: 7.5 ÷ √3, V",
+    "value": 4.33,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers: total, V",
+    "value": 13.26,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers: total with √3 as 1.73, V",
+    "value": 13.27,
+    "kind": "computed"
+   },
+   {
+    "label": "Slides’ √3",
+    "value": 1.73,
+    "kind": "constant",
+    "source": 55
+   },
+   {
+    "label": "Changed slip: 7.5 + 8.93, V",
+    "value": 16.43,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed slip: 7.5 × √3, V",
+    "value": 12.99,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed slip: 12.99 + 8.93, V",
+    "value": 21.92,
+    "kind": "computed"
+   },
+   {
+    "label": "Section B: points, of which any make a full answer",
+    "value": "5, any 3",
+    "kind": "constant"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Voltage drop is the voltage the cables use up on the way to the load: the load gets what is left. Your slides count it as mV/A/m × Ib × L ÷ 1000, where mV/A/m is the millivolts dropped for every ampere of design current for every metre of conductor,[^4][^5] and they allow up to 3% of the supply for lighting and 5% for other circuits,[^6][^7] taken of the supply voltage you were given where one is given.[^2]\n\nThe limit runs from the origin of the installation to the most distant point of the circuit,[^8] because the load gets what the origin's voltage leaves after every cable it is fed through. So the submain's drop is added to the final circuit's,[^15] and a final circuit that passes on its own can still fail: on your slides' 395 V supply, 10 V in the submain and 9.8 V in the circuit make 19.8 V, over the 19.75 V allowed.[^1] A three-phase submain's drop is a line-to-line figure. Where it feeds a single-phase circuit, which runs line to neutral, a √3 smaller, the formula sheet divides it by √3 before adding;[^13] where the load is three-phase too, the drops stay three-phase and are judged against 3% or 5% of the three-phase voltage.[^16]\n\nTwo refinements can bring a narrow fail inside. The tables' mV/A/m are worked for the conductor at its maximum operating temperature, which it reaches only at full load.[^23] Current heats a conductor and a hotter conductor has more resistance,[^24] so a cable carrying well under its rating runs cooler and drops less,[^25] and a factor, [[Ct]], corrects the drop for it. Your slides' heater cable, chased up to 6.0 mm², still carries just 13.04 A of the 41 A it is rated for,[^21][^22] so it drops less than its 8.09 V, and with Ct the smaller 4.0 mm² may pass.[^57][^33] From 25 mm² up the tables give r, x and z.[^37] With a known power factor, the r drop is in step with the current and the x drop a quarter of a cycle ahead of it, so only their parts along the load's voltage take away from it: (mV/A/m)r × cos φ + (mV/A/m)x × sin φ.[^43] Using z alone may give a drop higher than the actual one.[^44] This is a simplified picture: taking the drops' shadows along the voltage is very close to the exact figure while the drop is small beside the supply voltage.\n\n**Add every drop from the intake to the far end and judge the total against 3% or 5% of the voltage you were given; where it fails narrowly, a lightly loaded cable's Ct, or with a known power factor its r and x, may show that it passes.**[^3][^2][^33][^40]"
+ },
+ "analogy": {
+  "text": "Think of a ship's fresh-water main. The pressure at a shower on the far deck is the pump's pressure less what is lost in every length of pipe on the way, the ring main as well as the branch. A branch that loses little on its own can still leave too little at the shower once the ring main has taken its share, so the loss is judged from the pump, not from the branch's own valve.",
+  "breaks": "A pipe's loss climbs faster than its flow, while a cable's drop is in proportion to its current. And an AC cable's reactance drops voltage out of step with the current, which a pipe has no counterpart for, so the r and x refinement has no water version."
+ },
+ "practice": {
+  "text": "- Work Ib at the voltage given (lesson 1), then each cable's drop: mV/A/m × Ib × L ÷ 1000,[^5] with mV/A/m from the Appendix 4 voltage-drop table for that cable and its installation.[^58]\n- Add every drop from the intake to the end of the circuit, submain and final circuit,[^3][^15] and every length of the run, the drops into and out of ceiling voids included (project guide p.5).\n- A three-phase submain feeding a single-phase circuit: divide the submain's drop by √3 before adding.[^13] A three-phase load: keep every drop three-phase.[^16]\n- Judge the total against 3% (lighting) or 5% (other circuits) of the voltage you were given;[^6][^7][^2] where none is given, against the nominal 230 V or 400 V (formula sheet step 7).\n- Fails? Chase it: a bigger CSA, and the sum again, until it complies.[^19] Then, for a cable carrying well under its rating, try Ct;[^35] at 25 mm² and over with a known power factor, use r and x.[^40]\n\n**Rule of thumb:** the most mV/A/m that can pass is the limit × 1000 ÷ (Ib × L); the first cable under it is the one to try. Ct earns most where Ib is well below It and few correction factors apply;[^35] with a grouping factor of 0.78 and nothing else it comes to about 0.99.[^36]\n\n**Worked example:** the showroom motor, part 1(g), on practice values (the DBP2 submain's 4.00 V and the 3.0 m leg). DBP2 to the starter: 16 × 23.08 × 11.4 ÷ 1000 = 4.21 V (2.5 mm², Table 4E1B column 6).[^47] The leg, at the winding current, 31 × 13.33 × 3.0 ÷ 1000 = 1.24 V (1.5 mm², column 3),[^48] the course's own reading of a debated step.[^51] Total 4.00 + 4.21 + 1.24 = 9.45 V, inside 5% of 400 V, 20.00 V,[^7] with no ÷ √3, since the motor is three-phase.[^16]\n\n**Common mistakes**\n- Checking the final circuit on its own: the limit covers every drop from the intake.[^3]\n- Taking 5% of 400 V when the supply is given as 395 V.[^1]\n- Dividing by √3 when the load is three-phase.[^16]\n- Using z with a known power factor on 25 mm² and over: it may overstate the drop.[^44]\n- Taking the Ct formula's factors as settled: the one here uses Ca and Cg, not Ci;[^34] check it against Appendix 4 in your copy."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "written": {
+  "b1": {
+   "q": "Explain why a cable carrying well under its rating drops less voltage than Appendix 4's mV/A/m gives, and how a designer can take credit for it.",
+   "points": [
+    {
+     "text": "Appendix 4's mV/A/m values are for the conductor at its maximum operating temperature (70 °C or 90 °C), which it reaches only at full load.",
+     "cite": "TiSoft, voltage drop according to BS 7671, in research"
+    },
+    {
+     "text": "Current heats a conductor, and a hotter conductor has more resistance, so a larger voltage drop.",
+     "cite": "Slides p.43"
+    },
+    {
+     "text": "A cable carrying well below its rating (Ib well under It) runs cooler, so its resistance and its drop are lower than the table gives.",
+     "cite": "Slides p.43; TiSoft, in research"
+    },
+    {
+     "text": "The correction factor Ct, worked from Ib and It, the conductor's maximum temperature and the rating factors, multiplies the tabulated drop.",
+     "cite": "Slides p.43; the Ct formula as quoted on myElectrical and defined by TiSoft, in research"
+    },
+    {
+     "text": "It can let a smaller cable pass: the slides' heater in 4.0 mm² drops 12.19 V by the table, 10.97 V with Ct, against 11.50 V.",
+     "cite": "Slides p.42, 43; Tables 4D1A and 4D1B, your copy p.448, 449"
+    }
+   ],
+   "need": 3,
+   "model": "Appendix 4's mV/A/m values are worked for the conductor at its maximum operating temperature, 70 °C or 90 °C, which it reaches only when it carries its full load. Current heats a conductor, and a hotter conductor has more resistance, so more drop (your slides p.43). A cable carrying well under its rating, Ib well below It, runs cooler, so its resistance and its drop are lower than the table says. The designer takes credit with the factor Ct, worked from Ib and It, the maximum operating temperature and the rating factors, which multiplies the tabulated drop. It can let a smaller cable pass: your slides' heater in 4.0 mm² drops 12.19 V by the table but 10.97 V with Ct, inside the 11.50 V limit."
+  }
+ },
+ "summary": {
+  "title": "Voltage drop from the intake, refined",
+  "for": "Enough voltage must reach the load. The drop from the origin to the far end of the circuit is kept within 3% (lighting) or 5% (other circuits) of the voltage you were given (slides p.38, 40).",
+  "rule": "VD = mV/A/m × Ib × L ÷ 1000\nTotal = submain + final circuit, from the intake\n3-phase submain, 1-phase circuit: submain ÷ √3\nLimit: 3% or 5% of the voltage given (230 V or 400 V if none)\nCt = (230 + tp − (Ca² Cg² − Ib²/It²)(tp − 30)) ÷ (230 + tp)\n25 mm² and up, power factor known: r × cos φ + x × sin φ\n\nFails? Chase it with a bigger CSA, then try Ct.\nA three-phase load keeps every drop three-phase.\nThe Ct formula is as quoted in research: check Appendix 4 in your copy.",
+  "traps": [
+   {
+    "text": "Checking the final circuit on its own: the limit covers every drop from the intake to the end of the circuit.",
+    "cite": "Project guide p.6; formula sheet step 7"
+   },
+   {
+    "text": "Taking 5% of 400 V when the supply is given as 395 V: the limit is 19.75 V, not 20 V.",
+    "cite": "Slides p.40, 41"
+   },
+   {
+    "text": "Dividing by √3 when the load is three-phase: the ÷ √3 is for a three-phase submain feeding a single-phase circuit.",
+    "cite": "Formula sheet step 7; slides p.40"
+   },
+   {
+    "text": "Using z on 25 mm² and over when the power factor is known: it may overstate the drop.",
+    "cite": "Slides p.45; NICEIC, impedance and voltage drop, in research"
+   },
+   {
+    "text": "Leaving a cable chased up for voltage drop at its tabulated drop: it runs cooler, and with Ct a smaller cable may pass.",
+    "cite": "Slides p.43"
+   }
+  ],
+  "where": "Your slides p.38 to 45; formula sheet step 7; project guide p.5, 6; BS 7671 Appendix 4 (Table 4Ab, the voltage-drop tables such as 4D1B and 4E1B, and the Ct formula).",
+  "figures": [
+   "1a",
+   "1b",
+   "1c",
+   "1f",
+   {
+    "label": "1(g) Voltage drop from the intake (on practice values)",
+    "value": "9.45 V"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "n": 1,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p41",
+   "quote": "5% of 395V = 19.75V as a maximum voltage drop, so the circuit does not comply."
+  },
+  {
+   "n": 2,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p40",
+   "quote": "We work on a maximum voltage drop of 3% of supply for lighting and 5% for all other circuits; therefore if the supply voltage is given (ie 395V) then your calculations must be based on the percentage of this value."
+  },
+  {
+   "n": 3,
+   "title": "EAL Level 4 Design and Verification: project guide",
+   "url": "material:project-guide#p6",
+   "quote": "Include the sum of all voltage drops from the intake equipment to the end of the circuit in your calculations."
+  },
+  {
+   "n": 4,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p38",
+   "quote": "(mV/A/m) means milli-volts dropped for every ampere of design current for every metre of conductor length."
+  },
+  {
+   "n": 5,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p39",
+   "quote": "Voltage drop = 11 x 31 x 35 / 1000"
+  },
+  {
+   "n": 6,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p38",
+   "quote": "Lighting circuits have upto 3% allowed: 6.9V single phase and 12V 3-phase"
+  },
+  {
+   "n": 7,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p38",
+   "quote": "Power circuits have upto 5% allowed: 11.5V single phase and 20V 3-phase"
+  },
+  {
+   "n": 8,
+   "title": "Volt Drop Calculation: Formula, 3% & 5% Limits (BS 7671) | Total Skills UK",
+   "url": "https://www.totalskills.co.uk/guides/volt-drop-calculations",
+   "quote": "They apply from the origin of the installation to the most distant point of the circuit."
+  },
+  {
+   "n": 9,
+   "title": "Resistive Load Wattage: Is Power Rating Constant? - Engineering Guide – Industrial Monitor Direct",
+   "url": "https://industrialmonitordirect.com/blogs/knowledgebase/resistive-heating-element-power-calculation-at-different-voltages",
+   "quote": "Power drops by V². Current drops proportionally. Fixed resistance."
+  },
+  {
+   "n": 10,
+   "title": "Resistive Load Wattage: Is Power Rating Constant? - Engineering Guide – Industrial Monitor Direct",
+   "url": "https://industrialmonitordirect.com/blogs/knowledgebase/resistive-heating-element-power-calculation-at-different-voltages",
+   "quote": "Motor draws more current to maintain torque."
+  },
+  {
+   "n": 11,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p42",
+   "quote": "Voltage drop = 29 x 13.04 x 85 / 1000"
+  },
+  {
+   "n": 12,
+   "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+   "url": "material:bs7671#p449",
+   "quote": "6 7.3 7.3 7.3 7.3 6.4 6.4 6.4 6.4"
+  },
+  {
+   "n": 13,
+   "title": "Circuit design formula sheet",
+   "url": "material:formula-sheet#p1",
+   "quote": "Divide the three phase value of voltage drop by root 3 to give equivalent single phase value of voltage drop to add"
+  },
+  {
+   "n": 14,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p42",
+   "quote": "You’ll find that a 6.0mm² works here, as it has a voltage drop of 8.09V"
+  },
+  {
+   "n": 15,
+   "title": "Circuit design formula sheet",
+   "url": "material:formula-sheet#p1",
+   "quote": "Total Voltage Drop = VDrop of Submain + VDrop of final circuit"
+  },
+  {
+   "n": 16,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p40",
+   "quote": "3-phase voltage drop is calculated using the equivalent percentage (3% or 5%) of the 3-phase voltage value."
+  },
+  {
+   "n": 17,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p42",
+   "quote": "A 3kW heater circuit wired in 70C thermoplastic single core cable is installed at an ambient temperature of 35C,in reference method B, circuit length is 85m."
+  },
+  {
+   "n": 18,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p42",
+   "quote": "Ca = 0.94"
+  },
+  {
+   "n": 19,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p42",
+   "quote": "This means gradually increasing conductor CSA and repeating the voltage drop calculation, until it complies."
+  },
+  {
+   "n": 20,
+   "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+   "url": "material:bs7671#p449",
+   "quote": "4 11 11 11 11 9.5 9.5 9.5 9.5"
+  },
+  {
+   "n": 21,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p43",
+   "quote": "There will still be just 13.04A in the 6.0mm² conductors."
+  },
+  {
+   "n": 22,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p43",
+   "quote": "According to table 4D1A, 6.0mm² has an Iz of 41A."
+  },
+  {
+   "n": 23,
+   "title": "TiSoft - Voltage drop calculation according to BS 7671",
+   "url": "https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs",
+   "quote": "The values of (mV/A/m) given in the Appendix 4 tables are at the maximum conductor operating temperature of, say, 70°C or 90°C, and these temperatures are only reached when the conductor is carrying its full load."
+  },
+  {
+   "n": 24,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p43",
+   "quote": "Current causes conductors to heat up, which in turn increases their resistance, which in turn increases voltage drop."
+  },
+  {
+   "n": 25,
+   "title": "TiSoft - Voltage drop calculation according to BS 7671",
+   "url": "https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs",
+   "quote": "At lower loads, the temperature and the resistance of the cable are lower."
+  },
+  {
+   "n": 26,
+   "title": "Cable Sizing Tool - myElectrical (a reader comment quoting the BS 7671 formula)",
+   "url": "https://myelectrical.com/notes/entryid/182/cable-sizing-tool",
+   "quote": "Ct = (230 + Tp - (Ca2 x Cg2 - Ib2/It2)x(Tp - 30))/ (230 + Tp)"
+  },
+  {
+   "n": 27,
+   "title": "Cable Sizing Tool - myElectrical (a reader comment quoting the BS 7671 formula)",
+   "url": "https://myelectrical.com/notes/entryid/182/cable-sizing-tool",
+   "quote": "Tp = Maximum Operating Temperature of the conductor (for PVC = 70 deg C and for XLPE = 90 deg C)."
+  },
+  {
+   "n": 28,
+   "title": "Cable Sizing Tool - myElectrical (a reader comment quoting the BS 7671 formula)",
+   "url": "https://myelectrical.com/notes/entryid/182/cable-sizing-tool",
+   "quote": "Ca = Ambient Temperature Correction Factor."
+  },
+  {
+   "n": 29,
+   "title": "Voltage drop calculation according to BS 7671 - TiSoft",
+   "url": "https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs",
+   "quote": "It is the tabulated current rating of the cable."
+  },
+  {
+   "n": 30,
+   "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+   "url": "material:bs7671#p448",
+   "quote": "15 14.5 13.5 17.5 15.5 20 18"
+  },
+  {
+   "n": 31,
+   "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+   "url": "material:bs7671#p448",
+   "quote": "4 26 24 32 28 37 33"
+  },
+  {
+   "n": 32,
+   "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+   "url": "material:bs7671#p448",
+   "quote": "6 34 31 41 36 47 43"
+  },
+  {
+   "n": 33,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p43",
+   "quote": "And by applying it, we may be able to use a smaller CSA cable than 6.0mm²"
+  },
+  {
+   "n": 34,
+   "title": "Correction for operating temperature - Wiring and the Regulations BS 7671 - IET EngX",
+   "url": "https://engx.theiet.org/f/wiring-and-regulations/31168/correction-for-operating-temperature",
+   "quote": "the calculations for the correction factor (Ct) consider only the ambient temperature and grouping factors."
+  },
+  {
+   "n": 35,
+   "title": "Correction for operating temperature - Wiring and the Regulations BS 7671 - IET EngX",
+   "url": "https://engx.theiet.org/f/wiring-and-regulations/31168/correction-for-operating-temperature",
+   "quote": "The real advantage is when there are no correction factors and there is a significant difference between Ib and It."
+  },
+  {
+   "n": 36,
+   "title": "Correction for operating temperature - Wiring and the Regulations BS 7671 - IET EngX",
+   "url": "https://engx.theiet.org/f/wiring-and-regulations/31168/correction-for-operating-temperature",
+   "quote": "Say in the example above, Cg was 0.78 and no other correction factors applied, Ct would approximate to 0.99, and not worth employing."
+  },
+  {
+   "n": 37,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p45",
+   "quote": "which is why the option for R, X or Z only appears on 25.0mm² and above."
+  },
+  {
+   "n": 38,
+   "title": "Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC)",
+   "url": "https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables",
+   "quote": "Where circuit cable conductors exceed 16 mm², which is common in distribution circuits used in industrial or commercial type installations, the tables for current-carrying capacity and voltage-drop in Appendix 4 of BS 7671 give separate values"
+  },
+  {
+   "n": 39,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p45",
+   "quote": "As a simple rule of thumb, if the circuit contains no known power factor, then simply using the Z (mV/A/m) is acceptable."
+  },
+  {
+   "n": 40,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p45",
+   "quote": "Where one is known then a calculation using both the R and X values needs to be used."
+  },
+  {
+   "n": 41,
+   "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+   "url": "material:bs7671#p459",
+   "quote": "25 1.85 1.85 0.31 1.90 | 1.85 0.190 1.85 | 1.85 0.28 1.85 | 1.60 0.27 1.65 | 1.60 0.165 1.60 | 1.60 0.190 1.60 | 1.60 0.27 1.65"
+  },
+  {
+   "n": 42,
+   "title": "Voltage Drop Calculation Guide - Formulas, Methods & Limits (ECalPro, a calculator site, not a standard)",
+   "url": "https://ecalpro.com/docs/voltage-drop-calculation-guide",
+   "quote": "sinφ | Reactive factor (= √(1 − cos²φ))"
+  },
+  {
+   "n": 43,
+   "title": "Voltage Drop Calculation Guide - Formulas, Methods & Limits (ECalPro, a calculator site, not a standard)",
+   "url": "https://ecalpro.com/docs/voltage-drop-calculation-guide",
+   "quote": "mV/A/m = mV/A/m R × cosφ + mV/A/m X × sinφ"
+  },
+  {
+   "n": 44,
+   "title": "Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC)",
+   "url": "https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables",
+   "quote": "the use of the tabulated values of mv/A/m may lead to a calculated value of voltage drop which is higher than the actual value."
+  },
+  {
+   "n": 45,
+   "title": "Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC)",
+   "url": "https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables",
+   "quote": "The intention of BS 7671 in providing individual values of r, x and z in these tables is to allow for an accurate assessment of voltage-drop to accommodate loads having a large inductive element"
+  },
+  {
+   "n": 46,
+   "title": "Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC)",
+   "url": "https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables",
+   "quote": "Using equation 2 demonstrates that the final circuit would conform without unnecessarily upsizing the conductor CSA when the load power factor is known."
+  },
+  {
+   "n": 47,
+   "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+   "url": "material:bs7671#p459",
+   "quote": "2.5 19 19 19 19 16 16 16 16"
+  },
+  {
+   "n": 48,
+   "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+   "url": "material:bs7671#p459",
+   "quote": "1.5 31 31 31 31 27 27 27 27"
+  },
+  {
+   "n": 49,
+   "title": "Wye-Delta Motor Starters - PDH Online",
+   "url": "https://pdhonline.com/courses/e413/e413content.pdf",
+   "quote": "because the three windings of a wye- start/delta-run motor are actually three single-phase loads."
+  },
+  {
+   "n": 50,
+   "title": "Star Delta Starter Calculator (Contactor Sizing) | ElectroMechCalc",
+   "url": "https://www.electromechcalc.com/electrical/star-delta-starter",
+   "quote": "In delta running the supply reaches each winding from two directions — one end through KM1, the other through KM3 — which is why both carry winding current rather than line current."
+  },
+  {
+   "n": 51,
+   "title": "Cable Sizing Calculation for Star Delta Starter - Eng-Tips (forum thread)",
+   "url": "https://www.eng-tips.com/threads/cable-sizing-calculation-for-star-delta-starter.519269",
+   "quote": "For Delta Connection, Running VD = √3 x (58% of FLC) x (2xL) x (RcosØ + XsinØ) / (No.of runs X V)"
+  },
+  {
+   "n": 52,
+   "title": "Cable Sizing Calculation for Star Delta Starter - Eng-Tips (forum thread)",
+   "url": "https://www.eng-tips.com/threads/cable-sizing-calculation-for-star-delta-starter.519269",
+   "quote": "Six leads, two cables per phase, each cable ampacity 58% of nameplate delta running current."
+  },
+  {
+   "n": 53,
+   "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+   "url": "material:bs7671#p458",
+   "quote": "2.5 26 23 31 28 34 31"
+  },
+  {
+   "n": 54,
+   "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+   "url": "material:bs7671#p458",
+   "quote": "1.5 19 17 23 20 25 23"
+  },
+  {
+   "n": 55,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p13",
+   "quote": "√3 = Square root of 3 (1.73)"
+  },
+  {
+   "n": 56,
+   "title": "Wye-Delta Motor Starters - PDH Online",
+   "url": "https://pdhonline.com/courses/e413/e413content.pdf",
+   "quote": "There are six power conductors from a wye-delta starter to the motor, rather than three power conductors as from a full-voltage starter to the motor."
+  },
+  {
+   "n": 57,
+   "title": "EAL Level 4 Design and Verification: course slides",
+   "url": "material:eal-slides#p43",
+   "quote": "Because so little current is present in the now 6.0mm² conductors (13.04A), the heat caused will dissipate far quicker, keeping conductor resistance lower and voltage drop lower than the previously calculated 8.09V."
+  },
+  {
+   "n": 58,
+   "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+   "url": "material:bs7671#p459",
+   "quote": "VOLTAGE DROP (per ampere per metre): Conductor operating temperature: 90°C"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0; * is a written question's id): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text, written.*.q, written.*.points[i].text, written.*.model, summary.title, summary.for, summary.rule, summary.where, summary.traps[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

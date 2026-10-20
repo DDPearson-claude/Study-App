@@ -1,0 +1,227 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "The sections give the case file's figures: clipped 17.02 A, trunking 21.28 A, wall 19.34 A; all three in one place 24.18 A",
+        "ok": true
+      },
+      {
+        "label": "The trunking sets the cable either way, and insulating it too only raises what it needs",
+        "ok": true
+      },
+      {
+        "label": "Overload: the breaker's 14.50 A within 18.85 A; the fuse's 20.00 A past it; with Cf, Iz 13.79 A and 1.45 Iz 20.00 A meet it",
+        "ok": true
+      },
+      {
+        "label": "Cf is 1.45 ÷ 2: for any rating from 5 to 63 A, the cable Cf asks for has a 1.45 Iz within 0.01 A of twice In",
+        "ok": true
+      },
+      {
+        "label": "The current I2 that operates the device should not exceed 1.45 times Iz: 1.45 × 13 = 18.85 A, above the breaker's 14.50 A",
+        "ok": true,
+        "source": "https://professional-electrician.com/technical/requirements-protection-overload"
+      },
+      {
+        "label": "A BS 3036 fuse meets it where In does not exceed 0.725 times Iz: a 10 A fuse needs Iz of 13.79 A",
+        "ok": true,
+        "source": "https://professional-electrician.com/technical/requirements-protection-overload"
+      },
+      {
+        "label": "The check: seven bunched, four lightly loaded, three counted",
+        "ok": true
+      },
+      {
+        "label": "The worked example: 0.752 and 0.8272 give 21.28 and 19.34 A; 10 × 1.45 = 14.50 A; 13 × 1.45 = 18.85 A",
+        "ok": true
+      },
+      {
+        "label": "1(c): 25 A is the smallest of 16, 20, 25 and 32 A not below 23.08 A; the practice start, 2.7 × 23.08 = 62.32 A, sits below type C's 125 to 250 A",
+        "ok": true
+      },
+      {
+        "label": "The type: all three clear the practice start of 62.32 A, B by least; C, the course's choice, is the middle",
+        "ok": true
+      },
+      {
+        "label": "1(d) to 1(f): 6 ÷ 3 = 2 circuits; 13.33 ÷ (1.00 × 0.80) = 16.66 A; 1.5 mm² (20 A) the smallest in column 5 that passes; Iz 16.00 A; 1.45 × 16.00 = 23.20 A",
+        "ok": true
+      },
+      {
+        "label": "Changed numbers: 15 ÷ 0.725 = 20.69 A; its slips 15.00, 10.88 and 21.75 A",
+        "ok": true
+      },
+      {
+        "label": "Every typed answer takes its own figure and refuses each of its slips",
+        "ok": true
+      },
+      {
+        "label": "The demonstration opens on the breaker and settles on the fuse with Cf applied",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "ins",
+      "dev",
+      "cf"
+    ],
+    "readouts": [],
+    "outputs": [
+      "clip",
+      "trunk",
+      "wall",
+      "worst",
+      "i2",
+      "iz",
+      "lim",
+      "pass"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "What it is for",
+          "The why: the run in sections",
+          "The why: overload",
+          "Check",
+          "Worked example",
+          "Section A (c)",
+          "Section A (d)",
+          "Section A (e) and (f)",
+          "Section B",
+          "Changed numbers",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "ins",
+        "kind": "toggle",
+        "label": "Insulation inside the trunking too",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "dev",
+        "kind": "choice",
+        "label": "Device",
+        "options": [
+          "breaker",
+          "fuse"
+        ],
+        "labels": [
+          "10 A type B breaker",
+          "10 A rewireable fuse"
+        ],
+        "value": "breaker",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "cf",
+        "kind": "toggle",
+        "label": "Apply Cf = 0.725",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Replay",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Why?",
+      "Type B: trips at 75 to 125 A",
+      "Type C: trips at 125 to 250 A",
+      "Type D: trips at 250 to 500 A",
+      "Refresh the why",
+      "Skip to the practice",
+      "Check",
+      "Finish the lesson",
+      "Show the next line",
+      "Back",
+      "Continue",
+      "The overload marks"
+    ],
+    "answers": [
+      {
+        "id": "1c",
+        "answer": 25,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "1d",
+        "answer": 16.66,
+        "accept": [
+          16.65,
+          16.67,
+          16.68,
+          16.69
+        ],
+        "ok": true
+      },
+      {
+        "id": "1f",
+        "answer": 1.5,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "l3.practice.cf",
+        "answer": 20.69,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [
+      "b1"
+    ],
+    "ready": true,
+    "warnings": [
+      "The page height keeps growing with the frame (avoid vh units and height:100%). [at 340 px wide]"
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

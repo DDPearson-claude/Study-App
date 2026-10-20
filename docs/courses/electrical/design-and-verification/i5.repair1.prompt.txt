@@ -1,0 +1,494 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Design and verification, a Level 4 refresher
+Idea: Voltage drop from the intake, refined (Voltage drop is mV/A/m × Ib × L ÷ 1000, added along the whole path from the origin and judged against 3% or 5% of the voltage you were given; a lightly loaded cable runs cooler (Ct) and, with a known power factor, only the parts of the r and x drops along the voltage count.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the total from the origin, the submain's 5.77 V plus the heater circuit's drop, cross the 11.50 V limit near 60 m, when you drag the heater circuit's length.
+Title (the app shows it above the frame, so do not repeat it): The volts lost from the intake
+The rule (the app shows it just above the frame, under "What you're looking at"): Eleven screens, with Back and Continue, on voltage drop from the origin to the load. Screen 1, Do you still have it? (your slides p.41): “A supply is given as 395 V. A submain feeding a second board has a calculated voltage drop of 10 V, and a radial power circuit from that board 9.8 V. Does the circuit comply?” Three choices, in this order: “Yes: 19.8 V is inside 5% of 400 V, 20.00 V”; “Yes: the radial's 9.8 V is inside the limit on its own”; “No: 19.8 V is over 5% of 395 V, 19.75 V”. Right: “Still there.”, the working 10 + 9.8 = 19.8 V; 395 × 0.05 = 19.75 V, so it does not comply;[^1] a line each on the slips. Two buttons: Refresh the why (screen 2), Skip to the practice (screen 8). Wrong, the first: with 395 V given, your slides take 5% of 395 V.[^2] Wrong, the second: the limit covers every drop from the intake, the submain's 10 V too.[^3] Then the right working and on to screen 2. Read: 10 + 9.8 = 19.8 V, over 5% of the given 395 V, 19.75 V: it does not comply.
+
+Screen 2, What it is for: the cable's resistance uses up some of the supply's voltage on the way, and the load gets what is left: VD = mV/A/m × Ib × L ÷ 1000,[^4][^5] within Table 4Ab's limits for an installation fed from the public supply, as your slides give them (p.38): lighting up to 3%, 6.9 V single-phase and 12 V three-phase;[^6] other circuits up to 5%, 11.5 V and 20 V,[^7] from the origin to the most distant point of the circuit.[^8] In red, if it is skipped or worked on one cable only: the load runs on less than it was designed for. A heater's power falls with the square of its voltage,[^9] and a motor draws more current to keep its torque.[^10] Your slides' 3 kW heater on 85 m of 1.5 mm² drops 32.14 V,[^11] nearly three times the 11.50 V allowed.[^7] Read: VD = mV/A/m × Ib × L ÷ 1000, within 3% (lighting) or 5% (other circuits) from the origin to the far end.
+
+Screen 3, The why: the drop from the origin. The picture, left to right, short labels: Origin, Submain, Board, Heater circuit, Heater; under it the voltage along the path, a step down across the submain and a slope along the heater circuit; below 218.50 V (230 V less the 11.50 V limit) a band shaded red. The course joins two of your slides' examples (its own combination): a 10 V submain drop (p.41, taken here as three-phase) and, from that board, the single-phase 3 kW heater (p.42), 13.04 A in 6.0 mm², 7.3 mV/A/m (Table 4D1B, your copy p.449, column 3).[^12] No supply voltage is given, so the origin is the nominal 230 V. The submain's drop is line to line and the heater circuit runs line to neutral, a √3 smaller, so the formula sheet divides it by √3 before adding:[^13] 10.00 ÷ √3 = 5.77 V, leaving 224.23 V at the board. A slider, Heater circuit length, 0 to 120 m in 5 m steps, opening at 85 m. Readouts: Heater circuit's drop (7.3 × 13.04 × length ÷ 1000); Total from the origin (5.77 V plus that); Limit, 11.50 V.[^7] At 85 m: 8.09 V,[^14] inside the limit on its own; total 13.86 V, over, and the heater's 216.14 V sits in the red band. At 60 m: 5.71 V, total 11.48 V, inside; at 65 m: 6.19 V, total 11.96 V, over. The total crosses the limit near 60 m; the heater circuit alone stays inside it to 120 m (11.42 V). Under it, why: the heater gets what the origin's voltage leaves after every cable it is fed through, so the drops add.[^15][^3] Read: at 85 m the heater circuit drops 8.09 V; with the submain's 5.77 V the total is 13.86 V, over 11.50 V; it reaches the limit near 60 m.
+
+Screen 4, Check: “A three-phase motor circuit has a calculated voltage drop of 7.2 V. Its board is fed by a three-phase submain with a calculated drop of 9.0 V. No supply voltage is given. What is the total, and does it comply?” Choices: “12.40 V: the submain's drop ÷ √3 first, so it complies”; “16.20 V, over 11.50 V: it does not comply”; “16.20 V, inside 20.00 V: it complies”. Right, the third: 7.2 + 9.0 = 16.20 V, three-phase all the way, against 5% of 400 V.[^16][^7] Wrong, 12.40 V (9.0 ÷ √3 = 5.20 V; 7.2 + 5.20): the ÷ √3 is for a three-phase submain feeding a single-phase circuit;[^13] this load is three-phase. Wrong, 11.50 V: that is 5% of 230 V; a three-phase circuit takes 5% of the three-phase voltage.[^16] Read: 7.2 + 9.0 = 16.20 V, inside 20.00 V.
+
+Screen 5, Worked example, a line at each press (Work each step yourself first, then press Show), your slides p.42: a 3 kW heater, 70 °C thermoplastic singles, 35 °C, Reference Method B, 85 m.[^17] Ib = 3000 ÷ 230 = 13.04 A (lesson 1), Ca 0.94,[^18] 1.5 mm². VD = 29 × 13.04 × 85 ÷ 1000 = 32.14 V,[^11] over 11.50 V (the slides print 32.1 V, cut short). Chasing the volt drop: a bigger CSA, and the sum again, until it complies.[^19] The most mV/A/m that can pass at 85 m: 11.50 × 1000 ÷ (13.04 × 85) = 10.37 (rounded down). 4.0 mm², 11 mV/A/m (Table 4D1B, your copy p.449, column 3),[^20] is over it: 11 × 13.04 × 85 ÷ 1000 = 12.19 V, fails. 6.0 mm², 7.3 mV/A/m:[^12] 7.3 × 13.04 × 85 ÷ 1000 = 8.09 V, passes.[^14] Last line, the slides' next question (p.43): the 6.0 mm² still carries just 13.04 A,[^21] and Table 4D1A rates it at 41 A.[^22] Read: 1.5 mm² 32.14 V and 4.0 mm² 12.19 V fail; 6.0 mm² 8.09 V passes; the most that can pass is 10.37 mV/A/m.
+
+Screen 6, The why, refined (why piece C): a lightly loaded cable. Opening text: Appendix 4's mV/A/m are for the conductor at its maximum operating temperature, 70 °C or 90 °C, reached only at full load.[^23] Current heats a conductor, raising its resistance and so the drop;[^24] at lower loads its temperature and resistance are lower.[^25] Ct corrects the drop for it. The picture: the slides' heater, 13.04 A on 85 m; a named choice, Cable: 1.5 mm², 4.0 mm², 6.0 mm², opening on 6.0 mm²; a switch, Apply Ct, opening off; a bar for Ib as a share of It; two bars in volts, the drop (red when over) and the 11.50 V limit. Under it, as a fraction on two lines: Ct = (230 + tp − (Ca² Cg² − Ib²/It²)(tp − 30)) ÷ (230 + tp),[^26] tp the conductor's maximum operating temperature, 70 °C for PVC (thermoplastic), 90 °C for XLPE,[^27] Ca the ambient temperature factor,[^28] It the tabulated current rating.[^29] One way to picture Ib²/It²: heat goes with the square of the current, so 13.04 A in a cable rated 41 A makes about a tenth of its full-load heat. Here tp 70 °C, Ca 0.94 (0.94² = 0.8836), Cg 1. Readouts: Ib ÷ It; Ct; Drop. Each cable's working is in the case file (l5.ct.15, l5.ct.4, l5.ct.6). 1.5 mm², 29 mV/A/m, It 17.5 A (Table 4D1A, your copy p.448, column 4):[^30] Ct 0.96, 30.85 V; near its rating a cable gains little. 4.0 mm², 11 mV/A/m, It 32 A:[^31] (13.04 ÷ 32)² = 0.1661; 0.8836 − 0.1661 = 0.7175; × 40 = 28.70; (300 − 28.70) ÷ 300 = 0.9043, Ct 0.90; 12.19 × 0.90 = 10.97 V, inside. 6.0 mm², 7.3 mV/A/m, It 41 A:[^32] Ct 0.90, 7.28 V. The moment to see: Ct on with 4.0 mm², and its bar falls under the limit: with Ct a smaller CSA than 6.0 mm² may pass.[^33] A box headed Debated: the formula is as a reader quoted it, attributing it to BS 7671[^26] (check it against Appendix 4 in your copy); one IET forum contributor counts only the ambient temperature and grouping factors in it,[^34] so Ci is left out here. Ct earns its keep where Ib is well below It and few correction factors apply;[^35] in one design guide's example, with a grouping factor of 0.78 and nothing else, it came to only about 0.99.[^36] Read: in 4.0 mm² the heater circuit drops 12.19 V, over 11.50 V; with Ct 0.90, 10.97 V, inside.
+
+Screen 7, The why, refined: a known power factor. From 25 mm² up the tables give r, x and z;[^37][^38] with no known power factor z is acceptable,[^39] with one, r and x are used.[^40] The picture: the r drop as an arrow along the current, the x drop a quarter-cycle ahead of it at right angles, z their sum as the long side; the load's voltage as a line at the angle φ from the current, each drop's shadow along it. A slider, Power factor, 0.50 to 1.00 in steps of 0.05, opening at 0.80 (the showroom motor's). The cable: 25 mm² 90 °C singles in conduit, three-phase, r 1.60, x 0.27, z 1.65 mV/A/m (Table 4E1B, your copy p.459).[^41] Readouts: sin φ = √(1 − cos² φ);[^42] Drop per amp per metre, r × cos φ + x × sin φ;[^43] z, 1.65. At 1.00: 1.60. At 0.80: 1.60 × 0.8 + 0.27 × 0.6 = 1.28 + 0.16 = 1.44 mV/A/m, about 13% under z. At 0.50 (sin φ 0.87): 0.80 + 0.23 = 1.03. Why: the r drop is in step with the current and the x drop a quarter-cycle ahead, so only their parts along the load's voltage take away from its size. Taking z as if all of it lay along the voltage may give a drop higher than the actual one;[^44] r and x allow an accurate assessment for loads with a large inductive element,[^45] so a circuit may conform without being upsized.[^46] This lesson does not combine Ct with r and x. Read: at power factor 0.8, 1.60 × 0.8 + 0.27 × 0.6 = 1.44 mV/A/m, against z's 1.65.
+
+Screen 8, Section A, question 1 (g): the scenario panel, and parts (a) to (f) carried forward. Given, each the course's own: the motor fed from DBP2, about 11.4 m along the walls on plan (approximate; a real design adds the vertical runs, guide p.5); DBP2 to the starter, 2.5 mm² 90 °C thermosetting singles in conduit, one three-phase circuit, 16 mV/A/m (Table 4E1B, your copy p.459, column 6);[^47] starter to motor, part (f)'s six 1.5 mm² singles, 3.0 m, a practice value (measure the real run), 31 mV/A/m for two cables single-phase (column 3);[^48] the DBP2 submain's three-phase drop, 4.00 V, a practice value. The leg: in delta running the windings are three single-phase loads,[^49] each fed through two of the six conductors, one at each end,[^50] carrying the winding current, 13.33 A (part b). The course takes its drop as 31 × 13.33 × 3.0 ÷ 1000, line to line, added to the rest: its own reading, not BS 7671's, and debated: a forum poster multiplies by √3 as well,[^51] 2.15 V here. “(g) Determine the actual voltage drop of the motor circuit, from the intake to the motor.” A typed answer (part 1g): 16 × 23.08 × 11.4 ÷ 1000 = 4.21 V; 31 × 13.33 × 3.0 ÷ 1000 = 1.24 V; 4.00 + 4.21 + 1.24 = 9.45 V (on practice values), inside 5% of 400 V, 20.00 V:[^7] 2.36%. No ÷ √3: the motor is three-phase.[^16] Accepted too, each with its own line: 10.36 V (the forum's reading; the line current, 31 × 23.08 × 3.0 ÷ 1000, gives the same 2.15 V, though each conductor carries the winding current[^52]) and 9.15 V (with Ct). Slips: 5.45 V (the submain left out[^3]); 8.21 V (the leg left out: all lengths count, guide p.5); 7.76 V (the submain ÷ √3, 2.31 V: that is for a single-phase circuit[^13]). After two misses, the working. Then a fold, Refined with Ct (working: l5.A.1g.ct): the 2.5 mm² cable carries 23.08 A of its 28 A (Table 4E1A, column 5);[^53] tp 90 °C, Ca 1.00 (lesson 3's practice value), Cg 1: Ct 0.94, 3.96 V; the leg, Cg 0.80, It 20 A:[^54] Ct 0.96, 1.19 V; in all 9.15 V, not needed since 9.45 V passes. Your slides bring in the power factor only from 25 mm² up, so it is left out here.[^37] Read: 4.00 + 4.21 + 1.24 = 9.45 V (on practice values), inside 20.00 V.
+
+Screen 9, Section B: “Explain why a cable carrying well under its rating drops less voltage than Appendix 4's mV/A/m gives, and how a designer can take credit for it.” Written, marked against five points (any three make a full answer); one more go, then the model answer.
+
+Screen 10, Section A, changed numbers: “A single-phase power circuit, 32 m of 1.5 mm² 90 °C singles in conduit (31 mV/A/m), Ib 9 A, is fed from a sub-board whose three-phase submain drops 7.5 V. No supply voltage is given. Determine the total voltage drop from the origin.”[^48] A typed answer: 31 × 9 × 32 ÷ 1000 = 8.93 V; 7.5 ÷ √3 = 4.33 V;[^13] 4.33 + 8.93 = 13.26 V, over 11.50 V: it fails, though the circuit alone would pass. Accepted: 13.27 V (√3 as 1.73, as your slides take it).[^55] Slips: 16.43 V (no ÷ √3), 21.92 V (7.5 × √3 = 12.99 V), 8.93 V (the submain left out[^3]). Read: 8.93 V; 7.5 ÷ √3 = 4.33 V; 4.33 + 8.93 = 13.26 V, over 11.50 V.
+
+Screen 11, Keep this: the summary card, then Finish the lesson. The line under screens 3 to 8 and 10: figures from your slides, formula sheet, assignment and copy of BS 7671; practice values marked; each line worked from the rounded figures before it.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The path on screen 3 is drawn as one straight run with two cables; a real installation branches, and each circuit is checked to its own far end. The submain and the heater are two of your slides' examples joined by the course, not one job. The heater's current is held at 13.04 A whatever the length, as the drop rule takes Ib as fixed; a real heater draws a little less on a lower voltage. On screen 6 the cable's temperature is shown only as Ib's share of It, not in degrees. On screen 7 the shadows of the r and x drops along the voltage are the usual close approximation, very near the exact figure while the drop is small beside the supply voltage.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 10 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 11 (the stepper): 0 (control)
+- Recall: supply given, V: 395 (constant, source [2])
+- Recall: submain drop (slides p.41), V: 10 (constant)
+- Recall: radial circuit drop (slides p.41), V: 9.8 (constant)
+- Recall: total, 10 + 9.8, V: 19.8 (computed)
+- 5% of 395 V, V: 19.75 (computed, source [1])
+- 5% of 400 V, V: 20 (computed, source [7])
+- Lighting limit, %: 3 (constant, source [6])
+- Other circuits limit, %: 5 (constant, source [7])
+- Lighting limit, single-phase, V: 6.9 (constant, source [6])
+- Lighting limit, three-phase, V: 12 (constant, source [6])
+- Other circuits limit, single-phase, V: 11.5 (constant, source [7])
+- Other circuits limit, three-phase, V: 20 (constant, source [7])
+- Nominal single-phase voltage, V: 230 (constant)
+- Nominal three-phase voltage, V: 400 (constant)
+- Slides heater: power, kW: 3 (constant, source [17])
+- Slides heater: length, m: 85 (constant, source [17])
+- Slides heater: Ib, 3000 ÷ 230, A: 13.04 (computed, source [11])
+- Slides heater: Ca at 35 °C: 0.94 (constant, source [18])
+- 1.5 mm² 70 °C, mV/A/m (slides): 29 (constant, source [11])
+- 1.5 mm² drop, 29 × 13.04 × 85 ÷ 1000, V: 32.14 (computed, source [11])
+- Slides printed drop, V: 32.1 (constant)
+- Screen 3: submain drop, taken as three-phase, V: 10 (assumed)
+- Submain drop ÷ √3, V: 5.77 (computed, source [13])
+- Voltage at the board, 230 − 5.77, V: 224.23 (computed)
+- Red band below, 230 − 11.50, V: 218.5 (computed)
+- Length slider: 0 to, m: 120 (assumed)
+- Length slider step, m: 5 (assumed)
+- Length slider opens at, m: 85 (control)
+- 6.0 mm² 70 °C, mV/A/m (Table 4D1B col 3): 7.3 (constant, source [12])
+- Heater circuit drop at 85 m, V: 8.09 (computed, source [14])
+- Total from the origin at 85 m, V: 13.86 (computed)
+- Voltage at the heater at 85 m, V: 216.14 (computed)
+- Heater circuit drop at 60 m, V: 5.71 (computed)
+- Total at 60 m, V: 11.48 (computed)
+- Heater circuit drop at 65 m, V: 6.19 (computed)
+- Total at 65 m, V: 11.96 (computed)
+- Total reaches the limit near, m: 60 (computed)
+- Heater circuit drop at 120 m, V: 11.42 (computed)
+- Check: motor circuit drop, V: 7.2 (assumed)
+- Check: submain drop, V: 9 (assumed)
+- Check: total, 7.2 + 9.0, V: 16.2 (computed)
+- Check slip: 9.0 ÷ √3, V: 5.2 (computed)
+- Check slip: 7.2 + 5.20, V: 12.4 (computed)
+- Most mV/A/m that passes at 85 m: 10.37 (computed)
+- 4.0 mm² 70 °C, mV/A/m (Table 4D1B col 3): 11 (constant, source [20])
+- 4.0 mm² drop at 85 m, V: 12.19 (computed)
+- tp, PVC (thermoplastic), °C: 70 (constant, source [27])
+- tp, XLPE, °C: 90 (constant, source [27])
+- Ct formula constant: 230 (constant, source [26])
+- Ct formula: reference temperature, °C: 30 (constant, source [26])
+- 1.5 mm² 70 °C It, Table 4D1A col 4, A: 17.5 (constant, source [30])
+- 4.0 mm² It, Table 4D1A col 4, A: 32 (constant, source [31])
+- 6.0 mm² It, Table 4D1A col 4, A: 41 (constant, source [22])
+- Ca squared, 0.94²: 0.8836 (computed)
+- 1.5 mm²: (13.04 ÷ 17.5)²: 0.5552 (computed)
+- 1.5 mm²: 0.8836 − 0.5552: 0.3284 (computed)
+- 1.5 mm²: × 40: 13.14 (computed)
+- 1.5 mm²: (300 − 13.14) ÷ 300: 0.9562 (computed)
+- 1.5 mm²: Ct: 0.96 (computed)
+- 1.5 mm² drop with Ct, V: 30.85 (computed)
+- 4.0 mm²: (13.04 ÷ 32)²: 0.1661 (computed)
+- 4.0 mm²: 0.8836 − 0.1661: 0.7175 (computed)
+- 4.0 mm²: × 40: 28.7 (computed)
+- 4.0 mm²: (300 − 28.70) ÷ 300: 0.9043 (computed)
+- 4.0 and 6.0 mm²: Ct: 0.9 (computed)
+- 4.0 mm² drop with Ct, V: 10.97 (computed)
+- 6.0 mm²: (13.04 ÷ 41)²: 0.1012 (computed)
+- 6.0 mm²: 0.8836 − 0.1012: 0.7824 (computed)
+- 6.0 mm²: × 40: 31.3 (computed)
+- 6.0 mm²: (300 − 31.30) ÷ 300: 0.8957 (computed)
+- 6.0 mm² drop with Ct, V: 7.28 (computed)
+- EngX: grouping factor in the example: 0.78 (constant, source [36])
+- EngX: Ct comes to about: 0.99 (constant, source [36])
+- Smallest size with r, x and z columns, mm²: 25 (constant, source [37])
+- 25 mm² three-phase in conduit: r, mV/A/m: 1.6 (constant, source [41])
+- 25 mm² three-phase in conduit: x, mV/A/m: 0.27 (constant, source [41])
+- 25 mm² three-phase in conduit: z, mV/A/m: 1.65 (constant, source [41])
+- Power factor slider: 0.50 to 1.00, step: 0.05 (assumed)
+- Power factor slider opens at (the motor’s): 0.8 (control)
+- sin φ at power factor 0.8: 0.6 (computed, source [42])
+- r × 0.8: 1.28 (computed)
+- x × 0.6: 0.16 (computed)
+- Drop per amp per metre at 0.8, mV/A/m: 1.44 (computed)
+- Under z at 0.8, about %: 13 (computed)
+- Drop per amp per metre at 1.00, mV/A/m: 1.6 (computed)
+- sin φ at power factor 0.5: 0.87 (computed)
+- r × 0.5 and x × 0.87: 0.80 and 0.23 (computed)
+- Drop per amp per metre at 0.5, mV/A/m: 1.03 (computed)
+- Part 1a: the motor’s Ib, A: 23.08 (computed)
+- Part 1b: winding current, A: 13.33 (computed)
+- Part 1c: breaker rating, A: 25 (computed)
+- Part 1d: minimum It, A: 16.66 (computed)
+- Part 1f: starter-to-motor singles, mm²: 1.5 (computed)
+- DBP2 to the motor on plan (course’s own), m: 11.4 (assumed)
+- DBP2 to starter cable, mm²: 2.5 (assumed)
+- 2.5 mm² 90 °C three-phase, mV/A/m (col 6): 16 (constant, source [47])
+- Starter-to-motor run (practice value), m: 3 (assumed)
+- 1.5 mm² 90 °C single-phase, mV/A/m (col 3): 31 (constant, source [48])
+- DBP2 submain drop (practice value), V: 4 (assumed)
+- Forum: share of full-load current per lead, %: 58 (constant, source [51])
+- Six conductors, starter to motor: 6 (constant, source [56])
+- Part 1g: DBP2 to starter, V: 4.21 (computed)
+- Part 1g: starter to motor, V: 1.24 (computed)
+- Part 1g: total from the intake, V: 9.45 (computed)
+- Part 1g: as a share of 400 V, %: 2.36 (computed)
+- Forum reading or line current: the leg, V: 2.15 (computed)
+- Accepted: 4.00 + 4.21 + 2.15, V: 10.36 (computed)
+- Slip: submain left out, V: 5.45 (computed)
+- Slip: leg left out, V: 8.21 (computed)
+- Slip: 4.00 ÷ √3, V: 2.31 (computed)
+- Slip: submain ÷ √3, total, V: 7.76 (computed)
+- 2.5 mm² 90 °C It, Table 4E1A col 5, A: 28 (constant, source [53])
+- 1.5 mm² 90 °C It, Table 4E1A col 5, A: 20 (constant, source [54])
+- Ca for the motor’s cables (practice value): 1 (assumed)
+- Cg for the six singles (lesson 3): 0.8 (constant)
+- DBP2 cable: (23.08 ÷ 28)²: 0.6794 (computed)
+- DBP2 cable: 1 − 0.6794: 0.3206 (computed)
+- DBP2 cable: × 60: 19.24 (computed)
+- DBP2 cable: (320 − 19.24) ÷ 320: 0.9399 (computed)
+- DBP2 cable: Ct: 0.94 (computed)
+- DBP2 cable drop with Ct, V: 3.96 (computed)
+- Leg: Ca² Cg², 0.80²: 0.64 (computed)
+- Leg: (13.33 ÷ 20)²: 0.4442 (computed)
+- Leg: 0.64 − 0.4442: 0.1958 (computed)
+- Leg: × 60: 11.75 (computed)
+- Leg: (320 − 11.75) ÷ 320: 0.9633 (computed)
+- Leg: Ct: 0.96 (computed)
+- Leg drop with Ct, V: 1.19 (computed)
+- Part 1g with Ct, V: 9.15 (computed)
+- Changed numbers: length, m: 32 (assumed)
+- Changed numbers: Ib, A: 9 (assumed)
+- Changed numbers: submain drop, V: 7.5 (assumed)
+- Changed numbers: circuit drop, V: 8.93 (computed)
+- Changed numbers: 7.5 ÷ √3, V: 4.33 (computed)
+- Changed numbers: total, V: 13.26 (computed)
+- Changed numbers: total with √3 as 1.73, V: 13.27 (computed)
+- Slides’ √3: 1.73 (constant, source [55])
+- Changed slip: 7.5 + 8.93, V: 16.43 (computed)
+- Changed slip: 7.5 × √3, V: 12.99 (computed)
+- Changed slip: 12.99 + 8.93, V: 21.92 (computed)
+- Section B: points, of which any make a full answer: 5, any 3 (constant)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Too wide: at 340 px: content is 352px wide in a 340px frame: <span.k-carried-h> reaches 352px, <div.k-cr> reaches 352px, <div.k-cr> reaches 352px (at Text size XL, step = step 8).
+- Text cut off: the word "The" is split across two lines in <span.k-cr-label> (it needs 28px and has 25px) (at step = step 8, and 2 more settings) [at 340 px wide]
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] EAL Level 4 Design and Verification: course slides (material:eal-slides#p41): "5% of 395V = 19.75V as a maximum voltage drop, so the circuit does not comply."
+[2] EAL Level 4 Design and Verification: course slides (material:eal-slides#p40): "We work on a maximum voltage drop of 3% of supply for lighting and 5% for all other circuits; therefore if the supply voltage is given (ie 395V) then your calculations must be based on the percentage of this value."
+[3] EAL Level 4 Design and Verification: project guide (material:project-guide#p6): "Include the sum of all voltage drops from the intake equipment to the end of the circuit in your calculations."
+[4] EAL Level 4 Design and Verification: course slides (material:eal-slides#p38): "(mV/A/m) means milli-volts dropped for every ampere of design current for every metre of conductor length."
+[5] EAL Level 4 Design and Verification: course slides (material:eal-slides#p39): "Voltage drop = 11 x 31 x 35 / 1000"
+[6] EAL Level 4 Design and Verification: course slides (material:eal-slides#p38): "Lighting circuits have upto 3% allowed: 6.9V single phase and 12V 3-phase"
+[7] EAL Level 4 Design and Verification: course slides (material:eal-slides#p38): "Power circuits have upto 5% allowed: 11.5V single phase and 20V 3-phase"
+[8] Volt Drop Calculation: Formula, 3% & 5% Limits (BS 7671) | Total Skills UK (https://www.totalskills.co.uk/guides/volt-drop-calculations): "They apply from the origin of the installation to the most distant point of the circuit."
+[9] Resistive Load Wattage: Is Power Rating Constant? - Engineering Guide – Industrial Monitor Direct (https://industrialmonitordirect.com/blogs/knowledgebase/resistive-heating-element-power-calculation-at-different-voltages): "Power drops by V². Current drops proportionally. Fixed resistance."
+[10] Resistive Load Wattage: Is Power Rating Constant? - Engineering Guide – Industrial Monitor Direct (https://industrialmonitordirect.com/blogs/knowledgebase/resistive-heating-element-power-calculation-at-different-voltages): "Motor draws more current to maintain torque."
+[11] EAL Level 4 Design and Verification: course slides (material:eal-slides#p42): "Voltage drop = 29 x 13.04 x 85 / 1000"
+[12] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p449): "6 7.3 7.3 7.3 7.3 6.4 6.4 6.4 6.4"
+[13] Circuit design formula sheet (material:formula-sheet#p1): "Divide the three phase value of voltage drop by root 3 to give equivalent single phase value of voltage drop to add"
+[14] EAL Level 4 Design and Verification: course slides (material:eal-slides#p42): "You’ll find that a 6.0mm² works here, as it has a voltage drop of 8.09V"
+[15] Circuit design formula sheet (material:formula-sheet#p1): "Total Voltage Drop = VDrop of Submain + VDrop of final circuit"
+[16] EAL Level 4 Design and Verification: course slides (material:eal-slides#p40): "3-phase voltage drop is calculated using the equivalent percentage (3% or 5%) of the 3-phase voltage value."
+[17] EAL Level 4 Design and Verification: course slides (material:eal-slides#p42): "A 3kW heater circuit wired in 70C thermoplastic single core cable is installed at an ambient temperature of 35C,in reference method B, circuit length is 85m."
+[18] EAL Level 4 Design and Verification: course slides (material:eal-slides#p42): "Ca = 0.94"
+[19] EAL Level 4 Design and Verification: course slides (material:eal-slides#p42): "This means gradually increasing conductor CSA and repeating the voltage drop calculation, until it complies."
+[20] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p449): "4 11 11 11 11 9.5 9.5 9.5 9.5"
+[21] EAL Level 4 Design and Verification: course slides (material:eal-slides#p43): "There will still be just 13.04A in the 6.0mm² conductors."
+[22] EAL Level 4 Design and Verification: course slides (material:eal-slides#p43): "According to table 4D1A, 6.0mm² has an Iz of 41A."
+[23] TiSoft - Voltage drop calculation according to BS 7671 (https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs): "The values of (mV/A/m) given in the Appendix 4 tables are at the maximum conductor operating temperature of, say, 70°C or 90°C, and these temperatures are only reached when the conductor is carrying its full load."
+[24] EAL Level 4 Design and Verification: course slides (material:eal-slides#p43): "Current causes conductors to heat up, which in turn increases their resistance, which in turn increases voltage drop."
+[25] TiSoft - Voltage drop calculation according to BS 7671 (https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs): "At lower loads, the temperature and the resistance of the cable are lower."
+[26] Cable Sizing Tool - myElectrical (a reader comment quoting the BS 7671 formula) (https://myelectrical.com/notes/entryid/182/cable-sizing-tool): "Ct = (230 + Tp - (Ca2 x Cg2 - Ib2/It2)x(Tp - 30))/ (230 + Tp)"
+[27] Cable Sizing Tool - myElectrical (a reader comment quoting the BS 7671 formula) (https://myelectrical.com/notes/entryid/182/cable-sizing-tool): "Tp = Maximum Operating Temperature of the conductor (for PVC = 70 deg C and for XLPE = 90 deg C)."
+[28] Cable Sizing Tool - myElectrical (a reader comment quoting the BS 7671 formula) (https://myelectrical.com/notes/entryid/182/cable-sizing-tool): "Ca = Ambient Temperature Correction Factor."
+[29] Voltage drop calculation according to BS 7671 - TiSoft (https://www.ti-soft.com/en/support/help/electricaldesign/project/distribution/voltagedrop/according_to_bs): "It is the tabulated current rating of the cable."
+[30] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p448): "15 14.5 13.5 17.5 15.5 20 18"
+[31] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p448): "4 26 24 32 28 37 33"
+[32] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p448): "6 34 31 41 36 47 43"
+[33] EAL Level 4 Design and Verification: course slides (material:eal-slides#p43): "And by applying it, we may be able to use a smaller CSA cable than 6.0mm²"
+[34] Correction for operating temperature - Wiring and the Regulations BS 7671 - IET EngX (https://engx.theiet.org/f/wiring-and-regulations/31168/correction-for-operating-temperature): "the calculations for the correction factor (Ct) consider only the ambient temperature and grouping factors."
+[35] Correction for operating temperature - Wiring and the Regulations BS 7671 - IET EngX (https://engx.theiet.org/f/wiring-and-regulations/31168/correction-for-operating-temperature): "The real advantage is when there are no correction factors and there is a significant difference between Ib and It."
+[36] Correction for operating temperature - Wiring and the Regulations BS 7671 - IET EngX (https://engx.theiet.org/f/wiring-and-regulations/31168/correction-for-operating-temperature): "Say in the example above, Cg was 0.78 and no other correction factors applied, Ct would approximate to 0.99, and not worth employing."
+[37] EAL Level 4 Design and Verification: course slides (material:eal-slides#p45): "which is why the option for R, X or Z only appears on 25.0mm² and above."
+[38] Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC) (https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables): "Where circuit cable conductors exceed 16 mm², which is common in distribution circuits used in industrial or commercial type installations, the tables for current-carrying capacity and voltage-drop in Appendix 4 of BS 7671 give separate va…"
+[39] EAL Level 4 Design and Verification: course slides (material:eal-slides#p45): "As a simple rule of thumb, if the circuit contains no known power factor, then simply using the Z (mV/A/m) is acceptable."
+[40] EAL Level 4 Design and Verification: course slides (material:eal-slides#p45): "Where one is known then a calculation using both the R and X values needs to be used."
+[41] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p459): "25 1.85 1.85 0.31 1.90 | 1.85 0.190 1.85 | 1.85 0.28 1.85 | 1.60 0.27 1.65 | 1.60 0.165 1.60 | 1.60 0.190 1.60 | 1.60 0.27 1.65"
+[42] Voltage Drop Calculation Guide - Formulas, Methods & Limits (ECalPro, a calculator site, not a standard) (https://ecalpro.com/docs/voltage-drop-calculation-guide): "sinφ | Reactive factor (= √(1 − cos²φ))"
+[43] Voltage Drop Calculation Guide - Formulas, Methods & Limits (ECalPro, a calculator site, not a standard) (https://ecalpro.com/docs/voltage-drop-calculation-guide): "mV/A/m = mV/A/m R × cosφ + mV/A/m X × sinφ"
+[44] Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC) (https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables): "the use of the tabulated values of mv/A/m may lead to a calculated value of voltage drop which is higher than the actual value."
+[45] Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC) (https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables): "The intention of BS 7671 in providing individual values of r, x and z in these tables is to allow for an accurate assessment of voltage-drop to accommodate loads having a large inductive element"
+[46] Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC) (https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables): "Using equation 2 demonstrates that the final circuit would conform without unnecessarily upsizing the conductor CSA when the load power factor is known."
+[47] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p459): "2.5 19 19 19 19 16 16 16 16"
+[48] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p459): "1.5 31 31 31 31 27 27 27 27"
+[49] Wye-Delta Motor Starters - PDH Online (https://pdhonline.com/courses/e413/e413content.pdf): "because the three windings of a wye- start/delta-run motor are actually three single-phase loads."
+[50] Star Delta Starter Calculator (Contactor Sizing) | ElectroMechCalc (https://www.electromechcalc.com/electrical/star-delta-starter): "In delta running the supply reaches each winding from two directions — one end through KM1, the other through KM3 — which is why both carry winding current rather than line current."
+[51] Cable Sizing Calculation for Star Delta Starter - Eng-Tips (forum thread) (https://www.eng-tips.com/threads/cable-sizing-calculation-for-star-delta-starter.519269): "For Delta Connection, Running VD = √3 x (58% of FLC) x (2xL) x (RcosØ + XsinØ) / (No.of runs X V)"
+[52] Cable Sizing Calculation for Star Delta Starter - Eng-Tips (forum thread) (https://www.eng-tips.com/threads/cable-sizing-calculation-for-star-delta-starter.519269): "Six leads, two cables per phase, each cable ampacity 58% of nameplate delta running current."
+[53] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p458): "2.5 26 23 31 28 34 31"
+[54] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p458): "1.5 19 17 23 20 25 23"
+[55] EAL Level 4 Design and Verification: course slides (material:eal-slides#p13): "√3 = Square root of 3 (1.73)"
+[56] Wye-Delta Motor Starters - PDH Online (https://pdhonline.com/courses/e413/e413content.pdf): "There are six power conductors from a wye-delta starter to the motor, rather than three power conductors as from a full-voltage starter to the motor."
+[57] EAL Level 4 Design and Verification: course slides (material:eal-slides#p43): "Because so little current is present in the now 6.0mm² conductors (13.04A), the heat caused will dissipate far quicker, keeping conductor resistance lower and voltage drop lower than the previously calculated 8.09V."
+[58] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p459): "VOLTAGE DROP (per ampere per metre): Conductor operating temperature: 90°C"
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (/home/user/Study-App/build/electrical/design-and-verification/i5.body1.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

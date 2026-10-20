@@ -1,0 +1,67 @@
+{
+  "scores": {
+    "lands": 4,
+    "why": 4,
+    "cause": 4,
+    "trade": 4,
+    "honest": 3,
+    "pleasure": 4
+  },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Screen 2 text, screen 1 feedback, explain and practice, and the Keep this card's rule line \"Limit (public supply): 3% or 5% of the voltage given (230 V or 400 V if none)\"",
+      "what": "The rule that the limit is a percentage of the supply voltage you were given is a convention from the EAL slides (p.40) and the formula sheet, but BS 7671 Appendix 4 gives Table 4Ab's limits as percentages of the nominal voltage of the installation. The lesson's own source says the same (Total Skills: \"3% of the nominal voltage\"; Elec-Mate: \"applies at the nominal voltage\"), so a card meant for real jobs states a course convention as the standard's rule; say it is the course's stricter convention and that BS 7671 refers to the nominal voltage."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 1, the recall (slides p.41), and its \"Still there\" working, against screen 3",
+      "what": "The question never says the radial circuit is three-phase, yet the right answer adds 10 + 9.8 straight and judges the total against 5% of 395 V; two screens later the same 10 V submain is divided by √3 for a single-phase circuit, so the recall's working seems to break the lesson's own ÷ √3 rule unless it says the slides' example is three-phase throughout (for example \"a three-phase radial power circuit\", or one line in the feedback)."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 5, worked example, line 1 (\"Ib = 3000 ÷ 230 = 13.04 A (lesson 1); Ca 0.94; 1.5 mm²\")",
+      "what": "The line skips the slide's step to the starting cable (In 16 A; It ≥ 16 ÷ 0.94 = 17.02 A; 1.5 mm² rated 17.5 A, slides p.42), so Ca 0.94 appears without being used; give that step in one line."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 11, Keep this card, rule notes (\"Fails? Chase it with a bigger CSA, then try Ct.\")",
+      "what": "This reads as applying Ct to the cable that already passes; say \"then try Ct on the size below it\" (as the fifth trap and screen 6 show), or \"before upsizing, try Ct where Ib is well under It\"."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 11, Keep this card",
+      "what": "The card gives the limits only as percentages; add the volts he would use on a job (lighting 6.9 V single-phase and 12 V three-phase, other circuits 11.5 V and 20 V; slides p.38)."
+    },
+    {
+      "severity": "polish",
+      "where": "Screens 1 and 4, the choice buttons",
+      "what": "In both choice questions the right answer is the third option; vary its position so the pattern cannot be guessed."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 7, the picture (dashed z and the \"z 1.65\" tick)",
+      "what": "The dashed z is drawn as the vector sum of r and x, √(1.60² + 0.27²) = 1.62, but its tick on the voltage line sits at the table's 1.65; either note that the tabulated z is not exactly √(r² + x²), or stop calling z \"their sum\"."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 9, Section B",
+      "what": "refresher.md's entry for lesson 5 promised \"Explain why the submain's voltage drop must be included\" as well; only the Ct question is on the page (the recall and the first trap cover the point), so either add it or record the drop in the design."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 9, Section B point 5 (written.b1.points[4])",
+      "what": "The point mixes the claim (a smaller cable can pass) with worked figures (12.19 V by the table, 10.97 V with Ct); mark the figures as an example so that \"it can let a smaller cable pass\" earns the point on its own."
+    },
+    {
+      "severity": "polish",
+      "where": "Lesson JSON, practice text (rule of thumb and source 36)",
+      "what": "The text calls the IET EngX forum example \"one design guide's example\", while the page rightly says \"an example on the same forum (IET EngX)\"; match the page."
+    },
+    {
+      "severity": "polish",
+      "where": "Screens 3, 6 and 7 (the three interactives), review pictures",
+      "what": "None of the pictures given for this review show screens 3, 6 or 7 (the \"moved\" frames show screen 2), so their layout at 360 px, light and dark, was taken from the report (no overflow, nothing clipped, sweep clean) rather than seen; the next film's moved frame should land on an interactive screen."
+    }
+  ]
+}

@@ -479,6 +479,96 @@
       "practice": true,
       "cite": "no source: the DBP2 submain is never designed in this course, so its R1+R2 is not worked anywhere (compare p.submain)",
       "note": "A practice value: Ze 0.1 Ω (pack p.3) plus about 0.05 Ω for a short 16 mm² submain. Read the real one from the DBP2 submain's design (Zs = Ze + R1+R2) or measure it at the board."
+    },
+    {
+      "id": "g.k.cu90",
+      "label": "k, 90 °C thermosetting copper: live conductors and a cpc in the cable",
+      "value": 143,
+      "unit": "A√s/mm²",
+      "text": "143 A√s/mm²",
+      "cite": "slides p.68 (Table 43.1, k 143); BS 7671 Table 43.1 as printed in the IET's Wiring Matters issue 93 (research source 396); a cable-sizing page lists 143 for a 90 °C XLPE cpc in the cable (research source 395). Read it from your copy.",
+      "note": "Table 43.1 for the live conductors, Table 54.3 for a copper cpc in the cable or bunched with it. Used for the motor circuit's 2.5 mm² cpc (assumption a.cpc) and for the live conductors. A separate cpc not bunched with the cable starts cooler and has a different k (Table 54.2; research source 397)."
+    },
+    {
+      "id": "p.k.steel",
+      "label": "k, steel armour of an XLPE cable as the cpc (practice value)",
+      "value": 46,
+      "unit": "A√s/mm²",
+      "text": "46 A√s/mm²",
+      "practice": true,
+      "cite": "one trade cable-sizing page lists \"46 - Steel Wire Armour (SWA - 90°C XLPE)\" (research source 394); the page of Table 54.4 is not among the pages saved from your copy: read the real k from your copy of Table 54.4 before relying on it",
+      "note": "Table 54.4 (steel armour). A practice value: sourced to one trade calculator only, not to the table or a maker. Far below copper's 143, which is why armour needs a large area."
+    },
+    {
+      "id": "g.swa4.line",
+      "label": "Maximum resistance of the 4 mm² copper conductors, four-core XLPE/SWA/PVC, at 20 °C",
+      "value": 4.61,
+      "unit": "mΩ/m",
+      "text": "4.61 mΩ/m",
+      "cite": "Prysmian BS 5467 data sheet, 4 mm² row: 4.61 Ω/km (research source 385 and 390)"
+    },
+    {
+      "id": "g.swa4.armour",
+      "label": "Armour cross-section, four-core 4 mm² XLPE/SWA/PVC",
+      "value": 22,
+      "unit": "mm²",
+      "text": "22 mm²",
+      "cite": "Prysmian BS 5467 data sheet, \"Nominal Area of Armour and Maximum Armour Resistance at 20°C\", four-core column, 4 mm² row: 22 mm² (research sources 384, 385)",
+      "note": "One maker's figure; makers differ a little. For other four-core sizes the same table gives: 1.5 mm² 17 mm² and 8.8 Ω/km; 2.5 mm² 20 mm² and 7.7 Ω/km; 6 mm² 36 mm² and 4.3 Ω/km; 10 mm² 42 mm² and 3.7 Ω/km (research sources 386 to 389). Take the figures for the cable bought."
+    },
+    {
+      "id": "g.swa4.armourR",
+      "label": "Maximum armour resistance, four-core 4 mm² XLPE/SWA/PVC, at 20 °C",
+      "value": 6.8,
+      "unit": "mΩ/m",
+      "text": "6.8 mΩ/m",
+      "cite": "Prysmian BS 5467 data sheet, four-core column, 4 mm² row: 6.8 Ω/km (research sources 384, 385)"
+    },
+    {
+      "id": "g.swa4.sc1s",
+      "label": "Armour short-circuit rating for 1 s, four-core 4 mm² XLPE/SWA/PVC",
+      "value": 1,
+      "unit": "kA",
+      "text": "1 kA",
+      "cite": "Prysmian BS 5467 data sheet, four-core 4 mm² row, column \"Armour short circuit rating (1sec)\" (research sources 390, 391); the maker says its ratings are adiabatic (source 393)",
+      "note": "A cross-check: 46 × 22 mm² = 1 012 A for 1 s, 3.2 kA for 0.1 s."
+    },
+    {
+      "id": "g.t.thermal",
+      "label": "Disconnection time used in the thermal checks of this course",
+      "value": 0.1,
+      "unit": "s",
+      "text": "0.1 s",
+      "cite": "slides p.59, 61, 66 to 68 use 0.1 s; a type C breaker opens in under 0.1 s at 10 In or more (ABB, research source 234)",
+      "note": "An upper bound, not the real time: the real clearing time is shorter and comes from the maker's curve or let-through (I²t) data, which this course does not have. The 25 A and 10 A type C breakers here are far above 10 × In at the fault currents worked."
+    },
+    {
+      "id": "p.sub.size",
+      "label": "DBL2 submain cable, for the armour check (practice value)",
+      "value": "four-core 4 mm² 90 °C thermosetting XLPE/SWA/PVC, armour as the cpc, 17.0 m on plan",
+      "text": "four-core 4 mm² 90 °C thermosetting XLPE/SWA/PVC, armour as the cpc, 17.0 m on plan",
+      "practice": true,
+      "cite": "no source: lesson 8 sizes the submain from its Ib, factors, voltage drop and the vertical runs; lesson 7 needs a cable to check, and 4 mm² is one whose rows are in the maker's data (g.swa4.*)",
+      "note": "A practice value shared by lessons 7 and 8. If lesson 8's sizing lands on another size, change this entry and the armour rows used (the maker's rows for 1.5, 2.5, 6 and 10 mm² are in g.swa4.armour's note), then recompute l7.armour. The length is the plan length (l8.submain.plan); lesson 8 adds the vertical runs and re-checks."
+    },
+    {
+      "id": "p.sub.dev",
+      "label": "Device at the MDB protecting the DBL2 submain (practice value)",
+      "value": "10 A type C three-pole circuit-breaker to BS EN 60898",
+      "text": "10 A type C three-pole circuit-breaker to BS EN 60898",
+      "practice": true,
+      "cite": "no source: the smallest standard rating not below the DBL2 design load, 9.56 A (figure 3e); type C trips at 5 to 10 In (assumption a.iaC)",
+      "note": "A practice value shared with lesson 8. At the 700 A or so worked here the breaker is well past 10 × In (100 A), so 0.1 s is an upper bound (g.t.thermal)."
+    },
+    {
+      "id": "p.icn.mcb",
+      "label": "Icn of the showroom's MDB breakers (practice value)",
+      "value": 6,
+      "unit": "kA",
+      "text": "6 kA",
+      "practice": true,
+      "cite": "BS EN 60898 standard values of Icn include 4 500 A, 6 000 A and 10 000 A (BEAMA, research sources 408, 409); MCBs are commonly marked 6 kA or 10 kA (research source 411); the pack gives no device data",
+      "note": "A practice value: 6 kA is at least the stated 4.6 kA (IPF ≤ Icn holds). The what-if is a breaker marked 4.5 kA, a standard Icn value, which fails: 4.5 kA is less than 4.6 kA. Read the real Icn from the device's marking or the maker's data. The 4.6 kA is the figure at the origin; the fault level falls along the submains, but the check is made at each device's own point."
     }
   ],
   "assumptions": [
@@ -665,6 +755,22 @@
       "id": "a.zsPoint",
       "status": "assumption",
       "text": "The course's own assumption: question 2(a)'s Zs is taken at the motor's starter, the end of the 11.4 m DBP2-to-starter run (a.motorRun, a.motorSupply): Zs = Zs at DBP2 (p.ZsDBP2, 0.15 Ω) + that run's R1+R2 (0.216 Ω) = 0.366 Ω. The starter-to-motor leg (practice p.legLen, 3.0 m of 1.5 mm² with a 1.5 mm² cpc, 24.2 × 1.28 × 3 ÷ 1000 = 0.093 Ω) adds to the loop at the motor itself, 0.459 Ω, still under 0.87 Ω; the lesson may say so in one line. The 25 A breaker at DBP2 is the device that clears a fault on either part."
+    },
+    {
+      "id": "a.pfcTwice",
+      "label": "Why the pack's 4.6 kA is twice 230 V ÷ 0.1 Ω",
+      "value": "4.6 kA = 2 × 2 300 A",
+      "status": "assumption",
+      "why": "The pack states Ze 0.1 Ω and a prospective fault current of 4.6 kA (pack p.3). 230 ÷ 0.1 = 2 300 A, half of 4.6 kA. The course reads the 4.6 kA as the three-phase fault (all three lines and neutral shorted), which BS 7671 Appendix 14 approximates as the line-neutral figure multiplied by 2 (as a forum post quotes it, research source 412; a tester maker's procedure says the same). The doubling is a rule of thumb that overstates (source 415); a line-to-line reading divided by 0.87 is closer (source 416). Why it doubles: the line-neutral loop is one line and one return, while in the three-phase fault the return carries nothing, so the loop is half (sources 413, 414). Nothing in the pack says this was how 4.6 kA was found.",
+      "text": "The course's own assumption: the pack's 4.6 kA is read as the three-phase fault current, twice 230 V ÷ 0.1 Ω = 2 300 A, the doubling BS 7671 Appendix 14 gives as an approximation (a rule of thumb that overstates). The pack does not say how it was found. Check Appendix 14 in your own copy: it is not among the pages saved from it."
+    },
+    {
+      "id": "a.armourR",
+      "label": "Resistance of the line and the armour in the submain",
+      "value": "both at 20 °C values × 1.28",
+      "status": "assumption",
+      "why": "The course finds R1+R2 as a tabulated value × length × a multiplier (formula sheet step 12; OSG Table I3, 1.28 for 90 °C thermosetting). For the armour as cpc there is no such table in the course's materials, so the line (4.61 mΩ/m) and the armour (6.8 mΩ/m) are added and the 1.28 applied to both. A maker says the armour runs about 10 °C cooler than the cores (research source 392), so this is cautious for the armour.",
+      "text": "The course's own assumption: for the DBL2 submain with its armour as the cpc, R1+R2 = (4.61 + 6.8) mΩ/m × 1.28 × length, the Table I3 multiplier (g.mult.90ts) applied to the armour as well as the line. A little cautious: the armour runs cooler than the cores. Not BS 7671's wording."
     }
   ],
   "lessons": [
@@ -723,7 +829,9 @@
       "n": 7,
       "title": "Surviving the fault: heat, short circuits, breaking capacity",
       "sectionA": [
-        "2(c)"
+        "2(c)",
+        "2(e)",
+        "3(f)"
       ]
     },
     {
@@ -1721,22 +1829,6 @@
       "lesson": "i7",
       "text": "3.08 s",
       "work": "143² × 2.5² ÷ 203.87² = 3.08 s, longer than 0.1 s"
-    },
-    {
-      "id": "l7.showroom.icn",
-      "label": "Showroom: the least breaking capacity for devices at the origin",
-      "value": 4.6,
-      "unit": "kA",
-      "rule": "IPF ≤ Icn",
-      "inputs": {
-        "IPF": "4.6 kA (pack p.3)"
-      },
-      "cite": "pack p.3; slides p.69, 70",
-      "kind": "showroom",
-      "status": "worked",
-      "lesson": "i7",
-      "text": "4.6 kA",
-      "work": "Icn ≥ 4.6 kA"
     },
     {
       "id": "l8.submain.plan",
@@ -4245,41 +4337,629 @@
       "cite": "On-Site Guide Tables I1, I3",
       "text": "0.734 Ω",
       "work": "6.16 × 1.20 × 52 ÷ 1000 = 0.384 Ω; 0.35 + 0.384 = 0.734 Ω ≤ 0.87 Ω"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.recall",
+      "label": "Recall: the fault current for a cpc heat check at Zs 0.50 Ω",
+      "value": 506,
+      "unit": "A",
+      "kind": "worked",
+      "rule": "I = Uo × Cmax ÷ Zs",
+      "inputs": {
+        "Uo": "230 V",
+        "Cmax": "1.1",
+        "Zs": "0.50 Ω (chosen for the question)"
+      },
+      "cite": "slides p.60, 62",
+      "text": "506.00 A",
+      "work": "230 × 1.1 ÷ 0.50 = 506.00 A"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.recall.slip1",
+      "label": "Recall slip: Cmin used",
+      "value": 437,
+      "unit": "A",
+      "kind": "slip",
+      "rule": "Uo × Cmin ÷ Zs",
+      "inputs": {},
+      "cite": "slides p.62 (the rule it breaks)",
+      "text": "437.00 A",
+      "work": "230 × 0.95 ÷ 0.50 = 437.00 A"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.recall.slip2",
+      "label": "Recall slip: nominal voltage, no factor",
+      "value": 460,
+      "unit": "A",
+      "kind": "slip",
+      "rule": "Uo ÷ Zs",
+      "inputs": {},
+      "cite": "slides p.60 (the rule it breaks)",
+      "text": "460.00 A",
+      "work": "230 ÷ 0.50 = 460.00 A"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.why.budget",
+      "label": "The why: what a 1.5 mm² cpc can take, k 115",
+      "value": 29756,
+      "unit": "A²s",
+      "kind": "worked",
+      "rule": "k² × S²",
+      "inputs": {
+        "k": "115 (slides p.59)",
+        "S": "1.5 mm²"
+      },
+      "cite": "slides p.58, 59",
+      "text": "29756 A²s",
+      "work": "115² × 1.5² = 29756.25 A²s, printed 29756 A²s"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.why.cmax",
+      "label": "The why: the heater at Zs 0.646 Ω, Cmax current",
+      "value": 391.64,
+      "unit": "A",
+      "kind": "worked",
+      "rule": "Uo × Cmax ÷ Zs",
+      "inputs": {
+        "Zs": "0.646 Ω (l6.worked.zs)"
+      },
+      "cite": "slides p.60, 62",
+      "text": "391.64 A",
+      "work": "230 × 1.1 ÷ 0.646 = 391.64 A"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.why.heat",
+      "label": "The why: heat at that current for 0.1 s",
+      "value": 15338,
+      "unit": "A²s",
+      "kind": "worked",
+      "rule": "I² × t",
+      "inputs": {
+        "I": "391.64 A",
+        "t": "0.1 s"
+      },
+      "cite": "slides p.58, 59",
+      "text": "15338 A²s",
+      "work": "391.64² × 0.1 = 15338.19 A²s, printed 15338 A²s"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.worked.smin646",
+      "label": "The heater cpc at the Cmin current, from Zs 0.646 Ω",
+      "value": 0.93,
+      "unit": "mm²",
+      "kind": "worked",
+      "rule": "S = √(I² × t) ÷ k",
+      "inputs": {
+        "I": "338.24 A (l6.worked.pefc)",
+        "t": "0.1 s",
+        "k": "115"
+      },
+      "cite": "slides p.59",
+      "text": "0.93 mm²",
+      "work": "√(338.24² × 0.1) ÷ 115 = 0.93 mm²"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.why.43min",
+      "label": "The why: Zs 0.43 Ω, Cmin current and the cpc it asks for",
+      "value": 1.4,
+      "unit": "mm²",
+      "kind": "worked",
+      "rule": "I = 230 × 0.95 ÷ Zs; S = √(I² × 0.1) ÷ 115",
+      "inputs": {
+        "Zs": "0.43 Ω (a slider setting)"
+      },
+      "cite": "slides p.58, 59, 62",
+      "text": "1.40 mm²",
+      "work": "230 × 0.95 ÷ 0.43 = 508.14 A; √(508.14² × 0.1) ÷ 115 = 1.40 mm² ≤ 1.5 mm²: a pass"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.why.43max",
+      "label": "The why: Zs 0.43 Ω, Cmax current and the cpc it asks for",
+      "value": 1.62,
+      "unit": "mm²",
+      "kind": "worked",
+      "rule": "I = 230 × 1.1 ÷ Zs; S = √(I² × 0.1) ÷ 115",
+      "inputs": {
+        "Zs": "0.43 Ω"
+      },
+      "cite": "slides p.58, 59, 62",
+      "text": "1.62 mm²",
+      "work": "230 × 1.1 ÷ 0.43 = 588.37 A; 588.37² × 0.1 = 34618 A²s; √(588.37² × 0.1) ÷ 115 = 1.62 mm² > 1.5 mm²: a fail"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.why.crossmax",
+      "label": "The why: Zs where the Cmax current meets the 1.5 mm² limit",
+      "value": 0.46,
+      "unit": "Ω",
+      "kind": "worked",
+      "rule": "Zs = 230 × 1.1 ÷ √(k²S² ÷ 0.1)",
+      "inputs": {
+        "k²S²": "29756.25 A²s"
+      },
+      "cite": "slides p.58, 59",
+      "text": "0.46 Ω",
+      "work": "√(29756.25 ÷ 0.1) = 545.49 A; 253 ÷ 545.49 = 0.464 Ω, near 0.46 Ω"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.why.crossmin",
+      "label": "The why: Zs where the Cmin current meets the 1.5 mm² limit",
+      "value": 0.4,
+      "unit": "Ω",
+      "kind": "worked",
+      "rule": "Zs = 230 × 0.95 ÷ √(k²S² ÷ 0.1)",
+      "inputs": {},
+      "cite": "slides p.58, 59",
+      "text": "0.40 Ω",
+      "work": "218.5 ÷ 545.49 = 0.401 Ω, near 0.40 Ω"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.check",
+      "label": "Check: smallest cpc, 32 A type C, Zs 0.38 Ω, k 115",
+      "value": 1.83,
+      "unit": "mm²",
+      "kind": "practice",
+      "rule": "I = 230 × 1.1 ÷ Zs; S = √(I² × t) ÷ k, t the breaker's time",
+      "inputs": {
+        "Zs": "0.38 Ω (chosen)",
+        "t": "0.1 s (665.79 A is past 10 × 32 A)",
+        "k": "115"
+      },
+      "cite": "slides p.58 to 62; ABB MCB data, research source 41",
+      "text": "1.83 mm²",
+      "work": "230 × 1.1 ÷ 0.38 = 665.79 A; √(665.79² × 0.1) ÷ 115 = 1.83 mm²"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.check.slip1",
+      "label": "Check slip: t taken as the 0.4 s allowed",
+      "value": 3.66,
+      "unit": "mm²",
+      "kind": "slip",
+      "rule": "S with t = 0.4 s",
+      "inputs": {},
+      "cite": "slides p.50 (maximum, not actual, times)",
+      "text": "3.66 mm²",
+      "work": "√(665.79² × 0.4) ÷ 115 = 3.66 mm²"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.check.slip2",
+      "label": "Check slip: the Cmin current",
+      "value": 1.58,
+      "unit": "mm²",
+      "kind": "slip",
+      "rule": "S at the Cmin current",
+      "inputs": {},
+      "cite": "slides p.62",
+      "text": "1.58 mm²",
+      "work": "230 × 0.95 ÷ 0.38 = 575.00 A; √(575.00² × 0.1) ÷ 115 = 1.58 mm²"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "2c",
+      "part": "2c",
+      "label": "Section A 2(c): minimum cpc for the motor circuit, thermal constraints",
+      "value": 1.53,
+      "unit": "mm²",
+      "kind": "showroom",
+      "practice": true,
+      "rule": "S = √(I² × t) ÷ k with I = Uo × Cmax ÷ Zs (formula sheet step 18/19; slides p.58, 62)",
+      "inputs": {
+        "Zs": "0.366 Ω (part 2a, on the practice p.ZsDBP2)",
+        "Cmax": "1.1",
+        "t": "0.1 s (g.t.thermal: 691.26 A is past 10 × 25 A)",
+        "k": "143 (g.k.cu90: 2.5 mm² copper cpc in the same conduit as the 90 °C thermosetting singles, a.cpc)"
+      },
+      "cite": "guide p.5 (\"Include calculations for thermal constraints\"); formula sheet step 18/19; slides p.58 to 62; C&G practice paper 1 Q2(a)(ii) shape",
+      "note": "Satisfies: 1.53 mm² ≤ the 2.5 mm² cpc fitted. The starter-to-motor leg: l7.A.leg.",
+      "accept": {
+        "min": 1.53,
+        "max": 1.53,
+        "also": [
+          1.51
+        ],
+        "why": "1.51 mm² from Zs taken as 0.37 Ω; the unrounded 0.36625 Ω gives 1.53 too"
+      },
+      "text": "1.53 mm²",
+      "work": "230 × 1.1 ÷ 0.366 = 691.26 A; √(691.26² × 0.1) ÷ 143 = 1.53 mm² ≤ 2.5 mm²: satisfies"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "2c.slip1",
+      "label": "2(c) slip: the Cmin current",
+      "value": 1.32,
+      "unit": "mm²",
+      "kind": "slip",
+      "rule": "S at 230 × 0.95 ÷ Zs",
+      "inputs": {},
+      "cite": "slides p.62 (the rule it breaks)",
+      "text": "1.32 mm²",
+      "work": "√(596.99² × 0.1) ÷ 143 = 1.32 mm²"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "2c.slip2",
+      "label": "2(c) slip: t taken as 0.4 s",
+      "value": 3.06,
+      "unit": "mm²",
+      "kind": "slip",
+      "rule": "S with t = 0.4 s",
+      "inputs": {},
+      "cite": "slides p.50 (the rule it breaks)",
+      "text": "3.06 mm²",
+      "work": "√(691.26² × 0.4) ÷ 143 = 3.06 mm²"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "2c.slip3",
+      "label": "2(c) slip: k 115 (70 °C thermoplastic)",
+      "value": 1.9,
+      "unit": "mm²",
+      "kind": "slip",
+      "rule": "S with k 115",
+      "inputs": {},
+      "cite": "slides p.59, 68",
+      "text": "1.90 mm²",
+      "work": "√(691.26² × 0.1) ÷ 115 = 1.90 mm²"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.A.2c.imax",
+      "label": "2(c): the motor circuit's Cmax fault current at the starter",
+      "value": 691.26,
+      "unit": "A",
+      "kind": "showroom",
+      "practice": true,
+      "rule": "Uo × Cmax ÷ Zs",
+      "inputs": {
+        "Zs": "0.366 Ω (2a)"
+      },
+      "cite": "slides p.60, 62",
+      "text": "691.26 A",
+      "work": "230 × 1.1 ÷ 0.366 = 691.26 A"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.A.leg",
+      "label": "2(c): the starter-to-motor leg's minimum cpc",
+      "value": 1.22,
+      "unit": "mm²",
+      "kind": "showroom",
+      "practice": true,
+      "rule": "S = √(I² × t) ÷ k, I = Uo × Cmax ÷ Zs at the motor",
+      "inputs": {
+        "Zs": "0.459 Ω (l6.A.atMotor, on the practice p.legLen)",
+        "t": "0.1 s",
+        "k": "143"
+      },
+      "cite": "slides p.58 to 62",
+      "text": "1.22 mm²",
+      "work": "230 × 1.1 ÷ 0.459 = 551.20 A; √(551.20² × 0.1) ÷ 143 = 1.22 mm² ≤ 1.5 mm²"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "2e",
+      "part": "2e",
+      "label": "Section A 2(e): least breaking capacity (Icn) for the MDB's circuit-breakers",
+      "value": 4.6,
+      "unit": "kA",
+      "kind": "showroom",
+      "rule": "IPF ≤ Icn, IPF the larger of PEFC and PSCC (slides p.69, 70)",
+      "inputs": {
+        "IPF": "4.6 kA (pack p.3), read as the three-phase fault (a.pfcTwice)"
+      },
+      "cite": "pack p.3; slides p.69, 70; BS 7671 Regulation 434.5.1 (research source 43)",
+      "note": "A 6 kA breaker (p.icn.mcb) passes; one marked 4.5 kA, a standard value, does not. A lower Icn only with a supply-side device of the needed breaking capacity (research source 45). Replaces l7.showroom.icn.",
+      "accept": {
+        "min": 4.6,
+        "max": 4.6,
+        "why": "4.60 kA and 4600 A are the same figure"
+      },
+      "text": "4.6 kA",
+      "work": "IPF = 4.6 kA at the origin; Icn ≥ 4.6 kA"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "2e.slip1",
+      "label": "2(e) slip: one line to earth at 230 V",
+      "value": 2.3,
+      "unit": "kA",
+      "kind": "slip",
+      "rule": "Uo ÷ Ze",
+      "inputs": {},
+      "cite": "pack p.3; l6.showroom.nominal",
+      "text": "2.3 kA",
+      "work": "230 ÷ 0.1 = 2300 A = 2.3 kA"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "2e.slip2",
+      "label": "2(e) slip: one line to earth at Cmax",
+      "value": 2.53,
+      "unit": "kA",
+      "kind": "slip",
+      "rule": "Uo × Cmax ÷ Ze",
+      "inputs": {},
+      "cite": "l6.showroom.pefcmax",
+      "text": "2.53 kA",
+      "work": "230 × 1.1 ÷ 0.1 = 2530 A = 2.53 kA"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "2e.slip3",
+      "label": "2(e) slip: one line to earth at Cmin",
+      "value": 2.19,
+      "unit": "kA",
+      "kind": "slip",
+      "rule": "Uo × Cmin ÷ Ze",
+      "inputs": {},
+      "cite": "l6.showroom.pefc",
+      "text": "2.19 kA",
+      "work": "230 × 0.95 ÷ 0.1 = 2185 A = 2.19 kA"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.A.3f.r12",
+      "label": "3(f): R1+R2 of the DBL2 submain, core plus armour, hot",
+      "value": 0.248,
+      "unit": "Ω",
+      "kind": "showroom",
+      "practice": true,
+      "rule": "(core + armour mΩ/m) × multiplier × L ÷ 1000 (a.armourR)",
+      "inputs": {
+        "core": "4.61 mΩ/m (g.swa4.line)",
+        "armour": "6.8 mΩ/m (g.swa4.armourR)",
+        "multiplier": "1.28 (g.mult.90ts)",
+        "L": "17.0 m (l8.submain.plan; p.sub.size)"
+      },
+      "cite": "formula sheet step 12; Prysmian BS 5467 data sheet (research sources 30, 33)",
+      "text": "0.248 Ω",
+      "work": "(4.61 + 6.8) × 1.28 × 17.0 ÷ 1000 = 0.248 Ω"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.A.3f.zs",
+      "label": "3(f): Zs at DBL2",
+      "value": 0.348,
+      "unit": "Ω",
+      "kind": "showroom",
+      "practice": true,
+      "rule": "Zs = Ze + (R1+R2)",
+      "inputs": {
+        "Ze": "0.1 Ω (pack p.3)"
+      },
+      "cite": "formula sheet step 13; pack p.3",
+      "note": "Carried into lesson 8 (the submain's Zs at DBL2), on the practice cable and breaker.",
+      "text": "0.348 Ω",
+      "work": "0.1 + 0.248 = 0.348 Ω"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.A.3f.imin",
+      "label": "3(f): Cmin fault current at DBL2",
+      "value": 627.87,
+      "unit": "A",
+      "kind": "showroom",
+      "practice": true,
+      "rule": "Uo × Cmin ÷ Zs",
+      "inputs": {},
+      "cite": "slides p.62",
+      "note": "Far past 10 × 10 A = 100 A, so the 10 A type C (p.sub.dev) opens within 0.1 s.",
+      "text": "627.87 A",
+      "work": "230 × 0.95 ÷ 0.348 = 627.87 A"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.A.3f.imax",
+      "label": "3(f): Cmax fault current at DBL2",
+      "value": 727.01,
+      "unit": "A",
+      "kind": "showroom",
+      "practice": true,
+      "rule": "Uo × Cmax ÷ Zs",
+      "inputs": {},
+      "cite": "slides p.60, 62",
+      "text": "727.01 A",
+      "work": "230 × 1.1 ÷ 0.348 = 727.01 A"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "3f",
+      "part": "3f",
+      "label": "Section A 3(f): minimum armour area for the DBL2 submain's armour as its cpc",
+      "value": 5,
+      "unit": "mm²",
+      "kind": "showroom",
+      "practice": true,
+      "rule": "S = √(I² × t) ÷ k, I at Cmax, k for steel armour",
+      "inputs": {
+        "I": "727.01 A (l7.A.3f.imax)",
+        "t": "0.1 s (g.t.thermal)",
+        "k": "46 (practice value p.k.steel)",
+        "armour fitted": "22 mm² (g.swa4.armour)"
+      },
+      "cite": "guide p.5 (\"If using SWA it is acceptable to use the SWA as the CPC as long as it is justified by calculation\"); formula sheet step 18/19; practice values p.sub.size, p.sub.dev, p.k.steel",
+      "note": "Justified: 5.00 mm² against the maker's 22 mm². Rests on the practice cable size, breaker and k. If lesson 8 changes the submain, redo this with that size's maker rows.",
+      "accept": {
+        "min": 5,
+        "max": 5,
+        "also": [
+          4.99
+        ],
+        "why": "4.99 mm² from unrounded working"
+      },
+      "text": "5.00 mm²",
+      "work": "√(727.01² × 0.1) ÷ 46 = 5.00 mm² ≤ 22 mm²: justified"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "3f.slip1",
+      "label": "3(f) slip: copper's k, 143",
+      "value": 1.61,
+      "unit": "mm²",
+      "kind": "slip",
+      "rule": "S with k 143",
+      "inputs": {},
+      "cite": "TMUK calculator, research source 24 (the k it breaks)",
+      "text": "1.61 mm²",
+      "work": "√(727.01² × 0.1) ÷ 143 = 1.61 mm²"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "3f.slip2",
+      "label": "3(f) slip: the Cmin current",
+      "value": 4.32,
+      "unit": "mm²",
+      "kind": "slip",
+      "rule": "S at the Cmin current",
+      "inputs": {},
+      "cite": "slides p.62",
+      "text": "4.32 mm²",
+      "work": "√(627.87² × 0.1) ÷ 46 = 4.32 mm²"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "3f.slip3",
+      "label": "3(f) slip: the multiplier left out",
+      "value": 5.92,
+      "unit": "mm²",
+      "kind": "slip",
+      "rule": "R1+R2 at 20 °C",
+      "inputs": {},
+      "cite": "slides p.52",
+      "text": "5.92 mm²",
+      "work": "(4.61 + 6.8) × 17.0 ÷ 1000 = 0.194 Ω; Zs 0.294 Ω; 230 × 1.1 ÷ 0.294 = 860.54 A; √(860.54² × 0.1) ÷ 46 = 5.92 mm²"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.A.3f.rating",
+      "label": "3(f) cross-check: the maker's 1 s armour rating as a 0.1 s rating",
+      "value": 3.16,
+      "unit": "kA",
+      "kind": "showroom",
+      "rule": "equal I²t: I(0.1 s) = I(1 s) × √(1 ÷ 0.1)",
+      "inputs": {
+        "I(1 s)": "1.0 kA (g.swa4.sc1s)"
+      },
+      "cite": "Prysmian BS 5467 data sheet and its note that its ratings are adiabatic (research sources 34, 36)",
+      "text": "3.16 kA",
+      "work": "1.0 × √10 = 3.16 kA ≥ 727.01 A"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.A.changed",
+      "label": "Changed numbers: time 4 mm² live conductors carry the greatest fault",
+      "value": 3.39,
+      "unit": "s",
+      "kind": "practice",
+      "rule": "Ze(l/n) = 230 ÷ PSCC; R1+Rn = mΩ/m × 1.28 × L ÷ 1000; Zs(l/n) = sum; I = 230 × 1.1 ÷ Zs(l/n); t = k² × S² ÷ I²",
+      "inputs": {
+        "PSCC": "500 A",
+        "mΩ/m": "9.22 (4 mm² pair, g.r1r2.4)",
+        "L": "30 m",
+        "k": "143",
+        "S": "4 mm²"
+      },
+      "cite": "shape: C&G practice paper 1 Q5(c) (\"Determine whether the circuit breaker offers adequate protection to the live conductors in the event of a short circuit\"), numbers changed; slides p.63 to 68",
+      "note": "Least current 268.43 A over the 32 A type B's 160 A, so it opens within 0.1 s: protected.",
+      "accept": {
+        "min": 3.39,
+        "max": 3.39,
+        "why": "the unrounded working gives 3.39 s too"
+      },
+      "text": "3.39 s",
+      "work": "230 ÷ 500 = 0.460 Ω; 9.22 × 1.28 × 30 ÷ 1000 = 0.354 Ω; 0.460 + 0.354 = 0.814 Ω; 230 × 0.95 ÷ 0.814 = 268.43 A; 230 × 1.1 ÷ 0.814 = 310.81 A; 143² × 4² ÷ 310.81² = 3.39 s"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.A.changed.slip1",
+      "label": "Changed slip: the least current",
+      "value": 4.54,
+      "unit": "s",
+      "kind": "slip",
+      "rule": "t at 268.43 A",
+      "inputs": {},
+      "cite": "slides p.67",
+      "text": "4.54 s",
+      "work": "143² × 4² ÷ 268.43² = 4.54 s"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.A.changed.slip2",
+      "label": "Changed slip: S not squared",
+      "value": 0.85,
+      "unit": "s",
+      "kind": "slip",
+      "rule": "k² × S ÷ I²",
+      "inputs": {},
+      "cite": "slides p.68",
+      "text": "0.85 s",
+      "work": "143² × 4 ÷ 310.81² = 0.85 s"
+    },
+    {
+      "lesson": "i7",
+      "status": "worked",
+      "id": "l7.A.changed.slip3",
+      "label": "Changed slip: the multiplier left out",
+      "value": 2.78,
+      "unit": "s",
+      "kind": "slip",
+      "rule": "R1+Rn at 20 °C",
+      "inputs": {},
+      "cite": "slides p.65",
+      "text": "2.78 s",
+      "work": "9.22 × 30 ÷ 1000 = 0.277 Ω; 0.460 + 0.277 = 0.737 Ω; 230 × 1.1 ÷ 0.737 = 343.28 A; 143² × 4² ÷ 343.28² = 2.78 s"
     }
   ],
   "pending": [
-    {
-      "id": "l7.A.2c",
-      "label": "Section A 2(c): thermal constraints on the motor circuit's cpc",
-      "value": null,
-      "unit": "mm²",
-      "rule": "S = √(I² t) ÷ k, I at Cmax",
-      "needs": [
-        "2a",
-        "the device's time at that current",
-        "k for the cpc (Tables 54.2 to 54.6)"
-      ],
-      "cite": "guide p.5 (\"Include calculations for thermal constraints\")",
-      "kind": "showroom",
-      "status": "to research",
-      "lesson": "i7",
-      "part": "2c"
-    },
-    {
-      "id": "l7.armour",
-      "label": "DBL2 submain: SWA armour as the cpc",
-      "value": null,
-      "unit": "mm²",
-      "rule": "adiabatic check on the armour",
-      "needs": [
-        "armour CSA and resistance from a maker",
-        "k for steel armour"
-      ],
-      "cite": "guide p.5 (\"as long as it is justified by calculation\")",
-      "kind": "showroom",
-      "status": "to research",
-      "lesson": "i7"
-    },
     {
       "id": "l8.dbl2.ib",
       "label": "The DBL2 submain's design current",
@@ -4415,20 +5095,24 @@
     },
     {
       "id": "l7.A.2c",
-      "status": "to research",
+      "status": "worked",
       "needs": [
         "2a",
         "the device's time at that current",
         "k for the cpc (Tables 54.2 to 54.6)"
-      ]
+      ],
+      "researched": "i7 top-up, 20 Oct 2026: givens g.k.cu90, g.t.thermal, a.cpc. Working (for the writer, to be re-worked from the rule): S = √(I²t) ÷ k with I at Cmax and t 0.1 s (g.t.thermal), k 143 (g.k.cu90): Cmax current 253 ÷ 0.366 = 691.26 A (Zs 0.366 Ω is figure 2a); S = √(691.26² × 0.1) ÷ 143 = 1.53 mm², so the 2.5 mm² cpc (a.cpc) holds with room. The starter-to-motor leg (1.5 mm² cpc, Zs 0.459 Ω, l6.A.atMotor): 551.20 A and 1.22 mm² minimum, under 1.5 mm². Both under the stated 4.6 kA, so the origin is not the limit.",
+      "worked": "figure 2c (and 2c.slip*, l7.A.2c.imax, l7.A.leg)"
     },
     {
       "id": "l7.armour",
-      "status": "to research",
+      "status": "worked",
       "needs": [
         "armour CSA and resistance from a maker",
         "k for steel armour"
-      ]
+      ],
+      "researched": "i7 top-up, 20 Oct 2026: givens p.k.steel, g.swa4.line, g.swa4.armour, g.swa4.armourR, g.swa4.sc1s, p.sub.size, p.sub.dev, a.armourR, g.mult.90ts, g.t.thermal. Working (for the writer, to be re-worked from the rule): Provisional on p.sub.size and p.sub.dev: R1+R2 = (4.61 + 6.8) × 1.28 × 17.0 ÷ 1000 = 0.248 Ω (a.armourR); Zs at DBL2 = 0.1 + 0.248 = 0.348 Ω; Cmin current 230 × 0.95 ÷ 0.348 = 627.87 A (well past the 10 A type C's 100 A); Cmax current 253 ÷ 0.348 = 727.01 A; minimum armour S = √(727.01² × 0.1) ÷ 46 = 5.00 mm² against the maker's 22 mm² (g.swa4.armour), so the armour is justified as the cpc by calculation; cross-check, the maker's 1 s armour rating 1.0 kA is 3.2 kA for 0.1 s. Add the armour's resistance into Zs for lesson 8's chain. If lesson 8 changes the submain size, redo this with that size's maker rows.",
+      "worked": "figure 3f (and l7.A.3f.*, 3f.slip*)"
     },
     {
       "id": "l8.dbl2.ib",
@@ -4476,6 +5160,15 @@
       "needs": [
         "GN3 or OSG guidance for a showroom; BS 7671 Part 6 on certificates and handover"
       ]
+    },
+    {
+      "id": "l7.pfc",
+      "status": "researched",
+      "needs": [
+        "why the pack's 4.6 kA is twice 230 ÷ 0.1 = 2 300 A"
+      ],
+      "researched": "i7 top-up, 20 Oct 2026: assumption a.pfcTwice (research sources 412 to 416); the Appendix 14 wording itself is quoted only second-hand from a forum post and is not among the pages saved from your copy",
+      "worked": "figure l6.showroom.nominal, 2e"
     }
   ]
 }

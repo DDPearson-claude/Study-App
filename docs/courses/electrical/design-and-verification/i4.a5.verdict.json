@@ -1,0 +1,193 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "At 0% the 120° shift makes the three line currents cancel in the neutral at every instant",
+        "ok": true,
+        "source": "https://federalpacific.com/wp-content/uploads/2026/04/Wired-IN-Triplen-Harmonics.pdf"
+      },
+      {
+        "label": "The neutral's current equals the sum of the three lines' third harmonic content: at 35%, 3 × 52.50 = 157.50 A",
+        "ok": true,
+        "source": "https://electrical.theiet.org/media/1076/2016_62_autumn_wiring_matters.pdf"
+      },
+      {
+        "label": "Each line stays at 150 A as the third harmonic grows: the fundamental shrinks to make room",
+        "ok": true
+      },
+      {
+        "label": "The rule gives the case file's figures: 0, 67.50, 90.00, 148.50, 153.00, 157.50, 202.50 and 225.00 A at 0, 15, 20, 33, 34, 35, 45 and 50%",
+        "ok": true
+      },
+      {
+        "label": "The neutral rises at every step and passes the 150 A line between 33% and 34%",
+        "ok": true
+      },
+      {
+        "label": "Table 4Aa's rows: 15% row 1, 16% and 33% row 2 on the line, 34% and 45% row 3 on the neutral, 46% row 4",
+        "ok": true
+      },
+      {
+        "label": "If the neutral current is more than 135% of the phase current the phases are not fully loaded: 45% gives exactly 135%",
+        "ok": true,
+        "source": "https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor"
+      },
+      {
+        "label": "37 A at 40% third harmonic: neutral 37 × 0.4 × 3 = 44.4 A, design load 44.4 ÷ 0.86 = 51.6 A",
+        "ok": true,
+        "source": "https://www.electrical-installation.org/enwiki/Sizing_the_neutral_conductor"
+      },
+      {
+        "label": "The recall and check: 63.00, 0.00 and 21.00 A; 150.00, 174.42 and 116.28 A, as the case file works them",
+        "ok": true
+      },
+      {
+        "label": "The worked example: 0.611 and 0.52546, It 304.50 A, Iz 181.81 A, as the case file works it",
+        "ok": true
+      },
+      {
+        "label": "Section A from the rule: 4.93, 1.64, 24.66; 9.56, 5.73, 7.07; what-if 8.63 and 10.03; changed 44.40, 51.63, 43.02, 38.18 A",
+        "ok": true
+      },
+      {
+        "label": "The demonstration opens at 0% and settles on 35%",
+        "ok": true
+      },
+      {
+        "label": "Every slip lies outside its answer's accepted range",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "h"
+    ],
+    "readouts": [
+      "ibn",
+      "sets",
+      "fac"
+    ],
+    "outputs": [
+      "ibn",
+      "sets",
+      "fac",
+      "row"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "What it is for",
+          "The why",
+          "Which current, which factor",
+          "Check",
+          "Worked example",
+          "Section A (d)",
+          "Section A (e)",
+          "Section B",
+          "Changed numbers",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "h",
+        "kind": "control",
+        "label": "Third harmonic",
+        "min": 0,
+        "max": 50,
+        "step": 1,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          15,
+          20,
+          33,
+          34,
+          35,
+          45
+        ]
+      }
+    ],
+    "actions": [
+      "Replay",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Why?",
+      "Refresh the why",
+      "Skip to the practice",
+      "0 to 15%: line current, factor 1.0",
+      "15 to 33%: line current, factor 0.86",
+      "33 to 45%: neutral current, factor 0.86",
+      "Over 45%: neutral current, factor 1.0",
+      "Check",
+      "Finish the lesson",
+      "Show the next step",
+      "Back",
+      "Continue",
+      "Demonstration"
+    ],
+    "answers": [
+      {
+        "id": "3d",
+        "answer": 4.93,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "3e",
+        "answer": 9.56,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "l4.A.changed",
+        "answer": 51.63,
+        "accept": [
+          51.6
+        ],
+        "ok": true
+      }
+    ],
+    "written": [
+      "b1"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

@@ -1,0 +1,265 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "The heater circuit drops 5.71, 6.19, 8.09 and 11.42 V at 60, 65, 85 and 120 m; with the submain the totals at 60, 65 and 85 m are 11.48, 11.96 and 13.86 V, as the case file works them",
+        "ok": true
+      },
+      {
+        "label": "The total rises with every 5 m and passes the 11.50 V limit between 60 and 65 m (60.1 m); the heater circuit alone stays inside it to 120 m",
+        "ok": true
+      },
+      {
+        "label": "The limit applies from the origin of the installation to the most distant point of the circuit: the heater's total is the submain's drop plus its own",
+        "ok": true,
+        "source": "https://www.totalskills.co.uk/guides/volt-drop-calculations"
+      },
+      {
+        "label": "The submain's 10 V ÷ √3 is 5.77 V, leaving 224.23 V at the board and 216.14 V at the heater at 85 m; 5% of 230 V and of 400 V are 11.50 and 20.00 V",
+        "ok": true
+      },
+      {
+        "label": "At 0 m the heater sits at the board, and at 120 m it stays inside the drawing",
+        "ok": true
+      },
+      {
+        "label": "Ct = (230 + tp − (Ca² Cg² − Ib²/It²)(tp − 30)) ÷ (230 + tp): a cable at full load with no other factors gets no correction",
+        "ok": true,
+        "source": "https://myelectrical.com/notes/entryid/182/cable-sizing-tool"
+      },
+      {
+        "label": "The slides' heater with Ct: 1.5 mm² 0.9562 and 30.85 V, 4.0 mm² 0.9043 and 10.97 V, 6.0 mm² 0.8957 and 7.28 V, as the case file works them",
+        "ok": true
+      },
+      {
+        "label": "Ct takes 4.0 mm² from over 11.50 V to under it, while 1.5 mm² still fails and 6.0 mm² passes without it",
+        "ok": true
+      },
+      {
+        "label": "With a known power factor the drop per amp per metre is r × cos φ + x × sin φ",
+        "ok": true,
+        "source": "https://ecalpro.com/docs/voltage-drop-calculation-guide"
+      },
+      {
+        "label": "At every power factor the drop per amp per metre stays under z, 1.65: about 13% under it at 0.8",
+        "ok": true
+      },
+      {
+        "label": "The drawn tip of z casts a shadow along the voltage of r × cos φ + x × sin φ",
+        "ok": true
+      },
+      {
+        "label": "The worked example: 13.04 A, 32.14 V, at most 10.37 mV/A/m, 12.19 V and 8.09 V, as the case file works them",
+        "ok": true
+      },
+      {
+        "label": "The recall and the check: 19.8 V against 19.75 V; 16.20 V, and the slip 12.40 V, as the case file works them",
+        "ok": true
+      },
+      {
+        "label": "Part (g) from the rule: 4.00 + 4.21 + 1.24 = 9.45 V (2.36%); the other reading 10.36 V; slips 5.45, 8.21 and 7.76 V; with Ct 3.96 + 1.19, 9.15 V",
+        "ok": true
+      },
+      {
+        "label": "Changed numbers: 8.93 + 4.33 = 13.26 V (13.27 V with √3 as 1.73); slips 16.43, 21.92 and 8.93 V",
+        "ok": true
+      },
+      {
+        "label": "Every slip lies outside its answer's accepted range",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "len",
+      "cable",
+      "ct",
+      "pf"
+    ],
+    "readouts": [
+      "vdc",
+      "tot",
+      "lim",
+      "share",
+      "ct",
+      "vd",
+      "sinphi",
+      "dpm"
+    ],
+    "outputs": [
+      "vdc",
+      "tot",
+      "lim",
+      "share",
+      "ct",
+      "vd",
+      "sinphi",
+      "dpm"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "What it is for",
+          "The why",
+          "Check",
+          "Worked example",
+          "A lightly loaded cable",
+          "A known power factor",
+          "Section A (g)",
+          "Section B",
+          "Changed numbers",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "len",
+        "kind": "control",
+        "label": "Heater circuit length",
+        "min": 0,
+        "max": 120,
+        "step": 5,
+        "log": false,
+        "value": 85,
+        "shown": false,
+        "snap": [
+          60,
+          65
+        ]
+      },
+      {
+        "id": "cable",
+        "kind": "choice",
+        "label": "Cable",
+        "options": [
+          "1.5",
+          "4",
+          "6"
+        ],
+        "labels": [
+          "1.5 mm²",
+          "4.0 mm²",
+          "6.0 mm²"
+        ],
+        "value": "6",
+        "index": 2
+      },
+      {
+        "id": "ct",
+        "kind": "toggle",
+        "label": "Apply Ct",
+        "options": [
+          false,
+          true
+        ],
+        "value": false
+      },
+      {
+        "id": "pf",
+        "kind": "control",
+        "label": "Power factor",
+        "min": 0.5,
+        "max": 1,
+        "step": 0.05,
+        "log": false,
+        "value": 0.8,
+        "shown": false,
+        "snap": [
+          0.5,
+          0.8,
+          1
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Why?",
+      "Refresh the why",
+      "Skip to the practice",
+      "Check",
+      "Finish the lesson",
+      "Show the next step",
+      "Back",
+      "Continue"
+    ],
+    "answers": [
+      {
+        "id": "1g",
+        "answer": 9.45,
+        "accept": [
+          10.36,
+          9.15
+        ],
+        "ok": true
+      },
+      {
+        "id": "l5.A.changed",
+        "answer": 13.26,
+        "accept": [
+          13.27
+        ],
+        "ok": true
+      }
+    ],
+    "written": [
+      "b1"
+    ],
+    "ready": true,
+    "warnings": [
+      "The page height keeps growing with the frame (avoid vh units and height:100%). [at 720 px wide]"
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1",
+    "len = 120",
+    "cable = \"1.5\"",
+    "ct = true",
+    "pf = 0.875",
+    "pressed \"Answer 1\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/design-and-verification/i5.a8-360-light.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i5.a8-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i5.a8-360-light-end.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i5.a8-360-dark.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i5.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i5.a8-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i5.a8-1280-light.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i5.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i5.a8-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i5.a8-1280-dark.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i5.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i5.a8-1280-dark-end.png"
+  ]
+}

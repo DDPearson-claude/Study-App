@@ -1,0 +1,740 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .pic { display: block; width: 100%; }
+  .pic .lb { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .pic .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .pic .over { font: 700 13px var(--k-font); fill: var(--k-warn); }
+  .pic .box { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .pic .heat { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 2; }
+  .pic .heat.hot { stroke: var(--k-warn); }
+  .pic .cab { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }
+  .pic .cab2 { stroke: var(--k-accent2); stroke-width: 4; stroke-linecap: round; }
+  .pic .ref { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .pic .band { fill: var(--k-warn); fill-opacity: .12; }
+  .pic .bandln { stroke: var(--k-warn); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .pic .prof { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; }
+  .pic .dot { fill: var(--k-accent2); }
+  .pic .dot.hot { fill: var(--k-warn); }
+  .pic .gd { stroke: var(--k-muted); stroke-width: 1; stroke-dasharray: 2 3; }
+  .pic .br { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  .pic .track { fill: var(--k-sunk); }
+  .pic .bnav { fill: var(--k-accent2); }
+  .pic .bdrop { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1; }
+  .pic .bdrop.hot { fill: var(--k-warn); stroke: var(--k-warn); }
+  .pic .blim { fill: var(--k-strong); }
+  .pic .lim { stroke: var(--k-ink); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .pic .vl { stroke: var(--k-ink); stroke-width: 2; }
+  .pic .il { stroke: var(--k-muted); stroke-width: 2; }
+  .pic .ra { stroke: var(--k-accent2); stroke-width: 3; }
+  .pic .rah { fill: var(--k-accent2); }
+  .pic .xa { stroke: var(--k-accent); stroke-width: 3; }
+  .pic .xah { fill: var(--k-accent); }
+  .pic .za { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 6 4; }
+  .pic .sr { stroke: var(--k-accent2); stroke-width: 6; }
+  .pic .sx { stroke: var(--k-accent); stroke-width: 6; }
+  .pic .arc { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .ctl { display: grid; gap: 8px; }
+  /* Every wording of a changing sentence is laid out in the same place, only the live one seen,
+     so the sentence keeps its space and nothing below it jumps as it changes. */
+  .held { display: grid; }
+  .held > span { grid-area: 1 / 1; }
+  .held > .ghost { visibility: hidden; }
+  .rule1 { display: grid; gap: 4px; padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1px solid var(--k-line); }
+  .rule1 .eq { font-size: 1.1rem; font-weight: 800; line-height: 1.4; }
+  .frac { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: .95rem; font-weight: 700; line-height: 1.4; }
+  .frac .fr { display: inline-flex; flex-direction: column; text-align: center; min-width: 0; }
+  .frac .nu { border-bottom: 1.5px solid var(--k-ink); padding: 0 2px 3px; }
+  .frac .de { padding: 3px 2px 0; }
+  .w { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .wl .w { margin-top: 6px; }
+  .given { line-height: 1.55; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; font-size: 1.05rem; white-space: normal; text-align: left; justify-content: flex-start; line-height: 1.35; padding: 10px 14px; }
+  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  .why { line-height: 1.6; }
+  .fold { padding: 4px 14px 12px; border-radius: 12px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.55; }
+  .fold summary { min-height: 44px; display: flex; align-items: center; font-weight: 700; cursor: pointer; }
+  .fold > p + p { margin-top: 8px; }
+  .foot { font-size: .92rem; color: var(--k-muted); line-height: 1.5; }
+  #stepbox.enter, .wl .w.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing .wl .w.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .w.enter { animation: none; } }
+  /* The carried-forward panel: each figure on its own line under its label, so a long figure
+     ("Table 4E1A, column 5") wraps instead of squeezing the label into a sliver. */
+  #carry .k-carried { grid-template-columns: minmax(0, 1fr); }
+  #carry .k-cr { grid-template-columns: 2rem minmax(0, 1fr) 24px; row-gap: 2px; }
+  #carry .k-cr-value { grid-column: 2; grid-row: 2; white-space: normal; }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="scen"></div>
+    <div id="carry"></div>
+    <p class="given" id="given"></p>
+    <p class="note" id="legNote"></p>
+    <p class="task" id="task"></p>
+    <p class="sub" id="sub"></p>
+    <div class="rule1" id="vdRule"></div>
+    <div class="warn-note" id="warn1"></div>
+    <div id="pathWrap"><svg class="pic" id="pathSvg" viewBox="0 0 340 240" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctlLen"></div>
+    <div id="ctWrap"><svg class="pic" id="ctSvg" viewBox="0 0 340 142" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctlCt"></div>
+    <div id="pfWrap"><svg class="pic" id="pfSvg" viewBox="0 0 340 356" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctlPf"></div>
+    <div class="say" id="say"></div>
+    <div class="k-readouts" id="outsLen"></div>
+    <div class="k-readouts" id="outsCt"></div>
+    <div class="k-readouts" id="outsPf"></div>
+    <p class="note why" id="whyNote"></p>
+    <div class="rule1" id="ctRule"></div>
+    <p class="why" id="ctHeat"></p>
+    <div class="note" id="debated"></div>
+    <div class="rule1" id="pfRule"></div>
+    <p class="why" id="pfWhy"></p>
+    <div id="worked"></div>
+    <div class="row" id="workedgo"></div>
+    <div class="picks" id="picks"></div>
+    <div id="ans-1g"></div>
+    <div id="ans-ch"></div>
+    <div class="row" id="acts"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div class="note why" id="why"></div>
+    <div id="ctFold"></div>
+    <div class="row" id="go"></div>
+    <div id="wr"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+    <p class="foot" id="foot"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Practice values are marked. Each line is worked from the rounded figures before it.</p>
+
+<script>
+  // ---------- the rule, and the course's figures ----------
+  const RT3 = Math.sqrt(3);
+  // Half up to 2 (or 4) places, as the course rounds: each line worked from the rounded figure shown.
+  const r2 = (x) => Math.round(x * 100 + 1e-7) / 100;
+  const r4 = (x) => Math.round(x * 1e4 + 1e-7) / 1e4;
+  const f2 = (x) => r2(x).toFixed(2);
+  const F = (id) => K.figure(id);
+  const el = (id) => document.getElementById(id);
+  // VD = mV/A/m × Ib × L ÷ 1000 (your slides p.38, 39)
+  const vdOf = (mv, ib, L) => r2(mv * ib * L / 1000);
+  // Ct as a reader quoted BS 7671 (myElectrical), each line from the rounded figure before it.
+  function ctOf(ib, it, ca, cg, tp) {
+    const base = r4(ca * ca * cg * cg), q = r4((ib / it) * (ib / it)), d = r4(base - q), m = r2(d * (tp - 30));
+    const frac = r4((230 + tp - m) / (230 + tp));
+    return { base, q, d, m, frac, ct: r2(frac) };
+  }
+
+  const UN1 = 230, UN3 = 400;
+  const LIM = r2(UN1 * 0.05), LIM3 = r2(UN3 * 0.05);   // 5% of 230 V and of 400 V (your slides p.38)
+  const IBH = r2(3000 / UN1);                           // the slides' 3 kW heater (p.42)
+  const SUB = r2(10 / RT3);                             // a 10 V three-phase submain drop as single-phase
+  const VB = r2(UN1 - SUB);                             // the voltage at the board
+  const LH = 85;                                        // the slides' heater circuit, m
+  const CAH = F('g.heater.Ca').value;                   // Ca at 35 °C
+  const MV6 = F('g.heater.vd6').value, MV4 = F('g.heater.vd4').value, IT6 = F('g.heater.it6').value, IT4 = F('g.heater.it4').value;
+  const CABLES = {
+    '1.5': { name: '1.5 mm²', mv: 29, it: 17.5 },       // slides p.42; Table 4D1A, your copy p.448, column 4
+    '4': { name: '4.0 mm²', mv: MV4, it: IT4 },
+    '6': { name: '6.0 mm²', mv: MV6, it: IT6 },
+  };
+  Object.keys(CABLES).forEach((k) => {
+    const c = CABLES[k];
+    c.drop = vdOf(c.mv, IBH, LH);
+    c.c = ctOf(IBH, c.it, CAH, 1, 70);
+    c.dct = r2(c.drop * c.c.ct);
+  });
+  const MAXMV = Math.floor(LIM * 1000 / (IBH * LH) * 100) / 100;   // rounded down
+  const vdcOf = (L) => vdOf(MV6, IBH, L);
+  const totOf = (L) => r2(SUB + vdcOf(L));
+
+  // r, x and z for 25 mm² 90 °C singles in conduit, three-phase (Table 4E1B, your copy p.459).
+  const R25 = 1.6, X25 = 0.27, Z25 = 1.65;
+  const pfR = (v) => Math.round(v * 100) / 100;
+  const sinOf = (pf) => r2(Math.sqrt(Math.max(0, 1 - pf * pf)));
+  const dpmOf = (pf) => r2(r2(R25 * pf) + r2(X25 * sinOf(pf)));
+  const underZ = (pf) => Math.round((1 - dpmOf(pf) / Z25) * 100);
+
+  // The recall, the check and the worked example (case file l5.*).
+  const RC = { u: 395, sub: 10, rad: 9.8 }, RC_T = Math.round((10 + 9.8) * 10) / 10;
+  const CK = { c: 7.2, s: 9.0 };
+  const fR = F('l5.recall'), fC = F('l5.check'), fC1 = F('l5.check.slip1');
+  const fW85 = F('l5.worked.85'), fWmax = F('l5.worked.max'), fW4 = F('l5.worked.4'), fW6 = F('l5.worked.6');
+  const fCt15 = F('l5.ct.15'), fCt4 = F('l5.ct.4'), fCt6 = F('l5.ct.6'), fPf = F('l5.pf.08');
+
+  // Section A, question 1 (g), on the showroom's motor.
+  const f1a = F('1a'), f1b = F('1b'), f1f = F('1f'), f1g = F('1g');
+  const fDb = F('l5.A.1g.dbp2'), fLeg = F('l5.A.1g.leg'), fPct = F('l5.A.1g.pct'), fAlt = F('l5.A.1g.alt'), fCtG = F('l5.A.1g.ct');
+  const MV25 = F('g.vd.2p5').value, MV15 = F('g.vd.1p5.1ph').value, IT25 = F('g.it.2p5').value, IT15 = F('g.it.1p5').value;
+  const SUBD = F('p.submain').value, LEG = F('p.legLen').value, CA_SR = F('p.Ca').value;
+  const RUN = 11.4;                 // DBP2 to the motor on plan, the course's own (a.motorRun)
+  const CG_LEG = 0.8;               // the six singles grouped (lesson 3)
+  const LEG_ALT = r2(fLeg.value * RT3);
+  const ctDb = ctOf(f1a.value, IT25, CA_SR, 1, 90), ctLeg = ctOf(f1b.value, IT15, CA_SR, CG_LEG, 90);
+  const DB_CT = r2(fDb.value * ctDb.ct), LEG_CT = r2(fLeg.value * ctLeg.ct);
+
+  // Section A, changed numbers.
+  const CH = { L: 32, ib: 9, mv: MV15, sub: 7.5 };
+  const fCh = F('l5.A.changed');
+  const CH_C = vdOf(CH.mv, CH.ib, CH.L), CH_S = r2(CH.sub / RT3);
+
+  // ---------- the lesson: SHOW steps teach, DO steps ask ----------
+  const O0 = ['No: ' + RC_T + ' V is over 5% of 395 V, ' + fR.text, 'Yes: ' + RC_T + ' V is inside 5% of 400 V, ' + f2(LIM3) + ' V', 'Yes: the radial\'s ' + RC.rad + ' V is inside the limit on its own'];
+  const O3 = [fC1.text + ': the submain\'s drop ÷ √3 first, so it complies', fC.text + ', inside ' + f2(LIM3) + ' V: it complies', fC.text + ', over ' + f2(LIM) + ' V: it does not comply'];
+  const RWORK = RC.sub + ' + ' + RC.rad + ' = ' + RC_T + ' V. It is three-phase throughout, so there is no ÷ √3. ' + fR.work + '.';
+  const Q1G = '(g) Determine the actual voltage drop of the motor circuit, from the intake to the motor.';
+  const CH_Q = 'A single-phase power circuit, ' + CH.L + ' m of 1.5 mm² 90 °C singles in conduit (' + CH.mv + ' mV/A/m), Ib ' + CH.ib + ' A, is fed from a sub-board whose three-phase submain drops ' + CH.sub + ' V. No supply voltage is given. Determine the total voltage drop from the origin.';
+  const STEPS = [
+    { name: 'Do you still have it?', label: 'Do you still have it?',
+      task: '“A supply is given as 395 V. A submain feeding a second board has a calculated voltage drop of 10 V, and a radial power circuit from that board 9.8 V. Does the circuit comply?” The example is three-phase throughout.',
+      opts: O0, want: O0[0], read: RC.sub + ' + ' + RC.rad + ' = ' + RC_T + ' V. That is over 5% of the given 395 V, ' + fR.text + ', so it does not comply.' },
+    { show: true, name: 'What it is for', label: 'What it is for',
+      text: 'The cable\'s resistance uses up some of the supply\'s voltage on the way. The load gets what is left: the *voltage drop*. On a public supply, Table 4Ab limits it. Lighting may drop up to 3%: 6.9 V single-phase and 12 V three-phase. Other circuits may drop up to 5%: 11.5 V and 20 V. The limit runs from the *origin* to the most distant point of the circuit. BS 7671 takes the percentages of the nominal voltage. In your assessments, take them of the supply voltage when one is given. That is the stricter test when the supply is below nominal.',
+      read: 'Work each drop as mV/A/m × Ib × L ÷ 1000. Keep the total from the origin to the far end within 3% for lighting or 5% for other circuits.' },
+    { show: true, name: 'The why', label: 'The why',
+      text: 'This screen puts two examples together. A submain drops 10 V, taken here as three-phase. From its board, a single-phase circuit feeds a 3 kW heater: ' + f2(IBH) + ' A in 6.0 mm², ' + MV6 + ' mV/A/m (Table 4D1B, column 3).',
+      read: 'At ' + LH + ' m the heater circuit drops ' + f2(vdcOf(LH)) + ' V. With the submain\'s ' + f2(SUB) + ' V the total is ' + f2(totOf(LH)) + ' V, over ' + f2(LIM) + ' V. The total reaches the limit near 60 m.' },
+    { name: 'Check', label: 'Check',
+      task: 'A three-phase motor circuit has a calculated voltage drop of ' + CK.c + ' V. Its board is fed by a three-phase submain with a calculated drop of ' + CK.s.toFixed(1) + ' V. No supply voltage is given. What is the total, and does it comply?',
+      opts: O3, want: O3[1],
+      why: fC.work.replace(' ≤ ', ', inside ') + '. It is three-phase all the way, so judge it against 5% of 400 V.',
+      hints: { [O3[0]]: 'Not quite. The ÷ √3 is for a three-phase submain feeding a single-phase circuit. This load is three-phase.',
+        [O3[2]]: 'Not quite. ' + f2(LIM) + ' V is 5% of 230 V. A three-phase circuit takes 5% of the three-phase voltage.' },
+      read: fC.work.replace(' ≤ ', ', inside ') + '.' },
+    { show: true, name: 'Worked example', label: 'Worked example',
+      text: 'A 3 kW heater on 70 °C thermoplastic singles, at 35 °C, Reference Method B, ' + LH + ' m. Work each step yourself first, then press Show the next step to check it.',
+      read: '1.5 mm² (' + fW85.text + ') and 4.0 mm² (' + fW4.text + ') fail. 6.0 mm² (' + fW6.text + ') passes. The most that can pass is ' + fWmax.text + '.' },
+    { show: true, name: 'A lightly loaded cable', label: 'The why, refined',
+      text: 'Appendix 4\'s mV/A/m assume the conductor is at its *maximum operating temperature*, 70 °C or 90 °C. It reaches that only at full load. Current heats a conductor, which raises its resistance and so the drop. At lower loads its temperature and resistance are lower. *Ct* corrects the drop for this.',
+      read: 'In 4.0 mm² the heater circuit drops ' + fW4.text + ', over ' + f2(LIM) + ' V. With Ct ' + CABLES['4'].c.ct.toFixed(2) + ' it drops ' + fCt4.text + ', inside.' },
+    { show: true, name: 'A known power factor', label: 'The why, refined',
+      text: 'From 25 mm² up, the tables give *r*, *x* and *z*. With no known power factor, z is acceptable. With one, use r and x.',
+      read: 'At power factor 0.8, 1.60 × 0.8 + 0.27 × 0.6 = ' + fPf.text + ', against z\'s ' + Z25.toFixed(2) + '.' },
+    { name: 'Section A (g)', label: 'Section A · Question 1', part: Q1G, task: Q1G,
+      want: f1g.text, why: f1g.work, read: f2(SUBD) + ' + ' + f2(fDb.value) + ' + ' + f2(fLeg.value) + ' = ' + f1g.text + ', on practice values. That is inside ' + f2(LIM3) + ' V.' },
+    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer',
+      task: 'A short written answer, in your own words.' },
+    { name: 'Changed numbers', label: 'Section A · Changed numbers', part: CH_Q, task: CH_Q,
+      want: fCh.text, why: fCh.work, read: fCh.work.replace(' > ', ', over ') + '.' },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, why: false, fb: null }));
+  const iFor = 1, iWhy = 2, iChk = 3, iWk = 4, iCt = 5, iPf = 6, iA = 7, iW = 8, iCh = 9, iK = 10;
+  const WORKING = [iWhy, iChk, iWk, iCt, iPf, iA, iCh];   // the screens with working, where the caption belongs
+  let lastStep = -1, finished = false, lines = 0;
+
+  // Text with key terms (*term*) highlighted in amber (the <mark> element), built with K.el, never innerHTML.
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').split(/(\*[^*]+\*)/).forEach((b) => {
+      if (!b) return;
+      if (b.length > 2 && b.charAt(0) === '*' && b.charAt(b.length - 1) === '*') node.appendChild(K.el('mark', null, b.slice(1, -1)));
+      else node.appendChild(document.createTextNode(b));
+    });
+  }
+  // Every wording laid out in one place, only wording k seen (see .held).
+  function held(node, wordings, k) {
+    node.textContent = '';
+    const box = K.el('div', { class: 'held' });
+    wordings.forEach((s, j) => box.appendChild(K.el('span', j === k ? null : { class: 'ghost', 'aria-hidden': 'true' }, s)));
+    node.appendChild(box);
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  K.control({ id: 'len', label: 'Heater circuit length', min: 0, max: 120, step: 5, value: LH, unit: 'm', snap: [60, 65], into: '#ctlLen' });
+  K.choice({ id: 'cable', label: 'Cable', options: [{ value: '1.5', label: '1.5 mm²' }, { value: '4', label: '4.0 mm²' }, { value: '6', label: '6.0 mm²' }], value: '6', into: '#ctlCt' });
+  K.toggle({ id: 'ct', label: 'Apply Ct', value: false, into: '#ctlCt' });
+  K.control({ id: 'pf', label: 'Power factor', min: 0.5, max: 1, step: 0.05, value: 0.8, fmt: (v) => pfR(v).toFixed(2), snap: [0.5, 0.8, 1], into: '#ctlPf' });
+
+  K.readout({ id: 'vdc', label: 'Heater circuit\'s drop', unit: 'V', decimals: 2, into: '#outsLen' });
+  K.readout({ id: 'tot', label: 'Total from the origin', unit: 'V', decimals: 2, into: '#outsLen' });
+  K.readout({ id: 'lim', label: 'Limit', unit: 'V', decimals: 2, into: '#outsLen' });
+  K.readout({ id: 'share', label: 'Ib ÷ It', decimals: 2, into: '#outsCt' });
+  K.readout({ id: 'ct', label: 'Ct', into: '#outsCt' });
+  K.readout({ id: 'vd', label: 'Heater circuit\'s drop', unit: 'V', decimals: 2, into: '#outsCt' });
+  K.readout({ id: 'sinphi', label: 'sin φ', decimals: 2, into: '#outsPf' });
+  K.readout({ id: 'dpm', label: 'Drop per amp per metre', unit: 'mV/A/m', decimals: 2, into: '#outsPf' });
+
+  // Picks: one tap answers.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length) return;
+    if (i === 0) {
+      if (st.res) return;     // a recall gets one go
+      st.pick = d.opts[k];
+      if (st.pick === d.want) {
+        st.res = 'right';
+        st.fb = { ok: true, v: 'Still there.', w: RWORK, p: 'Two slips to avoid. ' + f2(LIM3) + ' V is 5% of the nominal 400 V. With 395 V given, take 5% of 395 V: it is the stricter test. The radial\'s ' + RC.rad + ' V alone leaves out the submain\'s ' + RC.sub + ' V. The limit covers every drop from the intake.' };
+      } else {
+        st.res = 'wrong';
+        st.fb = k === 1
+          ? { ok: false, v: 'The usual slip: 5% of 400 V.', p0: 'With 395 V given, take 5% of 395 V, not of the nominal 400 V. BS 7671\'s Table 4Ab takes the nominal voltage, so the given voltage is the stricter test here. Answer this way in the assignment.', w: 'The working: ' + RWORK, p: 'Continue, and the refresh starts from here.' }
+          : { ok: false, v: 'The usual slip: one cable only.', p0: 'The limit covers every drop from the intake, the submain\'s ' + RC.sub + ' V too.', w: 'The working: ' + RWORK, p: 'Continue, and the refresh starts from here.' };
+      }
+    } else if (i === iChk) {
+      if (st.res === 'right') return;
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'That\'s it.', w: d.why }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: d.hints[st.pick] || 'Not quite.' }; }
+    }
+  }
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => { if (at() === iChk) S[iChk].why = !S[iChk].why; } });
+
+  // Recall right: on to the why, or straight to the practice.
+  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === 0 && S[0].res === 'right') stepper.set(1); } });
+  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === 0 && S[0].res === 'right') stepper.set(iA); } });
+
+  // ---------- Section A: typed answers on the course's figures ----------
+  const scen = K.scenario({ into: '#scen', open: true });
+  K.carried({ parts: ['1a', '1b', '1c', '1d', '1e', '1f'], into: '#carry' });
+  const differs = (r, f) => r.value != null && Math.abs(r.value - f.value) > 0.004;
+  const SPEC = {
+    [iA]: { id: '1g', fig: f1g, accept: [fAlt.value, fCtG.value],
+      tail: '. These are practice values. There is no ÷ √3, because the motor is three-phase.',
+      acceptNote: [
+        'That is the other reading of the leg, which is debated. It multiplies by √3 as well: ' + fAlt.work + '. The line current, ' + MV15 + ' × ' + f2(f1a.value) + ' × ' + LEG.toFixed(1) + ' ÷ 1000, gives the same ' + f2(LEG_ALT) + ' V, though each conductor carries the winding current. Our reading gives ' + f1g.text + '.',
+        'That is the drop with Ct, shown in the fold below. Without Ct the answer is ' + f1g.text + ', and that passes already.'],
+      slips: [
+        { value: F('l5.A.1g.slip1').value, hint: 'That leaves out the DBP2 submain\'s ' + F('p.submain').text + '. Include every drop from the intake.' },
+        { value: F('l5.A.1g.slip2').value, hint: 'That leaves out the starter-to-motor leg. Every length of the cable run counts.' },
+        { value: F('l5.A.1g.slip3').value, hint: 'That divides the submain\'s drop by √3, which is for a single-phase circuit. The motor is three-phase, so every drop stays three-phase.' },
+      ],
+      hint: 'Not quite. Add every drop from the intake: the submain, DBP2 to the starter, and the starter to the motor.', missNote: '' },
+    [iCh]: { id: 'l5.A.changed', fig: fCh, accept: [r2(r2(CH.sub / 1.73) + CH_C)],
+      tail: '. It fails, though the circuit alone would pass.',
+      acceptNote: ['That takes √3 as 1.73: ' + CH.sub + ' ÷ 1.73 = ' + f2(CH.sub / 1.73) + ' V. With √3 in full it is ' + fCh.text + '.'],
+      slips: [
+        { value: F('l5.A.changed.slip1').value, hint: 'That adds the submain\'s three-phase drop as it is. The circuit is single-phase, so divide the submain\'s drop by √3 first.' },
+        { value: F('l5.A.changed.slip2').value, hint: 'That multiplies the submain\'s drop by √3. To bring a three-phase drop to single-phase, divide by √3.' },
+        { value: F('l5.A.changed.slip3').value, hint: 'That is the circuit alone. The limit covers every drop from the intake, the submain\'s too.' },
+      ],
+      hint: 'Not quite. Work the circuit\'s drop, bring the submain\'s to single-phase, then add.', missNote: '' },
+  };
+  const BOX = { [iA]: '#ans-1g', [iCh]: '#ans-ch' };
+  const ANS = {};
+  Object.keys(SPEC).forEach((key) => {
+    const i = +key, sp = SPEC[i];
+    const a = K.answer({ id: sp.id, unit: 'V', answer: sp.fig.value, tolerance: 0.005, accept: sp.accept, slips: sp.slips, into: BOX[i],
+      onCheck: (r) => {
+        const st = S[i];
+        if (st.shown) return;
+        if (r.state === 'right') {
+          st.res = 'right';
+          const p = r.accepted != null ? sp.acceptNote[r.accepted] || '' : differs(r, sp.fig) ? 'That is within rounding of ' + sp.fig.text + '.' : '';
+          st.fb = { ok: true, v: 'Right.', w: sp.fig.work + sp.tail, p };
+        } else if (r.state === 'wrong') {
+          st.tries += 1;
+          if (st.tries >= 2) {
+            st.shown = true; st.res = 'shown';
+            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.fig.work + sp.tail, p: sp.missNote };
+            a.reveal();
+          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }
+        } else { st.res = r.state; st.fb = null; }
+        K.refresh();
+      } });
+    ANS[i] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });
+
+  // ---------- Section B and Keep this ----------
+  const wB = K.written({ id: 'b1', into: '#wr', onMark: () => K.refresh() });
+  el('wr').addEventListener('click', () => K.refresh());
+  K.summary({ into: '#keep' });
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+
+  // ---------- the worked example, a line at each press ----------
+  const C15 = CABLES['1.5'], C4 = CABLES['4'], C6 = CABLES['6'];
+  const WLINES = [
+    'Ib = 3000 ÷ ' + UN1 + ' = ' + f2(IBH) + ' A. In is 16 A. It ≥ 16 ÷ ' + CAH + ' = ' + f2(r2(16 / CAH)) + ' A. 1.5 mm² is rated ' + C15.it + ' A',
+    'VD = ' + C15.mv + ' × ' + f2(IBH) + ' × ' + LH + ' ÷ 1000 = ' + f2(C15.drop) + ' V, over ' + f2(LIM) + ' V',
+    'Chase the volt drop: a bigger CSA, and the sum again, until it complies',
+    'The most mV/A/m that can pass at ' + LH + ' m: ' + f2(LIM) + ' × 1000 ÷ (' + f2(IBH) + ' × ' + LH + ') = ' + f2(MAXMV) + ' (rounded down)',
+    '4.0 mm², ' + C4.mv + ' mV/A/m (Table 4D1B, column 3), is over it: ' + C4.mv + ' × ' + f2(IBH) + ' × ' + LH + ' ÷ 1000 = ' + f2(C4.drop) + ' V, fails',
+    '6.0 mm², ' + C6.mv + ' mV/A/m: ' + C6.mv + ' × ' + f2(IBH) + ' × ' + LH + ' ÷ 1000 = ' + f2(C6.drop) + ' V, passes',
+    'Worth noticing: the 6.0 mm² carries just ' + f2(IBH) + ' A. Table 4D1A rates it at ' + C6.it + ' A',
+  ];
+  const wbox = K.el('div', { class: 'wl' });
+  const wlines = WLINES.map((t) => { const w = K.el('p', { class: 'w' }, t); wbox.appendChild(w); return w; });
+  el('worked').appendChild(wbox);
+  const cutNote = K.el('p', { class: 'foot' }, 'Rounded to one place, 32.14 V is 32.1 V. The verdict is the same.');
+  el('worked').appendChild(cutNote);
+  const nextLine = K.button({ label: 'Show the next step', into: '#workedgo', press: () => {
+    if (at() !== iWk || lines >= wlines.length) return;
+    const w = wlines[lines]; lines += 1;
+    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');
+  } });
+
+  // ---------- fixed words on their screens ----------
+  (function fixed() {
+    const v = el('vdRule');
+    v.appendChild(K.el('span', { class: 'k-label' }, 'The rule'));
+    v.appendChild(K.el('p', { class: 'eq' }, 'VD = mV/A/m × Ib × L ÷ 1000'));
+    v.appendChild(K.el('p', { class: 'sub' }, 'mV/A/m: the millivolts dropped for every ampere of design current for every metre of conductor. Ib: the design current, in amperes. L: the length, in metres.'));
+    const wn = el('warn1');
+    wn.appendChild(K.el('b', null, 'If it is skipped, or worked on one cable only: '));
+    wn.appendChild(document.createTextNode('the load runs on less than it was designed for. A heater\'s power falls with the square of its voltage. A motor draws more current to keep its torque. A 3 kW heater on ' + LH + ' m of 1.5 mm² drops ' + fW85.text + ', nearly three times the ' + f2(LIM) + ' V allowed.'));
+    write(el('whyNote'), 'The submain\'s drop is *line to line*. The heater circuit runs *line to neutral*, a √3 smaller. So divide the submain\'s drop by √3 before adding: 10.00 ÷ √3 = ' + f2(SUB) + ' V. That leaves ' + f2(VB) + ' V at the board. The drops add because the heater gets what is left of the origin\'s voltage after every cable it is fed through.');
+    const cr = el('ctRule');
+    cr.appendChild(K.el('span', { class: 'k-label' }, 'The Ct formula'));
+    cr.appendChild(K.el('div', { class: 'frac' }, K.el('span', null, 'Ct ='),
+      K.el('span', { class: 'fr' }, K.el('span', { class: 'nu' }, '230 + tp − (Ca² Cg² − Ib²/It²)(tp − 30)'), K.el('span', { class: 'de' }, '230 + tp'))));
+    cr.appendChild(K.el('p', { class: 'sub' }, 'tp: the conductor\'s maximum operating temperature, 70 °C for PVC (thermoplastic), 90 °C for XLPE. Ca: the ambient temperature factor. Cg: the grouping factor. It: the tabulated current rating. Here tp is 70 °C, Ca ' + CAH + ' (' + CAH + '² = ' + r4(CAH * CAH).toFixed(4) + ') and Cg 1.'));
+    write(el('ctHeat'), 'One way to picture Ib²/It²: heat goes with the square of the current. So ' + f2(IBH) + ' A in a cable rated ' + IT6 + ' A makes about a tenth of its full-load heat.');
+    const db = el('debated');
+    db.appendChild(K.el('b', null, 'Debated. '));
+    db.appendChild(document.createTextNode('Check this formula against Appendix 4 in your copy before you rely on it. Some read it as counting only the ambient temperature and grouping factors, so Ci is left out here. Ct earns its keep where Ib is well below It and few correction factors apply. In one example, with a grouping factor of 0.78 and nothing else, Ct was only about 0.99.'));
+    const pr = el('pfRule');
+    pr.appendChild(K.el('span', { class: 'k-label' }, 'With a known power factor'));
+    pr.appendChild(K.el('p', { class: 'eq' }, 'Drop per amp per metre = r × cos φ + x × sin φ'));
+    pr.appendChild(K.el('p', { class: 'sub' }, 'cos φ is the power factor, and sin φ = √(1 − cos² φ).'));
+    pr.appendChild(K.el('p', { class: 'sub' }, 'In the picture, z is drawn from r and x: √(1.60² + 0.27²) = ' + r2(Math.hypot(R25, X25)).toFixed(2) + '. The table\'s z, ' + Z25.toFixed(2) + ', is not exactly √(r² + x²). The tick marks the table\'s figure.'));
+    write(el('pfWhy'), 'Why: the r drop is in step with the current, and the x drop is a quarter-cycle ahead. So only their parts along the load\'s voltage take away from its size. Taking z as if all of it lay along the voltage may give a drop higher than the actual one. r and x give an accurate figure for loads with a large inductive element. So a circuit may conform without being upsized. This lesson does not combine Ct with r and x.');
+    write(el('given'), 'Assumed here: the motor is fed from DBP2, about ' + RUN + ' m along the walls on plan. That is approximate: a real design adds the vertical runs. DBP2 to the starter: 2.5 mm² 90 °C thermosetting singles in conduit, one three-phase circuit, ' + F('g.vd.2p5').text + ' (Table 4E1B, column 6). Starter to motor: part (f)\'s six ' + f1f.text + ' singles, ' + F('p.legLen').text + ', a *practice value*. Measure the real run. They are ' + F('g.vd.1p5.1ph').text + ' for two cables single-phase (column 3). The DBP2 submain\'s three-phase drop: ' + F('p.submain').text + ', a practice value.');
+    write(el('legNote'), 'The leg: in delta running, the windings are three single-phase loads. Each is fed through two of the six conductors, one at each end. Each conductor carries the winding current, ' + f1b.text + ' (part b). We take the leg\'s drop as ' + MV15 + ' × ' + f2(f1b.value) + ' × ' + LEG.toFixed(1) + ' ÷ 1000, line to line, and add it to the rest. That reading is ours, not BS 7671\'s, and it is debated. Some multiply by √3 as well, which gives ' + f2(LEG_ALT) + ' V here.');
+    const fold = K.el('details', { class: 'fold' }, K.el('summary', null, 'Refined with Ct'),
+      K.el('p', null, 'The 2.5 mm² cable carries ' + f1a.text + ' of its ' + F('g.it.2p5').text + ' (Table 4E1A, column 5). Take tp as 90 °C, Ca as ' + CA_SR.toFixed(2) + ', a practice value, and Cg as 1. Then Ct is ' + ctDb.ct.toFixed(2) + ', giving ' + f2(DB_CT) + ' V. The leg has Cg ' + CG_LEG.toFixed(2) + ' and It ' + F('g.it.1p5').text + '. Its Ct is ' + ctLeg.ct.toFixed(2) + ', giving ' + f2(LEG_CT) + ' V. In all that is ' + fCtG.text + '. It is not needed, since ' + f1g.text + ' passes.'),
+      K.el('p', { class: 'w' }, fCtG.work),
+      K.el('p', null, 'The power factor comes in only from 25 mm² up, so it is left out here.'));
+    el('ctFold').appendChild(fold);
+  })();
+
+  // ---------- the pictures ----------
+  function sv(parent, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; parent.appendChild(n); return n; }
+  const fx = (v) => (+v).toFixed(1);
+
+  // The why: the path from the origin, and the voltage along it.
+  const ps = el('pathSvg');
+  const HK = 1.5, BX1 = 126;                   // drawing units per metre of heater circuit; the board's right edge
+  const hxOf = (L) => BX1 + 7 + L * HK;        // the heater's centre
+  const yV = (v) => 104 + (231 - v) * 6;       // volts -> drawing units
+  sv(ps, 'text', { x: 2, y: 20, class: 'lb' }, 'Origin');
+  sv(ps, 'rect', { x: 6, y: 28, width: 16, height: 24, rx: 3, class: 'box' });
+  sv(ps, 'line', { x1: 22, y1: 40, x2: 104, y2: 40, class: 'cab' });
+  sv(ps, 'text', { x: 63, y: 66, class: 'lb', 'text-anchor': 'middle' }, 'Submain');
+  sv(ps, 'rect', { x: 104, y: 28, width: 22, height: 24, rx: 3, class: 'box' });
+  sv(ps, 'text', { x: 126, y: 20, class: 'lb', 'text-anchor': 'end' }, 'Board');
+  const hcLine = sv(ps, 'line', { x1: BX1, y1: 40, x2: BX1, y2: 40, class: 'cab2' });
+  const hcLab = sv(ps, 'text', { x: 128, y: 66, class: 'lb' }, '');
+  const heater = sv(ps, 'g', {});
+  const heatBox = sv(heater, 'rect', { x: -7, y: 30, width: 14, height: 20, rx: 3, class: 'heat' });
+  const heatLab = sv(ps, 'text', { x: 150, y: 20, class: 'lb', 'text-anchor': 'middle' }, 'Heater');
+  sv(ps, 'text', { x: 2, y: 84, class: 'lb' }, 'Voltage along the path');
+  sv(ps, 'rect', { x: 2, y: yV(UN1 - LIM), width: 336, height: fx(238 - yV(UN1 - LIM)), class: 'band' });
+  sv(ps, 'line', { x1: 2, y1: yV(UN1 - LIM), x2: 338, y2: yV(UN1 - LIM), class: 'bandln' });
+  sv(ps, 'text', { x: 8, y: 230, class: 'lb' }, 'Below ' + f2(UN1 - LIM) + ' V: over the limit');
+  sv(ps, 'line', { x1: 22, y1: yV(UN1), x2: 338, y2: yV(UN1), class: 'ref' });
+  sv(ps, 'text', { x: 2, y: 101, class: 'tk' }, UN1 + ' V at the origin');
+  sv(ps, 'text', { x: 336, y: 101, class: 'lb', 'text-anchor': 'end' }, 'Total from the origin');
+  sv(ps, 'text', { x: 104, y: fx(yV(VB) - 8), class: 'tk' }, f2(VB) + ' V at the board');
+  const prof = sv(ps, 'path', { class: 'prof', d: 'M22 110' });
+  const guide = sv(ps, 'line', { class: 'gd', x1: 0, y1: 0, x2: 0, y2: 0 });
+  const brk = sv(ps, 'path', { class: 'br', d: 'M324 110' });
+  const hdot = sv(ps, 'circle', { r: 4.5, cx: 0, cy: 0, class: 'dot' });
+  K.drag(heater, { control: 'len', toValue: (x) => K.clamp(Math.round((x - hxOf(0)) / HK / 5) * 5, 0, 120) });
+  function drawPath(L) {
+    const hx = hxOf(L), t = totOf(L), vh = r2(UN1 - t), over = t > LIM, yh = yV(vh);
+    hcLine.setAttribute('x2', fx(hx - 7));
+    heater.setAttribute('transform', 'translate(' + fx(hx) + ' 0)');
+    heatBox.setAttribute('class', 'heat' + (over ? ' hot' : ''));
+    heatLab.setAttribute('x', fx(K.clamp(hx, 150, 316)));
+    hcLab.textContent = 'Heater circuit, ' + L + ' m';
+    prof.setAttribute('d', 'M22 ' + fx(yV(UN1)) + ' L104 ' + fx(yV(VB)) + ' L' + BX1 + ' ' + fx(yV(VB)) + ' L' + fx(hx) + ' ' + fx(yh));
+    guide.setAttribute('x1', fx(hx + 6)); guide.setAttribute('x2', 324); guide.setAttribute('y1', fx(yh)); guide.setAttribute('y2', fx(yh));
+    brk.setAttribute('d', 'M324 ' + fx(yV(UN1)) + ' L330 ' + fx(yV(UN1)) + ' L330 ' + fx(yh) + ' L324 ' + fx(yh));
+    hdot.setAttribute('cx', fx(hx)); hdot.setAttribute('cy', fx(yh));
+    hdot.setAttribute('class', 'dot' + (over ? ' hot' : ''));
+    ps.setAttribute('aria-label', 'The path: origin, submain, board, heater circuit, heater. Below it the voltage along the path steps down across the submain and slopes down along the heater circuit; a bracket marks the total lost from the origin, and the heater ' +
+      (over ? 'sits in the shaded band, over the limit' : 'stays above the shaded band, inside the limit'));
+  }
+
+  // A lightly loaded cable: Ib's share of It, the drop and the limit, on one scale in volts.
+  const VMAX = 35;
+  function drawCt(k, on) {
+    const c = CABLES[k], s = el('ctSvg'), W = 336, d = on ? c.dct : c.drop, over = d > LIM;
+    s.textContent = '';
+    sv(s, 'text', { x: 2, y: 14, class: 'lb' }, 'Ib ' + f2(IBH) + ' A in a cable rated It ' + c.it + ' A');
+    sv(s, 'rect', { x: 2, y: 22, width: W, height: 14, rx: 3, class: 'track' });
+    sv(s, 'rect', { x: 2, y: 22, width: fx(W * IBH / c.it), height: 14, rx: 3, class: 'bnav' });
+    sv(s, 'text', { x: 2, y: 62, class: 'lb' }, 'Drop, ' + (on ? 'with Ct' : 'by the table'));
+    if (over) sv(s, 'text', { x: 338, y: 62, class: 'over', 'text-anchor': 'end' }, 'over the limit');
+    sv(s, 'rect', { x: 2, y: 70, width: W, height: 14, rx: 3, class: 'track' });
+    sv(s, 'rect', { x: 2, y: 70, width: fx(Math.max(2, W * d / VMAX)), height: 14, rx: 3, class: 'bdrop' + (over ? ' hot' : '') });
+    sv(s, 'text', { x: 2, y: 108, class: 'lb' }, 'Limit ' + f2(LIM) + ' V');
+    sv(s, 'rect', { x: 2, y: 116, width: W, height: 14, rx: 3, class: 'track' });
+    sv(s, 'rect', { x: 2, y: 116, width: fx(W * LIM / VMAX), height: 14, rx: 3, class: 'blim' });
+    const lx = 2 + W * LIM / VMAX;
+    sv(s, 'line', { x1: fx(lx), y1: 68, x2: fx(lx), y2: 134, class: 'lim' });
+    s.setAttribute('aria-label', c.name + ': a bar for Ib as a share of It, then the drop ' + (on ? 'with Ct' : 'by the table') + ' against the limit, on one scale in volts; the drop is ' + (over ? 'over' : 'inside') + ' the limit');
+  }
+
+  // A known power factor: the load's voltage across the top, the current at φ below it.
+  const PO = { x: 20, y: 66 }, PS = 150, PLEN = 255;
+  function geo(pf) {
+    const c = pf, s = Math.sqrt(Math.max(0, 1 - pf * pf));
+    const A = { x: PO.x + PS * R25 * c, y: PO.y + PS * R25 * s };
+    const B = { x: A.x + PS * X25 * s, y: A.y - PS * X25 * c };
+    return { c, s, A, B };
+  }
+  function arrow(svg, x1, y1, x2, y2, cl, hcl) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L, h = 9, w = 5;
+    const bx = x2 - ux * h, by = y2 - uy * h;
+    sv(svg, 'line', { x1: fx(x1), y1: fx(y1), x2: fx(bx), y2: fx(by), class: cl });
+    sv(svg, 'path', { d: 'M' + fx(x2) + ' ' + fx(y2) + ' L' + fx(bx - uy * w) + ' ' + fx(by + ux * w) + ' L' + fx(bx + uy * w) + ' ' + fx(by - ux * w) + ' Z', class: hcl });
+  }
+  function drawPf(pf) {
+    const g = geo(pf), s = el('pfSvg');
+    s.textContent = '';
+    sv(s, 'line', { x1: PO.x, y1: PO.y, x2: PO.x + PLEN, y2: PO.y, class: 'vl' });
+    sv(s, 'line', { x1: PO.x, y1: PO.y, x2: fx(PO.x + PLEN * g.c), y2: fx(PO.y + PLEN * g.s), class: 'il' });
+    if (g.s > 0.01) sv(s, 'path', { d: 'M' + (PO.x + 34) + ' ' + PO.y + ' A34 34 0 0 1 ' + fx(PO.x + 34 * g.c) + ' ' + fx(PO.y + 34 * g.s), class: 'arc' });
+    if (pf <= 0.8 + 1e-9) {
+      const a = (Math.acos(pf) - Math.atan(X25 / R25)) / 2;   // inside the wedge, between the voltage and z
+      sv(s, 'text', { x: fx(PO.x + 56 * Math.cos(a)), y: fx(PO.y + 56 * Math.sin(a) + 4.5), class: 'lb', 'text-anchor': 'middle' }, 'φ');
+    }
+    sv(s, 'line', { x1: PO.x, y1: PO.y, x2: fx(g.B.x), y2: fx(g.B.y), class: 'za' });
+    if (g.A.y - PO.y > 1) sv(s, 'line', { x1: fx(g.A.x), y1: fx(g.A.y), x2: fx(g.A.x), y2: PO.y, class: 'gd' });
+    if (Math.abs(g.B.y - PO.y) > 1) sv(s, 'line', { x1: fx(g.B.x), y1: fx(g.B.y), x2: fx(g.B.x), y2: PO.y, class: 'gd' });
+    sv(s, 'line', { x1: PO.x, y1: PO.y, x2: fx(g.A.x), y2: PO.y, class: 'sr' });
+    if (g.B.x - g.A.x > 0.5) sv(s, 'line', { x1: fx(g.A.x), y1: PO.y, x2: fx(g.B.x), y2: PO.y, class: 'sx' });
+    arrow(s, PO.x, PO.y, g.A.x, g.A.y, 'ra', 'rah');
+    arrow(s, g.A.x, g.A.y, g.B.x, g.B.y, 'xa', 'xah');
+    const zx = PO.x + PS * Z25;
+    sv(s, 'line', { x1: fx(zx), y1: PO.y - 8, x2: fx(zx), y2: PO.y + 8, class: 'vl' });
+    sv(s, 'text', { x: fx(zx + 5), y: PO.y - 9, class: 'lb' }, 'z ' + Z25.toFixed(2));
+    // The key, inside the drawing.
+    [[2, 302, 'vl', 'Load\'s voltage'], [146, 302, 'il', 'Current'], [2, 322, 'ra', 'r drop'], [146, 322, 'xa', 'x drop'], [2, 342, 'za', 'z']].forEach((k) => {
+      sv(s, 'line', { x1: k[0], y1: k[1], x2: k[0] + 20, y2: k[1], class: k[2] });
+      sv(s, 'text', { x: k[0] + 26, y: k[1] + 4.5, class: 'lb' }, k[3]);
+    });
+    sv(s, 'line', { x1: 146, y1: 342, x2: 156, y2: 342, class: 'sr' });
+    sv(s, 'line', { x1: 156, y1: 342, x2: 166, y2: 342, class: 'sx' });
+    sv(s, 'text', { x: 172, y: 346.5, class: 'lb' }, 'Shadows on the voltage');
+    s.setAttribute('aria-label', 'The r drop along the current and the x drop at right angles to it, a quarter-cycle ahead; z joins their ends. The load\'s voltage runs across the top' +
+      (g.s > 0.01 ? ', the current at the angle φ below it; each drop\'s shadow along the voltage is marked on it, ending short of z' : ', in step with the current; the r drop lies along it'));
+  }
+
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) { const p = K.el('p'); write(p, f.p0); fb.appendChild(p); }
+    if (f.w) fb.appendChild(K.el('p', { class: 'w' }, f.w));
+    if (f.p) { const p = K.el('p'); write(p, f.p); fb.appendChild(p); }
+  }
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) {
+    const d = STEPS[i], st = S[i];
+    if (d.show) return true;
+    if (i === 0) return st.res === 'wrong';
+    if (i === iChk) return st.res === 'right';
+    if (ANS[i]) return st.res === 'right' || st.shown;
+    if (i === iW) return !!(wB && wB.answered && wB.answered());
+    return false;
+  }
+
+  K.model((p) => {
+    const L = p.len, c = CABLES[String(p.cable)] || CABLES['6'], on = !!p.ct, pf = pfR(p.pf);
+    return { vdc: vdcOf(L), tot: totOf(L), lim: LIM, share: r2(IBH / c.it), ct: on ? c.c.ct.toFixed(2) : 'Not applied', vd: on ? c.dct : c.drop,
+      sinphi: sinOf(pf), dpm: dpmOf(pf) };
+  });
+
+  const ON = { scen: [iA], carry: [iA], given: [iA], legNote: [iA], vdRule: [iFor], warn1: [iFor],
+    pathWrap: [iWhy], ctlLen: [iWhy], outsLen: [iWhy], whyNote: [iWhy],
+    ctWrap: [iCt], ctlCt: [iCt], outsCt: [iCt], ctRule: [iCt], ctHeat: [iCt], debated: [iCt],
+    pfWrap: [iPf], ctlPf: [iPf], outsPf: [iPf], pfRule: [iPf], pfWhy: [iPf], say: [iWhy, iCt, iPf],
+    worked: [iWk], workedgo: [iWk], picks: [0, iChk], 'ans-1g': [iA], 'ans-ch': [iCh], wr: [iW], keep: [iK], fin: [iK] };
+
+  const ctSay = (k, on) => {
+    const c = CABLES[k], ct = c.c.ct.toFixed(2);
+    if (k === '1.5') return on ? 'Near its rating, ' + c.name + ' runs almost as hot as the table assumes. Ct ' + ct + ' takes its drop only from ' + f2(c.drop) + ' V to ' + f2(c.dct) + ' V, still far over the ' + f2(LIM) + ' V limit.'
+      : c.name + ' carries ' + f2(IBH) + ' A of its ' + c.it + ' A, near its rating. By the table it drops ' + f2(c.drop) + ' V, nearly three times the ' + f2(LIM) + ' V limit.';
+    if (k === '4') return on ? 'Well under its rating, ' + c.name + ' runs cooler than the table assumes. Ct ' + ct + ' brings its drop from ' + f2(c.drop) + ' V to ' + f2(c.dct) + ' V, under ' + f2(LIM) + ' V. So a smaller cable than 6.0 mm² passes.'
+      : c.name + ' carries ' + f2(IBH) + ' A of its ' + c.it + ' A. By the table it drops ' + f2(c.drop) + ' V, just over the ' + f2(LIM) + ' V limit.';
+    return on ? 'Running cool, ' + c.name + ' drops ' + f2(c.dct) + ' V with Ct ' + ct + '. It passed already at ' + f2(c.drop) + ' V, so Ct is not needed here.'
+      : c.name + ' carries ' + f2(IBH) + ' A of its ' + c.it + ' A. By the table it drops ' + f2(c.drop) + ' V, inside the ' + f2(LIM) + ' V limit.';
+  };
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) {
+      if (lastStep !== -1) enter();
+      lastStep = i;
+      if (scen && scen.el) scen.el.open = i === iA;
+    }
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+    el('cap').hidden = WORKING.indexOf(i) < 0;
+
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.part || (d.kind ? '' : d.task));
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    sub.textContent = i === iWhy ? 'No supply voltage is given, so the origin is the nominal ' + UN1 + ' V. Drag the heater, or use the length slider.'
+      : i === iCt ? 'The same heater, ' + f2(IBH) + ' A on ' + LH + ' m. Choose a cable, and switch Ct on and off.'
+      : i === iPf ? '25 mm² 90 °C singles in conduit, three-phase: r 1.60, x 0.27 and z ' + Z25.toFixed(2) + ' mV/A/m (Table 4E1B). Drag the power factor. The showroom motor\'s is 0.8.'
+      : i === iCh ? 'The same kind of question, with new numbers.' : i === iK ? 'One card to come back to on a real job.' : '';
+    sub.hidden = !sub.textContent;
+
+    // The pictures.
+    drawPath(p.len);
+    if (i === iWhy) {
+      const L = p.len, a = vdcOf(L), t = totOf(L), vh = r2(UN1 - t);
+      held(el('say'), [
+        'With no heater circuit the heater sits at the board and loses only the submain\'s ' + f2(SUB) + ' V, inside the ' + f2(LIM) + ' V limit.',
+        'The heater circuit drops ' + f2(a) + ' V. With the submain\'s ' + f2(SUB) + ' V, the heater has lost ' + f2(t) + ' V from the origin, inside the ' + f2(LIM) + ' V limit.',
+        'The heater circuit drops ' + f2(a) + ' V, inside the limit on its own. But with the submain\'s ' + f2(SUB) + ' V, the heater has lost ' + f2(t) + ' V from the origin. That is over ' + f2(LIM) + ' V, so its ' + f2(vh) + ' V falls below ' + f2(UN1 - LIM) + ' V.',
+      ], L === 0 ? 0 : t <= LIM ? 1 : 2);
+    } else if (i === iCt) {
+      const k = String(p.cable), on = !!p.ct;
+      drawCt(k, on);
+      const ws = [];
+      ['1.5', '4', '6'].forEach((c) => { ws.push(ctSay(c, false)); ws.push(ctSay(c, true)); });
+      held(el('say'), ws, ['1.5', '4', '6'].indexOf(k) * 2 + (on ? 1 : 0));
+    } else if (i === iPf) {
+      const pf = pfR(p.pf);
+      drawPf(pf);
+      held(el('say'), [
+        'At power factor 1.00 the current is in step with the voltage. The whole r drop lies along it, and none of the x drop: ' + f2(dpmOf(1)) + ' mV/A/m, just under z\'s ' + Z25.toFixed(2) + '.',
+        'At power factor ' + pf.toFixed(2) + ', the r drop\'s shadow along the voltage is ' + f2(R25 * pf) + ' and the x drop\'s is ' + f2(X25 * sinOf(pf)) + '. Together that is ' + f2(dpmOf(pf)) + ' mV/A/m, about ' + underZ(pf) + '% under z\'s ' + Z25.toFixed(2) + '.',
+      ], pf >= 1 ? 0 : 1);
+    }
+
+    // Picks.
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      const done = st.res === 'right' || (i === 0 && st.res === 'wrong');
+      b.el.classList.toggle('is-right', done && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    // The worked example's lines.
+    wlines.forEach((w, k) => { w.hidden = k >= lines; });
+    cutNote.hidden = lines < 2;
+    nextLine.el.hidden = lines >= wlines.length;
+    if (i === iWk) el('workedgo').hidden = lines >= wlines.length;
+
+    // Check and Why?
+    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);
+    checkBtn.el.hidden = !typed || typedDone;
+    whyBtn.el.hidden = i !== iChk || !st.pick;
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    el('acts').hidden = checkBtn.el.hidden && whyBtn.el.hidden;
+    paintFb(st.fb);
+    const why = el('why');
+    why.hidden = i !== iChk || !st.why;
+    write(why, i === iChk ? d.why : '');
+    el('ctFold').hidden = !(i === iA && (S[iA].res === 'right' || S[iA].shown));
+    el('go').hidden = !(i === 0 && st.res === 'right');
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+    el('foot').textContent = i === iA ? 'Set out like a City & Guilds 2396 Section A question, on the showroom motor.' : '';
+    el('foot').hidden = !el('foot').textContent;
+
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i) || (i === 0 && st.res === 'right');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const near = (a, b) => K.near(a, b, 1e-9);
+  K.check('The heater circuit drops 5.71, 6.19, 8.09 and 11.42 V at 60, 65, 85 and 120 m; with the submain the totals at 60, 65 and 85 m are 11.48, 11.96 and 13.86 V, as the case file works them', () =>
+    near(K.at({ len: 60 }).vdc, 5.71) && near(K.at({ len: 60 }).tot, F('l5.path.60').value) && near(K.at({ len: 65 }).vdc, 6.19) &&
+    near(K.at({ len: 65 }).tot, F('l5.path.65').value) && near(K.at({ len: 85 }).vdc, fW6.value) && near(K.at({ len: 85 }).tot, 13.86) &&
+    near(K.at({ len: 120 }).vdc, F('l5.path.120').value));
+  K.check('The total rises with every 5 m and passes the 11.50 V limit between 60 and 65 m (60.1 m); the heater circuit alone stays inside it to 120 m', () => {
+    for (let L = 0; L < 120; L += 5) if (!(K.at({ len: L + 5 }).tot > K.at({ len: L }).tot)) return false;
+    const most = Math.floor(r2(LIM - SUB) * 1000 / r2(MV6 * IBH) * 10) / 10;
+    return K.at({ len: 60 }).tot <= LIM && K.at({ len: 65 }).tot > LIM && K.at({ len: 120 }).vdc <= LIM && near(most, F('l5.path.max').value);
+  });
+  K.check('The limit applies from the origin of the installation to the most distant point of the circuit: the heater\'s total is the submain\'s drop plus its own', () =>
+    [0, 30, 85, 120].every((L) => near(K.at({ len: L }).tot, r2(SUB + K.at({ len: L }).vdc))),
+  { source: 'https://www.totalskills.co.uk/guides/volt-drop-calculations' });
+  K.check('The submain\'s 10 V ÷ √3 is 5.77 V, leaving 224.23 V at the board and 216.14 V at the heater at 85 m; 5% of 230 V and of 400 V are 11.50 and 20.00 V', () =>
+    near(SUB, F('l5.worked.root3').value) && near(VB, F('l5.path.board').value) && near(r2(UN1 - totOf(85)), 216.14) && near(LIM, F('l5.limits').value) && near(LIM3, 20));
+  K.check('At 0 m the heater sits at the board, and at 120 m it stays inside the drawing', () => near(hxOf(0) - 7, BX1) && hxOf(120) + 7 <= 338);
+  K.check('Ct = (230 + tp − (Ca² Cg² − Ib²/It²)(tp − 30)) ÷ (230 + tp): a cable at full load with no other factors gets no correction', () =>
+    near(ctOf(20, 20, 1, 1, 70).frac, 1) && near(ctOf(20, 20, 1, 1, 90).frac, 1),
+  { source: 'https://myelectrical.com/notes/entryid/182/cable-sizing-tool' });
+  K.check('The slides\' heater with Ct: 1.5 mm² 0.9562 and 30.85 V, 4.0 mm² 0.9043 and 10.97 V, 6.0 mm² 0.8957 and 7.28 V, as the case file works them', () =>
+    near(r4(CAH * CAH), 0.8836) && near(C15.c.frac, 0.9562) && C15.c.ct === 0.96 && near(C15.dct, fCt15.value) && near(C4.c.q, 0.1661) && near(C4.c.frac, 0.9043) &&
+    near(C4.dct, fCt4.value) && near(C6.c.frac, 0.8957) && near(C6.dct, fCt6.value) &&
+    near(K.at({ cable: '4', ct: true }).vd, fCt4.value) && near(K.at({ cable: '4', ct: false }).vd, fW4.value) && K.at({ cable: '6', ct: true }).ct === '0.90');
+  K.check('Ct takes 4.0 mm² from over 11.50 V to under it, while 1.5 mm² still fails and 6.0 mm² passes without it', () =>
+    K.at({ cable: '4', ct: false }).vd > LIM && K.at({ cable: '4', ct: true }).vd <= LIM && K.at({ cable: '1.5', ct: true }).vd > LIM && K.at({ cable: '6', ct: false }).vd <= LIM);
+  K.check('With a known power factor the drop per amp per metre is r × cos φ + x × sin φ', () =>
+    near(K.at({ pf: 0.8 }).dpm, fPf.value) && near(K.at({ pf: 0.8 }).sinphi, 0.6) && near(K.at({ pf: 1 }).dpm, 1.6) && near(K.at({ pf: 0.5 }).dpm, 1.03) && near(K.at({ pf: 0.5 }).sinphi, 0.87),
+  { source: 'https://ecalpro.com/docs/voltage-drop-calculation-guide' });
+  K.check('At every power factor the drop per amp per metre stays under z, 1.65: about 13% under it at 0.8', () => {
+    for (let k = 50; k <= 100; k += 5) if (!(K.at({ pf: k / 100 }).dpm < Z25)) return false;
+    return underZ(0.8) === 13 && /1\.60/.test(F('g.rx25').text) && /0\.27/.test(F('g.rx25').text) && /1\.65/.test(F('g.rx25').text);
+  });
+  K.check('The drawn tip of z casts a shadow along the voltage of r × cos φ + x × sin φ', () =>
+    [0.5, 0.8, 1].every((pf) => { const g = geo(pf); return K.near((g.B.x - PO.x) / PS, R25 * pf + X25 * Math.sqrt(1 - pf * pf), 1e-9) && K.near(g.B.y, PO.y + PS * (R25 * g.s - X25 * g.c), 1e-9); }));
+  K.check('The worked example: 13.04 A, 32.14 V, at most 10.37 mV/A/m, 12.19 V and 8.09 V, as the case file works them', () =>
+    near(IBH, 13.04) && near(C15.drop, fW85.value) && near(MAXMV, fWmax.value) && near(C4.drop, fW4.value) && near(C6.drop, fW6.value) && MV4 > MAXMV && MV6 <= MAXMV);
+  K.check('The recall and the check: 19.8 V against 19.75 V; 16.20 V, and the slip 12.40 V, as the case file works them', () =>
+    near(RC_T, 19.8) && near(r2(RC.u * 0.05), fR.value) && RC_T > fR.value && near(r2(CK.c + CK.s), fC.value) && near(r2(CK.c + r2(CK.s / RT3)), fC1.value) && fC.value <= LIM3 && fC.value > LIM);
+  K.check('Part (g) from the rule: 4.00 + 4.21 + 1.24 = 9.45 V (2.36%); the other reading 10.36 V; slips 5.45, 8.21 and 7.76 V; with Ct 3.96 + 1.19, 9.15 V', () => {
+    const db = vdOf(MV25, f1a.value, RUN), leg = vdOf(MV15, f1b.value, LEG), tot = r2(SUBD + db + leg);
+    return near(db, fDb.value) && near(leg, fLeg.value) && near(tot, f1g.value) && near(r2(tot / UN3 * 100), fPct.value) &&
+      near(r2(SUBD + db + LEG_ALT), fAlt.value) && near(vdOf(MV15, f1a.value, LEG), LEG_ALT) &&
+      near(r2(db + leg), F('l5.A.1g.slip1').value) && near(r2(SUBD + db), F('l5.A.1g.slip2').value) && near(r2(r2(SUBD / RT3) + db + leg), F('l5.A.1g.slip3').value) &&
+      ctDb.ct === 0.94 && ctLeg.ct === 0.96 && near(r2(SUBD + DB_CT + LEG_CT), fCtG.value) && tot <= LIM3;
+  });
+  K.check('Changed numbers: 8.93 + 4.33 = 13.26 V (13.27 V with √3 as 1.73); slips 16.43, 21.92 and 8.93 V', () =>
+    near(CH_C, F('l5.A.changed.slip3').value) && near(r2(CH_S + CH_C), fCh.value) && near(SPEC[iCh].accept[0], 13.27) &&
+    near(r2(CH.sub + CH_C), F('l5.A.changed.slip1').value) && near(r2(r2(CH.sub * RT3) + CH_C), F('l5.A.changed.slip2').value) && CH_C <= LIM && r2(CH_S + CH_C) > LIM);
+  K.check('Every slip lies outside its answer\'s accepted range', () => Object.keys(SPEC).every((k) => {
+    const sp = SPEC[k];
+    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > 0.01 && sp.accept.every((x) => Math.abs(s.value - x) > 0.01));
+  }));
+
+  K.ready();
+</script>
