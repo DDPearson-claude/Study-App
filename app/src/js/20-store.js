@@ -385,6 +385,10 @@ U.store = (function () {
     Object.keys(bi).forEach(function (iid) {
       var b = bi[iid], c = ci[iid];
       if (isObj(b) && isObj(c) && b.cardsRound != null && c.cardsRound != null && Number(b.cardsRound) < Number(c.cardsRound)) delete b.cardsRound;
+      // So does the round whose puzzles were made (a ready-made steps lesson quizzed through), and
+      // the guide version they came from.
+      if (isObj(b) && isObj(c) && b.puzzleRound != null && c.puzzleRound != null && Number(b.puzzleRound) < Number(c.puzzleRound)) { delete b.puzzleRound; delete b.puzzleV; }
+      if (isObj(b) && isObj(c) && b.puzzleV != null && c.puzzleV != null && Number(b.puzzleV) < Number(c.puzzleV)) delete b.puzzleV;
     });
   }
   function prepare(path, cur, body) {

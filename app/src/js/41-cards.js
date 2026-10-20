@@ -1,13 +1,20 @@
 // Check and review cards: one interactive question per card (docs/ARCHITECTURE.md sections 5, 8, 9).
 //
 //   U.cards.render(card, {mode, lesson, onDone}) -> Element
-//     card   {id, type, spec, s?}   type: choice | order | estimate | target | recall
+//     card   {id, type, spec, s?}   type: choice | order | estimate | target | recall | puzzle | written
 //            In a lesson the player passes {id, type, spec: <the Check object>}; in review it is a
 //            stored Card (with its FSRS state `s`, used for "back in N days" hints).
 //     mode   'lesson' (no rating) | 'review' (objective cards auto-grade, Dan can override)
 //     lesson the lesson doc (topics/{tid}/lessons/{iid}); needed only by 'target' cards, which mount
 //            its interactive in quiz mode (the readout aimed at shows "?" and .say lines are hidden
 //            until Check, which sends reveal; docs/ARCHITECTURE.md section 6)
+//     page   a puzzle card's guide page as the review read it ({svg, html, alt, style}: its still
+//            step, the picture once solved), shown with the answer; none, the card is words only
+//   A puzzle (a worked example of a ready-made steps lesson's guide, 60-today.js) is typed (a
+//   figure, graded to the course's rounding: half a unit in the last decimal shown, the unit
+//   optional) or picked from the lesson's own options. A written card (a refresher lesson's
+//   Section B question) is marked by Claude against its points (U.gen.markWritten); when Claude
+//   cannot be reached Dan ticks the points his answer covers.
 //     onDone(result) once Dan taps Continue:
 //            {correct: bool|null, grade: 1-4|null, answer, ms}
 //            + auto (review, the grade the app picked), verdict (recall), skipped (card unusable),
@@ -24,7 +31,8 @@
   var GRADES = [{ g: 1, label: 'Again' }, { g: 2, label: 'Hard' }, { g: 3, label: 'Good' }, { g: 4, label: 'Easy' }];
   var KIND = {
     choice: 'Choose one', order: 'Put these in order', estimate: 'Make an estimate',
-    target: 'Hit the target', recall: 'In your own words',
+    target: 'Hit the target', recall: 'In your own words', puzzle: 'A puzzle from the lesson',
+    written: 'Answer in writing',
   };
   var RIGHT = ['That\'s right', 'Yes, that\'s it', 'Spot on', 'Exactly right'];
   var VERDICT = {
@@ -135,7 +143,8 @@
     var s = c.spec, text = String(s.q || '');
     if (Array.isArray(s.options)) text += s.options.join(' ');
     if (Array.isArray(s.items)) text += s.items.join(' ');
-    var base = c.type === 'order' ? 4000 + 1000 * (s.items || []).length : c.type === 'estimate' ? 5000 : 2500;
+    // A typed puzzle is worked out, not recognised: more time before a right answer counts as instant.
+    var base = c.type === 'order' ? 4000 + 1000 * (s.items || []).length : c.type === 'estimate' ? 5000 : c.typed ? 9000 : 2500;
     return Math.min(30000, base + text.length * 30);
   }
   function autoGrade(c, correct, opts) {
@@ -322,6 +331,7 @@
       if (mis) parts.push(h('div', { class: 'qc-mis' }, label('A common mix-up', 'bad'), richBlock('qc-prose', toYou(mis))));
       if (!correct) parts.push(h('p', { class: 'qc-answer' }, 'The answer: ', inline('strong', null, options[answer])));
       parts.push(why(s.why));
+      if (c.extra) parts.push(c.extra());
       feedback(c, {
         correct: correct, title: correct ? RIGHT[U.hash(c.card.id) % RIGHT.length] : 'Not quite',
         parts: parts, grade: autoGrade(c, correct), result: { answer: picked },
@@ -662,9 +672,19 @@
     var v = VERDICT[r && r.verdict];
     return v ? v.grade : null;
   }
+  // A written card (a refresher lesson's Section B question, lesson.written[id]: {q, points:[{text,
+  // cite}], need, model}) runs the same way, marked by U.gen.markWritten against its points as the
+  // lesson marks it. When Claude cannot mark it, the points become a checklist Dan ticks himself
+  // (as the lesson's own fallback does) and his ticks suggest the grade: as many as the question
+  // needs, Good; some, Hard; none, Again.
+  function pointsOf(s) {
+    return (Array.isArray(s.points) ? s.points : []).map(function (p) { return p && typeof p === 'object' ? String(p.text || '') : String(p || ''); }).filter(Boolean);
+  }
   function recall(c) {
-    var s = c.spec, rubric = Array.isArray(s.rubric) ? s.rubric : [];
-    var ta = h('textarea', { class: 'textarea qc-recall-input', rows: '5', maxlength: '2000', placeholder: 'Explain it in your own words…', 'aria-label': 'Your answer' });
+    var s = c.spec, isWritten = c.type === 'written';
+    var rubric = isWritten ? pointsOf(s) : Array.isArray(s.rubric) ? s.rubric : [];
+    var need = isWritten && Number.isInteger(s.need) && s.need > 0 && s.need < rubric.length ? s.need : rubric.length;
+    var ta = h('textarea', { class: 'textarea qc-recall-input', rows: '5', maxlength: '3000', placeholder: isWritten ? 'Write your answer…' : 'Explain it in your own words…', 'aria-label': 'Your answer' });
     var tip = h('p', { class: 'qc-tip muted small' }, 'Tip: tap the microphone on your keyboard to say it out loud instead of typing.');
     c.body.append(ta, tip);
     var submitBtn = primary('Check my answer', submit);
@@ -682,18 +702,44 @@
       ta.classList.add('qc-locked');
       tip.remove();
 
-      var grading = U.gen && typeof U.gen.grade === 'function'
-        ? Promise.resolve().then(function () { return U.gen.grade({ prompt: s.prompt, rubric: rubric, model: s.model }, answer, 1); })
-        : null;
-      var graded = null, failed = !grading, picked = null, claudeGrade = null;
+      var grading = isWritten
+        ? (U.gen && typeof U.gen.markWritten === 'function' && rubric.length
+          ? Promise.resolve().then(function () { return U.gen.markWritten({ q: s.q, points: s.points, need: s.need, model: s.model }, answer, 1, { title: s.title || '' }); })
+          : null)
+        : U.gen && typeof U.gen.grade === 'function'
+          ? Promise.resolve().then(function () { return U.gen.grade({ prompt: s.prompt, rubric: rubric, model: s.model }, answer, 1); })
+          : null;
+      var graded = null, failed = !grading, picked = null, claudeGrade = null, ticks = rubric.map(function () { return false; }), ticking = false;
 
+      var rubricLabel = null;
       var points = rubric.map(function (p) { return h('li', { class: 'qc-point' }, h('span', { class: 'qc-dot', 'aria-hidden': 'true' }), inline('span', null, p)); });
+      // The self-tick fallback (written cards): each point a toggle he presses for what he covered.
+      function selfGrade() { var n = ticks.filter(Boolean).length; return n >= need ? 3 : n > 0 ? 2 : 1; }
+      function tickable() {
+        if (ticking || !isWritten || !points.length) return;
+        ticking = true;
+        points.forEach(function (li, i) {
+          var b = h('button', { class: 'qc-tick', type: 'button', role: 'checkbox', 'aria-checked': 'false', on: { click: function () {
+            if (c.done) return;
+            ticks[i] = !ticks[i];
+            b.setAttribute('aria-checked', String(ticks[i]));
+            li.classList.toggle('met', ticks[i]);
+            var dot = li.querySelector('.qc-dot');
+            U.clear(dot);
+            if (ticks[i]) dot.appendChild(U.icon('tick'));
+            refresh();
+          } } });
+          while (li.firstChild) b.appendChild(li.firstChild);
+          li.appendChild(b);
+          li.classList.add('is-tick');
+        });
+      }
       var status = h('div', { class: 'qc-claude', role: 'status' });
       var replySlot = h('div', { class: 'qc-reply-slot' });
       var panel = h('div', { class: 'qc-fb is-neutral qc-fb-recall' },
         h('div', { class: 'qc-fb-head' }, h('h3', null, 'Compare with a model answer')),
         richBlock('qc-model qc-prose', s.model),
-        points.length ? h('div', { class: 'qc-rubric' }, label('A good answer covers'), h('ul', { class: 'qc-points' }, points)) : null,
+        points.length ? h('div', { class: 'qc-rubric' }, rubricLabel = label(isWritten ? 'The points it is marked on' : 'A good answer covers'), h('ul', { class: 'qc-points' }, points)) : null,
         status, replySlot,
         c.mode === 'review' && s.mine ? h('details', { class: 'qc-mine' },
           h('summary', null, h('span', null, 'What you wrote when you learned it'), h('span', { class: 'qc-chev', 'aria-hidden': 'true' }, U.icon('back'))),
@@ -724,6 +770,10 @@
           // The answer box is locked by now, so Claude's follow-up question is something to mull
           // over (the model answer above usually settles it), not a prompt to type again.
           if (graded.followUp) status.appendChild(h('div', { class: 'qc-follow' }, label('Something to think over'), richBlock('qc-prose', graded.followUp)));
+        } else if (failed && isWritten && points.length) {
+          tickable();
+          if (rubricLabel) rubricLabel.textContent = 'Tick the points your answer covers';
+          status.appendChild(h('p', { class: 'muted small' }, grading ? 'Claude could not mark this one just now. Tick the points you covered and your ticks set the grade.' : 'Tick the points you covered and your ticks set the grade.'));
         } else if (failed) {
           status.appendChild(h('p', { class: 'muted small' }, grading ? 'Claude could not check this one just now. Compare it yourself.' : 'Compare your answer with the model answer.'));
         } else {
@@ -733,7 +783,7 @@
       function refresh() {
         drawStatus();
         if (!picker) return;
-        var g = picked || claudeGrade;
+        var g = picked || claudeGrade || (ticking ? selfGrade() : null);
         picker.set(g);
         picker.btns.forEach(function (b) {
           var tag = b.querySelector('.qc-g-claude');
@@ -745,8 +795,9 @@
         pickNote.hidden = !(claudeGrade && !picked);
       }
       function done() {
-        var g = picked || claudeGrade;
+        var g = picked || claudeGrade || (ticking ? selfGrade() : null);
         var base = { answer: answer, ms: c.ms };
+        if (ticking) base.self = ticks.slice();
         if (c.mode !== 'review') {
           base.correct = graded ? graded.verdict === 'got-it' : null;
           base.grade = null;
@@ -813,7 +864,126 @@
     }
   }
 
-  var TYPES = { choice: choice, order: order, estimate: estimate, target: target, recall: recall };
+  // ---------- puzzle (a worked example from a ready-made steps lesson's guide) ----------
+  // Typed answers are read as the kit's K.answer reads them (app/kit/REFRESHER.md): "13.33",
+  // "13,33", "20 000", "1,000.5", "−4.2", "13.33 A". A unit after the number is optional, and when
+  // one is typed it must be the answer's own ("ohms" for Ω, "u" for µ, "mm2" for mm² are fine).
+  var PREFIX = '[pnµumckMG]?', BASE = '(?:A|V|W|Ω|F|H|Hz|s|m|g|t|L|l|J|N|Pa|VA|VAr|var|Wh|h|S|T|Wb|C|K|lx|lm|dB|bar|rad|rpm|min)';
+  var UNIT = new RegExp('^(?:' + PREFIX + BASE + '(?:²|³)?(?:/' + PREFIX + '(?:s|m|h|min|A|V|W|Ω|g|L|K|°C)(?:²|³)?)?|%|°|°C|°F)$');
+  function unitKey(u) {
+    return String(u || '').replace(/\s+/g, '').replace(/μ/g, 'µ').replace(/Ω/g, 'Ω').replace(/ohms?$/i, 'Ω')
+      .replace(/^u([A-Za-zΩ])/, 'µ$1').replace(/\^2/g, '²').replace(/\^3/g, '³').replace(/([A-Za-z])2$/, '$1²').replace(/([A-Za-z])3$/, '$1³')
+      .replace(/^deg(rees?)?$/i, '°').toLowerCase();
+  }
+  function readTyped(text, unit) {
+    var str = String(text == null ? '' : text).replace(/[−‒–—]/g, '-').replace(/[  ]/g, ' ').trim();
+    if (!str) return { empty: true };
+    var m = /^([+-]?)\s*((?:\d[\d ,]*)?(?:\.\d*)?)\s*(.*)$/.exec(str);
+    if (!m || !/\d/.test(m[2])) return { unreadable: true };
+    var digits = m[2].trim(), rest = m[3].trim();
+    if (rest && !/^[A-Za-zΩΩµμ°%²³\/·.^23 ]+$/.test(rest)) return { unreadable: true };
+    if (rest && (!unit || unitKey(rest) !== unitKey(unit))) return { unreadable: true, unit: true };
+    if (/^\d{1,3}( \d{3})+(\.\d*)?$/.test(digits)) digits = digits.replace(/ /g, '');
+    if (/,/.test(digits)) {
+      if (/^\d{1,3}(,\d{3})+(\.\d*)?$/.test(digits)) digits = digits.replace(/,/g, '');
+      else if (/^\d+,\d+$/.test(digits)) digits = digits.replace(',', '.');
+      else return { unreadable: true };
+    }
+    if (!/^(\d+\.?\d*|\.\d+)$/.test(digits)) return { unreadable: true };
+    return { value: (m[1] === '-' ? -1 : 1) * parseFloat(digits) };
+  }
+  // An answer as the guide prints it, when it is a figure: a number and, at most, a unit
+  // ("28.87 A", "1,000,000 mm²", "−3", "0.5 m") -> {value, decimals, unit}; anything else (a
+  // fraction, a power, words, "about 2.8") -> null. decimals: the places shown (the course's rounding).
+  function figureOf(answer) {
+    var str = String(answer == null ? '' : answer).replace(/[−‒–—]/g, '-').replace(/[  ]/g, ' ').trim();
+    var m = /^([+-]?\d[\d ,]*(?:\.\d+)?)\s*([^\s\d][^\s]*)?$/.exec(str);
+    if (!m) return null;
+    var num = m[1].trim(), unit = m[2] || '';
+    if (unit && !UNIT.test(unit.replace(/μ/g, 'µ').replace(/Ω/g, 'Ω'))) return null;
+    var r = readTyped(num, '');
+    if (r.value == null) return null;
+    var decimals = /\.(\d+)$/.test(num) ? num.split('.')[1].length : /^[+-]?\d+,\d{1,2}$/.test(num) ? num.split(',')[1].length : 0;
+    return { value: r.value, decimals: decimals, unit: unit };
+  }
+  // -> {state: 'right'|'wrong'|'empty'|'unreadable', value?, unit?}: right within half a unit in
+  // the last decimal the answer shows (the course's rounding).
+  function gradeTyped(text, spec) {
+    var f = figureOf(spec && spec.answer);
+    if (!f) return { state: 'unreadable' };
+    var r = readTyped(text, f.unit);
+    if (r.empty) return { state: 'empty' };
+    if (r.unreadable) return r.unit ? { state: 'unreadable', unit: true } : { state: 'unreadable' };
+    var tol = 0.5 * Math.pow(10, -f.decimals);
+    return { state: Math.abs(r.value - f.value) <= tol + 1e-9 * Math.max(1, Math.abs(f.value)) ? 'right' : 'wrong', value: r.value };
+  }
+  // The worked example's picture once solved (the guide's still step: an SVG as a plain image, or
+  // still HTML in a sandboxed frame, 53-read.js), shown with the answer: before it, it would give
+  // the answer away. None when the review could not read the guide.
+  function solvedPicture(c) {
+    var pg = c.opts.page, RT = U.readThrough;
+    if (!pg || !RT) return null;
+    if (pg.html && RT.stillHtml(pg.html, pg.style)) {
+      var box = h('div', { class: 'rd-still qc-still' });
+      requestAnimationFrame(function () {
+        if (!box.isConnected || c.stillMounted) return;
+        c.stillMounted = true;
+        var m = RT.still(box, pg.html, pg.style);
+        if (m) c.cleanups.push(function () { try { m.destroy(); } catch (e) { /* gone */ } });
+      });
+      return h('div', { class: 'qc-pic' }, label('Worked through'), box);
+    }
+    var src = RT.pic(pg.svg);
+    return src ? h('div', { class: 'qc-pic' }, label('Worked through'), h('div', { class: 'rd-well' }, h('img', { class: 'rd-pic', src: src, alt: String(pg.alt || ''), decoding: 'async' }))) : null;
+  }
+  function puzzle(c) {
+    var s = c.spec, options = Array.isArray(s.options) ? s.options.map(String) : [], at = options.indexOf(String(s.answer));
+    c.extra = function () { return solvedPicture(c); };
+    if (s.input === 'pick' && options.length >= 2 && at >= 0) {
+      c.spec = { q: s.q, options: options, answer: at, why: s.why };
+      return choice(c);
+    }
+    if (!figureOf(s.answer)) { unavailable(c, 'This puzzle cannot be answered here, so it is skipped.'); return; }
+    typed(c);
+  }
+  function typed(c) {
+    var s = c.spec, f = figureOf(s.answer), unit = f.unit;
+    c.typed = true;
+    var msg = h('p', { class: 'qc-typed-msg muted small', id: U.id('qcmsg'), 'aria-live': 'polite' });
+    var input = h('input', { class: 'input qc-typed-input', type: 'text', inputmode: 'decimal', enterkeyhint: 'done', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', maxlength: '40',
+      'aria-label': 'Your answer' + (unit ? ', in ' + unit : ''), 'aria-describedby': msg.id });
+    var check = primary('Check', submit);
+    check.disabled = true;
+    input.addEventListener('input', function () { check.disabled = !input.value.trim(); msg.textContent = ''; });
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
+    var box = h('div', { class: 'qc-typed' }, h('div', { class: 'qc-typed-row' }, input, unit ? h('span', { class: 'qc-typed-unit', 'aria-hidden': 'true' }, unit) : null), msg);
+    c.body.appendChild(box);
+    c.setFoot(check);
+    if (finePointer()) setTimeout(function () { if (!c.done) try { input.focus({ preventScroll: true }); } catch (e) {} }, 80);
+    function submit() {
+      if (c.locked) return;
+      var r = gradeTyped(input.value, s);
+      if (r.state === 'empty') { msg.textContent = 'Type your answer first.'; return; }
+      if (r.state === 'unreadable') { msg.textContent = r.unit ? (unit ? 'Type the number in ' + unit + '.' : 'Type just the number.') : 'Type a number, like ' + (f.value < 0 ? '−' : '') + '12.5' + (unit ? ' ' + unit : '') + '.'; return; }
+      c.locked = true;
+      c.answered();
+      input.readOnly = true;
+      check.disabled = true;
+      var correct = r.state === 'right', said = input.value.trim();
+      box.classList.add(correct ? 'is-right' : 'is-wrong');
+      var parts = [];
+      if (!correct) parts.push(h('p', { class: 'qc-answer' }, 'You said ' + said + '. The answer: ', inline('strong', null, String(s.answer)), '.'));
+      parts.push(why(s.why));
+      parts.push(c.extra());
+      feedback(c, {
+        correct: correct, title: correct ? RIGHT[U.hash(c.card.id) % RIGHT.length] : 'Not quite',
+        parts: parts, grade: autoGrade(c, correct), result: { answer: said },
+        about: { picked: said, answer: String(s.answer) },
+      });
+    }
+  }
+
+  var TYPES = { choice: choice, order: order, estimate: estimate, target: target, recall: recall, puzzle: puzzle, written: recall };
 
   U.cards = {
     types: Object.keys(TYPES),
@@ -837,5 +1007,7 @@
     controlOf: controlOf,
     outputOf: outputOf,
     verdictGrade: verdictGrade,
+    figureOf: figureOf,
+    gradeTyped: gradeTyped,
   };
 })();

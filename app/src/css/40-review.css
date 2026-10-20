@@ -368,3 +368,21 @@
 .td-by-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
 .td-by-text strong { color: var(--heading); }
 .td-by-go.btn { flex: none; min-height: 44px; }
+
+/* A puzzle from a ready-made lesson (phase 6): typed, a figure in the course's rounding with its
+   unit beside the field, as the lesson's own K.answer field; or picked, as a choice card. Its
+   worked example's picture (the guide's still step, 53-read.css's white well or sandboxed frame)
+   comes with the answer, under Claude's note. */
+.qc-typed { display: flex; flex-direction: column; gap: 6px; }
+.qc-typed-row { display: flex; align-items: center; gap: 10px; }
+.qc-typed-input.input { flex: 1 1 auto; min-width: 0; max-width: 16rem; min-height: 52px; font: 600 1.25rem/1.2 var(--mono); }
+.qc-typed-unit { font: 700 1.0625rem/1 var(--mono); color: var(--muted); }
+.qc-typed.is-right .qc-typed-input.input { border-color: var(--green); }
+.qc-typed.is-wrong .qc-typed-input.input { border-color: var(--red); }
+.qc-typed-input.input[readonly] { background: var(--sunk); }
+.qc-typed-msg:empty { display: none; }
+.qc-pic { display: flex; flex-direction: column; gap: 6px; }
+/* A written answer Claude could not mark: each point a row he ticks himself. */
+.qc-point.is-tick { display: block; }
+.qc-tick { display: flex; align-items: flex-start; gap: 10px; width: 100%; min-height: 44px; padding: 6px 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.qc-tick:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 6px; }

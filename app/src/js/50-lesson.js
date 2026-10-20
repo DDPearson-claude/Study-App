@@ -341,6 +341,8 @@
       if (r.relearn) st.ip.relearn = true;
       if (r.relearn && r.relearnId) ['relearnId', 'relearnAt', 'relearnNote'].forEach(function (k) { st.ip[k] = r[k] == null ? null : r[k]; });
       if (r.againAt) st.ip.againAt = r.againAt;
+      // Puzzles made on another device (or by the backfill) are not made again here.
+      if (r.puzzleRound != null && !(Number(st.ip.puzzleRound) >= Number(r.puzzleRound))) { st.ip.puzzleRound = r.puzzleRound; st.ip.puzzleV = r.puzzleV; }
       return null;
     }
     function watchProgress() {
@@ -1614,6 +1616,26 @@
       return src.length ? sourcesDisc(src, checked) : checked ? U.h('p', { class: 'lsn-checked' }, checked) : null;
     }
 
+    // ---- Puzzles (a ready-made steps lesson quizzed through; 60-today.js) ----
+    // Its guide's worked examples (and a refresher lesson's written questions) become puzzles in
+    // the box, once for the round (puzzleRound), or again when the guide is a newer version. A
+    // read-through makes none (53-read.js). Saved in the background; a failure is made good by the
+    // next mendPuzzles, at the next open.
+    function makePuzzles() {
+      if (!st.topic || !st.topic.readyMade || st.gone || !U.review || typeof U.review.puzzlesFor !== 'function') return;
+      var gv = Number(st.topic.guideV) || 1, r0 = round();
+      if (st.ip.puzzleRound != null && Number(st.ip.puzzleRound) >= r0 && (Number(st.ip.puzzleV) || 1) >= gv) return;
+      var ip = U.clone(st.ip);
+      Promise.resolve().then(function () { return U.readThrough ? U.readThrough.guide(tid, iid) : null; }).then(function (g) {
+        return U.review.puzzlesFor(tid, iid, { guide: g, lesson: st.lesson, idea: ip, round: r0 }).then(function (n) {
+          if (g && Number(g.v) >= 2) { st.ip.puzzleRound = r0; st.ip.puzzleV = Number(g.v); }
+          if (!n) return;
+          st.puzzleText = (n === 1 ? 'Its puzzle goes' : 'Its ' + n + ' puzzles go') + ' in your puzzle box, ready from tomorrow.';
+          if (alive() && st.puzzleNote) { st.puzzleNote.textContent = st.puzzleText; st.puzzleNote.hidden = false; }
+        });
+      }).catch(function (e) { if (!(e && e.queued)) U.toast('Your puzzles could not be saved: ' + U.errText(e), { kind: 'bad' }); });
+    }
+
     // ---- Done ----
     function addDone(live) {
       var first = live && !st.replay && !st.ip.doneAt, read = reading();
@@ -1628,6 +1650,8 @@
         if (stepsLesson() && (st.ip.quizRound == null || Number(st.ip.quizRound) !== round())) f.quizRound = st.ip.quizRound = round();
         st.ip.stage = 'done';
         saveIdea(f);
+        // Quizzed through: its worked examples become puzzles in the box (never by a read-through).
+        if (stepsLesson()) makePuzzles();
         // Review cards come from the first time through (or a fresh round of Learn it again). The
         // round is recorded with them, so cards lost with a closed app are made at the next open.
         if (first && !read && U.review && typeof U.review.addFromLesson === 'function' && !st.gone) {
@@ -1644,6 +1668,7 @@
         // A steps lesson read through first and quizzed through now is quizzed (V.readThrough).
         if (stepsLesson() && (st.ip.quizRound == null || Number(st.ip.quizRound) !== round())) again.quizRound = st.ip.quizRound = round();
         saveIdea(again);
+        if (stepsLesson()) makePuzzles();
       }
       st.stage = 'done';
       var res = run().checks || {};
@@ -1660,8 +1685,10 @@
         ? U.h('section', { class: 'lsn-stage lsn-done' + (party ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': 'Idea read' },
           U.h('div', { class: 'lsn-done-mark', 'aria-hidden': 'true' }, U.icon('tick')),
           heading('Lesson complete'),
-          // A steps lesson was done, not read: no "just for reading" line under its heading.
-          stepsLesson() ? null : U.h('p', { class: 'lsn-done-text' }, U.h('span', null, 'This one was just for reading, so nothing comes back in review.')),
+          // A steps lesson was done, not read: no "just for reading" line under its heading; once
+          // its puzzles are saved, a line says where they went.
+          stepsLesson() ? (st.puzzleNote = U.h('p', { class: 'lsn-done-text lsn-puzzles', role: 'status', hidden: !st.puzzleText }, st.puzzleText || ''))
+            : U.h('p', { class: 'lsn-done-text' }, U.h('span', null, 'This one was just for reading, so nothing comes back in review.')),
           nx
             ? U.h('div', { class: 'lsn-next' }, eyebrow('Next'), U.h('h3', null, String(nx.title || 'The next idea')), nextStatus(nx),
               go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Next lesson', U.icon('arrow')),

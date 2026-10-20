@@ -6,7 +6,8 @@
 // card answered late at night is not due again just after midnight). `day` defaults to today's.
 // Grades: 1 Again, 2 Hard, 3 Good, 4 Easy.
 //
-//   U.fsrs.init(day)                       new card, first due the day after `day`
+//   U.fsrs.init(day, due?)                 new card, first due the day after `day` (or on `due`, a later
+//                                          day: puzzles backfilled for lessons finished earlier are spread out)
 //   U.fsrs.review(s, grade, day, cardId?)  state after a review on `day`
 //   U.fsrs.preview(s, day, cardId?)        {1..4: next state} for "back in N days" hints
 //   U.fsrs.retrievability(s, day)          0..1 chance of recall today (0 for an unreviewed card)
@@ -60,9 +61,10 @@
   }
   function reviewed(s) { return !!(s && s.reps > 0 && s.stability > 0 && s.last); }
 
-  function init(day) {
+  function init(day, due) {
     day = day || U.studyDay();
-    return { due: U.addDays(day, 1), stability: 0, difficulty: 0, reps: 0, lapses: 0, last: null };
+    var first = U.addDays(day, 1);
+    return { due: typeof due === 'string' && due > first ? due : first, stability: 0, difficulty: 0, reps: 0, lapses: 0, last: null };
   }
 
   // Next state for every grade at once, so intervals can be kept in order (Hard <= Good < Easy).

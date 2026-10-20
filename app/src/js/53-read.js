@@ -8,7 +8,8 @@
 // decide). Shown in the lesson's reading column, nothing hidden and
 // nothing to answer. "Finished reading" records the idea as read (readRound, as any read lesson:
 // no review cards), and readThrough, so the course page can tell a lesson read through from one
-// quizzed through (V.readThrough in 70-learn.js). A lesson without a guide has no read-through:
+// quizzed through (V.readThrough in 70-learn.js). Only quizzing through it puts its puzzles in the
+// box (60-today.js, puzzleRound): reading it through makes none. A lesson without a guide has no read-through:
 // its address opens the lesson as it is.
 //
 //   U.readThrough.guide(tid, iid) -> Promise<guide | null>   read once per page load, then cached

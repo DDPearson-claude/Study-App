@@ -3,10 +3,14 @@
 // with visuals, not a test to move on"). Mounts the lesson as the app does (light, reduced motion, so
 // every demonstration opens finished) and walks its STEPS:
 //   SHOW step -> {kind: 'show', text, svg, alt}: its sentence and its finished picture;
-//   DO step   -> {kind: 'example', task, answer, why, svg?, alt?}: the puzzle as a worked example. When
-//                its answer is a button on screen (or a typed answer, K.answer, typed into its field),
-//                the tool presses it and Check, and keeps the solved picture; otherwise the example
-//                is words only.
+//   DO step   -> {kind: 'example', task, answer, why, svg?, alt?, input?, options?, unit?}: the puzzle
+//                as a worked example. When its answer is a button on screen (or a typed answer,
+//                K.answer, typed into its field), the tool presses it and Check, and keeps the solved
+//                picture; otherwise the example is words only. Version 2 (20 Oct, puzzles in the
+//                app's review box): how the lesson asks it, `input` 'pick' with `options` (the
+//                buttons he chose from, in screen order, the answer among them) or 'typed' (with the
+//                field's `unit`); none for a drag or a colouring. A written step's page carries
+//                `written` (its lesson.written id).
 // A refresher lesson (lesson.summary, lesson.written; app/kit/REFRESHER.md) also gets its Keep this
 // card as the guide's FIRST page, {kind: 'summary', title, for, rule, traps, where, figures:
 // [{label, value}]} (case-file figures written out from <dir>/case.json), which the dossier's
@@ -24,8 +28,9 @@
 // The app draws it in a sandboxed frame on the kit's styles (53-read.js), in light, so it reads
 // like the lesson and scales with the text size. A step whose STEPS entry has `read` (a sentence for
 // reading it through, when its own words ask him to do something) takes that as its text.
-//   node tools/course/guide.mjs --dir build/maths/fractions [--idea i3] [--app tests/out/kit-d4.html]
-// Writes <dir>/<iid>.guide.json for each idea with a body.final.html (or just --idea).
+//   node tools/course/guide.mjs --dir build/maths/fractions [--idea i3] [--app tests/out/kit-d4.html] [--answers]
+// Writes <dir>/<iid>.guide.json for each idea with a body.final.html (or just --idea). --answers adds
+// version 2's answers to the guides already there and changes nothing else (mergeAnswers).
 import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { openApp } from '../harness/page.mjs';
@@ -211,6 +216,28 @@ const FINISH = `(async () => {
   }
 })()`;
 
+// --answers: an existing guide (version 1) gets only how each example is asked (input, options,
+// unit) and each written page its question's id, as version 2; nothing else in it changes, so a
+// course's guides can be brought up to date without drawing their pictures again.
+const onlyAnswers = process.argv.includes('--answers');
+function mergeAnswers(iid, found) {
+  const file = join(dir, iid + '.guide.json');
+  if (!existsSync(file)) { console.error(iid, 'no guide to add answers to:', file); process.exitCode = 1; return; }
+  const text = readFileSync(file, 'utf8'), guide = JSON.parse(text);
+  const have = guide.pages.filter((p) => p && p.kind === 'example'), now = found.filter((p) => p.kind === 'example');
+  if (have.length !== now.length || have.some((p, k) => (p.name || '') !== (now[k].name || '') || p.task !== now[k].task)) {
+    console.error(iid, 'the guide\'s worked examples are not the lesson\'s any more: run guide.mjs without --answers'); process.exitCode = 1; return;
+  }
+  have.forEach((p, k) => {
+    for (const key of ['input', 'options', 'unit', 'written']) delete p[key];
+    for (const key of ['input', 'options', 'unit', 'written']) if (now[k][key] != null) p[key] = now[k][key];
+  });
+  guide.v = 2;
+  const out = JSON.stringify(guide) + '\n';
+  if (Buffer.byteLength(out) > 250 * 1024) { console.error(iid, 'guide over 250 KB with its answers'); process.exitCode = 1; return; }
+  writeFileSync(file, out);
+  console.log(iid, 'examples', have.length, 'typed', have.filter((p) => p.input === 'typed').length, 'picked', have.filter((p) => p.input === 'pick').length, 'written', have.filter((p) => p.written).length);
+}
 const app = await openApp({ width: 390, height: 900, file: appFile });
 await app.page.emulateMedia({ reducedMotion: 'reduce' });
 await app.page.goto(app.url('#/__eval'));
@@ -251,9 +278,10 @@ for (const iid of ideas) {
     if (d.kind === 'summary') continue;
     if (d.kind === 'written' || d.written) {
       const w = (lesson.written || {})[d.written];
-      if (w) pages.push({ kind: 'example', name: d.name, task: terms(w.q), answer: '', why: terms('A model answer: ' + w.model), svg: null, alt: '' });
+      if (w) pages.push({ kind: 'example', name: d.name, task: terms(w.q), answer: '', why: terms('A model answer: ' + w.model), svg: null, alt: '', written: d.written });
       continue;
     }
+    if (d.show && onlyAnswers) continue;
     await app.page.evaluate((v) => window.__g.set('step', v), i);
     await app.page.waitForTimeout(400);
     if (d.show) {
@@ -266,18 +294,18 @@ for (const iid of ideas) {
       continue;
     }
     let answer = typeof d.want === 'string' || typeof d.want === 'number' ? String(d.want) : '';
-    let snap = null;
+    let snap = null, asked = null;
     if (answer || d.rightIndex >= 0) {
       // Press the button that says the answer (or the right one by position), then Check, and keep
       // the solved picture; the button's words become the example's answer.
       const f = frame();
-      const pressed = await f.evaluate(([ans, idx]) => {
+      const got = await f.evaluate(([ans, idx]) => {
         const norm = (s) => String(s).replace(/\s+/g, ' ').trim();
-        const CTRL = /^(Check|Why\?|Back|Continue|Play again|Start again|Done|Finish)$/;
+        const CTRL = /^(Check|Why\?|Back|Continue|Play again|Start again|Done|Finish|Show me|Replay|Play|Pause|Next)$/;
         const all = [...document.querySelectorAll('button')].filter((b) => b.offsetParent !== null);
         let btn = ans ? all.find((b) => norm(b.textContent) === norm(ans) || norm(b.getAttribute('aria-label') || '') === norm(ans)) : null;
+        const picks = [...document.querySelectorAll('#picks button')].filter((b) => b.offsetParent !== null);
         if (!btn && idx >= 0) {
-          const picks = [...document.querySelectorAll('#picks button')].filter((b) => b.offsetParent !== null);
           const pool = picks.length ? picks : all.filter((b) => !CTRL.test(norm(b.textContent)));
           btn = pool[idx] || null;
         }
@@ -288,25 +316,39 @@ for (const iid of ideas) {
           field.dispatchEvent(new Event('input', { bubbles: true }));
           const check = all.find((b) => norm(b.textContent) === 'Check');
           if (check) check.click();
-          return norm(ans);
+          const u = field.closest('.k-answer') && field.closest('.k-answer').querySelector('.k-answer-unit');
+          return { text: norm(ans), input: 'typed', unit: u ? norm(u.textContent) : '' };
         }
         if (!btn) return null;
+        // The options he chose from: the lesson's pick buttons (#picks), else the pressed button's
+        // row, in screen order, without the lesson's own controls.
+        const row = picks.length && picks.includes(btn) ? picks : [...btn.parentElement.querySelectorAll('button')].filter((b) => b.offsetParent !== null && !CTRL.test(norm(b.textContent)));
+        const options = row.map((b) => norm(b.textContent)).filter(Boolean);
         btn.click();
         const check = all.find((b) => norm(b.textContent) === 'Check');
         if (check) check.click();
-        return norm(btn.textContent);
+        return { text: norm(btn.textContent), input: 'pick', options };
       }, [answer, d.rightIndex]);
+      const pressed = got && got.text;
+      // How the lesson asks it, so the app can ask it again as a puzzle (version 2): typed into a
+      // K.answer field (and its unit), or picked from two or more options that include the answer.
+      if (got && got.input === 'typed') asked = { input: 'typed', unit: got.unit || undefined };
+      if (got && got.input === 'pick' && got.options.length >= 2 && got.options.length <= 8 && got.options.includes(got.text) && new Set(got.options).size === got.options.length) asked = { input: 'pick', options: got.options };
       if (pressed && !answer) answer = pressed;
       // Only a picture the lesson itself marked right (S[i].res): an answer that needed more than a
       // button (colouring first, say) stays an example in words.
       if (pressed) {
         await app.page.waitForTimeout(500);
-        const right = await f.evaluate((k) => { try { return S[k] && S[k].res === 'right'; } catch (e) { return false; } }, i);
-        if (right) snap = await f.evaluate(SNAP);
+        // null: the page keeps no S (a refresher's typed answers): its own check stands.
+        const right = await f.evaluate((k) => { try { return typeof S === 'undefined' ? null : !!(S[k] && S[k].res === 'right'); } catch (e) { return null; } }, i);
+        if (right === false) asked = null;
+        if (right && !onlyAnswers) snap = await f.evaluate(SNAP);
       }
     }
+    if (onlyAnswers) { pages.push({ kind: 'example', name: d.name, task: terms(d.read || d.task), answer, ...(asked || {}) }); continue; }
     const shot = await capture(d, false, !snap);
     const ex = { kind: 'example', name: d.name, task: terms(d.read || d.task), answer, why: terms(d.why), svg: shot ? null : snap && snap.svg, alt: shot ? shot.alt : snap ? snap.alt : '' };
+    if (asked) Object.assign(ex, asked);
     if (shot) {
       ex.html = shot.html;
       // The lesson's own feedback already says why (it is in the still): not said twice.
@@ -318,13 +360,14 @@ for (const iid of ideas) {
   // The pictures carry the page's computed styles inline: the same colours in rgb() on every label.
   // Written as hex, with no spaces between tags, a guide stays under the db's document limit
   // (assemble.mjs: 250 KB) without changing what is drawn; plotted curves are written as short relative steps.
+  if (onlyAnswers) { mergeAnswers(iid, pages); continue; }
   for (const p of pages) if (p.svg) p.svg = compactSvg(p.svg);
   // A page must read as words: a figure the lesson looked up but never got prints as undefined or NaN.
   const broken = pages.filter((p) => /\bundefined\b|\bNaN\b/.test([p.text, p.task, p.answer, p.why, p.title].join(' ')));
   if (broken.length) { console.error(iid, 'pages reading "undefined" or "NaN":', broken.map((p) => p.name || p.kind).join(', ')); process.exitCode = 1; }
   // The lesson's own styles, once for every page kept as still HTML.
   const style = pages.some((p) => p.html) ? await frame().evaluate(() => [...document.body.querySelectorAll('style')].map((x) => x.textContent).join('\n').replace(/\s+/g, ' ').trim()) : '';
-  const guide = style ? { v: 1, iid, style, pages } : { v: 1, iid, pages };
+  const guide = style ? { v: 2, iid, style, pages } : { v: 2, iid, pages };
   const bytes = Buffer.byteLength(JSON.stringify(guide));
   writeFileSync(join(dir, iid + '.guide.json'), JSON.stringify(guide) + '\n');
   console.log(iid, 'still HTML', pages.filter((p) => p.html).length, 'bytes', pages.reduce((a, p) => a + (p.html ? p.html.length : 0), 0), 'pages', pages.length, 'summary', pages.filter((p) => p.kind === 'summary').length, 'show', pages.filter((p) => p.kind === 'show').length, 'examples with pictures', pages.filter((p) => p.kind === 'example' && p.svg).length, 'of', pages.filter((p) => p.kind === 'example').length, 'bytes', bytes);

@@ -118,7 +118,7 @@ if (cmd === 'docs') {
   // marked readyMade, so the app would write or rebuild its lessons in the page (the Algebra folder's
   // eight courses went live that way on 17-18 Oct). Never assemble one without it.
   if (!existsSync(join(dir, 'shelf.json'))) problems.push('no ' + join(dir, 'shelf.json') + ': write {"shelf": "<shelf id>", "course": "<course id>"} so the topic is marked readyMade');
-  const summary = [], missing = [], formats = {};
+  const summary = [], missing = [], formats = {}, guideVs = [];
   ids.forEach((iid) => {
     const idea = topic.ideas.find((i) => i.id === iid);
     const vf = join(dir, iid + '.lesson.verified.json'), ff = join(dir, iid + '.lesson.final.json');
@@ -175,6 +175,7 @@ if (cmd === 'docs') {
     if (existsSync(gf)) {
       const g = readFileSync(gf, 'utf8').trim();
       if (Buffer.byteLength(g, 'utf8') > 250 * 1024) { problems.push(iid + ': guide over 250 KB'); return; }
+      guideVs.push(Number(JSON.parse(g).v) || 1);
       writeFileSync(join(out, 'guide-' + iid + '.json'), g + '\n');
       manifest.push({ collection: 'topics/' + tid + '/guide', doc_id: iid, file: join(out, 'guide-' + iid + '.json') });
     }
@@ -209,6 +210,11 @@ if (cmd === 'docs') {
     // lessons (RUNBOOK section 4, <dir>/overview.check.json): the topic page then says they were
     // checked instead of calling them Claude's unchecked overview.
     overviewChecked: existsSync(join(dir, 'overview.check.json')) && read(join(dir, 'overview.check.json')).status === 'done' ? true : undefined,
+    // The oldest version among its lessons' guides (tools/course/guide.mjs), from 2: every worked
+    // example says how it is asked, so the app makes puzzles from them (60-today.js mendPuzzles,
+    // which reads no guide of a course without it). A newer version gives lessons already
+    // finished their puzzles again (unchanged ones keep their schedule).
+    guideV: guideVs.length && Math.min(...guideVs) >= 2 ? Math.min(...guideVs) : undefined,
     research: research
       ? { status: 'done', at: now, sources: allSources.length, dropped: 0, error: null, reason: null, tries: 0 }
       : { status: 'failed', at: now, sources: 0, error: null, reason: 'none_confirmed', tries: 1 },

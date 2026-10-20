@@ -6,6 +6,7 @@
 // read-through renders a refresher guide (its Keep this card, worked examples, pictures, a
 // footnote) and a plain one; each way switches to the other; Finished reading marks the idea read
 // (readRound, readThrough; no review cards) and the course page shows "Read" against "Quizzed";
+// quizzing through it instead puts its worked examples in the puzzle box (phase 6);
 // the choice is kept in his progress (progress.way). The full app, with the model never called.
 // Screenshots land in tests/out/read/. Usage: node tests/e2e/read.spec.mjs [filter]
 import { spawnSync } from 'node:child_process';
@@ -69,7 +70,7 @@ const GUIDE2 = { v: 1, iid: 'i2', style: '.rule1 { padding: 12px 14px; border-ra
   { kind: 'show', name: 'Panel', text: 'The rule, as your slides put it.', html: '<div class="rule1"><span class="k-label">Your slides p.22</span><p class="eq">Ib ≤ In ≤ Iz</p></div>', svg: null, alt: 'Your slides p.22 Ib ≤ In ≤ Iz' },
   { kind: 'example', name: 'Which', task: 'Which is faster, a short or a long string?', answer: 'The short one', why: 'A shorter arc.', svg: null, alt: '' },
 ] };
-function db(progress) {
+function db(progress, extra) {
   const t = fx('lesson-ui-topic.json');
   const out = {
     'topics/pendulums': { ...t, mode: 'read', readyMade: { shelf: 'maths', course: 'pendulums' } },
@@ -77,10 +78,10 @@ function db(progress) {
     'topics/pendulums/guide/i1': GUIDE1, 'topics/pendulums/guide/i2': GUIDE2,
   };
   if (progress) out[PROGRESS] = progress;
-  return out;
+  return Object.assign(out, extra || {});
 }
-async function open({ width = 360, dark = false, size = 'm', hash = '#/t/pendulums', progress = null } = {}) {
-  const app = await openApp({ width, height: width < 700 ? 780 : 900, dark, file: FILE, config: { db: db(progress) }, sample: () => new Promise(() => {}) });
+async function open({ width = 360, dark = false, size = 'm', hash = '#/t/pendulums', progress = null, extra = null } = {}) {
+  const app = await openApp({ width, height: width < 700 ? 780 : 900, dark, file: FILE, config: { db: db(progress, extra) }, sample: () => new Promise(() => {}) });
   current.apps.push(app);
   await app.page.addInitScript((v) => { try { if (!sessionStorage.getItem('__p')) { localStorage.setItem('mu-prefs', JSON.stringify(v)); sessionStorage.setItem('__p', '1'); } } catch (e) {} }, { theme: dark ? 'dark' : 'light', size });
   await app.page.goto(app.url(hash));
@@ -195,6 +196,30 @@ await test('the remembered choice comes first on the current card; a lesson with
   eq(await app.page.locator('.lsn-way:not([hidden])').count(), 0, 'and no switch to a read-through it does not have');
 });
 
+// Phase 6: quizzing through a steps lesson puts its guide's worked examples in the puzzle box
+// (a version 2 guide says how each is asked); reading it through (above) makes none.
+await test('quizzing through a steps lesson puts its puzzles in the box, from tomorrow', async () => {
+  const G = { v: 2, iid: 'i2', pages: [
+    { kind: 'show', name: 'Pull', text: 'Gravity pulls the bob back towards the middle.', svg: SVG, alt: 'A bar.' },
+    { kind: 'example', name: 'Which', task: 'Which is faster, a short or a long string?', answer: 'The short one', why: 'A shorter arc.', input: 'pick', options: ['The short one', 'The long one', 'The same'] },
+    { kind: 'example', name: 'Time', task: 'A 1 m pendulum: how long is one swing there and back?', answer: '2.01 s', why: 'T = 2π√(L/g).', input: 'typed', unit: 's', svg: SVG, alt: 'Solved.' },
+    { kind: 'example', name: 'Drag', task: 'Drag the bob to where it moves fastest.', answer: 'The bottom', why: 'All height turned to speed.' },
+  ] };
+  const app = await open({ hash: '#/t/pendulums/i2', extra: { 'topics/pendulums/guide/i2': G } });
+  await app.page.locator('.lsn-steps-play iframe').waitFor({ timeout: 20000 });
+  await app.page.frameLocator('.lsn-steps-play iframe').locator('button', { hasText: 'Finish' }).click();
+  await app.page.locator('.lsn-puzzles:not([hidden])').waitFor({ timeout: 15000 });
+  eq(await app.page.locator('.lsn-puzzles').innerText(), 'Its 2 puzzles go in your puzzle box, ready from tomorrow.', 'the done section says where they went');
+  const cards = (await doc(app, `data/users/${UID}/profile/cards/pendulums`)).cards;
+  eq(Object.keys(cards).sort(), ['i2_x1', 'i2_x2'], 'the picked and the typed example, not the drag');
+  eq([cards.i2_x1.spec.input, cards.i2_x2.spec.input, cards.i2_x2.spec.answer], ['pick', 'typed', '2.01 s'], 'asked as the lesson asked them');
+  assert(cards.i2_x1.s.reps === 0 && cards.i2_x1.s.due > (await app.page.evaluate(() => U.studyDay())), 'new, ready from tomorrow');
+  await app.page.waitForFunction((p) => { const d = window.__CLAUDE_STUB__.get(p); return d && d.ideas.i2 && d.ideas.i2.puzzleRound === 0; }, PROGRESS, { timeout: 10000 });
+  const p = (await doc(app, PROGRESS)).ideas.i2;
+  eq([p.stage, p.quizRound, p.puzzleRound, p.puzzleV, p.readThrough], ['done', 0, 0, 2, undefined], 'quizzed, its puzzles recorded');
+  await shot(app, 'quizzed-puzzles-360');
+});
+
 // A step drawn in HTML (a panel, worked lines, a recall's options) is kept as still HTML by
 // guide.mjs and drawn in a sandboxed frame: the plain lesson's read-through shows it.
 await test('a still step is drawn in a sandboxed frame, light, after its words', async () => {
@@ -235,6 +260,12 @@ await test('guide.mjs keeps an HTML-drawn step as still HTML, and a step\'s read
   assert(/Your showroom: the motor/.test(a.html) && /23\.08 A/.test(a.html), 'the scenario and the carried part');
   assert(!/<script|\son[a-z]+=|<input|<textarea/i.test(a.html) && !/>Check</.test(a.html), 'no script, handler, input or Check button');
   eq(a.task, 'Each cable carries the current of one winding.', 'its read sentence');
+  // Version 2: how each worked example is asked, for the puzzle box.
+  eq(g.v, 2, 'a version 2 guide');
+  const ex = g.pages.filter((p) => p.kind === 'example');
+  assert(ex.some((p) => p.input === 'typed' && p.answer), 'a typed answer says so: ' + JSON.stringify(ex.map((p) => [p.name, p.input, p.unit, p.options])));
+  assert(ex.filter((p) => p.input === 'pick').every((p) => p.options.length >= 2 && p.options.includes(p.answer)), 'a pick keeps its options, the answer among them');
+  assert(ex.some((p) => p.written === 'b1' && !p.answer), 'a written step names its question');
   assert(!('style' in g) || !/<\/?style/i.test(g.style), 'the lesson\'s styles, once (this body has none of its own)');
   assert(Buffer.byteLength(JSON.stringify(g)) < 250 * 1024, 'under the db limit');
 });
