@@ -201,7 +201,9 @@
       read: 'R1+R2 = ' + MPM['2.5'] + ' × ' + M90 + ' × ' + f1(RUN) + ' ÷ 1000 = ' + f3(A0.r12) + ' Ω. Zs = ' + ZDB.toFixed(3) + ' + ' + f3(A0.r12) + ' = ' + f2a.text + ', taking the practice ' + ZD + ' Ω at DBP2.' },
     { name: 'Section A 2(b)', label: 'Section A · Question 2', part: Q2B, task: Q2B,
       want: f2b.text, why: f2b.work,
-      read: UO + ' × ' + CMIN + ' ÷ ' + f3(f2a.value) + ' = ' + f2b.text + ', over ' + IA + ' A. ' + f2a.text + ' is within ' + Z87 + ' Ω, so it is acceptable.' },
+      read: UO + ' × ' + CMIN + ' ÷ ' + f3(f2a.value) + ' = ' + f2b.text + ', over ' + IA + ' A. ' + f2a.text + ' is within ' + Z87 + ' Ω, so it is acceptable.',
+      // The read-through's still: the call made, as the sentence ends.
+      still: () => { S[iB].call = 'Acceptable'; K.refresh(); } },
     { kind: 'written', written: 'b1', name: 'Section B (1)', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },
     { kind: 'written', written: 'b2', name: 'Section B (2)', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },
     { name: 'Changed numbers', label: 'Section A · Changed numbers', part: CH_Q, task: CH_Q,

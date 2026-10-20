@@ -1,0 +1,1056 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-20T20:17:06.081Z",
+ "startedAt": "2026-10-20T20:17:06.081Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i9",
+  "title": "Verification and handover",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the reading bar climb to meet the design's 0.436 Ω at 70 °C, when you drag the cable's temperature up from the 20 °C test day.",
+   "title": "One cable, two temperatures",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "There are thirteen screens, with Back and Continue. They check the showroom's readings against its design, then hand it over.\n\nScreen 1, Do you still have it? The question: “Remember the immersion heater circuit: 15 m of 1.5 mm² line and cpc. Its design R1+R2 is 24.2 × 1.2 × 15 ÷ 1000 = 0.436 Ω. You test it once it is installed, cold, on a 20 °C day. What should it read if the cable is as designed?” There are three choices, in this order: “0.436 Ω: the design figure”, “0.363 Ω: 24.2 × 15 ÷ 1000” and “0.523 Ω: 0.436 × 1.2”. Right: “Still there.” Then the working. The 1.2 takes the cable from 20 °C up to its running temperature. A cold test leaves it out: 24.2 × 15 ÷ 1000 = 0.363 Ω. A last line names the two slips: 0.436 Ω is the hot figure, and 0.523 Ω warms it twice. Then come two buttons. Refresh the why goes to screen 2. Skip to the practice goes to screen 6. Wrong, 0.436 Ω: “That is the hot figure. The cable is cold when you test it, so it reads lower.” Wrong, 0.523 Ω: “That warms it twice. The 1.2 is already in 0.436 Ω.” Then the right working, and on to screen 2.\n\nScreen 2, What it is for. “The design predicts what each circuit should read. Verification checks the installation against those figures before anyone uses it. It also checks each reading against its device's limit. So the designer hands the inspector the figures to test against, worked for the temperature of the test. Then the client gets the certificate and the records to run the building safely.” In red, what goes wrong if it is skipped: “Set a cold reading against a hot figure and it looks better than it is. It can pass a circuit that would fail when warm.[^1]”\n\nScreen 3, The why: one cable, two temperatures. The picture: two bars for the heater's R1+R2. The first bar, Design, stands at 0.436 Ω, worked for the cable running at 70 °C. The second bar, Reading, is what the same cable reads at the slider's temperature. A thermometer beside them marks three temperatures. The maximum measured Zs values are set at 10 °C. The resistance tables are set at 20 °C. At 70 °C the cable is running hot. A slider sets the cable temperature, from 0 to 70 °C in steps of 1 °C. It opens on 20 °C. Two readouts show the factor from 20 °C, to 2 places, and the reading in Ω, to 3 places. The rule beside it: “Copper's resistance rises in step with its temperature plus 230 °C. So reading = 0.363 × (t + 230) ÷ 250.”\n\nWhat he sees. At 20 °C the reading is 0.363 Ω, 0.073 Ω under the design. As the temperature rises, the reading climbs. At 70 °C the factor is 300 ÷ 250 = 1.20, and the reading meets the design at 0.436 Ω. At 10 °C the reading falls to 0.348 Ω. The words under it: “Nothing about the cable changed. Only its temperature did. So compare a reading with the design only at one temperature. The same rule gives the factors you use for R1+R2 and Zs. From 20 °C up to 90 °C it is 320 ÷ 250 = 1.28. From 20 °C down to a 15 °C test day it is 245 ÷ 250 = 0.98. The maximum measured Zs is the limit for a reading taken cold. It is the Table 41.3 figure divided by 1.25. That is 300 ÷ 240, from 70 °C down to 10 °C. So a cold reading should stay under 80% of the Table 41.3 figure. The 80% covers Ze too, though Ze does not warm with the cable. So the limit errs on the safe side.” The prompt above the picture: “Drag the temperature up to 70 °C.” Read: at 20 °C the cable reads 0.363 Ω. At 70 °C the same cable reads 0.436 Ω, the design's figure. Still: 70 °C.\n\nScreen 4, Check. “A 6 A type C circuit's limit for a reading at 10 °C is 2.91 Ω. You test it on a 25 °C day. What is the most it may read?” There are three choices: “3.085 Ω: 2.91 × 1.06”, “2.745 Ω: 2.91 ÷ 1.06” and “3.64 Ω: the Table 41.3 figure”. Right, the first: “A warmer cable reads higher, so the limit rises with it. The factor from 10 °C is (25 + 230) ÷ (10 + 230) = 1.06. Then 2.91 × 1.06 = 3.085 Ω.” Wrong, the second: “That moves the limit the wrong way. A warmer day raises the reading, so it raises the limit too.” Wrong, the third: “3.64 Ω is the limit for the cable running hot. At 25 °C the cable is still far cooler than that.”\n\nScreen 5, Worked example: the heater, as built, a line at each press. The prompt: “Work each step yourself first, then press Show.” Said once: “The heater circuit: Ze 0.21 Ω, 15 m of 1.5 mm² line and cpc at 24.2 mΩ/m, and a device whose Table 41.3 maximum is 2.73 Ω. The design gave R1+R2 0.436 Ω and Zs 0.646 Ω, both hot. You test on a 20 °C day.” The lines: Expected R1+R2 = 24.2 × 15 ÷ 1000 = 0.363 Ω. Expected Zs = 0.21 + 0.363 = 0.573 Ω. Limit at 10 °C = 2.73 ÷ 1.25 = 2.184 Ω. Factor from 10 °C to 20 °C = 250 ÷ 240 = 1.04. Limit on the day = 2.184 × 1.04 = 2.271 Ω. A note under the lines: “Expect a reading near 0.573 Ω, often a little under. It passes while it stays under 2.271 Ω. You may remember the design as 0.43 Ω and 0.64 Ω. Those are the same hot figures, cut to two places.” Read: on a 20 °C day the heater should read about 0.573 Ω, and the most it may read is 2.271 Ω.\n\nScreen 6, Section A, question 4 (a). The scenario panel shows, with parts 3(g) and 3(i) carried forward. Zs at DBL2 is 0.392 Ω. Zs at C7's farthest bollard is 1.129 Ω. Said once: “Parts 3(g) and 3(i) are both worked hot. Assume the tests are done on a 15 °C day. Take that as a practice value. On a real job, record the day's temperature. At 20 °C the submain's core is 4.61 mΩ/m and its armour 6.8 mΩ/m, over 20.0 m. C7's 1.5 mm² line and cpc are 24.2 mΩ/m over its 23.8 m.” The question: “(a) Determine the earth fault loop impedance you expect at C7's farthest bollard on the test day.” A typed answer, part 4a. Factor from 20 °C = (15 + 230) ÷ (20 + 230) = 0.98. Submain = (4.61 + 6.8) × 20.0 ÷ 1000 = 0.228 Ω, and 0.228 × 0.98 = 0.223 Ω. C7 = 24.2 × 23.8 ÷ 1000 = 0.576 Ω, and 0.576 × 0.98 = 0.564 Ω. Zs = 0.1 + 0.223 + 0.564 = 0.887 Ω. Accepted too: 0.888 Ω, from unrounded working. Slips: 1.129 Ω, “That is the design's hot figure. The test is cold, so expect less.” 0.904 Ω, “Those are the 20 °C values. The test day is 15 °C, so multiply each by 0.98.” 0.787 Ω, “Add Ze, 0.1 Ω. The supply is part of the loop.” After two misses, the working. Then: “This is the figure you hand the inspector. The design's 1.129 Ω is the same circuit, hot.”\n\nScreen 7, Section A, question 4 (b). Part 4(a) carried forward. Said once: “These as-built readings are practice examples, not measurements. Ze at the MDB: 0.08 Ω. R1+R2 of the submain: 0.214 Ω. R1+R2 of C7: 0.548 Ω. Zs read directly: 0.275 Ω at DBL2, 0.790 Ω at the farthest bollard. The submain's 10 A type C breaker has a Table 41.3 maximum of 2.19 Ω. Its limit for a reading at 10 °C is 1.75 Ω.” The question: “(b) Determine the maximum Zs a reading at DBL2 may show on the 15 °C test day, and state whether the readings comply.” Under it: “Give the limit in Ω. The comparison follows.” A typed answer, part 4b. Factor from 10 °C = (15 + 230) ÷ (10 + 230) = 1.02. Limit = 1.75 × 1.02 = 1.785 Ω. Accepted too: 1.786 Ω, from the unrounded factor. Slips: 2.19 Ω, “That is the limit for the cable hot. Set a reading at 15 °C against a cold limit.” 1.716 Ω, “That moves the limit the wrong way. 15 °C is warmer than 10 °C, so the limit goes up.” 1.75 Ω, “That is the limit at 10 °C. Correct it to the 15 °C day.” After two misses, the working. Then: “At DBL2, Ze + (R1+R2) = 0.08 + 0.214 = 0.294 Ω. The direct reading is 0.275 Ω. Both are far under 1.785 Ω, so they comply. The design expected 0.1 + 0.223 = 0.323 Ω. C7's own limit, for its 6 A type C, is 2.91 × 1.02 = 2.968 Ω. At its far end, Ze + (R1+R2) = 0.08 + 0.214 + 0.548 = 0.842 Ω. The direct reading is 0.790 Ω. Both comply with plenty to spare. These cold limits assume cables that run at up to 70 °C. C7 and the submain are 90 °C cables, but they carry a small share of their rating. So they run cool, and the 70 °C limits are fair here. The direct reading comes in 0.052 Ω lower. A direct reading usually does, because it takes in parallel earth paths through bonded metalwork. So never subtract Ze from a direct reading to find R1+R2.”\n\nScreen 8, Section A, question 4 (c). Parts 4(a) and 4(b) carried forward. Said once: “Use Ze + (R1+R2) from the readings, not the direct reading. Ze belongs to the supply, so correct only R1+R2.” The question: “(c) Correct the as-built Zs at C7's farthest bollard to operating temperature, and compare it with the design.” A typed answer, part 4c. R1+R2 = 0.214 + 0.548 = 0.762 Ω at 15 °C. Back to 20 °C: 0.762 ÷ 0.98 = 0.778 Ω. Up to operating temperature: 0.778 × 1.28 = 0.996 Ω. Zs = 0.08 + 0.996 = 1.076 Ω. Also accepted: 1.075 Ω, from unrounded working. Also accepted: 1.078 Ω, using one factor from 15 °C to 90 °C, (90 + 230) ÷ (15 + 230) = 1.31. Slips: 1.055 Ω, “The 1.28 starts from 20 °C. Divide by 0.98 first to bring the reading back to 20 °C.” 1.100 Ω, “You warmed Ze too. Ze belongs to the supply, so correct only R1+R2.” 0.842 Ω, “That is the reading as taken, cold. Correct R1+R2 to operating temperature first.” After two misses, the working. Then: “Like for like, the installation gives 1.076 Ω against the design's 1.129 Ω. That is 0.053 Ω lower, about 5%. Cold against cold, it is 0.842 Ω against the expected 0.887 Ω. That is 0.045 Ω lower. Set the cold reading against the hot design and it looks 0.287 Ω lower. Most of that gap is only temperature. Of the 0.053 Ω gap, 0.02 Ω is Ze. It measured 0.08 Ω against the declared 0.1 Ω. A declared Ze is a maximum, and so are the tabulated resistances. So readings usually come in a little under the design. A reading well over the expected figure means something is wrong. The installation may differ from the design, such as a longer run or a poor connection. Or the test itself went wrong. Find out which.”\n\nScreen 9, Handing over. Two short lists come first, then the interval. Before the tests, the inspector gets five things. Each circuit's expected R1+R2 at the test temperature. Each circuit's maximum permitted Zs, and where it comes from if not Table 41.3. A chart or schedule of each circuit, with its points, its cable size and type, and its protective device. Anything a test could damage, such as SELV equipment. The supply's characteristics. At handover, these go out. The Electrical Installation Certificate, which is valid only with its schedule of inspections and schedules of test results.[^2] The circuit charts and diagrams. The notices, including the periodic inspection notice at the origin. The O&M manual and building log book, where the contract asks for them. On a project under CDM, a copy of the certificate in the health and safety file. Where fixed building services need commissioning, a commissioning notice to building control and the owner. Then the interval: “You recommend the time to the first periodic inspection. It goes on the certificate. The recommended maximum is 5 years for commercial premises and 3 for industrial.[^3] The showroom is commercial, so take 5 years. Shorten it if the building will be poorly maintained or used harder than designed for. Cars on the floor are part of a showroom's normal use. They do not change the 5 years by themselves.”\n\nScreen 10, Section B: “State what decides the maximum period to the showroom's first periodic inspection, and what you would recommend.” It is a written answer, marked against five points. Any three of them make a full answer. There is one more go, then the model answer.\n\nScreen 11, Section B: “List three items of information a designer should give the inspector before the showroom's tests.” It is a written answer, marked against five points. Any three of them make a full answer. There is one more go, then the model answer.\n\nScreen 12, Section A, changed numbers. “A 25 A type C radial circuit is tested on a 20 °C day. It reads Zs 0.74 Ω. Table 41.3 gives 0.87 Ω. Its limit for a reading at 10 °C is 0.70 Ω. Determine the most it may read on the day, and state whether it complies.” A typed answer, in Ω. Factor = (20 + 230) ÷ (10 + 230) = 1.04. Limit = 0.70 × 1.04 = 0.728 Ω. Accepted too: 0.729 Ω, from the unrounded factor. Slips: 0.87 Ω, “That is the limit for the cable hot. Set a cold reading against a cold limit.” 0.673 Ω, “That moves the limit the wrong way. 20 °C is warmer than 10 °C, so the limit goes up.” 0.70 Ω, “That is the limit at 10 °C. Correct it to the 20 °C day.” After it: “0.74 Ω is over 0.728 Ω, so it does not comply. Yet it is under 0.87 Ω. Set against the hot figure, it would have passed. The cold limit scales Ze too, though Ze does not warm with the cable. So it errs a little on the safe side. A reading over it still fails.”\n\nScreen 13, Keep this: the summary card, then Finish the lesson.\n\nEvery line is worked from the rounded figures shown before it. Each screen that uses a practice value or an example reading says so.",
+   "ignores": "The picture treats the whole cable as one even temperature. It uses a straight-line rule for copper. That is very close over this range, but not exact. It shows R1+R2 only: Ze belongs to the supply and does not follow the cable's temperature. The maximum measured Zs values divide by 1.25. That assumes cables that run at up to 70 °C. The showroom's 90 °C cables carry a small share of their rating, so they run far cooler than that. It also applies copper's rule to the submain's steel armour. Steel's resistance rises a little faster with temperature. But the corrections are made the same way for the design and the readings. So it changes the figures by only a few milliohms.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 13 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Recall: line and cpc, 1.5 mm² each, mΩ/m",
+     "value": 24.2,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Recall: multiplier for the heater's cable",
+     "value": 1.2,
+     "kind": "constant",
+     "source": 5
+    },
+    {
+     "label": "Recall: heater circuit length, m",
+     "value": 15,
+     "kind": "constant",
+     "source": 5
+    },
+    {
+     "label": "Recall: design R1+R2, hot, Ω",
+     "value": 0.436,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall: test day, °C",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Recall: expected cold R1+R2, Ω",
+     "value": 0.363,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall slip: warmed twice, Ω",
+     "value": 0.523,
+     "kind": "computed"
+    },
+    {
+     "label": "Cable size, mm²",
+     "value": 1.5,
+     "kind": "constant"
+    },
+    {
+     "label": "Why: copper's temperature offset, °C",
+     "value": 230,
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "Why: 20 + 230",
+     "value": 250,
+     "kind": "computed"
+    },
+    {
+     "label": "Why: 70 + 230",
+     "value": 300,
+     "kind": "computed"
+    },
+    {
+     "label": "Why: 90 + 230",
+     "value": 320,
+     "kind": "computed"
+    },
+    {
+     "label": "Why: 15 + 230",
+     "value": 245,
+     "kind": "computed"
+    },
+    {
+     "label": "Why: 10 + 230",
+     "value": 240,
+     "kind": "computed"
+    },
+    {
+     "label": "Why: running temperature of the heater's cable, °C",
+     "value": 70,
+     "kind": "constant"
+    },
+    {
+     "label": "Why: running temperature of thermosetting cable, °C",
+     "value": 90,
+     "kind": "constant"
+    },
+    {
+     "label": "Why: basis of limits for a measured Zs, °C",
+     "value": 10,
+     "kind": "constant",
+     "source": 7
+    },
+    {
+     "label": "Why: slider lowest, °C",
+     "value": 0,
+     "kind": "assumed"
+    },
+    {
+     "label": "Why: slider step, °C",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Why: slider opens at, °C",
+     "value": 20,
+     "kind": "control"
+    },
+    {
+     "label": "Why: factor at 70 °C",
+     "value": 1.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Why: gap at 20 °C, Ω",
+     "value": 0.073,
+     "kind": "computed"
+    },
+    {
+     "label": "Why: reading at 10 °C, Ω",
+     "value": 0.348,
+     "kind": "computed"
+    },
+    {
+     "label": "Why: multiplier to 90 °C",
+     "value": 1.28,
+     "kind": "constant",
+     "source": 8
+    },
+    {
+     "label": "Why: factor to a 15 °C test day",
+     "value": 0.98,
+     "kind": "computed"
+    },
+    {
+     "label": "Divisor for limits on a measured Zs",
+     "value": 1.25,
+     "kind": "constant",
+     "source": 9
+    },
+    {
+     "label": "Share of Table 41.3 a cold reading may reach, %",
+     "value": 80,
+     "kind": "constant",
+     "source": 10
+    },
+    {
+     "label": "Check: 6 A type C limit at 10 °C, Ω",
+     "value": 2.91,
+     "kind": "constant",
+     "source": 11
+    },
+    {
+     "label": "Check: test day, °C",
+     "value": 25,
+     "kind": "assumed"
+    },
+    {
+     "label": "Check: factor from 10 °C to 25 °C",
+     "value": 1.06,
+     "kind": "computed"
+    },
+    {
+     "label": "Check: limit on the day, Ω",
+     "value": 3.085,
+     "kind": "computed"
+    },
+    {
+     "label": "Check slip: divided, Ω",
+     "value": 2.745,
+     "kind": "computed"
+    },
+    {
+     "label": "6 A type C maximum Zs, Table 41.3, Ω",
+     "value": 3.64,
+     "kind": "constant",
+     "source": 12
+    },
+    {
+     "label": "6 A type C rating, A",
+     "value": 6,
+     "kind": "constant"
+    },
+    {
+     "label": "Worked: heater Ze, Ω",
+     "value": 0.21,
+     "kind": "constant",
+     "source": 13
+    },
+    {
+     "label": "Worked: device maximum Zs, Ω",
+     "value": 2.73,
+     "kind": "constant",
+     "source": 14
+    },
+    {
+     "label": "Worked: design Zs, hot, Ω",
+     "value": 0.646,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked: expected Zs on the day, Ω",
+     "value": 0.573,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked: limit at 10 °C, Ω",
+     "value": 2.184,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked: factor from 10 °C to 20 °C",
+     "value": 1.04,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked: limit on the day, Ω",
+     "value": 2.271,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked: R1+R2 printed cut short, Ω",
+     "value": 0.43,
+     "kind": "constant",
+     "source": 13
+    },
+    {
+     "label": "Worked: Zs printed cut short, Ω",
+     "value": 0.64,
+     "kind": "constant",
+     "source": 13
+    },
+    {
+     "label": "Part 3g: Zs at DBL2, hot, Ω",
+     "value": 0.392,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 3i: Zs at C7's far end, hot, Ω",
+     "value": 1.129,
+     "kind": "computed"
+    },
+    {
+     "label": "Test day for the showroom (practice value), °C",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "SWA core resistance at 20 °C, mΩ/m",
+     "value": 4.61,
+     "kind": "constant",
+     "source": 15
+    },
+    {
+     "label": "SWA armour resistance at 20 °C, mΩ/m",
+     "value": 6.8,
+     "kind": "constant",
+     "source": 15
+    },
+    {
+     "label": "Submain length with vertical runs, m",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "C7 length with vertical runs, m",
+     "value": 23.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4a: submain R1+R2 at 20 °C, Ω",
+     "value": 0.228,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4a: submain R1+R2 at 15 °C, Ω",
+     "value": 0.223,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4a: C7 R1+R2 at 20 °C, Ω",
+     "value": 0.576,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4a: C7 R1+R2 at 15 °C, Ω",
+     "value": 0.564,
+     "kind": "computed"
+    },
+    {
+     "label": "Showroom Ze, declared, Ω",
+     "value": 0.1,
+     "kind": "constant",
+     "source": 16
+    },
+    {
+     "label": "Part 4a: expected Zs at C7's far end, Ω",
+     "value": 0.887,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4a: accepted, unrounded, Ω",
+     "value": 0.888,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4a slip: 20 °C values, Ω",
+     "value": 0.904,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4a slip: Ze left out, Ω",
+     "value": 0.787,
+     "kind": "computed"
+    },
+    {
+     "label": "Example reading: Ze at the MDB, Ω",
+     "value": 0.08,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example reading: submain R1+R2, Ω",
+     "value": 0.214,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example reading: C7 R1+R2, Ω",
+     "value": 0.548,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example reading: direct Zs at DBL2, Ω",
+     "value": 0.275,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example reading: direct Zs at C7's far end, Ω",
+     "value": 0.79,
+     "kind": "assumed"
+    },
+    {
+     "label": "10 A type C maximum Zs, Table 41.3, Ω",
+     "value": 2.19,
+     "kind": "constant",
+     "source": 17
+    },
+    {
+     "label": "10 A type C limit at 10 °C, Ω",
+     "value": 1.75,
+     "kind": "constant",
+     "source": 17
+    },
+    {
+     "label": "10 A type C rating, A",
+     "value": 10,
+     "kind": "constant"
+    },
+    {
+     "label": "Part 4b: factor from 10 °C to 15 °C",
+     "value": 1.02,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4b: limit at DBL2 on the day, Ω",
+     "value": 1.785,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4b: accepted, unrounded factor, Ω",
+     "value": 1.786,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4b slip: divided, Ω",
+     "value": 1.716,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4b: Ze + R1+R2 at DBL2, Ω",
+     "value": 0.294,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4b: expected at DBL2, Ω",
+     "value": 0.323,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4b: C7's limit on the day, Ω",
+     "value": 2.968,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4b: Ze + R1+R2 at C7's far end, Ω",
+     "value": 0.842,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4b: direct reading lower by, Ω",
+     "value": 0.052,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4c: R1+R2 at 15 °C, Ω",
+     "value": 0.762,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4c: R1+R2 back at 20 °C, Ω",
+     "value": 0.778,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4c: R1+R2 hot, Ω",
+     "value": 0.996,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4c: Zs corrected hot, Ω",
+     "value": 1.076,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4c: accepted, unrounded, Ω",
+     "value": 1.075,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4c: accepted, one factor, Ω",
+     "value": 1.078,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4c: one factor from 15 °C to 90 °C",
+     "value": 1.31,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4c slip: 0.98 left out, Ω",
+     "value": 1.055,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4c slip: Ze warmed too, Ω",
+     "value": 1.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4c: lower than the design by, Ω",
+     "value": 0.053,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4c: lower than the design by, %",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4c: cold lower than expected by, Ω",
+     "value": 0.045,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4c: cold reading against hot design, Ω",
+     "value": 0.287,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 4c: Ze under its declared figure by, Ω",
+     "value": 0.02,
+     "kind": "computed"
+    },
+    {
+     "label": "First inspection, commercial premises, years",
+     "value": 5,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "First inspection, industrial, years",
+     "value": 3,
+     "kind": "constant",
+     "source": 18
+    },
+    {
+     "label": "Section B: points, of which any make a full answer",
+     "value": "5, any 3",
+     "kind": "constant"
+    },
+    {
+     "label": "Changed: 25 A type C rating, A",
+     "value": 25,
+     "kind": "constant"
+    },
+    {
+     "label": "Changed: test day, °C",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Changed: reading, Ω",
+     "value": 0.74,
+     "kind": "assumed"
+    },
+    {
+     "label": "Changed: 25 A type C maximum Zs, Table 41.3, Ω",
+     "value": 0.87,
+     "kind": "constant",
+     "source": 19
+    },
+    {
+     "label": "Changed: 25 A type C limit at 10 °C, Ω",
+     "value": 0.7,
+     "kind": "constant",
+     "source": 19
+    },
+    {
+     "label": "Changed: factor from 10 °C to 20 °C",
+     "value": 1.04,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed: limit on the day, Ω",
+     "value": 0.728,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed: accepted, unrounded factor, Ω",
+     "value": 0.729,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed slip: divided, Ω",
+     "value": 0.673,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "The design predicts what the installation should read. So verification is a comparison. Each reading is set against the design and against its device's limit. The catch is temperature. The limits are for a fault on a cable already warm from its load. A warm cable has more resistance, so less fault current flows. So the design works R1+R2 and Zs hot. The tests are done cold, with no load on. Set one against the other as they stand and every circuit looks better than it is.\n\nCopper's resistance rises very nearly in step with its temperature plus 230 °C.[^6] So to move a resistance from one temperature to another, multiply by (new + 230) ÷ (old + 230). That one rule gives the factors you use for R1+R2 and Zs. From the 20 °C tables up to 70 °C it is 300 ÷ 250 = 1.20. Up to 90 °C it is 320 ÷ 250 = 1.28. Down to a 15 °C test day it is 245 ÷ 250 = 0.98. The limit for a reading taken cold is the [[maximum measured Zs]]. It is the Table 41.3 figure divided by 1.25.[^9] That is 300 ÷ 240, from 70 °C down to 10 °C. So a cold reading should stay under 80% of the Table 41.3 figure.\n\nEven like for like, readings usually come in a little under the design. The design uses the declared Ze and the largest resistance per metre. Both are maximums. A direct Zs reading also takes in parallel earth paths through bonded metalwork. So it usually reads lower than Ze + (R1+R2).[^20] Never work a direct reading back to find R1+R2.\n\nThen the designer hands over. The inspector gets the expected readings and the limits, before the tests. The client gets the certificate with its schedules, the charts and the records. The certificate carries the designer's recommended interval to the first periodic inspection. For commercial premises the recommended maximum is 5 years.[^3] That closes the showroom job. Its example readings come in within what the design predicted. **Compare a reading with the design, or with a limit, only at the same temperature: move one of them by (t + 230) first.**"
+  },
+  "analogy": {
+   "text": "Think of tyre pressures. The handbook figure is for a cold tyre. Check after a long motorway run and the gauge reads high, though nothing is wrong. So you check them cold, or you allow for the heat. A cable is the same, the other way round. Its design figures are hot and its test readings cold, so you compare them at one temperature.",
+   "breaks": "A tyre warms as it is driven. A cable is warmed by its own load current, so a lightly loaded cable stays close to the room's temperature. And a cable's limit moves too. The maximum measured Zs is the hot limit scaled down by the same rule."
+  },
+  "practice": {
+   "text": "- Before the tests, work each circuit's R1+R2 at 20 °C. To correct it to the expected test temperature, multiply by (t + 230) ÷ 250.\n- Add Ze to give the Zs you expect at each far end. Hand these figures to the inspector.\n- Take each device's maximum measured Zs at 10 °C. To correct it to the test day, multiply by (t + 230) ÷ 240.\n- Record the temperature on the day with the readings.\n- Set each reading against its limit to pass or fail it. Set it against the expected figure to check it matches the design.\n- To compare with the design's hot figure instead, bring R1+R2 back to 20 °C, then apply the operating multiplier. Leave Ze alone.\n- Never subtract Ze from a direct Zs reading to find R1+R2.\n- Hand over the certificate with its schedules, the charts, the notices and the records the contract asks for. Enter the recommended interval to the first periodic inspection.\n\n**Rule of thumb:** a cold reading should stay under 80% of the Table 41.3 figure.[^10] Like for like, readings usually come in a little under the design.\n\n**Worked example:** the showroom on a 15 °C day. C7's far end should read 0.1 + 0.223 + 0.564 = 0.887 Ω. Its limit is 2.91 × 1.02 = 2.968 Ω. The example readings give 0.842 Ω. Read directly, it is 0.790 Ω. Corrected to running temperature, 0.842 Ω becomes 1.076 Ω. The design gave 1.129 Ω.\n\n**Common mistakes**\n- Setting a cold reading against the Table 41.3 figure.\n- Setting a cold reading against the design's hot figure, and calling the gap a margin.\n- Moving a limit the wrong way. A warmer test day raises it.\n- Correcting Ze along with R1+R2.\n- Working a direct Zs reading back to R1+R2.\n- Using the maximum measured Zs on a 90 °C cable loaded near its rating. Those values assume 70 °C. Scale its Table 41.3 figure by (t + 230) ÷ 320 instead."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "written": {
+   "b1": {
+    "q": "State what decides the maximum period to the showroom's first periodic inspection, and what you would recommend.",
+    "points": [
+     {
+      "text": "The designer recommends the interval and enters it on the Electrical Installation Certificate.",
+      "cite": "OSG p.189 (certificate notes); EIC model form; pack question 9a"
+     },
+     {
+      "text": "It allows for how often, and how well, the installation can be expected to be maintained.",
+      "cite": "OSG p.189; BS 7671 model forms (A4)"
+     },
+     {
+      "text": "It allows for the type of installation, its use and the external influences on it, such as cars driven across the floor.",
+      "cite": "Regulation 652.1, quoted by Tidyco; pack p.3"
+     },
+     {
+      "text": "The recommended maximum for commercial premises such as shops is 5 years. So take 5 years for the showroom.",
+      "cite": "IET Guidance Note 3 Table 3.2, quoted by QBE and Tidyco"
+     },
+     {
+      "text": "It is a recommendation made by engineering judgement and agreed with the installer and others, not a fixed rule.",
+      "cite": "OSG p.189; IET Wiring Matters 82 (2020)"
+     }
+    ],
+    "need": 3,
+    "model": "As the designer, I recommend the maximum period and enter it on the Electrical Installation Certificate. It allows for how often and how well the showroom will be maintained. It also allows for the type of installation, its use and the external influences on it, such as cars driven across the floor. The recommended maximum for commercial premises such as shops is 5 years. So I would recommend 5 years, or less if maintenance will be poor. It is a recommendation made by engineering judgement and agreed with the installer and others, not a fixed rule."
+   },
+   "b2": {
+    "q": "List three items of information a designer should give the inspector before the showroom's tests.",
+    "points": [
+     {
+      "text": "Each circuit's expected R1+R2, worked for the temperature of the test.",
+      "cite": "OSG p.219 (\"the designer will need to give the values of the line and circuit protective conductor resistances at the ambient temperature expected during the tests\")"
+     },
+     {
+      "text": "Each circuit's maximum permitted Zs, and where it comes from if not Table 41.3.",
+      "cite": "OSG Appendix B; model schedule of test results; research i9 notes (sources 465, 486)"
+     },
+     {
+      "text": "A chart or schedule of each circuit, with its points, its cable size and type, and its protective device.",
+      "cite": "research i9 notes, what a designer gives the inspector (sources 470, 471, 472)"
+     },
+     {
+      "text": "Anything a test could damage, such as SELV equipment.",
+      "cite": "research i9 notes, what a designer gives the inspector (sources 470, 471, 472, 492)"
+     },
+     {
+      "text": "The supply's characteristics, such as the declared Ze.",
+      "cite": "research i9 notes (sources 462, 486); pack p.3"
+     }
+    ],
+    "need": 3,
+    "model": "Before the tests I would give the inspector each circuit's expected R1+R2, worked for the test temperature. I would give each circuit's maximum permitted Zs, and say where it comes from if not Table 41.3. I would give a chart of each circuit, with its points, its cable size and type, and its protective device. I would flag anything a test could damage, such as SELV equipment. And I would give the supply's characteristics, such as the declared Ze of 0.1 Ω."
+   }
+  },
+  "summary": {
+   "title": "Verification and handover",
+   "for": "The design predicts what each circuit should read. Compare a reading with the design, or with a limit, only at the same temperature. Before the tests, give the inspector each circuit's expected R1+R2 at the test temperature, its maximum Zs and where that comes from, the charts, anything a test could damage, and the supply's characteristics. At handover, give the client the certificate with its schedules, the charts, the notices and the records.",
+   "rule": "R1+R2 is very nearly proportional to (temperature + 230 °C)\nFactor from t1 to t2 = (t2 + 230) ÷ (t1 + 230)\nExpected R1+R2 on the day = R1+R2 at 20 °C × (t + 230) ÷ 250\nExpected Zs = Ze + expected R1+R2\nLimit on the day = maximum measured Zs at 10 °C × (t + 230) ÷ 240\nZs hot = Ze + (R1+R2) ÷ test-day factor × operating multiplier\n\nA cold reading should stay under 80% of Table 41.3.\nA 90 °C cable near its rating: limit = Table 41.3 figure × (t + 230) ÷ 320.\nA direct Zs usually reads lower than Ze + (R1+R2): parallel earth paths.\nLike for like, readings usually come in a little under the design.\nFirst periodic inspection: on the certificate. Commercial: 5 years.",
+   "traps": [
+    {
+     "text": "Setting a cold reading against the Table 41.3 figure.",
+     "cite": "Voltimum, Earth loop impedance test and maximum Zs values"
+    },
+    {
+     "text": "Setting a cold reading against the design's hot R1+R2 as it stands.",
+     "cite": "Slides p.52; OSG p.219"
+    },
+    {
+     "text": "Moving a limit the wrong way: a warmer test day raises it.",
+     "cite": "OSG p.146, Table B8 note"
+    },
+    {
+     "text": "Subtracting Ze from a direct Zs reading to find R1+R2.",
+     "cite": "Voltimum; OSG p.124"
+    },
+    {
+     "text": "Handing over the certificate without its schedules.",
+     "cite": "EIC model form; OSG p.189"
+    }
+   ],
+   "where": "OSG Appendix B for the maximum measured Zs and the temperature factors. OSG Appendix I for R1+R2 per metre and the multipliers. BS 7671 Table 41.3. IET Guidance Note 3 for inspection intervals. The model certificate and its notes.",
+   "figures": [
+    "4a",
+    "4b",
+    "3i",
+    "4c"
+   ]
+  },
+  "sources": [
+   {
+    "n": 1,
+    "title": "Earth Loop Impedance Test & Maximum Zs Values - Voltimum UK",
+    "url": "https://www.voltimum.co.uk/news/voltimum/earth-loop-impedance-test-maximum-zs-values",
+    "quote": "Comparing a cold reading directly with the table figure can pass a circuit that would fail when warm."
+   },
+   {
+    "n": 2,
+    "title": "BS 7671:2018 MODEL FORMS - Institution of Engineering and ...",
+    "url": "https://electrical.theiet.org/media/2387/bs-767122018-model-forms-electrical-installation-certificate.pdf",
+    "quote": "This Certificate is only valid if accompanied by the Schedule of Inspections and the Schedule(s) of Test Results."
+   },
+   {
+    "n": 3,
+    "title": "Understanding Periodic Inspection And Testing Requirements | Tidyco",
+    "url": "https://www.tidyco.co.uk/tidyco-news/post/understanding-periodic-inspection-and-testing-requirements",
+    "quote": "Commercial installations – 5 years"
+   },
+   {
+    "n": 4,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p51",
+    "quote": "For the (mΩ/m) of a 1.5mm² line and a 1.5mm² cpc, the value to use is: 24.2."
+   },
+   {
+    "n": 5,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p53",
+    "quote": "24.2 x 1.2 x 15 / 1000"
+   },
+   {
+    "n": 6,
+    "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+    "url": "material:osg#p146",
+    "quote": "(Alternatively the correction factor is given by (Ambient temp + 230)/(10 + 230))."
+   },
+   {
+    "n": 7,
+    "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+    "url": "material:osg#p139",
+    "quote": "The values are those that must not be exceeded in the tests carried out under 10.3.6 at an ambient temperature of 10 °C."
+   },
+   {
+    "n": 8,
+    "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+    "url": "material:osg#p220",
+    "quote": "Incorporated in a cable or bunched (NOTE 2) 1.20 1.28 1.28"
+   },
+   {
+    "n": 9,
+    "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+    "url": "material:osg#p140",
+    "quote": "The correction factor (divisor) used is 1.25."
+   },
+   {
+    "n": 10,
+    "title": "Earth Loop Impedance Test & Maximum Zs Values - Voltimum UK",
+    "url": "https://www.voltimum.co.uk/news/voltimum/earth-loop-impedance-test-maximum-zs-values",
+    "quote": "Those tables assume conductors at full operating temperature, so a reading taken on a cold circuit should not exceed 80% of the tabulated value."
+   },
+   {
+    "n": 11,
+    "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+    "url": "material:osg#p145",
+    "quote": "3&C 5.82 3.49 2.91 1.75 1.16 1.09 0.87 0.7 0.58 0.55 0.44 0.38 0.35 0.27 0.17"
+   },
+   {
+    "n": 12,
+    "title": "Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app; its page prints Table 41.3)",
+    "url": "https://www.elec-mate.com/guides/maximum-zs-values-bs-7671",
+    "quote": "C6 3.64 Ω 2.91 Ω"
+   },
+   {
+    "n": 13,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p54",
+    "quote": "Our Zs will be calculated as: 0.21 + 0.43 = 0.64Ω"
+   },
+   {
+    "n": 14,
+    "title": "EAL Level 4 Design and Verification: course slides",
+    "url": "material:eal-slides#p54",
+    "quote": "The maximum Zs of the device is 2.73Ω"
+   },
+   {
+    "n": 15,
+    "title": "Standard Power Cables BS5467 - Prysmian United Kingdom",
+    "url": "https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf",
+    "quote": "4 4.61 - - 19 7.9 20 7.5 22 6.8 25 6.2"
+   },
+   {
+    "n": 16,
+    "title": "ED4-01A learner pack: car showroom assignment",
+    "url": "material:learner-pack#p3",
+    "quote": "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+   },
+   {
+    "n": 17,
+    "title": "Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app; its page prints Table 41.3)",
+    "url": "https://www.elec-mate.com/guides/maximum-zs-values-bs-7671",
+    "quote": "C10 2.19 Ω 1.75 Ω"
+   },
+   {
+    "n": 18,
+    "title": "Periodic Inspection and Testing of Electrical Installation",
+    "url": "https://qbeeurope.com/documents/index/3872/808198",
+    "quote": "Industrial 3 years"
+   },
+   {
+    "n": 19,
+    "title": "Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app site, not a standard)",
+    "url": "https://www.elec-mate.com/guides/maximum-zs-values-bs-7671",
+    "quote": "C25 0.87 Ω 0.70 Ω"
+   },
+   {
+    "n": 20,
+    "title": "Minimizing unnecessary live testing for initial verification",
+    "url": "https://electrical.theiet.org/wiring-matters/years/2025/105-may-2025/minimizing-unnecessary-live-testing-for-initial-verification",
+    "quote": "This is because the Z e is measured excluding any parallel paths, whereas Z s includes parallel paths and therefore, usually results in lower measured Z s values."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: process -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .task > p + p, .assume > p + p, .note > p + p, .why > p + p { margin-top: 10px; }\n  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }\n  .sub.ask { font-size: 1rem; font-weight: 700; color: var(--k-ink); }\n  .assume { line-height: 1.6; }\n  .ctl { display: grid; gap: 12px; }\n  .scene { display: block; width: 100%; }\n  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .fig { font: 700 13px var(--k-font); fill: var(--k-ink); }\n  .scene .tube { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .col { fill: var(--k-accent2); }\n  .scene .tick { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .grab { fill: var(--k-bg); fill-opacity: 0; pointer-events: all; cursor: ns-resize; }\n  .scene .thermo { touch-action: none; }\n  .scene .ds { fill: var(--k-fill3); stroke: var(--k-strong); stroke-width: 1; }\n  .scene .rd { fill: var(--k-accent2); }\n  .scene .lim { stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 5 4; }\n  .scene .base { stroke: var(--k-strong); stroke-width: 1.5; }\n  .w { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.5; }\n  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }\n  .wl .w { margin-top: 8px; }\n  .wl .sub { margin-top: 10px; }\n  .rdl { display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; margin-top: 8px; }\n  .rdl .v { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }\n  .zt { display: grid; grid-template-columns: minmax(4.6rem, auto) 1fr 1fr; gap: 6px; margin-top: 8px; }\n  .zt > span { padding: 8px 10px; border-radius: 8px; line-height: 1.35; }\n  .zt .zh { font-size: .85rem; font-weight: 600; color: var(--k-muted); padding-bottom: 2px; align-self: end; }\n  .zt .zr { font-weight: 600; align-self: center; padding-left: 0; }\n  .zt .zc { background: var(--k-panel); border: 1px solid var(--k-line); font-weight: 700; font-variant-numeric: tabular-nums; }\n  .zt .zc.wait { color: var(--k-muted); }\n  .zt .zc small { display: block; font-weight: 400; font-size: .82rem; color: var(--k-muted); }\n  .hl { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }\n  .hl li { position: relative; padding-left: 1.3rem; line-height: 1.5; }\n  .hl li::before { content: \"\"; position: absolute; left: .25rem; top: .62em; width: .45rem; height: .45rem; border-radius: 50%; background: var(--k-accent2); }\n  #lists > * + * { margin-top: 16px; }\n  .picks { display: flex; flex-direction: column; gap: 10px; }\n  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; justify-content: flex-start; padding: 10px 14px; }\n  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }\n  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }\n  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }\n  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }\n  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }\n  .fb > * + * { margin-top: 6px; }\n  .fb .v { font-weight: 700; font-size: 1.05rem; }\n  .fb.ok .v { color: var(--k-good); }\n  .why { line-height: 1.6; }\n  #stepbox.enter, .wl .w.enter, .fade { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing .wl .w.enter, html.k-testing .fade { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .w.enter, .fade { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <p class=\"k-label count\" id=\"count\"></p>\n  <div id=\"stepbox\">\n    <div id=\"scen\"></div>\n    <div id=\"carryA\"></div>\n    <div id=\"carryB\"></div>\n    <div id=\"carryC\"></div>\n    <div class=\"wl\" id=\"reads\"></div>\n    <div class=\"assume\" id=\"assume\"></div>\n    <div id=\"grid\"></div>\n    <div class=\"task\" id=\"task\"></div>\n    <p class=\"sub\" id=\"sub\"></p>\n    <div class=\"warn-note\" id=\"warn2\"></div>\n    <div id=\"lists\"></div>\n    <div class=\"note why\" id=\"interval\"></div>\n    <div id=\"wrap\"><svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 300\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"ctl\" id=\"ctl\"></div>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"note why\" id=\"beside\"></div>\n    <div class=\"why\" id=\"under\"></div>\n    <div id=\"worked\"></div>\n    <div class=\"row\" id=\"workedgo\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div id=\"ans-4a\"></div>\n    <div id=\"ans-4b\"></div>\n    <div id=\"ans-4c\"></div>\n    <div id=\"ans-ch\"></div>\n    <div class=\"row\" id=\"acts\"></div>\n    <div class=\"fb\" id=\"fb\" aria-live=\"polite\"></div>\n    <div class=\"note why\" id=\"after\"></div>\n    <div class=\"row\" id=\"go\"></div>\n    <div id=\"wr1\"></div>\n    <div id=\"wr2\"></div>\n    <div id=\"keep\"></div>\n    <div class=\"row\" id=\"fin\"></div>\n    <p class=\"say\" id=\"donefb\"></p>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\">Each line is worked from the rounded figures shown before it.</p>\n\n<script>\n  // ---------- rounding, the rule, and the course's figures ----------\n  const r2 = (x) => Math.round(x * 100 + 1e-7) / 100;\n  const r3 = (x) => Math.round(x * 1000 + 1e-6) / 1000;\n  const f2 = (x) => r2(x).toFixed(2), f3 = (x) => r3(x).toFixed(3);\n  const F = (id) => K.figure(id);\n  const el = (id) => document.getElementById(id);\n  const NB = ' ';\n  // Non-breaking spaces before operators, between a number and its unit, and in 'type C'.\n  const nb = (s) => String(s == null ? '' : s)\n    .replace(/ ([×÷+=]) /g, NB + '$1 ')\n    .replace(/(\\d) (?=(?:mm²|mΩ\\/m|°C|Ω|A|m|years)(?![A-Za-z]))/g, '$1' + NB)\n    .replace(/\\btype ([BCD])\\b/g, 'type' + NB + '$1');\n  const seg = (f) => String((f && f.work) || '').split('; ');\n\n  // Copper: resistance in step with (temperature + 230 °C).\n  const OFF = 230, TREF = 20, TLIM = 10, TRUN = 70, THOT = 90;\n  const fac = (from, to) => r2((to + OFF) / (from + OFF));\n  const R15 = 24.2;                                   // mΩ/m, 1.5 mm² line and 1.5 mm² cpc at 20 °C\n  const ZE = F('g.Ze').value, M = F('g.mult.90ts').value, TDAY = F('p.test.amb').value;\n  const RCORE = F('g.swa4.line').value, RARM = F('g.swa4.armourR').value;\n  const ZC6 = F('g.zmax.C6').value, ZC10 = F('g.zmax.C10').value, ZC25 = F('g.zmax.C25').value;\n  const MEAS6 = F('g.osg.meas6').value, MEAS10 = F('g.osg.meas10').value, MEAS25 = F('g.osg.meas25').value;\n  const AZE = F('p.as.Ze').value, ASUB = F('p.as.r12.sub').value, AC7 = F('p.as.r12.c7').value;\n  const AZDB = F('p.as.zs.db').value, AZC7 = F('p.as.zs.c7').value;\n  const fSubLen = F('l8.sub.len'), fC7Len = F('l8.c7.len');\n  const YEARS = F('g.interval.gn3').value, IND = 3;\n\n  const fR = F('l9.recall'), fR1 = F('l9.recall.slip1'), fR2 = F('l9.recall.slip2');\n  const f3g = F('3g'), f3i = F('3i');\n  const fSub15 = F('l9.A.sub15'), fC715 = F('l9.A.c715');\n  const f4a = F('4a'), f4b = F('4b'), f4c = F('4c'), fCh = F('l9.changed');\n  const fDb = F('l9.A.db'), fDbExp = F('l9.A.dbexp'), fC7Lim = F('l9.A.c7lim'), fC7 = F('l9.A.c7'), fDirect = F('l9.A.direct'), fGap = F('l9.A.gap');\n\n  // The heater, from the recall and the worked example.\n  const H = { len: 15, mult: 1.2, ze: 0.21, zmax: 2.73 };\n  H.cold = r3(R15 * H.len / 1000); H.hot = r3(R15 * H.mult * H.len / 1000); H.twice = r3(H.hot * H.mult);\n  const DES = H.hot;\n  const whyAt = (t) => { const factor = fac(TREF, t); return { factor, reading: r3(H.cold * factor) }; };\n  const F90 = fac(TREF, THOT), F15 = fac(TREF, TDAY), DIV = fac(TLIM, TRUN);\n  // The check: a 6 A type C's cold limit on a 25 °C day.\n  const CK = { t: 25, f: fac(TLIM, 25) };\n  CK.lim = r3(MEAS6 * CK.f); CK.div = r3(MEAS6 / CK.f);\n  // The worked example.\n  const W = { r: H.cold };\n  W.zs = r3(H.ze + W.r); W.dzs = r3(H.ze + H.hot); W.l10 = r3(H.zmax / DIV); W.f = fac(TLIM, TREF); W.l20 = r3(W.l10 * W.f);\n  // Part 4(a): expected Zs at C7's far end on the test day.\n  const A = { f: F15 };\n  A.s20 = r3((RCORE + RARM) * fSubLen.value / 1000); A.s15 = r3(A.s20 * A.f);\n  A.c20 = r3(R15 * fC7Len.value / 1000); A.c15 = r3(A.c20 * A.f);\n  A.zs = r3(ZE + A.s15 + A.c15);\n  A.un = r3(ZE + ((RCORE + RARM) * fSubLen.value / 1000 + R15 * fC7Len.value / 1000) * (TDAY + OFF) / (TREF + OFF));\n  A.warm = r3(ZE + A.s20 + A.c20); A.noZe = r3(A.s15 + A.c15);\n  // Part 4(b): the limit at DBL2 on the test day, and the readings.\n  const B = { f: fac(TLIM, TDAY) };\n  B.lim = r3(MEAS10 * B.f); B.un = r3(MEAS10 * (TDAY + OFF) / (TLIM + OFF)); B.div = r3(MEAS10 / B.f);\n  B.db = r3(AZE + ASUB); B.dbexp = r3(ZE + A.s15); B.c7lim = r3(MEAS6 * B.f); B.c7 = r3(AZE + ASUB + AC7); B.direct = r3(B.c7 - AZC7);\n  // Part 4(c): the as-built Zs made hot.\n  const C = { r: r3(ASUB + AC7) };\n  C.b20 = r3(C.r / A.f); C.hot = r3(C.b20 * M); C.zs = r3(AZE + C.hot);\n  C.un = r3(AZE + C.r * (TREF + OFF) / (TDAY + OFF) * M);\n  C.f1 = fac(TDAY, THOT); C.one = r3(AZE + r3(C.r * C.f1));\n  C.skip = r3(AZE + r3(C.r * M)); C.zeToo = r3(r3(B.c7 / A.f) * M);\n  C.gap = r3(f3i.value - C.zs); C.pct = Math.round(C.gap / f3i.value * 100); C.cold = r3(A.zs - B.c7); C.diag = r3(f3i.value - B.c7); C.zeLow = r2(ZE - AZE);\n  // Changed numbers: a 25 A type C on a 20 °C day.\n  const CH = { read: 0.74, f: fac(TLIM, TREF) };\n  CH.lim = r3(MEAS25 * CH.f); CH.un = r3(MEAS25 * (TREF + OFF) / (TLIM + OFF)); CH.div = r3(MEAS25 / CH.f);\n\n  // ---------- the lesson's words ----------\n  const RECALL_TASK = 'Remember the immersion heater circuit: ' + H.len + ' m of 1.5 mm² line and cpc. Its design R1+R2 is ' + R15 + ' × ' + H.mult + ' × ' + H.len + ' ÷ 1000 = ' + f3(H.hot) + ' Ω. You test it once it is installed, cold, on a ' + TREF + ' °C day. What should it read if the cable is as designed?';\n  const O_HOT = f3(H.hot) + ' Ω: the design figure', O_COLD = f3(H.cold) + ' Ω: ' + R15 + ' × ' + H.len + ' ÷ 1000', O_TWICE = f3(H.twice) + ' Ω: ' + f3(H.hot) + ' × ' + H.mult;\n  const RECALL_WHY = 'The ' + H.mult + ' takes the cable from ' + TREF + ' °C up to its running temperature. A cold test leaves it out.';\n  const FOR_TEXT = \"The design predicts what each circuit should read. Verification checks the installation against those figures before anyone uses it. It also checks each reading against its device's limit.\\n\\nSo the designer hands the inspector the figures to test against, worked for the temperature of the test. Then the client gets the certificate and the records to run the building safely.\";\n  const WHY_TEXT = \"Two bars show the heater's R1+R2. Design stands at \" + f3(DES) + ' Ω, worked for the cable running at ' + TRUN + ' °C. Reading is what the same cable reads at the thermometer\\'s temperature.';\n  const WHY_READ = 'At ' + TREF + ' °C the cable reads ' + f3(whyAt(TREF).reading) + ' Ω. At ' + TRUN + ' °C the same cable reads ' + f3(whyAt(TRUN).reading) + \" Ω, the design's figure.\";\n  const BESIDE = \"Copper's resistance rises in step with its temperature plus \" + OFF + ' °C. So reading = ' + f3(H.cold) + ' × (t + ' + OFF + ') ÷ ' + (TREF + OFF) + \", where t is the cable's temperature.\";\n  const UNDER = 'Nothing about the cable changed. Only its temperature did. So compare a reading with the design only at one temperature.\\n\\n'\n    + 'The same rule gives the factors you use for R1+R2 and Zs. From ' + TREF + ' °C up to ' + THOT + ' °C it is ' + (THOT + OFF) + ' ÷ ' + (TREF + OFF) + ' = ' + f2(F90) + '. From ' + TREF + ' °C down to a ' + TDAY + ' °C test day it is ' + (TDAY + OFF) + ' ÷ ' + (TREF + OFF) + ' = ' + f2(F15) + '.\\n\\n'\n    + 'The maximum measured Zs is the limit for a reading taken cold. It is the Table 41.3 figure divided by ' + f2(DIV) + '. That is ' + (TRUN + OFF) + ' ÷ ' + (TLIM + OFF) + ', from ' + TRUN + ' °C down to ' + TLIM + ' °C. So a cold reading should stay under ' + Math.round(100 / DIV) + '% of the Table 41.3 figure. The ' + Math.round(100 / DIV) + '% covers Ze too, though Ze does not warm with the cable. So the limit errs on the safe side.';\n  const CHK_TASK = \"A 6 A type C circuit's limit for a reading at \" + TLIM + ' °C is ' + f2(MEAS6) + ' Ω. You test it on a ' + CK.t + ' °C day. What is the most it may read?';\n  const C_RIGHT = f3(CK.lim) + ' Ω: ' + f2(MEAS6) + ' × ' + f2(CK.f), C_DIV = f3(CK.div) + ' Ω: ' + f2(MEAS6) + ' ÷ ' + f2(CK.f), C_HOT = f2(ZC6) + ' Ω: the Table 41.3 figure';\n  const CHK_WHY = 'A warmer cable reads higher, so the limit rises with it. The factor from ' + TLIM + ' °C is (' + CK.t + ' + ' + OFF + ') ÷ (' + TLIM + ' + ' + OFF + ') = ' + f2(CK.f) + '. Then ' + f2(MEAS6) + ' × ' + f2(CK.f) + ' = ' + f3(CK.lim) + ' Ω.';\n  const WK_TEXT = 'The heater circuit: Ze ' + H.ze + ' Ω, ' + H.len + ' m of 1.5 mm² line and cpc at ' + R15 + ' mΩ/m, and a device whose Table 41.3 maximum is ' + H.zmax + ' Ω. The design gave R1+R2 ' + f3(H.hot) + ' Ω and Zs ' + f3(W.dzs) + ' Ω, both hot. You test on a ' + TREF + ' °C day.';\n  const WK_READ = 'On a ' + TREF + ' °C day the heater should read about ' + f3(W.zs) + ' Ω, and the most it may read is ' + f3(W.l20) + ' Ω.';\n  const SCEN_TITLE = 'Your showroom: DBL2 and C7, ready to test';\n  const SCEN_TEXT = 'A newly built car showroom, on a three-phase four-wire TN-C-S supply. Ze is declared as ' + ZE + ' Ω. A four-core SWA submain runs ' + fSubLen.text + ' from the MDB to DBL2, the lighting board, on a 10 A type C breaker. Its armour is the cpc. C7 runs ' + fC7Len.text + ' from DBL2 to the farthest walkway bollard. It is 1.5 mm² singles with a 1.5 mm² cpc, on a 6 A type C breaker. The installation is finished and ready for its tests.';\n  const AS_4A = 'Parts 3(g) and 3(i) are both worked hot.\\n\\nAssume the tests are done on a ' + TDAY + \" °C day. Take that as a practice value. On a real job, record the day's temperature.\\n\\nAt \" + TREF + \" °C the submain's core is \" + RCORE + ' mΩ/m and its armour ' + RARM + ' mΩ/m, over ' + fSubLen.text + \". C7's 1.5 mm² line and cpc are \" + R15 + ' mΩ/m over its ' + fC7Len.text + '.';\n  const Q4A = \"(a) Determine the earth fault loop impedance you expect at C7's farthest bollard on the test day.\";\n  const READS = [['Ze at the MDB', AZE], ['R1+R2 of the submain', ASUB], ['R1+R2 of C7', AC7], ['Zs read directly at DBL2', AZDB], ['Zs read directly at the farthest bollard', AZC7]];\n  const READS_TEXT = 'Ze at the MDB: ' + AZE + ' Ω. R1+R2 of the submain: ' + f3(ASUB) + ' Ω. R1+R2 of C7: ' + f3(AC7) + ' Ω. Zs read directly: ' + f3(AZDB) + ' Ω at DBL2, ' + f3(AZC7) + ' Ω at the farthest bollard.';\n  const AS_4B = \"These as-built readings are practice examples, not measurements.\\n\\nThe submain's 10 A type C breaker has a Table 41.3 maximum of \" + f2(ZC10) + ' Ω. Its limit for a reading at ' + TLIM + ' °C is ' + f2(MEAS10) + ' Ω.';\n  const Q4B = '(b) Determine the maximum Zs a reading at DBL2 may show on the ' + TDAY + ' °C test day, and state whether the readings comply.';\n  const AS_4C = 'Use Ze + (R1+R2) from the readings, not the direct reading. Ze belongs to the supply, so correct only R1+R2.';\n  const Q4C = \"(c) Correct the as-built Zs at C7's farthest bollard to operating temperature, and compare it with the design.\";\n  const INSPECTOR = [\"Each circuit's expected R1+R2 at the test temperature.\", \"Each circuit's maximum permitted Zs, and where it comes from if not Table 41.3.\",\n    'A chart or schedule of each circuit, with its points, its cable size and type, and its protective device.', 'Anything a test could damage, such as SELV equipment.', \"The supply's characteristics.\"];\n  const CLIENT = ['The Electrical Installation Certificate, which is valid only with its schedule of inspections and schedules of test results.', 'The circuit charts and diagrams.',\n    'The notices, including the periodic inspection notice at the origin.', 'The O&M manual and building log book, where the contract asks for them.',\n    'On a project under CDM, a copy of the certificate in the health and safety file.', 'Where fixed building services need commissioning, a commissioning notice to building control and the owner.'];\n  const INTERVAL = 'You recommend the time to the first periodic inspection. It goes on the certificate. The recommended maximum is ' + YEARS + ' years for commercial premises and ' + IND + ' for industrial. The showroom is commercial, so take ' + YEARS + ' years. Shorten it if the building will be poorly maintained or used harder than designed for. Cars on the floor are part of a showroom\\'s normal use. They do not change the ' + YEARS + ' years by themselves.';\n  const HAND_TEXT = 'Before the tests, the inspector gets five things. ' + INSPECTOR.join(' ') + '\\n\\nAt handover, these go out. ' + CLIENT.join(' ') + '\\n\\n' + INTERVAL;\n  const AS_CH = 'A 25 A type C radial circuit is tested on a ' + TREF + ' °C day. It reads Zs ' + f2(CH.read) + ' Ω. Table 41.3 gives ' + f2(ZC25) + ' Ω. Its limit for a reading at ' + TLIM + ' °C is ' + f2(MEAS25) + ' Ω.';\n  const Q_CH = 'Determine the most it may read on the day, and state whether it complies.';\n\n  const STEPS = [\n    { name: 'Do you still have it?', label: 'Do you still have it?', task: RECALL_TASK,\n      opts: [O_HOT, O_COLD, O_TWICE], want: O_COLD, why: RECALL_WHY + ' ' + fR.work + '.' },\n    { show: true, name: 'What it is for', label: 'What it is for', text: FOR_TEXT },\n    { show: true, name: 'The why', label: 'The why: one cable, two temperatures', text: WHY_TEXT, read: WHY_READ, still: { temp: TRUN } },\n    { name: 'Check', label: 'Check', task: CHK_TASK, opts: [C_RIGHT, C_DIV, C_HOT], want: C_RIGHT, why: CHK_WHY },\n    { show: true, name: 'Worked example', label: 'Worked example: the heater, as built', text: WK_TEXT, read: WK_READ,\n      still: () => { lines = WCOUNT; K.refresh(); } },\n    { name: 'Section A 4(a)', label: 'Section A · Question 4', assume: AS_4A, part: Q4A,\n      task: AS_4A.split('\\n\\n').join(' ') + ' ' + Q4A, want: f4a.text, why: f4a.work },\n    { name: 'Section A 4(b)', label: 'Section A · Question 4', assume: AS_4B, part: Q4B,\n      task: READS_TEXT + ' ' + AS_4B.split('\\n\\n').join(' ') + ' ' + Q4B, want: f4b.text, why: f4b.work },\n    { name: 'Section A 4(c)', label: 'Section A · Question 4', assume: AS_4C, part: Q4C,\n      task: READS_TEXT + ' ' + AS_4C + ' ' + Q4C, want: f4c.text, why: f4c.work },\n    { show: true, name: 'Handing over', label: 'Handing over', text: HAND_TEXT, still: false },\n    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },\n    { kind: 'written', written: 'b2', name: 'Section B 2', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },\n    { name: 'Changed numbers', label: 'Section A · Changed numbers', assume: AS_CH, part: Q_CH,\n      task: AS_CH + ' ' + Q_CH, want: fCh.text, why: fCh.work },\n    { kind: 'summary', name: 'Keep this', label: 'Keep this' },\n  ];\n  const iR = 0, iFor = 1, iWhy = 2, iChk = 3, iWk = 4, i4A = 5, i4B = 6, i4C = 7, iHand = 8, iB1 = 9, iB2 = 10, iCh = 11, iK = 12;\n  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, fb: null }));\n  const WORKING = [iWhy, iChk, iWk, i4A, i4B, i4C, iCh];\n  const TERMS = {};\n  let lastStep = -1, finished = false, lines = 0;\n\n  // Words with key terms in amber (the <mark> element), built with K.el, never innerHTML.\n  function write(node, s, terms) {\n    node.textContent = '';\n    let rest = String(s || '');\n    const list = (terms || []).slice();\n    while (rest) {\n      let at = -1, hit = null;\n      list.forEach((t) => { const k = rest.indexOf(t); if (k >= 0 && (at < 0 || k < at)) { at = k; hit = t; } });\n      if (at < 0) { node.appendChild(document.createTextNode(nb(rest))); break; }\n      if (at > 0) node.appendChild(document.createTextNode(nb(rest.slice(0, at))));\n      node.appendChild(K.el('mark', null, nb(hit)));\n      list.splice(list.indexOf(hit), 1);\n      rest = rest.slice(at + hit.length);\n    }\n    return node;\n  }\n  function paras(node, s, terms) {\n    node.textContent = '';\n    String(s || '').split('\\n\\n').forEach((t) => { if (t) node.appendChild(write(K.el('p'), t, terms)); });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  K.control({ id: 'temp', label: 'Cable temperature', min: 0, max: TRUN, step: 1, value: TREF, fmt: (v) => Math.round(v) + ' °C', snap: [TLIM, TREF, TRUN], into: '#ctl' });\n  K.readout({ id: 'factor', label: 'Factor from ' + TREF + NB + '°C', decimals: 2, into: '#outs' });\n  K.readout({ id: 'reading', label: 'Reading', unit: 'Ω', decimals: 3, into: '#outs' });\n\n  // Picks: one tap answers.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));\n  function pick(k) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.opts || k >= d.opts.length) return;\n    if (i === iR) {\n      if (st.res) return;     // a recall gets one go\n      st.pick = d.opts[k];\n      if (st.pick === d.want) {\n        st.res = 'right';\n        st.fb = { ok: true, v: 'Still there.', p0: RECALL_WHY, w: [fR.work], p: 'The two slips: ' + f3(H.hot) + ' Ω is the hot figure, and ' + f3(H.twice) + ' Ω warms it twice.' };\n      } else {\n        st.res = 'wrong';\n        st.fb = { ok: false, v: 'Not quite.',\n          p0: (st.pick === O_HOT ? 'That is the hot figure. The cable is cold when you test it, so it reads lower.' : 'That warms it twice. The ' + H.mult + ' is already in ' + f3(H.hot) + ' Ω.') + ' ' + RECALL_WHY,\n          w: [fR.work] };\n      }\n    } else if (i === iChk) {\n      if (st.res === 'right') return;\n      st.pick = d.opts[k];\n      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: \"That's it.\", p0: CHK_WHY }; }\n      else if (st.pick === C_DIV) { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: 'That moves the limit the wrong way. A warmer day raises the reading, so it raises the limit too.' }; }\n      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: f2(ZC6) + ' Ω is the limit for the cable running hot. At ' + CK.t + ' °C the cable is still far cooler than that.' }; }\n    }\n    K.refresh();\n  }\n  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iFor); } });\n  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(i4A); } });\n\n  // ---------- Section A: typed answers on the course's figures ----------\n  const scen = K.scenario({ into: '#scen', open: true, title: SCEN_TITLE, text: SCEN_TEXT });\n  K.carried({ parts: ['3g', '3i'], into: '#carryA' });\n  K.carried({ parts: ['4a'], into: '#carryB' });\n  K.carried({ parts: ['4a', '4b'], into: '#carryC' });\n  const differs = (r, f) => r.value != null && Math.abs(r.value - f.value) > 1e-6;\n  const unrounded = (r, f) => (differs(r, f) ? 'That comes from unrounded working. Worked from the rounded figures, it is ' + f.text + '.' : '');\n  const w4c = seg(f4c); w4c[w4c.length - 1] = w4c[w4c.length - 1].split(', against')[0];\n  const SPEC = {\n    [i4A]: { id: '4a', fig: f4a, unit: 'Ω', accept: [A.un],\n      work: () => ['Factor from ' + TREF + ' °C = (' + TDAY + ' + ' + OFF + ') ÷ (' + TREF + ' + ' + OFF + ') = ' + f2(A.f),\n        'Submain = ' + seg(fSub15)[0] + ', and ' + seg(fSub15)[1],\n        'C7 = ' + seg(fC715)[0] + ', and ' + seg(fC715)[1],\n        'Zs = ' + seg(f4a)[seg(f4a).length - 1]],\n      slips: [\n        { value: f3i.value, hint: \"That is the design's hot figure. The test is cold, so expect less.\" },\n        { value: A.warm, hint: 'Those are the ' + TREF + ' °C values. The test day is ' + TDAY + ' °C, so multiply each by ' + f2(A.f) + '.' },\n        { value: A.noZe, hint: 'Add Ze, ' + ZE + ' Ω. The supply is part of the loop.' },\n      ],\n      hint: \"Not quite. Work each cable's R1+R2 at \" + TREF + ' °C, multiply by ' + f2(A.f) + ' for the test day, then add Ze.',\n      after: \"This is the figure you hand the inspector. The design's \" + f3i.text + ' is the same circuit, hot.' },\n    [i4B]: { id: '4b', fig: f4b, unit: 'Ω', accept: [B.un],\n      work: () => ['Factor from ' + TLIM + ' °C = (' + TDAY + ' + ' + OFF + ') ÷ (' + TLIM + ' + ' + OFF + ') = ' + seg(f4b)[0], 'Limit = ' + seg(f4b)[1]],\n      slips: [\n        { value: ZC10, hint: 'That is the limit for the cable hot. Set a reading at ' + TDAY + ' °C against a cold limit.' },\n        { value: B.div, hint: 'That moves the limit the wrong way. ' + TDAY + ' °C is warmer than ' + TLIM + ' °C, so the limit goes up.' },\n        { value: MEAS10, hint: 'That is the limit at ' + TLIM + ' °C. Correct it to the ' + TDAY + ' °C day.' },\n      ],\n      hint: 'Not quite. Start from the limit at ' + TLIM + ' °C and multiply by the factor from ' + TLIM + ' °C to ' + TDAY + ' °C.',\n      terms: ['parallel earth paths'],\n      after: 'At DBL2, Ze + (R1+R2) = ' + fDb.work.split(' ≤')[0] + '. The direct reading is ' + f3(AZDB) + ' Ω. Both are far under ' + f4b.text + ', so they comply. The design expected ' + fDbExp.work + '.\\n\\n'\n        + \"C7's own limit, for its 6 A type C, is \" + fC7Lim.work + '. At its far end, Ze + (R1+R2) = ' + fC7.work.split(' ≤')[0] + '. The direct reading is ' + f3(AZC7) + ' Ω. Both comply with plenty to spare.\\n\\n'\n        + 'These cold limits assume cables that run at up to ' + TRUN + ' °C. C7 and the submain are ' + THOT + ' °C cables, but they carry a small share of their rating. So they run cool, and the ' + TRUN + ' °C limits are fair here.\\n\\n'\n        + 'The direct reading comes in ' + fDirect.text + ' lower. A direct reading usually does, because it takes in parallel earth paths through bonded metalwork. So never subtract Ze from a direct reading to find R1+R2.' },\n    [i4C]: { id: '4c', fig: f4c, unit: 'Ω', accept: [C.un, C.one],\n      work: () => ['R1+R2 at ' + TDAY + ' °C = ', 'Back to ' + TREF + ' °C: ', 'Up to operating temperature: ', 'Zs = '].map((n, k) => n + w4c[k]),\n      slips: [\n        { value: C.skip, hint: 'The ' + f2(M) + ' starts from ' + TREF + ' °C. Divide by ' + f2(A.f) + ' first to bring the reading back to ' + TREF + ' °C.' },\n        { value: C.zeToo, hint: 'You warmed Ze too. Ze belongs to the supply, so correct only R1+R2.' },\n        { value: B.c7, hint: 'That is the reading as taken, cold. Correct R1+R2 to operating temperature first.' },\n      ],\n      hint: 'Not quite. Bring R1+R2 back to ' + TREF + ' °C, multiply by ' + f2(M) + ', then add Ze.',\n      rightNote: (r) => (r.value != null && Math.abs(r.value - C.one) < 0.0006 ? 'That uses one factor from ' + TDAY + ' °C to ' + THOT + ' °C, (' + THOT + ' + ' + OFF + ') ÷ (' + TDAY + ' + ' + OFF + ') = ' + f2(C.f1) + '. It agrees within rounding. Worked in two steps, it is ' + f4c.text + '.' : unrounded(r, f4c)),\n      terms: ['Like for like'],\n      after: \"Like for like, the installation gives \" + f4c.text + \" against the design's \" + f3i.text + '. That is ' + f3(C.gap) + ' Ω lower, about ' + C.pct + '%. Cold against cold, it is ' + fC7.text + ' against the expected ' + f4a.text + '. That is ' + f3(C.cold) + ' Ω lower.\\n\\n'\n        + 'Set the cold reading against the hot design and it looks ' + f3(C.diag) + ' Ω lower. Most of that gap is only temperature.\\n\\n'\n        + 'Of the ' + f3(C.gap) + ' Ω gap, ' + f2(C.zeLow) + ' Ω is Ze. It measured ' + AZE + ' Ω against the declared ' + ZE + ' Ω. A declared Ze is a maximum, and so are the tabulated resistances. So readings usually come in a little under the design.\\n\\n'\n        + 'A reading well over the expected figure means something is wrong. The installation may differ from the design, such as a longer run or a poor connection. Or the test itself went wrong. Find out which.' },\n    [iCh]: { id: 'l9.changed', fig: fCh, unit: 'Ω', accept: [CH.un],\n      work: () => ['Factor = (' + TREF + ' + ' + OFF + ') ÷ (' + TLIM + ' + ' + OFF + ') = ' + seg(fCh)[0], 'Limit = ' + seg(fCh)[1]],\n      slips: [\n        { value: ZC25, hint: 'That is the limit for the cable hot. Set a cold reading against a cold limit.' },\n        { value: CH.div, hint: 'That moves the limit the wrong way. ' + TREF + ' °C is warmer than ' + TLIM + ' °C, so the limit goes up.' },\n        { value: MEAS25, hint: 'That is the limit at ' + TLIM + ' °C. Correct it to the ' + TREF + ' °C day.' },\n      ],\n      hint: 'Not quite. Multiply the limit at ' + TLIM + ' °C by the factor from ' + TLIM + ' °C to ' + TREF + ' °C.',\n      after: f2(CH.read) + ' Ω is over ' + fCh.text + ', so it does not comply. Yet it is under ' + f2(ZC25) + ' Ω. Set against the hot figure, it would have passed.\\n\\nThe cold limit scales Ze too, though Ze does not warm with the cable. So it errs a little on the safe side. A reading over it still fails.' },\n  };\n  const BOX = { [i4A]: '#ans-4a', [i4B]: '#ans-4b', [i4C]: '#ans-4c', [iCh]: '#ans-ch' };\n  const ANS = {};\n  Object.keys(SPEC).forEach((key) => {\n    const i = +key, sp = SPEC[i];\n    const a = K.answer({ id: sp.id, unit: sp.unit, answer: sp.fig.value, decimals: 3, accept: sp.accept, slips: sp.slips, into: BOX[i],\n      onCheck: (r) => {\n        const st = S[i];\n        if (st.shown) return;\n        if (r.state === 'right') {\n          st.res = 'right';\n          st.fb = { ok: true, v: 'Right.', w: sp.work(), p: sp.rightNote ? sp.rightNote(r) : unrounded(r, sp.fig) };\n        } else if (r.state === 'wrong') {\n          st.tries += 1;\n          if (st.tries >= 2) {\n            st.shown = true; st.res = 'shown';\n            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.work() };\n            a.reveal();\n          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }\n        } else { st.res = r.state; st.fb = null; }\n        K.refresh();\n      } });\n    ANS[i] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });\n\n  // The as-built readings, shown on 4(b) and 4(c).\n  (function readings() {\n    const box = el('reads');\n    box.appendChild(K.el('p', { class: 'k-label' }, 'As-built readings, practice examples'));\n    const g = K.el('div', { class: 'rdl' });\n    READS.forEach(([t, v]) => { g.appendChild(K.el('span', null, nb(t))); g.appendChild(K.el('span', { class: 'v' }, nb((v < 0.1 ? String(v) : f3(v)) + ' Ω'))); });\n    box.appendChild(g);\n  })();\n\n  // Zs at C7's far end, cold and hot, design and as built: fills in as each part is worked.\n  const doneAt = (k) => S[k].res === 'right' || S[k].shown;\n  const cells = {};\n  (function grid() {\n    const box = el('grid');\n    box.appendChild(K.el('p', { class: 'k-label' }, \"Zs at C7's farthest bollard\"));\n    const t = K.el('div', { class: 'zt' });\n    t.appendChild(K.el('span', { 'aria-hidden': 'true' }));\n    t.appendChild(K.el('span', { class: 'zh' }, nb('Cold, the ' + TDAY + ' °C day')));\n    t.appendChild(K.el('span', { class: 'zh' }, 'Hot, in service'));\n    [['Design', 'dc', 'dh'], ['As built', 'ac', 'ah']].forEach(([name, c1, c2]) => {\n      t.appendChild(K.el('span', { class: 'zr' }, name));\n      cells[c1] = K.el('span', { class: 'zc' }); cells[c2] = K.el('span', { class: 'zc' });\n      t.appendChild(cells[c1]); t.appendChild(cells[c2]);\n    });\n    box.appendChild(t);\n    box.appendChild(K.el('p', { class: 'sub' }, 'Compare down a column, at one temperature.'));\n  })();\n  // A cell fades in when its figure arrives, as the feedback beside it does.\n  function fillCell(c, done, text, tag) {\n    const st = done ? 'done' : 'wait';\n    if (c.dataset.st === st) return;\n    const first = !c.dataset.st;\n    c.dataset.st = st;\n    c.textContent = '';\n    c.className = 'zc' + (done ? (first ? '' : ' fade') : ' wait');\n    c.appendChild(document.createTextNode(done ? nb(text) : '?'));\n    c.appendChild(K.el('small', null, tag));\n  }\n  function drawGrid() {\n    fillCell(cells.dh, true, f3i.text, 'part 3(i)');\n    fillCell(cells.dc, doneAt(i4A), f4a.text, 'part 4(a)');\n    fillCell(cells.ac, doneAt(i4B), fC7.text, 'Ze + (R1+R2)');\n    fillCell(cells.ah, doneAt(i4C), f4c.text, 'part 4(c)');\n  }\n\n  // ---------- Handing over: two lists, then the interval ----------\n  (function handover() {\n    const box = el('lists');\n    [['Before the tests, the inspector gets five things.', INSPECTOR], ['At handover, these go out.', CLIENT]].forEach(([head, items]) => {\n      const part = K.el('div');\n      part.appendChild(K.el('p', { class: 'sub ask' }, head));\n      const ul = K.el('ul', { class: 'hl' });\n      items.forEach((t) => ul.appendChild(K.el('li', null, nb(t))));\n      part.appendChild(ul);\n      box.appendChild(part);\n    });\n    paras(el('interval'), INTERVAL, ['first periodic inspection']);\n  })();\n\n  // ---------- Section B and Keep this ----------\n  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];\n  function markLine(id) {\n    const w = K.lesson && K.lesson.written && K.lesson.written[id];\n    const n = w && Array.isArray(w.points) ? w.points.length : 0, need = w ? +w.need : 0;\n    return n && need ? 'You write the answer. It is marked against ' + (WORDS[n] || n) + ' points, and any ' + (WORDS[need] || need) + ' make a full answer. You get one more go, then the model answer.'\n      : 'You write the answer, in your own words. You get one more go, then the model answer.';\n  }\n  const wB1 = K.written({ id: 'b1', into: '#wr1', onMark: () => K.refresh() });\n  el('wr1').addEventListener('click', () => K.refresh());\n  const wB2 = K.written({ id: 'b2', into: '#wr2', onMark: () => K.refresh() });\n  el('wr2').addEventListener('click', () => K.refresh());\n  K.summary({ into: '#keep' });\n  // Keep a number and its unit together on the card.\n  (function () {\n    const tw = document.createTreeWalker(el('keep'), NodeFilter.SHOW_TEXT), ns = [];\n    while (tw.nextNode()) ns.push(tw.currentNode);\n    ns.forEach((n) => { n.nodeValue = nb(n.nodeValue); });\n  })();\n  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {\n    if (at() !== iK) return;\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n    K.refresh();\n  } });\n\n  // ---------- the worked example, a line at each press ----------\n  const WLINES = [\n    'Expected R1+R2 = ' + R15 + ' × ' + H.len + ' ÷ 1000 = ' + f3(W.r) + ' Ω',\n    'Expected Zs = ' + H.ze + ' + ' + f3(W.r) + ' = ' + f3(W.zs) + ' Ω',\n    'Limit at ' + TLIM + ' °C = ' + H.zmax + ' ÷ ' + f2(DIV) + ' = ' + f3(W.l10) + ' Ω',\n    'Factor from ' + TLIM + ' °C to ' + TREF + ' °C = ' + (TREF + OFF) + ' ÷ ' + (TLIM + OFF) + ' = ' + f2(W.f),\n    'Limit on the day = ' + f3(W.l10) + ' × ' + f2(W.f) + ' = ' + f3(W.l20) + ' Ω',\n  ];\n  const wbox = K.el('div', { class: 'wl' }, K.el('p', { class: 'k-label' }, 'The heater, tested on a ' + TREF + ' °C day'));\n  const wlines = WLINES.map((t) => { const w = K.el('p', { class: 'w' }, nb(t)); wbox.appendChild(w); return w; });\n  const WCOUNT = wlines.length;\n  const wnote = K.el('p', { class: 'sub' }, nb('Expect a reading near ' + f3(W.zs) + ' Ω, often a little under. It passes while it stays under ' + f3(W.l20) + ' Ω. You may remember the design as 0.43 Ω and 0.64 Ω. Those are the same hot figures, cut to two places.'));\n  wbox.appendChild(wnote);\n  el('worked').appendChild(wbox);\n  const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {\n    if (at() !== iWk || lines >= WCOUNT) return;\n    const w = wlines[lines]; lines += 1;\n    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');\n    K.refresh();\n  } });\n\n  // ---------- fixed words on their screens ----------\n  (function fixed() {\n    const wn = el('warn2');\n    wn.appendChild(K.el('b', null, 'If it is skipped: '));\n    wn.appendChild(document.createTextNode(nb('Set a cold reading against a hot figure and it looks better than it is. It can pass a circuit that would fail when warm.')));\n    paras(el('beside'), BESIDE, ['its temperature plus ' + OFF + ' °C']);\n    paras(el('under'), UNDER, ['only at one temperature', 'maximum measured Zs']);\n  })();\n\n  // ---------- the why: a thermometer beside two bars ----------\n  const svg = el('scene');\n  function add(parent, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; parent.appendChild(n); return n; }\n  function txt(x, y, s, cls, anchor) { return add(svg, 'text', { x, y, class: cls, 'text-anchor': anchor || 'start' }, nb(s)); }\n  const yT = (t) => 240 - t * 2.8;                 // the thermometer: 0 °C at 240, 70 °C at 44\n  const YB = 256, yR = (v) => YB - v * 400;          // the bars: 0 Ω at 256, 0.5 Ω at 56\n  const BD = { x: 222, w: 44 }, BR = { x: 284, w: 44 };\n  // The key, top right.\n  add(svg, 'line', { x1: 216, y1: 16, x2: 240, y2: 16, class: 'lim' });\n  txt(246, 20, 'Design figure', 'tk');\n  // The thermometer: drawn once, so a drag on it moves the temperature.\n  const thermo = add(svg, 'g', { class: 'thermo' });\n  add(thermo, 'rect', { x: 40, y: 24, width: 36, height: 262, class: 'grab' });\n  add(thermo, 'rect', { x: 51, y: 30, width: 14, height: 228, rx: 7, class: 'tube' });\n  add(thermo, 'circle', { cx: 58, cy: 264, r: 13, class: 'tube' });\n  const column = add(thermo, 'rect', { x: 54.5, y: yT(TREF), width: 7, height: 258 - yT(TREF), class: 'col' });\n  add(thermo, 'circle', { cx: 58, cy: 264, r: 9, class: 'col' });\n  [[TRUN, 'Running hot'], [TREF, 'Resistance tables'], [TLIM, 'Measured Zs limits']].forEach(([t, name]) => {\n    add(svg, 'line', { x1: 66, y1: yT(t), x2: 74, y2: yT(t), class: 'tick' });\n    txt(38, yT(t) + 4.5, t + ' °C', 'lb', 'end');\n    txt(78, yT(t) + 4.5, name, 'tk');\n  });\n  K.drag(thermo, { control: 'temp', toValue: (x, y) => K.clamp(Math.round((240 - y) / 2.8), 0, TRUN) });\n  // The two bars.\n  add(svg, 'line', { x1: 214, y1: YB, x2: 336, y2: YB, class: 'base' });\n  add(svg, 'rect', { x: BD.x, y: yR(DES).toFixed(1), width: BD.w, height: (YB - yR(DES)).toFixed(1), class: 'ds' });\n  const rbar = add(svg, 'rect', { x: BR.x, y: yR(H.cold).toFixed(1), width: BR.w, height: (YB - yR(H.cold)).toFixed(1), class: 'rd' });\n  add(svg, 'line', { x1: 216, y1: yR(DES).toFixed(1), x2: 334, y2: yR(DES).toFixed(1), class: 'lim' });\n  txt(BD.x + BD.w / 2, yR(DES) - 8, f3(DES) + ' Ω', 'fig', 'middle');\n  txt(BD.x + BD.w / 2, 274, 'Design', 'lb', 'middle');\n  txt(BD.x + BD.w / 2, 290, 'at ' + TRUN + ' °C', 'tk', 'middle');\n  txt(BR.x + BR.w / 2, 274, 'Reading', 'lb', 'middle');\n  const rAt = txt(BR.x + BR.w / 2, 290, 'at ' + TREF + ' °C', 'tk', 'middle');\n\n  function drawWhy(p, o) {\n    const t = K.clamp(Math.round(+p.temp), 0, TRUN);\n    column.setAttribute('y', yT(t).toFixed(1));\n    column.setAttribute('height', (258 - yT(t)).toFixed(1));\n    rbar.setAttribute('y', yR(o.reading).toFixed(1));\n    rbar.setAttribute('height', (YB - yR(o.reading)).toFixed(1));\n    rAt.textContent = nb('at ' + t + ' °C');\n    const gap = r3(DES - o.reading);\n    svg.setAttribute('aria-label', 'A thermometer at ' + t + ' °C beside two bars for the heater\\'s R1+R2. Design stands at ' + f3(DES) + ' Ω, worked at ' + TRUN + ' °C. Reading shows the same cable at ' + t + ' °C, ' + (gap > 0 ? 'below the design.' : 'level with the design.'));\n    let s;\n    if (t >= TRUN) s = 'At ' + TRUN + ' °C the cable is as hot as the design assumed. So the reading meets the design at ' + f3(DES) + ' Ω.';\n    else if (gap <= 0) s = 'At ' + t + ' °C the reading rounds to the design\\'s ' + f3(DES) + ' Ω. At ' + TRUN + ' °C the cable is exactly as hot as the design assumed.';\n    else if (t === TREF) s = 'At ' + TREF + ' °C the cable reads ' + f3(o.reading) + ' Ω, ' + f3(gap) + ' Ω under the design. Nothing is wrong with it. It is just cold.';\n    else if (t > TREF) s = 'At ' + t + ' °C the same cable reads ' + f3(o.reading) + ' Ω. That is still ' + f3(gap) + ' Ω under the design, because it is cooler than ' + TRUN + ' °C.';\n    else s = 'At ' + t + ' °C the cable reads ' + f3(o.reading) + ' Ω, ' + f3(gap) + ' Ω under the design. It is colder than the ' + TREF + ' °C of the tables, so it reads lower still.';\n    el('say').textContent = nb(s);\n  }\n\n  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }\n  // Feedback and after notes fade in as the step does, whenever they change.\n  const faded = {};\n  function fade(node, key) {\n    if (node.hidden) { faded[node.id] = ''; return; }\n    if (faded[node.id] === key) return;\n    faded[node.id] = key;\n    node.classList.remove('fade'); void node.offsetWidth; node.classList.add('fade');\n  }\n  function paintFb(f) {\n    const fb = el('fb');\n    fb.textContent = '';\n    fb.hidden = !f;\n    if (!f) return;\n    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');\n    fb.appendChild(K.el('p', { class: 'v' }, f.v));\n    if (f.p0) fb.appendChild(K.el('p', null, nb(f.p0)));\n    (f.w || []).forEach((t) => fb.appendChild(K.el('p', { class: 'w' }, nb(t))));\n    if (f.p) fb.appendChild(K.el('p', null, nb(f.p)));\n  }\n\n  // ---------- nav ----------\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });\n  function canGo(i) {\n    const d = STEPS[i], st = S[i];\n    if (d.show) return true;\n    if (i === iR) return st.res === 'wrong';\n    if (i === iChk) return st.res === 'right';\n    if (ANS[i]) return st.res === 'right' || st.shown;\n    if (i === iB1) return !!(wB1 && wB1.answered && wB1.answered());\n    if (i === iB2) return !!(wB2 && wB2.answered && wB2.answered());\n    return false;\n  }\n\n  K.model((p) => {\n    const t = K.clamp(Math.round(p.temp == null ? TREF : +p.temp), 0, TRUN);\n    const w = whyAt(t);\n    return { factor: w.factor, reading: w.reading };\n  });\n\n  const ON = { scen: [i4A, i4B, i4C], carryA: [i4A], carryB: [i4B], carryC: [i4C], reads: [i4B, i4C], assume: [i4A, i4B, i4C, iCh], grid: [i4A, i4B, i4C],\n    warn2: [iFor], lists: [iHand], interval: [iHand], wrap: [iWhy], ctl: [iWhy], outs: [iWhy], say: [iWhy], beside: [iWhy], under: [iWhy],\n    worked: [iWk], workedgo: [iWk], picks: [iR, iChk],\n    'ans-4a': [i4A], 'ans-4b': [i4B], 'ans-4c': [i4C], 'ans-ch': [iCh], wr1: [iB1], wr2: [iB2], keep: [iK], fin: [iK] };\n\n  K.update((p, o) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; if (i >= i4A && i <= i4C) scen.el.open = i === i4A; }\n    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });\n    el('cap').hidden = WORKING.indexOf(i) < 0;\n\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;\n    paras(el('assume'), d.assume || '');\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    if (i === iHand) task.textContent = '';\n    else if (d.show) paras(task, d.text, TERMS[i]);\n    else write(task, d.part || (d.kind ? '' : d.task));\n    task.hidden = !task.textContent;\n    const sub = el('sub');\n    const asks = i === iWhy || i === iWk;\n    sub.className = 'sub' + (asks ? ' ask' : '');\n    sub.textContent = i === iWhy ? nb('Drag the temperature up to ' + TRUN + ' °C.')\n      : i === iWk ? 'Work each step yourself first, then press Show.'\n      : i === i4B ? 'Give the limit in Ω. The comparison follows.'\n      : i === iB1 ? markLine('b1')\n      : i === iB2 ? markLine('b2')\n      : i === iCh ? 'Same method, new numbers. Give the limit in Ω.'\n      : i === iK ? 'One card to come back to on a real job.' : '';\n    sub.hidden = !sub.textContent;\n\n    drawWhy(p, o);\n    if (i >= i4A && i <= i4C) drawGrid();\n\n    // Picks.\n    const opts = d.opts || [];\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(nb(opts[k]));\n      const done = st.res === 'right' || (i === iR && st.res === 'wrong');\n      b.el.classList.toggle('is-right', done && opts[k] === d.want);\n      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    // The worked example's lines, and the note once they are all shown.\n    wlines.forEach((w, k) => { w.hidden = k >= lines; });\n    wnote.hidden = lines < WCOUNT;\n    nextLine.el.hidden = lines >= WCOUNT;\n    if (i === iWk) el('workedgo').hidden = lines >= WCOUNT;\n\n    // Check, the feedback, and what follows a finished typed answer.\n    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);\n    checkBtn.el.hidden = !typed || typedDone;\n    el('acts').hidden = checkBtn.el.hidden;\n    paintFb(st.fb);\n    const after = el('after');\n    paras(after, typedDone ? SPEC[i].after : '', typedDone ? SPEC[i].terms : null);\n    after.hidden = !after.textContent;\n    el('go').hidden = !(i === iR && st.res === 'right');\n    [['fb', JSON.stringify(st.fb)], ['after', i + after.textContent], ['go', String(i)]].forEach(([id, key]) => fade(el(id), key));\n\n    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';\n    el('donefb').hidden = !el('donefb').textContent;\n\n    backBtn.el.hidden = i === 0;\n    nextBtn.el.hidden = i === iK || !canGo(i) || (i === iR && st.res === 'right');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const near = (a, b) => K.near(a, b, 1e-9);\n  K.check('At 20 °C the factor is 1.00 and the reading 0.363 Ω, 0.073 Ω under the design\\'s 0.436 Ω', () => {\n    const o = K.at({ temp: 20 });\n    return near(o.factor, 1) && near(o.reading, fR.value) && near(r3(DES - o.reading), 0.073) && near(DES, fR1.value);\n  });\n  K.check('At 70 °C the factor is 300 ÷ 250 = 1.20 and the reading meets the design at 0.436 Ω. At 10 °C it falls to 0.348 Ω', () => {\n    const a = K.at({ temp: 70 }), b = K.at({ temp: 10 });\n    return near(a.factor, 1.2) && near(a.reading, F('l9.why.70').value) && near(a.reading, DES) && near(b.factor, 0.96) && near(b.reading, F('l9.why.10').value);\n  });\n  K.check('The reading never falls as the cable warms, and never passes the design between 0 and 70 °C', () => {\n    let prev = -1;\n    for (let t = 0; t <= TRUN; t += 1) {\n      const o = K.at({ temp: t });\n      if (o.reading < prev || o.reading > DES + 1e-9) return false;\n      prev = o.reading;\n    }\n    return K.at({ temp: 0 }).reading < K.at({ temp: TRUN }).reading;\n  });\n  K.check('The factors: 320 ÷ 250 = 1.28, 245 ÷ 250 = 0.98, 300 ÷ 240 = 1.25, and 1 ÷ 1.25 = 80%', () =>\n    near(F90, F('l9.why.f90').value) && near(F90, M) && near(F15, F('l9.why.f15').value) && near(F15, F('g.osg.I2.15').value) && near(DIV, F('l9.why.div').value) && near(1 / DIV, 0.8));\n  K.check('The recall: 0.363 Ω cold, 0.436 Ω hot, 0.523 Ω warmed twice. The check: 1.06, 3.085 Ω, and 2.745 Ω divided', () =>\n    near(H.cold, fR.value) && near(H.hot, fR1.value) && near(H.twice, fR2.value) &&\n    near(CK.f, 1.06) && near(CK.lim, F('l9.check').value) && near(CK.div, F('l9.check.slip1').value) && near(ZC6, F('l9.check.slip2').value));\n  K.check('The worked example: 0.573 Ω expected, 2.184 Ω at 10 °C, 1.04, 2.271 Ω on the day, and the design Zs 0.646 Ω', () =>\n    near(W.zs, F('l9.worked.zs').value) && near(W.l10, F('l9.worked.lim10').value) && near(W.f, 1.04) && near(W.l20, F('l9.worked.lim20').value) && near(W.dzs, 0.646));\n  K.check('Part 4a: 0.228 then 0.223 Ω, 0.576 then 0.564 Ω, Zs 0.887 Ω (0.888 Ω unrounded); slips 1.129, 0.904 and 0.787 Ω', () =>\n    near(A.f, 0.98) && near(A.s15, fSub15.value) && near(A.c15, fC715.value) && near(A.zs, f4a.value) && near(A.un, 0.888) &&\n    near(A.warm, F('4a.slip2').value) && near(A.noZe, F('4a.slip3').value) && near(f3i.value, F('4a.slip1').value));\n  K.check('Part 4b: 1.02, limit 1.785 Ω (1.786 Ω unrounded); slips 2.19, 1.716 and 1.75 Ω; readings 0.294 and 0.842 Ω comply', () =>\n    near(B.f, F('g.osg.B8.15').value) && near(B.lim, f4b.value) && near(B.un, 1.786) && near(B.div, F('4b.slip2').value) &&\n    near(ZC10, F('4b.slip1').value) && near(MEAS10, F('4b.slip3').value) &&\n    near(B.db, fDb.value) && near(B.dbexp, fDbExp.value) && near(B.c7lim, fC7Lim.value) && near(B.c7, fC7.value) && near(B.direct, fDirect.value) &&\n    B.db < B.lim && AZDB < B.lim && B.c7 < B.c7lim && AZC7 < B.c7lim);\n  K.check('Part 4c: 0.762, 0.778, 0.996, Zs 1.076 Ω (1.075 unrounded, 1.078 with one factor of 1.31); slips 1.055, 1.100 and 0.842 Ω; 0.053 Ω, about 5%, under the design', () =>\n    near(C.r, 0.762) && near(C.b20, 0.778) && near(C.hot, 0.996) && near(C.zs, f4c.value) && near(C.un, 1.075) && near(C.f1, 1.31) && near(C.one, 1.078) &&\n    near(C.skip, F('4c.slip1').value) && near(C.zeToo, F('4c.slip2').value) && near(B.c7, F('4c.slip3').value) &&\n    near(C.gap, fGap.value) && C.pct === 5 && near(C.cold, 0.045) && near(C.diag, 0.287) && near(C.zeLow, 0.02));\n  K.check('Changed numbers: 1.04, limit 0.728 Ω (0.729 unrounded); slips 0.87, 0.673 and 0.70 Ω; 0.74 Ω fails, though under 0.87 Ω', () =>\n    near(CH.f, 1.04) && near(CH.lim, fCh.value) && near(CH.un, 0.729) && near(CH.div, F('l9.changed.slip2').value) &&\n    near(ZC25, F('l9.changed.slip1').value) && near(MEAS25, F('l9.changed.slip3').value) && CH.read > CH.lim && CH.read < ZC25);\n  K.check('Every slip lies outside its answer\\'s accepted figures', () => Object.keys(SPEC).every((k) => {\n    const sp = SPEC[k];\n    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > 0.005 && sp.accept.every((x) => Math.abs(s.value - x) > 0.005));\n  }));\n  K.check('A reading taken on a cold circuit should not exceed 80% of the tabulated value', () => near(1 / DIV, 0.8),\n    { source: 'https://www.voltimum.co.uk/news/voltimum/earth-loop-impedance-test-maximum-zs-values' });\n  K.check('Table 41.3 and the measured limits: C6 3.64 and 2.91 Ω, C10 2.19 and 1.75 Ω, C25 0.87 and 0.70 Ω', () =>\n    ZC6 === 3.64 && MEAS6 === 2.91 && ZC10 === 2.19 && MEAS10 === 1.75 && ZC25 === 0.87 && MEAS25 === 0.7,\n    { source: 'https://www.elec-mate.com/guides/maximum-zs-values-bs-7671' });\n  K.check('Four-core 4 mm² SWA: 4.61 mΩ/m a core and 6.8 mΩ/m of armour', () => RCORE === 4.61 && RARM === 6.8,\n    { source: 'https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf' });\n  K.check('Commercial installations: 5 years to the first periodic inspection', () => YEARS === 5,\n    { source: 'https://www.tidyco.co.uk/tidyco-news/post/understanding-periodic-inspection-and-testing-requirements' });\n  K.check('Industrial: 3 years', () => IND === 3,\n    { source: 'https://qbeeurope.com/documents/index/3872/808198' });\n  K.check('Measured Zs includes parallel paths, so it usually reads lower than Ze + (R1+R2)', () => AZC7 < B.c7 && AZDB < B.db,\n    { source: 'https://electrical.theiet.org/wiring-matters/years/2025/105-may-2025/minimizing-unnecessary-live-testing-for-initial-verification' });\n\n  K.ready();\n</script>",
+  "title": "One cable, two temperatures",
+  "brief": "The one thing you should see is the reading bar climb to meet the design's 0.436 Ω at 70 °C, when you drag the cable's temperature up from the 20 °C test day.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "At 20 °C the factor is 1.00 and the reading 0.363 Ω, 0.073 Ω under the design's 0.436 Ω",
+     "ok": true
+    },
+    {
+     "label": "At 70 °C the factor is 300 ÷ 250 = 1.20 and the reading meets the design at 0.436 Ω. At 10 °C it falls to 0.348 Ω",
+     "ok": true
+    },
+    {
+     "label": "The reading never falls as the cable warms, and never passes the design between 0 and 70 °C",
+     "ok": true
+    },
+    {
+     "label": "The factors: 320 ÷ 250 = 1.28, 245 ÷ 250 = 0.98, 300 ÷ 240 = 1.25, and 1 ÷ 1.25 = 80%",
+     "ok": true
+    },
+    {
+     "label": "The recall: 0.363 Ω cold, 0.436 Ω hot, 0.523 Ω warmed twice. The check: 1.06, 3.085 Ω, and 2.745 Ω divided",
+     "ok": true
+    },
+    {
+     "label": "The worked example: 0.573 Ω expected, 2.184 Ω at 10 °C, 1.04, 2.271 Ω on the day, and the design Zs 0.646 Ω",
+     "ok": true
+    },
+    {
+     "label": "Part 4a: 0.228 then 0.223 Ω, 0.576 then 0.564 Ω, Zs 0.887 Ω (0.888 Ω unrounded); slips 1.129, 0.904 and 0.787 Ω",
+     "ok": true
+    },
+    {
+     "label": "Part 4b: 1.02, limit 1.785 Ω (1.786 Ω unrounded); slips 2.19, 1.716 and 1.75 Ω; readings 0.294 and 0.842 Ω comply",
+     "ok": true
+    },
+    {
+     "label": "Part 4c: 0.762, 0.778, 0.996, Zs 1.076 Ω (1.075 unrounded, 1.078 with one factor of 1.31); slips 1.055, 1.100 and 0.842 Ω; 0.053 Ω, about 5%, under the design",
+     "ok": true
+    },
+    {
+     "label": "Changed numbers: 1.04, limit 0.728 Ω (0.729 unrounded); slips 0.87, 0.673 and 0.70 Ω; 0.74 Ω fails, though under 0.87 Ω",
+     "ok": true
+    },
+    {
+     "label": "Every slip lies outside its answer's accepted figures",
+     "ok": true
+    },
+    {
+     "label": "A reading taken on a cold circuit should not exceed 80% of the tabulated value",
+     "ok": true,
+     "source": "https://www.voltimum.co.uk/news/voltimum/earth-loop-impedance-test-maximum-zs-values"
+    },
+    {
+     "label": "Table 41.3 and the measured limits: C6 3.64 and 2.91 Ω, C10 2.19 and 1.75 Ω, C25 0.87 and 0.70 Ω",
+     "ok": true,
+     "source": "https://www.elec-mate.com/guides/maximum-zs-values-bs-7671"
+    },
+    {
+     "label": "Four-core 4 mm² SWA: 4.61 mΩ/m a core and 6.8 mΩ/m of armour",
+     "ok": true,
+     "source": "https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf"
+    },
+    {
+     "label": "Commercial installations: 5 years to the first periodic inspection",
+     "ok": true,
+     "source": "https://www.tidyco.co.uk/tidyco-news/post/understanding-periodic-inspection-and-testing-requirements"
+    },
+    {
+     "label": "Industrial: 3 years",
+     "ok": true,
+     "source": "https://qbeeurope.com/documents/index/3872/808198"
+    },
+    {
+     "label": "Measured Zs includes parallel paths, so it usually reads lower than Ze + (R1+R2)",
+     "ok": true,
+     "source": "https://electrical.theiet.org/wiring-matters/years/2025/105-may-2025/minimizing-unnecessary-live-testing-for-initial-verification"
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "temp"
+   ],
+   "readouts": [
+    "factor",
+    "reading"
+   ],
+   "outputs": [
+    "factor",
+    "reading"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Lesson",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "Do you still have it?",
+      "What it is for",
+      "The why",
+      "Check",
+      "Worked example",
+      "Section A 4(a)",
+      "Section A 4(b)",
+      "Section A 4(c)",
+      "Handing over",
+      "Section B",
+      "Section B 2",
+      "Changed numbers",
+      "Keep this"
+     ],
+     "value": 0
+    },
+    {
+     "id": "temp",
+     "kind": "control",
+     "label": "Cable temperature",
+     "min": 0,
+     "max": 70,
+     "step": 1,
+     "log": false,
+     "value": 20,
+     "shown": false,
+     "snap": [
+      10,
+      20,
+      70
+     ]
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Refresh the why",
+    "Skip to the practice",
+    "Check",
+    "Finish the lesson",
+    "Show",
+    "Back",
+    "Continue"
+   ],
+   "answers": [
+    {
+     "id": "4a",
+     "answer": 0.887,
+     "accept": [
+      0.888
+     ],
+     "ok": true
+    },
+    {
+     "id": "4b",
+     "answer": 1.785,
+     "accept": [
+      1.786
+     ],
+     "ok": true
+    },
+    {
+     "id": "4c",
+     "answer": 1.076,
+     "accept": [
+      1.075,
+      1.078
+     ],
+     "ok": true
+    },
+    {
+     "id": "l9.changed",
+     "answer": 0.728,
+     "accept": [
+      0.729
+     ],
+     "ok": true
+    }
+   ],
+   "written": [
+    "b1",
+    "b2"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-20T20:17:06.081Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "Three overreaches: copper's (t + 230) rule is a close straight-line fit, not exact; its own source says a direct Zs usually (not always) reads lower; and the showroom's readings are made-up practice values, so they cannot be described as what verification found."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 7 gives a cause for a gap in invented readings as fact, and screen 8 says a high reading means the installation differs from the design, when a poor connection or a faulty test can also give one."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "Parts 4(a) and 4(c) apply copper's (t + 230) rule to the submain's steel armour too; steel's resistance rises a little faster with temperature, and the lesson does not say it has simplified this."
+   },
+   {
+    "path": "analogy.breaks",
+    "problem": "\"A tyre is warmed by the road, whatever it carries\" is wrong: a tyre heats mainly by flexing, and a heavier load makes it flex and heat more."
+   },
+   {
+    "path": "summary.rule",
+    "problem": "The card states resistance as exactly proportional to (temperature + 230 °C); that is the OSG's close straight-line fit for copper, not an exact law, and the card is read on its own."
+   }
+  ],
+  "notes": [
+   {
+    "path": "sources",
+    "problem": "Dan asked for lessons that explain the content in their own words, not ones telling him where each thing comes from; the screens still carry [^n] markers, the Section B points and traps name sources, and summary.where lists them. The fact-check cannot change citations: review how much to show."
+   }
+  ]
+ },
+ "error": null,
+ "flags": {}
+}

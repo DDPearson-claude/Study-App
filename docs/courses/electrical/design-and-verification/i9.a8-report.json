@@ -1,0 +1,227 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "At 20 °C the factor is 1.00 and the reading 0.363 Ω, 0.073 Ω under the design's 0.436 Ω",
+        "ok": true
+      },
+      {
+        "label": "At 70 °C the factor is 300 ÷ 250 = 1.20 and the reading meets the design at 0.436 Ω. At 10 °C it falls to 0.348 Ω",
+        "ok": true
+      },
+      {
+        "label": "The reading never falls as the cable warms, and never passes the design between 0 and 70 °C",
+        "ok": true
+      },
+      {
+        "label": "The factors: 320 ÷ 250 = 1.28, 245 ÷ 250 = 0.98, 300 ÷ 240 = 1.25, and 1 ÷ 1.25 = 80%",
+        "ok": true
+      },
+      {
+        "label": "The recall: 0.363 Ω cold, 0.436 Ω hot, 0.523 Ω warmed twice. The check: 1.06, 3.085 Ω, and 2.745 Ω divided",
+        "ok": true
+      },
+      {
+        "label": "The worked example: 0.573 Ω expected, 2.184 Ω at 10 °C, 1.04, 2.271 Ω on the day, and the design Zs 0.646 Ω",
+        "ok": true
+      },
+      {
+        "label": "Part 4a: 0.228 then 0.223 Ω, 0.576 then 0.564 Ω, Zs 0.887 Ω (0.888 Ω unrounded); slips 1.129, 0.904 and 0.787 Ω",
+        "ok": true
+      },
+      {
+        "label": "Part 4b: 1.02, limit 1.785 Ω (1.786 Ω unrounded); slips 2.19, 1.716 and 1.75 Ω; readings 0.294 and 0.842 Ω comply",
+        "ok": true
+      },
+      {
+        "label": "Part 4c: 0.762, 0.778, 0.996, Zs 1.076 Ω (1.075 unrounded, 1.078 with one factor of 1.31); slips 1.055, 1.100 and 0.842 Ω; 0.053 Ω, about 5%, under the design",
+        "ok": true
+      },
+      {
+        "label": "Changed numbers: 1.04, limit 0.728 Ω (0.729 unrounded); slips 0.87, 0.673 and 0.70 Ω; 0.74 Ω fails, though under 0.87 Ω",
+        "ok": true
+      },
+      {
+        "label": "Every slip lies outside its answer's accepted figures",
+        "ok": true
+      },
+      {
+        "label": "A reading taken on a cold circuit should not exceed 80% of the tabulated value",
+        "ok": true,
+        "source": "https://www.voltimum.co.uk/news/voltimum/earth-loop-impedance-test-maximum-zs-values"
+      },
+      {
+        "label": "Table 41.3 and the measured limits: C6 3.64 and 2.91 Ω, C10 2.19 and 1.75 Ω, C25 0.87 and 0.70 Ω",
+        "ok": true,
+        "source": "https://www.elec-mate.com/guides/maximum-zs-values-bs-7671"
+      },
+      {
+        "label": "Four-core 4 mm² SWA: 4.61 mΩ/m a core and 6.8 mΩ/m of armour",
+        "ok": true,
+        "source": "https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf"
+      },
+      {
+        "label": "Commercial installations: 5 years to the first periodic inspection",
+        "ok": true,
+        "source": "https://www.tidyco.co.uk/tidyco-news/post/understanding-periodic-inspection-and-testing-requirements"
+      },
+      {
+        "label": "Industrial: 3 years",
+        "ok": true,
+        "source": "https://qbeeurope.com/documents/index/3872/808198"
+      },
+      {
+        "label": "Measured Zs includes parallel paths, so it usually reads lower than Ze + (R1+R2)",
+        "ok": true,
+        "source": "https://electrical.theiet.org/wiring-matters/years/2025/105-may-2025/minimizing-unnecessary-live-testing-for-initial-verification"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "temp"
+    ],
+    "readouts": [
+      "factor",
+      "reading"
+    ],
+    "outputs": [
+      "factor",
+      "reading"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "What it is for",
+          "The why",
+          "Check",
+          "Worked example",
+          "Section A 4(a)",
+          "Section A 4(b)",
+          "Section A 4(c)",
+          "Handing over",
+          "Section B",
+          "Section B 2",
+          "Changed numbers",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "temp",
+        "kind": "control",
+        "label": "Cable temperature",
+        "min": 0,
+        "max": 70,
+        "step": 1,
+        "log": false,
+        "value": 20,
+        "shown": false,
+        "snap": [
+          10,
+          20,
+          70
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Refresh the why",
+      "Skip to the practice",
+      "Check",
+      "Finish the lesson",
+      "Show",
+      "Back",
+      "Continue"
+    ],
+    "answers": [
+      {
+        "id": "4a",
+        "answer": 0.887,
+        "accept": [
+          0.888
+        ],
+        "ok": true
+      },
+      {
+        "id": "4b",
+        "answer": 1.785,
+        "accept": [
+          1.786
+        ],
+        "ok": true
+      },
+      {
+        "id": "4c",
+        "answer": 1.076,
+        "accept": [
+          1.075,
+          1.078
+        ],
+        "ok": true
+      },
+      {
+        "id": "l9.changed",
+        "answer": 0.728,
+        "accept": [
+          0.729
+        ],
+        "ok": true
+      }
+    ],
+    "written": [
+      "b1",
+      "b2"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 2 (the first step that shows a control)",
+    "temp = 52.5"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/design-and-verification/i9.a8-360-light.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i9.a8-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i9.a8-360-light-end.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i9.a8-360-dark.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i9.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i9.a8-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i9.a8-1280-light.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i9.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i9.a8-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i9.a8-1280-dark.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i9.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/design-and-verification/i9.a8-1280-dark-end.png"
+  ]
+}

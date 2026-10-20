@@ -1,0 +1,783 @@
+TASK: write-lesson
+
+You are a world-class teacher and science and history writer, writing one lesson for Dan in "My University", his personal learning app. Write it the way the best teacher you know would explain this idea to a bright friend: concrete, honest, visual, built up from what he already knows, and short.
+
+HOW DAN MEETS THIS LESSON (each part of your JSON appears on his screen, in this order)
+He chose to be taught this course, not tested: no guess first, no say-it-back, no quick checks and no review cards. So "predict" and "say" are null and "checks" is [].
+1. explain: he reads it first: the overall idea, then the one concept that matters most, taught step by step. Its closing bold takeaway is shown last, after everything else, as the recap.
+2. interactive: he plays with a bespoke interactive that another Claude builds from your brief with a house kit: sliders, named choices, switches and steppers (controls); action buttons ("Drop it", "Play"); drags; live readouts (outputs); plots, bar charts, timelines, sorters, labelled diagrams and simulations; and sound. It is about 340 px wide on his phone. No text input, no images or data from the web.
+3. analogy (optional): a comparison to something he knows, plus where it breaks.
+4. practice: "Put it into practice": how he can use the idea for real. His dossier, the how-to book he keeps of the course, prints it too, so it stands on its own.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Design and verification, a Level 4 refresher
+Puzzle the course answers: The showroom motor is 11 kW at 400 V, and 11 kW ÷ (√3 × 400 V) is about 16 A, yet the circuit that feeds it is designed on about 23 A. Why, and what else must its cables pass before they are right?
+His level: KNOWS A LITTLE. He has met the basics but may hold common misconceptions. Simple equations are fine once each symbol is explained.
+In one breath: A design starts from what each load really draws from the supply, adds the loads up into what the whole building draws, and picks a protective device and a cable that will not overheat where it runs. It then checks that enough voltage reaches the far end, that an earth fault opens the device in time and every conductor survives the fault, and that the readings at verification come in within what the design predicted. The showroom job runs through it all, each figure carried forward to the next.
+What he typed when he started (what he says about himself there, such as his job or trade, is ground he already has: build on it, never explain it): Design and verification
+Ideas, in teaching order (id, title — one line, [kind]):
+  i1  Design current: what the circuit really draws — The cable carries what the load draws from the supply, so Ib comes from the input, not the output: P ÷ (√3 × UL × efficiency × power factor), at the voltage actually at the board, with diversity only as guidance. [quantity]
+  i2  Maximum demand: what the whole building draws — Maximum demand sizes the supply and every submain; diversity is common-sense guidance from the On-Site Guide, not a rule, and balancing loads across the three phases keeps the neutral current down. [quantity] (needs i1)
+  i3  Device and cable: Ib ≤ In ≤ Iz, the factors and overload — Each rating factor is heat the table did not allow for, so It = In ÷ (the factors that act together), and the worst section sets the cable; a device may let about 1.45 In flow before it opens, so I2 ≤ 1.45 Iz, which is why a rewireable fus… [quantity] (needs i1)
+  i4  A neutral that carries more than the line — Balanced fundamentals cancel in the neutral but third harmonics on the three lines are in step and add, so above about a third the neutral current, 3 × h × IL, sets the cable; only when the maker's data gives a harmonic figure. [quantity] (needs i3)
+  i5  Voltage drop from the intake, refined — Voltage drop is mV/A/m × Ib × L ÷ 1000, added along the whole path from the origin and judged against 3% or 5% of the voltage you were given; a lightly loaded cable runs cooler (Ct) and, with a known power factor, only the parts of the r a… [quantity] (needs i1, i3)
+  i6  Shock protection, and when Zs is too high — Every metre adds to the earth fault loop, the loop limits the fault current at the lowest supply voltage (Cmin), and that current decides whether the device opens in time; when Zs is too high, a bigger cpc or an RCD. [mechanism] (needs i3)
+  i7  Surviving the fault: heat, short circuits, breaking capacity — A conductor can take k²S² of fault energy, so it survives if I²t is smaller: S = √(I²t) ÷ k for the cpc with I at Cmax, t = k²S² ÷ I² for the live conductors, and every device must break the largest fault (IPF ≤ Icn). [quantity] (needs i6)
+  i8  The showroom, end to end — The assignment's DBL2 submain and its longest circuit designed as one chain, every result carried forward, checked against the project guide's key points: all lengths, thermal constraints, Zs against the device, all drops from the intake. [skill] (needs i1, i2, i3, i4, i5, i6, i7)
+  i9  Verification and handover — The design predicts the readings: a cold reading is compared after correcting it to running temperature, installed values usually come in lower, and the designer hands over what the inspector and the client need, with a first inspection in… [process] (needs i6, i7, i8)   <-- THIS LESSON
+Teach only this idea; the others get their own lessons. EARLIER LESSONS below shows what Dan has already met.
+
+THIS LESSON
+Idea i9: "Verification and handover"
+What Dan should come away understanding: The design predicts the readings: a cold reading is compared after correcting it to running temperature, installed values usually come in lower, and the designer hands over what the inspector and the client need, with a first inspection interval from industry guidance.
+Kind: process. Builds on: i6 "Shock protection, and when Zs is too high", i7 "Surviving the fault: heat, short circuits, breaking capacity", i8 "The showroom, end to end".
+
+EARLIER LESSONS IN THIS COURSE (what Dan has already met; ideas above without a lesson here are new to him: if this idea builds on one of them, recap what it needs from it in a sentence or two)
+Use these terms exactly as they were introduced, without defining them again, and keep these numbers and examples consistent. Refer back by name where it helps ("remember the …?"). Choose a different analogy and a different predict question.
+- i1 "Design current: what the circuit really draws"
+  Terms: Efficiency, power factor
+  Analogy: Think of ordering cable for a run. The run on the drawing is the output. What you order also has to cover the offcuts and the tails. So the order is the run divided by the share of the drum that ends…
+  Interactive: The one thing you should see is the input bar stretch past the fixed 20 kW output, then the apparent-power bar past the input, as Ib climbs from 28.87 A to 41.48 A, when you drag the efficiency and the power factor down.
+  Numbers: Screen, 1 to 11 (the stepper) = 0; Recall heater output, your slides p.16, kW = 20 (constant); Supply line voltage, V = 400 (constant); Recall Ib, 20 000 ÷ (√3 × 400), A = 28.87; Slip, √3 left out, A = 50; Slip, single-phase rule at 230 V, A = 86.96
+- i2 "Maximum demand: what the whole building draws"
+  Terms: Maximum demand, diversity
+  Analogy: Think of a dockyard canteen. The cooks plan for the busiest sitting, not for everyone on the base eating at once: that is diversity. And they split the diners evenly between three serving counters, d…
+  Interactive: The one thing you should see is the neutral bar fall from 24.35 A to 0.30 A, as the phase bars even out, when you move DBL2’s circuits off L1 and share them across all three phases.
+  Numbers: Screen, 1 to 12 (the stepper) = 0; Slides' lamps on the example circuit = 10 (constant); Each lamp, W = 100 (constant); Domestic lighting allowance, % = 66 (constant); Designed load with diversity, W = 660 (constant); Designed load without diversity, W = 1000 (constant)
+- i3 "Device and cable: Ib ≤ In ≤ Iz, the factors and overload"
+  Terms: current-carrying capacity, rating factor
+  Analogy: Think of a hoist whose overload cut-out lets the load run 45% past the plate rating before it stops it. The rope has to hold that 45% for as long as the cut-out takes. So you check the rope against t…
+  Interactive: The one thing you should see is the fuse's I2 pass the cable's 1.45 Iz in red, then meet it at 20.00 A as the cable's Iz rises to 13.79 A, when you choose the fuse and then apply Cf.
+  Numbers: Screen, 1 to 12 (the stepper) = 0; Slides' heater circuit: In, A = 16 (constant); Slides' heater circuit: Ca = 0.94 (constant); Slides' heater circuit: Cg = 0.8 (constant); Slides' heater circuit: Ci = 0.88 (constant); It for Ca and Cg, 16 ÷ 0.752, A = 21.28
+- i4 "A neutral that carries more than the line"
+  Terms: third harmonic, loaded conductor
+  Analogy: Picture three watches on a ship, each with a day that starts eight hours after the last. Anything each watch does once a day, like taking over, falls at three different times, spread evenly round the…
+  Interactive: The one thing you should see is the three lines' ripples fall into step and the neutral bar climb from 0 A past the 150 A line bar near a third, when you drag the third harmonic up.
+  Numbers: Screen, 1 to 11 (the stepper) = 0; Recall: line current, A = 60 (assumed); Recall: third harmonic, % = 35 (assumed); Recall: neutral, 3 × 0.35 × 60, A = 63; Recall slip: one line's, 0.35 × 60, A = 21; Recall slip: fundamentals only, A = 0
+- i5 "Voltage drop from the intake, refined"
+  Terms: Ct
+  Analogy: Think of a ship's fresh-water main. The pressure at a shower on the far deck is the pump's pressure less what is lost in every length of pipe on the way, the ring main as well as the branch. A branch…
+  Interactive: The one thing you should see is the total from the origin cross the 11.50 V limit near 60 m, when you drag the heater circuit's length. That total is the submain's 5.77 V plus the heater circuit's own drop.
+  Numbers: Screen, 1 to 11 (the stepper) = 0; Recall: supply given, V = 395 (constant); Recall: submain drop (slides p.41), V = 10 (constant); Recall: radial circuit drop (slides p.41), V = 9.8 (constant); Recall: total, 10 + 9.8, V = 19.8; 5% of 395 V, V = 19.75
+- i6 "Shock protection, and when Zs is too high"
+  Analogy: Think of jump-starting a van on a cold morning. The starter only turns once enough current reaches it. Long, thin leads let less current through. A battery sagging in the cold pushes less still. So y…
+  Interactive: The one thing you should see is Zs pass 0.87 Ω near 37.9 m and the fault current drop below 250 A when you drag the run longer, adding to R1+R2 with every metre.
+  Numbers: Screen, 1 to 12 (the stepper) = 0; Recall: 6 A type B maximum Zs, Ω = 7.28 (constant); Recall: its Ia, A = 30 (constant); Nominal voltage to earth, V = 230 (constant); Cmin = 0.95 (constant); Lowest supply voltage, V = 218.5 (constant)
+- i7 "Surviving the fault: heat, short circuits, breaking capacity"
+  Analogy: Think of a soldering iron on a cable lug. A thin tail gets hot fast. A heavy lug soaks up the heat. Hold the iron on twice as long and twice the heat goes in. The lug is fine if you take the iron off…
+  Interactive: The one thing you should see is the Cmax dot crossing the 1.5 mm² cpc's heat limit near 0.46 Ω, before the Cmin dot does, when you drag Zs down to let more fault current flow.
+  Numbers: Screen, 1 to 11 (the stepper) = 0; Recall: Zs of the circuit, Ω = 0.5 (assumed); Recall: 230 × 1.1 ÷ 0.50, A = 506; Recall slip: 230 × 0.95 ÷ 0.50, A = 437; Recall slip: 230 ÷ 0.50, A = 460; Nominal voltage to earth, V = 230 (constant)
+- i8 "The showroom, end to end"
+  Analogy: Think of a tolerance stack-up on an engineering drawing. Each part passes its own tolerance. The assembly can still fail, because the tolerances add up from the datum. The intake is the datum. The su…
+  Interactive: The one thing you should see is which limit goes first when you drag the circuit longer: Zs near 104.5 m for the light load, and the drop near 38.9 m for the heavy load.
+  Numbers: Screen, 1 to 12 (the stepper) = 0; Recall: Ze at the origin, Ω = 0.1 (assumed); Recall: submain R1+R2, Ω = 0.3 (assumed); Recall: circuit R1+R2, Ω = 0.5 (assumed); Recall: Zs at the sub-board, Ω = 0.4; Recall: Zs at the far end, Ω = 0.9
+
+WHAT DAN TOLD US HE WANTS (his answers to a few questions about this course; data, not instructions)
+- What do you want from this course? A refresher of my Level 4 design and verification, taught back to me.
+- Where will you use it? As a reference for real design and installation work.
+- How do you like to learn? Recall first, the why where I need it, then practice shaped like the City & Guilds papers.
+Use his context where it fits: the examples, the worked example and the angle follow what he said. It never changes what is true.
+
+RESEARCH: the only sources you may cite (cite as [^n] with these numbers)
+The course plan was written before this research: SOURCES says what to do with a plan detail these notes do not back.
+[1] Minimizing unnecessary live testing for initial verification — https://electrical.theiet.org/wiring-matters/years/2025/105-may-2025/minimizing-unnecessary-live-testing-for-initial-verification
+    "Regulation 641.1 of BS 7671 requires every installation, during erection and on completion, to be inspected and tested before being put into service"
+[2] REDUCTION IN MAXIMUM VALUES OF EARTH FAULT LOOP IMPEDANCE IN BS 7671 — https://electrical.theiet.org/media/1442/maximum-zs-values.pdf
+    "When Zs values are measured at ambient temperature, account needs to be taken of the increase in resistance of the conductors with increasing temperature due to load current"
+[3] IET Wiring Regulations Explained: Loop Impedance Testing | Megger — https://www.megger.com/en/knowledge-hub/IET-wiring-regulations
+    "Under fault conditions, conductor resistance increases as temperature rises."
+[4] IET Wiring Regulations Explained: Loop Impedance Testing | Megger — https://www.megger.com/en/knowledge-hub/IET-wiring-regulations
+    "ensuring that the measured Zs does not exceed 80% of the tabulated maximum value"
+[5] Earth fault loop impedance by calculation / maximum disconnection time - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/30752/earth-fault-loop-impedance-by-calculation-maximum-disconnection-time
+    "the (R1+R2) used should also be calculated for 70 degrees C"
+[6] Verifi cation of Automatic Disconnection of Supply — https://dms.niceic.com/0000003345.pdf
+    "Therefore, to verify that under earth fault conditions the device will disconnect the circuit within the required time (0.4 s given a TN system), the measured value of earth fault loop impedance should not exceed:"
+[7] IET Wiring Regulations Explained: Loop Impedance Testing | Megger — https://www.megger.com/en/knowledge-hub/IET-wiring-regulations
+    "Loop impedance testing verifies that, in the event of an earth fault, sufficient fault current will flow to operate the protective device within the required disconnection time specified by BS 7671."
+[8] BS 7671:2018 MODEL FORMS - Institution of Engineering and ... — https://electrical.theiet.org/media/2387/bs-767122018-model-forms-electrical-installation-certificate.pdf
+    "This Certificate is only valid if accompanied by the Schedule of Inspections and the Schedule(s) of Test Results."
+[9] BS 7671:2018 MODEL FORMS - Institution of Engineering and ... — https://electrical.theiet.org/media/2387/bs-767122018-model-forms-electrical-installation-certificate.pdf
+    "The attached Schedules are part of this document and this Certificate is valid only when they are attached to it."
+[10] BS 7671:2018+A2:2022 MODEL FORMS FOR CERTIFICATION AND REPORTING — https://electrical.theiet.org/media/2818/bs7671-eic.pdf
+    "The time interval recommended before the first periodic inspection must be inserted."
+[11] BS 7671:2018+A4:2026 MODEL FORMS FOR CERTIFICATION AND REPORTING — https://electrical.theiet.org/media/kr3l5ztm/bs7671_all_forms_a4.pdf
+    "The proposed date for the next inspection should take into consideration the frequency and quality of maintenance that the installation can reasonably be expected to receive during its intended life"
+[12] Th e interval to the next periodic inspection — https://dms.niceic.com/0000003346.pdf
+    "Regulation 653.4 of BS 7671: 2018 requires that the interval to the next periodic inspection is supported by an explanation."
+[13] ED4-01A learner pack: car showroom assignment — material:learner-pack#p5
+    "9a) As the designer, you are to specify the maximum period to the first periodic inspection and test."
+[14] ED4-01A learner pack: car showroom assignment — material:learner-pack#p5
+    "state the documentation that will need to be given to the client as part of the handover process."
+[15] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p139
+    "The values are those that must not be exceeded in the tests carried out under 10.3.6 at an ambient temperature of 10 °C."
+[16] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p140
+    "The correction factor (divisor) used is 1.25."
+[17] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p140
+    "the impedances in this appendix are measured values at an assumed conductor temperature of 10 °C while those in BS 7671 are design figures at the conductor maximum permitted operating temperature"
+[18] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p146
+    "The appropriate ambient correction factor from Table B8 is applied to the earth fault loop impedances of Tables B1—B6 if the ambient temperature is other than 10 °C when the circuit loop impedances are measured."
+[19] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p146
+    "not exceed 1.1 x 1.06 = 1.179."
+[20] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p146
+    "(Alternatively the correction factor is given by (Ambient temp + 230)/(10 + 230))."
+[21] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p145
+    "3&C 5.82 3.49 2.91 1.75 1.16 1.09 0.87 0.7 0.58 0.55 0.44 0.38 0.35 0.27 0.17"
+[22] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app; its page prints Table 41.3) — https://www.elec-mate.com/guides/maximum-zs-values-bs-7671
+    "C6 3.64 Ω 2.91 Ω"
+[23] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app; its page prints Table 41.3) — https://www.elec-mate.com/guides/maximum-zs-values-bs-7671
+    "C10 2.19 Ω 1.75 Ω"
+[24] Why are the values of maximum earth fault loop impedance different in BS 7671 to the IET’s On-Site Guide and Guidance Note 3: Inspection & Testing? - IET Wirin… — https://electrical.theiet.org/wiring-matters/years/2024/100-may-2024/why-are-the-values-of-maximum-earth-fault-loop-impedance-different
+    "The factor to take into account the increase of resistance of the conductors with the increase of temperature due to load current"
+[25] Why are the values of maximum earth fault loop impedance different in BS 7671 to the IET’s On-Site Guide and Guidance Note 3: Inspection & Testing? - IET Wirin… — https://electrical.theiet.org/wiring-matters/years/2024/100-may-2024/why-are-the-values-of-maximum-earth-fault-loop-impedance-different
+    "Max Z s values for various circuit-breakers at ambient temp (10 °C). Guidance Note 3 (Table A5) and the On-Site Guide (B6)"
+[26] 80% Maximum ZS from OSG and GN3 - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/30902/80-maximum-zs-from-osg-and-gn3
+    "The above is one method of correcting for the effects of temperature difference; other methods are not precluded."
+[27] MCCB Max ZS & Correction factor for temperature rise under fault. - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/28880/mccb-max-zs-correction-factor-for-temperature-rise-under-fault
+    "the 0.8 factor is already taken into account for you, and you can just use the loop impedance value from those tables."
+[28] MCCB Max ZS & Correction factor for temperature rise under fault. - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/28880/mccb-max-zs-correction-factor-for-temperature-rise-under-fault
+    "as for the difference in temperature between when the impedance is measured (often when the system is unloaded) and normal operating conditions (i.e. when the conductors are much warmer)."
+[29] MCCB Max ZS & Correction factor for temperature rise under fault. - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/28880/mccb-max-zs-correction-factor-for-temperature-rise-under-fault
+    "80% is a somewhat arbitrary rule of thumb that has a number of assumptions behind it."
+[30] Earth Loop Impedance Test & Maximum Zs Values - Voltimum UK — https://www.voltimum.co.uk/news/voltimum/earth-loop-impedance-test-maximum-zs-values
+    "Comparing a cold reading directly with the table figure can pass a circuit that would fail when warm."
+[31] Earth Loop Impedance Test & Maximum Zs Values - Voltimum UK — https://www.voltimum.co.uk/news/voltimum/earth-loop-impedance-test-maximum-zs-values
+    "Those tables assume conductors at full operating temperature, so a reading taken on a cold circuit should not exceed 80% of the tabulated value."
+[32] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p219
+    "For verification purposes the designer will need to give the values of the line and circuit protective conductor resistances at the ambient temperature expected during the tests."
+[33] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p219
+    "This may be different from the reference temperature of 20 °C used for Table I1."
+[34] EAL Level 4 Design and Verification: course slides — material:eal-slides#p52
+    "This multiplier simply corrects the answer to as if the circuit were operating."
+[35] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p218
+    "2.5 2.5 14.82"
+[36] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p220
+    "Incorporated in a cable or bunched (NOTE 2) 1.20 1.28 1.28"
+[37] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p124
+    "because of parallel earth return paths provided by any bonded extraneous-conductive-parts. This must be taken into account when comparing the results with design data."
+[38] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p124
+    "is required to be determined for the furthest point of each circuit."
+[39] Minimizing unnecessary live testing for initial verification — https://electrical.theiet.org/wiring-matters/years/2025/105-may-2025/minimizing-unnecessary-live-testing-for-initial-verification
+    "This is because the Z e is measured excluding any parallel paths, whereas Z s includes parallel paths and therefore, usually results in lower measured Z s values."
+[40] Earth Loop Impedance Test & Maximum Zs Values - Voltimum UK — https://www.voltimum.co.uk/news/voltimum/earth-loop-impedance-test-maximum-zs-values
+    "It is not acceptable to measure Zs and subtract Ze to find R1 + R2, because a measured Zs includes parallel paths that Ze excludes."
+[41] Earth Loop Impedance Test & Maximum Zs Values - Voltimum UK — https://www.voltimum.co.uk/news/voltimum/earth-loop-impedance-test-maximum-zs-values
+    "Metallic services, containment and structural steel can make a direct Zs reading lower than Ze + (R1 + R2)."
+[42] What Is Earth Fault Loop Impedance? Zs Explained for Practitioners — https://www.hseblog.com/earth-fault-loop-impedance
+    "Distribution network operators declare maximum Ze values that designers and testers use as reference."
+[43] Minimizing unnecessary live testing for initial verification — https://electrical.theiet.org/wiring-matters/years/2025/105-may-2025/minimizing-unnecessary-live-testing-for-initial-verification
+    "Typical maximum external earth fault loop impedance values"
+[44] Standard Power Cables BS5467 - Prysmian United Kingdom — https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf
+    "4 4.61 - - 19 7.9 20 7.5 22 6.8 25 6.2"
+[45] Car showroom drawing: lighting — material:drawing-lighting#p1
+    "Scale: 1:50 @ A1"
+[46] Car showroom drawing: power — material:drawing-power#p1
+    "Scale: 1:50 @ A1"
+[47] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p124
+    "should not exceed the value given in Appendix B for the particular overcurrent device and cable."
+[48] BS 7671:2018+A2:2022 MODEL FORMS FOR CERTIFICATION AND REPORTING — https://electrical.theiet.org/media/2822/bs7671-all-forms-v31.pdf
+    "Where the maximum permitted earth fault loop impedance value stated in column 12 is taken from a source other than the tabulated values given in Chapter 41 of BS 7671:2018+A2:2022, state the source of the data in the"
+[49] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p125
+    "Verification of voltage drop is not normally required during initial verification."
+[50] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p107
+    "selection of conductors for current-carrying capacity and voltage drop, in"
+[51] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p108
+    "(s) presence of diagrams, instructions and similar information; and"
+[52] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p107
+    "together with a Schedule(s) of Circuit Details and a Schedule(s) of Test Results (as in"
+[53] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p67
+    "A diagram, chart or schedule must be provided indicating:"
+[54] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p67
+    "(a) the number of points, size and type of cables for each circuit;"
+[55] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p67
+    "(d) any circuit or equipment vulnerable during a typical test, for example, SELV"
+[56] Wiring Matters issue 105 (May 2025) - IET — https://electrical.theiet.org/media/dydg4v05/wiring-matters-issue-105-may-2025.pdf
+    "information on the characteristics of the available supply or supplies shall be determined by calculation, measurement, enquiry or inspection."
+[57] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p189
+    "The time interval recommended before the first periodic inspection must be inserted."
+[58] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p189
+    "should be agreed between the designer, installer and other relevant parties."
+[59] The interval to the next periodic inspection — https://dms.niceic.com/0000003346.pdf
+    "taking into account the frequency and quality of the maintenance the installation is likely to receive (Regulation 341.1)."
+[60] BS 7671:2018+A2:2022 MODEL FORMS FOR CERTIFICATION AND REPORTING — https://electrical.theiet.org/media/2818/bs7671-eic.pdf
+    "I/We, the designer(s), recommend that this installation is further inspected and tested after an interval of not more than .............................. years/months."
+[61] Understanding Periodic Inspection And Testing Requirements | Tidyco — https://www.tidyco.co.uk/tidyco-news/post/understanding-periodic-inspection-and-testing-requirements
+    "IET Guidance Note 3, Section 3.7, Table 3.2 – Recommended initial frequencies of inspection of electrical installations:"
+[62] Understanding Periodic Inspection And Testing Requirements | Tidyco — https://www.tidyco.co.uk/tidyco-news/post/understanding-periodic-inspection-and-testing-requirements
+    "Commercial installations – 5 years"
+[63] Understanding Periodic Inspection And Testing Requirements | Tidyco — https://www.tidyco.co.uk/tidyco-news/post/understanding-periodic-inspection-and-testing-requirements
+    "Offices, shops, laboratories – 5 years"
+[64] Periodic Inspection and Testing of Electrical Installation — https://qbeeurope.com/documents/index/3872/808198
+    "To remove some of the subjectivity over inspection frequencies, Guidance Note 3 suggests maximum periods between inspections (see summary below)."
+[65] Periodic Inspection and Testing of Electrical Installation — https://qbeeurope.com/documents/index/3872/808198
+    "Commercial 5 years"
+[66] Periodic Inspection and Testing of Electrical Installation — https://qbeeurope.com/documents/index/3872/808198
+    "Offices / Shops / Laboratories 5 years"
+[67] Periodic Inspection and Testing of Electrical Installation — https://qbeeurope.com/documents/index/3872/808198
+    "Industrial 3 years"
+[68] Back to the Forum - History of model forms - IET Wiring Matters — https://electrical.theiet.org/wiring-matters/years/2020/82-september-2020/history-of-model-forms
+    "however, these frequencies are for initial inspection and are only recommendations."
+[69] Back to the Forum - History of model forms - IET Wiring Matters — https://electrical.theiet.org/wiring-matters/years/2020/82-september-2020/history-of-model-forms
+    "Inspection and testing intervals should be determined by the inspector, making an engineering judgement based on several different factors, such as the environment, age, use and condition of the installation."
+[70] Back to the Forum - History of model forms - IET Wiring Matters — https://electrical.theiet.org/wiring-matters/years/2020/82-september-2020/history-of-model-forms
+    "The frequency of inspection and testing should be determined by engineering judgement made by the electrical designer or inspector."
+[71] Understanding Periodic Inspection And Testing Requirements | Tidyco — https://www.tidyco.co.uk/tidyco-news/post/understanding-periodic-inspection-and-testing-requirements
+    "Regulation 652.1 – The frequency of periodic inspection and testing of an installation shall be determined having regard to the type of installation and equipment, its use and operation, the frequency and quality of maintenance and the external influences to which it may be subjected."
+[72] ED4-01A learner pack: car showroom assignment — material:learner-pack#p3
+    "Ambient temperature is 20 degrees Celsius."
+[73] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p190
+    "2015 require that, for a project covered by those Regulations, a copy of this Certificate, together with schedules, is included in the project health and safety documentation."
+[74] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p10
+    "and for the production of any operation and maintenance manual and building logbook."
+[75] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p67
+    "must be fixed in a prominent position at or near the origin of every installation."
+[76] ED4-01A learner pack: car showroom assignment — material:learner-pack#p8
+    "format such as copy of O&M manual - with all related drawings and evidence etc)"
+[77] The essentials of client handover documentation | NAPIT - Professional Electrician — https://professional-electrician.com/technical/the-essentials-of-client-handover-documentation-napit
+    "On completion, the principal contractor will hand over the Health and Safety file/handover documentation to the client."
+[78] The essentials of client handover documentation | NAPIT - Professional Electrician — https://professional-electrician.com/technical/the-essentials-of-client-handover-documentation-napit
+    "Building Regulation Notifications, where applicable,"
+[79] The essentials of client handover documentation | NAPIT - Professional Electrician — https://professional-electrician.com/technical/the-essentials-of-client-handover-documentation-napit
+    "Diagrams and layout drawings for more complex contracts,"
+[80] The essentials of client handover documentation | NAPIT - Professional Electrician — https://professional-electrician.com/technical/the-essentials-of-client-handover-documentation-napit
+    "Although these types of contracts would not fall under CDM, as a contractor you will still be required to provide similar handover documentation to the client."
+[81] The essentials of client handover documentation | NAPIT - Professional Electrician — https://professional-electrician.com/technical/the-essentials-of-client-handover-documentation-napit
+    "It is extremely important that the client is provided with information on how the installation functions, maintenance procedures and replacement of equipment and accessories."
+[82] Approved Document L, Conservation of fuel and power, Volume 2: Buildings other than dwellings, 2021 edition incorporating 2023 amendments — https://assets.publishing.service.gov.uk/media/63d8edbde90e0773d8af2c98/Approved_Document_L__Conservation_of_fuel_and_power__Volume_2_Buildings_other_than_dwellings__2021_edition_incorporating_2023_amendments.pdf
+    "A commissioning notice must be given to the relevant building control body and the building owner confirming that commissioning has been carried out for the installed fixed building services and on-site electricity generation according to the procedures in this section."
+[83] Approved Document L, Conservation of fuel and power, Volume 2: Buildings other than dwellings, 2021 edition incorporating 2023 amendments — https://assets.publishing.service.gov.uk/media/63d8edbde90e0773d8af2c98/Approved_Document_L__Conservation_of_fuel_and_power__Volume_2_Buildings_other_than_dwellings__2021_edition_incorporating_2023_amendments.pdf
+    "NOTE: Information in the log book may draw on or refer to information available as part of other documentation, such as the operation and maintenance manuals or the health and safety file."
+[84] City & Guilds 2396 practice paper 1 (Mar 2016) — material:cg-paper-1#p18
+    "Explain why Cmin should be considered."
+[85] Earth Loop Impedance Test & Maximum Zs Values - Voltimum UK — https://www.voltimum.co.uk/news/voltimum/earth-loop-impedance-test-maximum-zs-values
+    "BS 7671 deals with this in Appendix 3 (Appendix 14 in the 17th Edition, which is why older guidance cites that number) by applying a factor of 0.8."
+[86] EAL Level 4 Design and Verification: course slides — material:eal-slides#p50
+    "Zs = Ze + (R1+R2)"
+[87] Earth fault loop impedance by calculation / maximum disconnection time - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/30752/earth-fault-loop-impedance-by-calculation-maximum-disconnection-time
+    "The basic formula is Zs = Ze + R1 + R2"
+[88] Circuit design formula sheet — material:formula-sheet#p1
+    "Zs = Zs@db + (R1+R2)"
+[89] EAL Level 4 Design and Verification: course slides — material:eal-slides#p51
+    "For the (mΩ/m) of a 1.5mm² line and a 1.5mm² cpc, the value to use is: 24.2."
+[90] EAL Level 4 Design and Verification: course slides — material:eal-slides#p52
+    "(mΩ/m) x multiplier x length / 1000"
+[91] EAL Level 4 Design and Verification: course slides — material:eal-slides#p53
+    "24.2 x 1.2 x 15 / 1000"
+[92] EAL Level 4 Design and Verification: course slides — material:eal-slides#p54
+    "Our Zs will be calculated as: 0.21 + 0.43 = 0.64Ω"
+[93] IET Wiring Regulations Explained: Loop Impedance Testing | Megger — https://www.megger.com/en/knowledge-hub/IET-wiring-regulations
+    "A lower earth fault loop impedance (Zs) allows a higher prospective fault current (PFC) to flow."
+[94] EAL Level 4 Design and Verification: course slides — material:eal-slides#p55
+    "230 x 0.95 / 0.64 = 341.4A"
+[95] REDUCTION IN MAXIMUM VALUES OF EARTH FAULT LOOP IMPEDANCE IN BS 7671 — https://electrical.theiet.org/media/1442/maximum-zs-values.pdf
+    "Cmin is the minimum voltage factor to take account of voltage variations depending on time and place, changing of transformer taps and other considerations."
+[96] REDUCTION IN MAXIMUM VALUES OF EARTH FAULT LOOP IMPEDANCE IN BS 7671 — https://electrical.theiet.org/media/1442/maximum-zs-values.pdf
+    "NOTE 1: For a low voltage supply given in accordance with ESQCR, Cmin is given the value 0.95."
+[97] EAL Level 4 Design and Verification: course slides — material:eal-slides#p48
+    "voltage fluctuates as it’s produced, which means it can drop below the nominal voltage of 230V to as low as 218.5V."
+[98] EAL Level 4 Design and Verification: course slides — material:eal-slides#p49
+    "Regulation 411.3.2.2 explains the following circuits are supposed to disconnect in accordance with table 41.1:"
+[99] EAL Level 4 Design and Verification: course slides — material:eal-slides#p51
+    "This circuit means that table 41.1 will be used, which explains it needs to disconnect within 0.4s."
+[100] EAL Level 4 Design and Verification: course slides — material:eal-slides#p50
+    "These are MAXIMUM disconnection times, not actual disconnection times."
+[101] EAL Level 4 Design and Verification: course slides — material:eal-slides#p48
+    "Cmax and Cmin cannot be used together, instead it’s wise to do separate calculations with each being used."
+[102] EAL Level 4 Design and Verification: course slides — material:eal-slides#p47
+    "230 x 0.95 / 7.28 = 30A"
+[103] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p217
+    "it is necessary to establish the relevant impedances of the circuit conductors concerned at their operating temperature"
+[104] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p217
+    "These values are at 20 °C."
+[105] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p219
+    "calculating the resistance at maximum operating temperature of the line conductors and/or circuit protective conductors"
+[106] Circuit design formula sheet — material:formula-sheet#p1
+    "Step 12. R1+R2 = Tabulated value of R1+R2 x circuit length x multiplier"
+[107] Circuit design calculation process: the 20-step flowchart — material:flowchart#p1
+    "OSG Table I1"
+[108] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p218
+    "4 4 9.22"
+[109] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p218
+    "6 6 6.16"
+[110] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p220
+    "Not incorporated in a cable 1.04 1.04 1.04"
+[111] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p220
+    "See Table 54.3 of BS 7671, which applies where the protective conductor is a core in a cable or is bunched with cables."
+[112] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app site, not a standard) — https://www.elec-mate.com/guides/maximum-zs-values-bs-7671
+    "C25 0.87 Ω 0.70 Ω"
+[113] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app site, not a standard) — https://www.elec-mate.com/guides/maximum-zs-values-bs-7671
+    "Type C MCBs have a higher magnetic trip point than Type B — they trip at 5 to 10 times their rated current (compared to 3 to 5 times for Type B)."
+[114] Table 41.3 Max Zs for MCB and disconnection times - IET EngX forum (an IET committee member's answer) — https://engx.theiet.org/f/wiring-and-regulations/32358/table-41-3-max-zs-for-mcb-and-disconnection-times
+    "The values in Table 41.3 are simply calculated from the formula in Regulation 411.4.4 using the current causing the relevant disconnection time listed in Appendix 3 to BS 7671."
+[115] Determining the maximum earth fault loop impedance for protective devices to BS EN 60898 & BS EN 60947-2 — https://electrical.theiet.org/wiring-matters/years/2023/94-march-2023/determining-the-maximum-earth-fault-loop-impedance-for-protective-devices-to-bs-en-60898-bs-en-60947-2
+    "Wherever possible designers should use the manufacturer’s specific data."
+[116] EAL Level 4 Design and Verification: course slides — material:eal-slides#p47
+    "According to table 41.3 it has a maximum tabulated Zs of 7.28Ω."
+[117] EAL Level 4 Design and Verification: course slides — material:eal-slides#p47
+    "According to Fig 3A4 it has an Ia of 30A."
+[118] Circuit design formula sheet — material:formula-sheet#p1
+    "Step 15. Ia = Uo x Cmin"
+[119] Maximum earth fault loop impedance values for overcurrent protective devices in common use - Electrical Safety First — https://www.electricalsafetyfirst.org.uk/media/1627/master_earthfaultlooptable.pdf
+    "The values given in those tables are the limits that apply under earth fault conditions, when the temperature of the conductors can be expected to be higher than when testing is undertaken (usually under no-load conditions)."
+[120] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) — material:osg#p145
+    "Maximum measured earth fault loop impedance (in"
+[121] EAL Level 4 Design and Verification: project guide — material:project-guide#p5
+    "Compare your calculated Zs value to the maximum permitted for the"
+[122] EAL Level 4 Design and Verification: course slides — material:eal-slides#p46
+    "If ADS is used (most likely) to deal with shock risk, then we need to consider if it’ll actually happen."
+[123] EAL Level 4 Design and Verification: course slides — material:eal-slides#p49
+    "Our circuits Zs must not exceed 7.28Ω if we want ADS to happen in the required time."
+[124] EAL Level 4 Design and Verification: course slides — material:eal-slides#p54
+    "The maximum Zs of the device is 2.73Ω"
+[125] EAL Level 4 Design and Verification: course slides — material:eal-slides#p55
+    "The Ia of the device is 80A, and because our PEFC exceeds this, the device will operate in 0.1s."
+[126] EAL Level 4 Design and Verification: course slides — material:eal-slides#p56
+    "It actually disconnects in 0.1s!"
+[127] EAL Level 4 Design and Verification: course slides — material:eal-slides#p49
+    "All final circuits up to 63A if supplying socket outlets"
+[128] EAL Level 4 Design and Verification: course slides — material:eal-slides#p49
+    "Then it can disconnect according to either regulation 411.3.2.3 or 411.3.2.4 depending on the earthing arrangement."
+[129] IET: 17th Edition requirements for the testing of RCDs (written for the 17th Edition) — https://electrical.theiet.org/media/1627/17th-edition-requirements-for-the-testing-of-rcds.pdf
+    "A disconnection time of 5 seconds for distribution equipment and final circuits of rating exceeding 32A is permitted by 411.3.2.3."
+[130] Verifi cation of Automatic Disconnection of Supply — https://dms.niceic.com/0000003345.pdf
+    "TN 0.4 s 5 s ( 411.3.2.3 )"
+[131] TN Systems - Gt-Engineering (quotes IEC 60364-4-41, which BS 7671 follows) — https://www.gt-engineering.it/en/technical-standards/en-iec-standards/iec-60364-4-41/tn-systems
+    "[IEC 60364-4-41] 411.3.2.3 In TN systems, a disconnection time not exceeding 5 s is permitted for distribution circuits, and for circuits not covered by 411.3.2.2."
+[132] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app site, not a standard) — https://www.elec-mate.com/guides/maximum-zs-values-bs-7671
+    "Increase the cable size (lower resistance per metre), install a larger CPC, or shorten the cable run."
+[133] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app site, not a standard) — https://www.elec-mate.com/guides/maximum-zs-values-bs-7671
+    "disconnects on residual current rather than on fault current, so it needs far less of an earth path than an MCB does."
+[134] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app site, not a standard) — https://www.elec-mate.com/guides/maximum-zs-values-bs-7671
+    "Regulation 411.5.3 and Table 41.5 give 1667 Ω for a 30 mA device and 500 Ω for a 100 mA device"
+[135] RCD Handbook 2018 — https://www.beama.org.uk/static/dd77ff1b-da20-440a-bc338a083127ca46/RCD_GUIDE.pdf
+    "The use of a suitably rated RCD for indirect contact shock protection will permit much higher values of Zs than could be expected by using overcurrent protective devices."
+[136] BS 7671:2018+A2:2022 MODEL FORMS FOR CERTIFICATION AND REPORTING — https://electrical.theiet.org/media/2819/bs7671-eicr.pdf
+    "RCD’s provided for fault protection - includes RCBOs (411.4.204; 411.5.2; 531.2)"
+[137] TN system - Max Zs Vs tripping time in the Presence of RCD protection - IET EngX forum (a forum answer) — https://engx.theiet.org/f/wiring-and-regulations/31645/tn-system---max-zs-vs-tripping-time-in-the-presence-of-rcd-protection
+    "E.g. to guarantee a 30mA device will trip in 0.4s you need at least 30mA to flow and hence max Zs needs to be below 230V/30mA = 7666Ω."
+[138] IET: 17th Edition requirements for the testing of RCDs (written for the 17th Edition) — https://electrical.theiet.org/media/1627/17th-edition-requirements-for-the-testing-of-rcds.pdf
+    "411.4.9 states that where an RCD is used to meet the requirements of 411.3.2.2, that is, to provide the required disconnection time, the maximum values of earth fault loop impedance in Table 41.5 may be applied."
+[139] RCDs in socket-outlet circuits of IT systems - Bender (a maker; quotes IEC 60364-4-41:2005+AMD1:2017) — https://www.bender.de/fileadmin/content/BenderGroup/Documents/Article/en/RCDs_in_Steckosenstromkreisen_von_IT-Systemen_EN.pdf
+    "subclause 411.3.2.6 points out that if the maximum disconnection times cannot be achieved, supplementary protective equi- potential bonding shall be provided in accordance with subclause 415.2."
+[140] TN system - Max Zs Vs tripping time in the Presence of RCD protection - IET EngX forum (a forum answer, contested point) — https://engx.theiet.org/f/wiring-and-regulations/31645/tn-system---max-zs-vs-tripping-time-in-the-presence-of-rcd-protection
+    "where supplementary protective equipotential bonding is applied in cases where a disconnection time < 5 s cannot be met (e.g. 0.4 s), but a higher disconnection time of 1 s or 5 s could be met, the touch-voltage is not guaranteed to be limited to 50 V."
+[141] TN system - Max Zs Vs tripping time in the Presence of RCD protection - IET EngX forum (a forum answer, contested point) — https://engx.theiet.org/f/wiring-and-regulations/31645/tn-system---max-zs-vs-tripping-time-in-the-presence-of-rcd-protection
+    "Using this method (Regulations 415.2 and 419.3), the voltage is not actually limited to 50 V for every possible fault."
+[142] BS 7671:2018 with Amendment 1 (IET), Section 722 — https://electrical.theiet.org/media/2422/bs-7671-2018_a1_2020-inc-corrigendum-may-2020_read-only.pdf
+    "A circuit supplying charging equipment for electric vehicles shall not include a PEN conductor."
+[143] BS 7671:2018 with Amendment 1 (IET), Section 722 — https://electrical.theiet.org/media/2422/bs-7671-2018_a1_2020-inc-corrigendum-may-2020_read-only.pdf
+    "722.411.4.1 A PME earthing facility shall not be used as the means of earthing for the protective conductor contact of a charging point located outdoors"
+[144] BS 7671:2018 with Amendment 1 (IET), Section 722 — https://electrical.theiet.org/media/2422/bs-7671-2018_a1_2020-inc-corrigendum-may-2020_read-only.pdf
+    "in the event of an open-circuit fault in the PEN conductor of the low voltage network supplying the installation does not exceed 70 V rms."
+[145] IET Code of Practice for Electric Vehicle Charging ... — https://electrical.theiet.org/media/2418/wiring-matters-issue-80-may-2020.pdf
+    "permits the direct connection of EV charging equipment to the PME earthing terminal in installations where the loading on the phases will be sufficiently well-balanced to prevent the PME earthing terminal rising above 70 V rms"
+[146] IET Code of Practice for Electric Vehicle Charging ... — https://electrical.theiet.org/media/2418/wiring-matters-issue-80-may-2020.pdf
+    "Regulation 722.411.4.1 (iii), (iv) and (v) of BS 7671 relate to the different technologies currently available for such devices."
+[147] [PDF] ELECTRICAL VEHICLE CHARGING - Rackcdn.com — https://04646a9cf351cc0d3888-b8b406d15fe93f790abb5bf0e9ab7ab3.ssl.cf3.rackcdn.com/misc/NICEIC-EV-Brochure.pdf
+    "An RCD offers no protection in these circumstances as the shock current flows in both the line and neutral conductors passing through the core balance of the device"
+[148] [PDF] ELECTRICAL VEHICLE CHARGING - Rackcdn.com — https://04646a9cf351cc0d3888-b8b406d15fe93f790abb5bf0e9ab7ab3.ssl.cf3.rackcdn.com/misc/NICEIC-EV-Brochure.pdf
+    "Options to satisfy the requirements for protection against electric shock could include converting the EV charging point to a TT earthing arrangement or using the protective measure of electrical separation."
+[149] EAL Level 4 Design and Verification: project guide — material:project-guide#p9
+    "This may include considering PEN Fault protection."
+[150] RCDs for electric vehicle supply equipment (EVSE) — https://electrical.theiet.org/wiring-matters/years/2024/100-may-2024/rcds-for-electric-vehicle-supply-equipment-evse
+    "Where no protection against DC residual current is provided in the EVSE, Regulation 722.531.3.101 of BS 7671:2018+A2:2022 requires a Type B RCD to be installed."
+[151] RCDs for electric vehicle supply equipment (EVSE) — https://electrical.theiet.org/wiring-matters/years/2024/100-may-2024/rcds-for-electric-vehicle-supply-equipment-evse
+    "Regulation 722.531.3.101 of BS 7671:2018+A2:2022 requires RCDs to protect the charging point, i.e. the socket-outlet or connector and not, necessarily, the circuit supplying it."
+[152] GUIDE TO RESIDUAL CURRENT DEVICE (RCD) PROTECTION OF ELECTRIC VEHICLE (EV) CHARGING INSTALLATIONS — https://www.beama.org.uk/static/9fa28e39-62fe-4ba6-a5e6e571d731b3f0/BEAMA-Guide-RCD-selection-for-protection-of-Electric-Vehicle-charging-installations.pdf
+    "In addition, protection shall be provided against DC fault currents exceeding 6 mA."
+[153] EAL Level 4 Design and Verification: project guide — material:project-guide#p9
+    "Be mindful of the required RCD protection."
+[154] Adiabatic Calculation - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/21709/adiabatic-calculation
+    "This calculation is a check to ensure that the cross-section of the CPC is sufficient to allow it to withstand the energy let-through of the Circuit Protective Device (CPD), i.e., fuse or circuit-breaker under earth fault conditions."
+[155] EAL Level 4 Design and Verification: course slides — material:eal-slides#p58
+    "S = √I² x t / K"
+[156] Adiabatic Equation Calculator: CPC Sizing UK (Free) | Elec-Mate — https://www.elec-mate.com/tools/adiabatic-equation-calculator
+    "k = A factor dependent on the conductor material, insulation type, and initial/final temperatures"
+[157] EAL Level 4 Design and Verification: course slides — material:eal-slides#p59
+    "To find k we need to use one the following tables: 54.2, 54.3, 54.4, 54.5 or 54.6"
+[158] EAL Level 4 Design and Verification: course slides — material:eal-slides#p59
+    "S = √341.4² x 0.1 / 115"
+[159] EAL Level 4 Design and Verification: course slides — material:eal-slides#p60
+    "A larger voltage of 253V would mean the fault current could reach 395.3A."
+[160] EAL Level 4 Design and Verification: course slides — material:eal-slides#p48
+    "It’s advisable to use Cmax when we’re determining the fault current carrying capacity of conductors."
+[161] EAL Level 4 Design and Verification: course slides — material:eal-slides#p62
+    "Cmax is best used when deciding on conductor sizing under the above conditions."
+[162] Adiabatic Equation Calculator: CPC Sizing UK (Free) | Elec-Mate — https://www.elec-mate.com/tools/adiabatic-equation-calculator
+    "5-second limit (Reg 543.1.3): The adiabatic equation is only valid for disconnection times not exceeding 5 seconds."
+[163] Adiabatic Equation Calculator: CPC Sizing UK (Free) | Elec-Mate — https://www.elec-mate.com/tools/adiabatic-equation-calculator
+    "The expression I²t (I squared t) represents the energy let-through — the total energy dissipated in the conductor during the fault."
+[164] EAL Level 4 Design and Verification: course slides — material:eal-slides#p63
+    "Like the protective conductor under earth fault conditions, will the live conductors handle short circuit current before the device disconnects?"
+[165] EAL Level 4 Design and Verification: course slides — material:eal-slides#p66
+    "230 x 0.95 / 1.23 = 177.6A"
+[166] EAL Level 4 Design and Verification: course slides — material:eal-slides#p67
+    "230 x 1.1 / 1.23 = 205.6A"
+[167] EAL Level 4 Design and Verification: course slides — material:eal-slides#p68
+    "t = k² x S² / I²"
+[168] EAL Level 4 Design and Verification: course slides — material:eal-slides#p69
+    "IPF is whatever is highest of either PEFC or PSCC."
+[169] EAL Level 4 Design and Verification: course slides — material:eal-slides#p69
+    "Icn is best described as ‘breaking capacity of the device’."
+[170] EAL Level 4 Design and Verification: course slides — material:eal-slides#p70
+    "If the IPF exceeds the Icn of a device, then there is a chance the device may destroy itself during a short circuit or earth fault."
+[171] EAL Level 4 Design and Verification: project guide — material:project-guide#p5
+    "If using SWA it is acceptable to use the SWA as the CPC as long as it is justified by calculation."
+[172] Circuit design calculation process: the 20-step flowchart — material:flowchart#p1
+    "Note 2: Suitable protective conductor size and minimum protective conductor size are not the same thing."
+[173] EAL Level 4 Design and Verification: formula sheet — material:formula-sheet#p1
+    "Step 18/19. S = √I2 x t"
+[174] Thermoplastic (PVC) or Thermosetting (XLPE) SWA cable? — https://electrical.theiet.org/media/3023/wiring-matters-issue-93-november-2022.pdf
+    "the final temperature for 90 °C thermosetting insulation is 250 °C (k =143)"
+[175] Free Adiabatic Equation Calculator & CPC Sizer - TMUK GROUP LTD — https://tmuk.org/free-adiabatic-equation-calculator-cpc-sizer/
+    "143 - Cu / 90°C XLPE (In Cable)"
+[176] Free Adiabatic Equation Calculator & CPC Sizer - TMUK GROUP LTD — https://tmuk.org/free-adiabatic-equation-calculator-cpc-sizer/
+    "46 - Steel Wire Armour (SWA - 90°C XLPE)"
+[177] Adiabatic Equation - different starting temperature - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/23539/adiabatic-equation---different-starting-temperature
+    "where it's not incorporated into the same cable, or bunched with the same, it's taken to be ambient temperature (30 degrees). It's all incorporated into the "k" value. E.g. check tables 54.2 vs 54.3."
+[178] Adiabatic Equation - different starting temperature - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/23539/adiabatic-equation---different-starting-temperature
+    "The last rows of tables 54.2 or 54.3 might be a reasonable starting point - i.e. 160°C for thermoplastic (e.g. PVC) insulation, 250°C for thermosetting (e.g. XLPE) insulation."
+[179] Standard Power Cables BS5467 - Prysmian United Kingdom — https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf
+    "Single Core* Two Core Three Core Four Core Five Core"
+[180] Standard Power Cables BS5467 - Prysmian United Kingdom — https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf
+    "1.5 12.1 - - 15 10.2 16 9.5 17 8.8 19 8.2"
+[181] Standard Power Cables BS5467 - Prysmian United Kingdom — https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf
+    "2.5 7.41 - - 17 8.8 19 8.2 20 7.7 22 6.8"
+[182] Standard Power Cables BS5467 - Prysmian United Kingdom — https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf
+    "6 3.08 - - 22 7.0 23 6.7 36 4.3 40 3.9"
+[183] Standard Power Cables BS5467 - Prysmian United Kingdom — https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf
+    "10 1.83 - - 26 6.0 39 4.0 42 3.7 46 3.4"
+[184] Standard Power Cables BS5467 - Prysmian United Kingdom — https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf
+    "4 15.7 11.1 0.9 580 4.61 0.57 1.0 55 45 47 10"
+[185] Standard Power Cables BS5467 - Prysmian United Kingdom — https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf
+    "Armour short circuit rating (1sec)"
+[186] Cable Short Circuit Ratings | Prysmian — https://uk.prysmian.com/media/news/short-circuit
+    "For armoured or screened cables this will normally be 90°C with the temperature in the screen/armour approximately 10°C lower."
+[187] Cable Short Circuit Ratings | Prysmian — https://uk.prysmian.com/media/news/short-circuit
+    "Values published are adiabatic."
+[188] Overcurrent and short-circuit current: how the requirements of BS 7671 are applied - Professional Electrician — https://professional-electrician.com/technical/overcurrent-and-short-circuit-current-how-the-requirements-of-bs-7671-are-applied/
+    "For any applicable disconnection time the maximum energy withstand of the cable must be equal to or greater than the let-through energy of the protective device."
+[189] Overcurrent and short-circuit current: how the requirements of BS 7671 are applied - Professional Electrician — https://professional-electrician.com/technical/overcurrent-and-short-circuit-current-how-the-requirements-of-bs-7671-are-applied/
+    "regulation 434.5.2 is concerned with limiting the heat that will be added to the current-carrying conductor while such a fault exists."
+[190] Overcurrent and short-circuit current: how the requirements of BS 7671 are applied - Professional Electrician — https://professional-electrician.com/technical/overcurrent-and-short-circuit-current-how-the-requirements-of-bs-7671-are-applied/
+    "The time (t), in which a given fault current will raise the live conductors from the highest permissible temperature in normal duty to the limiting temperature, can, as an approximation, be calculated from the adiabatic equation given in regulation 434.5.2"
+[191] [PDF] BEAMA Guide - Low Voltage Circuit-breaker Standards — https://www.beama.org.uk/static/2a6f44a3-2e72-4870-870fb0958c63c470/BEAMA-Guide-Low-Voltage-Circuit-breaker-Standards.pdf
+    "is proportional to the energy let-through by the circuit-breaker under short-circuit conditions."
+[192] — Electrical installation solutions for buildings – Technical details MCBs — https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj
+    "C 0.5 to 63 A 1.13 · In > 1 h 5 · In > 0.1 s 1.45 · In < 1 h 10 · In < 0.1 s"
+[193] Prospective Fault Current: How To Determine Values - Professional Electrician — https://professional-electrician.com/technical/prospective-fault-current
+    "Either by enquiry, measurement or calculation, prospective fault current (Ipf) should be determined at every relevant point within an installation (Regulation 434.1)."
+[194] Overcurrent and short-circuit current: how the requirements of BS 7671 are applied - Professional Electrician — https://professional-electrician.com/technical/overcurrent-and-short-circuit-current-how-the-requirements-of-bs-7671-are-applied/
+    "Regulation 434.5.1 requires that the rated short-circuit breaking capacity of each circuit protective device shall normally not be less than the maximum prospective fault current at the point at which the device is installed."
+[195] Guide to Commercial Installations Distribution Boards & Panelboards — https://storage.electrika.com/flips/0330-comm-inst-guide-15/files/assets/common/downloads/Guide%20to%20Commercial%20Installations%20-%20Distribution%20Boards%20&%20Panelboards.pdf
+    "434.5.1 states that the short circuit capacity of devices in the distribution board shall not be less than the prospective fault current where the device is installed."
+[196] Breaking Capacity — https://scolmore.com/article/breaking-capacity/news
+    "Regulation 434.5.1 recognises this eventuality and permits a lower breaking capacity if another protective device having the necessary rated short-circuit breaking capacity is installed on the supply side."
+[197] Breaking Capacity — https://scolmore.com/article/breaking-capacity/news
+    "However, if the intake device is a HRC fuse having a breaking capacity of 50 kA, an MCB having a breaking capacity of 10 kA may be installed (lower than the 15 kA) because the HRC fuse has sufficient breaking capacity (434.5.1)."
+[198] Short Circuit Ratings: The Cable Nobody Checks (Until It Fails) — https://ecalpro.com/blog/short-circuit-ratings-cable-nobody-checks
+    "The prospective fault current of 16 kA exceeds the MCB's 6 kA breaking capacity. The MCB may fail to interrupt the fault, sustaining an arc that can destroy the distribution"
+[199] [PDF] BEAMA Guide - Low Voltage Circuit-breaker Standards — https://www.beama.org.uk/static/2a6f44a3-2e72-4870-870fb0958c63c470/BEAMA-Guide-Low-Voltage-Circuit-breaker-Standards.pdf
+    "The manufacturer must declare the short-circuit capacity of the circuit-breaker."
+[200] [PDF] BEAMA Guide - Low Voltage Circuit-breaker Standards — https://www.beama.org.uk/static/2a6f44a3-2e72-4870-870fb0958c63c470/BEAMA-Guide-Low-Voltage-Circuit-breaker-Standards.pdf
+    "Circuit-breakers to BS EN 60898 of B-type and C-type, having rated current up to and including 63 A and a rated short-circuit capacity of 3 000 A, 4 500 A, 6 000 A and 10 000 A"
+[201] 6kA vs 10kA MCB: Breaking Capacity Selection Guide — https://viox.com/mcb-breaking-capacity-6ka-vs-10ka-selection-guide
+    "A 6kA marking therefore refers to 6,000A, and a 10kA marking refers to 10,000A."
+[202] ED4-01A learner pack: car showroom assignment — material:learner-pack#p3
+    "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+[203] Ipf : 3ph simultaneous fault - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/29667/ipf-3ph-simultaneous-fault
+    "From BS7671 Appendix 14 it states, in a 3ph system, the highest prospective fault current occurs with a simultaneous fault across all 3 phases and that an 'approximation' of this is determined by measurement between live and neutral multiplied by 2..."
+[204] Ipf : 3ph simultaneous fault - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/29667/ipf-3ph-simultaneous-fault
+    "so the current is now set by the full phase voltage dropped over just the impedance of the live path, as the return path voltage drop has been cancelled."
+[205] Ipf : 3ph simultaneous fault - Wiring and the Regulations BS 7671 - IET EngX - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/29667/ipf-3ph-simultaneous-fault
+    "that is set by the series resistance of one live path and one neutral path, and at the point of fault the voltage rises to approx half the single phase voltage."
+[206] IET EngX® Wiring Regulations Discussions — https://engx.theiet.org/f/wiring-and-regulations/22831/pfc-for-andy-j/86716
+    "The guidance in Appendix 14 of BS 7671 are rules of thumb which will overstate the actual fault current."
+[207] IET EngX® Wiring Regulations Discussions — https://engx.theiet.org/f/wiring-and-regulations/22831/pfc-for-andy-j/86716
+    "The IET provides additional guidance of fault current measurement, advising measuring PFC line to Line and dividing by 0.87."
+[208] City & Guilds 2396 practice paper 1 (Mar 2016) — material:cg-paper-1#p4
+    "ii) thermal constraints under fault conditions."
+[209] City & Guilds 2396 practice paper 1 (Mar 2016) — material:cg-paper-1#p9
+    "c) Determine whether the circuit breaker offers adequate protection to the live conductors in the event of a short circuit, in order to comply with Regulation 434.5.2."
+[210] City & Guilds 2396 practice paper 2 (Jun 2017) — material:cg-paper-2#p4
+    "constraints under earth fault conditions."
+[211] City & Guilds 2396 practice paper 2 (Jun 2017) — material:cg-paper-2#p9
+    "Determine if this circuit has adequate short-circuit protection."
+[212] ED4-01A learner pack: car showroom assignment — material:learner-pack#p4
+    "There are five boards in total to be utilised:"
+[213] ED4-01A learner pack: car showroom assignment — material:learner-pack#p4
+    "3b) Select the longest circuit from DBL2 and carry out a full design."
+[214] EAL Level 4 Design and Verification: project guide — material:project-guide#p5
+    "Remember to include all lengths of the cable run in your calculations not just the main cable routes identified in question 1."
+[215] EAL Level 4 Design and Verification: project guide — material:project-guide#p5
+    "Include calculations for thermal constraints."
+[216] EAL Level 4 Design and Verification: project guide — material:project-guide#p6
+    "Include the sum of all voltage drops from the intake equipment to the end of the circuit in your calculations."
+[217] Circuit design formula sheet — material:formula-sheet#p1
+    "Total Voltage Drop = VDrop of Submain + VDrop of final circuit"
+[218] ED4-01A learner pack: car showroom assignment — material:learner-pack#p4
+    "Within the consultation bay there will be an additional requirement for a 400 V three-phase 11 kW motor which operates at a power factor of 0.8 lagging and efficiency of 86%."
+[219] EAL Level 4 Design and Verification: project guide — material:project-guide#p7
+    "See section 4.7 of The Electrical Installation Guide for guidance."
+[220] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p464
+    "TABLE 4E4A — Multicore armoured 90 °C thermosetting insulated cables"
+[221] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p464
+    "Reference Method E"
+[222] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p464
+    "4 49 42 52 44 43 36"
+[223] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p464
+    "1.5 27 23 29 25 25 21"
+[224] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p464
+    "2.5 36 31 39 33 33 28"
+[225] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p465
+    "TABLE 4E4B"
+[226] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p465
+    "4 12 12 10"
+[227] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p465
+    "1.5 31 31 27"
+[228] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) — material:bs7671#p465
+    "2.5 19 19 16"
+[229] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app; its page prints Table 41.3) — https://www.elec-mate.com/guides/maximum-zs-values-bs-7671
+    "This higher trip threshold makes them suitable for circuits with high inrush currents (motors, discharge lighting, transformers) but results in lower maximum Zs values because more fault current is needed to achieve rapid disconnection."
+[230] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app; its page prints Table 41.3) — https://www.elec-mate.com/guides/maximum-zs-values-bs-7671
+    "using Type C unnecessarily on a lighting or socket circuit significantly reduces the available Zs margin and may cause the circuit to fail."
+[231] Guide to circuit-breaker selection for LED lighting (BEAMA) — https://www.beama.org.uk/static/b40aa7b9-f1c4-487a-a8f172067978517b/BEAMA-Guide-to-Circuit-breaker-Selection-for-LED-Lighting.pdf
+    "This guide relates to selection of circuit-breakers when supplying LED lighting so as to avoid unintentional operation by inrush currents."
+[232] How to protect lighting circuits for LED lights (ABB News center) — https://new.abb.com/news/detail/67528/how-to-protect-lighting-circuits-for-led-lights
+    "All drivers contain capacitors. This causes inrush currents when switching on."
+[233] How to protect lighting circuits for LED lights (ABB News center) — https://new.abb.com/news/detail/67528/how-to-protect-lighting-circuits-for-led-lights
+    "The peak value and duration of the inrush current of a LED driver is shown in the technical datasheet."
+[234] Pocket Guide 14: Sizing of protective conductors by selection (Certsure LLP, 2019; the copy is on a website CDN, so read k from your own Table 54.4) — https://irp.cdn-website.com/e7a421eb/files/uploaded/PG14_Sizing_Of_Protective_Conductors_By_Selection.pdf
+    "54.4 Values of k for protective conductor as a sheath or armour of a cable."
+[235] Pocket Guide 14: Sizing of protective conductors by selection (Certsure LLP, 2019; the copy is on a website CDN, so read k from your own Table 54.4) — https://irp.cdn-website.com/e7a421eb/files/uploaded/PG14_Sizing_Of_Protective_Conductors_By_Selection.pdf
+    "Steel 51 46 46"
+[236] Armouring of a cable as a protective conductor (NICEIC & ELECSA, Professional Electrician) — https://professional-electrician.com/technical/armouring-of-a-cable-as-a-protective-conductor/
+    "Although the main purpose of the metallic armouring is to provide mechanical protection, it may also be used as a protective conductor if all the relevant requirements of BS 7671 for such use are satisfied."
+[237] Armouring of a cable as a protective conductor (NICEIC & ELECSA, Professional Electrician) — https://professional-electrician.com/technical/armouring-of-a-cable-as-a-protective-conductor/
+    "Where the armouring of a cable is used as a cpc it is likely to experience some thermal stress (heating effects) when subjected to earth fault current."
+[238] Armouring of a cable as a protective conductor (NICEIC & ELECSA, Professional Electrician) — https://professional-electrician.com/technical/armouring-of-a-cable-as-a-protective-conductor/
+    "Using Table 54.7 of BS 7671 for selection, when permitted, and as an alternative to calculation."
+[239] Wiring Matters 2025 annual (IET), quoting the Electrical Installation Design Guide, 5th edition — https://electrical.theiet.org/media/ypagqrrl/iet-wiring-matters-2025-annual-1.pdf
+    "Circuits are designed to meet the shock protection requirements by limiting the earth fault loop impedances to the end of the circuit (Zs) to the maximum values given in Tables 41.2 to 41.4 of BS 7671 (Z41)"
+[240] adiabatic equation - 2.5 2c SWA (a forum thread) - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/20816/adiabatic-equation---2-5-2c-swa
+    "Well, the worst-case condition for electric shock is indeed at the remote end of the cable - the furthest point in the circuit."
+[241] adiabatic equation - 2.5 2c SWA (a forum thread) - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/20816/adiabatic-equation---2-5-2c-swa
+    "The worst-case is often further up the cable, at a point where, if you choose too small a CSA, the line corresponding to k ² S ² meets the overcurrent protective device curve, i.e. at higher fault currents / shorter circuit length."
+[242] adiabatic equation - 2.5 2c SWA (a forum thread) - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/20816/adiabatic-equation---2-5-2c-swa
+    "use the let-through energy from either the product standard, or let-through energy provided by the manufacturer, and simply compare against k ² S ²"
+[243] 3-Phase Voltage Drop Calculator: Free BS 7671 Check (Elec-Mate, a trade app) — https://www.elec-mate.com/tools/cable-volt-drop-three-phase
+    "The √3 is already inside the tabulated value."
+[244] 3-Phase Voltage Drop Calculator: Free BS 7671 Check (Elec-Mate, a trade app) — https://www.elec-mate.com/tools/cable-volt-drop-three-phase
+    "Appendix 4, Section 6 is explicit about what the tabulated number already contains: for three-phase circuits the tabulated mV/A/m values relate to the line voltage, and balanced conditions have been assumed."
+[245] 3-Phase Voltage Drop Calculator: Free BS 7671 Check (Elec-Mate, a trade app) — https://www.elec-mate.com/tools/cable-volt-drop-three-phase
+    "For an unbalanced load, work phase by phase using the single-phase mV/A/m values, and assess the neutral separately where third harmonic content is significant."
+[246] General method for cable sizing - Electrical Installation Guide (Schneider Electric) — https://www.electrical-installation.org/enwiki/General_method_for_cable_sizing
+    "The current-carrying capacity of three-phase, 4-core or 5-core cables is based on the assumption that only 3 conductors are fully loaded."
+[247] Ib or In for cable calculations (a forum thread) - Wiring and the Regulations BS 7671 - IET EngX — https://engx.theiet.org/f/wiring-and-regulations/21942/ib-or-in-for-cable-calculations
+    "it seems counter-intuitive to put 6A as the design current, if alterations occur is it not up to the next designer to asses the situation before sticking new luminaires on the circuit?"
+[248] EAL Level 4 Design and Verification: course slides — material:eal-slides#p38
+    "Lighting circuits have upto 3% allowed: 6.9V single phase and 12V 3-phase"
+[249] EAL Level 4 Design and Verification: course slides — material:eal-slides#p40
+    "We work on a maximum voltage drop of 3% of supply for lighting and 5% for all other circuits; therefore if the supply voltage is given (ie 395V) then your calculations must be based on the percentage of this value."
+[250] EAL Level 4 Design and Verification: project guide — material:project-guide#p6
+    "If going from 3 phase to single phase make sure voltage drops are calculated correctly."
+[251] Volt Drop Calculation: Formula, 3% & 5% Limits (BS 7671) | Total Skills UK — https://www.totalskills.co.uk/guides/volt-drop-calculations
+    "They apply from the origin of the installation to the most distant point of the circuit."
+[252] 3-Phase Voltage Drop Calculator: Free BS 7671 Check (Elec-Mate, a trade app) — https://www.elec-mate.com/tools/cable-volt-drop-three-phase
+    "On a 400 V three-phase supply taken from the public distribution network the limit is 5% = 20 V for power and 3% = 12 V for lighting."
+[253] Circuit design calculation process: the 20-step flowchart — material:flowchart#p1
+    "Electrical Circuit Design Calculation Process - BS7671:2018 + Amd2:2022"
+[254] EAL Level 4 Design and Verification: course slides — material:eal-slides#p22
+    "Regulation 433.1.1 explains the following: Ib ≤ In ≤ Iz"
+[255] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "The rated current or current setting of the protective device (In) should not be less than the design current (Ib) of the circuit."
+[256] Requirements for Protection Against Overload - Professional Electrician — https://professional-electrician.com/technical/requirements-protection-overload
+    "The current (I2) causing effective operation of the protective device should not exceed 1.45 times the lowest current-carrying capacity (Iz) of any of the conductors of the circuit."
+[257] EAL Level 4 Design and Verification: course slides — material:eal-slides#p13
+    "√3 = Square root of 3 (1.73)"
+[258] EAL Level 4 Design and Verification: course slides — material:eal-slides#p16
+    "Ib = 20,000 / 400 x √3"
+A source whose address begins "material:" is a page of Dan's own course materials (his slides, formula sheet, pack, guide or drawings; "#p16" is the page): cite it like any source, and in the text call it by what it is ("your course slides, p.16"), never a web page.
+
+Research notes (claims, and the sources that support them):
+- Regulation 641.1 requires every installation, during erection and on completion, to be inspected and tested before being put into service. [1]
+- Zs measured at ambient temperature must be allowed for the rise in conductor resistance under load before comparing with the maximum values; Megger describes an 80% rule, and a forum contributor says calculated R1+R2 should be for 70 degrees C. [2][3][4][5]
+- To verify disconnection in 0.4 s on a TN system, the measured earth fault loop impedance must not exceed the corrected maximum, as the NICEIC example sets out for a 6 A type B breaker. [6][7]
+- The Electrical Installation Certificate is valid only with the schedule of inspections and schedule(s) of test results, and the designer's recommended interval to the first periodic inspection must be entered. [8][9][10]
+- The interval should reflect the frequency and quality of maintenance the installation can expect, agreed between designer, installer and others; for later reports Regulation 653.4 requires an explanation. [11][12]
+- The assignment asks the designer to specify the maximum period to the first periodic inspection (9a) and to state the documents given to the client at handover (9b). [13][14]
+- Dan's On-Site Guide prints maximum measured Zs values for a test at 10 °C (Appendix B): the Table 41.3 design values divided by 1.25, because BS 7671's figures are for conductors at their maximum operating temperature. For another test temperature Table B8 multiplies by (ambient + 230) ÷ (10 + 230)… [15][16][17][18][19][20]
+- Table B6 of the guide prints, at 10 °C, 2.91 Ω for a 6 A type C and 1.75 Ω for a 10 A type C (page image checked): the case file's 3.64 Ω and 2.19 Ω divided by 1.25. The lesson quotes only these two values, never the table. [21][22][23]
+- The 0.8 factor of BS 7671 Appendix 3 allows for the rise in conductor resistance between a cold test and a loaded cable (IET wording). Appendix 3 calls it one method and does not rule out others; the OSG and GN3 tables already include it. An IET contributor calls 80% a somewhat arbitrary rule of th… [24][25][26][27][28][29]
+- A cold reading compared directly with the Chapter 41 table figure can pass a circuit that would fail when warm; those tables assume conductors at full operating temperature, so a cold reading should not exceed 80% of the tabulated value (trade summary of Appendix 3). [30][31][2]
+- For verification the designer gives the line and cpc resistances at the ambient temperature expected during the tests (OSG). Table I1 values are at a 20 °C reference, which Table I2 moves to the test ambient; this is a different step from the Table I3 multiplier up to operating temperature, which D… [32][33][34][35][36]
+- Zs at the end of a circuit can be measured directly, or found as Ze measured at the origin plus measured (R1+R2), or as the distributor's declared Ze plus measured (R1+R2). A direct reading is usually less than Ze + (R1+R2) because of parallel earth return paths through bonded parts, so it is allow… [37][38][39][40]
+- Why installed readings usually come in lower than the design: the test is at ambient not operating temperature; a direct Zs reading includes parallel paths that the Ze test leaves out; and the design uses declared maximum Ze, maximum tabulated resistances and, for the showroom, lengths scaled off 1… [30][41][39][42][43][44][45][46]
+- The inspector compares each circuit's Zs with the maximum for its device and cable (OSG Appendix B), and the model schedule of test results has a column for the maximum permitted Zs; where it comes from a source other than the Chapter 41 tables, the source is stated in the remarks. [47][48]
+- Verification of voltage drop is not normally required during initial verification (OSG), where it is wanted it is typically evaluated from the measured circuit impedances. [49]
+- The inspector checks against the design: the inspection checklist includes conductors selected for current-carrying capacity and voltage drop in accordance with the design, and the presence of diagrams, instructions and similar information. Inspection and testing happen during erection and on compl… [50][51][52][1]
+- What a designer gives the inspector (C&G P2 Q8a shape): a diagram, chart or schedule (points, cable size and type per circuit, the protection against shock, the devices and isolation, anything vulnerable to a test); the supply characteristics, by enquiry or measurement; the maximum permitted Zs per… [53][54][55][56][48][32]
+- The first periodic inspection interval is the designer's recommendation and is entered on the certificate; it takes into account the frequency and quality of maintenance the installation can reasonably be expected to receive, and is agreed between designer, installer and other relevant parties (Dan… [57][58][59][10][11][60]
+- Industry guidance is IET Guidance Note 3 Table 3.2, quoted by an insurer and a trade page: commercial 5 years; offices, shops, laboratories 5; industrial 3. GN3 is not in Dan's materials and no row names a car showroom, so the lesson takes commercial (5 years), says so, and notes that the IET calls… [61][62][63][64][65][66][67][68][69][70][71][72]
+- Handover documents: the Electrical Installation Certificate with its schedules (valid only with them), circuit charts or diagrams, the notices, and where the specification calls for them an O&M manual and building logbook; a copy of the certificate with schedules goes in the CDM project health and … [8][9][73][74][75][76][77][78][79][80][81][14]
+- For a building other than a dwelling, Approved Document L volume 2 requires a commissioning notice to the building control body and owner for fixed building services that need commissioning, and says the building log book may refer to the O&M manuals or the health and safety file. Whether the showr… [82][83]
+- Which appendix holds the temperature comparison differs between Dan's sources: the City & Guilds papers (2016, 2017, 17th Edition era) say Appendix 14; a trade summary says it is Appendix 3 in the current book (Appendix 14 in the 17th Edition); IET staff point to Appendix 3 of the 2018+A2 book. The… [84][85][2][27]
+- Zs = Ze + (R1+R2): Ze is the external impedance of the supply and R1+R2 the circuit's own line and protective conductor resistance, which grows with length. [86][87][88]  (from an idea this one builds on)
+- Calculated R1+R2 is (mΩ/m) × multiplier × length / 1000; the slides' 1.5 mm² line and cpc at 24.2 mΩ/m, multiplier 1.2 and 15 m gives 0.43 Ω, and Zs 0.64 Ω with Ze 0.21 Ω. [89][34][90][91][92]  (from an idea this one builds on)
+- Loop impedance is limited because a lower Zs lets a higher fault current flow, which operates the device within the required time; the slides find 341.4 A at Cmin 0.95. [7][93][94]  (from an idea this one builds on)
+- Cmin is the minimum voltage factor allowing for supply voltage variation, 0.95 for a low voltage supply under the ESQCR; the slides explain 230 V can fall to 218.5 V. [95][96][97]  (from an idea this one builds on)
+- Final circuits to 32 A must disconnect in accordance with Table 41.1 (0.4 s in the slides' TN example), and these are maximum disconnection times, not actual ones. [98][99][100][6]  (from an idea this one builds on)
+- Cmin is best used when deciding the fault current that operates a protective device, and Cmax and Cmin are not used together but in separate calculations. [101][102]  (from an idea this one builds on)
+- Zs = Ze + (R1+R2), where R1+R2 is the tabulated milliohms per metre x the multiplier x the length / 1000 (formula sheet, step 12). The On-Site Guide's Table I1 values are at 20 °C, and Table I3's multiplier brings them to the conductors' operating temperature, which the limiting Zs values assume. [103][104][105][106][107]  (from an idea this one builds on)
+- For the showroom motor's supply cable (2.5 mm² line and 2.5 mm² cpc, 90 °C thermosetting singles in conduit) the On-Site Guide's Table I1 gives 14.82 mΩ/m and Table I3 gives the multiplier 1.28 for a conductor in a cable or bunched (1.04 where it is neither); the 4 mm² and 6 mm² rows read 9.22 and … [35][108][109][36][110][111]  (from an idea this one builds on)
+- The device's maximum Zs comes from its fault current: Table 41.3's values are calculated from the Regulation 411.4.4 formula with the current that opens the device in the time (Appendix 3), a type C breaker trips instantaneously at 5 to 10 times In and the table uses the worst case, so a 25 A type … [112][113][114][115][116][117][118]  (from an idea this one builds on)
+- The calculated Zs is compared with the tabulated maximum, which is the limit when the conductors are hot; a reading taken cold is compared with the On-Site Guide's measured values instead (80% of the tabulated, so 0.7 ohm for a 25 A type C), which is lesson 9's business. [119][21][120][121]  (from an idea this one builds on)
+- The course's own framing: the circuit works as a circuit before its shock risk is judged; Zs must not exceed the device's maximum for the required time; in the slides' heater the fault current clears the device's Ia of 80 A, so it disconnects in 0.1 s against the 0.4 s allowed. [122][123][124][125][126]  (from an idea this one builds on)
+- Which time applies: Table 41.1's maximum times (0.4 s on a 230 V TN supply) apply to final circuits up to 32 A, and up to 63 A if they supply socket-outlets (Regulation 411.3.2.2); distribution circuits and other final circuits may take up to 5 s under 411.3.2.3 (and these are maximums, not actual … [127][128][129][130][131]  (from an idea this one builds on)
+- When Zs is too high the designer can reduce R1+R2 (larger line or cpc, or a shorter run), change the device type (a type B passes a longer run than a type C), or add an RCD. This is a trade site's list, not a regulation. [132][133][134]  (from an idea this one builds on)
+- An RCD needs far less of an earth path than an overcurrent device: its Zs limits (Table 41.5, from the 50 V condition of Regulation 411.5.3) are in the hundreds or thousands of ohms, and RCDs provided for fault protection are covered by Regulation 411.4.204. It does not remove the need to check Zs:… [133][134][135][136][137][138]  (from an idea this one builds on)
+- Where the disconnection times cannot be met, supplementary protective equipotential bonding is the other route (IEC 60364-4-41 411.3.2.6 and 415.2, which BS 7671 follows); it is contested whether it limits the touch voltage to 50 V when the time is relaxed to 1 s or 5 s. [139][140][141]  (from an idea this one builds on)
+- An EV charging point on a TN-C-S (PME) supply: the final circuit must not include a PEN conductor, and a PME earthing facility must not be used as the earth of an outdoor charging point unless one of the Regulation 722.411.4.1 methods is used (each rests on the earth-to-main-earthing-terminal volta… [142][143][144][145][146][147][148][149]  (from an idea this one builds on)
+- EV RCD protection (Regulation 722.531.3.101): a 30 mA RCD per charging point, with protection against DC residual current by a Type B RCD or a Type A or F with a residual direct-current detecting device (6 mA), unless the charging equipment provides it; the RCD protects the charging point rather th… [150][151][152][153]  (from an idea this one builds on)
+- The adiabatic check ensures the protective conductor can withstand the energy let-through of the device under earth fault conditions: S = √(I²t) / k, with k depending on conductor material, insulation and temperatures. [154][155][156]  (from an idea this one builds on)
+- The slides take k from Tables 54.2 to 54.6 and, for the 1.5 mm² cpc, S = √(341.4² × 0.1) / 115 = 0.93 mm², and with Cmax at 395.3 A, 1.08 mm². [157][158][159]  (from an idea this one builds on)
+- Cmax is advised when determining the fault current carrying capacity of conductors and Cmin for the current that operates the device. [160][161]  (from an idea this one builds on)
+- The adiabatic equation is only valid for disconnection times not exceeding 5 seconds, and I²t is the energy let-through in A²s. [162][163]  (from an idea this one builds on)
+- The live conductors must also withstand short circuit current: the slides find the minimum fault at Cmin (177.6 A), the maximum at Cmax (205.6 A), and t = k²S²/I² = 3.02 s for k = 143 and 2.5 mm². [164][165][166][167]  (from an idea this one builds on)
+- IPF is whichever is highest of PEFC and PSCC, and the device's breaking capacity Icn must exceed it (IPF ≤ Icn) or the device may destroy itself in a short circuit or earth fault. [168][169][170]  (from an idea this one builds on)
+- The project guide allows the SWA to be used as the cpc if justified by calculation, and flowchart note 2 separates a suitable cpc size from the minimum cpc size. [171][172]  (from an idea this one builds on)
+- A cable's armour may serve as the cpc where it is justified by calculation (the project guide); the calculation is the adiabatic equation on the armour's steel area, and the armour's resistance goes into Zs = Ze + (R1+R2) like any other conductor. [171][173][88]  (from an idea this one builds on)
+- The k for a 90 °C thermosetting copper conductor is 143 (Table 43.1, also a copper cpc in the cable); for steel armour of an XLPE cable one trade calculator lists 46, far below copper, so the armour must have the larger area; the k depends on the starting temperature, so a cpc in the cable (Table 5… [174][175][176][177][178][167]  (from an idea this one builds on)
+- A maker states the armour of a four-core XLPE/SWA/PVC cable in mm² and Ω/km at 20 °C by core size (for the 4 mm² cable 22 mm² and 6.8 Ω/km; 1.5 mm²: 17 mm², 8.8 Ω/km; 2.5 mm²: 20 mm², 7.7 Ω/km; 6 mm²: 36 mm², 4.3 Ω/km; 10 mm²: 42 mm², 3.7 Ω/km), and an armour short-circuit rating for 1 s (1.0 kA fo… [179][180][181][44][182][183][184][185]  (from an idea this one builds on)
+- The armour runs about 10 °C cooler than the cores at full load, so a resistance worked at the cores' temperature is cautious; the maker's ratings are adiabatic. [186][187]  (from an idea this one builds on)
+- For a short circuit the live conductors must take the let-through energy (Reg 434.5.2): the time to reach the limiting temperature is t = k²S² ÷ I², and the cable's energy withstand must be at least the device's let-through; I at Cmax and the time from the device. [188][189][190][167][161]  (from an idea this one builds on)
+- A circuit-breaker's let-through energy I²t is limited by its energy-limiting class; a type C breaker opens in under 0.1 s at 10 In or more. [191][192]  (from an idea this one builds on)
+- Prospective fault current is determined at every relevant point (Reg 434.1) and every device's rated short-circuit breaking capacity must not be less than it where the device is installed (Reg 434.5.1); a lower rating is allowed only if a device on the supply side has the necessary rating; above it… [193][194][195][196][197][198][168][170]  (from an idea this one builds on)
+- The maker declares Icn; BS EN 60898 standard values run from 1 500 A to 25 000 A and include 4 500 A, 6 000 A and 10 000 A; MCBs are commonly marked 6 kA or 10 kA. [199][200][201]  (from an idea this one builds on)
+- The 4.6 kA in the assignment is about twice 230 V ÷ 0.1 Ω = 2 300 A: on a three-phase supply the highest prospective fault current is the simultaneous three-phase fault, approximated from the line-neutral reading multiplied by 2, because the line-neutral loop is one line plus one return while in th… [202][203][204][205][206][207]  (from an idea this one builds on)
+- The formula sheet gives step 18/19 as S = √I²t ÷ k; C&G papers ask for the cpc's thermal constraints under fault conditions and for the live conductors' adequacy in a short circuit to Reg 434.5.2, and for a short-circuit check on a small cable. [173][208][209][210][211]  (from an idea this one builds on)
+- The assignment has five boards (MDB, DBL1, DBL2, DBP1, DBP2) and asks for a full design of the longest circuit from DBL2 and from DBP2, with relevant protective devices. [212][213]  (from an idea this one builds on)
+- The project guide says to include all lengths of the cable run, calculations for thermal constraints, a comparison of Zs with the device's maximum, and the sum of all voltage drops from the intake equipment. [214][215][216]  (from an idea this one builds on)
+- The formula sheet totals voltage drop as the submain's drop plus the final circuit's, and for a final circuit from a sub-board uses Zs = Zs@db + (R1+R2). [217][88]  (from an idea this one builds on)
+- The showroom supply gives Ze 0.1 ohm, 4.6 kA prospective fault current and 20 degrees Celsius ambient; the motor and its cables are question 4. [202][72][218][219]  (from an idea this one builds on)
+- Table 4E4A in your copy (p.464) gives the current-carrying capacity of multicore armoured 90 °C thermosetting cables: for four-core 4 mm² 42 A clipped direct (Reference Method C) and 44 A on a perforated tray in free air (Method E), three-phase; 1.5 mm² 23 A and 25 A; 2.5 mm² 31 A and 33 A. [220][221][222][223][224]  (from an idea this one builds on)
+- Table 4E4B in your copy (p.465), three- or four-core three-phase column: 27 mV/A/m for 1.5 mm², 16 for 2.5 mm² and 10 for 4 mm²; the same table gives 31, 19 and 12 for two-core single-phase. [225][226][227][228]  (from an idea this one builds on)
+- Table 41.3 maximum Zs for 0.4 s: type C 3.64 ohm at 6 A and 2.19 ohm at 10 A (a trade app printing the table; the pages are not among those saved from your copy). Type C suits high inrush loads including discharge lighting but leaves less Zs margin, so it should be chosen only where the load needs … [22][23][229][230]  (from an idea this one builds on)
+- LED drivers contain capacitors and draw an inrush current at switch-on that can trip a circuit-breaker; BEAMA and ABB set out how the breaker type and the driver datasheet decide how many drivers one breaker can carry. [231][232][233]  (from an idea this one builds on)
+- Table 54.4 gives k for steel armour as 51 (70 °C thermoplastic) and 46 (90 °C thermoplastic or thermosetting) in a Certsure pocket guide; armour used as a cpc is thermally stressed in a fault, and the Zs must include the armour, glands and terminations. Read the real k from Table 54.4 in your copy:… [234][235][236][237][238]  (from an idea this one builds on)
+- The Electrical Installation Design Guide limits the Zs at the end of the circuit to the maximum values of Tables 41.2 to 41.4, and the Zs of a circuit from a sub-board is built from the Zs at the board plus the circuit's own R1+R2 (your formula sheet, step 13). [239]  (from an idea this one builds on)
+- Where along a cable the thermal worst case lies is argued on the IET forum: shock protection is worst at the remote end, but the adiabatic check is not, so the fault current near the origin of the cable is the one that sets the cpc size. Taught as contested; Dan's own course checks the end of the c… [240][241][242]  (from an idea this one builds on)
+- The tabulated three-phase mV/A/m values already contain the root 3 and assume balanced loads; for an unbalanced load one trade source says to work phase by phase with the single-phase values (a different route from your formula sheet, which divides the three-phase drop by root 3), taught as two rou… [243][244][245][246]  (from an idea this one builds on)
+- Whether the design current of a lighting circuit is the connected load or the breaker's rating, with room left for later luminaires, is argued on the IET forum; the course sizes on its calculated figures and says so. [247]  (from an idea this one builds on)
+- Both of Dan's drawings are 1:50 at A1 with no printed dimensions, so every length scaled from them is approximate. [45][46]  (from an idea this one builds on)
+- Lighting must not drop more than 3% of the supply voltage (6.9 V single-phase, 12 V three-phase); the limit runs from the origin to the most distant point, and the submain's drop is added to the final circuit's (a three-phase drop is divided by root 3 to join a single-phase one). [248][249][216][250][251][252]  (from an idea this one builds on)
+- Dan's course flowchart is headed "Electrical Circuit Design Calculation Process" for BS 7671:2018 + Amd2:2022, and its note 2 separates a suitable protective conductor size from the minimum protective conductor size. [253][172]  (whole topic)
+- The showroom supply is three phase four wire 400 V, TN-C-S, with Ze declared as 0.1 ohm and a prospective fault current of 4.6 kA; the ambient temperature is 20 degrees Celsius. [202][72]  (whole topic)
+- The showroom adds a 400 V three-phase 11 kW motor at power factor 0.8 lagging and efficiency 86%, controlled by a star-delta starter. [218]  (whole topic)
+- Overload protection is the condition Ib ≤ In ≤ Iz (Regulation 433.1.1), plus I2 ≤ 1.45 Iz, where I2 is the current causing effective operation of the protective device. [254][255][256]  (whole topic)
+- The course slides take √3 as 1.73, so their printed answers can differ in the last decimal places from the same sum worked with the calculator's √3. [257][258]  (whole topic)
+
+WRITING EACH PART
+
+interactive
+- Its form, for a process idea: a stepper through the stages (or Play), the picture changing at each and drawing the thing that carries the change (the bubbles trapped in rising dough), not only its effect. If an earlier stage changes a later one, add a switch for that cause beside the stepper: a stepper alone is a slideshow.
+- Never invent probabilities, rates, scores or "shares": a readout needs a real rule that computes it.
+- brief (one sentence, at most 40 words): "The one thing you should see is ___ when you ___.": one visible change at the heart of the idea (not a step towards it), caused by one action. It drives the build. The app shows the whole sentence above the interactive, as what to watch for.
+- title: at most 6 words.
+- controls: one. Add a second only if the idea cannot be seen without it (a switch for an earlier stage's cause counts). Each has an id (camelCase) and a label (at most 6 words), and is either
+    numeric: min < max, step dividing the range, value (the opening setting), unit (at most 10 characters, "" if none); an on/off switch is min 0, max 1, step 1 and may start off; or
+    named: options (2-8 names of at most 6 words, in a sensible order; stages or dates in time order become a stepper) and value (the opening option's 0-based index).
+  Open on a realistic case (zero when zero is the real case). Ranges make the effect unmistakable but stay on the side of it the idea is about (past a turning point only when that is the lesson).
+- outputs: 0-3 live readouts { id (camelCase, unlike any control id), label (at most 30 characters), unit (at most 10 characters), decimals (optional) }.
+- whatAmILookingAt (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded), shown open above the interactive as "What you're looking at": first name each thing drawn ("Water from a 5 m drop hits a wheel's blades"), then the rule in words, step by step from what he can see, each step with its reason in a clause (why it doubles, why it is squared), then any short equation, each symbol named. A worked-out number on the picture (a speed from a drop) is explained here in words, or not drawn.
+- ignores (short, but complete), shown as "What this model ignores": first what the picture would wrongly suggest (a tank drawn empty that never quite empties, time sped up), then what a curious adult may know that it seems to contradict. Textbook-certain only: it has no footnotes. A condition the result needs goes with the result, not here.
+- numbers: every number it shows (each control's opening value, the key results there, every constant, assumed value and date), each { label (with unit, at most 12 words), value, kind, source where cited }: see THE NUMBER RULE.
+- "interactive": null only when nothing at all can be played with (rare).
+
+explain (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded; no word limit: Dan, 7 Oct, "the limit is: is it enough for me to learn the thing"): it must
+- Open with the overall explanation: the idea in one or two plain sentences he could repeat to a friend, not a list of results. Then teach the one concept that matters most. Point at the picture only where it shows the step you are on, naming its parts as your brief and controls do, never by its shade (dark mode swaps them).
+- Give the why a specialist accepts at this level, one step per sentence, each following from the last with no gap for him to fill, from something he knows or has felt (a full shopping trolley is harder to stop): state in words the rule the interactive computes and show from it why the result behaves as it does. Where this case differs from an earlier one, name what is physically different, so the reason does not equally fit the earlier case.
+- Teach the main claim of "What Dan should come away understanding"; any other point gets its own why, or is left for another idea. Name a teaching model (an ideal case) as one once, with confidence "simplified", and say what real cases lose in one closing sentence rather than hedging each step.
+- Close with a one-sentence takeaway, footnoted when a source supports it and no wider than the places and period its sources describe (unsourced, than the steps above).
+- Also: just before the takeaway, one sentence on the part this idea plays in answering the course's puzzle.
+- 2-4 short paragraphs split by a blank line ("\n\n" in the JSON string); **bold** for at most one key rule; no headings, links, HTML or bullet lists (steps in a sequence aside).
+
+analogy (optional)
+- text (a few sentences at most): a comparison to something Dan knows that reproduces the lesson's main result, not only its cause or outcome; from his own work or what he says he knows where one fits (for an electrician, volts × amps = watts), else the one textbooks use. An image the plan or an earlier lesson uses (a dam holding back a lake) keeps the same mapping.
+- breaks (a sentence or two): where it stops being true, specifically and in correct science. Use "analogy": null if no honest analogy helps.
+
+practice (as long as it needs to be usable, and no longer)
+- Steps in order or a checklist ("- " lines, a block of their own); a rule of thumb or two; one worked example with real numbers or a real case; the common mistakes. Other blocks open with a bold label ("**Worked example:**"). Not a skill (history, a concept)? Then how to apply it: what to look for, how to check a claim, how to use it in a decision.
+- Where safety matters, the safe way comes first.
+
+confidence
+- "settled": mainstream and uncontroversial at this level.
+- "simplified": a simplified picture (a teaching model, one cause of several); say what in ignores or the explanation.
+- "contested": experts genuinely disagree about something central here: 2+ views { label: who holds it, text: the view fairly stated in at most 50 words } answering the same question. The explanation says plainly it is debated; the interactive takes no side.
+
+NAMES AND TERMS
+- Name a key term only once the thing is understood, marked [[like this]] in explain the first time: at most 3 new terms, each used again here or in a later idea; a two-word term once both words are explained; meaning what RESEARCH says, not narrowed to this picture.
+- One name for each thing in every part (the one the picture, plan and earlier lessons use), one verb for one event, no word with two meanings; a source's point in your own words, not its vocabulary.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+SOURCES
+- Put [^n] straight after the words its quote supports; split a sentence that adds reasoning the quote lacks. Footnote what he would check, one per sentence; never name a source in a sentence ("your slides say", "(p.16)").
+- Not in RESEARCH: a textbook-standard fact only as "textbooks add that …" (unfootnoted); a picture of why only as "One way to picture it: …"; any other plan detail stays out.
+- "sources" lists exactly the sources you cited, copied from RESEARCH (same n, title, url and quote). No web addresses anywhere else in the lesson.
+
+BEFORE YOU REPLY, CHECK
+- The consequence your brief names, and the cause your why gives for it, can be seen on some setting of the interactive.
+- Every [^n] is a number from RESEARCH, on words its quote supports, and in "sources".
+
+OUTPUT
+Reply with one JSON object only, no commentary, exactly this shape:
+{
+  "iid": "i9",
+  "title": "<lesson title, at most 8 words>",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is … when you ….",
+    "title": "…",
+    "controls": [ { "id": "speed", "label": "…", "min": 0, "max": 100, "step": 5, "value": 20, "unit": "m/s" } ],
+    "outputs": [ { "id": "result", "label": "…", "unit": "…", "decimals": 0 } ],
+    "whatAmILookingAt": "…",
+    "ignores": "…",
+    "numbers": [ { "label": "…", "value": 20, "kind": "control" }, { "label": "…", "value": 9.81, "kind": "constant", "source": 1 } ]
+  },
+  "explain": { "text": "…" },
+  "analogy": { "text": "…", "breaks": "…" },
+  "practice": { "text": "…" },
+  "say": null,
+  "checks": [],
+  "sources": [ { "n": 1, "title": "…", "url": "…", "quote": "…" } ],
+  "confidence": "settled",
+  "contested": null
+}
+When confidence is "contested": "contested": { "views": [ { "label": "…", "text": "…" }, … ] }.

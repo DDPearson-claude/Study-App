@@ -1,0 +1,601 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Design and verification, a Level 4 refresher
+Idea: Verification and handover (The design predicts the readings: a cold reading is compared after correcting it to running temperature, installed values usually come in lower, and the designer hands over what the inspector and the client need, with a first inspection interval from industry guidance.)
+Kind: process
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the reading bar climb to meet the design's 0.436 Ω at 70 °C, when you drag the cable's temperature up from the 20 °C test day.
+Title (the app shows it above the frame, so do not repeat it): One cable, two temperatures
+The rule (the app shows it just above the frame, under "What you're looking at"): There are twelve screens, with Back and Continue. They check the showroom's readings against its design, then hand it over.
+
+Screen 1, Do you still have it? The question: “Remember the immersion heater circuit: 15 m of 1.5 mm² line and cpc. Its design R1+R2 is 24.2 × 1.2 × 15 ÷ 1000 = 0.436 Ω. You test it once it is installed, cold, on a 20 °C day. What should it read if the cable is as designed?” There are three choices, in this order: “0.436 Ω: the design figure”, “0.363 Ω: 24.2 × 15 ÷ 1000” and “0.523 Ω: 0.436 × 1.2”. Right: “Still there.” Then the working. The 1.2 takes the cable from 20 °C up to its running temperature. A cold test leaves it out: 24.2 × 15 ÷ 1000 = 0.363 Ω. Then come two buttons. Refresh the why goes to screen 2. Skip to the practice goes to screen 6. Wrong, 0.436 Ω: “That is the hot figure. The cable is cold when you test it, so it reads lower.” Wrong, 0.523 Ω: “That warms it twice. The 1.2 is already in 0.436 Ω.” Then the right working, and on to screen 2.
+
+Screen 2, What it is for. “The design predicts what each circuit should read. Verification checks the installation against those figures before anyone uses it. It also checks each reading against its device's limit. So the designer hands the inspector the figures to test against, worked for the temperature of the test. Then the client gets the certificate and the records to run the building safely.” In red, what goes wrong if it is skipped: “Set a cold reading against a hot figure and it looks better than it is. It can pass a circuit that would fail when warm.[^1]”
+
+Screen 3, The why: one cable, two temperatures. The picture: two bars for the heater's R1+R2. The first bar, Design, stands at 0.436 Ω, worked for the cable running at 70 °C. The second bar, Reading, is what the same cable reads at the slider's temperature. A thermometer beside them marks three temperatures. The maximum measured Zs values are set at 10 °C. The resistance tables are set at 20 °C. At 70 °C the cable is running hot. A slider sets the cable temperature, from 0 to 70 °C in steps of 1 °C. It opens on 20 °C. Two readouts show the factor from 20 °C, to 2 places, and the reading in Ω, to 3 places. The rule beside it: “Copper's resistance rises in step with its temperature plus 230 °C. So reading = 0.363 × (t + 230) ÷ 250.”
+
+What he sees. At 20 °C the reading is 0.363 Ω, 0.073 Ω under the design. As the temperature rises, the reading climbs. At 70 °C the factor is 300 ÷ 250 = 1.20, and the reading meets the design at 0.436 Ω. At 10 °C the reading falls to 0.348 Ω. The words under it: “Nothing about the cable changed. Only its temperature did. So compare a reading with the design only at one temperature. The same rule gives the factors you use for R1+R2 and Zs. From 20 °C up to 90 °C it is 320 ÷ 250 = 1.28. From 20 °C down to a 15 °C test day it is 245 ÷ 250 = 0.98. The maximum measured Zs is the limit for a reading taken cold. It is the Table 41.3 figure divided by 1.25. That is 300 ÷ 240, from 70 °C down to 10 °C. So a cold reading should stay under 80% of the Table 41.3 figure.” The prompt above the picture: “Drag the temperature up to 70 °C.” Read: at 20 °C the cable reads 0.363 Ω. At 70 °C the same cable reads 0.436 Ω, the design's figure. Still: 70 °C.
+
+Screen 4, Check. “A 6 A type C circuit's limit for a reading at 10 °C is 2.91 Ω. You test it on a 25 °C day. What is the most it may read?” There are three choices: “3.085 Ω: 2.91 × 1.06”, “2.745 Ω: 2.91 ÷ 1.06” and “3.64 Ω: the Table 41.3 figure”. Right, the first: “A warmer cable reads higher, so the limit rises with it. The factor from 10 °C is (25 + 230) ÷ (10 + 230) = 1.06. Then 2.91 × 1.06 = 3.085 Ω.” Wrong, the second: “That moves the limit the wrong way. A warmer day raises the reading, so it raises the limit too.” Wrong, the third: “3.64 Ω is the limit for the cable running hot. At 25 °C the cable is still far cooler than that.”
+
+Screen 5, Worked example: the heater, as built, a line at each press. The prompt: “Work each step yourself first, then press Show.” Said once: “The heater circuit: Ze 0.21 Ω, 15 m of 1.5 mm² line and cpc at 24.2 mΩ/m, and a device whose Table 41.3 maximum is 2.73 Ω. The design gave R1+R2 0.436 Ω and Zs 0.646 Ω, both hot. You test on a 20 °C day.” The lines: Expected R1+R2 = 24.2 × 15 ÷ 1000 = 0.363 Ω. Expected Zs = 0.21 + 0.363 = 0.573 Ω. Limit at 10 °C = 2.73 ÷ 1.25 = 2.184 Ω. Factor from 10 °C to 20 °C = 250 ÷ 240 = 1.04. Limit on the day = 2.184 × 1.04 = 2.271 Ω. A note under the lines: “Expect a reading near 0.573 Ω, often a little under. It passes while it stays under 2.271 Ω. You may remember the design as 0.43 Ω and 0.64 Ω. Those are the same hot figures, cut to two places.” Read: on a 20 °C day the heater should read about 0.573 Ω, and the most it may read is 2.271 Ω.
+
+Screen 6, Section A, question 4 (a). The scenario panel shows, with parts 3(g) and 3(i) carried forward. Zs at DBL2 is 0.392 Ω. Zs at C7's farthest bollard is 1.129 Ω. Both are worked hot. Said once: “Assume the tests are done on a 15 °C day. Take that as a practice value. On a real job, record the day's temperature. At 20 °C the submain's core and armour are 4.61 + 6.8 mΩ/m over its 20.0 m. C7's 1.5 mm² line and cpc are 24.2 mΩ/m over its 23.8 m.” The question: “(a) Determine the earth fault loop impedance you expect at C7's farthest bollard on the test day.” A typed answer, part 4a. Factor from 20 °C = (15 + 230) ÷ (20 + 230) = 0.98. Submain = (4.61 + 6.8) × 20.0 ÷ 1000 = 0.228 Ω, and 0.228 × 0.98 = 0.223 Ω. C7 = 24.2 × 23.8 ÷ 1000 = 0.576 Ω, and 0.576 × 0.98 = 0.564 Ω. Zs = 0.1 + 0.223 + 0.564 = 0.887 Ω. Accepted too: 0.888 Ω, from unrounded working. Slips: 1.129 Ω, “That is the design's hot figure. The test is cold, so expect less.” 0.904 Ω, “Those are the 20 °C values. The test day is 15 °C, so multiply each by 0.98.” 0.787 Ω, “Add Ze, 0.1 Ω. The supply is part of the loop.” After two misses, the working. Then: “This is the figure you hand the inspector. The design's 1.129 Ω is the same circuit, hot.”
+
+Screen 7, Section A, question 4 (b). Part 4(a) carried forward. Said once: “These as-built readings are practice examples, not measurements. Ze at the MDB: 0.08 Ω. R1+R2 of the submain: 0.214 Ω. R1+R2 of C7: 0.548 Ω. Zs read directly: 0.275 Ω at DBL2, 0.790 Ω at the farthest bollard. The submain's 10 A type C breaker has a Table 41.3 maximum of 2.19 Ω. Its limit for a reading at 10 °C is 1.75 Ω.” The question: “(b) Determine the maximum Zs a reading at DBL2 may show on the 15 °C test day, and state whether the readings comply.” A typed answer, part 4b. Factor from 10 °C = (15 + 230) ÷ (10 + 230) = 1.02. Limit = 1.75 × 1.02 = 1.785 Ω. Accepted too: 1.786 Ω, from the unrounded factor. Slips: 2.19 Ω, “That is the limit for the cable hot. Set a reading at 15 °C against a cold limit.” 1.716 Ω, “That moves the limit the wrong way. 15 °C is warmer than 10 °C, so the limit goes up.” 1.75 Ω, “That is the limit at 10 °C. Correct it to the 15 °C day.” After two misses, the working. Then: “At DBL2, Ze + (R1+R2) = 0.08 + 0.214 = 0.294 Ω. The direct reading is 0.275 Ω. Both are far under 1.785 Ω, so they comply. The design expected 0.1 + 0.223 = 0.323 Ω. C7's own limit, for its 6 A type C, is 2.91 × 1.02 = 2.968 Ω. At its far end, Ze + (R1+R2) = 0.08 + 0.214 + 0.548 = 0.842 Ω. The direct reading is 0.790 Ω. Both comply with plenty to spare. The direct reading comes in 0.052 Ω lower. A direct reading usually does, because it takes in parallel earth paths through bonded metalwork. So never subtract Ze from a direct reading to find R1+R2.”
+
+Screen 8, Section A, question 4 (c). Parts 4(a) and 4(b) carried forward. Said once: “Use Ze + (R1+R2) from the readings, not the direct reading. Ze belongs to the supply, so correct only R1+R2.” The question: “(c) Correct the as-built Zs at C7's farthest bollard to operating temperature, and compare it with the design.” A typed answer, part 4c. R1+R2 = 0.214 + 0.548 = 0.762 Ω at 15 °C. Back to 20 °C: 0.762 ÷ 0.98 = 0.778 Ω. Up to operating temperature: 0.778 × 1.28 = 0.996 Ω. Zs = 0.08 + 0.996 = 1.076 Ω. Also accepted: 1.075 Ω, from unrounded working. Also accepted: 1.078 Ω, using one factor from 15 °C to 90 °C, (90 + 230) ÷ (15 + 230) = 1.31. Slips: 1.055 Ω, “The 1.28 starts from 20 °C. Divide by 0.98 first to bring the reading back to 20 °C.” 1.100 Ω, “You warmed Ze too. Ze belongs to the supply, so correct only R1+R2.” 0.842 Ω, “That is the reading as taken, cold. Correct R1+R2 to operating temperature first.” After two misses, the working. Then: “Like for like, the installation gives 1.076 Ω against the design's 1.129 Ω. That is 0.053 Ω lower, about 5%. Cold against cold, it is 0.842 Ω against the expected 0.887 Ω. That is 0.045 Ω lower. Set the cold reading against the hot design and it looks 0.287 Ω lower. Most of that gap is only temperature. Here 0.02 Ω of the real gap is Ze. It measured that much under the declared 0.1 Ω. A declared Ze is a maximum, and so are the tabulated resistances. So readings usually come in a little under the design. A reading well over the expected figure means something is wrong. The installation may differ from the design, such as a longer run or a poor connection. Or the test itself went wrong. Find out which.”
+
+Screen 9, Handing over. Two short lists come first, then the interval. Before the tests, the inspector gets five things. Each circuit's expected R1+R2 at the test temperature. Each circuit's maximum permitted Zs, and where it comes from if not Table 41.3. A chart or schedule of each circuit, with its points, its cable size and type, and its protective device. Anything a test could damage, such as SELV equipment. The supply's characteristics. At handover, the client gets six things. The Electrical Installation Certificate, which is valid only with its schedule of inspections and schedules of test results.[^2] The circuit charts and diagrams. The notices, including the periodic inspection notice at the origin. The O&M manual and building log book, where the contract asks for them. On a project under CDM, a copy of the certificate in the health and safety file. Where fixed building services need commissioning, a commissioning notice to building control and the owner. Then the interval: “You recommend the time to the first periodic inspection. It goes on the certificate. The recommended maximum is 5 years for commercial premises and 3 for industrial.[^3] The showroom is commercial, so take 5 years. Shorten it if the building will be poorly maintained or hard used. Cars are driven across this floor.”
+
+Screen 10, Section B: “State what decides the maximum period to the showroom's first periodic inspection, and what you would recommend.” It is a written answer, marked against five points. Any three of them make a full answer. There is one more go, then the model answer.
+
+Screen 11, Section A, changed numbers. “A 25 A type C radial circuit is tested on a 20 °C day. It reads Zs 0.74 Ω. Table 41.3 gives 0.87 Ω. Its limit for a reading at 10 °C is 0.70 Ω. Determine the most it may read on the day, and state whether it complies.” A typed answer, in Ω. Factor = (20 + 230) ÷ (10 + 230) = 1.04. Limit = 0.70 × 1.04 = 0.728 Ω. Accepted too: 0.729 Ω, from the unrounded factor. Slips: 0.87 Ω, “That is the limit for the cable hot. Set a cold reading against a cold limit.” 0.673 Ω, “That moves the limit the wrong way. 20 °C is warmer than 10 °C, so the limit goes up.” 0.70 Ω, “That is the limit at 10 °C. Correct it to the 20 °C day.” After it: “0.74 Ω is over 0.728 Ω, so it does not comply. Yet it is under 0.87 Ω. Set against the hot figure, it would have passed.”
+
+Screen 12, Keep this: the summary card, then Finish the lesson.
+
+Every line is worked from the rounded figures shown before it. Each screen that uses a practice value or an example reading says so.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The picture treats the whole cable as one even temperature. It uses a straight-line rule for copper. That is very close over this range, but not exact. It shows R1+R2 only: Ze belongs to the supply and does not follow the cable's temperature. The maximum measured Zs values divide by 1.25. That assumes cables that run at up to 70 °C. The showroom's 90 °C cables carry a small share of their rating, so they run far cooler than that. It also applies copper's rule to the submain's steel armour. Steel's resistance rises a little faster with temperature. But the corrections are made the same way for the design and the readings. So it changes the figures by only a few milliohms.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 11 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 12 (the stepper): 0 (control)
+- Recall: line and cpc, 1.5 mm² each, mΩ/m: 24.2 (constant, source [4])
+- Recall: multiplier for the heater's cable: 1.2 (constant, source [5])
+- Recall: heater circuit length, m: 15 (constant, source [5])
+- Recall: design R1+R2, hot, Ω: 0.436 (computed)
+- Recall: test day, °C: 20 (assumed)
+- Recall: expected cold R1+R2, Ω: 0.363 (computed)
+- Recall slip: warmed twice, Ω: 0.523 (computed)
+- Cable size, mm²: 1.5 (constant)
+- Why: copper's temperature offset, °C: 230 (constant, source [6])
+- Why: 20 + 230: 250 (computed)
+- Why: 70 + 230: 300 (computed)
+- Why: 90 + 230: 320 (computed)
+- Why: 15 + 230: 245 (computed)
+- Why: 10 + 230: 240 (computed)
+- Why: running temperature of the heater's cable, °C: 70 (constant)
+- Why: running temperature of thermosetting cable, °C: 90 (constant)
+- Why: basis of limits for a measured Zs, °C: 10 (constant, source [7])
+- Why: slider lowest, °C: 0 (assumed)
+- Why: slider step, °C: 1 (assumed)
+- Why: slider opens at, °C: 20 (control)
+- Why: factor at 70 °C: 1.2 (computed)
+- Why: gap at 20 °C, Ω: 0.073 (computed)
+- Why: reading at 10 °C, Ω: 0.348 (computed)
+- Why: multiplier to 90 °C: 1.28 (constant, source [8])
+- Why: factor to a 15 °C test day: 0.98 (computed)
+- Divisor for limits on a measured Zs: 1.25 (constant, source [9])
+- Share of Table 41.3 a cold reading may reach, %: 80 (constant, source [10])
+- Check: 6 A type C limit at 10 °C, Ω: 2.91 (constant, source [11])
+- Check: test day, °C: 25 (assumed)
+- Check: factor from 10 °C to 25 °C: 1.06 (computed)
+- Check: limit on the day, Ω: 3.085 (computed)
+- Check slip: divided, Ω: 2.745 (computed)
+- 6 A type C maximum Zs, Table 41.3, Ω: 3.64 (constant, source [12])
+- 6 A type C rating, A: 6 (constant)
+- Worked: heater Ze, Ω: 0.21 (constant, source [13])
+- Worked: device maximum Zs, Ω: 2.73 (constant, source [14])
+- Worked: design Zs, hot, Ω: 0.646 (computed)
+- Worked: expected Zs on the day, Ω: 0.573 (computed)
+- Worked: limit at 10 °C, Ω: 2.184 (computed)
+- Worked: factor from 10 °C to 20 °C: 1.04 (computed)
+- Worked: limit on the day, Ω: 2.271 (computed)
+- Worked: R1+R2 printed cut short, Ω: 0.43 (constant, source [13])
+- Worked: Zs printed cut short, Ω: 0.64 (constant, source [13])
+- Part 3g: Zs at DBL2, hot, Ω: 0.392 (computed)
+- Part 3i: Zs at C7's far end, hot, Ω: 1.129 (computed)
+- Test day for the showroom (practice value), °C: 15 (assumed)
+- SWA core resistance at 20 °C, mΩ/m: 4.61 (constant, source [15])
+- SWA armour resistance at 20 °C, mΩ/m: 6.8 (constant, source [15])
+- Submain length with vertical runs, m: 20 (computed)
+- C7 length with vertical runs, m: 23.8 (computed)
+- Part 4a: submain R1+R2 at 20 °C, Ω: 0.228 (computed)
+- Part 4a: submain R1+R2 at 15 °C, Ω: 0.223 (computed)
+- Part 4a: C7 R1+R2 at 20 °C, Ω: 0.576 (computed)
+- Part 4a: C7 R1+R2 at 15 °C, Ω: 0.564 (computed)
+- Showroom Ze, declared, Ω: 0.1 (constant, source [16])
+- Part 4a: expected Zs at C7's far end, Ω: 0.887 (computed)
+- Part 4a: accepted, unrounded, Ω: 0.888 (computed)
+- Part 4a slip: 20 °C values, Ω: 0.904 (computed)
+- Part 4a slip: Ze left out, Ω: 0.787 (computed)
+- Example reading: Ze at the MDB, Ω: 0.08 (assumed)
+- Example reading: submain R1+R2, Ω: 0.214 (assumed)
+- Example reading: C7 R1+R2, Ω: 0.548 (assumed)
+- Example reading: direct Zs at DBL2, Ω: 0.275 (assumed)
+- Example reading: direct Zs at C7's far end, Ω: 0.79 (assumed)
+- 10 A type C maximum Zs, Table 41.3, Ω: 2.19 (constant, source [17])
+- 10 A type C limit at 10 °C, Ω: 1.75 (constant, source [17])
+- 10 A type C rating, A: 10 (constant)
+- Part 4b: factor from 10 °C to 15 °C: 1.02 (computed)
+- Part 4b: limit at DBL2 on the day, Ω: 1.785 (computed)
+- Part 4b: accepted, unrounded factor, Ω: 1.786 (computed)
+- Part 4b slip: divided, Ω: 1.716 (computed)
+- Part 4b: Ze + R1+R2 at DBL2, Ω: 0.294 (computed)
+- Part 4b: expected at DBL2, Ω: 0.323 (computed)
+- Part 4b: C7's limit on the day, Ω: 2.968 (computed)
+- Part 4b: Ze + R1+R2 at C7's far end, Ω: 0.842 (computed)
+- Part 4b: direct reading lower by, Ω: 0.052 (computed)
+- Part 4c: R1+R2 at 15 °C, Ω: 0.762 (computed)
+- Part 4c: R1+R2 back at 20 °C, Ω: 0.778 (computed)
+- Part 4c: R1+R2 hot, Ω: 0.996 (computed)
+- Part 4c: Zs corrected hot, Ω: 1.076 (computed)
+- Part 4c: accepted, unrounded, Ω: 1.075 (computed)
+- Part 4c: accepted, one factor, Ω: 1.078 (computed)
+- Part 4c: one factor from 15 °C to 90 °C: 1.31 (computed)
+- Part 4c slip: 0.98 left out, Ω: 1.055 (computed)
+- Part 4c slip: Ze warmed too, Ω: 1.1 (computed)
+- Part 4c: lower than the design by, Ω: 0.053 (computed)
+- Part 4c: lower than the design by, %: 5 (computed)
+- Part 4c: cold lower than expected by, Ω: 0.045 (computed)
+- Part 4c: cold reading against hot design, Ω: 0.287 (computed)
+- Part 4c: Ze under its declared figure by, Ω: 0.02 (computed)
+- First inspection, commercial premises, years: 5 (constant, source [3])
+- First inspection, industrial, years: 3 (constant, source [18])
+- Section B: points, of which any make a full answer: 5, any 3 (constant)
+- Changed: 25 A type C rating, A: 25 (constant)
+- Changed: test day, °C: 20 (assumed)
+- Changed: reading, Ω: 0.74 (assumed)
+- Changed: 25 A type C maximum Zs, Table 41.3, Ω: 0.87 (constant, source [19])
+- Changed: 25 A type C limit at 10 °C, Ω: 0.7 (constant, source [19])
+- Changed: factor from 10 °C to 20 °C: 1.04 (computed)
+- Changed: limit on the day, Ω: 0.728 (computed)
+- Changed: accepted, unrounded factor, Ω: 0.729 (computed)
+- Changed slip: divided, Ω: 0.673 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+The design predicts what the installation should read. So verification is a comparison. Each reading is set against the design and against its device's limit. The catch is temperature. The limits are for a fault on a cable already warm from its load. A warm cable has more resistance, so less fault current flows. So the design works R1+R2 and Zs hot. The tests are done cold, with no load on. Set one against the other as they stand and every circuit looks better than it is.
+
+Copper's resistance rises very nearly in step with its temperature plus 230 °C. So to move a resistance from one temperature to another, multiply by (new + 230) ÷ (old + 230). That one rule gives the factors you use for R1+R2 and Zs. From the 20 °C tables up to 70 °C it is 300 ÷ 250 = 1.20. Up to 90 °C it is 320 ÷ 250 = 1.28. Down to a 15 °C test day it is 245 ÷ 250 = 0.98. The limit for a reading taken cold is the maximum measured Zs. It is the Table 41.3 figure divided by 1.25. That is 300 ÷ 240, from 70 °C down to 10 °C. So a cold reading should stay under 80% of the Table 41.3 figure.
+
+Even like for like, readings usually come in a little under the design. The design uses the declared Ze and the largest resistance per metre. Both are maximums. A direct Zs reading also takes in parallel earth paths through bonded metalwork. So it usually reads lower than Ze + (R1+R2). Never work a direct reading back to f…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Earth Loop Impedance Test & Maximum Zs Values - Voltimum UK (https://www.voltimum.co.uk/news/voltimum/earth-loop-impedance-test-maximum-zs-values): "Comparing a cold reading directly with the table figure can pass a circuit that would fail when warm."
+[2] BS 7671:2018 MODEL FORMS - Institution of Engineering and ... (https://electrical.theiet.org/media/2387/bs-767122018-model-forms-electrical-installation-certificate.pdf): "This Certificate is only valid if accompanied by the Schedule of Inspections and the Schedule(s) of Test Results."
+[3] Understanding Periodic Inspection And Testing Requirements | Tidyco (https://www.tidyco.co.uk/tidyco-news/post/understanding-periodic-inspection-and-testing-requirements): "Commercial installations – 5 years"
+[4] EAL Level 4 Design and Verification: course slides (material:eal-slides#p51): "For the (mΩ/m) of a 1.5mm² line and a 1.5mm² cpc, the value to use is: 24.2."
+[5] EAL Level 4 Design and Verification: course slides (material:eal-slides#p53): "24.2 x 1.2 x 15 / 1000"
+[6] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p146): "(Alternatively the correction factor is given by (Ambient temp + 230)/(10 + 230))."
+[7] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p139): "The values are those that must not be exceeded in the tests carried out under 10.3.6 at an ambient temperature of 10 °C."
+[8] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p220): "Incorporated in a cable or bunched (NOTE 2) 1.20 1.28 1.28"
+[9] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p140): "The correction factor (divisor) used is 1.25."
+[10] Earth Loop Impedance Test & Maximum Zs Values - Voltimum UK (https://www.voltimum.co.uk/news/voltimum/earth-loop-impedance-test-maximum-zs-values): "Those tables assume conductors at full operating temperature, so a reading taken on a cold circuit should not exceed 80% of the tabulated value."
+[11] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p145): "3&C 5.82 3.49 2.91 1.75 1.16 1.09 0.87 0.7 0.58 0.55 0.44 0.38 0.35 0.27 0.17"
+[12] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app; its page prints Table 41.3) (https://www.elec-mate.com/guides/maximum-zs-values-bs-7671): "C6 3.64 Ω 2.91 Ω"
+[13] EAL Level 4 Design and Verification: course slides (material:eal-slides#p54): "Our Zs will be calculated as: 0.21 + 0.43 = 0.64Ω"
+[14] EAL Level 4 Design and Verification: course slides (material:eal-slides#p54): "The maximum Zs of the device is 2.73Ω"
+[15] Standard Power Cables BS5467 - Prysmian United Kingdom (https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf): "4 4.61 - - 19 7.9 20 7.5 22 6.8 25 6.2"
+[16] ED4-01A learner pack: car showroom assignment (material:learner-pack#p3): "Three phase four wire 400 V, with a TN-C-S earthing arrangement. Ze is declared as 0.1 Ohms, prospective fault current is 4.6 kA."
+[17] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app; its page prints Table 41.3) (https://www.elec-mate.com/guides/maximum-zs-values-bs-7671): "C10 2.19 Ω 1.75 Ω"
+[18] Periodic Inspection and Testing of Electrical Installation (https://qbeeurope.com/documents/index/3872/808198): "Industrial 3 years"
+[19] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app site, not a standard) (https://www.elec-mate.com/guides/maximum-zs-values-bs-7671): "C25 0.87 Ω 0.70 Ω"
+[20] Minimizing unnecessary live testing for initial verification (https://electrical.theiet.org/wiring-matters/years/2025/105-may-2025/minimizing-unnecessary-live-testing-for-initial-verification): "This is because the Z e is measured excluding any parallel paths, whereas Z s includes parallel paths and therefore, usually results in lower measured Z s values."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: process). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: process -->
+<style>
+  .flow { list-style: none; padding: 0; margin-top: 6px; }
+  .start { margin-left: 40px; }
+  .grp { position: relative; display: block; margin: 16px 0 4px 40px; }
+  .row-item { position: relative; }
+  /* The thread joining the stages runs behind the dots and through the group labels. */
+  .row-item::before, .grp::before { content: ""; position: absolute; width: 2px; background: var(--k-line); }
+  .row-item::before { left: 13px; top: 0; bottom: 0; }
+  .grp::before { left: -27px; top: -16px; bottom: -4px; }
+  .flow > li:first-child .row-item::before { top: 22px; }
+  .flow > li:last-child .row-item::before { bottom: auto; height: 22px; }
+  .stage {
+    position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px;
+    padding: 6px 0; border: 0; background: none; text-align: left; cursor: pointer; color: var(--k-muted); font: inherit;
+  }
+  .dot {
+    flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--k-strong); background: var(--k-bg); font-size: 13px; font-weight: 700; color: var(--k-muted);
+  }
+  .stage.done { color: var(--k-ink); }
+  .stage.done .dot { background: var(--k-accent2); border-color: var(--k-accent2); color: var(--k-on-accent2); }
+  .stage.now { color: var(--k-ink); font-weight: 700; }
+  .stage.now .dot { border-color: var(--k-accent2); color: var(--k-accent2); box-shadow: 0 0 0 4px color-mix(in srgb, var(--k-accent2) 16%, transparent); }
+  .stage.skip { text-decoration: line-through; opacity: .55; }
+  .loop { display: inline-flex; align-items: center; gap: 4px; font-size: .85rem; font-weight: 600; color: var(--k-accent); }
+  .loop svg { width: 16px; height: 16px; }
+  .detail { margin: 0 0 8px 40px; padding: 10px 14px; border-radius: 12px; background: var(--k-panel); }
+</style>
+
+<p class="lead">Follow a bill on its way to becoming law. Then flip the switch to see what happens when the second House changes it.</p>
+
+<div>
+  <span class="k-label start">The House where it starts</span>
+  <ol class="flow" id="flow" aria-label="Stages of a bill"></ol>
+</div>
+
+<div class="k-controls" id="controls"></div>
+
+<p class="caption">Simplified from UK Parliament's guide to the passage of a bill; timings vary.</p>
+
+<script>
+  const SOURCE = 'https://www.parliament.uk/about/how/laws/passage-bill/';
+  const LOOP = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6.5a4.5 4.5 0 0 1 8.4-2.2M13 9.5a4.5 4.5 0 0 1-8.4 2.2M11.6 1.8v2.7H8.9M4.4 14.2v-2.7h2.7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  // Each stage in order. `group` starts a labelled section of the diagram.
+  const FIRST = [
+    { key: 'first', title: 'First reading', text: 'The bill is introduced: its title is read out and it is printed. There is no debate and no vote yet.' },
+    { key: 'second', title: 'Second reading', text: 'The first debate, about the bill\'s main ideas rather than its details. Members can vote it down here.' },
+    { key: 'committee', title: 'Committee stage', text: 'Members go through it line by line and can change the wording. Each change is called an amendment.' },
+    { key: 'report', title: 'Report stage', text: 'The whole House looks at the amended bill and can make more changes.' },
+    { key: 'third', title: 'Third reading', text: 'A last debate on the bill as a whole. In the Commons it can no longer be changed at this point; in the Lords it still can.' },
+  ];
+  const OTHER = { key: 'other', title: 'The same five stages again', group: 'The other House', text: 'The bill goes through first reading to third reading in the other House. (A bill can start in either the Commons or the Lords.)' };
+  const PING = { key: 'ping', title: 'Consideration of amendments', group: 'Back to the first House', text: 'The House where it started votes on the other House\'s changes. If they still disagree, the bill goes back and forth (nicknamed ping-pong) until both agree on every word.' };
+  const ASSENT = { key: 'assent', title: 'Royal Assent', group: 'The monarch', text: 'The monarch formally agrees, and the bill becomes an Act of Parliament: it is now law.' };
+  const ALL = FIRST.concat([OTHER, PING, ASSENT]);
+  const stepsFor = (amended) => FIRST.concat([OTHER], amended ? [PING] : [], [ASSENT]);
+
+  const step = K.stepper({ id: 'step', steps: stepsFor(true).map((s) => s.title), value: 0, compact: true, into: '#controls' });
+  const amended = K.toggle({ id: 'amended', label: 'The other House amends it', hint: 'It changes the wording, so both Houses must agree', value: true, into: '#controls' });
+
+  // Build the diagram once; each update only changes classes and text.
+  const flow = document.getElementById('flow');
+  const rows = {};
+  ALL.forEach((s) => {
+    const btn = K.el('button', { type: 'button', class: 'stage' }, K.el('span', { class: 'dot' }), K.el('span', { class: 'name' }, s.title));
+    const detail = K.el('p', { class: 'detail', hidden: true });
+    const li = K.el('li', null, s.group ? K.el('span', { class: 'k-label grp' }, s.group) : null, K.el('div', { class: 'row-item' }, btn, detail));
+    btn.addEventListener('click', () => { const i = stepsFor(amended.get()).findIndex((x) => x.key === s.key); if (i >= 0) step.set(i); });
+    flow.appendChild(li);
+    rows[s.key] = { btn, detail, dot: btn.querySelector('.dot') };
+  });
+  // The ping-pong row carries a loop badge: the stage that can repeat.
+  const badge = K.el('span', { class: 'loop', html: LOOP + 'repeats until both agree' });
+  rows.ping.btn.querySelector('.name').appendChild(K.el('br'));
+  rows.ping.btn.querySelector('.name').appendChild(badge);
+
+  // The pure model: (step index, amended?) -> where the bill is (numbers and short strings only).
+  const orderFor = (amended) => stepsFor(amended).map((s) => s.title);
+  K.model((p) => {
+    const steps = stepsFor(p.amended);
+    const i = Math.min(Math.max(0, p.step), steps.length - 1);
+    return { total: steps.length, stage: steps[i].title, key: steps[i].key };
+  });
+
+  K.update((p, o) => {
+    step.setSteps(stepsFor(p.amended).map((s) => s.title));
+    const steps = stepsFor(p.amended);
+    ALL.forEach((s) => {
+      const r = rows[s.key], i = steps.findIndex((x) => x.key === s.key), cur = steps.findIndex((x) => x.key === o.key);
+      const skipped = i < 0;
+      r.btn.className = 'stage' + (skipped ? ' skip' : i < cur ? ' done' : i === cur ? ' now' : '');
+      r.btn.disabled = skipped;
+      r.btn.setAttribute('aria-current', i === cur ? 'step' : 'false');
+      r.dot.textContent = skipped ? '' : String(i + 1);
+      r.detail.hidden = i !== cur;
+      if (i === cur) {
+        let text = s.text;
+        if (s.key === 'other') text += p.amended ? ' Here it makes changes, so the bill has to go back.' : ' It makes no changes, so the bill is ready for Royal Assent.';
+        r.detail.textContent = text;
+      }
+      if (s.key === 'ping') {
+        r.btn.querySelector('.name').firstChild.textContent = skipped ? 'Consideration of amendments: not needed' : s.title;
+        badge.hidden = skipped;
+      }
+    });
+  });
+
+  // Known answers from UK Parliament's guide.
+  K.check('Each House\'s stages run: first reading, second reading, committee, report, third reading', () =>
+    orderFor(false).slice(0, 5).join('|') === 'First reading|Second reading|Committee stage|Report stage|Third reading', { source: SOURCE });
+  K.check('With amendments there are 8 steps; without, 7 (no ping-pong)', () =>
+    K.at({ amended: true }).total === 8 && K.at({ amended: false }).total === 7);
+  K.check('Royal Assent is always the last step', () =>
+    [true, false].every((a) => K.at({ amended: a, step: 99 }).stage === 'Royal Assent' && orderFor(a).indexOf('Royal Assent') === orderFor(a).length - 1));
+  K.check('Ping-pong comes after the other House and before Royal Assent', () => {
+    const o = orderFor(true);
+    return o.indexOf('Consideration of amendments') === o.indexOf('The same five stages again') + 1 && o.indexOf('Royal Assent') === o.length - 1;
+  });
+
+  K.ready();
+</script>
+
+
+## Refresher lessons: typed answers, written answers, the case file, the summary
+
+A refresher course's steps lesson (a ready-made course built in Claude Code) has four more kit
+pieces. The app passes the page two pieces of checked data, as it passes the theme: the course's
+case file (`K.caseFile`) and the lesson's own `{written, summary}` (`K.lesson`). Name what you want
+by id; the kit draws the checked words, so never retype a figure, a point or a summary line.
+
+```
+K.figure(id) -> {id, label, value, unit, text, part, lesson, rule, work, practice}   a given or worked figure; print f.text ("23.08 A"), f.work its working; practice is true for a practice value
+K.scenario({into, open?, title?, text?})                         the case's scenario panel (folds); a lesson may give its own
+K.carried({parts: ['1a'], into})  -> {el, refresh()}             earlier Section A parts at the course's figures
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+    -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state: 'right'|'wrong'|'empty'|'unreadable', value, accepted?, slip?, hint?}
+K.written({id, into, onMark?}) -> {el, id, stage(), answered()}
+K.summary({into, kept?})
+```
+
+**Typed answers** (Section A, where a C&G paper has him write a figure). A decimal-keypad field;
+your Check button calls `a.check()` (Enter does too) and you write the feedback from the result.
+`answer` is the course's figure, each line worked from the rounded figures shown; it is accepted
+within half a unit in its last place (`decimals`, default 2). `accept: [13.32]` adds the answer
+worked from unrounded figures; `slips: [{value: 50, hint: 'You left out √3.'}]` names a usual slip
+and its hint (`r.hint`). A unit typed after the number ("13.33 A") is fine. Give the part's
+case-file id as the answer's id ('1b'), so `K.carried` knows when he missed it: a part got wrong
+and never right, or shown with `a.reveal()`, is carried forward at the course's figure and says so.
+After two wrong tries, show the working and `reveal()`; Continue once `right()`.
+The self-test grades every answer: its figure and each accepted one right (with the unit too), a
+near miss and each slip refused, and the figure typed into the field and checked on its step.
+
+**Written answers** (Section B: "Explain why…", "State two…"). `K.written({id: 'b1', into})` shows
+`lesson.written.b1`'s question, a box for his words and Check my answer. Claude marks them against
+the lesson's points through the app (never from the page): each point comes back with an ink tick
+or a dashed ring, a statement that is wrong named in red, one line on what he did well and one
+nudge; one more go, then the model answer. Without Claude, the points are a checklist he ticks.
+No marks, no grades, nothing to score. `onMark(r)` runs when a result is drawn; let him Continue
+once `answered()`.
+
+**The summary** (Keep this, the last step). `K.summary({into: '#keep'})` draws `lesson.summary`
+as a card (what it is for, the rule, the traps, the case's figures so far, where it lives) and says
+it is the first page of the chapter in his Book. A figure resting on a practice value is tagged so; the
+traps' and points' cites stay as data and are never shown. Then the Finish button calls `K.complete()`.
+
+**STEPS entries** (tools/course/guide.mjs reads them for the Book and the read-through): a
+typed-answer step keeps `want` (the answer as printed, '13.33 A'); a written step is `{kind:
+'written', written: 'b1', name, task}`; the summary step is `{kind: 'summary', name: 'Keep this'}`;
+the recall opener is a DO step like any other. The read-through (and the Book) shows each step as
+it looks finished, as a still picture with no controls, and its words in its place. Three fields
+make that read as plain sense (Dan, 20 Oct: "some of the text doesn't make sense… the images are
+blank"):
+- `read` on a SHOW step: its sentence for reading, when its own words ask him to act ("Drag…",
+  "Work each step yourself first, then show it"). Say what the finished picture shows.
+- `read` on a DO step only when its task asks him to act on the screen: the same question, asked
+  for reading. Never the answer: the read-through shows the question, the choices, the answer
+  and why on their own (guide.mjs keeps the task and warns when a `read` gives the answer away).
+- `still`: the state the picture shows, when the step's end needs his moves: `{control id: value}`
+  (`{h: 35}`), or a function that sets it (`still: () => runTo(SPLIT)`, cards placed in their
+  phases; `still: () => pick(...)`, a second question on the step answered too). The state is the
+  one its sentence ends on. `still: false` leaves the picture out. guide.mjs leaves out a still
+  that would show an empty box (a lane with no cards), and warns about it and about choices on
+  the screen that nobody chose, so give those steps a `still`.
+The guide drops a sentence that tells him to drag, tap, press or choose, a "Right." or "Still
+there." verdict, and the scenario after its first showing; write the step so it still reads
+whole without them.
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

@@ -1,0 +1,718 @@
+<!-- kind: process -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .task > p + p, .assume > p + p, .note > p + p, .why > p + p { margin-top: 10px; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .sub.ask { font-size: 1rem; font-weight: 700; color: var(--k-ink); }
+  .assume { line-height: 1.6; }
+  .ctl { display: grid; gap: 12px; }
+  .scene { display: block; width: 100%; }
+  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .fig { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tube { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .col { fill: var(--k-accent2); }
+  .scene .tick { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .grab { fill: var(--k-bg); fill-opacity: 0; pointer-events: all; cursor: ns-resize; }
+  .scene .thermo { touch-action: none; }
+  .scene .ds { fill: var(--k-fill3); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .rd { fill: var(--k-accent2); }
+  .scene .lim { stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 5 4; }
+  .scene .base { stroke: var(--k-strong); stroke-width: 1.5; }
+  .w { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.5; }
+  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .wl .w { margin-top: 8px; }
+  .wl .sub { margin-top: 10px; }
+  .rdl { display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; margin-top: 8px; }
+  .rdl .v { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .zt { display: grid; grid-template-columns: minmax(4.6rem, auto) 1fr 1fr; gap: 6px; margin-top: 8px; }
+  .zt > span { padding: 8px 10px; border-radius: 8px; line-height: 1.35; }
+  .zt .zh { font-size: .85rem; font-weight: 600; color: var(--k-muted); padding-bottom: 2px; align-self: end; }
+  .zt .zr { font-weight: 600; align-self: center; padding-left: 0; }
+  .zt .zc { background: var(--k-panel); border: 1px solid var(--k-line); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .zt .zc.wait { color: var(--k-muted); }
+  .zt .zc small { display: block; font-weight: 400; font-size: .82rem; color: var(--k-muted); }
+  .hl { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+  .hl li { position: relative; padding-left: 1.3rem; line-height: 1.5; }
+  .hl li::before { content: ""; position: absolute; left: .25rem; top: .62em; width: .45rem; height: .45rem; border-radius: 50%; background: var(--k-accent2); }
+  #lists > * + * { margin-top: 16px; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; justify-content: flex-start; padding: 10px 14px; }
+  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  .why { line-height: 1.6; }
+  #stepbox.enter, .wl .w.enter, .fade { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing .wl .w.enter, html.k-testing .fade { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .w.enter, .fade { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="scen"></div>
+    <div id="carryA"></div>
+    <div id="carryB"></div>
+    <div id="carryC"></div>
+    <div class="wl" id="reads"></div>
+    <div class="assume" id="assume"></div>
+    <div id="grid"></div>
+    <div class="task" id="task"></div>
+    <p class="sub" id="sub"></p>
+    <div class="warn-note" id="warn2"></div>
+    <div id="lists"></div>
+    <div class="note why" id="interval"></div>
+    <div id="wrap"><svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctl"></div>
+    <div class="k-readouts" id="outs"></div>
+    <p class="say" id="say"></p>
+    <div class="note why" id="beside"></div>
+    <div class="why" id="under"></div>
+    <div id="worked"></div>
+    <div class="row" id="workedgo"></div>
+    <div class="picks" id="picks"></div>
+    <div id="ans-4a"></div>
+    <div id="ans-4b"></div>
+    <div id="ans-4c"></div>
+    <div id="ans-ch"></div>
+    <div class="row" id="acts"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div class="note why" id="after"></div>
+    <div class="row" id="go"></div>
+    <div id="wr1"></div>
+    <div id="wr2"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Each line is worked from the rounded figures shown before it.</p>
+
+<script>
+  // ---------- rounding, the rule, and the course's figures ----------
+  const r2 = (x) => Math.round(x * 100 + 1e-7) / 100;
+  const r3 = (x) => Math.round(x * 1000 + 1e-6) / 1000;
+  const f2 = (x) => r2(x).toFixed(2), f3 = (x) => r3(x).toFixed(3);
+  const F = (id) => K.figure(id);
+  const el = (id) => document.getElementById(id);
+  const NB = ' ';
+  // Non-breaking spaces before operators, between a number and its unit, and in 'type C'.
+  const nb = (s) => String(s == null ? '' : s)
+    .replace(/ ([×÷+=]) /g, NB + '$1 ')
+    .replace(/(\d) (?=(?:mm²|mΩ\/m|°C|Ω|A|m|years)(?![A-Za-z]))/g, '$1' + NB)
+    .replace(/\btype ([BCD])\b/g, 'type' + NB + '$1');
+  const seg = (f) => String((f && f.work) || '').split('; ');
+
+  // Copper: resistance in step with (temperature + 230 °C).
+  const OFF = 230, TREF = 20, TLIM = 10, TRUN = 70, THOT = 90;
+  const fac = (from, to) => r2((to + OFF) / (from + OFF));
+  const R15 = 24.2;                                   // mΩ/m, 1.5 mm² line and 1.5 mm² cpc at 20 °C
+  const ZE = F('g.Ze').value, M = F('g.mult.90ts').value, TDAY = F('p.test.amb').value;
+  const RCORE = F('g.swa4.line').value, RARM = F('g.swa4.armourR').value;
+  const ZC6 = F('g.zmax.C6').value, ZC10 = F('g.zmax.C10').value, ZC25 = F('g.zmax.C25').value;
+  const MEAS6 = F('g.osg.meas6').value, MEAS10 = F('g.osg.meas10').value, MEAS25 = F('g.osg.meas25').value;
+  const AZE = F('p.as.Ze').value, ASUB = F('p.as.r12.sub').value, AC7 = F('p.as.r12.c7').value;
+  const AZDB = F('p.as.zs.db').value, AZC7 = F('p.as.zs.c7').value;
+  const fSubLen = F('l8.sub.len'), fC7Len = F('l8.c7.len');
+  const YEARS = F('g.interval.gn3').value, IND = 3;
+
+  const fR = F('l9.recall'), fR1 = F('l9.recall.slip1'), fR2 = F('l9.recall.slip2');
+  const f3g = F('3g'), f3i = F('3i');
+  const fSub15 = F('l9.A.sub15'), fC715 = F('l9.A.c715');
+  const f4a = F('4a'), f4b = F('4b'), f4c = F('4c'), fCh = F('l9.changed');
+  const fDb = F('l9.A.db'), fDbExp = F('l9.A.dbexp'), fC7Lim = F('l9.A.c7lim'), fC7 = F('l9.A.c7'), fDirect = F('l9.A.direct'), fGap = F('l9.A.gap');
+
+  // The heater, from the recall and the worked example.
+  const H = { len: 15, mult: 1.2, ze: 0.21, zmax: 2.73 };
+  H.cold = r3(R15 * H.len / 1000); H.hot = r3(R15 * H.mult * H.len / 1000); H.twice = r3(H.hot * H.mult);
+  const DES = H.hot;
+  const whyAt = (t) => { const factor = fac(TREF, t); return { factor, reading: r3(H.cold * factor) }; };
+  const F90 = fac(TREF, THOT), F15 = fac(TREF, TDAY), DIV = fac(TLIM, TRUN);
+  // The check: a 6 A type C's cold limit on a 25 °C day.
+  const CK = { t: 25, f: fac(TLIM, 25) };
+  CK.lim = r3(MEAS6 * CK.f); CK.div = r3(MEAS6 / CK.f);
+  // The worked example.
+  const W = { r: H.cold };
+  W.zs = r3(H.ze + W.r); W.dzs = r3(H.ze + H.hot); W.l10 = r3(H.zmax / DIV); W.f = fac(TLIM, TREF); W.l20 = r3(W.l10 * W.f);
+  // Part 4(a): expected Zs at C7's far end on the test day.
+  const A = { f: F15 };
+  A.s20 = r3((RCORE + RARM) * fSubLen.value / 1000); A.s15 = r3(A.s20 * A.f);
+  A.c20 = r3(R15 * fC7Len.value / 1000); A.c15 = r3(A.c20 * A.f);
+  A.zs = r3(ZE + A.s15 + A.c15);
+  A.un = r3(ZE + ((RCORE + RARM) * fSubLen.value / 1000 + R15 * fC7Len.value / 1000) * (TDAY + OFF) / (TREF + OFF));
+  A.warm = r3(ZE + A.s20 + A.c20); A.noZe = r3(A.s15 + A.c15);
+  // Part 4(b): the limit at DBL2 on the test day, and the readings.
+  const B = { f: fac(TLIM, TDAY) };
+  B.lim = r3(MEAS10 * B.f); B.un = r3(MEAS10 * (TDAY + OFF) / (TLIM + OFF)); B.div = r3(MEAS10 / B.f);
+  B.db = r3(AZE + ASUB); B.dbexp = r3(ZE + A.s15); B.c7lim = r3(MEAS6 * B.f); B.c7 = r3(AZE + ASUB + AC7); B.direct = r3(B.c7 - AZC7);
+  // Part 4(c): the as-built Zs made hot.
+  const C = { r: r3(ASUB + AC7) };
+  C.b20 = r3(C.r / A.f); C.hot = r3(C.b20 * M); C.zs = r3(AZE + C.hot);
+  C.un = r3(AZE + C.r * (TREF + OFF) / (TDAY + OFF) * M);
+  C.f1 = fac(TDAY, THOT); C.one = r3(AZE + r3(C.r * C.f1));
+  C.skip = r3(AZE + r3(C.r * M)); C.zeToo = r3(r3(B.c7 / A.f) * M);
+  C.gap = r3(f3i.value - C.zs); C.pct = Math.round(C.gap / f3i.value * 100); C.cold = r3(A.zs - B.c7); C.diag = r3(f3i.value - B.c7); C.zeLow = r2(ZE - AZE);
+  // Changed numbers: a 25 A type C on a 20 °C day.
+  const CH = { read: 0.74, f: fac(TLIM, TREF) };
+  CH.lim = r3(MEAS25 * CH.f); CH.un = r3(MEAS25 * (TREF + OFF) / (TLIM + OFF)); CH.div = r3(MEAS25 / CH.f);
+
+  // ---------- the lesson's words ----------
+  const RECALL_TASK = 'Remember the immersion heater circuit: ' + H.len + ' m of 1.5 mm² line and cpc. Its design R1+R2 is ' + R15 + ' × ' + H.mult + ' × ' + H.len + ' ÷ 1000 = ' + f3(H.hot) + ' Ω. You test it once it is installed, cold, on a ' + TREF + ' °C day. What should it read if the cable is as designed?';
+  const O_HOT = f3(H.hot) + ' Ω: the design figure', O_COLD = f3(H.cold) + ' Ω: ' + R15 + ' × ' + H.len + ' ÷ 1000', O_TWICE = f3(H.twice) + ' Ω: ' + f3(H.hot) + ' × ' + H.mult;
+  const RECALL_WHY = 'The ' + H.mult + ' takes the cable from ' + TREF + ' °C up to its running temperature. A cold test leaves it out.';
+  const FOR_TEXT = "The design predicts what each circuit should read. Verification checks the installation against those figures before anyone uses it. It also checks each reading against its device's limit.\n\nSo the designer hands the inspector the figures to test against, worked for the temperature of the test. Then the client gets the certificate and the records to run the building safely.";
+  const WHY_TEXT = "Two bars show the heater's R1+R2. Design stands at " + f3(DES) + ' Ω, worked for the cable running at ' + TRUN + ' °C. Reading is what the same cable reads at the thermometer\'s temperature.';
+  const WHY_READ = 'At ' + TREF + ' °C the cable reads ' + f3(whyAt(TREF).reading) + ' Ω. At ' + TRUN + ' °C the same cable reads ' + f3(whyAt(TRUN).reading) + " Ω, the design's figure.";
+  const BESIDE = "Copper's resistance rises in step with its temperature plus " + OFF + ' °C. So reading = ' + f3(H.cold) + ' × (t + ' + OFF + ') ÷ ' + (TREF + OFF) + ", where t is the cable's temperature.";
+  const UNDER = 'Nothing about the cable changed. Only its temperature did. So compare a reading with the design only at one temperature.\n\n'
+    + 'The same rule gives the factors you use for R1+R2 and Zs. From ' + TREF + ' °C up to ' + THOT + ' °C it is ' + (THOT + OFF) + ' ÷ ' + (TREF + OFF) + ' = ' + f2(F90) + '. From ' + TREF + ' °C down to a ' + TDAY + ' °C test day it is ' + (TDAY + OFF) + ' ÷ ' + (TREF + OFF) + ' = ' + f2(F15) + '.\n\n'
+    + 'The maximum measured Zs is the limit for a reading taken cold. It is the Table 41.3 figure divided by ' + f2(DIV) + '. That is ' + (TRUN + OFF) + ' ÷ ' + (TLIM + OFF) + ', from ' + TRUN + ' °C down to ' + TLIM + ' °C. So a cold reading should stay under ' + Math.round(100 / DIV) + '% of the Table 41.3 figure. The ' + Math.round(100 / DIV) + '% covers Ze too, though Ze does not warm with the cable. So the limit errs on the safe side.';
+  const CHK_TASK = "A 6 A type C circuit's limit for a reading at " + TLIM + ' °C is ' + f2(MEAS6) + ' Ω. You test it on a ' + CK.t + ' °C day. What is the most it may read?';
+  const C_RIGHT = f3(CK.lim) + ' Ω: ' + f2(MEAS6) + ' × ' + f2(CK.f), C_DIV = f3(CK.div) + ' Ω: ' + f2(MEAS6) + ' ÷ ' + f2(CK.f), C_HOT = f2(ZC6) + ' Ω: the Table 41.3 figure';
+  const CHK_WHY = 'A warmer cable reads higher, so the limit rises with it. The factor from ' + TLIM + ' °C is (' + CK.t + ' + ' + OFF + ') ÷ (' + TLIM + ' + ' + OFF + ') = ' + f2(CK.f) + '. Then ' + f2(MEAS6) + ' × ' + f2(CK.f) + ' = ' + f3(CK.lim) + ' Ω.';
+  const WK_TEXT = 'The heater circuit: Ze ' + H.ze + ' Ω, ' + H.len + ' m of 1.5 mm² line and cpc at ' + R15 + ' mΩ/m, and a device whose Table 41.3 maximum is ' + H.zmax + ' Ω. The design gave R1+R2 ' + f3(H.hot) + ' Ω and Zs ' + f3(W.dzs) + ' Ω, both hot. You test on a ' + TREF + ' °C day.';
+  const WK_READ = 'On a ' + TREF + ' °C day the heater should read about ' + f3(W.zs) + ' Ω, and the most it may read is ' + f3(W.l20) + ' Ω.';
+  const SCEN_TITLE = 'Your showroom: DBL2 and C7, ready to test';
+  const SCEN_TEXT = 'A newly built car showroom, on a three-phase four-wire TN-C-S supply. Ze is declared as ' + ZE + ' Ω. A four-core SWA submain runs ' + fSubLen.text + ' from the MDB to DBL2, the lighting board, on a 10 A type C breaker. Its armour is the cpc. C7 runs ' + fC7Len.text + ' from DBL2 to the farthest walkway bollard. It is 1.5 mm² singles with a 1.5 mm² cpc, on a 6 A type C breaker. The installation is finished and ready for its tests.';
+  const AS_4A = 'Parts 3(g) and 3(i) are both worked hot.\n\nAssume the tests are done on a ' + TDAY + " °C day. Take that as a practice value. On a real job, record the day's temperature.\n\nAt " + TREF + " °C the submain's core is " + RCORE + ' mΩ/m and its armour ' + RARM + ' mΩ/m, over ' + fSubLen.text + ". C7's 1.5 mm² line and cpc are " + R15 + ' mΩ/m over its ' + fC7Len.text + '.';
+  const Q4A = "(a) Determine the earth fault loop impedance you expect at C7's farthest bollard on the test day.";
+  const READS = [['Ze at the MDB', AZE], ['R1+R2 of the submain', ASUB], ['R1+R2 of C7', AC7], ['Zs read directly at DBL2', AZDB], ['Zs read directly at the farthest bollard', AZC7]];
+  const READS_TEXT = 'Ze at the MDB: ' + AZE + ' Ω. R1+R2 of the submain: ' + f3(ASUB) + ' Ω. R1+R2 of C7: ' + f3(AC7) + ' Ω. Zs read directly: ' + f3(AZDB) + ' Ω at DBL2, ' + f3(AZC7) + ' Ω at the farthest bollard.';
+  const AS_4B = "These as-built readings are practice examples, not measurements.\n\nThe submain's 10 A type C breaker has a Table 41.3 maximum of " + f2(ZC10) + ' Ω. Its limit for a reading at ' + TLIM + ' °C is ' + f2(MEAS10) + ' Ω.';
+  const Q4B = '(b) Determine the maximum Zs a reading at DBL2 may show on the ' + TDAY + ' °C test day, and state whether the readings comply.';
+  const AS_4C = 'Use Ze + (R1+R2) from the readings, not the direct reading. Ze belongs to the supply, so correct only R1+R2.';
+  const Q4C = "(c) Correct the as-built Zs at C7's farthest bollard to operating temperature, and compare it with the design.";
+  const INSPECTOR = ["Each circuit's expected R1+R2 at the test temperature.", "Each circuit's maximum permitted Zs, and where it comes from if not Table 41.3.",
+    'A chart or schedule of each circuit, with its points, its cable size and type, and its protective device.', 'Anything a test could damage, such as SELV equipment.', "The supply's characteristics."];
+  const CLIENT = ['The Electrical Installation Certificate, which is valid only with its schedule of inspections and schedules of test results.', 'The circuit charts and diagrams.',
+    'The notices, including the periodic inspection notice at the origin.', 'The O&M manual and building log book, where the contract asks for them.',
+    'On a project under CDM, a copy of the certificate in the health and safety file.', 'Where fixed building services need commissioning, a commissioning notice to building control and the owner.'];
+  const INTERVAL = 'You recommend the time to the first periodic inspection. It goes on the certificate. The recommended maximum is ' + YEARS + ' years for commercial premises and ' + IND + ' for industrial. The showroom is commercial, so take ' + YEARS + ' years. Shorten it if the building will be poorly maintained or used harder than designed for. Cars on the floor are part of a showroom\'s normal use. They do not change the ' + YEARS + ' years by themselves.';
+  const HAND_TEXT = 'Before the tests, the inspector gets five things. ' + INSPECTOR.join(' ') + '\n\nAt handover, these go out. ' + CLIENT.join(' ') + '\n\n' + INTERVAL;
+  const AS_CH = 'A 25 A type C radial circuit is tested on a ' + TREF + ' °C day. It reads Zs ' + f2(CH.read) + ' Ω. Table 41.3 gives ' + f2(ZC25) + ' Ω. Its limit for a reading at ' + TLIM + ' °C is ' + f2(MEAS25) + ' Ω.';
+  const Q_CH = 'Determine the most it may read on the day, and state whether it complies.';
+
+  const STEPS = [
+    { name: 'Do you still have it?', label: 'Do you still have it?', task: RECALL_TASK,
+      opts: [O_HOT, O_COLD, O_TWICE], want: O_COLD, why: RECALL_WHY + ' ' + fR.work + '.' },
+    { show: true, name: 'What it is for', label: 'What it is for', text: FOR_TEXT },
+    { show: true, name: 'The why', label: 'The why: one cable, two temperatures', text: WHY_TEXT, read: WHY_READ, still: { temp: TRUN } },
+    { name: 'Check', label: 'Check', task: CHK_TASK, opts: [C_RIGHT, C_DIV, C_HOT], want: C_RIGHT, why: CHK_WHY },
+    { show: true, name: 'Worked example', label: 'Worked example: the heater, as built', text: WK_TEXT, read: WK_READ,
+      still: () => { lines = WCOUNT; K.refresh(); } },
+    { name: 'Section A 4(a)', label: 'Section A · Question 4', assume: AS_4A, part: Q4A,
+      task: AS_4A.split('\n\n').join(' ') + ' ' + Q4A, want: f4a.text, why: f4a.work },
+    { name: 'Section A 4(b)', label: 'Section A · Question 4', assume: AS_4B, part: Q4B,
+      task: READS_TEXT + ' ' + AS_4B.split('\n\n').join(' ') + ' ' + Q4B, want: f4b.text, why: f4b.work },
+    { name: 'Section A 4(c)', label: 'Section A · Question 4', assume: AS_4C, part: Q4C,
+      task: READS_TEXT + ' ' + AS_4C + ' ' + Q4C, want: f4c.text, why: f4c.work },
+    { show: true, name: 'Handing over', label: 'Handing over', text: HAND_TEXT, still: false },
+    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },
+    { kind: 'written', written: 'b2', name: 'Section B 2', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },
+    { name: 'Changed numbers', label: 'Section A · Changed numbers', assume: AS_CH, part: Q_CH,
+      task: AS_CH + ' ' + Q_CH, want: fCh.text, why: fCh.work },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const iR = 0, iFor = 1, iWhy = 2, iChk = 3, iWk = 4, i4A = 5, i4B = 6, i4C = 7, iHand = 8, iB1 = 9, iB2 = 10, iCh = 11, iK = 12;
+  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, fb: null }));
+  const WORKING = [iWhy, iChk, iWk, i4A, i4B, i4C, iCh];
+  const TERMS = {};
+  let lastStep = -1, finished = false, lines = 0;
+
+  // Words with key terms in amber (the <mark> element), built with K.el, never innerHTML.
+  function write(node, s, terms) {
+    node.textContent = '';
+    let rest = String(s || '');
+    const list = (terms || []).slice();
+    while (rest) {
+      let at = -1, hit = null;
+      list.forEach((t) => { const k = rest.indexOf(t); if (k >= 0 && (at < 0 || k < at)) { at = k; hit = t; } });
+      if (at < 0) { node.appendChild(document.createTextNode(nb(rest))); break; }
+      if (at > 0) node.appendChild(document.createTextNode(nb(rest.slice(0, at))));
+      node.appendChild(K.el('mark', null, nb(hit)));
+      list.splice(list.indexOf(hit), 1);
+      rest = rest.slice(at + hit.length);
+    }
+    return node;
+  }
+  function paras(node, s, terms) {
+    node.textContent = '';
+    String(s || '').split('\n\n').forEach((t) => { if (t) node.appendChild(write(K.el('p'), t, terms)); });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  K.control({ id: 'temp', label: 'Cable temperature', min: 0, max: TRUN, step: 1, value: TREF, fmt: (v) => Math.round(v) + ' °C', snap: [TLIM, TREF, TRUN], into: '#ctl' });
+  K.readout({ id: 'factor', label: 'Factor from ' + TREF + NB + '°C', decimals: 2, into: '#outs' });
+  K.readout({ id: 'reading', label: 'Reading', unit: 'Ω', decimals: 3, into: '#outs' });
+
+  // Picks: one tap answers.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length) return;
+    if (i === iR) {
+      if (st.res) return;     // a recall gets one go
+      st.pick = d.opts[k];
+      if (st.pick === d.want) {
+        st.res = 'right';
+        st.fb = { ok: true, v: 'Still there.', p0: RECALL_WHY, w: [fR.work], p: 'The two slips: ' + f3(H.hot) + ' Ω is the hot figure, and ' + f3(H.twice) + ' Ω warms it twice.' };
+      } else {
+        st.res = 'wrong';
+        st.fb = { ok: false, v: 'Not quite.',
+          p0: (st.pick === O_HOT ? 'That is the hot figure. The cable is cold when you test it, so it reads lower.' : 'That warms it twice. The ' + H.mult + ' is already in ' + f3(H.hot) + ' Ω.') + ' ' + RECALL_WHY,
+          w: [fR.work] };
+      }
+    } else if (i === iChk) {
+      if (st.res === 'right') return;
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: "That's it.", p0: CHK_WHY }; }
+      else if (st.pick === C_DIV) { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: 'That moves the limit the wrong way. A warmer day raises the reading, so it raises the limit too.' }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: f2(ZC6) + ' Ω is the limit for the cable running hot. At ' + CK.t + ' °C the cable is still far cooler than that.' }; }
+    }
+    K.refresh();
+  }
+  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iFor); } });
+  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(i4A); } });
+
+  // ---------- Section A: typed answers on the course's figures ----------
+  const scen = K.scenario({ into: '#scen', open: true, title: SCEN_TITLE, text: SCEN_TEXT });
+  K.carried({ parts: ['3g', '3i'], into: '#carryA' });
+  K.carried({ parts: ['4a'], into: '#carryB' });
+  K.carried({ parts: ['4a', '4b'], into: '#carryC' });
+  const differs = (r, f) => r.value != null && Math.abs(r.value - f.value) > 1e-6;
+  const unrounded = (r, f) => (differs(r, f) ? 'That comes from unrounded working. Worked from the rounded figures, it is ' + f.text + '.' : '');
+  const w4c = seg(f4c); w4c[w4c.length - 1] = w4c[w4c.length - 1].split(', against')[0];
+  const SPEC = {
+    [i4A]: { id: '4a', fig: f4a, unit: 'Ω', accept: [A.un],
+      work: () => ['Factor from ' + TREF + ' °C = (' + TDAY + ' + ' + OFF + ') ÷ (' + TREF + ' + ' + OFF + ') = ' + f2(A.f),
+        'Submain = ' + seg(fSub15)[0] + ', and ' + seg(fSub15)[1],
+        'C7 = ' + seg(fC715)[0] + ', and ' + seg(fC715)[1],
+        'Zs = ' + seg(f4a)[seg(f4a).length - 1]],
+      slips: [
+        { value: f3i.value, hint: "That is the design's hot figure. The test is cold, so expect less." },
+        { value: A.warm, hint: 'Those are the ' + TREF + ' °C values. The test day is ' + TDAY + ' °C, so multiply each by ' + f2(A.f) + '.' },
+        { value: A.noZe, hint: 'Add Ze, ' + ZE + ' Ω. The supply is part of the loop.' },
+      ],
+      hint: "Not quite. Work each cable's R1+R2 at " + TREF + ' °C, multiply by ' + f2(A.f) + ' for the test day, then add Ze.',
+      after: "This is the figure you hand the inspector. The design's " + f3i.text + ' is the same circuit, hot.' },
+    [i4B]: { id: '4b', fig: f4b, unit: 'Ω', accept: [B.un],
+      work: () => ['Factor from ' + TLIM + ' °C = (' + TDAY + ' + ' + OFF + ') ÷ (' + TLIM + ' + ' + OFF + ') = ' + seg(f4b)[0], 'Limit = ' + seg(f4b)[1]],
+      slips: [
+        { value: ZC10, hint: 'That is the limit for the cable hot. Set a reading at ' + TDAY + ' °C against a cold limit.' },
+        { value: B.div, hint: 'That moves the limit the wrong way. ' + TDAY + ' °C is warmer than ' + TLIM + ' °C, so the limit goes up.' },
+        { value: MEAS10, hint: 'That is the limit at ' + TLIM + ' °C. Correct it to the ' + TDAY + ' °C day.' },
+      ],
+      hint: 'Not quite. Start from the limit at ' + TLIM + ' °C and multiply by the factor from ' + TLIM + ' °C to ' + TDAY + ' °C.',
+      terms: ['parallel earth paths'],
+      after: 'At DBL2, Ze + (R1+R2) = ' + fDb.work.split(' ≤')[0] + '. The direct reading is ' + f3(AZDB) + ' Ω. Both are far under ' + f4b.text + ', so they comply. The design expected ' + fDbExp.work + '.\n\n'
+        + "C7's own limit, for its 6 A type C, is " + fC7Lim.work + '. At its far end, Ze + (R1+R2) = ' + fC7.work.split(' ≤')[0] + '. The direct reading is ' + f3(AZC7) + ' Ω. Both comply with plenty to spare.\n\n'
+        + 'These cold limits assume cables that run at up to ' + TRUN + ' °C. C7 and the submain are ' + THOT + ' °C cables, but they carry a small share of their rating. So they run cool, and the ' + TRUN + ' °C limits are fair here.\n\n'
+        + 'The direct reading comes in ' + fDirect.text + ' lower. A direct reading usually does, because it takes in parallel earth paths through bonded metalwork. So never subtract Ze from a direct reading to find R1+R2.' },
+    [i4C]: { id: '4c', fig: f4c, unit: 'Ω', accept: [C.un, C.one],
+      work: () => ['R1+R2 at ' + TDAY + ' °C = ', 'Back to ' + TREF + ' °C: ', 'Up to operating temperature: ', 'Zs = '].map((n, k) => n + w4c[k]),
+      slips: [
+        { value: C.skip, hint: 'The ' + f2(M) + ' starts from ' + TREF + ' °C. Divide by ' + f2(A.f) + ' first to bring the reading back to ' + TREF + ' °C.' },
+        { value: C.zeToo, hint: 'You warmed Ze too. Ze belongs to the supply, so correct only R1+R2.' },
+        { value: B.c7, hint: 'That is the reading as taken, cold. Correct R1+R2 to operating temperature first.' },
+      ],
+      hint: 'Not quite. Bring R1+R2 back to ' + TREF + ' °C, multiply by ' + f2(M) + ', then add Ze.',
+      rightNote: (r) => (r.value != null && Math.abs(r.value - C.one) < 0.0006 ? 'That uses one factor from ' + TDAY + ' °C to ' + THOT + ' °C, (' + THOT + ' + ' + OFF + ') ÷ (' + TDAY + ' + ' + OFF + ') = ' + f2(C.f1) + '. It agrees within rounding. Worked in two steps, it is ' + f4c.text + '.' : unrounded(r, f4c)),
+      terms: ['Like for like'],
+      after: "Like for like, the installation gives " + f4c.text + " against the design's " + f3i.text + '. That is ' + f3(C.gap) + ' Ω lower, about ' + C.pct + '%. Cold against cold, it is ' + fC7.text + ' against the expected ' + f4a.text + '. That is ' + f3(C.cold) + ' Ω lower.\n\n'
+        + 'Set the cold reading against the hot design and it looks ' + f3(C.diag) + ' Ω lower. Most of that gap is only temperature.\n\n'
+        + 'Of the ' + f3(C.gap) + ' Ω gap, ' + f2(C.zeLow) + ' Ω is Ze. It measured ' + AZE + ' Ω against the declared ' + ZE + ' Ω. A declared Ze is a maximum, and so are the tabulated resistances. So readings usually come in a little under the design.\n\n'
+        + 'A reading well over the expected figure means something is wrong. The installation may differ from the design, such as a longer run or a poor connection. Or the test itself went wrong. Find out which.' },
+    [iCh]: { id: 'l9.changed', fig: fCh, unit: 'Ω', accept: [CH.un],
+      work: () => ['Factor = (' + TREF + ' + ' + OFF + ') ÷ (' + TLIM + ' + ' + OFF + ') = ' + seg(fCh)[0], 'Limit = ' + seg(fCh)[1]],
+      slips: [
+        { value: ZC25, hint: 'That is the limit for the cable hot. Set a cold reading against a cold limit.' },
+        { value: CH.div, hint: 'That moves the limit the wrong way. ' + TREF + ' °C is warmer than ' + TLIM + ' °C, so the limit goes up.' },
+        { value: MEAS25, hint: 'That is the limit at ' + TLIM + ' °C. Correct it to the ' + TREF + ' °C day.' },
+      ],
+      hint: 'Not quite. Multiply the limit at ' + TLIM + ' °C by the factor from ' + TLIM + ' °C to ' + TREF + ' °C.',
+      after: f2(CH.read) + ' Ω is over ' + fCh.text + ', so it does not comply. Yet it is under ' + f2(ZC25) + ' Ω. Set against the hot figure, it would have passed.\n\nThe cold limit scales Ze too, though Ze does not warm with the cable. So it errs a little on the safe side. A reading over it still fails.' },
+  };
+  const BOX = { [i4A]: '#ans-4a', [i4B]: '#ans-4b', [i4C]: '#ans-4c', [iCh]: '#ans-ch' };
+  const ANS = {};
+  Object.keys(SPEC).forEach((key) => {
+    const i = +key, sp = SPEC[i];
+    const a = K.answer({ id: sp.id, unit: sp.unit, answer: sp.fig.value, decimals: 3, accept: sp.accept, slips: sp.slips, into: BOX[i],
+      onCheck: (r) => {
+        const st = S[i];
+        if (st.shown) return;
+        if (r.state === 'right') {
+          st.res = 'right';
+          st.fb = { ok: true, v: 'Right.', w: sp.work(), p: sp.rightNote ? sp.rightNote(r) : unrounded(r, sp.fig) };
+        } else if (r.state === 'wrong') {
+          st.tries += 1;
+          if (st.tries >= 2) {
+            st.shown = true; st.res = 'shown';
+            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.work() };
+            a.reveal();
+          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }
+        } else { st.res = r.state; st.fb = null; }
+        K.refresh();
+      } });
+    ANS[i] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });
+
+  // The as-built readings, shown on 4(b) and 4(c).
+  (function readings() {
+    const box = el('reads');
+    box.appendChild(K.el('p', { class: 'k-label' }, 'As-built readings, practice examples'));
+    const g = K.el('div', { class: 'rdl' });
+    READS.forEach(([t, v]) => { g.appendChild(K.el('span', null, nb(t))); g.appendChild(K.el('span', { class: 'v' }, nb((v < 0.1 ? String(v) : f3(v)) + ' Ω'))); });
+    box.appendChild(g);
+  })();
+
+  // Zs at C7's far end, cold and hot, design and as built: fills in as each part is worked.
+  const doneAt = (k) => S[k].res === 'right' || S[k].shown;
+  const cells = {};
+  (function grid() {
+    const box = el('grid');
+    box.appendChild(K.el('p', { class: 'k-label' }, "Zs at C7's farthest bollard"));
+    const t = K.el('div', { class: 'zt' });
+    t.appendChild(K.el('span', { 'aria-hidden': 'true' }));
+    t.appendChild(K.el('span', { class: 'zh' }, nb('Cold, the ' + TDAY + ' °C day')));
+    t.appendChild(K.el('span', { class: 'zh' }, 'Hot, in service'));
+    [['Design', 'dc', 'dh'], ['As built', 'ac', 'ah']].forEach(([name, c1, c2]) => {
+      t.appendChild(K.el('span', { class: 'zr' }, name));
+      cells[c1] = K.el('span', { class: 'zc' }); cells[c2] = K.el('span', { class: 'zc' });
+      t.appendChild(cells[c1]); t.appendChild(cells[c2]);
+    });
+    box.appendChild(t);
+    box.appendChild(K.el('p', { class: 'sub' }, 'Compare down a column, at one temperature.'));
+  })();
+  // A cell fades in when its figure arrives, as the feedback beside it does.
+  function fillCell(c, done, text, tag) {
+    const st = done ? 'done' : 'wait';
+    if (c.dataset.st === st) return;
+    const first = !c.dataset.st;
+    c.dataset.st = st;
+    c.textContent = '';
+    c.className = 'zc' + (done ? (first ? '' : ' fade') : ' wait');
+    c.appendChild(document.createTextNode(done ? nb(text) : '?'));
+    c.appendChild(K.el('small', null, tag));
+  }
+  function drawGrid() {
+    fillCell(cells.dh, true, f3i.text, 'part 3(i)');
+    fillCell(cells.dc, doneAt(i4A), f4a.text, 'part 4(a)');
+    fillCell(cells.ac, doneAt(i4B), fC7.text, 'Ze + (R1+R2)');
+    fillCell(cells.ah, doneAt(i4C), f4c.text, 'part 4(c)');
+  }
+
+  // ---------- Handing over: two lists, then the interval ----------
+  (function handover() {
+    const box = el('lists');
+    [['Before the tests, the inspector gets five things.', INSPECTOR], ['At handover, these go out.', CLIENT]].forEach(([head, items]) => {
+      const part = K.el('div');
+      part.appendChild(K.el('p', { class: 'sub ask' }, head));
+      const ul = K.el('ul', { class: 'hl' });
+      items.forEach((t) => ul.appendChild(K.el('li', null, nb(t))));
+      part.appendChild(ul);
+      box.appendChild(part);
+    });
+    paras(el('interval'), INTERVAL, ['first periodic inspection']);
+  })();
+
+  // ---------- Section B and Keep this ----------
+  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];
+  function markLine(id) {
+    const w = K.lesson && K.lesson.written && K.lesson.written[id];
+    const n = w && Array.isArray(w.points) ? w.points.length : 0, need = w ? +w.need : 0;
+    return n && need ? 'You write the answer. It is marked against ' + (WORDS[n] || n) + ' points, and any ' + (WORDS[need] || need) + ' make a full answer. You get one more go, then the model answer.'
+      : 'You write the answer, in your own words. You get one more go, then the model answer.';
+  }
+  const wB1 = K.written({ id: 'b1', into: '#wr1', onMark: () => K.refresh() });
+  el('wr1').addEventListener('click', () => K.refresh());
+  const wB2 = K.written({ id: 'b2', into: '#wr2', onMark: () => K.refresh() });
+  el('wr2').addEventListener('click', () => K.refresh());
+  K.summary({ into: '#keep' });
+  // Keep a number and its unit together on the card.
+  (function () {
+    const tw = document.createTreeWalker(el('keep'), NodeFilter.SHOW_TEXT), ns = [];
+    while (tw.nextNode()) ns.push(tw.currentNode);
+    ns.forEach((n) => { n.nodeValue = nb(n.nodeValue); });
+  })();
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+    K.refresh();
+  } });
+
+  // ---------- the worked example, a line at each press ----------
+  const WLINES = [
+    'Expected R1+R2 = ' + R15 + ' × ' + H.len + ' ÷ 1000 = ' + f3(W.r) + ' Ω',
+    'Expected Zs = ' + H.ze + ' + ' + f3(W.r) + ' = ' + f3(W.zs) + ' Ω',
+    'Limit at ' + TLIM + ' °C = ' + H.zmax + ' ÷ ' + f2(DIV) + ' = ' + f3(W.l10) + ' Ω',
+    'Factor from ' + TLIM + ' °C to ' + TREF + ' °C = ' + (TREF + OFF) + ' ÷ ' + (TLIM + OFF) + ' = ' + f2(W.f),
+    'Limit on the day = ' + f3(W.l10) + ' × ' + f2(W.f) + ' = ' + f3(W.l20) + ' Ω',
+  ];
+  const wbox = K.el('div', { class: 'wl' }, K.el('p', { class: 'k-label' }, 'The heater, tested on a ' + TREF + ' °C day'));
+  const wlines = WLINES.map((t) => { const w = K.el('p', { class: 'w' }, nb(t)); wbox.appendChild(w); return w; });
+  const WCOUNT = wlines.length;
+  const wnote = K.el('p', { class: 'sub' }, nb('Expect a reading near ' + f3(W.zs) + ' Ω, often a little under. It passes while it stays under ' + f3(W.l20) + ' Ω. You may remember the design as 0.43 Ω and 0.64 Ω. Those are the same hot figures, cut to two places.'));
+  wbox.appendChild(wnote);
+  el('worked').appendChild(wbox);
+  const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {
+    if (at() !== iWk || lines >= WCOUNT) return;
+    const w = wlines[lines]; lines += 1;
+    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');
+    K.refresh();
+  } });
+
+  // ---------- fixed words on their screens ----------
+  (function fixed() {
+    const wn = el('warn2');
+    wn.appendChild(K.el('b', null, 'If it is skipped: '));
+    wn.appendChild(document.createTextNode(nb('Set a cold reading against a hot figure and it looks better than it is. It can pass a circuit that would fail when warm.')));
+    paras(el('beside'), BESIDE, ['its temperature plus ' + OFF + ' °C']);
+    paras(el('under'), UNDER, ['only at one temperature', 'maximum measured Zs']);
+  })();
+
+  // ---------- the why: a thermometer beside two bars ----------
+  const svg = el('scene');
+  function add(parent, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; parent.appendChild(n); return n; }
+  function txt(x, y, s, cls, anchor) { return add(svg, 'text', { x, y, class: cls, 'text-anchor': anchor || 'start' }, nb(s)); }
+  const yT = (t) => 240 - t * 2.8;                 // the thermometer: 0 °C at 240, 70 °C at 44
+  const YB = 256, yR = (v) => YB - v * 400;          // the bars: 0 Ω at 256, 0.5 Ω at 56
+  const BD = { x: 222, w: 44 }, BR = { x: 284, w: 44 };
+  // The key, top right.
+  add(svg, 'line', { x1: 216, y1: 16, x2: 240, y2: 16, class: 'lim' });
+  txt(246, 20, 'Design figure', 'tk');
+  // The thermometer: drawn once, so a drag on it moves the temperature.
+  const thermo = add(svg, 'g', { class: 'thermo' });
+  add(thermo, 'rect', { x: 40, y: 24, width: 36, height: 262, class: 'grab' });
+  add(thermo, 'rect', { x: 51, y: 30, width: 14, height: 228, rx: 7, class: 'tube' });
+  add(thermo, 'circle', { cx: 58, cy: 264, r: 13, class: 'tube' });
+  const column = add(thermo, 'rect', { x: 54.5, y: yT(TREF), width: 7, height: 258 - yT(TREF), class: 'col' });
+  add(thermo, 'circle', { cx: 58, cy: 264, r: 9, class: 'col' });
+  [[TRUN, 'Running hot'], [TREF, 'Resistance tables'], [TLIM, 'Measured Zs limits']].forEach(([t, name]) => {
+    add(svg, 'line', { x1: 66, y1: yT(t), x2: 74, y2: yT(t), class: 'tick' });
+    txt(38, yT(t) + 4.5, t + ' °C', 'lb', 'end');
+    txt(78, yT(t) + 4.5, name, 'tk');
+  });
+  K.drag(thermo, { control: 'temp', toValue: (x, y) => K.clamp(Math.round((240 - y) / 2.8), 0, TRUN) });
+  // The two bars.
+  add(svg, 'line', { x1: 214, y1: YB, x2: 336, y2: YB, class: 'base' });
+  add(svg, 'rect', { x: BD.x, y: yR(DES).toFixed(1), width: BD.w, height: (YB - yR(DES)).toFixed(1), class: 'ds' });
+  const rbar = add(svg, 'rect', { x: BR.x, y: yR(H.cold).toFixed(1), width: BR.w, height: (YB - yR(H.cold)).toFixed(1), class: 'rd' });
+  add(svg, 'line', { x1: 216, y1: yR(DES).toFixed(1), x2: 334, y2: yR(DES).toFixed(1), class: 'lim' });
+  txt(BD.x + BD.w / 2, yR(DES) - 8, f3(DES) + ' Ω', 'fig', 'middle');
+  txt(BD.x + BD.w / 2, 274, 'Design', 'lb', 'middle');
+  txt(BD.x + BD.w / 2, 290, 'at ' + TRUN + ' °C', 'tk', 'middle');
+  txt(BR.x + BR.w / 2, 274, 'Reading', 'lb', 'middle');
+  const rAt = txt(BR.x + BR.w / 2, 290, 'at ' + TREF + ' °C', 'tk', 'middle');
+
+  function drawWhy(p, o) {
+    const t = K.clamp(Math.round(+p.temp), 0, TRUN);
+    column.setAttribute('y', yT(t).toFixed(1));
+    column.setAttribute('height', (258 - yT(t)).toFixed(1));
+    rbar.setAttribute('y', yR(o.reading).toFixed(1));
+    rbar.setAttribute('height', (YB - yR(o.reading)).toFixed(1));
+    rAt.textContent = nb('at ' + t + ' °C');
+    const gap = r3(DES - o.reading);
+    svg.setAttribute('aria-label', 'A thermometer at ' + t + ' °C beside two bars for the heater\'s R1+R2. Design stands at ' + f3(DES) + ' Ω, worked at ' + TRUN + ' °C. Reading shows the same cable at ' + t + ' °C, ' + (gap > 0 ? 'below the design.' : 'level with the design.'));
+    let s;
+    if (t >= TRUN) s = 'At ' + TRUN + ' °C the cable is as hot as the design assumed. So the reading meets the design at ' + f3(DES) + ' Ω.';
+    else if (gap <= 0) s = 'At ' + t + ' °C the reading rounds to the design\'s ' + f3(DES) + ' Ω. At ' + TRUN + ' °C the cable is exactly as hot as the design assumed.';
+    else if (t === TREF) s = 'At ' + TREF + ' °C the cable reads ' + f3(o.reading) + ' Ω, ' + f3(gap) + ' Ω under the design. Nothing is wrong with it. It is just cold.';
+    else if (t > TREF) s = 'At ' + t + ' °C the same cable reads ' + f3(o.reading) + ' Ω. That is still ' + f3(gap) + ' Ω under the design, because it is cooler than ' + TRUN + ' °C.';
+    else s = 'At ' + t + ' °C the cable reads ' + f3(o.reading) + ' Ω, ' + f3(gap) + ' Ω under the design. It is colder than the ' + TREF + ' °C of the tables, so it reads lower still.';
+    el('say').textContent = nb(s);
+  }
+
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+  // Feedback and after notes fade in as the step does, whenever they change.
+  const faded = {};
+  function fade(node, key) {
+    if (node.hidden) { faded[node.id] = ''; return; }
+    if (faded[node.id] === key) return;
+    faded[node.id] = key;
+    node.classList.remove('fade'); void node.offsetWidth; node.classList.add('fade');
+  }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) fb.appendChild(K.el('p', null, nb(f.p0)));
+    (f.w || []).forEach((t) => fb.appendChild(K.el('p', { class: 'w' }, nb(t))));
+    if (f.p) fb.appendChild(K.el('p', null, nb(f.p)));
+  }
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) {
+    const d = STEPS[i], st = S[i];
+    if (d.show) return true;
+    if (i === iR) return st.res === 'wrong';
+    if (i === iChk) return st.res === 'right';
+    if (ANS[i]) return st.res === 'right' || st.shown;
+    if (i === iB1) return !!(wB1 && wB1.answered && wB1.answered());
+    if (i === iB2) return !!(wB2 && wB2.answered && wB2.answered());
+    return false;
+  }
+
+  K.model((p) => {
+    const t = K.clamp(Math.round(p.temp == null ? TREF : +p.temp), 0, TRUN);
+    const w = whyAt(t);
+    return { factor: w.factor, reading: w.reading };
+  });
+
+  const ON = { scen: [i4A, i4B, i4C], carryA: [i4A], carryB: [i4B], carryC: [i4C], reads: [i4B, i4C], assume: [i4A, i4B, i4C, iCh], grid: [i4A, i4B, i4C],
+    warn2: [iFor], lists: [iHand], interval: [iHand], wrap: [iWhy], ctl: [iWhy], outs: [iWhy], say: [iWhy], beside: [iWhy], under: [iWhy],
+    worked: [iWk], workedgo: [iWk], picks: [iR, iChk],
+    'ans-4a': [i4A], 'ans-4b': [i4B], 'ans-4c': [i4C], 'ans-ch': [iCh], wr1: [iB1], wr2: [iB2], keep: [iK], fin: [iK] };
+
+  K.update((p, o) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; if (i >= i4A && i <= i4C) scen.el.open = i === i4A; }
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+    el('cap').hidden = WORKING.indexOf(i) < 0;
+
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+    paras(el('assume'), d.assume || '');
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    if (i === iHand) task.textContent = '';
+    else if (d.show) paras(task, d.text, TERMS[i]);
+    else write(task, d.part || (d.kind ? '' : d.task));
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    const asks = i === iWhy || i === iWk;
+    sub.className = 'sub' + (asks ? ' ask' : '');
+    sub.textContent = i === iWhy ? nb('Drag the temperature up to ' + TRUN + ' °C.')
+      : i === iWk ? 'Work each step yourself first, then press Show.'
+      : i === i4B ? 'Give the limit in Ω. The comparison follows.'
+      : i === iB1 ? markLine('b1')
+      : i === iB2 ? markLine('b2')
+      : i === iCh ? 'Same method, new numbers. Give the limit in Ω.'
+      : i === iK ? 'One card to come back to on a real job.' : '';
+    sub.hidden = !sub.textContent;
+
+    drawWhy(p, o);
+    if (i >= i4A && i <= i4C) drawGrid();
+
+    // Picks.
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(nb(opts[k]));
+      const done = st.res === 'right' || (i === iR && st.res === 'wrong');
+      b.el.classList.toggle('is-right', done && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    // The worked example's lines, and the note once they are all shown.
+    wlines.forEach((w, k) => { w.hidden = k >= lines; });
+    wnote.hidden = lines < WCOUNT;
+    nextLine.el.hidden = lines >= WCOUNT;
+    if (i === iWk) el('workedgo').hidden = lines >= WCOUNT;
+
+    // Check, the feedback, and what follows a finished typed answer.
+    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);
+    checkBtn.el.hidden = !typed || typedDone;
+    el('acts').hidden = checkBtn.el.hidden;
+    paintFb(st.fb);
+    const after = el('after');
+    paras(after, typedDone ? SPEC[i].after : '', typedDone ? SPEC[i].terms : null);
+    after.hidden = !after.textContent;
+    el('go').hidden = !(i === iR && st.res === 'right');
+    [['fb', JSON.stringify(st.fb)], ['after', i + after.textContent], ['go', String(i)]].forEach(([id, key]) => fade(el(id), key));
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i) || (i === iR && st.res === 'right');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const near = (a, b) => K.near(a, b, 1e-9);
+  K.check('At 20 °C the factor is 1.00 and the reading 0.363 Ω, 0.073 Ω under the design\'s 0.436 Ω', () => {
+    const o = K.at({ temp: 20 });
+    return near(o.factor, 1) && near(o.reading, fR.value) && near(r3(DES - o.reading), 0.073) && near(DES, fR1.value);
+  });
+  K.check('At 70 °C the factor is 300 ÷ 250 = 1.20 and the reading meets the design at 0.436 Ω. At 10 °C it falls to 0.348 Ω', () => {
+    const a = K.at({ temp: 70 }), b = K.at({ temp: 10 });
+    return near(a.factor, 1.2) && near(a.reading, F('l9.why.70').value) && near(a.reading, DES) && near(b.factor, 0.96) && near(b.reading, F('l9.why.10').value);
+  });
+  K.check('The reading never falls as the cable warms, and never passes the design between 0 and 70 °C', () => {
+    let prev = -1;
+    for (let t = 0; t <= TRUN; t += 1) {
+      const o = K.at({ temp: t });
+      if (o.reading < prev || o.reading > DES + 1e-9) return false;
+      prev = o.reading;
+    }
+    return K.at({ temp: 0 }).reading < K.at({ temp: TRUN }).reading;
+  });
+  K.check('The factors: 320 ÷ 250 = 1.28, 245 ÷ 250 = 0.98, 300 ÷ 240 = 1.25, and 1 ÷ 1.25 = 80%', () =>
+    near(F90, F('l9.why.f90').value) && near(F90, M) && near(F15, F('l9.why.f15').value) && near(F15, F('g.osg.I2.15').value) && near(DIV, F('l9.why.div').value) && near(1 / DIV, 0.8));
+  K.check('The recall: 0.363 Ω cold, 0.436 Ω hot, 0.523 Ω warmed twice. The check: 1.06, 3.085 Ω, and 2.745 Ω divided', () =>
+    near(H.cold, fR.value) && near(H.hot, fR1.value) && near(H.twice, fR2.value) &&
+    near(CK.f, 1.06) && near(CK.lim, F('l9.check').value) && near(CK.div, F('l9.check.slip1').value) && near(ZC6, F('l9.check.slip2').value));
+  K.check('The worked example: 0.573 Ω expected, 2.184 Ω at 10 °C, 1.04, 2.271 Ω on the day, and the design Zs 0.646 Ω', () =>
+    near(W.zs, F('l9.worked.zs').value) && near(W.l10, F('l9.worked.lim10').value) && near(W.f, 1.04) && near(W.l20, F('l9.worked.lim20').value) && near(W.dzs, 0.646));
+  K.check('Part 4a: 0.228 then 0.223 Ω, 0.576 then 0.564 Ω, Zs 0.887 Ω (0.888 Ω unrounded); slips 1.129, 0.904 and 0.787 Ω', () =>
+    near(A.f, 0.98) && near(A.s15, fSub15.value) && near(A.c15, fC715.value) && near(A.zs, f4a.value) && near(A.un, 0.888) &&
+    near(A.warm, F('4a.slip2').value) && near(A.noZe, F('4a.slip3').value) && near(f3i.value, F('4a.slip1').value));
+  K.check('Part 4b: 1.02, limit 1.785 Ω (1.786 Ω unrounded); slips 2.19, 1.716 and 1.75 Ω; readings 0.294 and 0.842 Ω comply', () =>
+    near(B.f, F('g.osg.B8.15').value) && near(B.lim, f4b.value) && near(B.un, 1.786) && near(B.div, F('4b.slip2').value) &&
+    near(ZC10, F('4b.slip1').value) && near(MEAS10, F('4b.slip3').value) &&
+    near(B.db, fDb.value) && near(B.dbexp, fDbExp.value) && near(B.c7lim, fC7Lim.value) && near(B.c7, fC7.value) && near(B.direct, fDirect.value) &&
+    B.db < B.lim && AZDB < B.lim && B.c7 < B.c7lim && AZC7 < B.c7lim);
+  K.check('Part 4c: 0.762, 0.778, 0.996, Zs 1.076 Ω (1.075 unrounded, 1.078 with one factor of 1.31); slips 1.055, 1.100 and 0.842 Ω; 0.053 Ω, about 5%, under the design', () =>
+    near(C.r, 0.762) && near(C.b20, 0.778) && near(C.hot, 0.996) && near(C.zs, f4c.value) && near(C.un, 1.075) && near(C.f1, 1.31) && near(C.one, 1.078) &&
+    near(C.skip, F('4c.slip1').value) && near(C.zeToo, F('4c.slip2').value) && near(B.c7, F('4c.slip3').value) &&
+    near(C.gap, fGap.value) && C.pct === 5 && near(C.cold, 0.045) && near(C.diag, 0.287) && near(C.zeLow, 0.02));
+  K.check('Changed numbers: 1.04, limit 0.728 Ω (0.729 unrounded); slips 0.87, 0.673 and 0.70 Ω; 0.74 Ω fails, though under 0.87 Ω', () =>
+    near(CH.f, 1.04) && near(CH.lim, fCh.value) && near(CH.un, 0.729) && near(CH.div, F('l9.changed.slip2').value) &&
+    near(ZC25, F('l9.changed.slip1').value) && near(MEAS25, F('l9.changed.slip3').value) && CH.read > CH.lim && CH.read < ZC25);
+  K.check('Every slip lies outside its answer\'s accepted figures', () => Object.keys(SPEC).every((k) => {
+    const sp = SPEC[k];
+    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > 0.005 && sp.accept.every((x) => Math.abs(s.value - x) > 0.005));
+  }));
+  K.check('A reading taken on a cold circuit should not exceed 80% of the tabulated value', () => near(1 / DIV, 0.8),
+    { source: 'https://www.voltimum.co.uk/news/voltimum/earth-loop-impedance-test-maximum-zs-values' });
+  K.check('Table 41.3 and the measured limits: C6 3.64 and 2.91 Ω, C10 2.19 and 1.75 Ω, C25 0.87 and 0.70 Ω', () =>
+    ZC6 === 3.64 && MEAS6 === 2.91 && ZC10 === 2.19 && MEAS10 === 1.75 && ZC25 === 0.87 && MEAS25 === 0.7,
+    { source: 'https://www.elec-mate.com/guides/maximum-zs-values-bs-7671' });
+  K.check('Four-core 4 mm² SWA: 4.61 mΩ/m a core and 6.8 mΩ/m of armour', () => RCORE === 4.61 && RARM === 6.8,
+    { source: 'https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf' });
+  K.check('Commercial installations: 5 years to the first periodic inspection', () => YEARS === 5,
+    { source: 'https://www.tidyco.co.uk/tidyco-news/post/understanding-periodic-inspection-and-testing-requirements' });
+  K.check('Industrial: 3 years', () => IND === 3,
+    { source: 'https://qbeeurope.com/documents/index/3872/808198' });
+  K.check('Measured Zs includes parallel paths, so it usually reads lower than Ze + (R1+R2)', () => AZC7 < B.c7 && AZDB < B.db,
+    { source: 'https://electrical.theiet.org/wiring-matters/years/2025/105-may-2025/minimizing-unnecessary-live-testing-for-initial-verification' });
+
+  K.ready();
+</script>
